@@ -1,6 +1,23 @@
 
 
+
 function(input, output, session) {
+  output$res <- renderPrint({
+    print(ymd(paste0(
+      substr(
+        input$utilizationSlider,
+        str_length(input$utilizationSlider) - 4,
+        str_length(input$utilizationSlider)
+      ),
+      substr(
+        input$utilizationSlider,
+        1,
+        str_length(input$utilizationSlider) - 5
+      ),
+      "01"
+    )) +
+      months(1) - 1)
+  })
   observeEvent(c(input$providerList), {
     output$currentHHs <-
       if (nrow(Utilization %>%
@@ -46,7 +63,7 @@ function(input, output, session) {
       
     }
     
-
+    
     output$currentUnitUtilization <-
       if (nrow(Utilization %>%
                filter(
@@ -134,73 +151,131 @@ function(input, output, session) {
       
     }
   })
-
-  output$SPDATScoresByCounty <- 
-    renderPlot({
-      ReportStart <- format.Date(mdy(paste0("01-01-", input$y)), "%m-%d-%Y")
-      
+  
+  output$SPDATScoresHoused <-
+    renderDataTable({
+      # ReportStart <- format.Date(mdy(paste0("01-01-", input$y)), "%m-%d-%Y")
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$spdatSlider1, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
       ReportEnd <- format.Date(mdy(paste0(
         case_when(
-          input$q == 1 ~ "03-31-",
-          input$q == 2 ~ "06-30",
-          input$q == 3 ~ "09-30-",
-          input$q == 4 ~ "12-31-"
+          substr(input$spdatSlider1, 7, 7) == 1 ~ "03-31-",
+          substr(input$spdatSlider1, 7, 7) == 2 ~ "06-30",
+          substr(input$spdatSlider1, 7, 7) == 3 ~ "09-30-",
+          substr(input$spdatSlider1, 7, 7) == 4 ~ "12-31-"
         ),
-        input$y
+        substr(input$spdatSlider1, 1, 4)
       )), "%m-%d-%Y")
-# counting all households who were scored AND SERVED between the report dates
-      CountyAverageScores <- CountyData %>%
-        filter(served_between(CountyData, 
-                              ReportStart, 
-                              ReportEnd)) %>%
-        select(CountyServed, PersonalID, Score) %>%
-        distinct() %>%
-        group_by(CountyServed) %>%
-        summarise(AverageScore = round(mean(Score), 1),
-                  HHsLHinCounty = n())
-# counting all households who ENTERED either RRH or PSH between the report dates
+      
+      # counting all households who ENTERED either RRH or PSH between the report dates
       CountyHousedAverageScores <- SPDATsByProject %>%
-        filter(entered_between(SPDATsByProject, 
-                              ReportStart, 
-                              ReportEnd)) %>%
-        group_by(CountyServed) %>%
-        summarise(HousedAverageScore = round(mean(ScoreAdjusted), 1),
-                  HHsHousedInCounty = n())
-# pulling in both averages for each county plus adding Region for grouping      
-      Compare <-
-        full_join(CountyAverageScores,
-                  CountyHousedAverageScores,
-                  by = "CountyServed") %>%
-        arrange(CountyServed) %>%
+        filter(entered_between(SPDATsByProject,
+                               ReportStart,
+                               ReportEnd)) %>%
         left_join(., Regions, by = c("CountyServed" = "County")) %>%
-        filter(RegionName == input$regionList)
-# the plot      
-      ggplot(
-        Compare,
-        aes(x = CountyServed, y = AverageScore)
-      ) +
-        geom_point(
-          aes(x = CountyServed, y = AverageScore),
-          size = 14,
-          shape = 95
-        ) +
-        scale_y_continuous(limits = c(0,17)) +
-        theme(axis.text.x = element_text(size = 10)) +
-        geom_point(
-          aes(x = CountyServed, y = HousedAverageScore),
-          size = 8,
-          shape = 17,
-          colour = "#56B4E9"
-        ) +
-        xlab(input$regionList) +
-        ylab("Average SPDAT Score") +
-        ggtitle(paste("Date Range:", ReportStart, "to", ReportEnd)) +
-        theme_light() + 
-        theme(plot.title = element_text(lineheight = 1, size = rel(1.8)),
-              axis.text.x = element_text(size = rel(1.8)),
-              axis.text.y = element_text(size = rel(1.8)),
-              axis.title = element_text(size = rel(1.8)),
-              plot.margin = margin(t = 15, r = 15, b = 15, l = 15))
+        filter(RegionName == input$regionList1) %>%
+        select(ClientID = PersonalID, Project = ProjectName, EntryDate,
+               CountyServed, ScoreDate = StartDate, Score, ScoreAdjusted)
+
+      CountyHousedAverageScores
+      
+    })
+  
+  output$SPDATScoresServedInCounty <-
+    renderDataTable({
+      # ReportStart <- format.Date(mdy(paste0("01-01-", input$y)), "%m-%d-%Y")
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$spdatSlider2, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$spdatSlider2, 7, 7) == 1 ~ "03-31-",
+          substr(input$spdatSlider2, 7, 7) == 2 ~ "06-30",
+          substr(input$spdatSlider2, 7, 7) == 3 ~ "09-30-",
+          substr(input$spdatSlider2, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$spdatSlider2, 1, 4)
+      )), "%m-%d-%Y")
+      # counting all households who were scored AND SERVED between the report dates
+      CountyAverageScores <- CountyData %>%
+        filter(served_between(CountyData,
+                              ReportStart,
+                              ReportEnd)) %>%
+        left_join(., Regions, by = c("CountyServed" = "County")) %>%
+        filter(RegionName == input$regionList2) %>%      
+        select(Project = ProjectName, 
+               ClientID = PersonalID, 
+               EntryDate, 
+               ExitDate, 
+               CountyServed, 
+               Score) 
+      
+      CountyAverageScores
+      
+    })
+  
+  output$bedPlot <-
+    renderPlot({
+      ReportEnd <- ymd(paste0(
+        substr(
+          input$utilizationSlider,
+          str_length(input$utilizationSlider) - 4,
+          str_length(input$utilizationSlider)
+        ),
+        substr(
+          input$utilizationSlider,
+          1,
+          str_length(input$utilizationSlider) - 5
+        ),
+        "01"
+      )) +
+        months(1) - 1
+      ReportStart <- floor_date(ymd(ReportEnd), unit = "month") -
+        years(1) +
+        months(1)
+      ReportingPeriod <- interval(ymd(ReportStart), ymd(ReportEnd))
+      
+      bedPlot <- BedUtilization %>% select(-FilePeriod) %>%
+        gather("Month",
+               "Utilization",-ProjectID,-ProjectName,-ProjectType) %>%
+        filter(
+          ProjectName == input$providerListUtilization,
+          mdy(Month) %within% ReportingPeriod
+        ) %>%
+        mutate(
+          Month = floor_date(mdy(Month), unit = "month"),
+          Bed = Utilization,
+          Utilization = NULL
+        )
+      
+      unitPlot <- UnitUtilization %>% select(-FilePeriod) %>%
+        gather("Month",
+               "Utilization",-ProjectID,-ProjectName,-ProjectType) %>%
+        filter(
+          ProjectName == input$providerListUtilization,
+          mdy(Month) %within% ReportingPeriod
+        ) %>%
+        mutate(
+          Month = floor_date(mdy(Month), unit = "month"),
+          Unit = Utilization,
+          Utilization = NULL
+        )
+      
+      utilizationPlot <- unitPlot %>%
+        full_join(bedPlot,
+                  by = c("ProjectID", "ProjectName", "ProjectType", "Month")) %>%
+        gather(
+          "UtilizationType",
+          "Utilization",-ProjectID,
+          -ProjectName,
+          -ProjectType,
+          -Month
+        ) %>%
+        arrange(Month)
+      
     })
   
   output$CountyScoresText <-
