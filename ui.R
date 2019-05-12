@@ -1,11 +1,9 @@
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "R minor"),
+  dashboardHeader(title = "R minor _elevated_"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
-      # menuItem("Provider Dashboard",
-      #          tabName = "providerDashboardTab"),
       menuItem(
         "Prioritization",
         menuSubItem("Prioritization List",
@@ -23,8 +21,28 @@ dashboardPage(
         "Performance and Outcomes",
         menuSubItem("Bed and Unit Utilization",
                     tabName = "utilizationTab"),
-        menuSubItem("Community Need (by County)",
-                    tabName = "spdatTab")
+        menuItem("Community Need",
+                    tabName = "spdatTab",
+                 menuSubItem("PSH/RRH Detail",
+                             tabName = "spdatTab1"),
+                 menuSubItem("County Detail",
+                             tabName = "spdatTab2")),
+        menuSubItem("Length of Stay",
+                    tabName = "LoSTab"),
+        menuSubItem("Exits to Permanent Housing",
+                    tabName = "PHTab"),
+        menuSubItem("Non-Cash Benefits at Exit",
+                    tabName = "NCBTab"),
+        menuSubItem("Health Insurance at Exit",
+                    tabName = "HITab"),
+        menuSubItem("Income Growth",
+                    tabName = "incomeTab"),
+        menuSubItem("Recurrence",
+                    tabName = "recurrenceTab"),
+        menuSubItem("Rapid Placement for RRH",
+                    tabName = "rapidTab"),
+        menuSubItem("RRH HP Spending",
+                    tabName = "spendingTab")
       )
     ),
     HTML(paste0(
@@ -35,68 +53,70 @@ dashboardPage(
   ),
   dashboardBody(
     tabItems(
-      # tabItem(
-      #   tabName = "providerDashboardTab",
-      #   pickerInput(
-      #     inputId = "providerList",
-      #     choices = c(providerids$ProjectName),
-      #     options = list(`live-search` = TRUE),
-      #     width = "100%"
-      #   ),
-      #   infoBoxOutput("currentHHs"),
-      #   infoBoxOutput("currentUnits"),
-      #   infoBoxOutput("currentUnitUtilization"),
-      #   infoBoxOutput("currentClients"),
-      #   infoBoxOutput("currentBeds"),
-      #   infoBoxOutput("currentBedUtilization")
-      # ),
-      
       tabItem(tabName = "prioritizationListTab"),
       tabItem(tabName = "contactTab"),
       tabItem(tabName = "vetActiveListTab"),
       tabItem(tabName = "dqTab"),
       tabItem(tabName = "cocCompetitionTab"),
-      tabItem(tabName = "utilizationTab"),
+      tabItem(tabName = "LoSTab"),
+      tabItem(tabName = "PHTab"),
+      tabItem(tabName = "NCBTab"),
+      tabItem(tabName = "HITab"),
+      tabItem(tabName = "incomeTab"),
+      tabItem(tabName = "recurrenceTab"),
+      tabItem(tabName = "rapidTab"),
+      tabItem(tabName = "spendingTab"),
       tabItem(
-        tabName = "spdatTab",
+        tabName = "utilizationTab",
         pickerInput(
-          inputId = "regionList",
+          inputId = "providerListUtilization",
+          choices = c(sort(BedUtilization$ProjectName)),
+          options = list(`live-search` = TRUE),
+          width = "100%"
+        ),
+        setSliderColor("#56B4E9", 1),
+        sliderTextInput(
+          "utilizationSlider",
+          label = "Select END DATE",
+          choices = choices_month,
+          selected = choices_month[24]
+        )
+      ),
+      tabItem(
+        tabName = "spdatTab1",
+        pickerInput(
+          inputId = "regionList1",
           choices = c(unique(Regions$RegionName)),
           options = list(`live-search` = TRUE),
           width = "70%"
         ),
         chooseSliderSkin("Round"),
         setSliderColor("#56B4E9", c(1, 2)),
-        sliderInput(
-          "y",
-          "",
-          year(today()) - 2,
-          year(today()),
-          year(today()),
-          sep = "",
-          ticks = FALSE
+        sliderTextInput("spdatSlider1",
+                        "",
+                        c(
+                          unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                        ),
+                        selected = Sys.yearqtr() - 1 / 4),
+        dataTableOutput("SPDATScoresHoused")
+      ),
+      tabItem(
+        tabName = "spdatTab2",
+        pickerInput(
+          inputId = "regionList2",
+          choices = c(unique(Regions$RegionName)),
+          options = list(`live-search` = TRUE),
+          width = "70%"
         ),
-        sliderInput(
-          "q", "", 1, 4,
-          if_else(quarter(today()) - 1 == 0, 1,
-                  quarter(today()) - 1),
-          ticks = FALSE,
-          pre = "Q"
-        ),
-        plotOutput("SPDATScoresByCounty"),
-        HTML("<br>"),
-        box(textOutput("CountyScoresText"), 
-            title = "The Lines",
-            collapsible = TRUE, 
-            collapsed = TRUE),
-        box(textOutput("HHsServedScoresText"), 
-            title = "The Triangles",
-            collapsible = TRUE, 
-            collapsed = TRUE),
-        box(textOutput("NoteToUsers"), 
-            title = "A Note about Data Quality",
-            collapsible = TRUE, 
-            collapsed = TRUE)
+        chooseSliderSkin("Round"),
+        setSliderColor("#56B4E9", c(1, 2)),
+        sliderTextInput("spdatSlider2",
+                        "",
+                        c(
+                          unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                        ),
+                        selected = Sys.yearqtr() - 1 / 4),
+        dataTableOutput("SPDATScoresServedInCounty")
       )
     )
   )
