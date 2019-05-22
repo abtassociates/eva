@@ -127,29 +127,29 @@ function(input, output, session) {
         })
       }
     else{
-      
+
     }
     
-    output$currentBedUtilization <-
-      if (nrow(Utilization %>%
-               filter(
-                 ProjectName == input$providerList &
-                 ProjectType %in% c(1, 2, 3, 8, 9)
-               )) > 0) {
-        renderInfoBox({
-          infoBox(
-            "Current Bed Utilization",
-            color = "purple",
-            icon = icon("bed"),
-            Utilization %>%
-              filter(ProjectName == input$providerList) %>%
-              select(BedUtilization)
-          )
-        })
-      }
-    else{
-      
-    }
+  #   output$currentBedUtilization <-
+  #     if (nrow(Utilization %>%
+  #              filter(
+  #                ProjectName == input$providerList &
+  #                ProjectType %in% c(1, 2, 3, 8, 9)
+  #              )) > 0) {
+  #       renderInfoBox({
+  #         infoBox(
+  #           "Current Bed Utilization",
+  #           color = "purple",
+  #           icon = icon("bed"),
+  #           Utilization %>%
+  #             filter(ProjectName == input$providerList) %>%
+  #             select(BedUtilization)
+  #         )
+  #       })
+  #     }
+  #   else{
+  #     
+  #   }
   })
   
   output$SPDATScoresHoused <-
@@ -217,73 +217,34 @@ function(input, output, session) {
       
     })
   
-  output$bedPlot <-
-    renderPlot({
-      ReportEnd <- ymd(paste0(
-        substr(
-          input$utilizationSlider,
-          str_length(input$utilizationSlider) - 4,
-          str_length(input$utilizationSlider)
+  output$utilizationDetail <-
+    renderDataTable({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$utilizationSlider, 1, 4), 
+        "-01-01")), "%m-%d-%Y")
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$utilizationSlider, 7, 7) == 1 ~ "03-31-",
+          substr(input$utilizationSlider, 7, 7) == 2 ~ "06-30",
+          substr(input$utilizationSlider, 7, 7) == 3 ~ "09-30-",
+          substr(input$utilizationSlider, 7, 7) == 4 ~ "12-31-"
         ),
-        substr(
-          input$utilizationSlider,
-          1,
-          str_length(input$utilizationSlider) - 5
-        ),
-        "01"
-      )) +
-        months(1) - 1
-      ReportStart <- floor_date(ymd(ReportEnd), unit = "month") -
-        years(1) +
-        months(1)
-      ReportingPeriod <- interval(ymd(ReportStart), ymd(ReportEnd))
-      
-      bedPlot <- BedUtilization %>% select(-FilePeriod) %>%
-        gather("Month",
-               "Utilization",-ProjectID,-ProjectName,-ProjectType) %>%
-        filter(
-          ProjectName == input$providerListUtilization,
-          mdy(Month) %within% ReportingPeriod
-        ) %>%
-        mutate(
-          Month = floor_date(mdy(Month), unit = "month"),
-          Bed = Utilization,
-          Utilization = NULL
-        )
-      
-      unitPlot <- UnitUtilization %>% select(-FilePeriod) %>%
-        gather("Month",
-               "Utilization",-ProjectID,-ProjectName,-ProjectType) %>%
-        filter(
-          ProjectName == input$providerListUtilization,
-          mdy(Month) %within% ReportingPeriod
-        ) %>%
-        mutate(
-          Month = floor_date(mdy(Month), unit = "month"),
-          Unit = Utilization,
-          Utilization = NULL
-        )
-      
-      utilizationPlot <- unitPlot %>%
-        full_join(bedPlot,
-                  by = c("ProjectID", "ProjectName", "ProjectType", "Month")) %>%
-        gather(
-          "UtilizationType",
-          "Utilization",-ProjectID,
-          -ProjectName,
-          -ProjectType,
-          -Month
-        ) %>%
-        arrange(Month)
+        substr(input$utilizationSlider, 1, 4)
+      )), "%m-%d-%Y")
+
+      ClientUtilizers %>% 
+        filter(ProjectName == input$providerListUtilization,
+               served_between(., ReportStart, ReportEnd)) %>%
+        select(-ProjectID, -ProjectType, -EnrollmentID, -FilePeriod)
       
     })
   
-  output$CountyScoresText <-
-    renderText(hhsServedInCounty)
-  
-  output$HHsServedScoresText <-
-    renderText(hhsHousedInCounty)
-  
-  output$NoteToUsers <-
-    renderText(noteToUsers)
+  # output$CountyScoresText <-
+  #   renderText(hhsServedInCounty)
+  # 
+  # output$HHsServedScoresText <-
+  #   renderText(hhsHousedInCounty)
+  # 
+  # output$NoteToUsers <-
+  #   renderText(noteToUsers)
 }
