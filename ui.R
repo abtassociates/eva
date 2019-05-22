@@ -80,7 +80,8 @@ dashboardPage(
           label = "Select END DATE",
           choices = choices_month,
           selected = choices_month[24]
-        )
+        ),
+        dataTableOutput("utilizationDetail")
       ),
       tabItem(
         tabName = "spdatTab1",
