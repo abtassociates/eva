@@ -4,7 +4,7 @@
 
 function(input, output, session) {
   output$res <- renderPrint({
-    input$utilizationDate
+    format(ymd(input$utilizationDate), "%B %Y")
   })
   observeEvent(c(input$providerList), {
     output$currentHHs <-
@@ -228,19 +228,21 @@ function(input, output, session) {
                   "01",
                   substr(input$utilizationDate, 1, 4))
       
-      ClientUtilizers %>%
+      z <- paste("Bed Nights in", format(ymd(input$utilizationDate), "%B %Y"))
+      
+      a <- ClientUtilizers %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate)) %>%
-        select(
-          "Client ID" = PersonalID,
-          "Bed Start" = BedStart,
-          "Exit Date" = ExitDate,
-          "Bed Nights in Month" = y
-        )
+        select(PersonalID, BedStart, ExitDate, y)
+      z <- paste("Bed Nights in", format(ymd(input$utilizationDate), "%B %Y")) 
+      
+      colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
+      
+      a 
       
     })
   
