@@ -68,7 +68,7 @@ dashboardPage(
       tabItem(tabName = "spendingTab"),
       tabItem(
         tabName = "utilizationTab",
-        # verbatimTextOutput("res"),
+        htmlOutput("headerUtilization"),
         pickerInput(
           inputId = "providerListUtilization",
           choices = c(sort(BedUtilization$ProjectName)),
