@@ -3,8 +3,8 @@
 
 
 function(input, output, session) {
-  output$res <- renderPrint({
-    format(ymd(input$utilizationDate), "%B %Y")
+  output$headerUtilization <- renderUI({
+    h1(format(ymd(input$utilizationDate), "%B %Y"))
   })
   observeEvent(c(input$providerList), {
     output$currentHHs <-
