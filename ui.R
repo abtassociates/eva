@@ -68,25 +68,19 @@ dashboardPage(
       tabItem(tabName = "spendingTab"),
       tabItem(
         tabName = "utilizationTab",
+        # verbatimTextOutput("res"),
         pickerInput(
           inputId = "providerListUtilization",
           choices = c(sort(BedUtilization$ProjectName)),
           options = list(`live-search` = TRUE),
           width = "100%"
         ),
-        verbatimTextOutput("res"),
         dateInput(inputId = "utilizationDate",
                   label = "Enter any Date in the Month",
                   max = today(),
                   format = "mm-dd-yyyy",
                   startview = "year",
                   value = floor_date(today(), unit = "month") - months(1),
-        # setSliderColor("#56B4E9", 1),
-        # sliderTextInput(
-        #   "utilizationSlider",
-        #   label = "Select END DATE",
-        #   choices = choices_month,
-        #   selected = choices_month[24]
         ),
         dataTableOutput("utilizationDetail")
       ),
