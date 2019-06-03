@@ -15,7 +15,7 @@ ReportEnd <- format(ymd(ReportEnd), "%m-%d-%Y")
 
 y <- paste0(substr(x, 6, 7), "01", substr(x, 1, 4))
 
-ClientUtilizers %>% 
+a <- ClientUtilizers %>% 
   filter(ProjectName == "Allen - Lima Samaritan House - ESap",
          served_between(., ReportStart, ReportEnd)) %>%
   mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
@@ -23,6 +23,11 @@ ClientUtilizers %>%
   select("Client ID" = PersonalID, 
          "Bed Start" = BedStart,
          "Exit Date" = ExitDate, 
-         "Bed Nights in Month" = y) %>% view()
+         y) 
 
+z <- paste("Bed Nights in", format(ymd(x), "%B %Y")) 
+
+colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
+
+a %>% view()
 
