@@ -4,7 +4,8 @@
 
 function(input, output, session) {
   output$headerUtilization <- renderUI({
-    h1(format(ymd(input$utilizationDate), "%B %Y"))
+    list(h2(input$providerListUtilization),
+      h3(format(ymd(input$utilizationDate), "%B %Y")))
   })
   
   output$headerLoS <- renderUI({
