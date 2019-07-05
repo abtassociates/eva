@@ -6,6 +6,29 @@ function(input, output, session) {
   output$headerUtilization <- renderUI({
     h1(format(ymd(input$utilizationDate), "%B %Y"))
   })
+  
+  output$headerLoS <- renderUI({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$LoSSlider1, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$LoSSlider1, 7, 7) == 1 ~ "03-31-",
+        substr(input$LoSSlider1, 7, 7) == 2 ~ "06-30",
+        substr(input$LoSSlider1, 7, 7) == 3 ~ "09-30-",
+        substr(input$LoSSlider1, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$LoSSlider1, 1, 4)
+    )), "%m-%d-%Y")
+    
+    list(h2(input$LoSProjectList),
+    h3(paste(format(mdy(ReportStart), "%B %Y"), 
+             "to", 
+             format(mdy(ReportEnd), "%B %Y"))))
+  })
+  
   observeEvent(c(input$providerList), {
     output$currentHHs <-
       if (nrow(Utilization %>%
@@ -243,6 +266,41 @@ function(input, output, session) {
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
       
       a 
+      
+    })
+  
+  output$LoSDetail <- 
+    renderDataTable({
+      
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$LoSSlider1, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$LoSSlider1, 7, 7) == 1 ~ "03-31-",
+          substr(input$LoSSlider1, 7, 7) == 2 ~ "06-30",
+          substr(input$LoSSlider1, 7, 7) == 3 ~ "09-30-",
+          substr(input$LoSSlider1, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$LoSSlider1, 1, 4)
+      )), "%m-%d-%Y")
+      
+      LoSDetail <- QPR_EEs %>%
+        filter((
+          (!is.na(MoveInDateAdjust) & ProjectType == 13) |
+          (!is.na(ExitDate) & ProjectType %in% c(1, 2, 8))
+          ) &
+          exited_between(., ReportStart, ReportEnd) &
+          ProjectName == input$LoSProjectList) %>%
+        arrange(desc(DaysinProject)) %>%
+        select("Client ID" = PersonalID, 
+               "Bed Start" = EntryAdjust, 
+               "Exit Date" = ExitDate, 
+               "Days in Project" = DaysinProject) 
+      
+      LoSDetail
       
     })
   

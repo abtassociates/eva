@@ -58,7 +58,25 @@ dashboardPage(
       tabItem(tabName = "vetActiveListTab"),
       tabItem(tabName = "dqTab"),
       tabItem(tabName = "cocCompetitionTab"),
-      tabItem(tabName = "LoSTab"),
+      tabItem(tabName = "LoSTab",
+              htmlOutput("headerLoS"),
+              pickerInput(
+                inputId = "LoSProjectList",
+                choices = c(unique(
+                  QPR_EEs$ProjectName[QPR_EEs$ProjectType %in% c(1, 2, 8, 13)])),
+                options = list(`live-search` = TRUE),
+                width = "70%"
+              ),
+              chooseSliderSkin("Round"),
+              setSliderColor("#56B4E9", c(1, 2)),
+              sliderTextInput("LoSSlider1",
+                              "",
+                              c(
+                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                              ),
+                              selected = Sys.yearqtr() - 1 / 4),
+              dataTableOutput("LoSDetail")
+              ),
       tabItem(tabName = "PHTab"),
       tabItem(tabName = "NCBTab"),
       tabItem(tabName = "HITab"),
