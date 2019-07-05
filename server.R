@@ -30,6 +30,15 @@ function(input, output, session) {
              format(mdy(ReportEnd), "%B %Y"))))
   })
   
+  output$headerHome <- renderUI({
+    list(
+      h1("R minor _elevated_"),
+      h5("Please select a report in the left sidebar.")
+    )
+  })
+  
+  output$headerUnderConstruction <- renderText(h1("Under Construction"))
+  
   observeEvent(c(input$providerList), {
     output$currentHHs <-
       if (nrow(Utilization %>%
