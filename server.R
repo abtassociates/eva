@@ -32,8 +32,23 @@ function(input, output, session) {
   
   output$headerHome <- renderUI({
     list(
-      h1("R minor _elevated_"),
-      h5("Please select a report in the left sidebar.")
+      h1("Welcome"),
+      p(
+        "R minor _elevated_ is intended for use by Ohio Balance of State HMIS
+        users. This site requires a login because client-level data is shown 
+        (without Personally Identifying Information). Please use this 
+        site to verify that your HMIS data is accurate and complete."
+      ),      
+      p(
+        "R minor is a separate COHHIO site used for Ohio Balance of State CoC
+        performance reporting. Visitors to R minor will include HMIS users,
+        program executives, funders, government representatives, advocates, and
+        other interested parties. R minor contains no client-level data."
+      ),
+      br(),
+      p(
+        "We're glad you're here! Please select a report in the left sidebar."
+      )
     )
   })
   

@@ -56,7 +56,7 @@ dashboardPage(
   dashboardBody(
     tabItems(
       tabItem(tabName = "homeTab",
-              htmlOutput("headerHome")),
+              htmlOutput("headerHome"), width = 9),
       # tabItem(tabName = "prioritizationListTab"),
       # tabItem(tabName = "contactTab"),
       # tabItem(tabName = "vetActiveListTab"),
@@ -64,7 +64,7 @@ dashboardPage(
       # tabItem(tabName = "cocCompetitionTab"),
       tabItem(tabName = "LoSTab",
               htmlOutput("headerLoS"),
-              pickerInput(
+              fluidRow(box(pickerInput(
                 inputId = "LoSProjectList",
                 choices = c(unique(
                   QPR_EEs$ProjectName[QPR_EEs$ProjectType %in% c(1, 2, 8, 13)])),
@@ -78,23 +78,23 @@ dashboardPage(
                               c(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
-                              selected = Sys.yearqtr() - 1 / 4),
+                              selected = Sys.yearqtr() - 1 / 4), width = 12)),
               dataTableOutput("LoSDetail")
               ),
       tabItem(tabName = "PHTab",
-              HTML("<h1>Under Construction</h1>")),
+              box(HTML("<h1>Under Construction</h1>"))),
       tabItem(tabName = "NCBTab",
-              HTML("<h1>Under Construction</h1>")),
+              box(HTML("<h1>Under Construction</h1>"))),
       tabItem(tabName = "HITab",
-              HTML("<h1>Under Construction</h1>")),
+              box(HTML("<h1>Under Construction</h1>"))),
       tabItem(tabName = "incomeTab",
-              HTML("<h1>Under Construction</h1>")),
+              box(HTML("<h1>Under Construction</h1>"))),
       tabItem(tabName = "recurrenceTab",
-              HTML("<h1>Under Construction</h1>")),
+              box(HTML("<h1>Under Construction</h1>"))),
       tabItem(tabName = "rapidTab",
-              HTML("<h1>Under Construction</h1>")),
+              box(HTML("<h1>Under Construction</h1>"))),
       tabItem(tabName = "spendingTab",
-              HTML("<h1>Under Construction</h1>")),
+              box(HTML("<h1>Under Construction</h1>"))),
       tabItem(
         tabName = "utilizationTab",
         htmlOutput("headerUtilization"),
