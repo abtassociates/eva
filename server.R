@@ -34,7 +34,51 @@ function(input, output, session) {
              format(mdy(ReportEnd), "%B %Y"))))
   })
   
+  output$headerCommunityNeedPH <- renderUI({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$spdatSlider1, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$spdatSlider1, 7, 7) == 1 ~ "03-31-",
+        substr(input$spdatSlider1, 7, 7) == 2 ~ "06-30",
+        substr(input$spdatSlider1, 7, 7) == 3 ~ "09-30-",
+        substr(input$spdatSlider1, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$spdatSlider1, 1, 4)
+    )), "%m-%d-%Y")
+    
+    list(
+      h2("Community Need, Entered Permanent Housing"),
+      h4(input$regionList1),
+      h4(paste(format(mdy(ReportStart), "%B %Y"), 
+               "to", 
+               format(mdy(ReportEnd), "%B %Y"))))
+  })
   
+  output$headerCommunityNeedCounty <- renderUI({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$spdatSlider2, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$spdatSlider2, 7, 7) == 1 ~ "03-31-",
+        substr(input$spdatSlider2, 7, 7) == 2 ~ "06-30",
+        substr(input$spdatSlider2, 7, 7) == 3 ~ "09-30-",
+        substr(input$spdatSlider2, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$spdatSlider2, 1, 4)
+    )), "%m-%d-%Y")
+    
+    list(
+      h2("Community Need, Literally Homeless in the County"),
+      h4(input$regionList2),
+      h4(paste(format(mdy(ReportStart), "%B %Y"), 
+               "to", 
+               format(mdy(ReportEnd), "%B %Y"))))
+  })
   
   output$headerHome <- renderUI({
     list(
