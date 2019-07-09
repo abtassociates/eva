@@ -4,8 +4,10 @@
 
 function(input, output, session) {
   output$headerUtilization <- renderUI({
-    list(h2(input$providerListUtilization),
-      h3(format(ymd(input$utilizationDate), "%B %Y")))
+    list(
+      h2("Bed and Unit Utilization"),
+      h4(input$providerListUtilization),
+      h4(format(ymd(input$utilizationDate), "%B %Y")))
   })
   
   output$headerLoS <- renderUI({
@@ -24,11 +26,15 @@ function(input, output, session) {
       substr(input$LoSSlider1, 1, 4)
     )), "%m-%d-%Y")
     
-    list(h2(input$LoSProjectList),
-    h3(paste(format(mdy(ReportStart), "%B %Y"), 
+    list(
+      h2("Length of Stay"),
+      h4(input$LoSProjectList),
+      h4(paste(format(mdy(ReportStart), "%B %Y"), 
              "to", 
              format(mdy(ReportEnd), "%B %Y"))))
   })
+  
+  
   
   output$headerHome <- renderUI({
     list(
