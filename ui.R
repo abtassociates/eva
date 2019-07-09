@@ -63,8 +63,8 @@ dashboardPage(
       # tabItem(tabName = "dqTab"),
       # tabItem(tabName = "cocCompetitionTab"),
       tabItem(tabName = "LoSTab",
-              htmlOutput("headerLoS"),
-              fluidRow(box(pickerInput(
+              box(htmlOutput("headerLoS"), width = 12),
+              fluidRow(pickerInput(
                 inputId = "LoSProjectList",
                 choices = c(unique(
                   QPR_EEs$ProjectName[QPR_EEs$ProjectType %in% c(1, 2, 8, 13)])),
@@ -78,7 +78,7 @@ dashboardPage(
                               c(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
-                              selected = Sys.yearqtr() - 1 / 4), width = 12)),
+                              selected = Sys.yearqtr() - 1 / 4)),
               dataTableOutput("LoSDetail")
               ),
       tabItem(tabName = "PHTab",
@@ -97,7 +97,7 @@ dashboardPage(
               HTML("<h1>Under Construction</h1>")),
       tabItem(
         tabName = "utilizationTab",
-        htmlOutput("headerUtilization"),
+        box(htmlOutput("headerUtilization"), width = 12),
         pickerInput(
           inputId = "providerListUtilization",
           choices = c(sort(BedUtilization$ProjectName)),
