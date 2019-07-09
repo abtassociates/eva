@@ -44,10 +44,12 @@ function(input, output, session) {
         users. This site requires a login because client-level data is shown
         (without Personally Identifying Information). Please use this
         site to verify that your HMIS data is accurate and complete.
-        <p><a href=\"https://ohiobalanceofstatecoc.shinyapps.io/Rminor\" target=\"_blank\">R minor</a> is a separate COHHIO site used for Ohio Balance of State CoC
-        performance reporting. Visitors to R minor will include HMIS users,
-        program executives, funders, government representatives, advocates, and
-        other interested parties. R minor contains no client-level data.<br><br>
+        <p><a href=\"https://ohiobalanceofstatecoc.shinyapps.io/Rminor\" 
+        target=\"_blank\">R minor</a> is a separate COHHIO site used for Ohio 
+        Balance of State CoC performance reporting. Visitors to R minor will 
+        include HMIS users, program executives, funders, government 
+        representatives, advocates, and other interested parties. R minor 
+        contains no client-level data.<br><br>
         <p>We're glad you're here! Please select a report in the left sidebar."
       )
     )
