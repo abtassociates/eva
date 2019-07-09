@@ -115,6 +115,7 @@ dashboardPage(
       ),
       tabItem(
         tabName = "spdatTab1",
+        box(htmlOutput("headerCommunityNeedPH"), width = 12),
         pickerInput(
           inputId = "regionList1",
           choices = c(unique(Regions$RegionName)),
@@ -133,6 +134,7 @@ dashboardPage(
       ),
       tabItem(
         tabName = "spdatTab2",
+        box(htmlOutput("headerCommunityNeedCounty"), width = 12),
         pickerInput(
           inputId = "regionList2",
           choices = c(unique(Regions$RegionName)),
