@@ -80,6 +80,29 @@ function(input, output, session) {
                format(mdy(ReportEnd), "%B %Y"))))
   })
   
+  output$headerExitsToPH <- renderUI({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$ExitsToPHSlider, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$ExitsToPHSlider, 7, 7) == 1 ~ "03-31-",
+        substr(input$ExitsToPHSlider, 7, 7) == 2 ~ "06-30",
+        substr(input$ExitsToPHSlider, 7, 7) == 3 ~ "09-30-",
+        substr(input$ExitsToPHSlider, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$ExitsToPHSlider, 1, 4)
+    )), "%m-%d-%Y")
+    
+    list(
+      h2("Successful Placement Detail"),
+      h4(input$ExitsToPHProjectList),
+      h4(paste(format(mdy(ReportStart), "%B %Y"), 
+               "to", 
+               format(mdy(ReportEnd), "%B %Y"))))
+  })
+  
   output$headerHome <- renderUI({
     list(
       h1("Welcome"),
@@ -100,145 +123,8 @@ function(input, output, session) {
   
   })
   
-  output$headerUnderConstruction <- renderText(h1("Under Construction"))
-  
-  observeEvent(c(input$providerList), {
-    output$currentHHs <-
-      if (nrow(Utilization %>%
-               filter(
-                 ProjectName == input$providerList &
-                 ProjectType %in% c(1, 2, 3, 8, 9)
-               )) > 0)
-      {
-        renderInfoBox({
-          infoBox(
-            "Current Households",
-            color = "aqua",
-            icon = icon("users"),
-            Utilization %>%
-              filter(ProjectName == input$providerList) %>%
-              select(Households)
-          )
-        })
-      }
-    else{
-      
-    }
-    
-    output$currentUnits <-
-      if (nrow(Utilization %>%
-               filter(
-                 ProjectName == input$providerList &
-                 ProjectType %in% c(1, 2, 3, 8, 9)
-               )) > 0)
-      {
-        renderInfoBox({
-          infoBox(
-            "Unit Capacity",
-            color = "aqua",
-            icon = icon("building"),
-            Utilization %>%
-              filter(ProjectName == input$providerList) %>%
-              select(UnitCount)
-          )
-        })
-      }
-    else{
-      
-    }
-    
-    
-    output$currentUnitUtilization <-
-      if (nrow(Utilization %>%
-               filter(
-                 ProjectName == input$providerList &
-                 ProjectType %in% c(1, 2, 3, 8, 9)
-               )) > 0)
-      {
-        renderInfoBox({
-          infoBox(
-            "Current Unit Utilization",
-            color = "aqua",
-            icon = icon("building"),
-            Utilization %>%
-              filter(ProjectName == input$providerList) %>%
-              select(UnitUtilization)
-          )
-        })
-      }
-    else{
-      
-    }
-    
-    output$currentClients <-
-      if (nrow(Utilization %>%
-               filter(
-                 ProjectName == input$providerList &
-                 ProjectType %in% c(1, 2, 3, 8, 9)
-               )) > 0)
-      {
-        renderInfoBox({
-          infoBox(
-            "Current Clients",
-            color = "purple",
-            icon = icon("user"),
-            Utilization %>%
-              filter(ProjectName == input$providerList) %>%
-              select(Clients)
-          )
-        })
-      }
-    else{
-      
-    }
-    
-    output$currentBeds <-
-      if (nrow(Utilization %>%
-               filter(
-                 ProjectName == input$providerList &
-                 ProjectType %in% c(1, 2, 3, 8, 9)
-               )) > 0)
-      {
-        renderInfoBox({
-          infoBox(
-            "Bed Capacity",
-            color = "purple",
-            icon = icon("bed"),
-            Utilization %>%
-              filter(ProjectName == input$providerList) %>%
-              select(BedCount)
-          )
-        })
-      }
-    else{
-      
-    }
-    
-    #   output$currentBedUtilization <-
-    #     if (nrow(Utilization %>%
-    #              filter(
-    #                ProjectName == input$providerList &
-    #                ProjectType %in% c(1, 2, 3, 8, 9)
-    #              )) > 0) {
-    #       renderInfoBox({
-    #         infoBox(
-    #           "Current Bed Utilization",
-    #           color = "purple",
-    #           icon = icon("bed"),
-    #           Utilization %>%
-    #             filter(ProjectName == input$providerList) %>%
-    #             select(BedUtilization)
-    #         )
-    #       })
-    #     }
-    #   else{
-    #
-    #   }
-  })
-  
   output$SPDATScoresHoused <-
     renderDataTable({
-      # ReportStart <- format.Date(mdy(paste0("01-01-", input$y)), "%m-%d-%Y")
       ReportStart <- format.Date(ymd(paste0(
         substr(input$spdatSlider1, 1, 4),
         "-01-01"
@@ -261,13 +147,13 @@ function(input, output, session) {
         left_join(., Regions, by = c("CountyServed" = "County")) %>%
         filter(RegionName == input$regionList1) %>%
         select(
-          ClientID = PersonalID,
+          "Client ID" = PersonalID,
           Project = ProjectName,
-          EntryDate,
-          CountyServed,
-          ScoreDate = StartDate,
+          "Entry Date" = EntryDate,
+          "County Served" = CountyServed,
+          "Score Date" = StartDate,
           Score,
-          ScoreAdjusted
+          "Score Adjusted" = ScoreAdjusted
         )
       
       CountyHousedAverageScores
@@ -299,10 +185,10 @@ function(input, output, session) {
         filter(RegionName == input$regionList2) %>%
         select(
           Project = ProjectName,
-          ClientID = PersonalID,
-          EntryDate,
-          ExitDate,
-          CountyServed,
+          "Client ID" = PersonalID,
+          "Entry Date" = EntryDate,
+          "Exit Date" = ExitDate,
+          "County Served" = CountyServed,
           Score
         )
       
@@ -340,6 +226,60 @@ function(input, output, session) {
       
       a 
       
+    })
+  
+  output$utilizationSummary <-
+    renderInfoBox({
+      ReportStart <-
+        format(floor_date(ymd(input$utilizationDate),
+                          unit = "month"), "%m-%d-%Y")
+      ReportEnd <-
+        format(floor_date(ymd(input$utilizationDate) + months(1),
+                          unit = "month") - days(1),
+               "%m-%d-%Y")
+      
+      y <- paste0(substr(input$utilizationDate, 6, 7),
+                  "01",
+                  substr(input$utilizationDate, 1, 4))
+      
+      a <- ClientUtilizers %>%
+        filter(
+          ProjectName == input$providerListUtilization,
+          served_between(., ReportStart, ReportEnd)
+        ) %>%
+        mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
+                                  MoveInDate, EntryDate)) %>%
+        select(PersonalID, BedStart, ExitDate, y)
+
+      colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
+      
+      beds <- Utilization %>%
+        filter(ProjectName == input$providerListUtilization) %>%
+        select(BedCount)
+      
+      # units <- Utilization %>%
+      #   filter(ProjectName == input$providerListUtilization) %>%
+      #   select(UnitCount)
+      
+      daysInMonth <- days_in_month(input$utilizationDate)
+      
+      infoBox(
+        title = "Total Bed Nights Served",
+        color = "purple",
+        icon = icon("bed"),
+        value = sum(a$BNs),
+        subtitle = paste(
+          "Bed Count:",
+          beds,
+          "x",
+          daysInMonth,
+          "days in",
+          format(ymd(input$utilizationDate), "%B"),
+          "=",
+          beds * daysInMonth,
+          "possible bed nights"
+        )
+      )
     })
   
   output$LoSDetail <- 
