@@ -16,5 +16,8 @@ QPR_EEs <- QPR_EEs %>% arrange(ProjectName)
 
 filebeginningdate <- updatedate - years(2)
 
+choices_regions <- unique(Regions$RegionName)
+
+
 
 
