@@ -62,59 +62,28 @@ dashboardPage(
       # tabItem(tabName = "vetActiveListTab"),
       # tabItem(tabName = "dqTab"),
       # tabItem(tabName = "cocCompetitionTab"),
-      tabItem(tabName = "LoSTab",
-              htmlOutput("headerLoS"),
-              fluidRow(box(pickerInput(
-                inputId = "LoSProjectList",
-                choices = c(unique(
-                  QPR_EEs$ProjectName[QPR_EEs$ProjectType %in% c(1, 2, 8, 13)])),
-                options = list(`live-search` = TRUE),
-                width = "70%"
-              ),
-              chooseSliderSkin("Round"),
-              setSliderColor("#56B4E9", c(1, 2)),
-              sliderTextInput("LoSSlider1",
-                              "",
-                              c(
-                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
-                              ),
-                              selected = Sys.yearqtr() - 1 / 4), width = 12)),
-              dataTableOutput("LoSDetail")
-              ),
-      tabItem(tabName = "PHTab",
-              HTML("<h1>Under Construction</h1>")),
-      tabItem(tabName = "NCBTab",
-              HTML("<h1>Under Construction</h1>")),
-      tabItem(tabName = "HITab",
-              HTML("<h1>Under Construction</h1>")),
-      tabItem(tabName = "incomeTab",
-              HTML("<h1>Under Construction</h1>")),
-      tabItem(tabName = "recurrenceTab",
-              HTML("<h1>Under Construction</h1>")),
-      tabItem(tabName = "rapidTab",
-              HTML("<h1>Under Construction</h1>")),
-      tabItem(tabName = "spendingTab",
-              HTML("<h1>Under Construction</h1>")),
       tabItem(
         tabName = "utilizationTab",
-        htmlOutput("headerUtilization"),
+        box(htmlOutput("headerUtilization"), width = 12),
         pickerInput(
           inputId = "providerListUtilization",
           choices = c(sort(BedUtilization$ProjectName)),
           options = list(`live-search` = TRUE),
           width = "100%"
         ),
-        dateInput(inputId = "utilizationDate",
+       dateInput(inputId = "utilizationDate",
                   label = "Enter any Date in the Month",
                   max = today(),
                   format = "mm-dd-yyyy",
                   startview = "year",
                   value = floor_date(today(), unit = "month") - months(1),
         ),
-        dataTableOutput("utilizationDetail")
-      ),
+      fluidRow(infoBoxOutput("utilizationSummary",
+                      width = 12)),
+        dataTableOutput("utilizationDetail")),      
       tabItem(
         tabName = "spdatTab1",
+        box(htmlOutput("headerCommunityNeedPH"), width = 12),
         pickerInput(
           inputId = "regionList1",
           choices = c(unique(Regions$RegionName)),
@@ -133,6 +102,7 @@ dashboardPage(
       ),
       tabItem(
         tabName = "spdatTab2",
+        box(htmlOutput("headerCommunityNeedCounty"), width = 12),
         pickerInput(
           inputId = "regionList2",
           choices = c(unique(Regions$RegionName)),
@@ -148,7 +118,60 @@ dashboardPage(
                         ),
                         selected = Sys.yearqtr() - 1 / 4),
         dataTableOutput("SPDATScoresServedInCounty")
-      )
+      ),      
+      tabItem(tabName = "LoSTab",
+              box(htmlOutput("headerLoS"), width = 12),
+              fluidRow(pickerInput(
+                inputId = "LoSProjectList",
+                choices = c(unique(
+                  QPR_EEs$ProjectName[QPR_EEs$ProjectType %in% c(1, 2, 8, 13)])),
+                options = list(`live-search` = TRUE),
+                width = "70%"
+              ),
+              chooseSliderSkin("Round"),
+              setSliderColor("#56B4E9", c(1, 2)),
+              sliderTextInput("LoSSlider1",
+                              "",
+                              c(
+                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                              ),
+                              selected = Sys.yearqtr() - 1 / 4)),
+              dataTableOutput("LoSDetail")
+              ),
+      tabItem(tabName = "PHTab",
+              fluidRow(box(htmlOutput("headerExitsToPH"), width = 12)),
+              pickerInput(
+                inputId = "ExitsToPHProjectList",
+                choices = c(unique(
+                  QPR_EEs$ProjectName[QPR_EEs$ProjectType %in% c(1:4, 8:9, 12:13)])),
+                options = list(`live-search` = TRUE),
+                width = "70%"
+              ),
+              setSliderColor("#56B4E9", 1),
+              sliderTextInput("ExitsToPHSlider",
+                              "",
+                              c(
+                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                              ),
+                              selected = Sys.yearqtr() - 1 / 4),
+              dataTableOutput("ExitsToPH"),
+              br(),
+              br(),
+              dataTableOutput("ExitsToPHOutreach")),
+
+      tabItem(tabName = "NCBTab",
+              HTML("<h1>Under Construction</h1>")),
+      tabItem(tabName = "HITab",
+              HTML("<h1>Under Construction</h1>")),
+      tabItem(tabName = "incomeTab",
+              HTML("<h1>Under Construction</h1>")),
+      tabItem(tabName = "recurrenceTab",
+              HTML("<h1>Under Construction</h1>")),
+      tabItem(tabName = "rapidTab",
+              HTML("<h1>Under Construction</h1>")),
+      tabItem(tabName = "spendingTab",
+              HTML("<h1>Under Construction</h1>"))
+
     )
   )
 )
