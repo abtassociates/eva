@@ -72,9 +72,9 @@ dashboardPage(
           width = "100%"
         ),
        dateInput(inputId = "utilizationDate",
-                  label = "Enter any Date in the Month",
-                  max = today(),
-                  format = "mm-dd-yyyy",
+                  label = "Pick any Date in the Month",
+                  max = floor_date(today(), unit = "month") - days(1),
+                  format = "MM yyyy",
                   startview = "year",
                   value = floor_date(today(), unit = "month") - months(1),
         ),
