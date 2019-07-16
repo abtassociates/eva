@@ -410,9 +410,7 @@ function(input, output, session) {
               ProjectType %in% c(1, 2, 4, 8, 13) &
               exited_between(., ReportStart, ReportEnd)
           )
-        )) %>% # ES, TH, SH, RRH, OUT) %>%
-      group_by(FriendlyProjectName, ProjectType, County, Region) %>%
-      summarise(SuccessfullyPlacedHHs = n())
+        )) # ES, TH, SH, RRH, OUT) %>%
     
     # calculating the total households to compare successful placements to
     TotalHHsSuccessfulPlacement <- QPR_EEs %>%
@@ -423,49 +421,40 @@ function(input, output, session) {
         (
           exited_between(., ReportStart, ReportEnd) &
             ProjectType %in% c(1, 2, 4, 8, 13) # ES, TH, SH, OUT, RRH
-        )) %>%
-      group_by(FriendlyProjectName, ProjectType, County, Region) %>%
-      summarise(TotalHHs = n()) # For PSH & HP, it's total hhs served;
+        )) # For PSH & HP, it's total hhs served;
     # otherwise, it's total hhs *exited* during the reporting period
     
     SuccessfulPlacement <- TotalHHsSuccessfulPlacement %>%
       left_join(
         SuccessfullyPlaced,
-        by = c("FriendlyProjectName", "ProjectType", "County", "Region")
+        by = c(
+          "EnrollmentID",
+          "ProjectType",
+          "ProjectName",
+          "PersonalID",
+          "EntryDate",
+          "MoveInDate",
+          "MoveInDateAdjust",
+          "ExitDate",
+          "DestinationGroup",
+          "Destination",
+          "HouseholdID"
+        )
       ) %>%
-      mutate(Percent = SuccessfullyPlacedHHs / TotalHHs)
+      filter(ProjectName == input$ExitsToPHProjectList) %>%
+      mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
+                                MoveInDate, EntryDate)) %>%
+      arrange(DestinationGroup) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Bed Start" = BedStart,
+        "Exit Date" = ExitDate,
+        "Destination Group" =  DestinationGroup
+      )
     
-    SuccessfulPlacement[is.na(SuccessfulPlacement)] <- 0
-    
-    region <- input$ExitsToPHRegionSelect
-    # translating the project type from radiobutton to numeric
-    # since PSH is both 3 and 9, we have to account for that
-    x <- c(1, 2, 3, 4, 8, 9, 12, 13)
-    y <- c(
-      "Emergency Shelters",
-      "Transitional Housing",
-      "Permanent Supportive Housing",
-      "Street Outreach",
-      "Safe Haven",
-      "Permanent Supportive Housing",
-      "Prevention",
-      "Rapid Rehousing"
-    )
-    PTC <- as.data.frame(cbind(x, y))
-    ptc <-
-      PTC %>% filter(y == input$radioExitsToPHPTC) %>% select(x)
-    ptc <- as_vector(ptc)
-    
-    stagingExitsToPH <- SuccessfulPlacement %>%
-      left_join(PlacementGoal, by = "ProjectType") %>%
-      filter(ProjectType %in% ptc, Region %in% region)
-    
-    if (nrow(stagingExitsToPH) > 0) {
-      stagingExitsToPH
-    }
-    else{
-      
-    }
+    SuccessfulPlacement
+
   })
   
   # output$ExitsToPHOutreach <- renderPlotly({
