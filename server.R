@@ -227,8 +227,48 @@ function(input, output, session) {
       a 
       
     })
+ 
+  output$utilizationSummary0 <-
+    renderInfoBox({
+      ReportStart <-
+        format(floor_date(ymd(input$utilizationDate),
+                          unit = "month"), "%m-%d-%Y")
+      ReportEnd <-
+        format(floor_date(ymd(input$utilizationDate) + months(1),
+                          unit = "month") - days(1),
+               "%m-%d-%Y")
+      
+      y <- paste0(substr(input$utilizationDate, 6, 7),
+                  "01",
+                  substr(input$utilizationDate, 1, 4))
+      
+      a <- ClientUtilizers %>%
+        filter(
+          ProjectName == input$providerListUtilization,
+          served_between(., ReportStart, ReportEnd)
+        ) %>%
+        mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
+                                  MoveInDate, EntryDate)) %>%
+        select(PersonalID, BedStart, ExitDate, y)
+      
+      colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
+      
+      beds <- Utilization %>%
+        filter(ProjectName == input$providerListUtilization) %>%
+        select(BedCount)
+      
+      daysInMonth <- days_in_month(input$utilizationDate)
+      
+      infoBox(
+        title = "Total Bed Nights Served",
+        color = "purple",
+        icon = icon("bed"),
+        value = sum(a$BNs),
+        subtitle = "See table below for detail."
+      )
+    })
   
-  output$utilizationSummary <-
+  output$utilizationSummary1 <-
     renderInfoBox({
       ReportStart <-
         format(floor_date(ymd(input$utilizationDate),
@@ -264,10 +304,10 @@ function(input, output, session) {
       daysInMonth <- days_in_month(input$utilizationDate)
       
       infoBox(
-        title = "Total Bed Nights Served",
+        title = "Possible Bed Nights",
         color = "purple",
         icon = icon("bed"),
-        value = sum(a$BNs),
+        value = beds * daysInMonth,
         subtitle = paste(
           "Bed Count:",
           beds,
@@ -279,6 +319,55 @@ function(input, output, session) {
           beds * daysInMonth,
           "possible bed nights"
         )
+      )
+    })
+  
+  output$utilizationSummary2 <-
+    renderInfoBox({
+      ReportStart <-
+        format(floor_date(ymd(input$utilizationDate),
+                          unit = "month"), "%m-%d-%Y")
+      ReportEnd <-
+        format(floor_date(ymd(input$utilizationDate) + months(1),
+                          unit = "month") - days(1),
+               "%m-%d-%Y")
+      
+      y <- paste0(substr(input$utilizationDate, 6, 7),
+                  "01",
+                  substr(input$utilizationDate, 1, 4))
+      
+      a <- ClientUtilizers %>%
+        filter(
+          ProjectName == input$providerListUtilization,
+          served_between(., ReportStart, ReportEnd)
+        ) %>%
+        mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
+                                  MoveInDate, EntryDate)) %>%
+        select(PersonalID, BedStart, ExitDate, y)
+      
+      colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
+      
+      beds <- Utilization %>%
+        filter(ProjectName == input$providerListUtilization) %>%
+        select(BedCount)
+      
+      beds <- as.numeric(beds)
+      
+      daysInMonth <- as.numeric(days_in_month(ymd(input$utilizationDate)))
+      
+      bedUtilization <- percent(sum(a$BNs)/(beds * daysInMonth))
+      
+      infoBox(
+        title = "Bed Utilization",
+        color = "teal",
+        icon = icon("bed"),
+        value = bedUtilization,
+        subtitle = paste(
+          sum(a$BNs),
+          "/",
+          beds * daysInMonth,
+          "=",
+          bedUtilization)
       )
     })
   
