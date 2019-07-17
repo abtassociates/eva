@@ -99,7 +99,7 @@ function(input, output, session) {
     ReportEnd <- format.Date(mdy(paste0(
       case_when(
         substr(input$ExitsToPHSlider, 7, 7) == 1 ~ "03-31-",
-        substr(input$ExitsToPHSlider, 7, 7) == 2 ~ "06-30",
+        substr(input$ExitsToPHSlider, 7, 7) == 2 ~ "06-30-",
         substr(input$ExitsToPHSlider, 7, 7) == 3 ~ "09-30-",
         substr(input$ExitsToPHSlider, 7, 7) == 4 ~ "12-31-"
       ),
