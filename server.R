@@ -30,7 +30,7 @@ function(input, output, session) {
     ReportEnd <- format.Date(mdy(paste0(
       case_when(
         substr(input$LoSSlider1, 7, 7) == 1 ~ "03-31-",
-        substr(input$LoSSlider1, 7, 7) == 2 ~ "06-30",
+        substr(input$LoSSlider1, 7, 7) == 2 ~ "06-30-",
         substr(input$LoSSlider1, 7, 7) == 3 ~ "09-30-",
         substr(input$LoSSlider1, 7, 7) == 4 ~ "12-31-"
       ),
@@ -53,7 +53,7 @@ function(input, output, session) {
     ReportEnd <- format.Date(mdy(paste0(
       case_when(
         substr(input$spdatSlider1, 7, 7) == 1 ~ "03-31-",
-        substr(input$spdatSlider1, 7, 7) == 2 ~ "06-30",
+        substr(input$spdatSlider1, 7, 7) == 2 ~ "06-30-",
         substr(input$spdatSlider1, 7, 7) == 3 ~ "09-30-",
         substr(input$spdatSlider1, 7, 7) == 4 ~ "12-31-"
       ),
@@ -76,7 +76,7 @@ function(input, output, session) {
     ReportEnd <- format.Date(mdy(paste0(
       case_when(
         substr(input$spdatSlider2, 7, 7) == 1 ~ "03-31-",
-        substr(input$spdatSlider2, 7, 7) == 2 ~ "06-30",
+        substr(input$spdatSlider2, 7, 7) == 2 ~ "06-30-",
         substr(input$spdatSlider2, 7, 7) == 3 ~ "09-30-",
         substr(input$spdatSlider2, 7, 7) == 4 ~ "12-31-"
       ),
