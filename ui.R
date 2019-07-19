@@ -1,3 +1,17 @@
+# COHHIO_HMIS
+# Copyright (C) 2019  Coalition on Homelessness and Housing in Ohio (COHHIO)
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details at 
+#<https://www.gnu.org/licenses/>.
+
 dashboardPage(
   skin = "black",
   dashboardHeader(title = "R minor _elevated_"),
@@ -71,15 +85,21 @@ dashboardPage(
           options = list(`live-search` = TRUE),
           width = "100%"
         ),
-       dateInput(inputId = "utilizationDate",
-                  label = "Enter any Date in the Month",
-                  max = today(),
-                  format = "mm-dd-yyyy",
-                  startview = "year",
-                  value = floor_date(today(), unit = "month") - months(1),
+       airDatepickerInput(inputId = "utilizationDate",
+                  label = "Click to Choose a Month",
+                  max = floor_date(today(), unit = "month") - days(1),
+                  dateFormat = "MM yyyy",
+                  view = "month",
+                  value = floor_date(today(), unit = "month") - days(1),
+                  minView = "months",
+                  addon = "none"
         ),
-      fluidRow(infoBoxOutput("utilizationSummary",
-                      width = 12)),
+      fluidRow(infoBoxOutput("utilizationSummary0",
+                      width = 6),
+               infoBoxOutput("utilizationSummary1",
+                             width = 6)),
+      fluidRow(infoBoxOutput("utilizationSummary2",
+                             width = 12)),
         dataTableOutput("utilizationDetail")),      
       tabItem(
         tabName = "spdatTab1",
