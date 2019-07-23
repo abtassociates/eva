@@ -65,7 +65,10 @@ dashboardPage(
       "<br>&emsp;Last update:&emsp;",
       format(updatedate, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")#,
       #      "<br>&emsp;Happy Passover and Easter and Spring Equinox!"
-    ))
+    )),
+    actionButton(inputId = "logOutButton", 
+                 label = "Log Out",
+                 onclick = "window.open('https://login.shinyapps.io/logout')")
   ),
   dashboardBody(
     tabItems(
