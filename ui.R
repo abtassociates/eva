@@ -68,7 +68,8 @@ dashboardPage(
     )),
     actionButton(inputId = "logOutButton", 
                  label = "Log Out",
-                 onclick = "window.open('https://login.shinyapps.io/logout')")
+                 onclick = 
+                   "window.open('https://ohiobalanceofstatecoc.shinyapps.io/Rminor_elevated/__logout__/')")
   ),
   dashboardBody(
     tabItems(
