@@ -134,6 +134,32 @@ function(input, output, session) {
   
   })
   
+  output$headerDaysToHouse <- renderUI({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$RapidRRHDateSlider, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$RapidRRHDateSlider, 7, 7) == 1 ~ "03-31-",
+        substr(input$RapidRRHDateSlider, 7, 7) == 2 ~ "06-30-",
+        substr(input$RapidRRHDateSlider, 7, 7) == 3 ~ "09-30-",
+        substr(input$RapidRRHDateSlider, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$RapidRRHDateSlider, 1, 4)
+    )), "%m-%d-%Y")
+    
+    list(h1("Days to House"),
+         h4(input$RapidRRHProviderList),
+         h4(paste(
+           format(mdy(ReportStart), "%B %Y"),
+           "to",
+           format(mdy(ReportEnd), "%B %Y")
+         )))
+  })
+  
+  
   output$SPDATScoresHoused <-
     renderDataTable({
       ReportStart <- format.Date(ymd(paste0(
@@ -497,205 +523,79 @@ function(input, output, session) {
 
   })
   
-  # output$ExitsToPHOutreach <- renderPlotly({
-  #   if (input$radioExitsToPHPTC == "Street Outreach") {
-  #     ReportStart <- format.Date(ymd(paste0(
-  #       substr(input$ExitsToPHSlider, 1, 4),
-  #       "-01-01"
-  #     )), "%m-%d-%Y")
-  #     ReportEnd <- format.Date(mdy(paste0(
-  #       case_when(
-  #         substr(input$ExitsToPHSlider, 7, 7) == 1 ~ "03-31-",
-  #         substr(input$ExitsToPHSlider, 7, 7) == 2 ~ "06-30-",
-  #         substr(input$ExitsToPHSlider, 7, 7) == 3 ~ "09-30-",
-  #         substr(input$ExitsToPHSlider, 7, 7) == 4 ~ "12-31-"
-  #       ),
-  #       substr(input$ExitsToPHSlider, 1, 4)
-  #     )), "%m-%d-%Y")
-  #     
-  #     totalServed <- QPR_EEs %>%
-  #       filter(exited_between(., ReportStart, ReportEnd) &
-  #                ProjectType == 4) %>%
-  #       group_by(FriendlyProjectName, ProjectType, County, Region) %>%
-  #       summarise(TotalHHs = n())
-  #     
-  #     notUnsheltered <- QPR_EEs %>%
-  #       filter(
-  #         ProjectType == 4 &
-  #           Destination != 16 &
-  #           DestinationGroup %in% c("Temporary", "Permanent") &
-  #           exited_between(., ReportStart, ReportEnd)
-  #       ) %>%
-  #       group_by(FriendlyProjectName, ProjectType, County, Region) %>%
-  #       summarise(NotUnsheltered = n())
-  #     
-  #     goalOutreach <- goals %>%
-  #       filter(Measure == "Exits to Temporary or Permanent Housing") %>%
-  #       select(Goal, ProjectType)
-  #     
-  #     notUnsheltered <- notUnsheltered %>%
-  #       left_join(goalOutreach, by = "ProjectType") %>%
-  #       left_join(totalServed,
-  #                 by = c("FriendlyProjectName",
-  #                        "ProjectType",
-  #                        "County",
-  #                        "Region")) %>%
-  #       mutate(
-  #         Percent = NotUnsheltered / TotalHHs,
-  #         hover = paste0(
-  #           FriendlyProjectName,
-  #           "\nExited to Temp or PH: ",
-  #           NotUnsheltered,
-  #           "\nTotal Households: ",
-  #           TotalHHs,
-  #           "\n",
-  #           as.integer(Percent * 100),
-  #           "%",
-  #           sep = "\n"
-  #         )
-  #       ) %>%
-  #       filter(Region %in% c(input$ExitsToPHRegionSelect))
-  #     
-  #     title <-
-  #       paste0(
-  #         "Exits to Temporary or Permanent Housing\n",
-  #         "Street Outreach\n",
-  #         ReportStart,
-  #         " to ",
-  #         ReportEnd
-  #       )
-  #     
-  #     plot_ly(
-  #       notUnsheltered,
-  #       x = ~ FriendlyProjectName,
-  #       y = ~ Percent,
-  #       text = ~ hover,
-  #       hoverinfo = 'text',
-  #       type = "bar"
-  #     ) %>%
-  #       layout(
-  #         xaxis = list(title = ""),
-  #         yaxis = list(title = "Exited to Temporary or Permanent Housing",
-  #                      tickformat = "%"),
-  #         title = list(text = title,
-  #                      font = list(size = 15)),
-  #         margin = list(
-  #           l = 50,
-  #           r = 50,
-  #           b = 100,
-  #           t = 100,
-  #           pad = 4
-  #         ),
-  #         shapes = list(
-  #           type = "rect",
-  #           name = "CoC Goal",
-  #           fillcolor = "#008000",
-  #           line = list(color = "white", width = .01),
-  #           layer = "below",
-  #           xref = "paper",
-  #           yref = "y",
-  #           x0 = 0,
-  #           x1 = 1,
-  #           y0 = ~ Goal[1],
-  #           y1 = 1,
-  #           opacity = .2
-  #         ),
-  #         title = "Obtaining and Maintaining Permanent Housing"
-  #       )
-  #   }
-  #   else{
-  #     NULL
-  #   }
-  # })
+  output$daysToHouseRRH <- renderDataTable({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$RapidRRHDateSlider, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$RapidRRHDateSlider, 7, 7) == 1 ~ "03-31-",
+        substr(input$RapidRRHDateSlider, 7, 7) == 2 ~ "06-30-",
+        substr(input$RapidRRHDateSlider, 7, 7) == 3 ~ "09-30-",
+        substr(input$RapidRRHDateSlider, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$RapidRRHDateSlider, 1, 4)
+    )), "%m-%d-%Y")
+    
+    daysToHouse <- QPR_EEs %>%
+      filter(
+        ProjectType == 13 &
+          !is.na(MoveInDateAdjust) &
+          ProjectName %in% c(input$RapidRRHProviderList) &
+          entered_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        DaysToHouse = difftime(MoveInDateAdjust, EntryDate, units = "days")
+        ) %>%
+      arrange(DaysToHouse) %>%
+      select("Client ID" = PersonalID,
+             "Entry Date" = EntryDate,
+             "Move In Date" = MoveInDate,
+             "Days to House" = DaysToHouse)
+    
+    daysToHouse
+    
+  })
+  
+  output$daysToHouseSummary <- 
+    renderInfoBox({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$RapidRRHDateSlider, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
       
-  # QPR Rapid Placement into RRH
-  # output$DaysToHouse <- 
-  #   renderPlotly({
-  #     
-  #     ReportStart <- format.Date(ymd(paste0(
-  #       substr(input$RapidRRHDateSlider, 1, 4),
-  #       "-01-01"
-  #     )), "%m-%d-%Y")
-  #     
-  #     ReportEnd <- format.Date(mdy(paste0(
-  #       case_when(
-  #         substr(input$RapidRRHDateSlider, 7, 7) == 1 ~ "03-31-",
-  #         substr(input$RapidRRHDateSlider, 7, 7) == 2 ~ "06-30-",
-  #         substr(input$RapidRRHDateSlider, 7, 7) == 3 ~ "09-30-",
-  #         substr(input$RapidRRHDateSlider, 7, 7) == 4 ~ "12-31-"
-  #       ),
-  #       substr(input$RapidRRHDateSlider, 1, 4)
-  #     )), "%m-%d-%Y")
-  #     
-  #     daysToHouse <- QPR_EEs %>%
-  #       filter(
-  #         ProjectType == 13 &
-  #           !is.na(MoveInDateAdjust) &
-  #           Region %in% c(input$RapidRRHRegion) &
-  #           entered_between(., ReportStart, ReportEnd)
-  #       ) %>%
-  #       mutate(DaysToHouse = difftime(MoveInDateAdjust, EntryDate, units = "days"))
-  #     
-  #     RRHgoal <- goals %>%
-  #       filter(SummaryMeasure == "Rapid Placement") %>%
-  #       select(ProjectType, Goal)
-  #     
-  #     summaryDays <- daysToHouse %>%
-  #       group_by(FriendlyProjectName, County, Region, ProjectType) %>%
-  #       summarise(AvgDays = as.integer(mean(DaysToHouse, na.rm = TRUE)),
-  #                 TotalHHs = n()) %>%
-  #       left_join(RRHgoal, by = "ProjectType") %>%
-  #       mutate(hover = paste0(
-  #         FriendlyProjectName,
-  #         "\nAverage Days to House: ",
-  #         AvgDays,
-  #         "\nTotal Households: ",
-  #         TotalHHs,
-  #         sep = "\n"
-  #       ))
-  #     
-  #     title <- paste0("Average Days to House\nRapid Rehousing\n",
-  #                     ReportStart, " to ", ReportEnd)
-  #     
-  #     plot_ly(
-  #       summaryDays,
-  #       x = ~ FriendlyProjectName,
-  #       y = ~ AvgDays,
-  #       text = ~ hover,
-  #       hoverinfo = 'text',
-  #       type = "bar"
-  #     ) %>%
-  #       layout(
-  #         xaxis = list(title = ~ FriendlyProjectName),
-  #         yaxis = list(title = "Average Days to House"),
-  #         title = list(
-  #           text = title,
-  #           font = list(
-  #             size = 15
-  #           )),
-  #         margin = list(
-  #           l = 50,
-  #           r = 50,
-  #           b = 100,
-  #           t = 100,
-  #           pad = 4
-  #         ),
-  #         shapes = list(
-  #           type = "rect",
-  #           name = "CoC Goal",
-  #           fillcolor = "#008000",
-  #           line = list(color = "white", width = .01),
-  #           layer = "below",
-  #           xref = "paper",
-  #           yref = "y",
-  #           x0 = 0,
-  #           x1 = 1,
-  #           y0 = ~ Goal[1],
-  #           y1 = 0,
-  #           opacity = .2
-  #         ),
-  #         title = "Days to House"
-  #       )
-  #   })
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$RapidRRHDateSlider, 7, 7) == 1 ~ "03-31-",
+          substr(input$RapidRRHDateSlider, 7, 7) == 2 ~ "06-30-",
+          substr(input$RapidRRHDateSlider, 7, 7) == 3 ~ "09-30-",
+          substr(input$RapidRRHDateSlider, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$RapidRRHDateSlider, 1, 4)
+      )), "%m-%d-%Y")
+      
+      days <- QPR_EEs %>%
+        filter(
+          ProjectType == 13 &
+            !is.na(MoveInDateAdjust) &
+            ProjectName %in% c(input$RapidRRHProviderList) &
+            entered_between(., ReportStart, ReportEnd)
+        ) %>%
+        mutate(
+          DaysToHouse = difftime(MoveInDateAdjust, EntryDate, units = "days")
+        ) %>%
+        summarise(AvgDaysToHouse = mean(DaysToHouse))
+      
+      infoBox(
+        title = "Average Days to House",
+        color = "purple",
+        icon = icon("hourglass-half"),
+        value = format(sum(days$AvgDaysToHouse, na.rm = TRUE), digits = 1),
+        subtitle = "See table below for detail."
+      )
+      
+    })
   
 }

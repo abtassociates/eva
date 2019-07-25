@@ -188,7 +188,23 @@ dashboardPage(
       tabItem(tabName = "recurrenceTab",
               HTML("<h1>Under Construction</h1>")),
       tabItem(tabName = "rapidTab",
-              HTML("<h1>Under Construction</h1>")),
+              fluidRow(box(htmlOutput("headerDaysToHouse"), width = 12)),
+              setSliderColor("#56B4E9", 1),
+              sliderTextInput("RapidRRHDateSlider",
+                              "",
+                              c(
+                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                              ),
+                              selected = Sys.yearqtr() - 1 / 4),
+              pickerInput(
+                inputId = "RapidRRHProviderList",
+                choices = c(unique(
+                  QPR_EEs$ProjectName[QPR_EEs$ProjectType == 13])),
+                options = list(`live-search` = TRUE),
+                width = "70%"
+              ),
+              fluidRow(infoBoxOutput("daysToHouseSummary"), width = 3),
+              dataTableOutput("daysToHouseRRH")),
       tabItem(tabName = "spendingTab",
               HTML("<h1>Under Construction</h1>"))
 
