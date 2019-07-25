@@ -14,6 +14,7 @@
 
 
 function(input, output, session) {
+  
   output$headerUtilization <- renderUI({
     list(
       h2("Bed and Unit Utilization"),
