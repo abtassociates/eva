@@ -349,7 +349,7 @@ function(input, output, session) {
         subtitle = paste(
           "Bed Count:",
           beds,
-          "x",
+          "beds x",
           daysInMonth,
           "days in",
           format(ymd(input$utilizationDate), "%B"),
