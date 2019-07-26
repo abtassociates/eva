@@ -66,6 +66,10 @@ dashboardPage(
       format(updatedate, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")#,
       #      "<br>&emsp;Happy Passover and Easter and Spring Equinox!"
     )),
+    br(),
+    br(),
+    br(),
+    br(),
     actionButton(inputId = "logOutButton", 
                  label = "Log Out",
                  onclick = 
