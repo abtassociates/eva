@@ -33,10 +33,10 @@ dashboardPage(
       #          tabName = "dqTab"),
       # menuItem("CoC Competition",
       #          tabName = "cocCompetitionTab"),
+      menuItem("Bed and Unit Utilization",
+                    tabName = "utilizationTab"),
       menuItem(
         "Performance and Outcomes",
-        menuSubItem("Bed and Unit Utilization",
-                    tabName = "utilizationTab"),
         menuItem("Community Need",
                     tabName = "spdatTab",
                  menuSubItem("PSH/RRH Detail",
@@ -65,7 +65,15 @@ dashboardPage(
       "<br>&emsp;Last update:&emsp;",
       format(updatedate, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")#,
       #      "<br>&emsp;Happy Passover and Easter and Spring Equinox!"
-    ))
+    )),
+    br(),
+    br(),
+    br(),
+    br(),
+    actionButton(inputId = "logOutButton", 
+                 label = "Log Out",
+                 onclick = 
+                   "window.open('https://ohiobalanceofstatecoc.shinyapps.io/Rminor_elevated/__logout__/')")
   ),
   dashboardBody(
     tabItems(
@@ -188,7 +196,23 @@ dashboardPage(
       tabItem(tabName = "recurrenceTab",
               HTML("<h1>Under Construction</h1>")),
       tabItem(tabName = "rapidTab",
-              HTML("<h1>Under Construction</h1>")),
+              fluidRow(box(htmlOutput("headerDaysToHouse"), width = 12)),
+              setSliderColor("#56B4E9", 1),
+              sliderTextInput("RapidRRHDateSlider",
+                              "",
+                              c(
+                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                              ),
+                              selected = Sys.yearqtr() - 1 / 4),
+              pickerInput(
+                inputId = "RapidRRHProviderList",
+                choices = c(unique(
+                  QPR_EEs$ProjectName[QPR_EEs$ProjectType == 13])),
+                options = list(`live-search` = TRUE),
+                width = "70%"
+              ),
+              fluidRow(infoBoxOutput("daysToHouseSummary"), width = 3),
+              dataTableOutput("daysToHouseRRH")),
       tabItem(tabName = "spendingTab",
               HTML("<h1>Under Construction</h1>"))
 
