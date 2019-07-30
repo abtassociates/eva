@@ -33,10 +33,10 @@ dashboardPage(
       #          tabName = "dqTab"),
       # menuItem("CoC Competition",
       #          tabName = "cocCompetitionTab"),
+      menuItem("Bed and Unit Utilization",
+                    tabName = "utilizationTab"),
       menuItem(
         "Performance and Outcomes",
-        menuSubItem("Bed and Unit Utilization",
-                    tabName = "utilizationTab"),
         menuItem("Community Need",
                     tabName = "spdatTab",
                  menuSubItem("PSH/RRH Detail",
