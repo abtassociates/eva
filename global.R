@@ -26,6 +26,8 @@ load("data/QPR_SPDATs.RData")
 
 load("data/QPR_EEs.RData")
 
+load("data/Data_Quality.RData")
+
 QPR_EEs <- QPR_EEs %>% arrange(ProjectName)
 
 filebeginningdate <- updatedate - years(2)

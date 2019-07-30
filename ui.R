@@ -29,12 +29,12 @@ dashboardPage(
       #   menuSubItem("Veteran Active List",
       #               tabName = "vetActiveListTab")
       # ),
-      # menuItem("Data Quality",
-      #          tabName = "dqTab"),
+      menuItem("Bed and Unit Utilization",
+                    tabName = "utilizationTab"),      
+      menuItem("Data Quality",
+               tabName = "dqTab"),
       # menuItem("CoC Competition",
       #          tabName = "cocCompetitionTab"),
-      menuItem("Bed and Unit Utilization",
-                    tabName = "utilizationTab"),
       menuItem(
         "Performance and Outcomes",
         menuItem("Community Need",
@@ -82,8 +82,22 @@ dashboardPage(
       # tabItem(tabName = "prioritizationListTab"),
       # tabItem(tabName = "contactTab"),
       # tabItem(tabName = "vetActiveListTab"),
-      # tabItem(tabName = "dqTab"),
       # tabItem(tabName = "cocCompetitionTab"),
+      tabItem(tabName = "dqTab",
+              pickerInput(
+                inputId = "providerListDQ",
+                choices = dqProviders,
+                options = list('live-search' = TRUE),
+                width = "100%"
+              ),
+              dateInput(
+                inputId = "dq_startdate",
+                label = "Report Start Date",
+                format = "mm/dd/yyyy",
+                value = mdy("10012018")
+              ),
+              uiOutput("DQDuplicateEEs")
+              ),
       tabItem(
         tabName = "utilizationTab",
         box(htmlOutput("headerUtilization"), width = 12),

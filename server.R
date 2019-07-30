@@ -160,6 +160,59 @@ function(input, output, session) {
          )))
   })
   
+  output$DuplicateEEs <- renderTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    DuplicateEEs <- DataQualityHMIS %>%
+      filter(
+        Issue == "Duplicate Entry Exits" &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      select("Client ID" = PersonalID,
+             "Entry Date" = EntryDate,
+             "Exit Date" = ExitDate)
+    DuplicateEEs
+  })
+  
+  output$DQDuplicateEEs <- renderUI({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    DuplicateEEs <- DataQualityHMIS %>%
+      filter(
+        Issue == "Duplicate Entry Exits" &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      select("Client ID" = PersonalID,
+             "Entry Date" = EntryDate,
+             "Exit Date" = ExitDate)
+    if (nrow(DuplicateEEs) > 0) {
+      box(
+        id = "dup_ees",
+        title = "Duplicate Entry Exits",
+        status = "warning",
+        solidHeader = TRUE,
+        HTML(
+          "If you are seeing this box, you should correct this issue before moving
+         on to your other errors.<br>
+         Duplicate Entry Exits are created when the user clicks \"Add Entry Exit\"
+         instead of clicking the Entry pencil to get back into an assessment.
+         These must be deleted for each member of the household. Please take
+         care to not delete Entry Exits with valid Interims attached."
+        ),
+        tableOutput("DuplicateEEs")
+      )
+    }
+    else {
+      
+    }
+  })
   
   output$SPDATScoresHoused <-
     renderDataTable({
