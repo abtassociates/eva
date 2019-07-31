@@ -225,7 +225,7 @@ dashboardPage(
               pickerInput(
                 inputId = "RapidRRHProviderList",
                 choices = c(unique(
-                  QPR_EEs$ProjectName[QPR_EEs$ProjectType == 13])),
+                  sort(RRHEnterers$ProjectName))),
                 options = list(`live-search` = TRUE),
                 width = "70%"
               ),
