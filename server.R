@@ -367,7 +367,8 @@ function(input, output, session) {
           ProjectName == input$providerListDQ &
           Type == "Error"
       ) %>% 
-      select(PersonalID, EntryDate, ExitDate, Issue)
+      arrange(HouseholdID, PersonalID) %>%
+      select(PersonalID, EntryDate, ExitDate, "Error" = Issue)
     
     DQErrors  
   })
@@ -376,7 +377,7 @@ function(input, output, session) {
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
-    DQErrors <- DataQualityHMIS %>%
+    DQWarnings <- DataQualityHMIS %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
@@ -389,7 +390,8 @@ function(input, output, session) {
           ProjectName == input$providerListDQ &
           Type == "Warning"
       ) %>% 
-      select(PersonalID, EntryDate, ExitDate, Issue)
+      arrange(HouseholdID, PersonalID) %>%
+      select(PersonalID, EntryDate, ExitDate, "Warning" = Issue)
     
     DQWarnings  
   })

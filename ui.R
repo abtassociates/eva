@@ -100,7 +100,9 @@ dashboardPage(
               fluidRow(
                 uiOutput("DQDuplicateEEs"),
                 uiOutput("DQOverlappingEEs"),
-                uiOutput("DQHHIssues"))
+                uiOutput("DQHHIssues")),
+                dataTableOutput("DQErrors"),
+                dataTableOutput("DQWarnings")
               ),
       tabItem(
         tabName = "utilizationTab",
