@@ -699,7 +699,7 @@ function(input, output, session) {
       filter(ProjectName == input$ExitsToPHProjectList) %>%
       mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                 MoveInDate, EntryDate)) %>%
-      arrange(DestinationGroup) %>%
+      arrange(DestinationGroup, PersonalID) %>%
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
@@ -728,21 +728,19 @@ function(input, output, session) {
       substr(input$RapidRRHDateSlider, 1, 4)
     )), "%m-%d-%Y")
     
-    daysToHouse <- QPR_EEs %>%
+    daysToHouse <- RRHEnterers %>%
       filter(
-        ProjectType == 13 &
-          !is.na(MoveInDateAdjust) &
+        !is.na(MoveInDateAdjust) &
           ProjectName %in% c(input$RapidRRHProviderList) &
           entered_between(., ReportStart, ReportEnd)
       ) %>%
-      mutate(
-        DaysToHouse = difftime(MoveInDateAdjust, EntryDate, units = "days")
-        ) %>%
       arrange(DaysToHouse) %>%
-      select("Client ID" = PersonalID,
-             "Entry Date" = EntryDate,
-             "Move In Date" = MoveInDate,
-             "Days to House" = DaysToHouse)
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Move In Date" = MoveInDate,
+        "Days to House" = DaysToHouse
+      )
     
     daysToHouse
     
