@@ -327,7 +327,8 @@ function(input, output, session) {
       filter(
         Issue %in% c("Too Many Heads of Household", 
                      "No Head of Household",
-                     "Children Only Household") &
+                     "Children Only Household"
+                     ) &
           ProjectName == input$providerListDQ &
           served_between(., ReportStart, ReportEnd)
       )
@@ -347,6 +348,50 @@ function(input, output, session) {
     else {
       
     }
+  })
+  
+  output$DQErrors <- renderDataTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    
+    DQErrors <- DataQualityHMIS %>%
+      filter(
+        !Issue %in% c(
+          "Too Many Heads of Household",
+          "No Head of Household",
+          "Children Only Household",
+          "Overlapping Entry Exits",
+          "Duplicate Entry Exits"
+        ) &
+          served_between(., ReportStart, ReportEnd) &
+          ProjectName == input$providerListDQ &
+          Type == "Error"
+      ) %>% 
+      select(PersonalID, EntryDate, ExitDate, Issue)
+    
+    DQErrors  
+  })
+  
+  output$DQWarnings <- renderDataTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    
+    DQErrors <- DataQualityHMIS %>%
+      filter(
+        !Issue %in% c(
+          "Too Many Heads of Household",
+          "No Head of Household",
+          "Children Only Household",
+          "Overlapping Entry Exits",
+          "Duplicate Entry Exits"
+        ) &
+          served_between(., ReportStart, ReportEnd) &
+          ProjectName == input$providerListDQ &
+          Type == "Warning"
+      ) %>% 
+      select(PersonalID, EntryDate, ExitDate, Issue)
+    
+    DQWarnings  
   })
   
   output$SPDATScoresHoused <-
