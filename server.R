@@ -763,7 +763,7 @@ function(input, output, session) {
         substr(input$RapidRRHDateSlider, 1, 4)
       )), "%m-%d-%Y")
       
-      days <- QPR_EEs %>%
+      days <- RRHEnterers %>%
         filter(
           ProjectType == 13 &
             !is.na(MoveInDateAdjust) &
@@ -773,13 +773,13 @@ function(input, output, session) {
         mutate(
           DaysToHouse = difftime(MoveInDateAdjust, EntryDate, units = "days")
         ) %>%
-        summarise(AvgDaysToHouse = mean(DaysToHouse))
+        summarise(AvgDaysToHouse = as.integer(mean(DaysToHouse)))
       
       infoBox(
         title = "Average Days to House",
         color = "purple",
         icon = icon("hourglass-half"),
-        value = format(sum(days$AvgDaysToHouse, na.rm = TRUE), digits = 1),
+        value = days$AvgDaysToHouse,
         subtitle = "See table below for detail."
       )
       
