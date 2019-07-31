@@ -84,6 +84,7 @@ dashboardPage(
       # tabItem(tabName = "vetActiveListTab"),
       # tabItem(tabName = "cocCompetitionTab"),
       tabItem(tabName = "dqTab",
+              htmlOutput("headerDataQuality"),
               pickerInput(
                 inputId = "providerListDQ",
                 choices = dqProviders,
@@ -96,7 +97,10 @@ dashboardPage(
                 format = "mm/dd/yyyy",
                 value = mdy("10012018")
               ),
-              uiOutput("DQDuplicateEEs")
+              fluidRow(
+                uiOutput("DQDuplicateEEs"),
+                uiOutput("DQOverlappingEEs"),
+                uiOutput("DQHHIssues"))
               ),
       tabItem(
         tabName = "utilizationTab",

@@ -22,6 +22,14 @@ function(input, output, session) {
       h4(format(ymd(input$utilizationDate), "%B %Y")))
   })
   
+  output$headerDataQuality <- renderUI({
+    list(
+      h2("Data Quality"),
+      h4(input$providerListDQ),
+      h4(paste(format(input$dq_startdate, "%m-%d-%Y"),"to",
+               format(today(), "%m-%d-%Y"))))
+  })
+  
   output$headerLoS <- renderUI({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$LoSSlider1, 1, 4),
@@ -199,14 +207,141 @@ function(input, output, session) {
         status = "warning",
         solidHeader = TRUE,
         HTML(
-          "If you are seeing this box, you should correct this issue before moving
-         on to your other errors.<br>
+          "Please correct this issue before moving on to your other errors.<br>
          Duplicate Entry Exits are created when the user clicks \"Add Entry Exit\"
          instead of clicking the Entry pencil to get back into an assessment.
          These must be deleted for each member of the household. Please take
          care to not delete Entry Exits with valid Interims attached."
         ),
         tableOutput("DuplicateEEs")
+      )
+    }
+    else {
+      
+    }
+  })
+  
+  output$Overlaps <- renderTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    OverlappingEEs <- DataQualityHMIS %>%
+      filter(
+        Issue == "Overlapping Project Stays" &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Move In Date" = MoveInDateAdjust,
+        "Exit Date" = ExitDate
+      )
+    OverlappingEEs
+  })
+  
+  output$DQOverlappingEEs <- renderUI({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    OverlappingEEs <- DataQualityHMIS %>%
+      filter(
+        Issue == "Overlapping Project Stays" &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        ProjectName,
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate
+      )
+    if (nrow(OverlappingEEs) > 0) {
+      box(
+        id = "overlappers",
+        title = "Overlapping Entry Exits",
+        status = "info",
+        solidHeader = TRUE,
+        HTML(
+        "A client cannot reside in an ES, TH, or Safe Haven at the same time. Nor 
+        can they have a Move-In Date into a PSH or RRH project while they are 
+        still in an ES, TH, or Safe Haven. <br>
+        Please look the client(s) up in HMIS and determine which project stay's 
+        Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may not be your
+        project's mistake, but if you are seeing clients here, it means your 
+        project stay was entered last. <br>
+        If the overlap is not your project's mistake, please work with the project that has the
+        incorrect Entry/Move-In/or Exit Date to get this corrected or send an
+        email to hmis@cohhio.org if you cannot get it resolved. These clients
+        will NOT show on their Data Quality app. <br>
+        If YOUR dates are definitely correct, it is fine to continue with other 
+        data corrections as needed."
+        ), 
+        tableOutput("Overlaps")
+      )
+    }
+    else {
+      
+    }
+  })
+  
+  output$HouseholdIssues <- renderTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    HHIssues <- DataQualityHMIS %>%
+      filter(
+        Issue %in% c("Too Many Heads of Household", 
+                     "No Head of Household",
+                     "Children Only Household") &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        "A Client ID in the Household" = PersonalID,
+        Issue,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate
+      )
+    HHIssues
+  })
+  
+  output$DQHHIssues <- renderUI({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    HHIssues <- DataQualityHMIS %>%
+      filter(
+        Issue %in% c("Too Many Heads of Household", 
+                     "No Head of Household",
+                     "Children Only Household") &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      )
+    if (nrow(HHIssues) > 0) {
+      box(
+        id = "hhs",
+        title = "Household Issues",
+        status = "warning",
+        solidHeader = TRUE,
+        HTML(
+          "Please correct your Household Issues before moving on to make other 
+          Data Quality corrections. "
+        ), 
+        tableOutput("HouseholdIssues")
       )
     }
     else {
