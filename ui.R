@@ -99,8 +99,8 @@ dashboardPage(
               ),
               fluidRow(
                 uiOutput("DQDuplicateEEs"),
-                uiOutput("DQOverlappingEEs"),
-                uiOutput("DQHHIssues")),
+                uiOutput("DQHHIssues"),
+                uiOutput("DQOverlappingEEs")),
                 dataTableOutput("DQErrors"),
                 dataTableOutput("DQWarnings")
               ),
