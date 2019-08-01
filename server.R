@@ -371,8 +371,7 @@ function(input, output, session) {
       arrange(HouseholdID, PersonalID) %>%
       select("Client ID" = PersonalID, 
              "Error" = Issue, 
-             "Entry Date" =  EntryDate, 
-             "Exit Date" = ExitDate)    
+             "Entry Date" =  EntryDate)    
     DQErrors  
   })
   
@@ -396,8 +395,7 @@ function(input, output, session) {
       arrange(HouseholdID, PersonalID) %>%
       select("Client ID" = PersonalID, 
              "Warning" = Issue, 
-             "Entry Date" =  EntryDate, 
-             "Exit Date" = ExitDate)
+             "Entry Date" =  EntryDate)
     
     DQWarnings  
   })
