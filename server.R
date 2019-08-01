@@ -311,12 +311,13 @@ function(input, output, session) {
         MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
         ExitDate = format(ExitDate, "%m-%d-%Y")
       ) %>%
+      arrange(PersonalID)%>%
       select(
         "A Client ID in the Household" = PersonalID,
         Issue,
-        "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate
-      )
+        "Entry Date" = EntryDate
+      ) 
+    
     HHIssues
   })
   
@@ -368,8 +369,10 @@ function(input, output, session) {
           Type == "Error"
       ) %>% 
       arrange(HouseholdID, PersonalID) %>%
-      select(PersonalID, EntryDate, ExitDate, "Error" = Issue)
-    
+      select("Client ID" = PersonalID, 
+             "Error" = Issue, 
+             "Entry Date" =  EntryDate, 
+             "Exit Date" = ExitDate)    
     DQErrors  
   })
   
@@ -391,7 +394,10 @@ function(input, output, session) {
           Type == "Warning"
       ) %>% 
       arrange(HouseholdID, PersonalID) %>%
-      select(PersonalID, EntryDate, ExitDate, "Warning" = Issue)
+      select("Client ID" = PersonalID, 
+             "Warning" = Issue, 
+             "Entry Date" =  EntryDate, 
+             "Exit Date" = ExitDate)
     
     DQWarnings  
   })
