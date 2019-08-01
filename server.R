@@ -588,7 +588,7 @@ function(input, output, session) {
         subtitle = paste(
           "Bed Count:",
           beds,
-          "beds x",
+          "beds ×",
           daysInMonth,
           "days in",
           format(ymd(input$utilizationDate), "%B"),
@@ -641,7 +641,7 @@ function(input, output, session) {
         value = bedUtilization,
         subtitle = paste(
           sum(a$BNs),
-          "/",
+          "÷",
           beds * daysInMonth,
           "=",
           bedUtilization)
