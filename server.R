@@ -24,7 +24,7 @@ function(input, output, session) {
   
   output$headerDataQuality <- renderUI({
     list(
-      h2("Data Quality"),
+      h2("Data Quality (Under Construction)"),
       h4(input$providerListDQ),
       h4(paste(format(input$dq_startdate, "%m-%d-%Y"),"to",
                format(today(), "%m-%d-%Y"))))
