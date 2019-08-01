@@ -84,7 +84,7 @@ dashboardPage(
       # tabItem(tabName = "vetActiveListTab"),
       # tabItem(tabName = "cocCompetitionTab"),
       tabItem(tabName = "dqTab",
-              htmlOutput("headerDataQuality"),
+              box(htmlOutput("headerDataQuality"), width = 12),
               pickerInput(
                 inputId = "providerListDQ",
                 choices = dqProviders,
@@ -95,13 +95,18 @@ dashboardPage(
                 inputId = "dq_startdate",
                 label = "Report Start Date",
                 format = "mm/dd/yyyy",
-                value = mdy("10012018")
+                value = mdy("10012018"),
+                width = "25%"
               ),
               fluidRow(
                 uiOutput("DQDuplicateEEs"),
                 uiOutput("DQHHIssues"),
                 uiOutput("DQOverlappingEEs")),
+              br(),
+              HTML("<h3>HMIS Data Quality Errors</h3>"),
                 dataTableOutput("DQErrors"),
+              br(),
+              HTML("<h3>HMIS Data Quality Warnings</h3>"),
                 dataTableOutput("DQWarnings")
               ),
       tabItem(
@@ -115,10 +120,10 @@ dashboardPage(
         ),
        airDatepickerInput(inputId = "utilizationDate",
                   label = "Click to Choose a Month",
-                  max = floor_date(today(), unit = "month") - days(1),
+                  max = floor_date(updatedate, unit = "month") - days(1),
                   dateFormat = "MM yyyy",
                   view = "month",
-                  value = floor_date(today(), unit = "month") - days(1),
+                  value = floor_date(updatedate, unit = "month") - days(1),
                   minView = "months",
                   addon = "none"
         ),
