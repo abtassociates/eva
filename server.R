@@ -27,7 +27,7 @@ function(input, output, session) {
       h2("Data Quality (Under Construction)"),
       h4(input$providerListDQ),
       h4(paste(format(input$dq_startdate, "%m-%d-%Y"),"to",
-               format(today(), "%m-%d-%Y"))))
+               format(updatedate, "%m-%d-%Y"))))
   })
   
   output$headerLoS <- renderUI({
@@ -353,7 +353,7 @@ function(input, output, session) {
   
   output$DQErrors <- renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
     
     DQErrors <- DataQualityHMIS %>%
       filter(
@@ -361,7 +361,7 @@ function(input, output, session) {
           "Too Many Heads of Household",
           "No Head of Household",
           "Children Only Household",
-          "Overlapping Entry Exits",
+          "Overlapping Project Stays",
           "Duplicate Entry Exits"
         ) &
           served_between(., ReportStart, ReportEnd) &
@@ -377,7 +377,7 @@ function(input, output, session) {
   
   output$DQWarnings <- renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
     
     DQWarnings <- DataQualityHMIS %>%
       filter(
@@ -385,7 +385,7 @@ function(input, output, session) {
           "Too Many Heads of Household",
           "No Head of Household",
           "Children Only Household",
-          "Overlapping Entry Exits",
+          "Overlapping Project Stays",
           "Duplicate Entry Exits"
         ) &
           served_between(., ReportStart, ReportEnd) &
