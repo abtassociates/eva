@@ -153,6 +153,56 @@ function(input, output, session) {
          )))
   })
   
+  output$headerNCBs <- renderUI({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$dateNCBSlider, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$dateNCBSlider, 7, 7) == 1 ~ "03-31-",
+        substr(input$dateNCBSlider, 7, 7) == 2 ~ "06-30-",
+        substr(input$dateNCBSlider, 7, 7) == 3 ~ "09-30-",
+        substr(input$dateNCBSlider, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$dateNCBSlider, 1, 4)
+    )), "%m-%d-%Y")
+    
+    list(h2("Non-Cash Benefits at Exit"),
+         h4(input$MBProjectList),
+         h4(paste(
+           format(mdy(ReportStart), "%B %Y"),
+           "to",
+           format(mdy(ReportEnd), "%B %Y")
+         )))
+  })
+  
+  output$headerHealthInsurance <- renderUI({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$dateHealthInsuranceSlider, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$dateHealthInsuranceSlider, 7, 7) == 1 ~ "03-31-",
+        substr(input$dateHealthInsuranceSlider, 7, 7) == 2 ~ "06-30-",
+        substr(input$dateHealthInsuranceSlider, 7, 7) == 3 ~ "09-30-",
+        substr(input$dateHealthInsuranceSlider, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$dateHealthInsuranceSlider, 1, 4)
+    )), "%m-%d-%Y")
+    
+    list(h2("Health Insurance at Exit"),
+         h4(input$MBProjectList),
+         h4(paste(
+           format(mdy(ReportStart), "%B %Y"),
+           "to",
+           format(mdy(ReportEnd), "%B %Y")
+         )))
+  })
+  
   output$headerDaysToHouse <- renderUI({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$RapidRRHDateSlider, 1, 4),
@@ -782,6 +832,78 @@ function(input, output, session) {
       )
     
     SuccessfulPlacement
+    
+  })
+  
+  output$ExitedWithNCBs <- renderDataTable({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$dateNCBSlider, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$dateNCBSlider, 7, 7) == 1 ~ "03-31-",
+        substr(input$dateNCBSlider, 7, 7) == 2 ~ "06-30-",
+        substr(input$dateNCBSlider, 7, 7) == 3 ~ "09-30-",
+        substr(input$dateNCBSlider, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$dateNCBSlider, 1, 4)
+    )), "%m-%d-%Y")
+    
+    QPR_MainstreamBenefits %>%
+      filter(ProjectName == input$MBProjectList &
+               exited_between(., ReportStart, ReportEnd)) %>%
+      mutate(
+        BenefitsFromAnySource = case_when(
+          BenefitsFromAnySource == 0 ~ "No (HUD)",
+          BenefitsFromAnySource == 1 ~ "Yes (HUD)",
+          BenefitsFromAnySource == 8 ~ "Client doesn't know (HUD)",
+          BenefitsFromAnySource == 9 ~ "Client refused (HUD)",
+          BenefitsFromAnySource == 99 ~ "Data Not Collected (HUD)"
+        )
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate,
+        "Benefits from Any Source (at Exit)" = BenefitsFromAnySource
+      )
+    
+  })
+  
+    output$ExitedWithInsurance <- renderDataTable({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$dateHealthInsuranceSlider, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$dateHealthInsuranceSlider, 7, 7) == 1 ~ "03-31-",
+        substr(input$dateHealthInsuranceSlider, 7, 7) == 2 ~ "06-30-",
+        substr(input$dateHealthInsuranceSlider, 7, 7) == 3 ~ "09-30-",
+        substr(input$dateHealthInsuranceSlider, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$dateHealthInsuranceSlider, 1, 4)
+    )), "%m-%d-%Y")
+    
+    QPR_MainstreamBenefits %>%
+      filter(ProjectName == input$MBProjectList &
+               exited_between(., ReportStart, ReportEnd)) %>%
+      mutate(
+        InsuranceFromAnySource = case_when(
+          InsuranceFromAnySource == 0 ~ "No (HUD)",
+          InsuranceFromAnySource == 1 ~ "Yes (HUD)",
+          InsuranceFromAnySource == 8 ~ "Client doesn't know (HUD)",
+          InsuranceFromAnySource == 9 ~ "Client refused (HUD)",
+          InsuranceFromAnySource == 99 ~ "Data Not Collected (HUD)"
+        )
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate,
+        "Health Insurance from Any Source (at Exit)" = InsuranceFromAnySource
+      )
     
   })
   

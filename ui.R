@@ -221,9 +221,37 @@ dashboardPage(
               dataTableOutput("ExitsToPHOutreach")),
 
       tabItem(tabName = "NCBTab",
-              HTML("<h1>Under Construction</h1>")),
+              fluidRow(box(htmlOutput("headerNCBs"), width = 12)),
+              pickerInput(
+                inputId = "MBProjectList",
+                choices = c(unique(QPR_MainstreamBenefits$ProjectName)),
+                options = list(`live-search` = TRUE),
+                width = "70%"
+              ),
+              setSliderColor("#56B4E9", 1),
+              sliderTextInput("dateNCBSlider",
+                              "",
+                              c(
+                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                              ),
+                              selected = Sys.yearqtr() - 1 / 4),
+              dataTableOutput("ExitedWithNCBs")),
       tabItem(tabName = "HITab",
-              HTML("<h1>Under Construction</h1>")),
+              fluidRow(box(htmlOutput("headerHealthInsurance"), width = 12)),
+              pickerInput(
+                inputId = "MBProjectList",
+                choices = c(unique(QPR_MainstreamBenefits$ProjectName)),
+                options = list(`live-search` = TRUE),
+                width = "70%"
+              ),
+              setSliderColor("#56B4E9", 1),
+              sliderTextInput("dateHealthInsuranceSlider",
+                              "",
+                              c(
+                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                              ),
+                              selected = Sys.yearqtr() - 1 / 4),
+              dataTableOutput("ExitedWithInsurance")),
       tabItem(tabName = "incomeTab",
               HTML("<h1>Under Construction</h1>")),
       tabItem(tabName = "recurrenceTab",
