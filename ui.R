@@ -83,32 +83,40 @@ dashboardPage(
       # tabItem(tabName = "contactTab"),
       # tabItem(tabName = "vetActiveListTab"),
       # tabItem(tabName = "cocCompetitionTab"),
-      tabItem(tabName = "dqTab",
-              box(htmlOutput("headerDataQuality"), width = 12),
-              pickerInput(
-                inputId = "providerListDQ",
-                choices = dqProviders,
-                options = list('live-search' = TRUE),
-                width = "100%"
-              ),
-              dateInput(
-                inputId = "dq_startdate",
-                label = "Report Start Date",
-                format = "mm/dd/yyyy",
-                value = mdy("10012018"),
-                width = "25%"
-              ),
-              fluidRow(
-                uiOutput("DQDuplicateEEs"),
-                uiOutput("DQHHIssues"),
-                uiOutput("DQOverlappingEEs")),
-              br(),
-              HTML("<h3>HMIS Data Quality Errors</h3>"),
-                dataTableOutput("DQErrors"),
-              br(),
-              HTML("<h3>HMIS Data Quality Warnings</h3>"),
-                dataTableOutput("DQWarnings")
-              ),
+      tabItem(
+        tabName = "dqTab",
+        fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
+        fluidRow(box(
+          pickerInput(
+            inputId = "providerListDQ",
+            choices = dqProviders,
+            options = list('live-search' = TRUE),
+            width = "100%"
+          ),
+          dateInput(
+            inputId = "dq_startdate",
+            label = "Report Start Date",
+            format = "mm/dd/yyyy",
+            value = mdy("10012018"),
+            width = "25%"
+          ), width = 12
+        )),
+        fluidRow(
+          uiOutput("DQDuplicateEEs"),
+          uiOutput("DQHHIssues"),
+          uiOutput("DQOverlappingEEs")
+        ),
+        fluidRow(box(
+          dataTableOutput("DQErrors"),
+          title = "Data Quality Errors",
+          width = 12
+        )), 
+        fluidRow(box(
+          dataTableOutput("DQWarnings"),
+          title = "Data Quality Warnings",
+          width = 12
+        ))
+      ), 
       tabItem(
         tabName = "utilizationTab",
         box(htmlOutput("headerUtilization"), width = 12),
