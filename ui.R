@@ -29,12 +29,12 @@ dashboardPage(
       #   menuSubItem("Veteran Active List",
       #               tabName = "vetActiveListTab")
       # ),
-      # menuItem("Data Quality",
-      #          tabName = "dqTab"),
+      menuItem("Bed and Unit Utilization",
+                    tabName = "utilizationTab"),      
+      menuItem("Data Quality",
+               tabName = "dqTab"),
       # menuItem("CoC Competition",
       #          tabName = "cocCompetitionTab"),
-      menuItem("Bed and Unit Utilization",
-                    tabName = "utilizationTab"),
       menuItem(
         "Performance and Outcomes",
         menuItem("Community Need",
@@ -82,8 +82,41 @@ dashboardPage(
       # tabItem(tabName = "prioritizationListTab"),
       # tabItem(tabName = "contactTab"),
       # tabItem(tabName = "vetActiveListTab"),
-      # tabItem(tabName = "dqTab"),
       # tabItem(tabName = "cocCompetitionTab"),
+      tabItem(
+        tabName = "dqTab",
+        fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
+        fluidRow(box(
+          pickerInput(
+            inputId = "providerListDQ",
+            choices = dqProviders,
+            options = list('live-search' = TRUE),
+            width = "100%"
+          ),
+          dateInput(
+            inputId = "dq_startdate",
+            label = "Report Start Date",
+            format = "mm/dd/yyyy",
+            value = mdy("10012018"),
+            width = "25%"
+          ), width = 12
+        )),
+        fluidRow(
+          uiOutput("DQDuplicateEEs"),
+          uiOutput("DQHHIssues"),
+          uiOutput("DQOverlappingEEs")
+        ),
+        fluidRow(box(
+          dataTableOutput("DQErrors"),
+          title = "Data Quality Errors",
+          width = 12
+        )), 
+        fluidRow(box(
+          dataTableOutput("DQWarnings"),
+          title = "Data Quality Warnings",
+          width = 12
+        ))
+      ), 
       tabItem(
         tabName = "utilizationTab",
         box(htmlOutput("headerUtilization"), width = 12),
@@ -95,10 +128,10 @@ dashboardPage(
         ),
        airDatepickerInput(inputId = "utilizationDate",
                   label = "Click to Choose a Month",
-                  max = floor_date(today(), unit = "month") - days(1),
+                  max = floor_date(updatedate, unit = "month") - days(1),
                   dateFormat = "MM yyyy",
                   view = "month",
-                  value = floor_date(today(), unit = "month") - days(1),
+                  value = floor_date(updatedate, unit = "month") - days(1),
                   minView = "months",
                   addon = "none"
         ),
@@ -207,7 +240,7 @@ dashboardPage(
               pickerInput(
                 inputId = "RapidRRHProviderList",
                 choices = c(unique(
-                  QPR_EEs$ProjectName[QPR_EEs$ProjectType == 13])),
+                  sort(RRHEnterers$ProjectName))),
                 options = list(`live-search` = TRUE),
                 width = "70%"
               ),
