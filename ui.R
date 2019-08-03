@@ -223,7 +223,7 @@ dashboardPage(
       tabItem(tabName = "NCBTab",
               fluidRow(box(htmlOutput("headerNCBs"), width = 12)),
               pickerInput(
-                inputId = "MBProjectList",
+                inputId = "MBProjectListNC",
                 choices = c(unique(QPR_MainstreamBenefits$ProjectName)),
                 options = list(`live-search` = TRUE),
                 width = "70%"
@@ -239,7 +239,7 @@ dashboardPage(
       tabItem(tabName = "HITab",
               fluidRow(box(htmlOutput("headerHealthInsurance"), width = 12)),
               pickerInput(
-                inputId = "MBProjectList",
+                inputId = "MBProjectListHI",
                 choices = c(unique(QPR_MainstreamBenefits$ProjectName)),
                 options = list(`live-search` = TRUE),
                 width = "70%"

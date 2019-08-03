@@ -170,7 +170,7 @@ function(input, output, session) {
     )), "%m-%d-%Y")
     
     list(h2("Non-Cash Benefits at Exit"),
-         h4(input$MBProjectList),
+         h4(input$MBProjectListNC),
          h4(paste(
            format(mdy(ReportStart), "%B %Y"),
            "to",
@@ -195,7 +195,7 @@ function(input, output, session) {
     )), "%m-%d-%Y")
     
     list(h2("Health Insurance at Exit"),
-         h4(input$MBProjectList),
+         h4(input$MBProjectListHI),
          h4(paste(
            format(mdy(ReportStart), "%B %Y"),
            "to",
@@ -851,7 +851,7 @@ function(input, output, session) {
     )), "%m-%d-%Y")
     
     QPR_MainstreamBenefits %>%
-      filter(ProjectName == input$MBProjectList &
+      filter(ProjectName == input$MBProjectListNC &
                exited_between(., ReportStart, ReportEnd)) %>%
       mutate(
         BenefitsFromAnySource = case_when(
@@ -887,7 +887,7 @@ function(input, output, session) {
     )), "%m-%d-%Y")
     
     QPR_MainstreamBenefits %>%
-      filter(ProjectName == input$MBProjectList &
+      filter(ProjectName == input$MBProjectListHI &
                exited_between(., ReportStart, ReportEnd)) %>%
       mutate(
         InsuranceFromAnySource = case_when(
