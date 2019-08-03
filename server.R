@@ -153,6 +153,31 @@ function(input, output, session) {
          )))
   })
   
+  output$headerIncomeIncrease <- renderUI({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$dateIncomeSlider, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$dateIncomeSlider, 7, 7) == 1 ~ "03-31-",
+        substr(input$dateIncomeSlider, 7, 7) == 2 ~ "06-30-",
+        substr(input$dateIncomeSlider, 7, 7) == 3 ~ "09-30-",
+        substr(input$dateIncomeSlider, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$dateIncomeSlider, 1, 4)
+    )), "%m-%d-%Y")
+    
+    list(h2("Income Increase"),
+         h4(input$incomeProjectList),
+         h4(paste(
+           format(mdy(ReportStart), "%B %Y"),
+           "to",
+           format(mdy(ReportEnd), "%B %Y")
+         )))
+  })
+  
   output$headerNCBs <- renderUI({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$dateNCBSlider, 1, 4),
@@ -835,6 +860,38 @@ function(input, output, session) {
     
   })
   
+  output$IncomeIncrease <- renderDataTable({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$dateIncomeSlider, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$dateIncomeSlider, 7, 7) == 1 ~ "03-31-",
+        substr(input$dateIncomeSlider, 7, 7) == 2 ~ "06-30-",
+        substr(input$dateIncomeSlider, 7, 7) == 3 ~ "09-30-",
+        substr(input$dateIncomeSlider, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$dateIncomeSlider, 1, 4)
+    )), "%m-%d-%Y")
+    
+    QPR_Income %>%
+      filter(ProjectName == input$incomeProjectList &
+               served_between(., ReportStart, ReportEnd)) %>%
+      mutate(EntryIncome = dollar(EntryIncome),
+             RecentIncome = dollar(RecentIncome),
+             Difference = dollar(Difference)) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate,
+        "Income at Entry" = EntryIncome,
+        "Most Recent Income" = RecentIncome,
+        "Increase Amount" = Difference
+      )
+    
+  })
+  
   output$ExitedWithNCBs <- renderDataTable({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$dateNCBSlider, 1, 4),
@@ -871,7 +928,7 @@ function(input, output, session) {
     
   })
   
-    output$ExitedWithInsurance <- renderDataTable({
+  output$ExitedWithInsurance <- renderDataTable({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$dateHealthInsuranceSlider, 1, 4),
       "-01-01"

@@ -253,7 +253,21 @@ dashboardPage(
                               selected = Sys.yearqtr() - 1 / 4),
               dataTableOutput("ExitedWithInsurance")),
       tabItem(tabName = "incomeTab",
-              HTML("<h1>Under Construction</h1>")),
+              fluidRow(box(htmlOutput("headerIncomeIncrease"), width = 12)),
+              pickerInput(
+                inputId = "incomeProjectList",
+                choices = c(unique(QPR_Income$ProjectName)),
+                options = list(`live-search` = TRUE),
+                width = "70%"
+              ),
+              setSliderColor("#56B4E9", 1),
+              sliderTextInput("dateIncomeSlider",
+                              "",
+                              c(
+                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                              ),
+                              selected = Sys.yearqtr() - 1 / 4),
+              dataTableOutput("IncomeIncrease")),
       tabItem(tabName = "recurrenceTab",
               HTML("<h1>Under Construction</h1>")),
       tabItem(tabName = "rapidTab",
