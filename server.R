@@ -692,6 +692,7 @@ function(input, output, session) {
                                ReportEnd)) %>%
         left_join(., Regions, by = c("CountyServed" = "County")) %>%
         filter(RegionName == input$regionList1) %>%
+        arrange(ScoreAdjusted) %>%
         select(
           "Client ID" = PersonalID,
           Project = ProjectName,
@@ -703,6 +704,41 @@ function(input, output, session) {
         )
       
       CountyHousedAverageScores
+      
+    })
+  
+  output$ScoredHousedSummary <-
+    renderInfoBox({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$spdatSlider1, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$spdatSlider1, 7, 7) == 1 ~ "03-31-",
+          substr(input$spdatSlider1, 7, 7) == 2 ~ "06-30",
+          substr(input$spdatSlider1, 7, 7) == 3 ~ "09-30-",
+          substr(input$spdatSlider1, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$spdatSlider1, 1, 4)
+      )), "%m-%d-%Y")
+      
+      scores <- SPDATsByProject %>%
+        filter(entered_between(SPDATsByProject,
+                               ReportStart,
+                               ReportEnd)) %>%
+        left_join(., Regions, by = c("CountyServed" = "County")) %>%
+        filter(RegionName == input$regionList1) %>%
+        group_by(RegionName) %>%
+        summarise(AvgScore = as.integer(mean(ScoreAdjusted)))
+      
+      infoBox(
+        title = "Average Score",
+        color = "purple",
+        icon = icon("parachute-box"),
+        value = scores$AvgScore,
+        subtitle = "Households who were Housed in RRH or PSH in the Selected Region"
+      )
       
     })
   
@@ -736,9 +772,46 @@ function(input, output, session) {
           "Exit Date" = ExitDate,
           "County Served" = CountyServed,
           Score
-        )
+        ) %>%
+        arrange(Score)
       
       CountyAverageScores
+      
+    })
+  
+  output$ScoredInRegionSummary <-
+    renderInfoBox({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$spdatSlider2, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$spdatSlider2, 7, 7) == 1 ~ "03-31-",
+          substr(input$spdatSlider2, 7, 7) == 2 ~ "06-30",
+          substr(input$spdatSlider2, 7, 7) == 3 ~ "09-30-",
+          substr(input$spdatSlider2, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$spdatSlider2, 1, 4)
+      )), "%m-%d-%Y")
+      
+      # counting all households who were scored AND SERVED between the report dates
+      scores <- CountyData %>%
+        filter(served_between(CountyData,
+                              ReportStart,
+                              ReportEnd)) %>%
+        left_join(., Regions, by = c("CountyServed" = "County")) %>%
+        filter(RegionName == input$regionList2) %>%
+        group_by(RegionName) %>%
+        summarise(AvgScore = as.integer(mean(Score)))
+      
+      infoBox(
+        title = "Average Score",
+        color = "purple",
+        icon = icon("shoe-prints"),
+        value = scores$AvgScore,
+        subtitle = "Literally Homeless Households in the Selected Region"
+      )
       
     })
   
