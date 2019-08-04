@@ -159,6 +159,7 @@ dashboardPage(
                           unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                         ),
                         selected = Sys.yearqtr() - 1 / 4),
+        fluidRow(infoBoxOutput("ScoredHousedSummary")),
         dataTableOutput("SPDATScoresHoused")
       ),
       tabItem(
@@ -178,6 +179,7 @@ dashboardPage(
                           unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                         ),
                         selected = Sys.yearqtr() - 1 / 4),
+        fluidRow(infoBoxOutput("ScoredInRegionSummary")),
         dataTableOutput("SPDATScoresServedInCounty")
       ),      
       tabItem(tabName = "LoSTab",
