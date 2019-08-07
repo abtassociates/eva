@@ -104,7 +104,8 @@ dashboardPage(
         fluidRow(
           uiOutput("DQDuplicateEEs"),
           uiOutput("DQHHIssues"),
-          uiOutput("DQOverlappingEEs")
+          uiOutput("DQOverlappingEEs"),
+          uiOutput("DQIneligible")
         ),
         fluidRow(box(
           dataTableOutput("DQErrors"),
