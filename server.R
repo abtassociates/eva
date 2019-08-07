@@ -618,6 +618,55 @@ function(input, output, session) {
     }
   })
   
+  output$Ineligible <- renderTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    Ineligible <- smallEligibility %>%
+      filter(ProjectName == input$providerListDQ &
+               served_between(., ReportStart, ReportEnd)) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        PreviousStreetESSH = if_else(PreviousStreetESSH == 1, "Yes", "No")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Residence Prior" = ResidencePrior,
+        "Length of Stay" = LengthOfStay,
+        "Literally Homeless Prior" = PreviousStreetESSH
+      )
+    Ineligible
+  })
+  
+  output$DQIneligible <- renderUI({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    Ineligible <- smallEligibility %>%
+      filter(ProjectName == input$providerListDQ &
+               served_between(., ReportStart, ReportEnd))
+    
+    if (nrow(Ineligible) > 0) {
+      box(
+        id = "eligibility",
+        title = "Check Eligibility",
+        status = "warning",
+        solidHeader = TRUE,
+        HTML(
+          "<p>Your Residence Prior data suggests that this project is either serving
+          ineligible households, the household was entered into the wrong project,
+          or the Residence Prior data at Entry is incorrect. Please check the
+          terms of your grant or speak with the CoC team at COHHIO if you are
+          unsure of eligibility criteria for your project type."
+        ),
+        tableOutput("Ineligible")
+      )
+    }
+    else {
+      
+    }
+  })
+  
   output$DQErrors <- renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
@@ -653,7 +702,8 @@ function(input, output, session) {
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
-          "Duplicate Entry Exits"
+          "Duplicate Entry Exits",
+          "Check Eligibility"
         ) &
           served_between(., ReportStart, ReportEnd) &
           ProjectName == input$providerListDQ &
