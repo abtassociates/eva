@@ -719,6 +719,71 @@ function(input, output, session) {
     DQWarnings
   })
   
+  output$unshIncorrectResPrior <- renderUI({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    ResPrior <- unshelteredDataQuality %>%
+      filter(
+        Issue == "Wrong Provider (Not Unsheltered)" &
+          DefaultProvider == input$unshDefaultProvidersList &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        ProjectName,
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate
+      )
+    if (nrow(ResPrior) > 0) {
+      box(
+        id = "unshResPrior",
+        title = "Incorrect Residence Prior or Not Unsheltered",
+        status = "danger",
+        solidHeader = TRUE,
+        HTML(
+          "Only clients who are in a place not meant for habitation can be 
+          entered into the Unsheltered provider. If the client(s) here were 
+          incorrectly entered into the Unsheltered provider, their Entry Exit 
+          should be deleted. Otherwise, correct the data. <p>Please review the 
+          <a href=\"https://www.youtube.com/watch?v=qdmrqOHXoN0&t=174s\" 
+          target=\"_blank\">data entry portion of the Unsheltered video training</a>
+          for more info."
+        ),
+        tableOutput("unshIncorrectResPriorTable")
+      )
+    }
+    else {
+      
+    }
+  })
+  
+  output$unshIncorrectResPriorTable <- renderTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    ResPrior <- unshelteredDataQuality %>%
+      filter(
+        Issue == "Wrong Provider (Not Unsheltered)" &
+          DefaultProvider == input$unshDefaultProvidersList &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        ProjectName,
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate
+      )
+    ResPrior
+  })
+  
+  
   output$SPDATScoresHoused <-
     renderDataTable({
       ReportStart <- format.Date(ymd(paste0(
