@@ -31,15 +31,15 @@ dashboardPage(
       # ),
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
-      # menuItem(
-      #   "Data Quality",
-      #   # tabName = "dataQuality",
-      #   menuSubItem("Provider-level", tabName = "dqTab"),
-      #   menuSubItem("Unsheltered", tabName = "Unsheltered"),
-      #   menuSubItem("Diversion", tabName = "diversion")
-      # ), 
-      # menuItem("CoC Competition",
-      #          tabName = "cocCompetitionTab"),
+      menuItem(
+        "Data Quality",
+        # tabName = "dataQuality",
+        menuSubItem("Provider-level", tabName = "dqTab"),
+        menuSubItem("Unsheltered", tabName = "unsheltered"),
+        menuSubItem("Diversion", tabName = "diversion")
+      ),
+      menuItem("CoC Competition",
+               tabName = "cocCompetitionTab"),
       menuItem(
         "Performance and Outcomes",
         menuItem(
@@ -63,7 +63,7 @@ dashboardPage(
         # menuSubItem("Recurrence",
         #             tabName = "recurrenceTab"),
         menuSubItem("Rapid Placement for RRH",
-                    tabName = "rapidTab"),
+                    tabName = "rapidTab")#,
         # menuSubItem("RRH HP Spending",
         #             tabName = "spendingTab")
       )
@@ -125,8 +125,30 @@ dashboardPage(
           width = 12
         ))
       ), 
-      # tabItem(tabName = "Unsheltered"),
-      # tabItem(tabName = "diversion"),
+      tabItem(tabName = "unsheltered",
+              fluidRow(box(
+                pickerInput(
+                  inputId = "unshDefaultProvidersList",
+                  choices = sort(unshelteredDataQuality$DefaultProvider) %>% 
+                    unique(),
+                  options = list('live-search' = TRUE),
+                  width = "100%"
+                ),
+                dateInput(
+                  inputId = "unsh_dq_startdate",
+                  label = "Report Start Date",
+                  format = "mm/dd/yyyy",
+                  value = mdy("01012019"),
+                  width = "25%"
+                ), width = 12
+              )),
+              fluidRow(
+                # uiOutput(""),
+                # uiOutput(""),
+                # uiOutput(""),
+                uiOutput("unshIncorrectResPrior")
+              )),
+      tabItem(tabName = "diversion"),
       tabItem(
         tabName = "utilizationTab",
         box(htmlOutput("headerUtilization"), width = 12),
