@@ -30,19 +30,26 @@ dashboardPage(
       #               tabName = "vetActiveListTab")
       # ),
       menuItem("Bed and Unit Utilization",
-                    tabName = "utilizationTab"),      
-      menuItem("Data Quality",
-               tabName = "dqTab"),
+               tabName = "utilizationTab"),
+      # menuItem(
+      #   "Data Quality",
+      #   # tabName = "dataQuality",
+      #   menuSubItem("Provider-level", tabName = "dqTab"),
+      #   menuSubItem("Unsheltered", tabName = "Unsheltered"),
+      #   menuSubItem("Diversion", tabName = "diversion")
+      # ), 
       # menuItem("CoC Competition",
       #          tabName = "cocCompetitionTab"),
       menuItem(
         "Performance and Outcomes",
-        menuItem("Community Need",
-                    tabName = "spdatTab",
-                 menuSubItem("PSH/RRH Detail",
-                             tabName = "spdatTab1"),
-                 menuSubItem("County Detail",
-                             tabName = "spdatTab2")),
+        menuItem(
+          "Community Need",
+          tabName = "spdatTab",
+          menuSubItem("PSH/RRH Detail",
+                      tabName = "spdatTab1"),
+          menuSubItem("County Detail",
+                      tabName = "spdatTab2")
+        ),
         menuSubItem("Length of Stay",
                     tabName = "LoSTab"),
         menuSubItem("Exits to Permanent Housing",
@@ -53,12 +60,12 @@ dashboardPage(
                     tabName = "HITab"),
         menuSubItem("Income Growth",
                     tabName = "incomeTab"),
-        menuSubItem("Recurrence",
-                    tabName = "recurrenceTab"),
+        # menuSubItem("Recurrence",
+        #             tabName = "recurrenceTab"),
         menuSubItem("Rapid Placement for RRH",
                     tabName = "rapidTab"),
-        menuSubItem("RRH HP Spending",
-                    tabName = "spendingTab")
+        # menuSubItem("RRH HP Spending",
+        #             tabName = "spendingTab")
       )
     ),
     HTML(paste0(
@@ -118,6 +125,8 @@ dashboardPage(
           width = 12
         ))
       ), 
+      # tabItem(tabName = "Unsheltered"),
+      # tabItem(tabName = "diversion"),
       tabItem(
         tabName = "utilizationTab",
         box(htmlOutput("headerUtilization"), width = 12),
