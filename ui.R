@@ -125,10 +125,12 @@ dashboardPage(
           width = 12
         ))
       ), 
-      tabItem(tabName = "unsheltered",
+      tabItem(tabName = "unsheltered", 
+              fluidRow(box(htmlOutput("headerUnshDataQuality"), width = 12)),
               fluidRow(box(
                 pickerInput(
                   inputId = "unshDefaultProvidersList",
+                  label = "Select your DEFAULT Provider",
                   choices = sort(unshelteredDataQuality$DefaultProvider) %>% 
                     unique(),
                   options = list('live-search' = TRUE),
@@ -143,11 +145,17 @@ dashboardPage(
                 ), width = 12
               )),
               fluidRow(
-                # uiOutput(""),
-                # uiOutput(""),
-                # uiOutput(""),
-                uiOutput("unshIncorrectResPrior")
-              )),
+                uiOutput("unshIncorrectResPrior"),
+                uiOutput("unshOverlaps"),
+                uiOutput("unshHHIssues"),
+                uiOutput("unshDuplicateEEs")),
+                fluidRow(box(dataTableOutput("unshDQErrorsTable"),
+                             title = "Unsheltered Data Quality Errors",
+                             width = 12)),
+                fluidRow(box(dataTableOutput("unshDQWarningsTable"),
+                             title = "Unsheltered Data Quality Warnings",
+                             width = 12))
+              ),
       tabItem(tabName = "diversion"),
       tabItem(
         tabName = "utilizationTab",

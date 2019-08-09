@@ -52,6 +52,16 @@ function(input, output, session) {
          )))
   })
   
+  output$headerUnshDataQuality <- renderUI({
+    list(h2("Unsheltered Data Quality (Under Construction)"),
+         h4("Entered into the Unsheltered Provider by a User whose Default Provider is", input$unshDefaultProvidersList),
+         h4(paste(
+           format(input$unsh_dq_startdate, "%m-%d-%Y"),
+           "to",
+           format(updatedate, "%m-%d-%Y")
+         )))
+  })
+  
   output$headerCommunityNeedPH <- renderUI({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$spdatSlider1, 1, 4),
@@ -535,7 +545,7 @@ function(input, output, session) {
         solidHeader = TRUE,
         HTML(
           "Please correct your Household Issues before moving on to make other
-          Data Quality corrections. "
+          Data Quality corrections."
         ),
         tableOutput("HouseholdIssues")
       )
@@ -719,8 +729,29 @@ function(input, output, session) {
     DQWarnings
   })
   
+  output$unshIncorrectResPriorTable <- renderTable({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    ResPrior <- unshelteredDataQuality %>%
+      filter(
+        Issue == "Wrong Provider (Not Unsheltered)" &
+          DefaultProvider == input$unshDefaultProvidersList &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        ProjectName,
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate
+      )
+    ResPrior
+  }) 
+   
   output$unshIncorrectResPrior <- renderUI({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
     ResPrior <- unshelteredDataQuality %>%
       filter(
@@ -746,10 +777,10 @@ function(input, output, session) {
         status = "danger",
         solidHeader = TRUE,
         HTML(
-          "Only clients who are in a place not meant for habitation can be 
+          "Only clients who are in a place not meant for habitation should be 
           entered into the Unsheltered provider. If the client(s) here were 
           incorrectly entered into the Unsheltered provider, their Entry Exit 
-          should be deleted. Otherwise, correct the data. <p>Please review the 
+          should be deleted. <p>Please review the 
           <a href=\"https://www.youtube.com/watch?v=qdmrqOHXoN0&t=174s\" 
           target=\"_blank\">data entry portion of the Unsheltered video training</a>
           for more info."
@@ -762,12 +793,68 @@ function(input, output, session) {
     }
   })
   
-  output$unshIncorrectResPriorTable <- renderTable({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+  output$unshDuplicateEEsTable <- renderTable({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    ResPrior <- unshelteredDataQuality %>%
+    DuplicateEEs <- unshelteredDataQuality %>%
       filter(
-        Issue == "Wrong Provider (Not Unsheltered)" &
+        Issue == "Duplicate Entry Exits" &
+          DefaultProvider == input$unshDefaultProvidersList &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate
+      ) %>% unique()
+    DuplicateEEs
+  })
+  
+  output$unshDuplicateEEs <- renderUI({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    DuplicateEEs <- unshelteredDataQuality %>%
+      filter(
+        Issue == "Duplicate Entry Exits" &
+          DefaultProvider == input$unshDefaultProvidersList &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      unique()
+    
+    if (nrow(DuplicateEEs) > 0) {
+      box(
+        id = "dup_ees",
+        title = "Duplicate Entry Exits",
+        status = "warning",
+        solidHeader = TRUE,
+        HTML(
+          "Please correct this issue before moving on to your other errors.<br>
+         Duplicate Entry Exits are created when the user clicks \"Add Entry Exit\"
+         instead of clicking the Entry pencil to get back into an assessment.
+         These must be deleted for each member of the household. Please take
+         care to not delete Entry Exits with valid Interims attached."
+        ),
+        tableOutput("unshDuplicateEEsTable")
+      )
+    }
+    else {
+      
+    }
+  })
+  
+  output$unshHHIssuesTable <- renderTable({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    HHIssues <- unshelteredDataQuality %>%
+      filter(
+        Issue %in% c("Too Many Heads of Household", 
+                     "Children Only Household", 
+                     "No Head of Household") &
           DefaultProvider == input$unshDefaultProvidersList &
           served_between(., ReportStart, ReportEnd)
       ) %>%
@@ -776,13 +863,177 @@ function(input, output, session) {
         EntryDate = format(EntryDate, "%m-%d-%Y")
       ) %>%
       select(
-        ProjectName,
         "Client ID" = PersonalID,
-        "Entry Date" = EntryDate
-      )
-    ResPrior
+        "Entry Date" = EntryDate,
+        Issue
+      ) %>% unique()
+    HHIssues
   })
   
+  output$unshHHIssues <- renderUI({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    HHIssues <- unshelteredDataQuality %>%
+      filter(
+        Issue %in% c("Too Many Heads of Household", 
+                     "Children Only Household", 
+                     "No Head of Household") &
+          DefaultProvider == input$unshDefaultProvidersList &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate,
+        Issue
+      ) %>% unique()
+    
+    if (nrow(HHIssues) > 0) {
+      box(
+        id = "dup_ees",
+        title = "Household Issues",
+        status = "warning",
+        solidHeader = TRUE,
+        HTML(
+          "Please correct your household issues before moving on to your other 
+          errors."
+        ),
+        tableOutput("unshHHIssuesTable")
+      )
+    }
+    else {
+      
+    }
+  })
+  
+  output$unshOverlapsTable <- renderTable({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    overlaps <- unshelteredDataQuality %>%
+      filter(
+        Issue == "Overlapping Project Stays" &
+          DefaultProvider == input$unshDefaultProvidersList &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate
+      ) %>% unique()
+    overlaps
+  })
+  
+  output$unshOverlaps <- renderUI({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    overlaps <- unshelteredDataQuality %>%
+      filter(
+        Issue == "Overlapping Project Stays" &
+          DefaultProvider == input$unshDefaultProvidersList &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate
+      ) %>% unique()
+    
+    if (nrow(overlaps) > 0) {
+      box(
+        id = "overlaps_unsh",
+        title = "Overlapping Entry Exits",
+        status = "warning",
+        solidHeader = TRUE,
+        HTML(
+          "A client cannot be unsheltered and reside in an ES, TH, or Safe Haven 
+          at the same time. Nor can they have a Move-In Date into a PSH or RRH 
+          project while they are unsheltered. <br>
+          Please look the client(s) up in HMIS and determine which project stay's
+          Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may not be your
+          project's mistake, but if you are seeing clients here, it means your
+          project stay was entered last. <br>
+          If the overlap is not your project's mistake, please work with the 
+          project that has the incorrect Entry/Move-In/or Exit Date to get this 
+          corrected or send an email to hmis@cohhio.org if you cannot get it 
+          resolved. These clients will NOT show on their Data Quality app. <br>
+          If YOUR dates are definitely correct, it is fine to continue with other
+          data corrections as needed."
+        ), 
+        tableOutput("unshOverlapsTable")
+      )
+    }
+    else {
+      
+    }
+  })
+  
+  output$unshDQErrorsTable <- renderDataTable({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
+    
+    unshDQErrors <- unshelteredDataQuality %>%
+      filter(
+        !Issue %in% c(
+          "Too Many Heads of Household",
+          "No Head of Household",
+          "Children Only Household",
+          "Overlapping Project Stays",
+          "Duplicate Entry Exits",
+          "Wrong Provider (Not Unsheltered)"
+        ) &
+          served_between(., ReportStart, ReportEnd) &
+          DefaultProvider == input$unshDefaultProvidersList &
+          Type == "Error"
+      ) %>%
+      arrange(HouseholdID, PersonalID) %>%
+      select("Client ID" = PersonalID,
+             "Error" = Issue,
+             "Entry Date" =  EntryDate)
+    unshDQErrors
+  })
+  
+  output$unshDQWarningsTable <- renderDataTable({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
+    
+    unshDQWarnings <- unshelteredDataQuality %>%
+      filter(
+        !Issue %in% c(
+          "Too Many Heads of Household",
+          "No Head of Household",
+          "Children Only Household",
+          "Overlapping Project Stays",
+          "Duplicate Entry Exits",
+          "Check Eligibility"
+        ) &
+          served_between(., ReportStart, ReportEnd) &
+          DefaultProvider == input$unshDefaultProvidersList &
+          Type == "Warning"
+      ) %>%
+      arrange(HouseholdID, PersonalID) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Warning" = Issue,
+        "Entry Date" =  EntryDate
+      )
+    
+    unshDQWarnings
+  })
   
   output$SPDATScoresHoused <-
     renderDataTable({
