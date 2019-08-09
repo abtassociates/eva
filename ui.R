@@ -29,6 +29,8 @@ dashboardPage(
       #   menuSubItem("Veteran Active List",
       #               tabName = "vetActiveListTab")
       # ),
+      menuItem("Current Clients",
+               tabName = "currentProviderLevel"),
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
       menuItem(
@@ -90,6 +92,16 @@ dashboardPage(
       # tabItem(tabName = "contactTab"),
       # tabItem(tabName = "vetActiveListTab"),
       # tabItem(tabName = "cocCompetitionTab"),
+      tabItem(
+        tabName = "currentProviderLevel",
+        fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
+        pickerInput(
+          inputId = "currentProviderList",
+          choices = providers,
+          options = list('live-search' = TRUE),
+          width = "100%"
+        ),
+        dataTableOutput("currentClients")),
       tabItem(
         tabName = "dqTab",
         fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),

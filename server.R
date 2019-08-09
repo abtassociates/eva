@@ -34,6 +34,11 @@ function(input, output, session) {
     
   })
   
+  output$headerCurrent <- renderUI({
+    list(h2("Current Clients as of", FileEnd),
+         h4(input$currentProviderList))
+  })
+  
   output$headerUtilization <- renderUI({
     list(h2("Bed and Unit Utilization"),
          h4(input$providerListUtilization),
@@ -261,6 +266,29 @@ function(input, output, session) {
            "to",
            format(mdy(ReportEnd), "%B %Y")
          )))
+  })
+  
+  output$currentClients <- renderDataTable({
+    validation %>%
+      filter(is.na(ExitDate) &
+               ProjectName == input$currentProviderList) %>%
+      mutate(
+        RelationshipToHoH = case_when(
+          RelationshipToHoH == 1 ~ "Head of Household",
+          RelationshipToHoH == 2 ~ "Child",
+          RelationshipToHoH == 3 ~ "Spouse or Partner",
+          RelationshipToHoH == 4 ~ "Other relative",
+          RelationshipToHoH == 5 ~ "Unrelated household member",
+          RelationshipToHoH == 99 ~ "Data not collected (please correct)"
+        )
+      ) %>%
+      arrange(HouseholdID, PersonalID) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Relationship to Head of Household" = RelationshipToHoH,
+        "Entry Date" = EntryDate,
+        "Move In Date (RRH/PSH Only)" = MoveInDateAdjust
+      )
   })
   
   output$utilizationDetail <-
