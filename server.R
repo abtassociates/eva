@@ -923,7 +923,7 @@ function(input, output, session) {
     
     if (nrow(HHIssues) > 0) {
       box(
-        id = "dup_ees",
+        id = "unshhhs",
         title = "Household Issues",
         status = "warning",
         solidHeader = TRUE,
@@ -932,6 +932,67 @@ function(input, output, session) {
           errors."
         ),
         tableOutput("unshHHIssuesTable")
+      )
+    }
+    else {
+      
+    }
+  })
+  
+  output$unshMissingCountyTable <- renderTable({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    county <- unshelteredDataQuality %>%
+      filter(
+        Issue == "Missing County Served" &
+          DefaultProvider == input$unshDefaultProvidersList &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        Issue
+      ) %>% unique()
+    county
+  })
+  
+  output$unshMissingCounty <- renderUI({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    county <- unshelteredDataQuality %>%
+      filter(
+        Issue == "Missing County Served" &
+          DefaultProvider == input$unshDefaultProvidersList &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        Issue
+      ) %>% unique()
+    
+    if (nrow(county) > 0) {
+      box(
+        id = "unshcounty",
+        title = "Missing County",
+        status = "warning",
+        solidHeader = TRUE,
+        HTML(
+          "When a client is entered into the Unsheltered Provider with no County,
+          housing providers cannot tell where they are to know if they can help
+          get them housed. This field is essential to everyone in the Balance of
+          State CoC trying to prioritize its clients."
+        ),
+        tableOutput("unshMissingCountyTable")
       )
     }
     else {
