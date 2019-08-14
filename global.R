@@ -30,6 +30,8 @@ load("data/Data_Quality.RData")
 
 QPR_EEs <- QPR_EEs %>% arrange(ProjectName)
 
+providers <- sort(validation$ProjectName) %>% unique() 
+
 filebeginningdate <- updatedate - years(2)
 
 # HOW TO SET UP YOUR SYMBOLIC LINKS ON YOUR SYSTEM (Windows-specific)

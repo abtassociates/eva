@@ -29,20 +29,29 @@ dashboardPage(
       #   menuSubItem("Veteran Active List",
       #               tabName = "vetActiveListTab")
       # ),
+      menuItem("Current Clients",
+               tabName = "currentProviderLevel"),
       menuItem("Bed and Unit Utilization",
-                    tabName = "utilizationTab"),      
-      menuItem("Data Quality",
-               tabName = "dqTab"),
-      # menuItem("CoC Competition",
-      #          tabName = "cocCompetitionTab"),
+               tabName = "utilizationTab"),
+      menuItem(
+        "Data Quality",
+        # tabName = "dataQuality",
+        menuSubItem("Provider-level", tabName = "dqTab"),
+        menuSubItem("Unsheltered", tabName = "unsheltered"),
+        menuSubItem("Diversion", tabName = "diversion")
+      ),
+      menuItem("CoC Competition",
+               tabName = "cocCompetitionTab"),
       menuItem(
         "Performance and Outcomes",
-        menuItem("Community Need",
-                    tabName = "spdatTab",
-                 menuSubItem("PSH/RRH Detail",
-                             tabName = "spdatTab1"),
-                 menuSubItem("County Detail",
-                             tabName = "spdatTab2")),
+        menuItem(
+          "Community Need",
+          tabName = "spdatTab",
+          menuSubItem("PSH/RRH Detail",
+                      tabName = "spdatTab1"),
+          menuSubItem("County Detail",
+                      tabName = "spdatTab2")
+        ),
         menuSubItem("Length of Stay",
                     tabName = "LoSTab"),
         menuSubItem("Exits to Permanent Housing",
@@ -53,12 +62,12 @@ dashboardPage(
                     tabName = "HITab"),
         menuSubItem("Income Growth",
                     tabName = "incomeTab"),
-        menuSubItem("Recurrence",
-                    tabName = "recurrenceTab"),
+        # menuSubItem("Recurrence",
+        #             tabName = "recurrenceTab"),
         menuSubItem("Rapid Placement for RRH",
-                    tabName = "rapidTab"),
-        menuSubItem("RRH HP Spending",
-                    tabName = "spendingTab")
+                    tabName = "rapidTab")#,
+        # menuSubItem("RRH HP Spending",
+        #             tabName = "spendingTab")
       )
     ),
     HTML(paste0(
@@ -84,6 +93,16 @@ dashboardPage(
       # tabItem(tabName = "vetActiveListTab"),
       # tabItem(tabName = "cocCompetitionTab"),
       tabItem(
+        tabName = "currentProviderLevel",
+        fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
+        pickerInput(
+          inputId = "currentProviderList",
+          choices = providers,
+          options = list('live-search' = TRUE),
+          width = "100%"
+        ),
+        dataTableOutput("currentClients")),
+      tabItem(
         tabName = "dqTab",
         fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
         fluidRow(box(
@@ -104,7 +123,8 @@ dashboardPage(
         fluidRow(
           uiOutput("DQDuplicateEEs"),
           uiOutput("DQHHIssues"),
-          uiOutput("DQOverlappingEEs")
+          uiOutput("DQOverlappingEEs"),
+          uiOutput("DQIneligible")
         ),
         fluidRow(box(
           dataTableOutput("DQErrors"),
@@ -117,6 +137,39 @@ dashboardPage(
           width = 12
         ))
       ), 
+      tabItem(tabName = "unsheltered", 
+              fluidRow(box(htmlOutput("headerUnshDataQuality"), width = 12)),
+              fluidRow(box(
+                pickerInput(
+                  inputId = "unshDefaultProvidersList",
+                  label = "Select your DEFAULT Provider",
+                  choices = sort(unshelteredDataQuality$DefaultProvider) %>% 
+                    unique(),
+                  options = list('live-search' = TRUE),
+                  width = "100%"
+                ),
+                dateInput(
+                  inputId = "unsh_dq_startdate",
+                  label = "Report Start Date",
+                  format = "mm/dd/yyyy",
+                  value = mdy("01012019"),
+                  width = "25%"
+                ), width = 12
+              )),
+              fluidRow(
+                uiOutput("unshIncorrectResPrior"),
+                uiOutput("unshOverlaps"),
+                uiOutput("unshHHIssues"),
+                uiOutput("unshDuplicateEEs"),
+                uiOutput("unshMissingCounty")),
+                fluidRow(box(dataTableOutput("unshDQErrorsTable"),
+                             title = "Unsheltered Data Quality Errors",
+                             width = 12)),
+                fluidRow(box(dataTableOutput("unshDQWarningsTable"),
+                             title = "Unsheltered Data Quality Warnings",
+                             width = 12))
+              ),
+      tabItem(tabName = "diversion"),
       tabItem(
         tabName = "utilizationTab",
         box(htmlOutput("headerUtilization"), width = 12),
