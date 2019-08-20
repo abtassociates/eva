@@ -96,6 +96,7 @@ dashboardPage(
         tabName = "currentProviderLevel",
         fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
         pickerInput(
+          label = "Select Provider",
           inputId = "currentProviderList",
           choices = providers,
           options = list('live-search' = TRUE),
@@ -107,6 +108,7 @@ dashboardPage(
         fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
         fluidRow(box(
           pickerInput(
+            label = "Select Provider",
             inputId = "providerListDQ",
             choices = dqProviders,
             options = list('live-search' = TRUE),
@@ -174,6 +176,7 @@ dashboardPage(
         tabName = "utilizationTab",
         box(htmlOutput("headerUtilization"), width = 12),
         pickerInput(
+          label = "Select Provider",
           inputId = "providerListUtilization",
           choices = c(sort(BedUtilization$ProjectName)),
           options = list(`live-search` = TRUE),
