@@ -771,7 +771,6 @@ function(input, output, session) {
         EntryDate = format(EntryDate, "%m-%d-%Y")
       ) %>%
       select(
-        ProjectName,
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate
       )
@@ -793,7 +792,6 @@ function(input, output, session) {
         ExitDate = format(ExitDate, "%m-%d-%Y")
       ) %>%
       select(
-        ProjectName,
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
         "Exit Date" = ExitDate
