@@ -14,7 +14,7 @@
 
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "R minor _elevated_"),
+  dashboardHeader(title = "R minor elevated"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
