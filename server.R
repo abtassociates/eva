@@ -717,7 +717,7 @@ function(input, output, session) {
           "Children Only Household",
           "Overlapping Project Stays",
           "Duplicate Entry Exits"
-        ) &
+        ) & # because these are all in the boxes already
           served_between(., ReportStart, ReportEnd) &
           ProjectName == input$providerListDQ &
           Type == "Error"
