@@ -44,7 +44,8 @@ function(input, output, session) {
          h4(input$providerListUtilization),
          h4(format(ymd(
            input$utilizationDate
-         ), "%B %Y")))
+         ), "%B %Y"))
+         )
   })
   
   output$headerDataQuality <- renderUI({
@@ -316,8 +317,6 @@ function(input, output, session) {
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate)) %>%
         select(PersonalID, BedStart, ExitDate, y)
-      z <-
-        paste("Bed Nights in", format(ymd(input$utilizationDate), "%B %Y"))
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
       
