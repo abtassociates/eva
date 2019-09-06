@@ -67,7 +67,7 @@ dashboardPage(
     ),
     HTML(paste0(
       "<br>&emsp;Last update:&emsp;",
-      format(updatedate, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")#,
+      format(update_date, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")#,
       #      "<br>&emsp;Happy Passover and Easter and Spring Equinox!"
     )),
     br(),
@@ -107,11 +107,11 @@ dashboardPage(
         airDatepickerInput(inputId = "utilizationDate",
                            label = "Click to Choose a Month",
                            max = 
-                             ymd(floor_date(updatedate, unit = "month") - days(1)),
+                             ymd(floor_date(update_date, unit = "month") - days(1)),
                            dateFormat = "MM yyyy",
                            view = "month",
                            value = 
-                             ymd(floor_date(updatedate, unit = "month") - days(1)),
+                             ymd(floor_date(update_date, unit = "month") - days(1)),
                            minView = "months",
                            addon = "none",
                            autoClose = TRUE

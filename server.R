@@ -54,7 +54,7 @@ function(input, output, session) {
          h4(paste(
            format(input$dq_startdate, "%m-%d-%Y"),
            "to",
-           format(updatedate, "%m-%d-%Y")
+           format(update_date, "%m-%d-%Y")
          )))
   })
   
@@ -64,7 +64,7 @@ function(input, output, session) {
          h4(paste(
            format(input$unsh_dq_startdate, "%m-%d-%Y"),
            "to",
-           format(updatedate, "%m-%d-%Y")
+           format(update_date, "%m-%d-%Y")
          )))
   })
   
@@ -706,7 +706,7 @@ function(input, output, session) {
   
   output$DQErrors <- renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
+    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
     DQErrors <- DataQualityHMIS %>%
       filter(
@@ -730,7 +730,7 @@ function(input, output, session) {
   
   output$DQWarnings <- renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
+    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
     DQWarnings <- DataQualityHMIS %>%
       filter(
@@ -1070,7 +1070,7 @@ function(input, output, session) {
   
   output$unshDQErrorsTable <- renderDataTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
+    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
     unshDQErrors <- unshelteredDataQuality %>%
       filter(
@@ -1095,7 +1095,7 @@ function(input, output, session) {
   
   output$unshDQWarningsTable <- renderDataTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
+    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
     unshDQWarnings <- unshelteredDataQuality %>%
       filter(
