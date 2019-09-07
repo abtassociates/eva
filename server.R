@@ -44,7 +44,8 @@ function(input, output, session) {
          h4(input$providerListUtilization),
          h4(format(ymd(
            input$utilizationDate
-         ), "%B %Y")))
+         ), "%B %Y"))
+         )
   })
   
   output$headerDataQuality <- renderUI({
@@ -53,7 +54,7 @@ function(input, output, session) {
          h4(paste(
            format(input$dq_startdate, "%m-%d-%Y"),
            "to",
-           format(updatedate, "%m-%d-%Y")
+           format(update_date, "%m-%d-%Y")
          )))
   })
   
@@ -63,7 +64,7 @@ function(input, output, session) {
          h4(paste(
            format(input$unsh_dq_startdate, "%m-%d-%Y"),
            "to",
-           format(updatedate, "%m-%d-%Y")
+           format(update_date, "%m-%d-%Y")
          )))
   })
   
@@ -316,8 +317,6 @@ function(input, output, session) {
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate)) %>%
         select(PersonalID, BedStart, ExitDate, y)
-      z <-
-        paste("Bed Nights in", format(ymd(input$utilizationDate), "%B %Y"))
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
       
@@ -707,7 +706,7 @@ function(input, output, session) {
   
   output$DQErrors <- renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
+    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
     DQErrors <- DataQualityHMIS %>%
       filter(
@@ -717,7 +716,7 @@ function(input, output, session) {
           "Children Only Household",
           "Overlapping Project Stays",
           "Duplicate Entry Exits"
-        ) &
+        ) & # because these are all in the boxes already
           served_between(., ReportStart, ReportEnd) &
           ProjectName == input$providerListDQ &
           Type == "Error"
@@ -731,7 +730,7 @@ function(input, output, session) {
   
   output$DQWarnings <- renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
+    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
     DQWarnings <- DataQualityHMIS %>%
       filter(
@@ -1071,7 +1070,7 @@ function(input, output, session) {
   
   output$unshDQErrorsTable <- renderDataTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
+    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
     unshDQErrors <- unshelteredDataQuality %>%
       filter(
@@ -1096,7 +1095,7 @@ function(input, output, session) {
   
   output$unshDQWarningsTable <- renderDataTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(updatedate, "%m-%d-%Y")
+    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
     unshDQWarnings <- unshelteredDataQuality %>%
       filter(

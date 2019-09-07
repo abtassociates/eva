@@ -35,7 +35,6 @@ dashboardPage(
                tabName = "utilizationTab"),
       menuItem(
         "Data Quality",
-        # tabName = "dataQuality",
         menuSubItem("Provider-level", tabName = "dqTab"),
         menuSubItem("Unsheltered", tabName = "unsheltered"),
         menuSubItem("Diversion", tabName = "diversion")
@@ -62,17 +61,13 @@ dashboardPage(
                     tabName = "HITab"),
         menuSubItem("Income Growth",
                     tabName = "incomeTab"),
-        # menuSubItem("Recurrence",
-        #             tabName = "recurrenceTab"),
         menuSubItem("Rapid Placement for RRH",
-                    tabName = "rapidTab")#,
-        # menuSubItem("RRH HP Spending",
-        #             tabName = "spendingTab")
+                    tabName = "rapidTab")
       )
     ),
     HTML(paste0(
       "<br>&emsp;Last update:&emsp;",
-      format(updatedate, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")#,
+      format(update_date, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")#,
       #      "<br>&emsp;Happy Passover and Easter and Spring Equinox!"
     )),
     br(),
@@ -88,10 +83,6 @@ dashboardPage(
     tabItems(
       tabItem(tabName = "homeTab",
               htmlOutput("headerHome"), width = 9),
-      # tabItem(tabName = "prioritizationListTab"),
-      # tabItem(tabName = "contactTab"),
-      # tabItem(tabName = "vetActiveListTab"),
-      # tabItem(tabName = "cocCompetitionTab"),
       tabItem(
         tabName = "currentProviderLevel",
         fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
@@ -103,6 +94,35 @@ dashboardPage(
           width = "100%"
         ),
         dataTableOutput("currentClients")),
+      tabItem(
+        tabName = "utilizationTab",
+        box(htmlOutput("headerUtilization"), width = 12),
+        pickerInput(
+          label = "Select Provider",
+          inputId = "providerListUtilization",
+          choices = c(sort(BedUtilization$ProjectName)),
+          options = list(`live-search` = TRUE),
+          width = "100%"
+        ),
+        airDatepickerInput(inputId = "utilizationDate",
+                           label = "Click to Choose a Month",
+                           max = 
+                             ymd(floor_date(update_date, unit = "month") - days(1)),
+                           dateFormat = "MM yyyy",
+                           view = "month",
+                           value = 
+                             ymd(floor_date(update_date, unit = "month") - days(1)),
+                           minView = "months",
+                           addon = "none",
+                           autoClose = TRUE
+        ),
+        fluidRow(infoBoxOutput("utilizationSummary0",
+                               width = 6),
+                 infoBoxOutput("utilizationSummary1",
+                               width = 6)),
+        fluidRow(infoBoxOutput("utilizationSummary2",
+                               width = 12)),
+        dataTableOutput("utilizationDetail")),     
       tabItem(
         tabName = "dqTab",
         fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
@@ -172,32 +192,7 @@ dashboardPage(
                              width = 12))
               ),
       tabItem(tabName = "diversion"),
-      tabItem(
-        tabName = "utilizationTab",
-        box(htmlOutput("headerUtilization"), width = 12),
-        pickerInput(
-          label = "Select Provider",
-          inputId = "providerListUtilization",
-          choices = c(sort(BedUtilization$ProjectName)),
-          options = list(`live-search` = TRUE),
-          width = "100%"
-        ),
-       airDatepickerInput(inputId = "utilizationDate",
-                  label = "Click to Choose a Month",
-                  max = floor_date(updatedate, unit = "month") - days(1),
-                  dateFormat = "MM yyyy",
-                  view = "month",
-                  value = floor_date(updatedate, unit = "month") - days(1),
-                  minView = "months",
-                  addon = "none"
-        ),
-      fluidRow(infoBoxOutput("utilizationSummary0",
-                      width = 6),
-               infoBoxOutput("utilizationSummary1",
-                             width = 6)),
-      fluidRow(infoBoxOutput("utilizationSummary2",
-                             width = 12)),
-        dataTableOutput("utilizationDetail")),      
+ 
       tabItem(
         tabName = "spdatTab1",
         box(htmlOutput("headerCommunityNeedPH"), width = 12),
