@@ -235,7 +235,7 @@ dashboardPage(
       ),      
       tabItem(tabName = "LoSTab",
               box(htmlOutput("headerLoS"), width = 12),
-              fluidRow(pickerInput(
+              pickerInput(
                 inputId = "LoSProjectList",
                 choices = c(unique(
                   QPR_EEs$ProjectName[QPR_EEs$ProjectType %in% c(1, 2, 8, 13)])),
@@ -249,7 +249,7 @@ dashboardPage(
                               c(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
-                              selected = Sys.yearqtr() - 1 / 4)),
+                              selected = Sys.yearqtr() - 1 / 4),
               dataTableOutput("LoSDetail")
               ),
       tabItem(tabName = "PHTab",
