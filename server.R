@@ -281,14 +281,26 @@ function(input, output, session) {
           RelationshipToHoH == 4 ~ "Other relative",
           RelationshipToHoH == 5 ~ "Unrelated household member",
           RelationshipToHoH == 99 ~ "Data not collected (please correct)"
-        )
+        ),
+        Days = case_when(
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) ~ paste(today() - EntryDate,
+                                            "days awaiting housing in project"),
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) ~ paste(today() - MoveInDateAdjust,
+                                             "days housed in project"),
+          !ProjectType %in% c(3, 13) ~ paste(today() - EntryDate,
+                                             "days in project")
+          ),
+        sort = today() - EntryDate
       ) %>%
-      arrange(HouseholdID, PersonalID) %>%
+      arrange(desc(sort), HouseholdID, PersonalID) %>%
       select(
         "Client ID" = PersonalID,
         "Relationship to Head of Household" = RelationshipToHoH,
         "Entry Date" = EntryDate,
-        "Move In Date (RRH/PSH Only)" = MoveInDateAdjust
+        "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
+        Days
       )
   })
   
