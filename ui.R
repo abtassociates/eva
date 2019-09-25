@@ -181,10 +181,11 @@ dashboardPage(
               )),
               fluidRow(
                 uiOutput("unshIncorrectResPrior"),
+                uiOutput("unshMissingCounty"),
                 uiOutput("unshOverlaps"),
                 uiOutput("unshHHIssues"),
-                uiOutput("unshDuplicateEEs"),
-                uiOutput("unshMissingCounty")),
+                uiOutput("unshDuplicateEEs")
+              ), 
                 fluidRow(box(dataTableOutput("unshDQErrorsTable"),
                              title = "Unsheltered Data Quality Errors",
                              width = 12)),
