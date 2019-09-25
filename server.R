@@ -1109,6 +1109,7 @@ function(input, output, session) {
           "Children Only Household",
           "Overlapping Project Stays",
           "Missing County Served",
+          "Missing County Prior",
           "Duplicate Entry Exits",
           "Wrong Provider (Not Unsheltered)"
         ) &
