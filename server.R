@@ -597,9 +597,9 @@ function(input, output, session) {
   output$Overlaps <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    OverlappingEEs <- DataQualityHMIS %>%
+    
+    OverlappingEEs <- overlaps %>%
       filter(
-        Issue == "Overlapping Project Stays" &
           ProjectName == input$providerListDQ &
           served_between(., ReportStart, ReportEnd)
       ) %>%
@@ -613,7 +613,8 @@ function(input, output, session) {
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
         "Move In Date" = MoveInDateAdjust,
-        "Exit Date" = ExitDate
+        "Exit Date" = ExitDate,
+        "Overlaps With This Provider's Stay" = PreviousProject
       )
     OverlappingEEs
   })
@@ -621,7 +622,7 @@ function(input, output, session) {
   output$DQOverlappingEEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    OverlappingEEs <- DataQualityHMIS %>%
+    OverlappingEEs <- overlaps %>%
       filter(
         Issue == "Overlapping Project Stays" &
           ProjectName == input$providerListDQ &
@@ -644,18 +645,20 @@ function(input, output, session) {
         title = "Overlapping Entry Exits",
         status = "info",
         solidHeader = TRUE,
+        width = '100%',
         HTML(
           "A client cannot reside in an ES, TH, or Safe Haven at the same time. Nor
         can they have a Move-In Date into a PSH or RRH project while they are
-        still in an ES, TH, or Safe Haven. <br>
+        still in an ES, TH, or Safe Haven. Further, they cannot be in any two RRH's
+        or any two PSH's simultaneously, housed or not.<br>
         Please look the client(s) up in HMIS and determine which project stay's
-        Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may not be your
-        project's mistake, but if you are seeing clients here, it means your
+        Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the \"Previous 
+        Provider's\" mistake, but if you are seeing clients here, it means your
         project stay was entered last. <br>
-        If the overlap is not your project's mistake, please work with the project that has the
-        incorrect Entry/Move-In/or Exit Date to get this corrected or send an
-        email to hmis@cohhio.org if you cannot get it resolved. These clients
-        will NOT show on their Data Quality app. <br>
+        If the overlap is not your project's mistake, please work with the project 
+        that has the incorrect Entry/Move-In/or Exit Date to get this corrected 
+        or send an email to hmis@cohhio.org if you cannot get it resolved. These 
+        clients will NOT show on their Data Quality app. <br>
         If YOUR dates are definitely correct, it is fine to continue with other
         data corrections as needed."
         ),
@@ -665,6 +668,19 @@ function(input, output, session) {
     else {
       
     }
+  })
+  
+  output$CoCOverlap <- renderDataTable({
+    ReportStart <- "10012018"
+    ReportEnd <- "09252019"
+    
+    overlaps %>%
+      filter(served_between(., ReportStart, ReportEnd)) %>%
+      group_by(ProjectName) %>%
+      summarise(Clients = n()) %>%
+      arrange(desc(Clients)) %>%
+      select("Project Name" = ProjectName,
+             "Clients with Overlapping Entry Exits" = Clients)
   })
   
   output$Ineligible <- renderTable({
@@ -701,6 +717,7 @@ function(input, output, session) {
         title = "Check Eligibility",
         status = "warning",
         solidHeader = TRUE,
+        width = '100%',
         HTML(
           "<p>Your Residence Prior data suggests that this project is either serving
           ineligible households, the household was entered into the wrong project,
