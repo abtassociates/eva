@@ -37,7 +37,8 @@ dashboardPage(
         "Data Quality",
         menuSubItem("Provider-level", tabName = "dqTab"),
         menuSubItem("Unsheltered", tabName = "unsheltered"),
-        menuSubItem("Diversion", tabName = "diversion")
+        menuSubItem("Diversion", tabName = "diversion"),
+        menuSubItem("CoC-wide", tabName = "dqCoC")
       ),
       menuItem("CoC Competition",
                tabName = "cocCompetitionTab"),
@@ -144,10 +145,10 @@ dashboardPage(
         )),
         fluidRow(
           uiOutput("DQDuplicateEEs"),
-          uiOutput("DQHHIssues"),
-          uiOutput("DQOverlappingEEs"),
-          uiOutput("DQIneligible")
+          uiOutput("DQHHIssues")
         ),
+        uiOutput("DQIneligible"),
+        uiOutput("DQOverlappingEEs"), 
         fluidRow(box(
           dataTableOutput("DQErrors"),
           title = "Data Quality Errors",
@@ -192,7 +193,8 @@ dashboardPage(
                              width = 12))
               ),
       tabItem(tabName = "diversion"),
- 
+      tabItem(tabName = "dqCoC",
+              dataTableOutput("CoCOverlap")),
       tabItem(
         tabName = "spdatTab1",
         box(htmlOutput("headerCommunityNeedPH"), width = 12),
