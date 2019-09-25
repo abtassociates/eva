@@ -1010,7 +1010,7 @@ function(input, output, session) {
       box(
         id = "unshcounty",
         title = "Missing County",
-        status = "warning",
+        status = "danger",
         solidHeader = TRUE,
         HTML(
           "When a client is entered into the Unsheltered Provider with no County,
@@ -1108,6 +1108,7 @@ function(input, output, session) {
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
+          "Missing County Served",
           "Duplicate Entry Exits",
           "Wrong Provider (Not Unsheltered)"
         ) &
