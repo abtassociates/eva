@@ -980,8 +980,7 @@ function(input, output, session) {
       ) %>%
       select(
         "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        Issue
+        "Entry Date" = EntryDate
       ) %>% unique()
     county
   })
@@ -1002,8 +1001,7 @@ function(input, output, session) {
       ) %>%
       select(
         "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        Issue
+        "Entry Date" = EntryDate
       ) %>% unique()
     
     if (nrow(county) > 0) {
@@ -1181,7 +1179,7 @@ function(input, output, session) {
           Project = ProjectName,
           "Entry Date" = EntryDate,
           "County Served" = CountyServed,
-          "Score Date" = StartDate,
+          "Score Date" = ScoreDate,
           Score,
           "Score Adjusted" = ScoreAdjusted
         )
@@ -1434,8 +1432,8 @@ function(input, output, session) {
     QPR_Income %>%
       filter(ProjectName == input$incomeProjectList &
                served_between(., ReportStart, ReportEnd)) %>%
-      mutate(EntryIncome = dollar(EntryIncome),
-             RecentIncome = dollar(RecentIncome),
+      mutate(EntryIncome = dollar(EntryIncome, accuracy = .01),
+             RecentIncome = dollar(RecentIncome, accuracy = .01),
              Difference = dollar(Difference)) %>%
       select(
         "Client ID" = PersonalID,
@@ -1445,7 +1443,6 @@ function(input, output, session) {
         "Most Recent Income" = RecentIncome,
         "Increase Amount" = Difference
       )
-    
   })
   
   output$ExitedWithNCBs <- renderDataTable({
@@ -1519,6 +1516,51 @@ function(input, output, session) {
       )
     
   })
+  
+  output$healthInsuranceSummary <-
+    renderInfoBox({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$dateHealthInsuranceSlider, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$dateHealthInsuranceSlider, 7, 7) == 1 ~ "03-31-",
+          substr(input$dateHealthInsuranceSlider, 7, 7) == 2 ~ "06-30-",
+          substr(input$dateHealthInsuranceSlider, 7, 7) == 3 ~ "09-30-",
+          substr(input$dateHealthInsuranceSlider, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$dateHealthInsuranceSlider, 1, 4)
+      )), "%m-%d-%Y")
+      
+      x <- QPR_MainstreamBenefits %>%
+        filter(ProjectName == input$MBProjectListHI &
+                 exited_between(., ReportStart, ReportEnd)) %>%
+        mutate(
+          InsuranceFromAnySource = case_when(
+            InsuranceFromAnySource != 1 |
+              is.na(InsuranceFromAnySource) ~ "Not Yes",
+            InsuranceFromAnySource == 1 ~ "Yes"
+          )
+        ) %>%
+        group_by(InsuranceFromAnySource) %>%
+        summarise(HoHs = n()) %>%
+        ungroup() %>%
+        arrange(InsuranceFromAnySource)
+      
+      infoBox(
+        title = "Total Households Exiting With Health Insurance",
+        color = "black",
+        icon = icon("medkit"),
+        value = x$HoHs[[2]],
+        subtitle = paste0(x$HoHs[[2]], 
+                          " out of ",
+                         sum(x$HoHs), 
+                         " = ", 
+                         format(x$HoHs[[2]]/sum(x$HoHs)*100, digits = 1),
+                         "%")
+      )
+    })
   
   output$daysToHouseRRH <- renderDataTable({
     ReportStart <- format.Date(ymd(paste0(
