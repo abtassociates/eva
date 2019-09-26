@@ -307,6 +307,7 @@ dashboardPage(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
                               selected = Sys.yearqtr() - 1 / 4),
+              infoBoxOutput("healthInsuranceSummary"),
               dataTableOutput("ExitedWithInsurance")),
       tabItem(tabName = "incomeTab",
               fluidRow(box(htmlOutput("headerIncomeIncrease"), width = 12)),
