@@ -424,8 +424,7 @@ function(input, output, session) {
           "days in",
           format(ymd(input$utilizationDate), "%B"),
           "=",
-          beds * daysInMonth,
-          "possible bed nights"
+          beds * daysInMonth
         )
       )
     })
@@ -1445,6 +1444,68 @@ function(input, output, session) {
       )
   })
   
+  output$qprIncomeSummary <-
+    renderInfoBox({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$dateIncomeSlider, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$dateIncomeSlider, 7, 7) == 1 ~ "03-31-",
+          substr(input$dateIncomeSlider, 7, 7) == 2 ~ "06-30-",
+          substr(input$dateIncomeSlider, 7, 7) == 3 ~ "09-30-",
+          substr(input$dateIncomeSlider, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$dateIncomeSlider, 1, 4)
+      )), "%m-%d-%Y")
+      
+      meeting_objective <- QPR_Income %>%
+        filter(
+          ProjectName == input$incomeProjectList &
+            served_between(., ReportStart, ReportEnd) &
+            Difference > 0
+        ) %>% 
+        group_by(ProjectName, ProjectType, County, Region) %>%
+        summarise(Increased = n())
+      
+      # calculating the total households for comparison
+      all_hhs <- QPR_Income %>%
+        filter(ProjectName %in% input$incomeProjectList &
+                 served_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectName, ProjectType, County, Region) %>%
+        summarise(TotalHHs = n()) 
+      
+      IncreasedIncome <- all_hhs %>%
+        left_join(
+          meeting_objective,
+          by = c("ProjectName", "ProjectType", "County", "Region")
+        )
+      
+      IncreasedIncome[is.na(IncreasedIncome)] <- 0
+      
+      IncreasedIncome <- IncreasedIncome %>%
+        mutate(Percent = Increased / TotalHHs)
+      
+      if(nrow(IncreasedIncome) > 0) {
+        infoBox(
+          title = "Households Increasing Their Income",
+          color = "green",
+          icon = icon("hand-holding-usd"),
+          value = percent(IncreasedIncome$Percent),
+          subtitle = paste(IncreasedIncome$Increased, 
+                           "out of",
+                           IncreasedIncome$TotalHHs, 
+                           "households served")
+        )
+      }
+      else{
+        infoBox(
+          title = "Something's wrong- email us at hmis@cohhio.org!"
+        )
+      }
+    })
+  
   output$ExitedWithNCBs <- renderDataTable({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$dateNCBSlider, 1, 4),
@@ -1480,6 +1541,68 @@ function(input, output, session) {
       )
     
   })
+  
+  output$qprNCBSummary <-
+    renderInfoBox({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$dateNCBSlider, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$dateNCBSlider, 7, 7) == 1 ~ "03-31-",
+          substr(input$dateNCBSlider, 7, 7) == 2 ~ "06-30-",
+          substr(input$dateNCBSlider, 7, 7) == 3 ~ "09-30-",
+          substr(input$dateNCBSlider, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$dateNCBSlider, 1, 4)
+      )), "%m-%d-%Y")
+      
+      meeting_objective <- QPR_MainstreamBenefits %>%
+        filter(
+            ProjectName == input$MBProjectListNC &
+            exited_between(., ReportStart, ReportEnd) &
+            BenefitsFromAnySource == 1
+        ) %>% 
+        group_by(ProjectName) %>%
+        summarise(BenefitsAtExit = n())
+      
+      # calculating the total households for comparison
+      all_hhs <- QPR_MainstreamBenefits %>%
+        filter(ProjectName == input$MBProjectListNC &
+                 exited_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectName) %>%
+        summarise(TotalHHs = n()) 
+      
+      NCBsAtExit <- all_hhs %>%
+        left_join(
+          meeting_objective,
+          by = c("ProjectName")
+        )
+      
+      NCBsAtExit[is.na(NCBsAtExit)] <- 0
+      
+      NCBsAtExit <- NCBsAtExit %>%
+        mutate(Percent = BenefitsAtExit / TotalHHs)
+      
+      if(nrow(NCBsAtExit) > 0) {
+        infoBox(
+        title = "Households Exiting With Non Cash Benefits",
+        color = "fuchsia",
+        icon = icon("shopping-cart"),
+        value = percent(NCBsAtExit$Percent),
+        subtitle = paste(NCBsAtExit$BenefitsAtExit, 
+                          "out of",
+                          NCBsAtExit$TotalHHs, 
+                          "households")
+        )
+      }
+      else{
+        infoBox(
+          title = "No Leavers in the Date Range"
+        )
+      }
+    })
   
   output$ExitedWithInsurance <- renderDataTable({
     ReportStart <- format.Date(ymd(paste0(
@@ -1533,33 +1656,49 @@ function(input, output, session) {
         substr(input$dateHealthInsuranceSlider, 1, 4)
       )), "%m-%d-%Y")
       
-      x <- QPR_MainstreamBenefits %>%
+      meeting_objective <- QPR_MainstreamBenefits %>%
+        filter(
+            ProjectName == input$MBProjectListHI &
+            exited_between(., ReportStart, ReportEnd) &
+            InsuranceFromAnySource == 1
+        ) %>% 
+        group_by(ProjectName) %>%
+        summarise(InsuranceAtExit = n())
+      
+      # calculating the total households for comparison
+      all_hhs <- QPR_MainstreamBenefits %>%
         filter(ProjectName == input$MBProjectListHI &
                  exited_between(., ReportStart, ReportEnd)) %>%
-        mutate(
-          InsuranceFromAnySource = case_when(
-            InsuranceFromAnySource != 1 |
-              is.na(InsuranceFromAnySource) ~ "Not Yes",
-            InsuranceFromAnySource == 1 ~ "Yes"
-          )
-        ) %>%
-        group_by(InsuranceFromAnySource) %>%
-        summarise(HoHs = n()) %>%
-        ungroup() %>%
-        arrange(InsuranceFromAnySource)
+        group_by(ProjectName) %>%
+        summarise(TotalHHs = n()) 
       
-      infoBox(
+      HIAtExit <- all_hhs %>%
+        left_join(
+          meeting_objective,
+          by = c("ProjectName")
+        )
+      
+      HIAtExit[is.na(HIAtExit)] <- 0
+      
+      HIAtExit <- HIAtExit %>%
+        mutate(Percent = InsuranceAtExit / TotalHHs)
+      
+      if(nrow(HIAtExit) > 0) {
+        infoBox(
         title = "Total Households Exiting With Health Insurance",
         color = "black",
         icon = icon("medkit"),
-        value = x$HoHs[[2]],
-        subtitle = paste0(x$HoHs[[2]], 
-                          " out of ",
-                         sum(x$HoHs), 
-                         " = ", 
-                         format(x$HoHs[[2]]/sum(x$HoHs)*100, digits = 1),
-                         "%")
-      )
+        value = percent(HIAtExit$Percent),
+        subtitle = paste(HIAtExit$InsuranceAtExit, 
+                          "out of",
+                         HIAtExit$TotalHHs,
+                         "households")
+        )}
+      else{
+        infoBox(
+          title = "No Leavers in the Date Range"
+        )
+      }
     })
   
   output$daysToHouseRRH <- renderDataTable({
