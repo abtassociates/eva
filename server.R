@@ -669,17 +669,167 @@ function(input, output, session) {
     }
   })
   
-  output$CoCOverlap <- renderDataTable({
+  output$cocOverlap <- renderDataTable({
     ReportStart <- "10012018"
-    ReportEnd <- "09252019"
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
     overlaps %>%
       filter(served_between(., ReportStart, ReportEnd)) %>%
       group_by(ProjectName) %>%
       summarise(Clients = n()) %>%
       arrange(desc(Clients)) %>%
+      top_n(20L, wt = Clients) %>%
       select("Project Name" = ProjectName,
              "Clients with Overlapping Entry Exits" = Clients)
+    
+  })
+  
+  output$cocWidespreadIssues <- renderDataTable({
+    cocDataQualityHMIS %>%
+      select(Issue, ProjectName, Type) %>%
+      unique() %>%
+      group_by(Issue, Type) %>%
+      summarise(HowManyProjects = n()) %>%
+      arrange(desc(HowManyProjects)) %>%
+      head(10L) %>%
+      select(Issue, Type, "How Many Providers" = HowManyProjects)
+  })
+  
+  output$cocDQWarnings <- renderPlotly({
+    plotWarnings <- cocDataQualityHMIS %>%
+      filter(Type == "Warning") %>%
+      group_by(ProjectName, ProjectID) %>%
+      summarise(Warnings = n()) %>%
+      ungroup() %>%
+      arrange(desc(Warnings))
+    
+    plotWarnings$hover <-
+      with(
+        plotWarnings,
+        paste(
+          "Project ID:",
+          ProjectID)      )
+    
+    plot_ly(
+      head(plotWarnings, 20L) %>%
+        arrange(desc(Warnings)),
+      x = ~ ProjectName,
+      y = ~ Warnings,
+      type = 'bar',
+      text = ~ hover,
+      color = ~ Warnings,
+      colors = viridis_pal(option = "D", direction = -1)(7)
+    ) %>%
+      layout(
+        title = "HMIS Warnings by Provider Top 20",
+        margin = list(
+          t = 70
+        ),
+        xaxis = list(
+          title = ~ ProjectName,
+          categoryorder = "trace"
+        ),
+        yaxis = list(title = "All Warnings")
+      )
+  })
+  
+  output$cocDQErrorTypes <- renderPlotly({
+    errorTypes <- cocDataQualityHMIS %>%
+      filter(Type == "Error") %>%
+      group_by(Issue) %>%
+      summarise(Errors = n()) %>%
+      ungroup() %>%
+      arrange(desc(Errors))
+    
+    plot_ly(
+      head(errorTypes, 20L),
+      x = ~ Issue,
+      y = ~ Errors,
+      type = 'bar',
+      color = ~ Errors,
+      colors = viridis_pal(option = "D", direction = -1)(7)
+    ) %>%
+      layout(
+        title = "HMIS Errors Across the Ohio BoS CoC",
+        margin = list(
+          t = 70
+        ),
+        xaxis = list(
+          title = ~ Issue,
+          categoryorder = "trace"
+        ),
+        yaxis = list(title = "All Errors")
+      )
+    
+  })
+  
+  output$cocDQWarningTypes <- renderPlotly({
+    warningTypes <- cocDataQualityHMIS %>%
+      filter(Type == "Warning") %>%
+      group_by(Issue) %>%
+      summarise(Warnings = n()) %>%
+      ungroup() %>%
+      arrange(desc(Warnings))
+    
+    plot_ly(
+      warningTypes,
+      x = ~ Issue,
+      y = ~ Warnings,
+      type = 'bar',
+      color = ~ Warnings,
+      colors = viridis_pal(option = "D", direction = -1)(7)
+    ) %>%
+      layout(
+        title = "HMIS Warnings Across the Ohio BoS CoC",
+        margin = list(
+          t = 70
+        ),
+        xaxis = list(
+          title = ~ Issue,
+          categoryorder = "trace"
+        ),
+        yaxis = list(title = "All Warnings")
+      )
+  })
+  
+  output$cocDQErrors <- renderPlotly({
+    plotErrors <- cocDataQualityHMIS %>%
+      filter(Type == "Error") %>%
+      select(PersonalID, ProjectID, ProjectName) %>%
+      unique() %>%
+      group_by(ProjectName, ProjectID) %>%
+      summarise(clientsWithErrors = n()) %>%
+      ungroup() %>%
+      arrange(desc(clientsWithErrors))
+    
+    plotErrors$hover <-
+      with(
+        plotErrors,
+        paste(
+          "Project ID:",
+          ProjectID)
+      )
+
+    plot_ly(
+      head(plotErrors, 20L),
+      x = ~ ProjectName,
+      y = ~ clientsWithErrors,
+      color = ~ clientsWithErrors,
+      type = 'bar',
+      text = ~ hover,
+      colors = viridis_pal(option = "D", direction = -1)(7)
+    ) %>%
+      layout(
+        title = "HMIS Errors by Provider Top 20",
+        margin = list(
+          t = 70
+          ),
+        xaxis = list(
+          title = ~ ProjectName,
+          categoryorder = "trace"
+        ),
+        yaxis = list(title = "Clients in Error")
+      )
   })
   
   output$Ineligible <- renderTable({
