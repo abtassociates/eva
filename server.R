@@ -1463,7 +1463,7 @@ function(input, output, session) {
       meeting_objective <- QPR_Income %>%
         filter(
           ProjectName == input$incomeProjectList &
-            served_between(., ReportStart, ReportEnd) &
+            stayed_between(., ReportStart, ReportEnd) &
             Difference > 0
         ) %>% 
         group_by(ProjectName, ProjectType, County, Region) %>%
@@ -1472,7 +1472,7 @@ function(input, output, session) {
       # calculating the total households for comparison
       all_hhs <- QPR_Income %>%
         filter(ProjectName %in% input$incomeProjectList &
-                 served_between(., ReportStart, ReportEnd)) %>%
+                 stayed_between(., ReportStart, ReportEnd)) %>%
         group_by(ProjectName, ProjectType, County, Region) %>%
         summarise(TotalHHs = n()) 
       
