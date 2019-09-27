@@ -1430,10 +1430,10 @@ function(input, output, session) {
     
     QPR_Income %>%
       filter(ProjectName == input$incomeProjectList &
-               served_between(., ReportStart, ReportEnd)) %>%
+               stayed_between(., ReportStart, ReportEnd)) %>%
       mutate(EntryIncome = dollar(EntryIncome, accuracy = .01),
              RecentIncome = dollar(RecentIncome, accuracy = .01),
-             Difference = dollar(Difference)) %>%
+             Difference = dollar(Difference, accuracy = .01)) %>%
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
