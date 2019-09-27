@@ -192,7 +192,15 @@ dashboardPage(
               ),
       tabItem(tabName = "diversion"),
       tabItem(tabName = "dqCoC",
-              fluidRow(box(dataTableOutput("CoCOverlap")))),
+              fluidRow(box(plotlyOutput("cocDQErrors")),
+                       box(plotlyOutput("cocDQWarnings"))),
+              fluidRow(box(plotlyOutput("cocDQErrorTypes")),
+                       box(plotlyOutput("cocDQWarningTypes"))),
+              fluidRow(box(dataTableOutput("cocOverlap"),
+                    title = "Top 20 Providers with Overlapping Entry Exits"),
+                    box(dataTableOutput("cocWidespreadIssues"),
+                        title = "Widespread Issues (Training focus)"))
+              ), 
       tabItem(
         tabName = "spdatTab1",
         fluidRow(box(htmlOutput("headerCommunityNeedPH"), width = 12)),
