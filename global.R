@@ -19,6 +19,9 @@ library(lubridate)
 library(shinydashboard)
 library(scales)
 library(zoo)
+library(plotly)
+library(viridis)
+library(DT)
 
 load("data/Utilization.RData")
 
