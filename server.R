@@ -68,6 +68,13 @@ function(input, output, session) {
          )))
   })
   
+  output$headerCocDQ <- renderUI({
+    list(
+      h2("CoC-wide Data Quality (Under Construction)"),
+      h4("October 2018 through Last Updated Date")
+    )
+  })
+  
   output$headerCommunityNeedPH <- renderUI({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$spdatSlider1, 1, 4),
@@ -424,8 +431,7 @@ function(input, output, session) {
           "days in",
           format(ymd(input$utilizationDate), "%B"),
           "=",
-          beds * daysInMonth,
-          "possible bed nights"
+          beds * daysInMonth
         )
       )
     })
@@ -597,9 +603,9 @@ function(input, output, session) {
   output$Overlaps <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    OverlappingEEs <- DataQualityHMIS %>%
+    
+    OverlappingEEs <- overlaps %>%
       filter(
-        Issue == "Overlapping Project Stays" &
           ProjectName == input$providerListDQ &
           served_between(., ReportStart, ReportEnd)
       ) %>%
@@ -613,7 +619,8 @@ function(input, output, session) {
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
         "Move In Date" = MoveInDateAdjust,
-        "Exit Date" = ExitDate
+        "Exit Date" = ExitDate,
+        "Overlaps With This Provider's Stay" = PreviousProject
       )
     OverlappingEEs
   })
@@ -621,7 +628,7 @@ function(input, output, session) {
   output$DQOverlappingEEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    OverlappingEEs <- DataQualityHMIS %>%
+    OverlappingEEs <- overlaps %>%
       filter(
         Issue == "Overlapping Project Stays" &
           ProjectName == input$providerListDQ &
@@ -644,18 +651,20 @@ function(input, output, session) {
         title = "Overlapping Entry Exits",
         status = "info",
         solidHeader = TRUE,
+        width = '100%',
         HTML(
           "A client cannot reside in an ES, TH, or Safe Haven at the same time. Nor
         can they have a Move-In Date into a PSH or RRH project while they are
-        still in an ES, TH, or Safe Haven. <br>
+        still in an ES, TH, or Safe Haven. Further, they cannot be in any two RRH's
+        or any two PSH's simultaneously, housed or not.<br>
         Please look the client(s) up in HMIS and determine which project stay's
-        Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may not be your
-        project's mistake, but if you are seeing clients here, it means your
+        Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the \"Previous 
+        Provider's\" mistake, but if you are seeing clients here, it means your
         project stay was entered last. <br>
-        If the overlap is not your project's mistake, please work with the project that has the
-        incorrect Entry/Move-In/or Exit Date to get this corrected or send an
-        email to hmis@cohhio.org if you cannot get it resolved. These clients
-        will NOT show on their Data Quality app. <br>
+        If the overlap is not your project's mistake, please work with the project 
+        that has the incorrect Entry/Move-In/or Exit Date to get this corrected 
+        or send an email to hmis@cohhio.org if you cannot get it resolved. These 
+        clients will NOT show on their Data Quality app. <br>
         If YOUR dates are definitely correct, it is fine to continue with other
         data corrections as needed."
         ),
@@ -666,6 +675,44 @@ function(input, output, session) {
       
     }
   })
+  
+  output$cocOverlap <- renderDataTable({
+    ReportStart <- "10012018"
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    
+    overlaps %>%
+      filter(served_between(., ReportStart, ReportEnd)) %>%
+      group_by(ProjectName) %>%
+      summarise(Clients = n()) %>%
+      arrange(desc(Clients)) %>%
+      top_n(20L, wt = Clients) %>%
+      select("Project Name" = ProjectName,
+             "Clients with Overlapping Entry Exits" = Clients)
+    
+  })
+  
+  output$cocWidespreadIssues <- renderDataTable({
+    cocDataQualityHMIS %>%
+      select(Issue, ProjectName, Type) %>%
+      unique() %>%
+      group_by(Issue, Type) %>%
+      summarise(HowManyProjects = n()) %>%
+      arrange(desc(HowManyProjects)) %>%
+      head(10L) %>%
+      select(Issue, Type, "How Many Providers" = HowManyProjects)
+  })
+  
+  output$cocDQWarnings <- renderPlot(top_20_projects_warnings)
+  
+  output$cocDQErrorTypes <- renderPlot(top_10_errors)
+  
+  output$cocDQWarningTypes <- renderPlot(top_10_warnings)
+  
+  output$cocDQErrors <- renderPlot(top_20_projects_errors)
+  
+  output$cocHHErrors <- renderPlot(top_20_projects_hh_errors)
+  
+  output$cocEligibility <- renderPlot(top_20_eligibility)
   
   output$Ineligible <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
@@ -701,6 +748,7 @@ function(input, output, session) {
         title = "Check Eligibility",
         status = "warning",
         solidHeader = TRUE,
+        width = '100%',
         HTML(
           "<p>Your Residence Prior data suggests that this project is either serving
           ineligible households, the household was entered into the wrong project,
@@ -963,8 +1011,7 @@ function(input, output, session) {
       ) %>%
       select(
         "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        Issue
+        "Entry Date" = EntryDate
       ) %>% unique()
     county
   })
@@ -985,15 +1032,14 @@ function(input, output, session) {
       ) %>%
       select(
         "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        Issue
+        "Entry Date" = EntryDate
       ) %>% unique()
     
     if (nrow(county) > 0) {
       box(
         id = "unshcounty",
         title = "Missing County",
-        status = "warning",
+        status = "danger",
         solidHeader = TRUE,
         HTML(
           "When a client is entered into the Unsheltered Provider with no County,
@@ -1091,6 +1137,8 @@ function(input, output, session) {
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
+          "Missing County Served",
+          "Missing County Prior",
           "Duplicate Entry Exits",
           "Wrong Provider (Not Unsheltered)"
         ) &
@@ -1162,7 +1210,7 @@ function(input, output, session) {
           Project = ProjectName,
           "Entry Date" = EntryDate,
           "County Served" = CountyServed,
-          "Score Date" = StartDate,
+          "Score Date" = ScoreDate,
           Score,
           "Score Adjusted" = ScoreAdjusted
         )
@@ -1414,10 +1462,10 @@ function(input, output, session) {
     
     QPR_Income %>%
       filter(ProjectName == input$incomeProjectList &
-               served_between(., ReportStart, ReportEnd)) %>%
-      mutate(EntryIncome = dollar(EntryIncome),
-             RecentIncome = dollar(RecentIncome),
-             Difference = dollar(Difference)) %>%
+               stayed_between(., ReportStart, ReportEnd)) %>%
+      mutate(EntryIncome = dollar(EntryIncome, accuracy = .01),
+             RecentIncome = dollar(RecentIncome, accuracy = .01),
+             Difference = dollar(Difference, accuracy = .01)) %>%
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
@@ -1426,8 +1474,69 @@ function(input, output, session) {
         "Most Recent Income" = RecentIncome,
         "Increase Amount" = Difference
       )
-    
   })
+  
+  output$qprIncomeSummary <-
+    renderInfoBox({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$dateIncomeSlider, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$dateIncomeSlider, 7, 7) == 1 ~ "03-31-",
+          substr(input$dateIncomeSlider, 7, 7) == 2 ~ "06-30-",
+          substr(input$dateIncomeSlider, 7, 7) == 3 ~ "09-30-",
+          substr(input$dateIncomeSlider, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$dateIncomeSlider, 1, 4)
+      )), "%m-%d-%Y")
+      
+      meeting_objective <- QPR_Income %>%
+        filter(
+          ProjectName == input$incomeProjectList &
+            stayed_between(., ReportStart, ReportEnd) &
+            Difference > 0
+        ) %>% 
+        group_by(ProjectName, ProjectType, County, Region) %>%
+        summarise(Increased = n())
+      
+      # calculating the total households for comparison
+      all_hhs <- QPR_Income %>%
+        filter(ProjectName %in% input$incomeProjectList &
+                 stayed_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectName, ProjectType, County, Region) %>%
+        summarise(TotalHHs = n()) 
+      
+      IncreasedIncome <- all_hhs %>%
+        left_join(
+          meeting_objective,
+          by = c("ProjectName", "ProjectType", "County", "Region")
+        )
+      
+      IncreasedIncome[is.na(IncreasedIncome)] <- 0
+      
+      IncreasedIncome <- IncreasedIncome %>%
+        mutate(Percent = Increased / TotalHHs)
+      
+      if(nrow(IncreasedIncome) > 0) {
+        infoBox(
+          title = "Households Increasing Their Income",
+          color = "green",
+          icon = icon("hand-holding-usd"),
+          value = percent(IncreasedIncome$Percent),
+          subtitle = paste(IncreasedIncome$Increased, 
+                           "out of",
+                           IncreasedIncome$TotalHHs, 
+                           "households served")
+        )
+      }
+      else{
+        infoBox(
+          title = "Something's wrong- email us at hmis@cohhio.org!"
+        )
+      }
+    })
   
   output$ExitedWithNCBs <- renderDataTable({
     ReportStart <- format.Date(ymd(paste0(
@@ -1465,6 +1574,68 @@ function(input, output, session) {
     
   })
   
+  output$qprNCBSummary <-
+    renderInfoBox({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$dateNCBSlider, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$dateNCBSlider, 7, 7) == 1 ~ "03-31-",
+          substr(input$dateNCBSlider, 7, 7) == 2 ~ "06-30-",
+          substr(input$dateNCBSlider, 7, 7) == 3 ~ "09-30-",
+          substr(input$dateNCBSlider, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$dateNCBSlider, 1, 4)
+      )), "%m-%d-%Y")
+      
+      meeting_objective <- QPR_MainstreamBenefits %>%
+        filter(
+            ProjectName == input$MBProjectListNC &
+            exited_between(., ReportStart, ReportEnd) &
+            BenefitsFromAnySource == 1
+        ) %>% 
+        group_by(ProjectName) %>%
+        summarise(BenefitsAtExit = n())
+      
+      # calculating the total households for comparison
+      all_hhs <- QPR_MainstreamBenefits %>%
+        filter(ProjectName == input$MBProjectListNC &
+                 exited_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectName) %>%
+        summarise(TotalHHs = n()) 
+      
+      NCBsAtExit <- all_hhs %>%
+        left_join(
+          meeting_objective,
+          by = c("ProjectName")
+        )
+      
+      NCBsAtExit[is.na(NCBsAtExit)] <- 0
+      
+      NCBsAtExit <- NCBsAtExit %>%
+        mutate(Percent = BenefitsAtExit / TotalHHs)
+      
+      if(nrow(NCBsAtExit) > 0) {
+        infoBox(
+        title = "Households Exiting With Non Cash Benefits",
+        color = "fuchsia",
+        icon = icon("shopping-cart"),
+        value = percent(NCBsAtExit$Percent),
+        subtitle = paste(NCBsAtExit$BenefitsAtExit, 
+                          "out of",
+                          NCBsAtExit$TotalHHs, 
+                          "households")
+        )
+      }
+      else{
+        infoBox(
+          title = "No Leavers in the Date Range"
+        )
+      }
+    })
+  
   output$ExitedWithInsurance <- renderDataTable({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$dateHealthInsuranceSlider, 1, 4),
@@ -1500,6 +1671,67 @@ function(input, output, session) {
       )
     
   })
+  
+  output$healthInsuranceSummary <-
+    renderInfoBox({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$dateHealthInsuranceSlider, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$dateHealthInsuranceSlider, 7, 7) == 1 ~ "03-31-",
+          substr(input$dateHealthInsuranceSlider, 7, 7) == 2 ~ "06-30-",
+          substr(input$dateHealthInsuranceSlider, 7, 7) == 3 ~ "09-30-",
+          substr(input$dateHealthInsuranceSlider, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$dateHealthInsuranceSlider, 1, 4)
+      )), "%m-%d-%Y")
+      
+      meeting_objective <- QPR_MainstreamBenefits %>%
+        filter(
+            ProjectName == input$MBProjectListHI &
+            exited_between(., ReportStart, ReportEnd) &
+            InsuranceFromAnySource == 1
+        ) %>% 
+        group_by(ProjectName) %>%
+        summarise(InsuranceAtExit = n())
+      
+      # calculating the total households for comparison
+      all_hhs <- QPR_MainstreamBenefits %>%
+        filter(ProjectName == input$MBProjectListHI &
+                 exited_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectName) %>%
+        summarise(TotalHHs = n()) 
+      
+      HIAtExit <- all_hhs %>%
+        left_join(
+          meeting_objective,
+          by = c("ProjectName")
+        )
+      
+      HIAtExit[is.na(HIAtExit)] <- 0
+      
+      HIAtExit <- HIAtExit %>%
+        mutate(Percent = InsuranceAtExit / TotalHHs)
+      
+      if(nrow(HIAtExit) > 0) {
+        infoBox(
+        title = "Total Households Exiting With Health Insurance",
+        color = "black",
+        icon = icon("medkit"),
+        value = percent(HIAtExit$Percent),
+        subtitle = paste(HIAtExit$InsuranceAtExit, 
+                          "out of",
+                         HIAtExit$TotalHHs,
+                         "households")
+        )}
+      else{
+        infoBox(
+          title = "No Leavers in the Date Range"
+        )
+      }
+    })
   
   output$daysToHouseRRH <- renderDataTable({
     ReportStart <- format.Date(ymd(paste0(

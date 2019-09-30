@@ -37,7 +37,8 @@ dashboardPage(
         "Data Quality",
         menuSubItem("Provider-level", tabName = "dqTab"),
         menuSubItem("Unsheltered", tabName = "unsheltered"),
-        menuSubItem("Diversion", tabName = "diversion")
+        menuSubItem("Diversion", tabName = "diversion"),
+        menuSubItem("CoC-wide", tabName = "dqCoC")
       ),
       menuItem("CoC Competition",
                tabName = "cocCompetitionTab"),
@@ -86,18 +87,18 @@ dashboardPage(
       tabItem(
         tabName = "currentProviderLevel",
         fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
-        pickerInput(
+        fluidRow(box(pickerInput(
           label = "Select Provider",
           inputId = "currentProviderList",
           choices = providers,
           options = list('live-search' = TRUE),
           width = "100%"
-        ),
-        dataTableOutput("currentClients")),
+        ))),
+        fluidRow(box(dataTableOutput("currentClients")))),
       tabItem(
         tabName = "utilizationTab",
-        box(htmlOutput("headerUtilization"), width = 12),
-        pickerInput(
+        fluidRow(box(htmlOutput("headerUtilization"), width = 12)),
+        fluidRow(box(pickerInput(
           label = "Select Provider",
           inputId = "providerListUtilization",
           choices = c(sort(BedUtilization$ProjectName)),
@@ -115,14 +116,11 @@ dashboardPage(
                            minView = "months",
                            addon = "none",
                            autoClose = TRUE
-        ),
-        fluidRow(infoBoxOutput("utilizationSummary0",
-                               width = 6),
-                 infoBoxOutput("utilizationSummary1",
-                               width = 6)),
-        fluidRow(infoBoxOutput("utilizationSummary2",
-                               width = 12)),
-        dataTableOutput("utilizationDetail")),     
+        ))),
+        fluidRow(infoBoxOutput("utilizationSummary0"),
+                 infoBoxOutput("utilizationSummary1")),
+        fluidRow(infoBoxOutput("utilizationSummary2")),
+        fluidRow(box(dataTableOutput("utilizationDetail")))),     
       tabItem(
         tabName = "dqTab",
         fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
@@ -144,10 +142,10 @@ dashboardPage(
         )),
         fluidRow(
           uiOutput("DQDuplicateEEs"),
-          uiOutput("DQHHIssues"),
-          uiOutput("DQOverlappingEEs"),
-          uiOutput("DQIneligible")
+          uiOutput("DQHHIssues")
         ),
+        uiOutput("DQIneligible"),
+        uiOutput("DQOverlappingEEs"), 
         fluidRow(box(
           dataTableOutput("DQErrors"),
           title = "Data Quality Errors",
@@ -180,10 +178,11 @@ dashboardPage(
               )),
               fluidRow(
                 uiOutput("unshIncorrectResPrior"),
+                uiOutput("unshMissingCounty"),
                 uiOutput("unshOverlaps"),
                 uiOutput("unshHHIssues"),
-                uiOutput("unshDuplicateEEs"),
-                uiOutput("unshMissingCounty")),
+                uiOutput("unshDuplicateEEs")
+              ), 
                 fluidRow(box(dataTableOutput("unshDQErrorsTable"),
                              title = "Unsheltered Data Quality Errors",
                              width = 12)),
@@ -192,11 +191,55 @@ dashboardPage(
                              width = 12))
               ),
       tabItem(tabName = "diversion"),
- 
+      tabItem(tabName = "dqCoC",
+              fluidRow(box(htmlOutput("headerCocDQ"), width = 12)),
+              fluidRow(
+                box(plotOutput("cocDQErrors"), 
+                    width = 12,
+                    solidHeader = TRUE,
+                    status = "danger",
+                    title = "Providers with the Most Data Quality Errors"),
+                box(plotOutput("cocHHErrors"), 
+                    width = 12,
+                    solidHeader = TRUE,
+                    status = "danger",
+                    title = "Providers with the Most Household Errors"),
+                box(plotOutput("cocDQWarnings"), 
+                    width = 12,
+                    solidHeader = TRUE,
+                    status = "warning",
+                    title = "Providers with the Most Data Quality Warnings"),
+                box(plotOutput("cocDQErrorTypes"), 
+                    width = 12,
+                    solidHeader = TRUE,
+                    status = "primary",
+                    title = "Top 10 Error Types"),
+                box(plotOutput("cocDQWarningTypes"), 
+                    width = 12,
+                    solidHeader = TRUE,
+                    status = "primary",
+                    title = "Top 10 Warning Types"),
+                box(plotOutput("cocEligibility"),
+                    width = 12,
+                    solidHeader = TRUE,
+                    status = "warning",
+                    title = "Providers with Potential Eligibility Issues")
+              ), 
+              fluidRow(
+                box(dataTableOutput("cocOverlap"),
+                    title = "Top 20 Providers with Overlapping Entry Exits",
+                    solidHeader = TRUE,
+                    status = "warning"),
+                box(dataTableOutput("cocWidespreadIssues"),
+                    title = "Widespread Issues (Training focus)",
+                    solidHeader = TRUE,
+                    status = "primary")
+              )
+              ), 
       tabItem(
         tabName = "spdatTab1",
-        box(htmlOutput("headerCommunityNeedPH"), width = 12),
-        pickerInput(
+        fluidRow(box(htmlOutput("headerCommunityNeedPH"), width = 12)),
+        fluidRow(box(pickerInput(
           inputId = "regionList1",
           choices = c(unique(Regions$RegionName)),
           options = list(`live-search` = TRUE),
@@ -209,14 +252,14 @@ dashboardPage(
                         c(
                           unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                         ),
-                        selected = Sys.yearqtr() - 1 / 4),
+                        selected = Sys.yearqtr() - 1 / 4))),
         fluidRow(infoBoxOutput("ScoredHousedSummary")),
-        dataTableOutput("SPDATScoresHoused")
+        fluidRow(box(dataTableOutput("SPDATScoresHoused")))
       ),
       tabItem(
         tabName = "spdatTab2",
-        box(htmlOutput("headerCommunityNeedCounty"), width = 12),
-        pickerInput(
+        fluidRow(box(htmlOutput("headerCommunityNeedCounty"), width = 12)),
+        fluidRow(box(pickerInput(
           inputId = "regionList2",
           choices = c(unique(Regions$RegionName)),
           options = list(`live-search` = TRUE),
@@ -229,13 +272,13 @@ dashboardPage(
                         c(
                           unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                         ),
-                        selected = Sys.yearqtr() - 1 / 4),
+                        selected = Sys.yearqtr() - 1 / 4))),
         fluidRow(infoBoxOutput("ScoredInRegionSummary")),
-        dataTableOutput("SPDATScoresServedInCounty")
+        fluidRow(box(dataTableOutput("SPDATScoresServedInCounty")))
       ),      
       tabItem(tabName = "LoSTab",
-              box(htmlOutput("headerLoS"), width = 12),
-              pickerInput(
+              fluidRow(box(htmlOutput("headerLoS"), width = 12)),
+              fluidRow(box(pickerInput(
                 inputId = "LoSProjectList",
                 choices = c(unique(
                   QPR_EEs$ProjectName[QPR_EEs$ProjectType %in% c(1, 2, 8, 13)])),
@@ -249,12 +292,12 @@ dashboardPage(
                               c(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
-                              selected = Sys.yearqtr() - 1 / 4),
-              dataTableOutput("LoSDetail")
+                              selected = Sys.yearqtr() - 1 / 4))),
+              fluidRow(box(dataTableOutput("LoSDetail")))
               ),
       tabItem(tabName = "PHTab",
               fluidRow(box(htmlOutput("headerExitsToPH"), width = 12)),
-              pickerInput(
+              fluidRow(box(pickerInput(
                 inputId = "ExitsToPHProjectList",
                 choices = c(unique(
                   QPR_EEs$ProjectName[QPR_EEs$ProjectType %in% c(1:4, 8:9, 12:13)])),
@@ -267,47 +310,53 @@ dashboardPage(
                               c(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
-                              selected = Sys.yearqtr() - 1 / 4),
-              dataTableOutput("ExitsToPH"),
+                              selected = Sys.yearqtr() - 1 / 4))),
+              fluidRow(box(dataTableOutput("ExitsToPH"))),
               br(),
               br(),
-              dataTableOutput("ExitsToPHOutreach")),
+              fluidRow(box(dataTableOutput("ExitsToPHOutreach")))),
 
       tabItem(tabName = "NCBTab",
               fluidRow(box(htmlOutput("headerNCBs"), width = 12)),
-              pickerInput(
-                inputId = "MBProjectListNC",
-                choices = c(unique(QPR_MainstreamBenefits$ProjectName)),
-                options = list(`live-search` = TRUE),
-                width = "70%"
-              ),
-              setSliderColor("#56B4E9", 1),
-              sliderTextInput("dateNCBSlider",
-                              "",
-                              c(
-                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
-                              ),
-                              selected = Sys.yearqtr() - 1 / 4),
-              dataTableOutput("ExitedWithNCBs")),
+              fluidRow(box(
+                pickerInput(
+                  inputId = "MBProjectListNC",
+                  choices = c(unique(QPR_MainstreamBenefits$ProjectName)),
+                  options = list(`live-search` = TRUE),
+                  width = "70%"
+                ),
+                setSliderColor("#56B4E9", 1),
+                sliderTextInput("dateNCBSlider",
+                                "",
+                                c(
+                                  unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                                ),
+                                selected = Sys.yearqtr() - 1 / 4)
+              )), 
+              fluidRow(infoBoxOutput("qprNCBSummary")),
+              fluidRow(box(dataTableOutput("ExitedWithNCBs")))),
       tabItem(tabName = "HITab",
               fluidRow(box(htmlOutput("headerHealthInsurance"), width = 12)),
-              pickerInput(
-                inputId = "MBProjectListHI",
-                choices = c(unique(QPR_MainstreamBenefits$ProjectName)),
-                options = list(`live-search` = TRUE),
-                width = "70%"
-              ),
-              setSliderColor("#56B4E9", 1),
-              sliderTextInput("dateHealthInsuranceSlider",
-                              "",
-                              c(
-                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
-                              ),
-                              selected = Sys.yearqtr() - 1 / 4),
-              dataTableOutput("ExitedWithInsurance")),
+              fluidRow(box(
+                pickerInput(
+                  inputId = "MBProjectListHI",
+                  choices = c(unique(QPR_MainstreamBenefits$ProjectName)),
+                  options = list(`live-search` = TRUE),
+                  width = "70%"
+                ),
+                setSliderColor("#56B4E9", 1),
+                sliderTextInput("dateHealthInsuranceSlider",
+                                "",
+                                c(
+                                  unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                                ),
+                                selected = Sys.yearqtr() - 1 / 4)
+              )), 
+              fluidRow(infoBoxOutput("healthInsuranceSummary")),
+              fluidRow(box(dataTableOutput("ExitedWithInsurance")))),
       tabItem(tabName = "incomeTab",
               fluidRow(box(htmlOutput("headerIncomeIncrease"), width = 12)),
-              pickerInput(
+              fluidRow(box(pickerInput(
                 inputId = "incomeProjectList",
                 choices = c(unique(QPR_Income$ProjectName)),
                 options = list(`live-search` = TRUE),
@@ -319,19 +368,14 @@ dashboardPage(
                               c(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
-                              selected = Sys.yearqtr() - 1 / 4),
-              dataTableOutput("IncomeIncrease")),
+                              selected = Sys.yearqtr() - 1 / 4))),
+              fluidRow(infoBoxOutput("qprIncomeSummary")),
+              fluidRow(box(dataTableOutput("IncomeIncrease")))),
       tabItem(tabName = "recurrenceTab",
               HTML("<h1>Under Construction</h1>")),
       tabItem(tabName = "rapidTab",
               fluidRow(box(htmlOutput("headerDaysToHouse"), width = 12)),
-              setSliderColor("#56B4E9", 1),
-              sliderTextInput("RapidRRHDateSlider",
-                              "",
-                              c(
-                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
-                              ),
-                              selected = Sys.yearqtr() - 1 / 4),
+              fluidRow(box(setSliderColor("#56B4E9", 1),
               pickerInput(
                 inputId = "RapidRRHProviderList",
                 choices = c(unique(
@@ -339,8 +383,14 @@ dashboardPage(
                 options = list(`live-search` = TRUE),
                 width = "70%"
               ),
+              sliderTextInput("RapidRRHDateSlider",
+                              "",
+                              c(
+                                unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                              ),
+                              selected = Sys.yearqtr() - 1 / 4))),
               fluidRow(infoBoxOutput("daysToHouseSummary"), width = 3),
-              dataTableOutput("daysToHouseRRH")),
+              fluidRow(box(dataTableOutput("daysToHouseRRH")))),
       tabItem(tabName = "spendingTab",
               HTML("<h1>Under Construction</h1>"))
 
