@@ -21,7 +21,7 @@ library(scales)
 library(zoo)
 library(plotly)
 library(viridis)
-library(DT)
+# library(DT)
 
 load("data/Utilization.RData")
 
