@@ -68,6 +68,13 @@ function(input, output, session) {
          )))
   })
   
+  output$headerCocDQ <- renderUI({
+    list(
+      h2("CoC-wide Data Quality (Under Construction)"),
+      h4("October 2018 through Last Updated Date")
+    )
+  })
+  
   output$headerCommunityNeedPH <- renderUI({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$spdatSlider1, 1, 4),
@@ -695,142 +702,17 @@ function(input, output, session) {
       select(Issue, Type, "How Many Providers" = HowManyProjects)
   })
   
-  output$cocDQWarnings <- renderPlotly({
-    plotWarnings <- cocDataQualityHMIS %>%
-      filter(Type == "Warning") %>%
-      group_by(ProjectName, ProjectID) %>%
-      summarise(Warnings = n()) %>%
-      ungroup() %>%
-      arrange(desc(Warnings))
-    
-    plotWarnings$hover <-
-      with(
-        plotWarnings,
-        paste(
-          "Project ID:",
-          ProjectID)      )
-    
-    plot_ly(
-      head(plotWarnings, 20L) %>%
-        arrange(desc(Warnings)),
-      x = ~ ProjectName,
-      y = ~ Warnings,
-      type = 'bar',
-      text = ~ hover,
-      color = ~ Warnings,
-      colors = viridis_pal(option = "D", direction = -1)(7)
-    ) %>%
-      layout(
-        title = "HMIS Warnings by Provider Top 20",
-        margin = list(
-          t = 70
-        ),
-        xaxis = list(
-          title = ~ ProjectName,
-          categoryorder = "trace"
-        ),
-        yaxis = list(title = "All Warnings")
-      )
-  })
+  output$cocDQWarnings <- renderPlot(top_20_projects_warnings)
   
-  output$cocDQErrorTypes <- renderPlotly({
-    errorTypes <- cocDataQualityHMIS %>%
-      filter(Type == "Error") %>%
-      group_by(Issue) %>%
-      summarise(Errors = n()) %>%
-      ungroup() %>%
-      arrange(desc(Errors))
-    
-    plot_ly(
-      head(errorTypes, 20L),
-      x = ~ Issue,
-      y = ~ Errors,
-      type = 'bar',
-      color = ~ Errors,
-      colors = viridis_pal(option = "D", direction = -1)(7)
-    ) %>%
-      layout(
-        title = "HMIS Errors Across the Ohio BoS CoC",
-        margin = list(
-          t = 70
-        ),
-        xaxis = list(
-          title = ~ Issue,
-          categoryorder = "trace"
-        ),
-        yaxis = list(title = "All Errors")
-      )
-    
-  })
+  output$cocDQErrorTypes <- renderPlot(top_10_errors)
   
-  output$cocDQWarningTypes <- renderPlotly({
-    warningTypes <- cocDataQualityHMIS %>%
-      filter(Type == "Warning") %>%
-      group_by(Issue) %>%
-      summarise(Warnings = n()) %>%
-      ungroup() %>%
-      arrange(desc(Warnings))
-    
-    plot_ly(
-      warningTypes,
-      x = ~ Issue,
-      y = ~ Warnings,
-      type = 'bar',
-      color = ~ Warnings,
-      colors = viridis_pal(option = "D", direction = -1)(7)
-    ) %>%
-      layout(
-        title = "HMIS Warnings Across the Ohio BoS CoC",
-        margin = list(
-          t = 70
-        ),
-        xaxis = list(
-          title = ~ Issue,
-          categoryorder = "trace"
-        ),
-        yaxis = list(title = "All Warnings")
-      )
-  })
+  output$cocDQWarningTypes <- renderPlot(top_10_warnings)
   
-  output$cocDQErrors <- renderPlotly({
-    plotErrors <- cocDataQualityHMIS %>%
-      filter(Type == "Error") %>%
-      select(PersonalID, ProjectID, ProjectName) %>%
-      unique() %>%
-      group_by(ProjectName, ProjectID) %>%
-      summarise(clientsWithErrors = n()) %>%
-      ungroup() %>%
-      arrange(desc(clientsWithErrors))
-    
-    plotErrors$hover <-
-      with(
-        plotErrors,
-        paste(
-          "Project ID:",
-          ProjectID)
-      )
-
-    plot_ly(
-      head(plotErrors, 20L),
-      x = ~ ProjectName,
-      y = ~ clientsWithErrors,
-      color = ~ clientsWithErrors,
-      type = 'bar',
-      text = ~ hover,
-      colors = viridis_pal(option = "D", direction = -1)(7)
-    ) %>%
-      layout(
-        title = "HMIS Errors by Provider Top 20",
-        margin = list(
-          t = 70
-          ),
-        xaxis = list(
-          title = ~ ProjectName,
-          categoryorder = "trace"
-        ),
-        yaxis = list(title = "Clients in Error")
-      )
-  })
+  output$cocDQErrors <- renderPlot(top_20_projects_errors)
+  
+  output$cocHHErrors <- renderPlot(top_20_projects_hh_errors)
+  
+  output$cocEligibility <- renderPlot(top_20_eligibility)
   
   output$Ineligible <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
