@@ -714,6 +714,8 @@ function(input, output, session) {
   
   output$cocEligibility <- renderPlot(top_20_eligibility)
   
+  output$cocSPDAT <- renderPlot(NoSPDATHoHs)
+  
   output$Ineligible <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
