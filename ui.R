@@ -131,7 +131,8 @@ dashboardPage(
             inputId = "providerListDQ",
             choices = dqProviders,
             options = list('live-search' = TRUE),
-            width = "100%"
+            width = "100%",
+            selected = sample(dqProviders, 1)
           ),
           dateInput(
             inputId = "dq_startdate",

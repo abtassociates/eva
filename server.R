@@ -700,8 +700,8 @@ function(input, output, session) {
     }
   })
   
-  output$cocAPsNoReferralsList <- renderDataTable(
-    APsNoReferrals %>% arrange(ProviderCreating))
+  output$cocAPsNoReferralsList <-
+    renderDataTable(APsNoReferrals %>% arrange(ProviderCreating))
   
   output$cocOverlap <- renderDataTable({
     ReportStart <- "10012018"
