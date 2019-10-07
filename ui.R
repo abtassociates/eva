@@ -38,7 +38,8 @@ dashboardPage(
         menuSubItem("Provider-level", tabName = "dqTab"),
         menuSubItem("Unsheltered", tabName = "unsheltered"),
         menuSubItem("Diversion", tabName = "diversion"),
-        menuSubItem("CoC-wide", tabName = "dqCoC")
+        menuSubItem("CoC-wide", tabName = "dqCoC"),
+        menuSubItem("CE Summary", tabName = "ceCoC")
       ),
       menuItem("CoC Competition",
                tabName = "cocCompetitionTab"),
@@ -145,6 +146,7 @@ dashboardPage(
           uiOutput("DQHHIssues")
         ),
         uiOutput("DQIneligible"),
+        uiOutput("DQAPsNoReferrals"),
         uiOutput("DQOverlappingEEs"), 
         fluidRow(box(
           dataTableOutput("DQErrors"),
@@ -219,11 +221,6 @@ dashboardPage(
                     solidHeader = TRUE,
                     status = "primary",
                     title = "Top 10 Warning Types"),
-                box(plotOutput("cocSPDAT"), 
-                    width = 12,
-                    solidHeader = TRUE,
-                    status = "warning",
-                    title = "Current Households Without SPDAT (minus Veterans)"),
                 box(plotOutput("cocEligibility"),
                     width = 12,
                     solidHeader = TRUE,
@@ -241,6 +238,26 @@ dashboardPage(
                     status = "primary")
               )
               ), 
+      tabItem(tabName = "ceCoC",
+              fluidPage(
+                box(
+                  plotOutput("cocAPsNoReferrals"),
+                  width = 6,
+                  title = "Access Points Creating Referrals"
+                ),
+                box(
+                  dataTableOutput("cocAPsNoReferralsList"),
+                  width = 6,
+                  title = "APs Not Creating Referrals"
+                ),
+                box(
+                  plotOutput("cocSPDAT"),
+                  width = 12,
+                  solidHeader = TRUE,
+                  status = "warning",
+                  title = "Current Households Without SPDAT (minus Veterans)"
+                )
+              )), 
       tabItem(
         tabName = "spdatTab1",
         fluidRow(box(htmlOutput("headerCommunityNeedPH"), width = 12)),
