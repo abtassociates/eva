@@ -226,7 +226,12 @@ dashboardPage(
                     width = 12,
                     solidHeader = TRUE,
                     status = "warning",
-                    title = "Providers with Potential Eligibility Issues")
+                    title = "Providers with Potential Eligibility Issues"),
+                box(plotOutput("cocOutstandingReferrals"), 
+                    width = 12,
+                    solidHeader = TRUE,
+                    status = "warning",
+                    title = "Top 20 Providers with Old Outstanding Referrals")
               ), 
               fluidRow(
                 box(dataTableOutput("cocOverlap"),

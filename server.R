@@ -703,6 +703,9 @@ function(input, output, session) {
   output$cocAPsNoReferralsList <-
     renderDataTable(APsNoReferrals %>% arrange(ProviderCreating))
   
+  output$cocOutstandingReferrals <- 
+    renderPlot(top_20_outstanding_referrals)
+  
   output$cocOverlap <- renderDataTable({
     ReportStart <- "10012018"
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
@@ -1089,10 +1092,9 @@ function(input, output, session) {
   output$unshOverlapsTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    overlaps <- unshelteredDataQuality %>%
-      filter(
-        Issue == "Overlapping Project Stays" &
-          DefaultProvider == input$unshDefaultProvidersList &
+    
+    overlaps <- unsh_overlaps %>%
+      filter(DefaultProvider == input$unshDefaultProvidersList &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1103,19 +1105,20 @@ function(input, output, session) {
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate
-      ) %>% unique()
+        "Exit Date" = ExitDate,
+        "Overlaps With This Provider's Stay" = PreviousProject
+      ) %>% 
+      unique()
     overlaps
   })
   
   output$unshOverlaps <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    overlaps <- unshelteredDataQuality %>%
-      filter(
-        Issue == "Overlapping Project Stays" &
-          DefaultProvider == input$unshDefaultProvidersList &
-          served_between(., ReportStart, ReportEnd)
+    
+    overlaps <- unsh_overlaps %>%
+      filter(DefaultProvider == input$unshDefaultProvidersList &
+               served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
         PersonalID = format(PersonalID, digits = NULL),
@@ -1125,7 +1128,8 @@ function(input, output, session) {
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate
+        "Exit Date" = ExitDate,
+        "Overlaps With This Provider's Stay" = PreviousProject
       ) %>% unique()
     
     if (nrow(overlaps) > 0) {
