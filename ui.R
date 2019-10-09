@@ -226,12 +226,7 @@ dashboardPage(
                     width = 12,
                     solidHeader = TRUE,
                     status = "warning",
-                    title = "Providers with Potential Eligibility Issues"),
-                box(plotOutput("cocOutstandingReferrals"), 
-                    width = 12,
-                    solidHeader = TRUE,
-                    status = "warning",
-                    title = "Top 20 Providers with Old Outstanding Referrals")
+                    title = "Providers with Potential Eligibility Issues")
               ), 
               fluidRow(
                 box(dataTableOutput("cocOverlap"),
@@ -262,7 +257,12 @@ dashboardPage(
                   solidHeader = TRUE,
                   status = "warning",
                   title = "Current Households Without SPDAT (minus Veterans)"
-                )
+                ),
+                box(plotOutput("cocOutstandingReferrals"), 
+                    width = 12,
+                    solidHeader = TRUE,
+                    status = "warning",
+                    title = "Top 20 Providers with Old Outstanding Referrals")
               )), 
       tabItem(
         tabName = "spdatTab1",
