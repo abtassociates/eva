@@ -676,6 +676,36 @@ function(input, output, session) {
     }
   })
   
+  output$DQAPsNoReferrals <- renderUI({
+    AP_not_doing_referrals <- APsNoReferrals %>%
+      filter(ProviderCreating == input$providerListDQ)
+    
+    if (nrow(AP_not_doing_referrals) > 0) {
+      box(
+        id = "noreferrals",
+        title = "Access Point Has No Outgoing Referrals",
+        status = "danger",
+        solidHeader = TRUE,
+        width = '100%',
+        HTML(
+          "Access Points should be creating Referrals in HMIS so that households
+          can be connected to housing. Please 
+<a href=\"http://hmis.cohhio.org/index.php?pg=kb.page&id=186\">click here</a>
+ for more information."
+        )
+      )
+    }
+    else {
+      
+    }
+  })
+  
+  output$cocAPsNoReferralsList <-
+    renderDataTable(APsNoReferrals %>% arrange(ProviderCreating))
+  
+  output$cocOutstandingReferrals <- 
+    renderPlot(top_20_outstanding_referrals)
+  
   output$cocOverlap <- renderDataTable({
     ReportStart <- "10012018"
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
@@ -713,6 +743,8 @@ function(input, output, session) {
   output$cocHHErrors <- renderPlot(top_20_projects_hh_errors)
   
   output$cocEligibility <- renderPlot(top_20_eligibility)
+  
+  output$cocAPsNoReferrals <- renderPlot(plot_aps_referrals)
   
   output$cocSPDAT <- renderPlot(NoSPDATHoHs)
   
@@ -1060,10 +1092,9 @@ function(input, output, session) {
   output$unshOverlapsTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    overlaps <- unshelteredDataQuality %>%
-      filter(
-        Issue == "Overlapping Project Stays" &
-          DefaultProvider == input$unshDefaultProvidersList &
+    
+    overlaps <- unsh_overlaps %>%
+      filter(DefaultProvider == input$unshDefaultProvidersList &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1074,19 +1105,20 @@ function(input, output, session) {
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate
-      ) %>% unique()
+        "Exit Date" = ExitDate,
+        "Overlaps With This Provider's Stay" = PreviousProject
+      ) %>% 
+      unique()
     overlaps
   })
   
   output$unshOverlaps <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    overlaps <- unshelteredDataQuality %>%
-      filter(
-        Issue == "Overlapping Project Stays" &
-          DefaultProvider == input$unshDefaultProvidersList &
-          served_between(., ReportStart, ReportEnd)
+    
+    overlaps <- unsh_overlaps %>%
+      filter(DefaultProvider == input$unshDefaultProvidersList &
+               served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
         PersonalID = format(PersonalID, digits = NULL),
@@ -1096,7 +1128,8 @@ function(input, output, session) {
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate
+        "Exit Date" = ExitDate,
+        "Overlaps With This Provider's Stay" = PreviousProject
       ) %>% unique()
     
     if (nrow(overlaps) > 0) {
