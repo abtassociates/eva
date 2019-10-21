@@ -49,7 +49,7 @@ function(input, output, session) {
   })
   
   output$headerDataQuality <- renderUI({
-    list(h2("Data Quality (Under Construction)"),
+    list(h2("Data Quality"),
          h4(input$providerListDQ),
          h4(paste(
            format(input$dq_startdate, "%m-%d-%Y"),
@@ -70,7 +70,7 @@ function(input, output, session) {
   
   output$headerCocDQ <- renderUI({
     list(
-      h2("CoC-wide Data Quality (Under Construction)"),
+      h2("CoC-wide Data Quality"),
       h4("October 2018 through Last Updated Date")
     )
   })
