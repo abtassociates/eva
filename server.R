@@ -60,7 +60,8 @@ function(input, output, session) {
   
   output$headerUnshDataQuality <- renderUI({
     list(h2("Unsheltered Data Quality (Under Construction)"),
-         h4("Entered into the Unsheltered Provider by a User whose Default Provider is", input$unshDefaultProvidersList),
+         h4("Entered into the Unsheltered Provider by a User whose Default 
+            Provider is", input$unshDefaultProvidersList),
          h4(paste(
            format(input$unsh_dq_startdate, "%m-%d-%Y"),
            "to",
