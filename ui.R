@@ -68,9 +68,9 @@ dashboardPage(
       )
     ),
     HTML(paste0(
-      "<br>&emsp;Last update:&emsp;",
-      format(update_date, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")#,
-      #      "<br>&emsp;Happy Passover and Easter and Spring Equinox!"
+      "<br>&emsp;Data last refreshed:&emsp;<br>&emsp;",
+      format(update_date, "%m-%d-%Y %I:%M %p", tz = "US/Eastern"),
+            "<p><p>&emsp;Happy Halloween!"
     )),
     br(),
     br(),
