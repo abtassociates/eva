@@ -37,7 +37,7 @@ dashboardPage(
         "Data Quality",
         menuSubItem("Provider-level", tabName = "dqTab"),
         menuSubItem("Unsheltered", tabName = "unsheltered"),
-        menuSubItem("Diversion", tabName = "diversion"),
+        # menuSubItem("Diversion", tabName = "diversion"),
         menuSubItem("CoC-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
       ),
@@ -70,7 +70,7 @@ dashboardPage(
     HTML(paste0(
       "<br>&emsp;Data last refreshed:&emsp;<br>&emsp;",
       format(update_date, "%m-%d-%Y %I:%M %p", tz = "US/Eastern"),
-            "<p><p>&emsp;Happy Halloween!"
+            "<p><p>&emsp;Happy Holidays!"
     )),
     br(),
     br(),
@@ -193,7 +193,7 @@ dashboardPage(
                              title = "Unsheltered Data Quality Warnings",
                              width = 12))
               ),
-      tabItem(tabName = "diversion"),
+      # tabItem(tabName = "diversion"),
       tabItem(tabName = "dqCoC",
               fluidRow(box(htmlOutput("headerCocDQ"), width = 12)),
               fluidRow(
