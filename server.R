@@ -277,8 +277,8 @@ function(input, output, session) {
          )))
   })
   
-  output$currentClients <- renderDataTable({
-    validation %>%
+  output$currentClients <- DT::renderDataTable({
+    datatable(validation %>%
       filter(is.na(ExitDate) &
                ProjectName == input$currentProviderList) %>%
       mutate(
@@ -309,11 +309,13 @@ function(input, output, session) {
         "Entry Date" = EntryDate,
         "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
         Days
-      )
+      ),
+      rownames = FALSE, 
+      filter = 'top')
   })
   
   output$utilizationDetail <-
-    renderDataTable({
+    DT::renderDataTable({
       ReportStart <-
         format(floor_date(ymd(input$utilizationDate),
                           unit = "month"), "%m-%d-%Y")
@@ -340,7 +342,9 @@ function(input, output, session) {
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
       
-      a
+      datatable(a,
+                rownames = FALSE, 
+                filter = 'top')
       
     })
   
@@ -702,12 +706,12 @@ function(input, output, session) {
   })
   
   output$cocAPsNoReferralsList <-
-    renderDataTable(APsNoReferrals %>% arrange(ProviderCreating))
+    DT::renderDataTable(APsNoReferrals %>% arrange(ProviderCreating))
   
   output$cocOutstandingReferrals <- 
     renderPlot(top_20_outstanding_referrals)
   
-  output$cocOverlap <- renderDataTable({
+  output$cocOverlap <- DT::renderDataTable({
     ReportStart <- "10012018"
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
@@ -722,7 +726,7 @@ function(input, output, session) {
     
   })
   
-  output$cocWidespreadIssues <- renderDataTable({
+  output$cocWidespreadIssues <- DT::renderDataTable({
     cocDataQualityHMIS %>%
       select(Issue, ProjectName, Type) %>%
       unique() %>%
@@ -799,7 +803,7 @@ function(input, output, session) {
     }
   })
   
-  output$DQErrors <- renderDataTable({
+  output$DQErrors <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
@@ -823,7 +827,7 @@ function(input, output, session) {
     DQErrors
   })
   
-  output$DQWarnings <- renderDataTable({
+  output$DQWarnings <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
@@ -1162,7 +1166,7 @@ function(input, output, session) {
     }
   })
   
-  output$unshDQErrorsTable <- renderDataTable({
+  output$unshDQErrorsTable <- DT::renderDataTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
@@ -1189,7 +1193,7 @@ function(input, output, session) {
     unshDQErrors
   })
   
-  output$unshDQWarningsTable <- renderDataTable({
+  output$unshDQWarningsTable <- DT::renderDataTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
@@ -1218,7 +1222,7 @@ function(input, output, session) {
   })
   
   output$SPDATScoresHoused <-
-    renderDataTable({
+    DT::renderDataTable({
       ReportStart <- format.Date(ymd(paste0(
         substr(input$spdatSlider1, 1, 4),
         "-01-01"
@@ -1291,7 +1295,7 @@ function(input, output, session) {
     })
   
   output$SPDATScoresServedInCounty <-
-    renderDataTable({
+    DT::renderDataTable({
       # ReportStart <- format.Date(mdy(paste0("01-01-", input$y)), "%m-%d-%Y")
       ReportStart <- format.Date(ymd(paste0(
         substr(input$spdatSlider2, 1, 4),
@@ -1364,7 +1368,7 @@ function(input, output, session) {
     })
   
   output$LoSDetail <-
-    renderDataTable({
+    DT::renderDataTable({
       ReportStart <- format.Date(ymd(paste0(
         substr(input$LoSSlider1, 1, 4),
         "-01-01"
@@ -1402,7 +1406,7 @@ function(input, output, session) {
       
     })
   
-  output$ExitsToPH <- renderDataTable({
+  output$ExitsToPH <- DT::renderDataTable({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$ExitsToPHSlider, 1, 4),
       "-01-01"
@@ -1481,7 +1485,7 @@ function(input, output, session) {
     
   })
   
-  output$IncomeIncrease <- renderDataTable({
+  output$IncomeIncrease <- DT::renderDataTable({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$dateIncomeSlider, 1, 4),
       "-01-01"
@@ -1574,7 +1578,7 @@ function(input, output, session) {
       }
     })
   
-  output$ExitedWithNCBs <- renderDataTable({
+  output$ExitedWithNCBs <- DT::renderDataTable({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$dateNCBSlider, 1, 4),
       "-01-01"
@@ -1672,7 +1676,7 @@ function(input, output, session) {
       }
     })
   
-  output$ExitedWithInsurance <- renderDataTable({
+  output$ExitedWithInsurance <- DT::renderDataTable({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$dateHealthInsuranceSlider, 1, 4),
       "-01-01"
@@ -1769,7 +1773,7 @@ function(input, output, session) {
       }
     })
   
-  output$daysToHouseRRH <- renderDataTable({
+  output$daysToHouseRRH <- DT::renderDataTable({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$RapidRRHDateSlider, 1, 4),
       "-01-01"

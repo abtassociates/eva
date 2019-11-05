@@ -14,6 +14,7 @@
 
 library(tidyverse)
 library(shiny)
+library(DT)
 library(shinyWidgets)
 library(lubridate)
 library(shinydashboard)
