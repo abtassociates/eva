@@ -278,40 +278,44 @@ function(input, output, session) {
   })
   
   output$currentClients <- DT::renderDataTable({
-    datatable(validation %>%
-      filter(is.na(ExitDate) &
-               ProjectName == input$currentProviderList) %>%
-      mutate(
-        RelationshipToHoH = case_when(
-          RelationshipToHoH == 1 ~ "Head of Household",
-          RelationshipToHoH == 2 ~ "Child",
-          RelationshipToHoH == 3 ~ "Spouse or Partner",
-          RelationshipToHoH == 4 ~ "Other relative",
-          RelationshipToHoH == 5 ~ "Unrelated household member",
-          RelationshipToHoH == 99 ~ "Data not collected (please correct)"
-        ),
-        Days = case_when(
-          ProjectType %in% c(3, 13) &
-            is.na(MoveInDateAdjust) ~ paste(today() - EntryDate,
-                                            "days awaiting housing in project"),
-          ProjectType %in% c(3, 13) &
-            !is.na(MoveInDateAdjust) ~ paste(today() - MoveInDateAdjust,
-                                             "days housed in project"),
-          !ProjectType %in% c(3, 13) ~ paste(today() - EntryDate,
-                                             "days in project")
+    datatable(
+      validation %>%
+        filter(is.na(ExitDate) &
+                 ProjectName == input$currentProviderList) %>%
+        mutate(
+          PersonalID = as.character(PersonalID),
+          RelationshipToHoH = case_when(
+            RelationshipToHoH == 1 ~ "Head of Household",
+            RelationshipToHoH == 2 ~ "Child",
+            RelationshipToHoH == 3 ~ "Spouse or Partner",
+            RelationshipToHoH == 4 ~ "Other relative",
+            RelationshipToHoH == 5 ~ "Unrelated household member",
+            RelationshipToHoH == 99 ~ "Data not collected (please correct)"
           ),
-        sort = today() - EntryDate
-      ) %>%
-      arrange(desc(sort), HouseholdID, PersonalID) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Relationship to Head of Household" = RelationshipToHoH,
-        "Entry Date" = EntryDate,
-        "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
-        Days
-      ),
-      rownames = FALSE, 
-      filter = 'top')
+          Days = case_when(
+            ProjectType %in% c(3, 13) &
+              is.na(MoveInDateAdjust) ~ paste(today() - EntryDate,
+                                              "days awaiting housing in project"),
+            ProjectType %in% c(3, 13) &
+              !is.na(MoveInDateAdjust) ~ paste(today() - MoveInDateAdjust,
+                                               "days housed in project"),!ProjectType %in% c(3, 13) ~ paste(today() - EntryDate,
+                                                                                                            "days in project")
+          ),
+          sort = today() - EntryDate
+        ) %>%
+        mutate(PersonalID = as.character(PersonalID)) %>%
+        arrange(desc(sort), HouseholdID, PersonalID) %>%
+        select(
+          "Client ID" = PersonalID,
+          "Relationship to Head of Household" = RelationshipToHoH,
+          "Entry Date" = EntryDate,
+          "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
+          Days
+        ),
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    )
   })
   
   output$utilizationDetail <-
@@ -337,14 +341,16 @@ function(input, output, session) {
           served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
-                                  MoveInDate, EntryDate)) %>%
+                                  MoveInDate, EntryDate),
+               PersonalID = as.character(PersonalID)) %>%
         select(PersonalID, BedStart, ExitDate, y)
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
       
       datatable(a,
-                rownames = FALSE, 
-                filter = 'top')
+                rownames = FALSE,
+                filter = 'top',
+                options = list(dom = 'ltpi'))
       
     })
   
@@ -706,7 +712,10 @@ function(input, output, session) {
   })
   
   output$cocAPsNoReferralsList <-
-    DT::renderDataTable(APsNoReferrals %>% arrange(ProviderCreating))
+    DT::renderDataTable({
+      a <- APsNoReferrals %>% arrange(ProviderCreating)
+      datatable(a, rownames = FALSE)
+      })
   
   output$cocOutstandingReferrals <- 
     renderPlot(top_20_outstanding_referrals)
@@ -715,7 +724,7 @@ function(input, output, session) {
     ReportStart <- "10012018"
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
-    overlaps %>%
+    a <- overlaps %>%
       filter(served_between(., ReportStart, ReportEnd)) %>%
       group_by(ProjectName) %>%
       summarise(Clients = n()) %>%
@@ -723,11 +732,13 @@ function(input, output, session) {
       top_n(20L, wt = Clients) %>%
       select("Project Name" = ProjectName,
              "Clients with Overlapping Entry Exits" = Clients)
+    datatable(a,
+              rownames = FALSE)
     
   })
   
   output$cocWidespreadIssues <- DT::renderDataTable({
-    cocDataQualityHMIS %>%
+    a <- cocDataQualityHMIS %>%
       select(Issue, ProjectName, Type) %>%
       unique() %>%
       group_by(Issue, Type) %>%
@@ -735,6 +746,9 @@ function(input, output, session) {
       arrange(desc(HowManyProjects)) %>%
       head(10L) %>%
       select(Issue, Type, "How Many Providers" = HowManyProjects)
+    
+    datatable(a,
+              rownames = FALSE)
   })
   
   output$cocDQWarnings <- renderPlot(top_20_projects_warnings)
@@ -820,11 +834,18 @@ function(input, output, session) {
           ProjectName == input$providerListDQ &
           Type == "Error"
       ) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
       arrange(HouseholdID, PersonalID) %>%
       select("Client ID" = PersonalID,
              "Error" = Issue,
              "Entry Date" =  EntryDate)
-    DQErrors
+    
+    datatable(
+      DQErrors,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    )
   })
   
   output$DQWarnings <- DT::renderDataTable({
@@ -845,6 +866,7 @@ function(input, output, session) {
           ProjectName == input$providerListDQ &
           Type == "Warning"
       ) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
       arrange(HouseholdID, PersonalID) %>%
       select(
         "Client ID" = PersonalID,
@@ -852,7 +874,11 @@ function(input, output, session) {
         "Entry Date" =  EntryDate
       )
     
-    DQWarnings
+    datatable(
+      DQWarnings,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi'))
   })
   
   output$unshIncorrectResPriorTable <- renderTable({
@@ -1186,11 +1212,17 @@ function(input, output, session) {
           DefaultProvider == input$unshDefaultProvidersList &
           Type == "Error"
       ) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
       arrange(HouseholdID, PersonalID) %>%
       select("Client ID" = PersonalID,
              "Error" = Issue,
              "Entry Date" =  EntryDate)
-    unshDQErrors
+    
+    datatable(
+      unshDQErrors,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi'))
   })
   
   output$unshDQWarningsTable <- DT::renderDataTable({
@@ -1211,6 +1243,7 @@ function(input, output, session) {
           DefaultProvider == input$unshDefaultProvidersList &
           Type == "Warning"
       ) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
       arrange(HouseholdID, PersonalID) %>%
       select(
         "Client ID" = PersonalID,
@@ -1218,7 +1251,12 @@ function(input, output, session) {
         "Entry Date" =  EntryDate
       )
     
-    unshDQWarnings
+    datatable(
+      unshDQWarnings,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi'))
+    
   })
   
   output$SPDATScoresHoused <-
@@ -1244,6 +1282,7 @@ function(input, output, session) {
                                ReportEnd)) %>%
         left_join(., Regions, by = c("CountyServed" = "County")) %>%
         filter(RegionName == input$regionList1) %>%
+        mutate(PersonalID = as.character(PersonalID)) %>%
         arrange(ScoreAdjusted) %>%
         select(
           "Client ID" = PersonalID,
@@ -1255,7 +1294,10 @@ function(input, output, session) {
           "Score Adjusted" = ScoreAdjusted
         )
       
-      CountyHousedAverageScores
+      datatable(CountyHousedAverageScores,
+                rownames = FALSE,
+                filter = 'top',
+                options = list(dom = 'ltpi'))
       
     })
   
@@ -1317,6 +1359,7 @@ function(input, output, session) {
                               ReportEnd)) %>%
         left_join(., Regions, by = c("CountyServed" = "County")) %>%
         filter(RegionName == input$regionList2) %>%
+        mutate(PersonalID = as.character(PersonalID)) %>%
         select(
           Project = ProjectName,
           "Client ID" = PersonalID,
@@ -1327,7 +1370,10 @@ function(input, output, session) {
         ) %>%
         arrange(Score)
       
-      CountyAverageScores
+      datatable(CountyAverageScores,
+                rownames = FALSE,
+                filter = 'top',
+                options = list(dom = 'ltpi'))
       
     })
   
@@ -1394,6 +1440,7 @@ function(input, output, session) {
           exited_between(., ReportStart, ReportEnd) &
           ProjectName == input$LoSProjectList
         ) %>%
+        mutate(PersonalID = as.character(PersonalID)) %>%
         arrange(desc(DaysinProject)) %>%
         select(
           "Client ID" = PersonalID,
@@ -1402,7 +1449,10 @@ function(input, output, session) {
           "Days in Project" = DaysinProject
         )
       
-      LoSDetail
+      datatable(LoSDetail,
+                rownames = FALSE,
+                filter = 'top',
+                options = list(dom = 'ltpi'))
       
     })
   
@@ -1471,7 +1521,8 @@ function(input, output, session) {
       ) %>%
       filter(ProjectName == input$ExitsToPHProjectList) %>%
       mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
-                                MoveInDate, EntryDate)) %>%
+                                MoveInDate, EntryDate),
+             PersonalID = as.character(PersonalID)) %>%
       arrange(DestinationGroup, PersonalID) %>%
       select(
         "Client ID" = PersonalID,
@@ -1481,7 +1532,10 @@ function(input, output, session) {
         "Destination Group" =  DestinationGroup
       )
     
-    SuccessfulPlacement
+    datatable(SuccessfulPlacement,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
     
   })
   
@@ -1500,12 +1554,13 @@ function(input, output, session) {
       substr(input$dateIncomeSlider, 1, 4)
     )), "%m-%d-%Y")
     
-    QPR_Income %>%
+    a <- QPR_Income %>%
       filter(ProjectName == input$incomeProjectList &
                stayed_between(., ReportStart, ReportEnd)) %>%
       mutate(EntryIncome = dollar(EntryIncome, accuracy = .01),
              RecentIncome = dollar(RecentIncome, accuracy = .01),
-             Difference = dollar(Difference, accuracy = .01)) %>%
+             Difference = dollar(Difference, accuracy = .01),
+             PersonalID = as.character(PersonalID)) %>%
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
@@ -1514,6 +1569,11 @@ function(input, output, session) {
         "Most Recent Income" = RecentIncome,
         "Increase Amount" = Difference
       )
+    
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
   })
   
   output$qprIncomeSummary <-
@@ -1593,7 +1653,7 @@ function(input, output, session) {
       substr(input$dateNCBSlider, 1, 4)
     )), "%m-%d-%Y")
     
-    QPR_MainstreamBenefits %>%
+    a <- QPR_MainstreamBenefits %>%
       filter(ProjectName == input$MBProjectListNC &
                exited_between(., ReportStart, ReportEnd)) %>%
       mutate(
@@ -1603,7 +1663,8 @@ function(input, output, session) {
           BenefitsFromAnySource == 8 ~ "Client doesn't know (HUD)",
           BenefitsFromAnySource == 9 ~ "Client refused (HUD)",
           BenefitsFromAnySource == 99 ~ "Data Not Collected (HUD)"
-        )
+        ),
+        PersonalID = as.character(PersonalID)
       ) %>%
       select(
         "Client ID" = PersonalID,
@@ -1611,6 +1672,11 @@ function(input, output, session) {
         "Exit Date" = ExitDate,
         "Benefits from Any Source (at Exit)" = BenefitsFromAnySource
       )
+    
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
     
   })
   
@@ -1691,7 +1757,7 @@ function(input, output, session) {
       substr(input$dateHealthInsuranceSlider, 1, 4)
     )), "%m-%d-%Y")
     
-    QPR_MainstreamBenefits %>%
+    a <- QPR_MainstreamBenefits %>%
       filter(ProjectName == input$MBProjectListHI &
                exited_between(., ReportStart, ReportEnd)) %>%
       mutate(
@@ -1703,12 +1769,17 @@ function(input, output, session) {
           InsuranceFromAnySource == 99 ~ "Data Not Collected (HUD)"
         )
       ) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
         "Exit Date" = ExitDate,
         "Health Insurance from Any Source (at Exit)" = InsuranceFromAnySource
       )
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
     
   })
   
@@ -1795,6 +1866,7 @@ function(input, output, session) {
           ProjectName %in% c(input$RapidRRHProviderList) &
           entered_between(., ReportStart, ReportEnd)
       ) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
       arrange(DaysToHouse) %>%
       select(
         "Client ID" = PersonalID,
@@ -1803,7 +1875,10 @@ function(input, output, session) {
         "Days to House" = DaysToHouse
       )
     
-    daysToHouse
+    datatable(daysToHouse,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
     
   })
   
