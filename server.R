@@ -714,8 +714,9 @@ function(input, output, session) {
   output$cocAPsNoReferralsList <-
     DT::renderDataTable({
       a <- APsNoReferrals %>% arrange(ProviderCreating)
+      
       datatable(a, rownames = FALSE)
-      })
+    })
   
   output$cocOutstandingReferrals <- 
     renderPlot(top_20_outstanding_referrals)
