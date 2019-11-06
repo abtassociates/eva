@@ -764,7 +764,27 @@ function(input, output, session) {
   
   output$cocEligibility <- renderPlot(top_20_eligibility)
   
-  output$cocAPsNoReferrals <- renderPlot(plot_aps_referrals)
+  output$cocAPsNoReferrals <- renderPlot({
+    ggplot(data_APs, aes(fill = category, x = providertype, y = percent)) +
+      geom_bar(position = "fill",
+               stat = "identity",
+               width = .1) +
+      geom_label(
+        aes(label = paste(
+          data_APs$category,
+          "\n",
+          data_APs$prettypercent
+        )),
+        position = position_stack(),
+        vjust = 2,
+        fill = "white",
+        colour = "black",
+        fontface = "bold"
+      ) +
+      scale_fill_manual(values = c("#00952e", "#a11207"),
+                        guide = FALSE) +
+      theme_void()
+  })
   
   output$cocSPDAT <- renderPlot(NoSPDATHoHs)
   
