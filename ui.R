@@ -84,7 +84,7 @@ dashboardPage(
   dashboardBody(
     tabItems(
       tabItem(tabName = "homeTab",
-              htmlOutput("headerHome"), width = 9),
+              htmlOutput("headerHome"), width = 12),
       tabItem(
         tabName = "currentProviderLevel",
         fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
@@ -92,13 +92,13 @@ dashboardPage(
           label = "Select Provider",
           inputId = "currentProviderList",
           choices = providers,
-          options = list('live-search' = TRUE),
-          width = "100%"
-        ))),
-        fluidRow(box(dataTableOutput("currentClients")))),
+          options = list('live-search' = TRUE)
+        ), width = 12)),
+        fluidRow(box(DT::dataTableOutput("currentClients"),
+                     width = 12))),
       tabItem(
         tabName = "utilizationTab",
-        fluidRow(box(htmlOutput("headerUtilization"), width = 12)),
+        fluidPage(fluidRow(box(htmlOutput("headerUtilization"), width = 12)),
         fluidRow(box(pickerInput(
           label = "Select Provider",
           inputId = "providerListUtilization",
@@ -116,12 +116,15 @@ dashboardPage(
                              ymd(floor_date(update_date, unit = "month") - days(1)),
                            minView = "months",
                            addon = "none",
-                           autoClose = TRUE
-        ))),
-        fluidRow(infoBoxOutput("utilizationSummary0"),
-                 infoBoxOutput("utilizationSummary1")),
-        fluidRow(infoBoxOutput("utilizationSummary2")),
-        fluidRow(box(dataTableOutput("utilizationDetail")))),     
+                           autoClose = TRUE,
+                           width = '50%'
+        ), width = '100%')),
+        fluidRow(box(
+          infoBoxOutput("utilizationSummary0", width = '100%'),
+          infoBoxOutput("utilizationSummary1", width = '100%'),
+          infoBoxOutput("utilizationSummary2", width = '100%'), width = '100%')
+        ), 
+        fluidRow(box(DT::dataTableOutput("utilizationDetail"), width = '100%')))),     
       tabItem(
         tabName = "dqTab",
         fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
@@ -150,12 +153,12 @@ dashboardPage(
         uiOutput("DQAPsNoReferrals"),
         uiOutput("DQOverlappingEEs"), 
         fluidRow(box(
-          dataTableOutput("DQErrors"),
+          DT::dataTableOutput("DQErrors"),
           title = "Data Quality Errors",
           width = 12
         )), 
         fluidRow(box(
-          dataTableOutput("DQWarnings"),
+          DT::dataTableOutput("DQWarnings"),
           title = "Data Quality Warnings",
           width = 12
         ))
@@ -186,10 +189,10 @@ dashboardPage(
                 uiOutput("unshHHIssues"),
                 uiOutput("unshDuplicateEEs")
               ), 
-                fluidRow(box(dataTableOutput("unshDQErrorsTable"),
+                fluidRow(box(DT::dataTableOutput("unshDQErrorsTable"),
                              title = "Unsheltered Data Quality Errors",
                              width = 12)),
-                fluidRow(box(dataTableOutput("unshDQWarningsTable"),
+                fluidRow(box(DT::dataTableOutput("unshDQWarningsTable"),
                              title = "Unsheltered Data Quality Warnings",
                              width = 12))
               ),
@@ -229,11 +232,11 @@ dashboardPage(
                     title = "Providers with Potential Eligibility Issues")
               ), 
               fluidRow(
-                box(dataTableOutput("cocOverlap"),
+                box(DT::dataTableOutput("cocOverlap"),
                     title = "Top 20 Providers with Overlapping Entry Exits",
                     solidHeader = TRUE,
                     status = "warning"),
-                box(dataTableOutput("cocWidespreadIssues"),
+                box(DT::dataTableOutput("cocWidespreadIssues"),
                     title = "Widespread Issues (Training focus)",
                     solidHeader = TRUE,
                     status = "primary")
@@ -247,7 +250,7 @@ dashboardPage(
                   title = "Access Points Creating Referrals"
                 ),
                 box(
-                  dataTableOutput("cocAPsNoReferralsList"),
+                  DT::dataTableOutput("cocAPsNoReferralsList"),
                   width = 6,
                   title = "APs Not Creating Referrals"
                 ),
@@ -282,7 +285,7 @@ dashboardPage(
                         ),
                         selected = Sys.yearqtr() - 1 / 4))),
         fluidRow(infoBoxOutput("ScoredHousedSummary")),
-        fluidRow(box(dataTableOutput("SPDATScoresHoused")))
+        fluidRow(box(DT::dataTableOutput("SPDATScoresHoused")))
       ),
       tabItem(
         tabName = "spdatTab2",
@@ -302,7 +305,7 @@ dashboardPage(
                         ),
                         selected = Sys.yearqtr() - 1 / 4))),
         fluidRow(infoBoxOutput("ScoredInRegionSummary")),
-        fluidRow(box(dataTableOutput("SPDATScoresServedInCounty")))
+        fluidRow(box(DT::dataTableOutput("SPDATScoresServedInCounty")))
       ),      
       tabItem(tabName = "LoSTab",
               fluidRow(box(htmlOutput("headerLoS"), width = 12)),
@@ -321,7 +324,7 @@ dashboardPage(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
                               selected = Sys.yearqtr() - 1 / 4))),
-              fluidRow(box(dataTableOutput("LoSDetail")))
+              fluidRow(box(DT::dataTableOutput("LoSDetail")))
               ),
       tabItem(tabName = "PHTab",
               fluidRow(box(htmlOutput("headerExitsToPH"), width = 12)),
@@ -339,10 +342,10 @@ dashboardPage(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
                               selected = Sys.yearqtr() - 1 / 4))),
-              fluidRow(box(dataTableOutput("ExitsToPH"))),
+              fluidRow(box(DT::dataTableOutput("ExitsToPH"))),
               br(),
               br(),
-              fluidRow(box(dataTableOutput("ExitsToPHOutreach")))),
+              fluidRow(box(DT::dataTableOutput("ExitsToPHOutreach")))),
 
       tabItem(tabName = "NCBTab",
               fluidRow(box(htmlOutput("headerNCBs"), width = 12)),
@@ -362,7 +365,7 @@ dashboardPage(
                                 selected = Sys.yearqtr() - 1 / 4)
               )), 
               fluidRow(infoBoxOutput("qprNCBSummary")),
-              fluidRow(box(dataTableOutput("ExitedWithNCBs")))),
+              fluidRow(box(DT::dataTableOutput("ExitedWithNCBs")))),
       tabItem(tabName = "HITab",
               fluidRow(box(htmlOutput("headerHealthInsurance"), width = 12)),
               fluidRow(box(
@@ -381,7 +384,7 @@ dashboardPage(
                                 selected = Sys.yearqtr() - 1 / 4)
               )), 
               fluidRow(infoBoxOutput("healthInsuranceSummary")),
-              fluidRow(box(dataTableOutput("ExitedWithInsurance")))),
+              fluidRow(box(DT::dataTableOutput("ExitedWithInsurance")))),
       tabItem(tabName = "incomeTab",
               fluidRow(box(htmlOutput("headerIncomeIncrease"), width = 12)),
               fluidRow(box(pickerInput(
@@ -398,7 +401,7 @@ dashboardPage(
                               ),
                               selected = Sys.yearqtr() - 1 / 4))),
               fluidRow(infoBoxOutput("qprIncomeSummary")),
-              fluidRow(box(dataTableOutput("IncomeIncrease")))),
+              fluidRow(box(DT::dataTableOutput("IncomeIncrease")))),
       tabItem(tabName = "recurrenceTab",
               HTML("<h1>Under Construction</h1>")),
       tabItem(tabName = "rapidTab",
@@ -418,7 +421,7 @@ dashboardPage(
                               ),
                               selected = Sys.yearqtr() - 1 / 4))),
               fluidRow(infoBoxOutput("daysToHouseSummary"), width = 3),
-              fluidRow(box(dataTableOutput("daysToHouseRRH")))),
+              fluidRow(box(DT::dataTableOutput("daysToHouseRRH")))),
       tabItem(tabName = "spendingTab",
               HTML("<h1>Under Construction</h1>"))
 
