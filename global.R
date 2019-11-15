@@ -43,4 +43,6 @@ filebeginningdate <- update_date - years(2)
 # obviously replace these paths with what's on your PC. It's basically:
 # mklink "where you want to add the link" "where you want the link to point"
 
+# or check out the create_sym_links.R script in the COHHIO_HMIS repo!
+
 
