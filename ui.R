@@ -435,19 +435,22 @@ dashboardPage(
                              choices = c(unique(
                                sort(QPR_RRH_HP_Spending$OrganizationName))),
                              options = list(`live-search` = TRUE),
-                             width = "70%"
+                             width = "100%"
                            ),
                            sliderTextInput("RRHSpendingDateSlider",
                                            "",
                                            c(
                                              unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                                            ),
-                                           selected = Sys.yearqtr() - 1 / 4))),
+                                           selected = Sys.yearqtr() - 1 / 4),
+                           width = 12)),
               # fluidRow(infoBoxOutput("notCreatedYet"), width = 3),
               fluidRow(box(DT::dataTableOutput("RRHSpending"),
-                           title = "Rapid Rehousing Spending"),
-                       box(DT::dataTableOutput("HPSpending"),
-                           title = "Prevention Spending")))
+                           title = "Rapid Rehousing Spending",
+                           width = 12)),
+              fluidRow(box(DT::dataTableOutput("HPSpending"),
+                           title = "Prevention Spending",
+                           width = 12)))
 
     )
   )
