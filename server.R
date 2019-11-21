@@ -2099,6 +2099,7 @@ function(input, output, session) {
         ) %>%
         mutate(ProjectName = as.factor(ProjectName),
                PersonalID = as.character(PersonalID)) %>%
+        arrange(PersonalID, ServiceStartDate) %>%
         select("Client ID" = PersonalID,
                "RRH Project Name" = ProjectName, 
                "Service Date" = ServiceStartDate, 
@@ -2139,6 +2140,7 @@ function(input, output, session) {
         ) %>%
         mutate(ProjectName = as.factor(ProjectName),
                PersonalID = as.character(PersonalID)) %>%
+        arrange(PersonalID, ServiceStartDate) %>%
         select("Client ID" = PersonalID,
                "Prevention Project Name" = ProjectName, 
                "Service Date" = ServiceStartDate, 
