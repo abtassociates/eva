@@ -2097,7 +2097,8 @@ function(input, output, session) {
             entered_between(., ReportStart, ReportEnd) &
             ProjectType == 13
         ) %>%
-        mutate(ProjectName = as.factor(ProjectName)) %>%
+        mutate(ProjectName = as.factor(ProjectName),
+               PersonalID = as.character(PersonalID)) %>%
         select("Client ID" = PersonalID,
                "RRH Project Name" = ProjectName, 
                "Service Date" = ServiceStartDate, 
@@ -2136,7 +2137,8 @@ function(input, output, session) {
             entered_between(., ReportStart, ReportEnd) &
             ProjectType == 12
         ) %>%
-        mutate(ProjectName = as.factor(ProjectName)) %>%
+        mutate(ProjectName = as.factor(ProjectName),
+               PersonalID = as.character(PersonalID)) %>%
         select("Client ID" = PersonalID,
                "Prevention Project Name" = ProjectName, 
                "Service Date" = ServiceStartDate, 
