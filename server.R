@@ -2098,7 +2098,8 @@ function(input, output, session) {
             ProjectType == 13
         ) %>%
         mutate(ProjectName = as.factor(ProjectName)) %>%
-        select("RRH Project Name" = ProjectName, 
+        select("Client ID" = PersonalID,
+               "RRH Project Name" = ProjectName, 
                "Service Date" = ServiceStartDate, 
                Description,
                Amount)
@@ -2136,7 +2137,8 @@ function(input, output, session) {
             ProjectType == 12
         ) %>%
         mutate(ProjectName = as.factor(ProjectName)) %>%
-        select("Prevention Project Name" = ProjectName, 
+        select("Client ID" = PersonalID,
+               "Prevention Project Name" = ProjectName, 
                "Service Date" = ServiceStartDate, 
                Description,
                Amount)
