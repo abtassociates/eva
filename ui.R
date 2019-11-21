@@ -41,8 +41,8 @@ dashboardPage(
         menuSubItem("CoC-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
       ),
-      menuItem("CoC Competition",
-               tabName = "cocCompetitionTab"),
+      # menuItem("CoC Competition",
+      #          tabName = "cocCompetitionTab"),
       menuItem(
         "Performance and Outcomes",
         menuItem(
@@ -64,7 +64,9 @@ dashboardPage(
         menuSubItem("Income Growth",
                     tabName = "incomeTab"),
         menuSubItem("Rapid Placement for RRH",
-                    tabName = "rapidTab")
+                    tabName = "rapidTab"),
+        menuSubItem("RRH Spending",
+                    tabName = "spendingTab")
       )
     ),
     HTML(paste0(
@@ -423,7 +425,27 @@ dashboardPage(
               fluidRow(infoBoxOutput("daysToHouseSummary"), width = 3),
               fluidRow(box(DT::dataTableOutput("daysToHouseRRH")))),
       tabItem(tabName = "spendingTab",
-              HTML("<h1>Under Construction</h1>"))
+              fluidRow(box(htmlOutput("headerRRHSpending"), width = 12)),
+              fluidRow(box(setSliderColor("#56B4E9", 1),
+                           pickerInput(
+                             inputId = "RRHSpendingOrganizationList",
+                             label = "Select Organization",
+                             choices = c(unique(
+                               sort(QPR_RRH_HP_Spending$OrganizationName))),
+                             options = list(`live-search` = TRUE),
+                             width = "70%"
+                           ),
+                           sliderTextInput("RRHSpendingDateSlider",
+                                           "",
+                                           c(
+                                             unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
+                                           ),
+                                           selected = Sys.yearqtr() - 1 / 4))),
+              # fluidRow(infoBoxOutput("notCreatedYet"), width = 3),
+              fluidRow(box(DT::dataTableOutput("RRHSpending"),
+                           title = "Rapid Rehousing Spending"),
+                       box(DT::dataTableOutput("HPSpending"),
+                           title = "Prevention Spending")))
 
     )
   )

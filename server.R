@@ -1940,4 +1940,103 @@ function(input, output, session) {
       
     })
   
+  output$headerRRHSpending <- renderUI({
+    ReportStart <- format.Date(ymd(paste0(
+      substr(input$RRHSpendingDateSlider, 1, 4),
+      "-01-01"
+    )), "%m-%d-%Y")
+    
+    ReportEnd <- format.Date(mdy(paste0(
+      case_when(
+        substr(input$RRHSpendingDateSlider, 7, 7) == 1 ~ "03-31-",
+        substr(input$RRHSpendingDateSlider, 7, 7) == 2 ~ "06-30-",
+        substr(input$RRHSpendingDateSlider, 7, 7) == 3 ~ "09-30-",
+        substr(input$RRHSpendingDateSlider, 7, 7) == 4 ~ "12-31-"
+      ),
+      substr(input$RRHSpendingDateSlider, 1, 4)
+    )), "%m-%d-%Y")
+    
+    list(h2("Quarterly Performance Report"),
+         h3("Rapid Rehousing Spending Goals"),
+         # h4(input$RRHRegion),
+         h4(ReportStart, "-", ReportEnd))
+  })
+  
+  #  QPR HP vs RRH Spending
+  output$RRHSpending <-
+    DT::renderDataTable({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$RRHSpendingDateSlider, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$RRHSpendingDateSlider, 7, 7) == 1 ~ "03-31-",
+          substr(input$RRHSpendingDateSlider, 7, 7) == 2 ~ "06-30-",
+          substr(input$RRHSpendingDateSlider, 7, 7) == 3 ~ "09-30-",
+          substr(input$RRHSpendingDateSlider, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$RRHSpendingDateSlider, 1, 4)
+      )), "%m-%d-%Y")
+      
+      rrhSpending <- QPR_RRH_HP_Spending %>%
+        filter(
+          OrganizationName == input$RRHSpendingOrganizationList &
+            entered_between(., ReportStart, ReportEnd) &
+            ProjectType == 13
+        ) %>%
+        mutate(ProjectName = as.factor(ProjectName)) %>%
+        select("RRH Project Name" = ProjectName, 
+               "Service Date" = ServiceStartDate, 
+               Description,
+               Amount)
+      
+      datatable(rrhSpending,
+                rownames = FALSE,
+                filter = 'top',
+                options = list(dom = 'ltpi')) %>%
+        formatCurrency("Amount")
+      
+    
+    })
+  
+  output$HPSpending <-
+    DT::renderDataTable({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$RRHSpendingDateSlider, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$RRHSpendingDateSlider, 7, 7) == 1 ~ "03-31-",
+          substr(input$RRHSpendingDateSlider, 7, 7) == 2 ~ "06-30-",
+          substr(input$RRHSpendingDateSlider, 7, 7) == 3 ~ "09-30-",
+          substr(input$RRHSpendingDateSlider, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$RRHSpendingDateSlider, 1, 4)
+      )), "%m-%d-%Y")
+      
+      hpSpending <- QPR_RRH_HP_Spending %>%
+        filter(
+          OrganizationName == input$RRHSpendingOrganizationList &
+            entered_between(., ReportStart, ReportEnd) &
+            ProjectType == 12
+        ) %>%
+        mutate(ProjectName = as.factor(ProjectName)) %>%
+        select("Prevention Project Name" = ProjectName, 
+               "Service Date" = ServiceStartDate, 
+               Description,
+               Amount)
+      
+      datatable(hpSpending,
+                rownames = FALSE,
+                filter = 'top',
+                options = list(dom = 'ltpi')) %>%
+        formatCurrency("Amount")
+      
+      
+    })
+  
 }
