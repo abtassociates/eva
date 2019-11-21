@@ -152,6 +152,71 @@ function(input, output, session) {
          )))
   })
   
+  output$ExitsToPHSummary <-
+    renderInfoBox({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$ExitsToPHSlider, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$ExitsToPHSlider, 7, 7) == 1 ~ "03-31-",
+          substr(input$ExitsToPHSlider, 7, 7) == 2 ~ "06-30-",
+          substr(input$ExitsToPHSlider, 7, 7) == 3 ~ "09-30-",
+          substr(input$ExitsToPHSlider, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$ExitsToPHSlider, 1, 4)
+      )), "%m-%d-%Y")
+      
+      SuccessfullyPlaced <- QPR_EEs %>%
+        filter(ProjectName == input$ExitsToPHProjectList &
+                 ((ProjectType %in% c(3, 9, 13) &
+                   !is.na(MoveInDateAdjust)) |
+                  ProjectType %in% c(1, 2, 4, 8, 12)
+        ) &
+          # excluding non-mover-inners
+          (((DestinationGroup == "Permanent" |
+               #exited to ph or still in PSH/HP
+               is.na(ExitDate)) &
+              ProjectType %in% c(3, 9, 12) &
+              served_between(., ReportStart, ReportEnd)# PSH & HP
+          ) |
+            (
+              DestinationGroup == "Permanent" & # exited to ph
+                ProjectType %in% c(1, 2, 4, 8, 13) &
+                exited_between(., ReportStart, ReportEnd)
+            )
+          )) %>%
+        group_by(ProjectName) %>%
+        count()
+      
+      # calculating the total households to compare successful placements to
+      TotalHHsSuccessfulPlacement <- QPR_EEs %>%
+        filter(ProjectName == input$ExitsToPHProjectList &
+                 ((
+                   served_between(., ReportStart, ReportEnd) &
+                     ProjectType %in% c(3, 9, 12) # PSH & HP
+                 ) |
+                   (
+                     exited_between(., ReportStart, ReportEnd) &
+                       ProjectType %in% c(1, 2, 4, 8, 13) # ES, TH, SH, OUT, RRH
+                   )
+                 )) %>%
+        group_by(ProjectName) %>%
+        count()
+      
+      infoBox(
+        title = "Successfully Placed",
+        color = "blue",
+        icon = icon("key"),
+        value = paste(SuccessfullyPlaced$n,
+                      "/",
+                      TotalHHsSuccessfulPlacement$n,
+                      "households")
+      )
+      
+    })
+  
   output$headerLoS <- renderUI({
     ReportStart <- format.Date(ymd(paste0(
       substr(input$LoSSlider1, 1, 4),
@@ -176,6 +241,52 @@ function(input, output, session) {
            format(mdy(ReportEnd), "%B %Y")
          )))
   })
+  
+  output$LoSSummary <-
+    renderInfoBox({
+      ReportStart <- format.Date(ymd(paste0(
+        substr(input$LoSSlider1, 1, 4),
+        "-01-01"
+      )), "%m-%d-%Y")
+      
+      ReportEnd <- format.Date(mdy(paste0(
+        case_when(
+          substr(input$LoSSlider1, 7, 7) == 1 ~ "03-31-",
+          substr(input$LoSSlider1, 7, 7) == 2 ~ "06-30-",
+          substr(input$LoSSlider1, 7, 7) == 3 ~ "09-30-",
+          substr(input$LoSSlider1, 7, 7) == 4 ~ "12-31-"
+        ),
+        substr(input$LoSSlider1, 1, 4)
+      )), "%m-%d-%Y")
+      
+      los_summary <- QPR_EEs %>%
+        filter(((
+          !is.na(MoveInDateAdjust) & ProjectType == 13
+        ) |
+          (
+            !is.na(ExitDate) & ProjectType %in% c(1, 2, 8)
+          )) &
+          exited_between(., ReportStart, ReportEnd) &
+          ProjectName == input$LoSProjectList
+        ) %>%
+        group_by(ProjectName) %>%
+        summarise(Average = format(mean(DaysinProject),
+                                   digits = 1),
+                  Median = median(DaysinProject))
+      
+      infoBox(
+        title = "Average and Median Length of Stay",
+        color = "purple",
+        icon = icon("clock"),
+        value = paste("Average", 
+                      los_summary$Average, 
+                      "/ Median", 
+                      los_summary$Median,
+                      "days"),
+        subtitle = "Length of Stay in Project's Housing"
+      )
+      
+    })
   
   output$headerIncomeIncrease <- renderUI({
     ReportStart <- format.Date(ymd(paste0(

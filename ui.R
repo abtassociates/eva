@@ -326,6 +326,7 @@ dashboardPage(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
                               selected = Sys.yearqtr() - 1 / 4))),
+              fluidRow(infoBoxOutput("LoSSummary")),
               fluidRow(box(DT::dataTableOutput("LoSDetail")))
               ),
       tabItem(tabName = "PHTab",
@@ -344,6 +345,7 @@ dashboardPage(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
                               selected = Sys.yearqtr() - 1 / 4))),
+              fluidRow(infoBoxOutput("ExitsToPHSummary")),
               fluidRow(box(DT::dataTableOutput("ExitsToPH"))),
               br(),
               br(),
