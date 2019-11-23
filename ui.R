@@ -393,7 +393,7 @@ dashboardPage(
               fluidRow(box(htmlOutput("headerIncomeIncrease"), width = 12)),
               fluidRow(box(pickerInput(
                 inputId = "incomeProjectList",
-                choices = c(unique(QPR_Income$ProjectName)),
+                choices = c(unique(qpr_income$ProjectName)),
                 options = list(`live-search` = TRUE),
                 width = "70%"
               ),
@@ -433,7 +433,7 @@ dashboardPage(
                              inputId = "RRHSpendingOrganizationList",
                              label = "Select Organization",
                              choices = c(unique(
-                               sort(QPR_RRH_HP_Spending$OrganizationName))),
+                               sort(qpr_spending$OrganizationName))),
                              options = list(`live-search` = TRUE),
                              width = "70%"
                            ),

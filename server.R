@@ -1686,7 +1686,7 @@ function(input, output, session) {
       substr(input$dateIncomeSlider, 1, 4)
     )), "%m-%d-%Y")
     
-    a <- QPR_Income %>%
+    a <- qpr_income %>%
       filter(ProjectName == input$incomeProjectList &
                stayed_between(., ReportStart, ReportEnd)) %>%
       mutate(EntryIncome = dollar(EntryIncome, accuracy = .01),
@@ -1724,7 +1724,7 @@ function(input, output, session) {
         substr(input$dateIncomeSlider, 1, 4)
       )), "%m-%d-%Y")
       
-      meeting_objective <- QPR_Income %>%
+      meeting_objective <- qpr_income %>%
         filter(
           ProjectName == input$incomeProjectList &
             stayed_between(., ReportStart, ReportEnd) &
@@ -1734,7 +1734,7 @@ function(input, output, session) {
         summarise(Increased = n())
       
       # calculating the total households for comparison
-      all_hhs <- QPR_Income %>%
+      all_hhs <- qpr_income %>%
         filter(ProjectName %in% input$incomeProjectList &
                  stayed_between(., ReportStart, ReportEnd)) %>%
         group_by(ProjectName, ProjectType, County, Region) %>%
@@ -2091,7 +2091,7 @@ function(input, output, session) {
         substr(input$RRHSpendingDateSlider, 1, 4)
       )), "%m-%d-%Y")
       
-      rrhSpending <- QPR_RRH_HP_Spending %>%
+      rrhSpending <- qpr_spending %>%
         filter(
           OrganizationName == input$RRHSpendingOrganizationList &
             entered_between(., ReportStart, ReportEnd) &
@@ -2129,7 +2129,7 @@ function(input, output, session) {
         substr(input$RRHSpendingDateSlider, 1, 4)
       )), "%m-%d-%Y")
       
-      hpSpending <- QPR_RRH_HP_Spending %>%
+      hpSpending <- qpr_spending %>%
         filter(
           OrganizationName == input$RRHSpendingOrganizationList &
             entered_between(., ReportStart, ReportEnd) &
