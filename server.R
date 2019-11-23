@@ -168,7 +168,7 @@ function(input, output, session) {
         substr(input$ExitsToPHSlider, 1, 4)
       )), "%m-%d-%Y")
       
-      SuccessfullyPlaced <- QPR_EEs %>%
+      SuccessfullyPlaced <- qpr_leavers %>%
         filter(ProjectName == input$ExitsToPHProjectList &
                  ((ProjectType %in% c(3, 9, 13) &
                    !is.na(MoveInDateAdjust)) |
@@ -191,7 +191,7 @@ function(input, output, session) {
         count()
       
       # calculating the total households to compare successful placements to
-      TotalHHsSuccessfulPlacement <- QPR_EEs %>%
+      TotalHHsSuccessfulPlacement <- qpr_leavers %>%
         filter(ProjectName == input$ExitsToPHProjectList &
                  ((
                    served_between(., ReportStart, ReportEnd) &
@@ -259,7 +259,7 @@ function(input, output, session) {
         substr(input$LoSSlider1, 1, 4)
       )), "%m-%d-%Y")
       
-      los_summary <- QPR_EEs %>%
+      los_summary <- qpr_leavers %>%
         filter(((
           !is.na(MoveInDateAdjust) & ProjectType == 13
         ) |
@@ -1562,7 +1562,7 @@ function(input, output, session) {
         substr(input$LoSSlider1, 1, 4)
       )), "%m-%d-%Y")
       
-      LoSDetail <- QPR_EEs %>%
+      LoSDetail <- qpr_leavers %>%
         filter(((
           !is.na(MoveInDateAdjust) & ProjectType == 13
         ) |
@@ -1603,7 +1603,7 @@ function(input, output, session) {
       substr(input$ExitsToPHSlider, 1, 4)
     )), "%m-%d-%Y")
     
-    SuccessfullyPlaced <- QPR_EEs %>%
+    SuccessfullyPlaced <- qpr_leavers %>%
       filter(((ProjectType %in% c(3, 9, 13) &
                  !is.na(MoveInDateAdjust)) |
                 ProjectType %in% c(1, 2, 4, 8, 12)
@@ -1623,7 +1623,7 @@ function(input, output, session) {
         )) # ES, TH, SH, RRH, OUT) %>%
     
     # calculating the total households to compare successful placements to
-    TotalHHsSuccessfulPlacement <- QPR_EEs %>%
+    TotalHHsSuccessfulPlacement <- qpr_leavers %>%
       filter((
         served_between(., ReportStart, ReportEnd) &
           ProjectType %in% c(3, 9, 12) # PSH & HP

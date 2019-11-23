@@ -314,7 +314,7 @@ dashboardPage(
               fluidRow(box(pickerInput(
                 inputId = "LoSProjectList",
                 choices = c(unique(
-                  QPR_EEs$ProjectName[QPR_EEs$ProjectType %in% c(1, 2, 8, 13)])),
+                  qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1, 2, 8, 13)])),
                 options = list(`live-search` = TRUE),
                 width = "70%"
               ),
@@ -334,7 +334,7 @@ dashboardPage(
               fluidRow(box(pickerInput(
                 inputId = "ExitsToPHProjectList",
                 choices = c(unique(
-                  QPR_EEs$ProjectName[QPR_EEs$ProjectType %in% c(1:4, 8:9, 12:13)])),
+                  qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1:4, 8:9, 12:13)])),
                 options = list(`live-search` = TRUE),
                 width = "70%"
               ),

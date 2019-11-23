@@ -30,7 +30,7 @@ load("data/QPR_EEs.RData")
 
 load("data/Data_Quality.RData")
 
-QPR_EEs <- QPR_EEs %>% arrange(ProjectName)
+qpr_leavers <- qpr_leavers %>% arrange(ProjectName)
 
 providers <- sort(validation$ProjectName) %>% unique() 
 
