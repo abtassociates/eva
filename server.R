@@ -1785,7 +1785,7 @@ function(input, output, session) {
       substr(input$dateNCBSlider, 1, 4)
     )), "%m-%d-%Y")
     
-    a <- QPR_MainstreamBenefits %>%
+    a <- qpr_benefits %>%
       filter(ProjectName == input$MBProjectListNC &
                exited_between(., ReportStart, ReportEnd)) %>%
       mutate(
@@ -1828,7 +1828,7 @@ function(input, output, session) {
         substr(input$dateNCBSlider, 1, 4)
       )), "%m-%d-%Y")
       
-      meeting_objective <- QPR_MainstreamBenefits %>%
+      meeting_objective <- qpr_benefits %>%
         filter(
             ProjectName == input$MBProjectListNC &
             exited_between(., ReportStart, ReportEnd) &
@@ -1838,7 +1838,7 @@ function(input, output, session) {
         summarise(BenefitsAtExit = n())
       
       # calculating the total households for comparison
-      all_hhs <- QPR_MainstreamBenefits %>%
+      all_hhs <- qpr_benefits %>%
         filter(ProjectName == input$MBProjectListNC &
                  exited_between(., ReportStart, ReportEnd)) %>%
         group_by(ProjectName) %>%
@@ -1889,7 +1889,7 @@ function(input, output, session) {
       substr(input$dateHealthInsuranceSlider, 1, 4)
     )), "%m-%d-%Y")
     
-    a <- QPR_MainstreamBenefits %>%
+    a <- qpr_benefits %>%
       filter(ProjectName == input$MBProjectListHI &
                exited_between(., ReportStart, ReportEnd)) %>%
       mutate(
@@ -1931,7 +1931,7 @@ function(input, output, session) {
         substr(input$dateHealthInsuranceSlider, 1, 4)
       )), "%m-%d-%Y")
       
-      meeting_objective <- QPR_MainstreamBenefits %>%
+      meeting_objective <- qpr_benefits %>%
         filter(
             ProjectName == input$MBProjectListHI &
             exited_between(., ReportStart, ReportEnd) &
@@ -1941,7 +1941,7 @@ function(input, output, session) {
         summarise(InsuranceAtExit = n())
       
       # calculating the total households for comparison
-      all_hhs <- QPR_MainstreamBenefits %>%
+      all_hhs <- qpr_benefits %>%
         filter(ProjectName == input$MBProjectListHI &
                  exited_between(., ReportStart, ReportEnd)) %>%
         group_by(ProjectName) %>%

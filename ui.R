@@ -356,7 +356,7 @@ dashboardPage(
               fluidRow(box(
                 pickerInput(
                   inputId = "MBProjectListNC",
-                  choices = c(unique(QPR_MainstreamBenefits$ProjectName)),
+                  choices = c(unique(qpr_benefits$ProjectName)),
                   options = list(`live-search` = TRUE),
                   width = "70%"
                 ),
@@ -375,7 +375,7 @@ dashboardPage(
               fluidRow(box(
                 pickerInput(
                   inputId = "MBProjectListHI",
-                  choices = c(unique(QPR_MainstreamBenefits$ProjectName)),
+                  choices = c(unique(qpr_benefits$ProjectName)),
                   options = list(`live-search` = TRUE),
                   width = "70%"
                 ),
