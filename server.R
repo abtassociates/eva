@@ -446,7 +446,7 @@ function(input, output, session) {
       z <-
         paste("Bed Nights in", format(ymd(input$utilizationDate), "%B %Y"))
       
-      a <- ClientUtilizers %>%
+      a <- utilizers_clients %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
@@ -479,7 +479,7 @@ function(input, output, session) {
                   "01",
                   substr(input$utilizationDate, 1, 4))
       
-      a <- ClientUtilizers %>%
+      a <- utilizers_clients %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
@@ -490,7 +490,7 @@ function(input, output, session) {
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- Utilization %>%
+      beds <- utilization %>%
         filter(ProjectName == input$providerListUtilization) %>%
         select(BedCount)
       
@@ -519,7 +519,7 @@ function(input, output, session) {
                   "01",
                   substr(input$utilizationDate, 1, 4))
       
-      a <- ClientUtilizers %>%
+      a <- utilizers_clients %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
@@ -530,7 +530,7 @@ function(input, output, session) {
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- Utilization %>%
+      beds <- utilization %>%
         filter(ProjectName == input$providerListUtilization) %>%
         select(BedCount)
       
@@ -572,7 +572,7 @@ function(input, output, session) {
                   "01",
                   substr(input$utilizationDate, 1, 4))
       
-      a <- ClientUtilizers %>%
+      a <- utilizers_clients %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
@@ -583,7 +583,7 @@ function(input, output, session) {
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- Utilization %>%
+      beds <- utilization %>%
         filter(ProjectName == input$providerListUtilization) %>%
         select(BedCount)
       
@@ -1408,11 +1408,11 @@ function(input, output, session) {
       )), "%m-%d-%Y")
       
       # counting all households who ENTERED either RRH or PSH between the report dates
-      CountyHousedAverageScores <- SPDATsByProject %>%
-        filter(entered_between(SPDATsByProject,
+      CountyHousedAverageScores <- qpr_spdats_project %>%
+        filter(entered_between(qpr_spdats_project,
                                ReportStart,
                                ReportEnd)) %>%
-        left_join(., Regions, by = c("CountyServed" = "County")) %>%
+        left_join(., regions, by = c("CountyServed" = "County")) %>%
         filter(RegionName == input$regionList1) %>%
         mutate(PersonalID = as.character(PersonalID)) %>%
         arrange(ScoreAdjusted) %>%
@@ -1449,11 +1449,11 @@ function(input, output, session) {
         substr(input$spdatSlider1, 1, 4)
       )), "%m-%d-%Y")
       
-      scores <- SPDATsByProject %>%
-        filter(entered_between(SPDATsByProject,
+      scores <- qpr_spdats_project %>%
+        filter(entered_between(qpr_spdats_project,
                                ReportStart,
                                ReportEnd)) %>%
-        left_join(., Regions, by = c("CountyServed" = "County")) %>%
+        left_join(., regions, by = c("CountyServed" = "County")) %>%
         filter(RegionName == input$regionList1) %>%
         group_by(RegionName) %>%
         summarise(AvgScore = as.integer(mean(ScoreAdjusted)))
@@ -1485,11 +1485,11 @@ function(input, output, session) {
         substr(input$spdatSlider2, 1, 4)
       )), "%m-%d-%Y")
       # counting all households who were scored AND SERVED between the report dates
-      CountyAverageScores <- CountyData %>%
-        filter(served_between(CountyData,
+      CountyAverageScores <- qpr_spdats_county %>%
+        filter(served_between(qpr_spdats_county,
                               ReportStart,
                               ReportEnd)) %>%
-        left_join(., Regions, by = c("CountyServed" = "County")) %>%
+        left_join(., regions, by = c("CountyServed" = "County")) %>%
         filter(RegionName == input$regionList2) %>%
         mutate(PersonalID = as.character(PersonalID)) %>%
         select(
@@ -1526,11 +1526,11 @@ function(input, output, session) {
       )), "%m-%d-%Y")
       
       # counting all households who were scored AND SERVED between the report dates
-      scores <- CountyData %>%
-        filter(served_between(CountyData,
+      scores <- qpr_spdats_county %>%
+        filter(served_between(qpr_spdats_county,
                               ReportStart,
                               ReportEnd)) %>%
-        left_join(., Regions, by = c("CountyServed" = "County")) %>%
+        left_join(., regions, by = c("CountyServed" = "County")) %>%
         filter(RegionName == input$regionList2) %>%
         group_by(RegionName) %>%
         summarise(AvgScore = as.integer(mean(Score)))

@@ -104,7 +104,7 @@ dashboardPage(
         fluidRow(box(pickerInput(
           label = "Select Provider",
           inputId = "providerListUtilization",
-          choices = c(sort(BedUtilization$ProjectName)),
+          choices = c(sort(utilization_bed$ProjectName)),
           options = list(`live-search` = TRUE),
           width = "100%"
         ),
@@ -274,7 +274,7 @@ dashboardPage(
         fluidRow(box(htmlOutput("headerCommunityNeedPH"), width = 12)),
         fluidRow(box(pickerInput(
           inputId = "regionList1",
-          choices = c(unique(Regions$RegionName)),
+          choices = c(unique(regions$RegionName)),
           options = list(`live-search` = TRUE),
           width = "70%"
         ),
@@ -294,7 +294,7 @@ dashboardPage(
         fluidRow(box(htmlOutput("headerCommunityNeedCounty"), width = 12)),
         fluidRow(box(pickerInput(
           inputId = "regionList2",
-          choices = c(unique(Regions$RegionName)),
+          choices = c(unique(regions$RegionName)),
           options = list(`live-search` = TRUE),
           width = "70%"
         ),
