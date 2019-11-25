@@ -610,7 +610,7 @@ function(input, output, session) {
   output$DuplicateEEs <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    DuplicateEEs <- DataQualityHMIS %>%
+    DuplicateEEs <- dq_main %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           ProjectName == input$providerListDQ &
@@ -632,7 +632,7 @@ function(input, output, session) {
   output$DQDuplicateEEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    DuplicateEEs <- DataQualityHMIS %>%
+    DuplicateEEs <- dq_main %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           ProjectName == input$providerListDQ &
@@ -667,7 +667,7 @@ function(input, output, session) {
   output$HouseholdIssues <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    HHIssues <- DataQualityHMIS %>%
+    HHIssues <- dq_main %>%
       filter(
         Issue %in% c(
           "Too Many Heads of Household",
@@ -694,7 +694,7 @@ function(input, output, session) {
   output$DQHHIssues <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    HHIssues <- DataQualityHMIS %>%
+    HHIssues <- dq_main %>%
       filter(
         Issue %in% c(
           "Too Many Heads of Household",
@@ -726,7 +726,7 @@ function(input, output, session) {
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
-    OverlappingEEs <- overlaps %>%
+    OverlappingEEs <- dq_overlaps %>%
       filter(
           ProjectName == input$providerListDQ &
           served_between(., ReportStart, ReportEnd)
@@ -750,7 +750,7 @@ function(input, output, session) {
   output$DQOverlappingEEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    OverlappingEEs <- overlaps %>%
+    OverlappingEEs <- dq_overlaps %>%
       filter(
         Issue == "Overlapping Project Stays" &
           ProjectName == input$providerListDQ &
@@ -799,7 +799,7 @@ function(input, output, session) {
   })
   
   output$DQAPsNoReferrals <- renderUI({
-    AP_not_doing_referrals <- APsNoReferrals %>%
+    AP_not_doing_referrals <- aps_no_referrals %>%
       filter(ProviderCreating == input$providerListDQ)
     
     if (nrow(AP_not_doing_referrals) > 0) {
@@ -824,19 +824,19 @@ function(input, output, session) {
   
   output$cocAPsNoReferralsList <-
     DT::renderDataTable({
-      a <- APsNoReferrals %>% arrange(ProviderCreating)
+      a <- aps_no_referrals %>% arrange(ProviderCreating)
       
       datatable(a, rownames = FALSE)
     })
   
   output$cocOutstandingReferrals <- 
-    renderPlot(top_20_outstanding_referrals)
+    renderPlot(dq_plot_outstanding_referrals)
   
   output$cocOverlap <- DT::renderDataTable({
     ReportStart <- "10012018"
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
-    a <- overlaps %>%
+    a <- dq_overlaps %>%
       filter(served_between(., ReportStart, ReportEnd)) %>%
       group_by(ProjectName) %>%
       summarise(Clients = n()) %>%
@@ -850,7 +850,7 @@ function(input, output, session) {
   })
   
   output$cocWidespreadIssues <- DT::renderDataTable({
-    a <- cocDataQualityHMIS %>%
+    a <- dq_past_year %>%
       select(Issue, ProjectName, Type) %>%
       unique() %>%
       group_by(Issue, Type) %>%
@@ -863,17 +863,17 @@ function(input, output, session) {
               rownames = FALSE)
   })
   
-  output$cocDQWarnings <- renderPlot(top_20_projects_warnings)
+  output$cocDQWarnings <- renderPlot(dq_plot_projects_warnings)
   
-  output$cocDQErrorTypes <- renderPlot(top_10_errors)
+  output$cocDQErrorTypes <- renderPlot(dq_plot_errors)
   
-  output$cocDQWarningTypes <- renderPlot(top_10_warnings)
+  output$cocDQWarningTypes <- renderPlot(dq_plot_warnings)
   
-  output$cocDQErrors <- renderPlot(top_20_projects_errors)
+  output$cocDQErrors <- renderPlot(dq_plot_projects_errors)
   
-  output$cocHHErrors <- renderPlot(top_20_projects_hh_errors)
+  output$cocHHErrors <- renderPlot(dq_plot_hh_errors)
   
-  output$cocEligibility <- renderPlot(top_20_eligibility)
+  output$cocEligibility <- renderPlot(dq_plot_eligibility)
   
   output$cocAPsNoReferrals <- renderPlot({
     ggplot(data_APs, aes(fill = category, x = providertype, y = percent)) +
@@ -897,12 +897,12 @@ function(input, output, session) {
       theme_void()
   })
   
-  output$cocSPDAT <- renderPlot(NoSPDATHoHs)
+  output$cocSPDAT <- renderPlot(dq_plot_hh_no_spdat)
   
   output$Ineligible <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    Ineligible <- smallEligibility %>%
+    Ineligible <- detail_eligibility %>%
       filter(ProjectName == input$providerListDQ &
                served_between(., ReportStart, ReportEnd)) %>%
       mutate(
@@ -923,7 +923,7 @@ function(input, output, session) {
   output$DQIneligible <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    Ineligible <- smallEligibility %>%
+    Ineligible <- detail_eligibility %>%
       filter(ProjectName == input$providerListDQ &
                served_between(., ReportStart, ReportEnd))
     
@@ -953,7 +953,7 @@ function(input, output, session) {
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
-    DQErrors <- DataQualityHMIS %>%
+    DQErrors <- dq_main %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
@@ -984,7 +984,7 @@ function(input, output, session) {
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
-    DQWarnings <- DataQualityHMIS %>%
+    DQWarnings <- dq_main %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
@@ -1016,7 +1016,7 @@ function(input, output, session) {
   output$unshIncorrectResPriorTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    ResPrior <- unshelteredDataQuality %>%
+    ResPrior <- dq_unsheltered %>%
       filter(
         Issue == "Wrong Provider (Not Unsheltered)" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1036,7 +1036,7 @@ function(input, output, session) {
   output$unshIncorrectResPrior <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    ResPrior <- unshelteredDataQuality %>%
+    ResPrior <- dq_unsheltered %>%
       filter(
         Issue == "Wrong Provider (Not Unsheltered)" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1078,7 +1078,7 @@ function(input, output, session) {
   output$unshDuplicateEEsTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    DuplicateEEs <- unshelteredDataQuality %>%
+    DuplicateEEs <- dq_unsheltered %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1100,7 +1100,7 @@ function(input, output, session) {
   output$unshDuplicateEEs <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    DuplicateEEs <- unshelteredDataQuality %>%
+    DuplicateEEs <- dq_unsheltered %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1132,7 +1132,7 @@ function(input, output, session) {
   output$unshHHIssuesTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    HHIssues <- unshelteredDataQuality %>%
+    HHIssues <- dq_unsheltered %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
                      "Children Only Household", 
@@ -1155,7 +1155,7 @@ function(input, output, session) {
   output$unshHHIssues <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    HHIssues <- unshelteredDataQuality %>%
+    HHIssues <- dq_unsheltered %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
                      "Children Only Household", 
@@ -1196,7 +1196,7 @@ function(input, output, session) {
   output$unshMissingCountyTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    county <- unshelteredDataQuality %>%
+    county <- dq_unsheltered %>%
       filter(
         Issue == "Missing County Served" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1216,7 +1216,7 @@ function(input, output, session) {
   output$unshMissingCounty <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    county <- unshelteredDataQuality %>%
+    county <- dq_unsheltered %>%
       filter(
         Issue == "Missing County Served" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1328,7 +1328,7 @@ function(input, output, session) {
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
-    unshDQErrors <- unshelteredDataQuality %>%
+    unshDQErrors <- dq_unsheltered %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
@@ -1361,7 +1361,7 @@ function(input, output, session) {
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
-    unshDQWarnings <- unshelteredDataQuality %>%
+    unshDQWarnings <- dq_unsheltered %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",

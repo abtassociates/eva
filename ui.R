@@ -134,10 +134,10 @@ dashboardPage(
           pickerInput(
             label = "Select Provider",
             inputId = "providerListDQ",
-            choices = dqProviders,
+            choices = dq_providers,
             options = list('live-search' = TRUE),
             width = "100%",
-            selected = sample(dqProviders, 1)
+            selected = sample(dq_providers, 1)
           ),
           dateInput(
             inputId = "dq_startdate",
@@ -171,7 +171,7 @@ dashboardPage(
                 pickerInput(
                   inputId = "unshDefaultProvidersList",
                   label = "Select your DEFAULT Provider",
-                  choices = sort(unshelteredDataQuality$DefaultProvider) %>% 
+                  choices = sort(dq_unsheltered$DefaultProvider) %>% 
                     unique(),
                   options = list('live-search' = TRUE),
                   width = "100%"
