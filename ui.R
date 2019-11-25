@@ -285,9 +285,9 @@ dashboardPage(
                         c(
                           unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                         ),
-                        selected = Sys.yearqtr() - 1 / 4))),
-        fluidRow(infoBoxOutput("ScoredHousedSummary")),
-        fluidRow(box(DT::dataTableOutput("SPDATScoresHoused")))
+                        selected = Sys.yearqtr() - 1 / 4), width = 12)),
+        fluidRow(infoBoxOutput("ScoredHousedSummary", width = 12)),
+        fluidRow(box(DT::dataTableOutput("SPDATScoresHoused"), width = 12))
       ),
       tabItem(
         tabName = "spdatTab2",
@@ -306,8 +306,8 @@ dashboardPage(
                           unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                         ),
                         selected = Sys.yearqtr() - 1 / 4))),
-        fluidRow(infoBoxOutput("ScoredInRegionSummary")),
-        fluidRow(box(DT::dataTableOutput("SPDATScoresServedInCounty")))
+        fluidRow(infoBoxOutput("ScoredInRegionSummary", width = 12)),
+        fluidRow(box(DT::dataTableOutput("SPDATScoresServedInCounty"), width = 12))
       ),      
       tabItem(tabName = "LoSTab",
               fluidRow(box(htmlOutput("headerLoS"), width = 12)),
@@ -325,9 +325,10 @@ dashboardPage(
                               c(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
-                              selected = Sys.yearqtr() - 1 / 4))),
-              fluidRow(infoBoxOutput("LoSSummary")),
-              fluidRow(box(DT::dataTableOutput("LoSDetail")))
+                              selected = Sys.yearqtr() - 1 / 4),
+              width = 12)),
+              fluidRow(infoBoxOutput("LoSSummary", width = 12)),
+              fluidRow(box(DT::dataTableOutput("LoSDetail"), width = 12))
               ),
       tabItem(tabName = "PHTab",
               fluidRow(box(htmlOutput("headerExitsToPH"), width = 12)),
@@ -345,12 +346,12 @@ dashboardPage(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
                               selected = Sys.yearqtr() - 1 / 4))),
-              fluidRow(infoBoxOutput("ExitsToPHSummary")),
-              fluidRow(box(DT::dataTableOutput("ExitsToPH"))),
+              fluidRow(infoBoxOutput("ExitsToPHSummary", width = 12)),
+              fluidRow(box(DT::dataTableOutput("ExitsToPH"), width = 12)),
               br(),
               br(),
-              fluidRow(box(DT::dataTableOutput("ExitsToPHOutreach")))),
-
+              fluidRow(box(DT::dataTableOutput("ExitsToPHOutreach"),
+                           width = 12))),
       tabItem(tabName = "NCBTab",
               fluidRow(box(htmlOutput("headerNCBs"), width = 12)),
               fluidRow(box(
@@ -366,10 +367,10 @@ dashboardPage(
                                 c(
                                   unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                                 ),
-                                selected = Sys.yearqtr() - 1 / 4)
-              )), 
-              fluidRow(infoBoxOutput("qprNCBSummary")),
-              fluidRow(box(DT::dataTableOutput("ExitedWithNCBs")))),
+                                selected = Sys.yearqtr() - 1 / 4),
+              width = 12)), 
+              fluidRow(infoBoxOutput("qprNCBSummary", width = 12)),
+              fluidRow(box(DT::dataTableOutput("ExitedWithNCBs"), width = 12))),
       tabItem(tabName = "HITab",
               fluidRow(box(htmlOutput("headerHealthInsurance"), width = 12)),
               fluidRow(box(
@@ -385,10 +386,11 @@ dashboardPage(
                                 c(
                                   unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                                 ),
-                                selected = Sys.yearqtr() - 1 / 4)
-              )), 
-              fluidRow(infoBoxOutput("healthInsuranceSummary")),
-              fluidRow(box(DT::dataTableOutput("ExitedWithInsurance")))),
+                                selected = Sys.yearqtr() - 1 / 4),
+              width = 12)), 
+              fluidRow(infoBoxOutput("healthInsuranceSummary", width = 12)),
+              fluidRow(box(DT::dataTableOutput("ExitedWithInsurance"),
+                           width = 12))),
       tabItem(tabName = "incomeTab",
               fluidRow(box(htmlOutput("headerIncomeIncrease"), width = 12)),
               fluidRow(box(pickerInput(
@@ -403,11 +405,10 @@ dashboardPage(
                               c(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
-                              selected = Sys.yearqtr() - 1 / 4))),
-              fluidRow(infoBoxOutput("qprIncomeSummary")),
-              fluidRow(box(DT::dataTableOutput("IncomeIncrease")))),
-      tabItem(tabName = "recurrenceTab",
-              HTML("<h1>Under Construction</h1>")),
+                              selected = Sys.yearqtr() - 1 / 4),
+              width = 12)),
+              fluidRow(infoBoxOutput("qprIncomeSummary", width = 12)),
+              fluidRow(box(DT::dataTableOutput("IncomeIncrease"), width = 12))),
       tabItem(tabName = "rapidTab",
               fluidRow(box(htmlOutput("headerDaysToHouse"), width = 12)),
               fluidRow(box(setSliderColor("#56B4E9", 1),
@@ -416,16 +417,17 @@ dashboardPage(
                 choices = c(unique(
                   sort(qpr_rrh_enterers$ProjectName))),
                 options = list(`live-search` = TRUE),
-                width = "70%"
+                width = "100%"
               ),
               sliderTextInput("RapidRRHDateSlider",
                               "",
                               c(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
-                              selected = Sys.yearqtr() - 1 / 4))),
-              fluidRow(infoBoxOutput("daysToHouseSummary"), width = 3),
-              fluidRow(box(DT::dataTableOutput("daysToHouseRRH")))),
+                              selected = Sys.yearqtr() - 1 / 4),
+              width = 12)),
+              fluidRow(infoBoxOutput("daysToHouseSummary", width = 12)),
+              fluidRow(box(DT::dataTableOutput("daysToHouseRRH"), width = 12))),
       tabItem(tabName = "spendingTab",
               fluidRow(box(htmlOutput("headerRRHSpending"), width = 12)),
               fluidRow(box(setSliderColor("#56B4E9", 1),
