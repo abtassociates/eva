@@ -147,13 +147,12 @@ dashboardPage(
             width = "25%"
           ), width = 12
         )),
-        fluidRow(
-          uiOutput("DQDuplicateEEs"),
-          uiOutput("DQHHIssues")
-        ),
-        uiOutput("DQIneligible"),
-        uiOutput("DQAPsNoReferrals"),
-        uiOutput("DQOverlappingEEs"), 
+          fluidRow(uiOutput("DQ_APs_w_EEs"),
+          uiOutput("DQAPsNoReferrals")), 
+          fluidRow(uiOutput("DQDuplicateEEs"),
+          uiOutput("DQHHIssues")),
+          fluidRow(uiOutput("DQIneligible")),
+          fluidRow(uiOutput("DQOverlappingEEs")),
         fluidRow(box(
           DT::dataTableOutput("DQErrors"),
           title = "Data Quality Errors",
