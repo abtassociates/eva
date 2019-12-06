@@ -722,6 +722,53 @@ function(input, output, session) {
     }
   })
   
+  output$APs_with_EEs <- renderTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    APs_w_EEs <- dq_main %>%
+      filter(
+        Issue == "Access Point with Entry Exits" &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y")
+      ) %>%
+      arrange(PersonalID) %>%
+      select("Client ID" = PersonalID,
+             "Entry Date" = EntryDate)
+    
+    APs_w_EEs
+  })
+  
+  output$DQ_APs_w_EEs <- renderUI({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    APs_w_EEs <- dq_main %>%
+      filter(
+        Issue == "Access Point with Entry Exits" &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      )
+    if (nrow(APs_w_EEs) > 0) {
+      box(
+        id = "ees_on_ap",
+        title = "Access Points Do Not Create Entry Exits",
+        status = "danger",
+        solidHeader = TRUE,
+        HTML(
+          "Please consult the Coordinated Entry workflow. Access Point providers
+          should not have any Entry Exits. These Entry Exits should be deleted."
+        ),
+        tableOutput("APs_with_EEs")
+      )
+    }
+    else {
+      
+    }
+  })
+  
   output$Overlaps <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
@@ -773,7 +820,7 @@ function(input, output, session) {
         title = "Overlapping Entry Exits",
         status = "info",
         solidHeader = TRUE,
-        width = '100%',
+        width = 12,
         HTML(
           "A client cannot reside in an ES, TH, or Safe Haven at the same time. Nor
         can they have a Move-In Date into a PSH or RRH project while they are
@@ -933,7 +980,7 @@ function(input, output, session) {
         title = "Check Eligibility",
         status = "warning",
         solidHeader = TRUE,
-        width = '100%',
+        width = 12,
         HTML(
           "<p>Your Residence Prior data suggests that this project is either serving
           ineligible households, the household was entered into the wrong project,
@@ -960,7 +1007,8 @@ function(input, output, session) {
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
-          "Duplicate Entry Exits"
+          "Duplicate Entry Exits",
+          "Access Point with Entry Exits"
         ) & # because these are all in the boxes already
           served_between(., ReportStart, ReportEnd) &
           ProjectName == input$providerListDQ &
@@ -2097,11 +2145,15 @@ function(input, output, session) {
             entered_between(., ReportStart, ReportEnd) &
             ProjectType == 13
         ) %>%
-        mutate(ProjectName = as.factor(ProjectName)) %>%
-        select("RRH Project Name" = ProjectName, 
-               "Service Date" = ServiceStartDate, 
-               Description,
-               Amount)
+        mutate(ProjectName = as.factor(ProjectName),
+               PersonalID = as.character(PersonalID)) %>%
+        select(
+          "Client ID" = PersonalID,
+          "RRH Project Name" = ProjectName,
+          "Service Date" = ServiceStartDate,
+          Description,
+          Amount
+        )
       
       datatable(rrhSpending,
                 rownames = FALSE,
@@ -2135,11 +2187,15 @@ function(input, output, session) {
             entered_between(., ReportStart, ReportEnd) &
             ProjectType == 12
         ) %>%
-        mutate(ProjectName = as.factor(ProjectName)) %>%
-        select("Prevention Project Name" = ProjectName, 
-               "Service Date" = ServiceStartDate, 
-               Description,
-               Amount)
+        mutate(ProjectName = as.factor(ProjectName),
+               PersonalID = as.character(PersonalID)) %>%
+        select(
+          "Client ID" = PersonalID,
+          "Prevention Project Name" = ProjectName,
+          "Service Date" = ServiceStartDate,
+          Description,
+          Amount
+        )
       
       datatable(hpSpending,
                 rownames = FALSE,
