@@ -344,7 +344,8 @@ dashboardPage(
                               c(
                                 unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
                               ),
-                              selected = Sys.yearqtr() - 1 / 4))),
+                              selected = Sys.yearqtr() - 1 / 4), 
+              width = 12)),
               fluidRow(infoBoxOutput("ExitsToPHSummary", width = 12)),
               fluidRow(box(DT::dataTableOutput("ExitsToPH"), width = 12)),
               br(),
