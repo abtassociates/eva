@@ -607,6 +607,42 @@ function(input, output, session) {
       )
     })
   
+  output$dq_provider_summary_table <- renderTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    dq_project_summary %>%
+      filter(ProjectName == input$providerListDQ) %>%
+      group_by(Type, Issue, Guidance) %>%
+      select(Type, Issue, Guidance) %>%
+      arrange(Type)
+  })
+  
+  output$dq_provider_summary_box <- renderUI({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    x <- dq_project_summary %>%
+      filter(ProjectName == input$providerListDQ)
+    if (nrow(x) > 0) {
+      box(
+        id = "DQSummaryProvider",
+        title = "Data Quality Summary",
+        status = "info",
+        solidHeader = TRUE,
+        tableOutput("dq_provider_summary_table"),
+        width = 12
+      )
+    }
+    else {
+      box(
+        id = "AllCleanDQSummary",
+        title = "Data Quality Summary",
+        status = "success",
+        solidHeader = TRUE,
+        HTML("No Errors or Warnings Detected!")
+      )
+    }
+  })
+  
   output$DuplicateEEs <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
@@ -1384,7 +1420,7 @@ function(input, output, session) {
           "Children Only Household",
           "Overlapping Project Stays",
           "Missing County Served",
-          "Missing County Prior",
+          "Missing County of Prior Residence",
           "Duplicate Entry Exits",
           "Wrong Provider (Not Unsheltered)"
         ) &
