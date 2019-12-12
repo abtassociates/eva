@@ -37,7 +37,7 @@ dashboardPage(
         "Data Quality",
         menuSubItem("Provider-level", tabName = "dqTab"),
         menuSubItem("Unsheltered", tabName = "unsheltered"),
-        # menuSubItem("Diversion", tabName = "diversion"),
+        menuSubItem("Region-level", tabName = "dqRegion"),
         menuSubItem("CoC-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
       ),
@@ -197,8 +197,37 @@ dashboardPage(
             width = 12
           )
         )
-        # ,
-        # fluidRow(uiOutput("dq_provider_summary_box"))
+        ,
+        fluidRow(uiOutput("dq_provider_summary_box"))
+      ),
+      tabItem(
+        tabName = "dqRegion",
+        fluidRow(box(htmlOutput(
+          "headerRegionDataQuality"
+        ), width = 12)),
+        fluidRow(box(
+          pickerInput(
+            inputId = "regionList3",
+            choices = c(unique(regions$RegionName)),
+            options = list(`live-search` = TRUE),
+            width = "70%"
+          ),
+          dateInput(
+            inputId = "dq_region_startdate",
+            label = "Report Start Date",
+            format = "mm/dd/yyyy",
+            value = mdy("10012018"),
+            width = "25%"
+          ),
+          width = 12
+        )),
+        fluidRow(box(
+          id = "DQSummaryRegion",
+          title = paste("Data Quality Summary"),
+          status = "info",
+          solidHeader = TRUE,
+          DT::dataTableOutput("dq_region_summary_table"),
+          width = 12))
       ),
       tabItem(
         tabName = "unsheltered",
