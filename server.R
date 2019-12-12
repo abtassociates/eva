@@ -625,7 +625,11 @@ function(input, output, session) {
       filter(ProjectName == input$providerListDQ &
                served_between(., ReportStart, ReportEnd)) %>%
       group_by(Type, Issue, Guidance) %>%
+      ungroup() %>%
       select(Type, Issue, Guidance) %>%
+      mutate(Type = factor(Type, levels = c("High Priority",
+                                            "Error",
+                                            "Warning"))) %>%
       arrange(Type) %>%
       unique()
   })
