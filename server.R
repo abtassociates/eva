@@ -639,7 +639,7 @@ function(input, output, session) {
     if (nrow(x) > 0) {
       box(
         id = "DQSummaryProvider",
-        title = "Data Quality Summary",
+        title = "Data Quality Guidance",
         status = "info",
         solidHeader = TRUE,
         tableOutput("dq_provider_summary_table"),
