@@ -15,10 +15,11 @@
 
 function(input, output, session) {
   output$headerHome <- renderUI({
-    list(
-      h1("Welcome"),
+    box(
+      title = "Welcome",
+      width = 12,
       HTML(
-        "<p>R minor _elevated_ is intended for use by Ohio Balance of State HMIS
+        "<p>R minor elevated is intended for use by Ohio Balance of State HMIS
         users. This site requires a login because client-level data is shown
         (without Personally Identifying Information). Please use this
         site to verify that your HMIS data is accurate and complete.
@@ -27,7 +28,7 @@ function(input, output, session) {
         Balance of State CoC performance reporting. Visitors to R minor will
         include HMIS users, program executives, funders, government
         representatives, advocates, and other interested parties. R minor
-        contains no client-level data.<br><br>
+        contains no client-level data.<br>
         <p>We're glad you're here! Please select a report in the left sidebar."
       )
     )
@@ -100,6 +101,16 @@ function(input, output, session) {
         format(mdy(ReportEnd), "%B %Y")
       ))
     )
+  })
+  
+  output$headerRegionDataQuality <- renderUI({
+    list(h2("Regional Data Quality"),
+         h4(input$regionList3),
+         h4(paste(
+           format(input$dq_region_startdate, "%m-%d-%Y"),
+           "to",
+           format(update_date, "%m-%d-%Y")
+         )))
   })
   
   output$headerCommunityNeedCounty <- renderUI({
@@ -610,18 +621,21 @@ function(input, output, session) {
   output$dq_provider_summary_table <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    dq_project_summary %>%
-      filter(ProjectName == input$providerListDQ) %>%
+    dq_main %>%
+      filter(ProjectName == input$providerListDQ &
+               served_between(., ReportStart, ReportEnd)) %>%
       group_by(Type, Issue, Guidance) %>%
       select(Type, Issue, Guidance) %>%
-      arrange(Type)
+      arrange(Type) %>%
+      unique()
   })
   
   output$dq_provider_summary_box <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    x <- dq_project_summary %>%
-      filter(ProjectName == input$providerListDQ)
+    x <- dq_main %>%
+      filter(ProjectName == input$providerListDQ &
+               served_between(., ReportStart, ReportEnd))
     if (nrow(x) > 0) {
       box(
         id = "DQSummaryProvider",
@@ -633,14 +647,30 @@ function(input, output, session) {
       )
     }
     else {
-      box(
-        id = "AllCleanDQSummary",
-        title = "Data Quality Summary",
-        status = "success",
-        solidHeader = TRUE,
-        HTML("No Errors or Warnings Detected!")
-      )
+
     }
+  })
+  
+  output$dq_region_summary_table <- DT::renderDataTable({
+    ReportStart <- format.Date(input$dq_region_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    a <- dq_main %>%
+      mutate(RegionName = paste("Homeless Planning Region", Region),
+             Region = NULL,
+             Type = factor(Type, levels = c("High Priority", 
+                                            "Error", 
+                                            "Warning"))) %>%
+      filter(RegionName == input$regionList3 &
+               served_between(., ReportStart, ReportEnd)) %>%
+      group_by(ProjectName, Type, Issue) %>%
+      summarise(Clients = n()) %>%
+      select("Provider Name" = ProjectName, Type, Issue, Clients) %>%
+      arrange(Type, desc(Clients))
+    
+    datatable(a, 
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
   })
   
   output$DuplicateEEs <- renderTable({
