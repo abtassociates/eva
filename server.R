@@ -60,7 +60,7 @@ function(input, output, session) {
   })
   
   output$headerUnshDataQuality <- renderUI({
-    list(h2("Unsheltered Data Quality (Under Construction)"),
+    list(h2("Unsheltered Data Quality"),
          h4("Entered into the Unsheltered Provider by a User whose Default 
             Provider is", input$unshDefaultProvidersList),
          h4(paste(
@@ -659,19 +659,24 @@ function(input, output, session) {
     ReportStart <- format.Date(input$dq_region_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     a <- dq_main %>%
-      mutate(RegionName = paste("Homeless Planning Region", Region),
-             Region = NULL,
-             Type = factor(Type, levels = c("High Priority", 
-                                            "Error", 
-                                            "Warning"))) %>%
-      filter(RegionName == input$regionList3 &
+      filter(ProjectRegion == input$regionList3 &
                served_between(., ReportStart, ReportEnd)) %>%
+      select(ProjectName, Type, Issue)
+    
+    b <- dq_unsheltered %>%
+      filter(UserRegion == input$regionList3 &
+               served_between(., ReportStart, ReportEnd)) %>%
+      mutate(ProjectName = paste("Unsheltered Provider, entered by a user from", 
+                                 DefaultProvider))%>%
+      select(ProjectName, Type, Issue)
+    
+    c <- rbind(a, b) %>%
       group_by(ProjectName, Type, Issue) %>%
       summarise(Clients = n()) %>%
       select("Provider Name" = ProjectName, Type, Issue, Clients) %>%
       arrange(Type, desc(Clients))
     
-    datatable(a, 
+    datatable(c, 
               rownames = FALSE,
               filter = 'top',
               options = list(dom = 'ltpi'))
@@ -925,7 +930,7 @@ function(input, output, session) {
         title = "Access Point Has No Outgoing Referrals",
         status = "danger",
         solidHeader = TRUE,
-        width = '100%',
+        width = 12,
         HTML(
           "Access Points should be creating Referrals in HMIS so that households
           can be connected to housing. Please 
@@ -1848,20 +1853,20 @@ function(input, output, session) {
             stayed_between(., ReportStart, ReportEnd) &
             Difference > 0
         ) %>% 
-        group_by(ProjectName, ProjectType, County, Region) %>%
+        group_by(ProjectName, ProjectType, ProjectCounty, ProjectRegion) %>%
         summarise(Increased = n())
       
       # calculating the total households for comparison
       all_hhs <- qpr_income %>%
         filter(ProjectName %in% input$incomeProjectList &
                  stayed_between(., ReportStart, ReportEnd)) %>%
-        group_by(ProjectName, ProjectType, County, Region) %>%
+        group_by(ProjectName, ProjectType, ProjectCounty, ProjectRegion) %>%
         summarise(TotalHHs = n()) 
       
       IncreasedIncome <- all_hhs %>%
         left_join(
           meeting_objective,
-          by = c("ProjectName", "ProjectType", "County", "Region")
+          by = c("ProjectName", "ProjectType", "ProjectCounty", "ProjectRegion")
         )
       
       IncreasedIncome[is.na(IncreasedIncome)] <- 0
