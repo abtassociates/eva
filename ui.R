@@ -177,12 +177,13 @@ dashboardPage(
           ),
           width = 12
         )),
-        fluidRow(uiOutput("DQ_APs_w_EEs"),
-                 uiOutput("DQAPsNoReferrals")),
+        fluidRow(uiOutput("DQ_APs_w_EEs")),
+        fluidRow(uiOutput("DQAPsNoReferrals")),
         fluidRow(uiOutput("DQDuplicateEEs"),
                  uiOutput("DQHHIssues")),
         fluidRow(uiOutput("DQIneligible")),
-        fluidRow(uiOutput("DQOverlappingEEs")),
+        fluidRow(uiOutput("DQOverlappingEEs")), 
+          
         fluidRow(
           box(
             DT::dataTableOutput("DQErrors"),
