@@ -654,6 +654,40 @@ function(input, output, session) {
 
     }
   })
+
+  output$dq_unsheltered_summary_table <- renderTable({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    dq_unsheltered %>%
+      filter(DefaultProvider == input$unshDefaultProvidersList &
+               served_between(., ReportStart, ReportEnd)) %>%
+      group_by(Type, Issue, Guidance) %>%
+      ungroup() %>%
+      select(Type, Issue, Guidance) %>%
+      arrange(Type) %>%
+      unique()
+  })
+  
+  output$dq_unsheltered_summary_box <- renderUI({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    x <- dq_unsheltered %>%
+      filter(DefaultProvider == input$unshDefaultProvidersList &
+               served_between(., ReportStart, ReportEnd))
+    if (nrow(x) > 0) {
+      box(
+        id = "DQSummaryUnsheltered",
+        title = "Data Quality Guidance",
+        status = "info",
+        solidHeader = TRUE,
+        tableOutput("dq_unsheltered_summary_table"),
+        width = 12
+      )
+    }
+    else {
+      
+    }
+  })
   
   output$dq_region_summary_table <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_region_startdate, "%m-%d-%Y")

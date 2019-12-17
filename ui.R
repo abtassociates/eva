@@ -274,6 +274,8 @@ dashboardPage(
             width = 12
           )
         )
+        ,
+        fluidRow(uiOutput("dq_unsheltered_summary_box"))
       ),
       # tabItem(tabName = "diversion"),
       tabItem(
