@@ -44,7 +44,7 @@ dashboardPage(
       # menuItem("CoC Competition",
       #          tabName = "cocCompetitionTab"),
       menuItem(
-        "Performance and Outcomes",
+        "Quarterly Performance Report",
         menuItem(
           "Community Need",
           tabName = "spdatTab",
@@ -72,8 +72,9 @@ dashboardPage(
     HTML(
       paste0(
         "<br>&emsp;Data last refreshed:&emsp;<br>&emsp;",
-        format(update_date, "%m-%d-%Y %I:%M %p", tz = "US/Eastern"),
-        "<p><p>&emsp;Happy Holidays!"
+        format(update_date, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")
+        # ,
+        # "<p><p>&emsp;Happy Holidays!"
       )
     ),
     br(),
