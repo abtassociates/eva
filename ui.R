@@ -41,12 +41,12 @@ dashboardPage(
         menuSubItem("CoC-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
       ),
-      menuItem("CoC Competition",
-               tabName = "cocCompetitionTab",
-               menuSubItem("CoC level",
-                           tabName = "peCoCLevel"),
-               menuSubItem("Project Level",
-                           tabName = "peProjectLevel")),
+      # menuItem("CoC Competition",
+      #          tabName = "cocCompetitionTab",
+      #          menuSubItem("CoC level",
+      #                      tabName = "peCoCLevel"),
+      #          menuSubItem("Project Level",
+      #                      tabName = "peProjectLevel")),
       menuItem(
         "Quarterly Performance Report",
         menuItem(
@@ -372,23 +372,23 @@ dashboardPage(
                   title = "Top 20 Providers with Old Outstanding Referrals"
                 )
               )),
-      tabItem(tabName = "peProjectLevel",
-              fluidRow(box(
-                pickerInput(
-                  inputId = "pe_provider",
-                  label = "Select your CoC-funded Provider",
-                  choices = sort(pe_validation_summary$ProjectName) %>%
-                    unique(),
-                  options = list('live-search' = TRUE),
-                  width = "100%"
-                )
-              )),
-              tabsetPanel(
-                type = "tab",
-                tabPanel("Retaining Permanent Housing", 
-                         tableOutput("mtcars")),
-                tabPanel("Income at Exit", tableOutput("mtcars"))
-              )), 
+      # tabItem(tabName = "peProjectLevel",
+      #         fluidRow(box(
+      #           pickerInput(
+      #             inputId = "pe_provider",
+      #             label = "Select your CoC-funded Provider",
+      #             choices = sort(pe_validation_summary$ProjectName) %>%
+      #               unique(),
+      #             options = list('live-search' = TRUE),
+      #             width = "100%"
+      #           )
+      #         )),
+      #         tabsetPanel(
+      #           type = "tab",
+      #           tabPanel("Retaining Permanent Housing", 
+      #                    tableOutput("mtcars")),
+      #           tabPanel("Income at Exit", tableOutput("mtcars"))
+      #         )), 
       tabItem(
         tabName = "spdatTab1",
         fluidRow(box(
