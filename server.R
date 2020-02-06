@@ -465,7 +465,7 @@ function(input, output, session) {
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate),
                PersonalID = as.character(PersonalID)) %>%
-        select(PersonalID, BedStart, ExitDate, y)
+        select(PersonalID, BedStart, ExitDate, !!y)
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
       
@@ -497,7 +497,7 @@ function(input, output, session) {
         ) %>%
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate)) %>%
-        select(PersonalID, BedStart, ExitDate, y)
+        select(PersonalID, BedStart, ExitDate, !!y)
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
@@ -537,7 +537,7 @@ function(input, output, session) {
         ) %>%
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate)) %>%
-        select(PersonalID, BedStart, ExitDate, y)
+        select(PersonalID, BedStart, ExitDate, !!y)
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
@@ -590,7 +590,7 @@ function(input, output, session) {
         ) %>%
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate)) %>%
-        select(PersonalID, BedStart, ExitDate, y)
+        select(PersonalID, BedStart, ExitDate, !!y)
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
