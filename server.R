@@ -1005,6 +1005,24 @@ function(input, output, session) {
     
   })
   
+  output$cocLongStayers <- DT::renderDataTable({
+    ReportStart <- "10012018"
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    
+    a <- dq_main %>%
+      filter(served_between(., ReportStart, ReportEnd) &
+               Issue == "Extremely Long Stayer") %>%
+      group_by(ProjectName) %>%
+      summarise(Clients = n()) %>%
+      arrange(desc(Clients)) %>%
+      top_n(20L, wt = Clients) %>%
+      select("Project Name" = ProjectName,
+             "Extremely Long Stayers" = Clients)
+    datatable(a,
+              rownames = FALSE)
+    
+  })
+  
   output$cocWidespreadIssues <- DT::renderDataTable({
     a <- dq_past_year %>%
       select(Issue, ProjectName, Type) %>%

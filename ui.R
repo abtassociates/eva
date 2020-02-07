@@ -337,6 +337,10 @@ dashboardPage(
             solidHeader = TRUE,
             status = "warning"
           ),
+          box(DT::dataTableOutput("cocLongStayers"),
+              title = "Extremely Long Stayers",
+              solidHeader = TRUE,
+              status = "warning"),
           box(
             DT::dataTableOutput("cocWidespreadIssues"),
             title = "Widespread Issues (Training focus)",
