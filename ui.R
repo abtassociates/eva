@@ -389,17 +389,18 @@ dashboardPage(
                     unique(),
                   options = list('live-search' = TRUE),
                   width = "100%"
-                ), width = 12
-              ))
-              # ,
-              # tabsetPanel(
-              #   type = "tab",
-              #   tabPanel("Retaining Permanent Housing",
-              #            tableOutput("mtcars")),
-              #   tabPanel("Income at Exit",
-              #            tableOutput("mtcars"))
-              # )
-              ),
+                ),
+                width = 12
+              )),
+              fluidRow(box(
+                DT::dataTableOutput("pe_ProjectSummary"), 
+                width = 12,
+                title = "Score Summary",
+                status = "info",
+                solidHeader = TRUE, 
+                collapsible = TRUE,
+                collapsed = TRUE
+              ))), 
       tabItem(
         tabName = "spdatTab1",
         fluidRow(box(

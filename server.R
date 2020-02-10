@@ -2341,4 +2341,40 @@ function(input, output, session) {
       
     })
   
+  output$pe_ProjectSummary <-
+    DT::renderDataTable({
+
+      a <- summary_pe_final_scoring %>%
+        filter(ProjectName == input$pe_provider) %>%
+        select("Exits to Permanent Housing" = ExitsToPHPoints,
+               "Moved into Own Housing" = OwnHousingPoints,
+               "Non-Cash Benefits at Exit" = NCBsAtExitPoints,
+               "Health Insurance at Exit" = HIatExitPoints,
+               "Increased Income" = IncreasedIncomePoints,
+               "Bed Utilization" = BedPoints,
+               "Unit Utilization" = UnitPoints,
+               "Living Situation at Entry" = LHResPriorPoints,
+               "No Income at Entry" = NoIncomeAtEntryPoints,
+               "Median Homeless History Index" = MedianHHIPoints,
+               "Average Homeless History Index" = AverageHHIPoints,
+               "Long Term Homeless" = LongTermHomelessPoints,
+               "Data Quality" = DQPoints,
+               "Cost per Exit" = CostPerExitScore,
+               "Housing First" = HousingFirstScore,
+               "Prioritization of Chronic" = ChronicPrioritizationScore,
+               "Spending On Track" = OnTrackSpendingScoring,
+               "Unspent Funds within Range" = UnspentFundsScoring) %>%
+        pivot_longer(cols = everything(),
+                     names_to = "Measure",
+                     values_to = "Estimated Score")
+        
+      
+      datatable(a,
+                rownames = FALSE,
+                # filter = 'top',
+                options = list(dom = 't',
+                               pageLength = 100))
+      
+    })
+  
 }
