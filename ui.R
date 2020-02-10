@@ -41,12 +41,12 @@ dashboardPage(
         menuSubItem("CoC-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
       ),
-      menuItem("CoC Competition",
-               tabName = "cocCompetitionTab",
-               menuSubItem("CoC level",
-                           tabName = "peCoCLevel"),
-               menuSubItem("Project Level",
-                           tabName = "peProjectLevel")),
+      # menuItem("CoC Competition",
+      #          tabName = "cocCompetitionTab",
+      #          menuSubItem("CoC level",
+      #                      tabName = "peCoCLevel"),
+      #          menuSubItem("Project Level",
+      #                      tabName = "peProjectLevel")),
       menuItem(
         "Quarterly Performance Report",
         menuItem(
