@@ -30,6 +30,9 @@ load("data/QPR_EEs.RData")
 
 load("data/Data_Quality.RData")
 
+load("data/ProjectEvaluation.RData")
+
+
 qpr_leavers <- qpr_leavers %>% arrange(ProjectName)
 
 providers <- sort(validation$ProjectName) %>% unique() 
@@ -38,8 +41,8 @@ filebeginningdate <- update_date - years(2)
 
 # HOW TO SET UP YOUR SYMBOLIC LINKS ON YOUR SYSTEM (Windows-specific)
 # command prompt As Administrator, then:
-# mklink "C:\Users\HMIS1\Documents\R\Rminor\data\Data_Quality.RData" 
-# "C:\Users\HMIS1\Documents\R\COHHIO_HMIS\images\Data_Quality.RData"
+# mklink "C:\Users\HMIS1\Documents\R\Rminor\data\Data_Quality.RData" "C:\Users\
+# HMIS1\Documents\R\COHHIO_HMIS\images\Data_Quality.RData"
 # obviously replace these paths with what's on your PC. It's basically:
 # mklink "where you want to add the link" "where you want the link to point"
 
