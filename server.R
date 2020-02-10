@@ -49,6 +49,14 @@ function(input, output, session) {
          )
   })
   
+  output$headerCoCCompetitionProjectLevel <- renderUI({
+    list(
+      h2("2020 CoC Competition"),
+      h4("Fixed Date Range: January 2019 - December 2019"),
+      h4(input$pe_provider)
+    )
+  })
+  
   output$headerDataQuality <- renderUI({
     list(h2("Data Quality"),
          h4(input$providerListDQ),
