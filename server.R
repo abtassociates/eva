@@ -15,10 +15,11 @@
 
 function(input, output, session) {
   output$headerHome <- renderUI({
-    list(
-      h1("Welcome"),
+    box(
+      title = "Welcome",
+      width = 12,
       HTML(
-        "<p>R minor _elevated_ is intended for use by Ohio Balance of State HMIS
+        "<p>R minor elevated is intended for use by Ohio Balance of State HMIS
         users. This site requires a login because client-level data is shown
         (without Personally Identifying Information). Please use this
         site to verify that your HMIS data is accurate and complete.
@@ -27,7 +28,7 @@ function(input, output, session) {
         Balance of State CoC performance reporting. Visitors to R minor will
         include HMIS users, program executives, funders, government
         representatives, advocates, and other interested parties. R minor
-        contains no client-level data.<br><br>
+        contains no client-level data.<br>
         <p>We're glad you're here! Please select a report in the left sidebar."
       )
     )
@@ -48,6 +49,14 @@ function(input, output, session) {
          )
   })
   
+  output$headerCoCCompetitionProjectLevel <- renderUI({
+    list(
+      h2("2020 CoC Competition"),
+      h4("Fixed Date Range: January 2019 - December 2019"),
+      h4(input$pe_provider)
+    )
+  })
+  
   output$headerDataQuality <- renderUI({
     list(h2("Data Quality"),
          h4(input$providerListDQ),
@@ -59,7 +68,7 @@ function(input, output, session) {
   })
   
   output$headerUnshDataQuality <- renderUI({
-    list(h2("Unsheltered Data Quality (Under Construction)"),
+    list(h2("Unsheltered Data Quality"),
          h4("Entered into the Unsheltered Provider by a User whose Default 
             Provider is", input$unshDefaultProvidersList),
          h4(paste(
@@ -100,6 +109,16 @@ function(input, output, session) {
         format(mdy(ReportEnd), "%B %Y")
       ))
     )
+  })
+  
+  output$headerRegionDataQuality <- renderUI({
+    list(h2("Regional Data Quality"),
+         h4(input$regionList3),
+         h4(paste(
+           format(input$dq_region_startdate, "%m-%d-%Y"),
+           "to",
+           format(update_date, "%m-%d-%Y")
+         )))
   })
   
   output$headerCommunityNeedCounty <- renderUI({
@@ -454,7 +473,7 @@ function(input, output, session) {
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate),
                PersonalID = as.character(PersonalID)) %>%
-        select(PersonalID, BedStart, ExitDate, y)
+        select(PersonalID, BedStart, ExitDate, all_of(y))
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
       
@@ -486,7 +505,7 @@ function(input, output, session) {
         ) %>%
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate)) %>%
-        select(PersonalID, BedStart, ExitDate, y)
+        select(PersonalID, BedStart, ExitDate, all_of(y))
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
@@ -526,7 +545,7 @@ function(input, output, session) {
         ) %>%
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate)) %>%
-        select(PersonalID, BedStart, ExitDate, y)
+        select(PersonalID, BedStart, ExitDate, all_of(y))
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
@@ -579,7 +598,7 @@ function(input, output, session) {
         ) %>%
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate)) %>%
-        select(PersonalID, BedStart, ExitDate, y)
+        select(PersonalID, BedStart, ExitDate, all_of(y))
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
@@ -606,6 +625,104 @@ function(input, output, session) {
                          bedUtilization)
       )
     })
+  
+  output$dq_provider_summary_table <- renderTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    dq_main %>%
+      filter(ProjectName == input$providerListDQ &
+               served_between(., ReportStart, ReportEnd)) %>%
+      group_by(Type, Issue, Guidance) %>%
+      ungroup() %>%
+      select(Type, Issue, Guidance) %>%
+      mutate(Type = factor(Type, levels = c("High Priority",
+                                            "Error",
+                                            "Warning"))) %>%
+      arrange(Type) %>%
+      unique()
+  })
+  
+  output$dq_provider_summary_box <- renderUI({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    x <- dq_main %>%
+      filter(ProjectName == input$providerListDQ &
+               served_between(., ReportStart, ReportEnd))
+    if (nrow(x) > 0) {
+      box(
+        id = "DQSummaryProvider",
+        title = "Data Quality Guidance",
+        status = "info",
+        solidHeader = TRUE,
+        tableOutput("dq_provider_summary_table"),
+        width = 12
+      )
+    }
+    else {
+
+    }
+  })
+
+  output$dq_unsheltered_summary_table <- renderTable({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    dq_unsheltered %>%
+      filter(DefaultProvider == input$unshDefaultProvidersList &
+               served_between(., ReportStart, ReportEnd)) %>%
+      group_by(Type, Issue, Guidance) %>%
+      ungroup() %>%
+      select(Type, Issue, Guidance) %>%
+      arrange(Type) %>%
+      unique()
+  })
+  
+  output$dq_unsheltered_summary_box <- renderUI({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    x <- dq_unsheltered %>%
+      filter(DefaultProvider == input$unshDefaultProvidersList &
+               served_between(., ReportStart, ReportEnd))
+    if (nrow(x) > 0) {
+      box(
+        id = "DQSummaryUnsheltered",
+        title = "Data Quality Guidance",
+        status = "info",
+        solidHeader = TRUE,
+        tableOutput("dq_unsheltered_summary_table"),
+        width = 12
+      )
+    }
+    else {
+      
+    }
+  })
+  
+  output$dq_region_summary_table <- DT::renderDataTable({
+    ReportStart <- format.Date(input$dq_region_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    a <- dq_main %>%
+      filter(ProjectRegion == input$regionList3 &
+               served_between(., ReportStart, ReportEnd)) %>%
+      select(ProjectName, Type, Issue)
+    
+    b <- dq_unsheltered %>%
+      filter(UserRegion == input$regionList3 &
+               served_between(., ReportStart, ReportEnd)) %>%
+      mutate(ProjectName = paste("Unsheltered Provider, entered by a user from", 
+                                 DefaultProvider))%>%
+      select(ProjectName, Type, Issue)
+    
+    c <- rbind(a, b) %>%
+      group_by(ProjectName, Type, Issue) %>%
+      summarise(Clients = n()) %>%
+      select("Provider Name" = ProjectName, Type, Issue, Clients) %>%
+      arrange(Type, desc(Clients))
+    
+    datatable(c, 
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+  })
   
   output$DuplicateEEs <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
@@ -855,7 +972,7 @@ function(input, output, session) {
         title = "Access Point Has No Outgoing Referrals",
         status = "danger",
         solidHeader = TRUE,
-        width = '100%',
+        width = 12,
         HTML(
           "Access Points should be creating Referrals in HMIS so that households
           can be connected to housing. Please 
@@ -891,6 +1008,24 @@ function(input, output, session) {
       top_n(20L, wt = Clients) %>%
       select("Project Name" = ProjectName,
              "Clients with Overlapping Entry Exits" = Clients)
+    datatable(a,
+              rownames = FALSE)
+    
+  })
+  
+  output$cocLongStayers <- DT::renderDataTable({
+    ReportStart <- "10012018"
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    
+    a <- dq_main %>%
+      filter(served_between(., ReportStart, ReportEnd) &
+               Issue == "Extremely Long Stayer") %>%
+      group_by(ProjectName) %>%
+      summarise(Clients = n()) %>%
+      arrange(desc(Clients)) %>%
+      top_n(20L, wt = Clients) %>%
+      select("Project Name" = ProjectName,
+             "Extremely Long Stayers" = Clients)
     datatable(a,
               rownames = FALSE)
     
@@ -1384,7 +1519,7 @@ function(input, output, session) {
           "Children Only Household",
           "Overlapping Project Stays",
           "Missing County Served",
-          "Missing County Prior",
+          "Missing County of Prior Residence",
           "Duplicate Entry Exits",
           "Wrong Provider (Not Unsheltered)"
         ) &
@@ -1778,20 +1913,20 @@ function(input, output, session) {
             stayed_between(., ReportStart, ReportEnd) &
             Difference > 0
         ) %>% 
-        group_by(ProjectName, ProjectType, County, Region) %>%
+        group_by(ProjectName, ProjectType, ProjectCounty, ProjectRegion) %>%
         summarise(Increased = n())
       
       # calculating the total households for comparison
       all_hhs <- qpr_income %>%
         filter(ProjectName %in% input$incomeProjectList &
                  stayed_between(., ReportStart, ReportEnd)) %>%
-        group_by(ProjectName, ProjectType, County, Region) %>%
+        group_by(ProjectName, ProjectType, ProjectCounty, ProjectRegion) %>%
         summarise(TotalHHs = n()) 
       
       IncreasedIncome <- all_hhs %>%
         left_join(
           meeting_objective,
-          by = c("ProjectName", "ProjectType", "County", "Region")
+          by = c("ProjectName", "ProjectType", "ProjectCounty", "ProjectRegion")
         )
       
       IncreasedIncome[is.na(IncreasedIncome)] <- 0
@@ -2205,5 +2340,83 @@ function(input, output, session) {
       
       
     })
+  
+  output$pe_ProjectSummary <-
+    DT::renderDataTable({
+
+      a <- summary_pe_final_scoring %>%
+        filter(ProjectName == input$pe_provider) %>%
+        select("Exits to Permanent Housing" = ExitsToPHPoints,
+               "Moved into Own Housing" = OwnHousingPoints,
+               "Non-Cash Benefits at Exit" = NCBsAtExitPoints,
+               "Health Insurance at Exit" = HIatExitPoints,
+               "Increased Income" = IncreasedIncomePoints,
+               "Bed Utilization" = BedPoints,
+               "Unit Utilization" = UnitPoints,
+               "Living Situation at Entry" = LHResPriorPoints,
+               "No Income at Entry" = NoIncomeAtEntryPoints,
+               "Median Homeless History Index" = MedianHHIPoints,
+               "Average Homeless History Index" = AverageHHIPoints,
+               "Long Term Homeless" = LongTermHomelessPoints,
+               "Data Quality" = DQPoints,
+               "Cost per Exit" = CostPerExitScore,
+               "Housing First" = HousingFirstScore,
+               "Prioritization of Chronic" = ChronicPrioritizationScore,
+               "Spending On Track" = OnTrackSpendingScoring,
+               "Unspent Funds within Range" = UnspentFundsScoring) %>%
+        pivot_longer(cols = everything(),
+                     names_to = "Measure",
+                     values_to = "Estimated Score")
+        
+      
+      datatable(a,
+                rownames = FALSE,
+                # filter = 'top',
+                options = list(dom = 't',
+                               pageLength = 100))
+      
+    })
+  
+  output$pe_ExitsToPH <- DT::renderDataTable({
+    a <- pe_exits_to_ph %>%
+      filter(ProjectName == input$pe_provider) %>%
+      mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")) %>%
+      select("Client ID" = PersonalID,
+             "Entry Date" = EntryDate,
+             "Move In Date" = MoveInDateAdjust,
+             "Exit Date" = ExitDate,
+             "Destination Type" = DestinationGroup,
+             "Meets Objective" = MeetsObjective)    
+    
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+    
+  })
+  
+  output$pe_NCBsAtExit <- DT::renderDataTable({
+    a <- pe_non_cash_at_exit %>%
+      filter(ProjectName == input$pe_provider) %>%
+      mutate(
+        BenefitsFromAnySource = case_when(
+          BenefitsFromAnySource == 1 ~ "Yes", 
+          BenefitsFromAnySource == 0 ~ "No",
+          is.na(BenefitsFromAnySource) ~ "Missing")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Move In Date" = MoveInDateAdjust,
+        "Exit Date" = ExitDate,
+        "Non-Cash Benefits at Exit" = BenefitsFromAnySource
+      )    
+    
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+    
+  })
   
 }
