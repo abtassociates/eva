@@ -2377,4 +2377,46 @@ function(input, output, session) {
       
     })
   
+  output$pe_ExitsToPH <- DT::renderDataTable({
+    a <- pe_exits_to_ph %>%
+      filter(ProjectName == input$pe_provider) %>%
+      mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")) %>%
+      select("Client ID" = PersonalID,
+             "Entry Date" = EntryDate,
+             "Move In Date" = MoveInDateAdjust,
+             "Exit Date" = ExitDate,
+             "Destination Type" = DestinationGroup,
+             "Meets Objective" = MeetsObjective)    
+    
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+    
+  })
+  
+  output$pe_NCBsAtExit <- DT::renderDataTable({
+    a <- pe_non_cash_at_exit %>%
+      filter(ProjectName == input$pe_provider) %>%
+      mutate(
+        BenefitsFromAnySource = case_when(
+          BenefitsFromAnySource == 1 ~ "Yes", 
+          BenefitsFromAnySource == 0 ~ "No",
+          is.na(BenefitsFromAnySource) ~ "Missing")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Move In Date" = MoveInDateAdjust,
+        "Exit Date" = ExitDate,
+        "Non-Cash Benefits at Exit" = BenefitsFromAnySource
+      )    
+    
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+    
+  })
+  
 }
