@@ -2402,14 +2402,15 @@ function(input, output, session) {
         BenefitsFromAnySource = case_when(
           BenefitsFromAnySource == 1 ~ "Yes", 
           BenefitsFromAnySource == 0 ~ "No",
-          is.na(BenefitsFromAnySource) ~ "Missing")
+          is.na(BenefitsFromAnySource) ~ "Missing"),
+        MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")
       ) %>%
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
-        "Move In Date" = MoveInDateAdjust,
         "Exit Date" = ExitDate,
-        "Non-Cash Benefits at Exit" = BenefitsFromAnySource
+        "Non-Cash Benefits at Exit" = BenefitsFromAnySource,
+        "Meets Objective" = MeetsObjective
       )    
     
     datatable(a,
