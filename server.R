@@ -2352,8 +2352,6 @@ function(input, output, session) {
                "Non-Cash Benefits at Exit" = NCBsAtExitPoints,
                "Health Insurance at Exit" = HIatExitPoints,
                "Increased Income" = IncreasedIncomePoints,
-               "Utilization" = UtilizationPoints,
-               # "Unit Utilization" = UnitPoints,
                "Living Situation at Entry" = LHResPriorPoints,
                "No Income at Entry" = NoIncomeAtEntryPoints,
                "Median Homeless History Index" = MedianHHIPoints,
