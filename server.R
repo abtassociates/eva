@@ -2348,15 +2348,13 @@ function(input, output, session) {
         filter(ProjectName == input$pe_provider) %>%
         select("Exits to Permanent Housing" = ExitsToPHPoints,
                "Moved into Own Housing" = OwnHousingPoints,
+               "Average Length of Stay" = AverageLoSPoints,
                "Non-Cash Benefits at Exit" = NCBsAtExitPoints,
                "Health Insurance at Exit" = HIatExitPoints,
                "Increased Income" = IncreasedIncomePoints,
-               "Bed Utilization" = BedPoints,
-               "Unit Utilization" = UnitPoints,
                "Living Situation at Entry" = LHResPriorPoints,
                "No Income at Entry" = NoIncomeAtEntryPoints,
                "Median Homeless History Index" = MedianHHIPoints,
-               "Average Homeless History Index" = AverageHHIPoints,
                "Long Term Homeless" = LongTermHomelessPoints,
                "Data Quality" = DQPoints,
                "Cost per Exit" = CostPerExitScore,
@@ -2402,14 +2400,15 @@ function(input, output, session) {
         BenefitsFromAnySource = case_when(
           BenefitsFromAnySource == 1 ~ "Yes", 
           BenefitsFromAnySource == 0 ~ "No",
-          is.na(BenefitsFromAnySource) ~ "Missing")
+          is.na(BenefitsFromAnySource) ~ "Missing"),
+        MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")
       ) %>%
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
-        "Move In Date" = MoveInDateAdjust,
         "Exit Date" = ExitDate,
-        "Non-Cash Benefits at Exit" = BenefitsFromAnySource
+        "Non-Cash Benefits at Exit" = BenefitsFromAnySource,
+        "Meets Objective" = MeetsObjective
       )    
     
     datatable(a,

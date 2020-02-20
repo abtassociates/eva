@@ -42,11 +42,7 @@ dashboardPage(
         menuSubItem("CE Summary", tabName = "ceCoC")
       ),
       # menuItem("CoC Competition",
-      #          tabName = "cocCompetitionTab",
-      #          menuSubItem("CoC level",
-      #                      tabName = "peCoCLevel"),
-      #          menuSubItem("Project Level",
-      #                      tabName = "peProjectLevel")),
+      #          tabName = "cocCompetitionTab"),
       menuItem(
         "Quarterly Performance Report",
         menuItem(
@@ -376,7 +372,7 @@ dashboardPage(
                   title = "Top 20 Providers with Old Outstanding Referrals"
                 )
               )),
-      tabItem(tabName = "peProjectLevel",
+      tabItem(tabName = "cocCompetitionTab",
               fluidRow(box(
                 htmlOutput("headerCoCCompetitionProjectLevel"),
                 width = 12
@@ -408,7 +404,8 @@ dashboardPage(
                          DT::dataTableOutput("pe_ExitsToPH"), 
                 ),
                 tabPanel("Non Cash Benefits at Exit",
-                         DT::dataTableOutput("pe_NCBsAtExit"))
+                         DT::dataTableOutput("pe_NCBsAtExit")),
+              width = 12
               ))), 
       tabItem(
         tabName = "spdatTab1",
