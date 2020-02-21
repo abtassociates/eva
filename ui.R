@@ -404,7 +404,7 @@ dashboardPage(
                          DT::dataTableOutput("pe_ExitsToPH"), 
                 ),
                 tabPanel("Non Cash Benefits at Exit",
-                         DT::dataTableOutput("pe_NCBsAtExit")),
+                         DT::dataTableOutput("pe_BenefitsAtExit")),
               width = 12
               ))), 
       tabItem(

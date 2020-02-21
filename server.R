@@ -2393,14 +2393,19 @@ function(input, output, session) {
     
   })
   
-  output$pe_NCBsAtExit <- DT::renderDataTable({
-    a <- pe_non_cash_at_exit %>%
+  output$pe_BenefitsAtExit <- DT::renderDataTable({
+    a <- pe_benefits_at_exit %>%
       filter(ProjectName == input$pe_provider) %>%
       mutate(
         BenefitsFromAnySource = case_when(
           BenefitsFromAnySource == 1 ~ "Yes", 
           BenefitsFromAnySource == 0 ~ "No",
           is.na(BenefitsFromAnySource) ~ "Missing"),
+        InsuranceFromAnySource = case_when(
+          InsuranceFromAnySource == 1 ~ "Yes",
+          InsuranceFromAnySource == 0 ~ "No",
+          is.na(InsuranceFromAnySource) ~ "Missing"
+        ),
         MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")
       ) %>%
       select(
@@ -2408,6 +2413,7 @@ function(input, output, session) {
         "Entry Date" = EntryDate,
         "Exit Date" = ExitDate,
         "Non-Cash Benefits at Exit" = BenefitsFromAnySource,
+        "Health Insurance at Exit" = InsuranceFromAnySource,
         "Meets Objective" = MeetsObjective
       )    
     
