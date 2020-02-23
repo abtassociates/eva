@@ -403,8 +403,8 @@ dashboardPage(
                 tabPanel("Exits to Permanent Housing",
                          DT::dataTableOutput("pe_ExitsToPH"), 
                 ),
-                tabPanel("Non Cash Benefits at Exit",
-                         DT::dataTableOutput("pe_NCBsAtExit")),
+                tabPanel("Benefits & Health Insurance at Exit",
+                         DT::dataTableOutput("pe_BenefitsAtExit")),
               width = 12
               ))), 
       tabItem(
