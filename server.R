@@ -2343,15 +2343,17 @@ function(input, output, session) {
   
   output$pe_ProjectSummary <-
     DT::renderDataTable({
-
+      ptc <- summary_pe_final_scoring %>%
+        filter(ProjectName == input$pe_provider) %>%
+        pull(ProjectType)
+      
       a <- summary_pe_final_scoring %>%
         filter(ProjectName == input$pe_provider) %>%
         select("Exits to Permanent Housing" = ExitsToPHPoints,
                "Moved into Own Housing" = OwnHousingPoints,
-               "Average Length of Stay" = AverageLoSPoints,
-               "Non-Cash Benefits at Exit" = NCBsAtExitPoints,
-               "Health Insurance at Exit" = HIatExitPoints,
                "Increased Income" = IncreasedIncomePoints,
+               "Benefits & Health Insurance at Exit" = BenefitsAtExitPoints,
+               "Average Length of Stay" = AverageLoSPoints,
                "Living Situation at Entry" = LHResPriorPoints,
                "No Income at Entry" = NoIncomeAtEntryPoints,
                "Median Homeless History Index" = MedianHHIPoints,
@@ -2365,11 +2367,55 @@ function(input, output, session) {
         pivot_longer(cols = everything(),
                      names_to = "Measure",
                      values_to = "Estimated Score")
-        
+
+      b <- summary_pe_final_scoring %>%
+        filter(ProjectName == input$pe_provider) %>%
+        select("Exits to Permanent Housing" = ExitsToPHDQ,
+               "Moved into Own Housing" = OwnHousingDQ,
+               "Increased Income" = IncreasedIncomeDQ,
+               "Benefits & Health Insurance at Exit" = BenefitsAtExitDQ,
+               "Average Length of Stay" = AverageLoSDQ,
+               "Living Situation at Entry" = LHResPriorDQ,
+               "No Income at Entry" = NoIncomeAtEntryDQ,
+               "Median Homeless History Index" = MedianHHIDQ,
+               "Long Term Homeless" = LTHomelessDQ) %>%
+        pivot_longer(cols = everything(),
+                     names_to = "Measure",
+                     values_to = "DQflag")
       
-      datatable(a,
+      psh <- a %>% left_join(b, by = "Measure") %>%
+        ungroup() %>%
+        mutate(
+          DQ = case_when(
+            DQflag == 1 ~ "Please correct your Data Quality issues so this item 
+            can be scored",
+            DQflag == 0 ~ "Data Quality passes",
+            is.na(DQflag) ~ "NA"
+          )
+        ) %>%
+        filter(!Measure %in% c("Moved into Own Housing",
+                               "Average Length of Stay")) %>%
+        select(1, 2, "Data Quality" = DQ)
+      
+      not_psh <- a %>% left_join(b, by = "Measure") %>%
+        ungroup() %>%
+        mutate(
+          DQ = case_when(
+            DQflag == 1 ~ "Please correct your Data Quality issues so this item 
+            can be scored",
+            DQflag == 0 ~ "Data Quality passes",
+            is.na(DQflag) ~ "NA"
+          )
+        ) %>%
+        filter(Measure != "Long Term Homeless") %>%
+        select(1, 2, "Data Quality" = DQ)
+      
+      datatable(if(ptc == 3){
+        psh
+      } else{
+        not_psh
+      },
                 rownames = FALSE,
-                # filter = 'top',
                 options = list(dom = 't',
                                pageLength = 100))
       
@@ -2393,14 +2439,19 @@ function(input, output, session) {
     
   })
   
-  output$pe_NCBsAtExit <- DT::renderDataTable({
-    a <- pe_non_cash_at_exit %>%
+  output$pe_BenefitsAtExit <- DT::renderDataTable({
+    a <- pe_benefits_at_exit %>%
       filter(ProjectName == input$pe_provider) %>%
       mutate(
         BenefitsFromAnySource = case_when(
           BenefitsFromAnySource == 1 ~ "Yes", 
           BenefitsFromAnySource == 0 ~ "No",
           is.na(BenefitsFromAnySource) ~ "Missing"),
+        InsuranceFromAnySource = case_when(
+          InsuranceFromAnySource == 1 ~ "Yes",
+          InsuranceFromAnySource == 0 ~ "No",
+          is.na(InsuranceFromAnySource) ~ "Missing"
+        ),
         MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")
       ) %>%
       select(
@@ -2408,6 +2459,7 @@ function(input, output, session) {
         "Entry Date" = EntryDate,
         "Exit Date" = ExitDate,
         "Non-Cash Benefits at Exit" = BenefitsFromAnySource,
+        "Health Insurance at Exit" = InsuranceFromAnySource,
         "Meets Objective" = MeetsObjective
       )    
     
