@@ -2349,45 +2349,78 @@ function(input, output, session) {
       
       a <- summary_pe_final_scoring %>%
         filter(ProjectName == input$pe_provider) %>%
-        select("Exits to Permanent Housing" = ExitsToPHPoints,
-               "Moved into Own Housing" = OwnHousingPoints,
-               "Increased Income" = IncreasedIncomePoints,
-               "Benefits & Health Insurance at Exit" = BenefitsAtExitPoints,
-               "Average Length of Stay" = AverageLoSPoints,
-               "Living Situation at Entry" = LHResPriorPoints,
-               "No Income at Entry" = NoIncomeAtEntryPoints,
-               "Median Homeless History Index" = MedianHHIPoints,
-               "Long Term Homeless" = LongTermHomelessPoints,
-               "Data Quality" = DQPoints,
-               "Cost per Exit" = CostPerExitScore,
-               "Housing First" = HousingFirstScore,
-               "Prioritization of Chronic" = ChronicPrioritizationScore,
-               "Spending On Track" = OnTrackSpendingScoring,
-               "Unspent Funds within Range" = UnspentFundsScoring) %>%
+        select(
+          "Exits to Permanent Housing" = ExitsToPHPoints,
+          "Moved into Own Housing" = OwnHousingPoints,
+          "Increased Income" = IncreasedIncomePoints,
+          "Benefits & Health Insurance at Exit" = BenefitsAtExitPoints,
+          "Average Length of Stay" = AverageLoSPoints,
+          "Living Situation at Entry" = LHResPriorPoints,
+          "No Income at Entry" = NoIncomeAtEntryPoints,
+          "Median Homeless History Index" = MedianHHIPoints,
+          "Long Term Homeless" = LongTermHomelessPoints,
+          "VISPDAT Score at Entry into Permanent Housing" =
+            ScoredAtEntryPoints,
+          "Data Quality" = DQPoints,
+          "Cost per Exit" = CostPerExitScore,
+          "Housing First" = HousingFirstScore,
+          "Prioritization of Chronic" = ChronicPrioritizationScore,
+          "Spending On Track" = OnTrackSpendingScoring,
+          "Unspent Funds within Range" = UnspentFundsScoring
+        ) %>%
         pivot_longer(cols = everything(),
                      names_to = "Measure",
                      values_to = "Estimated Score")
-
+      
       b <- summary_pe_final_scoring %>%
         filter(ProjectName == input$pe_provider) %>%
-        select("Exits to Permanent Housing" = ExitsToPHDQ,
-               "Moved into Own Housing" = OwnHousingDQ,
-               "Increased Income" = IncreasedIncomeDQ,
-               "Benefits & Health Insurance at Exit" = BenefitsAtExitDQ,
-               "Average Length of Stay" = AverageLoSDQ,
-               "Living Situation at Entry" = LHResPriorDQ,
-               "No Income at Entry" = NoIncomeAtEntryDQ,
-               "Median Homeless History Index" = MedianHHIDQ,
-               "Long Term Homeless" = LTHomelessDQ) %>%
+        select(
+          "Exits to Permanent Housing" = ExitsToPHDQ,
+          "Moved into Own Housing" = OwnHousingDQ,
+          "Increased Income" = IncreasedIncomeDQ,
+          "Benefits & Health Insurance at Exit" = BenefitsAtExitDQ,
+          "Average Length of Stay" = AverageLoSDQ,
+          "Living Situation at Entry" = LHResPriorDQ,
+          "No Income at Entry" = NoIncomeAtEntryDQ,
+          "Median Homeless History Index" = MedianHHIDQ,
+          "Long Term Homeless" = LTHomelessDQ,
+          "VISPDAT Score at Entry into Permanent Housing" = ScoredAtEntryDQ
+        ) %>%
         pivot_longer(cols = everything(),
                      names_to = "Measure",
                      values_to = "DQflag")
       
+      c <- summary_pe_final_scoring %>%
+        filter(ProjectName == input$pe_provider) %>%
+        select(
+          "Exits to Permanent Housing" = ExitsToPHPossible,
+          "Moved into Own Housing" = OwnHousingPossible,
+          "Increased Income" = IncreasedIncomePossible,
+          "Benefits & Health Insurance at Exit" = BenefitsAtExitPossible,
+          "Average Length of Stay" = AverageLoSPossible,
+          "Living Situation at Entry" = LHResPriorPossible,
+          "No Income at Entry" = NoIncomeAtEntryPossible,
+          "Median Homeless History Index" = MedianHHIPossible,
+          "Long Term Homeless" = LongTermHomelessPossible,
+          "VISPDAT Score at Entry into Permanent Housing" =
+            ScoredAtEntryPossible,
+          "Data Quality" = DQPossible,
+          "Cost per Exit" = CostPerExitPossible,
+          "Housing First" = HousingFirstPossible,
+          "Prioritization of Chronic" = ChronicPrioritizationPossible,
+          "Spending On Track" = OnTrackSpendingPossible,
+          "Unspent Funds within Range" = UnspentFundsPossible
+        ) %>%
+        pivot_longer(cols = everything(),
+                     names_to = "Measure",
+                     values_to = "Possible Score")
+      
       psh <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
+        left_join(c, by = "Measure") %>%
         mutate(
           DQ = case_when(
-            DQflag == 1 ~ "Please correct your Data Quality issues so this item 
+            DQflag == 1 ~ "Please correct your Data Quality issues so this item
             can be scored",
             DQflag == 0 ~ "Data Quality passes",
             is.na(DQflag) ~ "NA"
@@ -2395,31 +2428,55 @@ function(input, output, session) {
         ) %>%
         filter(!Measure %in% c("Moved into Own Housing",
                                "Average Length of Stay")) %>%
-        select(1, 2, "Data Quality" = DQ)
+        select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
-      not_psh <- a %>% left_join(b, by = "Measure") %>%
+      rrh <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
+        left_join(c, by = "Measure") %>%
         mutate(
           DQ = case_when(
-            DQflag == 1 ~ "Please correct your Data Quality issues so this item 
+            DQflag == 1 ~ "Please correct your Data Quality issues so this item
             can be scored",
             DQflag == 0 ~ "Data Quality passes",
             is.na(DQflag) ~ "NA"
           )
         ) %>%
-        filter(Measure != "Long Term Homeless") %>%
-        select(1, 2, "Data Quality" = DQ)
+        filter(!Measure %in%
+                 c("VISPDAT Score at Entry into Permanent Housing")) %>%
+        select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
-      datatable(if(ptc == 3){
-        psh
-      } else{
-        not_psh
-      },
-                rownames = FALSE,
-                options = list(dom = 't',
-                               pageLength = 100))
+      not_ph <- a %>% left_join(b, by = "Measure") %>%
+        ungroup() %>%
+        left_join(c, by = "Measure") %>%
+        mutate(
+          DQ = case_when(
+            DQflag == 1 ~ "Please correct your Data Quality issues so this item
+            can be scored",
+            DQflag == 0 ~ "Data Quality passes",
+            is.na(DQflag) ~ "NA"
+          )
+        ) %>%
+        filter(!Measure %in% c(
+          "Long Term Homeless",
+          "VISPDAT Score at Entry into Permanent Housing"
+        )) %>%
+        select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
+      datatable(
+        if (ptc == 3) {
+          psh
+        } else if (ptc == 13) {
+          rrh
+        } else {
+          not_ph
+        },
+        rownames = FALSE,
+        options = list(dom = 't',
+                       pageLength = 100)
+      )
     })
+      
+    
   
   output$pe_ExitsToPH <- DT::renderDataTable({
     a <- pe_exits_to_ph %>%
