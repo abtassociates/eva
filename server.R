@@ -2384,7 +2384,9 @@ function(input, output, session) {
           "No Income at Entry" = NoIncomeAtEntryDQ,
           "Median Homeless History Index" = MedianHHIDQ,
           "Long Term Homeless" = LTHomelessDQ,
-          "VISPDAT Score at Entry into Permanent Housing" = ScoredAtEntryDQ
+          "VISPDAT Score at Entry into Permanent Housing" = ScoredAtEntryDQ,
+          "Housing First" = HousingFirstDQ,
+          "Prioritization of Chronic" = ChronicPrioritizationDQ
         ) %>%
         pivot_longer(cols = everything(),
                      names_to = "Measure",
@@ -2423,7 +2425,10 @@ function(input, output, session) {
             DQflag == 1 ~ "Please correct your Data Quality issues so this item
             can be scored",
             DQflag == 0 ~ "Data Quality passes",
-            is.na(DQflag) ~ "NA"
+            DQflag == 2 ~ "Documents not yet received",
+            DQflag == 3 ~ "Docs received, not yet scored",
+            DQflag == 4 ~ "CoC Error",
+            DQflag == 5 ~ "Docs received past the due date"
           )
         ) %>%
         filter(!Measure %in% c("Moved into Own Housing",
@@ -2438,11 +2443,15 @@ function(input, output, session) {
             DQflag == 1 ~ "Please correct your Data Quality issues so this item
             can be scored",
             DQflag == 0 ~ "Data Quality passes",
-            is.na(DQflag) ~ "NA"
+            DQflag == 2 ~ "Documents not yet received",
+            DQflag == 3 ~ "Docs received, not yet scored",
+            DQflag == 4 ~ "CoC Error",
+            DQflag == 5 ~ "Docs received past the due date"
           )
         ) %>%
         filter(!Measure %in%
-                 c("VISPDAT Score at Entry into Permanent Housing")) %>%
+                 c("VISPDAT Score at Entry into Permanent Housing",
+                   "Prioritization of Chronic")) %>%
         select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       not_ph <- a %>% left_join(b, by = "Measure") %>%
@@ -2453,12 +2462,16 @@ function(input, output, session) {
             DQflag == 1 ~ "Please correct your Data Quality issues so this item
             can be scored",
             DQflag == 0 ~ "Data Quality passes",
-            is.na(DQflag) ~ "NA"
+            DQflag == 2 ~ "Documents not yet received",
+            DQflag == 3 ~ "Docs received, not yet scored",
+            DQflag == 4 ~ "CoC Error",
+            DQflag == 5 ~ "Docs received past the due date"
           )
         ) %>%
         filter(!Measure %in% c(
           "Long Term Homeless",
-          "VISPDAT Score at Entry into Permanent Housing"
+          "VISPDAT Score at Entry into Permanent Housing",
+          "Prioritization of Chronic"
         )) %>%
         select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
