@@ -51,7 +51,7 @@ function(input, output, session) {
   
   output$headerCoCCompetitionProjectLevel <- renderUI({
     list(
-      h2("2020 CoC Competition"),
+      h2("2020 CoC Competition: Project Evaluation"),
       h4("Fixed Date Range: January 2019 - December 2019"),
       h4(input$pe_provider)
     )
@@ -2344,11 +2344,11 @@ function(input, output, session) {
   output$pe_ProjectSummary <-
     DT::renderDataTable({
       ptc <- summary_pe_final_scoring %>%
-        filter(ProjectName == input$pe_provider) %>%
+        filter(AltProjectName == input$pe_provider) %>%
         pull(ProjectType)
       
       a <- summary_pe_final_scoring %>%
-        filter(ProjectName == input$pe_provider) %>%
+        filter(AltProjectName == input$pe_provider) %>%
         select(
           "Exits to Permanent Housing" = ExitsToPHPoints,
           "Moved into Own Housing" = OwnHousingPoints,
@@ -2373,7 +2373,7 @@ function(input, output, session) {
                      values_to = "Estimated Score")
       
       b <- summary_pe_final_scoring %>%
-        filter(ProjectName == input$pe_provider) %>%
+        filter(AltProjectName == input$pe_provider) %>%
         select(
           "Exits to Permanent Housing" = ExitsToPHDQ,
           "Moved into Own Housing" = OwnHousingDQ,
@@ -2393,7 +2393,7 @@ function(input, output, session) {
                      values_to = "DQflag")
       
       c <- summary_pe_final_scoring %>%
-        filter(ProjectName == input$pe_provider) %>%
+        filter(AltProjectName == input$pe_provider) %>%
         select(
           "Exits to Permanent Housing" = ExitsToPHPossible,
           "Moved into Own Housing" = OwnHousingPossible,
@@ -2493,7 +2493,7 @@ function(input, output, session) {
   
   output$pe_ExitsToPH <- DT::renderDataTable({
     a <- pe_exits_to_ph %>%
-      filter(ProjectName == input$pe_provider) %>%
+      filter(AltProjectName == input$pe_provider) %>%
       mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")) %>%
       select("Client ID" = PersonalID,
              "Entry Date" = EntryDate,
@@ -2511,7 +2511,7 @@ function(input, output, session) {
   
   output$pe_BenefitsAtExit <- DT::renderDataTable({
     a <- pe_benefits_at_exit %>%
-      filter(ProjectName == input$pe_provider) %>%
+      filter(AltProjectName == input$pe_provider) %>%
       mutate(
         BenefitsFromAnySource = case_when(
           BenefitsFromAnySource == 1 ~ "Yes", 

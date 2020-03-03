@@ -381,7 +381,7 @@ dashboardPage(
                 pickerInput(
                   inputId = "pe_provider",
                   label = "Select your CoC-funded Provider",
-                  choices = sort(pe_validation_summary$ProjectName) %>%
+                  choices = sort(pe_validation_summary$AltProjectName) %>%
                     unique(),
                   options = list('live-search' = TRUE),
                   width = "100%"
