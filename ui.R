@@ -129,8 +129,8 @@ dashboardPage(
             airDatepickerInput(
               inputId = "utilizationDate",
               label = "Click to Choose a Month",
-              max =
-                ymd(floor_date(update_date, unit = "month") - days(1)),
+              max = ymd(floor_date(update_date, unit = "month") - days(1)),
+              min = ymd(floor_date(mdy(FileEnd), "month") - years(2) + days(1)), 
               dateFormat = "MM yyyy",
               view = "month",
               value =
@@ -174,6 +174,7 @@ dashboardPage(
             label = "Report Start Date",
             format = "mm/dd/yyyy",
             value = mdy("10012018"),
+            min = ymd(floor_date(mdy(FileEnd), "year") - years(2)),
             width = "25%"
           ),
           width = 12
