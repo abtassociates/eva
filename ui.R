@@ -41,8 +41,8 @@ dashboardPage(
         menuSubItem("CoC-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
       ),
-      # menuItem("CoC Competition",
-      #          tabName = "cocCompetitionTab"),
+      menuItem("CoC Competition",
+               tabName = "cocCompetitionTab"),
       menuItem(
         "Quarterly Performance Report",
         menuItem(
@@ -400,13 +400,24 @@ dashboardPage(
               )),
               fluidRow(tabBox(
                 id = "tabs",
-                title = "Client Detail",
+                # title = "Client Detail",
                 tabPanel("Exits to Permanent Housing",
-                         DT::dataTableOutput("pe_ExitsToPH"), 
-                ),
+                         DT::dataTableOutput("pe_ExitsToPH")),
+                tabPanel("Increased Income",
+                         DT::dataTableOutput("pe_IncreasedIncome")), 
                 tabPanel("Benefits & Health Insurance at Exit",
                          DT::dataTableOutput("pe_BenefitsAtExit")),
-              width = 12
+                tabPanel("Living Situation at Entry",
+                         DT::dataTableOutput("pe_LivingSituationAtEntry")),
+                tabPanel("No Income at Entry",
+                         DT::dataTableOutput("pe_NoIncomeAtEntry")),
+                tabPanel("Median Homeless History Index",
+                         DT::dataTableOutput("pe_MedianHHI")),
+                tabPanel("Long Term Homeless",
+                         DT::dataTableOutput("pe_LongTermHomeless")),
+                tabPanel("VISPDAT Score Completion",
+                         DT::dataTableOutput("pe_ScoredAtPHEntry")),
+                width = 12
               ))), 
       tabItem(
         tabName = "spdatTab1",

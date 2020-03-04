@@ -53,7 +53,12 @@ function(input, output, session) {
     list(
       h2("2020 CoC Competition: Project Evaluation"),
       h4("Fixed Date Range: January 2019 - December 2019"),
-      h4(input$pe_provider)
+      h4(input$pe_provider),
+      br(),
+      h5(strong("Next Due Date:"),
+         format(ymd(next_thing_due$DueDate), "%A %b %e, %Y"),
+         "| ",
+         next_thing_due$Event)
     )
   })
   
@@ -2450,7 +2455,9 @@ function(input, output, session) {
           )
         ) %>%
         filter(!Measure %in%
-                 c("VISPDAT Score at Entry into Permanent Housing",
+                 c("Long Term Homeless",
+                   "Average Length of Stay",
+                   "VISPDAT Score at Entry into Permanent Housing",
                    "Prioritization of Chronic")) %>%
         select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
@@ -2530,6 +2537,174 @@ function(input, output, session) {
         "Exit Date" = ExitDate,
         "Non-Cash Benefits at Exit" = BenefitsFromAnySource,
         "Health Insurance at Exit" = InsuranceFromAnySource,
+        "Meets Objective" = MeetsObjective
+      )    
+    
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+    
+  })
+  
+  output$pe_IncreasedIncome <- DT::renderDataTable({
+    a <- pe_increase_income %>%
+      filter(AltProjectName == input$pe_provider) %>%
+      mutate(
+        IncomeDifference = IncomeMostRecent - IncomeAtEntry,
+        MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate,
+        "Income at Entry" = IncomeAtEntry,
+        "Most Recent Income" = IncomeMostRecent,
+        "Increase/Decrease" = IncomeDifference,
+        "Meets Objective" = MeetsObjective
+      )    
+    
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+    
+  })
+  
+  output$pe_LivingSituationAtEntry <- DT::renderDataTable({
+    a <- pe_res_prior %>%
+      filter(AltProjectName == input$pe_provider) %>%
+      mutate(
+        LivingSituation = living_situation(LivingSituation),
+        MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate,
+        "Residence Prior" = LivingSituation,
+        "Meets Objective" = MeetsObjective
+      )    
+    
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+    
+  })
+  
+  output$pe_NoIncomeAtEntry <- DT::renderDataTable({
+    a <- pe_entries_no_income %>%
+      filter(AltProjectName == input$pe_provider) %>%
+      mutate(
+        MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
+        IncomeFromAnySource = if_else(MeetsObjective == 1, "No", "Yes")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate,
+        "Income From Any Source" = IncomeFromAnySource,
+        "Meets Objective" = MeetsObjective
+      )    
+    
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+    
+  })
+  
+  output$pe_MedianHHI <- DT::renderDataTable({
+    
+    times <- HUD_specs %>%
+      filter(DataElement == "TimesHomelessPastThreeYears") %>%
+      select(ReferenceNo, Description)
+    
+    months <- HUD_specs %>%
+      filter(DataElement == "MonthsHomelessPastThreeYears") %>%
+      select(ReferenceNo, Description)
+    
+    a <- pe_homeless_history_index %>%
+      left_join(times, by = c("TimesHomelessPastThreeYears" = "ReferenceNo")) %>%
+      mutate(TimesHomelessPastThreeYears = Description) %>%
+      select(-Description)
+    
+    b <- a %>%
+      left_join(months, by = c("MonthsHomelessPastThreeYears" = "ReferenceNo")) %>%
+      mutate(MonthsHomelessPastThreeYears = Description) %>%
+      select(-Description)
+    
+    c <- b %>%
+      filter(AltProjectName == input$pe_provider) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate,
+        "Approximate Date Homeless" = DateToStreetESSH,
+        "Days Homeless at Entry" = DaysHomelessAtEntry,
+        "Times Homeless Past 3 Years" = TimesHomelessPastThreeYears,
+        "Months Homeless Past 3 Years" = MonthsHomelessPastThreeYears,
+        "Homeless Hisory Index" = HHI
+      )    
+    
+    datatable(c,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+    
+  })
+  
+  output$pe_LongTermHomeless <- DT::renderDataTable({
+    
+    times <- HUD_specs %>%
+      filter(DataElement == "TimesHomelessPastThreeYears") %>%
+      select(ReferenceNo, Description)
+    
+    months <- HUD_specs %>%
+      filter(DataElement == "MonthsHomelessPastThreeYears") %>%
+      select(ReferenceNo, Description)
+    
+    a <- pe_long_term_homeless %>%
+      left_join(times, by = c("TimesHomelessPastThreeYears" = "ReferenceNo")) %>%
+      mutate(TimesHomelessPastThreeYears = Description) %>%
+      select(-Description)
+    
+    b <- a %>%
+      left_join(months, by = c("MonthsHomelessPastThreeYears" = "ReferenceNo")) %>%
+      mutate(MonthsHomelessPastThreeYears = Description) %>%
+      select(-Description)
+    
+    c <- b %>%
+      filter(AltProjectName == input$pe_provider) %>%
+      mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate,
+        "Approximate Date Homeless" = DateToStreetESSH,
+        "Days Homeless at Entry" = CurrentHomelessDuration,
+        "Times Homeless Past 3 Years" = TimesHomelessPastThreeYears,
+        "Months Homeless Past 3 Years" = MonthsHomelessPastThreeYears,
+        "Meets Objective" = MeetsObjective
+      )    
+    
+    datatable(c,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+    
+  })
+  
+  output$pe_ScoredAtPHEntry <- DT::renderDataTable({
+    
+    a <- pe_scored_at_ph_entry %>%
+      filter(AltProjectName == input$pe_provider) %>%
+      mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate,
         "Meets Objective" = MeetsObjective
       )    
     
