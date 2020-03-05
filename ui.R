@@ -403,6 +403,8 @@ dashboardPage(
                 # title = "Client Detail",
                 tabPanel("Exits to Permanent Housing",
                          DT::dataTableOutput("pe_ExitsToPH")),
+                tabPanel("Moved into Own Housing",
+                         DT::dataTableOutput("pe_OwnHousing")),
                 tabPanel("Increased Income",
                          DT::dataTableOutput("pe_IncreasedIncome")), 
                 tabPanel("Benefits & Health Insurance at Exit",
