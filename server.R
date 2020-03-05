@@ -2364,7 +2364,7 @@ function(input, output, session) {
           "No Income at Entry" = NoIncomeAtEntryPoints,
           "Median Homeless History Index" = MedianHHIPoints,
           "Long Term Homeless" = LongTermHomelessPoints,
-          "VISPDAT Score at Entry into Permanent Housing" =
+          "VISPDAT Completion at Entry" =
             ScoredAtEntryPoints,
           "Data Quality" = DQPoints,
           "Cost per Exit" = CostPerExitScore,
@@ -2389,7 +2389,7 @@ function(input, output, session) {
           "No Income at Entry" = NoIncomeAtEntryDQ,
           "Median Homeless History Index" = MedianHHIDQ,
           "Long Term Homeless" = LTHomelessDQ,
-          "VISPDAT Score at Entry into Permanent Housing" = ScoredAtEntryDQ,
+          "VISPDAT Completion at Entry" = ScoredAtEntryDQ,
           "Housing First" = HousingFirstDQ,
           "Prioritization of Chronic" = ChronicPrioritizationDQ
         ) %>%
@@ -2409,7 +2409,7 @@ function(input, output, session) {
           "No Income at Entry" = NoIncomeAtEntryPossible,
           "Median Homeless History Index" = MedianHHIPossible,
           "Long Term Homeless" = LongTermHomelessPossible,
-          "VISPDAT Score at Entry into Permanent Housing" =
+          "VISPDAT Completion at Entry" =
             ScoredAtEntryPossible,
           "Data Quality" = DQPossible,
           "Cost per Exit" = CostPerExitPossible,
@@ -2457,11 +2457,10 @@ function(input, output, session) {
         filter(!Measure %in%
                  c("Long Term Homeless",
                    "Average Length of Stay",
-                   "VISPDAT Score at Entry into Permanent Housing",
                    "Prioritization of Chronic")) %>%
         select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
-      not_ph <- a %>% left_join(b, by = "Measure") %>%
+      th <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
         left_join(c, by = "Measure") %>%
         mutate(
@@ -2477,7 +2476,27 @@ function(input, output, session) {
         ) %>%
         filter(!Measure %in% c(
           "Long Term Homeless",
-          "VISPDAT Score at Entry into Permanent Housing",
+          "Prioritization of Chronic"
+        )) %>%
+        select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
+      
+      sh <- a %>% left_join(b, by = "Measure") %>%
+        ungroup() %>%
+        left_join(c, by = "Measure") %>%
+        mutate(
+          DQ = case_when(
+            DQflag == 1 ~ "Please correct your Data Quality issues so this item
+            can be scored",
+            DQflag == 0 ~ "Data Quality passes",
+            DQflag == 2 ~ "Documents not yet received",
+            DQflag == 3 ~ "Docs received, not yet scored",
+            DQflag == 4 ~ "CoC Error",
+            DQflag == 5 ~ "Docs received past the due date"
+          )
+        ) %>%
+        filter(!Measure %in% c(
+          "Long Term Homeless",
+          "VISPDAT Completion at Entry",
           "Prioritization of Chronic"
         )) %>%
         select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
@@ -2487,8 +2506,10 @@ function(input, output, session) {
           psh
         } else if (ptc == 13) {
           rrh
+        } else if(ptc == 2) {
+          th
         } else {
-          not_ph
+          sh
         },
         rownames = FALSE,
         options = list(dom = 't',
@@ -2501,13 +2522,37 @@ function(input, output, session) {
   output$pe_ExitsToPH <- DT::renderDataTable({
     a <- pe_exits_to_ph %>%
       filter(AltProjectName == input$pe_provider) %>%
-      mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")) %>%
+      mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
+             Destination = living_situation(Destination)) %>%
       select("Client ID" = PersonalID,
              "Entry Date" = EntryDate,
              "Move In Date" = MoveInDateAdjust,
              "Exit Date" = ExitDate,
-             "Destination Type" = DestinationGroup,
+             Destination,
+             "Destination Group" = DestinationGroup,
              "Meets Objective" = MeetsObjective)    
+    
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+    
+  })
+  
+  output$pe_OwnHousing <- DT::renderDataTable({
+    
+    a <- pe_own_housing %>%
+      filter(AltProjectName == input$pe_provider) %>%
+      mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
+             Destination = living_situation(Destination)) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate,
+        Destination,
+        "Destination Group" = DestinationGroup,
+        "Meets Objective" = MeetsObjective
+      )    
     
     datatable(a,
               rownames = FALSE,
