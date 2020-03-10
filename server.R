@@ -2643,7 +2643,11 @@ function(input, output, session) {
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
         MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
-        IncomeFromAnySource = if_else(IncomeFromAnySource == 1, "Yes", "No")
+        IncomeFromAnySource = case_when(
+          IncomeFromAnySource == 1 ~ "Yes", 
+          IncomeFromAnySource == 2 ~ "No",
+          IncomeFromAnySource %in% c(8, 9) ~ "Don't Know/Refused",
+          IncomeFromAnySource == 99 ~ "Missing")
       ) %>%
       select(
         "Client ID" = PersonalID,
@@ -2651,6 +2655,24 @@ function(input, output, session) {
         "Exit Date" = ExitDate,
         "Income From Any Source" = IncomeFromAnySource,
         "Meets Objective" = MeetsObjective
+      )    
+    
+    datatable(a,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
+    
+  })
+  
+  output$pe_LengthOfStay <- DT::renderDataTable({
+    a <- pe_length_of_stay %>%
+      filter(AltProjectName == input$pe_provider) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Move In Date" = MoveInDateAdjust,
+        "Exit Date" = ExitDate,
+        "Days in Project" = DaysInProject
       )    
     
     datatable(a,
