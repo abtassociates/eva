@@ -413,6 +413,8 @@ dashboardPage(
                          DT::dataTableOutput("pe_LivingSituationAtEntry")),
                 tabPanel("No Income at Entry",
                          DT::dataTableOutput("pe_NoIncomeAtEntry")),
+                tabPanel("Length of Stay",
+                         DT::dataTableOutput("pe_LengthOfStay")),
                 tabPanel("Median Homeless History Index",
                          DT::dataTableOutput("pe_MedianHHI")),
                 tabPanel("Long Term Homeless",
