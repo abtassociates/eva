@@ -2422,9 +2422,35 @@ function(input, output, session) {
                      names_to = "Measure",
                      values_to = "Possible Score")
       
+      d <- summary_pe_final_scoring %>%
+        filter(AltProjectName == input$pe_provider) %>%
+        select(
+          "Exits to Permanent Housing" = ExitsToPHMath,
+          "Moved into Own Housing" = OwnHousingMath,
+          "Increased Income" = IncreasedIncomeMath,
+          "Benefits & Health Insurance at Exit" = BenefitsAtExitMath,
+          "Average Length of Stay" = AverageLoSMath,
+          "Living Situation at Entry" = LHResPriorMath,
+          "No Income at Entry" = NoIncomeAtEntryMath,
+          "Median Homeless History Index" = MedianHHIMath,
+          "Long Term Homeless" = LongTermHomelessMath,
+          "VISPDAT Completion at Entry" =
+            ScoredAtEntryMath,
+          "Data Quality" = DQMath,
+          "Cost per Exit" = CostPerExitMath,
+          "Housing First" = HousingFirstMath,
+          "Prioritization of Chronic" = ChronicPrioritizationMath,
+          "Spending On Track" = OnTrackSpendingMath,
+          "Unspent Funds within Range" = UnspentFundsMath
+        ) %>%
+        pivot_longer(cols = everything(),
+                     names_to = "Measure",
+                     values_to = "Math")
+      
       psh <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
         left_join(c, by = "Measure") %>%
+        left_join(d, by = "Measure") %>%
         mutate(
           DQ = case_when(
             DQflag == 1 ~ "Please correct your Data Quality issues so this item
@@ -2438,11 +2464,12 @@ function(input, output, session) {
         ) %>%
         filter(!Measure %in% c("Moved into Own Housing",
                                "Average Length of Stay")) %>%
-        select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
+        select(1, Math, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       rrh <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
         left_join(c, by = "Measure") %>%
+        left_join(d, by = "Measure") %>%
         mutate(
           DQ = case_when(
             DQflag == 1 ~ "Please correct your Data Quality issues so this item
@@ -2458,11 +2485,12 @@ function(input, output, session) {
                  c("Long Term Homeless",
                    "Average Length of Stay",
                    "Prioritization of Chronic")) %>%
-        select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
+        select(1, Math, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       th <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
         left_join(c, by = "Measure") %>%
+        left_join(d, by = "Measure") %>%
         mutate(
           DQ = case_when(
             DQflag == 1 ~ "Please correct your Data Quality issues so this item
@@ -2478,11 +2506,12 @@ function(input, output, session) {
           "Long Term Homeless",
           "Prioritization of Chronic"
         )) %>%
-        select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
+        select(1, Math, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       sh <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
         left_join(c, by = "Measure") %>%
+        left_join(d, by = "Measure") %>%
         mutate(
           DQ = case_when(
             DQflag == 1 ~ "Please correct your Data Quality issues so this item
@@ -2499,7 +2528,7 @@ function(input, output, session) {
           "VISPDAT Completion at Entry",
           "Prioritization of Chronic"
         )) %>%
-        select(1, 2, "Possible Score" = 4, "Data Quality" = DQ)
+        select(1, Math, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       datatable(
         if (ptc == 3) {
