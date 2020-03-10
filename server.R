@@ -2643,7 +2643,7 @@ function(input, output, session) {
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
         MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
-        IncomeFromAnySource = if_else(MeetsObjective == 1, "No", "Yes")
+        IncomeFromAnySource = if_else(IncomeFromAnySource == 1, "Yes", "No")
       ) %>%
       select(
         "Client ID" = PersonalID,
