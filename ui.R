@@ -384,6 +384,7 @@ dashboardPage(
                   label = "Select your CoC-funded Provider",
                   choices = sort(pe_validation_summary$AltProjectName) %>%
                     unique(),
+                  selected = sample(pe_validation_summary$AltProjectName, 1),
                   options = list('live-search' = TRUE),
                   width = "100%"
                 ),
@@ -395,8 +396,7 @@ dashboardPage(
                 title = "Score Summary",
                 status = "info",
                 solidHeader = TRUE, 
-                collapsible = TRUE,
-                collapsed = TRUE
+                collapsible = TRUE
               )),
               fluidRow(tabBox(
                 id = "tabs",
