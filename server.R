@@ -55,6 +55,8 @@ function(input, output, session) {
       h4("Fixed Date Range: January 2019 - December 2019"),
       h4(input$pe_provider),
       br(),
+      a("CoC Competition Specifications and Timeline", 
+        href="https://cohhio.org/boscoc/coc-program/"),
       h5(strong("Next Due Date:"),
          format(ymd(next_thing_due$DueDate), "%A %b %e, %Y"),
          "| ",
@@ -2564,7 +2566,9 @@ function(input, output, session) {
     datatable(a,
               rownames = FALSE,
               filter = 'top',
-              options = list(dom = 'ltpi'))
+              options = list(dom = 'ltpi'),
+              caption = "PSH: Heads of Household | 
+              TH, RRH, SH: Heads of Household Leavers")
     
   })
   
@@ -2586,7 +2590,9 @@ function(input, output, session) {
     datatable(a,
               rownames = FALSE,
               filter = 'top',
-              options = list(dom = 'ltpi'))
+              options = list(dom = 'ltpi'),
+              caption = "RRH, TH, SH: Heads of Household Leavers who moved into 
+              the project's housing")
     
   })
   
@@ -2617,7 +2623,9 @@ function(input, output, session) {
     datatable(a,
               rownames = FALSE,
               filter = 'top',
-              options = list(dom = 'ltpi'))
+              options = list(dom = 'ltpi'),
+              caption = "ALL Project Types: Adult Leavers who moved into the
+              project's housing")
     
   })
   
@@ -2641,7 +2649,9 @@ function(input, output, session) {
     datatable(a,
               rownames = FALSE,
               filter = 'top',
-              options = list(dom = 'ltpi'))
+              options = list(dom = 'ltpi'),
+              caption = "ALL Project Types: Adults who moved into the project's
+              housing")
     
   })
   
@@ -2663,7 +2673,9 @@ function(input, output, session) {
     datatable(a,
               rownames = FALSE,
               filter = 'top',
-              options = list(dom = 'ltpi'))
+              options = list(dom = 'ltpi'),
+              caption = "ALL Project Types: Adults who entered the project
+              during the reporting period")
     
   })
   
@@ -2689,13 +2701,16 @@ function(input, output, session) {
     datatable(a,
               rownames = FALSE,
               filter = 'top',
-              options = list(dom = 'ltpi'))
+              options = list(dom = 'ltpi'),
+              caption = "ALL Project Types: Adults who entered the project
+              during the reporting period")
     
   })
   
   output$pe_LengthOfStay <- DT::renderDataTable({
     a <- pe_length_of_stay %>%
-      filter(AltProjectName == input$pe_provider) %>%
+      filter(AltProjectName == input$pe_provider &
+               ProjectType %in% c(2, 8)) %>%
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
@@ -2707,7 +2722,9 @@ function(input, output, session) {
     datatable(a,
               rownames = FALSE,
               filter = 'top',
-              options = list(dom = 'ltpi'))
+              options = list(dom = 'ltpi'),
+              caption = "TH, SH: Client Leavers who moved into the project's 
+              housing")
     
   })
   
@@ -2747,7 +2764,9 @@ function(input, output, session) {
     datatable(c,
               rownames = FALSE,
               filter = 'top',
-              options = list(dom = 'ltpi'))
+              options = list(dom = 'ltpi'),
+              caption = "ALL Project Types: Adults who entered the project 
+              during the reporting period")
     
   })
   
@@ -2762,6 +2781,7 @@ function(input, output, session) {
       select(ReferenceNo, Description)
     
     a <- pe_long_term_homeless %>%
+      filter(ProjectType == 3) %>%
       left_join(times, by = c("TimesHomelessPastThreeYears" = "ReferenceNo")) %>%
       mutate(TimesHomelessPastThreeYears = Description) %>%
       select(-Description)
@@ -2788,7 +2808,9 @@ function(input, output, session) {
     datatable(c,
               rownames = FALSE,
               filter = 'top',
-              options = list(dom = 'ltpi'))
+              options = list(dom = 'ltpi'),
+              caption = "PSH: Adults who entered the project during the 
+              reporting period")
     
   })
   
@@ -2807,7 +2829,9 @@ function(input, output, session) {
     datatable(a,
               rownames = FALSE,
               filter = 'top',
-              options = list(dom = 'ltpi'))
+              options = list(dom = 'ltpi'),
+              caption = "PSH, RRH, TH: Heads of Household who entered the 
+              project during the reporting period")
     
   })
   
