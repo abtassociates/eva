@@ -2447,7 +2447,7 @@ function(input, output, session) {
         ) %>%
         pivot_longer(cols = everything(),
                      names_to = "Measure",
-                     values_to = "Math")
+                     values_to = "Calculation")
       
       psh <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
@@ -2466,7 +2466,7 @@ function(input, output, session) {
         ) %>%
         filter(!Measure %in% c("Moved into Own Housing",
                                "Average Length of Stay")) %>%
-        select(1, Math, 2, "Possible Score" = 4, "Data Quality" = DQ)
+        select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       rrh <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
@@ -2487,7 +2487,7 @@ function(input, output, session) {
                  c("Long Term Homeless",
                    "Average Length of Stay",
                    "Prioritization of Chronic")) %>%
-        select(1, Math, 2, "Possible Score" = 4, "Data Quality" = DQ)
+        select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       th <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
@@ -2508,7 +2508,7 @@ function(input, output, session) {
           "Long Term Homeless",
           "Prioritization of Chronic"
         )) %>%
-        select(1, Math, 2, "Possible Score" = 4, "Data Quality" = DQ)
+        select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       sh <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
@@ -2530,7 +2530,7 @@ function(input, output, session) {
           "VISPDAT Completion at Entry",
           "Prioritization of Chronic"
         )) %>%
-        select(1, Math, 2, "Possible Score" = 4, "Data Quality" = DQ)
+        select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       datatable(
         if (ptc == 3) {
@@ -2686,7 +2686,7 @@ function(input, output, session) {
         MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
         IncomeFromAnySource = case_when(
           IncomeFromAnySource == 1 ~ "Yes", 
-          IncomeFromAnySource == 2 ~ "No",
+          IncomeFromAnySource == 0 ~ "No",
           IncomeFromAnySource %in% c(8, 9) ~ "Don't Know/Refused",
           IncomeFromAnySource == 99 ~ "Missing")
       ) %>%
