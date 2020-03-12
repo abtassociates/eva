@@ -846,6 +846,57 @@ function(input, output, session) {
     }
   })
   
+  output$DQMissingLocation <- renderUI({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    HHIssues <- dq_main %>%
+      filter(
+        Issue == "Missing Client Location" &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      )
+    if (nrow(HHIssues) > 0) {
+      box(
+        id = "location",
+        title = "Missing Client Location",
+        status = "warning",
+        solidHeader = TRUE,
+        HTML(
+          "Households with a missing Client Location (the data element just 
+          after the Relationship to Head of Household) will be completely
+          excluded from ALL HUD reporting."
+        ),
+        tableOutput("ClientLocation")
+      )
+    }
+    else {
+      
+    }
+  })
+  
+  output$ClientLocation <- renderTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    HHIssues <- dq_main %>%
+      filter(
+        Issue == "Missing Client Location" &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      arrange(PersonalID) %>%
+      select("Client ID" = PersonalID,
+             Issue,
+             "Entry Date" = EntryDate)
+    
+    HHIssues
+  })
+  
   output$APs_with_EEs <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
@@ -2505,7 +2556,6 @@ function(input, output, session) {
         ) %>%
         filter(!Measure %in%
                  c("Long Term Homeless",
-                   "Average Length of Stay",
                    "Prioritization of Chronic")) %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
@@ -2730,7 +2780,7 @@ function(input, output, session) {
   output$pe_LengthOfStay <- DT::renderDataTable({
     a <- pe_length_of_stay %>%
       filter(AltProjectName == input$pe_provider &
-               ProjectType %in% c(2, 8)) %>%
+               ProjectType %in% c(2, 8, 13)) %>%
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
@@ -2743,7 +2793,7 @@ function(input, output, session) {
               rownames = FALSE,
               filter = 'top',
               options = list(dom = 'ltpi'),
-              caption = "TH, SH: Client Leavers who moved into the project's 
+              caption = "RRH, TH, SH: Client Leavers who moved into the project's 
               housing")
     
   })
