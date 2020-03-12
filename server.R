@@ -2354,6 +2354,26 @@ function(input, output, session) {
         filter(AltProjectName == input$pe_provider) %>%
         pull(ProjectType)
       
+      summary_pe_final_scoring <- summary_pe_final_scoring %>%
+        mutate(
+          ExitsToPHMath = str_replace(ExitsToPHMath, "/", "÷"),
+          OwnHousingMath = str_replace(OwnHousingMath, "/", "÷"),
+          IncreasedIncomeMath = str_replace(IncreasedIncomeMath, "/", "÷"),
+          BenefitsAtExitMath = str_replace(BenefitsAtExitMath, "/", "÷"),
+          AverageLoSMath = str_replace(AverageLoSMath, "/", "÷"),
+          LHResPriorMath = str_replace(LHResPriorMath, "/", "÷"),
+          NoIncomeAtEntryMath = str_replace(NoIncomeAtEntryMath, "/", "÷"),
+          MedianHHIMath = str_replace(MedianHHIMath, "/", "÷"),
+          LongTermHomelessMath = str_replace(LongTermHomelessMath, "/", "÷"),
+          ScoredAtEntryMath = str_replace(ScoredAtEntryMath, "/", "÷"),
+          DQMath = str_replace(DQMath, "/", "÷"),
+          CostPerExitMath = str_replace(CostPerExitMath, "/", "÷"),
+          HousingFirstMath = str_replace(HousingFirstMath, "/", "÷"),
+          ChronicPrioritizationMath = str_replace(ChronicPrioritizationMath, "/", "÷"),
+          OnTrackSpendingMath = str_replace(OnTrackSpendingMath, "/", "÷"),
+          UnspentFundsMath = str_replace(UnspentFundsMath, "/", "÷")
+        )
+      
       a <- summary_pe_final_scoring %>%
         filter(AltProjectName == input$pe_provider) %>%
         select(
