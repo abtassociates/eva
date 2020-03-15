@@ -1114,6 +1114,8 @@ function(input, output, session) {
   
   output$cocEligibility <- renderPlot(dq_plot_eligibility)
   
+  output$cocUnshelteredHigh <- renderPlot(dq_plot_unsheltered_high)
+  
   output$cocAPsNoReferrals <- renderPlot({
     ggplot(data_APs, aes(fill = category, x = providertype, y = percent)) +
       geom_bar(position = "fill",

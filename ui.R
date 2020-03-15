@@ -300,6 +300,13 @@ dashboardPage(
             title = "Providers with the Most Household Errors"
           ),
           box(
+            plotOutput("cocUnshelteredHigh"),
+            width = 12,
+            solidHeader = TRUE,
+            status = "danger",
+            title = "Unsheltered High Priority Issues (User's Default Provider)"
+          ),
+          box(
             plotOutput("cocDQWarnings"),
             width = 12,
             solidHeader = TRUE,
