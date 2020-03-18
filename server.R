@@ -890,10 +890,58 @@ function(input, output, session) {
       ) %>%
       arrange(PersonalID) %>%
       select("Client ID" = PersonalID,
-             Issue,
              "Entry Date" = EntryDate)
     
     HHIssues
+  })
+  
+  output$DQPATHMissingContact <- renderUI({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    no_contact <- dq_main %>%
+      filter(
+        Issue == "Missing PATH Contact" &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      )
+    if (nrow(no_contact) > 0) {
+      box(
+        id = "location",
+        title = "Missing Contact (PATH)",
+        status = "warning",
+        solidHeader = TRUE,
+        dq_main %>%
+          filter(Issue == "Missing PATH Contact") %>%
+          select(Guidance) %>%
+          unique(),
+        tableOutput("MissingPATHContact")
+      )
+    }
+    else {
+      
+    }
+  })
+  
+  output$MissingPATHContact <- renderTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    x <- dq_main %>%
+      filter(
+        Issue == "Missing PATH Contact" &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      arrange(PersonalID) %>%
+      select("Client ID" = PersonalID,
+             "Entry Date" = EntryDate)
+    
+    x
   })
   
   output$APs_with_EEs <- renderTable({

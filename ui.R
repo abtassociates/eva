@@ -183,7 +183,8 @@ dashboardPage(
         fluidRow(uiOutput("DQAPsNoReferrals")),
         fluidRow(uiOutput("DQDuplicateEEs"),
                  uiOutput("DQHHIssues"),
-                 uiOutput("DQMissingLocation")),
+                 uiOutput("DQMissingLocation"),
+                 uiOutput("DQPATHMissingContact")),
         fluidRow(uiOutput("DQIneligible")),
         fluidRow(uiOutput("DQOverlappingEEs")), 
           
