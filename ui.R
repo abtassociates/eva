@@ -36,6 +36,7 @@ dashboardPage(
       menuItem(
         "Data Quality",
         menuSubItem("Provider-level", tabName = "dqTab"),
+        menuSubItem("Desk Time", tabName = "deskTime"),
         menuSubItem("Unsheltered", tabName = "unsheltered"),
         menuSubItem("Region-level", tabName = "dqRegion"),
         menuSubItem("CoC-wide", tabName = "dqCoC"),
@@ -73,8 +74,8 @@ dashboardPage(
       paste0(
         "<br>&emsp;Data last refreshed:&emsp;<br>&emsp;",
         format(update_date, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")
-        # ,
-        # "<p><p>&emsp;Happy Holidays!"
+        ,
+        "<p><p>&emsp;Wash your hands!"
       )
     ),
     br(),
@@ -187,7 +188,6 @@ dashboardPage(
                  uiOutput("DQPATHMissingContact")),
         fluidRow(uiOutput("DQIneligible")),
         fluidRow(uiOutput("DQOverlappingEEs")), 
-          
         fluidRow(
           box(
             DT::dataTableOutput("DQErrors"),
@@ -205,6 +205,29 @@ dashboardPage(
         ,
         fluidRow(uiOutput("dq_provider_summary_box"))
       ),
+      tabItem(tabName = "deskTime",
+              fluidRow(box(htmlOutput("headerDeskTime"),
+                           width = 12)),
+              fluidRow(box(
+                pickerInput(
+                  label = "Select Provider",
+                  inputId = "providerDeskTime",
+                  choices = dtproviders,
+                  options = list('live-search' = TRUE),
+                  width = "100%",
+                  selected = sample(dtproviders, 1)
+                ),
+                width = 12
+              )),
+              fluidRow(box(plotOutput(
+                "DeskTimePlotDetail"
+              ))),
+              box(
+                uiOutput("deskTimeNote"),
+                title = "More Information",
+                collapsible = TRUE,
+                collapsed = TRUE
+              )), 
       tabItem(
         tabName = "dqRegion",
         fluidRow(box(htmlOutput(
@@ -306,6 +329,13 @@ dashboardPage(
             solidHeader = TRUE,
             status = "danger",
             title = "Unsheltered High Priority Issues (User's Default Provider)"
+          ),
+          box(
+            plotOutput("DeskTimePlotCoC"),
+            width = 12,
+            solidHeader = TRUE,
+            status = "warning",
+            title = "Longest Data Entry Delay Medians (in the past 365 days)"
           ),
           box(
             plotOutput("cocDQWarnings"),

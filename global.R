@@ -37,6 +37,14 @@ qpr_leavers <- qpr_leavers %>% arrange(ProjectName)
 
 providers <- sort(validation$ProjectName) %>% unique() 
 
+desk_time_providers <- validation %>%
+  filter(entered_between(., 
+                         format.Date(ymd(today() - years(1)), "%m-%d-%Y"), 
+                         format.Date(ymd(today()), "%m-%d-%Y")) &
+           ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13))
+
+dtproviders <- sort(desk_time_providers$ProjectName) %>% unique()
+
 filebeginningdate <- update_date - years(2)
 
 # HOW TO SET UP YOUR SYMBOLIC LINKS ON YOUR SYSTEM (Windows-specific)
