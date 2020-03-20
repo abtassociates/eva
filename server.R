@@ -85,23 +85,23 @@ function(input, output, session) {
   output$deskTimeNote <-
     renderUI(
       HTML(
-        "<h2>HUD and Data Quality</h2>
+        "<h4>HUD and Data Quality</h4>
         <p>HUD defines \"Data Quality\" as having three elements:
     1. Accuracy, 2. Completeness, and 3. Timeliness. Data Entry Delay (aka
     \"Desk Time\") refers to how long it is taking to enter a client into HMIS
     from the day they enter your project.
-    <h2>Ohio Balance of State CoC Data Standards</h2>
+    <h4>Ohio Balance of State CoC Data Standards</h4>
     <p>According to the Data Quality Standards for the Ohio Balance of State
     CoC, all clients should be entered within 5 days of their entry into your
     project.
-    <h2>How Do We Fix This?</h2>
+    <h4>How Do We Fix This?</h4>
     <p><strong>There is nothing a user can do</strong> to \"correct\" a client 
     entered into the system outside the window. We can only resolve to enter 
     clients within the 5-day range going forward. As you catch up on data entry,
     you may see your median get worse at first, but this data looks back exactly 
     one year, so any clients with an Entry Date over a year ago will fall off 
     of this plot and your median will change accordingly.
-    <h2>Interpretation</h2>
+    <h4>Interpretation</h4>
     <p>Green dots here represent clients entered within the range and orange
     dots represent clients entered outside the range. The darker the dot, the
     more clients entered your project on that day. (Likely a household.)    

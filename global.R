@@ -41,7 +41,8 @@ desk_time_providers <- validation %>%
   filter(entered_between(., 
                          format.Date(ymd(today() - years(1)), "%m-%d-%Y"), 
                          format.Date(ymd(today()), "%m-%d-%Y")) &
-           ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13))
+           ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13) &
+           ProjectName != "Non-HMIS Shelter Clients")
 
 dtproviders <- sort(desk_time_providers$ProjectName) %>% unique()
 
