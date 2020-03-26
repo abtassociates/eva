@@ -35,6 +35,11 @@ function(input, output, session) {
     
   })
   
+  output$headerPrioritization <- renderUI({
+    list(h2("Prioritization Report"),
+         h4("Literally Homeless Clients as of", FileEnd))
+  })
+  
   output$headerCurrent <- renderUI({
     list(h2("Current Clients as of", FileEnd),
          h4(input$currentProviderList))
@@ -568,6 +573,54 @@ output$DeskTimePlotCoC <- renderPlot({
            "to",
            format(mdy(ReportEnd), "%B %Y")
          )))
+  })
+  
+  output$prioritizationData <- DT::renderDataTable({
+    
+    active <- active_list %>%
+      filter(CountyServed %in% c(input$prioritizationCounty)) %>%
+      arrange(HouseholdID)
+    
+    non_veterans <- active %>%
+      filter(VeteranStatus == 0) %>%
+      select(PersonalID)
+    
+    non_chronic <- active %>%
+      filter(ChronicStatus == "Not Chronic") %>%
+      select(PersonalID)
+    
+    non_TAY <- active %>%
+      filter(TAY == 0) %>%
+      select(PersonalID)
+    
+    no_disability <- active %>%
+      filter(DisabilityInHH == 0) %>%
+      select(PersonalID)
+    
+    final <- active %>%
+      mutate(
+        show = case_when(
+          input$prioritizationFilterVeteran == TRUE &
+            PersonalID %in% c(non_veterans) ~ 0,
+          input$prioritizationFilterChronic == TRUE &
+            PersonalID %in% c(non_chronic) ~ 0,
+          input$prioritizationFilterTAY == TRUE &
+            PersonalID %in% c(non_TAY) ~ 0,
+          input$prioritizationFilterDisability == TRUE &
+            PersonalID %in% c(no_disability) ~ 0
+        )
+      ) %>% 
+      filter(show == 1) %>%
+      select("PersonalID", "ProjectName", "EntryDate", "PTCStatus", 
+             "CountyServed", "PHTrack", "HouseholdSize", "IncomeFromAnySource", 
+             "Score", "ChronicStatus")
+      
+    
+    datatable(final, 
+              rownames = FALSE, 
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    )
   })
   
   output$currentClients <- DT::renderDataTable({

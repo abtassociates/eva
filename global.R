@@ -32,6 +32,8 @@ load("data/Data_Quality.RData")
 
 load("data/ProjectEvaluation.RData")
 
+load("data/Active_List.RData")
+
 
 qpr_leavers <- qpr_leavers %>% arrange(ProjectName)
 
