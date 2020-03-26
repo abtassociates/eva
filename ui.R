@@ -20,15 +20,8 @@ dashboardPage(
       id = "sidebarmenuid",
       menuItem("Home",
                tabName = "homeTab"),
-      # menuItem(
-      #   "Prioritization",
-      #   menuSubItem("Prioritization List",
-      #               tabName = "prioritizationListTab"),
-      #   menuSubItem("Contact",
-      #               tabName = "contactTab"),
-      #   menuSubItem("Veteran Active List",
-      #               tabName = "vetActiveListTab")
-      # ),
+      # menuItem("Prioritization",
+      #          tabName = "prioritizationListTab"), 
       menuItem("Current Clients",
                tabName = "currentProviderLevel"),
       menuItem("Bed and Unit Utilization",
@@ -96,6 +89,33 @@ dashboardPage(
         htmlOutput("headerHome"),
         width = 12
       ),
+      tabItem(tabName = "prioritizationListTab",
+              fluidRow(box(
+                htmlOutput("headerPrioritization"), width = 12
+              )),
+              fluidRow(
+                box(
+                  pickerInput(
+                    label = "Select County/-ies",
+                    inputId = "prioritizationCounty",
+                    multiple = TRUE,
+                    choices = regions %>% arrange(County) %>% pull(County),
+                    options = list('live-search' = TRUE)
+                  ),
+                  checkboxInput("prioritizationFilterVeteran",
+                                label = "Veteran in the Household"),
+                  checkboxInput("prioritizationFilterChronic",
+                                label = "Chronic and Nearly Chronic"),
+                  checkboxInput("prioritizationFilterTAY",
+                                label = "Transition Aged Youth"),
+                  checkboxInput("prioritizationFilterDisability",
+                                label = "Disability in Household")
+                ),
+                width = 12
+              ),
+              fluidRow(box(
+                DT::dataTableOutput("prioritizationData"), width = 12
+              ))), 
       tabItem(tabName = "currentProviderLevel",
               fluidRow(box(
                 htmlOutput("headerCurrent"), width = 12
