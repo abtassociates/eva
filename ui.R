@@ -21,7 +21,7 @@ dashboardPage(
       menuItem("Home",
                tabName = "homeTab"),
       # menuItem("Prioritization",
-      #          tabName = "prioritizationListTab"), 
+      #          tabName = "prioritizationListTab"),
       menuItem("Current Clients",
                tabName = "currentProviderLevel"),
       menuItem("Bed and Unit Utilization",
@@ -101,15 +101,7 @@ dashboardPage(
                     multiple = TRUE,
                     choices = regions %>% arrange(County) %>% pull(County),
                     options = list('live-search' = TRUE)
-                  ),
-                  checkboxInput("prioritizationFilterVeteran",
-                                label = "Veteran in the Household"),
-                  checkboxInput("prioritizationFilterChronic",
-                                label = "Chronic and Nearly Chronic"),
-                  checkboxInput("prioritizationFilterTAY",
-                                label = "Transition Aged Youth"),
-                  checkboxInput("prioritizationFilterDisability",
-                                label = "Disability in Household")
+                  )
                 ),
                 width = 12
               ),

@@ -579,48 +579,36 @@ output$DeskTimePlotCoC <- renderPlot({
     
     active <- active_list %>%
       filter(CountyServed %in% c(input$prioritizationCounty)) %>%
-      arrange(HouseholdID)
+      arrange(HouseholdID) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Project Name" = ProjectName,
+        "Entry Date" = EntryDate,
+        "Current Situation (Entry, Referral, Perm Housing Track)" = Situation,
+        "Veteran?" = VeteranStatus,
+        "Transition Aged Youth" = TAY,
+        "Chronic Status" = ChronicStatus,
+        "Eligible for PSH? (Disability in Household)" = DisabilityInHH,
+        "Household Size" = HouseholdSize,
+        "Income?" = IncomeFromAnySource,
+        Score,
+        HH_DQ_issue
+      )
     
-    non_veterans <- active %>%
-      filter(VeteranStatus == 0) %>%
-      select(PersonalID)
-    
-    non_chronic <- active %>%
-      filter(ChronicStatus == "Not Chronic") %>%
-      select(PersonalID)
-    
-    non_TAY <- active %>%
-      filter(TAY == 0) %>%
-      select(PersonalID)
-    
-    no_disability <- active %>%
-      filter(DisabilityInHH == 0) %>%
-      select(PersonalID)
-    
-    final <- active %>%
-      mutate(
-        show = case_when(
-          input$prioritizationFilterVeteran == TRUE &
-            PersonalID %in% c(non_veterans) ~ 0,
-          input$prioritizationFilterChronic == TRUE &
-            PersonalID %in% c(non_chronic) ~ 0,
-          input$prioritizationFilterTAY == TRUE &
-            PersonalID %in% c(non_TAY) ~ 0,
-          input$prioritizationFilterDisability == TRUE &
-            PersonalID %in% c(no_disability) ~ 0
-        )
-      ) %>% 
-      filter(show == 1) %>%
-      select("PersonalID", "ProjectName", "EntryDate", "PTCStatus", 
-             "CountyServed", "PHTrack", "HouseholdSize", "IncomeFromAnySource", 
-             "Score", "ChronicStatus")
-      
-    
-    datatable(final, 
-              rownames = FALSE, 
+    datatable(
+      active,
+      rownames = FALSE,
       filter = 'top',
-      options = list(dom = 'ltpi')
-    )
+      options = list(dom = 'ltpi',
+                     columnDefs = list(list(
+                       visible = FALSE, targets = c(11)
+                     )))
+    ) %>%
+      formatStyle(columns = 'Client ID',
+                  valueColumns = 11,
+                  backgroundColor = styleEqual(c(1), 
+                                               c("red")))
+    
   })
   
   output$currentClients <- DT::renderDataTable({
