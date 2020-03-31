@@ -578,12 +578,14 @@ output$DeskTimePlotCoC <- renderPlot({
   output$prioritizationData <- DT::renderDataTable({
     
     active <- active_list %>%
-      filter(CountyServed %in% c(input$prioritizationCounty)) %>%
+      filter(CountyServed %in% c(input$prioritizationCounty) |
+               is.na(CountyServed)) %>%
       arrange(HouseholdID) %>%
       select(
         "Client ID" = PersonalID,
         "Project Name" = ProjectName,
         "Entry Date" = EntryDate,
+        "County" = CountyServed,
         "Current Situation (Entry, Referral, Perm Housing Track)" = Situation,
         "Veteran?" = VeteranStatus,
         "Transition Aged Youth" = TAY,
@@ -601,15 +603,28 @@ output$DeskTimePlotCoC <- renderPlot({
       filter = 'top',
       options = list(dom = 'ltpi',
                      columnDefs = list(list(
-                       visible = FALSE, targets = c(11)
+                       visible = FALSE, targets = c(12)
                      )))
     ) %>%
       formatStyle(columns = 'Client ID',
-                  valueColumns = 11,
+                  valueColumns = 12,
                   backgroundColor = styleEqual(c(1), 
                                                c("red")))
     
   })
+  
+  output$downloadActiveList <- downloadHandler(
+    filename = function() {
+      "active_list.xlsx"
+    },
+    content = function(file) {
+      write_xlsx(active_list %>%
+                   filter(
+                     CountyServed %in% c(input$prioritizationCounty) |
+                       is.na(CountyServed)
+                   ), path = file)
+    }
+  )
   
   output$currentClients <- DT::renderDataTable({
     datatable(

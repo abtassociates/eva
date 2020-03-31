@@ -20,8 +20,8 @@ dashboardPage(
       id = "sidebarmenuid",
       menuItem("Home",
                tabName = "homeTab"),
-      # menuItem("Prioritization",
-      #          tabName = "prioritizationListTab"),
+      menuItem("Prioritization",
+               tabName = "prioritizationListTab"),
       menuItem("Current Clients",
                tabName = "currentProviderLevel"),
       menuItem("Bed and Unit Utilization",
@@ -100,13 +100,19 @@ dashboardPage(
                     inputId = "prioritizationCounty",
                     multiple = TRUE,
                     choices = regions %>% arrange(County) %>% pull(County),
-                    options = list('live-search' = TRUE)
-                  )
+                    options = list('live-search' = TRUE),
+                    selected = regions %>% arrange(County) %>% pull(County) %>%
+                      sample(1)
+                  ),
+                  downloadButton("downloadActiveList", "Download")
                 ),
                 width = 12
               ),
               fluidRow(box(
-                DT::dataTableOutput("prioritizationData"), width = 12
+                DT::dataTableOutput("prioritizationData"), 
+                width = 12,
+                footer = "Red cells mean this client has a Household Data 
+                Quality issue that needs attention."
               ))), 
       tabItem(tabName = "currentProviderLevel",
               fluidRow(box(
