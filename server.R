@@ -655,6 +655,7 @@ output$DeskTimePlotCoC <- renderPlot({
         mutate(PersonalID = as.character(PersonalID)) %>%
         arrange(desc(sort), HouseholdID, PersonalID) %>%
         select(
+          "County" = CountyServed,
           "Client ID" = PersonalID,
           "Relationship to Head of Household" = RelationshipToHoH,
           "Entry Date" = EntryDate,
