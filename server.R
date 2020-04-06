@@ -1,5 +1,5 @@
 # COHHIO_HMIS
-# Copyright (C) 2019  Coalition on Homelessness and Housing in Ohio (COHHIO)
+# Copyright (C) 2020  Coalition on Homelessness and Housing in Ohio (COHHIO)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -10,7 +10,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Affero General Public License for more details at
-#<https://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 
 
 function(input, output, session) {
