@@ -581,16 +581,17 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(CountyServed %in% c(input$prioritizationCounty) |
                is.na(CountyServed)) %>%
       arrange(HouseholdID) %>%
+      mutate(EntryDate = format.Date(ymd(EntryDate), "%m-%d-%Y")) %>%
       select(
         "Client ID" = PersonalID,
         "Project Name" = ProjectName,
         "Entry Date" = EntryDate,
         "County" = CountyServed,
         "Current Situation (Entry, Referral, Perm Housing Track)" = Situation,
-        "Veteran?" = VeteranStatus,
+        "Veteran" = VeteranStatus,
         "Transition Aged Youth" = TAY,
         "Chronic Status" = ChronicStatus,
-        "Eligible for PSH? (Disability in Household)" = DisabilityInHH,
+        "Eligible for PSH (Disability in Household)" = DisabilityInHH,
         "Household Size" = HouseholdSize,
         "Income?" = IncomeFromAnySource,
         Score,
@@ -609,7 +610,7 @@ output$DeskTimePlotCoC <- renderPlot({
       formatStyle(columns = 'Client ID',
                   valueColumns = 12,
                   backgroundColor = styleEqual(c(1), 
-                                               c("red")))
+                                               c("crimson")))
     
   })
   
