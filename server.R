@@ -589,6 +589,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "County" = CountyServed,
         "Current Situation (Entry, Referral, Perm Housing Track)" = Situation,
         "Veteran" = VeteranStatus,
+        "Fleeing DV" = CurrentlyFleeing,
         "Transition Aged Youth" = TAY,
         "Chronic Status" = ChronicStatus,
         "Eligible for PSH (Disability in Household)" = DisabilityInHH,
@@ -608,9 +609,13 @@ output$DeskTimePlotCoC <- renderPlot({
                      )))
     ) %>%
       formatStyle(columns = 'Client ID',
-                  valueColumns = 12,
+                  valueColumns = 21,
                   backgroundColor = styleEqual(c(1), 
-                                               c("crimson")))
+                                               c("gray"))) %>%
+      formatStyle(columns = 'County',
+                  valueColumns = 17,
+                  backgroundColor = styleEqual(c(1),
+                                               c("gray")))
     
   })
   
