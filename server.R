@@ -583,7 +583,7 @@ output$DeskTimePlotCoC <- renderPlot({
       arrange(HouseholdID) %>%
       mutate(EntryDate = format.Date(ymd(EntryDate), "%m-%d-%Y")) %>%
       select(
-        "Client ID" = PersonalID,
+        "HoH Client ID" = PersonalID,
         "Project Name" = ProjectName,
         "Entry Date" = EntryDate,
         "County" = CountyServed,
@@ -594,9 +594,10 @@ output$DeskTimePlotCoC <- renderPlot({
         "Chronic Status" = ChronicStatus,
         "Eligible for PSH (Disability in Household)" = DisabilityInHH,
         "Household Size" = HouseholdSize,
-        "Income?" = IncomeFromAnySource,
+        "Income" = IncomeFromAnySource,
         Score,
-        HH_DQ_issue
+        HH_DQ_issue,
+        CountyGuessed
       )
     
     datatable(
@@ -605,17 +606,17 @@ output$DeskTimePlotCoC <- renderPlot({
       filter = 'top',
       options = list(dom = 'ltpi',
                      columnDefs = list(list(
-                       visible = FALSE, targets = c(12)
+                       visible = FALSE, targets = c(13:14)
                      )))
     ) %>%
       formatStyle(columns = 'Client ID',
-                  valueColumns = 21,
+                  valueColumns = 13,
                   backgroundColor = styleEqual(c(1), 
-                                               c("gray"))) %>%
+                                               c("#7d7d8d"))) %>%
       formatStyle(columns = 'County',
-                  valueColumns = 17,
+                  valueColumns = 14,
                   backgroundColor = styleEqual(c(1),
-                                               c("gray")))
+                                               c("#7d7d8d")))
     
   })
   
