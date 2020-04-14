@@ -111,8 +111,7 @@ dashboardPage(
               fluidRow(box(
                 DT::dataTableOutput("prioritizationData"), 
                 width = 12,
-                footer = "Red cells mean this client has a Household Data 
-                Quality issue that needs attention."
+                footer = "Dark gray cells mean the client has a Data Quality issue that may be causing incorrect information to show."
               ))), 
       tabItem(tabName = "currentProviderLevel",
               fluidRow(box(
