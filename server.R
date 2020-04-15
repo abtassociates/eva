@@ -433,27 +433,15 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$headerNCBs <- renderUI({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$dateNCBSlider, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$dateNCBSlider, 7, 7) == 1 ~ "03-31-",
-        substr(input$dateNCBSlider, 7, 7) == 2 ~ "06-30-",
-        substr(input$dateNCBSlider, 7, 7) == 3 ~ "09-30-",
-        substr(input$dateNCBSlider, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$dateNCBSlider, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$NCBDateRange[1], "%B %d, %Y")
+    ReportEnd <- format.Date(input$NCBDateRange[2], "%B %d, %Y")
     
     list(h2("Non-Cash Benefits at Exit"),
          h4(input$MBProjectListNC),
          h4(paste(
-           format(mdy(ReportStart), "%B %Y"),
+           ReportStart,
            "to",
-           format(mdy(ReportEnd), "%B %Y")
+           ReportEnd
          )))
   })
   
@@ -2150,19 +2138,8 @@ output$DeskTimePlotCoC <- renderPlot({
     })
   
   output$ExitedWithNCBs <- DT::renderDataTable({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$dateNCBSlider, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$dateNCBSlider, 7, 7) == 1 ~ "03-31-",
-        substr(input$dateNCBSlider, 7, 7) == 2 ~ "06-30-",
-        substr(input$dateNCBSlider, 7, 7) == 3 ~ "09-30-",
-        substr(input$dateNCBSlider, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$dateNCBSlider, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$NCBDateRange[1], "%m-%d-%Y")
+    ReportEnd <- format.Date(input$NCBDateRange[2], "%m-%d-%Y")
     
     a <- qpr_benefits %>%
       filter(ProjectName == input$MBProjectListNC &
@@ -2193,19 +2170,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$qprNCBSummary <-
     renderInfoBox({
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$dateNCBSlider, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$dateNCBSlider, 7, 7) == 1 ~ "03-31-",
-          substr(input$dateNCBSlider, 7, 7) == 2 ~ "06-30-",
-          substr(input$dateNCBSlider, 7, 7) == 3 ~ "09-30-",
-          substr(input$dateNCBSlider, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$dateNCBSlider, 1, 4)
-      )), "%m-%d-%Y")
+      ReportStart <- format.Date(input$NCBDateRange[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$NCBDateRange[2], "%m-%d-%Y")
       
       meeting_objective <- qpr_benefits %>%
         filter(
