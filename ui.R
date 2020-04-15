@@ -695,13 +695,14 @@ dashboardPage(
               options = list(`live-search` = TRUE),
               width = "100%"
             ),
-            sliderTextInput("RapidRRHDateSlider",
-                            "",
-                            c(
-                              unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
-                            ),
-                            selected = Sys.yearqtr() - 1 / 4),
-            width = 12
+            dateRangeInput(
+              "DaysToHouseDateRange",
+              "Date Range",
+              start = floor_date(today() - months(1), "year"),
+              end = today(),
+              min = FileStart,
+              format = "mm-dd-yyyy"
+            )
           )
         ),
         fluidRow(infoBoxOutput("daysToHouseSummary", width = 12)),

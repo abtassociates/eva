@@ -447,27 +447,15 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$headerDaysToHouse <- renderUI({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$RapidRRHDateSlider, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$RapidRRHDateSlider, 7, 7) == 1 ~ "03-31-",
-        substr(input$RapidRRHDateSlider, 7, 7) == 2 ~ "06-30-",
-        substr(input$RapidRRHDateSlider, 7, 7) == 3 ~ "09-30-",
-        substr(input$RapidRRHDateSlider, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$RapidRRHDateSlider, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$LoSDateRange[1], "%B %d, %Y")
+    ReportEnd <- format.Date(input$LoSDateRange[2], "%B %d, %Y")
     
     list(h1("Days to House"),
          h4(input$RapidRRHProviderList),
          h4(paste(
-           format(mdy(ReportStart), "%B %Y"),
+           ReportStart,
            "to",
-           format(mdy(ReportEnd), "%B %Y")
+           ReportEnd
          )))
   })
   
@@ -2254,20 +2242,8 @@ output$DeskTimePlotCoC <- renderPlot({
     })
   
   output$daysToHouseRRH <- DT::renderDataTable({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$RapidRRHDateSlider, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$RapidRRHDateSlider, 7, 7) == 1 ~ "03-31-",
-        substr(input$RapidRRHDateSlider, 7, 7) == 2 ~ "06-30-",
-        substr(input$RapidRRHDateSlider, 7, 7) == 3 ~ "09-30-",
-        substr(input$RapidRRHDateSlider, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$RapidRRHDateSlider, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$DaysToHouseDateRange[1], "%m-%d-%Y")
+    ReportEnd <- format.Date(input$DaysToHouseDateRange[2], "%m-%d-%Y")
     
     daysToHouse <- qpr_rrh_enterers %>%
       filter(
@@ -2293,20 +2269,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$daysToHouseSummary <-
     renderInfoBox({
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$RapidRRHDateSlider, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$RapidRRHDateSlider, 7, 7) == 1 ~ "03-31-",
-          substr(input$RapidRRHDateSlider, 7, 7) == 2 ~ "06-30-",
-          substr(input$RapidRRHDateSlider, 7, 7) == 3 ~ "09-30-",
-          substr(input$RapidRRHDateSlider, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$RapidRRHDateSlider, 1, 4)
-      )), "%m-%d-%Y")
+      ReportStart <- format.Date(input$DaysToHouseDateRange[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$DaysToHouseDateRange[2], "%m-%d-%Y")
       
       days <- qpr_rrh_enterers %>%
         filter(
