@@ -163,27 +163,16 @@ function(input, output, session) {
   })
   
   output$headerCommunityNeedCounty <- renderUI({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$spdatSlider2, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$spdatSlider2, 7, 7) == 1 ~ "03-31-",
-        substr(input$spdatSlider2, 7, 7) == 2 ~ "06-30-",
-        substr(input$spdatSlider2, 7, 7) == 3 ~ "09-30-",
-        substr(input$spdatSlider2, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$spdatSlider2, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$spdatDateRange2[1], "%B %d, %Y")
+    ReportEnd <- format.Date(input$spdatDateRange2[2], "%B %d, %Y")
     
     list(
       h2("Community Need, Literally Homeless in the County"),
       h4(input$regionList2),
       h4(paste(
-        format(mdy(ReportStart), "%B %Y"),
+        ReportStart,
         "to",
-        format(mdy(ReportEnd), "%B %Y")
+        ReportEnd
       ))
     )
   })
@@ -1950,20 +1939,10 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$SPDATScoresServedInCounty <-
     DT::renderDataTable({
-      # ReportStart <- format.Date(mdy(paste0("01-01-", input$y)), "%m-%d-%Y")
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$spdatSlider2, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$spdatSlider2, 7, 7) == 1 ~ "03-31-",
-          substr(input$spdatSlider2, 7, 7) == 2 ~ "06-30",
-          substr(input$spdatSlider2, 7, 7) == 3 ~ "09-30-",
-          substr(input$spdatSlider2, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$spdatSlider2, 1, 4)
-      )), "%m-%d-%Y")
+      
+      ReportStart <- format.Date(input$spdatDateRange2[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$spdatDateRange2[2], "%m-%d-%Y")
+      
       # counting all households who were scored AND SERVED between the report dates
       CountyAverageScores <- qpr_spdats_county %>%
         filter(served_between(qpr_spdats_county,
@@ -1991,19 +1970,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$ScoredInRegionSummary <-
     renderInfoBox({
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$spdatSlider2, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$spdatSlider2, 7, 7) == 1 ~ "03-31-",
-          substr(input$spdatSlider2, 7, 7) == 2 ~ "06-30",
-          substr(input$spdatSlider2, 7, 7) == 3 ~ "09-30-",
-          substr(input$spdatSlider2, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$spdatSlider2, 1, 4)
-      )), "%m-%d-%Y")
+      ReportStart <- format.Date(input$spdatDateRange2[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$spdatDateRange2[2], "%m-%d-%Y")
       
       # counting all households who were scored AND SERVED between the report dates
       scores <- qpr_spdats_county %>%
