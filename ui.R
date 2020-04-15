@@ -642,8 +642,7 @@ dashboardPage(
               end = today(),
               min = FileStart,
               format = "mm-dd-yyyy"
-            ),
-            width = 12
+            )
           )
         ),
         fluidRow(infoBoxOutput("healthInsuranceSummary", width = 12)),
@@ -665,14 +664,14 @@ dashboardPage(
               options = list(`live-search` = TRUE),
               width = "70%"
             ),
-            setSliderColor("#56B4E9", 1),
-            sliderTextInput("dateIncomeSlider",
-                            "",
-                            c(
-                              unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
-                            ),
-                            selected = Sys.yearqtr() - 1 / 4),
-            width = 12
+            dateRangeInput(
+              "IncomeDateRange",
+              "Date Range",
+              start = floor_date(today() - months(1), "year"),
+              end = today(),
+              min = FileStart,
+              format = "mm-dd-yyyy"
+            )
           )
         ),
         fluidRow(infoBoxOutput("qprIncomeSummary", width = 12)),

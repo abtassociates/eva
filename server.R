@@ -408,27 +408,15 @@ output$DeskTimePlotCoC <- renderPlot({
     })
   
   output$headerIncomeIncrease <- renderUI({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$dateIncomeSlider, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$dateIncomeSlider, 7, 7) == 1 ~ "03-31-",
-        substr(input$dateIncomeSlider, 7, 7) == 2 ~ "06-30-",
-        substr(input$dateIncomeSlider, 7, 7) == 3 ~ "09-30-",
-        substr(input$dateIncomeSlider, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$dateIncomeSlider, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$IncomeDateRange[1], "%B %d, %Y")
+    ReportEnd <- format.Date(input$IncomeDateRange[2], "%B %d, %Y")
     
     list(h2("Income Increase"),
          h4(input$incomeProjectList),
          h4(paste(
-           format(mdy(ReportStart), "%B %Y"),
+           ReportStart,
            "to",
-           format(mdy(ReportEnd), "%B %Y")
+           ReportEnd
          )))
   })
   
@@ -2027,19 +2015,8 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$IncomeIncrease <- DT::renderDataTable({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$dateIncomeSlider, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$dateIncomeSlider, 7, 7) == 1 ~ "03-31-",
-        substr(input$dateIncomeSlider, 7, 7) == 2 ~ "06-30-",
-        substr(input$dateIncomeSlider, 7, 7) == 3 ~ "09-30-",
-        substr(input$dateIncomeSlider, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$dateIncomeSlider, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$IncomeDateRange[1], "%m-%d-%Y")
+    ReportEnd <- format.Date(input$IncomeDateRange[2], "%m-%d-%Y")
     
     a <- qpr_income %>%
       filter(ProjectName == input$incomeProjectList &
@@ -2065,19 +2042,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$qprIncomeSummary <-
     renderInfoBox({
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$dateIncomeSlider, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$dateIncomeSlider, 7, 7) == 1 ~ "03-31-",
-          substr(input$dateIncomeSlider, 7, 7) == 2 ~ "06-30-",
-          substr(input$dateIncomeSlider, 7, 7) == 3 ~ "09-30-",
-          substr(input$dateIncomeSlider, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$dateIncomeSlider, 1, 4)
-      )), "%m-%d-%Y")
+      ReportStart <- format.Date(input$IncomeDateRange[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$IncomeDateRange[2], "%m-%d-%Y")
       
       meeting_objective <- qpr_income %>%
         filter(
