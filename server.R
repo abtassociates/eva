@@ -2293,20 +2293,8 @@ output$DeskTimePlotCoC <- renderPlot({
     })
   
   output$headerRRHSpending <- renderUI({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$RRHSpendingDateSlider, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$RRHSpendingDateSlider, 7, 7) == 1 ~ "03-31-",
-        substr(input$RRHSpendingDateSlider, 7, 7) == 2 ~ "06-30-",
-        substr(input$RRHSpendingDateSlider, 7, 7) == 3 ~ "09-30-",
-        substr(input$RRHSpendingDateSlider, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$RRHSpendingDateSlider, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%B %d, %Y")
+    ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%B %d, %Y")
     
     list(h2("Quarterly Performance Report"),
          h3("Rapid Rehousing Spending Goals"),
@@ -2317,20 +2305,8 @@ output$DeskTimePlotCoC <- renderPlot({
   #  QPR HP vs RRH Spending
   output$RRHSpending <-
     DT::renderDataTable({
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$RRHSpendingDateSlider, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$RRHSpendingDateSlider, 7, 7) == 1 ~ "03-31-",
-          substr(input$RRHSpendingDateSlider, 7, 7) == 2 ~ "06-30-",
-          substr(input$RRHSpendingDateSlider, 7, 7) == 3 ~ "09-30-",
-          substr(input$RRHSpendingDateSlider, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$RRHSpendingDateSlider, 1, 4)
-      )), "%m-%d-%Y")
+      ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%m-%d-%Y")
       
       rrhSpending <- qpr_spending %>%
         filter(
@@ -2359,20 +2335,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$HPSpending <-
     DT::renderDataTable({
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$RRHSpendingDateSlider, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$RRHSpendingDateSlider, 7, 7) == 1 ~ "03-31-",
-          substr(input$RRHSpendingDateSlider, 7, 7) == 2 ~ "06-30-",
-          substr(input$RRHSpendingDateSlider, 7, 7) == 3 ~ "09-30-",
-          substr(input$RRHSpendingDateSlider, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$RRHSpendingDateSlider, 1, 4)
-      )), "%m-%d-%Y")
+      ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%m-%d-%Y")
       
       hpSpending <- qpr_spending %>%
         filter(

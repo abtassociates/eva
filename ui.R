@@ -727,13 +727,14 @@ dashboardPage(
               options = list(`live-search` = TRUE),
               width = "100%"
             ),
-            sliderTextInput("RRHSpendingDateSlider",
-                            "",
-                            c(
-                              unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
-                            ),
-                            selected = Sys.yearqtr() - 1 / 4),
-            width = 12
+            dateRangeInput(
+              "RRHSpendingDateRange",
+              "Date Range",
+              start = floor_date(today() - months(1), "year"),
+              end = today(),
+              min = FileStart,
+              format = "mm-dd-yyyy"
+            )
           )
         ),
         # fluidRow(infoBoxOutput("notCreatedYet"), width = 3),
