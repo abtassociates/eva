@@ -495,7 +495,7 @@ dashboardPage(
             dateRangeInput(
               "spdatDateRange",
               "Date Range",
-              start = "2020-01-01",
+              start = floor_date(today() - months(1), "year"),
               end = today(),
               min = FileStart,
               format = "mm-dd-yyyy"
