@@ -1392,9 +1392,9 @@ output$DeskTimePlotCoC <- renderPlot({
                width = .1) +
       geom_label(
         aes(label = paste(
-          data_APs$category,
+          category,
           "\n",
-          data_APs$prettypercent
+          prettypercent
         )),
         position = position_stack(),
         vjust = 2,
