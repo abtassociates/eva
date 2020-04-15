@@ -178,26 +178,15 @@ function(input, output, session) {
   })
   
   output$headerExitsToPH <- renderUI({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$ExitsToPHSlider, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$ExitsToPHSlider, 7, 7) == 1 ~ "03-31-",
-        substr(input$ExitsToPHSlider, 7, 7) == 2 ~ "06-30-",
-        substr(input$ExitsToPHSlider, 7, 7) == 3 ~ "09-30-",
-        substr(input$ExitsToPHSlider, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$ExitsToPHSlider, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
+    ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%B %d, %Y")
     
     list(h2("Successful Placement Detail"),
          h4(input$ExitsToPHProjectList),
          h4(paste(
-           format(mdy(ReportStart), "%B %Y"),
+           ReportStart,
            "to",
-           format(mdy(ReportEnd), "%B %Y")
+           ReportEnd
          )))
   })
   
@@ -319,19 +308,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$ExitsToPHSummary <-
     renderInfoBox({
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$ExitsToPHSlider, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$ExitsToPHSlider, 7, 7) == 1 ~ "03-31-",
-          substr(input$ExitsToPHSlider, 7, 7) == 2 ~ "06-30-",
-          substr(input$ExitsToPHSlider, 7, 7) == 3 ~ "09-30-",
-          substr(input$ExitsToPHSlider, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$ExitsToPHSlider, 1, 4)
-      )), "%m-%d-%Y")
+      ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%m-%d-%Y")
       
       SuccessfullyPlaced <- qpr_leavers %>%
         filter(ProjectName == input$ExitsToPHProjectList &
@@ -2001,19 +1979,8 @@ output$DeskTimePlotCoC <- renderPlot({
     })
   
   output$ExitsToPH <- DT::renderDataTable({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$ExitsToPHSlider, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$ExitsToPHSlider, 7, 7) == 1 ~ "03-31-",
-        substr(input$ExitsToPHSlider, 7, 7) == 2 ~ "06-30-",
-        substr(input$ExitsToPHSlider, 7, 7) == 3 ~ "09-30-",
-        substr(input$ExitsToPHSlider, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$ExitsToPHSlider, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%m-%d-%Y")
+    ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%m-%d-%Y")
     
     SuccessfullyPlaced <- qpr_leavers %>%
       filter(((ProjectType %in% c(3, 9, 13) &
