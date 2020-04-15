@@ -446,27 +446,15 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$headerHealthInsurance <- renderUI({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$dateHealthInsuranceSlider, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$dateHealthInsuranceSlider, 7, 7) == 1 ~ "03-31-",
-        substr(input$dateHealthInsuranceSlider, 7, 7) == 2 ~ "06-30-",
-        substr(input$dateHealthInsuranceSlider, 7, 7) == 3 ~ "09-30-",
-        substr(input$dateHealthInsuranceSlider, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$dateHealthInsuranceSlider, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$HIDateRange[1], "%B %d, %Y")
+    ReportEnd <- format.Date(input$HIDateRange[2], "%B %d, %Y")
     
     list(h2("Health Insurance at Exit"),
          h4(input$MBProjectListHI),
          h4(paste(
-           format(mdy(ReportStart), "%B %Y"),
+           ReportStart,
            "to",
-           format(mdy(ReportEnd), "%B %Y")
+           ReportEnd
          )))
   })
   
@@ -2220,19 +2208,8 @@ output$DeskTimePlotCoC <- renderPlot({
     })
   
   output$ExitedWithInsurance <- DT::renderDataTable({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$dateHealthInsuranceSlider, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$dateHealthInsuranceSlider, 7, 7) == 1 ~ "03-31-",
-        substr(input$dateHealthInsuranceSlider, 7, 7) == 2 ~ "06-30-",
-        substr(input$dateHealthInsuranceSlider, 7, 7) == 3 ~ "09-30-",
-        substr(input$dateHealthInsuranceSlider, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$dateHealthInsuranceSlider, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$HIDateRange[1], "%m-%d-%Y")
+    ReportEnd <- format.Date(input$HIDateRange[2], "%m-%d-%Y")
     
     a <- qpr_benefits %>%
       filter(ProjectName == input$MBProjectListHI &
@@ -2262,19 +2239,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$healthInsuranceSummary <-
     renderInfoBox({
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$dateHealthInsuranceSlider, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$dateHealthInsuranceSlider, 7, 7) == 1 ~ "03-31-",
-          substr(input$dateHealthInsuranceSlider, 7, 7) == 2 ~ "06-30-",
-          substr(input$dateHealthInsuranceSlider, 7, 7) == 3 ~ "09-30-",
-          substr(input$dateHealthInsuranceSlider, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$dateHealthInsuranceSlider, 1, 4)
-      )), "%m-%d-%Y")
+      ReportStart <- format.Date(input$HIDateRange[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$HIDateRange[2], "%m-%d-%Y")
       
       meeting_objective <- qpr_benefits %>%
         filter(
