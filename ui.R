@@ -492,15 +492,14 @@ dashboardPage(
               options = list(`live-search` = TRUE),
               width = "70%"
             ),
-            chooseSliderSkin("Round"),
-            setSliderColor("#56B4E9", c(1, 2)),
-            sliderTextInput("spdatSlider1",
-                            "",
-                            c(
-                              unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
-                            ),
-                            selected = Sys.yearqtr() - 1 / 4),
-            width = 12
+            dateRangeInput(
+              "spdatDateRange",
+              "Date Range",
+              start = "2020-01-01",
+              end = today(),
+              min = FileStart,
+              format = "mm-dd-yyyy"
+            )
           )
         ),
         fluidRow(infoBoxOutput("ScoredHousedSummary", width = 12)),

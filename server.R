@@ -138,27 +138,16 @@ function(input, output, session) {
   })
   
   output$headerCommunityNeedPH <- renderUI({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$spdatSlider1, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$spdatSlider1, 7, 7) == 1 ~ "03-31-",
-        substr(input$spdatSlider1, 7, 7) == 2 ~ "06-30-",
-        substr(input$spdatSlider1, 7, 7) == 3 ~ "09-30-",
-        substr(input$spdatSlider1, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$spdatSlider1, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$spdatDateRange[1], "%B %d, %Y")
+    ReportEnd <- format.Date(input$spdatDateRange[2], "%B %d, %Y")
     
     list(
       h2("Community Need, Entered Permanent Housing"),
       h4(input$regionList1),
       h4(paste(
-        format(mdy(ReportStart), "%B %Y"),
+        ReportStart,
         "to",
-        format(mdy(ReportEnd), "%B %Y")
+        ReportEnd
       ))
     )
   })
@@ -1904,19 +1893,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$SPDATScoresHoused <-
     DT::renderDataTable({
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$spdatSlider1, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$spdatSlider1, 7, 7) == 1 ~ "03-31-",
-          substr(input$spdatSlider1, 7, 7) == 2 ~ "06-30",
-          substr(input$spdatSlider1, 7, 7) == 3 ~ "09-30-",
-          substr(input$spdatSlider1, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$spdatSlider1, 1, 4)
-      )), "%m-%d-%Y")
+      ReportStart <- format.Date(input$spdatDateRange[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$spdatDateRange[2], "%m-%d-%Y")
       
       # counting all households who ENTERED either RRH or PSH between the report dates
       CountyHousedAverageScores <- qpr_spdats_project %>%
@@ -1937,28 +1915,19 @@ output$DeskTimePlotCoC <- renderPlot({
           "Score Adjusted" = ScoreAdjusted
         )
       
-      datatable(CountyHousedAverageScores,
-                rownames = FALSE,
-                filter = 'top',
-                options = list(dom = 'ltpi'))
+      datatable(
+        CountyHousedAverageScores,
+        rownames = FALSE,
+        filter = 'top',
+        options = list(dom = 'ltpi')
+      )
       
     })
   
   output$ScoredHousedSummary <-
     renderInfoBox({
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$spdatSlider1, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$spdatSlider1, 7, 7) == 1 ~ "03-31-",
-          substr(input$spdatSlider1, 7, 7) == 2 ~ "06-30",
-          substr(input$spdatSlider1, 7, 7) == 3 ~ "09-30-",
-          substr(input$spdatSlider1, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$spdatSlider1, 1, 4)
-      )), "%m-%d-%Y")
+      ReportStart <- format.Date(input$spdatDateRange[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$spdatDateRange[2], "%m-%d-%Y")
       
       scores <- qpr_spdats_project %>%
         filter(entered_between(qpr_spdats_project,
