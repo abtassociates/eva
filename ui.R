@@ -553,8 +553,7 @@ dashboardPage(
               end = today(),
               min = FileStart,
               format = "mm-dd-yyyy"
-            ),
-            width = 12
+            )
           )
         ),
         fluidRow(infoBoxOutput("LoSSummary", width = 12)),
@@ -580,8 +579,7 @@ dashboardPage(
               end = today(),
               min = FileStart,
               format = "mm-dd-yyyy"
-            ),
-            width = 12
+            )
           )
         ),
         fluidRow(infoBoxOutput("ExitsToPHSummary", width = 12)),
@@ -613,8 +611,7 @@ dashboardPage(
               end = today(),
               min = FileStart,
               format = "mm-dd-yyyy"
-            ),
-            width = 12
+            )
           )
         ),
         fluidRow(infoBoxOutput("qprNCBSummary", width = 12)),
