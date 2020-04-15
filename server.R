@@ -383,46 +383,22 @@ output$DeskTimePlotCoC <- renderPlot({
     })
   
   output$headerLoS <- renderUI({
-    ReportStart <- format.Date(ymd(paste0(
-      substr(input$LoSSlider1, 1, 4),
-      "-01-01"
-    )), "%m-%d-%Y")
-    
-    ReportEnd <- format.Date(mdy(paste0(
-      case_when(
-        substr(input$LoSSlider1, 7, 7) == 1 ~ "03-31-",
-        substr(input$LoSSlider1, 7, 7) == 2 ~ "06-30-",
-        substr(input$LoSSlider1, 7, 7) == 3 ~ "09-30-",
-        substr(input$LoSSlider1, 7, 7) == 4 ~ "12-31-"
-      ),
-      substr(input$LoSSlider1, 1, 4)
-    )), "%m-%d-%Y")
+    ReportStart <- format.Date(input$LoSDateRange[1], "%B %d, %Y")
+    ReportEnd <- format.Date(input$LoSDateRange[2], "%B %d, %Y")
     
     list(h2("Length of Stay"),
          h4(input$LoSProjectList),
          h4(paste(
-           format(mdy(ReportStart), "%B %Y"),
+           ReportStart,
            "to",
-           format(mdy(ReportEnd), "%B %Y")
+           ReportEnd
          )))
   })
   
   output$LoSSummary <-
     renderInfoBox({
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$LoSSlider1, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$LoSSlider1, 7, 7) == 1 ~ "03-31-",
-          substr(input$LoSSlider1, 7, 7) == 2 ~ "06-30-",
-          substr(input$LoSSlider1, 7, 7) == 3 ~ "09-30-",
-          substr(input$LoSSlider1, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$LoSSlider1, 1, 4)
-      )), "%m-%d-%Y")
+      ReportStart <- format.Date(input$LoSDateRange[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$LoSDateRange[2], "%m-%d-%Y")
       
       los_summary <- qpr_leavers %>%
         filter(((
@@ -1995,20 +1971,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$LoSDetail <-
     DT::renderDataTable({
-      ReportStart <- format.Date(ymd(paste0(
-        substr(input$LoSSlider1, 1, 4),
-        "-01-01"
-      )), "%m-%d-%Y")
-      
-      ReportEnd <- format.Date(mdy(paste0(
-        case_when(
-          substr(input$LoSSlider1, 7, 7) == 1 ~ "03-31-",
-          substr(input$LoSSlider1, 7, 7) == 2 ~ "06-30",
-          substr(input$LoSSlider1, 7, 7) == 3 ~ "09-30-",
-          substr(input$LoSSlider1, 7, 7) == 4 ~ "12-31-"
-        ),
-        substr(input$LoSSlider1, 1, 4)
-      )), "%m-%d-%Y")
+      ReportStart <- format.Date(input$LoSDateRange[1], "%m-%d-%Y")
+      ReportEnd <- format.Date(input$LoSDateRange[2], "%m-%d-%Y")
       
       LoSDetail <- qpr_leavers %>%
         filter(((

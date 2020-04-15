@@ -546,14 +546,14 @@ dashboardPage(
               options = list(`live-search` = TRUE),
               width = "70%"
             ),
-            chooseSliderSkin("Round"),
-            setSliderColor("#56B4E9", c(1, 2)),
-            sliderTextInput("LoSSlider1",
-                            "",
-                            c(
-                              unique(Sys.yearqtr() - 6 / 4:Sys.yearqtr() + 1 / 4)
-                            ),
-                            selected = Sys.yearqtr() - 1 / 4),
+            dateRangeInput(
+              "LoSDateRange",
+              "Date Range",
+              start = floor_date(today() - months(1), "year"),
+              end = today(),
+              min = FileStart,
+              format = "mm-dd-yyyy"
+            ),
             width = 12
           )
         ),
