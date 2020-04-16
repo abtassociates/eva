@@ -498,7 +498,7 @@ dashboardPage(
               start = floor_date(today() - months(1), "year"),
               end = today(),
               min = FileStart,
-              format = "mm-dd-yyyy"
+              format = "mm/dd/yyyy"
             )
           )
         ),
@@ -526,7 +526,7 @@ dashboardPage(
               start = floor_date(today() - months(1), "year"),
               end = today(),
               min = FileStart,
-              format = "mm-dd-yyyy"
+              format = "mm/dd/yyyy"
             )
           )
         ),
@@ -552,7 +552,7 @@ dashboardPage(
               start = floor_date(today() - months(1), "year"),
               end = today(),
               min = FileStart,
-              format = "mm-dd-yyyy"
+              format = "mm/dd/yyyy"
             )
           )
         ),
@@ -578,7 +578,7 @@ dashboardPage(
               start = floor_date(today() - months(1), "year"),
               end = today(),
               min = FileStart,
-              format = "mm-dd-yyyy"
+              format = "mm/dd/yyyy"
             )
           )
         ),
@@ -610,7 +610,7 @@ dashboardPage(
               start = floor_date(today() - months(1), "year"),
               end = today(),
               min = FileStart,
-              format = "mm-dd-yyyy"
+              format = "mm/dd/yyyy"
             )
           )
         ),
@@ -638,7 +638,7 @@ dashboardPage(
               start = floor_date(today() - months(1), "year"),
               end = today(),
               min = FileStart,
-              format = "mm-dd-yyyy"
+              format = "mm/dd/yyyy"
             )
           )
         ),
@@ -667,7 +667,7 @@ dashboardPage(
               start = floor_date(today() - months(1), "year"),
               end = today(),
               min = FileStart,
-              format = "mm-dd-yyyy"
+              format = "mm/dd/yyyy"
             )
           )
         ),
@@ -698,7 +698,7 @@ dashboardPage(
               start = floor_date(today() - months(1), "year"),
               end = today(),
               min = FileStart,
-              format = "mm-dd-yyyy"
+              format = "mm/dd/yyyy"
             )
           )
         ),
@@ -730,7 +730,7 @@ dashboardPage(
               start = floor_date(today() - months(1), "year"),
               end = today(),
               min = FileStart,
-              format = "mm-dd-yyyy"
+              format = "mm/dd/yyyy"
             )
           )
         ),
