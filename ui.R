@@ -136,6 +136,16 @@ dashboardPage(
           fluidRow(box(htmlOutput(
             "headerUtilization"
           ), width = 12)),
+          fluidRow(
+            box(
+              title = "NOTICE",
+              status = "warning",
+              solidHeader = TRUE,
+              "During this time, congregate facilities should be aiming to deconcentrate. If this causes fluctuations in Utilization, that is okay. Please continue to keep your clients safe."
+              ,
+              width = 6
+            )
+          ), 
           fluidRow(box(
             pickerInput(
               label = "Select Provider",
@@ -158,18 +168,18 @@ dashboardPage(
               autoClose = TRUE,
               width = '50%'
             ),
-            width = '100%'
+            width = 12
           )),
           fluidRow(
             box(
               infoBoxOutput("utilizationSummary0", width = '100%'),
               infoBoxOutput("utilizationSummary1", width = '100%'),
               infoBoxOutput("utilizationSummary2", width = '100%'),
-              width = '100%'
+              width = 12
             )
           ),
           fluidRow(box(
-            DT::dataTableOutput("utilizationDetail"), width = '100%'
+            DT::dataTableOutput("utilizationDetail"), width = 12
           ))
         )
       ),
