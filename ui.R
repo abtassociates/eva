@@ -29,7 +29,7 @@ dashboardPage(
       menuItem(
         "Data Quality",
         menuSubItem("Provider-level", tabName = "dqTab"),
-        menuSubItem("Data Entry Delay", tabName = "deskTime"),
+        menuSubItem("Data Entry Timeliness", tabName = "deskTime"),
         menuSubItem("Unsheltered", tabName = "unsheltered"),
         menuSubItem("Region-level", tabName = "dqRegion"),
         menuSubItem("CoC-wide", tabName = "dqCoC"),

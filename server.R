@@ -79,7 +79,7 @@ function(input, output, session) {
   })
   
   output$headerDeskTime <- renderUI({
-    list(h2("Data Entry Delay"),
+    list(h2("Data Entry Timeliness"),
          h4(input$providersDeskTime),
          h4(paste("Fixed Date Range:",
                   format(today() - years(1), "%m-%d-%Y"),
