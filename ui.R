@@ -100,9 +100,7 @@ dashboardPage(
                     inputId = "prioritizationCounty",
                     multiple = TRUE,
                     choices = regions %>% arrange(County) %>% pull(County),
-                    options = list('live-search' = TRUE),
-                    selected = regions %>% arrange(County) %>% pull(County) %>%
-                      sample(1)
+                    options = list('live-search' = TRUE)
                   ),
                   downloadButton("downloadActiveList", "Download")
                 ),
@@ -248,13 +246,14 @@ dashboardPage(
               )),
               fluidRow(box(plotOutput(
                 "DeskTimePlotDetail"
-              ))),
-              box(
+              ), width = 12)),
+              fluidRow(box(
                 uiOutput("deskTimeNote"),
                 title = "More Information",
                 collapsible = TRUE,
-                collapsed = TRUE
-              )), 
+                collapsed = TRUE,
+                width = 12
+              ))), 
       tabItem(
         tabName = "dqRegion",
         fluidRow(box(htmlOutput(
