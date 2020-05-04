@@ -99,7 +99,9 @@ dashboardPage(
                     label = "Select County/-ies",
                     inputId = "prioritizationCounty",
                     multiple = TRUE,
-                    choices = regions %>% arrange(County) %>% pull(County),
+                    choices = regions %>% 
+                      filter(County != "Mahoning") %>%
+                      arrange(County) %>% pull(County),
                     options = list('live-search' = TRUE)
                   ),
                   downloadButton("downloadActiveList", "Download")
@@ -262,7 +264,7 @@ dashboardPage(
         fluidRow(box(
           pickerInput(
             inputId = "regionList3",
-            choices = c(unique(regions$RegionName)),
+            choices = c(unique(regions$RegionName[regions$County != "Mahoning"])),
             options = list(`live-search` = TRUE),
             width = "70%"
           ),
@@ -497,7 +499,7 @@ dashboardPage(
           box(
             pickerInput(
               inputId = "regionList1",
-              choices = c(unique(regions$RegionName)),
+              choices = c(unique(regions$RegionName[regions$County != "Mahoning"])),
               options = list(`live-search` = TRUE),
               width = "70%"
             ),
@@ -525,7 +527,7 @@ dashboardPage(
           box(
             pickerInput(
               inputId = "regionList2",
-              choices = c(unique(regions$RegionName)),
+              choices = c(unique(regions$RegionName[regions$County != "Mahoning"])),
               options = list(`live-search` = TRUE),
               width = "70%"
             ),
