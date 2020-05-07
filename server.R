@@ -474,6 +474,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Current Situation (Entry, Referral, Perm Housing Track)" = Situation,
         "Veteran" = VeteranStatus,
         "Fleeing DV" = CurrentlyFleeing,
+        "COVID-19: Priority for Immediate Non-congregate Housing" = COVID19Priority,
         "Transition Aged Youth" = TAY,
         "Chronic Status" = ChronicStatus,
         "Eligible for PSH (Disability in Household)" = DisabilityInHH,
@@ -490,7 +491,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter = 'top',
       options = list(dom = 'ltpi',
                      columnDefs = list(list(
-                       visible = FALSE, targets = c(13:14)
+                       visible = FALSE, targets = c(14:15)
                      )))
     ) %>%
       formatStyle(columns = 'Client ID',
