@@ -1222,7 +1222,58 @@ output$DeskTimePlotCoC <- renderPlot({
              "Clients with Overlapping Entry Exits" = Clients)
     datatable(a,
               rownames = FALSE)
+  })
+  
+  output$cocUnshelteredEntriesByMonth <- renderPlotly({
+    ReportStart <-  format.Date(input$unshEntriesByMonth_ReportStart, "%m-%d-%Y")
+    ReportEnd <-  format.Date(update_date, "%m-%d-%Y")
     
+    monthyears <- unsheltered_by_month %>%
+      arrange(EntryDate) %>%
+      pull(EntryDateDisplay) %>%
+      unique()   
+    
+    unsheltered_by_month <- unsheltered_by_month %>%
+      filter(entered_between(., ReportStart, ReportEnd),
+             County %in% c(input$unshEntriesByMonth_County)) %>%
+      select(HouseholdID, EntryDateDisplay, County) %>%
+      group_by(EntryDateDisplay, County) %>%
+      summarise(Entries = n()) %>%
+      ungroup() %>%
+      mutate(
+        Entries = as.numeric(Entries),
+        EntryDateDisplay = factor(EntryDateDisplay, levels = c(monthyears)),
+        County = factor(County)
+      ) %>%
+      pivot_wider(names_from = County, values_from = Entries)
+    
+    unsheltered_by_month[is.na(unsheltered_by_month)] <- 0
+    
+    unsheltered_by_month <- unsheltered_by_month %>%
+      pivot_longer(cols = !all_of("EntryDateDisplay"), 
+                   names_to = "County", 
+                   values_to = "Entries") %>%
+      mutate(hover = paste(County, 
+                           "County:\n", 
+                           Entries,
+                           "clients entered during",
+                           EntryDateDisplay))
+    
+    plot_ly(unsheltered_by_month %>% 
+              arrange(EntryDateDisplay, County) %>%
+              group_by(County), 
+            x = ~EntryDateDisplay, 
+            y = ~Entries, 
+            type = 'scatter', 
+            mode = 'lines', 
+            text = ~hover,
+            hoverinfo = 'text',
+            color = ~County,
+            colors = colorRampPalette(c("black",
+                                        "purple",
+                                        "blue",
+                                        "green"))(80)
+    )
   })
   
   output$cocLongStayers <- DT::renderDataTable({
@@ -1272,9 +1323,10 @@ output$DeskTimePlotCoC <- renderPlot({
   output$cocUnshelteredHigh <- renderPlot(dq_plot_unsheltered_high)
   
   output$cocAPsNoReferrals <- renderPlot({
+    
     ggplot(data_APs, aes(fill = category, x = providertype, y = percent)) +
       geom_bar(position = "fill",
-               stat = "identity",
+                stat = "identity",
                width = .1) +
       geom_label(
         aes(label = paste(

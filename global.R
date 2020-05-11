@@ -13,15 +13,16 @@
 # <https://www.gnu.org/licenses/>.
 
 library(tidyverse)
+library(shinydashboard)
 library(shiny)
-library(DT)
 library(shinyWidgets)
 library(lubridate)
-library(shinydashboard)
 library(scales)
+library(plotly)
 library(zoo)
-library(viridis)
+library(DT)
 library(writexl)
+library(viridis)
 
 load("data/Utilization.RData")
 

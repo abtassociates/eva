@@ -414,7 +414,6 @@ dashboardPage(
         )
       ),
       tabItem(tabName = "ceCoC",
-              fluidPage(
                 box(
                   plotOutput("cocAPsNoReferrals"),
                   width = 6,
@@ -438,6 +437,49 @@ dashboardPage(
                   solidHeader = TRUE,
                   status = "warning",
                   title = "Top 20 Providers with Old Outstanding Referrals"
+                ),
+                fluidRow(box(
+                  pickerInput(
+                    inputId = "unshEntriesByMonth_County",
+                    label = "Select County/-ies",
+                    choices = sort(unsheltered_by_month$County) %>%
+                      unique(),
+                    selected = c("Lake", 
+                                 "Ashtabula", 
+                                 "Trumbull", 
+                                 "Geauga", 
+                                 "Portage"),
+                    multiple = TRUE,
+                    options = pickerOptions(
+                      liveSearch = TRUE,
+                      actionsBox = TRUE
+                      ),
+                    width = "100%"
+                  ),
+                  airDatepickerInput(
+                    inputId = "unshEntriesByMonth_ReportStart",
+                    label = "Report Start Month",
+                    dateFormat = "MM yyyy",
+                    max =
+                      ymd(floor_date(update_date, unit = "month") - days(1)),
+                    min =
+                      ymd(floor_date(FileActualStart, unit = "month")),
+                    view = "month",
+                    value =
+                      ymd(floor_date(update_date - months(6), unit = "month")),
+                    minView = "months",
+                    addon = "none",
+                    autoClose = TRUE,                    
+                    width = "25%"
+                  ),
+                  plotlyOutput("cocUnshelteredEntriesByMonth"),
+                  width = 12,
+                  title = "Unsheltered Entries by Month",
+                  footer = "Where the CountyServed data was not answered, /n
+                  the County where the user who created the project stay was /n
+                  substituted.",
+                  status = "info",
+                  solidHeader = TRUE
                 )
               )),
       tabItem(tabName = "cocCompetitionTab",
