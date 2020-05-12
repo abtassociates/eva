@@ -1273,7 +1273,8 @@ output$DeskTimePlotCoC <- renderPlot({
                                         "purple",
                                         "blue",
                                         "green"))(80)
-    )
+    ) %>%
+      layout(xaxis = list(title = "Month/Year"))
   })
   
   output$cocLongStayers <- DT::renderDataTable({

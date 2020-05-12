@@ -475,8 +475,8 @@ dashboardPage(
                   plotlyOutput("cocUnshelteredEntriesByMonth"),
                   width = 12,
                   title = "Unsheltered Entries by Month",
-                  footer = "Where the CountyServed data was not answered, /n
-                  the County where the user who created the project stay was /n
+                  footer = "Where the CountyServed data was not answered, the 
+                  County where the user who created the project stay is based was 
                   substituted.",
                   status = "info",
                   solidHeader = TRUE
