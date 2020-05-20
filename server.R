@@ -56,15 +56,18 @@ function(input, output, session) {
   
   output$headerCoCCompetitionProjectLevel <- renderUI({
     list(
-      h2("2020 CoC Competition: Project Evaluation"),
-      a("CoC Competition Specifications and Timeline",
-        href = "https://cohhio.org/boscoc/coc-program/"), 
+      h2("2020 CoC Competition: Project Evaluation"), 
+      h4("Fixed Date Range: January 1, 2019 - December 31, 2019"),
+      h4(input$pe_provider),
+      hr(),
       h5(strong("Next Due Date:"),
          format(ymd(next_thing_due$DueDate), "%A %b %e, %Y"),
          "| ",
-         next_thing_due$Event),
-      h4("Fixed Date Range: January 2019 - December 2019"),
-      h4(input$pe_provider)
+         next_thing_due$Event),      
+      p("Please consult the", 
+            a("CoC Competition Specifications and Timeline",
+        href = "https://cohhio.org/boscoc/coc-program/"), 
+        "for complete specifications and timeline.")
     )
   })
   
