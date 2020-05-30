@@ -2548,13 +2548,13 @@ output$DeskTimePlotCoC <- renderPlot({
         left_join(d, by = "Measure") %>%
         mutate(
           DQ = case_when(
+            DQflag == 0 ~ "Data Quality passes",
             DQflag == 1 ~ "Please correct your Data Quality issues so this item
             can be scored",
-            DQflag == 0 ~ "Data Quality passes",
-            DQflag == 2 ~ "Documents not yet received",
-            DQflag == 3 ~ "Docs received, not yet scored",
-            DQflag == 4 ~ "CoC Error",
-            DQflag == 5 ~ "Docs received past the due date"
+            DQflag == 2 ~ "", # "Documents not yet received",
+            DQflag == 3 ~ "", # "Docs received, not yet scored",
+            DQflag == 4 ~ "", # "CoC Error",
+            DQflag == 5 ~ "" # "Docs received past the due date"
           )
         ) %>%
         filter(!Measure %in% c("Moved into Own Housing",
@@ -2567,13 +2567,13 @@ output$DeskTimePlotCoC <- renderPlot({
         left_join(d, by = "Measure") %>%
         mutate(
           DQ = case_when(
+            DQflag == 0 ~ "Data Quality passes",
             DQflag == 1 ~ "Please correct your Data Quality issues so this item
             can be scored",
-            DQflag == 0 ~ "Data Quality passes",
-            DQflag == 2 ~ "Documents not yet received",
-            DQflag == 3 ~ "Docs received, not yet scored",
-            DQflag == 4 ~ "CoC Error",
-            DQflag == 5 ~ "Docs received past the due date"
+            DQflag == 2 ~ "", # "Documents not yet received",
+            DQflag == 3 ~ "", # "Docs received, not yet scored",
+            DQflag == 4 ~ "", # "CoC Error",
+            DQflag == 5 ~ "" # "Docs received past the due date"
           )
         ) %>%
         filter(!Measure %in%
@@ -2590,10 +2590,10 @@ output$DeskTimePlotCoC <- renderPlot({
             DQflag == 1 ~ "Please correct your Data Quality issues so this item
             can be scored",
             DQflag == 0 ~ "Data Quality passes",
-            DQflag == 2 ~ "Documents not yet received",
-            DQflag == 3 ~ "Docs received, not yet scored",
-            DQflag == 4 ~ "CoC Error",
-            DQflag == 5 ~ "Docs received past the due date"
+            DQflag == 2 ~ "", # "Documents not yet received",
+            DQflag == 3 ~ "", # "Docs received, not yet scored",
+            DQflag == 4 ~ "", # "CoC Error",
+            DQflag == 5 ~ "" # "Docs received past the due date"
           )
         ) %>%
         filter(!Measure %in% c(
@@ -2608,13 +2608,13 @@ output$DeskTimePlotCoC <- renderPlot({
         left_join(d, by = "Measure") %>%
         mutate(
           DQ = case_when(
+            DQflag == 0 ~ "Data Quality passes",
             DQflag == 1 ~ "Please correct your Data Quality issues so this item
             can be scored",
-            DQflag == 0 ~ "Data Quality passes",
-            DQflag == 2 ~ "Documents not yet received",
-            DQflag == 3 ~ "Docs received, not yet scored",
-            DQflag == 4 ~ "CoC Error",
-            DQflag == 5 ~ "Docs received past the due date"
+            DQflag == 2 ~ "", # "Documents not yet received",
+            DQflag == 3 ~ "", # "Docs received, not yet scored",
+            DQflag == 4 ~ "", # "CoC Error",
+            DQflag == 5 ~ "" # "Docs received past the due date"
           )
         ) %>%
         filter(!Measure %in% c(
