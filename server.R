@@ -494,18 +494,22 @@ output$DeskTimePlotCoC <- renderPlot({
       filter = 'top',
       options = list(dom = 'ltpi',
                      columnDefs = list(list(
-                       # visible = FALSE, targets = c(13:14)
-                       visible = FALSE, targets = c(14:15)
+                       visible = FALSE, 
+                       targets = c(14:15)
                      )))
     ) %>%
-      formatStyle(columns = 'Client ID',
-                  valueColumns = 13,
-                  backgroundColor = styleEqual(c(1), 
-                                               c("#7d7d8d"))) %>%
-      formatStyle(columns = 'County',
-                  valueColumns = 14,
-                  backgroundColor = styleEqual(c(1),
-                                               c("#7d7d8d")))
+      formatStyle(
+        columns = 1, # HoH Client ID indices
+        valueColumns = 15, # HH_DQ_issue indices
+        backgroundColor = styleEqual(c(1),
+                                     c("#7d7d8d"))
+      ) %>%
+      formatStyle(
+        columns = 4, # County
+        valueColumns = 16, # CountyGuessed indices
+        backgroundColor = styleEqual(c(1),
+                                     c("#7d7d8d"))
+      )
     
   })
   
