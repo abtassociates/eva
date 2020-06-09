@@ -1532,6 +1532,63 @@ output$DeskTimePlotCoC <- renderPlot({
     }
   })
   
+  output$unshIncorrectEETypeTable <- renderTable({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    EEType <- dq_unsheltered %>%
+      filter(
+        Issue == "Incorrect Entry Exit Type" &
+          DefaultProvider == input$unshDefaultProvidersList &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate
+      )
+    EEType
+  }) 
+  
+  output$unshIncorrectEEType <- renderUI({
+    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    EEType <- dq_unsheltered %>%
+      filter(
+        Issue == "Incorrect Entry Exit Type" &
+          DefaultProvider == input$unshDefaultProvidersList &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y"),
+        ExitDate = format(ExitDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate
+      )
+    if (nrow(EEType) > 0) {
+      box(
+        id = "unshEEType",
+        title = "Incorrect Entry Exit Type",
+        status = "danger",
+        solidHeader = TRUE,
+        HTML(
+          "All households entered into the Unsheltered provider should have
+          an Entry Exit Type of \"Standard\""
+        ),
+        tableOutput("unshIncorrectEETypeTable")
+      )
+    }
+    else {
+      
+    }
+  })
+  
   output$unshDuplicateEEsTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
@@ -1795,7 +1852,8 @@ output$DeskTimePlotCoC <- renderPlot({
           "Missing County Served",
           "Missing County of Prior Residence",
           "Duplicate Entry Exits",
-          "Wrong Provider (Not Unsheltered)"
+          "Wrong Provider (Not Unsheltered)",
+          "Incorrect Entry Exit Type"
         ) &
           served_between(., ReportStart, ReportEnd) &
           DefaultProvider == input$unshDefaultProvidersList &

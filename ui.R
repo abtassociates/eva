@@ -309,6 +309,7 @@ dashboardPage(
           width = 12
         )),
         fluidRow(
+          uiOutput("unshIncorrectEEType"),
           uiOutput("unshIncorrectResPrior"),
           uiOutput("unshMissingCounty"),
           uiOutput("unshOverlaps"),
