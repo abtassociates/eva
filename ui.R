@@ -210,6 +210,7 @@ dashboardPage(
         fluidRow(uiOutput("DQ_APs_w_EEs")),
         fluidRow(uiOutput("DQAPsNoReferrals")),
         fluidRow(uiOutput("DQDuplicateEEs"),
+                 # uiOutput("DQIncorrectEEType"),
                  uiOutput("DQHHIssues"),
                  uiOutput("DQMissingLocation"),
                  uiOutput("DQPATHMissingContact")),

@@ -1405,6 +1405,58 @@ output$DeskTimePlotCoC <- renderPlot({
     }
   })
   
+  output$DQIncorrectEETypeTable <- renderTable({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    EEType <- dq_main %>%
+      filter(
+        Issue == "Incorrect Entry Exit Type" &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      mutate(
+        PersonalID = format(PersonalID, digits = NULL),
+        EntryDate = format(EntryDate, "%m-%d-%Y")
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate
+      )
+    EEType
+  }) 
+  
+  output$DQIncorrectEEType <- renderUI({
+    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    EEType <- dq_main %>%
+      filter(
+        Issue == "Incorrect Entry Exit Type" &
+          ProjectName == input$providerListDQ &
+          served_between(., ReportStart, ReportEnd)
+      ) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Entry Date" = EntryDate,
+        "Exit Date" = ExitDate
+      )
+    if (nrow(EEType) > 0) {
+      box(
+        id = "DQEEType",
+        title = "Incorrect Entry Exit Type",
+        status = "danger",
+        solidHeader = TRUE,
+        HTML(
+          "If you are not sure which Entry Exit Type you should be using for 
+          your provider, please contact the HMIS team."
+        ),
+        tableOutput("DQIncorrectEETypeTable")
+      )
+    }
+    else {
+      
+    }
+  })
+  
   output$DQErrors <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
