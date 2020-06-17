@@ -823,14 +823,14 @@ output$DeskTimePlotCoC <- renderPlot({
     a <- dq_main %>%
       filter(ProjectRegion == input$regionList3 &
                served_between(., ReportStart, ReportEnd)) %>%
-      select(ProjectName, Type, Issue)
+      select(ProjectName, Type, Issue, PersonalID)
     
     b <- dq_unsheltered %>%
       filter(UserRegion == input$regionList3 &
                served_between(., ReportStart, ReportEnd)) %>%
       mutate(ProjectName = paste("Unsheltered Provider, entered by a user from", 
                                  DefaultProvider))%>%
-      select(ProjectName, Type, Issue)
+      select(ProjectName, Type, Issue, PersonalID)
     
     c <- rbind(a, b) %>%
       group_by(ProjectName, Type, Issue) %>%
