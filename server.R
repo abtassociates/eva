@@ -55,9 +55,31 @@ function(input, output, session) {
   })
   
   output$headerCoCCompetitionProjectLevel <- renderUI({
+    
+    next_thing_due <- tribble(
+      ~ DueDate, ~ Event,
+      "6/12/2020", "All HMIS Data in the Project Evaluation report corrected and finalized",
+      "6/19/2020", "COHHIO takes final snapshot of Project Evaluation data for final scoring",
+      "6/26/2020", "COHHIO releases preliminary CoC project ranking (renewals only)",
+      "7/8/2020", "Recipients submit appeals of project evaluation results and ranking to ohioboscoc@cohhio.org.",
+      "7/24/2020", "Ohio BoSCoC Steering Committee will communicate decisions about all received appeals",
+      "7/31/2020", "Final CoC project ranking released"
+    ) %>%
+      mutate(
+        DueDate = mdy(DueDate),
+        ShowStart = lag(ymd(DueDate), n = 1L, order_by = DueDate),
+        ShowStart = if_else(is.na(ShowStart), today(), ShowStart + days(1)),
+        ShowEnd = ymd(DueDate),
+        DateRange = interval(ShowStart, ShowEnd)
+      ) %>%
+      filter(today() %within% DateRange) %>%
+      select(Event, DueDate)
+    
     list(
       h2("2020 CoC Competition: Project Evaluation"), 
       h4("Fixed Date Range: January 1, 2019 - December 31, 2019"),
+      h4(strong("THE DATA ON THIS TAB DOES NOT SHOW CHANGES MADE AFTER 
+                JUNE 19, 2020.")),
       h4(input$pe_provider),
       hr(),
       h5(strong("Next Due Date:"),
