@@ -2694,7 +2694,8 @@ output$DeskTimePlotCoC <- renderPlot({
           )
         ) %>%
         filter(!Measure %in% c("Moved into Own Housing",
-                               "Average Length of Stay")) %>%
+                               "Average Length of Stay"),
+               Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       rrh <- a %>% left_join(b, by = "Measure") %>%
@@ -2714,7 +2715,8 @@ output$DeskTimePlotCoC <- renderPlot({
         ) %>%
         filter(!Measure %in%
                  c("Long Term Homeless",
-                   "Prioritization of Chronic")) %>%
+                   "Prioritization of Chronic"),
+               Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       th <- a %>% left_join(b, by = "Measure") %>%
@@ -2735,7 +2737,8 @@ output$DeskTimePlotCoC <- renderPlot({
         filter(!Measure %in% c(
           "Long Term Homeless",
           "Prioritization of Chronic"
-        )) %>%
+        ),
+        Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       sh <- a %>% left_join(b, by = "Measure") %>%
@@ -2757,7 +2760,8 @@ output$DeskTimePlotCoC <- renderPlot({
           "Long Term Homeless",
           "VISPDAT Completion at Entry",
           "Prioritization of Chronic"
-        )) %>%
+        ),
+        Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       datatable(
