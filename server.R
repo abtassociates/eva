@@ -2779,8 +2779,6 @@ output$DeskTimePlotCoC <- renderPlot({
                        pageLength = 100)
       )
     })
-      
-    
   
   output$pe_ExitsToPH <- DT::renderDataTable({
     a <- pe_exits_to_ph %>%
@@ -2846,6 +2844,7 @@ output$DeskTimePlotCoC <- renderPlot({
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
+        "Move-In Date" = MoveInDateAdjust,
         "Exit Date" = ExitDate,
         "Non-Cash Benefits at Exit" = BenefitsFromAnySource,
         "Health Insurance at Exit" = InsuranceFromAnySource,
@@ -2871,6 +2870,7 @@ output$DeskTimePlotCoC <- renderPlot({
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
+        "Move-In Date" = MoveInDateAdjust,
         "Exit Date" = ExitDate,
         "Income at Entry" = IncomeAtEntry,
         "Most Recent Income" = IncomeMostRecent,
@@ -2946,7 +2946,7 @@ output$DeskTimePlotCoC <- renderPlot({
       select(
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate,
-        "Move In Date" = MoveInDateAdjust,
+        "Move-In Date" = MoveInDateAdjust,
         "Exit Date" = ExitDate,
         "Days in Project" = DaysInProject
       )    
