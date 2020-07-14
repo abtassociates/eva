@@ -58,12 +58,11 @@ function(input, output, session) {
     
     next_thing_due <- tribble(
       ~ DueDate, ~ Event,
-      "7/15/2020", "Last day HMIS data corrections will affect scoring/ranking",
-      "7/16/2020", "COHHIO takes final snapshot of Project Evaluation data for final scoring",
-      "7/17/2020", "COHHIO releases preliminary CoC project ranking (renewals only)",
-      "8/8/2020", "Recipients submit appeals of project evaluation results and ranking to ohioboscoc@cohhio.org.",
-      "8/24/2020", "Ohio BoSCoC Steering Committee will communicate decisions about all received appeals",
-      "8/31/2020", "Final CoC project ranking released"
+      "7/20/2020", "All HMIS data corrections must be complete by 11:59pm",
+      "7/21/2020", "COHHIO releases preliminary CoC project ranking (renewals only)",
+      "7/31/2020", "Recipients submit appeals of project evaluation results and ranking to ohioboscoc@cohhio.org.",
+      "8/7/2020", "Ohio BoSCoC Steering Committee will communicate decisions about all received appeals",
+      "8/12/2020", "Final CoC project ranking released"
     ) %>%
       mutate(
         DueDate = mdy(DueDate),
@@ -79,13 +78,13 @@ function(input, output, session) {
       h2("2020 CoC Competition: Project Evaluation"), 
       h4("Fixed Date Range: January 1, 2019 - December 31, 2019"),
       # h4(strong("THE DATA ON THIS TAB DOES NOT SHOW CHANGES MADE AFTER 
-      #           JUNE 19, 2020.")),
+      #           JULY 20, 2020.")),
       h4(input$pe_provider),
       hr(),
       h5(strong("Next Due Date:"),
          format(ymd(next_thing_due$DueDate), "%A %b %e, %Y"),
          "| ",
-         next_thing_due$Event),      
+         next_thing_due$Event),
       p("Please consult the", 
             a("CoC Competition Specifications and Timeline",
         href = "https://cohhio.org/boscoc/coc-program/"), 
