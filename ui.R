@@ -68,7 +68,7 @@ dashboardPage(
         "<br>&emsp;Data last refreshed:&emsp;<br>&emsp;",
         format(update_date, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")
         ,
-        "<p><p>&emsp;Wash your hands!"
+        "<p><p>&emsp;Wear your mask! Be well."
       )
     ),
     br(),
