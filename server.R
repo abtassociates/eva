@@ -1464,7 +1464,7 @@ output$DeskTimePlotCoC <- renderPlot({
       box(
         id = "DQEEType",
         title = "Incorrect Entry Exit Type",
-        status = "danger",
+        status = "warning",
         solidHeader = TRUE,
         HTML(
           "If you are not sure which Entry Exit Type you should be using for 
