@@ -273,7 +273,10 @@ output$DeskTimePlotDetail <- renderPlot({
                              desk_time_medians %>%
                                filter(ProjectName == provider) %>%
                                pull(MedianDeskTime),
-                             "days")) +
+                             "days | Total Clients:",
+                             desk_time %>%
+                               filter(ProjectName == provider) %>% 
+                               nrow())) +
     geom_label(x = today() - days(300),
                y = 5,
                label = "DQ Standards (5 days or less)") +
