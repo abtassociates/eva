@@ -231,7 +231,13 @@ dashboardPage(
           )
         )
         ,
-        fluidRow(uiOutput("dq_provider_summary_box"))
+        fluidRow(box(
+          id = "DQSummaryProvider",
+          DT::dataTableOutput("dq_provider_summary_table"),
+          title = "Data Quality Guidance",
+          width = 12,
+          status = "info",
+          solidHeader = TRUE))
       ),
       tabItem(tabName = "deskTime",
               fluidRow(box(htmlOutput("headerDeskTime"),

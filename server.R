@@ -769,10 +769,10 @@ output$DeskTimePlotCoC <- renderPlot({
       )
     })
   
-  output$dq_provider_summary_table <- renderTable({
+  output$dq_provider_summary_table <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    dq_main %>%
+    guidance <- dq_main %>%
       filter(ProjectName == input$providerListDQ &
                served_between(., ReportStart, ReportEnd)) %>%
       group_by(Type, Issue, Guidance) %>%
@@ -783,27 +783,12 @@ output$DeskTimePlotCoC <- renderPlot({
                                             "Warning"))) %>%
       arrange(Type) %>%
       unique()
-  })
-  
-  output$dq_provider_summary_box <- renderUI({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    x <- dq_main %>%
-      filter(ProjectName == input$providerListDQ &
-               served_between(., ReportStart, ReportEnd))
-    if (nrow(x) > 0) {
-      box(
-        id = "DQSummaryProvider",
-        title = "Data Quality Guidance",
-        status = "info",
-        solidHeader = TRUE,
-        tableOutput("dq_provider_summary_table"),
-        width = 12
-      )
-    }
-    else {
 
-    }
+      datatable(guidance, 
+              rownames = FALSE,
+              escape = FALSE,
+              options = list(dom = 't',
+                             paging = FALSE))
   })
 
   output$dq_unsheltered_summary_table <- renderTable({
