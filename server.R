@@ -12,7 +12,6 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>. 
 
-
 function(input, output, session) {
   output$headerHome <- renderUI({
     box(
