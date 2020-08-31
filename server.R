@@ -220,7 +220,8 @@ output$DeskTimePlotDetail <- renderPlot({
   ReportEnd <- format.Date(ymd(today()), "%m-%d-%Y")
   
   desk_time <- validation %>%
-    filter(entered_between(., ReportStart, ReportEnd) &
+    filter(ProjectName == provider &
+             entered_between(., ReportStart, ReportEnd) &
              ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
     select(ProjectName, PersonalID, HouseholdID, EntryDate, DateCreated) %>%
     mutate(
@@ -243,13 +244,13 @@ output$DeskTimePlotDetail <- renderPlot({
   
   desk_time_medians <- desk_time %>%
     group_by(ProjectName) %>%
-    summarise(MedianDeskTime = median(DeskTime)) %>%
+    summarise(MedianDeskTime = median(DeskTime),
+              TotalEntered = n()) %>%
     ungroup()
   
   dq_plot_desk_time <-
     ggplot(
-      desk_time %>%
-        filter(ProjectName == provider),
+      desk_time,
       aes(x = ymd(EntryDate), y = DeskTime)
     ) +
     geom_point(aes(color = GoalMet, size = 8, alpha = .2),
@@ -258,24 +259,20 @@ output$DeskTimePlotDetail <- renderPlot({
     geom_hline(yintercept = 5, color = "forestgreen") +
     geom_hline(yintercept = 0, color = "forestgreen") +
     geom_hline(
-      data = desk_time_medians %>%
-        filter(ProjectName == provider),
+      data = desk_time_medians,
       aes(yintercept = MedianDeskTime),
       color = "black"
     ) +
     xlim(today() - years(1), today()) +
-    geom_label(x = today() - months(6),
+    geom_label(x = today() - days(180),
                y = desk_time_medians %>%
-                 filter(ProjectName == provider) %>%
                  pull(MedianDeskTime),
                label = paste("Median:", 
                              desk_time_medians %>%
-                               filter(ProjectName == provider) %>%
                                pull(MedianDeskTime),
                              "days | Total Clients:",
-                             desk_time %>%
-                               filter(ProjectName == provider) %>% 
-                               nrow())) +
+                             desk_time_medians %>%
+                               pull(TotalEntered))) +
     geom_label(x = today() - days(300),
                y = 5,
                label = "DQ Standards (5 days or less)") +
@@ -597,7 +594,7 @@ output$DeskTimePlotCoC <- renderPlot({
         format(floor_date(ymd(input$utilizationDate),
                           unit = "month"), "%m-%d-%Y")
       ReportEnd <-
-        format(floor_date(ymd(input$utilizationDate) + months(1),
+        format(floor_date(ymd(input$utilizationDate) + days(31),
                           unit = "month") - days(1),
                "%m-%d-%Y")
       
@@ -633,7 +630,7 @@ output$DeskTimePlotCoC <- renderPlot({
         format(floor_date(ymd(input$utilizationDate),
                           unit = "month"), "%m-%d-%Y")
       ReportEnd <-
-        format(floor_date(ymd(input$utilizationDate) + months(1),
+        format(floor_date(ymd(input$utilizationDate) + days(31),
                           unit = "month") - days(1),
                "%m-%d-%Y")
       
@@ -673,7 +670,7 @@ output$DeskTimePlotCoC <- renderPlot({
         format(floor_date(ymd(input$utilizationDate),
                           unit = "month"), "%m-%d-%Y")
       ReportEnd <-
-        format(floor_date(ymd(input$utilizationDate) + months(1),
+        format(floor_date(ymd(input$utilizationDate) + days(31),
                           unit = "month") - days(1),
                "%m-%d-%Y")
       
@@ -726,7 +723,7 @@ output$DeskTimePlotCoC <- renderPlot({
         format(floor_date(ymd(input$utilizationDate),
                           unit = "month"), "%m-%d-%Y")
       ReportEnd <-
-        format(floor_date(ymd(input$utilizationDate) + months(1),
+        format(floor_date(ymd(input$utilizationDate) + days(31),
                           unit = "month") - days(1),
                "%m-%d-%Y")
       
