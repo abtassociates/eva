@@ -474,7 +474,7 @@ dashboardPage(
                       ymd(floor_date(FileActualStart, unit = "month")),
                     view = "month",
                     value =
-                      ymd(floor_date(update_date - months(6), unit = "month")),
+                      ymd(floor_date(update_date - days(182), unit = "month")),
                     minView = "months",
                     addon = "none",
                     autoClose = TRUE,                    
@@ -556,7 +556,7 @@ dashboardPage(
             dateRangeInput(
               "spdatDateRange",
               "Date Range",
-              start = floor_date(today() - months(1), "year"),
+              start = floor_date(today() - days(31), "year"),
               end = today(),
               min = FileStart,
               format = "mm/dd/yyyy"
@@ -584,7 +584,7 @@ dashboardPage(
             dateRangeInput(
               "spdatDateRange2",
               "Date Range",
-              start = floor_date(today() - months(1), "year"),
+              start = floor_date(today() - days(31), "year"),
               end = today(),
               min = FileStart,
               format = "mm/dd/yyyy"
@@ -610,7 +610,7 @@ dashboardPage(
             dateRangeInput(
               "LoSDateRange",
               "Date Range",
-              start = floor_date(today() - months(1), "year"),
+              start = floor_date(today() - days(31), "year"),
               end = today(),
               min = FileStart,
               format = "mm/dd/yyyy"
@@ -636,7 +636,7 @@ dashboardPage(
             dateRangeInput(
               "ExitsToPHDateRange",
               "Date Range",
-              start = floor_date(today() - months(1), "year"),
+              start = floor_date(today() - days(31), "year"),
               end = today(),
               min = FileStart,
               format = "mm/dd/yyyy"
@@ -668,7 +668,7 @@ dashboardPage(
             dateRangeInput(
               "NCBDateRange",
               "Date Range",
-              start = floor_date(today() - months(1), "year"),
+              start = floor_date(today() - days(31), "year"),
               end = today(),
               min = FileStart,
               format = "mm/dd/yyyy"
@@ -696,7 +696,7 @@ dashboardPage(
             dateRangeInput(
               "HIDateRange",
               "Date Range",
-              start = floor_date(today() - months(1), "year"),
+              start = floor_date(today() - days(31), "year"),
               end = today(),
               min = FileStart,
               format = "mm/dd/yyyy"
@@ -725,7 +725,7 @@ dashboardPage(
             dateRangeInput(
               "IncomeDateRange",
               "Date Range",
-              start = floor_date(today() - months(1), "year"),
+              start = floor_date(today() - days(31), "year"),
               end = today(),
               min = FileStart,
               format = "mm/dd/yyyy"
@@ -756,7 +756,7 @@ dashboardPage(
             dateRangeInput(
               "DaysToHouseDateRange",
               "Date Range",
-              start = floor_date(today() - months(1), "year"),
+              start = floor_date(today() - days(31), "year"),
               end = today(),
               min = FileStart,
               format = "mm/dd/yyyy"
@@ -788,7 +788,7 @@ dashboardPage(
             dateRangeInput(
               "RRHSpendingDateRange",
               "Date Range",
-              start = floor_date(today() - months(1), "year"),
+              start = floor_date(today() - days(31), "year"),
               end = today(),
               min = FileStart,
               format = "mm/dd/yyyy"
