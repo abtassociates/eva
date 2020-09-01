@@ -1392,7 +1392,7 @@ output$DeskTimePlotCoC <- renderPlot({
       box(
         id = "eligibility",
         title = "Check Eligibility",
-        status = "warning",
+        status = "info",
         solidHeader = TRUE,
         width = 12,
         HTML(
