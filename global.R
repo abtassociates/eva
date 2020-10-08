@@ -23,6 +23,7 @@ library(zoo)
 library(DT)
 library(writexl)
 library(viridis)
+library(HMIS)
 
 load("data/Rminor_elevated.RData")
 
