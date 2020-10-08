@@ -516,7 +516,12 @@ output$DeskTimePlotCoC <- renderPlot({
                      columnDefs = list(list(
                        visible = FALSE, 
                        targets = c(14:15)
-                     )))
+                     )), 
+                     initComplete = JS(
+                       "function(settings, json) {",
+                       "$('th').css({'text-align': 'center'});",
+                       "$('td').css({'text-align': 'center'});",
+                       "}"))
     ) %>%
       formatStyle(
         columns = 1, # HoH Client ID indices
