@@ -24,18 +24,7 @@ library(DT)
 library(writexl)
 library(viridis)
 
-load("data/Utilization.RData")
-
-load("data/QPR_SPDATs.RData")
-
-load("data/QPR_EEs.RData")
-
-load("data/Data_Quality.RData")
-
-load("data/ProjectEvaluation.RData")
-
-load("data/Active_List.RData")
-
+load("data/Rminor_elevated.RData")
 
 qpr_leavers <- qpr_leavers %>% arrange(ProjectName)
 
