@@ -526,12 +526,16 @@ output$DeskTimePlotCoC <- renderPlot({
       formatStyle(
         columns = 1, # HoH Client ID indices
         valueColumns = 15, # HH_DQ_issue indices
+        color = styleEqual(c(1),
+                           c("white")),
         backgroundColor = styleEqual(c(1),
                                      c("#7d7d8d"))
       ) %>%
       formatStyle(
         columns = 4, # County
         valueColumns = 16, # CountyGuessed indices
+        color = styleEqual(c(1),
+                           c("white")),
         backgroundColor = styleEqual(c(1),
                                      c("#7d7d8d"))
       )
