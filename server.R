@@ -225,8 +225,8 @@ output$DeskTimePlotDetail <- renderPlot({
              ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
     select(ProjectName, PersonalID, HouseholdID, EntryDate, DateCreated) %>%
     mutate(
-      DeskTime = difftime(floor_date(ymd_hms(DateCreated), unit = "day"),
-                          ymd(EntryDate),
+      DeskTime = difftime(floor_date(DateCreated, unit = "day"),
+                          EntryDate,
                           units = "days"),
       DeskTime = as.integer(floor(DeskTime)),
       GoalMet = if_else(DeskTime > 5 |
@@ -294,8 +294,8 @@ output$DeskTimePlotCoC <- renderPlot({
              ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
     select(ProjectName, PersonalID, HouseholdID, EntryDate, DateCreated) %>%
     mutate(
-      DeskTime = difftime(floor_date(ymd_hms(DateCreated), unit = "day"),
-                          ymd(EntryDate),
+      DeskTime = difftime(floor_date(DateCreated, unit = "day"),
+                          EntryDate,
                           units = "days"),
       DeskTime = as.integer(floor(DeskTime))
     ) %>%
