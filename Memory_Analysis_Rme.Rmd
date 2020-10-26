@@ -1,0 +1,107 @@
+---
+title: "`r paste0('Objects in Memory ', basename(getwd()))`"
+output: 
+  html_document: 
+    self_contained: yes
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, messages = FALSE, warnings = FALSE)
+library(dplyr)
+```
+
+
+```{r RData and their objects}
+
+data_objects <- purrr::map(list.files("data", pattern = "R[dD]ata$", full.names = TRUE) %>% setNames(nm = .), ~{
+  e <- new.env()
+  load(.x, envir = e)
+  .out <- data.frame(objects = ls(envir = e, all.names = T), stringsAsFactors = F) %>% 
+  rowwise() %>% 
+  mutate(`size(MB)` = as.numeric(stringr::str_extract(format(object.size(get0(objects, envir = e)), units = "MB"), "[\\d\\.]+")))
+})
+```
+
+
+```{r 'Which Objects are unused in the app'}
+files <- c(server = "server", u = "ui", global = "global")
+files <- purrr::map(files, ~{
+  lines <- readr::read_lines(fs::path(.x, ext = "R"))
+})
+
+objects_used <- purrr::map(data_objects, ~{
+  .occurences <- purrr::map(setNames(.x$objects, .x$objects), ~{
+    .obj <- .x
+    .present <- purrr::map_chr(files, ~{
+      .line <- grep(.obj, .x, fixed = TRUE)
+      if (vctrs::vec_is_empty(.line)) {
+        .out <- paste0("0")
+      } else {
+        .out <- paste0(.line, collapse = ", ")
+      } 
+      .out
+    })
+  })
+  dplyr::bind_cols(.x, dplyr::bind_rows(.occurences))
+})
+objects_tables <- purrr::imap(objects_used, ~{
+  .rdata <- .y
+  .table <- .x
+  dplyr::mutate(.table, keep = dplyr::if_else(u == "0" & server == "0" & global == "0", FALSE, TRUE), .before = "server") %>% 
+    dplyr::arrange(desc(`size(MB)`))
+})
+```
+
+
+```{r 'Compute total savings'}
+.mem_rem <- sum(purrr::map_dbl(objects_tables, ~{sum(.x$`size(MB)`[!.x$keep])}))
+.mem_tot <- sum(purrr::map_dbl(objects_tables, ~{sum(.x$`size(MB)`)}))
+```
+
+
+## Total Possible Memory Savings
+Current memory usage: `r paste0(.mem_tot, "MB")`
+
+Number of simultaneous users that can currently be supported with 8GB of RAM: `r 8000 %/% .mem_tot`
+
+Amount of memory that can be removed: `r paste0(.mem_rem, "MB | ", round(.mem_rem/.mem_tot*100,3),"%")`
+
+Number of simultaneous users that will be supported with 8GB of RAM: `r 8000 %/% (.mem_tot - .mem_rem)`
+
+To recoup this memory, it is easiest to simply maintain an image at the bottom of `daily_update_00.R` with a list of all the objects necessary for each app to run. 
+The image necessary for `r basename(getwd())` to run is:
+
+```{r 'Image call' }
+.current_dir <- basename(getwd())
+.call <- unique(unlist(purrr::map(objects_tables, ~{.x$objects[.x$keep]}), use.names = FALSE))
+.call <- paste0(stringr::str_subset(.call, "^\\.", negate = T), collapse = ", ")
+suppressWarnings(.call$file <-  fs::path("..", .current_dir, "data", .current_dir, ext = "RData"))
+htmltools::tags$code(paste0("save(", .call[[1]],", compress = FALSE, file = '", .call$file,"')"))
+```
+
+See [COHHIO_HMIS#94](https://github.com/COHHIO/COHHIO_HMIS/issues/94) for details and discussion.
+
+# Tables
+The tables below provide the following information per RData image:
+
+ - objects: the name of the object in the file
+ - size(MB): the size of the object in MB
+ - keep: whether the object occurs anywhere in server,global or ui.R
+ - server,global,u: the line numbers in the respective file in which the object appears
+
+There is an accompanying call to `rm` that specifies the objects that can be safely removed after each script.
+
+```{r 'Display results'}
+do.call(htmltools::tagList, purrr::imap(objects_tables, ~{
+  .mem_tot <- sum(.x$`size(MB)`)
+  .mem_rem <- sum(.x$`size(MB)`[!.x$keep])
+  htmltools::tagList(
+    htmltools::tags$h5(.y),
+    htmltools::tags$p("Objects that can be removed: "),
+    htmltools::tags$p(paste0("rm(list = c(", paste0(paste0("'",.x$objects[!.x$keep],"'"), collapse = ","),"))")),
+    htmltools::tags$p(paste0("Total memory savings: ", sum(.x$`size(MB)`[!.x$keep])), "MB | ", round(.mem_rem / .mem_tot * 100, 3),"%"),
+    DT::datatable(.x)
+  )
+}))
+```
