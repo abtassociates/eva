@@ -251,7 +251,7 @@ output$DeskTimePlotDetail <- renderPlot({
   dq_plot_desk_time <-
     ggplot(
       desk_time,
-      aes(x = ymd(EntryDate), y = DeskTime)
+      aes(x = EntryDate, y = DeskTime)
     ) +
     geom_point(aes(color = GoalMet, size = 8, alpha = .2),
                show.legend = FALSE)+
