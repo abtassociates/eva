@@ -504,7 +504,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Household Size" = HouseholdSize,
         "Income" = IncomeFromAnySource,
         Score,
-        HH_DQ_issue,
+        HH_DQ_Issue,
         CountyGuessed
       )
     
