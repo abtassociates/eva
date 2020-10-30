@@ -25,6 +25,7 @@ library(writexl)
 library(viridis)
 library(HMIS)
 
+
 load("data/Rminor_elevated.RData")
 
 qpr_leavers <- qpr_leavers %>% arrange(ProjectName)
@@ -42,6 +43,13 @@ dtproviders <- sort(desk_time_providers$ProjectName) %>% unique()
 
 filebeginningdate <- update_date - years(2)
 
+tab_choices <- list(
+  spdat1 = list(
+    region_choices = c(unique(regions$RegionName[regions$County != "Mahoning"]))
+  )
+)
+
+R.utils::sourceDirectory("R")
 # HOW TO SET UP YOUR SYMBOLIC LINKS ON YOUR SYSTEM (Windows-specific)
 # command prompt As Administrator, then:
 # mklink "C:\Users\HMIS1\Documents\R\Rminor\data\Data_Quality.RData" "C:\Users\

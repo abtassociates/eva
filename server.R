@@ -160,20 +160,6 @@ function(input, output, session) {
     )
   })
   
-  output$headerCommunityNeedPH <- renderUI({
-    ReportStart <- format.Date(input$spdatDateRange[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$spdatDateRange[2], "%B %d, %Y")
-    
-    list(
-      h2("Community Need, Entered Permanent Housing"),
-      h4(input$regionList1),
-      h4(paste(
-        ReportStart,
-        "to",
-        ReportEnd
-      ))
-    )
-  })
   
   output$headerRegionDataQuality <- renderUI({
     list(h2("Regional Data Quality"),
@@ -1147,6 +1133,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQOverlappingEEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    # FIXME Repetition of filter/mutate (use eventReactive)
     OverlappingEEs <- dq_overlaps %>%
       filter(
         Issue == "Overlapping Project Stays" &
@@ -1972,62 +1959,8 @@ output$DeskTimePlotCoC <- renderPlot({
     
   })
   
-  output$SPDATScoresHoused <-
-    DT::renderDataTable({
-      ReportStart <- format.Date(input$spdatDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$spdatDateRange[2], "%m-%d-%Y")
-      
-      # counting all households who ENTERED either RRH or PSH between the report dates
-      CountyHousedAverageScores <- qpr_spdats_project %>%
-        filter(entered_between(qpr_spdats_project,
-                               ReportStart,
-                               ReportEnd)) %>%
-        left_join(., regions, by = c("CountyServed" = "County")) %>%
-        filter(RegionName == input$regionList1) %>%
-        mutate(PersonalID = as.character(PersonalID)) %>%
-        arrange(ScoreAdjusted) %>%
-        select(
-          "Client ID" = PersonalID,
-          Project = ProjectName,
-          "Entry Date" = EntryDate,
-          "County Served" = CountyServed,
-          "Score Date" = ScoreDate,
-          Score,
-          "Score Adjusted" = ScoreAdjusted
-        )
-      
-      datatable(
-        CountyHousedAverageScores,
-        rownames = FALSE,
-        filter = 'top',
-        options = list(dom = 'ltpi')
-      )
-      
-    })
+  mod_QPR_server("spdat1", "Community Need, Entered Permanent Housing")
   
-  output$ScoredHousedSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$spdatDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$spdatDateRange[2], "%m-%d-%Y")
-      
-      scores <- qpr_spdats_project %>%
-        filter(entered_between(qpr_spdats_project,
-                               ReportStart,
-                               ReportEnd)) %>%
-        left_join(., regions, by = c("CountyServed" = "County")) %>%
-        filter(RegionName == input$regionList1) %>%
-        group_by(RegionName) %>%
-        summarise(AvgScore = as.integer(mean(ScoreAdjusted)))
-      
-      infoBox(
-        title = "Average Score",
-        color = "purple",
-        icon = icon("parachute-box"),
-        value = scores$AvgScore,
-        subtitle = "Households who were Housed in RRH or PSH in the Selected Region"
-      )
-      
-    })
   
   output$SPDATScoresServedInCounty <-
     DT::renderDataTable({

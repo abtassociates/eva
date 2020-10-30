@@ -43,7 +43,7 @@ dashboardPage(
           "Community Need",
           tabName = "spdatTab",
           menuSubItem("PSH/RRH Detail",
-                      tabName = "spdatTab1"),
+                      tabName = "spdat1-Tab"),
           menuSubItem("County Detail",
                       tabName = "spdatTab2")
         ),
@@ -540,34 +540,7 @@ dashboardPage(
                          DT::dataTableOutput("pe_ScoredAtPHEntry")),
                 width = 12
               ))), 
-      tabItem(
-        tabName = "spdatTab1",
-        fluidRow(box(
-          htmlOutput("headerCommunityNeedPH"), width = 12
-        )),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "regionList1",
-              choices = c(unique(regions$RegionName[regions$County != "Mahoning"])),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "spdatDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("ScoredHousedSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("SPDATScoresHoused"), width = 12
-        ))
-      ),
+      mod_QPR_tabItem_ui("spdat1"),
       tabItem(
         tabName = "spdatTab2",
         fluidRow(box(
