@@ -350,7 +350,7 @@ dashboardPage(
             width = 12,
             solidHeader = TRUE,
             status = "danger",
-            title = "Providers with the Most Data Quality Errors"
+            title = "Providers with the Most High Priority Issues and Errors"
           ),
           box(
             plotOutput("cocHHErrors"),
