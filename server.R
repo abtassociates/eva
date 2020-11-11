@@ -1316,6 +1316,27 @@ output$DeskTimePlotCoC <- renderPlot({
     
   })
   
+  output$cocRRHDestination <- DT::renderDataTable({
+    ReportStart <- "10012018"
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    
+    a <- dq_main %>%
+      filter(served_between(., ReportStart, ReportEnd) &
+               Issue %in% c(
+               "Incorrect Exit Destination (should be \"Rental by client, with RRH...\")",
+               "Missing RRH Project Stay or Incorrect Destination")) %>%
+      group_by(ProjectName, Issue) %>%
+      summarise(Clients = n()) %>%
+      arrange(desc(Clients)) %>%
+      select("Project Name" = ProjectName,
+             Issue,
+             Clients)
+    
+    datatable(head(a, 20),
+              rownames = FALSE)
+    
+  })
+  
   output$cocWidespreadIssues <- DT::renderDataTable({
     a <- dq_past_year %>%
       select(Issue, ProjectName, Type) %>%

@@ -413,6 +413,10 @@ dashboardPage(
               title = "Extremely Long Stayers",
               solidHeader = TRUE,
               status = "warning"),
+          box(DT::dataTableOutput("cocRRHDestination"),
+              title = "Destinations & Rapid Rehousing",
+              solidHeader = TRUE,
+              status = "warning"),
           box(
             DT::dataTableOutput("cocWidespreadIssues"),
             title = "Widespread Issues (Training focus)",
