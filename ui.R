@@ -271,7 +271,7 @@ dashboardPage(
         fluidRow(box(
           pickerInput(
             inputId = "regionList3",
-            choices = c(unique(regions$RegionName[regions$County != "Mahoning"])),
+            choices = c(unique(regions$RegionName)),
             options = list(`live-search` = TRUE),
             width = "70%"
           ),
