@@ -18,16 +18,16 @@ function(input, output, session) {
       title = "Welcome",
       width = 12,
       HTML(
-        "<p>R minor elevated is intended for use by Ohio Balance of State HMIS
-        users. This site requires a login because client-level data is shown
-        (without Personally Identifying Information). Please use this
-        site to verify that your HMIS data is accurate and complete.
+        "<p>R minor elevated is intended for use by the Ohio Balance of State CoC
+        and the Mahoning County CoC HMIS users. This site requires a login 
+        because client-level data is shown (without Personally Identifying 
+        Information). Please use this site to verify that your HMIS data is 
+        accurate and complete.
         <p><a href=\"https://ohiobalanceofstatecoc.shinyapps.io/Rminor\"
-        target=\"_blank\">R minor</a> is a separate COHHIO site used for Ohio
-        Balance of State CoC performance reporting. Visitors to R minor will
-        include HMIS users, program executives, funders, government
-        representatives, advocates, and other interested parties. R minor
-        contains no client-level data.<br>
+        target=\"_blank\">R minor</a> is a separate COHHIO site used for 
+        performance reporting. Visitors to R minor will include HMIS users, 
+        program executives, funders, government representatives, advocates, and 
+        other interested parties. R minor contains no client-level data.<br>
         <p>We're glad you're here! Please select a report in the left sidebar."
       )
     )
@@ -1168,7 +1168,7 @@ output$DeskTimePlotCoC <- renderPlot({
       box(
         id = "overlappers",
         title = "Overlapping Entry Exits",
-        status = "info",
+        status = "warning",
         solidHeader = TRUE,
         width = 12,
         HTML(
