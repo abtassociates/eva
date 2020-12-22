@@ -22,7 +22,7 @@ dashboardPage(
                tabName = "homeTab"),
       menuItem("Prioritization",
                tabName = "prioritizationListTab"),
-      menuItem("Current Clients",
+      menuItem("Client Counts",
                tabName = "currentProviderLevel"),
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
@@ -124,10 +124,21 @@ dashboardPage(
                   choices = providers,
                   options = list('live-search' = TRUE)
                 ),
+                dateRangeInput(
+                  "dateRangeCount",
+                  "Date Range",
+                  min = FileStart,
+                  format = "mm/dd/yyyy",
+                  width = '50%'
+                ),        
                 width = 12
               )),
               fluidRow(box(
-                DT::dataTableOutput("currentClients"),
+                DT::dataTableOutput("clientCountSummary"),
+                width = 12
+              )),
+              fluidRow(box(
+                DT::dataTableOutput("clientCountData"),
                 width = 12
               ))),
       tabItem(

@@ -40,7 +40,7 @@ function(input, output, session) {
   })
   
   output$headerCurrent <- renderUI({
-    list(h2("Current Clients as of", FileEnd),
+    list(h2("Client Counts Report"),
          h4(input$currentProviderList))
   })
   
@@ -555,10 +555,13 @@ output$DeskTimePlotCoC <- renderPlot({
     }
   )
   
-  output$currentClients <- DT::renderDataTable({
+  output$clientCountData <- DT::renderDataTable({
+    ReportStart <- format.Date(input$dateRangeCount[1], "%m-%d-%Y")
+    ReportEnd <- format.Date(input$dateRangeCount[2], "%m-%d-%Y")
+    
     datatable(
       validation %>%
-        filter(is.na(ExitDate) &
+        filter(served_between(., ReportStart, ReportEnd) &
                  ProjectName == input$currentProviderList) %>%
         mutate(
           PersonalID = as.character(PersonalID),
@@ -570,14 +573,29 @@ output$DeskTimePlotCoC <- renderPlot({
             RelationshipToHoH == 5 ~ "Unrelated household member",
             RelationshipToHoH == 99 ~ "Data not collected (please correct)"
           ),
-          Days = case_when(
+          Status = case_when(
             ProjectType %in% c(3, 13) &
-              is.na(MoveInDateAdjust) ~ paste(today() - EntryDate,
-                                              "days awaiting housing in project"),
+              is.na(MoveInDateAdjust) &
+              is.na(ExitDate) ~ paste0("Currently Awaiting Housing (", 
+                                       today() - EntryDate,
+                                       " days)"),
             ProjectType %in% c(3, 13) &
-              !is.na(MoveInDateAdjust) ~ paste(today() - MoveInDateAdjust,
-                                               "days housed in project"),!ProjectType %in% c(3, 13) ~ paste(today() - EntryDate,
-                                                                                                            "days in project")
+              !is.na(MoveInDateAdjust) &
+              is.na(ExitDate) ~ paste0("Currently Moved In (",
+                                      today() - MoveInDateAdjust,
+                                      " days)"),
+            ProjectType %in% c(3, 13) &
+              is.na(MoveInDateAdjust) &
+              !is.na(ExitDate) ~ "Exited No Move-In",
+            ProjectType %in% c(3, 13) &
+              !is.na(MoveInDateAdjust) &
+              !is.na(ExitDate) ~ "Exited with Move-In",
+            !ProjectType %in% c(3, 13) &
+              is.na(ExitDate) ~ paste0("Currently in project (",
+                                       today() - EntryDate, 
+                                       " days)"),
+            !ProjectType %in% c(3, 13) &
+              !is.na(ExitDate) ~ "Exited project",
           ),
           sort = today() - EntryDate
         ) %>%
@@ -589,11 +607,93 @@ output$DeskTimePlotCoC <- renderPlot({
           "Relationship to Head of Household" = RelationshipToHoH,
           "Entry Date" = EntryDate,
           "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
-          Days
+          "Exit Date" = ExitDate,
+          Status
         ),
       rownames = FALSE,
       filter = 'top',
       options = list(dom = 'ltpi')
+    )
+  })
+  
+  output$clientCountSummary <- DT::renderDataTable({
+    ReportStart <- format.Date(input$dateRangeCount[1], "%m-%d-%Y")
+    ReportEnd <- format.Date(input$dateRangeCount[2], "%m-%d-%Y")
+    
+    hhs <- validation %>%
+      filter(served_between(., ReportStart, ReportEnd) &
+               ProjectName == input$currentProviderList) %>%
+      select(HouseholdID,
+             ProjectType,
+             EntryDate,
+             MoveInDateAdjust,
+             ExitDate) %>%
+      unique() %>%
+      mutate(
+        Entered = if_else(between(EntryDate, ReportStart, ReportEnd),
+                          "Entered in date range", "Entered outside date range"),
+        Leaver = if_else(!is.na(ExitDate), "Leaver", "Stayer"),
+        Status = case_when(
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) &
+            is.na(ExitDate) ~ "Currently Awaiting Housing",
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) &
+            is.na(ExitDate) ~ "Currently Moved In",
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) &
+            !is.na(ExitDate) ~ "Exited No Move-In",
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) &
+            !is.na(ExitDate) ~ "Exited with Move-In",
+          !ProjectType %in% c(3, 13) &
+            is.na(ExitDate) ~ "Currently in project",
+          !ProjectType %in% c(3, 13) &
+            !is.na(ExitDate) ~ "Exited project",
+        )
+      ) %>%
+      group_by(Status) %>%
+      summarise(Households = n())
+    
+    clients <- validation %>%
+      filter(served_between(., ReportStart, ReportEnd) &
+               ProjectName == input$currentProviderList) %>%
+      select(PersonalID,
+             ProjectType,
+             EntryDate,
+             MoveInDateAdjust,
+             ExitDate) %>%
+      unique() %>%
+      mutate(
+        Status = case_when(
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) &
+            is.na(ExitDate) ~ "Currently Awaiting Housing",
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) &
+            is.na(ExitDate) ~ "Currently Moved In",
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) &
+            !is.na(ExitDate) ~ "Exited No Move-In",
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) &
+            !is.na(ExitDate) ~ "Exited with Move-In",
+          !ProjectType %in% c(3, 13) &
+            is.na(ExitDate) ~ "Currently in project",
+          !ProjectType %in% c(3, 13) &
+            !is.na(ExitDate) ~ "Exited project",
+        )
+      ) %>%
+      group_by(Status) %>%
+      summarise(Clients = n())
+    
+    final <- full_join(clients, hhs, by = "Status")
+    
+    datatable(
+      final,
+      rownames = FALSE,
+      filter = 'none',
+      options = list(dom = 't')
     )
   })
   
