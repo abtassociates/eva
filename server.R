@@ -630,9 +630,9 @@ output$DeskTimePlotCoC <- renderPlot({
              ExitDate) %>%
       unique() %>%
       mutate(
-        Entered = if_else(between(EntryDate, ReportStart, ReportEnd),
-                          "Entered in date range", "Entered outside date range"),
-        Leaver = if_else(!is.na(ExitDate), "Leaver", "Stayer"),
+        # Entered = if_else(between(EntryDate, ReportStart, ReportEnd),
+        #                   "Entered in date range", "Entered outside date range"),
+        # Leaver = if_else(!is.na(ExitDate), "Leaver", "Stayer"),
         Status = case_when(
           ProjectType %in% c(3, 13) &
             is.na(MoveInDateAdjust) &
