@@ -127,7 +127,7 @@ dashboardPage(
                 dateRangeInput(
                   "dateRangeCount",
                   "Date Range",
-                  min = FileStart,
+                  min = FileActualStart,
                   format = "mm/dd/yyyy",
                   width = '50%'
                 ),        
