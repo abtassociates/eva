@@ -123,22 +123,30 @@ function(input, output, session) {
     CoC, all clients should be entered within 5 days of their entry into your
     project.
     <h4>How Do We Fix This?</h4>
-    <p><strong>There is nothing a user can do</strong> to \"correct\" a client 
-    entered into the system outside the window. We can only resolve to enter 
+    <p><strong>There is nothing a user can do</strong> to \"correct\" a client
+    entered into the system outside the window. We can only resolve to enter
     clients within the 5-day range going forward. As you catch up on data entry,
-    you may see your median get worse at first, but this data looks back exactly 
-    one year, so any clients with an Entry Date over a year ago will fall off 
+    you may see your median get worse at first, but this data looks back exactly
+    one year, so any clients with an Entry Date over a year ago will fall off
     of this plot and your median will change accordingly.
     <h4>Interpretation</h4>
     <p>Green dots here represent clients entered within the range and orange
     dots represent clients entered outside the range. The darker the dot, the
-    more clients entered your project on that day. (Likely a household.)    
+    more clients entered your project on that day. (Likely a household.)
     <p>The metric COHHIO looks at here is the Median, so if you have orange dots
     but your Median is within the 5 day range, that is great!
     <p>If you have orange dots BELOW the 0 mark, that means you entered Entry
     Dates into the future, which means there is potentially a mis-keyed date or
     the user needs technical assistance about how to know what date to enter for
-    the Entry Date. If this is the case, please email the HMIS team."
+    the Entry Date. If this is the case, please email the HMIS team.
+            <h4>Is it possible there's a mistake?</h4>
+    It's rare that this occurs, but if an Entry Exit has been created, deleted,
+    and then recreated, the Entry Exit's \"Date Created\" date is reset,
+    thus inflating the number of days between the Date Created and the Entry Date.
+    If you need us to check if this was the case for a particular dot on the
+    plot, please email us with the provider and number of days it is
+    displaying that you think may be incorrect so we can verify if this is the
+        issue."
       )
     )
   
