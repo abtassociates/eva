@@ -24,6 +24,11 @@ dashboardPage(
                tabName = "prioritizationListTab"),
       menuItem("Client Counts",
                tabName = "currentProviderLevel"),
+      menuItem("Ending Veteran Homelessness",
+               menuSubItem("Active List", tabName = "vetActiveList"),
+               menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
+               menuSubItem("Inflow Outflow", tabName = "flow")
+               ),
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
       menuItem(
@@ -193,6 +198,14 @@ dashboardPage(
             DT::dataTableOutput("utilizationDetail"), width = 12
           ))
         )
+      ),
+      tabItem(
+        tabName = "vetActiveList",
+        fluidRow(box(
+          DT::dataTableOutput("VeteranActiveList"),
+          title = "Veteran Active List",
+          width = 12
+        ))
       ),
       tabItem(
         tabName = "dqTab",

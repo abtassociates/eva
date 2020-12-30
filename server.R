@@ -1631,6 +1631,36 @@ output$DeskTimePlotCoC <- renderPlot({
       options = list(dom = 'ltpi')
     )
   })
+  output$VeteranActiveList <- DT::renderDataTable({
+
+    active_list <- veteran_active_list %>%
+      arrange(HouseholdID, PersonalID) %>%
+      mutate(PersonalID = if_else(
+        is.na(HOMESID),
+        as.character(PersonalID),
+        paste(PersonalID,
+              "<br>HOMES:",
+              HOMESID)
+      )) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Active Date" =  ActiveDateDisplay,
+        "Project Name" = ProjectName,
+        TimeInProject,
+        Eligibility,
+        "Most Recent Offer" = MostRecentOffer,
+        # ListStatus, is this really needed? seems redundant
+        "Housing Track & Notes" = HousingPlan
+      )
+    
+    datatable(
+      active_list,
+      rownames = FALSE,
+      escape = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    )
+  })
   
   output$DQWarnings <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
