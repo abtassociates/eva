@@ -24,11 +24,11 @@ dashboardPage(
                tabName = "prioritizationListTab"),
       menuItem("Client Counts",
                tabName = "currentProviderLevel"),
-      menuItem("Ending Veteran Homelessness",
-               menuSubItem("Active List", tabName = "vetActiveList"),
-               menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
-               menuSubItem("Inflow Outflow", tabName = "flow")
-               ),
+      # menuItem("Ending Veteran Homelessness",
+      #          menuSubItem("Active List", tabName = "vetActiveList"),
+      #          menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
+      #          menuSubItem("Inflow Outflow", tabName = "flow")
+      #          ),
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
       menuItem(
@@ -226,7 +226,7 @@ dashboardPage(
             label = "Report Start Date",
             format = "mm/dd/yyyy",
             value = mdy("10012018"),
-            min = ymd(floor_date(mdy(FileEnd), "year") - years(2)),
+            min = FileActualStart,
             width = "25%"
           ),
           width = 12
