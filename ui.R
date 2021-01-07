@@ -22,8 +22,13 @@ dashboardPage(
                tabName = "homeTab"),
       menuItem("Prioritization",
                tabName = "prioritizationListTab"),
-      menuItem("Current Clients",
+      menuItem("Client Counts",
                tabName = "currentProviderLevel"),
+      menuItem("Ending Veteran Homelessness",
+               menuSubItem("Active List", tabName = "vetActiveList"),
+               menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
+               menuSubItem("Inflow Outflow", tabName = "flow")
+               ),
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
       menuItem(
@@ -66,7 +71,7 @@ dashboardPage(
     HTML(
       paste0(
         "<br>&emsp;Data last refreshed:&emsp;<br>&emsp;",
-        format(update_date, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")
+        format(update_date, "%m-%d-%Y %I:%M %p")
         ,
         "<p><p>&emsp;Wear your mask! Be well."
       )
@@ -124,10 +129,21 @@ dashboardPage(
                   choices = providers,
                   options = list('live-search' = TRUE)
                 ),
+                dateRangeInput(
+                  "dateRangeCount",
+                  "Date Range",
+                  min = FileActualStart,
+                  format = "mm/dd/yyyy",
+                  width = '50%'
+                ),        
                 width = 12
               )),
               fluidRow(box(
-                DT::dataTableOutput("currentClients"),
+                DT::dataTableOutput("clientCountSummary"),
+                width = 12
+              )),
+              fluidRow(box(
+                DT::dataTableOutput("clientCountData"),
                 width = 12
               ))),
       tabItem(
@@ -182,6 +198,14 @@ dashboardPage(
             DT::dataTableOutput("utilizationDetail"), width = 12
           ))
         )
+      ),
+      tabItem(
+        tabName = "vetActiveList",
+        fluidRow(box(
+          DT::dataTableOutput("VeteranActiveList"),
+          title = "Veteran Active List",
+          width = 12
+        ))
       ),
       tabItem(
         tabName = "dqTab",
@@ -271,7 +295,7 @@ dashboardPage(
         fluidRow(box(
           pickerInput(
             inputId = "regionList3",
-            choices = c(unique(regions$RegionName[regions$County != "Mahoning"])),
+            choices = c(unique(regions$RegionName)),
             options = list(`live-search` = TRUE),
             width = "70%"
           ),
@@ -350,7 +374,7 @@ dashboardPage(
             width = 12,
             solidHeader = TRUE,
             status = "danger",
-            title = "Providers with the Most Data Quality Errors"
+            title = "Providers with the Most High Priority Issues and Errors"
           ),
           box(
             plotOutput("cocHHErrors"),
@@ -411,6 +435,10 @@ dashboardPage(
           ),
           box(DT::dataTableOutput("cocLongStayers"),
               title = "Extremely Long Stayers",
+              solidHeader = TRUE,
+              status = "warning"),
+          box(DT::dataTableOutput("cocRRHDestination"),
+              title = "Destinations & Rapid Rehousing",
               solidHeader = TRUE,
               status = "warning"),
           box(

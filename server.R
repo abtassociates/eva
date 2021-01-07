@@ -18,16 +18,16 @@ function(input, output, session) {
       title = "Welcome",
       width = 12,
       HTML(
-        "<p>R minor elevated is intended for use by Ohio Balance of State HMIS
-        users. This site requires a login because client-level data is shown
-        (without Personally Identifying Information). Please use this
-        site to verify that your HMIS data is accurate and complete.
+        "<p>R minor elevated is intended for use by the Ohio Balance of State CoC
+        and the Mahoning County CoC HMIS users. This site requires a login 
+        because client-level data is shown (without Personally Identifying 
+        Information). Please use this site to verify that your HMIS data is 
+        accurate and complete.
         <p><a href=\"https://ohiobalanceofstatecoc.shinyapps.io/Rminor\"
-        target=\"_blank\">R minor</a> is a separate COHHIO site used for Ohio
-        Balance of State CoC performance reporting. Visitors to R minor will
-        include HMIS users, program executives, funders, government
-        representatives, advocates, and other interested parties. R minor
-        contains no client-level data.<br>
+        target=\"_blank\">R minor</a> is a separate COHHIO site used for 
+        performance reporting. Visitors to R minor will include HMIS users, 
+        program executives, funders, government representatives, advocates, and 
+        other interested parties. R minor contains no client-level data.<br>
         <p>We're glad you're here! Please select a report in the left sidebar."
       )
     )
@@ -40,7 +40,7 @@ function(input, output, session) {
   })
   
   output$headerCurrent <- renderUI({
-    list(h2("Current Clients as of", FileEnd),
+    list(h2("Client Counts Report"),
          h4(input$currentProviderList))
   })
   
@@ -123,22 +123,30 @@ function(input, output, session) {
     CoC, all clients should be entered within 5 days of their entry into your
     project.
     <h4>How Do We Fix This?</h4>
-    <p><strong>There is nothing a user can do</strong> to \"correct\" a client 
-    entered into the system outside the window. We can only resolve to enter 
+    <p><strong>There is nothing a user can do</strong> to \"correct\" a client
+    entered into the system outside the window. We can only resolve to enter
     clients within the 5-day range going forward. As you catch up on data entry,
-    you may see your median get worse at first, but this data looks back exactly 
-    one year, so any clients with an Entry Date over a year ago will fall off 
+    you may see your median get worse at first, but this data looks back exactly
+    one year, so any clients with an Entry Date over a year ago will fall off
     of this plot and your median will change accordingly.
     <h4>Interpretation</h4>
     <p>Green dots here represent clients entered within the range and orange
     dots represent clients entered outside the range. The darker the dot, the
-    more clients entered your project on that day. (Likely a household.)    
+    more clients entered your project on that day. (Likely a household.)
     <p>The metric COHHIO looks at here is the Median, so if you have orange dots
     but your Median is within the 5 day range, that is great!
     <p>If you have orange dots BELOW the 0 mark, that means you entered Entry
     Dates into the future, which means there is potentially a mis-keyed date or
     the user needs technical assistance about how to know what date to enter for
-    the Entry Date. If this is the case, please email the HMIS team."
+    the Entry Date. If this is the case, please email the HMIS team.
+            <h4>Is it possible there's a mistake?</h4>
+    It's rare that this occurs, but if an Entry Exit has been created, deleted,
+    and then recreated, the Entry Exit's \"Date Created\" date is reset,
+    thus inflating the number of days between the Date Created and the Entry Date.
+    If you need us to check if this was the case for a particular dot on the
+    plot, please email us with the provider and number of days it is
+    displaying that you think may be incorrect so we can verify if this is the
+        issue."
       )
     )
   
@@ -555,10 +563,13 @@ output$DeskTimePlotCoC <- renderPlot({
     }
   )
   
-  output$currentClients <- DT::renderDataTable({
+  output$clientCountData <- DT::renderDataTable({
+    ReportStart <- format.Date(input$dateRangeCount[1], "%m-%d-%Y")
+    ReportEnd <- format.Date(input$dateRangeCount[2], "%m-%d-%Y")
+    
     datatable(
       validation %>%
-        filter(is.na(ExitDate) &
+        filter(served_between(., ReportStart, ReportEnd) &
                  ProjectName == input$currentProviderList) %>%
         mutate(
           PersonalID = as.character(PersonalID),
@@ -570,14 +581,29 @@ output$DeskTimePlotCoC <- renderPlot({
             RelationshipToHoH == 5 ~ "Unrelated household member",
             RelationshipToHoH == 99 ~ "Data not collected (please correct)"
           ),
-          Days = case_when(
+          Status = case_when(
             ProjectType %in% c(3, 13) &
-              is.na(MoveInDateAdjust) ~ paste(today() - EntryDate,
-                                              "days awaiting housing in project"),
+              is.na(MoveInDateAdjust) &
+              is.na(ExitDate) ~ paste0("Currently Awaiting Housing (", 
+                                       today() - EntryDate,
+                                       " days)"),
             ProjectType %in% c(3, 13) &
-              !is.na(MoveInDateAdjust) ~ paste(today() - MoveInDateAdjust,
-                                               "days housed in project"),!ProjectType %in% c(3, 13) ~ paste(today() - EntryDate,
-                                                                                                            "days in project")
+              !is.na(MoveInDateAdjust) &
+              is.na(ExitDate) ~ paste0("Currently Moved In (",
+                                      today() - MoveInDateAdjust,
+                                      " days)"),
+            ProjectType %in% c(3, 13) &
+              is.na(MoveInDateAdjust) &
+              !is.na(ExitDate) ~ "Exited No Move-In",
+            ProjectType %in% c(3, 13) &
+              !is.na(MoveInDateAdjust) &
+              !is.na(ExitDate) ~ "Exited with Move-In",
+            !ProjectType %in% c(3, 13) &
+              is.na(ExitDate) ~ paste0("Currently in project (",
+                                       today() - EntryDate, 
+                                       " days)"),
+            !ProjectType %in% c(3, 13) &
+              !is.na(ExitDate) ~ "Exited project",
           ),
           sort = today() - EntryDate
         ) %>%
@@ -589,11 +615,93 @@ output$DeskTimePlotCoC <- renderPlot({
           "Relationship to Head of Household" = RelationshipToHoH,
           "Entry Date" = EntryDate,
           "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
-          Days
+          "Exit Date" = ExitDate,
+          Status
         ),
       rownames = FALSE,
       filter = 'top',
       options = list(dom = 'ltpi')
+    )
+  })
+  
+  output$clientCountSummary <- DT::renderDataTable({
+    ReportStart <- format.Date(input$dateRangeCount[1], "%m-%d-%Y")
+    ReportEnd <- format.Date(input$dateRangeCount[2], "%m-%d-%Y")
+    
+    hhs <- validation %>%
+      filter(served_between(., ReportStart, ReportEnd) &
+               ProjectName == input$currentProviderList) %>%
+      select(HouseholdID,
+             ProjectType,
+             EntryDate,
+             MoveInDateAdjust,
+             ExitDate) %>%
+      unique() %>%
+      mutate(
+        # Entered = if_else(between(EntryDate, ReportStart, ReportEnd),
+        #                   "Entered in date range", "Entered outside date range"),
+        # Leaver = if_else(!is.na(ExitDate), "Leaver", "Stayer"),
+        Status = case_when(
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) &
+            is.na(ExitDate) ~ "Currently Awaiting Housing",
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) &
+            is.na(ExitDate) ~ "Currently Moved In",
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) &
+            !is.na(ExitDate) ~ "Exited No Move-In",
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) &
+            !is.na(ExitDate) ~ "Exited with Move-In",
+          !ProjectType %in% c(3, 13) &
+            is.na(ExitDate) ~ "Currently in project",
+          !ProjectType %in% c(3, 13) &
+            !is.na(ExitDate) ~ "Exited project",
+        )
+      ) %>%
+      group_by(Status) %>%
+      summarise(Households = n())
+    
+    clients <- validation %>%
+      filter(served_between(., ReportStart, ReportEnd) &
+               ProjectName == input$currentProviderList) %>%
+      select(PersonalID,
+             ProjectType,
+             EntryDate,
+             MoveInDateAdjust,
+             ExitDate) %>%
+      unique() %>%
+      mutate(
+        Status = case_when(
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) &
+            is.na(ExitDate) ~ "Currently Awaiting Housing",
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) &
+            is.na(ExitDate) ~ "Currently Moved In",
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) &
+            !is.na(ExitDate) ~ "Exited No Move-In",
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) &
+            !is.na(ExitDate) ~ "Exited with Move-In",
+          !ProjectType %in% c(3, 13) &
+            is.na(ExitDate) ~ "Currently in project",
+          !ProjectType %in% c(3, 13) &
+            !is.na(ExitDate) ~ "Exited project",
+        )
+      ) %>%
+      group_by(Status) %>%
+      summarise(Clients = n())
+    
+    final <- full_join(clients, hhs, by = "Status")
+    
+    datatable(
+      final,
+      rownames = FALSE,
+      filter = 'none',
+      options = list(dom = 't')
     )
   })
   
@@ -1168,7 +1276,7 @@ output$DeskTimePlotCoC <- renderPlot({
       box(
         id = "overlappers",
         title = "Overlapping Entry Exits",
-        status = "info",
+        status = "warning",
         solidHeader = TRUE,
         width = 12,
         HTML(
@@ -1312,6 +1420,27 @@ output$DeskTimePlotCoC <- renderPlot({
       select("Project Name" = ProjectName,
              "Extremely Long Stayers" = Clients)
     datatable(a,
+              rownames = FALSE)
+    
+  })
+  
+  output$cocRRHDestination <- DT::renderDataTable({
+    ReportStart <- "10012018"
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    
+    a <- dq_main %>%
+      filter(served_between(., ReportStart, ReportEnd) &
+               Issue %in% c(
+               "Incorrect Exit Destination (should be \"Rental by client, with RRH...\")",
+               "Missing RRH Project Stay or Incorrect Destination")) %>%
+      group_by(ProjectName, Issue) %>%
+      summarise(Clients = n()) %>%
+      arrange(desc(Clients)) %>%
+      select("Project Name" = ProjectName,
+             Issue,
+             Clients)
+    
+    datatable(head(a, 20),
               rownames = FALSE)
     
   })
@@ -1498,6 +1627,36 @@ output$DeskTimePlotCoC <- renderPlot({
     datatable(
       DQErrors,
       rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    )
+  })
+  output$VeteranActiveList <- DT::renderDataTable({
+
+    active_list <- veteran_active_list %>%
+      arrange(HouseholdID, PersonalID) %>%
+      mutate(PersonalID = if_else(
+        is.na(HOMESID),
+        as.character(PersonalID),
+        paste(PersonalID,
+              "<br>HOMES:",
+              HOMESID)
+      )) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Active Date" =  ActiveDateDisplay,
+        "Project Name" = ProjectName,
+        TimeInProject,
+        Eligibility,
+        "Most Recent Offer" = MostRecentOffer,
+        # ListStatus, is this really needed? seems redundant
+        "Housing Track & Notes" = HousingPlan
+      )
+    
+    datatable(
+      active_list,
+      rownames = FALSE,
+      escape = FALSE,
       filter = 'top',
       options = list(dom = 'ltpi')
     )
