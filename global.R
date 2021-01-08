@@ -33,7 +33,7 @@ qpr_leavers <- qpr_leavers %>% arrange(ProjectName)
 providers <- sort(validation$ProjectName) %>% unique() 
 
 desk_time_providers <- validation %>%
-  filter(entered_between(., 
+  dplyr::filter(entered_between(., 
                          format.Date(ymd(today() - years(1)), "%m-%d-%Y"), 
                          format.Date(ymd(today()), "%m-%d-%Y")) &
            ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13) &
@@ -42,11 +42,39 @@ desk_time_providers <- validation %>%
 dtproviders <- sort(desk_time_providers$ProjectName) %>% unique()
 
 # filebeginningdate <- update_date - years(2)
-
-tab_choices <- list(
+tab_choices <- unique(regions$RegionName[regions$County != "Mahoning"]) %>% 
+{list(
   spdat1 = list(
-    region_choices = c(unique(regions$RegionName[regions$County != "Mahoning"]))
+    choices = .
+  ),
+  spdat2 = list(
+    choices = .
+  ),
+  LoS = list(
+    choices = unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1, 2, 8, 13)])
+  ),
+  PH = list(
+    choices = unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1:4, 8:9, 12:13)])
+  ),
+  NCB = list(
+    choices = unique(qpr_benefits$ProjectName)
+  ),
+  HI = list(
+    choices = unique(qpr_benefits$ProjectName)
+  ),
+  income = list(
+    choices = unique(qpr_income$ProjectName)
+  ),
+  rapid = list(
+    choices = unique(sort(
+      qpr_rrh_enterers$ProjectName
+    ))
+  ),
+  spending = list(
+    choices = unique(sort(
+      qpr_spending$OrganizationName
+    ))
   )
-)
+)}
 
 

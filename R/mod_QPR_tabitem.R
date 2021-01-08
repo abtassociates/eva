@@ -2,17 +2,25 @@
 #' @title QPR_tabItem UI Function
 #' @description A shiny Module to generate the QPR tabitems.
 #' @param id Internal parameters for {shiny}.
-#' @param project_choices \code{(named list)} of choices of program types for the radio picker. Default does not show the UI item - choices must be provided for the picker to show.
-#' @param region_choices \code{(named list)} of choices of regions for the region drop-down selector. Default does not show the UI item - choices must be provided for the picker to show options
+#' @param choices \code{(named list)} of arguments to \link[shinyWidgets]{pickerInput}. `FALSE` to omit the choice drop-down selector. - choices must be provided for the picker to show options. Defaults will be used for omitted arguments unless arguments are explicitly set to `NULL`. Defaults are as follows:
+#' `list(
+#' inputId = ns("region"),
+#' label = "Select Region(s)",
+#' choices = choices$choices, # 
+#' options = shinyWidgets::pickerOptions(                                                  liveSearch = TRUE),
+#' selected = NULL,
+#' width = "70%"
+#' )`
+#' Default value for choices is found in *global.R* for each tabItem namespace.
 #QUESTION Should there be defaults for options?
-#' @param radio_mean \code{(logical)} whether to show the Mean/Median based average radio UI
+#' @param date_choices \code{(logical)} whether to show a date range picker
 #' @importFrom shiny NS tagList 
 #' @importFrom rlang parse_expr
 #' @importFrom purrr compact
 #' @importFrom lubridate floor_date today
 #' @importFrom shiny
 
-mod_QPR_tabItem_ui <- function(id, region_choices = list(choices = c(unique(regions$RegionName[regions$County != "Mahoning"]))), date_choices = NULL) {
+mod_QPR_tabItem_ui <- function(id, choices = tab_choices[[id]], date_choices = NULL) {
   ns <- NS(id)
   # Create labeled Quarter List
   # .quarter_labels <- rev(unique(zoo::Sys.yearqtr() - 6 / 4:zoo::Sys.yearqtr() + 1 / 4))
@@ -27,10 +35,10 @@ mod_QPR_tabItem_ui <- function(id, region_choices = list(choices = c(unique(regi
     min = get0("FileStart"),
     format = "mm/dd/yyyy"
   ),
-   Regions = if (!isFALSE(region_choices)) list(
+   Regions = if (!isFALSE(choices)) list(
     inputId = ns("region"),
     label = "Select Region(s)",
-    choices = region_choices$choices,
+    choices = choices$choices,
     options = shinyWidgets::pickerOptions(                                                  liveSearch = TRUE),
     selected = NULL,
     width = "70%"
@@ -61,9 +69,9 @@ mod_QPR_tabItem_ui <- function(id, region_choices = list(choices = c(unique(regi
         shiny::htmlOutput(ns("header")), width = 12)
       ),
     shiny::fluidRow(
-      box(
+      shinydashboard::box(
         if (shiny::isTruthy(.defaults$Regions)) {
-          do.call(shinyWidgets::pickerInput, .defaults$Region)
+          do.call(shinyWidgets::pickerInput, .defaults$Regions)
           }
         ,
         if (shiny::isTruthy(.defaults$Dates)) {
@@ -71,12 +79,11 @@ mod_QPR_tabItem_ui <- function(id, region_choices = list(choices = c(unique(regi
         }
       )
     ),
-    ,
     shiny::fluidRow(
       shinydashboard::infoBoxOutput("ib_summary", width = 12)
       ),
     shiny::fluidRow(
-      shiny::box(
+      shinydashboard::box(
       DT::dataTableOutput("dt_detail"), width = 12
       )
     )
@@ -102,7 +109,7 @@ mod_QPR_server <- function(id, header, input, output, session, ...){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
     # Process Slider Inputs
-    Report <- eventReactive(input$date, {
+    Report <- shiny::eventReactive(input$date, {
       .dates <- lubridate::parse_date_time2(input$date_range, c("mdY", "Ymd"))
       list(
         Start = .dates[1],
@@ -127,11 +134,12 @@ mod_QPR_server <- function(id, header, input, output, session, ...){
     # Gather Objects
     
     # Process Data
-    data_env <- reactive(qpr_expr[[id]]$expr, quoted = TRUE)
+    data_env <- shiny::reactive(qpr_expr[[id]]$expr, quoted = TRUE)
     
     output$ib_summary <- shinydashboard::renderInfoBox({
       rlang::eval_bare(qpr_expr[[id]]$ib)
     })
+    
     output$dt_detail <- DT::renderDataTable({
       rlang::eval_bare(qpr_expr[[id]]$dt)
     })

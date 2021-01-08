@@ -72,3 +72,5 @@ qpr_infobox <- function(.data,
   rlang::exec(shinydashboard::infoBox, !!!.ib_opts, !!!.dots)
 }
 
+
+
