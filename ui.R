@@ -50,14 +50,14 @@ dashboardPage(
           menuSubItem("PSH/RRH Detail",
                       tabName = "spdat1-Tab"),
           menuSubItem("County Detail",
-                      tabName = "spdatTab2")
+                      tabName = "spdat2-Tab")
         ),
         menuSubItem("Length of Stay",
-                    tabName = "LoSTab"),
+                    tabName = "LoS-Tab"),
         menuSubItem("Exits to Permanent Housing",
                     tabName = "PHTab"),
         menuSubItem("Non-Cash Benefits at Exit",
-                    tabName = "NCBTab"),
+                    tabName = "NCB-Tab"),
         menuSubItem("Health Insurance at Exit",
                     tabName = "HITab"),
         menuSubItem("Income Growth",
@@ -569,60 +569,8 @@ dashboardPage(
                 width = 12
               ))), 
       mod_QPR_tabItem_ui("spdat1"),
-      tabItem(
-        tabName = "spdatTab2",
-        fluidRow(box(
-          htmlOutput("headerCommunityNeedCounty"), width = 12
-        )),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "regionList2",
-              choices = c(unique(regions$RegionName[regions$County != "Mahoning"])),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "spdatDateRange2",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("ScoredInRegionSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("SPDATScoresServedInCounty"), width = 12
-        ))
-      ),
-      tabItem(
-        tabName = "LoSTab",
-        fluidRow(box(htmlOutput("headerLoS"), width = 12)),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "LoSProjectList",
-              choices = c(unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1, 2, 8, 13)])),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "LoSDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("LoSSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("LoSDetail"), width = 12
-        ))
-      ),
+      mod_QPR_tabItem_ui("spdat2"),
+      mod_QPR_tabItem_ui("LoS"),
       tabItem(
         tabName = "PHTab",
         fluidRow(box(htmlOutput("headerExitsToPH"), width = 12)),
@@ -655,32 +603,7 @@ dashboardPage(
           width = 12
         ))
       ),
-      tabItem(
-        tabName = "NCBTab",
-        fluidRow(box(htmlOutput("headerNCBs"), width = 12)),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "MBProjectListNC",
-              choices = c(unique(qpr_benefits$ProjectName)),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "NCBDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("qprNCBSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("ExitedWithNCBs"), width = 12
-        ))
-      ),
+      mod_QPR_tabItem_ui("NCB"),
       tabItem(
         tabName = "HITab",
         fluidRow(box(

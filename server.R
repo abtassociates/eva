@@ -179,20 +179,7 @@ function(input, output, session) {
          )))
   })
   
-  output$headerCommunityNeedCounty <- renderUI({
-    ReportStart <- format.Date(input$spdatDateRange2[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$spdatDateRange2[2], "%B %d, %Y")
-    
-    list(
-      h2("Community Need, Literally Homeless in the County"),
-      h4(input$regionList2),
-      h4(paste(
-        ReportStart,
-        "to",
-        ReportEnd
-      ))
-    )
-  })
+  
   
   output$headerExitsToPH <- renderUI({
     ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
@@ -377,52 +364,7 @@ output$DeskTimePlotCoC <- renderPlot({
       
     })
   
-  output$headerLoS <- renderUI({
-    ReportStart <- format.Date(input$LoSDateRange[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$LoSDateRange[2], "%B %d, %Y")
-    
-    list(h2("Length of Stay"),
-         h4(input$LoSProjectList),
-         h4(paste(
-           ReportStart,
-           "to",
-           ReportEnd
-         )))
-  })
   
-  output$LoSSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$LoSDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$LoSDateRange[2], "%m-%d-%Y")
-      
-      los_summary <- qpr_leavers %>%
-        filter(((
-          !is.na(MoveInDateAdjust) & ProjectType == 13
-        ) |
-          (
-            !is.na(ExitDate) & ProjectType %in% c(1, 2, 8)
-          )) &
-          exited_between(., ReportStart, ReportEnd) &
-          ProjectName == input$LoSProjectList
-        ) %>%
-        group_by(ProjectName) %>%
-        summarise(Average = format(mean(DaysinProject),
-                                   digits = 1),
-                  Median = median(DaysinProject))
-      
-      infoBox(
-        title = "Average and Median Length of Stay",
-        color = "purple",
-        icon = icon("clock"),
-        value = paste("Average", 
-                      los_summary$Average, 
-                      "/ Median", 
-                      los_summary$Median,
-                      "days"),
-        subtitle = "Length of Stay in Project's Housing"
-      )
-      
-    })
   
   output$headerIncomeIncrease <- renderUI({
     ReportStart <- format.Date(input$IncomeDateRange[1], "%B %d, %Y")
@@ -437,18 +379,7 @@ output$DeskTimePlotCoC <- renderPlot({
          )))
   })
   
-  output$headerNCBs <- renderUI({
-    ReportStart <- format.Date(input$NCBDateRange[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$NCBDateRange[2], "%B %d, %Y")
-    
-    list(h2("Non-Cash Benefits at Exit"),
-         h4(input$MBProjectListNC),
-         h4(paste(
-           ReportStart,
-           "to",
-           ReportEnd
-         )))
-  })
+  
   
   output$headerHealthInsurance <- renderUI({
     ReportStart <- format.Date(input$HIDateRange[1], "%B %d, %Y")
@@ -2120,93 +2051,14 @@ output$DeskTimePlotCoC <- renderPlot({
   
   mod_QPR_server("spdat1", "Community Need, Entered Permanent Housing")
   
+  mod_QPR_server("spdat2", "Community Need, Literally Homeless in the County")
   
-  output$SPDATScoresServedInCounty <-
-    DT::renderDataTable({
-      
-      ReportStart <- format.Date(input$spdatDateRange2[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$spdatDateRange2[2], "%m-%d-%Y")
-      
-      # counting all households who were scored AND SERVED between the report dates
-      CountyAverageScores <- qpr_spdats_county %>%
-        filter(served_between(qpr_spdats_county,
-                              ReportStart,
-                              ReportEnd)) %>%
-        left_join(., regions, by = c("CountyServed" = "County")) %>%
-        filter(RegionName == input$regionList2) %>%
-        mutate(PersonalID = as.character(PersonalID)) %>%
-        select(
-          Project = ProjectName,
-          "Client ID" = PersonalID,
-          "Entry Date" = EntryDate,
-          "Exit Date" = ExitDate,
-          "County Served" = CountyServed,
-          Score
-        ) %>%
-        arrange(Score)
-      
-      datatable(CountyAverageScores,
-                rownames = FALSE,
-                filter = 'top',
-                options = list(dom = 'ltpi'))
-      
-    })
+  mod_QPR_server("LoS", "Length of Stay")
   
-  output$ScoredInRegionSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$spdatDateRange2[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$spdatDateRange2[2], "%m-%d-%Y")
-      
-      # counting all households who were scored AND SERVED between the report dates
-      scores <- qpr_spdats_county %>%
-        filter(served_between(qpr_spdats_county,
-                              ReportStart,
-                              ReportEnd)) %>%
-        left_join(., regions, by = c("CountyServed" = "County")) %>%
-        filter(RegionName == input$regionList2) %>%
-        group_by(RegionName) %>%
-        summarise(AvgScore = as.integer(mean(Score)))
-      
-      infoBox(
-        title = "Average Score",
-        color = "purple",
-        icon = icon("shoe-prints"),
-        value = scores$AvgScore,
-        subtitle = "Literally Homeless Households in the Selected Region"
-      )
-      
-    })
+  # Placeholder for Exits to PH
   
-  output$LoSDetail <-
-    DT::renderDataTable({
-      ReportStart <- format.Date(input$LoSDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$LoSDateRange[2], "%m-%d-%Y")
-      
-      LoSDetail <- qpr_leavers %>%
-        filter(((
-          !is.na(MoveInDateAdjust) & ProjectType == 13
-        ) |
-          (
-            !is.na(ExitDate) & ProjectType %in% c(1, 2, 8)
-          )) &
-          exited_between(., ReportStart, ReportEnd) &
-          ProjectName == input$LoSProjectList
-        ) %>%
-        mutate(PersonalID = as.character(PersonalID)) %>%
-        arrange(desc(DaysinProject)) %>%
-        select(
-          "Client ID" = PersonalID,
-          "Bed Start" = EntryAdjust,
-          "Exit Date" = ExitDate,
-          "Days in Project" = DaysinProject
-        )
-      
-      datatable(LoSDetail,
-                rownames = FALSE,
-                filter = 'top',
-                options = list(dom = 'ltpi'))
-      
-    })
+  mod_QPR_server("NCB", "Non-Cash Benefits at Exit")
+  
   
   output$ExitsToPH <- DT::renderDataTable({
     ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%m-%d-%Y")
@@ -2357,87 +2209,6 @@ output$DeskTimePlotCoC <- renderPlot({
       }
     })
   
-  output$ExitedWithNCBs <- DT::renderDataTable({
-    ReportStart <- format.Date(input$NCBDateRange[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$NCBDateRange[2], "%m-%d-%Y")
-    
-    a <- qpr_benefits %>%
-      filter(ProjectName == input$MBProjectListNC &
-               exited_between(., ReportStart, ReportEnd)) %>%
-      mutate(
-        BenefitsFromAnySource = case_when(
-          BenefitsFromAnySource == 0 ~ "No (HUD)",
-          BenefitsFromAnySource == 1 ~ "Yes (HUD)",
-          BenefitsFromAnySource == 8 ~ "Client doesn't know (HUD)",
-          BenefitsFromAnySource == 9 ~ "Client refused (HUD)",
-          BenefitsFromAnySource == 99 ~ "Data Not Collected (HUD)"
-        ),
-        PersonalID = as.character(PersonalID)
-      ) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate,
-        "Benefits from Any Source (at Exit)" = BenefitsFromAnySource
-      )
-    
-    datatable(a,
-              rownames = FALSE,
-              filter = 'top',
-              options = list(dom = 'ltpi'))
-    
-  })
-  
-  output$qprNCBSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$NCBDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$NCBDateRange[2], "%m-%d-%Y")
-      
-      meeting_objective <- qpr_benefits %>%
-        filter(
-            ProjectName == input$MBProjectListNC &
-            exited_between(., ReportStart, ReportEnd) &
-            BenefitsFromAnySource == 1
-        ) %>% 
-        group_by(ProjectName) %>%
-        summarise(BenefitsAtExit = n())
-      
-      # calculating the total households for comparison
-      all_hhs <- qpr_benefits %>%
-        filter(ProjectName == input$MBProjectListNC &
-                 exited_between(., ReportStart, ReportEnd)) %>%
-        group_by(ProjectName) %>%
-        summarise(TotalHHs = n()) 
-      
-      NCBsAtExit <- all_hhs %>%
-        left_join(
-          meeting_objective,
-          by = c("ProjectName")
-        )
-      
-      NCBsAtExit[is.na(NCBsAtExit)] <- 0
-      
-      NCBsAtExit <- NCBsAtExit %>%
-        mutate(Percent = BenefitsAtExit / TotalHHs)
-      
-      if(nrow(NCBsAtExit) > 0) {
-        infoBox(
-        title = "Households Exiting With Non Cash Benefits",
-        color = "fuchsia",
-        icon = icon("shopping-cart"),
-        value = percent(NCBsAtExit$Percent),
-        subtitle = paste(NCBsAtExit$BenefitsAtExit, 
-                          "out of",
-                          NCBsAtExit$TotalHHs, 
-                          "households")
-        )
-      }
-      else{
-        infoBox(
-          title = "No Leavers in the Date Range"
-        )
-      }
-    })
   
   output$ExitedWithInsurance <- DT::renderDataTable({
     ReportStart <- format.Date(input$HIDateRange[1], "%m-%d-%Y")

@@ -2,7 +2,8 @@
 #' @description Function to render datatable from default template for QPR tabitems
 #' @param .data \code{(any)} Data to be passed in and used subsequent arguments
 #' @param .replace \code{(logical)} whether to replace the default arguments with those supplied and eliminate the default arguments, or to replace existing defaults & and add additional args specified
-#' @inheritParams DT datatable
+#' @inheritParams DT::datatable
+#' @inheritDotParams DT::datatable
 #' @param ... \code{(named arguments)} passed on to \link[DT]{datatable}
 #' @export
 #' @importFrom rlang fn_fmls call_args dots_list exec `!!!`
@@ -26,10 +27,10 @@ qpr_datatable <- function(.data,
   .user <- rlang::call_args(match.call())
   .user <- append(.user[!grepl("^\\.", names(.user))], rlang::dots_list(...))
   
-  if (!identical(.dt_opts, .user) && !rlang::is_empty(.user)) {
-    .dt_opts <- purrr::list_modify(.dt_opts, !!!.user)
-  } else if (.replace) {
+  if (.replace) {
     .dt_opts <- .user
+  } else if (!identical(.dt_opts, .user) && !rlang::is_empty(.user)) {
+    .dt_opts <- purrr::list_modify(.dt_opts, !!!.user)
   }
   # replace data call with actual data
   .dt_opts$data <- .data
@@ -43,6 +44,7 @@ qpr_datatable <- function(.data,
 
 #' @title qpr_infobox
 #' @description Function to render infobox from default template for QPR tabitems
+#' @inheritParams qpr_datatable
 #' @inheritParams shinydashboard::infoBox
 #' @inheritDotParams shinydashboard::infoBox
 #' @param .replace \code{(logical)} whether to replace the default arguments with those supplied and eliminate the default arguments, or to replace existing defaults & and add additional args specified
@@ -69,11 +71,12 @@ qpr_infobox <- function(.data,
   .user <- rlang::call_args(match.call())
   .user <- append(.user[!grepl("^\\.", names(.user))], rlang::dots_list(...))
   if (inherits(.user$icon, "character")) .user$icon <- shiny::icon(.user$icon)
-  if (!identical(.ib_opts, .user) && !rlang::is_empty(.user)) {
-    .ib_opts <- purrr::list_modify(.ib_opts, !!!.user)
-  } else if (.replace) {
+  if (.replace) {
     .ib_opts <- .user
-  }
+  } else if (!identical(.ib_opts, .user) && !rlang::is_empty(.user)) {
+    .ib_opts <- purrr::list_modify(.ib_opts, !!!.user)
+  }  
+  
   # Evaluate all calls in this environment (purrr::map does not work)
   for (i in which(purrr::map_lgl(.ib_opts, is.call))) {
     .ib_opts[[i]] <- eval(.ib_opts[[i]])
