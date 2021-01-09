@@ -1,9 +1,9 @@
-qpr_expr$spdat <- list()
-qpr_expr$spdat$expr <- rlang::expr({
+qpr_expr$spdat1 <- list()
+qpr_expr$spdat1$expr <- rlang::expr({
   # used in both summary and detail, filter by inputs
   .dat <- qpr_spdats_project %>%
-    HMIS::entered_between(Report()$Start,
-                           Report()$End) %>%
+    HMIS::entered_between(input$date_range[1],
+                          input$date_range[2]) %>%
     dplyr::left_join(., regions, by = c("CountyServed" = "County")) %>%
     dplyr::filter(RegionName == input$region)
   
@@ -22,17 +22,17 @@ qpr_expr$spdat$expr <- rlang::expr({
   .summary <- .dat %>% 
     dplyr::group_by(RegionName) %>%
     dplyr::summarise(AvgScore = as.integer(mean(ScoreAdjusted)))
-  .out <- list(summary = .summary,
+  list(summary = .summary,
        detail = .detail)
 })
 
-qpr_expr$spdat$ib <- rlang::expr({
+qpr_expr$spdat1$infobox <- rlang::expr({
   qpr_infobox(data_env()$summary,
               icon = "parachute-box",
               subtitle = "Households who were Housed in RRH or PSH in the Selected Region"
               )
 })
 
-qpr_expr$spdat$dt <- rlang::expr({
+qpr_expr$spdat1$datatable <- rlang::expr({
   qpr_datatable(data_env()$detail)
 })

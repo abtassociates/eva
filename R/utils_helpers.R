@@ -19,27 +19,32 @@ qpr_datatable <- function(.data,
                           ...
 ) {
   # Get default args
-  .dt_opts <- as.list(rlang::fn_fmls())
+  .dt_opts <- rlang::fn_fmls()
+  # Remove . args
+  .dt_opts <- .dt_opts[!grepl("^\\.", names(.dt_opts))]
   # Get user supplied args
   .user <- rlang::call_args(match.call())
-  # Get dots
-  .dots <- rlang::dots_list(...)
-  # Remove . args
-  .dt_opts <- .dt_opts[-tidyselect::starts_with(".", vars = names(.dt_opts))]
-  .user <- .user[-tidyselect::starts_with(".", vars = names(.user))]
+  .user <- append(.user[!grepl("^\\.", names(.user))], rlang::dots_list(...))
   
-  if (!identical(.dt_opts, .user)) {
+  if (!identical(.dt_opts, .user) && !rlang::is_empty(.user)) {
     .dt_opts <- purrr::list_modify(.dt_opts, !!!.user)
   } else if (.replace) {
     .dt_opts <- .user
   }
-  rlang::exec(DT::datatable, !!!.dt_opts, !!!.dots)
+  # replace data call with actual data
+  .dt_opts$data <- .data
+  #evaluate each item so calls are not passed in.
+  for (i in which(purrr::map_lgl(.dt_opts, is.call))) {
+    .dt_opts[[i]] <- eval(.dt_opts[[i]])
+  }
+  rlang::exec(DT::datatable, !!!.dt_opts)
 }
 
 
 #' @title qpr_infobox
 #' @description Function to render infobox from default template for QPR tabitems
-#' @param .data \code{(any)} Data to be passed in and used subsequent arguments
+#' @inheritParams shinydashboard::infoBox
+#' @inheritDotParams shinydashboard::infoBox
 #' @param .replace \code{(logical)} whether to replace the default arguments with those supplied and eliminate the default arguments, or to replace existing defaults & and add additional args specified
 #' @inheritParams shinydashboard infoBox
 #' @param ... \code{(named arguments)} passed on to \link[shinydashboard]{infoBox}
@@ -53,23 +58,28 @@ qpr_infobox <- function(.data,
                         .replace = FALSE,
                         title = "Average Score",
                         color = "purple",
+                        value = .data$AvgScore,
                         icon = shiny::icon("shopping-cart"),
-                        value = scales::percent(.data$Percent),
                         subtitle = paste(.data$Increased, "out of", .data$TotalHHs, "households served"),
                         ...
 ) {
-  .ib_opts <- as.list(rlang::fn_fmls())
+  
+  .ib_opts <- rlang::fn_fmls()
+  .ib_opts <- .ib_opts[!grepl("^\\.", names(.ib_opts))]
   .user <- rlang::call_args(match.call())
-  .ib_opts <- .ib_opts[-tidyselect::starts_with(".", vars = names(.ib_opts))]
-  .user <- .user[-tidyselect::starts_with(".", vars = names(.user))]
-  .dots <- rlang::dots_list(...)
+  .user <- append(.user[!grepl("^\\.", names(.user))], rlang::dots_list(...))
   if (inherits(.user$icon, "character")) .user$icon <- shiny::icon(.user$icon)
-  if (!identical(.ib_opts, .user)) {
+  if (!identical(.ib_opts, .user) && !rlang::is_empty(.user)) {
     .ib_opts <- purrr::list_modify(.ib_opts, !!!.user)
   } else if (.replace) {
     .ib_opts <- .user
   }
-  rlang::exec(shinydashboard::infoBox, !!!.ib_opts, !!!.dots)
+  # Evaluate all calls in this environment (purrr::map does not work)
+  for (i in which(purrr::map_lgl(.ib_opts, is.call))) {
+    .ib_opts[[i]] <- eval(.ib_opts[[i]])
+  }
+  
+  rlang::exec(shinydashboard::infoBox, !!!.ib_opts)
 }
 
 

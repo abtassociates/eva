@@ -20,7 +20,7 @@
 #' @importFrom lubridate floor_date today
 #' @importFrom shiny
 
-mod_QPR_tabItem_ui <- function(id, choices = tab_choices[[id]], date_choices = NULL) {
+mod_QPR_tabItem_ui <- function(id, choices = NULL, date_choices = NULL) {
   ns <- NS(id)
   # Create labeled Quarter List
   # .quarter_labels <- rev(unique(zoo::Sys.yearqtr() - 6 / 4:zoo::Sys.yearqtr() + 1 / 4))
@@ -38,28 +38,23 @@ mod_QPR_tabItem_ui <- function(id, choices = tab_choices[[id]], date_choices = N
    Regions = if (!isFALSE(choices)) list(
     inputId = ns("region"),
     label = "Select Region(s)",
-    choices = choices$choices,
+    choices = tab_choices[[id]]$choices,
     options = shinyWidgets::pickerOptions(                                                  liveSearch = TRUE),
     selected = NULL,
     width = "70%"
   )
   ))
   .user <- purrr::compact(list(
-    Dates = if (!is.null(date_choices)) date_choices,
-    Regions = if (!identical(region_choices, list(choices = c(unique(regions$RegionName[regions$County != "Mahoning"]))))) {
-      # if the argument to region_choices differs from the default then add region_choices to the list of user supplied arguments to modify in the default args
-       region_choices
-    }
+    Dates = date_choices,
+    Regions = choices
   ))
   if (length(.user) > 0) {
     # if there are 
     .defaults[names(.user)] <- purrr::map2(.defaults[names(.user)], .user, ~{
-      # check if there are any arguments supplied by user not in default args
-      .out <- purrr::list_modify(.x, !!!.y)
-      .out
+      # replace default params with those supplied by user on a param by param basis, retaining defaults.
+      purrr::list_modify(.x, !!!.y)
     })
   }
-  
   # tabItem Output ----
   # Mon Oct 26 15:09:32 2020
   shinydashboard::tabItem(
@@ -80,11 +75,11 @@ mod_QPR_tabItem_ui <- function(id, choices = tab_choices[[id]], date_choices = N
       )
     ),
     shiny::fluidRow(
-      shinydashboard::infoBoxOutput("ib_summary", width = 12)
+      shinydashboard::infoBoxOutput(ns("ib_summary"), width = 12)
       ),
     shiny::fluidRow(
       shinydashboard::box(
-      DT::dataTableOutput("dt_detail"), width = 12
+      DT::dataTableOutput(ns("dt_detail")), width = 12
       )
     )
   )
@@ -108,41 +103,23 @@ mod_QPR_server <- function(id, header, input, output, session, ...){
   }
   moduleServer(id, function(input, output, session){
     ns <- session$ns
-    # Process Slider Inputs
-    Report <- shiny::eventReactive(input$date, {
-      .dates <- lubridate::parse_date_time2(input$date_range, c("mdY", "Ymd"))
-      list(
-        Start = .dates[1],
-        End = .dates[2]
-      )
-    })
     
     # Header
     output$header <- shiny::renderUI({
-      .dots <- rlang::dots_list(...)
-      if (length(.dots) > 0) {
-        .header <- do.call(shiny::tagList, append(list(shiny::h2(header)), .dots))
-      } else {
-        .header <- shiny::tagList(
+      shiny::tagList(
           shiny::h2(header),
           shiny::h4(input$region),
-          shiny::h4(format.Date(Report()$Start, "%m-%d-%Y"), "-", format.Date(Report()$End, "%m-%d-%Y"))
+          shiny::h4(format.Date(input$date_range[1], "%m-%d-%Y"), "-", format.Date(input$date_range[2], "%m-%d-%Y"))
         )
-      }
-      .header
     })
     # Gather Objects
     
     # Process Data
     data_env <- shiny::reactive(qpr_expr[[id]]$expr, quoted = TRUE)
     
-    output$ib_summary <- shinydashboard::renderInfoBox({
-      rlang::eval_bare(qpr_expr[[id]]$ib)
-    })
+    output$ib_summary <- shinydashboard::renderInfoBox(qpr_expr[[id]]$infobox, quoted = TRUE)
     
-    output$dt_detail <- DT::renderDataTable({
-      rlang::eval_bare(qpr_expr[[id]]$dt)
-    })
+    output$dt_detail <- DT::renderDT(qpr_expr[[id]]$datatable, quoted = TRUE)
   })
 }
 
