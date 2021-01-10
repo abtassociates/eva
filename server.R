@@ -2050,6 +2050,10 @@ output$DeskTimePlotCoC <- renderPlot({
   
   mod_QPR_server("HI", "Health Insurance at Exit")
   
+  mod_QPR_server("income", "Health Insurance at Exit")
+  
+  mod_QPR_server("rapid", "Rapid Rehousing Spending Goals")
+  
   
   output$ExitsToPH <- DT::renderDataTable({
     ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%m-%d-%Y")
@@ -2123,146 +2127,10 @@ output$DeskTimePlotCoC <- renderPlot({
     
   })
   
-  output$IncomeIncrease <- DT::renderDataTable({
-    ReportStart <- format.Date(input$IncomeDateRange[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$IncomeDateRange[2], "%m-%d-%Y")
-    
-    a <- qpr_income %>%
-      filter(ProjectName == input$incomeProjectList &
-               stayed_between(., ReportStart, ReportEnd)) %>%
-      mutate(EntryIncome = dollar(EntryIncome, accuracy = .01),
-             RecentIncome = dollar(RecentIncome, accuracy = .01),
-             Difference = dollar(Difference, accuracy = .01),
-             PersonalID = as.character(PersonalID)) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate,
-        "Income at Entry" = EntryIncome,
-        "Most Recent Income" = RecentIncome,
-        "Increase Amount" = Difference
-      )
-    
-    datatable(a,
-              rownames = FALSE,
-              filter = 'top',
-              options = list(dom = 'ltpi'))
-  })
-  
-  output$qprIncomeSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$IncomeDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$IncomeDateRange[2], "%m-%d-%Y")
-      
-      meeting_objective <- qpr_income %>%
-        filter(
-          ProjectName == input$incomeProjectList &
-            stayed_between(., ReportStart, ReportEnd) &
-            Difference > 0
-        ) %>% 
-        group_by(ProjectName, ProjectType, ProjectCounty, ProjectRegion) %>%
-        summarise(Increased = n())
-      
-      # calculating the total households for comparison
-      all_hhs <- qpr_income %>%
-        filter(ProjectName %in% input$incomeProjectList &
-                 stayed_between(., ReportStart, ReportEnd)) %>%
-        group_by(ProjectName, ProjectType, ProjectCounty, ProjectRegion) %>%
-        summarise(TotalHHs = n()) 
-      
-      IncreasedIncome <- all_hhs %>%
-        left_join(
-          meeting_objective,
-          by = c("ProjectName", "ProjectType", "ProjectCounty", "ProjectRegion")
-        )
-      
-      IncreasedIncome[is.na(IncreasedIncome)] <- 0
-      
-      IncreasedIncome <- IncreasedIncome %>%
-        mutate(Percent = Increased / TotalHHs)
-      
-      if(nrow(IncreasedIncome) > 0) {
-        infoBox(
-          title = "Households Increasing Their Income",
-          color = "green",
-          icon = icon("hand-holding-usd"),
-          value = percent(IncreasedIncome$Percent),
-          subtitle = paste(IncreasedIncome$Increased, 
-                           "out of",
-                           IncreasedIncome$TotalHHs, 
-                           "households served")
-        )
-      }
-      else{
-        infoBox(
-          title = "Something's wrong- email us at hmis@cohhio.org!"
-        )
-      }
-    })
   
   
-
   
-  output$daysToHouseRRH <- DT::renderDataTable({
-    ReportStart <- format.Date(input$DaysToHouseDateRange[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$DaysToHouseDateRange[2], "%m-%d-%Y")
-    
-    daysToHouse <- qpr_rrh_enterers %>%
-      filter(
-        !is.na(MoveInDateAdjust) &
-          ProjectName %in% c(input$RapidRRHProviderList) &
-          entered_between(., ReportStart, ReportEnd)
-      ) %>%
-      mutate(PersonalID = as.character(PersonalID)) %>%
-      arrange(DaysToHouse) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        "Move In Date" = MoveInDate,
-        "Days to House" = DaysToHouse
-      )
-    
-    datatable(daysToHouse,
-              rownames = FALSE,
-              filter = 'top',
-              options = list(dom = 'ltpi'))
-    
-  })
   
-  output$daysToHouseSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$DaysToHouseDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$DaysToHouseDateRange[2], "%m-%d-%Y")
-      
-      days <- qpr_rrh_enterers %>%
-        filter(
-          ProjectType == 13 &
-            !is.na(MoveInDateAdjust) &
-            ProjectName %in% c(input$RapidRRHProviderList) &
-            entered_between(., ReportStart, ReportEnd)
-        ) %>%
-        mutate(DaysToHouse = difftime(MoveInDateAdjust, EntryDate, units = "days")) %>%
-        summarise(AvgDaysToHouse = as.integer(mean(DaysToHouse)))
-      
-      infoBox(
-        title = "Average Days to House",
-        color = "purple",
-        icon = icon("hourglass-half"),
-        value = days$AvgDaysToHouse,
-        subtitle = "See table below for detail."
-      )
-      
-    })
-  
-  output$headerRRHSpending <- renderUI({
-    ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%B %d, %Y")
-    
-    list(h2("Quarterly Performance Report"),
-         h3("Rapid Rehousing Spending Goals"),
-         # h4(input$RRHRegion),
-         h4(ReportStart, "-", ReportEnd))
-  })
   
   #  QPR HP vs RRH Spending
   output$RRHSpending <-

@@ -3,7 +3,7 @@ qpr_expr$NCB$expr <- rlang::expr({
   
   .dat <- qpr_benefits %>%
     filter(ProjectName == input$region &
-             exited_between(., input$date_range[1], input$date_range[1]))
+             exited_between(., input$date_range[1], input$date_range[2]))
   
   .detail <- .dat %>%
     mutate(
@@ -47,8 +47,9 @@ qpr_expr$NCB$expr <- rlang::expr({
 })
 
 qpr_expr$NCB$infobox <- rlang::expr({
-  if (nrow(data_env()$summary) > 0) {
-    .args <- list(.data = data_env()$summary,
+  .data <- data_env()$summary
+  if (nrow(.data) > 0) {
+    .args <- list(.data = .data,
                 icon = "shopping-cart",
                 color = "fuchsia",
                 value = scales::percent(.data$Percent),

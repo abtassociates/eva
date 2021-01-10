@@ -3,8 +3,9 @@ qpr_expr$HI$expr <- rlang::expr({
   
   .dat <- qpr_benefits %>%
     filter(ProjectName == input$region &
-             exited_between(., input$date_range[1], input$date_range[1]))
-  
+             exited_between(., input$date_range[1], input$date_range[2]))
+  # input <- list(region = "Richland - Harmony House Homeless Services - HCRP RRH",
+  #               date_range = c(lubridate::ymd("2020-01-01"), Sys.Date()))
   .detail <- .dat %>%
     mutate(
       InsuranceFromAnySource = case_when(
@@ -47,8 +48,9 @@ qpr_expr$HI$expr <- rlang::expr({
 })
 
 qpr_expr$HI$infobox <- rlang::expr({
-  if (nrow(data_env()$summary) > 0) {
-    .args <- list(.data = data_env()$summary,
+  .data <- data_env()$summary
+  if (nrow(.data) > 0) {
+    .args <- list(.data = .data,
                   title = "Total Households Exiting With Health Insurance",
                   color = "black",
                   icon = "medkit",

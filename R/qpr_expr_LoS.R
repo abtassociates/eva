@@ -36,7 +36,8 @@ qpr_expr$LoS$expr <- rlang::expr({
 })
 
 qpr_expr$LoS$infobox <- rlang::expr({
-  qpr_infobox(data_env()$summary,
+  .data <- data_env()$summary
+  qpr_infobox(.data,
               icon = "clock",
               value = paste("Average", 
                             .data$Average, 

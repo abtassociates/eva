@@ -61,9 +61,9 @@ dashboardPage(
         menuSubItem("Health Insurance at Exit",
                     tabName = "HI-Tab"),
         menuSubItem("Income Growth",
-                    tabName = "incomeTab"),
+                    tabName = "income-Tab"),
         menuSubItem("Rapid Placement for RRH",
-                    tabName = "rapidTab"),
+                    tabName = "rapid-Tab"),
         menuSubItem("RRH Spending",
                     tabName = "spendingTab")
       )
@@ -605,66 +605,8 @@ dashboardPage(
       ),
       mod_QPR_tabItem_ui("NCB"),
       mod_QPR_tabItem_ui("HI"),
-      
-      tabItem(
-        tabName = "incomeTab",
-        fluidRow(box(
-          htmlOutput("headerIncomeIncrease"), width = 12
-        )),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "incomeProjectList",
-              choices = c(unique(qpr_income$ProjectName)),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "IncomeDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("qprIncomeSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("IncomeIncrease"), width = 12
-        ))
-      ),
-      tabItem(
-        tabName = "rapidTab",
-        fluidRow(box(htmlOutput(
-          "headerDaysToHouse"
-        ), width = 12)),
-        fluidRow(
-          box(
-            setSliderColor("#56B4E9", 1),
-            pickerInput(
-              inputId = "RapidRRHProviderList",
-              choices = c(unique(sort(
-                qpr_rrh_enterers$ProjectName
-              ))),
-              options = list(`live-search` = TRUE),
-              width = "100%"
-            ),
-            dateRangeInput(
-              "DaysToHouseDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("daysToHouseSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("daysToHouseRRH"), width = 12
-        ))
-      ),
+      mod_QPR_tabItem_ui("income"),
+      mod_QPR_tabItem_ui("rapid"),
       tabItem(
         tabName = "spendingTab",
         fluidRow(box(htmlOutput(
