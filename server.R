@@ -381,18 +381,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   
   
-  output$headerHealthInsurance <- renderUI({
-    ReportStart <- format.Date(input$HIDateRange[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$HIDateRange[2], "%B %d, %Y")
-    
-    list(h2("Health Insurance at Exit"),
-         h4(input$MBProjectListHI),
-         h4(paste(
-           ReportStart,
-           "to",
-           ReportEnd
-         )))
-  })
+  
   
   output$headerDaysToHouse <- renderUI({
     ReportStart <- format.Date(input$LoSDateRange[1], "%B %d, %Y")
@@ -2059,6 +2048,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   mod_QPR_server("NCB", "Non-Cash Benefits at Exit")
   
+  mod_QPR_server("HI", "Health Insurance at Exit")
+  
   
   output$ExitsToPH <- DT::renderDataTable({
     ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%m-%d-%Y")
@@ -2210,85 +2201,7 @@ output$DeskTimePlotCoC <- renderPlot({
     })
   
   
-  output$ExitedWithInsurance <- DT::renderDataTable({
-    ReportStart <- format.Date(input$HIDateRange[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$HIDateRange[2], "%m-%d-%Y")
-    
-    a <- qpr_benefits %>%
-      filter(ProjectName == input$MBProjectListHI &
-               exited_between(., ReportStart, ReportEnd)) %>%
-      mutate(
-        InsuranceFromAnySource = case_when(
-          InsuranceFromAnySource == 0 ~ "No (HUD)",
-          InsuranceFromAnySource == 1 ~ "Yes (HUD)",
-          InsuranceFromAnySource == 8 ~ "Client doesn't know (HUD)",
-          InsuranceFromAnySource == 9 ~ "Client refused (HUD)",
-          InsuranceFromAnySource == 99 ~ "Data Not Collected (HUD)"
-        )
-      ) %>%
-      mutate(PersonalID = as.character(PersonalID)) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate,
-        "Health Insurance from Any Source (at Exit)" = InsuranceFromAnySource
-      )
-    datatable(a,
-              rownames = FALSE,
-              filter = 'top',
-              options = list(dom = 'ltpi'))
-    
-  })
-  
-  output$healthInsuranceSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$HIDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$HIDateRange[2], "%m-%d-%Y")
-      
-      meeting_objective <- qpr_benefits %>%
-        filter(
-            ProjectName == input$MBProjectListHI &
-            exited_between(., ReportStart, ReportEnd) &
-            InsuranceFromAnySource == 1
-        ) %>% 
-        group_by(ProjectName) %>%
-        summarise(InsuranceAtExit = n())
-      
-      # calculating the total households for comparison
-      all_hhs <- qpr_benefits %>%
-        filter(ProjectName == input$MBProjectListHI &
-                 exited_between(., ReportStart, ReportEnd)) %>%
-        group_by(ProjectName) %>%
-        summarise(TotalHHs = n()) 
-      
-      HIAtExit <- all_hhs %>%
-        left_join(
-          meeting_objective,
-          by = c("ProjectName")
-        )
-      
-      HIAtExit[is.na(HIAtExit)] <- 0
-      
-      HIAtExit <- HIAtExit %>%
-        mutate(Percent = InsuranceAtExit / TotalHHs)
-      
-      if(nrow(HIAtExit) > 0) {
-        infoBox(
-        title = "Total Households Exiting With Health Insurance",
-        color = "black",
-        icon = icon("medkit"),
-        value = percent(HIAtExit$Percent),
-        subtitle = paste(HIAtExit$InsuranceAtExit, 
-                          "out of",
-                         HIAtExit$TotalHHs,
-                         "households")
-        )}
-      else{
-        infoBox(
-          title = "No Leavers in the Date Range"
-        )
-      }
-    })
+
   
   output$daysToHouseRRH <- DT::renderDataTable({
     ReportStart <- format.Date(input$DaysToHouseDateRange[1], "%m-%d-%Y")

@@ -59,7 +59,7 @@ dashboardPage(
         menuSubItem("Non-Cash Benefits at Exit",
                     tabName = "NCB-Tab"),
         menuSubItem("Health Insurance at Exit",
-                    tabName = "HITab"),
+                    tabName = "HI-Tab"),
         menuSubItem("Income Growth",
                     tabName = "incomeTab"),
         menuSubItem("Rapid Placement for RRH",
@@ -604,35 +604,8 @@ dashboardPage(
         ))
       ),
       mod_QPR_tabItem_ui("NCB"),
-      tabItem(
-        tabName = "HITab",
-        fluidRow(box(
-          htmlOutput("headerHealthInsurance"), width = 12
-        )),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "MBProjectListHI",
-              choices = c(unique(qpr_benefits$ProjectName)),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "HIDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("healthInsuranceSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("ExitedWithInsurance"),
-          width = 12
-        ))
-      ),
+      mod_QPR_tabItem_ui("HI"),
+      
       tabItem(
         tabName = "incomeTab",
         fluidRow(box(
