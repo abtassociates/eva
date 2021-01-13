@@ -1030,6 +1030,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(
         Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household"
         ) &
@@ -1057,6 +1058,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(
         Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household"
         ) &
@@ -1608,6 +1610,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -1670,6 +1673,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -1874,6 +1878,7 @@ output$DeskTimePlotCoC <- renderPlot({
     HHIssues <- dq_unsheltered %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
+                     "Missing Relationship to Head of Household",
                      "Children Only Household", 
                      "No Head of Household") &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1897,6 +1902,7 @@ output$DeskTimePlotCoC <- renderPlot({
     HHIssues <- dq_unsheltered %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
+                     "Missing Relationship to Head of Household",
                      "Children Only Household", 
                      "No Head of Household") &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -2071,6 +2077,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -2105,6 +2112,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
