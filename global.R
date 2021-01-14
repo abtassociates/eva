@@ -11,7 +11,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
-
+Sys.setenv(TZ = "America/New_York")
 library(tidyverse)
 library(shinydashboard)
 library(shiny)
