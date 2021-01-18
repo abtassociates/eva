@@ -766,11 +766,15 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- utilization %>%
-        filter(ProjectName == input$providerListUtilization) %>%
-        select(BedCount)
+      beds <- Beds %>%
+        filter(ProjectName == input$providerListUtilization &
+                 beds_available_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectID) %>%
+        summarise(BedCount = sum(BedInventory)) %>%
+        ungroup() %>%
+        pull(BedCount)
       
-      daysInMonth <- days_in_month(input$utilizationDate)
+      daysInMonth <- days_in_month(ymd(input$utilizationDate))
       
       infoBox(
         title = "Total Bed Nights Served",
@@ -806,15 +810,19 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- utilization %>%
-        filter(ProjectName == input$providerListUtilization) %>%
-        select(BedCount)
+      beds <- Beds %>%
+        filter(ProjectName == input$providerListUtilization &
+                 beds_available_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectID) %>%
+        summarise(BedCount = sum(BedInventory)) %>%
+        ungroup() %>%
+        pull(BedCount)
       
       # units <- Utilization %>%
       #   filter(ProjectName == input$providerListUtilization) %>%
       #   select(UnitCount)
       
-      daysInMonth <- days_in_month(input$utilizationDate)
+      daysInMonth <- days_in_month(ymd(input$utilizationDate))
       
       infoBox(
         title = "Possible Bed Nights",
@@ -859,11 +867,13 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- utilization %>%
-        filter(ProjectName == input$providerListUtilization) %>%
-        select(BedCount)
-      
-      beds <- as.numeric(beds)
+      beds <- Beds %>%
+        filter(ProjectName == input$providerListUtilization &
+                 beds_available_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectID) %>%
+        summarise(BedCount = sum(BedInventory)) %>%
+        ungroup() %>%
+        pull(BedCount)
       
       daysInMonth <-
         as.numeric(days_in_month(ymd(input$utilizationDate)))
