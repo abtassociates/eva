@@ -71,7 +71,7 @@ dashboardPage(
     HTML(
       paste0(
         "<br>&emsp;Data last refreshed:&emsp;<br>&emsp;",
-        format(update_date, "%m-%d-%Y %I:%M %p")
+        format(meta_HUDCSV_Export_Date, "%m-%d-%Y %I:%M %p")
         ,
         "<p><p>&emsp;Wear your mask! Be well."
       )
@@ -132,7 +132,7 @@ dashboardPage(
                 dateRangeInput(
                   "dateRangeCount",
                   "Date Range",
-                  min = FileActualStart,
+                  min = meta_HUDCSV_Export_Start,
                   format = "mm/dd/yyyy",
                   width = '50%'
                 ),        
@@ -173,12 +173,12 @@ dashboardPage(
             airDatepickerInput(
               inputId = "utilizationDate",
               label = "Click to Choose a Month",
-              max = ymd(floor_date(update_date, unit = "month") - days(1)),
-              min = ymd(floor_date(mdy(FileEnd), "month") - years(2) + days(1)), 
+              max = ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+              min = ymd(floor_date(ymd(meta_HUDCSV_Export_End), "month") - years(2) + days(1)), 
               dateFormat = "MM yyyy",
               view = "month",
               value =
-                ymd(floor_date(update_date, unit = "month") - days(1)),
+                ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
               minView = "months",
               addon = "none",
               autoClose = TRUE,
@@ -226,7 +226,7 @@ dashboardPage(
             label = "Report Start Date",
             format = "mm/dd/yyyy",
             value = mdy("10012018"),
-            min = FileActualStart,
+            min = meta_HUDCSV_Export_Start,
             width = "25%"
           ),
           width = 12
@@ -497,12 +497,12 @@ dashboardPage(
                     label = "Report Start Month",
                     dateFormat = "MM yyyy",
                     max =
-                      ymd(floor_date(update_date, unit = "month") - days(1)),
+                      ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
                     min =
-                      ymd(floor_date(FileActualStart, unit = "month")),
+                      ymd(floor_date(meta_HUDCSV_Export_Start, unit = "month")),
                     view = "month",
                     value =
-                      ymd(floor_date(update_date - days(182), unit = "month")),
+                      ymd(floor_date(meta_HUDCSV_Export_Date - days(182), unit = "month")),
                     minView = "months",
                     addon = "none",
                     autoClose = TRUE,                    
@@ -586,7 +586,7 @@ dashboardPage(
               "Date Range",
               start = floor_date(today() - days(31), "year"),
               end = today(),
-              min = FileStart,
+              min = meta_HUDCSV_Export_Start,
               format = "mm/dd/yyyy"
             )
           )
@@ -614,7 +614,7 @@ dashboardPage(
               "Date Range",
               start = floor_date(today() - days(31), "year"),
               end = today(),
-              min = FileStart,
+              min = meta_HUDCSV_Export_Start,
               format = "mm/dd/yyyy"
             )
           )
@@ -640,7 +640,7 @@ dashboardPage(
               "Date Range",
               start = floor_date(today() - days(31), "year"),
               end = today(),
-              min = FileStart,
+              min = meta_HUDCSV_Export_Start,
               format = "mm/dd/yyyy"
             )
           )
@@ -666,7 +666,7 @@ dashboardPage(
               "Date Range",
               start = floor_date(today() - days(31), "year"),
               end = today(),
-              min = FileStart,
+              min = meta_HUDCSV_Export_Start,
               format = "mm/dd/yyyy"
             )
           )
@@ -698,7 +698,7 @@ dashboardPage(
               "Date Range",
               start = floor_date(today() - days(31), "year"),
               end = today(),
-              min = FileStart,
+              min = meta_HUDCSV_Export_Start,
               format = "mm/dd/yyyy"
             )
           )
@@ -726,7 +726,7 @@ dashboardPage(
               "Date Range",
               start = floor_date(today() - days(31), "year"),
               end = today(),
-              min = FileStart,
+              min = meta_HUDCSV_Export_Start,
               format = "mm/dd/yyyy"
             )
           )
@@ -755,7 +755,7 @@ dashboardPage(
               "Date Range",
               start = floor_date(today() - days(31), "year"),
               end = today(),
-              min = FileStart,
+              min = meta_HUDCSV_Export_Start,
               format = "mm/dd/yyyy"
             )
           )
@@ -786,7 +786,7 @@ dashboardPage(
               "Date Range",
               start = floor_date(today() - days(31), "year"),
               end = today(),
-              min = FileStart,
+              min = meta_HUDCSV_Export_Start,
               format = "mm/dd/yyyy"
             )
           )
@@ -818,7 +818,7 @@ dashboardPage(
               "Date Range",
               start = floor_date(today() - days(31), "year"),
               end = today(),
-              min = FileStart,
+              min = meta_HUDCSV_Export_Start,
               format = "mm/dd/yyyy"
             )
           )

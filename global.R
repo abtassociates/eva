@@ -40,7 +40,6 @@ desk_time_providers <- validation %>%
 
 dtproviders <- sort(desk_time_providers$ProjectName) %>% unique()
 
-# filebeginningdate <- update_date - years(2)
 
 
 
