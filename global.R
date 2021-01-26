@@ -42,7 +42,7 @@ desk_time_providers <- validation %>%
 dtproviders <- sort(desk_time_providers$ProjectName) %>% unique()
 
 # filebeginningdate <- update_date - years(2)
-tab_choices <- unique(regions$RegionName[regions$County != "Mahoning"]) %>% 
+tab_choices <- unique(regions$RegionName) %>% 
 {list(
   spdat1 = list(
     choices = .

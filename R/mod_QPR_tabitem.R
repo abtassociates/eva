@@ -109,7 +109,7 @@ mod_QPR_server <- function(id, header, input, output, session, ...){
       shiny::tagList(
           shiny::h2(header),
           shiny::h4(input$region),
-          shiny::h4(format.Date(input$date_range[1], "%m-%d-%Y"), "-", format.Date(input$date_range[2], "%m-%d-%Y"))
+          shiny::h4(format.Date(input$date_range[1], "%B %d, %Y"), "-", format.Date(input$date_range[2], "%B %d, %Y"))
         )
     })
     # Gather Objects
@@ -121,5 +121,6 @@ mod_QPR_server <- function(id, header, input, output, session, ...){
     
     output$dt_detail <- DT::renderDT(qpr_expr[[id]]$datatable, quoted = TRUE)
   })
+  
 }
 

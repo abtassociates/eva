@@ -379,6 +379,14 @@ output$DeskTimePlotCoC <- renderPlot({
          )))
   })
   
+  output$headerRRHSpending <- renderUI({
+    ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%B %d, %Y")
+    ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%B %d, %Y")
+    list(h2("Quarterly Performance Report"),
+         h3("Rapid Rehousing Spending Goals"),
+         # h4(input$RRHRegion),
+         h4(ReportStart, "-", ReportEnd))
+  })
   
   
   
@@ -635,7 +643,8 @@ output$DeskTimePlotCoC <- renderPlot({
         ) %>%
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate),
-               PersonalID = as.character(PersonalID)) %>%
+               PersonalID = as.character(PersonalID),
+               across(.fns = ~dplyr::if_else(is.null(.x), 0 , .x))) %>%
         select(PersonalID, BedStart, ExitDate, all_of(y))
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
