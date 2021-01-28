@@ -200,7 +200,7 @@ output$DeskTimePlotDetail <- renderPlot({
   ReportStart <- format.Date(ymd(today() - years(1)), "%m-%d-%Y")
   ReportEnd <- format.Date(ymd(today()), "%m-%d-%Y")
   
-  desk_time <- validation %>%
+  desk_time <- validation() %>%
     filter(ProjectName == provider &
              entered_between(., ReportStart, ReportEnd) &
              ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
@@ -270,7 +270,7 @@ output$DeskTimePlotCoC <- renderPlot({
   ReportStart <- format.Date(ymd(today() - years(1)), "%m-%d-%Y")
   ReportEnd <- format.Date(ymd(today()), "%m-%d-%Y")
   
-  desk_time <- validation %>%
+  desk_time <- validation() %>%
     filter(entered_between(., ReportStart, ReportEnd) &
              ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
     select(ProjectName, PersonalID, HouseholdID, EntryDate, DateCreated) %>%
@@ -406,7 +406,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$prioritizationData <- DT::renderDataTable({
     
-    active <- active_list %>%
+    active <- active_list() %>%
       filter(CountyServed %in% c(input$prioritizationCounty) |
                is.na(CountyServed)) %>%
       arrange(COVID19Priority) %>%
@@ -469,7 +469,7 @@ output$DeskTimePlotCoC <- renderPlot({
       "active_list.xlsx"
     },
     content = function(file) {
-      write_xlsx(active_list %>%
+      write_xlsx(active_list() %>%
                    filter(
                      CountyServed %in% c(input$prioritizationCounty) |
                        is.na(CountyServed)
@@ -482,7 +482,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportEnd <- format.Date(input$dateRangeCount[2], "%m-%d-%Y")
     
     datatable(
-      validation %>%
+      validation() %>%
         filter(served_between(., ReportStart, ReportEnd) &
                  ProjectName == input$currentProviderList) %>%
         mutate(
@@ -542,7 +542,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$dateRangeCount[1], "%m-%d-%Y")
     ReportEnd <- format.Date(input$dateRangeCount[2], "%m-%d-%Y")
     
-    hhs <- validation %>%
+    hhs <- validation() %>%
       filter(served_between(., ReportStart, ReportEnd) &
                ProjectName == input$currentProviderList) %>%
       select(HouseholdID,
@@ -577,7 +577,7 @@ output$DeskTimePlotCoC <- renderPlot({
       group_by(Status) %>%
       summarise(Households = n())
     
-    clients <- validation %>%
+    clients <- validation() %>%
       filter(served_between(., ReportStart, ReportEnd) &
                ProjectName == input$currentProviderList) %>%
       select(PersonalID,
@@ -635,16 +635,15 @@ output$DeskTimePlotCoC <- renderPlot({
       
       z <-
         paste("Bed Nights in", format(ymd(input$utilizationDate), "%B %Y"))
-      
-      a <- utilizers_clients %>%
+      # input <- list(providerListUtilization = sample(c(sort(utilization_bed()$ProjectName)), 1))
+      a <- objects$utilizers_clients %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate),
-               PersonalID = as.character(PersonalID),
-               across(.fns = ~dplyr::if_else(is.null(.x), 0 , .x))) %>%
+               PersonalID = as.character(PersonalID)) %>%
         select(PersonalID, BedStart, ExitDate, all_of(y))
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
@@ -670,7 +669,7 @@ output$DeskTimePlotCoC <- renderPlot({
                   "01",
                   substr(input$utilizationDate, 1, 4))
       
-      a <- utilizers_clients %>%
+      a <- utilizers_clients() %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
@@ -681,7 +680,7 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- utilization %>%
+      beds <- utilization() %>%
         filter(ProjectName == input$providerListUtilization) %>%
         select(BedCount)
       
@@ -710,7 +709,7 @@ output$DeskTimePlotCoC <- renderPlot({
                   "01",
                   substr(input$utilizationDate, 1, 4))
       
-      a <- utilizers_clients %>%
+      a <- utilizers_clients() %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
@@ -721,7 +720,7 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- utilization %>%
+      beds <- utilization() %>%
         filter(ProjectName == input$providerListUtilization) %>%
         select(BedCount)
       
@@ -763,7 +762,7 @@ output$DeskTimePlotCoC <- renderPlot({
                   "01",
                   substr(input$utilizationDate, 1, 4))
       
-      a <- utilizers_clients %>%
+      a <- utilizers_clients() %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
@@ -774,7 +773,7 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- utilization %>%
+      beds <- utilization() %>%
         filter(ProjectName == input$providerListUtilization) %>%
         select(BedCount)
       
@@ -801,7 +800,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$dq_provider_summary_table <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    guidance <- dq_main %>%
+    guidance <- dq_main() %>%
       filter(ProjectName == input$providerListDQ &
                served_between(., ReportStart, ReportEnd)) %>%
       group_by(Type, Issue, Guidance) %>%
@@ -823,7 +822,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$dq_unsheltered_summary_table <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    dq_unsheltered %>%
+    dq_unsheltered() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
                served_between(., ReportStart, ReportEnd)) %>%
       group_by(Type, Issue, Guidance) %>%
@@ -836,7 +835,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$dq_unsheltered_summary_box <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    x <- dq_unsheltered %>%
+    x <- dq_unsheltered() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
                served_between(., ReportStart, ReportEnd))
     if (nrow(x) > 0) {
@@ -857,12 +856,12 @@ output$DeskTimePlotCoC <- renderPlot({
   output$dq_region_summary_table <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_region_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    a <- dq_main %>%
+    a <- dq_main() %>%
       filter(ProjectRegion == input$regionList3 &
                served_between(., ReportStart, ReportEnd)) %>%
       select(ProjectName, Type, Issue, PersonalID)
     
-    b <- dq_unsheltered %>%
+    b <- dq_unsheltered() %>%
       filter(UserRegion == input$regionList3 &
                served_between(., ReportStart, ReportEnd)) %>%
       mutate(ProjectName = paste("Unsheltered Provider, entered by a user from", 
@@ -884,7 +883,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DuplicateEEs <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    DuplicateEEs <- dq_main %>%
+    DuplicateEEs <- dq_main() %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           ProjectName == input$providerListDQ &
@@ -906,7 +905,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQDuplicateEEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    DuplicateEEs <- dq_main %>%
+    DuplicateEEs <- dq_main() %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           ProjectName == input$providerListDQ &
@@ -941,7 +940,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$HouseholdIssues <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    HHIssues <- dq_main %>%
+    HHIssues <- dq_main() %>%
       filter(
         Issue %in% c(
           "Too Many Heads of Household",
@@ -968,7 +967,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQHHIssues <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    HHIssues <- dq_main %>%
+    HHIssues <- dq_main() %>%
       filter(
         Issue %in% c(
           "Too Many Heads of Household",
@@ -999,7 +998,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQMissingLocation <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    HHIssues <- dq_main %>%
+    HHIssues <- dq_main() %>%
       filter(
         Issue == "Missing Client Location" &
           ProjectName == input$providerListDQ &
@@ -1027,7 +1026,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$ClientLocation <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    HHIssues <- dq_main %>%
+    HHIssues <- dq_main() %>%
       filter(
         Issue == "Missing Client Location" &
           ProjectName == input$providerListDQ &
@@ -1049,7 +1048,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQPATHMissingContact <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    no_contact <- dq_main %>%
+    no_contact <- dq_main() %>%
       filter(
         Issue == "Missing PATH Contact" &
           ProjectName == input$providerListDQ &
@@ -1061,7 +1060,7 @@ output$DeskTimePlotCoC <- renderPlot({
         title = "Missing Contact (PATH)",
         status = "warning",
         solidHeader = TRUE,
-        dq_main %>%
+        dq_main() %>%
           filter(Issue == "Missing PATH Contact") %>%
           select(Guidance) %>%
           unique(),
@@ -1076,7 +1075,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$MissingPATHContact <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    x <- dq_main %>%
+    x <- dq_main() %>%
       filter(
         Issue == "Missing PATH Contact" &
           ProjectName == input$providerListDQ &
@@ -1098,7 +1097,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$APs_with_EEs <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    APs_w_EEs <- dq_main %>%
+    APs_w_EEs <- dq_main() %>%
       filter(
         Issue == "Access Point with Entry Exits" &
           ProjectName == input$providerListDQ &
@@ -1118,7 +1117,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQ_APs_w_EEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    APs_w_EEs <- dq_main %>%
+    APs_w_EEs <- dq_main() %>%
       filter(
         Issue == "Access Point with Entry Exits" &
           ProjectName == input$providerListDQ &
@@ -1146,7 +1145,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
-    OverlappingEEs <- dq_overlaps %>%
+    OverlappingEEs <- dq_overlaps() %>%
       filter(
           ProjectName == input$providerListDQ &
           served_between(., ReportStart, ReportEnd)
@@ -1171,7 +1170,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     # FIXME Repetition of filter/mutate (use eventReactive)
-    OverlappingEEs <- dq_overlaps %>%
+    OverlappingEEs <- dq_overlaps() %>%
       filter(
         Issue == "Overlapping Project Stays" &
           ProjectName == input$providerListDQ &
@@ -1220,7 +1219,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$DQAPsNoReferrals <- renderUI({
-    AP_not_doing_referrals <- aps_no_referrals %>%
+    AP_not_doing_referrals <- aps_no_referrals() %>%
       filter(ProviderCreating == input$providerListDQ)
     
     if (nrow(AP_not_doing_referrals) > 0) {
@@ -1245,7 +1244,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$cocAPsNoReferralsList <-
     DT::renderDataTable({
-      a <- aps_no_referrals %>% arrange(ProviderCreating)
+      a <- aps_no_referrals() %>% arrange(ProviderCreating)
       
       datatable(a, rownames = FALSE)
     })
@@ -1257,7 +1256,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- "10012018"
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
-    a <- dq_overlaps %>%
+    a <- dq_overlaps() %>%
       filter(served_between(., ReportStart, ReportEnd)) %>%
       group_by(ProjectName) %>%
       summarise(Clients = n()) %>%
@@ -1273,12 +1272,12 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <-  format.Date(input$unshEntriesByMonth_ReportStart, "%m-%d-%Y")
     ReportEnd <-  format.Date(update_date, "%m-%d-%Y")
     
-    monthyears <- unsheltered_by_month %>%
+    monthyears <- unsheltered_by_month() %>%
       arrange(EntryDate) %>%
       pull(EntryDateDisplay) %>%
       unique()   
     
-    unsheltered_by_month <- unsheltered_by_month %>%
+    unsheltered_by_month <- unsheltered_by_month() %>%
       filter(entered_between(., ReportStart, ReportEnd),
              County %in% c(input$unshEntriesByMonth_County)) %>%
       select(HouseholdID, EntryDateDisplay, County) %>%
@@ -1326,7 +1325,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- "10012018"
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
-    a <- dq_main %>%
+    a <- dq_main() %>%
       filter(served_between(., ReportStart, ReportEnd) &
                Issue == "Extremely Long Stayer") %>%
       group_by(ProjectName) %>%
@@ -1344,7 +1343,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- "10012018"
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
-    a <- dq_main %>%
+    a <- dq_main() %>%
       filter(served_between(., ReportStart, ReportEnd) &
                Issue %in% c(
                "Incorrect Exit Destination (should be \"Rental by client, with RRH...\")",
@@ -1362,7 +1361,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$cocWidespreadIssues <- DT::renderDataTable({
-    a <- dq_past_year %>%
+    a <- dq_past_year() %>%
       select(Issue, ProjectName, Type) %>%
       unique() %>%
       group_by(Issue, Type) %>%
@@ -1391,7 +1390,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$cocAPsNoReferrals <- renderPlot({
     
-    ggplot(data_APs, aes(fill = category, x = providertype, y = percent)) +
+    ggplot(data_APs(), aes(fill = category, x = providertype, y = percent)) +
       geom_bar(position = "fill",
                 stat = "identity",
                width = .1) +
@@ -1417,7 +1416,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$Ineligible <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    Ineligible <- detail_eligibility %>%
+    Ineligible <- detail_eligibility() %>%
       filter(ProjectName == input$providerListDQ &
                served_between(., ReportStart, ReportEnd)) %>%
       mutate(
@@ -1438,7 +1437,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQIneligible <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    Ineligible <- detail_eligibility %>%
+    Ineligible <- detail_eligibility() %>%
       filter(ProjectName == input$providerListDQ &
                served_between(., ReportStart, ReportEnd))
     
@@ -1467,7 +1466,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQIncorrectEETypeTable <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    EEType <- dq_main %>%
+    EEType <- dq_main() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
           ProjectName == input$providerListDQ &
@@ -1487,7 +1486,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQIncorrectEEType <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    EEType <- dq_main %>%
+    EEType <- dq_main() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
           ProjectName == input$providerListDQ &
@@ -1520,7 +1519,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
-    DQErrors <- dq_main %>%
+    DQErrors <- dq_main() %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
@@ -1549,7 +1548,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   output$VeteranActiveList <- DT::renderDataTable({
 
-    active_list <- veteran_active_list %>%
+    active_list <- veteran_active_list() %>%
       arrange(HouseholdID, PersonalID) %>%
       mutate(PersonalID = if_else(
         is.na(HOMESID),
@@ -1582,7 +1581,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
-    DQWarnings <- dq_main %>%
+    DQWarnings <- dq_main() %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
@@ -1614,7 +1613,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$unshIncorrectResPriorTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    ResPrior <- dq_unsheltered %>%
+    ResPrior <- dq_unsheltered() %>%
       filter(
         Issue == "Wrong Provider (Not Unsheltered)" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1634,7 +1633,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$unshIncorrectResPrior <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    ResPrior <- dq_unsheltered %>%
+    ResPrior <- dq_unsheltered() %>%
       filter(
         Issue == "Wrong Provider (Not Unsheltered)" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1676,7 +1675,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$unshIncorrectEETypeTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    EEType <- dq_unsheltered %>%
+    EEType <- dq_unsheltered() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1696,7 +1695,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$unshIncorrectEEType <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    EEType <- dq_unsheltered %>%
+    EEType <- dq_unsheltered() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1733,7 +1732,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$unshDuplicateEEsTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    DuplicateEEs <- dq_unsheltered %>%
+    DuplicateEEs <- dq_unsheltered() %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1755,7 +1754,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$unshDuplicateEEs <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    DuplicateEEs <- dq_unsheltered %>%
+    DuplicateEEs <- dq_unsheltered() %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1787,7 +1786,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$unshHHIssuesTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    HHIssues <- dq_unsheltered %>%
+    HHIssues <- dq_unsheltered() %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
                      "Children Only Household", 
@@ -1810,7 +1809,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$unshHHIssues <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    HHIssues <- dq_unsheltered %>%
+    HHIssues <- dq_unsheltered() %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
                      "Children Only Household", 
@@ -1851,7 +1850,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$unshMissingCountyTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    county <- dq_unsheltered %>%
+    county <- dq_unsheltered() %>%
       filter(
         Issue == "Missing County Served" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1871,7 +1870,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$unshMissingCounty <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    county <- dq_unsheltered %>%
+    county <- dq_unsheltered() %>%
       filter(
         Issue == "Missing County Served" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1911,7 +1910,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
     
-    overlaps <- unsh_overlaps %>%
+    overlaps <- unsh_overlaps() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
           served_between(., ReportStart, ReportEnd)
       ) %>%
@@ -1934,7 +1933,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
     
-    overlaps <- unsh_overlaps %>%
+    overlaps <- unsh_overlaps() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
                served_between(., ReportStart, ReportEnd)
       ) %>%
@@ -1983,7 +1982,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
-    unshDQErrors <- dq_unsheltered %>%
+    unshDQErrors <- dq_unsheltered() %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
@@ -2017,7 +2016,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(update_date, "%m-%d-%Y")
     
-    unshDQWarnings <- dq_unsheltered %>%
+    unshDQWarnings <- dq_unsheltered() %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
@@ -2147,7 +2146,7 @@ output$DeskTimePlotCoC <- renderPlot({
       ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%m-%d-%Y")
       
-      rrhSpending <- qpr_spending %>%
+      rrhSpending <- qpr_spending() %>%
         filter(
           OrganizationName == input$RRHSpendingOrganizationList &
             entered_between(., ReportStart, ReportEnd) &
@@ -2177,7 +2176,7 @@ output$DeskTimePlotCoC <- renderPlot({
       ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%m-%d-%Y")
       
-      hpSpending <- qpr_spending %>%
+      hpSpending <- qpr_spending() %>%
         filter(
           OrganizationName == input$RRHSpendingOrganizationList &
             entered_between(., ReportStart, ReportEnd) &
@@ -2204,11 +2203,11 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$pe_ProjectSummary <-
     DT::renderDataTable({
-      ptc <- summary_pe_final_scoring %>%
+      ptc <- summary_pe_final_scoring() %>%
         filter(AltProjectName == input$pe_provider) %>%
         pull(ProjectType)
       
-      summary_pe_final_scoring <- summary_pe_final_scoring %>%
+      summary_pe_final_scoring <- summary_pe_final_scoring() %>%
         mutate(
           ExitsToPHMath = str_replace(ExitsToPHMath, "/", "÷"),
           OwnHousingMath = str_replace(OwnHousingMath, "/", "÷"),
@@ -2426,7 +2425,7 @@ output$DeskTimePlotCoC <- renderPlot({
     })
   
   output$pe_ExitsToPH <- DT::renderDataTable({
-    a <- pe_exits_to_ph %>%
+    a <- pe_exits_to_ph() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
              Destination = living_situation(Destination)) %>%
@@ -2449,7 +2448,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$pe_OwnHousing <- DT::renderDataTable({
     
-    a <- pe_own_housing %>%
+    a <- pe_own_housing() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
              Destination = living_situation(Destination)) %>%
@@ -2472,7 +2471,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_BenefitsAtExit <- DT::renderDataTable({
-    a <- pe_benefits_at_exit %>%
+    a <- pe_benefits_at_exit() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
         BenefitsFromAnySource = case_when(
@@ -2506,7 +2505,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_IncreasedIncome <- DT::renderDataTable({
-    a <- pe_increase_income %>%
+    a <- pe_increase_income() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
         IncomeDifference = IncomeMostRecent - IncomeAtEntry,
@@ -2533,7 +2532,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_LivingSituationAtEntry <- DT::renderDataTable({
-    a <- pe_res_prior %>%
+    a <- pe_res_prior() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
         LivingSituation = living_situation(LivingSituation),
@@ -2557,7 +2556,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_NoIncomeAtEntry <- DT::renderDataTable({
-    a <- pe_entries_no_income %>%
+    a <- pe_entries_no_income() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
         MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
@@ -2585,7 +2584,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_LengthOfStay <- DT::renderDataTable({
-    a <- pe_length_of_stay %>%
+    a <- pe_length_of_stay() %>%
       filter(AltProjectName == input$pe_provider &
                ProjectType %in% c(2, 8, 13)) %>%
       select(
@@ -2607,15 +2606,15 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$pe_MedianHHI <- DT::renderDataTable({
     
-    times <- HUD_specs %>%
+    times <- HUD_specs() %>%
       filter(DataElement == "TimesHomelessPastThreeYears") %>%
       select(ReferenceNo, Description)
     
-    months <- HUD_specs %>%
+    months <- HUD_specs() %>%
       filter(DataElement == "MonthsHomelessPastThreeYears") %>%
       select(ReferenceNo, Description)
     
-    a <- pe_homeless_history_index %>%
+    a <- pe_homeless_history_index() %>%
       left_join(times, by = c("TimesHomelessPastThreeYears" = "ReferenceNo")) %>%
       mutate(TimesHomelessPastThreeYears = Description) %>%
       select(-Description)
@@ -2649,15 +2648,15 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$pe_LongTermHomeless <- DT::renderDataTable({
     
-    times <- HUD_specs %>%
+    times <- HUD_specs() %>%
       filter(DataElement == "TimesHomelessPastThreeYears") %>%
       select(ReferenceNo, Description)
     
-    months <- HUD_specs %>%
+    months <- HUD_specs() %>%
       filter(DataElement == "MonthsHomelessPastThreeYears") %>%
       select(ReferenceNo, Description)
     
-    a <- pe_long_term_homeless %>%
+    a <- pe_long_term_homeless() %>%
       filter(ProjectType == 3) %>%
       left_join(times, by = c("TimesHomelessPastThreeYears" = "ReferenceNo")) %>%
       mutate(TimesHomelessPastThreeYears = Description) %>%
@@ -2693,7 +2692,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$pe_ScoredAtPHEntry <- DT::renderDataTable({
     
-    a <- pe_scored_at_ph_entry %>%
+    a <- pe_scored_at_ph_entry() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")) %>%
       select(

@@ -1,7 +1,7 @@
 qpr_expr$rapid <- list()
 qpr_expr$rapid$expr <- rlang::expr({
   
-  .dat <- qpr_rrh_enterers %>%
+  .dat <- qpr_rrh_enterers() %>%
     filter(
       !is.na(MoveInDateAdjust) &
         ProjectName %in% c(input$region) &

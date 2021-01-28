@@ -1,7 +1,7 @@
 qpr_expr$income <- list()
 qpr_expr$income$expr <- rlang::expr({
   
-  .dat <- qpr_income %>%
+  .dat <- qpr_income() %>%
     filter(ProjectName == input$region &
              stayed_between(., input$date_range[1], input$date_range[2]))
   # input <- list(region = "Richland - Harmony House Homeless Services - HCRP RRH",

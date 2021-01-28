@@ -1,7 +1,7 @@
 qpr_expr$NCB <- list()
 qpr_expr$NCB$expr <- rlang::expr({
   
-  .dat <- qpr_benefits %>%
+  .dat <- qpr_benefits() %>%
     filter(ProjectName == input$region &
              exited_between(., input$date_range[1], input$date_range[2]))
   

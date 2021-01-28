@@ -104,7 +104,7 @@ dashboardPage(
                     label = "Select County/-ies",
                     inputId = "prioritizationCounty",
                     multiple = TRUE,
-                    choices = regions %>% 
+                    choices = regions() %>% 
                       filter(County != "Mahoning") %>%
                       arrange(County) %>% pull(County),
                     options = list('live-search' = TRUE)
@@ -166,7 +166,7 @@ dashboardPage(
             pickerInput(
               label = "Select Provider",
               inputId = "providerListUtilization",
-              choices = c(sort(utilization_bed$ProjectName)),
+              choices = c(sort(utilization_bed()$ProjectName)),
               options = list(`live-search` = TRUE),
               width = "100%"
             ),
@@ -295,7 +295,7 @@ dashboardPage(
         fluidRow(box(
           pickerInput(
             inputId = "regionList3",
-            choices = c(unique(regions$RegionName)),
+            choices = c(unique(regions()$RegionName)),
             options = list(`live-search` = TRUE),
             width = "70%"
           ),
@@ -325,7 +325,7 @@ dashboardPage(
           pickerInput(
             inputId = "unshDefaultProvidersList",
             label = "Select your DEFAULT Provider",
-            choices = sort(dq_unsheltered$DefaultProvider) %>%
+            choices = sort(dq_unsheltered()$DefaultProvider) %>%
               unique(),
             options = list('live-search' = TRUE),
             width = "100%"
@@ -478,7 +478,7 @@ dashboardPage(
                   pickerInput(
                     inputId = "unshEntriesByMonth_County",
                     label = "Select County/-ies",
-                    choices = sort(unsheltered_by_month$County) %>%
+                    choices = sort(unsheltered_by_month()$County) %>%
                       unique(),
                     selected = c("Lake", 
                                  "Ashtabula", 
@@ -527,9 +527,9 @@ dashboardPage(
                 pickerInput(
                   inputId = "pe_provider",
                   label = "Select your CoC-funded Provider",
-                  choices = sort(pe_validation_summary$AltProjectName) %>%
+                  choices = sort(pe_validation_summary()$AltProjectName) %>%
                     unique(),
-                  selected = sample(pe_validation_summary$AltProjectName, 1),
+                  selected = sample(pe_validation_summary()$AltProjectName, 1),
                   options = list('live-search' = TRUE),
                   width = "100%"
                 ),
@@ -619,7 +619,7 @@ dashboardPage(
               inputId = "RRHSpendingOrganizationList",
               label = "Select Organization",
               choices = c(unique(sort(
-                qpr_spending$OrganizationName
+                qpr_spending()$OrganizationName
               ))),
               options = list(`live-search` = TRUE),
               width = "100%"
