@@ -643,9 +643,7 @@ output$DeskTimePlotCoC <- renderPlot({
         ) %>%
         mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
                                   MoveInDate, EntryDate),
-               PersonalID = as.character(PersonalID),
-               across(.fns = ~dplyr::if_else(is.null(.x), 0 , .x))) %>%
-        select(PersonalID, BedStart, ExitDate, all_of(y))
+               PersonalID = as.character(PersonalID))
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
       
