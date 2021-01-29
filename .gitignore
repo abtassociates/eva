@@ -6,3 +6,4 @@ data
 rsconnect
 .Rprofile
 comparisons
+tests/
