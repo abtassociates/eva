@@ -219,7 +219,7 @@ dashboardPage(
             choices = dq_providers,
             options = list('live-search' = TRUE),
             width = "100%",
-            selected = sample(dq_providers, 1)
+            selected = dq_providers[1]
           ),
           dateInput(
             inputId = "dq_startdate",
@@ -273,7 +273,7 @@ dashboardPage(
                   choices = dtproviders,
                   options = list('live-search' = TRUE),
                   width = "100%",
-                  selected = sample(dtproviders, 1)
+                  selected = dtproviders[1]
                 ),
                 width = 12
               )),
@@ -529,7 +529,7 @@ dashboardPage(
                   label = "Select your CoC-funded Provider",
                   choices = sort(pe_validation_summary()$AltProjectName) %>%
                     unique(),
-                  selected = sample(pe_validation_summary()$AltProjectName, 1),
+                  selected = pe_validation_summary$AltProjectName[1],
                   options = list('live-search' = TRUE),
                   width = "100%"
                 ),
