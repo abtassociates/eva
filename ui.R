@@ -529,7 +529,7 @@ dashboardPage(
                   label = "Select your CoC-funded Provider",
                   choices = sort(pe_validation_summary()$AltProjectName) %>%
                     unique(),
-                  selected = pe_validation_summary$AltProjectName[1],
+                  selected = pe_validation_summary()$AltProjectName[1],
                   options = list('live-search' = TRUE),
                   width = "100%"
                 ),

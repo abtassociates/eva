@@ -636,7 +636,7 @@ output$DeskTimePlotCoC <- renderPlot({
       z <-
         paste("Bed Nights in", format(ymd(input$utilizationDate), "%B %Y"))
       # input <- list(providerListUtilization = sample(c(sort(utilization_bed()$ProjectName)), 1))
-      a <- objects$utilizers_clients %>%
+      a <- utilizers_clients() %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
