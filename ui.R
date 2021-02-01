@@ -225,8 +225,8 @@ dashboardPage(
             inputId = "dq_startdate",
             label = "Report Start Date",
             format = "mm/dd/yyyy",
-            value = mdy("10012018"),
-            min = meta_HUDCSV_Export_Start,
+            value = ymd(hc_check_dq_back_to),
+            min = ymd(meta_HUDCSV_Export_Start),
             width = "25%"
           ),
           width = 12
@@ -303,7 +303,7 @@ dashboardPage(
             inputId = "dq_region_startdate",
             label = "Report Start Date",
             format = "mm/dd/yyyy",
-            value = mdy("10012018"),
+            value = ymd(hc_check_dq_back_to),
             width = "25%"
           ),
           width = 12
@@ -334,7 +334,7 @@ dashboardPage(
             inputId = "unsh_dq_startdate",
             label = "Report Start Date",
             format = "mm/dd/yyyy",
-            value = mdy("01012019"),
+            value = ymd(hc_check_dq_back_to),
             width = "25%"
           ),
           width = 12

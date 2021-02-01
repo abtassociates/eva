@@ -162,10 +162,12 @@ function(input, output, session) {
   })
   
   output$headerCocDQ <- renderUI({
-    list(
-      h2("CoC-wide Data Quality"),
-      h4("October 2018 through Last Updated Date")
-    )
+    list(h2("CoC-wide Data Quality"),
+         h4(
+           paste(format(hc_check_dq_back_to, "%m-%d-%Y"),
+                 "through",
+                 format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
+         ))
   })
   
   output$headerCommunityNeedPH <- renderUI({
@@ -1350,7 +1352,7 @@ output$DeskTimePlotCoC <- renderPlot({
     renderPlot(dq_plot_outstanding_referrals)
   
   output$cocOverlap <- DT::renderDataTable({
-    ReportStart <- "10012018"
+    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
     a <- dq_overlaps %>%
@@ -1419,7 +1421,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$cocLongStayers <- DT::renderDataTable({
-    ReportStart <- "10012018"
+    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
     a <- dq_main %>%
@@ -1437,7 +1439,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$cocRRHDestination <- DT::renderDataTable({
-    ReportStart <- "10012018"
+    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
     a <- dq_main %>%
