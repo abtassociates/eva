@@ -36,7 +36,7 @@ function(input, output, session) {
   
   output$headerPrioritization <- renderUI({
     list(h2("Prioritization Report"),
-         h4("Literally Homeless Clients as of", FileEnd))
+         h4("Literally Homeless Clients as of", meta_HUDCSV_Export_End))
   })
   
   output$headerCurrent <- renderUI({
@@ -97,7 +97,7 @@ function(input, output, session) {
          h4(paste(
            format(input$dq_startdate, "%m-%d-%Y"),
            "to",
-           format(update_date, "%m-%d-%Y")
+           format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
          )))
   })
   
@@ -157,15 +157,17 @@ function(input, output, session) {
          h4(paste(
            format(input$unsh_dq_startdate, "%m-%d-%Y"),
            "to",
-           format(update_date, "%m-%d-%Y")
+           format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
          )))
   })
   
   output$headerCocDQ <- renderUI({
-    list(
-      h2("CoC-wide Data Quality"),
-      h4("October 2018 through Last Updated Date")
-    )
+    list(h2("CoC-wide Data Quality"),
+         h4(
+           paste(format(hc_check_dq_back_to, "%m-%d-%Y"),
+                 "through",
+                 format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
+         ))
   })
   
   
@@ -175,7 +177,7 @@ function(input, output, session) {
          h4(paste(
            format(input$dq_region_startdate, "%m-%d-%Y"),
            "to",
-           format(update_date, "%m-%d-%Y")
+           format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
          )))
   })
   
@@ -680,11 +682,15 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- utilization() %>%
-        filter(ProjectName == input$providerListUtilization) %>%
-        select(BedCount)
+      beds <- Beds %>%
+        filter(ProjectName == input$providerListUtilization &
+                 beds_available_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectID) %>%
+        summarise(BedCount = sum(BedInventory)) %>%
+        ungroup() %>%
+        pull(BedCount)
       
-      daysInMonth <- days_in_month(input$utilizationDate)
+      daysInMonth <- days_in_month(ymd(input$utilizationDate))
       
       infoBox(
         title = "Total Bed Nights Served",
@@ -720,15 +726,19 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- utilization() %>%
-        filter(ProjectName == input$providerListUtilization) %>%
-        select(BedCount)
+      beds <- Beds %>%
+        filter(ProjectName == input$providerListUtilization &
+                 beds_available_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectID) %>%
+        summarise(BedCount = sum(BedInventory)) %>%
+        ungroup() %>%
+        pull(BedCount)
       
       # units <- Utilization %>%
       #   filter(ProjectName == input$providerListUtilization) %>%
       #   select(UnitCount)
       
-      daysInMonth <- days_in_month(input$utilizationDate)
+      daysInMonth <- days_in_month(ymd(input$utilizationDate))
       
       infoBox(
         title = "Possible Bed Nights",
@@ -773,11 +783,13 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- utilization() %>%
-        filter(ProjectName == input$providerListUtilization) %>%
-        select(BedCount)
-      
-      beds <- as.numeric(beds)
+      beds <- Beds %>%
+        filter(ProjectName == input$providerListUtilization &
+                 beds_available_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectID) %>%
+        summarise(BedCount = sum(BedInventory)) %>%
+        ungroup() %>%
+        pull(BedCount)
       
       daysInMonth <-
         as.numeric(days_in_month(ymd(input$utilizationDate)))
@@ -944,6 +956,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(
         Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household"
         ) &
@@ -971,6 +984,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(
         Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household"
         ) &
@@ -1253,7 +1267,7 @@ output$DeskTimePlotCoC <- renderPlot({
     renderPlot(dq_plot_outstanding_referrals)
   
   output$cocOverlap <- DT::renderDataTable({
-    ReportStart <- "10012018"
+    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
     a <- dq_overlaps() %>%
@@ -1270,7 +1284,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$cocUnshelteredEntriesByMonth <- renderPlotly({
     ReportStart <-  format.Date(input$unshEntriesByMonth_ReportStart, "%m-%d-%Y")
-    ReportEnd <-  format.Date(update_date, "%m-%d-%Y")
+    ReportEnd <-  format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
     
     monthyears <- unsheltered_by_month() %>%
       arrange(EntryDate) %>%
@@ -1322,7 +1336,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$cocLongStayers <- DT::renderDataTable({
-    ReportStart <- "10012018"
+    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
     a <- dq_main() %>%
@@ -1340,7 +1354,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$cocRRHDestination <- DT::renderDataTable({
-    ReportStart <- "10012018"
+    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
     a <- dq_main() %>%
@@ -1465,8 +1479,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$DQIncorrectEETypeTable <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    EEType <- dq_main() %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    EEType <- dq_main %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
           ProjectName == input$providerListDQ &
@@ -1485,8 +1499,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$DQIncorrectEEType <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    EEType <- dq_main() %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    EEType <- dq_main %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
           ProjectName == input$providerListDQ &
@@ -1517,12 +1531,13 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$DQErrors <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
+    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
     
     DQErrors <- dq_main() %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -1579,12 +1594,13 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$DQWarnings <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
+    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
     
     DQWarnings <- dq_main() %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -1612,8 +1628,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshIncorrectResPriorTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    ResPrior <- dq_unsheltered() %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ResPrior <- dq_unsheltered %>%
       filter(
         Issue == "Wrong Provider (Not Unsheltered)" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1632,8 +1648,8 @@ output$DeskTimePlotCoC <- renderPlot({
    
   output$unshIncorrectResPrior <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    ResPrior <- dq_unsheltered() %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ResPrior <- dq_unsheltered %>%
       filter(
         Issue == "Wrong Provider (Not Unsheltered)" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1674,8 +1690,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshIncorrectEETypeTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    EEType <- dq_unsheltered() %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    EEType <- dq_unsheltered %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1694,8 +1710,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshIncorrectEEType <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    EEType <- dq_unsheltered() %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    EEType <- dq_unsheltered %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1731,8 +1747,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshDuplicateEEsTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    DuplicateEEs <- dq_unsheltered() %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    DuplicateEEs <- dq_unsheltered %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1753,8 +1769,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshDuplicateEEs <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    DuplicateEEs <- dq_unsheltered() %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    DuplicateEEs <- dq_unsheltered %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1785,10 +1801,11 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshHHIssuesTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    HHIssues <- dq_unsheltered() %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    HHIssues <- dq_unsheltered %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
+                     "Missing Relationship to Head of Household",
                      "Children Only Household", 
                      "No Head of Household") &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1808,10 +1825,11 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshHHIssues <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    HHIssues <- dq_unsheltered() %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    HHIssues <- dq_unsheltered %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
+                     "Missing Relationship to Head of Household",
                      "Children Only Household", 
                      "No Head of Household") &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1849,8 +1867,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshMissingCountyTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    county <- dq_unsheltered() %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    county <- dq_unsheltered %>%
       filter(
         Issue == "Missing County Served" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1869,8 +1887,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshMissingCounty <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    county <- dq_unsheltered() %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    county <- dq_unsheltered %>%
       filter(
         Issue == "Missing County Served" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1908,7 +1926,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshOverlapsTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
     
     overlaps <- unsh_overlaps() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
@@ -1931,7 +1949,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshOverlaps <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
     
     overlaps <- unsh_overlaps() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
@@ -1980,12 +1998,13 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshDQErrorsTable <- DT::renderDataTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
+    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
     
     unshDQErrors <- dq_unsheltered() %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -2014,12 +2033,13 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshDQWarningsTable <- DT::renderDataTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
+    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
     
     unshDQWarnings <- dq_unsheltered() %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",

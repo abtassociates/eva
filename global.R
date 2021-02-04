@@ -11,7 +11,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
-
+Sys.setenv(TZ = "America/New_York")
 library(tidyverse)
 library(shinydashboard)
 library(shiny)
@@ -41,7 +41,6 @@ desk_time_providers <- validation() %>%
 
 dtproviders <- sort(desk_time_providers$ProjectName) %>% unique()
 
-# filebeginningdate <- update_date - years(2)
 tab_choices <- unique(regions()$RegionName) %>% 
 {list(
   spdat1 = list(
