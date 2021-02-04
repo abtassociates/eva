@@ -11,7 +11,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
-
+Sys.setenv(TZ = "America/New_York")
 library(tidyverse)
 library(shinydashboard)
 library(shiny)
@@ -25,14 +25,18 @@ library(writexl)
 library(viridis)
 library(HMIS)
 
-load("data/Rminor_elevated.RData")
+if (!exists("df_nms")) {
+  e <- environment()
+  list2env(readRDS("data/Rminor_elevated.rds"), e)
+}
 
-qpr_leavers <- qpr_leavers %>% arrange(ProjectName)
+source("R/feather_save.R")
+qpr_leavers <- qpr_leavers() %>% arrange(ProjectName)
 
-providers <- sort(validation$ProjectName) %>% unique() 
+providers <- sort(validation()$ProjectName) %>% unique() 
 
-desk_time_providers <- validation %>%
-  filter(entered_between(., 
+desk_time_providers <- validation() %>%
+  dplyr::filter(entered_between(., 
                          format.Date(ymd(today() - years(1)), "%m-%d-%Y"), 
                          format.Date(ymd(today()), "%m-%d-%Y")) &
            ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13) &
@@ -40,15 +44,39 @@ desk_time_providers <- validation %>%
 
 dtproviders <- sort(desk_time_providers$ProjectName) %>% unique()
 
-filebeginningdate <- update_date - years(2)
-
-# HOW TO SET UP YOUR SYMBOLIC LINKS ON YOUR SYSTEM (Windows-specific)
-# command prompt As Administrator, then:
-# mklink "C:\Users\HMIS1\Documents\R\Rminor\data\Data_Quality.RData" "C:\Users\
-# HMIS1\Documents\R\COHHIO_HMIS\images\Data_Quality.RData"
-# obviously replace these paths with what's on your PC. It's basically:
-# mklink "where you want to add the link" "where you want the link to point"
-
-# or check out the create_sym_links.R script in the COHHIO_HMIS repo!
+tab_choices <- unique(regions()$RegionName) %>% 
+{list(
+  spdat1 = list(
+    choices = .
+  ),
+  spdat2 = list(
+    choices = .
+  ),
+  LoS = list(
+    choices = unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1, 2, 8, 13)])
+  ),
+  PH = list(
+    choices = unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1:4, 8:9, 12:13)])
+  ),
+  NCB = list(
+    choices = unique(qpr_benefits()$ProjectName)
+  ),
+  HI = list(
+    choices = unique(qpr_benefits()$ProjectName)
+  ),
+  income = list(
+    choices = unique(qpr_income()$ProjectName)
+  ),
+  rapid = list(
+    choices = unique(sort(
+      qpr_rrh_enterers()$ProjectName
+    ))
+  ),
+  spending = list(
+    choices = unique(sort(
+      qpr_spending()$OrganizationName
+    ))
+  )
+)}
 
 

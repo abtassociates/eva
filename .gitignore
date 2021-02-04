@@ -4,3 +4,6 @@
 .Ruserdata
 data
 rsconnect
+.Rprofile
+comparisons
+tests/

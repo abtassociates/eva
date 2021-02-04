@@ -22,8 +22,13 @@ dashboardPage(
                tabName = "homeTab"),
       menuItem("Prioritization",
                tabName = "prioritizationListTab"),
-      menuItem("Current Clients",
+      menuItem("Client Counts",
                tabName = "currentProviderLevel"),
+      # menuItem("Ending Veteran Homelessness",
+      #          menuSubItem("Active List", tabName = "vetActiveList"),
+      #          menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
+      #          menuSubItem("Inflow Outflow", tabName = "flow")
+      #          ),
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
       menuItem(
@@ -43,22 +48,22 @@ dashboardPage(
           "Community Need",
           tabName = "spdatTab",
           menuSubItem("PSH/RRH Detail",
-                      tabName = "spdatTab1"),
+                      tabName = "spdat1-Tab"),
           menuSubItem("County Detail",
-                      tabName = "spdatTab2")
+                      tabName = "spdat2-Tab")
         ),
         menuSubItem("Length of Stay",
-                    tabName = "LoSTab"),
+                    tabName = "LoS-Tab"),
         menuSubItem("Exits to Permanent Housing",
                     tabName = "PHTab"),
         menuSubItem("Non-Cash Benefits at Exit",
-                    tabName = "NCBTab"),
+                    tabName = "NCB-Tab"),
         menuSubItem("Health Insurance at Exit",
-                    tabName = "HITab"),
+                    tabName = "HI-Tab"),
         menuSubItem("Income Growth",
-                    tabName = "incomeTab"),
+                    tabName = "income-Tab"),
         menuSubItem("Rapid Placement for RRH",
-                    tabName = "rapidTab"),
+                    tabName = "rapid-Tab"),
         menuSubItem("RRH Spending",
                     tabName = "spendingTab")
       )
@@ -66,7 +71,7 @@ dashboardPage(
     HTML(
       paste0(
         "<br>&emsp;Data last refreshed:&emsp;<br>&emsp;",
-        format(update_date, "%m-%d-%Y %I:%M %p", tz = "US/Eastern")
+        format(meta_HUDCSV_Export_Date, "%m-%d-%Y %I:%M %p")
         ,
         "<p><p>&emsp;Wear your mask! Be well."
       )
@@ -99,7 +104,7 @@ dashboardPage(
                     label = "Select County/-ies",
                     inputId = "prioritizationCounty",
                     multiple = TRUE,
-                    choices = regions %>% 
+                    choices = regions() %>% 
                       filter(County != "Mahoning") %>%
                       arrange(County) %>% pull(County),
                     options = list('live-search' = TRUE)
@@ -124,10 +129,21 @@ dashboardPage(
                   choices = providers,
                   options = list('live-search' = TRUE)
                 ),
+                dateRangeInput(
+                  "dateRangeCount",
+                  "Date Range",
+                  min = meta_HUDCSV_Export_Start,
+                  format = "mm/dd/yyyy",
+                  width = '50%'
+                ),        
                 width = 12
               )),
               fluidRow(box(
-                DT::dataTableOutput("currentClients"),
+                DT::dataTableOutput("clientCountSummary"),
+                width = 12
+              )),
+              fluidRow(box(
+                DT::dataTableOutput("clientCountData"),
                 width = 12
               ))),
       tabItem(
@@ -150,19 +166,19 @@ dashboardPage(
             pickerInput(
               label = "Select Provider",
               inputId = "providerListUtilization",
-              choices = c(sort(utilization_bed$ProjectName)),
+              choices = c(sort(utilization_bed()$ProjectName)),
               options = list(`live-search` = TRUE),
               width = "100%"
             ),
             airDatepickerInput(
               inputId = "utilizationDate",
               label = "Click to Choose a Month",
-              max = ymd(floor_date(update_date, unit = "month") - days(1)),
-              min = ymd(floor_date(mdy(FileEnd), "month") - years(2) + days(1)), 
+              max = ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+              min = ymd(floor_date(ymd(meta_HUDCSV_Export_End), "month") - years(2) + days(1)), 
               dateFormat = "MM yyyy",
               view = "month",
               value =
-                ymd(floor_date(update_date, unit = "month") - days(1)),
+                ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
               minView = "months",
               addon = "none",
               autoClose = TRUE,
@@ -184,6 +200,14 @@ dashboardPage(
         )
       ),
       tabItem(
+        tabName = "vetActiveList",
+        fluidRow(box(
+          DT::dataTableOutput("VeteranActiveList"),
+          title = "Veteran Active List",
+          width = 12
+        ))
+      ),
+      tabItem(
         tabName = "dqTab",
         fluidRow(box(htmlOutput(
           "headerDataQuality"
@@ -195,14 +219,14 @@ dashboardPage(
             choices = dq_providers,
             options = list('live-search' = TRUE),
             width = "100%",
-            selected = sample(dq_providers, 1)
+            selected = dq_providers[1]
           ),
           dateInput(
             inputId = "dq_startdate",
             label = "Report Start Date",
             format = "mm/dd/yyyy",
-            value = mdy("10012018"),
-            min = ymd(floor_date(mdy(FileEnd), "year") - years(2)),
+            value = ymd(hc_check_dq_back_to),
+            min = ymd(meta_HUDCSV_Export_Start),
             width = "25%"
           ),
           width = 12
@@ -249,7 +273,7 @@ dashboardPage(
                   choices = dtproviders,
                   options = list('live-search' = TRUE),
                   width = "100%",
-                  selected = sample(dtproviders, 1)
+                  selected = dtproviders[1]
                 ),
                 width = 12
               )),
@@ -271,7 +295,7 @@ dashboardPage(
         fluidRow(box(
           pickerInput(
             inputId = "regionList3",
-            choices = c(unique(regions$RegionName[regions$County != "Mahoning"])),
+            choices = c(unique(regions()$RegionName)),
             options = list(`live-search` = TRUE),
             width = "70%"
           ),
@@ -279,7 +303,7 @@ dashboardPage(
             inputId = "dq_region_startdate",
             label = "Report Start Date",
             format = "mm/dd/yyyy",
-            value = mdy("10012018"),
+            value = ymd(hc_check_dq_back_to),
             width = "25%"
           ),
           width = 12
@@ -301,7 +325,7 @@ dashboardPage(
           pickerInput(
             inputId = "unshDefaultProvidersList",
             label = "Select your DEFAULT Provider",
-            choices = sort(dq_unsheltered$DefaultProvider) %>%
+            choices = sort(dq_unsheltered()$DefaultProvider) %>%
               unique(),
             options = list('live-search' = TRUE),
             width = "100%"
@@ -310,7 +334,7 @@ dashboardPage(
             inputId = "unsh_dq_startdate",
             label = "Report Start Date",
             format = "mm/dd/yyyy",
-            value = mdy("01012019"),
+            value = ymd(hc_check_dq_back_to),
             width = "25%"
           ),
           width = 12
@@ -350,7 +374,7 @@ dashboardPage(
             width = 12,
             solidHeader = TRUE,
             status = "danger",
-            title = "Providers with the Most Data Quality Errors"
+            title = "Providers with the Most High Priority Issues and Errors"
           ),
           box(
             plotOutput("cocHHErrors"),
@@ -413,6 +437,10 @@ dashboardPage(
               title = "Extremely Long Stayers",
               solidHeader = TRUE,
               status = "warning"),
+          box(DT::dataTableOutput("cocRRHDestination"),
+              title = "Destinations & Rapid Rehousing",
+              solidHeader = TRUE,
+              status = "warning"),
           box(
             DT::dataTableOutput("cocWidespreadIssues"),
             title = "Widespread Issues (Training focus)",
@@ -450,7 +478,7 @@ dashboardPage(
                   pickerInput(
                     inputId = "unshEntriesByMonth_County",
                     label = "Select County/-ies",
-                    choices = sort(unsheltered_by_month$County) %>%
+                    choices = sort(unsheltered_by_month()$County) %>%
                       unique(),
                     selected = c("Lake", 
                                  "Ashtabula", 
@@ -469,12 +497,12 @@ dashboardPage(
                     label = "Report Start Month",
                     dateFormat = "MM yyyy",
                     max =
-                      ymd(floor_date(update_date, unit = "month") - days(1)),
+                      ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
                     min =
-                      ymd(floor_date(FileActualStart, unit = "month")),
+                      ymd(floor_date(meta_HUDCSV_Export_Start, unit = "month")),
                     view = "month",
                     value =
-                      ymd(floor_date(update_date - days(182), unit = "month")),
+                      ymd(floor_date(meta_HUDCSV_Export_Date - days(182), unit = "month")),
                     minView = "months",
                     addon = "none",
                     autoClose = TRUE,                    
@@ -499,9 +527,9 @@ dashboardPage(
                 pickerInput(
                   inputId = "pe_provider",
                   label = "Select your CoC-funded Provider",
-                  choices = sort(pe_validation_summary$AltProjectName) %>%
+                  choices = sort(pe_validation_summary()$AltProjectName) %>%
                     unique(),
-                  selected = sample(pe_validation_summary$AltProjectName, 1),
+                  selected = pe_validation_summary()$AltProjectName[1],
                   options = list('live-search' = TRUE),
                   width = "100%"
                 ),
@@ -540,88 +568,9 @@ dashboardPage(
                          DT::dataTableOutput("pe_ScoredAtPHEntry")),
                 width = 12
               ))), 
-      tabItem(
-        tabName = "spdatTab1",
-        fluidRow(box(
-          htmlOutput("headerCommunityNeedPH"), width = 12
-        )),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "regionList1",
-              choices = c(unique(regions$RegionName[regions$County != "Mahoning"])),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "spdatDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("ScoredHousedSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("SPDATScoresHoused"), width = 12
-        ))
-      ),
-      tabItem(
-        tabName = "spdatTab2",
-        fluidRow(box(
-          htmlOutput("headerCommunityNeedCounty"), width = 12
-        )),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "regionList2",
-              choices = c(unique(regions$RegionName[regions$County != "Mahoning"])),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "spdatDateRange2",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("ScoredInRegionSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("SPDATScoresServedInCounty"), width = 12
-        ))
-      ),
-      tabItem(
-        tabName = "LoSTab",
-        fluidRow(box(htmlOutput("headerLoS"), width = 12)),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "LoSProjectList",
-              choices = c(unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1, 2, 8, 13)])),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "LoSDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("LoSSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("LoSDetail"), width = 12
-        ))
-      ),
+      mod_QPR_tabItem_ui("spdat1"),
+      mod_QPR_tabItem_ui("spdat2"),
+      mod_QPR_tabItem_ui("LoS"),
       tabItem(
         tabName = "PHTab",
         fluidRow(box(htmlOutput("headerExitsToPH"), width = 12)),
@@ -638,7 +587,7 @@ dashboardPage(
               "Date Range",
               start = floor_date(today() - days(31), "year"),
               end = today(),
-              min = FileStart,
+              min = meta_HUDCSV_Export_Start,
               format = "mm/dd/yyyy"
             )
           )
@@ -654,120 +603,10 @@ dashboardPage(
           width = 12
         ))
       ),
-      tabItem(
-        tabName = "NCBTab",
-        fluidRow(box(htmlOutput("headerNCBs"), width = 12)),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "MBProjectListNC",
-              choices = c(unique(qpr_benefits$ProjectName)),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "NCBDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("qprNCBSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("ExitedWithNCBs"), width = 12
-        ))
-      ),
-      tabItem(
-        tabName = "HITab",
-        fluidRow(box(
-          htmlOutput("headerHealthInsurance"), width = 12
-        )),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "MBProjectListHI",
-              choices = c(unique(qpr_benefits$ProjectName)),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "HIDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("healthInsuranceSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("ExitedWithInsurance"),
-          width = 12
-        ))
-      ),
-      tabItem(
-        tabName = "incomeTab",
-        fluidRow(box(
-          htmlOutput("headerIncomeIncrease"), width = 12
-        )),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "incomeProjectList",
-              choices = c(unique(qpr_income$ProjectName)),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "IncomeDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("qprIncomeSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("IncomeIncrease"), width = 12
-        ))
-      ),
-      tabItem(
-        tabName = "rapidTab",
-        fluidRow(box(htmlOutput(
-          "headerDaysToHouse"
-        ), width = 12)),
-        fluidRow(
-          box(
-            setSliderColor("#56B4E9", 1),
-            pickerInput(
-              inputId = "RapidRRHProviderList",
-              choices = c(unique(sort(
-                qpr_rrh_enterers$ProjectName
-              ))),
-              options = list(`live-search` = TRUE),
-              width = "100%"
-            ),
-            dateRangeInput(
-              "DaysToHouseDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = FileStart,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("daysToHouseSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("daysToHouseRRH"), width = 12
-        ))
-      ),
+      mod_QPR_tabItem_ui("NCB"),
+      mod_QPR_tabItem_ui("HI"),
+      mod_QPR_tabItem_ui("income"),
+      mod_QPR_tabItem_ui("rapid"),
       tabItem(
         tabName = "spendingTab",
         fluidRow(box(htmlOutput(
@@ -780,7 +619,7 @@ dashboardPage(
               inputId = "RRHSpendingOrganizationList",
               label = "Select Organization",
               choices = c(unique(sort(
-                qpr_spending$OrganizationName
+                qpr_spending()$OrganizationName
               ))),
               options = list(`live-search` = TRUE),
               width = "100%"
@@ -790,7 +629,7 @@ dashboardPage(
               "Date Range",
               start = floor_date(today() - days(31), "year"),
               end = today(),
-              min = FileStart,
+              min = meta_HUDCSV_Export_Start,
               format = "mm/dd/yyyy"
             )
           )

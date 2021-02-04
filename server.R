@@ -18,16 +18,16 @@ function(input, output, session) {
       title = "Welcome",
       width = 12,
       HTML(
-        "<p>R minor elevated is intended for use by Ohio Balance of State HMIS
-        users. This site requires a login because client-level data is shown
-        (without Personally Identifying Information). Please use this
-        site to verify that your HMIS data is accurate and complete.
+        "<p>R minor elevated is intended for use by the Ohio Balance of State CoC
+        and the Mahoning County CoC HMIS users. This site requires a login 
+        because client-level data is shown (without Personally Identifying 
+        Information). Please use this site to verify that your HMIS data is 
+        accurate and complete.
         <p><a href=\"https://ohiobalanceofstatecoc.shinyapps.io/Rminor\"
-        target=\"_blank\">R minor</a> is a separate COHHIO site used for Ohio
-        Balance of State CoC performance reporting. Visitors to R minor will
-        include HMIS users, program executives, funders, government
-        representatives, advocates, and other interested parties. R minor
-        contains no client-level data.<br>
+        target=\"_blank\">R minor</a> is a separate COHHIO site used for 
+        performance reporting. Visitors to R minor will include HMIS users, 
+        program executives, funders, government representatives, advocates, and 
+        other interested parties. R minor contains no client-level data.<br>
         <p>We're glad you're here! Please select a report in the left sidebar."
       )
     )
@@ -36,11 +36,11 @@ function(input, output, session) {
   
   output$headerPrioritization <- renderUI({
     list(h2("Prioritization Report"),
-         h4("Literally Homeless Clients as of", FileEnd))
+         h4("Literally Homeless Clients as of", meta_HUDCSV_Export_End))
   })
   
   output$headerCurrent <- renderUI({
-    list(h2("Current Clients as of", FileEnd),
+    list(h2("Client Counts Report"),
          h4(input$currentProviderList))
   })
   
@@ -97,7 +97,7 @@ function(input, output, session) {
          h4(paste(
            format(input$dq_startdate, "%m-%d-%Y"),
            "to",
-           format(update_date, "%m-%d-%Y")
+           format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
          )))
   })
   
@@ -123,22 +123,30 @@ function(input, output, session) {
     CoC, all clients should be entered within 5 days of their entry into your
     project.
     <h4>How Do We Fix This?</h4>
-    <p><strong>There is nothing a user can do</strong> to \"correct\" a client 
-    entered into the system outside the window. We can only resolve to enter 
+    <p><strong>There is nothing a user can do</strong> to \"correct\" a client
+    entered into the system outside the window. We can only resolve to enter
     clients within the 5-day range going forward. As you catch up on data entry,
-    you may see your median get worse at first, but this data looks back exactly 
-    one year, so any clients with an Entry Date over a year ago will fall off 
+    you may see your median get worse at first, but this data looks back exactly
+    one year, so any clients with an Entry Date over a year ago will fall off
     of this plot and your median will change accordingly.
     <h4>Interpretation</h4>
     <p>Green dots here represent clients entered within the range and orange
     dots represent clients entered outside the range. The darker the dot, the
-    more clients entered your project on that day. (Likely a household.)    
+    more clients entered your project on that day. (Likely a household.)
     <p>The metric COHHIO looks at here is the Median, so if you have orange dots
     but your Median is within the 5 day range, that is great!
     <p>If you have orange dots BELOW the 0 mark, that means you entered Entry
     Dates into the future, which means there is potentially a mis-keyed date or
     the user needs technical assistance about how to know what date to enter for
-    the Entry Date. If this is the case, please email the HMIS team."
+    the Entry Date. If this is the case, please email the HMIS team.
+            <h4>Is it possible there's a mistake?</h4>
+    It's rare that this occurs, but if an Entry Exit has been created, deleted,
+    and then recreated, the Entry Exit's \"Date Created\" date is reset,
+    thus inflating the number of days between the Date Created and the Entry Date.
+    If you need us to check if this was the case for a particular dot on the
+    plot, please email us with the provider and number of days it is
+    displaying that you think may be incorrect so we can verify if this is the
+        issue."
       )
     )
   
@@ -149,31 +157,19 @@ function(input, output, session) {
          h4(paste(
            format(input$unsh_dq_startdate, "%m-%d-%Y"),
            "to",
-           format(update_date, "%m-%d-%Y")
+           format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
          )))
   })
   
   output$headerCocDQ <- renderUI({
-    list(
-      h2("CoC-wide Data Quality"),
-      h4("October 2018 through Last Updated Date")
-    )
+    list(h2("CoC-wide Data Quality"),
+         h4(
+           paste(format(hc_check_dq_back_to, "%m-%d-%Y"),
+                 "through",
+                 format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
+         ))
   })
   
-  output$headerCommunityNeedPH <- renderUI({
-    ReportStart <- format.Date(input$spdatDateRange[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$spdatDateRange[2], "%B %d, %Y")
-    
-    list(
-      h2("Community Need, Entered Permanent Housing"),
-      h4(input$regionList1),
-      h4(paste(
-        ReportStart,
-        "to",
-        ReportEnd
-      ))
-    )
-  })
   
   output$headerRegionDataQuality <- renderUI({
     list(h2("Regional Data Quality"),
@@ -181,24 +177,11 @@ function(input, output, session) {
          h4(paste(
            format(input$dq_region_startdate, "%m-%d-%Y"),
            "to",
-           format(update_date, "%m-%d-%Y")
+           format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
          )))
   })
   
-  output$headerCommunityNeedCounty <- renderUI({
-    ReportStart <- format.Date(input$spdatDateRange2[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$spdatDateRange2[2], "%B %d, %Y")
-    
-    list(
-      h2("Community Need, Literally Homeless in the County"),
-      h4(input$regionList2),
-      h4(paste(
-        ReportStart,
-        "to",
-        ReportEnd
-      ))
-    )
-  })
+  
   
   output$headerExitsToPH <- renderUI({
     ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
@@ -219,14 +202,14 @@ output$DeskTimePlotDetail <- renderPlot({
   ReportStart <- format.Date(ymd(today() - years(1)), "%m-%d-%Y")
   ReportEnd <- format.Date(ymd(today()), "%m-%d-%Y")
   
-  desk_time <- validation %>%
+  desk_time <- validation() %>%
     filter(ProjectName == provider &
              entered_between(., ReportStart, ReportEnd) &
              ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
     select(ProjectName, PersonalID, HouseholdID, EntryDate, DateCreated) %>%
     mutate(
-      DeskTime = difftime(floor_date(ymd_hms(DateCreated), unit = "day"),
-                          ymd(EntryDate),
+      DeskTime = difftime(floor_date(DateCreated, unit = "day"),
+                          EntryDate,
                           units = "days"),
       DeskTime = as.integer(floor(DeskTime)),
       GoalMet = if_else(DeskTime > 5 |
@@ -251,7 +234,7 @@ output$DeskTimePlotDetail <- renderPlot({
   dq_plot_desk_time <-
     ggplot(
       desk_time,
-      aes(x = ymd(EntryDate), y = DeskTime)
+      aes(x = EntryDate, y = DeskTime)
     ) +
     geom_point(aes(color = GoalMet, size = 8, alpha = .2),
                show.legend = FALSE)+
@@ -289,13 +272,13 @@ output$DeskTimePlotCoC <- renderPlot({
   ReportStart <- format.Date(ymd(today() - years(1)), "%m-%d-%Y")
   ReportEnd <- format.Date(ymd(today()), "%m-%d-%Y")
   
-  desk_time <- validation %>%
+  desk_time <- validation() %>%
     filter(entered_between(., ReportStart, ReportEnd) &
              ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
     select(ProjectName, PersonalID, HouseholdID, EntryDate, DateCreated) %>%
     mutate(
-      DeskTime = difftime(floor_date(ymd_hms(DateCreated), unit = "day"),
-                          ymd(EntryDate),
+      DeskTime = difftime(floor_date(DateCreated, unit = "day"),
+                          EntryDate,
                           units = "days"),
       DeskTime = as.integer(floor(DeskTime))
     ) %>%
@@ -334,7 +317,7 @@ output$DeskTimePlotCoC <- renderPlot({
       ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%m-%d-%Y")
       
-      SuccessfullyPlaced <- qpr_leavers %>%
+      SuccessfullyPlaced <- qpr_leavers() %>%
         filter(ProjectName == input$ExitsToPHProjectList &
                  ((ProjectType %in% c(3, 9, 13) &
                    !is.na(MoveInDateAdjust)) |
@@ -357,7 +340,7 @@ output$DeskTimePlotCoC <- renderPlot({
         count()
       
       # calculating the total households to compare successful placements to
-      TotalHHsSuccessfulPlacement <- qpr_leavers %>%
+      TotalHHsSuccessfulPlacement <- qpr_leavers() %>%
         filter(ProjectName == input$ExitsToPHProjectList &
                  ((
                    served_between(., ReportStart, ReportEnd) &
@@ -383,52 +366,7 @@ output$DeskTimePlotCoC <- renderPlot({
       
     })
   
-  output$headerLoS <- renderUI({
-    ReportStart <- format.Date(input$LoSDateRange[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$LoSDateRange[2], "%B %d, %Y")
-    
-    list(h2("Length of Stay"),
-         h4(input$LoSProjectList),
-         h4(paste(
-           ReportStart,
-           "to",
-           ReportEnd
-         )))
-  })
   
-  output$LoSSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$LoSDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$LoSDateRange[2], "%m-%d-%Y")
-      
-      los_summary <- qpr_leavers %>%
-        filter(((
-          !is.na(MoveInDateAdjust) & ProjectType == 13
-        ) |
-          (
-            !is.na(ExitDate) & ProjectType %in% c(1, 2, 8)
-          )) &
-          exited_between(., ReportStart, ReportEnd) &
-          ProjectName == input$LoSProjectList
-        ) %>%
-        group_by(ProjectName) %>%
-        summarise(Average = format(mean(DaysinProject),
-                                   digits = 1),
-                  Median = median(DaysinProject))
-      
-      infoBox(
-        title = "Average and Median Length of Stay",
-        color = "purple",
-        icon = icon("clock"),
-        value = paste("Average", 
-                      los_summary$Average, 
-                      "/ Median", 
-                      los_summary$Median,
-                      "days"),
-        subtitle = "Length of Stay in Project's Housing"
-      )
-      
-    })
   
   output$headerIncomeIncrease <- renderUI({
     ReportStart <- format.Date(input$IncomeDateRange[1], "%B %d, %Y")
@@ -443,31 +381,17 @@ output$DeskTimePlotCoC <- renderPlot({
          )))
   })
   
-  output$headerNCBs <- renderUI({
-    ReportStart <- format.Date(input$NCBDateRange[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$NCBDateRange[2], "%B %d, %Y")
-    
-    list(h2("Non-Cash Benefits at Exit"),
-         h4(input$MBProjectListNC),
-         h4(paste(
-           ReportStart,
-           "to",
-           ReportEnd
-         )))
+  output$headerRRHSpending <- renderUI({
+    ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%B %d, %Y")
+    ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%B %d, %Y")
+    list(h2("Quarterly Performance Report"),
+         h3("Rapid Rehousing Spending Goals"),
+         # h4(input$RRHRegion),
+         h4(ReportStart, "-", ReportEnd))
   })
   
-  output$headerHealthInsurance <- renderUI({
-    ReportStart <- format.Date(input$HIDateRange[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$HIDateRange[2], "%B %d, %Y")
-    
-    list(h2("Health Insurance at Exit"),
-         h4(input$MBProjectListHI),
-         h4(paste(
-           ReportStart,
-           "to",
-           ReportEnd
-         )))
-  })
+  
+  
   
   output$headerDaysToHouse <- renderUI({
     ReportStart <- format.Date(input$LoSDateRange[1], "%B %d, %Y")
@@ -484,7 +408,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$prioritizationData <- DT::renderDataTable({
     
-    active <- active_list %>%
+    active <- active_list() %>%
       filter(CountyServed %in% c(input$prioritizationCounty) |
                is.na(CountyServed)) %>%
       arrange(COVID19Priority) %>%
@@ -547,7 +471,7 @@ output$DeskTimePlotCoC <- renderPlot({
       "active_list.xlsx"
     },
     content = function(file) {
-      write_xlsx(active_list %>%
+      write_xlsx(active_list() %>%
                    filter(
                      CountyServed %in% c(input$prioritizationCounty) |
                        is.na(CountyServed)
@@ -555,10 +479,13 @@ output$DeskTimePlotCoC <- renderPlot({
     }
   )
   
-  output$currentClients <- DT::renderDataTable({
+  output$clientCountData <- DT::renderDataTable({
+    ReportStart <- format.Date(input$dateRangeCount[1], "%m-%d-%Y")
+    ReportEnd <- format.Date(input$dateRangeCount[2], "%m-%d-%Y")
+    
     datatable(
-      validation %>%
-        filter(is.na(ExitDate) &
+      validation() %>%
+        filter(served_between(., ReportStart, ReportEnd) &
                  ProjectName == input$currentProviderList) %>%
         mutate(
           PersonalID = as.character(PersonalID),
@@ -570,14 +497,29 @@ output$DeskTimePlotCoC <- renderPlot({
             RelationshipToHoH == 5 ~ "Unrelated household member",
             RelationshipToHoH == 99 ~ "Data not collected (please correct)"
           ),
-          Days = case_when(
+          Status = case_when(
             ProjectType %in% c(3, 13) &
-              is.na(MoveInDateAdjust) ~ paste(today() - EntryDate,
-                                              "days awaiting housing in project"),
+              is.na(MoveInDateAdjust) &
+              is.na(ExitDate) ~ paste0("Currently Awaiting Housing (", 
+                                       today() - EntryDate,
+                                       " days)"),
             ProjectType %in% c(3, 13) &
-              !is.na(MoveInDateAdjust) ~ paste(today() - MoveInDateAdjust,
-                                               "days housed in project"),!ProjectType %in% c(3, 13) ~ paste(today() - EntryDate,
-                                                                                                            "days in project")
+              !is.na(MoveInDateAdjust) &
+              is.na(ExitDate) ~ paste0("Currently Moved In (",
+                                      today() - MoveInDateAdjust,
+                                      " days)"),
+            ProjectType %in% c(3, 13) &
+              is.na(MoveInDateAdjust) &
+              !is.na(ExitDate) ~ "Exited No Move-In",
+            ProjectType %in% c(3, 13) &
+              !is.na(MoveInDateAdjust) &
+              !is.na(ExitDate) ~ "Exited with Move-In",
+            !ProjectType %in% c(3, 13) &
+              is.na(ExitDate) ~ paste0("Currently in project (",
+                                       today() - EntryDate, 
+                                       " days)"),
+            !ProjectType %in% c(3, 13) &
+              !is.na(ExitDate) ~ "Exited project",
           ),
           sort = today() - EntryDate
         ) %>%
@@ -589,11 +531,93 @@ output$DeskTimePlotCoC <- renderPlot({
           "Relationship to Head of Household" = RelationshipToHoH,
           "Entry Date" = EntryDate,
           "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
-          Days
+          "Exit Date" = ExitDate,
+          Status
         ),
       rownames = FALSE,
       filter = 'top',
       options = list(dom = 'ltpi')
+    )
+  })
+  
+  output$clientCountSummary <- DT::renderDataTable({
+    ReportStart <- format.Date(input$dateRangeCount[1], "%m-%d-%Y")
+    ReportEnd <- format.Date(input$dateRangeCount[2], "%m-%d-%Y")
+    
+    hhs <- validation() %>%
+      filter(served_between(., ReportStart, ReportEnd) &
+               ProjectName == input$currentProviderList) %>%
+      select(HouseholdID,
+             ProjectType,
+             EntryDate,
+             MoveInDateAdjust,
+             ExitDate) %>%
+      unique() %>%
+      mutate(
+        # Entered = if_else(between(EntryDate, ReportStart, ReportEnd),
+        #                   "Entered in date range", "Entered outside date range"),
+        # Leaver = if_else(!is.na(ExitDate), "Leaver", "Stayer"),
+        Status = case_when(
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) &
+            is.na(ExitDate) ~ "Currently Awaiting Housing",
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) &
+            is.na(ExitDate) ~ "Currently Moved In",
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) &
+            !is.na(ExitDate) ~ "Exited No Move-In",
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) &
+            !is.na(ExitDate) ~ "Exited with Move-In",
+          !ProjectType %in% c(3, 13) &
+            is.na(ExitDate) ~ "Currently in project",
+          !ProjectType %in% c(3, 13) &
+            !is.na(ExitDate) ~ "Exited project",
+        )
+      ) %>%
+      group_by(Status) %>%
+      summarise(Households = n())
+    
+    clients <- validation() %>%
+      filter(served_between(., ReportStart, ReportEnd) &
+               ProjectName == input$currentProviderList) %>%
+      select(PersonalID,
+             ProjectType,
+             EntryDate,
+             MoveInDateAdjust,
+             ExitDate) %>%
+      unique() %>%
+      mutate(
+        Status = case_when(
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) &
+            is.na(ExitDate) ~ "Currently Awaiting Housing",
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) &
+            is.na(ExitDate) ~ "Currently Moved In",
+          ProjectType %in% c(3, 13) &
+            is.na(MoveInDateAdjust) &
+            !is.na(ExitDate) ~ "Exited No Move-In",
+          ProjectType %in% c(3, 13) &
+            !is.na(MoveInDateAdjust) &
+            !is.na(ExitDate) ~ "Exited with Move-In",
+          !ProjectType %in% c(3, 13) &
+            is.na(ExitDate) ~ "Currently in project",
+          !ProjectType %in% c(3, 13) &
+            !is.na(ExitDate) ~ "Exited project",
+        )
+      ) %>%
+      group_by(Status) %>%
+      summarise(Clients = n())
+    
+    final <- full_join(clients, hhs, by = "Status")
+    
+    datatable(
+      final,
+      rownames = FALSE,
+      filter = 'none',
+      options = list(dom = 't')
     )
   })
   
@@ -613,8 +637,8 @@ output$DeskTimePlotCoC <- renderPlot({
       
       z <-
         paste("Bed Nights in", format(ymd(input$utilizationDate), "%B %Y"))
-      
-      a <- utilizers_clients %>%
+      # input <- list(providerListUtilization = sample(c(sort(utilization_bed()$ProjectName)), 1))
+      a <- utilizers_clients() %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
@@ -647,7 +671,7 @@ output$DeskTimePlotCoC <- renderPlot({
                   "01",
                   substr(input$utilizationDate, 1, 4))
       
-      a <- utilizers_clients %>%
+      a <- utilizers_clients() %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
@@ -658,11 +682,15 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- utilization %>%
-        filter(ProjectName == input$providerListUtilization) %>%
-        select(BedCount)
+      beds <- Beds() %>%
+        filter(ProjectName == input$providerListUtilization &
+                 beds_available_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectID) %>%
+        summarise(BedCount = sum(BedInventory)) %>%
+        ungroup() %>%
+        pull(BedCount)
       
-      daysInMonth <- days_in_month(input$utilizationDate)
+      daysInMonth <- days_in_month(ymd(input$utilizationDate))
       
       infoBox(
         title = "Total Bed Nights Served",
@@ -687,7 +715,7 @@ output$DeskTimePlotCoC <- renderPlot({
                   "01",
                   substr(input$utilizationDate, 1, 4))
       
-      a <- utilizers_clients %>%
+      a <- utilizers_clients() %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
@@ -698,15 +726,19 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- utilization %>%
-        filter(ProjectName == input$providerListUtilization) %>%
-        select(BedCount)
+      beds <- Beds() %>%
+        filter(ProjectName == input$providerListUtilization &
+                 beds_available_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectID) %>%
+        summarise(BedCount = sum(BedInventory)) %>%
+        ungroup() %>%
+        pull(BedCount)
       
       # units <- Utilization %>%
       #   filter(ProjectName == input$providerListUtilization) %>%
       #   select(UnitCount)
       
-      daysInMonth <- days_in_month(input$utilizationDate)
+      daysInMonth <- days_in_month(ymd(input$utilizationDate))
       
       infoBox(
         title = "Possible Bed Nights",
@@ -740,7 +772,7 @@ output$DeskTimePlotCoC <- renderPlot({
                   "01",
                   substr(input$utilizationDate, 1, 4))
       
-      a <- utilizers_clients %>%
+      a <- utilizers_clients() %>%
         filter(
           ProjectName == input$providerListUtilization,
           served_between(., ReportStart, ReportEnd)
@@ -751,11 +783,13 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- utilization %>%
-        filter(ProjectName == input$providerListUtilization) %>%
-        select(BedCount)
-      
-      beds <- as.numeric(beds)
+      beds <- Beds() %>%
+        filter(ProjectName == input$providerListUtilization &
+                 beds_available_between(., ReportStart, ReportEnd)) %>%
+        group_by(ProjectID) %>%
+        summarise(BedCount = sum(BedInventory)) %>%
+        ungroup() %>%
+        pull(BedCount)
       
       daysInMonth <-
         as.numeric(days_in_month(ymd(input$utilizationDate)))
@@ -778,7 +812,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$dq_provider_summary_table <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    guidance <- dq_main %>%
+    guidance <- dq_main() %>%
       filter(ProjectName == input$providerListDQ &
                served_between(., ReportStart, ReportEnd)) %>%
       group_by(Type, Issue, Guidance) %>%
@@ -800,7 +834,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$dq_unsheltered_summary_table <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    dq_unsheltered %>%
+    dq_unsheltered() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
                served_between(., ReportStart, ReportEnd)) %>%
       group_by(Type, Issue, Guidance) %>%
@@ -813,7 +847,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$dq_unsheltered_summary_box <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    x <- dq_unsheltered %>%
+    x <- dq_unsheltered() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
                served_between(., ReportStart, ReportEnd))
     if (nrow(x) > 0) {
@@ -834,12 +868,12 @@ output$DeskTimePlotCoC <- renderPlot({
   output$dq_region_summary_table <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_region_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    a <- dq_main %>%
+    a <- dq_main() %>%
       filter(ProjectRegion == input$regionList3 &
                served_between(., ReportStart, ReportEnd)) %>%
       select(ProjectName, Type, Issue, PersonalID)
     
-    b <- dq_unsheltered %>%
+    b <- dq_unsheltered() %>%
       filter(UserRegion == input$regionList3 &
                served_between(., ReportStart, ReportEnd)) %>%
       mutate(ProjectName = paste("Unsheltered Provider, entered by a user from", 
@@ -861,7 +895,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DuplicateEEs <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    DuplicateEEs <- dq_main %>%
+    DuplicateEEs <- dq_main() %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           ProjectName == input$providerListDQ &
@@ -883,7 +917,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQDuplicateEEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    DuplicateEEs <- dq_main %>%
+    DuplicateEEs <- dq_main() %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           ProjectName == input$providerListDQ &
@@ -918,10 +952,11 @@ output$DeskTimePlotCoC <- renderPlot({
   output$HouseholdIssues <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    HHIssues <- dq_main %>%
+    HHIssues <- dq_main() %>%
       filter(
         Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household"
         ) &
@@ -945,10 +980,11 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQHHIssues <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    HHIssues <- dq_main %>%
+    HHIssues <- dq_main() %>%
       filter(
         Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household"
         ) &
@@ -976,7 +1012,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQMissingLocation <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    HHIssues <- dq_main %>%
+    HHIssues <- dq_main() %>%
       filter(
         Issue == "Missing Client Location" &
           ProjectName == input$providerListDQ &
@@ -1004,7 +1040,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$ClientLocation <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    HHIssues <- dq_main %>%
+    HHIssues <- dq_main() %>%
       filter(
         Issue == "Missing Client Location" &
           ProjectName == input$providerListDQ &
@@ -1026,7 +1062,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQPATHMissingContact <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    no_contact <- dq_main %>%
+    no_contact <- dq_main() %>%
       filter(
         Issue == "Missing PATH Contact" &
           ProjectName == input$providerListDQ &
@@ -1038,7 +1074,7 @@ output$DeskTimePlotCoC <- renderPlot({
         title = "Missing Contact (PATH)",
         status = "warning",
         solidHeader = TRUE,
-        dq_main %>%
+        dq_main() %>%
           filter(Issue == "Missing PATH Contact") %>%
           select(Guidance) %>%
           unique(),
@@ -1053,7 +1089,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$MissingPATHContact <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    x <- dq_main %>%
+    x <- dq_main() %>%
       filter(
         Issue == "Missing PATH Contact" &
           ProjectName == input$providerListDQ &
@@ -1075,7 +1111,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$APs_with_EEs <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    APs_w_EEs <- dq_main %>%
+    APs_w_EEs <- dq_main() %>%
       filter(
         Issue == "Access Point with Entry Exits" &
           ProjectName == input$providerListDQ &
@@ -1095,7 +1131,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQ_APs_w_EEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    APs_w_EEs <- dq_main %>%
+    APs_w_EEs <- dq_main() %>%
       filter(
         Issue == "Access Point with Entry Exits" &
           ProjectName == input$providerListDQ &
@@ -1123,7 +1159,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
-    OverlappingEEs <- dq_overlaps %>%
+    OverlappingEEs <- dq_overlaps() %>%
       filter(
           ProjectName == input$providerListDQ &
           served_between(., ReportStart, ReportEnd)
@@ -1147,7 +1183,8 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQOverlappingEEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    OverlappingEEs <- dq_overlaps %>%
+    # FIXME Repetition of filter/mutate (use eventReactive)
+    OverlappingEEs <- dq_overlaps() %>%
       filter(
         Issue == "Overlapping Project Stays" &
           ProjectName == input$providerListDQ &
@@ -1168,7 +1205,7 @@ output$DeskTimePlotCoC <- renderPlot({
       box(
         id = "overlappers",
         title = "Overlapping Entry Exits",
-        status = "info",
+        status = "warning",
         solidHeader = TRUE,
         width = 12,
         HTML(
@@ -1196,7 +1233,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$DQAPsNoReferrals <- renderUI({
-    AP_not_doing_referrals <- aps_no_referrals %>%
+    AP_not_doing_referrals <- aps_no_referrals() %>%
       filter(ProviderCreating == input$providerListDQ)
     
     if (nrow(AP_not_doing_referrals) > 0) {
@@ -1221,7 +1258,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$cocAPsNoReferralsList <-
     DT::renderDataTable({
-      a <- aps_no_referrals %>% arrange(ProviderCreating)
+      a <- aps_no_referrals() %>% arrange(ProviderCreating)
       
       datatable(a, rownames = FALSE)
     })
@@ -1230,10 +1267,10 @@ output$DeskTimePlotCoC <- renderPlot({
     renderPlot(dq_plot_outstanding_referrals)
   
   output$cocOverlap <- DT::renderDataTable({
-    ReportStart <- "10012018"
+    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
-    a <- dq_overlaps %>%
+    a <- dq_overlaps() %>%
       filter(served_between(., ReportStart, ReportEnd)) %>%
       group_by(ProjectName) %>%
       summarise(Clients = n()) %>%
@@ -1247,14 +1284,14 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$cocUnshelteredEntriesByMonth <- renderPlotly({
     ReportStart <-  format.Date(input$unshEntriesByMonth_ReportStart, "%m-%d-%Y")
-    ReportEnd <-  format.Date(update_date, "%m-%d-%Y")
+    ReportEnd <-  format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
     
-    monthyears <- unsheltered_by_month %>%
+    monthyears <- unsheltered_by_month() %>%
       arrange(EntryDate) %>%
       pull(EntryDateDisplay) %>%
       unique()   
     
-    unsheltered_by_month <- unsheltered_by_month %>%
+    unsheltered_by_month <- unsheltered_by_month() %>%
       filter(entered_between(., ReportStart, ReportEnd),
              County %in% c(input$unshEntriesByMonth_County)) %>%
       select(HouseholdID, EntryDateDisplay, County) %>%
@@ -1299,10 +1336,10 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$cocLongStayers <- DT::renderDataTable({
-    ReportStart <- "10012018"
+    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     
-    a <- dq_main %>%
+    a <- dq_main() %>%
       filter(served_between(., ReportStart, ReportEnd) &
                Issue == "Extremely Long Stayer") %>%
       group_by(ProjectName) %>%
@@ -1316,8 +1353,29 @@ output$DeskTimePlotCoC <- renderPlot({
     
   })
   
+  output$cocRRHDestination <- DT::renderDataTable({
+    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
+    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    
+    a <- dq_main() %>%
+      filter(served_between(., ReportStart, ReportEnd) &
+               Issue %in% c(
+               "Incorrect Exit Destination (should be \"Rental by client, with RRH...\")",
+               "Missing RRH Project Stay or Incorrect Destination")) %>%
+      group_by(ProjectName, Issue) %>%
+      summarise(Clients = n()) %>%
+      arrange(desc(Clients)) %>%
+      select("Project Name" = ProjectName,
+             Issue,
+             Clients)
+    
+    datatable(head(a, 20),
+              rownames = FALSE)
+    
+  })
+  
   output$cocWidespreadIssues <- DT::renderDataTable({
-    a <- dq_past_year %>%
+    a <- dq_past_year() %>%
       select(Issue, ProjectName, Type) %>%
       unique() %>%
       group_by(Issue, Type) %>%
@@ -1346,7 +1404,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$cocAPsNoReferrals <- renderPlot({
     
-    ggplot(data_APs, aes(fill = category, x = providertype, y = percent)) +
+    ggplot(data_APs(), aes(fill = category, x = providertype, y = percent)) +
       geom_bar(position = "fill",
                 stat = "identity",
                width = .1) +
@@ -1372,7 +1430,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$Ineligible <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    Ineligible <- detail_eligibility %>%
+    Ineligible <- detail_eligibility() %>%
       filter(ProjectName == input$providerListDQ &
                served_between(., ReportStart, ReportEnd)) %>%
       mutate(
@@ -1393,7 +1451,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQIneligible <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    Ineligible <- detail_eligibility %>%
+    Ineligible <- detail_eligibility() %>%
       filter(ProjectName == input$providerListDQ &
                served_between(., ReportStart, ReportEnd))
     
@@ -1421,7 +1479,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$DQIncorrectEETypeTable <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
     EEType <- dq_main %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
@@ -1441,8 +1499,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$DQIncorrectEEType <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    EEType <- dq_main %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    EEType <- dq_main() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
           ProjectName == input$providerListDQ &
@@ -1473,12 +1531,13 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$DQErrors <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
+    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
     
-    DQErrors <- dq_main %>%
+    DQErrors <- dq_main() %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -1502,15 +1561,46 @@ output$DeskTimePlotCoC <- renderPlot({
       options = list(dom = 'ltpi')
     )
   })
+  output$VeteranActiveList <- DT::renderDataTable({
+
+    active_list <- veteran_active_list() %>%
+      arrange(HouseholdID, PersonalID) %>%
+      mutate(PersonalID = if_else(
+        is.na(HOMESID),
+        as.character(PersonalID),
+        paste(PersonalID,
+              "<br>HOMES:",
+              HOMESID)
+      )) %>%
+      select(
+        "Client ID" = PersonalID,
+        "Active Date" =  ActiveDateDisplay,
+        "Project Name" = ProjectName,
+        TimeInProject,
+        Eligibility,
+        "Most Recent Offer" = MostRecentOffer,
+        # ListStatus, is this really needed? seems redundant
+        "Housing Track & Notes" = HousingPlan
+      )
+    
+    datatable(
+      active_list,
+      rownames = FALSE,
+      escape = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    )
+  })
   
   output$DQWarnings <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
+    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
     
-    DQWarnings <- dq_main %>%
+    DQWarnings <- dq_main() %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -1538,8 +1628,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshIncorrectResPriorTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    ResPrior <- dq_unsheltered %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ResPrior <- dq_unsheltered() %>%
       filter(
         Issue == "Wrong Provider (Not Unsheltered)" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1558,8 +1648,8 @@ output$DeskTimePlotCoC <- renderPlot({
    
   output$unshIncorrectResPrior <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    ResPrior <- dq_unsheltered %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ResPrior <- dq_unsheltered() %>%
       filter(
         Issue == "Wrong Provider (Not Unsheltered)" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1600,8 +1690,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshIncorrectEETypeTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    EEType <- dq_unsheltered %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    EEType <- dq_unsheltered() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1620,8 +1710,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshIncorrectEEType <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    EEType <- dq_unsheltered %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    EEType <- dq_unsheltered() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1657,8 +1747,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshDuplicateEEsTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    DuplicateEEs <- dq_unsheltered %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    DuplicateEEs <- dq_unsheltered() %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1679,8 +1769,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshDuplicateEEs <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    DuplicateEEs <- dq_unsheltered %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    DuplicateEEs <- dq_unsheltered() %>%
       filter(
         Issue == "Duplicate Entry Exits" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1711,10 +1801,11 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshHHIssuesTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    HHIssues <- dq_unsheltered %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    HHIssues <- dq_unsheltered() %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
+                     "Missing Relationship to Head of Household",
                      "Children Only Household", 
                      "No Head of Household") &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1734,10 +1825,11 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshHHIssues <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    HHIssues <- dq_unsheltered %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    HHIssues <- dq_unsheltered() %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
+                     "Missing Relationship to Head of Household",
                      "Children Only Household", 
                      "No Head of Household") &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1775,8 +1867,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshMissingCountyTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    county <- dq_unsheltered %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    county <- dq_unsheltered() %>%
       filter(
         Issue == "Missing County Served" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1795,8 +1887,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshMissingCounty <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
-    county <- dq_unsheltered %>%
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    county <- dq_unsheltered() %>%
       filter(
         Issue == "Missing County Served" &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1834,9 +1926,9 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshOverlapsTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
     
-    overlaps <- unsh_overlaps %>%
+    overlaps <- unsh_overlaps() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
           served_between(., ReportStart, ReportEnd)
       ) %>%
@@ -1857,9 +1949,9 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshOverlaps <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
     
-    overlaps <- unsh_overlaps %>%
+    overlaps <- unsh_overlaps() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
                served_between(., ReportStart, ReportEnd)
       ) %>%
@@ -1906,12 +1998,13 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshDQErrorsTable <- DT::renderDataTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
+    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
     
-    unshDQErrors <- dq_unsheltered %>%
+    unshDQErrors <- dq_unsheltered() %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -1940,12 +2033,13 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshDQWarningsTable <- DT::renderDataTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
+    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
     
-    unshDQWarnings <- dq_unsheltered %>%
+    unshDQWarnings <- dq_unsheltered() %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
+          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -1972,155 +2066,28 @@ output$DeskTimePlotCoC <- renderPlot({
     
   })
   
-  output$SPDATScoresHoused <-
-    DT::renderDataTable({
-      ReportStart <- format.Date(input$spdatDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$spdatDateRange[2], "%m-%d-%Y")
-      
-      # counting all households who ENTERED either RRH or PSH between the report dates
-      CountyHousedAverageScores <- qpr_spdats_project %>%
-        filter(entered_between(qpr_spdats_project,
-                               ReportStart,
-                               ReportEnd)) %>%
-        left_join(., regions, by = c("CountyServed" = "County")) %>%
-        filter(RegionName == input$regionList1) %>%
-        mutate(PersonalID = as.character(PersonalID)) %>%
-        arrange(ScoreAdjusted) %>%
-        select(
-          "Client ID" = PersonalID,
-          Project = ProjectName,
-          "Entry Date" = EntryDate,
-          "County Served" = CountyServed,
-          "Score Date" = ScoreDate,
-          Score,
-          "Score Adjusted" = ScoreAdjusted
-        )
-      
-      datatable(
-        CountyHousedAverageScores,
-        rownames = FALSE,
-        filter = 'top',
-        options = list(dom = 'ltpi')
-      )
-      
-    })
+  mod_QPR_server("spdat1", "Community Need, Entered Permanent Housing")
   
-  output$ScoredHousedSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$spdatDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$spdatDateRange[2], "%m-%d-%Y")
-      
-      scores <- qpr_spdats_project %>%
-        filter(entered_between(qpr_spdats_project,
-                               ReportStart,
-                               ReportEnd)) %>%
-        left_join(., regions, by = c("CountyServed" = "County")) %>%
-        filter(RegionName == input$regionList1) %>%
-        group_by(RegionName) %>%
-        summarise(AvgScore = as.integer(mean(ScoreAdjusted)))
-      
-      infoBox(
-        title = "Average Score",
-        color = "purple",
-        icon = icon("parachute-box"),
-        value = scores$AvgScore,
-        subtitle = "Households who were Housed in RRH or PSH in the Selected Region"
-      )
-      
-    })
+  mod_QPR_server("spdat2", "Community Need, Literally Homeless in the County")
   
-  output$SPDATScoresServedInCounty <-
-    DT::renderDataTable({
-      
-      ReportStart <- format.Date(input$spdatDateRange2[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$spdatDateRange2[2], "%m-%d-%Y")
-      
-      # counting all households who were scored AND SERVED between the report dates
-      CountyAverageScores <- qpr_spdats_county %>%
-        filter(served_between(qpr_spdats_county,
-                              ReportStart,
-                              ReportEnd)) %>%
-        left_join(., regions, by = c("CountyServed" = "County")) %>%
-        filter(RegionName == input$regionList2) %>%
-        mutate(PersonalID = as.character(PersonalID)) %>%
-        select(
-          Project = ProjectName,
-          "Client ID" = PersonalID,
-          "Entry Date" = EntryDate,
-          "Exit Date" = ExitDate,
-          "County Served" = CountyServed,
-          Score
-        ) %>%
-        arrange(Score)
-      
-      datatable(CountyAverageScores,
-                rownames = FALSE,
-                filter = 'top',
-                options = list(dom = 'ltpi'))
-      
-    })
+  mod_QPR_server("LoS", "Length of Stay")
   
-  output$ScoredInRegionSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$spdatDateRange2[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$spdatDateRange2[2], "%m-%d-%Y")
-      
-      # counting all households who were scored AND SERVED between the report dates
-      scores <- qpr_spdats_county %>%
-        filter(served_between(qpr_spdats_county,
-                              ReportStart,
-                              ReportEnd)) %>%
-        left_join(., regions, by = c("CountyServed" = "County")) %>%
-        filter(RegionName == input$regionList2) %>%
-        group_by(RegionName) %>%
-        summarise(AvgScore = as.integer(mean(Score)))
-      
-      infoBox(
-        title = "Average Score",
-        color = "purple",
-        icon = icon("shoe-prints"),
-        value = scores$AvgScore,
-        subtitle = "Literally Homeless Households in the Selected Region"
-      )
-      
-    })
+  # Placeholder for Exits to PH
   
-  output$LoSDetail <-
-    DT::renderDataTable({
-      ReportStart <- format.Date(input$LoSDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$LoSDateRange[2], "%m-%d-%Y")
-      
-      LoSDetail <- qpr_leavers %>%
-        filter(((
-          !is.na(MoveInDateAdjust) & ProjectType == 13
-        ) |
-          (
-            !is.na(ExitDate) & ProjectType %in% c(1, 2, 8)
-          )) &
-          exited_between(., ReportStart, ReportEnd) &
-          ProjectName == input$LoSProjectList
-        ) %>%
-        mutate(PersonalID = as.character(PersonalID)) %>%
-        arrange(desc(DaysinProject)) %>%
-        select(
-          "Client ID" = PersonalID,
-          "Bed Start" = EntryAdjust,
-          "Exit Date" = ExitDate,
-          "Days in Project" = DaysinProject
-        )
-      
-      datatable(LoSDetail,
-                rownames = FALSE,
-                filter = 'top',
-                options = list(dom = 'ltpi'))
-      
-    })
+  mod_QPR_server("NCB", "Non-Cash Benefits at Exit")
+  
+  mod_QPR_server("HI", "Health Insurance at Exit")
+  
+  mod_QPR_server("income", "Health Insurance at Exit")
+  
+  mod_QPR_server("rapid", "Rapid Rehousing Spending Goals")
+  
   
   output$ExitsToPH <- DT::renderDataTable({
     ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%m-%d-%Y")
     ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%m-%d-%Y")
     
-    SuccessfullyPlaced <- qpr_leavers %>%
+    SuccessfullyPlaced <- qpr_leavers() %>%
       filter(((ProjectType %in% c(3, 9, 13) &
                  !is.na(MoveInDateAdjust)) |
                 ProjectType %in% c(1, 2, 4, 8, 12)
@@ -2140,7 +2107,7 @@ output$DeskTimePlotCoC <- renderPlot({
         )) # ES, TH, SH, RRH, OUT) %>%
     
     # calculating the total households to compare successful placements to
-    TotalHHsSuccessfulPlacement <- qpr_leavers %>%
+    TotalHHsSuccessfulPlacement <- qpr_leavers() %>%
       filter((
         served_between(., ReportStart, ReportEnd) &
           ProjectType %in% c(3, 9, 12) # PSH & HP
@@ -2188,305 +2155,10 @@ output$DeskTimePlotCoC <- renderPlot({
     
   })
   
-  output$IncomeIncrease <- DT::renderDataTable({
-    ReportStart <- format.Date(input$IncomeDateRange[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$IncomeDateRange[2], "%m-%d-%Y")
-    
-    a <- qpr_income %>%
-      filter(ProjectName == input$incomeProjectList &
-               stayed_between(., ReportStart, ReportEnd)) %>%
-      mutate(EntryIncome = dollar(EntryIncome, accuracy = .01),
-             RecentIncome = dollar(RecentIncome, accuracy = .01),
-             Difference = dollar(Difference, accuracy = .01),
-             PersonalID = as.character(PersonalID)) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate,
-        "Income at Entry" = EntryIncome,
-        "Most Recent Income" = RecentIncome,
-        "Increase Amount" = Difference
-      )
-    
-    datatable(a,
-              rownames = FALSE,
-              filter = 'top',
-              options = list(dom = 'ltpi'))
-  })
   
-  output$qprIncomeSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$IncomeDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$IncomeDateRange[2], "%m-%d-%Y")
-      
-      meeting_objective <- qpr_income %>%
-        filter(
-          ProjectName == input$incomeProjectList &
-            stayed_between(., ReportStart, ReportEnd) &
-            Difference > 0
-        ) %>% 
-        group_by(ProjectName, ProjectType, ProjectCounty, ProjectRegion) %>%
-        summarise(Increased = n())
-      
-      # calculating the total households for comparison
-      all_hhs <- qpr_income %>%
-        filter(ProjectName %in% input$incomeProjectList &
-                 stayed_between(., ReportStart, ReportEnd)) %>%
-        group_by(ProjectName, ProjectType, ProjectCounty, ProjectRegion) %>%
-        summarise(TotalHHs = n()) 
-      
-      IncreasedIncome <- all_hhs %>%
-        left_join(
-          meeting_objective,
-          by = c("ProjectName", "ProjectType", "ProjectCounty", "ProjectRegion")
-        )
-      
-      IncreasedIncome[is.na(IncreasedIncome)] <- 0
-      
-      IncreasedIncome <- IncreasedIncome %>%
-        mutate(Percent = Increased / TotalHHs)
-      
-      if(nrow(IncreasedIncome) > 0) {
-        infoBox(
-          title = "Households Increasing Their Income",
-          color = "green",
-          icon = icon("hand-holding-usd"),
-          value = percent(IncreasedIncome$Percent),
-          subtitle = paste(IncreasedIncome$Increased, 
-                           "out of",
-                           IncreasedIncome$TotalHHs, 
-                           "households served")
-        )
-      }
-      else{
-        infoBox(
-          title = "Something's wrong- email us at hmis@cohhio.org!"
-        )
-      }
-    })
   
-  output$ExitedWithNCBs <- DT::renderDataTable({
-    ReportStart <- format.Date(input$NCBDateRange[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$NCBDateRange[2], "%m-%d-%Y")
-    
-    a <- qpr_benefits %>%
-      filter(ProjectName == input$MBProjectListNC &
-               exited_between(., ReportStart, ReportEnd)) %>%
-      mutate(
-        BenefitsFromAnySource = case_when(
-          BenefitsFromAnySource == 0 ~ "No (HUD)",
-          BenefitsFromAnySource == 1 ~ "Yes (HUD)",
-          BenefitsFromAnySource == 8 ~ "Client doesn't know (HUD)",
-          BenefitsFromAnySource == 9 ~ "Client refused (HUD)",
-          BenefitsFromAnySource == 99 ~ "Data Not Collected (HUD)"
-        ),
-        PersonalID = as.character(PersonalID)
-      ) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate,
-        "Benefits from Any Source (at Exit)" = BenefitsFromAnySource
-      )
-    
-    datatable(a,
-              rownames = FALSE,
-              filter = 'top',
-              options = list(dom = 'ltpi'))
-    
-  })
   
-  output$qprNCBSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$NCBDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$NCBDateRange[2], "%m-%d-%Y")
-      
-      meeting_objective <- qpr_benefits %>%
-        filter(
-            ProjectName == input$MBProjectListNC &
-            exited_between(., ReportStart, ReportEnd) &
-            BenefitsFromAnySource == 1
-        ) %>% 
-        group_by(ProjectName) %>%
-        summarise(BenefitsAtExit = n())
-      
-      # calculating the total households for comparison
-      all_hhs <- qpr_benefits %>%
-        filter(ProjectName == input$MBProjectListNC &
-                 exited_between(., ReportStart, ReportEnd)) %>%
-        group_by(ProjectName) %>%
-        summarise(TotalHHs = n()) 
-      
-      NCBsAtExit <- all_hhs %>%
-        left_join(
-          meeting_objective,
-          by = c("ProjectName")
-        )
-      
-      NCBsAtExit[is.na(NCBsAtExit)] <- 0
-      
-      NCBsAtExit <- NCBsAtExit %>%
-        mutate(Percent = BenefitsAtExit / TotalHHs)
-      
-      if(nrow(NCBsAtExit) > 0) {
-        infoBox(
-        title = "Households Exiting With Non Cash Benefits",
-        color = "fuchsia",
-        icon = icon("shopping-cart"),
-        value = percent(NCBsAtExit$Percent),
-        subtitle = paste(NCBsAtExit$BenefitsAtExit, 
-                          "out of",
-                          NCBsAtExit$TotalHHs, 
-                          "households")
-        )
-      }
-      else{
-        infoBox(
-          title = "No Leavers in the Date Range"
-        )
-      }
-    })
   
-  output$ExitedWithInsurance <- DT::renderDataTable({
-    ReportStart <- format.Date(input$HIDateRange[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$HIDateRange[2], "%m-%d-%Y")
-    
-    a <- qpr_benefits %>%
-      filter(ProjectName == input$MBProjectListHI &
-               exited_between(., ReportStart, ReportEnd)) %>%
-      mutate(
-        InsuranceFromAnySource = case_when(
-          InsuranceFromAnySource == 0 ~ "No (HUD)",
-          InsuranceFromAnySource == 1 ~ "Yes (HUD)",
-          InsuranceFromAnySource == 8 ~ "Client doesn't know (HUD)",
-          InsuranceFromAnySource == 9 ~ "Client refused (HUD)",
-          InsuranceFromAnySource == 99 ~ "Data Not Collected (HUD)"
-        )
-      ) %>%
-      mutate(PersonalID = as.character(PersonalID)) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate,
-        "Health Insurance from Any Source (at Exit)" = InsuranceFromAnySource
-      )
-    datatable(a,
-              rownames = FALSE,
-              filter = 'top',
-              options = list(dom = 'ltpi'))
-    
-  })
-  
-  output$healthInsuranceSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$HIDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$HIDateRange[2], "%m-%d-%Y")
-      
-      meeting_objective <- qpr_benefits %>%
-        filter(
-            ProjectName == input$MBProjectListHI &
-            exited_between(., ReportStart, ReportEnd) &
-            InsuranceFromAnySource == 1
-        ) %>% 
-        group_by(ProjectName) %>%
-        summarise(InsuranceAtExit = n())
-      
-      # calculating the total households for comparison
-      all_hhs <- qpr_benefits %>%
-        filter(ProjectName == input$MBProjectListHI &
-                 exited_between(., ReportStart, ReportEnd)) %>%
-        group_by(ProjectName) %>%
-        summarise(TotalHHs = n()) 
-      
-      HIAtExit <- all_hhs %>%
-        left_join(
-          meeting_objective,
-          by = c("ProjectName")
-        )
-      
-      HIAtExit[is.na(HIAtExit)] <- 0
-      
-      HIAtExit <- HIAtExit %>%
-        mutate(Percent = InsuranceAtExit / TotalHHs)
-      
-      if(nrow(HIAtExit) > 0) {
-        infoBox(
-        title = "Total Households Exiting With Health Insurance",
-        color = "black",
-        icon = icon("medkit"),
-        value = percent(HIAtExit$Percent),
-        subtitle = paste(HIAtExit$InsuranceAtExit, 
-                          "out of",
-                         HIAtExit$TotalHHs,
-                         "households")
-        )}
-      else{
-        infoBox(
-          title = "No Leavers in the Date Range"
-        )
-      }
-    })
-  
-  output$daysToHouseRRH <- DT::renderDataTable({
-    ReportStart <- format.Date(input$DaysToHouseDateRange[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$DaysToHouseDateRange[2], "%m-%d-%Y")
-    
-    daysToHouse <- qpr_rrh_enterers %>%
-      filter(
-        !is.na(MoveInDateAdjust) &
-          ProjectName %in% c(input$RapidRRHProviderList) &
-          entered_between(., ReportStart, ReportEnd)
-      ) %>%
-      mutate(PersonalID = as.character(PersonalID)) %>%
-      arrange(DaysToHouse) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        "Move In Date" = MoveInDate,
-        "Days to House" = DaysToHouse
-      )
-    
-    datatable(daysToHouse,
-              rownames = FALSE,
-              filter = 'top',
-              options = list(dom = 'ltpi'))
-    
-  })
-  
-  output$daysToHouseSummary <-
-    renderInfoBox({
-      ReportStart <- format.Date(input$DaysToHouseDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$DaysToHouseDateRange[2], "%m-%d-%Y")
-      
-      days <- qpr_rrh_enterers %>%
-        filter(
-          ProjectType == 13 &
-            !is.na(MoveInDateAdjust) &
-            ProjectName %in% c(input$RapidRRHProviderList) &
-            entered_between(., ReportStart, ReportEnd)
-        ) %>%
-        mutate(DaysToHouse = difftime(MoveInDateAdjust, EntryDate, units = "days")) %>%
-        summarise(AvgDaysToHouse = as.integer(mean(DaysToHouse)))
-      
-      infoBox(
-        title = "Average Days to House",
-        color = "purple",
-        icon = icon("hourglass-half"),
-        value = days$AvgDaysToHouse,
-        subtitle = "See table below for detail."
-      )
-      
-    })
-  
-  output$headerRRHSpending <- renderUI({
-    ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%B %d, %Y")
-    
-    list(h2("Quarterly Performance Report"),
-         h3("Rapid Rehousing Spending Goals"),
-         # h4(input$RRHRegion),
-         h4(ReportStart, "-", ReportEnd))
-  })
   
   #  QPR HP vs RRH Spending
   output$RRHSpending <-
@@ -2494,7 +2166,7 @@ output$DeskTimePlotCoC <- renderPlot({
       ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%m-%d-%Y")
       
-      rrhSpending <- qpr_spending %>%
+      rrhSpending <- qpr_spending() %>%
         filter(
           OrganizationName == input$RRHSpendingOrganizationList &
             entered_between(., ReportStart, ReportEnd) &
@@ -2524,7 +2196,7 @@ output$DeskTimePlotCoC <- renderPlot({
       ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%m-%d-%Y")
       
-      hpSpending <- qpr_spending %>%
+      hpSpending <- qpr_spending() %>%
         filter(
           OrganizationName == input$RRHSpendingOrganizationList &
             entered_between(., ReportStart, ReportEnd) &
@@ -2551,11 +2223,11 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$pe_ProjectSummary <-
     DT::renderDataTable({
-      ptc <- summary_pe_final_scoring %>%
+      ptc <- summary_pe_final_scoring() %>%
         filter(AltProjectName == input$pe_provider) %>%
         pull(ProjectType)
       
-      summary_pe_final_scoring <- summary_pe_final_scoring %>%
+      summary_pe_final_scoring <- summary_pe_final_scoring() %>%
         mutate(
           ExitsToPHMath = str_replace(ExitsToPHMath, "/", "÷"),
           OwnHousingMath = str_replace(OwnHousingMath, "/", "÷"),
@@ -2773,7 +2445,7 @@ output$DeskTimePlotCoC <- renderPlot({
     })
   
   output$pe_ExitsToPH <- DT::renderDataTable({
-    a <- pe_exits_to_ph %>%
+    a <- pe_exits_to_ph() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
              Destination = living_situation(Destination)) %>%
@@ -2796,7 +2468,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$pe_OwnHousing <- DT::renderDataTable({
     
-    a <- pe_own_housing %>%
+    a <- pe_own_housing() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
              Destination = living_situation(Destination)) %>%
@@ -2819,7 +2491,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_BenefitsAtExit <- DT::renderDataTable({
-    a <- pe_benefits_at_exit %>%
+    a <- pe_benefits_at_exit() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
         BenefitsFromAnySource = case_when(
@@ -2853,7 +2525,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_IncreasedIncome <- DT::renderDataTable({
-    a <- pe_increase_income %>%
+    a <- pe_increase_income() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
         IncomeDifference = IncomeMostRecent - IncomeAtEntry,
@@ -2880,7 +2552,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_LivingSituationAtEntry <- DT::renderDataTable({
-    a <- pe_res_prior %>%
+    a <- pe_res_prior() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
         LivingSituation = living_situation(LivingSituation),
@@ -2904,7 +2576,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_NoIncomeAtEntry <- DT::renderDataTable({
-    a <- pe_entries_no_income %>%
+    a <- pe_entries_no_income() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
         MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
@@ -2932,7 +2604,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_LengthOfStay <- DT::renderDataTable({
-    a <- pe_length_of_stay %>%
+    a <- pe_length_of_stay() %>%
       filter(AltProjectName == input$pe_provider &
                ProjectType %in% c(2, 8, 13)) %>%
       select(
@@ -2954,15 +2626,15 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$pe_MedianHHI <- DT::renderDataTable({
     
-    times <- HUD_specs %>%
+    times <- HUD_specs() %>%
       filter(DataElement == "TimesHomelessPastThreeYears") %>%
       select(ReferenceNo, Description)
     
-    months <- HUD_specs %>%
+    months <- HUD_specs() %>%
       filter(DataElement == "MonthsHomelessPastThreeYears") %>%
       select(ReferenceNo, Description)
     
-    a <- pe_homeless_history_index %>%
+    a <- pe_homeless_history_index() %>%
       left_join(times, by = c("TimesHomelessPastThreeYears" = "ReferenceNo")) %>%
       mutate(TimesHomelessPastThreeYears = Description) %>%
       select(-Description)
@@ -2996,15 +2668,15 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$pe_LongTermHomeless <- DT::renderDataTable({
     
-    times <- HUD_specs %>%
+    times <- HUD_specs() %>%
       filter(DataElement == "TimesHomelessPastThreeYears") %>%
       select(ReferenceNo, Description)
     
-    months <- HUD_specs %>%
+    months <- HUD_specs() %>%
       filter(DataElement == "MonthsHomelessPastThreeYears") %>%
       select(ReferenceNo, Description)
     
-    a <- pe_long_term_homeless %>%
+    a <- pe_long_term_homeless() %>%
       filter(ProjectType == 3) %>%
       left_join(times, by = c("TimesHomelessPastThreeYears" = "ReferenceNo")) %>%
       mutate(TimesHomelessPastThreeYears = Description) %>%
@@ -3040,7 +2712,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$pe_ScoredAtPHEntry <- DT::renderDataTable({
     
-    a <- pe_scored_at_ph_entry %>%
+    a <- pe_scored_at_ph_entry() %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")) %>%
       select(
