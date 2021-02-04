@@ -56,12 +56,21 @@ compare_image_sizes <- function(new = "data/Rminor_elevated.RData", old = "data/
 #' @return \code{(character)} vector of text in the file with the new function calls
 sym2function <- function(x, file) {
   .parse <- parse(file)
-  .server_data <- utils::getParseData()
+  .server_data <- utils::getParseData(.parse)
   .to_change <- which(.server_data$token %in% "SYMBOL" & grepl(paste0(paste0("(?:(?<!\\w)",x,"(?!\\w))"), collapse = "|"), .server_data$text, perl = TRUE))
   out <- readLines(file)
   
   for (i in .to_change) {
     .ln_num <- .server_data$line2[i]
+    
+    if (interactive()) {
+      rstudioapi::navigateToFile(file, line = .ln_num, column = .server_data$col1[i])
+      Sys.sleep(1)
+      .answer <- utils::askYesNo("Change this symbol instance to a function?")
+      if (isFALSE(.answer)) next
+      else if (is.na(.answer)) stop("A choice must be selected")
+        
+    }
     # if a line must be altered more than once, adjust the column numbers based on the number of reoccurences
     .add <- (which(.to_change[.server_data$line2[.to_change] %in% .ln_num] %in% .to_change[.to_change %in% i]) - 1) * 2
     

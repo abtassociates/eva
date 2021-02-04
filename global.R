@@ -25,7 +25,10 @@ library(writexl)
 library(viridis)
 library(HMIS)
 
-load("data/Rminor_elevated.RData")
+if (!exists("df_nms")) {
+  e <- environment()
+  list2env(readRDS("data/Rminor_elevated.rds"), e)
+}
 
 source("R/feather_save.R")
 qpr_leavers <- qpr_leavers() %>% arrange(ProjectName)
