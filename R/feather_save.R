@@ -1,6 +1,10 @@
-rdata2feather <- function(path = "data/db", rdata = "data/Rme_old.RData", new_rdata = "data/Rminor_elevated.RData") {
+data2feather <- function(path = "data/db", data = "data/Rme_old.RData", new_data = "data/Rminor_elevated.rds") {
   objects <- new.env()
-  load(rdata, envir = objects)
+  if (stringr::str_detect(stringr::regex("RData$", ignore_case = TRUE))) {
+    load(data, envir = objects)
+  } else {
+    list2env(readRDS(data), envir = objects)
+  }
   #file.copy("data/Rminor_elevated.RData", "data/Rme_old.RData")
   # This is the previous
   
@@ -19,7 +23,7 @@ rdata2feather <- function(path = "data/db", rdata = "data/Rme_old.RData", new_rd
   purrr::iwalk(all_df_nms, ~{
     assign(.x, function() get_feather(as.character(match.call()[[1]])), objects)
   })
-  save(list = ls(envir = objects), file = new_rdata, envir = objects)
+  save(list = ls(envir = objects), file = new_data, envir = objects)
 }
 
 
@@ -45,14 +49,14 @@ compare_image_sizes <- function(new = "data/Rminor_elevated.RData", old = "data/
 # compare_image_sizes()
 #99% reduction in size
 
-get_feather <- function(x, path = "data/db", ext = ".feather") feather::read_feather(file.path(path, paste0(x, ifelse(grepl("^\\.",ext), ext, paste0(".",ext)))))
-
-
-# 
-# 
-
-object2function <- function(x, file) {
-  .server_data <- utils::getParseData(parse(file))
+#' @title Convert the occurrence of a symbol in an R document to a function call by the same name
+#' @description Useful to replace calls to an object by symbol name with an accessor function or reactive with the same name
+#' @param x \code{(character)} All symbols to change
+#' @param file \code{(character)} Path to file in which to change them
+#' @return \code{(character)} vector of text in the file with the new function calls
+sym2function <- function(x, file) {
+  .parse <- parse(file)
+  .server_data <- utils::getParseData()
   .to_change <- which(.server_data$token %in% "SYMBOL" & grepl(paste0(paste0("(?:(?<!\\w)",x,"(?!\\w))"), collapse = "|"), .server_data$text, perl = TRUE))
   out <- readLines(file)
   
