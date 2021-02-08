@@ -34,8 +34,6 @@ if (!exists("df_nms")) {
 
 source("R/feather_save.R")
 
-qpr_leavers <- qpr_leavers() %>% arrange(ProjectName)
-
 providers <- sort(validation()$ProjectName) %>% unique() 
 
 desk_time_providers <- validation() %>%
@@ -56,10 +54,10 @@ tab_choices <- unique(regions()$RegionName) %>%
     choices = .
   ),
   LoS = list(
-    choices = unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1, 2, 8, 13)])
+    choices = unique(qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1, 2, 8, 13)])
   ),
   PH = list(
-    choices = unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1:4, 8:9, 12:13)])
+    choices = unique(qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)])
   ),
   NCB = list(
     choices = unique(qpr_benefits()$ProjectName)

@@ -1,7 +1,7 @@
 qpr_expr$LoS <- list()
 qpr_expr$LoS$expr <- rlang::expr({
   
-  .dat <- qpr_leavers %>%
+  .dat <- qpr_leavers() %>%
     filter(((
       !is.na(MoveInDateAdjust) & ProjectType == 13
     ) |

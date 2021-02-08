@@ -578,7 +578,7 @@ dashboardPage(
           box(
             pickerInput(
               inputId = "ExitsToPHProjectList",
-              choices = c(unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1:4, 8:9, 12:13)])),
+              choices = c(unique(qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)])),
               options = list(`live-search` = TRUE),
               width = "70%"
             ),
