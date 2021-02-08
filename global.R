@@ -12,6 +12,7 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
 Sys.setenv(TZ = "America/New_York")
+
 library(tidyverse)
 library(shinydashboard)
 library(shiny)
@@ -24,6 +25,7 @@ library(DT)
 library(writexl)
 library(viridis)
 library(HMIS)
+library(feather)
 
 if (!exists("df_nms")) {
   e <- environment()
@@ -31,6 +33,7 @@ if (!exists("df_nms")) {
 }
 
 source("R/feather_save.R")
+
 qpr_leavers <- qpr_leavers() %>% arrange(ProjectName)
 
 providers <- sort(validation()$ProjectName) %>% unique() 
