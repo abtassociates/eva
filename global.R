@@ -31,15 +31,6 @@ if (!exists("df_nms")) {
   e <- environment()
   list2env(readRDS("data/Rminor_elevated.rds"), e)
 }
-names(gg_nms) <- c("cocEligibility", 
-                   "cocDQErrorTypes",
-                   "cocHHErrors",
-                   "cocSPDAT",
-                   "cocOutstandingReferrals",
-                   "cocDQErrors",
-                   "cocDQWarnings",
-                   "cocUnshelteredHigh",
-                   "cocDQWarningTypes")
 
 providers <- sort(validation()$ProjectName) %>% unique() 
 

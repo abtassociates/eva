@@ -369,90 +369,33 @@ dashboardPage(
         tabName = "dqCoC",
         fluidRow(box(htmlOutput("headerCocDQ"), width = 12)),
         fluidRow(
-          list(cocDQErrors = list(status = "danger",
+          list(dq_plot_projects_errors = list(status = "danger",
                                   title = "Providers with the Most High Priority Issues and Errors"),
                
-               cocHHErrors = list(status = "danger",
+               dq_plot_hh_errors = list(status = "danger",
                                   title = "Providers with the Most Household Errors"),
-               cocUnshelteredHigh = list(status = "danger",
+               dq_plot_unsheltered_high = list(status = "danger",
                                          title = "Unsheltered High Priority Issues (User's Default Provider)"),
-               DeskTimePlotCoC = list(status = "warning",
-                                      title = "Longest Data Entry Delay Medians (in the past 365 days)"),
-               cocDQWarnings = list(status = "warning",
+               dq_plot_projects_warnings = list(status = "warning",
                                     title = "Providers with the Most Data Quality Warnings"),
-               cocDQErrorTypes = list(status = "primary",
+               DeskTimePlotCoC = list(width = 12,
+                                      status = "warning",
+                                      title = "Longest Data Entry Delay Medians (in the past 365 days)"),
+               dq_plot_errors = list(status = "primary",
                                       title = "Top 10 Error Types"),
-               cocDQWarningTypes = list(status = "primary",
+               dq_plot_warnings = list(status = "primary",
                                         title = "Top 10 Warning Types"),
-               cocEligibility = list(status = "warning",
+               dq_plot_eligibility = list(status = "warning",
                                      title = "Providers with Potential Eligibility Issues")
           ) %>% 
             purrr::imap(~{
               do.call(shinydashboard::box, purrr::list_modify(
                 list(imageOutput(.y),
-                     width = 12,
                      solidHeader = TRUE,
                      status = "danger",
                      title = NULL),
                 !!!.x))
             }) 
-          # box(
-          #   plotOutput("cocDQErrors"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "danger",
-          #   title = "Providers with the Most High Priority Issues and Errors"
-          # ),
-          # box(
-          #   plotOutput("cocHHErrors"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "danger",
-          #   title = "Providers with the Most Household Errors"
-          # ),
-          # box(
-          #   plotOutput("cocUnshelteredHigh"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "danger",
-          #   title = "Unsheltered High Priority Issues (User's Default Provider)"
-          # ),
-          # box(
-          #   plotOutput("DeskTimePlotCoC"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "warning",
-          #   title = "Longest Data Entry Delay Medians (in the past 365 days)"
-          # ),
-          # box(
-          #   imageOutput("cocDQWarnings"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   height = "auto",
-          #   status = "warning",
-          #   title = "Providers with the Most Data Quality Warnings"
-          # ),
-          # box(
-          #   plotOutput("cocDQErrorTypes"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "primary",
-          #   title = "Top 10 Error Types"
-          # ),
-          # box(
-          #   plotOutput("cocDQWarningTypes"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "primary",
-          #   title = "Top 10 Warning Types"
-          # ),
-          # box(
-          #   plotOutput("cocEligibility"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "warning",
-          #   title = "Providers with Potential Eligibility Issues"
-          # )
         ),
         fluidRow(
           box(
@@ -489,14 +432,14 @@ dashboardPage(
                   title = "APs Not Creating Referrals"
                 ),
                 box(
-                  imageOutput("cocSPDAT"),
+                  imageOutput("dq_plot_hh_no_spdat"),
                   width = 12,
                   solidHeader = TRUE,
                   status = "warning",
                   title = "Current Households Without SPDAT (minus Veterans)"
                 ),
                 box(
-                  imageOutput("cocOutstandingReferrals"),
+                  imageOutput("dq_plot_outstanding_referrals"),
                   width = 12,
                   solidHeader = TRUE,
                   status = "warning",
