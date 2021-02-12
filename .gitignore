@@ -7,3 +7,4 @@ rsconnect
 .Rprofile
 comparisons
 tests/
+*.jpg
