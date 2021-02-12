@@ -13,21 +13,25 @@
 # <https://www.gnu.org/licenses/>. 
 
 function(input, output, session) {
+  tictoc::tic.clearlog()
+  observeEvent(input$tictoc, {
+    saveRDS(tictoc::tic.log(format = FALSE), "profvis/ttlog.rds")
+  })
   output$headerHome <- renderUI({
     box(
       title = "Welcome",
       width = 12,
       HTML(
-        "<p>R minor elevated is intended for use by the Ohio Balance of State CoC
-        and the Mahoning County CoC HMIS users. This site requires a login 
-        because client-level data is shown (without Personally Identifying 
-        Information). Please use this site to verify that your HMIS data is 
-        accurate and complete.
+        "<p>R minor elevated is intended for use by Ohio Balance of State HMIS
+        users. This site requires a login because client-level data is shown
+        (without Personally Identifying Information). Please use this
+        site to verify that your HMIS data is accurate and complete.
         <p><a href=\"https://ohiobalanceofstatecoc.shinyapps.io/Rminor\"
-        target=\"_blank\">R minor</a> is a separate COHHIO site used for 
-        performance reporting. Visitors to R minor will include HMIS users, 
-        program executives, funders, government representatives, advocates, and 
-        other interested parties. R minor contains no client-level data.<br>
+        target=\"_blank\">R minor</a> is a separate COHHIO site used for Ohio
+        Balance of State CoC performance reporting. Visitors to R minor will
+        include HMIS users, program executives, funders, government
+        representatives, advocates, and other interested parties. R minor
+        contains no client-level data.<br>
         <p>We're glad you're here! Please select a report in the left sidebar."
       )
     )
@@ -36,11 +40,11 @@ function(input, output, session) {
   
   output$headerPrioritization <- renderUI({
     list(h2("Prioritization Report"),
-         h4("Literally Homeless Clients as of", meta_HUDCSV_Export_End))
+         h4("Literally Homeless Clients as of", FileEnd))
   })
   
   output$headerCurrent <- renderUI({
-    list(h2("Client Counts Report"),
+    list(h2("Current Clients as of", FileEnd),
          h4(input$currentProviderList))
   })
   
@@ -54,7 +58,7 @@ function(input, output, session) {
   })
   
   output$headerCoCCompetitionProjectLevel <- renderUI({
-    
+
     next_thing_due <- tribble(
       ~ DueDate, ~ Event,
       "7/20/2020", "All HMIS data corrections must be complete by 11:59pm",
@@ -72,7 +76,7 @@ function(input, output, session) {
       ) %>%
       filter(today() %within% DateRange) %>%
       select(Event, DueDate)
-    
+
     list(
       h2("2020 CoC Competition: Project Evaluation"), 
       h4("Fixed Date Range: January 1, 2019 - December 31, 2019"),
@@ -97,7 +101,7 @@ function(input, output, session) {
          h4(paste(
            format(input$dq_startdate, "%m-%d-%Y"),
            "to",
-           format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
+           format(update_date, "%m-%d-%Y")
          )))
   })
   
@@ -123,30 +127,22 @@ function(input, output, session) {
     CoC, all clients should be entered within 5 days of their entry into your
     project.
     <h4>How Do We Fix This?</h4>
-    <p><strong>There is nothing a user can do</strong> to \"correct\" a client
-    entered into the system outside the window. We can only resolve to enter
+    <p><strong>There is nothing a user can do</strong> to \"correct\" a client 
+    entered into the system outside the window. We can only resolve to enter 
     clients within the 5-day range going forward. As you catch up on data entry,
-    you may see your median get worse at first, but this data looks back exactly
-    one year, so any clients with an Entry Date over a year ago will fall off
+    you may see your median get worse at first, but this data looks back exactly 
+    one year, so any clients with an Entry Date over a year ago will fall off 
     of this plot and your median will change accordingly.
     <h4>Interpretation</h4>
     <p>Green dots here represent clients entered within the range and orange
     dots represent clients entered outside the range. The darker the dot, the
-    more clients entered your project on that day. (Likely a household.)
+    more clients entered your project on that day. (Likely a household.)    
     <p>The metric COHHIO looks at here is the Median, so if you have orange dots
     but your Median is within the 5 day range, that is great!
     <p>If you have orange dots BELOW the 0 mark, that means you entered Entry
     Dates into the future, which means there is potentially a mis-keyed date or
     the user needs technical assistance about how to know what date to enter for
-    the Entry Date. If this is the case, please email the HMIS team.
-            <h4>Is it possible there's a mistake?</h4>
-    It's rare that this occurs, but if an Entry Exit has been created, deleted,
-    and then recreated, the Entry Exit's \"Date Created\" date is reset,
-    thus inflating the number of days between the Date Created and the Entry Date.
-    If you need us to check if this was the case for a particular dot on the
-    plot, please email us with the provider and number of days it is
-    displaying that you think may be incorrect so we can verify if this is the
-        issue."
+    the Entry Date. If this is the case, please email the HMIS team."
       )
     )
   
@@ -157,17 +153,15 @@ function(input, output, session) {
          h4(paste(
            format(input$unsh_dq_startdate, "%m-%d-%Y"),
            "to",
-           format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
+           format(update_date, "%m-%d-%Y")
          )))
   })
   
   output$headerCocDQ <- renderUI({
-    list(h2("CoC-wide Data Quality"),
-         h4(
-           paste(format(hc_check_dq_back_to, "%m-%d-%Y"),
-                 "through",
-                 format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
-         ))
+    list(
+      h2("CoC-wide Data Quality"),
+      h4("October 2018 through Last Updated Date")
+    )
   })
   
   output$headerCommunityNeedPH <- renderUI({
@@ -191,7 +185,7 @@ function(input, output, session) {
          h4(paste(
            format(input$dq_region_startdate, "%m-%d-%Y"),
            "to",
-           format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
+           format(update_date, "%m-%d-%Y")
          )))
   })
   
@@ -228,7 +222,7 @@ output$DeskTimePlotDetail <- renderPlot({
   
   ReportStart <- format.Date(ymd(today() - years(1)), "%m-%d-%Y")
   ReportEnd <- format.Date(ymd(today()), "%m-%d-%Y")
-  
+utils::Rprof("profvis/server_profile/225-255.Rprof",  interval = 0.02, memory.profiling = TRUE)   #<p
   desk_time <- validation %>%
     filter(ProjectName == provider &
              entered_between(., ReportStart, ReportEnd) &
@@ -251,17 +245,18 @@ output$DeskTimePlotDetail <- renderPlot({
            DateCreated,
            DeskTime,
            GoalMet) 
-  
+
+
   desk_time_medians <- desk_time %>%
     group_by(ProjectName) %>%
     summarise(MedianDeskTime = median(DeskTime),
               TotalEntered = n()) %>%
     ungroup()
-  
+Rprof(NULL)   #>p
   dq_plot_desk_time <-
     ggplot(
       desk_time,
-      aes(x = EntryDate, y = DeskTime)
+      aes(x = ymd(EntryDate), y = DeskTime)
     ) +
     geom_point(aes(color = GoalMet, size = 8, alpha = .2),
                show.legend = FALSE)+
@@ -289,7 +284,7 @@ output$DeskTimePlotDetail <- renderPlot({
     labs(x = "Entry Date",
          y = "Data Entry Delay (in days)") +
     theme_minimal(base_size = 18)
-  
+
   dq_plot_desk_time
 })
 
@@ -298,7 +293,7 @@ output$DeskTimePlotCoC <- renderPlot({
 
   ReportStart <- format.Date(ymd(today() - years(1)), "%m-%d-%Y")
   ReportEnd <- format.Date(ymd(today()), "%m-%d-%Y")
-  
+utils::Rprof("profvis/server_profile/296-320.Rprof",  interval = 0.02, memory.profiling = TRUE) #<p
   desk_time <- validation %>%
     filter(entered_between(., ReportStart, ReportEnd) &
              ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
@@ -315,14 +310,15 @@ output$DeskTimePlotCoC <- renderPlot({
            EntryDate,
            DateCreated,
            DeskTime) 
-  
+
+
   desk_time_medians <- desk_time %>%
     group_by(ProjectName) %>%
     summarise(MedianDeskTime = median(DeskTime)) %>%
     ungroup() %>%
     arrange(desc(MedianDeskTime))
-  
-  ggplot(
+Rprof(NULL)   #>p  
+  .g <- ggplot(
     head(desk_time_medians, 10L),
     aes(
       x = reorder(ProjectName, MedianDeskTime),
@@ -336,14 +332,15 @@ output$DeskTimePlotCoC <- renderPlot({
          y = "Median Days") +
     scale_fill_viridis_c(direction = -1) +
     theme_minimal(base_size = 18)
-  
+
+  .g
 })
   
   output$ExitsToPHSummary <-
     renderInfoBox({
       ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%m-%d-%Y")
-      
+
       SuccessfullyPlaced <- qpr_leavers %>%
         filter(ProjectName == input$ExitsToPHProjectList &
                  ((ProjectType %in% c(3, 9, 13) &
@@ -365,8 +362,9 @@ output$DeskTimePlotCoC <- renderPlot({
           )) %>%
         group_by(ProjectName) %>%
         count()
-      
+
       # calculating the total households to compare successful placements to
+
       TotalHHsSuccessfulPlacement <- qpr_leavers %>%
         filter(ProjectName == input$ExitsToPHProjectList &
                  ((
@@ -380,7 +378,7 @@ output$DeskTimePlotCoC <- renderPlot({
                  )) %>%
         group_by(ProjectName) %>%
         count()
-      
+
       infoBox(
         title = "Successfully Placed",
         color = "blue",
@@ -410,7 +408,7 @@ output$DeskTimePlotCoC <- renderPlot({
     renderInfoBox({
       ReportStart <- format.Date(input$LoSDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$LoSDateRange[2], "%m-%d-%Y")
-      
+
       los_summary <- qpr_leavers %>%
         filter(((
           !is.na(MoveInDateAdjust) & ProjectType == 13
@@ -425,7 +423,7 @@ output$DeskTimePlotCoC <- renderPlot({
         summarise(Average = format(mean(DaysinProject),
                                    digits = 1),
                   Median = median(DaysinProject))
-      
+
       infoBox(
         title = "Average and Median Length of Stay",
         color = "purple",
@@ -493,7 +491,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$prioritizationData <- DT::renderDataTable({
-    
+
     active <- active_list %>%
       filter(CountyServed %in% c(input$prioritizationCounty) |
                is.na(CountyServed)) %>%
@@ -514,11 +512,12 @@ output$DeskTimePlotCoC <- renderPlot({
         "Household Size" = HouseholdSize,
         "Income" = IncomeFromAnySource,
         Score,
-        HH_DQ_Issue,
+        HH_DQ_issue,
         CountyGuessed
       )
-    
-    datatable(
+
+
+    .d <- datatable(
       active,
       rownames = FALSE,
       filter = 'top',
@@ -549,7 +548,8 @@ output$DeskTimePlotCoC <- renderPlot({
         backgroundColor = styleEqual(c(1),
                                      c("#7d7d8d"))
       )
-    
+
+    .d
   })
   
   output$downloadActiveList <- downloadHandler(
@@ -565,13 +565,10 @@ output$DeskTimePlotCoC <- renderPlot({
     }
   )
   
-  output$clientCountData <- DT::renderDataTable({
-    ReportStart <- format.Date(input$dateRangeCount[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$dateRangeCount[2], "%m-%d-%Y")
-    
+  output$currentClients <- DT::renderDataTable({
     datatable(
       validation %>%
-        filter(served_between(., ReportStart, ReportEnd) &
+        filter(is.na(ExitDate) &
                  ProjectName == input$currentProviderList) %>%
         mutate(
           PersonalID = as.character(PersonalID),
@@ -583,29 +580,14 @@ output$DeskTimePlotCoC <- renderPlot({
             RelationshipToHoH == 5 ~ "Unrelated household member",
             RelationshipToHoH == 99 ~ "Data not collected (please correct)"
           ),
-          Status = case_when(
+          Days = case_when(
             ProjectType %in% c(3, 13) &
-              is.na(MoveInDateAdjust) &
-              is.na(ExitDate) ~ paste0("Currently Awaiting Housing (", 
-                                       today() - EntryDate,
-                                       " days)"),
+              is.na(MoveInDateAdjust) ~ paste(today() - EntryDate,
+                                              "days awaiting housing in project"),
             ProjectType %in% c(3, 13) &
-              !is.na(MoveInDateAdjust) &
-              is.na(ExitDate) ~ paste0("Currently Moved In (",
-                                      today() - MoveInDateAdjust,
-                                      " days)"),
-            ProjectType %in% c(3, 13) &
-              is.na(MoveInDateAdjust) &
-              !is.na(ExitDate) ~ "Exited No Move-In",
-            ProjectType %in% c(3, 13) &
-              !is.na(MoveInDateAdjust) &
-              !is.na(ExitDate) ~ "Exited with Move-In",
-            !ProjectType %in% c(3, 13) &
-              is.na(ExitDate) ~ paste0("Currently in project (",
-                                       today() - EntryDate, 
-                                       " days)"),
-            !ProjectType %in% c(3, 13) &
-              !is.na(ExitDate) ~ "Exited project",
+              !is.na(MoveInDateAdjust) ~ paste(today() - MoveInDateAdjust,
+                                               "days housed in project"),!ProjectType %in% c(3, 13) ~ paste(today() - EntryDate,
+                                                                                                            "days in project")
           ),
           sort = today() - EntryDate
         ) %>%
@@ -617,93 +599,11 @@ output$DeskTimePlotCoC <- renderPlot({
           "Relationship to Head of Household" = RelationshipToHoH,
           "Entry Date" = EntryDate,
           "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
-          "Exit Date" = ExitDate,
-          Status
+          Days
         ),
       rownames = FALSE,
       filter = 'top',
       options = list(dom = 'ltpi')
-    )
-  })
-  
-  output$clientCountSummary <- DT::renderDataTable({
-    ReportStart <- format.Date(input$dateRangeCount[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$dateRangeCount[2], "%m-%d-%Y")
-    
-    hhs <- validation %>%
-      filter(served_between(., ReportStart, ReportEnd) &
-               ProjectName == input$currentProviderList) %>%
-      select(HouseholdID,
-             ProjectType,
-             EntryDate,
-             MoveInDateAdjust,
-             ExitDate) %>%
-      unique() %>%
-      mutate(
-        # Entered = if_else(between(EntryDate, ReportStart, ReportEnd),
-        #                   "Entered in date range", "Entered outside date range"),
-        # Leaver = if_else(!is.na(ExitDate), "Leaver", "Stayer"),
-        Status = case_when(
-          ProjectType %in% c(3, 13) &
-            is.na(MoveInDateAdjust) &
-            is.na(ExitDate) ~ "Currently Awaiting Housing",
-          ProjectType %in% c(3, 13) &
-            !is.na(MoveInDateAdjust) &
-            is.na(ExitDate) ~ "Currently Moved In",
-          ProjectType %in% c(3, 13) &
-            is.na(MoveInDateAdjust) &
-            !is.na(ExitDate) ~ "Exited No Move-In",
-          ProjectType %in% c(3, 13) &
-            !is.na(MoveInDateAdjust) &
-            !is.na(ExitDate) ~ "Exited with Move-In",
-          !ProjectType %in% c(3, 13) &
-            is.na(ExitDate) ~ "Currently in project",
-          !ProjectType %in% c(3, 13) &
-            !is.na(ExitDate) ~ "Exited project",
-        )
-      ) %>%
-      group_by(Status) %>%
-      summarise(Households = n())
-    
-    clients <- validation %>%
-      filter(served_between(., ReportStart, ReportEnd) &
-               ProjectName == input$currentProviderList) %>%
-      select(PersonalID,
-             ProjectType,
-             EntryDate,
-             MoveInDateAdjust,
-             ExitDate) %>%
-      unique() %>%
-      mutate(
-        Status = case_when(
-          ProjectType %in% c(3, 13) &
-            is.na(MoveInDateAdjust) &
-            is.na(ExitDate) ~ "Currently Awaiting Housing",
-          ProjectType %in% c(3, 13) &
-            !is.na(MoveInDateAdjust) &
-            is.na(ExitDate) ~ "Currently Moved In",
-          ProjectType %in% c(3, 13) &
-            is.na(MoveInDateAdjust) &
-            !is.na(ExitDate) ~ "Exited No Move-In",
-          ProjectType %in% c(3, 13) &
-            !is.na(MoveInDateAdjust) &
-            !is.na(ExitDate) ~ "Exited with Move-In",
-          !ProjectType %in% c(3, 13) &
-            is.na(ExitDate) ~ "Currently in project",
-          !ProjectType %in% c(3, 13) &
-            !is.na(ExitDate) ~ "Exited project",
-        )
-      ) %>%
-      group_by(Status) %>%
-      summarise(Clients = n())
-    
-    final <- full_join(clients, hhs, by = "Status")
-    
-    datatable(
-      final,
-      rownames = FALSE,
-      filter = 'none',
-      options = list(dom = 't')
     )
   })
   
@@ -768,15 +668,11 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- Beds %>%
-        filter(ProjectName == input$providerListUtilization &
-                 beds_available_between(., ReportStart, ReportEnd)) %>%
-        group_by(ProjectID) %>%
-        summarise(BedCount = sum(BedInventory)) %>%
-        ungroup() %>%
-        pull(BedCount)
+      beds <- utilization %>%
+        filter(ProjectName == input$providerListUtilization) %>%
+        select(BedCount)
       
-      daysInMonth <- days_in_month(ymd(input$utilizationDate))
+      daysInMonth <- days_in_month(input$utilizationDate)
       
       infoBox(
         title = "Total Bed Nights Served",
@@ -812,19 +708,15 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- Beds %>%
-        filter(ProjectName == input$providerListUtilization &
-                 beds_available_between(., ReportStart, ReportEnd)) %>%
-        group_by(ProjectID) %>%
-        summarise(BedCount = sum(BedInventory)) %>%
-        ungroup() %>%
-        pull(BedCount)
+      beds <- utilization %>%
+        filter(ProjectName == input$providerListUtilization) %>%
+        select(BedCount)
       
       # units <- Utilization %>%
       #   filter(ProjectName == input$providerListUtilization) %>%
       #   select(UnitCount)
       
-      daysInMonth <- days_in_month(ymd(input$utilizationDate))
+      daysInMonth <- days_in_month(input$utilizationDate)
       
       infoBox(
         title = "Possible Bed Nights",
@@ -869,17 +761,15 @@ output$DeskTimePlotCoC <- renderPlot({
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- Beds %>%
-        filter(ProjectName == input$providerListUtilization &
-                 beds_available_between(., ReportStart, ReportEnd)) %>%
-        group_by(ProjectID) %>%
-        summarise(BedCount = sum(BedInventory)) %>%
-        ungroup() %>%
-        pull(BedCount)
+      beds <- utilization %>%
+        filter(ProjectName == input$providerListUtilization) %>%
+        select(BedCount)
       
+      beds <- as.numeric(beds)
+
       daysInMonth <-
         as.numeric(days_in_month(ymd(input$utilizationDate)))
-      
+
       bedUtilization <- percent(sum(a$BNs) / (beds * daysInMonth))
       
       infoBox(
@@ -898,6 +788,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$dq_provider_summary_table <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     guidance <- dq_main %>%
       filter(ProjectName == input$providerListDQ &
                served_between(., ReportStart, ReportEnd)) %>%
@@ -920,7 +811,8 @@ output$DeskTimePlotCoC <- renderPlot({
   output$dq_unsheltered_summary_table <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    dq_unsheltered %>%
+
+    .d <- dq_unsheltered %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
                served_between(., ReportStart, ReportEnd)) %>%
       group_by(Type, Issue, Guidance) %>%
@@ -928,11 +820,13 @@ output$DeskTimePlotCoC <- renderPlot({
       select(Type, Issue, Guidance) %>%
       arrange(Type) %>%
       unique()
+
+    .d
   })
-  
   output$dq_unsheltered_summary_box <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    
     x <- dq_unsheltered %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
                served_between(., ReportStart, ReportEnd))
@@ -954,6 +848,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$dq_region_summary_table <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_region_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     a <- dq_main %>%
       filter(ProjectRegion == input$regionList3 &
                served_between(., ReportStart, ReportEnd)) %>%
@@ -971,7 +866,7 @@ output$DeskTimePlotCoC <- renderPlot({
       summarise(Clients = n()) %>%
       select("Provider Name" = ProjectName, Type, Issue, Clients) %>%
       arrange(Type, desc(Clients))
-    
+
     datatable(c, 
               rownames = FALSE,
               filter = 'top',
@@ -981,6 +876,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DuplicateEEs <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     DuplicateEEs <- dq_main %>%
       filter(
         Issue == "Duplicate Entry Exits" &
@@ -997,12 +893,14 @@ output$DeskTimePlotCoC <- renderPlot({
         "Entry Date" = EntryDate,
         "Exit Date" = ExitDate
       )
+
     DuplicateEEs
   })
   
   output$DQDuplicateEEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     DuplicateEEs <- dq_main %>%
       filter(
         Issue == "Duplicate Entry Exits" &
@@ -1014,6 +912,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Entry Date" = EntryDate,
         "Exit Date" = ExitDate
       )
+
     if (nrow(DuplicateEEs) > 0) {
       box(
         id = "dup_ees",
@@ -1038,11 +937,11 @@ output$DeskTimePlotCoC <- renderPlot({
   output$HouseholdIssues <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     HHIssues <- dq_main %>%
       filter(
         Issue %in% c(
           "Too Many Heads of Household",
-          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household"
         ) &
@@ -1059,24 +958,25 @@ output$DeskTimePlotCoC <- renderPlot({
       select("A Client ID in the Household" = PersonalID,
              Issue,
              "Entry Date" = EntryDate)
-    
+
     HHIssues
   })
   
   output$DQHHIssues <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     HHIssues <- dq_main %>%
       filter(
         Issue %in% c(
           "Too Many Heads of Household",
-          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household"
         ) &
           ProjectName == input$providerListDQ &
           served_between(., ReportStart, ReportEnd)
       )
+
     if (nrow(HHIssues) > 0) {
       box(
         id = "hhs",
@@ -1098,12 +998,14 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQMissingLocation <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     HHIssues <- dq_main %>%
       filter(
         Issue == "Missing Client Location" &
           ProjectName == input$providerListDQ &
           served_between(., ReportStart, ReportEnd)
       )
+
     if (nrow(HHIssues) > 0) {
       box(
         id = "location",
@@ -1126,6 +1028,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$ClientLocation <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     HHIssues <- dq_main %>%
       filter(
         Issue == "Missing Client Location" &
@@ -1141,19 +1044,21 @@ output$DeskTimePlotCoC <- renderPlot({
       arrange(PersonalID) %>%
       select("Client ID" = PersonalID,
              "Entry Date" = EntryDate)
-    
+
     HHIssues
   })
   
   output$DQPATHMissingContact <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     no_contact <- dq_main %>%
       filter(
         Issue == "Missing PATH Contact" &
           ProjectName == input$providerListDQ &
           served_between(., ReportStart, ReportEnd)
       )
+
     if (nrow(no_contact) > 0) {
       box(
         id = "location",
@@ -1175,6 +1080,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$MissingPATHContact <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     x <- dq_main %>%
       filter(
         Issue == "Missing PATH Contact" &
@@ -1190,13 +1096,14 @@ output$DeskTimePlotCoC <- renderPlot({
       arrange(PersonalID) %>%
       select("Client ID" = PersonalID,
              "Entry Date" = EntryDate)
-    
+
     x
   })
   
   output$APs_with_EEs <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     APs_w_EEs <- dq_main %>%
       filter(
         Issue == "Access Point with Entry Exits" &
@@ -1210,19 +1117,21 @@ output$DeskTimePlotCoC <- renderPlot({
       arrange(PersonalID) %>%
       select("Client ID" = PersonalID,
              "Entry Date" = EntryDate)
-    
+
     APs_w_EEs
   })
   
   output$DQ_APs_w_EEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     APs_w_EEs <- dq_main %>%
       filter(
         Issue == "Access Point with Entry Exits" &
           ProjectName == input$providerListDQ &
           served_between(., ReportStart, ReportEnd)
       )
+
     if (nrow(APs_w_EEs) > 0) {
       box(
         id = "ees_on_ap",
@@ -1244,7 +1153,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$Overlaps <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    
+
     OverlappingEEs <- dq_overlaps %>%
       filter(
           ProjectName == input$providerListDQ &
@@ -1263,12 +1172,15 @@ output$DeskTimePlotCoC <- renderPlot({
         "Exit Date" = ExitDate,
         "Overlaps With This Provider's Stay" = PreviousProject
       )
+
     OverlappingEEs
   })
   
   output$DQOverlappingEEs <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    # FIXME Repetition of filter/mutate (use eventReactive)
+
     OverlappingEEs <- dq_overlaps %>%
       filter(
         Issue == "Overlapping Project Stays" &
@@ -1286,11 +1198,12 @@ output$DeskTimePlotCoC <- renderPlot({
         "Entry Date" = EntryDate,
         "Exit Date" = ExitDate
       )
+
     if (nrow(OverlappingEEs) > 0) {
       box(
         id = "overlappers",
         title = "Overlapping Entry Exits",
-        status = "warning",
+        status = "info",
         solidHeader = TRUE,
         width = 12,
         HTML(
@@ -1352,9 +1265,9 @@ output$DeskTimePlotCoC <- renderPlot({
     renderPlot(dq_plot_outstanding_referrals)
   
   output$cocOverlap <- DT::renderDataTable({
-    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
+    ReportStart <- "10012018"
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    
+
     a <- dq_overlaps %>%
       filter(served_between(., ReportStart, ReportEnd)) %>%
       group_by(ProjectName) %>%
@@ -1363,14 +1276,15 @@ output$DeskTimePlotCoC <- renderPlot({
       top_n(20L, wt = Clients) %>%
       select("Project Name" = ProjectName,
              "Clients with Overlapping Entry Exits" = Clients)
+
     datatable(a,
               rownames = FALSE)
   })
   
   output$cocUnshelteredEntriesByMonth <- renderPlotly({
     ReportStart <-  format.Date(input$unshEntriesByMonth_ReportStart, "%m-%d-%Y")
-    ReportEnd <-  format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
-    
+    ReportEnd <-  format.Date(update_date, "%m-%d-%Y")
+
     monthyears <- unsheltered_by_month %>%
       arrange(EntryDate) %>%
       pull(EntryDateDisplay) %>%
@@ -1401,7 +1315,7 @@ output$DeskTimePlotCoC <- renderPlot({
                            Entries,
                            "clients entered during",
                            EntryDateDisplay))
-    
+
     plot_ly(unsheltered_by_month %>% 
               arrange(EntryDateDisplay, County) %>%
               group_by(County), 
@@ -1421,9 +1335,9 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$cocLongStayers <- DT::renderDataTable({
-    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
+    ReportStart <- "10012018"
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    
+
     a <- dq_main %>%
       filter(served_between(., ReportStart, ReportEnd) &
                Issue == "Extremely Long Stayer") %>%
@@ -1433,33 +1347,14 @@ output$DeskTimePlotCoC <- renderPlot({
       top_n(20L, wt = Clients) %>%
       select("Project Name" = ProjectName,
              "Extremely Long Stayers" = Clients)
+
     datatable(a,
               rownames = FALSE)
     
   })
   
-  output$cocRRHDestination <- DT::renderDataTable({
-    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
-    
-    a <- dq_main %>%
-      filter(served_between(., ReportStart, ReportEnd) &
-               Issue %in% c(
-               "Incorrect Exit Destination (should be \"Rental by client, with RRH...\")",
-               "Missing RRH Project Stay or Incorrect Destination")) %>%
-      group_by(ProjectName, Issue) %>%
-      summarise(Clients = n()) %>%
-      arrange(desc(Clients)) %>%
-      select("Project Name" = ProjectName,
-             Issue,
-             Clients)
-    
-    datatable(head(a, 20),
-              rownames = FALSE)
-    
-  })
-  
   output$cocWidespreadIssues <- DT::renderDataTable({
+
     a <- dq_past_year %>%
       select(Issue, ProjectName, Type) %>%
       unique() %>%
@@ -1468,7 +1363,7 @@ output$DeskTimePlotCoC <- renderPlot({
       arrange(desc(HowManyProjects)) %>%
       head(10L) %>%
       select(Issue, Type, "How Many Providers" = HowManyProjects)
-    
+
     datatable(a,
               rownames = FALSE)
   })
@@ -1515,6 +1410,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$Ineligible <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
+
     Ineligible <- detail_eligibility %>%
       filter(ProjectName == input$providerListDQ &
                served_between(., ReportStart, ReportEnd)) %>%
@@ -1530,6 +1426,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Length of Stay" = LengthOfStay,
         "Literally Homeless Prior" = PreviousStreetESSH
       )
+
     Ineligible
   })
   
@@ -1564,7 +1461,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$DQIncorrectEETypeTable <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     EEType <- dq_main %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
@@ -1579,12 +1477,14 @@ output$DeskTimePlotCoC <- renderPlot({
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate
       )
+
     EEType
   }) 
   
   output$DQIncorrectEEType <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     EEType <- dq_main %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
@@ -1596,6 +1496,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Entry Date" = EntryDate,
         "Exit Date" = ExitDate
       )
+
     if (nrow(EEType) > 0) {
       box(
         id = "DQEEType",
@@ -1616,13 +1517,12 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$DQErrors <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
-    
+    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
+
     DQErrors <- dq_main %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
-          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -1638,7 +1538,7 @@ output$DeskTimePlotCoC <- renderPlot({
       select("Client ID" = PersonalID,
              "Error" = Issue,
              "Entry Date" =  EntryDate)
-    
+
     datatable(
       DQErrors,
       rownames = FALSE,
@@ -1646,46 +1546,15 @@ output$DeskTimePlotCoC <- renderPlot({
       options = list(dom = 'ltpi')
     )
   })
-  output$VeteranActiveList <- DT::renderDataTable({
-
-    active_list <- veteran_active_list %>%
-      arrange(HouseholdID, PersonalID) %>%
-      mutate(PersonalID = if_else(
-        is.na(HOMESID),
-        as.character(PersonalID),
-        paste(PersonalID,
-              "<br>HOMES:",
-              HOMESID)
-      )) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Active Date" =  ActiveDateDisplay,
-        "Project Name" = ProjectName,
-        TimeInProject,
-        Eligibility,
-        "Most Recent Offer" = MostRecentOffer,
-        # ListStatus, is this really needed? seems redundant
-        "Housing Track & Notes" = HousingPlan
-      )
-    
-    datatable(
-      active_list,
-      rownames = FALSE,
-      escape = FALSE,
-      filter = 'top',
-      options = list(dom = 'ltpi')
-    )
-  })
   
   output$DQWarnings <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
-    
+    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
+
     DQWarnings <- dq_main %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
-          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -1703,7 +1572,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Warning" = Issue,
         "Entry Date" =  EntryDate
       )
-    
+
     datatable(
       DQWarnings,
       rownames = FALSE,
@@ -1713,7 +1582,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshIncorrectResPriorTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     ResPrior <- dq_unsheltered %>%
       filter(
         Issue == "Wrong Provider (Not Unsheltered)" &
@@ -1728,12 +1598,14 @@ output$DeskTimePlotCoC <- renderPlot({
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate
       )
+
     ResPrior
   }) 
    
   output$unshIncorrectResPrior <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     ResPrior <- dq_unsheltered %>%
       filter(
         Issue == "Wrong Provider (Not Unsheltered)" &
@@ -1750,6 +1622,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Entry Date" = EntryDate,
         "Exit Date" = ExitDate
       )
+
     if (nrow(ResPrior) > 0) {
       box(
         id = "unshResPrior",
@@ -1775,7 +1648,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshIncorrectEETypeTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     EEType <- dq_unsheltered %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
@@ -1790,12 +1664,14 @@ output$DeskTimePlotCoC <- renderPlot({
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate
       )
+
     EEType
   }) 
   
   output$unshIncorrectEEType <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     EEType <- dq_unsheltered %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
@@ -1812,6 +1688,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Entry Date" = EntryDate,
         "Exit Date" = ExitDate
       )
+
     if (nrow(EEType) > 0) {
       box(
         id = "unshEEType",
@@ -1832,7 +1709,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshDuplicateEEsTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     DuplicateEEs <- dq_unsheltered %>%
       filter(
         Issue == "Duplicate Entry Exits" &
@@ -1849,12 +1727,14 @@ output$DeskTimePlotCoC <- renderPlot({
         "Entry Date" = EntryDate,
         "Exit Date" = ExitDate
       ) %>% unique()
+
     DuplicateEEs
   })
   
   output$unshDuplicateEEs <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     DuplicateEEs <- dq_unsheltered %>%
       filter(
         Issue == "Duplicate Entry Exits" &
@@ -1862,7 +1742,7 @@ output$DeskTimePlotCoC <- renderPlot({
           served_between(., ReportStart, ReportEnd)
       ) %>%
       unique()
-    
+
     if (nrow(DuplicateEEs) > 0) {
       box(
         id = "dup_ees",
@@ -1886,11 +1766,11 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshHHIssuesTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     HHIssues <- dq_unsheltered %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
-                     "Missing Relationship to Head of Household",
                      "Children Only Household", 
                      "No Head of Household") &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1905,16 +1785,17 @@ output$DeskTimePlotCoC <- renderPlot({
         "Entry Date" = EntryDate,
         Issue
       ) %>% unique()
+
     HHIssues
   })
   
   output$unshHHIssues <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     HHIssues <- dq_unsheltered %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
-                     "Missing Relationship to Head of Household",
                      "Children Only Household", 
                      "No Head of Household") &
           DefaultProvider == input$unshDefaultProvidersList &
@@ -1931,7 +1812,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Exit Date" = ExitDate,
         Issue
       ) %>% unique()
-    
+
     if (nrow(HHIssues) > 0) {
       box(
         id = "unshhhs",
@@ -1952,7 +1833,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshMissingCountyTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     county <- dq_unsheltered %>%
       filter(
         Issue == "Missing County Served" &
@@ -1967,12 +1849,14 @@ output$DeskTimePlotCoC <- renderPlot({
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate
       ) %>% unique()
+
     county
   })
   
   output$unshMissingCounty <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     county <- dq_unsheltered %>%
       filter(
         Issue == "Missing County Served" &
@@ -1988,7 +1872,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Client ID" = PersonalID,
         "Entry Date" = EntryDate
       ) %>% unique()
-    
+
     if (nrow(county) > 0) {
       box(
         id = "unshcounty",
@@ -2011,8 +1895,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshOverlapsTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
-    
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     overlaps <- unsh_overlaps %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
           served_between(., ReportStart, ReportEnd)
@@ -2029,13 +1913,14 @@ output$DeskTimePlotCoC <- renderPlot({
         "Overlaps With This Provider's Stay" = PreviousProject
       ) %>% 
       unique()
+
     overlaps
   })
   
   output$unshOverlaps <- renderUI({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
-    
+    ReportEnd <- format.Date(mdy(FileEnd), "%m-%d-%Y")
+
     overlaps <- unsh_overlaps %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
                served_between(., ReportStart, ReportEnd)
@@ -2051,7 +1936,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Exit Date" = ExitDate,
         "Overlaps With This Provider's Stay" = PreviousProject
       ) %>% unique()
-    
+
     if (nrow(overlaps) > 0) {
       box(
         id = "overlaps_unsh",
@@ -2083,13 +1968,12 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshDQErrorsTable <- DT::renderDataTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
-    
+    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
+
     unshDQErrors <- dq_unsheltered %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
-          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -2108,7 +1992,7 @@ output$DeskTimePlotCoC <- renderPlot({
       select("Client ID" = PersonalID,
              "Error" = Issue,
              "Entry Date" =  EntryDate)
-    
+
     datatable(
       unshDQErrors,
       rownames = FALSE,
@@ -2118,13 +2002,12 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$unshDQWarningsTable <- DT::renderDataTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
-    
+    ReportEnd <- format.Date(update_date, "%m-%d-%Y")
+
     unshDQWarnings <- dq_unsheltered %>%
       filter(
         !Issue %in% c(
           "Too Many Heads of Household",
-          "Missing Relationship to Head of Household",
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
@@ -2142,7 +2025,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Warning" = Issue,
         "Entry Date" =  EntryDate
       )
-    
+
     datatable(
       unshDQWarnings,
       rownames = FALSE,
@@ -2155,7 +2038,7 @@ output$DeskTimePlotCoC <- renderPlot({
     DT::renderDataTable({
       ReportStart <- format.Date(input$spdatDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$spdatDateRange[2], "%m-%d-%Y")
-      
+
       # counting all households who ENTERED either RRH or PSH between the report dates
       CountyHousedAverageScores <- qpr_spdats_project %>%
         filter(entered_between(qpr_spdats_project,
@@ -2174,7 +2057,7 @@ output$DeskTimePlotCoC <- renderPlot({
           Score,
           "Score Adjusted" = ScoreAdjusted
         )
-      
+
       datatable(
         CountyHousedAverageScores,
         rownames = FALSE,
@@ -2188,7 +2071,7 @@ output$DeskTimePlotCoC <- renderPlot({
     renderInfoBox({
       ReportStart <- format.Date(input$spdatDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$spdatDateRange[2], "%m-%d-%Y")
-      
+
       scores <- qpr_spdats_project %>%
         filter(entered_between(qpr_spdats_project,
                                ReportStart,
@@ -2197,7 +2080,7 @@ output$DeskTimePlotCoC <- renderPlot({
         filter(RegionName == input$regionList1) %>%
         group_by(RegionName) %>%
         summarise(AvgScore = as.integer(mean(ScoreAdjusted)))
-      
+
       infoBox(
         title = "Average Score",
         color = "purple",
@@ -2213,7 +2096,7 @@ output$DeskTimePlotCoC <- renderPlot({
       
       ReportStart <- format.Date(input$spdatDateRange2[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$spdatDateRange2[2], "%m-%d-%Y")
-      
+
       # counting all households who were scored AND SERVED between the report dates
       CountyAverageScores <- qpr_spdats_county %>%
         filter(served_between(qpr_spdats_county,
@@ -2231,7 +2114,7 @@ output$DeskTimePlotCoC <- renderPlot({
           Score
         ) %>%
         arrange(Score)
-      
+
       datatable(CountyAverageScores,
                 rownames = FALSE,
                 filter = 'top',
@@ -2243,7 +2126,7 @@ output$DeskTimePlotCoC <- renderPlot({
     renderInfoBox({
       ReportStart <- format.Date(input$spdatDateRange2[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$spdatDateRange2[2], "%m-%d-%Y")
-      
+
       # counting all households who were scored AND SERVED between the report dates
       scores <- qpr_spdats_county %>%
         filter(served_between(qpr_spdats_county,
@@ -2253,7 +2136,7 @@ output$DeskTimePlotCoC <- renderPlot({
         filter(RegionName == input$regionList2) %>%
         group_by(RegionName) %>%
         summarise(AvgScore = as.integer(mean(Score)))
-      
+
       infoBox(
         title = "Average Score",
         color = "purple",
@@ -2268,7 +2151,7 @@ output$DeskTimePlotCoC <- renderPlot({
     DT::renderDataTable({
       ReportStart <- format.Date(input$LoSDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$LoSDateRange[2], "%m-%d-%Y")
-      
+
       LoSDetail <- qpr_leavers %>%
         filter(((
           !is.na(MoveInDateAdjust) & ProjectType == 13
@@ -2287,7 +2170,7 @@ output$DeskTimePlotCoC <- renderPlot({
           "Exit Date" = ExitDate,
           "Days in Project" = DaysinProject
         )
-      
+
       datatable(LoSDetail,
                 rownames = FALSE,
                 filter = 'top',
@@ -2298,7 +2181,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$ExitsToPH <- DT::renderDataTable({
     ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%m-%d-%Y")
     ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%m-%d-%Y")
-    
+
     SuccessfullyPlaced <- qpr_leavers %>%
       filter(((ProjectType %in% c(3, 9, 13) &
                  !is.na(MoveInDateAdjust)) |
@@ -2317,7 +2200,8 @@ output$DeskTimePlotCoC <- renderPlot({
               exited_between(., ReportStart, ReportEnd)
           )
         )) # ES, TH, SH, RRH, OUT) %>%
-    
+
+
     # calculating the total households to compare successful placements to
     TotalHHsSuccessfulPlacement <- qpr_leavers %>%
       filter((
@@ -2329,7 +2213,8 @@ output$DeskTimePlotCoC <- renderPlot({
             ProjectType %in% c(1, 2, 4, 8, 13) # ES, TH, SH, OUT, RRH
         )) # For PSH & HP, it's total hhs served;
     # otherwise, it's total hhs *exited* during the reporting period
-    
+
+
     SuccessfulPlacement <- TotalHHsSuccessfulPlacement %>%
       left_join(
         SuccessfullyPlaced,
@@ -2359,7 +2244,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Exit Date" = ExitDate,
         "Destination Group" =  DestinationGroup
       )
-    
+
     datatable(SuccessfulPlacement,
               rownames = FALSE,
               filter = 'top',
@@ -2370,7 +2255,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$IncomeIncrease <- DT::renderDataTable({
     ReportStart <- format.Date(input$IncomeDateRange[1], "%m-%d-%Y")
     ReportEnd <- format.Date(input$IncomeDateRange[2], "%m-%d-%Y")
-    
+
     a <- qpr_income %>%
       filter(ProjectName == input$incomeProjectList &
                stayed_between(., ReportStart, ReportEnd)) %>%
@@ -2386,7 +2271,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Most Recent Income" = RecentIncome,
         "Increase Amount" = Difference
       )
-    
+
     datatable(a,
               rownames = FALSE,
               filter = 'top',
@@ -2397,7 +2282,7 @@ output$DeskTimePlotCoC <- renderPlot({
     renderInfoBox({
       ReportStart <- format.Date(input$IncomeDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$IncomeDateRange[2], "%m-%d-%Y")
-      
+
       meeting_objective <- qpr_income %>%
         filter(
           ProjectName == input$incomeProjectList &
@@ -2406,14 +2291,16 @@ output$DeskTimePlotCoC <- renderPlot({
         ) %>% 
         group_by(ProjectName, ProjectType, ProjectCounty, ProjectRegion) %>%
         summarise(Increased = n())
-      
+
+
       # calculating the total households for comparison
       all_hhs <- qpr_income %>%
         filter(ProjectName %in% input$incomeProjectList &
                  stayed_between(., ReportStart, ReportEnd)) %>%
         group_by(ProjectName, ProjectType, ProjectCounty, ProjectRegion) %>%
         summarise(TotalHHs = n()) 
-      
+
+
       IncreasedIncome <- all_hhs %>%
         left_join(
           meeting_objective,
@@ -2424,7 +2311,7 @@ output$DeskTimePlotCoC <- renderPlot({
       
       IncreasedIncome <- IncreasedIncome %>%
         mutate(Percent = Increased / TotalHHs)
-      
+
       if(nrow(IncreasedIncome) > 0) {
         infoBox(
           title = "Households Increasing Their Income",
@@ -2447,7 +2334,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$ExitedWithNCBs <- DT::renderDataTable({
     ReportStart <- format.Date(input$NCBDateRange[1], "%m-%d-%Y")
     ReportEnd <- format.Date(input$NCBDateRange[2], "%m-%d-%Y")
-    
+
     a <- qpr_benefits %>%
       filter(ProjectName == input$MBProjectListNC &
                exited_between(., ReportStart, ReportEnd)) %>%
@@ -2467,7 +2354,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Exit Date" = ExitDate,
         "Benefits from Any Source (at Exit)" = BenefitsFromAnySource
       )
-    
+
     datatable(a,
               rownames = FALSE,
               filter = 'top',
@@ -2479,7 +2366,7 @@ output$DeskTimePlotCoC <- renderPlot({
     renderInfoBox({
       ReportStart <- format.Date(input$NCBDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$NCBDateRange[2], "%m-%d-%Y")
-      
+
       meeting_objective <- qpr_benefits %>%
         filter(
             ProjectName == input$MBProjectListNC &
@@ -2488,14 +2375,16 @@ output$DeskTimePlotCoC <- renderPlot({
         ) %>% 
         group_by(ProjectName) %>%
         summarise(BenefitsAtExit = n())
-      
+
+
       # calculating the total households for comparison
       all_hhs <- qpr_benefits %>%
         filter(ProjectName == input$MBProjectListNC &
                  exited_between(., ReportStart, ReportEnd)) %>%
         group_by(ProjectName) %>%
         summarise(TotalHHs = n()) 
-      
+
+
       NCBsAtExit <- all_hhs %>%
         left_join(
           meeting_objective,
@@ -2506,7 +2395,7 @@ output$DeskTimePlotCoC <- renderPlot({
       
       NCBsAtExit <- NCBsAtExit %>%
         mutate(Percent = BenefitsAtExit / TotalHHs)
-      
+
       if(nrow(NCBsAtExit) > 0) {
         infoBox(
         title = "Households Exiting With Non Cash Benefits",
@@ -2529,7 +2418,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$ExitedWithInsurance <- DT::renderDataTable({
     ReportStart <- format.Date(input$HIDateRange[1], "%m-%d-%Y")
     ReportEnd <- format.Date(input$HIDateRange[2], "%m-%d-%Y")
-    
+
     a <- qpr_benefits %>%
       filter(ProjectName == input$MBProjectListHI &
                exited_between(., ReportStart, ReportEnd)) %>%
@@ -2549,6 +2438,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Exit Date" = ExitDate,
         "Health Insurance from Any Source (at Exit)" = InsuranceFromAnySource
       )
+
     datatable(a,
               rownames = FALSE,
               filter = 'top',
@@ -2560,7 +2450,7 @@ output$DeskTimePlotCoC <- renderPlot({
     renderInfoBox({
       ReportStart <- format.Date(input$HIDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$HIDateRange[2], "%m-%d-%Y")
-      
+
       meeting_objective <- qpr_benefits %>%
         filter(
             ProjectName == input$MBProjectListHI &
@@ -2569,14 +2459,16 @@ output$DeskTimePlotCoC <- renderPlot({
         ) %>% 
         group_by(ProjectName) %>%
         summarise(InsuranceAtExit = n())
-      
+
+
       # calculating the total households for comparison
       all_hhs <- qpr_benefits %>%
         filter(ProjectName == input$MBProjectListHI &
                  exited_between(., ReportStart, ReportEnd)) %>%
         group_by(ProjectName) %>%
         summarise(TotalHHs = n()) 
-      
+
+
       HIAtExit <- all_hhs %>%
         left_join(
           meeting_objective,
@@ -2587,7 +2479,7 @@ output$DeskTimePlotCoC <- renderPlot({
       
       HIAtExit <- HIAtExit %>%
         mutate(Percent = InsuranceAtExit / TotalHHs)
-      
+
       if(nrow(HIAtExit) > 0) {
         infoBox(
         title = "Total Households Exiting With Health Insurance",
@@ -2609,7 +2501,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$daysToHouseRRH <- DT::renderDataTable({
     ReportStart <- format.Date(input$DaysToHouseDateRange[1], "%m-%d-%Y")
     ReportEnd <- format.Date(input$DaysToHouseDateRange[2], "%m-%d-%Y")
-    
+
     daysToHouse <- qpr_rrh_enterers %>%
       filter(
         !is.na(MoveInDateAdjust) &
@@ -2624,7 +2516,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Move In Date" = MoveInDate,
         "Days to House" = DaysToHouse
       )
-    
+
     datatable(daysToHouse,
               rownames = FALSE,
               filter = 'top',
@@ -2636,7 +2528,7 @@ output$DeskTimePlotCoC <- renderPlot({
     renderInfoBox({
       ReportStart <- format.Date(input$DaysToHouseDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$DaysToHouseDateRange[2], "%m-%d-%Y")
-      
+
       days <- qpr_rrh_enterers %>%
         filter(
           ProjectType == 13 &
@@ -2646,7 +2538,7 @@ output$DeskTimePlotCoC <- renderPlot({
         ) %>%
         mutate(DaysToHouse = difftime(MoveInDateAdjust, EntryDate, units = "days")) %>%
         summarise(AvgDaysToHouse = as.integer(mean(DaysToHouse)))
-      
+
       infoBox(
         title = "Average Days to House",
         color = "purple",
@@ -2672,7 +2564,7 @@ output$DeskTimePlotCoC <- renderPlot({
     DT::renderDataTable({
       ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%m-%d-%Y")
-      
+
       rrhSpending <- qpr_spending %>%
         filter(
           OrganizationName == input$RRHSpendingOrganizationList &
@@ -2688,7 +2580,7 @@ output$DeskTimePlotCoC <- renderPlot({
           Description,
           Amount
         )
-      
+
       datatable(rrhSpending,
                 rownames = FALSE,
                 filter = 'top',
@@ -2702,7 +2594,7 @@ output$DeskTimePlotCoC <- renderPlot({
     DT::renderDataTable({
       ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%m-%d-%Y")
       ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%m-%d-%Y")
-      
+
       hpSpending <- qpr_spending %>%
         filter(
           OrganizationName == input$RRHSpendingOrganizationList &
@@ -2718,7 +2610,7 @@ output$DeskTimePlotCoC <- renderPlot({
           Description,
           Amount
         )
-      
+
       datatable(hpSpending,
                 rownames = FALSE,
                 filter = 'top',
@@ -2730,6 +2622,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$pe_ProjectSummary <-
     DT::renderDataTable({
+
       ptc <- summary_pe_final_scoring %>%
         filter(AltProjectName == input$pe_provider) %>%
         pull(ProjectType)
@@ -2753,7 +2646,8 @@ output$DeskTimePlotCoC <- renderPlot({
           OnTrackSpendingMath = str_replace(OnTrackSpendingMath, "/", "÷"),
           UnspentFundsMath = str_replace(UnspentFundsMath, "/", "÷")
         )
-      
+
+
       a <- summary_pe_final_scoring %>%
         filter(AltProjectName == input$pe_provider) %>%
         select(
@@ -2848,7 +2742,8 @@ output$DeskTimePlotCoC <- renderPlot({
         pivot_longer(cols = everything(),
                      names_to = "Measure",
                      values_to = "Calculation")
-      
+
+
       psh <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
         left_join(c, by = "Measure") %>%
@@ -2868,7 +2763,8 @@ output$DeskTimePlotCoC <- renderPlot({
                                "Average Length of Stay"),
                Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
-      
+
+
       rrh <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
         left_join(c, by = "Measure") %>%
@@ -2889,7 +2785,8 @@ output$DeskTimePlotCoC <- renderPlot({
                    "Prioritization of Chronic"),
                Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
-      
+
+
       th <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
         left_join(c, by = "Measure") %>%
@@ -2911,7 +2808,8 @@ output$DeskTimePlotCoC <- renderPlot({
         ),
         Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
-      
+
+
       sh <- a %>% left_join(b, by = "Measure") %>%
         ungroup() %>%
         left_join(c, by = "Measure") %>%
@@ -2934,7 +2832,7 @@ output$DeskTimePlotCoC <- renderPlot({
         ),
         Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
-      
+
       datatable(
         if (ptc == 3) {
           psh
@@ -2952,6 +2850,7 @@ output$DeskTimePlotCoC <- renderPlot({
     })
   
   output$pe_ExitsToPH <- DT::renderDataTable({
+
     a <- pe_exits_to_ph %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
@@ -2963,7 +2862,7 @@ output$DeskTimePlotCoC <- renderPlot({
              Destination,
              "Destination Group" = DestinationGroup,
              "Meets Objective" = MeetsObjective)    
-    
+
     datatable(a,
               rownames = FALSE,
               filter = 'top',
@@ -2974,7 +2873,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_OwnHousing <- DT::renderDataTable({
-    
+
     a <- pe_own_housing %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
@@ -2987,7 +2886,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Destination Group" = DestinationGroup,
         "Meets Objective" = MeetsObjective
       )    
-    
+
     datatable(a,
               rownames = FALSE,
               filter = 'top',
@@ -2998,6 +2897,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_BenefitsAtExit <- DT::renderDataTable({
+
     a <- pe_benefits_at_exit %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
@@ -3021,7 +2921,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Health Insurance at Exit" = InsuranceFromAnySource,
         "Meets Objective" = MeetsObjective
       )    
-    
+
     datatable(a,
               rownames = FALSE,
               filter = 'top',
@@ -3032,6 +2932,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_IncreasedIncome <- DT::renderDataTable({
+
     a <- pe_increase_income %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
@@ -3048,7 +2949,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Increase/Decrease" = IncomeDifference,
         "Meets Objective" = MeetsObjective
       )    
-    
+
     datatable(a,
               rownames = FALSE,
               filter = 'top',
@@ -3059,6 +2960,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_LivingSituationAtEntry <- DT::renderDataTable({
+
     a <- pe_res_prior %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
@@ -3072,7 +2974,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Residence Prior" = LivingSituation,
         "Meets Objective" = MeetsObjective
       )    
-    
+
     datatable(a,
               rownames = FALSE,
               filter = 'top',
@@ -3083,6 +2985,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_NoIncomeAtEntry <- DT::renderDataTable({
+
     a <- pe_entries_no_income %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(
@@ -3100,7 +3003,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Income From Any Source" = IncomeFromAnySource,
         "Meets Objective" = MeetsObjective
       )    
-    
+
     datatable(a,
               rownames = FALSE,
               filter = 'top',
@@ -3111,6 +3014,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_LengthOfStay <- DT::renderDataTable({
+
     a <- pe_length_of_stay %>%
       filter(AltProjectName == input$pe_provider &
                ProjectType %in% c(2, 8, 13)) %>%
@@ -3121,7 +3025,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Exit Date" = ExitDate,
         "Days in Project" = DaysInProject
       )    
-    
+
     datatable(a,
               rownames = FALSE,
               filter = 'top',
@@ -3132,7 +3036,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_MedianHHI <- DT::renderDataTable({
-    
+
     times <- HUD_specs %>%
       filter(DataElement == "TimesHomelessPastThreeYears") %>%
       select(ReferenceNo, Description)
@@ -3140,7 +3044,8 @@ output$DeskTimePlotCoC <- renderPlot({
     months <- HUD_specs %>%
       filter(DataElement == "MonthsHomelessPastThreeYears") %>%
       select(ReferenceNo, Description)
-    
+
+
     a <- pe_homeless_history_index %>%
       left_join(times, by = c("TimesHomelessPastThreeYears" = "ReferenceNo")) %>%
       mutate(TimesHomelessPastThreeYears = Description) %>%
@@ -3150,7 +3055,8 @@ output$DeskTimePlotCoC <- renderPlot({
       left_join(months, by = c("MonthsHomelessPastThreeYears" = "ReferenceNo")) %>%
       mutate(MonthsHomelessPastThreeYears = Description) %>%
       select(-Description)
-    
+
+
     c <- b %>%
       filter(AltProjectName == input$pe_provider) %>%
       select(
@@ -3163,7 +3069,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Months Homeless Past 3 Years" = MonthsHomelessPastThreeYears,
         "Homeless Hisory Index" = HHI
       )    
-    
+
     datatable(c,
               rownames = FALSE,
               filter = 'top',
@@ -3174,7 +3080,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_LongTermHomeless <- DT::renderDataTable({
-    
+
     times <- HUD_specs %>%
       filter(DataElement == "TimesHomelessPastThreeYears") %>%
       select(ReferenceNo, Description)
@@ -3182,13 +3088,15 @@ output$DeskTimePlotCoC <- renderPlot({
     months <- HUD_specs %>%
       filter(DataElement == "MonthsHomelessPastThreeYears") %>%
       select(ReferenceNo, Description)
-    
+
+
     a <- pe_long_term_homeless %>%
       filter(ProjectType == 3) %>%
       left_join(times, by = c("TimesHomelessPastThreeYears" = "ReferenceNo")) %>%
       mutate(TimesHomelessPastThreeYears = Description) %>%
       select(-Description)
-    
+
+
     b <- a %>%
       left_join(months, by = c("MonthsHomelessPastThreeYears" = "ReferenceNo")) %>%
       mutate(MonthsHomelessPastThreeYears = Description) %>%
@@ -3207,7 +3115,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Months Homeless Past 3 Years" = MonthsHomelessPastThreeYears,
         "Meets Objective" = MeetsObjective
       )    
-    
+
     datatable(c,
               rownames = FALSE,
               filter = 'top',
@@ -3218,7 +3126,7 @@ output$DeskTimePlotCoC <- renderPlot({
   })
   
   output$pe_ScoredAtPHEntry <- DT::renderDataTable({
-    
+
     a <- pe_scored_at_ph_entry %>%
       filter(AltProjectName == input$pe_provider) %>%
       mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")) %>%
@@ -3228,7 +3136,7 @@ output$DeskTimePlotCoC <- renderPlot({
         "Exit Date" = ExitDate,
         "Meets Objective" = MeetsObjective
       )    
-    
+
     datatable(a,
               rownames = FALSE,
               filter = 'top',
