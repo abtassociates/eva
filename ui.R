@@ -48,22 +48,22 @@ dashboardPage(
           "Community Need",
           tabName = "spdatTab",
           menuSubItem("PSH/RRH Detail",
-                      tabName = "spdatTab1"),
+                      tabName = "spdat1-Tab"),
           menuSubItem("County Detail",
-                      tabName = "spdatTab2")
+                      tabName = "spdat2-Tab")
         ),
         menuSubItem("Length of Stay",
-                    tabName = "LoSTab"),
+                    tabName = "LoS-Tab"),
         menuSubItem("Exits to Permanent Housing",
                     tabName = "PHTab"),
         menuSubItem("Non-Cash Benefits at Exit",
-                    tabName = "NCBTab"),
+                    tabName = "NCB-Tab"),
         menuSubItem("Health Insurance at Exit",
-                    tabName = "HITab"),
+                    tabName = "HI-Tab"),
         menuSubItem("Income Growth",
-                    tabName = "incomeTab"),
+                    tabName = "income-Tab"),
         menuSubItem("Rapid Placement for RRH",
-                    tabName = "rapidTab"),
+                    tabName = "rapid-Tab"),
         menuSubItem("RRH Spending",
                     tabName = "spendingTab")
       )
@@ -104,7 +104,7 @@ dashboardPage(
                     label = "Select County/-ies",
                     inputId = "prioritizationCounty",
                     multiple = TRUE,
-                    choices = regions %>% 
+                    choices = regions() %>% 
                       filter(County != "Mahoning") %>%
                       arrange(County) %>% pull(County),
                     options = list('live-search' = TRUE)
@@ -166,7 +166,7 @@ dashboardPage(
             pickerInput(
               label = "Select Provider",
               inputId = "providerListUtilization",
-              choices = c(sort(utilization_bed$ProjectName)),
+              choices = c(sort(utilization_bed()$ProjectName)),
               options = list(`live-search` = TRUE),
               width = "100%"
             ),
@@ -219,7 +219,7 @@ dashboardPage(
             choices = dq_providers,
             options = list('live-search' = TRUE),
             width = "100%",
-            selected = sample(dq_providers, 1)
+            selected = dq_providers[1]
           ),
           dateInput(
             inputId = "dq_startdate",
@@ -273,7 +273,7 @@ dashboardPage(
                   choices = dtproviders,
                   options = list('live-search' = TRUE),
                   width = "100%",
-                  selected = sample(dtproviders, 1)
+                  selected = dtproviders[1]
                 ),
                 width = 12
               )),
@@ -295,7 +295,7 @@ dashboardPage(
         fluidRow(box(
           pickerInput(
             inputId = "regionList3",
-            choices = c(unique(regions$RegionName)),
+            choices = c(unique(regions()$RegionName)),
             options = list(`live-search` = TRUE),
             width = "70%"
           ),
@@ -325,7 +325,7 @@ dashboardPage(
           pickerInput(
             inputId = "unshDefaultProvidersList",
             label = "Select your DEFAULT Provider",
-            choices = sort(dq_unsheltered$DefaultProvider) %>%
+            choices = sort(dq_unsheltered()$DefaultProvider) %>%
               unique(),
             options = list('live-search' = TRUE),
             width = "100%"
@@ -369,62 +369,90 @@ dashboardPage(
         tabName = "dqCoC",
         fluidRow(box(htmlOutput("headerCocDQ"), width = 12)),
         fluidRow(
-          box(
-            plotOutput("cocDQErrors"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "danger",
-            title = "Providers with the Most High Priority Issues and Errors"
-          ),
-          box(
-            plotOutput("cocHHErrors"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "danger",
-            title = "Providers with the Most Household Errors"
-          ),
-          box(
-            plotOutput("cocUnshelteredHigh"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "danger",
-            title = "Unsheltered High Priority Issues (User's Default Provider)"
-          ),
-          box(
-            plotOutput("DeskTimePlotCoC"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "warning",
-            title = "Longest Data Entry Delay Medians (in the past 365 days)"
-          ),
-          box(
-            plotOutput("cocDQWarnings"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "warning",
-            title = "Providers with the Most Data Quality Warnings"
-          ),
-          box(
-            plotOutput("cocDQErrorTypes"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "primary",
-            title = "Top 10 Error Types"
-          ),
-          box(
-            plotOutput("cocDQWarningTypes"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "primary",
-            title = "Top 10 Warning Types"
-          ),
-          box(
-            plotOutput("cocEligibility"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "warning",
-            title = "Providers with Potential Eligibility Issues"
-          )
+          list(cocDQErrors = list(status = "danger",
+                                  title = "Providers with the Most High Priority Issues and Errors"),
+               
+               cocHHErrors = list(status = "danger",
+                                  title = "Providers with the Most Household Errors"),
+               cocUnshelteredHigh = list(status = "danger",
+                                         title = "Unsheltered High Priority Issues (User's Default Provider)"),
+               DeskTimePlotCoC = list(status = "warning",
+                                      title = "Longest Data Entry Delay Medians (in the past 365 days)"),
+               cocDQWarnings = list(status = "warning",
+                                    title = "Providers with the Most Data Quality Warnings"),
+               cocDQErrorTypes = list(status = "primary",
+                                      title = "Top 10 Error Types"),
+               cocDQWarningTypes = list(status = "primary",
+                                        title = "Top 10 Warning Types"),
+               cocEligibility = list(status = "warning",
+                                     title = "Providers with Potential Eligibility Issues")
+          ) %>% 
+            purrr::imap(~{
+              do.call(shinydashboard::box, purrr::list_modify(
+                list(imageOutput(.y),
+                     width = 12,
+                     solidHeader = TRUE,
+                     status = "danger",
+                     title = NULL),
+                !!!.x))
+            }) 
+          # box(
+          #   plotOutput("cocDQErrors"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "danger",
+          #   title = "Providers with the Most High Priority Issues and Errors"
+          # ),
+          # box(
+          #   plotOutput("cocHHErrors"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "danger",
+          #   title = "Providers with the Most Household Errors"
+          # ),
+          # box(
+          #   plotOutput("cocUnshelteredHigh"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "danger",
+          #   title = "Unsheltered High Priority Issues (User's Default Provider)"
+          # ),
+          # box(
+          #   plotOutput("DeskTimePlotCoC"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "warning",
+          #   title = "Longest Data Entry Delay Medians (in the past 365 days)"
+          # ),
+          # box(
+          #   imageOutput("cocDQWarnings"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   height = "auto",
+          #   status = "warning",
+          #   title = "Providers with the Most Data Quality Warnings"
+          # ),
+          # box(
+          #   plotOutput("cocDQErrorTypes"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "primary",
+          #   title = "Top 10 Error Types"
+          # ),
+          # box(
+          #   plotOutput("cocDQWarningTypes"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "primary",
+          #   title = "Top 10 Warning Types"
+          # ),
+          # box(
+          #   plotOutput("cocEligibility"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "warning",
+          #   title = "Providers with Potential Eligibility Issues"
+          # )
         ),
         fluidRow(
           box(
@@ -461,14 +489,14 @@ dashboardPage(
                   title = "APs Not Creating Referrals"
                 ),
                 box(
-                  plotOutput("cocSPDAT"),
+                  imageOutput("cocSPDAT"),
                   width = 12,
                   solidHeader = TRUE,
                   status = "warning",
                   title = "Current Households Without SPDAT (minus Veterans)"
                 ),
                 box(
-                  plotOutput("cocOutstandingReferrals"),
+                  imageOutput("cocOutstandingReferrals"),
                   width = 12,
                   solidHeader = TRUE,
                   status = "warning",
@@ -478,7 +506,7 @@ dashboardPage(
                   pickerInput(
                     inputId = "unshEntriesByMonth_County",
                     label = "Select County/-ies",
-                    choices = sort(unsheltered_by_month$County) %>%
+                    choices = sort(unsheltered_by_month()$County) %>%
                       unique(),
                     selected = c("Lake", 
                                  "Ashtabula", 
@@ -527,9 +555,9 @@ dashboardPage(
                 pickerInput(
                   inputId = "pe_provider",
                   label = "Select your CoC-funded Provider",
-                  choices = sort(pe_validation_summary$AltProjectName) %>%
+                  choices = sort(pe_validation_summary()$AltProjectName) %>%
                     unique(),
-                  selected = sample(pe_validation_summary$AltProjectName, 1),
+                  selected = pe_validation_summary()$AltProjectName[1],
                   options = list('live-search' = TRUE),
                   width = "100%"
                 ),
@@ -568,88 +596,9 @@ dashboardPage(
                          DT::dataTableOutput("pe_ScoredAtPHEntry")),
                 width = 12
               ))), 
-      tabItem(
-        tabName = "spdatTab1",
-        fluidRow(box(
-          htmlOutput("headerCommunityNeedPH"), width = 12
-        )),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "regionList1",
-              choices = c(unique(regions$RegionName[regions$County != "Mahoning"])),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "spdatDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = meta_HUDCSV_Export_Start,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("ScoredHousedSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("SPDATScoresHoused"), width = 12
-        ))
-      ),
-      tabItem(
-        tabName = "spdatTab2",
-        fluidRow(box(
-          htmlOutput("headerCommunityNeedCounty"), width = 12
-        )),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "regionList2",
-              choices = c(unique(regions$RegionName[regions$County != "Mahoning"])),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "spdatDateRange2",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = meta_HUDCSV_Export_Start,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("ScoredInRegionSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("SPDATScoresServedInCounty"), width = 12
-        ))
-      ),
-      tabItem(
-        tabName = "LoSTab",
-        fluidRow(box(htmlOutput("headerLoS"), width = 12)),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "LoSProjectList",
-              choices = c(unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1, 2, 8, 13)])),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "LoSDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = meta_HUDCSV_Export_Start,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("LoSSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("LoSDetail"), width = 12
-        ))
-      ),
+      mod_QPR_tabItem_ui("spdat1"),
+      mod_QPR_tabItem_ui("spdat2"),
+      mod_QPR_tabItem_ui("LoS"),
       tabItem(
         tabName = "PHTab",
         fluidRow(box(htmlOutput("headerExitsToPH"), width = 12)),
@@ -657,10 +606,12 @@ dashboardPage(
           box(
             pickerInput(
               inputId = "ExitsToPHProjectList",
-              choices = c(unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1:4, 8:9, 12:13)])),
+              choices = c(unique(qpr_leavers()$ProjectName[
+                qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)])),
               options = list(`live-search` = TRUE),
               width = "70%"
             ),
+            
             dateRangeInput(
               "ExitsToPHDateRange",
               "Date Range",
@@ -682,120 +633,10 @@ dashboardPage(
           width = 12
         ))
       ),
-      tabItem(
-        tabName = "NCBTab",
-        fluidRow(box(htmlOutput("headerNCBs"), width = 12)),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "MBProjectListNC",
-              choices = c(unique(qpr_benefits$ProjectName)),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "NCBDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = meta_HUDCSV_Export_Start,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("qprNCBSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("ExitedWithNCBs"), width = 12
-        ))
-      ),
-      tabItem(
-        tabName = "HITab",
-        fluidRow(box(
-          htmlOutput("headerHealthInsurance"), width = 12
-        )),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "MBProjectListHI",
-              choices = c(unique(qpr_benefits$ProjectName)),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "HIDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = meta_HUDCSV_Export_Start,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("healthInsuranceSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("ExitedWithInsurance"),
-          width = 12
-        ))
-      ),
-      tabItem(
-        tabName = "incomeTab",
-        fluidRow(box(
-          htmlOutput("headerIncomeIncrease"), width = 12
-        )),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "incomeProjectList",
-              choices = c(unique(qpr_income$ProjectName)),
-              options = list(`live-search` = TRUE),
-              width = "70%"
-            ),
-            dateRangeInput(
-              "IncomeDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = meta_HUDCSV_Export_Start,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("qprIncomeSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("IncomeIncrease"), width = 12
-        ))
-      ),
-      tabItem(
-        tabName = "rapidTab",
-        fluidRow(box(htmlOutput(
-          "headerDaysToHouse"
-        ), width = 12)),
-        fluidRow(
-          box(
-            setSliderColor("#56B4E9", 1),
-            pickerInput(
-              inputId = "RapidRRHProviderList",
-              choices = c(unique(sort(
-                qpr_rrh_enterers$ProjectName
-              ))),
-              options = list(`live-search` = TRUE),
-              width = "100%"
-            ),
-            dateRangeInput(
-              "DaysToHouseDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = meta_HUDCSV_Export_Start,
-              format = "mm/dd/yyyy"
-            )
-          )
-        ),
-        fluidRow(infoBoxOutput("daysToHouseSummary", width = 12)),
-        fluidRow(box(
-          DT::dataTableOutput("daysToHouseRRH"), width = 12
-        ))
-      ),
+      mod_QPR_tabItem_ui("NCB"),
+      mod_QPR_tabItem_ui("HI"),
+      mod_QPR_tabItem_ui("income"),
+      mod_QPR_tabItem_ui("rapid"),
       tabItem(
         tabName = "spendingTab",
         fluidRow(box(htmlOutput(
@@ -808,7 +649,7 @@ dashboardPage(
               inputId = "RRHSpendingOrganizationList",
               label = "Select Organization",
               choices = c(unique(sort(
-                qpr_spending$OrganizationName
+                qpr_spending()$OrganizationName
               ))),
               options = list(`live-search` = TRUE),
               width = "100%"
