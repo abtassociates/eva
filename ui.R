@@ -369,62 +369,90 @@ dashboardPage(
         tabName = "dqCoC",
         fluidRow(box(htmlOutput("headerCocDQ"), width = 12)),
         fluidRow(
-          box(
-            plotOutput("cocDQErrors"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "danger",
-            title = "Providers with the Most High Priority Issues and Errors"
-          ),
-          box(
-            plotOutput("cocHHErrors"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "danger",
-            title = "Providers with the Most Household Errors"
-          ),
-          box(
-            plotOutput("cocUnshelteredHigh"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "danger",
-            title = "Unsheltered High Priority Issues (User's Default Provider)"
-          ),
-          box(
-            plotOutput("DeskTimePlotCoC"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "warning",
-            title = "Longest Data Entry Delay Medians (in the past 365 days)"
-          ),
-          box(
-            plotOutput("cocDQWarnings"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "warning",
-            title = "Providers with the Most Data Quality Warnings"
-          ),
-          box(
-            plotOutput("cocDQErrorTypes"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "primary",
-            title = "Top 10 Error Types"
-          ),
-          box(
-            plotOutput("cocDQWarningTypes"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "primary",
-            title = "Top 10 Warning Types"
-          ),
-          box(
-            plotOutput("cocEligibility"),
-            width = 12,
-            solidHeader = TRUE,
-            status = "warning",
-            title = "Providers with Potential Eligibility Issues"
-          )
+          list(cocDQErrors = list(status = "danger",
+                                  title = "Providers with the Most High Priority Issues and Errors"),
+               
+               cocHHErrors = list(status = "danger",
+                                  title = "Providers with the Most Household Errors"),
+               cocUnshelteredHigh = list(status = "danger",
+                                         title = "Unsheltered High Priority Issues (User's Default Provider)"),
+               DeskTimePlotCoC = list(status = "warning",
+                                      title = "Longest Data Entry Delay Medians (in the past 365 days)"),
+               cocDQWarnings = list(status = "warning",
+                                    title = "Providers with the Most Data Quality Warnings"),
+               cocDQErrorTypes = list(status = "primary",
+                                      title = "Top 10 Error Types"),
+               cocDQWarningTypes = list(status = "primary",
+                                        title = "Top 10 Warning Types"),
+               cocEligibility = list(status = "warning",
+                                     title = "Providers with Potential Eligibility Issues")
+          ) %>% 
+            purrr::imap(~{
+              do.call(shinydashboard::box, purrr::list_modify(
+                list(imageOutput(.y),
+                     width = 12,
+                     solidHeader = TRUE,
+                     status = "danger",
+                     title = NULL),
+                !!!.x))
+            }) 
+          # box(
+          #   plotOutput("cocDQErrors"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "danger",
+          #   title = "Providers with the Most High Priority Issues and Errors"
+          # ),
+          # box(
+          #   plotOutput("cocHHErrors"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "danger",
+          #   title = "Providers with the Most Household Errors"
+          # ),
+          # box(
+          #   plotOutput("cocUnshelteredHigh"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "danger",
+          #   title = "Unsheltered High Priority Issues (User's Default Provider)"
+          # ),
+          # box(
+          #   plotOutput("DeskTimePlotCoC"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "warning",
+          #   title = "Longest Data Entry Delay Medians (in the past 365 days)"
+          # ),
+          # box(
+          #   imageOutput("cocDQWarnings"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   height = "auto",
+          #   status = "warning",
+          #   title = "Providers with the Most Data Quality Warnings"
+          # ),
+          # box(
+          #   plotOutput("cocDQErrorTypes"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "primary",
+          #   title = "Top 10 Error Types"
+          # ),
+          # box(
+          #   plotOutput("cocDQWarningTypes"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "primary",
+          #   title = "Top 10 Warning Types"
+          # ),
+          # box(
+          #   plotOutput("cocEligibility"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "warning",
+          #   title = "Providers with Potential Eligibility Issues"
+          # )
         ),
         fluidRow(
           box(
@@ -461,14 +489,14 @@ dashboardPage(
                   title = "APs Not Creating Referrals"
                 ),
                 box(
-                  plotOutput("cocSPDAT"),
+                  imageOutput("cocSPDAT"),
                   width = 12,
                   solidHeader = TRUE,
                   status = "warning",
                   title = "Current Households Without SPDAT (minus Veterans)"
                 ),
                 box(
-                  plotOutput("cocOutstandingReferrals"),
+                  imageOutput("cocOutstandingReferrals"),
                   width = 12,
                   solidHeader = TRUE,
                   status = "warning",
@@ -578,7 +606,7 @@ dashboardPage(
           box(
             pickerInput(
               inputId = "ExitsToPHProjectList",
-              choices = c(unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1:4, 8:9, 12:13)])),
+              choices = c(unique(qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)])),
               options = list(`live-search` = TRUE),
               width = "70%"
             ),

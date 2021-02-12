@@ -12,6 +12,7 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
 Sys.setenv(TZ = "America/New_York")
+
 library(tidyverse)
 library(shinydashboard)
 library(shiny)
@@ -24,14 +25,21 @@ library(DT)
 library(writexl)
 library(viridis)
 library(HMIS)
+library(feather)
 
 if (!exists("df_nms")) {
   e <- environment()
   list2env(readRDS("data/Rminor_elevated.rds"), e)
 }
-
-source("R/feather_save.R")
-qpr_leavers <- qpr_leavers() %>% arrange(ProjectName)
+names(gg_nms) <- c("cocEligibility", 
+                   "cocDQErrorTypes",
+                   "cocHHErrors",
+                   "cocSPDAT",
+                   "cocOutstandingReferrals",
+                   "cocDQErrors",
+                   "cocDQWarnings",
+                   "cocUnshelteredHigh",
+                   "cocDQWarningTypes")
 
 providers <- sort(validation()$ProjectName) %>% unique() 
 
@@ -53,10 +61,10 @@ tab_choices <- unique(regions()$RegionName) %>%
     choices = .
   ),
   LoS = list(
-    choices = unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1, 2, 8, 13)])
+    choices = unique(qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1, 2, 8, 13)])
   ),
   PH = list(
-    choices = unique(qpr_leavers$ProjectName[qpr_leavers$ProjectType %in% c(1:4, 8:9, 12:13)])
+    choices = unique(qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)])
   ),
   NCB = list(
     choices = unique(qpr_benefits()$ProjectName)

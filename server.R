@@ -1263,8 +1263,7 @@ output$DeskTimePlotCoC <- renderPlot({
       datatable(a, rownames = FALSE)
     })
   
-  output$cocOutstandingReferrals <- 
-    renderPlot(dq_plot_outstanding_referrals)
+ 
   
   output$cocOverlap <- DT::renderDataTable({
     ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
@@ -1387,20 +1386,14 @@ output$DeskTimePlotCoC <- renderPlot({
     datatable(a,
               rownames = FALSE)
   })
+ 
+  purrr::iwalk(gg_nms, ~{
+    output[[.y]] <<- renderImage({
+      # Return a list containing the filename and alt text
+      list(src = get0(.x), width = "auto", height = "400px")
+    }, deleteFile = FALSE)
+  })
   
-  output$cocDQWarnings <- renderPlot(dq_plot_projects_warnings)
-  
-  output$cocDQErrorTypes <- renderPlot(dq_plot_errors)
-  
-  output$cocDQWarningTypes <- renderPlot(dq_plot_warnings)
-  
-  output$cocDQErrors <- renderPlot(dq_plot_projects_errors)
-  
-  output$cocHHErrors <- renderPlot(dq_plot_hh_errors)
-  
-  output$cocEligibility <- renderPlot(dq_plot_eligibility)
-  
-  output$cocUnshelteredHigh <- renderPlot(dq_plot_unsheltered_high)
   
   output$cocAPsNoReferrals <- renderPlot({
     
@@ -1425,7 +1418,6 @@ output$DeskTimePlotCoC <- renderPlot({
       theme_void()
   })
   
-  output$cocSPDAT <- renderPlot(dq_plot_hh_no_spdat)
   
   output$Ineligible <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
