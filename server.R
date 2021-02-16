@@ -162,7 +162,7 @@ function(input, output, session) {
   })
   
   output$headerCocDQ <- renderUI({
-    list(h2("CoC-wide Data Quality"),
+    list(h2("System-wide Data Quality"),
          h4(
            paste(format(hc_check_dq_back_to, "%m-%d-%Y"),
                  "through",
@@ -2070,7 +2070,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   mod_QPR_server("HI", "Health Insurance at Exit")
   
-  mod_QPR_server("income", "Health Insurance at Exit")
+  mod_QPR_server("income", "Income Growth")
   
   mod_QPR_server("rapid", "Rapid Rehousing Spending Goals")
   

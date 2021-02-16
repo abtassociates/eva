@@ -37,7 +37,7 @@ dashboardPage(
         menuSubItem("Data Entry Timeliness", tabName = "deskTime"),
         menuSubItem("Unsheltered", tabName = "unsheltered"),
         menuSubItem("Region-level", tabName = "dqRegion"),
-        menuSubItem("CoC-wide", tabName = "dqCoC"),
+        menuSubItem("System-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
       ),
       # menuItem("CoC Competition",
