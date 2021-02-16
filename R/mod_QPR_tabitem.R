@@ -35,14 +35,15 @@ mod_QPR_tabItem_ui <- function(id, choices = NULL, date_choices = NULL) {
     min = get0("FileStart"),
     format = "mm/dd/yyyy"
   ),
-   Regions = if (!isFALSE(choices)) list(
-    inputId = ns("region"),
-    label = "Select Region(s)",
-    choices = tab_choices[[id]]$choices,
-    options = shinyWidgets::pickerOptions(                                                  liveSearch = TRUE),
-    selected = NULL,
-    width = "70%"
-  )
+  Regions = if (!isFALSE(choices))
+    list(
+      inputId = ns("region"),
+      label = "Select Region(s)",
+      choices = tab_choices[[id]]$choices,
+      options = shinyWidgets::pickerOptions(liveSearch = TRUE),
+      selected = NULL,
+      width = "70%"
+    )
   ))
   .user <- purrr::compact(list(
     Dates = date_choices,
@@ -56,7 +57,7 @@ mod_QPR_tabItem_ui <- function(id, choices = NULL, date_choices = NULL) {
     })
   }
   # tabItem Output ----
-  # Mon Oct 26 15:09:32 2020
+
   shinydashboard::tabItem(
     tabName = ns("Tab"),
     shiny::fluidRow(

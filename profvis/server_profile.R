@@ -13,10 +13,10 @@
 # <https://www.gnu.org/licenses/>. 
 
 function(input, output, session) {
-  tictoc::tic.clearlog()
-  observeEvent(input$tictoc, {
-    saveRDS(tictoc::tic.log(format = FALSE), "profvis/ttlog.rds")
-  })
+  # tictoc::tic.clearlog()
+  # observeEvent(input$tictoc, {
+  #   saveRDS(tictoc::tic.log(format = FALSE), "profvis/ttlog.rds")
+  # })
   output$headerHome <- renderUI({
     box(
       title = "Welcome",

@@ -1,4 +1,7 @@
+
+
 qpr_expr$income <- list()
+
 qpr_expr$income$expr <- rlang::expr({
   
   .dat <- qpr_income() %>%
@@ -42,10 +45,7 @@ qpr_expr$income$expr <- rlang::expr({
   list(summary = .summary,
        detail = .detail)
 })
-# data_env <- function() {
-#   list(summary = .summary,
-#        detail = .detail)
-# }
+
 qpr_expr$income$infobox <- rlang::expr({
   .data <- data_env()$summary
   if (nrow(.data) > 0) {
