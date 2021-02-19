@@ -1407,7 +1407,7 @@ output$DeskTimePlotCoC <- renderPlot({
   purrr::walk(gg_nms, ~{
     output[[.x]] <<- renderImage({
       # Return a list containing the filename and alt text
-      list(src = get0(.x), width = "100%", height = "100%")
+      list(src = get0(.x), width = "100%", height = "auto")
     }, deleteFile = FALSE)
   })
   
