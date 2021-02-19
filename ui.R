@@ -368,8 +368,8 @@ dashboardPage(
       tabItem(
         tabName = "dqCoC",
         fluidRow(box(htmlOutput("headerCocDQ"), width = 12)),
-        fluidRow(
-          list(dq_plot_projects_errors = list(status = "danger",
+        
+          list(cocDQErrors = list(status = "danger",
                                   title = "Providers with the Most High Priority Issues and Errors"),
                
                dq_plot_hh_errors = list(status = "danger",
@@ -378,8 +378,7 @@ dashboardPage(
                                          title = "Unsheltered High Priority Issues (User's Default Provider)"),
                dq_plot_projects_warnings = list(status = "warning",
                                     title = "Providers with the Most Data Quality Warnings"),
-               DeskTimePlotCoC = list(width = 12,
-                                      status = "warning",
+               DeskTimePlotCoC = list(status = "warning",
                                       title = "Longest Data Entry Delay Medians (in the past 365 days)"),
                dq_plot_errors = list(status = "primary",
                                       title = "Top 10 Error Types"),
@@ -389,14 +388,73 @@ dashboardPage(
                                      title = "Providers with Potential Eligibility Issues")
           ) %>% 
             purrr::imap(~{
-              do.call(shinydashboard::box, purrr::list_modify(
+              fluidRow(do.call(shinydashboard::box, purrr::list_modify(
                 list(imageOutput(.y),
+                     width = 12,
+                     height = "auto",
                      solidHeader = TRUE,
                      status = "danger",
                      title = NULL),
-                !!!.x))
+                !!!.x)))
             }) 
-        ),
+          # box(
+          #   plotOutput("cocDQErrors"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "danger",
+          #   title = "Providers with the Most High Priority Issues and Errors"
+          # ),
+          # box(
+          #   plotOutput("cocHHErrors"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "danger",
+          #   title = "Providers with the Most Household Errors"
+          # ),
+          # box(
+          #   plotOutput("cocUnshelteredHigh"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "danger",
+          #   title = "Unsheltered High Priority Issues (User's Default Provider)"
+          # ),
+          # box(
+          #   plotOutput("DeskTimePlotCoC"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "warning",
+          #   title = "Longest Data Entry Delay Medians (in the past 365 days)"
+          # ),
+          # box(
+          #   imageOutput("cocDQWarnings"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   height = "auto",
+          #   status = "warning",
+          #   title = "Providers with the Most Data Quality Warnings"
+          # ),
+          # box(
+          #   plotOutput("cocDQErrorTypes"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "primary",
+          #   title = "Top 10 Error Types"
+          # ),
+          # box(
+          #   plotOutput("cocDQWarningTypes"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "primary",
+          #   title = "Top 10 Warning Types"
+          # ),
+          # box(
+          #   plotOutput("cocEligibility"),
+          #   width = 12,
+          #   solidHeader = TRUE,
+          #   status = "warning",
+          #   title = "Providers with Potential Eligibility Issues"
+          # )
+        ,
         fluidRow(
           box(
             DT::dataTableOutput("cocOverlap"),
