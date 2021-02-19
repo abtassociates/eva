@@ -44,6 +44,10 @@ function(input, output, session) {
          h4(input$currentProviderList))
   })
   
+  output$headerVaccine <- renderUI({
+    list(h2("COVID-19 Vaccine Distribution"))
+  })
+  
   output$headerUtilization <- renderUI({
     list(h2("Bed and Unit Utilization"),
          h4(input$providerListUtilization),
@@ -619,6 +623,19 @@ output$DeskTimePlotCoC <- renderPlot({
       filter = 'none',
       options = list(dom = 't')
     )
+  })
+  
+  output$vaccineSecondDose <- DT::renderDataTable({
+    
+    needs_2nd <- vaccine_needs_second_dose()
+    
+    datatable(
+      needs_2nd,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    ) 
+    
   })
   
   output$utilizationDetail <-
