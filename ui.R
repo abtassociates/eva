@@ -29,6 +29,8 @@ dashboardPage(
       #          menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
       #          menuSubItem("Inflow Outflow", tabName = "flow")
       #          ),
+      menuItem("COVID-19 Vaccine Distribution",
+               tabName = "vaccineTab"),
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
       menuItem(
@@ -146,6 +148,18 @@ dashboardPage(
                 DT::dataTableOutput("clientCountData"),
                 width = 12
               ))),
+      tabItem(
+        tabName = "vaccineTab",
+        fluidPage(
+          fluidRow(
+            box(htmlOutput(
+              "headerVaccine",
+              width = 12
+            ))
+          ),
+          fluidRow(box(DT::dataTableOutput("vaccineSecondDose"), width = 12))
+        )
+      ),
       tabItem(
         tabName = "utilizationTab",
         fluidPage(
