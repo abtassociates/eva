@@ -402,14 +402,18 @@ dashboardPage(
                                      title = "Providers with Potential Eligibility Issues")
           ) %>% 
             purrr::imap(~{
+              if (.y == "DeskTimePlotCoC") .out <- plotOutput(.y)
+              else
+                .out <- imageOutput(.y, height = "auto")
+              
               fluidRow(do.call(shinydashboard::box, purrr::list_modify(
-                list(imageOutput(.y, height = "auto"),
-                     width = 12,
-                     height = "auto",
-                     solidHeader = TRUE,
-                     status = "danger",
-                     title = NULL),
-                !!!.x)))
+              list(.out,
+                   width = 12,
+                   height = "auto",
+                   solidHeader = TRUE,
+                   status = "danger",
+                   title = NULL),
+              !!!.x)))
             }) 
           # box(
           #   plotOutput("cocDQErrors"),
