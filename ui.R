@@ -148,18 +148,25 @@ dashboardPage(
                 DT::dataTableOutput("clientCountData"),
                 width = 12
               ))),
-      tabItem(
-        tabName = "vaccineTab",
-        fluidPage(
-          fluidRow(
-            box(htmlOutput(
-              "headerVaccine",
-              width = 12
-            ))
-          ),
-          fluidRow(box(DT::dataTableOutput("vaccineSecondDose"), width = 12))
-        )
-      ),
+      tabItem(tabName = "vaccineTab",
+              fluidPage(fluidRow(box(
+                htmlOutput("headerVaccine",
+                           width = 12)
+              )),
+              fluidRow(box(
+                pickerInput(
+                  label = "Select County/-ies",
+                  inputId = "vaccineCounty",
+                  multiple = TRUE,
+                  choices = regions() %>%
+                    arrange(County) %>% pull(County),
+                  options = list('live-search' = TRUE)
+                ),
+                width = 12
+              )),
+              fluidRow(box(
+                DT::dataTableOutput("vaccineSecondDose"), width = 12
+              )))), 
       tabItem(
         tabName = "utilizationTab",
         fluidPage(

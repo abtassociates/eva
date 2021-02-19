@@ -627,7 +627,8 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$vaccineSecondDose <- DT::renderDataTable({
     
-    needs_2nd <- vaccine_needs_second_dose()
+    needs_2nd <- vaccine_needs_second_dose() %>%
+      filter(CountyServed %in% c(input$vaccineCounty))
     
     datatable(
       needs_2nd,
@@ -635,7 +636,6 @@ output$DeskTimePlotCoC <- renderPlot({
       filter = 'top',
       options = list(dom = 'ltpi')
     ) 
-    
   })
   
   output$utilizationDetail <-
