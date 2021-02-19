@@ -383,7 +383,7 @@ dashboardPage(
         tabName = "dqCoC",
         fluidRow(box(htmlOutput("headerCocDQ"), width = 12)),
         
-          list(cocDQErrors = list(status = "danger",
+          list(dq_plot_projects_errors = list(status = "danger",
                                   title = "Providers with the Most High Priority Issues and Errors"),
                
                dq_plot_hh_errors = list(status = "danger",
