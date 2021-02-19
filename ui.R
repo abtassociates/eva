@@ -403,7 +403,7 @@ dashboardPage(
           ) %>% 
             purrr::imap(~{
               fluidRow(do.call(shinydashboard::box, purrr::list_modify(
-                list(imageOutput(.y),
+                list(imageOutput(.y, height = "auto"),
                      width = 12,
                      height = "auto",
                      solidHeader = TRUE,
