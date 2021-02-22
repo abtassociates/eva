@@ -45,7 +45,9 @@ function(input, output, session) {
   })
   
   output$headerVaccine <- renderUI({
-    list(h2("COVID-19 Vaccine Distribution"))
+    list(h2("COVID-19 Vaccine Distribution"),
+         h3("Second Dose Logistics"),
+         h4(paste("Data Last Refreshed:", meta_HUDCSV_Export_Date)))
   })
   
   output$headerUtilization <- renderUI({
@@ -625,10 +627,93 @@ output$DeskTimePlotCoC <- renderPlot({
     )
   })
   
-  output$vaccineSecondDose <- DT::renderDataTable({
+  output$vaccineSecondDoseOverdue <- DT::renderDataTable({
     
     needs_2nd <- vaccine_needs_second_dose() %>%
-      filter(CountyServed %in% c(input$vaccineCounty))
+      filter(CountyServed %in% c(input$vaccineCounty) &
+               HowSoon == "Overdue") %>%
+      arrange(NextDoseNeededDate, HouseholdID) %>%
+      select(
+        "Client ID" = PersonalID,
+        "County" = CountyServed,
+        "Vaccine Manufacturer" = COVID19VaccineManufacturer,
+        "Age Range" = AgeAtEntry,
+        "Veteran Status" = VeteranStatus,
+        "Date Next Dose Needed" = NextDoseNeededDate,
+        "Current Location and Client Contact Info" = CurrentLocation
+      )
+    
+    datatable(
+      needs_2nd,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    ) 
+  })
+  
+  output$vaccineSecondDose3Days <- DT::renderDataTable({
+    
+    needs_2nd <- vaccine_needs_second_dose() %>%
+      filter(CountyServed %in% c(input$vaccineCounty) &
+               HowSoon == "3 days") %>%
+      arrange(NextDoseNeededDate, HouseholdID) %>%
+      select(
+        "Client ID" = PersonalID,
+        "County" = CountyServed,
+        "Vaccine Manufacturer" = COVID19VaccineManufacturer,
+        "Age Range" = AgeAtEntry,
+        "Veteran Status" = VeteranStatus,
+        "Date Next Dose Needed" = NextDoseNeededDate,
+        "Current Location and Client Contact Info" = CurrentLocation
+      )
+    
+    datatable(
+      needs_2nd,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    ) 
+  })
+  
+  output$vaccineSecondDose7Days <- DT::renderDataTable({
+    
+    needs_2nd <- vaccine_needs_second_dose() %>%
+      filter(CountyServed %in% c(input$vaccineCounty) &
+               HowSoon == "7 days") %>%
+      arrange(NextDoseNeededDate, HouseholdID) %>%
+      select(
+        "Client ID" = PersonalID,
+        "County" = CountyServed,
+        "Vaccine Manufacturer" = COVID19VaccineManufacturer,
+        "Age Range" = AgeAtEntry,
+        "Veteran Status" = VeteranStatus,
+        "Date Next Dose Needed" = NextDoseNeededDate,
+        "Current Location and Client Contact Info" = CurrentLocation
+      )
+    
+    datatable(
+      needs_2nd,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    ) 
+  })
+  
+  output$vaccineSecondDoseNextWeek <- DT::renderDataTable({
+    
+    needs_2nd <- vaccine_needs_second_dose() %>%
+      filter(CountyServed %in% c(input$vaccineCounty) &
+               HowSoon == "Next Week") %>%
+      arrange(NextDoseNeededDate, HouseholdID) %>%
+      select(
+        "Client ID" = PersonalID,
+        "County" = CountyServed,
+        "Vaccine Manufacturer" = COVID19VaccineManufacturer,
+        "Age Range" = AgeAtEntry,
+        "Veteran Status" = VeteranStatus,
+        "Date Next Dose Needed" = NextDoseNeededDate,
+        "Current Location and Client Contact Info" = CurrentLocation
+      )
     
     datatable(
       needs_2nd,
