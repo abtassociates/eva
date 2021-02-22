@@ -30,7 +30,7 @@ dashboardPage(
       #          menuSubItem("Inflow Outflow", tabName = "flow")
       #          ),
       menuItem("COVID-19 Vaccine Distribution",
-               tabName = "vaccineTab"),
+               menuSubItem("Second Dose Logistics", tabName = "vaccineSecondDose")),
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
       menuItem(
@@ -109,7 +109,11 @@ dashboardPage(
                     choices = regions() %>% 
                       filter(County != "Mahoning") %>%
                       arrange(County) %>% pull(County),
-                    options = list('live-search' = TRUE)
+                    options = pickerOptions(
+                      liveSearch = TRUE,
+                      liveSearchStyle = 'contains',
+                      actionsBox = TRUE
+                    )
                   ),
                   downloadButton("downloadActiveList", "Download")
                 ),
@@ -129,7 +133,10 @@ dashboardPage(
                   label = "Select Provider",
                   inputId = "currentProviderList",
                   choices = providers,
-                  options = list('live-search' = TRUE)
+                  options = pickerOptions(
+                    liveSearch = TRUE,
+                    liveSearchStyle = 'contains'
+                  )
                 ),
                 dateRangeInput(
                   "dateRangeCount",
@@ -148,25 +155,62 @@ dashboardPage(
                 DT::dataTableOutput("clientCountData"),
                 width = 12
               ))),
-      tabItem(tabName = "vaccineTab",
-              fluidPage(fluidRow(box(
-                htmlOutput("headerVaccine",
-                           width = 12)
-              )),
-              fluidRow(box(
-                pickerInput(
-                  label = "Select County/-ies",
-                  inputId = "vaccineCounty",
-                  multiple = TRUE,
-                  choices = regions() %>%
-                    arrange(County) %>% pull(County),
-                  options = list('live-search' = TRUE)
-                ),
-                width = 12
-              )),
-              fluidRow(box(
-                DT::dataTableOutput("vaccineSecondDose"), width = 12
-              )))), 
+      tabItem(
+        tabName = "vaccineSecondDose",
+        fluidPage(
+          fluidRow(box(htmlOutput(
+            "headerVaccine",
+            width = 12
+          ))),
+          fluidRow(box(
+            pickerInput(
+              label = "Select County/-ies",
+              inputId = "vaccineCounty",
+              multiple = TRUE,
+              choices = regions() %>%
+                arrange(County) %>% pull(County),
+              options = pickerOptions(
+                liveSearch = TRUE,
+                liveSearchStyle = 'contains',
+                actionsBox = TRUE
+              )
+            ),
+            width = 12
+          )),
+          fluidRow(
+            box(
+              DT::dataTableOutput("vaccineSecondDoseOverdue"),
+              title = "Overdue for Second Dose",
+              status = "danger",
+              width = 12
+            )
+          ),
+          fluidRow(
+            box(
+              DT::dataTableOutput("vaccineSecondDose3Days"),
+              title = "Second Dose Due in the Next 3 Days",
+              status = "warning",
+              width = 12
+            )
+          ),
+          fluidRow(
+            box(
+              DT::dataTableOutput("vaccineSecondDose7Days"),
+              title = "Second Dose Due in the Next 7 Days",
+              status = "info",
+              width = 12
+            )
+          ),
+          fluidRow(
+            box(
+              DT::dataTableOutput("vaccineSecondDoseNextWeek"),
+              title = "Second Dose Due in 8 Days or More",
+              status = "success",
+              width = 12
+            )
+          )
+        )
+      ), 
       tabItem(
         tabName = "utilizationTab",
         fluidPage(
@@ -188,7 +232,10 @@ dashboardPage(
               label = "Select Provider",
               inputId = "providerListUtilization",
               choices = c(sort(utilization_bed()$ProjectName)),
-              options = list(`live-search` = TRUE),
+              options = pickerOptions(
+                liveSearch = TRUE,
+                liveSearchStyle = 'contains'
+              ),
               width = "100%"
             ),
             airDatepickerInput(
@@ -238,7 +285,10 @@ dashboardPage(
             label = "Select Provider",
             inputId = "providerListDQ",
             choices = dq_providers,
-            options = list('live-search' = TRUE),
+            options = pickerOptions(
+              liveSearch = TRUE,
+              liveSearchStyle = 'contains'
+            ),
             width = "100%",
             selected = dq_providers[1]
           ),
@@ -292,7 +342,10 @@ dashboardPage(
                   label = "Select Provider",
                   inputId = "providerDeskTime",
                   choices = dtproviders,
-                  options = list('live-search' = TRUE),
+                  options = pickerOptions(
+                    liveSearch = TRUE,
+                    liveSearchStyle = 'contains'
+                  ),
                   width = "100%",
                   selected = dtproviders[1]
                 ),
@@ -317,7 +370,10 @@ dashboardPage(
           pickerInput(
             inputId = "regionList3",
             choices = c(unique(regions()$RegionName)),
-            options = list(`live-search` = TRUE),
+            options = pickerOptions(
+              liveSearch = TRUE,
+              liveSearchStyle = 'contains'
+            ),
             width = "70%"
           ),
           dateInput(
@@ -348,7 +404,10 @@ dashboardPage(
             label = "Select your DEFAULT Provider",
             choices = sort(dq_unsheltered()$DefaultProvider) %>%
               unique(),
-            options = list('live-search' = TRUE),
+            options = pickerOptions(
+              liveSearch = TRUE,
+              liveSearchStyle = 'contains'
+            ),
             width = "100%"
           ),
           dateInput(
@@ -542,8 +601,9 @@ dashboardPage(
                     multiple = TRUE,
                     options = pickerOptions(
                       liveSearch = TRUE,
+                      liveSearchStyle = 'contains',
                       actionsBox = TRUE
-                      ),
+                    ),
                     width = "100%"
                   ),
                   airDatepickerInput(
@@ -584,7 +644,10 @@ dashboardPage(
                   choices = sort(pe_validation_summary()$AltProjectName) %>%
                     unique(),
                   selected = pe_validation_summary()$AltProjectName[1],
-                  options = list('live-search' = TRUE),
+                  options = pickerOptions(
+                    liveSearch = TRUE,
+                    liveSearchStyle = 'contains'
+                  ),
                   width = "100%"
                 ),
                 width = 12
@@ -634,7 +697,9 @@ dashboardPage(
               inputId = "ExitsToPHProjectList",
               choices = c(unique(qpr_leavers()$ProjectName[
                 qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)])),
-              options = list(`live-search` = TRUE),
+              options = pickerOptions(
+                liveSearch = TRUE,
+                liveSearchStyle = 'contains'              ),
               width = "70%"
             ),
             
@@ -677,7 +742,10 @@ dashboardPage(
               choices = c(unique(sort(
                 qpr_spending()$OrganizationName
               ))),
-              options = list(`live-search` = TRUE),
+              options = pickerOptions(
+                liveSearch = TRUE,
+                liveSearchStyle = 'contains'
+              ),
               width = "100%"
             ),
             dateRangeInput(
