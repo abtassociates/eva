@@ -270,6 +270,19 @@ dashboardPage(
       tabItem(
         tabName = "vetActiveList",
         fluidRow(box(
+          pickerInput(
+            label = "Select SSVF Responsible Provider",
+            inputId = "vetResponsibleProvider",
+            choices = c(sort(responsible_providers()$SSVFServiceArea)) %>% unique(),
+            multiple = TRUE,
+            options = pickerOptions(
+              actionsBox = TRUE,
+              liveSearch = TRUE,
+              liveSearchStyle = 'contains'
+            ),
+            width = "100%"
+          ))),
+        fluidRow(box(
           DT::dataTableOutput("VeteranActiveList"),
           title = "Veteran Active List",
           width = 12

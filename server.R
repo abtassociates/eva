@@ -1655,6 +1655,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$VeteranActiveList <- DT::renderDataTable({
 
     active_list <- veteran_active_list() %>%
+      filter(SSVFServiceArea %in% c(input$vetResponsibleProvider)) %>%
       arrange(HouseholdID, PersonalID) %>%
       mutate(PersonalID = if_else(
         is.na(HOMESID),
