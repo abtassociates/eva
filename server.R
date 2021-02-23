@@ -1671,7 +1671,7 @@ output$DeskTimePlotCoC <- renderPlot({
         TimeInProject,
         Eligibility,
         "Most Recent Offer" = MostRecentOffer,
-        # ListStatus, is this really needed? seems redundant
+        ListStatus, 
         "Housing Track & Notes" = HousingPlan
       )
     
