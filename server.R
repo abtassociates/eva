@@ -1574,7 +1574,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQIncorrectEETypeTable <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
-    EEType <- dq_main %>%
+    EEType <- dq_main() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
           ProjectName == input$providerListDQ &
