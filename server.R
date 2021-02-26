@@ -2172,7 +2172,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   mod_QPR_server("income", "Income Growth")
   
-  mod_QPR_server("rapid", "Rapid Rehousing Spending Goals")
+  mod_QPR_server("rapid", "Average Days to House")
   
   
   output$ExitsToPH <- DT::renderDataTable({
