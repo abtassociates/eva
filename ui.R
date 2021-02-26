@@ -24,13 +24,16 @@ dashboardPage(
                tabName = "prioritizationListTab"),
       menuItem("Client Counts",
                tabName = "currentProviderLevel"),
-      # menuItem("Ending Veteran Homelessness",
-      #          menuSubItem("Active List", tabName = "vetActiveList"),
-      #          menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
-      #          menuSubItem("Inflow Outflow", tabName = "flow")
-      #          ),
-      menuItem("COVID-19 Vaccine Distribution",
-               menuSubItem("Second Dose Logistics", tabName = "vaccineSecondDose")),
+      menuItem(
+        "Ending Veteran Homelessness",
+        menuSubItem("Active List", tabName = "vetActiveList"),
+        menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
+        menuSubItem("Inflow Outflow", tabName = "flow")
+      ),
+      menuItem(
+        "COVID-19 Vaccine Distribution",
+        menuSubItem("Second Dose Logistics", tabName = "vaccineSecondDose")
+      ),
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
       menuItem(
@@ -96,65 +99,65 @@ dashboardPage(
         htmlOutput("headerHome"),
         width = 12
       ),
-      tabItem(tabName = "prioritizationListTab",
-              fluidRow(box(
-                htmlOutput("headerPrioritization"), width = 12
-              )),
-              fluidRow(
-                box(
-                  pickerInput(
-                    label = "Select County/-ies",
-                    inputId = "prioritizationCounty",
-                    multiple = TRUE,
-                    choices = regions() %>% 
-                      filter(County != "Mahoning") %>%
-                      arrange(County) %>% pull(County),
-                    options = pickerOptions(
-                      liveSearch = TRUE,
-                      liveSearchStyle = 'contains',
-                      actionsBox = TRUE
-                    )
-                  ),
-                  downloadButton("downloadActiveList", "Download")
-                ),
-                width = 12
-              ),
-              fluidRow(box(
-                DT::dataTableOutput("prioritizationData"), 
-                width = 12,
-                footer = "Dark gray cells mean the client has a Data Quality issue that may be causing incorrect information to show."
-              ))), 
-      tabItem(tabName = "currentProviderLevel",
-              fluidRow(box(
-                htmlOutput("headerCurrent"), width = 12
-              )),
-              fluidRow(box(
-                pickerInput(
-                  label = "Select Provider",
-                  inputId = "currentProviderList",
-                  choices = providers,
-                  options = pickerOptions(
-                    liveSearch = TRUE,
-                    liveSearchStyle = 'contains'
-                  )
-                ),
-                dateRangeInput(
-                  "dateRangeCount",
-                  "Date Range",
-                  min = meta_HUDCSV_Export_Start,
-                  format = "mm/dd/yyyy",
-                  width = '50%'
-                ),        
-                width = 12
-              )),
-              fluidRow(box(
-                DT::dataTableOutput("clientCountSummary"),
-                width = 12
-              )),
-              fluidRow(box(
-                DT::dataTableOutput("clientCountData"),
-                width = 12
-              ))),
+      tabItem(
+        tabName = "prioritizationListTab",
+        fluidRow(box(
+          htmlOutput("headerPrioritization"), width = 12
+        )),
+        fluidRow(box(
+          pickerInput(
+            label = "Select County/-ies",
+            inputId = "prioritizationCounty",
+            multiple = TRUE,
+            choices = regions() %>%
+              filter(County != "Mahoning") %>%
+              arrange(County) %>% pull(County),
+            options = pickerOptions(
+              liveSearch = TRUE,
+              liveSearchStyle = 'contains',
+              actionsBox = TRUE
+            )
+          ),
+          downloadButton("downloadActiveList", "Download")
+        ),
+        width = 12),
+        fluidRow(
+          box(
+            DT::dataTableOutput("prioritizationData"),
+            width = 12,
+            footer = "Dark gray cells mean the client has a Data Quality issue that may be causing incorrect information to show."
+          )
+        )
+      ),
+      tabItem(
+        tabName = "currentProviderLevel",
+        fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
+        fluidRow(box(
+          pickerInput(
+            label = "Select Provider",
+            inputId = "currentProviderList",
+            choices = providers,
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains')
+          ),
+          dateRangeInput(
+            "dateRangeCount",
+            "Date Range",
+            min = meta_HUDCSV_Export_Start,
+            format = "mm/dd/yyyy",
+            width = '50%'
+          ),
+          width = 12
+        )),
+        fluidRow(box(
+          DT::dataTableOutput("clientCountSummary"),
+          width = 12
+        )),
+        fluidRow(box(
+          DT::dataTableOutput("clientCountData"),
+          width = 12
+        ))
+      ),
       tabItem(
         tabName = "vaccineSecondDose",
         fluidPage(
@@ -210,7 +213,7 @@ dashboardPage(
             )
           )
         )
-      ), 
+      ),
       tabItem(
         tabName = "utilizationTab",
         fluidPage(
@@ -226,23 +229,23 @@ dashboardPage(
               ,
               width = 6
             )
-          ), 
+          ),
           fluidRow(box(
             pickerInput(
               label = "Select Provider",
               inputId = "providerListUtilization",
               choices = c(sort(utilization_bed()$ProjectName)),
-              options = pickerOptions(
-                liveSearch = TRUE,
-                liveSearchStyle = 'contains'
-              ),
+              options = pickerOptions(liveSearch = TRUE,
+                                      liveSearchStyle = 'contains'),
               width = "100%"
             ),
             airDatepickerInput(
               inputId = "utilizationDate",
               label = "Click to Choose a Month",
               max = ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-              min = ymd(floor_date(ymd(meta_HUDCSV_Export_End), "month") - years(2) + days(1)), 
+              min = ymd(floor_date(ymd(
+                meta_HUDCSV_Export_End
+              ), "month") - years(2) + days(1)),
               dateFormat = "MM yyyy",
               view = "month",
               value =
@@ -254,40 +257,43 @@ dashboardPage(
             ),
             width = 12
           )),
-          fluidRow(
-            box(
-              infoBoxOutput("utilizationSummary0", width = '100%'),
-              infoBoxOutput("utilizationSummary1", width = '100%'),
-              infoBoxOutput("utilizationSummary2", width = '100%'),
-              width = 12
-            )
-          ),
+          fluidRow(box(
+            infoBoxOutput("utilizationSummary0", width = '100%'),
+            infoBoxOutput("utilizationSummary1", width = '100%'),
+            infoBoxOutput("utilizationSummary2", width = '100%'),
+            width = 12
+          )),
           fluidRow(box(
             DT::dataTableOutput("utilizationDetail"), width = 12
           ))
         )
       ),
-      tabItem(
-        tabName = "vetActiveList",
-        fluidRow(box(
-          pickerInput(
-            label = "Select SSVF Responsible Provider",
-            inputId = "vetResponsibleProvider",
-            choices = c(sort(responsible_providers()$SSVFServiceArea)) %>% unique(),
-            multiple = TRUE,
-            options = pickerOptions(
-              actionsBox = TRUE,
-              liveSearch = TRUE,
-              liveSearchStyle = 'contains'
-            ),
-            width = "100%"
-          ))),
-        fluidRow(box(
-          DT::dataTableOutput("VeteranActiveList"),
-          title = "Veteran Active List",
-          width = 12
-        ))
-      ),
+      tabItem(tabName = "vetActiveList",
+              fluidRow(
+                box(
+                  pickerInput(
+                    label = "Select County/-ies",
+                    inputId = "vetCounty",
+                    multiple = TRUE,
+                    choices = regions() %>%
+                      arrange(County) %>% pull(County),
+                    options = pickerOptions(
+                      liveSearch = TRUE,
+                      liveSearchStyle = 'contains',
+                      actionsBox = TRUE
+                    )
+                  ),
+                  downloadButton("downloadVeteranActiveList", "Download")
+                ),
+                width = 12
+              ),
+              fluidRow(
+                box(
+                  DT::dataTableOutput("VeteranActiveList"),
+                  title = "Veteran Active List",
+                  width = 12
+                )
+              )),
       tabItem(
         tabName = "dqTab",
         fluidRow(box(htmlOutput(
@@ -298,10 +304,8 @@ dashboardPage(
             label = "Select Provider",
             inputId = "providerListDQ",
             choices = dq_providers,
-            options = pickerOptions(
-              liveSearch = TRUE,
-              liveSearchStyle = 'contains'
-            ),
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains'),
             width = "100%",
             selected = dq_providers[1]
           ),
@@ -317,13 +321,15 @@ dashboardPage(
         )),
         fluidRow(uiOutput("DQ_APs_w_EEs")),
         fluidRow(uiOutput("DQAPsNoReferrals")),
-        fluidRow(uiOutput("DQHHIssues"),
-                 uiOutput("DQDuplicateEEs"),
-                 uiOutput("DQIncorrectEEType"),
-                 uiOutput("DQMissingLocation"),
-                 uiOutput("DQPATHMissingContact")),
+        fluidRow(
+          uiOutput("DQHHIssues"),
+          uiOutput("DQDuplicateEEs"),
+          uiOutput("DQIncorrectEEType"),
+          uiOutput("DQMissingLocation"),
+          uiOutput("DQPATHMissingContact")
+        ),
         fluidRow(uiOutput("DQIneligible")),
-        fluidRow(uiOutput("DQOverlappingEEs")), 
+        fluidRow(uiOutput("DQOverlappingEEs")),
         fluidRow(
           box(
             DT::dataTableOutput("DQErrors"),
@@ -339,73 +345,77 @@ dashboardPage(
           )
         )
         ,
-        fluidRow(box(
-          id = "DQSummaryProvider",
-          DT::dataTableOutput("dq_provider_summary_table"),
-          title = "Data Quality Guidance",
-          width = 12,
-          status = "info",
-          solidHeader = TRUE))
+        fluidRow(
+          box(
+            id = "DQSummaryProvider",
+            DT::dataTableOutput("dq_provider_summary_table"),
+            title = "Data Quality Guidance",
+            width = 12,
+            status = "info",
+            solidHeader = TRUE
+          )
+        )
       ),
-      tabItem(tabName = "deskTime",
-              fluidRow(box(htmlOutput("headerDeskTime"),
-                           width = 12)),
-              fluidRow(box(
-                pickerInput(
-                  label = "Select Provider",
-                  inputId = "providerDeskTime",
-                  choices = desk_time_providers,
-                  options = pickerOptions(
-                    liveSearch = TRUE,
-                    liveSearchStyle = 'contains'
-                  ),
-                  width = "100%",
-                  selected = desk_time_providers[1]
-                ),
-                width = 12
-              )),
-              fluidRow(box(plotOutput(
-                "DeskTimePlotDetail"
-              ), width = 12)),
-              fluidRow(box(
-                uiOutput("deskTimeNote"),
-                title = "More Information",
-                collapsible = TRUE,
-                collapsed = TRUE,
-                width = 12
-              ))), 
       tabItem(
-        tabName = "dqRegion",
-        fluidRow(box(htmlOutput(
-          "headerRegionDataQuality"
-        ), width = 12)),
+        tabName = "deskTime",
+        fluidRow(box(htmlOutput("headerDeskTime"),
+                     width = 12)),
         fluidRow(box(
           pickerInput(
-            inputId = "regionList3",
-            choices = c(unique(regions()$RegionName)),
-            options = pickerOptions(
-              liveSearch = TRUE,
-              liveSearchStyle = 'contains'
-            ),
-            width = "70%"
-          ),
-          dateInput(
-            inputId = "dq_region_startdate",
-            label = "Report Start Date",
-            format = "mm/dd/yyyy",
-            value = ymd(hc_check_dq_back_to),
-            width = "25%"
+            label = "Select Provider",
+            inputId = "providerDeskTime",
+            choices = desk_time_providers,
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains'),
+            width = "100%",
+            selected = desk_time_providers[1]
           ),
           width = 12
         )),
         fluidRow(box(
-          id = "DQSummaryRegion",
-          title = paste("Data Quality Summary"),
-          status = "info",
-          solidHeader = TRUE,
-          DT::dataTableOutput("dq_region_summary_table"),
-          width = 12))
+          plotOutput("DeskTimePlotDetail"), width = 12
+        )),
+        fluidRow(
+          box(
+            uiOutput("deskTimeNote"),
+            title = "More Information",
+            collapsible = TRUE,
+            collapsed = TRUE,
+            width = 12
+          )
+        )
       ),
+      tabItem(tabName = "dqRegion",
+              fluidRow(box(
+                htmlOutput("headerRegionDataQuality"), width = 12
+              )),
+              fluidRow(box(
+                pickerInput(
+                  inputId = "regionList3",
+                  choices = c(unique(regions()$RegionName)),
+                  options = pickerOptions(liveSearch = TRUE,
+                                          liveSearchStyle = 'contains'),
+                  width = "70%"
+                ),
+                dateInput(
+                  inputId = "dq_region_startdate",
+                  label = "Report Start Date",
+                  format = "mm/dd/yyyy",
+                  value = ymd(hc_check_dq_back_to),
+                  width = "25%"
+                ),
+                width = 12
+              )),
+              fluidRow(
+                box(
+                  id = "DQSummaryRegion",
+                  title = paste("Data Quality Summary"),
+                  status = "info",
+                  solidHeader = TRUE,
+                  DT::dataTableOutput("dq_region_summary_table"),
+                  width = 12
+                )
+              )),
       tabItem(
         tabName = "unsheltered",
         fluidRow(box(
@@ -417,10 +427,8 @@ dashboardPage(
             label = "Select your DEFAULT Provider",
             choices = sort(dq_unsheltered()$DefaultProvider) %>%
               unique(),
-            options = pickerOptions(
-              liveSearch = TRUE,
-              liveSearchStyle = 'contains'
-            ),
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains'),
             width = "100%"
           ),
           dateInput(
@@ -462,95 +470,99 @@ dashboardPage(
         tabName = "dqCoC",
         fluidRow(box(htmlOutput("headerCocDQ"), width = 12)),
         
-          list(dq_plot_projects_errors = list(status = "danger",
-                                  title = "Providers with the Most High Priority Issues and Errors"),
-               
-               dq_plot_hh_errors = list(status = "danger",
-                                  title = "Providers with the Most Household Errors"),
-               dq_plot_unsheltered_high = list(status = "danger",
-                                         title = "Unsheltered High Priority Issues (User's Default Provider)"),
-               dq_plot_projects_warnings = list(status = "warning",
-                                    title = "Providers with the Most Data Quality Warnings"),
-               DeskTimePlotCoC = list(status = "warning",
-                                      title = "Longest Data Entry Delay Medians (in the past 365 days)"),
-               dq_plot_errors = list(status = "primary",
-                                      title = "Top 10 Error Types"),
-               dq_plot_warnings = list(status = "primary",
-                                        title = "Top 10 Warning Types"),
-               dq_plot_eligibility = list(status = "warning",
+        list(
+          dq_plot_projects_errors = list(status = "danger",
+                                         title = "Providers with the Most High Priority Issues and Errors"),
+          
+          dq_plot_hh_errors = list(status = "danger",
+                                   title = "Providers with the Most Household Errors"),
+          dq_plot_unsheltered_high = list(status = "danger",
+                                          title = "Unsheltered High Priority Issues (User's Default Provider)"),
+          dq_plot_projects_warnings = list(status = "warning",
+                                           title = "Providers with the Most Data Quality Warnings"),
+          DeskTimePlotCoC = list(status = "warning",
+                                 title = "Longest Data Entry Delay Medians (in the past 365 days)"),
+          dq_plot_errors = list(status = "primary",
+                                title = "Top 10 Error Types"),
+          dq_plot_warnings = list(status = "primary",
+                                  title = "Top 10 Warning Types"),
+          dq_plot_eligibility = list(status = "warning",
                                      title = "Providers with Potential Eligibility Issues")
-          ) %>% 
-            purrr::imap(~{
-              if (.y == "DeskTimePlotCoC") .out <- plotOutput(.y)
-              else
-                .out <- imageOutput(.y, height = "auto")
-              
-              fluidRow(do.call(shinydashboard::box, purrr::list_modify(
-              list(.out,
-                   width = 12,
-                   height = "auto",
-                   solidHeader = TRUE,
-                   status = "danger",
-                   title = NULL),
-              !!!.x)))
-            }) 
-          # box(
-          #   plotOutput("cocDQErrors"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "danger",
-          #   title = "Providers with the Most High Priority Issues and Errors"
-          # ),
-          # box(
-          #   plotOutput("cocHHErrors"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "danger",
-          #   title = "Providers with the Most Household Errors"
-          # ),
-          # box(
-          #   plotOutput("cocUnshelteredHigh"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "danger",
-          #   title = "Unsheltered High Priority Issues (User's Default Provider)"
-          # ),
-          # box(
-          #   plotOutput("DeskTimePlotCoC"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "warning",
-          #   title = "Longest Data Entry Delay Medians (in the past 365 days)"
-          # ),
-          # box(
-          #   imageOutput("cocDQWarnings"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   height = "auto",
-          #   status = "warning",
-          #   title = "Providers with the Most Data Quality Warnings"
-          # ),
-          # box(
-          #   plotOutput("cocDQErrorTypes"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "primary",
-          #   title = "Top 10 Error Types"
-          # ),
-          # box(
-          #   plotOutput("cocDQWarningTypes"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "primary",
-          #   title = "Top 10 Warning Types"
-          # ),
-          # box(
-          #   plotOutput("cocEligibility"),
-          #   width = 12,
-          #   solidHeader = TRUE,
-          #   status = "warning",
-          #   title = "Providers with Potential Eligibility Issues"
-          # )
+        ) %>%
+          purrr::imap( ~ {
+            if (.y == "DeskTimePlotCoC")
+              .out <- plotOutput(.y)
+            else
+              .out <- imageOutput(.y, height = "auto")
+            
+            fluidRow(do.call(shinydashboard::box, purrr::list_modify(
+              list(
+                .out,
+                width = 12,
+                height = "auto",
+                solidHeader = TRUE,
+                status = "danger",
+                title = NULL
+              ),!!!.x
+            )))
+          })
+        # box(
+        #   plotOutput("cocDQErrors"),
+        #   width = 12,
+        #   solidHeader = TRUE,
+        #   status = "danger",
+        #   title = "Providers with the Most High Priority Issues and Errors"
+        # ),
+        # box(
+        #   plotOutput("cocHHErrors"),
+        #   width = 12,
+        #   solidHeader = TRUE,
+        #   status = "danger",
+        #   title = "Providers with the Most Household Errors"
+        # ),
+        # box(
+        #   plotOutput("cocUnshelteredHigh"),
+        #   width = 12,
+        #   solidHeader = TRUE,
+        #   status = "danger",
+        #   title = "Unsheltered High Priority Issues (User's Default Provider)"
+        # ),
+        # box(
+        #   plotOutput("DeskTimePlotCoC"),
+        #   width = 12,
+        #   solidHeader = TRUE,
+        #   status = "warning",
+        #   title = "Longest Data Entry Delay Medians (in the past 365 days)"
+        # ),
+        # box(
+        #   imageOutput("cocDQWarnings"),
+        #   width = 12,
+        #   solidHeader = TRUE,
+        #   height = "auto",
+        #   status = "warning",
+        #   title = "Providers with the Most Data Quality Warnings"
+        # ),
+        # box(
+        #   plotOutput("cocDQErrorTypes"),
+        #   width = 12,
+        #   solidHeader = TRUE,
+        #   status = "primary",
+        #   title = "Top 10 Error Types"
+        # ),
+        # box(
+        #   plotOutput("cocDQWarningTypes"),
+        #   width = 12,
+        #   solidHeader = TRUE,
+        #   status = "primary",
+        #   title = "Top 10 Warning Types"
+        # ),
+        # box(
+        #   plotOutput("cocEligibility"),
+        #   width = 12,
+        #   solidHeader = TRUE,
+        #   status = "warning",
+        #   title = "Providers with Potential Eligibility Issues"
+        # )
         ,
         fluidRow(
           box(
@@ -559,14 +571,18 @@ dashboardPage(
             solidHeader = TRUE,
             status = "warning"
           ),
-          box(DT::dataTableOutput("cocLongStayers"),
-              title = "Extremely Long Stayers",
-              solidHeader = TRUE,
-              status = "warning"),
-          box(DT::dataTableOutput("cocRRHDestination"),
-              title = "Destinations & Rapid Rehousing",
-              solidHeader = TRUE,
-              status = "warning"),
+          box(
+            DT::dataTableOutput("cocLongStayers"),
+            title = "Extremely Long Stayers",
+            solidHeader = TRUE,
+            status = "warning"
+          ),
+          box(
+            DT::dataTableOutput("cocRRHDestination"),
+            title = "Destinations & Rapid Rehousing",
+            solidHeader = TRUE,
+            status = "warning"
+          ),
           box(
             DT::dataTableOutput("cocWidespreadIssues"),
             title = "Widespread Issues (Training focus)",
@@ -575,157 +591,178 @@ dashboardPage(
           )
         )
       ),
-      tabItem(tabName = "ceCoC",
-                box(
-                  plotOutput("cocAPsNoReferrals"),
-                  width = 6,
-                  title = "Access Points Creating Referrals"
-                ),
-                box(
-                  DT::dataTableOutput("cocAPsNoReferralsList"),
-                  width = 6,
-                  title = "APs Not Creating Referrals"
-                ),
-                box(
-                  imageOutput("dq_plot_hh_no_spdat"),
-                  width = 12,
-                  solidHeader = TRUE,
-                  status = "warning",
-                  title = "Current Households Without SPDAT (minus Veterans)"
-                ),
-                box(
-                  imageOutput("dq_plot_outstanding_referrals"),
-                  width = 12,
-                  solidHeader = TRUE,
-                  status = "warning",
-                  title = "Top 20 Providers with Old Outstanding Referrals"
-                ),
-                fluidRow(box(
-                  pickerInput(
-                    inputId = "unshEntriesByMonth_County",
-                    label = "Select County/-ies",
-                    choices = sort(unsheltered_by_month()$County) %>%
-                      unique(),
-                    selected = c("Lake", 
-                                 "Ashtabula", 
-                                 "Trumbull", 
-                                 "Geauga", 
-                                 "Portage"),
-                    multiple = TRUE,
-                    options = pickerOptions(
-                      liveSearch = TRUE,
-                      liveSearchStyle = 'contains',
-                      actionsBox = TRUE
-                    ),
-                    width = "100%"
-                  ),
-                  airDatepickerInput(
-                    inputId = "unshEntriesByMonth_ReportStart",
-                    label = "Report Start Month",
-                    dateFormat = "MM yyyy",
-                    max =
-                      ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-                    min =
-                      ymd(floor_date(meta_HUDCSV_Export_Start, unit = "month")),
-                    view = "month",
-                    value =
-                      ymd(floor_date(meta_HUDCSV_Export_Date - days(182), unit = "month")),
-                    minView = "months",
-                    addon = "none",
-                    autoClose = TRUE,                    
-                    width = "25%"
-                  ),
-                  plotlyOutput("cocUnshelteredEntriesByMonth"),
-                  width = 12,
-                  title = "Unsheltered Entries by Month",
-                  footer = "Where the CountyServed data was not answered, the 
-                  County where the user who created the project stay is based was 
+      tabItem(
+        tabName = "ceCoC",
+        box(
+          plotOutput("cocAPsNoReferrals"),
+          width = 6,
+          title = "Access Points Creating Referrals"
+        ),
+        box(
+          DT::dataTableOutput("cocAPsNoReferralsList"),
+          width = 6,
+          title = "APs Not Creating Referrals"
+        ),
+        box(
+          imageOutput("dq_plot_hh_no_spdat"),
+          width = 12,
+          solidHeader = TRUE,
+          status = "warning",
+          title = "Current Households Without SPDAT (minus Veterans)"
+        ),
+        box(
+          imageOutput("dq_plot_outstanding_referrals"),
+          width = 12,
+          solidHeader = TRUE,
+          status = "warning",
+          title = "Top 20 Providers with Old Outstanding Referrals"
+        ),
+        fluidRow(
+          box(
+            pickerInput(
+              inputId = "unshEntriesByMonth_County",
+              label = "Select County/-ies",
+              choices = sort(unsheltered_by_month()$County) %>%
+                unique(),
+              selected = c("Lake",
+                           "Ashtabula",
+                           "Trumbull",
+                           "Geauga",
+                           "Portage"),
+              multiple = TRUE,
+              options = pickerOptions(
+                liveSearch = TRUE,
+                liveSearchStyle = 'contains',
+                actionsBox = TRUE
+              ),
+              width = "100%"
+            ),
+            airDatepickerInput(
+              inputId = "unshEntriesByMonth_ReportStart",
+              label = "Report Start Month",
+              dateFormat = "MM yyyy",
+              max =
+                ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+              min =
+                ymd(floor_date(meta_HUDCSV_Export_Start, unit = "month")),
+              view = "month",
+              value =
+                ymd(floor_date(
+                  meta_HUDCSV_Export_Date - days(182), unit = "month"
+                )),
+              minView = "months",
+              addon = "none",
+              autoClose = TRUE,
+              width = "25%"
+            ),
+            plotlyOutput("cocUnshelteredEntriesByMonth"),
+            width = 12,
+            title = "Unsheltered Entries by Month",
+            footer = "Where the CountyServed data was not answered, the
+                  County where the user who created the project stay is based was
                   substituted.",
-                  status = "info",
-                  solidHeader = TRUE
-                )
-              )),
-      tabItem(tabName = "cocCompetitionTab",
-              fluidRow(box(
-                htmlOutput("headerCoCCompetitionProjectLevel"),
-                width = 12
-              )),
-              fluidRow(box(
-                pickerInput(
-                  inputId = "pe_provider",
-                  label = "Select your CoC-funded Provider",
-                  choices = sort(pe_validation_summary()$AltProjectName) %>%
-                    unique(),
-                  selected = pe_validation_summary()$AltProjectName[1],
-                  options = pickerOptions(
-                    liveSearch = TRUE,
-                    liveSearchStyle = 'contains'
-                  ),
-                  width = "100%"
-                ),
-                width = 12
-              )),
-              fluidRow(box(
-                DT::dataTableOutput("pe_ProjectSummary"), 
-                width = 12,
-                title = "Score Summary",
-                status = "info",
-                solidHeader = TRUE, 
-                collapsible = TRUE
-              )),
-              fluidRow(tabBox(
-                id = "tabs",
-                # title = "Client Detail",
-                tabPanel("Exits to Permanent Housing",
-                         DT::dataTableOutput("pe_ExitsToPH")),
-                tabPanel("Moved into Own Housing",
-                         DT::dataTableOutput("pe_OwnHousing")),
-                tabPanel("Increased Income",
-                         DT::dataTableOutput("pe_IncreasedIncome")), 
-                tabPanel("Benefits & Health Insurance at Exit",
-                         DT::dataTableOutput("pe_BenefitsAtExit")),
-                tabPanel("Living Situation at Entry",
-                         DT::dataTableOutput("pe_LivingSituationAtEntry")),
-                tabPanel("No Income at Entry",
-                         DT::dataTableOutput("pe_NoIncomeAtEntry")),
-                tabPanel("Length of Stay",
-                         DT::dataTableOutput("pe_LengthOfStay")),
-                tabPanel("Median Homeless History Index",
-                         DT::dataTableOutput("pe_MedianHHI")),
-                tabPanel("Long Term Homeless",
-                         DT::dataTableOutput("pe_LongTermHomeless")),
-                tabPanel("VISPDAT Score Completion",
-                         DT::dataTableOutput("pe_ScoredAtPHEntry")),
-                width = 12
-              ))), 
+            status = "info",
+            solidHeader = TRUE
+          )
+        )
+      ),
+      tabItem(
+        tabName = "cocCompetitionTab",
+        fluidRow(box(
+          htmlOutput("headerCoCCompetitionProjectLevel"),
+          width = 12
+        )),
+        fluidRow(box(
+          pickerInput(
+            inputId = "pe_provider",
+            label = "Select your CoC-funded Provider",
+            choices = sort(pe_validation_summary()$AltProjectName) %>%
+              unique(),
+            selected = pe_validation_summary()$AltProjectName[1],
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains'),
+            width = "100%"
+          ),
+          width = 12
+        )),
+        fluidRow(
+          box(
+            DT::dataTableOutput("pe_ProjectSummary"),
+            width = 12,
+            title = "Score Summary",
+            status = "info",
+            solidHeader = TRUE,
+            collapsible = TRUE
+          )
+        ),
+        fluidRow(
+          tabBox(
+            id = "tabs",
+            # title = "Client Detail",
+            tabPanel(
+              "Exits to Permanent Housing",
+              DT::dataTableOutput("pe_ExitsToPH")
+            ),
+            tabPanel("Moved into Own Housing",
+                     DT::dataTableOutput("pe_OwnHousing")),
+            tabPanel(
+              "Increased Income",
+              DT::dataTableOutput("pe_IncreasedIncome")
+            ),
+            tabPanel(
+              "Benefits & Health Insurance at Exit",
+              DT::dataTableOutput("pe_BenefitsAtExit")
+            ),
+            tabPanel(
+              "Living Situation at Entry",
+              DT::dataTableOutput("pe_LivingSituationAtEntry")
+            ),
+            tabPanel(
+              "No Income at Entry",
+              DT::dataTableOutput("pe_NoIncomeAtEntry")
+            ),
+            tabPanel("Length of Stay",
+                     DT::dataTableOutput("pe_LengthOfStay")),
+            tabPanel(
+              "Median Homeless History Index",
+              DT::dataTableOutput("pe_MedianHHI")
+            ),
+            tabPanel(
+              "Long Term Homeless",
+              DT::dataTableOutput("pe_LongTermHomeless")
+            ),
+            tabPanel(
+              "VISPDAT Score Completion",
+              DT::dataTableOutput("pe_ScoredAtPHEntry")
+            ),
+            width = 12
+          )
+        )
+      ),
       mod_QPR_tabItem_ui("spdat1"),
       mod_QPR_tabItem_ui("spdat2"),
       mod_QPR_tabItem_ui("LoS"),
       tabItem(
         tabName = "PHTab",
         fluidRow(box(htmlOutput("headerExitsToPH"), width = 12)),
-        fluidRow(
-          box(
-            pickerInput(
-              inputId = "ExitsToPHProjectList",
-              choices = c(unique(qpr_leavers()$ProjectName[
-                qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)])),
-              options = pickerOptions(
-                liveSearch = TRUE,
-                liveSearchStyle = 'contains'              ),
-              width = "70%"
-            ),
-            
-            dateRangeInput(
-              "ExitsToPHDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = meta_HUDCSV_Export_Start,
-              format = "mm/dd/yyyy"
-            )
+        fluidRow(box(
+          pickerInput(
+            inputId = "ExitsToPHProjectList",
+            choices = c(unique(qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)])),
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains'),
+            width = "70%"
+          ),
+          
+          dateRangeInput(
+            "ExitsToPHDateRange",
+            "Date Range",
+            start = floor_date(today() - days(31), "year"),
+            end = today(),
+            min = meta_HUDCSV_Export_Start,
+            format = "mm/dd/yyyy"
           )
-        ),
+        )),
         fluidRow(infoBoxOutput("ExitsToPHSummary", width = 12)),
         fluidRow(box(
           DT::dataTableOutput("ExitsToPH"), width = 12
@@ -746,31 +783,27 @@ dashboardPage(
         fluidRow(box(htmlOutput(
           "headerRRHSpending"
         ), width = 12)),
-        fluidRow(
-          box(
-            setSliderColor("#56B4E9", 1),
-            pickerInput(
-              inputId = "RRHSpendingOrganizationList",
-              label = "Select Organization",
-              choices = c(unique(sort(
-                qpr_spending()$OrganizationName
-              ))),
-              options = pickerOptions(
-                liveSearch = TRUE,
-                liveSearchStyle = 'contains'
-              ),
-              width = "100%"
-            ),
-            dateRangeInput(
-              "RRHSpendingDateRange",
-              "Date Range",
-              start = floor_date(today() - days(31), "year"),
-              end = today(),
-              min = meta_HUDCSV_Export_Start,
-              format = "mm/dd/yyyy"
-            )
+        fluidRow(box(
+          setSliderColor("#56B4E9", 1),
+          pickerInput(
+            inputId = "RRHSpendingOrganizationList",
+            label = "Select Organization",
+            choices = c(unique(sort(
+              qpr_spending()$OrganizationName
+            ))),
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains'),
+            width = "100%"
+          ),
+          dateRangeInput(
+            "RRHSpendingDateRange",
+            "Date Range",
+            start = floor_date(today() - days(31), "year"),
+            end = today(),
+            min = meta_HUDCSV_Export_Start,
+            format = "mm/dd/yyyy"
           )
-        ),
+        )),
         # fluidRow(infoBoxOutput("notCreatedYet"), width = 3),
         fluidRow(
           box(
