@@ -1655,7 +1655,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$VeteranActiveList <- DT::renderDataTable({
 
     active_list <- veteran_active_list() %>%
-      filter(SSVFServiceArea %in% c(input$vetResponsibleProvider)) %>%
+      filter(County %in% c(input$vetCounty)) %>%
       arrange(HouseholdID, PersonalID) %>%
       mutate(PersonalID = if_else(
         is.na(HOMESID),
@@ -1665,13 +1665,15 @@ output$DeskTimePlotCoC <- renderPlot({
               HOMESID)
       )) %>%
       select(
+        "SSVF Responsible Provider" = SSVFServiceArea,
         "Client ID" = PersonalID,
+        "Household Size" = HouseholdSize,
         "Active Date" =  ActiveDateDisplay,
         "Project Name" = ProjectName,
-        TimeInProject,
+        "Time in Project" = TimeInProject,
         Eligibility,
         "Most Recent Offer" = MostRecentOffer,
-        ListStatus, 
+        "List Status" = ListStatus, 
         "Housing Track & Notes" = HousingPlan
       )
     
@@ -1684,6 +1686,54 @@ output$DeskTimePlotCoC <- renderPlot({
     )
   })
   
+  output$downloadVeteranActiveList <- downloadHandler(
+    filename = function() {
+      "veteran_active_list.xlsx"
+    },
+    content = function(file) {
+      write_xlsx(veteran_active_list() %>%
+                   filter(
+                     County %in% c(input$vetCounty) |
+                       is.na(County)
+                   ) %>%
+                   mutate(ProjectType = project_type(ProjectType),
+                          LivingSituation = living_situation(LivingSituation),
+                          Destination = living_situation(Destination),
+                          VeteranStatus = enhanced_yes_no_translator(VeteranStatus),
+                          DisablingCondition = enhanced_yes_no_translator(DisablingCondition)) %>%
+                   select(
+                     SSVFServiceArea,
+                     County,
+                     PersonalID, 
+                     HOMESID,
+                     ProjectType,
+                     ProjectName,
+                     DateVeteranIdentified,
+                     EntryDate,
+                     MoveInDateAdjust,
+                     ExitDate,
+                     ListStatus,
+                     VAEligible,
+                     SSVFIneligible,
+                     DisablingCondition,
+                     VAMCStation,
+                     PHTrack,
+                     ExpectedPHDate,
+                     Destination,
+                     OtherDestination,
+                     ClientLocation,
+                     AgeAtEntry,
+                     VeteranStatus,
+                     HouseholdSize,
+                     Notes,
+                     ActiveDate,
+                     DaysActive,
+                     Eligibility,
+                     MostRecentOffer,
+                     HousingPlan
+                   ) %>% unique(), path = file)
+    }
+  )
   output$DQWarnings <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
