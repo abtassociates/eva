@@ -354,13 +354,13 @@ dashboardPage(
                 pickerInput(
                   label = "Select Provider",
                   inputId = "providerDeskTime",
-                  choices = dtproviders,
+                  choices = desk_time_providers,
                   options = pickerOptions(
                     liveSearch = TRUE,
                     liveSearchStyle = 'contains'
                   ),
                   width = "100%",
-                  selected = dtproviders[1]
+                  selected = desk_time_providers[1]
                 ),
                 width = 12
               )),
