@@ -1667,7 +1667,6 @@ output$DeskTimePlotCoC <- renderPlot({
       select(
         "SSVF Responsible Provider" = SSVFServiceArea,
         "Client ID" = PersonalID,
-        "Household Size" = HouseholdSize,
         "Active Date" =  ActiveDateDisplay,
         "Project Name" = ProjectName,
         "Time in Project" = TimeInProject,
