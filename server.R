@@ -633,6 +633,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(CountyServed %in% c(input$vaccineCounty) &
                HowSoon == "Overdue") %>%
       arrange(NextDoseNeededDate, HouseholdID) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
       select(
         "Client ID" = PersonalID,
         "County" = CountyServed,
@@ -657,6 +658,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(CountyServed %in% c(input$vaccineCounty) &
                HowSoon == "3 days") %>%
       arrange(NextDoseNeededDate, HouseholdID) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
       select(
         "Client ID" = PersonalID,
         "County" = CountyServed,
@@ -681,6 +683,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(CountyServed %in% c(input$vaccineCounty) &
                HowSoon == "7 days") %>%
       arrange(NextDoseNeededDate, HouseholdID) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
       select(
         "Client ID" = PersonalID,
         "County" = CountyServed,
@@ -705,6 +708,7 @@ output$DeskTimePlotCoC <- renderPlot({
       filter(CountyServed %in% c(input$vaccineCounty) &
                HowSoon == "Next Week") %>%
       arrange(NextDoseNeededDate, HouseholdID) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
       select(
         "Client ID" = PersonalID,
         "County" = CountyServed,
