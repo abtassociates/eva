@@ -78,7 +78,7 @@ dashboardPage(
         "<br>&emsp;Data last refreshed:&emsp;<br>&emsp;",
         format(meta_HUDCSV_Export_Date, "%m-%d-%Y %I:%M %p")
         ,
-        "<p><p>&emsp;Wear your mask! Be well."
+        "<p><p>&emsp;Wear your mask even if you're vaccinated!"
       )
     ),
     br(),
