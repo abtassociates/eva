@@ -2407,8 +2407,7 @@ output$DeskTimePlotCoC <- renderPlot({
           "No Income at Entry" = NoIncomeAtEntryPoints,
           "Median Homeless History Index" = MedianHHIPoints,
           "Long Term Homeless" = LongTermHomelessPoints,
-          "VISPDAT Completion at Entry" =
-            ScoredAtEntryPoints,
+          "VISPDAT Completion at Entry" = ScoredAtEntryPoints,
           "Data Quality" = DQPoints,
           "Cost per Exit" = CostPerExitScore,
           "Housing First" = HousingFirstScore,
