@@ -705,10 +705,10 @@ dashboardPage(
             ),
             tabPanel("Moved into Own Housing",
                      DT::dataTableOutput("pe_OwnHousing")),
-            tabPanel(
-              "Increased Income",
-              DT::dataTableOutput("pe_IncreasedIncome")
-            ),
+            # tabPanel(
+            #   "Increased Income",
+            #   DT::dataTableOutput("pe_IncreasedIncome")
+            # ),
             tabPanel(
               "Benefits & Health Insurance at Exit",
               DT::dataTableOutput("pe_BenefitsAtExit")

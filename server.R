@@ -2376,7 +2376,7 @@ output$DeskTimePlotCoC <- renderPlot({
         mutate(
           ExitsToPHMath = str_replace(ExitsToPHMath, "/", "÷"),
           OwnHousingMath = str_replace(OwnHousingMath, "/", "÷"),
-          IncreasedIncomeMath = str_replace(IncreasedIncomeMath, "/", "÷"),
+          # IncreasedIncomeMath = str_replace(IncreasedIncomeMath, "/", "÷"),
           BenefitsAtExitMath = str_replace(BenefitsAtExitMath, "/", "÷"),
           AverageLoSMath = str_replace(AverageLoSMath, "/", "÷"),
           LHResPriorMath = str_replace(LHResPriorMath, "/", "÷"),
@@ -2397,7 +2397,7 @@ output$DeskTimePlotCoC <- renderPlot({
         select(
           "Exits to Permanent Housing" = ExitsToPHPoints,
           "Moved into Own Housing" = OwnHousingPoints,
-          "Increased Income" = IncreasedIncomePoints,
+          # "Increased Income" = IncreasedIncomePoints,
           "Benefits & Health Insurance at Exit" = BenefitsAtExitPoints,
           "Average Length of Stay" = AverageLoSPoints,
           "Living Situation at Entry" = LHResPriorPoints,
@@ -2422,7 +2422,7 @@ output$DeskTimePlotCoC <- renderPlot({
         select(
           "Exits to Permanent Housing" = ExitsToPHDQ,
           "Moved into Own Housing" = OwnHousingDQ,
-          "Increased Income" = IncreasedIncomeDQ,
+          # "Increased Income" = IncreasedIncomeDQ,
           "Benefits & Health Insurance at Exit" = BenefitsAtExitDQ,
           "Average Length of Stay" = AverageLoSDQ,
           "Living Situation at Entry" = LHResPriorDQ,
@@ -2442,7 +2442,7 @@ output$DeskTimePlotCoC <- renderPlot({
         select(
           "Exits to Permanent Housing" = ExitsToPHPossible,
           "Moved into Own Housing" = OwnHousingPossible,
-          "Increased Income" = IncreasedIncomePossible,
+          # "Increased Income" = IncreasedIncomePossible,
           "Benefits & Health Insurance at Exit" = BenefitsAtExitPossible,
           "Average Length of Stay" = AverageLoSPossible,
           "Living Situation at Entry" = LHResPriorPossible,
@@ -2467,7 +2467,7 @@ output$DeskTimePlotCoC <- renderPlot({
         select(
           "Exits to Permanent Housing" = ExitsToPHMath,
           "Moved into Own Housing" = OwnHousingMath,
-          "Increased Income" = IncreasedIncomeMath,
+          # "Increased Income" = IncreasedIncomeMath,
           "Benefits & Health Insurance at Exit" = BenefitsAtExitMath,
           "Average Length of Stay" = AverageLoSMath,
           "Living Situation at Entry" = LHResPriorMath,
@@ -2669,32 +2669,32 @@ output$DeskTimePlotCoC <- renderPlot({
     
   })
   
-  output$pe_IncreasedIncome <- DT::renderDataTable({
-    a <- pe_increase_income() %>%
-      filter(AltProjectName == input$pe_provider) %>%
-      mutate(
-        IncomeDifference = IncomeMostRecent - IncomeAtEntry,
-        MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")
-      ) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        "Move-In Date" = MoveInDateAdjust,
-        "Exit Date" = ExitDate,
-        "Income at Entry" = IncomeAtEntry,
-        "Most Recent Income" = IncomeMostRecent,
-        "Increase/Decrease" = IncomeDifference,
-        "Meets Objective" = MeetsObjective
-      )    
-    
-    datatable(a,
-              rownames = FALSE,
-              filter = 'top',
-              options = list(dom = 'ltpi'),
-              caption = "ALL Project Types: Adults who moved into the project's
-              housing")
-    
-  })
+  # output$pe_IncreasedIncome <- DT::renderDataTable({
+  #   a <- pe_increase_income() %>%
+  #     filter(AltProjectName == input$pe_provider) %>%
+  #     mutate(
+  #       IncomeDifference = IncomeMostRecent - IncomeAtEntry,
+  #       MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")
+  #     ) %>%
+  #     select(
+  #       "Client ID" = PersonalID,
+  #       "Entry Date" = EntryDate,
+  #       "Move-In Date" = MoveInDateAdjust,
+  #       "Exit Date" = ExitDate,
+  #       "Income at Entry" = IncomeAtEntry,
+  #       "Most Recent Income" = IncomeMostRecent,
+  #       "Increase/Decrease" = IncomeDifference,
+  #       "Meets Objective" = MeetsObjective
+  #     )    
+  #   
+  #   datatable(a,
+  #             rownames = FALSE,
+  #             filter = 'top',
+  #             options = list(dom = 'ltpi'),
+  #             caption = "ALL Project Types: Adults who moved into the project's
+  #             housing")
+  #   
+  # })
   
   output$pe_LivingSituationAtEntry <- DT::renderDataTable({
     a <- pe_res_prior() %>%
