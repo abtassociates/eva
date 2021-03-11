@@ -81,9 +81,12 @@ function(input, output, session) {
     
     list(
       h2("2020 CoC Competition: Project Evaluation"), 
-      h4("Fixed Date Range: January 1, 2019 - December 31, 2019"),
-      h4(strong("THE DATA ON THIS TAB DOES NOT SHOW CHANGES MADE ON OR AFTER
-                7-21-2020.")),
+      h4(paste("Fixed Date Range:", 
+               format.Date(hc_project_eval_start, "%B %d, %Y"), 
+               "to",
+               format.Date(hc_project_eval_end, "%B %d, %Y"))),
+      # h4(strong("THE DATA ON THIS TAB DOES NOT SHOW CHANGES MADE ON OR AFTER
+      #           7-21-2020.")),
       h4(input$pe_provider),
       hr(),
       h5(strong("Next Due Date:"),
