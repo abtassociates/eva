@@ -45,7 +45,7 @@ dashboardPage(
         menuSubItem("System-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
       ),
-      # menuItem("CoC Competition",
+      # menuItem("BoS CoC Competition",
       #          tabName = "cocCompetitionTab"),
       menuItem(
         "Quarterly Performance Report",
