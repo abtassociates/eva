@@ -2388,11 +2388,9 @@ output$DeskTimePlotCoC <- renderPlot({
           LongTermHomelessMath = str_replace(LongTermHomelessMath, "/", "÷"),
           ScoredAtEntryMath = str_replace(ScoredAtEntryMath, "/", "÷"),
           DQMath = str_replace(DQMath, "/", "÷"),
-          CostPerExitMath = str_replace(CostPerExitMath, "/", "÷"),
+          PrioritizationWorkgroupMath = str_replace(PrioritizationWorkgroupMath, "/", "÷"),
           HousingFirstMath = str_replace(HousingFirstMath, "/", "÷"),
-          ChronicPrioritizationMath = str_replace(ChronicPrioritizationMath, "/", "÷"),
-          OnTrackSpendingMath = str_replace(OnTrackSpendingMath, "/", "÷"),
-          UnspentFundsMath = str_replace(UnspentFundsMath, "/", "÷")
+          ChronicPrioritizationMath = str_replace(ChronicPrioritizationMath, "/", "÷")
         )
       
       a <- summary_pe_final_scoring %>%
@@ -2409,11 +2407,9 @@ output$DeskTimePlotCoC <- renderPlot({
           "Long Term Homeless" = LongTermHomelessPoints,
           "VISPDAT Completion at Entry" = ScoredAtEntryPoints,
           "Data Quality" = DQPoints,
-          "Cost per Exit" = CostPerExitScore,
+          "Prioritization Workgroup" = PrioritizationWorkgroupScore,
           "Housing First" = HousingFirstScore,
-          "Prioritization of Chronic" = ChronicPrioritizationScore,
-          "Spending On Track" = OnTrackSpendingScoring,
-          "Unspent Funds within Range" = UnspentFundsScoring
+          "Prioritization of Chronic" = ChronicPrioritizationScore
         ) %>%
         pivot_longer(cols = everything(),
                      names_to = "Measure",
@@ -2454,11 +2450,9 @@ output$DeskTimePlotCoC <- renderPlot({
           "VISPDAT Completion at Entry" =
             ScoredAtEntryPossible,
           "Data Quality" = DQPossible,
-          "Cost per Exit" = CostPerExitPossible,
+          "Cost per Exit" = PrioritizationWorkgroupPossible,
           "Housing First" = HousingFirstPossible,
-          "Prioritization of Chronic" = ChronicPrioritizationPossible,
-          "Spending On Track" = OnTrackSpendingPossible,
-          "Unspent Funds within Range" = UnspentFundsPossible
+          "Prioritization of Chronic" = ChronicPrioritizationPossible
         ) %>%
         pivot_longer(cols = everything(),
                      names_to = "Measure",
@@ -2479,11 +2473,9 @@ output$DeskTimePlotCoC <- renderPlot({
           "VISPDAT Completion at Entry" =
             ScoredAtEntryMath,
           "Data Quality" = DQMath,
-          "Cost per Exit" = CostPerExitMath,
+          "Prioritization Workgroup" = PrioritizationWorkgroupMath,
           "Housing First" = HousingFirstMath,
-          "Prioritization of Chronic" = ChronicPrioritizationMath,
-          "Spending On Track" = OnTrackSpendingMath,
-          "Unspent Funds within Range" = UnspentFundsMath
+          "Prioritization of Chronic" = ChronicPrioritizationMath
         ) %>%
         pivot_longer(cols = everything(),
                      names_to = "Measure",
