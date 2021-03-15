@@ -20,7 +20,7 @@ qpr_expr$rapid$expr <- rlang::expr({
 
   .summary  <- .dat %>%
     mutate(DaysToHouse = difftime(MoveInDateAdjust, EntryDate, units = "days")) %>%
-    summarise(AvgDaysToHouse = as.integer(mean(DaysToHouse)), .groups = "drop_last")
+    summarise(AvgDaysToHouse = round(mean(DaysToHouse), 0), .groups = "drop_last")
   
   
   
