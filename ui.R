@@ -311,7 +311,7 @@ dashboardPage(
             ),
             multiple = TRUE,
             width = "100%",
-            selected = dq_providers[1]
+            selected = "none"
           ),
           dateInput(
             inputId = "dq_startdate",

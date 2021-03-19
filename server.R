@@ -1342,7 +1342,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$DQAPsNoReferrals <- renderUI({
     AP_not_doing_referrals <- aps_no_referrals() %>%
-      filter(ProviderCreating == input$providerListDQ)
+      filter(ProviderCreating %in% c(input$providerListDQ))
     
     if (nrow(AP_not_doing_referrals) > 0) {
       box(
