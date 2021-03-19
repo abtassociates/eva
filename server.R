@@ -1496,12 +1496,12 @@ output$DeskTimePlotCoC <- renderPlot({
               rownames = FALSE)
   })
  
-  purrr::walk(gg_nms, ~{
-    output[[.x]] <<- renderImage({
-      # Return a list containing the filename and alt text
-      list(src = get0(.x), width = "100%", height = "auto")
-    }, deleteFile = FALSE)
-  })
+  # purrr::walk(gg_nms, ~{
+  #   output[[.x]] <<- renderImage({
+  #     # Return a list containing the filename and alt text
+  #     list(src = get0(.x), width = "100%", height = "auto")
+  #   }, deleteFile = FALSE)
+  # })
   
   
   output$cocAPsNoReferrals <- renderPlot({
@@ -1773,6 +1773,14 @@ output$DeskTimePlotCoC <- renderPlot({
       filter = 'top',
       options = list(dom = 'ltpi'))
   })
+  
+  output$cocDQErrors <- renderPlot(dq_plot_projects_errors)
+  output$cocHHErrors <- renderPlot(dq_plot_hh_errors)
+  output$cocUnshelteredHigh <- renderPlot(dq_plot_unsheltered_high)
+  output$cocDQWarnings <- renderPlot(dq_plot_projects_warnings)
+  output$cocDQErrorTypes <- renderPlot(dq_plot_errors)
+  output$cocDQWarningTypes <- renderPlot(dq_plot_warnings)
+  output$cocEligibility <- renderPlot(dq_plot_eligibility)
   
   output$unshIncorrectResPriorTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
