@@ -102,7 +102,6 @@ function(input, output, session) {
   
   output$headerDataQuality <- renderUI({
     list(h2("Data Quality"),
-         h4(input$providerListDQ),
          h4(paste(
            format(input$dq_startdate, "%m-%d-%Y"),
            "to",
@@ -922,7 +921,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     guidance <- dq_main() %>%
-      filter(ProjectName == input$providerListDQ &
+      filter(ProjectName %in% c(input$providerListDQ) &
                served_between(., ReportStart, ReportEnd)) %>%
       group_by(Type, Issue, Guidance) %>%
       ungroup() %>%
@@ -1007,7 +1006,7 @@ output$DeskTimePlotCoC <- renderPlot({
     DuplicateEEs <- dq_main() %>%
       filter(
         Issue == "Duplicate Entry Exits" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1029,7 +1028,7 @@ output$DeskTimePlotCoC <- renderPlot({
     DuplicateEEs <- dq_main() %>%
       filter(
         Issue == "Duplicate Entry Exits" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       select(
@@ -1069,7 +1068,7 @@ output$DeskTimePlotCoC <- renderPlot({
           "No Head of Household",
           "Children Only Household"
         ) &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1097,7 +1096,7 @@ output$DeskTimePlotCoC <- renderPlot({
           "No Head of Household",
           "Children Only Household"
         ) &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       )
     if (nrow(HHIssues) > 0) {
@@ -1124,7 +1123,7 @@ output$DeskTimePlotCoC <- renderPlot({
     HHIssues <- dq_main() %>%
       filter(
         Issue == "Missing Client Location" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       )
     if (nrow(HHIssues) > 0) {
@@ -1152,7 +1151,7 @@ output$DeskTimePlotCoC <- renderPlot({
     HHIssues <- dq_main() %>%
       filter(
         Issue == "Missing Client Location" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1174,7 +1173,7 @@ output$DeskTimePlotCoC <- renderPlot({
     no_contact <- dq_main() %>%
       filter(
         Issue == "Missing PATH Contact" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       )
     if (nrow(no_contact) > 0) {
@@ -1201,7 +1200,7 @@ output$DeskTimePlotCoC <- renderPlot({
     x <- dq_main() %>%
       filter(
         Issue == "Missing PATH Contact" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1223,7 +1222,7 @@ output$DeskTimePlotCoC <- renderPlot({
     APs_w_EEs <- dq_main() %>%
       filter(
         Issue == "Access Point with Entry Exits" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1243,7 +1242,7 @@ output$DeskTimePlotCoC <- renderPlot({
     APs_w_EEs <- dq_main() %>%
       filter(
         Issue == "Access Point with Entry Exits" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       )
     if (nrow(APs_w_EEs) > 0) {
@@ -1270,7 +1269,7 @@ output$DeskTimePlotCoC <- renderPlot({
     
     OverlappingEEs <- dq_overlaps() %>%
       filter(
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1296,7 +1295,7 @@ output$DeskTimePlotCoC <- renderPlot({
     OverlappingEEs <- dq_overlaps() %>%
       filter(
         Issue == "Overlapping Project Stays" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1532,7 +1531,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     Ineligible <- detail_eligibility() %>%
-      filter(ProjectName == input$providerListDQ &
+      filter(ProjectName %in% c(input$providerListDQ) &
                served_between(., ReportStart, ReportEnd)) %>%
       mutate(
         PersonalID = format(PersonalID, digits = NULL),
@@ -1553,7 +1552,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     Ineligible <- detail_eligibility() %>%
-      filter(ProjectName == input$providerListDQ &
+      filter(ProjectName %in% c(input$providerListDQ) &
                served_between(., ReportStart, ReportEnd))
     
     if (nrow(Ineligible) > 0) {
@@ -1584,7 +1583,7 @@ output$DeskTimePlotCoC <- renderPlot({
     EEType <- dq_main() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1605,7 +1604,7 @@ output$DeskTimePlotCoC <- renderPlot({
     EEType <- dq_main() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) 
     
@@ -1643,7 +1642,7 @@ output$DeskTimePlotCoC <- renderPlot({
           "Access Point with Entry Exits"
         ) & # because these are all in the boxes already
           served_between(., ReportStart, ReportEnd) &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           Type == "Error"
       ) %>%
       mutate(PersonalID = as.character(PersonalID)) %>%
@@ -1740,6 +1739,7 @@ output$DeskTimePlotCoC <- renderPlot({
                    ) %>% unique(), path = file)
     }
   )
+  
   output$DQWarnings <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
@@ -1756,7 +1756,7 @@ output$DeskTimePlotCoC <- renderPlot({
           "Check Eligibility"
         ) &
           served_between(., ReportStart, ReportEnd) &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           Type == "Warning"
       ) %>%
       mutate(PersonalID = as.character(PersonalID)) %>%

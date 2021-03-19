@@ -304,8 +304,12 @@ dashboardPage(
             label = "Select Provider",
             inputId = "providerListDQ",
             choices = dq_providers,
-            options = pickerOptions(liveSearch = TRUE,
-                                    liveSearchStyle = 'contains'),
+            options = pickerOptions(
+              liveSearch = TRUE,
+              liveSearchStyle = 'contains',
+              actionsBox = TRUE
+            ),
+            multiple = TRUE,
             width = "100%",
             selected = dq_providers[1]
           ),
