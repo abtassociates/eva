@@ -39,9 +39,8 @@ desk_time_providers <- validation() %>%
                          format.Date(ymd(today() - years(1)), "%m-%d-%Y"), 
                          format.Date(ymd(today()), "%m-%d-%Y")) &
            ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13) &
-           ProjectName != "Non-HMIS Shelter Clients")
-
-dtproviders <- sort(desk_time_providers$ProjectName) %>% unique()
+           ProjectName != "Non-HMIS Shelter Clients") %>%
+  dplyr::select(ProjectName) %>% unique()
 
 tab_choices <- unique(regions()$RegionName) %>% 
 {list(

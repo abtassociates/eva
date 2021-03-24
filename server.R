@@ -45,7 +45,9 @@ function(input, output, session) {
   })
   
   output$headerVaccine <- renderUI({
-    list(h2("COVID-19 Vaccine Distribution"))
+    list(h2("COVID-19 Vaccine Distribution"),
+         h3("Second Dose Logistics"),
+         h4(paste("Data Last Refreshed:", meta_HUDCSV_Export_Date)))
   })
   
   output$headerUtilization <- renderUI({
@@ -79,9 +81,12 @@ function(input, output, session) {
     
     list(
       h2("2020 CoC Competition: Project Evaluation"), 
-      h4("Fixed Date Range: January 1, 2019 - December 31, 2019"),
-      h4(strong("THE DATA ON THIS TAB DOES NOT SHOW CHANGES MADE ON OR AFTER
-                7-21-2020.")),
+      h4(paste("Fixed Date Range:", 
+               format.Date(hc_project_eval_start, "%B %d, %Y"), 
+               "to",
+               format.Date(hc_project_eval_end, "%B %d, %Y"))),
+      # h4(strong("THE DATA ON THIS TAB DOES NOT SHOW CHANGES MADE ON OR AFTER
+      #           7-21-2020.")),
       h4(input$pe_provider),
       hr(),
       h5(strong("Next Due Date:"),
@@ -97,7 +102,6 @@ function(input, output, session) {
   
   output$headerDataQuality <- renderUI({
     list(h2("Data Quality"),
-         h4(input$providerListDQ),
          h4(paste(
            format(input$dq_startdate, "%m-%d-%Y"),
            "to",
@@ -625,9 +629,22 @@ output$DeskTimePlotCoC <- renderPlot({
     )
   })
   
-  output$vaccineSecondDose <- DT::renderDataTable({
+  output$vaccineSecondDoseOverdue <- DT::renderDataTable({
     
-    needs_2nd <- vaccine_needs_second_dose()
+    needs_2nd <- vaccine_needs_second_dose() %>%
+      filter(CountyServed %in% c(input$vaccineCounty) &
+               HowSoon == "Overdue") %>%
+      arrange(NextDoseNeededDate, HouseholdID) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
+      select(
+        "Client ID" = PersonalID,
+        "County" = CountyServed,
+        "Vaccine Manufacturer" = COVID19VaccineManufacturer,
+        "Age Range" = AgeAtEntry,
+        "Veteran Status" = VeteranStatus,
+        "Date Next Dose Needed" = NextDoseNeededDate,
+        "Current Location and Client Contact Info" = CurrentLocation
+      )
     
     datatable(
       needs_2nd,
@@ -635,7 +652,81 @@ output$DeskTimePlotCoC <- renderPlot({
       filter = 'top',
       options = list(dom = 'ltpi')
     ) 
+  })
+  
+  output$vaccineSecondDose3Days <- DT::renderDataTable({
     
+    needs_2nd <- vaccine_needs_second_dose() %>%
+      filter(CountyServed %in% c(input$vaccineCounty) &
+               HowSoon == "3 days") %>%
+      arrange(NextDoseNeededDate, HouseholdID) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
+      select(
+        "Client ID" = PersonalID,
+        "County" = CountyServed,
+        "Vaccine Manufacturer" = COVID19VaccineManufacturer,
+        "Age Range" = AgeAtEntry,
+        "Veteran Status" = VeteranStatus,
+        "Date Next Dose Needed" = NextDoseNeededDate,
+        "Current Location and Client Contact Info" = CurrentLocation
+      )
+    
+    datatable(
+      needs_2nd,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    ) 
+  })
+  
+  output$vaccineSecondDose7Days <- DT::renderDataTable({
+    
+    needs_2nd <- vaccine_needs_second_dose() %>%
+      filter(CountyServed %in% c(input$vaccineCounty) &
+               HowSoon == "7 days") %>%
+      arrange(NextDoseNeededDate, HouseholdID) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
+      select(
+        "Client ID" = PersonalID,
+        "County" = CountyServed,
+        "Vaccine Manufacturer" = COVID19VaccineManufacturer,
+        "Age Range" = AgeAtEntry,
+        "Veteran Status" = VeteranStatus,
+        "Date Next Dose Needed" = NextDoseNeededDate,
+        "Current Location and Client Contact Info" = CurrentLocation
+      )
+    
+    datatable(
+      needs_2nd,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    ) 
+  })
+  
+  output$vaccineSecondDoseNextWeek <- DT::renderDataTable({
+    
+    needs_2nd <- vaccine_needs_second_dose() %>%
+      filter(CountyServed %in% c(input$vaccineCounty) &
+               HowSoon == "Next Week") %>%
+      arrange(NextDoseNeededDate, HouseholdID) %>%
+      mutate(PersonalID = as.character(PersonalID)) %>%
+      select(
+        "Client ID" = PersonalID,
+        "County" = CountyServed,
+        "Vaccine Manufacturer" = COVID19VaccineManufacturer,
+        "Age Range" = AgeAtEntry,
+        "Veteran Status" = VeteranStatus,
+        "Date Next Dose Needed" = NextDoseNeededDate,
+        "Current Location and Client Contact Info" = CurrentLocation
+      )
+    
+    datatable(
+      needs_2nd,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    ) 
   })
   
   output$utilizationDetail <-
@@ -830,7 +921,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     guidance <- dq_main() %>%
-      filter(ProjectName == input$providerListDQ &
+      filter(ProjectName %in% c(input$providerListDQ) &
                served_between(., ReportStart, ReportEnd)) %>%
       group_by(Type, Issue, Guidance) %>%
       ungroup() %>%
@@ -915,7 +1006,7 @@ output$DeskTimePlotCoC <- renderPlot({
     DuplicateEEs <- dq_main() %>%
       filter(
         Issue == "Duplicate Entry Exits" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -937,7 +1028,7 @@ output$DeskTimePlotCoC <- renderPlot({
     DuplicateEEs <- dq_main() %>%
       filter(
         Issue == "Duplicate Entry Exits" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       select(
@@ -977,7 +1068,7 @@ output$DeskTimePlotCoC <- renderPlot({
           "No Head of Household",
           "Children Only Household"
         ) &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1005,7 +1096,7 @@ output$DeskTimePlotCoC <- renderPlot({
           "No Head of Household",
           "Children Only Household"
         ) &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       )
     if (nrow(HHIssues) > 0) {
@@ -1032,7 +1123,7 @@ output$DeskTimePlotCoC <- renderPlot({
     HHIssues <- dq_main() %>%
       filter(
         Issue == "Missing Client Location" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       )
     if (nrow(HHIssues) > 0) {
@@ -1060,7 +1151,7 @@ output$DeskTimePlotCoC <- renderPlot({
     HHIssues <- dq_main() %>%
       filter(
         Issue == "Missing Client Location" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1082,7 +1173,7 @@ output$DeskTimePlotCoC <- renderPlot({
     no_contact <- dq_main() %>%
       filter(
         Issue == "Missing PATH Contact" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       )
     if (nrow(no_contact) > 0) {
@@ -1109,7 +1200,7 @@ output$DeskTimePlotCoC <- renderPlot({
     x <- dq_main() %>%
       filter(
         Issue == "Missing PATH Contact" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1131,7 +1222,7 @@ output$DeskTimePlotCoC <- renderPlot({
     APs_w_EEs <- dq_main() %>%
       filter(
         Issue == "Access Point with Entry Exits" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1151,7 +1242,7 @@ output$DeskTimePlotCoC <- renderPlot({
     APs_w_EEs <- dq_main() %>%
       filter(
         Issue == "Access Point with Entry Exits" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       )
     if (nrow(APs_w_EEs) > 0) {
@@ -1178,7 +1269,7 @@ output$DeskTimePlotCoC <- renderPlot({
     
     OverlappingEEs <- dq_overlaps() %>%
       filter(
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1204,7 +1295,7 @@ output$DeskTimePlotCoC <- renderPlot({
     OverlappingEEs <- dq_overlaps() %>%
       filter(
         Issue == "Overlapping Project Stays" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1251,7 +1342,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   output$DQAPsNoReferrals <- renderUI({
     AP_not_doing_referrals <- aps_no_referrals() %>%
-      filter(ProviderCreating == input$providerListDQ)
+      filter(ProviderCreating %in% c(input$providerListDQ))
     
     if (nrow(AP_not_doing_referrals) > 0) {
       box(
@@ -1404,12 +1495,12 @@ output$DeskTimePlotCoC <- renderPlot({
               rownames = FALSE)
   })
  
-  purrr::walk(gg_nms, ~{
-    output[[.x]] <<- renderImage({
-      # Return a list containing the filename and alt text
-      list(src = get0(.x), width = "100%", height = "auto")
-    }, deleteFile = FALSE)
-  })
+  # purrr::walk(gg_nms, ~{
+  #   output[[.x]] <<- renderImage({
+  #     # Return a list containing the filename and alt text
+  #     list(src = get0(.x), width = "100%", height = "auto")
+  #   }, deleteFile = FALSE)
+  # })
   
   
   output$cocAPsNoReferrals <- renderPlot({
@@ -1440,7 +1531,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     Ineligible <- detail_eligibility() %>%
-      filter(ProjectName == input$providerListDQ &
+      filter(ProjectName %in% c(input$providerListDQ) &
                served_between(., ReportStart, ReportEnd)) %>%
       mutate(
         PersonalID = format(PersonalID, digits = NULL),
@@ -1461,7 +1552,7 @@ output$DeskTimePlotCoC <- renderPlot({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     Ineligible <- detail_eligibility() %>%
-      filter(ProjectName == input$providerListDQ &
+      filter(ProjectName %in% c(input$providerListDQ) &
                served_between(., ReportStart, ReportEnd))
     
     if (nrow(Ineligible) > 0) {
@@ -1489,10 +1580,10 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQIncorrectEETypeTable <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
-    EEType <- dq_main %>%
+    EEType <- dq_main() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
       mutate(
@@ -1509,17 +1600,14 @@ output$DeskTimePlotCoC <- renderPlot({
   output$DQIncorrectEEType <- renderUI({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    
     EEType <- dq_main() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
-      ) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate
-      )
+      ) 
+    
     if (nrow(EEType) > 0) {
       box(
         id = "DQEEType",
@@ -1554,7 +1642,7 @@ output$DeskTimePlotCoC <- renderPlot({
           "Access Point with Entry Exits"
         ) & # because these are all in the boxes already
           served_between(., ReportStart, ReportEnd) &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           Type == "Error"
       ) %>%
       mutate(PersonalID = as.character(PersonalID)) %>%
@@ -1573,6 +1661,7 @@ output$DeskTimePlotCoC <- renderPlot({
   output$VeteranActiveList <- DT::renderDataTable({
 
     active_list <- veteran_active_list() %>%
+      filter(County %in% c(input$vetCounty)) %>%
       arrange(HouseholdID, PersonalID) %>%
       mutate(PersonalID = if_else(
         is.na(HOMESID),
@@ -1582,13 +1671,14 @@ output$DeskTimePlotCoC <- renderPlot({
               HOMESID)
       )) %>%
       select(
+        "SSVF Responsible Provider" = SSVFServiceArea,
         "Client ID" = PersonalID,
         "Active Date" =  ActiveDateDisplay,
         "Project Name" = ProjectName,
-        TimeInProject,
+        "Time in Project" = TimeInProject,
         Eligibility,
         "Most Recent Offer" = MostRecentOffer,
-        # ListStatus, is this really needed? seems redundant
+        "List Status" = ListStatus, 
         "Housing Track & Notes" = HousingPlan
       )
     
@@ -1600,6 +1690,55 @@ output$DeskTimePlotCoC <- renderPlot({
       options = list(dom = 'ltpi')
     )
   })
+  
+  output$downloadVeteranActiveList <- downloadHandler(
+    filename = function() {
+      "veteran_active_list.xlsx"
+    },
+    content = function(file) {
+      write_xlsx(veteran_active_list() %>%
+                   filter(
+                     County %in% c(input$vetCounty) |
+                       is.na(County)
+                   ) %>%
+                   mutate(ProjectType = project_type(ProjectType),
+                          LivingSituation = living_situation(LivingSituation),
+                          Destination = living_situation(Destination),
+                          VeteranStatus = enhanced_yes_no_translator(VeteranStatus),
+                          DisablingCondition = enhanced_yes_no_translator(DisablingCondition)) %>%
+                   select(
+                     SSVFServiceArea,
+                     County,
+                     PersonalID, 
+                     HOMESID,
+                     ProjectType,
+                     ProjectName,
+                     DateVeteranIdentified,
+                     EntryDate,
+                     MoveInDateAdjust,
+                     ExitDate,
+                     ListStatus,
+                     VAEligible,
+                     SSVFIneligible,
+                     DisablingCondition,
+                     VAMCStation,
+                     PHTrack,
+                     ExpectedPHDate,
+                     Destination,
+                     OtherDestination,
+                     ClientLocation,
+                     AgeAtEntry,
+                     VeteranStatus,
+                     HouseholdSize,
+                     Notes,
+                     ActiveDate,
+                     DaysActive,
+                     Eligibility,
+                     MostRecentOffer,
+                     HousingPlan
+                   ) %>% unique(), path = file)
+    }
+  )
   
   output$DQWarnings <- DT::renderDataTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
@@ -1617,7 +1756,7 @@ output$DeskTimePlotCoC <- renderPlot({
           "Check Eligibility"
         ) &
           served_between(., ReportStart, ReportEnd) &
-          ProjectName == input$providerListDQ &
+          ProjectName %in% c(input$providerListDQ) &
           Type == "Warning"
       ) %>%
       mutate(PersonalID = as.character(PersonalID)) %>%
@@ -1634,6 +1773,14 @@ output$DeskTimePlotCoC <- renderPlot({
       filter = 'top',
       options = list(dom = 'ltpi'))
   })
+  
+  output$cocDQErrors <- renderPlot(dq_plot_projects_errors)
+  output$cocHHErrors <- renderPlot(dq_plot_hh_errors)
+  output$cocUnshelteredHigh <- renderPlot(dq_plot_unsheltered_high)
+  output$cocDQWarnings <- renderPlot(dq_plot_projects_warnings)
+  output$cocDQErrorTypes <- renderPlot(dq_plot_errors)
+  output$cocDQWarningTypes <- renderPlot(dq_plot_warnings)
+  output$cocEligibility <- renderPlot(dq_plot_eligibility)
   
   output$unshIncorrectResPriorTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
@@ -2089,7 +2236,7 @@ output$DeskTimePlotCoC <- renderPlot({
   
   mod_QPR_server("income", "Income Growth")
   
-  mod_QPR_server("rapid", "Rapid Rehousing Spending Goals")
+  mod_QPR_server("rapid", "Average Days to House")
   
   
   output$ExitsToPH <- DT::renderDataTable({
@@ -2240,7 +2387,7 @@ output$DeskTimePlotCoC <- renderPlot({
         mutate(
           ExitsToPHMath = str_replace(ExitsToPHMath, "/", "÷"),
           OwnHousingMath = str_replace(OwnHousingMath, "/", "÷"),
-          IncreasedIncomeMath = str_replace(IncreasedIncomeMath, "/", "÷"),
+          # IncreasedIncomeMath = str_replace(IncreasedIncomeMath, "/", "÷"),
           BenefitsAtExitMath = str_replace(BenefitsAtExitMath, "/", "÷"),
           AverageLoSMath = str_replace(AverageLoSMath, "/", "÷"),
           LHResPriorMath = str_replace(LHResPriorMath, "/", "÷"),
@@ -2249,11 +2396,9 @@ output$DeskTimePlotCoC <- renderPlot({
           LongTermHomelessMath = str_replace(LongTermHomelessMath, "/", "÷"),
           ScoredAtEntryMath = str_replace(ScoredAtEntryMath, "/", "÷"),
           DQMath = str_replace(DQMath, "/", "÷"),
-          CostPerExitMath = str_replace(CostPerExitMath, "/", "÷"),
+          PrioritizationWorkgroupMath = str_replace(PrioritizationWorkgroupMath, "/", "÷"),
           HousingFirstMath = str_replace(HousingFirstMath, "/", "÷"),
-          ChronicPrioritizationMath = str_replace(ChronicPrioritizationMath, "/", "÷"),
-          OnTrackSpendingMath = str_replace(OnTrackSpendingMath, "/", "÷"),
-          UnspentFundsMath = str_replace(UnspentFundsMath, "/", "÷")
+          ChronicPrioritizationMath = str_replace(ChronicPrioritizationMath, "/", "÷")
         )
       
       a <- summary_pe_final_scoring %>%
@@ -2261,21 +2406,18 @@ output$DeskTimePlotCoC <- renderPlot({
         select(
           "Exits to Permanent Housing" = ExitsToPHPoints,
           "Moved into Own Housing" = OwnHousingPoints,
-          "Increased Income" = IncreasedIncomePoints,
+          # "Increased Income" = IncreasedIncomePoints,
           "Benefits & Health Insurance at Exit" = BenefitsAtExitPoints,
           "Average Length of Stay" = AverageLoSPoints,
           "Living Situation at Entry" = LHResPriorPoints,
           "No Income at Entry" = NoIncomeAtEntryPoints,
           "Median Homeless History Index" = MedianHHIPoints,
           "Long Term Homeless" = LongTermHomelessPoints,
-          "VISPDAT Completion at Entry" =
-            ScoredAtEntryPoints,
+          "VISPDAT Completion at Entry" = ScoredAtEntryPoints,
           "Data Quality" = DQPoints,
-          "Cost per Exit" = CostPerExitScore,
+          "Prioritization Workgroup" = PrioritizationWorkgroupScore,
           "Housing First" = HousingFirstScore,
-          "Prioritization of Chronic" = ChronicPrioritizationScore,
-          "Spending On Track" = OnTrackSpendingScoring,
-          "Unspent Funds within Range" = UnspentFundsScoring
+          "Prioritization of Chronic" = ChronicPrioritizationScore
         ) %>%
         pivot_longer(cols = everything(),
                      names_to = "Measure",
@@ -2286,7 +2428,7 @@ output$DeskTimePlotCoC <- renderPlot({
         select(
           "Exits to Permanent Housing" = ExitsToPHDQ,
           "Moved into Own Housing" = OwnHousingDQ,
-          "Increased Income" = IncreasedIncomeDQ,
+          # "Increased Income" = IncreasedIncomeDQ,
           "Benefits & Health Insurance at Exit" = BenefitsAtExitDQ,
           "Average Length of Stay" = AverageLoSDQ,
           "Living Situation at Entry" = LHResPriorDQ,
@@ -2306,7 +2448,7 @@ output$DeskTimePlotCoC <- renderPlot({
         select(
           "Exits to Permanent Housing" = ExitsToPHPossible,
           "Moved into Own Housing" = OwnHousingPossible,
-          "Increased Income" = IncreasedIncomePossible,
+          # "Increased Income" = IncreasedIncomePossible,
           "Benefits & Health Insurance at Exit" = BenefitsAtExitPossible,
           "Average Length of Stay" = AverageLoSPossible,
           "Living Situation at Entry" = LHResPriorPossible,
@@ -2316,11 +2458,9 @@ output$DeskTimePlotCoC <- renderPlot({
           "VISPDAT Completion at Entry" =
             ScoredAtEntryPossible,
           "Data Quality" = DQPossible,
-          "Cost per Exit" = CostPerExitPossible,
+          "Cost per Exit" = PrioritizationWorkgroupPossible,
           "Housing First" = HousingFirstPossible,
-          "Prioritization of Chronic" = ChronicPrioritizationPossible,
-          "Spending On Track" = OnTrackSpendingPossible,
-          "Unspent Funds within Range" = UnspentFundsPossible
+          "Prioritization of Chronic" = ChronicPrioritizationPossible
         ) %>%
         pivot_longer(cols = everything(),
                      names_to = "Measure",
@@ -2331,7 +2471,7 @@ output$DeskTimePlotCoC <- renderPlot({
         select(
           "Exits to Permanent Housing" = ExitsToPHMath,
           "Moved into Own Housing" = OwnHousingMath,
-          "Increased Income" = IncreasedIncomeMath,
+          # "Increased Income" = IncreasedIncomeMath,
           "Benefits & Health Insurance at Exit" = BenefitsAtExitMath,
           "Average Length of Stay" = AverageLoSMath,
           "Living Situation at Entry" = LHResPriorMath,
@@ -2341,11 +2481,9 @@ output$DeskTimePlotCoC <- renderPlot({
           "VISPDAT Completion at Entry" =
             ScoredAtEntryMath,
           "Data Quality" = DQMath,
-          "Cost per Exit" = CostPerExitMath,
+          "Prioritization Workgroup" = PrioritizationWorkgroupMath,
           "Housing First" = HousingFirstMath,
-          "Prioritization of Chronic" = ChronicPrioritizationMath,
-          "Spending On Track" = OnTrackSpendingMath,
-          "Unspent Funds within Range" = UnspentFundsMath
+          "Prioritization of Chronic" = ChronicPrioritizationMath
         ) %>%
         pivot_longer(cols = everything(),
                      names_to = "Measure",
@@ -2533,32 +2671,32 @@ output$DeskTimePlotCoC <- renderPlot({
     
   })
   
-  output$pe_IncreasedIncome <- DT::renderDataTable({
-    a <- pe_increase_income() %>%
-      filter(AltProjectName == input$pe_provider) %>%
-      mutate(
-        IncomeDifference = IncomeMostRecent - IncomeAtEntry,
-        MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")
-      ) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        "Move-In Date" = MoveInDateAdjust,
-        "Exit Date" = ExitDate,
-        "Income at Entry" = IncomeAtEntry,
-        "Most Recent Income" = IncomeMostRecent,
-        "Increase/Decrease" = IncomeDifference,
-        "Meets Objective" = MeetsObjective
-      )    
-    
-    datatable(a,
-              rownames = FALSE,
-              filter = 'top',
-              options = list(dom = 'ltpi'),
-              caption = "ALL Project Types: Adults who moved into the project's
-              housing")
-    
-  })
+  # output$pe_IncreasedIncome <- DT::renderDataTable({
+  #   a <- pe_increase_income() %>%
+  #     filter(AltProjectName == input$pe_provider) %>%
+  #     mutate(
+  #       IncomeDifference = IncomeMostRecent - IncomeAtEntry,
+  #       MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No")
+  #     ) %>%
+  #     select(
+  #       "Client ID" = PersonalID,
+  #       "Entry Date" = EntryDate,
+  #       "Move-In Date" = MoveInDateAdjust,
+  #       "Exit Date" = ExitDate,
+  #       "Income at Entry" = IncomeAtEntry,
+  #       "Most Recent Income" = IncomeMostRecent,
+  #       "Increase/Decrease" = IncomeDifference,
+  #       "Meets Objective" = MeetsObjective
+  #     )    
+  #   
+  #   datatable(a,
+  #             rownames = FALSE,
+  #             filter = 'top',
+  #             options = list(dom = 'ltpi'),
+  #             caption = "ALL Project Types: Adults who moved into the project's
+  #             housing")
+  #   
+  # })
   
   output$pe_LivingSituationAtEntry <- DT::renderDataTable({
     a <- pe_res_prior() %>%

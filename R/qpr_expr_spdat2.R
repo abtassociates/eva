@@ -21,7 +21,7 @@ qpr_expr$spdat2$expr <- rlang::expr({
   
   .summary <- .dat %>%
     group_by(RegionName) %>%
-    summarise(AvgScore = as.integer(mean(Score)), .groups = "drop_last")
+    summarise(AvgScore = round(mean(Score), 0), .groups = "drop_last")
   
   list(summary = .summary,
        detail = .detail)
