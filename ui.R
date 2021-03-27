@@ -30,10 +30,10 @@ dashboardPage(
       #   menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
       #   menuSubItem("Inflow Outflow", tabName = "flow")
       # ),
-      menuItem(
-        "COVID-19 Vaccine Distribution",
+      menuItem("COVID-19 Vaccine Distribution",
+        menuSubItem("Vaccine Status", tabName = "vaccineStatus"),
         menuSubItem("Second Dose Logistics", tabName = "vaccineSecondDose")
-      ),
+      ), 
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
       menuItem(
@@ -209,6 +209,44 @@ dashboardPage(
               DT::dataTableOutput("vaccineSecondDoseNextWeek"),
               title = "Second Dose Due in 8 Days or More",
               status = "success",
+              width = 12
+            )
+          )
+        )
+      ),
+      tabItem(
+        tabName = "vaccineStatus",
+        fluidPage(
+          fluidRow(
+            shinydashboard::box(htmlOutput("headerVaccineStatus", width = 12))
+          ),
+          fluidRow(shinydashboard::box(
+            pickerInput(
+              label = "Select County/-ies",
+              inputId = "vaccineStatusCounty",
+              multiple = TRUE,
+              choices = regions() %>%
+                arrange(County) %>% pull(County),
+              options = pickerOptions(
+                liveSearch = TRUE,
+                liveSearchStyle = 'contains',
+                actionsBox = TRUE
+              )
+            ),
+            dateRangeInput(
+              "vaccine_status_daterange",
+              "Date Range",
+              start = ymd(hc_bos_start_vaccine_data),
+              end = today(),
+              min = meta_HUDCSV_Export_Start,
+              format = "mm/dd/yyyy",
+              width = '75%'
+            ),
+            width = 12
+          )), 
+          fluidRow(
+            shinydashboard::box(
+              DT::dataTableOutput("vaccineStatusDataTable"),
               width = 12
             )
           )

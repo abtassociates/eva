@@ -50,6 +50,11 @@ function(input, output, session) {
          h4(paste("Data Last Refreshed:", meta_HUDCSV_Export_Date)))
   })
   
+  output$headerVaccineStatus <- renderUI({
+    list(h2("COVID-19 Vaccine Status"),
+         h3("County/-ies:", input$vaccineStatusCounty))
+  })
+  
   output$headerUtilization <- renderUI({
     list(h2("Bed and Unit Utilization"),
          h4(input$providerListUtilization),
@@ -412,6 +417,33 @@ output$DeskTimePlotCoC <- renderPlot({
            "to",
            ReportEnd
          )))
+  })
+  
+  output$vaccineStatusDataTable <- DT::renderDataTable({
+    reportstart <- input$vaccine_status_daterange[1]
+    reportend <- input$vaccine_status_daterange[2]
+    x <- vaccine_status() %>%
+      arrange(HouseholdID) %>%
+      select(-HouseholdID) %>%
+      mutate(
+        RelationshipToHoH = case_when(
+          RelationshipToHoH == 1 ~ "Head of Household",
+          RelationshipToHoH == 2 ~ "Child",
+          RelationshipToHoH == 3 ~ "Spouse/Partner",
+          RelationshipToHoH == 5 ~ "Other non-relation",
+          TRUE ~ "Unknown"
+        ),
+        PersonalID = as.character(PersonalID),
+        VeteranStatus = enhanced_yes_no_translator(VeteranStatus)
+      ) %>%
+      filter(CountyServed %in% c(input$vaccineStatusCounty) &
+               served_between(., reportstart,
+                              reportend))
+    
+    datatable(x,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(dom = 'ltpi'))
   })
   
   output$prioritizationData <- DT::renderDataTable({
