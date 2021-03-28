@@ -145,7 +145,7 @@ dashboardPage(
             "Date Range",
             min = meta_HUDCSV_Export_Start,
             format = "mm/dd/yyyy",
-            width = '50%'
+            width = 300
           ),
           width = 12
         )),
@@ -240,7 +240,7 @@ dashboardPage(
               end = today(),
               min = meta_HUDCSV_Export_Start,
               format = "mm/dd/yyyy",
-              width = '75%'
+              width = 300
             ),
             width = 12
           )), 
@@ -808,7 +808,8 @@ dashboardPage(
             start = floor_date(today() - days(31), "year"),
             end = today(),
             min = meta_HUDCSV_Export_Start,
-            format = "mm/dd/yyyy"
+            format = "mm/dd/yyyy",
+            width = 300
           )
         )),
         fluidRow(infoBoxOutput("ExitsToPHSummary", width = 12)),
@@ -849,7 +850,8 @@ dashboardPage(
             start = floor_date(today() - days(31), "year"),
             end = today(),
             min = meta_HUDCSV_Export_Start,
-            format = "mm/dd/yyyy"
+            format = "mm/dd/yyyy",
+            width = 300
           )
         )),
         # fluidRow(infoBoxOutput("notCreatedYet"), width = 3),

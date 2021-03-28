@@ -51,8 +51,11 @@ function(input, output, session) {
   })
   
   output$headerVaccineStatus <- renderUI({
+    reportstart <- input$vaccine_status_daterange[1]
+    reportend <- input$vaccine_status_daterange[2]
+
     list(h2("COVID-19 Vaccine Status"),
-         h3("County/-ies:", input$vaccineStatusCounty))
+         h3(paste("Date Range:", reportstart, "to", reportend)))
   })
   
   output$headerUtilization <- renderUI({
@@ -196,8 +199,6 @@ function(input, output, session) {
            format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
          )))
   })
-  
-  
   
   output$headerExitsToPH <- renderUI({
     ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
