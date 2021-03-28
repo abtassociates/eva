@@ -68,11 +68,14 @@ function(input, output, session) {
     
     next_thing_due <- tribble(
       ~ DueDate, ~ Event,
-      "7/20/2020", "All HMIS data corrections must be complete by 11:59pm",
-      "7/21/2020", "COHHIO releases preliminary CoC project ranking (renewals only)",
-      "7/31/2020", "Recipients submit appeals of project evaluation results and ranking to ohioboscoc@cohhio.org.",
-      "8/7/2020", "Ohio BoSCoC Steering Committee will communicate decisions about all received appeals",
-      "8/12/2020", "Final CoC project ranking released"
+      hc_project_eval_docs_due, "Projects submit program documents to evidence 
+      best practices and CE Prioritization compliance",
+      "4/30/2021", "All HMIS data corrections must be complete by 11:59pm",
+      "5/7/2021", "Project Evaluation data is saved as final data for scoring",
+      "5/27/2021", "CoC staff post online preliminary renewal project ranking",
+      "6/4/2021", "Recipients submit appeals of project evaluation results and 
+      ranking to ohioboscoc@cohhio.org.",
+      "6/25/2021", "Final CoC project ranking released"
     ) %>%
       mutate(
         DueDate = mdy(DueDate),
@@ -85,7 +88,7 @@ function(input, output, session) {
       select(Event, DueDate)
     
     list(
-      h2("2020 CoC Competition: Project Evaluation"), 
+      h2("2021 CoC Competition: Project Evaluation"), 
       h4(paste("Fixed Date Range:", 
                format.Date(hc_project_eval_start, "%B %d, %Y"), 
                "to",
