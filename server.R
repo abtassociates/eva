@@ -422,20 +422,21 @@ function(input, output, session) {
   output$vaccineStatusDataTable <- DT::renderDataTable({
     reportstart <- input$vaccine_status_daterange[1]
     reportend <- input$vaccine_status_daterange[2]
+    
     x <- vaccine_status() %>%
-      arrange(HouseholdID) %>%
       mutate(
-        PersonalID = if_else(
-          RelationshipToHoH == 1,
-          paste(PersonalID, "<br><small>Head of Household<br>", HouseholdID, "</small>"),
-          paste(PersonalID, "<br><small>Household Member<br>", HouseholdID, "</small>")
+        HH_status = case_when(
+          str_starts(HouseholdID, "s") ~ "Single",
+          str_starts(HouseholdID, "h") & RelationshipToHoH == 1 ~ "Head of Household",
+          str_starts(HouseholdID, "h") & RelationshipToHoH != 1 ~ "Household member"
         ),
+        PersonalID = paste(PersonalID, "<br><small>", HH_status, "</small>"),
         VeteranStatus = enhanced_yes_no_translator(VeteranStatus)
       ) %>%
-      select(-HouseholdID, -RelationshipToHoH) %>%
       filter(CountyServed %in% c(input$vaccineStatusCounty) &
                served_between(., reportstart,
                               reportend)) %>%
+      arrange(HouseholdID) %>%
       select(
         "Client ID" = PersonalID,
         "County" = CountyServed,
