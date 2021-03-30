@@ -71,17 +71,16 @@ function(input, output, session) {
     
     next_thing_due <- tribble(
       ~ DueDate, ~ Event,
-      hc_project_eval_docs_due, "Projects submit program documents to evidence 
+      ymd(hc_project_eval_docs_due), "Projects submit program documents to evidence 
       best practices and CE Prioritization compliance",
-      "4/30/2021", "All HMIS data corrections must be complete by 11:59pm",
-      "5/7/2021", "Project Evaluation data is saved as final data for scoring",
-      "5/27/2021", "CoC staff post online preliminary renewal project ranking",
-      "6/4/2021", "Recipients submit appeals of project evaluation results and 
+      ymd("20210430"), "All HMIS data corrections must be complete by 11:59pm",
+      ymd("20210507"), "Project Evaluation data is saved as final data for scoring",
+      ymd("20210527"), "CoC staff post online preliminary renewal project ranking",
+      ymd("20210604"), "Recipients submit appeals of project evaluation results and 
       ranking to ohioboscoc@cohhio.org.",
-      "6/25/2021", "Final CoC project ranking released"
+      ymd("20210625"), "Final CoC project ranking released"
     ) %>%
       mutate(
-        DueDate = mdy(DueDate),
         ShowStart = lag(ymd(DueDate), n = 1L, order_by = DueDate),
         ShowStart = if_else(is.na(ShowStart), today(), ShowStart + days(1)),
         ShowEnd = ymd(DueDate),
