@@ -45,8 +45,8 @@ dashboardPage(
         menuSubItem("System-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
       ),
-      # menuItem("BoS CoC Competition",
-      #          tabName = "cocCompetitionTab"),
+      menuItem("BoS CoC Competition",
+               tabName = "cocCompetitionTab"),
       menuItem(
         "Quarterly Performance Report",
         menuItem(
@@ -751,8 +751,8 @@ dashboardPage(
               "Exits to Permanent Housing",
               DT::dataTableOutput("pe_ExitsToPH")
             ),
-            tabPanel("Moved into Own Housing",
-                     DT::dataTableOutput("pe_OwnHousing")),
+            # tabPanel("Moved into Own Housing",
+            #          DT::dataTableOutput("pe_OwnHousing")),
             # tabPanel(
             #   "Increased Income",
             #   DT::dataTableOutput("pe_IncreasedIncome")

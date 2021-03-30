@@ -2426,7 +2426,7 @@ function(input, output, session) {
       summary_pe_final_scoring <- summary_pe_final_scoring() %>%
         mutate(
           ExitsToPHMath = str_replace(ExitsToPHMath, "/", "÷"),
-          OwnHousingMath = str_replace(OwnHousingMath, "/", "÷"),
+          # OwnHousingMath = str_replace(OwnHousingMath, "/", "÷"),
           # IncreasedIncomeMath = str_replace(IncreasedIncomeMath, "/", "÷"),
           BenefitsAtExitMath = str_replace(BenefitsAtExitMath, "/", "÷"),
           AverageLoSMath = str_replace(AverageLoSMath, "/", "÷"),
@@ -2445,7 +2445,7 @@ function(input, output, session) {
         filter(AltProjectName == input$pe_provider) %>%
         select(
           "Exits to Permanent Housing" = ExitsToPHPoints,
-          "Moved into Own Housing" = OwnHousingPoints,
+          # "Moved into Own Housing" = OwnHousingPoints,
           # "Increased Income" = IncreasedIncomePoints,
           "Benefits & Health Insurance at Exit" = BenefitsAtExitPoints,
           "Average Length of Stay" = AverageLoSPoints,
@@ -2467,7 +2467,7 @@ function(input, output, session) {
         filter(AltProjectName == input$pe_provider) %>%
         select(
           "Exits to Permanent Housing" = ExitsToPHDQ,
-          "Moved into Own Housing" = OwnHousingDQ,
+          # "Moved into Own Housing" = OwnHousingDQ,
           # "Increased Income" = IncreasedIncomeDQ,
           "Benefits & Health Insurance at Exit" = BenefitsAtExitDQ,
           "Average Length of Stay" = AverageLoSDQ,
@@ -2487,7 +2487,7 @@ function(input, output, session) {
         filter(AltProjectName == input$pe_provider) %>%
         select(
           "Exits to Permanent Housing" = ExitsToPHPossible,
-          "Moved into Own Housing" = OwnHousingPossible,
+          # "Moved into Own Housing" = OwnHousingPossible,
           # "Increased Income" = IncreasedIncomePossible,
           "Benefits & Health Insurance at Exit" = BenefitsAtExitPossible,
           "Average Length of Stay" = AverageLoSPossible,
@@ -2510,7 +2510,7 @@ function(input, output, session) {
         filter(AltProjectName == input$pe_provider) %>%
         select(
           "Exits to Permanent Housing" = ExitsToPHMath,
-          "Moved into Own Housing" = OwnHousingMath,
+          # "Moved into Own Housing" = OwnHousingMath,
           # "Increased Income" = IncreasedIncomeMath,
           "Benefits & Health Insurance at Exit" = BenefitsAtExitMath,
           "Average Length of Stay" = AverageLoSMath,
@@ -2653,29 +2653,29 @@ function(input, output, session) {
     
   })
   
-  output$pe_OwnHousing <- DT::renderDataTable({
-    
-    a <- pe_own_housing() %>%
-      filter(AltProjectName == input$pe_provider) %>%
-      mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
-             Destination = living_situation(Destination)) %>%
-      select(
-        "Client ID" = PersonalID,
-        "Entry Date" = EntryDate,
-        "Exit Date" = ExitDate,
-        Destination,
-        "Destination Group" = DestinationGroup,
-        "Meets Objective" = MeetsObjective
-      )    
-    
-    datatable(a,
-              rownames = FALSE,
-              filter = 'top',
-              options = list(dom = 'ltpi'),
-              caption = "RRH, TH, SH: Heads of Household Leavers who moved into 
-              the project's housing")
-    
-  })
+  # output$pe_OwnHousing <- DT::renderDataTable({
+  #   
+  #   a <- pe_own_housing() %>%
+  #     filter(AltProjectName == input$pe_provider) %>%
+  #     mutate(MeetsObjective = if_else(MeetsObjective == 1, "Yes", "No"),
+  #            Destination = living_situation(Destination)) %>%
+  #     select(
+  #       "Client ID" = PersonalID,
+  #       "Entry Date" = EntryDate,
+  #       "Exit Date" = ExitDate,
+  #       Destination,
+  #       "Destination Group" = DestinationGroup,
+  #       "Meets Objective" = MeetsObjective
+  #     )    
+  #   
+  #   datatable(a,
+  #             rownames = FALSE,
+  #             filter = 'top',
+  #             options = list(dom = 'ltpi'),
+  #             caption = "RRH, TH, SH: Heads of Household Leavers who moved into 
+  #             the project's housing")
+  #   
+  # })
   
   output$pe_BenefitsAtExit <- DT::renderDataTable({
     a <- pe_benefits_at_exit() %>%
