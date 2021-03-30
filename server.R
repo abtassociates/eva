@@ -189,7 +189,6 @@ function(input, output, session) {
          ))
   })
   
-  
   output$headerRegionDataQuality <- renderUI({
     list(h2("Regional Data Quality"),
          h4(input$regionList3),
@@ -213,7 +212,7 @@ function(input, output, session) {
          )))
   })
   
-output$DeskTimePlotDetail <- renderPlot({
+  output$DeskTimePlotDetail <- renderPlot({
   provider <- input$providerDeskTime
   
   ReportStart <- format.Date(ymd(today() - years(1)), "%m-%d-%Y")
@@ -282,8 +281,8 @@ output$DeskTimePlotDetail <- renderPlot({
   
   dq_plot_desk_time
 })
-
-output$DeskTimePlotCoC <- renderPlot({
+  
+  output$DeskTimePlotCoC <- renderPlot({
   provider <- input$providerDeskTimeCoC
 
   ReportStart <- format.Date(ymd(today() - years(1)), "%m-%d-%Y")
@@ -407,9 +406,6 @@ output$DeskTimePlotCoC <- renderPlot({
          h4(ReportStart, "-", ReportEnd))
   })
   
-  
-  
-  
   output$headerDaysToHouse <- renderUI({
     ReportStart <- format.Date(input$LoSDateRange[1], "%B %d, %Y")
     ReportEnd <- format.Date(input$LoSDateRange[2], "%B %d, %Y")
@@ -428,24 +424,33 @@ output$DeskTimePlotCoC <- renderPlot({
     reportend <- input$vaccine_status_daterange[2]
     x <- vaccine_status() %>%
       arrange(HouseholdID) %>%
-      select(-HouseholdID) %>%
       mutate(
-        RelationshipToHoH = case_when(
-          RelationshipToHoH == 1 ~ "Head of Household",
-          RelationshipToHoH == 2 ~ "Child",
-          RelationshipToHoH == 3 ~ "Spouse/Partner",
-          RelationshipToHoH == 5 ~ "Other non-relation",
-          TRUE ~ "Unknown"
+        PersonalID = if_else(
+          RelationshipToHoH == 1,
+          paste(PersonalID, "<br><small>Head of Household<br>", HouseholdID, "</small>"),
+          paste(PersonalID, "<br><small>Household Member<br>", HouseholdID, "</small>")
         ),
-        PersonalID = as.character(PersonalID),
         VeteranStatus = enhanced_yes_no_translator(VeteranStatus)
       ) %>%
+      select(-HouseholdID, -RelationshipToHoH) %>%
       filter(CountyServed %in% c(input$vaccineStatusCounty) &
                served_between(., reportstart,
-                              reportend))
+                              reportend)) %>%
+      select(
+        "Client ID" = PersonalID,
+        "County" = CountyServed,
+        "Provider Name" = ProjectName,
+        "Age at Entry" = AgeAtEntry,
+        "Veteran" = VeteranStatus,
+        "Entry Date" = EntryDate,
+        "Move In Date" = MoveInDateAdjust,
+        "Exit Date" = ExitDate,
+        "Vaccine Status" = VaccineStatus
+      )
     
     datatable(x,
               rownames = FALSE,
+              escape = FALSE,
               filter = 'top',
               options = list(dom = 'ltpi'))
   })
@@ -1407,8 +1412,6 @@ output$DeskTimePlotCoC <- renderPlot({
       datatable(a, rownames = FALSE)
     })
   
- 
-  
   output$cocOverlap <- DT::renderDataTable({
     ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
@@ -1562,7 +1565,6 @@ output$DeskTimePlotCoC <- renderPlot({
       theme_void()
   })
   
-  
   output$Ineligible <- renderTable({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
@@ -1694,6 +1696,7 @@ output$DeskTimePlotCoC <- renderPlot({
       options = list(dom = 'ltpi')
     )
   })
+  
   output$VeteranActiveList <- DT::renderDataTable({
 
     active_list <- veteran_active_list() %>%
