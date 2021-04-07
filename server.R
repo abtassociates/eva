@@ -2497,7 +2497,7 @@ function(input, output, session) {
           "VISPDAT Completion at Entry" =
             ScoredAtEntryPossible,
           "Data Quality" = DQPossible,
-          "Cost per Exit" = PrioritizationWorkgroupPossible,
+          "Prioritization Workgroup" = PrioritizationWorkgroupPossible,
           "Housing First" = HousingFirstPossible,
           "Prioritization of Chronic" = ChronicPrioritizationPossible
         ) %>%
@@ -2544,8 +2544,7 @@ function(input, output, session) {
           )
         ) %>%
         filter(!Measure %in% c("Moved into Own Housing",
-                               "Average Length of Stay"),
-               Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
+                               "Average Length of Stay")) %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       rrh <- a %>% left_join(b, by = "Measure") %>%
@@ -2565,7 +2564,8 @@ function(input, output, session) {
         ) %>%
         filter(!Measure %in%
                  c("Long Term Homeless",
-                   "Prioritization of Chronic"),
+                   "Prioritization of Chronic",
+                   "Prioritization Workgroup"),
                Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
@@ -2586,32 +2586,9 @@ function(input, output, session) {
         ) %>%
         filter(!Measure %in% c(
           "Long Term Homeless",
-          "Prioritization of Chronic"
-        ),
-        Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
-        select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
-      
-      sh <- a %>% left_join(b, by = "Measure") %>%
-        ungroup() %>%
-        left_join(c, by = "Measure") %>%
-        left_join(d, by = "Measure") %>%
-        mutate(
-          DQ = case_when(
-            DQflag == 0 ~ "Data Quality passes",
-            DQflag == 1 ~ "Please correct your Data Quality issues so this item
-            can be scored",
-            DQflag == 2 ~ "", # "Documents not yet received",
-            DQflag == 3 ~ "", # "Docs received, not yet scored",
-            DQflag == 4 ~ "", # "CoC Error",
-            DQflag == 5 ~ "" # "Docs received past the due date"
-          )
-        ) %>%
-        filter(!Measure %in% c(
-          "Long Term Homeless",
-          "VISPDAT Completion at Entry",
-          "Prioritization of Chronic"
-        ),
-        Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
+          "Prioritization of Chronic",
+          "Prioritization Workgroup"
+        )) %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       datatable(
@@ -2621,8 +2598,6 @@ function(input, output, session) {
           rrh
         } else if(ptc == 2) {
           th
-        } else {
-          sh
         },
         rownames = FALSE,
         options = list(dom = 't',
