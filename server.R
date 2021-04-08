@@ -73,7 +73,7 @@ function(input, output, session) {
       ~ DueDate, ~ Event,
       ymd(hc_project_eval_docs_due), "Projects submit program documents to evidence 
       best practices and CE Prioritization compliance",
-      ymd("20210430"), "All HMIS data corrections must be complete by 11:59pm",
+      ymd("20210506"), "All HMIS data corrections must be complete by 11:59pm",
       ymd("20210507"), "Project Evaluation data is saved as final data for scoring",
       ymd("20210527"), "CoC staff post online preliminary renewal project ranking",
       ymd("20210604"), "Recipients submit appeals of project evaluation results and 
@@ -2565,8 +2565,7 @@ function(input, output, session) {
         filter(!Measure %in%
                  c("Long Term Homeless",
                    "Prioritization of Chronic",
-                   "Prioritization Workgroup"),
-               Calculation != "NOT SCORED in 2020 due to COVID-19.") %>%
+                   "Prioritization Workgroup")) %>%
         select(1, Calculation, 2, "Possible Score" = 4, "Data Quality" = DQ)
       
       th <- a %>% left_join(b, by = "Measure") %>%
@@ -2623,7 +2622,7 @@ function(input, output, session) {
               filter = 'top',
               options = list(dom = 'ltpi'),
               caption = "PSH: Heads of Household | 
-              TH, RRH, SH: Heads of Household Leavers")
+              TH, RRH: Heads of Household Leavers")
     
   })
   
@@ -2780,7 +2779,7 @@ function(input, output, session) {
               rownames = FALSE,
               filter = 'top',
               options = list(dom = 'ltpi'),
-              caption = "RRH, TH, SH: Client Leavers who moved into the project's 
+              caption = "RRH, TH: Client Leavers who moved into the project's 
               housing")
     
   })
@@ -2887,7 +2886,7 @@ function(input, output, session) {
               rownames = FALSE,
               filter = 'top',
               options = list(dom = 'ltpi'),
-              caption = "PSH, RRH, TH: Heads of Household who entered the 
+              caption = "All Project Types: Heads of Household who entered the 
               project during the reporting period")
     
   })
