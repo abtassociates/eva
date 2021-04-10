@@ -104,9 +104,9 @@ function(input, output, session) {
          "| ",
          next_thing_due$Event),
       p("Please consult the", 
-            a("CoC Competition Specifications and Timeline",
-        href = "https://cohhio.org/boscoc/coc-program/"), 
-        "for complete specifications and timeline.")
+            a("CoC Program",
+        href = "https://cohhio.org/boscoc/coc-program/", target="_blank"), 
+        "page for complete specifications and timeline.")
     )
   })
   
