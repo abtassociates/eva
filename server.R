@@ -90,7 +90,7 @@ function(input, output, session) {
       select(Event, DueDate)
     
     list(
-      h2("2021 CoC Competition: Project Evaluation"), 
+      h2("2021 BoS CoC Competition: Project Evaluation"), 
       h4(paste("Fixed Date Range:", 
                format.Date(hc_project_eval_start, "%B %d, %Y"), 
                "to",
