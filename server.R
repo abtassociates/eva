@@ -96,7 +96,7 @@ function(input, output, session) {
                "to",
                format.Date(hc_project_eval_end, "%B %d, %Y"))),
       # h4(strong("THE DATA ON THIS TAB DOES NOT SHOW CHANGES MADE ON OR AFTER
-      #           7-21-2020.")),
+      #           5-7-2021.")),
       h4(input$pe_provider),
       hr(),
       h5(strong("Next Due Date:"),
