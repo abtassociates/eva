@@ -1820,7 +1820,9 @@ function(input, output, session) {
   output$cocDQErrorTypes <- renderPlot(dq_plot_errors)
   output$cocDQWarningTypes <- renderPlot(dq_plot_warnings)
   output$cocEligibility <- renderPlot(dq_plot_eligibility)
-  
+  output$dq_plot_hh_no_spdat <- renderPlot(dq_plot_hh_no_spdat)
+  output$dq_plot_outstanding_referrals <- renderPlot(dq_plot_outstanding_referrals)
+
   output$unshIncorrectResPriorTable <- renderTable({
     ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")

@@ -583,7 +583,7 @@ dashboardPage(
           title = "Longest Data Entry Delay Medians (in the past 365 days)"
         ),
         box(
-          imageOutput("cocDQWarnings"),
+          plotOutput("cocDQWarnings"),
           width = 12,
           solidHeader = TRUE,
           height = "auto",
@@ -652,14 +652,14 @@ dashboardPage(
           title = "APs Not Creating Referrals"
         ),
         box(
-          imageOutput("dq_plot_hh_no_spdat"),
+          plotOutput("dq_plot_hh_no_spdat"),
           width = 12,
           solidHeader = TRUE,
           status = "warning",
           title = "Current Households Without SPDAT (minus Veterans)"
         ),
         box(
-          imageOutput("dq_plot_outstanding_referrals"),
+          plotOutput("dq_plot_outstanding_referrals"),
           width = 12,
           solidHeader = TRUE,
           status = "warning",
