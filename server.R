@@ -474,9 +474,9 @@ function(input, output, session) {
         "Transition Aged Youth" = TAY,
         "Chronic Status" = ChronicStatus,
         "Eligible for PSH (Disability in Household)" = DisabilityInHH,
+        Score,
         "Household Size" = HouseholdSize,
         "Income" = IncomeFromAnySource,
-        Score,
         HH_DQ_Issue,
         CountyGuessed
       )
