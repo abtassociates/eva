@@ -34,6 +34,19 @@ function(input, output, session) {
     
   })
   
+  pass_icon <- '<span style="color: Teal; font-size: 150%;">
+            <i class="fas fa-check"></i>
+            </span>'
+  fail_icon <- '<span style="color: Tomato; font-size: 150%;">
+            <i class="fas fa-times"></i>
+            </span>'
+  unknown_icon <- '<span style="color: Grey; font-size: 150%;">
+            <i class="fas fa-question-circle"></i>
+            </span>'
+  alert_icon <- '<span style="color: Goldenrod; font-size: 150%;">
+            <i class="fas fa-exclamation-triangle"></i>
+            </span>'
+  
   output$headerPrioritization <- renderUI({
     list(h2("Prioritization Report"),
          h4("Literally Homeless Clients as of", meta_HUDCSV_Export_End))
@@ -1710,14 +1723,28 @@ function(input, output, session) {
               HOMESID)
       ),
       DatePast = if_else(ExpectedPHDate >= today() |
-                           is.na(ExpectedPHDate), 0, 1)) %>%
+                           is.na(ExpectedPHDate), 0, 1),
+      VAEligibilityIcon = paste(
+        case_when(
+          VAEligible == "Veteran eligible for all VA homeless services" ~ pass_icon,
+          VAEligible == "Veteran not eligible for VA services" ~ fail_icon,
+          VAEligible == "Veteran eligible for SSVF/GPD only" ~ alert_icon,
+          VAEligible == "VA eligibility unknown" |
+            is.na(VAEligible) ~ unknown_icon
+        ),
+        case_when(
+          !is.na(SSVFIneligible) &
+            SSVFIneligible != "NA" ~ paste("<br><br>", SSVFIneligible),
+          TRUE ~ ""
+        )
+      )) %>%
       select(
         "SSVF Responsible Provider" = SSVFServiceArea,
         "Client ID" = PersonalID,
         "Active Date" =  ActiveDateDisplay,
         "Project Name" = ProjectName,
         "Time in Project" = TimeInProject,
-        Eligibility,
+        "Eligibility" = VAEligibilityIcon,
         "Most Recent Offer" = MostRecentOffer,
         "List Status" = ListStatus, 
         "Housing Track & Notes" = HousingPlan,
@@ -1734,7 +1761,7 @@ function(input, output, session) {
     ) %>% formatStyle(
       "Housing Track & Notes", "DatePast",
       color = styleEqual(c(0, 1), c('black', 'darkred'))
-    )
+    ) %>% formatStyle("Eligibility", textAlign = "center")
     
   })
   
