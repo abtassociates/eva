@@ -1708,7 +1708,9 @@ function(input, output, session) {
         paste(PersonalID,
               "<br>HOMES:",
               HOMESID)
-      )) %>%
+      ),
+      DatePast = if_else(ExpectedPHDate >= today() |
+                           is.na(ExpectedPHDate), 0, 1)) %>%
       select(
         "SSVF Responsible Provider" = SSVFServiceArea,
         "Client ID" = PersonalID,
@@ -1718,7 +1720,8 @@ function(input, output, session) {
         Eligibility,
         "Most Recent Offer" = MostRecentOffer,
         "List Status" = ListStatus, 
-        "Housing Track & Notes" = HousingPlan
+        "Housing Track & Notes" = HousingPlan,
+        DatePast
       )
     
     datatable(
@@ -1726,8 +1729,13 @@ function(input, output, session) {
       rownames = FALSE,
       escape = FALSE,
       filter = 'top',
-      options = list(dom = 'ltpi')
+      options = list(dom = 'ltpi',
+                     columnDefs = list(list(targets = 9, visible = FALSE)))
+    ) %>% formatStyle(
+      "Housing Track & Notes", "DatePast",
+      color = styleEqual(c(0, 1), c('black', 'darkred'))
     )
+    
   })
   
   output$downloadVeteranActiveList <- downloadHandler(
