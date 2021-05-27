@@ -795,6 +795,7 @@ dashboardPage(
         fluidRow(box(htmlOutput("headerExitsToPH"), width = 12)),
         fluidRow(box(
           pickerInput(
+            label = "Select Project: ",
             inputId = "ExitsToPHProjectList",
             choices = c(unique(qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)])),
             options = pickerOptions(liveSearch = TRUE,
