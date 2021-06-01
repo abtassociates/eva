@@ -125,7 +125,8 @@ dashboardPage(
           box(
             DT::dataTableOutput("prioritizationData"),
             width = 12,
-            footer = "Dark gray cells mean the client has a Data Quality issue that may be causing incorrect information to show."
+            footer = "Dark gray cells mean the client has a Data Quality issue 
+            that may be causing incorrect information to show."
           )
         )
       ),
@@ -263,7 +264,9 @@ dashboardPage(
               title = "NOTICE",
               status = "warning",
               solidHeader = TRUE,
-              "During this time, congregate facilities should be aiming to deconcentrate. If this causes fluctuations in Utilization, that is okay. Please continue to keep your clients safe."
+              "During this time, congregate facilities should be aiming to 
+              deconcentrate. If this causes fluctuations in Utilization, that is 
+              okay. Please continue to keep your clients safe."
               ,
               width = 6
             )
@@ -797,7 +800,9 @@ dashboardPage(
           pickerInput(
             label = "Select Project: ",
             inputId = "ExitsToPHProjectList",
-            choices = c(unique(qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)])),
+            choices = c(unique(
+              qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)]
+              )), 
             options = pickerOptions(liveSearch = TRUE,
                                     liveSearchStyle = 'contains'),
             width = "70%"
