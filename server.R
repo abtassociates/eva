@@ -34,16 +34,16 @@ function(input, output, session) {
     
   })
   
-  pass_icon <- '<span style="color: Teal; font-size: 150%;">
+  pass_icon <- '<span style="color: teal; font-size: 150%;">
             <i class="fas fa-check"></i>
             </span>'
-  fail_icon <- '<span style="color: Tomato; font-size: 150%;">
+  fail_icon <- '<span style="color: tomato; font-size: 150%;">
             <i class="fas fa-times"></i>
             </span>'
-  unknown_icon <- '<span style="color: Grey; font-size: 150%;">
+  unknown_icon <- '<span style="color: grey; font-size: 150%;">
             <i class="fas fa-question-circle"></i>
             </span>'
-  alert_icon <- '<span style="color: Goldenrod; font-size: 150%;">
+  alert_icon <- '<span style="color: goldenrod; font-size: 150%;">
             <i class="fas fa-exclamation-triangle"></i>
             </span>'
   
@@ -1714,7 +1714,7 @@ function(input, output, session) {
 
     active_list <- veteran_active_list() %>%
       filter(County %in% c(input$vetCounty)) %>%
-      arrange(HouseholdID, PersonalID) %>%
+      arrange(PersonalID) %>%
       mutate(PersonalID = if_else(
         is.na(HOMESID),
         as.character(PersonalID),
@@ -1722,8 +1722,12 @@ function(input, output, session) {
               "<br>HOMES:",
               HOMESID)
       ),
-      DatePast = if_else(ExpectedPHDate >= today() |
-                           is.na(ExpectedPHDate), 0, 1),
+      HousingPlan = case_when(
+        ExpectedPHDate < today() ~ paste0(
+          "<span style='color:tomato;'>", HousingPlan, "</span>"),
+        ExpectedPHDate >= today() ~ paste0(
+          "<span style='color:seagreen;'>", HousingPlan, "</span>"),
+        TRUE ~ HousingPlan),
       VAEligibilityIcon = paste(
         case_when(
           VAEligible == "Veteran eligible for all VA homeless services" ~ pass_icon,
@@ -1738,17 +1742,34 @@ function(input, output, session) {
           TRUE ~ ""
         )
       )) %>%
+      group_by(PersonalID) %>%
+      mutate(
+        Enrollments = paste0(
+          if_else(
+            !is.na(PH_ProjectName), paste0(
+              "<span style='background-color:lavenderblush;'>", PH_ProjectName, "<br>", PH_TimeInProject), "", "</span>"), 
+          if_else(
+            !is.na(PH_ProjectName) & 
+              (!is.na(LH_ProjectName) | !is.na(O_ProjectName)), "<br><br>", ""), 
+          if_else(
+            !is.na(LH_ProjectName), paste0(
+              "<span style='background-color:lightgoldenrodyellow;'>", LH_ProjectName, "<br>", LH_TimeInProject), "", "</span>"),
+          if_else(
+            !is.na(LH_ProjectName) & !is.na(O_ProjectName), "<br><br>", ""), 
+          if_else(
+            !is.na(O_ProjectName), paste0(
+              "<span style='background-color:paleturquoise;'>", O_ProjectName, "<br>", O_TimeInProject), "", "</span>")
+        )
+      ) %>%
       select(
         "SSVF Responsible Provider" = SSVFServiceArea,
         "Client ID" = PersonalID,
         "Active Date" =  ActiveDateDisplay,
-        "Project Name" = ProjectName,
-        "Time in Project" = TimeInProject,
+        "Enrollments" = Enrollments,
         "Eligibility" = VAEligibilityIcon,
         "Most Recent Offer" = MostRecentOffer,
         "List Status" = ListStatus, 
-        "Housing Track & Notes" = HousingPlan,
-        DatePast
+        "Housing Track & Notes" = HousingPlan
       )
     
     datatable(
@@ -1756,12 +1777,12 @@ function(input, output, session) {
       rownames = FALSE,
       escape = FALSE,
       filter = 'top',
-      options = list(dom = 'ltpi',
-                     columnDefs = list(list(targets = 9, visible = FALSE)))
-    ) %>% formatStyle(
-      "Housing Track & Notes", "DatePast",
-      color = styleEqual(c(0, 1), c('black', 'darkred'))
-    ) %>% formatStyle("Eligibility", textAlign = "center")
+      options = list(dom = 'ltpi')
+      )
+    # %>% formatStyle(
+    #   "Housing Track & Notes", "DatePast",
+    #   color = styleEqual(c(0, 1), c('black', 'darkred'))
+     # %>% formatStyle("Eligibility", textAlign = "center")
     
   })
   
