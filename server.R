@@ -1710,6 +1710,17 @@ function(input, output, session) {
     )
   })
   
+  output$veteranActiveListEligibilityLegend<-
+    renderUI(
+      HTML(
+        paste0("<p>", pass_icon, " = Veteran eligible for all VA homeless services</p>",
+                  "<p>", fail_icon, " = Veteran not eligible for VA services</p>",
+                  "<p>", alert_icon, " = Veteran eligible for SSVF/GPD only</p>",
+                  "<p>", unknown_icon, " = VA eligibility unknown</p>"
+        )
+      )
+    )
+  
   output$VeteranActiveList <- DT::renderDataTable({
 
     active_list <- veteran_active_list() %>%
@@ -1777,7 +1788,12 @@ function(input, output, session) {
       rownames = FALSE,
       escape = FALSE,
       filter = 'top',
-      options = list(dom = 'ltpi')
+      options = list(dom = 'ltpi', 
+                     initComplete = JS(
+                       "function(settings, json) {",
+                       "$('th').css({'text-align': 'center'});",
+                       "$('td').css({'text-align': 'center'});",
+                       "}"))
       )
     # %>% formatStyle(
     #   "Housing Track & Notes", "DatePast",
