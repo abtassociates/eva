@@ -34,6 +34,19 @@ function(input, output, session) {
     
   })
   
+  pass_icon <- '<span style="color: teal; font-size: 150%;">
+            <i class="fas fa-check"></i>
+            </span>'
+  fail_icon <- '<span style="color: tomato; font-size: 150%;">
+            <i class="fas fa-times"></i>
+            </span>'
+  unknown_icon <- '<span style="color: grey; font-size: 150%;">
+            <i class="fas fa-question-circle"></i>
+            </span>'
+  alert_icon <- '<span style="color: goldenrod; font-size: 150%;">
+            <i class="fas fa-exclamation-triangle"></i>
+            </span>'
+  
   output$headerPrioritization <- renderUI({
     list(h2("Prioritization Report"),
          h4("Literally Homeless Clients as of", meta_HUDCSV_Export_End))
@@ -1697,25 +1710,74 @@ function(input, output, session) {
     )
   })
   
+  output$veteranActiveListEligibilityLegend<-
+    renderUI(
+      HTML(
+        paste0("<p>", pass_icon, " = Veteran eligible for all VA homeless services</p>",
+                  "<p>", fail_icon, " = Veteran not eligible for VA services</p>",
+                  "<p>", alert_icon, " = Veteran eligible for SSVF/GPD only</p>",
+                  "<p>", unknown_icon, " = VA eligibility unknown</p>"
+        )
+      )
+    )
+  
   output$VeteranActiveList <- DT::renderDataTable({
 
     active_list <- veteran_active_list() %>%
       filter(County %in% c(input$vetCounty)) %>%
-      arrange(HouseholdID, PersonalID) %>%
+      arrange(PersonalID) %>%
       mutate(PersonalID = if_else(
         is.na(HOMESID),
         as.character(PersonalID),
         paste(PersonalID,
               "<br>HOMES:",
               HOMESID)
+      ),
+      HousingPlan = case_when(
+        ExpectedPHDate < today() ~ paste0(
+          "<span style='color:tomato;'>", HousingPlan, "</span>"),
+        ExpectedPHDate >= today() ~ paste0(
+          "<span style='color:seagreen;'>", HousingPlan, "</span>"),
+        TRUE ~ HousingPlan),
+      VAEligibilityIcon = paste(
+        case_when(
+          VAEligible == "Veteran eligible for all VA homeless services" ~ pass_icon,
+          VAEligible == "Veteran not eligible for VA services" ~ fail_icon,
+          VAEligible == "Veteran eligible for SSVF/GPD only" ~ alert_icon,
+          VAEligible == "VA eligibility unknown" |
+            is.na(VAEligible) ~ unknown_icon
+        ),
+        case_when(
+          !is.na(SSVFIneligible) &
+            SSVFIneligible != "NA" ~ paste("<br><br>", SSVFIneligible),
+          TRUE ~ ""
+        )
       )) %>%
+      group_by(PersonalID) %>%
+      mutate(
+        Enrollments = paste0(
+          if_else(
+            !is.na(PH_ProjectName), paste0(
+              "<span style='background-color:lavenderblush;'>", PH_ProjectName, "<br>", PH_TimeInProject), "", "</span>"), 
+          if_else(
+            !is.na(PH_ProjectName) & 
+              (!is.na(LH_ProjectName) | !is.na(O_ProjectName)), "<br><br>", ""), 
+          if_else(
+            !is.na(LH_ProjectName), paste0(
+              "<span style='background-color:lightgoldenrodyellow;'>", LH_ProjectName, "<br>", LH_TimeInProject), "", "</span>"),
+          if_else(
+            !is.na(LH_ProjectName) & !is.na(O_ProjectName), "<br><br>", ""), 
+          if_else(
+            !is.na(O_ProjectName), paste0(
+              "<span style='background-color:paleturquoise;'>", O_ProjectName, "<br>", O_TimeInProject), "", "</span>")
+        )
+      ) %>%
       select(
         "SSVF Responsible Provider" = SSVFServiceArea,
         "Client ID" = PersonalID,
         "Active Date" =  ActiveDateDisplay,
-        "Project Name" = ProjectName,
-        "Time in Project" = TimeInProject,
-        Eligibility,
+        "Enrollments" = Enrollments,
+        "Eligibility" = VAEligibilityIcon,
         "Most Recent Offer" = MostRecentOffer,
         "List Status" = ListStatus, 
         "Housing Track & Notes" = HousingPlan
@@ -1726,8 +1788,18 @@ function(input, output, session) {
       rownames = FALSE,
       escape = FALSE,
       filter = 'top',
-      options = list(dom = 'ltpi')
-    )
+      options = list(dom = 'ltpi', 
+                     initComplete = JS(
+                       "function(settings, json) {",
+                       "$('th').css({'text-align': 'center'});",
+                       "$('td').css({'text-align': 'center'});",
+                       "}"))
+      )
+    # %>% formatStyle(
+    #   "Housing Track & Notes", "DatePast",
+    #   color = styleEqual(c(0, 1), c('black', 'darkred'))
+     # %>% formatStyle("Eligibility", textAlign = "center")
+    
   })
   
   output$downloadVeteranActiveList <- downloadHandler(

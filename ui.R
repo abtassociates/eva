@@ -24,12 +24,12 @@ dashboardPage(
                tabName = "prioritizationListTab"),
       menuItem("Client Counts",
                tabName = "currentProviderLevel"),
-      # menuItem(
-      #   "Ending Veteran Homelessness",
-      #   menuSubItem("Active List", tabName = "vetActiveList"),
-      #   menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
-      #   menuSubItem("Inflow Outflow", tabName = "flow")
-      # ),
+      menuItem(
+        "Ending Veteran Homelessness",
+        menuSubItem("Active List", tabName = "vetActiveList"),
+        menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
+        menuSubItem("Inflow Outflow", tabName = "flow")
+      ),
       menuItem("COVID-19 Vaccine Distribution",
         menuSubItem("Vaccine Status", tabName = "vaccineStatus"),
         menuSubItem("Second Dose Logistics", tabName = "vaccineSecondDose")
@@ -324,7 +324,27 @@ dashboardPage(
                       actionsBox = TRUE
                     )
                   ),
-                  downloadButton("downloadVeteranActiveList", "Download")
+                  downloadButton("downloadVeteranActiveList", "Download"),
+                  width = 3
+                ),
+                box(
+                  title = "Enrollments",
+                  HTML("<p><span style=\"background-color: lavenderblush;\">Housing Project</span></p>
+                    <p><span style=\"background-color: lightgoldenrodyellow;\">Literally Homeless Project</span></p>
+                    <p><span style=\"background-color: paleturquoise;\">Other Project</span></p>"),
+                  width = 2
+                ),
+                box(
+                  title = "Eligibility",
+                  htmlOutput("veteranActiveListEligibilityLegend"),
+                  width = 4
+                ),
+                box(
+                  title = "Housing Track & Notes",
+                  HTML("<p><span style=\"color: seagreen;\">Expected PH Date on or after today</span></p>
+                    <p><span style=\"color: tomato;\">Expected PH Date in the past</span></p>
+                    <p>No Expected PH Date recorded</p>"),
+                  width = 3
                 ),
                 width = 12
               ),
