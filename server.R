@@ -1723,7 +1723,7 @@ function(input, output, session) {
   
   output$VeteranActiveList <- DT::renderDataTable({
 
-    active_list <- veteran_active_list() %>%
+    vet_active_list <- veteran_active_list() %>%
       filter(County %in% c(input$vetCounty)) %>%
       arrange(PersonalID) %>%
       mutate(PersonalID = if_else(
@@ -1784,7 +1784,7 @@ function(input, output, session) {
       )
     
     datatable(
-      active_list,
+      vet_active_list,
       rownames = FALSE,
       escape = FALSE,
       filter = 'top',
