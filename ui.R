@@ -310,50 +310,54 @@ dashboardPage(
         )
       ),
       tabItem(tabName = "vetActiveList",
-              fluidRow(
-                box(
-                  pickerInput(
-                    label = "Select County/-ies",
-                    inputId = "vetCounty",
-                    multiple = TRUE,
-                    choices = regions() %>%
-                      arrange(County) %>% pull(County),
-                    options = pickerOptions(
-                      liveSearch = TRUE,
-                      liveSearchStyle = 'contains',
-                      actionsBox = TRUE
-                    )
+              fluidPage(
+                fluidRow(box(htmlOutput(
+                  "headerVeterans"
+                ), width = 12)),
+                fluidRow(
+                  box(
+                    pickerInput(
+                      label = "Select County/-ies",
+                      inputId = "vetCounty",
+                      multiple = TRUE,
+                      choices = regions() %>%
+                        arrange(County) %>% pull(County),
+                      options = pickerOptions(
+                        liveSearch = TRUE,
+                        liveSearchStyle = 'contains',
+                        actionsBox = TRUE
+                      )
+                    ),
+                    downloadButton("downloadVeteranActiveList", "Download"),
+                    width = 3
                   ),
-                  downloadButton("downloadVeteranActiveList", "Download"),
-                  width = 3
-                ),
-                box(
-                  title = "Enrollments",
-                  HTML("<p><span style=\"background-color: lavenderblush;\">Housing Project</span></p>
+                  box(
+                    title = "Enrollments",
+                    HTML("<p><span style=\"background-color: lavenderblush;\">Housing Project</span></p>
                     <p><span style=\"background-color: lightgoldenrodyellow;\">Literally Homeless Project</span></p>
                     <p><span style=\"background-color: paleturquoise;\">Other Project</span></p>"),
-                  width = 2
-                ),
-                box(
-                  title = "Eligibility",
-                  htmlOutput("veteranActiveListEligibilityLegend"),
-                  width = 4
-                ),
-                box(
-                  title = "Housing Track & Notes",
-                  HTML("<p><span style=\"color: seagreen;\">Expected PH Date on or after today</span></p>
+                    width = 2
+                  ),
+                  box(
+                    title = "Eligibility",
+                    htmlOutput("veteranActiveListEligibilityLegend"),
+                    width = 4
+                  ),
+                  box(
+                    title = "Housing Track & Notes",
+                    HTML("<p><span style=\"color: seagreen;\">Expected PH Date on or after today</span></p>
                     <p><span style=\"color: tomato;\">Expected PH Date in the past</span></p>
                     <p>No Expected PH Date recorded</p>"),
-                  width = 3
-                ),
-                width = 12
-              ),
-              fluidRow(
-                box(
-                  DT::dataTableOutput("VeteranActiveList"),
-                  title = "Veteran Active List",
+                    width = 3
+                  ),
                   width = 12
-                )
+                ),
+                fluidRow(
+                  box(
+                    DT::dataTableOutput("VeteranActiveList"),
+                    title = "Veteran Active List",
+                    width = 12
+                  ))
               )),
       tabItem(
         tabName = "dqTab",

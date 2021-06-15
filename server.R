@@ -80,6 +80,14 @@ function(input, output, session) {
          )
   })
   
+  
+  output$headerVeterans <- renderUI({
+    list(h2("Veteran Active List"),
+         h4(paste("Homeless Veterans as of", meta_HUDCSV_Export_End))
+    )
+  })
+  
+  
   output$headerCoCCompetitionProjectLevel <- renderUI({
     
     next_thing_due <- tribble(
