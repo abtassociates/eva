@@ -80,6 +80,14 @@ function(input, output, session) {
          )
   })
   
+  
+  output$headerVeterans <- renderUI({
+    list(h2("Veteran Active List"),
+         h4(paste("Homeless Veterans as of", meta_HUDCSV_Export_End))
+    )
+  })
+  
+  
   output$headerCoCCompetitionProjectLevel <- renderUI({
     
     next_thing_due <- tribble(
@@ -1795,11 +1803,6 @@ function(input, output, session) {
                        "$('td').css({'text-align': 'center'});",
                        "}"))
       )
-    # %>% formatStyle(
-    #   "Housing Track & Notes", "DatePast",
-    #   color = styleEqual(c(0, 1), c('black', 'darkred'))
-     # %>% formatStyle("Eligibility", textAlign = "center")
-    
   })
   
   output$downloadVeteranActiveList <- downloadHandler(
@@ -1812,39 +1815,37 @@ function(input, output, session) {
                      County %in% c(input$vetCounty) |
                        is.na(County)
                    ) %>%
-                   mutate(ProjectType = project_type(ProjectType),
-                          LivingSituation = living_situation(LivingSituation),
-                          Destination = living_situation(Destination),
-                          VeteranStatus = enhanced_yes_no_translator(VeteranStatus),
-                          DisablingCondition = enhanced_yes_no_translator(DisablingCondition)) %>%
+                   mutate(DisablingCondition = enhanced_yes_no_translator(DisablingCondition)) %>%
                    select(
                      SSVFServiceArea,
                      County,
-                     PersonalID, 
+                     PersonalID,
                      HOMESID,
-                     ProjectType,
-                     ProjectName,
                      DateVeteranIdentified,
                      EntryDate,
-                     MoveInDateAdjust,
-                     ExitDate,
                      ListStatus,
                      VAEligible,
                      SSVFIneligible,
                      DisablingCondition,
-                     VAMCStation,
+                     # VAMCStation,
                      PHTrack,
                      ExpectedPHDate,
-                     Destination,
-                     OtherDestination,
-                     ClientLocation,
+                     # Destination,
+                     # OtherDestination,
+                     # ClientLocation,
                      AgeAtEntry,
-                     VeteranStatus,
-                     HouseholdSize,
+                     LH_ProjectName,
+                     LH_TimeInProject,
+                     O_ProjectName,
+                     O_TimeInProject,
+                     PH_ProjectName,
+                     PH_TimeInProject,
+                     # VeteranStatus,
+                     # HouseholdSize,
                      Notes,
                      ActiveDate,
-                     DaysActive,
-                     Eligibility,
+                     # DaysActive,
+                     # Eligibility,
                      MostRecentOffer,
                      HousingPlan
                    ) %>% unique(), path = file)
