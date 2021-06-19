@@ -1815,8 +1815,7 @@ function(input, output, session) {
                      County %in% c(input$vetCounty) |
                        is.na(County)
                    ) %>%
-                   mutate(VeteranStatus = enhanced_yes_no_translator(VeteranStatus),
-                          DisablingCondition = enhanced_yes_no_translator(DisablingCondition)) %>%
+                   mutate(DisablingCondition = enhanced_yes_no_translator(DisablingCondition)) %>%
                    select(
                      SSVFServiceArea,
                      County,
