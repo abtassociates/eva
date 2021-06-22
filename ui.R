@@ -24,12 +24,12 @@ dashboardPage(
                tabName = "prioritizationListTab"),
       menuItem("Client Counts",
                tabName = "currentProviderLevel"),
-      # menuItem(
-      #   "Ending Veteran Homelessness",
-      #   menuSubItem("Active List", tabName = "vetActiveList"),
-      #   menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
-      #   menuSubItem("Inflow Outflow", tabName = "flow")
-      # ),
+      menuItem(
+        "Ending Veteran Homelessness",
+        menuSubItem("Active List (Beta)", tabName = "vetActiveList")#,
+        # menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
+        # menuSubItem("Inflow Outflow", tabName = "flow")
+      ),
       menuItem("COVID-19 Vaccine Distribution",
         menuSubItem("Vaccine Status", tabName = "vaccineStatus"),
         menuSubItem("Second Dose Logistics", tabName = "vaccineSecondDose")
