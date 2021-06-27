@@ -1732,7 +1732,10 @@ function(input, output, session) {
   output$VeteranActiveList <- DT::renderDataTable({
 
     vet_active_list <- veteran_active_list() %>%
-      filter(County %in% c(input$vetCounty)) %>%
+      filter(County %in% c(input$vetCounty) &
+               if_else(is.na(veteran_active_list()$ListStatus),
+                       "No Status Set",
+                       veteran_active_list()$ListStatus) %in% c(input$vetStatus)) %>%
       arrange(PersonalID) %>%
       mutate(PersonalID = if_else(
         is.na(HOMESID),
