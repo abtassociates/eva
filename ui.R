@@ -355,14 +355,18 @@ dashboardPage(
                   ),
                   box(
                     pickerInput(
-                      label = "Select Status/s",
+                      label = "Select Status/-es",
                       inputId = "vetStatus",
                       multiple = TRUE,
                       choices = sort(
                         unique(
-                          if_else(is.na(veteran_active_list()$ListStatus),
-                                  "No Status Set",
-                                  veteran_active_list()$ListStatus))),
+                          case_when(
+                            is.na(veteran_active_list()$ListStatus) ~
+                              "No Status Set",
+                            str_detect(veteran_active_list()$ListStatus, "Ukn") == TRUE ~
+                              "Inactive (Unknown/Missing)",
+                            TRUE ~ veteran_active_list()$ListStatus
+                          ))),
                       selected = c("Active - ES/TH",
                                    "Active - Unsheltered",
                                    "No Status Set"),
