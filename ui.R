@@ -316,6 +316,28 @@ dashboardPage(
                 ), width = 12)),
                 fluidRow(
                   box(
+                    title = "Enrollments",
+                    HTML("<p><span style=\"background-color: lavenderblush;\">Housing Project</span></p>
+                    <p><span style=\"background-color: lightgoldenrodyellow;\">Literally Homeless Project</span></p>
+                    <p><span style=\"background-color: paleturquoise;\">Other Project</span></p>"),
+                    width = 3
+                  ),
+                  box(
+                    title = "Eligibility",
+                    htmlOutput("veteranActiveListEligibilityLegend"),
+                    width = 5
+                  ),
+                  box(
+                    title = "Housing Track & Notes",
+                    HTML("<p><span style=\"color: seagreen;\">Expected PH Date on or after today</span></p>
+                    <p><span style=\"color: tomato;\">Expected PH Date in the past</span></p>
+                    <p>No Expected PH Date recorded</p>"),
+                    width = 4
+                  ),
+                  width = 12
+                ),
+                fluidRow(
+                  box(
                     pickerInput(
                       label = "Select County/-ies",
                       inputId = "vetCounty",
@@ -329,26 +351,27 @@ dashboardPage(
                       )
                     ),
                     downloadButton("downloadVeteranActiveList", "Download"),
-                    width = 3
+                    width = 6
                   ),
                   box(
-                    title = "Enrollments",
-                    HTML("<p><span style=\"background-color: lavenderblush;\">Housing Project</span></p>
-                    <p><span style=\"background-color: lightgoldenrodyellow;\">Literally Homeless Project</span></p>
-                    <p><span style=\"background-color: paleturquoise;\">Other Project</span></p>"),
-                    width = 2
-                  ),
-                  box(
-                    title = "Eligibility",
-                    htmlOutput("veteranActiveListEligibilityLegend"),
-                    width = 4
-                  ),
-                  box(
-                    title = "Housing Track & Notes",
-                    HTML("<p><span style=\"color: seagreen;\">Expected PH Date on or after today</span></p>
-                    <p><span style=\"color: tomato;\">Expected PH Date in the past</span></p>
-                    <p>No Expected PH Date recorded</p>"),
-                    width = 3
+                    pickerInput(
+                      label = "Select Status/s",
+                      inputId = "vetStatus",
+                      multiple = TRUE,
+                      choices = sort(
+                        unique(
+                          if_else(is.na(veteran_active_list()$ListStatus),
+                                  "No Status Set",
+                                  veteran_active_list()$ListStatus))),
+                      selected = c("Active - ES/TH",
+                                   "Active - Unsheltered",
+                                   "No Status Set"),
+                      options = pickerOptions(
+                        liveSearch = TRUE,
+                        liveSearchStyle = 'contains',
+                        actionsBox = TRUE
+                      )
+                    )
                   ),
                   width = 12
                 ),
