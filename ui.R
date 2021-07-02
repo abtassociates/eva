@@ -24,12 +24,12 @@ dashboardPage(
                tabName = "prioritizationListTab"),
       menuItem("Client Counts",
                tabName = "currentProviderLevel"),
-      # menuItem(
-      #   "Ending Veteran Homelessness",
-      #   menuSubItem("Active List", tabName = "vetActiveList"),
-      #   menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
-      #   menuSubItem("Inflow Outflow", tabName = "flow")
-      # ),
+      menuItem(
+        "Ending Veteran Homelessness",
+        menuSubItem("Active List (Beta)", tabName = "vetActiveList")#,
+        # menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
+        # menuSubItem("Inflow Outflow", tabName = "flow")
+      ),
       menuItem("COVID-19 Vaccine Distribution",
         menuSubItem("Vaccine Status", tabName = "vaccineStatus"),
         menuSubItem("Second Dose Logistics", tabName = "vaccineSecondDose")
@@ -125,7 +125,8 @@ dashboardPage(
           box(
             DT::dataTableOutput("prioritizationData"),
             width = 12,
-            footer = "Dark gray cells mean the client has a Data Quality issue that may be causing incorrect information to show."
+            footer = "Dark gray cells mean the client has a Data Quality issue 
+            that may be causing incorrect information to show."
           )
         )
       ),
@@ -263,7 +264,9 @@ dashboardPage(
               title = "NOTICE",
               status = "warning",
               solidHeader = TRUE,
-              "During this time, congregate facilities should be aiming to deconcentrate. If this causes fluctuations in Utilization, that is okay. Please continue to keep your clients safe."
+              "During this time, congregate facilities should be aiming to 
+              deconcentrate. If this causes fluctuations in Utilization, that is 
+              okay. Please continue to keep your clients safe."
               ,
               width = 6
             )
@@ -307,30 +310,81 @@ dashboardPage(
         )
       ),
       tabItem(tabName = "vetActiveList",
-              fluidRow(
-                box(
-                  pickerInput(
-                    label = "Select County/-ies",
-                    inputId = "vetCounty",
-                    multiple = TRUE,
-                    choices = regions() %>%
-                      arrange(County) %>% pull(County),
-                    options = pickerOptions(
-                      liveSearch = TRUE,
-                      liveSearchStyle = 'contains',
-                      actionsBox = TRUE
+              fluidPage(
+                fluidRow(box(htmlOutput(
+                  "headerVeterans"
+                ), width = 12)),
+                fluidRow(
+                  box(
+                    title = "Enrollments",
+                    HTML("<p><span style=\"background-color: lavenderblush;\">Housing Project</span></p>
+                    <p><span style=\"background-color: lightgoldenrodyellow;\">Literally Homeless Project</span></p>
+                    <p><span style=\"background-color: paleturquoise;\">Other Project</span></p>"),
+                    width = 3
+                  ),
+                  box(
+                    title = "Eligibility",
+                    htmlOutput("veteranActiveListEligibilityLegend"),
+                    width = 5
+                  ),
+                  box(
+                    title = "Housing Track & Notes",
+                    HTML("<p><span style=\"color: seagreen;\">Expected PH Date on or after today</span></p>
+                    <p><span style=\"color: tomato;\">Expected PH Date in the past</span></p>
+                    <p>No Expected PH Date recorded</p>"),
+                    width = 4
+                  ),
+                  width = 12
+                ),
+                fluidRow(
+                  box(
+                    pickerInput(
+                      label = "Select County/-ies",
+                      inputId = "vetCounty",
+                      multiple = TRUE,
+                      choices = regions() %>%
+                        arrange(County) %>% pull(County),
+                      options = pickerOptions(
+                        liveSearch = TRUE,
+                        liveSearchStyle = 'contains',
+                        actionsBox = TRUE
+                      )
+                    ),
+                    downloadButton("downloadVeteranActiveList", "Download"),
+                    width = 6
+                  ),
+                  box(
+                    pickerInput(
+                      label = "Select Status/-es",
+                      inputId = "vetStatus",
+                      multiple = TRUE,
+                      choices = sort(
+                        unique(
+                          case_when(
+                            is.na(veteran_active_list()$ListStatus) ~
+                              "No Status Set",
+                            str_detect(veteran_active_list()$ListStatus, "Ukn") == TRUE ~
+                              "Inactive (Unknown/Missing)",
+                            TRUE ~ veteran_active_list()$ListStatus
+                          ))),
+                      selected = c("Active - ES/TH",
+                                   "Active - Unsheltered",
+                                   "No Status Set"),
+                      options = pickerOptions(
+                        liveSearch = TRUE,
+                        liveSearchStyle = 'contains',
+                        actionsBox = TRUE
+                      )
                     )
                   ),
-                  downloadButton("downloadVeteranActiveList", "Download")
-                ),
-                width = 12
-              ),
-              fluidRow(
-                box(
-                  DT::dataTableOutput("VeteranActiveList"),
-                  title = "Veteran Active List",
                   width = 12
-                )
+                ),
+                fluidRow(
+                  box(
+                    DT::dataTableOutput("VeteranActiveList"),
+                    title = "Veteran Active List",
+                    width = 12
+                  ))
               )),
       tabItem(
         tabName = "dqTab",
@@ -795,8 +849,11 @@ dashboardPage(
         fluidRow(box(htmlOutput("headerExitsToPH"), width = 12)),
         fluidRow(box(
           pickerInput(
+            label = "Select Project: ",
             inputId = "ExitsToPHProjectList",
-            choices = c(unique(qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)])),
+            choices = c(unique(
+              qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)]
+              )), 
             options = pickerOptions(liveSearch = TRUE,
                                     liveSearchStyle = 'contains'),
             width = "70%"

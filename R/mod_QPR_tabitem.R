@@ -10,7 +10,7 @@
 #' inputId = ns("region"),
 #' label = "Select Region(s)",
 #' choices = choices$choices, # 
-#' options = shinyWidgets::pickerOptions(                                                  liveSearch = TRUE),
+#' options = shinyWidgets::pickerOptions(liveSearch = TRUE),
 #' selected = NULL,
 #' width = "70%"
 #' )`
@@ -42,7 +42,7 @@ mod_QPR_tabItem_ui <- function(id, choices = NULL, date_choices = NULL) {
   Regions = if (!isFALSE(choices))
     list(
       inputId = ns("region"),
-      label = "Select Region(s)",
+      label = "Select Project: ",
       choices = tab_choices[[id]]$choices,
       options = shinyWidgets::pickerOptions(liveSearch = TRUE),
       selected = NULL,

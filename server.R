@@ -34,6 +34,19 @@ function(input, output, session) {
     
   })
   
+  pass_icon <- '<span style="color: teal; font-size: 150%;">
+            <i class="fas fa-check"></i>
+            </span>'
+  fail_icon <- '<span style="color: tomato; font-size: 150%;">
+            <i class="fas fa-times"></i>
+            </span>'
+  unknown_icon <- '<span style="color: grey; font-size: 150%;">
+            <i class="fas fa-question-circle"></i>
+            </span>'
+  alert_icon <- '<span style="color: goldenrod; font-size: 150%;">
+            <i class="fas fa-exclamation-triangle"></i>
+            </span>'
+  
   output$headerPrioritization <- renderUI({
     list(h2("Prioritization Report"),
          h4("Literally Homeless Clients as of", meta_HUDCSV_Export_End))
@@ -67,6 +80,14 @@ function(input, output, session) {
          )
   })
   
+  
+  output$headerVeterans <- renderUI({
+    list(h2("Veteran Active List"),
+         h4(paste("Homeless Veterans as of", meta_HUDCSV_Export_End))
+    )
+  })
+  
+  
   output$headerCoCCompetitionProjectLevel <- renderUI({
     
     next_thing_due <- tribble(
@@ -95,8 +116,8 @@ function(input, output, session) {
                format.Date(hc_project_eval_start, "%B %d, %Y"), 
                "to",
                format.Date(hc_project_eval_end, "%B %d, %Y"))),
-      # h4(strong("THE DATA ON THIS TAB DOES NOT SHOW CHANGES MADE ON OR AFTER
-      #           5-7-2021.")),
+      h4(strong("THE DATA ON THIS TAB DOES NOT SHOW CHANGES MADE ON OR AFTER
+                5-7-2021.")),
       h4(input$pe_provider),
       hr(),
       h5(strong("Next Due Date:"),
@@ -474,9 +495,9 @@ function(input, output, session) {
         "Transition Aged Youth" = TAY,
         "Chronic Status" = ChronicStatus,
         "Eligible for PSH (Disability in Household)" = DisabilityInHH,
+        Score,
         "Household Size" = HouseholdSize,
         "Income" = IncomeFromAnySource,
-        Score,
         HH_DQ_Issue,
         CountyGuessed
       )
@@ -1697,37 +1718,97 @@ function(input, output, session) {
     )
   })
   
+  output$veteranActiveListEligibilityLegend<-
+    renderUI(
+      HTML(
+        paste0("<p>", pass_icon, " = Veteran eligible for all VA homeless services</p>",
+                  "<p>", fail_icon, " = Veteran not eligible for VA services</p>",
+                  "<p>", alert_icon, " = Veteran eligible for SSVF/GPD only</p>",
+                  "<p>", unknown_icon, " = VA eligibility unknown</p>"
+        )
+      )
+    )
+  
   output$VeteranActiveList <- DT::renderDataTable({
 
-    active_list <- veteran_active_list() %>%
-      filter(County %in% c(input$vetCounty)) %>%
-      arrange(HouseholdID, PersonalID) %>%
+    vet_active_list <- veteran_active_list() %>%
+      mutate(ListStatus = case_when(
+        ListStatus == "Inactive (Uknown/Missing)" ~ "Inactive (Unknown/Missing)",
+        is.na(ListStatus) ~ "No Status Set",
+        TRUE ~ ListStatus
+      )) %>%
+      filter(County %in% c(input$vetCounty) &
+               veteran_active_list()$ListStatus %in% c(input$vetStatus)) %>%
+      arrange(PersonalID) %>%
       mutate(PersonalID = if_else(
         is.na(HOMESID),
         as.character(PersonalID),
         paste(PersonalID,
               "<br>HOMES:",
               HOMESID)
+      ),
+      HousingPlan = case_when(
+        ExpectedPHDate < today() ~ paste0(
+          "<span style='color:tomato;'>", HousingPlan, "</span>"),
+        ExpectedPHDate >= today() ~ paste0(
+          "<span style='color:seagreen;'>", HousingPlan, "</span>"),
+        TRUE ~ HousingPlan),
+      VAEligibilityIcon = paste(
+        case_when(
+          VAEligible == "Veteran eligible for all VA homeless services" ~ pass_icon,
+          VAEligible == "Veteran not eligible for VA services" ~ fail_icon,
+          VAEligible == "Veteran eligible for SSVF/GPD only" ~ alert_icon,
+          VAEligible == "VA eligibility unknown" |
+            is.na(VAEligible) ~ unknown_icon
+        ),
+        case_when(
+          !is.na(SSVFIneligible) &
+            SSVFIneligible != "NA" ~ paste("<br><br>", SSVFIneligible),
+          TRUE ~ ""
+        )
       )) %>%
+      group_by(PersonalID) %>%
+      mutate(
+        Enrollments = paste0(
+          if_else(
+            !is.na(PH_ProjectName), paste0(
+              "<span style='background-color:lavenderblush;'>", PH_ProjectName, "<br>", PH_TimeInProject), "", "</span>"), 
+          if_else(
+            !is.na(PH_ProjectName) & 
+              (!is.na(LH_ProjectName) | !is.na(O_ProjectName)), "<br><br>", ""), 
+          if_else(
+            !is.na(LH_ProjectName), paste0(
+              "<span style='background-color:lightgoldenrodyellow;'>", LH_ProjectName, "<br>", LH_TimeInProject), "", "</span>"),
+          if_else(
+            !is.na(LH_ProjectName) & !is.na(O_ProjectName), "<br><br>", ""), 
+          if_else(
+            !is.na(O_ProjectName), paste0(
+              "<span style='background-color:paleturquoise;'>", O_ProjectName, "<br>", O_TimeInProject), "", "</span>")
+        )
+      ) %>%
       select(
         "SSVF Responsible Provider" = SSVFServiceArea,
         "Client ID" = PersonalID,
         "Active Date" =  ActiveDateDisplay,
-        "Project Name" = ProjectName,
-        "Time in Project" = TimeInProject,
-        Eligibility,
+        "Enrollments" = Enrollments,
+        "Eligibility" = VAEligibilityIcon,
         "Most Recent Offer" = MostRecentOffer,
         "List Status" = ListStatus, 
         "Housing Track & Notes" = HousingPlan
       )
     
     datatable(
-      active_list,
+      vet_active_list,
       rownames = FALSE,
       escape = FALSE,
       filter = 'top',
-      options = list(dom = 'ltpi')
-    )
+      options = list(dom = 'ltpi', 
+                     initComplete = JS(
+                       "function(settings, json) {",
+                       "$('th').css({'text-align': 'center'});",
+                       "$('td').css({'text-align': 'center'});",
+                       "}"))
+      )
   })
   
   output$downloadVeteranActiveList <- downloadHandler(
@@ -1740,39 +1821,37 @@ function(input, output, session) {
                      County %in% c(input$vetCounty) |
                        is.na(County)
                    ) %>%
-                   mutate(ProjectType = project_type(ProjectType),
-                          LivingSituation = living_situation(LivingSituation),
-                          Destination = living_situation(Destination),
-                          VeteranStatus = enhanced_yes_no_translator(VeteranStatus),
-                          DisablingCondition = enhanced_yes_no_translator(DisablingCondition)) %>%
+                   mutate(DisablingCondition = enhanced_yes_no_translator(DisablingCondition)) %>%
                    select(
                      SSVFServiceArea,
                      County,
-                     PersonalID, 
+                     PersonalID,
                      HOMESID,
-                     ProjectType,
-                     ProjectName,
                      DateVeteranIdentified,
                      EntryDate,
-                     MoveInDateAdjust,
-                     ExitDate,
                      ListStatus,
                      VAEligible,
                      SSVFIneligible,
                      DisablingCondition,
-                     VAMCStation,
+                     # VAMCStation,
                      PHTrack,
                      ExpectedPHDate,
-                     Destination,
-                     OtherDestination,
-                     ClientLocation,
+                     # Destination,
+                     # OtherDestination,
+                     # ClientLocation,
                      AgeAtEntry,
-                     VeteranStatus,
-                     HouseholdSize,
+                     LH_ProjectName,
+                     LH_TimeInProject,
+                     O_ProjectName,
+                     O_TimeInProject,
+                     PH_ProjectName,
+                     PH_TimeInProject,
+                     # VeteranStatus,
+                     # HouseholdSize,
                      Notes,
                      ActiveDate,
-                     DaysActive,
-                     Eligibility,
+                     # DaysActive,
+                     # Eligibility,
                      MostRecentOffer,
                      HousingPlan
                    ) %>% unique(), path = file)
