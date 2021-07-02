@@ -1561,7 +1561,7 @@ function(input, output, session) {
         fontface = "bold"
       ) +
       scale_fill_manual(values = c("#00952e", "#a11207"),
-                        guide = FALSE) +
+                        guide = "none") +
       theme_void()
   })
   
