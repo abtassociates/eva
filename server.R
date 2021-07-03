@@ -1738,7 +1738,8 @@ function(input, output, session) {
         TRUE ~ ListStatus
       )) %>%
       filter(County %in% c(input$vetCounty) &
-               veteran_active_list()$ListStatus %in% c(input$vetStatus)) %>%
+               veteran_active_list()$ListStatus %in% c(input$vetStatus) &
+               veteran_active_list()$ChronicStatus %in% c(input$vetChronicStatus)) %>%
       arrange(PersonalID) %>%
       mutate(PersonalID = if_else(
         is.na(HOMESID),
@@ -1794,6 +1795,7 @@ function(input, output, session) {
         "Eligibility" = VAEligibilityIcon,
         "Most Recent Offer" = MostRecentOffer,
         "List Status" = ListStatus, 
+        "Chronic Status" = ChronicStatus,
         "Housing Track & Notes" = HousingPlan
       )
     
@@ -1830,6 +1832,7 @@ function(input, output, session) {
                      DateVeteranIdentified,
                      EntryDate,
                      ListStatus,
+                     ChronicStatus,
                      VAEligible,
                      SSVFIneligible,
                      DisablingCondition,
