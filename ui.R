@@ -374,8 +374,18 @@ dashboardPage(
                         liveSearch = TRUE,
                         liveSearchStyle = 'contains',
                         actionsBox = TRUE
+                      )),
+                      pickerInput(
+                        inputId = "vetChronicStatus",
+                        multiple = TRUE,
+                        choices = as.character(sort(unique(veteran_active_list()$ChronicStatus))),
+                        selected = as.character(unique(veteran_active_list()$ChronicStatus)),
+                        options = pickerOptions(
+                          liveSearch = TRUE,
+                          liveSearchStyle = 'contains',
+                          actionsBox = TRUE
+                        )
                       )
-                    )
                   ),
                   width = 12
                 ),
