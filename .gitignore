@@ -8,3 +8,4 @@ rsconnect
 comparisons
 tests/
 *.jpg
+.DS_Store

@@ -30,10 +30,10 @@ dashboardPage(
       #   menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
       #   menuSubItem("Inflow Outflow", tabName = "flow")
       # ),
-      menuItem(
-        "COVID-19 Vaccine Distribution",
+      menuItem("COVID-19 Vaccine Distribution",
+        menuSubItem("Vaccine Status", tabName = "vaccineStatus"),
         menuSubItem("Second Dose Logistics", tabName = "vaccineSecondDose")
-      ),
+      ), 
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
       menuItem(
@@ -45,8 +45,8 @@ dashboardPage(
         menuSubItem("System-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
       ),
-      # menuItem("BoS CoC Competition",
-      #          tabName = "cocCompetitionTab"),
+      menuItem("BoS CoC Competition",
+               tabName = "cocCompetitionTab"),
       menuItem(
         "Quarterly Performance Report",
         menuItem(
@@ -145,7 +145,7 @@ dashboardPage(
             "Date Range",
             min = meta_HUDCSV_Export_Start,
             format = "mm/dd/yyyy",
-            width = '50%'
+            width = 300
           ),
           width = 12
         )),
@@ -209,6 +209,44 @@ dashboardPage(
               DT::dataTableOutput("vaccineSecondDoseNextWeek"),
               title = "Second Dose Due in 8 Days or More",
               status = "success",
+              width = 12
+            )
+          )
+        )
+      ),
+      tabItem(
+        tabName = "vaccineStatus",
+        fluidPage(
+          fluidRow(
+            shinydashboard::box(htmlOutput("headerVaccineStatus", width = 12))
+          ),
+          fluidRow(shinydashboard::box(
+            pickerInput(
+              label = "Select County/-ies",
+              inputId = "vaccineStatusCounty",
+              multiple = TRUE,
+              choices = regions() %>%
+                arrange(County) %>% pull(County),
+              options = pickerOptions(
+                liveSearch = TRUE,
+                liveSearchStyle = 'contains',
+                actionsBox = TRUE
+              )
+            ),
+            dateRangeInput(
+              "vaccine_status_daterange",
+              "Date Range",
+              start = ymd(hc_bos_start_vaccine_data),
+              end = today(),
+              min = meta_HUDCSV_Export_Start,
+              format = "mm/dd/yyyy",
+              width = 300
+            ),
+            width = 12
+          )), 
+          fluidRow(
+            shinydashboard::box(
+              DT::dataTableOutput("vaccineStatusDataTable"),
               width = 12
             )
           )
@@ -713,8 +751,8 @@ dashboardPage(
               "Exits to Permanent Housing",
               DT::dataTableOutput("pe_ExitsToPH")
             ),
-            tabPanel("Moved into Own Housing",
-                     DT::dataTableOutput("pe_OwnHousing")),
+            # tabPanel("Moved into Own Housing",
+            #          DT::dataTableOutput("pe_OwnHousing")),
             # tabPanel(
             #   "Increased Income",
             #   DT::dataTableOutput("pe_IncreasedIncome")
@@ -770,7 +808,8 @@ dashboardPage(
             start = floor_date(today() - days(31), "year"),
             end = today(),
             min = meta_HUDCSV_Export_Start,
-            format = "mm/dd/yyyy"
+            format = "mm/dd/yyyy",
+            width = 300
           )
         )),
         fluidRow(infoBoxOutput("ExitsToPHSummary", width = 12)),
@@ -811,7 +850,8 @@ dashboardPage(
             start = floor_date(today() - days(31), "year"),
             end = today(),
             min = meta_HUDCSV_Export_Start,
-            format = "mm/dd/yyyy"
+            format = "mm/dd/yyyy",
+            width = 300
           )
         )),
         # fluidRow(infoBoxOutput("notCreatedYet"), width = 3),
