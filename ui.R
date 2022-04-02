@@ -14,7 +14,7 @@
 
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "R minor elevated"),
+  dashboardHeader(title = "Data Quality"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
