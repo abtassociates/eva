@@ -35,59 +35,40 @@ if (calc_data_goes_back_to != meta_export_start){
 # if there's not already an images directory, create it
 if (!dir.exists("images")) dir.create("images")
 
+# Start running scripts ---------------------------------------------------
+
 cat("Importing raw HMIS data\n")
 source("00_get_Export_and_ART.R")
 
-cat("working on Cohorts")
-Cohorts <- rlang::env(COHHIO_HMIS) # creating child environment
-# rlang::env_binding_lock(COHHIO_HMIS, ls(COHHIO_HMIS)) # locking COHHIO_HMIS
-source("00_cohorts.R", local = Cohorts) # populating Cohorts env
-# rlang::env_binding_lock(Cohorts, ls(Cohorts)) # locking Cohorts
+cat("working on Cohorts\n")
+source("00_cohorts.R") 
 
-cat("working on Bed_Unit_Utilization")
-source("01_Bed_Unit_Utilization.R", local = rlang::env(Cohorts)) # running inside a 
-# child environment OF Cohorts
+cat("working on Bed_Unit_Utilization\n")
+source("01_Bed_Unit_Utilization.R")  
 
-increment("working on QPR_SPDATs")
-source("02_QPR_SPDATs.R", local = rlang::env(COHHIO_HMIS)) # doesn't need Cohorts here
+cat("working on QPR_SPDATs")
+source("02_QPR_SPDATs.R") 
 
-increment("working on QPR_EEs")
-source("02_QPR_EEs.R", local = rlang::env(Cohorts)) # these envs don't get saved in memory
+cat("working on QPR_EEs")
+source("02_QPR_EEs.R")
 
-increment("working on Veterans data")
-source("03_Veterans.R", local = rlang::env(Cohorts)) # 
+cat("working on Veterans data")
+source("03_Veterans.R")  
 
-increment("working on Data Quality")
-DataQuality <- rlang::env(Cohorts) # creating a child env inside Cohorts env
-source("04_DataQuality.R", local = DataQuality)
-# rlang::env_binding_lock(DataQuality, ls(DataQuality))
+cat("working on Data Quality")
+source("04_DataQuality.R")
 
-increment("working on Veterans Active List")
-source("05_Veterans_Active_List.R", local = rlang::env(Cohorts))
+cat("working on Veterans Active List")
+source("05_Veterans_Active_List.R")
 
-increment("working on SPMs")
-source("07_SPMs.R", local = new.env())
+cat("working on SPMs")
+source("07_SPMs.R")
 
-increment("working on Active List")
-source("08_Active_List.R", local = rlang::env(Cohorts))
+cat("working on Active List")
+source("08_Active_List.R")
 
-increment("getting covid vaccine data together")
-source("09_covid.R", local = new.env())
+cat("copying images to app directories")
+source("00_copy_images.R")
 
-dir <- "pe_dataset_final"
-# files <- freeze_pe(dir) # run on freeze day ONLY
-pe <- rlang::new_environment(list(dir = dir), parent = .BaseNamespaceEnv)
-
-load("pe_dataset_final/images/COHHIOHMIS.RData", envir = pe)
-load("pe_dataset_final/images/Data_Quality.RData", envir = pe)
-load("pe_dataset_final/images/cohorts.RData", envir = pe)
-
-increment("working on Project Evaluation")
-source("06_Project_Evaluation.R", local = pe)
-
-increment("copying images to app directories")
-rm(Cohorts, COHHIO_HMIS)
-source("00_copy_images.R", local = new.env())
-
-increment("Done! All images are updated.")
+cat("Done! All images are updated.")
 
