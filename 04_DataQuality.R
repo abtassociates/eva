@@ -1638,8 +1638,7 @@ check_eligibility <- served_in_date_range %>%
         AgeAtEntry,
         DataCollectionStage,
         TotalMonthlyIncome,
-        IncomeFromAnySource,
-        UserCreating
+        IncomeFromAnySource
       ) %>%
       filter(DataCollectionStage == 3 &
                (AgeAtEntry > 17 |
@@ -1870,15 +1869,6 @@ check_eligibility <- served_in_date_range %>%
        rrh_overlaps,
        psh_overlaps)
     
-    unsh_overlaps <- dq_overlaps %>%
-      filter(ProjectName == "Unsheltered Clients - OUTREACH") %>%
-      left_join(Users, by = "UserCreating") %>%
-      select(PersonalID,
-             DefaultProvider,
-             EntryDate,
-             ExitDate,
-             PreviousProject)
-    
     # Missing Health Ins ------------------------------------------------------
     
     missing_health_insurance_entry <- served_in_date_range %>%
@@ -1888,7 +1878,6 @@ check_eligibility <- served_in_date_range %>%
              DataCollectionStage,
              InsuranceFromAnySource) %>%
       filter(DataCollectionStage == 1 &
-               ProjectName != "Unsheltered Clients - OUTREACH" &
                (InsuranceFromAnySource == 99 |
                   is.na(InsuranceFromAnySource))) %>%
       mutate(Issue = "Health Insurance Missing at Entry",
@@ -1902,7 +1891,6 @@ check_eligibility <- served_in_date_range %>%
              DataCollectionStage,
              InsuranceFromAnySource) %>%
       filter(DataCollectionStage == 3 &
-               ProjectName != "Unsheltered Clients - OUTREACH" &
                (InsuranceFromAnySource == 99 |
                   is.na(InsuranceFromAnySource))) %>%
       mutate(Issue = "Health Insurance Missing at Exit",
@@ -1927,8 +1915,7 @@ check_eligibility <- served_in_date_range %>%
         IndianHealthServices,
         OtherInsurance,
         HIVAIDSAssistance,
-        ADAP,
-        UserCreating
+        ADAP
       ) %>%
       mutate(
         SourceCount = Medicaid + SCHIP + VAMedicalServices + EmployerProvided +
@@ -1938,7 +1925,6 @@ check_eligibility <- served_in_date_range %>%
     
     conflicting_health_insurance_entry <- health_insurance_subs %>%
       filter(DataCollectionStage == 1 &
-               ProjectName != "Unsheltered Clients - OUTREACH" &
                ((InsuranceFromAnySource == 1 &
                    SourceCount == 0) |
                   (InsuranceFromAnySource == 0 &
@@ -1951,7 +1937,6 @@ check_eligibility <- served_in_date_range %>%
     
     conflicting_health_insurance_exit <- health_insurance_subs %>%
       filter(DataCollectionStage == 3 &
-               ProjectName != "Unsheltered Clients - OUTREACH" &
                ((InsuranceFromAnySource == 1 &
                    SourceCount == 0) |
                   (InsuranceFromAnySource == 0 &
@@ -2012,8 +1997,7 @@ check_eligibility <- served_in_date_range %>%
         TANFChildCare,
         TANFTransportation,
         OtherTANF,
-        OtherBenefitsSource,
-        UserCreating
+        OtherBenefitsSource
       ) %>%
       mutate(
         BenefitCount = SNAP + WIC + TANFChildCare + TANFTransportation +
@@ -2160,12 +2144,13 @@ check_eligibility <- served_in_date_range %>%
     # should be showing it as a warning, and only back to Feb of 2019
     services_on_hh_members <- served_in_date_range %>%
       select(all_of(vars_prep),
+             ProjectID,
              EnrollmentID,
              RelationshipToHoH) %>%
       filter(
         RelationshipToHoH != 1 &
           ymd(EntryDate) >= ymd(hc_no_more_svcs_on_hh_members) &
-          (GrantType != "SSVF" | is.na(GrantType))
+          ProjectID %in% c(ssvf_funded)
       ) %>%
       semi_join(Services, by = c("PersonalID", "EnrollmentID")) %>%
       mutate(Issue = "Service Transaction on a Non Head of Household",
@@ -2175,132 +2160,132 @@ check_eligibility <- served_in_date_range %>%
     
     services_on_hh_members_ssvf <- served_in_date_range %>%
       select(all_of(vars_prep),
+             ProjectID,
              EnrollmentID,
-             RelationshipToHoH,
-             GrantType) %>%
+             RelationshipToHoH) %>%
       filter(RelationshipToHoH != 1 &
-               GrantType == "SSVF") %>%
+               ProjectID %in% c(ssvf_funded)) %>%
       semi_join(Services, by = c("PersonalID", "EnrollmentID")) %>%
       mutate(Issue = "Service Transaction on a Non Head of Household (SSVF)",
              Type = "Error",
              Guidance = guidance_service_on_non_hoh) %>%
       select(all_of(vars_we_want))
     
-    referrals_on_hh_members <- served_in_date_range %>%
-      select(all_of(vars_prep),
-             RelationshipToHoH,
-             EnrollmentID,
-             GrantType) %>%
-      filter(RelationshipToHoH != 1 &
-               (GrantType != "SSVF"  | is.na(GrantType))) %>%
-      semi_join(Referrals,
-                by = c("PersonalID", "ProjectName" = "ProviderCreating")) %>%
-      mutate(Issue = "Referral on a Non Head of Household",
-             Type = "Warning",
-             Guidance = guidance_referral_on_non_hoh) %>%
-      select(all_of(vars_we_want))
-    
-    referrals_on_hh_members_ssvf <- served_in_date_range %>%
-      select(all_of(vars_prep),
-             RelationshipToHoH,
-             EnrollmentID,
-             GrantType) %>%
-      filter(RelationshipToHoH != 1 &
-               GrantType == "SSVF") %>%
-      semi_join(Referrals, by = c("PersonalID")) %>%
-      mutate(Issue = "Referral on a Non Head of Household (SSVF)",
-             Type = "Error",
-             Guidance = guidance_referral_on_non_hoh) %>%
-      select(all_of(vars_we_want))
-    
-    # Stray Services (fall outside EE) ----------------------------------------
-    # Because a lot of these records are stray Services due to there being no
-    # Entry Exit at all, this can't be shown in the same data set as all the other
-    # errors. I'm going to have to make this its own thing. :(
-    stray_services_warning <- stray_services %>%
-      mutate(Issue = "Service Not Attached to an Entry Exit",
-             Type = "Warning",
-             Guidance = "This Service does not fall between any project stay,
-             so it will not show in any reporting.") %>%
-      select(PersonalID, ServiceProvider, ServiceStartDate, Issue, Type)
-    
-    # AP No Recent Referrals --------------------------------------------------
-    co_APs <- Project %>%
-      filter(ProjectType == 14 & ProjectID != 2372) %>% # not incl Mah CE
-      select(
-        ProjectID,
-        OperatingStartDate,
-        OperatingEndDate,
-        ProjectName,
-        ProjectAKA,
-        HMISParticipatingProject,
-        ProjectCounty
-      )
-    
-    aps_no_referrals <- Referrals %>%
-      right_join(co_APs, by = c("ProviderCreating" = "ProjectName")) %>%
-      filter(is.na(PersonalID)) %>%
-      select(ProviderCreating) %>%
-      unique()
-    
-    aps_with_referrals <- Referrals %>%
-      right_join(co_APs, by = c("ProviderCreating" = "ProjectName")) %>%
-      filter(!is.na(PersonalID)) %>%
-      select(ProviderCreating) %>%
-      unique()
-    
-    data_APs <- data.frame(
-      category = c("No Referrals", "Has Created Referrals"),
-      count = c(nrow(aps_no_referrals), nrow(aps_with_referrals)),
-      providertype = rep("Access Points"),
-      total = rep(c(
-        nrow(aps_no_referrals) + nrow(aps_with_referrals)
-      )),
-      stringsAsFactors = FALSE
-    )
-    
-    data_APs <- data_APs %>%
-      mutate(percent = count / total,
-             prettypercent = percent(count / total))
-    
-    dq_plot_aps_referrals <-
-      ggplot(data_APs, aes(fill = category, x = providertype, y = percent)) +
-      geom_bar(position = "fill",
-               stat = "identity",
-               width = .1) +
-      geom_label(
-        aes(label = paste(
-          data_APs$category,
-          "\n",
-          data_APs$prettypercent
-        )),
-        position = position_stack(),
-        vjust = 2,
-        fill = "white",
-        colour = "black",
-        fontface = "bold"
-      ) +
-      scale_fill_manual(values = c("#00952e", "#a11207"), guide = FALSE) +
-      theme_void()
-    
-    
-    
-    rm(aps_with_referrals, co_APs)
-    
-    # AP entering project stays -----------------------------------------------
-    
-    aps_with_ees <- served_in_date_range %>%
-      filter(ProjectType == 14 & !ProjectID %in% c(2372, 1858)) %>% # not incl Mah CE
-      mutate(
-        Issue = "Access Point with Entry Exits",
-        Type = "High Priority",
-        Guidance = "Access Points should only be entering Referrals and Diversion Services
-      into the AP provider- not Entry Exits. If a user has done this, the Entry
-      Exit should be deleted. Please see the
-      <a href=\"http://hmis.cohhio.org/index.php?pg=kb.page&id=151\"
-          target=\"_blank\">Coordinated Entry workflow</a>."
-      ) %>%
-      select(all_of(vars_we_want))
+    # referrals_on_hh_members <- served_in_date_range %>%
+    #   select(all_of(vars_prep),
+    #          RelationshipToHoH,
+    #          EnrollmentID,
+    #          ProjectID) %>%
+    #   filter(RelationshipToHoH != 1 &
+    #            !ProjectID %in% c(ssvf_funded)) %>%
+    #   semi_join(Referrals,
+    #             by = c("PersonalID", "ProjectName" = "ProviderCreating")) %>%
+    #   mutate(Issue = "Referral on a Non Head of Household",
+    #          Type = "Warning",
+    #          Guidance = guidance_referral_on_non_hoh) %>%
+    #   select(all_of(vars_we_want))
+    # 
+    # referrals_on_hh_members_ssvf <- served_in_date_range %>%
+    #   select(all_of(vars_prep),
+    #          RelationshipToHoH,
+    #          EnrollmentID,
+    #          GrantType) %>%
+    #   filter(RelationshipToHoH != 1 &
+    #            ProjectID %in% c(ssvf_funded)) %>%
+    #   semi_join(Referrals, by = c("PersonalID")) %>%
+    #   mutate(Issue = "Referral on a Non Head of Household (SSVF)",
+    #          Type = "Error",
+    #          Guidance = guidance_referral_on_non_hoh) %>%
+    #   select(all_of(vars_we_want))
+    # 
+    # # Stray Services (fall outside EE) ----------------------------------------
+    # # Because a lot of these records are stray Services due to there being no
+    # # Entry Exit at all, this can't be shown in the same data set as all the other
+    # # errors. I'm going to have to make this its own thing. :(
+    # stray_services_warning <- stray_services %>%
+    #   mutate(Issue = "Service Not Attached to an Entry Exit",
+    #          Type = "Warning",
+    #          Guidance = "This Service does not fall between any project stay,
+    #          so it will not show in any reporting.") %>%
+    #   select(PersonalID, ServiceProvider, ServiceStartDate, Issue, Type)
+    # 
+    # # AP No Recent Referrals --------------------------------------------------
+    # co_APs <- Project %>%
+    #   filter(ProjectType == 14 & ProjectID != 2372) %>% # not incl Mah CE
+    #   select(
+    #     ProjectID,
+    #     OperatingStartDate,
+    #     OperatingEndDate,
+    #     ProjectName,
+    #     ProjectAKA,
+    #     HMISParticipatingProject,
+    #     ProjectCounty
+    #   )
+    # 
+    # aps_no_referrals <- Referrals %>%
+    #   right_join(co_APs, by = c("ProviderCreating" = "ProjectName")) %>%
+    #   filter(is.na(PersonalID)) %>%
+    #   select(ProviderCreating) %>%
+    #   unique()
+    # 
+    # aps_with_referrals <- Referrals %>%
+    #   right_join(co_APs, by = c("ProviderCreating" = "ProjectName")) %>%
+    #   filter(!is.na(PersonalID)) %>%
+    #   select(ProviderCreating) %>%
+    #   unique()
+    # 
+    # data_APs <- data.frame(
+    #   category = c("No Referrals", "Has Created Referrals"),
+    #   count = c(nrow(aps_no_referrals), nrow(aps_with_referrals)),
+    #   providertype = rep("Access Points"),
+    #   total = rep(c(
+    #     nrow(aps_no_referrals) + nrow(aps_with_referrals)
+    #   )),
+    #   stringsAsFactors = FALSE
+    # )
+    # 
+    # data_APs <- data_APs %>%
+    #   mutate(percent = count / total,
+    #          prettypercent = percent(count / total))
+    # 
+    # dq_plot_aps_referrals <-
+    #   ggplot(data_APs, aes(fill = category, x = providertype, y = percent)) +
+    #   geom_bar(position = "fill",
+    #            stat = "identity",
+    #            width = .1) +
+    #   geom_label(
+    #     aes(label = paste(
+    #       data_APs$category,
+    #       "\n",
+    #       data_APs$prettypercent
+    #     )),
+    #     position = position_stack(),
+    #     vjust = 2,
+    #     fill = "white",
+    #     colour = "black",
+    #     fontface = "bold"
+    #   ) +
+    #   scale_fill_manual(values = c("#00952e", "#a11207"), guide = FALSE) +
+    #   theme_void()
+    # 
+    # 
+    # 
+    # rm(aps_with_referrals, co_APs)
+    # 
+    # # AP entering project stays -----------------------------------------------
+    # 
+    # aps_with_ees <- served_in_date_range %>%
+    #   filter(ProjectType == 14 & !ProjectID %in% c(2372, 1858)) %>% # not incl Mah CE
+    #   mutate(
+    #     Issue = "Access Point with Entry Exits",
+    #     Type = "High Priority",
+    #     Guidance = "Access Points should only be entering Referrals and Diversion Services
+    #   into the AP provider- not Entry Exits. If a user has done this, the Entry
+    #   Exit should be deleted. Please see the
+    #   <a href=\"http://hmis.cohhio.org/index.php?pg=kb.page&id=151\"
+    #       target=\"_blank\">Coordinated Entry workflow</a>."
+    #   ) %>%
+    #   select(all_of(vars_we_want))
     
     # Side Door ---------------------------------------------------------------
     # use Referrals, get logic from ART report- it's pretty lax I think
@@ -2311,98 +2296,98 @@ check_eligibility <- served_in_date_range %>%
     # Using ProviderCreating instead. Either way, I feel this should go in the
     # Provider Dashboard, not the Data Quality report.
     
-    internal_old_outstanding_referrals <- served_in_date_range %>%
-      semi_join(Referrals,
-                by = c("PersonalID")) %>%
-      left_join(Referrals,
-                by = c("PersonalID")) %>%
-      filter(ProviderCreating == ProjectName &
-             ProjectID != 1695) %>%
-      select(all_of(vars_prep),
-             ProviderCreating,
-             ReferralDate,
-             ReferralOutcome,
-             EnrollmentID) %>%
-      filter(is.na(ReferralOutcome) &
-               ReferralDate < today() - days(14)) %>%
-      mutate(
-        ProjectName = ProviderCreating,
-        Issue = "Old Outstanding Referral",
-        Type = "Warning",
-        Guidance = "Referrals should be closed in about 2 weeks. Please be sure you are
-      following up with any referrals and helping the client to find permanent
-      housing. Once a Referral is made, the receiving agency should be saving
-      the \"Referral Outcome\" once it is known. If you have Referrals that are
-      legitimately still open after 2 weeks because there is a lot of follow
-      up going on, no action is needed since the HMIS data is accurate."
-      ) %>%
-      select(all_of(vars_we_want))
+    # internal_old_outstanding_referrals <- served_in_date_range %>%
+    #   semi_join(Referrals,
+    #             by = c("PersonalID")) %>%
+    #   left_join(Referrals,
+    #             by = c("PersonalID")) %>%
+    #   filter(ProviderCreating == ProjectName &
+    #          ProjectID != 1695) %>%
+    #   select(all_of(vars_prep),
+    #          ProviderCreating,
+    #          ReferralDate,
+    #          ReferralOutcome,
+    #          EnrollmentID) %>%
+    #   filter(is.na(ReferralOutcome) &
+    #            ReferralDate < today() - days(14)) %>%
+    #   mutate(
+    #     ProjectName = ProviderCreating,
+    #     Issue = "Old Outstanding Referral",
+    #     Type = "Warning",
+    #     Guidance = "Referrals should be closed in about 2 weeks. Please be sure you are
+    #   following up with any referrals and helping the client to find permanent
+    #   housing. Once a Referral is made, the receiving agency should be saving
+    #   the \"Referral Outcome\" once it is known. If you have Referrals that are
+    #   legitimately still open after 2 weeks because there is a lot of follow
+    #   up going on, no action is needed since the HMIS data is accurate."
+    #   ) %>%
+    #   select(all_of(vars_we_want))
     
     # ^^this is pulling in neither the Unsheltered NOR referrals from APs
     
-    staging_outstanding_referrals <-
-      internal_old_outstanding_referrals %>%
-      left_join(Project[c("ProjectName", "ProjectID")], by = "ProjectName") %>%
-      select(ProjectName, ProjectID, PersonalID) %>%
-      group_by(ProjectName, ProjectID) %>%
-      summarise(Open_Referrals = n()) %>%
-      arrange(desc(Open_Referrals)) %>%
-      mutate(Project = paste0(ProjectName, ":", ProjectID))
-    
-    dq_plot_outstanding_referrals <-
-      ggplot(
-        head(staging_outstanding_referrals, 20L),
-        aes(
-          x = reorder(Project, Open_Referrals),
-          y = Open_Referrals,
-          fill = Open_Referrals
-        )
-      ) +
-      geom_col(show.legend = FALSE) +
-      coord_flip() +
-      labs(x = "",
-           y = "Referrals") +
-      scale_fill_viridis_c(direction = -1) +
-      theme_minimal(base_size = 18)
+    # staging_outstanding_referrals <-
+    #   internal_old_outstanding_referrals %>%
+    #   left_join(Project[c("ProjectName", "ProjectID")], by = "ProjectName") %>%
+    #   select(ProjectName, ProjectID, PersonalID) %>%
+    #   group_by(ProjectName, ProjectID) %>%
+    #   summarise(Open_Referrals = n()) %>%
+    #   arrange(desc(Open_Referrals)) %>%
+    #   mutate(Project = paste0(ProjectName, ":", ProjectID))
+    # 
+    # dq_plot_outstanding_referrals <-
+    #   ggplot(
+    #     head(staging_outstanding_referrals, 20L),
+    #     aes(
+    #       x = reorder(Project, Open_Referrals),
+    #       y = Open_Referrals,
+    #       fill = Open_Referrals
+    #     )
+    #   ) +
+    #   geom_col(show.legend = FALSE) +
+    #   coord_flip() +
+    #   labs(x = "",
+    #        y = "Referrals") +
+    #   scale_fill_viridis_c(direction = -1) +
+    #   theme_minimal(base_size = 18)
     
     
     # Unsheltered Incorrect Residence Prior -----------------------------------
-    unsheltered_enrollments <- served_in_date_range %>%
-      filter(ProjectID == 1695) %>%
-      select(
-        all_of(vars_prep),
-        RelationshipToHoH,
-        LivingSituation,
-        AgeAtEntry,
-        EEType,
-        Destination,
-        CountyServed,
-        ProjectCounty,
-        LivingSituation
-      )
-    
-    unsheltered_not_unsheltered <- unsheltered_enrollments %>%
-      filter(LivingSituation != 16) %>%
-      mutate(
-        Type = "High Priority",
-        Issue = "Wrong Provider (Not Unsheltered)",
-        Guidance = "Clients who were incorrectly entered into the Unsheltered
-          provider should be exited. Otherwise, correct the data. Please review
-          the <a href=\"https://www.youtube.com/watch?v=qdmrqOHXoN0&t=174s\"
-          target=\"_blank\">data entry portion of the Unsheltered video training</a>
-          for more info.",
-      ) %>%
-      select(all_of(vars_we_want))
-
-
-# Unsheltered New Entries by County by Month ------------------------------
-
-unsheltered_by_month <- unsheltered_enrollments %>%
-      left_join(Users, by = "UserCreating") %>%
-      mutate(ExitAdjust = if_else(is.na(ExitDate), today(), ExitDate),
-             County = if_else(is.na(CountyServed), UserCounty, CountyServed),
-             EntryDateDisplay = format.Date(EntryDate, "%b %Y")) %>%
-      select(EntryDate, EntryDateDisplay, HouseholdID, County)
+#     unsheltered_enrollments <- served_in_date_range %>%
+#       filter(ProjectID == 1695) %>%
+#       select(
+#         all_of(vars_prep),
+#         RelationshipToHoH,
+#         LivingSituation,
+#         AgeAtEntry,
+#         EEType,
+#         Destination,
+#         CountyServed,
+#         ProjectCounty,
+#         LivingSituation
+#       )
+#     
+#     unsheltered_not_unsheltered <- unsheltered_enrollments %>%
+#       filter(LivingSituation != 16) %>%
+#       mutate(
+#         Type = "High Priority",
+#         Issue = "Wrong Provider (Not Unsheltered)",
+#         Guidance = "Clients who were incorrectly entered into the Unsheltered
+#           provider should be exited. Otherwise, correct the data. Please review
+#           the <a href=\"https://www.youtube.com/watch?v=qdmrqOHXoN0&t=174s\"
+#           target=\"_blank\">data entry portion of the Unsheltered video training</a>
+#           for more info.",
+#       ) %>%
+#       select(all_of(vars_we_want))
+# 
+# 
+# # Unsheltered New Entries by County by Month ------------------------------
+# 
+# unsheltered_by_month <- unsheltered_enrollments %>%
+#       left_join(Users, by = "UserCreating") %>%
+#       mutate(ExitAdjust = if_else(is.na(ExitDate), today(), ExitDate),
+#              County = if_else(is.na(CountyServed), UserCounty, CountyServed),
+#              EntryDateDisplay = format.Date(EntryDate, "%b %Y")) %>%
+#       select(EntryDate, EntryDateDisplay, HouseholdID, County)
     
     # Missing End Date on Outreach Contact ------------------------------------
     
@@ -2414,29 +2399,29 @@ unsheltered_by_month <- unsheltered_enrollments %>%
     
     # Unsheltered Currently Unsheltered 30+ Days w No Referral ----------------
     
-    long_unsheltered <- unsheltered_enrollments %>%
-      filter(is.na(ExitDate) &
-               ymd(EntryDate) < today() - days(30))
-    
-    unsheltered_referred <- Referrals %>%
-      filter(ProviderCreating == "Unsheltered Clients - OUTREACH")
-    
-    unsheltered_long_not_referred <-
-      anti_join(long_unsheltered, unsheltered_referred, by = "PersonalID") %>%
-      mutate(
-        Type = "Warning",
-        Issue = "Unsheltered 30+ Days with no Referral",
-        Guidance = "Ideally households are being referred for housing from the 
-        Unsheltered provider within a short period of time. These particular 
-        households are currently unsheltered and without a referral. If the 
-        household has been referred but that has not been captured in HMIS, 
-        please enter the referral. To learn more about when to exit a household 
-        from the Unsheltered Provider, click
-        <a href=\"https://youtu.be/qdmrqOHXoN0?t=721\" target=\"_blank\">here</a>."
-      ) %>%
-      select(all_of(vars_we_want))
-    
-    rm(long_unsheltered, unsheltered_referred)
+    # long_unsheltered <- unsheltered_enrollments %>%
+    #   filter(is.na(ExitDate) &
+    #            ymd(EntryDate) < today() - days(30))
+    # 
+    # unsheltered_referred <- Referrals %>%
+    #   filter(ProviderCreating == "Unsheltered Clients - OUTREACH")
+    # 
+    # unsheltered_long_not_referred <-
+    #   anti_join(long_unsheltered, unsheltered_referred, by = "PersonalID") %>%
+    #   mutate(
+    #     Type = "Warning",
+    #     Issue = "Unsheltered 30+ Days with no Referral",
+    #     Guidance = "Ideally households are being referred for housing from the 
+    #     Unsheltered provider within a short period of time. These particular 
+    #     households are currently unsheltered and without a referral. If the 
+    #     household has been referred but that has not been captured in HMIS, 
+    #     please enter the referral. To learn more about when to exit a household 
+    #     from the Unsheltered Provider, click
+    #     <a href=\"https://youtu.be/qdmrqOHXoN0?t=721\" target=\"_blank\">here</a>."
+    #   ) %>%
+    #   select(all_of(vars_we_want))
+    # 
+    # rm(long_unsheltered, unsheltered_referred)
     
     # SSVF --------------------------------------------------------------------
     
@@ -2450,7 +2435,6 @@ unsheltered_by_month <- unsheltered_enrollments %>%
         EntryDate,
         MoveInDateAdjust,
         ExitDate,
-        UserCreating,
         RelationshipToHoH,
         PercentAMI,
         LastPermanentStreet,
@@ -2460,14 +2444,12 @@ unsheltered_by_month <- unsheltered_enrollments %>%
         AddressDataQuality,
         VAMCStation,
         HPScreeningScore,
-        ThresholdScore,
-        IraqAfghanistan,
-        FemVet
+        ThresholdScore
       ) %>%
       right_join(
         served_in_date_range %>%
-          filter(GrantType == "SSVF") %>%
-          select(PersonalID, EnrollmentID, HouseholdID, ProjectRegion),
+          filter(ProjectID %in% c(ssvf_funded)) %>%
+          select(PersonalID, EnrollmentID, HouseholdID),
         by = c("PersonalID", "EnrollmentID", "HouseholdID")
       ) %>%
       left_join(
@@ -2603,22 +2585,20 @@ unsheltered_by_month <- unsheltered_enrollments %>%
              Guidance = guidance_missing_at_entry) %>%
       select(all_of(vars_we_want))
     
-# TEMPORARILY NOT REQUIRED FOR COVID-19 REASONS  
-    # ssvf_hp_screen <- ssvf_served_in_date_range %>%
-    #   filter(ProjectType == 12 &
-    #            RelationshipToHoH == 1 &
-    #            (is.na(HPScreeningScore) |
-    #               is.na(ThresholdScore))) %>%
-    #   mutate(Issue = "Missing HP Screening or Threshold Score",
-    #          Type = "Error",
-    #          Guidance = guidance_missing_at_entry) %>%
-    #   select(all_of(vars_we_want))
-    
+ssvf_hp_screen <- ssvf_served_in_date_range %>%
+  filter(ProjectType == 12 &
+           RelationshipToHoH == 1 &
+           (is.na(HPScreeningScore) |
+              is.na(ThresholdScore))) %>%
+  mutate(Issue = "Missing HP Screening or Threshold Score",
+         Type = "Error",
+         Guidance = guidance_missing_at_entry) %>%
+  select(all_of(vars_we_want))
+
     
     # All together now --------------------------------------------------------
     
     dq_main <- rbind(
-      aps_with_ees,
       check_disability_ssi,
       check_eligibility,
       conflicting_disabilities,
@@ -2628,15 +2608,12 @@ unsheltered_by_month <- unsheltered_enrollments %>%
       conflicting_income_exit,
       conflicting_ncbs_entry,
       conflicting_ncbs_exit,
-      differing_manufacturers,
       dkr_client_veteran_info,
       dkr_destination,
       dkr_living_situation,
       dkr_LoS,
       dkr_months_times_homeless,
       dkr_residence_prior,
-      dose_date_error,
-      dose_date_warning,
       dq_dob,
       dq_ethnicity,
       dq_gender,
@@ -2646,30 +2623,23 @@ unsheltered_by_month <- unsheltered_enrollments %>%
       dq_ssn,
       dq_veteran,
       duplicate_ees,
-      entered_ph_without_spdat,
       extremely_long_stayers,
       future_ees,
       future_exits,
       hh_issues,
-      incorrect_ee_type,
       incorrect_path_contact_date,
-      internal_old_outstanding_referrals,
       invalid_months_times_homeless,
-      lh_without_spdat,
-      mahoning_ce_60_days,
+      # lh_without_spdat,
       maybe_psh_destination,
       # maybe_rrh_destination,
       missing_approx_date_homeless,
       missing_client_location,
-      missing_county_served,
-      missing_county_prior,
       missing_destination,
       missing_disabilities,
       missing_health_insurance_entry,
       missing_health_insurance_exit,
       missing_income_entry,
       missing_income_exit,
-      # missing_interims,
       missing_living_situation,
       missing_LoS,
       missing_months_times_homeless,
@@ -2678,8 +2648,6 @@ unsheltered_by_month <- unsheltered_enrollments %>%
       missing_ncbs_entry,
       missing_ncbs_exit,
       missing_residence_prior,
-      missing_vaccine_current,
-      missing_vaccine_exited,
       no_bos_rrh,
       no_bos_psh,
       no_bos_th,
@@ -2690,8 +2658,8 @@ unsheltered_by_month <- unsheltered_enrollments %>%
       path_reason_missing,
       path_SOAR_missing_at_exit,
       path_status_determination,
-      referrals_on_hh_members,
-      referrals_on_hh_members_ssvf,
+      # referrals_on_hh_members,
+      # referrals_on_hh_members_ssvf,
       rent_paid_no_move_in,
       services_on_hh_members,
       services_on_hh_members_ssvf,
@@ -2699,13 +2667,11 @@ unsheltered_by_month <- unsheltered_enrollments %>%
       should_be_rrh_destination,
       should_be_th_destination,
       should_be_sh_destination,
-      spdat_on_non_hoh,
+      # spdat_on_non_hoh,
       ssvf_missing_address,
       ssvf_missing_vamc,
       ssvf_missing_percent_ami,      
-      # ssvf_hp_screen,      
-      unknown_manufacturer_error,
-      unknown_manufacturer_warning,
+      ssvf_hp_screen,
       unlikely_ncbs_entry,
       veteran_missing_year_entered,
       veteran_missing_year_separated,
@@ -2713,17 +2679,11 @@ unsheltered_by_month <- unsheltered_enrollments %>%
       veteran_missing_branch,
       veteran_missing_discharge_status
     ) %>%
-      filter(!ProjectName %in% c(
-        "Diversion from Homeless System",
-        "Unsheltered Clients - OUTREACH"
-      ))
-    
-    dq_main <- dq_main %>%
-      unique()   %>%
-      mutate(Type = factor(Type, levels = c("High Priority",
-                                            "Error",
-                                            "Warning")))  
-    
+  unique() %>%
+  mutate(Type = factor(Type, levels = c("High Priority",
+                                        "Error",
+                                        "Warning")))
+
     # filtering out AP errors that are irrlevant to APs
     
     dq_main <- dq_main %>%
@@ -2747,88 +2707,6 @@ unsheltered_by_month <- unsheltered_enrollments %>%
                      "Missing County Served"
                    )
                ))
-
-# # Waiting on Something ----------------------------------------------------
-# 
-#     dq_main <- dq_main %>%
-#       filter(
-#         !Issue %in% c(
-#           "Missing PATH Contact", # waiting on AW comments
-#           "No Contact End Date (PATH)", # waiting on AW comments
-#           "No PATH Contact Entered at Entry" # waiting on AW comments
-#         )
-#       ) 
-    
-    # Unsheltered DQ ----------------------------------------------------------
-    
-    dq_unsheltered <- rbind(
-      check_disability_ssi,
-      dkr_destination,
-      dkr_months_times_homeless,
-      dkr_residence_prior,
-      dkr_LoS,
-      dq_dob,
-      dq_ethnicity,
-      dq_race,
-      dq_gender,
-      dq_name,
-      dq_overlaps %>% select(-PreviousProject),
-      duplicate_ees,
-      future_ees,
-      future_exits,
-      hh_issues,
-      incorrect_ee_type,
-      internal_old_outstanding_referrals,
-      lh_without_spdat,
-      maybe_psh_destination,
-      # maybe_rrh_destination,
-      missing_approx_date_homeless,
-      missing_destination,
-      missing_county_served,
-      missing_LoS,
-      missing_months_times_homeless,
-      missing_residence_prior,
-      no_bos_rrh,
-      no_bos_psh,
-      no_bos_th,
-      no_bos_sh,
-      referrals_on_hh_members,
-      should_be_psh_destination,
-      should_be_rrh_destination,
-      should_be_th_destination,
-      should_be_sh_destination,
-      spdat_on_non_hoh,
-      unsheltered_not_unsheltered,
-      unsheltered_long_not_referred
-    ) %>%
-      filter(ProjectName == "Unsheltered Clients - OUTREACH") %>%
-      left_join(Users, by = "UserCreating") %>%
-      select(-UserID,-UserName,-ProjectRegion) %>%
-      filter(
-        UserCounty != "Franklin" &
-          !Issue %in% c(
-            "Conflicting Health Insurance yes/no at Entry",
-            "Conflicting Health Insurance yes/no at Exit",
-            "Conflicting Income yes/no at Entry",
-            "Conflicting Income yes/no at Exit",
-            "Conflicting Non-cash Benefits yes/no at Entry",
-            "Conflicting Non-cash Benefits yes/no at Exit",
-            "Health Insurance Missing at Entry",
-            "Health Insurance Missing at Exit",
-            "Income Missing at Entry",
-            "Income Missing at Exit",
-            "Non-cash Benefits Missing at Entry",
-            "Non-cash Benefits Missing at Exit"
-          )
-      )
-
-    dq_unsheltered <- dq_unsheltered %>%
-      mutate(
-        Type = if_else(Issue == "Missing County Served", "High Priority", Type),
-        Type = factor(Type, levels = c("High Priority",
-                                       "Error",
-                                       "Warning"))
-      )
     
     # Controls what is shown in the CoC-wide DQ tab ---------------------------
     
@@ -2844,9 +2722,6 @@ unsheltered_by_month <- unsheltered_enrollments %>%
     dq_for_pe <- dq_main %>%
       filter(served_between(., ymd(hc_project_eval_start), ymd(hc_project_eval_end))) %>%
       left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
-    
-    projects_current_hmis <- projects_current_hmis %>%
-      filter(ProjectID != 1695)
     
     dq_providers <- sort(projects_current_hmis$ProjectName)    
 
@@ -2956,32 +2831,6 @@ unsheltered_by_month <- unsheltered_enrollments %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
     
-    dq_data_unsheltered_high <- dq_unsheltered %>%
-      filter(Type == "High Priority",
-             served_between(., ymd(hc_unsheltered_data_start), ymd(meta_HUDCSV_Export_End))) %>%
-      select(PersonalID, HouseholdID, DefaultProvider) %>%
-      unique() %>%
-      group_by(DefaultProvider) %>%
-      summarise(clientsWithErrors = n()) %>%
-      ungroup() %>%
-      arrange(desc(clientsWithErrors))
-    
-    dq_plot_unsheltered_high <-
-      ggplot(
-        head(dq_data_unsheltered_high, 20L),
-        aes(
-          x = reorder(DefaultProvider, clientsWithErrors),
-          y = clientsWithErrors,
-          fill = clientsWithErrors
-        )
-      ) +
-      geom_col(show.legend = FALSE) +
-      coord_flip() +
-      labs(x = "",
-           y = "Clients") +
-      scale_fill_viridis_c(direction = -1) +
-      theme_minimal(base_size = 18)
-    
     dq_data_hh_issues_plot <- dq_past_year %>%
       filter(
         Type %in% c("Error", "High Priority") &
@@ -3010,31 +2859,6 @@ unsheltered_by_month <- unsheltered_enrollments %>%
                y = Households,
                fill = Households
              )) +
-      geom_col(show.legend = FALSE) +
-      coord_flip() +
-      labs(x = "") +
-      scale_fill_viridis_c(direction = -1) +
-      theme_minimal(base_size = 18)
-    
-    dq_data_outstanding_referrals_plot <- dq_past_year %>%
-      filter(Issue == "Old Outstanding Referral") %>%
-      select(PersonalID, ProjectID, ProjectName) %>%
-      unique() %>%
-      group_by(ProjectName, ProjectID) %>%
-      summarise(Households = n()) %>%
-      ungroup() %>%
-      arrange(desc(Households)) %>%
-      mutate(hover = paste(ProjectName, ":", ProjectID))
-    
-    dq_plot_projects_outstanding_referrals <-
-      ggplot(
-        head(dq_data_outstanding_referrals_plot, 20L),
-        aes(
-          x = reorder(hover, Households),
-          y = Households,
-          fill = Households
-        )
-      ) +
       geom_col(show.legend = FALSE) +
       coord_flip() +
       labs(x = "") +
@@ -3070,36 +2894,36 @@ unsheltered_by_month <- unsheltered_enrollments %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
        
-    dq_data_without_spdat_plot <- dq_past_year %>%
-      filter(
-        Type == "Warning" &
-          Issue %in% c(
-            "Non-DV HoHs Entering PH or TH without SPDAT",
-            "HoHs in shelter for 8+ days without SPDAT"
-          )
-      ) %>%
-      select(PersonalID, ProjectID, ProjectName) %>%
-      unique() %>%
-      group_by(ProjectName, ProjectID) %>%
-      summarise(Households = n()) %>%
-      ungroup() %>%
-      mutate(ProjectDisplay = paste0(ProjectName, ":", ProjectID)) %>%
-      arrange(desc(Households))
+    # dq_data_without_spdat_plot <- dq_past_year %>%
+    #   filter(
+    #     Type == "Warning" &
+    #       Issue %in% c(
+    #         "Non-DV HoHs Entering PH or TH without SPDAT",
+    #         "HoHs in shelter for 8+ days without SPDAT"
+    #       )
+    #   ) %>%
+    #   select(PersonalID, ProjectID, ProjectName) %>%
+    #   unique() %>%
+    #   group_by(ProjectName, ProjectID) %>%
+    #   summarise(Households = n()) %>%
+    #   ungroup() %>%
+    #   mutate(ProjectDisplay = paste0(ProjectName, ":", ProjectID)) %>%
+    #   arrange(desc(Households))
     
-    dq_plot_hh_no_spdat <-
-      ggplot(
-        head(dq_data_without_spdat_plot, 20L),
-        aes(
-          x = reorder(ProjectDisplay, Households),
-          y = Households,
-          fill = Households
-        )
-      ) +
-      geom_col(show.legend = FALSE) +
-      coord_flip() +
-      labs(x = "") +
-      scale_fill_viridis_c(direction = -1) +
-      theme_minimal(base_size = 18)
+    # dq_plot_hh_no_spdat <-
+    #   ggplot(
+    #     head(dq_data_without_spdat_plot, 20L),
+    #     aes(
+    #       x = reorder(ProjectDisplay, Households),
+    #       y = Households,
+    #       fill = Households
+    #     )
+    #   ) +
+    #   geom_col(show.legend = FALSE) +
+    #   coord_flip() +
+    #   labs(x = "") +
+    #   scale_fill_viridis_c(direction = -1) +
+    #   theme_minimal(base_size = 18)
     
     # Clean up the house ------------------------------------------------------
     
