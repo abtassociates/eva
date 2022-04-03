@@ -134,7 +134,7 @@ EnrollmentCoC <-
 Enrollment <-
   read_csv(paste0(directory, "/Enrollment.csv"),
            col_types =
-             "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnnTcTc")
+             "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
 
 # Adding Exit Data to Enrollment because I'm not tryin to have one-to-one 
 # relationships in this!
