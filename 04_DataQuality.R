@@ -32,6 +32,14 @@ rhy_funded <- Funder %>%
   filter(Funder %in% c(22:26)) %>%
   pull(ProjectID)
 
+path_funded <- Funder %>%
+  filter(Funder == 21) %>%
+  pull(ProjectID)
+
+ssvf_funded <- Funder %>%
+  filter(Funder == 33) %>%
+  pull(ProjectID)
+
 # Providers to Check ------------------------------------------------------
 
 projects_current_hmis <- Project %>%
@@ -306,8 +314,7 @@ missing_client_location <- served_in_date_range %>%
 # Household Issues --------------------------------------------------------
 
 hh_children_only <- served_in_date_range %>%
-  filter(GrantType != "RHY" |
-           is.na(GrantType)) %>% # not checking for children-only hhs for RHY
+  filter(!ProjectID %in% c(rhy_funded)) %>% # not checking for children-only hhs for RHY
   group_by(HouseholdID) %>%
   summarise(
     hhMembers = n(),
@@ -617,12 +624,10 @@ dkr_living_situation <- served_in_date_range %>%
     ProjectID,
     ProjectType,
     ProjectName,
-    ProjectRegion,
     EntryDate,
     MoveInDateAdjust,
     ExitDate,
     AgeAtEntry,
-    CountyServed,
     RelationshipToHoH,
     LivingSituation,
     LengthOfStay,
@@ -630,8 +635,7 @@ dkr_living_situation <- served_in_date_range %>%
     PreviousStreetESSH,
     DateToStreetESSH,
     MonthsHomelessPastThreeYears,
-    TimesHomelessPastThreeYears,
-    UserCreating
+    TimesHomelessPastThreeYears
   ) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            ymd(EntryDate) > ymd(hc_prior_living_situation_required) &
@@ -713,148 +717,72 @@ conflicting_disabilities <- served_in_date_range %>%
 
 rm(smallDisabilities)
 
-# Mahoning 60 days CE -----------------------------------------------------
-
-mahoning_ce_60_days <- served_in_date_range %>%
-  filter(ProjectID == 2372 &
-           EntryDate <= today() - days(60) &
-           is.na(ExitDate)) %>%
-  mutate(
-    Issue = "60 Days in Mahoning Coordinated Entry",
-    Type = "Warning",
-    Guidance = "If this household is \"unreachable\" as defined in the Mahoning County 
-    Coordinated Entry Policies and Procedures, they should be exited."
-  ) %>%
-  select(all_of(vars_we_want))
-
 # Extremely Long Stayers --------------------------------------------------
 
-th_stayers_bos <- served_in_date_range %>%
+th_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   mutate(Days = as.numeric(difftime(today(), ymd(EntryDate)))) %>%
   filter(is.na(ExitDate) &
-           ProjectType == 2 &
-           !ProjectID %in% c(mahoning_projects))
+           ProjectType == 2)
 
-th_stayers_mah <- served_in_date_range %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  mutate(Days = as.numeric(difftime(today(), ymd(EntryDate)))) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 2 &
-           ProjectID %in% c(mahoning_projects))
+Top2_TH <- subset(th_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
-Top2_TH_bos <- subset(th_stayers_bos, Days > quantile(Days, prob = 1 - 2 / 100))
-Top2_TH_mah <- subset(th_stayers_mah, Days > quantile(Days, prob = 1 - 2 / 100))
-
-rrh_stayers_bos <- served_in_date_range %>%
+rrh_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
-           ProjectType == 13 &
-           !ProjectID %in% c(mahoning_projects)) %>%
+           ProjectType == 13) %>%
   mutate(Days = as.numeric(difftime(today(), ymd(EntryDate)))) 
 
-rrh_stayers_mah <- served_in_date_range %>%
+Top2_RRH <- subset(rrh_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+
+es_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
-           ProjectType == 13 &
-           ProjectID %in% c(mahoning_projects)) %>%
+           ProjectType == 1) %>%
   mutate(Days = as.numeric(difftime(today(), ymd(EntryDate)))) 
 
-Top2_RRH_bos <- subset(rrh_stayers_bos, Days > quantile(Days, prob = 1 - 2 / 100))
-Top2_RRH_mah <- subset(rrh_stayers_mah, Days > quantile(Days, prob = 1 - 2 / 100))
+Top2_ES <- subset(es_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
-es_stayers_bos <- served_in_date_range %>%
+psh_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
-           ProjectType == 1 &
-           !ProjectID %in% c(mahoning_projects)) %>%
+           ProjectType == 3) %>%
   mutate(Days = as.numeric(difftime(today(), ymd(EntryDate)))) 
 
-es_stayers_mah <- served_in_date_range %>%
+Top1_PSH <- subset(psh_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
+
+hp_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
-           ProjectType == 1 &
-           ProjectID %in% c(mahoning_projects)) %>%
+           ProjectType == 12) %>%
   mutate(Days = as.numeric(difftime(today(), ymd(EntryDate)))) 
 
-Top2_ES_bos <- subset(es_stayers_bos, Days > quantile(Days, prob = 1 - 2 / 100))
-Top2_ES_mah <- subset(es_stayers_mah, Days > quantile(Days, prob = 1 - 2 / 100))
+Top5_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 5 / 100))
 
-psh_stayers_bos <- served_in_date_range %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 3 &
-           !ProjectID %in% c(mahoning_projects)) %>%
-  mutate(Days = as.numeric(difftime(today(), ymd(EntryDate)))) 
-
-psh_stayers_mah <- served_in_date_range %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 3 &
-           ProjectID %in% c(mahoning_projects)) %>%
-  mutate(Days = as.numeric(difftime(today(), ymd(EntryDate)))) 
-
-Top1_PSH_bos <- subset(psh_stayers_bos, Days > quantile(Days, prob = 1 - 1 / 100))
-Top1_PSH_mah <- subset(psh_stayers_mah, Days > quantile(Days, prob = 1 - 1 / 100))
-
-hp_stayers_bos <- served_in_date_range %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 12 &
-           !ProjectID %in% c(mahoning_projects)) %>%
-  mutate(Days = as.numeric(difftime(today(), ymd(EntryDate)))) 
-
-hp_stayers_mah <- served_in_date_range %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 12 &
-           ProjectID %in% c(mahoning_projects)) %>%
-  mutate(Days = as.numeric(difftime(today(), ymd(EntryDate)))) 
-
-Top5_HP_bos <- subset(hp_stayers_bos, Days > quantile(Days, prob = 1 - 5 / 100))
-Top10_HP_mah <- subset(hp_stayers_mah, Days > quantile(Days, prob = 90 / 100))
-
-extremely_long_stayers <- rbind(Top1_PSH_bos,
-                                Top2_ES_bos,
-                                Top2_RRH_bos,
-                                Top2_TH_bos,
-                                Top5_HP_bos,
-                                Top1_PSH_mah,
-                                Top2_ES_mah,
-                                Top2_RRH_mah,
-                                Top2_TH_mah,
-                                Top10_HP_mah) %>%
+extremely_long_stayers <- rbind(Top1_PSH,
+                                Top2_ES,
+                                Top2_RRH,
+                                Top2_TH,
+                                Top5_HP) %>%
   mutate(
     Issue = "Extremely Long Stayer",
     Type = "Warning",
     Guidance = paste(
       "This client is showing as an outlier for Length of Stay for this project 
-      type in the",
-      if_else(
-        ProjectID %in% c(mahoning_projects),
-        "Mahoning County",
-        "Balance of State"
-      ),
-      "CoC. Please verify that
-         this client is still in your project. If they are, be sure there are no
-         alternative permanent housing solutions for this client. If the client
-         is no longer in your project, please enter their Exit Date as the
-         closest estimation of the day they left your project."
+      type. Please verify that this client is still in your project. If they are, 
+      be sure there are no alternative permanent housing solutions for this client. 
+      If the client is no longer in your project, please enter their Exit Date 
+      as the closest estimation of the day they left your project."
     )
   ) %>% 
   select(all_of(vars_we_want))
 
 rm(list = ls(pattern = "Top*"),
-   es_stayers_mah,
-   th_stayers_mah,
-   psh_stayers_mah,
-   rrh_stayers_mah,
-   hp_stayers_mah,
-   es_stayers_bos,
-   th_stayers_bos,
-   psh_stayers_bos,
-   rrh_stayers_bos,
-   hp_stayers_bos)
+   es_stayers,
+   th_stayers,
+   psh_stayers,
+   rrh_stayers,
+   hp_stayers)
 
 
 # Incorrect Destination ---------------------------------------------------
@@ -1085,31 +1013,6 @@ no_bos_sh <- destination_sh %>%
   ) %>% 
   select(all_of(vars_we_want))
 
-# CountyServed (BoS ONLY for now)
-
-missing_county_served <- served_in_date_range %>%
-  filter(is.na(CountyServed) & !ProjectID %in% c(mahoning_projects)) %>%
-  mutate(
-    Issue = "Missing County Served",
-    Type = "Error",
-    Guidance = "County Served must be collected at Entry for all clients. County is
-      very important so that the client is prioritized into the correct service
-      areas for various housing solutions. This can be corrected through the
-      Entry pencil."
-  ) %>%
-  select(all_of(vars_we_want))
-
-# CountyPrior (BoS ONLY for now)
-
-missing_county_prior <- served_in_date_range %>%
-  filter(is.na(CountyPrior) & !ProjectID %in% c(mahoning_projects) &
-         (AgeAtEntry > 17 |
-            is.na(AgeAtEntry))) %>%
-  mutate(Issue = "Missing County of Prior Residence",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
-  select(all_of(vars_we_want))
-
 # Check Eligibility, Project Type, Residence Prior ------------------------
 
 check_eligibility <- served_in_date_range %>%
@@ -1121,15 +1024,14 @@ check_eligibility <- served_in_date_range %>%
     LivingSituation,
     LengthOfStay,
     LOSUnderThreshold,
-    PreviousStreetESSH,
-    GrantType
+    PreviousStreetESSH
   ) %>%
   filter(
     RelationshipToHoH == 1 &
       AgeAtEntry > 17 &
       ymd(EntryDate) > ymd(hc_check_eligibility_back_to) &
       (ProjectType %in% c(3, 4, 8, 9, 10, 12, 13) |
-         (ProjectType == 2 & (is.na(GrantType) | GrantType != "RHY"))) &
+         (ProjectType == 2 & !ProjectID %in% c(rhy_funded))) &
       (
         (ProjectType %in% c(2, 3, 9, 10, 13) &
            # PTCs that require LH status
@@ -1453,7 +1355,7 @@ check_eligibility <- served_in_date_range %>%
       ungroup()
     
     missing_path_contact <- served_in_date_range %>%
-      filter(GrantType == "PATH" &
+      filter(ProjectID %in% c(path_funded) &
                (AgeAtEntry > 17 |
                   RelationshipToHoH == 1)) %>%
       select(all_of(vars_prep)) %>%
@@ -1492,7 +1394,7 @@ check_eligibility <- served_in_date_range %>%
       slice(1L)
     
     incorrect_path_contact_date <- served_in_date_range %>%
-      filter(GrantType == "PATH" &
+      filter(Projectid %in% c(path_funded) &
                (AgeAtEntry > 17 |
                   RelationshipToHoH == 1)) %>%
       select(all_of(vars_prep)) %>%
@@ -1605,49 +1507,6 @@ check_eligibility <- served_in_date_range %>%
       ) %>%
       select(all_of(vars_we_want)) %>%
       unique()
-    
-    # Incorrect Entry Exit Type -----------------------------------------------
-    # check ART report for exact logic.
-    incorrect_ee_type <- served_in_date_range %>%
-      filter(
-        (
-          is.na(GrantType) &
-            !grepl("GPD", ProjectName) &
-            !grepl("HCHV", ProjectName) &
-            !grepl("VET", ProjectName) &
-            !grepl("Veterans", ProjectName) &
-            ProjectID != 1695 &
-            EEType != "HUD"
-        ) |
-          ((
-            GrantType == "SSVF" |
-              grepl("GPD", ProjectName) |
-              grepl("HCHV", ProjectName) |
-              grepl("Veterans", ProjectName) |
-              grepl("VET", ProjectName) |
-              grepl("VASH", ProjectName)
-          ) &
-            EEType != "VA"
-          ) |
-          (GrantType == "RHY" &
-             !grepl("YHDP", ProjectName) &
-             !grepl("ODH", ProjectName) &
-             EEType != "RHY") |
-          (GrantType == "RHY" &
-             grepl("YHDP", ProjectName) &
-             grepl("ODH", ProjectName) &
-             EEType != "HUD") |
-          (GrantType == "PATH" & EEType != "PATH") |
-          (ProjectID == 1695 & EEType != "Standard")
-      ) %>%
-      mutate(Issue = "Incorrect Entry Exit Type",
-             Type = "High Priority",
-             Guidance = "The user selected the wrong Entry Exit Type. To correct, 
-             click the Entry pencil and Save & Continue. The Entry Exit Type at 
-             the top can then be changed. Click \"Update\" to make this change 
-             take effect.") %>%
-      select(all_of(vars_we_want))
-    
     
     # HoHs Entering PH without SPDATs -----------------------------------------
     
@@ -2375,8 +2234,7 @@ check_eligibility <- served_in_date_range %>%
     services_on_hh_members <- served_in_date_range %>%
       select(all_of(vars_prep),
              EnrollmentID,
-             RelationshipToHoH,
-             GrantType) %>%
+             RelationshipToHoH) %>%
       filter(
         RelationshipToHoH != 1 &
           ymd(EntryDate) >= ymd(hc_no_more_svcs_on_hh_members) &
