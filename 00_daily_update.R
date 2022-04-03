@@ -25,8 +25,10 @@ library(tidyverse)
 library(here)
 
 dataset_directory <- c("Hennepin-Redacted/")
+directory <- paste0("data/", dataset_directory)
 
 source("00_dates.R")
+
 
 if (calc_data_goes_back_to != meta_export_start){
   cat("Export Start Date may not be correct.")
