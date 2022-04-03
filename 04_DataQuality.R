@@ -1099,19 +1099,12 @@ check_eligibility <- served_in_date_range %>%
       mutate(
         Issue = "Check Eligibility",
         Type = "Warning",
-        Guidance = paste(
+        Guidance = 
           "Your Residence Prior data suggests that this project is either
         serving ineligible households, the household was entered into the wrong
         project, or the Residence Prior data at Entry is incorrect. Please check
-        the terms of your grant or speak with",
-          if_else(
-            ProjectID %in% c(mahoning_projects),
-            "the Mahoning County CoC Coordinator",
-            "the CoC team at COHHIO"
-          ),
-          "if you are unsure of eligibility criteria for your project type."
-        )
-      ) %>%
+        the terms of your grant or speak with your CoC if you are unsure of 
+        eligibility criteria for your project type.") %>%
       select(all_of(vars_we_want))
     
     # Rent Payment Made, No Move-In Date
@@ -1121,12 +1114,9 @@ check_eligibility <- served_in_date_range %>%
                ProjectType %in% c(3, 9, 13)) %>%
       inner_join(Services %>%
                    filter(
-                     Description %in% c(
-                       "Rent Payment Assistance",
-                       "Utility Deposit Assistance",
-                       "Rental Deposit Assistance"
-                     )
-                   ) %>%
+                     (RecordType %in% c(141) & TypeProvided %in% c(8, 9, 11, 12)) |
+                       (RecordType %in% c(152) & TypeProvided %in% c(1:5)) |
+                       (RecordType %in% c(151) & TypeProvided %in% c(1:7))) %>%
                    select(-PersonalID),
                  by = "EnrollmentID") %>%
       mutate(
@@ -1151,16 +1141,11 @@ check_eligibility <- served_in_date_range %>%
         Issue = "Missing Destination",
         Type = "Warning",
         Guidance = paste(
-          "It is widely understood that not every client will
-             complete an exit interview, especially for high-volume emergency
-             shelters. A few warnings for Missing Destination is no cause for
-             concern, but if there is a large number, please contact",
-          if_else(
-            ProjectID %in% c(mahoning_projects),
-            "the Mahoning County CoC Coordinator",
-            "the Balance of State CoC team at COHHIO"
-          ),
-          "to work out a way to improve client engagement."
+          "It is widely understood that not every client will complete an exit 
+          interview, especially for high-volume emergency shelters. A few warnings 
+          for Missing Destination is no cause for concern, but if there is a 
+          large number, please contact your CoC to work out a way to improve 
+          client engagement."
         )
       ) %>% 
       select(all_of(vars_we_want))
@@ -1179,9 +1164,7 @@ check_eligibility <- served_in_date_range %>%
     ### Length of Stay is null or DNC -> error -OR-
     ### Length of Stay is DKR -> warning
     
-    smallProject <- Project %>% select(ProjectID,
-                                       ProjectName,
-                                       ProjectCounty)
+    smallProject <- Project %>% select(ProjectID, ProjectName)
     
     path_missing_los_res_prior <- served_in_date_range %>%
       select(
@@ -1189,11 +1172,10 @@ check_eligibility <- served_in_date_range %>%
         ProjectID,
         AgeAtEntry,
         ClientEnrolledInPATH,
-        LengthOfStay,
-        EEType
+        LengthOfStay
       ) %>%
       left_join(smallProject, by = c("ProjectID", "ProjectName")) %>%
-      filter(EEType == "PATH" &
+      filter(ProjectID %in% c(path_funded) &
                AgeAtEntry > 17 &
                ClientEnrolledInPATH == 1 &
                (is.na(LengthOfStay) | LengthOfStay == 99)) %>%
@@ -1212,11 +1194,10 @@ check_eligibility <- served_in_date_range %>%
         AgeAtEntry,
         ClientEnrolledInPATH,
         DateOfPATHStatus,
-        ReasonNotEnrolled,
-        EEType
+        ReasonNotEnrolled
       ) %>%
       left_join(smallProject, by = "ProjectName") %>%
-      filter(EEType == "PATH" &
+      filter(ProjectID %in% c(path_funded) &
                !is.na(ExitDate) &
                AgeAtEntry > 17 &
                (
@@ -1233,15 +1214,15 @@ check_eligibility <- served_in_date_range %>%
     #* Status Determination at Exit
     ### adult, PATH-Enrolled is not null
     ### Date of Status Determ is null -> error
+    
     path_status_determination <- served_in_date_range %>%
       select(all_of(vars_prep),
              AgeAtEntry,
              ClientEnrolledInPATH,
-             DateOfPATHStatus,
-             EEType) %>%
+             DateOfPATHStatus) %>%
       left_join(smallProject, by = "ProjectName") %>%
       filter(
-        EEType == "PATH" &
+        ProjectID %in% c(path_funded) &
           AgeAtEntry > 17 &
           !is.na(ClientEnrolledInPATH) &
           is.na(DateOfPATHStatus)
@@ -1257,10 +1238,10 @@ check_eligibility <- served_in_date_range %>%
     ### PATH Enrolled null or DNC -> error -OR-
     
     path_enrolled_missing <- served_in_date_range %>%
-      select(all_of(vars_prep), AgeAtEntry, ClientEnrolledInPATH, EEType) %>%
+      select(all_of(vars_prep), AgeAtEntry, ClientEnrolledInPATH) %>%
       left_join(smallProject, by = "ProjectName") %>%
       filter(
-        EEType == "PATH" &
+        ProjectID %in% c(path_funded) &
           !is.na(ExitDate) &
           AgeAtEntry > 17 &
           (ClientEnrolledInPATH == 99 |
@@ -1285,12 +1266,11 @@ check_eligibility <- served_in_date_range %>%
         all_of(vars_prep),
         AgeAtEntry,
         ClientEnrolledInPATH,
-        EEType,
         ReasonNotEnrolled,
         ProjectType
       ) %>%
       left_join(smallProject, by = "ProjectName") %>%
-      filter(EEType == "PATH" &
+      filter(ProjectID %in% c(path_funded) &
                AgeAtEntry > 17 &
                ClientEnrolledInPATH == 0 &
                is.na(ReasonNotEnrolled)) %>%
@@ -1318,11 +1298,10 @@ check_eligibility <- served_in_date_range %>%
       select(all_of(vars_prep),
              EnrollmentID,
              AgeAtEntry,
-             ClientEnrolledInPATH,
-             EEType) %>%
+             ClientEnrolledInPATH) %>%
       left_join(smallProject, by = "ProjectName") %>%
       left_join(smallIncomeSOAR, by = c("PersonalID", "EnrollmentID")) %>%
-      filter(EEType == "PATH" &
+      filter(ProjectID %in% c(path_funded) &
                AgeAtEntry > 17 &
                DataCollectionStage == 3 &
                is.na(ConnectionWithSOAR)) %>%
@@ -1339,19 +1318,13 @@ check_eligibility <- served_in_date_range %>%
     ## if the contact was an "Outreach" record after 10/1/2019, it is being
     ## filtered out because they should be using CLS subs past that date.
     
-    small_contacts <- Contacts %>%
+    small_contacts <- CurrentLivingSituation %>%
       left_join(served_in_date_range, by = "PersonalID") %>%
       filter(
-        ymd(ContactDate) >= ymd(EntryDate) &
-          ymd(ContactDate) <= ymd(ExitAdjust) &
-          ((
-            RecordType == "Outreach" &
-              ymd(ContactDate) < ymd(hc_outreach_to_cls)
-          ) |
-            RecordType == "CLS")
-      ) %>% 
+        ymd(InformationDate) >= ymd(EntryDate) &
+          ymd(InformationDate) <= ymd(ExitAdjust)) %>% 
       group_by(PersonalID, ProjectName, EntryDate, ExitDate) %>%
-      summarise(ContactCount = n()) %>%
+      summarise(CurrentLivingSituationCount = n()) %>%
       ungroup()
     
     missing_path_contact <- served_in_date_range %>%
@@ -1364,8 +1337,8 @@ check_eligibility <- served_in_date_range %>%
                        "ProjectName",
                        "EntryDate",
                        "ExitDate")) %>%
-      mutate_at(vars(ContactCount), ~replace(., is.na(.), 0)) %>%
-      filter(ContactCount == 0) %>%
+      mutate_at(vars(CurrentLivingSituationCount), ~replace(., is.na(.), 0)) %>%
+      filter(CurrentLivingSituationCount == 0) %>%
       mutate(Issue = "Missing PATH Contact",
              Type = "High Priority",
              Guidance = "Every adult or Head of Household must have a Living
@@ -1380,21 +1353,18 @@ check_eligibility <- served_in_date_range %>%
     ## if the contact was an "Outreach" record after 10/1/2019, it is being
     ## filtered out because they should be using CLS subs past that date.
     
-    first_contact <- Contacts %>%
-      filter((RecordType == "Outreach" &
-                ymd(ContactDate) < ymd(hc_outreach_to_cls)) |
-               RecordType == "CLS") %>%
+    first_contact <- CurrentLivingSituation %>%
       left_join(served_in_date_range, by = "PersonalID") %>%
-      select(PersonalID, EntryDate, ExitAdjust, ExitDate, ContactDate, ProjectName, 
+      select(PersonalID, EntryDate, ExitAdjust, ExitDate, InformationDate, ProjectName, 
              EntryDate, ExitAdjust) %>%
-      filter(ymd(ContactDate) >= ymd(EntryDate) &
-               ymd(ContactDate) <= ymd(ExitAdjust)) %>%
+      filter(ymd(InformationDate) >= ymd(EntryDate) &
+               ymd(InformationDate) <= ymd(ExitAdjust)) %>%
       group_by(PersonalID, ProjectName, EntryDate, ExitDate) %>%
-      arrange(ContactDate) %>%
+      arrange(InformationDate) %>%
       slice(1L)
     
     incorrect_path_contact_date <- served_in_date_range %>%
-      filter(Projectid %in% c(path_funded) &
+      filter(ProjectID %in% c(path_funded) &
                (AgeAtEntry > 17 |
                   RelationshipToHoH == 1)) %>%
       select(all_of(vars_prep)) %>%
@@ -1402,7 +1372,7 @@ check_eligibility <- served_in_date_range %>%
                            "ProjectName",
                            "EntryDate",
                            "ExitDate")) %>%
-      filter(ContactDate != EntryDate) %>%
+      filter(InformationDate != EntryDate) %>%
       mutate(
         Issue = "No PATH Contact Entered at Entry",
         Type = "Error",
@@ -1440,8 +1410,7 @@ check_eligibility <- served_in_date_range %>%
     future_ees <- served_in_date_range %>%
       filter(ymd(EntryDate) > ymd_hms(DateCreated) &
                (ProjectType %in% c(1, 2, 4, 8, 13) |
-                  (
-                    ProjectType %in% c(3, 9) & 
+                  (ProjectType %in% c(3, 9) & 
                       ymd(EntryDate) >= ymd(hc_psh_started_collecting_move_in_date)
                   )))  %>%
       mutate(
@@ -1465,141 +1434,99 @@ check_eligibility <- served_in_date_range %>%
         is no longer in your program."
       ) %>%
       select(all_of(vars_we_want))
-
-# Move-In Dates in HUD Reporting ------------------------------------------
-
-    enrollments_interims <- served_in_date_range %>%
-      left_join(Interims, by = c("EnrollmentID", "PersonalID"))
     
-    hmid_matches_entry <- enrollments_interims %>%
-      filter(ymd(MoveInDateAdjust) == ymd(EntryDate)) %>%
-      select(PersonalID, EnrollmentID, HouseholdID) %>%
-      unique()
-    
-    interim_dates_that_match_hmid <- enrollments_interims %>%
-      filter(ymd(InterimDate) == ymd(MoveInDateAdjust)) %>%
-      select(PersonalID, EnrollmentID, HouseholdID) %>%
-      unique()
-    
-    # if hud answers that ws is correct about the Exit Date, then you'll 
-    # have to modify this to exclude ees where the hmid == the exit date
-    no_valid_hmid <- enrollments_interims %>%
-      filter(is.na(MoveInDateAdjust)) %>%
-      select(PersonalID, EnrollmentID, HouseholdID) %>%
-      unique()
-    
-    missing_interims <- enrollments_interims %>%
-      anti_join(hmid_matches_entry, by = c("PersonalID", "EnrollmentID", "HouseholdID")) %>%
-      anti_join(interim_dates_that_match_hmid, by = c("PersonalID", "EnrollmentID", "HouseholdID")) %>%
-      anti_join(no_valid_hmid, by = c("PersonalID", "EnrollmentID", "HouseholdID")) %>%
-      mutate(
-        Type = "Error",
-        Issue = case_when(
-          is.na(InterimID) ~ 
-            "WellSky reporting will not count Move-In: Missing Interim",
-          ymd(InterimDate) != ymd(MoveInDateAdjust) &
-            ymd(EntryDate) != ymd(MoveInDateAdjust) ~ 
-            "WellSky reporting will not count Move-In: Move-In Date doesn't match Interim Date"
-        ),
-        Guidance = "For a Move-In Date to count in any WellSky (ServicePoint) 
-        reports, there must be an Interim created where the Interim Date matches
-        the Move In Date."
-      ) %>%
-      select(all_of(vars_we_want)) %>%
-      unique()
-    
-    # HoHs Entering PH without SPDATs -----------------------------------------
-    
-    ees_with_spdats <- served_in_date_range %>%
-      anti_join(va_funded, by = "ProjectID") %>%
-      left_join(Scores, by = "PersonalID") %>% 
-      ungroup() %>%
-      select(PersonalID,
-             EnrollmentID,
-             RelationshipToHoH,
-             EntryDate,
-             ExitAdjust,
-             ScoreDate,
-             Score) %>%
-      filter(ymd(ScoreDate) + days(365) > ymd(EntryDate) &
-               # score is < 1 yr old
-               ymd(ScoreDate) < ymd(ExitAdjust)) %>%  # score is prior to Exit
-      group_by(EnrollmentID) %>%
-      slice_max(ymd(ScoreDate)) %>%
-      slice_max(Score) %>%
-      distinct() %>%
-      ungroup() %>%
-      mutate(ScoreAdjusted = if_else(is.na(Score), 0, Score))
-    
-    entered_ph_without_spdat <-
-      anti_join(served_in_date_range, ees_with_spdats, by = "EnrollmentID") %>%
-      filter(
-        ProjectType %in% c(2, 3, 9, 13) &
-          ymd(EntryDate) > ymd(hc_began_requiring_spdats) &
-          # only looking at 1/1/2019 forward
-          RelationshipToHoH == 1 &
-          (CurrentlyFleeing != 1 |
-             is.na(CurrentlyFleeing) |
-             !WhenOccurred %in% c(1:3))
-      ) %>%
-      mutate(
-        Issue = "Non-DV HoHs Entering PH or TH without SPDAT",
-        Type = "Warning",
-        Guidance = "Every household (besides those fleeing domestic violence) 
-        must have a VI-SPDAT score to aid with prioritization into a 
-        Transitional Housing or Permanent Housing (RRH or PSH) project."
-      ) %>%
-      select(all_of(vars_we_want))
-    
-    # HoHs in Shelter without a SPDAT -----------------------------------------
-
-    lh_without_spdat <- served_in_date_range %>%
-      filter(is.na(PHTrack) | PHTrack != "Self Resolve" |
-               ymd(ExpectedPHDate) < today()) %>%
-      anti_join(ees_with_spdats, by = "EnrollmentID") %>%
-      filter(
-        ProjectType %in% c(1, 4, 8) &
-          VeteranStatus != 1 &
-          RelationshipToHoH == 1 &
-          ymd(EntryDate) < today() - days(8) &
-          is.na(ExitDate) &
-          ymd(EntryDate) > ymd(hc_began_requiring_spdats)
-      ) %>%
-      mutate(
-        Issue = "HoHs in shelter for 8+ days without SPDAT",
-        Type = "Warning",
-        Guidance = "Any household who has been in shelter or a Safe Haven for 
-        over 8 days should be assessed with the VI-SPDAT so that they can be 
-        prioritized for Permanent Housing (RRH or PSH)."
-      ) %>%
-      select(all_of(vars_we_want))
-    
-    spdat_on_non_hoh <- ees_with_spdats %>%
-      left_join(
-        served_in_date_range,
-        by = c(
-          "PersonalID",
-          "EnrollmentID",
-          "RelationshipToHoH",
-          "EntryDate",
-          "ExitAdjust"
-        )
-      ) %>%
-      filter(RelationshipToHoH != 1) %>%
-      mutate(
-        Issue = "SPDAT Created on a Non-Head-of-Household",
-        Type = "Warning",
-        Guidance = "It is very important to be sure that the VI-SPDAT score goes on the
-        Head of Household of a given program stay because otherwise that score
-      may not pull into any reporting. It is possible a Non Head of Household
-      was a Head of Household in a past program stay, and in that situation,
-      this should not be corrected unless the Head of Household of your program
-      stay is missing their score. To correct this, you would need to completely
-      re-enter the score on the correct client's record."
-      ) %>%
-      select(all_of(vars_we_want))
-    
-    rm(ees_with_spdats)
+    # # HoHs Entering PH without SPDATs -----------------------------------------
+    # 
+    # ees_with_spdats <- served_in_date_range %>%
+    #   anti_join(va_funded, by = "ProjectID") %>%
+    #   left_join(Scores, by = "PersonalID") %>% 
+    #   ungroup() %>%
+    #   select(PersonalID,
+    #          EnrollmentID,
+    #          RelationshipToHoH,
+    #          EntryDate,
+    #          ExitAdjust,
+    #          ScoreDate,
+    #          Score) %>%
+    #   filter(ymd(ScoreDate) + days(365) > ymd(EntryDate) &
+    #            # score is < 1 yr old
+    #            ymd(ScoreDate) < ymd(ExitAdjust)) %>%  # score is prior to Exit
+    #   group_by(EnrollmentID) %>%
+    #   slice_max(ymd(ScoreDate)) %>%
+    #   slice_max(Score) %>%
+    #   distinct() %>%
+    #   ungroup() %>%
+    #   mutate(ScoreAdjusted = if_else(is.na(Score), 0, Score))
+    # 
+    # entered_ph_without_spdat <-
+    #   anti_join(served_in_date_range, ees_with_spdats, by = "EnrollmentID") %>%
+    #   filter(
+    #     ProjectType %in% c(2, 3, 9, 13) &
+    #       ymd(EntryDate) > ymd(hc_began_requiring_spdats) &
+    #       # only looking at 1/1/2019 forward
+    #       RelationshipToHoH == 1 &
+    #       (CurrentlyFleeing != 1 |
+    #          is.na(CurrentlyFleeing) |
+    #          !WhenOccurred %in% c(1:3))
+    #   ) %>%
+    #   mutate(
+    #     Issue = "Non-DV HoHs Entering PH or TH without SPDAT",
+    #     Type = "Warning",
+    #     Guidance = "Every household (besides those fleeing domestic violence) 
+    #     must have a VI-SPDAT score to aid with prioritization into a 
+    #     Transitional Housing or Permanent Housing (RRH or PSH) project."
+    #   ) %>%
+    #   select(all_of(vars_we_want))
+    # 
+    # # HoHs in Shelter without a SPDAT -----------------------------------------
+    # 
+    # lh_without_spdat <- served_in_date_range %>%
+    #   filter(is.na(PHTrack) | PHTrack != "Self Resolve" |
+    #            ymd(ExpectedPHDate) < today()) %>%
+    #   anti_join(ees_with_spdats, by = "EnrollmentID") %>%
+    #   filter(
+    #     ProjectType %in% c(1, 4, 8) &
+    #       VeteranStatus != 1 &
+    #       RelationshipToHoH == 1 &
+    #       ymd(EntryDate) < today() - days(8) &
+    #       is.na(ExitDate) &
+    #       ymd(EntryDate) > ymd(hc_began_requiring_spdats)
+    #   ) %>%
+    #   mutate(
+    #     Issue = "HoHs in shelter for 8+ days without SPDAT",
+    #     Type = "Warning",
+    #     Guidance = "Any household who has been in shelter or a Safe Haven for 
+    #     over 8 days should be assessed with the VI-SPDAT so that they can be 
+    #     prioritized for Permanent Housing (RRH or PSH)."
+    #   ) %>%
+    #   select(all_of(vars_we_want))
+    # 
+    # spdat_on_non_hoh <- ees_with_spdats %>%
+    #   left_join(
+    #     served_in_date_range,
+    #     by = c(
+    #       "PersonalID",
+    #       "EnrollmentID",
+    #       "RelationshipToHoH",
+    #       "EntryDate",
+    #       "ExitAdjust"
+    #     )
+    #   ) %>%
+    #   filter(RelationshipToHoH != 1) %>%
+    #   mutate(
+    #     Issue = "SPDAT Created on a Non-Head-of-Household",
+    #     Type = "Warning",
+    #     Guidance = "It is very important to be sure that the VI-SPDAT score goes on the
+    #     Head of Household of a given program stay because otherwise that score
+    #   may not pull into any reporting. It is possible a Non Head of Household
+    #   was a Head of Household in a past program stay, and in that situation,
+    #   this should not be corrected unless the Head of Household of your program
+    #   stay is missing their score. To correct this, you would need to completely
+    #   re-enter the score on the correct client's record."
+    #   ) %>%
+    #   select(all_of(vars_we_want))
+    # 
+    # rm(ees_with_spdats)
     
     # Missing Income at Entry -------------------------------------------------
     # IncomeBenefits <- IncomeBenefits %>% select(-DateCreated)
