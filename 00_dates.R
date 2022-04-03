@@ -63,11 +63,11 @@ Export <-
     ExportDate = lubridate::ymd_hms(ExportDate)
   )
 
-meta_export_start <- Export %>% pull(ExportStartDate)
+meta_HUDCSV_Export_Start <- Export %>% pull(ExportStartDate)
 
-meta_export_end <- Export %>% pull(ExportEndDate)
+meta_HUDCSV_Export_End <- Export %>% pull(ExportEndDate)
 
-meta_export_pulled <- Export %>% pull(ExportDate)
+meta_HUDCSV_pulled <- Export %>% pull(ExportDate)
 
 # Calculated Dates --------------------------------------------------------
 
