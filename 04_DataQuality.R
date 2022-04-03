@@ -17,12 +17,11 @@ library(janitor)
 library(lubridate)
 library(scales)
 library(HMIS)
-e <- environment()
-source("04_Guidance.R", local = e)
-if (!exists("Enrollment")) load("images/COHHIOHMIS.RData")
+
+source("04_Guidance.R")
+if (!exists("Enrollment")) load("images/CSVExportDFs.RData")
 if (!exists("tay")) {
   load("images/cohorts.RData")
-  # rlang::env_binding_lock(environment(), ls())
 }
 
 va_funded <- Funder %>%
@@ -33,23 +32,19 @@ va_funded <- Funder %>%
 
 projects_current_hmis <- Project %>%
   left_join(Inventory, by = "ProjectID") %>%
-  filter(ProjectID %in% c(1695, 2372) | (
+  left_join(Organization %>% select(OrganizationID, OrganizationName), 
+            by = "OrganizationID") %>%
+  filter(
     HMISParticipatingProject == 1 &
-      operating_between(., ymd(calc_data_goes_back_to), ymd(meta_HUDCSV_Export_End)) &
-      (GrantType != "HOPWA" | is.na(GrantType))) 
-  ) %>% 
+      operating_between(., ymd(calc_data_goes_back_to), ymd(meta_HUDCSV_Export_End))) %>% 
   select(
     ProjectID,
     OrganizationID,
     OperatingStartDate,
     OperatingEndDate,
     ProjectType,
-    GrantType,
     ProjectName,
-    ProjectAKA,
-    OrganizationName,
-    ProjectCounty,
-    ProjectRegion
+    OrganizationName
   ) %>% unique()
 
 # Clients to Check --------------------------------------------------------
@@ -69,11 +64,16 @@ served_in_date_range <- Enrollment %>%
     AmIndAKNative,
     Asian,
     BlackAfAmerican,
-    NativeHIOtherPacific,
+    NativeHIPacific,
     White,
     RaceNone,
     Ethnicity,
-    Gender,
+    Female,
+    Male,
+    NoSingleGender,
+    Transgender,
+    Questioning,
+    GenderNone,
     VeteranStatus,
     EnrollmentID,
     ProjectID,
@@ -92,21 +92,15 @@ served_in_date_range <- Enrollment %>%
     DateOfEngagement,
     MoveInDate,
     MoveInDateAdjust,
-    EEType,
-    CountyServed,
-    CountyPrior,
     ExitDate,
     Destination,
     ExitAdjust,
     DateCreated,
-    UserCreating,
     ClientEnrolledInPATH,
     LengthOfStay,
     DateOfPATHStatus,
     ReasonNotEnrolled,
-    ClientLocation,
-    PHTrack,
-    ExpectedPHDate
+    ClientLocation
   ) %>%
   inner_join(projects_current_hmis, by = "ProjectID")
 
@@ -128,9 +122,7 @@ vars_prep <- c(
   "ProjectType",
   "EntryDate",
   "MoveInDateAdjust",
-  "ExitDate",
-  "UserCreating",
-  "ProjectRegion"
+  "ExitDate"
 )
 
 vars_we_want <- c(vars_prep,
