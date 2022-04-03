@@ -26,7 +26,11 @@ if (!exists("tay")) {
 
 va_funded <- Funder %>%
   filter(Funder %in% c(27, 30, 33, 37:42, 45)) %>%
-  select(ProjectID)
+  pull(ProjectID)
+
+rhy_funded <- Funder %>%
+  filter(Funder %in% c(22:26)) %>%
+  pull(ProjectID)
 
 # Providers to Check ------------------------------------------------------
 
@@ -244,8 +248,8 @@ dq_ethnicity <- served_in_date_range %>%
 dq_gender <- served_in_date_range %>%
   mutate(
     Issue = case_when(
-      Gender == 99 ~ "Missing Gender",
-      Gender %in% c(8, 9) ~ "Don't Know/Refused Gender"
+      GenderNone == 99 ~ "Missing Gender",
+      GenderNone %in% c(8, 9) ~ "Don't Know/Refused Gender"
     ),
     Type = case_when(
       Issue == "Missing Gender" ~ "Error",
@@ -288,167 +292,6 @@ dq_veteran <- served_in_date_range %>%
   filter(!is.na(Issue)) %>%
   select(all_of(vars_we_want))
 
-# Missing Vaccine data ----------------------------------------------------
-dose_counts <- doses %>%
-  count(PersonalID) %>%
-  select(PersonalID, "Doses" = n)
-
-missing_vaccine_exited <- served_in_date_range %>%
-  filter(served_between(., hc_bos_start_vaccine_data, today())) %>%
-  left_join(covid19[c("PersonalID", "ConsentToVaccine", "VaccineConcerns")],
-            by = "PersonalID") %>%
-  left_join(dose_counts, by = "PersonalID") %>%
-  filter(
-    !ProjectID %in% c(mahoning_projects) &
-      !is.na(ExitDate) &
-      ProjectID != 1695 &
-      (
-        is.na(ExitDate) |
-          ymd(ExitDate) >= ymd(hc_bos_start_vaccine_data)
-      ) &
-      (
-        ConsentToVaccine == "Data not collected (HUD)" |
-          is.na(ConsentToVaccine)
-      ) &
-      is.na(Doses) &
-      (ProjectType %in% c(1, 2, 4, 8) |
-         (
-           ProjectType %in% c(3, 9, 13) &
-             is.na(MoveInDateAdjust)
-         ))
-  ) %>% 
-  mutate(Type = "Warning",
-         Issue = "Vaccine data not collected and client has exited",
-         Guidance = "Client was literally homeless on Feb 5th, 2021 or later and 
-         is missing their vaccine data, and the client has exited the project. 
-         If you are unable to follow up with the client, leave the client as is. 
-         Please see the guidance 
-         <a href = \"https://cohhio.org/boscoc/covid19/\" target = \"blank\"> 
-         for more information</a>.") %>%
-  select(all_of(vars_we_want))
-
-missing_vaccine_current <- served_in_date_range %>%
-  left_join(covid19[c("PersonalID", "ConsentToVaccine", "VaccineConcerns")],
-            by = "PersonalID") %>%
-  left_join(dose_counts, by = "PersonalID") %>%
-  filter(
-    !ProjectID %in% c(mahoning_projects) &
-      is.na(ExitDate) &
-      ProjectID != 1695 &
-      (
-        is.na(ExitDate) |
-          ymd(ExitDate) >= ymd(hc_bos_start_vaccine_data)
-      ) &
-      (
-        ConsentToVaccine == "Data not collected (HUD)" |
-          is.na(ConsentToVaccine)
-      ) &
-      is.na(Doses) &
-      (ProjectType %in% c(1, 2, 4, 8) |
-         (
-           ProjectType %in% c(3, 9, 13) &
-             is.na(MoveInDateAdjust)
-         ))
-  ) %>% 
-  mutate(
-    Type = "Error",
-    Issue = "Vaccine data not collected on current client",
-    Guidance = "Client was literally homeless on Feb 5th, 2021 or later and is 
-    missing their vaccine data. Because the client has not exited the project, 
-    this data can still be collected. Please see 
-    <a href = \"https://cohhio.org/boscoc/covid19/\" target = \"blank\"> 
-    for more information</a>."
-  ) %>%
-  select(all_of(vars_we_want))
-
-# Dose Warnings -----------------------------------------------------------
-
-dose_date_error <- doses %>%
-  filter(COVID19DoseDate < ymd(hc_first_vaccine_administered_in_us)) %>%
-  left_join(served_in_date_range %>%
-              filter(served_between(., hc_bos_start_vaccine_data, today())),
-            by = "PersonalID") %>%
-  mutate(Type = "Error",
-         Issue = "Vaccine Date Incorrect",
-         Guidance = "Vaccination date precedes the vaccine being available in the US.") %>%
-  select(all_of(vars_we_want))
-
-dose_date_warning <- doses %>%
-  group_by(PersonalID) %>%
-  summarise(Doses = n()) %>%
-  ungroup() %>%
-  filter(Doses > 1) %>%
-  left_join(doses, by = "PersonalID") %>%
-  group_by(PersonalID) %>%
-  mutate(LastDose = lag(COVID19DoseDate, order_by = COVID19DoseDate)) %>%
-  filter(!is.na(LastDose)) %>%
-  mutate(DaysBetweenDoses = difftime(COVID19DoseDate, LastDose, units = "days")) %>%
-  filter(COVID19DoseDate < ymd(hc_first_vaccine_administered_in_us) | 
-    DaysBetweenDoses < 20 |
-           (COVID19VaccineManufacturer == "Moderna") &
-           DaysBetweenDoses < 27) %>%
-  left_join(served_in_date_range %>%
-              filter(served_between(., hc_bos_start_vaccine_data, today())),
-                     by = "PersonalID") %>% 
-  mutate(Type = "Warning",
-         Issue = "Vaccine Dates or Vaccine Manufacturer Questionable",
-         Guidance = "The number of days between vaccines doses does not match 
-         the vaccine manufacturer’s recommended timeline. One of the vaccine 
-         records' Vaccine Date or the Vaccine Manufacturer may be entered 
-         incorrectly.") %>%
-  select(all_of(vars_we_want))
-
-differing_manufacturers <- doses %>%
-  group_by(PersonalID) %>%
-  summarise(Doses = n()) %>%
-  ungroup() %>%
-  filter(Doses > 1) %>%
-  left_join(doses, by = "PersonalID") %>%
-  group_by(PersonalID) %>%
-  mutate(
-    minManufacturer = min(COVID19VaccineManufacturer),
-    maxManufacturer = max(COVID19VaccineManufacturer),
-    differs = minManufacturer != maxManufacturer,
-    Type = "Error",
-    Issue = "Client received different vaccines",
-    Guidance = "The data shows that the client received vaccines from 
-    different manufacturers, but this is highly unlikely. Please correct the 
-    data in HMIS or let us know if the client actually received vaccines from 
-    different manufacturers."
-  ) %>%
-  filter(differs == TRUE) %>%
-  left_join(served_in_date_range %>%
-              filter(served_between(., hc_bos_start_vaccine_data, today())), 
-            by = "PersonalID") %>%
-  select(all_of(vars_we_want))
-
-unknown_manufacturer_error <- doses %>%
-  filter(str_starts(COVID19VaccineManufacturer, "Client doesn't know") &
-           COVID19VaccineDocumentation != "Self-report") %>%
-  left_join(served_in_date_range %>%
-              filter(served_between(., hc_bos_start_vaccine_data, today())), 
-            by = "PersonalID") %>%
-  mutate(Type = "Error",
-         Issue = "Incorrect Vaccine Manufacturer or Incorrect Documentation Type",
-         Guidance = "If vaccine information was collected via Healthcare Provider 
-         or Vaccine card, then the vaccine manufacturer should be known and 
-         updated in HMIS.") %>%
-  select(all_of(vars_we_want))
-
-unknown_manufacturer_warning <- doses %>%
-  filter(str_starts(COVID19VaccineManufacturer, "Client doesn't know") &
-           COVID19VaccineDocumentation == "Self-report") %>%
-  left_join(served_in_date_range %>%
-              filter(served_between(., hc_bos_start_vaccine_data, today())),
-            by = "PersonalID") %>%
-  mutate(Type = "Warning",
-         Issue = "Unknown Vaccine Manufacturer",
-         Guidance = "If the client does not know the manufacturer of the vaccine, 
-         please try to find another source for the information. Reporting relies 
-         heavily on knowing the manufacturer of the vaccine your client received. 
-         If you absolutely cannot find it, it is ok to leave as is.") %>%
-  select(all_of(vars_we_want))
-  
 # Missing Client Location -------------------------------------------------
 
 missing_client_location <- served_in_date_range %>%
