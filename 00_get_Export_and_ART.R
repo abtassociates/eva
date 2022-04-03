@@ -35,7 +35,7 @@ if (!exists("meta_HUDCSV_Export_Date")) source("00_dates.R")
 
 Affiliation <- 
   read_csv(paste0(directory, "/Affiliation.csv"), 
-           col_types = "nnnTTnTn") 
+           col_types = "cccTTcTc") 
 
 # Client ------------------------------------------------------------------
 
@@ -120,7 +120,7 @@ EmploymentEducation <-
 
 Exit <-
   read_csv(paste0(directory, "/Exit.csv"),
-           col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTnTn")
+           col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
 
 # Project -----------------------------------------------------------------
 
@@ -241,7 +241,7 @@ Event <-
 
 Funder <- 
   read_csv(paste0(directory, "/Funder.csv"),
-           col_types = "nnnccDDTTcTn")
+           col_types = "ccnccDDTTcTc")
 
 # HealthAndDV -------------------------------------------------------------
 
