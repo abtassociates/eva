@@ -33,14 +33,12 @@ library(lubridate)
 library(HMIS)
 
 if (!exists("Enrollment")) {
-  load("images/COHHIOHMIS.RData")
-  rlang::env_binding_lock(environment(), ls())
+  load("images/CSVExportDFs.RData")
 }
 
 vars_we_want <- c(
   "PersonalID",
   "EnrollmentID",
-  "CountyServed",
   "ProjectName",
   "ProjectID",
   "ProjectType",
@@ -238,78 +236,7 @@ summary <- summary_clients_served %>%
 
 rm(vars_we_want)
 
-# APs ---------------------------------------------------------------------
-
-project_addresses <- ProjectCoC %>%
-  select(ProjectID, CoCCode, Address1, Address2, City, State, ZIP)
-
-APs <- Project %>%
-  inner_join(provider_geo, by = c("ProjectID", "ProjectName")) %>%
-  filter(ProjectType == 14) %>%
-  left_join(provider_services, by = "ProjectID") %>%
-  select(
-    ProjectID,
-    ProjectAKA,
-    OrganizationName,
-    ProjectName,
-    TargetPop,
-    CountiesServed,
-    ProjectAreaServed,
-    ProjectHours,
-    ProjectWebsite,
-    ProjectTelNo
-  ) %>%
-  unique() %>%
-  mutate(OrgLink = if_else(!is.na(ProjectWebsite), paste0(
-    "<a href='",
-    ProjectWebsite,
-    "' target='_blank'>",
-    ProjectAKA,
-    "</a><small> (#",
-    ProjectID,
-    ")</small>"
-  ), paste0(ProjectAKA,
-           "<small> (#",
-           ProjectID,
-           ")</small>"))) %>%
-  left_join(project_addresses, by = "ProjectID") %>%
-  mutate(
-    City = paste0(City, ", ", State, " ", ZIP),
-    Addresses = coalesce(Address1, Address2)
-  ) %>%
-  select(ProjectID, ProjectAKA, OrganizationName, ProjectName, TargetPop,
-         "ProjectCountyServed" = CountiesServed, ProjectAreaServed,
-         ProjectHours, ProjectTelNo, OrgLink, CoCCode, Addresses, City)
-
-write_csv(APs, "public_data/aps.csv")
-  
 rm(list = ls(pattern = "summary_"))
-
-
-# PIT Counts --------------------------------------------------------------
-
-BoS_PIT <- dplyr::tribble(
-  ~Population, ~January2019Count, ~January2020Count,
-  "Total", 3479, 3577,
-  "Sheltered", 3479 - 814, 3577 - 986, # total minus unsheltered
-  "Veterans", 159, 162,
-  "Chronic", 330, 192
-)
-
-Mah_PIT <- dplyr::tribble(
-  ~Population, ~January2019Count, ~January2020Count,
-  "Total", 148, 100,
-  "Sheltered", 133, 78,
-  "Veterans", 3, 2,
-  "Chronic", 18, 6
-)
-
-
-# Counties ----------------------------------------------------------------
-
-bos_counties <- ServiceAreas %>%
-  filter(CoC == "OH-507 Balance of State") %>%
-  pull(County)
 
 # Destinations Groups (FY2020) --------------------------------------------
 
@@ -320,18 +247,6 @@ temp_destinations <-  c(1, 2, 12, 13, 14, 16, 18, 27, 32, 35)
 institutional_destinations <- c(4:7, 15, 25, 27, 29)
 
 other_destinations <- c(8, 9, 17, 24, 30, 37, 99)
-
-# Project Groupings -------------------------------------------------------
-
-GPD_project_ids <- c(751, 776, 749, 1229, 127, 550)
-
-fake_projects <- c(1027, 1849, 1028, 1033, 1032, 1029, 1931, 1030, 1031, 1317)
-
-unsheltered_projects <- c(1695, 1680)
-
-mahoning_projects <-
-  c(696:697, 1327:1328, 1330:1331, 1392, 1638:1641, 1704, 1738, 2103, 2105,
-    2110, 2322:2336, 2338:2360, 2362:2385, 2437)
 
 # Project Type Groupings --------------------------------------------------
 
@@ -346,12 +261,6 @@ lh_ph_hp_project_types <- c(1, 2, 3, 4, 8, 9, 12, 13)
 coc_funded_project_types <- c(2, 3, 13)
 
 project_types_w_beds <- c(1, 2, 3, 8, 9)
-
-# User Groups -------------------------------------------------------------
-
-# HMIS Admins and CoC team UserIDs
-
-COHHIO_admin_user_ids <- c(641, 835, 1041, 1239, 1563, 1624, 1628, 1868, 1698)
 
 # Save it out -------------------------------------------------------------
 # WARNING save.image does not save the environment properly, save must be used.
