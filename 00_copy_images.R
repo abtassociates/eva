@@ -189,80 +189,70 @@ data_prep <- function(object_names, directory, environment, accessor) {
 
 # to Rme
 
-.Rme <- c("active_list",
-          "aps_no_referrals",
-          "Beds",
-          "calc_2_yrs_prior_end",                  
-          "calc_2_yrs_prior_range",                
-          "calc_2_yrs_prior_start",                
-          "calc_data_goes_back_to",                
-          "calc_full_date_range",                  
-          "Client",
-          "dq_main",
-          "dq_past_year",
-          "dq_unsheltered",
-          "data_APs",
-          "dq_overlaps",
-          "detail_eligibility",
-          "dq_plot_eligibility",
-          "dq_plot_errors",
-          "dq_plot_hh_errors",
-          "dq_plot_hh_no_spdat",
-          "dq_plot_outstanding_referrals",
-          "dq_plot_projects_errors",
-          "dq_plot_projects_warnings",
-          "dq_plot_unsheltered_high",
-          "dq_plot_warnings",
-          "dq_providers",
-          "enhanced_yes_no_translator",
-          "hc_began_collecting_covid_data",  
-          "hc_bos_start_vaccine_data",
-          "hc_check_dq_back_to",                   
-          "hc_data_goes_back_to",  
-          "hc_project_eval_start",
-          "hc_project_eval_end",
-          "hc_project_eval_docs_due",
-          "hc_psh_started_collecting_move_in_date",
-          "HUD_specs",
-          "living_situation",
-          "meta_HUDCSV_Export_Date",               
-          "meta_HUDCSV_Export_End",                
-          "meta_HUDCSV_Export_Start",              
-          "meta_Rmisc_last_run_date",  
-          "Organization",
+.Rme <- c(#"active_list",
+          # "aps_no_referrals",
+          # "Beds",
+          "calc_2_yrs_prior_end", # CSVExportDFs                  
+          "calc_2_yrs_prior_range",# CSVExportDFs                
+          "calc_2_yrs_prior_start",# CSVExportDFs                
+          "calc_data_goes_back_to",# CSVExportDFs                
+          "calc_full_date_range",# CSVExportDFs                  
+          "Client",# CSVExportDFs
+          "dq_main",# Data_Quality
+          "dq_past_year",# Data_Quality
+          "dq_overlaps",# Data_Quality
+          "detail_eligibility",# Data_Quality
+          "dq_plot_eligibility",# Data_Quality
+          "dq_plot_errors",# Data_Quality
+          "dq_plot_hh_errors",# Data_Quality
+          # "dq_plot_hh_no_spdat",
+          # "dq_plot_outstanding_referrals",
+          "dq_plot_projects_errors",# Data_Quality
+          "dq_plot_projects_warnings",# Data_Quality
+          "dq_plot_warnings",# Data_Quality
+          "dq_providers",# Data_Quality
+          "enhanced_yes_no_translator",# CSVExportDFs
+          "hc_began_collecting_covid_data",  # CSVExportDFs
+          "hc_bos_start_vaccine_data",# CSVExportDFs
+          "hc_check_dq_back_to",# CSVExportDFs                   
+          "hc_data_goes_back_to",  # CSVExportDFs
+          "hc_project_eval_start",# CSVExportDFs
+          "hc_project_eval_end",# CSVExportDFs
+          "hc_project_eval_docs_due",# CSVExportDFs
+          "hc_psh_started_collecting_move_in_date",# CSVExportDFs
+          "HUD_specs",# CSVExportDFs
+          "living_situation",# CSVExportDFs
+          "meta_HUDCSV_Export_Date",# CSVExportDFs               
+          "meta_HUDCSV_Export_End",  # CSVExportDFs              
+          "meta_HUDCSV_Export_Start",  # CSVExportDFs            
+          "meta_Rmisc_last_run_date", # CSVExportDFs 
+          "Organization",# CSVExportDFs
           # "pe_increase_income",
-          "pe_exits_to_ph",
-          "pe_homeless_history_index",
-          "pe_length_of_stay",
-          "pe_benefits_at_exit",
-          "pe_entries_no_income",
-          "pe_long_term_homeless",
-          "pe_res_prior",
+          # "pe_exits_to_ph",
+          # "pe_homeless_history_index",
+          # "pe_length_of_stay",
+          # "pe_benefits_at_exit",
+          # "pe_entries_no_income",
+          # "pe_long_term_homeless",
+          # "pe_res_prior",
           # "pe_own_housing",
-          "pe_validation_summary",
-          "pe_scored_at_ph_entry",
-          "project_type",
-          "qpr_income",
-          "qpr_benefits",
-          "qpr_leavers",
-          "qpr_rrh_enterers",
-          "qpr_spending",
-          "qpr_spdats_project",
-          "qpr_spdats_county",
-          "Referrals",
-          "regions",
-          "responsible_providers",
-          "Scores",
-          "summary_pe_final_scoring",
-          "unsheltered_by_month",
-          "unsh_overlaps",
-          "Users",
-          "utilizers_clients",
-          "utilization",
-          "utilization_bed",
-          "vaccine_needs_second_dose",
-          "vaccine_status",
-          "validation",
-          "veteran_active_list" 
+          # "pe_validation_summary",
+          # "pe_scored_at_ph_entry",
+          "project_type",# CSVExportDFs
+          # "qpr_income",
+          # "qpr_benefits",
+          # "qpr_leavers",
+          # "qpr_rrh_enterers",
+          # "qpr_spending",
+          # "qpr_spdats_project",
+          # "qpr_spdats_county",
+          # "Referrals",
+          # "summary_pe_final_scoring",
+          "Users",# CSVExportDFs
+          # "utilizers_clients",
+          # "utilization",
+          # "utilization_bed",
+          "validation"#, # maybe try to use cohorts more instead of this?? (QPR_EEs.R)
+          # "veteran_active_list" 
 ) %>% 
   data_prep("../Rminor_elevated", rdata)
