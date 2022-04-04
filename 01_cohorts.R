@@ -262,6 +262,93 @@ coc_funded_project_types <- c(2, 3, 13)
 
 project_types_w_beds <- c(1, 2, 3, 8, 9)
 
+
+# Build Validation df for app ---------------------------------------------
+
+smallProject <- Project %>%
+  select(ProjectID,
+         OrganizationName,
+         OperatingStartDate,
+         OperatingEndDate,
+         ProjectCommonName,
+         ProjectName,
+         ProjectType,
+         HMISParticipatingProject) %>%
+  filter(HMISParticipatingProject == 1 &
+           operating_between(., ymd(calc_data_goes_back_to), ymd(meta_HUDCSV_Export_End)) &
+           ProjectType %in% c(1:4, 8:9, 12:14)) 
+
+smallEnrollment <- Enrollment %>% 
+  select(
+    EnrollmentID,
+    PersonalID,
+    HouseholdID,
+    ProjectID,
+    RelationshipToHoH,
+    EntryDate,
+    MoveInDate,
+    ExitDate,
+    EntryAdjust,
+    MoveInDateAdjust,
+    ExitAdjust,
+    LivingSituation,
+    Destination,
+    DateCreated
+  ) 
+
+validation <- smallProject %>%
+  left_join(smallEnrollment, by = "ProjectID") %>%
+  select(
+    ProjectID,
+    ProjectName,
+    ProjectType,
+    EnrollmentID,
+    PersonalID,
+    HouseholdID,
+    RelationshipToHoH,
+    EntryDate,
+    EntryAdjust,
+    MoveInDate,
+    MoveInDateAdjust,
+    ExitDate,
+    LivingSituation,
+    Destination,
+    DateCreated
+  ) %>%
+  filter(!is.na(EntryDate))
+
+# Clean Up the House ------------------------------------------------------
+
+keepers <- c(
+  "calc_2_yrs_prior_range",# CSVExportDFs                
+  "calc_2_yrs_prior_start",# CSVExportDFs
+  "calc_2_yrs_prior_end", # CSVExportDFs
+  "calc_data_goes_back_to",# CSVExportDFs                
+  "calc_full_date_range",# CSVExportDFs                  
+  "Client",# CSVExportDFs
+  "enhanced_yes_no_translator",# CSVExportDFs
+  "hc_began_collecting_covid_data",  # CSVExportDFs
+  "hc_bos_start_vaccine_data",# CSVExportDFs
+  "hc_check_dq_back_to",# CSVExportDFs                   
+  "hc_data_goes_back_to",  # CSVExportDFs
+  "hc_project_eval_start",# CSVExportDFs
+  "hc_project_eval_end",# CSVExportDFs
+  "hc_project_eval_docs_due",# CSVExportDFs
+  "hc_psh_started_collecting_move_in_date",# CSVExportDFs
+  "HUD_specs",# CSVExportDFs
+  "living_situation",# CSVExportDFs
+  "meta_HUDCSV_Export_Date",# CSVExportDFs               
+  "meta_HUDCSV_Export_End",  # CSVExportDFs              
+  "meta_HUDCSV_Export_Start",  # CSVExportDFs            
+  "meta_Rmisc_last_run_date", # CSVExportDFs 
+  "Organization",# CSVExportDFs
+  "project_type",# CSVExportDFs
+  "Users",# CSVExportDFs
+  "validation"  #cohorts
+)    
+
+rm(list=setdiff(ls(), keepers))
+
 # Save it out -------------------------------------------------------------
 # WARNING save.image does not save the environment properly, save must be used.
 save(list = ls(), file = "images/cohorts.RData")

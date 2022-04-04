@@ -117,11 +117,19 @@ Exit <-
   read_csv(paste0(directory, "/Exit.csv"),
            col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
 
+# Organization ------------------------------------------------------------
+
+Organization <- 
+  read_csv(paste0(directory, "/Organization.csv"),
+           col_types = "ccncTTcTc")
+
 # Project -----------------------------------------------------------------
 
-Project <- 
+Project <-
   read_csv(paste0(directory, "/Project.csv"),
-           col_types = "ccccDDnnnnnnnnnTTcTc") 
+           col_types = "ccccDDnnnnnnnnnTTcTc") %>%
+  left_join(Organization %>% select(OrganizationID, OrganizationName),
+            by = "OrganizationID")
 
 # EnrollmentCoC -----------------------------------------------------------
 
@@ -256,12 +264,6 @@ IncomeBenefits <-
 Inventory <-
   read_csv(paste0(directory, "/Inventory.csv"),
            col_types = "cccnnnnnnnnnnnnDDTTcTc")
-
-# Organization ------------------------------------------------------------
-
-Organization <- 
-  read_csv(paste0(directory, "/Organization.csv"),
-           col_types = "ccncTTcTc")
 
 # ProjectCoC --------------------------------------------------------------
 
