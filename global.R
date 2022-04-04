@@ -25,56 +25,19 @@ library(DT)
 library(writexl)
 library(viridis)
 library(HMIS)
-library(feather)
 
-if (!exists("df_nms")) {
-  e <- environment()
-  list2env(readRDS("data/Rminor_elevated.rds"), e)
-}
+load("images/cohorts.RData")
+load("images/Data_Quality.RData")
 
-providers <- sort(validation()$ProjectName) %>% unique() 
+projects <- sort(validation$ProjectName) %>% unique()
 
-desk_time_providers <- validation() %>%
-  dplyr::filter(entered_between(., 
-                         format.Date(ymd(today() - years(1)), "%m-%d-%Y"), 
-                         format.Date(ymd(today()), "%m-%d-%Y")) &
-           ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13) &
-           ProjectName != "Non-HMIS Shelter Clients") %>%
+desk_time_providers <- validation %>%
+  dplyr::filter(
+    (entered_between(., today() - years(1), today()) |
+      exited_between(., today() - years(1), today())) &
+    ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
   dplyr::select(ProjectName) %>% unique()
 
-tab_choices <- unique(regions()$RegionName) %>% 
-{list(
-  spdat1 = list(
-    choices = .
-  ),
-  spdat2 = list(
-    choices = .
-  ),
-  LoS = list(
-    choices = unique(qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1, 2, 8, 13)])
-  ),
-  PH = list(
-    choices = unique(qpr_leavers()$ProjectName[qpr_leavers()$ProjectType %in% c(1:4, 8:9, 12:13)])
-  ),
-  NCB = list(
-    choices = unique(qpr_benefits()$ProjectName)
-  ),
-  HI = list(
-    choices = unique(qpr_benefits()$ProjectName)
-  ),
-  income = list(
-    choices = unique(qpr_income()$ProjectName)
-  ),
-  rapid = list(
-    choices = unique(sort(
-      qpr_rrh_enterers()$ProjectName
-    ))
-  ),
-  spending = list(
-    choices = unique(sort(
-      qpr_spending()$OrganizationName
-    ))
-  )
-)}
+
 
 
