@@ -20,9 +20,8 @@ library(HMIS)
 
 source("04_Guidance.R")
 if (!exists("Enrollment")) load("images/CSVExportDFs.RData")
-if (!exists("tay")) {
-  load("images/cohorts.RData")
-}
+if (!exists("tay")) load("images/cohorts.RData")
+
 
 va_funded <- Funder %>%
   filter(Funder %in% c(27, 30, 33, 37:42, 45)) %>%
@@ -44,11 +43,8 @@ ssvf_funded <- Funder %>%
 
 projects_current_hmis <- Project %>%
   left_join(Inventory, by = "ProjectID") %>%
-  left_join(Organization %>% select(OrganizationID, OrganizationName), 
-            by = "OrganizationID") %>%
-  filter(
-    HMISParticipatingProject == 1 &
-      operating_between(., ymd(calc_data_goes_back_to), ymd(meta_HUDCSV_Export_End))) %>% 
+  filter(HMISParticipatingProject == 1 &
+           operating_between(., ymd(calc_data_goes_back_to), ymd(meta_HUDCSV_Export_End))) %>%
   select(
     ProjectID,
     OrganizationID,
@@ -2927,99 +2923,21 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     
     # Clean up the house ------------------------------------------------------
     
-    rm(
-      aps_with_ees,
-      check_disability_ssi,
-      check_eligibility,
-      conflicting_disabilities,
-      conflicting_health_insurance_entry,
-      conflicting_health_insurance_exit,
-      conflicting_income_entry,
-      conflicting_income_exit,
-      conflicting_ncbs_entry,
-      conflicting_ncbs_exit,
-      # detail_eligibility, # the app needs this; keep this commented out
-      detail_missing_disabilities,
-      dkr_living_situation,
-      dkr_months_times_homeless,
-      dkr_residence_prior,
-      dkr_destination,
-      dkr_LoS,
-      dkr_client_veteran_info,
-      dq_data_unsheltered_high,
-      dq_dob,
-      dq_ethnicity,
-      dq_gender,
-      dq_name,
-      dq_race,
-      dq_ssn,
-      dq_veteran,
-      duplicate_ees,
-      entered_ph_without_spdat,
-      extremely_long_stayers,
-      future_ees,
-      future_exits,
-      hh_issues,
-      incorrect_ee_type,
-      incorrect_path_contact_date,
-      missing_path_contact,
-      internal_old_outstanding_referrals,
-      lh_without_spdat,
-      missing_approx_date_homeless,
-      missing_client_location,
-      missing_county_prior,
-      missing_county_served,
-      missing_destination,
-      missing_disabilities,
-      missing_health_insurance_entry,
-      missing_health_insurance_exit,
-      missing_income_entry,
-      missing_income_exit,
-      invalid_months_times_homeless,
-      missing_living_situation,
-      missing_LoS,
-      missing_months_times_homeless,
-      missing_ncbs_entry,
-      missing_ncbs_exit,
-      missing_previous_street_ESSH,
-      missing_residence_prior,
-      path_enrolled_missing,
-      path_missing_los_res_prior,
-      path_no_status_at_exit,
-      path_reason_missing,
-      path_SOAR_missing_at_exit,
-      path_status_determination,
-      projects_current_hmis,
-      referrals_on_hh_members,
-      referrals_on_hh_members_ssvf,
-      rent_paid_no_move_in,
-      served_in_date_range,
-      services_on_hh_members,
-      services_on_hh_members_ssvf,
-      smallProject,
-      spdat_on_non_hoh,
-      ssvf_missing_address,
-      ssvf_missing_vamc,
-      ssvf_missing_percent_ami,      
-      ssvf_served_in_date_range,      
-      staging_outstanding_referrals,
-      stray_services_warning,
-      unlikely_ncbs_entry,
-      unsheltered_enrollments,
-      unsheltered_not_unsheltered,
-      unsheltered_long_not_referred,
-      va_funded,
-      vars_prep,
-      vars_we_want,
-      veteran_missing_year_entered,
-      veteran_missing_year_separated,
-      veteran_missing_wars,
-      veteran_missing_branch,
-      veteran_missing_discharge_status
+    keepers <- c(
+      "dq_main",
+      "dq_past_year",
+      "dq_overlaps",
+      "detail_eligibility",
+      "dq_plot_eligibility",
+      "dq_plot_errors",
+      "dq_plot_hh_errors",
+      "dq_plot_projects_errors",
+      "dq_plot_projects_warnings",
+      "dq_plot_warnings",
+      "dq_providers"
     )    
-    rm(list = ls(pattern = "dq_data_"))
-    rm(list = ls(pattern = "guidance_"))
-
+    rm(list=setdiff(ls(), keepers))
+    
 # WARNING save.image does not save the environment properly, save must be used.
 save(list = ls(), file = "images/Data_Quality.RData", compress = FALSE)
     
