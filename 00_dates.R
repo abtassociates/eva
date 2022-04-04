@@ -67,7 +67,7 @@ meta_HUDCSV_Export_Start <- Export %>% pull(ExportStartDate)
 
 meta_HUDCSV_Export_End <- Export %>% pull(ExportEndDate)
 
-meta_HUDCSV_pulled <- Export %>% pull(ExportDate)
+meta_HUDCSV_Export_Date <- Export %>% pull(ExportDate)
 
 # Calculated Dates --------------------------------------------------------
 
