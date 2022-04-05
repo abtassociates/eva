@@ -295,7 +295,6 @@ Enrollment <- Enrollment %>%
 
 rm(small_client)
 
-
 # Assessments -------------------------------------------------------------
 
 Assessment <- read_csv(paste0(directory, "/Assessment.csv"),
