@@ -622,6 +622,7 @@ function(input, output, session) {
             is.na(ExitDate) ~ "Currently in project",
           !ProjectType %in% c(3, 13) &
             !is.na(ExitDate) ~ "Exited project",
+          TRUE ~ "something's wrong"
         )
       ) %>%
       group_by(Status) %>%
@@ -1515,10 +1516,9 @@ function(input, output, session) {
     }
   })
   
-  output$DQIncorrectEETypeTable <- renderTable({
 
   
-  output$DQErrors <- DT::renderDataTable({
+  output$DQErrors <- DT::renderDT({
     ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
     
@@ -1533,8 +1533,8 @@ function(input, output, session) {
           "Duplicate Entry Exits",
           "Access Point with Entry Exits"
         ) & # because these are all in the boxes already
-          served_between(., ReportStart, ReportEnd) &
           ProjectName %in% c(input$providerListDQ) &
+          served_between(., ReportStart, ReportEnd) &
           Type == "Error"
       ) %>%
       arrange(HouseholdID, PersonalID) %>%
@@ -1548,7 +1548,8 @@ function(input, output, session) {
       filter = 'top',
       options = list(dom = 'ltpi')
     )
-  })
+
+      })
   
   output$veteranActiveListEligibilityLegend<-
     renderUI(
@@ -2807,4 +2808,4 @@ function(input, output, session) {
     
   })
   
-}) }
+ }
