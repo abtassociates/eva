@@ -38,9 +38,8 @@ dashboardPage(
                tabName = "utilizationTab"),
       menuItem(
         "Data Quality",
-        menuSubItem("Provider-level", tabName = "dqTab"),
+        menuSubItem("Project-level", tabName = "dqTab"),
         menuSubItem("Data Entry Timeliness", tabName = "deskTime"),
-        menuSubItem("Unsheltered", tabName = "unsheltered"),
         menuSubItem("Region-level", tabName = "dqRegion"),
         menuSubItem("System-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
