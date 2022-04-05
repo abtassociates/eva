@@ -435,11 +435,12 @@ dashboardPage(
         fluidRow(uiOutput("DQIneligible")),
         fluidRow(uiOutput("DQOverlappingEEs")),
         fluidRow(box(
-          DT::dataTableOutput("DQErrors"),
+          DTOutput("DQErrors"),
           title = "Data Quality Errors",
           width = 12
         )),
         fluidRow(box(
+          id = "warnings",
           DT::dataTableOutput("DQWarnings"),
           title = "Data Quality Warnings",
           width = 12
