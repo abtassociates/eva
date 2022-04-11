@@ -141,7 +141,7 @@ function(input, output, session) {
   })
   
   output$headerOrganizationDQ <- renderUI({
-    list(h2("Data Quality"),
+    list(h2("Data Quality Summary (Organization)"),
          h4(paste(
            format(input$dq_startdate, "%m-%d-%Y"),
            "to",
@@ -449,7 +449,7 @@ function(input, output, session) {
       select(
         "Client ID" = PersonalID,
         "County" = CountyServed,
-        "Provider Name" = ProjectName,
+        "Project Name" = ProjectName,
         "Age at Entry" = AgeAtEntry,
         "Veteran" = VeteranStatus,
         "Entry Date" = EntryDate,
@@ -934,13 +934,15 @@ function(input, output, session) {
       select(ProjectName, Type, Issue, PersonalID) %>%
       group_by(ProjectName, Type, Issue) %>%
       summarise(Clients = n()) %>%
-      select("Provider Name" = ProjectName, Type, Issue, Clients) %>%
+      select("Project Name" = ProjectName, Type, Issue, Clients) %>%
       arrange(Type, desc(Clients))
     
-    datatable(a, 
-              rownames = FALSE,
-              filter = 'top',
-              options = list(dom = 'ltpi'))
+    datatable(
+      a,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    )
   })
   
   output$DuplicateEEs <- renderTable({
@@ -948,7 +950,7 @@ function(input, output, session) {
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     DuplicateEEs <- dq_main %>%
       filter(
-        Issue == "Duplicate Entry Exits" &
+        Issue == "Duplicate Enrollments" &
           ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
@@ -970,7 +972,7 @@ function(input, output, session) {
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     DuplicateEEs <- dq_main %>%
       filter(
-        Issue == "Duplicate Entry Exits" &
+        Issue == "Duplicate Enrollments" &
           ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
@@ -982,15 +984,15 @@ function(input, output, session) {
     if (nrow(DuplicateEEs) > 0) {
       box(
         id = "dup_ees",
-        title = "Duplicate Entry Exits",
+        title = "Duplicate Enrollments",
         status = "warning",
         solidHeader = TRUE,
         HTML(
           "Please correct this issue before moving on to your other errors.<br>
-         Duplicate Entry Exits are created when the user clicks \"Add Entry Exit\"
+         Duplicate Enrollments are created when the user clicks \"Add Entry Exit\"
          instead of clicking the Entry pencil to get back into an assessment.
          These must be deleted for each member of the household. Please take
-         care to not delete Entry Exits with valid Interims attached."
+         care to not delete Enrollments with valid Interims attached."
         ),
         tableOutput("DuplicateEEs")
       )
@@ -1164,7 +1166,7 @@ function(input, output, session) {
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     APs_w_EEs <- dq_main %>%
       filter(
-        Issue == "Access Point with Entry Exits" &
+        Issue == "Access Point with Enrollments" &
           ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       ) %>%
@@ -1184,19 +1186,19 @@ function(input, output, session) {
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     APs_w_EEs <- dq_main %>%
       filter(
-        Issue == "Access Point with Entry Exits" &
+        Issue == "Access Point with Enrollments" &
           ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd)
       )
     if (nrow(APs_w_EEs) > 0) {
       box(
         id = "ees_on_ap",
-        title = "Access Points Do Not Create Entry Exits",
+        title = "Access Points Do Not Create Enrollments",
         status = "danger",
         solidHeader = TRUE,
         HTML(
           "Please consult the Coordinated Entry workflow. Access Point providers
-          should not have any Entry Exits. These Entry Exits should be deleted."
+          should not have any Enrollments. These Enrollments should be deleted."
         ),
         tableOutput("APs_with_EEs")
       )
@@ -1255,7 +1257,7 @@ function(input, output, session) {
     if (nrow(OverlappingEEs) > 0) {
       box(
         id = "overlappers",
-        title = "Overlapping Entry Exits",
+        title = "Overlapping Enrollments",
         status = "warning",
         solidHeader = TRUE,
         width = 12,
@@ -1325,7 +1327,7 @@ function(input, output, session) {
       arrange(desc(Clients)) %>%
       top_n(20L, wt = Clients) %>%
       select("Project Name" = ProjectName,
-             "Clients with Overlapping Entry Exits" = Clients)
+             "Clients with Overlapping Enrollments" = Clients)
     datatable(a,
               rownames = FALSE)
   })
@@ -1531,8 +1533,8 @@ function(input, output, session) {
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
-          "Duplicate Entry Exits",
-          "Access Point with Entry Exits"
+          "Duplicate Enrollments",
+          "Access Point with Enrollments"
         ) & # because these are all in the boxes already
           ProjectName %in% c(input$providerListDQ) &
           served_between(., ReportStart, ReportEnd) &
@@ -1707,7 +1709,7 @@ function(input, output, session) {
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
-          "Duplicate Entry Exits",
+          "Duplicate Enrollments",
           "Check Eligibility"
         ) &
           served_between(., ReportStart, ReportEnd) &
@@ -1863,7 +1865,7 @@ function(input, output, session) {
     ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
     DuplicateEEs <- dq_unsheltered() %>%
       filter(
-        Issue == "Duplicate Entry Exits" &
+        Issue == "Duplicate Enrollments" &
           DefaultProvider == input$unshDefaultProvidersList &
           served_between(., ReportStart, ReportEnd)
       ) %>%
@@ -1885,7 +1887,7 @@ function(input, output, session) {
     ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
     DuplicateEEs <- dq_unsheltered() %>%
       filter(
-        Issue == "Duplicate Entry Exits" &
+        Issue == "Duplicate Enrollments" &
           DefaultProvider == input$unshDefaultProvidersList &
           served_between(., ReportStart, ReportEnd)
       ) %>%
@@ -1894,15 +1896,15 @@ function(input, output, session) {
     if (nrow(DuplicateEEs) > 0) {
       box(
         id = "dup_ees",
-        title = "Duplicate Entry Exits",
+        title = "Duplicate Enrollments",
         status = "warning",
         solidHeader = TRUE,
         HTML(
           "Please correct this issue before moving on to your other errors.<br>
-         Duplicate Entry Exits are created when the user clicks \"Add Entry Exit\"
+         Duplicate Enrollments are created when the user clicks \"Add Entry Exit\"
          instead of clicking the Entry pencil to get back into an assessment.
          These must be deleted for each member of the household. Please take
-         care to not delete Entry Exits with valid Interims attached."
+         care to not delete Enrollments with valid Interims attached."
         ),
         tableOutput("unshDuplicateEEsTable")
       )
@@ -2083,7 +2085,7 @@ function(input, output, session) {
     if (nrow(overlaps) > 0) {
       box(
         id = "overlaps_unsh",
-        title = "Overlapping Entry Exits",
+        title = "Overlapping Enrollments",
         status = "warning",
         solidHeader = TRUE,
         HTML(
@@ -2123,7 +2125,7 @@ function(input, output, session) {
           "Overlapping Project Stays",
           "Missing County Served",
           "Missing County of Prior Residence",
-          "Duplicate Entry Exits",
+          "Duplicate Enrollments",
           "Wrong Provider (Not Unsheltered)",
           "Incorrect Entry Exit Type"
         ) &
@@ -2156,7 +2158,7 @@ function(input, output, session) {
           "No Head of Household",
           "Children Only Household",
           "Overlapping Project Stays",
-          "Duplicate Entry Exits",
+          "Duplicate Enrollments",
           "Check Eligibility"
         ) &
           served_between(., ReportStart, ReportEnd) &

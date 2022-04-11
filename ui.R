@@ -674,7 +674,7 @@ dashboardPage(
       #   fluidRow(
       #     box(
       #       DT::dataTableOutput("cocOverlap"),
-      #       title = "Top 20 Providers with Overlapping Entry Exits",
+      #       title = "Top 20 Providers with Overlapping Enrollments",
       #       solidHeader = TRUE,
       #       status = "warning"
       #     ),
