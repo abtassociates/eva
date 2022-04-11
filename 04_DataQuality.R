@@ -126,6 +126,7 @@ rm(DV)
 vars_prep <- c(
   "HouseholdID",
   "PersonalID",
+  "OrganizationName",
   "ProjectName",
   "ProjectType",
   "EntryDate",
@@ -618,6 +619,7 @@ dkr_living_situation <- served_in_date_range %>%
     HouseholdID,
     EnrollmentID,
     ProjectID,
+    OrganizationName,
     ProjectType,
     ProjectName,
     EntryDate,
@@ -2075,31 +2077,37 @@ check_eligibility <- served_in_date_range %>%
     
     # SSVF --------------------------------------------------------------------
     
-    ssvf_served_in_date_range <- Enrollment %>%
+    ssvf_served_in_date_range <- served_in_date_range %>%
+      filter(ProjectID %in% c(ssvf_funded)) %>%
       select(
         EnrollmentID,
         HouseholdID,
         PersonalID,
+        ProjectID,
         ProjectName,
-        ProjectType,
-        EntryDate,
-        MoveInDateAdjust,
-        ExitDate,
-        RelationshipToHoH,
-        PercentAMI,
-        LastPermanentStreet,
-        LastPermanentCity,
-        LastPermanentState,
-        LastPermanentZIP,
-        AddressDataQuality,
-        VAMCStation,
-        HPScreeningScore,
-        ThresholdScore
+        OrganizationName,
+        ProjectType
       ) %>%
-      right_join(
-        served_in_date_range %>%
-          filter(ProjectID %in% c(ssvf_funded)) %>%
-          select(PersonalID, EnrollmentID, HouseholdID),
+      left_join(
+        Enrollment %>%
+          select(
+            EnrollmentID,
+            HouseholdID,
+            PersonalID,
+            EntryDate,
+            MoveInDateAdjust,
+            ExitDate,
+            RelationshipToHoH,
+            PercentAMI,
+            LastPermanentStreet,
+            LastPermanentCity,
+            LastPermanentState,
+            LastPermanentZIP,
+            AddressDataQuality,
+            VAMCStation,
+            HPScreeningScore,
+            ThresholdScore
+          ),
         by = c("PersonalID", "EnrollmentID", "HouseholdID")
       ) %>%
       left_join(
