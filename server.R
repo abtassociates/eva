@@ -140,6 +140,16 @@ function(input, output, session) {
          )))
   })
   
+  output$headerOrganizationDQ <- renderUI({
+    list(h2("Data Quality"),
+         h4(paste(
+           format(input$dq_startdate, "%m-%d-%Y"),
+           "to",
+           format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
+         )))
+  })
+  
+  
   output$headerDeskTime <- renderUI({
     list(h2("Data Entry Timeliness"),
          h4(input$providersDeskTime),
@@ -915,28 +925,19 @@ function(input, output, session) {
     }
   })
   
-  output$dq_region_summary_table <- DT::renderDataTable({
-    ReportStart <- format.Date(input$dq_region_startdate, "%m-%d-%Y")
+  output$dq_organization_summary_table <- DT::renderDataTable({
+    ReportStart <- format.Date(input$dq_org_startdate, "%m-%d-%Y")
     ReportEnd <- format.Date(today(), "%m-%d-%Y")
     a <- dq_main %>%
-      filter(ProjectRegion == input$regionList3 &
+      filter(OrganizationName == input$orgList &
                served_between(., ReportStart, ReportEnd)) %>%
-      select(ProjectName, Type, Issue, PersonalID)
-    
-    b <- dq_unsheltered() %>%
-      filter(UserRegion == input$regionList3 &
-               served_between(., ReportStart, ReportEnd)) %>%
-      mutate(ProjectName = paste("Unsheltered Provider, entered by a user from", 
-                                 DefaultProvider))%>%
-      select(ProjectName, Type, Issue, PersonalID)
-    
-    c <- rbind(a, b) %>%
+      select(ProjectName, Type, Issue, PersonalID) %>%
       group_by(ProjectName, Type, Issue) %>%
       summarise(Clients = n()) %>%
       select("Provider Name" = ProjectName, Type, Issue, Clients) %>%
       arrange(Type, desc(Clients))
     
-    datatable(c, 
+    datatable(a, 
               rownames = FALSE,
               filter = 'top',
               options = list(dom = 'ltpi'))

@@ -40,7 +40,7 @@ dashboardPage(
         "Data Quality",
         menuSubItem("Project-level", tabName = "dqTab"),
         menuSubItem("Data Entry Timeliness", tabName = "deskTime"),
-        menuSubItem("Region-level", tabName = "dqRegion"),
+        menuSubItem("Organization-level", tabName = "dqOrganization"),
         menuSubItem("System-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
       ),
@@ -485,38 +485,38 @@ dashboardPage(
             width = 12
           )
         )
-      )#,
-      # tabItem(tabName = "dqRegion",
-              # fluidRow(box(
-              #   htmlOutput("headerRegionDataQuality"), width = 12
-              # )),
-              # fluidRow(box(
-              #   pickerInput(
-              #     inputId = "regionList3",
-              #     choices = c(unique(regions()$RegionName)),
-              #     options = pickerOptions(liveSearch = TRUE,
-              #                             liveSearchStyle = 'contains'),
-              #     width = "70%"
-              #   ),
-              #   dateInput(
-              #     inputId = "dq_region_startdate",
-              #     label = "Report Start Date",
-              #     format = "mm/dd/yyyy",
-              #     value = ymd(hc_check_dq_back_to),
-              #     width = "25%"
-              #   ),
-              #   width = 12
-              # )),
-              # fluidRow(
-              #   box(
-              #     id = "DQSummaryRegion",
-              #     title = paste("Data Quality Summary"),
-              #     status = "info",
-              #     solidHeader = TRUE,
-              #     DT::dataTableOutput("dq_region_summary_table"),
-              #     width = 12
-              #   )
-              # )),
+      ),
+      tabItem(tabName = "dqOrganization",
+              fluidRow(box(
+                htmlOutput("headerOrganizationDQ"), width = 12
+              )),
+              fluidRow(box(
+                pickerInput(
+                  inputId = "orgList",
+                  choices = c(unique(Organization$OrganizationName)),
+                  options = pickerOptions(liveSearch = TRUE,
+                                          liveSearchStyle = 'contains'),
+                  width = "70%"
+                ),
+                dateInput(
+                  inputId = "dq_org_startdate",
+                  label = "Report Start Date",
+                  format = "mm/dd/yyyy",
+                  value = ymd(hc_check_dq_back_to),
+                  width = "25%"
+                ),
+                width = 12
+              )),
+              fluidRow(
+                box(
+                  id = "DQSummaryOrganization",
+                  title = paste("Data Quality Summary"),
+                  status = "info",
+                  solidHeader = TRUE,
+                  DT::dataTableOutput("dq_organization_summary_table"),
+                  width = 12
+                )
+              ))
       # tabItem(
       #   tabName = "unsheltered",
       #   fluidRow(box(
