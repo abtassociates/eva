@@ -262,6 +262,15 @@ coc_funded_project_types <- c(2, 3, 13)
 
 project_types_w_beds <- c(1, 2, 3, 8, 9)
 
+# Funding Source Groupings ------------------------------------------------
+
+va_funded <- c(27, 30, 33, 37:42, 45)
+
+rhy_funded <- c(22:26)
+
+path_funded <- 21
+
+ssvf_funded <- 33
 
 # Build Validation df for app ---------------------------------------------
 
@@ -320,6 +329,12 @@ validation <- smallProject %>%
 # Clean Up the House ------------------------------------------------------
 
 keepers <- c(
+  "va_funded", # DQ & utilization
+  "rhy_funded",# DQ & utilization
+  "path_funded",# DQ & utilization
+  "ssvf_funded",# DQ & utilization
+  "lh_project_types", # utilization
+  "project_types_w_beds", # Utilization
   "calc_2_yrs_prior_range",# CSVExportDFs                
   "calc_2_yrs_prior_start",# CSVExportDFs
   "calc_2_yrs_prior_end", # CSVExportDFs
