@@ -17,12 +17,8 @@ library(lubridate)
 library(scales)
 library(HMIS)
 
-if (!exists("Enrollment")) load("images/COHHIOHMIS.RData")
-if (!exists("tay")) {
-  load("images/cohorts.RData")
-  # rlang::env_binding_lock(environment(), ls())
-}
-
+if (!exists("Enrollment")) load("images/CSVExportDFs.RData")
+if (!exists("tay")) load("images/cohorts.RData")
 
 # despite the fact we're pulling in usually more than 2 years of data, the 
 # utilization reporting will only go back 2 years. (decision based on lack of
@@ -40,8 +36,9 @@ small_project <- Project %>%
          HMISParticipatingProject) %>%
   filter(ProjectType %in% c(project_types_w_beds) &
            operating_between(Project, FileStart, FileEnd) &
-           is.na(Project$GrantType) &
-           HMISParticipatingProject == 1)
+           HMISParticipatingProject == 1) %>%
+  left_join(Funder, by = "ProjectID") %>%
+  filter(!Funder %in% c(rhy_funded, ssvf_funded, path_funded))
 
 small_inventory <- Inventory %>%
   select(
@@ -58,8 +55,7 @@ small_inventory <- Inventory %>%
         ymd(InventoryEndDate) >= mdy(FileStart) |
           is.na(InventoryEndDate)
       )
-  ) &
-    Inventory$CoCCode %in% c("OH-507", "OH-504"))
+  ))
 
 Beds <- inner_join(small_project, small_inventory, by = "ProjectID")
 
@@ -114,8 +110,7 @@ utilizers_clients <- Utilizers %>%
         ymd(MoveInDateAdjust) < ymd(ExitAdjust)
     ) |
       ProjectType %in% c(1, 2, 8)
-  ) &
-    !ProjectID %in% c(1775, 1695, fake_projects))
+  ))
 
 # filtering Beds object to exclude any providers that served 0 hhs in date range
 
@@ -446,9 +441,7 @@ HHUtilizers <- Utilizers %>%
     StayWindow = interval(ymd(EntryAdjust), ymd(ExitAdjust))
   ) %>%
   filter(
-    str_detect(HouseholdID, fixed("s_")) |
-      (str_detect(HouseholdID, fixed("h_")) &
-         RelationshipToHoH == 1) &
+    RelationshipToHoH == 1 &
       int_overlaps(StayWindow, FilePeriod) &
       (
         (
@@ -458,8 +451,7 @@ HHUtilizers <- Utilizers %>%
             ymd(MoveInDateAdjust) <= ymd(ExitAdjust)
         ) |
           ProjectType %in% c(lh_project_types)
-      ) &
-      !ProjectID %in% c(1775, 1695, fake_projects)
+      )
   ) %>%
   select(-EntryDate,-MoveInDateAdjust,-HouseholdID,-RelationshipToHoH)
 
@@ -740,8 +732,7 @@ rm(bed_capacity, bed_nights_per_ee, unit_capacity)
 small_project <- Project %>%
   filter(ProjectType %in% c(project_types_w_beds) &
            ymd(OperatingStartDate) <= today() &
-           (is.na(OperatingEndDate) | OperatingEndDate >= today()) &
-           is.na(Project$GrantType)) %>%
+           (is.na(OperatingEndDate) | OperatingEndDate >= today())) %>%
   select(ProjectID,
          ProjectName,
          ProjectType, 
