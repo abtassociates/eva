@@ -697,7 +697,7 @@ function(input, output, session) {
       
       z <-
         paste("Bed Nights in", format(ymd(input$utilizationDate), "%B %Y"))
-      # input <- list(providerListUtilization = sample(c(sort(utilization_bed()$ProjectName)), 1))
+      # input <- list(providerListUtilization = sample(c(sort(utilization_bed$ProjectName)), 1))
       a <- utilizers_clients %>%
         filter(
           ProjectName == input$providerListUtilization,
@@ -742,7 +742,7 @@ function(input, output, session) {
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- Beds() %>%
+      beds <- Beds %>%
         filter(ProjectName == input$providerListUtilization &
                  beds_available_between(., ReportStart, ReportEnd)) %>%
         group_by(ProjectID) %>%
@@ -786,7 +786,7 @@ function(input, output, session) {
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- Beds() %>%
+      beds <- Beds %>%
         filter(ProjectName == input$providerListUtilization &
                  beds_available_between(., ReportStart, ReportEnd)) %>%
         group_by(ProjectID) %>%
@@ -843,7 +843,7 @@ function(input, output, session) {
       
       colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
       
-      beds <- Beds() %>%
+      beds <- Beds %>%
         filter(ProjectName == input$providerListUtilization &
                  beds_available_between(., ReportStart, ReportEnd)) %>%
         group_by(ProjectID) %>%

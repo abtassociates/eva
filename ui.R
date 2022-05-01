@@ -20,20 +20,20 @@ dashboardPage(
       id = "sidebarmenuid",
       menuItem("Home",
                tabName = "homeTab"),
-      menuItem("Prioritization",
-               tabName = "prioritizationListTab"),
+      # menuItem("Prioritization",
+      #          tabName = "prioritizationListTab"),
       menuItem("Client Counts",
                tabName = "currentProviderLevel"),
-      menuItem(
-        "Ending Veteran Homelessness",
-        menuSubItem("Active List (Beta)", tabName = "vetActiveList")#,
-        # menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
-        # menuSubItem("Inflow Outflow", tabName = "flow")
-      ),
-      menuItem("COVID-19 Vaccine Distribution",
-        menuSubItem("Vaccine Status", tabName = "vaccineStatus"),
-        menuSubItem("Second Dose Logistics", tabName = "vaccineSecondDose")
-      ), 
+      # menuItem(
+      #   "Ending Veteran Homelessness",
+      #   menuSubItem("Active List (Beta)", tabName = "vetActiveList")#,
+      #   # menuSubItem("USICH Benchmarks", tabName = "dashUSICH"),
+      #   # menuSubItem("Inflow Outflow", tabName = "flow")
+      # ),
+      # menuItem("COVID-19 Vaccine Distribution",
+      #   menuSubItem("Vaccine Status", tabName = "vaccineStatus"),
+      #   menuSubItem("Second Dose Logistics", tabName = "vaccineSecondDose")
+      # ), 
       menuItem("Bed and Unit Utilization",
                tabName = "utilizationTab"),
       menuItem(
@@ -43,34 +43,34 @@ dashboardPage(
         menuSubItem("Organization-level", tabName = "dqOrganization"),
         menuSubItem("System-wide", tabName = "dqCoC"),
         menuSubItem("CE Summary", tabName = "ceCoC")
-      ),
-      menuItem("BoS CoC Competition",
-               tabName = "cocCompetitionTab"),
-      menuItem(
-        "Quarterly Performance Report",
-        menuItem(
-          "Community Need",
-          tabName = "spdatTab",
-          menuSubItem("PSH/RRH Detail",
-                      tabName = "spdat1-Tab"),
-          menuSubItem("County Detail",
-                      tabName = "spdat2-Tab")
-        ),
-        menuSubItem("Length of Stay",
-                    tabName = "LoS-Tab"),
-        menuSubItem("Exits to Permanent Housing",
-                    tabName = "PHTab"),
-        menuSubItem("Non-Cash Benefits at Exit",
-                    tabName = "NCB-Tab"),
-        menuSubItem("Health Insurance at Exit",
-                    tabName = "HI-Tab"),
-        menuSubItem("Income Growth",
-                    tabName = "income-Tab"),
-        menuSubItem("Rapid Placement for RRH",
-                    tabName = "rapid-Tab"),
-        menuSubItem("RRH Spending",
-                    tabName = "spendingTab")
-      )
+      )#,
+      # menuItem("BoS CoC Competition",
+      #          tabName = "cocCompetitionTab"),
+      # menuItem(
+      #   "Quarterly Performance Report",
+      #   menuItem(
+      #     "Community Need",
+      #     tabName = "spdatTab",
+      #     menuSubItem("PSH/RRH Detail",
+      #                 tabName = "spdat1-Tab"),
+      #     menuSubItem("County Detail",
+      #                 tabName = "spdat2-Tab")
+      #   ),
+      #   menuSubItem("Length of Stay",
+      #               tabName = "LoS-Tab"),
+      #   menuSubItem("Exits to Permanent Housing",
+      #               tabName = "PHTab"),
+      #   menuSubItem("Non-Cash Benefits at Exit",
+      #               tabName = "NCB-Tab"),
+      #   menuSubItem("Health Insurance at Exit",
+      #               tabName = "HI-Tab"),
+      #   menuSubItem("Income Growth",
+      #               tabName = "income-Tab"),
+      #   menuSubItem("Rapid Placement for RRH",
+      #               tabName = "rapid-Tab"),
+      #   menuSubItem("RRH Spending",
+      #               tabName = "spendingTab")
+      # )
     ),
     HTML(
       paste0(
@@ -252,62 +252,62 @@ dashboardPage(
       #     )
       #   )
       # ),
-      # tabItem(
-      #   tabName = "utilizationTab",
-      #   fluidPage(
-      #     fluidRow(box(htmlOutput(
-      #       "headerUtilization"
-      #     ), width = 12)),
-      #     fluidRow(
-      #       box(
-      #         title = "NOTICE",
-      #         status = "warning",
-      #         solidHeader = TRUE,
-      #         "During this time, congregate facilities should be aiming to 
-      #         deconcentrate. If this causes fluctuations in Utilization, that is 
-      #         okay. Please continue to keep your clients safe."
-      #         ,
-      #         width = 6
-      #       )
-      #     ),
-      #     fluidRow(box(
-      #       pickerInput(
-      #         label = "Select Provider",
-      #         inputId = "providerListUtilization",
-      #         choices = c(sort(utilization_bed()$ProjectName)),
-      #         options = pickerOptions(liveSearch = TRUE,
-      #                                 liveSearchStyle = 'contains'),
-      #         width = "100%"
-      #       ),
-      #       airDatepickerInput(
-      #         inputId = "utilizationDate",
-      #         label = "Click to Choose a Month",
-      #         max = ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-      #         min = ymd(floor_date(ymd(
-      #           meta_HUDCSV_Export_End
-      #         ), "month") - years(2) + days(1)),
-      #         dateFormat = "MM yyyy",
-      #         view = "month",
-      #         value =
-      #           ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-      #         minView = "months",
-      #         addon = "none",
-      #         autoClose = TRUE,
-      #         width = '50%'
-      #       ),
-      #       width = 12
-      #     )),
-      #     fluidRow(box(
-      #       infoBoxOutput("utilizationSummary0", width = '100%'),
-      #       infoBoxOutput("utilizationSummary1", width = '100%'),
-      #       infoBoxOutput("utilizationSummary2", width = '100%'),
-      #       width = 12
-      #     )),
-      #     fluidRow(box(
-      #       DT::dataTableOutput("utilizationDetail"), width = 12
-      #     ))
-      #   )
-      # ),
+      tabItem(
+        tabName = "utilizationTab",
+        fluidPage(
+          fluidRow(box(htmlOutput(
+            "headerUtilization"
+          ), width = 12)),
+          fluidRow(
+            box(
+              title = "NOTICE",
+              status = "warning",
+              solidHeader = TRUE,
+              "During this time, congregate facilities should be aiming to
+              deconcentrate. If this causes fluctuations in Utilization, that is
+              okay. Please continue to keep your clients safe."
+              ,
+              width = 6
+            )
+          ),
+          fluidRow(box(
+            pickerInput(
+              label = "Select Provider",
+              inputId = "providerListUtilization",
+              choices = c(sort(utilization_bed$ProjectName)),
+              options = pickerOptions(liveSearch = TRUE,
+                                      liveSearchStyle = 'contains'),
+              width = "100%"
+            ),
+            airDatepickerInput(
+              inputId = "utilizationDate",
+              label = "Click to Choose a Month",
+              max = ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+              min = ymd(floor_date(ymd(
+                meta_HUDCSV_Export_End
+              ), "month") - years(2) + days(1)),
+              dateFormat = "MM yyyy",
+              view = "month",
+              value =
+                ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+              minView = "months",
+              addon = "none",
+              autoClose = TRUE,
+              width = '50%'
+            ),
+            width = 12
+          )),
+          fluidRow(box(
+            infoBoxOutput("utilizationSummary0", width = '100%'),
+            infoBoxOutput("utilizationSummary1", width = '100%'),
+            infoBoxOutput("utilizationSummary2", width = '100%'),
+            width = 12
+          )),
+          fluidRow(box(
+            DT::dataTableOutput("utilizationDetail"), width = 12
+          ))
+        )
+      ),
       # tabItem(tabName = "vetActiveList",
               # fluidPage(
               #   fluidRow(box(htmlOutput(
