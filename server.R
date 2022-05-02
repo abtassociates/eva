@@ -680,7 +680,87 @@ function(input, output, session) {
     )
   })
   
-
+  output$bedPlot <-
+    renderPlotly({
+      ReportEnd <- ymd(input$utilizationDate) 
+      ReportStart <- floor_date(ymd(ReportEnd), unit = "month") -
+        years(1) +
+        months(1)
+      ReportingPeriod <- interval(ymd(ReportStart), ymd(ReportEnd))
+      
+      Provider <- input$providerListUtilization
+      
+      bedPlot <- utilization_bed %>% 
+        gather("Month",
+               "Utilization",
+               -ProjectID,
+               -ProjectName,
+               -ProjectType) %>%
+        filter(ProjectName == Provider,
+               mdy(Month) %within% ReportingPeriod) %>%
+        mutate(
+          Month = floor_date(mdy(Month), unit = "month"),
+          Bed = Utilization,
+          Utilization = NULL
+        )
+      
+      unitPlot <- utilization_unit %>% 
+        gather("Month",
+               "Utilization",
+               -ProjectID,
+               -ProjectName,
+               -ProjectType) %>%
+        filter(ProjectName == Provider,
+               mdy(Month) %within% ReportingPeriod) %>%
+        mutate(
+          Month = floor_date(mdy(Month), unit = "month"),
+          Unit = Utilization,
+          Utilization = NULL
+        )
+      
+      utilizationPlot <- unitPlot %>%
+        full_join(bedPlot,
+                  by = c("ProjectID", "ProjectName", "ProjectType", "Month")) 
+      
+      plot_ly(utilizationPlot, 
+              x = ~Month) %>%
+        add_trace(y = ~ Unit,
+                  name = "Unit Utilization",
+                  type = "scatter",
+                  mode = "lines+markers",
+                  hoverinfo = 'y') %>%
+        add_trace(y = ~Bed,
+                  name = "Bed Utilization",
+                  type = "scatter",
+                  mode = "lines+markers",
+                  hoverinfo = 'y') %>%
+        layout(yaxis = list(
+          title = "Utilization",
+          tickformat = "%",
+          range = c(0, 2)
+        ),
+        margin = list(
+          t = 100
+        ),
+        title = paste("Bed and Unit Utilization",
+                      "\n", 
+                      Provider,
+                      "\n", 
+                      format(ymd(ReportStart), "%B %Y"), 
+                      "to", 
+                      format(ymd(ReportEnd), "%B %Y")))
+      
+    })  
+  
+  output$unitNote <-
+    renderUI(note_unit_utilization)
+  
+  output$bedNote <-
+    renderUI(note_bed_utilization)
+  
+  output$utilizationNote <-
+    renderUI(HTML(note_calculation_utilization))
+  
   output$utilizationDetail <-
     DT::renderDataTable({
       ReportStart <-
@@ -720,16 +800,16 @@ function(input, output, session) {
   output$utilizationSummary0 <-
     renderInfoBox({
       ReportStart <-
-        format(floor_date(ymd(input$utilizationDate),
+        format(floor_date(ymd(input$utilizationDetailDate),
                           unit = "month"), "%m-%d-%Y")
       ReportEnd <-
-        format(floor_date(ymd(input$utilizationDate) + days(31),
+        format(floor_date(ymd(input$utilizationDetailDate) + days(31),
                           unit = "month") - days(1),
                "%m-%d-%Y")
       
-      y <- paste0(substr(input$utilizationDate, 6, 7),
+      y <- paste0(substr(input$utilizationDetailDate, 6, 7),
                   "01",
-                  substr(input$utilizationDate, 1, 4))
+                  substr(input$utilizationDetailDate, 1, 4))
       
       a <- utilizers_clients %>%
         filter(
@@ -750,7 +830,7 @@ function(input, output, session) {
         ungroup() %>%
         pull(BedCount)
       
-      daysInMonth <- days_in_month(ymd(input$utilizationDate))
+      daysInMonth <- days_in_month(ymd(input$utilizationDetailDate))
       
       infoBox(
         title = "Total Bed Nights Served",
@@ -764,16 +844,16 @@ function(input, output, session) {
   output$utilizationSummary1 <-
     renderInfoBox({
       ReportStart <-
-        format(floor_date(ymd(input$utilizationDate),
+        format(floor_date(ymd(input$utilizationDetailDate),
                           unit = "month"), "%m-%d-%Y")
       ReportEnd <-
-        format(floor_date(ymd(input$utilizationDate) + days(31),
+        format(floor_date(ymd(input$utilizationDetailDate) + days(31),
                           unit = "month") - days(1),
                "%m-%d-%Y")
       
-      y <- paste0(substr(input$utilizationDate, 6, 7),
+      y <- paste0(substr(input$utilizationDetailDate, 6, 7),
                   "01",
-                  substr(input$utilizationDate, 1, 4))
+                  substr(input$utilizationDetailDate, 1, 4))
       
       a <- utilizers_clients %>%
         filter(
@@ -798,7 +878,7 @@ function(input, output, session) {
       #   filter(ProjectName == input$providerListUtilization) %>%
       #   select(UnitCount)
       
-      daysInMonth <- days_in_month(ymd(input$utilizationDate))
+      daysInMonth <- days_in_month(ymd(input$utilizationDetailDate))
       
       infoBox(
         title = "Possible Bed Nights",
@@ -811,7 +891,7 @@ function(input, output, session) {
           "beds ×",
           daysInMonth,
           "days in",
-          format(ymd(input$utilizationDate), "%B"),
+          format(ymd(input$utilizationDetailDate), "%B"),
           "=",
           beds * daysInMonth
         )
@@ -821,16 +901,16 @@ function(input, output, session) {
   output$utilizationSummary2 <-
     renderInfoBox({
       ReportStart <-
-        format(floor_date(ymd(input$utilizationDate),
+        format(floor_date(ymd(input$utilizationDetailDate),
                           unit = "month"), "%m-%d-%Y")
       ReportEnd <-
-        format(floor_date(ymd(input$utilizationDate) + days(31),
+        format(floor_date(ymd(input$utilizationDetailDate) + days(31),
                           unit = "month") - days(1),
                "%m-%d-%Y")
       
-      y <- paste0(substr(input$utilizationDate, 6, 7),
+      y <- paste0(substr(input$utilizationDetailDate, 6, 7),
                   "01",
-                  substr(input$utilizationDate, 1, 4))
+                  substr(input$utilizationDetailDate, 1, 4))
       
       a <- utilizers_clients %>%
         filter(
@@ -852,7 +932,7 @@ function(input, output, session) {
         pull(BedCount)
       
       daysInMonth <-
-        as.numeric(days_in_month(ymd(input$utilizationDate)))
+        as.numeric(days_in_month(ymd(input$utilizationDetailDate)))
       
       bedUtilization <- percent(sum(a$BNs) / (beds * daysInMonth))
       

@@ -254,22 +254,9 @@ dashboardPage(
       # ),
       tabItem(
         tabName = "utilizationTab",
-        fluidPage(
           fluidRow(box(htmlOutput(
             "headerUtilization"
           ), width = 12)),
-          fluidRow(
-            box(
-              title = "NOTICE",
-              status = "warning",
-              solidHeader = TRUE,
-              "During this time, congregate facilities should be aiming to
-              deconcentrate. If this causes fluctuations in Utilization, that is
-              okay. Please continue to keep your clients safe."
-              ,
-              width = 6
-            )
-          ),
           fluidRow(box(
             pickerInput(
               label = "Select Provider",
@@ -281,7 +268,46 @@ dashboardPage(
             ),
             airDatepickerInput(
               inputId = "utilizationDate",
-              label = "Click to Choose a Month",
+              label = "Report End Month for Annual Plot",
+              max =
+                ymd(floor_date(meta_HUDCSV_Export_End, unit = "month") - days(1)),
+              min =
+                ymd(floor_date(meta_HUDCSV_Export_End - days(335), unit = "month")),
+              dateFormat = "MM yyyy",
+              view = "month",
+              value =
+                ymd(floor_date(meta_HUDCSV_Export_End, unit = "month") - days(1)),
+              minView = "months",
+              addon = "none",
+              autoClose = TRUE,
+              width = '25%'
+            ),
+            width = 12
+          )), 
+          plotlyOutput("bedPlot"),
+          br(),
+          fluidRow(box(
+            uiOutput("bedNote"),
+            title = "What is Bed Utilization?",
+            collapsible = TRUE,
+            collapsed = TRUE
+          ),
+          box(
+            uiOutput("unitNote"),
+            title = "What is Unit Utilization?",
+            collapsible = TRUE,
+            collapsed = TRUE
+          ),
+          box(
+            uiOutput("utilizationNote"),
+            title = "Methodology",
+            collapsible = TRUE,
+            collapsed = TRUE
+          )),
+        fluidRow(box(
+            airDatepickerInput(
+              inputId = "utilizationDetailDate",
+              label = "Choose Month for Detail Data",
               max = ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
               min = ymd(floor_date(ymd(
                 meta_HUDCSV_Export_End
@@ -306,8 +332,7 @@ dashboardPage(
           fluidRow(box(
             DT::dataTableOutput("utilizationDetail"), width = 12
           ))
-        )
-      ),
+        ),
       # tabItem(tabName = "vetActiveList",
               # fluidPage(
               #   fluidRow(box(htmlOutput(
