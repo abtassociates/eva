@@ -167,7 +167,7 @@ dq_dob <- served_in_date_range %>%
       DOBDataQuality == 99 ~ "Missing Date of Birth Data Quality",
       DOBDataQuality %in% c(2, 8, 9) ~ "Don't Know/Refused or Approx. Date of Birth",
       AgeAtEntry < 0 |
-        AgeAtEntry > 95 ~ "Incorrect Date of Birth or Entry Date"
+        AgeAtEntry > 100 ~ "Incorrect Date of Birth or Entry Date"
     ),
     Type = case_when(
       Issue %in% c(
@@ -2075,7 +2075,39 @@ check_eligibility <- served_in_date_range %>%
              Guidance = guidance_service_on_non_hoh) %>%
       select(all_of(vars_we_want))
     
-    # SSVF --------------------------------------------------------------------
+    # # Old Outstanding Referrals -----------------------------------------------
+    # # CW says ProviderCreating should work instead of Referred-From Provider
+    # # Using ProviderCreating instead. Either way, I feel this should go in the
+    # # Provider Dashboard, not the Data Quality report.
+    # 
+    # internal_old_outstanding_referrals <- served_in_date_range %>%
+    #   semi_join(Referrals,
+    #             by = c("PersonalID")) %>%
+    #   left_join(Referrals,
+    #             by = c("PersonalID")) %>%
+    #   filter(ProviderCreating == ProjectName &
+    #            ProjectID != 1695) %>%
+    #   select(all_of(vars_prep),
+    #          ProviderCreating,
+    #          ReferralDate,
+    #          ReferralOutcome,
+    #          EnrollmentID) %>%
+    #   filter(is.na(ReferralOutcome) &
+    #            ReferralDate < today() - days(14)) %>%
+    #   mutate(
+    #     ProjectName = ProviderCreating,
+    #     Issue = "Old Outstanding Referral",
+    #     Type = "Warning",
+    #     Guidance = "Referrals should be closed in about 2 weeks. Please be sure you are
+    #   following up with any referrals and helping the client to find permanent
+    #   housing. Once a Referral is made, the receiving agency should be saving
+    #   the \"Referral Outcome\" once it is known. If you have Referrals that are
+    #   legitimately still open after 2 weeks because there is a lot of follow
+    #   up going on, no action is needed since the HMIS data is accurate."
+    #   ) %>%
+    #   select(all_of(vars_we_want))   
+
+        # SSVF --------------------------------------------------------------------
     
     ssvf_served_in_date_range <- served_in_date_range %>%
       filter(ProjectID %in% c(ssvf_funded)) %>%
@@ -2371,8 +2403,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     # for CoC-wide DQ tab
 
     dq_past_year <- dq_main %>%
-      filter(served_between(., format.Date(hc_check_dq_back_to, "%m-%d-%Y"), 
-                            format.Date(today(), "%m-%d-%Y"))) %>%
+      filter(served_between(., hc_check_dq_back_to, 
+                            today())) %>%
       left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
     
     # for project evaluation reporting
