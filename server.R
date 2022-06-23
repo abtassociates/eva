@@ -224,8 +224,8 @@ function(input, output, session) {
   output$DeskTimePlotDetail <- renderPlot({
   provider <- input$providerDeskTime
   
-  ReportStart <- format.Date(ymd(today() - years(1)), "%m-%d-%Y")
-  ReportEnd <- format.Date(ymd(today()), "%m-%d-%Y")
+  ReportStart <- ymd(today() - years(1))
+  ReportEnd <- ymd(today())
   
   desk_time <- validation %>%
     filter(ProjectName == provider &
@@ -294,8 +294,8 @@ function(input, output, session) {
   output$DeskTimePlotCoC <- renderPlot({
   provider <- input$providerDeskTimeCoC
 
-  ReportStart <- format.Date(ymd(today() - years(1)), "%m-%d-%Y")
-  ReportEnd <- format.Date(ymd(today()), "%m-%d-%Y")
+  ReportStart <- ymd(today() - years(1))
+  ReportEnd <- ymd(today())
   
   desk_time <- validation %>%
     filter(entered_between(., ReportStart, ReportEnd) &
@@ -339,8 +339,8 @@ function(input, output, session) {
   
   output$ExitsToPHSummary <-
     renderInfoBox({
-      ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%m-%d-%Y")
+      ReportStart <- input$ExitsToPHDateRange[1]
+      ReportEnd <- input$ExitsToPHDateRange[2]
       
       SuccessfullyPlaced <- qpr_leavers() %>%
         filter(ProjectName == input$ExitsToPHProjectList &
@@ -539,8 +539,8 @@ function(input, output, session) {
   )
   
   output$clientCountData <- DT::renderDataTable({
-    ReportStart <- format.Date(input$dateRangeCount[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$dateRangeCount[2], "%m-%d-%Y")
+    ReportStart <- input$dateRangeCount[1]
+    ReportEnd <- input$dateRangeCount[2]
     
     datatable(
       validation %>%
@@ -599,8 +599,8 @@ function(input, output, session) {
   })
   
   output$clientCountSummary <- DT::renderDataTable({
-    ReportStart <- format.Date(input$dateRangeCount[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$dateRangeCount[2], "%m-%d-%Y")
+    ReportStart <- input$dateRangeCount[1]
+    ReportEnd <- input$dateRangeCount[2]
     
     hhs <- validation %>%
       filter(served_between(., ReportStart, ReportEnd) &
@@ -764,12 +764,11 @@ function(input, output, session) {
   output$utilizationDetail <-
     DT::renderDataTable({
       ReportStart <-
-        format(floor_date(ymd(input$utilizationDate),
-                          unit = "month"), "%m-%d-%Y")
+        floor_date(ymd(input$utilizationDate),
+                          unit = "month")
       ReportEnd <-
-        format(floor_date(ymd(input$utilizationDate) + days(31),
-                          unit = "month") - days(1),
-               "%m-%d-%Y")
+        floor_date(ymd(input$utilizationDate) + days(31),
+                          unit = "month") - days(1)
       
       y <- paste0(substr(input$utilizationDate, 6, 7),
                   "01",
@@ -800,12 +799,11 @@ function(input, output, session) {
   output$utilizationSummary0 <-
     renderInfoBox({
       ReportStart <-
-        format(floor_date(ymd(input$utilizationDetailDate),
-                          unit = "month"), "%m-%d-%Y")
+        floor_date(ymd(input$utilizationDetailDate),
+                          unit = "month")
       ReportEnd <-
-        format(floor_date(ymd(input$utilizationDetailDate) + days(31),
-                          unit = "month") - days(1),
-               "%m-%d-%Y")
+        floor_date(ymd(input$utilizationDetailDate) + days(31),
+                          unit = "month") - days(1)
       
       y <- paste0(substr(input$utilizationDetailDate, 6, 7),
                   "01",
@@ -844,12 +842,11 @@ function(input, output, session) {
   output$utilizationSummary1 <-
     renderInfoBox({
       ReportStart <-
-        format(floor_date(ymd(input$utilizationDetailDate),
-                          unit = "month"), "%m-%d-%Y")
+        floor_date(ymd(input$utilizationDetailDate),
+                          unit = "month")
       ReportEnd <-
-        format(floor_date(ymd(input$utilizationDetailDate) + days(31),
-                          unit = "month") - days(1),
-               "%m-%d-%Y")
+        floor_date(ymd(input$utilizationDetailDate) + days(31),
+                          unit = "month") - days(1)
       
       y <- paste0(substr(input$utilizationDetailDate, 6, 7),
                   "01",
@@ -901,12 +898,11 @@ function(input, output, session) {
   output$utilizationSummary2 <-
     renderInfoBox({
       ReportStart <-
-        format(floor_date(ymd(input$utilizationDetailDate),
-                          unit = "month"), "%m-%d-%Y")
+        floor_date(ymd(input$utilizationDetailDate),
+                          unit = "month")
       ReportEnd <-
-        format(floor_date(ymd(input$utilizationDetailDate) + days(31),
-                          unit = "month") - days(1),
-               "%m-%d-%Y")
+        floor_date(ymd(input$utilizationDetailDate) + days(31),
+                          unit = "month") - days(1)
       
       y <- paste0(substr(input$utilizationDetailDate, 6, 7),
                   "01",
@@ -950,8 +946,9 @@ function(input, output, session) {
     })
   
   output$dq_provider_summary_table <- DT::renderDataTable({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
+    
     guidance <- dq_main %>%
       filter(ProjectName %in% c(input$providerListDQ) &
                served_between(., ReportStart, ReportEnd)) %>%
@@ -972,8 +969,8 @@ function(input, output, session) {
   })
 
   output$dq_unsheltered_summary_table <- renderTable({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- today()
     dq_unsheltered() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
                served_between(., ReportStart, ReportEnd)) %>%
@@ -985,8 +982,8 @@ function(input, output, session) {
   })
   
   output$dq_unsheltered_summary_box <- renderUI({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- today()
     x <- dq_unsheltered() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
                served_between(., ReportStart, ReportEnd))
@@ -1006,8 +1003,8 @@ function(input, output, session) {
   })
   
   output$dq_organization_summary_table <- DT::renderDataTable({
-    ReportStart <- format.Date(input$dq_org_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_org_startdate
+    ReportEnd <- today()
     a <- dq_main %>%
       filter(OrganizationName == input$orgList &
                served_between(., ReportStart, ReportEnd)) %>%
@@ -1026,8 +1023,9 @@ function(input, output, session) {
   })
   
   output$DuplicateEEs <- renderTable({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
+    
     DuplicateEEs <- dq_main %>%
       filter(
         Issue == "Duplicate Enrollments" &
@@ -1048,8 +1046,9 @@ function(input, output, session) {
   })
   
   output$DQDuplicateEEs <- renderUI({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
+    
     DuplicateEEs <- dq_main %>%
       filter(
         Issue == "Duplicate Enrollments" &
@@ -1083,8 +1082,9 @@ function(input, output, session) {
   })
   
   output$HouseholdIssues <- renderTable({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
+    
     HHIssues <- dq_main %>%
       filter(
         Issue %in% c(
@@ -1111,8 +1111,9 @@ function(input, output, session) {
   })
   
   output$DQHHIssues <- renderUI({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
+    
     HHIssues <- dq_main %>%
       filter(
         Issue %in% c(
@@ -1143,8 +1144,8 @@ function(input, output, session) {
   })
   
   output$DQMissingLocation <- renderUI({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
     HHIssues <- dq_main %>%
       filter(
         Issue == "Missing Client Location" &
@@ -1171,8 +1172,8 @@ function(input, output, session) {
   })
   
   output$ClientLocation <- renderTable({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
     HHIssues <- dq_main %>%
       filter(
         Issue == "Missing Client Location" &
@@ -1193,8 +1194,9 @@ function(input, output, session) {
   })
   
   output$DQPATHMissingContact <- renderUI({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
+    
     no_contact <- dq_main %>%
       filter(
         Issue == "Missing PATH Contact" &
@@ -1220,8 +1222,8 @@ function(input, output, session) {
   })
   
   output$MissingPATHContact <- renderTable({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
     x <- dq_main %>%
       filter(
         Issue == "Missing PATH Contact" &
@@ -1242,8 +1244,9 @@ function(input, output, session) {
   })
   
   output$APs_with_EEs <- renderTable({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
+    
     APs_w_EEs <- dq_main %>%
       filter(
         Issue == "Access Point with Enrollments" &
@@ -1262,8 +1265,9 @@ function(input, output, session) {
   })
   
   output$DQ_APs_w_EEs <- renderUI({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
+    
     APs_w_EEs <- dq_main %>%
       filter(
         Issue == "Access Point with Enrollments" &
@@ -1289,8 +1293,8 @@ function(input, output, session) {
   })
   
   output$Overlaps <- renderTable({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
     
     OverlappingEEs <- dq_overlaps %>%
       filter(
@@ -1314,8 +1318,8 @@ function(input, output, session) {
   })
   
   output$DQOverlappingEEs <- renderUI({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
     # FIXME Repetition of filter/mutate (use eventReactive)
     OverlappingEEs <- dq_overlaps %>%
       filter(
@@ -1397,8 +1401,8 @@ function(input, output, session) {
     })
   
   output$cocOverlap <- DT::renderDataTable({
-    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- hc_check_dq_back_to
+    ReportEnd <- today()
     
     a <- dq_overlaps %>%
       filter(served_between(., ReportStart, ReportEnd)) %>%
@@ -1413,8 +1417,8 @@ function(input, output, session) {
   })
   
   output$cocUnshelteredEntriesByMonth <- renderPlotly({
-    ReportStart <-  format.Date(input$unshEntriesByMonth_ReportStart, "%m-%d-%Y")
-    ReportEnd <-  format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
+    ReportStart <-  input$unshEntriesByMonth_ReportStart
+    ReportEnd <-  meta_HUDCSV_Export_Date
     
     monthyears <- unsheltered_by_month() %>%
       arrange(EntryDate) %>%
@@ -1466,8 +1470,8 @@ function(input, output, session) {
   })
   
   output$cocLongStayers <- DT::renderDataTable({
-    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- hc_check_dq_back_to
+    ReportEnd <- today()
     
     a <- dq_main %>%
       filter(served_between(., ReportStart, ReportEnd) &
@@ -1484,8 +1488,8 @@ function(input, output, session) {
   })
   
   output$cocRRHDestination <- DT::renderDataTable({
-    ReportStart <- format.Date(hc_check_dq_back_to, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- hc_check_dq_back_to
+    ReportEnd <- today()
     
     a <- dq_main %>%
       filter(served_between(., ReportStart, ReportEnd) &
@@ -1550,8 +1554,9 @@ function(input, output, session) {
   })
   
   output$Ineligible <- renderTable({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
+    
     Ineligible <- detail_eligibility %>%
       filter(ProjectName %in% c(input$providerListDQ) &
                served_between(., ReportStart, ReportEnd)) %>%
@@ -1571,8 +1576,8 @@ function(input, output, session) {
   })
   
   output$DQIneligible <- renderUI({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(today(), "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- today()
     Ineligible <- detail_eligibility %>%
       filter(ProjectName %in% c(input$providerListDQ) &
                served_between(., ReportStart, ReportEnd))
@@ -1602,8 +1607,8 @@ function(input, output, session) {
 
   
   output$DQErrors <- DT::renderDT({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- meta_HUDCSV_Export_Date
     
     DQErrors <- dq_main %>%
       filter(
@@ -1778,8 +1783,8 @@ function(input, output, session) {
   )
   
   output$DQWarnings <- DT::renderDataTable({
-    ReportStart <- format.Date(input$dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
+    ReportStart <- input$dq_startdate
+    ReportEnd <- meta_HUDCSV_Export_Date
     
     DQWarnings <- dq_main %>%
       filter(
@@ -1822,8 +1827,9 @@ function(input, output, session) {
   output$dq_plot_outstanding_referrals <- renderPlot(dq_plot_outstanding_referrals)
 
   output$unshIncorrectResPriorTable <- renderTable({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- ymd(meta_HUDCSV_Export_End)
+    
     ResPrior <- dq_unsheltered() %>%
       filter(
         Issue == "Wrong Provider (Not Unsheltered)" &
@@ -1842,8 +1848,9 @@ function(input, output, session) {
   }) 
    
   output$unshIncorrectResPrior <- renderUI({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- ymd(meta_HUDCSV_Export_End)
+    
     ResPrior <- dq_unsheltered() %>%
       filter(
         Issue == "Wrong Provider (Not Unsheltered)" &
@@ -1884,8 +1891,9 @@ function(input, output, session) {
   })
   
   output$unshIncorrectEETypeTable <- renderTable({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- ymd(meta_HUDCSV_Export_End)
+    
     EEType <- dq_unsheltered() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
@@ -1904,8 +1912,8 @@ function(input, output, session) {
   }) 
   
   output$unshIncorrectEEType <- renderUI({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- ymd(meta_HUDCSV_Export_End)
     EEType <- dq_unsheltered() %>%
       filter(
         Issue == "Incorrect Entry Exit Type" &
@@ -1941,8 +1949,9 @@ function(input, output, session) {
   })
   
   output$unshDuplicateEEsTable <- renderTable({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- ymd(meta_HUDCSV_Export_End)
+    
     DuplicateEEs <- dq_unsheltered() %>%
       filter(
         Issue == "Duplicate Enrollments" &
@@ -1963,8 +1972,9 @@ function(input, output, session) {
   })
   
   output$unshDuplicateEEs <- renderUI({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- ymd(meta_HUDCSV_Export_End)
+    
     DuplicateEEs <- dq_unsheltered() %>%
       filter(
         Issue == "Duplicate Enrollments" &
@@ -1995,8 +2005,9 @@ function(input, output, session) {
   })
   
   output$unshHHIssuesTable <- renderTable({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- ymd(meta_HUDCSV_Export_End)
+    
     HHIssues <- dq_unsheltered() %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
@@ -2019,8 +2030,9 @@ function(input, output, session) {
   })
   
   output$unshHHIssues <- renderUI({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- ymd(meta_HUDCSV_Export_End)
+    
     HHIssues <- dq_unsheltered() %>%
       filter(
         Issue %in% c("Too Many Heads of Household", 
@@ -2061,8 +2073,9 @@ function(input, output, session) {
   })
   
   output$unshMissingCountyTable <- renderTable({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- ymd(meta_HUDCSV_Export_End)
+    
     county <- dq_unsheltered() %>%
       filter(
         Issue == "Missing County Served" &
@@ -2081,8 +2094,9 @@ function(input, output, session) {
   })
   
   output$unshMissingCounty <- renderUI({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- ymd(meta_HUDCSV_Export_End)
+    
     county <- dq_unsheltered() %>%
       filter(
         Issue == "Missing County Served" &
@@ -2120,8 +2134,8 @@ function(input, output, session) {
   })
   
   output$unshOverlapsTable <- renderTable({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- ymd(meta_HUDCSV_Export_End)
     
     overlaps <- unsh_overlaps() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
@@ -2143,8 +2157,8 @@ function(input, output, session) {
   })
   
   output$unshOverlaps <- renderUI({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(ymd(meta_HUDCSV_Export_End), "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- ymd(meta_HUDCSV_Export_End)
     
     overlaps <- unsh_overlaps() %>%
       filter(DefaultProvider == input$unshDefaultProvidersList &
@@ -2192,8 +2206,8 @@ function(input, output, session) {
   })
   
   output$unshDQErrorsTable <- DT::renderDataTable({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- meta_HUDCSV_Export_Date
     
     unshDQErrors <- dq_unsheltered() %>%
       filter(
@@ -2227,8 +2241,8 @@ function(input, output, session) {
   })
   
   output$unshDQWarningsTable <- DT::renderDataTable({
-    ReportStart <- format.Date(input$unsh_dq_startdate, "%m-%d-%Y")
-    ReportEnd <- format.Date(meta_HUDCSV_Export_Date, "%m-%d-%Y")
+    ReportStart <- input$unsh_dq_startdate
+    ReportEnd <- meta_HUDCSV_Export_Date
     
     unshDQWarnings <- dq_unsheltered() %>%
       filter(
@@ -2279,8 +2293,8 @@ function(input, output, session) {
   
   
   output$ExitsToPH <- DT::renderDataTable({
-    ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%m-%d-%Y")
-    ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%m-%d-%Y")
+    ReportStart <- input$ExitsToPHDateRange[1]
+    ReportEnd <- input$ExitsToPHDateRange[2]
     
     SuccessfullyPlaced <- qpr_leavers() %>%
       filter(((ProjectType %in% c(3, 9, 13) &
@@ -2358,8 +2372,8 @@ function(input, output, session) {
   #  QPR HP vs RRH Spending
   output$RRHSpending <-
     DT::renderDataTable({
-      ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%m-%d-%Y")
+      ReportStart <- input$RRHSpendingDateRange[1]
+      ReportEnd <- input$RRHSpendingDateRange[2]
       
       rrhSpending <- qpr_spending() %>%
         filter(
@@ -2388,8 +2402,8 @@ function(input, output, session) {
   
   output$HPSpending <-
     DT::renderDataTable({
-      ReportStart <- format.Date(input$RRHSpendingDateRange[1], "%m-%d-%Y")
-      ReportEnd <- format.Date(input$RRHSpendingDateRange[2], "%m-%d-%Y")
+      ReportStart <- input$RRHSpendingDateRange[1]
+      ReportEnd <- input$RRHSpendingDateRange[2]
       
       hpSpending <- qpr_spending() %>%
         filter(
