@@ -20,22 +20,39 @@ dashboardPage(
       id = "sidebarmenuid",
       menuItem("Home",
                tabName = "homeTab"),
-      menuItem("Client Counts",
-               tabName = "currentProviderLevel"),
-      menuItem("Bed and Unit Utilization",
-               tabName = "utilizationTab"),
+      menuItem("Export Validator",
+               tabName = "tabValidate"),
+      menuItem(
+        "Reality Check",
+        tabName = "realityCheck",
+        menuSubItem("Client Counts",
+                    tabName = "currentProviderLevel"),
+        menuSubItem("Bed and Unit Utilization",
+                    tabName = "utilizationTab")
+      ), 
+      menuItem("PDDE Checker",
+               tabName = "tabPDDE"),
       menuItem("Data Quality",
         menuSubItem("Project-level", 
                     tabName = "dqTab"),
-        menuSubItem("Data Entry Timeliness", 
-                    tabName = "deskTime"),
         menuSubItem("Organization-level", 
                     tabName = "dqOrganization"),
-        menuSubItem("System-wide", 
-                    tabName = "dqCoC"),
-        menuSubItem("CE Summary", 
-                    tabName = "ceCoC")
-      )
+        menuSubItem("Data Entry Timeliness", 
+                    tabName = "deskTime")
+      ),
+      menuItem("Coordinated Entry Analyses",
+               menuSubItem("System Flow",
+                           tabName = "tabSystemFlow"),
+               menuSubItem("Outcomes",
+                           tabName = "tabOutcomes"),
+               menuSubItem("Referrals",
+                           tabName = "tabReferrals"),
+               menuSubItem("Assessments",
+                           tabName = "tabAssessments"),
+               menuSubItem("Diversion",
+                           tabName = "tabDiversion"),
+               menuSubItem("Prioritized",
+                           tabName = "tabPrioritized"))
     ),
     HTML(paste0(
       "<br>&emsp;Data last refreshed:&emsp;<br>&emsp;",
@@ -63,7 +80,7 @@ dashboardPage(
       fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
       fluidRow(box(
         pickerInput(
-          label = "Select Provider",
+          label = "Select Project",
           inputId = "currentProviderList",
           choices = projects,
           options = pickerOptions(liveSearch = TRUE,
@@ -94,7 +111,7 @@ dashboardPage(
       ), width = 12)),
       fluidRow(box(
         pickerInput(
-          label = "Select Provider",
+          label = "Select Project",
           inputId = "providerListUtilization",
           choices = c(sort(utilization_bed$ProjectName)),
           options = pickerOptions(liveSearch = TRUE,
@@ -179,7 +196,7 @@ dashboardPage(
       ), width = 12)),
       fluidRow(box(
         pickerInput(
-          label = "Select Provider",
+          label = "Select Project",
           inputId = "providerListDQ",
           choices = dq_providers,
           options = pickerOptions(
