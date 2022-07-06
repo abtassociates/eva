@@ -20,6 +20,8 @@ dashboardPage(
       id = "sidebarmenuid",
       menuItem("Home",
                tabName = "homeTab"),
+      menuItem("Upload Hashed CSV",
+               tabName = "uploadCSV"),
       menuItem("Export Validator",
                tabName = "tabValidate"),
       menuItem(
@@ -60,6 +62,7 @@ dashboardPage(
       ,
       "<p><p>&emsp;" # add short message here if you want <-
     )),
+    
     br(),
     br(),
     br(),
@@ -75,6 +78,13 @@ dashboardPage(
       htmlOutput("headerHome"),
       width = 12
     ),
+    tabItem(tabName = "uploadCSV",
+            fileInput(
+              "file1",
+              "Upload Hashed CSV file",
+              multiple = TRUE,
+              accept = ".zip"
+            )), 
     tabItem(
       tabName = "currentProviderLevel",
       fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
