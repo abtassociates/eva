@@ -78,13 +78,15 @@ dashboardPage(
       htmlOutput("headerHome"),
       width = 12
     ),
-    tabItem(tabName = "uploadCSV",
-            fileInput(
-              "file1",
-              "Upload Hashed CSV file",
-              multiple = TRUE,
-              accept = ".zip"
-            )), 
+    tabItem(
+      tabName = "uploadCSV",
+      fileInput(
+        "export",
+        "Upload Hashed CSV zip file",
+        multiple = FALSE,
+        accept = ".zip"
+      )
+    ), 
     tabItem(
       tabName = "currentProviderLevel",
       fluidRow(box(htmlOutput("headerCurrent"), width = 12)),

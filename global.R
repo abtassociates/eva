@@ -26,9 +26,11 @@ library(writexl)
 library(viridis)
 library(HMIS)
 
-load("images/cohorts.RData")
-load("images/Data_Quality.RData")
-load("images/Utilization.RData")
+# load("images/cohorts.RData")
+# load("images/Data_Quality.RData")
+# load("images/Utilization.RData")
+
+load("images/DQ_Shiny.RData")
 
 projects <- sort(validation$ProjectName) %>% unique()
 
