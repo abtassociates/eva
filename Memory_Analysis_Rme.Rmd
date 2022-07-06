@@ -14,7 +14,7 @@ library(dplyr)
 
 ```{r RData and their objects}
 
-data_objects <- purrr::map(list.files("data", pattern = "R[dD]ata$", full.names = TRUE) %>% setNames(nm = .), ~{
+data_objects <- purrr::map(list.files("images", pattern = "R[dD]ata$", full.names = TRUE) %>% setNames(nm = .), ~{
   e <- new.env()
   load(.x, envir = e)
   .out <- data.frame(objects = ls(envir = e, all.names = T), stringsAsFactors = F) %>% 
