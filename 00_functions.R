@@ -57,64 +57,6 @@ age_years <- function(earlier, later)
   age
 }
 
-# Client Entry Exits Between Date Range Functions -------------------------------------
-# 
-# served_between <- function(table, start, end){
-#   served <- ymd(table$EntryDate) <= mdy(end) &
-#     (is.na(table$ExitDate) | ymd(table$ExitDate) >= mdy(start))
-#   served
-# }
-
-# should move to this but will require a LOT of edits!
-
-# served_between <- function(., start, end) {
-#   . %>% filter(ymd(EntryDate) <= mdy(end) &
-#                  (is.na(ExitDate) | ymd(ExitDate) >= mdy(start)))
-# }
-# 
-# entered_between <- function(table, start, end){
-#   entered <- between(ymd(table$EntryDate), mdy(start), mdy(end))
-#   entered
-# }
-# 
-# exited_between <- function(table, start, end){
-#   exited <- between(ymd(table$ExitDate), mdy(start), mdy(end))
-#   exited
-# }
-# 
-# stayed_between <- function(table, start, end){
-#   stayed <- ymd(table$EntryAdjust) <= mdy(end) &
-#     (is.na(table$ExitDate) | ymd(table$ExitDate) > mdy(start))
-#   stayed
-# }
-
-# Projects Operating Between Date Range Function --------------------------
-# 
-# operating_between <- function(table, start, end) {
-#   operating <-  if_else(
-#     is.na(table$OperatingStartDate) |
-#       ymd(table$OperatingStartDate) > mdy(end) |
-#       (!is.na(table$OperatingEndDate) &
-#          ymd(table$OperatingEndDate) < mdy(start)),
-#     FALSE,
-#     TRUE
-#   )
-#   operating
-# }
-
-# Beds Available Between --------------------------------------------------
-# 
-# beds_available_between <- function(table, start, end) {
-#   available <-  if_else(
-#     is.na(table$InventoryStartDate) |
-#       ymd(table$InventoryStartDate) > mdy(end) |
-#       (!is.na(table$InventoryEndDate) &
-#          ymd(table$InventoryEndDate) < mdy(start)),
-#     FALSE,
-#     TRUE
-#   )
-#   available
-# }
 
 living_situation <- function(ReferenceNo) {
   case_when(
@@ -197,37 +139,6 @@ translate_HUD_yes_no <- function(column_name){
   )
 }
 
-copy_lgl <- function(files, dir, overwrite) {
-  purrr::map_lgl(files, ~{
-    .c <- file.copy(.x, to = dir, overwrite = overwrite)
-    if (.c) message(.x, " copied to ", file.path(dir, basename(.x)))
-    else 
-      message(.x, " did not copy. Perhaps it already exists? Set overwrite = TRUE to overwrite.")
-    .c
-  })
-}
-
-freeze_pe <- function(dir, overwrite = FALSE) {
-  # if dir doesn't exist create it
-  dirs <- c(dir, file.path(dir, "images"))
-  if (any(!purrr::map_lgl(dirs, dir.exists))) purrr::walk(dirs, dir.create)
-  
-  files <- paste0(c("COHHIOHMIS", "Data_Quality", "cohorts"), ".Rdata")
-  .a <- utils::askYesNo(paste0("Have ", paste0(files, collapse = ", ")," been created with today's data?"))
-  if (.a) {
-    .d_files <- list.files("data", full.names = TRUE, pattern = "csv$|xlsx$")
-    .d_copied <- copy_lgl(.d_files, dirs[1], overwrite)
-    .rd_files <- grep(paste0(paste0("(?:",files,"$)"), collapse = "|"), list.files("images", full.names = TRUE), value = TRUE, ignore.case = TRUE, perl = TRUE)
-    .rd_copied <- copy_lgl(.rd_files, dirs[2], overwrite)
-    out <- list(data = file.path(dirs[1], basename(.d_files[.d_copied])),
-                rdata = file.path(dirs[2], basename(.rd_files[.rd_copied])))
-  } else {
-    out <- "No files copied. Ensure Rdata files have been created with today's data."
-  }
-  return(out)
-}
-
-
 chronic_determination <- function(.data, aged_in = FALSE) { 
   
   needed_cols <- c("PersonalID", "EntryDate",
@@ -302,42 +213,3 @@ chronic_determination <- function(.data, aged_in = FALSE) {
   }
 }
 
-# Experimental ------------------------------------------------------------
-
-# HUD_value_to_description <-
-#   function(table, element_name, element_column) {
-#     element_name <- sym(element_name)
-#     element_column <- enquo(element_column)
-#     
-#     a <- HUD_specs %>%
-#       filter(DataElement == element_name) %>%
-#       select("ReferenceNo", "Description")
-#     
-#     table$element_column <- with(a,
-#                                  Description[match(table$element_column,
-#                                                    HUD_specs$ReferenceNo)])
-#   }
-# 
-# a <- subset(HUD_specs,
-#             DataElement == "HouseholdType",
-#             select = c("ReferenceNo", "Description"))
-# Inventory$HouseholdType <- with(a,
-#                                 Description[match(Inventory$HouseholdType,
-#                                                   ReferenceNo)])
-
-
- 
-# HMIS_participating_between <- function(table, start, end) {
-#   HMISParticipating <-  if_else(
-#     (table$HMISParticipatingBeds == 0 | is.na(table$HMISParticipatingBeds)) |
-#     (is.na(table$InventoryStartDate) |
-#       ymd(table$InventoryStartDate) > mdy(end)) |
-#       (!is.na(table$InventoryEndDate) &
-#          ymd(table$InventoryEndDate) < mdy(start)),
-#     FALSE,
-#     TRUE
-#   )
-#   HMISParticipating
-# }
-# not sure what the heck to do about this. :( will have to pull based
-# on UsesSP which is super clunky and will leave out providers
