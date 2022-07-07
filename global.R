@@ -26,11 +26,12 @@ library(writexl)
 library(viridis)
 library(HMIS)
 
-# load("images/cohorts.RData")
-# load("images/Data_Quality.RData")
-# load("images/Utilization.RData")
+# to refresh data, run 00_daily_update.R (be sure you are pointing to the correct
+# directory and data set first)
 
 load("images/DQ_Shiny.RData")
+
+options(shiny.maxRequestSize = 200000000)
 
 projects <- sort(validation$ProjectName) %>% unique()
 
