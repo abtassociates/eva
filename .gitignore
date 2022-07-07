@@ -12,3 +12,5 @@ tests/
 public_data/
 data/
 images/
+*.csv
+*.html
