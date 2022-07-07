@@ -56,22 +56,17 @@ dashboardPage(
                menuSubItem("Prioritized",
                            tabName = "tabPrioritized"))
     ),
-    HTML(paste0(
-      "<br>&emsp;Data last refreshed:&emsp;<br>&emsp;",
-      format(meta_HUDCSV_Export_Date, "%m-%d-%Y %I:%M %p")
-      ,
-      "<p><p>&emsp;" # add short message here if you want <-
-    )),
-    
-    br(),
-    br(),
-    br(),
-    br(),
-    actionButton(inputId = "logOutButton",
-                 label = "Log Out",
-                 onclick =
-                   "window.open('https://ohiobalanceofstatecoc.shinyapps.io/Rminor_elevated/__logout__/')")
-  ), 
+      HTML(
+        paste0(
+          "<br>&emsp;The current file's date range is: <br>&emsp;",
+          format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+          " to ",
+          format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
+          "<p><p>&emsp;It was exported from your HMIS on: <br>&emsp; ",
+          format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p"),
+          ".<p><p>&emsp;"
+        )
+      )), 
   dashboardBody(tabItems(
     tabItem(
       tabName = "homeTab",
@@ -81,11 +76,13 @@ dashboardPage(
     tabItem(
       tabName = "uploadCSV",
       fileInput(
-        "export",
-        "Upload Hashed CSV zip file",
+        "imported",
+        "Upload Hashed CSV files",
         multiple = FALSE,
         accept = ".zip"
-      )
+      ),
+      tableOutput("files"),
+      tableOutput("test")
     ), 
     tabItem(
       tabName = "currentProviderLevel",
