@@ -48,29 +48,51 @@ source("00_cohorts.R")
 cat("working on Bed_Unit_Utilization\n")
 source("01_Bed_Unit_Utilization.R")  
 
-cat("working on QPR_SPDATs")
-source("02_QPR_SPDATs.R") 
-
-cat("working on QPR_EEs")
-source("02_QPR_EEs.R")
-
-cat("working on Veterans data")
-source("03_Veterans.R")  
-
 cat("working on Data Quality")
 source("04_DataQuality.R")
 
-cat("working on Veterans Active List")
-source("05_Veterans_Active_List.R")
+cat("All images are updated.")
 
-cat("working on SPMs")
-source("07_SPMs.R")
+save(
+  living_situation, # functions
+  enhanced_yes_no_translator, # cohorts
+  validation, # cohorts
+  hc_check_dq_back_to, # dates
+  meta_HUDCSV_Export_Date, # dates
+  meta_HUDCSV_Export_End, # dates
+  meta_HUDCSV_Export_Start, # dates
+  Client, # get_export
+  HUD_specs, # get_export
+  Organization, # get_export
+  Enrollment, # get_export
+  Exit, # get_export
+  Export, # get_export
+  Assessment, # get_export
+  Event, # get_export
+  Project, # get_export
+  Inventory, # get_export
+  dq_main, # data_quality
+  dq_past_year, # data_quality
+  detail_eligibility, # data_quality
+  dq_overlaps, # data_quality
+  dq_plot_eligibility, # data_quality
+  dq_plot_errors, # data_quality
+  dq_plot_hh_errors, # data_quality
+  dq_plot_projects_errors, # data_quality
+  dq_plot_projects_warnings, # data_quality
+  dq_plot_warnings, # data_quality
+  dq_providers, # data_quality
+  utilizers_clients, # bed_unit_utilization
+  Beds, # bed_unit_utilization
+  utilization_bed, # bed_unit_utilization
+  utilization_unit, # bed_unit_utilization
+  note_bed_utilization, # bed_unit_utilization
+  note_calculation_utilization, # bed_unit_utilization
+  note_unit_utilization, # bed_unit_utilization
+  utilization, # bed_unit_utilization
+  compress = FALSE,
+  file = here("images/DQ_Shiny.RData")
+)
 
-cat("working on Active List")
-source("08_Active_List.R")
-
-cat("copying images to app directories")
-source("00_copy_images.R")
-
-cat("Done! All images are updated.")
+cat("All necessary dfs have been saved to images/DQ_Shiny.RData.")
 
