@@ -24,31 +24,11 @@ library(here)
 
 hc_check_dq_back_to <- mdy("10012019") # the default ReportStart for DQ reporting
 
-hc_project_eval_start <- mdy("01012020")
-
-hc_project_eval_end <- mdy("12312020")
-
-hc_project_eval_docs_due <- mdy("04232021")
-
-hc_bos_start_vaccine_data <- mdy("02052021")
-
 hc_psh_started_collecting_move_in_date <- mdy("10012017") 
-
-hc_began_collecting_covid_data <- mdy("04012020")
-
-hc_outreach_to_cls <- mdy("10012019")
-
-hc_began_requiring_spdats <- mdy("01012019")
-
-hc_unsheltered_data_start <- mdy("01012019")
 
 hc_prior_living_situation_required <- mdy("10012016")
 
 hc_check_eligibility_back_to <- mdy("10012016")
-
-hc_no_more_svcs_on_hh_members <- mdy("02012019")
-
-hc_first_vaccine_administered_in_us <- mdy("12142020")
 
 # Dates from Metadata -----------------------------------------------------
 
@@ -91,4 +71,4 @@ calc_2_yrs_prior_range <- interval(ymd(calc_2_yrs_prior_start),
 
 
 
-save(list = ls(), file = here("images/00_dates.RData"), compress = FALSE)
+# save(list = ls(), file = here("images/00_dates.RData"), compress = FALSE)
