@@ -23,7 +23,7 @@ library(lubridate)
 library(readxl)
 library(HMIS)
 
-dataset_directory <- c("San-Diego3/")
+if(!exists("dataset_directory")) dataset_directory <- "San-Diego3/"
 directory <- paste0("data/", dataset_directory)
 
 # calling in HMIS-related functions that aren't in the HMIS pkg
@@ -34,31 +34,27 @@ if (!exists("meta_HUDCSV_Export_Date")) source("00_dates.R")
 # Affiliation -------------------------------------------------------------
 
 Affiliation <- 
-  read_csv(paste0(directory, "/Affiliation.csv"), 
+  read_csv(paste0(directory, "Affiliation.csv"), 
            col_types = "cccTTcTc") 
 
 # Client ------------------------------------------------------------------
 
-  Client <-
-    read_csv(paste0(directory, "/Client.csv"),
-             col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc") 
-
-
-# Replacing PII
-
-if(ncol(read_csv(paste0(directory, "/Client.csv"))) == 36)
-{Client <- Client %>%
+Client <-
+  read_csv(paste0(directory, "Client.csv"),
+           col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc",
+           guess_max = min(100000, n_max)) %>%
   mutate(
     FirstName = case_when(
       NameDataQuality %in% c(8, 9) ~ "DKR",
       NameDataQuality == 2 ~ "Partial",
       NameDataQuality == 99 |
         is.na(NameDataQuality) |
-        FirstName == "Anonymous" ~ "Missing",!(
-          NameDataQuality %in% c(2, 8, 9, 99) |
-            is.na(NameDataQuality) |
-            FirstName == "Anonymous"
-        ) ~ "ok"
+        FirstName == "Anonymous" ~ "Missing",
+      !(
+        NameDataQuality %in% c(2, 8, 9, 99) |
+          is.na(NameDataQuality) |
+          FirstName == "Anonymous"
+      ) ~ "ok"
     ),
     LastName = NULL,
     MiddleName = NULL,
@@ -88,45 +84,42 @@ if(ncol(read_csv(paste0(directory, "/Client.csv"))) == 36)
   )
 
 Client <- Client %>%
-  mutate(SSN = case_when(
-    is.na(SSN) ~ "ok",
-    !is.na(SSN) ~ SSN
-  ))}
-
+  mutate(SSN = case_when(is.na(SSN) ~ "ok",
+                         !is.na(SSN) ~ SSN))
 
 CurrentLivingSituation <-
-  read_csv(paste0(directory, "/CurrentLivingSituation.csv"),
+  read_csv(paste0(directory, "CurrentLivingSituation.csv"),
             col_types = "cccDncnnnnncTTcTc") 
 
 # Disabilities ------------------------------------------------------------
 
 Disabilities <-
-  read_csv(paste0(directory, "/Disabilities.csv"),
+  read_csv(paste0(directory, "Disabilities.csv"),
            col_types = "cccDnnnnnnnnnnnTTcTc")
 
 
 # EmploymentEducation -----------------------------------------------------
 
 EmploymentEducation <-
-  read_csv(paste0(directory, "/EmploymentEducation.csv"),
+  read_csv(paste0(directory, "EmploymentEducation.csv"),
            col_types = "cccDnnnnnnTTnTn")
 
 # Exit --------------------------------------------------------------------
 
 Exit <-
-  read_csv(paste0(directory, "/Exit.csv"),
+  read_csv(paste0(directory, "Exit.csv"),
            col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
 
 # Organization ------------------------------------------------------------
 
 Organization <- 
-  read_csv(paste0(directory, "/Organization.csv"),
+  read_csv(paste0(directory, "Organization.csv"),
            col_types = "ccncTTcTc")
 
 # Project -----------------------------------------------------------------
 
 Project <-
-  read_csv(paste0(directory, "/Project.csv"),
+  read_csv(paste0(directory, "Project.csv"),
            col_types = "ccccDDnnnnnnnnnTTcTc") %>%
   left_join(Organization %>% select(OrganizationID, OrganizationName),
             by = "OrganizationID")
@@ -134,13 +127,13 @@ Project <-
 # EnrollmentCoC -----------------------------------------------------------
 
 EnrollmentCoC <- 
-  read_csv(paste0(directory, "/EnrollmentCoC.csv"), 
+  read_csv(paste0(directory, "EnrollmentCoC.csv"), 
            col_types = "cccccDcnTTcTc")
 
 # Enrollment --------------------------------------------------------------
 
 Enrollment <-
-  read_csv(paste0(directory, "/Enrollment.csv"),
+  read_csv(paste0(directory, "Enrollment.csv"),
            col_types =
              "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
 
@@ -237,47 +230,47 @@ rm(y)
 # Event -------------------------------------------------------------------
 
 Event <-
-  read_csv(paste0(directory, "/Event.csv"),
+  read_csv(paste0(directory, "Event.csv"),
            col_types = "cccDnnncnDTTcTc") 
 
 # Funder ------------------------------------------------------------------
 
 Funder <- 
-  read_csv(paste0(directory, "/Funder.csv"),
+  read_csv(paste0(directory, "Funder.csv"),
            col_types = "ccnccDDTTcTc")
 
 # HealthAndDV -------------------------------------------------------------
 
 HealthAndDV <-
-  read_csv(paste0(directory, "/HealthAndDV.csv"),
+  read_csv(paste0(directory, "HealthAndDV.csv"),
            col_types = "cccDnnnnnnnDnnnnnTTcTc")
 
 # IncomeBenefits ----------------------------------------------------------
 
 IncomeBenefits <- 
-  read_csv(paste0(directory, "/IncomeBenefits.csv"),
+  read_csv(paste0(directory, "IncomeBenefits.csv"),
            col_types = 
              "cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
 
 # Inventory ---------------------------------------------------------------
 
 Inventory <-
-  read_csv(paste0(directory, "/Inventory.csv"),
+  read_csv(paste0(directory, "Inventory.csv"),
            col_types = "cccnnnnnnnnnnnnDDTTcTc")
 
 # ProjectCoC --------------------------------------------------------------
 
 ProjectCoC <- 
-  read_csv(paste0(directory, "/ProjectCoC.csv"),
+  read_csv(paste0(directory, "ProjectCoC.csv"),
            col_types = "nncnccccnnTTcTc")
 
 # Users ------------------------------------------------------------------
-Users <- read_csv(paste0(directory, "/User.csv"),
+Users <- read_csv(paste0(directory, "User.csv"),
                   col_types = "ccccccTTTc")
 
 # Services ----------------------------------------------------------------
 
-Services <- read_csv(paste0(directory, "/Services.csv"),
+Services <- read_csv(paste0(directory, "Services.csv"),
                   col_types = "cccDnnccnnnTTcTc")
 
 # HUD CSV Specs -----------------------------------------------------------
@@ -297,18 +290,18 @@ rm(small_client)
 
 # Assessments -------------------------------------------------------------
 
-Assessment <- read_csv(paste0(directory, "/Assessment.csv"),
+Assessment <- read_csv(paste0(directory, "Assessment.csv"),
                        col_types = "cccDcnnnTTcTc")
 
-AssessmentQuestions <- read_csv(paste0(directory, "/AssessmentQuestions.csv"),
+AssessmentQuestions <- read_csv(paste0(directory, "AssessmentQuestions.csv"),
                        col_types = "cccccnccTTcTc")
 
-AssessmentResults <- read_csv(paste0(directory, "/AssessmentResults.csv"),
+AssessmentResults <- read_csv(paste0(directory, "AssessmentResults.csv"),
                        col_types = "ccccccTTcTc")
 
 # Youth Education Status --------------------------------------------------
 
-YouthEducationStatus <- read_csv(paste0(directory, "/YouthEducationStatus.csv"),
+YouthEducationStatus <- read_csv(paste0(directory, "YouthEducationStatus.csv"),
                                  col_types = "cccDnnnnTTcTc")
 
 # Save it out -------------------------------------------------------------
