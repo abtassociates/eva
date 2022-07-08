@@ -895,7 +895,7 @@ rm(list = ls(all.names = TRUE, pattern = "co_"))
 # outliers <- rbind(outliers_hi, outliers_lo)
 
 # WARNING save.image does not save the environment properly, save must be used.
-save(list = ls(), file = "images/Utilization.RData", compress = FALSE)
+# save(list = ls(), file = "images/Utilization.RData", compress = FALSE)
 
 
 
