@@ -24,13 +24,14 @@
 library(tidyverse)
 library(here)
 
-dataset_directory <- c("Hennepin-Redacted/")
+# the Hennepin-redacted dataset cries bc the DOBs are all nulled out, so using San Diego
+
+dataset_directory <- "San-Diego3/" 
 directory <- paste0("data/", dataset_directory)
 
 source("00_dates.R")
 
-
-if (calc_data_goes_back_to != meta_export_start){
+if (calc_data_goes_back_to != meta_HUDCSV_Export_Start){
   cat("Export Start Date may not be correct.")
 } else {}
   
@@ -40,20 +41,20 @@ if (!dir.exists("images")) dir.create("images")
 # Start running scripts ---------------------------------------------------
 
 cat("Importing raw HMIS data\n")
-source("00_get_Export_and_ART.R")
+source("00_get_Export.R")
 
 cat("working on Cohorts\n")
-source("00_cohorts.R") 
+source("01_cohorts.R") 
 
 cat("working on Bed_Unit_Utilization\n")
-source("01_Bed_Unit_Utilization.R")  
+source("02_Bed_Unit_Utilization.R")  
 
 cat("working on Data Quality")
-source("04_DataQuality.R")
+source("03_DataQuality.R")
 
 cat("All images are updated.")
 
-save(
+save( # from functions, cohorts, dates, get_export, data_quality, bed_unit_utilization
   living_situation, # functions
   enhanced_yes_no_translator, # cohorts
   validation, # cohorts
@@ -75,13 +76,13 @@ save(
   dq_past_year, # data_quality
   detail_eligibility, # data_quality
   dq_overlaps, # data_quality
+  dq_providers, # data_quality
   dq_plot_eligibility, # data_quality
   dq_plot_errors, # data_quality
   dq_plot_hh_errors, # data_quality
   dq_plot_projects_errors, # data_quality
   dq_plot_projects_warnings, # data_quality
   dq_plot_warnings, # data_quality
-  dq_providers, # data_quality
   utilizers_clients, # bed_unit_utilization
   Beds, # bed_unit_utilization
   utilization_bed, # bed_unit_utilization

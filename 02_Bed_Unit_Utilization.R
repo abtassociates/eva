@@ -18,7 +18,7 @@ library(scales)
 library(HMIS)
 
 if (!exists("Enrollment")) load("images/CSVExportDFs.RData")
-if (!exists("tay")) load("images/cohorts.RData")
+if (!exists("validation")) load("images/cohorts.RData")
 
 # despite the fact we're pulling in usually more than 2 years of data, the 
 # utilization reporting will only go back 2 years. (decision based on lack of
@@ -38,7 +38,7 @@ small_project <- Project %>%
            operating_between(Project, FileStart, FileEnd) &
            HMISParticipatingProject == 1) %>%
   left_join(Funder, by = "ProjectID") %>%
-  filter(!Funder %in% c(rhy_funded, ssvf_funded, path_funded))
+  filter(!Funder %in% c(rhy_fund_sources, ssvf_fund_sources, path_fund_sources))
 
 small_inventory <- Inventory %>%
   select(
