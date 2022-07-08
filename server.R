@@ -114,6 +114,15 @@ function(input, output, session) {
                   format(today(), "%m-%d-%Y"))))
   })
   
+  output$headerSystemDQ <- renderUI({
+    list(h2("System-wide Data Quality"),
+         h4(
+           paste(format(hc_check_dq_back_to, "%m-%d-%Y"),
+                 "through",
+                 format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
+         ))
+  })
+  
   output$deskTimeNote <- renderUI({
       HTML(
         "<h4>HUD and Data Quality</h4>
@@ -1098,30 +1107,19 @@ function(input, output, session) {
     datatable(a,
               rownames = FALSE)
   })
- 
-  output$cocAPsNoReferrals <- renderPlot({
-    
-    ggplot(data_APs(), aes(fill = category, x = providertype, y = percent)) +
-      geom_bar(position = "fill",
-                stat = "identity",
-               width = .1) +
-      geom_label(
-        aes(label = paste(
-          category,
-          "\n",
-          prettypercent
-        )),
-        position = position_stack(),
-        vjust = 2,
-        fill = "white",
-        colour = "black",
-        fontface = "bold"
-      ) +
-      scale_fill_manual(values = c("#00952e", "#a11207"),
-                        guide = "none") +
-      theme_void()
-  })
   
+  output$systemDQErrors <- renderPlot(dq_plot_projects_errors)
+  
+  output$systemHHErrors <- renderPlot(dq_plot_hh_errors)
+
+  output$systemDQWarnings <- renderPlot(dq_plot_projects_warnings)
+  
+  output$systemDQErrorTypes <- renderPlot(dq_plot_errors)
+  
+  output$systemDQWarningTypes <- renderPlot(dq_plot_warnings)
+  
+  output$systemDQEligibility <- renderPlot(dq_plot_eligibility)
+   
   output$Ineligible <- renderTable({
     ReportStart <- input$dq_startdate
     ReportEnd <- today()

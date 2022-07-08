@@ -39,6 +39,8 @@ dashboardPage(
                     tabName = "dqTab"),
         menuSubItem("Organization-level", 
                     tabName = "dqOrganization"),
+        menuSubItem("System-level",
+                    tabName = "dqSystem"),
         menuSubItem("Data Entry Timeliness", 
                     tabName = "deskTime")
       ),
@@ -77,7 +79,7 @@ dashboardPage(
       tabName = "uploadCSV",
       fileInput(
         "imported",
-        "Upload Hashed CSV files",
+        "Upload Hashed CSV zip file",
         multiple = FALSE,
         accept = ".zip"
       ),
@@ -319,6 +321,36 @@ dashboardPage(
                 DT::dataTableOutput("dq_organization_summary_table"),
                 width = 12
               )
-            ))
+            )),
+    tabItem(
+      tabName = "dqSystem",
+      fluidRow(
+        box(htmlOutput("headerSystemDQ"), width = 12),
+        box(plotOutput("systemDQErrors"), width = 12,
+            solidHeader = TRUE,
+            status = "danger",
+            title = "Projects with the Most High Priority Issues and Errors"),
+        box(plotOutput("systemHHErrors"), width = 12,
+            solidHeader = TRUE,
+            status = "danger",
+            title = "Projects with the Most Household Errors"),
+        box(plotOutput("systemDQEligibility"), width = 12,
+            solidHeader = TRUE,
+            status = "warning",
+            title = "Projects with the Most Eligibility Warnings"),
+        box(plotOutput("systemDQWarnings"), width = 12,
+            solidHeader = TRUE,
+            status = "warning",
+            title = "Projects with the Most Warnings"),
+        box(plotOutput("systemDQErrorTypes"), width = 12,
+            solidHeader = TRUE,
+            status = "danger",
+            title = "Most Common High Priority Issues and Errors"),
+        box(plotOutput("systemDQWarningTypes"), width = 12,
+            solidHeader = TRUE,
+            status = "warning",
+            title = "Most Common Warnings")
+      )
+    )
   ))
 )
