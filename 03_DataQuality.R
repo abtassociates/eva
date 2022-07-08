@@ -2433,7 +2433,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     
     dq_plot_projects_errors <-
       ggplot(
-        head(dq_data_errors_plot, 20L),
+        head(dq_data_errors_plot, 10L),
         aes(
           x = reorder(hover, clientsWithErrors),
           y = clientsWithErrors,
@@ -2459,7 +2459,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
            paste0(ProjectName, ":", ProjectID))
     
     dq_plot_projects_warnings <-
-      ggplot(head(dq_data_warnings_plot, 20L),
+      ggplot(head(dq_data_warnings_plot, 10L),
              aes(
                x = reorder(hover, Warnings),
                y = Warnings,
@@ -2536,7 +2536,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
            paste0(ProjectName, ":", ProjectID))
     
     dq_plot_hh_errors <-
-      ggplot(head(dq_data_hh_issues_plot, 20L),
+      ggplot(head(dq_data_hh_issues_plot, 10L),
              aes(
                x = reorder(hover, Households),
                y = Households,
@@ -2564,7 +2564,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     
     dq_plot_eligibility <-
       ggplot(
-        head(dq_data_eligibility_plot, 20L),
+        head(dq_data_eligibility_plot, 10L),
         aes(
           x = reorder(hover, Households),
           y = Households,
