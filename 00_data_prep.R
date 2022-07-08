@@ -52,7 +52,7 @@ source("02_Bed_Unit_Utilization.R")
 cat("working on Data Quality")
 source("03_DataQuality.R")
 
-cat("All images are updated.")
+cat("Saving what we need out to a .Rdata file, almost done!")
 
 save( # from functions, cohorts, dates, get_export, data_quality, bed_unit_utilization
   living_situation, # functions
