@@ -22,8 +22,8 @@ dashboardPage(
                tabName = "homeTab"),
       menuItem("Upload Hashed CSV",
                tabName = "uploadCSV"),
-      menuItem("Export Validator",
-               tabName = "tabValidate"),
+      menuItem("PDDE Checker",
+               tabName = "tabPDDE"),
       menuItem(
         "Reality Check",
         tabName = "realityCheck",
@@ -32,8 +32,6 @@ dashboardPage(
         menuSubItem("Bed and Unit Utilization",
                     tabName = "utilizationTab")
       ), 
-      menuItem("PDDE Checker",
-               tabName = "tabPDDE"),
       menuItem("Data Quality",
         menuSubItem("Project-level", 
                     tabName = "dqTab"),
@@ -77,14 +75,22 @@ dashboardPage(
     ),
     tabItem(
       tabName = "uploadCSV",
-      fileInput(
-        "imported",
-        "Upload Hashed CSV zip file",
-        multiple = FALSE,
-        accept = ".zip"
-      ),
-      tableOutput("files"),
-      tableOutput("test")
+      box(
+        title = "Upload Hashed CSV zip file",
+        fileInput("imported",
+                  "",
+                  multiple = FALSE,
+                  accept = ".zip"),
+        tableOutput("files"),
+        tableOutput("test"),
+        width = 12
+      ), 
+      box(
+        title = "HUD CSV Export Integrity Checker",
+        width = 12,
+        downloadButton(outputId = "downloadIntegrityCheck",
+                       label = "Download Integrity Checker")
+      )
     ), 
     tabItem(
       tabName = "currentProviderLevel",
