@@ -14,7 +14,7 @@
 
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "Data Quality"),
+  dashboardHeader(title = "Needs New Name"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -24,9 +24,8 @@ dashboardPage(
                tabName = "uploadCSV"),
       menuItem("PDDE Checker",
                tabName = "tabPDDE"),
-      menuItem(
-        "Reality Check",
-        tabName = "realityCheck",
+      menuItem("Reality Check",
+               tabName = "realityCheck",
         menuSubItem("Client Counts",
                     tabName = "currentProviderLevel"),
         menuSubItem("Bed and Unit Utilization",
