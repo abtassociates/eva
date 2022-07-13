@@ -1239,13 +1239,19 @@ function(input, output, session) {
   })
   
   output$cocDQErrors <- renderPlot(dq_plot_projects_errors)
+  
   output$cocHHErrors <- renderPlot(dq_plot_hh_errors)
+  
   output$cocUnshelteredHigh <- renderPlot(dq_plot_unsheltered_high)
+  
   output$cocDQWarnings <- renderPlot(dq_plot_projects_warnings)
+  
   output$cocDQErrorTypes <- renderPlot(dq_plot_errors)
+  
   output$cocDQWarningTypes <- renderPlot(dq_plot_warnings)
+  
   output$cocEligibility <- renderPlot(dq_plot_eligibility)
-  output$dq_plot_hh_no_spdat <- renderPlot(dq_plot_hh_no_spdat)
+  
   output$dq_plot_outstanding_referrals <- renderPlot(dq_plot_outstanding_referrals)
   
  }
