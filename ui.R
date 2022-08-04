@@ -54,18 +54,7 @@ dashboardPage(
                            tabName = "tabDiversion"),
                menuSubItem("Prioritized",
                            tabName = "tabPrioritized"))
-    ),
-      HTML(
-        paste0(
-          "<br>&emsp;The current file's date range is: <br>&emsp;",
-          format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-          " to ",
-          format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
-          "<p><p>&emsp;It was exported from your HMIS on: <br>&emsp; ",
-          format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p"),
-          ".<p><p>&emsp;"
-        )
-      )), 
+    )), 
   dashboardBody(tabItems(
     tabItem(
       tabName = "homeTab",
@@ -74,6 +63,9 @@ dashboardPage(
     ),
     tabItem(
       tabName = "uploadCSV",
+      box(title = "Status",
+          uiOutput("headerFileInfo"),
+          width = 12),
       box(
         title = "Upload Hashed CSV zip file",
         fileInput("imported",

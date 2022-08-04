@@ -19,7 +19,7 @@ function(input, output, session) {
 
     if (is.null(input$imported)) {return()}
     read_csv(unzip(zipfile = input$imported$datapath, files = "Export.csv"),
-             col_types = "cicccciiiTTTccciii")
+             col_types = "cicccccccTTTccciii")
   })
   
   ExportStartDate <- reactive({
@@ -39,9 +39,28 @@ function(input, output, session) {
     as.Date(Export()$ExportDate)
   })
   
+  output$headerFileInfo <- renderUI({
+    if (!is.null(input$imported))
+      HTML(
+        paste0(
+          "<strong>Date Range of Current File: </strong>",
+          format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+          " to ",
+          format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
+          "<p><strong>Export Date: </strong>",
+          format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
+        )
+      )
+    else
+      HTML("You have not successfully uploaded your zipped CSV file yet.")
+  })
+  
   output$files <- renderTable(input$imported)
   
-  output$test <- renderTable(Export())
+  output$test <- renderTable({
+    if (!is.null(input$imported))
+      base::as.matrix(t(Export()), rownames.force = TRUE)
+    })
   
   output$headerHome <- renderUI({
     box(
