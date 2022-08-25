@@ -1,26 +1,63 @@
-# COHHIO_HMIS
-# Copyright (C) 2020  Coalition on Homelessness and Housing in Ohio (COHHIO)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details at
-# <https://www.gnu.org/licenses/>.
 
 
-# Age Function ------------------------------------------------------------
+# Age ---------------------------------------------------------------------
 
-age_years <- function(dob, compare_date)
+age_years <- function(earlier, later)
 {
-  floor(decimal_date(compare_date) - decimal_date(dob))
+  floor(decimal_date(later) - decimal_date(earlier))
   
 }
 
+# Client Entry Exits Between Date Range Functions -------------------------
+
+served_between <- function(., start, end) {
+  . %>% filter(ymd(EntryDate) <= mdy(end) &
+                 (is.na(ExitDate) | ymd(ExitDate) >= mdy(start)))
+}
+
+entered_between <- function(table, start, end){
+  entered <- between(ymd(table$EntryDate), mdy(start), mdy(end))
+  entered
+}
+
+exited_between <- function(table, start, end){
+  exited <- between(ymd(table$ExitDate), mdy(start), mdy(end))
+  exited
+}
+
+stayed_between <- function(table, start, end){
+  stayed <- ymd(table$EntryAdjust) <= mdy(end) &
+    (is.na(table$ExitDate) | ymd(table$ExitDate) > mdy(start))
+  stayed
+}
+# 
+# # Projects Operating Between Date Range Function --------------------------
+# 
+# operating_between <- function(table, start, end) {
+#   operating <-  if_else(
+#     is.na(table$OperatingStartDate) |
+#       ymd(table$OperatingStartDate) > mdy(end) |
+#       (!is.na(table$OperatingEndDate) &
+#          ymd(table$OperatingEndDate) < mdy(start)),
+#     FALSE,
+#     TRUE
+#   )
+#   operating
+# }
+# 
+# Beds Available Between --------------------------------------------------
+
+beds_available_between <- function(table, start, end) {
+  available <-  if_else(
+    is.na(table$ParticipatingStartDate) |
+      ymd(table$ParticipatingStartDate) > mdy(end) |
+      (!is.na(table$ParticipatingEndDate) &
+         ymd(table$ParticipatingEndDate) < mdy(start)),
+    FALSE,
+    TRUE
+  )
+  available
+}
 
 living_situation <- function(ReferenceNo) {
   case_when(
@@ -76,6 +113,17 @@ project_type <- function(ReferenceNo){
     ReferenceNo == 12 ~ "Prevention",
     ReferenceNo == 13 ~ "Rapid Rehousing",
     ReferenceNo == 14 ~ "Coordinated Entry"
+  )
+}
+
+rel_to_hoh <- function(ReferenceNo){
+  case_when(
+    ReferenceNo == 1 ~ "HoH",
+    ReferenceNo == 2 ~ "HoHs child",
+    ReferenceNo == 3 ~ "HoHs partner/spouse",
+    ReferenceNo == 4 ~ "HoHs other relation",
+    ReferenceNo == 5 ~ "Non-relation member",
+    ReferenceNo == 99 ~ "Data not collected"
   )
 }
 
@@ -176,4 +224,6 @@ chronic_determination <- function(.data, aged_in = FALSE) {
     ))
   }
 }
+
+
 
