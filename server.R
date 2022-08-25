@@ -12,6 +12,7 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>. test
 
+
 function(input, output, session) {
   
   ##  load in all files
@@ -54,6 +55,7 @@ function(input, output, session) {
     else
       HTML("You have not successfully uploaded your zipped CSV file yet.")
   })
+  
   
   output$files <- renderTable(input$imported)
   
