@@ -3,20 +3,6 @@ library(ggplot2)
 library(tibble)
 library(lubridate)
 
-x <- tribble(
-  ~AAQReopens, ~Date, ~COHHIO,
-  "1", "11/04/2021", "Not COHHIO",
-  "1", "10/04/2021", "Not COHHIO",
-  "2", "09/21/2021", "Not COHHIO",
-  "1", "09/15/2021", "Not COHHIO",
-  "2", "07/02/2021", "Not COHHIO",
-  "1", "03/23/2021", "Not COHHIO",
-  "1", "03/18/2021", "Not COHHIO",
-  "2", "03/15/2021", "Not COHHIO",
-  "1", "01/27/2021", "COHHIO",
-  "3", "01/14/2021", "Not COHHIO",
-  "3", "06/06/2019", "COHHIO"
-)
 aaqs <-
   tribble(
     ~AAQ, ~Date, ~Who,
@@ -38,10 +24,6 @@ aaqs <-
     171120, "1/14/2021", "Appalachian Regional Coalition on Homelessness",
     189532, "12/10/2021", "Appalachian Regional Coalition on Homelessness"
   )
-ggplot(x, aes(x = mdy(Date), y = !is.na(AAQReopens), size = AAQReopens)) +
-  geom_point(alpha = .7, aes(colour = COHHIO)) +
-  theme_minimal() +
-  scale_color_viridis(discrete = TRUE, begin = .2, end = .7)
 
 ggplot(aaqs, aes(x = mdy(Date), y = !is.na(AAQ), colour = Who)) +
   geom_point(alpha = .7) +
