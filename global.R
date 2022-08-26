@@ -26,9 +26,6 @@ library(writexl)
 library(viridis)
 library(HMIS)
 
-# to refresh data, run 00_daily_update.R (be sure you are pointing to the correct
-# directory and data set first)
-
 load("images/Data_Quality.RData")
 
 options(shiny.maxRequestSize = 200000000)
