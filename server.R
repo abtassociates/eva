@@ -12,33 +12,37 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>. test
 
-
 function(input, output, session) {
+  ## TEMP: Update Client counts project dropdown
+  observeEvent(input$imported, {
+    source("00_data_prep.R", local = TRUE)
+    
+    updatePickerInput(session = session, inputId = "currentProviderList",
+                      choices = order(Project()$ProjectName))
+    
+    updatePickerInput(session = session, inputId = "providerListDQ",
+                      choices = dq_providers)
+    
+  }, ignoreInit = TRUE)
   
-  ##  load in all files
-  Export <- reactive({
-
-    if (is.null(input$imported)) {return()}
-    read_csv(unzip(zipfile = input$imported$datapath, files = "Export.csv"),
-             col_types = "cicccccccTTTccciii")
-  })
   
   ExportStartDate <- reactive({
     if(is.null(input$imported)) {return()}
-    as.Date(Export()$ExportStartDate)
+    as.Date(Export$ExportStartDate)
   })
   
   ExportEndDate <- reactive({
     if(is.null(input$imported)) {return()}
-    as.Date(Export()$ExportEndDate)
+    as.Date(Export$ExportEndDate)
   })
   
   ExportDate <- reactive({
     if (is.null(input$imported)) {
       return()
     }
-    as.Date(Export()$ExportDate)
+    as.Date(Export$ExportDate)
   })
+  
   
   output$headerFileInfo <- renderUI({
     if (!is.null(input$imported))
@@ -61,7 +65,7 @@ function(input, output, session) {
   
   output$test <- renderTable({
     if (!is.null(input$imported))
-      base::as.matrix(t(Export()), rownames.force = TRUE)
+      base::as.matrix(t(Export), rownames.force = TRUE)
     })
   
   output$headerHome <- renderUI({
