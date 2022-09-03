@@ -31,12 +31,11 @@ hc_prior_living_situation_required <- mdy("10012016")
 hc_check_eligibility_back_to <- mdy("10012016")
 
 # Dates from Metadata -----------------------------------------------------
-
-Export <-
-  read_csv(here(paste0(
-    "data/", dataset_directory, "/Export.csv"
-  )),
-  col_types = c("cicccccccTDDccciii")) %>%
+Export <- Export() %>%
+  # read_csv(here(paste0(
+  #   "data/", dataset_directory, "/Export.csv"
+  # )),
+  # col_types = c("cicccccccTDDccciii")) %>%
   mutate(
     ExportStartDate = lubridate::ymd(ExportStartDate),
     ExportEndDate = lubridate::ymd(ExportEndDate),
@@ -51,9 +50,9 @@ meta_HUDCSV_Export_Date <- Export %>% pull(ExportDate)
 
 # Calculated Dates --------------------------------------------------------
 
-calc_data_goes_back_to <-
-  read_csv(here(paste0("data/", dataset_directory, "Exit.csv")),
-           col_types = "nnnDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTnTn") %>%
+calc_data_goes_back_to <- Exit() %>%
+  # read_csv(here(paste0("data/", dataset_directory, "Exit.csv")),
+  #          col_types = "nnnDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTnTn") %>%
   mutate(ExitDate = ymd(ExitDate)) %>%
   arrange(ExitDate) %>%
   head(1) %>% 
