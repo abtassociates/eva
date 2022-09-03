@@ -86,7 +86,7 @@ dashboardPage(
         pickerInput(
           label = "Select Project",
           inputId = "currentProviderList",
-          choices = projects,
+          choices = NULL,
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains')
         ),
