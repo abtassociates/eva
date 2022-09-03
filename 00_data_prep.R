@@ -26,10 +26,12 @@ library(here)
 
 # the Hennepin-redacted dataset cries bc the DOBs are all nulled out, so using San Diego
 
-dataset_directory <- "San-Diego3/" 
-directory <- paste0("data/", dataset_directory)
-
-source("00_dates.R")
+# dataset_directory <- "San-Diego3/" 
+# directory <- paste0("data/", dataset_directory)
+##  load in all files
+source("00_functions.R") # calling in HMIS-related functions that aren't in the HMIS pkg
+source("00_get_Export.R", local = TRUE)
+source("00_dates.R", local = TRUE)
 
 if (calc_data_goes_back_to != meta_HUDCSV_Export_Start){
   cat("Export Start Date may not be correct.")
@@ -39,10 +41,6 @@ if (calc_data_goes_back_to != meta_HUDCSV_Export_Start){
 if (!dir.exists("images")) dir.create("images")
 
 # Start running scripts ---------------------------------------------------
-
-cat("Importing raw HMIS data\n")
-source("00_get_Export.R")
-
 cat("working on Cohorts\n")
 source("01_cohorts.R") 
 
