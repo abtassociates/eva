@@ -23,26 +23,33 @@ library(lubridate)
 library(readxl)
 library(HMIS)
 
-if(!exists("dataset_directory")) dataset_directory <- "San-Diego3/"
-directory <- paste0("data/", dataset_directory)
+# if(!exists("dataset_directory")) dataset_directory <- "San-Diego3/"
+# directory <- paste0("data/", dataset_directory)
 
-# calling in HMIS-related functions that aren't in the HMIS pkg
-source("00_functions.R")
+# import
+importFile <- function(csvFile) {
+  data <- reactive({
+    if (is.null(input$imported)) {return()}
+    read_csv(unzip(zipfile = input$imported$datapath, files = glue::glue("{csvFile}.csv")))
+  })
+  return(data)
+}
 
-if (!exists("meta_HUDCSV_Export_Date")) source("00_dates.R")
+# already did this in 00_data_prep
+# if (!exists("meta_HUDCSV_Export_Date")) source("00_dates.R")
 
 # Affiliation -------------------------------------------------------------
-
-Affiliation <- 
-  read_csv(paste0(directory, "Affiliation.csv"), 
-           col_types = "cccTTcTc") 
+Affiliation <- importFile("Affiliation")
+# Affiliation <- 
+#   read_csv(paste0(directory, "Affiliation.csv"), 
+#            col_types = "cccTTcTc") 
 
 # Client ------------------------------------------------------------------
-
-Client <-
-  read_csv(paste0(directory, "Client.csv"),
-           col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc",
-           guess_max = min(100000, n_max)) %>%
+Client <- importFile("Client")
+Client <- Client() %>%
+  # read_csv(paste0(directory, "Client.csv"),
+  #          col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc",
+  #          guess_max = min(100000, n_max)) %>%
   mutate(
     FirstName = case_when(
       NameDataQuality %in% c(8, 9) ~ "DKR",
@@ -86,66 +93,67 @@ Client <-
 Client <- Client %>%
   mutate(SSN = case_when(is.na(SSN) ~ "ok",
                          !is.na(SSN) ~ SSN))
-
-CurrentLivingSituation <-
-  read_csv(paste0(directory, "CurrentLivingSituation.csv"),
-            col_types = "cccDncnnnnncTTcTc") 
+# CurrentLivingSituation -----------------------------------------------------
+CurrentLivingSituation <- importFile("CurrentLivingSituation")
+# CurrentLivingSituation <-
+#   read_csv(paste0(directory, "CurrentLivingSituation.csv"),
+#             col_types = "cccDncnnnnncTTcTc") 
 
 # Disabilities ------------------------------------------------------------
-
-Disabilities <-
-  read_csv(paste0(directory, "Disabilities.csv"),
-           col_types = "cccDnnnnnnnnnnnTTcTc")
+Disabilities <- importFile("Disabilities")
+# Disabilities <-
+#   read_csv(paste0(directory, "Disabilities.csv"),
+#            col_types = "cccDnnnnnnnnnnnTTcTc")
 
 
 # EmploymentEducation -----------------------------------------------------
-
-EmploymentEducation <-
-  read_csv(paste0(directory, "EmploymentEducation.csv"),
-           col_types = "cccDnnnnnnTTnTn")
+EmploymentEducation <- importFile("EmploymentEducation")
+# EmploymentEducation <-
+#   read_csv(paste0(directory, "EmploymentEducation.csv"),
+#            col_types = "cccDnnnnnnTTnTn")
 
 # Exit --------------------------------------------------------------------
-
-Exit <-
-  read_csv(paste0(directory, "Exit.csv"),
-           col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
+Exit <- importFile("Exit")
+# Exit <-
+#   read_csv(paste0(directory, "Exit.csv"),
+#            col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
 
 # Organization ------------------------------------------------------------
-
-Organization <- 
-  read_csv(paste0(directory, "Organization.csv"),
-           col_types = "ccncTTcTc")
+Organization <- importFile("Organization")
+# Organization <- 
+#   read_csv(paste0(directory, "Organization.csv"),
+#            col_types = "ccncTTcTc")
 
 # Project -----------------------------------------------------------------
-
-Project <-
-  read_csv(paste0(directory, "Project.csv"),
-           col_types = "ccccDDnnnnnnnnnTTcTc") %>%
-  left_join(Organization %>% select(OrganizationID, OrganizationName),
+Project <- importFile("Project")
+Project <- Project() %>%
+  # read_csv(paste0(directory, "Project.csv"),
+  #          col_types = "ccccDDnnnnnnnnnTTcTc") %>%
+  left_join(Organization() %>% select(OrganizationID, OrganizationName),
             by = "OrganizationID")
 
 # EnrollmentCoC -----------------------------------------------------------
-
-EnrollmentCoC <- 
-  read_csv(paste0(directory, "EnrollmentCoC.csv"), 
-           col_types = "cccccDcnTTcTc")
+EnrollmentCoC <- importFile("EnrollmentCoC")
+# EnrollmentCoC <- 
+#   read_csv(paste0(directory, "EnrollmentCoC.csv"), 
+#            col_types = "cccccDcnTTcTc")
 
 # Enrollment --------------------------------------------------------------
-
-Enrollment <-
-  read_csv(paste0(directory, "Enrollment.csv"),
-           col_types =
-             "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
+Enrollment <- importFile("Enrollment")
+# Enrollment <-
+#   read_csv(paste0(directory, "Enrollment.csv"),
+#            col_types =
+#              "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
 
 # Adding Exit Data to Enrollment because I'm not tryin to have one-to-one 
 # relationships in this!
 
-small_exit <- Exit %>% select(EnrollmentID, 
+small_exit <- Exit() %>% select(EnrollmentID, 
                               ExitDate, 
                               Destination, 
                               OtherDestination)
 
-Enrollment <- left_join(Enrollment, small_exit, by = "EnrollmentID") %>%
+Enrollment <- left_join(Enrollment(), small_exit, by = "EnrollmentID") %>%
   mutate(ExitAdjust = if_else(is.na(ExitDate) |
                                 ExitDate > today(),
                               today(), ExitDate))
@@ -218,7 +226,7 @@ rm(small_project, HHEntry, HHMoveIn)
 
 # Client Location
 
-y <- EnrollmentCoC %>%
+y <- EnrollmentCoC() %>%
   filter(DataCollectionStage == 1) %>%
   select(EnrollmentID, "ClientLocation" = CoCCode) 
 
@@ -228,59 +236,63 @@ Enrollment <- Enrollment %>%
 rm(y)
 
 # Event -------------------------------------------------------------------
+Event <- importFile("Event")
+# Event <-
+#   read_csv(paste0(directory, "Event.csv"),
+#            col_types = "cccDnnncnDTTcTc") 
 
-Event <-
-  read_csv(paste0(directory, "Event.csv"),
-           col_types = "cccDnnncnDTTcTc") 
+# Export -------------------------------------------------------------------
+Export <- importFile("Export")
 
 # Funder ------------------------------------------------------------------
-
-Funder <- 
-  read_csv(paste0(directory, "Funder.csv"),
-           col_types = "ccnccDDTTcTc")
+Funder <- importFile("Funder")
+# Funder <- 
+#   read_csv(paste0(directory, "Funder.csv"),
+#            col_types = "ccnccDDTTcTc")
 
 # HealthAndDV -------------------------------------------------------------
-
-HealthAndDV <-
-  read_csv(paste0(directory, "HealthAndDV.csv"),
-           col_types = "cccDnnnnnnnDnnnnnTTcTc")
+HealthAndDV <- importFile("HealthAndDV")
+# HealthAndDV <-
+#   read_csv(paste0(directory, "HealthAndDV.csv"),
+#            col_types = "cccDnnnnnnnDnnnnnTTcTc")
 
 # IncomeBenefits ----------------------------------------------------------
-
-IncomeBenefits <- 
-  read_csv(paste0(directory, "IncomeBenefits.csv"),
-           col_types = 
-             "cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
+IncomeBenefits <- importFile("IncomeBenefits")
+# IncomeBenefits <- 
+#   read_csv(paste0(directory, "IncomeBenefits.csv"),
+#            col_types = 
+#              "cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
 
 # Inventory ---------------------------------------------------------------
-
-Inventory <-
-  read_csv(paste0(directory, "Inventory.csv"),
-           col_types = "cccnnnnnnnnnnnnDDTTcTc")
+Inventory <- importFile("Inventory")
+# Inventory <-
+#   read_csv(paste0(directory, "Inventory.csv"),
+#            col_types = "cccnnnnnnnnnnnnDDTTcTc")
 
 # ProjectCoC --------------------------------------------------------------
-
-ProjectCoC <- 
-  read_csv(paste0(directory, "ProjectCoC.csv"),
-           col_types = "nncnccccnnTTcTc")
+ProjectCoC <- importFile("ProjectCoC")
+# ProjectCoC <- 
+#   read_csv(paste0(directory, "ProjectCoC.csv"),
+#            col_types = "nncnccccnnTTcTc")
 
 # Users ------------------------------------------------------------------
-Users <- read_csv(paste0(directory, "User.csv"),
-                  col_types = "ccccccTTTc")
+Users <- importFile("Users")
+# Users <- read_csv(paste0(directory, "User.csv"),
+#                   col_types = "ccccccTTTc")
 
 # Services ----------------------------------------------------------------
-
-Services <- read_csv(paste0(directory, "Services.csv"),
-                  col_types = "cccDnnccnnnTTcTc")
+Services <- importFile("Services")
+# Services <- read_csv(paste0(directory, "Services.csv"),
+#                   col_types = "cccDnnccnnnTTcTc")
 
 # HUD CSV Specs -----------------------------------------------------------
 
-HUD_specs <- read_csv("public_data/HUDSpecs.csv",
-                      col_types = "ccnc") %>%
-  as.data.frame()
+# HUD_specs <- read_csv("public_data/HUDSpecs.csv",
+#                       col_types = "ccnc") %>%
+#   as.data.frame()
 
 # Adding Age at Entry to Enrollment ---------------------------------------
-small_client <- Client %>% select(PersonalID, DOB)
+small_client <- Client() %>% select(PersonalID, DOB)
 Enrollment <- Enrollment %>%
   left_join(small_client, by = "PersonalID") %>%
   mutate(AgeAtEntry = age_years(DOB, EntryDate)) %>%
@@ -289,20 +301,21 @@ Enrollment <- Enrollment %>%
 rm(small_client)
 
 # Assessments -------------------------------------------------------------
-
-Assessment <- read_csv(paste0(directory, "Assessment.csv"),
-                       col_types = "cccDcnnnTTcTc")
-
-AssessmentQuestions <- read_csv(paste0(directory, "AssessmentQuestions.csv"),
-                       col_types = "cccccnccTTcTc")
-
-AssessmentResults <- read_csv(paste0(directory, "AssessmentResults.csv"),
-                       col_types = "ccccccTTcTc")
+Assessment <- importFile("Assessment")
+# Assessment <- read_csv(paste0(directory, "Assessment.csv"),
+#                        col_types = "cccDcnnnTTcTc")
+# 
+AssessmentQuestions <- importFile("AssessmentQuestions")
+# AssessmentQuestions <- read_csv(paste0(directory, "AssessmentQuestions.csv"),
+#                        col_types = "cccccnccTTcTc")
+AssessmentResults <- importFile("AssessmentResults")
+# AssessmentResults <- read_csv(paste0(directory, "AssessmentResults.csv"),
+#                        col_types = "ccccccTTcTc")
 
 # Youth Education Status --------------------------------------------------
-
-YouthEducationStatus <- read_csv(paste0(directory, "YouthEducationStatus.csv"),
-                                 col_types = "cccDnnnnTTcTc")
+YouthEducationStatus <- importFile("YouthEducationStatus")
+# YouthEducationStatus <- read_csv(paste0(directory, "YouthEducationStatus.csv"),
+#                                  col_types = "cccDnnnnTTcTc")
 
 # Save it out -------------------------------------------------------------
 
