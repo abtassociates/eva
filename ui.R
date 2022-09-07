@@ -93,7 +93,7 @@ dashboardPage(
         dateRangeInput(
           "dateRangeCount",
           "Date Range",
-          min = meta_HUDCSV_Export_Start,
+          min = 0,
           format = "mm/dd/yyyy",
           width = 300
         ),
@@ -117,7 +117,7 @@ dashboardPage(
         pickerInput(
           label = "Select Project",
           inputId = "providerListUtilization",
-          choices = c(sort(utilization_bed$ProjectName)),
+          choices = NULL, #c(sort(utilization_bed$ProjectName)),
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains'),
           width = "100%"
@@ -125,16 +125,11 @@ dashboardPage(
         airDatepickerInput(
           inputId = "utilizationDate",
           label = "Report End Month for Annual Plot",
-          max =
-            ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-          min =
-            ymd(floor_date(
-              meta_HUDCSV_Export_Date - days(335), unit = "month"
-            )),
+          max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+          min = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date - days(335), unit = "month")),
           dateFormat = "MM yyyy",
           view = "month",
-          value =
-            ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+          value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
           minView = "months",
           addon = "none",
           autoClose = TRUE,
@@ -168,14 +163,11 @@ dashboardPage(
         airDatepickerInput(
           inputId = "utilizationDetailDate",
           label = "Choose Month for Detail Data",
-          max = ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-          min = ymd(floor_date(ymd(
-            meta_HUDCSV_Export_End
-          ), "month") - years(2) + days(1)),
+          max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+          min = NULL, # ymd(floor_date(ymd(meta_HUDCSV_Export_End), "month") - years(2) + days(1)),
           dateFormat = "MM yyyy",
           view = "month",
-          value =
-            ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+          value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
           minView = "months",
           addon = "none",
           autoClose = TRUE,
@@ -202,7 +194,7 @@ dashboardPage(
         pickerInput(
           label = "Select Project",
           inputId = "providerListDQ",
-          choices = dq_providers,
+          choices = NULL, # dq_providers,
           options = pickerOptions(
             liveSearch = TRUE,
             liveSearchStyle = 'contains',
@@ -216,8 +208,8 @@ dashboardPage(
           inputId = "dq_startdate",
           label = "Report Start Date",
           format = "mm/dd/yyyy",
-          value = ymd(hc_check_dq_back_to),
-          min = ymd(meta_HUDCSV_Export_Start),
+          value = NULL, # ymd(hc_check_dq_back_to),
+          min = 0,
           width = "25%"
         ),
         width = 12
@@ -263,11 +255,11 @@ dashboardPage(
         pickerInput(
           label = "Select Provider",
           inputId = "providerDeskTime",
-          choices = desk_time_providers,
+          choices = NULL, #desk_time_providers,
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains'),
           width = "100%",
-          selected = desk_time_providers[1]
+          selected = NULL # desk_time_providers[1]
         ),
         width = 12
       )),
@@ -285,36 +277,37 @@ dashboardPage(
       )
     ),
     tabItem(tabName = "dqOrganization",
-            fluidRow(box(
-              htmlOutput("headerOrganizationDQ"), width = 12
-            )),
-            fluidRow(box(
-              pickerInput(
-                inputId = "orgList",
-                choices = c(unique(Organization$OrganizationName)),
-                options = pickerOptions(liveSearch = TRUE,
-                                        liveSearchStyle = 'contains'),
-                width = "70%"
-              ),
-              dateInput(
-                inputId = "dq_org_startdate",
-                label = "Report Start Date",
-                format = "mm/dd/yyyy",
-                value = ymd(hc_check_dq_back_to),
-                width = "25%"
-              ),
-              width = 12
-            )),
-            fluidRow(
-              box(
-                id = "DQSummaryOrganization",
-                title = paste("Data Quality Summary"),
-                status = "info",
-                solidHeader = TRUE,
-                DT::dataTableOutput("dq_organization_summary_table"),
-                width = 12
-              )
-            )),
+      fluidRow(box(
+        htmlOutput("headerOrganizationDQ"), width = 12
+      )),
+      fluidRow(box(
+        pickerInput(
+          inputId = "orgList",
+          choices = NULL, #c(unique(Organization$OrganizationName)),
+          options = pickerOptions(liveSearch = TRUE,
+                                  liveSearchStyle = 'contains'),
+          width = "70%"
+        ),
+        dateInput(
+          inputId = "dq_org_startdate",
+          label = "Report Start Date",
+          format = "mm/dd/yyyy",
+          value = NULL, # ymd(hc_check_dq_back_to),
+          width = "25%"
+        ),
+        width = 12
+      )),
+      fluidRow(
+        box(
+          id = "DQSummaryOrganization",
+          title = paste("Data Quality Summary"),
+          status = "info",
+          solidHeader = TRUE,
+          DT::dataTableOutput("dq_organization_summary_table"),
+          width = 12
+        )
+      )
+    ),
     tabItem(
       tabName = "dqSystem",
       fluidRow(
@@ -339,11 +332,10 @@ dashboardPage(
             solidHeader = TRUE,
             status = "danger",
             title = "Most Common High Priority Issues and Errors"),
-        box(plotOutput("systemDQWarningTypes"), width = 12,
             solidHeader = TRUE,
             status = "warning",
             title = "Most Common Warnings")
       )
     )
-  ))
+  )
 )
