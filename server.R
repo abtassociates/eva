@@ -17,49 +17,33 @@ function(input, output, session) {
   observeEvent(input$imported, {
     source("00_data_prep.R", local = TRUE)
     
+    output$headerFileInfo <- renderUI({
+      if (!is.null(input$imported))
+        HTML(
+          paste0(
+            "<strong>Date Range of Current File: </strong>",
+            format(Export$ExportStartDate, "%m-%d-%Y"),
+            " to ",
+            format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
+            "<p><strong>Export Date: </strong>",
+            format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
+          )
+        )
+      else
+        HTML("You have not successfully uploaded your zipped CSV file yet.")
+    })
+    
+    
     updatePickerInput(session = session, inputId = "currentProviderList",
+                      choices = order(Project()$ProjectName))
+    
+    updatePickerInput(session = session, inputId = "desk_time_providers",
                       choices = order(Project()$ProjectName))
     
     updatePickerInput(session = session, inputId = "providerListDQ",
                       choices = dq_providers)
     
   }, ignoreInit = TRUE)
-  
-  
-  ExportStartDate <- reactive({
-    if(is.null(input$imported)) {return()}
-    as.Date(Export$ExportStartDate)
-  })
-  
-  ExportEndDate <- reactive({
-    if(is.null(input$imported)) {return()}
-    as.Date(Export$ExportEndDate)
-  })
-  
-  ExportDate <- reactive({
-    if (is.null(input$imported)) {
-      return()
-    }
-    as.Date(Export$ExportDate)
-  })
-  
-  
-  output$headerFileInfo <- renderUI({
-    if (!is.null(input$imported))
-      HTML(
-        paste0(
-          "<strong>Date Range of Current File: </strong>",
-          format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-          " to ",
-          format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
-          "<p><strong>Export Date: </strong>",
-          format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
-        )
-      )
-    else
-      HTML("You have not successfully uploaded your zipped CSV file yet.")
-  })
-  
   
   output$files <- renderTable(input$imported)
   
