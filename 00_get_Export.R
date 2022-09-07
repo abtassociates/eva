@@ -35,6 +35,12 @@ importFile <- function(csvFile) {
   return(data)
 }
 
+parseDate <- function(datevar) {
+  newDatevar <- parse_date_time(datevar,
+                                orders = c("Ymd", "mdY"))
+  return(newDatevar)
+}
+
 # already did this in 00_data_prep
 # if (!exists("meta_HUDCSV_Export_Date")) source("00_dates.R")
 
@@ -140,6 +146,8 @@ EnrollmentCoC <- importFile("EnrollmentCoC")
 
 # Enrollment --------------------------------------------------------------
 Enrollment <- importFile("Enrollment")
+Enrollment <- Enrollment() %>% mutate(EntryDate = parseDate(EntryDate), MoveInDate = parseDate(MoveInDate))
+
 # Enrollment <-
 #   read_csv(paste0(directory, "Enrollment.csv"),
 #            col_types =
@@ -147,18 +155,11 @@ Enrollment <- importFile("Enrollment")
 
 # Adding Exit Data to Enrollment because I'm not tryin to have one-to-one 
 # relationships in this!
-
-small_exit <- Exit() %>% select(EnrollmentID, 
-                              ExitDate, 
-                              Destination, 
-                              OtherDestination)
-
-Enrollment <- left_join(Enrollment(), small_exit, by = "EnrollmentID") %>%
+small_exit = Exit() %>% select(EnrollmentID, Destination, ExitDate, OtherDestination)
+Enrollment <- left_join(Enrollment, small_exit, by = "EnrollmentID") %>% 
   mutate(ExitAdjust = if_else(is.na(ExitDate) |
                                 ExitDate > today(),
                               today(), ExitDate))
-
-rm(small_exit)
 
 # Adding ProjectType to Enrollment too bc we need EntryAdjust & MoveInAdjust
 small_project <- Project %>%
@@ -228,7 +229,8 @@ rm(small_project, HHEntry, HHMoveIn)
 
 y <- EnrollmentCoC() %>%
   filter(DataCollectionStage == 1) %>%
-  select(EnrollmentID, "ClientLocation" = CoCCode) 
+  select(EnrollmentID, "ClientLocation" = CoCCode)  %>%
+  mutate(EnrollmentID = EnrollmentID %>% as.character())
 
 Enrollment <- Enrollment %>%
   left_join(y, by = "EnrollmentID")
@@ -292,7 +294,7 @@ Services <- importFile("Services")
 #   as.data.frame()
 
 # Adding Age at Entry to Enrollment ---------------------------------------
-small_client <- Client() %>% select(PersonalID, DOB)
+small_client <- Client %>% select(PersonalID, DOB)
 Enrollment <- Enrollment %>%
   left_join(small_client, by = "PersonalID") %>%
   mutate(AgeAtEntry = age_years(DOB, EntryDate)) %>%
@@ -320,6 +322,4 @@ YouthEducationStatus <- importFile("YouthEducationStatus")
 # Save it out -------------------------------------------------------------
 
 # WARNING save.image does not save the environment properly, save must be used.
-save(list = ls(), file = "images/CSVExportDFs.RData", compress = FALSE)
-
-
+# save(list = ls(), file = "images/CSVExportDFs.RData", compress = FALSE)
