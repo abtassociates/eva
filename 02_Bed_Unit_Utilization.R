@@ -17,18 +17,17 @@ library(lubridate)
 library(scales)
 library(HMIS)
 
-if (!exists("Enrollment")) load("images/CSVExportDFs.RData")
-if (!exists("validation")) load("images/cohorts.RData")
+# if (!exists("Enrollment")) load("images/CSVExportDFs.RData")
+# if (!exists("validation")) load("images/cohorts.RData")
 
 # despite the fact we're pulling in usually more than 2 years of data, the 
 # utilization reporting will only go back 2 years. (decision based on lack of
 # a need to go back further and time to code all that.)
-FileEnd <- format.Date(calc_2_yrs_prior_end, "%m-%d-%Y")
-FileStart <- format.Date(calc_2_yrs_prior_start, "%m-%d-%Y")
-FilePeriod <- calc_2_yrs_prior_range
+# FileEnd <- format.Date(calc_2_yrs_prior_end, "%m-%d-%Y")
+# FileStart <- format.Date(calc_2_yrs_prior_start, "%m-%d-%Y")
+# FilePeriod <- calc_2_yrs_prior_range
 
 # Creating Beds table -----------------------------------------------------
-
 small_project <- Project %>%
   select(ProjectID,
          ProjectName,
@@ -37,10 +36,10 @@ small_project <- Project %>%
   filter(ProjectType %in% c(project_types_w_beds) &
            operating_between(Project, FileStart, FileEnd) &
            HMISParticipatingProject == 1) %>%
-  left_join(Funder, by = "ProjectID") %>%
+  left_join(Funder(), by = "ProjectID") %>%
   filter(!Funder %in% c(rhy_fund_sources, ssvf_fund_sources, path_fund_sources))
 
-small_inventory <- Inventory %>%
+small_inventory <- Inventory() %>%
   select(
     ProjectID,
     HouseholdType,
@@ -50,9 +49,9 @@ small_inventory <- Inventory %>%
     InventoryEndDate
     )  %>%
   filter((
-    ymd(InventoryStartDate) <= mdy(FileEnd) &
+    InventoryStartDate <= FileEnd &
       (
-        ymd(InventoryEndDate) >= mdy(FileStart) |
+        InventoryEndDate >= FileStart |
           is.na(InventoryEndDate)
       )
   ))
@@ -60,7 +59,6 @@ small_inventory <- Inventory %>%
 Beds <- inner_join(small_project, small_inventory, by = "ProjectID")
 
 # Creating Utilizers table ------------------------------------------------
-
 small_enrollment <- Enrollment %>% 
   select(PersonalID,
          EnrollmentID,
@@ -99,15 +97,15 @@ Utilizers <- left_join(Utilizers, small_project, by = "ProjectID") %>%
 # filtering out any PSH or RRH records without a proper Move-In Date plus the 
 # fake training providers
 utilizers_clients <- Utilizers %>%
-  mutate(StayWindow = interval(ymd(EntryAdjust), ymd(ExitAdjust))) %>%
+  mutate(StayWindow = interval(EntryAdjust, ExitAdjust)) %>%
   filter(
     int_overlaps(StayWindow, FilePeriod) &
       (
     (
       ProjectType %in% c(3, 9) &
         !is.na(EntryAdjust) &
-        ymd(MoveInDateAdjust) >= ymd(EntryDate) &
-        ymd(MoveInDateAdjust) < ymd(ExitAdjust)
+        MoveInDateAdjust >=EntryDate &
+        MoveInDateAdjust < ExitAdjust
     ) |
       ProjectType %in% c(1, 2, 8)
   ))
@@ -120,7 +118,6 @@ Beds <- Beds %>%
                unique(), by = "ProjectID")
 
 # function for adding bed nights per ee
-
 bed_nights_per_ee <- function(table, interval) {
   # if the ee date range and a given interval (in my reporting, a month) overlap,
   if_else(int_overlaps(table$StayWindow, interval),
@@ -129,14 +126,14 @@ bed_nights_per_ee <- function(table, interval) {
             # if the exit date precedes the end of the interval, then the exit 
             # date, otherwise the end of the interval 
             if_else(
-              ymd(table$ExitAdjust) <=  int_end(interval),
+              table$ExitAdjust <=  int_end(interval),
               as.POSIXct(table$ExitAdjust),
               int_end(interval) + days(1)
             ),
             # if the entry date is after the start of the interval, then the 
             # entry date, otherwise the beginning of the interval
             if_else(
-              ymd(table$EntryAdjust) >= int_start(interval),
+              table$EntryAdjust >= int_start(interval),
               as.POSIXct(table$EntryAdjust),
               int_start(interval)
             ),
@@ -147,8 +144,8 @@ bed_nights_per_ee <- function(table, interval) {
 }
 
 nth_Month <- function(n) {
-  interval(floor_date(mdy(FileStart) %m+% months(n - 1), unit = "months"),
-           seq(as.Date(floor_date(mdy(FileStart) %m+% months(n), unit = "months")),
+  interval(floor_date(FileStart %m+% months(n - 1), unit = "months"),
+           seq(as.Date(floor_date(FileStart %m+% months(n), unit = "months")),
                length = 1, by = "1 month") - 1)
 }
 
@@ -256,13 +253,12 @@ BedCapacity <- Beds %>%
          InventoryStartDate,
          InventoryEndDate) %>%
   mutate(InventoryEndAdjust = if_else(is.na(InventoryEndDate),
-                                      mdy(FileEnd),
-                                      ymd(InventoryEndDate)),
-         InventoryStartAdjust = if_else(ymd(InventoryStartDate) >= mdy(FileStart),
-                                        ymd(InventoryStartDate),
-                                        mdy(FileStart)),
-         AvailableWindow = interval(ymd(InventoryStartAdjust),
-                                    ymd(InventoryEndAdjust))) 
+                                      FileEnd,
+                                      InventoryEndDate),
+         InventoryStartAdjust = if_else(InventoryStartDate >= FileStart,
+                                        InventoryStartDate,
+                                        FileStart),
+         AvailableWindow = interval(InventoryStartAdjust,InventoryEndAdjust)) 
 
 # function for bed capacity at the bed record level
 
@@ -270,12 +266,12 @@ bed_capacity <- function(interval) {
   if_else(int_overlaps(BedCapacity$AvailableWindow, interval),
           (as.numeric(difftime(
             if_else(
-              ymd(BedCapacity$InventoryEndAdjust) <=  int_end(interval),
+              BedCapacity$InventoryEndAdjust <=  int_end(interval),
               as.POSIXct(BedCapacity$InventoryEndAdjust),
               int_end(interval)
             ),
             if_else(
-              ymd(BedCapacity$InventoryStartAdjust) >= int_start(interval),
+              BedCapacity$InventoryStartAdjust >= int_start(interval),
               as.POSIXct(BedCapacity$InventoryStartAdjust),
               int_start(interval)
             ),
@@ -434,11 +430,11 @@ HHUtilizers <- Utilizers %>%
       ProjectType %in% c(3, 9) ~ MoveInDateAdjust
     ),
     ExitAdjust = if_else(
-      is.na(ExitDate) & ymd(EntryAdjust) <= mdy(FileEnd),
-      mdy(FileEnd),
-      ymd(ExitDate)
+      is.na(ExitDate) & EntryAdjust <= FileEnd,
+      FileEnd,
+      ExitDate
     ),
-    StayWindow = interval(ymd(EntryAdjust), ymd(ExitAdjust))
+    StayWindow = interval(EntryAdjust, ExitAdjust)
   ) %>%
   filter(
     RelationshipToHoH == 1 &
@@ -447,8 +443,8 @@ HHUtilizers <- Utilizers %>%
         (
           ProjectType %in% c(3, 9) &
             !is.na(EntryAdjust) &
-            ymd(MoveInDateAdjust) >= ymd(EntryDate) &
-            ymd(MoveInDateAdjust) <= ymd(ExitAdjust)
+            MoveInDateAdjust >= EntryDate &
+            MoveInDateAdjust <= ExitAdjust
         ) |
           ProjectType %in% c(lh_project_types)
       )
@@ -539,13 +535,13 @@ UnitCapacity <- Beds %>%
          InventoryStartDate,
          InventoryEndDate) %>%
   mutate(InventoryEndAdjust = if_else(is.na(InventoryEndDate),
-                                      mdy(FileEnd),
-                                      ymd(InventoryEndDate)),
-         InventoryStartAdjust = if_else(ymd(InventoryStartDate) >= mdy(FileStart),
-                                        ymd(InventoryStartDate),
-                                        mdy(FileStart)),
-         AvailableWindow = interval(ymd(InventoryStartAdjust),
-                                    ymd(InventoryEndAdjust)),
+                                      FileEnd,
+                                      InventoryEndDate),
+         InventoryStartAdjust = if_else(InventoryStartDate >= FileStart,
+                                        InventoryStartDate,
+                                        FileStart),
+         AvailableWindow = interval(InventoryStartAdjust,
+                                    InventoryEndAdjust),
          UnitCount = if_else(HouseholdType == 3,
                              UnitInventory, BedInventory)) 
 
@@ -557,12 +553,12 @@ unit_capacity <- function(interval) {
     (as.numeric(
       difftime(
         if_else(
-          ymd(UnitCapacity$InventoryEndAdjust) <=  int_end(interval),
+          UnitCapacity$InventoryEndAdjust <=  int_end(interval),
           as.POSIXct(UnitCapacity$InventoryEndAdjust),
           int_end(interval)
         ),
         if_else(
-          ymd(UnitCapacity$InventoryStartAdjust) >= int_start(interval),
+          UnitCapacity$InventoryStartAdjust >= int_start(interval),
           as.POSIXct(UnitCapacity$InventoryStartAdjust),
           int_start(interval)
         ),
@@ -731,7 +727,7 @@ rm(bed_capacity, bed_nights_per_ee, unit_capacity)
 
 small_project <- Project %>%
   filter(ProjectType %in% c(project_types_w_beds) &
-           ymd(OperatingStartDate) <= today() &
+           OperatingStartDate <= today() &
            (is.na(OperatingEndDate) | OperatingEndDate >= today())) %>%
   select(ProjectID,
          ProjectName,
@@ -740,14 +736,12 @@ small_project <- Project %>%
          HMISParticipatingProject)
 
 # Current Bed Utilization -------------------------------------------------
-
-small_inventory <- Inventory %>%
-  filter((ymd(InventoryStartDate) <= today() &
+small_inventory <- Inventory() %>%
+  filter(InventoryStartDate <= today() &
             (
-              ymd(InventoryEndDate) >= today() |
+              InventoryEndDate >= today() | # PCL kit is all < 9/25/2021...so this is empty?
                 is.na(InventoryEndDate)
-            )) &
-           Inventory$CoCCode %in% c("OH-507", "OH-504")) %>%
+            )) %>%
   select(
     ProjectID,
     HouseholdType,
@@ -758,7 +752,6 @@ small_inventory <- Inventory %>%
   )
 
 small_inventory <- inner_join(small_project, small_inventory, by = "ProjectID")
-
 Capacity <- small_inventory %>%
   select(ProjectID,
          ProjectName,
@@ -769,11 +762,9 @@ Capacity <- small_inventory %>%
          BedInventory,
          InventoryStartDate,
          InventoryEndDate) %>%
-  mutate(UnitCount = if_else(HouseholdType == 3,
-                             UnitInventory, BedInventory)) %>%
+  mutate(UnitCount = if_else(HouseholdType == 3, UnitInventory, BedInventory)) %>%
   group_by(ProjectID, ProjectName, ProjectType, OrganizationName) %>%
-  summarise(UnitCount = sum(UnitCount),
-            BedCount = sum(BedInventory)) %>%
+  summarise(UnitCount = sum(UnitCount), BedCount = sum(BedInventory)) %>%
   ungroup()
 
 providerids <- Capacity %>% 
