@@ -29,9 +29,9 @@ library(here)
 # dataset_directory <- "San-Diego3/" 
 # directory <- paste0("data/", dataset_directory)
 ##  load in all files
-source("00_functions.R") # calling in HMIS-related functions that aren't in the HMIS pkg
-source("00_get_Export.R", local = TRUE)
-source("00_dates.R", local = TRUE)
+source("00_functions.R", local=TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+source("00_get_Export.R", local=TRUE)
+source("00_dates.R", local=TRUE)
 
 if (calc_data_goes_back_to != meta_HUDCSV_Export_Start){
   cat("Export Start Date may not be correct.")
@@ -42,17 +42,18 @@ if (!dir.exists("images")) dir.create("images")
 
 # Start running scripts ---------------------------------------------------
 cat("working on Cohorts\n")
-source("01_cohorts.R") 
+source("01_cohorts.R", local=TRUE) 
 
 cat("working on Bed_Unit_Utilization\n")
-source("02_Bed_Unit_Utilization.R")  
+source("02_Bed_Unit_Utilization.R", local=TRUE) 
 
+browser()
 cat("working on Data Quality")
-source("03_DataQuality.R")
+source("03_DataQuality.R", local=TRUE) 
 
 cat("Saving what we need out to a .Rdata file, almost done!")
 
-save( # from functions, cohorts, dates, get_export, data_quality, bed_unit_utilization
+DQ_Shiny <- c( # from functions, cohorts, dates, get_export, data_quality, bed_unit_utilization
   living_situation, # functions
   enhanced_yes_no_translator, # cohorts
   validation, # cohorts
@@ -88,10 +89,10 @@ save( # from functions, cohorts, dates, get_export, data_quality, bed_unit_utili
   note_bed_utilization, # bed_unit_utilization
   note_calculation_utilization, # bed_unit_utilization
   note_unit_utilization, # bed_unit_utilization
-  utilization, # bed_unit_utilization
-  compress = FALSE,
-  file = here("images/DQ_Shiny.RData")
+  utilization # bed_unit_utilization
+  # compress = FALSE,
+  # file = here("images/DQ_Shiny.RData")
 )
 
-cat("All necessary dfs have been saved to images/DQ_Shiny.RData.")
+cat("All necessary dfs have been saved to DQ_Shiny")
 
