@@ -22,7 +22,7 @@ source("03_guidance.R")
 
 # if (!exists("Enrollment")) load("images/CSVExportDFs.RData")
 # if (!exists("validation")) load("images/cohorts.RData")
-
+browser()
 va_funded <- Funder %>%
   filter(Funder %in% va_fund_sources) %>%
   pull(ProjectID)
@@ -42,7 +42,7 @@ ssvf_funded <- Funder %>%
 # Providers to Check ------------------------------------------------------
 
 projects_current_hmis <- Project %>%
-  left_join(Inventory(), by = "ProjectID") %>%
+  left_join(Inventory, by = "ProjectID") %>%
   filter(HMISParticipatingProject == 1 &
            operating_between(., ymd(calc_data_goes_back_to), ymd(meta_HUDCSV_Export_End))) %>%
   select(
