@@ -14,6 +14,7 @@
 
 function(input, output, session) {
   ## TEMP: Update Client counts project dropdown
+  
   observeEvent(input$imported, {
     source("00_data_prep.R", local = TRUE)
     
@@ -33,24 +34,26 @@ function(input, output, session) {
         HTML("You have not successfully uploaded your zipped CSV file yet.")
     })
     
-    
     updatePickerInput(session = session, inputId = "currentProviderList",
-                      choices = order(Project()$ProjectName))
+                      choices = order(Project$ProjectName))
     
     updatePickerInput(session = session, inputId = "desk_time_providers",
-                      choices = order(Project()$ProjectName))
+                      choices = order(Project$ProjectName))
     
     updatePickerInput(session = session, inputId = "providerListDQ",
                       choices = dq_providers)
+  
+    output$files <- renderTable(input$imported)
     
+    output$test <- renderTable({
+      if (!is.null(input$imported)) {
+        base::as.matrix(t(Export), rownames.force = TRUE)
+      }
+      
+    })
   }, ignoreInit = TRUE)
   
-  output$files <- renderTable(input$imported)
   
-  output$test <- renderTable({
-    if (!is.null(input$imported))
-      base::as.matrix(t(Export), rownames.force = TRUE)
-    })
   
   output$headerHome <- renderUI({
     box(
