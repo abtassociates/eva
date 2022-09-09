@@ -27,11 +27,14 @@ library(HMIS)
 # directory <- paste0("data/", dataset_directory)
 
 # import
-importFile <- function(csvFile) {
-  data <- reactive({
-    if (is.null(input$imported)) {return()}
-    read_csv(unzip(zipfile = input$imported$datapath, files = glue::glue("{csvFile}.csv")))
-  })
+importFile <- function(csvFile, col_types=NULL, guess_max=1000) {
+  if (is.null(input$imported)) {return()}
+  filename = glue::glue("{csvFile}.csv")
+  data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename),
+                 col_types = col_types #,
+                 #guess_max = min(guess_max, n_max) AS 9/8: was getting an error: Error in vroom::vroom: object 'n_max' not found
+                 )
+  file.remove(filename)
   return(data)
 }
 
@@ -41,21 +44,51 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-# already did this in 00_data_prep
-# if (!exists("meta_HUDCSV_Export_Date")) source("00_dates.R")
+Affiliation <- importFile("Affiliation",col_types="cccTTcTc")
 
-# Affiliation -------------------------------------------------------------
-Affiliation <- importFile("Affiliation")
-# Affiliation <- 
-#   read_csv(paste0(directory, "Affiliation.csv"), 
-#            col_types = "cccTTcTc") 
+Assessment <- importFile("Assessment",col_types="cccDcnnnTTcTc")
+
+AssessmentQuestions <- importFile("AssessmentQuestions",col_types="cccccnccTTcTc")
+
+AssessmentResults <- importFile("AssessmentResults",col_types="ccccccTTcTc")
+
+CurrentLivingSituation <- importFile("CurrentLivingSituation",col_types="cccDncnnnnncTTcTc")
+
+Disabilities <- importFile("Disabilities",col_types="cccDnnnnnnnnnnnTTcTc")
+
+EmploymentEducation <- importFile("EmploymentEducation",col_types="cccDnnnnnnTTnTn")
+
+Exit <- importFile("Exit",col_types="cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
+
+Organization <- importFile("Organization",col_types="ccncTTcTc")
+
+Project <- importFile("Project",col_types="ccccDDnnnnnnnnnTTcTc") %>%
+  left_join(Organization %>% select(OrganizationID, OrganizationName), by = "OrganizationID")
+
+EnrollmentCoC <- importFile("EnrollmentCoC",col_types="cccccDcnTTcTc")
+
+Event <- importFile("Event",col_types="cccDnnncnDTTcTc")
+
+Export <- importFile("Export", col_types="cncccccccTDDcncnnn")
+
+Funder <- importFile("Funder",col_types="ccnccDDTTcTc")
+
+HealthAndDV <- importFile("HealthAndDV",col_types="cccDnnnnnnnDnnnnnTTcTc")
+
+IncomeBenefits <- importFile("IncomeBenefits",col_types="cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
+
+Inventory <- importFile("Inventory",col_types="cccnnnnnnnnnnnnDDTTcTc")
+
+ProjectCoC <- importFile("ProjectCoC",col_types="nncnccccnnTTcTc")
+
+Users <- importFile("User",col_types="ccccccTTTc")
+
+Services <- importFile("Services",col_types="cccDnnccnnnTTcTc")
+
+YouthEducationStatus <- importFile("YouthEducationStatus",col_types="cccDnnnnTTcTc")
 
 # Client ------------------------------------------------------------------
-Client <- importFile("Client")
-Client <- Client() %>%
-  # read_csv(paste0(directory, "Client.csv"),
-  #          col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc",
-  #          guess_max = min(100000, n_max)) %>%
+Client <- importFile("Client", col_types="cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc", guess_max=100000) %>% 
   mutate(
     FirstName = case_when(
       NameDataQuality %in% c(8, 9) ~ "DKR",
@@ -93,77 +126,33 @@ Client <- Client() %>%
           123456789
         ) ~ "Invalid",
       SSNDataQuality == 2 & nchar(SSN) != 9 ~ "Incomplete"
-    )
-  )
+    ),
+    PersonalID = as.character(PersonalID)
+  ) %>%
+  mutate(SSN = case_when(is.na(SSN) ~ "ok", !is.na(SSN) ~ SSN))
 
-Client <- Client %>%
-  mutate(SSN = case_when(is.na(SSN) ~ "ok",
-                         !is.na(SSN) ~ SSN))
-# CurrentLivingSituation -----------------------------------------------------
-CurrentLivingSituation <- importFile("CurrentLivingSituation")
-# CurrentLivingSituation <-
-#   read_csv(paste0(directory, "CurrentLivingSituation.csv"),
-#             col_types = "cccDncnnnnncTTcTc") 
-
-# Disabilities ------------------------------------------------------------
-Disabilities <- importFile("Disabilities")
-# Disabilities <-
-#   read_csv(paste0(directory, "Disabilities.csv"),
-#            col_types = "cccDnnnnnnnnnnnTTcTc")
-
-
-# EmploymentEducation -----------------------------------------------------
-EmploymentEducation <- importFile("EmploymentEducation")
-# EmploymentEducation <-
-#   read_csv(paste0(directory, "EmploymentEducation.csv"),
-#            col_types = "cccDnnnnnnTTnTn")
-
-# Exit --------------------------------------------------------------------
-Exit <- importFile("Exit")
-# Exit <-
-#   read_csv(paste0(directory, "Exit.csv"),
-#            col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
-
-# Organization ------------------------------------------------------------
-Organization <- importFile("Organization")
-# Organization <- 
-#   read_csv(paste0(directory, "Organization.csv"),
-#            col_types = "ccncTTcTc")
-
-# Project -----------------------------------------------------------------
-Project <- importFile("Project")
-Project <- Project() %>%
-  # read_csv(paste0(directory, "Project.csv"),
-  #          col_types = "ccccDDnnnnnnnnnTTcTc") %>%
-  left_join(Organization() %>% select(OrganizationID, OrganizationName),
-            by = "OrganizationID")
-
-# EnrollmentCoC -----------------------------------------------------------
-EnrollmentCoC <- importFile("EnrollmentCoC")
-# EnrollmentCoC <- 
-#   read_csv(paste0(directory, "EnrollmentCoC.csv"), 
-#            col_types = "cccccDcnTTcTc")
+# End Client -------------------------------------------------------
 
 # Enrollment --------------------------------------------------------------
-Enrollment <- importFile("Enrollment")
-Enrollment <- Enrollment() %>% mutate(EntryDate = parseDate(EntryDate), MoveInDate = parseDate(MoveInDate))
-
-# Enrollment <-
-#   read_csv(paste0(directory, "Enrollment.csv"),
-#            col_types =
-#              "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
+Enrollment <- importFile("Enrollment", col_types="cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc") %>% 
+  mutate(
+    EntryDate = parseDate(EntryDate), 
+    DateCreated = parseDate(DateCreated),
+    MoveInDate = parseDate(MoveInDate),
+    DateToStreetESSH = parseDate(DateToStreetESSH),
+    PersonalID = as.character(PersonalID)
+  )
 
 # Adding Exit Data to Enrollment because I'm not tryin to have one-to-one 
 # relationships in this!
-small_exit = Exit() %>% select(EnrollmentID, Destination, ExitDate, OtherDestination)
+small_exit = Exit %>% select(EnrollmentID, Destination, ExitDate, OtherDestination)
 Enrollment <- left_join(Enrollment, small_exit, by = "EnrollmentID") %>% 
   mutate(ExitAdjust = if_else(is.na(ExitDate) |
                                 ExitDate > today(),
                               today(), ExitDate))
 
 # Adding ProjectType to Enrollment too bc we need EntryAdjust & MoveInAdjust
-small_project <- Project %>%
-  select(ProjectID, ProjectType, ProjectName) 
+small_project <- Project %>% select(ProjectID, ProjectType, ProjectName) 
 
 # getting HH information
 # only doing this for RRH and PSHs since Move In Date doesn't matter for ES, etc.
@@ -172,7 +161,7 @@ HHMoveIn <- Enrollment %>%
   filter(ProjectType %in% c(3, 9, 13)) %>%
   mutate(
     AssumedMoveIn = if_else(
-      ymd(EntryDate) < hc_psh_started_collecting_move_in_date &
+      EntryDate < hc_psh_started_collecting_move_in_date &
         ProjectType %in% c(3, 9),
       1,
       0
@@ -181,15 +170,15 @@ HHMoveIn <- Enrollment %>%
       AssumedMoveIn == 1 ~ EntryDate,
       AssumedMoveIn == 0 &
         ProjectType %in% c(3, 9) &
-        ymd(EntryDate) <= ymd(MoveInDate) &
-        ymd(ExitAdjust) > ymd(MoveInDate) ~ MoveInDate,
+        EntryDate <= MoveInDate &
+        ExitAdjust > MoveInDate ~ MoveInDate,
       # the Move-In Dates must fall between the Entry and ExitAdjust to be
       # considered valid and for PSH the hmid cannot = ExitDate
-      ymd(MoveInDate) <= ymd(ExitAdjust) &
-        ymd(MoveInDate) >= ymd(EntryDate) &
+      MoveInDate <= ExitAdjust &
+        MoveInDate >= EntryDate &
         ProjectType == 13 ~ MoveInDate
     )
-  ) %>% 
+  ) %>%
   filter(!is.na(ValidMoveIn)) %>%
   group_by(HouseholdID) %>%
   mutate(HHMoveIn = min(ValidMoveIn)) %>%
@@ -212,8 +201,8 @@ Enrollment <- Enrollment %>%
   left_join(HHEntry, by = "HouseholdID") %>%
   mutate(
     MoveInDateAdjust = if_else(!is.na(HHMoveIn) &
-                                 ymd(HHMoveIn) <= ymd(ExitAdjust),
-                               if_else(ymd(EntryDate) <= ymd(HHMoveIn),
+                                 ymd(HHMoveIn) <= ExitAdjust,
+                               if_else(EntryDate <= ymd(HHMoveIn),
                                        HHMoveIn, EntryDate),
                                NA_real_), 
     EntryAdjust = case_when(
@@ -223,101 +212,33 @@ Enrollment <- Enrollment %>%
     )
   )
 
-rm(small_project, HHEntry, HHMoveIn)
-
-# Client Location
-
-y <- EnrollmentCoC() %>%
-  filter(DataCollectionStage == 1) %>%
-  select(EnrollmentID, "ClientLocation" = CoCCode)  %>%
-  mutate(EnrollmentID = EnrollmentID %>% as.character())
-
-Enrollment <- Enrollment %>%
-  left_join(y, by = "EnrollmentID")
-
-rm(y)
-
-# Event -------------------------------------------------------------------
-Event <- importFile("Event")
-# Event <-
-#   read_csv(paste0(directory, "Event.csv"),
-#            col_types = "cccDnnncnDTTcTc") 
-
-# Export -------------------------------------------------------------------
-Export <- importFile("Export")
-
-# Funder ------------------------------------------------------------------
-Funder <- importFile("Funder")
-# Funder <- 
-#   read_csv(paste0(directory, "Funder.csv"),
-#            col_types = "ccnccDDTTcTc")
-
-# HealthAndDV -------------------------------------------------------------
-HealthAndDV <- importFile("HealthAndDV")
-# HealthAndDV <-
-#   read_csv(paste0(directory, "HealthAndDV.csv"),
-#            col_types = "cccDnnnnnnnDnnnnnTTcTc")
-
-# IncomeBenefits ----------------------------------------------------------
-IncomeBenefits <- importFile("IncomeBenefits")
-# IncomeBenefits <- 
-#   read_csv(paste0(directory, "IncomeBenefits.csv"),
-#            col_types = 
-#              "cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
-
-# Inventory ---------------------------------------------------------------
-Inventory <- importFile("Inventory")
-# Inventory <-
-#   read_csv(paste0(directory, "Inventory.csv"),
-#            col_types = "cccnnnnnnnnnnnnDDTTcTc")
-
-# ProjectCoC --------------------------------------------------------------
-ProjectCoC <- importFile("ProjectCoC")
-# ProjectCoC <- 
-#   read_csv(paste0(directory, "ProjectCoC.csv"),
-#            col_types = "nncnccccnnTTcTc")
-
-# Users ------------------------------------------------------------------
-Users <- importFile("Users")
-# Users <- read_csv(paste0(directory, "User.csv"),
-#                   col_types = "ccccccTTTc")
-
-# Services ----------------------------------------------------------------
-Services <- importFile("Services")
-# Services <- read_csv(paste0(directory, "Services.csv"),
-#                   col_types = "cccDnnccnnnTTcTc")
-
-# HUD CSV Specs -----------------------------------------------------------
-
-# HUD_specs <- read_csv("public_data/HUDSpecs.csv",
-#                       col_types = "ccnc") %>%
-#   as.data.frame()
-
-# Adding Age at Entry to Enrollment ---------------------------------------
+# Adding Age at Entry to Enrollment
 small_client <- Client %>% select(PersonalID, DOB)
 Enrollment <- Enrollment %>%
   left_join(small_client, by = "PersonalID") %>%
   mutate(AgeAtEntry = age_years(DOB, EntryDate)) %>%
   select(-DOB)
 
-rm(small_client)
+# Client Location
+small_location <- EnrollmentCoC %>%
+  filter(DataCollectionStage == 1) %>%
+  select(EnrollmentID, "ClientLocation" = CoCCode)  %>%
+  mutate(EnrollmentID = EnrollmentID %>% as.character())
 
-# Assessments -------------------------------------------------------------
-Assessment <- importFile("Assessment")
-# Assessment <- read_csv(paste0(directory, "Assessment.csv"),
-#                        col_types = "cccDcnnnTTcTc")
-# 
-AssessmentQuestions <- importFile("AssessmentQuestions")
-# AssessmentQuestions <- read_csv(paste0(directory, "AssessmentQuestions.csv"),
-#                        col_types = "cccccnccTTcTc")
-AssessmentResults <- importFile("AssessmentResults")
-# AssessmentResults <- read_csv(paste0(directory, "AssessmentResults.csv"),
-#                        col_types = "ccccccTTcTc")
+Enrollment <- Enrollment %>%
+  left_join(small_location, by = "EnrollmentID")
 
-# Youth Education Status --------------------------------------------------
-YouthEducationStatus <- importFile("YouthEducationStatus")
-# YouthEducationStatus <- read_csv(paste0(directory, "YouthEducationStatus.csv"),
-#                                  col_types = "cccDnnnnTTcTc")
+
+rm(small_project, HHEntry, HHMoveIn, small_client, small_location)
+# End Enrollment -------------------------------------------------------
+
+
+
+# HUD CSV Specs -----------------------------------------------------------
+
+HUD_specs <- read_csv("public_data/HUDSpecs.csv",
+                      col_types = "ccnc") %>%
+  as.data.frame()
 
 # Save it out -------------------------------------------------------------
 
