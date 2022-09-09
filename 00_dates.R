@@ -21,27 +21,19 @@ library(here)
 # calc = result is calculated
 
 # Dates from Metadata -----------------------------------------------------
-meta_HUDCSV_Export_Start <- Export() %>% pull(ExportStartDate)
+meta_HUDCSV_Export_Start <- Export %>% pull(ExportStartDate)
 
-meta_HUDCSV_Export_End <- Export() %>% pull(ExportEndDate)
+meta_HUDCSV_Export_End <- Export %>% pull(ExportEndDate)
 
-meta_HUDCSV_Export_Date <- Export() %>% pull(ExportDate)
-
+meta_HUDCSV_Export_Date <- Export %>% pull(ExportDate)
 
 # Calculated Dates --------------------------------------------------------
-calc_data_goes_back_to <- Exit() %>%
-  # read_csv(here(paste0("data/", dataset_directory, "Exit.csv")),
-  #          col_types = "nnnDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTnTn") %>%
+calc_data_goes_back_to <- Exit %>%
   arrange(ExitDate) %>%
   head(1) %>% 
   pull(ExitDate)
 
 calc_full_date_range <- interval(meta_HUDCSV_Export_End, calc_data_goes_back_to)
-
-FileEnd <- floor_date(today(), "month") - days(1)
-FileStart <- floor_date(FileEnd, "month") - years(2) + months(1)
-FilePeriod <- interval(FileStart,FileEnd)
-
 
 
 # save(list = ls(), file = here("images/00_dates.RData"), compress = FALSE)
