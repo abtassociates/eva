@@ -32,10 +32,6 @@ library(tidyverse)
 library(lubridate)
 library(HMIS)
 
-# if (!exists("Enrollment")) {
-#   load("images/CSVExportDFs.RData")
-# }
-
 vars_we_want <- c(
   "PersonalID",
   "EnrollmentID",
