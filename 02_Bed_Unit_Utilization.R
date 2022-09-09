@@ -36,10 +36,10 @@ small_project <- Project %>%
   filter(ProjectType %in% c(project_types_w_beds) &
            operating_between(Project, FileStart, FileEnd) &
            HMISParticipatingProject == 1) %>%
-  left_join(Funder(), by = "ProjectID") %>%
+  left_join(Funder, by = "ProjectID") %>%
   filter(!Funder %in% c(rhy_fund_sources, ssvf_fund_sources, path_fund_sources))
 
-small_inventory <- Inventory() %>%
+small_inventory <- Inventory %>%
   select(
     ProjectID,
     HouseholdType,
@@ -736,7 +736,7 @@ small_project <- Project %>%
          HMISParticipatingProject)
 
 # Current Bed Utilization -------------------------------------------------
-small_inventory <- Inventory() %>%
+small_inventory <- Inventory %>%
   filter(InventoryStartDate <= today() &
             (
               InventoryEndDate >= today() | # PCL kit is all < 9/25/2021...so this is empty?
