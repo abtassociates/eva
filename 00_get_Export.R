@@ -30,8 +30,8 @@ library(HMIS)
 importFile <- function(csvFile, col_types=NULL, guess_max=1000) {
   if (is.null(input$imported)) {return()}
   filename = glue::glue("{csvFile}.csv")
-  data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename),
-                 col_types = col_types #,
+  data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
+                   # ,col_types = col_types #,
                  #guess_max = min(guess_max, n_max) AS 9/8: was getting an error: Error in vroom::vroom: object 'n_max' not found
                  )
   file.remove(filename)
@@ -51,10 +51,12 @@ Assessment <- importFile("Assessment",col_types="cccDcnnnTTcTc")
 AssessmentQuestions <- importFile("AssessmentQuestions",col_types="cccccnccTTcTc")
 
 AssessmentResults <- importFile("AssessmentResults",col_types="ccccccTTcTc")
+ 
+CurrentLivingSituation <- importFile("CurrentLivingSituation",col_types="cccDncnnnnncTTcTc") %>%
+  mutate(PersonalID = as.character(PersonalID))
 
-CurrentLivingSituation <- importFile("CurrentLivingSituation",col_types="cccDncnnnnncTTcTc")
-
-Disabilities <- importFile("Disabilities",col_types="cccDnnnnnnnnnnnTTcTc")
+Disabilities <- importFile("Disabilities",col_types="cccDnnnnnnnnnnnTTcTc") %>%
+  mutate(PersonalID = as.character(PersonalID))
 
 EmploymentEducation <- importFile("EmploymentEducation",col_types="cccDnnnnnnTTnTn")
 
@@ -75,7 +77,8 @@ Funder <- importFile("Funder",col_types="ccnccDDTTcTc")
 
 HealthAndDV <- importFile("HealthAndDV",col_types="cccDnnnnnnnDnnnnnTTcTc")
 
-IncomeBenefits <- importFile("IncomeBenefits",col_types="cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
+IncomeBenefits <- importFile("IncomeBenefits",col_types="cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc") %>%
+  mutate(PersonalID = as.character(PersonalID))
 
 Inventory <- importFile("Inventory",col_types="cccnnnnnnnnnnnnDDTTcTc")
 
@@ -83,7 +86,8 @@ ProjectCoC <- importFile("ProjectCoC",col_types="nncnccccnnTTcTc")
 
 Users <- importFile("User",col_types="ccccccTTTc")
 
-Services <- importFile("Services",col_types="cccDnnccnnnTTcTc")
+Services <- importFile("Services",col_types="cccDnnccnnnTTcTc") %>%
+  mutate(PersonalID = as.character(PersonalID))
 
 YouthEducationStatus <- importFile("YouthEducationStatus",col_types="cccDnnnnTTcTc")
 
@@ -136,7 +140,7 @@ Client <- importFile("Client", col_types="cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTT
 # Enrollment --------------------------------------------------------------
 Enrollment <- importFile("Enrollment", col_types="cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc") %>% 
   mutate(
-    EntryDate = parseDate(EntryDate), 
+    EntryDate = parseDate(EntryDate),
     DateCreated = parseDate(DateCreated),
     MoveInDate = parseDate(MoveInDate),
     DateToStreetESSH = parseDate(DateToStreetESSH),
