@@ -12,7 +12,6 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
 
-
 dashboardPage(
   skin = "black",
   dashboardHeader(title = "Needs New Name"),
@@ -93,7 +92,7 @@ dashboardPage(
         dateRangeInput(
           "dateRangeCount",
           "Date Range",
-          min = 0,
+          min = NULL,
           format = "mm/dd/yyyy",
           width = 300
         ),
@@ -209,7 +208,7 @@ dashboardPage(
           label = "Report Start Date",
           format = "mm/dd/yyyy",
           value = NULL, # ymd(hc_check_dq_back_to),
-          min = 0,
+          min = NULL,
           width = "25%"
         ),
         width = 12
