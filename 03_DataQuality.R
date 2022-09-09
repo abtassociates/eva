@@ -162,8 +162,7 @@ dq_dob <- served_in_date_range %>%
       is.na(DOB) & DOBDataQuality %in% c(1, 2) ~ "Missing DOB",
       DOBDataQuality == 99 ~ "Missing Date of Birth Data Quality",
       DOBDataQuality %in% c(2, 8, 9) ~ "Don't Know/Refused or Approx. Date of Birth",
-      AgeAtEntry < 0 |
-        AgeAtEntry > 100 ~ "Incorrect Date of Birth or Entry Date"
+      AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect Date of Birth or Entry Date"
     ),
     Type = case_when(
       Issue %in% c(
