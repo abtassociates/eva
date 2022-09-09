@@ -36,9 +36,9 @@ source("00_dates.R", local=TRUE)
 if (calc_data_goes_back_to != meta_HUDCSV_Export_Start){
   cat("Export Start Date may not be correct.")
 } else {}
-  
-# if there's not already an images directory, create it
-if (!dir.exists("images")) dir.create("images")
+
+# # if there's not already an images directory, create it
+# if (!dir.exists("images")) dir.create("images")
 
 # Start running scripts ---------------------------------------------------
 cat("working on Cohorts\n")
@@ -47,7 +47,6 @@ source("01_cohorts.R", local=TRUE)
 cat("working on Bed_Unit_Utilization\n")
 source("02_Bed_Unit_Utilization.R", local=TRUE) 
 
-browser()
 cat("working on Data Quality")
 source("03_DataQuality.R", local=TRUE) 
 
@@ -75,23 +74,21 @@ DQ_Shiny <- c( # from functions, cohorts, dates, get_export, data_quality, bed_u
   dq_past_year, # data_quality
   detail_eligibility, # data_quality
   dq_overlaps, # data_quality
-  dq_providers, # data_quality
-  dq_plot_eligibility, # data_quality
-  dq_plot_errors, # data_quality
-  dq_plot_hh_errors, # data_quality
-  dq_plot_projects_errors, # data_quality
-  dq_plot_projects_warnings, # data_quality
-  dq_plot_warnings, # data_quality
-  utilizers_clients, # bed_unit_utilization
-  Beds, # bed_unit_utilization
-  utilization_bed, # bed_unit_utilization
-  utilization_unit, # bed_unit_utilization
-  note_bed_utilization, # bed_unit_utilization
-  note_calculation_utilization, # bed_unit_utilization
-  note_unit_utilization, # bed_unit_utilization
-  utilization # bed_unit_utilization
-  # compress = FALSE,
-  # file = here("images/DQ_Shiny.RData")
+  dq_providers # data_quality
+  # dq_plot_eligibility, # data_quality
+  # dq_plot_errors, # data_quality
+  # dq_plot_hh_errors, # data_quality
+  # dq_plot_projects_errors, # data_quality
+  # dq_plot_projects_warnings, # data_quality
+  # dq_plot_warnings # data_quality
+  # utilizers_clients, # bed_unit_utilization
+  # Beds, # bed_unit_utilization
+  # utilization_bed, # bed_unit_utilization
+  # utilization_unit, # bed_unit_utilization
+  # note_bed_utilization, # bed_unit_utilization
+  # note_calculation_utilization, # bed_unit_utilization
+  # note_unit_utilization, # bed_unit_utilization
+  # utilization # bed_unit_utilization
 )
 
 cat("All necessary dfs have been saved to DQ_Shiny")
