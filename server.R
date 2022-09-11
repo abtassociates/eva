@@ -67,7 +67,17 @@ function(input, output, session) {
     
     updatePickerInput(session = session, inputId = "providerListDQ",
                       choices = dq_providers)
-  
+    
+    updatePickerInput(session = session, inputId = "providerDeskTime",
+                      choices = desk_time_providers)
+    
+    updatePicketInput(session=session, inputId = "orgList",
+                      choices = c(unique(Organization$OrganizationName)))
+    
+    updateDateInput(session=session, inputId = "dq_org_startdate", value = hc_check_dq_back_to)
+    
+    updateDateInput(session=session, inputId = "dq_startdate", value = hc_check_dq_back_to)
+    
     output$files <- renderTable(input$imported)
     
     output$test <- renderTable({
