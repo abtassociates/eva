@@ -12,7 +12,7 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
 
-=======
+
 
 dashboardPage(
   skin = "black",
