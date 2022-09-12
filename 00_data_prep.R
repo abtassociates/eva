@@ -74,13 +74,13 @@ DQ_Shiny <- c( # from functions, cohorts, dates, get_export, data_quality, bed_u
   dq_past_year, # data_quality
   detail_eligibility, # data_quality
   dq_overlaps, # data_quality
-  dq_providers # data_quality
-  # dq_plot_eligibility, # data_quality
-  # dq_plot_errors, # data_quality
-  # dq_plot_hh_errors, # data_quality
-  # dq_plot_projects_errors, # data_quality
-  # dq_plot_projects_warnings, # data_quality
-  # dq_plot_warnings # data_quality
+  dq_providers, # data_quality
+  dq_plot_eligibility, # data_quality
+  dq_plot_errors, # data_quality
+  dq_plot_hh_errors, # data_quality
+  dq_plot_projects_errors, # data_quality
+  dq_plot_projects_warnings, # data_quality
+  dq_plot_warnings # data_quality
   # utilizers_clients, # bed_unit_utilization
   # Beds, # bed_unit_utilization
   # utilization_bed, # bed_unit_utilization
