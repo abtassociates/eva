@@ -321,6 +321,14 @@ validation <- smallProject %>%
   ) %>%
   filter(!is.na(EntryDate))
 
+desk_time_providers <- validation %>%
+  dplyr::filter(
+    (entered_between(., today() - years(1), today()) |
+       exited_between(., today() - years(1), today())) &
+      ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
+  dplyr::select(ProjectName) %>% unique()
+
+
 # Clean Up the House ------------------------------------------------------
 # 
 # keepers <- c(
