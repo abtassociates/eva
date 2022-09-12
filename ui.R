@@ -20,8 +20,8 @@ dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
-      menuItem("Home",
-               tabName = "homeTab"),
+      # menuItem("Home",
+      #          tabName = "homeTab"),
       menuItem("Upload Hashed CSV",
                tabName = "uploadCSV"),
       menuItem("PDDE Checker",
