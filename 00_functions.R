@@ -9,28 +9,28 @@ age_years <- function(earlier, later)
 }
 
 # Client Entry Exits Between Date Range Functions -------------------------
-
-served_between <- function(., start, end) {
-  served <- .$EntryDate <= parseDate(end)  &
-                 (is.na(.$ExitDate) | .$ExitDate >= parseDate(start))
-  served
-}
-
-entered_between <- function(table, start, end){
-  entered <- between(table$EntryDate, parseDate(start), parseDate(end))
-  entered
-}
-
-exited_between <- function(table, start, end){
-  exited <- between(table$ExitDate, parseDate(start), parseDate(end))
-  exited
-}
-
-stayed_between <- function(table, start, end){
-  stayed <- table$EntryAdjust <= parseDate(end) &
-    (is.na(table$ExitDate) | table$ExitDate > parseDate(start))
-  stayed
-}
+# 
+# served_between <- function(., start, end) {
+#   served <- .$EntryDate <= parseDate(end)  &
+#                  (is.na(.$ExitDate) | .$ExitDate >= parseDate(start))
+#   served
+# }
+# 
+# entered_between <- function(table, start, end){
+#   entered <- between(table$EntryDate, parseDate(start), parseDate(end))
+#   entered
+# }
+# 
+# exited_between <- function(table, start, end){
+#   exited <- between(table$ExitDate, parseDate(start), parseDate(end))
+#   exited
+# }
+# 
+# stayed_between <- function(table, start, end){
+#   stayed <- table$EntryAdjust <= parseDate(end) &
+#     (is.na(table$ExitDate) | table$ExitDate > parseDate(start))
+#   stayed
+# }
 # 
 # # Projects Operating Between Date Range Function --------------------------
 # 
@@ -48,17 +48,17 @@ stayed_between <- function(table, start, end){
 # 
 # Beds Available Between --------------------------------------------------
 
-beds_available_between <- function(table, start, end) {
-  available <-  if_else(
-    is.na(table$ParticipatingStartDate) |
-      ymd(table$ParticipatingStartDate) > mdy(end) |
-      (!is.na(table$ParticipatingEndDate) &
-         ymd(table$ParticipatingEndDate) < mdy(start)),
-    FALSE,
-    TRUE
-  )
-  available
-}
+# beds_available_between <- function(table, start, end) {
+#   available <-  if_else(
+#     is.na(table$ParticipatingStartDate) |
+#       ymd(table$ParticipatingStartDate) > mdy(end) |
+#       (!is.na(table$ParticipatingEndDate) &
+#          ymd(table$ParticipatingEndDate) < mdy(start)),
+#     FALSE,
+#     TRUE
+#   )
+#   available
+# }
 
 living_situation <- function(ReferenceNo) {
   case_when(
