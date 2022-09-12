@@ -250,7 +250,7 @@ other_destinations <- c(8, 9, 17, 24, 30, 37, 99)
 
 # Project Type Groupings --------------------------------------------------
 
-lh_project_types <- c(1, 2, 8)
+lh_project_types <- c(1, 2, 4, 8)
 
 ph_project_types <- c(3, 9, 13)
 
