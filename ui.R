@@ -12,6 +12,8 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
 
+=======
+
 dashboardPage(
   skin = "black",
   dashboardHeader(title = "Needs New Name"),
@@ -36,7 +38,7 @@ dashboardPage(
         menuSubItem("Data Entry Timeliness", 
                     tabName = "deskTime")
       ),
-      menuItem("Coordinated Entry Analyses",
+      menuItem("System Analysis",
                menuSubItem("System Flow",
                            tabName = "tabSystemFlow"),
                menuSubItem("Outcomes",
@@ -47,7 +49,7 @@ dashboardPage(
                            tabName = "tabAssessments"),
                menuSubItem("Diversion",
                            tabName = "tabDiversion"),
-               menuSubItem("Prioritized",
+               menuSubItem("Prioritization",
                            tabName = "tabPrioritized"))
     )), 
   dashboardBody(tabItems(
