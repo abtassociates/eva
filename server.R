@@ -80,12 +80,6 @@ function(input, output, session) {
     
     output$files <- renderTable(input$imported)
     
-    output$test <- renderTable({
-      if (!is.null(input$imported)) {
-        base::as.matrix(t(Export), rownames.force = TRUE)
-      }
-    })
-    
     output$headerPrioritization <- renderUI({
       list(h2("Prioritization Report"),
            h4("Literally Homeless Clients as of", meta_HUDCSV_Export_End))
