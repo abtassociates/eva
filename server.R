@@ -15,6 +15,12 @@
 function(input, output, session) {
   ## TEMP: Update Client counts project dropdown
   
+  output$headerNoFileYet <- renderUI({
+    if (is.null(input$imported)) {
+      HTML("You have not successfully uploaded your zipped CSV file yet.")
+    } else {}
+  })
+  
   observeEvent(input$imported, {
     source("00_data_prep.R", local = TRUE)
     
@@ -30,8 +36,7 @@ function(input, output, session) {
             format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
           )
         )
-    } else
-        HTML("You have not successfully uploaded your zipped CSV file yet.")
+    } else {}
     })
     
     output$headerHome <- renderUI({

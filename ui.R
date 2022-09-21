@@ -62,6 +62,7 @@ dashboardPage(
       tabName = "uploadCSV",
       box(title = "Status",
           uiOutput("headerFileInfo"),
+          uiOutput("headerNoFileYet"),
           width = 12),
       box(
         title = "Upload Hashed CSV zip file",
