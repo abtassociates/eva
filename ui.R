@@ -69,8 +69,6 @@ dashboardPage(
                   "",
                   multiple = FALSE,
                   accept = ".zip"),
-        tableOutput("files"),
-        tableOutput("test"),
         width = 12
       ), 
       box(
