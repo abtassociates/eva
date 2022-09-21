@@ -65,18 +65,10 @@ dashboardPage(
           uiOutput("headerNoFileYet"),
           width = 12),
       box(
-        title = "Upload Hashed CSV zip file",
-        fileInput("imported",
-                  "",
-                  multiple = FALSE,
-                  accept = ".zip"),
-        width = 12
-      ), 
-      box(
-        title = "CoC-specific Settings",
+        title = "Edit CoC-specific Settings",
         width = 12,
         collapsible = TRUE,
-        collapsed = FALSE,
+        collapsed = TRUE,
         fluidRow(
           column(
             width = 12,
@@ -92,22 +84,25 @@ dashboardPage(
             inputId = "ESLongStayers",
             label = "Emergency Shelters:",
             value = 120,
-            min = 1,
-            max = 3652
+            min = 0,
+            max = 3650,
+            step = 5
           ),
           numericInput(
             inputId = "SHLongStayers",
             label = "Safe Havens:",
             value = 120,
-            min = 1,
-            max = 3652
+            min = 0,
+            max = 3650,
+            step = 5
           ),
           numericInput(
             inputId = "THLongStayers",
             label = "Transitional Housing:",
             value = 120,
-            min = 1,
-            max = 3652
+            min = 0,
+            max = 3650,
+            step = 5
           ),
           numericInput(
             inputId = "OutLongStayers",
@@ -119,21 +114,26 @@ dashboardPage(
           numericInput(
             inputId = "ServicesOnlyLongStayers",
             label = "Services Only:",
-            min = 1,
-            max = 3652,
-            value = 120
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
           ),
           numericInput(
             inputId = "RRHLongStayers",
             label = "Rapid Rehousing:",
-            min = 1,
-            max = 3652,
-            value = 120
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
           ),
           numericInput(
             inputId = "HPLongStayers",
             label = "Prevention:",
-            value = 120
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
           )
           )
         ),
@@ -147,6 +147,14 @@ dashboardPage(
           label = "Outstanding Referral Days:",
           value = 7
         )
+      ), 
+      box(
+        title = "Upload Hashed CSV zip file",
+        fileInput("imported",
+                  "",
+                  multiple = FALSE,
+                  accept = ".zip"),
+        width = 12
       ), 
       box(
         title = "HUD CSV Export Integrity Checker",
