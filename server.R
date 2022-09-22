@@ -23,9 +23,19 @@ function(input, output, session) {
   
   observeEvent(input$imported, {
     
-    withProgress(
-      source("00_data_prep.R", local = TRUE),
-      message = "test"
+    withProgress({
+      setProgress(message = "Processing...")
+      source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+      setProgress(detail = "Reading your files..")
+      source("00_get_Export1.R", local = TRUE)
+      setProgress(detail = "Possibly wasting time..")
+      source("00_dates.R", local = TRUE)
+      setProgress(detail = "Making lists..")
+      source("01_cohorts.R", local = TRUE) 
+      setProgress(detail = "Assessing your data quality..")
+      source("03_DataQuality.R", local = TRUE) 
+      
+        }
       )
     
     output$headerFileInfo <- renderUI({
@@ -80,14 +90,14 @@ function(input, output, session) {
     updatePickerInput(session = session, inputId = "providerDeskTime",
                       choices = desk_time_providers)
     
-    updatePickerInput(session=session, inputId = "orgList",
+    updatePickerInput(session = session, inputId = "orgList",
                       choices = c(unique(Organization$OrganizationName)))
     
-    updateDateInput(session=session, inputId = "dq_org_startdate", 
-                    value = hc_check_dq_back_to)
+    updateDateInput(session = session, inputId = "dq_org_startdate", 
+                    value = meta_HUDCSV_Export_Start)
     
-    updateDateInput(session=session, inputId = "dq_startdate", 
-                    value = hc_check_dq_back_to)
+    updateDateInput(session = session, inputId = "dq_startdate", 
+                    value = meta_HUDCSV_Export_Start)
     
     output$files <- renderTable(input$imported)
     
@@ -978,7 +988,7 @@ function(input, output, session) {
     })
     
     output$cocLongStayers <- DT::renderDataTable({
-      ReportStart <- hc_check_dq_back_to
+      ReportStart <- meta_HUDCSV_Export_Start
       ReportEnd <- today()
       
       a <- dq_main %>%
@@ -1208,7 +1218,7 @@ function(input, output, session) {
   output$headerSystemDQ <- renderUI({
     list(h2("System-wide Data Quality"),
          h4(
-           paste(format(hc_check_dq_back_to, "%m-%d-%Y"),
+           paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
                  "through",
                  format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
          ))
@@ -1255,7 +1265,7 @@ function(input, output, session) {
   output$headerCocDQ <- renderUI({
     list(h2("System-wide Data Quality"),
          h4(
-           paste(format(hc_check_dq_back_to, "%m-%d-%Y"),
+           paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
                  "through",
                  format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
          ))
