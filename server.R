@@ -22,7 +22,11 @@ function(input, output, session) {
   })
   
   observeEvent(input$imported, {
-    source("00_data_prep.R", local = TRUE)
+    
+    withProgress(
+      source("00_data_prep.R", local = TRUE),
+      message = "test"
+      )
     
     output$headerFileInfo <- renderUI({
       if (!is.null(input$imported)) {
