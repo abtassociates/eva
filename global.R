@@ -28,26 +28,6 @@ library(HMIS)
 library(glue)
 library(janitor)
 
-# load("images/Data_Quality.RData")
-
-# Hard-coded Dates --------------------------------------------------------
-hc_check_dq_back_to <- mdy("10012019") # the default ReportStart for DQ reporting
-hc_psh_started_collecting_move_in_date <- mdy("10012017") 
-hc_prior_living_situation_required <- mdy("10012016")
-hc_check_eligibility_back_to <- mdy("10012016")
-
-FileEnd <- floor_date(today(), "month") - days(1)
-FileStart <- floor_date(FileEnd, "month") - years(2) + months(1)
-FilePeriod <- interval(FileStart,FileEnd)
-
 options(shiny.maxRequestSize = 200000000)
 
-# projects <- sort(validation$ProjectName) %>% unique()
-# 
-# desk_time_providers <- validation %>%
-#   dplyr::filter(
-#     (entered_between(., today() - years(1), today()) |
-#        exited_between(., today() - years(1), today())) &
-#       ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
-#   dplyr::select(ProjectName) %>% unique()
-# }, ignoreInit = TRUE)
+
