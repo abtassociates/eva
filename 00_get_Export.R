@@ -52,14 +52,14 @@ if (is.null(input$imported)) {
       col_types = "cccDncnnnnncTTcTc")
 }
 
-if (is.null(input$imported)) {
-  return()
-} else {
-  Disabilities <-
-    read_csv(
-      unzip(zipfile = input$imported$datapath, files = "Disabilities.csv"),
-      col_types = "cccDnnnnnnnnnnnTTcTc")
-}
+# if (is.null(input$imported)) {
+#   return()
+# } else {
+#   Disabilities <-
+#     read_csv(
+#       unzip(zipfile = input$imported$datapath, files = "Disabilities.csv"),
+#       col_types = "cccDnnnnnnnnnnnTTcTc")
+# }
 
 if (is.null(input$imported)) {
   return()
@@ -177,15 +177,15 @@ if (is.null(input$imported)) {
       unzip(zipfile = input$imported$datapath, files = "User.csv"),
       col_types = "ccccccTTTc")
 }
-
-if (is.null(input$imported)) {
-  return()
-} else {
-  Services <-
-    read_csv(
-      unzip(zipfile = input$imported$datapath, files = "Services.csv"),
-      col_types = "cccDnnccnnnTTcTc")
-}
+# 
+# if (is.null(input$imported)) {
+#   return()
+# } else {
+#   Services <-
+#     read_csv(
+#       unzip(zipfile = input$imported$datapath, files = "Services.csv"),
+#       col_types = "cccDnnccnnnTTcTc")
+# }
 
 if (is.null(input$imported)) {
   return()
