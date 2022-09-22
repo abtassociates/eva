@@ -30,4 +30,5 @@ library(janitor)
 
 options(shiny.maxRequestSize = 200000000)
 
+hc_psh_started_collecting_move_in_date <- ymd("20171001")
 
