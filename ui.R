@@ -292,7 +292,7 @@ dashboardPage(
           inputId = "dq_startdate",
           label = "Report Start Date",
           format = "mm/dd/yyyy",
-          value = NULL, # ymd(hc_check_dq_back_to),
+          value = NULL, # ymd(meta_HUDCSV_Export_Start),
           min = NULL,
           width = "25%"
         ),
@@ -376,7 +376,7 @@ dashboardPage(
           inputId = "dq_org_startdate",
           label = "Report Start Date",
           format = "mm/dd/yyyy",
-          value = NULL, # ymd(hc_check_dq_back_to),
+          value = NULL, # ymd(meta_HUDCSV_Export_Start),
           width = "25%"
         ),
         width = 12
