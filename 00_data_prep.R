@@ -33,12 +33,6 @@ source("00_functions.R", local=TRUE) # calling in HMIS-related functions that ar
 source("00_get_Export1.R", local=TRUE)
 source("00_dates.R", local=TRUE)
 
-if (calc_data_goes_back_to != meta_HUDCSV_Export_Start){
-  cat("Export Start Date may not be correct.")
-} else {}
-
-# # if there's not already an images directory, create it
-# if (!dir.exists("images")) dir.create("images")
 
 # Start running scripts ---------------------------------------------------
 cat("working on Cohorts\n")
@@ -46,7 +40,6 @@ source("01_cohorts.R", local=TRUE)
 
 # cat("working on Bed_Unit_Utilization\n")
 # source("02_Bed_Unit_Utilization.R", local=TRUE) 
-
 cat("working on Data Quality")
 source("03_DataQuality.R", local=TRUE) 
 
