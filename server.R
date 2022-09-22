@@ -24,10 +24,10 @@ function(input, output, session) {
   observeEvent(input$imported, {
     
     withProgress({
-      setProgress(message = "Processing...", value = .2)
+      setProgress(message = "Processing...", value = .15)
       source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
       setProgress(detail = "Reading your files..", value = .3)
-      source("00_get_Export1.R", local = TRUE)
+      source("00_get_Export.R", local = TRUE)
       setProgress(detail = "Possibly wasting time..", value = .35)
       source("00_dates.R", local = TRUE)
       setProgress(detail = "Making lists..", value = .6)
