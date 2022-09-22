@@ -2384,16 +2384,14 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     
     # for CoC-wide DQ tab
 
-    dq_past_year <- dq_main %>%
-      filter(served_between(., hc_check_dq_back_to, 
-                            today())) %>%
+    dq_w_project_names <- dq_main %>%
       left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
     
    dq_providers <- sort(projects_current_hmis$ProjectName)    
 
 # Plots -------------------------------------------------------------------
     
-    dq_data_errors_plot <- dq_past_year %>%
+    dq_data_errors_plot <- dq_w_project_names %>%
       filter(
         Type %in% c("Error", "High Priority") &
           !Issue %in% c(
@@ -2430,7 +2428,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
     
-    dq_data_warnings_plot <- dq_past_year %>%
+    dq_data_warnings_plot <- dq_w_project_names %>%
       filter(Type == "Warning") %>%
       group_by(ProjectName, ProjectID) %>%
       summarise(Warnings = n()) %>%
@@ -2455,7 +2453,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
     
-    dq_data_error_types <- dq_past_year %>%
+    dq_data_error_types <- dq_w_project_names %>%
       filter(Type %in% c("Error", "High Priority")) %>%
       group_by(Issue) %>%
       summarise(Errors = n()) %>%
@@ -2476,7 +2474,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
     
-    dq_data_warning_types <- dq_past_year %>%
+    dq_data_warning_types <- dq_w_project_names %>%
       filter(Type == "Warning") %>%
       group_by(Issue) %>%
       summarise(Warnings = n()) %>%
@@ -2497,7 +2495,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
     
-    dq_data_hh_issues_plot <- dq_past_year %>%
+    dq_data_hh_issues_plot <- dq_w_project_names %>%
       filter(
         Type %in% c("Error", "High Priority") &
           Issue %in% c(
@@ -2531,7 +2529,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
     
-    dq_data_eligibility_plot <- dq_past_year %>%
+    dq_data_eligibility_plot <- dq_w_project_names %>%
       filter(Type == "Warning" &
                Issue %in% c("Check Eligibility")) %>%
       select(PersonalID, ProjectID, ProjectName) %>%
