@@ -1015,7 +1015,7 @@ check_eligibility <- served_in_date_range %>%
   filter(
     RelationshipToHoH == 1 &
       AgeAtEntry > 17 &
-      EntryDate > hc_check_eligibility_back_to &
+      # EntryDate > hc_check_eligibility_back_to &
       (ProjectType %in% c(3, 4, 8, 9, 10, 12, 13) |
          (ProjectType == 2 & !ProjectID %in% c(rhy_funded))) &
       (
