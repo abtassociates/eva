@@ -20,8 +20,6 @@ library(HMIS)
 
 source("03_guidance.R")
 
-# if (!exists("Enrollment")) load("images/CSVExportDFs.RData")
-# if (!exists("validation")) load("images/cohorts.RData")
 va_funded <- Funder %>%
   filter(Funder %in% va_fund_sources) %>%
   pull(ProjectID)
@@ -42,7 +40,7 @@ ssvf_funded <- Funder %>%
 projects_current_hmis <- Project %>%
   left_join(Inventory, by = "ProjectID") %>%
   filter(HMISParticipatingProject == 1 &
-           operating_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End)) %>%
+           operating_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
   select(
     ProjectID,
     OrganizationID,
@@ -55,7 +53,7 @@ projects_current_hmis <- Project %>%
 
 # Clients to Check --------------------------------------------------------
 served_in_date_range <- Enrollment %>%
-  filter(served_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End)) %>%
+  filter(served_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
   select(
