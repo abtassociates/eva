@@ -2330,7 +2330,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       path_status_determination,
       # referrals_on_hh_members,
       # referrals_on_hh_members_ssvf,
-      rent_paid_no_move_in,
+      # rent_paid_no_move_in,
       # services_on_hh_members,
       # services_on_hh_members_ssvf,
       should_be_psh_destination,
