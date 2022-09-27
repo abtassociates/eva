@@ -819,23 +819,6 @@ enrolled_in_rrh <- served_in_date_range %>%
 #   ) %>%
 #   select(all_of(vars_we_want))
 
-should_be_rrh_destination <- served_in_date_range %>%
-  left_join(moved_in_rrh, by = "PersonalID") %>%
-  filter(ProjectType != 13 &
-           ExitDate == RRHMoveIn &
-           Destination != 31) %>%
-  mutate(
-    Issue = "Maybe Incorrect Exit Destination (did you mean \"Rental by client, with RRH...\"?)",
-    Type = "Warning",
-    Guidance = "This household has a Move-In Date into an RRH project that 
-    matches their Exit from your project, but the Exit Destination from your
-    project does not indicate that the household exited to Rapid Rehousing. If
-    the household exited to a Destination that was not \"Rental by client\", but
-    it is a permanent destination attained through a Rapid Rehousing project, 
-    then there is no change needed. If this is not the case, then the Destination
-    should be \"Rental by client, with RRH or equivalent subsidy\"."
-  ) %>% 
-  select(all_of(vars_we_want))
 
 # PSH mover inners only
 
@@ -866,46 +849,12 @@ maybe_psh_destination <- served_in_date_range %>%
   ) %>% 
   select(all_of(vars_we_want))
 
-should_be_psh_destination <- served_in_date_range %>%
-  left_join(enrolled_in_psh, by = "PersonalID") %>%
-  filter(!ProjectType %in% c(3, 9) &
-           ExitDate == PSHMoveIn &
-           !Destination %in% c(3, 19, 26)) %>%
-  mutate(
-    Issue = "Incorrect Exit Destination (should be \"Permanent housing (other 
-    than RRH)...\")",
-    Type = "Error",
-    Guidance = "This household appears to have a Move-In Date into a PSH project
-    that matches their Exit from your project, but the Exit Destination from your
-    project does not indicate that the household exited to PSH. The correct 
-    Destination for households entering PSH from your project is 
-    \"Permanent housing (other than RRH) for formerly homeless persons\"."
-  ) %>% 
-  select(all_of(vars_we_want))
-
 # TH
 
 enrolled_in_th <- served_in_date_range %>%
   filter(ProjectType == 2) %>%
   mutate(TH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
   select(PersonalID, TH_range, "THProjectName" = ProjectName)
-
-should_be_th_destination <- served_in_date_range %>%
-  left_join(enrolled_in_th, by = "PersonalID") %>%
-  filter(ProjectType != 2 &
-           ExitAdjust %within% TH_range &
-           Destination != 2) %>%
-  mutate(
-    Issue = "Incorrect Exit Destination (should be \"Transitional housing...\")",
-    Type = "Error",
-    Guidance = "This household appears to have an Entry into a Transitional 
-    Housing project that overlaps their Exit from your project, but the Exit 
-    Destination from your project does not indicate that the household exited to 
-    Transitional Housing. The correct Destination for households entering TH from 
-    your project is \"Transitional housing for homeless persons (including 
-    homeless youth)\"."
-  ) %>% 
-  select(all_of(vars_we_want))
 
 # SH
 
@@ -914,23 +863,6 @@ enrolled_in_sh <- served_in_date_range %>%
   mutate(SH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
   select(PersonalID, SH_range, "SHProjectName" = ProjectName)
 
-should_be_sh_destination <- served_in_date_range %>%
-  left_join(enrolled_in_sh, by = "PersonalID") %>%
-  filter(ProjectType != 8 &
-           ExitAdjust %within% SH_range &
-           Destination != 18) %>%
-  mutate(
-    Issue = "Incorrect Exit Destination (should be \"Safe Haven\")",
-    Type = "Error",
-    Guidance = "This household appears to have an Entry into a Safe Haven that 
-    overlaps their Exit from your project, but the Exit Destination from your 
-    project does not indicate that the household exited to a Safe Haven. The 
-    correct Destination for households entering SH from your project is 
-    \"Safe Haven\"."
-  ) %>% 
-  select(all_of(vars_we_want))
-
-
 # Missing Project Stay or Incorrect Destination ---------------------------
 
 # RRH
@@ -938,78 +870,20 @@ should_be_sh_destination <- served_in_date_range %>%
 destination_rrh <- served_in_date_range %>%
   filter(Destination == 31)
 
-no_bos_rrh <- destination_rrh %>%
-  anti_join(enrolled_in_rrh, by = "PersonalID") %>%
-  mutate(
-    Issue = "Missing RRH Project Stay or Incorrect Destination",
-    Type = "Warning",
-    Guidance = "The Exit Destination for this household indicates that they exited
-    to Rapid Rehousing, but there is no RRH project stay on the client. If the 
-    RRH project the household exited to is outside of the Balance of State or 
-    Mahoning County CoCs, then no correction is necessary. If they received RRH services 
-    in the Balance of State CoC or Mahoning County CoC, then this household is missing 
-    their RRH project stay. If they did not actually receive RRH services at all, 
-    the Destination should be corrected."
-  ) %>% 
-  select(all_of(vars_we_want))
-
 # PSH
 
 destination_psh <- served_in_date_range %>%
   filter(Destination == 3)
-
-no_bos_psh <- destination_psh %>%
-  anti_join(enrolled_in_psh, by = "PersonalID") %>%
-  mutate(
-    Issue = "Missing PSH Project Stay or Incorrect Destination",
-    Type = "Warning",
-    Guidance = "The Exit Destination for this household indicates that they exited
-    to Permanent Supportive Housing, but there is no PSH project stay on the 
-    client. If the PSH project the household exited to is outside of the Balance 
-    of State CoC or Mahoning County CoC, then no correction is necessary. If they 
-    entered PSH in the Balance of State CoC or Mahoning County CoC, then this household 
-    is missing their PSH project stay. If they did not actually enter PSH at all, 
-    the Destination should be corrected."
-  ) %>% 
-  select(all_of(vars_we_want))
 
 # TH
 
 destination_th <- served_in_date_range %>%
   filter(Destination == 2)
 
-no_bos_th <- destination_th %>%
-  anti_join(enrolled_in_th, by = "PersonalID") %>%
-  mutate(
-    Issue = "Missing TH Project Stay or Incorrect Destination",
-    Type = "Warning",
-    Guidance = "The Exit Destination for this household indicates that they exited
-    to Transitional Housing, but there is no TH project stay on the client. If the 
-    TH project that the household exited to is outside of the Balance of State 
-    CoC or Mahoning County CoC, then no correction is necessary. If they went into a TH 
-    project in the Balance of State CoC or Mahoning County CoC, then this household is 
-    missing their TH project stay. If they did not actually enter Transitional 
-    Housing at all, the Destination should be corrected."
-  ) %>% 
-  select(all_of(vars_we_want))
-
 # SH
 
 destination_sh <- served_in_date_range %>%
   filter(Destination == 18)
-
-no_bos_sh <- destination_sh %>%
-  anti_join(enrolled_in_sh, by = "PersonalID") %>%
-  mutate(
-    Issue = "Missing Safe Haven Project Stay or Incorrect Destination",
-    Type = "Warning",
-    Guidance = "The Exit Destination for this household indicates that they exited
-    to a Safe Haven, but there is no Entry in HMIS into a Safe Haven. Keep in 
-    mind that there is only one Safe Haven in the Balance of State and they are
-    no longer operating as of 1/1/2021. If you meant to indicate that the household
-    exited to a Domestic Violence shelter, please select \"Emergency shelter, ...\"."
-  ) %>% 
-  select(all_of(vars_we_want))
 
 # Check Eligibility, Project Type, Residence Prior ------------------------
 
@@ -1103,32 +977,6 @@ check_eligibility <- served_in_date_range %>%
         project, or the Residence Prior data at Entry is incorrect. Please check
         the terms of your grant or speak with your CoC if you are unsure of 
         eligibility criteria for your project type.") %>%
-      select(all_of(vars_we_want))
-    
-    # Rent Payment Made, No Move-In Date
-    rent_paid_no_move_in <- served_in_date_range %>%
-      filter(is.na(MoveInDateAdjust) &
-               RelationshipToHoH == 1 &
-               ProjectType %in% c(3, 9, 13)) %>%
-      inner_join(Services %>%
-                   filter(
-                     (RecordType %in% c(141) & TypeProvided %in% c(8, 9, 11, 12)) |
-                       (RecordType %in% c(152) & TypeProvided %in% c(1:5)) |
-                       (RecordType %in% c(151) & TypeProvided %in% c(1:7))) %>%
-                   select(-PersonalID),
-                 by = "EnrollmentID") %>%
-      mutate(
-        Issue = "Rent Payment Made, No Move-In Date",
-        Type = "Error",
-        Guidance = 
-          "This client does not have a valid Move-In Date, but there is at
-    least one rent/deposit payment Service Transaction recorded for this program.
-    Until a Move-In Date is entered, this client will continue to be counted as
-    literally homeless while in your program. Move-in dates must be on or after
-    the Entry Date. If a client is housed then returns to homelessness while
-    in your program, they need to be exited from their original Entry and
-    re-entered in a new one that has no Move-In Date until they are re-housed."
-      ) %>%
       select(all_of(vars_we_want))
     
     # Missing Destination
@@ -1951,29 +1799,8 @@ check_eligibility <- served_in_date_range %>%
              Guidance = guidance_conflicting_ncbs) %>%
       select(all_of(vars_we_want))
     
-
-# Unlikely NCBs -----------------------------------------------------------
-
-    unlikely_ncbs_entry <- served_in_date_range %>%
-      left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
-      select(
-        AgeAtEntry,
-        all_of(vars_prep),
-        DataCollectionStage,
-        BenefitsFromAnySource,
-        BenefitCount
-      ) %>%
-      filter(DataCollectionStage == 1 &
-               (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
-               (BenefitCount == 6)) %>%
-      mutate(Issue = "Client has ALL SIX Non-cash Benefits at Entry",
-             Type = "Warning",
-             Guidance = "This client has every single Non-Cash Benefit, 
-             according to HMIS, which is highly unlikely. Please correct (unless
-             it's actually true).") %>%
-      select(all_of(vars_we_want))
     
-    # Missing NCBs at Exit ----------------------------------------------------
+# Missing NCBs at Exit ----------------------------------------------------
     missing_ncbs_exit <- served_in_date_range %>%
       left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
       select(AgeAtEntry,
@@ -2019,28 +1846,6 @@ check_eligibility <- served_in_date_range %>%
     smallIncome <- IncomeBenefits %>%
       select(EnrollmentID, PersonalID, SSI, SSDI)
     
-    check_disability_ssi <- served_in_date_range %>%
-      select(all_of(vars_prep),
-             EnrollmentID,
-             AgeAtEntry,
-             DisablingCondition) %>%
-      left_join(smallIncome, by = c("EnrollmentID", "PersonalID")) %>%
-      mutate(SSI = if_else(is.na(SSI), 0, SSI),
-             SSDI = if_else(is.na(SSDI), 0, SSDI)) %>%
-      filter(SSI + SSDI > 0 &
-               DisablingCondition == 0 & AgeAtEntry > 17) %>%
-      select(-DisablingCondition, -SSI, -SSDI, -AgeAtEntry) %>%
-      unique() %>%
-      mutate(
-        Issue = "Client with No Disability Receiving SSI/SSDI (could be ok)",
-        Type = "Warning",
-        Guidance = "If a client is receiving SSI or SSDI for THEIR OWN disability, 
-        that disability should be indicated in the Disabilities data elements. If
-        an adult is receiving SSI or SSDI benefits on behalf a minor child,
-        then there is no action needed."
-      ) %>%
-      select(all_of(vars_we_want))
-    
     rm(smallIncome)
     
     # Non HoHs w Svcs or Referrals --------------------------------------------
@@ -2061,19 +1866,7 @@ check_eligibility <- served_in_date_range %>%
              Guidance = guidance_service_on_non_hoh) %>%
       select(all_of(vars_we_want))
     
-    services_on_hh_members_ssvf <- served_in_date_range %>%
-      select(all_of(vars_prep),
-             ProjectID,
-             EnrollmentID,
-             RelationshipToHoH) %>%
-      filter(RelationshipToHoH != 1 &
-               ProjectID %in% c(ssvf_funded)) %>%
-      semi_join(Services, by = c("PersonalID", "EnrollmentID")) %>%
-      mutate(Issue = "Service Transaction on a Non Head of Household (SSVF)",
-             Type = "Error",
-             Guidance = guidance_service_on_non_hoh) %>%
-      select(all_of(vars_we_want))
-    
+   
     # # Old Outstanding Referrals -----------------------------------------------
     # # CW says ProviderCreating should work instead of Referred-From Provider
     # # Using ProviderCreating instead. Either way, I feel this should go in the
@@ -2288,7 +2081,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     # All together now --------------------------------------------------------
     
     dq_main <- rbind(
-      check_disability_ssi,
+      #check_disability_ssi,
       check_eligibility,
       conflicting_disabilities,
       conflicting_health_insurance_entry,
@@ -2319,7 +2112,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       incorrect_path_contact_date,
       invalid_months_times_homeless,
       # lh_without_spdat,
-      maybe_psh_destination,
+      #maybe_psh_destination,
       # maybe_rrh_destination,
       missing_approx_date_homeless,
       missing_client_location,
@@ -2337,10 +2130,10 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       missing_ncbs_entry,
       missing_ncbs_exit,
       missing_residence_prior,
-      no_bos_rrh,
-      no_bos_psh,
-      no_bos_th,
-      no_bos_sh,
+      #no_bos_rrh,
+      #no_bos_psh,
+      #no_bos_th,
+      #no_bos_sh,
       path_enrolled_missing,
       path_missing_los_res_prior,
       path_no_status_at_exit,
@@ -2349,13 +2142,13 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       path_status_determination,
       # referrals_on_hh_members,
       # referrals_on_hh_members_ssvf,
-      rent_paid_no_move_in,
+      #rent_paid_no_move_in,
       services_on_hh_members,
       services_on_hh_members_ssvf,
-      should_be_psh_destination,
-      should_be_rrh_destination,
-      should_be_th_destination,
-      should_be_sh_destination,
+      #should_be_psh_destination,
+      #should_be_rrh_destination,
+      #should_be_th_destination,
+      #should_be_sh_destination,
       # spdat_on_non_hoh,
       ssvf_missing_address,
       ssvf_missing_vamc,
