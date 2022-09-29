@@ -890,7 +890,7 @@ check_eligibility <- served_in_date_range %>%
              LivingSituation != 16) # unsheltered only
       )
   ) 
-    
+
     detail_eligibility <- check_eligibility %>%
       select(
         PersonalID,
@@ -955,47 +955,6 @@ check_eligibility <- served_in_date_range %>%
              Guidance = guidance_dkr_data) %>%
       select(all_of(vars_we_want))
 
-
-detail_eligibility <- check_eligibility %>%
-  select(
-    PersonalID,
-    ProjectName,
-    ProjectType,
-    LivingSituation,
-    EntryDate,
-    ExitDate,
-    LengthOfStay,
-    LOSUnderThreshold,
-    PreviousStreetESSH
-  ) %>%
-  mutate(
-    ResidencePrior =
-      living_situation(LivingSituation),
-    LengthOfStay = case_when(
-      LengthOfStay == 2 ~ "One week or more but less than one month",
-      LengthOfStay == 3 ~ "One month or more but less than 90 days",
-      LengthOfStay == 4 ~ "90 days or more but less than one year",
-      LengthOfStay == 5 ~ "One year or longer",
-      LengthOfStay == 8 ~ "Client doesn't know",
-      LengthOfStay == 9 ~ "Client refused",
-      LengthOfStay == 10 ~ "One night or less",
-      LengthOfStay == 11 ~ "Two to six nights",
-      LengthOfStay == 99 ~ "Data not collected"
-    )
-  )
-
-check_eligibility <- check_eligibility %>%
-  mutate(
-    Issue = "Check Eligibility",
-    Type = "Warning",
-    Guidance = 
-      "Your Residence Prior data suggests that this project is either
-    serving ineligible households, the household was entered into the wrong
-    project, or the Residence Prior data at Entry is incorrect. Please check
-    the terms of your grant or speak with your CoC if you are unsure of 
-    eligibility criteria for your project type.") %>%
-  select(all_of(vars_we_want))
-
 # Rent Payment Made, No Move-In Date
 # rent_paid_no_move_in <- served_in_date_range %>%
 #   filter(is.na(MoveInDateAdjust) &
@@ -1021,30 +980,6 @@ check_eligibility <- check_eligibility %>%
 # re-entered in a new one that has no Move-In Date until they are re-housed."
 #   ) %>%
 #   select(all_of(vars_we_want))
-
-# Missing Destination
-missing_destination <- served_in_date_range %>%
-  filter(!is.na(ExitDate) &
-           (is.na(Destination) | Destination %in% c(99, 30))) %>%
-  mutate(
-    Issue = "Missing Destination",
-    Type = "Warning",
-    Guidance = paste(
-      "It is widely understood that not every client will complete an exit 
-      interview, especially for high-volume emergency shelters. A few warnings 
-      for Missing Destination is no cause for concern, but if there is a 
-      large number, please contact your CoC to work out a way to improve 
-      client engagement."
-    )
-  ) %>% 
-  select(all_of(vars_we_want))
-
-dkr_destination <- served_in_date_range %>%
-  filter(Destination %in% c(8, 9)) %>%
-  mutate(Issue = "Don't Know/Refused Destination",
-         Type = "Warning",
-         Guidance = guidance_dkr_data) %>%
-  select(all_of(vars_we_want))
 
 # Missing PATH Data -------------------------------------------------------
 
@@ -2478,7 +2413,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       conflicting_income_entry,
       conflicting_income_exit,
       conflicting_ncbs_entry,
-      conflicting_ncbs_exit,
+      # conflicting_ncbs_exit,
       dkr_client_veteran_info,
       dkr_destination,
       dkr_living_situation,
@@ -2498,7 +2433,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       future_ees,
       future_exits,
       hh_issues,
-      incorrect_path_contact_date,
+      # incorrect_path_contact_date,
       invalid_months_times_homeless,
       # lh_without_spdat,
       #maybe_psh_destination,
