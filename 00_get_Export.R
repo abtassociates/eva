@@ -34,14 +34,26 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-if (is.null(input$imported)) {
-  return()
-} else {
-  Enrollment <-
-    read_csv(
-      unzip(zipfile = input$imported$datapath, files = "Enrollment.csv"),
-      col_types = "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
-  }
+importFile <- function(csvFile, col_types=NULL, guess_max=1000) {
+  if (is.null(input$imported)) {return()}
+  filename = glue::glue("{csvFile}.csv")
+  data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
+                   ,col_types = col_types #,
+                   #guess_max = min(guess_max, n_max) AS 9/8: was getting an error: Error in vroom::vroom: object 'n_max' not found
+  )
+  file.remove(filename)
+  return(data)
+}
+Enrollment <- importFile("Enrollment",col_types="cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
+
+# if (is.null(input$imported)) {
+#   return()
+# } else {
+#   Enrollment <-
+#     read_csv(
+#       unzip(zipfile = input$imported$datapath, files = "Enrollment.csv"),
+#       col_types = "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
+#   }
 
 if (is.null(input$imported)) {
   return()
