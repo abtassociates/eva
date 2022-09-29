@@ -32,10 +32,6 @@ library(tidyverse)
 library(lubridate)
 library(HMIS)
 
-if (!exists("Enrollment")) {
-  load("images/CSVExportDFs.RData")
-}
-
 vars_we_want <- c(
   "PersonalID",
   "EnrollmentID",
@@ -56,7 +52,6 @@ vars_we_want <- c(
 )
 
 # Transition Aged Youth
-
 tay <- Enrollment %>%
   left_join(Client, by = "PersonalID") %>%
   select(all_of(vars_we_want)) %>%
@@ -69,7 +64,7 @@ tay <- Enrollment %>%
 
 # Leaver and Stayer HoHs who were served during the reporting period
 co_hohs_served <-  Enrollment %>%
-  filter(served_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End) &
+  filter(served_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End) &
            RelationshipToHoH == 1) %>%
   left_join(Client, by = "PersonalID") %>%
   select(all_of(vars_we_want))
@@ -82,7 +77,7 @@ summary_hohs_served <- co_hohs_served %>%
 # Leaver HoHs served during the reporting period
 co_hohs_served_leavers <-  Enrollment %>%
   filter(
-      exited_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End) &
+    exited_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End) &
       RelationshipToHoH == 1
   ) %>% 
   left_join(Client, by = "PersonalID") %>%
@@ -96,9 +91,9 @@ summary_hohs_served_leavers <- co_hohs_served_leavers %>%
 #	Leavers	who were Served During Reporting Period	Deaths
 co_hohs_served_leavers_died <- Enrollment %>%
   filter(
-      exited_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End) &
+    exited_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End) &
       RelationshipToHoH == 1,
-      Destination == 24
+    Destination == 24
   ) %>% 
   left_join(Client, by = "PersonalID") %>%
   select(all_of(vars_we_want))	
@@ -110,7 +105,7 @@ summary_hohs_served_leavers_died  <- co_hohs_served_leavers_died  %>%
 
 #	Leavers and Stayers	who were Served During Reporting Period	All
 co_clients_served <-  Enrollment %>%
-  filter(served_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End)) %>%
+  filter(served_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End)) %>%
   left_join(Client, by = "PersonalID") %>%
   select(all_of(vars_we_want))
 
@@ -121,7 +116,7 @@ summary_clients_served <- co_clients_served %>%
 
 #	Leavers and Stayers	who were Served During Reporting Period	Adults
 co_adults_served <-  Enrollment %>%
-  filter(served_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End) &
+  filter(served_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End) &
            AgeAtEntry > 17) %>%
   left_join(Client, by = "PersonalID") %>%
   select(all_of(vars_we_want))
@@ -134,7 +129,7 @@ summary_adults_served <- co_adults_served %>%
 #	Leavers and Stayers	who	Entered During Reporting Period	Adults
 
 co_adults_entered <-  Enrollment %>%
-  filter(entered_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End) &
+  filter(entered_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End) &
            AgeAtEntry > 17) %>%
   left_join(Client, by = "PersonalID") %>%
   select(all_of(vars_we_want))
@@ -147,7 +142,7 @@ summary_adults_entered <- co_adults_entered %>%
 #	Leavers and Stayers	who	Entered During Reporting Period	HoHs
 co_hohs_entered <- Enrollment %>%
   filter(
-    entered_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End) &
+    entered_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End) &
       RelationshipToHoH == 1
   ) %>% 
   left_join(Client, by = "PersonalID") %>%
@@ -161,7 +156,7 @@ summary_hohs_entered <- co_hohs_entered %>%
 #	Leavers and Stayers	who were Served During Reporting Period (and Moved In)	All
 co_clients_moved_in <-  Enrollment %>%
   filter(
-    stayed_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End)
+    stayed_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End)
   ) %>% 
   left_join(Client, by = "PersonalID") %>%
   select(all_of(vars_we_want))
@@ -173,7 +168,7 @@ summary_clients_moved_in <- co_clients_moved_in %>%
 
 #	Leavers and Stayers	who were Served During Reporting Period (and Moved In)	Adults
 co_adults_moved_in <-  Enrollment %>%
-  filter(stayed_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End) &
+  filter(stayed_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End) &
            AgeAtEntry > 17) %>%
   left_join(Client, by = "PersonalID") %>%
   select(all_of(vars_we_want))	
@@ -185,8 +180,8 @@ summary_adults_moved_in <- co_adults_moved_in %>%
 
 #	Leavers	who were Served During Reporting Period (and Moved In)	All
 co_clients_moved_in_leavers <-  Enrollment %>%
-  filter(exited_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End) &
-           stayed_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End)) %>%
+  filter(exited_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End) &
+           stayed_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End)) %>%
   left_join(Client, by = "PersonalID") %>%
   select(all_of(vars_we_want))	
 
@@ -197,8 +192,8 @@ summary_clients_moved_in_leavers <- co_clients_moved_in_leavers %>%
 
 #	Leaver hohs	who were Served (and Moved In) During Reporting Period	HoHs
 co_hohs_moved_in_leavers <-  Enrollment %>%
-  filter(stayed_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End) &
-           exited_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End) &
+  filter(stayed_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End) &
+           exited_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End) &
            RelationshipToHoH == 1) %>%
   left_join(Client, by = "PersonalID") %>%
   select(all_of(vars_we_want))	
@@ -210,8 +205,8 @@ summary_hohs_moved_in_leavers <- co_hohs_moved_in_leavers %>%
 
 #	Leavers	who were Served During Reporting Period (and Moved In)	Adults
 co_adults_moved_in_leavers <-  Enrollment %>%
-  filter(exited_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End) &
-           stayed_between(., ymd(calc_data_goes_back_to), meta_HUDCSV_Export_End) &
+  filter(exited_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End) &
+           stayed_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End) &
            AgeAtEntry > 17) %>%
   left_join(Client, by = "PersonalID") %>%
   select(all_of(vars_we_want)) 
@@ -284,7 +279,7 @@ smallProject <- Project %>%
          ProjectType,
          HMISParticipatingProject) %>%
   filter(HMISParticipatingProject == 1 &
-           operating_between(., ymd(calc_data_goes_back_to), ymd(meta_HUDCSV_Export_End)) &
+           operating_between(., calc_data_goes_back_to, ymd(meta_HUDCSV_Export_End)) &
            ProjectType %in% c(1:4, 8:9, 12:14)) 
 
 smallEnrollment <- Enrollment %>% 
@@ -326,45 +321,52 @@ validation <- smallProject %>%
   ) %>%
   filter(!is.na(EntryDate))
 
+desk_time_providers <- validation %>%
+  dplyr::filter(
+    (entered_between(., today() - years(1), today()) |
+       exited_between(., today() - years(1), today())) &
+      ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
+  dplyr::select(ProjectName) %>% unique()
+
+
 # Clean Up the House ------------------------------------------------------
-
-keepers <- c(
-  "va_fund_sources", # DQ & utilization
-  "rhy_fund_sources",# DQ & utilization
-  "path_fund_sources",# DQ & utilization
-  "ssvf_fund_sources",# DQ & utilization
-  "lh_project_types", # utilization
-  "project_types_w_beds", # Utilization
-  "calc_2_yrs_prior_range",# CSVExportDFs                
-  "calc_2_yrs_prior_start",# CSVExportDFs
-  "calc_2_yrs_prior_end", # CSVExportDFs
-  "calc_data_goes_back_to",# CSVExportDFs                
-  "calc_full_date_range",# CSVExportDFs                  
-  "Client",# CSVExportDFs
-  "enhanced_yes_no_translator",# CSVExportDFs
-  "hc_began_collecting_covid_data",  # CSVExportDFs
-  "hc_bos_start_vaccine_data",# CSVExportDFs
-  "hc_check_dq_back_to",# CSVExportDFs                   
-  "hc_data_goes_back_to",  # CSVExportDFs
-  "hc_project_eval_start",# CSVExportDFs
-  "hc_project_eval_end",# CSVExportDFs
-  "hc_project_eval_docs_due",# CSVExportDFs
-  "hc_psh_started_collecting_move_in_date",# CSVExportDFs
-  "HUD_specs",# CSVExportDFs
-  "living_situation",# CSVExportDFs
-  "meta_HUDCSV_Export_Date",# CSVExportDFs               
-  "meta_HUDCSV_Export_End",  # CSVExportDFs              
-  "meta_HUDCSV_Export_Start",  # CSVExportDFs            
-  "meta_Rmisc_last_run_date", # CSVExportDFs 
-  "Organization",# CSVExportDFs
-  "project_type",# CSVExportDFs
-  "Users",# CSVExportDFs
-  "validation"  #cohorts
-)    
-
-rm(list=setdiff(ls(), keepers))
+# 
+# keepers <- c(
+#   "va_fund_sources", # DQ & utilization
+#   "rhy_fund_sources",# DQ & utilization
+#   "path_fund_sources",# DQ & utilization
+#   "ssvf_fund_sources",# DQ & utilization
+#   "lh_project_types", # utilization
+#   "project_types_w_beds", # Utilization
+#   "calc_2_yrs_prior_range",# CSVExportDFs                
+#   "calc_2_yrs_prior_start",# CSVExportDFs
+#   "calc_2_yrs_prior_end", # CSVExportDFs
+#   "calc_data_goes_back_to",# CSVExportDFs                
+#   "calc_full_date_range",# CSVExportDFs                  
+#   "Client",# CSVExportDFs
+#   "enhanced_yes_no_translator",# CSVExportDFs
+#   "hc_began_collecting_covid_data",  # CSVExportDFs
+#   "hc_bos_start_vaccine_data",# CSVExportDFs
+#   "hc_check_dq_back_to",# CSVExportDFs                   
+#   "hc_data_goes_back_to",  # CSVExportDFs
+#   "hc_project_eval_start",# CSVExportDFs
+#   "hc_project_eval_end",# CSVExportDFs
+#   "hc_project_eval_docs_due",# CSVExportDFs
+#   "hc_psh_started_collecting_move_in_date",# CSVExportDFs
+#   "HUD_specs",# CSVExportDFs
+#   "living_situation",# CSVExportDFs
+#   "meta_HUDCSV_Export_Date",# CSVExportDFs               
+#   "meta_HUDCSV_Export_End",  # CSVExportDFs              
+#   "meta_HUDCSV_Export_Start",  # CSVExportDFs            
+#   "meta_Rmisc_last_run_date", # CSVExportDFs 
+#   "Organization",# CSVExportDFs
+#   "project_type",# CSVExportDFs
+#   "Users",# CSVExportDFs
+#   "validation"  #cohorts
+# )    
+# 
+# rm(list=setdiff(ls(), keepers))
 
 # Save it out -------------------------------------------------------------
 # WARNING save.image does not save the environment properly, save must be used.
-save(list = ls(), file = "images/cohorts.RData")
-
+# save(list = ls(), file = "images/cohorts.RData")
