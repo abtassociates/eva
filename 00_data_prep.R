@@ -30,15 +30,9 @@ library(here)
 # directory <- paste0("data/", dataset_directory)
 ##  load in all files
 source("00_functions.R", local=TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-source("00_get_Export1.R", local=TRUE)
+source("00_get_Export.R", local=TRUE)
 source("00_dates.R", local=TRUE)
 
-if (calc_data_goes_back_to != meta_HUDCSV_Export_Start){
-  cat("Export Start Date may not be correct.")
-} else {}
-
-# # if there's not already an images directory, create it
-# if (!dir.exists("images")) dir.create("images")
 
 # Start running scripts ---------------------------------------------------
 cat("working on Cohorts\n")
@@ -46,7 +40,6 @@ source("01_cohorts.R", local=TRUE)
 
 # cat("working on Bed_Unit_Utilization\n")
 # source("02_Bed_Unit_Utilization.R", local=TRUE) 
-
 cat("working on Data Quality")
 source("03_DataQuality.R", local=TRUE) 
 
@@ -56,7 +49,7 @@ DQ_Shiny <- c( # from functions, cohorts, dates, get_export, data_quality, bed_u
   living_situation, # functions
   enhanced_yes_no_translator, # cohorts
   validation, # cohorts
-  hc_check_dq_back_to, # dates
+  # hc_check_dq_back_to, # dates
   meta_HUDCSV_Export_Date, # dates
   meta_HUDCSV_Export_End, # dates
   meta_HUDCSV_Export_Start, # dates

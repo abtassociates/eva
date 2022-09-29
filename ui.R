@@ -62,15 +62,98 @@ dashboardPage(
       tabName = "uploadCSV",
       box(title = "Status",
           uiOutput("headerFileInfo"),
+          uiOutput("headerNoFileYet"),
           width = 12),
+      box(
+        title = "Edit CoC-specific Settings",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        fluidRow(
+          column(
+            width = 12,
+            HTML(
+              "<h3>Long Stayers</h3>
+          <p>The projects in your CoC have a baseline average length of stay that
+          will vary for different project types. Below, you can set the number
+          of days your CoC would consider an enrollment to be well beyond the
+          expected number of days in the project. You can set these based on your
+          current data or leave them at the defaults."
+            ),
+          numericInput(
+            inputId = "ESLongStayers",
+            label = "Emergency Shelters:",
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
+          ),
+          numericInput(
+            inputId = "SHLongStayers",
+            label = "Safe Havens:",
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
+          ),
+          numericInput(
+            inputId = "THLongStayers",
+            label = "Transitional Housing:",
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
+          ),
+          numericInput(
+            inputId = "OutLongStayers",
+            label = "Street Outreach:",
+            value = 120,
+            min = 1,
+            max = 3652
+          ),
+          numericInput(
+            inputId = "ServicesOnlyLongStayers",
+            label = "Services Only:",
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
+          ),
+          numericInput(
+            inputId = "RRHLongStayers",
+            label = "Rapid Rehousing:",
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
+          ),
+          numericInput(
+            inputId = "HPLongStayers",
+            label = "Prevention:",
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
+          )
+          )
+        ),
+        HTML(
+          "<h3>Referrals</h3>
+             <p>Please enter the number of days your CoC would consider a Referral
+          to be \"outstanding\"."
+        ),
+        numericInput(
+          inputId = "OutstandingReferrals",
+          label = "Outstanding Referral Days:",
+          value = 7
+        )
+      ), 
       box(
         title = "Upload Hashed CSV zip file",
         fileInput("imported",
                   "",
                   multiple = FALSE,
                   accept = ".zip"),
-        tableOutput("files"),
-        tableOutput("test"),
         width = 12
       ), 
       box(
@@ -209,7 +292,7 @@ dashboardPage(
           inputId = "dq_startdate",
           label = "Report Start Date",
           format = "mm/dd/yyyy",
-          value = NULL, # ymd(hc_check_dq_back_to),
+          value = NULL, # ymd(meta_HUDCSV_Export_Start),
           min = NULL,
           width = "25%"
         ),
@@ -293,7 +376,7 @@ dashboardPage(
           inputId = "dq_org_startdate",
           label = "Report Start Date",
           format = "mm/dd/yyyy",
-          value = NULL, # ymd(hc_check_dq_back_to),
+          value = NULL, # ymd(meta_HUDCSV_Export_Start),
           width = "25%"
         ),
         width = 12

@@ -20,8 +20,6 @@ library(HMIS)
 
 source("03_guidance.R")
 
-# if (!exists("Enrollment")) load("images/CSVExportDFs.RData")
-# if (!exists("validation")) load("images/cohorts.RData")
 va_funded <- Funder %>%
   filter(Funder %in% va_fund_sources) %>%
   pull(ProjectID)
@@ -42,7 +40,7 @@ ssvf_funded <- Funder %>%
 projects_current_hmis <- Project %>%
   left_join(Inventory, by = "ProjectID") %>%
   filter(HMISParticipatingProject == 1 &
-           operating_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End)) %>%
+           operating_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
   select(
     ProjectID,
     OrganizationID,
@@ -55,7 +53,7 @@ projects_current_hmis <- Project %>%
 
 # Clients to Check --------------------------------------------------------
 served_in_date_range <- Enrollment %>%
-  filter(served_between(., calc_data_goes_back_to, meta_HUDCSV_Export_End)) %>%
+  filter(served_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
   select(
@@ -658,54 +656,54 @@ missing_disabilities <- detail_missing_disabilities %>%
   select(all_of(vars_we_want))
 
 
-smallDisabilities <- Disabilities %>%
-  filter(DataCollectionStage == 1 &
-           ((DisabilityType == 10 &
-               DisabilityResponse %in% c(1:3)) |
-              (DisabilityType != 10 & DisabilityResponse == 1)
-           )) %>%
-  mutate(
-    IndefiniteAndImpairs =
-      case_when(
-        DisabilityType %in% c(6, 8) ~ 1,
-        TRUE ~ IndefiniteAndImpairs)
-  ) %>%
-  select(
-    PersonalID,
-    DisabilitiesID,
-    EnrollmentID,
-    InformationDate,
-    DisabilityType,
-    IndefiniteAndImpairs
-  )
-
-# Developmental & HIV/AIDS get automatically IndefiniteAndImpairs = 1 per FY2020
-conflicting_disabilities <- served_in_date_range %>%
-  select(all_of(vars_prep),
-         EnrollmentID,
-         AgeAtEntry,
-         RelationshipToHoH,
-         DisablingCondition) %>%
-  left_join(
-    smallDisabilities %>%
-      filter(IndefiniteAndImpairs == 1),
-    by = c("PersonalID", "EnrollmentID")
-  ) %>% 
-  filter((DisablingCondition == 0 & !is.na(DisabilitiesID)) |
-           (DisablingCondition == 1 & is.na(DisabilitiesID))) %>% 
-  mutate(
-    Issue = "Conflicting Disability of Long Duration yes/no",
-    Type = "Error",
-    Guidance = "If the user answered \"Yes\" to the \"Does the client have a 
-    disabling condition?\", then there should be a disability subassessment that
-    indicates the disability determination is Yes *and* the \"If yes,... long
-    duration\" question is Yes. Similarly if the user answered \"No\", the 
-    client should not have any disability subassessments that indicate that they
-    do have a Disabling Condition."
-  ) %>%
-  select(all_of(vars_we_want))
-
-rm(smallDisabilities)
+# smallDisabilities <- Disabilities %>%
+#   filter(DataCollectionStage == 1 &
+#            ((DisabilityType == 10 &
+#                DisabilityResponse %in% c(1:3)) |
+#               (DisabilityType != 10 & DisabilityResponse == 1)
+#            )) %>%
+#   mutate(
+#     IndefiniteAndImpairs =
+#       case_when(
+#         DisabilityType %in% c(6, 8) ~ 1,
+#         TRUE ~ IndefiniteAndImpairs)
+#   ) %>%
+#   select(
+#     PersonalID,
+#     DisabilitiesID,
+#     EnrollmentID,
+#     InformationDate,
+#     DisabilityType,
+#     IndefiniteAndImpairs
+#   )
+# 
+# # Developmental & HIV/AIDS get automatically IndefiniteAndImpairs = 1 per FY2020
+# conflicting_disabilities <- served_in_date_range %>%
+#   select(all_of(vars_prep),
+#          EnrollmentID,
+#          AgeAtEntry,
+#          RelationshipToHoH,
+#          DisablingCondition) %>%
+#   left_join(
+#     smallDisabilities %>%
+#       filter(IndefiniteAndImpairs == 1),
+#     by = c("PersonalID", "EnrollmentID")
+#   ) %>% 
+#   filter((DisablingCondition == 0 & !is.na(DisabilitiesID)) |
+#            (DisablingCondition == 1 & is.na(DisabilitiesID))) %>% 
+#   mutate(
+#     Issue = "Conflicting Disability of Long Duration yes/no",
+#     Type = "Error",
+#     Guidance = "If the user answered \"Yes\" to the \"Does the client have a 
+#     disabling condition?\", then there should be a disability subassessment that
+#     indicates the disability determination is Yes *and* the \"If yes,... long
+#     duration\" question is Yes. Similarly if the user answered \"No\", the 
+#     client should not have any disability subassessments that indicate that they
+#     do have a Disabling Condition."
+#   ) %>%
+#   select(all_of(vars_we_want))
+# 
+# rm(smallDisabilities)
 
 # Extremely Long Stayers --------------------------------------------------
 
@@ -855,7 +853,7 @@ check_eligibility <- served_in_date_range %>%
   filter(
     RelationshipToHoH == 1 &
       AgeAtEntry > 17 &
-      EntryDate > hc_check_eligibility_back_to &
+      # EntryDate > hc_check_eligibility_back_to &
       (ProjectType %in% c(3, 4, 8, 9, 10, 12, 13) |
          (ProjectType == 2 & !ProjectID %in% c(rhy_funded))) &
       (
@@ -999,30 +997,30 @@ check_eligibility <- check_eligibility %>%
   select(all_of(vars_we_want))
 
 # Rent Payment Made, No Move-In Date
-rent_paid_no_move_in <- served_in_date_range %>%
-  filter(is.na(MoveInDateAdjust) &
-           RelationshipToHoH == 1 &
-           ProjectType %in% c(3, 9, 13)) %>%
-  inner_join(Services %>%
-               filter(
-                 (RecordType %in% c(141) & TypeProvided %in% c(8, 9, 11, 12)) |
-                   (RecordType %in% c(152) & TypeProvided %in% c(1:5)) |
-                   (RecordType %in% c(151) & TypeProvided %in% c(1:7))) %>%
-               select(-PersonalID),
-             by = "EnrollmentID") %>%
-  mutate(
-    Issue = "Rent Payment Made, No Move-In Date",
-    Type = "Error",
-    Guidance = 
-      "This client does not have a valid Move-In Date, but there is at
-least one rent/deposit payment Service Transaction recorded for this program.
-Until a Move-In Date is entered, this client will continue to be counted as
-literally homeless while in your program. Move-in dates must be on or after
-the Entry Date. If a client is housed then returns to homelessness while
-in your program, they need to be exited from their original Entry and
-re-entered in a new one that has no Move-In Date until they are re-housed."
-  ) %>%
-  select(all_of(vars_we_want))
+# rent_paid_no_move_in <- served_in_date_range %>%
+#   filter(is.na(MoveInDateAdjust) &
+#            RelationshipToHoH == 1 &
+#            ProjectType %in% c(3, 9, 13)) %>%
+#   inner_join(Services %>%
+#                filter(
+#                  (RecordType %in% c(141) & TypeProvided %in% c(8, 9, 11, 12)) |
+#                    (RecordType %in% c(152) & TypeProvided %in% c(1:5)) |
+#                    (RecordType %in% c(151) & TypeProvided %in% c(1:7))) %>%
+#                select(-PersonalID),
+#              by = "EnrollmentID") %>%
+#   mutate(
+#     Issue = "Rent Payment Made, No Move-In Date",
+#     Type = "Error",
+#     Guidance = 
+#       "This client does not have a valid Move-In Date, but there is at
+# least one rent/deposit payment Service Transaction recorded for this program.
+# Until a Move-In Date is entered, this client will continue to be counted as
+# literally homeless while in your program. Move-in dates must be on or after
+# the Entry Date. If a client is housed then returns to homelessness while
+# in your program, they need to be exited from their original Entry and
+# re-entered in a new one that has no Move-In Date until they are re-housed."
+#   ) %>%
+#   select(all_of(vars_we_want))
 
 # Missing Destination
 missing_destination <- served_in_date_range %>%
@@ -2227,81 +2225,36 @@ conflicting_ncbs_entry <- served_in_date_range %>%
 #     
 #     rm(ncb_subs)
     
-
-    # # Old Outstanding Referrals -----------------------------------------------
-    # # CW says ProviderCreating should work instead of Referred-From Provider
-    # # Using ProviderCreating instead. Either way, I feel this should go in the
-    # # Provider Dashboard, not the Data Quality report.
-    # 
-    # internal_old_outstanding_referrals <- served_in_date_range %>%
-    #   semi_join(Referrals,
-    #             by = c("PersonalID")) %>%
-    #   left_join(Referrals,
-    #             by = c("PersonalID")) %>%
-    #   filter(ProviderCreating == ProjectName &
-    #            ProjectID != 1695) %>%
-    #   select(all_of(vars_prep),
-    #          ProviderCreating,
-    #          ReferralDate,
-    #          ReferralOutcome,
-    #          EnrollmentID) %>%
-    #   filter(is.na(ReferralOutcome) &
-    #            ReferralDate < today() - days(14)) %>%
-    #   mutate(
-    #     ProjectName = ProviderCreating,
-    #     Issue = "Old Outstanding Referral",
-    #     Type = "Warning",
-    #     Guidance = "Referrals should be closed in about 2 weeks. Please be sure you are
-    #   following up with any referrals and helping the client to find permanent
-    #   housing. Once a Referral is made, the receiving agency should be saving
-    #   the \"Referral Outcome\" once it is known. If you have Referrals that are
-    #   legitimately still open after 2 weeks because there is a lot of follow
-    #   up going on, no action is needed since the HMIS data is accurate."
-    #   ) %>%
-    #   select(all_of(vars_we_want))   
-
-# # Missing NCBs at Exit ----------------------------------------------------
-# missing_ncbs_exit <- served_in_date_range %>%
-#   left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
-#   select(AgeAtEntry,
-#          all_of(vars_prep),
-#          DataCollectionStage,
-#          BenefitsFromAnySource) %>%
+# Non HoHs w Svcs or Referrals --------------------------------------------
+# SSVF projects should be showing this as an Error, whereas non-SSVF projects
+# should be showing it as a warning, and only back to Feb of 2019
+# services_on_hh_members <- served_in_date_range %>%
+#   select(all_of(vars_prep),
+#          ProjectID,
+#          EnrollmentID,
+#          RelationshipToHoH) %>%
 #   filter(
-#     DataCollectionStage == 3 &
-#       (AgeAtEntry > 17 |
-#          is.na(AgeAtEntry)) &
-#       (BenefitsFromAnySource == 99 |
-#          is.na(BenefitsFromAnySource))
+#     RelationshipToHoH != 1 &
+#       ProjectID %in% c(ssvf_funded)
 #   ) %>%
-#   mutate(Issue = "Non-cash Benefits Missing at Exit",
-#          Type = "Error",
-#          Guidance = guidance_missing_at_exit) %>%
+#   semi_join(Services, by = c("PersonalID", "EnrollmentID")) %>%
+#   mutate(Issue = "Service Transaction on a Non Head of Household",
+#          Type = "Warning",
+#          Guidance = guidance_service_on_non_hoh) %>%
 #   select(all_of(vars_we_want))
 # 
-# conflicting_ncbs_exit <- served_in_date_range %>%
-#   left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
-#   select(
-#     AgeAtEntry,
-#     all_of(vars_prep),
-#     DataCollectionStage,
-#     BenefitsFromAnySource,
-#     BenefitCount
-#   ) %>%
-#   filter(DataCollectionStage == 3 &
-#            (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
-#            ((BenefitsFromAnySource == 1 &
-#                BenefitCount == 0) |
-#               (BenefitsFromAnySource == 0 &
-#                  BenefitCount > 0)
-#            )) %>%
-#   mutate(Issue = "Conflicting Non-cash Benefits yes/no at Exit",
+# services_on_hh_members_ssvf <- served_in_date_range %>%
+#   select(all_of(vars_prep),
+#          ProjectID,
+#          EnrollmentID,
+#          RelationshipToHoH) %>%
+#   filter(RelationshipToHoH != 1 &
+#            ProjectID %in% c(ssvf_funded)) %>%
+#   semi_join(Services, by = c("PersonalID", "EnrollmentID")) %>%
+#   mutate(Issue = "Service Transaction on a Non Head of Household (SSVF)",
 #          Type = "Error",
-#          Guidance = guidance_conflicting_ncbs) %>%
+#          Guidance = guidance_service_on_non_hoh) %>%
 #   select(all_of(vars_we_want))
-# 
-# rm(ncb_subs)
-
 
 # # Old Outstanding Referrals -----------------------------------------------
 # # CW says ProviderCreating should work instead of Referred-From Provider
@@ -2519,7 +2472,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     dq_main <- rbind(
       #check_disability_ssi,
       check_eligibility,
-      conflicting_disabilities,
+      # conflicting_disabilities,
       conflicting_health_insurance_entry,
       conflicting_health_insurance_exit,
       conflicting_income_entry,
@@ -2578,13 +2531,15 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       path_status_determination,
       # referrals_on_hh_members,
       # referrals_on_hh_members_ssvf,
-      #rent_paid_no_move_in,
-      services_on_hh_members,
-      services_on_hh_members_ssvf,
-      #should_be_psh_destination,
-      #should_be_rrh_destination,
-      #should_be_th_destination,
-      #should_be_sh_destination,
+
+      # rent_paid_no_move_in,
+      # services_on_hh_members,
+      # services_on_hh_members_ssvf,
+      # should_be_psh_destination,
+      # should_be_rrh_destination,
+      # should_be_th_destination,
+      # should_be_sh_destination,
+
       # spdat_on_non_hoh,
       ssvf_missing_address,
       ssvf_missing_vamc,
@@ -2630,16 +2585,14 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     
     # for CoC-wide DQ tab
 
-    dq_past_year <- dq_main %>%
-      filter(served_between(., hc_check_dq_back_to, 
-                            today())) %>%
+    dq_w_project_names <- dq_main %>%
       left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
     
    dq_providers <- sort(projects_current_hmis$ProjectName)    
 
 # Plots -------------------------------------------------------------------
     
-    dq_data_errors_plot <- dq_past_year %>%
+    dq_data_errors_plot <- dq_w_project_names %>%
       filter(
         Type %in% c("Error", "High Priority") &
           !Issue %in% c(
@@ -2676,7 +2629,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
     
-    dq_data_warnings_plot <- dq_past_year %>%
+    dq_data_warnings_plot <- dq_w_project_names %>%
       filter(Type == "Warning") %>%
       group_by(ProjectName, ProjectID) %>%
       summarise(Warnings = n()) %>%
@@ -2701,7 +2654,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
     
-    dq_data_error_types <- dq_past_year %>%
+    dq_data_error_types <- dq_w_project_names %>%
       filter(Type %in% c("Error", "High Priority")) %>%
       group_by(Issue) %>%
       summarise(Errors = n()) %>%
@@ -2722,7 +2675,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
     
-    dq_data_warning_types <- dq_past_year %>%
+    dq_data_warning_types <- dq_w_project_names %>%
       filter(Type == "Warning") %>%
       group_by(Issue) %>%
       summarise(Warnings = n()) %>%
@@ -2743,7 +2696,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
     
-    dq_data_hh_issues_plot <- dq_past_year %>%
+    dq_data_hh_issues_plot <- dq_w_project_names %>%
       filter(
         Type %in% c("Error", "High Priority") &
           Issue %in% c(
@@ -2777,7 +2730,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
     
-    dq_data_eligibility_plot <- dq_past_year %>%
+    dq_data_eligibility_plot <- dq_w_project_names %>%
       filter(Type == "Warning" &
                Issue %in% c("Check Eligibility")) %>%
       select(PersonalID, ProjectID, ProjectName) %>%

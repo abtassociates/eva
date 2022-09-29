@@ -27,16 +27,6 @@ library(HMIS)
 # directory <- paste0("data/", dataset_directory)
 
 # import
-importFile <- function(csvFile, col_types=NULL, guess_max=1000) {
-  if (is.null(input$imported)) {return()}
-  filename = glue::glue("{csvFile}.csv")
-  data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
-                   # ,col_types = col_types #,
-                 #guess_max = min(guess_max, n_max) AS 9/8: was getting an error: Error in vroom::vroom: object 'n_max' not found
-                 )
-  file.remove(filename)
-  return(data)
-}
 
 parseDate <- function(datevar) {
   newDatevar <- parse_date_time(datevar,
@@ -44,55 +34,193 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-Affiliation <- importFile("Affiliation",col_types="cccTTcTc")
+if (is.null(input$imported)) {
+  return()
+} else {
+  Enrollment <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "Enrollment.csv"),
+      col_types = "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
+  }
 
-Assessment <- importFile("Assessment",col_types="cccDcnnnTTcTc")
+if (is.null(input$imported)) {
+  return()
+} else {
+  CurrentLivingSituation <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "CurrentLivingSituation.csv"),
+      col_types = "cccDncnnnnncTTcTc")
+}
 
-AssessmentQuestions <- importFile("AssessmentQuestions",col_types="cccccnccTTcTc")
+# if (is.null(input$imported)) {
+#   return()
+# } else {
+#   Disabilities <-
+#     read_csv(
+#       unzip(zipfile = input$imported$datapath, files = "Disabilities.csv"),
+#       col_types = "cccDnnnnnnnnnnnTTcTc")
+# }
 
-AssessmentResults <- importFile("AssessmentResults",col_types="ccccccTTcTc")
- 
-CurrentLivingSituation <- importFile("CurrentLivingSituation",col_types="cccDncnnnnncTTcTc") %>%
-  mutate(PersonalID = as.character(PersonalID))
+if (is.null(input$imported)) {
+  return()
+} else {
+  EmploymentEducation <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "EmploymentEducation.csv"),
+      col_types = "cccDnnnnnnTTnTn")
+}
 
-Disabilities <- importFile("Disabilities",col_types="cccDnnnnnnnnnnnTTcTc") %>%
-  mutate(PersonalID = as.character(PersonalID))
+if (is.null(input$imported)) {
+  return()
+} else {
+  Exit <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "Exit.csv"),
+      col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
+}
 
-EmploymentEducation <- importFile("EmploymentEducation",col_types="cccDnnnnnnTTnTn")
+if (is.null(input$imported)) {
+  return()
+} else {
+  Organization <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "Organization.csv"),
+      col_types = "ccncTTcTc")
+}
 
-Exit <- importFile("Exit",col_types="cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
+if (is.null(input$imported)) {
+  return()
+} else {
+  Project <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "Project.csv"),
+      col_types = "ccccDDnnnnnnnnnTTcTc")
+}
 
-Organization <- importFile("Organization",col_types="ccncTTcTc")
+if (is.null(input$imported)) {
+  return()
+} else {
+  EnrollmentCoC <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "EnrollmentCoC.csv"),
+      col_types = "cccccDcnTTcTc")
+}
 
-Project <- importFile("Project",col_types="ccccDDnnnnnnnnnTTcTc") %>%
-  left_join(Organization %>% select(OrganizationID, OrganizationName), by = "OrganizationID")
+if (is.null(input$imported)) {
+  return()
+} else {
+  Event <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "Event.csv"),
+      col_types = "cccDnnncnDTTcTc")
+}
 
-EnrollmentCoC <- importFile("EnrollmentCoC",col_types="cccccDcnTTcTc")
+if (is.null(input$imported)) {
+  return()
+} else {
+  Export <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "Export.csv"),
+      col_types = "cncccccccTDDcncnnn")
+}
 
-Event <- importFile("Event",col_types="cccDnnncnDTTcTc")
+if (is.null(input$imported)) {
+  return()
+} else {
+  Funder <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "Funder.csv"),
+      col_types = "ccnccDDTTcTc")
+}
 
-Export <- importFile("Export", col_types="cncccccccTDDcncnnn")
+if (is.null(input$imported)) {
+  return()
+} else {
+  HealthAndDV <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "HealthAndDV.csv"),
+      col_types = "cccDnnnnnnnDnnnnnTTcTc")
+}
 
-Funder <- importFile("Funder",col_types="ccnccDDTTcTc")
+if (is.null(input$imported)) {
+  return()
+} else {
+  IncomeBenefits <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "IncomeBenefits.csv"),
+      col_types = "cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
+}
 
-HealthAndDV <- importFile("HealthAndDV",col_types="cccDnnnnnnnDnnnnnTTcTc")
+if (is.null(input$imported)) {
+  return()
+} else {
+  Inventory <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "Inventory.csv"),
+      col_types = "cccnnnnnnnnnnnnDDTTcTc")
+}
 
-IncomeBenefits <- importFile("IncomeBenefits",col_types="cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc") %>%
-  mutate(PersonalID = as.character(PersonalID))
+if (is.null(input$imported)) {
+  return()
+} else {
+  ProjectCoC <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "ProjectCoC.csv"),
+      col_types = "nncnccccnnTTcTc")
+}
 
-Inventory <- importFile("Inventory",col_types="cccnnnnnnnnnnnnDDTTcTc")
+if (is.null(input$imported)) {
+  return()
+} else {
+  User <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "User.csv"),
+      col_types = "ccccccTTTc")
+}
+# 
+# if (is.null(input$imported)) {
+#   return()
+# } else {
+#   Services <-
+#     read_csv(
+#       unzip(zipfile = input$imported$datapath, files = "Services.csv"),
+#       col_types = "cccDnnccnnnTTcTc")
+# }
 
-ProjectCoC <- importFile("ProjectCoC",col_types="nncnccccnnTTcTc")
+if (is.null(input$imported)) {
+  return()
+} else {
+  YouthEducationStatus <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "YouthEducationStatus.csv"),
+      col_types = "cccDnnnnTTcTc")
+}
 
-Users <- importFile("User",col_types="ccccccTTTc")
+if (is.null(input$imported)) {
+  return()
+} else {
+  Client <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "Client.csv"),
+      col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
+}
 
-Services <- importFile("Services",col_types="cccDnnccnnnTTcTc") %>%
-  mutate(PersonalID = as.character(PersonalID))
+if (is.null(input$imported)) {
+  return()
+} else {
+  Assessment <-
+    read_csv(
+      unzip(zipfile = input$imported$datapath, files = "Assessment.csv"),
+      col_types = "cccDcnnnTTcTc")
+}
 
-YouthEducationStatus <- importFile("YouthEducationStatus",col_types="cccDnnnnTTcTc")
+Project <- Project %>%
+  left_join(Organization %>%
+              select(OrganizationID, OrganizationName),
+            by = "OrganizationID")
 
 # Client ------------------------------------------------------------------
-Client <- importFile("Client", col_types="cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc", guess_max=100000) %>% 
+Client <- Client %>%
   mutate(
     FirstName = case_when(
       NameDataQuality %in% c(8, 9) ~ "DKR",
@@ -135,10 +263,8 @@ Client <- importFile("Client", col_types="cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTT
   ) %>%
   mutate(SSN = case_when(is.na(SSN) ~ "ok", !is.na(SSN) ~ SSN))
 
-# End Client -------------------------------------------------------
-
 # Enrollment --------------------------------------------------------------
-Enrollment <- importFile("Enrollment", col_types="cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc") %>% 
+Enrollment <- Enrollment %>%
   mutate(
     EntryDate = parseDate(EntryDate),
     DateCreated = parseDate(DateCreated),
@@ -234,9 +360,6 @@ Enrollment <- Enrollment %>%
 
 
 rm(small_project, HHEntry, HHMoveIn, small_client, small_location)
-# End Enrollment -------------------------------------------------------
-
-
 
 # HUD CSV Specs -----------------------------------------------------------
 
@@ -244,7 +367,3 @@ HUD_specs <- read_csv("public_data/HUDSpecs.csv",
                       col_types = "ccnc") %>%
   as.data.frame()
 
-# Save it out -------------------------------------------------------------
-
-# WARNING save.image does not save the environment properly, save must be used.
-# save(list = ls(), file = "images/CSVExportDFs.RData", compress = FALSE)

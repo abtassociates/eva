@@ -20,6 +20,8 @@ library(here)
 # meta = result comes from meta data
 # calc = result is calculated
 
+hc_prior_living_situation_required <- ymd("20161001")
+
 # Dates from Metadata -----------------------------------------------------
 meta_HUDCSV_Export_Start <- Export %>% pull(ExportStartDate)
 

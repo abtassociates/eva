@@ -8,58 +8,6 @@ age_years <- function(earlier, later)
   
 }
 
-# Client Entry Exits Between Date Range Functions -------------------------
-# 
-# served_between <- function(., start, end) {
-#   served <- .$EntryDate <= parseDate(end)  &
-#                  (is.na(.$ExitDate) | .$ExitDate >= parseDate(start))
-#   served
-# }
-# 
-# entered_between <- function(table, start, end){
-#   entered <- between(table$EntryDate, parseDate(start), parseDate(end))
-#   entered
-# }
-# 
-# exited_between <- function(table, start, end){
-#   exited <- between(table$ExitDate, parseDate(start), parseDate(end))
-#   exited
-# }
-# 
-# stayed_between <- function(table, start, end){
-#   stayed <- table$EntryAdjust <= parseDate(end) &
-#     (is.na(table$ExitDate) | table$ExitDate > parseDate(start))
-#   stayed
-# }
-# 
-# # Projects Operating Between Date Range Function --------------------------
-# 
-# operating_between <- function(table, start, end) {
-#   operating <-  if_else(
-#     is.na(table$OperatingStartDate) |
-#       ymd(table$OperatingStartDate) > mdy(end) |
-#       (!is.na(table$OperatingEndDate) &
-#          ymd(table$OperatingEndDate) < mdy(start)),
-#     FALSE,
-#     TRUE
-#   )
-#   operating
-# }
-# 
-# Beds Available Between --------------------------------------------------
-
-# beds_available_between <- function(table, start, end) {
-#   available <-  if_else(
-#     is.na(table$ParticipatingStartDate) |
-#       ymd(table$ParticipatingStartDate) > mdy(end) |
-#       (!is.na(table$ParticipatingEndDate) &
-#          ymd(table$ParticipatingEndDate) < mdy(start)),
-#     FALSE,
-#     TRUE
-#   )
-#   available
-# }
-
 living_situation <- function(ReferenceNo) {
   case_when(
     ReferenceNo == 1 ~ "Emergency shelter/ h/motel paid for by a third party/Host Home shelter",
@@ -142,8 +90,6 @@ enhanced_yes_no_translator <- function(ReferenceNo) {
   )
 }
 
-# this function translates the HUD .csv 1.7 and 1.8 lists 
-# and returns yes, no, or unknown as appropriate
 translate_HUD_yes_no <- function(column_name){
   case_when(
     column_name == 1 ~ "Yes", 
