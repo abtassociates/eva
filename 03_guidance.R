@@ -14,9 +14,9 @@
 
 guidance_conflicting_hi <- 
   "If the user answered \"Yes\" to \"Covered by Health Insurance?\", then
-  there should be a Health Insurance subassessment where it indicates which
+  there should be Health Insurance sources that indicate which
   type of health insurance the client is receiving. Similarly if the user
-  answered \"No\", there should not be any Health Insurance records that say
+  answered \"No\", there should not be any Health Insurance sources that say
   the client is receiving that type of Health Insurance."
 
 guidance_conflicting_income <- 
