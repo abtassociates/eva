@@ -21,25 +21,25 @@ guidance_conflicting_hi <-
 
 guidance_conflicting_income <- 
   "If the user answered \"Yes\" to \"Income from any source\", then
-  there should be an income subassessment where it indicates which
-  type of income the client is receiving. Similarly if the user answered
-  \"No\", there should not be any income records that say the client is
-  receiving that type of income."
+  there should be Income sources that indicate which
+  type of Income the client is receiving. Similarly if the user answered
+  \"No\", there should not be any Income sources that say the client is
+  receiving that type of Income."
 
 guidance_conflicting_ncbs <-
   "If the user answered \"Yes\" to \"Non-cash benefits from any source\",
-  then there should be a Non-cash benefits subassessment where it indicates
-  which type of income the client is receiving. Similarly if the user answered
-  \"No\", then there should not be any non-cash records that say the client is
-  receiving that type of benefit"
+  then there should be Non-cash benefit sources that indicate which type
+  of Non-cash benefit the client is receiving. Similarly if the user answered
+  \"No\", then there should not be any Non-cash benefit sources that say the 
+  client is receiving that type of benefit"
 
 guidance_missing_at_exit <- 
-  "Please enter the data for this item by clicking into the Exit pencil on the 
-  given Client ID on the appropriate program stay."
+  "Please enter the data for this item by going to the Exit assessment on the 
+  given Personal ID on the appropriate program enrollment."
 
 guidance_missing_at_entry <- 
   "This data element is required to be collected at project Entry. Please
-  click into the client's Entry pencil to save this data to HMIS."
+  go to the client's Entry assessment to save this data to HMIS."
 
 guidance_missing_pii <- 
   "Please correct by navigating to the client's record, then clicking the
