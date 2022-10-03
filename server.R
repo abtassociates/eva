@@ -21,6 +21,26 @@ function(input, output, session) {
     } else {}
   })
   
+  output$headerHome <- renderUI({
+    box(
+      title = "Welcome",
+      width = 12,
+      HTML(
+        "<p>Welcome to Stella H! This app is intended for use by HMIS Administrators 
+        in the various Continuums of Care (CoC) around the U.S. and its territories. 
+        You can use this site to verify that your HMIS data is accurate and complete.</p>
+        <p>Visitors to Stella H could include HMIS users, CoC staff, program executives, 
+        funders, government representatives, advocates, and other interested parties.</p>
+        <p>We're glad you're here! This app works by using an uploaded HMIS CSV file. 
+        Click the button below to get started!</p><br/>"
+      ),
+      if (is.null(input$imported)) { actionButton(inputId='goToUpload',label="Upload Hashed CSV")}
+    )
+  })
+  
+  observeEvent(input$goToUpload, {
+    updateTabsetPanel(session,"sidebarmenuid",selected="uploadCSV")
+  })
   observeEvent(input$imported, {
     
     withProgress({
@@ -28,7 +48,9 @@ function(input, output, session) {
       source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
       setProgress(detail = "Reading your files..", value = .3)
       source("00_get_Export.R", local = TRUE)
-      setProgress(detail = "Possibly wasting time..", value = .35)
+      setProgress(detail = "Prepping initial data..", value = .35)
+      source("00_initial_data_prep.R", local = TRUE)
+      setProgress(detail = "Possibly wasting time on dates..", value = .4)
       source("00_dates.R", local = TRUE)
       setProgress(detail = "Making lists..", value = .6)
       source("01_cohorts.R", local = TRUE) 
@@ -38,6 +60,17 @@ function(input, output, session) {
       
         }
       )
+    
+    output$integrityCheckerPanel <- renderUI(
+      if (!is.null(input$imported)) {
+        box(
+          title = "HUD CSV Export Integrity Checker",
+          width = 12,
+          downloadButton(outputId = "downloadIntegrityCheck",
+                         label = "Download Integrity Checker")
+        )
+      })
+    
     
     output$headerFileInfo <- renderUI({
       if (!is.null(input$imported)) {
@@ -52,31 +85,6 @@ function(input, output, session) {
           )
         )
     } else {}
-    })
-  
-  output$headerHome <- renderUI({
-      box(
-        title = "Welcome",
-        width = 12,
-        if (is.null(input$imported)) {
-          HTML("Hi you haven't uploaded anything yet.")
-        }
-        else {
-          HTML(
-            "<p>R minor elevated is intended for use by the Ohio Balance of State CoC
-        and the Mahoning County CoC HMIS users. This site requires a login
-        because client-level data is shown (without Personally Identifying
-        Information). Please use this site to verify that your HMIS data is
-        accurate and complete.
-        <p><a href=\"https://ohiobalanceofstatecoc.shinyapps.io/Rminor\"
-        target=\"_blank\">R minor</a> is a separate COHHIO site used for
-        performance reporting. Visitors to R minor will include HMIS users,
-        program executives, funders, government representatives, advocates, and
-        other interested parties. R minor contains no client-level data.<br>
-        <p>We're glad you're here! Please select a report in the left sidebar."
-          )
-        }
-      )
     })
     
     updatePickerInput(session = session, inputId = "currentProviderList",
