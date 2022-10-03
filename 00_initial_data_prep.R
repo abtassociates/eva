@@ -48,14 +48,14 @@ Client <- Client %>%
   mutate(SSN = case_when(is.na(SSN) ~ "ok", !is.na(SSN) ~ SSN))
 
 # Enrollment --------------------------------------------------------------
-Enrollment <- Enrollment %>%
-  mutate(
-    EntryDate = parseDate(EntryDate),
-    DateCreated = parseDate(DateCreated),
-    MoveInDate = parseDate(MoveInDate),
-    DateToStreetESSH = parseDate(DateToStreetESSH),
-    PersonalID = as.character(PersonalID)
-  )
+# Enrollment <- Enrollment %>%
+#   mutate(
+#     EntryDate = parseDate(EntryDate),
+#     DateCreated = parseDate(DateCreated),
+#     MoveInDate = parseDate(MoveInDate),
+#     DateToStreetESSH = parseDate(DateToStreetESSH),
+#     PersonalID = as.character(PersonalID)
+#   )
 
 # Adding Exit Data to Enrollment because I'm not tryin to have one-to-one 
 # relationships in this!
