@@ -57,24 +57,24 @@ dashboardPage(
     tabItems(
     tabItem(
       tabName = "homeTab",
-      htmlOutput("headerHome"),
+      box(
+        title = "Welcome",
+        width = 12,
+        HTML(
+          "<p>Welcome to Stella H! This app is intended for use by HMIS Administrators 
+          in the various Continuums of Care (CoC) around the U.S. and its territories. 
+          You can use this site to verify that your HMIS data is accurate and complete.</p>
+          <p>Visitors to Stella H could include HMIS users, CoC staff, program executives, 
+          funders, government representatives, advocates, and other interested parties.</p>
+          <p>We're glad you're here! This app works by using an uploaded HMIS CSV file.</p>"
+        ),
+        htmlOutput("goToUpload_text"),
+        uiOutput("goToUpload_btn")
+      ),
       width = 12
     ),
     tabItem(
       tabName = "uploadCSV",
-      box(
-        title = "Upload Hashed CSV zip file",
-        fileInput("imported",
-                  "",
-                  multiple = FALSE,
-                  accept = ".zip"),
-        width = 12
-      ), 
-      uiOutput("integrityCheckerPanel"),
-      box(title = "Status",
-          uiOutput("headerFileInfo"),
-          uiOutput("headerNoFileYet"),
-          width = 12),
       box(
         title = "Edit CoC-specific Settings",
         width = 12,
@@ -91,61 +91,61 @@ dashboardPage(
           expected number of days in the project. You can set these based on your
           current data or leave them at the defaults."
             ),
-          numericInput(
-            inputId = "ESLongStayers",
-            label = "Emergency Shelters:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "SHLongStayers",
-            label = "Safe Havens:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "THLongStayers",
-            label = "Transitional Housing:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "OutLongStayers",
-            label = "Street Outreach:",
-            value = 120,
-            min = 1,
-            max = 3652
-          ),
-          numericInput(
-            inputId = "ServicesOnlyLongStayers",
-            label = "Services Only:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "RRHLongStayers",
-            label = "Rapid Rehousing:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "HPLongStayers",
-            label = "Prevention:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          )
+            numericInput(
+              inputId = "ESLongStayers",
+              label = "Emergency Shelters:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "SHLongStayers",
+              label = "Safe Havens:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "THLongStayers",
+              label = "Transitional Housing:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "OutLongStayers",
+              label = "Street Outreach:",
+              value = 120,
+              min = 1,
+              max = 3652
+            ),
+            numericInput(
+              inputId = "ServicesOnlyLongStayers",
+              label = "Services Only:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "RRHLongStayers",
+              label = "Rapid Rehousing:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "HPLongStayers",
+              label = "Prevention:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            )
           )
         ),
         HTML(
@@ -158,7 +158,20 @@ dashboardPage(
           label = "Outstanding Referral Days:",
           value = 7
         )
-      )
+      ),
+      box(
+        title = "Upload Hashed CSV zip file",
+        fileInput("imported",
+                  "",
+                  multiple = FALSE,
+                  accept = ".zip"),
+        width = 12
+      ), 
+      uiOutput("integrityCheckerPanel"),
+      box(title = "Status",
+          uiOutput("headerFileInfo"),
+          uiOutput("headerNoFileYet"),
+          width = 12)
     ), 
     tabItem(
       tabName = "currentProviderLevel",
