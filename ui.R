@@ -20,8 +20,8 @@ dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
-      # menuItem("Home",
-      #          tabName = "homeTab"),
+      menuItem("Home",
+               tabName = "homeTab"),
       menuItem("Upload Hashed CSV",
                tabName = "uploadCSV"),
       menuItem("PDDE Checker",
@@ -52,7 +52,9 @@ dashboardPage(
                menuSubItem("Prioritization",
                            tabName = "tabPrioritized"))
     )), 
-  dashboardBody(tabItems(
+  dashboardBody(
+    tags$head(tags$style(HTML('.content-wrapper {overflow: auto;}'))),
+    tabItems(
     tabItem(
       tabName = "homeTab",
       htmlOutput("headerHome"),
@@ -60,6 +62,15 @@ dashboardPage(
     ),
     tabItem(
       tabName = "uploadCSV",
+      box(
+        title = "Upload Hashed CSV zip file",
+        fileInput("imported",
+                  "",
+                  multiple = FALSE,
+                  accept = ".zip"),
+        width = 12
+      ), 
+      uiOutput("integrityCheckerPanel"),
       box(title = "Status",
           uiOutput("headerFileInfo"),
           uiOutput("headerNoFileYet"),
@@ -147,20 +158,6 @@ dashboardPage(
           label = "Outstanding Referral Days:",
           value = 7
         )
-      ), 
-      box(
-        title = "Upload Hashed CSV zip file",
-        fileInput("imported",
-                  "",
-                  multiple = FALSE,
-                  accept = ".zip"),
-        width = 12
-      ), 
-      box(
-        title = "HUD CSV Export Integrity Checker",
-        width = 12,
-        downloadButton(outputId = "downloadIntegrityCheck",
-                       label = "Download Integrity Checker")
       )
     ), 
     tabItem(
