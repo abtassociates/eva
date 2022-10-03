@@ -13,34 +13,28 @@
 # <https://www.gnu.org/licenses/>. test
 
 function(input, output, session) {
-  ## TEMP: Update Client counts project dropdown
+  # Dynamic welcome text, based on whether they've already uploaded their csv
+  output$goToUpload_text <- renderUI({
+    if (!is.null(input$imported)) {
+      HTML("<p>Click the \"Upload Hashed CSV Export\" tab in the left sidebar to get started!</p>")
+    } else {
+      HTML("<p>Click the button below to get started!</p>")
+    }
+  })
   
-  output$headerNoFileYet <- renderUI({
+  output$goToUpload_btn <- renderUI({
     if (is.null(input$imported)) {
-      HTML("You have not successfully uploaded your zipped CSV file yet.")
+      actionButton(inputId='goToUpload',label="Upload Hashed CSV")
     } else {}
   })
   
-  output$headerHome <- renderUI({
-    box(
-      title = "Welcome",
-      width = 12,
-      HTML(
-        "<p>Welcome to Stella H! This app is intended for use by HMIS Administrators 
-        in the various Continuums of Care (CoC) around the U.S. and its territories. 
-        You can use this site to verify that your HMIS data is accurate and complete.</p>
-        <p>Visitors to Stella H could include HMIS users, CoC staff, program executives, 
-        funders, government representatives, advocates, and other interested parties.</p>
-        <p>We're glad you're here! This app works by using an uploaded HMIS CSV file. 
-        Click the button below to get started!</p><br/>"
-      ),
-      if (is.null(input$imported)) { actionButton(inputId='goToUpload',label="Upload Hashed CSV")}
-    )
-  })
   
+  
+  # when they click to go to the Upload Hashed CSV tab, it's like the clicked the sidebar menu tab
   observeEvent(input$goToUpload, {
     updateTabsetPanel(session,"sidebarmenuid",selected="uploadCSV")
   })
+  
   observeEvent(input$imported, {
     
     withProgress({
@@ -85,6 +79,12 @@ function(input, output, session) {
           )
         )
     } else {}
+    })
+    
+    output$headerNoFileYet <- renderUI({
+      if (is.null(input$imported)) {
+        HTML("You have not successfully uploaded your zipped CSV file yet.")
+      } else {}
     })
     
     updatePickerInput(session = session, inputId = "currentProviderList",
