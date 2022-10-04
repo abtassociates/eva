@@ -34,17 +34,21 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-importFile <- function(csvFile, col_types=NULL, guess_max=1000) {
+importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
   if (is.null(input$imported)) {return()}
   filename = glue::glue("{csvFile}.csv")
   data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
                    ,col_types = col_types #,
-                   #guess_max = min(guess_max, n_max) AS 9/8: was getting an error: Error in vroom::vroom: object 'n_max' not found
+                   #guess_max = min(guess_max, n_max) AS 9/8: was getting an 
+                   # error: Error in vroom::vroom: object 'n_max' not found
   )
   file.remove(filename)
   return(data)
 }
-Enrollment <- importFile("Enrollment",col_types="cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
+Enrollment <- 
+  importFile("Enrollment",
+             col_types =
+               "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -54,7 +58,8 @@ Enrollment <- importFile("Enrollment",col_types="cccDcnnnnnDnnnDDDnnnnccccnnnDnn
 #       col_types = "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
 #   }
 
-CurrentLivingSituation <- importFile("CurrentLivingSituation",col_types="cccDncnnnnncTTcTc")
+CurrentLivingSituation <- importFile("CurrentLivingSituation",
+                                     col_types = "cccDncnnnnncTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -73,7 +78,8 @@ CurrentLivingSituation <- importFile("CurrentLivingSituation",col_types="cccDncn
 #       col_types = "cccDnnnnnnnnnnnTTcTc")
 # }
 
-EmploymentEducation <- importFile("EmploymentEducation",col_types="cccDnnnnnnTTnTn")
+EmploymentEducation <- importFile("EmploymentEducation",
+                                  col_types = "cccDnnnnnnTTnTn")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -83,7 +89,8 @@ EmploymentEducation <- importFile("EmploymentEducation",col_types="cccDnnnnnnTTn
 #       col_types = "cccDnnnnnnTTnTn")
 # }
 
-Exit <- importFile("Exit",col_types="cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
+Exit <- importFile("Exit",
+                   col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -93,7 +100,8 @@ Exit <- importFile("Exit",col_types="cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc
 #       col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
 # }
 
-Organization <- importFile("Organization",col_types="ccncTTcTc")
+Organization <- importFile("Organization",
+                           col_types = "ccncTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -103,7 +111,7 @@ Organization <- importFile("Organization",col_types="ccncTTcTc")
 #       col_types = "ccncTTcTc")
 # }
 
-Project <- importFile("Project",col_types="ccccDDnnnnnnnnnTTcTc")
+Project <- importFile("Project", col_types = "ccccDDnnnnnnnnnTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -113,7 +121,7 @@ Project <- importFile("Project",col_types="ccccDDnnnnnnnnnTTcTc")
 #       col_types = "ccccDDnnnnnnnnnTTcTc")
 # }
 
-EnrollmentCoC <- importFile("EnrollmentCoC",col_types="cccccDcnTTcTc")
+EnrollmentCoC <- importFile("EnrollmentCoC", col_types = "cccccDcnTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -123,7 +131,7 @@ EnrollmentCoC <- importFile("EnrollmentCoC",col_types="cccccDcnTTcTc")
 #       col_types = "cccccDcnTTcTc")
 # }
 
-Event <- importFile("Event",col_types="cccDnnncnDTTcTc")
+Event <- importFile("Event", col_types = "cccDnnncnDTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -133,7 +141,7 @@ Event <- importFile("Event",col_types="cccDnnncnDTTcTc")
 #       col_types = "cccDnnncnDTTcTc")
 # }
 
-Export <- importFile("Export",col_types="cncccccccTDDcncnnn")
+Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -143,7 +151,7 @@ Export <- importFile("Export",col_types="cncccccccTDDcncnnn")
 #       col_types = "cncccccccTDDcncnnn")
 # }
 
-Funder <- importFile("Funder",col_types="ccnccDDTTcTc")
+Funder <- importFile("Funder", col_types = "ccnccDDTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -153,7 +161,7 @@ Funder <- importFile("Funder",col_types="ccnccDDTTcTc")
 #       col_types = "ccnccDDTTcTc")
 # }
 
-HealthAndDV <- importFile("HealthAndDV",col_types="cccDnnnnnnnDnnnnnTTcTc")
+HealthAndDV <- importFile("HealthAndDV", col_types = "cccDnnnnnnnDnnnnnTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -163,17 +171,21 @@ HealthAndDV <- importFile("HealthAndDV",col_types="cccDnnnnnnnDnnnnnTTcTc")
 #       col_types = "cccDnnnnnnnDnnnnnTTcTc")
 # }
 
-IncomeBenefits <- importFile("IncomeBenefits",col_types="cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
+IncomeBenefits <- 
+  importFile("IncomeBenefits",
+             col_types = 
+               "cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
 #   IncomeBenefits <-
 #     read_csv(
 #       unzip(zipfile = input$imported$datapath, files = "IncomeBenefits.csv"),
-#       col_types = "cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
+#       col_types = 
+#"cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
 # }
 
-Inventory <- importFile("Inventory",col_types="cccnnnnnnnnnnnnDDTTcTc")
+Inventory <- importFile("Inventory",col_types = "cccnnnnnnnnnnnnDDTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -183,7 +195,7 @@ Inventory <- importFile("Inventory",col_types="cccnnnnnnnnnnnnDDTTcTc")
 #       col_types = "cccnnnnnnnnnnnnDDTTcTc")
 # }
 
-ProjectCoC <- importFile("ProjectCoC",col_types="nncnccccnnTTcTc")
+ProjectCoC <- importFile("ProjectCoC",col_types = "cccccccccnTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -193,7 +205,7 @@ ProjectCoC <- importFile("ProjectCoC",col_types="nncnccccnnTTcTc")
 #       col_types = "nncnccccnnTTcTc")
 # }
 
-User <- importFile("User",col_types="ccccccTTTc")
+User <- importFile("User",col_types = "ccccccTTTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -203,7 +215,7 @@ User <- importFile("User",col_types="ccccccTTTc")
 #       col_types = "ccccccTTTc")
 # }
 
-Services <- importFile("Services",col_types="cccDnnccnnnTTcTc")
+Services <- importFile("Services",col_types = "cccDnnccnnnTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -213,7 +225,8 @@ Services <- importFile("Services",col_types="cccDnnccnnnTTcTc")
 #       col_types = "cccDnnccnnnTTcTc")
 # }
 
-YouthEducationStatus <- importFile("YouthEducationStatus",col_types="cccDnnnnTTcTc")
+YouthEducationStatus <- importFile("YouthEducationStatus",
+                                   col_types = "cccDnnnnTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -223,7 +236,8 @@ YouthEducationStatus <- importFile("YouthEducationStatus",col_types="cccDnnnnTTc
 #       col_types = "cccDnnnnTTcTc")
 # }
 
-Client <- importFile("Client",col_types="cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
+Client <- importFile("Client",
+                     col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
@@ -233,7 +247,7 @@ Client <- importFile("Client",col_types="cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTc
 #       col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
 # }
 
-Assessment <- importFile("Assessment",col_types="cccDcnnnTTcTc")
+Assessment <- importFile("Assessment",col_types = "cccDcnnnTTcTc")
 # if (is.null(input$imported)) {
 #   return()
 # } else {
