@@ -16,7 +16,7 @@
 
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "Needs New Name"),
+  dashboardHeader(title = "Stella HMIS"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -53,20 +53,26 @@ dashboardPage(
                            tabName = "tabPrioritized"))
     )), 
   dashboardBody(
-    tags$head(tags$style(HTML('.content-wrapper {overflow: auto;}'))),
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+    ),
     tabItems(
     tabItem(
       tabName = "homeTab",
       box(
-        title = "Welcome",
+        title = "Welcome to Stella HMIS!",
         width = 12,
         HTML(
-          "<p>Welcome to Stella H! This app is intended for use by HMIS Administrators 
-          in the various Continuums of Care (CoC) around the U.S. and its territories. 
-          You can use this site to verify that your HMIS data is accurate and complete.</p>
-          <p>Visitors to Stella H could include HMIS users, CoC staff, program executives, 
-          funders, government representatives, advocates, and other interested parties.</p>
-          <p>We're glad you're here! This app works by using an uploaded HMIS CSV file.</p>"
+          "<div>Stella HMIS (Stella H) is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
+          Stella H is designed to help you assess the accuracy and completeness of the data within your HMIS. 
+          In future iterations it will also assist communities in analyzing your HMIS performance data, 
+          including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
+          <br/>
+          <div>This app works by using an uploaded 
+          <a href='https://www.hudhdx.info/VendorResources.aspx'>HMIS CSV</a> 
+          file.
+          </div>
+          <br/>"
         ),
         htmlOutput("goToUpload_text"),
         uiOutput("goToUpload_btn")
@@ -76,7 +82,7 @@ dashboardPage(
     tabItem(
       tabName = "uploadCSV",
       box(
-        title = "Edit CoC-specific Settings",
+        title = "> Edit CoC-specific Settings",
         width = 12,
         collapsible = TRUE,
         collapsed = TRUE,
@@ -161,6 +167,9 @@ dashboardPage(
       ),
       box(
         title = "Upload Hashed CSV zip file",
+        HTML('<i class="fa fa-info-circle" 
+            title="Use the Browse function to direct the app to the file folder containing your zipped CSV.">
+             </i>'),
         fileInput("imported",
                   "",
                   multiple = FALSE,
