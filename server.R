@@ -16,9 +16,9 @@ function(input, output, session) {
   # Dynamic welcome text, based on whether they've already uploaded their csv
   output$goToUpload_text <- renderUI({
     if (!is.null(input$imported)) {
-      HTML("<p>Click the \"Upload Hashed CSV Export\" tab in the left sidebar to get started!</p>")
+      HTML("<div>Click the \"Upload Hashed CSV Export\" tab in the left sidebar to get started!</div><br/>")
     } else {
-      HTML("<p>Click the button below to get started!</p>")
+      HTML("<div>Click the button below to get started!</div><br/>")
     }
   })
   
