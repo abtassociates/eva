@@ -24,7 +24,7 @@ dashboardPage(
                tabName = "homeTab"),
       menuItem("Upload Hashed CSV",
                tabName = "uploadCSV"),
-      menuItem("PDDE Checker",
+      menuItem("Check PDDEs",
                tabName = "tabPDDE"),
       menuItem("Client Counts",
                   tabName = "currentProviderLevel"),
