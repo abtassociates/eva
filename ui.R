@@ -13,9 +13,10 @@
 # <https://www.gnu.org/licenses/>.
 
 
+
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "Needs New Name"),
+  dashboardHeader(title = "Stella HMIS"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -23,15 +24,10 @@ dashboardPage(
                tabName = "homeTab"),
       menuItem("Upload Hashed CSV",
                tabName = "uploadCSV"),
-      menuItem("PDDE Checker",
+      menuItem("Check PDDEs",
                tabName = "tabPDDE"),
-      menuItem("Reality Check",
-               tabName = "realityCheck",
-        menuSubItem("Client Counts",
-                    tabName = "currentProviderLevel"),
-        menuSubItem("Bed and Unit Utilization",
-                    tabName = "utilizationTab")
-      ), 
+      menuItem("Client Counts",
+                  tabName = "currentProviderLevel"),
       menuItem("Data Quality",
         menuSubItem("Project-level", 
                     tabName = "dqTab"),
@@ -42,7 +38,7 @@ dashboardPage(
         menuSubItem("Data Entry Timeliness", 
                     tabName = "deskTime")
       ),
-      menuItem("Coordinated Entry Analyses",
+      menuItem("System Analysis",
                menuSubItem("System Flow",
                            tabName = "tabSystemFlow"),
                menuSubItem("Outcomes",
@@ -53,36 +49,138 @@ dashboardPage(
                            tabName = "tabAssessments"),
                menuSubItem("Diversion",
                            tabName = "tabDiversion"),
-               menuSubItem("Prioritized",
+               menuSubItem("Prioritization",
                            tabName = "tabPrioritized"))
     )), 
-  dashboardBody(tabItems(
+  dashboardBody(
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+    ),
+    tabItems(
     tabItem(
       tabName = "homeTab",
-      htmlOutput("headerHome"),
+      box(
+        title = "Welcome to Stella HMIS!",
+        width = 12,
+        HTML(
+          "<div>Stella HMIS (Stella H) is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
+          Stella H is designed to help you assess the accuracy and completeness of the data within your HMIS. 
+          In future iterations it will also assist communities in analyzing your HMIS performance data, 
+          including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
+          <br/>
+          <div>This app works by using an uploaded 
+          <a href='https://www.hudhdx.info/VendorResources.aspx'>HMIS CSV</a> 
+          file.
+          </div>
+          <br/>"
+        ),
+        htmlOutput("goToUpload_text"),
+        uiOutput("goToUpload_btn")
+      ),
       width = 12
     ),
     tabItem(
       tabName = "uploadCSV",
-      box(title = "Status",
-          uiOutput("headerFileInfo"),
-          width = 12),
+      box(
+        title = "> Edit CoC-specific Settings",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        fluidRow(
+          column(
+            width = 12,
+            HTML(
+              "<h3>Long Stayers</h3>
+          <p>The projects in your CoC have a baseline average length of stay that
+          will vary for different project types. Below, you can set the number
+          of days your CoC would consider an enrollment to be well beyond the
+          expected number of days in the project. You can set these based on your
+          current data or leave them at the defaults."
+            ),
+            numericInput(
+              inputId = "ESLongStayers",
+              label = "Emergency Shelters:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "SHLongStayers",
+              label = "Safe Havens:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "THLongStayers",
+              label = "Transitional Housing:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "OutLongStayers",
+              label = "Street Outreach:",
+              value = 120,
+              min = 1,
+              max = 3652
+            ),
+            numericInput(
+              inputId = "ServicesOnlyLongStayers",
+              label = "Services Only:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "RRHLongStayers",
+              label = "Rapid Rehousing:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "HPLongStayers",
+              label = "Prevention:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            )
+          )
+        ),
+        HTML(
+          "<h3>Referrals</h3>
+             <p>Please enter the number of days your CoC would consider a Referral
+          to be \"outstanding\"."
+        ),
+        numericInput(
+          inputId = "OutstandingReferrals",
+          label = "Outstanding Referral Days:",
+          value = 7
+        )
+      ),
       box(
         title = "Upload Hashed CSV zip file",
+        HTML('<i class="fa fa-info-circle" 
+            title="Use the Browse function to direct the app to the file folder containing your zipped CSV.">
+             </i>'),
         fileInput("imported",
                   "",
                   multiple = FALSE,
                   accept = ".zip"),
-        tableOutput("files"),
-        tableOutput("test"),
         width = 12
       ), 
-      box(
-        title = "HUD CSV Export Integrity Checker",
-        width = 12,
-        downloadButton(outputId = "downloadIntegrityCheck",
-                       label = "Download Integrity Checker")
-      )
+      uiOutput("integrityCheckerPanel"),
+      box(title = "Status",
+          uiOutput("headerFileInfo"),
+          uiOutput("headerNoFileYet"),
+          width = 12)
     ), 
     tabItem(
       tabName = "currentProviderLevel",
@@ -91,14 +189,14 @@ dashboardPage(
         pickerInput(
           label = "Select Project",
           inputId = "currentProviderList",
-          choices = projects,
+          choices = NULL,
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains')
         ),
         dateRangeInput(
           "dateRangeCount",
           "Date Range",
-          min = meta_HUDCSV_Export_Start,
+          min = NULL,
           format = "mm/dd/yyyy",
           width = 300
         ),
@@ -122,7 +220,7 @@ dashboardPage(
         pickerInput(
           label = "Select Project",
           inputId = "providerListUtilization",
-          choices = c(sort(utilization_bed$ProjectName)),
+          choices = NULL, #c(sort(utilization_bed$ProjectName)),
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains'),
           width = "100%"
@@ -130,16 +228,11 @@ dashboardPage(
         airDatepickerInput(
           inputId = "utilizationDate",
           label = "Report End Month for Annual Plot",
-          max =
-            ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-          min =
-            ymd(floor_date(
-              meta_HUDCSV_Export_Date - days(335), unit = "month"
-            )),
+          max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+          min = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date - days(335), unit = "month")),
           dateFormat = "MM yyyy",
           view = "month",
-          value =
-            ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+          value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
           minView = "months",
           addon = "none",
           autoClose = TRUE,
@@ -173,14 +266,11 @@ dashboardPage(
         airDatepickerInput(
           inputId = "utilizationDetailDate",
           label = "Choose Month for Detail Data",
-          max = ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-          min = ymd(floor_date(ymd(
-            meta_HUDCSV_Export_End
-          ), "month") - years(2) + days(1)),
+          max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+          min = NULL, # ymd(floor_date(ymd(meta_HUDCSV_Export_End), "month") - years(2) + days(1)),
           dateFormat = "MM yyyy",
           view = "month",
-          value =
-            ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+          value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
           minView = "months",
           addon = "none",
           autoClose = TRUE,
@@ -207,7 +297,7 @@ dashboardPage(
         pickerInput(
           label = "Select Project",
           inputId = "providerListDQ",
-          choices = dq_providers,
+          choices = NULL, # dq_providers,
           options = pickerOptions(
             liveSearch = TRUE,
             liveSearchStyle = 'contains',
@@ -221,8 +311,8 @@ dashboardPage(
           inputId = "dq_startdate",
           label = "Report Start Date",
           format = "mm/dd/yyyy",
-          value = ymd(hc_check_dq_back_to),
-          min = ymd(meta_HUDCSV_Export_Start),
+          value = NULL, # ymd(meta_HUDCSV_Export_Start),
+          min = NULL,
           width = "25%"
         ),
         width = 12
@@ -268,11 +358,11 @@ dashboardPage(
         pickerInput(
           label = "Select Provider",
           inputId = "providerDeskTime",
-          choices = desk_time_providers,
+          choices = NULL, #desk_time_providers,
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains'),
           width = "100%",
-          selected = desk_time_providers[1]
+          selected = NULL # desk_time_providers[1]
         ),
         width = 12
       )),
@@ -290,36 +380,37 @@ dashboardPage(
       )
     ),
     tabItem(tabName = "dqOrganization",
-            fluidRow(box(
-              htmlOutput("headerOrganizationDQ"), width = 12
-            )),
-            fluidRow(box(
-              pickerInput(
-                inputId = "orgList",
-                choices = c(unique(Organization$OrganizationName)),
-                options = pickerOptions(liveSearch = TRUE,
-                                        liveSearchStyle = 'contains'),
-                width = "70%"
-              ),
-              dateInput(
-                inputId = "dq_org_startdate",
-                label = "Report Start Date",
-                format = "mm/dd/yyyy",
-                value = ymd(hc_check_dq_back_to),
-                width = "25%"
-              ),
-              width = 12
-            )),
-            fluidRow(
-              box(
-                id = "DQSummaryOrganization",
-                title = paste("Data Quality Summary"),
-                status = "info",
-                solidHeader = TRUE,
-                DT::dataTableOutput("dq_organization_summary_table"),
-                width = 12
-              )
-            )),
+      fluidRow(box(
+        htmlOutput("headerOrganizationDQ"), width = 12
+      )),
+      fluidRow(box(
+        pickerInput(
+          inputId = "orgList",
+          choices = NULL, #c(unique(Organization$OrganizationName)),
+          options = pickerOptions(liveSearch = TRUE,
+                                  liveSearchStyle = 'contains'),
+          width = "70%"
+        ),
+        dateInput(
+          inputId = "dq_org_startdate",
+          label = "Report Start Date",
+          format = "mm/dd/yyyy",
+          value = NULL, # ymd(meta_HUDCSV_Export_Start),
+          width = "25%"
+        ),
+        width = 12
+      )),
+      fluidRow(
+        box(
+          id = "DQSummaryOrganization",
+          title = paste("Data Quality Summary"),
+          status = "info",
+          solidHeader = TRUE,
+          DT::dataTableOutput("dq_organization_summary_table"),
+          width = 12
+        )
+      )
+    ),
     tabItem(
       tabName = "dqSystem",
       fluidRow(
@@ -344,11 +435,10 @@ dashboardPage(
             solidHeader = TRUE,
             status = "danger",
             title = "Most Common High Priority Issues and Errors"),
-        box(plotOutput("systemDQWarningTypes"), width = 12,
             solidHeader = TRUE,
             status = "warning",
             title = "Most Common Warnings")
       )
     )
-  ))
+  )
 )

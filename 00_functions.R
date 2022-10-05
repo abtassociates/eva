@@ -8,57 +8,6 @@ age_years <- function(earlier, later)
   
 }
 
-# Client Entry Exits Between Date Range Functions -------------------------
-
-served_between <- function(., start, end) {
-  . %>% filter(ymd(EntryDate) <= mdy(end) &
-                 (is.na(ExitDate) | ymd(ExitDate) >= mdy(start)))
-}
-
-entered_between <- function(table, start, end){
-  entered <- between(ymd(table$EntryDate), mdy(start), mdy(end))
-  entered
-}
-
-exited_between <- function(table, start, end){
-  exited <- between(ymd(table$ExitDate), mdy(start), mdy(end))
-  exited
-}
-
-stayed_between <- function(table, start, end){
-  stayed <- ymd(table$EntryAdjust) <= mdy(end) &
-    (is.na(table$ExitDate) | ymd(table$ExitDate) > mdy(start))
-  stayed
-}
-# 
-# # Projects Operating Between Date Range Function --------------------------
-# 
-# operating_between <- function(table, start, end) {
-#   operating <-  if_else(
-#     is.na(table$OperatingStartDate) |
-#       ymd(table$OperatingStartDate) > mdy(end) |
-#       (!is.na(table$OperatingEndDate) &
-#          ymd(table$OperatingEndDate) < mdy(start)),
-#     FALSE,
-#     TRUE
-#   )
-#   operating
-# }
-# 
-# Beds Available Between --------------------------------------------------
-
-beds_available_between <- function(table, start, end) {
-  available <-  if_else(
-    is.na(table$ParticipatingStartDate) |
-      ymd(table$ParticipatingStartDate) > mdy(end) |
-      (!is.na(table$ParticipatingEndDate) &
-         ymd(table$ParticipatingEndDate) < mdy(start)),
-    FALSE,
-    TRUE
-  )
-  available
-}
-
 living_situation <- function(ReferenceNo) {
   case_when(
     ReferenceNo == 1 ~ "Emergency shelter/ h/motel paid for by a third party/Host Home shelter",
@@ -110,6 +59,7 @@ project_type <- function(ReferenceNo){
     ReferenceNo == 4 ~ "Street Outreach",
     ReferenceNo == 6 ~ "Services Only",
     ReferenceNo == 8 ~ "Safe Haven",
+    ReferenceNo == 9 ~ "PH - Housing Only",
     ReferenceNo == 12 ~ "Prevention",
     ReferenceNo == 13 ~ "Rapid Rehousing",
     ReferenceNo == 14 ~ "Coordinated Entry"
@@ -141,8 +91,6 @@ enhanced_yes_no_translator <- function(ReferenceNo) {
   )
 }
 
-# this function translates the HUD .csv 1.7 and 1.8 lists 
-# and returns yes, no, or unknown as appropriate
 translate_HUD_yes_no <- function(column_name){
   case_when(
     column_name == 1 ~ "Yes", 

@@ -25,20 +25,10 @@ library(DT)
 library(writexl)
 library(viridis)
 library(HMIS)
-
-load("images/Data_Quality.RData")
+library(glue)
+library(janitor)
 
 options(shiny.maxRequestSize = 200000000)
 
-projects <- sort(validation$ProjectName) %>% unique()
-
-desk_time_providers <- validation %>%
-  dplyr::filter(
-    (entered_between(., today() - years(1), today()) |
-      exited_between(., today() - years(1), today())) &
-    ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
-  dplyr::select(ProjectName) %>% unique()
-
-
-
+hc_psh_started_collecting_move_in_date <- ymd("20171001")
 
