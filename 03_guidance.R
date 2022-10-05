@@ -33,13 +33,13 @@
   #\"No\", then there should not be any Non-cash benefit sources that say the 
   #client is receiving that type of benefit"
 
-#guidance_missing_at_exit <- 
-  #"Please enter the data for this item by going to the Exit assessment on the 
-  #given Personal ID on the appropriate program enrollment."
+guidance_missing_at_exit <- 
+  "This data element is required to be collected at Project Exit. Please
+  go to the client's assessment at Project Exit to enter this data to HMIS."
 
-#guidance_missing_at_entry <- 
-  #"This data element is required to be collected at project Entry. Please
-  #go to the client's Entry assessment to save this data to HMIS."
+guidance_missing_at_entry <- 
+  "This data element is required to be collected at Project Start. Please
+  go to the client's assessment at Project Start to enter this data to HMIS."
 
 guidance_missing_pii <- 
   "Please correct by providing the missing information in the 

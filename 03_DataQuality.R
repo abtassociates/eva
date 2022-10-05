@@ -173,8 +173,8 @@ dq_dob <- served_in_date_range %>%
     Guidance = case_when(
       Issue == "Incorrect Date of Birth or Entry Date" ~
         "The HMIS data is indicating the client entered the project PRIOR to
-      being born. Correct either the Date of Birth or the Entry Date, whichever
-      is incorrect.",
+      being born. Correct either the Date of Birth or the Project Start Date, 
+      whichever is incorrect.",
       Issue %in% c("Missing DOB", "Missing Date of Birth Data Quality") ~
         guidance_missing_at_entry,
       Issue == "Don't Know/Refused or Approx. Date of Birth" ~
@@ -202,8 +202,7 @@ dq_ssn <- served_in_date_range %>%
       Issue == "Invalid SSN" ~ "The Social Security Number does not conform with 
       standards set by the Social Security Administration. This includes rules 
       like every SSN is exactly 9 digits and cannot have certain number patterns. 
-      Correct by navigating to the client's record, then clicking the Client 
-      Profile tab, then click into the Client Record pencil to correct the data."
+      Navigate to the client's record in HMIS to correct the data."
     )
   ) %>%
   filter(!is.na(Issue)) %>%
@@ -280,10 +279,10 @@ dq_veteran <- served_in_date_range %>%
       ) ~ "Warning"
     ),
     Guidance = case_when(
-      Issue == "Check Veteran Status for Accuracy" ~ "You have indicated the 
-      household exited to a destination that only veterans are eligible for, but 
-      the head of household appears to be not a veteran. Either the Veteran 
-      Status is incorrect or the Destination is incorrect.", 
+      #Issue == "Check Veteran Status for Accuracy" ~ "You have indicated the 
+      #household exited to a destination that only veterans are eligible for, but 
+      #the head of household appears to be not a veteran. Either the Veteran 
+      #Status is incorrect or the Destination is incorrect.", 
       Issue == "Missing Veteran Status" ~ guidance_missing_pii,
       Issue == "Don't Know/Refused Veteran Status" ~ guidance_dkr_data)
   ) %>%
@@ -332,11 +331,11 @@ hh_no_hoh <- served_in_date_range %>%
   mutate(
     Issue = "No Head of Household",
     Type = "High Priority",
-    Guidance = "Please be sure all members of the household are included in the program
-      stay, and that each household member's birthdate is correct. If those
-      things are both true, or the client is a single, check inside the Entry
-      pencil to be sure each household member has \"Relationship to Head of
-      Household\" answered and that one of them says Self (head of household).
+    Guidance = "Please be sure all members of the household are included in the 
+      program stay, and that each household member's birthdate is correct. 
+      If those things are both true, or the client is a single, ensure that
+      each household member has \"Relationship to Head of Household\" answered 
+      at Project Start and that one of them says Self (head of household).
       Singles are always Self (head of household)."
   ) %>%
   select(all_of(vars_we_want))
@@ -361,9 +360,9 @@ hh_missing_rel_to_hoh <- served_in_date_range %>%
   anti_join(hh_no_hoh["HouseholdID"], by = "HouseholdID") %>%
   mutate(Issue = "Missing Relationship to Head of Household",
          Type = "High Priority",
-         Guidance = "Check inside the Entry pencil to be sure each household member has
-      \"Relationship to Head of Household\" answered and that only one of
-      them says \"Self (head of household)\".") %>%
+         Guidance = "Check the assessment at Project Start to be sure each 
+         household member has \"Relationship to Head of Household\" answered 
+         and that only one of them says \"Self (head of household)\".") %>%
   select(all_of(vars_we_want))
 
 hh_issues <- rbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
