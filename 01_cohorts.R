@@ -32,15 +32,18 @@ library(tidyverse)
 library(lubridate)
 library(HMIS)
 
-# Destinations Groups (FY2022) --------------------------------------------
+# Living Situations Groups (includes PLS, CLS, and destinations) 
+#(Updated to match FY2022 DS) ---------------------------
 
-perm_destinations <- c(3, 10, 11, 19:23, 26, 28, 31, 33, 34, 36)
+perm_livingsituation <- c(3, 10, 11, 19:23, 26, 28, 31, 33, 34, 36)
 
-temp_destinations <-  c(1, 2, 12, 13, 14, 16, 18, 27, 32, 35) 
+lh_livingsituation <- c(1,16,18)
 
-institutional_destinations <- c(4:7, 15, 25, 27, 29)
+temp_livingsituation <- c(1, 2, 12, 13, 14, 16, 18, 27, 32, 35) 
 
-other_destinations <- c(8, 9, 17, 24, 30, 37, 99)
+institutional_livingsituation <- c(4:7, 15, 25, 27, 29)
+
+other_livingsituation <- c(8, 9, 17, 24, 30, 37, 99)
 
 # Project Type Groupings --------------------------------------------------
 
