@@ -13,12 +13,26 @@
 # <https://www.gnu.org/licenses/>. test
 
 function(input, output, session) {
-  ## TEMP: Update Client counts project dropdown
+  # Dynamic welcome text, based on whether they've already uploaded their csv
+  output$goToUpload_text <- renderUI({
+    if (!is.null(input$imported)) {
+      HTML("<div>Click the \"Upload Hashed CSV Export\" tab in the left sidebar to get started!</div><br/>")
+    } else {
+      HTML("<div>Click the button below to get started!</div><br/>")
+    }
+  })
   
-  output$headerNoFileYet <- renderUI({
+  output$goToUpload_btn <- renderUI({
     if (is.null(input$imported)) {
-      HTML("You have not successfully uploaded your zipped CSV file yet.")
+      actionButton(inputId='goToUpload',label="Upload Hashed CSV")
     } else {}
+  })
+  
+  
+  
+  # when they click to go to the Upload Hashed CSV tab, it's like the clicked the sidebar menu tab
+  observeEvent(input$goToUpload, {
+    updateTabsetPanel(session,"sidebarmenuid",selected="uploadCSV")
   })
   
   observeEvent(input$imported, {
@@ -28,7 +42,9 @@ function(input, output, session) {
       source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
       setProgress(detail = "Reading your files..", value = .3)
       source("00_get_Export.R", local = TRUE)
-      setProgress(detail = "Possibly wasting time..", value = .35)
+      setProgress(detail = "Prepping initial data..", value = .35)
+      source("00_initial_data_prep.R", local = TRUE)
+      setProgress(detail = "Possibly wasting time on dates..", value = .4)
       source("00_dates.R", local = TRUE)
       setProgress(detail = "Making lists..", value = .6)
       source("01_cohorts.R", local = TRUE) 
@@ -38,6 +54,17 @@ function(input, output, session) {
       
         }
       )
+    
+    output$integrityCheckerPanel <- renderUI(
+      if (!is.null(input$imported)) {
+        box(
+          title = "HUD CSV Export Integrity Checker",
+          width = 12,
+          downloadButton(outputId = "downloadIntegrityCheck",
+                         label = "Download Integrity Checker")
+        )
+      })
+    
     
     output$headerFileInfo <- renderUI({
       if (!is.null(input$imported)) {
@@ -53,30 +80,11 @@ function(input, output, session) {
         )
     } else {}
     })
-  
-  output$headerHome <- renderUI({
-      box(
-        title = "Welcome",
-        width = 12,
-        if (is.null(input$imported)) {
-          HTML("Hi you haven't uploaded anything yet.")
-        }
-        else {
-          HTML(
-            "<p>R minor elevated is intended for use by the Ohio Balance of State CoC
-        and the Mahoning County CoC HMIS users. This site requires a login
-        because client-level data is shown (without Personally Identifying
-        Information). Please use this site to verify that your HMIS data is
-        accurate and complete.
-        <p><a href=\"https://ohiobalanceofstatecoc.shinyapps.io/Rminor\"
-        target=\"_blank\">R minor</a> is a separate COHHIO site used for
-        performance reporting. Visitors to R minor will include HMIS users,
-        program executives, funders, government representatives, advocates, and
-        other interested parties. R minor contains no client-level data.<br>
-        <p>We're glad you're here! Please select a report in the left sidebar."
-          )
-        }
-      )
+    
+    output$headerNoFileYet <- renderUI({
+      if (is.null(input$imported)) {
+        HTML("You have not successfully uploaded your zipped CSV file yet.")
+      } else {}
     })
     
     updatePickerInput(session = session, inputId = "currentProviderList",

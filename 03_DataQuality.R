@@ -1189,7 +1189,7 @@ duplicate_ees <-
 # their clients prior to their Entry Date since back then the Entry Date was the
 # day they moved in. So they're excused from this prior to Move In Date's existence.
 future_ees <- served_in_date_range %>%
-  filter(EntryDate > ymd_hms(DateCreated) &
+  filter(EntryDate > DateCreated &
            (ProjectType %in% c(1, 2, 4, 8, 13) |
               (ProjectType %in% c(3, 9) & 
                   EntryDate >= hc_psh_started_collecting_move_in_date
