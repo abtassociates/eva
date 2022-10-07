@@ -100,7 +100,7 @@ function(input, output, session) {
                       choices = desk_time_providers)
     
     updatePickerInput(session = session, inputId = "orgList",
-                      choices = c(unique(Organization$OrganizationName)))
+                      choices = c(unique(sort(Organization$OrganizationName))))
     
     updateDateInput(session = session, inputId = "dq_org_startdate", 
                     value = meta_HUDCSV_Export_Start)
@@ -644,7 +644,8 @@ function(input, output, session) {
       ReportEnd <- today()
       
       guidance <- dq_main %>%
-        filter(ProjectName %in% c(input$providerListDQ) &
+        #filter(ProjectName %in% c(input$providerListDQ) &
+        filter(OrganizationName == input$orgList &
                  served_between(., ReportStart, ReportEnd)) %>%
         group_by(Type, Issue, Guidance) %>%
         ungroup() %>%
@@ -1127,12 +1128,13 @@ function(input, output, session) {
             "Duplicate Enrollments",
             "Access Point with Enrollments"
           ) & # because these are all in the boxes already
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd) &
             Type == "Error"
         ) %>%
-        arrange(HouseholdID, PersonalID) %>%
-        select("Client ID" = PersonalID,
+        arrange(ProjectName, HouseholdID, PersonalID) %>%
+        select("Project Name" = ProjectName,
+               "Client ID" = PersonalID,
                "Error" = Issue,
                "Entry Date" =  EntryDate)
       
@@ -1161,12 +1163,13 @@ function(input, output, session) {
             "Check Eligibility"
           ) &
             served_between(., ReportStart, ReportEnd) &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             Type == "Warning"
         ) %>%
         mutate(PersonalID = as.character(PersonalID)) %>%
-        arrange(HouseholdID, PersonalID) %>%
+        arrange(ProjectName, HouseholdID, PersonalID) %>%
         select(
+          "Project Name" = ProjectName,
           "Client ID" = PersonalID,
           "Warning" = Issue,
           "Entry Date" =  EntryDate
