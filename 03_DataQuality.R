@@ -304,16 +304,25 @@ missing_client_location <- served_in_date_range %>%
 # Household Issues --------------------------------------------------------
 distPersInHH <- served_in_date_range %>% group_by(HouseholdID) %>% summarise(distPersHH = n_distinct(PersonalID))
 
-unaccompaniedYouthHH <- served_in_date_range %>%
-  left_join(distPersInHH, by = "HouseholdID") %>%
+mostRecentEntry <- served_in_date_range %>% 
+  group_by(PersonalID, DOB) %>%
+  summarise(MostRecentEntryDate = max(EntryDate)) %>%
+  ungroup() %>% 
+  select(PersonalID, DOB, MostRecentEntryDate)
+
+maxEnrollmentSQL <- served_in_date_range %>% 
+  group_by(PersonalID, EntryDate) %>% 
+  summarise(MaxEnrollmentID = max(EnrollmentID)) %>%
+  ungroup() %>% 
+  select(c("PersonalID","EntryDate","MaxEnrollmentID"))
+
+unaccompaniedYouthHH <- served_in_date_range %>% 
+  left_join(distPersInHH, by="HouseholdID") %>%
+  left_join(mostRecentEntry, by=c("PersonalID","DOB")) %>%
+  left_join(maxEnrollmentSQL, by = c("PersonalID","MostRecentEntryDate" = "EntryDate")) %>%
   filter(RelationshipToHoH == 1 & AgeAtEntry < 12 & distPersHH == 1 & 
       (is.null(ExitDate) | is.na(ExitDate) | (ExitDate >= meta_HUDCSV_Export_Start & ExitDate <= meta_HUDCSV_Export_End))
   )
-
-mostRecentEntry <- unaccompaniedYouthHH %>% 
-  group_by(PersonalID, DOB) %>%
-  summarise(EntryDate = max(EntryDate)) %>%
-  select(PersonalID, EntryDate)
 
 hh_children_only <- unaccompaniedYouthHH %>% # not checking for children-only hhs for RHY
   group_by(HouseholdID) %>%
@@ -324,7 +333,6 @@ hh_children_only <- unaccompaniedYouthHH %>% # not checking for children-only hh
   ) %>%
   ungroup() %>%
   left_join(served_in_date_range, by = c("PersonalID", "HouseholdID")) %>%
-  left_join(mostRecentEntry, by = c("PersonalID","EntryDate")) %>%
   mutate(Issue = "Children Only Household",
          Type = "High Priority",
          Guidance = "Unless your project serves youth younger than 18 
