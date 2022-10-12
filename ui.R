@@ -300,10 +300,8 @@ dashboardPage(
           choices = NULL, #c(unique(Organization$OrganizationName)),
           options = pickerOptions(
             liveSearch = TRUE,
-            liveSearchStyle = 'contains',
-            actionsBox = TRUE
+            liveSearchStyle = 'contains'
           ),
-          multiple = TRUE,
           width = "100%",
           selected = "none"
         ),
