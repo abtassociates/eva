@@ -541,10 +541,10 @@ invalid_months_times_homeless <- served_in_date_range %>%
     Type = "Warning",
     Guidance = case_when(
       MonthDiff <= 0 ~
-        "This client has an Approximate Date Homeless in their Entry that is after 
-        their Entry Date. The information in the Entry should reflect the 
-        client's situation at the point of Entry, so this date may have been 
-        incorrectly entered.",
+        "This client has an Approximate Date Homelessness Started in their 
+        enrollment that is after their Project Start Date. The information 
+        at Project Start should reflect the client's situation at the point of 
+        Project Start, so this date may have been incorrectly entered.",
       MonthsHomelessPastThreeYears < 100 ~
         "According to this client's entry, they experienced a single episode of 
         homelessness in the three years prior to their entry and the approximate 
