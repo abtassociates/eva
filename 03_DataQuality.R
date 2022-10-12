@@ -302,17 +302,29 @@ missing_client_location <- served_in_date_range %>%
   select(all_of(vars_we_want))
 
 # Household Issues --------------------------------------------------------
-hh_children_only <- served_in_date_range %>%
-  filter(!ProjectID %in% c(rhy_funded)) %>% # not checking for children-only hhs for RHY
+distPersInHH <- served_in_date_range %>% group_by(HouseholdID) %>% summarise(distPersHH = n_distinct(PersonalID))
+
+unaccompaniedYouthHH <- served_in_date_range %>%
+  left_join(distPersInHH, by = "HouseholdID") %>%
+  filter(RelationshipToHoH == 1 & AgeAtEntry < 12 & distPersHH == 1 & 
+      (is.null(ExitDate) | is.na(ExitDate) | (ExitDate >= meta_HUDCSV_Export_Start & ExitDate <= meta_HUDCSV_Export_End))
+  )
+
+mostRecentEntry <- unaccompaniedYouthHH %>% 
+  group_by(PersonalID, DOB) %>%
+  summarise(EntryDate = max(EntryDate)) %>%
+  select(PersonalID, EntryDate)
+
+hh_children_only <- unaccompaniedYouthHH %>% # not checking for children-only hhs for RHY
   group_by(HouseholdID) %>%
   summarise(
     hhMembers = n(),
-    maxAge = max(AgeAtEntry),
+    # maxAge = max(AgeAtEntry), # AS 10/12 - Even if not their max age (i.e. latest enrollment), I think we still want to flag enrollment records meeting the criteria here, right?
     PersonalID = min(PersonalID)
   ) %>%
-  filter(maxAge < 18) %>%
   ungroup() %>%
   left_join(served_in_date_range, by = c("PersonalID", "HouseholdID")) %>%
+  left_join(mostRecentEntry, by = c("PersonalID","EntryDate")) %>%
   mutate(Issue = "Children Only Household",
          Type = "High Priority",
          Guidance = "Unless your project serves youth younger than 18 
@@ -320,6 +332,7 @@ hh_children_only <- served_in_date_range %>%
          you are not sure how to correct this, please contact the HMIS team for 
          help.") %>%
   select(all_of(vars_we_want))
+
 hh_no_hoh <- served_in_date_range %>%
   group_by(HouseholdID) %>%
   summarise(hasHoH = if_else(min(RelationshipToHoH) != 1,
