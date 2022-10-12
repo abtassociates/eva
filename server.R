@@ -1136,7 +1136,7 @@ function(input, output, session) {
         select("Project Name" = ProjectName,
                "Client ID" = PersonalID,
                "Error" = Issue,
-               "Entry Date" =  EntryDate)
+               "Project Start Date" =  EntryDate)
       
       datatable(
         DQErrors,
@@ -1172,7 +1172,7 @@ function(input, output, session) {
           "Project Name" = ProjectName,
           "Client ID" = PersonalID,
           "Warning" = Issue,
-          "Entry Date" =  EntryDate
+          "Project Start Date" =  EntryDate
         )
       
       datatable(
