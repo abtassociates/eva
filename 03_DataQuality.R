@@ -546,19 +546,21 @@ invalid_months_times_homeless <- served_in_date_range %>%
         at Project Start should reflect the client's situation at the point of 
         Project Start, so this date may have been incorrectly entered.",
       MonthsHomelessPastThreeYears < 100 ~
-        "According to this client's entry, they experienced a single episode of 
-        homelessness in the three years prior to their entry and the approximate 
-        start date of their homelessness is known, but there was no response 
-        entered for the number of months they experienced homelessness prior to 
-        this entry. It should be possible to determine and enter the number of 
-        months homeless based on the Approximate Date Homeless and the Entry Date.",
+        "According to this client's assessment at Project Start, they 
+        experienced a single episode of homelessness in the three years prior to 
+        their Project Start and the approximate date homelessness started is known, 
+        but there was no response entered for the total number of months they 
+        experienced homelessness prior to this enrollment. It should be possible 
+        to determine and enter the total number of months they experienced
+        homelessness based on the Approximate Date Homelessness Started and the 
+        Project Start Date.",
       DateMonthsMismatch == 1 ~ 
-        "According to this client's entry, they experienced a single episode of 
-        homelessness in the three years prior to their entry and the approximate 
-        start date of their homelessness is known, but the recorded number of 
-        months they experienced homelessness prior to this entry is inconsistent 
-        with the given dates. Please double-check this information for 
-        consistency and accuracy.")) %>%
+        "According to this client's assessment at Project Start, they experienced 
+        a single episode of homelessness in the three years prior to their 
+        enrollment and the approximate date homelessness started known, but the 
+        total number of months they experienced homelessness prior to this 
+        enrollment is inconsistent with the given dates. Please double-check this 
+        information for consistency and accuracy.")) %>%
   filter(!is.na(Guidance)) %>%
   select(all_of(vars_we_want))
 
@@ -597,11 +599,11 @@ missing_living_situation <- served_in_date_range %>%
   ) %>%
   mutate(Issue = "Incomplete Living Situation Data", 
          Type = "Error",
-         Guidance = "When responding to the Living Situation questions in your
-         Entry Assessment, users must answer questions about some clients' 
-         situation prior to the \"Residence Prior\" that are important to help
-         determine that client's Chronicity. Please answer these questions to
-         the best of your knowledge.") %>%
+         Guidance = "When responding to the Prior Living Situation questions in 
+         your assessment at Project Start, users must answer questions about the 
+         clients' situation prior to the \"Type of Residnce\" question that are 
+         important to help determine that client's Chronicity. Please answer these 
+         questions to the best of your knowledge.") %>%
   select(all_of(vars_we_want))
 
 dkr_living_situation <- served_in_date_range %>%
@@ -923,11 +925,11 @@ check_eligibility <- served_in_date_range %>%
         Issue = "Check Eligibility",
         Type = "Warning",
         Guidance = 
-          "Your Residence Prior data suggests that this project is either
+          "Your Prior Living Situation data suggests that this project is either
         serving ineligible households, the household was entered into the wrong
-        project, or the Residence Prior data at Entry is incorrect. Please check
-        the terms of your grant or speak with your CoC if you are unsure of 
-        eligibility criteria for your project type.") %>%
+        project, or the Prior Living Situation data at Project Start is incorrect. 
+        Please check the terms of your grant or speak with your CoC if you are 
+        unsure of eligibility criteria for your project type.") %>%
       select(all_of(vars_we_want))
     
     # Missing Destination
@@ -953,32 +955,6 @@ check_eligibility <- served_in_date_range %>%
              Type = "Warning",
              Guidance = guidance_dkr_data) %>%
       select(all_of(vars_we_want))
-
-# Rent Payment Made, No Move-In Date
-# rent_paid_no_move_in <- served_in_date_range %>%
-#   filter(is.na(MoveInDateAdjust) &
-#            RelationshipToHoH == 1 &
-#            ProjectType %in% c(3, 9, 13)) %>%
-#   inner_join(Services %>%
-#                filter(
-#                  (RecordType %in% c(141) & TypeProvided %in% c(8, 9, 11, 12)) |
-#                    (RecordType %in% c(152) & TypeProvided %in% c(1:5)) |
-#                    (RecordType %in% c(151) & TypeProvided %in% c(1:7))) %>%
-#                select(-PersonalID),
-#              by = "EnrollmentID") %>%
-#   mutate(
-#     Issue = "Rent Payment Made, No Move-In Date",
-#     Type = "Error",
-#     Guidance = 
-#       "This client does not have a valid Move-In Date, but there is at
-# least one rent/deposit payment Service Transaction recorded for this program.
-# Until a Move-In Date is entered, this client will continue to be counted as
-# literally homeless while in your program. Move-in dates must be on or after
-# the Entry Date. If a client is housed then returns to homelessness while
-# in your program, they need to be exited from their original Entry and
-# re-entered in a new one that has no Move-In Date until they are re-housed."
-#   ) %>%
-#   select(all_of(vars_we_want))
 
 # Missing PATH Data -------------------------------------------------------
 
@@ -1050,10 +1026,10 @@ path_status_determination <- served_in_date_range %>%
       !is.na(ClientEnrolledInPATH) &
       is.na(DateOfPATHStatus)
   ) %>%
-  mutate(Issue = "Missing Date of PATH Status",
-         Type = "Error",
-         Guidance = "Users must indicate the PATH Status Date for any adult 
-         enrolled in PATH.") %>%
+  #mutate(Issue = "Missing Date of PATH Status",
+         #Type = "Error",
+         #Guidance = "Users must indicate the PATH Status Date for any adult 
+         #enrolled in PATH.") %>%
   select(all_of(vars_we_want))
 
 #* PATH Enrolled at Exit
@@ -1069,13 +1045,13 @@ path_enrolled_missing <- served_in_date_range %>%
       (ClientEnrolledInPATH == 99 |
          is.na(ClientEnrolledInPATH))
   ) %>%
-  mutate(
-    Issue = "Missing PATH Enrollment at Exit",
-    Type = "Error",
-    Guidance = "Please enter the data for this item by clicking into the 
-    Entry or Exit pencil and creating an Interim. In the assessment, enter 
-    the correct PATH Enrollment Date and Save."
-  ) %>%
+  #mutate(
+    #Issue = "Missing PATH Enrollment at Exit",
+    #Type = "Error",
+    #Guidance = "Please enter the data for this item by clicking into the 
+    #Entry or Exit pencil and creating an Interim. In the assessment, enter 
+    #the correct PATH Enrollment Date and Save."
+  #) %>%
   select(all_of(vars_we_want))
 
 #* Not Enrolled Reason
@@ -1158,12 +1134,12 @@ missing_path_contact <- served_in_date_range %>%
                    "ExitDate")) %>%
   mutate_at(vars(CurrentLivingSituationCount), ~replace(., is.na(.), 0)) %>%
   filter(CurrentLivingSituationCount == 0) %>%
-  mutate(Issue = "Missing PATH Contact",
-         Type = "High Priority",
-         Guidance = "Every adult or Head of Household must have a Living
-         Situation contact record. If you see a record there but there is
-         no Date of Contact, saving the Date of Contact will correct this
-         issue.") %>%
+  #mutate(Issue = "Missing PATH Contact",
+         #Type = "High Priority",
+         #Guidance = "Every adult or Head of Household must have a Living
+         #Situation contact record. If you see a record there but there is
+         #no Date of Contact, saving the Date of Contact will correct this
+         #issue.") %>%
   select(all_of(vars_we_want))
 
 # Duplicate EEs -----------------------------------------------------------
@@ -1197,7 +1173,7 @@ future_ees <- served_in_date_range %>%
     Issue = "Future Entry Date",
     Type = "Warning",
     Guidance = "Users should not be entering a client into a project on a 
-    date in the future. If the Entry Date is correct, there is no action 
+    date in the future. If the Project Start Date is correct, there is no action 
     needed, but going forward, please be sure that your data entry workflow 
     is correct according to your project type."
   ) %>%
