@@ -8,12 +8,6 @@ age_years <- function(earlier, later)
   
 }
 
-served_between <- function(., start, end) {
-  served <- .$EntryDate <= end  &
-                 (is.na(.$ExitDate) | .$ExitDate >= start)
-  served
-}
-
 living_situation <- function(ReferenceNo) {
   case_when(
     ReferenceNo == 1 ~ "Emergency shelter/ h/motel paid for by a third party/Host Home shelter",
