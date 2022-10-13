@@ -690,7 +690,7 @@ function(input, output, session) {
       DuplicateEEs <- dq_main %>%
         filter(
           Issue == "Duplicate Enrollments" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(
@@ -713,7 +713,7 @@ function(input, output, session) {
       DuplicateEEs <- dq_main %>%
         filter(
           Issue == "Duplicate Enrollments" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         select(
@@ -754,7 +754,7 @@ function(input, output, session) {
             "No Head of Household",
             "Children Only Household"
           ) &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(
@@ -763,10 +763,11 @@ function(input, output, session) {
           MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
           ExitDate = format(ExitDate, "%m-%d-%Y")
         ) %>%
-        arrange(PersonalID) %>%
-        select("A Client ID in the Household" = PersonalID,
+        arrange(ProjectName, PersonalID) %>%
+        select("Project Name" = ProjectName,
+               "A Client ID in the Household" = PersonalID,
                Issue,
-               "Entry Date" = EntryDate)
+               "Project Start Date" = EntryDate)
       
       HHIssues
     })
@@ -783,7 +784,7 @@ function(input, output, session) {
             "No Head of Household",
             "Children Only Household"
           ) &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         )
       if (nrow(HHIssues) > 0) {
@@ -810,7 +811,7 @@ function(input, output, session) {
       HHIssues <- dq_main %>%
         filter(
           Issue == "Missing Client Location" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         )
       if (nrow(HHIssues) > 0) {
@@ -838,7 +839,7 @@ function(input, output, session) {
       HHIssues <- dq_main %>%
         filter(
           Issue == "Missing Client Location" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(
@@ -847,9 +848,10 @@ function(input, output, session) {
           MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
           ExitDate = format(ExitDate, "%m-%d-%Y")
         ) %>%
-        arrange(PersonalID) %>%
-        select("Client ID" = PersonalID,
-               "Entry Date" = EntryDate)
+        arrange(ProjectName, PersonalID) %>%
+        select("Project Name" = ProjectName,
+               "Client ID" = PersonalID,
+               "Project Start Date" = EntryDate)
       
       HHIssues
     })
@@ -861,7 +863,7 @@ function(input, output, session) {
       no_contact <- dq_main %>%
         filter(
           Issue == "Missing PATH Contact" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         )
       if (nrow(no_contact) > 0) {
@@ -884,11 +886,11 @@ function(input, output, session) {
     
     output$MissingPATHContact <- renderTable({
       ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportEnd <- today() 
       x <- dq_main %>%
         filter(
           Issue == "Missing PATH Contact" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(
@@ -897,9 +899,10 @@ function(input, output, session) {
           MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
           ExitDate = format(ExitDate, "%m-%d-%Y")
         ) %>%
-        arrange(PersonalID) %>%
-        select("Client ID" = PersonalID,
-               "Entry Date" = EntryDate)
+        arrange(ProjectName, PersonalID) %>%
+        select("Project Name" = ProjectName,
+               "Client ID" = PersonalID,
+               "Project Start Date" = EntryDate)
       
       x
     })
@@ -910,7 +913,7 @@ function(input, output, session) {
       
       OverlappingEEs <- dq_overlaps %>%
         filter(
-          ProjectName %in% c(input$providerListDQ) &
+          OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(
@@ -919,7 +922,9 @@ function(input, output, session) {
           MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
           ExitDate = format(ExitDate, "%m-%d-%Y")
         ) %>%
+        arrange(ProjectName, PersonalID) %>%
         select(
+          "Project Name" = ProjectName,
           "Client ID" = PersonalID,
           "Entry Date" = EntryDate,
           "Move In Date" = MoveInDateAdjust,
@@ -936,7 +941,7 @@ function(input, output, session) {
       OverlappingEEs <- dq_overlaps %>%
         filter(
           Issue == "Overlapping Project Stays" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(
@@ -1067,7 +1072,7 @@ function(input, output, session) {
       ReportEnd <- today()
       
       Ineligible <- detail_eligibility %>%
-        filter(ProjectName %in% c(input$providerListDQ) &
+        filter(OrganizationName %in% c(input$orgList) &
                  served_between(., ReportStart, ReportEnd)) %>%
         mutate(
           PersonalID = format(PersonalID, digits = NULL),
@@ -1075,6 +1080,7 @@ function(input, output, session) {
           PreviousStreetESSH = if_else(PreviousStreetESSH == 1, "Yes", "No")
         ) %>%
         select(
+          "Project Name" = ProjectName,
           "Client ID" = PersonalID,
           "Entry Date" = EntryDate,
           "Residence Prior" = ResidencePrior,
@@ -1088,7 +1094,7 @@ function(input, output, session) {
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       Ineligible <- detail_eligibility %>%
-        filter(ProjectName %in% c(input$providerListDQ) &
+        filter(OrganizationName %in% c(input$orgList) &
                  served_between(., ReportStart, ReportEnd))
       
       if (nrow(Ineligible) > 0) {
