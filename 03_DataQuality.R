@@ -893,6 +893,7 @@ check_eligibility <- served_in_date_range %>%
 
     detail_eligibility <- check_eligibility %>%
       select(
+        OrganizationName,
         PersonalID,
         ProjectName,
         ProjectType,
@@ -2449,7 +2450,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       missing_living_situation,
       missing_LoS,
       missing_months_times_homeless,
-      missing_path_contact,
+      #missing_path_contact,
       missing_previous_street_ESSH,
       missing_ncbs_entry,
       # missing_ncbs_exit,
