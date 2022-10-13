@@ -302,35 +302,14 @@ missing_client_location <- served_in_date_range %>%
   select(all_of(vars_we_want))
 
 # Household Issues --------------------------------------------------------
-distPersInHH <- served_in_date_range %>% group_by(HouseholdID) %>% summarise(distPersHH = n_distinct(PersonalID))
-
-mostRecentEntry <- served_in_date_range %>% 
-  group_by(PersonalID, DOB) %>%
-  summarise(MostRecentEntryDate = max(EntryDate)) %>%
-  ungroup() %>% 
-  select(PersonalID, DOB, MostRecentEntryDate)
-
-maxEnrollmentSQL <- served_in_date_range %>% 
-  group_by(PersonalID, EntryDate) %>% 
-  summarise(MaxEnrollmentID = max(EnrollmentID)) %>%
-  ungroup() %>% 
-  select(c("PersonalID","EntryDate","MaxEnrollmentID"))
-
-unaccompaniedYouthHH <- served_in_date_range %>% 
-  left_join(distPersInHH, by="HouseholdID") %>%
-  left_join(mostRecentEntry, by=c("PersonalID","DOB")) %>%
-  left_join(maxEnrollmentSQL, by = c("PersonalID","MostRecentEntryDate" = "EntryDate")) %>%
-  filter(RelationshipToHoH == 1 & AgeAtEntry < 12 & distPersHH == 1 & 
-      (is.null(ExitDate) | is.na(ExitDate) | (ExitDate >= meta_HUDCSV_Export_Start & ExitDate <= meta_HUDCSV_Export_End))
-  )
-
-hh_children_only <- unaccompaniedYouthHH %>% # not checking for children-only hhs for RHY
+hh_children_only <- served_in_date_range %>%
   group_by(HouseholdID) %>%
   summarise(
     hhMembers = n(),
-    # maxAge = max(AgeAtEntry), # AS 10/12 - Even if not their max age (i.e. latest enrollment), I think we still want to flag enrollment records meeting the criteria here, right?
+    maxAge = max(AgeAtEntry),
     PersonalID = min(PersonalID)
   ) %>%
+  filter(maxAge < 12) %>%
   ungroup() %>%
   left_join(served_in_date_range, by = c("PersonalID", "HouseholdID")) %>%
   mutate(Issue = "Children Only Household",
@@ -340,7 +319,6 @@ hh_children_only <- unaccompaniedYouthHH %>% # not checking for children-only hh
          you are not sure how to correct this, please contact the HMIS team for 
          help.") %>%
   select(all_of(vars_we_want))
-
 hh_no_hoh <- served_in_date_range %>%
   group_by(HouseholdID) %>%
   summarise(hasHoH = if_else(min(RelationshipToHoH) != 1,
