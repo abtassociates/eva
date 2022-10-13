@@ -893,6 +893,7 @@ check_eligibility <- served_in_date_range %>%
 
     detail_eligibility <- check_eligibility %>%
       select(
+        OrganizationName,
         PersonalID,
         ProjectName,
         ProjectType,
