@@ -1,4 +1,6 @@
 
+
+
 client_problems <- problems(Client)
 
 files <- c(
@@ -31,151 +33,160 @@ hashed <- Export$HashStatus == 4 &
   min(nchar(Client$FirstName), na.rm = TRUE) ==
   max(nchar(Client$FirstName), na.rm = TRUE)
 
+try(if(hashed == TRUE) stop("Your file is not hashed. 
+                            Please run your Hashed HMIS CSV Export and try again.")) 
+
 export_id_from_export <- Export %>% pull(ExportID)
 
-column_names <- read_csv("public_data/columns.csv", col_types = "cc")
+column_names <- read_csv("columns.csv")
+
+
+check_column_names <- function(file) {
+  tibble(
+    ImportedColumns = colnames(!!rlang::ensym(file)),
+    CorrectColumns = column_names %>%
+      filter(Files == {{file}}) %>%
+      pull(Columns) %>% str_split(",") %>% unlist()
+  ) %>%
+    mutate(Guidance = if_else(
+      ImportedColumns != CorrectColumns,
+      paste(
+        "The",
+        ImportedColumns,
+        "column should be spelled like",
+        CorrectColumns
+      ),
+      "all good"
+    )) %>%
+    filter(Guidance != "all good") %>%
+    mutate(Type = "High Priority",
+           Issue = "Incorrect Column Name") %>%
+    select(Issue, Type, Guidance)
+  
+}
+
+column_names <- map_df(files, check_column_names)
 
 # Affiliation -------------------------------------------------------------
-# 
-# column_names_affiliation <- tibble(
-#   ImportedColumns = colnames(Affiliation),
-#   CorrectColumns = column_names %>%
-#     filter(Files == "Affiliation") %>%
-#     pull(Columns) %>% str_split(",") %>% unlist()
-# ) %>%
-#   mutate(Guidance = if_else(
-#     ImportedColumns != CorrectColumns,
-#     paste(
-#       "The",
-#       ImportedColumns,
-#       "column should be spelled like",
-#       CorrectColumns
-#     ),
-#     "all good"
-#   )) %>%
-#   filter(Guidance != "all good") %>%
-#   mutate(Type = "High Priority",
-#          Issue = "Incorrect Column Name") %>%
-#   select(Issue, Type, Guidance)
-# 
-# if (nrow(Affiliation) == 0) {
-#   
-# } else
-# {
-#   data_types_prep_affiliation <- Affiliation %>%
-#     mutate(
-#       AffiliationIDx = class(AffiliationID) == "character",
-#       ProjectIDx = class(ProjectID) == "character",
-#       ResProjectIDx = class(ResProjectID) == "character",
-#       DateCreatedx = class(DateCreated)[1] == "POSIXct",
-#       DateUpdatedx = class(DateUpdated)[1] == "POSIXct",
-#       UserIDx = class(UserID) == "character",
-#       DateDeletedx = class(DateDeleted)[1] == "POSIXct",
-#       ExportIDx = class(ExportID) == "character"
-#     ) %>%
-#     select(ends_with("x")) %>%
-#     head(1L) %>%
-#     pivot_longer(cols = everything())
-#   
-#   if (min(data_types_prep_affiliation$value) == 0) {
-#     data_types_affiliation <- data_types_prep_affiliation %>%
-#       filter(value == FALSE) %>%
-#       mutate(
-#         Issue = "Incorrect data type",
-#         Type = "High Priority",
-#         name = str_trunc(name, nchar(name) - 1,
-#                          side = "right",
-#                          ellipsis = ""),
-#         Guidance = paste("This file's", name,
-#                          "column is not the correct data type")
-#       ) %>%
-#       select(Issue, Type, Guidance)
-#   } else {
-#     data_types_affiliation <- data.frame(Issue = character(),
-#                                          Type = character(),
-#                                          Guidance = character())
-#   }
-#   
-#   eligible_for_affiliation <- Project %>%
-#     filter(ProjectType %in% c(1, 2, 3, 8, 10, 13)) %>%
-#     pull(ProjectID)
-#   
-#   possible_affiliations <- Project %>%
-#     filter(ProjectType == 6) %>%
-#     pull(ProjectID)
-#   
-#   project_not_sso <- Affiliation %>%
-#     mutate(
-#       Issue = if_else(
-#         !ProjectID %in% c(eligible_for_affiliation),
-#         "Affiliation Project Type is not Services Only",
-#         "Nothing"
-#       ),
-#       Type = "Error",
-#       Guidance = paste("ProjectID", ProjectID, "is not ProjectType 6.")
-#     ) %>%
-#     filter(Issue != "Nothing") %>%
-#     select(Issue, Type, Guidance)
-#   
-#   affiliated_to_wrong_project_type <- Affiliation %>%
-#     mutate(
-#       Issue = if_else(
-#         !ResProjectID %in% c(possible_affiliations),
-#         "Affiliated to a non-residential Project",
-#         "Nothing"
-#       ),
-#       Type = "Error",
-#       Guidance = paste(
-#         "ProjectID",
-#         ProjectID,
-#         "is affiliated with",
-#         ResProjectID,
-#         "which is not a residential project"
-#       )
-#     ) %>%
-#     filter(Issue != "Nothing") %>%
-#     select(Issue, Type, Guidance)
-#   
-#   export_id_affiliation <- Affiliation %>%
-#     mutate(
-#       Issue = if_else(
-#         as.character(ExportID) != export_id_from_export,
-#         "ExportID mismatch",
-#         "Nothing"
-#       ),
-#       Type = "Error",
-#       Guidance = paste(
-#         "The Export file says the ExportID is",
-#         export_id_from_export,
-#         "but in your",
-#         "Affiliation",
-#         "file, it is",
-#         ExportID
-#       )
-#     ) %>%
-#     filter(Issue != "Nothing") %>%
-#     select(Issue, Type, Guidance) %>%
-#     unique()
-# }
-# 
-# duplicate_affiliation_id <- Affiliation %>%
-#   get_dupes(AffiliationID) %>%
-#   mutate(
-#     Issue = "Duplicate AffiliationIDs found in the Affiliation file",
-#     Type = "High Priority",
-#     Guidance = paste("There are", dupe_count, "for AffiliationID", AffiliationID)
-#   ) %>%
-#   select(Issue, Type, Guidance)
-# 
-# issues_affiliation <-
-#   rbind(
-#     column_names_affiliation,
-#     affiliated_to_wrong_project_type,
-#     data_types_affiliation,
-#     project_not_sso,
-#     export_id_affiliation,
-#     duplicate_affiliation_id
-#   )
+
+if (nrow(Affiliation) == 0) {
+  
+} else
+{
+  data_types_prep_affiliation <- Affiliation %>%
+    mutate(
+      AffiliationIDx = class(AffiliationID) == "character",
+      ProjectIDx = class(ProjectID) == "character",
+      ResProjectIDx = class(ResProjectID) == "character",
+      DateCreatedx = class(DateCreated)[1] == "POSIXct",
+      DateUpdatedx = class(DateUpdated)[1] == "POSIXct",
+      UserIDx = class(UserID) == "character",
+      DateDeletedx = class(DateDeleted)[1] == "POSIXct",
+      ExportIDx = class(ExportID) == "character"
+    ) %>%
+    select(ends_with("x")) %>%
+    head(1L) %>%
+    pivot_longer(cols = everything())
+  
+  if (min(data_types_prep_affiliation$value) == 0) {
+    data_types_affiliation <- data_types_prep_affiliation %>%
+      filter(value == FALSE) %>%
+      mutate(
+        Issue = "Incorrect data type",
+        Type = "High Priority",
+        name = str_trunc(name, nchar(name) - 1,
+                         side = "right",
+                         ellipsis = ""),
+        Guidance = paste("This file's", name,
+                         "column is not the correct data type")
+      ) %>%
+      select(Issue, Type, Guidance)
+  } else {
+    data_types_affiliation <- data.frame(Issue = character(),
+                                         Type = character(),
+                                         Guidance = character())
+  }
+  
+  eligible_for_affiliation <- Project %>%
+    filter(ProjectType %in% c(1, 2, 3, 8, 10, 13)) %>%
+    pull(ProjectID)
+  
+  possible_affiliations <- Project %>%
+    filter(ProjectType == 6) %>%
+    pull(ProjectID)
+  
+  project_not_sso <- Affiliation %>%
+    mutate(
+      Issue = if_else(
+        !ProjectID %in% c(eligible_for_affiliation),
+        "Affiliation Project Type is not Services Only",
+        "Nothing"
+      ),
+      Type = "Error",
+      Guidance = paste("ProjectID", ProjectID, "is not ProjectType 6.")
+    ) %>%
+    filter(Issue != "Nothing") %>%
+    select(Issue, Type, Guidance)
+  
+  affiliated_to_wrong_project_type <- Affiliation %>%
+    mutate(
+      Issue = if_else(
+        !ResProjectID %in% c(possible_affiliations),
+        "Affiliated to a non-residential Project",
+        "Nothing"
+      ),
+      Type = "Error",
+      Guidance = paste(
+        "ProjectID",
+        ProjectID,
+        "is affiliated with",
+        ResProjectID,
+        "which is not a residential project"
+      )
+    ) %>%
+    filter(Issue != "Nothing") %>%
+    select(Issue, Type, Guidance)
+  
+  export_id_affiliation <- Affiliation %>%
+    mutate(
+      Issue = if_else(
+        as.character(ExportID) != export_id_from_export,
+        "ExportID mismatch",
+        "Nothing"
+      ),
+      Type = "Error",
+      Guidance = paste(
+        "The Export file says the ExportID is",
+        export_id_from_export,
+        "but in your",
+        "Affiliation",
+        "file, it is",
+        ExportID
+      )
+    ) %>%
+    filter(Issue != "Nothing") %>%
+    select(Issue, Type, Guidance) %>%
+    unique()
+}
+
+duplicate_affiliation_id <- Affiliation %>%
+  get_dupes(AffiliationID) %>%
+  mutate(
+    Issue = "Duplicate AffiliationIDs found in the Affiliation file",
+    Type = "High Priority",
+    Guidance = paste("There are", dupe_count, "for AffiliationID", AffiliationID)
+  ) %>%
+  select(Issue, Type, Guidance)
+
+issues_affiliation <-
+  rbind(
+    column_names_affiliation,
+    affiliated_to_wrong_project_type,
+    data_types_affiliation,
+    project_not_sso,
+    export_id_affiliation,
+    duplicate_affiliation_id
+  )
 
 # Client ------------------------------------------------------------------
 
