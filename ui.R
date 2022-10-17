@@ -338,8 +338,7 @@ dashboardPage(
           title = "Data Quality Warnings",
           width = 12
         )
-      )
-      ,
+      ),
       fluidRow(
         box(
           id = "DQSummaryProvider",
@@ -349,6 +348,9 @@ dashboardPage(
           status = "info",
           solidHeader = TRUE
         )
+      ),
+      fluidRow(
+        uiOutput("downloadOrgDQReportBox2")
       )
     ),
     tabItem(

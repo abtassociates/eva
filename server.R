@@ -683,7 +683,7 @@ function(input, output, session) {
       )
     })
     
-    output$downloadOrgDQReportBox <- renderUI({
+    output$downloadOrgDQReportBox  <- output$downloadOrgDQReportBox2 <- renderUI({
       if (!is.null(input$imported)) {
         box(
           title = "Download DQ Report",
@@ -693,6 +693,7 @@ function(input, output, session) {
         )
       }
     })
+    
     
     # list of data frames to include in DQ Org Report
     orgDQReportDataList <- reactive({
@@ -761,7 +762,7 @@ function(input, output, session) {
       exportDFList
     })
     
-    output$downloadOrgDQReport <- downloadHandler(
+    output$downloadOrgDQReport <- output$downloadOrgDQReport2 <- downloadHandler(
       filename = function() {
         paste("Organization Data Quality Report-", Sys.Date(), ".xlsx", sep="")
       },
