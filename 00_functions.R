@@ -8,11 +8,11 @@ age_years <- function(earlier, later)
   
 }
 
-served_between <- function(., start, end) {
-  served <- .$EntryDate <= end  &
-    (is.na(.$ExitDate) | .$ExitDate >= start)
-  served
-}
+# served_between <- function(., start, end) {
+#   served <- .$EntryDate <= end  &
+#     (is.na(.$ExitDate) | .$ExitDate >= start)
+#   served
+# }
 
 living_situation <- function(ReferenceNo) {
   case_when(
