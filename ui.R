@@ -82,7 +82,7 @@ dashboardPage(
     tabItem(
       tabName = "uploadCSV",
       box(
-        title = "> Edit CoC-specific Settings",
+        title = "Edit CoC-specific Settings",
         width = 12,
         collapsible = TRUE,
         collapsed = TRUE,
