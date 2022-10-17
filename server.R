@@ -32,30 +32,48 @@ function(input, output, session) {
   
   # when they click to go to the Upload Hashed CSV tab, it's like the clicked the sidebar menu tab
   observeEvent(input$goToUpload, {
-    updateTabsetPanel(session,"sidebarmenuid",selected="uploadCSV")
+    updateTabsetPanel(session, "sidebarmenuid", selected = "uploadCSV")
   })
   
   observeEvent(input$imported, {
     
-    withProgress({
-      setProgress(message = "Processing...", value = .15)
-      source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-      setProgress(detail = "Reading your files..", value = .3)
-      source("00_get_Export.R", local = TRUE)
-      setProgress(detail = "Checking file integrity", value = .35)
-      source("00_integrity_checker.R", local = TRUE)
-      setProgress(detail = "Prepping initial data..", value = .4)
-      source("00_initial_data_prep.R", local = TRUE)
-      setProgress(detail = "Possibly wasting time on dates..", value = .45)
-      source("00_dates.R", local = TRUE)
-      setProgress(detail = "Making lists..", value = .5)
-      source("01_cohorts.R", local = TRUE) 
-      setProgress(detail = "Assessing your data quality..", value = .7)
-      source("03_DataQuality.R", local = TRUE) 
-      setProgress(detail = "Done!", value = 1)
-      
-        }
+    source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+    
+    Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
+    
+    Client <- importFile("Client",
+                         col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
+    
+    hashed <- Export$HashStatus == 4 &
+      min(nchar(Client$FirstName), na.rm = TRUE) ==
+      max(nchar(Client$FirstName), na.rm = TRUE)
+    
+    if (hashed == FALSE) {
+      showModal(
+        modalDialog(
+          title = "Important message",
+          "This is an important message!",
+          easyClose = TRUE
+        )
       )
+    } else {
+      withProgress({
+        setProgress(detail = "Reading your files..", value = .2)
+        source("00_get_Export.R", local = TRUE)
+        setProgress(detail = "Checking file integrity", value = .35)
+        source("00_integrity_checker.R", local = TRUE)
+        setProgress(detail = "Prepping initial data..", value = .4)
+        source("00_initial_data_prep.R", local = TRUE)
+        setProgress(detail = "Possibly wasting time on dates..", value = .45)
+        source("00_dates.R", local = TRUE)
+        setProgress(detail = "Making lists..", value = .5)
+        source("01_cohorts.R", local = TRUE)
+        setProgress(detail = "Assessing your data quality..", value = .7)
+        source("03_DataQuality.R", local = TRUE)
+        setProgress(detail = "Done!", value = 1)
+        
+      })
+    }
     
     output$integrityCheckerPanel <- renderUI(
       if (!is.null(input$imported)) {
