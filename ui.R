@@ -295,7 +295,7 @@ dashboardPage(
       ), width = 12)),
       fluidRow(box(
         pickerInput(
-          label = "Select Organiztion",
+          label = "Select Organization",
           inputId = "orgList",
           choices = NULL, #c(unique(Organization$OrganizationName)),
           options = pickerOptions(
