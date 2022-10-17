@@ -683,6 +683,91 @@ function(input, output, session) {
       )
     })
     
+    output$downloadOrgDQReportBox <- renderUI({
+      if (!is.null(input$imported)) {
+        box(
+          title = "Download DQ Report",
+          width = 12,
+          downloadButton(outputId = "downloadOrgDQReport",
+                         label = "Download")
+        )
+      }
+    })
+    
+    # list of data frames to include in DQ Org Report
+    orgDQReportDataList <- reactive({
+      ReportStart <- input$dq_startdate
+      ReportEnd <- today()
+      
+      select_list = c("Issue","PersonalID","HouseholdID","ProjectName","EntryDate")
+      dq_main_in_dates = dq_main %>% served_between(., ReportStart, ReportEnd)
+      
+      high_priority <- dq_main_in_dates %>% 
+        filter(Type == "High Priority") %>% 
+        select(all_of(select_list))
+        
+      errors <- dq_main_in_dates %>%
+        filter(Type == "Error") %>% 
+        select(all_of(select_list))
+      
+      warnings <- dq_main_in_dates %>%
+        filter(Type == "Warning") %>% 
+        select(all_of(select_list))
+      
+      overlaps <- dq_overlaps %>%
+        filter(
+          Issue %in% list("Overlapping Project Stays","Extremely Long Stayer") &
+            OrganizationName %in% c(input$orgList) &
+            served_between(., ReportStart, ReportEnd)
+        ) %>%
+        select(
+          PersonalID,
+          HouseholdID,
+          ProjectName,
+          EntryDate,
+          ExitDate
+        )
+      
+      # this is a warning
+      ineligibles <- detail_eligibility %>%
+        filter(OrganizationName %in% c(input$orgList) &
+                 served_between(., ReportStart, ReportEnd)) %>%
+        select(
+          "Project Name" = ProjectName,
+          "Client ID" = PersonalID,
+          "Entry Date" = EntryDate,
+          "Residence Prior" = ResidencePrior,
+          "Length of Stay" = LengthOfStay,
+          "Literally Homeless Prior" = PreviousStreetESSH
+        )
+      
+      exportDFList <- list(
+        high_priority = high_priority,
+        errors = errors,
+        warnings = warnings,
+        overlaps = overlaps,
+        ineligibles = ineligibles
+      )
+      
+      names(exportDFList) = c(
+        "High Priority",
+        "Errors", 
+        "Warnings", 
+        "Overlaps",
+        "Ineligibles"
+      )
+      
+      exportDFList <- exportDFList[sapply(exportDFList, function(x) dim(x)[1]) > 0]
+      exportDFList
+    })
+    
+    output$downloadOrgDQReport <- downloadHandler(
+      filename = function() {
+        paste("Organization Data Quality Report-", Sys.Date(), ".xlsx", sep="")
+      },
+      content = function(file) {write_xlsx(orgDQReportDataList(), path = file)}
+    )
+    
     output$DuplicateEEs <- renderTable({
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
