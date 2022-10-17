@@ -316,6 +316,9 @@ dashboardPage(
         width = 12
       )),
       fluidRow(
+        uiOutput("downloadOrgDQReportBox")
+      ),
+      fluidRow(
         uiOutput("DQHHIssues"),
         uiOutput("DQDuplicateEEs"),
         uiOutput("DQMissingLocation")#,
