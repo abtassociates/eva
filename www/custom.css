@@ -2,20 +2,104 @@
   overflow: auto;
 }
 
-.box-title {
-  color: #063A89;
+/* || MAIN SIDEBAR */
+
+/*sidebar color*/
+.skin-black .main-sidebar {
+  background-color: #063A89; /*dark blue*/
 }
 
-.skin-black .main-sidebar {
-  background-color: #063A89;
-}
+/*sidebar color when menu option with no submenu is selected*/
 .skin-black .main-sidebar .active {
-  background-color: #000000;
+  background-color: #0E6FB3; /*midblue*/
+  color: white;
+}
+
+/*sidebar color when menu option with a submenu is selected*/
+.skin-black .sidebar-menu>li.active>a, .skin-black .sidebar-menu>li:hover>a {
+    color: white;
+    background: #0E6FB3; /*midblue*/
+    border-left-color: #fff;
+}
+
+/* || SUBMENU AKA TREEVIEW MENU */
+
+/*Opened submenu*/
+.skin-black .sidebar-menu>li>.treeview-menu {
+    margin: 0 1px;
+    background: #C1E7EC; /*light blue*/
+    color: black;
+}
+
+/*Color of text when you hover over a submenu option*/
+.skin-black .treeview-menu>li>a:hover {
+    color: #fff;
+}
+
+/*text color of submenu options when submenu is open*/
+.skin-black .treeview-menu>li>a {
+    color: black;
+}
+
+/*color of text for active submenu item*/
+.skin-black .treeview-menu>li>a:hover {
+  color: black;
+}
+
+/* || Drop Down Menus*/
+
+/*drop down select menu when data is uploaded*/
+.bootstrap-select>.dropdown-toggle {
+    width: 100%;
+    border-color: #08A4BD;
+    color: black;
+    background-color: white;
+}
+
+/*drop down select menu when data is not uploaded*/
+.bootstrap-select>.dropdown-toggle.bs-placeholder {
+    width: 100%;
+    border-color: #08A4BD;
+    color: black;
+    background-color: white;
+}
+
+/* || BOXES */
+
+/*Text color of box titles*/
+.box-title {
+  color: black;
+}
+
+/*Fill and text color for box with positive/neutral information*/
+.box.box-solid.box-info>.box-header {
+    color: black; 
+    background: #C1E7EC; /*light blue*/
+    background-color: #C1E7EC; /*light blue*/
+}
+
+/*Outline color for box with positive/neutral information*/
+.box.box-solid.box-info {
+    border: 1px solid #C1E7EC; /*light blue*/
+}
+/*box with negative alert or error info*/
+.box.box-solid.box-danger>.box-header {
+    color: black; 
+    background: #F7903B; /*mid-orange*/
+    background-color: #F7903B; /*mid-orange*/
+}
+
+/*box with warning info*/
+.box.box-solid.box-warning>.box-header {
+    color: black;
+    background: #FEDE86; /*light orange*/
+    background-color: #FEDE86; /*light orange*/
 }
 
 .skin-black .sidebar a {
-  color:white;
+  color: white;
 }
+
 
 .btn, .btn-default {
   background-color:#C15702;
