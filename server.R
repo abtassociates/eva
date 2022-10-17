@@ -284,7 +284,7 @@ function(input, output, session) {
             ),
             sort = today() - EntryDate
           ) %>%
-          mutate(PersonalID = as.character(PersonalID)) %>%
+        #  mutate(PersonalID = as.character(PersonalID)) %>%
           arrange(desc(sort), HouseholdID, PersonalID) %>%
           select(
             "Client ID" = PersonalID,
@@ -1257,7 +1257,7 @@ function(input, output, session) {
             OrganizationName %in% c(input$orgList) &
             Type == "Warning"
         ) %>%
-        mutate(PersonalID = as.character(PersonalID)) %>%
+        #mutate(PersonalID = as.character(PersonalID)) %>%
         arrange(ProjectName, HouseholdID, PersonalID) %>%
         select(
           "Project Name" = ProjectName,
