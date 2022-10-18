@@ -1,0 +1,29 @@
+.content-wrapper {
+  overflow: auto;
+}
+
+.box-title {
+  color: #063A89;
+}
+
+.skin-black .main-sidebar {
+  background-color: #063A89;
+}
+.skin-black .main-sidebar .active {
+  background-color: #000000;
+}
+
+.skin-black .sidebar a {
+  color:white;
+}
+
+.btn, .btn-default {
+  background-color:#C15702;
+  color:white;
+}
+
+#shiny-tab-uploadCSV .fa-info-circle {
+  position:absolute;
+  top:1em;
+  right:1em;
+}

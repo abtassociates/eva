@@ -302,14 +302,13 @@ missing_client_location <- served_in_date_range %>%
 
 # Household Issues --------------------------------------------------------
 hh_children_only <- served_in_date_range %>%
-  filter(!ProjectID %in% c(rhy_funded)) %>% # not checking for children-only hhs for RHY
   group_by(HouseholdID) %>%
   summarise(
     hhMembers = n(),
     maxAge = max(AgeAtEntry),
     PersonalID = min(PersonalID)
   ) %>%
-  filter(maxAge < 18) %>%
+  filter(maxAge < 12) %>%
   ungroup() %>%
   left_join(served_in_date_range, by = c("PersonalID", "HouseholdID")) %>%
   mutate(Issue = "Children Only Household",
@@ -894,6 +893,7 @@ check_eligibility <- served_in_date_range %>%
 
     detail_eligibility <- check_eligibility %>%
       select(
+        OrganizationName,
         PersonalID,
         ProjectName,
         ProjectType,
@@ -1164,7 +1164,7 @@ duplicate_ees <-
 # their clients prior to their Entry Date since back then the Entry Date was the
 # day they moved in. So they're excused from this prior to Move In Date's existence.
 future_ees <- served_in_date_range %>%
-  filter(EntryDate > ymd_hms(DateCreated) &
+  filter(EntryDate > DateCreated &
            (ProjectType %in% c(1, 2, 4, 8, 13) |
               (ProjectType %in% c(3, 9) & 
                   EntryDate >= hc_psh_started_collecting_move_in_date

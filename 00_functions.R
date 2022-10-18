@@ -8,6 +8,12 @@ age_years <- function(earlier, later)
   
 }
 
+# served_between <- function(., start, end) {
+#   served <- .$EntryDate <= end  &
+#     (is.na(.$ExitDate) | .$ExitDate >= start)
+#   served
+# }
+
 living_situation <- function(ReferenceNo) {
   case_when(
     ReferenceNo == 1 ~ "Emergency shelter/ h/motel paid for by a third party/Host Home shelter",
@@ -59,6 +65,7 @@ project_type <- function(ReferenceNo){
     ReferenceNo == 4 ~ "Street Outreach",
     ReferenceNo == 6 ~ "Services Only",
     ReferenceNo == 8 ~ "Safe Haven",
+    ReferenceNo == 9 ~ "PH - Housing Only",
     ReferenceNo == 12 ~ "Prevention",
     ReferenceNo == 13 ~ "Rapid Rehousing",
     ReferenceNo == 14 ~ "Coordinated Entry"

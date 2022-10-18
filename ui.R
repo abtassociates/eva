@@ -16,25 +16,25 @@
 
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "Needs New Name"),
+  dashboardHeader(title = "Stella HMIS"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
-      # menuItem("Home",
-      #          tabName = "homeTab"),
+      menuItem("Home",
+               tabName = "homeTab"),
       menuItem("Upload Hashed CSV",
                tabName = "uploadCSV"),
-      menuItem("PDDE Checker",
+      menuItem("Check PDDEs",
                tabName = "tabPDDE"),
       menuItem("Client Counts",
                   tabName = "currentProviderLevel"),
       menuItem("Data Quality",
-        menuSubItem("Project-level", 
-                    tabName = "dqTab"),
-        menuSubItem("Organization-level", 
-                    tabName = "dqOrganization"),
         menuSubItem("System-level",
                     tabName = "dqSystem"),
+               menuSubItem("Organization-level", 
+                    tabName = "dqTab"),
+        # menuSubItem("Organization-level", 
+        #             tabName = "dqOrganization"),
         menuSubItem("Data Entry Timeliness", 
                     tabName = "deskTime")
       ),
@@ -52,20 +52,37 @@ dashboardPage(
                menuSubItem("Prioritization",
                            tabName = "tabPrioritized"))
     )), 
-  dashboardBody(tabItems(
+  dashboardBody(
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+    ),
+    tabItems(
     tabItem(
       tabName = "homeTab",
-      htmlOutput("headerHome"),
+      box(
+        title = "Welcome to Stella HMIS!",
+        width = 12,
+        HTML(
+          "<div>Stella HMIS (Stella H) is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
+          Stella H is designed to help you assess the accuracy and completeness of the data within your HMIS. 
+          In future iterations it will also assist communities in analyzing your HMIS performance data, 
+          including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
+          <br/>
+          <div>This app works by using an uploaded 
+          <a href='https://www.hudhdx.info/VendorResources.aspx'>HMIS CSV</a> 
+          file.
+          </div>
+          <br/>"
+        ),
+        htmlOutput("goToUpload_text"),
+        uiOutput("goToUpload_btn")
+      ),
       width = 12
     ),
     tabItem(
       tabName = "uploadCSV",
-      box(title = "Status",
-          uiOutput("headerFileInfo"),
-          uiOutput("headerNoFileYet"),
-          width = 12),
       box(
-        title = "Edit CoC-specific Settings",
+        title = "> Edit CoC-specific Settings",
         width = 12,
         collapsible = TRUE,
         collapsed = TRUE,
@@ -80,61 +97,61 @@ dashboardPage(
           expected number of days in the project. You can set these based on your
           current data or leave them at the defaults."
             ),
-          numericInput(
-            inputId = "ESLongStayers",
-            label = "Emergency Shelters:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "SHLongStayers",
-            label = "Safe Havens:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "THLongStayers",
-            label = "Transitional Housing:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "OutLongStayers",
-            label = "Street Outreach:",
-            value = 120,
-            min = 1,
-            max = 3652
-          ),
-          numericInput(
-            inputId = "ServicesOnlyLongStayers",
-            label = "Services Only:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "RRHLongStayers",
-            label = "Rapid Rehousing:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "HPLongStayers",
-            label = "Prevention:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          )
+            numericInput(
+              inputId = "ESLongStayers",
+              label = "Emergency Shelters:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "SHLongStayers",
+              label = "Safe Havens:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "THLongStayers",
+              label = "Transitional Housing:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "OutLongStayers",
+              label = "Street Outreach:",
+              value = 120,
+              min = 1,
+              max = 3652
+            ),
+            numericInput(
+              inputId = "ServicesOnlyLongStayers",
+              label = "Services Only:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "RRHLongStayers",
+              label = "Rapid Rehousing:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            ),
+            numericInput(
+              inputId = "HPLongStayers",
+              label = "Prevention:",
+              value = 120,
+              min = 0,
+              max = 3650,
+              step = 5
+            )
           )
         ),
         HTML(
@@ -147,21 +164,23 @@ dashboardPage(
           label = "Outstanding Referral Days:",
           value = 7
         )
-      ), 
+      ),
       box(
         title = "Upload Hashed CSV zip file",
+        HTML('<i class="fa fa-info-circle" 
+            title="Use the Browse function to direct the app to the file folder containing your zipped CSV.">
+             </i>'),
         fileInput("imported",
                   "",
                   multiple = FALSE,
                   accept = ".zip"),
         width = 12
       ), 
-      box(
-        title = "HUD CSV Export Integrity Checker",
-        width = 12,
-        downloadButton(outputId = "downloadIntegrityCheck",
-                       label = "Download Integrity Checker")
-      )
+      uiOutput("integrityCheckerPanel"),
+      box(title = "Status",
+          uiOutput("headerFileInfo"),
+          uiOutput("headerNoFileYet"),
+          width = 12)
     ), 
     tabItem(
       tabName = "currentProviderLevel",
@@ -276,15 +295,13 @@ dashboardPage(
       ), width = 12)),
       fluidRow(box(
         pickerInput(
-          label = "Select Project",
-          inputId = "providerListDQ",
-          choices = NULL, # dq_providers,
+          label = "Select Organiztion",
+          inputId = "orgList",
+          choices = NULL, #c(unique(Organization$OrganizationName)),
           options = pickerOptions(
             liveSearch = TRUE,
-            liveSearchStyle = 'contains',
-            actionsBox = TRUE
+            liveSearchStyle = 'contains'
           ),
-          multiple = TRUE,
           width = "100%",
           selected = "none"
         ),
@@ -299,25 +316,38 @@ dashboardPage(
         width = 12
       )),
       fluidRow(
+             box(
+               id = "DQSummaryOrganization",
+               title = paste("Data Quality Summary"),
+               status = "info",
+               solidHeader = TRUE,
+               DT::dataTableOutput("dq_organization_summary_table"),
+               width = 12
+             )
+           ),
+      fluidRow(
         uiOutput("DQHHIssues"),
         uiOutput("DQDuplicateEEs"),
         uiOutput("DQMissingLocation")#,
         # uiOutput("DQPATHMissingContact")
       ),
-      fluidRow(uiOutput("DQIneligible")),
-      fluidRow(uiOutput("DQOverlappingEEs")),
+      #fluidRow(uiOutput("DQIneligible")),
+      #fluidRow(uiOutput("DQOverlappingEEs")),
       fluidRow(box(
         DTOutput("DQErrors"),
         title = "Data Quality Errors",
         width = 12
       )),
       fluidRow(
+        uiOutput("DQIneligible"),
+        uiOutput("DQOverlappingEEs")),
+      fluidRow(
         box(
           id = "warnings",
           DT::dataTableOutput("DQWarnings"),
           title = "Data Quality Warnings",
           width = 12
-        )
+        ),
       )
       ,
       fluidRow(
@@ -360,38 +390,38 @@ dashboardPage(
         )
       )
     ),
-    tabItem(tabName = "dqOrganization",
-      fluidRow(box(
-        htmlOutput("headerOrganizationDQ"), width = 12
-      )),
-      fluidRow(box(
-        pickerInput(
-          inputId = "orgList",
-          choices = NULL, #c(unique(Organization$OrganizationName)),
-          options = pickerOptions(liveSearch = TRUE,
-                                  liveSearchStyle = 'contains'),
-          width = "70%"
-        ),
-        dateInput(
-          inputId = "dq_org_startdate",
-          label = "Report Start Date",
-          format = "mm/dd/yyyy",
-          value = NULL, # ymd(meta_HUDCSV_Export_Start),
-          width = "25%"
-        ),
-        width = 12
-      )),
-      fluidRow(
-        box(
-          id = "DQSummaryOrganization",
-          title = paste("Data Quality Summary"),
-          status = "info",
-          solidHeader = TRUE,
-          DT::dataTableOutput("dq_organization_summary_table"),
-          width = 12
-        )
-      )
-    ),
+    # tabItem(tabName = "dqOrganization",
+    #   fluidRow(box(
+    #     htmlOutput("headerOrganizationDQ"), width = 12
+    #   )),
+    #   fluidRow(box(
+    #     pickerInput(
+    #       inputId = "orgList",
+    #       choices = NULL, #c(unique(Organization$OrganizationName)),
+    #       options = pickerOptions(liveSearch = TRUE,
+    #                               liveSearchStyle = 'contains'),
+    #       width = "70%"
+    #     ),
+    #     dateInput(
+    #       inputId = "dq_org_startdate",
+    #       label = "Report Start Date",
+    #       format = "mm/dd/yyyy",
+    #       value = NULL, # ymd(meta_HUDCSV_Export_Start),
+    #       width = "25%"
+    #     ),
+    #     width = 12
+    #   )),
+    #   fluidRow(
+    #     box(
+    #       id = "DQSummaryOrganization",
+    #       title = paste("Data Quality Summary"),
+    #       status = "info",
+    #       solidHeader = TRUE,
+    #       DT::dataTableOutput("dq_organization_summary_table"),
+    #       width = 12
+    #     )
+    #   )
+    # ),
     tabItem(
       tabName = "dqSystem",
       fluidRow(
