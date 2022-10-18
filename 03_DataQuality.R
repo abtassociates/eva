@@ -50,7 +50,7 @@ projects_current_hmis <- Project %>%
     ProjectName,
     OrganizationName
   ) %>% unique()
-browser()
+
 # Clients to Check --------------------------------------------------------
 served_in_date_range <- Enrollment %>%
   filter(served_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
