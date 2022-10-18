@@ -13,23 +13,16 @@
 # <https://www.gnu.org/licenses/>. test
 
 function(input, output, session) {
-  # # Dynamic welcome text, based on whether they've already uploaded their csv
-  # output$goToUpload_text <- renderUI({
-  #   if (!is.null(input$imported)) {
-  #     HTML("<div>Click the \"Upload Hashed CSV Export\" tab in the left sidebar to get started!</div><br/>")
-  #   } else {
-  #     HTML("<div>Click the button below to get started!</div><br/>")
-  #   }
-  # })
-  # 
+
   output$goToUpload_btn <- renderUI({
-    # if (is.null(input$imported)) {
       req(is.null(input$imported))
       actionButton(inputId = 'goToUpload', label = "Upload Hashed CSV")
-    # } else {}
   })
   
-  # when they click to go to the Upload Hashed CSV tab, it's like the clicked the sidebar menu tab
+  output$imported_status <- renderUI(input$imported)
+  
+  # when they click to go to the Upload Hashed CSV tab, it's like they clicked 
+  # the sidebar menu tab
   observeEvent(input$goToUpload, {
     updateTabsetPanel(session, "sidebarmenuid", selected = "uploadCSV")
   })
@@ -42,11 +35,12 @@ function(input, output, session) {
     Client <- importFile("Client",
                          col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
     
-    hashed <- Export$HashStatus == 4 &
-      min(nchar(Client$FirstName), na.rm = TRUE) ==
-      max(nchar(Client$FirstName), na.rm = TRUE)
+    hashed <- Export$HashStatus == 4 #&
+      # min(nchar(Client$FirstName), na.rm = TRUE) ==
+      # max(nchar(Client$FirstName), na.rm = TRUE)
     
     if (hashed == FALSE) {
+      # clear imported
       showModal(
         modalDialog(
           title = "You uploaded the wrong data set",
@@ -659,7 +653,7 @@ function(input, output, session) {
     # })
     
     output$dq_provider_summary_table <- DT::renderDataTable({
-      req(!is.na(input$imported))
+      req(input$imported)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
