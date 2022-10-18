@@ -743,7 +743,7 @@ extremely_long_stayers <- rbind(Top1_PSH,
   mutate(
     Issue = "Extremely Long Stayer",
     Type = "Warning",
-    Guidance ~ "Fix Me"
+    Guidance = "Fix Me"
   ) %>% 
   select(all_of(vars_we_want))
 
@@ -1334,7 +1334,7 @@ staging_overlaps <- served_in_date_range %>%
     ),
     Issue = "Overlapping Project Stays",
     Type = "High Priority",
-    Guidance ~ "Fix Me"
+    Guidance = "Fix Me"
   ) %>%
   filter(!is.na(LiterallyInProject) &
            int_length(LiterallyInProject) > 0) %>%
@@ -1369,7 +1369,7 @@ same_day_overlaps <- served_in_date_range %>%
     ),
     Issue = "Overlapping Project Stays",
     Type = "High Priority",
-    Guidance ~ "Fix Me"
+    Guidance = "Fix Me"
   ) %>%
   filter((!is.na(LiterallyInProject) & ProjectType != 13) |
            ProjectType == 13) %>%
@@ -1394,7 +1394,7 @@ rrh_overlaps <- served_in_date_range %>%
     InProject = interval(EntryDate, ExitAdjust),
     Issue = "Overlapping Project Stays",
     Type = "High Priority",
-    Guidance ~ "Fix Me"
+    Guidance = "Fix Me"
   ) %>%
   filter(ProjectType == 13) %>%
   get_dupes(., PersonalID) %>%
@@ -1422,7 +1422,7 @@ psh_overlaps <- served_in_date_range %>%
     InProject = interval(EntryDate, ExitAdjust),
     Issue = "Overlapping Project Stays",
     Type = "High Priority",
-    Guidance ~ "Fix Me"
+    Guidance = "Fix Me"
   ) %>%
   filter(ProjectType == 3) %>%
   get_dupes(., PersonalID) %>%
@@ -1665,7 +1665,7 @@ conflicting_ncbs_entry <- served_in_date_range %>%
         ),
         Issue = "Overlapping Project Stays",
         Type = "High Priority",
-        Guidance ~ "Fix Me"
+        Guidance = "Fix Me"
       ) %>%
       filter(!is.na(LiterallyInProject) &
                int_length(LiterallyInProject) > 0) %>%
@@ -1700,7 +1700,7 @@ conflicting_ncbs_entry <- served_in_date_range %>%
         ),
         Issue = "Overlapping Project Stays",
         Type = "High Priority",
-        Guidance ~ "Fix Me"
+        Guidance = "Fix Me"
       ) %>%
       filter((!is.na(LiterallyInProject) & ProjectType != 13) |
                ProjectType == 13) %>%
@@ -1725,7 +1725,7 @@ conflicting_ncbs_entry <- served_in_date_range %>%
         InProject = interval(EntryDate, ExitAdjust),
         Issue = "Overlapping Project Stays",
         Type = "High Priority",
-        Guidance ~ "Fix Me"
+        Guidance = "Fix Me"
       ) %>%
       filter(ProjectType == 13) %>%
       get_dupes(., PersonalID) %>%
@@ -1753,7 +1753,7 @@ conflicting_ncbs_entry <- served_in_date_range %>%
         InProject = interval(EntryDate, ExitAdjust),
         Issue = "Overlapping Project Stays",
         Type = "High Priority",
-        Guidance ~ "Fix Me"
+        Guidance = "Fix Me"
       ) %>%
       filter(ProjectType == 3) %>%
       get_dupes(., PersonalID) %>%
