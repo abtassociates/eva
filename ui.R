@@ -176,7 +176,13 @@ dashboardPage(
                   accept = ".zip"),
         width = 12
       ), 
-      uiOutput("integrityCheckerPanel"),
+      box(
+        title = "HUD CSV Export Integrity Checker",
+        width = 12,
+        DT::renderDataTable("integrityChecker"),
+        downloadButton(outputId = "downloadIntegrityCheck",
+                       label = "Download Integrity Checker")
+      ), 
       box(title = "Status",
           uiOutput("headerFileInfo"),
           uiOutput("headerNoFileYet"),

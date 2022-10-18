@@ -13,22 +13,21 @@
 # <https://www.gnu.org/licenses/>. test
 
 function(input, output, session) {
-  # Dynamic welcome text, based on whether they've already uploaded their csv
-  output$goToUpload_text <- renderUI({
-    if (!is.null(input$imported)) {
-      HTML("<div>Click the \"Upload Hashed CSV Export\" tab in the left sidebar to get started!</div><br/>")
-    } else {
-      HTML("<div>Click the button below to get started!</div><br/>")
-    }
-  })
-  
+  # # Dynamic welcome text, based on whether they've already uploaded their csv
+  # output$goToUpload_text <- renderUI({
+  #   if (!is.null(input$imported)) {
+  #     HTML("<div>Click the \"Upload Hashed CSV Export\" tab in the left sidebar to get started!</div><br/>")
+  #   } else {
+  #     HTML("<div>Click the button below to get started!</div><br/>")
+  #   }
+  # })
+  # 
   output$goToUpload_btn <- renderUI({
-    if (is.null(input$imported)) {
-      actionButton(inputId='goToUpload',label="Upload Hashed CSV")
-    } else {}
+    # if (is.null(input$imported)) {
+      req(is.null(input$imported))
+      actionButton(inputId = 'goToUpload', label = "Upload Hashed CSV")
+    # } else {}
   })
-  
-  
   
   # when they click to go to the Upload Hashed CSV tab, it's like the clicked the sidebar menu tab
   observeEvent(input$goToUpload, {
@@ -38,9 +37,8 @@ function(input, output, session) {
   observeEvent(input$imported, {
     
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-    
     Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
-    
+
     Client <- importFile("Client",
                          col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
     
@@ -51,8 +49,10 @@ function(input, output, session) {
     if (hashed == FALSE) {
       showModal(
         modalDialog(
-          title = "Important message",
-          "This is an important message!",
+          title = "You uploaded the wrong data set",
+          "You have uploaded an unhashed version of the HMIS CSV Export. If you
+          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
+          contact your HMIS vendor.",
           easyClose = TRUE
         )
       )
@@ -64,7 +64,6 @@ function(input, output, session) {
         source("00_integrity_checker.R", local = TRUE)
         setProgress(detail = "Prepping initial data..", value = .4)
         source("00_initial_data_prep.R", local = TRUE)
-        setProgress(detail = "Possibly wasting time on dates..", value = .45)
         source("00_dates.R", local = TRUE)
         setProgress(detail = "Making lists..", value = .5)
         source("01_cohorts.R", local = TRUE)
@@ -75,19 +74,15 @@ function(input, output, session) {
       })
     }
     
-    output$integrityCheckerPanel <- renderUI(
-      if (!is.null(input$imported)) {
-        box(
-          title = "HUD CSV Export Integrity Checker",
-          width = 12,
-          downloadButton(outputId = "downloadIntegrityCheck",
-                         label = "Download Integrity Checker")
-        )
+    output$integrityChecker <- DT::renderDataTable(
+      {
+        req(!is.na(input$imported))
+        datatable(issues_enrollment)
       })
     
     
     output$headerFileInfo <- renderUI({
-      if (!is.null(input$imported)) {
+        req(!is.na(input$imported))
         HTML(
           paste0(
             "<strong>Date Range of Current File: </strong>",
@@ -98,44 +93,44 @@ function(input, output, session) {
             format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
           )
         )
-    } else {}
     })
     
     output$headerNoFileYet <- renderUI({
-      if (is.null(input$imported)) {
-        HTML("You have not successfully uploaded your zipped CSV file yet.")
-      } else {}
+      req(is.na(input$imported))
+      HTML("You have not successfully uploaded your zipped CSV file yet.")
     })
     
-    updatePickerInput(session = session, inputId = "currentProviderList",
-                      choices = sort(Project$ProjectName))
+    # updatePickerInput(session = session, inputId = "currentProviderList",
+    #                   choices = sort(Project$ProjectName))
+    # 
+    # updatePickerInput(session = session, inputId = "desk_time_providers",
+    #                   choices = sort(Project$ProjectName))
+    # 
+    # updatePickerInput(session = session, inputId = "providerListDQ",
+    #                   choices = dq_providers)
+    # 
+    # updatePickerInput(session = session, inputId = "providerDeskTime",
+    #                   choices = desk_time_providers)
+    # 
+    # updatePickerInput(session = session, inputId = "orgList",
+    #                   choices = c(unique(Organization$OrganizationName)))
+    # 
+    # updateDateInput(session = session, inputId = "dq_org_startdate", 
+    #                 value = meta_HUDCSV_Export_Start)
+    # 
+    # updateDateInput(session = session, inputId = "dq_startdate", 
+    #                 value = meta_HUDCSV_Export_Start)
     
-    updatePickerInput(session = session, inputId = "desk_time_providers",
-                      choices = sort(Project$ProjectName))
-    
-    updatePickerInput(session = session, inputId = "providerListDQ",
-                      choices = dq_providers)
-    
-    updatePickerInput(session = session, inputId = "providerDeskTime",
-                      choices = desk_time_providers)
-    
-    updatePickerInput(session = session, inputId = "orgList",
-                      choices = c(unique(Organization$OrganizationName)))
-    
-    updateDateInput(session = session, inputId = "dq_org_startdate", 
-                    value = meta_HUDCSV_Export_Start)
-    
-    updateDateInput(session = session, inputId = "dq_startdate", 
-                    value = meta_HUDCSV_Export_Start)
-    
-    output$files <- renderTable(input$imported)
+    # output$files <- renderTable(input$imported)
     
     output$headerPrioritization <- renderUI({
+      req(!is.na(input$imported))
       list(h2("Prioritization Report"),
            h4("Literally Homeless Clients as of", meta_HUDCSV_Export_End))
     })
 
     output$headerDataQuality <- renderUI({
+      req(!is.na(input$imported))
       list(h2("Data Quality"),
            h4(paste(
              format(input$dq_startdate, "%m-%d-%Y"),
@@ -145,6 +140,7 @@ function(input, output, session) {
     })
     
     output$DeskTimePlotDetail <- renderPlot({
+      req(!is.na(input$imported))
       provider <- input$providerDeskTime
       
       ReportStart <- ymd(today() - years(1))
@@ -215,6 +211,7 @@ function(input, output, session) {
     })
     
     output$DeskTimePlotCoC <- renderPlot({
+      req(!is.na(input$imported))
       provider <- input$providerDeskTimeCoC
       
       ReportStart <- ymd(today() - years(1))
@@ -261,6 +258,7 @@ function(input, output, session) {
     })
     
     output$clientCountData <- DT::renderDataTable({
+      req(!is.na(input$imported))
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
       
@@ -321,6 +319,7 @@ function(input, output, session) {
     })
     
     output$clientCountSummary <- DT::renderDataTable({
+      req(!is.na(input$imported))
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
       
@@ -660,6 +659,7 @@ function(input, output, session) {
     # })
     
     output$dq_provider_summary_table <- DT::renderDataTable({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -683,6 +683,7 @@ function(input, output, session) {
     })
     
     output$dq_organization_summary_table <- DT::renderDataTable({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_org_startdate
       ReportEnd <- today()
       a <- dq_main %>%
@@ -703,6 +704,7 @@ function(input, output, session) {
     })
     
     output$DuplicateEEs <- renderTable({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -726,6 +728,7 @@ function(input, output, session) {
     })
     
     output$DQDuplicateEEs <- renderUI({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -762,6 +765,7 @@ function(input, output, session) {
     })
     
     output$HouseholdIssues <- renderTable({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -791,6 +795,7 @@ function(input, output, session) {
     })
     
     output$DQHHIssues <- renderUI({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -824,6 +829,7 @@ function(input, output, session) {
     })
     
     output$DQMissingLocation <- renderUI({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       HHIssues <- dq_main %>%
@@ -852,6 +858,7 @@ function(input, output, session) {
     })
     
     output$ClientLocation <- renderTable({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       HHIssues <- dq_main %>%
@@ -874,6 +881,7 @@ function(input, output, session) {
     })
     
     output$DQPATHMissingContact <- renderUI({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -902,6 +910,7 @@ function(input, output, session) {
     })
     
     output$MissingPATHContact <- renderTable({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       x <- dq_main %>%
@@ -924,6 +933,7 @@ function(input, output, session) {
     })
     
     output$Overlaps <- renderTable({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -949,6 +959,7 @@ function(input, output, session) {
     })
     
     output$DQOverlappingEEs <- renderUI({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       # FIXME Repetition of filter/mutate (use eventReactive)
@@ -1001,6 +1012,7 @@ function(input, output, session) {
     })
     
     output$cocOverlap <- DT::renderDataTable({
+      req(!is.na(input$imported))
       ReportStart <- hc_check_dq_back_to
       ReportEnd <- today()
       
@@ -1017,6 +1029,7 @@ function(input, output, session) {
     })
     
     output$cocLongStayers <- DT::renderDataTable({
+      req(!is.na(input$imported))
       ReportStart <- meta_HUDCSV_Export_Start
       ReportEnd <- today()
       
@@ -1035,6 +1048,7 @@ function(input, output, session) {
     })
     
     output$cocRRHDestination <- DT::renderDataTable({
+      req(!is.na(input$imported))
       ReportStart <- hc_check_dq_back_to
       ReportEnd <- today()
       
@@ -1056,6 +1070,7 @@ function(input, output, session) {
     })
     
     output$cocWidespreadIssues <- DT::renderDataTable({
+      req(!is.na(input$imported))
       a <- dq_past_year() %>%
         select(Issue, ProjectName, Type) %>%
         unique() %>%
@@ -1069,19 +1084,32 @@ function(input, output, session) {
                 rownames = FALSE)
     })
     
-    output$systemDQErrors <- renderPlot(dq_plot_projects_errors)
+    output$systemDQErrors <- renderPlot({
+      req(!is.na(input$imported))
+      dq_plot_projects_errors})
     
-    output$systemHHErrors <- renderPlot(dq_plot_hh_errors)
+    output$systemHHErrors <- renderPlot({
+      req(!is.na(input$imported))
+      dq_plot_hh_errors})
     
-    output$systemDQWarnings <- renderPlot(dq_plot_projects_warnings)
+    output$systemDQWarnings <- renderPlot({
+      req(!is.na(input$imported))
+      dq_plot_projects_warnings})
     
-    output$systemDQErrorTypes <- renderPlot(dq_plot_errors)
+    output$systemDQErrorTypes <- renderPlot({
+      req(!is.na(input$imported))
+      dq_plot_errors})
     
-    output$systemDQWarningTypes <- renderPlot(dq_plot_warnings)
+    output$systemDQWarningTypes <- renderPlot({
+      req(!is.na(input$imported))
+      dq_plot_warnings})
     
-    output$systemDQEligibility <- renderPlot(dq_plot_eligibility)
+    output$systemDQEligibility <- renderPlot({
+      req(!is.na(input$imported))
+      dq_plot_eligibility})
     
     output$Ineligible <- renderTable({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -1104,6 +1132,7 @@ function(input, output, session) {
     })
     
     output$DQIneligible <- renderUI({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       Ineligible <- detail_eligibility %>%
@@ -1133,6 +1162,7 @@ function(input, output, session) {
     })
     
     output$DQErrors <- DT::renderDT({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -1166,6 +1196,7 @@ function(input, output, session) {
     })
     
     output$DQWarnings <- DT::renderDataTable({
+      req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -1200,11 +1231,13 @@ function(input, output, session) {
     })
 
   output$headerCurrent <- renderUI({
+    req(!is.na(input$imported))
     list(h2("Client Counts Report"),
          h4(input$currentProviderList))
   })
   
   output$headerUtilization <- renderUI({
+    req(!is.na(input$imported))
     list(h2("Bed and Unit Utilization"),
          h4(input$providerListUtilization),
          h4(format(ymd(
@@ -1214,6 +1247,7 @@ function(input, output, session) {
   })
   
   output$headerDeskTime <- renderUI({
+    req(!is.na(input$imported))
     list(h2("Data Entry Timeliness"),
          h4(input$providersDeskTime),
          h4(paste("Fixed Date Range:",
@@ -1223,6 +1257,7 @@ function(input, output, session) {
   })
   
   output$headerExitsToPH <- renderUI({
+    req(!is.na(input$imported))
     ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
     ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%B %d, %Y")
     
@@ -1236,6 +1271,7 @@ function(input, output, session) {
   })
   
   output$headerOrganizationDQ <- renderUI({
+    req(!is.na(input$imported))
     list(h2("Data Quality Summary (Organization)"),
          h4(paste(
            format(input$dq_startdate, "%m-%d-%Y"),
@@ -1245,6 +1281,7 @@ function(input, output, session) {
   })
   
   output$headerSystemDQ <- renderUI({
+    req(!is.na(input$imported))
     list(h2("System-wide Data Quality"),
          h4(
            paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
@@ -1291,14 +1328,15 @@ function(input, output, session) {
         issue."
     )})
   
-  output$headerCocDQ <- renderUI({
-    list(h2("System-wide Data Quality"),
-         h4(
-           paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-                 "through",
-                 format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
-         ))
-  })
+  # output$headerCocDQ <- renderUI({
+  #   req(!is.null(input$imported))
+  #   list(h2("System-wide Data Quality"),
+  #        h4(
+  #          paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+  #                "through",
+  #                format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
+  #        ))
+  # })
   
   }, ignoreInit = TRUE)
 
