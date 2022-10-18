@@ -29,12 +29,12 @@ dashboardPage(
       menuItem("Client Counts",
                   tabName = "currentProviderLevel"),
       menuItem("Data Quality",
-        menuSubItem("Project-level", 
-                    tabName = "dqTab"),
-        menuSubItem("Organization-level", 
-                    tabName = "dqOrganization"),
         menuSubItem("System-level",
                     tabName = "dqSystem"),
+               menuSubItem("Organization-level", 
+                    tabName = "dqTab"),
+        # menuSubItem("Organization-level", 
+        #             tabName = "dqOrganization"),
         menuSubItem("Data Entry Timeliness", 
                     tabName = "deskTime")
       ),
@@ -302,15 +302,13 @@ dashboardPage(
       ), width = 12)),
       fluidRow(box(
         pickerInput(
-          label = "Select Project",
-          inputId = "providerListDQ",
-          choices = NULL, # dq_providers,
+          label = "Select Organiztion",
+          inputId = "orgList",
+          choices = NULL, #c(unique(Organization$OrganizationName)),
           options = pickerOptions(
             liveSearch = TRUE,
-            liveSearchStyle = 'contains',
-            actionsBox = TRUE
+            liveSearchStyle = 'contains'
           ),
-          multiple = TRUE,
           width = "100%",
           selected = "none"
         ),
@@ -325,25 +323,38 @@ dashboardPage(
         width = 12
       )),
       fluidRow(
+             box(
+               id = "DQSummaryOrganization",
+               title = paste("Data Quality Summary"),
+               status = "info",
+               solidHeader = TRUE,
+               DT::dataTableOutput("dq_organization_summary_table"),
+               width = 12
+             )
+           ),
+      fluidRow(
         uiOutput("DQHHIssues"),
         uiOutput("DQDuplicateEEs"),
         uiOutput("DQMissingLocation")#,
         # uiOutput("DQPATHMissingContact")
       ),
-      fluidRow(uiOutput("DQIneligible")),
-      fluidRow(uiOutput("DQOverlappingEEs")),
+      #fluidRow(uiOutput("DQIneligible")),
+      #fluidRow(uiOutput("DQOverlappingEEs")),
       fluidRow(box(
         DTOutput("DQErrors"),
         title = "Data Quality Errors",
         width = 12
       )),
       fluidRow(
+        uiOutput("DQIneligible"),
+        uiOutput("DQOverlappingEEs")),
+      fluidRow(
         box(
           id = "warnings",
           DT::dataTableOutput("DQWarnings"),
           title = "Data Quality Warnings",
           width = 12
-        )
+        ),
       )
       ,
       fluidRow(
@@ -386,38 +397,38 @@ dashboardPage(
         )
       )
     ),
-    tabItem(tabName = "dqOrganization",
-      fluidRow(box(
-        htmlOutput("headerOrganizationDQ"), width = 12
-      )),
-      fluidRow(box(
-        pickerInput(
-          inputId = "orgList",
-          choices = NULL, #c(unique(Organization$OrganizationName)),
-          options = pickerOptions(liveSearch = TRUE,
-                                  liveSearchStyle = 'contains'),
-          width = "70%"
-        ),
-        dateInput(
-          inputId = "dq_org_startdate",
-          label = "Report Start Date",
-          format = "mm/dd/yyyy",
-          value = NULL, # ymd(meta_HUDCSV_Export_Start),
-          width = "25%"
-        ),
-        width = 12
-      )),
-      fluidRow(
-        box(
-          id = "DQSummaryOrganization",
-          title = paste("Data Quality Summary"),
-          status = "info",
-          solidHeader = TRUE,
-          DT::dataTableOutput("dq_organization_summary_table"),
-          width = 12
-        )
-      )
-    ),
+    # tabItem(tabName = "dqOrganization",
+    #   fluidRow(box(
+    #     htmlOutput("headerOrganizationDQ"), width = 12
+    #   )),
+    #   fluidRow(box(
+    #     pickerInput(
+    #       inputId = "orgList",
+    #       choices = NULL, #c(unique(Organization$OrganizationName)),
+    #       options = pickerOptions(liveSearch = TRUE,
+    #                               liveSearchStyle = 'contains'),
+    #       width = "70%"
+    #     ),
+    #     dateInput(
+    #       inputId = "dq_org_startdate",
+    #       label = "Report Start Date",
+    #       format = "mm/dd/yyyy",
+    #       value = NULL, # ymd(meta_HUDCSV_Export_Start),
+    #       width = "25%"
+    #     ),
+    #     width = 12
+    #   )),
+    #   fluidRow(
+    #     box(
+    #       id = "DQSummaryOrganization",
+    #       title = paste("Data Quality Summary"),
+    #       status = "info",
+    #       solidHeader = TRUE,
+    #       DT::dataTableOutput("dq_organization_summary_table"),
+    #       width = 12
+    #     )
+    #   )
+    # ),
     tabItem(
       tabName = "dqSystem",
       fluidRow(
