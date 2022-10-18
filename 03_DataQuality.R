@@ -50,7 +50,7 @@ projects_current_hmis <- Project %>%
     ProjectName,
     OrganizationName
   ) %>% unique()
-
+browser()
 # Clients to Check --------------------------------------------------------
 served_in_date_range <- Enrollment %>%
   filter(served_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
@@ -265,24 +265,15 @@ dq_veteran <- served_in_date_range %>%
       (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
         VeteranStatus == 99 ~ "Missing Veteran Status",
       (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
-        VeteranStatus %in% c(8, 9) ~ "Don't Know/Refused Veteran Status",
-      (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
-        RelationshipToHoH == 1 &
-        VeteranStatus == 0 &
-        Destination %in% c(19, 28) ~ "Check Veteran Status for Accuracy"
+        VeteranStatus %in% c(8, 9) ~ "Don't Know/Refused Veteran Status"
     ),
     Type = case_when(
       Issue == "Missing Veteran Status" ~ "Error",
       Issue %in% c(
-        "Don't Know/Refused Veteran Status",
-        "Check Veteran Status for Accuracy"
+        "Don't Know/Refused Veteran Status"
       ) ~ "Warning"
     ),
     Guidance = case_when(
-      #Issue == "Check Veteran Status for Accuracy" ~ "You have indicated the 
-      #household exited to a destination that only veterans are eligible for, but 
-      #the head of household appears to be not a veteran. Either the Veteran 
-      #Status is incorrect or the Destination is incorrect.", 
       Issue == "Missing Veteran Status" ~ guidance_missing_pii,
       Issue == "Don't Know/Refused Veteran Status" ~ guidance_dkr_data)
   ) %>%
@@ -349,9 +340,9 @@ hh_too_many_hohs <- served_in_date_range %>%
   left_join(served_in_date_range, by = c("PersonalID", "HouseholdID")) %>%
   mutate(Issue = "Too Many Heads of Household",
          Type = "High Priority",
-         Guidance = "Check inside the Entry pencil to be sure each household member has
-      \"Relationship to Head of Household\" answered and that only one of
-      them says \"Self (head of household)\".") %>%
+         Guidance = "Check the assessment at Project Start to be sure each 
+         household member has \"Relationship to Head of Household\" answered 
+         and that only one of them says \"Self (head of household)\".") %>%
   select(all_of(vars_we_want))
 
 hh_missing_rel_to_hoh <- served_in_date_range %>%
@@ -446,10 +437,7 @@ missing_LoS <- served_in_date_range %>%
            (is.na(LengthOfStay) | LengthOfStay == 99)) %>%
   mutate(Issue = "Missing Length of Stay",
          Type = "Error",
-         Guidance = "This data element may be answered with an old value or it 
-         may simply be missing. If the value selected is \"One week or less (HUD)\",
-         you will need to change that value to either \"One night or less (HUD)\" 
-         or \"Two to six nights (HUD)\".") %>%
+         Guidance = guidance_missing_at_entry) %>%
   select(all_of(vars_we_want))
 
 dkr_LoS <- served_in_date_range %>%
@@ -755,13 +743,7 @@ extremely_long_stayers <- rbind(Top1_PSH,
   mutate(
     Issue = "Extremely Long Stayer",
     Type = "Warning",
-    Guidance = paste(
-      "This client is showing as an outlier for Length of Stay for this project 
-      type. Please verify that this client is still in your project. If they are, 
-      be sure there are no alternative permanent housing solutions for this client. 
-      If the client is no longer in your project, please enter their Exit Date 
-      as the closest estimation of the day they left your project."
-    )
+    Guidance ~ "Fix Me"
   ) %>% 
   select(all_of(vars_we_want))
 
@@ -965,182 +947,182 @@ check_eligibility <- served_in_date_range %>%
 
 smallProject <- Project %>% select(ProjectID, ProjectName)
 
-path_missing_los_res_prior <- served_in_date_range %>%
-  select(
-    all_of(vars_prep),
-    ProjectID,
-    AgeAtEntry,
-    ClientEnrolledInPATH,
-    LengthOfStay
-  ) %>%
-  left_join(smallProject, by = c("ProjectID", "ProjectName")) %>%
-  filter(ProjectID %in% c(path_funded) &
-           AgeAtEntry > 17 &
-           ClientEnrolledInPATH == 1 &
-           (is.na(LengthOfStay) | LengthOfStay == 99)) %>%
-  mutate(Issue = "Missing Residence Prior Length of Stay (PATH)",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
-  select(all_of(vars_we_want))
+# path_missing_los_res_prior <- served_in_date_range %>%
+#   select(
+#     all_of(vars_prep),
+#     ProjectID,
+#     AgeAtEntry,
+#     ClientEnrolledInPATH,
+#     LengthOfStay
+#   ) %>%
+#   left_join(smallProject, by = c("ProjectID", "ProjectName")) %>%
+#   filter(ProjectID %in% c(path_funded) &
+#            AgeAtEntry > 17 &
+#            ClientEnrolledInPATH == 1 &
+#            (is.na(LengthOfStay) | LengthOfStay == 99)) %>%
+#   mutate(Issue = "Missing Residence Prior Length of Stay (PATH)",
+#          Type = "Error",
+#          Guidance = guidance_missing_at_entry) %>%
+#   select(all_of(vars_we_want))
 
 
 #* Engagement at Exit
 ### adult, PATH-enrolled, Date of Engagement is null -> error
 
-path_no_status_at_exit <- served_in_date_range %>%
-  select(
-    all_of(vars_prep),
-    AgeAtEntry,
-    ClientEnrolledInPATH,
-    DateOfPATHStatus,
-    ReasonNotEnrolled
-  ) %>%
-  left_join(smallProject, by = "ProjectName") %>%
-  filter(ProjectID %in% c(path_funded) &
-           !is.na(ExitDate) &
-           AgeAtEntry > 17 &
-           (
-             is.na(ClientEnrolledInPATH) |
-               is.na(DateOfPATHStatus) |
-               (ClientEnrolledInPATH == 0 &
-                  is.na(ReasonNotEnrolled))
-           )) %>%
-  mutate(Issue = "PATH Status at Exit Missing or Incomplete",
-         Type = "Error",
-         Guidance = guidance_missing_at_exit) %>%
-  select(all_of(vars_we_want))
+# path_no_status_at_exit <- served_in_date_range %>%
+#   select(
+#     all_of(vars_prep),
+#     AgeAtEntry,
+#     ClientEnrolledInPATH,
+#     DateOfPATHStatus,
+#     ReasonNotEnrolled
+#   ) %>%
+#   left_join(smallProject, by = "ProjectName") %>%
+#   filter(ProjectID %in% c(path_funded) &
+#            !is.na(ExitDate) &
+#            AgeAtEntry > 17 &
+#            (
+#              is.na(ClientEnrolledInPATH) |
+#                is.na(DateOfPATHStatus) |
+#                (ClientEnrolledInPATH == 0 &
+#                   is.na(ReasonNotEnrolled))
+#            )) %>%
+#   mutate(Issue = "PATH Status at Exit Missing or Incomplete",
+#          Type = "Error",
+#          Guidance = guidance_missing_at_exit) %>%
+#   select(all_of(vars_we_want))
 
 #* Status Determination at Exit
 ### adult, PATH-Enrolled is not null
 ### Date of Status Determ is null -> error
 
-path_status_determination <- served_in_date_range %>%
-  select(all_of(vars_prep),
-         AgeAtEntry,
-         ClientEnrolledInPATH,
-         DateOfPATHStatus) %>%
-  left_join(smallProject, by = "ProjectName") %>%
-  filter(
-    ProjectID %in% c(path_funded) &
-      AgeAtEntry > 17 &
-      !is.na(ClientEnrolledInPATH) &
-      is.na(DateOfPATHStatus)
-  ) %>%
-  #mutate(Issue = "Missing Date of PATH Status",
-         #Type = "Error",
-         #Guidance = "Users must indicate the PATH Status Date for any adult 
-         #enrolled in PATH.") %>%
-  select(all_of(vars_we_want))
+# path_status_determination <- served_in_date_range %>%
+#   select(all_of(vars_prep),
+#          AgeAtEntry,
+#          ClientEnrolledInPATH,
+#          DateOfPATHStatus) %>%
+#   left_join(smallProject, by = "ProjectName") %>%
+#   filter(
+#     ProjectID %in% c(path_funded) &
+#       AgeAtEntry > 17 &
+#       !is.na(ClientEnrolledInPATH) &
+#       is.na(DateOfPATHStatus)
+#   ) %>%
+#   #mutate(Issue = "Missing Date of PATH Status",
+#          #Type = "Error",
+#          #Guidance = "Users must indicate the PATH Status Date for any adult 
+#          #enrolled in PATH.") %>%
+#   select(all_of(vars_we_want))
 
 #* PATH Enrolled at Exit
 ### adult and:
 ### PATH Enrolled null or DNC -> error -OR-
-path_enrolled_missing <- served_in_date_range %>%
-  select(all_of(vars_prep), AgeAtEntry, ClientEnrolledInPATH) %>%
-  left_join(smallProject, by = "ProjectName") %>%
-  filter(
-    ProjectID %in% c(path_funded) &
-      !is.na(ExitDate) &
-      AgeAtEntry > 17 &
-      (ClientEnrolledInPATH == 99 |
-         is.na(ClientEnrolledInPATH))
-  ) %>%
-  #mutate(
-    #Issue = "Missing PATH Enrollment at Exit",
-    #Type = "Error",
-    #Guidance = "Please enter the data for this item by clicking into the 
-    #Entry or Exit pencil and creating an Interim. In the assessment, enter 
-    #the correct PATH Enrollment Date and Save."
-  #) %>%
-  select(all_of(vars_we_want))
+# path_enrolled_missing <- served_in_date_range %>%
+#   select(all_of(vars_prep), AgeAtEntry, ClientEnrolledInPATH) %>%
+#   left_join(smallProject, by = "ProjectName") %>%
+#   filter(
+#     ProjectID %in% c(path_funded) &
+#       !is.na(ExitDate) &
+#       AgeAtEntry > 17 &
+#       (ClientEnrolledInPATH == 99 |
+#          is.na(ClientEnrolledInPATH))
+#   ) %>%
+#   #mutate(
+#     #Issue = "Missing PATH Enrollment at Exit",
+#     #Type = "Error",
+#     #Guidance = "Please enter the data for this item by clicking into the 
+#     #Entry or Exit pencil and creating an Interim. In the assessment, enter 
+#     #the correct PATH Enrollment Date and Save."
+#   #) %>%
+#   select(all_of(vars_we_want))
 
 #* Not Enrolled Reason
 ### adult
 ### PATH Enrolled = No
 ### Reason is null -> error
-path_reason_missing <- served_in_date_range %>%
-  select(
-    all_of(vars_prep),
-    AgeAtEntry,
-    ClientEnrolledInPATH,
-    ReasonNotEnrolled,
-    ProjectType
-  ) %>%
-  left_join(smallProject, by = "ProjectName") %>%
-  filter(ProjectID %in% c(path_funded) &
-           AgeAtEntry > 17 &
-           ClientEnrolledInPATH == 0 &
-           is.na(ReasonNotEnrolled)) %>%
-  mutate(
-    Issue = "Missing Reason Not PATH Enrolled",
-    Type = "Error",
-    Guidance = "The user has indicated the household was not enrolled into 
-    PATH, but no reason was selected."
-  ) %>%
-  select(all_of(vars_we_want))
+# path_reason_missing <- served_in_date_range %>%
+#   select(
+#     all_of(vars_prep),
+#     AgeAtEntry,
+#     ClientEnrolledInPATH,
+#     ReasonNotEnrolled,
+#     ProjectType
+#   ) %>%
+#   left_join(smallProject, by = "ProjectName") %>%
+#   filter(ProjectID %in% c(path_funded) &
+#            AgeAtEntry > 17 &
+#            ClientEnrolledInPATH == 0 &
+#            is.na(ReasonNotEnrolled)) %>%
+#   mutate(
+#     Issue = "Missing Reason Not PATH Enrolled",
+#     Type = "Error",
+#     Guidance = "The user has indicated the household was not enrolled into 
+#     PATH, but no reason was selected."
+#   ) %>%
+#   select(all_of(vars_we_want))
 
 #* Connection with SOAR at Exit
 ### adult
 ### Connection w/ SOAR is null or DNC -> error -OR-
 ### Connection w/ SOAR DKR -> warning
-smallIncomeSOAR <- IncomeBenefits %>%
-  select(PersonalID,
-         EnrollmentID,
-         ConnectionWithSOAR,
-         DataCollectionStage) %>%
-  filter(DataCollectionStage == 3)
-
-path_SOAR_missing_at_exit <- served_in_date_range %>%
-  select(all_of(vars_prep),
-         EnrollmentID,
-         AgeAtEntry,
-         ClientEnrolledInPATH) %>%
-  left_join(smallProject, by = "ProjectName") %>%
-  left_join(smallIncomeSOAR, by = c("PersonalID", "EnrollmentID")) %>%
-  filter(ProjectID %in% c(path_funded) &
-           AgeAtEntry > 17 &
-           DataCollectionStage == 3 &
-           is.na(ConnectionWithSOAR)) %>%
-  mutate(Issue = "Missing Connection with SOAR at Exit",
-         Type = "Error",
-         Guidance = guidance_missing_at_exit) %>%
-  select(all_of(vars_we_want))
-
-rm(smallIncomeSOAR)
+# smallIncomeSOAR <- IncomeBenefits %>%
+#   select(PersonalID,
+#          EnrollmentID,
+#          ConnectionWithSOAR,
+#          DataCollectionStage) %>%
+#   filter(DataCollectionStage == 3)
+# 
+# path_SOAR_missing_at_exit <- served_in_date_range %>%
+#   select(all_of(vars_prep),
+#          EnrollmentID,
+#          AgeAtEntry,
+#          ClientEnrolledInPATH) %>%
+#   left_join(smallProject, by = "ProjectName") %>%
+#   left_join(smallIncomeSOAR, by = c("PersonalID", "EnrollmentID")) %>%
+#   filter(ProjectID %in% c(path_funded) &
+#            AgeAtEntry > 17 &
+#            DataCollectionStage == 3 &
+#            is.na(ConnectionWithSOAR)) %>%
+#   mutate(Issue = "Missing Connection with SOAR at Exit",
+#          Type = "Error",
+#          Guidance = guidance_missing_at_exit) %>%
+#   select(all_of(vars_we_want))
+# 
+# rm(smallIncomeSOAR)
 
 # Missing PATH Contacts
 ## client is adult/hoh and has no contact record in the EE -> error
 ## this is a high priority data quality issue
 ## if the contact was an "Outreach" record after 10/1/2019, it is being
 ## filtered out because they should be using CLS subs past that date.
-small_contacts <- CurrentLivingSituation %>%
-  left_join(served_in_date_range, by = "PersonalID") %>%
-  filter(
-    parseDate(InformationDate) >= EntryDate &
-      parseDate(InformationDate) <= ExitAdjust) %>% 
-  group_by(PersonalID, ProjectName, EntryDate, ExitDate) %>%
-  summarise(CurrentLivingSituationCount = n()) %>%
-  ungroup()
-
-missing_path_contact <- served_in_date_range %>%
-  filter(ProjectID %in% c(path_funded) &
-           (AgeAtEntry > 17 |
-              RelationshipToHoH == 1)) %>%
-  select(all_of(vars_prep)) %>%
-  left_join(small_contacts,
-            by = c("PersonalID",
-                   "ProjectName",
-                   "EntryDate",
-                   "ExitDate")) %>%
-  mutate_at(vars(CurrentLivingSituationCount), ~replace(., is.na(.), 0)) %>%
-  filter(CurrentLivingSituationCount == 0) %>%
-  #mutate(Issue = "Missing PATH Contact",
-         #Type = "High Priority",
-         #Guidance = "Every adult or Head of Household must have a Living
-         #Situation contact record. If you see a record there but there is
-         #no Date of Contact, saving the Date of Contact will correct this
-         #issue.") %>%
-  select(all_of(vars_we_want))
+# small_contacts <- CurrentLivingSituation %>%
+#   left_join(served_in_date_range, by = "PersonalID") %>%
+#   filter(
+#     parseDate(InformationDate) >= EntryDate &
+#       parseDate(InformationDate) <= ExitAdjust) %>% 
+#   group_by(PersonalID, ProjectName, EntryDate, ExitDate) %>%
+#   summarise(CurrentLivingSituationCount = n()) %>%
+#   ungroup()
+# 
+# missing_path_contact <- served_in_date_range %>%
+#   filter(ProjectID %in% c(path_funded) &
+#            (AgeAtEntry > 17 |
+#               RelationshipToHoH == 1)) %>%
+#   select(all_of(vars_prep)) %>%
+#   left_join(small_contacts,
+#             by = c("PersonalID",
+#                    "ProjectName",
+#                    "EntryDate",
+#                    "ExitDate")) %>%
+#   mutate_at(vars(CurrentLivingSituationCount), ~replace(., is.na(.), 0)) %>%
+#   filter(CurrentLivingSituationCount == 0) %>%
+#   #mutate(Issue = "Missing PATH Contact",
+#          #Type = "High Priority",
+#          #Guidance = "Every adult or Head of Household must have a Living
+#          #Situation contact record. If you see a record there but there is
+#          #no Date of Contact, saving the Date of Contact will correct this
+#          #issue.") %>%
+#   select(all_of(vars_we_want))
 
 # Duplicate EEs -----------------------------------------------------------
 # this could be more nuanced but it's ok to leave it since we are also
@@ -1150,11 +1132,9 @@ duplicate_ees <-
   mutate(
     Issue = "Duplicate Entry Exits",
     Type = "High Priority",
-    Guidance = "Users sometimes create this error when they forget to click 
-    into a program stay by using the Entry pencil, and instead they click 
-    \"Add Entry/Exit\" each time. To correct, EDA to the project the Entry/Exit
-  belongs to, navigate to the Entry/Exit tab and delete the program stay
-  that was accidentally added for each household member."
+    Guidance = "A client cannot have two enrollments with the same entry date
+    into the same project. These are duplicate enrollment records. Please 
+    consult your HMIS System Administrator on how to correct these duplicates."
   ) %>%
   select(all_of(vars_we_want))
 
@@ -1354,20 +1334,7 @@ staging_overlaps <- served_in_date_range %>%
     ),
     Issue = "Overlapping Project Stays",
     Type = "High Priority",
-    Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the 
-    same time. Nor can they have a Move-In Date into a PSH or RRH project 
-    while they are still in an ES, TH, or Safe Haven. Further, they cannot 
-    be in any two RRH's or any two PSH's simultaneously, housed or not. 
-    Please look the client(s) up in HMIS and determine which project stay's
-    Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the 
-    \"Previous Provider's\" mistake, but if you are seeing clients here, it 
-    means your project stay was entered last.
-    If the overlap is not your project's mistake, please work with the 
-    project that has the incorrect Entry/Move-In/or Exit Date to get this 
-    corrected or send an email to hmis@cohhio.org if you cannot get it 
-    resolved. These clients will NOT show on their Data Quality app.
-    If YOUR dates are definitely correct, it is fine to continue with other 
-    data corrections as needed."
+    Guidance ~ "Fix Me"
   ) %>%
   filter(!is.na(LiterallyInProject) &
            int_length(LiterallyInProject) > 0) %>%
@@ -1402,20 +1369,7 @@ same_day_overlaps <- served_in_date_range %>%
     ),
     Issue = "Overlapping Project Stays",
     Type = "High Priority",
-    Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the 
-    same time. Nor can they have a Move-In Date into a PSH or RRH project 
-    while they are still in an ES, TH, or Safe Haven. Further, they cannot 
-    be in any two RRH's or any two PSH's simultaneously, housed or not. 
-    Please look the client(s) up in HMIS and determine which project stay's
-    Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the 
-    \"Previous Provider's\" mistake, but if you are seeing clients here, it 
-    means your project stay was entered last.
-    If the overlap is not your project's mistake, please work with the 
-    project that has the incorrect Entry/Move-In/or Exit Date to get this 
-    corrected or send an email to hmis@cohhio.org if you cannot get it 
-    resolved. These clients will NOT show on their Data Quality app.
-    If YOUR dates are definitely correct, it is fine to continue with other 
-    data corrections as needed."
+    Guidance ~ "Fix Me"
   ) %>%
   filter((!is.na(LiterallyInProject) & ProjectType != 13) |
            ProjectType == 13) %>%
@@ -1440,20 +1394,7 @@ rrh_overlaps <- served_in_date_range %>%
     InProject = interval(EntryDate, ExitAdjust),
     Issue = "Overlapping Project Stays",
     Type = "High Priority",
-    Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the 
-    same time. Nor can they have a Move-In Date into a PSH or RRH project 
-    while they are still in an ES, TH, or Safe Haven. Further, they cannot 
-    be in any two RRH's or any two PSH's simultaneously, housed or not. 
-    Please look the client(s) up in HMIS and determine which project stay's
-    Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the 
-    \"Previous Provider's\" mistake, but if you are seeing clients here, it 
-    means your project stay was entered last.
-    If the overlap is not your project's mistake, please work with the 
-    project that has the incorrect Entry/Move-In/or Exit Date to get this 
-    corrected or send an email to hmis@cohhio.org if you cannot get it 
-    resolved. These clients will NOT show on their Data Quality app.
-    If YOUR dates are definitely correct, it is fine to continue with other 
-    data corrections as needed."
+    Guidance ~ "Fix Me"
   ) %>%
   filter(ProjectType == 13) %>%
   get_dupes(., PersonalID) %>%
@@ -1481,20 +1422,7 @@ psh_overlaps <- served_in_date_range %>%
     InProject = interval(EntryDate, ExitAdjust),
     Issue = "Overlapping Project Stays",
     Type = "High Priority",
-    Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the 
-    same time. Nor can they have a Move-In Date into a PSH or RRH project 
-    while they are still in an ES, TH, or Safe Haven. Further, they cannot 
-    be in any two RRH's or any two PSH's simultaneously, housed or not. 
-    Please look the client(s) up in HMIS and determine which project stay's
-    Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the 
-    \"Previous Provider's\" mistake, but if you are seeing clients here, it 
-    means your project stay was entered last.
-    If the overlap is not your project's mistake, please work with the 
-    project that has the incorrect Entry/Move-In/or Exit Date to get this 
-    corrected or send an email to hmis@cohhio.org if you cannot get it 
-    resolved. These clients will NOT show on their Data Quality app.
-    If YOUR dates are definitely correct, it is fine to continue with other 
-    data corrections as needed."
+    Guidance ~ "Fix Me"
   ) %>%
   filter(ProjectType == 3) %>%
   get_dupes(., PersonalID) %>%
@@ -1737,20 +1665,7 @@ conflicting_ncbs_entry <- served_in_date_range %>%
         ),
         Issue = "Overlapping Project Stays",
         Type = "High Priority",
-        Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the 
-        same time. Nor can they have a Move-In Date into a PSH or RRH project 
-        while they are still in an ES, TH, or Safe Haven. Further, they cannot 
-        be in any two RRH's or any two PSH's simultaneously, housed or not. 
-        Please look the client(s) up in HMIS and determine which project stay's
-        Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the 
-        \"Previous Provider's\" mistake, but if you are seeing clients here, it 
-        means your project stay was entered last.
-        If the overlap is not your project's mistake, please work with the 
-        project that has the incorrect Entry/Move-In/or Exit Date to get this 
-        corrected or send an email to hmis@cohhio.org if you cannot get it 
-        resolved. These clients will NOT show on their Data Quality app.
-        If YOUR dates are definitely correct, it is fine to continue with other 
-        data corrections as needed."
+        Guidance ~ "Fix Me"
       ) %>%
       filter(!is.na(LiterallyInProject) &
                int_length(LiterallyInProject) > 0) %>%
@@ -1785,20 +1700,7 @@ conflicting_ncbs_entry <- served_in_date_range %>%
         ),
         Issue = "Overlapping Project Stays",
         Type = "High Priority",
-        Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the 
-        same time. Nor can they have a Move-In Date into a PSH or RRH project 
-        while they are still in an ES, TH, or Safe Haven. Further, they cannot 
-        be in any two RRH's or any two PSH's simultaneously, housed or not. 
-        Please look the client(s) up in HMIS and determine which project stay's
-        Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the 
-        \"Previous Provider's\" mistake, but if you are seeing clients here, it 
-        means your project stay was entered last.
-        If the overlap is not your project's mistake, please work with the 
-        project that has the incorrect Entry/Move-In/or Exit Date to get this 
-        corrected or send an email to hmis@cohhio.org if you cannot get it 
-        resolved. These clients will NOT show on their Data Quality app.
-        If YOUR dates are definitely correct, it is fine to continue with other 
-        data corrections as needed."
+        Guidance ~ "Fix Me"
       ) %>%
       filter((!is.na(LiterallyInProject) & ProjectType != 13) |
                ProjectType == 13) %>%
@@ -1823,20 +1725,7 @@ conflicting_ncbs_entry <- served_in_date_range %>%
         InProject = interval(EntryDate, ExitAdjust),
         Issue = "Overlapping Project Stays",
         Type = "High Priority",
-        Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the 
-        same time. Nor can they have a Move-In Date into a PSH or RRH project 
-        while they are still in an ES, TH, or Safe Haven. Further, they cannot 
-        be in any two RRH's or any two PSH's simultaneously, housed or not. 
-        Please look the client(s) up in HMIS and determine which project stay's
-        Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the 
-        \"Previous Provider's\" mistake, but if you are seeing clients here, it 
-        means your project stay was entered last.
-        If the overlap is not your project's mistake, please work with the 
-        project that has the incorrect Entry/Move-In/or Exit Date to get this 
-        corrected or send an email to hmis@cohhio.org if you cannot get it 
-        resolved. These clients will NOT show on their Data Quality app.
-        If YOUR dates are definitely correct, it is fine to continue with other 
-        data corrections as needed."
+        Guidance ~ "Fix Me"
       ) %>%
       filter(ProjectType == 13) %>%
       get_dupes(., PersonalID) %>%
@@ -1864,20 +1753,7 @@ conflicting_ncbs_entry <- served_in_date_range %>%
         InProject = interval(EntryDate, ExitAdjust),
         Issue = "Overlapping Project Stays",
         Type = "High Priority",
-        Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the 
-        same time. Nor can they have a Move-In Date into a PSH or RRH project 
-        while they are still in an ES, TH, or Safe Haven. Further, they cannot 
-        be in any two RRH's or any two PSH's simultaneously, housed or not. 
-        Please look the client(s) up in HMIS and determine which project stay's
-        Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the 
-        \"Previous Provider's\" mistake, but if you are seeing clients here, it 
-        means your project stay was entered last.
-        If the overlap is not your project's mistake, please work with the 
-        project that has the incorrect Entry/Move-In/or Exit Date to get this 
-        corrected or send an email to hmis@cohhio.org if you cannot get it 
-        resolved. These clients will NOT show on their Data Quality app.
-        If YOUR dates are definitely correct, it is fine to continue with other 
-        data corrections as needed."
+        Guidance ~ "Fix Me"
       ) %>%
       filter(ProjectType == 3) %>%
       get_dupes(., PersonalID) %>%
