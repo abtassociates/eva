@@ -313,8 +313,8 @@ dashboardPage(
           min = NULL,
           width = "25%"
         ),
-        width = 12,
-        uiOutput("downloadOrgDQReportBox")
+        uiOutput("downloadOrgDQReportButton"),
+        width = 12
       )),
       fluidRow(
         uiOutput("DQHHIssues"),
