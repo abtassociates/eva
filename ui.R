@@ -313,11 +313,9 @@ dashboardPage(
           min = NULL,
           width = "25%"
         ),
-        width = 12
-      )),
-      fluidRow(
+        width = 12,
         uiOutput("downloadOrgDQReportBox")
-      ),
+      )),
       fluidRow(
         uiOutput("DQHHIssues"),
         uiOutput("DQDuplicateEEs"),
@@ -348,9 +346,6 @@ dashboardPage(
           status = "info",
           solidHeader = TRUE
         )
-      ),
-      fluidRow(
-        uiOutput("downloadOrgDQReportBox2")
       )
     ),
     tabItem(
