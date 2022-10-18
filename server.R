@@ -94,27 +94,27 @@ function(input, output, session) {
       HTML("You have not successfully uploaded your zipped CSV file yet.")
     })
     
-    # updatePickerInput(session = session, inputId = "currentProviderList",
-    #                   choices = sort(Project$ProjectName))
-    # 
-    # updatePickerInput(session = session, inputId = "desk_time_providers",
-    #                   choices = sort(Project$ProjectName))
-    # 
-    # updatePickerInput(session = session, inputId = "providerListDQ",
-    #                   choices = dq_providers)
-    # 
-    # updatePickerInput(session = session, inputId = "providerDeskTime",
-    #                   choices = desk_time_providers)
-    # 
-    # updatePickerInput(session = session, inputId = "orgList",
-    #                   choices = c(unique(Organization$OrganizationName)))
-    # 
-    # updateDateInput(session = session, inputId = "dq_org_startdate", 
-    #                 value = meta_HUDCSV_Export_Start)
-    # 
-    # updateDateInput(session = session, inputId = "dq_startdate", 
-    #                 value = meta_HUDCSV_Export_Start)
+    updatePickerInput(session = session, inputId = "currentProviderList",
+                      choices = sort(Project$ProjectName))
     
+    updatePickerInput(session = session, inputId = "desk_time_providers",
+                      choices = sort(Project$ProjectName))
+    
+    updatePickerInput(session = session, inputId = "providerListDQ",
+                      choices = dq_providers)
+    
+    updatePickerInput(session = session, inputId = "providerDeskTime",
+                      choices = desk_time_providers)
+    
+    updatePickerInput(session = session, inputId = "orgList",
+                      choices = c(unique(sort(Organization$OrganizationName))))
+    
+    updateDateInput(session = session, inputId = "dq_org_startdate", 
+                    value = meta_HUDCSV_Export_Start)
+    
+    updateDateInput(session = session, inputId = "dq_startdate", 
+                    value = meta_HUDCSV_Export_Start)
+
     # output$files <- renderTable(input$imported)
     
     output$headerPrioritization <- renderUI({
@@ -658,7 +658,7 @@ function(input, output, session) {
       ReportEnd <- today()
       
       guidance <- dq_main %>%
-        filter(ProjectName %in% c(input$providerListDQ) &
+        filter(OrganizationName %in% c(input$orgList) &
                  served_between(., ReportStart, ReportEnd)) %>%
         group_by(Type, Issue, Guidance) %>%
         ungroup() %>%
@@ -672,22 +672,29 @@ function(input, output, session) {
       datatable(guidance, 
                 rownames = FALSE,
                 escape = FALSE,
-                options = list(dom = 't',
-                               paging = FALSE))
+                options = list(dom = 'ltpi'))
     })
     
     output$dq_organization_summary_table <- DT::renderDataTable({
       req(!is.na(input$imported))
-      ReportStart <- input$dq_org_startdate
+      ReportStart <- input$dq_startdate
       ReportEnd <- today()
       a <- dq_main %>%
         filter(OrganizationName == input$orgList &
-                 served_between(., ReportStart, ReportEnd)) %>%
-        select(ProjectName, Type, Issue, PersonalID) %>%
-        group_by(ProjectName, Type, Issue) %>%
+                 HMIS::served_between(., ReportStart, ReportEnd)) %>%
+        select(ProjectName, 
+               Type, 
+               Issue, 
+               PersonalID) %>%
+        group_by(ProjectName, 
+                 Type, 
+                 Issue) %>%
         summarise(Clients = n()) %>%
-        select("Project Name" = ProjectName, Type, Issue, Clients) %>%
-        arrange(Type, desc(Clients))
+        select("Project Name" = ProjectName, 
+          Type, 
+          Issue, 
+          Clients) %>%
+        arrange("Project Name", Type, desc(Clients))
       
       datatable(
         a,
@@ -705,7 +712,7 @@ function(input, output, session) {
       DuplicateEEs <- dq_main %>%
         filter(
           Issue == "Duplicate Enrollments" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(
@@ -729,7 +736,7 @@ function(input, output, session) {
       DuplicateEEs <- dq_main %>%
         filter(
           Issue == "Duplicate Enrollments" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         select(
@@ -743,6 +750,8 @@ function(input, output, session) {
           title = "Duplicate Enrollments",
           status = "warning",
           solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
           HTML(
             "Please correct this issue before moving on to your other errors.<br>
          Duplicate Enrollments are created when the user clicks \"Add Entry Exit\"
@@ -771,7 +780,7 @@ function(input, output, session) {
             "No Head of Household",
             "Children Only Household"
           ) &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(
@@ -780,10 +789,11 @@ function(input, output, session) {
           MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
           ExitDate = format(ExitDate, "%m-%d-%Y")
         ) %>%
-        arrange(PersonalID) %>%
-        select("A Client ID in the Household" = PersonalID,
+        arrange(ProjectName, PersonalID) %>%
+        select("Project Name" = ProjectName,
+               "A Client ID in the Household" = PersonalID,
                Issue,
-               "Entry Date" = EntryDate)
+               "Project Start Date" = EntryDate)
       
       HHIssues
     })
@@ -801,7 +811,7 @@ function(input, output, session) {
             "No Head of Household",
             "Children Only Household"
           ) &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         )
       if (nrow(HHIssues) > 0) {
@@ -810,6 +820,8 @@ function(input, output, session) {
           title = "Household Issues",
           status = "warning",
           solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
           HTML(
             "Please correct your Household Issues before moving on to make other
           Data Quality corrections."
@@ -829,7 +841,7 @@ function(input, output, session) {
       HHIssues <- dq_main %>%
         filter(
           Issue == "Missing Client Location" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         )
       if (nrow(HHIssues) > 0) {
@@ -838,6 +850,8 @@ function(input, output, session) {
           title = "Missing Client Location",
           status = "warning",
           solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
           HTML(
             "Households with a missing Client Location (the data element just 
           after the Relationship to Head of Household) will be completely
@@ -858,7 +872,7 @@ function(input, output, session) {
       HHIssues <- dq_main %>%
         filter(
           Issue == "Missing Client Location" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(
@@ -867,9 +881,10 @@ function(input, output, session) {
           MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
           ExitDate = format(ExitDate, "%m-%d-%Y")
         ) %>%
-        arrange(PersonalID) %>%
-        select("Client ID" = PersonalID,
-               "Entry Date" = EntryDate)
+        arrange(ProjectName, PersonalID) %>%
+        select("Project Name" = ProjectName,
+               "Client ID" = PersonalID,
+               "Project Start Date" = EntryDate)
       
       HHIssues
     })
@@ -882,7 +897,7 @@ function(input, output, session) {
       no_contact <- dq_main %>%
         filter(
           Issue == "Missing PATH Contact" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         )
       if (nrow(no_contact) > 0) {
@@ -906,11 +921,11 @@ function(input, output, session) {
     output$MissingPATHContact <- renderTable({
       req(!is.na(input$imported))
       ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportEnd <- today() 
       x <- dq_main %>%
         filter(
           Issue == "Missing PATH Contact" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(
@@ -919,9 +934,10 @@ function(input, output, session) {
           MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
           ExitDate = format(ExitDate, "%m-%d-%Y")
         ) %>%
-        arrange(PersonalID) %>%
-        select("Client ID" = PersonalID,
-               "Entry Date" = EntryDate)
+        arrange(ProjectName, PersonalID) %>%
+        select("Project Name" = ProjectName,
+               "Client ID" = PersonalID,
+               "Project Start Date" = EntryDate)
       
       x
     })
@@ -933,7 +949,7 @@ function(input, output, session) {
       
       OverlappingEEs <- dq_overlaps %>%
         filter(
-          ProjectName %in% c(input$providerListDQ) &
+          OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(
@@ -942,7 +958,9 @@ function(input, output, session) {
           MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
           ExitDate = format(ExitDate, "%m-%d-%Y")
         ) %>%
+        arrange(ProjectName, PersonalID) %>%
         select(
+          "Project Name" = ProjectName,
           "Client ID" = PersonalID,
           "Entry Date" = EntryDate,
           "Move In Date" = MoveInDateAdjust,
@@ -960,7 +978,7 @@ function(input, output, session) {
       OverlappingEEs <- dq_overlaps %>%
         filter(
           Issue == "Overlapping Project Stays" &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
         mutate(
@@ -980,6 +998,8 @@ function(input, output, session) {
           title = "Overlapping Enrollments",
           status = "warning",
           solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
           width = 12,
           HTML(
             "A client cannot reside in an ES, TH, or Safe Haven at the same time. Nor
@@ -1108,7 +1128,7 @@ function(input, output, session) {
       ReportEnd <- today()
       
       Ineligible <- detail_eligibility %>%
-        filter(ProjectName %in% c(input$providerListDQ) &
+        filter(OrganizationName %in% c(input$orgList) &
                  served_between(., ReportStart, ReportEnd)) %>%
         mutate(
           PersonalID = format(PersonalID, digits = NULL),
@@ -1116,6 +1136,7 @@ function(input, output, session) {
           PreviousStreetESSH = if_else(PreviousStreetESSH == 1, "Yes", "No")
         ) %>%
         select(
+          "Project Name" = ProjectName,
           "Client ID" = PersonalID,
           "Entry Date" = EntryDate,
           "Residence Prior" = ResidencePrior,
@@ -1130,7 +1151,7 @@ function(input, output, session) {
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       Ineligible <- detail_eligibility %>%
-        filter(ProjectName %in% c(input$providerListDQ) &
+        filter(OrganizationName %in% c(input$orgList) &
                  served_between(., ReportStart, ReportEnd))
       
       if (nrow(Ineligible) > 0) {
@@ -1139,6 +1160,8 @@ function(input, output, session) {
           title = "Check Eligibility",
           status = "info",
           solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
           width = 12,
           HTML(
             "<p>Your Residence Prior data suggests that this project is either serving
@@ -1171,14 +1194,15 @@ function(input, output, session) {
             "Duplicate Enrollments",
             "Access Point with Enrollments"
           ) & # because these are all in the boxes already
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd) &
             Type == "Error"
         ) %>%
-        arrange(HouseholdID, PersonalID) %>%
-        select("Client ID" = PersonalID,
+        arrange(ProjectName, HouseholdID, PersonalID) %>%
+        select("Project Name" = ProjectName,
+               "Client ID" = PersonalID,
                "Error" = Issue,
-               "Entry Date" =  EntryDate)
+               "Project Start Date" =  EntryDate)
       
       datatable(
         DQErrors,
@@ -1206,15 +1230,16 @@ function(input, output, session) {
             "Check Eligibility"
           ) &
             served_between(., ReportStart, ReportEnd) &
-            ProjectName %in% c(input$providerListDQ) &
+            OrganizationName %in% c(input$orgList) &
             Type == "Warning"
         ) %>%
         mutate(PersonalID = as.character(PersonalID)) %>%
-        arrange(HouseholdID, PersonalID) %>%
+        arrange(ProjectName, HouseholdID, PersonalID) %>%
         select(
+          "Project Name" = ProjectName,
           "Client ID" = PersonalID,
           "Warning" = Issue,
-          "Entry Date" =  EntryDate
+          "Project Start Date" =  EntryDate
         )
       
       datatable(
