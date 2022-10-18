@@ -171,9 +171,10 @@ dashboardPage(
             title = "Use the Browse function to direct the app to the file folder containing your zipped CSV.">
              </i>'),
         fileInput("imported",
-                  "",
+                  label = NULL,
                   multiple = FALSE,
                   accept = ".zip"),
+        renderUI("imported_status"),
         width = 12
       ), 
       box(
