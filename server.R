@@ -694,24 +694,12 @@ function(input, output, session) {
       }
     })
     
-    output$downloadOrgDQReportBox2  <- renderUI({
-      if (!is.null(input$imported)) {
-        box(
-          title = "Download DQ Report",
-          width = 12,
-          downloadButton(outputId = "downloadOrgDQReport2",
-                         label = "Download")
-        )
-      }
-    })
-    
-    
     # list of data frames to include in DQ Org Report
     orgDQReportDataList <- reactive({
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
-      select_list = c("Issue","PersonalID","HouseholdID","ProjectName","EntryDate")
+      select_list = c("Issue" = "Issue","Client ID" = "PersonalID","Household ID" = "HouseholdID","Project Name" = "ProjectName","Entry Date"= "EntryDate")
       dq_main_in_dates = dq_main %>% served_between(., ReportStart, ReportEnd)
       
       high_priority <- dq_main_in_dates %>% 
@@ -732,33 +720,36 @@ function(input, output, session) {
             OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
-        select(
-          PersonalID,
-          HouseholdID,
-          ProjectName,
-          EntryDate,
-          ExitDate
+        select(all_of(select_list), 
+          "Move-In Date" = MoveInDateAdjust,
+          "Exit Date" = ExitDate,
+          "Overlaps With This Provider's Stay" = PreviousProject
         )
+  
       
-      # this is a warning
-      ineligibles <- detail_eligibility %>%
-        filter(OrganizationName %in% c(input$orgList) &
-                 served_between(., ReportStart, ReportEnd)) %>%
-        select(
-          "Project Name" = ProjectName,
-          "Client ID" = PersonalID,
-          "Entry Date" = EntryDate,
-          "Residence Prior" = ResidencePrior,
-          "Length of Stay" = LengthOfStay,
-          "Literally Homeless Prior" = PreviousStreetESSH
-        )
+      
+      summary <- dq_main_in_dates %>% 
+        select(ProjectName, Type, Issue, PersonalID) %>%
+        group_by(ProjectName, Type, Issue) %>%
+        summarise(Clients = n()) %>%
+        select(ProjectName, Type, Issue, Clients) %>%
+        arrange(ProjectName, Type, desc(Clients))
+      
+      guidance <- dq_main_in_dates %>%
+        group_by(Type, Issue, Guidance) %>%
+        ungroup() %>%
+        select(Type, Issue, Guidance) %>%
+        mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
+        arrange(Type) %>%
+        unique()
       
       exportDFList <- list(
         high_priority = high_priority,
         errors = errors,
         warnings = warnings,
         overlaps = overlaps,
-        ineligibles = ineligibles
+        summary = summary,
+        guidance = guidance
       )
       
       names(exportDFList) = c(
@@ -766,7 +757,8 @@ function(input, output, session) {
         "Errors", 
         "Warnings", 
         "Overlaps",
-        "Ineligibles"
+        "Summary",
+        "Guidance"
       )
       
       exportDFList <- exportDFList[sapply(exportDFList, function(x) dim(x)[1]) > 0]
