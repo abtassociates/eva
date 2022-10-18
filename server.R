@@ -683,14 +683,10 @@ function(input, output, session) {
       )
     })
     
-    output$downloadOrgDQReportBox  <- renderUI({
+    output$downloadOrgDQReportButton  <- renderUI({
       if (!is.null(input$imported)) {
-        box(
-          title = "Download DQ Report",
-          width = 12,
-          downloadButton(outputId = "downloadOrgDQReport",
-                         label = "Download")
-        )
+        downloadButton(outputId = "downloadOrgDQReport",
+                       label = "Download")
       }
     })
     
