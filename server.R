@@ -683,6 +683,8 @@ function(input, output, session) {
       )
     })
     
+    #### DQ ORG REPORT #### ----------------------
+    # button
     output$downloadOrgDQReportButton  <- renderUI({
       if (!is.null(input$imported)) {
         downloadButton(outputId = "downloadOrgDQReport",
