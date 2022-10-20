@@ -307,11 +307,11 @@ hh_children_only <- served_in_date_range %>%
   summarise(
     hhMembers = n(),
     maxAge = max(AgeAtEntry),
-    PersonalID = min(PersonalID)
   ) %>%
   filter(maxAge < 12) %>%
   ungroup() %>%
-  left_join(served_in_date_range, by = c("PersonalID", "HouseholdID")) %>%
+  left_join(served_in_date_range, by = c("HouseholdID","maxAge" = "AgeAtEntry")) %>%
+  distinct(HouseholdID, maxAge, .keep_all = TRUE) %>%
   mutate(Issue = "Children Only Household",
          Type = "High Priority",
          Guidance = "Unless your project serves youth younger than 18 
