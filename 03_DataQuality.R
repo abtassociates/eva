@@ -2523,8 +2523,128 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     dq_w_project_names <- dq_main %>%
       left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
     
-   dq_providers <- sort(projects_current_hmis$ProjectName)    
+   dq_providers <- sort(projects_current_hmis$ProjectName)
+   
+   # Controls what is shown in the System-Level DQ tab ------------------------
+   
+   dq_w_organization_names <- dq_main %>%
+     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName")
 
+# Plots for System-Level DQ Tab -------------------------------------------
+   
+   # Top orgs with errors
+   
+   dq_data_errors_org_level_plot <- dq_w_organization_names %>%
+     filter(
+       Type %in% c("Error", "High Priority") &
+         !Issue %in% c(
+           "No Head of Household",
+           "Missing Relationship to Head of Household",
+           "Too Many Heads of Household",
+           "Children Only Household"
+         )
+     ) %>%
+     select(PersonalID, OrganizationID, OrganizationName) %>%
+     unique() %>%
+     group_by(OrganizationName, OrganizationID) %>%
+     summarise(clientsWithErrors = n()) %>%
+     ungroup() %>%
+     arrange(desc(clientsWithErrors))
+   
+   dq_data_errors_org_level_plot$hover <-
+     with(dq_data_errors_org_level_plot,
+          paste0(OrganizationName, ":", OrganizationID))
+   
+   dq_plot_organizations_errors <-
+     ggplot(
+       head(dq_data_errors_org_level_plot, 10L),
+       aes(
+         x = reorder(hover, clientsWithErrors),
+         y = clientsWithErrors,
+         fill = clientsWithErrors
+       )
+     ) +
+     geom_col(show.legend = FALSE) +
+     coord_flip() +
+     labs(x = "",
+          y = "Number of Clients with Errors") +
+     scale_fill_viridis_c(direction = -1) +
+     theme_classic(base_size = 18)
+   
+   # Most common high priority issues and errors system-wide
+   
+   dq_data_error_types_org_level <- dq_w_organization_names %>%
+     filter(Type %in% c("Error", "High Priority")) %>%
+     group_by(Issue) %>%
+     summarise(Errors = n()) %>%
+     ungroup() %>%
+     arrange(desc(Errors))
+   
+   dq_plot_errors_org_level <-
+     ggplot(head(dq_data_error_types_org_level, 10L),
+            aes(
+              x = reorder(Issue, Errors),
+              y = Errors,
+              fill = "#0E6FB3"
+            )) +
+     geom_col(show.legend = FALSE) +
+     coord_flip() +
+     labs(x = "",
+          y = "Number of Clients with Errors") +
+     #scale_fill_viridis_c(direction = -1) +
+     theme_classic(base_size = 18)
+   
+   #Top orgs with warnings
+   
+   dq_data_warnings_org_level_plot <- dq_w_organization_names %>%
+     filter(Type == "Warning") %>%
+     group_by(OrganizationName, OrganizationID) %>%
+     summarise(Warnings = n()) %>%
+     ungroup() %>%
+     arrange(desc(Warnings))
+   
+   dq_data_warnings_org_level_plot$hover <-
+     with(dq_data_warnings_org_level_plot,
+          paste0(OrganizationName, ":", OrganizationID))
+   
+   dq_plot_organizations_warnings <-
+     ggplot(head(dq_data_warnings_org_level_plot, 10L),
+            aes(
+              x = reorder(hover, Warnings),
+              y = Warnings,
+              fill = Warnings
+            )) +
+     geom_col(show.legend = FALSE) +
+     coord_flip() +
+     labs(x = "",
+          y = "Number of Clients with Warnings") +
+     scale_fill_viridis_c(direction = -1) +
+     theme_classic(base_size = 18)
+   
+   #Most common warnings system-wide
+   
+   dq_data_warning_types_org_level <- dq_w_organization_names %>%
+     filter(Type == "Warning") %>%
+     group_by(Issue) %>%
+     summarise(Warnings = n()) %>%
+     ungroup() %>%
+     arrange(desc(Warnings))
+   
+   dq_plot_warnings_org_level <-
+     ggplot(head(dq_data_warning_types_org_level, 10L),
+            aes(
+              x = reorder(Issue, Warnings),
+              y = Warnings,
+              fill = Warnings
+            )) +
+     geom_col(show.legend = FALSE) +
+     coord_flip() +
+     labs(x = "",
+          y = "Number of Clients with Warnings") +
+     #scale_fill_viridis_c(direction = -1) +
+     theme_classic(base_size = 18) +
+     geom_text(aes(label = Warnings), vjust = -0.5, colour = "black")
+   
 # Plots -------------------------------------------------------------------
     
     dq_data_errors_plot <- dq_w_project_names %>%
