@@ -339,7 +339,7 @@ dashboardPage(
         width = 12
       )),
       fluidRow(
-        uiOutput("DQIneligible"),
+        # uiOutput("DQIneligible"),
         uiOutput("DQOverlappingEEs")),
       fluidRow(
         box(
