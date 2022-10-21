@@ -345,14 +345,6 @@ dashboardPage(
         #uiOutput("DQOverlappingEEs")),
       fluidRow(
         box(
-          id = "warnings",
-          DT::dataTableOutput("DQWarnings"),
-          title = "Data Quality Warnings",
-          width = 12
-        )
-      ),
-      fluidRow(
-        box(
           id = "DQSummaryProvider",
           DT::dataTableOutput("dq_provider_summary_table"),
           title = "Data Quality Guidance",
