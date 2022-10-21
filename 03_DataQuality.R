@@ -1426,7 +1426,7 @@ same_day_overlaps <- served_in_date_range %>%
       ProjectType %in% c(1, 2, 4, 8, 12) ~ interval(EntryAdjust, ExitAdjust)
     ),
     Issue = "Overlapping Project Stays",
-    Type = "High Priority",
+    Type = "Warning",
     Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the 
     same time. Nor can they have a Move-In Date into a PSH or RRH project 
     while they are still in an ES, TH, or Safe Haven. Further, they cannot 
@@ -1464,7 +1464,7 @@ rrh_overlaps <- served_in_date_range %>%
     # bc a client can exit&enter same day
     InProject = interval(EntryDate, ExitAdjust),
     Issue = "Overlapping Project Stays",
-    Type = "High Priority",
+    Type = "Warning",
     Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the 
     same time. Nor can they have a Move-In Date into a PSH or RRH project 
     while they are still in an ES, TH, or Safe Haven. Further, they cannot 
@@ -1505,7 +1505,7 @@ psh_overlaps <- served_in_date_range %>%
     # bc a client can exit&enter same day
     InProject = interval(EntryDate, ExitAdjust),
     Issue = "Overlapping Project Stays",
-    Type = "High Priority",
+    Type = "Warning",
     Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the 
     same time. Nor can they have a Move-In Date into a PSH or RRH project 
     while they are still in an ES, TH, or Safe Haven. Further, they cannot 
