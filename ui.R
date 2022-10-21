@@ -220,7 +220,7 @@ dashboardPage(
         pickerInput(
           label = "Select Project",
           inputId = "providerListUtilization",
-          choices = NULL, #c(sort(utilization_bed$ProjectName)),
+          choices = NULL, 
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains'),
           width = "100%"
@@ -290,18 +290,14 @@ dashboardPage(
     ),
     tabItem(
       tabName = "dqTab",
-      fluidRow(box(htmlOutput(
-        "headerDataQuality"
-      ), width = 12)),
+      fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
       fluidRow(box(
         pickerInput(
           label = "Select Organiztion",
           inputId = "orgList",
           choices = NULL, #c(unique(Organization$OrganizationName)),
-          options = pickerOptions(
-            liveSearch = TRUE,
-            liveSearchStyle = 'contains'
-          ),
+          options = pickerOptions(liveSearch = TRUE,
+                                  liveSearchStyle = 'contains'),
           width = "100%",
           selected = "none"
         ),
@@ -314,17 +310,17 @@ dashboardPage(
           width = "25%"
         ),
         width = 12
-      )),
+      )), 
       fluidRow(
-             box(
-               id = "DQSummaryOrganization",
-               title = paste("Data Quality Summary"),
-               status = "info",
-               solidHeader = TRUE,
-               DT::dataTableOutput("dq_organization_summary_table"),
-               width = 12
-             )
-           ),
+        box(
+          id = "DQSummaryOrganization",
+          title = paste("Data Quality Summary"),
+          status = "info",
+          solidHeader = TRUE,
+          DT::dataTableOutput("dq_organization_summary_table"),
+          width = 12
+        )
+      ),
       fluidRow(
         uiOutput("DQHHIssues"),
         uiOutput("DQDuplicateEEs"),
@@ -333,23 +329,17 @@ dashboardPage(
       ),
       #fluidRow(uiOutput("DQIneligible")),
       #fluidRow(uiOutput("DQOverlappingEEs")),
+      fluidRow(box(DTOutput("DQErrors"),
+                   title = "Data Quality Errors",
+                   width = 12)),
+      fluidRow(uiOutput("DQIneligible"),
+               uiOutput("DQOverlappingEEs")), 
       fluidRow(box(
-        DTOutput("DQErrors"),
-        title = "Data Quality Errors",
+        id = "warnings",
+        DT::dataTableOutput("DQWarnings"),
+        title = "Data Quality Warnings",
         width = 12
-      )),
-      fluidRow(
-        uiOutput("DQIneligible"),
-        uiOutput("DQOverlappingEEs")),
-      fluidRow(
-        box(
-          id = "warnings",
-          DT::dataTableOutput("DQWarnings"),
-          title = "Data Quality Warnings",
-          width = 12
-        ),
-      )
-      ,
+      ),), 
       fluidRow(
         box(
           id = "DQSummaryProvider",
@@ -377,9 +367,7 @@ dashboardPage(
         ),
         width = 12
       )),
-      fluidRow(box(
-        plotOutput("DeskTimePlotDetail"), width = 12
-      )),
+      fluidRow(box(plotOutput("DeskTimePlotDetail"), width = 12)), 
       fluidRow(
         box(
           uiOutput("deskTimeNote"),
@@ -390,71 +378,45 @@ dashboardPage(
         )
       )
     ),
-    # tabItem(tabName = "dqOrganization",
-    #   fluidRow(box(
-    #     htmlOutput("headerOrganizationDQ"), width = 12
-    #   )),
-    #   fluidRow(box(
-    #     pickerInput(
-    #       inputId = "orgList",
-    #       choices = NULL, #c(unique(Organization$OrganizationName)),
-    #       options = pickerOptions(liveSearch = TRUE,
-    #                               liveSearchStyle = 'contains'),
-    #       width = "70%"
-    #     ),
-    #     dateInput(
-    #       inputId = "dq_org_startdate",
-    #       label = "Report Start Date",
-    #       format = "mm/dd/yyyy",
-    #       value = NULL, # ymd(meta_HUDCSV_Export_Start),
-    #       width = "25%"
-    #     ),
-    #     width = 12
-    #   )),
-    #   fluidRow(
-    #     box(
-    #       id = "DQSummaryOrganization",
-    #       title = paste("Data Quality Summary"),
-    #       status = "info",
-    #       solidHeader = TRUE,
-    #       DT::dataTableOutput("dq_organization_summary_table"),
-    #       width = 12
-    #     )
-    #   )
-    # ),
     tabItem(
       tabName = "dqSystem",
+      fluidRow(box(htmlOutput("headerSystemDQ"), width = 12)),
       fluidRow(
-        box(htmlOutput("headerSystemDQ"), width = 12)),
-        fluidRow(column(6,
-               box(plotOutput("systemDQErrorTypes"), width = 12,
-                   solidHeader = TRUE,
-                   status = "danger",
-                   title = "Most Common High Priority Issues and Errors",)),
-        column(6,
-        box(plotOutput("systemDQErrors"), width = 12,
-            solidHeader = TRUE,
-            status = "danger",
-            title = "Organizations with the Most High Priority Issues and Errors"))),
+        box(
+          plotOutput("systemDQErrorTypes"),
+          width = 6,
+          solidHeader = TRUE,
+          status = "danger",
+          title = "Most Common High Priority Issues and Errors"
+        ),
+        box(
+          plotOutput("systemDQErrors"),
+          width = 6,
+          solidHeader = TRUE,
+          status = "danger",
+          title = "Organizations with the Most High Priority Issues and Errors"
+        )
+      ),
         # box(plotOutput("systemHHErrors"), width = 12,
         #     solidHeader = TRUE,
         #     status = "danger",
         #     title = "Projects with the Most Household Errors")),
-        # box(plotOutput("systemDQEligibility"), width = 12,
-        #     solidHeader = TRUE,
-        #     status = "warning",
-        #     title = "Projects with the Most Eligibility Warnings"),
-        
-        fluidRow(column(6,
-               box(plotOutput("systemDQWarningTypes"), width = 12,
-                   solidHeader = TRUE,
-                   status = "warning",
-                   title = "Most Common Warnings",)),
-        column(6,
-        box(plotOutput("systemDQWarnings"), width = 12,
-            solidHeader = TRUE,
-            status = "warning",
-            title = "Organizations with the Most Warnings")))
+      fluidRow(
+        box(
+          plotOutput("systemDQWarningTypes"),
+          width = 6,
+          solidHeader = TRUE,
+          status = "warning",
+          title = "Most Common Warnings"
+        ),
+        box(
+          plotOutput("systemDQWarnings"),
+          width = 6,
+          solidHeader = TRUE,
+          status = "warning",
+          title = "Organizations with the Most Warnings"
+        )
+      )
       )
     )
   )
