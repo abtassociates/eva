@@ -52,6 +52,7 @@ function(input, output, session) {
       )
     } else {
       withProgress({
+        setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
         source("00_get_Export.R", local = TRUE)
         setProgress(detail = "Checking file integrity", value = .35)
