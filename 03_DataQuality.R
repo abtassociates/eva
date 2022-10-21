@@ -297,11 +297,11 @@ hh_children_only <- served_in_date_range %>%
   summarise(
     hhMembers = n(),
     maxAge = max(AgeAtEntry),
-    PersonalID = min(PersonalID)
   ) %>%
   filter(maxAge < 12) %>%
   ungroup() %>%
-  left_join(served_in_date_range, by = c("PersonalID", "HouseholdID")) %>%
+  left_join(served_in_date_range, by = c("HouseholdID","maxAge" = "AgeAtEntry")) %>%
+  distinct(HouseholdID, maxAge, .keep_all = TRUE) %>%
   mutate(Issue = "Children Only Household",
          Type = "High Priority",
          Guidance = "Unless your project serves youth younger than 18 
@@ -821,98 +821,98 @@ destination_sh <- served_in_date_range %>%
 
 # Check Eligibility, Project Type, Residence Prior ------------------------
 
-check_eligibility <- served_in_date_range %>%
-  select(
-    all_of(vars_prep),
-    ProjectID,
-    AgeAtEntry,
-    RelationshipToHoH,
-    LivingSituation,
-    LengthOfStay,
-    LOSUnderThreshold,
-    PreviousStreetESSH
-  ) %>%
-  filter(
-    RelationshipToHoH == 1 &
-      AgeAtEntry > 17 &
-      # EntryDate > hc_check_eligibility_back_to &
-      (ProjectType %in% c(3, 4, 8, 9, 10, 12, 13) |
-         (ProjectType == 2 & !ProjectID %in% c(rhy_funded))) &
-      (
-        (ProjectType %in% c(2, 3, 9, 10, 13) &
-           # PTCs that require LH status
-           (
-             is.na(LivingSituation) |
-               (
-                 LivingSituation %in% c(4:7, 15, 25:27, 29) & # institution
-                   (
-                     !LengthOfStay %in% c(2, 3, 10, 11) | # <90 days
-                       is.na(LengthOfStay) |
-                       PreviousStreetESSH == 0 | # LH prior
-                       is.na(PreviousStreetESSH)
-                   )
-               ) |
-               (
-                 LivingSituation %in% c(3, 10, 11, 14, 19:23, 28, 31, 35, 36) &
-                   # not homeless
-                   (
-                     !LengthOfStay %in% c(10, 11) |  # <1 week
-                       is.na(LengthOfStay) |
-                       PreviousStreetESSH == 0 | # LH prior
-                       is.na(PreviousStreetESSH)
-                   )
-               )
-           )) |
-          (
-            ProjectType == 12 &
-              (!LivingSituation %in% c(3, 10, 11, 14, 19:23, 28, 31, 35, 36) |
-              PreviousStreetESSH != 0 )
-          ) |
-          (ProjectType %in% c(8, 4) & # Safe Haven and Outreach
-             LivingSituation != 16) # unsheltered only
-      )
-  ) 
-
-    detail_eligibility <- check_eligibility %>%
-      select(
-        OrganizationName,
-        PersonalID,
-        ProjectName,
-        ProjectType,
-        LivingSituation,
-        EntryDate,
-        ExitDate,
-        LengthOfStay,
-        LOSUnderThreshold,
-        PreviousStreetESSH
-      ) %>%
-      mutate(
-        ResidencePrior =
-          living_situation(LivingSituation),
-        LengthOfStay = case_when(
-          LengthOfStay == 2 ~ "One week or more but less than one month",
-          LengthOfStay == 3 ~ "One month or more but less than 90 days",
-          LengthOfStay == 4 ~ "90 days or more but less than one year",
-          LengthOfStay == 5 ~ "One year or longer",
-          LengthOfStay == 8 ~ "Client doesn't know",
-          LengthOfStay == 9 ~ "Client refused",
-          LengthOfStay == 10 ~ "One night or less",
-          LengthOfStay == 11 ~ "Two to six nights",
-          LengthOfStay == 99 ~ "Data not collected"
-        )
-      )
-    
-    check_eligibility <- check_eligibility %>%
-      mutate(
-        Issue = "Check Eligibility",
-        Type = "Warning",
-        Guidance = 
-          "Your Prior Living Situation data suggests that this project is either
-        serving ineligible households, the household was entered into the wrong
-        project, or the Prior Living Situation data at Project Start is incorrect. 
-        Please check the terms of your grant or speak with your CoC if you are 
-        unsure of eligibility criteria for your project type.") %>%
-      select(all_of(vars_we_want))
+# check_eligibility <- served_in_date_range %>%
+#   select(
+#     all_of(vars_prep),
+#     ProjectID,
+#     AgeAtEntry,
+#     RelationshipToHoH,
+#     LivingSituation,
+#     LengthOfStay,
+#     LOSUnderThreshold,
+#     PreviousStreetESSH
+#   ) %>%
+#   filter(
+#     RelationshipToHoH == 1 &
+#       AgeAtEntry > 17 &
+#       # EntryDate > hc_check_eligibility_back_to &
+#       (ProjectType %in% c(3, 4, 8, 9, 10, 12, 13) |
+#          (ProjectType == 2 & !ProjectID %in% c(rhy_funded))) &
+#       (
+#         (ProjectType %in% c(2, 3, 9, 10, 13) &
+#            # PTCs that require LH status
+#            (
+#              is.na(LivingSituation) |
+#                (
+#                  LivingSituation %in% c(4:7, 15, 25:27, 29) & # institution
+#                    (
+#                      !LengthOfStay %in% c(2, 3, 10, 11) | # <90 days
+#                        is.na(LengthOfStay) |
+#                        PreviousStreetESSH == 0 | # LH prior
+#                        is.na(PreviousStreetESSH)
+#                    )
+#                ) |
+#                (
+#                  LivingSituation %in% c(3, 10, 11, 14, 19:23, 28, 31, 35, 36) &
+#                    # not homeless
+#                    (
+#                      !LengthOfStay %in% c(10, 11) |  # <1 week
+#                        is.na(LengthOfStay) |
+#                        PreviousStreetESSH == 0 | # LH prior
+#                        is.na(PreviousStreetESSH)
+#                    )
+#                )
+#            )) |
+#           (
+#             ProjectType == 12 &
+#               (!LivingSituation %in% c(3, 10, 11, 14, 19:23, 28, 31, 35, 36) |
+#               PreviousStreetESSH != 0 )
+#           ) |
+#           (ProjectType %in% c(8, 4) & # Safe Haven and Outreach
+#              LivingSituation != 16) # unsheltered only
+#       )
+#   ) 
+# 
+#     detail_eligibility <- check_eligibility %>%
+#       select(
+#         OrganizationName,
+#         PersonalID,
+#         ProjectName,
+#         ProjectType,
+#         LivingSituation,
+#         EntryDate,
+#         ExitDate,
+#         LengthOfStay,
+#         LOSUnderThreshold,
+#         PreviousStreetESSH
+#       ) %>%
+#       mutate(
+#         ResidencePrior =
+#           living_situation(LivingSituation),
+#         LengthOfStay = case_when(
+#           LengthOfStay == 2 ~ "One week or more but less than one month",
+#           LengthOfStay == 3 ~ "One month or more but less than 90 days",
+#           LengthOfStay == 4 ~ "90 days or more but less than one year",
+#           LengthOfStay == 5 ~ "One year or longer",
+#           LengthOfStay == 8 ~ "Client doesn't know",
+#           LengthOfStay == 9 ~ "Client refused",
+#           LengthOfStay == 10 ~ "One night or less",
+#           LengthOfStay == 11 ~ "Two to six nights",
+#           LengthOfStay == 99 ~ "Data not collected"
+#         )
+#       )
+#     
+#     check_eligibility <- check_eligibility %>%
+#       mutate(
+#         Issue = "Check Eligibility",
+#         Type = "Warning",
+#         Guidance = 
+#           "Your Residence Prior data suggests that this project is either
+#         serving ineligible households, the household was entered into the wrong
+#         project, or the Residence Prior data at Entry is incorrect. Please check
+#         the terms of your grant or speak with your CoC if you are unsure of 
+#         eligibility criteria for your project type.") %>%
+#       select(all_of(vars_we_want))
     
     # Missing Destination
     missing_destination <- served_in_date_range %>%
@@ -945,7 +945,8 @@ check_eligibility <- served_in_date_range %>%
 ### Length of Stay is null or DNC -> error -OR-
 ### Length of Stay is DKR -> warning
 
-smallProject <- Project %>% select(ProjectID, ProjectName)
+# smallProject <- Project %>% select(ProjectID, ProjectName)
+# 
 
 # path_missing_los_res_prior <- served_in_date_range %>%
 #   select(
@@ -996,6 +997,7 @@ smallProject <- Project %>% select(ProjectID, ProjectName)
 ### adult, PATH-Enrolled is not null
 ### Date of Status Determ is null -> error
 
+
 # path_status_determination <- served_in_date_range %>%
 #   select(all_of(vars_prep),
 #          AgeAtEntry,
@@ -1008,10 +1010,10 @@ smallProject <- Project %>% select(ProjectID, ProjectName)
 #       !is.na(ClientEnrolledInPATH) &
 #       is.na(DateOfPATHStatus)
 #   ) %>%
-#   #mutate(Issue = "Missing Date of PATH Status",
-#          #Type = "Error",
-#          #Guidance = "Users must indicate the PATH Status Date for any adult 
-#          #enrolled in PATH.") %>%
+#   mutate(Issue = "Missing Date of PATH Status",
+#          Type = "Error",
+#          Guidance = "Users must indicate the PATH Status Date for any adult 
+#          enrolled in PATH.") %>%
 #   select(all_of(vars_we_want))
 
 #* PATH Enrolled at Exit
@@ -1027,13 +1029,13 @@ smallProject <- Project %>% select(ProjectID, ProjectName)
 #       (ClientEnrolledInPATH == 99 |
 #          is.na(ClientEnrolledInPATH))
 #   ) %>%
-#   #mutate(
-#     #Issue = "Missing PATH Enrollment at Exit",
-#     #Type = "Error",
-#     #Guidance = "Please enter the data for this item by clicking into the 
-#     #Entry or Exit pencil and creating an Interim. In the assessment, enter 
-#     #the correct PATH Enrollment Date and Save."
-#   #) %>%
+#   mutate(
+#     Issue = "Missing PATH Enrollment at Exit",
+#     Type = "Error",
+#     Guidance = "Please enter the data for this item by clicking into the 
+#     Entry or Exit pencil and creating an Interim. In the assessment, enter 
+#     the correct PATH Enrollment Date and Save."
+#   ) %>%
 #   select(all_of(vars_we_want))
 
 #* Not Enrolled Reason
@@ -1116,12 +1118,12 @@ smallProject <- Project %>% select(ProjectID, ProjectName)
 #                    "ExitDate")) %>%
 #   mutate_at(vars(CurrentLivingSituationCount), ~replace(., is.na(.), 0)) %>%
 #   filter(CurrentLivingSituationCount == 0) %>%
-#   #mutate(Issue = "Missing PATH Contact",
-#          #Type = "High Priority",
-#          #Guidance = "Every adult or Head of Household must have a Living
-#          #Situation contact record. If you see a record there but there is
-#          #no Date of Contact, saving the Date of Contact will correct this
-#          #issue.") %>%
+#   mutate(Issue = "Missing PATH Contact",
+#          Type = "High Priority",
+#          Guidance = "Every adult or Head of Household must have a Living
+#          Situation contact record. If you see a record there but there is
+#          no Date of Contact, saving the Date of Contact will correct this
+#          issue.") %>%
 #   select(all_of(vars_we_want))
 
 # Duplicate EEs -----------------------------------------------------------
@@ -2257,7 +2259,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     
     dq_main <- rbind(
       #check_disability_ssi,
-      check_eligibility,
+      # check_eligibility,
       # conflicting_disabilities,
       conflicting_health_insurance_entry,
       conflicting_health_insurance_exit,
@@ -2300,6 +2302,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       missing_living_situation,
       missing_LoS,
       missing_months_times_homeless,
+      # missing_path_contact,
       missing_previous_street_ESSH,
       missing_ncbs_entry,
       # missing_ncbs_exit,
@@ -2515,34 +2518,34 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       scale_fill_viridis_c(direction = -1) +
       theme_minimal(base_size = 18)
     
-    dq_data_eligibility_plot <- dq_w_project_names %>%
-      filter(Type == "Warning" &
-               Issue %in% c("Check Eligibility")) %>%
-      select(PersonalID, ProjectID, ProjectName) %>%
-      unique() %>%
-      group_by(ProjectName, ProjectID) %>%
-      summarise(Households = n()) %>%
-      ungroup() %>%
-      arrange(desc(Households))
-    
-    dq_data_eligibility_plot$hover <-
-      with(dq_data_eligibility_plot,
-           paste0(ProjectName, ":", ProjectID))
-    
-    dq_plot_eligibility <-
-      ggplot(
-        head(dq_data_eligibility_plot, 10L),
-        aes(
-          x = reorder(hover, Households),
-          y = Households,
-          fill = Households
-        )
-      ) +
-      geom_col(show.legend = FALSE) +
-      coord_flip() +
-      labs(x = "") +
-      scale_fill_viridis_c(direction = -1) +
-      theme_minimal(base_size = 18)
+    # dq_data_eligibility_plot <- dq_w_project_names %>%
+    #   filter(Type == "Warning" &
+    #            Issue %in% c("Check Eligibility")) %>%
+    #   select(PersonalID, ProjectID, ProjectName) %>%
+    #   unique() %>%
+    #   group_by(ProjectName, ProjectID) %>%
+    #   summarise(Households = n()) %>%
+    #   ungroup() %>%
+    #   arrange(desc(Households))
+    # 
+    # dq_data_eligibility_plot$hover <-
+    #   with(dq_data_eligibility_plot,
+    #        paste0(ProjectName, ":", ProjectID))
+    # 
+    # dq_plot_eligibility <-
+    #   ggplot(
+    #     head(dq_data_eligibility_plot, 10L),
+    #     aes(
+    #       x = reorder(hover, Households),
+    #       y = Households,
+    #       fill = Households
+    #     )
+    #   ) +
+    #   geom_col(show.legend = FALSE) +
+    #   coord_flip() +
+    #   labs(x = "") +
+    #   scale_fill_viridis_c(direction = -1) +
+    #   theme_minimal(base_size = 18)
        
 # WARNING save.image does not save the environment properly, save must be used.
 # save(list = ls(), file = "images/Data_Quality.RData", compress = FALSE)
