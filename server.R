@@ -644,8 +644,7 @@ function(input, output, session) {
       ReportEnd <- today()
       
       guidance <- dq_main %>%
-        #filter(ProjectName %in% c(input$providerListDQ) &
-        filter(OrganizationName == input$orgList &
+        filter(OrganizationName %in% c(input$orgList) &
                  served_between(., ReportStart, ReportEnd)) %>%
         group_by(Type, Issue, Guidance) %>%
         ungroup() %>%
@@ -659,21 +658,28 @@ function(input, output, session) {
       datatable(guidance, 
                 rownames = FALSE,
                 escape = FALSE,
-                options = list(dom = 't',
-                               paging = FALSE))
+                options = list(dom = 'ltpi'))
     })
     
     output$dq_organization_summary_table <- DT::renderDataTable({
-      ReportStart <- input$dq_org_startdate
+      ReportStart <- input$dq_startdate
       ReportEnd <- today()
       a <- dq_main %>%
         filter(OrganizationName == input$orgList &
-                 served_between(., ReportStart, ReportEnd)) %>%
-        select(ProjectName, Type, Issue, PersonalID) %>%
-        group_by(ProjectName, Type, Issue) %>%
+                 HMIS::served_between(., ReportStart, ReportEnd)) %>%
+        select(ProjectName, 
+               Type, 
+               Issue, 
+               PersonalID) %>%
+        group_by(ProjectName, 
+                 Type, 
+                 Issue) %>%
         summarise(Clients = n()) %>%
-        select("Project Name" = ProjectName, Type, Issue, Clients) %>%
-        arrange(Type, desc(Clients))
+        arrange(ProjectName, Type, desc(Clients)) %>%
+        select("Project Name" = ProjectName, 
+          Type, 
+          Issue, 
+          Clients)
       
       datatable(
         a,
@@ -727,6 +733,8 @@ function(input, output, session) {
           title = "Duplicate Enrollments",
           status = "warning",
           solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
           HTML(
             "Please correct this issue before moving on to your other errors.<br>
          Duplicate Enrollments are created when the user clicks \"Add Entry Exit\"
@@ -793,6 +801,8 @@ function(input, output, session) {
           title = "Household Issues",
           status = "warning",
           solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
           HTML(
             "Please correct your Household Issues before moving on to make other
           Data Quality corrections."
@@ -820,6 +830,8 @@ function(input, output, session) {
           title = "Missing Client Location",
           status = "warning",
           solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
           HTML(
             "Households with a missing Client Location (the data element just 
           after the Relationship to Head of Household) will be completely
@@ -961,6 +973,8 @@ function(input, output, session) {
           title = "Overlapping Enrollments",
           status = "warning",
           solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
           width = 12,
           HTML(
             "A client cannot reside in an ES, TH, or Safe Haven at the same time. Nor
@@ -1103,6 +1117,8 @@ function(input, output, session) {
           title = "Check Eligibility",
           status = "info",
           solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
           width = 12,
           HTML(
             "<p>Your Residence Prior data suggests that this project is either serving
