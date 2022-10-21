@@ -180,9 +180,10 @@ dashboardPage(
       box(
         title = "HUD CSV Export Integrity Checker",
         width = 12,
-        DT::renderDataTable("integrityChecker"),
+        DT::dataTableOutput("integrityChecker"),
+        p(),
         downloadButton(outputId = "downloadIntegrityCheck",
-                       label = "Download Integrity Checker")
+                       label = "Download Integrity Check Detail")
       ), 
       box(title = "Status",
           uiOutput("headerFileInfo"),
