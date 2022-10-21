@@ -1160,15 +1160,15 @@ function(input, output, session) {
                 rownames = FALSE)
     })
     
-    output$systemDQErrors <- renderPlot(dq_plot_projects_errors)
+    output$systemDQErrors <- renderPlot(dq_plot_organizations_errors)
     
     output$systemHHErrors <- renderPlot(dq_plot_hh_errors)
     
-    output$systemDQWarnings <- renderPlot(dq_plot_projects_warnings)
+    output$systemDQWarnings <- renderPlot(dq_plot_organizations_warnings)
     
-    output$systemDQErrorTypes <- renderPlot(dq_plot_errors)
+    output$systemDQErrorTypes <- renderPlot(dq_plot_errors_org_level)
     
-    output$systemDQWarningTypes <- renderPlot(dq_plot_warnings)
+    output$systemDQWarningTypes <- renderPlot(dq_plot_warnings_org_level)
     
     # output$systemDQEligibility <- renderPlot(dq_plot_eligibility)
     
