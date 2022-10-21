@@ -317,18 +317,31 @@ dashboardPage(
         width = 12
       )),
       fluidRow(
+             box(
+               id = "DQSummaryOrganization",
+               title = paste("Data Quality Summary"),
+               status = "info",
+               solidHeader = TRUE,
+               DT::dataTableOutput("dq_organization_summary_table"),
+               width = 12
+             )
+           ),
+      fluidRow(
         uiOutput("DQHHIssues"),
         uiOutput("DQDuplicateEEs"),
         uiOutput("DQMissingLocation")#,
         # uiOutput("DQPATHMissingContact")
       ),
-      fluidRow(uiOutput("DQIneligible")),
-      fluidRow(uiOutput("DQOverlappingEEs")),
+      #fluidRow(uiOutput("DQIneligible")),
+      #fluidRow(uiOutput("DQOverlappingEEs")),
       fluidRow(box(
         DTOutput("DQErrors"),
         title = "Data Quality Errors",
         width = 12
       )),
+      fluidRow(
+        uiOutput("DQIneligible"),
+        uiOutput("DQOverlappingEEs")),
       fluidRow(
         box(
           id = "warnings",

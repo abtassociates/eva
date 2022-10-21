@@ -303,14 +303,13 @@ missing_client_location <- served_in_date_range %>%
 
 # Household Issues --------------------------------------------------------
 hh_children_only <- served_in_date_range %>%
-  filter(!ProjectID %in% c(rhy_funded)) %>% # not checking for children-only hhs for RHY
   group_by(HouseholdID) %>%
   summarise(
     hhMembers = n(),
     maxAge = max(AgeAtEntry),
     PersonalID = min(PersonalID)
   ) %>%
-  filter(maxAge < 18) %>%
+  filter(maxAge < 12) %>%
   ungroup() %>%
   left_join(served_in_date_range, by = c("PersonalID", "HouseholdID")) %>%
   mutate(Issue = "Children Only Household",
