@@ -9,9 +9,8 @@ comparisons
 tests/
 *.jpg
 .DS_Store
-public_data/
 data/
 images/
-*.csv
 *.html
 test/
+/*.csv
