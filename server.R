@@ -28,11 +28,10 @@ function(input, output, session) {
     } else {}
   })
   
-  
-  
-  # when they click to go to the Upload Hashed CSV tab, it's like the clicked the sidebar menu tab
+  # when they click to go to the Upload Hashed CSV tab, it's like the clicked 
+  # the sidebar menu tab
   observeEvent(input$goToUpload, {
-    updateTabsetPanel(session,"sidebarmenuid",selected="uploadCSV")
+    updateTabsetPanel(session, "sidebarmenuid", selected = "uploadCSV")
   })
   
   observeEvent(input$imported, {

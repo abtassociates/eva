@@ -29,14 +29,14 @@ dashboardPage(
       menuItem("Client Counts",
                   tabName = "currentProviderLevel"),
       menuItem("Data Quality",
-        menuSubItem("System-level",
-                    tabName = "dqSystem"),
-               menuSubItem("Organization-level", 
-                    tabName = "dqTab")
+               menuSubItem("System-level",
+                           tabName = "dqSystem"),
+               menuSubItem("Organization-level",
+                           tabName = "dqTab")
         # menuSubItem("Organization-level", 
         #             tabName = "dqOrganization"),
-        #menuSubItem("Data Entry Timeliness", 
-        #            tabName = "deskTime")
+        # menuSubItem("Data Entry Timeliness", 
+        #             tabName = "deskTime")
       ),
       menuItem("System Analysis",
                menuSubItem("System Flow",
