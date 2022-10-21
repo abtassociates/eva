@@ -1699,7 +1699,7 @@ conflicting_ncbs_entry <- served_in_date_range %>%
           ProjectType %in% c(1, 2, 4, 8, 12) ~ interval(EntryAdjust, ExitAdjust)
         ),
         Issue = "Overlapping Project Stays",
-        Type = "High Priority",
+        Type = "Warning",
         Guidance = "Fix Me"
       ) %>%
       filter((!is.na(LiterallyInProject) & ProjectType != 13) |
@@ -1724,7 +1724,7 @@ conflicting_ncbs_entry <- served_in_date_range %>%
         # bc a client can exit&enter same day
         InProject = interval(EntryDate, ExitAdjust),
         Issue = "Overlapping Project Stays",
-        Type = "High Priority",
+        Type = "Warning",
         Guidance = "Fix Me"
       ) %>%
       filter(ProjectType == 13) %>%
@@ -1752,7 +1752,7 @@ conflicting_ncbs_entry <- served_in_date_range %>%
         # bc a client can exit&enter same day
         InProject = interval(EntryDate, ExitAdjust),
         Issue = "Overlapping Project Stays",
-        Type = "High Priority",
+        Type = "Warning",
         Guidance = "Fix Me"
       ) %>%
       filter(ProjectType == 3) %>%
