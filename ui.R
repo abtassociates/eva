@@ -32,11 +32,11 @@ dashboardPage(
         menuSubItem("System-level",
                     tabName = "dqSystem"),
                menuSubItem("Organization-level", 
-                    tabName = "dqTab"),
+                    tabName = "dqTab")
         # menuSubItem("Organization-level", 
         #             tabName = "dqOrganization"),
-        menuSubItem("Data Entry Timeliness", 
-                    tabName = "deskTime")
+        #menuSubItem("Data Entry Timeliness", 
+        #            tabName = "deskTime")
       ),
       menuItem("System Analysis",
                menuSubItem("System Flow",
@@ -326,9 +326,9 @@ dashboardPage(
              )
            ),
       fluidRow(
-        uiOutput("DQHHIssues"),
-        uiOutput("DQDuplicateEEs"),
-        uiOutput("DQMissingLocation")#,
+        #uiOutput("DQHHIssues"),
+        #uiOutput("DQDuplicateEEs"),
+        #uiOutput("DQMissingLocation"),
         # uiOutput("DQPATHMissingContact")
       ),
       #fluidRow(uiOutput("DQIneligible")),
@@ -338,9 +338,9 @@ dashboardPage(
         title = "Data Quality Errors",
         width = 12
       )),
-      fluidRow(
-        uiOutput("DQIneligible"),
-        uiOutput("DQOverlappingEEs")),
+      #fluidRow(
+        #uiOutput("DQIneligible"),
+        #uiOutput("DQOverlappingEEs")),
       fluidRow(
         box(
           id = "warnings",
