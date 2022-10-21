@@ -715,12 +715,12 @@ function(input, output, session) {
         select(all_of(select_list))
       
       warnings <- dq_main_in_dates %>%
-        filter(Type == "Warning") %>% 
+        filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
         select(all_of(select_list))
       
       overlaps <- dq_overlaps %>%
         filter(
-          Issue %in% list("Overlapping Project Stays","Extremely Long Stayer") &
+          Issue %in% list("Overlapping Project Stays", "Extremely Long Stayer") &
             OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
@@ -729,47 +729,45 @@ function(input, output, session) {
           "Exit Date" = ExitDate,
           "Overlaps With This Provider's Stay" = PreviousProject
         )
-  
-      
       
       summary <- dq_main_in_dates %>% 
         select(ProjectName, Type, Issue, PersonalID) %>%
         group_by(ProjectName, Type, Issue) %>%
         summarise(Clients = n()) %>%
-        select(ProjectName, Type, Issue, Clients) %>%
-        arrange(ProjectName, Type, desc(Clients))
+        select(Type, Clients, ProjectName, Issue) %>%
+        arrange(Type, ProjectName, desc(Clients))
       
       guidance <- dq_main_in_dates %>%
-        group_by(Type, Issue, Guidance) %>%
-        ungroup() %>%
         select(Type, Issue, Guidance) %>%
+        unique() %>%
         mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
-        arrange(Type) %>%
-        unique()
+        arrange(Type)
       
       exportDFList <- list(
         high_priority = high_priority,
+        summary = summary,
+        guidance = guidance,
         errors = errors,
         warnings = warnings,
-        overlaps = overlaps,
-        summary = summary,
-        guidance = guidance
+        overlaps = overlaps
       )
       
       names(exportDFList) = c(
+        "Summary",
+        "Guidance",
         "High Priority",
         "Errors", 
         "Warnings", 
-        "Overlaps",
-        "Summary",
-        "Guidance"
+        "Overlaps"
       )
       
-      exportDFList <- exportDFList[sapply(exportDFList, function(x) dim(x)[1]) > 0]
+      exportDFList <- exportDFList[sapply(exportDFList, 
+                                          function(x) dim(x)[1]) > 0]
       exportDFList
     })
     
-    output$downloadOrgDQReport <- output$downloadOrgDQReport2 <- downloadHandler(
+    output$downloadOrgDQReport <- output$downloadOrgDQReport2 <- 
+      downloadHandler(
       filename = function() {
         paste("Organization Data Quality Report-", Sys.Date(), ".xlsx", sep="")
       },
