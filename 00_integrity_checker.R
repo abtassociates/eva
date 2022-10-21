@@ -4,13 +4,13 @@
 client_problems <- problems(Client)
 
 files <- c(
-  "Affiliation",
+#  "Affiliation",
   "Assessment",
-  "AssessmentQuestions",
-  "AssessmentResults",
+  # "AssessmentQuestions",
+  # "AssessmentResults",
   "Client",
   "CurrentLivingSituation",
-  "Disabilities",
+  # "Disabilities",
   "EmploymentEducation",
   "Enrollment",
   "EnrollmentCoC",
