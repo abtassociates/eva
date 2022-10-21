@@ -700,10 +700,16 @@ function(input, output, session) {
     
     # list of data frames to include in DQ Org Report
     orgDQReportDataList <- reactive({
+      
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
-      select_list = c("Issue" = "Issue","Client ID" = "PersonalID","Household ID" = "HouseholdID","Project Name" = "ProjectName","Entry Date"= "EntryDate")
+      select_list = c("Project Name" = "ProjectName",
+                      "Issue" = "Issue",
+                      "Personal ID" = "PersonalID",
+                      "Household ID" = "HouseholdID",
+                      "Entry Date"= "EntryDate")
+      
       dq_main_in_dates = dq_main %>% served_between(., ReportStart, ReportEnd)
       
       high_priority <- dq_main_in_dates %>% 
@@ -735,7 +741,7 @@ function(input, output, session) {
         group_by(ProjectName, Type, Issue) %>%
         summarise(Clients = n()) %>%
         select(Type, Clients, ProjectName, Issue) %>%
-        arrange(Type, ProjectName, desc(Clients))
+        arrange(Type, desc(Clients))
       
       guidance <- dq_main_in_dates %>%
         select(Type, Issue, Guidance) %>%
@@ -744,9 +750,9 @@ function(input, output, session) {
         arrange(Type)
       
       exportDFList <- list(
-        high_priority = high_priority,
         summary = summary,
         guidance = guidance,
+        high_priority = high_priority,
         errors = errors,
         warnings = warnings,
         overlaps = overlaps
