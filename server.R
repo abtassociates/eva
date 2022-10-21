@@ -16,7 +16,7 @@ function(input, output, session) {
 
   output$goToUpload_btn <- renderUI({
       req(is_null(values$imported_zip))
-      actionButton(inputId = 'goToUpload', label = "Upload Hashed CSV")
+      actionButton(inputId = 'goToUpload', label = "Go To Upload Tab")
   })
   
   output$imported_status <- renderUI(input$imported)
@@ -80,9 +80,29 @@ function(input, output, session) {
     output$integrityChecker <- DT::renderDataTable(
       {
         req(values$imported_zip)
-        datatable(issues_enrollment)
+        a <- issues_enrollment %>%
+          group_by(Issue, Type) %>%
+          summarise(Count = n()) %>%
+          ungroup()
+        
+        datatable(
+          a,
+          rownames = FALSE,
+          filter = 'none',
+          options = list(dom = 't')
+        )
       })
     
+    output$downloadIntegrityCheck <- downloadHandler(
+      # req(values$imported_zip)
+      # Fix me
+    #   filename = function() { 
+    #     paste0(Export$Sourcename, "-", Sys.Date(), ".csv") 
+    #     }
+    #   content = function(file) {
+    #     write_xlsx(issues_enrollment, filename)
+    # }
+      )
     
     output$headerFileInfo <- renderUI({
         req(values$imported_zip)
@@ -103,7 +123,6 @@ function(input, output, session) {
       HTML("You have not successfully uploaded your zipped CSV file yet.")
     })
     
-    browser()
     if(!is_null(values$imported_zip)) {
       updatePickerInput(session = session, inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
@@ -1189,7 +1208,7 @@ function(input, output, session) {
       }
     })
     
-    output$DQErrors <- DT::renderDT({
+    output$DQErrors <- DT::renderDataTable({
       req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
