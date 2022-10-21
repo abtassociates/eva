@@ -675,11 +675,11 @@ function(input, output, session) {
                  Type, 
                  Issue) %>%
         summarise(Clients = n()) %>%
+        arrange(ProjectName, Type, desc(Clients)) %>%
         select("Project Name" = ProjectName, 
           Type, 
           Issue, 
-          Clients) %>%
-        arrange("Project Name", Type, desc(Clients))
+          Clients)
       
       datatable(
         a,
