@@ -58,7 +58,7 @@ check_column_names <- function(file) {
   
 }
 
-column_names <- map_df(files, check_column_names)
+dq_column_names <- map_df(files, check_column_names)
 
 # Affiliation -------------------------------------------------------------
 
