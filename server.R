@@ -284,7 +284,7 @@ function(input, output, session) {
             ),
             sort = today() - EntryDate
           ) %>%
-          mutate(PersonalID = as.character(PersonalID)) %>%
+        #  mutate(PersonalID = as.character(PersonalID)) %>%
           arrange(desc(sort), HouseholdID, PersonalID) %>%
           select(
             "Client ID" = PersonalID,
@@ -689,6 +689,97 @@ function(input, output, session) {
       )
     })
     
+    #### DQ ORG REPORT #### ----------------------
+    # button
+    output$downloadOrgDQReportButton  <- renderUI({
+      if (!is.null(input$imported)) {
+        downloadButton(outputId = "downloadOrgDQReport",
+                       label = "Download")
+      }
+    })
+    
+    # list of data frames to include in DQ Org Report
+    orgDQReportDataList <- reactive({
+      
+      ReportStart <- input$dq_startdate
+      ReportEnd <- today()
+      
+      select_list = c("Project Name" = "ProjectName",
+                      "Issue" = "Issue",
+                      "Personal ID" = "PersonalID",
+                      "Household ID" = "HouseholdID",
+                      "Entry Date"= "EntryDate")
+      
+      dq_main_in_dates = dq_main %>% served_between(., ReportStart, ReportEnd)
+      
+      high_priority <- dq_main_in_dates %>% 
+        filter(Type == "High Priority") %>% 
+        select(all_of(select_list))
+        
+      errors <- dq_main_in_dates %>%
+        filter(Type == "Error") %>% 
+        select(all_of(select_list))
+      
+      warnings <- dq_main_in_dates %>%
+        filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
+        select(all_of(select_list))
+      
+      overlaps <- dq_overlaps %>%
+        filter(
+          Issue %in% list("Overlapping Project Stays", "Extremely Long Stayer") &
+            OrganizationName %in% c(input$orgList) &
+            served_between(., ReportStart, ReportEnd)
+        ) %>%
+        select(all_of(select_list), 
+          "Move-In Date" = MoveInDateAdjust,
+          "Exit Date" = ExitDate,
+          "Overlaps With This Provider's Stay" = PreviousProject
+        )
+      
+      summary <- dq_main_in_dates %>% 
+        select(ProjectName, Type, Issue, PersonalID) %>%
+        group_by(ProjectName, Type, Issue) %>%
+        summarise(Clients = n()) %>%
+        select(Type, Clients, ProjectName, Issue) %>%
+        arrange(Type, desc(Clients))
+      
+      guidance <- dq_main_in_dates %>%
+        select(Type, Issue, Guidance) %>%
+        unique() %>%
+        mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
+        arrange(Type)
+      
+      exportDFList <- list(
+        summary = summary,
+        guidance = guidance,
+        high_priority = high_priority,
+        errors = errors,
+        warnings = warnings,
+        overlaps = overlaps
+      )
+      
+      names(exportDFList) = c(
+        "Summary",
+        "Guidance",
+        "High Priority",
+        "Errors", 
+        "Warnings", 
+        "Overlaps"
+      )
+      
+      exportDFList <- exportDFList[sapply(exportDFList, 
+                                          function(x) dim(x)[1]) > 0]
+      exportDFList
+    })
+    
+    output$downloadOrgDQReport <- output$downloadOrgDQReport2 <- 
+      downloadHandler(
+      filename = function() {
+        paste("Organization Data Quality Report-", Sys.Date(), ".xlsx", sep="")
+      },
+      content = function(file) {write_xlsx(orgDQReportDataList(), path = file)}
+    )
+    
     output$DuplicateEEs <- renderTable({
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
@@ -868,56 +959,56 @@ function(input, output, session) {
       HHIssues
     })
     
-    output$DQPATHMissingContact <- renderUI({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
-      
-      no_contact <- dq_main %>%
-        filter(
-          Issue == "Missing PATH Contact" &
-            OrganizationName %in% c(input$orgList) &
-            served_between(., ReportStart, ReportEnd)
-        )
-      if (nrow(no_contact) > 0) {
-        box(
-          id = "location",
-          title = "Missing Contact (PATH)",
-          status = "warning",
-          solidHeader = TRUE,
-          dq_main %>%
-            filter(Issue == "Missing PATH Contact") %>%
-            select(Guidance) %>%
-            unique(),
-          tableOutput("MissingPATHContact")
-        )
-      }
-      else {
-        
-      }
-    })
-    
-    output$MissingPATHContact <- renderTable({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today() 
-      x <- dq_main %>%
-        filter(
-          Issue == "Missing PATH Contact" &
-            OrganizationName %in% c(input$orgList) &
-            served_between(., ReportStart, ReportEnd)
-        ) %>%
-        mutate(
-          PersonalID = format(PersonalID, digits = NULL),
-          EntryDate = format(EntryDate, "%m-%d-%Y"),
-          MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
-          ExitDate = format(ExitDate, "%m-%d-%Y")
-        ) %>%
-        arrange(ProjectName, PersonalID) %>%
-        select("Project Name" = ProjectName,
-               "Client ID" = PersonalID,
-               "Project Start Date" = EntryDate)
-      
-      x
-    })
+    # output$DQPATHMissingContact <- renderUI({
+    #   ReportStart <- input$dq_startdate
+    #   ReportEnd <- today()
+    #   
+    #   no_contact <- dq_main %>%
+    #     filter(
+    #       Issue == "Missing PATH Contact" &
+    #         OrganizationName %in% c(input$orgList) &
+    #         served_between(., ReportStart, ReportEnd)
+    #     )
+    #   if (nrow(no_contact) > 0) {
+    #     box(
+    #       id = "location",
+    #       title = "Missing Contact (PATH)",
+    #       status = "warning",
+    #       solidHeader = TRUE,
+    #       dq_main %>%
+    #         filter(Issue == "Missing PATH Contact") %>%
+    #         select(Guidance) %>%
+    #         unique(),
+    #       tableOutput("MissingPATHContact")
+    #     )
+    #   }
+    #   else {
+    #     
+    #   }
+    # })
+    # 
+    # output$MissingPATHContact <- renderTable({
+    #   ReportStart <- input$dq_startdate
+    #   ReportEnd <- today() 
+    #   x <- dq_main %>%
+    #     filter(
+    #       Issue == "Missing PATH Contact" &
+    #         OrganizationName %in% c(input$orgList) &
+    #         served_between(., ReportStart, ReportEnd)
+    #     ) %>%
+    #     mutate(
+    #       PersonalID = format(PersonalID, digits = NULL),
+    #       EntryDate = format(EntryDate, "%m-%d-%Y"),
+    #       MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
+    #       ExitDate = format(ExitDate, "%m-%d-%Y")
+    #     ) %>%
+    #     arrange(ProjectName, PersonalID) %>%
+    #     select("Project Name" = ProjectName,
+    #            "Client ID" = PersonalID,
+    #            "Project Start Date" = EntryDate)
+    #   
+    #   x
+    # })
     
     output$Overlaps <- renderTable({
       ReportStart <- input$dq_startdate
@@ -1079,61 +1170,61 @@ function(input, output, session) {
     
     output$systemDQWarningTypes <- renderPlot(dq_plot_warnings_org_level)
     
-    output$systemDQEligibility <- renderPlot(dq_plot_eligibility)
+    # output$systemDQEligibility <- renderPlot(dq_plot_eligibility)
     
-    output$Ineligible <- renderTable({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
-      
-      Ineligible <- detail_eligibility %>%
-        filter(OrganizationName %in% c(input$orgList) &
-                 served_between(., ReportStart, ReportEnd)) %>%
-        mutate(
-          PersonalID = format(PersonalID, digits = NULL),
-          EntryDate = format(EntryDate, "%m-%d-%Y"),
-          PreviousStreetESSH = if_else(PreviousStreetESSH == 1, "Yes", "No")
-        ) %>%
-        select(
-          "Project Name" = ProjectName,
-          "Client ID" = PersonalID,
-          "Entry Date" = EntryDate,
-          "Residence Prior" = ResidencePrior,
-          "Length of Stay" = LengthOfStay,
-          "Literally Homeless Prior" = PreviousStreetESSH
-        )
-      Ineligible
-    })
+    # output$Ineligible <- renderTable({
+    #   ReportStart <- input$dq_startdate
+    #   ReportEnd <- today()
+    #   
+    #   Ineligible <- detail_eligibility %>%
+    #     filter(OrganizationName %in% c(input$orgList) &
+    #              served_between(., ReportStart, ReportEnd)) %>%
+    #     mutate(
+    #       PersonalID = format(PersonalID, digits = NULL),
+    #       EntryDate = format(EntryDate, "%m-%d-%Y"),
+    #       PreviousStreetESSH = if_else(PreviousStreetESSH == 1, "Yes", "No")
+    #     ) %>%
+    #     select(
+    #       "Project Name" = ProjectName,
+    #       "Client ID" = PersonalID,
+    #       "Entry Date" = EntryDate,
+    #       "Residence Prior" = ResidencePrior,
+    #       "Length of Stay" = LengthOfStay,
+    #       "Literally Homeless Prior" = PreviousStreetESSH
+    #     )
+    #   Ineligible
+    # })
     
-    output$DQIneligible <- renderUI({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
-      Ineligible <- detail_eligibility %>%
-        filter(OrganizationName %in% c(input$orgList) &
-                 served_between(., ReportStart, ReportEnd))
-      
-      if (nrow(Ineligible) > 0) {
-        box(
-          id = "eligibility",
-          title = "Check Eligibility",
-          status = "info",
-          solidHeader = TRUE,
-          collapsible = TRUE,
-          collapsed = FALSE,
-          width = 12,
-          HTML(
-            "<p>Your Residence Prior data suggests that this project is either serving
-          ineligible households, the household was entered into the wrong project,
-          or the Residence Prior data at Entry is incorrect. Please check the
-          terms of your grant or speak with the CoC team at COHHIO if you are
-          unsure of eligibility criteria for your project type."
-          ),
-          tableOutput("Ineligible")
-        )
-      }
-      else {
-        
-      }
-    })
+    # output$DQIneligible <- renderUI({
+    #   ReportStart <- input$dq_startdate
+    #   ReportEnd <- today()
+    #   Ineligible <- detail_eligibility %>%
+    #     filter(OrganizationName %in% c(input$orgList) &
+    #              served_between(., ReportStart, ReportEnd))
+    #   
+    #   if (nrow(Ineligible) > 0) {
+    #     box(
+    #       id = "eligibility",
+    #       title = "Check Eligibility",
+    #       status = "info",
+    #       solidHeader = TRUE,
+    #       collapsible = TRUE,
+    #       collapsed = FALSE,
+    #       width = 12,
+    #       HTML(
+    #         "<p>Your Residence Prior data suggests that this project is either serving
+    #       ineligible households, the household was entered into the wrong project,
+    #       or the Residence Prior data at Entry is incorrect. Please check the
+    #       terms of your grant or speak with the CoC team at COHHIO if you are
+    #       unsure of eligibility criteria for your project type."
+    #       ),
+    #       tableOutput("Ineligible")
+    #     )
+    #   }
+    #   else {
+    #     
+    #   }
+    # })
     
     output$DQErrors <- DT::renderDT({
       ReportStart <- input$dq_startdate
@@ -1188,7 +1279,7 @@ function(input, output, session) {
             OrganizationName %in% c(input$orgList) &
             Type == "Warning"
         ) %>%
-        mutate(PersonalID = as.character(PersonalID)) %>%
+        #mutate(PersonalID = as.character(PersonalID)) %>%
         arrange(ProjectName, HouseholdID, PersonalID) %>%
         select(
           "Project Name" = ProjectName,

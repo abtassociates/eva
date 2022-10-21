@@ -12,26 +12,14 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
 
-#guidance_conflicting_hi <- 
-  #"If the user answered \"Yes\" to \"Covered by Health Insurance?\", then
-  #there should be Health Insurance sources that indicate which
-  #type of health insurance the client is receiving. Similarly if the user
-  #answered \"No\", there should not be any Health Insurance sources that say
-  #the client is receiving that type of Health Insurance."
+guidance_conflicting_hi <-
+"Fix me"
 
-#guidance_conflicting_income <- 
-  #"If the user answered \"Yes\" to \"Income from any source\", then
-  #there should be Income sources that indicate which
-  #type of Income the client is receiving. Similarly if the user answered
-  #\"No\", there should not be any Income sources that say the client is
-  #receiving that type of Income."
+guidance_conflicting_income <-
+"Fix me"
 
-#guidance_conflicting_ncbs <-
-  #"If the user answered \"Yes\" to \"Non-cash benefits from any source\",
-  #then there should be Non-cash benefit sources that indicate which type
-  #of Non-cash benefit the client is receiving. Similarly if the user answered
-  #\"No\", then there should not be any Non-cash benefit sources that say the 
-  #client is receiving that type of benefit"
+guidance_conflicting_ncbs <-
+"Fix me"
 
 guidance_missing_at_exit <- 
   "This data element is required to be collected at Project Exit. Please

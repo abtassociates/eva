@@ -293,7 +293,7 @@ dashboardPage(
       fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
       fluidRow(box(
         pickerInput(
-          label = "Select Organiztion",
+          label = "Select Organization",
           inputId = "orgList",
           choices = NULL, #c(unique(Organization$OrganizationName)),
           options = pickerOptions(liveSearch = TRUE,
@@ -309,6 +309,7 @@ dashboardPage(
           min = NULL,
           width = "25%"
         ),
+        uiOutput("downloadOrgDQReportButton"),
         width = 12
       )), 
       fluidRow(
@@ -349,7 +350,7 @@ dashboardPage(
           DT::dataTableOutput("DQWarnings"),
           title = "Data Quality Warnings",
           width = 12
-        ),
+        )
       ),
       fluidRow(
         box(
