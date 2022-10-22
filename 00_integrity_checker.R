@@ -591,7 +591,7 @@ move_in_date_invalid <- Enrollment %>%
       ) |
         is.na(MoveInDate),
       "Nothing",
-      "MoveInDate is not either null or between the Entry and Exit Dates"
+      "MoveInDate is not between the Entry Date and Exit Date"
     ),
     Type = "Error",
     Guidance = paste("EnrollmentID", EnrollmentID, "has an invalid MoveInDate")
