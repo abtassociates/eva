@@ -94,13 +94,16 @@ function(input, output, session) {
       })
     
     output$downloadIntegrityCheck <- downloadHandler(
-    # req(values$imported_zip)
-    # Fix me
-      filename = paste0("integrity-check-", Sys.Date(), ".csv"),
+      # req(values$imported_zip)
+      # Fix me
+      filename = function() {
+        paste("integrity-check-", Sys.Date(), ".xlsx", sep = "")
+      },
       content = function(file) {
-        write_xlsx(issues_enrollment, filename)
-    }
-      )
+        write_xlsx(issues_enrollment, path = file)
+      }
+      
+    )
     
     output$headerFileInfo <- renderUI({
         req(values$imported_zip)
