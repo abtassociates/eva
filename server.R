@@ -16,12 +16,13 @@ function(input, output, session) {
 
   output$goToUpload_btn <- renderUI({
       req(is_null(values$imported_zip))
-      actionButton(inputId = 'goToUpload', label = "Upload Hashed CSV")
+      actionButton(inputId = 'goToUpload', label = "Go To Upload Tab")
   })
   
   output$imported_status <- renderUI(input$imported)
   
   # when they click to go to the Upload Hashed CSV tab, it's like they clicked 
+
   # the sidebar menu tab
   observeEvent(input$goToUpload, {
     updateTabsetPanel(session, "sidebarmenuid", selected = "uploadCSV")
@@ -80,9 +81,30 @@ function(input, output, session) {
     output$integrityChecker <- DT::renderDataTable(
       {
         req(values$imported_zip)
-        datatable(issues_enrollment)
+        a <- issues_enrollment %>%
+          group_by(Issue, Type) %>%
+          summarise(Count = n()) %>%
+          ungroup()
+        
+        datatable(
+          a,
+          rownames = FALSE,
+          filter = 'none',
+          options = list(dom = 't')
+        )
       })
     
+    output$downloadIntegrityCheck <- downloadHandler(
+      # req(values$imported_zip)
+      # Fix me
+      filename = function() {
+        paste("integrity-check-", Sys.Date(), ".xlsx", sep = "")
+      },
+      content = function(file) {
+        write_xlsx(issues_enrollment, path = file)
+      }
+      
+    )
     
     output$headerFileInfo <- renderUI({
         req(values$imported_zip)
@@ -306,7 +328,7 @@ function(input, output, session) {
             ),
             sort = today() - EntryDate
           ) %>%
-          mutate(PersonalID = as.character(PersonalID)) %>%
+        #  mutate(PersonalID = as.character(PersonalID)) %>%
           arrange(desc(sort), HouseholdID, PersonalID) %>%
           select(
             "Client ID" = PersonalID,
@@ -700,11 +722,11 @@ function(input, output, session) {
                  Type, 
                  Issue) %>%
         summarise(Clients = n()) %>%
+        arrange(ProjectName, Type, desc(Clients)) %>%
         select("Project Name" = ProjectName, 
           Type, 
           Issue, 
-          Clients) %>%
-        arrange("Project Name", Type, desc(Clients))
+          Clients)
       
       datatable(
         a,
@@ -713,6 +735,97 @@ function(input, output, session) {
         options = list(dom = 'ltpi')
       )
     })
+    
+    #### DQ ORG REPORT #### ----------------------
+    # button
+    output$downloadOrgDQReportButton  <- renderUI({
+      if (!is.null(input$imported)) {
+        downloadButton(outputId = "downloadOrgDQReport",
+                       label = "Download")
+      }
+    })
+    
+    # list of data frames to include in DQ Org Report
+    orgDQReportDataList <- reactive({
+      
+      ReportStart <- input$dq_startdate
+      ReportEnd <- today()
+      
+      select_list = c("Project Name" = "ProjectName",
+                      "Issue" = "Issue",
+                      "Personal ID" = "PersonalID",
+                      "Household ID" = "HouseholdID",
+                      "Entry Date"= "EntryDate")
+      
+      dq_main_in_dates = dq_main %>% served_between(., ReportStart, ReportEnd)
+      
+      high_priority <- dq_main_in_dates %>% 
+        filter(Type == "High Priority") %>% 
+        select(all_of(select_list))
+        
+      errors <- dq_main_in_dates %>%
+        filter(Type == "Error") %>% 
+        select(all_of(select_list))
+      
+      warnings <- dq_main_in_dates %>%
+        filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
+        select(all_of(select_list))
+      
+      overlaps <- dq_overlaps %>%
+        filter(
+          Issue %in% list("Overlapping Project Stays", "Extremely Long Stayer") &
+            OrganizationName %in% c(input$orgList) &
+            served_between(., ReportStart, ReportEnd)
+        ) %>%
+        select(all_of(select_list), 
+          "Move-In Date" = MoveInDateAdjust,
+          "Exit Date" = ExitDate,
+          "Overlaps With This Provider's Stay" = PreviousProject
+        )
+      
+      summary <- dq_main_in_dates %>% 
+        select(ProjectName, Type, Issue, PersonalID) %>%
+        group_by(ProjectName, Type, Issue) %>%
+        summarise(Clients = n()) %>%
+        select(Type, Clients, ProjectName, Issue) %>%
+        arrange(Type, desc(Clients))
+      
+      guidance <- dq_main_in_dates %>%
+        select(Type, Issue, Guidance) %>%
+        unique() %>%
+        mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
+        arrange(Type)
+      
+      exportDFList <- list(
+        summary = summary,
+        guidance = guidance,
+        high_priority = high_priority,
+        errors = errors,
+        warnings = warnings,
+        overlaps = overlaps
+      )
+      
+      names(exportDFList) = c(
+        "Summary",
+        "Guidance",
+        "High Priority",
+        "Errors", 
+        "Warnings", 
+        "Overlaps"
+      )
+      
+      exportDFList <- exportDFList[sapply(exportDFList, 
+                                          function(x) dim(x)[1]) > 0]
+      exportDFList
+    })
+    
+    output$downloadOrgDQReport <- output$downloadOrgDQReport2 <- 
+      downloadHandler(
+      filename = function() {
+        paste("Organization Data Quality Report-", Sys.Date(), ".xlsx", sep="")
+      },
+      content = function(file) {write_xlsx(orgDQReportDataList(), path = file)}
+    )
     
     output$DuplicateEEs <- renderTable({
       req(values$imported_zip)
@@ -899,58 +1012,56 @@ function(input, output, session) {
       HHIssues
     })
     
-    output$DQPATHMissingContact <- renderUI({
-      req(values$imported_zip)
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
-      
-      no_contact <- dq_main %>%
-        filter(
-          Issue == "Missing PATH Contact" &
-            OrganizationName %in% c(input$orgList) &
-            served_between(., ReportStart, ReportEnd)
-        )
-      if (nrow(no_contact) > 0) {
-        box(
-          id = "location",
-          title = "Missing Contact (PATH)",
-          status = "warning",
-          solidHeader = TRUE,
-          dq_main %>%
-            filter(Issue == "Missing PATH Contact") %>%
-            select(Guidance) %>%
-            unique(),
-          tableOutput("MissingPATHContact")
-        )
-      }
-      else {
-        
-      }
-    })
-    
-    output$MissingPATHContact <- renderTable({
-      req(values$imported_zip)
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today() 
-      x <- dq_main %>%
-        filter(
-          Issue == "Missing PATH Contact" &
-            OrganizationName %in% c(input$orgList) &
-            served_between(., ReportStart, ReportEnd)
-        ) %>%
-        mutate(
-          PersonalID = format(PersonalID, digits = NULL),
-          EntryDate = format(EntryDate, "%m-%d-%Y"),
-          MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
-          ExitDate = format(ExitDate, "%m-%d-%Y")
-        ) %>%
-        arrange(ProjectName, PersonalID) %>%
-        select("Project Name" = ProjectName,
-               "Client ID" = PersonalID,
-               "Project Start Date" = EntryDate)
-      
-      x
-    })
+    # output$DQPATHMissingContact <- renderUI({
+    #   ReportStart <- input$dq_startdate
+    #   ReportEnd <- today()
+    #   
+    #   no_contact <- dq_main %>%
+    #     filter(
+    #       Issue == "Missing PATH Contact" &
+    #         OrganizationName %in% c(input$orgList) &
+    #         served_between(., ReportStart, ReportEnd)
+    #     )
+    #   if (nrow(no_contact) > 0) {
+    #     box(
+    #       id = "location",
+    #       title = "Missing Contact (PATH)",
+    #       status = "warning",
+    #       solidHeader = TRUE,
+    #       dq_main %>%
+    #         filter(Issue == "Missing PATH Contact") %>%
+    #         select(Guidance) %>%
+    #         unique(),
+    #       tableOutput("MissingPATHContact")
+    #     )
+    #   }
+    #   else {
+    #     
+    #   }
+    # })
+    # 
+    # output$MissingPATHContact <- renderTable({
+    #   ReportStart <- input$dq_startdate
+    #   ReportEnd <- today() 
+    #   x <- dq_main %>%
+    #     filter(
+    #       Issue == "Missing PATH Contact" &
+    #         OrganizationName %in% c(input$orgList) &
+    #         served_between(., ReportStart, ReportEnd)
+    #     ) %>%
+    #     mutate(
+    #       PersonalID = format(PersonalID, digits = NULL),
+    #       EntryDate = format(EntryDate, "%m-%d-%Y"),
+    #       MoveInDateAdjust = format(MoveInDateAdjust, "%m-%d-%Y"),
+    #       ExitDate = format(ExitDate, "%m-%d-%Y")
+    #     ) %>%
+    #     arrange(ProjectName, PersonalID) %>%
+    #     select("Project Name" = ProjectName,
+    #            "Client ID" = PersonalID,
+    #            "Project Start Date" = EntryDate)
+    #   
+    #   x
+    # })
     
     output$Overlaps <- renderTable({
       req(values$imported_zip)
@@ -1187,8 +1298,8 @@ function(input, output, session) {
         
       }
     })
-    
-    output$DQErrors <- DT::renderDT({
+
+    output$DQErrors <- DT::renderDataTable({
       req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
@@ -1243,7 +1354,7 @@ function(input, output, session) {
             OrganizationName %in% c(input$orgList) &
             Type == "Warning"
         ) %>%
-        mutate(PersonalID = as.character(PersonalID)) %>%
+        #mutate(PersonalID = as.character(PersonalID)) %>%
         arrange(ProjectName, HouseholdID, PersonalID) %>%
         select(
           "Project Name" = ProjectName,
