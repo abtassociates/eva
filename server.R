@@ -1225,6 +1225,31 @@ function(input, output, session) {
     #   }
     # })
     
+    output$DQHighPriority <- DT::renderDT({
+      ReportStart <- input$dq_startdate
+      ReportEnd <- today()
+      
+      DQHighPriority <- dq_main %>%
+        filter(
+            OrganizationName %in% c(input$orgList) &
+            served_between(., ReportStart, ReportEnd) &
+            Type == "High Priority"
+        ) %>%
+        arrange(ProjectName, HouseholdID, PersonalID) %>%
+        select("Project Name" = ProjectName,
+               "Client ID" = PersonalID,
+               "Error" = Issue,
+               "Project Start Date" =  EntryDate)
+      
+      datatable(
+        DQHighPriority,
+        rownames = FALSE,
+        filter = 'top',
+        options = list(dom = 'ltpi')
+      )
+      
+    })
+    
     output$DQErrors <- DT::renderDT({
       ReportStart <- input$dq_startdate
       ReportEnd <- today()

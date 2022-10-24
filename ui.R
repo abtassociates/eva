@@ -321,14 +321,17 @@ dashboardPage(
           width = 12
         )
       ),
-      fluidRow(
+      # fluidRow(
         #uiOutput("DQHHIssues"),
         #uiOutput("DQDuplicateEEs"),
         #uiOutput("DQMissingLocation"),
         # uiOutput("DQPATHMissingContact")
-      ),
+      # ),
       #fluidRow(uiOutput("DQIneligible")),
       #fluidRow(uiOutput("DQOverlappingEEs")),
+      fluidRow(box(DTOutput("DQHighPriority"),
+                   title = "High Priority Issues",
+                   width = 12)),
       fluidRow(box(DTOutput("DQErrors"),
                    title = "Data Quality Errors",
                    width = 12)),
