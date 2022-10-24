@@ -103,7 +103,6 @@ function(input, output, session) {
       HTML("You have not successfully uploaded your zipped CSV file yet.")
     })
     
-    browser()
     if(!is_null(values$imported_zip)) {
       updatePickerInput(session = session, inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
