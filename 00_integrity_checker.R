@@ -1,8 +1,6 @@
 
 
 
-client_problems <- problems(Client)
-
 files <- c(
 #  "Affiliation",
   "Assessment",
