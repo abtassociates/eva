@@ -69,7 +69,8 @@ function(input, output, session) {
       if (!is.null(input$imported)) {
         HTML(
           paste0(
-            "<strong>Date Range of Current File: </strong>",
+            "<p>You have successfully uploaded your hashed HMIS CSV Export!
+            <strong>Date Range of Current File: </strong>",
             format(Export$ExportStartDate, "%m-%d-%Y"),
             " to ",
             format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
