@@ -300,14 +300,14 @@ dashboardPage(
           width = "100%",
           selected = "none"
         ),
-        dateInput(
-          inputId = "dq_startdate",
-          label = "Report Start Date",
-          format = "mm/dd/yyyy",
-          value = NULL, # ymd(meta_HUDCSV_Export_Start),
-          min = NULL,
-          width = "25%"
-        ),
+        # dateInput(
+        #   inputId = "dq_startdate",
+        #   label = "Report Start Date",
+        #   format = "mm/dd/yyyy",
+        #   value = NULL, # ymd(meta_HUDCSV_Export_Start),
+        #   min = NULL,
+        #   width = "25%"
+        # ),
         uiOutput("downloadOrgDQReportButton"),
         width = 12
       )), 
