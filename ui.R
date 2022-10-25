@@ -29,14 +29,14 @@ dashboardPage(
       menuItem("Client Counts",
                   tabName = "currentProviderLevel"),
       menuItem("Data Quality",
-        menuSubItem("System-level",
-                    tabName = "dqSystem"),
-               menuSubItem("Organization-level", 
-                    tabName = "dqTab"),
+               menuSubItem("System-level",
+                           tabName = "dqSystem"),
+               menuSubItem("Organization-level",
+                           tabName = "dqTab")
         # menuSubItem("Organization-level", 
         #             tabName = "dqOrganization"),
-        menuSubItem("Data Entry Timeliness", 
-                    tabName = "deskTime")
+        # menuSubItem("Data Entry Timeliness", 
+        #             tabName = "deskTime")
       ),
       menuItem("System Analysis",
                menuSubItem("System Flow",
@@ -87,8 +87,6 @@ dashboardPage(
         collapsible = TRUE,
         collapsed = TRUE,
         fluidRow(
-          column(
-            width = 12,
             HTML(
               "<h3>Long Stayers</h3>
           <p>The projects in your CoC have a baseline average length of stay that
@@ -97,90 +95,91 @@ dashboardPage(
           expected number of days in the project. You can set these based on your
           current data or leave them at the defaults."
             ),
-            numericInput(
-              inputId = "ESLongStayers",
-              label = "Emergency Shelters:",
-              value = 120,
-              min = 0,
-              max = 3650,
-              step = 5
-            ),
-            numericInput(
-              inputId = "SHLongStayers",
-              label = "Safe Havens:",
-              value = 120,
-              min = 0,
-              max = 3650,
-              step = 5
-            ),
-            numericInput(
-              inputId = "THLongStayers",
-              label = "Transitional Housing:",
-              value = 120,
-              min = 0,
-              max = 3650,
-              step = 5
-            ),
-            numericInput(
-              inputId = "OutLongStayers",
-              label = "Street Outreach:",
-              value = 120,
-              min = 1,
-              max = 3652
-            ),
-            numericInput(
-              inputId = "ServicesOnlyLongStayers",
-              label = "Services Only:",
-              value = 120,
-              min = 0,
-              max = 3650,
-              step = 5
-            ),
-            numericInput(
-              inputId = "RRHLongStayers",
-              label = "Rapid Rehousing:",
-              value = 120,
-              min = 0,
-              max = 3650,
-              step = 5
-            ),
-            numericInput(
-              inputId = "HPLongStayers",
-              label = "Prevention:",
-              value = 120,
-              min = 0,
-              max = 3650,
-              step = 5
-            )
+          numericInput(
+            inputId = "ESLongStayers",
+            label = "Emergency Shelters:",
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
+          ),
+          numericInput(
+            inputId = "SHLongStayers",
+            label = "Safe Havens:",
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
+          ),
+          numericInput(
+            inputId = "THLongStayers",
+            label = "Transitional Housing:",
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
+          ),
+          numericInput(
+            inputId = "OutLongStayers",
+            label = "Street Outreach:",
+            value = 120,
+            min = 1,
+            max = 3652
+          ),
+          numericInput(
+            inputId = "ServicesOnlyLongStayers",
+            label = "Services Only:",
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
+          ),
+          numericInput(
+            inputId = "RRHLongStayers",
+            label = "Rapid Rehousing:",
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
+          ),
+          numericInput(
+            inputId = "HPLongStayers",
+            label = "Prevention:",
+            value = 120,
+            min = 0,
+            max = 3650,
+            step = 5
           )
         ),
-        HTML(
-          "<h3>Referrals</h3>
+      HTML(
+        "<h3>Referrals</h3>
              <p>Please enter the number of days your CoC would consider a Referral
           to be \"outstanding\"."
-        ),
-        numericInput(
-          inputId = "OutstandingReferrals",
-          label = "Outstanding Referral Days:",
-          value = 7
-        )
       ),
-      box(
-        title = "Upload Hashed CSV zip file",
-        HTML('<i class="fa fa-info-circle" 
+      numericInput(inputId = "OutstandingReferrals",
+                   label = "Outstanding Referral Days:",
+                   value = 7)
+    ),
+    box(
+      title = "Upload Hashed CSV zip file",
+      HTML(
+        '<i class="fa fa-info-circle"
             title="Use the Browse function to direct the app to the file folder containing your zipped CSV.">
-             </i>'),
-        fileInput("imported",
-                  "",
-                  multiple = FALSE,
-                  accept = ".zip"),
-        width = 12
-      ), 
-      uiOutput("integrityCheckerPanel"),
-      box(title = "Status",
-          uiOutput("headerFileInfo"),
-          uiOutput("headerNoFileYet"),
-          width = 12)
+             </i>'
+      ),
+      fileInput("imported",
+                "",
+                multiple = FALSE,
+                accept = ".zip"),
+      width = 12
+    ),
+    uiOutput("integrityCheckerPanel"),
+    box(
+      title = "Status",
+      uiOutput("headerFileInfo"),
+      uiOutput("headerNoFileYet"),
+      width = 12
+    )
     ), 
     tabItem(
       tabName = "currentProviderLevel",
@@ -220,7 +219,7 @@ dashboardPage(
         pickerInput(
           label = "Select Project",
           inputId = "providerListUtilization",
-          choices = NULL, #c(sort(utilization_bed$ProjectName)),
+          choices = NULL, 
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains'),
           width = "100%"
@@ -290,18 +289,14 @@ dashboardPage(
     ),
     tabItem(
       tabName = "dqTab",
-      fluidRow(box(htmlOutput(
-        "headerDataQuality"
-      ), width = 12)),
+      fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
       fluidRow(box(
         pickerInput(
-          label = "Select Organiztion",
+          label = "Select Organization",
           inputId = "orgList",
           choices = NULL, #c(unique(Organization$OrganizationName)),
-          options = pickerOptions(
-            liveSearch = TRUE,
-            liveSearchStyle = 'contains'
-          ),
+          options = pickerOptions(liveSearch = TRUE,
+                                  liveSearchStyle = 'contains'),
           width = "100%",
           selected = "none"
         ),
@@ -313,43 +308,41 @@ dashboardPage(
           min = NULL,
           width = "25%"
         ),
+        uiOutput("downloadOrgDQReportButton"),
         width = 12
-      )),
+      )), 
       fluidRow(
-             box(
-               id = "DQSummaryOrganization",
-               title = paste("Data Quality Summary"),
-               status = "info",
-               solidHeader = TRUE,
-               DT::dataTableOutput("dq_organization_summary_table"),
-               width = 12
-             )
-           ),
+        box(
+          id = "DQSummaryOrganization",
+          title = paste("Data Quality Summary"),
+          status = "info",
+          solidHeader = TRUE,
+          DT::dataTableOutput("dq_organization_summary_table"),
+          width = 12
+        )
+      ),
       fluidRow(
-        uiOutput("DQHHIssues"),
-        uiOutput("DQDuplicateEEs"),
-        uiOutput("DQMissingLocation")#,
+        #uiOutput("DQHHIssues"),
+        #uiOutput("DQDuplicateEEs"),
+        #uiOutput("DQMissingLocation"),
         # uiOutput("DQPATHMissingContact")
       ),
       #fluidRow(uiOutput("DQIneligible")),
       #fluidRow(uiOutput("DQOverlappingEEs")),
+      fluidRow(box(DTOutput("DQErrors"),
+                   title = "Data Quality Errors",
+                   width = 12)),
+      fluidRow(uiOutput("DQIneligible"),
+               uiOutput("DQOverlappingEEs")), 
       fluidRow(box(
-        DTOutput("DQErrors"),
-        title = "Data Quality Errors",
+        id = "warnings",
+        DT::dataTableOutput("DQWarnings"),
+        title = "Data Quality Warnings",
         width = 12
       )),
-      fluidRow(
-        uiOutput("DQIneligible"),
-        uiOutput("DQOverlappingEEs")),
-      fluidRow(
-        box(
-          id = "warnings",
-          DT::dataTableOutput("DQWarnings"),
-          title = "Data Quality Warnings",
-          width = 12
-        ),
-      )
-      ,
+      #fluidRow(
+        #uiOutput("DQIneligible"),
+        #uiOutput("DQOverlappingEEs")),
       fluidRow(
         box(
           id = "DQSummaryProvider",
@@ -377,9 +370,7 @@ dashboardPage(
         ),
         width = 12
       )),
-      fluidRow(box(
-        plotOutput("DeskTimePlotDetail"), width = 12
-      )),
+      fluidRow(box(plotOutput("DeskTimePlotDetail"), width = 12)), 
       fluidRow(
         box(
           uiOutput("deskTimeNote"),
@@ -390,65 +381,45 @@ dashboardPage(
         )
       )
     ),
-    # tabItem(tabName = "dqOrganization",
-    #   fluidRow(box(
-    #     htmlOutput("headerOrganizationDQ"), width = 12
-    #   )),
-    #   fluidRow(box(
-    #     pickerInput(
-    #       inputId = "orgList",
-    #       choices = NULL, #c(unique(Organization$OrganizationName)),
-    #       options = pickerOptions(liveSearch = TRUE,
-    #                               liveSearchStyle = 'contains'),
-    #       width = "70%"
-    #     ),
-    #     dateInput(
-    #       inputId = "dq_org_startdate",
-    #       label = "Report Start Date",
-    #       format = "mm/dd/yyyy",
-    #       value = NULL, # ymd(meta_HUDCSV_Export_Start),
-    #       width = "25%"
-    #     ),
-    #     width = 12
-    #   )),
-    #   fluidRow(
-    #     box(
-    #       id = "DQSummaryOrganization",
-    #       title = paste("Data Quality Summary"),
-    #       status = "info",
-    #       solidHeader = TRUE,
-    #       DT::dataTableOutput("dq_organization_summary_table"),
-    #       width = 12
-    #     )
-    #   )
-    # ),
     tabItem(
       tabName = "dqSystem",
+      fluidRow(box(htmlOutput("headerSystemDQ"), width = 12)),
       fluidRow(
-        box(htmlOutput("headerSystemDQ"), width = 12),
-        box(plotOutput("systemDQErrors"), width = 12,
-            solidHeader = TRUE,
-            status = "danger",
-            title = "Projects with the Most High Priority Issues and Errors"),
-        box(plotOutput("systemHHErrors"), width = 12,
-            solidHeader = TRUE,
-            status = "danger",
-            title = "Projects with the Most Household Errors"),
-        box(plotOutput("systemDQEligibility"), width = 12,
-            solidHeader = TRUE,
-            status = "warning",
-            title = "Projects with the Most Eligibility Warnings"),
-        box(plotOutput("systemDQWarnings"), width = 12,
-            solidHeader = TRUE,
-            status = "warning",
-            title = "Projects with the Most Warnings"),
-        box(plotOutput("systemDQErrorTypes"), width = 12,
-            solidHeader = TRUE,
-            status = "danger",
-            title = "Most Common High Priority Issues and Errors"),
-            solidHeader = TRUE,
-            status = "warning",
-            title = "Most Common Warnings")
+        box(
+          plotOutput("systemDQErrorTypes"),
+          width = 6,
+          solidHeader = TRUE,
+          status = "danger",
+          title = "Most Common High Priority Issues and Errors"
+        ),
+        box(
+          plotOutput("systemDQErrors"),
+          width = 6,
+          solidHeader = TRUE,
+          status = "danger",
+          title = "Organizations with the Most High Priority Issues and Errors"
+        )
+      ),
+        # box(plotOutput("systemHHErrors"), width = 12,
+        #     solidHeader = TRUE,
+        #     status = "danger",
+        #     title = "Projects with the Most Household Errors")),
+      fluidRow(
+        box(
+          plotOutput("systemDQWarningTypes"),
+          width = 6,
+          solidHeader = TRUE,
+          status = "warning",
+          title = "Most Common Warnings"
+        ),
+        box(
+          plotOutput("systemDQWarnings"),
+          width = 6,
+          solidHeader = TRUE,
+          status = "warning",
+          title = "Organizations with the Most Warnings"
+        )
+      )
       )
     )
   )
