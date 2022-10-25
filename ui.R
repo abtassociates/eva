@@ -12,31 +12,27 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
 
-
-
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "Stella HMIS"),
+  dashboardHeader(title = "StellaR"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
       menuItem("Home",
-               tabName = "homeTab"),
+               tabName = "tabHome"),
       menuItem("Upload Hashed CSV",
-               tabName = "uploadCSV"),
+               tabName = "tabUploadCSV"),
       menuItem("Check PDDEs",
                tabName = "tabPDDE"),
       menuItem("Client Counts",
-                  tabName = "currentProviderLevel"),
+                  tabName = "tabClientCount"),
       menuItem("Data Quality",
                menuSubItem("System-level",
-                           tabName = "dqSystem"),
+                           tabName = "tabDQSystem"),
                menuSubItem("Organization-level",
-                           tabName = "dqTab")
-        # menuSubItem("Organization-level", 
-        #             tabName = "dqOrganization"),
+                           tabName = "tabDQOrg")
         # menuSubItem("Data Entry Timeliness", 
-        #             tabName = "deskTime")
+        #             tabName = "tabDeskTime")
       ),
       menuItem("System Analysis",
                menuSubItem("System Flow",
@@ -58,13 +54,13 @@ dashboardPage(
     ),
     tabItems(
     tabItem(
-      tabName = "homeTab",
+      tabName = "tabHome",
       box(
-        title = "Welcome to Stella HMIS!",
+        title = "Welcome to StellaR!",
         width = 12,
         HTML(
-          "<div>Stella HMIS (Stella H) is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
-          Stella H is designed to help you assess the accuracy and completeness of the data within your HMIS. 
+          "<div>StellaR is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
+          StellaR is designed to help you assess the accuracy and completeness of the data within your HMIS. 
           In future iterations it will also assist communities in analyzing your HMIS performance data, 
           including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
           <br/>
@@ -74,13 +70,13 @@ dashboardPage(
           </div>
           <br/>"
         ),
-        htmlOutput("goToUpload_text"),
+        htmlOutput("goToUpload_text"), # fixme- is this needed anymore?
         uiOutput("goToUpload_btn")
       ),
       width = 12
     ),
     tabItem(
-      tabName = "uploadCSV",
+      tabName = "tabUploadCSV",
       box(
         title = "Edit CoC-specific Settings",
         width = 12,
@@ -151,14 +147,14 @@ dashboardPage(
             step = 5
           )
         ),
-      HTML(
+      fluidRow(HTML(
         "<h3>Referrals</h3>
-             <p>Please enter the number of days your CoC would consider a Referral
+        <p>Please enter the number of days your CoC would consider a Referral
           to be \"outstanding\"."
       ),
       numericInput(inputId = "OutstandingReferrals",
                    label = "Outstanding Referral Days:",
-                   value = 7)
+                   value = 7))
     ),
       box(
         title = "Upload Hashed CSV zip file",
@@ -186,7 +182,7 @@ dashboardPage(
           width = 12)
     ), 
     tabItem(
-      tabName = "currentProviderLevel",
+      tabName = "tabClientCount",
       fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
       fluidRow(box(
         pickerInput(
@@ -292,7 +288,7 @@ dashboardPage(
       ))
     ),
     tabItem(
-      tabName = "dqTab",
+      tabName = "tabDQOrg",
       fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
       fluidRow(box(
         pickerInput(
@@ -325,14 +321,9 @@ dashboardPage(
           width = 12
         )
       ),
-      fluidRow(
-        #uiOutput("DQHHIssues"),
-        #uiOutput("DQDuplicateEEs"),
-        #uiOutput("DQMissingLocation"),
-        # uiOutput("DQPATHMissingContact")
-      ),
-      #fluidRow(uiOutput("DQIneligible")),
-      #fluidRow(uiOutput("DQOverlappingEEs")),
+      fluidRow(box(DTOutput("DQHighPriority"),
+                   title = "High Priority Issues",
+                   width = 12)),
       fluidRow(box(DTOutput("DQErrors"),
                    title = "Data Quality Errors",
                    width = 12)),
@@ -358,7 +349,7 @@ dashboardPage(
       )
     ),
     tabItem(
-      tabName = "deskTime",
+      tabName = "tabDeskTime",
       fluidRow(box(htmlOutput("headerDeskTime"),
                    width = 12)),
       fluidRow(box(
@@ -385,7 +376,7 @@ dashboardPage(
       )
     ),
     tabItem(
-      tabName = "dqSystem",
+      tabName = "tabDQSystem",
       fluidRow(box(htmlOutput("headerSystemDQ"), width = 12)),
       fluidRow(
         box(
