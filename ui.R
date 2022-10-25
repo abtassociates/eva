@@ -12,8 +12,6 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
 
-
-
 dashboardPage(
   skin = "black",
   dashboardHeader(title = "StellaR"),
@@ -33,10 +31,8 @@ dashboardPage(
                            tabName = "tabDQSystem"),
                menuSubItem("Organization-level",
                            tabName = "tabDQOrg")
-        # menuSubItem("Organization-level", 
-        #             tabName = "dqOrganization"),
         # menuSubItem("Data Entry Timeliness", 
-        #             tabName = "deskTime")
+        #             tabName = "tabDeskTime")
       ),
       menuItem("System Analysis",
                menuSubItem("System Flow",
@@ -358,7 +354,7 @@ dashboardPage(
       )
     ),
     tabItem(
-      tabName = "deskTime",
+      tabName = "tabDeskTime",
       fluidRow(box(htmlOutput("headerDeskTime"),
                    width = 12)),
       fluidRow(box(
