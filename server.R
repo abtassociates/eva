@@ -282,7 +282,10 @@ function(input, output, session) {
               !ProjectType %in% c(3, 13) &
                 !is.na(ExitDate) ~ "Exited project",
             ),
-            sort = today() - EntryDate
+            sort = today() - EntryDate,
+            EntryDate = format.Date(EntryDate, "%m-%d-%Y"),
+            MoveInDateAdjust = format.Date(MoveInDateAdjust, "%m-%d-%Y"),
+            ExitDate = format.Date(ExitDate, "%m-%d-%Y")
           ) %>%
         #  mutate(PersonalID = as.character(PersonalID)) %>%
           arrange(desc(sort), HouseholdID, PersonalID) %>%
@@ -1236,6 +1239,7 @@ function(input, output, session) {
             served_between(., ReportStart, ReportEnd) &
             Type == "High Priority"
         ) %>%
+        mutate(EntryDate = format.Date(EntryDate, "%m-%d-%Y")) %>%
         arrange(ProjectName, HouseholdID, PersonalID) %>%
         select("Project Name" = ProjectName,
                "Client ID" = PersonalID,
@@ -1270,6 +1274,7 @@ function(input, output, session) {
             served_between(., ReportStart, ReportEnd) &
             Type == "Error"
         ) %>%
+        mutate(EntryDate = format.Date(EntryDate, "%m-%d-%Y")) %>%
         arrange(ProjectName, HouseholdID, PersonalID) %>%
         select("Project Name" = ProjectName,
                "Client ID" = PersonalID,
