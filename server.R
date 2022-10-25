@@ -24,14 +24,14 @@ function(input, output, session) {
   
   output$goToUpload_btn <- renderUI({
     if (is.null(input$imported)) {
-      actionButton(inputId='goToUpload',label="Upload Hashed CSV")
+      actionButton(inputId = 'goToUpload', label = "Upload Hashed CSV")
     } else {}
   })
   
   # when they click to go to the Upload Hashed CSV tab, it's like the clicked 
   # the sidebar menu tab
   observeEvent(input$goToUpload, {
-    updateTabsetPanel(session, "sidebarmenuid", selected = "uploadCSV")
+    updateTabsetPanel(session, "sidebarmenuid", selected = "tabUploadCSV")
   })
   
   observeEvent(input$imported, {
@@ -238,7 +238,7 @@ function(input, output, session) {
         #  mutate(PersonalID = as.character(PersonalID)) %>%
           arrange(desc(sort), HouseholdID, PersonalID) %>%
           select(
-            "Client ID" = PersonalID,
+            "Personal ID" = PersonalID,
             "Relationship to Head of Household" = RelationshipToHoH,
             "Entry Date" = EntryDate,
             "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
@@ -527,8 +527,8 @@ function(input, output, session) {
         mutate(EntryDate = format.Date(EntryDate, "%m-%d-%Y")) %>%
         arrange(ProjectName, HouseholdID, PersonalID) %>%
         select("Project Name" = ProjectName,
-               "Client ID" = PersonalID,
-               "Error" = Issue,
+               "Personal ID" = PersonalID,
+               "High Priority Issue" = Issue,
                "Project Start Date" =  EntryDate)
       
       datatable(
@@ -562,7 +562,7 @@ function(input, output, session) {
         mutate(EntryDate = format.Date(EntryDate, "%m-%d-%Y")) %>%
         arrange(ProjectName, HouseholdID, PersonalID) %>%
         select("Project Name" = ProjectName,
-               "Client ID" = PersonalID,
+               "Personal ID" = PersonalID,
                "Error" = Issue,
                "Project Start Date" =  EntryDate)
       
@@ -598,7 +598,7 @@ function(input, output, session) {
         arrange(ProjectName, HouseholdID, PersonalID) %>%
         select(
           "Project Name" = ProjectName,
-          "Client ID" = PersonalID,
+          "Personal ID" = PersonalID,
           "Warning" = Issue,
           "Project Start Date" =  EntryDate
         )
@@ -812,7 +812,7 @@ function(input, output, session) {
 #            PersonalID = as.character(PersonalID)) %>%
 #     select(PersonalID, BedStart, ExitDate, all_of(y))
 #   
-#   colnames(a) <- c("Client ID", "Bed Start", "Exit Date", z)
+#   colnames(a) <- c("Personal ID", "Bed Start", "Exit Date", z)
 #   
 #   datatable(a,
 #             rownames = FALSE,
@@ -842,7 +842,7 @@ function(input, output, session) {
 #                               MoveInDate, EntryDate)) %>%
 #     select(PersonalID, BedStart, ExitDate, all_of(y))
 #   
-#   colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
+#   colnames(a) <- c("Personal ID", "Bed Start", "Exit Date", "BNs")
 #   
 #   beds <- Beds %>%
 #     filter(ProjectName == input$providerListUtilization &
@@ -884,7 +884,7 @@ function(input, output, session) {
 #                               MoveInDate, EntryDate)) %>%
 #     select(PersonalID, BedStart, ExitDate, all_of(y))
 #   
-#   colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
+#   colnames(a) <- c("Personal ID", "Bed Start", "Exit Date", "BNs")
 #   
 #   beds <- Beds %>%
 #     filter(ProjectName == input$providerListUtilization &
@@ -939,7 +939,7 @@ function(input, output, session) {
 #                               MoveInDate, EntryDate)) %>%
 #     select(PersonalID, BedStart, ExitDate, all_of(y))
 #   
-#   colnames(a) <- c("Client ID", "Bed Start", "Exit Date", "BNs")
+#   colnames(a) <- c("Personal ID", "Bed Start", "Exit Date", "BNs")
 #   
 #   beds <- Beds %>%
 #     filter(ProjectName == input$providerListUtilization &
