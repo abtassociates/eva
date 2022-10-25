@@ -287,8 +287,9 @@ missing_client_location <- served_in_date_range %>%
          RelationshipToHoH == 1) %>%
   mutate(Type = "High Priority",
          Issue = "Missing Client Location",
-         Guidance = "If Client Location is missing, this household will be 
-         excluded from all HUD reporting.") %>%
+         Guidance = 
+           "If Client Location is missing, this household will be excluded from
+         all HUD reporting.") %>%
   select(all_of(vars_we_want))
 
 # Household Issues --------------------------------------------------------
