@@ -147,14 +147,14 @@ dashboardPage(
             step = 5
           )
         ),
-      HTML(
+      fluidRow(HTML(
         "<h3>Referrals</h3>
              <p>Please enter the number of days your CoC would consider a Referral
           to be \"outstanding\"."
       ),
       numericInput(inputId = "OutstandingReferrals",
                    label = "Outstanding Referral Days:",
-                   value = 7)
+                   value = 7))
     ),
     box(
       title = "Upload Hashed CSV zip file",
