@@ -13,60 +13,101 @@
 # <https://www.gnu.org/licenses/>. test
 
 function(input, output, session) {
-  # Dynamic welcome text, based on whether they've already uploaded their csv
-  output$goToUpload_text <- renderUI({
-    if (!is.null(input$imported)) {
-      HTML("<div>Click the \"Upload Hashed CSV Export\" tab in the left sidebar to get started!</div><br/>")
-    } else {
-      HTML("<div>Click the button below to get started!</div><br/>")
-    }
-  })
-  
+
   output$goToUpload_btn <- renderUI({
-    if (is.null(input$imported)) {
-      actionButton(inputId='goToUpload',label="Upload Hashed CSV")
-    } else {}
+      req(is_null(values$imported_zip))
+      actionButton(inputId = 'goToUpload', label = "Go To Upload Tab")
   })
   
-  # when they click to go to the Upload Hashed CSV tab, it's like the clicked 
+  output$imported_status <- renderUI(input$imported)
+  
+  # when they click to go to the Upload Hashed CSV tab, it's like they clicked 
+
   # the sidebar menu tab
   observeEvent(input$goToUpload, {
     updateTabsetPanel(session, "sidebarmenuid", selected = "uploadCSV")
   })
   
+  values <- reactiveValues(
+    imported_zip = NULL
+  )
+  
   observeEvent(input$imported, {
     
-    withProgress({
-      setProgress(message = "Processing...", value = .15)
-      source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-      setProgress(detail = "Reading your files..", value = .3)
-      source("00_get_Export.R", local = TRUE)
-      setProgress(detail = "Prepping initial data..", value = .35)
-      source("00_initial_data_prep.R", local = TRUE)
-      setProgress(detail = "Possibly wasting time on dates..", value = .4)
-      source("00_dates.R", local = TRUE)
-      setProgress(detail = "Making lists..", value = .6)
-      source("01_cohorts.R", local = TRUE) 
-      setProgress(detail = "Assessing your data quality..", value = .8)
-      source("03_DataQuality.R", local = TRUE) 
-      setProgress(detail = "Done!", value = 1)
-      
-        }
-      )
+    source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+    Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
+
+    Client <- importFile("Client",
+                         col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
     
-    output$integrityCheckerPanel <- renderUI(
-      if (!is.null(input$imported)) {
-        box(
-          title = "HUD CSV Export Integrity Checker",
-          width = 12,
-          downloadButton(outputId = "downloadIntegrityCheck",
-                         label = "Download Integrity Checker")
+    
+    
+    hashed <- Export$HashStatus == 4 #&
+      # min(nchar(Client$FirstName), na.rm = TRUE) ==
+      # max(nchar(Client$FirstName), na.rm = TRUE)
+    
+    if (hashed == FALSE) {
+      # clear imported
+      values$imported_zip = NULL
+      showModal(
+        modalDialog(
+          title = "You uploaded the wrong data set",
+          "You have uploaded an unhashed version of the HMIS CSV Export. If you
+          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
+          contact your HMIS vendor.",
+          easyClose = TRUE
+        )
+      )
+    } else {
+      values$imported_zip = 1
+      withProgress({
+        setProgress(message = "Processing...", value = .15)
+        setProgress(detail = "Reading your files..", value = .2)
+        source("00_get_Export.R", local = TRUE)
+        setProgress(detail = "Checking file integrity", value = .35)
+        source("00_integrity_checker.R", local = TRUE)
+        setProgress(detail = "Prepping initial data..", value = .4)
+        source("00_initial_data_prep.R", local = TRUE)
+        source("00_dates.R", local = TRUE)
+        setProgress(detail = "Making lists..", value = .5)
+        source("01_cohorts.R", local = TRUE)
+        setProgress(detail = "Assessing your data quality..", value = .7)
+        source("03_DataQuality.R", local = TRUE)
+        setProgress(detail = "Done!", value = 1)
+        
+      })
+    }
+    
+    output$integrityChecker <- DT::renderDataTable(
+      {
+        req(values$imported_zip)
+        a <- issues_enrollment %>%
+          group_by(Issue, Type) %>%
+          summarise(Count = n()) %>%
+          ungroup()
+        
+        datatable(
+          a,
+          rownames = FALSE,
+          filter = 'none',
+          options = list(dom = 't')
         )
       })
     
+    output$downloadIntegrityCheck <- downloadHandler(
+      # req(values$imported_zip)
+      # Fix me
+      filename = function() {
+        paste("integrity-check-", Sys.Date(), ".xlsx", sep = "")
+      },
+      content = function(file) {
+        write_xlsx(issues_enrollment, path = file)
+      }
+      
+    )
     
     output$headerFileInfo <- renderUI({
-      if (!is.null(input$imported)) {
+        req(values$imported_zip)
         HTML(
           paste0(
             "<strong>Date Range of Current File: </strong>",
@@ -77,44 +118,45 @@ function(input, output, session) {
             format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
           )
         )
-    } else {}
     })
     
     output$headerNoFileYet <- renderUI({
-      if (is.null(input$imported)) {
-        HTML("You have not successfully uploaded your zipped CSV file yet.")
-      } else {}
+      req(is_null(values$imported_zip))
+      HTML("You have not successfully uploaded your zipped CSV file yet.")
     })
     
-    updatePickerInput(session = session, inputId = "currentProviderList",
-                      choices = sort(Project$ProjectName))
-    
-    updatePickerInput(session = session, inputId = "desk_time_providers",
-                      choices = sort(Project$ProjectName))
-    
-    updatePickerInput(session = session, inputId = "providerListDQ",
-                      choices = dq_providers)
-    
-    updatePickerInput(session = session, inputId = "providerDeskTime",
-                      choices = desk_time_providers)
-    
-    updatePickerInput(session = session, inputId = "orgList",
-                      choices = c(unique(sort(Organization$OrganizationName))))
-    
-    updateDateInput(session = session, inputId = "dq_org_startdate", 
-                    value = meta_HUDCSV_Export_Start)
-    
-    updateDateInput(session = session, inputId = "dq_startdate", 
-                    value = meta_HUDCSV_Export_Start)
-    
-    output$files <- renderTable(input$imported)
+    if(!is_null(values$imported_zip)) {
+      updatePickerInput(session = session, inputId = "currentProviderList",
+                        choices = sort(Project$ProjectName))
+      
+      updatePickerInput(session = session, inputId = "desk_time_providers",
+                        choices = sort(Project$ProjectName))
+      
+      updatePickerInput(session = session, inputId = "providerListDQ",
+                        choices = dq_providers)
+      
+      updatePickerInput(session = session, inputId = "providerDeskTime",
+                        choices = desk_time_providers)
+      
+      updatePickerInput(session = session, inputId = "orgList",
+                        choices = c(unique(sort(Organization$OrganizationName))))
+      
+      updateDateInput(session = session, inputId = "dq_org_startdate", 
+                      value = meta_HUDCSV_Export_Start)
+      
+      updateDateInput(session = session, inputId = "dq_startdate", 
+                      value = meta_HUDCSV_Export_Start)
+    }
+    # output$files <- renderTable(input$imported)
     
     output$headerPrioritization <- renderUI({
+      req(values$imported_zip)
       list(h2("Prioritization Report"),
            h4("Literally Homeless Clients as of", meta_HUDCSV_Export_End))
     })
 
     output$headerDataQuality <- renderUI({
+      req(values$imported_zip)
       list(h2("Data Quality"),
            h4(paste(
              format(input$dq_startdate, "%m-%d-%Y"),
@@ -124,6 +166,7 @@ function(input, output, session) {
     })
     
     output$DeskTimePlotDetail <- renderPlot({
+      req(values$imported_zip)
       provider <- input$providerDeskTime
       
       ReportStart <- ymd(today() - years(1))
@@ -194,6 +237,7 @@ function(input, output, session) {
     })
     
     output$DeskTimePlotCoC <- renderPlot({
+      req(values$imported_zip)
       provider <- input$providerDeskTimeCoC
       
       ReportStart <- ymd(today() - years(1))
@@ -240,6 +284,7 @@ function(input, output, session) {
     })
     
     output$clientCountData <- DT::renderDataTable({
+      req(values$imported_zip)
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
       
@@ -300,6 +345,7 @@ function(input, output, session) {
     })
     
     output$clientCountSummary <- DT::renderDataTable({
+      req(values$imported_zip)
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
       
@@ -639,6 +685,7 @@ function(input, output, session) {
     # })
     
     output$dq_provider_summary_table <- DT::renderDataTable({
+      req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -661,6 +708,7 @@ function(input, output, session) {
     })
     
     output$dq_organization_summary_table <- DT::renderDataTable({
+      req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       a <- dq_main %>%
@@ -780,6 +828,7 @@ function(input, output, session) {
     )
     
     output$DuplicateEEs <- renderTable({
+      req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -803,6 +852,7 @@ function(input, output, session) {
     })
     
     output$DQDuplicateEEs <- renderUI({
+      req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -841,6 +891,7 @@ function(input, output, session) {
     })
     
     output$HouseholdIssues <- renderTable({
+      req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -871,6 +922,7 @@ function(input, output, session) {
     })
     
     output$DQHHIssues <- renderUI({
+      req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -906,6 +958,7 @@ function(input, output, session) {
     })
     
     output$DQMissingLocation <- renderUI({
+      req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       HHIssues <- dq_main %>%
@@ -936,6 +989,7 @@ function(input, output, session) {
     })
     
     output$ClientLocation <- renderTable({
+      req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       HHIssues <- dq_main %>%
@@ -1010,6 +1064,7 @@ function(input, output, session) {
     # })
     
     output$Overlaps <- renderTable({
+      req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -1037,6 +1092,7 @@ function(input, output, session) {
     })
     
     output$DQOverlappingEEs <- renderUI({
+      req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       # FIXME Repetition of filter/mutate (use eventReactive)
@@ -1091,6 +1147,7 @@ function(input, output, session) {
     })
     
     output$cocOverlap <- DT::renderDataTable({
+      req(values$imported_zip)
       ReportStart <- hc_check_dq_back_to
       ReportEnd <- today()
       
@@ -1107,6 +1164,7 @@ function(input, output, session) {
     })
     
     output$cocLongStayers <- DT::renderDataTable({
+      req(values$imported_zip)
       ReportStart <- meta_HUDCSV_Export_Start
       ReportEnd <- today()
       
@@ -1125,6 +1183,7 @@ function(input, output, session) {
     })
     
     output$cocRRHDestination <- DT::renderDataTable({
+      req(values$imported_zip)
       ReportStart <- hc_check_dq_back_to
       ReportEnd <- today()
       
@@ -1146,6 +1205,7 @@ function(input, output, session) {
     })
     
     output$cocWidespreadIssues <- DT::renderDataTable({
+      req(values$imported_zip)
       a <- dq_past_year() %>%
         select(Issue, ProjectName, Type) %>%
         unique() %>%
@@ -1159,73 +1219,88 @@ function(input, output, session) {
                 rownames = FALSE)
     })
     
-    output$systemDQErrors <- renderPlot(dq_plot_organizations_errors)
+    output$systemDQErrors <- renderPlot({
+      req(values$imported_zip)
+      dq_plot_projects_errors})
     
-    output$systemHHErrors <- renderPlot(dq_plot_hh_errors)
+    output$systemHHErrors <- renderPlot({
+      req(values$imported_zip)
+      dq_plot_hh_errors})
     
-    output$systemDQWarnings <- renderPlot(dq_plot_organizations_warnings)
+    output$systemDQWarnings <- renderPlot({
+      req(values$imported_zip)
+      dq_plot_projects_warnings})
     
-    output$systemDQErrorTypes <- renderPlot(dq_plot_errors_org_level)
+    output$systemDQErrorTypes <- renderPlot({
+      req(values$imported_zip)
+      dq_plot_errors})
     
-    output$systemDQWarningTypes <- renderPlot(dq_plot_warnings_org_level)
+    output$systemDQWarningTypes <- renderPlot({
+      req(values$imported_zip)
+      dq_plot_warnings})
     
-    # output$systemDQEligibility <- renderPlot(dq_plot_eligibility)
+    output$systemDQEligibility <- renderPlot({
+      req(values$imported_zip)
+      dq_plot_eligibility})
     
-    # output$Ineligible <- renderTable({
-    #   ReportStart <- input$dq_startdate
-    #   ReportEnd <- today()
-    #   
-    #   Ineligible <- detail_eligibility %>%
-    #     filter(OrganizationName %in% c(input$orgList) &
-    #              served_between(., ReportStart, ReportEnd)) %>%
-    #     mutate(
-    #       PersonalID = format(PersonalID, digits = NULL),
-    #       EntryDate = format(EntryDate, "%m-%d-%Y"),
-    #       PreviousStreetESSH = if_else(PreviousStreetESSH == 1, "Yes", "No")
-    #     ) %>%
-    #     select(
-    #       "Project Name" = ProjectName,
-    #       "Client ID" = PersonalID,
-    #       "Entry Date" = EntryDate,
-    #       "Residence Prior" = ResidencePrior,
-    #       "Length of Stay" = LengthOfStay,
-    #       "Literally Homeless Prior" = PreviousStreetESSH
-    #     )
-    #   Ineligible
-    # })
+    output$Ineligible <- renderTable({
+      req(values$imported_zip)
+      ReportStart <- input$dq_startdate
+      ReportEnd <- today()
+      
+      Ineligible <- detail_eligibility %>%
+        filter(OrganizationName %in% c(input$orgList) &
+                 served_between(., ReportStart, ReportEnd)) %>%
+        mutate(
+          PersonalID = format(PersonalID, digits = NULL),
+          EntryDate = format(EntryDate, "%m-%d-%Y"),
+          PreviousStreetESSH = if_else(PreviousStreetESSH == 1, "Yes", "No")
+        ) %>%
+        select(
+          "Project Name" = ProjectName,
+          "Client ID" = PersonalID,
+          "Entry Date" = EntryDate,
+          "Residence Prior" = ResidencePrior,
+          "Length of Stay" = LengthOfStay,
+          "Literally Homeless Prior" = PreviousStreetESSH
+        )
+      Ineligible
+    })
     
-    # output$DQIneligible <- renderUI({
-    #   ReportStart <- input$dq_startdate
-    #   ReportEnd <- today()
-    #   Ineligible <- detail_eligibility %>%
-    #     filter(OrganizationName %in% c(input$orgList) &
-    #              served_between(., ReportStart, ReportEnd))
-    #   
-    #   if (nrow(Ineligible) > 0) {
-    #     box(
-    #       id = "eligibility",
-    #       title = "Check Eligibility",
-    #       status = "info",
-    #       solidHeader = TRUE,
-    #       collapsible = TRUE,
-    #       collapsed = FALSE,
-    #       width = 12,
-    #       HTML(
-    #         "<p>Your Residence Prior data suggests that this project is either serving
-    #       ineligible households, the household was entered into the wrong project,
-    #       or the Residence Prior data at Entry is incorrect. Please check the
-    #       terms of your grant or speak with the CoC team at COHHIO if you are
-    #       unsure of eligibility criteria for your project type."
-    #       ),
-    #       tableOutput("Ineligible")
-    #     )
-    #   }
-    #   else {
-    #     
-    #   }
-    # })
-    
-    output$DQErrors <- DT::renderDT({
+    output$DQIneligible <- renderUI({
+      req(values$imported_zip)
+      ReportStart <- input$dq_startdate
+      ReportEnd <- today()
+      Ineligible <- detail_eligibility %>%
+        filter(OrganizationName %in% c(input$orgList) &
+                 served_between(., ReportStart, ReportEnd))
+      
+      if (nrow(Ineligible) > 0) {
+        box(
+          id = "eligibility",
+          title = "Check Eligibility",
+          status = "info",
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
+          width = 12,
+          HTML(
+            "<p>Your Residence Prior data suggests that this project is either serving
+          ineligible households, the household was entered into the wrong project,
+          or the Residence Prior data at Entry is incorrect. Please check the
+          terms of your grant or speak with the CoC team at COHHIO if you are
+          unsure of eligibility criteria for your project type."
+          ),
+          tableOutput("Ineligible")
+        )
+      }
+      else {
+        
+      }
+    })
+
+    output$DQErrors <- DT::renderDataTable({
+      req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -1260,6 +1335,7 @@ function(input, output, session) {
     })
     
     output$DQWarnings <- DT::renderDataTable({
+      req(values$imported_zip)
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
       
@@ -1295,11 +1371,13 @@ function(input, output, session) {
     })
 
   output$headerCurrent <- renderUI({
+    req(values$imported_zip)
     list(h2("Client Counts Report"),
          h4(input$currentProviderList))
   })
   
   output$headerUtilization <- renderUI({
+    req(values$imported_zip)
     list(h2("Bed and Unit Utilization"),
          h4(input$providerListUtilization),
          h4(format(ymd(
@@ -1309,6 +1387,7 @@ function(input, output, session) {
   })
   
   output$headerDeskTime <- renderUI({
+    req(values$imported_zip)
     list(h2("Data Entry Timeliness"),
          h4(input$providersDeskTime),
          h4(paste("Fixed Date Range:",
@@ -1318,6 +1397,7 @@ function(input, output, session) {
   })
   
   output$headerExitsToPH <- renderUI({
+    req(values$imported_zip)
     ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
     ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%B %d, %Y")
     
@@ -1331,6 +1411,7 @@ function(input, output, session) {
   })
   
   output$headerOrganizationDQ <- renderUI({
+    req(values$imported_zip)
     list(h2("Data Quality Summary (Organization)"),
          h4(paste(
            format(input$dq_startdate, "%m-%d-%Y"),
@@ -1340,6 +1421,7 @@ function(input, output, session) {
   })
   
   output$headerSystemDQ <- renderUI({
+    req(values$imported_zip)
     list(h2("System-wide Data Quality"),
          h4(
            paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
@@ -1386,14 +1468,15 @@ function(input, output, session) {
         issue."
     )})
   
-  output$headerCocDQ <- renderUI({
-    list(h2("System-wide Data Quality"),
-         h4(
-           paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-                 "through",
-                 format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
-         ))
-  })
+  # output$headerCocDQ <- renderUI({
+  #   req(!is.null(input$imported))
+  #   list(h2("System-wide Data Quality"),
+  #        h4(
+  #          paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+  #                "through",
+  #                format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
+  #        ))
+  # })
   
   }, ignoreInit = TRUE)
 

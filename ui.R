@@ -160,26 +160,30 @@ dashboardPage(
                    label = "Outstanding Referral Days:",
                    value = 7)
     ),
-    box(
-      title = "Upload Hashed CSV zip file",
-      HTML(
-        '<i class="fa fa-info-circle"
-            title="Use the Browse function to direct the app to the file folder containing your zipped CSV.">
-             </i>'
-      ),
-      fileInput("imported",
-                "",
-                multiple = FALSE,
-                accept = ".zip"),
-      width = 12
-    ),
-    uiOutput("integrityCheckerPanel"),
-    box(
-      title = "Status",
-      uiOutput("headerFileInfo"),
-      uiOutput("headerNoFileYet"),
-      width = 12
-    )
+      box(
+        title = "Upload Hashed CSV zip file",
+        HTML('<i class="fa fa-info-circle" 
+            title = "Use the Browse function to direct the app to the file folder containing your zipped CSV.">
+             </i>'),
+        fileInput("imported",
+                  label = NULL,
+                  multiple = FALSE,
+                  accept = ".zip"),
+        renderUI("imported_status"),
+        width = 12
+      ), 
+      box(
+        title = "HUD CSV Export Integrity Checker",
+        width = 12,
+        DT::dataTableOutput("integrityChecker"),
+        p(),
+        downloadButton(outputId = "downloadIntegrityCheck",
+                       label = "Download Integrity Check Detail")
+      ), 
+      box(title = "Status",
+          uiOutput("headerFileInfo"),
+          uiOutput("headerNoFileYet"),
+          width = 12)
     ), 
     tabItem(
       tabName = "currentProviderLevel",
@@ -332,8 +336,7 @@ dashboardPage(
       fluidRow(box(DTOutput("DQErrors"),
                    title = "Data Quality Errors",
                    width = 12)),
-      fluidRow(uiOutput("DQIneligible"),
-               uiOutput("DQOverlappingEEs")), 
+      fluidRow(uiOutput("DQOverlappingEEs")), 
       fluidRow(box(
         id = "warnings",
         DT::dataTableOutput("DQWarnings"),
