@@ -12,52 +12,26 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
 
-guidance_conflicting_hi <- 
-  "If the user answered \"Yes\" to \"Covered by Health Insurance?\", then
-  there should be a Health Insurance subassessment where it indicates which
-  type of health insurance the client is receiving. Similarly if the user
-  answered \"No\", there should not be any Health Insurance records that say
-  the client is receiving that type of Health Insurance."
+guidance_conflicting_hi <-
+"Fix me"
 
-guidance_conflicting_income <- 
-  "If the user answered \"Yes\" to \"Income from any source\", then
-  there should be an income subassessment where it indicates which
-  type of income the client is receiving. Similarly if the user answered
-  \"No\", there should not be any income records that say the client is
-  receiving that type of income."
+guidance_conflicting_income <-
+"Fix me"
 
 guidance_conflicting_ncbs <-
-  "If the user answered \"Yes\" to \"Non-cash benefits from any source\",
-  then there should be a Non-cash benefits subassessment where it indicates
-  which type of income the client is receiving. Similarly if the user answered
-  \"No\", then there should not be any non-cash records that say the client is
-  receiving that type of benefit"
+"Fix me"
 
 guidance_missing_at_exit <- 
-  "Please enter the data for this item by clicking into the Exit pencil on the 
-  given Client ID on the appropriate program stay."
+  "This data element is required to be collected at Project Exit. Please
+  go to the client's assessment at Project Exit to enter this data to HMIS."
 
 guidance_missing_at_entry <- 
-  "This data element is required to be collected at project Entry. Please
-  click into the client's Entry pencil to save this data to HMIS."
+  "This data element is required to be collected at Project Start. Please
+  go to the client's assessment at Project Start to enter this data to HMIS."
 
 guidance_missing_pii <- 
-  "Please correct by navigating to the client's record, then clicking the
-  Client Profile tab, then click into the Client Record pencil to save the
-  missing data."
-
-guidance_referral_on_non_hoh <- 
-  "Users should not checkbox all the household members when creating a
-  Referral. Only the Head of Household needs the Referral. It is recommended
-  that users delete any referrals on Non Heads of Household related to this
-  project stay so that the receiving agency does not have to deal with them
-  and they stop showing in reporting."
-
-guidance_service_on_non_hoh <- 
-  "Users should not checkbox all the household members when creating a
-  Service Transaction. Only the Head of Household needs a Service
-  Transaction. Delete any extraneous Service Transactions related to this
-  project stay."
+  "Please correct by providing the missing information in the 
+    client's record."
 
 guidance_dkr_data <- 
   "It is widely understood that not every client will be able to or consent
