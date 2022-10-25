@@ -117,9 +117,9 @@ function(input, output, session) {
     output$headerDataQuality <- renderUI({
       list(h2("Data Quality"),
            h4(paste(
-             format(input$dq_startdate, "%m-%d-%Y"),
+             format(Export$ExportStartDate, "%m-%d-%Y"),
              "to",
-             format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
+             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
            )))
     })
     
@@ -639,8 +639,8 @@ function(input, output, session) {
     # })
     
     output$dq_provider_summary_table <- DT::renderDataTable({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       guidance <- dq_main %>%
         filter(OrganizationName %in% c(input$orgList) &
@@ -661,8 +661,8 @@ function(input, output, session) {
     })
     
     output$dq_organization_summary_table <- DT::renderDataTable({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       a <- dq_main %>%
         filter(OrganizationName == input$orgList &
                  HMIS::served_between(., ReportStart, ReportEnd)) %>%
@@ -700,8 +700,8 @@ function(input, output, session) {
     # list of data frames to include in DQ Org Report
     orgDQReportDataList <- reactive({
       
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       select_list = c("Project Name" = "ProjectName",
                       "Issue" = "Issue",
@@ -780,8 +780,8 @@ function(input, output, session) {
     )
     
     output$DuplicateEEs <- renderTable({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       DuplicateEEs <- dq_main %>%
         filter(
@@ -803,8 +803,8 @@ function(input, output, session) {
     })
     
     output$DQDuplicateEEs <- renderUI({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       DuplicateEEs <- dq_main %>%
         filter(
@@ -841,8 +841,8 @@ function(input, output, session) {
     })
     
     output$HouseholdIssues <- renderTable({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       HHIssues <- dq_main %>%
         filter(
@@ -871,8 +871,8 @@ function(input, output, session) {
     })
     
     output$DQHHIssues <- renderUI({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       HHIssues <- dq_main %>%
         filter(
@@ -906,8 +906,8 @@ function(input, output, session) {
     })
     
     output$DQMissingLocation <- renderUI({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       HHIssues <- dq_main %>%
         filter(
           Issue == "Missing Client Location" &
@@ -936,8 +936,8 @@ function(input, output, session) {
     })
     
     output$ClientLocation <- renderTable({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       HHIssues <- dq_main %>%
         filter(
           Issue == "Missing Client Location" &
@@ -1010,8 +1010,8 @@ function(input, output, session) {
     # })
     
     output$Overlaps <- renderTable({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       OverlappingEEs <- dq_overlaps %>%
         filter(
@@ -1037,8 +1037,8 @@ function(input, output, session) {
     })
     
     output$DQOverlappingEEs <- renderUI({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       # FIXME Repetition of filter/mutate (use eventReactive)
       OverlappingEEs <- dq_overlaps %>%
         filter(
@@ -1092,7 +1092,7 @@ function(input, output, session) {
     
     output$cocOverlap <- DT::renderDataTable({
       ReportStart <- hc_check_dq_back_to
-      ReportEnd <- today()
+      ReportEnd <- meta_HUDCSV_Export_End
       
       a <- dq_overlaps %>%
         filter(served_between(., ReportStart, ReportEnd)) %>%
@@ -1108,7 +1108,7 @@ function(input, output, session) {
     
     output$cocLongStayers <- DT::renderDataTable({
       ReportStart <- meta_HUDCSV_Export_Start
-      ReportEnd <- today()
+      ReportEnd <- meta_HUDCSV_Export_End
       
       a <- dq_main %>%
         filter(served_between(., ReportStart, ReportEnd) &
@@ -1126,7 +1126,7 @@ function(input, output, session) {
     
     output$cocRRHDestination <- DT::renderDataTable({
       ReportStart <- hc_check_dq_back_to
-      ReportEnd <- today()
+      ReportEnd <- meta_HUDCSV_Export_End
       
       a <- dq_main %>%
         filter(served_between(., ReportStart, ReportEnd) &
@@ -1226,8 +1226,8 @@ function(input, output, session) {
     # })
     
     output$DQErrors <- DT::renderDT({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       DQErrors <- dq_main %>%
         filter(
@@ -1260,8 +1260,8 @@ function(input, output, session) {
     })
     
     output$DQWarnings <- DT::renderDataTable({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       DQWarnings <- dq_main %>%
         filter(
