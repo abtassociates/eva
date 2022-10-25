@@ -149,7 +149,7 @@ dashboardPage(
         ),
       fluidRow(HTML(
         "<h3>Referrals</h3>
-             <p>Please enter the number of days your CoC would consider a Referral
+        <p>Please enter the number of days your CoC would consider a Referral
           to be \"outstanding\"."
       ),
       numericInput(inputId = "OutstandingReferrals",
