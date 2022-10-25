@@ -82,7 +82,7 @@ dashboardPage(
         width = 12,
         collapsible = TRUE,
         collapsed = TRUE,
-        fluidRow(
+        fluidRow(box(
             HTML(
               "<h3>Long Stayers</h3>
           <p>The projects in your CoC have a baseline average length of stay that
@@ -145,7 +145,8 @@ dashboardPage(
             min = 0,
             max = 3650,
             step = 5
-          )
+          ),
+          width = 12)
         ),
       fluidRow(HTML(
         "<h3>Referrals</h3>
@@ -195,7 +196,7 @@ dashboardPage(
         dateRangeInput(
           "dateRangeCount",
           "Date Range",
-          min = NULL,
+          min = NULL, 
           format = "mm/dd/yyyy",
           width = 300
         ),
