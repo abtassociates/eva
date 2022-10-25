@@ -70,7 +70,7 @@ dashboardPage(
           </div>
           <br/>"
         ),
-        htmlOutput("goToUpload_text"),
+        htmlOutput("goToUpload_text"), # fixme- is this needed anymore?
         uiOutput("goToUpload_btn")
       ),
       width = 12
