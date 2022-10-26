@@ -1,3 +1,12 @@
+/* || TABLE OF CONTENTS - use ctrl + f */
+/* || HEADER */
+/* || MAIN SIDEBAR */
+/* || SUBMENU AKA TREEVIEW MENU */
+/* || Drop Down Menus*/
+/* || BOXES */
+/* || BUTTONS */
+/* || HELP TEXT CIRCLE*/
+
 .content-wrapper {
   overflow: auto;
 }
@@ -22,7 +31,14 @@
 /* toggle button */
 .skin-black .main-header .navbar>.sidebar-toggle {
     color: white;
+    background-color: #063A89; /*dark blue*/
     border-right: 1px solid #eee;
+}
+
+/* toggle button hover */
+.skin-black .main-header .navbar .sidebar-toggle:hover {
+    color: #063A89; /*dark blue*/
+    background: white;
 }
 
 /* || MAIN SIDEBAR */
