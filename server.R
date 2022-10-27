@@ -77,6 +77,7 @@ function(input, output, session) {
         setProgress(detail = "Assessing your data quality..", value = .7)
         source("03_DataQuality.R", local = TRUE)
         setProgress(detail = "Done!", value = 1)
+        
       })
     }
     
