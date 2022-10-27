@@ -1315,7 +1315,6 @@ rm(income_subs)
 # this only pulls the most recent EE in the overlap and I think that's fine but
 # some users won't like being flagged for it if it's someone else's fault
 # but you can't tell whose fault it is from the data so...
-
 staging_overlaps <- served_in_date_range %>%
   select(all_of(vars_prep), ExitAdjust) %>%
   mutate(
