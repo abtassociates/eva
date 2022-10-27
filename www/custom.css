@@ -111,3 +111,7 @@
   top:1em;
   right:1em;
 }
+
+#imported_progress {
+  display:none;
+}
