@@ -155,9 +155,9 @@ function(input, output, session) {
       req(values$imported_zip)
       list(h2("Data Quality"),
            h4(paste(
-             format(input$dq_startdate, "%m-%d-%Y"),
+             format(Export$ExportStartDate, "%m-%d-%Y"),
              "to",
-             format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
+             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
            )))
     })
     
@@ -380,9 +380,8 @@ function(input, output, session) {
     })
     
     output$dq_provider_summary_table <- DT::renderDataTable({
-      req(values$imported_zip)
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       guidance <- dq_main %>%
         filter(OrganizationName %in% c(input$orgList) &
@@ -403,9 +402,9 @@ function(input, output, session) {
     })
     
     output$dq_organization_summary_table <- DT::renderDataTable({
-      req(values$imported_zip)
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
+
       a <- dq_main %>%
         filter(OrganizationName == input$orgList &
                  HMIS::served_between(., ReportStart, ReportEnd)) %>%
@@ -443,8 +442,8 @@ function(input, output, session) {
     # list of data frames to include in DQ Org Report
     orgDQReportDataList <- reactive({
       
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       select_list = c("Project Name" = "ProjectName",
                       "Issue" = "Issue",
@@ -522,6 +521,7 @@ function(input, output, session) {
       content = function(file) {write_xlsx(orgDQReportDataList(), path = file)}
     )
     
+
     output$cocOverlap <- DT::renderDataTable({
       ReportStart <- Export$ExportStartDate
       ReportEnd <- meta_HUDCSV_Export_Date
@@ -574,8 +574,10 @@ function(input, output, session) {
       dq_plot_warnings})
     
     output$DQHighPriority <- DT::renderDT({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      req(values$imported_zip)      
+      
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       DQHighPriority <- dq_main %>%
         filter(
@@ -598,42 +600,11 @@ function(input, output, session) {
       )
     })
     
-    output$DQIneligible <- renderUI({
-      req(values$imported_zip)
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
-      Ineligible <- detail_eligibility %>%
-        filter(OrganizationName %in% c(input$orgList) &
-                 served_between(., ReportStart, ReportEnd))
+    output$DQErrors <- DT::renderDT({
+      req(values$imported_zip)      
       
-      if (nrow(Ineligible) > 0) {
-        box(
-          id = "eligibility",
-          title = "Check Eligibility",
-          status = "info",
-          solidHeader = TRUE,
-          collapsible = TRUE,
-          collapsed = FALSE,
-          width = 12,
-          HTML(
-            "<p>Your Residence Prior data suggests that this project is either serving
-          ineligible households, the household was entered into the wrong project,
-          or the Residence Prior data at Entry is incorrect. Please check the
-          terms of your grant or speak with the CoC team at COHHIO if you are
-          unsure of eligibility criteria for your project type."
-          ),
-          tableOutput("Ineligible")
-        )
-      }
-      else {
-        
-      }
-    })
-
-    output$DQErrors <- DT::renderDataTable({
-      req(values$imported_zip)
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       DQErrors <- dq_main %>%
         filter(
@@ -667,9 +638,9 @@ function(input, output, session) {
     })
     
     output$DQWarnings <- DT::renderDataTable({
-      req(values$imported_zip)
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      req(values$imported_zip)      
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       DQWarnings <- dq_main %>%
         filter(
