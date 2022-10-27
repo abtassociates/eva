@@ -73,17 +73,13 @@ function(input, output, session) {
         setProgress(detail = "Checking PDDEs..", value = 5)
         source("00_PDDE_Checker.R", local = TRUE)
         setProgress(detail = "Making lists..", value = .6)
-        browser()
         source("01_cohorts.R", local = TRUE)
         setProgress(detail = "Assessing your data quality..", value = .7)
-        browser()
         source("03_DataQuality.R", local = TRUE)
         setProgress(detail = "Done!", value = 1)
-        browser()
       })
     }
     
-    browser()
     output$integrityChecker <- DT::renderDataTable(
       {
         req(values$imported_zip)
