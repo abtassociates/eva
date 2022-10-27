@@ -301,14 +301,14 @@ dashboardPage(
           width = "100%",
           selected = "none"
         ),
-        dateInput(
-          inputId = "dq_startdate",
-          label = "Report Start Date",
-          format = "mm/dd/yyyy",
-          value = NULL, # ymd(meta_HUDCSV_Export_Start),
-          min = NULL,
-          width = "25%"
-        ),
+        # dateInput(
+        #   inputId = "dq_startdate",
+        #   label = "Report Start Date",
+        #   format = "mm/dd/yyyy",
+        #   value = NULL, # ymd(meta_HUDCSV_Export_Start),
+        #   min = NULL,
+        #   width = "25%"
+        # ),
         uiOutput("downloadOrgDQReportButton"),
         width = 12
       )), 
@@ -384,14 +384,14 @@ dashboardPage(
           plotOutput("systemDQErrorTypes"),
           width = 6,
           solidHeader = TRUE,
-          status = "danger",
+          status = NULL,
           title = "Most Common High Priority Issues and Errors"
         ),
         box(
           plotOutput("systemDQErrors"),
           width = 6,
           solidHeader = TRUE,
-          status = "danger",
+          status = NULL,
           title = "Organizations with the Most High Priority Issues and Errors"
         )
       ),
@@ -404,14 +404,14 @@ dashboardPage(
           plotOutput("systemDQWarningTypes"),
           width = 6,
           solidHeader = TRUE,
-          status = "warning",
+          status = NULL,
           title = "Most Common Warnings"
         ),
         box(
           plotOutput("systemDQWarnings"),
           width = 6,
           solidHeader = TRUE,
-          status = "warning",
+          status = NULL,
           title = "Organizations with the Most Warnings"
         )
       )
