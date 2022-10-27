@@ -30,8 +30,7 @@ guidance_missing_at_entry <-
   go to the client's assessment at Project Start to enter this data to HMIS."
 
 guidance_missing_pii <- 
-  "Please correct by providing the missing information in the 
-    client's record."
+  "Please correct by providing the missing information in the client's record."
 
 guidance_dkr_data <- 
   "It is widely understood that not every client will be able to or consent

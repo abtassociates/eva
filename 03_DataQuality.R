@@ -287,8 +287,9 @@ missing_client_location <- served_in_date_range %>%
          RelationshipToHoH == 1) %>%
   mutate(Type = "High Priority",
          Issue = "Missing Client Location",
-         Guidance = "If Client Location is missing, this household will be 
-         excluded from all HUD reporting.") %>%
+         Guidance = 
+           "If Client Location is missing, this household will be excluded from
+         all HUD reporting.") %>%
   select(all_of(vars_we_want))
 
 # Household Issues --------------------------------------------------------
@@ -1785,7 +1786,25 @@ conflicting_ncbs_entry <- served_in_date_range %>%
     
     dq_overlaps <-
       rbind(dq_overlaps, rrh_overlaps, psh_overlaps, same_day_overlaps) %>%
-      unique()
+      unique() %>%
+      mutate(
+        Issue = "Overlapping Project Stays",
+        Type = "Warning",
+        Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the same time. Nor
+        can they have a Move-In Date into a PSH or RRH project while they are
+        still in an ES, TH, or Safe Haven. Further, they cannot be in any two RRH's
+        or any two PSH's simultaneously, housed or not.<br>
+        Please look the client(s) up in HMIS and determine which project stay's
+        Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the \"Previous 
+        Provider's\" mistake, but if you are seeing clients here, it means your
+        project stay was entered last. <br>
+        If the overlap is not your project's mistake, please work with the project 
+        that has the incorrect Entry/Move-In/or Exit Date to get this corrected 
+        or send an email to hmis@cohhio.org if you cannot get it resolved. These 
+        clients will NOT show on their Data Quality app. <br>
+        If YOUR dates are definitely correct, it is fine to continue with other
+        data corrections as needed."
+      )
     
     rm(staging_overlaps,
        same_day_overlaps,
