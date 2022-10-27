@@ -384,14 +384,14 @@ dashboardPage(
           plotOutput("systemDQErrorTypes"),
           width = 6,
           solidHeader = TRUE,
-          status = "danger",
+          status = NULL,
           title = "Most Common High Priority Issues and Errors"
         ),
         box(
           plotOutput("systemDQErrors"),
           width = 6,
           solidHeader = TRUE,
-          status = "danger",
+          status = NULL,
           title = "Organizations with the Most High Priority Issues and Errors"
         )
       ),
@@ -404,14 +404,14 @@ dashboardPage(
           plotOutput("systemDQWarningTypes"),
           width = 6,
           solidHeader = TRUE,
-          status = "warning",
+          status = NULL,
           title = "Most Common Warnings"
         ),
         box(
           plotOutput("systemDQWarnings"),
           width = 6,
           solidHeader = TRUE,
-          status = "warning",
+          status = NULL,
           title = "Organizations with the Most Warnings"
         )
       )
