@@ -574,8 +574,10 @@ function(input, output, session) {
       dq_plot_warnings})
     
     output$DQHighPriority <- DT::renderDT({
-      ReportStart <- input$dq_startdate
-      ReportEnd <- today()
+      req(values$imported_zip)      
+      
+      ReportStart <- Export$ExportStartDate
+      ReportEnd <- meta_HUDCSV_Export_End
       
       DQHighPriority <- dq_main %>%
         filter(
@@ -599,6 +601,8 @@ function(input, output, session) {
     })
     
     output$DQErrors <- DT::renderDT({
+      req(values$imported_zip)      
+      
       ReportStart <- Export$ExportStartDate
       ReportEnd <- meta_HUDCSV_Export_End
       
