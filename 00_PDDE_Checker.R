@@ -13,7 +13,7 @@ subpopNotTotal <- Inventory %>%
               OtherBedInventory
            ) != BedInventory
   ) %>%
-  mutate(Issue = "Sum of dedicated beds (including other beds) != total beds",
+  mutate(Issue = "Sum of the dedicated beds should equal the Total Beds",
          Guidance = "Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth, CH, and Other do not sum to the total number of beds"
   ) %>%
   select(all_of(PDDEcols))
@@ -23,10 +23,10 @@ operatingEndMissing <- Enrollment %>%
   left_join(Project %>% select(ProjectID, OrganizationName), by = "ProjectID") %>%
   group_by(ProjectID) %>%
   mutate(NumOpenEnrollments = sum(is_null(ExitDate)),
-         MostRecentEnrollment = max(ExitDate)
+         MostRecentEnrollment = max(ExitDate,na.rm=TRUE)
   ) %>%
   ungroup() %>%
-  filter(NumOpenEnrollments == 0 & MostRecentEnrollment >= today() - 30) %>%
+  filter(NumOpenEnrollments == 0 & MostRecentEnrollment >= Export$ExportDate - 30) %>%
   mutate(Issue = "Missing Operating End Date",
          Guidance = "If a project has no open enrollments and the most recent Enrollment was 30+ days ago"
   ) %>%
@@ -84,8 +84,8 @@ hmisNotParticipatingButClient <- Project %>%
   left_join(unique(Enrollment[c("PersonalID", "ProjectID")]), by = "ProjectID") %>%
   left_join(Organization %>% select(OrganizationID, VictimServiceProvider), by = "OrganizationID") %>%
   filter((HMISParticipatingProject != 1 | VictimServiceProvider != 0) & !is_null(PersonalID)) %>%
-  mutate(Issue = "Is HMIS but has client-level data",
-         Guidance = "HMIS Projects should not have client-level data"
+  mutate(Issue = "Is not HMIS Participating, but has client-level data",
+         Guidance = "Projects that are not HMIS Participating should not have client-level data"
   ) %>%
   select(all_of(PDDEcols))
 
