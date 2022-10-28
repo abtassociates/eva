@@ -2406,23 +2406,29 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    dq_data_errors_org_level_plot$hover <-
      with(dq_data_errors_org_level_plot,
-          paste0(OrganizationName, ":", OrganizationID))
+          paste0(OrganizationName))
    
    dq_plot_organizations_errors <-
      ggplot(
        head(dq_data_errors_org_level_plot, 10L),
        aes(
          x = reorder(hover, clientsWithErrors),
-         y = clientsWithErrors,
-         fill = clientsWithErrors
+         y = clientsWithErrors
        )
      ) +
-     geom_col(show.legend = FALSE) +
+     geom_col(show.legend = FALSE,
+              color = "#063a89",
+              fill = "#063a89") +
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with Errors") +
-     scale_fill_viridis_c(direction = -1) +
-     theme_classic(base_size = 18)
+     theme_classic() +
+     theme(axis.line = element_line(linetype = "blank"),
+           axis.ticks = element_line(linetype = "blank"),
+           plot.background = element_blank(),
+           panel.grid.minor = element_blank(),
+           panel.grid.major = element_blank()) +
+     geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")
    
    # Most common high priority issues and errors system-wide
    
@@ -2437,15 +2443,21 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      ggplot(head(dq_data_error_types_org_level, 10L),
             aes(
               x = reorder(Issue, Errors),
-              y = Errors,
-              fill = "#0E6FB3"
+              y = Errors
             )) +
-     geom_col(show.legend = FALSE) +
+     geom_col(show.legend = FALSE,
+              color = "#063A89",
+              fill = "#063a89") +
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with Errors") +
-     #scale_fill_viridis_c(direction = -1) +
-     theme_classic(base_size = 18)
+     theme_classic() +
+     theme(axis.line = element_line(linetype = "blank"),
+           axis.ticks = element_line(linetype = "blank"),
+           plot.background = element_blank(),
+           panel.grid.minor = element_blank(),
+           panel.grid.major = element_blank()) +
+     geom_text(aes(label = Errors), hjust = -0.5, color = "black")
    
    #Top orgs with warnings
    
@@ -2458,21 +2470,27 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    dq_data_warnings_org_level_plot$hover <-
      with(dq_data_warnings_org_level_plot,
-          paste0(OrganizationName, ":", OrganizationID))
+          paste0(OrganizationName))
    
    dq_plot_organizations_warnings <-
      ggplot(head(dq_data_warnings_org_level_plot, 10L),
             aes(
               x = reorder(hover, Warnings),
-              y = Warnings,
-              fill = Warnings
+              y = Warnings
             )) +
-     geom_col(show.legend = FALSE) +
+     geom_col(show.legend = FALSE,
+              color = "#063a89",
+              fill = "#063A89") +
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with Warnings") +
-     scale_fill_viridis_c(direction = -1) +
-     theme_classic(base_size = 18)
+     theme_classic() +
+     theme(axis.line = element_line(linetype = "blank"),
+           axis.ticks = element_line(linetype = "blank"),
+           plot.background = element_blank(),
+           panel.grid.minor = element_blank(),
+           panel.grid.major = element_blank()) +
+     geom_text(aes(label = Warnings), hjust = -0.5, color = "black")
    
    #Most common warnings system-wide
    
@@ -2487,16 +2505,21 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      ggplot(head(dq_data_warning_types_org_level, 10L),
             aes(
               x = reorder(Issue, Warnings),
-              y = Warnings,
-              fill = Warnings
+              y = Warnings
             )) +
-     geom_col(show.legend = FALSE) +
+     geom_col(show.legend = FALSE,
+              color = "#063A89",
+              fill = "#063A89") +
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with Warnings") +
-     #scale_fill_viridis_c(direction = -1) +
-     theme_classic(base_size = 18) +
-     geom_text(aes(label = Warnings), vjust = -0.5, colour = "black")
+     theme_classic() +
+     theme(axis.line = element_line(linetype = "blank"),
+           axis.ticks = element_line(linetype = "blank"),
+           plot.background = element_blank(),
+           panel.grid.minor = element_blank(),
+           panel.grid.major = element_blank()) +
+     geom_text(aes(label = Warnings), hjust = -0.5, color = "black")
    
 # Plots -------------------------------------------------------------------
     
