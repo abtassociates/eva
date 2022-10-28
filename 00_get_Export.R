@@ -28,23 +28,10 @@ library(HMIS)
 
 # import
 
-parseDate <- function(datevar) {
-  newDatevar <- parse_date_time(datevar,
-                                orders = c("Ymd", "mdY"))
-  return(newDatevar)
-}
 
-importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
-  if (is.null(input$imported)) {return()}
-  filename = glue::glue("{csvFile}.csv")
-  data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
-                   ,col_types = col_types #,
-                   #guess_max = min(guess_max, n_max) AS 9/8: was getting an 
-                   # error: Error in vroom::vroom: object 'n_max' not found
-  )
-  file.remove(filename)
-  return(data)
-}
+
+client_problems <- problems(Client)
+
 Enrollment <- 
   importFile("Enrollment",
              col_types =
@@ -141,16 +128,6 @@ Event <- importFile("Event", col_types = "cccDnnncnDTTcTc")
 #       col_types = "cccDnnncnDTTcTc")
 # }
 
-Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
-# if (is.null(input$imported)) {
-#   return()
-# } else {
-#   Export <-
-#     read_csv(
-#       unzip(zipfile = input$imported$datapath, files = "Export.csv"),
-#       col_types = "cncccccccTDDcncnnn")
-# }
-
 Funder <- importFile("Funder", col_types = "ccnccDDTTcTc")
 # if (is.null(input$imported)) {
 #   return()
@@ -234,17 +211,6 @@ YouthEducationStatus <- importFile("YouthEducationStatus",
 #     read_csv(
 #       unzip(zipfile = input$imported$datapath, files = "YouthEducationStatus.csv"),
 #       col_types = "cccDnnnnTTcTc")
-# }
-
-Client <- importFile("Client",
-                     col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
-# if (is.null(input$imported)) {
-#   return()
-# } else {
-#   Client <-
-#     read_csv(
-#       unzip(zipfile = input$imported$datapath, files = "Client.csv"),
-#       col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
 # }
 
 Assessment <- importFile("Assessment",col_types = "cccDcnnnTTcTc")
