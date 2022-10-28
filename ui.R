@@ -386,18 +386,34 @@ dashboardPage(
       fluidRow(box(htmlOutput("headerSystemDQ"), width = 12)),
       fluidRow(
         box(
+          plotOutput("systemDQHighPriorityErrorTypes"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Most Common High Priority Errors"
+        ),
+        box(
+          plotOutput("systemDQHighPriorityErrors"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Organizations with the Most High Priority Errors"
+        )
+      ),
+      fluidRow(
+        box(
           plotOutput("systemDQErrorTypes"),
           width = 6,
           solidHeader = TRUE,
           status = NULL,
-          title = "Most Common High Priority Issues and Errors"
+          title = "Most Common General Errors"
         ),
         box(
           plotOutput("systemDQErrors"),
           width = 6,
           solidHeader = TRUE,
           status = NULL,
-          title = "Organizations with the Most High Priority Issues and Errors"
+          title = "Organizations with the Most General Errors"
         )
       ),
         # box(plotOutput("systemHHErrors"), width = 12,
