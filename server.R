@@ -43,9 +43,9 @@ function(input, output, session) {
     
     
     
-    hashed <- Export$HashStatus == 4 #&
-      # min(nchar(Client$FirstName), na.rm = TRUE) ==
-      # max(nchar(Client$FirstName), na.rm = TRUE)
+    hashed <- Export$HashStatus == 4 &
+       min(nchar(Client$FirstName), na.rm = TRUE) ==
+       max(nchar(Client$FirstName), na.rm = TRUE)
     
     if (hashed == FALSE) {
       # clear imported
@@ -67,6 +67,7 @@ function(input, output, session) {
         source("00_get_Export.R", local = TRUE)
         setProgress(detail = "Checking file integrity", value = .35)
         source("00_integrity_checker.R", local = TRUE)
+        
         setProgress(detail = "Prepping initial data..", value = .4)
         source("00_initial_data_prep.R", local = TRUE)
         source("00_dates.R", local = TRUE)
