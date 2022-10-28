@@ -70,7 +70,7 @@ function(input, output, session) {
         setProgress(detail = "Prepping initial data..", value = .4)
         source("00_initial_data_prep.R", local = TRUE)
         source("00_dates.R", local = TRUE)
-        setProgress(detail = "Checking PDDEs..", value = 5)
+        setProgress(detail = "Checking PDDEs..", value = .5)
         source("00_PDDE_Checker.R", local = TRUE)
         setProgress(detail = "Making lists..", value = .6)
         source("01_cohorts.R", local = TRUE)
