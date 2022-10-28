@@ -596,37 +596,42 @@ function(input, output, session) {
       
       datatable(a,
                 rownames = FALSE)
-<<<<<<< HEAD
+
     })
+ 
+    #System-Level tab plots
+       
+    output$systemDQHighPriorityErrors <- renderPlot({
+      req(values$imported_zip)
+      dq_plot_organizations_high_priority_errors})
     
-    output$systemDQHighPriorityErrors <- renderPlot(dq_plot_organizations_high_priority_errors)
-    
-    output$systemDQHighPriorityErrorTypes <- renderPlot(dq_plot_high_priority_errors_org_level)
-    
-    output$systemDQErrors <- renderPlot(dq_plot_organizations_errors)
-=======
-    }) #revisit
->>>>>>> dev
+    output$systemDQHighPriorityErrorTypes <- renderPlot({
+      req(values$imported_zip)
+      dq_plot_high_priority_errors_org_level})
     
     output$systemDQErrors <- renderPlot({
       req(values$imported_zip)
-      dq_plot_projects_errors})
-    
-    output$systemHHErrors <- renderPlot({
-      req(values$imported_zip)
-      dq_plot_hh_errors})
-    
-    output$systemDQWarnings <- renderPlot({
-      req(values$imported_zip)
-      dq_plot_projects_warnings})
+      dq_plot_organizations_errors})
     
     output$systemDQErrorTypes <- renderPlot({
       req(values$imported_zip)
-      dq_plot_errors})
+      dq_plot_errors_org_level})
+    
+    # output$systemDQErrors <- renderPlot({
+    #   req(values$imported_zip)
+    #   dq_plot_projects_errors})
+    # 
+    # output$systemHHErrors <- renderPlot({
+    #   req(values$imported_zip)
+    #   dq_plot_hh_errors})
+    
+    output$systemDQWarnings <- renderPlot({
+      req(values$imported_zip)
+      dq_plot_organizations_warnings})
     
     output$systemDQWarningTypes <- renderPlot({
       req(values$imported_zip)
-      dq_plot_warnings})
+      dq_plot_warnings_org_level})
     
     output$DQHighPriority <- DT::renderDT({
       req(values$imported_zip)      
