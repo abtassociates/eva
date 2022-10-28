@@ -2619,145 +2619,145 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
            panel.grid.major = element_blank()) +
      geom_text(aes(label = Warnings), hjust = -0.5, color = "black")
    
-# Plots -------------------------------------------------------------------
-    
-    dq_data_errors_plot <- dq_w_project_names %>%
-      filter(
-        Type %in% c("Error", "High Priority") &
-          !Issue %in% c(
-            "No Head of Household",
-            "Missing Relationship to Head of Household",
-            "Too Many Heads of Household",
-            "Children Only Household"
-          )
-      ) %>%
-      select(PersonalID, ProjectID, ProjectName) %>%
-      unique() %>%
-      group_by(ProjectName, ProjectID) %>%
-      summarise(clientsWithErrors = n()) %>%
-      ungroup() %>%
-      arrange(desc(clientsWithErrors))
-    
-    dq_data_errors_plot$hover <-
-      with(dq_data_errors_plot,
-           paste0(ProjectName, ":", ProjectID))
-    
-    dq_plot_projects_errors <-
-      ggplot(
-        head(dq_data_errors_plot, 10L),
-        aes(
-          x = reorder(hover, clientsWithErrors),
-          y = clientsWithErrors,
-          fill = clientsWithErrors
-        )
-      ) +
-      geom_col(show.legend = FALSE) +
-      coord_flip() +
-      labs(x = "",
-           y = "Clients") +
-      scale_fill_viridis_c(direction = -1) +
-      theme_minimal(base_size = 18)
-    
-    dq_data_warnings_plot <- dq_w_project_names %>%
-      filter(Type == "Warning") %>%
-      group_by(ProjectName, ProjectID) %>%
-      summarise(Warnings = n()) %>%
-      ungroup() %>%
-      arrange(desc(Warnings))
-    
-    dq_data_warnings_plot$hover <-
-      with(dq_data_warnings_plot,
-           paste0(ProjectName, ":", ProjectID))
-    
-    dq_plot_projects_warnings <-
-      ggplot(head(dq_data_warnings_plot, 10L),
-             aes(
-               x = reorder(hover, Warnings),
-               y = Warnings,
-               fill = Warnings
-             )) +
-      geom_col(show.legend = FALSE) +
-      coord_flip() +
-      labs(x = "",
-           y = "Clients") +
-      scale_fill_viridis_c(direction = -1) +
-      theme_minimal(base_size = 18)
-    
-    dq_data_error_types <- dq_w_project_names %>%
-      filter(Type %in% c("Error", "High Priority")) %>%
-      group_by(Issue) %>%
-      summarise(Errors = n()) %>%
-      ungroup() %>%
-      arrange(desc(Errors))
-    
-    dq_plot_errors <-
-      ggplot(head(dq_data_error_types, 10L),
-             aes(
-               x = reorder(Issue, Errors),
-               y = Errors,
-               fill = Errors
-             )) +
-      geom_col(show.legend = FALSE) +
-      coord_flip() +
-      labs(x = "",
-           y = "Clients") +
-      scale_fill_viridis_c(direction = -1) +
-      theme_minimal(base_size = 18)
-    
-    dq_data_warning_types <- dq_w_project_names %>%
-      filter(Type == "Warning") %>%
-      group_by(Issue) %>%
-      summarise(Warnings = n()) %>%
-      ungroup() %>%
-      arrange(desc(Warnings))
-    
-    dq_plot_warnings <-
-      ggplot(head(dq_data_warning_types, 10L),
-             aes(
-               x = reorder(Issue, Warnings),
-               y = Warnings,
-               fill = Warnings
-             )) +
-      geom_col(show.legend = FALSE) +
-      coord_flip() +
-      labs(x = "",
-           y = "Clients") +
-      scale_fill_viridis_c(direction = -1) +
-      theme_minimal(base_size = 18)
-    
-    dq_data_hh_issues_plot <- dq_w_project_names %>%
-      filter(
-        Type %in% c("Error", "High Priority") &
-          Issue %in% c(
-            "Missing Relationship to Head of Household",
-            "No Head of Household",
-            "Too Many Heads of Household",
-            "Children Only Household"
-          )
-      ) %>%
-      select(PersonalID, ProjectID, ProjectName) %>%
-      unique() %>%
-      group_by(ProjectName, ProjectID) %>%
-      summarise(Households = n()) %>%
-      ungroup() %>%
-      arrange(desc(Households))
-    
-    dq_data_hh_issues_plot$hover <-
-      with(dq_data_hh_issues_plot,
-           paste0(ProjectName, ":", ProjectID))
-    
-    dq_plot_hh_errors <-
-      ggplot(head(dq_data_hh_issues_plot, 10L),
-             aes(
-               x = reorder(hover, Households),
-               y = Households,
-               fill = Households
-             )) +
-      geom_col(show.legend = FALSE) +
-      coord_flip() +
-      labs(x = "") +
-      scale_fill_viridis_c(direction = -1) +
-      theme_minimal(base_size = 18)
+# # Plots -------------------------------------------------------------------
+#     
+#     dq_data_errors_plot <- dq_w_project_names %>%
+#       filter(
+#         Type %in% c("Error", "High Priority") &
+#           !Issue %in% c(
+#             "No Head of Household",
+#             "Missing Relationship to Head of Household",
+#             "Too Many Heads of Household",
+#             "Children Only Household"
+#           )
+#       ) %>%
+#       select(PersonalID, ProjectID, ProjectName) %>%
+#       unique() %>%
+#       group_by(ProjectName, ProjectID) %>%
+#       summarise(clientsWithErrors = n()) %>%
+#       ungroup() %>%
+#       arrange(desc(clientsWithErrors))
+#     
+#     dq_data_errors_plot$hover <-
+#       with(dq_data_errors_plot,
+#            paste0(ProjectName, ":", ProjectID))
+#     
+#     dq_plot_projects_errors <-
+#       ggplot(
+#         head(dq_data_errors_plot, 10L),
+#         aes(
+#           x = reorder(hover, clientsWithErrors),
+#           y = clientsWithErrors,
+#           fill = clientsWithErrors
+#         )
+#       ) +
+#       geom_col(show.legend = FALSE) +
+#       coord_flip() +
+#       labs(x = "",
+#            y = "Clients") +
+#       scale_fill_viridis_c(direction = -1) +
+#       theme_minimal(base_size = 18)
+#     
+#     dq_data_warnings_plot <- dq_w_project_names %>%
+#       filter(Type == "Warning") %>%
+#       group_by(ProjectName, ProjectID) %>%
+#       summarise(Warnings = n()) %>%
+#       ungroup() %>%
+#       arrange(desc(Warnings))
+#     
+#     dq_data_warnings_plot$hover <-
+#       with(dq_data_warnings_plot,
+#            paste0(ProjectName, ":", ProjectID))
+#     
+#     dq_plot_projects_warnings <-
+#       ggplot(head(dq_data_warnings_plot, 10L),
+#              aes(
+#                x = reorder(hover, Warnings),
+#                y = Warnings,
+#                fill = Warnings
+#              )) +
+#       geom_col(show.legend = FALSE) +
+#       coord_flip() +
+#       labs(x = "",
+#            y = "Clients") +
+#       scale_fill_viridis_c(direction = -1) +
+#       theme_minimal(base_size = 18)
+#     
+#     dq_data_error_types <- dq_w_project_names %>%
+#       filter(Type %in% c("Error", "High Priority")) %>%
+#       group_by(Issue) %>%
+#       summarise(Errors = n()) %>%
+#       ungroup() %>%
+#       arrange(desc(Errors))
+#     
+#     dq_plot_errors <-
+#       ggplot(head(dq_data_error_types, 10L),
+#              aes(
+#                x = reorder(Issue, Errors),
+#                y = Errors,
+#                fill = Errors
+#              )) +
+#       geom_col(show.legend = FALSE) +
+#       coord_flip() +
+#       labs(x = "",
+#            y = "Clients") +
+#       scale_fill_viridis_c(direction = -1) +
+#       theme_minimal(base_size = 18)
+#     
+#     dq_data_warning_types <- dq_w_project_names %>%
+#       filter(Type == "Warning") %>%
+#       group_by(Issue) %>%
+#       summarise(Warnings = n()) %>%
+#       ungroup() %>%
+#       arrange(desc(Warnings))
+#     
+#     dq_plot_warnings <-
+#       ggplot(head(dq_data_warning_types, 10L),
+#              aes(
+#                x = reorder(Issue, Warnings),
+#                y = Warnings,
+#                fill = Warnings
+#              )) +
+#       geom_col(show.legend = FALSE) +
+#       coord_flip() +
+#       labs(x = "",
+#            y = "Clients") +
+#       scale_fill_viridis_c(direction = -1) +
+#       theme_minimal(base_size = 18)
+#     
+#     dq_data_hh_issues_plot <- dq_w_project_names %>%
+#       filter(
+#         Type %in% c("Error", "High Priority") &
+#           Issue %in% c(
+#             "Missing Relationship to Head of Household",
+#             "No Head of Household",
+#             "Too Many Heads of Household",
+#             "Children Only Household"
+#           )
+#       ) %>%
+#       select(PersonalID, ProjectID, ProjectName) %>%
+#       unique() %>%
+#       group_by(ProjectName, ProjectID) %>%
+#       summarise(Households = n()) %>%
+#       ungroup() %>%
+#       arrange(desc(Households))
+#     
+#     dq_data_hh_issues_plot$hover <-
+#       with(dq_data_hh_issues_plot,
+#            paste0(ProjectName, ":", ProjectID))
+#     
+#     dq_plot_hh_errors <-
+#       ggplot(head(dq_data_hh_issues_plot, 10L),
+#              aes(
+#                x = reorder(hover, Households),
+#                y = Households,
+#                fill = Households
+#              )) +
+#       geom_col(show.legend = FALSE) +
+#       coord_flip() +
+#       labs(x = "") +
+#       scale_fill_viridis_c(direction = -1) +
+#       theme_minimal(base_size = 18)
     
     # dq_data_eligibility_plot <- dq_w_project_names %>%
     #   filter(Type == "Warning" &
