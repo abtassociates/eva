@@ -183,6 +183,23 @@ dashboardPage(
           width = 12)
     ), 
     tabItem(
+      tabName = "tabPDDE",
+      fluidRow(box(htmlOutput(
+        "headerPDDE"
+      ), width = 12)),
+      fluidRow(
+        box(
+          id = "PDDESummaryOrganization",
+          title = paste("PDDE Check Summary"),
+          status = "info",
+          solidHeader = TRUE,
+          DT::dataTableOutput("pdde_summary_table"),
+          width = 12,
+          uiOutput("downloadPDDEReportButton")
+        )
+      )
+    ),
+    tabItem(
       tabName = "tabClientCount",
       fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
       fluidRow(box(

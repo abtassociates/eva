@@ -70,7 +70,9 @@ function(input, output, session) {
         setProgress(detail = "Prepping initial data..", value = .4)
         source("00_initial_data_prep.R", local = TRUE)
         source("00_dates.R", local = TRUE)
-        setProgress(detail = "Making lists..", value = .5)
+        setProgress(detail = "Checking PDDEs..", value = .5)
+        source("00_PDDE_Checker.R", local = TRUE)
+        setProgress(detail = "Making lists..", value = .6)
         source("01_cohorts.R", local = TRUE)
         setProgress(detail = "Assessing your data quality..", value = .7)
         source("03_DataQuality.R", local = TRUE)
@@ -160,6 +162,50 @@ function(input, output, session) {
              format(meta_HUDCSV_Export_End, "%m-%d-%Y")
            )))
     })
+    
+    ##### PDDE Checker-----
+    # header
+    output$headerPDDE <- renderUI({
+      req(values$imported_zip)
+      list(h2("PDDE Checker"),
+           h4(paste(
+             format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+             "to",
+             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+           )))
+    })
+    
+    # summary table
+    output$pdde_summary_table <- DT::renderDataTable({
+      req(values$imported_zip)
+      
+      datatable(
+        pdde_main %>%
+          group_by(Issue) %>%
+          summarise(Count = n()) %>%
+          ungroup(),
+        rownames = FALSE,
+        filter = 'none',
+        options = list(dom = 't')
+      )
+    })
+    
+    # download button
+    output$downloadPDDEReportButton  <- renderUI({
+      req(values$imported_zip)
+      
+      downloadButton(outputId = "downloadPDDEReport",
+                       label = "Download")
+    })
+    
+    # download button handler
+    output$downloadPDDEReport <- downloadHandler(
+      filename = function() {
+        paste("PDDE Report-", Sys.Date(), ".xlsx", sep="")
+      },
+      content = function(file) {write_xlsx(pdde_main, path = file)}
+    )
+    
     
     output$DeskTimePlotDetail <- renderPlot({
       req(values$imported_zip)
@@ -513,8 +559,7 @@ function(input, output, session) {
       exportDFList
     })
     
-    output$downloadOrgDQReport <- output$downloadOrgDQReport2 <- 
-      downloadHandler(
+    output$downloadOrgDQReport <- downloadHandler(
       filename = function() {
         paste("Organization Data Quality Report-", Sys.Date(), ".xlsx", sep="")
       },
