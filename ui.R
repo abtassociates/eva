@@ -12,31 +12,27 @@
 # GNU Affero General Public License for more details at
 # <https://www.gnu.org/licenses/>.
 
-
-
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "Stella HMIS"),
+  dashboardHeader(title = "StellaR"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
       menuItem("Home",
-               tabName = "homeTab"),
+               tabName = "tabHome"),
       menuItem("Upload Hashed CSV",
-               tabName = "uploadCSV"),
+               tabName = "tabUploadCSV"),
       menuItem("Check PDDEs",
                tabName = "tabPDDE"),
       menuItem("Client Counts",
-                  tabName = "currentProviderLevel"),
+                  tabName = "tabClientCount"),
       menuItem("Data Quality",
                menuSubItem("System-level",
-                           tabName = "dqSystem"),
+                           tabName = "tabDQSystem"),
                menuSubItem("Organization-level",
-                           tabName = "dqTab")
-        # menuSubItem("Organization-level", 
-        #             tabName = "dqOrganization"),
+                           tabName = "tabDQOrg")
         # menuSubItem("Data Entry Timeliness", 
-        #             tabName = "deskTime")
+        #             tabName = "tabDeskTime")
       ),
       menuItem("System Analysis",
                menuSubItem("System Flow",
@@ -58,13 +54,13 @@ dashboardPage(
     ),
     tabItems(
     tabItem(
-      tabName = "homeTab",
+      tabName = "tabHome",
       box(
-        title = "Welcome to Stella HMIS!",
+        title = "Welcome to StellaR!",
         width = 12,
         HTML(
-          "<div>Stella HMIS (Stella H) is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
-          Stella H is designed to help you assess the accuracy and completeness of the data within your HMIS. 
+          "<div>StellaR is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
+          StellaR is designed to help you assess the accuracy and completeness of the data within your HMIS. 
           In future iterations it will also assist communities in analyzing your HMIS performance data, 
           including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
           <br/>
@@ -74,19 +70,19 @@ dashboardPage(
           </div>
           <br/>"
         ),
-        htmlOutput("goToUpload_text"),
+        htmlOutput("goToUpload_text"), # fixme- is this needed anymore?
         uiOutput("goToUpload_btn")
       ),
       width = 12
     ),
     tabItem(
-      tabName = "uploadCSV",
+      tabName = "tabUploadCSV",
       box(
         title = "Edit CoC-specific Settings",
         width = 12,
         collapsible = TRUE,
         collapsed = TRUE,
-        fluidRow(
+        fluidRow(box(
             HTML(
               "<h3>Long Stayers</h3>
           <p>The projects in your CoC have a baseline average length of stay that
@@ -149,40 +145,62 @@ dashboardPage(
             min = 0,
             max = 3650,
             step = 5
-          )
+          ),
+          width = 12)
         ),
-      HTML(
+      fluidRow(HTML(
         "<h3>Referrals</h3>
-             <p>Please enter the number of days your CoC would consider a Referral
+        <p>Please enter the number of days your CoC would consider a Referral
           to be \"outstanding\"."
       ),
       numericInput(inputId = "OutstandingReferrals",
                    label = "Outstanding Referral Days:",
-                   value = 7)
+                   value = 7))
     ),
-    box(
-      title = "Upload Hashed CSV zip file",
-      HTML(
-        '<i class="fa fa-info-circle"
-            title="Use the Browse function to direct the app to the file folder containing your zipped CSV.">
-             </i>'
-      ),
-      fileInput("imported",
-                "",
-                multiple = FALSE,
-                accept = ".zip"),
-      width = 12
-    ),
-    uiOutput("integrityCheckerPanel"),
-    box(
-      title = "Status",
-      uiOutput("headerFileInfo"),
-      uiOutput("headerNoFileYet"),
-      width = 12
-    )
+      box(
+        title = "Upload Hashed CSV zip file",
+        HTML('<i class="fa fa-info-circle" 
+            title = "Use the Browse function to direct the app to the file folder containing your zipped CSV.">
+             </i>'),
+        fileInput("imported",
+                  label = NULL,
+                  multiple = FALSE,
+                  accept = ".zip"),
+        renderUI("imported_status"),
+        width = 12
+      ), 
+      box(
+        title = "HUD CSV Export Integrity Checker",
+        width = 12,
+        DT::dataTableOutput("integrityChecker"),
+        p(),
+        downloadButton(outputId = "downloadIntegrityCheck",
+                       label = "Download Integrity Check Detail")
+      ), 
+      box(title = "Status",
+          uiOutput("headerFileInfo"),
+          uiOutput("headerNoFileYet"),
+          width = 12)
     ), 
     tabItem(
-      tabName = "currentProviderLevel",
+      tabName = "tabPDDE",
+      fluidRow(box(htmlOutput(
+        "headerPDDE"
+      ), width = 12)),
+      fluidRow(
+        box(
+          id = "PDDESummaryOrganization",
+          title = paste("PDDE Check Summary"),
+          status = "info",
+          solidHeader = TRUE,
+          DT::dataTableOutput("pdde_summary_table"),
+          width = 12,
+          uiOutput("downloadPDDEReportButton")
+        )
+      )
+    ),
+    tabItem(
+      tabName = "tabClientCount",
       fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
       fluidRow(box(
         pickerInput(
@@ -195,7 +213,7 @@ dashboardPage(
         dateRangeInput(
           "dateRangeCount",
           "Date Range",
-          min = NULL,
+          min = NULL, 
           format = "mm/dd/yyyy",
           width = 300
         ),
@@ -288,7 +306,7 @@ dashboardPage(
       ))
     ),
     tabItem(
-      tabName = "dqTab",
+      tabName = "tabDQOrg",
       fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
       fluidRow(box(
         pickerInput(
@@ -300,14 +318,14 @@ dashboardPage(
           width = "100%",
           selected = "none"
         ),
-        dateInput(
-          inputId = "dq_startdate",
-          label = "Report Start Date",
-          format = "mm/dd/yyyy",
-          value = NULL, # ymd(meta_HUDCSV_Export_Start),
-          min = NULL,
-          width = "25%"
-        ),
+        # dateInput(
+        #   inputId = "dq_startdate",
+        #   label = "Report Start Date",
+        #   format = "mm/dd/yyyy",
+        #   value = NULL, # ymd(meta_HUDCSV_Export_Start),
+        #   min = NULL,
+        #   width = "25%"
+        # ),
         uiOutput("downloadOrgDQReportButton"),
         width = 12
       )), 
@@ -321,19 +339,13 @@ dashboardPage(
           width = 12
         )
       ),
-      fluidRow(
-        #uiOutput("DQHHIssues"),
-        #uiOutput("DQDuplicateEEs"),
-        #uiOutput("DQMissingLocation"),
-        # uiOutput("DQPATHMissingContact")
-      ),
-      #fluidRow(uiOutput("DQIneligible")),
-      #fluidRow(uiOutput("DQOverlappingEEs")),
+      fluidRow(box(DTOutput("DQHighPriority"),
+                   title = "High Priority Issues",
+                   width = 12)),
       fluidRow(box(DTOutput("DQErrors"),
                    title = "Data Quality Errors",
                    width = 12)),
-      fluidRow(uiOutput("DQIneligible"),
-               uiOutput("DQOverlappingEEs")), 
+      fluidRow(uiOutput("DQOverlappingEEs")), 
       fluidRow(box(
         id = "warnings",
         DT::dataTableOutput("DQWarnings"),
@@ -355,7 +367,7 @@ dashboardPage(
       )
     ),
     tabItem(
-      tabName = "deskTime",
+      tabName = "tabDeskTime",
       fluidRow(box(htmlOutput("headerDeskTime"),
                    width = 12)),
       fluidRow(box(
@@ -382,7 +394,7 @@ dashboardPage(
       )
     ),
     tabItem(
-      tabName = "dqSystem",
+      tabName = "tabDQSystem",
       fluidRow(box(htmlOutput("headerSystemDQ"), width = 12)),
       fluidRow(
         box(
