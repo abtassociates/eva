@@ -1159,6 +1159,10 @@ function(input, output, session) {
                 rownames = FALSE)
     })
     
+    output$systemDQHighPriorityErrors <- renderPlot(dq_plot_organizations_high_priority_errors)
+    
+    output$systemDQHighPriorityErrorTypes <- renderPlot(dq_plot_high_priority_errors_org_level)
+    
     output$systemDQErrors <- renderPlot(dq_plot_organizations_errors)
     
     output$systemHHErrors <- renderPlot(dq_plot_hh_errors)
