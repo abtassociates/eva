@@ -756,6 +756,11 @@ rm(list = ls(pattern = "Top*"),
    hp_stayers)
 
 
+# Non-Residential Long Stayers --------------------------------------------
+
+
+
+
 # Incorrect Destination ---------------------------------------------------
 
 # RRH mover inners only
