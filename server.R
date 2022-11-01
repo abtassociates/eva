@@ -661,6 +661,7 @@ function(input, output, session) {
              y = "Number of Clients with High Priority Errors") +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
+              axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
               panel.grid.minor = element_blank(),
@@ -687,6 +688,7 @@ function(input, output, session) {
            y = "Number of Clients with High Piority Errors") +
       theme_classic() +
       theme(axis.line = element_line(linetype = "blank"),
+            axis.text.x = element_blank(),
             axis.ticks = element_line(linetype = "blank"),
             plot.background = element_blank(),
             panel.grid.minor = element_blank(),
@@ -719,6 +721,7 @@ function(input, output, session) {
             y = "Number of Clients with General Errors") +
        theme_classic() +
        theme(axis.line = element_line(linetype = "blank"),
+             axis.text.x = element_blank(),
              axis.ticks = element_line(linetype = "blank"),
              plot.background = element_blank(),
              panel.grid.minor = element_blank(),
@@ -745,6 +748,7 @@ function(input, output, session) {
              y = "Number of Clients with General Errors") +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
+              axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
               panel.grid.minor = element_blank(),
@@ -775,6 +779,7 @@ function(input, output, session) {
              y = "Number of Clients with Warnings") +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
+              axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
               panel.grid.minor = element_blank(),
@@ -801,6 +806,7 @@ function(input, output, session) {
              y = "Number of Clients with Warnings") +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
+              axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
               panel.grid.minor = element_blank(),
