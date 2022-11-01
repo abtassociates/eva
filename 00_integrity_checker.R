@@ -99,6 +99,24 @@ check_column_names <- function(file) {
 
 check_data_types <- function(barefile, quotedfile) {
   if(nrow(barefile) > 0) {
+    
+    if(!is.null(problems(barefile))){
+      x <-
+        tibble(problems(barefile)) %>%
+        filter(expected == "date like ") %>%
+        mutate(
+          File = quotedfile,
+          Issue = "Incorrect Date Format",
+          Type = "High Priority",
+          Guidance = paste(
+            "Please check that the", col, "column in the", File,
+            "file has the correct date format. Dates in the HMIS CSV Export 
+            should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment
+            with the HMIS CSV Format Specifications.")
+        ) %>%
+        select(Issue, Type, Guidance) %>% unique()
+    }
+    
     data_types <- as.data.frame(summary.default(barefile)) %>% 
       filter(Var2 != "Length" & 
                ((Var2 == "Class" & Freq %in% c("Date", "POSIXct")) |
@@ -116,7 +134,7 @@ check_data_types <- function(barefile, quotedfile) {
       ungroup() %>%
       select(File, "Column" = Var1, ImportedDataType)
     
-    cols_and_data_types %>% 
+    y <- cols_and_data_types %>% 
       left_join(data_types, by = c("File", "Column")) %>%
       mutate(
         Issue = if_else(DataType != ImportedDataType, "Incorrect Data Type", NULL), 
@@ -136,7 +154,10 @@ check_data_types <- function(barefile, quotedfile) {
         ),
         Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error")) %>%
       filter(!is.na(Issue)) %>%
-      select(Issue, Type, Guidance)}
+      select(Issue, Type, Guidance)
+    
+    rbind(x, y)
+  }
   
 }
 
@@ -168,277 +189,57 @@ check_for_bad_nulls <- function(barefile, quotedfile) {
 }
 
 
+# Running functions on all files ------------------------------------------
 
-dq_column_names <- map_df(files, check_column_names)
+df_column_names <- map_df(files, check_column_names)
+df_column_counts <- map_df(files, check_column_counts)
 
-# Affiliation -------------------------------------------------------------
+df_data_types <- rbind(
+  check_data_types(Assessment,"Assessment"),
+  check_data_types(Client,"Client"),
+  check_data_types(CurrentLivingSituation,"CurrentLivingSituation"),
+  check_data_types(EmploymentEducation,"EmploymentEducation"),
+  check_data_types(Enrollment,"Enrollment"),
+  check_data_types(EnrollmentCoC,"EnrollmentCoC"),
+  check_data_types(Event,"Event"),
+  check_data_types(Exit,"Exit"),
+  check_data_types(Export,"Export"),
+  check_data_types(Funder,"Funder"),
+  check_data_types(HealthAndDV,"HealthAndDV"),
+  check_data_types(IncomeBenefits,"IncomeBenefits"),
+  check_data_types(Inventory,"Inventory"),
+  check_data_types(Organization,"Organization"),
+  check_data_types(Project,"Project"),
+  check_data_types(ProjectCoC,"ProjectCoC"),
+  check_data_types(Services,"Services"),
+  check_data_types(User,"User"),
+  check_data_types(YouthEducationStatus,"YouthEducationStatus")
+) 
 
-# if (nrow(Affiliation) == 0) {
-#   
-# } else
-# {
-#   data_types_prep_affiliation <- Affiliation %>%
-#     mutate(
-#       AffiliationIDx = class(AffiliationID) == "character",
-#       ProjectIDx = class(ProjectID) == "character",
-#       ResProjectIDx = class(ResProjectID) == "character",
-#       DateCreatedx = class(DateCreated)[1] == "POSIXct",
-#       DateUpdatedx = class(DateUpdated)[1] == "POSIXct",
-#       UserIDx = class(UserID) == "character",
-#       DateDeletedx = class(DateDeleted)[1] == "POSIXct",
-#       ExportIDx = class(ExportID) == "character"
-#     ) %>%
-#     select(ends_with("x")) %>%
-#     head(1L) %>%
-#     pivot_longer(cols = everything())
-#   
-#   if (min(data_types_prep_affiliation$value) == 0) {
-#     data_types_affiliation <- data_types_prep_affiliation %>%
-#       filter(value == FALSE) %>%
-#       mutate(
-#         Issue = "Incorrect data type",
-#         Type = "High Priority",
-#         name = str_trunc(name, nchar(name) - 1,
-#                          side = "right",
-#                          ellipsis = ""),
-#         Guidance = paste("This file's", name,
-#                          "column is not the correct data type")
-#       ) %>%
-#       select(Issue, Type, Guidance)
-#   } else {
-#     data_types_affiliation <- data.frame(Issue = character(),
-#                                          Type = character(),
-#                                          Guidance = character())
-#   }
-#   
-#   eligible_for_affiliation <- Project %>%
-#     filter(ProjectType %in% c(1, 2, 3, 8, 10, 13)) %>%
-#     pull(ProjectID)
-#   
-#   possible_affiliations <- Project %>%
-#     filter(ProjectType == 6) %>%
-#     pull(ProjectID)
-#   
-#   project_not_sso <- Affiliation %>%
-#     mutate(
-#       Issue = if_else(
-#         !ProjectID %in% c(eligible_for_affiliation),
-#         "Affiliation Project Type is not Services Only",
-#         "Nothing"
-#       ),
-#       Type = "Error",
-#       Guidance = paste("ProjectID", ProjectID, "is not ProjectType 6.")
-#     ) %>%
-#     filter(Issue != "Nothing") %>%
-#     select(Issue, Type, Guidance)
-#   
-#   affiliated_to_wrong_project_type <- Affiliation %>%
-#     mutate(
-#       Issue = if_else(
-#         !ResProjectID %in% c(possible_affiliations),
-#         "Affiliated to a non-residential Project",
-#         "Nothing"
-#       ),
-#       Type = "Error",
-#       Guidance = paste(
-#         "ProjectID",
-#         ProjectID,
-#         "is affiliated with",
-#         ResProjectID,
-#         "which is not a residential project"
-#       )
-#     ) %>%
-#     filter(Issue != "Nothing") %>%
-#     select(Issue, Type, Guidance)
-#   
-#   export_id_affiliation <- Affiliation %>%
-#     mutate(
-#       Issue = if_else(
-#         as.character(ExportID) != export_id_from_export,
-#         "ExportID mismatch",
-#         "Nothing"
-#       ),
-#       Type = "Error",
-#       Guidance = paste(
-#         "The Export file says the ExportID is",
-#         export_id_from_export,
-#         "but in your",
-#         "Affiliation",
-#         "file, it is",
-#         ExportID
-#       )
-#     ) %>%
-#     filter(Issue != "Nothing") %>%
-#     select(Issue, Type, Guidance) %>%
-#     unique()
-# }
-# 
-# duplicate_affiliation_id <- Affiliation %>%
-#   get_dupes(AffiliationID) %>%
-#   mutate(
-#     Issue = "Duplicate AffiliationIDs found in the Affiliation file",
-#     Type = "High Priority",
-#     Guidance = paste("There are", dupe_count, "for AffiliationID", AffiliationID)
-#   ) %>%
-#   select(Issue, Type, Guidance)
-# 
-# issues_affiliation <-
-#   rbind(
-#     column_names_affiliation,
-#     affiliated_to_wrong_project_type,
-#     data_types_affiliation,
-#     project_not_sso,
-#     export_id_affiliation,
-#     duplicate_affiliation_id
-#   )
+df_nulls <- rbind(
+  check_for_bad_nulls(Assessment,"Assessment"),
+  check_for_bad_nulls(Client,"Client"),
+  check_for_bad_nulls(CurrentLivingSituation,"CurrentLivingSituation"),
+  check_for_bad_nulls(EmploymentEducation,"EmploymentEducation"),
+  check_for_bad_nulls(Enrollment,"Enrollment"),
+  check_for_bad_nulls(EnrollmentCoC,"EnrollmentCoC"),
+  check_for_bad_nulls(Event,"Event"),
+  check_for_bad_nulls(Exit,"Exit"),
+  check_for_bad_nulls(Export,"Export"),
+  check_for_bad_nulls(Funder,"Funder"),
+  check_for_bad_nulls(HealthAndDV,"HealthAndDV"),
+  check_for_bad_nulls(IncomeBenefits,"IncomeBenefits"),
+  check_for_bad_nulls(Inventory,"Inventory"),
+  check_for_bad_nulls(Organization,"Organization"),
+  check_for_bad_nulls(Project,"Project"),
+  check_for_bad_nulls(ProjectCoC,"ProjectCoC"),
+  check_for_bad_nulls(Services,"Services"),
+  check_for_bad_nulls(User,"User"),
+  check_for_bad_nulls(YouthEducationStatus,"YouthEducationStatus")
+) 
 
 # Client ------------------------------------------------------------------
 
-column_names_client <- tibble(
-  ImportedColumns = colnames(Client),
-  CorrectColumns = column_names %>%
-    filter(Files == "Client") %>%
-    pull(Columns) %>% str_split(",") %>% unlist()
-) %>%
-  mutate(Guidance = if_else(
-    ImportedColumns != CorrectColumns,
-    paste(
-      "The",
-      ImportedColumns,
-      "column should be spelled like",
-      CorrectColumns
-    ),
-    "all good"
-  )) %>%
-  filter(Guidance != "all good") %>%
-  mutate(Type = "High Priority",
-         Issue = "Incorrect Column Name") %>%
-  select(Issue, Type, Guidance)
-
-date_data_types_client <- Client %>%
-  mutate(CorrectDataType = !is.na(parse_date_time(DOB, orders = "ymd")))
-
-data_types_prep_client <- Client %>%
-  mutate(
-    PersonalIDx = class(PersonalID) == "character",
-    FirstNamex = class(FirstName) == "character",
-    MiddleNamex = class(MiddleName) == "character",
-    LastNamex = class(LastName) == "character",
-    NameSuffixx = class(NameSuffix) == "character",
-    NameDataQualityx = class(NameDataQuality) == "numeric",
-    SSNx = class(SSN) == "character",
-    SSNDataQualityx = class(SSNDataQuality) == "numeric",
-    DOBx = class(DOB) == "Date",
-    DOBDataQualityx = class(DOBDataQuality) == "numeric",
-    AmIndAKNativex  = class(AmIndAKNative) == "numeric",
-    Asianx = class(Asian) == "numeric",
-    BlackAfAmericanx = class(BlackAfAmerican) == "numeric",
-    NativeHIPacificx = class(NativeHIPacific) == "numeric",
-    Whitex = class(White) == "numeric",
-    RaceNonex = class(RaceNone) == "numeric",
-    Ethnicityx = class(Ethnicity) == "numeric",
-    Femalex = class(Female) == "numeric",
-    Malex = class(Male) == "numeric",
-    NoSingleGenderx = class(NoSingleGender) == "numeric",
-    Transgenderx = class(Transgender) == "numeric",
-    Questioningx = class(Questioning) == "numeric",
-    GenderNonex = class(GenderNone) == "numeric",
-    VeteranStatusx = class(VeteranStatus) == "numeric",
-    YearEnteredServicex = class(YearEnteredService) == "numeric",
-    YearSeparatedx = class(YearSeparated) == "numeric",
-    WorldWarIIx = class(WorldWarII) == "numeric",
-    KoreanWarx = class(KoreanWar) == "numeric",
-    VietnamWarx = class(VietnamWar) == "numeric",
-    DesertStormx = class(DesertStorm) == "numeric",
-    AfghanistanOEFx = class(AfghanistanOEF) == "numeric",
-    IraqOIFx = class(IraqOIF) == "numeric",
-    IraqONDx = class(IraqOND) == "numeric",
-    OtherTheaterx = class(OtherTheater) == "numeric",
-    MilitaryBranchx = class(MilitaryBranch) == "numeric",
-    DischargeStatusx = class(DischargeStatus) == "numeric",
-    DateCreatedx = class(DateCreated)[1] == "POSIXct",
-    DateUpdatedx = class(DateUpdated)[1] == "POSIXct",
-    UserIDx = class(UserID) == "character",
-    DateDeletedx = class(DateDeleted)[1] == "POSIXct",
-    ExportIDx = class(ExportID) == "character"
-  ) %>%
-  select(ends_with("x"),-NameSuffix) %>%
-  head(1L) %>%
-  pivot_longer(cols = everything())
-
-if (min(data_types_prep_client$value) == 0) {
-  data_types_client <- data_types_prep_client %>%
-    filter(value == FALSE) %>%
-    mutate(
-      Issue = "Incorrect data type",
-      Type = "Error",
-      name = str_trunc(name, nchar(name) - 1,
-                       side = "right",
-                       ellipsis = ""),
-      Guidance = paste("This file's", name,
-                       "column is not the correct data type")
-    ) %>%
-    select(Issue, Type, Guidance)
-} else {
-  data_types_client <- data.frame(Issue = character(),
-                                  Type = character(),
-                                  Guidance = character())
-}
-
-nulls_not_allowed_client <- Client %>%
-  mutate(
-    Nulls = across(everything(), ~ is.na(.x)),
-    PersonalID = if_else(Nulls$PersonalID == TRUE, "Error", "Ok"),
-    NameDataQuality = if_else(Nulls$NameDataQuality == TRUE, "Error", "Ok"),
-    SSNDataQuality = if_else(Nulls$SSNDataQuality == TRUE, "Error", "Ok"),
-    DOBDataQuality = if_else(Nulls$DOBDataQuality == TRUE, "Error", "Ok"),
-    AmIndAKNative = if_else(Nulls$AmIndAKNative == TRUE, "Error", "Ok"),
-    Asian = if_else(Nulls$Asian == TRUE, "Error", "Ok"),
-    BlackAfAmerican = if_else(Nulls$BlackAfAmerican == TRUE, "Error", "Ok"),
-    NativeHIPacific = if_else(Nulls$NativeHIPacific == TRUE, "Error", "Ok"),
-    White = if_else(Nulls$White == TRUE, "Error", "Ok"),
-    Ethnicity = if_else(Nulls$Ethnicity == TRUE, "Error", "Ok"),
-    Female = if_else(Nulls$Female == TRUE, "Error", "Ok"),
-    Male = if_else(Nulls$Male == TRUE, "Error", "Ok"),
-    NoSingleGender = if_else(Nulls$NoSingleGender == TRUE, "Error", "Ok"),
-    Transgender = if_else(Nulls$Transgender == TRUE, "Error", "Ok"),
-    Questioning = if_else(Nulls$Questioning == TRUE, "Error", "Ok"),
-    VeteranStatus = if_else(Nulls$VeteranStatus == TRUE, "Error", "Ok"),
-    DateCreated = if_else(Nulls$DateCreated == TRUE, "Error", "Ok"),
-    DateUpdated = if_else(Nulls$DateUpdated == TRUE, "Error", "Ok"),
-    UserID = if_else(Nulls$UserID == TRUE, "Error", "Ok"),
-    ExportID = if_else(Nulls$ExportID == TRUE, "Error", "Ok")
-  ) %>%
-  group_by(ExportID) %>%
-  summarise(
-    PersonalID = min(PersonalID),
-    NameDataQuality = min(NameDataQuality),
-    SSNDataQuality = min(SSNDataQuality),
-    DOBDataQuality = min(DOBDataQuality),
-    AmIndAKNative = min(AmIndAKNative),
-    Asian = min(Asian),
-    BlackAfAmerican = min(BlackAfAmerican),
-    NativeHIPacific = min(NativeHIPacific),
-    White = min(White),
-    Ethnicity = min(Ethnicity),
-    Female = min(Female),
-    Male = min(Male),
-    NoSingleGender = min(NoSingleGender),
-    Transgender = min(Transgender),
-    Questioning = min(Questioning),
-    VeteranStatus = min(VeteranStatus),
-    DateCreated = min(DateCreated),
-    DateUpdated = min(DateUpdated),
-    UserID = min(UserID)
-  ) %>%
-  pivot_longer(everything()) %>%
-  filter(value == "Error") %>%
-  mutate(
-    Issue = "Nulls not allowed in this column",
-    Type = "Error",
-    Guidance = paste("Column", name, "has nulls in it where they are not allowed")
-  ) %>%
-  select(Issue, Type, Guidance)
 
 if(!is.null(problems(Client))){
   date_formats_wrong_client_prep <-
