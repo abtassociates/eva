@@ -339,6 +339,54 @@ dashboardPage(
           width = 12
         )
       ),
+      fluidRow(
+        box(
+          plotOutput("orgDQHighPriorityErrorTypes"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Most Common High Priority Errors"
+        ),
+        box(
+          plotOutput("orgDQHighPriorityErrors"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Projects with the Most High Priority Errors"
+        )
+      ),
+      fluidRow(
+        box(
+          plotOutput("orgDQErrorTypes"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Most Common General Errors"
+        ),
+        box(
+          plotOutput("orgDQErrors"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Projects with the Most General Errors"
+        )
+      ),
+      fluidRow(
+        box(
+          plotOutput("orgDQWarningTypes"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Most Common Warnings Errors"
+        ),
+        box(
+          plotOutput("orgDQWarnings"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Projects with the Most Warnings Errors"
+        )
+      ),
       fluidRow(box(DTOutput("DQHighPriority"),
                    title = "High Priority Issues",
                    width = 12)),
