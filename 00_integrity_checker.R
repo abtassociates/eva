@@ -235,271 +235,267 @@ df_nulls <- rbind(
 ) 
 
 # # Valid Values ------------------------------------------------------------
-# 
-# export_id_client <- Client %>%
-#   mutate(
-#     Issue = if_else(
-#       as.character(ExportID) != export_id_from_export,
-#       "ExportID mismatch",
-#       "Nothing"
-#     ),
-#     Type = "Error",
-#     Guidance = paste(
-#       "The Export file says the ExportID is",
-#       export_id_from_export,
-#       "but in your Client file, it is",
-#       ExportID
-#     )
-#   ) %>%
-#   filter(Issue != "Nothing") %>%
-#   select(Issue, Type, Guidance) %>%
-#   unique()
-# 
-# yes_no_enhanced <- c(0, 1, 8, 9, 99)
-# yes_no <- c(0, 1, 99)
-# 
-# valid_values_client <- Client %>%
-#   mutate(
-#     VeteranStatus = VeteranStatus %in% c(yes_no_enhanced),
-#     RaceNone = RaceNone %in% c(8, 9, 99) | is.na(RaceNone),
-#     AmIndAKNative = AmIndAKNative %in% c(yes_no),
-#     Asian = Asian %in% c(yes_no),
-#     BlackAfAmerican = BlackAfAmerican %in% c(yes_no),
-#     NativeHIPacific = NativeHIPacific %in% c(yes_no),
-#     White = White %in% c(yes_no),
-#     Ethnicity = Ethnicity %in% c(yes_no_enhanced),
-#     Female = Female %in% c(yes_no),
-#     Male = Male %in% c(yes_no),
-#     NoSingleGender = NoSingleGender %in% c(yes_no),
-#     Transgender = Transgender %in% c(yes_no),
-#     Questioning = Questioning %in% c(yes_no),
-#     GenderNone = GenderNone %in% c(8, 9, 99) | is.na(GenderNone)
-#   ) %>%
-#   group_by_all() %>%
-#   summarise(
-#     VeteranStatus = min(VeteranStatus, na.rm = FALSE),
-#     RaceNone = min(RaceNone, na.rm = FALSE),
-#     AmIndAKNative = min(AmIndAKNative, na.rm = FALSE),
-#     Asian = min(Asian, na.rm = FALSE),
-#     BlackAfAmerican = min(BlackAfAmerican, na.rm = FALSE),
-#     NativeHIPacific = min(NativeHIPacific, na.rm = FALSE),
-#     White = min(White, na.rm = FALSE),
-#     Ethnicity = min(Ethnicity, na.rm = FALSE),
-#     Female = min(Female, na.rm = FALSE),
-#     Male = min(Male, na.rm = FALSE),
-#     NoSingleGender = min(NoSingleGender, na.rm = FALSE),
-#     Transgender = min(Transgender, na.rm = FALSE),
-#     Questioning = min(Questioning, na.rm = FALSE),
-#     GenderNone = min(GenderNone, na.rm = FALSE)
-#   ) %>%
-#   ungroup() %>%
-#   select(
-#     VeteranStatus,
-#     RaceNone,
-#     AmIndAKNative,
-#     Asian,
-#     BlackAfAmerican,
-#     NativeHIPacific,
-#     White,
-#     Ethnicity,
-#     Female,
-#     Male,
-#     NoSingleGender,
-#     Transgender,
-#     Questioning,
-#     GenderNone
-#   ) %>%
-#   pivot_longer(cols = everything()) %>%
-#   filter(value == 0) %>%
-#   count(name) %>%
-#   mutate(
-#     Issue = "Invalid value in Client file",
-#     Type = "Error",
-#     Guidance = case_when(
-#       name == "VeteranStatus" ~ paste("VeteranStatus has", n,
-#                                       "rows with invalid values"),
-#       name == "RaceNone" ~ paste("RaceNone has", n,
-#                                  "rows with invalid values"),
-#       name == "AmIndAKNative" ~ paste("AmIndAKNative has", n,
-#                                       "rows with invalid values"),
-#       name == "Asian" ~ paste("Asian has", n,
-#                               "rows with invalid values"),
-#       name == "BlackAfAmerican" ~ paste("BlackAfAmerican has", n,
-#                                         "rows with invalid values"),
-#       name == "NativeHIPacific" ~ paste("NativeHIPacific has", n,
-#                                         "Rows with invalid values"),
-#       name == "White" ~ paste("White has", n,
-#                               "rows with invalid values"),
-#       name == "Ethnicity" ~ paste("Ethnicity has", n,
-#                                   "rows with invalid values"),
-#       name == "Female" ~ paste("Female has", n,
-#                                "rows with invalid values"),
-#       name == "Male" ~ paste("Male has", n,
-#                              "rows with invalid values"),
-#       name == "NoSingleGender" ~ paste("NoSingleGender has", n,
-#                                        "rows with invalid values"),
-#       name == "Transgender" ~ paste("Transgender has", n,
-#                                     "rows with invalid values"),
-#       name == "Questioning" ~ paste("Questioning has", n,
-#                                     "rows with invalid values"),
-#       name == "GenderNone" ~ paste("GenderNone has", n,
-#                                    "rows with invalid values")
-#     )
-#   ) %>%
-#   select(Issue, Type, Guidance)
-# 
-# duplicate_client_id <- Client %>%
-#   get_dupes(PersonalID) %>%
-#   mutate(
-#     Issue = "Duplicate PersonalIDs found in the Client file",
-#     Type = "High Priority",
-#     Guidance = paste("There are", dupe_count, "for PersonalID", PersonalID)
-#   ) %>%
-#   select(Issue, Type, Guidance)
-# 
-# issues_client <-
-#   rbind(
-#     column_names_client,
-#     data_types_client,
-#     nulls_not_allowed_client,
-#     date_formats_wrong_client,
-#     valid_values_client,
-#     export_id_client,
-#     duplicate_client_id
-#   )
-# 
-# # Enrollment --------------------------------------------------------------
-# 
-# duplicate_enrollment_id <- Enrollment %>%
-#   get_dupes(EnrollmentID) %>%
-#   mutate(
-#     Issue = "Duplicate EnrollmentIDs found in the Enrollment file",
-#     Type = "High Priority",
-#     Guidance = paste("There are", dupe_count, "for EnrollmentID", EnrollmentID)
-#   ) %>%
-#   select(Issue, Type, Guidance)
-# 
-# personal_ids_in_client <- Client %>% pull(PersonalID)
-# 
-# foreign_key_no_primary_personalid_enrollment <- Enrollment %>%
-#   filter(!PersonalID %in% c(personal_ids_in_client)) %>%
-#   mutate(
-#     Issue = "Client in the Enrollment file not found in Client file",
-#     Type = "High Priority",
-#     Guidance = paste(
-#       "PersonalID",
-#       PersonalID,
-#       "is in the Enrollment file but not in the Client file"
-#     )
-#   ) %>%
-#   select(Issue, Type, Guidance)
-# 
-# projectids_in_project <- Project %>% pull(ProjectID)
-# 
-# foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
-#   filter(!ProjectID %in% c(projectids_in_project)) %>%
-#   mutate(
-#     Issue = "ProjectID in the Enrollment file not found in Project file",
-#     Type = "High Priority",
-#     Guidance = paste(
-#       "ProjectID",
-#       ProjectID,
-#       "is in the Enrollment file but not in the Project file"
-#     )
-#   ) %>%
-#   select(Issue, Type, Guidance)
-# 
-# disabling_condition_invalid <- Enrollment %>%
-#   mutate(
-#     Issue = if_else(
-#       !DisablingCondition %in% c(yes_no_enhanced),
-#       "Disabling Condition contains an invalid value",
-#       NULL
-#     ),
-#     Type = "Error",
-#     Guidance = paste(
-#       "EnrollmentID",
-#       EnrollmentID,
-#       "has an invalid value in the
-#                      DisablingCondition column"
-#     )
-#   ) %>%
-#   filter(!is.na(Issue)) %>%
-#   select(Issue, Type, Guidance) %>%
-#   unique()
-# 
-# all_living_situations <- c(
-#   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 18, 19, 20, 21, 25, 26, 28, 29,
-#   31, 32, 33, 34, 35, 36, 99)
-# 
-# living_situation_invalid <- Enrollment %>%
-#   mutate(
-#     Issue = if_else(
-#       LivingSituation %in% c(all_living_situations) |
-#         is.na(LivingSituation),
-#       "Nothing",
-#       "Living Situation contains an invalid value"
-#     ),
-#     Type = "Error",
-#     Guidance = paste(
-#       "EnrollmentID",
-#       EnrollmentID,
-#       "has an invalid value in the
-#                      LivingSituation column"
-#     )
-#   ) %>%
-#   filter(Issue != "Nothing") %>%
-#   select(Issue, Type, Guidance) %>%
-#   unique()
-# 
-# rel_to_hoh_invalid <- Enrollment %>%
-#   mutate(
-#     Issue = if_else(
-#       RelationshipToHoH %in% c(1:5, 99),
-#       "Nothing",
-#       "RelationshipToHoH contains an invalid value"
-#     ),
-#     Type = "Error",
-#     Guidance = paste(
-#       "EnrollmentID",
-#       EnrollmentID,
-#       "has an invalid value in the
-#                      RelationshipToHoH column"
-#     )
-#   ) %>%
-#   filter(Issue != "Nothing") %>%
-#   select(Issue, Type, Guidance) %>%
-#   unique()
-# 
-# move_in_date_invalid <- Enrollment %>%
-#   left_join(Exit %>% select(EnrollmentID, ExitDate), by = "EnrollmentID") %>%
-#   mutate(
-#     Issue = if_else(
-#       (
-#         ymd(MoveInDate) >= ymd(EntryDate) &
-#           ymd(MoveInDate) <= coalesce(ymd(ExitDate), today())
-#       ) |
-#         is.na(MoveInDate),
-#       "Nothing",
-#       "MoveInDate is not between the Entry Date and Exit Date"
-#     ),
-#     Type = "Error",
-#     Guidance = paste("EnrollmentID", EnrollmentID, "has an invalid MoveInDate")
-#   ) %>%
-#   filter(Issue != "Nothing") %>%
-#   select(Issue, Type, Guidance) %>%
-#   unique()
-# 
-# issues_enrollment <- 
-#   rbind(
-#     duplicate_enrollment_id,
-#     foreign_key_no_primary_personalid_enrollment,
-#     foreign_key_no_primary_projectid_enrollment,
-#     disabling_condition_invalid,
-#     living_situation_invalid,
-#     rel_to_hoh_invalid,
-#     move_in_date_invalid
-#   )
+
+export_id_client <- Client %>%
+  mutate(
+    Issue = if_else(
+      as.character(ExportID) != export_id_from_export,
+      "ExportID mismatch",
+      "Nothing"
+    ),
+    Type = "Error",
+    Guidance = paste(
+      "The Export file says the ExportID is",
+      export_id_from_export,
+      "but in your Client file, it is",
+      ExportID
+    )
+  ) %>%
+  filter(Issue != "Nothing") %>%
+  select(Issue, Type, Guidance) %>%
+  unique()
+
+yes_no_enhanced <- c(0, 1, 8, 9, 99)
+yes_no <- c(0, 1, 99)
+
+valid_values_client <- Client %>%
+  mutate(
+    VeteranStatus = VeteranStatus %in% c(yes_no_enhanced),
+    RaceNone = RaceNone %in% c(8, 9, 99) | is.na(RaceNone),
+    AmIndAKNative = AmIndAKNative %in% c(yes_no),
+    Asian = Asian %in% c(yes_no),
+    BlackAfAmerican = BlackAfAmerican %in% c(yes_no),
+    NativeHIPacific = NativeHIPacific %in% c(yes_no),
+    White = White %in% c(yes_no),
+    Ethnicity = Ethnicity %in% c(yes_no_enhanced),
+    Female = Female %in% c(yes_no),
+    Male = Male %in% c(yes_no),
+    NoSingleGender = NoSingleGender %in% c(yes_no),
+    Transgender = Transgender %in% c(yes_no),
+    Questioning = Questioning %in% c(yes_no),
+    GenderNone = GenderNone %in% c(8, 9, 99) | is.na(GenderNone)
+  ) %>%
+  group_by_all() %>%
+  summarise(
+    VeteranStatus = min(VeteranStatus, na.rm = FALSE),
+    RaceNone = min(RaceNone, na.rm = FALSE),
+    AmIndAKNative = min(AmIndAKNative, na.rm = FALSE),
+    Asian = min(Asian, na.rm = FALSE),
+    BlackAfAmerican = min(BlackAfAmerican, na.rm = FALSE),
+    NativeHIPacific = min(NativeHIPacific, na.rm = FALSE),
+    White = min(White, na.rm = FALSE),
+    Ethnicity = min(Ethnicity, na.rm = FALSE),
+    Female = min(Female, na.rm = FALSE),
+    Male = min(Male, na.rm = FALSE),
+    NoSingleGender = min(NoSingleGender, na.rm = FALSE),
+    Transgender = min(Transgender, na.rm = FALSE),
+    Questioning = min(Questioning, na.rm = FALSE),
+    GenderNone = min(GenderNone, na.rm = FALSE)
+  ) %>%
+  ungroup() %>%
+  select(
+    VeteranStatus,
+    RaceNone,
+    AmIndAKNative,
+    Asian,
+    BlackAfAmerican,
+    NativeHIPacific,
+    White,
+    Ethnicity,
+    Female,
+    Male,
+    NoSingleGender,
+    Transgender,
+    Questioning,
+    GenderNone
+  ) %>%
+  pivot_longer(cols = everything()) %>%
+  filter(value == 0) %>%
+  count(name) %>%
+  mutate(
+    Issue = "Invalid value in Client file",
+    Type = "Error",
+    Guidance = case_when(
+      name == "VeteranStatus" ~ paste("VeteranStatus has", n,
+                                      "rows with invalid values"),
+      name == "RaceNone" ~ paste("RaceNone has", n,
+                                 "rows with invalid values"),
+      name == "AmIndAKNative" ~ paste("AmIndAKNative has", n,
+                                      "rows with invalid values"),
+      name == "Asian" ~ paste("Asian has", n,
+                              "rows with invalid values"),
+      name == "BlackAfAmerican" ~ paste("BlackAfAmerican has", n,
+                                        "rows with invalid values"),
+      name == "NativeHIPacific" ~ paste("NativeHIPacific has", n,
+                                        "Rows with invalid values"),
+      name == "White" ~ paste("White has", n,
+                              "rows with invalid values"),
+      name == "Ethnicity" ~ paste("Ethnicity has", n,
+                                  "rows with invalid values"),
+      name == "Female" ~ paste("Female has", n,
+                               "rows with invalid values"),
+      name == "Male" ~ paste("Male has", n,
+                             "rows with invalid values"),
+      name == "NoSingleGender" ~ paste("NoSingleGender has", n,
+                                       "rows with invalid values"),
+      name == "Transgender" ~ paste("Transgender has", n,
+                                    "rows with invalid values"),
+      name == "Questioning" ~ paste("Questioning has", n,
+                                    "rows with invalid values"),
+      name == "GenderNone" ~ paste("GenderNone has", n,
+                                   "rows with invalid values")
+    )
+  ) %>%
+  select(Issue, Type, Guidance)
+
+duplicate_client_id <- Client %>%
+  get_dupes(PersonalID) %>%
+  mutate(
+    Issue = "Duplicate PersonalIDs found in the Client file",
+    Type = "High Priority",
+    Guidance = paste("There are", dupe_count, "for PersonalID", PersonalID)
+  ) %>%
+  select(Issue, Type, Guidance)
+
+issues_client <-
+  rbind(
+    valid_values_client,
+    export_id_client,
+    duplicate_client_id
+  )
+
+# Enrollment --------------------------------------------------------------
+
+duplicate_enrollment_id <- Enrollment %>%
+  get_dupes(EnrollmentID) %>%
+  mutate(
+    Issue = "Duplicate EnrollmentIDs found in the Enrollment file",
+    Type = "High Priority",
+    Guidance = paste("There are", dupe_count, "for EnrollmentID", EnrollmentID)
+  ) %>%
+  select(Issue, Type, Guidance)
+
+personal_ids_in_client <- Client %>% pull(PersonalID)
+
+foreign_key_no_primary_personalid_enrollment <- Enrollment %>%
+  filter(!PersonalID %in% c(personal_ids_in_client)) %>%
+  mutate(
+    Issue = "Client in the Enrollment file not found in Client file",
+    Type = "High Priority",
+    Guidance = paste(
+      "PersonalID",
+      PersonalID,
+      "is in the Enrollment file but not in the Client file"
+    )
+  ) %>%
+  select(Issue, Type, Guidance)
+
+projectids_in_project <- Project %>% pull(ProjectID)
+
+foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
+  filter(!ProjectID %in% c(projectids_in_project)) %>%
+  mutate(
+    Issue = "ProjectID in the Enrollment file not found in Project file",
+    Type = "High Priority",
+    Guidance = paste(
+      "ProjectID",
+      ProjectID,
+      "is in the Enrollment file but not in the Project file"
+    )
+  ) %>%
+  select(Issue, Type, Guidance)
+
+disabling_condition_invalid <- Enrollment %>%
+  mutate(
+    Issue = if_else(
+      !DisablingCondition %in% c(yes_no_enhanced),
+      "Disabling Condition contains an invalid value",
+      NULL
+    ),
+    Type = "Error",
+    Guidance = paste(
+      "EnrollmentID",
+      EnrollmentID,
+      "has an invalid value in the
+                     DisablingCondition column"
+    )
+  ) %>%
+  filter(!is.na(Issue)) %>%
+  select(Issue, Type, Guidance) %>%
+  unique()
+
+all_living_situations <- c(
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 18, 19, 20, 21, 25, 26, 28, 29,
+  31, 32, 33, 34, 35, 36, 99)
+
+living_situation_invalid <- Enrollment %>%
+  mutate(
+    Issue = if_else(
+      LivingSituation %in% c(all_living_situations) |
+        is.na(LivingSituation),
+      "Nothing",
+      "Living Situation contains an invalid value"
+    ),
+    Type = "Error",
+    Guidance = paste(
+      "EnrollmentID",
+      EnrollmentID,
+      "has an invalid value in the
+                     LivingSituation column"
+    )
+  ) %>%
+  filter(Issue != "Nothing") %>%
+  select(Issue, Type, Guidance) %>%
+  unique()
+
+rel_to_hoh_invalid <- Enrollment %>%
+  mutate(
+    Issue = if_else(
+      RelationshipToHoH %in% c(1:5, 99),
+      "Nothing",
+      "RelationshipToHoH contains an invalid value"
+    ),
+    Type = "Error",
+    Guidance = paste(
+      "EnrollmentID",
+      EnrollmentID,
+      "has an invalid value in the
+                     RelationshipToHoH column"
+    )
+  ) %>%
+  filter(Issue != "Nothing") %>%
+  select(Issue, Type, Guidance) %>%
+  unique()
+
+move_in_date_invalid <- Enrollment %>%
+  left_join(Exit %>% select(EnrollmentID, ExitDate), by = "EnrollmentID") %>%
+  mutate(
+    Issue = if_else(
+      (
+        ymd(MoveInDate) >= ymd(EntryDate) &
+          ymd(MoveInDate) <= coalesce(ymd(ExitDate), today())
+      ) |
+        is.na(MoveInDate),
+      "Nothing",
+      "MoveInDate is not between the Entry Date and Exit Date"
+    ),
+    Type = "Error",
+    Guidance = paste("EnrollmentID", EnrollmentID, "has an invalid MoveInDate")
+  ) %>%
+  filter(Issue != "Nothing") %>%
+  select(Issue, Type, Guidance) %>%
+  unique()
+
+issues_enrollment <-
+  rbind(
+    duplicate_enrollment_id,
+    foreign_key_no_primary_personalid_enrollment,
+    foreign_key_no_primary_projectid_enrollment,
+    disabling_condition_invalid,
+    living_situation_invalid,
+    rel_to_hoh_invalid,
+    move_in_date_invalid
+  )
 
 # Exit --------------------------------------------------------------------
 
