@@ -86,7 +86,8 @@ function(input, output, session) {
         a <- rbind(df_column_counts, 
                    df_column_names, 
                    df_data_types, 
-                   df_nulls) %>%
+                   df_nulls,
+                   issues_enrollment) %>%
           group_by(Issue, Type) %>%
           summarise(Count = n()) %>%
           ungroup()
@@ -109,7 +110,8 @@ function(input, output, session) {
         write_xlsx(rbind(df_column_counts, 
                      df_column_names, 
                      df_data_types, 
-                     df_nulls), 
+                     df_nulls,
+                     issues_enrollment), 
                    path = file)
       }
       
