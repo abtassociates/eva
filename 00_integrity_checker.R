@@ -29,32 +29,145 @@ files <- c(
 
 export_id_from_export <- Export %>% pull(ExportID)
 
-column_names <- read_csv("public_data/columns.csv")
+cols_and_data_types <- read_csv("public_data/columns.csv", col_types = cols())
 
+col_counts <- cols_and_data_types %>%
+  group_by(File) %>%
+  summarise(ColumnCount = n())
 
-check_column_names <- function(file) {
+# Creating Functions ------------------------------------------------------
+
+check_column_counts <- function(file) {
   tibble(
-    ImportedColumns = colnames(!!rlang::ensym(file)),
-    CorrectColumns = column_names %>%
-      filter(Files == {{file}}) %>%
-      pull(Columns) %>% str_split(",") %>% unlist()
+    ImportedColumnCount = 
+      ncol(!!rlang::ensym(file)),
+    CorrectColumnCount = 
+      col_counts %>%
+      filter(File == {{file}}) %>%
+      pull(ColumnCount)
   ) %>%
-    mutate(Guidance = if_else(
-      ImportedColumns != CorrectColumns,
-      paste(
-        "The",
-        ImportedColumns,
-        "column should be spelled like",
-        CorrectColumns
+    mutate(
+      Issue = case_when(
+        ImportedColumnCount != CorrectColumnCount ~ 
+          "Wrong Number of Columns"
       ),
-      "all good"
-    )) %>%
+      Guidance = case_when(
+        ImportedColumnCount != CorrectColumnCount ~ paste(
+          "The",
+          file,
+          "file has", 
+          ImportedColumnCount,
+          "columns when it should have",
+          CorrectColumnCount
+        )
+      )
+      
+    ) %>%
     filter(Guidance != "all good") %>%
     mutate(Type = "High Priority",
            Issue = "Incorrect Column Name") %>%
     select(Issue, Type, Guidance)
   
 }
+
+check_column_names <- function(file) {
+  tibble(
+    ImportedColumns = 
+      colnames(!!rlang::ensym(file)),
+    CorrectColumns = 
+      cols_and_data_types %>%
+      filter(File == {{file}}) %>%
+      pull(Column)
+  ) %>%
+    mutate(
+      Issue = case_when(
+        ImportedColumns != CorrectColumns ~ "Missing or Misspelled Column Name"
+      ),
+      Guidance = case_when(
+        ImportedColumns != CorrectColumns ~ paste(
+          "The", ImportedColumns, "column should be spelled like", CorrectColumns
+        )
+      )
+      
+    ) %>%
+    filter(Guidance != "all good") %>%
+    mutate(Type = "High Priority",
+           Issue = "Incorrect Column Name") %>%
+    select(Issue, Type, Guidance)
+  
+}
+
+check_data_types <- function(barefile, quotedfile) {
+  if(nrow(barefile) > 0) {
+    data_types <- as.data.frame(summary.default(barefile)) %>% 
+      filter(Var2 != "Length" & 
+               ((Var2 == "Class" & Freq %in% c("Date", "POSIXct")) |
+                  Var2 == "Mode")) %>% 
+      mutate(
+        File = quotedfile,
+        ImportedDataType = case_when(
+          Var2 == "Class" & Freq == "Date" ~ "date",
+          Var2 == "Class" & Freq == "POSIXct" ~ "datetime",
+          Var2 == "Mode" ~ Freq,
+          TRUE ~ "something's wrong"
+        )) %>%
+      group_by(Var1) %>%
+      slice_min(order_by = Var2)  %>%
+      ungroup() %>%
+      select(File, "Column" = Var1, ImportedDataType)
+    
+    cols_and_data_types %>% 
+      left_join(data_types, by = c("File", "Column")) %>%
+      mutate(
+        Issue = if_else(DataType != ImportedDataType, "Incorrect Data Type", NULL), 
+        Guidance = if_else(
+          DataType != ImportedDataType,
+          paste(
+            "In the",
+            quotedfile,
+            "file, the",
+            Column,
+            "column should have a data type of",
+            DataType,
+            "but in this file, it is",
+            ImportedDataType
+          ),
+          NULL
+        ),
+        Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error")) %>%
+      filter(!is.na(Issue)) %>%
+      select(Issue, Type, Guidance)}
+  
+}
+
+check_for_bad_nulls <- function(barefile, quotedfile) {
+  
+  if (nrow(barefile) > 1){
+    barefile %>%
+      mutate(across(everything(), ~ is.na(.x))) %>% 
+      summarise(across(everything(), max)) %>%
+      pivot_longer(cols = everything(), 
+                   names_to = "Column", 
+                   values_to = "NullsPresent") %>%
+      mutate(File = quotedfile) %>%
+      left_join(cols_and_data_types %>%
+                  select(File, Column, NullsAllowed), by = c("File", "Column")) %>%
+      filter(NullsAllowed == 0 & NullsPresent == 1) %>%
+      mutate(
+        Issue = "Nulls not allowed in this column",
+        Type = "Error",
+        Guidance = paste(
+          "The",
+          Column,
+          "column in the",
+          File,
+          "file contains nulls where they are not allowed."
+        )
+      ) %>%
+      select(Issue, Type, Guidance)}
+}
+
+
 
 dq_column_names <- map_df(files, check_column_names)
 
