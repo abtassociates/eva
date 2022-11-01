@@ -1,5 +1,6 @@
 
 
+# Prep --------------------------------------------------------------------
 
 files <- c(
 #  "Affiliation",
@@ -79,20 +80,15 @@ check_column_names <- function(file) {
       filter(File == {{file}}) %>%
       pull(Column)
   ) %>%
+    filter(ImportedColumns != CorrectColumns) %>%
     mutate(
-      Issue = case_when(
-        ImportedColumns != CorrectColumns ~ "Missing or Misspelled Column Name"
-      ),
-      Guidance = case_when(
-        ImportedColumns != CorrectColumns ~ paste(
-          "The", ImportedColumns, "column should be spelled like", CorrectColumns
-        )
-      )
-      
-    ) %>%
-    filter(Guidance != "all good") %>%
-    mutate(Type = "High Priority",
-           Issue = "Incorrect Column Name") %>%
+      Guidance =
+        paste("The",
+              ImportedColumns,
+              "column should be spelled like",
+              CorrectColumns), 
+      Type = "Error",
+      Issue = "Incorrect Column Name") %>%
     select(Issue, Type, Guidance)
   
 }
@@ -107,7 +103,7 @@ check_data_types <- function(barefile, quotedfile) {
         mutate(
           File = quotedfile,
           Issue = "Incorrect Date Format",
-          Type = "High Priority",
+          Type = "Error",
           Guidance = paste(
             "Please check that the", col, "column in the", File,
             "file has the correct date format. Dates in the HMIS CSV Export 
