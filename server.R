@@ -633,6 +633,182 @@ function(input, output, session) {
       req(values$imported_zip)
       dq_plot_warnings_org_level})
     
+    #Org-Level Tab Plots
+    
+    #Plot of projects within selected org with most high priority errors
+    output$orgDQHighPriorityErrors <- renderPlot({
+      req(values$imported_zip)
+      
+      dq_hp_top_projects <- dq_data_high_priority_errors_org_project_plot %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      dq_hp_top_projects$hover <-
+        with(dq_hp_top_projects,
+             paste0(ProjectName))
+      
+      ggplot(
+        head(dq_hp_top_projects, 10L),
+        aes(
+          x = reorder(hover, clientsWithErrors),
+          y = clientsWithErrors
+        )
+      ) +
+        geom_col(show.legend = FALSE,
+                 color = "#063a89",
+                 fill = "#063a89") +
+        coord_flip() +
+        labs(x = "",
+             y = "Number of Clients with High Priority Errors") +
+        theme_classic() +
+        theme(axis.line = element_line(linetype = "blank"),
+              axis.ticks = element_line(linetype = "blank"),
+              plot.background = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.grid.major = element_blank()) +
+        geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")})
+    
+    #Plot of most common high priority errors within an org
+    output$orgDQHighPriorityErrorTypes <- renderPlot({
+      req(values$imported_zip)
+      
+    dq_hp_error_types_org_level <-  dq_data_high_priority_error_types_org_project %>%
+        filter(OrganizationName %in% c(input$orgList))
+    
+    ggplot(head(dq_hp_error_types_org_level, 10L),
+           aes(
+             x = reorder(Issue, Errors),
+             y = Errors
+           )) +
+      geom_col(show.legend = FALSE,
+               color = "#063A89",
+               fill = "#063a89") +
+      coord_flip() +
+      labs(x = "",
+           y = "Number of Clients with High Piority Errors") +
+      theme_classic() +
+      theme(axis.line = element_line(linetype = "blank"),
+            axis.ticks = element_line(linetype = "blank"),
+            plot.background = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.grid.major = element_blank()) +
+      geom_text(aes(label = Errors), hjust = -0.5, color = "black")})
+    
+    #Plot of projects within selected org with most general errors
+    output$orgDQErrors <- renderPlot({
+      req(values$imported_zip)
+      
+     dq_general_errors_top_projects <- dq_data_errors_org_project_plot %>%
+        filter(OrganizationName %in% c(input$orgList))
+     
+     dq_general_errors_top_projects$hover <-
+       with(dq_general_errors_top_projects,
+            paste0(ProjectName))
+     
+     ggplot(
+       head(dq_general_errors_top_projects, 10L),
+       aes(
+         x = reorder(hover, clientsWithErrors),
+         y = clientsWithErrors
+       )
+     ) +
+       geom_col(show.legend = FALSE,
+                color = "#063a89",
+                fill = "#063a89") +
+       coord_flip() +
+       labs(x = "",
+            y = "Number of Clients with General Errors") +
+       theme_classic() +
+       theme(axis.line = element_line(linetype = "blank"),
+             axis.ticks = element_line(linetype = "blank"),
+             plot.background = element_blank(),
+             panel.grid.minor = element_blank(),
+             panel.grid.major = element_blank()) +
+       geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")})
+    
+    #Plot of most common general errors within an org
+    output$orgDQErrorTypes <- renderPlot({
+      req(values$imported_zip)
+      
+      dq_general_error_types_org_level <- dq_data_error_types_org_project %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      ggplot(head(dq_general_error_types_org_level, 10L),
+             aes(
+               x = reorder(Issue, Errors),
+               y = Errors
+             )) +
+        geom_col(show.legend = FALSE,
+                 color = "#063A89",
+                 fill = "#063a89") +
+        coord_flip() +
+        labs(x = "",
+             y = "Number of Clients with General Errors") +
+        theme_classic() +
+        theme(axis.line = element_line(linetype = "blank"),
+              axis.ticks = element_line(linetype = "blank"),
+              plot.background = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.grid.major = element_blank()) +
+        geom_text(aes(label = Errors), hjust = -0.5, color = "black")})
+    
+    #Plot of projects within selected org with most general errors
+    output$orgDQWarnings <- renderPlot({
+      req(values$imported_zip)
+      
+      dq_warnings_top_projects <- dq_data_warnings_org_project_plot %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      dq_warnings_top_projects$hover <-
+        with(dq_warnings_top_projects,
+             paste0(ProjectName))
+      
+      ggplot(head(dq_warnings_top_projects, 10L),
+             aes(
+               x = reorder(hover, Warnings),
+               y = Warnings
+             )) +
+        geom_col(show.legend = FALSE,
+                 color = "#063a89",
+                 fill = "#063A89") +
+        coord_flip() +
+        labs(x = "",
+             y = "Number of Clients with Warnings") +
+        theme_classic() +
+        theme(axis.line = element_line(linetype = "blank"),
+              axis.ticks = element_line(linetype = "blank"),
+              plot.background = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.grid.major = element_blank()) +
+        geom_text(aes(label = Warnings), hjust = -0.5, color = "black")})
+    
+    #Plot of most common warnings within an org
+    output$orgDQWarningTypes <- renderPlot({
+      req(values$imported_zip)
+      
+      dq_warning_types_org_level <- dq_data_warning_types_org_project %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      ggplot(head(dq_warning_types_org_level, 10L),
+             aes(
+               x = reorder(Issue, Warnings),
+               y = Warnings
+             )) +
+        geom_col(show.legend = FALSE,
+                 color = "#063A89",
+                 fill = "#063A89") +
+        coord_flip() +
+        labs(x = "",
+             y = "Number of Clients with Warnings") +
+        theme_classic() +
+        theme(axis.line = element_line(linetype = "blank"),
+              axis.ticks = element_line(linetype = "blank"),
+              plot.background = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.grid.major = element_blank()) +
+        geom_text(aes(label = Warnings), hjust = -0.5, color = "black")})
+    
+    ##
+    
     output$DQHighPriority <- DT::renderDT({
       req(values$imported_zip)      
       
