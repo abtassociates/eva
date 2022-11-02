@@ -130,18 +130,18 @@ function(input, output, session) {
     )
     
     output$headerFileInfo <- renderUI({
-        req(values$imported_zip)
-        HTML(
-          paste0(
-            "<p>You have successfully uploaded your hashed HMIS CSV Export!</p>
+      req(values$imported_zip)
+      HTML(
+        paste0(
+          "<p>You have successfully uploaded your hashed HMIS CSV Export!</p>
             <p><strong>Date Range of Current File: </strong>",
-            format(Export$ExportStartDate, "%m-%d-%Y"),
-            " to ",
-            format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
-            "<p><strong>Export Date: </strong>",
-            format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
-          )
+          format(Export$ExportStartDate, "%m-%d-%Y"),
+          " to ",
+          format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
+          "<p><strong>Export Date: </strong>",
+          format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
         )
+      )
     })
     
     output$headerNoFileYet <- renderUI({
@@ -822,6 +822,8 @@ function(input, output, session) {
         issue."
     )})
   
+  }, ignoreInit = TRUE)
+}
   # output$headerCocDQ <- renderUI({
   #   req(!is.null(input$imported))
   #   list(h2("System-wide Data Quality"),
@@ -831,10 +833,6 @@ function(input, output, session) {
   #                format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
   #        ))
   # })
-  
-  }, ignoreInit = TRUE)
-}
-
   # output$deskTimeNote <- renderUI({
   #   HTML(
   #     "<h4>HUD and Data Quality</h4>
