@@ -465,6 +465,7 @@ function(input, output, session) {
     
     # list of data frames to include in DQ Org Report
     orgDQReportDataList <- reactive({
+      req(values$imported_zip)
       
       ReportStart <- input$dq_startdate
       ReportEnd <- today()
