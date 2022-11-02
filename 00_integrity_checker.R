@@ -420,15 +420,14 @@ disabling_condition_invalid <- Enrollment %>%
   mutate(
     Issue = if_else(
       !DisablingCondition %in% c(yes_no_enhanced),
-      "Disabling Condition contains an invalid value",
+      "Invalid Disabling Condition",
       NULL
     ),
     Type = "Error",
     Guidance = paste(
-      "EnrollmentID",
+      "Enrollment ID",
       EnrollmentID,
-      "has an invalid value in the
-                     DisablingCondition column"
+      "has an invalid value in the DisablingCondition column"
     )
   ) %>%
   filter(!is.na(Issue)) %>%
@@ -457,21 +456,16 @@ living_situation_invalid <- Enrollment %>%
   select(Issue, Type, Guidance) 
 
 rel_to_hoh_invalid <- Enrollment %>%
+  filter(!RelationshipToHoH %in% c(1:5, 99) & !is.na(RelationshipToHoH)) %>%
   mutate(
-    Issue = if_else(
-      RelationshipToHoH %in% c(1:5, 99),
-      "Nothing",
-      "Invalid RelationshipToHoH value"
-    ),
+    Issue = "Invalid RelationshipToHoH value",
     Type = "Error",
     Guidance = paste(
-      "EnrollmentID",
+      "Enrollment ID",
       EnrollmentID,
-      "has an invalid value in the
-                     RelationshipToHoH column"
+      "has an invalid value in the RelationshipToHoH column"
     )
   ) %>%
-  filter(Issue != "Nothing") %>%
   select(Issue, Type, Guidance) %>%
   unique()
 
