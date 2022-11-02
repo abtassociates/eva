@@ -234,6 +234,10 @@ df_nulls <- rbind(
   check_for_bad_nulls(YouthEducationStatus,"YouthEducationStatus")
 ) 
 
+integrity_structure <- rbind(
+  df_nulls, df_data_types, df_column_counts, df_column_names
+)
+
 # # Valid Values ------------------------------------------------------------
 
 export_id_client <- Client %>%
@@ -357,7 +361,7 @@ duplicate_client_id <- Client %>%
   ) %>%
   select(Issue, Type, Guidance)
 
-issues_client <-
+integrity_client <-
   rbind(
     valid_values_client,
     export_id_client,
@@ -424,36 +428,33 @@ disabling_condition_invalid <- Enrollment %>%
   select(Issue, Type, Guidance) %>%
   unique()
 
-all_living_situations <- c(
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 18, 19, 20, 21, 25, 26, 28, 29,
-  31, 32, 33, 34, 35, 36, 99)
+allowed_living_situations <- 
+  c(16, 1, 18, 15, 6, 7, 25, 4, 5, 29, 14, 2, 32, 13, 36, 12, 22, 35, 23, 26,
+    27, 28, 19, 3, 31, 33, 34, 10, 20, 21, 11, 30, 17, 24, 37, 8, 9, 99)
 
 living_situation_invalid <- Enrollment %>%
+  filter(!is.na(LivingSituation) &
+    (!LivingSituation %in% c(allowed_living_situations) |
+       LivingSituation %in% c(12, 13, 22, 23, 26, 27, 30, 17, 24, 37))) %>%
   mutate(
-    Issue = if_else(
-      LivingSituation %in% c(all_living_situations) |
-        is.na(LivingSituation),
-      "Nothing",
-      "Living Situation contains an invalid value"
-    ),
+    Issue = "Invalid Living Situation value",
     Type = "Error",
     Guidance = paste(
-      "EnrollmentID",
+      "Enrollment ID",
       EnrollmentID,
-      "has an invalid value in the
-                     LivingSituation column"
+      "has a LivingSituation of",
+      LivingSituation,
+      "which is not a valid value."
     )
   ) %>%
-  filter(Issue != "Nothing") %>%
-  select(Issue, Type, Guidance) %>%
-  unique()
+  select(Issue, Type, Guidance) 
 
 rel_to_hoh_invalid <- Enrollment %>%
   mutate(
     Issue = if_else(
       RelationshipToHoH %in% c(1:5, 99),
       "Nothing",
-      "RelationshipToHoH contains an invalid value"
+      "Invalid RelationshipToHoH value"
     ),
     Type = "Error",
     Guidance = paste(
@@ -477,26 +478,66 @@ move_in_date_invalid <- Enrollment %>%
       ) |
         is.na(MoveInDate),
       "Nothing",
-      "MoveInDate is not between the Entry Date and Exit Date"
+      "Invalid MoveInDate"
     ),
     Type = "Error",
-    Guidance = paste("EnrollmentID", EnrollmentID, "has an invalid MoveInDate")
+    Guidance = paste(
+      "Enrollment ID", 
+      EnrollmentID, 
+      "has a Move-In Date of",
+      MoveInDate,
+      "which does not fall between the Entry Date of",
+      EntryDate,
+      "and the Exit Date (or end of the reporting period.)")
   ) %>%
   filter(Issue != "Nothing") %>%
   select(Issue, Type, Guidance) %>%
   unique()
 
-issues_enrollment <-
+integrity_enrollment <-
   rbind(
     duplicate_enrollment_id,
     foreign_key_no_primary_personalid_enrollment,
     foreign_key_no_primary_projectid_enrollment,
     disabling_condition_invalid,
-    living_situation_invalid,
     rel_to_hoh_invalid,
     move_in_date_invalid
   )
 
 # Exit --------------------------------------------------------------------
 
+nonstandard_destination <- Exit %>%
+  filter(!Destination %in% c(allowed_living_situations) |
+           Destination %in% c(35, 36, 37)) %>%
+  mutate(
+    Issue = "Invalid Destination value",
+    Type = "Error",
+    Guidance = paste("EnrollmentID",
+                     EnrollmentID,
+                     "has a Destination value of",
+                     Destination,
+                     "which is not a valid Destination response.")) %>%
+  select(Issue, Type, Guidance)
+
+# Current Living Situation ------------------------------------------------
+
+nonstandard_CLS <- CurrentLivingSituation %>%
+  filter(!is.na(CurrentLivingSituation) &
+    (!CurrentLivingSituation %in% c(allowed_living_situations) |
+       CurrentLivingSituation %in% c(12, 13, 22, 23, 26, 27, 30, 24))) %>%
+  mutate(
+    Issue = "Non-standard Current Living Situation",
+    Type = "Error",
+    Guidance = paste("EnrollmentID",
+                     EnrollmentID,
+                     "has a Current Living Situation value of",
+                     CurrentLivingSituation,
+                     "which is not a valid response for Current Living Situation.")) %>%
+  select(Issue, Type, Guidance)
+
+integrity_living_situation <- rbind(
+  living_situation_invalid,
+  nonstandard_CLS,
+  nonstandard_destination
+)
 

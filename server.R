@@ -83,11 +83,10 @@ function(input, output, session) {
     output$integrityChecker <- DT::renderDataTable(
       {
         req(values$imported_zip)
-        a <- rbind(df_column_counts, 
-                   df_column_names, 
-                   df_data_types, 
-                   df_nulls,
-                   issues_enrollment) %>%
+        a <- rbind(integrity_client,
+                   integrity_enrollment,
+                   integrity_living_situation,
+                   integrity_structure) %>%
           group_by(Issue, Type) %>%
           summarise(Count = n()) %>%
           ungroup()
@@ -107,14 +106,16 @@ function(input, output, session) {
         paste("integrity-check-", Sys.Date(), ".xlsx", sep = "")
       },
       content = function(file) {
-        write_xlsx(rbind(df_column_counts, 
-                     df_column_names, 
-                     df_data_types, 
-                     df_nulls,
-                     issues_enrollment), 
-                   path = file)
+        write_xlsx(
+          rbind(
+            integrity_client,
+            integrity_enrollment,
+            integrity_living_situation,
+            integrity_structure
+          ),
+          path = file
+        )
       }
-      
     )
     
     output$headerFileInfo <- renderUI({
