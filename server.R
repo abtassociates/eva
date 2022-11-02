@@ -36,17 +36,16 @@ function(input, output, session) {
   observeEvent(input$imported, {
     
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+    # read Export file
     Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
-
+    # read Client file
     Client <- importFile("Client",
                          col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
-    
-    
-    
+    # decide if the export is hashed
     hashed <- Export$HashStatus == 4 &
        min(nchar(Client$FirstName), na.rm = TRUE) ==
        max(nchar(Client$FirstName), na.rm = TRUE)
-    
+    #if it's not hashed, throw an error and clear the upload
     if (hashed == FALSE) {
       # clear imported
       values$imported_zip = NULL
