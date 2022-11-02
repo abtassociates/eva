@@ -183,6 +183,23 @@ dashboardPage(
           width = 12)
     ), 
     tabItem(
+      tabName = "tabPDDE",
+      fluidRow(box(htmlOutput(
+        "headerPDDE"
+      ), width = 12)),
+      fluidRow(
+        box(
+          id = "PDDESummaryOrganization",
+          title = paste("PDDE Check Summary"),
+          status = "info",
+          solidHeader = TRUE,
+          DT::dataTableOutput("pdde_summary_table"),
+          width = 12,
+          uiOutput("downloadPDDEReportButton")
+        )
+      )
+    ),
+    tabItem(
       tabName = "tabClientCount",
       fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
       fluidRow(box(
@@ -301,14 +318,14 @@ dashboardPage(
           width = "100%",
           selected = "none"
         ),
-        dateInput(
-          inputId = "dq_startdate",
-          label = "Report Start Date",
-          format = "mm/dd/yyyy",
-          value = NULL, # ymd(meta_HUDCSV_Export_Start),
-          min = NULL,
-          width = "25%"
-        ),
+        # dateInput(
+        #   inputId = "dq_startdate",
+        #   label = "Report Start Date",
+        #   format = "mm/dd/yyyy",
+        #   value = NULL, # ymd(meta_HUDCSV_Export_Start),
+        #   min = NULL,
+        #   width = "25%"
+        # ),
         uiOutput("downloadOrgDQReportButton"),
         width = 12
       )), 
@@ -320,6 +337,54 @@ dashboardPage(
           solidHeader = TRUE,
           DT::dataTableOutput("dq_organization_summary_table"),
           width = 12
+        )
+      ),
+      fluidRow(
+        box(
+          plotOutput("orgDQHighPriorityErrorTypes"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Most Common High Priority Errors"
+        ),
+        box(
+          plotOutput("orgDQHighPriorityErrors"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Projects with the Most High Priority Errors"
+        )
+      ),
+      fluidRow(
+        box(
+          plotOutput("orgDQErrorTypes"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Most Common General Errors"
+        ),
+        box(
+          plotOutput("orgDQErrors"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Projects with the Most General Errors"
+        )
+      ),
+      fluidRow(
+        box(
+          plotOutput("orgDQWarningTypes"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Most Common Warnings Errors"
+        ),
+        box(
+          plotOutput("orgDQWarnings"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Projects with the Most Warnings Errors"
         )
       ),
       fluidRow(box(DTOutput("DQHighPriority"),
@@ -381,18 +446,34 @@ dashboardPage(
       fluidRow(box(htmlOutput("headerSystemDQ"), width = 12)),
       fluidRow(
         box(
+          plotOutput("systemDQHighPriorityErrorTypes"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Most Common High Priority Errors"
+        ),
+        box(
+          plotOutput("systemDQHighPriorityErrors"),
+          width = 6,
+          solidHeader = TRUE,
+          status = NULL,
+          title = "Organizations with the Most High Priority Errors"
+        )
+      ),
+      fluidRow(
+        box(
           plotOutput("systemDQErrorTypes"),
           width = 6,
           solidHeader = TRUE,
-          status = "danger",
-          title = "Most Common High Priority Issues and Errors"
+          status = NULL,
+          title = "Most Common General Errors"
         ),
         box(
           plotOutput("systemDQErrors"),
           width = 6,
           solidHeader = TRUE,
-          status = "danger",
-          title = "Organizations with the Most High Priority Issues and Errors"
+          status = NULL,
+          title = "Organizations with the Most General Errors"
         )
       ),
         # box(plotOutput("systemHHErrors"), width = 12,
@@ -404,14 +485,14 @@ dashboardPage(
           plotOutput("systemDQWarningTypes"),
           width = 6,
           solidHeader = TRUE,
-          status = "warning",
+          status = NULL,
           title = "Most Common Warnings"
         ),
         box(
           plotOutput("systemDQWarnings"),
           width = 6,
           solidHeader = TRUE,
-          status = "warning",
+          status = NULL,
           title = "Organizations with the Most Warnings"
         )
       )
