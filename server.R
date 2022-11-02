@@ -93,14 +93,15 @@ function(input, output, session) {
     
     output$integrityChecker <- DT::renderDataTable(
       {
-        req(values$imported_zip)
+        req(hashed == 1)
         a <- rbind(integrity_client,
                    integrity_enrollment,
                    integrity_living_situation,
                    integrity_structure) %>%
           group_by(Issue, Type) %>%
           summarise(Count = n()) %>%
-          ungroup()
+          ungroup() %>%
+          arrange(desc(Type))
         
         datatable(
           a,
