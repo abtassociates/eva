@@ -2407,6 +2407,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    dq_w_ids <- dq_main %>%
      left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName") %>%
      left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
+     
 
 # Plots for System-Level DQ Tab -------------------------------------------
    
@@ -2448,6 +2449,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
           y = "Number of Clients with High Priority Errors") +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2477,6 +2479,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
           y = "Number of Clients with High Piority Errors") +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2522,6 +2525,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
           y = "Number of Clients with General Errors") +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2551,6 +2555,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
           y = "Number of Clients with General Errors") +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2584,6 +2589,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
           y = "Number of Clients with Warnings") +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2613,11 +2619,85 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
           y = "Number of Clients with Warnings") +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
            panel.grid.major = element_blank()) +
      geom_text(aes(label = Warnings), hjust = -0.5, color = "black")
+   
+# Prepping dataframes for plots for Organization-Level DQ Tab -----------------
+   
+   # Top projects with Errors - High Priority
+   dq_data_high_priority_errors_org_project_plot <- dq_w_ids %>%
+     filter(Type %in% c("High Priority") &
+         !Issue %in% c(
+           "No Head of Household",
+           "Missing Relationship to Head of Household",
+           "Too Many Heads of Household",
+           "Children Only Household"
+         )
+     ) %>%
+     select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
+     unique() %>%
+     group_by(OrganizationName, ProjectName, ProjectID) %>%
+     summarise(clientsWithErrors = n()) %>%
+     ungroup() %>%
+     arrange(desc(clientsWithErrors))
+   
+      # Most common high priority errors org-wide
+   
+   dq_data_high_priority_error_types_org_project <- dq_w_ids %>%
+     filter(Type %in% c("High Priority")) %>%
+     group_by(OrganizationName, Issue) %>%
+     summarise(Errors = n()) %>%
+     ungroup() %>%
+     arrange(desc(Errors))
+   
+      # Top projects with Errors - General
+   
+   dq_data_errors_org_project_plot <- dq_w_ids %>%
+     filter(Type %in% c("Error") &
+         !Issue %in% c(
+           "No Head of Household",
+           "Missing Relationship to Head of Household",
+           "Too Many Heads of Household",
+           "Children Only Household"
+         )
+     ) %>%
+     select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
+     unique() %>%
+     group_by(OrganizationName, ProjectName, ProjectID) %>%
+     summarise(clientsWithErrors = n()) %>%
+     ungroup() %>%
+     arrange(desc(clientsWithErrors))
+   
+      # Most common general errors org-wide
+   
+   dq_data_error_types_org_project <- dq_w_ids %>%
+     filter(Type %in% c("Error")) %>%
+     group_by(OrganizationName, Issue) %>%
+     summarise(Errors = n()) %>%
+     ungroup() %>%
+     arrange(desc(Errors))
+   
+      #Top projects with warnings
+   
+   dq_data_warnings_org_project_plot <- dq_w_ids %>%
+     filter(Type == "Warning") %>%
+     group_by(OrganizationName, ProjectName, ProjectID) %>%
+     summarise(Warnings = n()) %>%
+     ungroup() %>%
+     arrange(desc(Warnings))
+   
+      #Most common warnings org-wide
+   
+   dq_data_warning_types_org_project <- dq_w_ids %>%
+     filter(Type == "Warning") %>%
+     group_by(OrganizationName, Issue) %>%
+     summarise(Warnings = n()) %>%
+     ungroup() %>%
+     arrange(desc(Warnings))
    
 # # Plots -------------------------------------------------------------------
 #     
