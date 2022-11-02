@@ -37,7 +37,7 @@ col_counts <- cols_and_data_types %>%
   summarise(ColumnCount = n())
 
 high_priority_columns <- cols_and_data_types %>%
-  filter(DataTypePriority == 1) %>%
+  filter(DataTypeHighPriority == 1) %>%
   pull(Column) %>%
   unique()
 
@@ -69,9 +69,8 @@ check_column_counts <- function(file) {
       )
     ) %>%
     filter(Guidance != "all good") %>%
-    mutate(Type = if_else(Column %in% c(high_priority_columns), 
-                          "High Priority", "Error"),
-           Issue = "Incorrect Column Name") %>%
+    mutate(Type = "High Priority",
+           Issue = "Incorrect Column Count") %>%
     select(Issue, Type, Guidance)
   
 }
@@ -92,7 +91,7 @@ check_column_names <- function(file) {
               ImportedColumns,
               "column should be spelled like",
               CorrectColumns), 
-      Type = if_else(Column %in% c(high_priority_columns), 
+      Type = if_else(CorrectColumns %in% c(high_priority_columns), 
                      "High Priority", "Error"), 
       Issue = "Incorrect Column Name") %>%
     select(Issue, Type, Guidance)
