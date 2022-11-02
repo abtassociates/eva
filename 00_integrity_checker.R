@@ -36,6 +36,11 @@ col_counts <- cols_and_data_types %>%
   group_by(File) %>%
   summarise(ColumnCount = n())
 
+high_priority_columns <- cols_and_data_types %>%
+  filter(DataTypePriority == 1) %>%
+  pull(Column) %>%
+  unique()
+
 # Creating Functions ------------------------------------------------------
 
 check_column_counts <- function(file) {
@@ -62,10 +67,10 @@ check_column_counts <- function(file) {
           CorrectColumnCount
         )
       )
-      
     ) %>%
     filter(Guidance != "all good") %>%
-    mutate(Type = "High Priority",
+    mutate(Type = if_else(Column %in% c(high_priority_columns), 
+                          "High Priority", "Error"),
            Issue = "Incorrect Column Name") %>%
     select(Issue, Type, Guidance)
   
@@ -87,7 +92,8 @@ check_column_names <- function(file) {
               ImportedColumns,
               "column should be spelled like",
               CorrectColumns), 
-      Type = "Error",
+      Type = if_else(Column %in% c(high_priority_columns), 
+                     "High Priority", "Error"), 
       Issue = "Incorrect Column Name") %>%
     select(Issue, Type, Guidance)
   
@@ -103,7 +109,8 @@ check_data_types <- function(barefile, quotedfile) {
         mutate(
           File = quotedfile,
           Issue = "Incorrect Date Format",
-          Type = "Error",
+          Type = if_else(col %in% c(high_priority_columns), 
+                         "High Priority", "Error"),
           Guidance = paste(
             "Please check that the", col, "column in the", File,
             "file has the correct date format. Dates in the HMIS CSV Export 
@@ -540,4 +547,15 @@ integrity_living_situation <- rbind(
   nonstandard_CLS,
   nonstandard_destination
 )
+
+if(rbind(
+  integrity_client,
+  integrity_enrollment,
+  integrity_living_situation,
+  integrity_structure
+) %>% filter(Type == "High Priority") %>% nrow() > 0) {
+  structural_issues <- 1
+} else{
+  structural_issues <- 0
+}
 
