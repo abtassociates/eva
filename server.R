@@ -58,26 +58,38 @@ function(input, output, session) {
           easyClose = TRUE
         )
       )
-    } else {
-      values$imported_zip = 1
+    } else { # if it is hashed, set imported_zip to 1 and start running scripts
+      values$imported_zip <- 1
       withProgress({
         setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
         source("00_get_Export.R", local = TRUE)
         setProgress(detail = "Checking file integrity", value = .35)
         source("00_integrity_checker.R", local = TRUE)
-        
-        setProgress(detail = "Prepping initial data..", value = .4)
-        source("00_initial_data_prep.R", local = TRUE)
-        source("00_dates.R", local = TRUE)
-        setProgress(detail = "Making lists..", value = .5)
-        source("01_cohorts.R", local = TRUE)
-        setProgress(detail = "Assessing your data quality..", value = .7)
-        source("03_DataQuality.R", local = TRUE)
-        setProgress(detail = "Done!", value = 1)
-        
+        # if structural issues were not found, keep going
+        if (structural_issues == 0) {
+          setProgress(detail = "Prepping initial data..", value = .4)
+          source("00_initial_data_prep.R", local = TRUE)
+          source("00_dates.R", local = TRUE)
+          setProgress(detail = "Making lists..", value = .5)
+          source("01_cohorts.R", local = TRUE)
+          setProgress(detail = "Assessing your data quality..", value = .7)
+          source("03_DataQuality.R", local = TRUE)
+          setProgress(detail = "Done!", value = 1)
+        } else{ # if structural issues were found, reset gracefully
+        values$imported_zip <- NULL
+        showModal(
+          modalDialog(
+            title = "Your HMIS CSV Export is not structurally valid",
+            "Your HMIS CSV Export has some High Priority issues that must
+            be addressed by your HMIS Vendor. Please download the Integrity
+            Checker for details.",
+            easyClose = TRUE
+          )
+        )
+      }
       })
-    }
+    } 
     
     output$integrityChecker <- DT::renderDataTable(
       {
