@@ -1,69 +1,21 @@
 Project <- Project %>%
   left_join(Organization %>%
               select(OrganizationID, OrganizationName),
-            by = "OrganizationID")
-
-# Client ------------------------------------------------------------------
-# Client <- Client %>%
-  # mutate(
-    # FirstName = case_when(
-    #   NameDataQuality %in% c(8, 9) ~ "DKR",
-    #   NameDataQuality == 2 ~ "Partial",
-    #   NameDataQuality == 99 |
-    #     is.na(NameDataQuality) |
-    #     FirstName == "Anonymous" ~ "Missing",
-    #   !(
-    #     NameDataQuality %in% c(2, 8, 9, 99) |
-    #       is.na(NameDataQuality) |
-    #       FirstName == "Anonymous"
-    #   ) ~ "ok"
-    # ),
-    # LastName = NULL,
-    # MiddleName = NULL,
-    # NameSuffix = NULL,
-    # SSN = case_when(
-    #   (is.na(SSN) & !SSNDataQuality %in% c(8, 9)) |
-    #     is.na(SSNDataQuality) | SSNDataQuality == 99 ~ "Missing",
-    #   SSNDataQuality %in% c(8, 9) ~ "DKR",
-    #   (nchar(SSN) != 9 & SSNDataQuality != 2) |
-    #     substr(SSN, 1, 3) %in% c("000", "666") |
-    #     substr(SSN, 1, 1) == 9 |
-    #     substr(SSN, 4, 5) == "00" |
-    #     substr(SSN, 6, 9) == "0000" |
-    #     SSNDataQuality == 2 |
-    #     SSN %in% c(
-    #       111111111,
-    #       222222222,
-    #       333333333,
-    #       444444444,
-    #       555555555,
-    #       777777777,
-    #       888888888,
-    #       123456789
-    #     ) ~ "Invalid",
-    #   SSNDataQuality == 2 & nchar(SSN) != 9 ~ "Incomplete"
-    # ),
-    # PersonalID = as.character(PersonalID)
-  # ) %>%
-  # mutate(SSN = case_when(is.na(SSN) ~ "ok", !is.na(SSN) ~ SSN))
+            by = "OrganizationID") %>%
+  mutate(ProjectType = if_else(
+    ProjectType == 1 & TrackingMethod == 3, 0, ProjectType
+  ))
 
 # Enrollment --------------------------------------------------------------
-# Enrollment <- Enrollment %>%
-#   mutate(
-#     EntryDate = parseDate(EntryDate),
-#     DateCreated = parseDate(DateCreated),
-#     MoveInDate = parseDate(MoveInDate),
-#     DateToStreetESSH = parseDate(DateToStreetESSH),
-#     PersonalID = as.character(PersonalID)
-#   )
 
 # Adding Exit Data to Enrollment because I'm not tryin to have one-to-one 
 # relationships in this!
-small_exit = Exit %>% select(EnrollmentID, Destination, ExitDate, OtherDestination)
+small_exit <- Exit %>% select(EnrollmentID, Destination, ExitDate, OtherDestination)
+
 Enrollment <- left_join(Enrollment, small_exit, by = "EnrollmentID") %>% 
   mutate(ExitAdjust = if_else(is.na(ExitDate) |
-                                ExitDate > today(),
-                              today(), ExitDate))
+                                ExitDate > meta_HUDCSV_Export_Date,
+                              meta_HUDCSV_Export_Date, ExitDate))
 
 # Adding ProjectType to Enrollment too bc we need EntryAdjust & MoveInAdjust
 small_project <- Project %>% select(ProjectID, ProjectType, ProjectName) 
