@@ -13,9 +13,7 @@ Project <- Project %>%
 small_exit <- Exit %>% select(EnrollmentID, Destination, ExitDate, OtherDestination)
 
 Enrollment <- left_join(Enrollment, small_exit, by = "EnrollmentID") %>% 
-  mutate(ExitAdjust = if_else(is.na(ExitDate) |
-                                ExitDate > meta_HUDCSV_Export_Date,
-                              meta_HUDCSV_Export_Date, ExitDate))
+  mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_Date))
 
 # Adding ProjectType to Enrollment too bc we need EntryAdjust & MoveInAdjust
 small_project <- Project %>% select(ProjectID, ProjectType, ProjectName) 
