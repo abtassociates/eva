@@ -698,9 +698,10 @@ missing_disabilities <- detail_missing_disabilities %>%
 
 th_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) %>%
   filter(is.na(ExitDate) &
-           ProjectType == 2)
+           ProjectType == 2) %>%
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate)))
+# using Export Date here to reflect the date the export was run on
 
 Top2_TH <- subset(th_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
@@ -708,7 +709,7 @@ rrh_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
            ProjectType == 13) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) 
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
 
 Top2_RRH <- subset(rrh_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
@@ -716,7 +717,7 @@ es_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
            ProjectType == 1) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) 
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
 
 Top2_ES <- subset(es_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
@@ -724,7 +725,7 @@ psh_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
            ProjectType == 3) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) 
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
 
 Top1_PSH <- subset(psh_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
 
@@ -732,7 +733,7 @@ hp_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
            ProjectType == 12) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) 
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
 
 Top5_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 5 / 100))
 
@@ -757,6 +758,7 @@ rm(list = ls(pattern = "Top*"),
 
 
 # Non-Residential Long Stayers --------------------------------------------
+
 
 
 
