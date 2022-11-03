@@ -1133,7 +1133,7 @@ destination_sh <- served_in_date_range %>%
 duplicate_ees <-
   get_dupes(served_in_date_range, PersonalID, ProjectID, EntryDate) %>%
   mutate(
-    Issue = "Duplicate Entry Exits",
+    Issue = "Duplicate Entries",
     Type = "High Priority",
     Guidance = "A client cannot have two enrollments with the same entry date
     into the same project. These are duplicate enrollment records. Please 
