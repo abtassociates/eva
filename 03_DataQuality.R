@@ -1360,6 +1360,15 @@ conflicting_income_exit <- income_subs %>%
 
 rm(income_subs)
 
+# Enrollment Active Outside Operating Dates ------------------------
+active_outside_dates <- served_in_date_range %>%
+  filter(RelationshipToHoH == 1 &
+           EntryDate < OperatingStartDate |
+           (ExitDate > OperatingEndDate & !is_null(ExitDate)) |
+           (is_null(ExitDate) & !is_null(OperatingEndDate))
+  ) %>%
+  select(all_of(vars_we_want))
+
 # Overlapping Enrollment/Move In Dates ------------------------------------
 
 # this only pulls the most recent EE in the overlap and I think that's fine but
