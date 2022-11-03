@@ -81,6 +81,23 @@ function(input, output, session) {
       })
     }
     
+    dq_main_reactive <- reactive({
+      req(values$imported_zip)
+      
+      ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
+      Outreach <- calculate_long_stayers(input$OUTLongStayers, 4)
+      DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
+      CE <- calculate_long_stayers(input$CELongStayers, 14)
+      
+      
+      
+      x <- dq_main %>%
+        filter(Issue %in% c("blah"))
+      
+      rbind(x, ESNbN, Outreach, DayShelter, CE)
+      
+    })
+    
     output$integrityChecker <- DT::renderDataTable(
       {
         req(values$imported_zip)
