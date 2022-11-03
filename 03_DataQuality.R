@@ -735,17 +735,33 @@ hp_stayers <- served_in_date_range %>%
            ProjectType == 12) %>%
   mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
 
-Top5_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 5 / 100))
+Top2_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+
+ce_stayers <- served_in_date_range %>%
+  select(all_of(vars_prep), ProjectID) %>%
+  filter(is.na(ExitDate) &
+           ProjectType == 14) %>%
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
+
+Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
 extremely_long_stayers <- rbind(Top1_PSH,
                                 Top2_ES,
                                 Top2_RRH,
                                 Top2_TH,
-                                Top5_HP) %>%
+                                Top2_HP,
+                                Top2_CE) %>%
   mutate(
-    Issue = "Extremely Long Stayer",
+    Issue = "Possible Missed Exit Date",
     Type = "Warning",
-    Guidance = "Fix Me"
+    Guidance = paste("This enrollment is in the top",
+                     case_when(ProjectType == 3 ~ "1%",
+                               TRUE ~ "2%"),
+                     "of all other projects of its type in your HMIS system for
+                     how many days it has been active. Please be sure this
+                     household is still actively enrolled in this project and if
+                     not, record the date they exited your project as the Exit
+                     Date. If they are actively enrolled, do not change the data.")
   ) %>% 
   select(all_of(vars_we_want))
 
@@ -759,9 +775,20 @@ rm(list = ls(pattern = "Top*"),
 
 # Non-Residential Long Stayers --------------------------------------------
 
+calculate_long_stayers <- function(input, project_type){
+
+  served_in_date_range %>%
+  select(all_of(vars_prep), ProjectID) %>%
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) %>%
+  filter(is.na(ExitDate) &
+           ProjectType == project_type &
+           input < Days)
+  
+}
 
 
 
+# can't do further logic with this because it needs to be reactive
 
 # Incorrect Destination ---------------------------------------------------
 
@@ -2284,7 +2311,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     # All together now --------------------------------------------------------
     
     dq_main <- rbind(
-      #check_disability_ssi,
+      # check_disability_ssi,
       # check_eligibility,
       # conflicting_disabilities,
       conflicting_health_insurance_entry,
