@@ -75,6 +75,8 @@ function(input, output, session) {
           source("01_cohorts.R", local = TRUE)
           setProgress(detail = "Assessing your data quality..", value = .7)
           source("03_DataQuality.R", local = TRUE)
+          setProgress(detail = "Checking your PDDEs", value = .85)
+          source("00_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
         } else{ # if structural issues were found, reset gracefully
         values$imported_zip <- NULL
@@ -189,7 +191,7 @@ function(input, output, session) {
     # header
     output$headerPDDE <- renderUI({
       req(values$imported_zip)
-      list(h2("PDDE Checker"),
+      list(h2("Project Decriptor Data Elements Checker"),
            h4(paste(
              format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
              "to",
@@ -222,10 +224,14 @@ function(input, output, session) {
     
     # download button handler
     output$downloadPDDEReport <- downloadHandler(
+      
       filename = function() {
         paste("PDDE Report-", Sys.Date(), ".xlsx", sep="")
       },
-      content = function(file) {write_xlsx(pdde_main, path = file)}
+      content = function(file) {
+        req(values$imported_zip)
+        write_xlsx(pdde_main, path = file)
+        }
     )
     
     
@@ -341,7 +347,7 @@ function(input, output, session) {
                                          today() - EntryDate, 
                                          " days)"),
               !ProjectType %in% c(3, 13) &
-                !is.na(ExitDate) ~ "Exited project",
+                !is.na(ExitDate) ~ "Exited project"
             ),
             sort = today() - EntryDate,
             EntryDate = format.Date(EntryDate, "%m-%d-%Y"),
@@ -431,7 +437,7 @@ function(input, output, session) {
             !ProjectType %in% c(3, 13) &
               is.na(ExitDate) ~ "Currently in project",
             !ProjectType %in% c(3, 13) &
-              !is.na(ExitDate) ~ "Exited project",
+              !is.na(ExitDate) ~ "Exited project"
           )
         ) %>%
         group_by(Status) %>%
