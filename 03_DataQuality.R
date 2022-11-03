@@ -2603,7 +2603,11 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       veteran_missing_year_separated,
       veteran_missing_wars,
       veteran_missing_branch,
-      veteran_missing_discharge_status
+      veteran_missing_discharge_status,
+      
+      active_outside_dates,
+      exit_before_start,
+      overlapNEW
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
