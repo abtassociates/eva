@@ -42,9 +42,11 @@ function(input, output, session) {
     Client <- importFile("Client",
                          col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
     # decide if the export is hashed
-    hashed <- Export$HashStatus == 4 &
+    hashed <- # TRUE
+      Export$HashStatus == 4 &
        min(nchar(Client$FirstName), na.rm = TRUE) ==
        max(nchar(Client$FirstName), na.rm = TRUE)
+    
     #if it's not hashed, throw an error and clear the upload
     if (hashed == FALSE) {
       # clear imported
@@ -205,7 +207,7 @@ function(input, output, session) {
       
       datatable(
         pdde_main %>%
-          group_by(Issue) %>%
+          group_by(Issue, Type) %>%
           summarise(Count = n()) %>%
           ungroup(),
         rownames = FALSE,
@@ -490,7 +492,7 @@ function(input, output, session) {
                  Type, 
                  Issue) %>%
         summarise(Clients = n()) %>%
-        arrange(ProjectName, Type, desc(Clients)) %>%
+        arrange(Type, desc(Clients)) %>%
         select("Project Name" = ProjectName, 
           Type, 
           Issue, 
