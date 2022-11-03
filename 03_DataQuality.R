@@ -844,6 +844,11 @@ enrolled_in_sh <- served_in_date_range %>%
   mutate(SH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
   select(PersonalID, SH_range, "SHProjectName" = ProjectName)
 
+# Project Exit Before Start --------------
+exit_before_start <- served_in_date_range %>%
+  filter(ExitDate < EntryDate & !is_null(ExitDate) & !is_null(EntryDate)) %>% 
+  select(all_of(vars_we_want))
+
 # Missing Project Stay or Incorrect Destination ---------------------------
 
 # RRH
