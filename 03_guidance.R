@@ -40,3 +40,20 @@ guidance_dkr_data <-
   if they are still in your project), then please do so. Otherwise, there is
   no action needed."
 
+guidance_enrl_active_outside_op <-
+"Fix me"
+
+guidance_exit_before_start <-
+"Fix me"
+
+overlapNEW_entry_and_exit_guidance <-
+"Fix me"
+
+overlapNEW_entry_and_exit_bn_guidance <-
+"Fix me"
+
+overlapNEW_entry_and_exit_bn2_guidance <-
+"Fix me"
+
+overlapNEW_movein_and_exit_guidance <-
+"Fix me"
