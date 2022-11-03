@@ -711,7 +711,7 @@ rrh_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
            ProjectType == 13) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) 
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))) 
 
 Top2_RRH <- subset(rrh_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
@@ -719,7 +719,7 @@ es_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
            ProjectType == 1) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) 
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))) 
 
 Top2_ES <- subset(es_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
@@ -727,7 +727,7 @@ psh_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
            ProjectType == 3) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) 
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))) 
 
 Top1_PSH <- subset(psh_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
 
@@ -735,17 +735,59 @@ hp_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
            ProjectType == 12) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) 
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))) 
 
-Top5_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 5 / 100))
+Top2_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+
+
+ce_stayers <- served_in_date_range %>%
+  select(all_of(vars_prep), ProjectID) %>%
+  filter(is.na(ExitDate) &
+           ProjectType == 14) %>%
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))) 
+
+Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+
+outreach_stayers <- served_in_date_range %>%
+  select(all_of(vars_prep), ProjectID) %>%
+  left_join(
+    CurrentLivingSituation %>% 
+      group_by(EnrollmentID) %>%
+      summarise(latestInfoDate = max(InformationDate)) %>%
+      ungroup() %>%
+      select(EnrollmentID, latestInfoDate)
+    , by = "EnrollmentID"
+  ) %>%
+  filter(is.na(ExitDate) &
+           ProjectType == 4) %>%
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, latestInfoDate))) 
+
+Top2_Outreach <- subset(outreach_stayers, Days > quantile(input$OutLongStayers, prob = 1 - 2 / 100))
+
+missed_movein_stayers <- served_in_date_range %>%
+  select(all_of(vars_prep), ProjectID) %>%
+  filter(is.na(ExitDate) &
+           ProjectType %in% c(3,9,10,13)
+  ) %>%
+  mutate(
+    moveInAdj = ifelse(is_null(MoveInDate) || MoveInDate > ExitDate || MoveInDate < EntryDate, exitAdj, MoveInDate),
+    Days = as.numeric(difftime(moveInAdj, EntryDate))
+  )
+
+Top2_movein <- subset(missed_movein_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
+
+
 
 extremely_long_stayers <- rbind(Top1_PSH,
                                 Top2_ES,
                                 Top2_RRH,
                                 Top2_TH,
-                                Top5_HP) %>%
+                                Top2_HP,
+                                Top2_CE,
+                                Top2_Outreach,
+                                Top2_movein) %>%
   mutate(
-    Issue = "Extremely Long Stayer",
+    Issue = "Possible Missed Exit Date",
     Type = "Warning",
     Guidance = "Fix Me"
   ) %>% 
