@@ -65,11 +65,11 @@ function(input, output, session) {
         setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
         source("00_get_Export.R", local = TRUE)
+        source("00_dates.R", local = TRUE)
         setProgress(detail = "Checking file integrity", value = .35)
         source("00_integrity_checker.R", local = TRUE)
         setProgress(detail = "Prepping initial data..", value = .4)
         source("00_initial_data_prep.R", local = TRUE)
-        source("00_dates.R", local = TRUE)
         setProgress(detail = "Checking PDDEs..", value = .5)
         source("00_PDDE_Checker.R", local = TRUE)
         setProgress(detail = "Making lists..", value = .6)
@@ -586,7 +586,7 @@ function(input, output, session) {
 
     output$cocOverlap <- DT::renderDataTable({
       ReportStart <- Export$ExportStartDate
-      ReportEnd <- meta_HUDCSV_Export_Date
+      ReportEnd <- meta_HUDCSV_Export_End
      
       a <- dq_overlaps %>%
         filter(served_between(., ReportStart, ReportEnd)) %>%
@@ -796,7 +796,7 @@ function(input, output, session) {
          h4(paste(
            format(input$dq_startdate, "%m-%d-%Y"),
            "to",
-           format(meta_HUDCSV_Export_Date, "%m-%d-%Y")
+           format(meta_HUDCSV_Export_End, "%m-%d-%Y")
          )))
   })
   
