@@ -750,7 +750,7 @@ ce_stayers <- served_in_date_range %>%
 Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
 outreach_stayers <- served_in_date_range %>%
-  select(all_of(vars_prep), ProjectID) %>%
+  select(all_of(vars_prep), ProjectID, EnrollmentID) %>%
   left_join(
     CurrentLivingSituation %>% 
       group_by(EnrollmentID) %>%
@@ -763,7 +763,7 @@ outreach_stayers <- served_in_date_range %>%
            ProjectType == 4) %>%
   mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, latestInfoDate))) 
 
-Top2_Outreach <- subset(outreach_stayers, Days > quantile(input$OutLongStayers, prob = 1 - 2 / 100))
+Top2_Outreach <- subset(outreach_stayers %>% select(-EnrollmentID, -latestInfoDate), Days > input$OutLongStayers)
 
 missed_movein_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
@@ -771,13 +771,10 @@ missed_movein_stayers <- served_in_date_range %>%
            ProjectType %in% c(3,9,10,13)
   ) %>%
   mutate(
-    moveInAdj = ifelse(is_null(MoveInDate) || MoveInDate > ExitDate || MoveInDate < EntryDate, exitAdj, MoveInDate),
-    Days = as.numeric(difftime(moveInAdj, EntryDate))
+    Days = as.numeric(difftime(MoveInDateAdjust, EntryDate))
   )
 
-Top2_movein <- subset(missed_movein_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
-
-
+Top2_movein <- subset(missed_movein_stayers, Days > quantile(Days, prob = 1 - 1 / 100, na.rm = TRUE))
 
 extremely_long_stayers <- rbind(Top1_PSH,
                                 Top2_ES,
@@ -785,8 +782,8 @@ extremely_long_stayers <- rbind(Top1_PSH,
                                 Top2_TH,
                                 Top2_HP,
                                 Top2_CE,
-                                Top2_Outreach,
-                                Top2_movein) %>%
+                                Top2_movein,
+                                Top2_Outreach) %>%
   mutate(
     Issue = "Possible Missed Exit Date",
     Type = "Warning",
