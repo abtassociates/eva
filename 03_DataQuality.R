@@ -56,6 +56,7 @@ served_in_date_range <- Enrollment %>%
   filter(served_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
+  left_join(Project %>% select(ProjectID, TrackingMethod), by = "ProjectID") %>%
   select(
     PersonalID,
     FirstName,
@@ -103,7 +104,8 @@ served_in_date_range <- Enrollment %>%
     LengthOfStay,
     DateOfPATHStatus,
     ReasonNotEnrolled,
-    ClientLocation
+    ClientLocation,
+    TrackingMethod
   ) %>%
   inner_join(projects_current_hmis, by = "ProjectID")
 
