@@ -1133,7 +1133,7 @@ destination_sh <- served_in_date_range %>%
 duplicate_ees <-
   get_dupes(served_in_date_range, PersonalID, ProjectID, EntryDate) %>%
   mutate(
-    Issue = "Duplicate Entry Exits",
+    Issue = "Duplicate Entries",
     Type = "High Priority",
     Guidance = "A client cannot have two enrollments with the same entry date
     into the same project. These are duplicate enrollment records. Please 
@@ -2630,14 +2630,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    # Top projects with Errors - High Priority
    dq_data_high_priority_errors_org_project_plot <- dq_w_ids %>%
-     filter(Type %in% c("High Priority") &
-         !Issue %in% c(
-           "No Head of Household",
-           "Missing Relationship to Head of Household",
-           "Too Many Heads of Household",
-           "Children Only Household"
-         )
-     ) %>%
+     filter(Type %in% c("High Priority")) %>%
      select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
      unique() %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
@@ -2657,14 +2650,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       # Top projects with Errors - General
    
    dq_data_errors_org_project_plot <- dq_w_ids %>%
-     filter(Type %in% c("Error") &
-         !Issue %in% c(
-           "No Head of Household",
-           "Missing Relationship to Head of Household",
-           "Too Many Heads of Household",
-           "Children Only Household"
-         )
-     ) %>%
+     filter(Type %in% c("Error")) %>%
      select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
      unique() %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%

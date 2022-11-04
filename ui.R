@@ -195,6 +195,7 @@ dashboardPage(
           solidHeader = TRUE,
           DT::dataTableOutput("pdde_summary_table"),
           width = 12,
+          br(),
           uiOutput("downloadPDDEReportButton")
         )
       )
