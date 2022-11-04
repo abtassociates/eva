@@ -1526,33 +1526,30 @@ rm(staging_overlaps,
    psh_overlaps)
 
 # Overlapping NEW (11/2) ------------------------------------
-overlapNEWvars = c(EnrollmentID, 
-                   TrackingMethod, 
-                   EntryDate, 
-                   ExitDate, 
-                   ExitAdjust,
-                   ProjectType, 
-                   PersonalID, 
-                   ProjectID,
-                   Issue,
-                   Type,
-                   Guidance)
+overlapNEWvars = c("EnrollmentID", 
+                   "TrackingMethod", 
+                   "EntryDate", 
+                   "ExitDate", 
+                   "ExitAdjust",
+                   "ProjectType", 
+                   "PersonalID", 
+                   "ProjectID")
 
-overlapNEWc1Vars = c(PersonalID,
-                     EnrollmentID,
-                     EntryDate,
-                     ExitAdjust,
-                     ProjectType,
-                     "TrackingMethodA" = TrackingMethod,
-                     ProjectID)
+overlapNEWc1Vars = c("PersonalID",
+                     "EnrollmentID",
+                     "EntryDate",
+                     "ExitAdjust",
+                     "ProjectType",
+                     "TrackingMethod",
+                     "ProjectID")
 
-overlapNEWc2Vars = c(PersonalID,
-                     "EnrollmentIDB" = EnrollmentID,
-                     "EntryDateB" = EntryDate,
-                     "ExitAdjustB" = ExitAdjust,
-                     "ProjectTypeB" = ProjectType,
-                     "TrackingMethodB" = TrackingMethod,
-                     "ProjectIDB" = ProjectID)
+overlapNEWc2Vars = c("PersonalID",
+                     "EnrollmentIDB" = "EnrollmentID",
+                     "EntryDateB" = "EntryDate",
+                     "ExitAdjustB" = "ExitAdjust",
+                     "ProjectTypeB" = "ProjectType",
+                     "TrackingMethodB" = "TrackingMethod",
+                     "ProjectIDB" = "ProjectID")
 
 ## Overlaps Between Residential Projects that Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date -----
 # This gets the enrollment records for the relevant project types
