@@ -78,7 +78,7 @@ missingCoCInfo <- Project %>%
            is_null(State) ~ "This project's State is missing",
            is_null(Geocode) ~ "This project's Geocode is missing",
            is_null(GeographyType) ~ "This project's Geography Type is missing",
-           length(ZIP) != 5 | is_null(ZIP) ~ "ZIP is missing or not valid"
+           nchar(ZIP) != 5 | is_null(ZIP) ~ "ZIP is missing or not valid"
          ),
          Type = if_else(is_null(Geocode) | is_null(GeographyType) |
                           is_null(CoCCode),
