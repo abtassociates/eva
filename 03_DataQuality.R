@@ -314,6 +314,7 @@ hh_children_only <- served_in_date_range %>%
          you are not sure how to correct this, please contact the HMIS team for 
          help.") %>%
   select(all_of(vars_we_want))
+
 hh_no_hoh <- served_in_date_range %>%
   group_by(HouseholdID) %>%
   summarise(hasHoH = if_else(min(RelationshipToHoH) != 1,
@@ -699,7 +700,6 @@ missing_disabilities <- detail_missing_disabilities %>%
 # rm(smallDisabilities)
 
 # Extremely Long Stayers --------------------------------------------------
-
 th_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   mutate(Days = as.numeric(difftime(today(), EntryDate))) %>%
@@ -797,7 +797,6 @@ rm(list = ls(pattern = "Top*"),
    psh_stayers,
    rrh_stayers,
    hp_stayers)
-
 
 # Incorrect Destination ---------------------------------------------------
 
@@ -1716,12 +1715,12 @@ overlapNEW_movein_and_exit <- c1 %>%
     Guidance = overlapNEW_movein_and_exit_guidance
   )
 
-
 overlapNEW <- rbind(overlapNEW_entry_and_exit,
                     overlapNEW_entry_and_exit_bn,
                     overlapNEW_entry_and_exit_bn2,
                     overlapNEW_movein_and_exit)
 
+rm(list = ls(pattern = "overlapNEW_*"))
 
 # Missing Health Ins ------------------------------------------------------
 
@@ -2536,7 +2535,6 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
 
     
     # All together now --------------------------------------------------------
-    
     dq_main <- rbind(
       #check_disability_ssi,
       # check_eligibility,
@@ -2619,10 +2617,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       veteran_missing_wars,
       veteran_missing_branch,
       veteran_missing_discharge_status,
-      
       active_outside_dates,
-      exit_before_start,
-      overlapNEW
+      exit_before_start
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
