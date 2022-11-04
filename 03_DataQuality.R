@@ -283,9 +283,8 @@ dq_veteran <- served_in_date_range %>%
   select(all_of(vars_we_want))
 
 # Missing Client Location -------------------------------------------------
-
 missing_client_location <- served_in_date_range %>%
-  left_join(EnrollmentCoC, by = "EnrollmentID") %>%
+  left_join(EnrollmentCoC %>% select(EnrollmentID, DataCollectionStage), by = "EnrollmentID") %>%
   filter(is.na(ClientLocation) & 
          RelationshipToHoH == 1 &
         DataCollectionStage == 1
