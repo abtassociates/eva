@@ -343,7 +343,7 @@ dashboardPage(
         pickerInput(
           label = "Select Organization",
           inputId = "orgList",
-          choices = NULL, #c(unique(Organization$OrganizationName)),
+          choices = NULL,
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains'),
           width = "100%",
