@@ -23,7 +23,7 @@ operatingEndMissing <- Enrollment %>%
   left_join(Project %>% select(ProjectID, OrganizationName), by = "ProjectID") %>%
   group_by(ProjectID) %>%
   mutate(NumOpenEnrollments = sum(is_null(ExitDate)),
-         MostRecentEnrollment = max(ExitDate,na.rm=TRUE)
+         MostRecentEnrollment = max(ExitAdjust, na.rm = TRUE)
   ) %>%
   ungroup() %>%
   filter(NumOpenEnrollments == 0 & MostRecentEnrollment >= Export$ExportDate - 30) %>%
