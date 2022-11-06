@@ -29,6 +29,14 @@ function(input, output, session) {
     updateTabsetPanel(session, "sidebarmenuid", selected = "tabUploadCSV")
   })
   
+  observeEvent(input$imported,{
+    req(values$imported_zip)
+    
+    updateSelectInput(session, "orgList",
+                      choices = c(Organization$OrganizationName %>%
+                                    unique() %>% sort()))
+  })
+  
   values <- reactiveValues(
     imported_zip = NULL
   )
@@ -36,20 +44,20 @@ function(input, output, session) {
   observeEvent(input$imported, {
     
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+    
     Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
 
     Client <- importFile("Client",
                          col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
     
-    
-    
-    hashed <- Export$HashStatus == 4 #&
-      # min(nchar(Client$FirstName), na.rm = TRUE) ==
-      # max(nchar(Client$FirstName), na.rm = TRUE)
+    hashed <- # TRUE
+      Export$HashStatus == 4 &
+      min(nchar(Client$FirstName), na.rm = TRUE) ==
+      max(nchar(Client$FirstName), na.rm = TRUE)
     
     if (hashed == FALSE) {
       # clear imported
-      values$imported_zip = NULL
+      values$imported_zip <- NULL
       showModal(
         modalDialog(
           title = "You uploaded the wrong data set",
@@ -60,7 +68,7 @@ function(input, output, session) {
         )
       )
     } else {
-      values$imported_zip = 1
+      values$imported_zip <- 1
       withProgress({
         setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
@@ -226,8 +234,8 @@ function(input, output, session) {
       req(values$imported_zip)
       provider <- input$providerDeskTime
       
-      ReportStart <- ymd(today() - years(1))
-      ReportEnd <- ymd(today())
+      ReportStart <- ymd(meta_HUDCSV_Export_Start - years(1))
+      ReportEnd <- ymd(meta_HUDCSV_Export_End)
       
       desk_time <- validation %>%
         filter(ProjectName == provider &
@@ -522,7 +530,7 @@ function(input, output, session) {
       
       overlaps <- dq_overlaps %>%
         filter(
-          Issue %in% list("Overlapping Project Stays", "Extremely Long Stayer") &
+          Issue %in% list("Overlapping Project Stays") &
             OrganizationName %in% c(input$orgList) &
             served_between(., ReportStart, ReportEnd)
         ) %>%
