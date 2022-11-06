@@ -109,7 +109,7 @@ dashboardPage(
           <li><b>Homelessness Prevention:</b> open enrollments with a Length of
           Stay (in days) that are in the top 2% project enrollments in
           your system
-          <li><b>Rapid Rehousin:g</b> enrollment's Length
+          <li><b>Rapid Rehousing:</b> enrollment's Length
           of Stay in days is in the top 2% of all other RRH project enrollments in
           your system
           <li><b>Street Outreach:</b> open enrollments with a Length of Stay in
@@ -389,7 +389,7 @@ dashboardPage(
       fluidRow(
         box(
           id = "DQSummaryProvider",
-          DT::dataTableOutput("dq_provider_summary_table"),
+          DT::dataTableOutput("dq_org_guidance_summary"),
           title = "Data Quality Guidance",
           width = 12,
           status = "info",
