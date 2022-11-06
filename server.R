@@ -44,17 +44,24 @@ function(input, output, session) {
   observeEvent(input$imported, {
     
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-    
-    Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
 
+    # read Export file
+    Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
+    # read Client file
     Client <- importFile("Client",
                          col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
+    # decide if the export is hashed
+    hashed <- # TRUE
+      Export$HashStatus == 4 &
+       min(nchar(Client$FirstName), na.rm = TRUE) ==
+       max(nchar(Client$FirstName), na.rm = TRUE)
     
     hashed <- # TRUE
       Export$HashStatus == 4 &
       min(nchar(Client$FirstName), na.rm = TRUE) ==
       max(nchar(Client$FirstName), na.rm = TRUE)
     
+    #if it's not hashed, throw an error and clear the upload
     if (hashed == FALSE) {
       # clear imported
       values$imported_zip <- NULL
@@ -67,7 +74,7 @@ function(input, output, session) {
           easyClose = TRUE
         )
       )
-    } else {
+    } else { # if it is hashed, set imported_zip to 1 and start running scripts
       values$imported_zip <- 1
       withProgress({
         setProgress(message = "Processing...", value = .15)
@@ -76,18 +83,32 @@ function(input, output, session) {
         source("00_dates.R", local = TRUE)
         setProgress(detail = "Checking file integrity", value = .35)
         source("00_integrity_checker.R", local = TRUE)
-        setProgress(detail = "Prepping initial data..", value = .4)
-        source("00_initial_data_prep.R", local = TRUE)
-        setProgress(detail = "Checking PDDEs..", value = .5)
-        source("00_PDDE_Checker.R", local = TRUE)
-        setProgress(detail = "Making lists..", value = .6)
-        source("01_cohorts.R", local = TRUE)
-        setProgress(detail = "Assessing your data quality..", value = .7)
-        source("03_DataQuality.R", local = TRUE)
-        setProgress(detail = "Done!", value = 1)
-        
+        # if structural issues were not found, keep going
+        if (structural_issues == 0) {
+          setProgress(detail = "Prepping initial data..", value = .4)
+          source("00_initial_data_prep.R", local = TRUE)
+          source("00_dates.R", local = TRUE)
+          setProgress(detail = "Making lists..", value = .5)
+          source("01_cohorts.R", local = TRUE)
+          setProgress(detail = "Assessing your data quality..", value = .7)
+          source("03_DataQuality.R", local = TRUE)
+          setProgress(detail = "Checking your PDDEs", value = .85)
+          source("00_PDDE_Checker.R", local = TRUE)
+          setProgress(detail = "Done!", value = 1)
+        } else{ # if structural issues were found, reset gracefully
+        values$imported_zip <- NULL
+        showModal(
+          modalDialog(
+            title = "Your HMIS CSV Export is not structurally valid",
+            "Your HMIS CSV Export has some High Priority issues that must
+            be addressed by your HMIS Vendor. Please download the Integrity
+            Checker for details.",
+            easyClose = TRUE
+          )
+        )
+      }
       })
-    }
+    } 
     
     dq_main_reactive <- reactive({
       req(values$imported_zip)
@@ -106,11 +127,15 @@ function(input, output, session) {
     
     output$integrityChecker <- DT::renderDataTable(
       {
-        req(values$imported_zip)
-        a <- issues_enrollment %>%
+        req(hashed == 1)
+        a <- rbind(integrity_client,
+                   integrity_enrollment,
+                   integrity_living_situation,
+                   integrity_structure) %>%
           group_by(Issue, Type) %>%
           summarise(Count = n()) %>%
-          ungroup()
+          ungroup() %>%
+          arrange(desc(Type))
         
         datatable(
           a,
@@ -122,29 +147,36 @@ function(input, output, session) {
     
     output$downloadIntegrityCheck <- downloadHandler(
       # req(values$imported_zip)
-      # Fix me
+
       filename = function() {
         paste("integrity-check-", Sys.Date(), ".xlsx", sep = "")
       },
       content = function(file) {
-        write_xlsx(issues_enrollment, path = file)
+        write_xlsx(
+          rbind(
+            integrity_client,
+            integrity_enrollment,
+            integrity_living_situation,
+            integrity_structure
+          ),
+          path = file
+        )
       }
-      
     )
     
     output$headerFileInfo <- renderUI({
-        req(values$imported_zip)
-        HTML(
-          paste0(
-            "<p>You have successfully uploaded your hashed HMIS CSV Export!</p>
+      req(values$imported_zip)
+      HTML(
+        paste0(
+          "<p>You have successfully uploaded your hashed HMIS CSV Export!</p>
             <p><strong>Date Range of Current File: </strong>",
-            format(Export$ExportStartDate, "%m-%d-%Y"),
-            " to ",
-            format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
-            "<p><strong>Export Date: </strong>",
-            format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
-          )
+          format(Export$ExportStartDate, "%m-%d-%Y"),
+          " to ",
+          format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
+          "<p><strong>Export Date: </strong>",
+          format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
         )
+      )
     })
     
     output$headerNoFileYet <- renderUI({
@@ -190,7 +222,7 @@ function(input, output, session) {
     # header
     output$headerPDDE <- renderUI({
       req(values$imported_zip)
-      list(h2("PDDE Checker"),
+      list(h2("Project Decriptor Data Elements Checker"),
            h4(paste(
              format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
              "to",
@@ -204,7 +236,7 @@ function(input, output, session) {
       
       datatable(
         pdde_main %>%
-          group_by(Issue) %>%
+          group_by(Issue, Type) %>%
           summarise(Count = n()) %>%
           ungroup(),
         rownames = FALSE,
@@ -223,10 +255,14 @@ function(input, output, session) {
     
     # download button handler
     output$downloadPDDEReport <- downloadHandler(
+      
       filename = function() {
         paste("PDDE Report-", Sys.Date(), ".xlsx", sep="")
       },
-      content = function(file) {write_xlsx(pdde_main, path = file)}
+      content = function(file) {
+        req(values$imported_zip)
+        write_xlsx(pdde_main, path = file)
+        }
     )
     
     
@@ -342,7 +378,7 @@ function(input, output, session) {
                                          today() - EntryDate, 
                                          " days)"),
               !ProjectType %in% c(3, 13) &
-                !is.na(ExitDate) ~ "Exited project",
+                !is.na(ExitDate) ~ "Exited project"
             ),
             sort = today() - EntryDate,
             EntryDate = format.Date(EntryDate, "%m-%d-%Y"),
@@ -432,7 +468,7 @@ function(input, output, session) {
             !ProjectType %in% c(3, 13) &
               is.na(ExitDate) ~ "Currently in project",
             !ProjectType %in% c(3, 13) &
-              !is.na(ExitDate) ~ "Exited project",
+              !is.na(ExitDate) ~ "Exited project"
           )
         ) %>%
         group_by(Status) %>%
@@ -479,7 +515,7 @@ function(input, output, session) {
                  Type, 
                  Issue) %>%
         summarise(Clients = n()) %>%
-        arrange(ProjectName, Type, desc(Clients)) %>%
+        arrange(Type, desc(Clients)) %>%
         select("Project Name" = ProjectName, 
           Type, 
           Issue, 
@@ -504,6 +540,7 @@ function(input, output, session) {
     
     # list of data frames to include in DQ Org Report
     orgDQReportDataList <- reactive({
+      req(values$imported_zip)
       
       select_list = c("Project Name" = "ProjectName",
                       "Issue" = "Issue",
@@ -641,6 +678,188 @@ function(input, output, session) {
     output$systemDQWarningTypes <- renderPlot({
       req(values$imported_zip)
       dq_plot_warnings_org_level})
+    
+    #Org-Level Tab Plots
+    
+    #Plot of projects within selected org with most high priority errors
+    output$orgDQHighPriorityErrors <- renderPlot({
+      req(values$imported_zip)
+      
+      dq_hp_top_projects <- dq_data_high_priority_errors_org_project_plot %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      dq_hp_top_projects$hover <-
+        with(dq_hp_top_projects,
+             paste0(ProjectName))
+      
+      ggplot(
+        head(dq_hp_top_projects, 10L),
+        aes(
+          x = reorder(hover, clientsWithErrors),
+          y = clientsWithErrors
+        )
+      ) +
+        geom_col(show.legend = FALSE,
+                 color = "#063a89",
+                 fill = "#063a89") +
+        coord_flip() +
+        labs(x = "",
+             y = "Number of Clients with High Priority Errors") +
+        theme_classic() +
+        theme(axis.line = element_line(linetype = "blank"),
+              axis.text.x = element_blank(),
+              axis.ticks = element_line(linetype = "blank"),
+              plot.background = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.grid.major = element_blank()) +
+        geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")})
+    
+    #Plot of most common high priority errors within an org
+    output$orgDQHighPriorityErrorTypes <- renderPlot({
+      req(values$imported_zip)
+      
+    dq_hp_error_types_org_level <-  dq_data_high_priority_error_types_org_project %>%
+        filter(OrganizationName %in% c(input$orgList))
+    
+    ggplot(head(dq_hp_error_types_org_level, 10L),
+           aes(
+             x = reorder(Issue, Errors),
+             y = Errors
+           )) +
+      geom_col(show.legend = FALSE,
+               color = "#063A89",
+               fill = "#063a89") +
+      coord_flip() +
+      labs(x = "",
+           y = "Number of Clients with High Piority Errors") +
+      theme_classic() +
+      theme(axis.line = element_line(linetype = "blank"),
+            axis.text.x = element_blank(),
+            axis.ticks = element_line(linetype = "blank"),
+            plot.background = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.grid.major = element_blank()) +
+      geom_text(aes(label = Errors), hjust = -0.5, color = "black")})
+    
+    #Plot of projects within selected org with most general errors
+    output$orgDQErrors <- renderPlot({
+      req(values$imported_zip)
+      
+     dq_general_errors_top_projects <- dq_data_errors_org_project_plot %>%
+        filter(OrganizationName %in% c(input$orgList))
+     
+     dq_general_errors_top_projects$hover <-
+       with(dq_general_errors_top_projects,
+            paste0(ProjectName))
+     
+     ggplot(
+       head(dq_general_errors_top_projects, 10L),
+       aes(
+         x = reorder(hover, clientsWithErrors),
+         y = clientsWithErrors
+       )
+     ) +
+       geom_col(show.legend = FALSE,
+                color = "#063a89",
+                fill = "#063a89") +
+       coord_flip() +
+       labs(x = "",
+            y = "Number of Clients with General Errors") +
+       theme_classic() +
+       theme(axis.line = element_line(linetype = "blank"),
+             axis.text.x = element_blank(),
+             axis.ticks = element_line(linetype = "blank"),
+             plot.background = element_blank(),
+             panel.grid.minor = element_blank(),
+             panel.grid.major = element_blank()) +
+       geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")})
+    
+    #Plot of most common general errors within an org
+    output$orgDQErrorTypes <- renderPlot({
+      req(values$imported_zip)
+      
+      dq_general_error_types_org_level <- dq_data_error_types_org_project %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      ggplot(head(dq_general_error_types_org_level, 10L),
+             aes(
+               x = reorder(Issue, Errors),
+               y = Errors
+             )) +
+        geom_col(show.legend = FALSE,
+                 color = "#063A89",
+                 fill = "#063a89") +
+        coord_flip() +
+        labs(x = "",
+             y = "Number of Clients with General Errors") +
+        theme_classic() +
+        theme(axis.line = element_line(linetype = "blank"),
+              axis.text.x = element_blank(),
+              axis.ticks = element_line(linetype = "blank"),
+              plot.background = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.grid.major = element_blank()) +
+        geom_text(aes(label = Errors), hjust = -0.5, color = "black")})
+    
+    #Plot of projects within selected org with most general errors
+    output$orgDQWarnings <- renderPlot({
+      req(values$imported_zip)
+      
+      dq_warnings_top_projects <- dq_data_warnings_org_project_plot %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      dq_warnings_top_projects$hover <-
+        with(dq_warnings_top_projects,
+             paste0(ProjectName))
+      
+      ggplot(head(dq_warnings_top_projects, 10L),
+             aes(
+               x = reorder(hover, Warnings),
+               y = Warnings
+             )) +
+        geom_col(show.legend = FALSE,
+                 color = "#063a89",
+                 fill = "#063A89") +
+        coord_flip() +
+        labs(x = "",
+             y = "Number of Clients with Warnings") +
+        theme_classic() +
+        theme(axis.line = element_line(linetype = "blank"),
+              axis.text.x = element_blank(),
+              axis.ticks = element_line(linetype = "blank"),
+              plot.background = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.grid.major = element_blank()) +
+        geom_text(aes(label = Warnings), hjust = -0.5, color = "black")})
+    
+    #Plot of most common warnings within an org
+    output$orgDQWarningTypes <- renderPlot({
+      req(values$imported_zip)
+      
+      dq_warning_types_org_level <- dq_data_warning_types_org_project %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      ggplot(head(dq_warning_types_org_level, 10L),
+             aes(
+               x = reorder(Issue, Warnings),
+               y = Warnings
+             )) +
+        geom_col(show.legend = FALSE,
+                 color = "#063A89",
+                 fill = "#063A89") +
+        coord_flip() +
+        labs(x = "",
+             y = "Number of Clients with Warnings") +
+        theme_classic() +
+        theme(axis.line = element_line(linetype = "blank"),
+              axis.text.x = element_blank(),
+              axis.ticks = element_line(linetype = "blank"),
+              plot.background = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.grid.major = element_blank()) +
+        geom_text(aes(label = Warnings), hjust = -0.5, color = "black")})
+    
+    ##
     
     output$DQHighPriority <- DT::renderDT({
       req(values$imported_zip)      
@@ -816,6 +1035,8 @@ function(input, output, session) {
         issue."
     )})
   
+  }, ignoreInit = TRUE)
+}
   # output$headerCocDQ <- renderUI({
   #   req(!is.null(input$imported))
   #   list(h2("System-wide Data Quality"),
@@ -825,10 +1046,6 @@ function(input, output, session) {
   #                format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
   #        ))
   # })
-  
-  }, ignoreInit = TRUE)
-}
-
   # output$deskTimeNote <- renderUI({
   #   HTML(
   #     "<h4>HUD and Data Quality</h4>
