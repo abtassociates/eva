@@ -83,16 +83,14 @@ function(input, output, session) {
     
     dq_main_reactive <- reactive({
       req(values$imported_zip)
-      
+      # browser()
       ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
       Outreach <- calculate_long_stayers(input$OUTLongStayers, 4)
       DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
       CE <- calculate_long_stayers(input$CELongStayers, 14)
       
-      
-      
       x <- dq_main %>%
-        filter(Issue %in% c("blah"))
+        filter(!Issue %in% c("Days Enrollment Active Exceeds CoC-specific Settings"))
       
       rbind(x, ESNbN, Outreach, DayShelter, CE)
       
@@ -442,20 +440,16 @@ function(input, output, session) {
       )
     })
     
-    output$dq_provider_summary_table <- DT::renderDataTable({
-      ReportStart <- Export$ExportStartDate
-      ReportEnd <- meta_HUDCSV_Export_End
+    output$dq_org_guidance_summary <- DT::renderDataTable({
+      req(values$imported_zip)
       
-      guidance <- dq_main %>%
-        filter(OrganizationName %in% c(input$orgList) &
-                 served_between(., ReportStart, ReportEnd)) %>%
-        group_by(Type, Issue, Guidance) %>%
-        ungroup() %>%
+      guidance <- dq_main_reactive() %>%
+        filter(OrganizationName %in% c(input$orgList)) %>%
         select(Type, Issue, Guidance) %>%
         mutate(Type = factor(Type, levels = c("High Priority",
                                               "Error",
                                               "Warning"))) %>%
-        arrange(Type) %>%
+        arrange(Type, Issue) %>%
         unique()
       
       datatable(guidance, 
@@ -465,12 +459,10 @@ function(input, output, session) {
     })
     
     output$dq_organization_summary_table <- DT::renderDataTable({
-      ReportStart <- Export$ExportStartDate
-      ReportEnd <- meta_HUDCSV_Export_End
-
-      a <- dq_main %>%
-        filter(OrganizationName == input$orgList &
-                 HMIS::served_between(., ReportStart, ReportEnd)) %>%
+      req(values$imported_zip)
+      
+      a <- dq_main_reactive() %>%
+        filter(OrganizationName %in% c(input$orgList)) %>%
         select(ProjectName, 
                Type, 
                Issue, 
@@ -514,7 +506,7 @@ function(input, output, session) {
                       "Household ID" = "HouseholdID",
                       "Entry Date"= "EntryDate")
       
-      dq_main_in_dates <- dq_main %>% served_between(., ReportStart, ReportEnd)
+      dq_main_in_dates <- dq_main_reactive() %>% served_between(., ReportStart, ReportEnd)
       
       high_priority <- dq_main_in_dates %>% 
         filter(Type == "High Priority") %>% 
@@ -585,11 +577,8 @@ function(input, output, session) {
     
 
     output$cocOverlap <- DT::renderDataTable({
-      ReportStart <- Export$ExportStartDate
-      ReportEnd <- meta_HUDCSV_Export_End
-     
+
       a <- dq_overlaps %>%
-        filter(served_between(., ReportStart, ReportEnd)) %>%
         group_by(ProjectName) %>%
         summarise(Clients = n()) %>%
         arrange(desc(Clients)) %>%
@@ -656,10 +645,9 @@ function(input, output, session) {
       ReportStart <- Export$ExportStartDate
       ReportEnd <- meta_HUDCSV_Export_End
       
-      DQHighPriority <- dq_main %>%
+      DQHighPriority <- dq_main_reactive() %>%
         filter(
             OrganizationName %in% c(input$orgList) &
-            served_between(., ReportStart, ReportEnd) &
             Type == "High Priority"
         ) %>%
         mutate(EntryDate = format.Date(EntryDate, "%m-%d-%Y")) %>%
@@ -680,22 +668,9 @@ function(input, output, session) {
     output$DQErrors <- DT::renderDT({
       req(values$imported_zip)      
       
-      ReportStart <- Export$ExportStartDate
-      ReportEnd <- meta_HUDCSV_Export_End
-      
-      DQErrors <- dq_main %>%
+      DQErrors <- dq_main_reactive() %>%
         filter(
-          !Issue %in% c(
-            "Too Many Heads of Household",
-            "Missing Relationship to Head of Household",
-            "No Head of Household",
-            "Children Only Household",
-            "Overlapping Project Stays",
-            "Duplicate Enrollments",
-            "Access Point with Enrollments"
-          ) & # because these are all in the boxes already
             OrganizationName %in% c(input$orgList) &
-            served_between(., ReportStart, ReportEnd) &
             Type == "Error"
         ) %>%
         mutate(EntryDate = format.Date(EntryDate, "%m-%d-%Y")) %>%
@@ -719,18 +694,8 @@ function(input, output, session) {
       ReportStart <- Export$ExportStartDate
       ReportEnd <- meta_HUDCSV_Export_End
       
-      DQWarnings <- dq_main %>%
+      DQWarnings <- dq_main_reactive() %>%
         filter(
-          !Issue %in% c(
-            "Too Many Heads of Household",
-            "Missing Relationship to Head of Household",
-            "No Head of Household",
-            "Children Only Household",
-            "Overlapping Project Stays",
-            "Duplicate Enrollments",
-            "Check Eligibility"
-          ) &
-            served_between(., ReportStart, ReportEnd) &
             OrganizationName %in% c(input$orgList) &
             Type == "Warning"
         ) %>%
