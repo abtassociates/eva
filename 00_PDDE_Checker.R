@@ -59,15 +59,6 @@ missingInventoryRecord <- Inventory %>%
   ) %>%
   select(all_of(PDDEcols))
 
-# Funder.StartDate <= Project.OperatingStartDate
-funderStartOnOrBeforeOperatingStart <- Funder %>%
-  left_join(Project, by = "ProjectID") %>%
-  filter(StartDate <= OperatingStartDate) %>%
-  mutate(Issue = "Funding period before operating start",
-         Guidance = "Funding should begin after the Project begins"
-  ) %>%
-  select(all_of(PDDEcols))
-
 # Inventory Start < Operating Start AND
 # Inventory End > Operating End or Null
 inventoryOutsideOperating <- Inventory %>%
@@ -100,7 +91,6 @@ pdde_main <- rbind(
   operatingEndMissing,
   missingCoCInfo,
   missingInventoryRecord,
-  funderStartOnOrBeforeOperatingStart,
   inventoryOutsideOperating,
   hmisNotParticipatingButClient
 )
