@@ -775,14 +775,22 @@ rm(list = ls(pattern = "Top*"),
 
 # Non-Residential Long Stayers --------------------------------------------
 
-calculate_long_stayers <- function(input, project_type){
+calculate_long_stayers <- function(input, projecttype){
 
   served_in_date_range %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == project_type &
-           input < Days)
+    select(all_of(vars_prep), ProjectID) %>%
+    mutate(
+      Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate)),
+      Issue = "Days Enrollment Active Exceeds CoC-specific Settings",
+      Type = "Warning",
+      Guidance = "You have at least one active enrollment that has been
+         active for longer than the days set for this Project Type in your
+         CoC-specific Settings on the Upload CSV tab."
+    ) %>%
+    filter(is.na(ExitDate) &
+             ProjectType == projecttype &
+             input < Days) %>% 
+    select(all_of(vars_we_want))
   
 }
 
