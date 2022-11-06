@@ -505,26 +505,21 @@ function(input, output, session) {
     # list of data frames to include in DQ Org Report
     orgDQReportDataList <- reactive({
       
-      ReportStart <- Export$ExportStartDate
-      ReportEnd <- meta_HUDCSV_Export_End
-      
       select_list = c("Project Name" = "ProjectName",
                       "Issue" = "Issue",
                       "Personal ID" = "PersonalID",
                       "Household ID" = "HouseholdID",
                       "Entry Date"= "EntryDate")
       
-      dq_main_in_dates <- dq_main_reactive() %>% served_between(., ReportStart, ReportEnd)
-      
-      high_priority <- dq_main_in_dates %>% 
+      high_priority <- dq_main_reactive() %>% 
         filter(Type == "High Priority") %>% 
         select(all_of(select_list))
         
-      errors <- dq_main_in_dates %>%
+      errors <- dq_main_reactive() %>%
         filter(Type == "Error") %>% 
         select(all_of(select_list))
       
-      warnings <- dq_main_in_dates %>%
+      warnings <- dq_main_reactive() %>%
         filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
         select(all_of(select_list))
       
@@ -540,14 +535,14 @@ function(input, output, session) {
           "Overlaps With This Provider's Stay" = PreviousProject
         )
       
-      summary <- dq_main_in_dates %>% 
+      summary <- dq_main_reactive() %>% 
         select(ProjectName, Type, Issue, PersonalID) %>%
         group_by(ProjectName, Type, Issue) %>%
         summarise(Clients = n()) %>%
         select(Type, Clients, ProjectName, Issue) %>%
         arrange(Type, desc(Clients))
       
-      guidance <- dq_main_in_dates %>%
+      guidance <- dq_main_reactive() %>%
         select(Type, Issue, Guidance) %>%
         unique() %>%
         mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
