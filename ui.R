@@ -259,7 +259,7 @@ dashboardPage(
         width = 12
       ))
     ),
-    tabItem(
+    # tabItem(
     #   tabName = "utilizationTab",
     #   fluidRow(box(htmlOutput(
     #     "headerUtilization"
