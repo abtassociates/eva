@@ -1,29 +1,183 @@
+/* || TABLE OF CONTENTS - use ctrl + f */
+/* || HEADER */
+/* || MAIN SIDEBAR */
+/* || SUBMENU AKA TREEVIEW MENU */
+/* || DROP DOWN MENUS */
+/* || BOXES */
+/* || BUTTONS */
+/* || HELP TEXT CIRCLE*/
+
 .content-wrapper {
   overflow: auto;
 }
 
-.box-title {
-  color: #063A89;
+/* || HEADER */
+.skin-black .main-header>.logo:hover {
+    color: white; /*text color*/
+    background-color: #063A89; /*dark blue*/
 }
 
+.skin-black .main-header .navbar {
+    background-color: #063A89; /*dark blue*/
+}
+
+.skin-black .main-header>.logo {
+    background-color: #063A89; /*dark blue*/
+    color: white; /*text color*/
+    border-bottom: 0 solid transparent;
+    border-right: 1px solid #eee;
+}
+
+/* menu toggle button */
+.skin-black .main-header .navbar>.sidebar-toggle {
+    color: white; /*icon color*/
+    background-color: #063A89; /*dark blue*/
+    border-right: 1px solid #eee;
+}
+
+/* toggle button hover */
+.skin-black .main-header .navbar .sidebar-toggle:hover {
+    color: #063A89; /*icon color - dark blue*/
+    background: white;
+}
+
+/* || MAIN SIDEBAR */
+
+/*sidebar color*/
 .skin-black .main-sidebar {
-  background-color: #063A89;
-}
-.skin-black .main-sidebar .active {
-  background-color: #000000;
+  background-color: white;
 }
 
+/*text color of sidebar menu options*/
 .skin-black .sidebar a {
-  color:white;
+  color: black; /*text color*/
 }
 
+/*sidebar color when menu option with no submenu is selected*/
+.skin-black .main-sidebar .active {
+  background-color: white; /*text color*/
+  color: black;
+}
+
+/*sidebar color when menu option with a submenu is selected*/
+.skin-black .sidebar-menu>li.active>a, .skin-black .sidebar-menu>li:hover>a {
+    color: black; /*text color*/
+    background: #c1e7ec; /*light blue*/
+    border-left-color: white;
+}
+
+/* || SUBMENU AKA TREEVIEW MENU */
+
+/*Opened submenu*/
+.skin-black .sidebar-menu>li>.treeview-menu {
+    margin: 0 1px;
+    background: white; 
+    color: black; /*text color*/
+}
+
+/*text color of submenu options when submenu is open*/
+.skin-black .treeview-menu>li>a {
+    color: black; /*text color*/
+}
+
+/*active and hover actions for submenu options*/
+.skin-black .treeview-menu>li.active>a, 
+.skin-black .treeview-menu>li>a:hover {
+    color: black; /*text color*/
+    background: #c1e7ec; /*light blue*/
+}
+
+/* || DROP DOWN MENUS */
+
+/*drop down select menu after data is uploaded*/
+.bootstrap-select>.dropdown-toggle {
+    width: 100%;
+    border-color: #08A4BD;
+    color: black;
+    background-color: white;
+}
+
+/*drop down select menu when data is not uploaded*/
+.bootstrap-select>.dropdown-toggle.bs-placeholder {
+    width: 100%;
+    border-color: #08A4BD;
+    color: black;
+    background-color: white;
+}
+
+/* || BOXES */
+
+/*box titles*/
+.box-title {
+  color: black; /*text colors*/
+}
+
+/*fill and text color for box with positive/neutral information*/
+.box.box-solid.box-info>.box-header {
+    color: black; /*text color*/
+    background: #C1E7EC; /*light blue*/
+    background-color: #C1E7EC; /*light blue*/
+}
+
+/*outline color for box with positive/neutral information*/
+.box.box-solid.box-info {
+    border: 1px solid #C1E7EC; /*light blue*/
+}
+/*box with negative alert or error info*/
+.box.box-solid.box-danger>.box-header {
+    color: black; /*text color*/
+    background: #F7903B; /*mid-orange*/
+    background-color: #F7903B; /*mid-orange*/
+}
+
+/*box with warning info*/
+.box.box-solid.box-warning>.box-header {
+    color: black; /*text color*/
+    background: #FEDE86; /*light orange*/
+    background-color: #FEDE86; /*light orange*/
+}
+
+/* || BUTTONS */
 .btn, .btn-default {
-  background-color:#C15702;
-  color:white;
+  background-color:#d8d8d8; /*gray*/
+  color: #c15702; /*text color - dark orange*/
+  border-color: #c15702; /*dark orange*/
 }
 
-#shiny-tab-uploadCSV .fa-info-circle {
+/*button hover*/
+.btn:hover {
+  color: white; /*text color*/
+  background-color: #c15702; /*dark orange*/
+  border-color: #c15702; /*dark orange*/
+}
+
+.form-control {
+    border-radius: 0;
+    box-shadow: none;
+    border-color: black;
+    color: black; /*text color*/
+}
+
+/*progress bar*/
+.progress-bar {
+    float: left;
+    width: 0%;
+    height: 100%;
+    font-size: 12px;
+    line-height: 20px;
+    color: white; /*text color*/
+    text-align: center;
+    background-color: #063A89; /*color of bar - dark blue*/
+}
+
+/* || HELP TEXT CIRCLE*/
+#shiny-tab-tabUploadCSV .fa-info-circle {
   position:absolute;
   top:1em;
   right:1em;
+}
+
+/* || HIDE BUILT-IN UPLOAD COMPLETE BAR*/
+#imported_progress {
+  display:none;
 }
