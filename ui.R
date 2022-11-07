@@ -20,8 +20,6 @@ dashboardPage(
       id = "sidebarmenuid",
       menuItem("Home",
                tabName = "tabHome"),
-      menuItem("Upload Hashed CSV",
-               tabName = "tabUploadCSV"),
       menuItem("Check PDDEs",
                tabName = "tabPDDE"),
       menuItem("Client Counts",
@@ -70,12 +68,33 @@ dashboardPage(
           </div>
           <br/>"
         ),
-        uiOutput("goToUpload_btn")
       ),
-      width = 12
-    ),
-    tabItem(
-      tabName = "tabUploadCSV",
+      box(
+        title = "App Instructions",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        fluidRow(
+          HTML(
+            ""
+          )
+        )
+      ), 
+      box(title = "Status",
+          uiOutput("headerFileInfo"),
+          uiOutput("headerNoFileYet"),
+          width = 12),
+      box(
+        title = "Upload Hashed CSV zip file",
+        HTML('<i class="fa fa-info-circle" 
+            title = "Use the Browse function to direct the app to the file folder containing your zipped CSV.">
+             </i>'),
+        fileInput("imported",
+                  label = NULL,
+                  multiple = FALSE,
+                  accept = ".zip"),
+        width = 12
+      ), 
       box(
         title = "Edit CoC-specific Settings",
         width = 12,
@@ -178,26 +197,15 @@ dashboardPage(
           width = 12
         )
         ),
-      HTML(
-        "<h3>Referrals</h3>
+        HTML(
+          "<h3>Referrals</h3>
         <p>Please enter the number of days your CoC would consider a Referral
           to be \"outstanding\"."
+        ),
+        numericInput(inputId = "OutstandingReferrals",
+                     label = "Outstanding Referral Days:",
+                     value = 7)
       ),
-      numericInput(inputId = "OutstandingReferrals",
-                   label = "Outstanding Referral Days:",
-                   value = 7)
-    ),
-      box(
-        title = "Upload Hashed CSV zip file",
-        HTML('<i class="fa fa-info-circle" 
-            title = "Use the Browse function to direct the app to the file folder containing your zipped CSV.">
-             </i>'),
-        fileInput("imported",
-                  label = NULL,
-                  multiple = FALSE,
-                  accept = ".zip"),
-        width = 12
-      ), 
       box(
         title = "HUD CSV Export Integrity Checker",
         width = 12,
@@ -205,12 +213,12 @@ dashboardPage(
         p(),
         downloadButton(outputId = "downloadIntegrityCheck",
                        label = "Download Integrity Check Detail")
-      ), 
-      box(title = "Status",
-          uiOutput("headerFileInfo"),
-          uiOutput("headerNoFileYet"),
-          width = 12)
-    ), 
+      )
+    ),
+    # tabItem(
+    #   tabName = "tabUploadCSV",
+    #   
+    # ), 
     tabItem(
       tabName = "tabPDDE",
       fluidRow(box(htmlOutput(
