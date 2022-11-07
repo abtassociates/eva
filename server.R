@@ -178,7 +178,7 @@ function(input, output, session) {
     })
     
     output$headerNoFileYet <- renderUI({
-      req(is_null(values$imported_zip))
+      req(is.null(values$imported_zip))
       HTML("You have not successfully uploaded your zipped CSV file yet.")
     })
     
