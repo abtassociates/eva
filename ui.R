@@ -197,7 +197,6 @@ dashboardPage(
                   label = NULL,
                   multiple = FALSE,
                   accept = ".zip"),
-        renderUI("imported_status"),
         width = 12
       ), 
       box(

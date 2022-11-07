@@ -20,8 +20,6 @@ function(input, output, session) {
       actionButton(inputId = 'goToUpload', label = "Go To Upload Tab")
   })
   
-  output$imported_status <- renderUI(input$imported)
-  
   # when they click to go to the Upload Hashed CSV tab, it's like they clicked 
 
   # the sidebar menu tab
