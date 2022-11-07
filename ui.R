@@ -70,7 +70,6 @@ dashboardPage(
           </div>
           <br/>"
         ),
-        # htmlOutput("goToUpload_text"), # fixme- is this needed anymore?
         uiOutput("goToUpload_btn")
       ),
       width = 12
@@ -259,83 +258,6 @@ dashboardPage(
         width = 12
       ))
     ),
-    # tabItem(
-    #   tabName = "utilizationTab",
-    #   fluidRow(box(htmlOutput(
-    #     "headerUtilization"
-    #   ), width = 12)),
-    #   fluidRow(box(
-    #     pickerInput(
-    #       label = "Select Project",
-    #       inputId = "providerListUtilization",
-    #       choices = NULL, 
-    #       options = pickerOptions(liveSearch = TRUE,
-    #                               liveSearchStyle = 'contains'),
-    #       width = "100%"
-    #     ),
-    #     airDatepickerInput(
-    #       inputId = "utilizationDate",
-    #       label = "Report End Month for Annual Plot",
-    #       max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-    #       min = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date - days(335), unit = "month")),
-    #       dateFormat = "MM yyyy",
-    #       view = "month",
-    #       value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-    #       minView = "months",
-    #       addon = "none",
-    #       autoClose = TRUE,
-    #       width = '25%'
-    #     ),
-    #     width = 12
-    #   )),
-    #   plotlyOutput("bedPlot"),
-    #   br(),
-    #   fluidRow(
-    #     box(
-    #       uiOutput("bedNote"),
-    #       title = "What is Bed Utilization?",
-    #       collapsible = TRUE,
-    #       collapsed = TRUE
-    #     ),
-    #     box(
-    #       uiOutput("unitNote"),
-    #       title = "What is Unit Utilization?",
-    #       collapsible = TRUE,
-    #       collapsed = TRUE
-    #     ),
-    #     box(
-    #       uiOutput("utilizationNote"),
-    #       title = "Methodology",
-    #       collapsible = TRUE,
-    #       collapsed = TRUE
-    #     )
-    #   ),
-    #   fluidRow(box(
-    #     airDatepickerInput(
-    #       inputId = "utilizationDetailDate",
-    #       label = "Choose Month for Detail Data",
-    #       max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-    #       min = NULL, # ymd(floor_date(ymd(meta_HUDCSV_Export_End), "month") - years(2) + days(1)),
-    #       dateFormat = "MM yyyy",
-    #       view = "month",
-    #       value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-    #       minView = "months",
-    #       addon = "none",
-    #       autoClose = TRUE,
-    #       width = '50%'
-    #     ),
-    #     width = 12
-    #   )),
-    #   fluidRow(box(
-    #     infoBoxOutput("utilizationSummary0", width = '100%'),
-    #     infoBoxOutput("utilizationSummary1", width = '100%'),
-    #     infoBoxOutput("utilizationSummary2", width = '100%'),
-    #     width = 12
-    #   )),
-    #   fluidRow(box(
-    #     DT::dataTableOutput("utilizationDetail"), width = 12
-    #   ))
-    # ),
     tabItem(
       tabName = "tabDQOrg",
       fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
@@ -349,14 +271,6 @@ dashboardPage(
           width = "100%",
           selected = "none"
         ),
-        # dateInput(
-        #   inputId = "dq_startdate",
-        #   label = "Report Start Date",
-        #   format = "mm/dd/yyyy",
-        #   value = NULL, # ymd(meta_HUDCSV_Export_Start),
-        #   min = NULL,
-        #   width = "25%"
-        # ),
         uiOutput("downloadOrgDQReportButton"),
         width = 12
       )), 
@@ -431,9 +345,6 @@ dashboardPage(
         title = "Data Quality Warnings",
         width = 12
       )),
-      #fluidRow(
-        #uiOutput("DQIneligible"),
-        #uiOutput("DQOverlappingEEs")),
       fluidRow(
         box(
           id = "DQSummaryProvider",
@@ -507,10 +418,6 @@ dashboardPage(
           title = "Organizations with the Most General Errors"
         )
       ),
-        # box(plotOutput("systemHHErrors"), width = 12,
-        #     solidHeader = TRUE,
-        #     status = "danger",
-        #     title = "Projects with the Most Household Errors")),
       fluidRow(
         box(
           plotOutput("systemDQWarningTypes"),
@@ -531,3 +438,91 @@ dashboardPage(
     )
   )
 )
+
+# tabItem(
+#   tabName = "utilizationTab",
+#   fluidRow(box(htmlOutput(
+#     "headerUtilization"
+#   ), width = 12)),
+#   fluidRow(box(
+#     pickerInput(
+#       label = "Select Project",
+#       inputId = "providerListUtilization",
+#       choices = NULL, 
+#       options = pickerOptions(liveSearch = TRUE,
+#                               liveSearchStyle = 'contains'),
+#       width = "100%"
+#     ),
+#     airDatepickerInput(
+#       inputId = "utilizationDate",
+#       label = "Report End Month for Annual Plot",
+#       max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+#       min = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date - days(335), unit = "month")),
+#       dateFormat = "MM yyyy",
+#       view = "month",
+#       value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+#       minView = "months",
+#       addon = "none",
+#       autoClose = TRUE,
+#       width = '25%'
+#     ),
+#     width = 12
+#   )),
+#   plotlyOutput("bedPlot"),
+#   br(),
+#   fluidRow(
+#     box(
+#       uiOutput("bedNote"),
+#       title = "What is Bed Utilization?",
+#       collapsible = TRUE,
+#       collapsed = TRUE
+#     ),
+#     box(
+#       uiOutput("unitNote"),
+#       title = "What is Unit Utilization?",
+#       collapsible = TRUE,
+#       collapsed = TRUE
+#     ),
+#     box(
+#       uiOutput("utilizationNote"),
+#       title = "Methodology",
+#       collapsible = TRUE,
+#       collapsed = TRUE
+#     )
+#   ),
+#   fluidRow(box(
+#     airDatepickerInput(
+#       inputId = "utilizationDetailDate",
+#       label = "Choose Month for Detail Data",
+#       max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+#       min = NULL, # ymd(floor_date(ymd(meta_HUDCSV_Export_End), "month") - years(2) + days(1)),
+#       dateFormat = "MM yyyy",
+#       view = "month",
+#       value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+#       minView = "months",
+#       addon = "none",
+#       autoClose = TRUE,
+#       width = '50%'
+#     ),
+#     width = 12
+#   )),
+#   fluidRow(box(
+#     infoBoxOutput("utilizationSummary0", width = '100%'),
+#     infoBoxOutput("utilizationSummary1", width = '100%'),
+#     infoBoxOutput("utilizationSummary2", width = '100%'),
+#     width = 12
+#   )),
+#   fluidRow(box(
+#     DT::dataTableOutput("utilizationDetail"), width = 12
+#   ))
+# ),
+
+# box(plotOutput("systemHHErrors"), width = 12,
+#     solidHeader = TRUE,
+#     status = "danger",
+#     title = "Projects with the Most Household Errors")),
+
+#fluidRow(
+#uiOutput("DQIneligible"),
+#uiOutput("DQOverlappingEEs")),
+
