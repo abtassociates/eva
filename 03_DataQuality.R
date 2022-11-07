@@ -771,10 +771,13 @@ missed_movein_stayers <- served_in_date_range %>%
            ProjectType %in% c(3,9,10,13)
   ) %>%
   mutate(
-    Days = as.numeric(difftime(MoveInDateAdjust, EntryDate))
+    Days = as.numeric(difftime(MoveInDateAdjust, EntryDate)),
+    Issue = "Possible Missed Move-In Date",
+    Type = "Warning",
+    Guidance = "Fix Me"
   )
 
-Top2_movein <- subset(missed_movein_stayers, Days > quantile(Days, prob = 1 - 1 / 100, na.rm = TRUE))
+Top2_movein <- subset(missed_movein_stayers, Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE))
 
 extremely_long_stayers <- rbind(Top1_PSH,
                                 Top2_ES,
@@ -782,7 +785,6 @@ extremely_long_stayers <- rbind(Top1_PSH,
                                 Top2_TH,
                                 Top2_HP,
                                 Top2_CE,
-                                Top2_movein,
                                 Top2_Outreach) %>%
   mutate(
     Issue = "Possible Missed Exit Date",
@@ -790,6 +792,8 @@ extremely_long_stayers <- rbind(Top1_PSH,
     Guidance = "Fix Me"
   ) %>% 
   select(all_of(vars_we_want))
+
+extremely_long_stayers <- rbind(extremely_long_stayers, Top2_movein %>% select(all_of(vars_we_want)))
 
 rm(list = ls(pattern = "Top*"),
    es_stayers,
