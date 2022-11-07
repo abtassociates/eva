@@ -45,7 +45,7 @@ operatingEndMissing <- Enrollment %>%
   ) %>%
   ungroup() %>%
   left_join(Project %>% 
-              select(ProjectID, ProjectName, OrganizationName, OperatingEndDate), 
+              select(ProjectID, OrganizationName, OperatingEndDate), 
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
            MostRecentEnrollment >= 
