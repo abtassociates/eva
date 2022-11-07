@@ -1726,7 +1726,10 @@ overlapNEW <- rbind(overlapNEW_entry_and_exit,
                     overlapNEW_entry_and_exit_bn2,
                     overlapNEW_movein_and_exit)
 
-rm(list = ls(pattern = "overlapNEW_*"))
+rm(overlapNEW_entry_and_exit,
+   overlapNEW_entry_and_exit_bn,
+   overlapNEW_entry_and_exit_bn2,
+   overlapNEW_movein_and_exit)
 
 # Missing Health Ins ------------------------------------------------------
 
