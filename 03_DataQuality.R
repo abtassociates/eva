@@ -105,8 +105,7 @@ served_in_date_range <- Enrollment %>%
     DateOfPATHStatus,
     ReasonNotEnrolled,
     ClientLocation,
-    TrackingMethod,
-    OrganizationName
+    TrackingMethod
   ) %>%
   inner_join(projects_current_hmis, by = "ProjectID")
 
@@ -1215,6 +1214,7 @@ future_ees <- served_in_date_range %>%
 
 future_exits <- Enrollment %>%
   filter(ExitDate > meta_HUDCSV_Export_End) %>%
+  left_join(Project %>% select(ProjectID, OrganizationName), by = "ProjectID") %>%
   mutate(
     Issue = "Future Exit Date",
     Type = "Error",
