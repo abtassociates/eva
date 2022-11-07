@@ -83,79 +83,110 @@ dashboardPage(
         collapsible = TRUE,
         collapsed = TRUE,
         fluidRow(box(
-            HTML(
-              "<h3>Long Stayers</h3>
-          <p>The projects in your CoC have a baseline average length of stay that
-          will vary for different project types. Below, you can set the number
-          of days your CoC would consider an enrollment to be well beyond the
-          expected number of days in the project. You can set these based on your
-          current data or leave them at the defaults."
+          HTML(
+            "<h3>Long Stayers</h3>
+          <p>This check aims to help communities find enrollments that may be
+          missing an Exit Date. It does this by looking at the number of days an
+          enrollment has been open (or, the number of days between the Entry Date
+          and the date your upload was exported from your HMIS.) The projects in
+          your CoC have lengths of stay that will vary for different project
+          types. Any data quality flags about Long Stayers should be considered a
+          Warning, or, something to be checked for accuracy, and does not imply
+          that any data should be changed.
+
+          <p><b>Methodology by Project Type:</b>
+          <ul>
+          <li><b>Emergency Shelter, Entry Exit Method:</b> enrollment's Length
+          of Stay in days is in the top 2% of all other ES project enrollments in
+          your system
+          <li><b>Transitional Housing:</b> enrollment's Length of Stay in days
+          is in the top 2% of all other TH project enrollments in your system
+          <li><b>Permanent Supportive Housing:</b> enrollment's Length of Stay
+          in days is in the top 1% of all PSH project enrollments in your system
+          <li><b>Safe Haven:</b> enrollment's Length
+          of Stay in days is in the top 2% of all other SH project enrollments in
+          your system
+          <li><b>Homelessness Prevention:</b> open enrollments with a Length of
+          Stay (in days) that are in the top 2% project enrollments in
+          your system
+          <li><b>Rapid Rehousing:</b> enrollment's Length
+          of Stay in days is in the top 2% of all other RRH project enrollments in
+          your system
+          <li><b>Street Outreach:</b> open enrollments with a Length of Stay in
+          days that are equal to or greater than the user-input available below
+          <li><b>Services Only:</b> open enrollments with a Length of Stay in
+          days that are equal to or greater than the user-input available below
+          <li><b>Other:</b> open enrollments with a Length of Stay in days that
+          are equal to or greater than the user-input available below
+          <li><b>Other Permanent Housing:</b> ???
+          <li><b>Day Shelter:</b> open enrollments with a Length of Stay in days
+          that are equal to or greater than the user-input available below
+          <li><b>Emergency Shelter, Night-by-Night:</b> open enrollments with a
+          Length of Stay in days that are equal to or greater than the user-input
+          available below
+          <li><b>Coordinated Entry:</b> open enrollments with a
+          Length of Stay in days that are equal to or greater than the user-input
+          available below
+          </ul>
+
+          <p>Below, you can set the number of days your CoC would consider an
+          enrollment to be well beyond the expected number of days in the Project
+          Type. You can set these based on your current data or leave them at the
+          defaults."
+          ),
+          column(
+            numericInput(
+              inputId = "ESNbNLongStayers",
+              label = "Emergency Shelter (NbN only!):",
+              value = 90,
+              min = 0,
+              max = 3650,
+              step = 5,
+              width = "200px"
             ),
-          numericInput(
-            inputId = "ESLongStayers",
-            label = "Emergency Shelters:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
+            numericInput(
+              inputId = "DayShelterLongStayers",
+              label = "Day Shelter:",
+              value = 90,
+              min = 0,
+              max = 3650,
+              step = 5,
+              width = "200px"
+            ),
+            width = 6
           ),
-          numericInput(
-            inputId = "SHLongStayers",
-            label = "Safe Havens:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
+          column(
+            numericInput(
+              inputId = "OUTLongStayers",
+              label = "Street Outreach:",
+              value = 90,
+              min = 0,
+              max = 3650,
+              step = 5,
+              width = "200px"
+            ),
+            numericInput(
+              inputId = "CELongStayers",
+              label = "Coordinated Entry:",
+              value = 90,
+              min = 0,
+              max = 3650,
+              step = 5,
+              width = "200px"
+            ),
+            width = 6
           ),
-          numericInput(
-            inputId = "THLongStayers",
-            label = "Transitional Housing:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "OutLongStayers",
-            label = "Street Outreach:",
-            value = 120,
-            min = 1,
-            max = 3652
-          ),
-          numericInput(
-            inputId = "ServicesOnlyLongStayers",
-            label = "Services Only:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "RRHLongStayers",
-            label = "Rapid Rehousing:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          numericInput(
-            inputId = "HPLongStayers",
-            label = "Prevention:",
-            value = 120,
-            min = 0,
-            max = 3650,
-            step = 5
-          ),
-          width = 12)
+          width = 12
+        )
         ),
-      fluidRow(HTML(
+      HTML(
         "<h3>Referrals</h3>
         <p>Please enter the number of days your CoC would consider a Referral
           to be \"outstanding\"."
       ),
       numericInput(inputId = "OutstandingReferrals",
                    label = "Outstanding Referral Days:",
-                   value = 7))
+                   value = 7)
     ),
       box(
         title = "Upload Hashed CSV zip file",
@@ -313,7 +344,7 @@ dashboardPage(
         pickerInput(
           label = "Select Organization",
           inputId = "orgList",
-          choices = NULL, #c(unique(Organization$OrganizationName)),
+          choices = NULL,
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains'),
           width = "100%",
@@ -407,7 +438,7 @@ dashboardPage(
       fluidRow(
         box(
           id = "DQSummaryProvider",
-          DT::dataTableOutput("dq_provider_summary_table"),
+          DT::dataTableOutput("dq_org_guidance_summary"),
           title = "Data Quality Guidance",
           width = 12,
           status = "info",

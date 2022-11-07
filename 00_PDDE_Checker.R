@@ -39,8 +39,9 @@ subpopNotTotal <- Inventory %>%
 # Missing Operating End Date If a project has no open enrollments and the most recent Enrollment was 30+ days ago
 operatingEndMissing <- Enrollment %>%
   group_by(ProjectID) %>%
-  summarise(NumOpenEnrollments = sum(is_null(ExitDate)),
-         MostRecentEnrollment = max(ExitDate, na.rm = TRUE)
+  mutate(NumOpenEnrollments = sum(is_null(ExitDate)),
+         MostRecentEnrollment = max(ExitAdjust, na.rm = TRUE)
+
   ) %>%
   ungroup() %>%
   left_join(Project %>% 
@@ -110,16 +111,6 @@ missingInventoryRecord <- Project %>%
   ) %>% 
   select(all_of(PDDEcols))
 
-# Funder.StartDate <= Project.OperatingStartDate
-funderStartOnOrBeforeOperatingStart <- Funder %>%
-  left_join(Project, by = "ProjectID") %>%
-  filter(StartDate < OperatingStartDate) %>%
-  mutate(Issue = "Funding period before operating start",
-         Type = "Warning",
-         Guidance = "Funding should begin after the Project begins"
-  ) %>%
-  select(all_of(PDDEcols)) # revisit
-
 # Inventory Start < Operating Start AND
 # Inventory End > Operating End or Null
 inventoryOutsideOperating <- Inventory %>%
@@ -173,7 +164,6 @@ pdde_main <- rbind(
   operatingEndMissing,
   missingCoCInfo,
   missingInventoryRecord,
-  funderStartOnOrBeforeOperatingStart,
   inventoryOutsideOperating,
   hmisNotParticipatingButClient
 )
