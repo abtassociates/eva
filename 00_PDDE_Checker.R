@@ -49,7 +49,8 @@ operatingEndMissing <- Enrollment %>%
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
            MostRecentEnrollment >= 
-           coalesce(OperatingEndDate, Export$ExportDate) - 30) %>%
+           coalesce(OperatingEndDate, Export$ExportDate) - 30 &
+           is.null(OperatingEndDate)) %>%
   mutate(Issue = "Potentially Missing Operating End Date",
          Type = "Warning",
          Guidance = paste(

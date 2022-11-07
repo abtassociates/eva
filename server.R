@@ -109,14 +109,15 @@ function(input, output, session) {
       req(values$imported_zip)
       # browser()
       ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
+      Other <- calculate_long_stayers(input$OtherLongStayers, 7)
       Outreach <- calculate_long_stayers(input$OUTLongStayers, 4)
       DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
-      CE <- calculate_long_stayers(input$CELongStayers, 14)
+      ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
       
       x <- dq_main %>%
         filter(!Issue %in% c("Days Enrollment Active Exceeds CoC-specific Settings"))
       
-      rbind(x, ESNbN, Outreach, DayShelter, CE)
+      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other)
       
     })
     
