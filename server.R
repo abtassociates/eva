@@ -56,11 +56,6 @@ function(input, output, session) {
        min(nchar(Client$FirstName), na.rm = TRUE) ==
        max(nchar(Client$FirstName), na.rm = TRUE)
     
-    hashed <- # TRUE
-      Export$HashStatus == 4 &
-      min(nchar(Client$FirstName), na.rm = TRUE) ==
-      max(nchar(Client$FirstName), na.rm = TRUE)
-    
     #if it's not hashed, throw an error and clear the upload
     if (hashed == FALSE) {
       # clear imported
