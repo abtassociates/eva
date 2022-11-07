@@ -542,7 +542,8 @@ function(input, output, session) {
         high_priority = high_priority,
         errors = errors,
         warnings = warnings,
-        overlaps = overlaps
+        overlaps = overlaps,
+        overlapNEW = overlapNEW
       )
       
       names(exportDFList) = c(
@@ -551,7 +552,8 @@ function(input, output, session) {
         "High Priority",
         "Errors", 
         "Warnings", 
-        "Overlaps"
+        "Overlaps",
+        "Overlaps - NEW"
       )
       
       exportDFList <- exportDFList[sapply(exportDFList, 
