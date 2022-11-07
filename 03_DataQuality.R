@@ -2405,30 +2405,6 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
   mutate(Type = factor(Type, levels = c("High Priority",
                                         "Error",
                                         "Warning")))
-
-    # filtering out AP errors that are irrlevant to APs
-    
-    dq_main <- dq_main %>%
-      filter(ProjectType != 14 |
-               (
-                 ProjectType == 14 &
-                   Issue %in% c(
-                     "60 Days in Mahoning Coordinated Entry",
-                     "Access Point with Entry Exits",
-                     "Missing Date of Birth Data Quality",
-                     "Don't Know/Refused or Approx. Date of Birth",
-                     "Missing DOB",
-                     "Missing Name Data Quality",
-                     "Incomplete or Don't Know/Refused Name",
-                     "Rent Payment Made, No Move-In Date",
-                     "Invalid SSN",
-                     "Don't Know/Refused SSN",
-                     "Missing SSN",
-                     "Missing Veteran Status",
-                     "Don't Know/Refused Veteran Status",
-                     "Missing County Served"
-                   )
-               ))
     
     # Controls what is shown in the CoC-wide DQ tab ---------------------------
     
