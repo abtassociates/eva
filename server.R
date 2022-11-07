@@ -563,8 +563,7 @@ function(input, output, session) {
       overlaps <- dq_overlaps %>%
         filter(
           Issue %in% list("Overlapping Project Stays") &
-            OrganizationName %in% c(input$orgList) &
-            served_between(., ReportStart, ReportEnd)
+            OrganizationName %in% c(input$orgList)
         ) %>%
         select(all_of(select_list), 
           "Move-In Date" = MoveInDateAdjust,

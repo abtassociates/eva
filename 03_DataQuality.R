@@ -53,7 +53,7 @@ projects_current_hmis <- Project %>%
 
 # Clients to Check --------------------------------------------------------
 served_in_date_range <- Enrollment %>%
-  filter(served_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
+  # filter(served_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
   select(
