@@ -303,9 +303,9 @@ hh_children_only <- served_in_date_range %>%
   ungroup() %>%
   left_join(served_in_date_range, by = c("HouseholdID","maxAge" = "AgeAtEntry")) %>%
   distinct(HouseholdID, maxAge, .keep_all = TRUE) %>%
-  mutate(Issue = "Children Only Household",
+  mutate(Issue = "All Children Under 12",
          Type = "High Priority",
-         Guidance = "Unless your project serves youth younger than 18 
+         Guidance = "Unless your project serves youth younger than 12 
          exclusively, every household should have at least one adult in it. If 
          you are not sure how to correct this, please contact the HMIS team for 
          help.") %>%
