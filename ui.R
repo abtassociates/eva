@@ -70,7 +70,7 @@ dashboardPage(
           </div>
           <br/>"
         ),
-        htmlOutput("goToUpload_text"), # fixme- is this needed anymore?
+        # htmlOutput("goToUpload_text"), # fixme- is this needed anymore?
         uiOutput("goToUpload_btn")
       ),
       width = 12
@@ -260,82 +260,82 @@ dashboardPage(
       ))
     ),
     tabItem(
-      tabName = "utilizationTab",
-      fluidRow(box(htmlOutput(
-        "headerUtilization"
-      ), width = 12)),
-      fluidRow(box(
-        pickerInput(
-          label = "Select Project",
-          inputId = "providerListUtilization",
-          choices = NULL, 
-          options = pickerOptions(liveSearch = TRUE,
-                                  liveSearchStyle = 'contains'),
-          width = "100%"
-        ),
-        airDatepickerInput(
-          inputId = "utilizationDate",
-          label = "Report End Month for Annual Plot",
-          max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-          min = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date - days(335), unit = "month")),
-          dateFormat = "MM yyyy",
-          view = "month",
-          value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-          minView = "months",
-          addon = "none",
-          autoClose = TRUE,
-          width = '25%'
-        ),
-        width = 12
-      )),
-      plotlyOutput("bedPlot"),
-      br(),
-      fluidRow(
-        box(
-          uiOutput("bedNote"),
-          title = "What is Bed Utilization?",
-          collapsible = TRUE,
-          collapsed = TRUE
-        ),
-        box(
-          uiOutput("unitNote"),
-          title = "What is Unit Utilization?",
-          collapsible = TRUE,
-          collapsed = TRUE
-        ),
-        box(
-          uiOutput("utilizationNote"),
-          title = "Methodology",
-          collapsible = TRUE,
-          collapsed = TRUE
-        )
-      ),
-      fluidRow(box(
-        airDatepickerInput(
-          inputId = "utilizationDetailDate",
-          label = "Choose Month for Detail Data",
-          max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-          min = NULL, # ymd(floor_date(ymd(meta_HUDCSV_Export_End), "month") - years(2) + days(1)),
-          dateFormat = "MM yyyy",
-          view = "month",
-          value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-          minView = "months",
-          addon = "none",
-          autoClose = TRUE,
-          width = '50%'
-        ),
-        width = 12
-      )),
-      fluidRow(box(
-        infoBoxOutput("utilizationSummary0", width = '100%'),
-        infoBoxOutput("utilizationSummary1", width = '100%'),
-        infoBoxOutput("utilizationSummary2", width = '100%'),
-        width = 12
-      )),
-      fluidRow(box(
-        DT::dataTableOutput("utilizationDetail"), width = 12
-      ))
-    ),
+    #   tabName = "utilizationTab",
+    #   fluidRow(box(htmlOutput(
+    #     "headerUtilization"
+    #   ), width = 12)),
+    #   fluidRow(box(
+    #     pickerInput(
+    #       label = "Select Project",
+    #       inputId = "providerListUtilization",
+    #       choices = NULL, 
+    #       options = pickerOptions(liveSearch = TRUE,
+    #                               liveSearchStyle = 'contains'),
+    #       width = "100%"
+    #     ),
+    #     airDatepickerInput(
+    #       inputId = "utilizationDate",
+    #       label = "Report End Month for Annual Plot",
+    #       max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+    #       min = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date - days(335), unit = "month")),
+    #       dateFormat = "MM yyyy",
+    #       view = "month",
+    #       value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+    #       minView = "months",
+    #       addon = "none",
+    #       autoClose = TRUE,
+    #       width = '25%'
+    #     ),
+    #     width = 12
+    #   )),
+    #   plotlyOutput("bedPlot"),
+    #   br(),
+    #   fluidRow(
+    #     box(
+    #       uiOutput("bedNote"),
+    #       title = "What is Bed Utilization?",
+    #       collapsible = TRUE,
+    #       collapsed = TRUE
+    #     ),
+    #     box(
+    #       uiOutput("unitNote"),
+    #       title = "What is Unit Utilization?",
+    #       collapsible = TRUE,
+    #       collapsed = TRUE
+    #     ),
+    #     box(
+    #       uiOutput("utilizationNote"),
+    #       title = "Methodology",
+    #       collapsible = TRUE,
+    #       collapsed = TRUE
+    #     )
+    #   ),
+    #   fluidRow(box(
+    #     airDatepickerInput(
+    #       inputId = "utilizationDetailDate",
+    #       label = "Choose Month for Detail Data",
+    #       max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+    #       min = NULL, # ymd(floor_date(ymd(meta_HUDCSV_Export_End), "month") - years(2) + days(1)),
+    #       dateFormat = "MM yyyy",
+    #       view = "month",
+    #       value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
+    #       minView = "months",
+    #       addon = "none",
+    #       autoClose = TRUE,
+    #       width = '50%'
+    #     ),
+    #     width = 12
+    #   )),
+    #   fluidRow(box(
+    #     infoBoxOutput("utilizationSummary0", width = '100%'),
+    #     infoBoxOutput("utilizationSummary1", width = '100%'),
+    #     infoBoxOutput("utilizationSummary2", width = '100%'),
+    #     width = 12
+    #   )),
+    #   fluidRow(box(
+    #     DT::dataTableOutput("utilizationDetail"), width = 12
+    #   ))
+    # ),
     tabItem(
       tabName = "tabDQOrg",
       fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
@@ -424,7 +424,7 @@ dashboardPage(
       fluidRow(box(DTOutput("DQErrors"),
                    title = "Data Quality Errors",
                    width = 12)),
-      fluidRow(uiOutput("DQOverlappingEEs")), 
+      fluidRow(uiOutput("DQOverlappingEEs")), # <- not represented in Server.R fixme
       fluidRow(box(
         id = "warnings",
         DT::dataTableOutput("DQWarnings"),
