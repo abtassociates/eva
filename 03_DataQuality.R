@@ -2647,7 +2647,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
                      "Missing SSN",
                      "Missing Veteran Status",
                      "Don't Know/Refused Veteran Status",
-                     "Missing County Served"
+                     "Missing County Served",
+                     "Children Only Household"
                    )
                ))
     
