@@ -1213,8 +1213,8 @@ future_ees <- served_in_date_range %>%
   ) %>%
   select(all_of(vars_we_want))
 
-future_exits <- served_in_date_range %>%
-  filter(ExitDate > today()) %>%
+future_exits <- Enrollment %>%
+  filter(ExitDate > meta_HUDCSV_Export_End) %>%
   mutate(
     Issue = "Future Exit Date",
     Type = "Error",
@@ -1224,6 +1224,7 @@ future_exits <- served_in_date_range %>%
     is no longer in your program."
   ) %>%
   select(all_of(vars_we_want))
+
 
 # Missing Income at Entry -------------------------------------------------
 
