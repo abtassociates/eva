@@ -54,7 +54,6 @@ function(input, output, session) {
        min(nchar(Client$FirstName), na.rm = TRUE) ==
        max(nchar(Client$FirstName), na.rm = TRUE)
     
-    
     #if it's not hashed, throw an error and clear the upload
     if (hashed == FALSE) {
       # clear imported
@@ -70,6 +69,8 @@ function(input, output, session) {
       )
     } else { # if it is hashed, set imported_zip to 1 and start running scripts
       values$imported_zip <- 1
+      hide('imported_progress')
+      
       withProgress({
         setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
@@ -108,14 +109,15 @@ function(input, output, session) {
       req(values$imported_zip)
       # browser()
       ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
+      Other <- calculate_long_stayers(input$OtherLongStayers, 7)
       Outreach <- calculate_long_stayers(input$OUTLongStayers, 4)
       DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
-      CE <- calculate_long_stayers(input$CELongStayers, 14)
+      ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
       
       x <- dq_main %>%
         filter(!Issue %in% c("Days Enrollment Active Exceeds CoC-specific Settings"))
       
-      rbind(x, ESNbN, Outreach, DayShelter, CE)
+      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other)
       
     })
     
@@ -138,6 +140,11 @@ function(input, output, session) {
           options = list(dom = 't')
         )
       })
+    
+    output$downloadIntegrityBtn <- renderUI({
+      req(values$imported_zip)
+      downloadButton("downloadIntegrityCheck", "Download Integrity Check Detail")
+    })  
     
     output$downloadIntegrityCheck <- downloadHandler(
       # req(values$imported_zip)
@@ -556,8 +563,7 @@ function(input, output, session) {
       overlaps <- dq_overlaps %>%
         filter(
           Issue %in% list("Overlapping Project Stays") &
-            OrganizationName %in% c(input$orgList) &
-            served_between(., ReportStart, ReportEnd)
+            OrganizationName %in% c(input$orgList)
         ) %>%
         select(all_of(select_list), 
           "Move-In Date" = MoveInDateAdjust,

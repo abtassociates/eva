@@ -159,7 +159,7 @@ dq_dob <- served_in_date_range %>%
     Issue = case_when(
       is.na(DOB) & DOBDataQuality %in% c(1, 2) ~ "Missing DOB",
       DOBDataQuality == 99 ~ "Missing Date of Birth Data Quality",
-      DOBDataQuality %in% c(2, 8, 9) ~ "Don't Know/Refused or Approx. Date of Birth",
+      DOBDataQuality %in% c(8, 9) ~ "Don't Know/Refused or Approx. Date of Birth",
       AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect Date of Birth or Entry Date"
     ),
     Type = case_when(
@@ -724,7 +724,7 @@ Top2_ES <- subset(es_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 psh_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
-           ProjectType == 3) %>%
+           ProjectType %in% c(3, 9, 10)) %>%
   mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
 
 Top1_PSH <- subset(psh_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
@@ -755,7 +755,7 @@ extremely_long_stayers <- rbind(Top1_PSH,
     Issue = "Possible Missed Exit Date",
     Type = "Warning",
     Guidance = paste("This enrollment is in the top",
-                     case_when(ProjectType == 3 ~ "1%",
+                     case_when(ProjectType %in% c(3, 9, 10) ~ "1%",
                                TRUE ~ "2%"),
                      "of all other projects of its type in your HMIS system for
                      how many days it has been active. Please be sure this
@@ -2406,30 +2406,6 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
   mutate(Type = factor(Type, levels = c("High Priority",
                                         "Error",
                                         "Warning")))
-
-    # filtering out AP errors that are irrlevant to APs
-    
-    dq_main <- dq_main %>%
-      filter(ProjectType != 14 |
-               (
-                 ProjectType == 14 &
-                   Issue %in% c(
-                     "60 Days in Mahoning Coordinated Entry",
-                     "Access Point with Entry Exits",
-                     "Missing Date of Birth Data Quality",
-                     "Don't Know/Refused or Approx. Date of Birth",
-                     "Missing DOB",
-                     "Missing Name Data Quality",
-                     "Incomplete or Don't Know/Refused Name",
-                     "Rent Payment Made, No Move-In Date",
-                     "Invalid SSN",
-                     "Don't Know/Refused SSN",
-                     "Missing SSN",
-                     "Missing Veteran Status",
-                     "Don't Know/Refused Veteran Status",
-                     "Missing County Served"
-                   )
-               ))
     
     # Controls what is shown in the CoC-wide DQ tab ---------------------------
     

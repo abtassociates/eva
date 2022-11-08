@@ -475,9 +475,9 @@ move_in_date_invalid <- Enrollment %>%
   mutate(
     Issue = if_else(
       (
-        ymd(MoveInDate) >= ymd(EntryDate) &
-          ymd(MoveInDate) <= coalesce(ymd(ExitDate), today())
-      ) |
+        MoveInDate >= EntryDate &
+          MoveInDate <= coalesce(ExitDate, meta_HUDCSV_Export_Date))
+       |
         is.na(MoveInDate),
       "Nothing",
       "Invalid MoveInDate"

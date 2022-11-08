@@ -50,6 +50,7 @@ dashboardPage(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
     ),
+    useShinyjs(),
     tabItems(
     tabItem(
       tabName = "tabHome",
@@ -115,30 +116,30 @@ dashboardPage(
           your system
           <li><b>Transitional Housing:</b> enrollment's Length of Stay in days
           is in the top 2% of all other TH project enrollments in your system
-          <li><b>Permanent Supportive Housing:</b> enrollment's Length of Stay
-          in days is in the top 1% of all PSH project enrollments in your system
-          <li><b>Safe Haven:</b> enrollment's Length
-          of Stay in days is in the top 2% of all other SH project enrollments in
+          <li><b>Permanent Supportive Housing (Project Types 3, 9, and 10):</b> 
+          enrollment's Length of Stay in days is in the top 1% of all PSH project
+          enrollments in your system
+          <li><b>Coordinated Entry:</b> open enrollments with a Length of
+          Stay (in days) that are in the top 2% project enrollments in
           your system
+          <li><b>Safe Haven:</b> enrollment's Length of Stay in days is in the 
+          top 2% of all other SH project enrollments in your system
           <li><b>Homelessness Prevention:</b> open enrollments with a Length of
           Stay (in days) that are in the top 2% project enrollments in
           your system
           <li><b>Rapid Rehousing:</b> enrollment's Length
           of Stay in days is in the top 2% of all other RRH project enrollments in
           your system
+          <br>
           <li><b>Street Outreach:</b> open enrollments with a Length of Stay in
           days that are equal to or greater than the user-input available below
           <li><b>Services Only:</b> open enrollments with a Length of Stay in
           days that are equal to or greater than the user-input available below
           <li><b>Other:</b> open enrollments with a Length of Stay in days that
           are equal to or greater than the user-input available below
-          <li><b>Other Permanent Housing:</b> ???
           <li><b>Day Shelter:</b> open enrollments with a Length of Stay in days
           that are equal to or greater than the user-input available below
           <li><b>Emergency Shelter, Night-by-Night:</b> open enrollments with a
-          Length of Stay in days that are equal to or greater than the user-input
-          available below
-          <li><b>Coordinated Entry:</b> open enrollments with a
           Length of Stay in days that are equal to or greater than the user-input
           available below
           </ul>
@@ -152,6 +153,15 @@ dashboardPage(
             numericInput(
               inputId = "ESNbNLongStayers",
               label = "Emergency Shelter (NbN only!):",
+              value = 90,
+              min = 0,
+              max = 3650,
+              step = 5,
+              width = "200px"
+            ),
+            numericInput(
+              inputId = "OtherLongStayers",
+              label = "Other:",
               value = 90,
               min = 0,
               max = 3650,
@@ -180,8 +190,8 @@ dashboardPage(
               width = "200px"
             ),
             numericInput(
-              inputId = "CELongStayers",
-              label = "Coordinated Entry:",
+              inputId = "ServicesOnlyLongStayers",
+              label = "Services Only:",
               value = 90,
               min = 0,
               max = 3650,
@@ -192,25 +202,40 @@ dashboardPage(
           ),
           width = 12
         )
-        ),
-        HTML(
-          "<h3>Referrals</h3>
-        <p>Please enter the number of days your CoC would consider a Referral
-          to be \"outstanding\"."
-        ),
-        numericInput(inputId = "OutstandingReferrals",
-                     label = "Outstanding Referral Days:",
-                     value = 7)
-      ),
+        )#,
+      # HTML(
+      #   "<h3>Referrals</h3>
+      #   <p>Please enter the number of days your CoC would consider a Referral
+      #     to be \"outstanding\"."
+      # ),
+      # numericInput(inputId = "OutstandingReferrals",
+      #              label = "Outstanding Referral Days:",
+      #              value = 7)
+    ),
+      box(
+        title = "Upload Hashed CSV zip file",
+        HTML('<i class="fa fa-info-circle" 
+            title = "Use the Browse function to direct the app to the file folder containing your zipped CSV.">
+             </i>'),
+        fileInput("imported",
+                  label = NULL,
+                  multiple = FALSE,
+                  accept = ".zip"),
+        renderUI("imported_status"),
+        width = 12
+      ), 
       box(
         title = "HUD CSV Export Integrity Checker",
         width = 12,
         DT::dataTableOutput("integrityChecker"),
         p(),
-        downloadButton(outputId = "downloadIntegrityCheck",
-                       label = "Download Integrity Check Detail")
-      ))
-    ),
+        uiOutput('downloadIntegrityBtn')
+      ), 
+      box(title = "Status",
+          uiOutput("headerFileInfo"),
+          uiOutput("headerNoFileYet"),
+          width = 12)
+    ), 
     tabItem(
       tabName = "tabPDDE",
       fluidRow(box(htmlOutput(
