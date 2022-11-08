@@ -53,7 +53,7 @@ dashboardPage(
     tabItems(
     tabItem(
       tabName = "tabHome",
-      box(
+      fluidRow(box(
         title = "Welcome to StellaR!",
         width = 12,
         HTML(
@@ -74,12 +74,8 @@ dashboardPage(
         width = 12,
         collapsible = TRUE,
         collapsed = TRUE,
-        fluidRow(
-          HTML(
-            ""
-          )
-        )
-      ), 
+        HTML("")
+      ),  
       box(title = "Status",
           uiOutput("headerFileInfo"),
           uiOutput("headerNoFileYet"),
@@ -213,17 +209,20 @@ dashboardPage(
         p(),
         downloadButton(outputId = "downloadIntegrityCheck",
                        label = "Download Integrity Check Detail")
-      )
+      ))
     ),
-    # tabItem(
-    #   tabName = "tabUploadCSV",
-    #   
-    # ), 
     tabItem(
       tabName = "tabPDDE",
       fluidRow(box(htmlOutput(
         "headerPDDE"
       ), width = 12)),
+      fluidRow(box(
+        title = "App Instructions",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        HTML("")
+      )), 
       fluidRow(
         box(
           id = "PDDESummaryOrganization",
@@ -240,6 +239,13 @@ dashboardPage(
     tabItem(
       tabName = "tabClientCount",
       fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
+      fluidRow(box(
+        title = "App Instructions",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        HTML("")
+      )), 
       fluidRow(box(
         pickerInput(
           label = "Select Project",
@@ -269,6 +275,13 @@ dashboardPage(
     tabItem(
       tabName = "tabDQOrg",
       fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
+      fluidRow(box(
+        title = "App Instructions",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        HTML("")
+      )), 
       fluidRow(box(
         pickerInput(
           label = "Select Organization",
@@ -368,6 +381,13 @@ dashboardPage(
       tabName = "tabDeskTime",
       fluidRow(box(htmlOutput("headerDeskTime"),
                    width = 12)),
+        fluidRow(box(
+          title = "App Instructions",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          HTML("")
+        )), 
       fluidRow(box(
         pickerInput(
           label = "Select Provider",
@@ -394,6 +414,13 @@ dashboardPage(
     tabItem(
       tabName = "tabDQSystem",
       fluidRow(box(htmlOutput("headerSystemDQ"), width = 12)),
+      fluidRow(box(
+        title = "App Instructions",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        HTML("")
+      )), 
       fluidRow(
         box(
           plotOutput("systemDQHighPriorityErrorTypes"),
