@@ -141,6 +141,11 @@ function(input, output, session) {
         )
       })
     
+    output$downloadIntegrityBtn <- renderUI({
+      if(values$imported_zip)
+        downloadButton("downloadIntegrityCheck", "Download Integrity Check Detail")
+    })  
+    
     output$downloadIntegrityCheck <- downloadHandler(
       # req(values$imported_zip)
 
