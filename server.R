@@ -545,69 +545,20 @@ function(input, output, session) {
     orgDQReportDataList <- reactive({
       req(values$imported_zip)
       
-      select_list = c("Project Name" = "ProjectName",
-                      "Issue" = "Issue",
-                      "Personal ID" = "PersonalID",
-                      "Household ID" = "HouseholdID",
-                      "Entry Date"= "EntryDate")
+      orgDQData <- dq_main_reactive() %>%
+        filter(OrganizationName %in% c(input$orgList))
       
-      high_priority <- dq_main_reactive() %>% 
-        filter(Type == "High Priority") %>% 
-        select(all_of(select_list))
-        
-      errors <- dq_main_reactive() %>%
-        filter(Type == "Error") %>% 
-        select(all_of(select_list))
+      orgDQoverlaps <- dq_overlaps %>%
+        filter(OrganizationName %in% c(input$orgList))
       
-      warnings <- dq_main_reactive() %>%
-        filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
-        select(all_of(select_list))
       
-      overlaps <- dq_overlaps %>%
-        filter(
-          Issue %in% list("Overlapping Project Stays") &
-            OrganizationName %in% c(input$orgList)
-        ) %>%
-        select(all_of(select_list), 
-          "Move-In Date" = MoveInDateAdjust,
-          "Exit Date" = ExitDate,
-          "Overlaps With This Provider's Stay" = PreviousProject
-        )
+      getDQReportDataList(orgDQData, orgDQoverlaps)
+    })
+    
+    fullDQReportDataList <- reactive({
+      req(values$imported_zip)
       
-      summary <- dq_main_reactive() %>% 
-        select(ProjectName, Type, Issue, PersonalID) %>%
-        group_by(ProjectName, Type, Issue) %>%
-        summarise(Clients = n()) %>%
-        select(Type, Clients, ProjectName, Issue) %>%
-        arrange(Type, desc(Clients))
-      
-      guidance <- dq_main_reactive() %>%
-        select(Type, Issue, Guidance) %>%
-        unique() %>%
-        mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
-        arrange(Type)
-      
-      exportDFList <- list(
-        summary = summary,
-        guidance = guidance,
-        high_priority = high_priority,
-        errors = errors,
-        warnings = warnings,
-        overlaps = overlaps
-      )
-      
-      names(exportDFList) = c(
-        "Summary",
-        "Guidance",
-        "High Priority",
-        "Errors", 
-        "Warnings", 
-        "Overlaps"
-      )
-      
-      exportDFList <- exportDFList[sapply(exportDFList, 
-                                          function(x) dim(x)[1]) > 0]
-      exportDFList
+      getDQReportDataList(dq_main_reactive(), dq_overlaps)
     })
     
     output$downloadOrgDQReport <- downloadHandler(
