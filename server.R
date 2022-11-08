@@ -71,6 +71,8 @@ function(input, output, session) {
       )
     } else { # if it is hashed, set imported_zip to 1 and start running scripts
       values$imported_zip <- 1
+      hide('imported_progress')
+      
       withProgress({
         setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)

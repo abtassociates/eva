@@ -26,6 +26,7 @@ library(viridis)
 library(HMIS)
 library(glue)
 library(janitor)
+library(shinyjs)
 
 options(shiny.maxRequestSize = 200000000)
 
