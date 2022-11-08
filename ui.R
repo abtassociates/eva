@@ -484,7 +484,13 @@ dashboardPage(
     ),
     tabItem(
       tabName = "tabDQSystem",
-      fluidRow(box(htmlOutput("headerSystemDQ"), width = 12)),
+      fluidRow(
+        box(
+          htmlOutput("headerSystemDQ"), 
+          width = 12,
+          uiOutput("downloadFullDQReportButton")
+        )
+      ),
       fluidRow(
         box(
           plotOutput("systemDQHighPriorityErrorTypes"),

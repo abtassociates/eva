@@ -950,6 +950,23 @@ function(input, output, session) {
          ))
   })
   
+  #### DQ SYSTEM REPORT #### ----------------------
+  # button
+  output$downloadFullDQReportButton  <- renderUI({
+    if (!is.null(input$imported)) {
+      downloadButton(outputId = "downloadFullDQReport",
+                     label = "Download")
+    }
+  })
+  
+  output$downloadFullDQReport <- downloadHandler(
+    filename = function() {
+      paste("Full Data Quality Report-", Sys.Date(), ".xlsx", sep="")
+    },
+    content = function(file) {write_xlsx(fullDQReportDataList(), path = file)}
+  )
+  
+  
   output$deskTimeNote <- renderUI({
     HTML(
       "<h4>HUD and Data Quality</h4>
