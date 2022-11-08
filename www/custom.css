@@ -176,8 +176,3 @@
   top:1em;
   right:1em;
 }
-
-/* || HIDE BUILT-IN UPLOAD COMPLETE BAR*/
-#imported_progress {
-  display:none;
-}
