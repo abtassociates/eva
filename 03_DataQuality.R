@@ -1216,19 +1216,30 @@ future_ees <- served_in_date_range %>%
   ) %>%
   select(all_of(vars_we_want))
 
-future_exits <- Enrollment %>%
-  filter(ExitDate > meta_HUDCSV_Export_End) %>%
-  left_join(Project %>% select(ProjectID, OrganizationName), by = "ProjectID") %>%
-  mutate(
-    Issue = "Future Exit Date",
-    Type = "Error",
-    Guidance = "This client's Exit Date is a date in the future. Please 
+# future_exits <- Enrollment %>%
+#   filter(ExitDate > meta_HUDCSV_Export_End) %>%
+#   left_join(Project %>% select(ProjectID, OrganizationName), by = "ProjectID") %>%
+#   mutate(
+#     Issue = "Future Exit Date",
+#     Type = "Error",
+#     Guidance = "This client's Exit Date is a date in the future. Please 
+#     enter the exact date the client left your program. If this client has not
+#     yet exited, delete the Exit and then enter the Exit Date once the client
+#     is no longer in your program."
+#   ) %>%
+#   select(all_of(vars_we_want))
+    future_exits <- served_in_date_range %>%
+      filter(ExitAdjust > meta_HUDCSV_Export_Date) %>%
+      mutate(
+        Issue = "Future Exit Date",
+        Type = "Error",
+        Guidance = "This client's Exit Date is a date in the future. Please 
     enter the exact date the client left your program. If this client has not
     yet exited, delete the Exit and then enter the Exit Date once the client
     is no longer in your program."
-  ) %>%
-  select(all_of(vars_we_want))
-
+      ) %>%
+      select(all_of(vars_we_want))
+    
 
 # Missing Income at Entry -------------------------------------------------
 
