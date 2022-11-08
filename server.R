@@ -20,8 +20,6 @@ function(input, output, session) {
       actionButton(inputId = 'goToUpload', label = "Go To Upload Tab")
   })
   
-  output$imported_status <- renderUI(input$imported)
-  
   # when they click to go to the Upload Hashed CSV tab, it's like they clicked 
 
   # the sidebar menu tab
@@ -51,7 +49,7 @@ function(input, output, session) {
     Client <- importFile("Client",
                          col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
     # decide if the export is hashed
-    hashed <- # TRUE
+    hashed <-  # TRUE
       Export$HashStatus == 4 &
        min(nchar(Client$FirstName), na.rm = TRUE) ==
        max(nchar(Client$FirstName), na.rm = TRUE)
@@ -183,7 +181,7 @@ function(input, output, session) {
     })
     
     output$headerNoFileYet <- renderUI({
-      req(is_null(values$imported_zip))
+      req(is.null(values$imported_zip))
       HTML("You have not successfully uploaded your zipped CSV file yet.")
     })
     
@@ -209,8 +207,7 @@ function(input, output, session) {
       updateDateInput(session = session, inputId = "dq_startdate", 
                       value = meta_HUDCSV_Export_Start)
     }
-    # output$files <- renderTable(input$imported)
-    
+
     output$headerDataQuality <- renderUI({
       req(values$imported_zip)
       list(h2("Data Quality"),
@@ -610,42 +607,45 @@ function(input, output, session) {
       exportDFList
     })
     
-    output$downloadOrgDQReport <- downloadHandler(
-      filename = function() {
-        paste("Organization Data Quality Report-", Sys.Date(), ".xlsx", sep="")
-      },
-      content = function(file) {write_xlsx(orgDQReportDataList(), path = file)}
-    )
+    # output$downloadOrgDQReport <- downloadHandler(
+    #   filename = function() {
+    #     paste("Organization Data Quality Report-", 
+    #           Sys.Date(),
+    #           ".xlsx",
+    #           sep = "")
+    #   },
+    #   content = function(file) {write_xlsx(orgDQReportDataList(), path = file)}
+    # )
     
-
-    output$cocOverlap <- DT::renderDataTable({
-
-      a <- dq_overlaps %>%
-        group_by(ProjectName) %>%
-        summarise(Clients = n()) %>%
-        arrange(desc(Clients)) %>%
-        top_n(20L, wt = Clients) %>%
-        select("Project Name" = ProjectName,
-               "Clients with Overlapping Enrollments" = Clients)
-      datatable(a,
-                rownames = FALSE)
-    }) #revisit
+# 
+#     output$cocOverlap <- DT::renderDataTable({
+# 
+#       a <- dq_overlaps %>%
+#         group_by(ProjectName) %>%
+#         summarise(Clients = n()) %>%
+#         arrange(desc(Clients)) %>%
+#         top_n(20L, wt = Clients) %>%
+#         select("Project Name" = ProjectName,
+#                "Clients with Overlapping Enrollments" = Clients)
+#       datatable(a,
+#                 rownames = FALSE)
+#     }) #revisit
     
-    output$cocWidespreadIssues <- DT::renderDataTable({
-      req(values$imported_zip)
-      a <- dq_past_year() %>%
-        select(Issue, ProjectName, Type) %>%
-        unique() %>%
-        group_by(Issue, Type) %>%
-        summarise(HowManyProjects = n()) %>%
-        arrange(desc(HowManyProjects)) %>%
-        head(10L) %>%
-        select(Issue, Type, "How Many Providers" = HowManyProjects)
-      
-      datatable(a,
-                rownames = FALSE)
-
-    })
+    # output$cocWidespreadIssues <- DT::renderDataTable({
+    #   req(values$imported_zip)
+    #   a <- dq_past_year() %>%
+    #     select(Issue, ProjectName, Type) %>%
+    #     unique() %>%
+    #     group_by(Issue, Type) %>%
+    #     summarise(HowManyProjects = n()) %>%
+    #     arrange(desc(HowManyProjects)) %>%
+    #     head(10L) %>%
+    #     select(Issue, Type, "How Many Providers" = HowManyProjects)
+    #   
+    #   datatable(a,
+    #             rownames = FALSE)
+    # 
+    # })
  
     #System-Level tab plots
        
@@ -664,15 +664,7 @@ function(input, output, session) {
     output$systemDQErrorTypes <- renderPlot({
       req(values$imported_zip)
       dq_plot_errors_org_level})
-    
-    # output$systemDQErrors <- renderPlot({
-    #   req(values$imported_zip)
-    #   dq_plot_projects_errors})
-    # 
-    # output$systemHHErrors <- renderPlot({
-    #   req(values$imported_zip)
-    #   dq_plot_hh_errors})
-    
+
     output$systemDQWarnings <- renderPlot({
       req(values$imported_zip)
       dq_plot_organizations_warnings})
@@ -965,29 +957,29 @@ function(input, output, session) {
                   format(today(), "%m-%d-%Y"))))
   })
   
-  output$headerExitsToPH <- renderUI({
-    req(values$imported_zip)
-    ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
-    ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%B %d, %Y")
-    
-    list(h2("Successful Placement Detail"),
-         h4(input$ExitsToPHProjectList),
-         h4(paste(
-           ReportStart,
-           "to",
-           ReportEnd
-         )))
-  })
+  # output$headerExitsToPH <- renderUI({
+  #   req(values$imported_zip)
+  #   ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
+  #   ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%B %d, %Y")
+  #   
+  #   list(h2("Successful Placement Detail"),
+  #        h4(input$ExitsToPHProjectList),
+  #        h4(paste(
+  #          ReportStart,
+  #          "to",
+  #          ReportEnd
+  #        )))
+  # })
   
-  output$headerOrganizationDQ <- renderUI({
-    req(values$imported_zip)
-    list(h2("Data Quality Summary (Organization)"),
-         h4(paste(
-           format(input$dq_startdate, "%m-%d-%Y"),
-           "to",
-           format(meta_HUDCSV_Export_End, "%m-%d-%Y")
-         )))
-  })
+  # output$headerOrganizationDQ <- renderUI({
+  #   req(values$imported_zip)
+  #   list(h2("Data Quality Summary (Organization)"),
+  #        h4(paste(
+  #          format(input$dq_startdate, "%m-%d-%Y"),
+  #          "to",
+  #          format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+  #        )))
+  # })
   
   output$headerSystemDQ <- renderUI({
     req(values$imported_zip)

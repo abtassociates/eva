@@ -1205,7 +1205,8 @@ future_ees <- served_in_date_range %>%
   select(all_of(vars_we_want))
 
 future_exits <- served_in_date_range %>%
-  filter(ExitDate > today()) %>%
+  left_join(Exit %>% select(EnrollmentID, "ExitDateCreated" = DateCreated)) %>%
+  filter(ExitDate > ExitDateCreated) %>%
   mutate(
     Issue = "Future Exit Date",
     Type = "Error",
