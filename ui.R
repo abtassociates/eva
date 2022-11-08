@@ -214,8 +214,7 @@ dashboardPage(
         width = 12,
         DT::dataTableOutput("integrityChecker"),
         p(),
-        downloadButton(outputId = "downloadIntegrityCheck",
-                       label = "Download Integrity Check Detail")
+        uiOutput('downloadIntegrityBtn')
       ), 
       box(title = "Status",
           uiOutput("headerFileInfo"),
