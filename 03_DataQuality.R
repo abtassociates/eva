@@ -2394,8 +2394,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     
     # for CoC-wide DQ tab
 
-    dq_w_project_names <- dq_main %>%
-      left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
+    # dq_w_project_names <- dq_main %>%
+    #   left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
     
    dq_providers <- sort(projects_current_hmis$ProjectName)
    
