@@ -2648,7 +2648,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
 # Prepping dataframes for plots for Organization-Level DQ Tab -----------------
    
    # Top projects with Errors - High Priority
-   dq_data_high_priority_errors_org_project_plot <- dq_w_ids %>%
+   dq_data_high_priority_errors_top_projects_df <- dq_w_ids %>%
      filter(Type %in% c("High Priority")) %>%
      select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
      unique() %>%
@@ -2659,7 +2659,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Most common high priority errors org-wide
    
-   dq_data_high_priority_error_types_org_project <- dq_w_ids %>%
+   dq_data_high_priority_error_types_org_df <- dq_w_ids %>%
      filter(Type %in% c("High Priority")) %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Errors = n()) %>%
@@ -2668,7 +2668,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Top projects with Errors - General
    
-   dq_data_errors_org_project_plot <- dq_w_ids %>%
+   dq_data_errors_top_projects_df <- dq_w_ids %>%
      filter(Type %in% c("Error")) %>%
      select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
      unique() %>%
@@ -2679,7 +2679,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Most common general errors org-wide
    
-   dq_data_error_types_org_project <- dq_w_ids %>%
+   dq_data_error_types_org_df <- dq_w_ids %>%
      filter(Type %in% c("Error")) %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Errors = n()) %>%
@@ -2688,7 +2688,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       #Top projects with warnings
    
-   dq_data_warnings_org_project_plot <- dq_w_ids %>%
+   dq_data_warnings_top_projects_df <- dq_w_ids %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(Warnings = n()) %>%
@@ -2697,7 +2697,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       #Most common warnings org-wide
    
-   dq_data_warning_types_org_project <- dq_w_ids %>%
+   dq_data_warning_types_org_df <- dq_w_ids %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Warnings = n()) %>%
