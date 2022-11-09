@@ -22,7 +22,7 @@ function(input, output, session) {
                                     unique() %>% sort()))
   })
   
-  output$valid_file <- reactiveVal(0)
+  valid_file <- reactiveVal(0)
   # valid_file(0)
 
   observeEvent(input$imported, {

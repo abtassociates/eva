@@ -77,7 +77,48 @@ dashboardPage(
             width = 12,
             collapsible = TRUE,
             collapsed = TRUE,
-            HTML("")
+            HTML("
+                 <h4>Status Panel</h4>
+                 <p>In the Status panel below, you will see the status of your
+                 upload. Once you have uploaded a hashed and structurally sound
+                 zip file, you will see a confirmation that your upload was 
+                 successful, the date range of the file you uploaded, plus the
+                 date your file was downloaded from your HMIS.</p>
+                 <h4>Upload Hashed CSV zip file</h4>
+                 <p>To upload your hashed HUD CSV Export zip file, click the \'Browse\'
+                 button in the \'Upload Hashed CSV zip file\' panel. Once you find
+                 the zip file on your computer, select it and click \'Open\'. Your
+                 file will begin uploading. It will then check only the files
+                 needed to determine if it is hashed. If it is not, the app will
+                 reject your file with an error message, not process any further
+                 data, and clear the app's memory until you upload another (hashed)
+                 file. If it is hashed, it will then check for structural issues
+                 in your HUD CSV Export. Some structural issues will affect the
+                 functioning of this app and some will not. If your file has any
+                 structural issues that would prevent this app from functioning,
+                 your file will be rejected with an error message, it will stop
+                 processing your data further, and it will clear the app's memory
+                 until you upload another (structurally sound) file. </p>
+                 <h4>Edit CoC-specific Settings</h4>
+                 <p>To make StellaR reporting more useful at the local level,
+                 you will find the CoC-specific settings that HMIS Leads can edit
+                 to better analyse their data in a way that is meaningful to the
+                 CoC. To edit these, click on the \'+\'. If you do not edit them,
+                 the reporting will use the defaults listed. These defaults do
+                 not imply any HUD recommendations. Please read the description
+                 in the settings panel for more information.</p>
+                 <h4>Integrity Checker</h4>
+                 <p>Once the app verifies that your file is hashed, it will then
+                 check that your upload has all the right tables, columns, data
+                 types, and allowable values. If there are any issues
+                 that will prevent the app from functioning, the app will reject
+                 your file and not process any further. All issues will display
+                 in the panel and you can download the details, even if the file
+                 was rejected. </p>
+                 <h4>Credits</h4>
+                 <p>This panel will credit the people who wrote the open-source code
+                 used to build this app, plus the community on whose code this app
+                 was built.</p>")
           ),  
           box(title = "Status",
               conditionalPanel(
@@ -106,7 +147,7 @@ dashboardPage(
             fluidRow(
               box(
                 HTML(
-                  "<h3>Long Stayers</h3>
+                  "<h4>Long Stayers</h4>
                 <p>This check aims to help communities find enrollments that may be
                 missing an Exit Date. It does this by looking at the number of days an
                 enrollment has been open (or, the number of days between the Entry Date
@@ -213,7 +254,7 @@ dashboardPage(
           ),
         #,
       # HTML(
-      #   "<h3>Referrals</h3>
+      #   "<h4>Referrals</h4>
       #   <p>Please enter the number of days your CoC would consider a Referral
       #     to be \"outstanding\"."
       # ),
