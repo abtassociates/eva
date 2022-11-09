@@ -438,14 +438,15 @@ dashboardPage(
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
-        ),
+          HTML("")
+        )),
         fluidRow(
           box(
             plotOutput("systemDQErrorTypes"),
             width = 6,
             solidHeader = TRUE,
             status = NULL,
-            title = "Most Common General Errors"
+            title = "Most Common General Errors",
             HTML("")
           )), 
         fluidRow(
