@@ -362,14 +362,14 @@ dashboardPage(
             width = 6,
             solidHeader = TRUE,
             status = NULL,
-            title = "Most Common Warnings Errors"
+            title = "Most Common Warnings"
           ),
           box(
             plotOutput("orgDQWarnings"),
             width = 6,
             solidHeader = TRUE,
             status = NULL,
-            title = "Projects with the Most Warnings Errors"
+            title = "Projects with the Most Warnings"
           )
         ),
         fluidRow(box(DTOutput("DQHighPriority"),
