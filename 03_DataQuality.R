@@ -122,6 +122,7 @@ vars_prep <- c(
   "HouseholdID",
   "PersonalID",
   "OrganizationName",
+  "ProjectID",
   "ProjectName",
   "ProjectType",
   "EntryDate",
@@ -1488,23 +1489,6 @@ psh_overlaps <- served_in_date_range %>%
   filter(Overlap == TRUE) %>%
   select(all_of(vars_we_want), PreviousProject)
 
-dq_overlaps <- staging_overlaps %>%
-  mutate(
-    PreviousStay = interval(PreviousEntryAdjust, PreviousExitAdjust),
-    Overlap = int_overlaps(LiterallyInProject, PreviousStay)
-  ) %>%
-  filter(Overlap == TRUE) %>%
-  select(all_of(vars_we_want), PreviousProject)
-
-dq_overlaps <-
-  rbind(dq_overlaps, rrh_overlaps, psh_overlaps, same_day_overlaps) %>%
-  unique()
-
-rm(staging_overlaps,
-   same_day_overlaps,
-   rrh_overlaps,
-   psh_overlaps)
-
 # Missing Health Ins ------------------------------------------------------
 
 missing_health_insurance_entry <- served_in_date_range %>%
@@ -2339,7 +2323,6 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       dq_ethnicity,
       dq_gender,
       dq_name,
-      dq_overlaps %>% select(-PreviousProject),
       dq_race,
       dq_ssn,
       dq_veteran,
@@ -2411,8 +2394,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     
     # for CoC-wide DQ tab
 
-    dq_w_project_names <- dq_main %>%
-      left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
+    # dq_w_project_names <- dq_main %>%
+    #   left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
     
    dq_providers <- sort(projects_current_hmis$ProjectName)
    
@@ -2424,8 +2407,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Controls what is shown in the Organization-Level DQ tab ------------------------
    
    dq_w_ids <- dq_main %>%
-     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName") %>%
-     left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
+     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName")
+     # left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
      
 
 # Plots for System-Level DQ Tab -------------------------------------------

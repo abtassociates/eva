@@ -528,80 +528,31 @@ function(input, output, session) {
     orgDQReportDataList <- reactive({
       req(valid_file() == 1)
       
-      select_list = c("Project Name" = "ProjectName",
-                      "Issue" = "Issue",
-                      "Personal ID" = "PersonalID",
-                      "Household ID" = "HouseholdID",
-                      "Entry Date"= "EntryDate")
+      orgDQData <- dq_main_reactive() %>%
+        filter(OrganizationName %in% c(input$orgList))
       
-      high_priority <- dq_main_reactive() %>% 
-        filter(Type == "High Priority") %>% 
-        select(all_of(select_list))
-        
-      errors <- dq_main_reactive() %>%
-        filter(Type == "Error") %>% 
-        select(all_of(select_list))
+      orgDQoverlaps <- dq_overlaps %>%
+        filter(OrganizationName %in% c(input$orgList))
       
-      warnings <- dq_main_reactive() %>%
-        filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
-        select(all_of(select_list))
       
-      overlaps <- dq_overlaps %>%
-        filter(
-          Issue %in% list("Overlapping Project Stays") &
-            OrganizationName %in% c(input$orgList)
-        ) %>%
-        select(all_of(select_list), 
-          "Move-In Date" = MoveInDateAdjust,
-          "Exit Date" = ExitDate,
-          "Overlaps With This Provider's Stay" = PreviousProject
-        )
-      
-      summary <- dq_main_reactive() %>% 
-        select(ProjectName, Type, Issue, PersonalID) %>%
-        group_by(ProjectName, Type, Issue) %>%
-        summarise(Clients = n()) %>%
-        select(Type, Clients, ProjectName, Issue) %>%
-        arrange(Type, desc(Clients))
-      
-      guidance <- dq_main_reactive() %>%
-        select(Type, Issue, Guidance) %>%
-        unique() %>%
-        mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
-        arrange(Type)
-      
-      exportDFList <- list(
-        summary = summary,
-        guidance = guidance,
-        high_priority = high_priority,
-        errors = errors,
-        warnings = warnings,
-        overlaps = overlaps
-      )
-      
-      names(exportDFList) = c(
-        "Summary",
-        "Guidance",
-        "High Priority",
-        "Errors", 
-        "Warnings", 
-        "Overlaps"
-      )
-      
-      exportDFList <- exportDFList[sapply(exportDFList, 
-                                          function(x) dim(x)[1]) > 0]
-      exportDFList
+      getDQReportDataList(orgDQData, orgDQoverlaps)
     })
     
-    # output$downloadOrgDQReport <- downloadHandler(
-    #   filename = function() {
-    #     paste("Organization Data Quality Report-", 
-    #           Sys.Date(),
-    #           ".xlsx",
-    #           sep = "")
-    #   },
-    #   content = function(file) {write_xlsx(orgDQReportDataList(), path = file)}
-    # )
+    fullDQReportDataList <- reactive({
+      req(valid_file() == 1)
+      
+      getDQReportDataList(dq_main_reactive(), dq_overlaps)
+    })
+    
+    output$downloadOrgDQReport <- downloadHandler(
+      filename = function() {
+        paste("Organization Data Quality Report-",
+              Sys.Date(),
+              ".xlsx",
+              sep = "")
+      },
+      content = function(file) {write_xlsx(orgDQReportDataList(), path = file)}
+    )
     
 # 
 #     output$cocOverlap <- DT::renderDataTable({
@@ -976,6 +927,23 @@ function(input, output, session) {
                  format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
          ))
   })
+  
+  #### DQ SYSTEM REPORT #### ----------------------
+  # button
+  output$downloadFullDQReportButton  <- renderUI({
+    if (!is.null(input$imported)) {
+      downloadButton(outputId = "downloadFullDQReport",
+                     label = "Download")
+    }
+  })
+  
+  output$downloadFullDQReport <- downloadHandler(
+    filename = function() {
+      paste("Full Data Quality Report-", Sys.Date(), ".xlsx", sep="")
+    },
+    content = function(file) {write_xlsx(fullDQReportDataList(), path = file)}
+  )
+  
   
   output$deskTimeNote <- renderUI({
     HTML(
