@@ -80,8 +80,12 @@ dashboardPage(
             HTML("")
           ),  
           box(title = "Status",
-              uiOutput("headerFileInfo"),
-              uiOutput("headerNoFileYet"),
+              conditionalPanel(
+                condition = "valid_file() == 0",
+                uiOutput("headerFileInfo")),
+              conditionalPanel(
+                condition = "valid_file() == 1",
+                uiOutput("headerNoFileYet")), 
               width = 12),
           box(
             title = "Upload Hashed CSV zip file",

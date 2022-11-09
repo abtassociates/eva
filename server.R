@@ -14,31 +14,17 @@
 
 function(input, output, session) {
 
-  output$goToUpload_btn <- renderUI({
-
-      req(is_null(values$imported_zip))
-      actionButton(inputId = 'goToUpload', label = "Go To Upload Tab")
-  })
-  
-  # when they click to go to the Upload Hashed CSV tab, it's like they clicked 
-
-  # the sidebar menu tab
-  observeEvent(input$goToUpload, {
-    updateTabsetPanel(session, "sidebarmenuid", selected = "tabUploadCSV")
-  })
-  
   observeEvent(input$imported,{
-    req(values$imported_zip)
+    req(valid_file() == 1)
     
     updateSelectInput(session, "orgList",
                       choices = c(Organization$OrganizationName %>%
                                     unique() %>% sort()))
   })
   
-  values <- reactiveValues(
-    imported_zip = NULL
-  )
-  
+  output$valid_file <- reactiveVal(0)
+  # valid_file(0)
+
   observeEvent(input$imported, {
     
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
@@ -57,7 +43,7 @@ function(input, output, session) {
     #if it's not hashed, throw an error and clear the upload
     if (hashed == FALSE) {
       # clear imported
-      values$imported_zip <- NULL
+      valid_file(0)
       showModal(
         modalDialog(
           title = "You uploaded the wrong data set",
@@ -68,7 +54,7 @@ function(input, output, session) {
         )
       )
     } else { # if it is hashed, set imported_zip to 1 and start running scripts
-      values$imported_zip <- 1
+      valid_file(1)
       hide('imported_progress')
       
       withProgress({
@@ -91,7 +77,7 @@ function(input, output, session) {
           source("00_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
         } else{ # if structural issues were found, reset gracefully
-        values$imported_zip <- NULL
+        valid_file(0)
         showModal(
           modalDialog(
             title = "Your HMIS CSV Export is not structurally valid",
@@ -106,7 +92,7 @@ function(input, output, session) {
     } 
     
     dq_main_reactive <- reactive({
-      req(values$imported_zip)
+      req(valid_file()== 1)
       # browser()
       ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
       Other <- calculate_long_stayers(input$OtherLongStayers, 7)
@@ -142,12 +128,12 @@ function(input, output, session) {
       })
     
     output$downloadIntegrityBtn <- renderUI({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       downloadButton("downloadIntegrityCheck", "Download Integrity Check Detail")
     })  
     
     output$downloadIntegrityCheck <- downloadHandler(
-      # req(values$imported_zip)
+      # req(valid_file() == 1)
 
       filename = function() {
         paste("integrity-check-", Sys.Date(), ".xlsx", sep = "")
@@ -166,7 +152,7 @@ function(input, output, session) {
     )
     
     output$headerFileInfo <- renderUI({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       HTML(
         paste0(
           "<p>You have successfully uploaded your hashed HMIS CSV Export!</p>
@@ -181,11 +167,11 @@ function(input, output, session) {
     })
     
     output$headerNoFileYet <- renderUI({
-      req(is.null(values$imported_zip))
+      req(valid_file() == 0)
       HTML("You have not successfully uploaded your zipped CSV file yet.")
     })
     
-    if(!is_null(values$imported_zip)) {
+    if(valid_file() == 1) {
       updatePickerInput(session = session, inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
       
@@ -209,7 +195,7 @@ function(input, output, session) {
     }
 
     output$headerDataQuality <- renderUI({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       list(h2("Data Quality"),
            h4(paste(
              format(Export$ExportStartDate, "%m-%d-%Y"),
@@ -221,7 +207,7 @@ function(input, output, session) {
     ##### PDDE Checker-----
     # header
     output$headerPDDE <- renderUI({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       list(h2("Project Decriptor Data Elements Checker"),
            h4(paste(
              format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
@@ -232,7 +218,7 @@ function(input, output, session) {
     
     # summary table
     output$pdde_summary_table <- DT::renderDataTable({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       
       datatable(
         pdde_main %>%
@@ -247,7 +233,7 @@ function(input, output, session) {
     
     # download button
     output$downloadPDDEReportButton  <- renderUI({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       
       downloadButton(outputId = "downloadPDDEReport",
                        label = "Download")
@@ -260,14 +246,14 @@ function(input, output, session) {
         paste("PDDE Report-", Sys.Date(), ".xlsx", sep="")
       },
       content = function(file) {
-        req(values$imported_zip)
+        req(valid_file() == 1)
         write_xlsx(pdde_main, path = file)
         }
     )
     
     
     output$DeskTimePlotDetail <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       provider <- input$providerDeskTime
       
       ReportStart <- ymd(meta_HUDCSV_Export_Start - years(1))
@@ -338,7 +324,7 @@ function(input, output, session) {
     })
     
     output$clientCountData <- DT::renderDataTable({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
       
@@ -402,7 +388,7 @@ function(input, output, session) {
     })
     
     output$clientCountSummary <- DT::renderDataTable({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
       
@@ -485,7 +471,7 @@ function(input, output, session) {
     })
     
     output$dq_org_guidance_summary <- DT::renderDataTable({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       
       guidance <- dq_main_reactive() %>%
         filter(OrganizationName %in% c(input$orgList)) %>%
@@ -503,7 +489,7 @@ function(input, output, session) {
     })
     
     output$dq_organization_summary_table <- DT::renderDataTable({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       
       a <- dq_main_reactive() %>%
         filter(OrganizationName %in% c(input$orgList)) %>%
@@ -540,7 +526,7 @@ function(input, output, session) {
     
     # list of data frames to include in DQ Org Report
     orgDQReportDataList <- reactive({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       
       select_list = c("Project Name" = "ProjectName",
                       "Issue" = "Issue",
@@ -632,7 +618,7 @@ function(input, output, session) {
 #     }) #revisit
     
     # output$cocWidespreadIssues <- DT::renderDataTable({
-    #   req(values$imported_zip)
+    #   req(valid_file() == 1)
     #   a <- dq_past_year() %>%
     #     select(Issue, ProjectName, Type) %>%
     #     unique() %>%
@@ -650,34 +636,34 @@ function(input, output, session) {
     #System-Level tab plots
        
     output$systemDQHighPriorityErrors <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       dq_plot_organizations_high_priority_errors})
     
     output$systemDQHighPriorityErrorTypes <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       dq_plot_high_priority_errors_org_level})
     
     output$systemDQErrors <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       dq_plot_organizations_errors})
     
     output$systemDQErrorTypes <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       dq_plot_errors_org_level})
 
     output$systemDQWarnings <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       dq_plot_organizations_warnings})
     
     output$systemDQWarningTypes <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       dq_plot_warnings_org_level})
     
     #Org-Level Tab Plots
     
     #Plot of projects within selected org with most high priority errors
     output$orgDQHighPriorityErrors <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       
       dq_hp_top_projects <- dq_data_high_priority_errors_org_project_plot %>%
         filter(OrganizationName %in% c(input$orgList))
@@ -710,7 +696,7 @@ function(input, output, session) {
     
     #Plot of most common high priority errors within an org
     output$orgDQHighPriorityErrorTypes <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       
     dq_hp_error_types_org_level <-  dq_data_high_priority_error_types_org_project %>%
         filter(OrganizationName %in% c(input$orgList))
@@ -737,7 +723,7 @@ function(input, output, session) {
     
     #Plot of projects within selected org with most general errors
     output$orgDQErrors <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       
      dq_general_errors_top_projects <- dq_data_errors_org_project_plot %>%
         filter(OrganizationName %in% c(input$orgList))
@@ -770,7 +756,7 @@ function(input, output, session) {
     
     #Plot of most common general errors within an org
     output$orgDQErrorTypes <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       
       dq_general_error_types_org_level <- dq_data_error_types_org_project %>%
         filter(OrganizationName %in% c(input$orgList))
@@ -797,7 +783,7 @@ function(input, output, session) {
     
     #Plot of projects within selected org with most general errors
     output$orgDQWarnings <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       
       dq_warnings_top_projects <- dq_data_warnings_org_project_plot %>%
         filter(OrganizationName %in% c(input$orgList))
@@ -828,7 +814,7 @@ function(input, output, session) {
     
     #Plot of most common warnings within an org
     output$orgDQWarningTypes <- renderPlot({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       
       dq_warning_types_org_level <- dq_data_warning_types_org_project %>%
         filter(OrganizationName %in% c(input$orgList))
@@ -856,7 +842,7 @@ function(input, output, session) {
     ##
     
     output$DQHighPriority <- DT::renderDT({
-      req(values$imported_zip)      
+      req(valid_file() == 1)      
       
       ReportStart <- Export$ExportStartDate
       ReportEnd <- meta_HUDCSV_Export_End
@@ -882,7 +868,7 @@ function(input, output, session) {
     })
     
     output$DQErrors <- DT::renderDT({
-      req(values$imported_zip)      
+      req(valid_file() == 1)      
       
       DQErrors <- dq_main_reactive() %>%
         filter(
@@ -906,7 +892,7 @@ function(input, output, session) {
     })
     
     output$DQWarnings <- DT::renderDataTable({
-      req(values$imported_zip)      
+      req(valid_file() == 1)      
       ReportStart <- Export$ExportStartDate
       ReportEnd <- meta_HUDCSV_Export_End
       
@@ -932,13 +918,13 @@ function(input, output, session) {
     })
 
   output$headerCurrent <- renderUI({
-    req(values$imported_zip)
+    req(valid_file() == 1)
     list(h2("Client Counts Report"),
          h4(input$currentProviderList))
   })
   
   output$headerUtilization <- renderUI({
-    req(values$imported_zip)
+    req(valid_file() == 1)
     list(h2("Bed and Unit Utilization"),
          h4(input$providerListUtilization),
          h4(format(ymd(
@@ -948,7 +934,7 @@ function(input, output, session) {
   })
   
   output$headerDeskTime <- renderUI({
-    req(values$imported_zip)
+    req(valid_file() == 1)
     list(h2("Data Entry Timeliness"),
          h4(input$providersDeskTime),
          h4(paste("Fixed Date Range:",
@@ -958,7 +944,7 @@ function(input, output, session) {
   })
   
   # output$headerExitsToPH <- renderUI({
-  #   req(values$imported_zip)
+  #   req(valid_file() == 1)
   #   ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
   #   ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%B %d, %Y")
   #   
@@ -972,7 +958,7 @@ function(input, output, session) {
   # })
   
   # output$headerOrganizationDQ <- renderUI({
-  #   req(values$imported_zip)
+  #   req(valid_file() == 1)
   #   list(h2("Data Quality Summary (Organization)"),
   #        h4(paste(
   #          format(input$dq_startdate, "%m-%d-%Y"),
@@ -982,7 +968,7 @@ function(input, output, session) {
   # })
   
   output$headerSystemDQ <- renderUI({
-    req(values$imported_zip)
+    req(valid_file() == 1)
     list(h2("System-wide Data Quality"),
          h4(
            paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
