@@ -208,7 +208,7 @@ function(input, output, session) {
     # header
     output$headerPDDE <- renderUI({
       req(valid_file() == 1)
-      list(h2("Project Decriptor Data Elements Checker"),
+      list(h2("Project Descriptor Data Elements Checker"),
            h4(paste(
              format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
              "to",
