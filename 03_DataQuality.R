@@ -1462,6 +1462,33 @@ rm(staging_overlaps,
    rrh_overlaps,
    psh_overlaps)
 
+# Invalid Move-in Date ----------------------------------------------------
+movein_before_start <- served_in_date_range %>%
+  select(all_of(vars_we_want), EntryDate)
+  filter(ProjectType %in% c(3, 9, 10, 13))
+  mutate(
+    Issue = case_when(
+      MoveInDate < EntryDate ~ 
+        "Move-In Date Before Start Date"
+    ),
+    Type = case_when(
+      Issue == "Move-In Date Before Start Date" ~ "Error"
+    ),
+    Guidance = (Type == "Error") ~ "Fix Me")
+
+movein_after_start <- served_in_date_range %>%
+    select(all_of(vars_we_want), ExitDate)
+  filter(ProjectType %in% c(3, 9, 10, 13))
+  mutate(
+    Issue = case_when(
+      MoveInDate > ExitDate ~ 
+        "Move-In Date After Exit Date"
+    ),
+    Type = case_when(
+      Issue == "Move-In Date After Exit Date" ~ "Error"
+    ),
+    Guidance = (Type == "Error") ~ "Fix Me")
+
 # Missing Health Ins ------------------------------------------------------
 
 missing_health_insurance_entry <- served_in_date_range %>%
