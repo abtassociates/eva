@@ -139,7 +139,9 @@ check_data_types <- function(barefile, quotedfile) {
     y <- cols_and_data_types %>% 
       left_join(data_types, by = c("File", "Column")) %>%
       mutate(
-        Issue = if_else(DataType != ImportedDataType, "Incorrect Data Type", NULL), 
+        Issue = if_else(DataType != ImportedDataType, 
+                        "Incorrect Data Type",
+                        "nothing"), 
         Guidance = if_else(
           DataType != ImportedDataType,
           paste(
@@ -155,7 +157,7 @@ check_data_types <- function(barefile, quotedfile) {
           NULL
         ),
         Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error")) %>%
-      filter(!is.na(Issue)) %>%
+      filter(Issue != "nothing") %>%
       select(Issue, Type, Guidance)
     
     rbind(x, y)
@@ -420,7 +422,7 @@ disabling_condition_invalid <- Enrollment %>%
     Issue = if_else(
       !DisablingCondition %in% c(yes_no_enhanced),
       "Invalid Disabling Condition",
-      NULL
+      "nothing"
     ),
     Type = "Error",
     Guidance = paste(
@@ -429,7 +431,7 @@ disabling_condition_invalid <- Enrollment %>%
       "has an invalid value in the DisablingCondition column"
     )
   ) %>%
-  filter(!is.na(Issue)) %>%
+  filter(Issue != "nothing") %>%
   select(Issue, Type, Guidance) %>%
   unique()
 
@@ -492,6 +494,8 @@ move_in_date_invalid <- Enrollment %>%
   ) %>%
   filter(Issue != "Nothing") %>%
   select(Issue, Type, Guidance) %>%
+  
+  
   unique()
 
 integrity_enrollment <-
