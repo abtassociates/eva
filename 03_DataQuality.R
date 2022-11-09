@@ -122,6 +122,7 @@ vars_prep <- c(
   "HouseholdID",
   "PersonalID",
   "OrganizationName",
+  "ProjectID",
   "ProjectName",
   "ProjectType",
   "EntryDate",
@@ -2424,8 +2425,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Controls what is shown in the Organization-Level DQ tab ------------------------
    
    dq_w_ids <- dq_main %>%
-     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName") %>%
-     left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
+     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName")
+     # left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
      
 
 # Plots for System-Level DQ Tab -------------------------------------------

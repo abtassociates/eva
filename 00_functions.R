@@ -203,8 +203,10 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
                   "Issue" = "Issue",
                   "Personal ID" = "PersonalID",
                   "Household ID" = "HouseholdID",
-                  "Entry Date"= "EntryDate")
-  
+                  "Entry Date"= "EntryDate",
+                  "Organization Name" = "OrganizationName",
+                  "Project ID" = "ProjectID")
+
   high_priority <- dqData %>% 
     filter(Type == "High Priority") %>% 
     select(all_of(select_list))
