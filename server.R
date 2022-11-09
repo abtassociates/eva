@@ -539,20 +539,20 @@ function(input, output, session) {
     })
     
     fullDQReportDataList <- reactive({
-      req(values$imported_zip)
+      req(valid_file() == 1)
       
       getDQReportDataList(dq_main_reactive(), dq_overlaps)
     })
     
-    # output$downloadOrgDQReport <- downloadHandler(
-    #   filename = function() {
-    #     paste("Organization Data Quality Report-", 
-    #           Sys.Date(),
-    #           ".xlsx",
-    #           sep = "")
-    #   },
-    #   content = function(file) {write_xlsx(orgDQReportDataList(), path = file)}
-    # )
+    output$downloadOrgDQReport <- downloadHandler(
+      filename = function() {
+        paste("Organization Data Quality Report-",
+              Sys.Date(),
+              ".xlsx",
+              sep = "")
+      },
+      content = function(file) {write_xlsx(orgDQReportDataList(), path = file)}
+    )
     
 # 
 #     output$cocOverlap <- DT::renderDataTable({
