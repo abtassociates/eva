@@ -747,7 +747,8 @@ function(input, output, session) {
                  color = "#063a89",
                  fill = "#063a89") +
         coord_flip() +
-        labs(x = "",
+        labs(title = "Projects with the Most High Priority Errors",
+             x = "",
              y = "Number of Clients with High Priority Errors") +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
@@ -777,7 +778,8 @@ function(input, output, session) {
                  color = "#063A89",
                  fill = "#063a89") +
         coord_flip() +
-        labs(x = "",
+        labs(title = "Most Common High Priority Errors",
+             x = "",
              y = "Number of Clients with High Piority Errors") +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
@@ -812,7 +814,8 @@ function(input, output, session) {
                  color = "#063a89",
                  fill = "#063a89") +
         coord_flip() +
-        labs(x = "",
+        labs(title = "Projects with the Most General Errors",
+             x = "",
              y = "Number of Clients with General Errors") +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
@@ -841,7 +844,8 @@ function(input, output, session) {
                  color = "#063A89",
                  fill = "#063a89") +
         coord_flip() +
-        labs(x = "",
+        labs(title = "Most Common General Errors",
+             x = "",
              y = "Number of Clients with General Errors") +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
@@ -874,7 +878,8 @@ function(input, output, session) {
                  color = "#063a89",
                  fill = "#063A89") +
         coord_flip() +
-        labs(x = "",
+        labs(title = "Projects with the Most Warnings",
+             x = "",
              y = "Number of Clients with Warnings") +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
@@ -903,7 +908,8 @@ function(input, output, session) {
                  color = "#063A89",
                  fill = "#063A89") +
         coord_flip() +
-        labs(x = "",
+        labs(title = "Most Common Warnings",
+             x = "",
              y = "Number of Clients with Warnings") +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
