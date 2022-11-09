@@ -1489,23 +1489,6 @@ psh_overlaps <- served_in_date_range %>%
   filter(Overlap == TRUE) %>%
   select(all_of(vars_we_want), PreviousProject)
 
-dq_overlaps <- staging_overlaps %>%
-  mutate(
-    PreviousStay = interval(PreviousEntryAdjust, PreviousExitAdjust),
-    Overlap = int_overlaps(LiterallyInProject, PreviousStay)
-  ) %>%
-  filter(Overlap == TRUE) %>%
-  select(all_of(vars_we_want), PreviousProject)
-
-dq_overlaps <-
-  rbind(dq_overlaps, rrh_overlaps, psh_overlaps, same_day_overlaps) %>%
-  unique()
-
-rm(staging_overlaps,
-   same_day_overlaps,
-   rrh_overlaps,
-   psh_overlaps)
-
 # Missing Health Ins ------------------------------------------------------
 
 missing_health_insurance_entry <- served_in_date_range %>%
