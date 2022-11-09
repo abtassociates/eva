@@ -44,6 +44,7 @@ function(input, output, session) {
     if (hashed == FALSE) {
       # clear imported
       valid_file(0)
+      reset("imported")
       showModal(
         modalDialog(
           title = "You uploaded the wrong data set",
@@ -78,6 +79,7 @@ function(input, output, session) {
           setProgress(detail = "Done!", value = 1)
         } else{ # if structural issues were found, reset gracefully
         valid_file(0)
+        reset("imported")
         showModal(
           modalDialog(
             title = "Your HMIS CSV Export is not structurally valid",
