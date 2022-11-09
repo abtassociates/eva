@@ -281,8 +281,16 @@ dashboardPage(
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
-          HTML("")
-        )), 
+          HTML("
+               <h4>Project Descriptor Data Element (PDDE) Check Summary</h4>
+               <p>Once you have successfully uploaded a zip file, you will find
+               a summary of each issue that was flagged in your data regarding
+               your PDDEs. Please download the details by clicking the \'Download\'
+               button.</p>
+               <h4>Guidance</h4>
+               <p>For a description of each issue found, check the Guidance 
+               panel.</p>")
+        )),
         fluidRow(
           box(
             id = "PDDESummaryOrganization",
@@ -293,7 +301,10 @@ dashboardPage(
             width = 12,
             br(),
             uiOutput("downloadPDDEReportButton")
-          )
+          ),
+          box(title = "Guidance",
+              width = 12,
+              HTML("coming soon"))
         )
       ),
       tabItem(
@@ -304,7 +315,43 @@ dashboardPage(
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
-          HTML("")
+          HTML("
+               <h4>Client Counts Report</h4>
+               <p>The Client Counts Report serves as a way to check that a
+               project is up to date on their HMIS data entry. Projects can
+               check that the number of households/clients who are currently in
+               the project aligns with what they know about who they are serving.
+               Permanent housing projects can check that the number of households/
+               clients who have not yet moved into housing is correct. It can
+               be run to show the current status of their data entry or the
+               HMIS Lead may wish to edit the Date Range to cover a larger
+               time frame.</p>
+               <h4>Inputs</h4>
+               <p>HMIS Leads may select a single project from the drop list. The
+               Date Range defaults to display \'current\' enrollments only, but
+               users are encouraged to edit the Date Range as desired to see
+               metrics such as how many clients/households exited with and 
+               without a Move-In Date, how many exited during the time period.</p>
+               <h4>Summary</h4>
+               <p>Check here for a count of households or clients who have statuses
+               of the following:
+               <ul>
+               <li>Currently Awaiting Housing</li>
+               <li>Currently Moved In</li>
+               <li>Exited No Move-In</li>
+               <li>Exited With Move-In</li>
+               <li>Currently in Project</li>
+               <li>Exited Project</li>
+               </ul>
+               <h4>Client Counts Detail</h4>
+               <p>In this panel, HMIS Leads can search in any column. You will see
+               the Personal ID, Relationship to HoH, Entry Date, Move-In Date, 
+               Exit Date, and the Status for each client. The rows are ordered by
+               Entry Date (oldest on top), Household ID (not visible), and
+               Personal ID. This enables users to see the oldest enrollments first.
+               To find all enrollments with a Status of \'Currently Awaiting
+               Housing\' for example, you can type \'wait\' in the Status search bar
+               and the data table will react and filter in that way.")
         )), 
         fluidRow(box(
           pickerInput(
@@ -340,7 +387,8 @@ dashboardPage(
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
-          HTML("")
+          HTML("
+               <h4></h4>")
         )), 
         fluidRow(box(
           pickerInput(
