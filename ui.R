@@ -442,15 +442,6 @@ dashboardPage(
         )),
         fluidRow(
           box(
-            plotOutput("systemDQErrorTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common General Errors",
-            HTML("")
-          )), 
-        fluidRow(
-          box(
             plotOutput("systemDQHighPriorityErrorTypes"),
             width = 6,
             solidHeader = TRUE,
