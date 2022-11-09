@@ -2323,7 +2323,6 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       dq_ethnicity,
       dq_gender,
       dq_name,
-      dq_overlaps %>% select(-PreviousProject),
       dq_race,
       dq_ssn,
       dq_veteran,
