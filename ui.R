@@ -388,7 +388,109 @@ dashboardPage(
           collapsible = TRUE,
           collapsed = TRUE,
           HTML("
-               <h4></h4>")
+               <h4>Data Quality at the Organization Level</h4>
+               <p>Below, select the Organization whose data quality you would
+               like to check. The data shown will reflect the date range that
+               you used to run your HUD CSV Export. It will show data quality
+               metrics from all Projects that are associated with that
+               Organization.</p>
+               <p>HMIS Leads can click the Download button in order to get an
+               Excel workbook with the selected Organization's data quality
+               errors. You can send these to any users at the selected Organization
+               so they can work on correcting their data. Feel free to modify, 
+               add, or remove anything as you see fit. For example, you may want 
+               your users to only address High Priority issues right now. You can
+               easily remove any tabs that may distract your users from that goal.
+               Please note that Overlaps will be shown in the 'Warnings' tab and
+               again in the 'Overlap Detail' tab of the download. This is so
+               that your users have enough detail to track down that issue.</p>
+               <h4>Some definitions:</h4>
+               <p>This app categorizes every issue it finds in your data set in
+               terms of its severity.</p>
+               <ul>
+               <li>High Priority Errors
+                <ul>
+                  <li> Always indicates a data quality issue that can and should
+                      be fixed in HMIS.</li>
+                  <li> Aim for 0 High Priority errors.</li>
+                  <li> These errors affect multiple federal reports in a
+                      fundamental way and thus should be prioritized.</li>
+                </ul></li>
+               <li>General Errors
+                <ul>
+                  <li> Always indicates a data quality issue that can and should
+                      be fixed in HMIS.</li>
+                  <li> Aim for 0 General Errors.
+                </ul></li>
+               <li>Warnings
+                <ul>
+                  <li> May be a data quality issue, but may also be an unexpected
+                      situation that reflects reality.</li>
+                  <li> Do not aim for 0 Warnings. It is ok and expected to have
+                      some warnings.</li>
+                  <li> End users should check that any data being flagged as a
+                      Warning is accurate in their HMIS. If it is not accurate,
+                      then it should be corrected. If it is accurate, it should
+                      be left as is.</li>
+                </ul></li>
+               </ul>
+               <p>Regardless of an issue's categorization, <b>users should never
+               edit data that accurately reflects reality</b>.
+
+               <h4>Most Common High Priority Errors Plot</h4>
+               <p>Which High Priority Errors are most common across all
+               the projects under the selected Organization? This plot will only
+               show the top 10 High Priority Errors. This can be useful in
+               planning targeted HMIS training efforts.</p>
+               
+               <h4>Projects with the Most High Priority Errors</h4>
+               <p>Within the selected Organization, which Projects are making the
+               highest number of High Priority Errors? This plot will only show the
+               top 10 projects' High Priority Error counts.</p>
+               
+               <h4>Most Common General Errors</h4>
+               <p>Which General Errors are most common across all the projects
+               under the selected Organization? This plot will only show the top
+               10 General Errors. This can be useful in planning targeted HMIS
+               training efforts.</p>
+               
+               <h4>Projects with the Most General Errors</h4>
+               <p>Within the selected Organization, which Projects are making the
+               highest number of General Errors? This plot will only show the
+               top 10 projects' General Error counts.</p>
+               
+               <h4>Most Common Warnings</h4>
+               <p>Which Warnings are most common across all the
+               projects under the selected Organization? This plot will only show
+               the top 10 Warnings. This can be useful in planning targeted HMIS
+               training efforts.</p>
+               
+               <h4>Projects with the Most Warnings</h4>
+               <p>Within the selected Organization, which Projects are flagged
+               with the highest number of Warnings? This plot will only show the
+               top 10 projects' Warning counts.</p>
+               
+               <h4>Data Quality Summary</h4>
+               <p>In this panel, Leads can see which projects within the selected
+               Organization have how many of what types of issues. Where the plots
+               only list the top 10 for each error type, this data displays ALL
+               Warnings, General Errors, and High Priority Errors for all Projects
+               within the Organization. At the top of each column the Lead may
+               type in any part of a word and the data will filter for you. Some
+               examples of how this might be used:
+               <ul><li> Filter all projects in the Organization that have household
+               issues. [Type 'hou' in the Issue column's search box.]</li>
+               <li> Find all Warnings for Project 'Homeward Bound - ES'. [Type
+               'homew' in the Project Name column and 'war' in the Type column.]
+               </li></ul>
+               </p>
+               
+               <h4>Data Quality Guidance</h4>
+               <p>This panel lists each High Priority Error, General Error, and
+               Warning represented in the selected Organization's data along with
+               descriptions for each issue that include why the data is being
+               flagged. It is ordered by the Type of issue and the name of the
+               Issue. Leads may also search this data by column.</p>")
         )), 
         fluidRow(box(
           pickerInput(
