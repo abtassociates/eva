@@ -1463,31 +1463,20 @@ rm(staging_overlaps,
    psh_overlaps)
 
 # Invalid Move-in Date ----------------------------------------------------
-movein_before_start <- served_in_date_range %>%
-  select(all_of(vars_we_want), EntryDate)
-  filter(ProjectType %in% c(3, 9, 10, 13))
-  mutate(
-    Issue = case_when(
-      MoveInDate < EntryDate ~ 
-        "Move-In Date Before Start Date"
-    ),
-    Type = case_when(
-      Issue == "Move-In Date Before Start Date" ~ "Error"
-    ),
-    Guidance = (Type == "Error") ~ "Fix Me")
 
-movein_after_start <- served_in_date_range %>%
-    select(all_of(vars_we_want), ExitDate)
-  filter(ProjectType %in% c(3, 9, 10, 13))
+invalid_movein_date <- served_in_date_range %>%
+  filter(ProjectType %in% c(3, 9, 10, 13)) %>%
   mutate(
     Issue = case_when(
-      MoveInDate > ExitDate ~ 
-        "Move-In Date After Exit Date"
+      (!is.na(MoveInDate) & MoveInDate < EntryDate) | 
+      (!is.na(MoveInDate) & MoveInDate > ExitAdjust) ~ 
+        "Invalid Move-In Date"
     ),
-    Type = case_when(
-      Issue == "Move-In Date After Exit Date" ~ "Error"
-    ),
-    Guidance = (Type == "Error") ~ "Fix Me")
+    Type = "Error",
+    Guidance = "This move-in date does not fall between the Entry Date 
+    and the Exit Date or this move-in date is after the date of the export.") %>%
+  filter(Issue == "Invalid Move-In Date") %>%
+  select(all_of(vars_we_want))
 
 # Missing Health Ins ------------------------------------------------------
 
@@ -2334,6 +2323,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       hh_issues,
       # incorrect_path_contact_date,
       invalid_months_times_homeless,
+      invalid_movein_date,
       # lh_without_spdat,
       #maybe_psh_destination,
       # maybe_rrh_destination,
