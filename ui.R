@@ -442,14 +442,14 @@ dashboardPage(
         )),
         fluidRow(
           box(
-            plotOutput("systemDQHighPriorityErrorTypes"),
+            uiOutput("systemDQHighPriorityErrorTypes_ui"),
             width = 6,
             solidHeader = TRUE,
             status = NULL,
             title = "Most Common High Priority Errors"
           ),
           box(
-            plotOutput("systemDQHighPriorityErrors"),
+            uiOutput("systemDQHighPriorityErrors_ui"),
             width = 6,
             solidHeader = TRUE,
             status = NULL,
