@@ -34,7 +34,8 @@ function(input, output, session) {
     Client <- importFile("Client",
                          col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
     # decide if the export is hashed
-    hashed <-  # TRUE
+    hashed <-  
+      # TRUE
       Export$HashStatus == 4 &
        min(nchar(Client$FirstName), na.rm = TRUE) ==
        max(nchar(Client$FirstName), na.rm = TRUE)
