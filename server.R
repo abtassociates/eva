@@ -23,7 +23,6 @@ function(input, output, session) {
   })
   
   valid_file <- reactiveVal(0)
-  # valid_file(0)
 
   observeEvent(input$imported, {
     
@@ -66,6 +65,7 @@ function(input, output, session) {
         source("00_integrity_checker.R", local = TRUE)
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
+          valid_file(1)
           setProgress(detail = "Prepping initial data..", value = .4)
           source("00_initial_data_prep.R", local = TRUE)
           source("00_dates.R", local = TRUE)
@@ -518,7 +518,7 @@ function(input, output, session) {
     #### DQ ORG REPORT #### ----------------------
     # button
     output$downloadOrgDQReportButton  <- renderUI({
-      if (!is.null(input$imported)) {
+      if (valid_file() == 1) {
         downloadButton(outputId = "downloadOrgDQReport",
                        label = "Download")
       }
