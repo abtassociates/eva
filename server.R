@@ -578,30 +578,96 @@ function(input, output, session) {
     # 
     # })
  
+    #SYSTEM-LEVEL TAB PLOTS
+    #Validate for "empty" system-level plots
+    output$dq_hp_errors_null_system <- renderUI({
+      if (nrow(dq_data_high_priority_error_types_org_level) == 0)
+        print("Good work! There are no high priority errors to show.")
+    })
+    
+    output$dq_general_errors_null_system <- renderUI({
+      if (nrow(dq_data_error_types_org_level) == 0)
+        print("Good work! There are no general errors to show.")
+    })
+    
+    output$dq_warnings_null_system <- renderUI({
+      if (nrow(dq_data_warning_types_org_level) == 0)
+        print("Good work! There are no warnings to show.")
+    })
+    
+    #Controls system-level plot heights reactively
+    plotHeight_hp_errors_system <- reactive({
+      if (nrow(dq_data_high_priority_error_types_org_level) == 0)
+      {plotHeight_hp_errors = 50}
+      else {plotHeight_hp_errors = 400}
+    })
+    
+    plotHeight_general_errors_system <- reactive({
+      if (nrow(dq_data_error_types_org_level) == 0)
+      {plotHeight_general_errors = 50}
+      else {plotHeight_general_errors = 400}
+    })
+    
+    plotHeight_warnings_system <- reactive({
+      if (nrow(dq_data_warning_types_org_level) == 0)
+      {plotHeight_warnings = 50}
+      else {plotHeight_warnings = 400}
+    })
+    
     #System-Level tab plots
-       
+    #High Priority Errors
     output$systemDQHighPriorityErrors <- renderPlot({
-      req(valid_file() == 1)
+      req(valid_file() == 1,
+          nrow(dq_data_high_priority_errors_org_level_plot) > 0)
+      
       dq_plot_organizations_high_priority_errors})
     
+    output$systemDQHighPriorityErrors_ui <- renderUI({
+      plotOutput("systemDQHighPriorityErrors", height = plotHeight_hp_errors_system())
+    })
+    
     output$systemDQHighPriorityErrorTypes <- renderPlot({
-      req(valid_file() == 1)
+      req(valid_file() == 1,
+          nrow(dq_data_high_priority_error_types_org_level) >0)
+      
       dq_plot_high_priority_errors_org_level})
     
+    output$systemDQHighPriorityErrorTypes_ui <- renderUI({
+      plotOutput("systemDQHighPriorityErrorTypes", height = plotHeight_hp_errors_system())
+    })
+    
+    #General Errors
     output$systemDQErrors <- renderPlot({
-      req(valid_file() == 1)
+      req(valid_file() == 1,
+          nrow(dq_data_errors_org_level_plot) > 0)
       dq_plot_organizations_errors})
     
+    output$systemDQErrors_ui <- renderUI({
+      plotOutput("systemDQErrors", height = plotHeight_general_errors_system())
+    })
+    
     output$systemDQErrorTypes <- renderPlot({
-      req(valid_file() == 1)
+      req(valid_file() == 1,
+          nrow(dq_data_error_types_org_level) > 0)
+      
       dq_plot_errors_org_level})
-
+    
+    output$systemDQErrorTypes_ui <- renderUI({
+      plotOutput("systemDQErrorTypes", height = plotHeight_general_errors_system())
+    })
+    
+    
+    #Warnings
     output$systemDQWarnings <- renderPlot({
-      req(valid_file() == 1)
+      req(valid_file() == 1,
+          nrow(dq_data_warnings_org_level_plot) > 0)
+      
       dq_plot_organizations_warnings})
     
-    output$systemDQWarningTypes <- renderPlot({
-      req(valid_file() == 1)
+    output$systemDQWarningTypes <- renderPlot(height = plotHeight_warnings_system(), {
+      req(valid_file() == 1,
+          nrow(dq_data_warning_types_org_level) > 0)
+      
       dq_plot_warnings_org_level})
     
     #Org-Level Tab Plots
