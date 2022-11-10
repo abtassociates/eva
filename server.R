@@ -14,14 +14,6 @@
 
 function(input, output, session) {
 
-  observeEvent(input$imported,{
-    req(valid_file() == 1)
-    
-    updateSelectInput(session, "orgList",
-                      choices = c(Organization$OrganizationName %>%
-                                    unique() %>% sort()))
-  })
-  
   valid_file <- reactiveVal(0)
   # valid_file(0)
 
