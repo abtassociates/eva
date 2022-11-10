@@ -129,7 +129,7 @@ function(input, output, session) {
       })
     
     output$downloadIntegrityBtn <- renderUI({
-      req(valid_file() == 1)
+      req(hashed == 1)
       downloadButton("downloadIntegrityCheck", "Download Integrity Check Detail")
     })  
     
