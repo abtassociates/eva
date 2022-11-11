@@ -198,3 +198,74 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
 }
 
 
+getDQReportDataList <- function(dqData, dqOverlaps) {
+  select_list = c("Project Name" = "ProjectName",
+                  "Issue" = "Issue",
+                  "Personal ID" = "PersonalID",
+                  "Household ID" = "HouseholdID",
+                  "Entry Date"= "EntryDate",
+                  "Organization Name" = "OrganizationName",
+                  "Project ID" = "ProjectID")
+
+  high_priority <- dqData %>% 
+    filter(Type == "High Priority") %>% 
+    select(all_of(select_list))
+  
+  errors <- dqData %>%
+    filter(Type == "Error") %>% 
+    select(all_of(select_list))
+  
+  warnings <- dqData %>%
+    filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
+    select(all_of(select_list))
+  
+  overlaps <- dqOverlaps %>%
+    filter(Issue %in% list("Overlapping Project Stays")) %>%
+    select(all_of(select_list), 
+           "Move-In Date" = MoveInDateAdjust,
+           "Exit Date" = ExitDate,
+           "Overlaps With This Provider's Stay" = PreviousProject
+    )
+  
+  summary <- dqData %>% 
+    select(ProjectName, Type, Issue, PersonalID) %>%
+    group_by(ProjectName, Type, Issue) %>%
+    summarise(Clients = n()) %>%
+    select(Type, Clients, ProjectName, Issue) %>%
+    arrange(Type, desc(Clients))
+  
+  guidance <- dqData %>%
+    select(Type, Issue, Guidance) %>%
+    unique() %>%
+    mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
+    arrange(Type)
+  
+  exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
+                           c(meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End, meta_HUDCSV_Export_Date))
+  colnames(exportDetail) = c("Export Field", "Value")
+  
+  exportDFList <- list(
+    exportDetail = exportDetail,
+    summary = summary,
+    guidance = guidance,
+    high_priority = high_priority,
+    errors = errors,
+    warnings = warnings,
+    overlaps = overlaps
+  )
+  
+  names(exportDFList) = c(
+    "Export Detail",
+    "Summary",
+    "Guidance",
+    "High Priority",
+    "Errors", 
+    "Warnings", 
+    "Overlaps Detail"
+  )
+  
+  exportDFList <- exportDFList[sapply(exportDFList, 
+                                      function(x) dim(x)[1]) > 0]
+  
+  return(exportDFList)
+}
