@@ -320,7 +320,8 @@ dashboardPage(
         
         fluidRow(
           column(6,
-                 uiOutput("orgDQHighPriorityErrorTypes_ui")),
+                 uiOutput("orgDQHighPriorityErrorTypes_ui"),
+                 br()),
           column(6,
                  uiOutput("orgDQHighPriorityErrors_ui"))
           
@@ -331,7 +332,8 @@ dashboardPage(
         
         fluidRow(
           column(6,
-                 uiOutput("orgDQErrorTypes_ui")),
+                 uiOutput("orgDQErrorTypes_ui"),
+                 br()),
           column(6,
                  uiOutput("orgDQErrors_ui")) 
         ),
@@ -341,7 +343,8 @@ dashboardPage(
         
         fluidRow(
           column(6,
-                 uiOutput("orgDQWarningTypes_ui")),
+                 uiOutput("orgDQWarningTypes_ui"),
+                 br()),
           column(6,
                  uiOutput("orgDQWarnings_ui"))
         ),
