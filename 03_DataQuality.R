@@ -53,7 +53,7 @@ projects_current_hmis <- Project %>%
 
 # Clients to Check --------------------------------------------------------
 served_in_date_range <- Enrollment %>%
-  filter(served_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
+  # filter(served_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
   select(
@@ -122,6 +122,7 @@ vars_prep <- c(
   "HouseholdID",
   "PersonalID",
   "OrganizationName",
+  "ProjectID",
   "ProjectName",
   "ProjectType",
   "EntryDate",
@@ -159,7 +160,7 @@ dq_dob <- served_in_date_range %>%
     Issue = case_when(
       is.na(DOB) & DOBDataQuality %in% c(1, 2) ~ "Missing DOB",
       DOBDataQuality == 99 ~ "Missing Date of Birth Data Quality",
-      DOBDataQuality %in% c(2, 8, 9) ~ "Don't Know/Refused or Approx. Date of Birth",
+      DOBDataQuality %in% c(8, 9) ~ "Don't Know/Refused or Approx. Date of Birth",
       AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect Date of Birth or Entry Date"
     ),
     Type = case_when(
@@ -698,9 +699,10 @@ missing_disabilities <- detail_missing_disabilities %>%
 
 th_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) %>%
   filter(is.na(ExitDate) &
-           ProjectType == 2)
+           ProjectType == 2) %>%
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate)))
+# using Export Date here to reflect the date the export was run on
 
 Top2_TH <- subset(th_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
@@ -708,7 +710,7 @@ rrh_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
            ProjectType == 13) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) 
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
 
 Top2_RRH <- subset(rrh_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
@@ -716,15 +718,15 @@ es_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
            ProjectType == 1) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) 
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
 
 Top2_ES <- subset(es_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
 psh_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
-           ProjectType == 3) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) 
+           ProjectType %in% c(3, 9, 10)) %>%
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
 
 Top1_PSH <- subset(psh_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
 
@@ -732,19 +734,35 @@ hp_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
            ProjectType == 12) %>%
-  mutate(Days = as.numeric(difftime(today(), EntryDate))) 
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
 
-Top5_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 5 / 100))
+Top2_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+
+ce_stayers <- served_in_date_range %>%
+  select(all_of(vars_prep), ProjectID) %>%
+  filter(is.na(ExitDate) &
+           ProjectType == 14) %>%
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
+
+Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
 extremely_long_stayers <- rbind(Top1_PSH,
                                 Top2_ES,
                                 Top2_RRH,
                                 Top2_TH,
-                                Top5_HP) %>%
+                                Top2_HP,
+                                Top2_CE) %>%
   mutate(
-    Issue = "Extremely Long Stayer",
+    Issue = "Possible Missed Exit Date",
     Type = "Warning",
-    Guidance = "Fix Me"
+    Guidance = paste("This enrollment is in the top",
+                     case_when(ProjectType %in% c(3, 9, 10) ~ "1%",
+                               TRUE ~ "2%"),
+                     "of all other projects of its type in your HMIS system for
+                     how many days it has been active. Please be sure this
+                     household is still actively enrolled in this project and if
+                     not, record the date they exited your project as the Exit
+                     Date. If they are actively enrolled, do not change the data.")
   ) %>% 
   select(all_of(vars_we_want))
 
@@ -755,6 +773,31 @@ rm(list = ls(pattern = "Top*"),
    rrh_stayers,
    hp_stayers)
 
+
+# Non-Residential Long Stayers --------------------------------------------
+
+calculate_long_stayers <- function(input, projecttype){
+
+  served_in_date_range %>%
+    select(all_of(vars_prep), ProjectID) %>%
+    mutate(
+      Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate)),
+      Issue = "Days Enrollment Active Exceeds CoC-specific Settings",
+      Type = "Warning",
+      Guidance = "You have at least one active enrollment that has been
+         active for longer than the days set for this Project Type in your
+         CoC-specific Settings on the Upload CSV tab."
+    ) %>%
+    filter(is.na(ExitDate) &
+             ProjectType == projecttype &
+             input < Days) %>% 
+    select(all_of(vars_we_want))
+  
+}
+
+
+
+# can't do further logic with this because it needs to be reactive
 
 # Incorrect Destination ---------------------------------------------------
 
@@ -1133,7 +1176,7 @@ destination_sh <- served_in_date_range %>%
 duplicate_ees <-
   get_dupes(served_in_date_range, PersonalID, ProjectID, EntryDate) %>%
   mutate(
-    Issue = "Duplicate Entry Exits",
+    Issue = "Duplicate Entries",
     Type = "High Priority",
     Guidance = "A client cannot have two enrollments with the same entry date
     into the same project. These are duplicate enrollment records. Please 
@@ -1163,7 +1206,8 @@ future_ees <- served_in_date_range %>%
   select(all_of(vars_we_want))
 
 future_exits <- served_in_date_range %>%
-  filter(ExitDate > today()) %>%
+  left_join(Exit %>% select(EnrollmentID, "ExitDateCreated" = DateCreated)) %>%
+  filter(ExitDate > ExitDateCreated) %>%
   mutate(
     Issue = "Future Exit Date",
     Type = "Error",
@@ -2293,7 +2337,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     # All together now --------------------------------------------------------
     
     dq_main <- rbind(
-      #check_disability_ssi,
+      # check_disability_ssi,
       # check_eligibility,
       # conflicting_disabilities,
       conflicting_health_insurance_entry,
@@ -2312,7 +2356,6 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       dq_ethnicity,
       dq_gender,
       dq_name,
-      dq_overlaps %>% select(-PreviousProject),
       dq_race,
       dq_ssn,
       dq_veteran,
@@ -2380,37 +2423,13 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
   mutate(Type = factor(Type, levels = c("High Priority",
                                         "Error",
                                         "Warning")))
-
-    # filtering out AP errors that are irrlevant to APs
-    
-    dq_main <- dq_main %>%
-      filter(ProjectType != 14 |
-               (
-                 ProjectType == 14 &
-                   Issue %in% c(
-                     "60 Days in Mahoning Coordinated Entry",
-                     "Access Point with Entry Exits",
-                     "Missing Date of Birth Data Quality",
-                     "Don't Know/Refused or Approx. Date of Birth",
-                     "Missing DOB",
-                     "Missing Name Data Quality",
-                     "Incomplete or Don't Know/Refused Name",
-                     "Rent Payment Made, No Move-In Date",
-                     "Invalid SSN",
-                     "Don't Know/Refused SSN",
-                     "Missing SSN",
-                     "Missing Veteran Status",
-                     "Don't Know/Refused Veteran Status",
-                     "Missing County Served"
-                   )
-               ))
     
     # Controls what is shown in the CoC-wide DQ tab ---------------------------
     
     # for CoC-wide DQ tab
 
-    dq_w_project_names <- dq_main %>%
-      left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
+    # dq_w_project_names <- dq_main %>%
+    #   left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
     
    dq_providers <- sort(projects_current_hmis$ProjectName)
    
@@ -2422,8 +2441,9 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Controls what is shown in the Organization-Level DQ tab ------------------------
    
    dq_w_ids <- dq_main %>%
-     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName") %>%
-     left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
+     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName")
+     # left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
+     
 
 # Plots for System-Level DQ Tab -------------------------------------------
    
@@ -2465,6 +2485,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
           y = "Number of Clients with High Priority Errors") +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2494,6 +2515,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
           y = "Number of Clients with High Piority Errors") +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2539,6 +2561,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
           y = "Number of Clients with General Errors") +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2568,6 +2591,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
           y = "Number of Clients with General Errors") +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2601,6 +2625,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
           y = "Number of Clients with Warnings") +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2630,11 +2655,71 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
           y = "Number of Clients with Warnings") +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
            panel.grid.major = element_blank()) +
      geom_text(aes(label = Warnings), hjust = -0.5, color = "black")
+   
+# Prepping dataframes for plots for Organization-Level DQ Tab -----------------
+   
+   # Top projects with Errors - High Priority
+   dq_data_high_priority_errors_top_projects_df <- dq_w_ids %>%
+     filter(Type %in% c("High Priority")) %>%
+     select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
+     unique() %>%
+     group_by(OrganizationName, ProjectName, ProjectID) %>%
+     summarise(clientsWithErrors = n()) %>%
+     ungroup() %>%
+     arrange(desc(clientsWithErrors))
+   
+      # Most common high priority errors org-wide
+   
+   dq_data_high_priority_error_types_org_df <- dq_w_ids %>%
+     filter(Type %in% c("High Priority")) %>%
+     group_by(OrganizationName, Issue) %>%
+     summarise(Errors = n()) %>%
+     ungroup() %>%
+     arrange(desc(Errors))
+   
+      # Top projects with Errors - General
+   
+   dq_data_errors_top_projects_df <- dq_w_ids %>%
+     filter(Type %in% c("Error")) %>%
+     select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
+     unique() %>%
+     group_by(OrganizationName, ProjectName, ProjectID) %>%
+     summarise(clientsWithErrors = n()) %>%
+     ungroup() %>%
+     arrange(desc(clientsWithErrors))
+   
+      # Most common general errors org-wide
+   
+   dq_data_error_types_org_df <- dq_w_ids %>%
+     filter(Type %in% c("Error")) %>%
+     group_by(OrganizationName, Issue) %>%
+     summarise(Errors = n()) %>%
+     ungroup() %>%
+     arrange(desc(Errors))
+   
+      #Top projects with warnings
+   
+   dq_data_warnings_top_projects_df <- dq_w_ids %>%
+     filter(Type == "Warning") %>%
+     group_by(OrganizationName, ProjectName, ProjectID) %>%
+     summarise(Warnings = n()) %>%
+     ungroup() %>%
+     arrange(desc(Warnings))
+   
+      #Most common warnings org-wide
+   
+   dq_data_warning_types_org_df <- dq_w_ids %>%
+     filter(Type == "Warning") %>%
+     group_by(OrganizationName, Issue) %>%
+     summarise(Warnings = n()) %>%
+     ungroup() %>%
+     arrange(desc(Warnings))
    
 # # Plots -------------------------------------------------------------------
 #     

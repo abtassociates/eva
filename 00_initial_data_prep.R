@@ -1,89 +1,45 @@
+
 Project <- Project %>%
   left_join(Organization %>%
               select(OrganizationID, OrganizationName),
-            by = "OrganizationID")
+            by = "OrganizationID") %>%
+  mutate(ProjectType = if_else(
+    ProjectType == 1 & TrackingMethod == 3, 0, ProjectType
+  ))
 
-# Client ------------------------------------------------------------------
-# Client <- Client %>%
-  # mutate(
-    # FirstName = case_when(
-    #   NameDataQuality %in% c(8, 9) ~ "DKR",
-    #   NameDataQuality == 2 ~ "Partial",
-    #   NameDataQuality == 99 |
-    #     is.na(NameDataQuality) |
-    #     FirstName == "Anonymous" ~ "Missing",
-    #   !(
-    #     NameDataQuality %in% c(2, 8, 9, 99) |
-    #       is.na(NameDataQuality) |
-    #       FirstName == "Anonymous"
-    #   ) ~ "ok"
-    # ),
-    # LastName = NULL,
-    # MiddleName = NULL,
-    # NameSuffix = NULL,
-    # SSN = case_when(
-    #   (is.na(SSN) & !SSNDataQuality %in% c(8, 9)) |
-    #     is.na(SSNDataQuality) | SSNDataQuality == 99 ~ "Missing",
-    #   SSNDataQuality %in% c(8, 9) ~ "DKR",
-    #   (nchar(SSN) != 9 & SSNDataQuality != 2) |
-    #     substr(SSN, 1, 3) %in% c("000", "666") |
-    #     substr(SSN, 1, 1) == 9 |
-    #     substr(SSN, 4, 5) == "00" |
-    #     substr(SSN, 6, 9) == "0000" |
-    #     SSNDataQuality == 2 |
-    #     SSN %in% c(
-    #       111111111,
-    #       222222222,
-    #       333333333,
-    #       444444444,
-    #       555555555,
-    #       777777777,
-    #       888888888,
-    #       123456789
-    #     ) ~ "Invalid",
-    #   SSNDataQuality == 2 & nchar(SSN) != 9 ~ "Incomplete"
-    # ),
-    # PersonalID = as.character(PersonalID)
-  # ) %>%
-  # mutate(SSN = case_when(is.na(SSN) ~ "ok", !is.na(SSN) ~ SSN))
+small_project <- Project %>% select(ProjectID, ProjectType, ProjectName)
 
 # Enrollment --------------------------------------------------------------
-# Enrollment <- Enrollment %>%
-#   mutate(
-#     EntryDate = parseDate(EntryDate),
-#     DateCreated = parseDate(DateCreated),
-#     MoveInDate = parseDate(MoveInDate),
-#     DateToStreetESSH = parseDate(DateToStreetESSH),
-#     PersonalID = as.character(PersonalID)
-#   )
 
 # Adding Exit Data to Enrollment because I'm not tryin to have one-to-one 
 # relationships in this!
-small_exit = Exit %>% select(EnrollmentID, Destination, ExitDate, OtherDestination)
-Enrollment <- left_join(Enrollment, small_exit, by = "EnrollmentID") %>% 
-  mutate(ExitAdjust = if_else(is.na(ExitDate) |
-                                ExitDate > today(),
-                              today(), ExitDate))
+
+Enrollment <- Enrollment %>%
+  left_join(Exit %>% 
+              select(EnrollmentID, Destination, ExitDate, OtherDestination),
+            by = "EnrollmentID") %>% 
+  left_join(small_project, by = "ProjectID") %>%
+  mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_Date))
 
 # Adding ProjectType to Enrollment too bc we need EntryAdjust & MoveInAdjust
-small_project <- Project %>% select(ProjectID, ProjectType, ProjectName) 
 
 # getting HH information
 # only doing this for RRH and PSHs since Move In Date doesn't matter for ES, etc.
 HHMoveIn <- Enrollment %>%
-  left_join(small_project, by = "ProjectID") %>%
-  filter(ProjectType %in% c(3, 9, 13)) %>%
+  filter(ProjectType %in% c(3, 9, 10, 13)) %>%
   mutate(
     AssumedMoveIn = if_else(
       EntryDate < hc_psh_started_collecting_move_in_date &
-        ProjectType %in% c(3, 9),
+        ProjectType %in% c(3, 9, 10),
       1,
       0
     ),
     ValidMoveIn = case_when(
-      AssumedMoveIn == 1 ~ EntryDate,
+      AssumedMoveIn == 1 ~ EntryDate, # overwrites any MID where the Entry is 
+      # prior to the date when PSH had to collect MID with the EntryDate (as
+      # venders were instructed to do in the mapping documentation)
       AssumedMoveIn == 0 &
-        ProjectType %in% c(3, 9) &
+        ProjectType %in% c(3, 9, 10) &
         EntryDate <= MoveInDate &
         ExitAdjust > MoveInDate ~ MoveInDate,
       # the Move-In Dates must fall between the Entry and ExitAdjust to be
@@ -95,13 +51,12 @@ HHMoveIn <- Enrollment %>%
   ) %>%
   filter(!is.na(ValidMoveIn)) %>%
   group_by(HouseholdID) %>%
-  mutate(HHMoveIn = min(ValidMoveIn)) %>%
+  summarise(HHMoveIn = min(ValidMoveIn, na.rm = TRUE)) %>%
   ungroup() %>%
   select(HouseholdID, HHMoveIn) %>%
   unique()
 
 HHEntry <- Enrollment %>%
-  left_join(small_project, by = "ProjectID") %>%
   group_by(HouseholdID) %>%
   mutate(FirstEntry = min(EntryDate)) %>%
   ungroup() %>%
@@ -111,7 +66,6 @@ HHEntry <- Enrollment %>%
 
 
 Enrollment <- Enrollment %>%
-  left_join(small_project, by = "ProjectID") %>%
   left_join(HHEntry, by = "HouseholdID") %>%
   mutate(
     MoveInDateAdjust = if_else(!is.na(HHMoveIn) &
@@ -133,11 +87,12 @@ Enrollment <- Enrollment %>%
   mutate(AgeAtEntry = age_years(DOB, EntryDate)) %>%
   select(-DOB)
 
-# Client Location
+# Adding ClientLocation at Entry to Enrollment
 small_location <- EnrollmentCoC %>%
   filter(DataCollectionStage == 1) %>%
   select(EnrollmentID, "ClientLocation" = CoCCode)  %>%
-  mutate(EnrollmentID = EnrollmentID %>% as.character())
+  mutate(EnrollmentID = as.character(EnrollmentID)) # in case a vendor's datatypes
+# are incorrect
 
 Enrollment <- Enrollment %>%
   left_join(small_location, by = "EnrollmentID")
