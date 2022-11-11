@@ -325,7 +325,7 @@ dashboardPage(
                  uiOutput("orgDQHighPriorityErrors_ui"))
           
         ),
-        
+        br(),
         fluidRow(
           uiOutput("dq_general_errors_null")),
         
@@ -335,7 +335,7 @@ dashboardPage(
           column(6,
                  uiOutput("orgDQErrors_ui")) 
         ),
-        
+        br(),
         fluidRow(
           uiOutput("dq_warnings_null")),
         
@@ -345,7 +345,7 @@ dashboardPage(
           column(6,
                  uiOutput("orgDQWarnings_ui"))
         ),
-        
+        br(),
         fluidRow(
           box(
             id = "DQSummaryOrganization",
