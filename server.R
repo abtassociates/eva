@@ -750,8 +750,10 @@ function(input, output, session) {
         labs(title = "Projects with the Most High Priority Errors",
              x = "",
              y = "Number of Clients with High Priority Errors") +
+        scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
+              axis.text = element_text(size = 12),
               axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
@@ -781,8 +783,10 @@ function(input, output, session) {
         labs(title = "Most Common High Priority Errors",
              x = "",
              y = "Number of Clients with High Piority Errors") +
+        scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
+              axis.text = element_text(size = 12),
               axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
@@ -817,8 +821,10 @@ function(input, output, session) {
         labs(title = "Projects with the Most General Errors",
              x = "",
              y = "Number of Clients with General Errors") +
+        scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
+              axis.text = element_text(size = 12),
               axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
@@ -847,8 +853,10 @@ function(input, output, session) {
         labs(title = "Most Common General Errors",
              x = "",
              y = "Number of Clients with General Errors") +
+        scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
+              axis.text = element_text(size = 12),
               axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
@@ -881,8 +889,10 @@ function(input, output, session) {
         labs(title = "Projects with the Most Warnings",
              x = "",
              y = "Number of Clients with Warnings") +
+        scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
+              axis.text = element_text(size = 12),
               axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
@@ -911,8 +921,10 @@ function(input, output, session) {
         labs(title = "Most Common Warnings",
              x = "",
              y = "Number of Clients with Warnings") +
+        scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
         theme_classic() +
         theme(axis.line = element_line(linetype = "blank"),
+              axis.text = element_text(size = 12),
               axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
