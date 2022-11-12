@@ -89,7 +89,9 @@ check_column_names <- function(file) {
       Guidance =
         paste("The",
               ImportedColumns,
-              "column should be spelled like",
+              "column in the",
+              file,
+              "file should be spelled like",
               CorrectColumns), 
       Type = if_else(CorrectColumns %in% c(high_priority_columns), 
                      "High Priority", "Error"), 
