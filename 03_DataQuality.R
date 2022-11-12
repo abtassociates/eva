@@ -303,7 +303,7 @@ hh_children_only <- served_in_date_range %>%
   ungroup() %>%
   left_join(served_in_date_range, by = c("HouseholdID","maxAge" = "AgeAtEntry")) %>%
   distinct(HouseholdID, maxAge, .keep_all = TRUE) %>%
-  mutate(Issue = "All Children Under 12",
+  mutate(Issue = "Oldest Household Member Under 12",
          Type = "High Priority",
          Guidance = "Unless your project serves youth younger than 12 
          exclusively, every household should have at least one adult in it. If 
