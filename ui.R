@@ -372,7 +372,6 @@ dashboardPage(
           dateRangeInput(
             "dateRangeCount",
             "Date Range",
-            min = NULL, 
             format = "mm/dd/yyyy",
             width = 300
           ),
