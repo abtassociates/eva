@@ -28,23 +28,23 @@ dashboardPage(
                menuSubItem("System-level",
                            tabName = "tabDQSystem"),
                menuSubItem("Organization-level",
-                           tabName = "tabDQOrg")
-               # menuSubItem("Data Entry Timeliness",
-               #             tabName = "tabDeskTime")
-      ),
-      menuItem("System Analysis",
-               menuSubItem("System Flow",
-                           tabName = "tabSystemFlow"),
-               menuSubItem("Outcomes",
-                           tabName = "tabOutcomes"),
-               menuSubItem("Referrals",
-                           tabName = "tabReferrals"),
-               menuSubItem("Assessments",
-                           tabName = "tabAssessments"),
-               menuSubItem("Diversion",
-                           tabName = "tabDiversion"),
-               menuSubItem("Prioritization",
-                           tabName = "tabPrioritized"))
+                           tabName = "tabDQOrg"))
+        # menuSubItem("Data Entry Timeliness", 
+        #             tabName = "tabDeskTime")
+      # ),
+      # menuItem("System Analysis",
+      #          menuSubItem("System Flow",
+      #                      tabName = "tabSystemFlow"),
+      #          menuSubItem("Outcomes",
+      #                      tabName = "tabOutcomes"),
+      #          menuSubItem("Referrals",
+      #                      tabName = "tabReferrals"),
+      #          menuSubItem("Assessments",
+      #                      tabName = "tabAssessments"),
+      #          menuSubItem("Diversion",
+      #                      tabName = "tabDiversion"),
+      #          menuSubItem("Prioritization",
+      #                      tabName = "tabPrioritized"))
     )
   ), 
   dashboardBody(
@@ -514,6 +514,41 @@ dashboardPage(
           uiOutput("downloadOrgDQReportButton"),
           width = 12
         )), 
+        
+        fluidRow(
+          uiOutput("dq_hp_errors_null")),
+        
+        fluidRow(
+          column(6,
+                 uiOutput("orgDQHighPriorityErrorTypes_ui"),
+                 br()),
+          column(6,
+                 uiOutput("orgDQHighPriorityErrors_ui"))
+          
+        ),
+        br(),
+        fluidRow(
+          uiOutput("dq_general_errors_null")),
+        
+        fluidRow(
+          column(6,
+                 uiOutput("orgDQErrorTypes_ui"),
+                 br()),
+          column(6,
+                 uiOutput("orgDQErrors_ui")) 
+        ),
+        br(),
+        fluidRow(
+          uiOutput("dq_warnings_null")),
+        
+        fluidRow(
+          column(6,
+                 uiOutput("orgDQWarningTypes_ui"),
+                 br()),
+          column(6,
+                 uiOutput("orgDQWarnings_ui"))
+        ),
+        br(),
         fluidRow(
           box(
             id = "DQSummaryOrganization",
@@ -524,67 +559,7 @@ dashboardPage(
             width = 12
           )
         ),
-        fluidRow(
-          box(
-            plotOutput("orgDQHighPriorityErrorTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common High Priority Errors"
-          ),
-          box(
-            plotOutput("orgDQHighPriorityErrors"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Projects with the Most High Priority Errors"
-          )
-        ),
-        fluidRow(
-          box(
-            plotOutput("orgDQErrorTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common General Errors"
-          ),
-          box(
-            plotOutput("orgDQErrors"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Projects with the Most General Errors"
-          )
-        ),
-        fluidRow(
-          box(
-            plotOutput("orgDQWarningTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common Warnings"
-          ),
-          box(
-            plotOutput("orgDQWarnings"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Projects with the Most Warnings"
-          )
-        ),
-        fluidRow(box(DTOutput("DQHighPriority"),
-                     title = "High Priority Issues",
-                     width = 12)),
-        fluidRow(box(DTOutput("DQErrors"),
-                     title = "Data Quality Errors",
-                     width = 12)),
-        fluidRow(uiOutput("DQOverlappingEEs")), # <- not represented in Server.R fixme
-        fluidRow(box(
-          id = "warnings",
-          DT::dataTableOutput("DQWarnings"),
-          title = "Data Quality Warnings",
-          width = 12
-        )),
+        
         fluidRow(
           box(
             id = "DQSummaryProvider",
@@ -632,7 +607,7 @@ dashboardPage(
       ),
       tabItem(
         tabName = "tabDQSystem",
-        fluidRow(box(htmlOutput("headerSystemDQ"), width = 12)),
+        fluidRow(box(htmlOutput("headerSystemDQ"), width = 12, uiOutput("downloadFullDQReportButton"))),
         fluidRow(box(
           title = "App Instructions",
           width = 12,
@@ -702,6 +677,7 @@ dashboardPage(
                <p>Regardless of an issue's categorization, <b>users should never
                edit data that accurately reflects reality</b>.")
         )), 
+
         fluidRow(
           box(
             plotOutput("systemDQHighPriorityErrorTypes"),

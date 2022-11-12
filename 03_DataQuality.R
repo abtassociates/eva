@@ -122,6 +122,7 @@ vars_prep <- c(
   "HouseholdID",
   "PersonalID",
   "OrganizationName",
+  "ProjectID",
   "ProjectName",
   "ProjectType",
   "EntryDate",
@@ -1505,6 +1506,22 @@ rm(staging_overlaps,
    rrh_overlaps,
    psh_overlaps)
 
+# Invalid Move-in Date ----------------------------------------------------
+
+invalid_movein_date <- served_in_date_range %>%
+  filter(ProjectType %in% c(3, 9, 10, 13)) %>%
+  mutate(
+    Issue = case_when(
+      (!is.na(MoveInDate) & MoveInDate < EntryDate) | 
+      (!is.na(MoveInDate) & MoveInDate > ExitAdjust) ~ 
+        "Invalid Move-In Date"
+    ),
+    Type = "Error",
+    Guidance = "This move-in date does not fall between the Entry Date 
+    and the Exit Date or this move-in date is after the date of the export.") %>%
+  filter(Issue == "Invalid Move-In Date") %>%
+  select(all_of(vars_we_want))
+
 # Missing Health Ins ------------------------------------------------------
 
 missing_health_insurance_entry <- served_in_date_range %>%
@@ -2339,7 +2356,6 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       dq_ethnicity,
       dq_gender,
       dq_name,
-      dq_overlaps %>% select(-PreviousProject),
       dq_race,
       dq_ssn,
       dq_veteran,
@@ -2350,6 +2366,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       hh_issues,
       # incorrect_path_contact_date,
       invalid_months_times_homeless,
+      invalid_movein_date,
       # lh_without_spdat,
       #maybe_psh_destination,
       # maybe_rrh_destination,
@@ -2411,8 +2428,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     
     # for CoC-wide DQ tab
 
-    dq_w_project_names <- dq_main %>%
-      left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
+    # dq_w_project_names <- dq_main %>%
+    #   left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
     
    dq_providers <- sort(projects_current_hmis$ProjectName)
    
@@ -2424,8 +2441,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Controls what is shown in the Organization-Level DQ tab ------------------------
    
    dq_w_ids <- dq_main %>%
-     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName") %>%
-     left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
+     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName")
+     # left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
      
 
 # Plots for System-Level DQ Tab -------------------------------------------
@@ -2648,7 +2665,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
 # Prepping dataframes for plots for Organization-Level DQ Tab -----------------
    
    # Top projects with Errors - High Priority
-   dq_data_high_priority_errors_org_project_plot <- dq_w_ids %>%
+   dq_data_high_priority_errors_top_projects_df <- dq_w_ids %>%
      filter(Type %in% c("High Priority")) %>%
      select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
      unique() %>%
@@ -2659,7 +2676,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Most common high priority errors org-wide
    
-   dq_data_high_priority_error_types_org_project <- dq_w_ids %>%
+   dq_data_high_priority_error_types_org_df <- dq_w_ids %>%
      filter(Type %in% c("High Priority")) %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Errors = n()) %>%
@@ -2668,7 +2685,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Top projects with Errors - General
    
-   dq_data_errors_org_project_plot <- dq_w_ids %>%
+   dq_data_errors_top_projects_df <- dq_w_ids %>%
      filter(Type %in% c("Error")) %>%
      select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
      unique() %>%
@@ -2679,7 +2696,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Most common general errors org-wide
    
-   dq_data_error_types_org_project <- dq_w_ids %>%
+   dq_data_error_types_org_df <- dq_w_ids %>%
      filter(Type %in% c("Error")) %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Errors = n()) %>%
@@ -2688,7 +2705,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       #Top projects with warnings
    
-   dq_data_warnings_org_project_plot <- dq_w_ids %>%
+   dq_data_warnings_top_projects_df <- dq_w_ids %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(Warnings = n()) %>%
@@ -2697,7 +2714,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       #Most common warnings org-wide
    
-   dq_data_warning_types_org_project <- dq_w_ids %>%
+   dq_data_warning_types_org_df <- dq_w_ids %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Warnings = n()) %>%
