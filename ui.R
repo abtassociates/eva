@@ -22,15 +22,15 @@ dashboardPage(
                tabName = "tabHome"),
       menuItem("Check PDDEs",
                tabName = "tabPDDE"),
-      menuItem("Client Counts",
+      menuItem("View Client Counts",
                   tabName = "tabClientCount"),
-      menuItem("Data Quality",
+      menuItem("Assess Data Quality",
                menuSubItem("System-level",
                            tabName = "tabDQSystem"),
                menuSubItem("Organization-level",
                            tabName = "tabDQOrg")
-        # menuSubItem("Data Entry Timeliness", 
-        #             tabName = "tabDeskTime")
+               # menuSubItem("Data Entry Timeliness",
+               #             tabName = "tabDeskTime")
       ),
       menuItem("System Analysis",
                menuSubItem("System Flow",
