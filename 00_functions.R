@@ -8,11 +8,7 @@ age_years <- function(earlier, later)
   
 }
 
-# served_between <- function(., start, end) {
-#   served <- .$EntryDate <= end  &
-#     (is.na(.$ExitDate) | .$ExitDate >= start)
-#   served
-# }
+# Display Helpers ---------------------------------------------------------
 
 living_situation <- function(ReferenceNo) {
   case_when(
@@ -66,6 +62,7 @@ project_type <- function(ReferenceNo){
     ReferenceNo == 6 ~ "Services Only",
     ReferenceNo == 8 ~ "Safe Haven",
     ReferenceNo == 9 ~ "PH - Housing Only",
+    ReferenceNo == 10 ~ "PH - Housing with Services",
     ReferenceNo == 12 ~ "Prevention",
     ReferenceNo == 13 ~ "Rapid Rehousing",
     ReferenceNo == 14 ~ "Coordinated Entry"
@@ -83,17 +80,14 @@ rel_to_hoh <- function(ReferenceNo){
   )
 }
 
-replace_yes_no <- function(column_name) {
-  if_else(column_name == "No" | is.na(column_name), 0, 1)
-}
-
 enhanced_yes_no_translator <- function(ReferenceNo) {
   case_when(
     ReferenceNo == 0 ~ "No",
     ReferenceNo == 1 ~ "Yes",
     ReferenceNo == 8 ~ "Client doesn't know",
     ReferenceNo == 9 ~ "Client refused",
-    ReferenceNo == 99 ~ "Data not collected"
+    ReferenceNo == 99 ~ "Data not collected",
+    TRUE ~ "something's wrong"
   )
 }
 
@@ -101,9 +95,22 @@ translate_HUD_yes_no <- function(column_name){
   case_when(
     column_name == 1 ~ "Yes", 
     column_name == 0 ~ "No",
-    column_name %in% c(8, 9, 99) ~ "Unknown"
+    column_name %in% c(8, 9, 99) ~ "Unknown",
+    TRUE ~ "something's wrong"
   )
 }
+
+
+# Translate to Values -----------------------------------------------------
+
+
+replace_yes_no <- function(column_name) {
+  case_when(column_name == "No" | is.na(column_name) ~ 0,
+            column_name == "Yes" ~ 1,
+            TRUE ~ "something's wrong")
+}
+
+# Chronic logic -----------------------------------------------------------
 
 chronic_determination <- function(.data, aged_in = FALSE) { 
   
@@ -178,6 +185,8 @@ chronic_determination <- function(.data, aged_in = FALSE) {
     ))
   }
 }
+
+# Import Helper -----------------------------------------------------------
 
 parseDate <- function(datevar) {
   newDatevar <- parse_date_time(datevar,

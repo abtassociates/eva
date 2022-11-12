@@ -196,6 +196,9 @@ function(input, output, session) {
       
       updateDateInput(session = session, inputId = "dq_startdate", 
                       value = meta_HUDCSV_Export_Start)
+      
+      updateDateRangeInput(session = session, inputId = "dateRangeCount",
+                           min = meta_HUDCSV_Export_Start)
     }
 
     output$headerDataQuality <- renderUI({
