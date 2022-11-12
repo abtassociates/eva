@@ -84,6 +84,7 @@ dashboardPage(
                  zip file, you will see a confirmation that your upload was 
                  successful, the date range of the file you uploaded, plus the
                  date your file was downloaded from your HMIS.</p>
+                 
                  <h4>Upload Hashed CSV zip file</h4>
                  <p>To upload your hashed HUD CSV Export zip file, click the \'Browse\'
                  button in the \'Upload Hashed CSV zip file\' panel. Once you find
@@ -99,6 +100,7 @@ dashboardPage(
                  your file will be rejected with an error message, it will stop
                  processing your data further, and it will clear the app's memory
                  until you upload another (structurally sound) file. </p>
+                 
                  <h4>Edit CoC-specific Settings</h4>
                  <p>To make StellaR reporting more useful at the local level,
                  you will find the CoC-specific settings that HMIS Leads can edit
@@ -107,6 +109,7 @@ dashboardPage(
                  the reporting will use the defaults listed. These defaults do
                  not imply any HUD recommendations. Please read the description
                  in the settings panel for more information.</p>
+                 
                  <h4>Integrity Checker</h4>
                  <p>Once the app verifies that your file is hashed, it will then
                  check that your upload has all the right tables, columns, data
@@ -115,7 +118,8 @@ dashboardPage(
                  your file and not process any further. All issues will display
                  in the panel and you can download the details, even if the file
                  was rejected. </p>
-                 <h4>Credits</h4>
+                 
+                 <h4>Citations</h4>
                  <p>This panel will credit the people who wrote the open-source code
                  used to build this app, plus the community on whose code this app
                  was built.</p>")
@@ -287,6 +291,7 @@ dashboardPage(
                a summary of each issue that was flagged in your data regarding
                your PDDEs. Please download the details by clicking the \'Download\'
                button.</p>
+               
                <h4>Guidance</h4>
                <p>For a description of each issue found, check the Guidance 
                panel.</p>")
@@ -326,12 +331,14 @@ dashboardPage(
                be run to show the current status of their data entry or the
                HMIS Lead may wish to edit the Date Range to cover a larger
                time frame.</p>
+               
                <h4>Inputs</h4>
                <p>HMIS Leads may select a single project from the drop list. The
                Date Range defaults to display \'current\' enrollments only, but
                users are encouraged to edit the Date Range as desired to see
                metrics such as how many clients/households exited with and 
                without a Move-In Date, how many exited during the time period.</p>
+               
                <h4>Summary</h4>
                <p>Check here for a count of households or clients who have statuses
                of the following:
@@ -343,6 +350,7 @@ dashboardPage(
                <li>Currently in Project</li>
                <li>Exited Project</li>
                </ul>
+               
                <h4>Client Counts Detail</h4>
                <p>In this panel, HMIS Leads can search in any column. You will see
                the Personal ID, Relationship to HoH, Entry Date, Move-In Date, 
@@ -388,7 +396,7 @@ dashboardPage(
           collapsible = TRUE,
           collapsed = TRUE,
           HTML("
-               <h4>Data Quality at the Organization Level</h4>
+               <h4>Organization-wide HMIS Data Quality</h4>
                <p>Below, select the Organization whose data quality you would
                like to check. The data shown will reflect the date range that
                you used to run your HUD CSV Export. It will show data quality
@@ -404,6 +412,7 @@ dashboardPage(
                Please note that Overlaps will be shown in the 'Warnings' tab and
                again in the 'Overlap Detail' tab of the download. This is so
                that your users have enough detail to track down that issue.</p>
+               
                <h4>Some definitions:</h4>
                <p>This app categorizes every issue it finds in your data set in
                terms of its severity.</p>
