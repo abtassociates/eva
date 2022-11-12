@@ -638,7 +638,69 @@ dashboardPage(
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
-          HTML("")
+          HTML("<h4>System-wide HMIS Data Quality Plots</h4>
+               <p>The plots here will help HMIS admins to get a sense for which
+               Organizations may be in need of extra assistance and where extra
+               training may be needed. HMIS admins can also download this data to
+               aid in reporting to interested entities about your overall HMIS
+               system data quality. HMIS admins can check this report to help
+               guide which Organizations may need a closer look in the next tab,
+               called Data Quality > Organization-level. For each type of error
+               (High Priority Errors, General Errors, and Warnings) you will
+               find 2 plots.</p>
+               
+               <h5><b>Most Common of a Type of Error</b></h5>
+               <p>Across all of the Organizations in your upload, this plot shows
+               the top 10 Errors/Warnings of the type indicated. This can help
+               to focus future end user trainings and bring to light any
+               potential considerations in your federal or local reporting.</p>
+               
+               <h5><b>Organizations with the Most of a Type of Error</b></h5>
+               <p>This plot shows which Organizations across your system have
+               the highest number of issues of the type indicated. HMIS admins
+               can use these plots to help determine which organizations may
+               need extra assistance in getting their HMIS Errors/Warnings
+               resolved.</p>
+               
+               <h4>Download System-wide HMIS Data Quality Data</h4>
+               <p>To download all of the client and enrollment related issues
+               found in your system, click the Download button. This will give
+               HMIS admins a way of reporting to interested entities, such as
+               your CoC leadership, a broader view of the state of your HMIS
+               data quality.</p>
+               
+               <h4>Some definitions:</h4>
+               <p>This app categorizes every issue it finds in your data set in
+               terms of its severity.</p>
+               <ul>
+               <li>High Priority Errors
+                <ul>
+                  <li> Always indicates a data quality issue that can and should
+                      be fixed in HMIS.</li>
+                  <li> Aim for 0 High Priority errors.</li>
+                  <li> These errors affect multiple federal reports in a
+                      fundamental way and thus should be prioritized.</li>
+                </ul></li>
+               <li>General Errors
+                <ul>
+                  <li> Always indicates a data quality issue that can and should
+                      be fixed in HMIS.</li>
+                  <li> Aim for 0 General Errors.
+                </ul></li>
+               <li>Warnings
+                <ul>
+                  <li> May be a data quality issue, but may also be an unexpected
+                      situation that reflects reality.</li>
+                  <li> Do not aim for 0 Warnings. It is ok and expected to have
+                      some warnings.</li>
+                  <li> End users should check that any data being flagged as a
+                      Warning is accurate in their HMIS. If it is not accurate,
+                      then it should be corrected. If it is accurate, it should
+                      be left as is.</li>
+                </ul></li>
+               </ul>
+               <p>Regardless of an issue's categorization, <b>users should never
+               edit data that accurately reflects reality</b>.")
         )), 
         fluidRow(
           box(
