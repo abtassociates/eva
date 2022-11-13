@@ -283,6 +283,7 @@ dq_veteran <- served_in_date_range %>%
   select(all_of(vars_we_want))
 
 # Missing Client Location -------------------------------------------------
+
 missing_client_location <- served_in_date_range %>%
   left_join(EnrollmentCoC %>% select(EnrollmentID, DataCollectionStage), by = "EnrollmentID") %>%
   filter(is.na(ClientLocation) & 
@@ -700,6 +701,7 @@ missing_disabilities <- detail_missing_disabilities %>%
 # rm(smallDisabilities)
 
 # Extremely Long Stayers --------------------------------------------------
+
 th_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   mutate(Days = as.numeric(difftime(today(), EntryDate))) %>%
@@ -739,7 +741,6 @@ hp_stayers <- served_in_date_range %>%
   mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))) 
 
 Top2_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-
 
 ce_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
@@ -1216,29 +1217,17 @@ future_ees <- served_in_date_range %>%
   ) %>%
   select(all_of(vars_we_want))
 
-# future_exits <- Enrollment %>%
-#   filter(ExitDate > meta_HUDCSV_Export_End) %>%
-#   left_join(Project %>% select(ProjectID, OrganizationName), by = "ProjectID") %>%
-#   mutate(
-#     Issue = "Future Exit Date",
-#     Type = "Error",
-#     Guidance = "This client's Exit Date is a date in the future. Please 
-#     enter the exact date the client left your program. If this client has not
-#     yet exited, delete the Exit and then enter the Exit Date once the client
-#     is no longer in your program."
-#   ) %>%
-#   select(all_of(vars_we_want))
-    future_exits <- served_in_date_range %>%
-      filter(ExitAdjust > meta_HUDCSV_Export_Date) %>%
-      mutate(
-        Issue = "Future Exit Date",
-        Type = "Error",
-        Guidance = "This client's Exit Date is a date in the future. Please 
-    enter the exact date the client left your program. If this client has not
-    yet exited, delete the Exit and then enter the Exit Date once the client
-    is no longer in your program."
-      ) %>%
-      select(all_of(vars_we_want))
+future_exits <- served_in_date_range %>%
+  filter(ExitAdjust > meta_HUDCSV_Export_Date) %>%
+  mutate(
+    Issue = "Future Exit Date",
+    Type = "Error",
+    Guidance = "This client's Exit Date is a date in the future. Please 
+  enter the exact date the client left your program. If this client has not
+  yet exited, delete the Exit and then enter the Exit Date once the client
+  is no longer in your program."
+  ) %>%
+  select(all_of(vars_we_want))
     
 
 # Missing Income at Entry -------------------------------------------------
