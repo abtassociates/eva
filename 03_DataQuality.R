@@ -1415,227 +1415,169 @@ active_outside_dates <- served_in_date_range %>%
 overlapNEWvars = c("EnrollmentID", 
                    "TrackingMethod", 
                    "EntryDate", 
-                   "ExitDate", 
+                   # "ExitDate", 
                    "ExitAdjust",
                    "ProjectType", 
                    "PersonalID", 
-                   "ProjectID")
+                   "ProjectID",
+                   "OrganizationName",
+                   "ProjectName", 
+                   "HouseholdID",
+                   "DateProvided",
+                   "MoveInDate"
+                   )
 
-overlapNEWc1Vars = c("PersonalID",
-                     "EnrollmentID",
-                     "EntryDate",
-                     "ExitAdjust",
-                     "ProjectType",
-                     "TrackingMethod",
-                     "ProjectID")
+overlapNEWcols_to_remove <- c("DateProvided.x", "DateProvided.y")
+overlapNEW_services <- Services %>% 
+  select(EnrollmentID, DateProvided)
 
-overlapNEWc2Vars = c("PersonalID",
-                     "EnrollmentIDB" = "EnrollmentID",
-                     "EntryDateB" = "EntryDate",
-                     "ExitAdjustB" = "ExitAdjust",
-                     "ProjectTypeB" = "ProjectType",
-                     "TrackingMethodB" = "TrackingMethod",
-                     "ProjectIDB" = "ProjectID")
+# var dict: https://www.hudexchange.info/programs/hmis/hmis-data-standards/standards/Project_Descriptor_Data_Elements_(PDDE).htm
 
-overlapNEWFinalVars = c(
-  "PersonalID",
-  "EnrollmentID",
-  # "EntryDate",
-  # "ExitAdjust",
-  "ProjectType",
-  # "TrackingMethod",
-  "ProjectID",
-  # "DateProvided",
-  # "MoveInDate",
-  "EnrollmentIDB",
-  # "EntryDateB",
-  # "DateProvided_Or_ExitDateB",
-  "ProjectTypeB",
-  # "TrackingMethodB",
-  "ProjectIDB"
-  # "MoveInDateB"
-)
-## Overlaps Between Residential Projects that Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date -----
+## DQ14a: Overlaps Between Residential Projects that Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date -----
 # This gets the enrollment records for the relevant project types
 mainRecords <- served_in_date_range %>%
   filter((ProjectType == 1 & TrackingMethod == 0) | ProjectType %in% c(2,8)) %>%
+  left_join(overlapNEW_services, by = "EnrollmentID") %>%
   select(!!overlapNEWvars)
 
+c1 <- mainRecords
+c2 <- mainRecords
 
-c1 <- mainRecords %>% select(!!overlapNEWc1Vars)
-c2 <- mainRecords %>% select(!!overlapNEWc2Vars)
 overlapNEW_entry_and_exit <- c1 %>% 
   inner_join(c2, by = "PersonalID") %>%
   filter(
-    EntryDateB < ExitAdjust & 
-    EntryDate < ExitAdjustB &
+    EntryDate.y < ExitAdjust.x & 
+    EntryDate.x < ExitAdjust.y &
     (
-      EntryDate < EntryDateB | 
-      (EntryDate == EntryDateB & EnrollmentID > EnrollmentIDB)
+      EntryDate.x < EntryDate.y | 
+      (EntryDate.x == EntryDate.y & EnrollmentID.x > EnrollmentID.y)
     )
   ) %>%
   mutate(
     Issue = "Overlaps Between Residential Projects that Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date",
-    Type = "Error",
-    Guidance = overlapNEW_entry_and_exit_guidance
-    # DateProvided_Or_ExitDateB = ExitAdjustB,
-    # DateProvided=NA,
-    # MoveInDate=NA, 
-    # MoveInDateB=NA
+    Type = "Overlap",
+    Guidance = overlapNEW_entry_and_exit_guidance,
+    FirstDateProvided.x = NA,
+    FirstDateProvided.y = NA
   ) %>%
-  select(!!overlapNEWFinalVars)
-# colnames(overlapNEW_entry_and_exit)[colnames(overlapNEW_entry_and_exit) == "ExitAdjustB"] ="DateProvided_Or_ExitDateB"
-
-# Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date AND Projects That Use Bed Night Date to indicate the household is occupying that unit on that date ----
-# This gets the enrollment records that are night-by-night (i.e. have DateProvided in Services file)
-# This gets the enrollment records that are ES (1, includes NbN), SH (8), and TH (2)
+  select(-!!overlapNEWcols_to_remove) %>%
+  distinct()
+ 
+# DQ14b: Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date AND Projects That Use Bed Night Date to indicate the household is occupying that unit on that date ----
+# Note that we "anchor" the primary enrollment as ES-nbn to capture overlaps with entry-exit projects, while staying distinct from the previous check
 mainRecords <- served_in_date_range %>%
   filter(ProjectType %in% c(1,2,8)) %>%
-  left_join(Services %>% select(EnrollmentID, DateProvided), by = "EnrollmentID") %>%
-  select(!!overlapNEWvars, DateProvided)
-
-c1 <- mainRecords %>% select(!!overlapNEWc1Vars, DateProvided)
-c2 <- mainRecords %>% select(!!overlapNEWc2Vars, "DateProvidedB" = DateProvided)
-
-# This flags the ones that overlap
-initialFlags <- c1 %>% 
-  inner_join(c2, by = "PersonalID") %>%
-  mutate(IsOverlap = DateProvided >= EntryDateB & DateProvided <= ExitAdjustB,
-         DateProvided_Or_ExitDateB = case_when(
-           ProjectTypeB == 1 & TrackingMethodB == 3 ~ DateProvidedB,
-           TRUE ~ ExitAdjustB
-         )
-  ) %>%
-  filter(
-    ProjectType == 1 & 
-    TrackingMethod == 3 & (
-      (EnrollmentID != EnrollmentIDB & (ProjectTypeB != 1 | TrackingMethodB != 3)) |
-      (EnrollmentID > EnrollmentIDB & ProjectTypeB == 1 & TrackingMethodB == 3)
-    ) & (
-      (
-        (
-          (ProjectTypeB == 1 & TrackingMethodB == 0) | 
-          ProjectTypeB %in% c(2,8)
-        ) & 
-        IsOverlap
-      ) |
-      ProjectTypeB == 1 & TrackingMethodB == 3 & DateProvided == DateProvidedB
-    )
+  left_join(overlapNEW_services, by = "EnrollmentID") %>%
+  mutate(ESnbn = (ProjectType == 1 & TrackingMethod == 3),
+         EEnbn = (ProjectType == 1 & TrackingMethod == 0),
+         THSH = (ProjectType %in% c(2,8))
   )
 
-numOverlaps <- initialFlags %>%
-  select(EnrollmentID, IsOverlap) %>%
-  group_by(EnrollmentID) %>%
-  summarise(NumOverlaps = sum(IsOverlap)) %>%
-  ungroup()
+c1 <- mainRecords %>% filter(ESnbn)
+c2 <- mainRecords
 
-
-flaggedRecords <- initialFlags %>%
-  left_join(numOverlaps, by = "EnrollmentID") %>%
-  filter(NumOverlaps > 2 | (ProjectTypeB == 1 & TrackingMethodB == 3))
-
-
-overlapNEW_entry_and_exit_bn <- flaggedRecords %>%
-  # group_by(PersonalID, ProjectType, ProjectIDB, EnrollmentIDB, TrackingMethodB, EnrollmentID, ProjectTypeB, EntryDateB, DateProvided_Or_ExitDateB, NumOverlaps) %>%
-  # summarise(FirstDateProvided = min(DateProvided)) %>%
-  # ungroup() %>%
+# This flags the ones that overlap
+overlapNEW_entry_and_exit_bn <- c1 %>% 
+  inner_join(c2, by = "PersonalID") %>%
+  mutate(IsOverlap = EnrollmentID.x != EnrollmentID.y & 
+    (
+      ((EEnbn.y | THSH.y) & DateProvided.x >= EntryDate.y & DateProvided.x <= ExitAdjust.y) |
+      (ESnbn.y & DateProvided.x == DateProvided.y)
+    ) & (
+      # the primary enrollment record should always be the ES nbn project
+      !ESnbn.y | #if the other enrollment is not ES-nbn, then it's fine as long as they aren't the same (which they shouldn't be)
+      (EnrollmentID.x > EnrollmentID.y & ESnbn.y) # if the other enrollment is ALSO ES-nbn, then take the larger enrollment, so that we don't show the same version twice (just flipped) (i.e. EnrollmentA-EnrollmentB AND EnrollmentB-EnrollmentA)
+    )
+  ) %>%
+  group_by(EnrollmentID.x) %>%
+  mutate(NumOverlaps = sum(IsOverlap)) %>%
+  ungroup() %>%
+  filter(NumOverlaps > 2 | ESnbn.y) %>%
   mutate(
     Issue = "Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date AND Projects That Use Bed Night Date to indicate the household is occupying that unit on that date",
     Type = "Error",
-    Guidance = overlapNEW_entry_and_exit_bn_guidance
-    # DateProvided=NA, 
-    # MoveInDate=NA, 
-    # MoveInDateB=NA
+    Guidance = overlapNEW_entry_and_exit_bn_guidance,
+    FirstDateProvided.x = min(DateProvided.x),
+    FirstDateProvided.y = NA
   ) %>%
-  select(!!overlapNEWFinalVars)
+  select(
+    matches(paste(overlapNEWvars, collapse="|")), 
+    c(Issue, Type, Guidance),
+    -c(!!overlapNEWcols_to_remove, MoveInDateAdjust.x,MoveInDateAdjust.y)
+  ) %>%
+  distinct()
 
-# Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) OR Bed Night Date to indicate the household is occupying that unit on that date AND Residential Projects That Use Housing Move-In Date and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date
+
+# DQ14c in Excel: Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) OR Bed Night Date to indicate the household is occupying that unit on that date AND Residential Projects That Use Housing Move-In Date and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date
 # This gets the enrollment records that are PH-RRH (13) and PH-PSH (3), as well as ES (1, includes NbN (when TrackingMethod = 3)), SH (8), and TH (2); 3 and 13 are compared to the others (not each other or themselves)
 mainRecords <- served_in_date_range %>%
   filter(ProjectType %in% c(1,2,8,3,13)) %>%
-  left_join(Services %>% select(EnrollmentID, DateProvided), by = "EnrollmentID") %>%
-  select(!!overlapNEWvars, DateProvided, MoveInDate)
+  left_join(overlapNEW_services, by = "EnrollmentID") %>%
+  mutate(PH = ProjectType %in% c(3,13),
+         ESnbn = (ProjectType == 1 & TrackingMethod == 3),
+         THSH = (ProjectType %in% c(2,8))
+  )
 
-c1 <- mainRecords %>% select(!!overlapNEWc1Vars, DateProvided, MoveInDate)
-c2 <- mainRecords %>% select(!!overlapNEWc2Vars, "DateProvidedB" = DateProvided)
+c1 <- mainRecords %>% filter(PH)
+c2 <- mainRecords
 
-initialFlags <- c1 %>% 
+overlapNEW_entry_and_exit_bn2 <- c1 %>% 
   inner_join(c2, by = "PersonalID") %>%
   mutate(
-    IsOverlap = ProjectType %in% c(3,13) & (
-      (ProjectTypeB %in% c(2,8) & EntryDateB < ExitAdjust & MoveInDate < ExitAdjustB) |
-      (ProjectTypeB == 1 & TrackingMethodB == 3 & DateProvidedB >= MoveInDate & DateProvidedB <= ExitAdjust) | 
-      (EntryDateB < ExitAdjust & EntryDate < ExitAdjustB & EntryDate < EntryDateB)
-    ),
-    DateProvided_Or_ExitDateB = case_when(
-       ProjectTypeB == 1 & TrackingMethodB == 3 ~ DateProvidedB,
-       TRUE ~ ExitAdjustB
+    IsOverlap = EnrollmentID.x != EnrollmentID.y & PH.x & (
+      (THSH.y & EntryDate.y < ExitAdjust.x & MoveInDate.x < ExitAdjust.y) |
+      (ESnbn.y & MoveInDate.x <= DateProvided.y & DateProvided.y <= ExitAdjust.x) | 
+      (ProjectType.y == 1 & EntryDate.y < ExitAdjust.x & MoveInDate.x < ExitAdjust.y)
     )
   ) %>%
+  group_by(EnrollmentID.x) %>%
+  mutate(NumOverlaps = sum(IsOverlap)) %>%
+  ungroup() %>%
   filter(
-    EnrollmentID != EnrollmentIDB & 
-    ProjectType %in% c(3,13) & (
-      (ProjectTypeB %in% c(2,8) & EntryDateB < ExitAdjust & MoveInDate < ExitAdjustB) |
-      (ProjectTypeB == 1 & TrackingMethodB == 3 & DateProvidedB >= MoveInDate & DateProvidedB <= ExitAdjust) |
-      (ProjectTypeB == 1 & EntryDateB < ExitAdjust & MoveInDate < ExitAdjustB)
-    )
-  )
-
-
-numOverlaps <- initialFlags %>%
-  select(EnrollmentID, IsOverlap) %>%
-  group_by(EnrollmentID) %>%
-  summarise(NumOverlaps = sum(IsOverlap)) %>%
-  ungroup()
-
-
-flaggedRecords <- initialFlags %>%
-  left_join(numOverlaps, by = "EnrollmentID") %>%
-  filter(
-    (ProjectTypeB %in% c(2,8) & NumOverlaps > 0) |
-    (ProjectTypeB %in% c(1) & NumOverlaps > 2)
-  )
-
-overlapNEW_entry_and_exit_bn2 <- flaggedRecords %>%
-  # group_by(PersonalID, ProjectType, ProjectIDB, EnrollmentIDB, TrackingMethodB, EnrollmentID, ProjectTypeB, EntryDateB, DateProvided_Or_ExitDateB, NumOverlaps) %>%
-  # summarise(DateProvided_Or_ExitDateB = min(DateProvided_Or_ExitDateB)) %>%
-  # ungroup() %>%
+    (THSH.y & NumOverlaps > 0) |
+    (ProjectType.y == 1 & NumOverlaps > 2)
+  ) %>%
   mutate(
     Issue = "Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) OR Bed Night Date to indicate the household is occupying that unit on that date AND Residential Projects That Use Housing Move-In Date and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date",
     Type = "Error",
-    Guidance = overlapNEW_entry_and_exit_bn2_guidance
-    # DateProvided=NA,
-    # MoveInDate=NA, 
-    # MoveInDateB=NA
+    Guidance = overlapNEW_entry_and_exit_bn2_guidance,
+    FirstDateProvided.x = NA,
+    FirstDateProvided.y = min(DateProvided.y)
   ) %>%
-  select(!!overlapNEWFinalVars)
+  select(
+    matches(paste(overlapNEWvars, collapse="|")),
+    c(Issue, Type, Guidance),
+    -c(!!overlapNEWcols_to_remove, MoveInDateAdjust.x,MoveInDateAdjust.y)
+  ) %>%
+  distinct()
 
 # Overlaps Between Projects that Use Move-In Date to Exit Date to Indicate Occupancy ----
 # This gets the enrollment records that are PH-RRH (13) and PH-PSH (3)
 mainRecords <- served_in_date_range %>%
   filter(ProjectType %in% c(3,9,10,13)) %>%
-  left_join(Services %>% select(EnrollmentID, DateProvided), by = "EnrollmentID") %>%
-  select(!!overlapNEWvars, DateProvided, MoveInDate)
+  left_join(overlapNEW_services, by = "EnrollmentID") %>%
+  select(!!overlapNEWvars)
 
-c1 <- mainRecords %>% select(!!overlapNEWc1Vars, MoveInDate)
-c2 <- mainRecords %>% select(!!overlapNEWc2Vars, "MoveInDateB" = MoveInDate)
+c1 <- mainRecords
+c2 <- mainRecords
 
 overlapNEW_movein_and_exit <- c1 %>% 
   inner_join(c2, by = "PersonalID") %>%
   filter(
-    ((ProjectType %in% c(3,9,10) & ProjectTypeB %in% c(3,9,10)) | ProjectType == ProjectTypeB) & 
-    MoveInDateB < ExitAdjust & 
-    MoveInDate < ExitAdjustB & 
-    (MoveInDate < MoveInDateB | (MoveInDate == MoveInDateB & EnrollmentID > EnrollmentIDB))
+    ((ProjectType.x %in% c(3,9,10) & ProjectType.y %in% c(3,9,10)) | ProjectType.x == ProjectType.y) & 
+    MoveInDate.y < ExitAdjust.x & 
+    MoveInDate.x < ExitAdjust.y & 
+    (MoveInDate.x < MoveInDate.y | (MoveInDate.x == MoveInDate.y & EnrollmentID.x > EnrollmentID.y))
   ) %>%
   mutate(
     Issue = "Overlaps Between Projects that Use Move-In Date to Exit Date to Indicate Occupancy",
     Type = "Error",
-    Guidance = overlapNEW_movein_and_exit_guidance
-    # DateProvided_Or_ExitDateB = ExitAdjustB,
-    # DateProvided=NA
+    Guidance = overlapNEW_movein_and_exit_guidance,
+    FirstDateProvided.x = NA,
+    FirstDateProvided.y = NA
   ) %>%
-  select(!!overlapNEWFinalVars)
+  select(-!!overlapNEWcols_to_remove) %>%
+  distinct()
 
 overlapNEW <- rbind(overlapNEW_entry_and_exit,
                     overlapNEW_entry_and_exit_bn,
@@ -1645,7 +1587,8 @@ overlapNEW <- rbind(overlapNEW_entry_and_exit,
 rm(overlapNEW_entry_and_exit,
    overlapNEW_entry_and_exit_bn,
    overlapNEW_entry_and_exit_bn2,
-   overlapNEW_movein_and_exit)
+   overlapNEW_movein_and_exit,
+   overlapNEW_services)
 
 # Missing Health Ins ------------------------------------------------------
 
