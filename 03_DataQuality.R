@@ -1753,169 +1753,169 @@ conflicting_ncbs_entry <- served_in_date_range %>%
     # some users won't like being flagged for it if it's someone else's fault
     # but you can't tell whose fault it is from the data so...
     
-    staging_overlaps <- served_in_date_range %>%
-      select(all_of(vars_prep), ExitAdjust) %>%
-      mutate(
-        EntryAdjust = case_when(
-          #for PSH and RRH, EntryAdjust = MoveInDate
-          ProjectType %in% c(1, 2, 8, 12) |
-            ProjectName == "Unsheltered Clients - OUTREACH" ~ EntryDate,
-          ProjectType %in% c(3, 9, 13) &
-            !is.na(MoveInDateAdjust) ~ MoveInDateAdjust,
-          ProjectType %in% c(3, 9, 13) &
-            is.na(MoveInDateAdjust) ~ EntryDate
-        ),
-        ExitAdjust = ExitAdjust - days(1),
-        # bc a client can exit&enter same day
-        LiterallyInProject = if_else(
-          ProjectType %in% c(3, 9, 13),
-          interval(MoveInDateAdjust, ExitAdjust),
-          interval(EntryAdjust, ExitAdjust)
-        ),
-        Issue = "Overlapping Project Stays",
-        Type = "High Priority",
-        Guidance = "Fix Me"
-      ) %>%
-      filter(!is.na(LiterallyInProject) &
-               int_length(LiterallyInProject) > 0) %>%
-      get_dupes(., PersonalID) %>%
-      group_by(PersonalID) %>%
-      arrange(PersonalID, EntryAdjust) %>%
-      mutate(
-        PreviousEntryAdjust = lag(EntryAdjust),
-        PreviousExitAdjust = lag(ExitAdjust),
-        PreviousProject = lag(ProjectName)
-      ) %>%
-      filter(!is.na(PreviousEntryAdjust)) %>%
-      ungroup()
-    
-    same_day_overlaps <- served_in_date_range %>%
-      filter((ProjectType == 13 & MoveInDateAdjust == ExitDate) |
-               ProjectType != 13) %>%
-      select(all_of(vars_prep), ExitAdjust) %>%
-      mutate(
-        EntryAdjust = case_when(
-          #for PSH and RRH, EntryAdjust = MoveInDate
-          ProjectType %in% c(1, 2, 8, 12) |
-            ProjectName == "Unsheltered Clients - OUTREACH" ~ EntryDate,
-          ProjectType %in% c(3, 9, 13) &
-            !is.na(MoveInDateAdjust) ~ MoveInDateAdjust,
-          ProjectType %in% c(3, 9, 13) &
-            is.na(MoveInDateAdjust) ~ EntryDate
-        ),
-        LiterallyInProject = case_when(
-          ProjectType %in% c(3, 9) ~ interval(MoveInDateAdjust, ExitAdjust),
-          ProjectType %in% c(1, 2, 4, 8, 12) ~ interval(EntryAdjust, ExitAdjust)
-        ),
-        Issue = "Overlapping Project Stays",
-        Type = "Warning",
-        Guidance = "Fix Me"
-      ) %>%
-      filter((!is.na(LiterallyInProject) & ProjectType != 13) |
-               ProjectType == 13) %>%
-      get_dupes(., PersonalID) %>%
-      group_by(PersonalID) %>%
-      arrange(PersonalID, EntryAdjust) %>%
-      mutate(
-        PreviousEntryAdjust = lag(EntryAdjust),
-        PreviousExitAdjust = lag(ExitAdjust),
-        PreviousProject = lag(ProjectName)
-      ) %>%
-      filter(ExitDate > PreviousEntryAdjust &
-               ExitDate < PreviousExitAdjust) %>%
-      ungroup() %>%
-      select(all_of(vars_we_want), PreviousProject)
-    
-    rrh_overlaps <- served_in_date_range %>%
-      select(all_of(vars_prep), ExitAdjust) %>%
-      mutate(
-        ExitAdjust = ExitAdjust - days(1),
-        # bc a client can exit&enter same day
-        InProject = interval(EntryDate, ExitAdjust),
-        Issue = "Overlapping Project Stays",
-        Type = "Warning",
-        Guidance = "Fix Me"
-      ) %>%
-      filter(ProjectType == 13) %>%
-      get_dupes(., PersonalID) %>%
-      group_by(PersonalID) %>%
-      arrange(PersonalID, EntryDate) %>%
-      mutate(
-        PreviousEntry = lag(EntryDate),
-        PreviousExit = lag(ExitAdjust),
-        PreviousProject = lag(ProjectName)
-      ) %>%
-      filter(!is.na(PreviousEntry)) %>%
-      ungroup() %>%
-      mutate(
-        PreviousStay = interval(PreviousEntry, PreviousExit),
-        Overlap = int_overlaps(InProject, PreviousStay)
-      ) %>%
-      filter(Overlap == TRUE) %>%
-      select(all_of(vars_we_want), PreviousProject)
-    
-    psh_overlaps <- served_in_date_range %>%
-      select(all_of(vars_prep), ExitAdjust) %>%
-      mutate(
-        ExitAdjust = ExitAdjust - days(1),
-        # bc a client can exit&enter same day
-        InProject = interval(EntryDate, ExitAdjust),
-        Issue = "Overlapping Project Stays",
-        Type = "Warning",
-        Guidance = "Fix Me"
-      ) %>%
-      filter(ProjectType == 3) %>%
-      get_dupes(., PersonalID) %>%
-      group_by(PersonalID) %>%
-      arrange(PersonalID, EntryDate) %>%
-      mutate(
-        PreviousEntry = lag(EntryDate),
-        PreviousExit = lag(ExitAdjust),
-        PreviousProject = lag(ProjectName)
-      ) %>%
-      filter(!is.na(PreviousEntry)) %>%
-      ungroup() %>%
-      mutate(
-        PreviousStay = interval(PreviousEntry, PreviousExit),
-        Overlap = int_overlaps(InProject, PreviousStay)
-      ) %>%
-      filter(Overlap == TRUE) %>%
-      select(all_of(vars_we_want), PreviousProject)
-    
-    dq_overlaps <- staging_overlaps %>%
-      mutate(
-        PreviousStay = interval(PreviousEntryAdjust, PreviousExitAdjust),
-        Overlap = int_overlaps(LiterallyInProject, PreviousStay)
-      ) %>%
-      filter(Overlap == TRUE) %>%
-      select(all_of(vars_we_want), PreviousProject)
-    
-    dq_overlaps <-
-      rbind(dq_overlaps, rrh_overlaps, psh_overlaps, same_day_overlaps) %>%
-      unique() %>%
-      mutate(
-        Issue = "Overlapping Project Stays",
-        Type = "Warning",
-        Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the same time. Nor
-        can they have a Move-In Date into a PSH or RRH project while they are
-        still in an ES, TH, or Safe Haven. Further, they cannot be in any two RRH's
-        or any two PSH's simultaneously, housed or not.<br>
-        Please look the client(s) up in HMIS and determine which project stay's
-        Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the \"Previous 
-        Provider's\" mistake, but if you are seeing clients here, it means your
-        project stay was entered last. <br>
-        If the overlap is not your project's mistake, please work with the project 
-        that has the incorrect Entry/Move-In/or Exit Date to get this corrected 
-        or send an email to hmis@cohhio.org if you cannot get it resolved. These 
-        clients will NOT show on their Data Quality app. <br>
-        If YOUR dates are definitely correct, it is fine to continue with other
-        data corrections as needed."
-      )
-    
-    rm(staging_overlaps,
-       same_day_overlaps,
-       rrh_overlaps,
-       psh_overlaps)
+    # staging_overlaps <- served_in_date_range %>%
+    #   select(all_of(vars_prep), ExitAdjust) %>%
+    #   mutate(
+    #     EntryAdjust = case_when(
+    #       #for PSH and RRH, EntryAdjust = MoveInDate
+    #       ProjectType %in% c(1, 2, 8, 12) |
+    #         ProjectName == "Unsheltered Clients - OUTREACH" ~ EntryDate,
+    #       ProjectType %in% c(3, 9, 13) &
+    #         !is.na(MoveInDateAdjust) ~ MoveInDateAdjust,
+    #       ProjectType %in% c(3, 9, 13) &
+    #         is.na(MoveInDateAdjust) ~ EntryDate
+    #     ),
+    #     ExitAdjust = ExitAdjust - days(1),
+    #     # bc a client can exit&enter same day
+    #     LiterallyInProject = if_else(
+    #       ProjectType %in% c(3, 9, 13),
+    #       interval(MoveInDateAdjust, ExitAdjust),
+    #       interval(EntryAdjust, ExitAdjust)
+    #     ),
+    #     Issue = "Overlapping Project Stays",
+    #     Type = "High Priority",
+    #     Guidance = "Fix Me"
+    #   ) %>%
+    #   filter(!is.na(LiterallyInProject) &
+    #            int_length(LiterallyInProject) > 0) %>%
+    #   get_dupes(., PersonalID) %>%
+    #   group_by(PersonalID) %>%
+    #   arrange(PersonalID, EntryAdjust) %>%
+    #   mutate(
+    #     PreviousEntryAdjust = lag(EntryAdjust),
+    #     PreviousExitAdjust = lag(ExitAdjust),
+    #     PreviousProject = lag(ProjectName)
+    #   ) %>%
+    #   filter(!is.na(PreviousEntryAdjust)) %>%
+    #   ungroup()
+    # 
+    # same_day_overlaps <- served_in_date_range %>%
+    #   filter((ProjectType == 13 & MoveInDateAdjust == ExitDate) |
+    #            ProjectType != 13) %>%
+    #   select(all_of(vars_prep), ExitAdjust) %>%
+    #   mutate(
+    #     EntryAdjust = case_when(
+    #       #for PSH and RRH, EntryAdjust = MoveInDate
+    #       ProjectType %in% c(1, 2, 8, 12) |
+    #         ProjectName == "Unsheltered Clients - OUTREACH" ~ EntryDate,
+    #       ProjectType %in% c(3, 9, 13) &
+    #         !is.na(MoveInDateAdjust) ~ MoveInDateAdjust,
+    #       ProjectType %in% c(3, 9, 13) &
+    #         is.na(MoveInDateAdjust) ~ EntryDate
+    #     ),
+    #     LiterallyInProject = case_when(
+    #       ProjectType %in% c(3, 9) ~ interval(MoveInDateAdjust, ExitAdjust),
+    #       ProjectType %in% c(1, 2, 4, 8, 12) ~ interval(EntryAdjust, ExitAdjust)
+    #     ),
+    #     Issue = "Overlapping Project Stays",
+    #     Type = "Warning",
+    #     Guidance = "Fix Me"
+    #   ) %>%
+    #   filter((!is.na(LiterallyInProject) & ProjectType != 13) |
+    #            ProjectType == 13) %>%
+    #   get_dupes(., PersonalID) %>%
+    #   group_by(PersonalID) %>%
+    #   arrange(PersonalID, EntryAdjust) %>%
+    #   mutate(
+    #     PreviousEntryAdjust = lag(EntryAdjust),
+    #     PreviousExitAdjust = lag(ExitAdjust),
+    #     PreviousProject = lag(ProjectName)
+    #   ) %>%
+    #   filter(ExitDate > PreviousEntryAdjust &
+    #            ExitDate < PreviousExitAdjust) %>%
+    #   ungroup() %>%
+    #   select(all_of(vars_we_want), PreviousProject)
+    # 
+    # rrh_overlaps <- served_in_date_range %>%
+    #   select(all_of(vars_prep), ExitAdjust) %>%
+    #   mutate(
+    #     ExitAdjust = ExitAdjust - days(1),
+    #     # bc a client can exit&enter same day
+    #     InProject = interval(EntryDate, ExitAdjust),
+    #     Issue = "Overlapping Project Stays",
+    #     Type = "Warning",
+    #     Guidance = "Fix Me"
+    #   ) %>%
+    #   filter(ProjectType == 13) %>%
+    #   get_dupes(., PersonalID) %>%
+    #   group_by(PersonalID) %>%
+    #   arrange(PersonalID, EntryDate) %>%
+    #   mutate(
+    #     PreviousEntry = lag(EntryDate),
+    #     PreviousExit = lag(ExitAdjust),
+    #     PreviousProject = lag(ProjectName)
+    #   ) %>%
+    #   filter(!is.na(PreviousEntry)) %>%
+    #   ungroup() %>%
+    #   mutate(
+    #     PreviousStay = interval(PreviousEntry, PreviousExit),
+    #     Overlap = int_overlaps(InProject, PreviousStay)
+    #   ) %>%
+    #   filter(Overlap == TRUE) %>%
+    #   select(all_of(vars_we_want), PreviousProject)
+    # 
+    # psh_overlaps <- served_in_date_range %>%
+    #   select(all_of(vars_prep), ExitAdjust) %>%
+    #   mutate(
+    #     ExitAdjust = ExitAdjust - days(1),
+    #     # bc a client can exit&enter same day
+    #     InProject = interval(EntryDate, ExitAdjust),
+    #     Issue = "Overlapping Project Stays",
+    #     Type = "Warning",
+    #     Guidance = "Fix Me"
+    #   ) %>%
+    #   filter(ProjectType == 3) %>%
+    #   get_dupes(., PersonalID) %>%
+    #   group_by(PersonalID) %>%
+    #   arrange(PersonalID, EntryDate) %>%
+    #   mutate(
+    #     PreviousEntry = lag(EntryDate),
+    #     PreviousExit = lag(ExitAdjust),
+    #     PreviousProject = lag(ProjectName)
+    #   ) %>%
+    #   filter(!is.na(PreviousEntry)) %>%
+    #   ungroup() %>%
+    #   mutate(
+    #     PreviousStay = interval(PreviousEntry, PreviousExit),
+    #     Overlap = int_overlaps(InProject, PreviousStay)
+    #   ) %>%
+    #   filter(Overlap == TRUE) %>%
+    #   select(all_of(vars_we_want), PreviousProject)
+    # 
+    # dq_overlaps <- staging_overlaps %>%
+    #   mutate(
+    #     PreviousStay = interval(PreviousEntryAdjust, PreviousExitAdjust),
+    #     Overlap = int_overlaps(LiterallyInProject, PreviousStay)
+    #   ) %>%
+    #   filter(Overlap == TRUE) %>%
+    #   select(all_of(vars_we_want), PreviousProject)
+    # 
+    # dq_overlaps <-
+    #   rbind(dq_overlaps, rrh_overlaps, psh_overlaps, same_day_overlaps) %>%
+    #   unique() %>%
+    #   mutate(
+    #     Issue = "Overlapping Project Stays",
+    #     Type = "Warning",
+    #     Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the same time. Nor
+    #     can they have a Move-In Date into a PSH or RRH project while they are
+    #     still in an ES, TH, or Safe Haven. Further, they cannot be in any two RRH's
+    #     or any two PSH's simultaneously, housed or not.<br>
+    #     Please look the client(s) up in HMIS and determine which project stay's
+    #     Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the \"Previous 
+    #     Provider's\" mistake, but if you are seeing clients here, it means your
+    #     project stay was entered last. <br>
+    #     If the overlap is not your project's mistake, please work with the project 
+    #     that has the incorrect Entry/Move-In/or Exit Date to get this corrected 
+    #     or send an email to hmis@cohhio.org if you cannot get it resolved. These 
+    #     clients will NOT show on their Data Quality app. <br>
+    #     If YOUR dates are definitely correct, it is fine to continue with other
+    #     data corrections as needed."
+    #   )
+    # 
+    # rm(staging_overlaps,
+    #    same_day_overlaps,
+    #    rrh_overlaps,
+    #    psh_overlaps)
     # 
     # # Missing Health Ins ------------------------------------------------------
     # 

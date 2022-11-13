@@ -487,78 +487,16 @@ function(input, output, session) {
     
     # list of data frames to include in DQ Org Report
     orgDQReportDataList <- reactive({
+      req(valid_file() == 1)
+      orgDQoverlaps <- overlapNEW %>%
+        filter(OrganizationName %in% c(input$orgList))
       
-      ReportStart <- Export$ExportStartDate
-      ReportEnd <- meta_HUDCSV_Export_End
-      
-      select_list = c("Project Name" = "ProjectName",
-                      "Issue" = "Issue",
-                      "Personal ID" = "PersonalID",
-                      "Household ID" = "HouseholdID",
-                      "Entry Date"= "EntryDate")
-      
-      dq_main_in_dates <- dq_main %>% served_between(., ReportStart, ReportEnd)
-      
-      high_priority <- dq_main_in_dates %>% 
-        filter(Type == "High Priority") %>% 
-        select(all_of(select_list))
-        
-      errors <- dq_main_in_dates %>%
-        filter(Type == "Error") %>% 
-        select(all_of(select_list))
-      
-      warnings <- dq_main_in_dates %>%
-        filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
-        select(all_of(select_list))
-      
-      overlaps <- dq_overlaps %>%
-        filter(
-          Issue %in% list("Overlapping Project Stays", "Extremely Long Stayer") &
-            OrganizationName %in% c(input$orgList) &
-            served_between(., ReportStart, ReportEnd)
-        ) %>%
-        select(all_of(select_list), 
-          "Move-In Date" = MoveInDateAdjust,
-          "Exit Date" = ExitDate,
-          "Overlaps With This Provider's Stay" = PreviousProject
-        )
-      
-      summary <- dq_main_in_dates %>% 
-        select(ProjectName, Type, Issue, PersonalID) %>%
-        group_by(ProjectName, Type, Issue) %>%
-        summarise(Clients = n()) %>%
-        select(Type, Clients, ProjectName, Issue) %>%
-        arrange(Type, desc(Clients))
-      
-      guidance <- dq_main_in_dates %>%
-        select(Type, Issue, Guidance) %>%
-        unique() %>%
-        mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
-        arrange(Type)
-      
-      exportDFList <- list(
-        summary = summary,
-        guidance = guidance,
-        high_priority = high_priority,
-        errors = errors,
-        warnings = warnings,
-        overlaps = overlaps,
-        overlapNEW = overlapNEW
-      )
-      
-      names(exportDFList) = c(
-        "Summary",
-        "Guidance",
-        "High Priority",
-        "Errors", 
-        "Warnings", 
-        "Overlaps",
-        "Overlaps - NEW"
-      )
-      
-      exportDFList <- exportDFList[sapply(exportDFList, 
-                                          function(x) dim(x)[1]) > 0]
-      exportDFList
+      getDQReportDataList(orgDQData, orgDQoverlaps)
+    })
+    
+    fullDQReportDataList <- reactive({
+      req(valid_file() == 1)
+      getDQReportDataList(dq_main_reactive(), overlapNEW)
     })
     
     output$downloadOrgDQReport <- downloadHandler(
