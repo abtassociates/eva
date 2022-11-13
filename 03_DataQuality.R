@@ -763,7 +763,7 @@ outreach_stayers <- served_in_date_range %>%
            ProjectType == 4) %>%
   mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, latestInfoDate))) 
 
-Top2_Outreach <- subset(outreach_stayers %>% select(-EnrollmentID, -latestInfoDate), Days > input$OutLongStayers)
+Top2_Outreach <- subset(outreach_stayers %>% select(-c(EnrollmentID, latestInfoDate)), Days > input$OUTLongStayers)
 
 missed_movein_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
