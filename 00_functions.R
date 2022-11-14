@@ -229,18 +229,19 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     select(all_of(select_list))
   
   summary <- rbind(
-      dqData %>% select(ProjectName, Type, Issue, PersonalID),
-      dqOverlaps %>% select("ProjectName" = "ProjectName.x", Type, Issue, PersonalID)
+      dqData %>% select(Type, Issue, PersonalID),
+      dqOverlaps %>% select(Type, Issue, PersonalID)
     ) %>%
-    group_by(ProjectName, Type, Issue) %>%
+    # group_by(ProjectName, Type, Issue) %>%
+    group_by(Type, Issue) %>%
     summarise(Clients = n()) %>%
-    select(Type, Clients, ProjectName, Issue) %>%
+    select(Type, Clients, Issue) %>%
     arrange(Type, desc(Clients))
   
   guidance <- dqData %>%
     select(Type, Issue, Guidance) %>%
     unique() %>%
-    mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
+    mutate(Type = factor(Type, levels = c("High Priority","High Priority - Overlap", "Error", "Warning"))) %>%
     arrange(Type)
   
   exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
