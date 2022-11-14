@@ -255,9 +255,9 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     "Warnings", 
     "Overlaps"
   )
-  
+
   exportDFList <- exportDFList[sapply(exportDFList, 
                                       function(x) dim(x)[1]) > 0]
-  
+
   return(exportDFList)
 }
