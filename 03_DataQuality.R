@@ -2453,6 +2453,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(plot.title = element_text(size=16, hjust = 0.5),
+           axis.title.x = element_text(size = 14),
            axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
@@ -2487,6 +2488,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(plot.title = element_text(size=16, hjust = 0.5),
+           axis.title.x = element_text(size = 14),
            axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
@@ -2537,6 +2539,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(plot.title = element_text(size=16, hjust = 0.5),
+           axis.title.x = element_text(size = 14),
            axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
@@ -2571,6 +2574,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(plot.title = element_text(size=16, hjust = 0.5),
+           axis.title.x = element_text(size = 14),
            axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
@@ -2609,6 +2613,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(plot.title = element_text(size=16, hjust = 0.5),
+           axis.title.x = element_text(size = 14),
            axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
@@ -2643,6 +2648,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(plot.title = element_text(size=16, hjust = 0.5),
+           axis.title.x = element_text(size = 14),
            axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
