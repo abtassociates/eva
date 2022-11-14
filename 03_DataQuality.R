@@ -2449,8 +2449,10 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with High Priority Errors") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
@@ -2458,7 +2460,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
            panel.grid.major = element_blank()) +
      geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")
    
-   # Most common high priority errors system-wide
+      # Most common high priority errors system-wide
    
    dq_data_high_priority_error_types_org_level <- dq_w_organization_names %>%
      filter(Type %in% c("High Priority")) %>%
@@ -2479,8 +2481,10 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with High Piority Errors") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
@@ -2525,8 +2529,10 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with General Errors") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
@@ -2555,8 +2561,10 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with General Errors") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
@@ -2589,8 +2597,10 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with Warnings") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
@@ -2619,8 +2629,10 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with Warnings") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
