@@ -16,6 +16,10 @@ function(input, output, session) {
   
   valid_file <- reactiveVal(0)
 
+  output$headerNoFileYet <- renderUI({
+    req(valid_file() == 0)
+    HTML("You have not successfully uploaded your zipped CSV file yet.")
+  })
 
   observeEvent(input$imported, {
     
@@ -160,11 +164,6 @@ function(input, output, session) {
           format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
         )
       )
-    })
-    
-    output$headerNoFileYet <- renderUI({
-      req(valid_file() == 0)
-      HTML("You have not successfully uploaded your zipped CSV file yet.")
     })
     
     if(valid_file() == 1) {
