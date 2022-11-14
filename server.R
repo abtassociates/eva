@@ -13,14 +13,6 @@
 # <https://www.gnu.org/licenses/>. test
 
 function(input, output, session) {
-
-  observeEvent(input$imported,{
-    req(valid_file() == 1)
-    
-    updateSelectInput(session, "orgList",
-                      choices = c(Organization$OrganizationName %>%
-                                    unique() %>% sort()))
-  })
   
   valid_file <- reactiveVal(0)
 
@@ -539,7 +531,7 @@ function(input, output, session) {
         filter(OrganizationName %in% c(input$orgList))
       
       orgDQoverlaps <- overlapNEW %>%
-        filter(OrganizationName %in% c(input$orgList))
+        filter(OrganizationName.x %in% c(input$orgList) | OrganizationName.y %in% c(input$orgList))
       
       getDQReportDataList(orgDQData, orgDQoverlaps)
     })
