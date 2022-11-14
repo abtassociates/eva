@@ -228,8 +228,10 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
     select(all_of(select_list))
   
-  summary <- rbind(dqData, dqOverlaps %>% select(Type, ProjectName, Issue)) %>%
-    select(ProjectName, Type, Issue, PersonalID) %>%
+  summary <- rbind(
+      dqData %>% select(ProjectName, Type, Issue, PersonalID),
+      dqOverlaps %>% select("ProjectName" = "ProjectName.x", Type, Issue, PersonalID)
+    ) %>%
     group_by(ProjectName, Type, Issue) %>%
     summarise(Clients = n()) %>%
     select(Type, Clients, ProjectName, Issue) %>%
