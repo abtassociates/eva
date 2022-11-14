@@ -538,17 +538,15 @@ function(input, output, session) {
       orgDQData <- dq_main_reactive() %>%
         filter(OrganizationName %in% c(input$orgList))
       
-      orgDQoverlaps <- dq_overlaps %>%
+      orgDQoverlaps <- overlapNEW %>%
         filter(OrganizationName %in% c(input$orgList))
-      
       
       getDQReportDataList(orgDQData, orgDQoverlaps)
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      
-      getDQReportDataList(dq_main_reactive(), dq_overlaps)
+      getDQReportDataList(dq_main_reactive(), overlapNEW)
     })
     
     output$downloadOrgDQReport <- downloadHandler(

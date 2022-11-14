@@ -228,15 +228,7 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
     select(all_of(select_list))
   
-  overlaps <- dqOverlaps %>%
-    filter(Issue %in% list("Overlapping Project Stays")) %>%
-    select(all_of(select_list), 
-           "Move-In Date" = MoveInDateAdjust,
-           "Exit Date" = ExitDate,
-           "Overlaps With This Provider's Stay" = PreviousProject
-    )
-  
-  summary <- dqData %>% 
+  summary <- rbind(dqData, dqOverlaps %>% select(Type, ProjectName, Issue)) %>%
     select(ProjectName, Type, Issue, PersonalID) %>%
     group_by(ProjectName, Type, Issue) %>%
     summarise(Clients = n()) %>%
@@ -260,7 +252,7 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     high_priority = high_priority,
     errors = errors,
     warnings = warnings,
-    overlaps = overlaps
+    overlaps = dqOverlaps
   )
   
   names(exportDFList) = c(
@@ -270,7 +262,7 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     "High Priority",
     "Errors", 
     "Warnings", 
-    "Overlaps Detail"
+    "Overlaps"
   )
   
   exportDFList <- exportDFList[sapply(exportDFList, 
