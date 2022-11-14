@@ -747,19 +747,21 @@ function(input, output, session) {
                  color = "#063a89",
                  fill = "#063a89") +
         coord_flip() +
-        labs(title = "Projects with the Most High Priority Errors",
+        labs(title = "Projects with Most High Priority Errors",
              x = "",
-             y = "Number of Clients with High Priority Errors") +
+             y = "Number of Clients") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
         theme_classic() +
-        theme(axis.line = element_line(linetype = "blank"),
+        theme(plot.title = element_text(size=16, hjust = 0.5),
+              axis.title.x = element_text(size = 14),
+              axis.line = element_line(linetype = "blank"),
               axis.text = element_text(size = 12),
               axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
               panel.grid.minor = element_blank(),
               panel.grid.major = element_blank()) +
-        geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")})
+        geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black", size = 5)})
     
     
     output$orgDQHighPriorityErrors_ui <- renderUI({
@@ -782,17 +784,19 @@ function(input, output, session) {
         coord_flip() +
         labs(title = "Most Common High Priority Errors",
              x = "",
-             y = "Number of Clients with High Piority Errors") +
+             y = "Number of Clients") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
         theme_classic() +
-        theme(axis.line = element_line(linetype = "blank"),
+        theme(plot.title = element_text(size=16, hjust = 0.5),
+              axis.title.x = element_text(size = 14),
+              axis.line = element_line(linetype = "blank"),
               axis.text = element_text(size = 12),
               axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
               panel.grid.minor = element_blank(),
               panel.grid.major = element_blank()) +
-        geom_text(aes(label = Errors), hjust = -0.5, color = "black")})
+        geom_text(aes(label = Errors), hjust = -0.5, color = "black", size = 5)})
     
     output$orgDQHighPriorityErrorTypes_ui <- renderUI({
       plotOutput("orgDQHighPriorityErrorTypes", height = plotHeight_hp_errors())
@@ -820,17 +824,19 @@ function(input, output, session) {
         coord_flip() +
         labs(title = "Projects with the Most General Errors",
              x = "",
-             y = "Number of Clients with General Errors") +
+             y = "Number of Clients") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
         theme_classic() +
-        theme(axis.line = element_line(linetype = "blank"),
+        theme(plot.title = element_text(size=16, hjust = 0.5),
+              axis.line = element_line(linetype = "blank"),
+              axis.title.x = element_text(size = 14),
               axis.text = element_text(size = 12),
               axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
               panel.grid.minor = element_blank(),
               panel.grid.major = element_blank()) +
-        geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")})
+        geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black", size = 5)})
     
     output$orgDQErrors_ui <- renderUI({
       plotOutput("orgDQErrors", height = plotHeight_general_errors())
@@ -852,17 +858,19 @@ function(input, output, session) {
         coord_flip() +
         labs(title = "Most Common General Errors",
              x = "",
-             y = "Number of Clients with General Errors") +
+             y = "Number of Clients") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
         theme_classic() +
-        theme(axis.line = element_line(linetype = "blank"),
+        theme(plot.title = element_text(size=16, hjust = 0.5),
+              axis.title.x = element_text(size = 14),
+              axis.line = element_line(linetype = "blank"),
               axis.text = element_text(size = 12),
               axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
               panel.grid.minor = element_blank(),
               panel.grid.major = element_blank()) +
-        geom_text(aes(label = Errors), hjust = -0.5, color = "black")})
+        geom_text(aes(label = Errors), hjust = -0.5, color = "black", size = 5)})
     
     output$orgDQErrorTypes_ui <- renderUI({
       plotOutput("orgDQErrorTypes", height = plotHeight_general_errors())
@@ -888,17 +896,19 @@ function(input, output, session) {
         coord_flip() +
         labs(title = "Projects with the Most Warnings",
              x = "",
-             y = "Number of Clients with Warnings") +
+             y = "Number of Clients") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
         theme_classic() +
-        theme(axis.line = element_line(linetype = "blank"),
+        theme(plot.title = element_text(size=16, hjust = 0.5),
+              axis.title.x = element_text(size = 14),
+              axis.line = element_line(linetype = "blank"),
               axis.text = element_text(size = 12),
               axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
               panel.grid.minor = element_blank(),
               panel.grid.major = element_blank()) +
-        geom_text(aes(label = Warnings), hjust = -0.5, color = "black")})
+        geom_text(aes(label = Warnings), hjust = -0.5, color = "black", size = 5)})
     
     output$orgDQWarnings_ui <- renderUI({
       plotOutput("orgDQWarnings", height = plotHeight_warnings())
@@ -920,17 +930,19 @@ function(input, output, session) {
         coord_flip() +
         labs(title = "Most Common Warnings",
              x = "",
-             y = "Number of Clients with Warnings") +
+             y = "Number of Clients") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
         theme_classic() +
-        theme(axis.line = element_line(linetype = "blank"),
+        theme(plot.title = element_text(size=16, hjust = 0.5),
+              axis.title.x = element_text(size = 14),
+              axis.line = element_line(linetype = "blank"),
               axis.text = element_text(size = 12),
               axis.text.x = element_blank(),
               axis.ticks = element_line(linetype = "blank"),
               plot.background = element_blank(),
               panel.grid.minor = element_blank(),
               panel.grid.major = element_blank()) +
-        geom_text(aes(label = Warnings), hjust = -0.5, color = "black")})
+        geom_text(aes(label = Warnings), hjust = -0.5, color = "black", size = 5)})
     
     output$orgDQWarningTypes_ui <- renderUI({
       plotOutput("orgDQWarningTypes", height = plotHeight_warnings())
