@@ -440,53 +440,36 @@ dashboardPage(
           collapsed = TRUE,
           HTML("")
         )),
+        
         fluidRow(
-          box(
-            uiOutput("systemDQHighPriorityErrorTypes_ui"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common High Priority Errors"
-          ),
-          box(
-            uiOutput("systemDQHighPriorityErrors_ui"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most High Priority Errors"
-          )
+          uiOutput("dq_hp_errors_null_system")),
+        
+        fluidRow(
+          column(6,
+                 uiOutput("systemDQHighPriorityErrorTypes_ui")),
+          column(6,
+                 uiOutput("systemDQHighPriorityErrors_ui"))
+          
         ),
+        br(),
         fluidRow(
-          box(
-            plotOutput("systemDQErrorTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common General Errors"
-          ),
-          box(
-            plotOutput("systemDQErrors"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most General Errors"
-          )
+          uiOutput("dq_general_errors_null_system")),
+        
+        fluidRow(
+          column(6,
+                 uiOutput("systemDQErrorTypes_ui")),
+          column(6,
+                 uiOutput("systemDQErrors_ui")) 
         ),
+        br(),
         fluidRow(
-          box(
-            plotOutput("systemDQWarningTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common Warnings"
-          ),
-          box(
-            plotOutput("systemDQWarnings"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most Warnings"
-          )
+          uiOutput("dq_warnings_null_system")),
+        
+        fluidRow(
+          column(6,
+                 uiOutput("systemDQWarningTypes_ui")),
+          column(6,
+                 uiOutput("systemDQWarnings_ui"))
         )
       )
     )
