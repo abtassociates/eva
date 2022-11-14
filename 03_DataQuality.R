@@ -2447,18 +2447,20 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               color = "#063a89",
               fill = "#063a89") +
      coord_flip() +
-     labs(x = "",
-          y = "Number of Clients with High Priority Errors") +
+     labs(title= "Top Organizations with High Priority Errors",
+          x = "",
+          y = "Number of Clients") +
      scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
-     theme(axis.line = element_line(linetype = "blank"),
+     theme(plot.title = element_text(size=16, hjust = 0.5),
+           axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
            panel.grid.major = element_blank()) +
-     geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")
+     geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black", size = 5)
    
       # Most common high priority errors system-wide
    
@@ -2479,18 +2481,20 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               color = "#063A89",
               fill = "#063a89") +
      coord_flip() +
-     labs(x = "",
-          y = "Number of Clients with High Piority Errors") +
+     labs(title= "Most Common High Priority Errors",
+          x = "",
+          y = "Number of Clients") +
      scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
-     theme(axis.line = element_line(linetype = "blank"),
+     theme(plot.title = element_text(size=16, hjust = 0.5),
+           axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
            panel.grid.major = element_blank()) +
-     geom_text(aes(label = Errors), hjust = -0.5, color = "black")
+     geom_text(aes(label = Errors), hjust = -0.5, color = "black", size = 5)
    
    # Top orgs with Errors - General
    
@@ -2527,18 +2531,20 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               color = "#063a89",
               fill = "#063a89") +
      coord_flip() +
-     labs(x = "",
-          y = "Number of Clients with General Errors") +
+     labs(title= "Top Organizations with General Errors",
+          x = "",
+          y = "Number of Clients") +
      scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
-     theme(axis.line = element_line(linetype = "blank"),
+     theme(plot.title = element_text(size=16, hjust = 0.5),
+           axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
            panel.grid.major = element_blank()) +
-     geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")
+     geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black", size = 5)
    
    # Most common general errors system-wide
    
@@ -2559,18 +2565,20 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               color = "#063A89",
               fill = "#063a89") +
      coord_flip() +
-     labs(x = "",
-          y = "Number of Clients with General Errors") +
+     labs(title= "Most Common General Errors",
+          x = "",
+          y = "Number of Clients") +
      scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
-     theme(axis.line = element_line(linetype = "blank"),
+     theme(plot.title = element_text(size=16, hjust = 0.5),
+           axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
            panel.grid.major = element_blank()) +
-     geom_text(aes(label = Errors), hjust = -0.5, color = "black")
+     geom_text(aes(label = Errors), hjust = -0.5, color = "black", size=5)
    
    #Top orgs with warnings
    
@@ -2595,18 +2603,20 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               color = "#063a89",
               fill = "#063A89") +
      coord_flip() +
-     labs(x = "",
-          y = "Number of Clients with Warnings") +
+     labs(title= "Top Organizations with Warnings",
+          x = "",
+          y = "Number of Clients") +
      scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
-     theme(axis.line = element_line(linetype = "blank"),
+     theme(plot.title = element_text(size=16, hjust = 0.5),
+           axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
            panel.grid.major = element_blank()) +
-     geom_text(aes(label = Warnings), hjust = -0.5, color = "black")
+     geom_text(aes(label = Warnings), hjust = -0.5, color = "black", size = 5)
    
    #Most common warnings system-wide
    
@@ -2627,18 +2637,20 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               color = "#063A89",
               fill = "#063A89") +
      coord_flip() +
-     labs(x = "",
-          y = "Number of Clients with Warnings") +
+     labs(title= "Most Common Warnings",
+          x = "",
+          y = "Number of Clients") +
      scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
-     theme(axis.line = element_line(linetype = "blank"),
+     theme(plot.title = element_text(size=16, hjust = 0.5),
+           axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
            panel.grid.major = element_blank()) +
-     geom_text(aes(label = Warnings), hjust = -0.5, color = "black")
+     geom_text(aes(label = Warnings), hjust = -0.5, color = "black", size = 5)
    
 # Prepping dataframes for plots for Organization-Level DQ Tab -----------------
    
