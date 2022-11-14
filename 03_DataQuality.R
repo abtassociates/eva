@@ -2507,6 +2507,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
+                                        "High Priority - Overlap",
                                         "Error",
                                         "Warning")))
     

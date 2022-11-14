@@ -253,9 +253,9 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     summary = summary,
     guidance = guidance,
     high_priority = high_priority,
+    overlaps = dqOverlaps,
     errors = errors,
-    warnings = warnings,
-    overlaps = dqOverlaps
+    warnings = warnings
   )
   
   names(exportDFList) = c(
@@ -263,9 +263,9 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     "Summary",
     "Guidance",
     "High Priority",
+    "High Priority - Overlaps",
     "Errors", 
-    "Warnings", 
-    "Overlaps"
+    "Warnings"
   )
   
   exportDFList <- exportDFList[sapply(exportDFList, 
