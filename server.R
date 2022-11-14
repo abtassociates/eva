@@ -664,11 +664,19 @@ function(input, output, session) {
       
       dq_plot_organizations_warnings})
     
-    output$systemDQWarningTypes <- renderPlot(height = plotHeight_warnings_system(), {
+    output$systemDQWarnings_ui <- renderUI({
+      plotOutput("systemDQWarnings", height = plotHeight_warnings_system())
+    })
+    
+    output$systemDQWarningTypes <- renderPlot({
       req(valid_file() == 1,
           nrow(dq_data_warning_types_org_level) > 0)
       
       dq_plot_warnings_org_level})
+    
+    output$systemDQWarningTypes_ui <- renderUI({
+      plotOutput("systemDQWarningTypes", height = plotHeight_warnings_system())
+    })
     
     #Org-Level Tab Plots
     
