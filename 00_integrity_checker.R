@@ -472,33 +472,33 @@ rel_to_hoh_invalid <- Enrollment %>%
   select(Issue, Type, Guidance) %>%
   unique()
 
-move_in_date_invalid <- Enrollment %>%
-  left_join(Exit %>% select(EnrollmentID, ExitDate), by = "EnrollmentID") %>%
-  mutate(
-    Issue = if_else(
-      (
-        MoveInDate >= EntryDate &
-          MoveInDate <= coalesce(ExitDate, meta_HUDCSV_Export_Date))
-       |
-        is.na(MoveInDate),
-      "Nothing",
-      "Invalid MoveInDate"
-    ),
-    Type = "Error",
-    Guidance = paste(
-      "Enrollment ID", 
-      EnrollmentID, 
-      "has a Move-In Date of",
-      MoveInDate,
-      "which does not fall between the Entry Date of",
-      EntryDate,
-      "and the Exit Date (or end of the reporting period.)")
-  ) %>%
-  filter(Issue != "Nothing") %>%
-  select(Issue, Type, Guidance) %>%
-  
-  
-  unique()
+# move_in_date_invalid <- Enrollment %>%
+#   left_join(Exit %>% select(EnrollmentID, ExitDate), by = "EnrollmentID") %>%
+#   mutate(
+#     Issue = if_else(
+#       (
+#         MoveInDate >= EntryDate &
+#           MoveInDate <= coalesce(ExitDate, meta_HUDCSV_Export_Date))
+#        |
+#         is.na(MoveInDate),
+#       "Nothing",
+#       "Invalid MoveInDate"
+#     ),
+#     Type = "Error",
+#     Guidance = paste(
+#       "Enrollment ID", 
+#       EnrollmentID, 
+#       "has a Move-In Date of",
+#       MoveInDate,
+#       "which does not fall between the Entry Date of",
+#       EntryDate,
+#       "and the Exit Date (or end of the reporting period.)")
+#   ) %>%
+#   filter(Issue != "Nothing") %>%
+#   select(Issue, Type, Guidance) %>%
+#   
+#   
+#   unique()
 
 integrity_enrollment <-
   rbind(
@@ -506,8 +506,8 @@ integrity_enrollment <-
     foreign_key_no_primary_personalid_enrollment,
     foreign_key_no_primary_projectid_enrollment,
     disabling_condition_invalid,
-    rel_to_hoh_invalid,
-    move_in_date_invalid
+    rel_to_hoh_invalid
+    # move_in_date_invalid
   )
 
 # Exit --------------------------------------------------------------------
