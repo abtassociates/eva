@@ -377,7 +377,9 @@ function(input, output, session) {
           "Entry Date" = EntryDate,
           "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
           "Exit Date" = ExitDate,
-          Status
+          Status,
+          ProjectID,
+          OrganizationName
         )
     })
     output$clientCountData <- DT::renderDataTable({
