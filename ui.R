@@ -124,14 +124,6 @@ dashboardPage(
                  used to build this app, plus the community on whose code this app
                  was built.</p>")
           ),  
-          box(title = "Status",
-              conditionalPanel(
-                condition = "valid_file() == 0",
-                uiOutput("headerFileInfo")),
-              conditionalPanel(
-                condition = "valid_file() == 1",
-                uiOutput("headerNoFileYet")), 
-              width = 12),
           box(
             title = "Upload Hashed CSV zip file",
             HTML('<i class="fa fa-info-circle" 
@@ -141,6 +133,12 @@ dashboardPage(
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
+            conditionalPanel(
+              condition = "valid_file() == 0",
+              uiOutput("headerFileInfo")),
+            conditionalPanel(
+              condition = "valid_file() == 1",
+              uiOutput("headerNoFileYet")),
             width = 12
           ), 
           box(
