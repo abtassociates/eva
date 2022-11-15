@@ -63,27 +63,27 @@ operatingEndMissing <- Enrollment %>%
 # Missing CoC Information Missing address field(s), Missing Geocode, Missing Geography Type, Invalid Zip Code if possible
 missingCoCInfo <- Project %>%
   left_join(ProjectCoC, by = "ProjectID") %>%
-  filter(is_null(Address1) | 
-           is_null(City) | 
-           is_null(State) | 
-           is_null(Geocode) | 
-           is_null(GeographyType) | 
+  filter(is.na(Address1) | 
+           is.na(City) | 
+           is.na(State) | 
+           is.na(Geocode) | 
+           is.na(GeographyType) | 
            nchar(ZIP) != 5 |
-           is_null(ZIP) |
-           is_null(CoCCode)
+           is.na(ZIP) |
+           is.na(CoCCode)
   ) %>%
   mutate(Issue = "Missing Geography Information",
          Guidance = case_when(
-           is_null(CoCCode) ~ "This project's CoC Code is missing",
-           is_null(Address1) ~ "This project's Address is missing",
-           is_null(City) ~ "This project's City is missing",
-           is_null(State) ~ "This project's State is missing",
-           is_null(Geocode) ~ "This project's Geocode is missing",
-           is_null(GeographyType) ~ "This project's Geography Type is missing",
-           nchar(ZIP) != 5 | is_null(ZIP) ~ "ZIP is missing or not valid"
+           is.na(CoCCode) ~ "This project's CoC Code is missing",
+           is.na(Address1) ~ "This project's Address is missing",
+           is.na(City) ~ "This project's City is missing",
+           is.na(State) ~ "This project's State is missing",
+           is.na(Geocode) ~ "This project's Geocode is missing",
+           is.na(GeographyType) ~ "This project's Geography Type is missing",
+           nchar(ZIP) != 5 | is.na(ZIP) ~ "ZIP is missing or not valid"
          ),
-         Type = if_else(is_null(Geocode) | is_null(GeographyType) |
-                          is_null(CoCCode),
+         Type = if_else(is.na(Geocode) | is.na(GeographyType) |
+                          is.na(CoCCode),
                         "High Priority",
                         "Error")) %>%
   select(all_of(PDDEcols))

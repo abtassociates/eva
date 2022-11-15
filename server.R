@@ -245,8 +245,14 @@ function(input, output, session) {
       },
       content = function(file) {
         req(valid_file() == 1)
-        write_xlsx(pdde_main, path = file)
-        }
+        
+        summary <- pdde_main %>% 
+          group_by(Issue, Type) %>%
+          summarise(Count = n()) %>%
+          ungroup()
+
+        write_xlsx(list("Summary" = summary, "Data" = pdde_main), path = file)
+      }
     )
     
     
