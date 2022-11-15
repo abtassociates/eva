@@ -66,7 +66,7 @@ dashboardPage(
               including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
               <br/>
               <div>This app works by using an uploaded 
-              <a href='https://www.hudhdx.info/VendorResources.aspx'>HMIS CSV</a> 
+              <a href='https://www.hudhdx.info/VendorResources.aspx' target= '_blank' rel='noopener noreferrer'>HMIS CSV</a> 
               file.
               </div>
               <br/>"
@@ -118,11 +118,7 @@ dashboardPage(
                  your file and not process any further. All issues will display
                  in the panel and you can download the details, even if the file
                  was rejected. </p>
-                 
-                 <h4>Citations</h4>
-                 <p>This panel will credit the people who wrote the open-source code
-                 used to build this app, plus the community on whose code this app
-                 was built.</p>")
+                 ")
           ),  
           box(
             title = "Upload Hashed CSV zip file",
@@ -270,7 +266,38 @@ dashboardPage(
             DT::dataTableOutput("integrityChecker"),
             p(),
             uiOutput('downloadIntegrityBtn')
-          )
+          ),
+      box(
+        title = "App Acknowledgements",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        HTML("
+                 <h4>Citations and Special Thanks</h4>
+             
+             <p> This project would not exist were it not for the existence of other quality, 
+             free and open source products. The following are citations for the products this
+             app relies on.
+             
+             <p> R Core Team (2019). R: A language and environment for statistical computing.
+             R Foundation for Statistical Computing. Vienna, Austria. 
+             <a href = 'https://www.r-project.org' target= '_blank' rel='noopener noreferrer'>R programming language</a>.
+             
+             <p> Hadley Wickham (2017). tidyverse: Easily Install and Load the 'Tidyverse.'
+             R package version 1.2.1. 
+             <a href = 'https://cran.r-project.org/web/packages/tidyverse/index.html' target= '_blank' rel='noopener noreferrer'>Tidyverse package</a>.
+             
+             <p>Winston Chang, Joe Cheng, JJ Allaire, Yihue Xie and Jonathan McPherson (2019).
+             shiny: Web Application Framework for R. R package version 1.3.2. 
+             <a href = 'https://cran.r-project.org/web/packages/shiny/index.html' target= '_blank' rel='noopener noreferrer'>R Shiny package</a>
+             and shinydashboard; Create Dashboards with 'Shiny.' R package version 0.7.1.
+             <a href = 'https://cran.r-project.org/web/packages/shinydashboard/index.html' target= '_blank' rel='noopener noreferrer'>shinydashboard package</a>.
+             
+             <p> The foundational code for the app was shared by 
+             <a href = 'https://www.cohhio.org' target= '_blank' rel='noopener noreferrer'>COHHIO</a>, 
+             Coalition on Homelessnessand Housing in Ohio.
+                 ")
+      )
         )
       ), 
       tabItem(
