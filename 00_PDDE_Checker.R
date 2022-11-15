@@ -39,7 +39,7 @@ subpopNotTotal <- Inventory %>%
 # Missing Operating End Date If a project has no open enrollments and the most recent Enrollment was 30+ days ago
 operatingEndMissing <- Enrollment %>%
   group_by(ProjectID) %>%
-  mutate(NumOpenEnrollments = sum(is_null(ExitDate)),
+  mutate(NumOpenEnrollments = sum(is.na(ExitDate)),
          MostRecentEnrollment = max(ExitAdjust, na.rm = TRUE)
 
   ) %>%
@@ -118,11 +118,11 @@ inventoryOutsideOperating <- Inventory %>%
   left_join(Project, by = "ProjectID") %>%
   filter(InventoryStartDate < OperatingStartDate |
            InventoryEndDate > OperatingEndDate |
-           (is_null(InventoryEndDate) & !is_null(OperatingEndDate))) %>%
+           (is.na(InventoryEndDate) & !is.na(OperatingEndDate))) %>%
   mutate(Issue = "Inventory outside operating dates",
          Type = "Warning",
          Guidance = case_when(
-           is_null(InventoryEndDate) & !is_null(OperatingEndDate) ~
+           is.na(InventoryEndDate) & !is.na(OperatingEndDate) ~
             paste("Inventory ID", InventoryID, 
                   "has no InventoryEndDate, but the project ended on",
                   OperatingEndDate
@@ -146,7 +146,7 @@ hmisNotParticipatingButClient <- Project %>%
   left_join(Organization %>% select(OrganizationID, VictimServiceProvider), 
             by = "OrganizationID") %>%
   filter((HMISParticipatingProject != 1 | VictimServiceProvider != 0) & 
-           !is_null(PersonalID)) %>%
+           !is.na(PersonalID)) %>%
   mutate(Issue = "Non-HMIS-Participating project has client-level data",
          Type = "Warning",
          Guidance = "Please check that this project is marked correctly as
