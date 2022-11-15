@@ -14,7 +14,7 @@
 
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "StellaR"),
+  dashboardHeader(title = "[App Name Pending]"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -57,11 +57,11 @@ dashboardPage(
         tabName = "tabHome",
         fluidRow(
           box(
-            title = "Welcome to StellaR!",
+            title = "Welcome to [App Name Pending]!",
             width = 12,
             HTML(
-              "<div>StellaR is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
-              StellaR is designed to help you assess the accuracy and completeness of the data within your HMIS. 
+              "<div>[App Name Pending] is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
+              [App Name Pending] is designed to help you assess the accuracy and completeness of the data within your HMIS. 
               In future iterations it will also assist communities in analyzing your HMIS performance data, 
               including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
               <br/>
@@ -102,7 +102,7 @@ dashboardPage(
                  until you upload another (structurally sound) file. </p>
                  
                  <h4>Edit CoC-specific Settings</h4>
-                 <p>To make StellaR reporting more useful at the local level,
+                 <p>To make [App Name Pending] reporting more useful at the local level,
                  you will find the CoC-specific settings that HMIS Leads can edit
                  to better analyse their data in a way that is meaningful to the
                  CoC. To edit these, click on the \'+\'. If you do not edit them,
