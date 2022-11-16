@@ -118,7 +118,11 @@ dashboardPage(
                  your file and not process any further. All issues will display
                  in the panel and you can download the details, even if the file
                  was rejected. </p>
-                 ")
+                 
+                 <h4>Citations</h4>
+                 <p>This panel will credit the people who wrote the open-source code
+                 used to build this app, plus the community on whose code this app
+                 was built.</p>")
           ),  
           box(
             title = "Upload Hashed CSV zip file",
@@ -268,13 +272,11 @@ dashboardPage(
             uiOutput('downloadIntegrityBtn')
           ),
       box(
-        title = "App Acknowledgements",
+        title = "Citations and Special Thanks",
         width = 12,
         collapsible = TRUE,
         collapsed = TRUE,
         HTML("
-                 <h4>Citations and Special Thanks</h4>
-             
              <p> This project would not exist were it not for the existence of other quality, 
              free and open source products. The following are citations for the products this
              app relies on.
