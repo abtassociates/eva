@@ -6,6 +6,7 @@
 /* || BOXES */
 /* || BUTTONS */
 /* || HELP TEXT CIRCLE*/
+/* || CUSTOM HTML MESSAGES FOR PLOTS */
 
 .content-wrapper {
   overflow: auto;
@@ -171,13 +172,27 @@
 }
 
 /* || HELP TEXT CIRCLE*/
-#shiny-tab-tabUploadCSV .fa-info-circle {
+#shiny-tab-tabHome .fa-info-circle {
   position:absolute;
   top:1em;
   right:1em;
 }
 
-/* || HIDE BUILT-IN UPLOAD COMPLETE BAR*/
-#imported_progress {
-  display:none;
+/* || CUSTOM HTML MESSAGES FOR PLOTS */
+#dq_hp_errors_null.shiny-html-output.shiny-bound-output {
+  font-size: 20px;
+  text-align: center;
+  color: black; /*text color*/
+}
+
+#dq_general_errors_null.shiny-html-output.shiny-bound-output {
+  font-size: 20px;
+  text-align: center;
+  color: black; /*text color*/
+}
+
+#dq_warnings_null.shiny-html-output.shiny-bound-output {
+  font-size: 20px;
+  text-align: center;
+  color: black; /*text color*/
 }

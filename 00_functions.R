@@ -8,11 +8,7 @@ age_years <- function(earlier, later)
   
 }
 
-# served_between <- function(., start, end) {
-#   served <- .$EntryDate <= end  &
-#     (is.na(.$ExitDate) | .$ExitDate >= start)
-#   served
-# }
+# Display Helpers ---------------------------------------------------------
 
 living_situation <- function(ReferenceNo) {
   case_when(
@@ -66,6 +62,7 @@ project_type <- function(ReferenceNo){
     ReferenceNo == 6 ~ "Services Only",
     ReferenceNo == 8 ~ "Safe Haven",
     ReferenceNo == 9 ~ "PH - Housing Only",
+    ReferenceNo == 10 ~ "PH - Housing with Services",
     ReferenceNo == 12 ~ "Prevention",
     ReferenceNo == 13 ~ "Rapid Rehousing",
     ReferenceNo == 14 ~ "Coordinated Entry"
@@ -83,17 +80,14 @@ rel_to_hoh <- function(ReferenceNo){
   )
 }
 
-replace_yes_no <- function(column_name) {
-  if_else(column_name == "No" | is.na(column_name), 0, 1)
-}
-
 enhanced_yes_no_translator <- function(ReferenceNo) {
   case_when(
     ReferenceNo == 0 ~ "No",
     ReferenceNo == 1 ~ "Yes",
     ReferenceNo == 8 ~ "Client doesn't know",
     ReferenceNo == 9 ~ "Client refused",
-    ReferenceNo == 99 ~ "Data not collected"
+    ReferenceNo == 99 ~ "Data not collected",
+    TRUE ~ "something's wrong"
   )
 }
 
@@ -101,9 +95,22 @@ translate_HUD_yes_no <- function(column_name){
   case_when(
     column_name == 1 ~ "Yes", 
     column_name == 0 ~ "No",
-    column_name %in% c(8, 9, 99) ~ "Unknown"
+    column_name %in% c(8, 9, 99) ~ "Unknown",
+    TRUE ~ "something's wrong"
   )
 }
+
+
+# Translate to Values -----------------------------------------------------
+
+
+replace_yes_no <- function(column_name) {
+  case_when(column_name == "No" | is.na(column_name) ~ 0,
+            column_name == "Yes" ~ 1,
+            TRUE ~ "something's wrong")
+}
+
+# Chronic logic -----------------------------------------------------------
 
 chronic_determination <- function(.data, aged_in = FALSE) { 
   
@@ -179,6 +186,8 @@ chronic_determination <- function(.data, aged_in = FALSE) {
   }
 }
 
+# Import Helper -----------------------------------------------------------
+
 parseDate <- function(datevar) {
   newDatevar <- parse_date_time(datevar,
                                 orders = c("Ymd", "mdY"))
@@ -198,3 +207,68 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
 }
 
 
+getDQReportDataList <- function(dqData, dqOverlaps) {
+  select_list = c("Project Name" = "ProjectName",
+                  "Issue" = "Issue",
+                  "Personal ID" = "PersonalID",
+                  "Household ID" = "HouseholdID",
+                  "Entry Date"= "EntryDate",
+                  "Organization Name" = "OrganizationName",
+                  "Project ID" = "ProjectID")
+
+  high_priority <- dqData %>% 
+    filter(Type == "High Priority") %>% 
+    select(all_of(select_list))
+  
+  errors <- dqData %>%
+    filter(Type == "Error") %>% 
+    select(all_of(select_list))
+  
+  warnings <- dqData %>%
+    filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
+    select(all_of(select_list))
+  
+  summary <- rbind(
+      dqData %>% select(ProjectName, Type, Issue, PersonalID),
+      dqOverlaps %>% select("ProjectName" = "ProjectName.x", Type, Issue, PersonalID)
+    ) %>%
+    group_by(ProjectName, Type, Issue) %>%
+    summarise(Clients = n()) %>%
+    select(Type, Clients, ProjectName, Issue) %>%
+    arrange(Type, desc(Clients))
+  
+  guidance <- dqData %>%
+    select(Type, Issue, Guidance) %>%
+    unique() %>%
+    mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
+    arrange(Type)
+  
+  exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
+                           c(meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End, meta_HUDCSV_Export_Date))
+  colnames(exportDetail) = c("Export Field", "Value")
+  
+  exportDFList <- list(
+    exportDetail = exportDetail,
+    summary = summary,
+    guidance = guidance,
+    high_priority = high_priority,
+    errors = errors,
+    warnings = warnings,
+    overlaps = dqOverlaps
+  )
+  
+  names(exportDFList) = c(
+    "Export Detail",
+    "Summary",
+    "Guidance",
+    "High Priority",
+    "Errors", 
+    "Warnings", 
+    "Overlaps"
+  )
+  
+  exportDFList <- exportDFList[sapply(exportDFList, 
+                                      function(x) dim(x)[1]) > 0]
+  
+  return(exportDFList)
+}

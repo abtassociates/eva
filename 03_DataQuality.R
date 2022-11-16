@@ -56,6 +56,7 @@ served_in_date_range <- Enrollment %>%
   # filter(served_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
+  left_join(Project %>% select(ProjectID, TrackingMethod, OrganizationName), by = "ProjectID") %>%
   select(
     PersonalID,
     FirstName,
@@ -103,7 +104,8 @@ served_in_date_range <- Enrollment %>%
     LengthOfStay,
     DateOfPATHStatus,
     ReasonNotEnrolled,
-    ClientLocation
+    ClientLocation,
+    TrackingMethod
   ) %>%
   inner_join(projects_current_hmis, by = "ProjectID")
 
@@ -122,6 +124,7 @@ vars_prep <- c(
   "HouseholdID",
   "PersonalID",
   "OrganizationName",
+  "ProjectID",
   "ProjectName",
   "ProjectType",
   "EntryDate",
@@ -159,7 +162,7 @@ dq_dob <- served_in_date_range %>%
     Issue = case_when(
       is.na(DOB) & DOBDataQuality %in% c(1, 2) ~ "Missing DOB",
       DOBDataQuality == 99 ~ "Missing Date of Birth Data Quality",
-      DOBDataQuality %in% c(2, 8, 9) ~ "Don't Know/Refused or Approx. Date of Birth",
+      DOBDataQuality %in% c(8, 9) ~ "Don't Know/Refused or Approx. Date of Birth",
       AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect Date of Birth or Entry Date"
     ),
     Type = case_when(
@@ -283,8 +286,11 @@ dq_veteran <- served_in_date_range %>%
 # Missing Client Location -------------------------------------------------
 
 missing_client_location <- served_in_date_range %>%
-  filter(is.na(ClientLocation),
-         RelationshipToHoH == 1) %>%
+  left_join(EnrollmentCoC %>% select(EnrollmentID, DataCollectionStage), by = "EnrollmentID") %>%
+  filter(is.na(ClientLocation) & 
+         RelationshipToHoH == 1 &
+        DataCollectionStage == 1
+  ) %>%
   mutate(Type = "High Priority",
          Issue = "Missing Client Location",
          Guidance = 
@@ -303,13 +309,14 @@ hh_children_only <- served_in_date_range %>%
   ungroup() %>%
   left_join(served_in_date_range, by = c("HouseholdID","maxAge" = "AgeAtEntry")) %>%
   distinct(HouseholdID, maxAge, .keep_all = TRUE) %>%
-  mutate(Issue = "Children Only Household",
+  mutate(Issue = "Oldest Household Member Under 12",
          Type = "High Priority",
-         Guidance = "Unless your project serves youth younger than 18 
+         Guidance = "Unless your project serves youth younger than 12 
          exclusively, every household should have at least one adult in it. If 
          you are not sure how to correct this, please contact the HMIS team for 
          help.") %>%
   select(all_of(vars_we_want))
+
 hh_no_hoh <- served_in_date_range %>%
   group_by(HouseholdID) %>%
   summarise(hasHoH = if_else(min(RelationshipToHoH) != 1,
@@ -723,8 +730,7 @@ Top2_ES <- subset(es_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
 psh_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) &
-           ProjectType %in% c(3, 9, 10)) %>%
+  filter(is.na(ExitDate) & ProjectType %in% c(3, 9, 10)) %>%
   mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
 
 Top1_PSH <- subset(psh_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
@@ -741,16 +747,47 @@ ce_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
            ProjectType == 14) %>%
-  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate))) 
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))) 
 
 Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+
+outreach_stayers <- served_in_date_range %>%
+  select(all_of(vars_prep), ProjectID, EnrollmentID) %>%
+  left_join(
+    CurrentLivingSituation %>% 
+      group_by(EnrollmentID) %>%
+      summarise(latestInfoDate = max(InformationDate)) %>%
+      ungroup() %>%
+      select(EnrollmentID, latestInfoDate)
+    , by = "EnrollmentID"
+  ) %>%
+  filter(is.na(ExitDate) &
+           ProjectType == 4) %>%
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, latestInfoDate))) 
+
+Top2_Outreach <- subset(outreach_stayers %>% select(-c(EnrollmentID, latestInfoDate)), Days > input$OUTLongStayers)
+
+missed_movein_stayers <- served_in_date_range %>%
+  select(all_of(vars_prep), ProjectID) %>%
+  filter(is.na(ExitDate) &
+           ProjectType %in% c(3,9,10,13)
+  ) %>%
+  mutate(
+    Days = as.numeric(difftime(MoveInDateAdjust, EntryDate)),
+    Issue = "Possible Missed Move-In Date",
+    Type = "Warning",
+    Guidance = "Fix Me"
+  )
+
+Top2_movein <- subset(missed_movein_stayers, Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE))
 
 extremely_long_stayers <- rbind(Top1_PSH,
                                 Top2_ES,
                                 Top2_RRH,
                                 Top2_TH,
                                 Top2_HP,
-                                Top2_CE) %>%
+                                Top2_CE,
+                                Top2_Outreach) %>%
   mutate(
     Issue = "Possible Missed Exit Date",
     Type = "Warning",
@@ -764,6 +801,8 @@ extremely_long_stayers <- rbind(Top1_PSH,
                      Date. If they are actively enrolled, do not change the data.")
   ) %>% 
   select(all_of(vars_we_want))
+
+extremely_long_stayers <- rbind(extremely_long_stayers, Top2_movein %>% select(all_of(vars_we_want)))
 
 rm(list = ls(pattern = "Top*"),
    es_stayers,
@@ -840,6 +879,14 @@ enrolled_in_sh <- served_in_date_range %>%
   filter(ProjectType == 8) %>%
   mutate(SH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
   select(PersonalID, SH_range, "SHProjectName" = ProjectName)
+
+# Project Exit Before Start --------------
+exit_before_start <- served_in_date_range %>%
+  filter(ExitDate < EntryDate & !is_null(ExitDate) & !is_null(EntryDate)) %>% 
+  mutate(Issue = "Project Exit Before Start",
+         Type = "Error",
+         Guidance = guidance_exit_before_start) %>%
+  select(all_of(vars_we_want))
 
 # Missing Project Stay or Incorrect Destination ---------------------------
 
@@ -1205,16 +1252,17 @@ future_ees <- served_in_date_range %>%
   select(all_of(vars_we_want))
 
 future_exits <- served_in_date_range %>%
-  filter(ExitDate > today()) %>%
+  filter(ExitAdjust > meta_HUDCSV_Export_Date) %>%
   mutate(
     Issue = "Future Exit Date",
     Type = "Error",
     Guidance = "This client's Exit Date is a date in the future. Please 
-    enter the exact date the client left your program. If this client has not
-    yet exited, delete the Exit and then enter the Exit Date once the client
-    is no longer in your program."
+  enter the exact date the client left your program. If this client has not
+  yet exited, delete the Exit and then enter the Exit Date once the client
+  is no longer in your program."
   ) %>%
   select(all_of(vars_we_want))
+    
 
 # Missing Income at Entry -------------------------------------------------
 
@@ -1352,157 +1400,218 @@ conflicting_income_exit <- income_subs %>%
 
 rm(income_subs)
 
-# Overlapping Enrollment/Move In Dates ------------------------------------
+# Enrollment Active Outside Operating Dates ------------------------
+active_outside_dates <- served_in_date_range %>%
+  filter(RelationshipToHoH == 1 &
+           EntryDate < OperatingStartDate |
+           (ExitDate > OperatingEndDate & !is_null(ExitDate)) |
+           (is_null(ExitDate) & !is_null(OperatingEndDate))
+  ) %>%
+  mutate(Issue = "Enrollment Active Outside Project Operating Dates",
+         Type = "Error",
+         Guidance = guidance_enrl_active_outside_op) %>%
+  select(all_of(vars_we_want))
 
-# this only pulls the most recent EE in the overlap and I think that's fine but
-# some users won't like being flagged for it if it's someone else's fault
-# but you can't tell whose fault it is from the data so...
+# Overlapping NEW (11/2) ------------------------------------
+overlapNEWvars = c("EnrollmentID", 
+                   "TrackingMethod", 
+                   "EntryDate", 
+                   # "ExitDate", 
+                   "ExitAdjust",
+                   "ProjectType", 
+                   "PersonalID", 
+                   "ProjectID",
+                   "OrganizationName",
+                   "ProjectName", 
+                   "HouseholdID",
+                   "DateProvided",
+                   "MoveInDate"
+                   )
 
-staging_overlaps <- served_in_date_range %>%
-  select(all_of(vars_prep), ExitAdjust) %>%
-  mutate(
-    EntryAdjust = case_when(
-      #for PSH and RRH, EntryAdjust = MoveInDate
-      ProjectType %in% c(1, 2, 8, 12) |
-        ProjectName == "Unsheltered Clients - OUTREACH" ~ EntryDate,
-      ProjectType %in% c(3, 9, 13) &
-        !is.na(MoveInDateAdjust) ~ MoveInDateAdjust,
-      ProjectType %in% c(3, 9, 13) &
-        is.na(MoveInDateAdjust) ~ EntryDate
-    ),
-    ExitAdjust = ExitAdjust - days(1),
-    # bc a client can exit&enter same day
-    LiterallyInProject = if_else(
-      ProjectType %in% c(3, 9, 13),
-      interval(MoveInDateAdjust, ExitAdjust),
-      interval(EntryAdjust, ExitAdjust)
-    ),
-    Issue = "Overlapping Project Stays",
-    Type = "High Priority",
-    Guidance = "Fix Me"
-  ) %>%
-  filter(!is.na(LiterallyInProject) &
-           int_length(LiterallyInProject) > 0) %>%
-  get_dupes(., PersonalID) %>%
-  group_by(PersonalID) %>%
-  arrange(PersonalID, EntryAdjust) %>%
-  mutate(
-    PreviousEntryAdjust = lag(EntryAdjust),
-    PreviousExitAdjust = lag(ExitAdjust),
-    PreviousProject = lag(ProjectName)
-  ) %>%
-  filter(!is.na(PreviousEntryAdjust)) %>%
-  ungroup()
+overlapNEWcols_to_remove <- c("DateProvided.x", "DateProvided.y")
+overlapNEW_services <- Services %>% 
+  select(EnrollmentID, DateProvided)
 
-same_day_overlaps <- served_in_date_range %>%
-  filter((ProjectType == 13 & MoveInDateAdjust == ExitDate) |
-           ProjectType != 13) %>%
-  select(all_of(vars_prep), ExitAdjust) %>%
-  mutate(
-    EntryAdjust = case_when(
-      #for PSH and RRH, EntryAdjust = MoveInDate
-      ProjectType %in% c(1, 2, 8, 12) |
-        ProjectName == "Unsheltered Clients - OUTREACH" ~ EntryDate,
-      ProjectType %in% c(3, 9, 13) &
-        !is.na(MoveInDateAdjust) ~ MoveInDateAdjust,
-      ProjectType %in% c(3, 9, 13) &
-        is.na(MoveInDateAdjust) ~ EntryDate
-    ),
-    LiterallyInProject = case_when(
-      ProjectType %in% c(3, 9) ~ interval(MoveInDateAdjust, ExitAdjust),
-      ProjectType %in% c(1, 2, 4, 8, 12) ~ interval(EntryAdjust, ExitAdjust)
-    ),
-    Issue = "Overlapping Project Stays",
-    Type = "High Priority",
-    Guidance = "Fix Me"
+# var dict: https://www.hudexchange.info/programs/hmis/hmis-data-standards/standards/Project_Descriptor_Data_Elements_(PDDE).htm
+
+## DQ14a: Overlaps Between Residential Projects that Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date -----
+# This gets the enrollment records for the relevant project types
+mainRecords <- served_in_date_range %>%
+  filter((ProjectType == 1 & TrackingMethod == 0) | ProjectType %in% c(2,8)) %>%
+  left_join(overlapNEW_services, by = "EnrollmentID") %>%
+  select(!!overlapNEWvars)
+
+c1 <- mainRecords
+c2 <- mainRecords
+
+overlapNEW_entry_and_exit <- c1 %>% 
+  inner_join(c2, by = "PersonalID") %>%
+  filter(
+    EntryDate.y < ExitAdjust.x & 
+    EntryDate.x < ExitAdjust.y &
+    (
+      EntryDate.x < EntryDate.y | 
+      (EntryDate.x == EntryDate.y & EnrollmentID.x > EnrollmentID.y)
+    )
   ) %>%
-  filter((!is.na(LiterallyInProject) & ProjectType != 13) |
-           ProjectType == 13) %>%
-  get_dupes(., PersonalID) %>%
-  group_by(PersonalID) %>%
-  arrange(PersonalID, EntryAdjust) %>%
   mutate(
-    PreviousEntryAdjust = lag(EntryAdjust),
-    PreviousExitAdjust = lag(ExitAdjust),
-    PreviousProject = lag(ProjectName)
+    Issue = "Overlaps Between Residential Projects that Use Entry Date
+    (Project Start Date) and Exit Date (Project Exit Date) to indicate the
+    household is occupying that unit on that date",
+    Type = "Warning",
+    Guidance = overlapNEW_entry_and_exit_guidance,
+    FirstDateProvided.x = NA,
+    FirstDateProvided.y = NA
   ) %>%
-  filter(ExitDate > PreviousEntryAdjust &
-           ExitDate < PreviousExitAdjust) %>%
+  select(-!!overlapNEWcols_to_remove) %>%
+  unique()
+ 
+# DQ14b: Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date AND Projects That Use Bed Night Date to indicate the household is occupying that unit on that date ----
+# Note that we "anchor" the primary enrollment as ES-nbn to capture overlaps with entry-exit projects, while staying distinct from the previous check
+mainRecords <- served_in_date_range %>%
+  filter(ProjectType %in% c(1,2,8)) %>%
+  left_join(overlapNEW_services, by = "EnrollmentID") %>%
+  mutate(ESnbn = (ProjectType == 1 & TrackingMethod == 3),
+         EEnbn = (ProjectType == 1 & TrackingMethod == 0),
+         THSH = (ProjectType %in% c(2,8))
+  )
+
+c1 <- mainRecords %>% filter(ESnbn)
+c2 <- mainRecords
+
+# This flags the ones that overlap
+overlapNEW_entry_and_exit_bn <- c1 %>% 
+  inner_join(c2, by = "PersonalID") %>%
+  mutate(IsOverlap = EnrollmentID.x != EnrollmentID.y & 
+    (
+      ((EEnbn.y | THSH.y) & DateProvided.x >= EntryDate.y & DateProvided.x <= ExitAdjust.y) |
+      (ESnbn.y & DateProvided.x == DateProvided.y)
+    ) & (
+      # the primary enrollment record should always be the ES nbn project
+      !ESnbn.y | #if the other enrollment is not ES-nbn, then it's fine as long as they aren't the same (which they shouldn't be)
+      (EnrollmentID.x > EnrollmentID.y & ESnbn.y) # if the other enrollment is ALSO ES-nbn, then take the larger enrollment, so that we don't show the same version twice (just flipped) (i.e. EnrollmentA-EnrollmentB AND EnrollmentB-EnrollmentA)
+    )
+  ) %>%
+  group_by(EnrollmentID.x) %>%
+  mutate(NumOverlaps = sum(IsOverlap)) %>%
   ungroup() %>%
-  select(all_of(vars_we_want), PreviousProject)
-
-rrh_overlaps <- served_in_date_range %>%
-  select(all_of(vars_prep), ExitAdjust) %>%
+  filter(NumOverlaps > 2 | ESnbn.y) %>%
   mutate(
-    ExitAdjust = ExitAdjust - days(1),
-    # bc a client can exit&enter same day
-    InProject = interval(EntryDate, ExitAdjust),
-    Issue = "Overlapping Project Stays",
-    Type = "High Priority",
-    Guidance = "Fix Me"
+    Issue = "Overlaps Between Residential Projects That Use Entry Date
+    (Project Start Date) and Exit Date (Project Exit Date) to indicate the
+    household is occupying that unit on that date AND Projects That Use Bed
+    Night Date to indicate the household is occupying that unit on that date",
+    Type = "Error",
+    Guidance = overlapNEW_entry_and_exit_bn_guidance,
+    FirstDateProvided.x = min(DateProvided.x),
+    FirstDateProvided.y = NA
   ) %>%
-  filter(ProjectType == 13) %>%
-  get_dupes(., PersonalID) %>%
-  group_by(PersonalID) %>%
-  arrange(PersonalID, EntryDate) %>%
-  mutate(
-    PreviousEntry = lag(EntryDate),
-    PreviousExit = lag(ExitAdjust),
-    PreviousProject = lag(ProjectName)
+  select(
+    matches(paste(overlapNEWvars, collapse="|")), 
+    c(Issue, Type, Guidance),
+    -c(!!overlapNEWcols_to_remove, MoveInDateAdjust.x,MoveInDateAdjust.y)
   ) %>%
-  filter(!is.na(PreviousEntry)) %>%
-  ungroup() %>%
-  mutate(
-    PreviousStay = interval(PreviousEntry, PreviousExit),
-    Overlap = int_overlaps(InProject, PreviousStay)
-  ) %>%
-  filter(Overlap == TRUE) %>%
-  select(all_of(vars_we_want), PreviousProject)
-
-psh_overlaps <- served_in_date_range %>%
-  select(all_of(vars_prep), ExitAdjust) %>%
-  mutate(
-    ExitAdjust = ExitAdjust - days(1),
-    # bc a client can exit&enter same day
-    InProject = interval(EntryDate, ExitAdjust),
-    Issue = "Overlapping Project Stays",
-    Type = "High Priority",
-    Guidance = "Fix Me"
-  ) %>%
-  filter(ProjectType == 3) %>%
-  get_dupes(., PersonalID) %>%
-  group_by(PersonalID) %>%
-  arrange(PersonalID, EntryDate) %>%
-  mutate(
-    PreviousEntry = lag(EntryDate),
-    PreviousExit = lag(ExitAdjust),
-    PreviousProject = lag(ProjectName)
-  ) %>%
-  filter(!is.na(PreviousEntry)) %>%
-  ungroup() %>%
-  mutate(
-    PreviousStay = interval(PreviousEntry, PreviousExit),
-    Overlap = int_overlaps(InProject, PreviousStay)
-  ) %>%
-  filter(Overlap == TRUE) %>%
-  select(all_of(vars_we_want), PreviousProject)
-
-dq_overlaps <- staging_overlaps %>%
-  mutate(
-    PreviousStay = interval(PreviousEntryAdjust, PreviousExitAdjust),
-    Overlap = int_overlaps(LiterallyInProject, PreviousStay)
-  ) %>%
-  filter(Overlap == TRUE) %>%
-  select(all_of(vars_we_want), PreviousProject)
-
-dq_overlaps <-
-  rbind(dq_overlaps, rrh_overlaps, psh_overlaps, same_day_overlaps) %>%
   unique()
 
-rm(staging_overlaps,
-   same_day_overlaps,
-   rrh_overlaps,
-   psh_overlaps)
+
+# DQ14c in Excel: Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) OR Bed Night Date to indicate the household is occupying that unit on that date AND Residential Projects That Use Housing Move-In Date and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date
+# This gets the enrollment records that are PH-RRH (13) and PH-PSH (3), as well as ES (1, includes NbN (when TrackingMethod = 3)), SH (8), and TH (2); 3 and 13 are compared to the others (not each other or themselves)
+mainRecords <- served_in_date_range %>%
+  filter(ProjectType %in% c(1,2,8,3,13)) %>%
+  left_join(overlapNEW_services, by = "EnrollmentID") %>%
+  mutate(PH = ProjectType %in% c(3,13),
+         ESnbn = (ProjectType == 1 & TrackingMethod == 3),
+         THSH = (ProjectType %in% c(2,8))
+  )
+
+c1 <- mainRecords %>% filter(PH)
+c2 <- mainRecords
+
+overlapNEW_entry_and_exit_bn2 <- c1 %>% 
+  inner_join(c2, by = "PersonalID") %>%
+  mutate(
+    IsOverlap = EnrollmentID.x != EnrollmentID.y & PH.x & (
+      (THSH.y & EntryDate.y < ExitAdjust.x & MoveInDate.x < ExitAdjust.y) |
+      (ESnbn.y & MoveInDate.x <= DateProvided.y & DateProvided.y <= ExitAdjust.x) | 
+      (ProjectType.y == 1 & EntryDate.y < ExitAdjust.x & MoveInDate.x < ExitAdjust.y)
+    )
+  ) %>%
+  group_by(EnrollmentID.x) %>%
+  mutate(NumOverlaps = sum(IsOverlap)) %>%
+  ungroup() %>%
+  filter(
+    (THSH.y & NumOverlaps > 0) |
+    (ProjectType.y == 1 & NumOverlaps > 2)
+  ) %>%
+  mutate(
+    Issue = "Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) OR Bed Night Date to indicate the household is occupying that unit on that date AND Residential Projects That Use Housing Move-In Date and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date",
+    Type = "Error",
+    Guidance = overlapNEW_entry_and_exit_bn2_guidance,
+    FirstDateProvided.x = NA,
+    FirstDateProvided.y = min(DateProvided.y)
+  ) %>%
+  select(
+    matches(paste(overlapNEWvars, collapse="|")),
+    c(Issue, Type, Guidance),
+    -c(!!overlapNEWcols_to_remove, MoveInDateAdjust.x,MoveInDateAdjust.y)
+  ) %>%
+  distinct()
+
+# Overlaps Between Projects that Use Move-In Date to Exit Date to Indicate Occupancy ----
+# This gets the enrollment records that are PH-RRH (13) and PH-PSH (3)
+mainRecords <- served_in_date_range %>%
+  filter(ProjectType %in% c(3,9,10,13)) %>%
+  left_join(overlapNEW_services, by = "EnrollmentID") %>%
+  select(!!overlapNEWvars)
+
+c1 <- mainRecords
+c2 <- mainRecords
+
+overlapNEW_movein_and_exit <- c1 %>% 
+  inner_join(c2, by = "PersonalID") %>%
+  filter(
+    ((ProjectType.x %in% c(3,9,10) & ProjectType.y %in% c(3,9,10)) | ProjectType.x == ProjectType.y) & 
+    MoveInDate.y < ExitAdjust.x & 
+    MoveInDate.x < ExitAdjust.y & 
+    (MoveInDate.x < MoveInDate.y | (MoveInDate.x == MoveInDate.y & EnrollmentID.x > EnrollmentID.y))
+  ) %>%
+  mutate(
+    Issue = "Overlaps Between Projects that Use Move-In Date to Exit Date to Indicate Occupancy",
+    Type = "Error",
+    Guidance = overlapNEW_movein_and_exit_guidance,
+    FirstDateProvided.x = NA,
+    FirstDateProvided.y = NA
+  ) %>%
+  select(-!!overlapNEWcols_to_remove) %>%
+  distinct()
+
+overlapNEW <- rbind(overlapNEW_entry_and_exit,
+                    overlapNEW_entry_and_exit_bn,
+                    overlapNEW_entry_and_exit_bn2,
+                    overlapNEW_movein_and_exit)
+
+rm(overlapNEW_entry_and_exit,
+   overlapNEW_entry_and_exit_bn,
+   overlapNEW_entry_and_exit_bn2,
+   overlapNEW_movein_and_exit,
+   overlapNEW_services)
+
+
+# Invalid Move-in Date ----------------------------------------------------
+
+invalid_movein_date <- served_in_date_range %>%
+  filter(ProjectType %in% c(3, 9, 10, 13)) %>%
+  mutate(
+    Issue = case_when(
+      (!is.na(MoveInDate) & MoveInDate < EntryDate) | 
+      (!is.na(MoveInDate) & MoveInDate > ExitAdjust) ~ 
+        "Invalid Move-In Date"
+    ),
+    Type = "Error",
+    Guidance = "This move-in date does not fall between the Entry Date 
+    and the Exit Date or this move-in date is after the date of the export.") %>%
+  filter(Issue == "Invalid Move-In Date") %>%
+  select(all_of(vars_we_want))
 
 # Missing Health Ins ------------------------------------------------------
 
@@ -1689,169 +1798,169 @@ conflicting_ncbs_entry <- served_in_date_range %>%
     # some users won't like being flagged for it if it's someone else's fault
     # but you can't tell whose fault it is from the data so...
     
-    staging_overlaps <- served_in_date_range %>%
-      select(all_of(vars_prep), ExitAdjust) %>%
-      mutate(
-        EntryAdjust = case_when(
-          #for PSH and RRH, EntryAdjust = MoveInDate
-          ProjectType %in% c(1, 2, 8, 12) |
-            ProjectName == "Unsheltered Clients - OUTREACH" ~ EntryDate,
-          ProjectType %in% c(3, 9, 13) &
-            !is.na(MoveInDateAdjust) ~ MoveInDateAdjust,
-          ProjectType %in% c(3, 9, 13) &
-            is.na(MoveInDateAdjust) ~ EntryDate
-        ),
-        ExitAdjust = ExitAdjust - days(1),
-        # bc a client can exit&enter same day
-        LiterallyInProject = if_else(
-          ProjectType %in% c(3, 9, 13),
-          interval(MoveInDateAdjust, ExitAdjust),
-          interval(EntryAdjust, ExitAdjust)
-        ),
-        Issue = "Overlapping Project Stays",
-        Type = "High Priority",
-        Guidance = "Fix Me"
-      ) %>%
-      filter(!is.na(LiterallyInProject) &
-               int_length(LiterallyInProject) > 0) %>%
-      get_dupes(., PersonalID) %>%
-      group_by(PersonalID) %>%
-      arrange(PersonalID, EntryAdjust) %>%
-      mutate(
-        PreviousEntryAdjust = lag(EntryAdjust),
-        PreviousExitAdjust = lag(ExitAdjust),
-        PreviousProject = lag(ProjectName)
-      ) %>%
-      filter(!is.na(PreviousEntryAdjust)) %>%
-      ungroup()
-    
-    same_day_overlaps <- served_in_date_range %>%
-      filter((ProjectType == 13 & MoveInDateAdjust == ExitDate) |
-               ProjectType != 13) %>%
-      select(all_of(vars_prep), ExitAdjust) %>%
-      mutate(
-        EntryAdjust = case_when(
-          #for PSH and RRH, EntryAdjust = MoveInDate
-          ProjectType %in% c(1, 2, 8, 12) |
-            ProjectName == "Unsheltered Clients - OUTREACH" ~ EntryDate,
-          ProjectType %in% c(3, 9, 13) &
-            !is.na(MoveInDateAdjust) ~ MoveInDateAdjust,
-          ProjectType %in% c(3, 9, 13) &
-            is.na(MoveInDateAdjust) ~ EntryDate
-        ),
-        LiterallyInProject = case_when(
-          ProjectType %in% c(3, 9) ~ interval(MoveInDateAdjust, ExitAdjust),
-          ProjectType %in% c(1, 2, 4, 8, 12) ~ interval(EntryAdjust, ExitAdjust)
-        ),
-        Issue = "Overlapping Project Stays",
-        Type = "Warning",
-        Guidance = "Fix Me"
-      ) %>%
-      filter((!is.na(LiterallyInProject) & ProjectType != 13) |
-               ProjectType == 13) %>%
-      get_dupes(., PersonalID) %>%
-      group_by(PersonalID) %>%
-      arrange(PersonalID, EntryAdjust) %>%
-      mutate(
-        PreviousEntryAdjust = lag(EntryAdjust),
-        PreviousExitAdjust = lag(ExitAdjust),
-        PreviousProject = lag(ProjectName)
-      ) %>%
-      filter(ExitDate > PreviousEntryAdjust &
-               ExitDate < PreviousExitAdjust) %>%
-      ungroup() %>%
-      select(all_of(vars_we_want), PreviousProject)
-    
-    rrh_overlaps <- served_in_date_range %>%
-      select(all_of(vars_prep), ExitAdjust) %>%
-      mutate(
-        ExitAdjust = ExitAdjust - days(1),
-        # bc a client can exit&enter same day
-        InProject = interval(EntryDate, ExitAdjust),
-        Issue = "Overlapping Project Stays",
-        Type = "Warning",
-        Guidance = "Fix Me"
-      ) %>%
-      filter(ProjectType == 13) %>%
-      get_dupes(., PersonalID) %>%
-      group_by(PersonalID) %>%
-      arrange(PersonalID, EntryDate) %>%
-      mutate(
-        PreviousEntry = lag(EntryDate),
-        PreviousExit = lag(ExitAdjust),
-        PreviousProject = lag(ProjectName)
-      ) %>%
-      filter(!is.na(PreviousEntry)) %>%
-      ungroup() %>%
-      mutate(
-        PreviousStay = interval(PreviousEntry, PreviousExit),
-        Overlap = int_overlaps(InProject, PreviousStay)
-      ) %>%
-      filter(Overlap == TRUE) %>%
-      select(all_of(vars_we_want), PreviousProject)
-    
-    psh_overlaps <- served_in_date_range %>%
-      select(all_of(vars_prep), ExitAdjust) %>%
-      mutate(
-        ExitAdjust = ExitAdjust - days(1),
-        # bc a client can exit&enter same day
-        InProject = interval(EntryDate, ExitAdjust),
-        Issue = "Overlapping Project Stays",
-        Type = "Warning",
-        Guidance = "Fix Me"
-      ) %>%
-      filter(ProjectType == 3) %>%
-      get_dupes(., PersonalID) %>%
-      group_by(PersonalID) %>%
-      arrange(PersonalID, EntryDate) %>%
-      mutate(
-        PreviousEntry = lag(EntryDate),
-        PreviousExit = lag(ExitAdjust),
-        PreviousProject = lag(ProjectName)
-      ) %>%
-      filter(!is.na(PreviousEntry)) %>%
-      ungroup() %>%
-      mutate(
-        PreviousStay = interval(PreviousEntry, PreviousExit),
-        Overlap = int_overlaps(InProject, PreviousStay)
-      ) %>%
-      filter(Overlap == TRUE) %>%
-      select(all_of(vars_we_want), PreviousProject)
-    
-    dq_overlaps <- staging_overlaps %>%
-      mutate(
-        PreviousStay = interval(PreviousEntryAdjust, PreviousExitAdjust),
-        Overlap = int_overlaps(LiterallyInProject, PreviousStay)
-      ) %>%
-      filter(Overlap == TRUE) %>%
-      select(all_of(vars_we_want), PreviousProject)
-    
-    dq_overlaps <-
-      rbind(dq_overlaps, rrh_overlaps, psh_overlaps, same_day_overlaps) %>%
-      unique() %>%
-      mutate(
-        Issue = "Overlapping Project Stays",
-        Type = "Warning",
-        Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the same time. Nor
-        can they have a Move-In Date into a PSH or RRH project while they are
-        still in an ES, TH, or Safe Haven. Further, they cannot be in any two RRH's
-        or any two PSH's simultaneously, housed or not.<br>
-        Please look the client(s) up in HMIS and determine which project stay's
-        Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the \"Previous 
-        Provider's\" mistake, but if you are seeing clients here, it means your
-        project stay was entered last. <br>
-        If the overlap is not your project's mistake, please work with the project 
-        that has the incorrect Entry/Move-In/or Exit Date to get this corrected 
-        or send an email to hmis@cohhio.org if you cannot get it resolved. These 
-        clients will NOT show on their Data Quality app. <br>
-        If YOUR dates are definitely correct, it is fine to continue with other
-        data corrections as needed."
-      )
-    
-    rm(staging_overlaps,
-       same_day_overlaps,
-       rrh_overlaps,
-       psh_overlaps)
+    # staging_overlaps <- served_in_date_range %>%
+    #   select(all_of(vars_prep), ExitAdjust) %>%
+    #   mutate(
+    #     EntryAdjust = case_when(
+    #       #for PSH and RRH, EntryAdjust = MoveInDate
+    #       ProjectType %in% c(1, 2, 8, 12) |
+    #         ProjectName == "Unsheltered Clients - OUTREACH" ~ EntryDate,
+    #       ProjectType %in% c(3, 9, 13) &
+    #         !is.na(MoveInDateAdjust) ~ MoveInDateAdjust,
+    #       ProjectType %in% c(3, 9, 13) &
+    #         is.na(MoveInDateAdjust) ~ EntryDate
+    #     ),
+    #     ExitAdjust = ExitAdjust - days(1),
+    #     # bc a client can exit&enter same day
+    #     LiterallyInProject = if_else(
+    #       ProjectType %in% c(3, 9, 13),
+    #       interval(MoveInDateAdjust, ExitAdjust),
+    #       interval(EntryAdjust, ExitAdjust)
+    #     ),
+    #     Issue = "Overlapping Project Stays",
+    #     Type = "High Priority",
+    #     Guidance = "Fix Me"
+    #   ) %>%
+    #   filter(!is.na(LiterallyInProject) &
+    #            int_length(LiterallyInProject) > 0) %>%
+    #   get_dupes(., PersonalID) %>%
+    #   group_by(PersonalID) %>%
+    #   arrange(PersonalID, EntryAdjust) %>%
+    #   mutate(
+    #     PreviousEntryAdjust = lag(EntryAdjust),
+    #     PreviousExitAdjust = lag(ExitAdjust),
+    #     PreviousProject = lag(ProjectName)
+    #   ) %>%
+    #   filter(!is.na(PreviousEntryAdjust)) %>%
+    #   ungroup()
+    # 
+    # same_day_overlaps <- served_in_date_range %>%
+    #   filter((ProjectType == 13 & MoveInDateAdjust == ExitDate) |
+    #            ProjectType != 13) %>%
+    #   select(all_of(vars_prep), ExitAdjust) %>%
+    #   mutate(
+    #     EntryAdjust = case_when(
+    #       #for PSH and RRH, EntryAdjust = MoveInDate
+    #       ProjectType %in% c(1, 2, 8, 12) |
+    #         ProjectName == "Unsheltered Clients - OUTREACH" ~ EntryDate,
+    #       ProjectType %in% c(3, 9, 13) &
+    #         !is.na(MoveInDateAdjust) ~ MoveInDateAdjust,
+    #       ProjectType %in% c(3, 9, 13) &
+    #         is.na(MoveInDateAdjust) ~ EntryDate
+    #     ),
+    #     LiterallyInProject = case_when(
+    #       ProjectType %in% c(3, 9) ~ interval(MoveInDateAdjust, ExitAdjust),
+    #       ProjectType %in% c(1, 2, 4, 8, 12) ~ interval(EntryAdjust, ExitAdjust)
+    #     ),
+    #     Issue = "Overlapping Project Stays",
+    #     Type = "Warning",
+    #     Guidance = "Fix Me"
+    #   ) %>%
+    #   filter((!is.na(LiterallyInProject) & ProjectType != 13) |
+    #            ProjectType == 13) %>%
+    #   get_dupes(., PersonalID) %>%
+    #   group_by(PersonalID) %>%
+    #   arrange(PersonalID, EntryAdjust) %>%
+    #   mutate(
+    #     PreviousEntryAdjust = lag(EntryAdjust),
+    #     PreviousExitAdjust = lag(ExitAdjust),
+    #     PreviousProject = lag(ProjectName)
+    #   ) %>%
+    #   filter(ExitDate > PreviousEntryAdjust &
+    #            ExitDate < PreviousExitAdjust) %>%
+    #   ungroup() %>%
+    #   select(all_of(vars_we_want), PreviousProject)
+    # 
+    # rrh_overlaps <- served_in_date_range %>%
+    #   select(all_of(vars_prep), ExitAdjust) %>%
+    #   mutate(
+    #     ExitAdjust = ExitAdjust - days(1),
+    #     # bc a client can exit&enter same day
+    #     InProject = interval(EntryDate, ExitAdjust),
+    #     Issue = "Overlapping Project Stays",
+    #     Type = "Warning",
+    #     Guidance = "Fix Me"
+    #   ) %>%
+    #   filter(ProjectType == 13) %>%
+    #   get_dupes(., PersonalID) %>%
+    #   group_by(PersonalID) %>%
+    #   arrange(PersonalID, EntryDate) %>%
+    #   mutate(
+    #     PreviousEntry = lag(EntryDate),
+    #     PreviousExit = lag(ExitAdjust),
+    #     PreviousProject = lag(ProjectName)
+    #   ) %>%
+    #   filter(!is.na(PreviousEntry)) %>%
+    #   ungroup() %>%
+    #   mutate(
+    #     PreviousStay = interval(PreviousEntry, PreviousExit),
+    #     Overlap = int_overlaps(InProject, PreviousStay)
+    #   ) %>%
+    #   filter(Overlap == TRUE) %>%
+    #   select(all_of(vars_we_want), PreviousProject)
+    # 
+    # psh_overlaps <- served_in_date_range %>%
+    #   select(all_of(vars_prep), ExitAdjust) %>%
+    #   mutate(
+    #     ExitAdjust = ExitAdjust - days(1),
+    #     # bc a client can exit&enter same day
+    #     InProject = interval(EntryDate, ExitAdjust),
+    #     Issue = "Overlapping Project Stays",
+    #     Type = "Warning",
+    #     Guidance = "Fix Me"
+    #   ) %>%
+    #   filter(ProjectType == 3) %>%
+    #   get_dupes(., PersonalID) %>%
+    #   group_by(PersonalID) %>%
+    #   arrange(PersonalID, EntryDate) %>%
+    #   mutate(
+    #     PreviousEntry = lag(EntryDate),
+    #     PreviousExit = lag(ExitAdjust),
+    #     PreviousProject = lag(ProjectName)
+    #   ) %>%
+    #   filter(!is.na(PreviousEntry)) %>%
+    #   ungroup() %>%
+    #   mutate(
+    #     PreviousStay = interval(PreviousEntry, PreviousExit),
+    #     Overlap = int_overlaps(InProject, PreviousStay)
+    #   ) %>%
+    #   filter(Overlap == TRUE) %>%
+    #   select(all_of(vars_we_want), PreviousProject)
+    # 
+    # dq_overlaps <- staging_overlaps %>%
+    #   mutate(
+    #     PreviousStay = interval(PreviousEntryAdjust, PreviousExitAdjust),
+    #     Overlap = int_overlaps(LiterallyInProject, PreviousStay)
+    #   ) %>%
+    #   filter(Overlap == TRUE) %>%
+    #   select(all_of(vars_we_want), PreviousProject)
+    # 
+    # dq_overlaps <-
+    #   rbind(dq_overlaps, rrh_overlaps, psh_overlaps, same_day_overlaps) %>%
+    #   unique() %>%
+    #   mutate(
+    #     Issue = "Overlapping Project Stays",
+    #     Type = "Warning",
+    #     Guidance = "A client cannot reside in an ES, TH, or Safe Haven at the same time. Nor
+    #     can they have a Move-In Date into a PSH or RRH project while they are
+    #     still in an ES, TH, or Safe Haven. Further, they cannot be in any two RRH's
+    #     or any two PSH's simultaneously, housed or not.<br>
+    #     Please look the client(s) up in HMIS and determine which project stay's
+    #     Entry/Move-In/or Exit Date is incorrect. PLEASE NOTE: It may be the \"Previous 
+    #     Provider's\" mistake, but if you are seeing clients here, it means your
+    #     project stay was entered last. <br>
+    #     If the overlap is not your project's mistake, please work with the project 
+    #     that has the incorrect Entry/Move-In/or Exit Date to get this corrected 
+    #     or send an email to hmis@cohhio.org if you cannot get it resolved. These 
+    #     clients will NOT show on their Data Quality app. <br>
+    #     If YOUR dates are definitely correct, it is fine to continue with other
+    #     data corrections as needed."
+    #   )
+    # 
+    # rm(staging_overlaps,
+    #    same_day_overlaps,
+    #    rrh_overlaps,
+    #    psh_overlaps)
     # 
     # # Missing Health Ins ------------------------------------------------------
     # 
@@ -2315,9 +2424,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
          Guidance = guidance_missing_at_entry) %>%
   select(all_of(vars_we_want))
 
-    
     # All together now --------------------------------------------------------
-    
     dq_main <- rbind(
       # check_disability_ssi,
       # check_eligibility,
@@ -2338,7 +2445,6 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       dq_ethnicity,
       dq_gender,
       dq_name,
-      dq_overlaps %>% select(-PreviousProject),
       dq_race,
       dq_ssn,
       dq_veteran,
@@ -2349,6 +2455,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       hh_issues,
       # incorrect_path_contact_date,
       invalid_months_times_homeless,
+      invalid_movein_date,
       # lh_without_spdat,
       #maybe_psh_destination,
       # maybe_rrh_destination,
@@ -2372,6 +2479,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       #no_bos_psh,
       #no_bos_th,
       #no_bos_sh,
+      # overlapNEW, <- needs to only display the dq_main columns to be included
+                  # in system and org-wide analyses
       # path_enrolled_missing,
       # path_missing_los_res_prior,
       # path_no_status_at_exit,
@@ -2388,7 +2497,6 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       # should_be_rrh_destination,
       # should_be_th_destination,
       # should_be_sh_destination,
-
       # spdat_on_non_hoh,
       ssvf_missing_address,
       ssvf_missing_vamc,
@@ -2399,43 +2507,21 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       veteran_missing_year_separated,
       veteran_missing_wars,
       veteran_missing_branch,
-      veteran_missing_discharge_status
+      veteran_missing_discharge_status,
+      active_outside_dates,
+      exit_before_start
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
                                         "Error",
                                         "Warning")))
-
-    # filtering out AP errors that are irrlevant to APs
-    
-    dq_main <- dq_main %>%
-      filter(ProjectType != 14 |
-               (
-                 ProjectType == 14 &
-                   Issue %in% c(
-                     "60 Days in Mahoning Coordinated Entry",
-                     "Access Point with Entry Exits",
-                     "Missing Date of Birth Data Quality",
-                     "Don't Know/Refused or Approx. Date of Birth",
-                     "Missing DOB",
-                     "Missing Name Data Quality",
-                     "Incomplete or Don't Know/Refused Name",
-                     "Rent Payment Made, No Move-In Date",
-                     "Invalid SSN",
-                     "Don't Know/Refused SSN",
-                     "Missing SSN",
-                     "Missing Veteran Status",
-                     "Don't Know/Refused Veteran Status",
-                     "Missing County Served"
-                   )
-               ))
     
     # Controls what is shown in the CoC-wide DQ tab ---------------------------
     
     # for CoC-wide DQ tab
 
-    dq_w_project_names <- dq_main %>%
-      left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
+    # dq_w_project_names <- dq_main %>%
+    #   left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
     
    dq_providers <- sort(projects_current_hmis$ProjectName)
    
@@ -2447,8 +2533,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Controls what is shown in the Organization-Level DQ tab ------------------------
    
    dq_w_ids <- dq_main %>%
-     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName") %>%
-     left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
+     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName")
+     # left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
      
 
 # Plots for System-Level DQ Tab -------------------------------------------
@@ -2671,7 +2757,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
 # Prepping dataframes for plots for Organization-Level DQ Tab -----------------
    
    # Top projects with Errors - High Priority
-   dq_data_high_priority_errors_org_project_plot <- dq_w_ids %>%
+   dq_data_high_priority_errors_top_projects_df <- dq_w_ids %>%
      filter(Type %in% c("High Priority")) %>%
      select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
      unique() %>%
@@ -2682,7 +2768,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Most common high priority errors org-wide
    
-   dq_data_high_priority_error_types_org_project <- dq_w_ids %>%
+   dq_data_high_priority_error_types_org_df <- dq_w_ids %>%
      filter(Type %in% c("High Priority")) %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Errors = n()) %>%
@@ -2691,7 +2777,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Top projects with Errors - General
    
-   dq_data_errors_org_project_plot <- dq_w_ids %>%
+   dq_data_errors_top_projects_df <- dq_w_ids %>%
      filter(Type %in% c("Error")) %>%
      select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
      unique() %>%
@@ -2702,7 +2788,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Most common general errors org-wide
    
-   dq_data_error_types_org_project <- dq_w_ids %>%
+   dq_data_error_types_org_df <- dq_w_ids %>%
      filter(Type %in% c("Error")) %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Errors = n()) %>%
@@ -2711,7 +2797,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       #Top projects with warnings
    
-   dq_data_warnings_org_project_plot <- dq_w_ids %>%
+   dq_data_warnings_top_projects_df <- dq_w_ids %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(Warnings = n()) %>%
@@ -2720,7 +2806,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       #Most common warnings org-wide
    
-   dq_data_warning_types_org_project <- dq_w_ids %>%
+   dq_data_warning_types_org_df <- dq_w_ids %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Warnings = n()) %>%

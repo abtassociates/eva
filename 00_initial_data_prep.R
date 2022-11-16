@@ -1,3 +1,4 @@
+
 Project <- Project %>%
   left_join(Organization %>%
               select(OrganizationID, OrganizationName),
@@ -6,34 +7,39 @@ Project <- Project %>%
     ProjectType == 1 & TrackingMethod == 3, 0, ProjectType
   ))
 
+small_project <- Project %>% select(ProjectID, ProjectType, ProjectName)
+
 # Enrollment --------------------------------------------------------------
 
 # Adding Exit Data to Enrollment because I'm not tryin to have one-to-one 
 # relationships in this!
-small_exit <- Exit %>% select(EnrollmentID, Destination, ExitDate, OtherDestination)
 
-Enrollment <- left_join(Enrollment, small_exit, by = "EnrollmentID") %>% 
+Enrollment <- Enrollment %>%
+  left_join(Exit %>% 
+              select(EnrollmentID, Destination, ExitDate, OtherDestination),
+            by = "EnrollmentID") %>% 
+  left_join(small_project, by = "ProjectID") %>%
   mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_Date))
 
 # Adding ProjectType to Enrollment too bc we need EntryAdjust & MoveInAdjust
-small_project <- Project %>% select(ProjectID, ProjectType, ProjectName) 
 
 # getting HH information
 # only doing this for RRH and PSHs since Move In Date doesn't matter for ES, etc.
 HHMoveIn <- Enrollment %>%
-  left_join(small_project, by = "ProjectID") %>%
-  filter(ProjectType %in% c(3, 9, 13)) %>%
+  filter(ProjectType %in% c(3, 9, 10, 13)) %>%
   mutate(
     AssumedMoveIn = if_else(
       EntryDate < hc_psh_started_collecting_move_in_date &
-        ProjectType %in% c(3, 9),
+        ProjectType %in% c(3, 9, 10),
       1,
       0
     ),
     ValidMoveIn = case_when(
-      AssumedMoveIn == 1 ~ EntryDate,
+      AssumedMoveIn == 1 ~ EntryDate, # overwrites any MID where the Entry is 
+      # prior to the date when PSH had to collect MID with the EntryDate (as
+      # venders were instructed to do in the mapping documentation)
       AssumedMoveIn == 0 &
-        ProjectType %in% c(3, 9) &
+        ProjectType %in% c(3, 9, 10) &
         EntryDate <= MoveInDate &
         ExitAdjust > MoveInDate ~ MoveInDate,
       # the Move-In Dates must fall between the Entry and ExitAdjust to be
@@ -45,13 +51,12 @@ HHMoveIn <- Enrollment %>%
   ) %>%
   filter(!is.na(ValidMoveIn)) %>%
   group_by(HouseholdID) %>%
-  mutate(HHMoveIn = min(ValidMoveIn)) %>%
+  summarise(HHMoveIn = min(ValidMoveIn, na.rm = TRUE)) %>%
   ungroup() %>%
   select(HouseholdID, HHMoveIn) %>%
   unique()
 
 HHEntry <- Enrollment %>%
-  left_join(small_project, by = "ProjectID") %>%
   group_by(HouseholdID) %>%
   mutate(FirstEntry = min(EntryDate)) %>%
   ungroup() %>%
@@ -61,7 +66,6 @@ HHEntry <- Enrollment %>%
 
 
 Enrollment <- Enrollment %>%
-  left_join(small_project, by = "ProjectID") %>%
   left_join(HHEntry, by = "HouseholdID") %>%
   mutate(
     MoveInDateAdjust = if_else(!is.na(HHMoveIn) &
@@ -83,11 +87,12 @@ Enrollment <- Enrollment %>%
   mutate(AgeAtEntry = age_years(DOB, EntryDate)) %>%
   select(-DOB)
 
-# Client Location
+# Adding ClientLocation at Entry to Enrollment
 small_location <- EnrollmentCoC %>%
   filter(DataCollectionStage == 1) %>%
   select(EnrollmentID, "ClientLocation" = CoCCode)  %>%
-  mutate(EnrollmentID = EnrollmentID %>% as.character())
+  mutate(EnrollmentID = as.character(EnrollmentID)) # in case a vendor's datatypes
+# are incorrect
 
 Enrollment <- Enrollment %>%
   left_join(small_location, by = "EnrollmentID")
