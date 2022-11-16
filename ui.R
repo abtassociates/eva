@@ -14,7 +14,7 @@
 
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "StellaR"),
+  dashboardHeader(title = "[App Name Pending]"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -57,16 +57,16 @@ dashboardPage(
         tabName = "tabHome",
         fluidRow(
           box(
-            title = "Welcome to StellaR!",
+            title = "Welcome to [App Name Pending]!",
             width = 12,
             HTML(
-              "<div>StellaR is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
-              StellaR is designed to help you assess the accuracy and completeness of the data within your HMIS. 
+              "<div>[App Name Pending] is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
+              [App Name Pending] is designed to help you assess the accuracy and completeness of the data within your HMIS. 
               In future iterations it will also assist communities in analyzing your HMIS performance data, 
               including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
               <br/>
               <div>This app works by using an uploaded 
-              <a href='https://www.hudhdx.info/VendorResources.aspx'>HMIS CSV</a> 
+              <a href='https://www.hudhdx.info/VendorResources.aspx' target= '_blank' rel='noopener noreferrer'>HMIS CSV</a> 
               file.
               </div>
               <br/>"
@@ -102,7 +102,7 @@ dashboardPage(
                  until you upload another (structurally sound) file. </p>
                  
                  <h4>Edit CoC-specific Settings</h4>
-                 <p>To make StellaR reporting more useful at the local level,
+                 <p>To make [App Name Pending] reporting more useful at the local level,
                  you will find the CoC-specific settings that HMIS Leads can edit
                  to better analyse their data in a way that is meaningful to the
                  CoC. To edit these, click on the \'+\'. If you do not edit them,
@@ -270,7 +270,36 @@ dashboardPage(
             DT::dataTableOutput("integrityChecker"),
             p(),
             uiOutput('downloadIntegrityBtn')
-          )
+          ),
+      box(
+        title = "Citations and Special Thanks",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        HTML("
+             <p> This project would not exist were it not for the existence of other quality, 
+             free and open source products. The following are citations for the products this
+             app relies on.
+             
+             <p> R Core Team (2019). R: A language and environment for statistical computing.
+             R Foundation for Statistical Computing. Vienna, Austria. 
+             <a href = 'https://www.r-project.org' target= '_blank' rel='noopener noreferrer'>R programming language</a>.
+             
+             <p> Hadley Wickham (2017). tidyverse: Easily Install and Load the 'Tidyverse.'
+             R package version 1.2.1. 
+             <a href = 'https://cran.r-project.org/web/packages/tidyverse/index.html' target= '_blank' rel='noopener noreferrer'>Tidyverse package</a>.
+             
+             <p>Winston Chang, Joe Cheng, JJ Allaire, Yihue Xie and Jonathan McPherson (2019).
+             shiny: Web Application Framework for R. R package version 1.3.2. 
+             <a href = 'https://cran.r-project.org/web/packages/shiny/index.html' target= '_blank' rel='noopener noreferrer'>R Shiny package</a>
+             and shinydashboard; Create Dashboards with 'Shiny.' R package version 0.7.1.
+             <a href = 'https://cran.r-project.org/web/packages/shinydashboard/index.html' target= '_blank' rel='noopener noreferrer'>shinydashboard package</a>.
+             
+             <p> The foundational code for the app was shared by 
+             <a href = 'https://www.cohhio.org' target= '_blank' rel='noopener noreferrer'>COHHIO</a>, 
+             Coalition on Homelessnessand Housing in Ohio.
+                 ")
+      )
         )
       ), 
       tabItem(
