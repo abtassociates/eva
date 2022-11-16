@@ -297,7 +297,7 @@ dashboardPage(
              
              <p> The foundational code for the app was shared by 
              <a href = 'https://www.cohhio.org' target= '_blank' rel='noopener noreferrer'>COHHIO</a>, 
-             Coalition on Homelessnessand Housing in Ohio.
+             Coalition on Homelessness and Housing in Ohio.
                  ")
       )
         )
