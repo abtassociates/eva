@@ -110,7 +110,7 @@ dashboardPage(
                  not imply any HUD recommendations. Please read the description
                  in the settings panel for more information.</p>
                  
-                 <h4>Integrity Checker</h4>
+                 <h4>File Structure Analysis</h4>
                  <p>Once the app verifies that your file is hashed, it will then
                  check that your upload has all the right tables, columns, data
                  types, and allowable values. If there are any issues
@@ -265,7 +265,7 @@ dashboardPage(
       #              value = 7)
       
           box(
-            title = "HUD CSV Export Integrity Checker",
+            title = "HUD CSV Export File Structure Analysis",
             width = 12,
             DT::dataTableOutput("integrityChecker"),
             p(),
