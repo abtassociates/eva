@@ -1455,14 +1455,16 @@ overlapNEW_entry_and_exit <- c1 %>%
     )
   ) %>%
   mutate(
-    Issue = "Overlaps Between Residential Projects that Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date",
-    Type = "Overlap",
+    Issue = "Overlaps Between Residential Projects that Use Entry Date
+    (Project Start Date) and Exit Date (Project Exit Date) to indicate the
+    household is occupying that unit on that date",
+    Type = "Warning",
     Guidance = overlapNEW_entry_and_exit_guidance,
     FirstDateProvided.x = NA,
     FirstDateProvided.y = NA
   ) %>%
   select(-!!overlapNEWcols_to_remove) %>%
-  distinct()
+  unique()
  
 # DQ14b: Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date AND Projects That Use Bed Night Date to indicate the household is occupying that unit on that date ----
 # Note that we "anchor" the primary enrollment as ES-nbn to capture overlaps with entry-exit projects, while staying distinct from the previous check
@@ -1495,7 +1497,10 @@ overlapNEW_entry_and_exit_bn <- c1 %>%
   ungroup() %>%
   filter(NumOverlaps > 2 | ESnbn.y) %>%
   mutate(
-    Issue = "Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date AND Projects That Use Bed Night Date to indicate the household is occupying that unit on that date",
+    Issue = "Overlaps Between Residential Projects That Use Entry Date
+    (Project Start Date) and Exit Date (Project Exit Date) to indicate the
+    household is occupying that unit on that date AND Projects That Use Bed
+    Night Date to indicate the household is occupying that unit on that date",
     Type = "Error",
     Guidance = overlapNEW_entry_and_exit_bn_guidance,
     FirstDateProvided.x = min(DateProvided.x),
@@ -1506,7 +1511,7 @@ overlapNEW_entry_and_exit_bn <- c1 %>%
     c(Issue, Type, Guidance),
     -c(!!overlapNEWcols_to_remove, MoveInDateAdjust.x,MoveInDateAdjust.y)
   ) %>%
-  distinct()
+  unique()
 
 
 # DQ14c in Excel: Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) OR Bed Night Date to indicate the household is occupying that unit on that date AND Residential Projects That Use Housing Move-In Date and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date
@@ -2474,6 +2479,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       #no_bos_psh,
       #no_bos_th,
       #no_bos_sh,
+      # overlapNEW, <- needs to only display the dq_main columns to be included
+                  # in system and org-wide analyses
       # path_enrolled_missing,
       # path_missing_los_res_prior,
       # path_no_status_at_exit,
@@ -2490,7 +2497,6 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       # should_be_rrh_destination,
       # should_be_th_destination,
       # should_be_sh_destination,
-
       # spdat_on_non_hoh,
       ssvf_missing_address,
       ssvf_missing_vamc,
