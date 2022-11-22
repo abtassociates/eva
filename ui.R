@@ -544,24 +544,24 @@ dashboardPage(
         fluidRow(
           tabBox(
             title = "High Priority Errors",
-            tabPanel("Most Common", plotOutput("orgDQHighPriorityErrorTypes")),
-            tabPanel("Top 10 Projects", plotOutput("orgDQHighPriorityErrors")),
+            tabPanel("Most Common", uiOutput("orgDQHighPriorityErrorTypes_ui")),
+            tabPanel("Top 10 Projects", uiOutput("orgDQHighPriorityErrors_ui")),
             width = 12
           )
         ),
         fluidRow(
           tabBox(
             title = "General Errors",
-            tabPanel("Most Common", plotOutput("orgDQErrorTypes")),
-            tabPanel("Top 10 Projects", plotOutput("orgDQErrors")),
+            tabPanel("Most Common", uiOutput("orgDQErrorTypes_ui")),
+            tabPanel("Top 10 Projects", uiOutput("orgDQErrors_ui")),
             width =12
           )
         ),
         fluidRow(
           tabBox(
             title = "Warnings",
-            tabPanel("Most Common", plotOutput("orgDQWarningTypes")),
-            tabPanel("Top 10 Projects", plotOutput("orgDQWarnings")),
+            tabPanel("Most Common", uiOutput("orgDQWarningTypes_ui")),
+            tabPanel("Top 10 Projects", uiOutput("orgDQWarnings_ui")),
             width = 12
           )
         ),
