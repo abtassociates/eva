@@ -155,13 +155,13 @@ check_data_types <- function(barefile, quotedfile) {
             case_when(
               DataType == "numeric" ~ "integer",
               DataType == "character" ~ "string",
-              TRUE ~ "something's wrong"
+              TRUE ~ DataType
             ),
             "but in this file, it is",
             case_when(
               ImportedDataType == "numeric" ~ "integer",
               ImportedDataType == "character" ~ "string",
-              TRUE ~ "something's wrong"
+              TRUE ~ DataType
               )
           ),
           NULL
