@@ -738,8 +738,10 @@ function(input, output, session) {
     #Plot of projects within selected org with most high priority errors
     
     output$orgDQHighPriorityErrors <- renderPlot({
-      req(valid_file() == 1,
-          nrow(dq_hp_top_projects()) > 0)
+      req(valid_file())
+      
+      validate(need(nrow(dq_hp_top_projects()) > 0, 
+                    message = "Great job! No errors to show."))
       
       # dq_hp_top_projects()$hover <-
       #   with(dq_hp_top_projects(),
@@ -776,8 +778,10 @@ function(input, output, session) {
     
     #Plot of most common high priority errors within an org
     output$orgDQHighPriorityErrorTypes <- renderPlot({
-      req(valid_file() == 1,
-          nrow(dq_hp_error_types_org_level()) > 0)
+      req(valid_file() == 1)
+      
+      validate(need(nrow(dq_hp_error_types_org_level()) > 0, 
+                    message = "Great job! No errors to show."))
       
       ggplot(head(dq_hp_error_types_org_level(), 10L),
              aes(
@@ -807,8 +811,10 @@ function(input, output, session) {
     
     #Plot of projects within selected org with most general errors
     output$orgDQErrors <- renderPlot({
-      req(valid_file() == 1,
-          nrow(dq_general_errors_top_projects()) > 0)
+      req(valid_file() == 1)
+      
+      validate(need(nrow(dq_general_errors_top_projects()) > 0, 
+                    message = "Great job! No errors to show."))
       
       # dq_general_errors_top_projects()$hover <-
       #   with(dq_general_errors_top_projects(),
@@ -844,8 +850,10 @@ function(input, output, session) {
     
     #Plot of most common general errors within an org
     output$orgDQErrorTypes <- renderPlot({
-      req(valid_file() == 1,
-          nrow(dq_general_error_types_org_level()) > 0)
+      req(valid_file() == 1)
+      
+      validate(need(nrow(dq_general_error_types_org_level()) > 0, 
+                    message = "Great job! No errors to show."))
       
       ggplot(head(dq_general_error_types_org_level(), 10L),
              aes(
@@ -875,8 +883,10 @@ function(input, output, session) {
     
     #Plot of projects within selected org with most warnings
     output$orgDQWarnings <- renderPlot({
-      req(valid_file() == 1,
-          nrow(dq_warnings_top_projects()) > 0)
+      req(valid_file() == 1)
+      
+      validate(need(nrow(dq_warnings_top_projects()) > 0, 
+                    message = "Great job! No warnings to show."))
       
       # dq_warnings_top_projects()$hover <-
       #   with(dq_warnings_top_projects(),
@@ -910,8 +920,10 @@ function(input, output, session) {
     
     #Plot of most common warnings within an org
     output$orgDQWarningTypes <- renderPlot({
-      req(valid_file() == 1,
-          nrow(dq_warning_types_org_level()) > 0)
+      req(valid_file() == 1)
+      
+      validate(need(nrow(dq_warning_types_org_level()) > 0, 
+                    message = "Great job! No warnings to show."))
       
       ggplot(head(dq_warning_types_org_level(), 10L),
              aes(
