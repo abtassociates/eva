@@ -339,7 +339,9 @@ dashboardPage(
           ),
           box(title = "Guidance",
               width = 12,
-              HTML("coming soon"))
+              HTML("coming soon"),
+              status = "info",
+              solidHeader = TRUE)
         )
       ),
       tabItem(
