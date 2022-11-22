@@ -361,10 +361,11 @@ dashboardPage(
                
                <h4>Inputs</h4>
                <p>HMIS Leads may select a single project from the drop list. The
-               Date Range defaults to display \'current\' enrollments only, but
+               Date Range defaults to the export's start and end date, but
                users are encouraged to edit the Date Range as desired to see
                metrics such as how many clients/households exited with and 
-               without a Move-In Date, how many exited during the time period.</p>
+               without a Move-In Date, how many exited during a specific time period,
+               or \'current\' enrollments only.</p>
                
                <h4>Summary</h4>
                <p>Check here for a count of households or clients who have statuses
