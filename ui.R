@@ -270,6 +270,8 @@ dashboardPage(
             width = 12,
             DT::dataTableOutput("integrityChecker"),
             p(),
+            HTML("<p>If there are issues identified in the integrity checker, please contact your vendor.</p>"),
+            p(),
             uiOutput('downloadIntegrityBtn')
           ),
       box(
