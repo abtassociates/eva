@@ -2575,6 +2575,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with High Priority Errors") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text.x = element_blank(),
@@ -2605,6 +2606,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with High Piority Errors") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text.x = element_blank(),
@@ -2651,6 +2653,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with General Errors") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text.x = element_blank(),
@@ -2681,6 +2684,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with General Errors") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text.x = element_blank(),
@@ -2715,6 +2719,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with Warnings") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text.x = element_blank(),
@@ -2745,6 +2750,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with Warnings") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text.x = element_blank(),
