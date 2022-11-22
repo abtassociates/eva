@@ -698,24 +698,24 @@ dashboardPage(
         fluidRow(
           tabBox(
             title = "High Priority Errors",
-            tabPanel("Most Common", plotOutput("systemDQHighPriorityErrorTypes")),
-            tabPanel("Top 10 Organizations", plotOutput("systemDQHighPriorityErrors")),
+            tabPanel("Most Common Errors", uiOutput("systemDQHighPriorityErrorTypes_ui")),
+            tabPanel("Top 10 Organizations", uiOutput("systemDQHighPriorityErrors_ui")),
             width = 12
           )
         ),
         fluidRow(
           tabBox(
             title = "General Errors",
-            tabPanel("Most Common", plotOutput("systemDQErrorTypes")),
-            tabPanel("Top 10 Organizations", plotOutput("systemDQErrors")),
+            tabPanel("Most Common Errors", uiOutput("systemDQErrorTypes_ui")),
+            tabPanel("Top 10 Organizations", uiOutput("systemDQErrors_ui")),
             width =12
           )
         ),
         fluidRow(
           tabBox(
             title = "Warnings",
-            tabPanel("Most Common", plotOutput("systemDQWarningTypes")),
-            tabPanel("Top 10 Organizations", plotOutput("systemDQWarnings")),
+            tabPanel("Most Common Warnings", uiOutput("systemDQWarningTypes_ui")),
+            tabPanel("Top 10 Organizations", uiOutput("systemDQWarnings_ui")),
             width = 12
           )
         )
