@@ -152,9 +152,17 @@ check_data_types <- function(barefile, quotedfile) {
             "file, the",
             Column,
             "column should have a data type of",
-            DataType,
+            case_when(
+              DataType == "numeric" ~ "integer",
+              DataType == "character" ~ "string",
+              TRUE ~ DataType
+            ),
             "but in this file, it is",
-            ImportedDataType
+            case_when(
+              ImportedDataType == "numeric" ~ "integer",
+              ImportedDataType == "character" ~ "string",
+              TRUE ~ ImportedDataType
+              )
           ),
           NULL
         ),
