@@ -542,39 +542,30 @@ dashboardPage(
         )), 
         
         fluidRow(
-          uiOutput("dq_hp_errors_null")),
-        
-        fluidRow(
-          column(6,
-                 uiOutput("orgDQHighPriorityErrorTypes_ui"),
-                 br()),
-          column(6,
-                 uiOutput("orgDQHighPriorityErrors_ui"))
-          
+          tabBox(
+            title = "High Priority Errors",
+            tabPanel("Most Common", plotOutput("orgDQHighPriorityErrorTypes")),
+            tabPanel("Top 10 Projects", plotOutput("orgDQHighPriorityErrors")),
+            width = 12
+          )
         ),
-        br(),
         fluidRow(
-          uiOutput("dq_general_errors_null")),
-        
-        fluidRow(
-          column(6,
-                 uiOutput("orgDQErrorTypes_ui"),
-                 br()),
-          column(6,
-                 uiOutput("orgDQErrors_ui")) 
+          tabBox(
+            title = "General Errors",
+            tabPanel("Most Common", plotOutput("orgDQErrorTypes")),
+            tabPanel("Top 10 Projects", plotOutput("orgDQErrors")),
+            width =12
+          )
         ),
-        br(),
         fluidRow(
-          uiOutput("dq_warnings_null")),
-        
-        fluidRow(
-          column(6,
-                 uiOutput("orgDQWarningTypes_ui"),
-                 br()),
-          column(6,
-                 uiOutput("orgDQWarnings_ui"))
+          tabBox(
+            title = "Warnings",
+            tabPanel("Most Common", plotOutput("orgDQWarningTypes")),
+            tabPanel("Top 10 Projects", plotOutput("orgDQWarnings")),
+            width = 12
+          )
         ),
-        br(),
+       
         fluidRow(
           box(
             id = "DQSummaryOrganization",
@@ -705,51 +696,27 @@ dashboardPage(
         )), 
 
         fluidRow(
-          box(
-            plotOutput("systemDQHighPriorityErrorTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common High Priority Errors"
-          ),
-          box(
-            plotOutput("systemDQHighPriorityErrors"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most High Priority Errors"
+          tabBox(
+            title = "High Priority Errors",
+            tabPanel("Most Common", plotOutput("systemDQHighPriorityErrorTypes")),
+            tabPanel("Top 10 Organizations", plotOutput("systemDQHighPriorityErrors")),
+            width = 12
           )
         ),
         fluidRow(
-          box(
-            plotOutput("systemDQErrorTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common General Errors"
-          ),
-          box(
-            plotOutput("systemDQErrors"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most General Errors"
+          tabBox(
+            title = "General Errors",
+            tabPanel("Most Common", plotOutput("systemDQErrorTypes")),
+            tabPanel("Top 10 Organizations", plotOutput("systemDQErrors")),
+            width =12
           )
         ),
         fluidRow(
-          box(
-            plotOutput("systemDQWarningTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common Warnings"
-          ),
-          box(
-            plotOutput("systemDQWarnings"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most Warnings"
+          tabBox(
+            title = "Warnings",
+            tabPanel("Most Common", plotOutput("systemDQWarningTypes")),
+            tabPanel("Top 10 Organizations", plotOutput("systemDQWarnings")),
+            width = 12
           )
         )
       )
