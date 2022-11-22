@@ -117,7 +117,8 @@ dashboardPage(
                  that will prevent the app from functioning, the app will reject
                  your file and not process any further. All issues will display
                  in the panel and you can download the details, even if the file
-                 was rejected. </p>
+                 was rejected. Users should contact their vendor to resolve issues 
+                 identified in the integrity checker.</p>
                  
                  <h4>Citations</h4>
                  <p>This panel will credit the people who wrote the open-source code
