@@ -223,10 +223,10 @@ dq_ssn <- served_in_date_range %>%
 dq_race <- served_in_date_range %>%
   mutate(
     Issue = case_when(
+      RaceNone %in% c(8, 9) ~ "Don't Know/Refused Race",
       RaceNone == 99 |
         AmIndAKNative + Asian + BlackAfAmerican + NativeHIPacific + White == 0
-      ~ "Missing Race",
-      RaceNone %in% c(8, 9) ~ "Don't Know/Refused Race"
+      ~ "Missing Race"
     ),
     Type = case_when(
       Issue == "Missing Race" ~ "Error",
@@ -259,10 +259,10 @@ dq_ethnicity <- served_in_date_range %>%
 dq_gender <- served_in_date_range %>%
   mutate(
     Issue = case_when(
+      GenderNone %in% c(8, 9) ~ "Don't Know/Refused Gender",
       GenderNone == 99 |
         Female + Male + NoSingleGender + Transgender + Questioning == 0
-      ~ "Missing Gender",
-      GenderNone %in% c(8, 9) ~ "Don't Know/Refused Gender"
+      ~ "Missing Gender"
     ),
     Type = case_when(
       Issue == "Missing Gender" ~ "Error",
