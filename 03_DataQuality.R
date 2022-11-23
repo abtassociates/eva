@@ -299,10 +299,8 @@ dq_veteran <- served_in_date_range %>%
 # Missing Client Location -------------------------------------------------
 
 missing_client_location <- served_in_date_range %>%
-  left_join(EnrollmentCoC %>% select(EnrollmentID, DataCollectionStage), by = "EnrollmentID") %>%
   filter(is.na(ClientLocation) & 
-         RelationshipToHoH == 1 &
-        DataCollectionStage == 1
+         RelationshipToHoH == 1
   ) %>%
   mutate(Type = "High Priority",
          Issue = "Missing Client Location",
