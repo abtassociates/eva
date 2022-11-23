@@ -846,48 +846,7 @@ calculate_long_stayers <- function(input, projecttype){
 
 # can't do further logic with this because it needs to be reactive
 
-# Incorrect Destination ---------------------------------------------------
 
-# RRH mover inners only
-moved_in_rrh <- served_in_date_range %>%
-  filter(ProjectType == 13 & !is.na(MoveInDateAdjust)) %>%
-  mutate(RRH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
-  select(PersonalID, 
-         "RRHMoveIn" = MoveInDateAdjust, 
-         RRH_range, 
-         "RRHProjectName" = ProjectName)
-
-enrolled_in_rrh <- served_in_date_range %>%
-  filter(ProjectType == 13) %>%
-  mutate(RRH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
-  select(PersonalID, 
-         "RRHMoveIn" = MoveInDateAdjust, 
-         RRH_range, 
-         "RRHProjectName" = ProjectName)
-
-
-# PSH mover inners only
-
-enrolled_in_psh <- served_in_date_range %>%
-  filter(ProjectType %in% c(3, 9) & !is.na(MoveInDateAdjust)) %>%
-  mutate(PSH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
-  select(PersonalID, 
-         PSH_range, 
-         "PSHMoveIn" = MoveInDateAdjust,
-         "PSHProjectName" = ProjectName)
-
-# TH
-enrolled_in_th <- served_in_date_range %>%
-  filter(ProjectType == 2) %>%
-  mutate(TH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
-  select(PersonalID, TH_range, "THProjectName" = ProjectName)
-
-# SH
-
-enrolled_in_sh <- served_in_date_range %>%
-  filter(ProjectType == 8) %>%
-  mutate(SH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
-  select(PersonalID, SH_range, "SHProjectName" = ProjectName)
 
 # Project Exit Before Start --------------
 exit_before_start <- served_in_date_range %>%
