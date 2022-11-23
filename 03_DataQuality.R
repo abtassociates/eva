@@ -648,7 +648,7 @@ dkr_living_situation <- served_in_date_range %>%
   select(all_of(vars_we_want))
 
 # DisablingCondition at Entry
-detail_missing_disabilities <- served_in_date_range %>%
+missing_disabilities <- served_in_date_range %>%
   select(all_of(vars_prep),
          AgeAtEntry,
          RelationshipToHoH,
@@ -657,11 +657,8 @@ detail_missing_disabilities <- served_in_date_range %>%
            is.na(DisablingCondition)) %>%
   mutate(Issue = "Missing Disabling Condition", 
          Type = "Error",
-         Guidance = guidance_missing_at_entry)
-
-missing_disabilities <- detail_missing_disabilities %>%
+         Guidance = guidance_missing_at_entry) %>%
   select(all_of(vars_we_want))
-
 
 # smallDisabilities <- Disabilities %>%
 #   filter(DataCollectionStage == 1 &
