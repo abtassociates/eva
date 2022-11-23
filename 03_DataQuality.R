@@ -279,7 +279,7 @@ dq_veteran <- served_in_date_range %>%
   mutate(
     Issue = case_when(
       (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
-        VeteranStatus == 99 ~ "Missing Veteran Status",
+        (VeteranStatus == 99 | is.na(VeteranStatus)) ~ "Missing Veteran Status",
       (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
         VeteranStatus %in% c(8, 9) ~ "Don't Know/Refused Veteran Status"
     ),
