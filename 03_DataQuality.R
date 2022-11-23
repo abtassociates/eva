@@ -147,26 +147,27 @@ dq_dob <- served_in_date_range %>%
   mutate(
     Issue = case_when(
       is.na(DOB) & DOBDataQuality %in% c(1, 2) ~ "Missing DOB",
-      DOBDataQuality == 99 ~ "Missing Date of Birth Data Quality",
-      DOBDataQuality %in% c(8, 9) ~ "Don't Know/Refused or Approx. Date of Birth",
-      AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect Date of Birth or Entry Date"
+      is.na(DOBDataQuality) ~ "Missing DOB Data Quality",
+      DOBDataQuality %in% c(8, 9, 99) ~ 
+        "Don't Know/Refused/Data Not Collected DOB",
+      AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect DOB or Entry Date"
     ),
     Type = case_when(
       Issue %in% c(
         "Missing DOB",
-        "Incorrect Date of Birth or Entry Date",
-        "Missing Date of Birth Data Quality"
+        "Incorrect DOB or Entry Date",
+        "Missing DOB Data Quality"
       ) ~ "Error",
-      Issue ==  "Don't Know/Refused or Approx. Date of Birth" ~ "Warning"
+      Issue ==  "Don't Know/Refused/Data Not Collected DOB" ~ "Warning"
     ),
     Guidance = case_when(
-      Issue == "Incorrect Date of Birth or Entry Date" ~
+      Issue == "Incorrect DOB or Entry Date" ~
         "The HMIS data is indicating the client entered the project PRIOR to
       being born. Correct either the Date of Birth or the Project Start Date, 
       whichever is incorrect.",
-      Issue %in% c("Missing DOB", "Missing Date of Birth Data Quality") ~
+      Issue %in% c("Missing DOB", "Missing DOB Data Quality") ~
         guidance_missing_at_entry,
-      Issue == "Don't Know/Refused or Approx. Date of Birth" ~
+      Issue == "Don't Know/Refused/Data Not Collected DOB" ~
         guidance_dkr_data
     )
   ) %>%
