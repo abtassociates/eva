@@ -759,22 +759,6 @@ ce_stayers <- served_in_date_range %>%
 
 Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
-outreach_stayers <- served_in_date_range %>%
-  select(all_of(vars_prep), ProjectID, EnrollmentID) %>%
-  left_join(
-    CurrentLivingSituation %>% 
-      group_by(EnrollmentID) %>%
-      summarise(latestInfoDate = max(InformationDate)) %>%
-      ungroup() %>%
-      select(EnrollmentID, latestInfoDate)
-    , by = "EnrollmentID"
-  ) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 4) %>%
-  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, latestInfoDate))) 
-
-Top2_Outreach <- subset(outreach_stayers %>% select(-c(EnrollmentID, latestInfoDate)), Days > input$OUTLongStayers)
-
 missed_movein_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
@@ -794,8 +778,7 @@ extremely_long_stayers <- rbind(Top1_PSH,
                                 Top2_RRH,
                                 Top2_TH,
                                 Top2_HP,
-                                Top2_CE,
-                                Top2_Outreach) %>%
+                                Top2_CE) %>%
   mutate(
     Issue = "Possible Missed Exit Date",
     Type = "Warning",
