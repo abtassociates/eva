@@ -835,7 +835,7 @@ calculate_long_stayers <- function(input, projecttype){
       Type = "Warning",
       Guidance = "You have at least one active enrollment that has been
          active for longer than the days set for this Project Type in your
-         CoC-specific Settings on the Upload CSV tab."
+         CoC-specific Settings on the Home tab."
     ) %>%
     filter(is.na(ExitDate) &
              ProjectType == projecttype &
