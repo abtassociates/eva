@@ -2723,8 +2723,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with Warnings") +
-     scale_x_discrete(labels = function(x) str_wrap(x, width = 25)) +
-     #scale_y_discrete(expand = c(0,0)) +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
@@ -2756,8 +2756,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      coord_flip() +
      labs(x = "",
           y = "Number of Clients with Warnings") +
-     scale_x_discrete(labels = function(x) str_wrap(x, width = 25)) +
-     #scale_y_discrete(expand = c(0,0)) +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
