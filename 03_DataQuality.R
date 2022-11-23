@@ -223,7 +223,9 @@ dq_ssn <- served_in_date_range %>%
 dq_race <- served_in_date_range %>%
   mutate(
     Issue = case_when(
-      RaceNone == 99 ~ "Missing Race",
+      RaceNone == 99 |
+        AmIndAKNative + Asian + BlackAfAmerican + NativeHIPacific + White == 0
+      ~ "Missing Race",
       RaceNone %in% c(8, 9) ~ "Don't Know/Refused Race"
     ),
     Type = case_when(
