@@ -1428,7 +1428,6 @@ overlapNEWvars = c("Issue",
                    "MoveInDate.x", "MoveInDate.y",
                    "FirstDateProvided.x", "FirstDateProvided.y")
 
-
 overlapNEW_df = served_in_date_range %>%
   mutate(
     ProjectType = case_when(
@@ -1467,7 +1466,7 @@ overlapNEW_entry_and_exit <- c1 %>%
   ) %>%
   mutate(
     Issue = "Overlaps Between Residential Projects that Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date",
-    Type = "High Priority - Overlap",
+    Type = "Warning",
     Guidance = overlapNEW_entry_and_exit_guidance,
     FirstDateProvided.x = NA,
     FirstDateProvided.y = NA
@@ -1501,7 +1500,7 @@ overlapNEW_entry_and_exit_bn <- c1 %>%
   filter(NumOverlaps > 2 | ProjectType.y == "ES - NbN") %>%
   mutate(
     Issue = "Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date AND Projects That Use Bed Night Date to indicate the household is occupying that unit on that date",
-    Type = "High Priority - Overlap",
+    Type = "Warning",
     Guidance = overlapNEW_entry_and_exit_bn_guidance,
     FirstDateProvided.x = min(DateProvided.x),
     FirstDateProvided.y = NA
@@ -1535,7 +1534,7 @@ overlapNEW_entry_and_exit_bn2 <- c1 %>%
   ) %>%
   mutate(
     Issue = "Overlaps Between Residential Projects That Use Entry Date (Project Start Date) and Exit Date (Project Exit Date) OR Bed Night Date to indicate the household is occupying that unit on that date AND Residential Projects That Use Housing Move-In Date and Exit Date (Project Exit Date) to indicate the household is occupying that unit on that date",
-    Type = "High Priority - Overlap",
+    Type = "Warning",
     Guidance = overlapNEW_entry_and_exit_bn2_guidance,
     FirstDateProvided.x = NA,
     FirstDateProvided.y = min(DateProvided.y)
@@ -1560,7 +1559,7 @@ overlapNEW_movein_and_exit <- c1 %>%
   ) %>%
   mutate(
     Issue = "Overlaps Between Projects that Use Move-In Date to Exit Date to Indicate Occupancy",
-    Type = "High Priority - Overlap",
+    Type = "Warning",
     Guidance = overlapNEW_movein_and_exit_guidance,
     FirstDateProvided.x = NA,
     FirstDateProvided.y = NA
@@ -1574,7 +1573,16 @@ overlapNEW <- rbind(overlapNEW_entry_and_exit,
 overlapNEW <- overlapNEW %>%
   unique() %>%
   relocate(c(Issue,Type,Guidance))
-          
+
+overlapNEW_xonly <- overlapNEW %>% 
+  select(ends_with(".x"), PersonalID, Issue, Type, Guidance, -EnrollmentID.x, -FirstDateProvided.x) %>%
+  rename("ExitDate" = ExitAdjust.x, "MoveInDateAdjust" = MoveInDate.x)
+colnames(overlapNEW_xonly) <- gsub("\\.x", "", colnames(overlapNEW_xonly))
+
+overlapNEW_yonly <- overlapNEW %>% 
+  select(ends_with(".y"), PersonalID, Issue, Type, Guidance, -EnrollmentID.y, -FirstDateProvided.y) %>%
+  rename("ExitDate" = ExitAdjust.y, "MoveInDateAdjust" = MoveInDate.y)
+colnames(overlapNEW_yonly) <- gsub("\\.y", "", colnames(overlapNEW_yonly)) 
 
 rm(overlapNEW_entry_and_exit,
    overlapNEW_entry_and_exit_bn,
@@ -2493,14 +2501,15 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       veteran_missing_branch,
       veteran_missing_discharge_status,
       active_outside_dates,
-      exit_before_start
+      exit_before_start,
+      overlapNEW_xonly %>% select(all_of(vars_we_want)),
+      overlapNEW_yonly %>% select(all_of(vars_we_want))
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
-                                        "High Priority - Overlap",
                                         "Error",
                                         "Warning")))
-    
+
     # Controls what is shown in the CoC-wide DQ tab ---------------------------
     
     # for CoC-wide DQ tab

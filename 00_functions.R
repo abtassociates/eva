@@ -225,7 +225,7 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     select(all_of(select_list))
   
   warnings <- dqData %>%
-    filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
+    filter(Type == "Warning") %>% 
     select(all_of(select_list))
   
   summary <- rbind(
@@ -241,7 +241,7 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
   guidance <- dqData %>%
     select(Type, Issue, Guidance) %>%
     unique() %>%
-    mutate(Type = factor(Type, levels = c("High Priority","High Priority - Overlap", "Error", "Warning"))) %>%
+    mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
     arrange(Type)
   
   exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
@@ -253,9 +253,9 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     summary = summary,
     guidance = guidance,
     high_priority = high_priority,
-    overlaps = dqOverlaps,
     errors = errors,
-    warnings = warnings
+    warnings = warnings,
+    overlaps = dqOverlaps
   )
   
   names(exportDFList) = c(
@@ -263,9 +263,9 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     "Summary",
     "Guidance",
     "High Priority",
-    "High Priority - Overlaps",
     "Errors", 
-    "Warnings"
+    "Warnings",
+    "Overlaps"
   )
   
   exportDFList <- exportDFList[sapply(exportDFList, 
