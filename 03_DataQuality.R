@@ -242,7 +242,7 @@ dq_race <- served_in_date_range %>%
 dq_ethnicity <- served_in_date_range %>%
   mutate(
     Issue = case_when(
-      Ethnicity == 99 ~ "Missing Ethnicity",
+      Ethnicity == 99 | is.na(Ethnicity) ~ "Missing Ethnicity",
       Ethnicity %in% c(8, 9) ~ "Don't Know/Refused Ethnicity"
     ),
     Type = case_when(
