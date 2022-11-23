@@ -1,3 +1,4 @@
+
 PDDEcols = c("OrganizationName",
              "ProjectID",
              "ProjectName",
@@ -39,7 +40,7 @@ subpopNotTotal <- Inventory %>%
 # Missing Operating End Date If a project has no open enrollments and the most recent Enrollment was 30+ days ago
 operatingEndMissing <- Enrollment %>%
   group_by(ProjectID) %>%
-  mutate(NumOpenEnrollments = sum(is_null(ExitDate)),
+  mutate(NumOpenEnrollments = sum(is.na(ExitDate)),
          MostRecentEnrollment = max(ExitAdjust, na.rm = TRUE)
 
   ) %>%
@@ -63,27 +64,27 @@ operatingEndMissing <- Enrollment %>%
 # Missing CoC Information Missing address field(s), Missing Geocode, Missing Geography Type, Invalid Zip Code if possible
 missingCoCInfo <- Project %>%
   left_join(ProjectCoC, by = "ProjectID") %>%
-  filter(is_null(Address1) | 
-           is_null(City) | 
-           is_null(State) | 
-           is_null(Geocode) | 
-           is_null(GeographyType) | 
+  filter(is.na(Address1) | 
+           is.na(City) | 
+           is.na(State) | 
+           is.na(Geocode) | 
+           is.na(GeographyType) | 
            nchar(ZIP) != 5 |
-           is_null(ZIP) |
-           is_null(CoCCode)
+           is.na(ZIP) |
+           is.na(CoCCode)
   ) %>%
   mutate(Issue = "Missing Geography Information",
          Guidance = case_when(
-           is_null(CoCCode) ~ "This project's CoC Code is missing",
-           is_null(Address1) ~ "This project's Address is missing",
-           is_null(City) ~ "This project's City is missing",
-           is_null(State) ~ "This project's State is missing",
-           is_null(Geocode) ~ "This project's Geocode is missing",
-           is_null(GeographyType) ~ "This project's Geography Type is missing",
-           nchar(ZIP) != 5 | is_null(ZIP) ~ "ZIP is missing or not valid"
+           is.na(CoCCode) ~ "This project's CoC Code is missing",
+           is.na(Address1) ~ "This project's Address is missing",
+           is.na(City) ~ "This project's City is missing",
+           is.na(State) ~ "This project's State is missing",
+           is.na(Geocode) ~ "This project's Geocode is missing",
+           is.na(GeographyType) ~ "This project's Geography Type is missing",
+           nchar(ZIP) != 5 | is.na(ZIP) ~ "ZIP is missing or not valid"
          ),
-         Type = if_else(is_null(Geocode) | is_null(GeographyType) |
-                          is_null(CoCCode),
+         Type = if_else(is.na(Geocode) | is.na(GeographyType) |
+                          is.na(CoCCode),
                         "High Priority",
                         "Error")) %>%
   select(all_of(PDDEcols))
@@ -118,11 +119,11 @@ inventoryOutsideOperating <- Inventory %>%
   left_join(Project, by = "ProjectID") %>%
   filter(InventoryStartDate < OperatingStartDate |
            InventoryEndDate > OperatingEndDate |
-           (is_null(InventoryEndDate) & !is_null(OperatingEndDate))) %>%
+           (is.na(InventoryEndDate) & !is.na(OperatingEndDate))) %>%
   mutate(Issue = "Inventory outside operating dates",
          Type = "Warning",
          Guidance = case_when(
-           is_null(InventoryEndDate) & !is_null(OperatingEndDate) ~
+           is.na(InventoryEndDate) & !is.na(OperatingEndDate) ~
             paste("Inventory ID", InventoryID, 
                   "has no InventoryEndDate, but the project ended on",
                   OperatingEndDate
@@ -146,7 +147,7 @@ hmisNotParticipatingButClient <- Project %>%
   left_join(Organization %>% select(OrganizationID, VictimServiceProvider), 
             by = "OrganizationID") %>%
   filter((HMISParticipatingProject != 1 | VictimServiceProvider != 0) & 
-           !is_null(PersonalID)) %>%
+           !is.na(PersonalID)) %>%
   mutate(Issue = "Non-HMIS-Participating project has client-level data",
          Type = "Warning",
          Guidance = "Please check that this project is marked correctly as

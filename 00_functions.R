@@ -1,5 +1,4 @@
 
-
 # Age ---------------------------------------------------------------------
 
 age_years <- function(earlier, later)
@@ -100,9 +99,7 @@ translate_HUD_yes_no <- function(column_name){
   )
 }
 
-
 # Translate to Values -----------------------------------------------------
-
 
 replace_yes_no <- function(column_name) {
   case_when(column_name == "No" | is.na(column_name) ~ 0,
@@ -198,9 +195,7 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
   if (is.null(input$imported)) {return()}
   filename = glue::glue("{csvFile}.csv")
   data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
-                   ,col_types = col_types #,
-                   #guess_max = min(guess_max, n_max) AS 9/8: was getting an 
-                   # error: Error in vroom::vroom: object 'n_max' not found
+                   ,col_types = col_types
   )
   file.remove(filename)
   return(data)

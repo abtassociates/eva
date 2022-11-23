@@ -1,16 +1,3 @@
-# COHHIO_HMIS
-# Copyright (C) 2020  Coalition on Homelessness and Housing in Ohio (COHHIO)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details at
-# <https://www.gnu.org/licenses/>. test
 
 function(input, output, session) {
   
@@ -60,7 +47,7 @@ function(input, output, session) {
         setProgress(detail = "Reading your files..", value = .2)
         source("00_get_Export.R", local = TRUE)
         source("00_dates.R", local = TRUE)
-        setProgress(detail = "Checking file integrity", value = .35)
+        setProgress(detail = "Checking file structure", value = .35)
         source("00_integrity_checker.R", local = TRUE)
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
@@ -82,8 +69,8 @@ function(input, output, session) {
           modalDialog(
             title = "Your HMIS CSV Export is not structurally valid",
             "Your HMIS CSV Export has some High Priority issues that must
-            be addressed by your HMIS Vendor. Please download the Integrity
-            Checker for details.",
+            be addressed by your HMIS Vendor. Please download the File Structure
+            Analysis for details.",
             easyClose = TRUE
           )
         )
@@ -129,7 +116,7 @@ function(input, output, session) {
     
     output$downloadIntegrityBtn <- renderUI({
       req(hashed == 1)
-      downloadButton("downloadIntegrityCheck", "Download Integrity Check Detail")
+      downloadButton("downloadIntegrityCheck", "Download Structure Analysis Detail")
     })  
     
     output$downloadIntegrityCheck <- downloadHandler(
@@ -189,7 +176,9 @@ function(input, output, session) {
                       value = meta_HUDCSV_Export_Start)
       
       updateDateRangeInput(session = session, inputId = "dateRangeCount",
-                           min = meta_HUDCSV_Export_Start)
+                           min = meta_HUDCSV_Export_Start,
+                           start = meta_HUDCSV_Export_Start,
+                           end = meta_HUDCSV_Export_End)
     }
 
     output$headerDataQuality <- renderUI({
@@ -245,8 +234,14 @@ function(input, output, session) {
       },
       content = function(file) {
         req(valid_file() == 1)
-        write_xlsx(pdde_main, path = file)
-        }
+        
+        summary <- pdde_main %>% 
+          group_by(Issue, Type) %>%
+          summarise(Count = n()) %>%
+          ungroup()
+
+        write_xlsx(list("Summary" = summary, "Data" = pdde_main), path = file)
+      }
     )
     
     

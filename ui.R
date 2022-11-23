@@ -1,30 +1,17 @@
-# COHHIO_HMIS
-# Copyright (C) 2020  Coalition on Homelessness and Housing in Ohio (COHHIO)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details at
-# <https://www.gnu.org/licenses/>.
 
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "StellaR"),
+  dashboardHeader(title = "[App Name Pending]"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
       menuItem("Home",
                tabName = "tabHome"),
-      menuItem("Check PDDEs",
-               tabName = "tabPDDE"),
       menuItem("View Client Counts",
                   tabName = "tabClientCount"),
       menuItem("Assess Data Quality",
+               menuSubItem("Check PDDEs",
+                           tabName = "tabPDDE"),
                menuSubItem("System-level",
                            tabName = "tabDQSystem"),
                menuSubItem("Organization-level",
@@ -57,23 +44,23 @@ dashboardPage(
         tabName = "tabHome",
         fluidRow(
           box(
-            title = "Welcome to StellaR!",
+            title = "Welcome to [App Name Pending]!",
             width = 12,
             HTML(
-              "<div>StellaR is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
-              StellaR is designed to help you assess the accuracy and completeness of the data within your HMIS. 
+              "<div>[App Name Pending] is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
+              [App Name Pending] is designed to help you assess the accuracy and completeness of the data within your HMIS. 
               In future iterations it will also assist communities in analyzing your HMIS performance data, 
               including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
               <br/>
               <div>This app works by using an uploaded 
-              <a href='https://www.hudhdx.info/VendorResources.aspx'>HMIS CSV</a> 
+              <a href='https://www.hudhdx.info/VendorResources.aspx' target= '_blank' rel='noopener noreferrer'>HMIS CSV</a> 
               file.
               </div>
               <br/>"
             )
           ),
           box(
-            title = "App Instructions",
+            title = "Instructions",
             width = 12,
             collapsible = TRUE,
             collapsed = TRUE,
@@ -102,7 +89,7 @@ dashboardPage(
                  until you upload another (structurally sound) file. </p>
                  
                  <h4>Edit CoC-specific Settings</h4>
-                 <p>To make StellaR reporting more useful at the local level,
+                 <p>To make [App Name Pending] reporting more useful at the local level,
                  you will find the CoC-specific settings that HMIS Leads can edit
                  to better analyse their data in a way that is meaningful to the
                  CoC. To edit these, click on the \'+\'. If you do not edit them,
@@ -110,28 +97,21 @@ dashboardPage(
                  not imply any HUD recommendations. Please read the description
                  in the settings panel for more information.</p>
                  
-                 <h4>Integrity Checker</h4>
+                 <h4>File Structure Analysis</h4>
                  <p>Once the app verifies that your file is hashed, it will then
                  check that your upload has all the right tables, columns, data
                  types, and allowable values. If there are any issues
                  that will prevent the app from functioning, the app will reject
                  your file and not process any further. All issues will display
                  in the panel and you can download the details, even if the file
-                 was rejected. </p>
+                 was rejected. Users should contact their vendor to resolve issues 
+                 identified in the HUD CSV Export File Structure Analysis.</p>
                  
                  <h4>Citations</h4>
                  <p>This panel will credit the people who wrote the open-source code
                  used to build this app, plus the community on whose code this app
                  was built.</p>")
           ),  
-          box(title = "Status",
-              conditionalPanel(
-                condition = "valid_file() == 0",
-                uiOutput("headerFileInfo")),
-              conditionalPanel(
-                condition = "valid_file() == 1",
-                uiOutput("headerNoFileYet")), 
-              width = 12),
           box(
             title = "Upload Hashed CSV zip file",
             HTML('<i class="fa fa-info-circle" 
@@ -141,6 +121,12 @@ dashboardPage(
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
+            conditionalPanel(
+              condition = "valid_file() == 0",
+              uiOutput("headerFileInfo")),
+            conditionalPanel(
+              condition = "valid_file() == 1",
+              uiOutput("headerNoFileYet")),
             width = 12
           ), 
           box(
@@ -267,12 +253,44 @@ dashboardPage(
       #              value = 7)
       
           box(
-            title = "HUD CSV Export Integrity Checker",
+            title = "HUD CSV Export File Structure Analysis",
             width = 12,
             DT::dataTableOutput("integrityChecker"),
             p(),
+            HTML("<p>If there are issues identified in the HUD CSV Export File Structure Analysis, 
+                 please contact your vendor.</p>"),
+            p(),
             uiOutput('downloadIntegrityBtn')
-          )
+          ),
+      box(
+        title = "Citations and Special Thanks",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        HTML("
+             <p> This project would not exist were it not for the existence of other quality, 
+             free and open source products. The following are citations for the products this
+             app relies on.
+             
+             <p> R Core Team (2019). R: A language and environment for statistical computing.
+             R Foundation for Statistical Computing. Vienna, Austria. 
+             <a href = 'https://www.r-project.org' target= '_blank' rel='noopener noreferrer'>R programming language</a>.
+             
+             <p> Hadley Wickham (2017). tidyverse: Easily Install and Load the 'Tidyverse.'
+             R package version 1.2.1. 
+             <a href = 'https://cran.r-project.org/web/packages/tidyverse/index.html' target= '_blank' rel='noopener noreferrer'>Tidyverse package</a>.
+             
+             <p>Winston Chang, Joe Cheng, JJ Allaire, Yihue Xie and Jonathan McPherson (2019).
+             shiny: Web Application Framework for R. R package version 1.3.2. 
+             <a href = 'https://cran.r-project.org/web/packages/shiny/index.html' target= '_blank' rel='noopener noreferrer'>R Shiny package</a>
+             and shinydashboard; Create Dashboards with 'Shiny.' R package version 0.7.1.
+             <a href = 'https://cran.r-project.org/web/packages/shinydashboard/index.html' target= '_blank' rel='noopener noreferrer'>shinydashboard package</a>.
+             
+             <p> The foundational code for the app was shared by 
+             <a href = 'https://www.cohhio.org' target= '_blank' rel='noopener noreferrer'>COHHIO</a>, 
+             Coalition on Homelessness and Housing in Ohio.
+                 ")
+      )
         )
       ), 
       tabItem(
@@ -281,7 +299,7 @@ dashboardPage(
           "headerPDDE"
         ), width = 12)),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
@@ -309,14 +327,16 @@ dashboardPage(
           ),
           box(title = "Guidance",
               width = 12,
-              HTML("coming soon"))
+              HTML("coming soon"),
+              status = "info",
+              solidHeader = TRUE)
         )
       ),
       tabItem(
         tabName = "tabClientCount",
         fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
@@ -334,10 +354,11 @@ dashboardPage(
                
                <h4>Inputs</h4>
                <p>HMIS Leads may select a single project from the drop list. The
-               Date Range defaults to display \'current\' enrollments only, but
+               Date Range defaults to the export's start and end date, but
                users are encouraged to edit the Date Range as desired to see
                metrics such as how many clients/households exited with and 
-               without a Move-In Date, how many exited during the time period.</p>
+               without a Move-In Date, how many exited during a specific time period,
+               or \'current\' enrollments only.</p>
                
                <h4>Summary</h4>
                <p>Check here for a count of households or clients who have statuses
@@ -390,7 +411,7 @@ dashboardPage(
         tabName = "tabDQOrg",
         fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
@@ -575,7 +596,7 @@ dashboardPage(
         fluidRow(box(htmlOutput("headerDeskTime"),
                      width = 12)),
           fluidRow(box(
-            title = "App Instructions",
+            title = "Instructions",
             width = 12,
             collapsible = TRUE,
             collapsed = TRUE,
@@ -608,7 +629,7 @@ dashboardPage(
         tabName = "tabDQSystem",
         fluidRow(box(htmlOutput("headerSystemDQ"), width = 12, uiOutput("downloadFullDQReportButton"))),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
@@ -808,12 +829,4 @@ dashboardPage(
 #   ))
 # ),
 
-# box(plotOutput("systemHHErrors"), width = 12,
-#     solidHeader = TRUE,
-#     status = "danger",
-#     title = "Projects with the Most Household Errors")),
-
-#fluidRow(
-#uiOutput("DQIneligible"),
-#uiOutput("DQOverlappingEEs")),
 
