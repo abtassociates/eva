@@ -354,8 +354,8 @@ hh_too_many_hohs <- served_in_date_range %>%
   group_by(HouseholdID) %>%
   summarise(HoHsinHousehold = n(),
             PersonalID = min(PersonalID)) %>%
-  filter(HoHsinHousehold > 1) %>%
   ungroup() %>%
+  filter(HoHsinHousehold > 1) %>%
   left_join(served_in_date_range, by = c("PersonalID", "HouseholdID")) %>%
   mutate(Issue = "Too Many Heads of Household",
          Type = "High Priority",
