@@ -1252,7 +1252,7 @@ rm(income_subs)
 active_outside_dates <- served_in_date_range %>%
   filter(RelationshipToHoH == 1 &
            EntryDate < OperatingStartDate |
-           (ExitDate > OperatingEndDate & !is_null(ExitDate)) |
+           (ExitDate > OperatingEndDate & !is.na(ExitDate)) |
            (is.na(ExitDate) & !is.na(OperatingEndDate))
   ) %>%
   mutate(Issue = "Enrollment Active Outside Project Operating Dates",
