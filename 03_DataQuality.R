@@ -127,9 +127,9 @@ vars_we_want <- c(vars_prep,
 dq_name <- served_in_date_range %>%
   mutate(
     Issue = case_when(
-      FirstName == "Missing" ~ 
+      NameDataQuality == 99 | is.na(NameDataQuality) ~ 
         "Missing Name Data Quality",
-      FirstName %in% c("DKR", "Partial") ~
+      NameDataQuality %in% c(8, 9) ~ 
         "Incomplete or Don't Know/Refused Name"
     ),
     Type = case_when(
