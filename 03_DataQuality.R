@@ -176,6 +176,28 @@ dq_dob <- served_in_date_range %>%
 
 dq_ssn <- served_in_date_range %>%
   mutate(
+    SSN = case_when(
+      (is.na(SSN) & !SSNDataQuality %in% c(8, 9)) |
+        is.na(SSNDataQuality) | SSNDataQuality == 99 ~ "Missing",
+      SSNDataQuality %in% c(8, 9) ~ "DKR",
+      (nchar(SSN) != 9 & SSNDataQuality != 2) |
+        substr(SSN, 1, 3) %in% c("000", "666") |
+        substr(SSN, 1, 1) == 9 |
+        substr(SSN, 4, 5) == "00" |
+        substr(SSN, 6, 9) == "0000" |
+        SSNDataQuality == 2 |
+        SSN %in% c(
+          111111111,
+          222222222,
+          333333333,
+          444444444,
+          555555555,
+          777777777,
+          888888888,
+          123456789
+        ) ~ "Invalid",
+      SSNDataQuality == 2 & nchar(SSN) != 9 ~ "Incomplete"
+    ), 
     Issue = case_when(
       SSN == "Missing" ~ "Missing SSN",
       SSN == "Invalid" ~ "Invalid SSN",
