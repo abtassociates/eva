@@ -1256,7 +1256,8 @@ active_outside_dates <- served_in_date_range %>%
            (is.na(ExitDate) & !is.na(OperatingEndDate))
   ) %>%
   mutate(Issue = "Enrollment Active Outside Project Operating Dates",
-         Type = "Error",
+         Type = "Warning", # sometimes enrollments get transferred to a merged
+         # project and this is ok and should not be fixed
          Guidance = guidance_enrl_active_outside_op) %>%
   select(all_of(vars_we_want))
 
