@@ -1091,8 +1091,8 @@ duplicate_ees <-
 # day they moved in. So they're excused from this prior to Move In Date's existence.
 future_ees <- served_in_date_range %>%
   filter(EntryDate > DateCreated &
-           (ProjectType %in% c(1, 2, 4, 8, 13) |
-              (ProjectType %in% c(3, 9) & 
+           (!ProjectType %in% c(3, 9, 10) |
+              (ProjectType %in% c(3, 9, 10) & 
                   EntryDate >= hc_psh_started_collecting_move_in_date
               )))  %>%
   mutate(
