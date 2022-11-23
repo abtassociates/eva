@@ -259,7 +259,9 @@ dq_ethnicity <- served_in_date_range %>%
 dq_gender <- served_in_date_range %>%
   mutate(
     Issue = case_when(
-      GenderNone == 99 ~ "Missing Gender",
+      GenderNone == 99 |
+        Female + Male + NoSingleGender + Transgender + Questioning == 0
+      ~ "Missing Gender",
       GenderNone %in% c(8, 9) ~ "Don't Know/Refused Gender"
     ),
     Type = case_when(
