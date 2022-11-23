@@ -762,7 +762,7 @@ Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 missed_movein_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
-           ProjectType %in% c(3,9,10,13)
+           ProjectType %in% c(3, 9, 10, 13)
   ) %>%
   mutate(
     Days = as.numeric(difftime(MoveInDateAdjust, EntryDate)),
@@ -771,7 +771,23 @@ missed_movein_stayers <- served_in_date_range %>%
     Guidance = "Fix Me"
   )
 
-Top2_movein <- subset(missed_movein_stayers, Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE))
+Top2_movein <- subset(missed_movein_stayers,
+                      Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE)) %>%
+  select(all_of(vars_we_want)) %>%
+  mutate(
+    Issue = "Possible Missed Move-In Date",
+    Type = "Warning",
+    Guidance = paste(
+      "This enrollment is in the top",
+      case_when(ProjectType %in% c(3, 9, 10) ~ "1%",
+                TRUE ~ "2%"),
+      "of all other projects of its type in your HMIS system for
+      how many days it has been active without a Move-In Date. Please be sure this
+      household is still awaiting housing in this project and if not, record the
+      date they either moved into housing or exited your project. If they are
+      still awaiting housing, do not change the data."
+    )
+  )
 
 extremely_long_stayers <- rbind(Top1_PSH,
                                 Top2_ES,
@@ -793,7 +809,11 @@ extremely_long_stayers <- rbind(Top1_PSH,
   ) %>% 
   select(all_of(vars_we_want))
 
-extremely_long_stayers <- rbind(extremely_long_stayers, Top2_movein %>% select(all_of(vars_we_want)))
+extremely_long_stayers <-
+  rbind(
+    extremely_long_stayers,
+    Top2_movein
+  )
 
 rm(list = ls(pattern = "Top*"),
    es_stayers,
