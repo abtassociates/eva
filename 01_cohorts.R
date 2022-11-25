@@ -99,7 +99,8 @@ smallEnrollment <- Enrollment %>%
     ExitAdjust,
     LivingSituation,
     Destination,
-    DateCreated
+    DateCreated,
+    LengthOfStay
   ) 
 
 validation <- smallProject %>%
@@ -120,7 +121,8 @@ validation <- smallProject %>%
     LivingSituation,
     Destination,
     DateCreated,
-    OrganizationName
+    OrganizationName,
+    LengthOfStay
   ) %>%
   filter(!is.na(EntryDate))
 
