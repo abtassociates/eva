@@ -267,3 +267,66 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
   
   return(exportDFList)
 }
+
+zip_initially_valid <- function () {
+  zipContents <- unzip(zipfile = input$imported$datapath, list=TRUE)
+  requiredFiles <- c("Client.csv",
+    "Enrollment.csv",
+    "Exit.csv",
+    "Services.csv",
+    "CurrentLivingSituation.csv",
+    "Project.csv",
+    "Inventory.csv",
+    "EnrollmentCoC.csv",
+    "Organization.csv",
+    "Export.csv"
+  )
+  missing_files = requiredFiles[!(requiredFiles %in% zipContents$Name)]
+  
+  valid_file(0)
+  if(grepl("/", zipContents$Name[1])) {
+    title = "Your zip file is mis-structured"
+    err_msg = "It looks like you may have unzipped your HMIS csv because the individual csv files are contained within a subdirectory"
+  } 
+  else if(length(missing_files)) {
+    title = "Missing files"
+    err_msg = paste0("Your zip file seems to be missing the following important files: ",missing_files)
+  } 
+  else if(!is_hashed()) {
+    title = "You uploaded the wrong data set"
+    err_msg = "You have uploaded an unhashed version of the HMIS CSV Export. If you
+          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
+          contact your HMIS vendor."
+  } else {
+    return(TRUE)
+  }
+  
+  
+  if(!valid_file()) {
+    showModal(
+      modalDialog(
+        title = title,
+        err_msg,
+        easyClose = TRUE
+      )
+    )
+    reset("imported")
+    return(FALSE)
+  }
+}
+
+is_hashed <- function() {
+  # read Export file
+  Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
+  # read Client file
+  Client <- importFile("Client",
+                       col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
+  
+  # decide if the export is hashed
+  return(  
+    # TRUE
+    Export$HashStatus == 4 &
+    min(nchar(Client$FirstName), na.rm = TRUE) ==
+    max(nchar(Client$FirstName), na.rm = TRUE)
+  )
+}
