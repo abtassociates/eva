@@ -323,7 +323,6 @@ function(input, output, session) {
     
     ### Client Counts -------------------------------
     client_count_data_df <- reactive({
-      req(valid_file() == 1)
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
       
@@ -373,14 +372,37 @@ function(input, output, session) {
         arrange(desc(sort), HouseholdID, PersonalID) %>%
         select(
           "Personal ID" = PersonalID,
+          "Household ID" = HouseholdID,
           "Relationship to Head of Household" = RelationshipToHoH,
           "Entry Date" = EntryDate,
           "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
           "Exit Date" = ExitDate,
+          "Length of Stay" = LengthOfStay,
           Status,
           ProjectID,
+          ProjectName,
           OrganizationName
         )
+    })
+    
+    client_count_summary_df <- reactive({
+      
+      hhs <- client_count_data_df() %>%
+        mutate(Status = sub(" \\(.*", "", Status)) %>%
+        select("Household ID", Status) %>%
+        unique() %>%
+        group_by(Status) %>%
+        summarise(Households = n())
+      
+      clients <- client_count_data_df() %>%
+        mutate(Status = sub(" \\(.*", "", Status)) %>%
+        select("Personal ID", Status) %>%
+        unique() %>%
+        group_by(Status) %>%
+        summarise(Clients = n())
+      
+      full_join(clients, hhs, by = "Status")
+      
     })
     output$clientCountData <- DT::renderDataTable({
       req(valid_file() == 1)
@@ -392,60 +414,12 @@ function(input, output, session) {
         options = list(dom = 'ltpi')
       )
     })
-    
-    client_count_summary_df <- reactive({
-      req(valid_file() == 1)
-      ReportStart <- input$dateRangeCount[1]
-      ReportEnd <- input$dateRangeCount[2]
-      
-      validation %>%
-        filter(served_between(., ReportStart, ReportEnd) &
-                 ProjectName == input$currentProviderList) %>%
-        mutate(
-          # Entered = if_else(between(EntryDate, ReportStart, ReportEnd),
-          #                   "Entered in date range", "Entered outside date range"),
-          # Leaver = if_else(!is.na(ExitDate), "Leaver", "Stayer"),
-          Status = case_when(
-            ProjectType %in% c(3, 13) &
-              is.na(MoveInDateAdjust) &
-              is.na(ExitDate) ~ "Currently Awaiting Housing",
-            ProjectType %in% c(3, 13) &
-              !is.na(MoveInDateAdjust) &
-              is.na(ExitDate) ~ "Currently Moved In",
-            ProjectType %in% c(3, 13) &
-              is.na(MoveInDateAdjust) &
-              !is.na(ExitDate) ~ "Exited No Move-In",
-            ProjectType %in% c(3, 13) &
-              !is.na(MoveInDateAdjust) &
-              !is.na(ExitDate) ~ "Exited with Move-In",
-            !ProjectType %in% c(3, 13) &
-              is.na(ExitDate) ~ "Currently in project",
-            !ProjectType %in% c(3, 13) &
-              !is.na(ExitDate) ~ "Exited project",
-            TRUE ~ "something's wrong"
-          )
-        )
-    })
       
     output$clientCountSummary <- DT::renderDataTable({
       req(valid_file() == 1)
       
-      hhs <- client_count_summary_df() %>%
-        select(HouseholdID, Status) %>%
-        unique() %>%
-        group_by(Status) %>%
-        summarise(Households = n())
-      
-      clients <- client_count_summary_df() %>%
-        select(PersonalID, Status) %>%
-        unique() %>%
-        group_by(Status) %>%
-        summarise(Clients = n())
-      
-      final <- full_join(clients, hhs, by = "Status")
-      
       datatable(
-        final,
+        client_count_summary_df(),
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't')
@@ -468,21 +442,12 @@ function(input, output, session) {
       },
       content = function(file) {
         req(valid_file() == 1)
-        hhs <- client_count_summary_df() %>%
-          select(HouseholdID, Status) %>%
-          unique() %>%
-          group_by(Status) %>%
-          summarise(Households = n())
-        
-        clients <- client_count_summary_df() %>%
-          select(PersonalID, Status) %>%
-          unique() %>%
-          group_by(Status) %>%
-          summarise(Clients = n())
-        
-        summary <- full_join(clients, hhs, by = "Status")
-        
-        write_xlsx(list("Summary" = summary, "Data" = client_count_data_df()), path = file)
+        write_xlsx(
+          list("Summary" = client_count_summary_df(), 
+               "Data" = client_count_data_df()
+          ), 
+          path = file
+        )
       }
     )
     
@@ -551,12 +516,15 @@ function(input, output, session) {
       orgDQoverlaps <- overlapNEW %>%
         filter(OrganizationName.x %in% c(input$orgList) | OrganizationName.y %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData, orgDQoverlaps)
+      orgClientCounts <- client_count_data_df() %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      getDQReportDataList(orgDQData, orgDQoverlaps, orgClientCounts)
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlapNEW)
+      getDQReportDataList(dq_main_reactive(), overlapNEW, client_count_data_df())
     })
     
     output$downloadOrgDQReport <- downloadHandler(
