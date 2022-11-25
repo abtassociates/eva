@@ -207,7 +207,7 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
 }
 
 
-getDQReportDataList <- function(dqData, dqOverlaps) {
+getDQReportDataList <- function(dqData, dqOverlaps, client_counts) {
   select_list = c("Project Name" = "ProjectName",
                   "Issue" = "Issue",
                   "Personal ID" = "PersonalID",
@@ -243,6 +243,18 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
     arrange(Type)
   
+  validationDateRange = client_counts %>%
+    select("Personal ID", Status) %>%
+    unique() %>%
+    group_by(Status) %>%
+    summarise("Clients Served" = n()) %>%
+    ungroup() %>%
+    select(ProjectID, ProjectName, OrganizationName, "Clients Served", Status, LengthOfStay) %>%
+    arrange(Status, desc("Clients Served"))
+  
+  # validationCurrent = client_counts %>%
+  #   select(ProjectID, ProjectName, Currently in Project | Currently Awaiting Housing | Currently Moved In | Days Enrolled | Status
+  
   exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
                            c(meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End, meta_HUDCSV_Export_Date))
   colnames(exportDetail) = c("Export Field", "Value")
@@ -251,6 +263,8 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     exportDetail = exportDetail,
     summary = summary,
     guidance = guidance,
+    # validationCurrent = validationCurrent,
+    validationDateRange = validationDateRange,
     high_priority = high_priority,
     errors = errors,
     warnings = warnings,
@@ -261,6 +275,8 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     "Export Detail",
     "Summary",
     "Guidance",
+    # "Validation - Current",
+    "Validation - Date Range",
     "High Priority",
     "Errors", 
     "Warnings", 
