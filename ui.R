@@ -92,7 +92,7 @@ dashboardPage(
                  structural issues that would prevent this app from functioning,
                  your file will be rejected with an error message, it will stop
                  processing your data further, and it will clear the app's memory
-                 until you upload another (structurally sound) file.Once you have 
+                 until you upload another (structurally sound) file. Once you have 
                  uploaded a hashed and structurally sound
                  zip file, you will see a confirmation that your upload was 
                  successful, the date range of the file you uploaded, plus the
@@ -267,8 +267,10 @@ dashboardPage(
             width = 12,
             DT::dataTableOutput("integrityChecker"),
             p(),
-            HTML("<p>If there are issues identified in the HUD CSV Export File Structure Analysis, 
-                 please contact your vendor.</p>"),
+            HTML("<p>Please contact your vendor if there's a High Priority issue
+                 found or if your file shows an Error that you feel needs to be
+                 corrected. Not all issues found in this analysis will need
+                 immediate attention.</p>"),
             p(),
             uiOutput('downloadIntegrityBtn')
           ),
