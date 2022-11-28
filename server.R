@@ -183,7 +183,7 @@ function(input, output, session) {
 
     output$headerDataQuality <- renderUI({
       req(valid_file() == 1)
-      list(h2("Data Quality"),
+      list(h2("Organization-wide Data Quality"),
            h4(paste(
              format(Export$ExportStartDate, "%m-%d-%Y"),
              "to",
