@@ -436,24 +436,6 @@ function(input, output, session) {
                      label = "Download System-Wide")
     })
     
-    # download button handler
-    output$downloadClientCountsReport <- downloadHandler(
-      
-      filename = function() {
-        paste("Client Counts Report-", Sys.Date(), ".xlsx", sep="")
-      },
-      content = function(file) {
-        req(valid_file() == 1)
-        write_xlsx(
-          list("Summary" = client_count_summary_df(), 
-               "Data" = client_count_data_df()
-          ), 
-          path = file
-        )
-      }
-    )
-    
-    
     output$dq_org_guidance_summary <- DT::renderDataTable({
       req(valid_file() == 1)
       
