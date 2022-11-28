@@ -327,8 +327,6 @@ function(input, output, session) {
       ReportEnd <- input$dateRangeCount[2]
       
       validation %>%
-        filter(served_between(., ReportStart, ReportEnd) &
-                 ProjectName == input$currentProviderList) %>%
         mutate(
           PersonalID = as.character(PersonalID),
           RelationshipToHoH = case_when(
@@ -408,7 +406,9 @@ function(input, output, session) {
       req(valid_file() == 1)
 
       datatable(
-        client_count_data_df(),
+        client_count_data_df() %>%
+          filter(served_between(., ReportStart, ReportEnd) &
+                   ProjectName == input$currentProviderList),
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')
@@ -419,7 +419,9 @@ function(input, output, session) {
       req(valid_file() == 1)
       
       datatable(
-        client_count_summary_df(),
+        client_count_summary_df() %>%
+          filter(served_between(., ReportStart, ReportEnd) &
+                   ProjectName == input$currentProviderList),
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't')
