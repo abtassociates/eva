@@ -765,15 +765,12 @@ missed_movein_stayers <- served_in_date_range %>%
            ProjectType %in% c(3, 9, 10, 13)
   ) %>%
   mutate(
-    Days = as.numeric(difftime(MoveInDateAdjust, EntryDate)),
-    Issue = "Possible Missed Move-In Date",
-    Type = "Warning",
-    Guidance = "Fix Me"
+    Days = as.numeric(difftime(MoveInDateAdjust, EntryDate))
   )
 
 Top2_movein <- subset(missed_movein_stayers,
                       Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE)) %>%
-  select(all_of(vars_we_want)) %>%
+  select(all_of(vars_prep)) %>%
   mutate(
     Issue = "Possible Missed Move-In Date",
     Type = "Warning",
