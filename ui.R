@@ -546,7 +546,7 @@ dashboardPage(
             side = "right",
             selected = "Most Common Errors",
             title = "High Priority Errors",
-            tabPanel("Top 10 Projects", uiOutput("orgDQHighPriorityErrors_ui")),
+            tabPanel("Top Projects", uiOutput("orgDQHighPriorityErrors_ui")),
             tabPanel("Most Common Errors", uiOutput("orgDQHighPriorityErrorTypes_ui")),
             width = 12
           )
@@ -556,7 +556,7 @@ dashboardPage(
             side = "right",
             selected = "Most Common Errors",
             title = "General Errors",
-            tabPanel("Top 10 Projects", uiOutput("orgDQErrors_ui")),
+            tabPanel("Top Projects", uiOutput("orgDQErrors_ui")),
             tabPanel("Most Common Errors", uiOutput("orgDQErrorTypes_ui")),
             width =12
           )
@@ -566,7 +566,7 @@ dashboardPage(
             side = "right",
             selected = "Most Common Warnings",
             title = "Warnings",
-            tabPanel("Top 10 Projects", uiOutput("orgDQWarnings_ui")),
+            tabPanel("Top Projects", uiOutput("orgDQWarnings_ui")),
             tabPanel("Most Common Warnings", uiOutput("orgDQWarningTypes_ui")),
             width = 12
           )
@@ -706,7 +706,7 @@ dashboardPage(
             side = "right",
             selected = "Most Common Errors",
             title = "High Priority Errors",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQHighPriorityErrors_ui")),
+            tabPanel("Top Organizations", uiOutput("systemDQHighPriorityErrors_ui")),
             tabPanel("Most Common Errors", uiOutput("systemDQHighPriorityErrorTypes_ui")),
             width = 12
           )
@@ -716,7 +716,7 @@ dashboardPage(
             side = "right",
             selected = "Most Common Errors",
             title = "General Errors",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQErrors_ui")),
+            tabPanel("Top Organizations", uiOutput("systemDQErrors_ui")),
             tabPanel("Most Common Errors", uiOutput("systemDQErrorTypes_ui")),
             width =12
           )
@@ -726,7 +726,7 @@ dashboardPage(
             side = "right",
             selected = "Most Common Warnings",
             title = "Warnings",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQWarnings_ui")),
+            tabPanel("Top Organizations", uiOutput("systemDQWarnings_ui")),
             tabPanel("Most Common Warnings", uiOutput("systemDQWarningTypes_ui")),
             width = 12
           )
