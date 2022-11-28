@@ -2574,12 +2574,14 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               fill = "#063a89") +
      coord_flip() +
      labs(x = "",
-          y = "Number of Clients with High Priority Errors") +
-     scale_x_discrete(labels = function(x) str_wrap(x, width = 25)) +
+          y = "Number of Clients") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
+           axis.title = element_text(size = 12),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2606,11 +2608,13 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               fill = "#063a89") +
      coord_flip() +
      labs(x = "",
-          y = "Number of Clients with High Piority Errors") +
-     scale_x_discrete(labels = function(x) str_wrap(x, width = 25)) +
+          y = "Number of Clients") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
+           axis.title = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
@@ -2654,12 +2658,14 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               fill = "#063a89") +
      coord_flip() +
      labs(x = "",
-          y = "Number of Clients with General Errors") +
-     scale_x_discrete(labels = function(x) str_wrap(x, width = 25)) +
+          y = "Number of Clients") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
+           axis.title = element_text(size = 12),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2686,12 +2692,14 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               fill = "#063a89") +
      coord_flip() +
      labs(x = "",
-          y = "Number of Clients with General Errors") +
-     scale_x_discrete(labels = function(x) str_wrap(x, width = 25)) +
+          y = "Number of Clients") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
+           axis.title = element_text(size = 12),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2722,13 +2730,14 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               fill = "#063A89") +
      coord_flip() +
      labs(x = "",
-          y = "Number of Clients with Warnings") +
+          y = "Number of Clients") +
      scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
      scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
+           axis.title = element_text(size = 12),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2755,13 +2764,14 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               fill = "#063A89") +
      coord_flip() +
      labs(x = "",
-          y = "Number of Clients with Warnings") +
+          y = "Number of Clients") +
      scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
      scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
            axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
+           axis.title = element_text(size = 12),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
