@@ -1246,15 +1246,22 @@ conflicting_income_exit <- income_subs %>%
 rm(income_subs)
 
 # Enrollment Active Outside Operating Dates ------------------------
-active_outside_dates <- served_in_date_range %>%
+entry_precedes_OpStart <- served_in_date_range %>%
+  filter(RelationshipToHoH == 1 & 
+           EntryDate < OperatingStartDate) %>%
+  mutate(Issue = "Entry Precedes Project's Operating Start",
+         Type = "Warning", # sometimes enrollments get transferred to a merged
+         # project and this is ok and should not be fixed
+         Guidance = guidance_enrl_active_outside_op) %>%
+  select(all_of(vars_we_want))
+
+exit_after_OpEnd <- served_in_date_range %>%
   filter(RelationshipToHoH == 1 &
-           EntryDate < OperatingStartDate |
            (ExitDate > OperatingEndDate & !is.na(ExitDate)) |
            (is.na(ExitDate) & !is.na(OperatingEndDate))
   ) %>%
-  mutate(Issue = "Enrollment Active Outside Project Operating Dates",
-         Type = "Warning", # sometimes enrollments get transferred to a merged
-         # project and this is ok and should not be fixed
+  mutate(Issue = "Exit After Project's Operating End Date",
+         Type = "Error",
          Guidance = guidance_enrl_active_outside_op) %>%
   select(all_of(vars_we_want))
 
@@ -2087,6 +2094,9 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       dq_ssn,
       dq_veteran,
       duplicate_ees,
+      entry_precedes_OpStart,
+      exit_after_OpEnd,
+      exit_before_start,
       extremely_long_stayers,
       future_ees,
       future_exits,
@@ -2117,9 +2127,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       veteran_missing_year_separated,
       veteran_missing_wars,
       veteran_missing_branch,
-      veteran_missing_discharge_status,
-      active_outside_dates,
-      exit_before_start
+      veteran_missing_discharge_status
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
