@@ -65,13 +65,6 @@ dashboardPage(
             collapsible = TRUE,
             collapsed = TRUE,
             HTML("
-                 <h4>Status Panel</h4>
-                 <p>In the Status panel below, you will see the status of your
-                 upload. Once you have uploaded a hashed and structurally sound
-                 zip file, you will see a confirmation that your upload was 
-                 successful, the date range of the file you uploaded, plus the
-                 date your file was downloaded from your HMIS.</p>
-                 
                  <h4>Upload Hashed CSV zip file</h4>
                  <p>To upload your hashed HUD CSV Export zip file, click the \'Browse\'
                  button in the \'Upload Hashed CSV zip file\' panel. Once you find
@@ -86,7 +79,11 @@ dashboardPage(
                  structural issues that would prevent this app from functioning,
                  your file will be rejected with an error message, it will stop
                  processing your data further, and it will clear the app's memory
-                 until you upload another (structurally sound) file. </p>
+                 until you upload another (structurally sound) file. Once you have 
+                 uploaded a hashed and structurally sound
+                 zip file, you will see a confirmation that your upload was 
+                 successful, the date range of the file you uploaded, plus the
+                 date your file was downloaded from your HMIS.</p>
                  
                  <h4>Edit CoC-specific Settings</h4>
                  <p>To make [App Name Pending] reporting more useful at the local level,
@@ -252,8 +249,10 @@ dashboardPage(
             width = 12,
             DT::dataTableOutput("integrityChecker"),
             p(),
-            HTML("<p>If there are issues identified in the HUD CSV Export File Structure Analysis, 
-                 please contact your vendor.</p>"),
+            HTML("<p>Please contact your vendor if there's a High Priority issue
+                 found or if your file shows an Error that you feel needs to be
+                 corrected. Not all issues found in this analysis will need
+                 immediate attention.</p>"),
             p(),
             uiOutput('downloadIntegrityBtn')
           ),
@@ -284,6 +283,10 @@ dashboardPage(
              <p> The foundational code for the app was shared by 
              <a href = 'https://www.cohhio.org' target= '_blank' rel='noopener noreferrer'>COHHIO</a>, 
              Coalition on Homelessness and Housing in Ohio.
+             
+             <p> Special thanks to San Diego City and County CoC (CA-601) and Minneapolis/Hennepin County CoC
+             (MN-500) for providing sample datasets to support programming.
+
                  ")
       )
         )

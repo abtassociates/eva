@@ -127,9 +127,9 @@ vars_we_want <- c(vars_prep,
 dq_name <- served_in_date_range %>%
   mutate(
     Issue = case_when(
-      FirstName == "Missing" ~ 
+      NameDataQuality == 99 | is.na(NameDataQuality) ~ 
         "Missing Name Data Quality",
-      FirstName %in% c("DKR", "Partial") ~
+      NameDataQuality %in% c(8, 9) ~ 
         "Incomplete or Don't Know/Refused Name"
     ),
     Type = case_when(
@@ -147,26 +147,27 @@ dq_dob <- served_in_date_range %>%
   mutate(
     Issue = case_when(
       is.na(DOB) & DOBDataQuality %in% c(1, 2) ~ "Missing DOB",
-      DOBDataQuality == 99 ~ "Missing Date of Birth Data Quality",
-      DOBDataQuality %in% c(8, 9) ~ "Don't Know/Refused or Approx. Date of Birth",
-      AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect Date of Birth or Entry Date"
+      is.na(DOBDataQuality) ~ "Missing DOB Data Quality",
+      DOBDataQuality %in% c(8, 9, 99) ~ 
+        "Don't Know/Refused/Data Not Collected DOB",
+      AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect DOB or Entry Date"
     ),
     Type = case_when(
       Issue %in% c(
         "Missing DOB",
-        "Incorrect Date of Birth or Entry Date",
-        "Missing Date of Birth Data Quality"
+        "Incorrect DOB or Entry Date",
+        "Missing DOB Data Quality"
       ) ~ "Error",
-      Issue ==  "Don't Know/Refused or Approx. Date of Birth" ~ "Warning"
+      Issue ==  "Don't Know/Refused/Data Not Collected DOB" ~ "Warning"
     ),
     Guidance = case_when(
-      Issue == "Incorrect Date of Birth or Entry Date" ~
+      Issue == "Incorrect DOB or Entry Date" ~
         "The HMIS data is indicating the client entered the project PRIOR to
       being born. Correct either the Date of Birth or the Project Start Date, 
       whichever is incorrect.",
-      Issue %in% c("Missing DOB", "Missing Date of Birth Data Quality") ~
+      Issue %in% c("Missing DOB", "Missing DOB Data Quality") ~
         guidance_missing_at_entry,
-      Issue == "Don't Know/Refused or Approx. Date of Birth" ~
+      Issue == "Don't Know/Refused/Data Not Collected DOB" ~
         guidance_dkr_data
     )
   ) %>%
@@ -175,6 +176,28 @@ dq_dob <- served_in_date_range %>%
 
 dq_ssn <- served_in_date_range %>%
   mutate(
+    SSN = case_when(
+      (is.na(SSN) & !SSNDataQuality %in% c(8, 9)) |
+        is.na(SSNDataQuality) | SSNDataQuality == 99 ~ "Missing",
+      SSNDataQuality %in% c(8, 9) ~ "DKR",
+      (nchar(SSN) != 9 & SSNDataQuality != 2) |
+        substr(SSN, 1, 3) %in% c("000", "666") |
+        substr(SSN, 1, 1) == 9 |
+        substr(SSN, 4, 5) == "00" |
+        substr(SSN, 6, 9) == "0000" |
+        SSNDataQuality == 2 |
+        SSN %in% c(
+          111111111,
+          222222222,
+          333333333,
+          444444444,
+          555555555,
+          777777777,
+          888888888,
+          123456789
+        ) ~ "Invalid",
+      SSNDataQuality == 2 & nchar(SSN) != 9 ~ "Incomplete"
+    ), 
     Issue = case_when(
       SSN == "Missing" ~ "Missing SSN",
       SSN == "Invalid" ~ "Invalid SSN",
@@ -200,8 +223,10 @@ dq_ssn <- served_in_date_range %>%
 dq_race <- served_in_date_range %>%
   mutate(
     Issue = case_when(
-      RaceNone == 99 ~ "Missing Race",
-      RaceNone %in% c(8, 9) ~ "Don't Know/Refused Race"
+      RaceNone %in% c(8, 9) ~ "Don't Know/Refused Race",
+      RaceNone == 99 |
+        AmIndAKNative + Asian + BlackAfAmerican + NativeHIPacific + White == 0
+      ~ "Missing Race"
     ),
     Type = case_when(
       Issue == "Missing Race" ~ "Error",
@@ -217,7 +242,7 @@ dq_race <- served_in_date_range %>%
 dq_ethnicity <- served_in_date_range %>%
   mutate(
     Issue = case_when(
-      Ethnicity == 99 ~ "Missing Ethnicity",
+      Ethnicity == 99 | is.na(Ethnicity) ~ "Missing Ethnicity",
       Ethnicity %in% c(8, 9) ~ "Don't Know/Refused Ethnicity"
     ),
     Type = case_when(
@@ -234,8 +259,10 @@ dq_ethnicity <- served_in_date_range %>%
 dq_gender <- served_in_date_range %>%
   mutate(
     Issue = case_when(
-      GenderNone == 99 ~ "Missing Gender",
-      GenderNone %in% c(8, 9) ~ "Don't Know/Refused Gender"
+      GenderNone %in% c(8, 9) ~ "Don't Know/Refused Gender",
+      GenderNone == 99 |
+        Female + Male + NoSingleGender + Transgender + Questioning == 0
+      ~ "Missing Gender"
     ),
     Type = case_when(
       Issue == "Missing Gender" ~ "Error",
@@ -252,7 +279,7 @@ dq_veteran <- served_in_date_range %>%
   mutate(
     Issue = case_when(
       (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
-        VeteranStatus == 99 ~ "Missing Veteran Status",
+        (VeteranStatus == 99 | is.na(VeteranStatus)) ~ "Missing Veteran Status",
       (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
         VeteranStatus %in% c(8, 9) ~ "Don't Know/Refused Veteran Status"
     ),
@@ -272,10 +299,8 @@ dq_veteran <- served_in_date_range %>%
 # Missing Client Location -------------------------------------------------
 
 missing_client_location <- served_in_date_range %>%
-  left_join(EnrollmentCoC %>% select(EnrollmentID, DataCollectionStage), by = "EnrollmentID") %>%
   filter(is.na(ClientLocation) & 
-         RelationshipToHoH == 1 &
-        DataCollectionStage == 1
+         RelationshipToHoH == 1
   ) %>%
   mutate(Type = "High Priority",
          Issue = "Missing Client Location",
@@ -329,8 +354,8 @@ hh_too_many_hohs <- served_in_date_range %>%
   group_by(HouseholdID) %>%
   summarise(HoHsinHousehold = n(),
             PersonalID = min(PersonalID)) %>%
-  filter(HoHsinHousehold > 1) %>%
   ungroup() %>%
+  filter(HoHsinHousehold > 1) %>%
   left_join(served_in_date_range, by = c("PersonalID", "HouseholdID")) %>%
   mutate(Issue = "Too Many Heads of Household",
          Type = "High Priority",
@@ -623,7 +648,7 @@ dkr_living_situation <- served_in_date_range %>%
   select(all_of(vars_we_want))
 
 # DisablingCondition at Entry
-detail_missing_disabilities <- served_in_date_range %>%
+missing_disabilities <- served_in_date_range %>%
   select(all_of(vars_prep),
          AgeAtEntry,
          RelationshipToHoH,
@@ -632,11 +657,8 @@ detail_missing_disabilities <- served_in_date_range %>%
            is.na(DisablingCondition)) %>%
   mutate(Issue = "Missing Disabling Condition", 
          Type = "Error",
-         Guidance = guidance_missing_at_entry)
-
-missing_disabilities <- detail_missing_disabilities %>%
+         Guidance = guidance_missing_at_entry) %>%
   select(all_of(vars_we_want))
-
 
 # smallDisabilities <- Disabilities %>%
 #   filter(DataCollectionStage == 1 &
@@ -737,43 +759,39 @@ ce_stayers <- served_in_date_range %>%
 
 Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
-outreach_stayers <- served_in_date_range %>%
-  select(all_of(vars_prep), ProjectID, EnrollmentID) %>%
-  left_join(
-    CurrentLivingSituation %>% 
-      group_by(EnrollmentID) %>%
-      summarise(latestInfoDate = max(InformationDate)) %>%
-      ungroup() %>%
-      select(EnrollmentID, latestInfoDate)
-    , by = "EnrollmentID"
-  ) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 4) %>%
-  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, latestInfoDate))) 
-
-Top2_Outreach <- subset(outreach_stayers %>% select(-c(EnrollmentID, latestInfoDate)), Days > input$OUTLongStayers)
-
 missed_movein_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
-           ProjectType %in% c(3,9,10,13)
+           ProjectType %in% c(3, 9, 10, 13)
   ) %>%
   mutate(
-    Days = as.numeric(difftime(MoveInDateAdjust, EntryDate)),
-    Issue = "Possible Missed Move-In Date",
-    Type = "Warning",
-    Guidance = "Fix Me"
+    Days = as.numeric(difftime(MoveInDateAdjust, EntryDate))
   )
 
-Top2_movein <- subset(missed_movein_stayers, Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE))
+Top2_movein <- subset(missed_movein_stayers,
+                      Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE)) %>%
+  select(all_of(vars_prep)) %>%
+  mutate(
+    Issue = "Possible Missed Move-In Date",
+    Type = "Warning",
+    Guidance = paste(
+      "This enrollment is in the top",
+      case_when(ProjectType %in% c(3, 9, 10) ~ "1%",
+                TRUE ~ "2%"),
+      "of all other projects of its type in your HMIS system for
+      how many days it has been active without a Move-In Date. Please be sure this
+      household is still awaiting housing in this project and if not, record the
+      date they either moved into housing or exited your project. If they are
+      still awaiting housing, do not change the data."
+    )
+  )
 
 extremely_long_stayers <- rbind(Top1_PSH,
                                 Top2_ES,
                                 Top2_RRH,
                                 Top2_TH,
                                 Top2_HP,
-                                Top2_CE,
-                                Top2_Outreach) %>%
+                                Top2_CE) %>%
   mutate(
     Issue = "Possible Missed Exit Date",
     Type = "Warning",
@@ -788,7 +806,11 @@ extremely_long_stayers <- rbind(Top1_PSH,
   ) %>% 
   select(all_of(vars_we_want))
 
-extremely_long_stayers <- rbind(extremely_long_stayers, Top2_movein %>% select(all_of(vars_we_want)))
+extremely_long_stayers <-
+  rbind(
+    extremely_long_stayers,
+    Top2_movein
+  )
 
 rm(list = ls(pattern = "Top*"),
    es_stayers,
@@ -810,7 +832,7 @@ calculate_long_stayers <- function(input, projecttype){
       Type = "Warning",
       Guidance = "You have at least one active enrollment that has been
          active for longer than the days set for this Project Type in your
-         CoC-specific Settings on the Upload CSV tab."
+         CoC-specific Settings on the Home tab."
     ) %>%
     filter(is.na(ExitDate) &
              ProjectType == projecttype &
@@ -821,48 +843,7 @@ calculate_long_stayers <- function(input, projecttype){
 
 # can't do further logic with this because it needs to be reactive
 
-# Incorrect Destination ---------------------------------------------------
 
-# RRH mover inners only
-moved_in_rrh <- served_in_date_range %>%
-  filter(ProjectType == 13 & !is.na(MoveInDateAdjust)) %>%
-  mutate(RRH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
-  select(PersonalID, 
-         "RRHMoveIn" = MoveInDateAdjust, 
-         RRH_range, 
-         "RRHProjectName" = ProjectName)
-
-enrolled_in_rrh <- served_in_date_range %>%
-  filter(ProjectType == 13) %>%
-  mutate(RRH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
-  select(PersonalID, 
-         "RRHMoveIn" = MoveInDateAdjust, 
-         RRH_range, 
-         "RRHProjectName" = ProjectName)
-
-
-# PSH mover inners only
-
-enrolled_in_psh <- served_in_date_range %>%
-  filter(ProjectType %in% c(3, 9) & !is.na(MoveInDateAdjust)) %>%
-  mutate(PSH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
-  select(PersonalID, 
-         PSH_range, 
-         "PSHMoveIn" = MoveInDateAdjust,
-         "PSHProjectName" = ProjectName)
-
-# TH
-enrolled_in_th <- served_in_date_range %>%
-  filter(ProjectType == 2) %>%
-  mutate(TH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
-  select(PersonalID, TH_range, "THProjectName" = ProjectName)
-
-# SH
-
-enrolled_in_sh <- served_in_date_range %>%
-  filter(ProjectType == 8) %>%
-  mutate(SH_range = interval(EntryDate, ExitAdjust - days(1))) %>%
-  select(PersonalID, SH_range, "SHProjectName" = ProjectName)
 
 # Project Exit Before Start --------------
 exit_before_start <- served_in_date_range %>%
@@ -1107,8 +1088,8 @@ duplicate_ees <-
 # day they moved in. So they're excused from this prior to Move In Date's existence.
 future_ees <- served_in_date_range %>%
   filter(EntryDate > DateCreated &
-           (ProjectType %in% c(1, 2, 4, 8, 13) |
-              (ProjectType %in% c(3, 9) & 
+           (!ProjectType %in% c(3, 9, 10) |
+              (ProjectType %in% c(3, 9, 10) & 
                   EntryDate >= hc_psh_started_collecting_move_in_date
               )))  %>%
   mutate(
@@ -1265,13 +1246,21 @@ conflicting_income_exit <- income_subs %>%
 rm(income_subs)
 
 # Enrollment Active Outside Operating Dates ------------------------
-active_outside_dates <- served_in_date_range %>%
+entry_precedes_OpStart <- served_in_date_range %>%
+  filter(RelationshipToHoH == 1 & 
+           EntryDate < OperatingStartDate) %>%
+  mutate(Issue = "Entry Precedes Project's Operating Start",
+         Type = "Warning", # sometimes enrollments get transferred to a merged
+         # project and this is ok and should not be fixed
+         Guidance = guidance_enrl_active_outside_op) %>%
+  select(all_of(vars_we_want))
+
+exit_after_OpEnd <- served_in_date_range %>%
   filter(RelationshipToHoH == 1 &
-           EntryDate < OperatingStartDate |
-           (ExitDate > OperatingEndDate & !is_null(ExitDate)) |
-           (is_null(ExitDate) & !is_null(OperatingEndDate))
+           (ExitDate > OperatingEndDate & !is.na(ExitDate)) |
+           (is.na(ExitDate) & !is.na(OperatingEndDate))
   ) %>%
-  mutate(Issue = "Enrollment Active Outside Project Operating Dates",
+  mutate(Issue = "Exit After Project's Operating End Date",
          Type = "Error",
          Guidance = guidance_enrl_active_outside_op) %>%
   select(all_of(vars_we_want))
@@ -2105,6 +2094,9 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       dq_ssn,
       dq_veteran,
       duplicate_ees,
+      entry_precedes_OpStart,
+      exit_after_OpEnd,
+      exit_before_start,
       extremely_long_stayers,
       future_ees,
       future_exits,
@@ -2135,9 +2127,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       veteran_missing_year_separated,
       veteran_missing_wars,
       veteran_missing_branch,
-      veteran_missing_discharge_status,
-      active_outside_dates,
-      exit_before_start
+      veteran_missing_discharge_status
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
