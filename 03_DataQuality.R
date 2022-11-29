@@ -25,7 +25,6 @@ ssvf_funded <- Funder %>%
 
 # Projects to Check -------------------------------------------------------
 projects_current_hmis <- Project %>%
-  left_join(Inventory, by = "ProjectID") %>%
   filter(HMISParticipatingProject == 1 &
            operating_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
   select(
