@@ -1,10 +1,10 @@
-
 Project <- Project %>%
   left_join(Organization %>%
               select(OrganizationID, OrganizationName),
             by = "OrganizationID") %>%
-  mutate(ProjectType = if_else(
-    ProjectType == 1 & TrackingMethod == 3, 0, ProjectType
+  mutate(ProjectType = case_when(
+    ProjectType == 1 & TrackingMethod == 3 ~ 0,
+    TRUE ~ ProjectType
   ))
 
 small_project <- Project %>% select(ProjectID, ProjectType, ProjectName)
