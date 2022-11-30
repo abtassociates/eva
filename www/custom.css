@@ -6,7 +6,7 @@
 /* || BOXES */
 /* || BUTTONS */
 /* || HELP TEXT CIRCLE*/
-/* || CUSTOM HTML MESSAGES FOR PLOTS */
+/* || VALIDATION MESSAGES FOR PLOTS */
 
 .content-wrapper {
   overflow: auto;
@@ -138,6 +138,11 @@
     background-color: #FFA62B; /*orange peel*/
 }
 
+/*color of tab for boxes*/
+.nav-tabs-custom>.nav-tabs>li.active {
+    border-top-color: #16697A; /*ming blue*/
+}
+
 /* || BUTTONS */
 .btn, .btn-default {
   background-color:#EDE7E3; /*isabelline*/
@@ -178,20 +183,8 @@
   right:1em;
 }
 
-/* || CUSTOM HTML MESSAGES FOR PLOTS */
-#dq_hp_errors_null.shiny-html-output.shiny-bound-output {
-  font-size: 20px;
-  text-align: center;
-  color: black; /*text color*/
-}
-
-#dq_general_errors_null.shiny-html-output.shiny-bound-output {
-  font-size: 20px;
-  text-align: center;
-  color: black; /*text color*/
-}
-
-#dq_warnings_null.shiny-html-output.shiny-bound-output {
+/* || VALIDATION MESSAGES FOR PLOTS */
+.shiny-output-error-validation {
   font-size: 20px;
   text-align: center;
   color: black; /*text color*/
