@@ -2151,15 +2151,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    # Top orgs with Errors - High Priority
    dq_data_high_priority_errors_org_level_plot <- dq_w_organization_names %>%
-     filter(
-       Type %in% c("High Priority") &
-         !Issue %in% c(
-           "No Head of Household",
-           "Missing Relationship to Head of Household",
-           "Too Many Heads of Household",
-           "Children Only Household"
-         )
-     ) %>%
+     filter(Type == "High Priority") %>% 
      select(PersonalID, OrganizationID, OrganizationName) %>%
      unique() %>%
      group_by(OrganizationName, OrganizationID) %>%
@@ -2171,7 +2163,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      with(dq_data_high_priority_errors_org_level_plot,
           paste0(OrganizationName))
    
-   dq_plot_organizations_high_priority_errors <-
+   dq_plot_organizations_high_priority_errors <- 
      ggplot(
        head(dq_data_high_priority_errors_org_level_plot, 10L),
        aes(
@@ -2197,7 +2189,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Most common high priority errors system-wide
    
    dq_data_high_priority_error_types_org_level <- dq_w_organization_names %>%
-     filter(Type %in% c("High Priority")) %>%
+     filter(Type == "High Priority") %>%
      group_by(Issue) %>%
      summarise(Errors = n()) %>%
      ungroup() %>%
@@ -2227,15 +2219,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Top orgs with Errors - General
    
    dq_data_errors_org_level_plot <- dq_w_organization_names %>%
-     filter(
-       Type %in% c("Error") &
-         !Issue %in% c(
-           "No Head of Household",
-           "Missing Relationship to Head of Household",
-           "Too Many Heads of Household",
-           "Children Only Household"
-         )
-     ) %>%
+     filter(Type == "Error") %>% 
      select(PersonalID, OrganizationID, OrganizationName) %>%
      unique() %>%
      group_by(OrganizationName, OrganizationID) %>%
@@ -2273,7 +2257,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Most common general errors system-wide
    
    dq_data_error_types_org_level <- dq_w_organization_names %>%
-     filter(Type %in% c("Error")) %>%
+     filter(Type == "Error") %>%
      group_by(Issue) %>%
      summarise(Errors = n()) %>%
      ungroup() %>%
