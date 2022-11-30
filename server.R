@@ -35,13 +35,16 @@ function(input, output, session) {
   })
   
   output$headerSystemDQ <- renderUI({
-    req(valid_file() == 1)
-    list(h2("System-wide Data Quality"),
-         h4(
-           paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-                 "through",
-                 format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
-         ))
+    if(valid_file()) {
+      list(h2("System-wide Data Quality"),
+           h4(
+             paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+                   "through",
+                   format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
+           ))
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
   })
   
   output$headerDataQuality <- renderUI({
