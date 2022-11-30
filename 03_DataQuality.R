@@ -2542,13 +2542,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Top orgs with Errors - High Priority
    dq_data_high_priority_errors_org_level_plot <- dq_w_organization_names %>%
      filter(
-       Type %in% c("High Priority") &
-         !Issue %in% c(
-           "No Head of Household",
-           "Missing Relationship to Head of Household",
-           "Too Many Heads of Household",
-           "Children Only Household"
-         )
+       Type == "High Priority"
      ) %>%
      select(PersonalID, OrganizationID, OrganizationName) %>%
      unique() %>%
@@ -2626,13 +2620,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    dq_data_errors_org_level_plot <- dq_w_organization_names %>%
      filter(
-       Type %in% c("Error") &
-         !Issue %in% c(
-           "No Head of Household",
-           "Missing Relationship to Head of Household",
-           "Too Many Heads of Household",
-           "Children Only Household"
-         )
+       Type == "High Priority"
      ) %>%
      select(PersonalID, OrganizationID, OrganizationName) %>%
      unique() %>%
