@@ -755,8 +755,8 @@ function(input, output, session) {
         )
       ) +
         geom_col(show.legend = FALSE,
-                 color = "#063a89",
-                 fill = "#063a89") +
+                 color = "#DD614A",
+                 fill = "#DD614A") +
         coord_flip() +
         labs(x = "",
              y = "Number of Clients") +
@@ -791,8 +791,8 @@ function(input, output, session) {
                y = Errors
              )) +
         geom_col(show.legend = FALSE,
-                 color = "#063A89",
-                 fill = "#063a89") +
+                 color = "#DD614A",
+                 fill = "#DD614A") +
         coord_flip() +
         labs(x = "",
              y = "Number of Clients") +
@@ -832,8 +832,8 @@ function(input, output, session) {
         )
       ) +
         geom_col(show.legend = FALSE,
-                 color = "#063a89",
-                 fill = "#063a89") +
+                 color = "#16697A",
+                 fill = "#16697A") +
         coord_flip() +
         labs(x = "",
              y = "Number of Clients") +
@@ -867,8 +867,8 @@ function(input, output, session) {
                y = Errors
              )) +
         geom_col(show.legend = FALSE,
-                 color = "#063A89",
-                 fill = "#063a89") +
+                 color = "#16697A",
+                 fill = "#16697A") +
         coord_flip() +
         labs(x = "",
              y = "Number of Clients") +
@@ -906,8 +906,8 @@ function(input, output, session) {
                y = Warnings
              )) +
         geom_col(show.legend = FALSE,
-                 color = "#063a89",
-                 fill = "#063A89") +
+                 color = "#82C0CC",
+                 fill = "#82C0CC") +
         coord_flip() +
         labs(x = "",
              y = "Number of Clients") +
@@ -941,8 +941,8 @@ function(input, output, session) {
                y = Warnings
              )) +
         geom_col(show.legend = FALSE,
-                 color = "#063A89",
-                 fill = "#063A89") +
+                 color = "#82C0CC",
+                 fill = "#82C0CC") +
         coord_flip() +
         labs(x = "",
              y = "Number of Clients") +
