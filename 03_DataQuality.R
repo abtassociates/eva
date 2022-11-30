@@ -1268,8 +1268,8 @@ exit_after_OpEnd <- served_in_date_range %>%
 # Overlapping NEW (11/2) ------------------------------------
 overlapVars = c("PersonalID", 
                 "EnrollmentID",
-                "enrollment_start", "enrollment_end",
-                "enrollment_period",
+                "EnrollmentStart", "EnrollmentEnd",
+                "EnrollmentPeriod",
                 "ProjectType",
                 "ProjectID",
                 "ProjectName",
@@ -1304,7 +1304,7 @@ overlapNEWNEW0 = served_in_date_range %>%
       ProjectType == 10 ~ "PH - Housing w/ Services",
       ProjectType == 13 ~ "PH - RRH"
     ),
-    enrollment_start = case_when(
+    EnrollmentStart = case_when(
       ProjectType %in% c("ES","TH","SH") ~ EntryDate,
       ProjectType == "ES - NbN" ~ DateProvided,
       grepl("PH - ", ProjectType) ~ MoveInDateAdjust
@@ -1376,6 +1376,15 @@ overlapNEWNEW_df <- overlapNEWNEW0 %>%
   unique()
          
 
+
+  overlapNEW_e1 <- overlapNEWNEW_df %>%
+    select(!starts_with("Previous"), PersonalID, Issue, Type, Guidance)
+  colnames(overlapNEW_e1) <- gsub("Previous", "", colnames(overlapNEW_e1))
+  
+  overlapNEW_e2 <- overlapNEWNEW_df %>%
+    select(starts_with("Previous"), PersonalID, Issue, Type, Guidance)
+  colnames(overlapNEW_e2) <- gsub("Previous", "", colnames(overlapNEW_e2))
+  
 # var dict: https://www.hudexchange.info/programs/hmis/hmis-data-standards/standards/Project_Descriptor_Data_Elements_(PDDE).htm
 
 # overlapNEWvars = c("Issue",
@@ -1543,7 +1552,7 @@ overlapNEWNEW_df <- overlapNEWNEW0 %>%
 #   mutate(
 #     ExitAdjust.x = as_date(ExitAdjust.x),
 #     ExitAdjust.y = as_date(ExitAdjust.y)
-  )
+  # )
 
 # y <- c(overlapNEW$EnrollmentID.x,overlapNEW$EnrollmentID.y, overlapNEWNEW_df$EnrollmentID, overlapNEWNEW_df$PreviousEnrollmentID)
 # z <- y[!(duplicated(y)|duplicated(y, fromLast=TRUE))]
@@ -2256,10 +2265,11 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       veteran_missing_wars,
       veteran_missing_branch,
       veteran_missing_discharge_status,
-      active_outside_dates,
+      entry_precedes_OpStart,
+      exit_after_OpEnd,
       exit_before_start,
-      overlapNEW_xonly %>% select(all_of(vars_we_want)),
-      overlapNEW_yonly %>% select(all_of(vars_we_want))
+      overlapNEW_e1 %>% select(all_of(vars_we_want)),
+      overlapNEW_e2 %>% select(all_of(vars_we_want))
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
