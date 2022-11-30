@@ -138,6 +138,11 @@
     background-color: #FEDE86; /*light orange*/
 }
 
+/*color of tab for boxes*/
+.nav-tabs-custom>.nav-tabs>li.active {
+    border-top-color: #16697A; /*ming blue*/
+}
+
 /* || BUTTONS */
 .btn, .btn-default {
   background-color:#d8d8d8; /*gray*/
