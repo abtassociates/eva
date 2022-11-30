@@ -1309,30 +1309,36 @@ overlapNEWNEW0 = served_in_date_range %>%
       ProjectType == "ES - NbN" ~ DateProvided,
       grepl("PH - ", ProjectType) ~ MoveInDateAdjust
     ),
-    enrollment_end = if_else(ProjectType == "ES - NbN", DateProvided, as.Date(ExitAdjust)),
-    enrollment_period = interval(enrollment_start, enrollment_end)
+    EnrollmentEnd = if_else(ProjectType == "ES - NbN", DateProvided, as.Date(ExitAdjust)),
+    EnrollmentPeriod = interval(EnrollmentStart, EnrollmentEnd)
   ) %>%
   # sort enrollments for each person
   group_by(PersonalID) %>%
-  arrange(PersonalID, enrollment_start, enrollment_end) %>%
+  arrange(PersonalID, EnrollmentStart, EnrollmentEnd) %>%
   mutate(
     # pull in previous enrollment into current enrollment record so we can compare intervals
-    PreviousEnrollmentStart = lag(enrollment_start),
-    PreviousEnrollmentEnd = lag(enrollment_end),
-    PreviousEnrollmentPeriod = lag(enrollment_period),
+    PreviousEnrollmentStart = lag(EnrollmentStart),
+    PreviousEnrollmentEnd = lag(EnrollmentEnd),
+    PreviousEnrollmentPeriod = lag(EnrollmentPeriod),
     PreviousProjectName = lag(ProjectName),
     PreviousProjectType = lag(ProjectType),
     PreviousEnrollmentID = lag(EnrollmentID),
     PreviousOrganizationName = lag(OrganizationName),
     PreviousHouseholdID = lag(HouseholdID),
-    # flag overlaps
-    IsOverlap = int_overlaps(enrollment_period, PreviousEnrollmentPeriod) & EnrollmentID != PreviousEnrollmentID,
-    NumOverlaps = sum(IsOverlap, na.rm = TRUE),
-    # helper variables 
+    
+    # 4 different types of checks, essentially dependent on project types.
     IsDQType1 = ProjectType %in% c("ES","TH","SH"),
     IsDQType2 = ProjectType == "ES - NbN" & PreviousProjectType %in% c("ES","ES - NbN","TH","SH"),
     IsDQType3 = ProjectType %in% c("PH - PSH","PH - RRH") & PreviousProjectType %in% c("ES","TH","SH","PH - PSH","PH - RRH"),
-    IsDQType4 = grepl("PH - ", ProjectType) & grepl("PH - ", PreviousProjectType)
+    IsDQType4 = grepl("PH - ", ProjectType) & grepl("PH - ", PreviousProjectType),
+    
+    # flag overlaps
+    IsOverlap = 
+      int_overlaps(EnrollmentPeriod, PreviousEnrollmentPeriod) & 
+      EnrollmentStart != PreviousEnrollmentStart,
+    
+    # for checks 2 and 3 (which look at those using bed nights) will only keep those with more than 2 overlaps
+    NumOverlaps = sum(IsOverlap, na.rm = TRUE),
   ) %>%
   ungroup() %>%
   select(!!overlapVars, IsOverlap, NumOverlaps, IsDQType1, IsDQType2, IsDQType3, IsDQType4)
@@ -1360,7 +1366,7 @@ overlapNEWNEW_df <- overlapNEWNEW0 %>%
         IsDQType3 ~ paste0(ptype1, " OR ", ptype3, " AND ", ptype4),
         IsDQType4 ~ paste0(ptype5)
       ), " to indicate the household is occupying that unit on that date"),
-    Guidance = overlapNEW_entry_and_exit_guidance
+    Guidance = "Fix me"
   ) %>%
   select(!!overlapVars,
          "Issue", 
