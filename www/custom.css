@@ -15,15 +15,15 @@
 /* || HEADER */
 .skin-black .main-header>.logo:hover {
     color: white; /*text color*/
-    background-color: #063A89; /*dark blue*/
+    background-color: #16697A; /*ming blue*/
 }
 
 .skin-black .main-header .navbar {
-    background-color: #063A89; /*dark blue*/
+    background-color: #16697A; /*ming blue*/
 }
 
 .skin-black .main-header>.logo {
-    background-color: #063A89; /*dark blue*/
+    background-color: #16697A; /*ming blue*/
     color: white; /*text color*/
     border-bottom: 0 solid transparent;
     border-right: 1px solid #eee;
@@ -32,13 +32,13 @@
 /* menu toggle button */
 .skin-black .main-header .navbar>.sidebar-toggle {
     color: white; /*icon color*/
-    background-color: #063A89; /*dark blue*/
+    background-color: #16697A; /*ming blue*/
     border-right: 1px solid #eee;
 }
 
 /* toggle button hover */
 .skin-black .main-header .navbar .sidebar-toggle:hover {
-    color: #063A89; /*icon color - dark blue*/
+    color: #16697A; /*icon color - ming blue*/
     background: white;
 }
 
@@ -63,7 +63,7 @@
 /*sidebar color when menu option with a submenu is selected*/
 .skin-black .sidebar-menu>li.active>a, .skin-black .sidebar-menu>li:hover>a {
     color: black; /*text color*/
-    background: #c1e7ec; /*light blue*/
+    background: #82C0CC; /*middle blue*/
     border-left-color: white;
 }
 
@@ -85,7 +85,7 @@
 .skin-black .treeview-menu>li.active>a, 
 .skin-black .treeview-menu>li>a:hover {
     color: black; /*text color*/
-    background: #c1e7ec; /*light blue*/
+    background: #82C0CC; /*middle blue*/
 }
 
 /* || DROP DOWN MENUS */
@@ -116,40 +116,40 @@
 /*fill and text color for box with positive/neutral information*/
 .box.box-solid.box-info>.box-header {
     color: black; /*text color*/
-    background: #C1E7EC; /*light blue*/
-    background-color: #C1E7EC; /*light blue*/
+    background: #82C0CC; /*middle blue*/
+    background-color: #82C0CC; /*middle blue*/
 }
 
 /*outline color for box with positive/neutral information*/
 .box.box-solid.box-info {
-    border: 1px solid #C1E7EC; /*light blue*/
+    border: 1px solid #82C0CC; /*middle blue*/
 }
 /*box with negative alert or error info*/
 .box.box-solid.box-danger>.box-header {
     color: black; /*text color*/
-    background: #F7903B; /*mid-orange*/
-    background-color: #F7903B; /*mid-orange*/
+    background: #DD614A; /*fire opal*/
+    background-color: #DD614A; /*fire opal*/
 }
 
 /*box with warning info*/
 .box.box-solid.box-warning>.box-header {
     color: black; /*text color*/
-    background: #FEDE86; /*light orange*/
-    background-color: #FEDE86; /*light orange*/
+    background: #FFA62B; /*orange peel*/
+    background-color: #FFA62B; /*orange peel*/
 }
 
 /* || BUTTONS */
 .btn, .btn-default {
-  background-color:#d8d8d8; /*gray*/
-  color: #c15702; /*text color - dark orange*/
-  border-color: #c15702; /*dark orange*/
+  background-color:#EDE7E3; /*isabelline*/
+  color: #DD614A; /*text color - fire opal*/
+  border-color: #DD614A; /*fire opal*/
 }
 
 /*button hover*/
 .btn:hover {
   color: white; /*text color*/
-  background-color: #c15702; /*dark orange*/
-  border-color: #c15702; /*dark orange*/
+  background-color: #DD614A; /*text color - fire opal*/
+  border-color: #DD614A; /*text color - fire opal*/
 }
 
 .form-control {
@@ -168,7 +168,7 @@
     line-height: 20px;
     color: white; /*text color*/
     text-align: center;
-    background-color: #063A89; /*color of bar - dark blue*/
+    background-color: #16697A; /*ming blue*/
 }
 
 /* || HELP TEXT CIRCLE*/
