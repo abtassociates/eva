@@ -11,9 +11,6 @@ small_project <- Project %>% select(ProjectID, ProjectType, ProjectName)
 
 # Enrollment --------------------------------------------------------------
 
-# Adding Exit Data to Enrollment because I'm not tryin to have one-to-one 
-# relationships in this!
-
 Enrollment <- Enrollment %>%
   left_join(Exit %>% 
               select(EnrollmentID, Destination, ExitDate, OtherDestination),
@@ -21,10 +18,11 @@ Enrollment <- Enrollment %>%
   left_join(small_project, by = "ProjectID") %>%
   mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_Date))
 
-# Adding ProjectType to Enrollment too bc we need EntryAdjust & MoveInAdjust
+# Adding ProjectType to Enrollment bc we need EntryAdjust & MoveInAdjust
 
 # getting HH information
 # only doing this for RRH and PSHs since Move In Date doesn't matter for ES, etc.
+
 HHMoveIn <- Enrollment %>%
   filter(ProjectType %in% c(3, 9, 10, 13)) %>%
   mutate(
@@ -96,7 +94,6 @@ small_location <- EnrollmentCoC %>%
 
 Enrollment <- Enrollment %>%
   left_join(small_location, by = "EnrollmentID")
-
 
 rm(small_project, HHEntry, HHMoveIn, small_client, small_location)
 

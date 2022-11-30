@@ -1,31 +1,8 @@
-# COHHIO_HMIS
-# Copyright (C) 2021  Coalition on Homelessness and Housing in Ohio (COHHIO)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details at
-# <https://www.gnu.org/licenses/>.
 
 library(tidyverse)
 library(lubridate)
 library(scales)
 library(HMIS)
-
-# if (!exists("Enrollment")) load("images/CSVExportDFs.RData")
-# if (!exists("validation")) load("images/cohorts.RData")
-
-# despite the fact we're pulling in usually more than 2 years of data, the 
-# utilization reporting will only go back 2 years. (decision based on lack of
-# a need to go back further and time to code all that.)
-# FileEnd <- format.Date(calc_2_yrs_prior_end, "%m-%d-%Y")
-# FileStart <- format.Date(calc_2_yrs_prior_start, "%m-%d-%Y")
-# FilePeriod <- calc_2_yrs_prior_range
 
 # Creating Beds table -----------------------------------------------------
 small_project <- Project %>%
@@ -885,8 +862,6 @@ rm(list = ls(all.names = TRUE, pattern = "co_"))
 # 
 # outliers <- rbind(outliers_hi, outliers_lo)
 
-# WARNING save.image does not save the environment properly, save must be used.
-# save(list = ls(), file = "images/Utilization.RData", compress = FALSE)
 
 
 
