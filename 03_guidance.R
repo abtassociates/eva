@@ -37,13 +37,13 @@ guidance_dkr_data <-
 
 guidance_enrl_active_outside_op <-
 "This enrollment is active outside of the project's operating start and 
-end dates. Please reconcile this error by either correcting the enrollment
+end dates. Please reconcile this by either correcting the enrollment
 dates or the project's operating dates."
 
 guidance_exit_before_start <-
-"This enrollment's exit date is before the enrollment's start date. The exit 
-date mus be after the start date. Please go this enrollment and ensure that 
-the correct start date and exit date are entered."
+"This enrollment's exit date is before the enrollment's project start date. 
+The exit date must be after the project start date. Please go to this enrollment 
+and ensure that the correct project start date and exit date are entered."
 
 overlapNEW_entry_and_exit_guidance <-
 "This error indicates a residential project enrollment overlaps with another 
