@@ -1356,7 +1356,7 @@ getProjDescrip <- function(ptype) {
   )
 }
 
-overlapNEWNEW_df <- overlapNEWNEW0 %>%
+overlapNEW <- overlapNEWNEW0 %>%
   # keep overlaps
   filter(!is.na(PreviousEnrollmentPeriod) & IsOverlap & (
     PreviousProjectType == ProjectType |
@@ -1368,7 +1368,7 @@ overlapNEWNEW_df <- overlapNEWNEW0 %>%
     Type = "Warning",
     Issue = paste0("Overlaps Between ", 
              getProjDescrip(ProjectType), 
-             " AND ", 
+             " and ", 
              getProjDescrip(PreviousProjectType),
              " to indicate the household is occupying that unit on that date"),
     Guidance = "Fix me"
@@ -1379,14 +1379,15 @@ overlapNEWNEW_df <- overlapNEWNEW0 %>%
          "Guidance"
   ) %>%
   unique()
-         
-  overlapNEW_e1 <- overlapNEWNEW_df %>%
-    select(!starts_with("Previous"), PersonalID, Issue, Type, Guidance)
-  colnames(overlapNEW_e1) <- gsub("Previous", "", colnames(overlapNEW_e1))
-  
-  overlapNEW_e2 <- overlapNEWNEW_df %>%
-    select(starts_with("Previous"), PersonalID, Issue, Type, Guidance)
-  colnames(overlapNEW_e2) <- gsub("Previous", "", colnames(overlapNEW_e2))
+
+  overlapNEW_e1 <- overlapNEW %>%
+    select(!starts_with("Previous"), PersonalID, Issue, Type, Guidance) %>%
+    left_join(served_in_date_range %>% select(EnrollmentID, EntryDate, MoveInDateAdjust, ExitDate), by="EnrollmentID")
+
+  overlapNEW_e2 <- overlapNEW %>%
+    select(starts_with("Previous"), PersonalID, Issue, Type, Guidance) %>%
+    rename_all(~str_replace(.,"^Previous","")) %>%
+    left_join(served_in_date_range %>% select(EnrollmentID, EntryDate, MoveInDateAdjust, ExitDate), by="EnrollmentID")
   
 # Invalid Move-in Date ----------------------------------------------------
 

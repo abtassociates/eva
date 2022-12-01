@@ -525,7 +525,7 @@ function(input, output, session) {
         filter(OrganizationName %in% c(input$orgList))
       
       orgDQoverlaps <- overlapNEW %>%
-        filter(OrganizationName.x %in% c(input$orgList) | OrganizationName.y %in% c(input$orgList))
+        filter(OrganizationName %in% c(input$orgList) | PreviousOrganizationName %in% c(input$orgList))
       
       getDQReportDataList(orgDQData, orgDQoverlaps)
     })
