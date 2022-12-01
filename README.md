@@ -14,7 +14,7 @@ This app takes an upload of your HMIS system's hashed HMIS CSV Export, runs logi
 
 ### Security
 
-No HMIS data is ever included in the code in this repository. To make this code work, you will need to supply your own HMIS data. You are responsible for securing your HUD CSV export on your computer and ensuring that it is not compromised using whatever security measures you use for that locally.
+No HMIS data is ever included in the code in this repository. To make this code work, you will need to supply your own HMIS data. You are responsible for securing your HUD CSV export on your computer and ensuring that it is not compromised using the security measures you use for that locally.
 
 
 
