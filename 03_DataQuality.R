@@ -2054,8 +2054,6 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       missing_previous_street_ESSH,
       missing_ncbs_entry,
       missing_residence_prior,
-      # overlapNEW, <- needs to only display the dq_main columns to be included
-                  # in system and org-wide analyses
       ssvf_missing_address,
       ssvf_missing_vamc,
       ssvf_missing_percent_ami,      
