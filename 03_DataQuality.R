@@ -1331,7 +1331,11 @@ overlapNEWNEW0 = served_in_date_range %>%
     IsOverlap = 
       int_overlaps(EnrollmentPeriod, PreviousEnrollmentPeriod) & 
       EnrollmentStart != PreviousEnrollmentEnd &
-      EnrollmentID != PreviousEnrollmentID,
+      EnrollmentID != PreviousEnrollmentID &
+      !(
+        (ProjectType == "PH - RRH" & PreviousProjectType == "PH - PSH") |
+        (PreviousProjectType == "PH - RRH" & ProjectType == "PH - PSH")
+      ),
     
     # for checks 2 and 3 (which look at those using bed nights) will only keep those with more than 2 overlaps
     NumOverlaps = sum(IsOverlap, na.rm = TRUE)
