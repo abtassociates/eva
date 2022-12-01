@@ -1294,6 +1294,7 @@ overlapNEWNEW0 = served_in_date_range %>%
     , by = "EnrollmentID"
   ) %>%
   mutate(
+    # var dict: https://www.hudexchange.info/programs/hmis/hmis-data-standards/standards/Project_Descriptor_Data_Elements_(PDDE).htm
     ProjectType = case_when(
       ProjectType == 0 ~ "ES - NbN",
       ProjectType == 1 ~ "ES",
