@@ -1,7 +1,7 @@
 
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "[App Name Pending]"),
+  dashboardHeader(title = "Eva"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -44,11 +44,11 @@ dashboardPage(
         tabName = "tabHome",
         fluidRow(
           box(
-            title = "Welcome to [App Name Pending]!",
+            title = "Welcome to Eva!",
             width = 12,
             HTML(
-              "<div>[App Name Pending] is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
-              [App Name Pending] is designed to help you assess the accuracy and completeness of the data within your HMIS. 
+              "<div>Eva is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
+              Eva is designed to help you assess the accuracy and completeness of the data within your HMIS. 
               In future iterations it will also assist communities in analyzing your HMIS performance data, 
               including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
               <br/>
@@ -60,18 +60,11 @@ dashboardPage(
             )
           ),
           box(
-            title = "App Instructions",
+            title = "Instructions",
             width = 12,
             collapsible = TRUE,
             collapsed = TRUE,
             HTML("
-                 <h4>Status Panel</h4>
-                 <p>In the Status panel below, you will see the status of your
-                 upload. Once you have uploaded a hashed and structurally sound
-                 zip file, you will see a confirmation that your upload was 
-                 successful, the date range of the file you uploaded, plus the
-                 date your file was downloaded from your HMIS.</p>
-                 
                  <h4>Upload Hashed CSV zip file</h4>
                  <p>To upload your hashed HUD CSV Export zip file, click the \'Browse\'
                  button in the \'Upload Hashed CSV zip file\' panel. Once you find
@@ -86,10 +79,14 @@ dashboardPage(
                  structural issues that would prevent this app from functioning,
                  your file will be rejected with an error message, it will stop
                  processing your data further, and it will clear the app's memory
-                 until you upload another (structurally sound) file. </p>
+                 until you upload another (structurally sound) file. Once you have 
+                 uploaded a hashed and structurally sound
+                 zip file, you will see a confirmation that your upload was 
+                 successful, the date range of the file you uploaded, plus the
+                 date your file was downloaded from your HMIS.</p>
                  
                  <h4>Edit CoC-specific Settings</h4>
-                 <p>To make [App Name Pending] reporting more useful at the local level,
+                 <p>To make Eva reporting more useful at the local level,
                  you will find the CoC-specific settings that HMIS Leads can edit
                  to better analyse their data in a way that is meaningful to the
                  CoC. To edit these, click on the \'+\'. If you do not edit them,
@@ -104,7 +101,10 @@ dashboardPage(
                  that will prevent the app from functioning, the app will reject
                  your file and not process any further. All issues will display
                  in the panel and you can download the details, even if the file
-                 was rejected. </p>
+                 was rejected. Please ontact your vendor if there's a High
+                 Priority issue found or if your file shows an Error or Warning
+                 that you feel needs to be corrected. Not all issues found in
+                 this analysis will need immediate attention.</p>
                  
                  <h4>Citations</h4>
                  <p>This panel will credit the people who wrote the open-source code
@@ -256,6 +256,11 @@ dashboardPage(
             width = 12,
             DT::dataTableOutput("integrityChecker"),
             p(),
+            HTML("<p>Please contact your vendor if there's a High Priority issue
+                 found or if your file shows an Error or Warning that you feel
+                 needs to be corrected. Not all issues found in this analysis
+                 will need immediate attention.</p>"),
+            p(),
             uiOutput('downloadIntegrityBtn')
           ),
       box(
@@ -285,7 +290,12 @@ dashboardPage(
              <p> The foundational code for the app was shared by 
              <a href = 'https://www.cohhio.org' target= '_blank' rel='noopener noreferrer'>COHHIO</a>, 
              Coalition on Homelessness and Housing in Ohio.
-                 ")
+             
+             <p> Special thanks to 
+             <a href=\"http://www.squarepegdata.com/\" target= '_blank' rel='noopener noreferrer'>
+             Square Peg Data</a>,
+             San Diego City and County CoC (CA-601) and Minneapolis/Hennepin County CoC
+             (MN-500) for providing sample datasets to support programming.")
       )
         )
       ), 
@@ -295,7 +305,7 @@ dashboardPage(
           "headerPDDE"
         ), width = 12)),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
@@ -323,14 +333,16 @@ dashboardPage(
           ),
           box(title = "Guidance",
               width = 12,
-              HTML("coming soon"))
+              HTML("coming soon"),
+              status = "info",
+              solidHeader = TRUE)
         )
       ),
       tabItem(
         tabName = "tabClientCount",
         fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
@@ -348,10 +360,11 @@ dashboardPage(
                
                <h4>Inputs</h4>
                <p>HMIS Leads may select a single project from the drop list. The
-               Date Range defaults to display \'current\' enrollments only, but
+               Date Range defaults to the export's start and end date, but
                users are encouraged to edit the Date Range as desired to see
                metrics such as how many clients/households exited with and 
-               without a Move-In Date, how many exited during the time period.</p>
+               without a Move-In Date, how many exited during a specific time period,
+               or \'current\' enrollments only.</p>
                
                <h4>Summary</h4>
                <p>Check here for a count of households or clients who have statuses
@@ -404,7 +417,7 @@ dashboardPage(
         tabName = "tabDQOrg",
         fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
@@ -529,39 +542,36 @@ dashboardPage(
         )), 
         
         fluidRow(
-          uiOutput("dq_hp_errors_null")),
-        
-        fluidRow(
-          column(6,
-                 uiOutput("orgDQHighPriorityErrorTypes_ui"),
-                 br()),
-          column(6,
-                 uiOutput("orgDQHighPriorityErrors_ui"))
-          
+          tabBox(
+            side = "right",
+            selected = "Most Common Errors",
+            title = "High Priority Errors",
+            tabPanel("Top Projects", uiOutput("orgDQHighPriorityErrors_ui")),
+            tabPanel("Most Common Errors", uiOutput("orgDQHighPriorityErrorTypes_ui")),
+            width = 12
+          )
         ),
-        br(),
         fluidRow(
-          uiOutput("dq_general_errors_null")),
-        
-        fluidRow(
-          column(6,
-                 uiOutput("orgDQErrorTypes_ui"),
-                 br()),
-          column(6,
-                 uiOutput("orgDQErrors_ui")) 
+          tabBox(
+            side = "right",
+            selected = "Most Common Errors",
+            title = "General Errors",
+            tabPanel("Top Projects", uiOutput("orgDQErrors_ui")),
+            tabPanel("Most Common Errors", uiOutput("orgDQErrorTypes_ui")),
+            width =12
+          )
         ),
-        br(),
         fluidRow(
-          uiOutput("dq_warnings_null")),
-        
-        fluidRow(
-          column(6,
-                 uiOutput("orgDQWarningTypes_ui"),
-                 br()),
-          column(6,
-                 uiOutput("orgDQWarnings_ui"))
+          tabBox(
+            side = "right",
+            selected = "Most Common Warnings",
+            title = "Warnings",
+            tabPanel("Top Projects", uiOutput("orgDQWarnings_ui")),
+            tabPanel("Most Common Warnings", uiOutput("orgDQWarningTypes_ui")),
+            width = 12
+          )
         ),
-        br(),
+       
         fluidRow(
           box(
             id = "DQSummaryOrganization",
@@ -589,7 +599,7 @@ dashboardPage(
         fluidRow(box(htmlOutput("headerDeskTime"),
                      width = 12)),
           fluidRow(box(
-            title = "App Instructions",
+            title = "Instructions",
             width = 12,
             collapsible = TRUE,
             collapsed = TRUE,
@@ -622,7 +632,7 @@ dashboardPage(
         tabName = "tabDQSystem",
         fluidRow(box(htmlOutput("headerSystemDQ"), width = 12, uiOutput("downloadFullDQReportButton"))),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
@@ -692,51 +702,33 @@ dashboardPage(
         )), 
 
         fluidRow(
-          box(
-            plotOutput("systemDQHighPriorityErrorTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common High Priority Errors"
-          ),
-          box(
-            plotOutput("systemDQHighPriorityErrors"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most High Priority Errors"
+          tabBox(
+            side = "right",
+            selected = "Most Common Errors",
+            title = "High Priority Errors",
+            tabPanel("Top Organizations", uiOutput("systemDQHighPriorityErrors_ui")),
+            tabPanel("Most Common Errors", uiOutput("systemDQHighPriorityErrorTypes_ui")),
+            width = 12
           )
         ),
         fluidRow(
-          box(
-            plotOutput("systemDQErrorTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common General Errors"
-          ),
-          box(
-            plotOutput("systemDQErrors"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most General Errors"
+          tabBox(
+            side = "right",
+            selected = "Most Common Errors",
+            title = "General Errors",
+            tabPanel("Top Organizations", uiOutput("systemDQErrors_ui")),
+            tabPanel("Most Common Errors", uiOutput("systemDQErrorTypes_ui")),
+            width =12
           )
         ),
         fluidRow(
-          box(
-            plotOutput("systemDQWarningTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common Warnings"
-          ),
-          box(
-            plotOutput("systemDQWarnings"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most Warnings"
+          tabBox(
+            side = "right",
+            selected = "Most Common Warnings",
+            title = "Warnings",
+            tabPanel("Top Organizations", uiOutput("systemDQWarnings_ui")),
+            tabPanel("Most Common Warnings", uiOutput("systemDQWarningTypes_ui")),
+            width = 12
           )
         )
       )

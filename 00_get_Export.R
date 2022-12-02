@@ -25,7 +25,6 @@ Organization <- importFile("Organization",
 
 Project <- importFile("Project", col_types = "ccccDDnnnnnnnnnTTcTc")
 
-
 EnrollmentCoC <- importFile("EnrollmentCoC", col_types = "cccccDcnTTcTc")
 
 Event <- importFile("Event", col_types = "cccDnnncnDTTcTc")

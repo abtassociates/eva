@@ -94,7 +94,7 @@ check_column_names <- function(file) {
               "file should be spelled like",
               CorrectColumns), 
       Type = if_else(CorrectColumns %in% c(high_priority_columns), 
-                     "High Priority", "Error"), 
+                     "High Priority", "Warning"), 
       Issue = "Incorrect Column Name") %>%
     select(Issue, Type, Guidance)
   
@@ -152,9 +152,17 @@ check_data_types <- function(barefile, quotedfile) {
             "file, the",
             Column,
             "column should have a data type of",
-            DataType,
+            case_when(
+              DataType == "numeric" ~ "integer",
+              DataType == "character" ~ "string",
+              TRUE ~ DataType
+            ),
             "but in this file, it is",
-            ImportedDataType
+            case_when(
+              ImportedDataType == "numeric" ~ "integer",
+              ImportedDataType == "character" ~ "string",
+              TRUE ~ ImportedDataType
+              )
           ),
           NULL
         ),
