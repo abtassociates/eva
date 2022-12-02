@@ -17,7 +17,7 @@ Enrollment <- Enrollment %>%
               select(EnrollmentID, Destination, ExitDate, OtherDestination),
             by = "EnrollmentID") %>% 
   left_join(small_project, by = "ProjectID") %>%
-  mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_Date))
+  mutate(ExitAdjust = coalesce(ExitDate, as.Date(meta_HUDCSV_Export_Date)))
 
 # Adding ProjectType to Enrollment bc we need EntryAdjust & MoveInAdjust
 
@@ -38,7 +38,7 @@ HHMoveIn <- Enrollment %>%
       # prior to the date when PSH had to collect MID with the EntryDate (as
       # venders were instructed to do in the mapping documentation)
       AssumedMoveIn == 0 &
-        ProjectType %in% c(3, 9, 10) &
+        ProjectType %in% c(psh_project_types) &
         EntryDate <= MoveInDate &
         ExitAdjust > MoveInDate ~ MoveInDate,
       # the Move-In Dates must fall between the Entry and ExitAdjust to be
