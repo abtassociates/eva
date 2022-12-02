@@ -107,3 +107,87 @@ replace_yes_no <- function(column_name) {
             TRUE ~ "something's wrong")
 }
 
+# Import Helper -----------------------------------------------------------
+
+parseDate <- function(datevar) {
+  newDatevar <- parse_date_time(datevar,
+                                orders = c("Ymd", "mdY"))
+  return(newDatevar)
+}
+
+importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
+  if (is.null(input$imported)) {return()}
+  filename = glue::glue("{csvFile}.csv")
+  data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
+                   ,col_types = col_types
+  )
+  file.remove(filename)
+  return(data)
+}
+
+
+getDQReportDataList <- function(dqData, dqOverlaps) {
+  select_list = c("Project Name" = "ProjectName",
+                  "Issue" = "Issue",
+                  "Personal ID" = "PersonalID",
+                  "Household ID" = "HouseholdID",
+                  "Entry Date"= "EntryDate",
+                  "Organization Name" = "OrganizationName",
+                  "Project ID" = "ProjectID")
+  
+  high_priority <- dqData %>% 
+    filter(Type == "High Priority") %>% 
+    select(all_of(select_list))
+  
+  errors <- dqData %>%
+    filter(Type == "Error") %>% 
+    select(all_of(select_list))
+  
+  warnings <- dqData %>%
+    filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
+    select(all_of(select_list))
+  
+  summary <- rbind(
+    dqData %>% select(ProjectName, Type, Issue, PersonalID),
+    dqOverlaps %>% select("ProjectName" = "ProjectName.x", Type, Issue, PersonalID)
+  ) %>%
+    group_by(ProjectName, Type, Issue) %>%
+    summarise(Clients = n()) %>%
+    select(Type, Clients, ProjectName, Issue) %>%
+    arrange(Type, desc(Clients))
+  
+  guidance <- dqData %>%
+    select(Type, Issue, Guidance) %>%
+    unique() %>%
+    mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
+    arrange(Type)
+  
+  exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
+                             c(meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End, meta_HUDCSV_Export_Date))
+  colnames(exportDetail) = c("Export Field", "Value")
+  
+  exportDFList <- list(
+    exportDetail = exportDetail,
+    summary = summary,
+    guidance = guidance,
+    high_priority = high_priority,
+    errors = errors,
+    warnings = warnings,
+    overlaps = dqOverlaps
+  )
+  
+  names(exportDFList) = c(
+    "Export Detail",
+    "Summary",
+    "Guidance",
+    "High Priority",
+    "Errors", 
+    "Warnings", 
+    "Overlaps"
+  )
+  
+  exportDFList <- exportDFList[sapply(exportDFList, 
+                                      function(x) dim(x)[1]) > 0]
+  
+  return(exportDFList)
+}
