@@ -101,8 +101,10 @@ dashboardPage(
                  that will prevent the app from functioning, the app will reject
                  your file and not process any further. All issues will display
                  in the panel and you can download the details, even if the file
-                 was rejected. Users should contact their vendor to resolve issues 
-                 identified in the HUD CSV Export File Structure Analysis.</p>
+                 was rejected. Please ontact your vendor if there's a High
+                 Priority issue found or if your file shows an Error or Warning
+                 that you feel needs to be corrected. Not all issues found in
+                 this analysis will need immediate attention.</p>
                  
                  <h4>Citations</h4>
                  <p>This panel will credit the people who wrote the open-source code
@@ -255,9 +257,9 @@ dashboardPage(
             DT::dataTableOutput("integrityChecker"),
             p(),
             HTML("<p>Please contact your vendor if there's a High Priority issue
-                 found or if your file shows an Error that you feel needs to be
-                 corrected. Not all issues found in this analysis will need
-                 immediate attention.</p>"),
+                 found or if your file shows an Error or Warning that you feel
+                 needs to be corrected. Not all issues found in this analysis
+                 will need immediate attention.</p>"),
             p(),
             uiOutput('downloadIntegrityBtn')
           ),
