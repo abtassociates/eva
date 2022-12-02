@@ -107,82 +107,6 @@ replace_yes_no <- function(column_name) {
             TRUE ~ "something's wrong")
 }
 
-# Chronic logic -----------------------------------------------------------
-
-chronic_determination <- function(.data, aged_in = FALSE) { 
-  
-  needed_cols <- c("PersonalID", "EntryDate",
-                   "AgeAtEntry", "DisablingCondition",
-                   "DateToStreetESSH", "TimesHomelessPastThreeYears",
-                   "MonthsHomelessPastThreeYears", "ExitAdjust", "ProjectType")
-  
-  chronicity_levels <- if(aged_in) {
-    c("Chronic", "Aged In", "Nearly Chronic", "Not Chronic")}
-  else {c("Chronic", "Nearly Chronic", "Not Chronic")}
-  
-  if (all((needed_cols) %in% colnames(.data))) {
-    return(
-      .data %>%
-        mutate(DaysHomelessInProject = difftime(ymd(ExitAdjust),
-                                                ymd(EntryDate),
-                                                units = "days"),
-               DaysHomelessBeforeEntry = difftime(ymd(EntryDate),
-                                                  if_else(
-                                                    is.na(ymd(DateToStreetESSH)),
-                                                    ymd(EntryDate),
-                                                    ymd(DateToStreetESSH)
-                                                  ),
-                                                  units = "days"),
-               ChronicStatus =
-                 case_when(
-                   ((ymd(DateToStreetESSH) + days(365) <= ymd(EntryDate) &
-                       !is.na(DateToStreetESSH)) |
-                      (
-                        MonthsHomelessPastThreeYears %in% c(112, 113) &
-                          TimesHomelessPastThreeYears == 4 &
-                          !is.na(MonthsHomelessPastThreeYears) &
-                          !is.na(TimesHomelessPastThreeYears)
-                      )
-                   ) &
-                     DisablingCondition == 1 &
-                     !is.na(DisablingCondition) ~ "Chronic",
-                   ProjectType %in% c(1, 8) &
-                     ymd(DateToStreetESSH) + days(365) > ymd(EntryDate) &
-                     !is.na(DateToStreetESSH) &
-                     DaysHomelessBeforeEntry + DaysHomelessInProject >= 365 ~ "Aged In",
-                   ((
-                     ymd(DateToStreetESSH) + days(365) <= ymd(EntryDate) &
-                       !is.na(DateToStreetESSH)
-                   ) |
-                     (
-                       MonthsHomelessPastThreeYears %in% c(110:113) &
-                         TimesHomelessPastThreeYears%in% c(3, 4) &
-                         !is.na(MonthsHomelessPastThreeYears) &
-                         !is.na(TimesHomelessPastThreeYears)
-                     )
-                   ) &
-                     DisablingCondition == 1 &
-                     !is.na(DisablingCondition) ~ "Nearly Chronic",
-                   TRUE ~ "Not Chronic"),
-               ChronicStatus = case_when(aged_in ~ ChronicStatus,
-                                         TRUE ~ if_else(ChronicStatus == "Aged In",
-                                                        "Chronic",
-                                                        ChronicStatus)),
-               ChronicStatus = factor(
-                 ChronicStatus,
-                 ordered = TRUE,
-                 levels = chronicity_levels)))
-  }
-  
-  else {
-    stop(paste0(
-      "\nYou need to include the column \"",
-      needed_cols[needed_cols %in% colnames(.data) == FALSE],
-      "\" to use the chronic_determination() function"
-    ))
-  }
-}
-
 # Import Helper -----------------------------------------------------------
 
 parseDate <- function(datevar) {
@@ -210,7 +134,7 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
                   "Entry Date"= "EntryDate",
                   "Organization Name" = "OrganizationName",
                   "Project ID" = "ProjectID")
-
+  
   high_priority <- dqData %>% 
     filter(Type == "High Priority") %>% 
     select(all_of(select_list))
@@ -224,9 +148,9 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     select(all_of(select_list))
   
   summary <- rbind(
-      dqData %>% select(ProjectName, Type, Issue, PersonalID),
-      dqOverlaps %>% select("ProjectName" = "ProjectName.x", Type, Issue, PersonalID)
-    ) %>%
+    dqData %>% select(ProjectName, Type, Issue, PersonalID),
+    dqOverlaps %>% select("ProjectName" = "ProjectName.x", Type, Issue, PersonalID)
+  ) %>%
     group_by(ProjectName, Type, Issue) %>%
     summarise(Clients = n()) %>%
     select(Type, Clients, ProjectName, Issue) %>%
@@ -239,7 +163,7 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     arrange(Type)
   
   exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
-                           c(meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End, meta_HUDCSV_Export_Date))
+                             c(meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End, meta_HUDCSV_Export_Date))
   colnames(exportDetail) = c("Export Field", "Value")
   
   exportDFList <- list(

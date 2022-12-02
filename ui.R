@@ -1,7 +1,7 @@
 
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "[App Name Pending]"),
+  dashboardHeader(title = "Eva"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -44,11 +44,11 @@ dashboardPage(
         tabName = "tabHome",
         fluidRow(
           box(
-            title = "Welcome to [App Name Pending]!",
+            title = "Welcome to Eva!",
             width = 12,
             HTML(
-              "<div>[App Name Pending] is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
-              [App Name Pending] is designed to help you assess the accuracy and completeness of the data within your HMIS. 
+              "<div>Eva is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
+              Eva is designed to help you assess the accuracy and completeness of the data within your HMIS. 
               In future iterations it will also assist communities in analyzing your HMIS performance data, 
               including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
               <br/>
@@ -86,7 +86,7 @@ dashboardPage(
                  date your file was downloaded from your HMIS.</p>
                  
                  <h4>Edit CoC-specific Settings</h4>
-                 <p>To make [App Name Pending] reporting more useful at the local level,
+                 <p>To make Eva reporting more useful at the local level,
                  you will find the CoC-specific settings that HMIS Leads can edit
                  to better analyse their data in a way that is meaningful to the
                  CoC. To edit these, click on the \'+\'. If you do not edit them,
@@ -289,10 +289,11 @@ dashboardPage(
              <a href = 'https://www.cohhio.org' target= '_blank' rel='noopener noreferrer'>COHHIO</a>, 
              Coalition on Homelessness and Housing in Ohio.
              
-             <p> Special thanks to San Diego City and County CoC (CA-601) and Minneapolis/Hennepin County CoC
-             (MN-500) for providing sample datasets to support programming.
-
-                 ")
+             <p> Special thanks to 
+             <a href=\"http://www.squarepegdata.com/\" target= '_blank' rel='noopener noreferrer'>
+             Square Peg Data</a>,
+             San Diego City and County CoC (CA-601) and Minneapolis/Hennepin County CoC
+             (MN-500) for providing sample datasets to support programming.")
       )
         )
       ), 
