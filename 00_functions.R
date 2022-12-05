@@ -282,7 +282,7 @@ zip_initially_valid <- function () {
     "Export.csv"
   )
   missing_files = requiredFiles[!(requiredFiles %in% zipContents$Name)]
-  
+
   valid_file(0)
   if(grepl("/", zipContents$Name[1])) {
     title = "Your zip file is mis-structured"
@@ -290,7 +290,7 @@ zip_initially_valid <- function () {
   } 
   else if(length(missing_files)) {
     title = "Missing files"
-    err_msg = paste0("Your zip file seems to be missing the following important files: ",missing_files)
+    err_msg = "This is not a HUD CSV export. Make sure that you haven't accidentally uploaded an APR or an LSA"
   } 
   else if(!is_hashed()) {
     title = "You uploaded the wrong data set"
@@ -300,8 +300,7 @@ zip_initially_valid <- function () {
   } else {
     return(TRUE)
   }
-  
-  
+
   if(!valid_file()) {
     showModal(
       modalDialog(
