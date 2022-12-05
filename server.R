@@ -92,7 +92,7 @@ function(input, output, session) {
       reset("imported")
       showModal(
         modalDialog(
-          title = "You uploaded the wrong data set",
+          title = "You uploaded an unhashed export",
           "You have uploaded an unhashed version of the HMIS CSV Export. If you
           are not sure how to run the hashed HMIS CSV Export in your HMIS, please
           contact your HMIS vendor.",
@@ -549,15 +549,17 @@ function(input, output, session) {
       orgDQData <- dq_main_reactive() %>%
         filter(OrganizationName %in% c(input$orgList))
       
-      orgDQoverlaps <- overlapNEW %>%
-        filter(OrganizationName.x %in% c(input$orgList) | OrganizationName.y %in% c(input$orgList))
+      # orgDQoverlaps <- overlapNEW %>%
+      #   filter(OrganizationName.x %in% c(input$orgList) | OrganizationName.y %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData, orgDQoverlaps)
+      getDQReportDataList(orgDQData#, orgDQoverlaps
+                          )
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlapNEW)
+      getDQReportDataList(dq_main_reactive()#, overlapNEW
+                          )
     })
     
     output$downloadOrgDQReport <- downloadHandler(
