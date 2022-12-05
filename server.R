@@ -74,7 +74,7 @@ function(input, output, session) {
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
 
     # read Export file
-    Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
+    Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
     # read Client file
     Client <- importFile("Client",
                          col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
