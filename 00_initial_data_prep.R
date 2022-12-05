@@ -38,7 +38,7 @@ HHMoveIn <- Enrollment %>%
       # prior to the date when PSH had to collect MID with the EntryDate (as
       # venders were instructed to do in the mapping documentation)
       AssumedMoveIn == 0 &
-        ProjectType %in% c(psh_project_types) &
+        ProjectType %in% c(3, 9, 10) &
         EntryDate <= MoveInDate &
         ExitAdjust > MoveInDate ~ MoveInDate,
       # the Move-In Dates must fall between the Entry and ExitAdjust to be
