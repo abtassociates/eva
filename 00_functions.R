@@ -286,11 +286,16 @@ zip_initially_valid <- function () {
   valid_file(0)
   if(grepl("/", zipContents$Name[1])) {
     title = "Your zip file is mis-structured"
-    err_msg = "It looks like you may have unzipped your HMIS csv because the individual csv files are contained within a subdirectory"
+    err_msg = "It looks like you may have unzipped your HMIS csv because the
+    individual csv files are contained within a subdirectory."
   } 
   else if(length(missing_files)) {
-    title = "Missing files"
-    err_msg = "This is not a HUD CSV export. Make sure that you haven't accidentally uploaded an APR or an LSA"
+    title = "Wrong Dataset"
+    err_msg = "You uploaded something other than a HUD CSV export. Be sure
+    that you haven't accidentally uploaded an APR or an LSA. If you
+          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
+          contact your HMIS vendor.
+    "
   } 
   else if(!is_hashed()) {
     title = "You uploaded the wrong data set"
