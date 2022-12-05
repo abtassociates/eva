@@ -120,12 +120,7 @@ dashboardPage(
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
-            conditionalPanel(
-              condition = "valid_file() == 0",
-              uiOutput("headerFileInfo")),
-            conditionalPanel(
-              condition = "valid_file() == 1",
-              uiOutput("headerNoFileYet")),
+            uiOutput("headerFileInfo"),
             width = 12
           ), 
           box(

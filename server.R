@@ -3,17 +3,78 @@ function(input, output, session) {
   
   valid_file <- reactiveVal(0)
 
-  output$headerNoFileYet <- renderUI({
-    req(valid_file() == 0)
-    HTML("You have not successfully uploaded your zipped CSV file yet.")
+  output$headerFileInfo <- renderUI({
+    if(valid_file()) {
+      HTML(
+        paste0(
+          "<p>You have successfully uploaded your hashed HMIS CSV Export!</p>
+              <p><strong>Date Range of Current File: </strong>",
+          format(Export$ExportStartDate, "%m-%d-%Y"),
+          " to ",
+          format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
+          "<p><strong>Export Date: </strong>",
+          format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
+        )
+      )
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
   })
-
+  
+  output$headerPDDE <- renderUI({
+    if(valid_file()) {
+      list(h2("Project Descriptor Data Elements Checker"),
+         h4(paste(
+           format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+           "to",
+           format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+         )))
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
+  })
+  
+  output$headerSystemDQ <- renderUI({
+    if(valid_file()) {
+      list(h2("System-wide Data Quality"),
+           h4(
+             paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+                   "through",
+                   format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
+           ))
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
+  })
+  
+  output$headerDataQuality <- renderUI({
+    if(valid_file()) {
+      list(h2("Data Quality"),
+           h4(paste(
+             format(Export$ExportStartDate, "%m-%d-%Y"),
+             "to",
+             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+           )))
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
+  })
+  
+  output$headerCurrent <- renderUI({
+    if(valid_file()) {
+      list(h2("Client Counts Report"),
+           h4(input$currentProviderList))
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
+  })
+  
   observeEvent(input$imported, {
     
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
 
     # read Export file
-    Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
+    Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
     # read Client file
     Client <- importFile("Client",
                          col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
@@ -138,21 +199,6 @@ function(input, output, session) {
       }
     )
     
-    output$headerFileInfo <- renderUI({
-      req(valid_file() == 1)
-      HTML(
-        paste0(
-          "<p>You have successfully uploaded your hashed HMIS CSV Export!</p>
-            <p><strong>Date Range of Current File: </strong>",
-          format(Export$ExportStartDate, "%m-%d-%Y"),
-          " to ",
-          format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
-          "<p><strong>Export Date: </strong>",
-          format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
-        )
-      )
-    })
-    
     if(valid_file() == 1) {
       updatePickerInput(session = session, inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
@@ -180,29 +226,8 @@ function(input, output, session) {
                            start = meta_HUDCSV_Export_Start,
                            end = meta_HUDCSV_Export_End)
     }
-
-    output$headerDataQuality <- renderUI({
-      req(valid_file() == 1)
-      list(h2("Organization-wide Data Quality"),
-           h4(paste(
-             format(Export$ExportStartDate, "%m-%d-%Y"),
-             "to",
-             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
-           )))
-    })
     
     ##### PDDE Checker-----
-    # header
-    output$headerPDDE <- renderUI({
-      req(valid_file() == 1)
-      list(h2("Project Descriptor Data Elements Checker"),
-           h4(paste(
-             format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-             "to",
-             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
-           )))
-    })
-    
     # summary table
     output$pdde_summary_table <- DT::renderDataTable({
       req(valid_file() == 1)
@@ -1027,32 +1052,26 @@ function(input, output, session) {
         filter = 'top',
         options = list(dom = 'ltpi'))
     })
-
-  output$headerCurrent <- renderUI({
-    req(valid_file() == 1)
-    list(h2("Client Counts Report"),
-         h4(input$currentProviderList))
-  })
   
-  output$headerUtilization <- renderUI({
-    req(valid_file() == 1)
-    list(h2("Bed and Unit Utilization"),
-         h4(input$providerListUtilization),
-         h4(format(ymd(
-           input$utilizationDate
-         ), "%B %Y"))
-         )
-  })
-  
-  output$headerDeskTime <- renderUI({
-    req(valid_file() == 1)
-    list(h2("Data Entry Timeliness"),
-         h4(input$providersDeskTime),
-         h4(paste("Fixed Date Range:",
-                  format(today() - years(1), "%m-%d-%Y"),
-                  "to",
-                  format(today(), "%m-%d-%Y"))))
-  })
+  # output$headerUtilization <- renderUI({
+  #   req(valid_file() == 1)
+  #   list(h2("Bed and Unit Utilization"),
+  #        h4(input$providerListUtilization),
+  #        h4(format(ymd(
+  #          input$utilizationDate
+  #        ), "%B %Y"))
+  #        )
+  # })
+  # 
+  # output$headerDeskTime <- renderUI({
+  #   req(valid_file() == 1)
+  #   list(h2("Data Entry Timeliness"),
+  #        h4(input$providersDeskTime),
+  #        h4(paste("Fixed Date Range:",
+  #                 format(today() - years(1), "%m-%d-%Y"),
+  #                 "to",
+  #                 format(today(), "%m-%d-%Y"))))
+  # })
   
   # output$headerExitsToPH <- renderUI({
   #   req(valid_file() == 1)
@@ -1077,16 +1096,6 @@ function(input, output, session) {
   #          format(meta_HUDCSV_Export_End, "%m-%d-%Y")
   #        )))
   # })
-  
-  output$headerSystemDQ <- renderUI({
-    req(valid_file() == 1)
-    list(h2("System-wide Data Quality"),
-         h4(
-           paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-                 "through",
-                 format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
-         ))
-  })
   
   #### DQ SYSTEM REPORT #### ----------------------
   # button
