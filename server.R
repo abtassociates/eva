@@ -72,7 +72,7 @@ function(input, output, session) {
     output$integrityChecker <- DT::renderDataTable(
       {
         req(initially_valid_zip)
-        browser()
+
         a <- rbind(integrity_client,
                    integrity_enrollment,
                    integrity_living_situation,
