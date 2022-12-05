@@ -126,14 +126,14 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
 }
 
 
-getDQReportDataList <- function(dqData, dqOverlaps) {
-  select_list = c("Project Name" = "ProjectName",
+getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
+  select_list = c("Organization Name" = "OrganizationName",
+                  "Project ID" = "ProjectID",
+                  "Project Name" = "ProjectName",
                   "Issue" = "Issue",
                   "Personal ID" = "PersonalID",
                   "Household ID" = "HouseholdID",
-                  "Entry Date"= "EntryDate",
-                  "Organization Name" = "OrganizationName",
-                  "Project ID" = "ProjectID")
+                  "Entry Date"= "EntryDate")
   
   high_priority <- dqData %>% 
     filter(Type == "High Priority") %>% 
@@ -147,14 +147,16 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
     select(all_of(select_list))
   
-  summary <- rbind(
-    dqData %>% select(ProjectName, Type, Issue, PersonalID),
-    dqOverlaps %>% select("ProjectName" = "ProjectName.x", Type, Issue, PersonalID)
-  ) %>%
-    group_by(ProjectName, Type, Issue) %>%
-    summarise(Clients = n()) %>%
-    select(Type, Clients, ProjectName, Issue) %>%
-    arrange(Type, desc(Clients))
+  summary <- #rbind(
+    dqData %>% group_by(ProjectName, Type, Issue) %>%
+    summarise(Count = n()) %>%
+    ungroup()#,
+  #   dqOverlaps %>% select("ProjectName" = "ProjectName.x", Type, Issue, PersonalID)
+  # ) %>%
+    # group_by(ProjectName, Type, Issue) %>%
+    # summarise(Clients = n()) %>%
+    # select(Type, Clients, ProjectName, Issue) %>%
+    # arrange(Type, desc(Clients))
   
   guidance <- dqData %>%
     select(Type, Issue, Guidance) %>%
@@ -172,18 +174,18 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     guidance = guidance,
     high_priority = high_priority,
     errors = errors,
-    warnings = warnings,
-    overlaps = dqOverlaps
+    warnings = warnings#,
+    #overlaps = dqOverlaps
   )
   
-  names(exportDFList) = c(
+  names(exportDFList) <- c(
     "Export Detail",
     "Summary",
     "Guidance",
     "High Priority",
     "Errors", 
-    "Warnings", 
-    "Overlaps"
+    "Warnings"#, 
+    #"Overlaps"
   )
   
   exportDFList <- exportDFList[sapply(exportDFList, 

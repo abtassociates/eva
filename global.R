@@ -16,7 +16,7 @@ library(glue)
 library(janitor)
 library(shinyjs)
 
-options(shiny.maxRequestSize = 200000000)
+options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 
 hc_psh_started_collecting_move_in_date <- ymd("20171001")
 
