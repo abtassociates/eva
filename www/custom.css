@@ -93,7 +93,7 @@
 /*drop down select menu after data is uploaded*/
 .bootstrap-select>.dropdown-toggle {
     width: 100%;
-    border-color: #08A4BD;
+    border-color: #82C0CC; /*middle blue*/
     color: black;
     background-color: white;
 }
@@ -101,7 +101,7 @@
 /*drop down select menu when data is not uploaded*/
 .bootstrap-select>.dropdown-toggle.bs-placeholder {
     width: 100%;
-    border-color: #08A4BD;
+    border-color: #82C0CC; /*middle blue*/
     color: black;
     background-color: white;
 }
@@ -145,15 +145,15 @@
 
 /* || BUTTONS */
 .btn, .btn-default {
-  background-color:#EDE7E3; /*isabelline*/
-  color: #DD614A; /*text color - fire opal*/
+  color: white; /*text color*/
+  background-color:#DD614A; /*fire opal*/
   border-color: #DD614A; /*fire opal*/
 }
 
 /*button hover*/
 .btn:hover {
-  color: white; /*text color*/
-  background-color: #DD614A; /*text color - fire opal*/
+  color: #DD614A; /*text color - fire opal*/
+  background-color: white;
   border-color: #DD614A; /*text color - fire opal*/
 }
 
