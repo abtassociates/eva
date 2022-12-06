@@ -40,6 +40,10 @@ ph_project_types <- c(3, 9, 10, 13)
 
 psh_project_types <- c(3, 9, 10)
 
+psh_project_type <- 3
+
+ph_other_project_types <- c(9, 10)
+
 lh_at_entry_project_types <- c(1, 2, 3, 4, 8, 9, 13)
 
 lh_ph_hp_project_types <- c(1, 2, 3, 4, 8, 9, 12, 13)
