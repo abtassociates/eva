@@ -140,15 +140,15 @@
 
 /* || BUTTONS */
 .btn, .btn-default {
-  background-color:#EDE7E3; /*isabelline*/
-  color: #DD614A; /*text color - fire opal*/
+  color: white; /*text color*/
+  background-color:#DD614A; /*fire opal*/
   border-color: #DD614A; /*fire opal*/
 }
 
 /*button hover*/
 .btn:hover {
-  color: white; /*text color*/
-  background-color: #DD614A; /*text color - fire opal*/
+  color: #DD614A; /*text color - fire opal*/
+  background-color: white;
   border-color: #DD614A; /*text color - fire opal*/
 }
 
