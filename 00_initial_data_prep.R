@@ -98,6 +98,12 @@ Enrollment <- Enrollment %>%
 
 rm(small_project, HHEntry, HHMoveIn, small_client, small_location)
 
+
+# Only BedNight Services --------------------------------------------------
+
+Services <- Services %>%
+  filter(RecordType == 200)
+
 # HUD CSV Specs -----------------------------------------------------------
 
 HUD_specs <- read_csv("public_data/HUDSpecs.csv",
