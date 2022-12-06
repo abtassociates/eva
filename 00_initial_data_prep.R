@@ -102,7 +102,7 @@ rm(small_project, HHEntry, HHMoveIn, small_client, small_location)
 # Only BedNight Services --------------------------------------------------
 
 Services <- Services %>%
-  filter(RecordType == 200)
+  filter(RecordType == 200 & !is.na(DateProvided))
 
 # HUD CSV Specs -----------------------------------------------------------
 
