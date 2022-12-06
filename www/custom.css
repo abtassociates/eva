@@ -93,7 +93,7 @@
 /*drop down select menu after data is uploaded*/
 .bootstrap-select>.dropdown-toggle {
     width: 100%;
-    border-color: #08A4BD;
+    border-color: #82C0CC; /*middle blue*/
     color: black;
     background-color: white;
 }
@@ -101,7 +101,7 @@
 /*drop down select menu when data is not uploaded*/
 .bootstrap-select>.dropdown-toggle.bs-placeholder {
     width: 100%;
-    border-color: #08A4BD;
+    border-color: #82C0CC; /*middle blue*/
     color: black;
     background-color: white;
 }
