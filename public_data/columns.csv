@@ -127,8 +127,8 @@ Exit,ExchangeForSexPastThreeMonths,numeric,0,1
 Exit,CountOfExchangeForSex,numeric,0,1
 Exit,AskedOrForcedToExchangeForSex,numeric,0,1
 Exit,AskedOrForcedToExchangeForSexPastThreeMonths,numeric,0,1
-Exit,WorkPlaceViolenceThreats,numeric,0,1
-Exit,WorkPlacePromiseDifference,numeric,0,1
+Exit,WorkplaceViolenceThreats,numeric,0,1
+Exit,WorkplacePromiseDifference,numeric,0,1
 Exit,CoercedToContinueWork,numeric,0,1
 Exit,LaborExploitPastThreeMonths,numeric,0,1
 Exit,CounselingReceived,numeric,0,1
@@ -146,7 +146,7 @@ Exit,PosCommunityConnections,numeric,0,1
 Exit,AftercareDate,date,0,1
 Exit,AftercareProvided,numeric,0,1
 Exit,EmailSocialMedia,numeric,0,1
-Exit,Telephone,character,0,1
+Exit,Telephone,numeric,0,1
 Exit,InPersonIndividual,numeric,0,1
 Exit,InPersonGroup,numeric,0,1
 Exit,CMExitReason,numeric,0,1
