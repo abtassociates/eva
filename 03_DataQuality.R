@@ -2083,8 +2083,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       entry_precedes_OpStart,
       exit_after_OpEnd,
       exit_before_start,
-      overlapNEW_e1 %>% select(all_of(vars_we_want)),
-      overlapNEW_e2 %>% select(all_of(vars_we_want))
+      dq_overlaps1 %>% select(all_of(vars_we_want)),
+      dq_overlaps2 %>% select(all_of(vars_we_want))
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
