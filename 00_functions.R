@@ -54,7 +54,8 @@ living_situation <- function(ReferenceNo) {
 
 project_type <- function(ReferenceNo){
   case_when(
-    ReferenceNo == 1 ~ "Emergency Shelter",
+    ReferenceNo == 0 ~ "Emergency Shelter (NbN)",
+    ReferenceNo == 1 ~ "Emergency Shelter (E/E)",
     ReferenceNo == 2 ~ "Transitional Housing",
     ReferenceNo == 3 ~ "Permanent Supportive Housing",
     ReferenceNo == 4 ~ "Street Outreach",
