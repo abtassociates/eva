@@ -1376,29 +1376,32 @@ overlaps <- overlap_staging %>%
       household spent the same night in different inventory beds. Please review
       the HMIS Dual Enrollments and HIC Duplicate Inventory Training Resource for
       more information."
-    )
+    ),
+    # this is the issue that the Project folks will see, and it's the overlap with the Previous project
+    Issue = paste("Overlap with", 
+                  if_else(str_sub(project_type(PreviousProjectType), 1, 1) %in%
+                            c("A", "E", "I", "O", "U"),
+                          "an",
+                          "a"),  
+                  project_type(PreviousProjectType), 
+                  "project"),
+    # this is the issue that the Previous Project folks will see, and it's the overlap with the main project
+    PreviousIssue = paste("Overlap with", 
+                  if_else(str_sub(project_type(ProjectType), 1, 1) %in%
+                            c("A", "E", "I", "O", "U"),
+                          "an",
+                          "a"),  
+                  project_type(ProjectType), 
+                  "project")
   ) %>%
   unique()
 
 dq_overlaps1 <- overlaps %>%
-  mutate(Issue = paste("Overlap with", 
-                       if_else(str_sub(project_type(PreviousProjectType), 1, 1) %in%
-                                 c("A", "E", "I", "O", "U"),
-                               "an",
-                               "a"),  
-                       project_type(PreviousProjectType), 
-                       "project")) %>%
-  select(!starts_with("Previous"))
+  select(!starts_with("Previous"), -NumOverlaps, -EnrollmentID, -EnrollmentStart, -EnrollmentEnd)
 
 dq_overlaps2 <- overlaps %>%
-  mutate(Issue = paste("Overlap with", 
-                       if_else(str_sub(project_type(ProjectType), 1, 1) %in%
-                                 c("A", "E", "I", "O", "U"),
-                               "an",
-                               "a"),  
-                       project_type(ProjectType), 
-                       "project")) %>%
-  select(starts_with("Previous"), PersonalID, Issue, Type, Guidance)
+  select(starts_with("Previous"), PersonalID, Type, Guidance, -PreviousEnrollmentID, -PreviousEnrollmentStart, -PreviousEnrollmentEnd) %>%
+  rename_all(~str_replace(.,"^Previous",""))
 
 # Invalid Move-in Date ----------------------------------------------------
 
