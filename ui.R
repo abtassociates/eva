@@ -36,7 +36,8 @@ dashboardPage(
   ), 
   dashboardBody(
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+      tags$html(lang="en")
     ),
     useShinyjs(),
     tabItems(
@@ -731,8 +732,6 @@ dashboardPage(
   )
 )
 
-#language of the document; added as WAVE fix
-attr(ui,"lang") = "en"
 
 # tabItem(
 #   tabName = "utilizationTab",
