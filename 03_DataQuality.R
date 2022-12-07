@@ -1267,23 +1267,24 @@ exit_after_OpEnd <- served_in_date_range %>%
 
 # Overlaps ----------------------------------------------------------------
 
-overlapVars = c("PersonalID", 
-                "EnrollmentID",
-                "EnrollmentStart", "EnrollmentEnd",
-                "ProjectType",
-                "ProjectID",
-                "ProjectName",#
-                "HouseholdID",
-                "OrganizationName",#
-                "FirstDateProvided",#
-                "PreviousEnrollmentID",
-                "PreviousEnrollmentStart", "PreviousEnrollmentEnd",
-                "PreviousProjectID",
-                "PreviousProjectName",#
-                "PreviousProjectType",
-                "PreviousHouseholdID",
-                "PreviousOrganizationName"#
-)
+# can delete these; no longer in use
+# overlapVars = c("PersonalID", 
+#                 "EnrollmentID",
+#                 "EnrollmentStart", "EnrollmentEnd",
+#                 "ProjectType",
+#                 "ProjectID",
+#                 "ProjectName",#
+#                 "HouseholdID",
+#                 "OrganizationName",#
+#                 "FirstDateProvided",#
+#                 "PreviousEnrollmentID",
+#                 "PreviousEnrollmentStart", "PreviousEnrollmentEnd",
+#                 "PreviousProjectID",
+#                 "PreviousProjectName",#
+#                 "PreviousProjectType",
+#                 "PreviousHouseholdID",
+#                 "PreviousOrganizationName"#
+# )
 
 overlap_staging <- served_in_date_range %>%
   filter(EntryDate != ExitAdjust &
