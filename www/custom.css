@@ -5,6 +5,7 @@
 /* || DROP DOWN MENUS */
 /* || BOXES */
 /* || BUTTONS */
+/* || HYPERLINKS*/
 /* || HELP TEXT CIRCLE*/
 /* || VALIDATION MESSAGES FOR PLOTS */
 
@@ -162,6 +163,20 @@
     box-shadow: none;
     border-color: black;
     color: black; /*text color*/
+}
+
+/*|| HYPERLINKS*/
+
+/*inactive hyperlink color*/
+a {
+    color: #16697A; /*text color - ming blue*/
+}
+
+/*hyperlink hover*/
+a:hover {
+    outline: 0;
+    text-decoration: none;
+    color: #DD614A; /*text color - fore opal*/
 }
 
 /*progress bar*/
