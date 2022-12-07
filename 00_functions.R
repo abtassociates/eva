@@ -148,8 +148,31 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
     filter(Type == "Warning") %>% 
     select(all_of(select_list))
   
-  dqOverlaps <- dqOverlaps %>%
-    select(-EntryDate, -ExitDate, -MoveInDateAdjust, -PreviousEntryDate, -PreviousExitDate, -PreviousMoveInDateAdjust)
+  dqOverlapDetails <- dqOverlaps %>%
+    select(-c(Issue, Type, Guidance, PreviousIssue)) %>%
+    relocate(OrganizationName,
+            ProjectID,
+            ProjectName,
+            ProjectType,
+            EnrollmentID,
+            HouseholdID,
+            PersonalID,
+            EntryDate,
+            FirstDateProvided,
+            "MoveInDate" = MoveInDateAdjust,
+            ExitDate,
+            PreviousOrganizationName,
+            PreviousProjectID,
+            PreviousProjectName,
+            PreviousProjectType,
+            PreviousEnrollmentID,
+            PreviousHouseholdID,
+            PreviousPersonalID,
+            PreviousEntryDate,
+            PreviousFirstDateProvided,
+            "PreviousMoveInDate" = PreviousMoveInDateAdjust,
+            PreviousExitDate
+    )
   
   summary <- rbind(
       dqData %>% select(Type, Issue, PersonalID),
@@ -178,7 +201,7 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
     high_priority = high_priority,
     errors = errors,
     warnings = warnings,
-    overlaps = dqOverlaps
+    overlaps = dqOverlapDetails
   )
   
   names(exportDFList) <- c(
@@ -188,7 +211,7 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
     "High Priority",
     "Errors", 
     "Warnings",
-    "Overlaps"
+    "Overlap Details"
   )
   
   exportDFList <- exportDFList[sapply(exportDFList, 
