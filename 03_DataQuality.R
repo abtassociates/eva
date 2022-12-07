@@ -1359,7 +1359,7 @@ overlaps <- overlap_staging %>%
   group_by(PersonalID) %>%
   mutate(NumOverlaps = sum(IsOverlap, na.rm = TRUE)) %>%
   ungroup() %>%
-  select(-EnrollmentPeriod, -PreviousEnrollmentPeriod) %>%
+  select(-EnrollmentPeriod, -PreviousEnrollmentPeriod, -IsOverlap) %>%
   # keep overlaps
   filter(((ProjectType == es_nbn_project_type |
              PreviousProjectType == es_nbn_project_type) & 
