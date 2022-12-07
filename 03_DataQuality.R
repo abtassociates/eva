@@ -1405,11 +1405,12 @@ overlaps <- overlap_staging %>%
             by = "PreviousEnrollmentID")
 
 dq_overlaps1 <- overlaps %>%
-  select(!starts_with("Previous"), -EnrollmentID, -FirstDateProvided)
+  select(!!vars_we_want)
 
 dq_overlaps2 <- overlaps %>%
-  select(starts_with("Previous"), Type, Guidance, -PreviousEnrollmentID, -PreviousFirstDateProvided) %>%
-  rename_all(~str_replace(.,"^Previous",""))
+  select(starts_with("Previous"), Type, Guidance) %>%
+  rename_all(~str_replace(.,"^Previous","")) %>%
+  select(!!vars_we_want)
 
 # Invalid Move-in Date ----------------------------------------------------
 
@@ -2091,8 +2092,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       entry_precedes_OpStart,
       exit_after_OpEnd,
       exit_before_start,
-      dq_overlaps1 %>% select(all_of(vars_we_want)),
-      dq_overlaps2 %>% select(all_of(vars_we_want))
+      dq_overlaps1,
+      dq_overlaps2
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
