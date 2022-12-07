@@ -72,35 +72,11 @@ function(input, output, session) {
   observeEvent(input$imported, {
     
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-
-    # read Export file
-    Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
-    # read Client file
-    Client <- importFile("Client",
-                         col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
-    # decide if the export is hashed
-    hashed <-  
-      # TRUE
-      Export$HashStatus == 4 &
-       min(nchar(Client$FirstName), na.rm = TRUE) ==
-       max(nchar(Client$FirstName), na.rm = TRUE)
+  
+    initially_valid_zip <- zip_initially_valid()
     
-    #if it's not hashed, throw an error and clear the upload
-    if (hashed == FALSE) {
-      # clear imported
-      valid_file(0)
-      reset("imported")
-      showModal(
-        modalDialog(
-          title = "You uploaded an unhashed export",
-          "You have uploaded an unhashed version of the HMIS CSV Export. If you
-          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
-          contact your HMIS vendor.",
-          easyClose = TRUE
-        )
-      )
-    } else { # if it is hashed, set imported_zip to 1 and start running scripts
-      valid_file(1)
+    if(initially_valid_zip) {
+
       hide('imported_progress')
       
       withProgress({
@@ -124,20 +100,20 @@ function(input, output, session) {
           source("00_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
         } else{ # if structural issues were found, reset gracefully
-        valid_file(0)
-        reset("imported")
-        showModal(
-          modalDialog(
-            title = "Your HMIS CSV Export is not structurally valid",
-            "Your HMIS CSV Export has some High Priority issues that must
-            be addressed by your HMIS Vendor. Please download the File Structure
-            Analysis for details.",
-            easyClose = TRUE
+          valid_file(0)
+          reset("imported")
+          showModal(
+            modalDialog(
+              title = "Your HMIS CSV Export is not structurally valid",
+              "Your HMIS CSV Export has some High Priority issues that must
+              be addressed by your HMIS Vendor. Please download the File Structure
+              Analysis for details.",
+              easyClose = TRUE
+            )
           )
-        )
-      }
+        }
       })
-    } 
+    }
     
     dq_main_reactive <- reactive({
       req(valid_file()== 1)
@@ -157,7 +133,8 @@ function(input, output, session) {
     
     output$integrityChecker <- DT::renderDataTable(
       {
-        req(hashed == 1)
+        req(initially_valid_zip)
+
         a <- rbind(integrity_client,
                    integrity_enrollment,
                    integrity_living_situation,
@@ -176,7 +153,7 @@ function(input, output, session) {
       })
     
     output$downloadIntegrityBtn <- renderUI({
-      req(hashed == 1)
+      req(initially_valid_zip)
       downloadButton("downloadIntegrityCheck", "Download Structure Analysis Detail")
     })  
     

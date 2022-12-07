@@ -4,6 +4,11 @@ library(lubridate)
 library(readxl)
 library(HMIS)
 
+Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
+
+Client <- importFile("Client",
+                     col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
+
 client_problems <- problems(Client)
 
 Enrollment <- 
