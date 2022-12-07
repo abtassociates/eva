@@ -1321,7 +1321,7 @@ overlap_staging <- served_in_date_range %>%
                             DateProvided, 
                             as.Date(ExitAdjust))
   ) %>% # 40 secs
-  select(PersonalID, EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd)
+  select(PersonalID, EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd, FirstDateProvided)
 
 overlaps <- overlap_staging %>%
   # sort enrollments for each person
@@ -1336,7 +1336,9 @@ overlaps <- overlap_staging %>%
               select("PreviousEnrollmentID" = EnrollmentID,
                      "PreviousProjectType" = ProjectType,
                      "PreviousEnrollmentStart" = EnrollmentStart,
-                     "PreviousEnrollmentEnd" = EnrollmentEnd),
+                     "PreviousEnrollmentEnd" = EnrollmentEnd,
+                     "PreviousFirstDateProvided" = FirstDateProvided
+              ),
             by = c("PreviousEnrollmentID")) %>%
   filter(PreviousEnrollmentID != EnrollmentID &
            !(
@@ -1390,7 +1392,7 @@ overlaps <- overlap_staging %>%
                   project_type(ProjectType), 
                   "project")
   ) %>%
-  select(EnrollmentID, PreviousEnrollmentID, Issue, PreviousIssue, Type, Guidance) %>%
+  select(EnrollmentID, PreviousEnrollmentID, Issue, PreviousIssue, Type, Guidance, FirstDateProvided, PreviousFirstDateProvided) %>%
   unique() %>%
   #bring back in the fields they'll need to see (EntryDate, ExitDate, MoveInDate, ProjectName, OrganizationName)
   left_join(served_in_date_range %>% 
@@ -1403,10 +1405,10 @@ overlaps <- overlap_staging %>%
             by = "PreviousEnrollmentID")
 
 dq_overlaps1 <- overlaps %>%
-  select(!starts_with("Previous"), -EnrollmentID)
+  select(!starts_with("Previous"), -EnrollmentID, -FirstDateProvided)
 
 dq_overlaps2 <- overlaps %>%
-  select(starts_with("Previous"), Type, Guidance, -PreviousEnrollmentID) %>%
+  select(starts_with("Previous"), Type, Guidance, -PreviousEnrollmentID, -PreviousFirstDateProvided) %>%
   rename_all(~str_replace(.,"^Previous",""))
 
 # Invalid Move-in Date ----------------------------------------------------
