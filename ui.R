@@ -731,6 +731,9 @@ dashboardPage(
   )
 )
 
+#language of the document; added as WAVE fix
+attr(ui,"lang") = "en"
+
 # tabItem(
 #   tabName = "utilizationTab",
 #   fluidRow(box(htmlOutput(
