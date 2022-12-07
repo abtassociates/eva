@@ -1,10 +1,11 @@
-
 Project <- Project %>%
   left_join(Organization %>%
               select(OrganizationID, OrganizationName),
             by = "OrganizationID") %>%
-  mutate(ProjectType = if_else(
-    ProjectType == 1 & TrackingMethod == 3, 0, ProjectType
+  mutate(ProjectType = case_when(
+    ProjectType == 1 & TrackingMethod == 3 ~ 0,
+    ProjectType == 1 ~ 1,
+    TRUE ~ ProjectType
   ))
 
 small_project <- Project %>% select(ProjectID, ProjectType, ProjectName)
@@ -16,7 +17,7 @@ Enrollment <- Enrollment %>%
               select(EnrollmentID, Destination, ExitDate, OtherDestination),
             by = "EnrollmentID") %>% 
   left_join(small_project, by = "ProjectID") %>%
-  mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_Date))
+  mutate(ExitAdjust = coalesce(ExitDate, as.Date(meta_HUDCSV_Export_Date)))
 
 # Adding ProjectType to Enrollment bc we need EntryAdjust & MoveInAdjust
 
@@ -96,6 +97,12 @@ Enrollment <- Enrollment %>%
   left_join(small_location, by = "EnrollmentID")
 
 rm(small_project, HHEntry, HHMoveIn, small_client, small_location)
+
+
+# Only BedNight Services --------------------------------------------------
+
+Services <- Services %>%
+  filter(RecordType == 200 & !is.na(DateProvided))
 
 # HUD CSV Specs -----------------------------------------------------------
 

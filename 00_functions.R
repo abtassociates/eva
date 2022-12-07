@@ -54,7 +54,8 @@ living_situation <- function(ReferenceNo) {
 
 project_type <- function(ReferenceNo){
   case_when(
-    ReferenceNo == 1 ~ "Emergency Shelter",
+    ReferenceNo == 0 ~ "Emergency Shelter (NbN)",
+    ReferenceNo == 1 ~ "Emergency Shelter (E/E)",
     ReferenceNo == 2 ~ "Transitional Housing",
     ReferenceNo == 3 ~ "Permanent Supportive Housing",
     ReferenceNo == 4 ~ "Street Outreach",
@@ -144,19 +145,44 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
     select(all_of(select_list))
   
   warnings <- dqData %>%
-    filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
+    filter(Type == "Warning") %>% 
     select(all_of(select_list))
   
-  summary <- #rbind(
-    dqData %>% group_by(ProjectName, Type, Issue) %>%
-    summarise(Count = n()) %>%
-    ungroup()#,
-  #   dqOverlaps %>% select("ProjectName" = "ProjectName.x", Type, Issue, PersonalID)
-  # ) %>%
+  dqOverlapDetails <- dqOverlaps %>%
+    select(-c(Issue, Type, Guidance, PreviousIssue)) %>%
+    relocate(OrganizationName,
+            ProjectID,
+            ProjectName,
+            ProjectType,
+            EnrollmentID,
+            HouseholdID,
+            PersonalID,
+            EntryDate,
+            FirstDateProvided,
+            "MoveInDate" = MoveInDateAdjust,
+            ExitDate,
+            PreviousOrganizationName,
+            PreviousProjectID,
+            PreviousProjectName,
+            PreviousProjectType,
+            PreviousEnrollmentID,
+            PreviousHouseholdID,
+            PreviousPersonalID,
+            PreviousEntryDate,
+            PreviousFirstDateProvided,
+            "PreviousMoveInDate" = PreviousMoveInDateAdjust,
+            PreviousExitDate
+    )
+  
+  summary <- rbind(
+      dqData %>% select(Type, Issue, PersonalID),
+      dqOverlaps %>% select(Type, Issue, PersonalID)
+    ) %>%
     # group_by(ProjectName, Type, Issue) %>%
-    # summarise(Clients = n()) %>%
-    # select(Type, Clients, ProjectName, Issue) %>%
-    # arrange(Type, desc(Clients))
+    group_by(Type, Issue) %>%
+    summarise(Clients = n()) %>%
+    select(Type, Clients, Issue) %>%
+    arrange(Type, desc(Clients))
   
   guidance <- dqData %>%
     select(Type, Issue, Guidance) %>%
@@ -174,8 +200,8 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
     guidance = guidance,
     high_priority = high_priority,
     errors = errors,
-    warnings = warnings#,
-    #overlaps = dqOverlaps
+    warnings = warnings,
+    overlaps = dqOverlapDetails
   )
   
   names(exportDFList) <- c(
@@ -184,8 +210,8 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
     "Guidance",
     "High Priority",
     "Errors", 
-    "Warnings"#, 
-    #"Overlaps"
+    "Warnings",
+    "Overlap Details"
   )
   
   exportDFList <- exportDFList[sapply(exportDFList, 
