@@ -1286,7 +1286,8 @@ exit_after_OpEnd <- served_in_date_range %>%
 #                 "PreviousOrganizationName"#
 # )
 
-overlap_staging <- served_in_date_range %>%
+overlap_staging <- served_in_date_range %>% 
+  select(!!vars_prep, ExitAdjust, EnrollmentID) %>%
   filter(EntryDate != ExitAdjust &
            ((
              ProjectType %in% c(ph_project_types) &
@@ -1315,8 +1316,7 @@ overlap_staging <- served_in_date_range %>%
                             DateProvided, 
                             as.Date(ExitAdjust))
   ) %>% # 40 secs
-  select(PersonalID, EnrollmentID, ProjectID, HouseholdID, MoveInDateAdjust, ExitDate, EntryDate,
-         ProjectType, EnrollmentStart, EnrollmentEnd, ProjectName, OrganizationName)
+  select(PersonalID, EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd)
 
 overlaps <- overlap_staging %>%
   # sort enrollments for each person
@@ -1329,17 +1329,9 @@ overlaps <- overlap_staging %>%
   filter(!is.na(PreviousEnrollmentID)) %>% # 48 secs
   left_join(overlap_staging %>%
               select("PreviousEnrollmentID" = EnrollmentID,
-                     "PreviousProjectID" = ProjectID,
-                     "PreviousHouseholdID" = HouseholdID,
-                     "PreviousMoveInDateAdjust" = MoveInDateAdjust,
                      "PreviousProjectType" = ProjectType,
                      "PreviousEnrollmentStart" = EnrollmentStart,
-                     "PreviousEnrollmentEnd" = EnrollmentEnd,
-                     "PreviousEntryDate" = EntryDate,
-                     "PreviousExitDate" = ExitDate,
-                     "PreviousMoveInDateAdjust" = MoveInDateAdjust,
-                     "PreviousProjectName" = ProjectName,
-                     "PreviousOrganizationName" = OrganizationName),
+                     "PreviousEnrollmentEnd" = EnrollmentEnd),
             by = c("PreviousEnrollmentID")) %>%
   filter(PreviousEnrollmentID != EnrollmentID &
            !(
@@ -1359,7 +1351,6 @@ overlaps <- overlap_staging %>%
   group_by(PersonalID) %>%
   mutate(NumOverlaps = sum(IsOverlap, na.rm = TRUE)) %>%
   ungroup() %>%
-  select(-EnrollmentPeriod, -PreviousEnrollmentPeriod, -IsOverlap) %>%
   # keep overlaps
   filter(((ProjectType == es_nbn_project_type |
              PreviousProjectType == es_nbn_project_type) & 
@@ -1394,13 +1385,23 @@ overlaps <- overlap_staging %>%
                   project_type(ProjectType), 
                   "project")
   ) %>%
-  unique()
+  select(EnrollmentID, PreviousEnrollmentID, Issue, PreviousIssue, Type, Guidance) %>%
+  unique() %>%
+  #bring back in the fields they'll need to see (EntryDate, ExitDate, MoveInDate, ProjectName, OrganizationName)
+  left_join(served_in_date_range %>% 
+            select(!!vars_prep, EnrollmentID),
+            by = "EnrollmentID") %>%
+
+  left_join(served_in_date_range %>% 
+            select(!!vars_prep, EnrollmentID) %>%
+            setNames(paste0('Previous', names(.))),
+            by = "PreviousEnrollmentID")
 
 dq_overlaps1 <- overlaps %>%
-  select(!starts_with("Previous"), -NumOverlaps, -EnrollmentID, -EnrollmentStart, -EnrollmentEnd)
+  select(!starts_with("Previous"), -EnrollmentID)
 
 dq_overlaps2 <- overlaps %>%
-  select(starts_with("Previous"), PersonalID, Type, Guidance, -PreviousEnrollmentID, -PreviousEnrollmentStart, -PreviousEnrollmentEnd) %>%
+  select(starts_with("Previous"), Type, Guidance, -PreviousEnrollmentID) %>%
   rename_all(~str_replace(.,"^Previous",""))
 
 # Invalid Move-in Date ----------------------------------------------------
