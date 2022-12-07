@@ -1,7 +1,7 @@
 
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "[App Name Pending]"),
+  dashboardHeader(title = "Eva"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -44,11 +44,11 @@ dashboardPage(
         tabName = "tabHome",
         fluidRow(
           box(
-            title = "Welcome to [App Name Pending]!",
+            title = "Welcome to Eva!",
             width = 12,
             HTML(
-              "<div>[App Name Pending] is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
-              [App Name Pending] is designed to help you assess the accuracy and completeness of the data within your HMIS. 
+              "<div>Eva is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
+              Eva is designed to help you assess the accuracy and completeness of the data within your HMIS. 
               In future iterations it will also assist communities in analyzing your HMIS performance data, 
               including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
               <br/>
@@ -86,7 +86,7 @@ dashboardPage(
                  date your file was downloaded from your HMIS.</p>
                  
                  <h4>Edit CoC-specific Settings</h4>
-                 <p>To make [App Name Pending] reporting more useful at the local level,
+                 <p>To make Eva reporting more useful at the local level,
                  you will find the CoC-specific settings that HMIS Leads can edit
                  to better analyse their data in a way that is meaningful to the
                  CoC. To edit these, click on the \'+\'. If you do not edit them,
@@ -101,8 +101,10 @@ dashboardPage(
                  that will prevent the app from functioning, the app will reject
                  your file and not process any further. All issues will display
                  in the panel and you can download the details, even if the file
-                 was rejected. Users should contact their vendor to resolve issues 
-                 identified in the HUD CSV Export File Structure Analysis.</p>
+                 was rejected. Please ontact your vendor if there's a High
+                 Priority issue found or if your file shows an Error or Warning
+                 that you feel needs to be corrected. Not all issues found in
+                 this analysis will need immediate attention.</p>
                  
                  <h4>Citations</h4>
                  <p>This panel will credit the people who wrote the open-source code
@@ -118,12 +120,7 @@ dashboardPage(
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
-            conditionalPanel(
-              condition = "valid_file() == 0",
-              uiOutput("headerFileInfo")),
-            conditionalPanel(
-              condition = "valid_file() == 1",
-              uiOutput("headerNoFileYet")),
+            uiOutput("headerFileInfo"),
             width = 12
           ), 
           box(
@@ -255,9 +252,9 @@ dashboardPage(
             DT::dataTableOutput("integrityChecker"),
             p(),
             HTML("<p>Please contact your vendor if there's a High Priority issue
-                 found or if your file shows an Error that you feel needs to be
-                 corrected. Not all issues found in this analysis will need
-                 immediate attention.</p>"),
+                 found or if your file shows an Error or Warning that you feel
+                 needs to be corrected. Not all issues found in this analysis
+                 will need immediate attention.</p>"),
             p(),
             uiOutput('downloadIntegrityBtn')
           ),
@@ -289,10 +286,11 @@ dashboardPage(
              <a href = 'https://www.cohhio.org' target= '_blank' rel='noopener noreferrer'>COHHIO</a>, 
              Coalition on Homelessness and Housing in Ohio.
              
-             <p> Special thanks to San Diego City and County CoC (CA-601) and Minneapolis/Hennepin County CoC
-             (MN-500) for providing sample datasets to support programming.
-
-                 ")
+             <p> Special thanks to 
+             <a href=\"http://www.squarepegdata.com/\" target= '_blank' rel='noopener noreferrer'>
+             Square Peg Data</a>,
+             San Diego City and County CoC (CA-601) and Minneapolis/Hennepin County CoC
+             (MN-500) for providing sample datasets to support programming.")
       )
         )
       ), 
@@ -539,39 +537,36 @@ dashboardPage(
         )), 
         
         fluidRow(
-          uiOutput("dq_hp_errors_null")),
-        
-        fluidRow(
-          column(6,
-                 uiOutput("orgDQHighPriorityErrorTypes_ui"),
-                 br()),
-          column(6,
-                 uiOutput("orgDQHighPriorityErrors_ui"))
-          
+          tabBox(
+            side = "right",
+            selected = "Most Common Errors",
+            title = "High Priority Errors",
+            tabPanel("Top Projects", uiOutput("orgDQHighPriorityErrors_ui")),
+            tabPanel("Most Common Errors", uiOutput("orgDQHighPriorityErrorTypes_ui")),
+            width = 12
+          )
         ),
-        br(),
         fluidRow(
-          uiOutput("dq_general_errors_null")),
-        
-        fluidRow(
-          column(6,
-                 uiOutput("orgDQErrorTypes_ui"),
-                 br()),
-          column(6,
-                 uiOutput("orgDQErrors_ui")) 
+          tabBox(
+            side = "right",
+            selected = "Most Common Errors",
+            title = "General Errors",
+            tabPanel("Top Projects", uiOutput("orgDQErrors_ui")),
+            tabPanel("Most Common Errors", uiOutput("orgDQErrorTypes_ui")),
+            width =12
+          )
         ),
-        br(),
         fluidRow(
-          uiOutput("dq_warnings_null")),
-        
-        fluidRow(
-          column(6,
-                 uiOutput("orgDQWarningTypes_ui"),
-                 br()),
-          column(6,
-                 uiOutput("orgDQWarnings_ui"))
+          tabBox(
+            side = "right",
+            selected = "Most Common Warnings",
+            title = "Warnings",
+            tabPanel("Top Projects", uiOutput("orgDQWarnings_ui")),
+            tabPanel("Most Common Warnings", uiOutput("orgDQWarningTypes_ui")),
+            width = 12
+          )
         ),
-        br(),
+       
         fluidRow(
           box(
             id = "DQSummaryOrganization",
@@ -702,51 +697,33 @@ dashboardPage(
         )), 
 
         fluidRow(
-          box(
-            plotOutput("systemDQHighPriorityErrorTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common High Priority Errors"
-          ),
-          box(
-            plotOutput("systemDQHighPriorityErrors"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most High Priority Errors"
+          tabBox(
+            side = "right",
+            selected = "Most Common Errors",
+            title = "High Priority Errors",
+            tabPanel("Top Organizations", uiOutput("systemDQHighPriorityErrors_ui")),
+            tabPanel("Most Common Errors", uiOutput("systemDQHighPriorityErrorTypes_ui")),
+            width = 12
           )
         ),
         fluidRow(
-          box(
-            plotOutput("systemDQErrorTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common General Errors"
-          ),
-          box(
-            plotOutput("systemDQErrors"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most General Errors"
+          tabBox(
+            side = "right",
+            selected = "Most Common Errors",
+            title = "General Errors",
+            tabPanel("Top Organizations", uiOutput("systemDQErrors_ui")),
+            tabPanel("Most Common Errors", uiOutput("systemDQErrorTypes_ui")),
+            width =12
           )
         ),
         fluidRow(
-          box(
-            plotOutput("systemDQWarningTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common Warnings"
-          ),
-          box(
-            plotOutput("systemDQWarnings"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most Warnings"
+          tabBox(
+            side = "right",
+            selected = "Most Common Warnings",
+            title = "Warnings",
+            tabPanel("Top Organizations", uiOutput("systemDQWarnings_ui")),
+            tabPanel("Most Common Warnings", uiOutput("systemDQWarningTypes_ui")),
+            width = 12
           )
         )
       )

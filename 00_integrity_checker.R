@@ -94,7 +94,7 @@ check_column_names <- function(file) {
               "file should be spelled like",
               CorrectColumns), 
       Type = if_else(CorrectColumns %in% c(high_priority_columns), 
-                     "High Priority", "Error"), 
+                     "High Priority", "Warning"), 
       Issue = "Incorrect Column Name") %>%
     select(Issue, Type, Guidance)
   

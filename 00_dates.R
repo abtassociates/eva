@@ -11,11 +11,11 @@ library(here)
 hc_prior_living_situation_required <- ymd("20161001")
 
 # Dates from Metadata -----------------------------------------------------
-meta_HUDCSV_Export_Start <- Export %>% pull(ExportStartDate)
+meta_HUDCSV_Export_Start <<- Export %>% pull(ExportStartDate)
 
-meta_HUDCSV_Export_End <- Export %>% pull(ExportEndDate)
+meta_HUDCSV_Export_End <<- Export %>% pull(ExportEndDate)
 
-meta_HUDCSV_Export_Date <- Export %>% pull(ExportDate)
+meta_HUDCSV_Export_Date <<- Export %>% pull(ExportDate)
 
 # Calculated Dates --------------------------------------------------------
 calc_data_goes_back_to <- Exit %>%

@@ -22,7 +22,7 @@ Enrollment <- Enrollment %>%
 # Adding ProjectType to Enrollment bc we need EntryAdjust & MoveInAdjust
 
 # getting HH information
-# only doing this for RRH and PSHs since Move In Date doesn't matter for ES, etc.
+# only doing this for PH projects since Move In Date doesn't matter for ES, etc.
 
 HHMoveIn <- Enrollment %>%
   filter(ProjectType %in% c(3, 9, 10, 13)) %>%

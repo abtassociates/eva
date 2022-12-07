@@ -25,7 +25,6 @@ ssvf_funded <- Funder %>%
 
 # Projects to Check -------------------------------------------------------
 projects_current_hmis <- Project %>%
-  left_join(Inventory, by = "ProjectID") %>%
   filter(HMISParticipatingProject == 1 &
            operating_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
   select(
@@ -42,7 +41,8 @@ projects_current_hmis <- Project %>%
 served_in_date_range <- Enrollment %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
-  left_join(Project %>% select(ProjectID, TrackingMethod, OrganizationName), by = "ProjectID") %>%
+  left_join(Project %>% select(ProjectID, TrackingMethod, OrganizationName),
+            by = "ProjectID") %>%
   select(
     PersonalID,
     FirstName,
@@ -162,9 +162,9 @@ dq_dob <- served_in_date_range %>%
     ),
     Guidance = case_when(
       Issue == "Incorrect DOB or Entry Date" ~
-        "The HMIS data is indicating the client entered the project PRIOR to
+        str_squish("The HMIS data is indicating the client entered the project PRIOR to
       being born. Correct either the Date of Birth or the Project Start Date, 
-      whichever is incorrect.",
+      whichever is incorrect."),
       Issue %in% c("Missing DOB", "Missing DOB Data Quality") ~
         guidance_missing_at_entry,
       Issue == "Don't Know/Refused/Data Not Collected DOB" ~
@@ -211,10 +211,12 @@ dq_ssn <- served_in_date_range %>%
     Guidance = case_when(
       Issue == "Don't Know/Refused SSN" ~ guidance_dkr_data,
       Issue == "Missing SSN" ~ guidance_missing_pii,
-      Issue == "Invalid SSN" ~ "The Social Security Number does not conform with 
-      standards set by the Social Security Administration. This includes rules 
-      like every SSN is exactly 9 digits and cannot have certain number patterns. 
-      Navigate to the client's record in HMIS to correct the data."
+      Issue == "Invalid SSN" ~ 
+        str_squish("The Social Security Number does not conform with standards
+                   set by the Social Security Administration. This includes rules
+                   like every SSN is exactly 9 digits and cannot have certain
+                   number patterns. Navigate to the client's record in HMIS to
+                   correct the data.")
     )
   ) %>%
   filter(!is.na(Issue)) %>%
@@ -305,8 +307,8 @@ missing_client_location <- served_in_date_range %>%
   mutate(Type = "High Priority",
          Issue = "Missing Client Location",
          Guidance = 
-           "If Client Location is missing, this household will be excluded from
-         all HUD reporting.") %>%
+           str_squish("If Client Location is missing, this household will be
+                      excluded from HUD reporting.")) %>%
   select(all_of(vars_we_want))
 
 # Household Issues --------------------------------------------------------
@@ -322,10 +324,9 @@ hh_children_only <- served_in_date_range %>%
   distinct(HouseholdID, maxAge, .keep_all = TRUE) %>%
   mutate(Issue = "Oldest Household Member Under 12",
          Type = "High Priority",
-         Guidance = "Unless your project serves youth younger than 12 
-         exclusively, every household should have at least one adult in it. If 
-         you are not sure how to correct this, please contact the HMIS team for 
-         help.") %>%
+         Guidance = str_squish("It is expected that at least one member of any
+         given household will be over the age of 12. If you are not sure how to
+         correct this, please contact the HMIS team for help.")) %>%
   select(all_of(vars_we_want))
 
 hh_no_hoh <- served_in_date_range %>%
@@ -340,12 +341,13 @@ hh_no_hoh <- served_in_date_range %>%
   mutate(
     Issue = "No Head of Household",
     Type = "High Priority",
-    Guidance = "Please be sure all members of the household are included in the 
+    Guidance = str_squish("Please be sure all members of the household are
+                          included in the 
       program stay, and that each household member's birthdate is correct. 
       If those things are both true, or the client is a single, ensure that
       each household member has \"Relationship to Head of Household\" answered 
       at Project Start and that one of them says Self (head of household).
-      Singles are always Self (head of household)."
+      Singles are always Self (head of household).")
   ) %>%
   select(all_of(vars_we_want))
 
@@ -359,9 +361,9 @@ hh_too_many_hohs <- served_in_date_range %>%
   left_join(served_in_date_range, by = c("PersonalID", "HouseholdID")) %>%
   mutate(Issue = "Too Many Heads of Household",
          Type = "High Priority",
-         Guidance = "Check the assessment at Project Start to be sure each 
+         Guidance = str_squish("Check the assessment at Project Start to be sure each 
          household member has \"Relationship to Head of Household\" answered 
-         and that only one of them says \"Self (head of household)\".") %>%
+         and that only one of them says \"Self (head of household)\".")) %>%
   select(all_of(vars_we_want))
 
 hh_missing_rel_to_hoh <- served_in_date_range %>%
@@ -369,9 +371,9 @@ hh_missing_rel_to_hoh <- served_in_date_range %>%
   anti_join(hh_no_hoh["HouseholdID"], by = "HouseholdID") %>%
   mutate(Issue = "Missing Relationship to Head of Household",
          Type = "High Priority",
-         Guidance = "Check the assessment at Project Start to be sure each 
+         Guidance = str_squish("Check the assessment at Project Start to be sure each 
          household member has \"Relationship to Head of Household\" answered 
-         and that only one of them says \"Self (head of household)\".") %>%
+         and that only one of them says \"Self (head of household)\".")) %>%
   select(all_of(vars_we_want))
 
 hh_issues <- rbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
@@ -418,7 +420,7 @@ missing_previous_street_ESSH <- served_in_date_range %>%
            is.na(PreviousStreetESSH) &
            LOSUnderThreshold == 1
   ) %>%
-  mutate(Issue = "Missing Previously From Street, ES, or SH (Length of Time Homeless questions)",
+  mutate(Issue = "Missing Previously Unsheltered, ES, SH",
          Type = "Error",
          Guidance = guidance_missing_at_entry) %>%
   select(all_of(vars_we_want))
@@ -605,11 +607,11 @@ missing_living_situation <- served_in_date_range %>%
   ) %>%
   mutate(Issue = "Incomplete Living Situation Data", 
          Type = "Error",
-         Guidance = "When responding to the Prior Living Situation questions in 
+         Guidance = str_squish("When responding to the Prior Living Situation questions in 
          your assessment at Project Start, users must answer questions about the 
          clients' situation prior to the \"Type of Residnce\" question that are 
          important to help determine that client's Chronicity. Please answer these 
-         questions to the best of your knowledge.") %>%
+         questions to the best of your knowledge.")) %>%
   select(all_of(vars_we_want))
 
 dkr_living_situation <- served_in_date_range %>%
@@ -709,7 +711,7 @@ missing_disabilities <- served_in_date_range %>%
 # 
 # rm(smallDisabilities)
 
-# Extremely Long Stayers --------------------------------------------------
+# Long Stayers ------------------------------------------------------------
 
 th_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
@@ -786,7 +788,7 @@ Top2_movein <- subset(missed_movein_stayers,
     )
   )
 
-extremely_long_stayers <- rbind(Top1_PSH,
+long_stayers <- rbind(Top1_PSH,
                                 Top2_ES,
                                 Top2_RRH,
                                 Top2_TH,
@@ -795,20 +797,22 @@ extremely_long_stayers <- rbind(Top1_PSH,
   mutate(
     Issue = "Possible Missed Exit Date",
     Type = "Warning",
-    Guidance = paste("This enrollment is in the top",
-                     case_when(ProjectType %in% c(3, 9, 10) ~ "1%",
-                               TRUE ~ "2%"),
-                     "of all other projects of its type in your HMIS system for
-                     how many days it has been active. Please be sure this
-                     household is still actively enrolled in this project and if
-                     not, record the date they exited your project as the Exit
-                     Date. If they are actively enrolled, do not change the data.")
+    Guidance = 
+      str_squish(
+        paste("This enrollment is in the top",
+              case_when(ProjectType %in% c(3, 9, 10) ~ "1%",
+                        TRUE ~ "2%"),
+              "of all other projects of its type in your HMIS system for how many
+              days it has been active. Please be sure this household is still
+              actively enrolled in this project and if not, record the date they
+              exited your project as the Exit Date. If they are actively enrolled,
+              do not change the data."))
   ) %>% 
   select(all_of(vars_we_want))
 
-extremely_long_stayers <-
+long_stayers <-
   rbind(
-    extremely_long_stayers,
+    long_stayers,
     Top2_movein
   )
 
@@ -830,9 +834,9 @@ calculate_long_stayers <- function(input, projecttype){
       Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate)),
       Issue = "Days Enrollment Active Exceeds CoC-specific Settings",
       Type = "Warning",
-      Guidance = "You have at least one active enrollment that has been
+      Guidance = str_squish("You have at least one active enrollment that has been
          active for longer than the days set for this Project Type in your
-         CoC-specific Settings on the Home tab."
+         CoC-specific Settings on the Home tab.")
     ) %>%
     filter(is.na(ExitDate) &
              ProjectType == projecttype &
@@ -1075,9 +1079,10 @@ duplicate_ees <-
   mutate(
     Issue = "Duplicate Entries",
     Type = "High Priority",
-    Guidance = "A client cannot have two enrollments with the same entry date
+    Guidance = 
+      str_squish("A client cannot have two enrollments with the same entry date
     into the same project. These are duplicate enrollment records. Please 
-    consult your HMIS System Administrator on how to correct these duplicates."
+    consult your HMIS System Administrator on how to correct these duplicates.")
   ) %>%
   select(all_of(vars_we_want))
 
@@ -1095,10 +1100,10 @@ future_ees <- served_in_date_range %>%
   mutate(
     Issue = "Future Entry Date",
     Type = "Warning",
-    Guidance = "Users should not be entering a client into a project on a 
+    Guidance = str_squish("Users should not be entering a client into a project on a 
     date in the future. If the Project Start Date is correct, there is no action 
     needed, but going forward, please be sure that your data entry workflow 
-    is correct according to your project type."
+    is correct according to your project type.")
   ) %>%
   select(all_of(vars_we_want))
 
@@ -1107,10 +1112,10 @@ future_exits <- served_in_date_range %>%
   mutate(
     Issue = "Future Exit Date",
     Type = "Error",
-    Guidance = "This client's Exit Date is a date in the future. Please 
+    Guidance = str_squish("This client's Exit Date is a date in the future. Please 
   enter the exact date the client left your program. If this client has not
   yet exited, delete the Exit and then enter the Exit Date once the client
-  is no longer in your program."
+  is no longer in your program.")
   ) %>%
   select(all_of(vars_we_want))
     
@@ -1415,8 +1420,8 @@ invalid_movein_date <- served_in_date_range %>%
         "Invalid Move-In Date"
     ),
     Type = "Error",
-    Guidance = "This move-in date does not fall between the Entry Date 
-    and the Exit Date or this move-in date is after the date of the export.") %>%
+    Guidance = str_squish("This move-in date does not fall between the Entry Date 
+    and the Exit Date or this move-in date is after the date of the export.")) %>%
   filter(Issue == "Invalid Move-In Date") %>%
   select(all_of(vars_we_want))
 
@@ -2052,7 +2057,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
       entry_precedes_OpStart,
       exit_after_OpEnd,
       exit_before_start,
-      extremely_long_stayers,
+      long_stayers,
       future_ees,
       future_exits,
       hh_issues,
@@ -2110,15 +2115,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    # Top orgs with Errors - High Priority
    dq_data_high_priority_errors_org_level_plot <- dq_w_organization_names %>%
-     filter(
-       Type %in% c("High Priority") &
-         !Issue %in% c(
-           "No Head of Household",
-           "Missing Relationship to Head of Household",
-           "Too Many Heads of Household",
-           "Children Only Household"
-         )
-     ) %>%
+     filter(Type == "High Priority") %>% 
      select(PersonalID, OrganizationID, OrganizationName) %>%
      unique() %>%
      group_by(OrganizationName, OrganizationID) %>%
@@ -2130,7 +2127,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      with(dq_data_high_priority_errors_org_level_plot,
           paste0(OrganizationName))
    
-   dq_plot_organizations_high_priority_errors <-
+   dq_plot_organizations_high_priority_errors <- 
      ggplot(
        head(dq_data_high_priority_errors_org_level_plot, 10L),
        aes(
@@ -2139,14 +2136,18 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
        )
      ) +
      geom_col(show.legend = FALSE,
-              color = "#063a89",
-              fill = "#063a89") +
+              color = "#DD614A",
+              fill = "#DD614A") +
      coord_flip() +
      labs(x = "",
-          y = "Number of Clients with High Priority Errors") +
+          y = "Number of Clients") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
+           axis.title = element_text(size = 12),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2156,7 +2157,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Most common high priority errors system-wide
    
    dq_data_high_priority_error_types_org_level <- dq_w_organization_names %>%
-     filter(Type %in% c("High Priority")) %>%
+     filter(Type == "High Priority") %>%
      group_by(Issue) %>%
      summarise(Errors = n()) %>%
      ungroup() %>%
@@ -2169,13 +2170,17 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               y = Errors
             )) +
      geom_col(show.legend = FALSE,
-              color = "#063A89",
-              fill = "#063a89") +
+              color = "#DD614A",
+              fill = "#DD614A") +
      coord_flip() +
      labs(x = "",
-          y = "Number of Clients with High Piority Errors") +
+          y = "Number of Clients") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text = element_text(size = 12),
+           axis.title = element_text(size = 12),
            axis.text.x = element_blank(),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
@@ -2186,15 +2191,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Top orgs with Errors - General
    
    dq_data_errors_org_level_plot <- dq_w_organization_names %>%
-     filter(
-       Type %in% c("Error") &
-         !Issue %in% c(
-           "No Head of Household",
-           "Missing Relationship to Head of Household",
-           "Too Many Heads of Household",
-           "Children Only Household"
-         )
-     ) %>%
+     filter(Type == "Error") %>% 
      select(PersonalID, OrganizationID, OrganizationName) %>%
      unique() %>%
      group_by(OrganizationName, OrganizationID) %>%
@@ -2215,14 +2212,18 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
        )
      ) +
      geom_col(show.legend = FALSE,
-              color = "#063a89",
-              fill = "#063a89") +
+              color = "#16697A",
+              fill = "#16697A") +
      coord_flip() +
      labs(x = "",
-          y = "Number of Clients with General Errors") +
+          y = "Number of Clients") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
+           axis.title = element_text(size = 12),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2232,7 +2233,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Most common general errors system-wide
    
    dq_data_error_types_org_level <- dq_w_organization_names %>%
-     filter(Type %in% c("Error")) %>%
+     filter(Type == "Error") %>%
      group_by(Issue) %>%
      summarise(Errors = n()) %>%
      ungroup() %>%
@@ -2245,14 +2246,18 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               y = Errors
             )) +
      geom_col(show.legend = FALSE,
-              color = "#063A89",
-              fill = "#063a89") +
+              color = "#16697A",
+              fill = "#16697A") +
      coord_flip() +
      labs(x = "",
-          y = "Number of Clients with General Errors") +
+          y = "Number of Clients") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
+           axis.title = element_text(size = 12),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2279,14 +2284,18 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               y = Warnings
             )) +
      geom_col(show.legend = FALSE,
-              color = "#063a89",
-              fill = "#063A89") +
+              color = "#82C0CC",
+              fill = "#82C0CC") +
      coord_flip() +
      labs(x = "",
-          y = "Number of Clients with Warnings") +
+          y = "Number of Clients") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
+           axis.title = element_text(size = 12),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
@@ -2309,14 +2318,18 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               y = Warnings
             )) +
      geom_col(show.legend = FALSE,
-              color = "#063A89",
-              fill = "#063A89") +
+              color = "#82C0CC",
+              fill = "#82C0CC") +
      coord_flip() +
      labs(x = "",
-          y = "Number of Clients with Warnings") +
+          y = "Number of Clients") +
+     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
      theme_classic() +
      theme(axis.line = element_line(linetype = "blank"),
+           axis.text = element_text(size = 12),
            axis.text.x = element_blank(),
+           axis.title = element_text(size = 12),
            axis.ticks = element_line(linetype = "blank"),
            plot.background = element_blank(),
            panel.grid.minor = element_blank(),
