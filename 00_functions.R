@@ -176,8 +176,8 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
     guidance = guidance,
     high_priority = high_priority,
     errors = errors,
-    warnings = warnings#,
-    #overlaps = dqOverlaps
+    warnings = warnings,
+    overlaps = dqOverlaps
   )
   
   names(exportDFList) <- c(

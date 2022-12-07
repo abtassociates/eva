@@ -552,8 +552,7 @@ function(input, output, session) {
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | PreviousOrganizationName %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData#, orgDQoverlaps
-                          )
+      getDQReportDataList(orgDQData, orgDQoverlaps)
     })
     
     fullDQReportDataList <- reactive({
