@@ -1315,8 +1315,8 @@ overlap_staging <- served_in_date_range %>%
                             DateProvided, 
                             as.Date(ExitAdjust))
   ) %>% # 40 secs
-  select(PersonalID, EnrollmentID, ProjectID, HouseholdID, MoveInDateAdjust,
-         ExitAdjust, ProjectType, EnrollmentStart, EnrollmentEnd)
+  select(PersonalID, EnrollmentID, ProjectID, HouseholdID, MoveInDateAdjust, ExitDate, EntryDate,
+         ProjectType, EnrollmentStart, EnrollmentEnd, ProjectName, OrganizationName)
 
 overlaps <- overlap_staging %>%
   # sort enrollments for each person
@@ -1334,7 +1334,12 @@ overlaps <- overlap_staging %>%
                      "PreviousMoveInDateAdjust" = MoveInDateAdjust,
                      "PreviousProjectType" = ProjectType,
                      "PreviousEnrollmentStart" = EnrollmentStart,
-                     "PreviousEnrollmentEnd" = EnrollmentEnd),
+                     "PreviousEnrollmentEnd" = EnrollmentEnd,
+                     "PreviousEntryDate" = EntryDate,
+                     "PreviousExitDate" = ExitDate,
+                     "PreviousMoveInDateAdjust" = MoveInDateAdjust,
+                     "PreviousProjectName" = ProjectName,
+                     "PreviousOrganizationName" = OrganizationName),
             by = c("PreviousEnrollmentID")) %>%
   filter(PreviousEnrollmentID != EnrollmentID &
            !(
