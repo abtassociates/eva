@@ -223,6 +223,9 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     filter(Type == "Warning") %>% 
     select(all_of(select_list))
   
+  dqOverlaps <- dqOverlaps %>%
+    select(-EntryDate, -ExitDate, -MoveInDateAdjust, -PreviousEntryDate, -PreviousExitDate, -PreviousMoveInDateAdjust)
+  
   summary <- rbind(
       dqData %>% select(Type, Issue, PersonalID),
       dqOverlaps %>% select(Type, Issue, PersonalID)
