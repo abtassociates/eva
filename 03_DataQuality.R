@@ -823,32 +823,6 @@ rm(list = ls(pattern = "Top*"),
    rrh_stayers,
    hp_stayers)
 
-
-# Non-Residential Long Stayers --------------------------------------------
-
-calculate_long_stayers <- function(input, projecttype){
-
-  served_in_date_range %>%
-    select(all_of(vars_prep), ProjectID) %>%
-    mutate(
-      Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate)),
-      Issue = "Days Enrollment Active Exceeds CoC-specific Settings",
-      Type = "Warning",
-      Guidance = str_squish("You have at least one active enrollment that has been
-         active for longer than the days set for this Project Type in your
-         CoC-specific Settings on the Home tab.")
-    ) %>%
-    filter(is.na(ExitDate) &
-             ProjectType == projecttype &
-             input < Days) %>% 
-    select(all_of(vars_we_want))
-  
-}
-
-# can't do further logic with this because it needs to be reactive
-
-
-
 # Project Exit Before Start --------------
 exit_before_start <- served_in_date_range %>%
   filter(ExitDate < EntryDate & !is_null(ExitDate) & !is_null(EntryDate)) %>% 
@@ -1131,7 +1105,6 @@ missing_income_entry <- served_in_date_range %>%
     IncomeFromAnySource
   ) %>%
   filter(DataCollectionStage == 1 &
-           ProjectName != "Unsheltered Clients - OUTREACH" &
            (AgeAtEntry > 17 |
               is.na(AgeAtEntry)) &
            (IncomeFromAnySource == 99 |
@@ -1537,7 +1510,6 @@ ncb_subs <- ncb_subs %>%
                    "DataCollectionStage"))
 
 ncb_subs <- served_in_date_range %>%
-  filter(ProjectName != "Unsheltered Clients - OUTREACH") %>%
   left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
   select(
     PersonalID,
@@ -1715,7 +1687,6 @@ conflicting_ncbs_entry <- served_in_date_range %>%
 #                        "DataCollectionStage"))
 #     
 #     ncb_subs <- served_in_date_range %>%
-#       filter(ProjectName != "Unsheltered Clients - OUTREACH") %>%
 #       left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
 #       select(
 #         PersonalID,
