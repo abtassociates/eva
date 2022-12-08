@@ -273,7 +273,7 @@ zip_initially_valid <- function () {
 
 is_hashed <- function() {
   # read Export file
-  Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
+  Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
   # read Client file
   Client <- importFile("Client",
                        col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
