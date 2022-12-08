@@ -1325,7 +1325,8 @@ overlaps <- overlap_staging %>%
     EnrollmentPeriod = interval(EnrollmentStart, EnrollmentEnd),
     PreviousEnrollmentPeriod = 
       interval(PreviousEnrollmentStart, PreviousEnrollmentEnd),
-    IsOverlap = int_overlaps(EnrollmentPeriod, PreviousEnrollmentPeriod)
+    IsOverlap = int_overlaps(EnrollmentPeriod, PreviousEnrollmentPeriod) & 
+      EnrollmentStart != PreviousEnrollmentExit
   ) %>%
   filter(IsOverlap == TRUE) %>%
   group_by(PersonalID) %>%
