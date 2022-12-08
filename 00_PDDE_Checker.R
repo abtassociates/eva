@@ -92,24 +92,16 @@ missingCoCInfo <- Project %>%
 missingInventoryRecord <- Project %>%
   left_join(Inventory, by = "ProjectID") %>%
   filter(ProjectType %in% c(project_types_w_beds) &
-           (InventoryStartDate > OperatingEndDate | 
-              InventoryEndDate < OperatingStartDate) & 
-           (InventoryStartDate > meta_HUDCSV_Export_End | 
-              InventoryEndDate < meta_HUDCSV_Export_Start) 
-  ) %>%  
-  group_by(ProjectID, ProjectName, OrganizationName) %>%
-  summarise(InventoryRecordCount = n()) %>%
-  ungroup() %>%
+           is.na(InventoryID)) %>% 
   mutate(
-    Issue = "No Current Inventory Record",
-    Type = "Warning", # revisit: should this be an Error? (No, sometimes a
-    # project can be temporarily closed so it would be ok to have an inventory gap)
-    Guidance = paste(
-      "This residential project has",
-      InventoryRecordCount,
-      "current inventory records."
+    Issue = "No Inventory Records",
+    Type = "Warning",
+    Guidance = str_squish(
+      paste("Project ID", 
+            ProjectID,
+            "has no Inventory records.")
     )
-  ) %>% 
+  )  %>% 
   select(all_of(PDDEcols))
 
 # Inventory Start < Operating Start AND
@@ -123,19 +115,30 @@ inventoryOutsideOperating <- Inventory %>%
          Type = "Warning",
          Guidance = case_when(
            is.na(InventoryEndDate) & !is.na(OperatingEndDate) ~
-            paste("Inventory ID", InventoryID, 
-                  "has no InventoryEndDate, but the project ended on",
-                  OperatingEndDate
+            paste0(
+              "Project ID ", ProjectID,
+              " has an Inventory record (", InventoryID, 
+                  ") that has no InventoryEndDate, but the project ended on ",
+                  OperatingEndDate, "."
                   ),
            InventoryEndDate > OperatingEndDate ~
-             paste("Inventory ID", InventoryID,
-           "ended on", InventoryEndDate, "which is after the project ended on",
-           OperatingEndDate),
+             paste0("Project ID", 
+                    ProjectID,
+                    "has an Inventory record (InventoryID ", 
+                    InventoryID, 
+                    ") that ended on", 
+                    InventoryEndDate, 
+                    "which is after the project's Operating End Date of ",
+                    OperatingEndDate),
            InventoryStartDate < OperatingStartDate ~ 
-             paste("Inventory ID", InventoryID,
-                   "starts on", InventoryStartDate,
-                   "which precedes the project's Operating Start Date of",
-                   OperatingStartDate)
+             paste0(
+               "Project ID ", ProjectID,
+               " has an Inventory record (", InventoryID, 
+               ") that starts on ", 
+               InventoryStartDate,
+               " which precedes the project's Operating Start Date of ",
+               OperatingStartDate,
+               ".")
          ) 
   ) %>%
   select(all_of(PDDEcols))
