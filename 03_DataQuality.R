@@ -1131,7 +1131,6 @@ missing_income_entry <- served_in_date_range %>%
     IncomeFromAnySource
   ) %>%
   filter(DataCollectionStage == 1 &
-           ProjectName != "Unsheltered Clients - OUTREACH" &
            (AgeAtEntry > 17 |
               is.na(AgeAtEntry)) &
            (IncomeFromAnySource == 99 |
@@ -1597,7 +1596,6 @@ ncb_subs <- ncb_subs %>%
                    "DataCollectionStage"))
 
 ncb_subs <- served_in_date_range %>%
-  filter(ProjectName != "Unsheltered Clients - OUTREACH") %>%
   left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
   select(
     PersonalID,
@@ -1775,7 +1773,6 @@ conflicting_ncbs_entry <- served_in_date_range %>%
 #                        "DataCollectionStage"))
 #     
 #     ncb_subs <- served_in_date_range %>%
-#       filter(ProjectName != "Unsheltered Clients - OUTREACH") %>%
 #       left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
 #       select(
 #         PersonalID,
