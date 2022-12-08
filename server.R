@@ -580,49 +580,58 @@ function(input, output, session) {
     #PLOTS
     #Create reactive data sets for org-level tab plots
     dq_hp_top_projects <- reactive({
+      req(valid_file() == 1)
       dq_hp_top_projects_r <- dq_data_high_priority_errors_top_projects_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     dq_hp_error_types_org_level <- reactive({
+      req(valid_file() == 1)
       dq_hp_error_types_org_level_r <- dq_data_high_priority_error_types_org_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     dq_general_errors_top_projects <- reactive({
+      req(valid_file() == 1)
       dq_general_errors_top_projects_r <- dq_data_errors_top_projects_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     dq_general_error_types_org_level <- reactive({
+      req(valid_file() == 1)
       dq_general_error_types_org_level_r <- dq_data_error_types_org_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     dq_warnings_top_projects <- reactive({
+      req(valid_file() == 1)
       dq_warnings_top_projects_r <- dq_data_warnings_top_projects_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     dq_warning_types_org_level <- reactive({
+      req(valid_file() == 1)
       dq_warning_types_org_level_r <- dq_data_warning_types_org_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     #Controls org-level plot heights reactively
     plotHeight_hp_errors <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_hp_error_types_org_level()) == 0)
       {plotHeight_hp_errors = 50}
       else {plotHeight_hp_errors = 400}
     })
     
     plotHeight_general_errors <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_general_error_types_org_level()) == 0)
       {plotHeight_general_errors = 50}
       else {plotHeight_general_errors = 400}
     })
     
     plotHeight_warnings <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_warning_types_org_level()) == 0)
       {plotHeight_warnings = 50}
       else {plotHeight_warnings = 400}
@@ -630,18 +639,21 @@ function(input, output, session) {
     
     #Controls system-level plot heights reactively
     plotHeight_hp_errors_system <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_data_high_priority_error_types_org_level) == 0)
       {plotHeight_hp_errors = 50}
       else {plotHeight_hp_errors = 400}
     })
     
     plotHeight_general_errors_system <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_data_error_types_org_level) == 0)
       {plotHeight_general_errors = 50}
       else {plotHeight_general_errors = 400}
     })
     
     plotHeight_warnings_system <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_data_warning_types_org_level) == 0)
       {plotHeight_warnings = 50}
       else {plotHeight_warnings = 400}
@@ -662,7 +674,7 @@ function(input, output, session) {
     })
     
     output$systemDQHighPriorityErrorTypes <- renderPlot({
-      req(valid_file())
+      req(valid_file() == 1)
       
       validate(need(nrow(dq_data_high_priority_error_types_org_level) > 0, 
                     message = "Great job! No errors to show."))
@@ -727,7 +739,7 @@ function(input, output, session) {
     #Plot of projects within selected org with most high priority errors
     
     output$orgDQHighPriorityErrors <- renderPlot({
-      req(valid_file())
+      req(valid_file() == 1)
       
       validate(need(nrow(dq_hp_top_projects()) > 0, 
                     message = "Great job! No errors to show."))
