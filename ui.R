@@ -37,7 +37,7 @@ dashboardPage(
   dashboardBody(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
-      tags$html(lang="en")
+      tags$html(lang="en") #Added as WAVE fix but not considered ideal
     ),
     useShinyjs(),
     tabItems(
