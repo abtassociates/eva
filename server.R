@@ -488,6 +488,7 @@ function(input, output, session) {
       datatable(guidance, 
                 rownames = FALSE,
                 escape = FALSE,
+                filter = 'top',
                 options = list(dom = 'ltpi'))
     })
     
@@ -768,7 +769,7 @@ function(input, output, session) {
                  fill = "#DD614A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -804,7 +805,7 @@ function(input, output, session) {
                  fill = "#DD614A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -845,7 +846,7 @@ function(input, output, session) {
                  fill = "#16697A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -880,7 +881,7 @@ function(input, output, session) {
                  fill = "#16697A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -919,7 +920,7 @@ function(input, output, session) {
                  fill = "#82C0CC") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -954,7 +955,7 @@ function(input, output, session) {
                  fill = "#82C0CC") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
