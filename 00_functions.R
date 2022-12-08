@@ -260,3 +260,24 @@ is_hashed <- function() {
     max(nchar(Client$FirstName), na.rm = TRUE)
   )
 }
+
+# Non-Residential Long Stayers --------------------------------------------
+
+calculate_long_stayers <- function(input, projecttype){
+  
+  served_in_date_range %>%
+    select(all_of(vars_prep), ProjectID) %>%
+    mutate(
+      Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate)),
+      Issue = "Days Enrollment Active Exceeds CoC-specific Settings",
+      Type = "Warning",
+      Guidance = str_squish("You have at least one active enrollment that has been
+         active for longer than the days set for this Project Type in your
+         CoC-specific Settings on the Home tab.")
+    ) %>%
+    filter(is.na(ExitDate) &
+             ProjectType == projecttype &
+             input < Days) %>% 
+    select(all_of(vars_we_want))
+  
+}
