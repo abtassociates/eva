@@ -255,6 +255,13 @@ zip_initially_valid <- function () {
           are not sure how to run the hashed HMIS CSV Export in your HMIS, please
           contact your HMIS vendor."
   } else {
+    showModal(
+      modalDialog(
+        title = "Upload successful",
+        "Congratulations! You have succesfully uploaded an HMIS CSV Export.",
+        easyClose = TRUE
+      )
+    )
     return(TRUE)
   }
 
