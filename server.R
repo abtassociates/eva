@@ -99,6 +99,14 @@ function(input, output, session) {
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("00_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
+          
+          showModal(
+            modalDialog(
+              title = "Upload successful",
+              "Congratulations! You have succesfully uploaded an HMIS CSV Export.",
+              easyClose = TRUE
+            )
+          )
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
