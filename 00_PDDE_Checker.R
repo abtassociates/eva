@@ -95,11 +95,12 @@ missingInventoryRecord <- Project %>%
            is.na(InventoryID)) %>% 
   mutate(
     Issue = "No Inventory Records",
-    Type = "Warning",
+    Type = "Error",
     Guidance = str_squish(
       paste("Project ID", 
             ProjectID,
-            "has no Inventory records.")
+            "has no Inventory records. Residential project types should have
+            inventory data.")
     )
   )  %>% 
   select(all_of(PDDEcols))
@@ -108,39 +109,69 @@ missingInventoryRecord <- Project %>%
 # Inventory End > Operating End or Null
 inventoryOutsideOperating <- Inventory %>%
   left_join(Project, by = "ProjectID") %>%
-  filter(InventoryStartDate < OperatingStartDate |
-           InventoryEndDate > OperatingEndDate |
-           (is.na(InventoryEndDate) & !is.na(OperatingEndDate))) %>%
-  mutate(Issue = "Inventory outside operating dates",
-         Type = "Warning",
-         Guidance = case_when(
-           is.na(InventoryEndDate) & !is.na(OperatingEndDate) ~
-            paste0(
-              "Project ID ", ProjectID,
-              " has an Inventory record (", InventoryID, 
-                  ") that has no InventoryEndDate, but the project ended on ",
-                  OperatingEndDate, "."
-                  ),
-           InventoryEndDate > OperatingEndDate ~
-             paste0("Project ID", 
-                    ProjectID,
-                    "has an Inventory record (InventoryID ", 
-                    InventoryID, 
-                    ") that ended on", 
-                    InventoryEndDate, 
-                    "which is after the project's Operating End Date of ",
-                    OperatingEndDate),
-           InventoryStartDate < OperatingStartDate ~ 
-             paste0(
-               "Project ID ", ProjectID,
-               " has an Inventory record (", InventoryID, 
-               ") that starts on ", 
-               InventoryStartDate,
-               " which precedes the project's Operating Start Date of ",
-               OperatingStartDate,
-               ".")
-         ) 
-  ) %>%
+  mutate(
+    Issue = case_when(
+      InventoryStartDate < OperatingStartDate ~
+        "Inventory Start Precedes Project Operating Start",
+      coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_Date)) >
+        coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_Date)) ~
+        "Project Operating End precedes Inventory End",
+      TRUE ~ "none"
+    ),
+    Type = if_else(
+      Issue == "Inventory Start Precedes Project Operating Start",
+      "Warning",
+      "Error"
+    ),
+    Guidance = case_when(
+      Issue == "Inventory Start Precedes Project Operating Start" ~
+        str_squish(
+          paste0(
+            "Project ID ",
+            ProjectID,
+            " may have been merged with another project which would explain
+            why the Inventory Start Date of ",
+            InventoryStartDate,
+            " is prior to the project's Operating Start Date of ",
+            OperatingStartDate,
+            ". Please be sure this is the case and that it is not a typo."
+          )
+        ),
+      Issue == "Project Operating End precedes Inventory End" &
+        is.na(InventoryEndDate) &
+        !is.na(OperatingEndDate) ~
+        str_squish(
+          paste0(
+            "Project ID ",
+            ProjectID,
+            " has an Inventory Record (",
+            InventoryID,
+            ") with an open Inventory End Date but the Project Operating End Date
+            is ",
+            OperatingEndDate,
+            ". Please either end-date the Inventory, or if the project is still
+            operating, clear the project's Operating End Date."
+          )
+        ),
+      Issue == "Project Operating End precedes Inventory End" &
+        !is.na(InventoryEndDate) &
+        !is.na(OperatingEndDate) ~
+        str_squish(
+          paste0(
+            "Project ID ", ProjectID, 
+            " ended on ", OperatingEndDate,
+            " but Inventory record ",
+            InventoryID,
+            " ended ",
+            as.numeric(difftime(InventoryEndDate, OperatingEndDate, units = "days")),
+            " days after that on ",
+            InventoryEndDate,
+            ". Please correct whichever date is incorrect."
+          )
+        )
+    )
+  ) %>% 
+  filter(Issue != "none") %>%
   select(all_of(PDDEcols))
 
 # HMIS Participating != 1, OR VSP != 0 but client level data in file
