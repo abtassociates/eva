@@ -149,7 +149,7 @@ dashboardPage(
                 your system
                 <li><b>Transitional Housing:</b> enrollment's Length of Stay in days
                 is in the top 2% of all other TH project enrollments in your system
-                <li><b>Permanent Supportive Housing:</b> 
+                <li><b>Permanent Supportive Housing & Other Permanent Housing:</b> 
                 enrollment's Length of Stay in days is in the top 1% of all PSH project
                 enrollments in your system
                 <li><b>Coordinated Entry:</b> open enrollments with a Length of
