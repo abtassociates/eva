@@ -54,7 +54,8 @@ living_situation <- function(ReferenceNo) {
 
 project_type <- function(ReferenceNo){
   case_when(
-    ReferenceNo == 1 ~ "Emergency Shelter",
+    ReferenceNo == 0 ~ "Emergency Shelter (NbN)",
+    ReferenceNo == 1 ~ "Emergency Shelter (E/E)",
     ReferenceNo == 2 ~ "Transitional Housing",
     ReferenceNo == 3 ~ "Permanent Supportive Housing",
     ReferenceNo == 4 ~ "Street Outreach",
@@ -144,19 +145,44 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
     select(all_of(select_list))
   
   warnings <- dqData %>%
-    filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
+    filter(Type == "Warning") %>% 
     select(all_of(select_list))
   
-  summary <- #rbind(
-    dqData %>% group_by(ProjectName, Type, Issue) %>%
-    summarise(Count = n()) %>%
-    ungroup()#,
-  #   dqOverlaps %>% select("ProjectName" = "ProjectName.x", Type, Issue, PersonalID)
-  # ) %>%
+  dqOverlapDetails <- dqOverlaps %>%
+    select(-c(Issue, Type, Guidance, PreviousIssue)) %>%
+    relocate(OrganizationName,
+            ProjectID,
+            ProjectName,
+            ProjectType,
+            EnrollmentID,
+            HouseholdID,
+            PersonalID,
+            EntryDate,
+            FirstDateProvided,
+            "MoveInDate" = MoveInDateAdjust,
+            ExitDate,
+            PreviousOrganizationName,
+            PreviousProjectID,
+            PreviousProjectName,
+            PreviousProjectType,
+            PreviousEnrollmentID,
+            PreviousHouseholdID,
+            PreviousPersonalID,
+            PreviousEntryDate,
+            PreviousFirstDateProvided,
+            "PreviousMoveInDate" = PreviousMoveInDateAdjust,
+            PreviousExitDate
+    )
+  
+  summary <- rbind(
+      dqData %>% select(Type, Issue, PersonalID),
+      dqOverlaps %>% select(Type, Issue, PersonalID)
+    ) %>%
     # group_by(ProjectName, Type, Issue) %>%
-    # summarise(Clients = n()) %>%
-    # select(Type, Clients, ProjectName, Issue) %>%
-    # arrange(Type, desc(Clients))
+    group_by(Type, Issue) %>%
+    summarise(Clients = n()) %>%
+    select(Type, Clients, Issue) %>%
+    arrange(Type, desc(Clients))
   
   guidance <- dqData %>%
     select(Type, Issue, Guidance) %>%
@@ -174,8 +200,8 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
     guidance = guidance,
     high_priority = high_priority,
     errors = errors,
-    warnings = warnings#,
-    #overlaps = dqOverlaps
+    warnings = warnings,
+    overlaps = dqOverlapDetails
   )
   
   names(exportDFList) <- c(
@@ -184,12 +210,100 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
     "Guidance",
     "High Priority",
     "Errors", 
-    "Warnings"#, 
-    #"Overlaps"
+    "Warnings",
+    "Overlap Details"
   )
   
   exportDFList <- exportDFList[sapply(exportDFList, 
                                       function(x) dim(x)[1]) > 0]
   
   return(exportDFList)
+}
+
+zip_initially_valid <- function () {
+  zipContents <- unzip(zipfile = input$imported$datapath, list=TRUE)
+  requiredFiles <- c("Client.csv",
+    "Enrollment.csv",
+    "Exit.csv",
+    "Services.csv",
+    "CurrentLivingSituation.csv",
+    "Project.csv",
+    "Inventory.csv",
+    "EnrollmentCoC.csv",
+    "Organization.csv",
+    "Export.csv"
+  )
+  missing_files = requiredFiles[!(requiredFiles %in% zipContents$Name)]
+
+  valid_file(0)
+  if(grepl("/", zipContents$Name[1])) {
+    title = "Your zip file is mis-structured"
+    err_msg = "It looks like you may have unzipped your HMIS csv because the
+    individual csv files are contained within a subdirectory."
+  } 
+  else if(length(missing_files)) {
+    title = "Wrong Dataset"
+    err_msg = "You uploaded something other than a HUD CSV export. Be sure
+    that you haven't accidentally uploaded an APR or an LSA. If you
+          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
+          contact your HMIS vendor.
+    "
+  } 
+  else if(!is_hashed()) {
+    title = "You uploaded an unhashed data set"
+    err_msg = "You have uploaded an unhashed version of the HMIS CSV Export. If you
+          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
+          contact your HMIS vendor."
+  } else {
+    return(TRUE)
+  }
+
+  if(!valid_file()) {
+    showModal(
+      modalDialog(
+        title = title,
+        err_msg,
+        easyClose = TRUE
+      )
+    )
+    reset("imported")
+    return(FALSE)
+  }
+}
+
+is_hashed <- function() {
+  # read Export file
+  Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
+  # read Client file
+  Client <- importFile("Client",
+                       col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
+  
+  # decide if the export is hashed
+  return(  
+    # TRUE
+    Export$HashStatus == 4 &
+    min(nchar(Client$FirstName), na.rm = TRUE) ==
+    max(nchar(Client$FirstName), na.rm = TRUE)
+  )
+}
+
+# Non-Residential Long Stayers --------------------------------------------
+
+calculate_long_stayers <- function(input, projecttype){
+  
+  served_in_date_range %>%
+    select(all_of(vars_prep), ProjectID) %>%
+    mutate(
+      Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate)),
+      Issue = "Days Enrollment Active Exceeds CoC-specific Settings",
+      Type = "Warning",
+      Guidance = str_squish("You have at least one active enrollment that has been
+         active for longer than the days set for this Project Type in your
+         CoC-specific Settings on the Home tab.")
+    ) %>%
+    filter(is.na(ExitDate) &
+             ProjectType == projecttype &
+             input < Days) %>% 
+    select(all_of(vars_we_want))
+  
 }

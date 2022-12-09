@@ -72,35 +72,11 @@ function(input, output, session) {
   observeEvent(input$imported, {
     
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-
-    # read Export file
-    Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
-    # read Client file
-    Client <- importFile("Client",
-                         col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
-    # decide if the export is hashed
-    hashed <-  
-      # TRUE
-      Export$HashStatus == 4 &
-       min(nchar(Client$FirstName), na.rm = TRUE) ==
-       max(nchar(Client$FirstName), na.rm = TRUE)
+  
+    initially_valid_zip <- zip_initially_valid()
     
-    #if it's not hashed, throw an error and clear the upload
-    if (hashed == FALSE) {
-      # clear imported
-      valid_file(0)
-      reset("imported")
-      showModal(
-        modalDialog(
-          title = "You uploaded an unhashed export",
-          "You have uploaded an unhashed version of the HMIS CSV Export. If you
-          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
-          contact your HMIS vendor.",
-          easyClose = TRUE
-        )
-      )
-    } else { # if it is hashed, set imported_zip to 1 and start running scripts
-      valid_file(1)
+    if(initially_valid_zip) {
+
       hide('imported_progress')
       
       withProgress({
@@ -123,21 +99,29 @@ function(input, output, session) {
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("00_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
-        } else{ # if structural issues were found, reset gracefully
-        valid_file(0)
-        reset("imported")
-        showModal(
-          modalDialog(
-            title = "Your HMIS CSV Export is not structurally valid",
-            "Your HMIS CSV Export has some High Priority issues that must
-            be addressed by your HMIS Vendor. Please download the File Structure
-            Analysis for details.",
-            easyClose = TRUE
+          
+          showModal(
+            modalDialog(
+              title = "Upload successful",
+              "Congratulations! You have succesfully uploaded an HMIS CSV Export.",
+              easyClose = TRUE
+            )
           )
-        )
-      }
+        } else{ # if structural issues were found, reset gracefully
+          valid_file(0)
+          reset("imported")
+          showModal(
+            modalDialog(
+              title = "Your HMIS CSV Export is not structurally valid",
+              "Your HMIS CSV Export has some High Priority issues that must
+              be addressed by your HMIS Vendor. Please download the File Structure
+              Analysis for details.",
+              easyClose = TRUE
+            )
+          )
+        }
       })
-    } 
+    }
     
     dq_main_reactive <- reactive({
       req(valid_file()== 1)
@@ -157,7 +141,8 @@ function(input, output, session) {
     
     output$integrityChecker <- DT::renderDataTable(
       {
-        req(hashed == 1)
+        req(initially_valid_zip)
+
         a <- rbind(integrity_client,
                    integrity_enrollment,
                    integrity_living_situation,
@@ -176,7 +161,7 @@ function(input, output, session) {
       })
     
     output$downloadIntegrityBtn <- renderUI({
-      req(hashed == 1)
+      req(initially_valid_zip)
       downloadButton("downloadIntegrityCheck", "Download Structure Analysis Detail")
     })  
     
@@ -503,6 +488,7 @@ function(input, output, session) {
       datatable(guidance, 
                 rownames = FALSE,
                 escape = FALSE,
+                filter = 'top',
                 options = list(dom = 'ltpi'))
     })
     
@@ -549,17 +535,15 @@ function(input, output, session) {
       orgDQData <- dq_main_reactive() %>%
         filter(OrganizationName %in% c(input$orgList))
       
-      # orgDQoverlaps <- overlapNEW %>%
-      #   filter(OrganizationName.x %in% c(input$orgList) | OrganizationName.y %in% c(input$orgList))
+      orgDQoverlaps <- overlaps %>%
+        filter(OrganizationName %in% c(input$orgList) | PreviousOrganizationName %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData#, orgDQoverlaps
-                          )
+      getDQReportDataList(orgDQData, orgDQoverlaps)
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive()#, overlapNEW
-                          )
+      getDQReportDataList(dq_main_reactive(), overlaps)
     })
     
     output$downloadOrgDQReport <- downloadHandler(
@@ -605,49 +589,58 @@ function(input, output, session) {
     #PLOTS
     #Create reactive data sets for org-level tab plots
     dq_hp_top_projects <- reactive({
+      req(valid_file() == 1)
       dq_hp_top_projects_r <- dq_data_high_priority_errors_top_projects_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     dq_hp_error_types_org_level <- reactive({
+      req(valid_file() == 1)
       dq_hp_error_types_org_level_r <- dq_data_high_priority_error_types_org_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     dq_general_errors_top_projects <- reactive({
+      req(valid_file() == 1)
       dq_general_errors_top_projects_r <- dq_data_errors_top_projects_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     dq_general_error_types_org_level <- reactive({
+      req(valid_file() == 1)
       dq_general_error_types_org_level_r <- dq_data_error_types_org_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     dq_warnings_top_projects <- reactive({
+      req(valid_file() == 1)
       dq_warnings_top_projects_r <- dq_data_warnings_top_projects_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     dq_warning_types_org_level <- reactive({
+      req(valid_file() == 1)
       dq_warning_types_org_level_r <- dq_data_warning_types_org_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     #Controls org-level plot heights reactively
     plotHeight_hp_errors <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_hp_error_types_org_level()) == 0)
       {plotHeight_hp_errors = 50}
       else {plotHeight_hp_errors = 400}
     })
     
     plotHeight_general_errors <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_general_error_types_org_level()) == 0)
       {plotHeight_general_errors = 50}
       else {plotHeight_general_errors = 400}
     })
     
     plotHeight_warnings <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_warning_types_org_level()) == 0)
       {plotHeight_warnings = 50}
       else {plotHeight_warnings = 400}
@@ -655,18 +648,21 @@ function(input, output, session) {
     
     #Controls system-level plot heights reactively
     plotHeight_hp_errors_system <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_data_high_priority_error_types_org_level) == 0)
       {plotHeight_hp_errors = 50}
       else {plotHeight_hp_errors = 400}
     })
     
     plotHeight_general_errors_system <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_data_error_types_org_level) == 0)
       {plotHeight_general_errors = 50}
       else {plotHeight_general_errors = 400}
     })
     
     plotHeight_warnings_system <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_data_warning_types_org_level) == 0)
       {plotHeight_warnings = 50}
       else {plotHeight_warnings = 400}
@@ -687,7 +683,7 @@ function(input, output, session) {
     })
     
     output$systemDQHighPriorityErrorTypes <- renderPlot({
-      req(valid_file())
+      req(valid_file() == 1)
       
       validate(need(nrow(dq_data_high_priority_error_types_org_level) > 0, 
                     message = "Great job! No errors to show."))
@@ -752,7 +748,7 @@ function(input, output, session) {
     #Plot of projects within selected org with most high priority errors
     
     output$orgDQHighPriorityErrors <- renderPlot({
-      req(valid_file())
+      req(valid_file() == 1)
       
       validate(need(nrow(dq_hp_top_projects()) > 0, 
                     message = "Great job! No errors to show."))
@@ -773,7 +769,7 @@ function(input, output, session) {
                  fill = "#DD614A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -809,7 +805,7 @@ function(input, output, session) {
                  fill = "#DD614A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -850,7 +846,7 @@ function(input, output, session) {
                  fill = "#16697A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -885,7 +881,7 @@ function(input, output, session) {
                  fill = "#16697A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -924,7 +920,7 @@ function(input, output, session) {
                  fill = "#82C0CC") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -959,7 +955,7 @@ function(input, output, session) {
                  fill = "#82C0CC") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
