@@ -250,7 +250,7 @@ zip_initially_valid <- function () {
     "
   } 
   else if(!is_hashed()) {
-    title = "You uploaded the wrong data set"
+    title = "You uploaded an unhashed data set"
     err_msg = "You have uploaded an unhashed version of the HMIS CSV Export. If you
           are not sure how to run the hashed HMIS CSV Export in your HMIS, please
           contact your HMIS vendor."
