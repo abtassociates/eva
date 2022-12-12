@@ -36,10 +36,10 @@ function(input, output, session) {
   
   output$headerSystemDQ <- renderUI({
     if(valid_file()) {
-      list(h2("System-wide Data Quality"),
+      list(h2("System-level Data Quality"),
            h4(
              paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-                   "through",
+                   "to",
                    format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
            ))
     } else {
@@ -49,7 +49,7 @@ function(input, output, session) {
   
   output$headerDataQuality <- renderUI({
     if(valid_file()) {
-      list(h2("Data Quality"),
+      list(h2("Organization-level Data Quality"),
            h4(paste(
              format(Export$ExportStartDate, "%m-%d-%Y"),
              "to",
