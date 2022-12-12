@@ -17,7 +17,7 @@ function(input, output, session) {
         )
       )
     } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
+      h4("You have not successfully uploaded your zipped CSV file yet. Please return to the Home tab to begin.")
     }
   })
   
@@ -30,7 +30,7 @@ function(input, output, session) {
            format(meta_HUDCSV_Export_End, "%m-%d-%Y")
          )))
     } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
+      h4("You have not successfully uploaded your zipped CSV file yet. Please return to the Home tab to begin.")
     }
   })
   
@@ -43,7 +43,7 @@ function(input, output, session) {
                    format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
            ))
     } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
+      h4("You have not successfully uploaded your zipped CSV file yet. Please return to the Home tab to begin.")
     }
   })
   
@@ -56,7 +56,7 @@ function(input, output, session) {
              format(meta_HUDCSV_Export_End, "%m-%d-%Y")
            )))
     } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
+      h4("You have not successfully uploaded your zipped CSV file yet. Please return to the Home tab to begin.")
     }
   })
   
@@ -65,7 +65,7 @@ function(input, output, session) {
       list(h2("Client Counts Report"),
            h4(input$currentProviderList))
     } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
+      h4("You have not successfully uploaded your zipped CSV file yet. Please return to the Home tab to begin.")
     }
   })
   
