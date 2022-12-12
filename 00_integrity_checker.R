@@ -146,23 +146,24 @@ check_data_types <- function(barefile, quotedfile) {
                         "nothing"), 
         Guidance = if_else(
           DataType != ImportedDataType,
-          paste(
-            "In the",
+          paste0(
+            "In the ",
             quotedfile,
-            "file, the",
+            " file, the ",
             Column,
-            "column should have a data type of",
+            " column should have a data type of ",
             case_when(
               DataType == "numeric" ~ "integer",
               DataType == "character" ~ "string",
               TRUE ~ DataType
             ),
-            "but in this file, it is",
+            " but in this file, it is",
             case_when(
               ImportedDataType == "numeric" ~ "integer",
               ImportedDataType == "character" ~ "string",
               TRUE ~ ImportedDataType
-              )
+              ),
+            ". The PersonalID must be unique within the Client.csv."
           ),
           NULL
         ),
@@ -393,7 +394,12 @@ duplicate_enrollment_id <- Enrollment %>%
   mutate(
     Issue = "Duplicate EnrollmentIDs found in the Enrollment file",
     Type = "High Priority",
-    Guidance = paste("There are", dupe_count, "for EnrollmentID", EnrollmentID)
+    Guidance = paste0(
+      " There are ",
+      dupe_count,
+       " duplicates found for EnrollmentID",
+      EnrollmentID,
+      ". The EnrollmentID must be unique within the Enrollment.csv")
   ) %>%
   select(Issue, Type, Guidance)
 
@@ -407,7 +413,7 @@ foreign_key_no_primary_personalid_enrollment <- Enrollment %>%
     Guidance = paste(
       "PersonalID",
       PersonalID,
-      "is in the Enrollment file but not in the Client file"
+      "is in the Enrollment file but not in the Client file."
     )
   ) %>%
   select(Issue, Type, Guidance)
@@ -422,7 +428,7 @@ foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
     Guidance = paste(
       "ProjectID",
       ProjectID,
-      "is in the Enrollment file but not in the Project file"
+      "is in the Enrollment file but not in the Project file."
     )
   ) %>%
   select(Issue, Type, Guidance)
@@ -438,7 +444,9 @@ disabling_condition_invalid <- Enrollment %>%
     Guidance = paste(
       "Enrollment ID",
       EnrollmentID,
-      "has an invalid value in the DisablingCondition column"
+      "has a Disabling Condition of",
+      DisablingCondition,
+      "which is an invalid value."
     )
   ) %>%
   filter(Issue != "nothing") %>%
@@ -474,7 +482,9 @@ rel_to_hoh_invalid <- Enrollment %>%
     Guidance = paste(
       "Enrollment ID",
       EnrollmentID,
-      "has an invalid value in the RelationshipToHoH column"
+      "has a RelationshipToHoH of",
+      RelationshipToHoH,
+      "which is invalid value."
     )
   ) %>%
   select(Issue, Type, Guidance) %>%
@@ -546,7 +556,7 @@ nonstandard_CLS <- CurrentLivingSituation %>%
                      EnrollmentID,
                      "has a Current Living Situation value of",
                      CurrentLivingSituation,
-                     "which is not a valid response for Current Living Situation.")) %>%
+                     "which is not a valid response.")) %>%
   select(Issue, Type, Guidance)
 
 integrity_living_situation <- rbind(
