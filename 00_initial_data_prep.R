@@ -4,8 +4,7 @@ Project <- Project %>%
             by = "OrganizationID") %>%
   mutate(ProjectType = case_when(
     ProjectType == 1 & TrackingMethod == 3 ~ 0,
-    ProjectType == 1 &
-      (is.na(TrackingMethod) | TrackingMethod != 3) ~ 1, 
+    ProjectType == 1 ~ 1,
     TRUE ~ ProjectType
   ))
 

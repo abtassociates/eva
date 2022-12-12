@@ -36,8 +36,7 @@ dashboardPage(
   ), 
   dashboardBody(
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
-      tags$html(lang="en") #Added as WAVE fix but not considered ideal
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
     ),
     useShinyjs(),
     tabItems(
@@ -146,7 +145,7 @@ dashboardPage(
                 your system
                 <li><b>Transitional Housing:</b> enrollment's Length of Stay in days
                 is in the top 2% of all other TH project enrollments in your system
-                <li><b>Permanent Supportive Housing & Other Permanent Housing:</b> 
+                <li><b>Permanent Supportive Housing (Project Types 3, 9, and 10):</b> 
                 enrollment's Length of Stay in days is in the top 1% of all PSH project
                 enrollments in your system
                 <li><b>Coordinated Entry:</b> open enrollments with a Length of
@@ -728,7 +727,6 @@ dashboardPage(
     )
   )
 )
-
 
 # tabItem(
 #   tabName = "utilizationTab",
