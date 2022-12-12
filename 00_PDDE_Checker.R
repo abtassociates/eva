@@ -33,7 +33,7 @@ subpopNotTotal <- Inventory %>%
            OtherBedInventory,
          " but your Total Beds is ",
          BedInventory,
-         ". These totals should match.")
+         ". These totals must match.")
   ) %>%
   select(all_of(PDDEcols))
 
@@ -117,9 +117,15 @@ missingInventoryRecord <- Project %>%
 # Inventory End > Operating End or Null
 inventoryOutsideOperating <- Inventory %>%
   left_join(Project, by = "ProjectID") %>%
-  filter(InventoryStartDate < OperatingStartDate |
-           InventoryEndDate > OperatingEndDate |
-           (is.na(InventoryEndDate) & !is.na(OperatingEndDate))) %>%
+  filter(
+    ProjectType %in% c(project_types_w_beds) &
+      (
+        InventoryStartDate < OperatingStartDate |
+          InventoryEndDate > OperatingEndDate |
+          (is.na(InventoryEndDate) &
+             !is.na(OperatingEndDate))
+      )
+  ) %>% 
   mutate(Issue = "Inventory outside operating dates",
          Type = "Warning",
          Guidance = case_when(
@@ -150,8 +156,8 @@ hmisNotParticipatingButClient <- Project %>%
            !is.na(PersonalID)) %>%
   mutate(Issue = "Non-HMIS-Participating project has client-level data",
          Type = "Warning",
-         Guidance = "Please check that this project is marked correctly as
-         non-participating. There is client data in this project."
+         Guidance = str_squish("There is client data in this project. Please check that
+         this project is marked correctly as non-participating.")
   ) %>%
   select(all_of(PDDEcols)) 
 
