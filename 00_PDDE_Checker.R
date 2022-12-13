@@ -189,6 +189,16 @@ hmisNotParticipatingButClient <- Project %>%
   ) %>%
   select(all_of(PDDEcols)) 
 
+es_no_tracking_method <- Project %>%
+  filter(ProjectType %in% c(1, 0) & is.na(TrackingMethod)) %>%
+  mutate(
+    Issue = "Missing Tracking Method",
+    Type = "Error",
+    Guidance = str_squish(
+      "All Emergency Shelters must have a Tracking Method."
+    )
+  ) %>%
+  select(all_of(PDDEcols))
 
 ##### For later-------
 # Incompatible Funding Source and Project Type Funding Source X can only be used with Project Type Y. Project Type A can only be used with Funding Source B. (this will need a lot more detail, hold on this one)
@@ -198,8 +208,11 @@ hmisNotParticipatingButClient <- Project %>%
 pdde_main <- rbind(
   subpopNotTotal,
   operatingEndMissing,
+  es_no_tracking_method,
   missingCoCInfo,
   missingInventoryRecord,
   inventoryOutsideOperating,
   hmisNotParticipatingButClient
 )
+
+

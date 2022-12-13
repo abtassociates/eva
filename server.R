@@ -99,6 +99,14 @@ function(input, output, session) {
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("00_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
+          
+          showModal(
+            modalDialog(
+              title = "Upload successful",
+              "Congratulations! You have succesfully uploaded an HMIS CSV Export.",
+              easyClose = TRUE
+            )
+          )
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
@@ -480,6 +488,7 @@ function(input, output, session) {
       datatable(guidance, 
                 rownames = FALSE,
                 escape = FALSE,
+                filter = 'top',
                 options = list(dom = 'ltpi'))
     })
     
@@ -760,7 +769,7 @@ function(input, output, session) {
                  fill = "#DD614A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -796,7 +805,7 @@ function(input, output, session) {
                  fill = "#DD614A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -837,7 +846,7 @@ function(input, output, session) {
                  fill = "#16697A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -872,7 +881,7 @@ function(input, output, session) {
                  fill = "#16697A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -911,7 +920,7 @@ function(input, output, session) {
                  fill = "#82C0CC") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -946,7 +955,7 @@ function(input, output, session) {
                  fill = "#82C0CC") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
