@@ -254,6 +254,23 @@ function(input, output, session) {
       }
     )
     
+    # guidance box
+    output$pdde_guidance_summary <- DT::renderDataTable({
+      req(valid_file() == 1)
+      
+      guidance <- pdde_main %>%
+        select(Type, Issue, Guidance) %>%
+        mutate(Type = factor(Type, levels = c("Error",
+                                              "Warning"))) %>%
+        arrange(Type, Issue) %>%
+        unique()
+      
+      datatable(guidance, 
+                rownames = FALSE,
+                escape = FALSE,
+                filter = 'top',
+                options = list(dom = 'ltpi'))
+    })
     
     output$DeskTimePlotDetail <- renderPlot({
       req(valid_file() == 1)
