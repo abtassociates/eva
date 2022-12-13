@@ -547,7 +547,7 @@ dashboardPage(
             selected = "Most Common by Issue Type",
             title = "Top 10 High Priority Errors",
             tabPanel("Most Common by Project", uiOutput("orgDQHighPriorityErrorsByProject_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("orgDQHighPriorityErrorbyIssue_ui")),
+            tabPanel("Most Common by Issue Type", uiOutput("orgDQHighPriorityErrorByIssue_ui")),
             width = 12
           )
         ),
@@ -707,7 +707,7 @@ dashboardPage(
             selected = "Most Common by Issue Type",
             title = "Top 10 High Priority Errors",
             tabPanel("Most Common by Organization", uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("systemDQHighPriorityErrorByIssue_ui")),
+            tabPanel("Most Common by Issue Type", uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
             width = 12
           )
         ),
