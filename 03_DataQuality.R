@@ -1272,25 +1272,6 @@ exit_after_OpEnd <- served_in_date_range %>%
 
 # Overlaps ----------------------------------------------------------------
 
-# can delete these; no longer in use
-# overlapVars = c("PersonalID", 
-#                 "EnrollmentID",
-#                 "EnrollmentStart", "EnrollmentEnd",
-#                 "ProjectType",
-#                 "ProjectID",
-#                 "ProjectName",#
-#                 "HouseholdID",
-#                 "OrganizationName",#
-#                 "FirstDateProvided",#
-#                 "PreviousEnrollmentID",
-#                 "PreviousEnrollmentStart", "PreviousEnrollmentEnd",
-#                 "PreviousProjectID",
-#                 "PreviousProjectName",#
-#                 "PreviousProjectType",
-#                 "PreviousHouseholdID",
-#                 "PreviousOrganizationName"#
-# )
-
 overlap_staging <- served_in_date_range %>% 
   select(!!vars_prep, ExitAdjust, EnrollmentID) %>%
   filter(EntryDate != ExitAdjust &
@@ -1402,7 +1383,11 @@ overlaps <- overlap_staging %>%
   left_join(served_in_date_range %>% 
             select(!!vars_prep, EnrollmentID) %>%
             setNames(paste0('Previous', names(.))),
-            by = "PreviousEnrollmentID")
+            by = "PreviousEnrollmentID") %>%
+  mutate(
+    ProjectType = project_type(ProjectType),
+    PreviousProjectType = project_type(PreviousProjectType)
+  )
 
 dq_overlaps1 <- overlaps %>%
   select(!!vars_we_want)
