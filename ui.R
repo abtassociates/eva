@@ -546,8 +546,8 @@ dashboardPage(
             side = "right",
             selected = "Most Common by Issue Type",
             title = "Top 10 High Priority Errors",
-            tabPanel("Most Common by Project", uiOutput("orgDQHighPriorityErrors_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("orgDQHighPriorityErrorTypes_ui")),
+            tabPanel("Most Common by Project", uiOutput("orgDQHighPriorityErrorsByProject_ui")),
+            tabPanel("Most Common by Issue Type", uiOutput("orgDQHighPriorityErrorbyIssue_ui")),
             width = 12
           )
         ),
@@ -556,8 +556,8 @@ dashboardPage(
             side = "right",
             selected = "Most Common by Issue Type",
             title = "Top 10 General Errors",
-            tabPanel("Most Common by Project", uiOutput("orgDQErrors_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("orgDQErrorTypes_ui")),
+            tabPanel("Most Common by Project", uiOutput("orgDQErrorsByProject_ui")),
+            tabPanel("Most Common by Issue Type", uiOutput("orgDQErrorByIssue_ui")),
             width =12
           )
         ),
@@ -566,8 +566,8 @@ dashboardPage(
             side = "right",
             selected = "Most Common by Issue Type",
             title = "Top 10 Warnings",
-            tabPanel("Most Common by Project", uiOutput("orgDQWarnings_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("orgDQWarningTypes_ui")),
+            tabPanel("Most Common by Project", uiOutput("orgDQWarningsByProject_ui")),
+            tabPanel("Most Common by Issue Type", uiOutput("orgDQWarningsByIssue_ui")),
             width = 12
           )
         ),
@@ -706,8 +706,8 @@ dashboardPage(
             side = "right",
             selected = "Most Common by Issue Type",
             title = "Top 10 High Priority Errors",
-            tabPanel("Most Common by Organization", uiOutput("systemDQHighPriorityErrors_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("systemDQHighPriorityErrorTypes_ui")),
+            tabPanel("Most Common by Organization", uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
+            tabPanel("Most Common by Issue Type", uiOutput("systemDQHighPriorityErrorByIssue_ui")),
             width = 12
           )
         ),
@@ -716,8 +716,8 @@ dashboardPage(
             side = "right",
             selected = "Most Common by Issue Type",
             title = "Top 10 General Errors",
-            tabPanel("Most Common by Organization", uiOutput("systemDQErrors_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("systemDQErrorTypes_ui")),
+            tabPanel("Most Common by Organization", uiOutput("systemDQErrorsByOrg_ui")),
+            tabPanel("Most Common by Issue Type", uiOutput("systemDQErrorByIssue_ui")),
             width =12
           )
         ),
@@ -726,8 +726,8 @@ dashboardPage(
             side = "right",
             selected = "Most Common by Issue Type",
             title = "Top 10 Warnings",
-            tabPanel("Most Common by Organization", uiOutput("systemDQWarnings_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("systemDQWarningTypes_ui")),
+            tabPanel("Most Common by Organization", uiOutput("systemDQWarningsByOrg_ui")),
+            tabPanel("Most Common by Issue Type", uiOutput("systemDQWarningByIssue_ui")),
             width = 12
           )
         )
