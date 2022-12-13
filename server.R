@@ -616,13 +616,13 @@ function(input, output, session) {
     
     #Org-Level Warnings by Project
     dq_org_warnings_by_project_reac <- reactive({
-      dq_warnings_top_projects_r <- dq_org_lvl_general_errors_by_project_df %>%
+      dq_warnings_top_projects_r <- dq_org_lvl_warnings_by_project_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     #Org-Level Warnings by Issue
     dq_org_warnings_by_issue_reac <- reactive({
-      dq_warning_types_org_level_r <- dq_org_lvl_general_errors_by_issue_df %>%
+      dq_warning_types_org_level_r <- dq_org_lvl_warnings_by_issue_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
@@ -679,7 +679,7 @@ function(input, output, session) {
     })
     
     #Sys-Level High Priority Errors by Issue
-    output$systemDQHighPriorityErrorByIssue <- renderPlot({
+    output$systemDQHighPriorityErrorsByIssue <- renderPlot({
       req(valid_file())
       
       validate(need(nrow(dq_sys_lvl_high_priority_by_issue) > 0, 
@@ -687,8 +687,8 @@ function(input, output, session) {
       
       dq_sys_lvl_high_priority_by_issue_plot})
     
-    output$systemDQHighPriorityErrorbyIssue_ui <- renderUI({
-      plotOutput("systemDQHighPriorityErrorByIssue", height = plotHeight_hp_errors_system())
+    output$systemDQHighPriorityErrorsByIssue_ui <- renderUI({
+      plotOutput("systemDQHighPriorityErrorsByIssue", height = plotHeight_hp_errors_system())
     })
     
     #Sys-Level General Errors by Org
