@@ -2814,9 +2814,9 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
      unique() %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
-     summarise(clientsWithErrors = n()) %>%
+     summarise(Warnings = n()) %>%
      ungroup() %>%
-     arrange(desc(clientsWithErrors))
+     arrange(desc(Warnings))
    
       #Most common warnings org-wide
    
