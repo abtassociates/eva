@@ -1,4 +1,5 @@
 
+with_heatmap(
 dashboardPage(
   skin = "black",
   dashboardHeader(title = "Eva"),
@@ -807,5 +808,4 @@ dashboardPage(
 #     DT::dataTableOutput("utilizationDetail"), width = 12
 #   ))
 # ),
-
-
+)

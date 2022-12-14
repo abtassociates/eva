@@ -1,6 +1,9 @@
 
 function(input, output, session) {
   
+  record_heatmap(target = ".wrapper")
+  track_usage(storage_mode = store_json(path = "logs/"))
+  
   valid_file <- reactiveVal(0)
 
   output$headerFileInfo <- renderUI({
