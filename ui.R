@@ -544,30 +544,30 @@ dashboardPage(
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Most Common by Issue Type",
-            title = "Top 10 High Priority Errors",
-            tabPanel("Most Common by Project", uiOutput("orgDQHighPriorityErrorsByProject_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("orgDQHighPriorityErrorByIssue_ui")),
+            selected = "Top 10 Issues",
+            title = "High Priority Errors",
+            tabPanel("Top 10 Projects", uiOutput("orgDQHighPriorityErrorsByProject_ui")),
+            tabPanel("Top 10 Issues", uiOutput("orgDQHighPriorityErrorByIssue_ui")),
             width = 12
           )
         ),
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Most Common by Issue Type",
-            title = "Top 10 General Errors",
-            tabPanel("Most Common by Project", uiOutput("orgDQErrorsByProject_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("orgDQErrorByIssue_ui")),
+            selected = "Top 10 Issues",
+            title = "General Errors",
+            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui")),
+            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui")),
             width =12
           )
         ),
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Most Common by Issue Type",
-            title = "Top 10 Warnings",
-            tabPanel("Most Common by Project", uiOutput("orgDQWarningsByProject_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("orgDQWarningsByIssue_ui")),
+            selected = "Top 10 Issues",
+            title = "Warnings",
+            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui")),
+            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui")),
             width = 12
           )
         ),
@@ -704,30 +704,30 @@ dashboardPage(
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Most Common by Issue Type",
-            title = "Top 10 High Priority Errors",
-            tabPanel("Most Common by Organization", uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
+            selected = "Top 10 Issues",
+            title = "High Priority Errors",
+            tabPanel("Top 10 Organizations", uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
             width = 12
           )
         ),
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Most Common by Issue Type",
-            title = "Top 10 General Errors",
-            tabPanel("Most Common by Organization", uiOutput("systemDQErrorsByOrg_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("systemDQErrorByIssue_ui")),
+            selected = "Top 10 Issues",
+            title = "General Errors",
+            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQErrorByIssue_ui")),
             width =12
           )
         ),
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Most Common by Issue Type",
-            title = "Top 10 Warnings",
-            tabPanel("Most Common by Organization", uiOutput("systemDQWarningsByOrg_ui")),
-            tabPanel("Most Common by Issue Type", uiOutput("systemDQWarningByIssue_ui")),
+            selected = "Top 10 Issues",
+            title = "Warnings",
+            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQWarningByIssue_ui")),
             width = 12
           )
         )
