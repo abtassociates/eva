@@ -1115,7 +1115,7 @@ function(input, output, session) {
   #### DQ SYSTEM REPORT #### ----------------------
   # button
   output$downloadFullDQReportButton  <- renderUI({
-    if (!is.null(input$imported)) {
+    if (valid_file() == 1) {
       downloadButton(outputId = "downloadFullDQReport",
                      label = "Download")
     }
