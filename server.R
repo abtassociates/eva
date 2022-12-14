@@ -169,7 +169,7 @@ function(input, output, session) {
       # req(valid_file() == 1)
 
       filename = function() {
-        paste("integrity-check-", Sys.Date(), ".xlsx", sep = "")
+        paste("File-Structure-Analysis-", Sys.Date(), ".xlsx", sep = "")
       },
       content = function(file) {
         write_xlsx(
