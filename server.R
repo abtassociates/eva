@@ -36,10 +36,10 @@ function(input, output, session) {
   
   output$headerSystemDQ <- renderUI({
     if(valid_file()) {
-      list(h2("System-wide Data Quality"),
+      list(h2("System-level Data Quality"),
            h4(
              paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-                   "through",
+                   "to",
                    format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
            ))
     } else {
@@ -49,7 +49,7 @@ function(input, output, session) {
   
   output$headerDataQuality <- renderUI({
     if(valid_file()) {
-      list(h2("Data Quality"),
+      list(h2("Organization-level Data Quality"),
            h4(paste(
              format(Export$ExportStartDate, "%m-%d-%Y"),
              "to",
@@ -254,6 +254,23 @@ function(input, output, session) {
       }
     )
     
+    # guidance box
+    output$pdde_guidance_summary <- DT::renderDataTable({
+      req(valid_file() == 1)
+      
+      guidance <- pdde_main %>%
+        select(Type, Issue, Guidance) %>%
+        mutate(Type = factor(Type, levels = c("Error",
+                                              "Warning"))) %>%
+        arrange(Type, Issue) %>%
+        unique()
+      
+      datatable(guidance, 
+                rownames = FALSE,
+                escape = FALSE,
+                filter = 'top',
+                options = list(dom = 'ltpi'))
+    })
     
     output$DeskTimePlotDetail <- renderPlot({
       req(valid_file() == 1)
@@ -538,12 +555,12 @@ function(input, output, session) {
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | PreviousOrganizationName %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData, orgDQoverlaps)
+      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName")
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlaps)
+      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName")
     })
     
     output$downloadOrgDQReport <- downloadHandler(

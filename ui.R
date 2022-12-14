@@ -114,9 +114,6 @@ dashboardPage(
           ),  
           box(
             title = "Upload Hashed CSV zip file",
-            HTML('<i class="fa fa-info-circle" 
-                title = "Use the Browse function to direct the app to the file folder containing your zipped CSV.">
-                 </i>'),
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,
@@ -327,9 +324,10 @@ dashboardPage(
             br(),
             uiOutput("downloadPDDEReportButton")
           ),
-          box(title = "Guidance",
+          box(id = "PDDEGuidance",
+              DT::dataTableOutput("pdde_guidance_summary"),
+              title = "Guidance",
               width = 12,
-              HTML("coming soon"),
               status = "info",
               solidHeader = TRUE)
         )

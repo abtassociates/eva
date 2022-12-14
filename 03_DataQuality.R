@@ -1223,25 +1223,6 @@ exit_after_OpEnd <- served_in_date_range %>%
 
 # Overlaps ----------------------------------------------------------------
 
-# can delete these; no longer in use
-# overlapVars = c("PersonalID", 
-#                 "EnrollmentID",
-#                 "EnrollmentStart", "EnrollmentEnd",
-#                 "ProjectType",
-#                 "ProjectID",
-#                 "ProjectName",#
-#                 "HouseholdID",
-#                 "OrganizationName",#
-#                 "FirstDateProvided",#
-#                 "PreviousEnrollmentID",
-#                 "PreviousEnrollmentStart", "PreviousEnrollmentEnd",
-#                 "PreviousProjectID",
-#                 "PreviousProjectName",#
-#                 "PreviousProjectType",
-#                 "PreviousHouseholdID",
-#                 "PreviousOrganizationName"#
-# )
-
 overlap_staging <- served_in_date_range %>% 
   select(!!vars_prep, ExitAdjust, EnrollmentID) %>%
   filter(EntryDate != ExitAdjust &
@@ -1354,7 +1335,11 @@ overlaps <- overlap_staging %>%
   left_join(served_in_date_range %>% 
             select(!!vars_prep, EnrollmentID) %>%
             setNames(paste0('Previous', names(.))),
-            by = "PreviousEnrollmentID")
+            by = "PreviousEnrollmentID") %>%
+  mutate(
+    ProjectType = project_type(ProjectType),
+    PreviousProjectType = project_type(PreviousProjectType)
+  )
 
 dq_overlaps1 <- overlaps %>%
   select(!!vars_we_want)
@@ -2069,7 +2054,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Top orgs with Errors - High Priority
    dq_data_high_priority_errors_org_level_plot <- dq_w_organization_names %>%
      filter(Type == "High Priority") %>% 
-     select(PersonalID, OrganizationID, OrganizationName) %>%
+     select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue) %>%
      unique() %>%
      group_by(OrganizationName, OrganizationID) %>%
      summarise(clientsWithErrors = n()) %>%
@@ -2145,7 +2130,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    dq_data_errors_org_level_plot <- dq_w_organization_names %>%
      filter(Type == "Error") %>% 
-     select(PersonalID, OrganizationID, OrganizationName) %>%
+     select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue) %>%
      unique() %>%
      group_by(OrganizationName, OrganizationID) %>%
      summarise(clientsWithErrors = n()) %>%
@@ -2221,7 +2206,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    dq_data_warnings_org_level_plot <- dq_w_organization_names %>%
      filter(Type == "Warning") %>%
-     group_by(OrganizationName, OrganizationID) %>%
+     group_by(OrganizationName, OrganizationID, Issue) %>%
      summarise(Warnings = n()) %>%
      ungroup() %>%
      arrange(desc(Warnings))
@@ -2294,7 +2279,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    # Top projects with Errors - High Priority
    dq_data_high_priority_errors_top_projects_df <- dq_main %>%
      filter(Type %in% c("High Priority")) %>%
-     select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
+     select(PersonalID, ProjectID, ProjectName, OrganizationName, HouseholdID, Issue) %>%
      unique() %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(clientsWithErrors = n()) %>%
@@ -2314,7 +2299,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    dq_data_errors_top_projects_df <- dq_w_ids %>%
      filter(Type %in% c("Error")) %>%
-     select(PersonalID, ProjectID, ProjectName, OrganizationName) %>%
+     select(PersonalID, ProjectID, ProjectName, OrganizationName, HouseholdID, Issue) %>%
      unique() %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(clientsWithErrors = n()) %>%
