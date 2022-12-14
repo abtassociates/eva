@@ -324,9 +324,10 @@ dashboardPage(
             br(),
             uiOutput("downloadPDDEReportButton")
           ),
-          box(title = "Guidance",
+          box(id = "PDDEGuidance",
+              DT::dataTableOutput("pdde_guidance_summary"),
+              title = "Guidance",
               width = 12,
-              HTML("coming soon"),
               status = "info",
               solidHeader = TRUE)
         )
