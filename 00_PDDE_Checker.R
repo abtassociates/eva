@@ -1,3 +1,4 @@
+
 PDDEcols = c("OrganizationName",
              "ProjectID",
              "ProjectName",
@@ -32,7 +33,7 @@ subpopNotTotal <- Inventory %>%
            OtherBedInventory,
          " but your Total Beds is ",
          BedInventory,
-         ". These totals should match.")
+         ". These totals must match.")
   ) %>%
   select(all_of(PDDEcols))
 
@@ -92,52 +93,86 @@ missingCoCInfo <- Project %>%
 missingInventoryRecord <- Project %>%
   left_join(Inventory, by = "ProjectID") %>%
   filter(ProjectType %in% c(project_types_w_beds) &
-           (InventoryStartDate > OperatingEndDate | 
-              InventoryEndDate < OperatingStartDate) & 
-           (InventoryStartDate > meta_HUDCSV_Export_End | 
-              InventoryEndDate < meta_HUDCSV_Export_Start) 
-  ) %>%  
-  group_by(ProjectID, ProjectName, OrganizationName) %>%
-  summarise(InventoryRecordCount = n()) %>%
-  ungroup() %>%
+           is.na(InventoryID)) %>% 
   mutate(
-    Issue = "No Current Inventory Record",
-    Type = "Warning", # revisit: should this be an Error? (No, sometimes a
-    # project can be temporarily closed so it would be ok to have an inventory gap)
-    Guidance = paste(
-      "This residential project has",
-      InventoryRecordCount,
-      "current inventory records."
+    Issue = "No Inventory Records",
+    Type = "Error",
+    Guidance = str_squish(
+      paste("Project ID", 
+            ProjectID,
+            "has no Inventory records. Residential project types should have
+            inventory data.")
     )
-  ) %>% 
+  )  %>% 
   select(all_of(PDDEcols))
 
 # Inventory Start < Operating Start AND
 # Inventory End > Operating End or Null
 inventoryOutsideOperating <- Inventory %>%
   left_join(Project, by = "ProjectID") %>%
-  filter(InventoryStartDate < OperatingStartDate |
-           InventoryEndDate > OperatingEndDate |
-           (is.na(InventoryEndDate) & !is.na(OperatingEndDate))) %>%
-  mutate(Issue = "Inventory outside operating dates",
-         Type = "Warning",
-         Guidance = case_when(
-           is.na(InventoryEndDate) & !is.na(OperatingEndDate) ~
-            paste("Inventory ID", InventoryID, 
-                  "has no InventoryEndDate, but the project ended on",
-                  OperatingEndDate
-                  ),
-           InventoryEndDate > OperatingEndDate ~
-             paste("Inventory ID", InventoryID,
-           "ended on", InventoryEndDate, "which is after the project ended on",
-           OperatingEndDate),
-           InventoryStartDate < OperatingStartDate ~ 
-             paste("Inventory ID", InventoryID,
-                   "starts on", InventoryStartDate,
-                   "which precedes the project's Operating Start Date of",
-                   OperatingStartDate)
-         ) 
-  ) %>%
+  mutate(
+    Issue = case_when(
+      InventoryStartDate < OperatingStartDate ~
+        "Inventory Start Precedes Project Operating Start",
+      coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_Date)) >
+        coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_Date)) ~
+        "Project Operating End precedes Inventory End",
+      TRUE ~ "none"
+    ),
+    Type = if_else(
+      Issue == "Inventory Start Precedes Project Operating Start",
+      "Warning",
+      "Error"
+    ),
+    Guidance = case_when(
+      Issue == "Inventory Start Precedes Project Operating Start" ~
+        str_squish(
+          paste0(
+            "Project ID ",
+            ProjectID,
+            " may have been merged with another project which would explain
+            why the Inventory Start Date of ",
+            InventoryStartDate,
+            " is prior to the project's Operating Start Date of ",
+            OperatingStartDate,
+            ". Please be sure this is the case and that it is not a typo."
+          )
+        ),
+      Issue == "Project Operating End precedes Inventory End" &
+        is.na(InventoryEndDate) &
+        !is.na(OperatingEndDate) ~
+        str_squish(
+          paste0(
+            "Project ID ",
+            ProjectID,
+            " has an Inventory Record (",
+            InventoryID,
+            ") with an open Inventory End Date but the Project Operating End Date
+            is ",
+            OperatingEndDate,
+            ". Please either end-date the Inventory, or if the project is still
+            operating, clear the project's Operating End Date."
+          )
+        ),
+      Issue == "Project Operating End precedes Inventory End" &
+        !is.na(InventoryEndDate) &
+        !is.na(OperatingEndDate) ~
+        str_squish(
+          paste0(
+            "Project ID ", ProjectID, 
+            " ended on ", OperatingEndDate,
+            " but Inventory record ",
+            InventoryID,
+            " ended ",
+            as.numeric(difftime(InventoryEndDate, OperatingEndDate, units = "days")),
+            " days after that on ",
+            InventoryEndDate,
+            ". Please correct whichever date is incorrect."
+          )
+        )
+    )
+  ) %>% 
+  filter(Issue != "none") %>%
   select(all_of(PDDEcols))
 
 # HMIS Participating != 1, OR VSP != 0 but client level data in file
@@ -149,11 +184,21 @@ hmisNotParticipatingButClient <- Project %>%
            !is.na(PersonalID)) %>%
   mutate(Issue = "Non-HMIS-Participating project has client-level data",
          Type = "Warning",
-         Guidance = "Please check that this project is marked correctly as
-         non-participating. There is client data in this project."
+         Guidance = str_squish("There is client data in this project. Please check that
+         this project is marked correctly as non-participating.")
   ) %>%
   select(all_of(PDDEcols)) 
 
+es_no_tracking_method <- Project %>%
+  filter(ProjectType %in% c(1, 0) & is.na(TrackingMethod)) %>%
+  mutate(
+    Issue = "Missing Tracking Method",
+    Type = "Error",
+    Guidance = str_squish(
+      "All Emergency Shelters must have a Tracking Method."
+    )
+  ) %>%
+  select(all_of(PDDEcols))
 
 ##### For later-------
 # Incompatible Funding Source and Project Type Funding Source X can only be used with Project Type Y. Project Type A can only be used with Funding Source B. (this will need a lot more detail, hold on this one)
@@ -163,8 +208,11 @@ hmisNotParticipatingButClient <- Project %>%
 pdde_main <- rbind(
   subpopNotTotal,
   operatingEndMissing,
+  es_no_tracking_method,
   missingCoCInfo,
   missingInventoryRecord,
   inventoryOutsideOperating,
   hmisNotParticipatingButClient
 )
+
+

@@ -1,30 +1,30 @@
-
 Project <- Project %>%
   left_join(Organization %>%
               select(OrganizationID, OrganizationName),
             by = "OrganizationID") %>%
-  mutate(ProjectType = if_else(
-    ProjectType == 1 & TrackingMethod == 3, 0, ProjectType
+  mutate(ProjectType = case_when(
+    ProjectType == 1 & TrackingMethod == 3 ~ 0,
+    ProjectType == 1 &
+      (is.na(TrackingMethod) | TrackingMethod != 3) ~ 1, 
+    TRUE ~ ProjectType
   ))
 
 small_project <- Project %>% select(ProjectID, ProjectType, ProjectName)
 
 # Enrollment --------------------------------------------------------------
 
-# Adding Exit Data to Enrollment because I'm not tryin to have one-to-one 
-# relationships in this!
-
 Enrollment <- Enrollment %>%
   left_join(Exit %>% 
               select(EnrollmentID, Destination, ExitDate, OtherDestination),
             by = "EnrollmentID") %>% 
   left_join(small_project, by = "ProjectID") %>%
-  mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_Date))
+  mutate(ExitAdjust = coalesce(ExitDate, as.Date(meta_HUDCSV_Export_Date)))
 
-# Adding ProjectType to Enrollment too bc we need EntryAdjust & MoveInAdjust
+# Adding ProjectType to Enrollment bc we need EntryAdjust & MoveInAdjust
 
 # getting HH information
-# only doing this for RRH and PSHs since Move In Date doesn't matter for ES, etc.
+# only doing this for PH projects since Move In Date doesn't matter for ES, etc.
+
 HHMoveIn <- Enrollment %>%
   filter(ProjectType %in% c(3, 9, 10, 13)) %>%
   mutate(
@@ -97,8 +97,13 @@ small_location <- EnrollmentCoC %>%
 Enrollment <- Enrollment %>%
   left_join(small_location, by = "EnrollmentID")
 
-
 rm(small_project, HHEntry, HHMoveIn, small_client, small_location)
+
+
+# Only BedNight Services --------------------------------------------------
+
+Services <- Services %>%
+  filter(RecordType == 200 & !is.na(DateProvided))
 
 # HUD CSV Specs -----------------------------------------------------------
 

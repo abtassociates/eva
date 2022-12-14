@@ -1,5 +1,4 @@
 
-
 # Age ---------------------------------------------------------------------
 
 age_years <- function(earlier, later)
@@ -55,7 +54,8 @@ living_situation <- function(ReferenceNo) {
 
 project_type <- function(ReferenceNo){
   case_when(
-    ReferenceNo == 1 ~ "Emergency Shelter",
+    ReferenceNo == 0 ~ "Emergency Shelter (NbN)",
+    ReferenceNo == 1 ~ "Emergency Shelter (E/E)",
     ReferenceNo == 2 ~ "Transitional Housing",
     ReferenceNo == 3 ~ "Permanent Supportive Housing",
     ReferenceNo == 4 ~ "Street Outreach",
@@ -100,90 +100,12 @@ translate_HUD_yes_no <- function(column_name){
   )
 }
 
-
 # Translate to Values -----------------------------------------------------
-
 
 replace_yes_no <- function(column_name) {
   case_when(column_name == "No" | is.na(column_name) ~ 0,
             column_name == "Yes" ~ 1,
             TRUE ~ "something's wrong")
-}
-
-# Chronic logic -----------------------------------------------------------
-
-chronic_determination <- function(.data, aged_in = FALSE) { 
-  
-  needed_cols <- c("PersonalID", "EntryDate",
-                   "AgeAtEntry", "DisablingCondition",
-                   "DateToStreetESSH", "TimesHomelessPastThreeYears",
-                   "MonthsHomelessPastThreeYears", "ExitAdjust", "ProjectType")
-  
-  chronicity_levels <- if(aged_in) {
-    c("Chronic", "Aged In", "Nearly Chronic", "Not Chronic")}
-  else {c("Chronic", "Nearly Chronic", "Not Chronic")}
-  
-  if (all((needed_cols) %in% colnames(.data))) {
-    return(
-      .data %>%
-        mutate(DaysHomelessInProject = difftime(ymd(ExitAdjust),
-                                                ymd(EntryDate),
-                                                units = "days"),
-               DaysHomelessBeforeEntry = difftime(ymd(EntryDate),
-                                                  if_else(
-                                                    is.na(ymd(DateToStreetESSH)),
-                                                    ymd(EntryDate),
-                                                    ymd(DateToStreetESSH)
-                                                  ),
-                                                  units = "days"),
-               ChronicStatus =
-                 case_when(
-                   ((ymd(DateToStreetESSH) + days(365) <= ymd(EntryDate) &
-                       !is.na(DateToStreetESSH)) |
-                      (
-                        MonthsHomelessPastThreeYears %in% c(112, 113) &
-                          TimesHomelessPastThreeYears == 4 &
-                          !is.na(MonthsHomelessPastThreeYears) &
-                          !is.na(TimesHomelessPastThreeYears)
-                      )
-                   ) &
-                     DisablingCondition == 1 &
-                     !is.na(DisablingCondition) ~ "Chronic",
-                   ProjectType %in% c(1, 8) &
-                     ymd(DateToStreetESSH) + days(365) > ymd(EntryDate) &
-                     !is.na(DateToStreetESSH) &
-                     DaysHomelessBeforeEntry + DaysHomelessInProject >= 365 ~ "Aged In",
-                   ((
-                     ymd(DateToStreetESSH) + days(365) <= ymd(EntryDate) &
-                       !is.na(DateToStreetESSH)
-                   ) |
-                     (
-                       MonthsHomelessPastThreeYears %in% c(110:113) &
-                         TimesHomelessPastThreeYears%in% c(3, 4) &
-                         !is.na(MonthsHomelessPastThreeYears) &
-                         !is.na(TimesHomelessPastThreeYears)
-                     )
-                   ) &
-                     DisablingCondition == 1 &
-                     !is.na(DisablingCondition) ~ "Nearly Chronic",
-                   TRUE ~ "Not Chronic"),
-               ChronicStatus = case_when(aged_in ~ ChronicStatus,
-                                         TRUE ~ if_else(ChronicStatus == "Aged In",
-                                                        "Chronic",
-                                                        ChronicStatus)),
-               ChronicStatus = factor(
-                 ChronicStatus,
-                 ordered = TRUE,
-                 levels = chronicity_levels)))
-  }
-  
-  else {
-    stop(paste0(
-      "\nYou need to include the column \"",
-      needed_cols[needed_cols %in% colnames(.data) == FALSE],
-      "\" to use the chronic_determination() function"
-    ))
-  }
 }
 
 # Import Helper -----------------------------------------------------------
@@ -198,24 +120,22 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
   if (is.null(input$imported)) {return()}
   filename = glue::glue("{csvFile}.csv")
   data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
-                   ,col_types = col_types #,
-                   #guess_max = min(guess_max, n_max) AS 9/8: was getting an 
-                   # error: Error in vroom::vroom: object 'n_max' not found
+                   ,col_types = col_types
   )
   file.remove(filename)
   return(data)
 }
 
 
-getDQReportDataList <- function(dqData, dqOverlaps) {
-  select_list = c("Project Name" = "ProjectName",
+getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL) {
+  select_list = c("Organization Name" = "OrganizationName",
+                  "Project ID" = "ProjectID",
+                  "Project Name" = "ProjectName",
                   "Issue" = "Issue",
                   "Personal ID" = "PersonalID",
                   "Household ID" = "HouseholdID",
-                  "Entry Date"= "EntryDate",
-                  "Organization Name" = "OrganizationName",
-                  "Project ID" = "ProjectID")
-
+                  "Entry Date"= "EntryDate")
+  
   high_priority <- dqData %>% 
     filter(Type == "High Priority") %>% 
     select(all_of(select_list))
@@ -225,18 +145,56 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     select(all_of(select_list))
   
   warnings <- dqData %>%
-    filter(Type == "Warning" & Issue != "Overlapping Project Stays") %>% 
+    filter(Type == "Warning") %>% 
     select(all_of(select_list))
   
-  summary <- rbind(
-      dqData %>% select(ProjectName, Type, Issue, PersonalID),
-      dqOverlaps %>% select("ProjectName" = "ProjectName.x", Type, Issue, PersonalID)
+  dqOverlapDetails <- dqOverlaps %>%
+    select(-c(Issue, Type, Guidance, PreviousIssue)) %>%
+    relocate(OrganizationName,
+            ProjectID,
+            ProjectName,
+            ProjectType,
+            EnrollmentID,
+            HouseholdID,
+            PersonalID,
+            EntryDate,
+            FirstDateProvided,
+            "MoveInDate" = MoveInDateAdjust,
+            ExitDate,
+            PreviousOrganizationName,
+            PreviousProjectID,
+            PreviousProjectName,
+            PreviousProjectType,
+            PreviousEnrollmentID,
+            PreviousHouseholdID,
+            PreviousPersonalID,
+            PreviousEntryDate,
+            PreviousFirstDateProvided,
+            "PreviousMoveInDate" = PreviousMoveInDateAdjust,
+            PreviousExitDate
+    )
+  
+  mainsummary <- rbind(
+      dqData %>% select(Type, Issue, PersonalID),
+      dqOverlaps %>% select(Type, Issue, PersonalID)
     ) %>%
-    group_by(ProjectName, Type, Issue) %>%
+    # group_by(ProjectName, Type, Issue) %>%
+    group_by(Type, Issue) %>%
     summarise(Clients = n()) %>%
-    select(Type, Clients, ProjectName, Issue) %>%
+    select(Type, Clients, Issue) %>%
     arrange(Type, desc(Clients))
   
+  bySummaryLevel2 <- rlang::sym(bySummaryLevel)
+  byunitsummary <- rbind(
+      dqData %>% select(!!bySummaryLevel2, Type, Issue, PersonalID),
+      dqOverlaps %>% select(!!bySummaryLevel2, Type, Issue, PersonalID)
+    ) %>%
+    group_by(!!bySummaryLevel2, Type, Issue) %>%
+    summarise(Clients = n()) %>%
+    select(!!bySummaryLevel2, Type, Clients, Issue) %>%
+    arrange(Type, desc(Clients), !!bySummaryLevel2)
+    
+    
   guidance <- dqData %>%
     select(Type, Issue, Guidance) %>%
     unique() %>%
@@ -244,31 +202,121 @@ getDQReportDataList <- function(dqData, dqOverlaps) {
     arrange(Type)
   
   exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
-                           c(meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End, meta_HUDCSV_Export_Date))
+                             c(meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End, meta_HUDCSV_Export_Date))
   colnames(exportDetail) = c("Export Field", "Value")
   
   exportDFList <- list(
     exportDetail = exportDetail,
-    summary = summary,
+    mainsummary = mainsummary,
+    byunisummary = byunitsummary,
     guidance = guidance,
     high_priority = high_priority,
     errors = errors,
     warnings = warnings,
-    overlaps = dqOverlaps
+    overlaps = dqOverlapDetails
   )
   
-  names(exportDFList) = c(
+  names(exportDFList) <- c(
     "Export Detail",
-    "Summary",
+    paste(if_else(bySummaryLevel == "OrganizationName", "System","Organization"),"Summary"),
+    paste(if_else(bySummaryLevel == "OrganizationName", "Organization","Project"),"Summary"),
     "Guidance",
     "High Priority",
     "Errors", 
-    "Warnings", 
-    "Overlaps"
+    "Warnings",
+    "Overlap Details"
   )
   
   exportDFList <- exportDFList[sapply(exportDFList, 
                                       function(x) dim(x)[1]) > 0]
   
   return(exportDFList)
+}
+
+zip_initially_valid <- function () {
+  zipContents <- unzip(zipfile = input$imported$datapath, list=TRUE)
+  requiredFiles <- c("Client.csv",
+    "Enrollment.csv",
+    "Exit.csv",
+    "Services.csv",
+    "CurrentLivingSituation.csv",
+    "Project.csv",
+    "Inventory.csv",
+    "EnrollmentCoC.csv",
+    "Organization.csv",
+    "Export.csv"
+  )
+  missing_files = requiredFiles[!(requiredFiles %in% zipContents$Name)]
+
+  valid_file(0)
+  if(grepl("/", zipContents$Name[1])) {
+    title = "Your zip file is mis-structured"
+    err_msg = "It looks like you may have unzipped your HMIS csv because the
+    individual csv files are contained within a subdirectory."
+  } 
+  else if(length(missing_files)) {
+    title = "Wrong Dataset"
+    err_msg = "You uploaded something other than a HUD CSV export. Be sure
+    that you haven't accidentally uploaded an APR or an LSA. If you
+          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
+          contact your HMIS vendor.
+    "
+  } 
+  else if(!is_hashed()) {
+    title = "You uploaded an unhashed data set"
+    err_msg = "You have uploaded an unhashed version of the HMIS CSV Export. If you
+          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
+          contact your HMIS vendor."
+  } else {
+    return(TRUE)
+  }
+
+  if(!valid_file()) {
+    showModal(
+      modalDialog(
+        title = title,
+        err_msg,
+        easyClose = TRUE
+      )
+    )
+    reset("imported")
+    return(FALSE)
+  }
+}
+
+is_hashed <- function() {
+  # read Export file
+  Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
+  # read Client file
+  Client <- importFile("Client",
+                       col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
+  
+  # decide if the export is hashed
+  return(  
+    # TRUE
+    Export$HashStatus == 4 &
+    min(nchar(Client$FirstName), na.rm = TRUE) ==
+    max(nchar(Client$FirstName), na.rm = TRUE)
+  )
+}
+
+# Non-Residential Long Stayers --------------------------------------------
+
+calculate_long_stayers <- function(input, projecttype){
+  
+  served_in_date_range %>%
+    select(all_of(vars_prep), ProjectID) %>%
+    mutate(
+      Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate)),
+      Issue = "Days Enrollment Active Exceeds CoC-specific Settings",
+      Type = "Warning",
+      Guidance = str_squish("You have at least one active enrollment that has been
+         active for longer than the days set for this Project Type in your
+         CoC-specific Settings on the Home tab.")
+    ) %>%
+    filter(is.na(ExitDate) &
+             ProjectType == projecttype &
+             input < Days) %>% 
+    select(all_of(vars_we_want))
+  
 }

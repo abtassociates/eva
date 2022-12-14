@@ -1,20 +1,7 @@
-# COHHIO_HMIS
-# Copyright (C) 2020  Coalition on Homelessness and Housing in Ohio (COHHIO)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details at
-# <https://www.gnu.org/licenses/>.
 
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "[App Name Pending]"),
+  dashboardHeader(title = "Eva"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -49,7 +36,8 @@ dashboardPage(
   ), 
   dashboardBody(
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+      tags$html(lang="en") #Added as WAVE fix but not considered ideal
     ),
     useShinyjs(),
     tabItems(
@@ -57,11 +45,11 @@ dashboardPage(
         tabName = "tabHome",
         fluidRow(
           box(
-            title = "Welcome to [App Name Pending]!",
+            title = "Welcome to Eva!",
             width = 12,
             HTML(
-              "<div>[App Name Pending] is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
-              [App Name Pending] is designed to help you assess the accuracy and completeness of the data within your HMIS. 
+              "<div>Eva is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
+              Eva is designed to help you assess the accuracy and completeness of the data within your HMIS. 
               In future iterations it will also assist communities in analyzing your HMIS performance data, 
               including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
               <br/>
@@ -73,18 +61,11 @@ dashboardPage(
             )
           ),
           box(
-            title = "App Instructions",
+            title = "Instructions",
             width = 12,
             collapsible = TRUE,
             collapsed = TRUE,
             HTML("
-                 <h4>Status Panel</h4>
-                 <p>In the Status panel below, you will see the status of your
-                 upload. Once you have uploaded a hashed and structurally sound
-                 zip file, you will see a confirmation that your upload was 
-                 successful, the date range of the file you uploaded, plus the
-                 date your file was downloaded from your HMIS.</p>
-                 
                  <h4>Upload Hashed CSV zip file</h4>
                  <p>To upload your hashed HUD CSV Export zip file, click the \'Browse\'
                  button in the \'Upload Hashed CSV zip file\' panel. Once you find
@@ -99,10 +80,14 @@ dashboardPage(
                  structural issues that would prevent this app from functioning,
                  your file will be rejected with an error message, it will stop
                  processing your data further, and it will clear the app's memory
-                 until you upload another (structurally sound) file. </p>
+                 until you upload another (structurally sound) file. Once you have 
+                 uploaded a hashed and structurally sound
+                 zip file, you will see a confirmation that your upload was 
+                 successful, the date range of the file you uploaded, plus the
+                 date your file was downloaded from your HMIS.</p>
                  
                  <h4>Edit CoC-specific Settings</h4>
-                 <p>To make [App Name Pending] reporting more useful at the local level,
+                 <p>To make Eva reporting more useful at the local level,
                  you will find the CoC-specific settings that HMIS Leads can edit
                  to better analyse their data in a way that is meaningful to the
                  CoC. To edit these, click on the \'+\'. If you do not edit them,
@@ -117,7 +102,10 @@ dashboardPage(
                  that will prevent the app from functioning, the app will reject
                  your file and not process any further. All issues will display
                  in the panel and you can download the details, even if the file
-                 was rejected. </p>
+                 was rejected. Please ontact your vendor if there's a High
+                 Priority issue found or if your file shows an Error or Warning
+                 that you feel needs to be corrected. Not all issues found in
+                 this analysis will need immediate attention.</p>
                  
                  <h4>Citations</h4>
                  <p>This panel will credit the people who wrote the open-source code
@@ -126,19 +114,11 @@ dashboardPage(
           ),  
           box(
             title = "Upload Hashed CSV zip file",
-            HTML('<i class="fa fa-info-circle" 
-                title = "Use the Browse function to direct the app to the file folder containing your zipped CSV.">
-                 </i>'),
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
-            conditionalPanel(
-              condition = "valid_file() == 0",
-              uiOutput("headerFileInfo")),
-            conditionalPanel(
-              condition = "valid_file() == 1",
-              uiOutput("headerNoFileYet")),
+            uiOutput("headerFileInfo"),
             width = 12
           ), 
           box(
@@ -166,7 +146,7 @@ dashboardPage(
                 your system
                 <li><b>Transitional Housing:</b> enrollment's Length of Stay in days
                 is in the top 2% of all other TH project enrollments in your system
-                <li><b>Permanent Supportive Housing (Project Types 3, 9, and 10):</b> 
+                <li><b>Permanent Supportive Housing & Other Permanent Housing:</b> 
                 enrollment's Length of Stay in days is in the top 1% of all PSH project
                 enrollments in your system
                 <li><b>Coordinated Entry:</b> open enrollments with a Length of
@@ -269,6 +249,11 @@ dashboardPage(
             width = 12,
             DT::dataTableOutput("integrityChecker"),
             p(),
+            HTML("<p>Please contact your vendor if there's a High Priority issue
+                 found or if your file shows an Error or Warning that you feel
+                 needs to be corrected. Not all issues found in this analysis
+                 will need immediate attention.</p>"),
+            p(),
             uiOutput('downloadIntegrityBtn')
           ),
       box(
@@ -298,7 +283,12 @@ dashboardPage(
              <p> The foundational code for the app was shared by 
              <a href = 'https://www.cohhio.org' target= '_blank' rel='noopener noreferrer'>COHHIO</a>, 
              Coalition on Homelessness and Housing in Ohio.
-                 ")
+             
+             <p> Special thanks to 
+             <a href=\"http://www.squarepegdata.com/\" target= '_blank' rel='noopener noreferrer'>
+             Square Peg Data</a>,
+             San Diego City and County CoC (CA-601) and Minneapolis/Hennepin County CoC
+             (MN-500) for providing sample datasets to support programming.")
       )
         )
       ), 
@@ -308,7 +298,7 @@ dashboardPage(
           "headerPDDE"
         ), width = 12)),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
@@ -334,16 +324,19 @@ dashboardPage(
             br(),
             uiOutput("downloadPDDEReportButton")
           ),
-          box(title = "Guidance",
+          box(id = "PDDEGuidance",
+              DT::dataTableOutput("pdde_guidance_summary"),
+              title = "Guidance",
               width = 12,
-              HTML("coming soon"))
+              status = "info",
+              solidHeader = TRUE)
         )
       ),
       tabItem(
         tabName = "tabClientCount",
         fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
@@ -361,10 +354,11 @@ dashboardPage(
                
                <h4>Inputs</h4>
                <p>HMIS Leads may select a single project from the drop list. The
-               Date Range defaults to display \'current\' enrollments only, but
+               Date Range defaults to the export's start and end date, but
                users are encouraged to edit the Date Range as desired to see
                metrics such as how many clients/households exited with and 
-               without a Move-In Date, how many exited during the time period.</p>
+               without a Move-In Date, how many exited during a specific time period,
+               or \'current\' enrollments only.</p>
                
                <h4>Summary</h4>
                <p>Check here for a count of households or clients who have statuses
@@ -417,7 +411,7 @@ dashboardPage(
         tabName = "tabDQOrg",
         fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
@@ -599,7 +593,7 @@ dashboardPage(
         fluidRow(box(htmlOutput("headerDeskTime"),
                      width = 12)),
           fluidRow(box(
-            title = "App Instructions",
+            title = "Instructions",
             width = 12,
             collapsible = TRUE,
             collapsed = TRUE,
@@ -632,7 +626,7 @@ dashboardPage(
         tabName = "tabDQSystem",
         fluidRow(box(htmlOutput("headerSystemDQ"), width = 12, uiOutput("downloadFullDQReportButton"))),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
@@ -736,6 +730,7 @@ dashboardPage(
   )
 )
 
+
 # tabItem(
 #   tabName = "utilizationTab",
 #   fluidRow(box(htmlOutput(
@@ -814,12 +809,4 @@ dashboardPage(
 #   ))
 # ),
 
-# box(plotOutput("systemHHErrors"), width = 12,
-#     solidHeader = TRUE,
-#     status = "danger",
-#     title = "Projects with the Most Household Errors")),
-
-#fluidRow(
-#uiOutput("DQIneligible"),
-#uiOutput("DQOverlappingEEs")),
 

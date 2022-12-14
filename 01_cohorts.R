@@ -1,16 +1,3 @@
-# COHHIO_HMIS
-# Copyright (C) 2020  Coalition on Homelessness and Housing in Ohio (COHHIO)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details at
-# <https://www.gnu.org/licenses/>.
 
 # Some definitions:
 # PH = PSH + RRH
@@ -49,15 +36,43 @@ other_livingsituation <- c(8, 9, 17, 24, 30, 37, 99)
 
 lh_project_types <- c(1, 2, 4, 8)
 
-ph_project_types <- c(3, 9, 13)
+ph_project_types <- c(3, 9, 10, 13)
+
+psh_project_types <- c(3, 9, 10)
+
+psh_project_type <- 3
+
+ph_other_project_types <- c(9, 10)
 
 lh_at_entry_project_types <- c(1, 2, 3, 4, 8, 9, 13)
 
 lh_ph_hp_project_types <- c(1, 2, 3, 4, 8, 9, 12, 13)
 
+lh_residential_project_types <- c(1, 2, 8)
+
 coc_funded_project_types <- c(2, 3, 13)
 
 project_types_w_beds <- c(1, 2, 3, 8, 9, 10, 13)
+
+es_ee_project_type <- 1
+
+es_nbn_project_type <- 0
+
+th_project_type <- 2
+
+out_project_type <- 4
+
+sso_project_type <- 6
+
+other_project_project_type <- 7
+
+sh_project_type <- 8
+
+hp_project_type <- 12
+
+rrh_project_type <- 13
+
+ce_project_type <- 14
 
 # Funding Source Groupings ------------------------------------------------
 

@@ -1,58 +1,82 @@
-# COHHIO_HMIS
-# Copyright (C) 2020  Coalition on Homelessness and Housing in Ohio (COHHIO)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details at
-# <https://www.gnu.org/licenses/>. test
 
 function(input, output, session) {
   
   valid_file <- reactiveVal(0)
 
-  output$headerNoFileYet <- renderUI({
-    req(valid_file() == 0)
-    HTML("You have not successfully uploaded your zipped CSV file yet.")
+  output$headerFileInfo <- renderUI({
+    if(valid_file()) {
+      HTML(
+        paste0(
+          "<p>You have successfully uploaded your hashed HMIS CSV Export!</p>
+              <p><strong>Date Range of Current File: </strong>",
+          format(Export$ExportStartDate, "%m-%d-%Y"),
+          " to ",
+          format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
+          "<p><strong>Export Date: </strong>",
+          format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
+        )
+      )
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
   })
-
+  
+  output$headerPDDE <- renderUI({
+    if(valid_file()) {
+      list(h2("Project Descriptor Data Elements Checker"),
+         h4(paste(
+           format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+           "to",
+           format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+         )))
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
+  })
+  
+  output$headerSystemDQ <- renderUI({
+    if(valid_file() == 1) {
+      list(h2("System-level Data Quality"),
+           h4(
+             paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+                   "to",
+                   format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
+           ))
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
+  })
+  
+  output$headerDataQuality <- renderUI({
+    if(valid_file()) {
+      list(h2("Organization-level Data Quality"),
+           h4(paste(
+             format(Export$ExportStartDate, "%m-%d-%Y"),
+             "to",
+             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+           )))
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
+  })
+  
+  output$headerCurrent <- renderUI({
+    if(valid_file()) {
+      list(h2("Client Counts Report"),
+           h4(input$currentProviderList))
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
+  })
+  
   observeEvent(input$imported, {
     
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-
-    # read Export file
-    Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
-    # read Client file
-    Client <- importFile("Client",
-                         col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
-    # decide if the export is hashed
-    hashed <-  
-      # TRUE
-      Export$HashStatus == 4 &
-       min(nchar(Client$FirstName), na.rm = TRUE) ==
-       max(nchar(Client$FirstName), na.rm = TRUE)
+  
+    initially_valid_zip <- zip_initially_valid()
     
-    #if it's not hashed, throw an error and clear the upload
-    if (hashed == FALSE) {
-      # clear imported
-      valid_file(0)
-      reset("imported")
-      showModal(
-        modalDialog(
-          title = "You uploaded the wrong data set",
-          "You have uploaded an unhashed version of the HMIS CSV Export. If you
-          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
-          contact your HMIS vendor.",
-          easyClose = TRUE
-        )
-      )
-    } else { # if it is hashed, set imported_zip to 1 and start running scripts
-      valid_file(1)
+    if(initially_valid_zip) {
+
       hide('imported_progress')
       
       withProgress({
@@ -75,21 +99,29 @@ function(input, output, session) {
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("00_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
-        } else{ # if structural issues were found, reset gracefully
-        valid_file(0)
-        reset("imported")
-        showModal(
-          modalDialog(
-            title = "Your HMIS CSV Export is not structurally valid",
-            "Your HMIS CSV Export has some High Priority issues that must
-            be addressed by your HMIS Vendor. Please download the File Structure
-            Analysis for details.",
-            easyClose = TRUE
+          
+          showModal(
+            modalDialog(
+              title = "Upload successful",
+              "Congratulations! You have succesfully uploaded an HMIS CSV Export.",
+              easyClose = TRUE
+            )
           )
-        )
-      }
+        } else{ # if structural issues were found, reset gracefully
+          valid_file(0)
+          reset("imported")
+          showModal(
+            modalDialog(
+              title = "Your HMIS CSV Export is not structurally valid",
+              "Your HMIS CSV Export has some High Priority issues that must
+              be addressed by your HMIS Vendor. Please download the File Structure
+              Analysis for details.",
+              easyClose = TRUE
+            )
+          )
+        }
       })
-    } 
+    }
     
     dq_main_reactive <- reactive({
       req(valid_file()== 1)
@@ -109,7 +141,8 @@ function(input, output, session) {
     
     output$integrityChecker <- DT::renderDataTable(
       {
-        req(hashed == 1)
+        req(initially_valid_zip)
+
         a <- rbind(integrity_client,
                    integrity_enrollment,
                    integrity_living_situation,
@@ -128,7 +161,7 @@ function(input, output, session) {
       })
     
     output$downloadIntegrityBtn <- renderUI({
-      req(hashed == 1)
+      req(initially_valid_zip)
       downloadButton("downloadIntegrityCheck", "Download Structure Analysis Detail")
     })  
     
@@ -150,21 +183,6 @@ function(input, output, session) {
         )
       }
     )
-    
-    output$headerFileInfo <- renderUI({
-      req(valid_file() == 1)
-      HTML(
-        paste0(
-          "<p>You have successfully uploaded your hashed HMIS CSV Export!</p>
-            <p><strong>Date Range of Current File: </strong>",
-          format(Export$ExportStartDate, "%m-%d-%Y"),
-          " to ",
-          format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
-          "<p><strong>Export Date: </strong>",
-          format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
-        )
-      )
-    })
     
     if(valid_file() == 1) {
       updatePickerInput(session = session, inputId = "currentProviderList",
@@ -193,29 +211,8 @@ function(input, output, session) {
                            start = meta_HUDCSV_Export_Start,
                            end = meta_HUDCSV_Export_End)
     }
-
-    output$headerDataQuality <- renderUI({
-      req(valid_file() == 1)
-      list(h2("Organization-Level Data Quality"),
-           h4(paste(
-             format(Export$ExportStartDate, "%m-%d-%Y"),
-             "to",
-             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
-           )))
-    })
     
     ##### PDDE Checker-----
-    # header
-    output$headerPDDE <- renderUI({
-      req(valid_file() == 1)
-      list(h2("Project Descriptor Data Elements Checker"),
-           h4(paste(
-             format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-             "to",
-             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
-           )))
-    })
-    
     # summary table
     output$pdde_summary_table <- DT::renderDataTable({
       req(valid_file() == 1)
@@ -257,6 +254,23 @@ function(input, output, session) {
       }
     )
     
+    # guidance box
+    output$pdde_guidance_summary <- DT::renderDataTable({
+      req(valid_file() == 1)
+      
+      guidance <- pdde_main %>%
+        select(Type, Issue, Guidance) %>%
+        mutate(Type = factor(Type, levels = c("Error",
+                                              "Warning"))) %>%
+        arrange(Type, Issue) %>%
+        unique()
+      
+      datatable(guidance, 
+                rownames = FALSE,
+                escape = FALSE,
+                filter = 'top',
+                options = list(dom = 'ltpi'))
+    })
     
     output$DeskTimePlotDetail <- renderPlot({
       req(valid_file() == 1)
@@ -491,6 +505,7 @@ function(input, output, session) {
       datatable(guidance, 
                 rownames = FALSE,
                 escape = FALSE,
+                filter = 'top',
                 options = list(dom = 'ltpi'))
     })
     
@@ -537,15 +552,15 @@ function(input, output, session) {
       orgDQData <- dq_main_reactive() %>%
         filter(OrganizationName %in% c(input$orgList))
       
-      orgDQoverlaps <- overlapNEW %>%
-        filter(OrganizationName.x %in% c(input$orgList) | OrganizationName.y %in% c(input$orgList))
+      orgDQoverlaps <- overlaps %>%
+        filter(OrganizationName %in% c(input$orgList) | PreviousOrganizationName %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData, orgDQoverlaps)
+      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName")
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlapNEW)
+      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName")
     })
     
     output$downloadOrgDQReport <- downloadHandler(
@@ -590,75 +605,90 @@ function(input, output, session) {
  
     #PLOTS
     #Create reactive data sets for org-level tab plots
-    #Org-Level High Priority Errors by Project
+
+# Org-Level High Priority Errors by Project
     dq_org_hp_by_project_reac <- reactive({
+      req(valid_file() == 1)
       dq_hp_top_projects_r <- dq_org_lvl_high_priority_by_project_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     #Org-Level High Priority Errors by Issue
     dq_org_hp_by_issue_reac <- reactive({
+      req(valid_file() == 1)
       dq_hp_error_types_org_level_r <- dq_org_lvl_high_priority_by_issue_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     #Org-Level General Errors by Project
     dq_org_gen_errors_by_project_reac <- reactive({
+      req(valid_file() == 1)
       dq_general_errors_top_projects_r <- dq_org_lvl_general_errors_by_project_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     #Org-Level General Errors by Issue
     dq_org_gen_errors_by_issue_reac <- reactive({
+      req(valid_file() == 1)
       dq_general_error_types_org_level_r <- dq_org_lvl_general_errors_by_issue_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     #Org-Level Warnings by Project
     dq_org_warnings_by_project_reac <- reactive({
+      req(valid_file() == 1)
       dq_warnings_top_projects_r <- dq_org_lvl_warnings_by_project_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     #Org-Level Warnings by Issue
     dq_org_warnings_by_issue_reac <- reactive({
+      req(valid_file() == 1)
       dq_warning_types_org_level_r <- dq_org_lvl_warnings_by_issue_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     #Controls org-level plot heights reactively
     plotHeight_hp_errors_org <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_org_hp_by_issue_reac()) == 0)
+
       {plotHeight_hp_errors = 50}
       else {plotHeight_hp_errors = 400}
     })
     
     plotHeight_general_errors_org <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_org_gen_errors_by_issue_reac()) == 0)
       {plotHeight_general_errors = 50}
       else {plotHeight_general_errors = 400}
     })
     
     plotHeight_warnings_org <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_org_warnings_by_issue_reac()) == 0)
+
       {plotHeight_warnings = 50}
       else {plotHeight_warnings = 400}
     })
     
     #Controls system-level plot heights reactively
     plotHeight_hp_errors_system <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_sys_lvl_high_priority_by_issue) == 0)
       {plotHeight_hp_errors = 50}
       else {plotHeight_hp_errors = 400}
     })
     
     plotHeight_general_errors_system <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_sys_lvl_general_errors_by_issue) == 0)
       {plotHeight_general_errors = 50}
       else {plotHeight_general_errors = 400}
     })
     
     plotHeight_warnings_system <- reactive({
+      req(valid_file() == 1)
       if (nrow(dq_sys_lvl_warnings_by_issue) == 0)
       {plotHeight_warnings = 50}
       else {plotHeight_warnings = 400}
@@ -680,7 +710,7 @@ function(input, output, session) {
     
     #Sys-Level High Priority Errors by Issue
     output$systemDQHighPriorityErrorsByIssue <- renderPlot({
-      req(valid_file())
+      req(valid_file() == 1)
       
       validate(need(nrow(dq_sys_lvl_high_priority_by_issue) > 0, 
                     message = "Great job! No errors to show."))
@@ -747,7 +777,8 @@ function(input, output, session) {
     #Plot of projects within selected org with most high priority errors
     #Org-Level High Priority Errors
     output$orgDQHighPriorityErrorsByProject <- renderPlot({
-      req(valid_file())
+      req(valid_file() == 1)
+
       
       validate(need(nrow(dq_org_hp_by_project_reac()) > 0, 
                     message = "Great job! No errors to show."))
@@ -768,7 +799,7 @@ function(input, output, session) {
                  fill = "#DD614A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -804,7 +835,7 @@ function(input, output, session) {
                  fill = "#DD614A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -845,7 +876,7 @@ function(input, output, session) {
                  fill = "#16697A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -880,7 +911,7 @@ function(input, output, session) {
                  fill = "#16697A") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -919,7 +950,7 @@ function(input, output, session) {
                  fill = "#82C0CC") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -954,7 +985,7 @@ function(input, output, session) {
                  fill = "#82C0CC") +
         coord_flip() +
         labs(x = "",
-             y = "Number of Clients") +
+             y = "Number of Enrollments") +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
         scale_y_discrete(expand = expansion(mult = c(0, .1))) +
         theme_classic() +
@@ -1049,32 +1080,26 @@ function(input, output, session) {
         filter = 'top',
         options = list(dom = 'ltpi'))
     })
-
-  output$headerCurrent <- renderUI({
-    req(valid_file() == 1)
-    list(h2("Client Counts Report"),
-         h4(input$currentProviderList))
-  })
   
-  output$headerUtilization <- renderUI({
-    req(valid_file() == 1)
-    list(h2("Bed and Unit Utilization"),
-         h4(input$providerListUtilization),
-         h4(format(ymd(
-           input$utilizationDate
-         ), "%B %Y"))
-         )
-  })
-  
-  output$headerDeskTime <- renderUI({
-    req(valid_file() == 1)
-    list(h2("Data Entry Timeliness"),
-         h4(input$providersDeskTime),
-         h4(paste("Fixed Date Range:",
-                  format(today() - years(1), "%m-%d-%Y"),
-                  "to",
-                  format(today(), "%m-%d-%Y"))))
-  })
+  # output$headerUtilization <- renderUI({
+  #   req(valid_file() == 1)
+  #   list(h2("Bed and Unit Utilization"),
+  #        h4(input$providerListUtilization),
+  #        h4(format(ymd(
+  #          input$utilizationDate
+  #        ), "%B %Y"))
+  #        )
+  # })
+  # 
+  # output$headerDeskTime <- renderUI({
+  #   req(valid_file() == 1)
+  #   list(h2("Data Entry Timeliness"),
+  #        h4(input$providersDeskTime),
+  #        h4(paste("Fixed Date Range:",
+  #                 format(today() - years(1), "%m-%d-%Y"),
+  #                 "to",
+  #                 format(today(), "%m-%d-%Y"))))
+  # })
   
   # output$headerExitsToPH <- renderUI({
   #   req(valid_file() == 1)
@@ -1100,20 +1125,10 @@ function(input, output, session) {
   #        )))
   # })
   
-  output$headerSystemDQ <- renderUI({
-    req(valid_file() == 1)
-    list(h2("System-level Data Quality"),
-         h4(
-           paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-                 "to",
-                 format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
-         ))
-  })
-  
   #### DQ SYSTEM REPORT #### ----------------------
   # button
   output$downloadFullDQReportButton  <- renderUI({
-    if (!is.null(input$imported)) {
+    if (valid_file() == 1) {
       downloadButton(outputId = "downloadFullDQReport",
                      label = "Download")
     }
