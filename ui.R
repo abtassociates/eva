@@ -328,7 +328,6 @@ dashboardPage(
               DT::dataTableOutput("pdde_guidance_summary"),
               title = "Guidance",
               width = 12,
-              HTML("coming soon"),
               status = "info",
               solidHeader = TRUE)
         )
