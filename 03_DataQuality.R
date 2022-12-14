@@ -2050,12 +2050,14 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      
 
 # Plots for System-Level DQ Tab -------------------------------------------
-   
+   dq_plot_df <- dq_w_organization_names %>%
+     select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue, Type) %>%
+     unique()
+     
+     
    # Top orgs with Errors - High Priority
-   dq_data_high_priority_errors_org_level_plot <- dq_w_organization_names %>%
+   dq_data_high_priority_errors_org_level_plot <- dq_plot_df %>%
      filter(Type == "High Priority") %>% 
-     select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue) %>%
-     unique() %>%
      group_by(OrganizationName, OrganizationID) %>%
      summarise(clientsWithErrors = n()) %>%
      ungroup() %>%
@@ -2094,7 +2096,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    # Most common high priority errors system-wide
    
-   dq_data_high_priority_error_types_org_level <- dq_w_organization_names %>%
+   dq_data_high_priority_error_types_org_level <- dq_plot_df %>%
      filter(Type == "High Priority") %>%
      group_by(Issue) %>%
      summarise(Errors = n()) %>%
@@ -2128,10 +2130,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    # Top orgs with Errors - General
    
-   dq_data_errors_org_level_plot <- dq_w_organization_names %>%
+   dq_data_errors_org_level_plot <- dq_plot_df %>%
      filter(Type == "Error") %>% 
-     select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue) %>%
-     unique() %>%
      group_by(OrganizationName, OrganizationID) %>%
      summarise(clientsWithErrors = n()) %>%
      ungroup() %>%
@@ -2170,7 +2170,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    # Most common general errors system-wide
    
-   dq_data_error_types_org_level <- dq_w_organization_names %>%
+   dq_data_error_types_org_level <- dq_plot_df %>%
      filter(Type == "Error") %>%
      group_by(Issue) %>%
      summarise(Errors = n()) %>%
@@ -2204,9 +2204,9 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    #Top orgs with warnings
    
-   dq_data_warnings_org_level_plot <- dq_w_organization_names %>%
+   dq_data_warnings_org_level_plot <- dq_plot_df %>%
      filter(Type == "Warning") %>%
-     group_by(OrganizationName, OrganizationID, Issue) %>%
+     group_by(OrganizationName, OrganizationID) %>%
      summarise(Warnings = n()) %>%
      ungroup() %>%
      arrange(desc(Warnings))
@@ -2242,7 +2242,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    #Most common warnings system-wide
    
-   dq_data_warning_types_org_level <- dq_w_organization_names %>%
+   dq_data_warning_types_org_level <- dq_plot_df %>%
      filter(Type == "Warning") %>%
      group_by(Issue) %>%
      summarise(Warnings = n()) %>%
@@ -2275,12 +2275,13 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      geom_text(aes(label = Warnings), hjust = -0.5, color = "black")
    
 # Prepping dataframes for plots for Organization-Level DQ Tab -----------------
-   
+   dq_org_plot_df <- dq_main %>%
+     select(PersonalID, ProjectID, ProjectName, OrganizationName, HouseholdID, Issue, Type) %>%
+     unique()
+     
    # Top projects with Errors - High Priority
-   dq_data_high_priority_errors_top_projects_df <- dq_main %>%
+   dq_data_high_priority_errors_top_projects_df <- dq_org_plot_df %>%
      filter(Type %in% c("High Priority")) %>%
-     select(PersonalID, ProjectID, ProjectName, OrganizationName, HouseholdID, Issue) %>%
-     unique() %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(clientsWithErrors = n()) %>%
      ungroup() %>%
@@ -2288,7 +2289,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Most common high priority errors org-wide
    
-   dq_data_high_priority_error_types_org_df <- dq_w_ids %>%
+   dq_data_high_priority_error_types_org_df <- dq_org_plot_df %>%
      filter(Type %in% c("High Priority")) %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Errors = n()) %>%
@@ -2297,10 +2298,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Top projects with Errors - General
    
-   dq_data_errors_top_projects_df <- dq_w_ids %>%
+   dq_data_errors_top_projects_df <- dq_org_plot_df %>%
      filter(Type %in% c("Error")) %>%
-     select(PersonalID, ProjectID, ProjectName, OrganizationName, HouseholdID, Issue) %>%
-     unique() %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(clientsWithErrors = n()) %>%
      ungroup() %>%
@@ -2308,7 +2307,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Most common general errors org-wide
    
-   dq_data_error_types_org_df <- dq_w_ids %>%
+   dq_data_error_types_org_df <- dq_org_plot_df %>%
      filter(Type %in% c("Error")) %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Errors = n()) %>%
@@ -2317,7 +2316,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       #Top projects with warnings
    
-   dq_data_warnings_top_projects_df <- dq_w_ids %>%
+   dq_data_warnings_top_projects_df <- dq_org_plot_df %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(Warnings = n()) %>%
@@ -2326,7 +2325,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       #Most common warnings org-wide
    
-   dq_data_warning_types_org_df <- dq_w_ids %>%
+   dq_data_warning_types_org_df <- dq_org_plot_df %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Warnings = n()) %>%
