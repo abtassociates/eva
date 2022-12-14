@@ -35,11 +35,11 @@ function(input, output, session) {
   })
   
   output$headerSystemDQ <- renderUI({
-    if(valid_file()) {
-      list(h2("System-wide Data Quality"),
+    if(valid_file() == 1) {
+      list(h2("System-level Data Quality"),
            h4(
              paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-                   "through",
+                   "to",
                    format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
            ))
     } else {
@@ -49,7 +49,7 @@ function(input, output, session) {
   
   output$headerDataQuality <- renderUI({
     if(valid_file()) {
-      list(h2("Data Quality"),
+      list(h2("Organization-level Data Quality"),
            h4(paste(
              format(Export$ExportStartDate, "%m-%d-%Y"),
              "to",
@@ -169,7 +169,7 @@ function(input, output, session) {
       # req(valid_file() == 1)
 
       filename = function() {
-        paste("integrity-check-", Sys.Date(), ".xlsx", sep = "")
+        paste("File-Structure-Analysis-", Sys.Date(), ".xlsx", sep = "")
       },
       content = function(file) {
         write_xlsx(
@@ -254,6 +254,23 @@ function(input, output, session) {
       }
     )
     
+    # guidance box
+    output$pdde_guidance_summary <- DT::renderDataTable({
+      req(valid_file() == 1)
+      
+      guidance <- pdde_main %>%
+        select(Type, Issue, Guidance) %>%
+        mutate(Type = factor(Type, levels = c("Error",
+                                              "Warning"))) %>%
+        arrange(Type, Issue) %>%
+        unique()
+      
+      datatable(guidance, 
+                rownames = FALSE,
+                escape = FALSE,
+                filter = 'top',
+                options = list(dom = 'ltpi'))
+    })
     
     output$DeskTimePlotDetail <- renderPlot({
       req(valid_file() == 1)
@@ -538,12 +555,12 @@ function(input, output, session) {
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | PreviousOrganizationName %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData, orgDQoverlaps)
+      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName")
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlaps)
+      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName")
     })
     
     output$downloadOrgDQReport <- downloadHandler(
@@ -588,60 +605,69 @@ function(input, output, session) {
  
     #PLOTS
     #Create reactive data sets for org-level tab plots
-    dq_hp_top_projects <- reactive({
+
+# Org-Level High Priority Errors by Project
+    dq_org_hp_by_project_reac <- reactive({
       req(valid_file() == 1)
-      dq_hp_top_projects_r <- dq_data_high_priority_errors_top_projects_df %>%
+      dq_hp_top_projects_r <- dq_org_lvl_high_priority_by_project_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
-    dq_hp_error_types_org_level <- reactive({
+    #Org-Level High Priority Errors by Issue
+    dq_org_hp_by_issue_reac <- reactive({
       req(valid_file() == 1)
-      dq_hp_error_types_org_level_r <- dq_data_high_priority_error_types_org_df %>%
+      dq_hp_error_types_org_level_r <- dq_org_lvl_high_priority_by_issue_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
-    dq_general_errors_top_projects <- reactive({
+    #Org-Level General Errors by Project
+    dq_org_gen_errors_by_project_reac <- reactive({
       req(valid_file() == 1)
-      dq_general_errors_top_projects_r <- dq_data_errors_top_projects_df %>%
+      dq_general_errors_top_projects_r <- dq_org_lvl_general_errors_by_project_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
-    dq_general_error_types_org_level <- reactive({
+    #Org-Level General Errors by Issue
+    dq_org_gen_errors_by_issue_reac <- reactive({
       req(valid_file() == 1)
-      dq_general_error_types_org_level_r <- dq_data_error_types_org_df %>%
+      dq_general_error_types_org_level_r <- dq_org_lvl_general_errors_by_issue_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
-    dq_warnings_top_projects <- reactive({
+    #Org-Level Warnings by Project
+    dq_org_warnings_by_project_reac <- reactive({
       req(valid_file() == 1)
-      dq_warnings_top_projects_r <- dq_data_warnings_top_projects_df %>%
+      dq_warnings_top_projects_r <- dq_org_lvl_warnings_by_project_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
-    dq_warning_types_org_level <- reactive({
+    #Org-Level Warnings by Issue
+    dq_org_warnings_by_issue_reac <- reactive({
       req(valid_file() == 1)
-      dq_warning_types_org_level_r <- dq_data_warning_types_org_df %>%
+      dq_warning_types_org_level_r <- dq_org_lvl_warnings_by_issue_df %>%
         filter(OrganizationName %in% c(input$orgList))
     })
     
     #Controls org-level plot heights reactively
-    plotHeight_hp_errors <- reactive({
+    plotHeight_hp_errors_org <- reactive({
       req(valid_file() == 1)
-      if (nrow(dq_hp_error_types_org_level()) == 0)
+      if (nrow(dq_org_hp_by_issue_reac()) == 0)
+
       {plotHeight_hp_errors = 50}
       else {plotHeight_hp_errors = 400}
     })
     
-    plotHeight_general_errors <- reactive({
+    plotHeight_general_errors_org <- reactive({
       req(valid_file() == 1)
-      if (nrow(dq_general_error_types_org_level()) == 0)
+      if (nrow(dq_org_gen_errors_by_issue_reac()) == 0)
       {plotHeight_general_errors = 50}
       else {plotHeight_general_errors = 400}
     })
     
-    plotHeight_warnings <- reactive({
+    plotHeight_warnings_org <- reactive({
       req(valid_file() == 1)
-      if (nrow(dq_warning_types_org_level()) == 0)
+      if (nrow(dq_org_warnings_by_issue_reac()) == 0)
+
       {plotHeight_warnings = 50}
       else {plotHeight_warnings = 400}
     })
@@ -649,108 +675,112 @@ function(input, output, session) {
     #Controls system-level plot heights reactively
     plotHeight_hp_errors_system <- reactive({
       req(valid_file() == 1)
-      if (nrow(dq_data_high_priority_error_types_org_level) == 0)
+      if (nrow(dq_sys_lvl_high_priority_by_issue) == 0)
       {plotHeight_hp_errors = 50}
       else {plotHeight_hp_errors = 400}
     })
     
     plotHeight_general_errors_system <- reactive({
       req(valid_file() == 1)
-      if (nrow(dq_data_error_types_org_level) == 0)
+      if (nrow(dq_sys_lvl_general_errors_by_issue) == 0)
       {plotHeight_general_errors = 50}
       else {plotHeight_general_errors = 400}
     })
     
     plotHeight_warnings_system <- reactive({
       req(valid_file() == 1)
-      if (nrow(dq_data_warning_types_org_level) == 0)
+      if (nrow(dq_sys_lvl_warnings_by_issue) == 0)
       {plotHeight_warnings = 50}
       else {plotHeight_warnings = 400}
     })
     
     #SYSTEM-LEVEL TAB PLOTS
-    #High Priority Errors
-    output$systemDQHighPriorityErrors <- renderPlot({
+    #Sys-Level High Priority Errors by Org
+    output$systemDQHighPriorityErrorsByOrg <- renderPlot({
       req(valid_file() == 1)
       
-      validate(need(nrow(dq_data_high_priority_errors_org_level_plot) > 0, 
+      validate(need(nrow(dq_sys_lvl_high_priority_by_org) > 0, 
                     message = "Great job! No errors to show."))
       
-      dq_plot_organizations_high_priority_errors})
+      dq_sys_lvl_high_priority_by_org_plot})
     
-    output$systemDQHighPriorityErrors_ui <- renderUI({
-      plotOutput("systemDQHighPriorityErrors", height = plotHeight_hp_errors_system())
+    output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
+      plotOutput("systemDQHighPriorityErrorsByOrg", height = plotHeight_hp_errors_system())
     })
     
-    output$systemDQHighPriorityErrorTypes <- renderPlot({
+    #Sys-Level High Priority Errors by Issue
+    output$systemDQHighPriorityErrorsByIssue <- renderPlot({
       req(valid_file() == 1)
       
-      validate(need(nrow(dq_data_high_priority_error_types_org_level) > 0, 
+      validate(need(nrow(dq_sys_lvl_high_priority_by_issue) > 0, 
                     message = "Great job! No errors to show."))
       
-      dq_plot_high_priority_errors_org_level})
+      dq_sys_lvl_high_priority_by_issue_plot})
     
-    output$systemDQHighPriorityErrorTypes_ui <- renderUI({
-      plotOutput("systemDQHighPriorityErrorTypes", height = plotHeight_hp_errors_system())
+    output$systemDQHighPriorityErrorsByIssue_ui <- renderUI({
+      plotOutput("systemDQHighPriorityErrorsByIssue", height = plotHeight_hp_errors_system())
     })
     
-    #General Errors
-    output$systemDQErrors <- renderPlot({
+    #Sys-Level General Errors by Org
+    output$systemDQErrorsByOrg <- renderPlot({
       req(valid_file() == 1)
       
-      validate(need(nrow(dq_data_errors_org_level_plot) > 0, 
+      validate(need(nrow(dq_sys_lvl_general_errors_by_org) > 0, 
                     message = "Great job! No errors to show."))
       
-      dq_plot_organizations_errors})
+      dq_sys_lvl_general_errors_by_org_plot})
     
-    output$systemDQErrors_ui <- renderUI({
-      plotOutput("systemDQErrors", height = plotHeight_general_errors_system())
+    output$systemDQErrorsByOrg_ui <- renderUI({
+      plotOutput("systemDQErrorsByOrg", height = plotHeight_general_errors_system())
     })
     
-    output$systemDQErrorTypes <- renderPlot({
+    #Sys-Level General Errors by Issue
+    output$systemDQErrorByIssue <- renderPlot({
       req(valid_file() == 1)
       
-      validate(need(nrow(dq_data_error_types_org_level) > 0, 
+      validate(need(nrow(dq_sys_lvl_general_errors_by_issue) > 0, 
                     message = "Great job! No errors to show."))
       
-      dq_plot_errors_org_level})
+      dq_sys_lvl_general_errors_by_issue_plot})
     
-    output$systemDQErrorTypes_ui <- renderUI({
-      plotOutput("systemDQErrorTypes", height = plotHeight_general_errors_system())
+    output$systemDQErrorByIssue_ui <- renderUI({
+      plotOutput("systemDQErrorByIssue", height = plotHeight_general_errors_system())
     })
     
     
-    #Warnings
-    output$systemDQWarnings <- renderPlot({
+    #Sys-Level Warnings by Organization
+    output$systemDQWarningsByOrg <- renderPlot({
       req(valid_file() == 1)
       
-      validate(need(nrow(dq_data_warnings_org_level_plot) > 0, 
+      validate(need(nrow(dq_sys_lvl_general_errors_by_org) > 0, 
                     message = "Great job! No warnings to show."))
       
-      dq_plot_organizations_warnings})
+      dq_sys_lvl_warnings_by_org_plot})
     
-    output$systemDQWarnings_ui <- renderUI({
-      plotOutput("systemDQWarnings", height = plotHeight_warnings_system())
+    output$systemDQWarningsByOrg_ui <- renderUI({
+      plotOutput("systemDQWarningsByOrg", height = plotHeight_warnings_system())
     })
     
-    output$systemDQWarningTypes <- renderPlot({
+    #Sys-Level Warnings by Issue
+    output$systemDQWarningByIssue <- renderPlot({
       req(valid_file() == 1)
       
-      validate(need(nrow(dq_data_warning_types_org_level) > 0, 
+      validate(need(nrow(dq_sys_lvl_warnings_by_issue) > 0, 
                     message = "Great job! No warnings to show."))
       
-      dq_plot_warnings_org_level})
+      dq_sys_lvl_warnings_by_issue_plot})
     
-    output$systemDQWarningTypes_ui <- renderUI({
-      plotOutput("systemDQWarningTypes", height = plotHeight_warnings_system())
+    output$systemDQWarningByIssue_ui <- renderUI({
+      plotOutput("systemDQWarningByIssue", height = plotHeight_warnings_system())
     })
     
     #Plot of projects within selected org with most high priority errors
-    
-    output$orgDQHighPriorityErrors <- renderPlot({
+    #Org-Level High Priority Errors
+    output$orgDQHighPriorityErrorsByProject <- renderPlot({
       req(valid_file() == 1)
+
       
-      validate(need(nrow(dq_hp_top_projects()) > 0, 
+      validate(need(nrow(dq_org_hp_by_project_reac()) > 0, 
                     message = "Great job! No errors to show."))
       
       # dq_hp_top_projects()$hover <-
@@ -758,7 +788,7 @@ function(input, output, session) {
       #        paste0(ProjectName))
       # 
       ggplot(
-        head(dq_hp_top_projects(), 10L),
+        head(dq_org_hp_by_project_reac(), 10L),
         aes(
           x = reorder(ProjectName, clientsWithErrors),
           y = clientsWithErrors
@@ -784,18 +814,18 @@ function(input, output, session) {
         geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")})
     
     
-    output$orgDQHighPriorityErrors_ui <- renderUI({
-      plotOutput("orgDQHighPriorityErrors", height = plotHeight_hp_errors())
+    output$orgDQHighPriorityErrorsByProject_ui <- renderUI({
+      plotOutput("orgDQHighPriorityErrorsByProject", height = plotHeight_hp_errors_org())
     })
     
-    #Plot of most common high priority errors within an org
-    output$orgDQHighPriorityErrorTypes <- renderPlot({
+    #Org-Level Plot of most common high priority errors within an org
+    output$orgDQHighPriorityErrorByIssue <- renderPlot({
       req(valid_file() == 1)
       
-      validate(need(nrow(dq_hp_error_types_org_level()) > 0, 
+      validate(need(nrow(dq_org_hp_by_issue_reac()) > 0, 
                     message = "Great job! No errors to show."))
       
-      ggplot(head(dq_hp_error_types_org_level(), 10L),
+      ggplot(head(dq_org_hp_by_issue_reac(), 10L),
              aes(
                x = reorder(Issue, Errors),
                y = Errors
@@ -819,15 +849,15 @@ function(input, output, session) {
               panel.grid.major = element_blank()) +
         geom_text(aes(label = Errors), hjust = -0.5, color = "black")})
     
-    output$orgDQHighPriorityErrorTypes_ui <- renderUI({
-      plotOutput("orgDQHighPriorityErrorTypes", height = plotHeight_hp_errors())
+    output$orgDQHighPriorityErrorByIssue_ui <- renderUI({
+      plotOutput("orgDQHighPriorityErrorByIssue", height = plotHeight_hp_errors_org())
     })
     
-    #Plot of projects within selected org with most general errors
-    output$orgDQErrors <- renderPlot({
+    #Org-Level Plot of projects within selected org with most general errors
+    output$orgDQErrorsByProject <- renderPlot({
       req(valid_file() == 1)
       
-      validate(need(nrow(dq_general_errors_top_projects()) > 0, 
+      validate(need(nrow(dq_org_gen_errors_by_project_reac()) > 0, 
                     message = "Great job! No errors to show."))
       
       # dq_general_errors_top_projects()$hover <-
@@ -835,7 +865,7 @@ function(input, output, session) {
       #        paste0(ProjectName))
       
       ggplot(
-        head(dq_general_errors_top_projects(), 10L),
+        head(dq_org_gen_errors_by_project_reac(), 10L),
         aes(
           x = reorder(ProjectName, clientsWithErrors),
           y = clientsWithErrors
@@ -860,18 +890,18 @@ function(input, output, session) {
               panel.grid.major = element_blank()) +
         geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")})
     
-    output$orgDQErrors_ui <- renderUI({
-      plotOutput("orgDQErrors", height = plotHeight_general_errors())
+    output$orgDQErrorsByProject_ui <- renderUI({
+      plotOutput("orgDQErrorsByProject", height = plotHeight_general_errors_org())
     })
     
-    #Plot of most common general errors within an org
-    output$orgDQErrorTypes <- renderPlot({
+    #Org-Level Plot of most common general errors within an org
+    output$orgDQErrorByIssue <- renderPlot({
       req(valid_file() == 1)
       
-      validate(need(nrow(dq_general_error_types_org_level()) > 0, 
+      validate(need(nrow(dq_org_gen_errors_by_issue_reac()) > 0, 
                     message = "Great job! No errors to show."))
       
-      ggplot(head(dq_general_error_types_org_level(), 10L),
+      ggplot(head(dq_org_gen_errors_by_issue_reac(), 10L),
              aes(
                x = reorder(Issue, Errors),
                y = Errors
@@ -895,22 +925,22 @@ function(input, output, session) {
               panel.grid.major = element_blank()) +
         geom_text(aes(label = Errors), hjust = -0.5, color = "black")})
     
-    output$orgDQErrorTypes_ui <- renderUI({
-      plotOutput("orgDQErrorTypes", height = plotHeight_general_errors())
+    output$orgDQErrorByIssue_ui <- renderUI({
+      plotOutput("orgDQErrorByIssue", height = plotHeight_general_errors_org())
     })
     
-    #Plot of projects within selected org with most warnings
-    output$orgDQWarnings <- renderPlot({
+    #Org-Level Plot of projects within selected org with most warnings
+    output$orgDQWarningsByProject <- renderPlot({
       req(valid_file() == 1)
       
-      validate(need(nrow(dq_warnings_top_projects()) > 0, 
+      validate(need(nrow(dq_org_warnings_by_project_reac()) > 0, 
                     message = "Great job! No warnings to show."))
       
       # dq_warnings_top_projects()$hover <-
       #   with(dq_warnings_top_projects(),
       #        paste0(ProjectName))
       
-      ggplot(head(dq_warnings_top_projects(), 10L),
+      ggplot(head(dq_org_warnings_by_project_reac(), 10L),
              aes(
                x = reorder(ProjectName, Warnings),
                y = Warnings
@@ -934,18 +964,18 @@ function(input, output, session) {
               panel.grid.major = element_blank()) +
         geom_text(aes(label = Warnings), hjust = -0.5, color = "black")})
     
-    output$orgDQWarnings_ui <- renderUI({
-      plotOutput("orgDQWarnings", height = plotHeight_warnings())
+    output$orgDQWarningsByProject_ui <- renderUI({
+      plotOutput("orgDQWarningsByProject", height = plotHeight_warnings_org())
     })
     
-    #Plot of most common warnings within an org
-    output$orgDQWarningTypes <- renderPlot({
+    #Org-Level Plot of most common warnings within an org
+    output$orgDQWarningsByIssue <- renderPlot({
       req(valid_file() == 1)
       
-      validate(need(nrow(dq_warning_types_org_level()) > 0, 
+      validate(need(nrow(dq_org_warnings_by_issue_reac()) > 0, 
                     message = "Great job! No warnings to show."))
       
-      ggplot(head(dq_warning_types_org_level(), 10L),
+      ggplot(head(dq_org_warnings_by_issue_reac(), 10L),
              aes(
                x = reorder(Issue, Warnings),
                y = Warnings
@@ -969,8 +999,8 @@ function(input, output, session) {
               panel.grid.major = element_blank()) +
         geom_text(aes(label = Warnings), hjust = -0.5, color = "black")})
     
-    output$orgDQWarningTypes_ui <- renderUI({
-      plotOutput("orgDQWarningTypes", height = plotHeight_warnings())
+    output$orgDQWarningsByIssue_ui <- renderUI({
+      plotOutput("orgDQWarningsByIssue", height = plotHeight_warnings_org())
     })
     
     ##
@@ -1098,7 +1128,7 @@ function(input, output, session) {
   #### DQ SYSTEM REPORT #### ----------------------
   # button
   output$downloadFullDQReportButton  <- renderUI({
-    if (!is.null(input$imported)) {
+    if (valid_file() == 1) {
       downloadButton(outputId = "downloadFullDQReport",
                      label = "Download")
     }

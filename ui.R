@@ -114,9 +114,6 @@ dashboardPage(
           ),  
           box(
             title = "Upload Hashed CSV zip file",
-            HTML('<i class="fa fa-info-circle" 
-                title = "Use the Browse function to direct the app to the file folder containing your zipped CSV.">
-                 </i>'),
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,
@@ -327,9 +324,10 @@ dashboardPage(
             br(),
             uiOutput("downloadPDDEReportButton")
           ),
-          box(title = "Guidance",
+          box(id = "PDDEGuidance",
+              DT::dataTableOutput("pdde_guidance_summary"),
+              title = "Guidance",
               width = 12,
-              HTML("coming soon"),
               status = "info",
               solidHeader = TRUE)
         )
@@ -540,30 +538,30 @@ dashboardPage(
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Most Common Errors",
+            selected = "Top 10 Issues",
             title = "High Priority Errors",
-            tabPanel("Top Projects", uiOutput("orgDQHighPriorityErrors_ui")),
-            tabPanel("Most Common Errors", uiOutput("orgDQHighPriorityErrorTypes_ui")),
+            tabPanel("Top 10 Projects", uiOutput("orgDQHighPriorityErrorsByProject_ui")),
+            tabPanel("Top 10 Issues", uiOutput("orgDQHighPriorityErrorByIssue_ui")),
             width = 12
           )
         ),
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Most Common Errors",
+            selected = "Top 10 Issues",
             title = "General Errors",
-            tabPanel("Top Projects", uiOutput("orgDQErrors_ui")),
-            tabPanel("Most Common Errors", uiOutput("orgDQErrorTypes_ui")),
+            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui")),
+            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui")),
             width =12
           )
         ),
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Most Common Warnings",
+            selected = "Top 10 Issues",
             title = "Warnings",
-            tabPanel("Top Projects", uiOutput("orgDQWarnings_ui")),
-            tabPanel("Most Common Warnings", uiOutput("orgDQWarningTypes_ui")),
+            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui")),
+            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui")),
             width = 12
           )
         ),
@@ -700,30 +698,30 @@ dashboardPage(
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Most Common Errors",
+            selected = "Top 10 Issues",
             title = "High Priority Errors",
-            tabPanel("Top Organizations", uiOutput("systemDQHighPriorityErrors_ui")),
-            tabPanel("Most Common Errors", uiOutput("systemDQHighPriorityErrorTypes_ui")),
+            tabPanel("Top 10 Organizations", uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
             width = 12
           )
         ),
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Most Common Errors",
+            selected = "Top 10 Issues",
             title = "General Errors",
-            tabPanel("Top Organizations", uiOutput("systemDQErrors_ui")),
-            tabPanel("Most Common Errors", uiOutput("systemDQErrorTypes_ui")),
+            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQErrorByIssue_ui")),
             width =12
           )
         ),
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Most Common Warnings",
+            selected = "Top 10 Issues",
             title = "Warnings",
-            tabPanel("Top Organizations", uiOutput("systemDQWarnings_ui")),
-            tabPanel("Most Common Warnings", uiOutput("systemDQWarningTypes_ui")),
+            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQWarningByIssue_ui")),
             width = 12
           )
         )
