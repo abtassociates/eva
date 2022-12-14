@@ -2056,20 +2056,21 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      
      
    # Top orgs with Errors - High Priority
-   dq_data_high_priority_errors_org_level_plot <- dq_plot_df %>%
+
+   dq_sys_lvl_high_priority_by_org <- dq_plot_df %>%
      filter(Type == "High Priority") %>% 
      group_by(OrganizationName, OrganizationID) %>%
      summarise(clientsWithErrors = n()) %>%
      ungroup() %>%
      arrange(desc(clientsWithErrors))
    
-   dq_data_high_priority_errors_org_level_plot$hover <-
-     with(dq_data_high_priority_errors_org_level_plot,
+   dq_sys_lvl_high_priority_by_org$hover <-
+     with(dq_sys_lvl_high_priority_by_org,
           paste0(OrganizationName))
    
-   dq_plot_organizations_high_priority_errors <- 
+   dq_sys_lvl_high_priority_by_org_plot <-
      ggplot(
-       head(dq_data_high_priority_errors_org_level_plot, 10L),
+       head(dq_sys_lvl_high_priority_by_org, 10L),
        aes(
          x = reorder(hover, clientsWithErrors),
          y = clientsWithErrors
@@ -2096,15 +2097,15 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    # Most common high priority errors system-wide
    
-   dq_data_high_priority_error_types_org_level <- dq_plot_df %>%
+   dq_sys_lvl_high_priority_by_issue <- dq_plot_df %>%
      filter(Type == "High Priority") %>%
      group_by(Issue) %>%
      summarise(Errors = n()) %>%
      ungroup() %>%
      arrange(desc(Errors))
    
-   dq_plot_high_priority_errors_org_level <-
-     ggplot(head(dq_data_high_priority_error_types_org_level, 10L),
+   dq_sys_lvl_high_priority_by_issue_plot <-
+     ggplot(head(dq_sys_lvl_high_priority_by_issue, 10L),
             aes(
               x = reorder(Issue, Errors),
               y = Errors
@@ -2130,20 +2131,20 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    # Top orgs with Errors - General
    
-   dq_data_errors_org_level_plot <- dq_plot_df %>%
+   dq_sys_lvl_general_errors_by_org <- dq_plot_df %>%
      filter(Type == "Error") %>% 
      group_by(OrganizationName, OrganizationID) %>%
      summarise(clientsWithErrors = n()) %>%
      ungroup() %>%
      arrange(desc(clientsWithErrors))
    
-   dq_data_errors_org_level_plot$hover <-
-     with(dq_data_errors_org_level_plot,
+   dq_sys_lvl_general_errors_by_org$hover <-
+     with(dq_sys_lvl_general_errors_by_org,
           paste0(OrganizationName))
    
-   dq_plot_organizations_errors <-
+   dq_sys_lvl_general_errors_by_org_plot <-
      ggplot(
-       head(dq_data_errors_org_level_plot, 10L),
+       head(dq_sys_lvl_general_errors_by_org, 10L),
        aes(
          x = reorder(hover, clientsWithErrors),
          y = clientsWithErrors
@@ -2170,15 +2171,16 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    # Most common general errors system-wide
    
-   dq_data_error_types_org_level <- dq_plot_df %>%
+
+   dq_sys_lvl_general_errors_by_issue <- dq_plot_df %>%
      filter(Type == "Error") %>%
      group_by(Issue) %>%
      summarise(Errors = n()) %>%
      ungroup() %>%
      arrange(desc(Errors))
    
-   dq_plot_errors_org_level <-
-     ggplot(head(dq_data_error_types_org_level, 10L),
+   dq_sys_lvl_general_errors_by_issue_plot <-
+     ggplot(head(dq_sys_lvl_general_errors_by_issue, 10L),
             aes(
               x = reorder(Issue, Errors),
               y = Errors
@@ -2204,19 +2206,19 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    #Top orgs with warnings
    
-   dq_data_warnings_org_level_plot <- dq_plot_df %>%
+   dq_sys_lvl_warnings_by_org <- dq_plot_df %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, OrganizationID) %>%
      summarise(Warnings = n()) %>%
      ungroup() %>%
      arrange(desc(Warnings))
    
-   dq_data_warnings_org_level_plot$hover <-
-     with(dq_data_warnings_org_level_plot,
+   dq_sys_lvl_warnings_by_org$hover <-
+     with(dq_sys_lvl_warnings_by_org,
           paste0(OrganizationName))
    
-   dq_plot_organizations_warnings <-
-     ggplot(head(dq_data_warnings_org_level_plot, 10L),
+   dq_sys_lvl_warnings_by_org_plot <-
+     ggplot(head(dq_sys_lvl_warnings_by_org, 10L),
             aes(
               x = reorder(hover, Warnings),
               y = Warnings
@@ -2242,15 +2244,15 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    #Most common warnings system-wide
    
-   dq_data_warning_types_org_level <- dq_plot_df %>%
+   dq_sys_lvl_warnings_by_issue <- dq_plot_df %>%
      filter(Type == "Warning") %>%
      group_by(Issue) %>%
      summarise(Warnings = n()) %>%
      ungroup() %>%
      arrange(desc(Warnings))
    
-   dq_plot_warnings_org_level <-
-     ggplot(head(dq_data_warning_types_org_level, 10L),
+   dq_sys_lvl_warnings_by_issue_plot <-
+     ggplot(head(dq_sys_lvl_warnings_by_issue, 10L),
             aes(
               x = reorder(Issue, Warnings),
               y = Warnings
@@ -2280,8 +2282,9 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      unique()
      
    # Top projects with Errors - High Priority
-   dq_data_high_priority_errors_top_projects_df <- dq_org_plot_df %>%
-     filter(Type %in% c("High Priority")) %>%
+
+   dq_org_lvl_high_priority_by_project_df <- dq_org_plot_df %>%
+     filter(Type == "High Priority") %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(clientsWithErrors = n()) %>%
      ungroup() %>%
@@ -2289,8 +2292,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Most common high priority errors org-wide
    
-   dq_data_high_priority_error_types_org_df <- dq_org_plot_df %>%
-     filter(Type %in% c("High Priority")) %>%
+   dq_org_lvl_high_priority_by_issue_df <- dq_org_plot_df %>%
+     filter(Type == "High Priority") %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Errors = n()) %>%
      ungroup() %>%
@@ -2298,8 +2301,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Top projects with Errors - General
    
-   dq_data_errors_top_projects_df <- dq_org_plot_df %>%
-     filter(Type %in% c("Error")) %>%
+   dq_org_lvl_general_errors_by_project_df <- dq_org_plot_df %>%
+     filter(Type == "Error") %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(clientsWithErrors = n()) %>%
      ungroup() %>%
@@ -2307,8 +2310,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Most common general errors org-wide
    
-   dq_data_error_types_org_df <- dq_org_plot_df %>%
-     filter(Type %in% c("Error")) %>%
+   dq_org_lvl_general_errors_by_issue_df <- dq_org_plot_df %>%
+     filter(Type == "Error") %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Errors = n()) %>%
      ungroup() %>%
@@ -2316,7 +2319,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       #Top projects with warnings
    
-   dq_data_warnings_top_projects_df <- dq_org_plot_df %>%
+   dq_org_lvl_warnings_by_project_df <- dq_org_plot_df %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(Warnings = n()) %>%
@@ -2325,7 +2328,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       #Most common warnings org-wide
    
-   dq_data_warning_types_org_df <- dq_org_plot_df %>%
+   dq_org_lvl_warnings_by_issue_df <- dq_org_plot_df %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Warnings = n()) %>%
