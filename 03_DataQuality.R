@@ -825,13 +825,7 @@ missing_destination <- served_in_date_range %>%
   mutate(
     Issue = "Missing Destination",
     Type = "Warning",
-    Guidance = str_squish(
-      "It is widely understood that not every client will complete an exit
-      interview, especially for high-volume emergency shelters. A few warnings
-      for Missing Destination is no cause for concern, but if there is a
-      large number, please contact your CoC to work out a way to improve
-      client engagement."
-    )
+    Guidance = guidance_dkr_data
   ) %>%
   select(all_of(vars_we_want))
 
