@@ -48,9 +48,9 @@ dashboardPage(
             title = "Welcome to Eva!",
             width = 12,
             HTML(
-              "<div>Eva is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
-              Eva is designed to help you assess the accuracy and completeness of the data within your HMIS. 
-              In future iterations it will also assist communities in analyzing your HMIS performance data, 
+              "<div><b>Eva</b> is an open-source project intended for local use by HMIS Administrators in Continuums of Care (CoCs) 
+              around the U.S. and its territories. <b>Eva</b> is designed to help you assess the accuracy and completeness of the data 
+              within your HMIS. In future iterations it will also assist communities in analyzing HMIS performance data, 
               including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
               <br/>
               <div>This app works by using an uploaded 
@@ -66,28 +66,18 @@ dashboardPage(
             collapsible = TRUE,
             collapsed = TRUE,
             HTML("
-                 <h4>Upload Hashed CSV zip file</h4>
-                 <p>To upload your hashed HUD CSV Export zip file, click the \'Browse\'
-                 button in the \'Upload Hashed CSV zip file\' panel. Once you find
+                 <h4>Upload Hashed HMIS CSV zip file</h4>
+                 <p>To upload your hashed HMIS CSV Export, click the \'Browse\'
+                 button in the \'Upload Hashed HMIS CSV Export\' panel. Once you find
                  the zip file on your computer, select it and click \'Open\'. Your
-                 file will begin uploading. It will then check only the files
-                 needed to determine if it is hashed. If it is not, the app will
-                 reject your file with an error message, not process any further
-                 data, and clear the app's memory until you upload another (hashed)
-                 file. If it is hashed, it will then check for structural issues
-                 in your HUD CSV Export. Some structural issues will affect the
-                 functioning of this app and some will not. If your file has any
-                 structural issues that would prevent this app from functioning,
-                 your file will be rejected with an error message, it will stop
-                 processing your data further, and it will clear the app's memory
-                 until you upload another (structurally sound) file. Once you have 
-                 uploaded a hashed and structurally sound
-                 zip file, you will see a confirmation that your upload was 
-                 successful, the date range of the file you uploaded, plus the
-                 date your file was downloaded from your HMIS.</p>
+                 file will begin uploading. <b>Eva</b> will check to determine if 
+                 the Client.csv is hashed. If it is not, <b>Eva</b> will reject the 
+                 file with an error message, not process the upload further, 
+                 and will clear <b>Eva</b>'s memory until you upload an HMIS CSV
+                 Export with a hashed Client.csv file.</p>
                  
                  <h4>Edit CoC-specific Settings</h4>
-                 <p>To make Eva reporting more useful at the local level,
+                 <p>To make <b>Eva</b> reporting more useful at the local level,
                  you will find the CoC-specific settings that HMIS Leads can edit
                  to better analyse their data in a way that is meaningful to the
                  CoC. To edit these, click on the \'+\'. If you do not edit them,
@@ -96,18 +86,30 @@ dashboardPage(
                  in the settings panel for more information.</p>
                  
                  <h4>File Structure Analysis</h4>
-                 <p>Once the app verifies that your file is hashed, it will then
-                 check that your upload has all the right tables, columns, data
-                 types, and allowable values. If there are any issues
-                 that will prevent the app from functioning, the app will reject
-                 your file and not process any further. All issues will display
-                 in the panel and you can download the details, even if the file
-                 was rejected. Please ontact your vendor if there's a High
-                 Priority issue found or if your file shows an Error or Warning
-                 that you feel needs to be corrected. Not all issues found in
-                 this analysis will need immediate attention.</p>
+                 <p>Once <b>Eva</b> verifies that your Clietn.csv file is hashed, 
+                 it will then check that your upload has all the right tables, 
+                 columns, data types, and allowable values. <b>Eva</b> will generate
+                 data quality issues that are categorized as high priority errors,
+                 general errors, and warnings. If there are any high priority errors
+                 that prevent <b>Eva</b> from functioning, <b>Eva</b> will reject
+                 your upload, stop processing the export, and will clear  <b>Eva</b>'s
+                 memory. All issues will display in the HMIS CSV File Structure
+                 Analysis panel, and you can download the details, even if the file
+                 was rejected. Users should contact their vendor to resolve high 
+                 priority errors identified in the HMIS CSV Export File Structure
+                 Analysis, as well as any other strcutural issues which you feel need
+                 to be corrected. Not all structural issues found in this analysis will 
+                 prevent the data from being accepted for analysis, so they may not 
+                 require immediate attention. Once high priority strcutural errors have
+                 been corrected, you can attempt another upload to determine if the 
+                 HMIS CSV Export is structurally sound.</p>
                  
-                 <h4>Citations</h4>
+                 <p>Once you have uploaded a hashed and structurally sound zip file,
+                 you will see a confirmation that your upload was successful, the date
+                 range of the files you uploaded, plus the date your Export was 
+                 downloaded from your HMIS.
+                 
+                 <h4>Citations and Special Thanks</h4>
                  <p>This panel will credit the people who wrote the open-source code
                  used to build this app, plus the community on whose code this app
                  was built.</p>")
@@ -131,54 +133,51 @@ dashboardPage(
                 HTML(
                   "<h4>Long Stayers</h4>
                 <p>This check aims to help communities find enrollments that may be
-                missing an Exit Date. It does this by looking at the number of days an
-                enrollment has been open (or, the number of days between the Entry Date
-                and the date your upload was exported from your HMIS.) The projects in
-                your CoC have lengths of stay that will vary for different project
-                types. Any data quality flags about Long Stayers should be considered a
-                Warning, or, something to be checked for accuracy, and does not imply
-                that any data should be changed.
+                missing an Exit Date. First, the tool calculates the number of days each
+                enrollment has been open (meaning, the number of days between the Entry Date
+                and the date your upload was exported from your HMIS.) Then the check uses
+                one of two methodologies to identify Long Stayers. For select project types,
+                the check identifies the top % of longest stayers in each project type. For
+                other project types, the check compares the length of each enrollment with
+                assumptions entered about the expected maximum period of assistance envisioned
+                for the project type. For the latter check, users can set the assumptions for
+                each project type. Any data quality flags about Long Stayers should be 
+                considered a warning and a suggestion to verify that the identified clients 
+                are still active in thes eprojects, and does not imply that any data should 
+                be changed.
       
-                <p><b>Methodology by Project Type:</b>
+                <p><b>Top 2% longest enrollments are flagged for the following project types:</b>
                 <ul>
-                <li><b>Emergency Shelter, Entry Exit Method:</b> enrollment's Length
-                of Stay in days is in the top 2% of all other ES project enrollments in
-                your system
-                <li><b>Transitional Housing:</b> enrollment's Length of Stay in days
-                is in the top 2% of all other TH project enrollments in your system
-                <li><b>Permanent Supportive Housing & Other Permanent Housing:</b> 
-                enrollment's Length of Stay in days is in the top 1% of all PSH project
-                enrollments in your system
-                <li><b>Coordinated Entry:</b> open enrollments with a Length of
-                Stay (in days) that are in the top 2% project enrollments in
-                your system
-                <li><b>Safe Haven:</b> enrollment's Length of Stay in days is in the 
-                top 2% of all other SH project enrollments in your system
-                <li><b>Homelessness Prevention:</b> open enrollments with a Length of
-                Stay (in days) that are in the top 2% project enrollments in
-                your system
-                <li><b>Rapid Rehousing:</b> enrollment's Length
-                of Stay in days is in the top 2% of all other RRH project enrollments in
-                your system
-                <br>
-                <li><b>Street Outreach:</b> open enrollments with a Length of Stay in
-                days that are equal to or greater than the user-input available below
-                <li><b>Services Only:</b> open enrollments with a Length of Stay in
-                days that are equal to or greater than the user-input available below
-                <li><b>Other:</b> open enrollments with a Length of Stay in days that
-                are equal to or greater than the user-input available below
-                <li><b>Day Shelter:</b> open enrollments with a Length of Stay in days
-                that are equal to or greater than the user-input available below
-                <li><b>Emergency Shelter, Night-by-Night:</b> open enrollments with a
-                Length of Stay in days that are equal to or greater than the user-input
-                available below
+                <li>Coordinated Entry
+                <li>Emergency Shelter - Entry/Exit
+                <li>Safe Haven
+                <li>Transitional Housing
+                <li>Rapid Rehousing
+                <li>Homeless Prevention
+                </ul>
+                
+                <p><b>Top 1% longest enrollments are flagged for the following project types:</b>
+                <ul>
+                <li>Permanent Supportive Housing
+                <li>Permanent Housing with Services (no disability required for entry)
+                <li>Permanent Housing - Housing Only
+                </ul>
+                
+                <p><b>Enrollments longer than CoC-specified length of assistance targets are flagged for the following project types:</b>
+                <ul>
+                <li>Street Outreach
+                <li>Services Only
+                <li>Other
+                <li>Day Shelter
+                <li>Emergency Shelter, Night-by-Night
                 </ul>
       
-                <p>Below, you can set the number of days your CoC would consider an
-                enrollment to be well beyond the expected number of days in the Project
-                Type. You can set these based on your current data or leave them at the
-                defaults."
-                ),
+                <p>Below, you can specify the expected maximum period of assistance
+                envisioned for the project type, meaning the timeframe after which you
+                would want an organization to confirm the client is still active in the 
+                project. You can set these based on your current data or leave them at
+                the defaults (these defaults do not imply any HUD recommendations).</p>
+              
                 column(
                   numericInput(
                     inputId = "ESNbNLongStayers",
