@@ -127,7 +127,7 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
 }
 
 
-getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
+getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL) {
   select_list = c("Organization Name" = "OrganizationName",
                   "Project ID" = "ProjectID",
                   "Project Name" = "ProjectName",
@@ -174,7 +174,7 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
             PreviousExitDate
     )
   
-  summary <- rbind(
+  mainsummary <- rbind(
       dqData %>% select(Type, Issue, PersonalID),
       dqOverlaps %>% select(Type, Issue, PersonalID)
     ) %>%
@@ -184,6 +184,17 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
     select(Type, Clients, Issue) %>%
     arrange(Type, desc(Clients))
   
+  bySummaryLevel2 <- rlang::sym(bySummaryLevel)
+  byunitsummary <- rbind(
+      dqData %>% select(!!bySummaryLevel2, Type, Issue, PersonalID),
+      dqOverlaps %>% select(!!bySummaryLevel2, Type, Issue, PersonalID)
+    ) %>%
+    group_by(!!bySummaryLevel2, Type, Issue) %>%
+    summarise(Clients = n()) %>%
+    select(!!bySummaryLevel2, Type, Clients, Issue) %>%
+    arrange(Type, desc(Clients), !!bySummaryLevel2)
+    
+    
   guidance <- dqData %>%
     select(Type, Issue, Guidance) %>%
     unique() %>%
@@ -196,7 +207,8 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
   
   exportDFList <- list(
     exportDetail = exportDetail,
-    summary = summary,
+    mainsummary = mainsummary,
+    byunisummary = byunitsummary,
     guidance = guidance,
     high_priority = high_priority,
     errors = errors,
@@ -206,7 +218,8 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL) {
   
   names(exportDFList) <- c(
     "Export Detail",
-    "Summary",
+    paste(if_else(bySummaryLevel == "OrganizationName", "System","Organization"),"Summary"),
+    paste(if_else(bySummaryLevel == "OrganizationName", "Organization","Project"),"Summary"),
     "Guidance",
     "High Priority",
     "Errors", 

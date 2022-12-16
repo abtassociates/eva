@@ -33,7 +33,7 @@ subpopNotTotal <- Inventory %>%
            OtherBedInventory,
          " but your Total Beds is ",
          BedInventory,
-         ". These totals should match.")
+         ". These totals must match.")
   ) %>%
   select(all_of(PDDEcols))
 
@@ -184,8 +184,8 @@ hmisNotParticipatingButClient <- Project %>%
            !is.na(PersonalID)) %>%
   mutate(Issue = "Non-HMIS-Participating project has client-level data",
          Type = "Warning",
-         Guidance = "Please check that this project is marked correctly as
-         non-participating. There is client data in this project."
+         Guidance = str_squish("There is client data in this project. Please check that
+         this project is marked correctly as non-participating.")
   ) %>%
   select(all_of(PDDEcols)) 
 
