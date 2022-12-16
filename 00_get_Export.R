@@ -4,7 +4,7 @@ library(lubridate)
 library(readxl)
 library(HMIS)
 
-Export <- importFile("Export", col_types = "cncccccccTDDcncnnn")
+Export <- importFile("Export", col_types = "cncccccccTDDcccnnn")
 
 Client <- importFile("Client",
                      col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
@@ -20,7 +20,7 @@ CurrentLivingSituation <- importFile("CurrentLivingSituation",
                                      col_types = "cccDncnnnnncTTcTc")
 
 EmploymentEducation <- importFile("EmploymentEducation",
-                                  col_types = "cccDnnnnnnTTnTn")
+                                  col_types = "cccDnnnnnnTTcTc")
 
 Exit <- importFile("Exit",
                    col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
