@@ -112,6 +112,7 @@ function(input, output, session) {
               easyClose = TRUE
             )
           )
+          write(paste(session$token, "|",Sys.time(),": Successful upload"), "www/metadata/upload_metadata.txt", append=TRUE)
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
