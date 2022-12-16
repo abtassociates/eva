@@ -8,19 +8,23 @@ library(HMIS)
 source("03_guidance.R")
 
 va_funded <- Funder %>%
-  filter(Funder %in% va_fund_sources) %>%
+  filter(Funder %in% c(va_fund_sources)) %>%
   pull(ProjectID)
 
 rhy_funded <- Funder %>%
-  filter(Funder %in% rhy_fund_sources) %>%
+  filter(Funder %in% c(rhy_fund_sources)) %>%
   pull(ProjectID)
 
 path_funded <- Funder %>%
-  filter(Funder == path_fund_sources) %>%
+  filter(Funder %in% c(path_fund_sources)) %>%
   pull(ProjectID)
 
 ssvf_funded <- Funder %>%
-  filter(Funder == ssvf_fund_sources) %>%
+  filter(Funder %in% c(ssvf_fund_sources)) %>%
+  pull(ProjectID)
+
+continuum_projects <- Project %>%
+  filter(ContinuumProject == 1) %>%
   pull(ProjectID)
 
 # Projects to Check -------------------------------------------------------
@@ -166,7 +170,11 @@ dq_dob <- served_in_date_range %>%
       being born. Correct either the Date of Birth or the Project Start Date, 
       whichever is incorrect."),
       Issue %in% c("Missing DOB", "Missing DOB Data Quality") ~
-        guidance_missing_at_entry,
+        str_squish("This data element is required to be collected at Project
+                   Start. Please go to the client's assessment at Project Start
+                   to enter this data to HMIS. If this data was not collected,
+                   the client declined to provide the information or was unable
+                   to provide it, please update the DOB Quality field accordingly."),
       Issue == "Don't Know/Refused/Data Not Collected DOB" ~
         guidance_dkr_data
     )
@@ -179,44 +187,32 @@ dq_ssn <- served_in_date_range %>%
     SSN = case_when(
       (is.na(SSN) & !SSNDataQuality %in% c(8, 9)) |
         is.na(SSNDataQuality) | SSNDataQuality == 99 ~ "Missing",
-      SSNDataQuality %in% c(8, 9) ~ "DKR",
-      (nchar(SSN) != 9 & SSNDataQuality != 2) |
-        substr(SSN, 1, 3) %in% c("000", "666") |
-        substr(SSN, 1, 1) == 9 |
-        substr(SSN, 4, 5) == "00" |
-        substr(SSN, 6, 9) == "0000" |
-        SSNDataQuality == 2 |
-        SSN %in% c(
-          111111111,
-          222222222,
-          333333333,
-          444444444,
-          555555555,
-          777777777,
-          888888888,
-          123456789
-        ) ~ "Invalid",
-      SSNDataQuality == 2 & nchar(SSN) != 9 ~ "Incomplete"
+      SSNDataQuality %in% c(8, 9) ~ "DKR"
     ), 
     Issue = case_when(
       SSN == "Missing" ~ "Missing SSN",
-      SSN == "Invalid" ~ "Invalid SSN",
-      SSN == "DKR" ~ "Don't Know/Refused SSN",
-      SSN == "Incomplete" ~ "Invalid SSN"
+      SSN == "DKR" ~ "Don't Know/Refused SSN"
     ),
     Type = case_when(
-      Issue %in% c("Missing SSN", "Invalid SSN") ~ "Error",
+      Issue == "Missing SSN" ~ "Error",
       Issue == "Don't Know/Refused SSN" ~ "Warning"
     ),
     Guidance = case_when(
-      Issue == "Don't Know/Refused SSN" ~ guidance_dkr_data,
-      Issue == "Missing SSN" ~ guidance_missing_pii,
-      Issue == "Invalid SSN" ~ 
-        str_squish("The Social Security Number does not conform with standards
-                   set by the Social Security Administration. This includes rules
-                   like every SSN is exactly 9 digits and cannot have certain
-                   number patterns. Navigate to the client's record in HMIS to
-                   correct the data.")
+      Issue == "Don't Know/Refused SSN" ~ 
+        str_squish(
+          "This data element is required to be collected at Project Start.
+          Please go to the client's assessment at Project Start to enter this
+          data to HMIS. If this data was not collected, the client declined to
+          provide the information or was unable to provide it, please update the
+          SSN Quality field accordingly."
+        ),
+      Issue == "Missing SSN" ~ 
+        str_squish("This data element is required to be collected at Project
+                   Start. Please go to the client's assessment at Project Start
+                   to enter this data to HMIS. If this data was not collected
+                   because the client declined to provide the information or was
+                   unable to provide it, please update the SSN Quality field
+                   accordingly.")
     )
   ) %>%
   filter(!is.na(Issue)) %>%
@@ -306,9 +302,7 @@ missing_client_location <- served_in_date_range %>%
   ) %>%
   mutate(Type = "High Priority",
          Issue = "Missing Client Location",
-         Guidance = 
-           str_squish("If Client Location is missing, this household will be
-                      excluded from HUD reporting.")) %>%
+         Guidance = guidance_missing_at_entry) %>%
   select(all_of(vars_we_want))
 
 # Household Issues --------------------------------------------------------
@@ -324,9 +318,10 @@ hh_children_only <- served_in_date_range %>%
   distinct(HouseholdID, maxAge, .keep_all = TRUE) %>%
   mutate(Issue = "Oldest Household Member Under 12",
          Type = "High Priority",
-         Guidance = str_squish("It is expected that at least one member of any
-         given household will be over the age of 12. If you are not sure how to
-         correct this, please contact the HMIS team for help.")) %>%
+         Guidance = str_squish(
+           "This household has no one over the age of 12. This is unexpected and
+           it could be an error. Please confirm date(s) of birth and household composition to ensure
+           all members of the household are associated.")) %>%
   select(all_of(vars_we_want))
 
 hh_no_hoh <- served_in_date_range %>%
@@ -341,13 +336,7 @@ hh_no_hoh <- served_in_date_range %>%
   mutate(
     Issue = "No Head of Household",
     Type = "High Priority",
-    Guidance = str_squish("Please be sure all members of the household are
-                          included in the 
-      program stay, and that each household member's birthdate is correct. 
-      If those things are both true, or the client is a single, ensure that
-      each household member has \"Relationship to Head of Household\" answered 
-      at Project Start and that one of them says Self (head of household).
-      Singles are always Self (head of household).")
+    Guidance = guidance_hoh_issues
   ) %>%
   select(all_of(vars_we_want))
 
@@ -361,9 +350,7 @@ hh_too_many_hohs <- served_in_date_range %>%
   left_join(served_in_date_range, by = c("PersonalID", "HouseholdID")) %>%
   mutate(Issue = "Too Many Heads of Household",
          Type = "High Priority",
-         Guidance = str_squish("Check the assessment at Project Start to be sure each 
-         household member has \"Relationship to Head of Household\" answered 
-         and that only one of them says \"Self (head of household)\".")) %>%
+         Guidance = guidance_hoh_issues) %>%
   select(all_of(vars_we_want))
 
 hh_missing_rel_to_hoh <- served_in_date_range %>%
@@ -371,9 +358,7 @@ hh_missing_rel_to_hoh <- served_in_date_range %>%
   anti_join(hh_no_hoh["HouseholdID"], by = "HouseholdID") %>%
   mutate(Issue = "Missing Relationship to Head of Household",
          Type = "High Priority",
-         Guidance = str_squish("Check the assessment at Project Start to be sure each 
-         household member has \"Relationship to Head of Household\" answered 
-         and that only one of them says \"Self (head of household)\".")) %>%
+         Guidance = guidance_hoh_issues) %>%
   select(all_of(vars_we_want))
 
 hh_issues <- rbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
@@ -777,14 +762,14 @@ Top2_movein <- subset(missed_movein_stayers,
     Issue = "Possible Missed Move-In Date",
     Type = "Warning",
     Guidance = paste(
-      "This enrollment is in the top",
+      "This enrollment may be missing a Move-In Date. It is being flagged because
+      the length of time since the enrollment date is in the top", 
       case_when(ProjectType %in% c(3, 9, 10) ~ "1%",
                 TRUE ~ "2%"),
-      "of all other projects of its type in your HMIS system for
-      how many days it has been active without a Move-In Date. Please be sure this
-      household is still awaiting housing in this project and if not, record the
-      date they either moved into housing or exited your project. If they are
-      still awaiting housing, do not change the data."
+      "for this project type. Please be sure this household is still awaiting
+      housing in this project and if not, record the date they either moved into
+      housing or exited your project. If they are still awaiting housing, do not
+      change the data."
     )
   )
 
@@ -799,14 +784,13 @@ long_stayers <- rbind(Top1_PSH,
     Type = "Warning",
     Guidance = 
       str_squish(
-        paste("This enrollment is in the top",
+        paste("This enrollment may be missing an Exit Date. It is being flagged
+              because the length of time since the enrollment date is in the top",
               case_when(ProjectType %in% c(3, 9, 10) ~ "1%",
-                        TRUE ~ "2%"),
-              "of all other projects of its type in your HMIS system for how many
-              days it has been active. Please be sure this household is still
-              actively enrolled in this project and if not, record the date they
-              exited your project as the Exit Date. If they are actively enrolled,
-              do not change the data."))
+                        TRUE ~ "2%"),              
+              "for this project type. Please be sure this household is still
+              active in the project and if not, record the Project Exit Date. If
+              they are still active, do not change the data."))
   ) %>% 
   select(all_of(vars_we_want))
 
@@ -841,13 +825,7 @@ missing_destination <- served_in_date_range %>%
   mutate(
     Issue = "Missing Destination",
     Type = "Warning",
-    Guidance = paste(
-      "It is widely understood that not every client will complete an exit
-          interview, especially for high-volume emergency shelters. A few warnings
-          for Missing Destination is no cause for concern, but if there is a
-          large number, please contact your CoC to work out a way to improve
-          client engagement."
-    )
+    Guidance = guidance_dkr_data
   ) %>%
   select(all_of(vars_we_want))
 
@@ -1055,8 +1033,8 @@ duplicate_ees <-
     Type = "High Priority",
     Guidance = 
       str_squish("A client cannot have two enrollments with the same entry date
-    into the same project. These are duplicate enrollment records. Please 
-    consult your HMIS System Administrator on how to correct these duplicates.")
+                 into the same project. These are duplicate enrollment records.
+                 Please address this issue.")
   ) %>%
   select(all_of(vars_we_want))
 
@@ -2072,24 +2050,27 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      
 
 # Plots for System-Level DQ Tab -------------------------------------------
-   
+   dq_plot_df <- dq_w_organization_names %>%
+     select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue, Type) %>%
+     unique()
+     
+     
    # Top orgs with Errors - High Priority
-   dq_data_high_priority_errors_org_level_plot <- dq_w_organization_names %>%
+
+   dq_sys_lvl_high_priority_by_org <- dq_plot_df %>%
      filter(Type == "High Priority") %>% 
-     select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue) %>%
-     unique() %>%
      group_by(OrganizationName, OrganizationID) %>%
      summarise(clientsWithErrors = n()) %>%
      ungroup() %>%
      arrange(desc(clientsWithErrors))
    
-   dq_data_high_priority_errors_org_level_plot$hover <-
-     with(dq_data_high_priority_errors_org_level_plot,
+   dq_sys_lvl_high_priority_by_org$hover <-
+     with(dq_sys_lvl_high_priority_by_org,
           paste0(OrganizationName))
    
-   dq_plot_organizations_high_priority_errors <- 
+   dq_sys_lvl_high_priority_by_org_plot <-
      ggplot(
-       head(dq_data_high_priority_errors_org_level_plot, 10L),
+       head(dq_sys_lvl_high_priority_by_org, 10L),
        aes(
          x = reorder(hover, clientsWithErrors),
          y = clientsWithErrors
@@ -2116,15 +2097,15 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    # Most common high priority errors system-wide
    
-   dq_data_high_priority_error_types_org_level <- dq_w_organization_names %>%
+   dq_sys_lvl_high_priority_by_issue <- dq_plot_df %>%
      filter(Type == "High Priority") %>%
      group_by(Issue) %>%
      summarise(Errors = n()) %>%
      ungroup() %>%
      arrange(desc(Errors))
    
-   dq_plot_high_priority_errors_org_level <-
-     ggplot(head(dq_data_high_priority_error_types_org_level, 10L),
+   dq_sys_lvl_high_priority_by_issue_plot <-
+     ggplot(head(dq_sys_lvl_high_priority_by_issue, 10L),
             aes(
               x = reorder(Issue, Errors),
               y = Errors
@@ -2150,22 +2131,20 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    # Top orgs with Errors - General
    
-   dq_data_errors_org_level_plot <- dq_w_organization_names %>%
+   dq_sys_lvl_general_errors_by_org <- dq_plot_df %>%
      filter(Type == "Error") %>% 
-     select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue) %>%
-     unique() %>%
      group_by(OrganizationName, OrganizationID) %>%
      summarise(clientsWithErrors = n()) %>%
      ungroup() %>%
      arrange(desc(clientsWithErrors))
    
-   dq_data_errors_org_level_plot$hover <-
-     with(dq_data_errors_org_level_plot,
+   dq_sys_lvl_general_errors_by_org$hover <-
+     with(dq_sys_lvl_general_errors_by_org,
           paste0(OrganizationName))
    
-   dq_plot_organizations_errors <-
+   dq_sys_lvl_general_errors_by_org_plot <-
      ggplot(
-       head(dq_data_errors_org_level_plot, 10L),
+       head(dq_sys_lvl_general_errors_by_org, 10L),
        aes(
          x = reorder(hover, clientsWithErrors),
          y = clientsWithErrors
@@ -2192,15 +2171,16 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    # Most common general errors system-wide
    
-   dq_data_error_types_org_level <- dq_w_organization_names %>%
+
+   dq_sys_lvl_general_errors_by_issue <- dq_plot_df %>%
      filter(Type == "Error") %>%
      group_by(Issue) %>%
      summarise(Errors = n()) %>%
      ungroup() %>%
      arrange(desc(Errors))
    
-   dq_plot_errors_org_level <-
-     ggplot(head(dq_data_error_types_org_level, 10L),
+   dq_sys_lvl_general_errors_by_issue_plot <-
+     ggplot(head(dq_sys_lvl_general_errors_by_issue, 10L),
             aes(
               x = reorder(Issue, Errors),
               y = Errors
@@ -2226,19 +2206,19 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    #Top orgs with warnings
    
-   dq_data_warnings_org_level_plot <- dq_w_organization_names %>%
+   dq_sys_lvl_warnings_by_org <- dq_plot_df %>%
      filter(Type == "Warning") %>%
-     group_by(OrganizationName, OrganizationID, Issue) %>%
+     group_by(OrganizationName, OrganizationID) %>%
      summarise(Warnings = n()) %>%
      ungroup() %>%
      arrange(desc(Warnings))
    
-   dq_data_warnings_org_level_plot$hover <-
-     with(dq_data_warnings_org_level_plot,
+   dq_sys_lvl_warnings_by_org$hover <-
+     with(dq_sys_lvl_warnings_by_org,
           paste0(OrganizationName))
    
-   dq_plot_organizations_warnings <-
-     ggplot(head(dq_data_warnings_org_level_plot, 10L),
+   dq_sys_lvl_warnings_by_org_plot <-
+     ggplot(head(dq_sys_lvl_warnings_by_org, 10L),
             aes(
               x = reorder(hover, Warnings),
               y = Warnings
@@ -2264,15 +2244,15 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
    #Most common warnings system-wide
    
-   dq_data_warning_types_org_level <- dq_w_organization_names %>%
+   dq_sys_lvl_warnings_by_issue <- dq_plot_df %>%
      filter(Type == "Warning") %>%
      group_by(Issue) %>%
      summarise(Warnings = n()) %>%
      ungroup() %>%
      arrange(desc(Warnings))
    
-   dq_plot_warnings_org_level <-
-     ggplot(head(dq_data_warning_types_org_level, 10L),
+   dq_sys_lvl_warnings_by_issue_plot <-
+     ggplot(head(dq_sys_lvl_warnings_by_issue, 10L),
             aes(
               x = reorder(Issue, Warnings),
               y = Warnings
@@ -2297,12 +2277,14 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      geom_text(aes(label = Warnings), hjust = -0.5, color = "black")
    
 # Prepping dataframes for plots for Organization-Level DQ Tab -----------------
-   
+   dq_org_plot_df <- dq_main %>%
+     select(PersonalID, ProjectID, ProjectName, OrganizationName, HouseholdID, Issue, Type) %>%
+     unique()
+     
    # Top projects with Errors - High Priority
-   dq_data_high_priority_errors_top_projects_df <- dq_main %>%
-     filter(Type %in% c("High Priority")) %>%
-     select(PersonalID, ProjectID, ProjectName, OrganizationName, HouseholdID, Issue) %>%
-     unique() %>%
+
+   dq_org_lvl_high_priority_by_project_df <- dq_org_plot_df %>%
+     filter(Type == "High Priority") %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(clientsWithErrors = n()) %>%
      ungroup() %>%
@@ -2310,8 +2292,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Most common high priority errors org-wide
    
-   dq_data_high_priority_error_types_org_df <- dq_w_ids %>%
-     filter(Type %in% c("High Priority")) %>%
+   dq_org_lvl_high_priority_by_issue_df <- dq_org_plot_df %>%
+     filter(Type == "High Priority") %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Errors = n()) %>%
      ungroup() %>%
@@ -2319,10 +2301,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Top projects with Errors - General
    
-   dq_data_errors_top_projects_df <- dq_w_ids %>%
-     filter(Type %in% c("Error")) %>%
-     select(PersonalID, ProjectID, ProjectName, OrganizationName, HouseholdID, Issue) %>%
-     unique() %>%
+   dq_org_lvl_general_errors_by_project_df <- dq_org_plot_df %>%
+     filter(Type == "Error") %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(clientsWithErrors = n()) %>%
      ungroup() %>%
@@ -2330,8 +2310,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       # Most common general errors org-wide
    
-   dq_data_error_types_org_df <- dq_w_ids %>%
-     filter(Type %in% c("Error")) %>%
+   dq_org_lvl_general_errors_by_issue_df <- dq_org_plot_df %>%
+     filter(Type == "Error") %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Errors = n()) %>%
      ungroup() %>%
@@ -2339,7 +2319,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       #Top projects with warnings
    
-   dq_data_warnings_top_projects_df <- dq_w_ids %>%
+   dq_org_lvl_warnings_by_project_df <- dq_org_plot_df %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, ProjectName, ProjectID) %>%
      summarise(Warnings = n()) %>%
@@ -2348,7 +2328,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
    
       #Most common warnings org-wide
    
-   dq_data_warning_types_org_df <- dq_w_ids %>%
+   dq_org_lvl_warnings_by_issue_df <- dq_org_plot_df %>%
      filter(Type == "Warning") %>%
      group_by(OrganizationName, Issue) %>%
      summarise(Warnings = n()) %>%
