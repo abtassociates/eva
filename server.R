@@ -125,7 +125,7 @@ function(input, output, session) {
               easyClose = TRUE
             )
           )
-          write(paste(session$token, ": Unsuccessful - not structurally valid"), "www/metadata/upload_metadata.txt", append=TRUE)
+          write(paste(session$token, "|",Sys.time(),": Unsuccessful - not structurally valid"), "www/metadata/upload_metadata.txt", append=TRUE)
         }
       })
     }
