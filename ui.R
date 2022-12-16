@@ -48,16 +48,15 @@ dashboardPage(
             title = "Welcome to Eva!",
             width = 12,
             HTML(
-              "<div><b>Eva</b> is an open-source project intended for local use by HMIS Administrators in Continuums of Care (CoCs) 
-              around the U.S. and its territories. <b>Eva</b> is designed to help you assess the accuracy and completeness of the data 
-              within your HMIS. In future iterations it will also assist communities in analyzing HMIS performance data, 
-              including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
-              <br/>
-              <div>This app works by using an uploaded 
-              <a href='https://www.hudhdx.info/VendorResources.aspx' target= '_blank' rel='noopener noreferrer'>HMIS CSV</a> 
-              file.
-              </div>
-              <br/>"
+              "<p><b>Eva</b> is an <a href = 'https://github.com/abtassociates/eva'
+              target= '_blank' rel='noopener noreferrer'>open-source</a>
+              project intended for local use by HMIS Administrators in Continuums
+              of Care (CoCs) around the U.S. and its territories. Eva is designed
+              to help you assess the accuracy and completeness of the data within
+              your HMIS. In future iterations it will also assist communities in
+              analyzing HMIS performance data, including coordinated entry, if 
+              your community utilizes HMIS for this purpose. Use of this tool is
+              not required by HUD.</p>"
             )
           ),
           box(
@@ -65,51 +64,89 @@ dashboardPage(
             width = 12,
             collapsible = TRUE,
             collapsed = TRUE,
-            HTML("
-                 <h4>Upload Hashed HMIS CSV zip file</h4>
-                 <p>To upload your hashed HMIS CSV Export, click the \'Browse\'
-                 button in the \'Upload Hashed HMIS CSV Export\' panel. Once you find
-                 the zip file on your computer, select it and click \'Open\'. Your
-                 file will begin uploading. <b>Eva</b> will check to determine if 
-                 the Client.csv is hashed. If it is not, <b>Eva</b> will reject the 
-                 file with an error message, not process the upload further, 
-                 and will clear <b>Eva</b>'s memory until you upload an HMIS CSV
-                 Export with a hashed Client.csv file.</p>
+            HTML(
+              "<h4>What you'll need to use Eva</h4>
+              <p>Eva works by uploading a hashed 
+              <a href='https://www.hudhdx.info/VendorResources.aspx' target= '_blank'
+              rel='noopener noreferrer'>HMIS CSV Export</a>.
+              </p>
+              <p>Generate a hashed HMIS CSV Export from your local HMIS and store
+              it in a secure location that you can easily find again. It must be
+              a .zip file with 23 csv files in it.
+              <ul>
+              <li>A hashed export means that the personal identifiers are obscured
+              when the export is generated.</li>
+              <li>The HMIS CSV Export has client-level data in it, so it must be
+              stored in a secure location per HUD, state, and local rules and
+              regulations.</li>
+              <li>If you are unsure how to generate your hashed HMIS CSV Export,
+              please contact your vendor.</li>
+              </ul>
+              <p>Trouble-shooting tips:
+              <ul>
+              <li>Be sure you have generated the correct export. You cannot use
+              an APR or LSA export file for use with this tool.</li>
+              <li>Eva is looking for a zip file and will extract the files for you,
+              so unzipping your export is not necessary.</li>
+              <li>If your export is a .7z file, you must convert it to a .zip file.
+              If you are not sure about how to do this, please contact your vendor.
+              <li>If something is not working, please go to <a 
+              href='https://github.com/abtassociates/eva/issues' target= '_blank'
+              rel='noopener noreferrer'>GitHub</a> to check for known issues
+              and/or enter any new issues or feature enhancement requests. To 
+              enter an Issue on GitHub, you must have an account. If you do not
+              already have a GitHub account, you can sign up for one <a 
+              href='https://github.com/join' target= '_blank'
+              rel='noopener noreferrer'>here</a>.
+              </ul>
+              <p>Once you have exported the correct file from your HMIS, you are
+              ready to engage with Eva. See the Instructions below for next steps.
                  
-                 <h4>Edit CoC-specific Settings</h4>
-                 <p>To make <b>Eva</b> reporting more useful at the local level,
-                 you can adjust the CoC-specific settings to better analyze their 
-                 data in a way that is meaningful to the CoC. To edit these, click 
-                 on the \'+\' in the Edit CoC-specific Settings panel. If you do 
-                 not edit them, the reporting will use the defaults listed. These 
-                 defaults do not imply any HUD recommendations. Please read the 
-                 description in the Settings panel for more information.</p>
+              <h4>Upload hashed HMIS CSV Export</h4>
                  
-                 <h4>File Structure Analysis</h4>
-                 <p>Once <b>Eva</b> verifies that your Client.csv file is hashed, 
-                 it will then check that your upload has all the right tables, 
-                 columns, data types, and allowable values. <b>Eva</b> will generate
-                 data quality issues that are categorized as high priority errors,
-                 general errors, and warnings. If there are any high priority errors
-                 that prevent <b>Eva</b> from functioning, <b>Eva</b> will reject
-                 your upload, stop processing the export, and will clear  <b>Eva</b>'s
-                 memory. All issues will display in the HMIS CSV File Structure
-                 Analysis panel, and you can download the details, even if the file
-                 was rejected. Users should contact their vendor to resolve high 
-                 priority errors identified in the HMIS CSV Export File Structure
-                 Analysis, as well as any other structural issues which you feel need
-                 to be corrected. Not all structural issues found in this analysis will 
-                 prevent the data from being accepted for analysis, so they may not 
-                 require immediate attention. Once high priority structural errors have
-                 been corrected, you can attempt another upload to determine if the 
-                 HMIS CSV Export is structurally sound.</p>
-                 
-                 <p>Once you have uploaded a hashed and structurally sound zip file,
-                 you will see a confirmation that your upload was successful, the date
-                 range of the files you uploaded, plus the date your Export was 
-                 downloaded from your HMIS.
-                 
-                 ")
+              <p>To upload your hashed HMIS CSV Export, click the \'Browse\'
+              button in the \'Upload Hashed HMIS CSV Export\' panel. Once you
+              find the zip file on your computer, select it and click \'Open\'.
+              Your file will begin uploading. Eva will check to determine if
+              the export is hashed. If it is not, Eva will reject the file with
+              an error message, and clear Eva's memory until you upload a hashed
+              HMIS CSV Export.</p>
+              
+              <h4>HMIS CSV Export File Structure Analysis</h4>
+              <p>Once Eva verifies that your export is hashed, it will check
+              that the files have all the right names, columns, data types, and
+              allowable values. Eva will generate data quality issues that are
+              categorized as high priority errors, general errors, and warnings.
+              If there are any high priority errors that prevent Eva from
+              functioning, Eva will reject your upload, stop processing the export,
+              and will clear Eva's memory.</p>
+              <p>All issues will display in the HMIS CSV File Structure Analysis
+              panel, where you can download the details, even if the file
+              was rejected. Users should contact their vendor to resolve high 
+              priority errors identified in the HMIS CSV Export File Structure
+              Analysis, as well as any other structural issues which you feel need
+              to be corrected. Not all structural issues found in this analysis will 
+              prevent the data from being accepted for analysis, so they may not 
+              require immediate attention. Once your vendor has addressed any
+              high priority structural errors, you can attempt another upload.</p>
+              
+              <p>Once you have uploaded a hashed and structurally sound zip file,
+              you will see a confirmation that your upload was successful, the date
+              range of the files you uploaded, plus the date your Export was 
+              downloaded from your HMIS.
+              
+              <h4>Edit CoC-specific Settings</h4>
+              <p>To make Eva reporting more useful at the local level, you can
+              adjust the CoC-specific settings to better analyze your data in a
+              way that is meaningful to the CoC. To edit these, click on the \'+\'
+              in the Edit CoC-specific Settings panel. If you do not edit them,
+              the reporting will use the defaults listed. These defaults do not
+              imply any HUD recommendations. Please read the description in the
+              Settings panel for more information.</p>
+              
+              <h4>Citations and Special Thanks</h4>
+              <p>This panel will credit the people who have helped make Eva possible!
+              ")
           ),  
           box(
             title = "Upload Hashed CSV zip file",
@@ -119,116 +156,6 @@ dashboardPage(
                       accept = ".zip"),
             uiOutput("headerFileInfo"),
             width = 12
-          ), 
-          box(
-            title = "Edit CoC-specific Settings",
-            width = 12,
-            collapsible = TRUE,
-            collapsed = TRUE,
-            fluidRow(
-              box(
-                HTML(
-                  "<h4>Long Stayers</h4>
-                <p>This check aims to help communities find enrollments that may be
-                missing an Exit Date. First, the tool calculates the number of days each
-                enrollment has been open (meaning, the number of days between the Entry Date
-                and the date your upload was exported from your HMIS.) Then the check uses
-                one of two methodologies to identify Long Stayers. For select project types,
-                the check identifies the top % of longest stayers in each project type. For
-                other project types, the check compares the length of each enrollment with
-                assumptions entered about the expected maximum period of assistance envisioned
-                for the project type. For the latter check, users can set the assumptions for
-                each project type. Any data quality flags about Long Stayers should be 
-                considered a warning and a suggestion to verify that the identified clients 
-                are still active in these projects, and does not imply that any data should 
-                be changed.
-      
-                <p><b>Top 2% longest enrollments are flagged for the following project types:</b>
-                <ul>
-                <li>Coordinated Entry
-                <li>Emergency Shelter - Entry/Exit
-                <li>Safe Haven
-                <li>Transitional Housing
-                <li>Rapid Rehousing
-                <li>Homeless Prevention
-                </ul>
-                
-                <p><b>Top 1% longest enrollments are flagged for the following project types:</b>
-                <ul>
-                <li>Permanent Supportive Housing
-                <li>Permanent Housing with Services (no disability required for entry)
-                <li>Permanent Housing - Housing Only
-                </ul>
-                
-                <p><b>Enrollments longer than CoC-specified length of assistance targets are flagged for the following project types:</b>
-                <ul>
-                <li>Street Outreach
-                <li>Services Only
-                <li>Other
-                <li>Day Shelter
-                <li>Emergency Shelter - Night-by-Night
-                </ul>
-      
-                <p>Below, you can specify the expected maximum period of assistance
-                envisioned for the project type, meaning the timeframe after which you
-                would want an organization to confirm the client is still active in the 
-                project. You can set these based on your current data or leave them at
-                the defaults (these defaults do not imply any HUD recommendations)."
-                ),
-                column(
-                  numericInput(
-                    inputId = "ESNbNLongStayers",
-                    label = "Emergency Shelter (NbN only!):",
-                    value = 90,
-                    min = 0,
-                    max = 3650,
-                    step = 5,
-                    width = "200px"
-                  ),
-                  numericInput(
-                    inputId = "OtherLongStayers",
-                    label = "Other:",
-                    value = 90,
-                    min = 0,
-                    max = 3650,
-                    step = 5,
-                    width = "200px"
-                  ),
-                  numericInput(
-                    inputId = "DayShelterLongStayers",
-                    label = "Day Shelter:",
-                    value = 90,
-                    min = 0,
-                    max = 3650,
-                    step = 5,
-                    width = "200px"
-                  ),
-                  width = 6
-                ),
-                column(
-                  numericInput(
-                    inputId = "OUTLongStayers",
-                    label = "Street Outreach:",
-                    value = 90,
-                    min = 0,
-                    max = 3650,
-                    step = 5,
-                    width = "200px"
-                  ),
-                  numericInput(
-                    inputId = "ServicesOnlyLongStayers",
-                    label = "Services Only:",
-                    value = 90,
-                    min = 0,
-                    max = 3650,
-                    step = 5,
-                    width = "200px"
-                  ),
-                  width = 6
-                ),
-                width = 12
-              )
-            )
           ),
         #,
       # HTML(
@@ -248,47 +175,169 @@ dashboardPage(
             HTML("<p>Users should contact their vendor to resolve high priority 
             errors identified in the HMIS CSV Export File Structure Analysis, as
             well as any other structural issues which you feel need to be corrected.
-            Not all structural issues found in this analysis will prevent the data 
-            from being accepted for analysis, so they may not require immediate 
-            attention. Once high priority structural errors have been corrected,
-            you can attempt another upload to determine if the HMIS CSV Export is
-            structurally sound.</p>"),
+            </p>"),
             p(),
             uiOutput('downloadIntegrityBtn')
-          ),
+          ), 
+      box(
+        title = "Edit CoC-specific Settings",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        fluidRow(
+          box(
+            HTML(
+              "<h4>Long Stayers</h4>
+                <p>This check aims to help communities find enrollments that may
+                be missing an Exit Date. First, the tool calculates the number of
+                days each enrollment has been open (meaning, the number of days
+                between the Entry Date and the date your upload was exported
+                from your HMIS.) Then the check uses one of two methodologies to
+                identify Long Stayers. 
+                <p>For select project types, the check identifies the top % of
+                longest stayers in each project type. For other project types,
+                the check compares the length of each enrollment with assumptions
+                entered about the expected maximum period of assistance envisioned
+                for the project type. For the latter check, users can set the
+                assumptions for each project type. Any data quality flags about
+                Long Stayers is categorized as a Warning and is a suggestion to
+                verify that the identified clients are still active in these
+                projects. It does not imply that any data should be changed.
+      
+                <p><b>Top 2% longest enrollments are flagged for the following
+                project types:</b>
+                <ul>
+                <li>Coordinated Entry
+                <li>Emergency Shelter - Entry/Exit
+                <li>Safe Haven
+                <li>Transitional Housing
+                <li>Rapid Rehousing
+                <li>Homeless Prevention
+                </ul>
+                
+                <p><b>Top 1% longest enrollments are flagged for the following
+                project types:</b>
+                <ul>
+                <li>Permanent Supportive Housing
+                <li>Permanent Housing with Services (no disability required for entry)
+                <li>Permanent Housing - Housing Only
+                </ul>
+                
+                <p><b>Enrollments active longer than the CoC-specified length of
+                assistance targets are flagged for the following project types:</b>
+                <ul>
+                <li>Street Outreach
+                <li>Services Only
+                <li>Other
+                <li>Day Shelter
+                <li>Emergency Shelter - Night-by-Night
+                </ul>
+      
+                <p>Below, you can specify the expected maximum period of assistance
+                envisioned for the project type, meaning the timeframe after which you
+                would want an organization to confirm the client is still active in the 
+                project. You can set these based on your current data or leave them at
+                the defaults (these defaults do not imply any HUD recommendations)."
+            ),
+            column(
+              numericInput(
+                inputId = "ESNbNLongStayers",
+                label = "Emergency Shelter (NbN only!):",
+                value = 90,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              numericInput(
+                inputId = "OtherLongStayers",
+                label = "Other:",
+                value = 90,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              numericInput(
+                inputId = "DayShelterLongStayers",
+                label = "Day Shelter:",
+                value = 90,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              width = 6
+            ),
+            column(
+              numericInput(
+                inputId = "OUTLongStayers",
+                label = "Street Outreach:",
+                value = 90,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              numericInput(
+                inputId = "ServicesOnlyLongStayers",
+                label = "Services Only:",
+                value = 90,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              width = 6
+            ),
+            width = 12
+          )
+        )
+      ),
       box(
         title = "Citations and Special Thanks",
         width = 12,
         collapsible = TRUE,
         collapsed = TRUE,
         HTML("
-             <p> This project would not exist were it not for the existence of other quality, 
-             free and open source products. The following are citations for the products this
-             app relies on.
+             <p>This project would not exist were it not for the existence of
+             other quality, free and open source products. The following are
+             citations for the products this app relies on.
+                          
+             <p> The foundational code for the app was shared via AGPL license by 
+             the Coalition on Homelessness and Housing in Ohio (<a href =
+             'https://www.cohhio.org' 
+             target= '_blank' rel='noopener noreferrer'>COHHIO</a>). 
              
-             <p> R Core Team (2019). R: A language and environment for statistical computing.
-             R Foundation for Statistical Computing. Vienna, Austria. 
-             <a href = 'https://www.r-project.org' target= '_blank' rel='noopener noreferrer'>R programming language</a>.
+             <p>R Core Team (2022). R: A language and environment for statistical
+             computing. R Foundation for Statistical Computing. Vienna, Austria. 
+             <a href = 'https://www.r-project.org' 
+             target= '_blank' rel='noopener noreferrer'>R programming language</a>.
              
-             <p> Hadley Wickham (2017). tidyverse: Easily Install and Load the 'Tidyverse.'
-             R package version 1.2.1. 
-             <a href = 'https://cran.r-project.org/web/packages/tidyverse/index.html' target= '_blank' rel='noopener noreferrer'>Tidyverse package</a>.
+             <p>Wickham et al., (2019). Welcome to the tidyverse. <a href = 
+             'https://doi.org/10.21105/joss.01686'
+             target = '_blank' rel='noopener noreferrer'>Journal of Open Source
+             Software</a>, 4(43), 1686, 
+             <a href = 'https://cran.r-project.org/web/packages/tidyverse/index.html'
+             target= '_blank' rel='noopener noreferrer'>Tidyverse package</a>.
              
-             <p>Winston Chang, Joe Cheng, JJ Allaire, Yihue Xie and Jonathan McPherson (2019).
-             shiny: Web Application Framework for R. R package version 1.3.2. 
-             <a href = 'https://cran.r-project.org/web/packages/shiny/index.html' target= '_blank' rel='noopener noreferrer'>R Shiny package</a>
-             and shinydashboard; Create Dashboards with 'Shiny.' R package version 0.7.1.
-             <a href = 'https://cran.r-project.org/web/packages/shinydashboard/index.html' target= '_blank' rel='noopener noreferrer'>shinydashboard package</a>.
+             <p>Chang W, Cheng J, Allaire J, Sievert C, Schloerke B, Xie Y, Allen
+             J, McPherson J, Dipert A, Borges B (2021). _shiny: Web Application
+             Framework for R_. R package version 1.7.1, 
+             <a href = 'https://cran.r-project.org/web/packages/shiny/index.html'
+             target= '_blank' rel='noopener noreferrer'>R Shiny package</a>.
              
-             <p> The foundational code for the app was shared by 
-             <a href = 'https://www.cohhio.org' target= '_blank' rel='noopener noreferrer'>COHHIO</a>, 
-             Coalition on Homelessness and Housing in Ohio.
+             <p>Chang W, Borges Ribeiro B (2021). _shinydashboard: Create
+             Dashboards with 'Shiny'_. R package version 0.7.2, 
+             <a href = 'https://CRAN.R-project.org/package=shinydashboard'
+             target= '_blank' rel='noopener noreferrer'>shinydashboard package</a>.
              
              <p> Special thanks to 
-             <a href=\"http://www.squarepegdata.com/\" target= '_blank' rel='noopener noreferrer'>
-             Square Peg Data</a>,
-             San Diego City and County CoC (CA-601) and Minneapolis/Hennepin County CoC
-             (MN-500) for providing sample datasets to support programming.")
+             <a href=\"http://www.squarepegdata.com/\" 
+             target= '_blank' rel='noopener noreferrer'>
+             Square Peg Data</a>, the San Diego City and County CoC (CA-601),
+             and the Minneapolis/Hennepin County CoC (MN-500) for providing
+             sample datasets to support programming.")
       )
         )
       ), 
@@ -343,27 +392,28 @@ dashboardPage(
           HTML("
                <h4>Client Counts Report</h4>
                <p>The Client Counts Report provides the number of households/clients
-               who have been served in each project and their enrollment status at
-               the time of CSV Export generation. This report can be used to verify
-               that a project is up to date on their HMIS data entry by comparing counts
-               reported with the number of households/clients that are expected to be
-               served by each project. Permanent housing projects can check that 
-               the number of households/clients who have not yet moved into housing is 
-               correct.</p>
+               who have been served in each project and their enrollment status
+               at the time of CSV Export generation. This report can be used to
+               verify that a project is up to date on their HMIS data entry by
+               comparing counts reported with the number of households/clients
+               that are known to be served in each project. Permanent housing
+               projects can check that the number of households/clients who have
+               not yet moved into housing is correct.</p>
                
                <h4>Inputs</h4>
-               <p>You must select a project from the drop-down list to see results and
-               the Date Range for the cohort of clients you want to see reported. The
-               Date Range defaults to the date range covered by the CSV Export. 
+               <p>Select a project from the drop list and adjust the the Date
+               Range for the cohort of clients you want to see reported. The
+               Date Range defaults to the date range covered by the HMIS CSV Export. 
                Users are encouraged to edit the Date Range as desired to see
-               metrics for timeframes within the Export period, such as the number of
-               households/clients who exited during that timeframe with and without a
-               Move-In Date. Note that setting the start date to the Export End Date
-               will show the current status for all enrollments for the project.</p>
+               metrics for timeframes within the Export period, such as the
+               number of households/clients who exited during that timeframe
+               with and without a Move-In Date. Note that setting the Start Date
+               to the Export End Date will show the current status for all
+               enrollments for the project.</p>
                
                <h4>Summary</h4>
-               <p>The Summary panel provides a count of households or clients who have statuses
-               of the following within the selected project:
+               <p>The Summary panel provides a count of households/clients who
+               have statuses of the following within the selected project:
                <ul>
                <li>Active No Move-In Date</li>
                <li>Currently Moved In</li>
@@ -376,13 +426,14 @@ dashboardPage(
                <h4>Client Counts Detail</h4>
                <p>In this panel you will see the Personal ID, Relationship to HoH,
                Entry Date, Move-In Date, Exit Date, and the Status for each client
-               served by the selected project within the Date Range selected. The rows
-               are ordered by Entry Date (oldest on top), Household ID (not visible),
-               and Personal ID. This enables users to see the oldest enrollments first
-               and groups clients in the same household together. All columns are 
-               searchable. For example, to find all enrollments with a Status of 
-               \'Active No Move-In Date\', you can type \'active\' in the Status search bar
-               and the data table will react and filter in that way.")
+               served by the selected project within the Date Range selected. The
+               rows are ordered by Entry Date (oldest on top), Household ID (not
+               visible), and Personal ID. This enables users to see the oldest
+               enrollments first and groups clients in the same household
+               together. All columns are searchable. For example, to find all
+               enrollments with a Status of \'Active No Move-In Date\', you can
+               type \'act\' in the Status search bar and the data table will
+               react and filter in that way.")
         )), 
         fluidRow(box(
           pickerInput(
