@@ -82,23 +82,7 @@ dashboardPage(
               <li>If you are unsure how to generate your hashed HMIS CSV Export,
               please contact your vendor.</li>
               </ul>
-              <p>Trouble-shooting tips:
-              <ul>
-              <li>Be sure you have generated the correct export. You cannot use
-              an APR or LSA export file for use with this tool.</li>
-              <li>Eva is looking for a zip file and will extract the files for you,
-              so unzipping your export is not necessary.</li>
-              <li>If your export is a .7z file, you must convert it to a .zip file.
-              If you are not sure about how to do this, please contact your vendor.
-              <li>If something is not working, please go to <a 
-              href='https://github.com/abtassociates/eva/issues' target= '_blank'
-              rel='noopener noreferrer'>GitHub</a> to check for known issues
-              and/or enter any new issues or feature enhancement requests. To 
-              enter an Issue on GitHub, you must have an account. If you do not
-              already have a GitHub account, you can sign up for one <a 
-              href='https://github.com/join' target= '_blank'
-              rel='noopener noreferrer'>here</a>.
-              </ul>
+              
               <p>Once you have exported the correct file from your HMIS, you are
               ready to engage with Eva. See the Instructions below for next steps.
                  
@@ -147,7 +131,32 @@ dashboardPage(
               <h4>Citations and Special Thanks</h4>
               <p>This panel will credit the people who have helped make Eva possible!
               ")
-          ),  
+          ),
+          box(
+            title = "Need help?",
+            width = 12,
+            collapsible = TRUE,
+            collapsed = TRUE,
+            HTML(
+              "<p>Trouble-shooting tips:
+              <ul>
+              <li>Be sure you have generated the correct export. You cannot use
+              an APR or LSA export file for use with this tool.</li>
+              <li>Eva is looking for a zip file and will extract the files for you,
+              so unzipping your export is not necessary.</li>
+              <li>If your export is a .7z file, you must convert it to a .zip file.
+              If you are not sure about how to do this, please contact your vendor.
+              <li>If something is not working, please go to <a
+              href='https://github.com/abtassociates/eva/issues' target= '_blank'
+              rel='noopener noreferrer'>GitHub</a> to check for known issues
+              and/or enter any new issues or feature enhancement requests. To
+              enter an Issue on GitHub, you must have an account. If you do not
+              already have a GitHub account, you can sign up for one <a
+              href='https://github.com/join' target= '_blank'
+              rel='noopener noreferrer'>here</a>.
+              </ul>"
+            )
+          ), 
           box(
             title = "Upload Hashed CSV zip file",
             fileInput("imported",
