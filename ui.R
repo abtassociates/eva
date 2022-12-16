@@ -78,15 +78,15 @@ dashboardPage(
                  
                  <h4>Edit CoC-specific Settings</h4>
                  <p>To make <b>Eva</b> reporting more useful at the local level,
-                 you will find the CoC-specific settings that HMIS Leads can edit
-                 to better analyse their data in a way that is meaningful to the
-                 CoC. To edit these, click on the \'+\'. If you do not edit them,
-                 the reporting will use the defaults listed. These defaults do
-                 not imply any HUD recommendations. Please read the description
-                 in the settings panel for more information.</p>
+                 you can adjust the CoC-specific settings to better analyze their 
+                 data in a way that is meaningful to the CoC. To edit these, click 
+                 on the \'+\' in the Edit CoC-specific Settings panel. If you do 
+                 not edit them, the reporting will use the defaults listed. These 
+                 defaults do not imply any HUD recommendations. Please read the 
+                 description in the Settings panel for more information.</p>
                  
                  <h4>File Structure Analysis</h4>
-                 <p>Once <b>Eva</b> verifies that your Clietn.csv file is hashed, 
+                 <p>Once <b>Eva</b> verifies that your Client.csv file is hashed, 
                  it will then check that your upload has all the right tables, 
                  columns, data types, and allowable values. <b>Eva</b> will generate
                  data quality issues that are categorized as high priority errors,
@@ -97,10 +97,10 @@ dashboardPage(
                  Analysis panel, and you can download the details, even if the file
                  was rejected. Users should contact their vendor to resolve high 
                  priority errors identified in the HMIS CSV Export File Structure
-                 Analysis, as well as any other strcutural issues which you feel need
+                 Analysis, as well as any other structural issues which you feel need
                  to be corrected. Not all structural issues found in this analysis will 
                  prevent the data from being accepted for analysis, so they may not 
-                 require immediate attention. Once high priority strcutural errors have
+                 require immediate attention. Once high priority structural errors have
                  been corrected, you can attempt another upload to determine if the 
                  HMIS CSV Export is structurally sound.</p>
                  
@@ -109,10 +109,7 @@ dashboardPage(
                  range of the files you uploaded, plus the date your Export was 
                  downloaded from your HMIS.
                  
-                 <h4>Citations and Special Thanks</h4>
-                 <p>This panel will credit the people who wrote the open-source code
-                 used to build this app, plus the community on whose code this app
-                 was built.</p>")
+                 ")
           ),  
           box(
             title = "Upload Hashed CSV zip file",
@@ -143,7 +140,7 @@ dashboardPage(
                 for the project type. For the latter check, users can set the assumptions for
                 each project type. Any data quality flags about Long Stayers should be 
                 considered a warning and a suggestion to verify that the identified clients 
-                are still active in thes eprojects, and does not imply that any data should 
+                are still active in these projects, and does not imply that any data should 
                 be changed.
       
                 <p><b>Top 2% longest enrollments are flagged for the following project types:</b>
@@ -169,15 +166,15 @@ dashboardPage(
                 <li>Services Only
                 <li>Other
                 <li>Day Shelter
-                <li>Emergency Shelter, Night-by-Night
+                <li>Emergency Shelter - Night-by-Night
                 </ul>
       
                 <p>Below, you can specify the expected maximum period of assistance
                 envisioned for the project type, meaning the timeframe after which you
                 would want an organization to confirm the client is still active in the 
                 project. You can set these based on your current data or leave them at
-                the defaults (these defaults do not imply any HUD recommendations).</p>
-              
+                the defaults (these defaults do not imply any HUD recommendations)."
+                ),
                 column(
                   numericInput(
                     inputId = "ESNbNLongStayers",
@@ -244,14 +241,18 @@ dashboardPage(
       #              value = 7)
       
           box(
-            title = "HUD CSV Export File Structure Analysis",
+            title = "HMIS CSV Export File Structure Analysis",
             width = 12,
             DT::dataTableOutput("integrityChecker"),
             p(),
-            HTML("<p>Please contact your vendor if there's a High Priority issue
-                 found or if your file shows an Error or Warning that you feel
-                 needs to be corrected. Not all issues found in this analysis
-                 will need immediate attention.</p>"),
+            HTML("<p>Users should contact their vendor to resolve high priority 
+            errors identified in the HMIS CSV Export File Structure Analysis, as
+            well as any other structural issues which you feel need to be corrected.
+            Not all structural issues found in this analysis will prevent the data 
+            from being accepted for analysis, so they may not require immediate 
+            attention. Once high priority structural errors have been corrected,
+            you can attempt another upload to determine if the HMIS CSV Export is
+            structurally sound.</p>"),
             p(),
             uiOutput('downloadIntegrityBtn')
           ),
@@ -341,29 +342,30 @@ dashboardPage(
           collapsed = TRUE,
           HTML("
                <h4>Client Counts Report</h4>
-               <p>The Client Counts Report serves as a way to check that a
-               project is up to date on their HMIS data entry. Projects can
-               check that the number of households/clients who are currently in
-               the project aligns with what they know about who they are serving.
-               Permanent housing projects can check that the number of households/
-               clients who have not yet moved into housing is correct. It can
-               be run to show the current status of their data entry or the
-               HMIS Lead may wish to edit the Date Range to cover a larger
-               time frame.</p>
+               <p>The Client Counts Report provides the number of households/clients
+               who have been served in each project and their enrollment status at
+               the time of CSV Export generation. This report can be used to verify
+               that a project is up to date on their HMIS data entry by comparing counts
+               reported with the number of households/clients that are expected to be
+               served by each project. Permanent housing projects can check that 
+               the number of households/clients who have not yet moved into housing is 
+               correct.</p>
                
                <h4>Inputs</h4>
-               <p>HMIS Leads may select a single project from the drop list. The
-               Date Range defaults to the export's start and end date, but
-               users are encouraged to edit the Date Range as desired to see
-               metrics such as how many clients/households exited with and 
-               without a Move-In Date, how many exited during a specific time period,
-               or \'current\' enrollments only.</p>
+               <p>You must select a project from the drop-down list to see results and
+               the Date Range for the cohort of clients you want to see reported. The
+               Date Range defaults to the date range covered by the CSV Export. 
+               Users are encouraged to edit the Date Range as desired to see
+               metrics for timeframes within the Export period, such as the number of
+               households/clients who exited during that timeframe with and without a
+               Move-In Date. Note that setting the start date to the Export End Date
+               will show the current status for all enrollments for the project.</p>
                
                <h4>Summary</h4>
-               <p>Check here for a count of households or clients who have statuses
-               of the following:
+               <p>The Summary panel provides a count of households or clients who have statuses
+               of the following within the selected project:
                <ul>
-               <li>Currently Awaiting Housing</li>
+               <li>Active No Move-In Date</li>
                <li>Currently Moved In</li>
                <li>Exited No Move-In</li>
                <li>Exited With Move-In</li>
@@ -372,13 +374,14 @@ dashboardPage(
                </ul>
                
                <h4>Client Counts Detail</h4>
-               <p>In this panel, HMIS Leads can search in any column. You will see
-               the Personal ID, Relationship to HoH, Entry Date, Move-In Date, 
-               Exit Date, and the Status for each client. The rows are ordered by
-               Entry Date (oldest on top), Household ID (not visible), and
-               Personal ID. This enables users to see the oldest enrollments first.
-               To find all enrollments with a Status of \'Currently Awaiting
-               Housing\' for example, you can type \'wait\' in the Status search bar
+               <p>In this panel you will see the Personal ID, Relationship to HoH,
+               Entry Date, Move-In Date, Exit Date, and the Status for each client
+               served by the selected project within the Date Range selected. The rows
+               are ordered by Entry Date (oldest on top), Household ID (not visible),
+               and Personal ID. This enables users to see the oldest enrollments first
+               and groups clients in the same household together. All columns are 
+               searchable. For example, to find all enrollments with a Status of 
+               \'Active No Move-In Date\', you can type \'active\' in the Status search bar
                and the data table will react and filter in that way.")
         )), 
         fluidRow(box(
@@ -416,21 +419,29 @@ dashboardPage(
           collapsed = TRUE,
           HTML("
                <h4>Organization-wide HMIS Data Quality</h4>
-               <p>Below, select the Organization whose data quality you would
+               <p>Below, select the organization whose data quality you would
                like to check. The data shown will reflect the date range that
                you used to run your HUD CSV Export. It will show data quality
                metrics from all Projects that are associated with that
-               Organization.</p>
-               <p>HMIS Leads can click the Download button in order to get an
-               Excel workbook with the selected Organization's data quality
-               errors. You can send these to any users at the selected Organization
+               organization.</p>
+               <p>You can click the Download button to generate an Excel workbook 
+               with the selected organization's data quality errors. You can send 
+               these to authorized HMIS users at the selected organization
                so they can work on correcting their data. Feel free to modify, 
                add, or remove anything as you see fit. For example, you may want 
                your users to only address High Priority issues right now. You can
                easily remove any tabs that may distract your users from that goal.
                Please note that Overlaps will be shown in the 'Warnings' tab and
                again in the 'Overlap Detail' tab of the download. This is so
-               that your users have enough detail to track down that issue.</p>
+               your users have enough detail to track down each issue.</p>
+               <p>Note that protected personal information (PPI), such as Personal
+               ID, is contained in the Excel downloads, therefore, users must follow
+               all applicable HMIS privacy and security policies when storing,
+               transmitting, and disclosing files with client records. Consider 
+               password protecting the file. Be sure to only store extracted Excel
+               files in secure locations. Only share downloaded data with authorized
+               individuals and parties, and consider encrypting the file during
+               transmission.</p>
                
                <h4>Some definitions:</h4>
                <p>This app categorizes every issue it finds in your data set in
@@ -464,6 +475,17 @@ dashboardPage(
                </ul>
                <p>Regardless of an issue's categorization, <b>users should never
                edit data that accurately reflects reality</b>.
+               
+               <h4>Organization-wide HMIS Data Quality Plots</h4>
+               <p>You can use the plots on this tab to evaluate which projects within
+               an organization may benefit from additional assistance and where 
+               additional training may be needed. You can download this data to use
+               for reporting to interested entities about the organization's overall
+               HMIS data quality. You can also use this report to identify which of
+               a single organization's projects that you want to examine more closely.
+               For each type of issue (High Priority Errors, General Errors, and 
+               Warnings) you will find two plots: one graphing the number of issues by
+               type, and one graphing the number of issues by project.
 
                <h4>Most Common High Priority Errors Plot</h4>
                <p>Which High Priority Errors are most common across all
@@ -499,13 +521,13 @@ dashboardPage(
                top 10 projects' Warning counts.</p>
                
                <h4>Data Quality Summary</h4>
-               <p>In this panel, Leads can see which projects within the selected
-               Organization have how many of what types of issues. Where the plots
-               only list the top 10 for each error type, this data displays ALL
-               Warnings, General Errors, and High Priority Errors for all Projects
-               within the Organization. At the top of each column the Lead may
-               type in any part of a word and the data will filter for you. Some
-               examples of how this might be used:
+               <p>In this panel, you can see the number and types of issues identified
+               for each project within the selected organization. Where the plots
+               only list the top 10 for each error type, this panel displays ALL
+               Warnings, General Errors, and High Priority Errors for all projects
+               within the organization. At the top of each column you may type in 
+               any part of a word and the data will filter. Some examples of how this 
+               might be used:
                <ul><li> Filter all projects in the Organization that have household
                issues. [Type 'hou' in the Issue column's search box.]</li>
                <li> Find all Warnings for Project 'Homeward Bound - ES'. [Type
@@ -518,7 +540,7 @@ dashboardPage(
                Warning represented in the selected Organization's data along with
                descriptions for each issue that include why the data is being
                flagged. It is ordered by the Type of issue and the name of the
-               Issue. Leads may also search this data by column.</p>")
+               Issue. You may also search this data by column.</p>")
         )), 
         fluidRow(box(
           pickerInput(
@@ -630,28 +652,28 @@ dashboardPage(
           collapsible = TRUE,
           collapsed = TRUE,
           HTML("<h4>System-wide HMIS Data Quality Plots</h4>
-               <p>The plots here will help HMIS admins to get a sense for which
-               Organizations may be in need of extra assistance and where extra
-               training may be needed. HMIS admins can also download this data to
-               aid in reporting to interested entities about your overall HMIS
-               system data quality. HMIS admins can check this report to help
-               guide which Organizations may need a closer look in the next tab,
-               called Data Quality > Organization-level. For each type of error
+               <p>You can use the plots on this tab to evaluate which organizations
+               may benefit from additional assistance and where extra training may 
+               be needed. You can download this data to use for reporting to 
+               interested entities about your overall HMIS system data quality. 
+               You can also use this report to identify the organizations that you
+               want to examine more closely in the next tab, called Assessing Data
+               Quality > Organization-level tab. For each type of issue
                (High Priority Errors, General Errors, and Warnings) you will
-               find 2 plots.</p>
+               find two plots: one graphing the number of issues by type and one
+               graphing the number of issues by organization.</p>
                
-               <h5><b>Most Common of a Type of Error</b></h5>
-               <p>Across all of the Organizations in your upload, this plot shows
-               the top 10 Errors/Warnings of the type indicated. This can help
-               to focus future end user trainings and bring to light any
-               potential considerations in your federal or local reporting.</p>
+               <h5><b>Most Common Types of Issues</b></h5>
+               <p>Across all of the organizations in your upload, this plot shows
+               the <b>top 10</b> issues identified in the data quality scan. This result
+               can help to focus future end user trainings and bring to light any
+               potential considerations in your federal or local reporting and analysis.</p>
                
-               <h5><b>Organizations with the Most of a Type of Error</b></h5>
-               <p>This plot shows which Organizations across your system have
-               the highest number of issues of the type indicated. HMIS admins
-               can use these plots to help determine which organizations may
-               need extra assistance in getting their HMIS Errors/Warnings
-               resolved.</p>
+               <h5><b>Organizations with the Most Issues Identified</b></h5>
+               <p>This plot shows the top 10 organizations across your system with
+               the highest number of issues indicated. You can use these plots to 
+               help determine which organizations may need extra assistance in 
+               getting their HMIS Errors/Warnings resolved.</p>
                
                <h4>Download System-wide HMIS Data Quality Data</h4>
                <p>To download all of the client and enrollment related issues
