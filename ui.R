@@ -472,7 +472,7 @@ dashboardPage(
                <h4>Organization-wide HMIS Data Quality</h4>
                <p>Below, select the organization whose data quality you would
                like to check. The data shown will reflect the date range that
-               you used to run your HUD CSV Export. It will show data quality
+               you used to run your HMIS CSV Export. It will show data quality
                metrics from all Projects that are associated with that
                organization.</p>
                <p>You can click the Download button to generate an Excel workbook 
@@ -486,13 +486,10 @@ dashboardPage(
                again in the 'Overlap Detail' tab of the download. This is so
                your users have enough detail to track down each issue.</p>
                <p>Note that protected personal information (PPI), such as Personal
-               ID, is contained in the Excel downloads, therefore, users must follow
-               all applicable HMIS privacy and security policies when storing,
-               transmitting, and disclosing files with client records. Consider 
-               password protecting the file. Be sure to only store extracted Excel
-               files in secure locations. Only share downloaded data with authorized
-               individuals and parties, and consider encrypting the file during
-               transmission.</p>
+               ID in combination with other data elements, is contained in the
+               Excel downloads. Users must follow all applicable HMIS privacy
+               and security policies when storing, transmitting, and disclosing
+               files with client records.</p>
                
                <h4>Some definitions:</h4>
                <p>This app categorizes every issue it finds in your data set in
@@ -528,70 +525,18 @@ dashboardPage(
                edit data that accurately reflects reality</b>.
                
                <h4>Organization-wide HMIS Data Quality Plots</h4>
-               <p>You can use the plots on this tab to evaluate which projects within
-               an organization may benefit from additional assistance and where 
-               additional training may be needed. You can download this data to use
-               for reporting to interested entities about the organization's overall
-               HMIS data quality. You can also use this report to identify which of
-               a single organization's projects that you want to examine more closely.
-               For each type of issue (High Priority Errors, General Errors, and 
-               Warnings) you will find two plots: one graphing the number of issues by
-               type, and one graphing the number of issues by project.
+               <p>For each type of issue (High Priority Errors, General Errors,
+               and Warnings) you will find two plots: one graphing the number of
+               issues by type, and one graphing the number of issues by project.
 
-               <h4>Most Common High Priority Errors Plot</h4>
-               <p>Which High Priority Errors are most common across all
-               the projects under the selected Organization? This plot will only
-               show the top 10 High Priority Errors. This can be useful in
-               planning targeted HMIS training efforts.</p>
-               
-               <h4>Projects with the Most High Priority Errors</h4>
-               <p>Within the selected Organization, which Projects are making the
-               highest number of High Priority Errors? This plot will only show the
-               top 10 projects' High Priority Error counts.</p>
-               
-               <h4>Most Common General Errors</h4>
-               <p>Which General Errors are most common across all the projects
-               under the selected Organization? This plot will only show the top
-               10 General Errors. This can be useful in planning targeted HMIS
-               training efforts.</p>
-               
-               <h4>Projects with the Most General Errors</h4>
-               <p>Within the selected Organization, which Projects are making the
-               highest number of General Errors? This plot will only show the
-               top 10 projects' General Error counts.</p>
-               
-               <h4>Most Common Warnings</h4>
-               <p>Which Warnings are most common across all the
-               projects under the selected Organization? This plot will only show
-               the top 10 Warnings. This can be useful in planning targeted HMIS
-               training efforts.</p>
-               
-               <h4>Projects with the Most Warnings</h4>
-               <p>Within the selected Organization, which Projects are flagged
-               with the highest number of Warnings? This plot will only show the
-               top 10 projects' Warning counts.</p>
-               
-               <h4>Data Quality Summary</h4>
-               <p>In this panel, you can see the number and types of issues identified
-               for each project within the selected organization. Where the plots
-               only list the top 10 for each error type, this panel displays ALL
-               Warnings, General Errors, and High Priority Errors for all projects
-               within the organization. At the top of each column you may type in 
-               any part of a word and the data will filter. Some examples of how this 
-               might be used:
-               <ul><li> Filter all projects in the Organization that have household
-               issues. [Type 'hou' in the Issue column's search box.]</li>
-               <li> Find all Warnings for Project 'Homeward Bound - ES'. [Type
-               'homew' in the Project Name column and 'war' in the Type column.]
-               </li></ul>
-               </p>
-               
-               <h4>Data Quality Guidance</h4>
-               <p>This panel lists each High Priority Error, General Error, and
-               Warning represented in the selected Organization's data along with
-               descriptions for each issue that include why the data is being
-               flagged. It is ordered by the Type of issue and the name of the
-               Issue. You may also search this data by column.</p>")
+               <h4>Most Common Issues</h4>
+               <p>Which issues are most common within the selected Organization?
+               These plots show the <b>top 10</b> issues identified. This can be
+               useful in planning targeted HMIS training efforts.</p>
+          
+               <h4>Projects with the Most Issues Identified</h4>
+               <p>These plots show the <b>top 10</b> projects within the selected
+               organization with the highest number of issues indicated.</p>")
         )), 
         fluidRow(box(
           pickerInput(
@@ -704,38 +649,21 @@ dashboardPage(
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
-          HTML("<h4>System-wide HMIS Data Quality Plots</h4>
-               <p>You can use the plots on this tab to evaluate which organizations
-               may benefit from additional assistance and where extra training may 
-               be needed. You can download this data to use for reporting to 
-               interested entities about your overall HMIS system data quality. 
-               You can also use this report to identify the organizations that you
-               want to examine more closely in the next tab, called Data
-               Quality > Organization-level tab. For each type of issue
-               (High Priority Errors, General Errors, and Warnings) you will
-               find two plots: one plots the counts of issues and one
-               plots the number of issues by organization.</p>
-               
-               <h5><b>Most Common Types of Issues</b></h5>
-               <p>Across all of the organizations in your upload, this plot shows
-               the <b>top 10</b> issues identified in the data quality scan. This
-               result can help to focus future end-user trainings and bring to
-               light any potential considerations in your federal or local
-               reporting and analysis.</p>
-               
-               <h5><b>Organizations with the Most Issues Identified</b></h5>
-               <p>This plot shows the <b>top 10</b> organizations across your
-               system with the highest number of issues indicated. You can use
-               these plots to help determine which organizations may need extra
-               assistance in getting their HMIS Errors/Warnings resolved.</p>
-               
-               <h4>Download System-wide HMIS Data Quality Data</h4>
-               <p>To download all of the client and enrollment related issues
-               found in your system, click the Download button. This will give
-               HMIS admins a way of reporting to interested entities, such as
-               your CoC leadership, a broader view of the state of your HMIS
-               data quality.</p>
-               
+          HTML("
+               <h4>System-wide HMIS Data Quality</h4>
+               <p>Use your System-wide Data Quality data to evaluate which
+               organizations may benefit from additional assistance and where
+               extra training may be needed. You can download this data to use
+               for reporting to interested entities about your overall HMIS
+               system data quality.</p>
+               <p>Click the Download button to generate an Excel workbook with
+               the your entire system's Data Quality data. Feel free to modify,
+               add, or remove anything as you see fit. For example, if you are
+               sending this workbook to your CoC management, you may want to 
+               remove the tabs that have client-level data on them. 
+               <p>Review the plots below to identify the organizations that
+               you want to examine more closely in the <b>Data Quality > 
+               Organization-level</b> tab. </p>
                <h4>Some definitions:</h4>
                <p>This app categorizes every issue it finds in your data set in
                terms of its severity.</p>
@@ -767,7 +695,32 @@ dashboardPage(
                 </ul></li>
                </ul>
                <p>Regardless of an issue's categorization, <b>users should never
-               edit data that accurately reflects reality</b>.")
+               edit data that accurately reflects reality</b>.
+               
+               <h4>System-wide HMIS Data Quality Plots</h4>
+               <p>For each type of issue (High Priority Errors, General Errors,
+               and Warnings) you will find two plots: one plots the counts of
+               issues and one plots the number of issues by organization.</p>
+               
+               <h5><b>Most Common Types of Issues</b></h5>
+               <p>Across all of the organizations in your upload, this plot shows
+               the <b>top 10</b> issues identified in the data quality scan. This
+               result can help to focus future end-user trainings and bring to
+               light any potential considerations in your federal or local
+               reporting and analysis.</p>
+               
+               <h5><b>Organizations with the Most Issues Identified</b></h5>
+               <p>This plot shows the <b>top 10</b> organizations across your
+               system with the highest number of issues indicated. You can use
+               these plots to help determine which organizations may need extra
+               assistance in getting their HMIS Errors/Warnings resolved.</p>
+               
+               <h4>Download System-wide HMIS Data Quality Data</h4>
+               <p>To download all of the client and enrollment related issues
+               found in your system, click the Download button. This will give
+               HMIS admins a way of reporting to interested entities, such as
+               your CoC leadership, a broader view of the state of your HMIS
+               data quality.</p>")
         )), 
 
         fluidRow(
