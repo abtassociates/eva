@@ -240,6 +240,8 @@ zip_initially_valid <- function () {
     title = "Your zip file is mis-structured"
     err_msg = "It looks like you may have unzipped your HMIS csv because the
     individual csv files are contained within a subdirectory."
+    write(paste(session$token, ": Unsuccessful - file was mistructured"), "logs/upload_metadata.txt", append=TRUE)
+    
   } 
   else if(length(missing_files)) {
     title = "Wrong Dataset"
@@ -248,12 +250,14 @@ zip_initially_valid <- function () {
           are not sure how to run the hashed HMIS CSV Export in your HMIS, please
           contact your HMIS vendor.
     "
+    write(paste(session$token, ": Unsuccessful - wrong dataset"), "logs/upload_metadata.txt", append=TRUE)
   } 
   else if(!is_hashed()) {
     title = "You uploaded an unhashed data set"
     err_msg = "You have uploaded an unhashed version of the HMIS CSV Export. If you
           are not sure how to run the hashed HMIS CSV Export in your HMIS, please
           contact your HMIS vendor."
+    write(paste(session$token, ": Unsuccessful - not hashed"), "logs/upload_metadata.txt", append=TRUE)
   } else {
     return(TRUE)
   }
