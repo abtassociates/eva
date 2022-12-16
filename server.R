@@ -4,7 +4,7 @@ function(input, output, session) {
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
-  write(paste(session$token, ": Session started"), "logs/site_visits.txt", append=TRUE)
+  write(paste(session$token, ": Session started"), "www/metadata/site_visits.txt", append=TRUE)
   
   valid_file <- reactiveVal(0)
 
@@ -124,7 +124,7 @@ function(input, output, session) {
               easyClose = TRUE
             )
           )
-          write(paste(session$token, ": Unsuccessful - not structurally valid"), "logs/upload_metadata.txt", append=TRUE)
+          write(paste(session$token, ": Unsuccessful - not structurally valid"), "www/metadata/upload_metadata.txt", append=TRUE)
         }
       })
     }
