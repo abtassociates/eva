@@ -353,10 +353,10 @@ dashboardPage(
           collapsed = TRUE,
           HTML("
                <h4>Project Descriptor Data Element (PDDE) Check Summary</h4>
-               <p>Once you have successfully uploaded a zip file, you will find
-               a summary of each issue that was flagged in your data regarding
-               your PDDEs. Please download the details by clicking the \'Download\'
-               button.</p>
+               <p>Once you have successfully uploaded an HMIS CSV Export, you
+               will find a summary of each issue that was flagged in your data
+               regarding your PDDEs. Please download the details by clicking the
+               \'Download\' button.</p>
                
                <h4>Guidance</h4>
                <p>For a description of each issue found, check the Guidance 
@@ -696,7 +696,9 @@ dashboardPage(
       ),
       tabItem(
         tabName = "tabDQSystem",
-        fluidRow(box(htmlOutput("headerSystemDQ"), width = 12, uiOutput("downloadFullDQReportButton"))),
+        fluidRow(box(
+          htmlOutput("headerSystemDQ"), width = 12, 
+          uiOutput("downloadFullDQReportButton"))),
         fluidRow(box(
           title = "Instructions",
           width = 12,
@@ -708,23 +710,24 @@ dashboardPage(
                be needed. You can download this data to use for reporting to 
                interested entities about your overall HMIS system data quality. 
                You can also use this report to identify the organizations that you
-               want to examine more closely in the next tab, called Assessing Data
+               want to examine more closely in the next tab, called Data
                Quality > Organization-level tab. For each type of issue
                (High Priority Errors, General Errors, and Warnings) you will
-               find two plots: one graphing the number of issues by type and one
-               graphing the number of issues by organization.</p>
+               find two plots: one plots the counts of issues and one
+               plots the number of issues by organization.</p>
                
                <h5><b>Most Common Types of Issues</b></h5>
                <p>Across all of the organizations in your upload, this plot shows
-               the <b>top 10</b> issues identified in the data quality scan. This result
-               can help to focus future end user trainings and bring to light any
-               potential considerations in your federal or local reporting and analysis.</p>
+               the <b>top 10</b> issues identified in the data quality scan. This
+               result can help to focus future end-user trainings and bring to
+               light any potential considerations in your federal or local
+               reporting and analysis.</p>
                
                <h5><b>Organizations with the Most Issues Identified</b></h5>
-               <p>This plot shows the top 10 organizations across your system with
-               the highest number of issues indicated. You can use these plots to 
-               help determine which organizations may need extra assistance in 
-               getting their HMIS Errors/Warnings resolved.</p>
+               <p>This plot shows the <b>top 10</b> organizations across your
+               system with the highest number of issues indicated. You can use
+               these plots to help determine which organizations may need extra
+               assistance in getting their HMIS Errors/Warnings resolved.</p>
                
                <h4>Download System-wide HMIS Data Quality Data</h4>
                <p>To download all of the client and enrollment related issues
