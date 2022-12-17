@@ -365,7 +365,7 @@ function(input, output, session) {
             Status = case_when(
               ProjectType %in% c(3, 13) &
                 is.na(MoveInDateAdjust) &
-                is.na(ExitDate) ~ paste0("Currently Awaiting Housing (", 
+                is.na(ExitDate) ~ paste0("Active No Move-In (", 
                                          today() - EntryDate,
                                          " days)"),
               ProjectType %in% c(3, 13) &
@@ -428,7 +428,7 @@ function(input, output, session) {
           Status = case_when(
             ProjectType %in% c(3, 13) &
               is.na(MoveInDateAdjust) &
-              is.na(ExitDate) ~ "Currently Awaiting Housing",
+              is.na(ExitDate) ~ "Active No Move-In",
             ProjectType %in% c(3, 13) &
               !is.na(MoveInDateAdjust) &
               is.na(ExitDate) ~ "Currently Moved In",
@@ -461,7 +461,7 @@ function(input, output, session) {
           Status = case_when(
             ProjectType %in% c(3, 13) &
               is.na(MoveInDateAdjust) &
-              is.na(ExitDate) ~ "Currently Awaiting Housing",
+              is.na(ExitDate) ~ "Active No Move-In",
             ProjectType %in% c(3, 13) &
               !is.na(MoveInDateAdjust) &
               is.na(ExitDate) ~ "Currently Moved In",
