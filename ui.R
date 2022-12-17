@@ -67,8 +67,8 @@ dashboardPage(
             HTML(
               "<h4>What you'll need to use Eva</h4>
               <p>Eva works by uploading a hashed 
-              <a href='https://www.hudhdx.info/VendorResources.aspx' target= '_blank'
-              rel='noopener noreferrer'>HMIS CSV Export</a>.
+              <a href='https://www.hudhdx.info/Resources/Vendors/HMIS_CSV_Specifications_FY2022_v1.3.pdf'
+              target= '_blank' rel='noopener noreferrer'>HMIS CSV Export</a>.
               </p>
               <p>Generate a hashed HMIS CSV Export from your local HMIS and store
               it in a secure location that you can easily find again. It must be
@@ -103,7 +103,7 @@ dashboardPage(
               categorized as high priority errors, general errors, and warnings.
               If there are any high priority errors that prevent Eva from
               functioning, Eva will reject your upload, stop processing the export,
-              and will clear Eva's memory.</p>
+              and clear Eva's memory.</p>
               <p>All issues will display in the HMIS CSV File Structure Analysis
               panel, where you can download the details, even if the file
               was rejected. Users should contact their vendor to resolve high 
@@ -538,14 +538,22 @@ dashboardPage(
                and Warnings) you will find two plots: one graphing the number of
                issues by type, and one graphing the number of issues by project.
 
-               <h4>Most Common Issues</h4>
-               <p>Which issues are most common within the selected Organization?
-               These plots show the <b>top 10</b> issues identified. This can be
+               <h4>Top 10 Issues</h4>
+               <p>Across all the projects within the selected Organization, this
+               plot shows the <b>top 10</b> issues identified. This can be
                useful in planning targeted HMIS training efforts.</p>
           
-               <h4>Projects with the Most Issues Identified</h4>
+               <h4>Top 10 Projects</h4>
                <p>These plots show the <b>top 10</b> projects within the selected
-               organization with the highest number of issues indicated.</p>")
+               organization with the highest number of issues identified. You can
+               use this to help determing which projects may need extra assistance
+               in addressing their data quality issues.</p>
+               
+               <h4>Download Organization-wide HMIS Data Quality Data</h4>
+               <p>To download all of the client and enrollment related issues
+               found in the selected Organization, click the Download button.
+               This will give HMIS admins a way of communicating to an Organization
+               what kinds of HMIS data quality issues they have.</p>")
         )), 
         fluidRow(box(
           pickerInput(
@@ -711,16 +719,16 @@ dashboardPage(
                and Warnings) you will find two plots: one plots the counts of
                issues and one plots the number of issues by organization.</p>
                
-               <h5><b>Most Common Types of Issues</b></h5>
+               <h5><b>Top 10 Issues</b></h5>
                <p>Across all of the organizations in your upload, this plot shows
                the <b>top 10</b> issues identified in the data quality scan. This
                result can help to focus future end-user trainings and bring to
                light any potential considerations in your federal or local
                reporting and analysis.</p>
                
-               <h5><b>Organizations with the Most Issues Identified</b></h5>
-               <p>This plot shows the <b>top 10</b> organizations across your
-               system with the highest number of issues indicated. You can use
+               <h5><b>Top 10 Organizations</b></h5>
+               <p>These plots show the <b>top 10</b> organizations across your
+               system with the highest number of issues identified. You can use
                these plots to help determine which organizations may need extra
                assistance in getting their HMIS Errors/Warnings resolved.</p>
                
