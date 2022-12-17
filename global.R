@@ -20,5 +20,11 @@ library(shinyjs)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 
+if(dir.exists("www/metadata/")) {
+  cat("All good")
+} else {
+  dir.create("www/metadata/")
+}
+
 hc_psh_started_collecting_move_in_date <- ymd("20171001")
 
