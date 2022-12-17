@@ -67,8 +67,8 @@ dashboardPage(
             HTML(
               "<h4>What you'll need to use Eva</h4>
               <p>Eva works by uploading a hashed 
-              <a href='https://www.hudhdx.info/VendorResources.aspx' target= '_blank'
-              rel='noopener noreferrer'>HMIS CSV Export</a>.
+              <a href='https://www.hudhdx.info/Resources/Vendors/HMIS_CSV_Specifications_FY2022_v1.3.pdf'
+              target= '_blank' rel='noopener noreferrer'>HMIS CSV Export</a>.
               </p>
               <p>Generate a hashed HMIS CSV Export from your local HMIS and store
               it in a secure location that you can easily find again. It must be
@@ -103,7 +103,7 @@ dashboardPage(
               categorized as high priority errors, general errors, and warnings.
               If there are any high priority errors that prevent Eva from
               functioning, Eva will reject your upload, stop processing the export,
-              and will clear Eva's memory.</p>
+              and clear Eva's memory.</p>
               <p>All issues will display in the HMIS CSV File Structure Analysis
               panel, where you can download the details, even if the file
               was rejected. Users should contact their vendor to resolve high 
