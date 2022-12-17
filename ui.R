@@ -547,7 +547,13 @@ dashboardPage(
                <p>These plots show the <b>top 10</b> projects within the selected
                organization with the highest number of issues identified. You can
                use this to help determing which projects may need extra assistance
-               in addressing their data quality issues.</p>")
+               in addressing their data quality issues.</p>
+               
+               <h4>Download Organization-wide HMIS Data Quality Data</h4>
+               <p>To download all of the client and enrollment related issues
+               found in the selected Organization, click the Download button.
+               This will give HMIS admins a way of communicating to an Organization
+               what kinds of HMIS data quality issues they have.</p>")
         )), 
         fluidRow(box(
           pickerInput(
