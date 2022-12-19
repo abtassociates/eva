@@ -202,7 +202,9 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
     arrange(Type)
   
   exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
-                             c(meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End, meta_HUDCSV_Export_Date))
+                             c(meta_HUDCSV_Export_Start,
+                               meta_HUDCSV_Export_End,
+                               meta_HUDCSV_Export_Date))
   colnames(exportDetail) = c("Export Field", "Value")
   
   exportDFList <- list(
