@@ -4,9 +4,9 @@ function(input, output, session) {
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
-  write(paste(session$token, "|",Sys.time(),": Session started"),
-        "www/metadata/site_visits.txt", append = TRUE)
+  source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
   
+  logMetadata("Session started")
   valid_file <- reactiveVal(0)
 
   output$headerFileInfo <- renderUI({
@@ -76,9 +76,6 @@ function(input, output, session) {
   })
   
   observeEvent(input$imported, {
-    
-    source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-  
     initially_valid_zip <- zip_initially_valid()
     
     if(initially_valid_zip) {
@@ -113,8 +110,7 @@ function(input, output, session) {
               easyClose = TRUE
             )
           )
-          write(paste(session$token, "|",Sys.time(),": Successful upload"), 
-                "www/metadata/upload_metadata.txt", append=TRUE)
+          logMetadata("Successful upload")
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
@@ -127,9 +123,7 @@ function(input, output, session) {
               easyClose = TRUE
             )
           )
-          write(paste(session$token, "|",Sys.time(),
-                      ": Unsuccessful - not structurally valid"),
-                "www/metadata/upload_metadata.txt", append=TRUE)
+          logMetadata("Unsuccessful upload - not structurally valid")
         }
       })
     }
@@ -192,6 +186,8 @@ function(input, output, session) {
           ),
           path = file
         )
+        
+        logMetadata("Downloaded File Structure Analysis Report")
       }
     )
     
@@ -262,6 +258,7 @@ function(input, output, session) {
           ungroup()
 
         write_xlsx(list("Summary" = summary, "Data" = pdde_main), path = file)
+        logMetadata("Downloaded PDDE Report")
       }
     )
     
@@ -581,7 +578,10 @@ function(input, output, session) {
               ".xlsx",
               sep = "")
       },
-      content = function(file) {write_xlsx(orgDQReportDataList(), path = file)}
+      content = function(file) {
+        write_xlsx(orgDQReportDataList(), path = file)
+        logMetadata("Downloaded Org-level DQ Report")
+      }
     )
     
 # 
@@ -1149,7 +1149,10 @@ function(input, output, session) {
     filename = function() {
       paste("Full Data Quality Report-", Sys.Date(), ".xlsx", sep="")
     },
-    content = function(file) {write_xlsx(fullDQReportDataList(), path = file)}
+    content = function(file) {
+      write_xlsx(fullDQReportDataList(), path = file)
+      logMetadata("Downloaded System-level DQ Report")
+    }
   )
   
   
