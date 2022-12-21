@@ -253,7 +253,7 @@ zip_initially_valid <- function () {
     title = "Your zip file is mis-structured"
     err_msg = "It looks like you may have unzipped your HMIS csv because the
     individual csv files are contained within a subdirectory."
-    logMetadata("Unsuccessful - file was mistructured")
+    logMetadata("Unsuccessful upload - file was mistructured")
   } 
   else if(length(missing_files)) {
     title = "Wrong Dataset"
