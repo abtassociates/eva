@@ -576,7 +576,8 @@ function(input, output, session) {
     
     output$downloadOrgDQReport <- downloadHandler(
       filename = function() {
-        paste("Organization Data Quality Report-",
+        paste(input$orgList,
+              " Data Quality Report-",
               Sys.Date(),
               ".xlsx",
               sep = "")

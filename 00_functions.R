@@ -180,9 +180,9 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
     ) %>%
     # group_by(ProjectName, Type, Issue) %>%
     group_by(Type, Issue) %>%
-    summarise(Clients = n()) %>%
-    select(Type, Clients, Issue) %>%
-    arrange(Type, desc(Clients))
+    summarise(Enrollments = n()) %>%
+    select(Type, Enrollments, Issue) %>%
+    arrange(Type, desc(Enrollments))
   
   bySummaryLevel2 <- rlang::sym(bySummaryLevel)
   byunitsummary <- rbind(
@@ -190,9 +190,9 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
       dqOverlaps %>% select(!!bySummaryLevel2, Type, Issue, PersonalID)
     ) %>%
     group_by(!!bySummaryLevel2, Type, Issue) %>%
-    summarise(Clients = n()) %>%
-    select(!!bySummaryLevel2, Type, Clients, Issue) %>%
-    arrange(Type, desc(Clients), !!bySummaryLevel2)
+    summarise(Enrollments = n()) %>%
+    select(!!bySummaryLevel2, Type, Enrollments, Issue) %>%
+    arrange(Type, desc(Enrollments), !!bySummaryLevel2)
     
     
   guidance <- dqData %>%
