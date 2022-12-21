@@ -22,7 +22,8 @@ subpopNotTotal <- Inventory %>%
   ) %>%
   mutate(Issue = "Sum of the dedicated beds should equal the Total Beds",
          Type = "Error",
-         Guidance = "Total Beds should match the sum of CH Vets, Youth Vets, Vets, CH Youth, Youth, CH, and Other beds.",
+         Guidance = "Total Beds should match the sum of CH Vets, Youth Vets, Vets, 
+         CH Youth, Youth, CH, and Other beds.",
          Detail = 
            paste0("Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth, CH, and 
          Other sum up to ",
@@ -56,7 +57,7 @@ operatingEndMissing <- Enrollment %>%
            is.null(OperatingEndDate)) %>%
   mutate(Issue = "Potentially Missing Operating End Date",
          Type = "Warning",
-         Guidance = "No open enrollments, but end date is missing.",
+         Guidance = "Projects no longer in operation must have an Operating End Date.",
          Detail = paste(
            "This project has no open enrollments and the most recent Exit was",
            MostRecentEnrollment
@@ -77,7 +78,7 @@ missingCoCInfo <- Project %>%
            is.na(CoCCode)
   ) %>%
   mutate(Issue = "Missing Geography Information",
-         Guidance = "Projects should not have missing geography information",
+         Guidance = "Projects should not have missing geography information.",
          Detail = case_when(
            is.na(CoCCode) ~ "This project's CoC Code is missing",
            is.na(Address1) ~ "This project's Address is missing",
@@ -101,7 +102,7 @@ missingInventoryRecord <- Project %>%
   mutate(
     Issue = "No Inventory Records",
     Type = "Error",
-    Guidance = "Residential project types should have inventory data.",
+    Guidance = "Residential projects should have inventory data.",
     Detail = str_squish(
       paste("Project ID", 
             ProjectID,
@@ -129,7 +130,7 @@ inventoryOutsideOperating <- Inventory %>%
       "Warning",
       "Error"
     ),
-    Guidance = "Inventory Start and End dates should be within Project Operating dates.",
+    Guidance = "Inventory Start and End dates should be within Project Operating Start and End dates.",
     Detail = case_when(
       Issue == "Inventory Start Precedes Project Operating Start" ~
         str_squish(
@@ -190,9 +191,9 @@ hmisNotParticipatingButClient <- Project %>%
            !is.na(PersonalID)) %>%
   mutate(Issue = "Non-HMIS-Participating project has client-level data",
          Type = "Warning",
-         Guidance = "Non-HMIS-Participating projects should not have client level data.",
-         Detail = str_squish("There is client data in this project. Please check that
-         this project is marked correctly as non-participating.")
+         Guidance = "Non-HMIS-Participating projects should not have client-level data.",
+         Detail = str_squish("There is client data in this project. Please check that 
+                             this project is marked correctly as non-participating.")
   ) %>%
   select(all_of(PDDEcols)) 
 
