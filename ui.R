@@ -462,10 +462,16 @@ dashboardPage(
           width = 12
         )),
         fluidRow(box(
+          title = "Client Counts Summary",
+          status = "info",
+          solidHeader = TRUE,
           DT::dataTableOutput("clientCountSummary"),
           width = 12
         )),
         fluidRow(box(
+          title = "Client Counts Detail",
+          status = "info",
+          solidHeader = TRUE,
           DT::dataTableOutput("clientCountData"),
           width = 12
         ))
