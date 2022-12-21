@@ -1,6 +1,12 @@
 
 function(input, output, session) {
   
+  #record_heatmap(target = ".wrapper")
+  # track_usage(storage_mode = store_json(path = "logs/"))
+  # Log the event to a database or file
+  write(paste(session$token, "|",Sys.time(),": Session started"),
+        "www/metadata/site_visits.txt", append = TRUE)
+  
   valid_file <- reactiveVal(0)
 
   output$headerFileInfo <- renderUI({
@@ -107,6 +113,8 @@ function(input, output, session) {
               easyClose = TRUE
             )
           )
+          write(paste(session$token, "|",Sys.time(),": Successful upload"), 
+                "www/metadata/upload_metadata.txt", append=TRUE)
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
@@ -119,6 +127,9 @@ function(input, output, session) {
               easyClose = TRUE
             )
           )
+          write(paste(session$token, "|",Sys.time(),
+                      ": Unsuccessful - not structurally valid"),
+                "www/metadata/upload_metadata.txt", append=TRUE)
         }
       })
     }
