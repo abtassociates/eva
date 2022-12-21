@@ -23,7 +23,8 @@ subpopNotTotal <- Inventory %>%
   mutate(Issue = "Sum of the dedicated beds should equal the Total Beds",
          Type = "Error",
          Guidance = "Total Beds should match the sum of CH Vets, Youth Vets, Vets, 
-         CH Youth, Youth, CH, and Other beds.",
+         CH Youth, Youth, CH, and Other beds. Please review project inventory records for the number 
+         of dedicated beds and ensure this number equals the Total Beds listed within each record.",
          Detail = 
            paste0("Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth, CH, and 
          Other sum up to ",
@@ -57,7 +58,8 @@ operatingEndMissing <- Enrollment %>%
            is.null(OperatingEndDate)) %>%
   mutate(Issue = "Potentially Missing Operating End Date",
          Type = "Warning",
-         Guidance = "Projects no longer in operation must have an Operating End Date.",
+         Guidance = "Projects no longer in operation must have an Operating End Date.
+         Please verify if the project is still in operation and, if not, add in the Operating End Date.",
          Detail = paste(
            "This project has no open enrollments and the most recent Exit was",
            MostRecentEnrollment
@@ -78,7 +80,8 @@ missingCoCInfo <- Project %>%
            is.na(CoCCode)
   ) %>%
   mutate(Issue = "Missing Geography Information",
-         Guidance = "Projects should not have missing geography information.",
+         Guidance = "Projects should not have missing geography information.
+         Please ensure geography information for projects is complete.",
          Detail = case_when(
            is.na(CoCCode) ~ "This project's CoC Code is missing",
            is.na(Address1) ~ "This project's Address is missing",
@@ -102,7 +105,8 @@ missingInventoryRecord <- Project %>%
   mutate(
     Issue = "No Inventory Records",
     Type = "Error",
-    Guidance = "Residential projects should have inventory data.",
+    Guidance = "Residential projects should have inventory data. 
+    Please enter inventory in HMIS for the project(s).",
     Detail = str_squish(
       paste("Project ID", 
             ProjectID,
@@ -130,7 +134,8 @@ inventoryOutsideOperating <- Inventory %>%
       "Warning",
       "Error"
     ),
-    Guidance = "Inventory Start and End dates should be within Project Operating Start and End dates.",
+    Guidance = "Inventory Start and End dates should be within Project Operating Start and End dates.
+    Please update either the inventory dates or the Project Operating dates.",
     Detail = case_when(
       Issue == "Inventory Start Precedes Project Operating Start" ~
         str_squish(
@@ -191,7 +196,10 @@ hmisNotParticipatingButClient <- Project %>%
            !is.na(PersonalID)) %>%
   mutate(Issue = "Non-HMIS-Participating project has client-level data",
          Type = "Warning",
-         Guidance = "Non-HMIS-Participating projects should not have client-level data.",
+         Guidance = "Non-HMIS-Participating projects should not have client-level data.
+         The HMIS Participating Project field may need to be updated, new projects may need to be created
+         based on changing HMIS participation status, or client-level data
+         may need to be removed from the Non-HMIS-Participating projects.",
          Detail = str_squish("There is client data in this project. Please check that 
                              this project is marked correctly as non-participating.")
   ) %>%
@@ -202,7 +210,8 @@ es_no_tracking_method <- Project %>%
   mutate(
     Issue = "Missing Tracking Method",
     Type = "Error",
-    Guidance = "All Emergency Shelters must have a Tracking Method.",
+    Guidance = "All Emergency Shelters must have a Tracking Method. Please update the 
+    Emergency Shelter Tracking Method field at the project-level.",
     Detail = paste0("Project ID", ProjectID, "is an Emergency Shelter with no Tracking Method")
   ) %>%
   select(all_of(PDDEcols))
