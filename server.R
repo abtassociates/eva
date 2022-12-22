@@ -220,6 +220,7 @@ function(input, output, session) {
       updateDateRangeInput(session = session, inputId = "dateRangeCount",
                            min = meta_HUDCSV_Export_Start,
                            start = meta_HUDCSV_Export_Start,
+                           max = meta_HUDCSV_Export_End,
                            end = meta_HUDCSV_Export_End)
     }
     
