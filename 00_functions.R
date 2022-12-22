@@ -126,7 +126,6 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
   return(data)
 }
 
-
 getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL) {
   select_list = c("Organization Name" = "OrganizationName",
                   "Project ID" = "ProjectID",
@@ -235,18 +234,29 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
 
 zip_initially_valid <- function () {
   zipContents <- unzip(zipfile = input$imported$datapath, list=TRUE)
-  requiredFiles <- c("Client.csv",
-    "Enrollment.csv",
-    "Exit.csv",
-    "Services.csv",
+  requiredFiles <- c(
+    "Assessment.csv",
+    "Client.csv",
     "CurrentLivingSituation.csv",
-    "Project.csv",
-    "Inventory.csv",
+    "EmploymentEducation.csv",
+    "Enrollment.csv",
     "EnrollmentCoC.csv",
+    "Event.csv",
+    "Exit.csv",
+    "Export.csv",
+    "Funder.csv",
+    "HealthAndDV.csv",
+    "IncomeBenefits.csv",
+    "Inventory.csv",
     "Organization.csv",
-    "Export.csv"
+    "Project.csv",
+    "ProjectCoC.csv",
+    "Services.csv",
+    "User.csv",
+    "YouthEducationStatus.csv"
   )
-  missing_files = requiredFiles[!(requiredFiles %in% zipContents$Name)]
+  
+  missing_files <- requiredFiles[!(requiredFiles %in% zipContents$Name)]
 
   valid_file(0)
   if(grepl("/", zipContents$Name[1])) {
@@ -256,13 +266,13 @@ zip_initially_valid <- function () {
     logMetadata("Unsuccessful upload - file was mistructured")
   } 
   else if(length(missing_files)) {
-    title = "Wrong Dataset"
-    err_msg = "You uploaded something other than a HUD CSV export. Be sure
-    that you haven't accidentally uploaded an APR or an LSA. If you
-          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
-          contact your HMIS vendor.
-    "
-    logMetadata("Unsuccessful upload - wrong dataset")
+    title = "Wrong or Incomplete Dataset"
+    err_msg = "You either uploaded something other than an HMIS CSV export or
+    your export does not contain all the files outlined in the HMIS CSV Export
+    specifications. Be sure that you haven't accidentally uploaded an APR or an
+    LSA. If you are not sure how to run the hashed HMIS CSV Export in your HMIS,
+    please contact your HMIS vendor."
+    logMetadata("Unsuccessful upload - wrong/incomplete dataset")
   } 
   else if(!is_hashed()) {
     title = "You uploaded an unhashed data set"
