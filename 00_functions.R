@@ -253,9 +253,7 @@ zip_initially_valid <- function () {
     title = "Your zip file is mis-structured"
     err_msg = "It looks like you may have unzipped your HMIS csv because the
     individual csv files are contained within a subdirectory."
-    write(paste(session$token, "|",Sys.time(),": Unsuccessful - file was mistructured"),
-          "www/metadata/upload_metadata.txt", append = TRUE)
-    
+    logMetadata("Unsuccessful upload - file was mistructured")
   } 
   else if(length(missing_files)) {
     title = "Wrong Dataset"
@@ -264,16 +262,14 @@ zip_initially_valid <- function () {
           are not sure how to run the hashed HMIS CSV Export in your HMIS, please
           contact your HMIS vendor.
     "
-    write(paste(session$token, "|",Sys.time(),": Unsuccessful - wrong dataset"),
-          "www/metadata/upload_metadata.txt", append = TRUE)
+    logMetadata("Unsuccessful upload - wrong dataset")
   } 
   else if(!is_hashed()) {
     title = "You uploaded an unhashed data set"
     err_msg = "You have uploaded an unhashed version of the HMIS CSV Export. If you
           are not sure how to run the hashed HMIS CSV Export in your HMIS, please
           contact your HMIS vendor."
-    write(paste(session$token, "|",Sys.time(),": Unsuccessful - not hashed"),
-          "www/metadata/upload_metadata.txt", append = TRUE)
+    logMetadata("Unsuccessful upload - not hashed")
   } else {
     return(TRUE)
   }
@@ -326,4 +322,14 @@ calculate_long_stayers <- function(input, projecttype){
              input < Days) %>% 
     select(all_of(vars_we_want))
   
+}
+logMetadata <- function(detail) {
+  d <- data.frame(
+    SessionToken = session$token,
+    Datestamp = Sys.time(),
+    Details = detail
+  )
+  
+  filename <- "www/metadata/metadata.csv"
+  write_csv(x=d, filename, append=TRUE, col_names = !file.exists(filename))  
 }
