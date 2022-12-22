@@ -76,6 +76,8 @@ function(input, output, session) {
   })
   
   observeEvent(input$imported, {
+    source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+    
     initially_valid_zip <- zip_initially_valid()
     
     if(initially_valid_zip) {
