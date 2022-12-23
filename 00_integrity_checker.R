@@ -203,7 +203,6 @@ check_for_bad_nulls <- function(barefile, quotedfile) {
       select(Issue, Type, Guidance)}
 }
 
-
 # Running functions on all files ------------------------------------------
 
 df_column_names <- map_df(files, check_column_names)
