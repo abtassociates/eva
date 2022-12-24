@@ -202,8 +202,7 @@ check_for_bad_nulls <- function(barefile, quotedfile) {
       select(Issue, Type, Guidance)}
 }
 
-
-# Running functions on all files ------------------------------------------
+# Integrity Structure -----------------------------------------------------
 
 df_column_names <- map_df(files, check_column_names)
 df_column_counts <- map_df(files, check_column_counts)
@@ -252,11 +251,7 @@ df_nulls <- rbind(
   check_for_bad_nulls(YouthEducationStatus,"YouthEducationStatus")
 ) 
 
-integrity_structure <- rbind(
-  df_nulls, df_data_types, df_column_counts, df_column_names
-)
-
-# # Valid Values ------------------------------------------------------------
+# Integrity Client --------------------------------------------------------
 
 export_id_client <- Client %>%
   mutate(
@@ -379,14 +374,7 @@ duplicate_client_id <- Client %>%
   ) %>%
   select(Issue, Type, Guidance)
 
-integrity_client <-
-  rbind(
-    valid_values_client,
-    export_id_client,
-    duplicate_client_id
-  )
-
-# Enrollment --------------------------------------------------------------
+# Integrity Enrollment ----------------------------------------------------
 
 duplicate_enrollment_id <- Enrollment %>%
   get_dupes(EnrollmentID) %>%
@@ -517,17 +505,7 @@ rel_to_hoh_invalid <- Enrollment %>%
 #   
 #   unique()
 
-integrity_enrollment <-
-  rbind(
-    duplicate_enrollment_id,
-    foreign_key_no_primary_personalid_enrollment,
-    foreign_key_no_primary_projectid_enrollment,
-    disabling_condition_invalid,
-    rel_to_hoh_invalid
-    # move_in_date_invalid
-  )
-
-# Exit --------------------------------------------------------------------
+# Integrity Living Situation ----------------------------------------------
 
 nonstandard_destination <- Exit %>%
   filter(!Destination %in% c(allowed_living_situations) |
@@ -542,7 +520,6 @@ nonstandard_destination <- Exit %>%
                      "which is not a valid Destination response.")) %>%
   select(Issue, Type, Guidance)
 
-# Current Living Situation ------------------------------------------------
 
 nonstandard_CLS <- CurrentLivingSituation %>%
   filter(!is.na(CurrentLivingSituation) &
@@ -558,18 +535,25 @@ nonstandard_CLS <- CurrentLivingSituation %>%
                      "which is not a valid response.")) %>%
   select(Issue, Type, Guidance)
 
-integrity_living_situation <- rbind(
+integrity_main <- rbind(
+  df_column_names,
+  df_column_counts,
+  df_data_types,
+  df_nulls,
+  export_id_client,
+  valid_values_client,
+  duplicate_client_id,
+  duplicate_enrollment_id,
+  foreign_key_no_primary_personalid_enrollment,
+  foreign_key_no_primary_projectid_enrollment,
+  disabling_condition_invalid,
   living_situation_invalid,
-  nonstandard_CLS,
-  nonstandard_destination
+  rel_to_hoh_invalid,
+  nonstandard_destination,
+  nonstandard_CLS
 )
 
-if(rbind(
-  integrity_client,
-  integrity_enrollment,
-  integrity_living_situation,
-  integrity_structure
-) %>% filter(Type == "High Priority") %>% nrow() > 0) {
+if(integrity_main %>% filter(Type == "High Priority") %>% nrow() > 0) {
   structural_issues <- 1
 } else{
   structural_issues <- 0

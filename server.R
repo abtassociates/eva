@@ -114,7 +114,7 @@ function(input, output, session) {
             )
           )
           write(paste(session$token, "|",Sys.time(),": Successful upload"), 
-                "www/metadata/upload_metadata.txt", append=TRUE)
+                "www/metadata/upload_metadata.txt", append = TRUE)
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
@@ -154,10 +154,7 @@ function(input, output, session) {
       {
         req(initially_valid_zip)
 
-        a <- rbind(integrity_client,
-                   integrity_enrollment,
-                   integrity_living_situation,
-                   integrity_structure) %>%
+        a <- integrity_main %>%
           group_by(Issue, Type) %>%
           summarise(Count = n()) %>%
           ungroup() %>%
@@ -184,12 +181,7 @@ function(input, output, session) {
       },
       content = function(file) {
         write_xlsx(
-          rbind(
-            integrity_client,
-            integrity_enrollment,
-            integrity_living_situation,
-            integrity_structure
-          ),
+          integrity_main,
           path = file
         )
       }
