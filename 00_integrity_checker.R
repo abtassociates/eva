@@ -186,12 +186,11 @@ check_for_bad_nulls <- function(barefile, quotedfile) {
                    names_to = "Column", 
                    values_to = "NullsPresent") %>%
       mutate(File = quotedfile) %>%
-      left_join(cols_and_data_types %>%
-                  select(File, Column, NullsAllowed), by = c("File", "Column")) %>%
+      left_join(cols_and_data_types, by = c("File", "Column")) %>%
       filter(NullsAllowed == 0 & NullsPresent == 1) %>%
       mutate(
         Issue = "Nulls not allowed in this column",
-        Type = "Error",
+        Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
         Guidance = paste(
           "The",
           Column,
