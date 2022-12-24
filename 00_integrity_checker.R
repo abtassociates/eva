@@ -103,7 +103,7 @@ check_column_names <- function(file) {
 check_data_types <- function(barefile, quotedfile) {
   if(nrow(barefile) > 0) {
     
-    if(!is.null(problems(barefile))){
+    if(nrow(problems(barefile)) > 0){
       x <-
         tibble(problems(barefile)) %>%
         filter(expected == "date like ") %>%
