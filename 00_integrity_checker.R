@@ -80,14 +80,14 @@ check_column_counts <- function(file) {
           "Wrong Number of Columns"
       ),
       Guidance = case_when(
-        ImportedColumnCount != CorrectColumnCount ~ paste(
+        ImportedColumnCount != CorrectColumnCount ~ str_squish(paste(
           "The",
           file,
           "file has", 
           ImportedColumnCount,
           "columns when it should have",
           CorrectColumnCount
-        )
+        ))
       )
     ) %>%
     filter(Guidance != "all good") %>%
@@ -150,7 +150,7 @@ check_data_types <- function(barefile, quotedfile) {
                         "nothing"), 
         Guidance = if_else(
           DataType != ImportedDataType,
-          paste0(
+          str_squish(paste0(
             "In the ",
             quotedfile,
             " file, the ",
@@ -168,14 +168,14 @@ check_data_types <- function(barefile, quotedfile) {
               TRUE ~ ImportedDataType
               ),
             ". The PersonalID must be unique within the Client.csv."
-          ),
+          )),
           NULL
         ),
         Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error")) %>%
       filter(Issue != "nothing") %>%
       select(Issue, Type, Guidance)
     
-    rbind(x, y)
+    y
   }
   
 }
@@ -195,13 +195,15 @@ check_for_bad_nulls <- function(barefile, quotedfile) {
       mutate(
         Issue = "Nulls not allowed in this column",
         Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
-        Guidance = paste(
+        Guidance = str_squish(paste(
           "The",
           Column,
           "column in the",
           File,
-          "file contains nulls where they are not allowed."
-        )
+          "file contains nulls where they are not allowed. This could mean the
+          column has an incorrect data type and was not imported or it could
+          mean 1 or more values are null where they should not be."
+        ))
       ) %>%
       select(Issue, Type, Guidance)}
 }
@@ -231,7 +233,7 @@ df_data_types <- rbind(
   check_data_types(Services,"Services"),
   check_data_types(User,"User"),
   check_data_types(YouthEducationStatus,"YouthEducationStatus")
-) 
+)
 
 df_nulls <- rbind(
   check_for_bad_nulls(Assessment,"Assessment"),
@@ -265,12 +267,12 @@ export_id_client <- Client %>%
       "Nothing"
     ),
     Type = "Error",
-    Guidance = paste(
+    Guidance = str_squish(paste(
       "The Export file says the ExportID is",
       export_id_from_export,
       "but in your Client file, it is",
       ExportID
-    )
+    ))
   ) %>%
   filter(Issue != "Nothing") %>%
   select(Issue, Type, Guidance) %>%
@@ -385,12 +387,12 @@ duplicate_enrollment_id <- Enrollment %>%
   mutate(
     Issue = "Duplicate EnrollmentIDs found in the Enrollment file",
     Type = "High Priority",
-    Guidance = paste0(
+    Guidance = str_squish(paste0(
       " There are ",
       dupe_count,
        " duplicates found for EnrollmentID",
       EnrollmentID,
-      ". The EnrollmentID must be unique within the Enrollment.csv")
+      ". The EnrollmentID must be unique within the Enrollment.csv"))
   ) %>%
   select(Issue, Type, Guidance)
 
@@ -401,11 +403,11 @@ foreign_key_no_primary_personalid_enrollment <- Enrollment %>%
   mutate(
     Issue = "Client in the Enrollment file not found in Client file",
     Type = "High Priority",
-    Guidance = paste(
+    Guidance = str_squish(paste(
       "PersonalID",
       PersonalID,
       "is in the Enrollment file but not in the Client file."
-    )
+    ))
   ) %>%
   select(Issue, Type, Guidance)
 
@@ -416,11 +418,11 @@ foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
   mutate(
     Issue = "ProjectID in the Enrollment file not found in Project file",
     Type = "High Priority",
-    Guidance = paste(
+    Guidance = str_squish(paste(
       "ProjectID",
       ProjectID,
       "is in the Enrollment file but not in the Project file."
-    )
+    ))
   ) %>%
   select(Issue, Type, Guidance)
 
@@ -432,13 +434,13 @@ disabling_condition_invalid <- Enrollment %>%
       "nothing"
     ),
     Type = "Error",
-    Guidance = paste(
+    Guidance = str_squish(paste(
       "Enrollment ID",
       EnrollmentID,
       "has a Disabling Condition of",
       DisablingCondition,
       "which is an invalid value."
-    )
+    ))
   ) %>%
   filter(Issue != "nothing") %>%
   select(Issue, Type, Guidance) %>%
@@ -455,13 +457,13 @@ living_situation_invalid <- Enrollment %>%
   mutate(
     Issue = "Invalid Living Situation value",
     Type = "Error",
-    Guidance = paste(
+    Guidance = str_squish(paste(
       "Enrollment ID",
       EnrollmentID,
       "has a LivingSituation of",
       LivingSituation,
       "which is not a valid value."
-    )
+    ))
   ) %>%
   select(Issue, Type, Guidance) 
 
@@ -470,13 +472,13 @@ rel_to_hoh_invalid <- Enrollment %>%
   mutate(
     Issue = "Invalid RelationshipToHoH value",
     Type = "Error",
-    Guidance = paste(
+    Guidance = str_squish(paste(
       "Enrollment ID",
       EnrollmentID,
       "has a RelationshipToHoH of",
       RelationshipToHoH,
       "which is invalid value."
-    )
+    ))
   ) %>%
   select(Issue, Type, Guidance) %>%
   unique()
@@ -517,11 +519,11 @@ nonstandard_destination <- Exit %>%
   mutate(
     Issue = "Invalid Destination value",
     Type = "Error",
-    Guidance = paste("EnrollmentID",
+    Guidance = str_squish(paste("EnrollmentID",
                      EnrollmentID,
                      "has a Destination value of",
                      Destination,
-                     "which is not a valid Destination response.")) %>%
+                     "which is not a valid Destination response."))) %>%
   select(Issue, Type, Guidance)
 
 
@@ -532,17 +534,18 @@ nonstandard_CLS <- CurrentLivingSituation %>%
   mutate(
     Issue = "Non-standard Current Living Situation",
     Type = "Error",
-    Guidance = paste("EnrollmentID",
+    Guidance = str_squish(paste("EnrollmentID",
                      EnrollmentID,
                      "has a Current Living Situation value of",
                      CurrentLivingSituation,
-                     "which is not a valid response.")) %>%
+                     "which is not a valid response."))) %>%
   select(Issue, Type, Guidance)
 
 integrity_main <- rbind(
   df_column_names,
   df_column_counts,
   df_data_types,
+  df_date_types,
   df_nulls,
   export_id_client,
   valid_values_client,
