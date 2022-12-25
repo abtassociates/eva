@@ -41,6 +41,28 @@ high_priority_columns <- cols_and_data_types %>%
   pull(Column) %>%
   unique()
 
+
+# Incorrect Date Formats --------------------------------------------------
+
+df_date_types <-
+  problems %>%
+  filter(str_detect(expected, "date") == TRUE) %>%
+  mutate(
+    File = str_remove(basename(file), ".csv")
+  ) %>%
+  left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
+  mutate(
+    Issue = "Incorrect Date Format",
+    Type = if_else(Column %in% c(high_priority_columns), 
+                   "High Priority", "Error"),
+    Guidance = str_squish(paste(
+      "Please check that the", Column, "column in the", File, "file has the correct
+      date format. Dates in the HMIS CSV Export should be in yyyy-mm-dd or
+      yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format
+      Specifications."))
+  ) %>%
+  select(Issue, Type, Guidance) %>% unique()
+
 # Creating Functions ------------------------------------------------------
 
 check_column_counts <- function(file) {
@@ -87,12 +109,12 @@ check_column_names <- function(file) {
     filter(ImportedColumns != CorrectColumns) %>%
     mutate(
       Guidance =
-        paste("The",
+       str_squish(paste("The",
               ImportedColumns,
               "column in the",
               file,
               "file should be spelled like",
-              CorrectColumns), 
+              CorrectColumns)), 
       Type = if_else(CorrectColumns %in% c(high_priority_columns), 
                      "High Priority", "Warning"), 
       Issue = "Incorrect Column Name") %>%
@@ -102,24 +124,6 @@ check_column_names <- function(file) {
 
 check_data_types <- function(barefile, quotedfile) {
   if(nrow(barefile) > 0) {
-    
-    if(nrow(problems(barefile)) > 0){
-      x <-
-        tibble(problems(barefile)) %>%
-        filter(expected == "date like ") %>%
-        mutate(
-          File = quotedfile,
-          Issue = "Incorrect Date Format",
-          Type = if_else(col %in% c(high_priority_columns), 
-                         "High Priority", "Error"),
-          Guidance = paste(
-            "Please check that the", col, "column in the", File,
-            "file has the correct date format. Dates in the HMIS CSV Export 
-            should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment
-            with the HMIS CSV Format Specifications.")
-        ) %>%
-        select(Issue, Type, Guidance) %>% unique()
-    }
     
     data_types <- as.data.frame(summary.default(barefile)) %>% 
       filter(Var2 != "Length" & 
