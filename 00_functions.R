@@ -126,7 +126,6 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
   return(data)
 }
 
-
 getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL) {
   select_list = c("Organization Name" = "OrganizationName",
                   "Project ID" = "ProjectID",
@@ -180,9 +179,9 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
     ) %>%
     # group_by(ProjectName, Type, Issue) %>%
     group_by(Type, Issue) %>%
-    summarise(Clients = n()) %>%
-    select(Type, Clients, Issue) %>%
-    arrange(Type, desc(Clients))
+    summarise(Enrollments = n()) %>%
+    select(Type, Enrollments, Issue) %>%
+    arrange(Type, desc(Enrollments))
   
   bySummaryLevel2 <- rlang::sym(bySummaryLevel)
   byunitsummary <- rbind(
@@ -190,9 +189,9 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
       dqOverlaps %>% select(!!bySummaryLevel2, Type, Issue, PersonalID)
     ) %>%
     group_by(!!bySummaryLevel2, Type, Issue) %>%
-    summarise(Clients = n()) %>%
-    select(!!bySummaryLevel2, Type, Clients, Issue) %>%
-    arrange(Type, desc(Clients), !!bySummaryLevel2)
+    summarise(Enrollments = n()) %>%
+    select(!!bySummaryLevel2, Type, Enrollments, Issue) %>%
+    arrange(Type, desc(Enrollments), !!bySummaryLevel2)
     
     
   guidance <- dqData %>%
@@ -237,45 +236,52 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
 
 zip_initially_valid <- function () {
   zipContents <- unzip(zipfile = input$imported$datapath, list=TRUE)
-  requiredFiles <- c("Client.csv",
-    "Enrollment.csv",
-    "Exit.csv",
-    "Services.csv",
+  requiredFiles <- c(
+    "Assessment.csv",
+    "Client.csv",
     "CurrentLivingSituation.csv",
-    "Project.csv",
-    "Inventory.csv",
+    "EmploymentEducation.csv",
+    "Enrollment.csv",
     "EnrollmentCoC.csv",
+    "Event.csv",
+    "Exit.csv",
+    "Export.csv",
+    "Funder.csv",
+    "HealthAndDV.csv",
+    "IncomeBenefits.csv",
+    "Inventory.csv",
     "Organization.csv",
-    "Export.csv"
+    "Project.csv",
+    "ProjectCoC.csv",
+    "Services.csv",
+    "User.csv",
+    "YouthEducationStatus.csv"
   )
-  missing_files = requiredFiles[!(requiredFiles %in% zipContents$Name)]
+  
+  missing_files <- requiredFiles[!(requiredFiles %in% zipContents$Name)]
 
   valid_file(0)
   if(grepl("/", zipContents$Name[1])) {
     title = "Your zip file is mis-structured"
     err_msg = "It looks like you may have unzipped your HMIS csv because the
     individual csv files are contained within a subdirectory."
-    write(paste(session$token, "|",Sys.time(),": Unsuccessful - file was mistructured"),
-          "www/metadata/upload_metadata.txt", append = TRUE)
-    
+    logMetadata("Unsuccessful upload - file was mistructured")
   } 
   else if(length(missing_files)) {
-    title = "Wrong Dataset"
-    err_msg = "You uploaded something other than a HUD CSV export. Be sure
-    that you haven't accidentally uploaded an APR or an LSA. If you
-          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
-          contact your HMIS vendor.
-    "
-    write(paste(session$token, "|",Sys.time(),": Unsuccessful - wrong dataset"),
-          "www/metadata/upload_metadata.txt", append = TRUE)
+    title = "Wrong or Incomplete Dataset"
+    err_msg = "You either uploaded something other than an HMIS CSV export or
+    your export does not contain all the files outlined in the HMIS CSV Export
+    specifications. Be sure that you haven't accidentally uploaded an APR or an
+    LSA. If you are not sure how to run the hashed HMIS CSV Export in your HMIS,
+    please contact your HMIS vendor."
+    logMetadata("Unsuccessful upload - wrong/incomplete dataset")
   } 
   else if(!is_hashed()) {
     title = "You uploaded an unhashed data set"
     err_msg = "You have uploaded an unhashed version of the HMIS CSV Export. If you
           are not sure how to run the hashed HMIS CSV Export in your HMIS, please
           contact your HMIS vendor."
-    write(paste(session$token, "|",Sys.time(),": Unsuccessful - not hashed"),
-          "www/metadata/upload_metadata.txt", append = TRUE)
+    logMetadata("Unsuccessful upload - not hashed")
   } else {
     return(TRUE)
   }
@@ -330,4 +336,14 @@ calculate_long_stayers <- function(input, projecttype){
              input < Days) %>% 
     select(all_of(vars_we_want))
   
+}
+logMetadata <- function(detail) {
+  d <- data.frame(
+    SessionToken = session$token,
+    Datestamp = Sys.time(),
+    Details = detail
+  )
+  
+  filename <- "www/metadata/metadata.csv"
+  write_csv(x=d, filename, append=TRUE, col_names = !file.exists(filename))  
 }
