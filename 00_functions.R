@@ -337,6 +337,7 @@ calculate_long_stayers <- function(input, projecttype){
     select(all_of(vars_we_want))
   
 }
+
 logMetadata <- function(detail) {
   d <- data.frame(
     SessionToken = session$token,
@@ -345,5 +346,10 @@ logMetadata <- function(detail) {
   )
   
   filename <- "www/metadata/metadata.csv"
-  write_csv(x=d, filename, append=TRUE, col_names = !file.exists(filename))  
+  write_csv(
+    x = d,
+    filename,
+    append = TRUE,
+    col_names = !file.exists(filename)
+  )
 }
