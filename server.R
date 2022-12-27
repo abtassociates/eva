@@ -218,6 +218,7 @@ function(input, output, session) {
       updateDateRangeInput(session = session, inputId = "dateRangeCount",
                            min = meta_HUDCSV_Export_Start,
                            start = meta_HUDCSV_Export_Start,
+                           max = meta_HUDCSV_Export_End,
                            end = meta_HUDCSV_Export_End)
     }
     
@@ -358,6 +359,8 @@ function(input, output, session) {
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
       
+      validate(need(ReportStart <= ReportEnd, "Please make sure date range is correct."))
+      
       datatable(
         validation %>%
           filter(served_between(., ReportStart, ReportEnd) &
@@ -421,6 +424,8 @@ function(input, output, session) {
       req(valid_file() == 1)
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
+      
+      validate(need(ReportStart <= ReportEnd, "Please make sure date range is correct."))
       
       hhs <- validation %>%
         filter(served_between(., ReportStart, ReportEnd) &
