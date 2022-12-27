@@ -70,3 +70,29 @@ YouthEducationStatus <-
   importFile("YouthEducationStatus", col_types = "cccDnnnnTTcTc")
 
 
+problems <- rbind(
+  # problems(Affiliation),
+  problems(Assessment),
+  # problems(AssessmentQuestions),
+  # problems(AssessmentResults),
+  problems(Client),
+  problems(CurrentLivingSituation),
+  # problems(Disabilities),
+  problems(EmploymentEducation),
+  problems(Enrollment),
+  problems(EnrollmentCoC),
+  problems(Event),
+  problems(Exit),
+  problems(Export),
+  problems(Funder),
+  problems(HealthAndDV),
+  problems(IncomeBenefits),
+  problems(Inventory),
+  problems(Organization),
+  problems(Project),
+  problems(ProjectCoC),
+  problems(Services),
+  problems(User),
+  problems(YouthEducationStatus)
+)
+
