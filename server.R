@@ -6,6 +6,18 @@ function(input, output, session) {
   # Log the event to a database or file
   source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
   
+  
+ showModal(modalDialog(
+    title = "Changelog Alert",
+    "Due to a recent update, Eva may reject exports that were previously
+    accepted. Please see the changelog for more information and contact your
+    vendor if this affects you.",
+    footer = modalButton("OK"),
+    size = "m",
+    easyClose = TRUE
+  ))
+  
+  
   logMetadata("Session started")
   valid_file <- reactiveVal(0)
 
@@ -75,6 +87,11 @@ function(input, output, session) {
     }
   })
   
+  output$changelog <- renderTable(
+    changelog
+    
+  )
+  
   observeEvent(input$imported, {
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
     
@@ -109,7 +126,8 @@ function(input, output, session) {
             modalDialog(
               title = "Upload successful",
               "Congratulations! You have succesfully uploaded an HMIS CSV Export.",
-              easyClose = TRUE
+              easyClose = TRUE,
+              footer = modalButton("OK")
             )
           )
 
@@ -123,7 +141,8 @@ function(input, output, session) {
               "Your HMIS CSV Export has some High Priority issues that must
               be addressed by your HMIS Vendor. Please download the File Structure
               Analysis for details.",
-              easyClose = TRUE
+              easyClose = TRUE,
+              footer = modalButton("OK")
             )
           )
           logMetadata("Unsuccessful upload - not structurally valid")

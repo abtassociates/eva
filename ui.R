@@ -348,6 +348,15 @@ dashboardPage(
              Square Peg Data</a>, the San Diego City and County CoC (CA-601),
              and the Minneapolis/Hennepin County CoC (MN-500) for providing
              sample datasets to support programming.")
+      ),
+      box(
+        title = "Changelog",
+        solidHeader = TRUE,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        width = 12,
+        tableOutput("changelog")
+      
       )
         )
       ), 
