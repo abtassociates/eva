@@ -82,9 +82,9 @@ function(input, output, session) {
     if(valid_file()) {
       list(h2("Client Counts Report"),
            h4(paste(
-             format(Export$ExportStartDate, "%m-%d-%Y"),
+             format(input$dateRangeCount[1], "%m-%d-%Y"),
              "to",
-             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+             format(input$dateRangeCount[2], "%m-%d-%Y")
            )))
     } else {
       h4("You have not successfully uploaded your zipped CSV file yet.")
@@ -212,7 +212,7 @@ function(input, output, session) {
     if(valid_file() == 1) {
       updatePickerInput(session = session, inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
-      
+
       updatePickerInput(session = session, inputId = "desk_time_providers",
                         choices = sort(Project$ProjectName))
       
