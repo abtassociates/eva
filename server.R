@@ -81,7 +81,11 @@ function(input, output, session) {
   output$headerCurrent <- renderUI({
     if(valid_file()) {
       list(h2("Client Counts Report"),
-           h4(input$currentProviderList))
+           h4(paste(
+             format(Export$ExportStartDate, "%m-%d-%Y"),
+             "to",
+             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+           )))
     } else {
       h4("You have not successfully uploaded your zipped CSV file yet.")
     }
