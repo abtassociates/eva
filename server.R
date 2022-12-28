@@ -84,7 +84,9 @@ function(input, output, session) {
            h4(paste(
              format(input$dateRangeCount[1], "%m-%d-%Y"),
              "to",
-             format(input$dateRangeCount[2], "%m-%d-%Y")
+             format(input$dateRangeCount[2], "%m-%d-%Y"),
+             "|",
+             input$currentProviderList
            )))
     } else {
       h4("You have not successfully uploaded your zipped CSV file yet.")
