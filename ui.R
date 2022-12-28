@@ -130,7 +130,13 @@ dashboardPage(
               Settings panel for more information.</p>
               
               <h4>Citations and Special Thanks</h4>
-              <p>This panel will credit the people who have helped make Eva possible!
+              <p>This panel will credit the people who have helped make Eva possible!</p>
+              
+              <h4>Changelog</h4>
+              <p>This panel will list the most recent technical updates and changes to Eva.
+              For more in-depth information on current and past issues, please go to <a
+              href='https://github.com/abtassociates/eva/issues' target= '_blank'
+              rel='noopener noreferrer'>GitHub</a>.</p>
               ")
           ),
           box(
@@ -351,7 +357,6 @@ dashboardPage(
       ),
       box(
         title = "Changelog",
-        solidHeader = TRUE,
         collapsible = TRUE,
         collapsed = TRUE,
         width = 12,
