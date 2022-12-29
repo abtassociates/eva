@@ -416,9 +416,7 @@ function(input, output, session) {
               !is.na(ExitDate) ~ "Exited project"
           ),
           sort = today() - EntryDate,
-          EntryDate = format.Date(EntryDate, "%m-%d-%Y"),
-          MoveInDateAdjust = format.Date(MoveInDateAdjust, "%m-%d-%Y"),
-          ExitDate = format.Date(ExitDate, "%m-%d-%Y")
+          MoveInDateAdjust = format.Date(MoveInDateAdjust, "%m-%d-%Y")
         ) %>%
         #  mutate(PersonalID = as.character(PersonalID)) %>%
         arrange(desc(sort), HouseholdID, PersonalID) %>%
@@ -426,43 +424,46 @@ function(input, output, session) {
           "Personal ID" = PersonalID,
           "Household ID" = HouseholdID,
           "Relationship to Head of Household" = RelationshipToHoH,
-          "Entry Date" = EntryDate,
+          EntryDate,
           "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
-          "Exit Date" = ExitDate,
+          ExitDate,
           "Length of Stay" = LengthOfStay,
           Status,
           ProjectID,
           ProjectName,
           OrganizationName
-        )
+        ) %>%
+        filter(served_between(., ReportStart, ReportEnd))
     })
     
-    client_count_summary_df <- reactive({
-      
-      hhs <- client_count_data_df() %>%
+    client_count_summary_by <- function(vname, client_counts) {
+      df <- client_counts %>%
         mutate(Status = sub(" \\(.*", "", Status)) %>%
-        select("Household ID", Status) %>%
+        select(vname, Status) %>%
         unique() %>%
-        group_by(Status) %>%
+        group_by(Status)
+      return(df)
+    }
+    
+    client_count_summary_df <- reactive({
+      client_counts <- client_count_data_df() %>%
+        filter(ProjectName == input$currentProviderList)
+      
+      hhs <- client_count_summary_by("Household ID", client_counts) %>%
         summarise(Households = n())
       
-      clients <- client_count_data_df() %>%
-        mutate(Status = sub(" \\(.*", "", Status)) %>%
-        select("Personal ID", Status) %>%
-        unique() %>%
-        group_by(Status) %>%
+      clients <- client_count_summary_by("Personal ID", client_counts) %>%
         summarise(Clients = n())
       
       full_join(clients, hhs, by = "Status")
-      
     })
+    
     output$clientCountData <- DT::renderDataTable({
       req(valid_file() == 1)
 
       datatable(
         client_count_data_df() %>%
-          filter(served_between(., ReportStart, ReportEnd) &
-                   ProjectName == input$currentProviderList),
+          filter(ProjectName == input$currentProviderList),
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')
@@ -473,9 +474,7 @@ function(input, output, session) {
       req(valid_file() == 1)
       
       datatable(
-        client_count_summary_df() %>%
-          filter(served_between(., ReportStart, ReportEnd) &
-                   ProjectName == input$currentProviderList),
+        client_count_summary_df(),
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't')
@@ -498,16 +497,16 @@ function(input, output, session) {
               sep = "")
       },
       content = function(file) {
-        validationDateRange <- client_count_summary_df() %>%
+        validationDateRange <- client_count_data_df() %>%
           mutate(Status = sub(" \\(.*", "", Status)) %>%
           group_by(ProjectID, ProjectName, OrganizationName, Status, `Length of Stay`) %>%
           summarise("Clients Served" = n()) %>%
           ungroup() %>%
-          select(c(ProjectID, ProjectName, OrganizationName, "Clients Served", Status, "Length of Stay")) %>%
+          select(c(ProjectID, ProjectName, OrganizationName, "Clients Served", Status, `Length of Stay`)) %>%
           arrange(Status, desc("Clients Served"))
         
-        validationCurrent <- client_count_summary_df() %>% 
-          select(c(ProjectID, ProjectName, OrganizationName, Status, "Length of Stay")) %>%
+        validationCurrent <- client_count_data_df() %>% 
+          select(c(ProjectID, ProjectName, OrganizationName, Status, `Length of Stay`)) %>%
           mutate(n=1, Status = sub(" \\(.*", "", Status)) %>%
           pivot_wider(names_from = Status, values_from = n, values_fn = sum)
         
