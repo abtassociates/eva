@@ -794,7 +794,7 @@ function(input, output, session) {
     output$systemDQWarningsByOrg <- renderPlot({
       req(valid_file() == 1)
       
-      validate(need(nrow(dq_sys_lvl_general_errors_by_org) > 0, 
+      validate(need(nrow(dq_sys_lvl_warnings_by_org) > 0, 
                     message = "Great job! No warnings to show."))
       
       dq_sys_lvl_warnings_by_org_plot})
