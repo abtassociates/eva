@@ -268,12 +268,17 @@ zip_initially_valid <- function () {
     logMetadata("Unsuccessful upload - file was mistructured")
   } 
   else if(length(missing_files)) {
-    title = "Wrong or Incomplete Dataset"
-    err_msg = "You either uploaded something other than an HMIS CSV export or
-    your export does not contain all the files outlined in the HMIS CSV Export
-    specifications. Be sure that you haven't accidentally uploaded an APR or an
-    LSA. If you are not sure how to run the hashed HMIS CSV Export in your HMIS,
-    please contact your HMIS vendor."
+    title = "Missing Files"
+    err_msg = HTML(str_glue(
+    "Your zip file appears to be missing the following files:<br/><br/>
+    
+    {paste(missing_files,collapse=', ')}<br/><br/>
+    
+    You either uploaded something 
+    other than an HMIS CSV export or your export does not contain all the files outlined in 
+    the HMIS CSV Export specifications. Be sure that you haven't accidentally uploaded an APR 
+    or an LSA. If you are not sure how to run the hashed HMIS CSV Export in your HMIS,
+    please contact your HMIS vendor."))
     logMetadata("Unsuccessful upload - wrong/incomplete dataset")
   } 
   else if(!is_hashed()) {
