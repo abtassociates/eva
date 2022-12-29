@@ -9,9 +9,9 @@ function(input, output, session) {
   
  showModal(modalDialog(
     title = "Changelog Alert",
-    "Due to a recent update, Eva may reject exports that were previously
-    accepted. Please see the changelog for more information and contact your
-    vendor if this affects you.",
+    "Due to a recent update, Eva *may* reject exports that were previously
+    accepted. If this affects you, please see the changelog for more
+    information and contact your vendor.",
     footer = modalButton("OK"),
     size = "m",
     easyClose = TRUE
