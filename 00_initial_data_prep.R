@@ -9,6 +9,10 @@ Project <- Project %>%
     TRUE ~ ProjectType
   ))
 
+# This dataset is only used to populate the Client Counts header with the Project and Org names
+Project0 <<- Project %>% 
+  select(ProjectID, ProjectName, OrganizationID, OrganizationName, ProjectType)
+
 small_project <- Project %>% select(ProjectID, ProjectType, ProjectName)
 
 # Enrollment --------------------------------------------------------------
