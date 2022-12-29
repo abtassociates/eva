@@ -1,30 +1,18 @@
-# COHHIO_HMIS
-# Copyright (C) 2020  Coalition on Homelessness and Housing in Ohio (COHHIO)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details at
-# <https://www.gnu.org/licenses/>.
 
+#with_heatmap(
 dashboardPage(
   skin = "black",
-  dashboardHeader(title = "StellaR"),
+  dashboardHeader(title = "Eva"),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
       menuItem("Home",
                tabName = "tabHome"),
-      menuItem("Check PDDEs",
-               tabName = "tabPDDE"),
       menuItem("View Client Counts",
                   tabName = "tabClientCount"),
       menuItem("Assess Data Quality",
+               menuSubItem("Check PDDEs",
+                           tabName = "tabPDDE"),
                menuSubItem("System-level",
                            tabName = "tabDQSystem"),
                menuSubItem("Organization-level",
@@ -49,7 +37,8 @@ dashboardPage(
   ), 
   dashboardBody(
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+      tags$html(lang="en") #Added as WAVE fix but not considered ideal
     ),
     useShinyjs(),
     tabItems(
@@ -57,202 +46,132 @@ dashboardPage(
         tabName = "tabHome",
         fluidRow(
           box(
-            title = "Welcome to StellaR!",
+            title = "Welcome to Eva!",
             width = 12,
             HTML(
-              "<div>StellaR is intended for local use by HMIS Administrators in Continuums of Care (CoCs) around the U.S. and its territories. 
-              StellaR is designed to help you assess the accuracy and completeness of the data within your HMIS. 
-              In future iterations it will also assist communities in analyzing your HMIS performance data, 
-              including coordinated entry, if your community utilizes HMIS for this purpose. Use of this tool is not required by HUD.</div>
-              <br/>
-              <div>This app works by using an uploaded 
-              <a href='https://www.hudhdx.info/VendorResources.aspx'>HMIS CSV</a> 
-              file.
-              </div>
-              <br/>"
+              "<p><b>Eva</b> is an <a href = 'https://github.com/abtassociates/eva'
+              target= '_blank' rel='noopener noreferrer'>open-source</a>
+              project intended for local use by HMIS Administrators in Continuums
+              of Care (CoCs) around the U.S. and its territories. Eva is designed
+              to help you assess the accuracy and completeness of the data within
+              your HMIS. In future iterations it will also assist communities in
+              analyzing HMIS performance data, including coordinated entry, if 
+              your community utilizes HMIS for this purpose. Use of this tool is
+              not required by HUD.</p>"
             )
           ),
           box(
-            title = "App Instructions",
+            title = "Instructions",
             width = 12,
             collapsible = TRUE,
             collapsed = TRUE,
-            HTML("
-                 <h4>Status Panel</h4>
-                 <p>In the Status panel below, you will see the status of your
-                 upload. Once you have uploaded a hashed and structurally sound
-                 zip file, you will see a confirmation that your upload was 
-                 successful, the date range of the file you uploaded, plus the
-                 date your file was downloaded from your HMIS.</p>
+            HTML(
+              "<h4>What you'll need to use Eva</h4>
+              <p>Eva works by uploading a hashed 
+              <a href='https://www.hudhdx.info/Resources/Vendors/HMIS_CSV_Specifications_FY2022_v1.3.pdf'
+              target= '_blank' rel='noopener noreferrer'>HMIS CSV Export</a>.
+              </p>
+              <p>Generate a hashed HMIS CSV Export from your local HMIS and store
+              it in a secure location that you can easily find again. It must be
+              a .zip file with 23 csv files in it.
+              <ul>
+              <li>A hashed export means that the personal identifiers are obscured
+              when the export is generated.</li>
+              <li>The HMIS CSV Export has client-level data in it, so it must be
+              stored in a secure location per HUD, state, and local rules and
+              regulations.</li>
+              <li>If you are unsure how to generate your hashed HMIS CSV Export,
+              please contact your vendor.</li>
+              </ul>
+              
+              <p>Once you have exported the correct file from your HMIS, you are
+              ready to engage with Eva. See the Instructions below for next steps.
                  
-                 <h4>Upload Hashed CSV zip file</h4>
-                 <p>To upload your hashed HUD CSV Export zip file, click the \'Browse\'
-                 button in the \'Upload Hashed CSV zip file\' panel. Once you find
-                 the zip file on your computer, select it and click \'Open\'. Your
-                 file will begin uploading. It will then check only the files
-                 needed to determine if it is hashed. If it is not, the app will
-                 reject your file with an error message, not process any further
-                 data, and clear the app's memory until you upload another (hashed)
-                 file. If it is hashed, it will then check for structural issues
-                 in your HUD CSV Export. Some structural issues will affect the
-                 functioning of this app and some will not. If your file has any
-                 structural issues that would prevent this app from functioning,
-                 your file will be rejected with an error message, it will stop
-                 processing your data further, and it will clear the app's memory
-                 until you upload another (structurally sound) file. </p>
+              <h4>Upload hashed HMIS CSV Export</h4>
                  
-                 <h4>Edit CoC-specific Settings</h4>
-                 <p>To make StellaR reporting more useful at the local level,
-                 you will find the CoC-specific settings that HMIS Leads can edit
-                 to better analyse their data in a way that is meaningful to the
-                 CoC. To edit these, click on the \'+\'. If you do not edit them,
-                 the reporting will use the defaults listed. These defaults do
-                 not imply any HUD recommendations. Please read the description
-                 in the settings panel for more information.</p>
-                 
-                 <h4>Integrity Checker</h4>
-                 <p>Once the app verifies that your file is hashed, it will then
-                 check that your upload has all the right tables, columns, data
-                 types, and allowable values. If there are any issues
-                 that will prevent the app from functioning, the app will reject
-                 your file and not process any further. All issues will display
-                 in the panel and you can download the details, even if the file
-                 was rejected. </p>
-                 
-                 <h4>Citations</h4>
-                 <p>This panel will credit the people who wrote the open-source code
-                 used to build this app, plus the community on whose code this app
-                 was built.</p>")
-          ),  
+              <p>To upload your hashed HMIS CSV Export, click the \'Browse\'
+              button in the \'Upload Hashed HMIS CSV Export\' panel. Once you
+              find the zip file on your computer, select it and click \'Open\'.
+              Your file will begin uploading. Eva will check to determine if
+              the export is hashed. If it is not, Eva will reject the file with
+              an error message, and clear Eva's memory until you upload a hashed
+              HMIS CSV Export.</p>
+              
+              <h4>HMIS CSV Export File Structure Analysis</h4>
+              <p>Once Eva verifies that your export is hashed, it will check
+              that the files have all the right names, columns, data types, and
+              allowable values. Eva will generate data quality issues that are
+              categorized as high priority errors, general errors, and warnings.
+              If there are any high priority errors that prevent Eva from
+              functioning, Eva will reject your upload, stop processing the export,
+              and clear Eva's memory.</p>
+              <p>All issues will display in the HMIS CSV File Structure Analysis
+              panel, where you can download the details, even if the file
+              was rejected. Users should contact their vendor to resolve high 
+              priority errors identified in the HMIS CSV Export File Structure
+              Analysis, as well as any other structural issues which you feel need
+              to be corrected. Not all structural issues found in this analysis will 
+              prevent the data from being accepted for analysis, so they may not 
+              require immediate attention. Once your vendor has addressed any
+              high priority structural errors, you can attempt another upload.</p>
+              
+              <p>Once you have uploaded a hashed and structurally sound zip file,
+              you will see a confirmation that your upload was successful, the date
+              range of the files you uploaded, plus the date your Export was 
+              downloaded from your HMIS.
+              
+              <h4>Edit CoC-specific Settings</h4>
+              <p>To make Eva reporting more useful at the local level, you can
+              adjust the CoC-specific settings to better analyze your data in a
+              way that is meaningful to the CoC. To edit these, click on the \'+\'
+              in the Edit CoC-specific Settings panel. If you do not edit them,
+              the reporting will use the defaults listed. These defaults do not
+              imply any HUD recommendations. Please read the description in the
+              Settings panel for more information.</p>
+              
+              <h4>Citations and Special Thanks</h4>
+              <p>This panel will credit the people who have helped make Eva possible!</p>
+              
+              <h4>Changelog</h4>
+              <p>This panel will list the most recent technical updates and changes to Eva.
+              For more in-depth information on current and past issues, please go to <a
+              href='https://github.com/abtassociates/eva/issues' target= '_blank'
+              rel='noopener noreferrer'>GitHub</a>.</p>
+              ")
+          ),
+          box(
+            title = "Need help?",
+            width = 12,
+            collapsible = TRUE,
+            collapsed = TRUE,
+            HTML(
+              "<p>Trouble-shooting tips:
+              <ul>
+              <li>Be sure you have generated the correct export. You cannot use
+              an APR or LSA export file for use with this tool.</li>
+              <li>Eva is looking for a zip file and will extract the files for you,
+              so unzipping your export is not necessary.</li>
+              <li>If your export is a .7z file, you must convert it to a .zip file.
+              If you are not sure about how to do this, please contact your vendor.
+              <li>If something is not working, please go to <a
+              href='https://github.com/abtassociates/eva/issues' target= '_blank'
+              rel='noopener noreferrer'>GitHub</a> to check for known issues
+              and/or enter any new issues or feature enhancement requests. To
+              enter an Issue on GitHub, you must have an account. If you do not
+              already have a GitHub account, you can sign up for one <a
+              href='https://github.com/join' target= '_blank'
+              rel='noopener noreferrer'>here</a>.
+              </ul>"
+            )
+          ), 
           box(
             title = "Upload Hashed CSV zip file",
-            HTML('<i class="fa fa-info-circle" 
-                title = "Use the Browse function to direct the app to the file folder containing your zipped CSV.">
-                 </i>'),
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
-            conditionalPanel(
-              condition = "valid_file() == 0",
-              uiOutput("headerFileInfo")),
-            conditionalPanel(
-              condition = "valid_file() == 1",
-              uiOutput("headerNoFileYet")),
+            uiOutput("headerFileInfo"),
             width = 12
-          ), 
-          box(
-            title = "Edit CoC-specific Settings",
-            width = 12,
-            collapsible = TRUE,
-            collapsed = TRUE,
-            fluidRow(
-              box(
-                HTML(
-                  "<h4>Long Stayers</h4>
-                <p>This check aims to help communities find enrollments that may be
-                missing an Exit Date. It does this by looking at the number of days an
-                enrollment has been open (or, the number of days between the Entry Date
-                and the date your upload was exported from your HMIS.) The projects in
-                your CoC have lengths of stay that will vary for different project
-                types. Any data quality flags about Long Stayers should be considered a
-                Warning, or, something to be checked for accuracy, and does not imply
-                that any data should be changed.
-      
-                <p><b>Methodology by Project Type:</b>
-                <ul>
-                <li><b>Emergency Shelter, Entry Exit Method:</b> enrollment's Length
-                of Stay in days is in the top 2% of all other ES project enrollments in
-                your system
-                <li><b>Transitional Housing:</b> enrollment's Length of Stay in days
-                is in the top 2% of all other TH project enrollments in your system
-                <li><b>Permanent Supportive Housing (Project Types 3, 9, and 10):</b> 
-                enrollment's Length of Stay in days is in the top 1% of all PSH project
-                enrollments in your system
-                <li><b>Coordinated Entry:</b> open enrollments with a Length of
-                Stay (in days) that are in the top 2% project enrollments in
-                your system
-                <li><b>Safe Haven:</b> enrollment's Length of Stay in days is in the 
-                top 2% of all other SH project enrollments in your system
-                <li><b>Homelessness Prevention:</b> open enrollments with a Length of
-                Stay (in days) that are in the top 2% project enrollments in
-                your system
-                <li><b>Rapid Rehousing:</b> enrollment's Length
-                of Stay in days is in the top 2% of all other RRH project enrollments in
-                your system
-                <br>
-                <li><b>Street Outreach:</b> open enrollments with a Length of Stay in
-                days that are equal to or greater than the user-input available below
-                <li><b>Services Only:</b> open enrollments with a Length of Stay in
-                days that are equal to or greater than the user-input available below
-                <li><b>Other:</b> open enrollments with a Length of Stay in days that
-                are equal to or greater than the user-input available below
-                <li><b>Day Shelter:</b> open enrollments with a Length of Stay in days
-                that are equal to or greater than the user-input available below
-                <li><b>Emergency Shelter, Night-by-Night:</b> open enrollments with a
-                Length of Stay in days that are equal to or greater than the user-input
-                available below
-                </ul>
-      
-                <p>Below, you can set the number of days your CoC would consider an
-                enrollment to be well beyond the expected number of days in the Project
-                Type. You can set these based on your current data or leave them at the
-                defaults."
-                ),
-                column(
-                  numericInput(
-                    inputId = "ESNbNLongStayers",
-                    label = "Emergency Shelter (NbN only!):",
-                    value = 90,
-                    min = 0,
-                    max = 3650,
-                    step = 5,
-                    width = "200px"
-                  ),
-                  numericInput(
-                    inputId = "OtherLongStayers",
-                    label = "Other:",
-                    value = 90,
-                    min = 0,
-                    max = 3650,
-                    step = 5,
-                    width = "200px"
-                  ),
-                  numericInput(
-                    inputId = "DayShelterLongStayers",
-                    label = "Day Shelter:",
-                    value = 90,
-                    min = 0,
-                    max = 3650,
-                    step = 5,
-                    width = "200px"
-                  ),
-                  width = 6
-                ),
-                column(
-                  numericInput(
-                    inputId = "OUTLongStayers",
-                    label = "Street Outreach:",
-                    value = 90,
-                    min = 0,
-                    max = 3650,
-                    step = 5,
-                    width = "200px"
-                  ),
-                  numericInput(
-                    inputId = "ServicesOnlyLongStayers",
-                    label = "Services Only:",
-                    value = 90,
-                    min = 0,
-                    max = 3650,
-                    step = 5,
-                    width = "200px"
-                  ),
-                  width = 6
-                ),
-                width = 12
-              )
-            )
           ),
         #,
       # HTML(
@@ -265,12 +184,185 @@ dashboardPage(
       #              value = 7)
       
           box(
-            title = "HUD CSV Export Integrity Checker",
+            title = "HMIS CSV Export File Structure Analysis",
             width = 12,
             DT::dataTableOutput("integrityChecker"),
             p(),
+            HTML("<p>Users should contact their vendor to resolve high priority 
+            errors identified in the HMIS CSV Export File Structure Analysis, as
+            well as any other structural issues which you feel need to be corrected.
+            </p>"),
+            p(),
             uiOutput('downloadIntegrityBtn')
+          ), 
+      box(
+        title = "Edit CoC-specific Settings",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        fluidRow(
+          box(
+            HTML(
+              "<h4>Long Stayers</h4>
+                <p>This check aims to help communities find enrollments that may
+                be missing an Exit Date. First, the tool calculates the number of
+                days each enrollment has been open (meaning, the number of days
+                between the Entry Date and the date your upload was exported
+                from your HMIS.) Then the check uses one of two methodologies to
+                identify Long Stayers. 
+                <p>For select project types, the check identifies the top % of
+                longest stayers in each project type. For other project types,
+                the check compares the length of each enrollment with assumptions
+                entered about the expected maximum period of assistance envisioned
+                for the project type. For the latter check, users can set the
+                assumptions for each project type. Any data quality flags about
+                Long Stayers is categorized as a Warning and is a suggestion to
+                verify that the identified clients are still active in these
+                projects. It does not imply that any data should be changed.
+      
+                <p><b>Top 2% longest enrollments are flagged for the following
+                project types:</b>
+                <ul>
+                <li>Coordinated Entry
+                <li>Emergency Shelter - Entry/Exit
+                <li>Safe Haven
+                <li>Transitional Housing
+                <li>Rapid Rehousing
+                <li>Homeless Prevention
+                </ul>
+                
+                <p><b>Top 1% longest enrollments are flagged for the following
+                project types:</b>
+                <ul>
+                <li>Permanent Supportive Housing
+                <li>Permanent Housing with Services (no disability required for entry)
+                <li>Permanent Housing - Housing Only
+                </ul>
+                
+                <p><b>Enrollments active longer than the CoC-specified length of
+                assistance targets are flagged for the following project types:</b>
+                <ul>
+                <li>Street Outreach
+                <li>Services Only
+                <li>Other
+                <li>Day Shelter
+                <li>Emergency Shelter - Night-by-Night
+                </ul>
+      
+                <p>Below, you can specify the expected maximum period of assistance
+                envisioned for the project type, meaning the timeframe after which you
+                would want an organization to confirm the client is still active in the 
+                project. You can set these based on your current data or leave them at
+                the defaults (these defaults do not imply any HUD recommendations)."
+            ),
+            column(
+              numericInput(
+                inputId = "ESNbNLongStayers",
+                label = "Emergency Shelter (NbN only!):",
+                value = 90,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              numericInput(
+                inputId = "OtherLongStayers",
+                label = "Other:",
+                value = 90,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              numericInput(
+                inputId = "DayShelterLongStayers",
+                label = "Day Shelter:",
+                value = 90,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              width = 6
+            ),
+            column(
+              numericInput(
+                inputId = "OUTLongStayers",
+                label = "Street Outreach:",
+                value = 90,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              numericInput(
+                inputId = "ServicesOnlyLongStayers",
+                label = "Services Only:",
+                value = 90,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              width = 6
+            ),
+            width = 12
           )
+        )
+      ),
+      box(
+        title = "Citations and Special Thanks",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        HTML("
+             <p>This project would not exist were it not for the existence of
+             other quality, free and open source products. The following are
+             citations for the products this app relies on.
+                          
+             <p> The foundational code for the app was shared via AGPL license by 
+             the Coalition on Homelessness and Housing in Ohio (<a href =
+             'https://www.cohhio.org' 
+             target= '_blank' rel='noopener noreferrer'>COHHIO</a>). 
+             
+             <p>R Core Team (2022). R: A language and environment for statistical
+             computing. R Foundation for Statistical Computing. Vienna, Austria. 
+             <a href = 'https://www.r-project.org' 
+             target= '_blank' rel='noopener noreferrer'>R programming language</a>.
+             
+             <p>Wickham et al., (2019). Welcome to the tidyverse. <a href = 
+             'https://doi.org/10.21105/joss.01686'
+             target = '_blank' rel='noopener noreferrer'>Journal of Open Source
+             Software</a>, 4(43), 1686, 
+             <a href = 'https://cran.r-project.org/web/packages/tidyverse/index.html'
+             target= '_blank' rel='noopener noreferrer'>Tidyverse package</a>.
+             
+             <p>Chang W, Cheng J, Allaire J, Sievert C, Schloerke B, Xie Y, Allen
+             J, McPherson J, Dipert A, Borges B (2021). _shiny: Web Application
+             Framework for R_. R package version 1.7.1, 
+             <a href = 'https://cran.r-project.org/web/packages/shiny/index.html'
+             target= '_blank' rel='noopener noreferrer'>R Shiny package</a>.
+             
+             <p>Chang W, Borges Ribeiro B (2021). _shinydashboard: Create
+             Dashboards with 'Shiny'_. R package version 0.7.2, 
+             <a href = 'https://CRAN.R-project.org/package=shinydashboard'
+             target= '_blank' rel='noopener noreferrer'>shinydashboard package</a>.
+             
+             <p> Special thanks to 
+             <a href=\"http://www.squarepegdata.com/\" 
+             target= '_blank' rel='noopener noreferrer'>
+             Square Peg Data</a>, the San Diego City and County CoC (CA-601),
+             and the Minneapolis/Hennepin County CoC (MN-500) for providing
+             sample datasets to support programming.")
+      ),
+      box(
+        title = "Changelog",
+        collapsible = TRUE,
+        collapsed = TRUE,
+        width = 12,
+        tableOutput("changelog")
+      
+      )
         )
       ), 
       tabItem(
@@ -279,16 +371,16 @@ dashboardPage(
           "headerPDDE"
         ), width = 12)),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
           HTML("
                <h4>Project Descriptor Data Element (PDDE) Check Summary</h4>
-               <p>Once you have successfully uploaded a zip file, you will find
-               a summary of each issue that was flagged in your data regarding
-               your PDDEs. Please download the details by clicking the \'Download\'
-               button.</p>
+               <p>Once you have successfully uploaded an HMIS CSV Export, you
+               will find a summary of each issue that was flagged in your data
+               regarding your PDDEs. Please download the details by clicking the
+               \'Download\' button.</p>
                
                <h4>Guidance</h4>
                <p>For a description of each issue found, check the Guidance 
@@ -305,43 +397,49 @@ dashboardPage(
             br(),
             uiOutput("downloadPDDEReportButton")
           ),
-          box(title = "Guidance",
+          box(id = "PDDEGuidance",
+              DT::dataTableOutput("pdde_guidance_summary"),
+              title = "Guidance",
               width = 12,
-              HTML("coming soon"))
+              status = "info",
+              solidHeader = TRUE)
         )
       ),
       tabItem(
         tabName = "tabClientCount",
         fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
           HTML("
                <h4>Client Counts Report</h4>
-               <p>The Client Counts Report serves as a way to check that a
-               project is up to date on their HMIS data entry. Projects can
-               check that the number of households/clients who are currently in
-               the project aligns with what they know about who they are serving.
-               Permanent housing projects can check that the number of households/
-               clients who have not yet moved into housing is correct. It can
-               be run to show the current status of their data entry or the
-               HMIS Lead may wish to edit the Date Range to cover a larger
-               time frame.</p>
+               <p>The Client Counts Report provides the number of households/clients
+               who have been served in each project and their enrollment status
+               at the time of CSV Export generation. This report can be used to
+               verify that a project is up to date on their HMIS data entry by
+               comparing counts reported with the number of households/clients
+               that are known to be served in each project. Permanent housing
+               projects can check that the number of households/clients who have
+               not yet moved into housing is correct.</p>
                
                <h4>Inputs</h4>
-               <p>HMIS Leads may select a single project from the drop list. The
-               Date Range defaults to display \'current\' enrollments only, but
-               users are encouraged to edit the Date Range as desired to see
-               metrics such as how many clients/households exited with and 
-               without a Move-In Date, how many exited during the time period.</p>
+               <p>Select a project from the drop list and adjust the the Date
+               Range for the cohort of clients you want to see reported. The
+               Date Range defaults to the date range covered by the HMIS CSV Export. 
+               Users are encouraged to edit the Date Range as desired to see
+               metrics for timeframes within the Export period, such as the
+               number of households/clients who exited during that timeframe
+               with and without a Move-In Date. Note that setting the Start Date
+               to the Export End Date will show the current status for all
+               enrollments for the project.</p>
                
                <h4>Summary</h4>
-               <p>Check here for a count of households or clients who have statuses
-               of the following:
+               <p>The Summary panel provides a count of households/clients who
+               have statuses of the following within the selected project:
                <ul>
-               <li>Currently Awaiting Housing</li>
+               <li>Active No Move-In Date</li>
                <li>Currently Moved In</li>
                <li>Exited No Move-In</li>
                <li>Exited With Move-In</li>
@@ -350,14 +448,16 @@ dashboardPage(
                </ul>
                
                <h4>Client Counts Detail</h4>
-               <p>In this panel, HMIS Leads can search in any column. You will see
-               the Personal ID, Relationship to HoH, Entry Date, Move-In Date, 
-               Exit Date, and the Status for each client. The rows are ordered by
-               Entry Date (oldest on top), Household ID (not visible), and
-               Personal ID. This enables users to see the oldest enrollments first.
-               To find all enrollments with a Status of \'Currently Awaiting
-               Housing\' for example, you can type \'wait\' in the Status search bar
-               and the data table will react and filter in that way.")
+               <p>In this panel you will see the Personal ID, Relationship to HoH,
+               Entry Date, Move-In Date, Exit Date, and the Status for each client
+               served by the selected project within the Date Range selected. The
+               rows are ordered by Entry Date (oldest on top), Household ID (not
+               visible), and Personal ID. This enables users to see the oldest
+               enrollments first and groups clients in the same household
+               together. All columns are searchable. For example, to find all
+               enrollments with a Status of \'Active No Move-In Date\', you can
+               type \'act\' in the Status search bar and the data table will
+               react and filter in that way.")
         )), 
         fluidRow(box(
           pickerInput(
@@ -377,10 +477,16 @@ dashboardPage(
           width = 12
         )),
         fluidRow(box(
+          title = "Client Counts Summary",
+          status = "info",
+          solidHeader = TRUE,
           DT::dataTableOutput("clientCountSummary"),
           width = 12
         )),
         fluidRow(box(
+          title = "Client Counts Detail",
+          status = "info",
+          solidHeader = TRUE,
           DT::dataTableOutput("clientCountData"),
           width = 12
         ))
@@ -389,27 +495,32 @@ dashboardPage(
         tabName = "tabDQOrg",
         fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
         fluidRow(box(
-          title = "App Instructions",
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
           HTML("
                <h4>Organization-wide HMIS Data Quality</h4>
-               <p>Below, select the Organization whose data quality you would
+               <p>Below, select the organization whose data quality you would
                like to check. The data shown will reflect the date range that
-               you used to run your HUD CSV Export. It will show data quality
+               you used to run your HMIS CSV Export. It will show data quality
                metrics from all Projects that are associated with that
-               Organization.</p>
-               <p>HMIS Leads can click the Download button in order to get an
-               Excel workbook with the selected Organization's data quality
-               errors. You can send these to any users at the selected Organization
+               organization.</p>
+               <p>You can click the Download button to generate an Excel workbook 
+               with the selected organization's data quality errors. You can send 
+               these to authorized HMIS users at the selected organization
                so they can work on correcting their data. Feel free to modify, 
                add, or remove anything as you see fit. For example, you may want 
                your users to only address High Priority issues right now. You can
                easily remove any tabs that may distract your users from that goal.
                Please note that Overlaps will be shown in the 'Warnings' tab and
                again in the 'Overlap Detail' tab of the download. This is so
-               that your users have enough detail to track down that issue.</p>
+               your users have enough detail to track down each issue.</p>
+               <p>Note that protected personal information (PPI), such as Personal
+               ID in combination with other data elements, is contained in the
+               Excel downloads. Users must follow all applicable HMIS privacy
+               and security policies when storing, transmitting, and disclosing
+               files with client records.</p>
                
                <h4>Some definitions:</h4>
                <p>This app categorizes every issue it finds in your data set in
@@ -443,61 +554,28 @@ dashboardPage(
                </ul>
                <p>Regardless of an issue's categorization, <b>users should never
                edit data that accurately reflects reality</b>.
+               
+               <h4>Organization-wide HMIS Data Quality Plots</h4>
+               <p>For each type of issue (High Priority Errors, General Errors,
+               and Warnings) you will find two plots: one graphing the number of
+               issues by type, and one graphing the number of issues by project.
 
-               <h4>Most Common High Priority Errors Plot</h4>
-               <p>Which High Priority Errors are most common across all
-               the projects under the selected Organization? This plot will only
-               show the top 10 High Priority Errors. This can be useful in
-               planning targeted HMIS training efforts.</p>
+               <h4>Top 10 Issues</h4>
+               <p>Across all the projects within the selected Organization, this
+               plot shows the <b>top 10</b> issues identified. This can be
+               useful in planning targeted HMIS training efforts.</p>
+          
+               <h4>Top 10 Projects</h4>
+               <p>These plots show the <b>top 10</b> projects within the selected
+               organization with the highest number of issues identified. You can
+               use this to help determing which projects may need extra assistance
+               in addressing their data quality issues.</p>
                
-               <h4>Projects with the Most High Priority Errors</h4>
-               <p>Within the selected Organization, which Projects are making the
-               highest number of High Priority Errors? This plot will only show the
-               top 10 projects' High Priority Error counts.</p>
-               
-               <h4>Most Common General Errors</h4>
-               <p>Which General Errors are most common across all the projects
-               under the selected Organization? This plot will only show the top
-               10 General Errors. This can be useful in planning targeted HMIS
-               training efforts.</p>
-               
-               <h4>Projects with the Most General Errors</h4>
-               <p>Within the selected Organization, which Projects are making the
-               highest number of General Errors? This plot will only show the
-               top 10 projects' General Error counts.</p>
-               
-               <h4>Most Common Warnings</h4>
-               <p>Which Warnings are most common across all the
-               projects under the selected Organization? This plot will only show
-               the top 10 Warnings. This can be useful in planning targeted HMIS
-               training efforts.</p>
-               
-               <h4>Projects with the Most Warnings</h4>
-               <p>Within the selected Organization, which Projects are flagged
-               with the highest number of Warnings? This plot will only show the
-               top 10 projects' Warning counts.</p>
-               
-               <h4>Data Quality Summary</h4>
-               <p>In this panel, Leads can see which projects within the selected
-               Organization have how many of what types of issues. Where the plots
-               only list the top 10 for each error type, this data displays ALL
-               Warnings, General Errors, and High Priority Errors for all Projects
-               within the Organization. At the top of each column the Lead may
-               type in any part of a word and the data will filter for you. Some
-               examples of how this might be used:
-               <ul><li> Filter all projects in the Organization that have household
-               issues. [Type 'hou' in the Issue column's search box.]</li>
-               <li> Find all Warnings for Project 'Homeward Bound - ES'. [Type
-               'homew' in the Project Name column and 'war' in the Type column.]
-               </li></ul>
-               </p>
-               
-               <h4>Data Quality Guidance</h4>
-               <p>This panel lists each High Priority Error, General Error, and
-               Warning represented in the selected Organization's data along with
-               descriptions for each issue that include why the data is being
-               flagged. It is ordered by the Type of issue and the name of the
-               Issue. Leads may also search this data by column.</p>")
+               <h4>Download Organization-wide HMIS Data Quality Data</h4>
+               <p>To download all of the client and enrollment related issues
+               found in the selected Organization, click the Download button.
+               This will give HMIS admins a way of communicating to an Organization
+               what kinds of HMIS data quality issues they have.</p>")
         )), 
         fluidRow(box(
           pickerInput(
@@ -514,39 +592,36 @@ dashboardPage(
         )), 
         
         fluidRow(
-          uiOutput("dq_hp_errors_null")),
-        
-        fluidRow(
-          column(6,
-                 uiOutput("orgDQHighPriorityErrorTypes_ui"),
-                 br()),
-          column(6,
-                 uiOutput("orgDQHighPriorityErrors_ui"))
-          
+          tabBox(
+            side = "right",
+            selected = "Top 10 Issues",
+            title = "High Priority Errors",
+            tabPanel("Top 10 Projects", uiOutput("orgDQHighPriorityErrorsByProject_ui")),
+            tabPanel("Top 10 Issues", uiOutput("orgDQHighPriorityErrorByIssue_ui")),
+            width = 12
+          )
         ),
-        br(),
         fluidRow(
-          uiOutput("dq_general_errors_null")),
-        
-        fluidRow(
-          column(6,
-                 uiOutput("orgDQErrorTypes_ui"),
-                 br()),
-          column(6,
-                 uiOutput("orgDQErrors_ui")) 
+          tabBox(
+            side = "right",
+            selected = "Top 10 Issues",
+            title = "General Errors",
+            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui")),
+            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui")),
+            width =12
+          )
         ),
-        br(),
         fluidRow(
-          uiOutput("dq_warnings_null")),
-        
-        fluidRow(
-          column(6,
-                 uiOutput("orgDQWarningTypes_ui"),
-                 br()),
-          column(6,
-                 uiOutput("orgDQWarnings_ui"))
+          tabBox(
+            side = "right",
+            selected = "Top 10 Issues",
+            title = "Warnings",
+            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui")),
+            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui")),
+            width = 12
+          )
         ),
-        br(),
+       
         fluidRow(
           box(
             id = "DQSummaryOrganization",
@@ -574,7 +649,7 @@ dashboardPage(
         fluidRow(box(htmlOutput("headerDeskTime"),
                      width = 12)),
           fluidRow(box(
-            title = "App Instructions",
+            title = "Instructions",
             width = 12,
             collapsible = TRUE,
             collapsed = TRUE,
@@ -605,43 +680,29 @@ dashboardPage(
       ),
       tabItem(
         tabName = "tabDQSystem",
-        fluidRow(box(htmlOutput("headerSystemDQ"), width = 12, uiOutput("downloadFullDQReportButton"))),
         fluidRow(box(
-          title = "App Instructions",
+          htmlOutput("headerSystemDQ"), width = 12, 
+          uiOutput("downloadFullDQReportButton"))),
+        fluidRow(box(
+          title = "Instructions",
           width = 12,
           collapsible = TRUE,
           collapsed = TRUE,
-          HTML("<h4>System-wide HMIS Data Quality Plots</h4>
-               <p>The plots here will help HMIS admins to get a sense for which
-               Organizations may be in need of extra assistance and where extra
-               training may be needed. HMIS admins can also download this data to
-               aid in reporting to interested entities about your overall HMIS
-               system data quality. HMIS admins can check this report to help
-               guide which Organizations may need a closer look in the next tab,
-               called Data Quality > Organization-level. For each type of error
-               (High Priority Errors, General Errors, and Warnings) you will
-               find 2 plots.</p>
-               
-               <h5><b>Most Common of a Type of Error</b></h5>
-               <p>Across all of the Organizations in your upload, this plot shows
-               the top 10 Errors/Warnings of the type indicated. This can help
-               to focus future end user trainings and bring to light any
-               potential considerations in your federal or local reporting.</p>
-               
-               <h5><b>Organizations with the Most of a Type of Error</b></h5>
-               <p>This plot shows which Organizations across your system have
-               the highest number of issues of the type indicated. HMIS admins
-               can use these plots to help determine which organizations may
-               need extra assistance in getting their HMIS Errors/Warnings
-               resolved.</p>
-               
-               <h4>Download System-wide HMIS Data Quality Data</h4>
-               <p>To download all of the client and enrollment related issues
-               found in your system, click the Download button. This will give
-               HMIS admins a way of reporting to interested entities, such as
-               your CoC leadership, a broader view of the state of your HMIS
-               data quality.</p>
-               
+          HTML("
+               <h4>System-wide HMIS Data Quality</h4>
+               <p>Use your System-wide Data Quality data to evaluate which
+               organizations may benefit from additional assistance and where
+               extra training may be needed. You can download this data to use
+               for reporting to interested entities about your overall HMIS
+               system data quality.</p>
+               <p>Click the Download button to generate an Excel workbook with
+               the your entire system's Data Quality data. Feel free to modify,
+               add, or remove anything as you see fit. For example, if you are
+               sending this workbook to your CoC management, you may want to 
+               remove the tabs that have client-level data on them. 
+               <p>Review the plots below to identify the organizations that
+               you want to examine more closely in the <b>Data Quality > 
+               Organization-level</b> tab. </p>
                <h4>Some definitions:</h4>
                <p>This app categorizes every issue it finds in your data set in
                terms of its severity.</p>
@@ -673,61 +734,69 @@ dashboardPage(
                 </ul></li>
                </ul>
                <p>Regardless of an issue's categorization, <b>users should never
-               edit data that accurately reflects reality</b>.")
+               edit data that accurately reflects reality</b>.
+               
+               <h4>System-wide HMIS Data Quality Plots</h4>
+               <p>For each type of issue (High Priority Errors, General Errors,
+               and Warnings) you will find two plots: one plots the counts of
+               issues and one plots the number of issues by organization.</p>
+               
+               <h5><b>Top 10 Issues</b></h5>
+               <p>Across all of the organizations in your upload, this plot shows
+               the <b>top 10</b> issues identified in the data quality scan. This
+               result can help to focus future end-user trainings and bring to
+               light any potential considerations in your federal or local
+               reporting and analysis.</p>
+               
+               <h5><b>Top 10 Organizations</b></h5>
+               <p>These plots show the <b>top 10</b> organizations across your
+               system with the highest number of issues identified. You can use
+               these plots to help determine which organizations may need extra
+               assistance in getting their HMIS Errors/Warnings resolved.</p>
+               
+               <h4>Download System-wide HMIS Data Quality Data</h4>
+               <p>To download all of the client and enrollment related issues
+               found in your system, click the Download button. This will give
+               HMIS admins a way of reporting to interested entities, such as
+               your CoC leadership, a broader view of the state of your HMIS
+               data quality.</p>")
         )), 
 
         fluidRow(
-          box(
-            plotOutput("systemDQHighPriorityErrorTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common High Priority Errors"
-          ),
-          box(
-            plotOutput("systemDQHighPriorityErrors"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most High Priority Errors"
+          tabBox(
+            side = "right",
+            selected = "Top 10 Issues",
+            title = "High Priority Errors",
+            tabPanel("Top 10 Organizations", uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
+            width = 12
           )
         ),
         fluidRow(
-          box(
-            plotOutput("systemDQErrorTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common General Errors"
-          ),
-          box(
-            plotOutput("systemDQErrors"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most General Errors"
+          tabBox(
+            side = "right",
+            selected = "Top 10 Issues",
+            title = "General Errors",
+            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQErrorByIssue_ui")),
+            width =12
           )
         ),
         fluidRow(
-          box(
-            plotOutput("systemDQWarningTypes"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Most Common Warnings"
-          ),
-          box(
-            plotOutput("systemDQWarnings"),
-            width = 6,
-            solidHeader = TRUE,
-            status = NULL,
-            title = "Organizations with the Most Warnings"
+          tabBox(
+            side = "right",
+            selected = "Top 10 Issues",
+            title = "Warnings",
+            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQWarningByIssue_ui")),
+            width = 12
           )
         )
       )
     )
   )
 )
+
 
 # tabItem(
 #   tabName = "utilizationTab",
@@ -806,13 +875,4 @@ dashboardPage(
 #     DT::dataTableOutput("utilizationDetail"), width = 12
 #   ))
 # ),
-
-# box(plotOutput("systemHHErrors"), width = 12,
-#     solidHeader = TRUE,
-#     status = "danger",
-#     title = "Projects with the Most Household Errors")),
-
-#fluidRow(
-#uiOutput("DQIneligible"),
-#uiOutput("DQOverlappingEEs")),
-
+#)

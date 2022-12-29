@@ -14,4 +14,6 @@ images/
 *.html
 test/
 /*.csv
-
+*.json
+logs/
+www/metadata/
