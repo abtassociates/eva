@@ -207,7 +207,7 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
 }
 
 
-getDQReportDataList <- function(dqData, dqOverlaps, client_counts) {
+getDQReportDataList <- function(dqData, dqOverlaps) {
   select_list = c("Project Name" = "ProjectName",
                   "Issue" = "Issue",
                   "Personal ID" = "PersonalID",
