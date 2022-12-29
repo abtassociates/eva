@@ -130,7 +130,13 @@ dashboardPage(
               Settings panel for more information.</p>
               
               <h4>Citations and Special Thanks</h4>
-              <p>This panel will credit the people who have helped make Eva possible!
+              <p>This panel will credit the people who have helped make Eva possible!</p>
+              
+              <h4>Changelog</h4>
+              <p>This panel will list the most recent technical updates and changes to Eva.
+              For more in-depth information on current and past issues, please go to <a
+              href='https://github.com/abtassociates/eva/issues' target= '_blank'
+              rel='noopener noreferrer'>GitHub</a>.</p>
               ")
           ),
           box(
@@ -348,6 +354,14 @@ dashboardPage(
              Square Peg Data</a>, the San Diego City and County CoC (CA-601),
              and the Minneapolis/Hennepin County CoC (MN-500) for providing
              sample datasets to support programming.")
+      ),
+      box(
+        title = "Changelog",
+        collapsible = TRUE,
+        collapsed = TRUE,
+        width = 12,
+        tableOutput("changelog")
+      
       )
         )
       ), 
@@ -462,10 +476,16 @@ dashboardPage(
           width = 12
         )),
         fluidRow(box(
+          title = "Client Counts Summary",
+          status = "info",
+          solidHeader = TRUE,
           DT::dataTableOutput("clientCountSummary"),
           width = 12
         )),
         fluidRow(box(
+          title = "Client Counts Detail",
+          status = "info",
+          solidHeader = TRUE,
           DT::dataTableOutput("clientCountData"),
           width = 12
         ))

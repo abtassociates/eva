@@ -4,9 +4,21 @@ function(input, output, session) {
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
-  write(paste(session$token, "|",Sys.time(),": Session started"),
-        "www/metadata/site_visits.txt", append = TRUE)
+  source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
   
+  
+ showModal(modalDialog(
+    title = "Changelog Alert",
+    "Due to a recent update, Eva *may* reject exports that were previously
+    accepted. If this affects you, please see the changelog for more
+    information and contact your vendor.",
+    footer = modalButton("OK"),
+    size = "m",
+    easyClose = TRUE
+  ))
+  
+  
+  logMetadata("Session started")
   valid_file <- reactiveVal(0)
 
   output$headerFileInfo <- renderUI({
@@ -22,6 +34,29 @@ function(input, output, session) {
           format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
         )
       )
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
+  })
+  
+  output$headerCurrent <- renderUI({
+    if(valid_file()) {
+      
+      organization <- Project0 %>%
+        filter(ProjectName == input$currentProviderList) %>%
+        pull(OrganizationName)
+      
+      list(h2("Client Counts Report"),
+           h4(paste(
+             organization,
+             "|",
+             input$currentProviderList,
+             "|",
+             format(input$dateRangeCount[1], "%m-%d-%Y"),
+             "to",
+             format(input$dateRangeCount[2], "%m-%d-%Y")
+             
+           )))
     } else {
       h4("You have not successfully uploaded your zipped CSV file yet.")
     }
@@ -65,20 +100,12 @@ function(input, output, session) {
       h4("You have not successfully uploaded your zipped CSV file yet.")
     }
   })
-  
-  output$headerCurrent <- renderUI({
-    if(valid_file()) {
-      list(h2("Client Counts Report"),
-           h4(input$currentProviderList))
-    } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
-    }
-  })
+
+  output$changelog <- renderTable(changelog)
   
   observeEvent(input$imported, {
-    
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-  
+    
     initially_valid_zip <- zip_initially_valid()
     
     if(initially_valid_zip) {
@@ -110,11 +137,12 @@ function(input, output, session) {
             modalDialog(
               title = "Upload successful",
               "Congratulations! You have succesfully uploaded an HMIS CSV Export.",
-              easyClose = TRUE
+              easyClose = TRUE,
+              footer = modalButton("OK")
             )
           )
-          write(paste(session$token, "|",Sys.time(),": Successful upload"), 
-                "www/metadata/upload_metadata.txt", append=TRUE)
+
+          logMetadata("Successful upload")
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
@@ -124,12 +152,11 @@ function(input, output, session) {
               "Your HMIS CSV Export has some High Priority issues that must
               be addressed by your HMIS Vendor. Please download the File Structure
               Analysis for details.",
-              easyClose = TRUE
+              easyClose = TRUE,
+              footer = modalButton("OK")
             )
           )
-          write(paste(session$token, "|",Sys.time(),
-                      ": Unsuccessful - not structurally valid"),
-                "www/metadata/upload_metadata.txt", append=TRUE)
+          logMetadata("Unsuccessful upload - not structurally valid")
         }
       })
     }
@@ -154,10 +181,7 @@ function(input, output, session) {
       {
         req(initially_valid_zip)
 
-        a <- rbind(integrity_client,
-                   integrity_enrollment,
-                   integrity_living_situation,
-                   integrity_structure) %>%
+        a <- integrity_main %>%
           group_by(Issue, Type) %>%
           summarise(Count = n()) %>%
           ungroup() %>%
@@ -184,21 +208,18 @@ function(input, output, session) {
       },
       content = function(file) {
         write_xlsx(
-          rbind(
-            integrity_client,
-            integrity_enrollment,
-            integrity_living_situation,
-            integrity_structure
-          ),
+          integrity_main,
           path = file
         )
+        
+        logMetadata("Downloaded File Structure Analysis Report")
       }
     )
     
     if(valid_file() == 1) {
       updatePickerInput(session = session, inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
-      
+
       updatePickerInput(session = session, inputId = "desk_time_providers",
                         choices = sort(Project$ProjectName))
       
@@ -220,6 +241,7 @@ function(input, output, session) {
       updateDateRangeInput(session = session, inputId = "dateRangeCount",
                            min = meta_HUDCSV_Export_Start,
                            start = meta_HUDCSV_Export_Start,
+                           max = meta_HUDCSV_Export_End,
                            end = meta_HUDCSV_Export_End)
     }
     
@@ -262,6 +284,7 @@ function(input, output, session) {
           ungroup()
 
         write_xlsx(list("Summary" = summary, "Data" = pdde_main), path = file)
+        logMetadata("Downloaded PDDE Report")
       }
     )
     
@@ -359,6 +382,8 @@ function(input, output, session) {
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
       
+      validate(need(ReportStart <= ReportEnd, "Please make sure date range is correct."))
+      
       datatable(
         validation %>%
           filter(served_between(., ReportStart, ReportEnd) &
@@ -422,6 +447,8 @@ function(input, output, session) {
       req(valid_file() == 1)
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
+      
+      validate(need(ReportStart <= ReportEnd, "Please make sure date range is correct."))
       
       hhs <- validation %>%
         filter(served_between(., ReportStart, ReportEnd) &
@@ -576,12 +603,16 @@ function(input, output, session) {
     
     output$downloadOrgDQReport <- downloadHandler(
       filename = function() {
-        paste("Organization Data Quality Report-",
+        paste(input$orgList,
+              " Data Quality Report-",
               Sys.Date(),
               ".xlsx",
               sep = "")
       },
-      content = function(file) {write_xlsx(orgDQReportDataList(), path = file)}
+      content = function(file) {
+        write_xlsx(orgDQReportDataList(), path = file)
+        logMetadata("Downloaded Org-level DQ Report")
+      }
     )
     
 # 
@@ -1149,7 +1180,10 @@ function(input, output, session) {
     filename = function() {
       paste("Full Data Quality Report-", Sys.Date(), ".xlsx", sep="")
     },
-    content = function(file) {write_xlsx(fullDQReportDataList(), path = file)}
+    content = function(file) {
+      write_xlsx(fullDQReportDataList(), path = file)
+      logMetadata("Downloaded System-level DQ Report")
+    }
   )
   
   

@@ -4,55 +4,95 @@ library(lubridate)
 library(readxl)
 library(HMIS)
 
-Export <- importFile("Export", col_types = "cncccccccTDDcccnnn")
+Assessment <- 
+  importFile("Assessment", col_types = "cccDcnnnTTcTc")
 
-Client <- importFile("Client",
-                     col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
+Client <- 
+  importFile("Client", col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
 
 client_problems <- problems(Client)
 
+CurrentLivingSituation <- 
+  importFile("CurrentLivingSituation", col_types = "cccDncnnnnncTTcTc")
+
 Enrollment <- 
-  importFile("Enrollment",
-             col_types =
-               "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
+  importFile(
+    "Enrollment",
+    col_types = 
+      "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
 
-CurrentLivingSituation <- importFile("CurrentLivingSituation",
-                                     col_types = "cccDncnnnnncTTcTc")
+EnrollmentCoC <- 
+  importFile("EnrollmentCoC", col_types = "cccccDcnTTcTc")
 
-EmploymentEducation <- importFile("EmploymentEducation",
-                                  col_types = "cccDnnnnnnTTcTc")
+EmploymentEducation <- 
+  importFile("EmploymentEducation", col_types = "cccDnnnnnnTTcTc")
 
-Exit <- importFile("Exit",
-                   col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
+Exit <- 
+  importFile("Exit", col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
 
-Organization <- importFile("Organization",
-                           col_types = "ccncTTcTc")
+Event <- 
+  importFile("Event", col_types = "cccDnnncnDTTcTc")
 
-Project <- importFile("Project", col_types = "ccccDDnnnnnnnnnTTcTc")
+Export <- 
+  importFile("Export", col_types = "cncccccccTDDcccnnn")
 
-EnrollmentCoC <- importFile("EnrollmentCoC", col_types = "cccccDcnTTcTc")
+Funder <- 
+  importFile("Funder", col_types = "ccnccDDTTcTc")
 
-Event <- importFile("Event", col_types = "cccDnnncnDTTcTc")
-
-Funder <- importFile("Funder", col_types = "ccnccDDTTcTc")
-
-HealthAndDV <- importFile("HealthAndDV", col_types = "cccDnnnnnnnDnnnnnTTcTc")
+HealthAndDV <- 
+  importFile("HealthAndDV", col_types = "cccDnnnnnnnDnnnnnTTcTc")
 
 IncomeBenefits <- 
-  importFile("IncomeBenefits",
-             col_types = 
-               "cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
+  importFile(
+    "IncomeBenefits",
+    col_types =
+      "cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
 
-Inventory <- importFile("Inventory",col_types = "cccnnnnnnnnnnnnDDTTcTc")
+Inventory <- 
+  importFile("Inventory", col_types = "cccnnnnnnnnnnnnDDTTcTc")
 
-ProjectCoC <- importFile("ProjectCoC",col_types = "cccccccccnTTcTc")
+Organization <- 
+  importFile("Organization", col_types = "ccncTTcTc")
 
-User <- importFile("User",col_types = "ccccccTTTc")
+Project <- 
+  importFile("Project", col_types = "ccccDDnnnnnnnnnTTcTc")
 
-Services <- importFile("Services",col_types = "cccDnnccnnnTTcTc")
+ProjectCoC <- 
+  importFile("ProjectCoC", col_types = "cccccccccnTTcTc")
 
-YouthEducationStatus <- importFile("YouthEducationStatus",
-                                   col_types = "cccDnnnnTTcTc")
+Services <- 
+  importFile("Services", col_types = "cccDnnccnnnTTcTc")
 
-Assessment <- importFile("Assessment",col_types = "cccDcnnnTTcTc")
+User <- 
+  importFile("User", col_types = "ccccccTTTc")
+
+YouthEducationStatus <- 
+  importFile("YouthEducationStatus", col_types = "cccDnnnnTTcTc")
+
+
+problems <- rbind(
+  # problems(Affiliation),
+  problems(Assessment),
+  # problems(AssessmentQuestions),
+  # problems(AssessmentResults),
+  problems(Client),
+  problems(CurrentLivingSituation),
+  # problems(Disabilities),
+  problems(EmploymentEducation),
+  problems(Enrollment),
+  problems(EnrollmentCoC),
+  problems(Event),
+  problems(Exit),
+  problems(Export),
+  problems(Funder),
+  problems(HealthAndDV),
+  problems(IncomeBenefits),
+  problems(Inventory),
+  problems(Organization),
+  problems(Project),
+  problems(ProjectCoC),
+  problems(Services),
+  problems(User),
+  problems(YouthEducationStatus)
+)
 

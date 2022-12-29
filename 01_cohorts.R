@@ -96,8 +96,7 @@ smallProject <- Project %>%
          ProjectType,
          HMISParticipatingProject) %>%
   filter(HMISParticipatingProject == 1 &
-           operating_between(., calc_data_goes_back_to, ymd(meta_HUDCSV_Export_End)) &
-           ProjectType %in% c(1:4, 8:9, 12:14)) 
+           operating_between(., calc_data_goes_back_to, ymd(meta_HUDCSV_Export_End))) 
 
 smallEnrollment <- Enrollment %>% 
   select(
