@@ -243,19 +243,6 @@ getDQReportDataList <- function(dqData, dqOverlaps, client_counts) {
     mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
     arrange(Type)
   
-  validationDateRange <- client_counts %>%
-    mutate(Status = sub(" \\(.*", "", Status)) %>%
-    group_by(ProjectID, ProjectName, OrganizationName, Status, `Length of Stay`) %>%
-    summarise("Clients Served" = n()) %>%
-    ungroup() %>%
-    select(c(ProjectID, ProjectName, OrganizationName, "Clients Served", Status, "Length of Stay")) %>%
-    arrange(Status, desc("Clients Served"))
-  
-  validationCurrent <- client_counts %>% 
-    select(c(ProjectID, ProjectName, OrganizationName, Status, "Length of Stay")) %>%
-    mutate(n=1, Status = sub(" \\(.*", "", Status)) %>%
-    pivot_wider(names_from = Status, values_from = n, values_fn = sum)
-  
   exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
                            c(meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End, meta_HUDCSV_Export_Date))
   colnames(exportDetail) = c("Export Field", "Value")
@@ -264,8 +251,6 @@ getDQReportDataList <- function(dqData, dqOverlaps, client_counts) {
     exportDetail = exportDetail,
     summary = summary,
     guidance = guidance,
-    validationCurrent = validationCurrent,
-    validationDateRange = validationDateRange,
     high_priority = high_priority,
     errors = errors,
     warnings = warnings,
@@ -276,8 +261,6 @@ getDQReportDataList <- function(dqData, dqOverlaps, client_counts) {
     "Export Detail",
     "Summary",
     "Guidance",
-    "Validation - Current",
-    "Validation - Date Range",
     "High Priority",
     "Errors", 
     "Warnings", 
