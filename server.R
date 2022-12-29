@@ -77,20 +77,8 @@ function(input, output, session) {
       h4("You have not successfully uploaded your zipped CSV file yet.")
     }
   })
-  
-  output$headerCurrent <- renderUI({
-    if(valid_file()) {
-      list(h2("Client Counts Report"),
-           h4(input$currentProviderList))
-    } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
-    }
-  })
-  
-  output$changelog <- renderTable(
-    changelog
-    
-  )
+
+  output$changelog <- renderTable(changelog)
   
   observeEvent(input$imported, {
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
@@ -166,6 +154,29 @@ function(input, output, session) {
       
     })
     
+    output$headerCurrent <- renderUI({
+      if(valid_file()) {
+
+        organization <- Project %>%
+          filter(ProjectName == input$currentProviderList) %>%
+          pull(OrganizationName)
+        
+        list(h2("Client Counts Report"),
+             h4(paste(
+               organization,
+               "|",
+               input$currentProviderList,
+               "|",
+               format(input$dateRangeCount[1], "%m-%d-%Y"),
+               "to",
+               format(input$dateRangeCount[2], "%m-%d-%Y")
+               
+             )))
+      } else {
+        h4("You have not successfully uploaded your zipped CSV file yet.")
+      }
+    })
+    
     output$integrityChecker <- DT::renderDataTable(
       {
         req(initially_valid_zip)
@@ -208,7 +219,7 @@ function(input, output, session) {
     if(valid_file() == 1) {
       updatePickerInput(session = session, inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
-      
+
       updatePickerInput(session = session, inputId = "desk_time_providers",
                         choices = sort(Project$ProjectName))
       
