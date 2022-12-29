@@ -39,6 +39,29 @@ function(input, output, session) {
     }
   })
   
+  output$headerCurrent <- renderUI({
+    if(valid_file()) {
+      
+      organization <- Project0 %>%
+        filter(ProjectName == input$currentProviderList) %>%
+        pull(OrganizationName)
+      
+      list(h2("Client Counts Report"),
+           h4(paste(
+             organization,
+             "|",
+             input$currentProviderList,
+             "|",
+             format(input$dateRangeCount[1], "%m-%d-%Y"),
+             "to",
+             format(input$dateRangeCount[2], "%m-%d-%Y")
+             
+           )))
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
+  })
+  
   output$headerPDDE <- renderUI({
     if(valid_file()) {
       list(h2("Project Descriptor Data Elements Checker"),
@@ -152,29 +175,6 @@ function(input, output, session) {
       
       rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other)
       
-    })
-    
-    output$headerCurrent <- renderUI({
-      if(valid_file()) {
-
-        organization <- Project %>%
-          filter(ProjectName == input$currentProviderList) %>%
-          pull(OrganizationName)
-        
-        list(h2("Client Counts Report"),
-             h4(paste(
-               organization,
-               "|",
-               input$currentProviderList,
-               "|",
-               format(input$dateRangeCount[1], "%m-%d-%Y"),
-               "to",
-               format(input$dateRangeCount[2], "%m-%d-%Y")
-               
-             )))
-      } else {
-        h4("You have not successfully uploaded your zipped CSV file yet.")
-      }
     })
     
     output$integrityChecker <- DT::renderDataTable(
