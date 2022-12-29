@@ -473,6 +473,7 @@ dashboardPage(
             format = "mm/dd/yyyy",
             width = 300
           ),
+          uiOutput("downloadClientCountsReportButton"),
           width = 12
         )),
         fluidRow(box(
