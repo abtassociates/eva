@@ -77,26 +77,8 @@ function(input, output, session) {
       h4("You have not successfully uploaded your zipped CSV file yet.")
     }
   })
-  
-  output$headerCurrent <- renderUI({
-    if(valid_file()) {
-      list(h2("Client Counts Report"),
-           h4(paste(
-             format(input$dateRangeCount[1], "%m-%d-%Y"),
-             "to",
-             format(input$dateRangeCount[2], "%m-%d-%Y"),
-             "|",
-             input$currentProviderList
-           )))
-    } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
-    }
-  })
-  
-  output$changelog <- renderTable(
-    changelog
-    
-  )
+
+  output$changelog <- renderTable(changelog)
   
   observeEvent(input$imported, {
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
@@ -170,6 +152,29 @@ function(input, output, session) {
       
       rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other)
       
+    })
+    
+    output$headerCurrent <- renderUI({
+      if(valid_file()) {
+
+        organization <- Project %>%
+          filter(ProjectName == input$currentProviderList) %>%
+          pull(OrganizationName)
+        
+        list(h2("Client Counts Report"),
+             h4(paste(
+               organization,
+               "|",
+               input$currentProviderList,
+               "|",
+               format(input$dateRangeCount[1], "%m-%d-%Y"),
+               "to",
+               format(input$dateRangeCount[2], "%m-%d-%Y")
+               
+             )))
+      } else {
+        h4("You have not successfully uploaded your zipped CSV file yet.")
+      }
     })
     
     output$integrityChecker <- DT::renderDataTable(
