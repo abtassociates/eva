@@ -436,6 +436,40 @@ function(input, output, session) {
                      label = "Download System-Wide")
     })
     
+    output$downloadClientCountsReport <- downloadHandler(
+      filename = function() {
+        paste("Client Counts Report-",
+              Sys.Date(),
+              ".xlsx",
+              sep = "")
+      },
+      content = function(file) {
+        validationDateRange <- client_count_summary_df() %>%
+          mutate(Status = sub(" \\(.*", "", Status)) %>%
+          group_by(ProjectID, ProjectName, OrganizationName, Status, `Length of Stay`) %>%
+          summarise("Clients Served" = n()) %>%
+          ungroup() %>%
+          select(c(ProjectID, ProjectName, OrganizationName, "Clients Served", Status, "Length of Stay")) %>%
+          arrange(Status, desc("Clients Served"))
+        
+        validationCurrent <- client_count_summary_df() %>% 
+          select(c(ProjectID, ProjectName, OrganizationName, Status, "Length of Stay")) %>%
+          mutate(n=1, Status = sub(" \\(.*", "", Status)) %>%
+          pivot_wider(names_from = Status, values_from = n, values_fn = sum)
+        
+        exportDFList <- list(
+          validationCurrent = validationCurrent,
+          validationDateRange = validationDateRange
+        )
+        
+        names(exportDFList) = c(
+          "Validation - Current",
+          "Validation - Date Range"
+        )
+        write_xlsx(exportDFList, path = file)
+      }
+    )
+    
     output$dq_org_guidance_summary <- DT::renderDataTable({
       req(valid_file() == 1)
       
@@ -500,10 +534,7 @@ function(input, output, session) {
       orgDQoverlaps <- overlapNEW %>%
         filter(OrganizationName.x %in% c(input$orgList) | OrganizationName.y %in% c(input$orgList))
       
-      orgClientCounts <- client_count_data_df() %>%
-        filter(OrganizationName %in% c(input$orgList))
-      
-      getDQReportDataList(orgDQData, orgDQoverlaps, orgClientCounts)
+      getDQReportDataList(orgDQData, orgDQoverlaps)
     })
     
     fullDQReportDataList <- reactive({
