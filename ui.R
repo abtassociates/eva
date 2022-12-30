@@ -203,6 +203,38 @@ dashboardPage(
         fluidRow(
           box(
             HTML(
+              "<h4>Old Referrals</h4>
+                <p>This check aims to help communities find Coordinated Entry Event 
+                referrals that may be missing a Result Date. First, the tool calculates the number of
+                days each referral has been open (meaning, the number of days
+                between the Referral Date and the date your upload was exported
+                from your HMIS.) Then the check compares the length of each referral with assumptions
+                entered about the expected maximum period of assistance envisioned
+                for the CoC's Coordinated Entry Referral process. Any data quality flags about
+                Old Referrals is categorized as a Warning and is a suggestion to
+                verify that the identified referrals are still active or in progress. 
+                It does not imply that any data should be changed.
+            
+                <p>Below, you can specify the expected maximum period of assistance
+                envisioned for the CoC's Coordinated Entry Referral process, 
+                meaning the timeframe after which you would want an organization to confirm the 
+                referral is still active. You can set these based on your current data or leave them at
+                the defaults (these defaults do not imply any HUD recommendations)."
+
+            ),
+            column(
+              numericInput(
+                inputId = "CEOldReferrals",
+                label = "Coordinated Entry:",
+                value = 30,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              width = 12
+            ),
+            HTML(
               "<h4>Long Stayers</h4>
                 <p>This check aims to help communities find enrollments that may
                 be missing an Exit Date. First, the tool calculates the number of
@@ -306,7 +338,7 @@ dashboardPage(
               ),
               width = 6
             ),
-            width = 12
+            width = 12,
           )
         )
       ),
