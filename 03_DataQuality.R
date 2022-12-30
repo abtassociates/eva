@@ -108,6 +108,15 @@ served_in_date_range <- served_in_date_range %>%
 
 rm(DV)
 
+CE_Event <- Event %>%
+  select(EnrollmentID, EventDate, Event, ProbSolDivRRResult, ReferralCaseManageAfter,
+         LocationCrisisOrPHHousing, ReferralResult, ResultDate)
+
+served_in_date_range <- served_in_date_range %>%
+  left_join(CE_Event, by = "EnrollmentID")
+
+rm(CE_Event)
+
 # The Variables That We Want ----------------------------------------------
 
 vars_prep <- c(
