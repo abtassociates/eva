@@ -164,16 +164,21 @@ function(input, output, session) {
     dq_main_reactive <- reactive({
       req(valid_file()== 1)
       # browser()
+      #Calculating potential long stayers based on CoC-specific settings
       ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
       Other <- calculate_long_stayers(input$OtherLongStayers, 7)
       Outreach <- calculate_long_stayers(input$OUTLongStayers, 4)
       DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
       ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
       
-      x <- dq_main %>%
-        filter(!Issue %in% c("Days Enrollment Active Exceeds CoC-specific Settings"))
+      #Calculating potential old referrals based on CoC-specific settings
+      CoordinatedEntry <- calculate_old_referrals(input$CEOldReferrals, 14)
       
-      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other)
+      x <- dq_main %>%
+        filter(!Issue %in% c("Days Enrollment Active Exceeds CoC-specific Settings", 
+                             "Days Referral Active Exceeds CoC-specific Settings"))
+      
+      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other, CoordinatedEntry)
       
     })
     
