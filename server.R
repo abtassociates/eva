@@ -172,13 +172,13 @@ function(input, output, session) {
       ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
       
       #Calculating potential old referrals based on CoC-specific settings
-      CoordinatedEntry <- calculate_old_referrals(input$CEOldReferrals, 14)
+      CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals, c(0:4,6:14))
       
       x <- dq_main %>%
         filter(!Issue %in% c("Days Enrollment Active Exceeds CoC-specific Settings", 
                              "Days Referral Active Exceeds CoC-specific Settings"))
       
-      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other, CoordinatedEntry)
+      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other, CE_Event)
       
     })
     
