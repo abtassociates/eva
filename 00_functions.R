@@ -343,12 +343,12 @@ calculate_long_stayers <- function(input, projecttype){
   
 }
 
-# Old Referrals --------------------------------------------
+# Outstanding Referrals --------------------------------------------
 
-calculate_old_referrals <- function(input, projecttype){
+calculate_outstanding_referrals <- function(input, projecttype){
   
   served_in_date_range %>%
-    select(all_of(vars_prep), ProjectID, EventDate, ResultDate) %>%
+    select(all_of(vars_prep), ProjectID, EventDate, ResultDate, Event) %>%
     mutate(
       Days = 
         as.numeric(
@@ -356,11 +356,12 @@ calculate_old_referrals <- function(input, projecttype){
       Issue = "Days Referral Active Exceeds CoC-specific Settings",
       Type = "Warning",
       Guidance = str_squish("You have at least one active referral that has been
-         active without a Result Date for longer than the days set for this Project Type in your
+         active without a Result Date for longer than the days set in your
          CoC-specific Settings on the Home tab.")
     ) %>%
-    filter(is.na(ResultDate) &
-             ProjectType == projecttype &
+    filter(Event %in% c(10:15,17:18) &
+             is.na(ResultDate) &
+             ProjectType %in% c(projecttype) &
              input < Days) %>% 
     select(all_of(vars_we_want))
   
