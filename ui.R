@@ -38,7 +38,27 @@ dashboardPage(
   dashboardBody(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
-      tags$html(lang="en") #Added as WAVE fix but not considered ideal
+      tags$html(lang="en"), #Added as WAVE fix but not considered ideal
+      tags$script(HTML("function idleTimer() {
+          var timeoutTime = 180000;
+          var t = setTimeout(logout, timeoutTime);
+          window.onmousemove = resetTimer; // catches mouse movements
+          window.onmousedown = resetTimer; // catches mouse movements
+          window.onclick = resetTimer;     // catches mouse clicks
+          window.onscroll = resetTimer;    // catches scrolling
+          window.onkeypress = resetTimer;  //catches keyboard actions
+    
+          function logout() {
+            Shiny.setInputValue('timeOut', timeoutTime);
+          }
+    
+          function resetTimer() {
+            clearTimeout(t);
+            t = setTimeout(logout, timeoutTime); 
+          }
+        }
+        idleTimer();"
+      ))
     ),
     useShinyjs(),
     tabItems(
