@@ -103,6 +103,11 @@ function(input, output, session) {
 
   output$changelog <- renderTable(changelog)
   
+  observeEvent(input$timeOut, {
+    reset("imported")
+    session$close()
+  })
+  
   observeEvent(input$imported, {
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
     
