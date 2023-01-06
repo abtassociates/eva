@@ -203,9 +203,9 @@ dashboardPage(
         fluidRow(
           box(
             HTML(
-              "<h4>Old Referrals</h4>
+              "<h4>Outstanding Referrals</h4>
                 <p>This check aims to help communities find Coordinated Entry Event 
-                referrals that may be missing a Result Date. First, the tool calculates the number of
+                referrals that may be outstanding and missing a Result Date. First, the tool calculates the number of
                 days each referral has been open (meaning, the number of days
                 between the Referral Date and the date your upload was exported
                 from your HMIS.) Then the check compares the length of each referral with assumptions
@@ -224,8 +224,8 @@ dashboardPage(
             ),
             column(
               numericInput(
-                inputId = "CEOldReferrals",
-                label = "Coordinated Entry:",
+                inputId = "CEOutstandingReferrals",
+                label = "All Projects:",
                 value = 30,
                 min = 0,
                 max = 3650,
