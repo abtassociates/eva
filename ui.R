@@ -205,13 +205,16 @@ dashboardPage(
             HTML(
               "<h4>Outstanding Referrals</h4>
                 <p>This check aims to help communities find Coordinated Entry Event 
-                referrals that may be outstanding and missing a Result Date. First, the tool calculates the number of
-                days each referral has been open (meaning, the number of days
+                referrals that may be outstanding and missing a Result Date. (Note that
+                not all CE Events have an associated Result and Result Date.) First, the tool calculates the number of
+                days each referral has been open (the number of days
                 between the Referral Date and the date your upload was exported
-                from your HMIS.) Then the check compares the length of each referral with assumptions
+                from your HMIS). Then the check compares the length of each referral with assumptions
                 entered about the expected maximum period of assistance envisioned
-                for the CoC's Coordinated Entry Referral process. Any data quality flags about
-                Old Referrals is categorized as a Warning and is a suggestion to
+                for the CoC's Coordinated Entry Referral process. This check is for all 
+                project types that may have Coordinated Entry Event referrals.
+                
+                <p>Any data quality flags about Outstanding Referrals is categorized as a Warning and is a suggestion to
                 verify that the identified referrals are still active or in progress. 
                 It does not imply that any data should be changed.
             
