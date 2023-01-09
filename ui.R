@@ -90,59 +90,9 @@ dashboardPage(
               </ul>
               
               <p>Once you have exported the correct file from your HMIS, you are
-              ready to engage with Eva. See the Instructions below for next steps.
-                 
-              <h4>Upload hashed HMIS CSV Export</h4>
-                 
-              <p>To upload your hashed HMIS CSV Export, click the \'Browse\'
-              button in the \'Upload Hashed HMIS CSV Export\' panel on the 
-              \'Upload HMIS CSV Export\' tab. Once you
-              find the zip file on your computer, select it and click \'Open\'.
-              Your file will begin uploading. Eva will check to determine if
-              the export is hashed. If it is not, Eva will reject the file with
-              an error message, and clear Eva's memory until you upload a hashed
-              HMIS CSV Export.</p>
+              ready to engage with Eva. Navigate to the \'Upload HMIS CSV Export\' tab
+              and follow the instructions there.</p>
               
-              <h4>HMIS CSV Export File Structure Analysis</h4>
-              <p>Once Eva verifies that your export is hashed, it will check
-              that the files have all the right names, columns, data types, and
-              allowable values. Eva will generate data quality issues that are
-              categorized as high priority errors, general errors, and warnings.
-              If there are any high priority errors that prevent Eva from
-              functioning, Eva will reject your upload, stop processing the export,
-              and clear Eva's memory.</p>
-              <p>All issues will display in the HMIS CSV File Structure Analysis
-              panel, where you can download the details, even if the file
-              was rejected. Users should contact their vendor to resolve high 
-              priority errors identified in the HMIS CSV Export File Structure
-              Analysis, as well as any other structural issues which you feel need
-              to be corrected. Not all structural issues found in this analysis will 
-              prevent the data from being accepted for analysis, so they may not 
-              require immediate attention. Once your vendor has addressed any
-              high priority structural errors, you can attempt another upload.</p>
-              
-              <p>Once you have uploaded a hashed and structurally sound zip file,
-              you will see a confirmation that your upload was successful, the date
-              range of the files you uploaded, plus the date your Export was 
-              downloaded from your HMIS.
-              
-              <h4>Edit Local Settings</h4>
-              <p>To make Eva reporting more useful at the local level, you can
-              adjust the local settings to better analyze your data in a
-              way that is meaningful to the CoC. To edit these, click on the 
-              Edit Local Settings tab. If you do not edit them, the reporting will 
-              use the defaults listed. These defaults do not imply any HUD 
-              recommendations. Please read the description in the
-              Edit Local Settings tab for more information.</p>
-              
-              <h4>Citations and Special Thanks</h4>
-              <p>This panel will credit the people who have helped make Eva possible!</p>
-              
-              <h4>Changelog</h4>
-              <p>This tab will list the most recent technical updates and changes to Eva.
-              For more in-depth information on current and past issues, please go to <a
-              href='https://github.com/abtassociates/eva/issues' target= '_blank'
-              rel='noopener noreferrer'>GitHub</a>.</p>
               ")
           ),
           box(
@@ -221,6 +171,47 @@ dashboardPage(
         tabName = "tabUpload",
         fluidRow(
           box(
+            title = "Instructions",
+            collapsible = TRUE,
+            collapsed = TRUE,
+            width = 12,
+            HTML("
+                 <h4>Upload hashed HMIS CSV Export</h4>
+                 
+              <p>To upload your hashed HMIS CSV Export, click the \'Browse\'
+              button in the \'Upload Hashed HMIS CSV Export\' panel on the 
+              \'Upload HMIS CSV Export\' tab. Once you
+              find the zip file on your computer, select it and click \'Open\'.
+              Your file will begin uploading. Eva will check to determine if
+              the export is hashed. If it is not, Eva will reject the file with
+              an error message, and clear Eva's memory until you upload a hashed
+              HMIS CSV Export.</p>
+              
+              <h4>HMIS CSV Export File Structure Analysis</h4>
+              <p>Once Eva verifies that your export is hashed, it will check
+              that the files have all the right names, columns, data types, and
+              allowable values. Eva will generate data quality issues that are
+              categorized as high priority errors, general errors, and warnings.
+              If there are any high priority errors that prevent Eva from
+              functioning, Eva will reject your upload, stop processing the export,
+              and clear Eva's memory.</p>
+              <p>All issues will display in the HMIS CSV File Structure Analysis
+              panel, where you can download the details, even if the file
+              was rejected. Users should contact their vendor to resolve high 
+              priority errors identified in the HMIS CSV Export File Structure
+              Analysis, as well as any other structural issues which you feel need
+              to be corrected. Not all structural issues found in this analysis will 
+              prevent the data from being accepted for analysis, so they may not 
+              require immediate attention. Once your vendor has addressed any
+              high priority structural errors, you can attempt another upload.</p>
+              
+              <p>Once you have uploaded a hashed and structurally sound zip file,
+              you will see a confirmation that your upload was successful, the date
+              range of the files you uploaded, plus the date your Export was 
+              downloaded from your HMIS.
+              ")
+          ),
+          box(
             title = "Upload Hashed CSV zip file",
             fileInput("imported",
                       label = NULL,
@@ -256,6 +247,21 @@ dashboardPage(
       tabItem(
         tabName = "tabLocalSettings",
         fluidRow(
+          box(
+            title = "Instructions",
+            collapsible = TRUE,
+            collapsed = TRUE,
+            width = 12,
+            HTML("<h4>Edit Local Settings</h4>
+              <p>To make Eva reporting more useful at the local level, you can
+              adjust the local settings to better analyze your data in a
+              way that is meaningful to the CoC. To edit these, click on the 
+              Edit Local Settings tab. If you do not edit them, the reporting will 
+              use the defaults listed. These defaults do not imply any HUD 
+              recommendations. Please read the description in the
+              Edit Local Settings tab for more information.</p>
+              ")
+          ),
           box(
             title = "Edit Local Settings",
             width = 12,
@@ -654,6 +660,19 @@ dashboardPage(
       tabItem(
         tabName = "tabChangelog",
         fluidRow(
+          box(
+            title = "Instructions",
+            collapsible = TRUE,
+            collapsed = TRUE,
+            width = 12,
+            HTML("
+             <h4>Changelog</h4>
+              <p>This tab will list the most recent technical updates and changes to Eva.
+              For more in-depth information on current and past issues, please go to <a
+              href='https://github.com/abtassociates/eva/issues' target= '_blank'
+              rel='noopener noreferrer'>GitHub</a>.</p>
+            ")
+          ),
           box(
             title = "Changelog",
             # collapsible = TRUE,
