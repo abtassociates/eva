@@ -72,8 +72,7 @@ dashboardPage(
             collapsible = TRUE,
             collapsed = TRUE,
             HTML(
-              "<h4>What you'll need to use Eva</h4>
-              <p>Eva works by uploading a hashed 
+              "<p>Eva works by uploading a hashed 
               <a href='https://www.hudhdx.info/Resources/Vendors/HMIS_CSV_Specifications_FY2022_v1.3.pdf'
               target= '_blank' rel='noopener noreferrer'>HMIS CSV Export</a>.
               </p>
