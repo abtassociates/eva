@@ -169,6 +169,7 @@ dashboardPage(
       ), 
       tabItem(
         tabName = "tabUpload",
+        fluidRow(box(htmlOutput("headerUpload"), width = 12)),
         fluidRow(
           box(
             title = "Instructions",
@@ -179,13 +180,11 @@ dashboardPage(
                  <h4>Upload hashed HMIS CSV Export</h4>
                  
               <p>To upload your hashed HMIS CSV Export, click the \'Browse\'
-              button in the \'Upload Hashed HMIS CSV Export\' panel on the 
-              \'Upload HMIS CSV Export\' tab. Once you
-              find the zip file on your computer, select it and click \'Open\'.
-              Your file will begin uploading. Eva will check to determine if
-              the export is hashed. If it is not, Eva will reject the file with
-              an error message, and clear Eva's memory until you upload a hashed
-              HMIS CSV Export.</p>
+              button. Once you find the zip file on your computer, select it 
+              and click \'Open\'. Your file will begin uploading. Eva will check 
+              to determine if the export is hashed. If it is not, Eva will reject 
+              the file with an error message, and clear Eva's memory until you 
+              upload a hashed HMIS CSV Export.</p>
               
               <h4>HMIS CSV Export File Structure Analysis</h4>
               <p>Once Eva verifies that your export is hashed, it will check
@@ -212,12 +211,11 @@ dashboardPage(
               ")
           ),
           box(
-            title = "Upload Hashed CSV zip file",
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
-            uiOutput("headerFileInfo"),
+            uiOutput("fileInfo"),
             width = 12
           ),
           #,
@@ -246,13 +244,14 @@ dashboardPage(
       ),
       tabItem(
         tabName = "tabLocalSettings",
+        fluidRow(box(htmlOutput("headerLocalSettings"), width = 12)),
         fluidRow(
           box(
             title = "Instructions",
             collapsible = TRUE,
             collapsed = TRUE,
             width = 12,
-            HTML("<h4>Edit Local Settings</h4>
+            HTML("
               <p>To make Eva reporting more useful at the local level, you can
               adjust the local settings to better analyze your data in a
               way that is meaningful to the CoC. To edit these, click on the 
@@ -263,7 +262,7 @@ dashboardPage(
               ")
           ),
           box(
-            title = "Edit Local Settings",
+            title = "Local Settings",
             width = 12,
             # collapsible = TRUE,
             # collapsed = TRUE,
@@ -381,7 +380,7 @@ dashboardPage(
       ),
       tabItem(
         tabName = "tabClientCount",
-        fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
+        fluidRow(box(htmlOutput("headerClientCounts"), width = 12)),
         fluidRow(box(
           title = "Instructions",
           width = 12,
@@ -659,14 +658,11 @@ dashboardPage(
       ),
       tabItem(
         tabName = "tabChangelog",
+        fluidRow(box(HTML("<h2>Changelog</h2>"), width = 12)),
         fluidRow(
           box(
-            title = "Instructions",
-            collapsible = TRUE,
-            collapsed = TRUE,
             width = 12,
             HTML("
-             <h4>Changelog</h4>
               <p>This tab will list the most recent technical updates and changes to Eva.
               For more in-depth information on current and past issues, please go to <a
               href='https://github.com/abtassociates/eva/issues' target= '_blank'
@@ -674,7 +670,6 @@ dashboardPage(
             ")
           ),
           box(
-            title = "Changelog",
             # collapsible = TRUE,
             # collapsed = TRUE,
             width = 12,
