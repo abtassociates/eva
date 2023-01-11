@@ -856,8 +856,8 @@ function(input, output, session) {
         )
       ) +
         geom_col(show.legend = FALSE,
-                 color = "#DD614A",
-                 fill = "#DD614A") +
+                 color = "#11697A",
+                 fill = "#11697A") +
         coord_flip() +
         labs(x = "",
              y = "Number of Enrollments") +
@@ -892,8 +892,8 @@ function(input, output, session) {
                y = Errors
              )) +
         geom_col(show.legend = FALSE,
-                 color = "#DD614A",
-                 fill = "#DD614A") +
+                 color = "#11697A",
+                 fill = "#11697A") +
         coord_flip() +
         labs(x = "",
              y = "Number of Enrollments") +
@@ -933,8 +933,8 @@ function(input, output, session) {
         )
       ) +
         geom_col(show.legend = FALSE,
-                 color = "#16697A",
-                 fill = "#16697A") +
+                 color = "#489FB5",
+                 fill = "#489FB5") +
         coord_flip() +
         labs(x = "",
              y = "Number of Enrollments") +
@@ -968,8 +968,8 @@ function(input, output, session) {
                y = Errors
              )) +
         geom_col(show.legend = FALSE,
-                 color = "#16697A",
-                 fill = "#16697A") +
+                 color = "#489FB5",
+                 fill = "#489FB5") +
         coord_flip() +
         labs(x = "",
              y = "Number of Enrollments") +
