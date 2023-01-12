@@ -363,8 +363,8 @@ headerGeneric <- function(tabTitle, extraHTML = NULL) {
   renderUI({
     if(valid_file() == 1) {
       list(h2(tabTitle),
-           h4(paste(
-             "<p><strong>Date Range of Current File: </strong></p>",
+           h4(strong("Date Range of Current File: "),
+            paste(
              format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
              "to",
              format(meta_HUDCSV_Export_End, "%m-%d-%Y")

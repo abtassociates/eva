@@ -22,8 +22,9 @@ function(input, output, session) {
   valid_file <- reactiveVal(0)
 
   output$headerUpload <- headerGeneric("Upload HMIS CSV Export",
-                              HTML("<p><strong>Export Date: </strong>",
-                                   format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")))
+                              h4(strong("Export Date: "),
+                                   format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
+                              ))
   
   output$fileInfo <- renderUI({
     if(valid_file() == 1) {
