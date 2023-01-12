@@ -427,7 +427,6 @@ function(input, output, session) {
           EntryDate,
           "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
           ExitDate,
-          "Length of Stay" = LengthOfStay,
           Status,
           ProjectID,
           ProjectName,
