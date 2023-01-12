@@ -505,6 +505,8 @@ function(input, output, session) {
                      label = "Download System-Wide")
     })
     
+    # the download basically contains a pivoted and summarized version of the two app tables, but for all projects
+    # along with a Current tab limited to just the current date.
     output$downloadClientCountsReport <- downloadHandler(
       filename = function() {
         paste("Client Counts Report-",
@@ -514,23 +516,19 @@ function(input, output, session) {
       },
       content = function(file) {
         
-        necessaryCols <- c("Currently Moved In"=NA_real_,"Currently in project"=NA_real_, "Active No Move-In"=NA_real_)
-        keepCols <- c("ProjectID", "ProjectName", "OrganizationName")
-        
+        # this initial dataset removes the person-specific enrollment days from those statuses (e.g. (660 days))
         validationDF <- client_count_data_df() %>%
           mutate(n=1, Status = sub(" \\(.*", "", Status))
-          # mutate(Status = sub(" \\(.*", "", Status)) %>%
-          # group_by(ProjectID, ProjectName, OrganizationName, Status, `Length of Stay`) %>%
-          # summarise("Clients Served" = n()) %>%
-          # ungroup() %>%
-          # select(c(ProjectID, ProjectName, OrganizationName, "Clients Served", Status, `Length of Stay`)) %>%
-          # arrange(Status, desc("Clients Served"))
         
+        # this function pivots by project and gets the counts of people with each status
         pivot_and_sum <- function(df) {
+          keepCols <- c("ProjectID", "ProjectName", "OrganizationName")
           df <- df %>%
             select(keepCols, "n", "Status") %>%
             pivot_wider(names_from = Status, values_from = n, values_fn = sum)
 
+          # make sure these columns are there; they wouldn't be after pivoting if nobody had that status
+          necessaryCols <- c("Currently Moved In"=NA_real_,"Currently in project"=NA_real_, "Active No Move-In"=NA_real_)
           add_column(df, !!!keepCols[setdiff(names(keepCols), names(df))])
           
           return(df %>%
@@ -538,15 +536,17 @@ function(input, output, session) {
                  )
         }
         
-        validationDateRange <- pivot_and_sum(validationDF)
-        validationCurrent <- pivot_and_sum(validationDF %>% 
+        validationDateRange <- pivot_and_sum(validationDF) # counts for each status, by project, across the date range provided
+        validationCurrent <- pivot_and_sum(validationDF %>% # counts for each status, by project for just the current date
             filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
         )
+        validationDetail = client_count_data_df() %>% # full dataset for the detail
+          select(clientCountDetailCols) 
         
         exportDFList <- list(
           validationCurrent = validationCurrent,
           validationDateRange = validationDateRange,
-          validationDetail = client_count_data_df()
+          validationDetail = validationDetail
         )
         
         names(exportDFList) = c(
