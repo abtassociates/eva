@@ -378,6 +378,8 @@ function(input, output, session) {
     })
     
     ### Client Counts -------------------------------
+    # MAIN DATAFRAME: this is the primary client count dataset, calculating their status and number of days enrolled. 
+    # This will be used to create the summary and detail datasets used in the app, as well as the datasets used in the export
     client_count_data_df <- reactive({
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
@@ -418,8 +420,8 @@ function(input, output, session) {
           sort = today() - EntryDate,
           MoveInDateAdjust = format.Date(MoveInDateAdjust, "%m-%d-%Y")
         ) %>%
-        #  mutate(PersonalID = as.character(PersonalID)) %>%
         arrange(desc(sort), HouseholdID, PersonalID) %>%
+        # make sure to include all columns that will be needed for the various uses
         select(
           "Personal ID" = PersonalID,
           "Household ID" = HouseholdID,
@@ -435,6 +437,7 @@ function(input, output, session) {
         filter(served_between(., ReportStart, ReportEnd))
     })
     
+    # this function summarizes a project-specific client_count, returning a dataset with counts by status
     client_count_summary_by <- function(vname, client_counts) {
       df <- client_counts %>%
         mutate(Status = sub(" \\(.*", "", Status)) %>%
@@ -444,6 +447,8 @@ function(input, output, session) {
       return(df)
     }
     
+    # this reactive df is the one used for the summary table in the app. 
+    # using the function above, it gets and then combines the counts of households and people/clients
     client_count_summary_df <- reactive({
       client_counts <- client_count_data_df() %>%
         filter(ProjectName == input$currentProviderList)
