@@ -462,18 +462,30 @@ function(input, output, session) {
       full_join(clients, hhs, by = "Status")
     })
     
+    
+    # these are the main columns that we will report out in the app and exports
+    clientCountDetailCols <- c("Personal ID",
+                               "Relationship to Head of Household",
+                               EntryDate,
+                               "Move In Date (RRH/PSH Only)",
+                               ExitDate,
+                               Status)
+    
+    # CLIENT COUNT DETAILS - APP
     output$clientCountData <- DT::renderDataTable({
       req(valid_file() == 1)
 
       datatable(
         client_count_data_df() %>%
-          filter(ProjectName == input$currentProviderList),
+          filter(ProjectName == input$currentProviderList) %>%
+          select(clientCountDetailCols),
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')
       )
     })
       
+    # CLIENT COUNT SUMMARY - APP
     output$clientCountSummary <- DT::renderDataTable({
       req(valid_file() == 1)
       
