@@ -49,8 +49,27 @@ function(input, output, session) {
   output$headerSystemDQ <- headerGeneric("System-level Data Quality")
     
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
+
+  output$changelog <- renderTable({
+    tribble(
+  ~Date, ~Change,
+  "12-29-2022", "Fixes GitHub issue 118. Eva was not checking that all needed
+  csvs were in the export. Now it checks this and rejects the export if they are
+  not there.",
   
-  output$changelog <- renderTable(changelog)
+  "12-29-2022", "Fixes GitHub issue 118. Eva was missing some instances where a date
+  variable is of the wrong type (e.g. ymd_hms instead of ymd). Now it rejects
+  exports if an important variable has the wrong date type.",  
+  
+  "12-29-2022", "Client Counts report: if a user makes the Report Date Range so
+  that the Start > End, Eva now alerts the user in the data tables to check dates.",
+  
+  "12-29-2022", "Rewrote PDDE issues' Guidance so that it is general guidance,
+  then added Details column to include IDs to help admins find specific issues."
+  
+    )
+    
+  })
   
   observeEvent(input$imported, {
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
@@ -786,8 +805,8 @@ function(input, output, session) {
         )
       ) +
         geom_col(show.legend = FALSE,
-                 color = "#DD614A",
-                 fill = "#DD614A") +
+                 color = "#11697A",
+                 fill = "#11697A") +
         coord_flip() +
         labs(x = "",
              y = "Number of Enrollments") +
@@ -822,8 +841,8 @@ function(input, output, session) {
                y = Errors
              )) +
         geom_col(show.legend = FALSE,
-                 color = "#DD614A",
-                 fill = "#DD614A") +
+                 color = "#11697A",
+                 fill = "#11697A") +
         coord_flip() +
         labs(x = "",
              y = "Number of Enrollments") +
@@ -863,8 +882,8 @@ function(input, output, session) {
         )
       ) +
         geom_col(show.legend = FALSE,
-                 color = "#16697A",
-                 fill = "#16697A") +
+                 color = "#489FB5",
+                 fill = "#489FB5") +
         coord_flip() +
         labs(x = "",
              y = "Number of Enrollments") +
@@ -898,8 +917,8 @@ function(input, output, session) {
                y = Errors
              )) +
         geom_col(show.legend = FALSE,
-                 color = "#16697A",
-                 fill = "#16697A") +
+                 color = "#489FB5",
+                 fill = "#489FB5") +
         coord_flip() +
         labs(x = "",
              y = "Number of Enrollments") +

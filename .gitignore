@@ -18,3 +18,5 @@ test/
 logs/
 www/metadata/
 *.txt
+sandbox/**/*.csv
+*.docx
