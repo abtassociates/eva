@@ -497,27 +497,46 @@ function(input, output, session) {
               sep = "")
       },
       content = function(file) {
-        validationDateRange <- client_count_data_df() %>%
-          mutate(Status = sub(" \\(.*", "", Status)) %>%
-          group_by(ProjectID, ProjectName, OrganizationName, Status, `Length of Stay`) %>%
-          summarise("Clients Served" = n()) %>%
-          ungroup() %>%
-          select(c(ProjectID, ProjectName, OrganizationName, "Clients Served", Status, `Length of Stay`)) %>%
-          arrange(Status, desc("Clients Served"))
         
-        validationCurrent <- client_count_data_df() %>% 
-          select(c(ProjectID, ProjectName, OrganizationName, Status, `Length of Stay`)) %>%
-          mutate(n=1, Status = sub(" \\(.*", "", Status)) %>%
-          pivot_wider(names_from = Status, values_from = n, values_fn = sum)
+        necessaryCols <- c("Currently Moved In"=NA_real_,"Currently in project"=NA_real_, "Active No Move-In"=NA_real_)
+        keepCols <- c("ProjectID", "ProjectName", "OrganizationName")
+        
+        validationDF <- client_count_data_df() %>%
+          mutate(n=1, Status = sub(" \\(.*", "", Status))
+          # mutate(Status = sub(" \\(.*", "", Status)) %>%
+          # group_by(ProjectID, ProjectName, OrganizationName, Status, `Length of Stay`) %>%
+          # summarise("Clients Served" = n()) %>%
+          # ungroup() %>%
+          # select(c(ProjectID, ProjectName, OrganizationName, "Clients Served", Status, `Length of Stay`)) %>%
+          # arrange(Status, desc("Clients Served"))
+        
+        pivot_and_sum <- function(df) {
+          df <- df %>%
+            select(keepCols, "n", "Status") %>%
+            pivot_wider(names_from = Status, values_from = n, values_fn = sum)
+
+          add_column(df, !!!keepCols[setdiff(names(keepCols), names(df))])
+          
+          return(df %>%
+                   select(keepCols, "Currently Moved In","Currently in project", "Active No Move-In")
+                 )
+        }
+        
+        validationDateRange <- pivot_and_sum(validationDF)
+        validationCurrent <- pivot_and_sum(validationDF %>% 
+            filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
+        )
         
         exportDFList <- list(
           validationCurrent = validationCurrent,
-          validationDateRange = validationDateRange
+          validationDateRange = validationDateRange,
+          validationDetail = client_count_data_df()
         )
         
         names(exportDFList) = c(
           "Validation - Current",
-          "Validation - Date Range"
+          "Validation - Date Range",
+          "Validation - Detail"
         )
         write_xlsx(exportDFList, path = file)
       }
