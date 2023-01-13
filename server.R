@@ -523,17 +523,22 @@ function(input, output, session) {
         # this function pivots by project and gets the counts of people with each status
         pivot_and_sum <- function(df) {
           keepCols <- c("ProjectID", "ProjectName", "OrganizationName")
-          df <- df %>%
-            select(keepCols, "n", "Status") %>%
-            pivot_wider(names_from = Status, values_from = n, values_fn = sum)
-
+          
           # make sure these columns are there; they wouldn't be after pivoting if nobody had that status
           necessaryCols <- c("Currently Moved In"=NA_real_,"Currently in project"=NA_real_, "Active No Move-In"=NA_real_)
-          add_column(df, !!!keepCols[setdiff(names(keepCols), names(df))])
           
-          return(df %>%
-                   select(keepCols, "Currently Moved In","Currently in project", "Active No Move-In")
-                 )
+          pivoted <- df %>%
+            select(keepCols, "n", "Status") %>%
+            pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
+            add_column(!!!keepCols[setdiff(names(keepCols), names(df))]) %>%
+            rowwise() %>%
+            mutate(
+              "Currently in project" = coalesce(`Currently in project`,sum(`Currently Moved In`,`Active No Move-In`))
+            ) %>%
+            select(!!keepCols, "Currently in project", "Currently Moved In", "Active No Move-In")
+          
+          
+          return(pivoted)
         }
         
         validationDateRange <- pivot_and_sum(validationDF) # counts for each status, by project, across the date range provided
