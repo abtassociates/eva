@@ -466,10 +466,10 @@ function(input, output, session) {
     # these are the main columns that we will report out in the app and exports
     clientCountDetailCols <- c("Personal ID",
                                "Relationship to Head of Household",
-                               EntryDate,
+                               "EntryDate",
                                "Move In Date (RRH/PSH Only)",
-                               ExitDate,
-                               Status)
+                               "ExitDate",
+                               "Status")
     
     # CLIENT COUNT DETAILS - APP
     output$clientCountData <- DT::renderDataTable({
