@@ -430,9 +430,9 @@ function(input, output, session) {
           "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
           ExitDate,
           Status,
-          ProjectID,
-          ProjectName,
-          OrganizationName
+          "Project ID" = ProjectID,
+          "Project Name" = ProjectName,
+          "Organization" = OrganizationName
         ) %>%
         filter(served_between(., ReportStart, ReportEnd))
     })
@@ -451,7 +451,7 @@ function(input, output, session) {
     # using the function above, it gets and then combines the counts of households and people/clients
     client_count_summary_df <- reactive({
       client_counts <- client_count_data_df() %>%
-        filter(ProjectName == input$currentProviderList)
+        filter(`Project Name` == input$currentProviderList)
       
       hhs <- client_count_summary_by("Household ID", client_counts) %>%
         summarise(Households = n())
@@ -477,7 +477,7 @@ function(input, output, session) {
 
       datatable(
         client_count_data_df() %>%
-          filter(ProjectName == input$currentProviderList) %>%
+          filter(`Project Name` == input$currentProviderList) %>%
           select(clientCountDetailCols),
         rownames = FALSE,
         filter = 'top',
@@ -521,27 +521,38 @@ function(input, output, session) {
           mutate(n=1, Status = sub(" \\(.*", "", Status))
         
         # this function pivots by project and gets the counts of people with each status
-        pivot_and_sum <- function(df) {
-          keepCols <- c("ProjectID", "ProjectName", "OrganizationName")
+        pivot_and_sum <- function(df, isDateRange = FALSE) {
+          keepCols <- c("Organization", "Project ID", "Project Name")
           
           # make sure these columns are there; they wouldn't be after pivoting if nobody had that status
-          necessaryCols <- c("Currently Moved In"=NA_real_,"Currently in project"=NA_real_, "Active No Move-In"=NA_real_)
+          necessaryCols <- c(
+            "Currently Moved In",
+            "Currently in project",
+            "Active No Move-In"
+          )
           
+          if(isDateRange) necessaryCols <- c(
+            necessaryCols,
+            "Exited No Move-In", 
+            "Exited with Move-In",
+            "Exited project"
+          )
+            
           pivoted <- df %>%
             select(keepCols, "n", "Status") %>%
             pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
-            add_column(!!!keepCols[setdiff(names(keepCols), names(df))]) %>%
+            add_column(!!!necessaryCols[setdiff(names(necessaryCols), names(df))]) %>%
             rowwise() %>%
             mutate(
               "Currently in project" = coalesce(`Currently in project`,sum(`Currently Moved In`,`Active No Move-In`))
             ) %>%
-            select(!!keepCols, "Currently in project", "Currently Moved In", "Active No Move-In")
+            select(!!keepCols, !!necessaryCols)
           
           
           return(pivoted)
         }
         
-        validationDateRange <- pivot_and_sum(validationDF) # counts for each status, by project, across the date range provided
+        validationDateRange <- pivot_and_sum(validationDF, isDateRange=TRUE) # counts for each status, by project, across the date range provided
         validationCurrent <- pivot_and_sum(validationDF %>% # counts for each status, by project for just the current date
             filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
         )
