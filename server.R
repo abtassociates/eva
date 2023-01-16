@@ -22,7 +22,6 @@ function(input, output, session) {
   valid_file <- reactiveVal(0)
 
   output$headerFileInfo <- renderUI({
-    logMetadata("User on Upload")
     if(valid_file()) {
       HTML(
         paste0(
@@ -41,7 +40,6 @@ function(input, output, session) {
   })
   
   output$headerCurrent <- renderUI({
-    logMetadata("User on Client Counts")
     if(valid_file()) {
       
       organization <- Project0 %>%
@@ -65,7 +63,6 @@ function(input, output, session) {
   })
   
   output$headerPDDE <- renderUI({
-    logMetadata("User on PDDE")
     if(valid_file()) {
       list(h2("Project Descriptor Data Elements Checker"),
          h4(paste(
@@ -79,7 +76,6 @@ function(input, output, session) {
   })
   
   output$headerSystemDQ <- renderUI({
-    logMetadata("User on System DQ")
     if(valid_file() == 1) {
       list(h2("System-level Data Quality"),
            h4(
@@ -93,7 +89,6 @@ function(input, output, session) {
   })
   
   output$headerDataQuality <- renderUI({
-    logMetadata("User on Org DQ")
     if(valid_file()) {
       list(h2("Organization-level Data Quality"),
            h4(paste(
@@ -107,7 +102,6 @@ function(input, output, session) {
   })
 
   output$changelog <- renderTable({
-    logMetadata("User on Changelog")
     tribble(
   ~Date, ~Change,
   "12-29-2022", "Fixes GitHub issue 118. Eva was not checking that all needed
