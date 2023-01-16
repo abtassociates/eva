@@ -360,6 +360,7 @@ logMetadata <- function(detail) {
 }
 
 headerGeneric <- function(tabTitle, extraHTML = NULL) {
+  logMetadata(paste("User on",tabTitle))
   renderUI({
     if(valid_file() == 1) {
       list(h2(tabTitle),
