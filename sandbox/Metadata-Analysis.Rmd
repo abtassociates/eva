@@ -1,11 +1,8 @@
 ---
-title: "Metadata Analysis"
+title: "Eva Metadata Analysis"
 author: "Eva Dev Team"
 date: '`r Sys.Date()`'
-output:
-  word_document: default
-  html_document:
-    df_print: paged
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -19,9 +16,9 @@ library(gt)
 
 # Instructions ------------------------------------------------------------
 
-# whenever DDS sends the metadata zip file, copy it to anywhere in the ACE environment that you can find it again, navigate to the sandbox directory in your Eva RStudio project, click Upload, then find the zip file you copied in. Click OK or whatever, then the files will be pasted into a folder under sandbox/. 
+# whenever DDS sends the metadata zip file, copy it to anywhere in the ACE environment that you can find it again, navigate to the sandbox directory in your Eva RStudio project, click Upload, then find the zip file you copied in. Click OK or whatever, then the files will be pasted into a folder under sandbox/. Edit the folder_date variable to match that folder's name and run this.
 
-folder_date <- "01-09-2023"
+folder_date <- "01-17-2023"
 
 visits <-
   read_lines(here(paste0(
