@@ -51,6 +51,7 @@ function(input, output, session) {
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
 
   output$changelog <- renderTable({
+    logMetadata("User on Changelog")
     tribble(
   ~Date, ~Change,
   "12-29-2022", "Fixes GitHub issue 118. Eva was not checking that all needed
