@@ -21,6 +21,10 @@ function(input, output, session) {
   logMetadata("Session started")
   valid_file <- reactiveVal(0)
 
+  observe({ 
+    logMetadata(paste("User on",input$sidebarmenuid))
+  })
+  
   output$headerUpload <- headerGeneric("Upload HMIS CSV Export",
                               h4(strong("Export Date: "),
                                    format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
@@ -51,7 +55,6 @@ function(input, output, session) {
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
 
   output$changelog <- renderTable({
-    logMetadata("User on Changelog")
     tribble(
   ~Date, ~Change,
   "12-29-2022", "Fixes GitHub issue 118. Eva was not checking that all needed

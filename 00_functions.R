@@ -361,7 +361,6 @@ logMetadata <- function(detail) {
 
 headerGeneric <- function(tabTitle, extraHTML = NULL) {
   renderUI({
-    logMetadata(paste("User on",tabTitle))
     if(valid_file() == 1) {
       list(h2(tabTitle),
            h4(strong("Date Range of Current File: "),
