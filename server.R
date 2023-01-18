@@ -1245,6 +1245,10 @@ function(input, output, session) {
     )})
   
   }, ignoreInit = TRUE)
+  
+  session$onSessionEnded(function() {
+    logMetadata("Session Ended")
+  })
 }
   # output$headerCocDQ <- renderUI({
   #   req(!is.null(input$imported))
