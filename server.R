@@ -116,7 +116,10 @@ function(input, output, session) {
   that the Start > End, Eva now alerts the user in the data tables to check dates.",
   
   "12-29-2022", "Rewrote PDDE issues' Guidance so that it is general guidance,
-  then added Details column to include IDs to help admins find specific issues."
+  then added Details column to include IDs to help admins find specific issues.",
+  
+  "01-13-2023", "Set GrantID field so it is not considered a high priority column
+  so that it will no longer cause Eva to reject a file for incorrect data type."
   
     )
     
