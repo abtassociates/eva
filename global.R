@@ -15,6 +15,7 @@ library(HMIS)
 library(glue)
 library(janitor)
 library(shinyjs)
+library(shinydisconnect)
 #library(shinyHeatmap)
 #library(shinylogs)
 
