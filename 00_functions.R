@@ -307,6 +307,9 @@ zip_initially_valid <- function () {
 is_hashed <- function() {
   # read Export file
   Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
+
+  print(paste(Sys.time(), "Imported Export.csv: ", split(Export, seq(nrow(head(Export,1))))))
+  
   # read Client file
   Client <- importFile("Client",
                        col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
@@ -349,6 +352,18 @@ logMetadata <- function(detail) {
     Datestamp = Sys.time(),
     Details = detail
   )
+  
+  if(exists("Export")) {
+    add_cols <- data.frame(
+      CoC = Export$SourceID,
+      ExportID = Export$ExportID,
+      SourceContactFirst = Export$SourceContactFirst,
+      SourceContactLast = Export$SourceContactLast,
+      SourceContactEmail = Export$SourceContactEmail,
+      SoftwareName = Export$SoftwareName
+    )
+    d <- cbind(d, add_cols)
+  }
   
   filename <- "www/metadata/metadata.csv"
   write_csv(
