@@ -308,7 +308,7 @@ is_hashed <- function() {
   # read Export file
   Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
 
-  print(paste(Sys.time(), "Imported Export.csv: ", split(Export, seq(nrow(head(Export,1))))))
+  logSessionData()
   
   # read Client file
   Client <- importFile("Client",
@@ -353,19 +353,38 @@ logMetadata <- function(detail) {
     Details = detail
   )
   
-  if(exists("Export")) {
-    add_cols <- data.frame(
-      CoC = Export$SourceID,
-      ExportID = Export$ExportID,
-      SourceContactFirst = Export$SourceContactFirst,
-      SourceContactLast = Export$SourceContactLast,
-      SourceContactEmail = Export$SourceContactEmail,
-      SoftwareName = Export$SoftwareName
-    )
-    d <- cbind(d, add_cols)
-  }
-  
   filename <- "www/metadata/metadata.csv"
+  write_csv(
+    x = d,
+    filename,
+    append = TRUE,
+    col_names = !file.exists(filename)
+  )
+}
+
+logSessionData <- function() {
+  # put the export info in the log
+  print(
+    paste(
+      session$token,
+      Sys.time(), 
+      "Imported Export.csv: ", 
+      split(Export, seq(nrow(head(Export,1))))
+    )
+  )
+  
+  d <- data.frame(
+    SessionToken = session$token,
+    Datestamp = Sys.time(),
+    CoC = Export$SourceID,
+    ExportID = Export$ExportID,
+    SourceContactFirst = Export$SourceContactFirst,
+    SourceContactLast = Export$SourceContactLast,
+    SourceContactEmail = Export$SourceContactEmail,
+    SoftwareName = Export$SoftwareName
+  )
+    
+  filename <- "www/metadata/sessiondata.csv"
   write_csv(
     x = d,
     filename,
