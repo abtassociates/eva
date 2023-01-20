@@ -75,6 +75,9 @@ function(input, output, session) {
     
   })
   
+  observeEvent(input$Go_to_upload, {
+    updateTabItems(session, "sidebarmenuid", "tabUpload")
+  })
   observeEvent(input$imported, {
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
     
