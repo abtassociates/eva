@@ -263,14 +263,13 @@ dashboardPage(
               ")
           ),
           box(
-            title = "Local Settings",
+            title = "Long Stayers",
             width = 12,
             # collapsible = TRUE,
             # collapsed = TRUE,
             fluidRow(
               box(
-                HTML(
-                  "<h4>Long Stayers</h4>
+                HTML("
                 <p>This check aims to help communities find enrollments that may
                 be missing an Exit Date. First, the tool calculates the number of
                 days each enrollment has been open (meaning, the number of days
