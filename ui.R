@@ -52,10 +52,9 @@ dashboardPage(
         tabName = "tabHome",
         fluidRow(
           box(
-            title = "Welcome to Eva!",
             width = 12,
-            HTML(
-              "<p><b>Eva</b> is an <a href = 'https://github.com/abtassociates/eva'
+            HTML("<h2>Welcome to Eva!</h2>
+              <p><b>Eva</b> is an <a href = 'https://github.com/abtassociates/eva'
               target= '_blank' rel='noopener noreferrer'>open-source</a>
               project intended for local use by HMIS Administrators in Continuums
               of Care (CoCs) around the U.S. and its territories. Eva is designed
