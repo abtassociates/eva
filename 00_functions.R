@@ -358,3 +358,21 @@ logMetadata <- function(detail) {
     col_names = !file.exists(filename)
   )
 }
+
+headerGeneric <- function(tabTitle, extraHTML = NULL) {
+  renderUI({
+    if(valid_file() == 1) {
+      list(h2(tabTitle),
+           h4(strong("Date Range of Current File: "),
+            paste(
+             format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+             "to",
+             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+           )),
+           extraHTML
+      )
+    } else {
+      h4("You have not successfully uploaded your zipped CSV file yet.")
+    }
+  })
+}
