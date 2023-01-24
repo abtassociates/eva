@@ -460,13 +460,6 @@ dashboardPage(
                react and filter in that way.")
         )), 
         fluidRow(box(
-          pickerInput(
-            label = "Select Project",
-            inputId = "currentProviderList",
-            choices = NULL,
-            options = pickerOptions(liveSearch = TRUE,
-                                    liveSearchStyle = 'contains')
-          ),
           dateRangeInput(
             "dateRangeCount",
             "Date Range",
@@ -475,6 +468,20 @@ dashboardPage(
           ),
           uiOutput("downloadClientCountsReportButton"),
           width = 12
+        )),
+        fluidRow(box(
+          pickerInput(
+            label = "",
+            inputId = "currentProviderList",
+            choices = NULL,
+            width = "600px",
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains')
+          ),
+          width = 12,
+          title = "Select Project",
+          status = "info",
+          solidHeader = TRUE
         )),
         fluidRow(box(
           title = "Client Counts Summary",
