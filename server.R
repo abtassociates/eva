@@ -526,16 +526,16 @@ function(input, output, session) {
           
           # make sure these columns are there; they wouldn't be after pivoting if nobody had that status
           necessaryCols <- c(
-            "Currently Moved In",
             "Currently in project",
+            "Currently Moved In",
             "Active No Move-In"
           )
           
           if(isDateRange) necessaryCols <- c(
             necessaryCols,
+            "Exited project",
             "Exited No Move-In", 
-            "Exited with Move-In",
-            "Exited project"
+            "Exited with Move-In"
           )
             
           pivoted <- df %>%
