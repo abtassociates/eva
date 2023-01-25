@@ -172,7 +172,8 @@ function(input, output, session) {
       ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
       
       #Calculating potential old referrals based on CoC-specific settings
-      CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals, c(0:4,6:14))
+      CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals, c(0:4,6:14)) %>%
+        select(all_of(vars_we_want))
       
       x <- dq_main %>%
         filter(!Issue %in% c("Days Enrollment Active Exceeds CoC-specific Settings", 
@@ -598,12 +599,16 @@ function(input, output, session) {
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | PreviousOrganizationName %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName")
+      orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals, c(0:4,6:14)) %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals)
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName")
+      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName", 
+                          calculate_outstanding_referrals(input$CEOutstandingReferrals, c(0:4,6:14)))
     })
     
     output$downloadOrgDQReport <- downloadHandler(
