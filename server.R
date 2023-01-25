@@ -7,15 +7,15 @@ function(input, output, session) {
   source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
   
   
- showModal(modalDialog(
-    title = "Changelog Alert",
-    "Due to a recent update, Eva *may* reject exports that were previously
-    accepted. If this affects you, please see the changelog for more
-    information and contact your vendor.",
-    footer = modalButton("OK"),
-    size = "m",
-    easyClose = TRUE
-  ))
+ # showModal(modalDialog(
+ #    title = "Changelog Alert",
+ #    "Due to a recent update, Eva *may* reject exports that were previously
+ #    accepted. If this affects you, please see the changelog for more
+ #    information and contact your vendor.",
+ #    footer = modalButton("OK"),
+ #    size = "m",
+ #    easyClose = TRUE
+ #  ))
   
   
   logMetadata("Session started")
