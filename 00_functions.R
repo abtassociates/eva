@@ -126,7 +126,8 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
   return(data)
 }
 
-getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL) {
+getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL,
+                                dqReferrals = NULL) {
   select_list = c("Organization Name" = "OrganizationName",
                   "Project ID" = "ProjectID",
                   "Project Name" = "ProjectName",
@@ -173,6 +174,17 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
             PreviousExitDate
     )
   
+  dqReferralDetails <- dqReferrals %>%
+    filter(Issue == "Days Referral Active Exceeds CoC-specific Settings") %>%
+    select(OrganizationName,
+           ProjectID,
+           ProjectName,
+           EventID,
+           PersonalID,
+           EventDate,
+           EventType,
+           Days)
+  
   mainsummary <- rbind(
       dqData %>% select(Type, Issue, PersonalID),
       dqOverlaps %>% select(Type, Issue, PersonalID)
@@ -214,7 +226,8 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
     high_priority = high_priority,
     errors = errors,
     warnings = warnings,
-    overlaps = dqOverlapDetails
+    overlaps = dqOverlapDetails,
+    referrals = dqReferralDetails
   )
   
   names(exportDFList) <- c(
@@ -225,7 +238,8 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
     "High Priority",
     "Errors", 
     "Warnings",
-    "Overlap Details"
+    "Overlap Details",
+    "Referral Details"
   )
   
   exportDFList <- exportDFList[sapply(exportDFList, 
@@ -338,7 +352,7 @@ calculate_long_stayers <- function(input, projecttype){
     ) %>%
     filter(is.na(ExitDate) &
              ProjectType == projecttype &
-             input < Days) %>% 
+             input < Days) %>%
     select(all_of(vars_we_want))
   
 }
@@ -348,7 +362,7 @@ calculate_long_stayers <- function(input, projecttype){
 calculate_outstanding_referrals <- function(input, projecttype){
   
   served_in_date_range %>%
-    select(all_of(vars_prep), ProjectID, EventDate, ResultDate, Event) %>%
+    select(all_of(vars_prep), ProjectID, EventID, EventDate, ResultDate, Event) %>%
     mutate(
       Days = 
         as.numeric(
@@ -357,13 +371,22 @@ calculate_outstanding_referrals <- function(input, projecttype){
       Type = "Warning",
       Guidance = str_squish("You have at least one active referral that has been
          active without a Result Date for longer than the days set in your
-         CoC-specific Settings on the Home tab.")
+         CoC-specific Settings on the Home tab."),
+      EventType = case_when(
+        Event == 10 ~ "Referral to Emergency Shelter bed opening",
+        Event == 11 ~ "Referral to Transitional Housing bed/unit opening",
+        Event == 12 ~ "Referral to Joint TH-RRH project/unit/resource opening",
+        Event == 13 ~ "Referral to RRH project resource opening",
+        Event == 14 ~ "Referral to PSH project resource opening",
+        Event == 15 ~ "Referral to Other PH project/unit/resource opening",
+        Event == 17 ~ "Referral to Emergency Housing Voucher (EHV)",
+        Event == 18 ~ "Referral to a Housing Stability Voucher"
+      )
     ) %>%
     filter(Event %in% c(10:15,17:18) &
              is.na(ResultDate) &
              ProjectType %in% c(projecttype) &
-             input < Days) %>% 
-    select(all_of(vars_we_want))
+             input < Days)
   
 }
 
