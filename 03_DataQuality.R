@@ -47,6 +47,17 @@ served_in_date_range <- Enrollment %>%
               select(-DateCreated), by = "PersonalID") %>%
   left_join(Project %>% select(ProjectID, TrackingMethod, OrganizationName),
             by = "ProjectID") %>%
+  left_join(Event %>% select(EnrollmentID, 
+                             EventID, 
+                             EventDate, 
+                             Event, 
+                             ProbSolDivRRResult, 
+                             ReferralCaseManageAfter,
+                             LocationCrisisOrPHHousing, 
+                             ReferralResult, 
+                             ResultDate),
+            by = "EnrollmentID") %>%
+  
   select(
     PersonalID,
     FirstName,
@@ -95,7 +106,15 @@ served_in_date_range <- Enrollment %>%
     DateOfPATHStatus,
     ReasonNotEnrolled,
     ClientLocation,
-    TrackingMethod
+    TrackingMethod,
+    EventID, 
+    EventDate, 
+    Event, 
+    ProbSolDivRRResult, 
+    ReferralCaseManageAfter,
+    LocationCrisisOrPHHousing, 
+    ReferralResult, 
+    ResultDate
   ) %>%
   inner_join(projects_current_hmis, by = "ProjectID")
 
@@ -108,14 +127,14 @@ served_in_date_range <- served_in_date_range %>%
 
 rm(DV)
 
-CE_Event <- Event %>%
-  select(EnrollmentID, EventDate, Event, ProbSolDivRRResult, ReferralCaseManageAfter,
-         LocationCrisisOrPHHousing, ReferralResult, ResultDate)
-
-served_in_date_range <- served_in_date_range %>%
-  left_join(CE_Event, by = "EnrollmentID")
-
-rm(CE_Event)
+# CE_Event <- Event %>%
+#   select(EnrollmentID, EventID, EventDate, Event, ProbSolDivRRResult, ReferralCaseManageAfter,
+#          LocationCrisisOrPHHousing, ReferralResult, ResultDate)
+# 
+# served_in_date_range <- served_in_date_range %>%
+#   left_join(CE_Event, by = "EnrollmentID")
+# 
+# rm(CE_Event)
 
 # The Variables That We Want ----------------------------------------------
 
