@@ -47,6 +47,16 @@ served_in_date_range <- Enrollment %>%
               select(-DateCreated), by = "PersonalID") %>%
   left_join(Project %>% select(ProjectID, TrackingMethod, OrganizationName),
             by = "ProjectID") %>%
+  left_join(Event %>% select(EnrollmentID, 
+                             EventID, 
+                             EventDate, 
+                             Event, 
+                             ProbSolDivRRResult, 
+                             ReferralCaseManageAfter,
+                             LocationCrisisOrPHHousing, 
+                             ReferralResult, 
+                             ResultDate),
+            by = "EnrollmentID") %>%
   select(
     PersonalID,
     FirstName,
