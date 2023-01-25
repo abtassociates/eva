@@ -57,6 +57,19 @@ function(input, output, session) {
   output$changelog <- renderTable({
     tribble(
   ~Date, ~Change,
+  
+  "01-26-2023", "Modified tab structure to spread things out and simplify the 
+  Home tab.",
+  
+  "01-26-2023", "Fixes GitHub issue 124. Modified plot color for High Priority
+  issues.",
+  
+  "01-23-2023", "Hotfix: Added improved metadata collection for troubleshooting
+  purposes.",
+  
+  "01-13-2023", "Hotfix: Set GrantID field so it is not considered a high priority column
+  so that it will no longer cause Eva to reject a file for incorrect data type.",
+  
   "12-29-2022", "Fixes GitHub issue 118. Eva was not checking that all needed
   csvs were in the export. Now it checks this and rejects the export if they are
   not there.",
