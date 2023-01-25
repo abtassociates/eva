@@ -126,7 +126,7 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
   return(data)
 }
 
-getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL) {
+getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL, dqReferrals = NULL) {
   select_list = c("Organization Name" = "OrganizationName",
                   "Project ID" = "ProjectID",
                   "Project Name" = "ProjectName",
@@ -173,6 +173,17 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
             PreviousExitDate
     )
   
+  dqReferralDetails <- dqReferrals %>%
+    filter(Issue == "Days Referral Active Exceeds CoC-specific Settings") %>%
+    select(OrganizationName,
+           ProjectID,
+           ProjectName,
+           EventID,
+           PersonalID,
+           EventDate,
+           EventType,
+           Days)
+  
   mainsummary <- rbind(
       dqData %>% select(Type, Issue, PersonalID),
       dqOverlaps %>% select(Type, Issue, PersonalID)
@@ -214,7 +225,8 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
     high_priority = high_priority,
     errors = errors,
     warnings = warnings,
-    overlaps = dqOverlapDetails
+    overlaps = dqOverlapDetails,
+    dqReferrals = dqReferralDetails
   )
   
   names(exportDFList) <- c(
@@ -225,7 +237,8 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
     "High Priority",
     "Errors", 
     "Warnings",
-    "Overlap Details"
+    "Overlap Details",
+    "Referral Details"
   )
   
   exportDFList <- exportDFList[sapply(exportDFList, 
