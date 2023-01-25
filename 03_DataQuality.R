@@ -105,7 +105,15 @@ served_in_date_range <- Enrollment %>%
     DateOfPATHStatus,
     ReasonNotEnrolled,
     ClientLocation,
-    TrackingMethod
+    TrackingMethod,
+    EventID, 
+    EventDate, 
+    Event, 
+    ProbSolDivRRResult, 
+    ReferralCaseManageAfter,
+    LocationCrisisOrPHHousing, 
+    ReferralResult, 
+    ResultDate
   ) %>%
   inner_join(projects_current_hmis, by = "ProjectID")
 
