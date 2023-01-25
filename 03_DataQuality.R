@@ -30,7 +30,9 @@ continuum_projects <- Project %>%
 # Projects to Check -------------------------------------------------------
 projects_current_hmis <- Project %>%
   filter(HMISParticipatingProject == 1 &
-           operating_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
+           operating_between(., 
+                             ymd(meta_HUDCSV_Export_Start),
+                             ymd(meta_HUDCSV_Export_End))) %>%
   select(
     ProjectID,
     OrganizationID,
