@@ -434,7 +434,8 @@ function(input, output, session) {
           "Project Name" = ProjectName,
           "Organization" = OrganizationName
         ) %>%
-        filter(served_between(., ReportStart, ReportEnd))
+        filter(served_between(., ReportStart, ReportEnd)) %>%
+        clean_names(case = "title", abbreviations = c("ID"))
     })
     
     # this function summarizes a project-specific client_count, returning a dataset with counts by status
@@ -544,7 +545,8 @@ function(input, output, session) {
             add_column(!!!necessaryCols[setdiff(names(necessaryCols), names(df))]) %>%
             rowwise() %>%
             mutate(
-              "Currently in project" = coalesce(`Currently in project`,sum(`Currently Moved In`,`Active No Move-In`))
+              "Currently in project" = coalesce(`Currently in project`,sum(`Currently Moved In`,`Active No Move-In`)),
+              "Exited project" = coalesce(`Exited project`,sum(`Exited with Moved In`,`Exited No Move-In`))
             ) %>%
             select(!!keepCols, !!necessaryCols)
           
