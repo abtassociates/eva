@@ -57,7 +57,6 @@ function(input, output, session) {
   output$changelog <- renderTable({
     tribble(
   ~Date, ~Change,
-  
   "01-26-2023", "Fixes GitHub issue 122. Modified tab structure to spread things
   out and simplify the Home tab.",
   
@@ -91,6 +90,11 @@ function(input, output, session) {
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
   })
+  observeEvent(input$timeOut, {
+    reset("imported")
+    session$close()
+  })
+
   observeEvent(input$imported, {
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
     
