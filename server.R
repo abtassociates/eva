@@ -57,6 +57,10 @@ function(input, output, session) {
   output$changelog <- renderTable({
     tribble(
   ~Date, ~Change,
+  
+  "01-26-2023", "Fixes GitHub issue 82. Now the app times out after 10 minutes
+  being idle.",
+  
   "01-26-2023", "Fixes GitHub issue 122. Modified tab structure to spread things
   out and simplify the Home tab.",
   
