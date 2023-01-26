@@ -62,10 +62,9 @@ dashboardPage(
               your HMIS. In future iterations it will also assist communities in
               analyzing HMIS performance data, including coordinated entry, if 
               your community utilizes HMIS for this purpose. Use of this tool is
-              not required by HUD.</p>
-                 <h4>To get started, click the button below...</h4>"
+              not required by HUD.</p>"
             ),
-            actionButton("Go_to_upload","Upload your HMIS CSV")
+            actionButton("Go_to_upload","Click here to get started")
           ),
           box(
             title = "Instructions",
