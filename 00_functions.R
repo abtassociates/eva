@@ -378,6 +378,7 @@ headerGeneric <- function(tabTitle, extraHTML = NULL) {
       h4("This tab will show relevant data once you have uploaded your HMIS CSV Export.")
     }
   })
+}
 
 logSessionData <- function() {
   # put the export info in the log
