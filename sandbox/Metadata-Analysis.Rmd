@@ -21,14 +21,10 @@ library(gt)
 folder_date <- "01-23-2023"
 
 visits <-
-  read_lines(here(paste0(
-    "www/metadata/site_visits.txt"
-  )))
+  read_lines(here("www/metadata/site_visits.txt"))
 
 uploads <-
-  read_lines(here(paste0(
-    "www/metadata/upload_metadata.txt"
-  )))
+  read_lines(here("www/metadata/upload_metadata.txt"))
 
 new_way <-
   read_csv(here(paste0(
@@ -40,6 +36,7 @@ new_way <-
          "Date" = Datestamp,
          "Event" = Details) %>%
   mutate(WeekEnding = ceiling_date(Date, unit = "week", week_start = 1))
+
 
 # building dataset
 visits_df <- data.frame(everything = visits) %>%
