@@ -372,7 +372,7 @@ headerGeneric <- function(tabTitle, extraHTML = NULL) {
            extraHTML
       )
     } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
+      h4("This tab will show relevant data once you have uploaded your HMIS CSV Export.")
     }
   })
 }
