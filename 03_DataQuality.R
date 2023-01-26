@@ -30,7 +30,9 @@ continuum_projects <- Project %>%
 # Projects to Check -------------------------------------------------------
 projects_current_hmis <- Project %>%
   filter(HMISParticipatingProject == 1 &
-           operating_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
+           operating_between(., 
+                             ymd(meta_HUDCSV_Export_Start),
+                             ymd(meta_HUDCSV_Export_End))) %>%
   select(
     ProjectID,
     OrganizationID,
@@ -2077,8 +2079,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
        )
      ) +
      geom_col(show.legend = FALSE,
-              color = "#DD614A",
-              fill = "#DD614A") +
+              color = "#16697A",
+              fill = "#16697A") +
      coord_flip() +
      labs(x = "",
           y = "Number of Enrollments") +
@@ -2111,8 +2113,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               y = Errors
             )) +
      geom_col(show.legend = FALSE,
-              color = "#DD614A",
-              fill = "#DD614A") +
+              color = "#16697A",
+              fill = "#16697A") +
      coord_flip() +
      labs(x = "",
           y = "Number of Enrollments") +
@@ -2151,8 +2153,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
        )
      ) +
      geom_col(show.legend = FALSE,
-              color = "#16697A",
-              fill = "#16697A") +
+              color = "#489FB5",
+              fill = "#489FB5") +
      coord_flip() +
      labs(x = "",
           y = "Number of Enrollments") +
@@ -2186,8 +2188,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
               y = Errors
             )) +
      geom_col(show.legend = FALSE,
-              color = "#16697A",
-              fill = "#16697A") +
+              color = "#489FB5",
+              fill = "#489FB5") +
      coord_flip() +
      labs(x = "",
           y = "Number of Enrollments") +
