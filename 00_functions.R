@@ -262,10 +262,10 @@ zip_initially_valid <- function () {
 
   valid_file(0)
   if(grepl("/", zipContents$Name[1])) {
-    title = "Your zip file is mis-structured"
+    title = "Your zip file is misstructured"
     err_msg = "It looks like you may have unzipped your HMIS csv because the
     individual csv files are contained within a subdirectory."
-    logMetadata("Unsuccessful upload - file was mistructured")
+    logMetadata("Unsuccessful upload - zip file was misstructured")
   } 
   else if(length(missing_files)) {
     title = "Missing Files"
@@ -307,6 +307,9 @@ zip_initially_valid <- function () {
 is_hashed <- function() {
   # read Export file
   Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
+
+  logSessionData()
+  
   # read Client file
   Client <- importFile("Client",
                        col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
@@ -351,6 +354,55 @@ logMetadata <- function(detail) {
   )
   
   filename <- "www/metadata/metadata.csv"
+  write_csv(
+    x = d,
+    filename,
+    append = TRUE,
+    col_names = !file.exists(filename)
+  )
+}
+
+headerGeneric <- function(tabTitle, extraHTML = NULL) {
+  renderUI({
+    if(valid_file() == 1) {
+      list(h2(tabTitle),
+           h4(strong("Date Range of Current File: "),
+            paste(
+             format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+             "to",
+             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+           )),
+           extraHTML
+      )
+    } else {
+      h4("This tab will show relevant data once you have uploaded your HMIS CSV Export.")
+    }
+  })
+}
+
+logSessionData <- function() {
+  # put the export info in the log
+  print(
+    paste(
+      session$token,
+      Sys.time(), 
+      "Imported Export.csv: ", 
+      split(Export, seq(nrow(head(Export,1))))
+    )
+  )
+  
+  d <- data.frame(
+    SessionToken = session$token,
+    Datestamp = Sys.time(),
+    CoC = Export$SourceID,
+    ExportID = Export$ExportID,
+    SourceContactFirst = Export$SourceContactFirst,
+    SourceContactLast = Export$SourceContactLast,
+    SourceContactEmail = Export$SourceContactEmail,
+    SoftwareName = Export$SoftwareName
+  )
+    
+  filename <- "www/metadata/sessiondata.csv"
   write_csv(
     x = d,
     filename,

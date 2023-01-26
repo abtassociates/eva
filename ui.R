@@ -7,6 +7,10 @@ dashboardPage(
       id = "sidebarmenuid",
       menuItem("Home",
                tabName = "tabHome"),
+      menuItem("Upload HMIS CSV Export",
+               tabName = "tabUpload"),
+      menuItem("Edit Local Settings",
+               tabName = "tabLocalSettings"),
       menuItem("View Client Counts",
                   tabName = "tabClientCount"),
       menuItem("Assess Data Quality",
@@ -15,7 +19,9 @@ dashboardPage(
                menuSubItem("System-level",
                            tabName = "tabDQSystem"),
                menuSubItem("Organization-level",
-                           tabName = "tabDQOrg"))
+                           tabName = "tabDQOrg")),
+      menuItem("View Changelog",
+               tabName = "tabChangelog")
         # menuSubItem("Data Entry Timeliness", 
         #             tabName = "tabDeskTime")
       # ),
@@ -66,10 +72,9 @@ dashboardPage(
         tabName = "tabHome",
         fluidRow(
           box(
-            title = "Welcome to Eva!",
             width = 12,
-            HTML(
-              "<p><b>Eva</b> is an <a href = 'https://github.com/abtassociates/eva'
+            HTML("<h2>Welcome to Eva!</h2>
+              <p><b>Eva</b> is an <a href = 'https://github.com/abtassociates/eva'
               target= '_blank' rel='noopener noreferrer'>open-source</a>
               project intended for local use by HMIS Administrators in Continuums
               of Care (CoCs) around the U.S. and its territories. Eva is designed
@@ -78,7 +83,8 @@ dashboardPage(
               analyzing HMIS performance data, including coordinated entry, if 
               your community utilizes HMIS for this purpose. Use of this tool is
               not required by HUD.</p>"
-            )
+            ),
+            actionButton("Go_to_upload","Click here to get started")
           ),
           box(
             title = "Instructions",
@@ -86,8 +92,7 @@ dashboardPage(
             collapsible = TRUE,
             collapsed = TRUE,
             HTML(
-              "<h4>What you'll need to use Eva</h4>
-              <p>Eva works by uploading a hashed 
+              "<p>Eva works by uploading a hashed 
               <a href='https://www.hudhdx.info/Resources/Vendors/HMIS_CSV_Specifications_FY2022_v1.3.pdf'
               target= '_blank' rel='noopener noreferrer'>HMIS CSV Export</a>.
               </p>
@@ -105,58 +110,9 @@ dashboardPage(
               </ul>
               
               <p>Once you have exported the correct file from your HMIS, you are
-              ready to engage with Eva. See the Instructions below for next steps.
-                 
-              <h4>Upload hashed HMIS CSV Export</h4>
-                 
-              <p>To upload your hashed HMIS CSV Export, click the \'Browse\'
-              button in the \'Upload Hashed HMIS CSV Export\' panel. Once you
-              find the zip file on your computer, select it and click \'Open\'.
-              Your file will begin uploading. Eva will check to determine if
-              the export is hashed. If it is not, Eva will reject the file with
-              an error message, and clear Eva's memory until you upload a hashed
-              HMIS CSV Export.</p>
+              ready to engage with Eva. Navigate to the \'Upload HMIS CSV Export\' tab
+              and follow the instructions there.</p>
               
-              <h4>HMIS CSV Export File Structure Analysis</h4>
-              <p>Once Eva verifies that your export is hashed, it will check
-              that the files have all the right names, columns, data types, and
-              allowable values. Eva will generate data quality issues that are
-              categorized as high priority errors, general errors, and warnings.
-              If there are any high priority errors that prevent Eva from
-              functioning, Eva will reject your upload, stop processing the export,
-              and clear Eva's memory.</p>
-              <p>All issues will display in the HMIS CSV File Structure Analysis
-              panel, where you can download the details, even if the file
-              was rejected. Users should contact their vendor to resolve high 
-              priority errors identified in the HMIS CSV Export File Structure
-              Analysis, as well as any other structural issues which you feel need
-              to be corrected. Not all structural issues found in this analysis will 
-              prevent the data from being accepted for analysis, so they may not 
-              require immediate attention. Once your vendor has addressed any
-              high priority structural errors, you can attempt another upload.</p>
-              
-              <p>Once you have uploaded a hashed and structurally sound zip file,
-              you will see a confirmation that your upload was successful, the date
-              range of the files you uploaded, plus the date your Export was 
-              downloaded from your HMIS.
-              
-              <h4>Edit CoC-specific Settings</h4>
-              <p>To make Eva reporting more useful at the local level, you can
-              adjust the CoC-specific settings to better analyze your data in a
-              way that is meaningful to the CoC. To edit these, click on the \'+\'
-              in the Edit CoC-specific Settings panel. If you do not edit them,
-              the reporting will use the defaults listed. These defaults do not
-              imply any HUD recommendations. Please read the description in the
-              Settings panel for more information.</p>
-              
-              <h4>Citations and Special Thanks</h4>
-              <p>This panel will credit the people who have helped make Eva possible!</p>
-              
-              <h4>Changelog</h4>
-              <p>This panel will list the most recent technical updates and changes to Eva.
-              For more in-depth information on current and past issues, please go to <a
-              href='https://github.com/abtassociates/eva/issues' target= '_blank'
-              rel='noopener noreferrer'>GitHub</a>.</p>
               ")
           ),
           box(
@@ -185,24 +141,113 @@ dashboardPage(
             )
           ), 
           box(
-            title = "Upload Hashed CSV zip file",
+            title = "Citations and Special Thanks",
+            width = 12,
+            collapsible = TRUE,
+            collapsed = TRUE,
+            HTML("
+                 <p>This project would not exist were it not for the existence of
+                 other quality, free and open source products. The following are
+                 citations for the products this app relies on.
+                              
+                 <p> The foundational code for the app was shared via AGPL license by 
+                 the Coalition on Homelessness and Housing in Ohio (<a href =
+                 'https://www.cohhio.org' 
+                 target= '_blank' rel='noopener noreferrer'>COHHIO</a>). 
+                 
+                 <p>R Core Team (2022). R: A language and environment for statistical
+                 computing. R Foundation for Statistical Computing. Vienna, Austria. 
+                 <a href = 'https://www.r-project.org' 
+                 target= '_blank' rel='noopener noreferrer'>R programming language</a>.
+                 
+                 <p>Wickham et al., (2019). Welcome to the tidyverse. <a href = 
+                 'https://doi.org/10.21105/joss.01686'
+                 target = '_blank' rel='noopener noreferrer'>Journal of Open Source
+                 Software</a>, 4(43), 1686, 
+                 <a href = 'https://cran.r-project.org/web/packages/tidyverse/index.html'
+                 target= '_blank' rel='noopener noreferrer'>Tidyverse package</a>.
+                 
+                 <p>Chang W, Cheng J, Allaire J, Sievert C, Schloerke B, Xie Y, Allen
+                 J, McPherson J, Dipert A, Borges B (2021). _shiny: Web Application
+                 Framework for R_. R package version 1.7.1, 
+                 <a href = 'https://cran.r-project.org/web/packages/shiny/index.html'
+                 target= '_blank' rel='noopener noreferrer'>R Shiny package</a>.
+                 
+                 <p>Chang W, Borges Ribeiro B (2021). _shinydashboard: Create
+                 Dashboards with 'Shiny'_. R package version 0.7.2, 
+                 <a href = 'https://CRAN.R-project.org/package=shinydashboard'
+                 target= '_blank' rel='noopener noreferrer'>shinydashboard package</a>.
+                 
+                 <p> Special thanks to 
+                 <a href=\"http://www.squarepegdata.com/\" 
+                 target= '_blank' rel='noopener noreferrer'>
+                 Square Peg Data</a>, the San Diego City and County CoC (CA-601),
+                 and the Minneapolis/Hennepin County CoC (MN-500) for providing
+                 sample datasets to support programming.")
+          )
+        )
+      ), 
+      tabItem(
+        tabName = "tabUpload",
+        fluidRow(box(htmlOutput("headerUpload"), width = 12)),
+        fluidRow(
+          box(
+            title = "Instructions",
+            collapsible = TRUE,
+            collapsed = TRUE,
+            width = 12,
+            HTML("
+                 <h4>Upload hashed HMIS CSV Export</h4>
+                 
+              <p>To upload your hashed HMIS CSV Export, click the \'Browse\'
+              button. Once you find the zip file on your computer, select it 
+              and click \'Open\'. Your file will begin uploading. Eva will check 
+              to determine if the export is hashed. If it is not, Eva will reject 
+              the file with an error message, and clear Eva's memory until you 
+              upload a hashed HMIS CSV Export.</p>
+              
+              <h4>HMIS CSV Export File Structure Analysis</h4>
+              <p>Once Eva verifies that your export is hashed, it will check
+              that the files have all the right names, columns, data types, and
+              allowable values. Eva will generate data quality issues that are
+              categorized as high priority errors, general errors, and warnings.
+              If there are any high priority errors that prevent Eva from
+              functioning, Eva will reject your upload, stop processing the export,
+              and clear Eva's memory.</p>
+              <p>All issues will display in the HMIS CSV File Structure Analysis
+              panel, where you can download the details, even if the file
+              was rejected. Users should contact their vendor to resolve high 
+              priority errors identified in the HMIS CSV Export File Structure
+              Analysis, as well as any other structural issues which you feel need
+              to be corrected. Not all structural issues found in this analysis will 
+              prevent the data from being accepted for analysis, so they may not 
+              require immediate attention. Once your vendor has addressed any
+              high priority structural errors, you can attempt another upload.</p>
+              
+              <p>Once you have uploaded a hashed and structurally sound zip file,
+              you will see a confirmation that your upload was successful, the date
+              range of the files you uploaded, plus the date your Export was 
+              downloaded from your HMIS.
+              ")
+          ),
+          box(
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
-            uiOutput("headerFileInfo"),
+            uiOutput("fileInfo"),
             width = 12
           ),
-        #,
-      # HTML(
-      #   "<h4>Referrals</h4>
-      #   <p>Please enter the number of days your CoC would consider a Referral
-      #     to be \"outstanding\"."
-      # ),
-      # numericInput(inputId = "OutstandingReferrals",
-      #              label = "Outstanding Referral Days:",
-      #              value = 7)
-      
+          #,
+          # HTML(
+          #   "<h4>Referrals</h4>
+          #   <p>Please enter the number of days your CoC would consider a Referral
+          #     to be \"outstanding\"."
+          # ),
+          # numericInput(inputId = "OutstandingReferrals",
+          #              label = "Outstanding Referral Days:",
+          #              value = 7)
+          
           box(
             title = "HMIS CSV Export File Structure Analysis",
             width = 12,
@@ -214,16 +259,36 @@ dashboardPage(
             </p>"),
             p(),
             uiOutput('downloadIntegrityBtn')
-          ), 
-      box(
-        title = "Edit CoC-specific Settings",
-        width = 12,
-        collapsible = TRUE,
-        collapsed = TRUE,
+          )
+        )
+      ),
+      tabItem(
+        tabName = "tabLocalSettings",
+        fluidRow(box(htmlOutput("headerLocalSettings"), width = 12)),
         fluidRow(
           box(
-            HTML(
-              "<h4>Long Stayers</h4>
+            title = "Instructions",
+            collapsible = TRUE,
+            collapsed = TRUE,
+            width = 12,
+            HTML("
+              <p>To make Eva reporting more useful at the local level, you can
+              adjust the local settings to better analyze your data in a
+              way that is meaningful to the CoC. To edit these, click on the 
+              Edit Local Settings tab. If you do not edit them, the reporting will 
+              use the defaults listed. These defaults do not imply any HUD 
+              recommendations. Please read the description in the
+              Edit Local Settings tab for more information.</p>
+              ")
+          ),
+          box(
+            title = "Long Stayers",
+            width = 12,
+            # collapsible = TRUE,
+            # collapsed = TRUE,
+            fluidRow(
+              box(
+                HTML("
                 <p>This check aims to help communities find enrollments that may
                 be missing an Exit Date. First, the tool calculates the number of
                 days each enrollment has been open (meaning, the number of days
@@ -274,160 +339,67 @@ dashboardPage(
                 would want an organization to confirm the client is still active in the 
                 project. You can set these based on your current data or leave them at
                 the defaults (these defaults do not imply any HUD recommendations)."
-            ),
-            column(
-              numericInput(
-                inputId = "ESNbNLongStayers",
-                label = "Emergency Shelter (NbN only!):",
-                value = 90,
-                min = 0,
-                max = 3650,
-                step = 5,
-                width = "200px"
-              ),
-              numericInput(
-                inputId = "OtherLongStayers",
-                label = "Other:",
-                value = 90,
-                min = 0,
-                max = 3650,
-                step = 5,
-                width = "200px"
-              ),
-              numericInput(
-                inputId = "DayShelterLongStayers",
-                label = "Day Shelter:",
-                value = 90,
-                min = 0,
-                max = 3650,
-                step = 5,
-                width = "200px"
-              ),
-              width = 6
-            ),
-            column(
-              numericInput(
-                inputId = "OUTLongStayers",
-                label = "Street Outreach:",
-                value = 90,
-                min = 0,
-                max = 3650,
-                step = 5,
-                width = "200px"
-              ),
-              numericInput(
-                inputId = "ServicesOnlyLongStayers",
-                label = "Services Only:",
-                value = 90,
-                min = 0,
-                max = 3650,
-                step = 5,
-                width = "200px"
-              ),
-              width = 6
-            ),
-            width = 12
+                ),
+                column(
+                  numericInput(
+                    inputId = "ESNbNLongStayers",
+                    label = "Emergency Shelter (NbN only!):",
+                    value = 90,
+                    min = 0,
+                    max = 3650,
+                    step = 5,
+                    width = "200px"
+                  ),
+                  numericInput(
+                    inputId = "OtherLongStayers",
+                    label = "Other:",
+                    value = 90,
+                    min = 0,
+                    max = 3650,
+                    step = 5,
+                    width = "200px"
+                  ),
+                  numericInput(
+                    inputId = "DayShelterLongStayers",
+                    label = "Day Shelter:",
+                    value = 90,
+                    min = 0,
+                    max = 3650,
+                    step = 5,
+                    width = "200px"
+                  ),
+                  width = 6
+                ),
+                column(
+                  numericInput(
+                    inputId = "OUTLongStayers",
+                    label = "Street Outreach:",
+                    value = 90,
+                    min = 0,
+                    max = 3650,
+                    step = 5,
+                    width = "200px"
+                  ),
+                  numericInput(
+                    inputId = "ServicesOnlyLongStayers",
+                    label = "Services Only:",
+                    value = 90,
+                    min = 0,
+                    max = 3650,
+                    step = 5,
+                    width = "200px"
+                  ),
+                  width = 6
+                ),
+                width = 12
+              )
+            )
           )
-        )
-      ),
-      box(
-        title = "Citations and Special Thanks",
-        width = 12,
-        collapsible = TRUE,
-        collapsed = TRUE,
-        HTML("
-             <p>This project would not exist were it not for the existence of
-             other quality, free and open source products. The following are
-             citations for the products this app relies on.
-                          
-             <p> The foundational code for the app was shared via AGPL license by 
-             the Coalition on Homelessness and Housing in Ohio (<a href =
-             'https://www.cohhio.org' 
-             target= '_blank' rel='noopener noreferrer'>COHHIO</a>). 
-             
-             <p>R Core Team (2022). R: A language and environment for statistical
-             computing. R Foundation for Statistical Computing. Vienna, Austria. 
-             <a href = 'https://www.r-project.org' 
-             target= '_blank' rel='noopener noreferrer'>R programming language</a>.
-             
-             <p>Wickham et al., (2019). Welcome to the tidyverse. <a href = 
-             'https://doi.org/10.21105/joss.01686'
-             target = '_blank' rel='noopener noreferrer'>Journal of Open Source
-             Software</a>, 4(43), 1686, 
-             <a href = 'https://cran.r-project.org/web/packages/tidyverse/index.html'
-             target= '_blank' rel='noopener noreferrer'>Tidyverse package</a>.
-             
-             <p>Chang W, Cheng J, Allaire J, Sievert C, Schloerke B, Xie Y, Allen
-             J, McPherson J, Dipert A, Borges B (2021). _shiny: Web Application
-             Framework for R_. R package version 1.7.1, 
-             <a href = 'https://cran.r-project.org/web/packages/shiny/index.html'
-             target= '_blank' rel='noopener noreferrer'>R Shiny package</a>.
-             
-             <p>Chang W, Borges Ribeiro B (2021). _shinydashboard: Create
-             Dashboards with 'Shiny'_. R package version 0.7.2, 
-             <a href = 'https://CRAN.R-project.org/package=shinydashboard'
-             target= '_blank' rel='noopener noreferrer'>shinydashboard package</a>.
-             
-             <p> Special thanks to 
-             <a href=\"http://www.squarepegdata.com/\" 
-             target= '_blank' rel='noopener noreferrer'>
-             Square Peg Data</a>, the San Diego City and County CoC (CA-601),
-             and the Minneapolis/Hennepin County CoC (MN-500) for providing
-             sample datasets to support programming.")
-      ),
-      box(
-        title = "Changelog",
-        collapsible = TRUE,
-        collapsed = TRUE,
-        width = 12,
-        tableOutput("changelog")
-      
-      )
-        )
-      ), 
-      tabItem(
-        tabName = "tabPDDE",
-        fluidRow(box(htmlOutput(
-          "headerPDDE"
-        ), width = 12)),
-        fluidRow(box(
-          title = "Instructions",
-          width = 12,
-          collapsible = TRUE,
-          collapsed = TRUE,
-          HTML("
-               <h4>Project Descriptor Data Element (PDDE) Check Summary</h4>
-               <p>Once you have successfully uploaded an HMIS CSV Export, you
-               will find a summary of each issue that was flagged in your data
-               regarding your PDDEs. Please download the details by clicking the
-               \'Download\' button.</p>
-               
-               <h4>Guidance</h4>
-               <p>For a description of each issue found, check the Guidance 
-               panel.</p>")
-        )),
-        fluidRow(
-          box(
-            id = "PDDESummaryOrganization",
-            title = paste("PDDE Check Summary"),
-            status = "info",
-            solidHeader = TRUE,
-            DT::dataTableOutput("pdde_summary_table"),
-            width = 12,
-            br(),
-            uiOutput("downloadPDDEReportButton")
-          ),
-          box(id = "PDDEGuidance",
-              DT::dataTableOutput("pdde_guidance_summary"),
-              title = "Guidance",
-              width = 12,
-              status = "info",
-              solidHeader = TRUE)
         )
       ),
       tabItem(
         tabName = "tabClientCount",
-        fluidRow(box(htmlOutput("headerCurrent"), width = 12)),
+        fluidRow(box(htmlOutput("headerClientCounts"), width = 12)),
         fluidRow(box(
           title = "Instructions",
           width = 12,
@@ -509,6 +481,46 @@ dashboardPage(
           DT::dataTableOutput("clientCountData"),
           width = 12
         ))
+      ),
+      tabItem(
+        tabName = "tabPDDE",
+        fluidRow(box(htmlOutput(
+          "headerPDDE"
+        ), width = 12)),
+        fluidRow(box(
+          title = "Instructions",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          HTML("
+               <h4>Project Descriptor Data Element (PDDE) Check Summary</h4>
+               <p>Once you have successfully uploaded an HMIS CSV Export, you
+               will find a summary of each issue that was flagged in your data
+               regarding your PDDEs. Please download the details by clicking the
+               \'Download\' button.</p>
+               
+               <h4>Guidance</h4>
+               <p>For a description of each issue found, check the Guidance 
+               panel.</p>")
+        )),
+        fluidRow(
+          box(
+            id = "PDDESummaryOrganization",
+            title = paste("PDDE Check Summary"),
+            status = "info",
+            solidHeader = TRUE,
+            DT::dataTableOutput("pdde_summary_table"),
+            width = 12,
+            br(),
+            uiOutput("downloadPDDEReportButton")
+          ),
+          box(id = "PDDEGuidance",
+              DT::dataTableOutput("pdde_guidance_summary"),
+              title = "Guidance",
+              width = 12,
+              status = "info",
+              solidHeader = TRUE)
+        )
       ),
       tabItem(
         tabName = "tabDQOrg",
@@ -660,6 +672,27 @@ dashboardPage(
             width = 12,
             status = "info",
             solidHeader = TRUE
+          )
+        )
+      ),
+      tabItem(
+        tabName = "tabChangelog",
+        fluidRow(box(HTML("<h2>Changelog</h2>"), width = 12)),
+        fluidRow(
+          box(
+            width = 12,
+            HTML("
+              <p>This tab will list the most recent technical updates and changes to Eva.
+              For more in-depth information on current and past issues, please go to <a
+              href='https://github.com/abtassociates/eva/issues' target= '_blank'
+              rel='noopener noreferrer'>GitHub</a>.</p>
+            ")
+          ),
+          box(
+            # collapsible = TRUE,
+            # collapsed = TRUE,
+            width = 12,
+            tableOutput("changelog")
           )
         )
       ),

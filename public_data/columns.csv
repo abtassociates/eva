@@ -340,8 +340,8 @@ Export,18,HashStatus,numeric,1,0
 Funder,1,FunderID,character,1,0
 Funder,2,ProjectID,character,1,0
 Funder,3,Funder,numeric,1,0
-Funder,4,OtherFunder,character,1,1
-Funder,5,GrantID,character,1,0
+Funder,4,OtherFunder,character,0,1
+Funder,5,GrantID,character,0,0
 Funder,6,StartDate,date,1,0
 Funder,7,EndDate,date,1,1
 Funder,8,DateCreated,datetime,0,0

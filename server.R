@@ -7,107 +7,94 @@ function(input, output, session) {
   source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
   
   
- showModal(modalDialog(
-    title = "Changelog Alert",
-    "Due to a recent update, Eva *may* reject exports that were previously
-    accepted. If this affects you, please see the changelog for more
-    information and contact your vendor.",
-    footer = modalButton("OK"),
-    size = "m",
-    easyClose = TRUE
-  ))
+ # showModal(modalDialog(
+ #    title = "Changelog Alert",
+ #    "Due to a recent update, Eva *may* reject exports that were previously
+ #    accepted. If this affects you, please see the changelog for more
+ #    information and contact your vendor.",
+ #    footer = modalButton("OK"),
+ #    size = "m",
+ #    easyClose = TRUE
+ #  ))
   
   
   logMetadata("Session started")
   valid_file <- reactiveVal(0)
 
-  output$headerFileInfo <- renderUI({
-    if(valid_file()) {
-      HTML(
-        paste0(
-          "<p>You have successfully uploaded your hashed HMIS CSV Export!</p>
-              <p><strong>Date Range of Current File: </strong>",
-          format(Export$ExportStartDate, "%m-%d-%Y"),
-          " to ",
-          format(meta_HUDCSV_Export_End, "%m-%d-%Y"),
-          "<p><strong>Export Date: </strong>",
-          format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
-        )
-      )
-    } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
-    }
+  observe({ 
+    logMetadata(paste("User on",input$sidebarmenuid))
   })
   
-  output$headerCurrent <- renderUI({
-    if(valid_file()) {
-      
-      organization <- Project0 %>%
-        filter(ProjectName == input$currentProviderList) %>%
-        pull(OrganizationName)
-      
-      list(h2("Client Counts Report"),
-           h4(paste(
-             organization,
-             "|",
-             input$currentProviderList,
-             "|",
-             format(input$dateRangeCount[1], "%m-%d-%Y"),
-             "to",
-             format(input$dateRangeCount[2], "%m-%d-%Y")
-             
-           )))
-    } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
-    }
-  })
+  output$headerUpload <- headerGeneric("Upload HMIS CSV Export",
+                              h4(strong("Export Date: "),
+                                   format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
+                              ))
   
-  output$headerPDDE <- renderUI({
-    if(valid_file()) {
-      list(h2("Project Descriptor Data Elements Checker"),
-         h4(paste(
-           format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-           "to",
-           format(meta_HUDCSV_Export_End, "%m-%d-%Y")
-         )))
-    } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
-    }
-  })
-  
-  output$headerSystemDQ <- renderUI({
+  output$fileInfo <- renderUI({
     if(valid_file() == 1) {
-      list(h2("System-level Data Quality"),
-           h4(
-             paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-                   "to",
-                   format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
-           ))
-    } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
+      HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
     }
   })
   
-  output$headerDataQuality <- renderUI({
-    if(valid_file()) {
-      list(h2("Organization-level Data Quality"),
-           h4(paste(
-             format(Export$ExportStartDate, "%m-%d-%Y"),
-             "to",
-             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
-           )))
-    } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
-    }
-  })
+  output$headerLocalSettings <- headerGeneric("Edit Local Settings")
+  
+  output$headerClientCounts <- headerGeneric("Client Counts Report", renderUI({ 
+    organization <- Project0 %>%
+      filter(ProjectName == input$currentProviderList) %>%
+      pull(OrganizationName)
+    
+    h4(paste(
+      organization, "|", input$currentProviderList
+    ))
+  }))
+  
+  output$headerPDDE <- headerGeneric("Project Descriptor Data Elements Checker")
+  
+  output$headerSystemDQ <- headerGeneric("System-level Data Quality")
+    
+  output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
 
-  output$changelog <- renderTable(changelog)
+  output$changelog <- renderTable({
+    tribble(
+  ~Date, ~Change,
+  "01-26-2023", "Fixes GitHub issue 122. Modified tab structure to spread things
+  out and simplify the Home tab.",
   
+  "01-26-2023", "Fixes GitHub issue 124. Modified plot color for High Priority
+  issues.",
+  
+  "01-23-2023", "Hotfix: Added improved metadata collection for troubleshooting
+  purposes.",
+  
+  "01-13-2023", "Hotfix: Set GrantID field so it is not considered a high priority column
+  so that it will no longer cause Eva to reject a file for incorrect data type.",
+  
+  "12-29-2022", "Fixes GitHub issue 118. Eva was not checking that all needed
+  csvs were in the export. Now it checks this and rejects the export if they are
+  not there.",
+  
+  "12-29-2022", "Fixes GitHub issue 118. Eva was missing some instances where a date
+  variable is of the wrong type (e.g. ymd_hms instead of ymd). Now it rejects
+  exports if an important variable has the wrong date type.",  
+  
+  "12-29-2022", "Client Counts report: if a user makes the Report Date Range so
+  that the Start > End, Eva now alerts the user in the data tables to check dates.",
+  
+  "12-29-2022", "Rewrote PDDE issues' Guidance so that it is general guidance,
+  then added Details column to include IDs to help admins find specific issues."
+  
+    )
+    
+  })
+  
+  observeEvent(input$Go_to_upload, {
+    updateTabItems(session, "sidebarmenuid", "tabUpload")
+  })
   observeEvent(input$timeOut, {
     reset("imported")
     session$close()
   })
-  
+
   observeEvent(input$imported, {
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
     
@@ -842,8 +829,8 @@ function(input, output, session) {
         )
       ) +
         geom_col(show.legend = FALSE,
-                 color = "#DD614A",
-                 fill = "#DD614A") +
+                 color = "#11697A",
+                 fill = "#11697A") +
         coord_flip() +
         labs(x = "",
              y = "Number of Enrollments") +
@@ -878,8 +865,8 @@ function(input, output, session) {
                y = Errors
              )) +
         geom_col(show.legend = FALSE,
-                 color = "#DD614A",
-                 fill = "#DD614A") +
+                 color = "#11697A",
+                 fill = "#11697A") +
         coord_flip() +
         labs(x = "",
              y = "Number of Enrollments") +
@@ -919,8 +906,8 @@ function(input, output, session) {
         )
       ) +
         geom_col(show.legend = FALSE,
-                 color = "#16697A",
-                 fill = "#16697A") +
+                 color = "#489FB5",
+                 fill = "#489FB5") +
         coord_flip() +
         labs(x = "",
              y = "Number of Enrollments") +
@@ -954,8 +941,8 @@ function(input, output, session) {
                y = Errors
              )) +
         geom_col(show.legend = FALSE,
-                 color = "#16697A",
-                 fill = "#16697A") +
+                 color = "#489FB5",
+                 fill = "#489FB5") +
         coord_flip() +
         labs(x = "",
              y = "Number of Enrollments") +
@@ -1231,6 +1218,10 @@ function(input, output, session) {
     )})
   
   }, ignoreInit = TRUE)
+  
+  session$onSessionEnded(function() {
+    logMetadata("Session Ended")
+  })
 }
   # output$headerCocDQ <- renderUI({
   #   req(!is.null(input$imported))
