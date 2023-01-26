@@ -58,8 +58,8 @@ function(input, output, session) {
     tribble(
   ~Date, ~Change,
   
-  "01-26-2023", "Modified tab structure to spread things out and simplify the 
-  Home tab.",
+  "01-26-2023", "Fixes GitHub issue 122. Modified tab structure to spread things
+  out and simplify the Home tab.",
   
   "01-26-2023", "Fixes GitHub issue 124. Modified plot color for High Priority
   issues.",
