@@ -516,6 +516,8 @@ function(input, output, session) {
               sep = "")
       },
       content = function(file) {
+        keepCols <- c("Organization", "Project ID", "Project Name")
+        
         
         # this initial dataset removes the person-specific enrollment days from those statuses (e.g. (660 days))
         validationDF <- client_count_data_df() %>%
@@ -523,7 +525,6 @@ function(input, output, session) {
         
         # this function pivots by project and gets the counts of people with each status
         pivot_and_sum <- function(df, isDateRange = FALSE) {
-          keepCols <- c("Organization", "Project ID", "Project Name")
           
           # make sure these columns are there; they wouldn't be after pivoting if nobody had that status
           necessaryCols <- c(
@@ -536,7 +537,7 @@ function(input, output, session) {
             necessaryCols,
             "Exited project",
             "Exited with Move-In",
-            "Exited without Move-In" = `Exited No Move-In`
+            "Exited No Move-In"
           )
             
           pivoted <- df %>%
@@ -553,7 +554,6 @@ function(input, output, session) {
               )
             ) %>%
             relocate(`Currently in Project`, .after=`Project Name`)
-          browser()
           return(pivoted)
         }
         
@@ -563,10 +563,10 @@ function(input, output, session) {
             "Exited Project" = case_when(
               ProjectType %in% c(3,13)
               ~ rowSums(select(.,`Exited with Move-In`,`Exited No Move-In`), na.rm=TRUE),
-              TRUE ~ `Exited Project`
+              TRUE ~ `Exited project`
             )
           ) %>%
-          relocate(`Exited Project`, .after=`Active No Move-In`) %>%
+          relocate(`Exited Project`, .after=`Currently Moved In`) %>%
           select(-c(`Currently in project`,`Exited project`,ProjectType))
         
         
@@ -574,10 +574,10 @@ function(input, output, session) {
         validationCurrent <- pivot_and_sum(validationDF %>% 
             filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
           ) %>%
-          select(-c(`Currently in project`,-`ProjectType`))
+          select(-c(`Currently in project`,ProjectType))
         
-        validationDetail = client_count_data_df() %>% # full dataset for the detail
-          select(clientCountDetailCols) 
+        validationDetail = validationDF %>% # full dataset for the detail
+          select(!!keepCols, !!clientCountDetailCols) 
         
         exportDFList <- list(
           validationCurrent = validationCurrent,
