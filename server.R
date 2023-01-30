@@ -96,7 +96,6 @@ function(input, output, session) {
   })
   observeEvent(input$timeOut, {
     reset("imported")
-    session$close()
   })
 
   observeEvent(input$imported, {
