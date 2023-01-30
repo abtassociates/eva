@@ -1,0 +1,448 @@
+su: ignoring --preserve-environment, it's mutually exclusive with --login
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+✔ ggplot2 3.3.6      ✔ purrr   0.3.5 
+✔ tibble  3.1.8      ✔ dplyr   1.0.10
+✔ tidyr   1.2.1      ✔ stringr 1.4.1 
+✔ readr   2.1.3      ✔ forcats 0.5.2 
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+
+Attaching package: ‘shinydashboard’
+
+The following object is masked from ‘package:graphics’:
+
+    box
+
+Loading required package: timechange
+
+Attaching package: ‘lubridate’
+
+The following objects are masked from ‘package:base’:
+
+    date, intersect, setdiff, union
+
+
+Attaching package: ‘scales’
+
+The following object is masked from ‘package:purrr’:
+
+    discard
+
+The following object is masked from ‘package:readr’:
+
+    col_factor
+
+
+Attaching package: ‘plotly’
+
+The following object is masked from ‘package:ggplot2’:
+
+    last_plot
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+The following object is masked from ‘package:graphics’:
+
+    layout
+
+
+Attaching package: ‘DT’
+
+The following objects are masked from ‘package:shiny’:
+
+    dataTableOutput, renderDataTable
+
+Loading required package: viridisLite
+
+Attaching package: ‘viridis’
+
+The following object is masked from ‘package:scales’:
+
+    viridis_pal
+
+
+Attaching package: ‘HMIS’
+
+The following object is masked from ‘package:lubridate’:
+
+    make_date
+
+
+Attaching package: ‘janitor’
+
+The following objects are masked from ‘package:stats’:
+
+    chisq.test, fisher.test
+
+
+Attaching package: ‘shinyjs’
+
+The following object is masked from ‘package:lubridate’:
+
+    show
+
+The following object is masked from ‘package:shinyWidgets’:
+
+    alert
+
+The following object is masked from ‘package:shiny’:
+
+    runExample
+
+The following objects are masked from ‘package:methods’:
+
+    removeClass, show
+
+
+Listening on http://127.0.0.1:43997
+here() starts at /srv/shiny-server/eva
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+Warning in max(AgeAtEntry) :
+  no non-missing arguments to max; returning -Inf
+Warning in min(RelationshipToHoH) :
+  no non-missing arguments to min; returning Inf
+Warning in min(PersonalID) : no non-missing arguments, returning NA
+Warning in min(PersonalID) : no non-missing arguments, returning NA
+No duplicate combinations found of: PersonalID, ProjectID, EntryDate
+Warning: Problem while computing `FirstDateProvided = min(DateProvided)`.
+ℹ no non-missing arguments to min; returning Inf
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+Warning: Error in filter: Problem while computing `..1 = HMISParticipatingProject == 1 & ...`.
+Caused by error in `rlang::set_names()`:
+! The size of `nm` (2) must be compatible with the size of `x` (1).
+  1: runApp
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+Warning: Error in filter: Problem while computing `..1 = HMISParticipatingProject == 1 & ...`.
+Caused by error in `rlang::set_names()`:
+! The size of `nm` (2) must be compatible with the size of `x` (1).
+  1: runApp
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+Warning in max(AgeAtEntry) :
+  no non-missing arguments to max; returning -Inf
+Warning in min(RelationshipToHoH) :
+  no non-missing arguments to min; returning Inf
+Warning in min(PersonalID) : no non-missing arguments, returning NA
+Warning in min(PersonalID) : no non-missing arguments, returning NA
+No duplicate combinations found of: PersonalID, ProjectID, EntryDate
+Warning: Problem while computing `FirstDateProvided = min(DateProvided)`.
+ℹ no non-missing arguments to min; returning Inf
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+Warning: Error in filter: Problem while computing `..1 = HMISParticipatingProject == 1 & ...`.
+Caused by error in `rlang::set_names()`:
+! The size of `nm` (2) must be compatible with the size of `x` (1).
+  1: runApp
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+Warning: Error in filter: Problem while computing `..1 = HMISParticipatingProject == 1 & ...`.
+Caused by error in `rlang::set_names()`:
+! The size of `nm` (2) must be compatible with the size of `x` (1).
+  1: runApp
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+Warning: Problem while computing `FirstDateProvided = min(DateProvided)`.
+ℹ no non-missing arguments to min; returning Inf
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+Warning: Error in : Tibble columns must have compatible sizes.
+• Size 15: Existing data.
+• Size 13: Column `CorrectColumns`.
+ℹ Only values of size one are recycled.
+  1: runApp
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+Warning: Problem while computing `FirstDateProvided = min(DateProvided)`.
+ℹ no non-missing arguments to min; returning Inf
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName', 'ProjectName'. You can
+override using the `.groups` argument.
+`summarise()` has grouped output by 'OrganizationName'. You can override using
+the `.groups` argument.
+`summarise()` has grouped output by 'Issue'. You can override using the
+`.groups` argument.
+Warning: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat)
+Warning: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat)
+`summarise()` has grouped output by 'PersonalID', 'FirstName', 'MiddleName',
+'LastName', 'NameSuffix', 'NameDataQuality', 'SSN', 'SSNDataQuality', 'DOB',
+'DOBDataQuality', 'AmIndAKNative', 'Asian', 'BlackAfAmerican',
+'NativeHIPacific', 'White', 'RaceNone', 'Ethnicity', 'Female', 'Male',
+'NoSingleGender', 'Transgender', 'Questioning', 'GenderNone', 'VeteranStatus',
+'YearEnteredService', 'YearSeparated', 'WorldWarII', 'KoreanWar', 'VietnamWar',
+'DesertStorm', 'AfghanistanOEF', 'IraqOIF', 'IraqOND', 'OtherTheater',
+'MilitaryBranch', 'DischargeStatus', 'DateCreated', 'DateUpdated', 'UserID',
+'DateDeleted'. You can override using the `.groups` argument.
+No duplicate combinations found of: PersonalID
+No duplicate combinations found of: EnrollmentID
+Warning: Error in filter: Problem while computing `..1 = HMISParticipatingProject == 1 & ...`.
+Caused by error in `rlang::set_names()`:
+! The size of `nm` (2) must be compatible with the size of `x` (1).
+  1: runApp
