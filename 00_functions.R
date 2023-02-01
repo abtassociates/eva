@@ -174,7 +174,7 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
     )
   
   dqReferralDetails <- dqReferrals %>%
-    filter(Issue == "Days Referral Active Exceeds CoC-specific Settings") %>%
+    filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
     select(OrganizationName,
            ProjectID,
            ProjectName,
@@ -361,16 +361,26 @@ calculate_long_stayers <- function(input, projecttype){
 calculate_outstanding_referrals <- function(input, projecttype){
   
   served_in_date_range %>%
+    left_join(Event %>% select(EnrollmentID,
+                               EventID,
+                               EventDate,
+                               Event,
+                               ProbSolDivRRResult,
+                               ReferralCaseManageAfter,
+                               LocationCrisisOrPHHousing,
+                               ReferralResult,
+                               ResultDate),
+              by = "EnrollmentID") %>%
     select(all_of(vars_prep), ProjectID, EventID, EventDate, ResultDate, Event) %>%
     mutate(
       Days = 
         as.numeric(
           difftime(as.Date(meta_HUDCSV_Export_Date), EventDate, units = "days")),
-      Issue = "Days Referral Active Exceeds CoC-specific Settings",
+      Issue = "Days Referral Active Exceeds Local Settings",
       Type = "Warning",
       Guidance = str_squish("You have at least one active referral that has been
          active without a Result Date for longer than the days set in your
-         CoC-specific Settings on the Home tab."),
+         Local Settings on the Home tab."),
       EventType = case_when(
         Event == 10 ~ "Referral to Emergency Shelter bed opening",
         Event == 11 ~ "Referral to Transitional Housing bed/unit opening",
