@@ -589,7 +589,7 @@ function(input, output, session) {
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | PreviousOrganizationName %in% c(input$orgList))
       
-      orgDQReferrals <- calculate_outstanding_referrals() %>%
+      orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals, c(0:4,6:14)) %>%
         filter(OrganizationName %in% c(input$orgList))
       
       getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals)
@@ -597,7 +597,8 @@ function(input, output, session) {
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName", calculate_outstanding_referrals())
+      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName",
+                          calculate_outstanding_referrals(input$CEOutstandingReferrals, c(0:4,6:14)))
     })
     
     output$downloadOrgDQReport <- downloadHandler(
