@@ -7,15 +7,15 @@ function(input, output, session) {
   source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
   
   
- showModal(modalDialog(
-    title = "Changelog Alert",
-    "Due to a recent update, Eva *may* reject exports that were previously
-    accepted. If this affects you, please see the changelog for more
-    information and contact your vendor.",
-    footer = modalButton("OK"),
-    size = "m",
-    easyClose = TRUE
-  ))
+ # showModal(modalDialog(
+ #    title = "Changelog Alert",
+ #    "Due to a recent update, Eva *may* reject exports that were previously
+ #    accepted. If this affects you, please see the changelog for more
+ #    information and contact your vendor.",
+ #    footer = modalButton("OK"),
+ #    size = "m",
+ #    easyClose = TRUE
+ #  ))
   
   
   logMetadata("Session started")
@@ -57,6 +57,22 @@ function(input, output, session) {
   output$changelog <- renderTable({
     tribble(
   ~Date, ~Change,
+  
+  "01-26-2023", "Fixes GitHub issue 82. Now the app times out after 10 minutes
+  being idle.",
+  
+  "01-26-2023", "Fixes GitHub issue 122. Modified tab structure to spread things
+  out and simplify the Home tab.",
+  
+  "01-26-2023", "Fixes GitHub issue 124. Modified plot color for High Priority
+  issues.",
+  
+  "01-23-2023", "Hotfix: Added improved metadata collection for troubleshooting
+  purposes.",
+  
+  "01-13-2023", "Hotfix: Set GrantID field so it is not considered a high priority column
+  so that it will no longer cause Eva to reject a file for incorrect data type.",
+  
   "12-29-2022", "Fixes GitHub issue 118. Eva was not checking that all needed
   csvs were in the export. Now it checks this and rejects the export if they are
   not there.",
@@ -78,6 +94,11 @@ function(input, output, session) {
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
   })
+  observeEvent(input$timeOut, {
+    reset("imported")
+    session$close()
+  })
+
   observeEvent(input$imported, {
     source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
     
@@ -145,15 +166,10 @@ function(input, output, session) {
       DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
       ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
       
-      #Calculating potential old referrals based on CoC-specific settings
-      CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals, c(0:4,6:14)) %>%
-        select(all_of(vars_we_want))
-      
       x <- dq_main %>%
-        filter(!Issue %in% c("Days Enrollment Active Exceeds CoC-specific Settings", 
-                             "Days Referral Active Exceeds CoC-specific Settings"))
+        filter(!Issue %in% c("Days Enrollment Active Exceeds CoC-specific Settings"))
       
-      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other, CE_Event)
+      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other)
       
     })
     
@@ -554,6 +570,126 @@ function(input, output, session) {
       )
     })
     
+    #### LIST OF ALL EVA CHECKS #### -------------
+    
+    # All checks in a given upload, limited columns
+    
+    # output$upload_dq_checks <- DT::renderDataTable({
+    #   
+    #   dqChecks <- dq_main_reactive() %>%
+    #     select(Type, Issue, Guidance) %>%
+    #     mutate(Type = factor(Type, levels = c("High Priority",
+    #                                           "Error",
+    #                                           "Warning"))) %>%
+    #     arrange(Type, Issue) %>%
+    #     unique()
+    #   
+    #   datatable(guidance, 
+    #             rownames = FALSE,
+    #             escape = FALSE,
+    #             filter = 'top',
+    #             options = list(dom = 'ltpi'))
+    # })
+    
+    # All checks regardless of upload with added column(s)
+    
+        dqChecks <- dq_main %>%
+        select(Type, Issue, Guidance) %>%
+        mutate(Type = factor(Type, levels = c("High Priority",
+                                              "Error",
+                                              "Warning")),
+               
+               #Create a new HMIS Data Element column for each check
+               DataElement = case_when(
+                 #UDE Checks
+                 Issue %in% c("Invalid SSN",
+                            "Don't Know/Refused SSN") ~ "3.02 - Social Security Number",
+                 Issue == "Missing Disabling Condition" ~ "3.08 - Disabling Condition",
+                 Issue %in% c("Missing Name Data Quality",
+                            "Incomplete or Don't Know/Refused Name") ~ "3.01.5 - Name",
+                 Issue == "Missing DOB" ~ "3.03.1 - Date of Birth",
+                 Issue %in% c("Missing DOB Data Quality",
+                            "Don't Know/Refused/Data Not Collected DOB") ~ "3.03.2 - Date of Birth",
+                 Issue %in% c("Missing Race",
+                            "Don't Know/Refused Race") ~ "3.04 - Race",
+                 Issue %in% c("Missing Ethnicity",
+                              "Don't Know/Refused Ethnicity") ~ "3.05 - Ethnicity",
+                 Issue %in% c("Missing Gender",
+                              "Don't Know/Refused Gender") ~ "3.06 - Gender",
+                 Issue %in% c("Missing Veteran Status",
+                              "Don't Know/Refused Veteran Status") ~ "3.07 - Veteran Status",
+                 Issue %in% c("Missing Destination",
+                            "Don't Know/Refused Destination") ~ "3.12 - Destination",
+                 Issue %in% c("No Head of Household", 
+                              "Too Many Heads of Household", 
+                              "Missing Relationship to Head of Household") ~ "3.15 - Relationship to Head of Household",
+                 Issue == "Missing Client Location" ~ "3.16 - Client Location",
+                 Issue %in% c("Invalid Move-In Date",
+                              "Possible Missed Move-In Date") ~ "3.20 - Housing Move-In Date",
+                 
+                 #UDE Checks - 3.917
+                 Issue == "Missing Length of Stay" ~ "3.917.2 - Prior Living Situation",
+                 Issue %in% c("Incomplete Living Situation Data",
+                              "Don't Know/Refused Living Situation") ~ "3.917 - Prior Living Situation",
+                 Issue == "Missing Approximate Date Homeless" ~ "3.917.3 - Prior Living Situation",
+                 Issue == "Missing Previously Unsheltered, ES, SH" ~ "3.917.2c - Prior Living Situation",
+                 Issue %in% c("Missing Residence Prior",
+                              "Don't Know/Refused Residence Prior") ~ "3.917.1 - Living Situation",
+                 Issue %in% c("Missing Months or Times Homeless",
+                              "Don't Know/Refused Months or Times Homeless") ~ "3.917.4, 3.917.5 - Prior Living Situation",
+
+                 #SSVF Checks
+                 Issue %in% c("Missing Year Entered Service", 
+                              "Incorrect Year Entered Service") ~ "V1.1 - Year Entered Military Service",
+                 Issue %in% c("Missing Year Separated", 
+                              "Incorrect Year Separated") ~ "V1.2 - Year Separated from Military Service",
+                 Issue %in% c("Missing War(s)",
+                              "Don't Know/Refused War(s)") ~ "V1.3-V1.10 - Theater of Operations",
+                 Issue %in% c("Missing Military Branch",
+                            "Don't Know/Refused Military Branch") ~ "V1.11 - Branch of the Military",
+                 Issue %in% c("Missing Discharge Status",
+                              "Don't Know/Refused Discharge Status") ~ "V1.12 - Discharge Status",
+                 Issue == "Missing Percent AMI" ~ "V4 - Percent of AMI (SSVF Eligibility)",
+                 Issue == "Missing VAMC Station Number" ~ "V6 - VAMC Station Number",
+                 Issue == "Missing Some or All of Last Permanent Address" ~ "V5 - Last Permanent Address",
+                 Issue == "Missing HP Screening or Threshold Score" ~ "V7 - HP Targeting Criteria",
+                 
+                 #Other Program Specific Data Element Checks
+                 Issue %in% c("Income Missing at Entry", 
+                              "Income Missing at Exit",
+                              "Conflicting Income yes/no at Entry",
+                              "Conflicting Income yes/no at Exit") ~ "4.02 - Income and Sources",
+                 Issue %in% c("Health Insurance Missing at Entry", 
+                              "Health Insurance Missing at Exit", 
+                              "Conflicting Health Insurance yes/no at Entry",
+                              "Conflicting Health Insurance yes/no at Exit") ~ "4.04 - Health Insurance",
+                 Issue %in% c("Non-cash Benefits Missing at Entry", 
+                              "Conflicting Non-cash benefits yes/no at Entry") ~ "4.03 - Non-Cash Benefits",
+                 
+                 #Enrollment Checks
+                 Issue == "Incorrect DOB or Entry Date" ~ "3.03 - Date of Birth, 3.10 - Project Start Date",
+                 Issue == "Oldest Household Member Under 12" ~ "3.03 - Date of Birth, 5.09 Household Identifier",
+                 Issue == "Duplicate Entries" ~ "3.10 - Project Start Date, 3.11 - Project Exit Date",
+                 Issue == "Entry Precedes Project's Operating Start" ~ "2.02.3 - Operating Start Date, 3.10 - Project Entry Date",
+                 Issue == "Oldest Household Member Under 12" ~ "3.03 Date of Birth, 5.09 - Household Identifier",
+                 Issue == "Exit After Project's Operating End Date" ~ "2.02.4 - Operating End Date, 3.11 - Project Exit Date",
+                 Issue == "Homelessness Start Date Later Than Entry" ~ "3.10 - Project Start Date, 3.917.3 - Prior Living Situation",
+                 Issue == "Invalid Homelessness Start Date/Number of Months Homeless" ~ "3.10 - Project Start Date, 3.917.3 - Date Homelessness Started, 3.917.4 - Times Homeless in Past 3 Years",
+                 Issue %in% c("Future Project Start Date", 
+                              "Future Entry Date") ~ "3.10 - Project Start Date",
+                 Issue %in% c("Future Project Exit Date", 
+                              "Project Exit Before Start",
+                              "Possible Missed Exit Date") ~ "3.11 - Project Exit Date",
+                 Guidance == "This enrollment overlaps with another enrollment that would indicate a 
+      household spent the same night in different inventory beds. Please review
+      the HMIS Dual Enrollments and HIC Duplicate Inventory Training Resource for
+      more information." ~ "3.10 - Project Start Date, 3.11 - Project Exit Date"
+               )) %>%
+        arrange(Type, Issue) %>%
+        unique() %>%
+        select(Type, Issue, Guidance, DataElement)
+
+    
     #### DQ ORG REPORT #### ----------------------
     # button
     output$downloadOrgDQReportButton  <- renderUI({
@@ -573,16 +709,12 @@ function(input, output, session) {
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | PreviousOrganizationName %in% c(input$orgList))
       
-      orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals, c(0:4,6:14)) %>%
-        filter(OrganizationName %in% c(input$orgList))
-      
-      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals)
+      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName")
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName",
-                          calculate_outstanding_referrals(input$CEOutstandingReferrals, c(0:4,6:14)))
+      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName")
     })
     
     output$downloadOrgDQReport <- downloadHandler(
