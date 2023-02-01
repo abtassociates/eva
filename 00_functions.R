@@ -343,11 +343,11 @@ calculate_long_stayers <- function(input, projecttype){
       Days = 
         as.numeric(
           difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate, units = "days")),
-      Issue = "Days Enrollment Active Exceeds CoC-specific Settings",
+      Issue = "Days Enrollment Active Exceeds Local Settings",
       Type = "Warning",
       Guidance = str_squish("You have at least one active enrollment that has been
          active for longer than the days set for this Project Type in your
-         CoC-specific Settings on the Home tab.")
+         Local Settings on the Home tab.")
     ) %>%
     filter(is.na(ExitDate) &
              ProjectType == projecttype &
