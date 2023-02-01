@@ -306,13 +306,12 @@ function(input, output, session) {
       req(valid_file() == 1)
       provider <- input$providerDeskTime
       
-      ReportStart <- ymd(meta_HUDCSV_Export_Start - years(1))
-      ReportEnd <- ymd(meta_HUDCSV_Export_End)
+      date_range_days <- 
+        as.numeric(meta_HUDCSV_Export_End - meta_HUDCSV_Export_Start)
       
       desk_time <- validation %>%
         filter(ProjectName == provider &
-                 entered_between(., ReportStart, ReportEnd) &
-                 ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
+                 entered_between(., meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End)) %>%
         select(ProjectName, PersonalID, HouseholdID, EntryDate, DateCreated) %>%
         mutate(
           DeskTime = difftime(floor_date(DateCreated, unit = "day"),
@@ -353,8 +352,8 @@ function(input, output, session) {
           aes(yintercept = MedianDeskTime),
           color = "black"
         ) +
-        xlim(today() - years(1), today()) +
-        geom_label(x = today() - days(180),
+        geom_ribbon(aes(ymin = 0, ymax = 5), fill = "forestgreen", alpha = .2) +
+        geom_label(x = meta_HUDCSV_Export_Start + days(floor(date_range_days/2)),
                    y = desk_time_medians %>%
                      pull(MedianDeskTime),
                    label = paste("Median:", 
@@ -363,12 +362,16 @@ function(input, output, session) {
                                  "days | Total Clients:",
                                  desk_time_medians %>%
                                    pull(TotalEntered))) +
-        geom_label(x = today() - days(300),
+        geom_label(x = meta_HUDCSV_Export_Start + days(floor(date_range_days/3)),
                    y = 5,
                    label = "DQ Standards (5 days or less)") +
         labs(x = "Entry Date",
              y = "Data Entry Delay (in days)") +
-        theme_minimal(base_size = 18)
+        theme_minimal(base_size = 18) +
+        scale_x_date(date_breaks = "3 months",
+                     date_minor_breaks = "1 month",
+                     date_labels = "%b-%Y") +
+        theme(axis.text.x = element_text(angle = 35))
       
       dq_plot_desk_time
     })
@@ -1129,16 +1132,12 @@ function(input, output, session) {
   #        )
   # })
   # 
-  # output$headerDeskTime <- renderUI({
-  #   req(valid_file() == 1)
-  #   list(h2("Data Entry Timeliness"),
-  #        h4(input$providersDeskTime),
-  #        h4(paste("Fixed Date Range:",
-  #                 format(today() - years(1), "%m-%d-%Y"),
-  #                 "to",
-  #                 format(today(), "%m-%d-%Y"))))
-  # })
-  
+  output$headerDeskTime <- renderUI({
+    req(valid_file() == 1)
+    list(h2("Data Entry Timeliness"),
+         h4(input$providersDeskTime))
+  })
+
   # output$headerExitsToPH <- renderUI({
   #   req(valid_file() == 1)
   #   ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
@@ -1236,44 +1235,7 @@ function(input, output, session) {
   #                format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
   #        ))
   # })
-  # output$deskTimeNote <- renderUI({
-  #   HTML(
-  #     "<h4>HUD and Data Quality</h4>
-  #       <p>HUD defines \"Data Quality\" as having three elements:
-  #   1. Accuracy, 2. Completeness, and 3. Timeliness. Data Entry Delay (aka
-  #   \"Desk Time\") refers to how long it is taking to enter a client into HMIS
-  #   from the day they enter your project.
-  #   <h4>Ohio Balance of State CoC Data Standards</h4>
-  #   <p>According to the Data Quality Standards for the Ohio Balance of State
-  #   CoC, all clients should be entered within 5 days of their entry into your
-  #   project.
-  #   <h4>How Do We Fix This?</h4>
-  #   <p><strong>There is nothing a user can do</strong> to \"correct\" a client
-  #   entered into the system outside the window. We can only resolve to enter
-  #   clients within the 5-day range going forward. As you catch up on data entry,
-  #   you may see your median get worse at first, but this data looks back exactly
-  #   one year, so any clients with an Entry Date over a year ago will fall off
-  #   of this plot and your median will change accordingly.
-  #   <h4>Interpretation</h4>
-  #   <p>Green dots here represent clients entered within the range and orange
-  #   dots represent clients entered outside the range. The darker the dot, the
-  #   more clients entered your project on that day. (Likely a household.)
-  #   <p>The metric COHHIO looks at here is the Median, so if you have orange dots
-  #   but your Median is within the 5 day range, that is great!
-  #   <p>If you have orange dots BELOW the 0 mark, that means you entered Entry
-  #   Dates into the future, which means there is potentially a mis-keyed date or
-  #   the user needs technical assistance about how to know what date to enter for
-  #   the Entry Date. If this is the case, please email the HMIS team.
-  #           <h4>Is it possible there's a mistake?</h4>
-  #   It's rare that this occurs, but if an Entry Exit has been created, deleted,
-  #   and then recreated, the Entry Exit's \"Date Created\" date is reset,
-  #   thus inflating the number of days between the Date Created and the Entry Date.
-  #   If you need us to check if this was the case for a particular dot on the
-  #   plot, please email us with the provider and number of days it is
-  #   displaying that you think may be incorrect so we can verify if this is the
-  #       issue."
-  #   )})
-  
+
 # output$headerUtilization <- renderUI({
 #   list(h2("Bed and Unit Utilization"),
 #        h4(input$providerListUtilization),
@@ -1283,17 +1245,6 @@ function(input, output, session) {
 #        )
 # })
 
-# output$headerDeskTime <- renderUI({
-#   list(h2("Data Entry Timeliness"),
-#        h4(input$providersDeskTime),
-#        h4(paste("Fixed Date Range:",
-#                 format(today() - years(1), "%m-%d-%Y"),
-#                 "to",
-#                 format(today(), "%m-%d-%Y"))))
-# })
-
-  
-  
   # output$cocDQErrors <- renderPlot(dq_plot_projects_errors)
   # 
   # output$cocHHErrors <- renderPlot(dq_plot_hh_errors)

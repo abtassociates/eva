@@ -14,6 +14,8 @@ dashboardPage(
       menuItem("View Client Counts",
                   tabName = "tabClientCount"),
       menuItem("Assess Data Quality",
+               menuSubItem("Data Entry Timeliness",
+                           tabName = "tabDeskTime"),
                menuSubItem("Check PDDEs",
                            tabName = "tabPDDE"),
                menuSubItem("System-level",
@@ -22,10 +24,8 @@ dashboardPage(
                            tabName = "tabDQOrg")),
       menuItem("View Changelog",
                tabName = "tabChangelog")
-        # menuSubItem("Data Entry Timeliness", 
-        #             tabName = "tabDeskTime")
-      # ),
-      # menuItem("System Analysis",
+    )
+    # menuItem("System Analysis",
       #          menuSubItem("System Flow",
       #                      tabName = "tabSystemFlow"),
       #          menuSubItem("Outcomes",
@@ -38,8 +38,7 @@ dashboardPage(
       #                      tabName = "tabDiversion"),
       #          menuSubItem("Prioritization",
       #                      tabName = "tabPrioritized"))
-    )
-  ), 
+    ), 
   dashboardBody(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
