@@ -570,27 +570,6 @@ function(input, output, session) {
       )
     })
     
-    #### LIST OF ALL EVA CHECKS #### -------------
-    
-    # All checks in a given upload, limited columns
-    
-    # output$upload_dq_checks <- DT::renderDataTable({
-    #   
-    #   dqChecks <- dq_main_reactive() %>%
-    #     select(Type, Issue, Guidance) %>%
-    #     mutate(Type = factor(Type, levels = c("High Priority",
-    #                                           "Error",
-    #                                           "Warning"))) %>%
-    #     arrange(Type, Issue) %>%
-    #     unique()
-    #   
-    #   datatable(guidance, 
-    #             rownames = FALSE,
-    #             escape = FALSE,
-    #             filter = 'top',
-    #             options = list(dom = 'ltpi'))
-    # })
-    
     #### DQ ORG REPORT #### ----------------------
     # button
     output$downloadOrgDQReportButton  <- renderUI({
@@ -610,12 +589,15 @@ function(input, output, session) {
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | PreviousOrganizationName %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName")
+      orgDQReferrals <- calculate_outstanding_referrals() %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals)
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName")
+      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName", calculate_outstanding_referrals())
     })
     
     output$downloadOrgDQReport <- downloadHandler(
