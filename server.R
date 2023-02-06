@@ -58,6 +58,12 @@ function(input, output, session) {
     tribble(
   ~Date, ~Change,
   
+  "02/09/2023", "Added Outstanding Referrals as a Warning. Eva users can set
+  what constitutes and outstanding referral for their CoC on the Edit Local
+  Settings tab. The issue will show in the download on the Warnings tab and
+  on its own tab called Referrals so that end users can see which Referral is
+  considered outstanding.",
+  
   "01-26-2023", "Fixes GitHub issue 82. Now the app times out after 10 minutes
   being idle.",
   
