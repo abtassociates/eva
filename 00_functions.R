@@ -370,7 +370,7 @@ calculate_long_stayers <- function(input, projecttype){
       Type = "Warning",
       Guidance = str_squish("You have at least one active enrollment that has been
          active for longer than the days set for this Project Type in your
-         Local Settings on the Home tab.")
+         Referral settings on the Edit Local Settings tab.")
     ) %>%
     filter(is.na(ExitDate) &
              ProjectType == projecttype &
@@ -381,7 +381,7 @@ calculate_long_stayers <- function(input, projecttype){
 
 # Outstanding Referrals --------------------------------------------
 
-calculate_outstanding_referrals <- function(input, projecttype){
+calculate_outstanding_referrals <- function(input){
   
   served_in_date_range %>%
     left_join(Event %>% select(EnrollmentID,
