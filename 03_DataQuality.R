@@ -55,7 +55,7 @@ served_in_date_range <- Enrollment %>%
               select(-DateCreated), by = "PersonalID") %>%
   left_join(Project %>% select(ProjectID, TrackingMethod, OrganizationName),
             by = "ProjectID") %>%
-    select(
+  select(
     PersonalID,
     FirstName,
     NameDataQuality,
@@ -103,7 +103,7 @@ served_in_date_range <- Enrollment %>%
     DateOfPATHStatus,
     ReasonNotEnrolled,
     ClientLocation,
-    TrackingMethod,
+    TrackingMethod
   ) %>%
   inner_join(projects_current_hmis, by = "ProjectID")
 
