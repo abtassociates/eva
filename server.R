@@ -173,7 +173,7 @@ function(input, output, session) {
       ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
       
       #Calculating potential old referrals based on Local settings
-      CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals, c(0:4,6:14)) %>%
+      CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
         select(all_of(vars_we_want))
       
       x <- dq_main %>%
