@@ -44,6 +44,14 @@ projects_current_hmis <- Project %>%
   ) %>% unique()
 
 # Clients to Check --------------------------------------------------------
+
+# served_in_date_range is meant to serve as a basic dataset with a granularity
+# of 1 enrollment per row. if other data needs to be joined to this for specific
+# data quality checks that will alter the granularity, please join to it when
+# you're building that data frame.
+# this will keep the served_in_date_range more compact and of the same
+# granularity for consistency
+
 served_in_date_range <- Enrollment %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
