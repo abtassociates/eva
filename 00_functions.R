@@ -126,63 +126,73 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
   return(data)
 }
 
-getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL, dqReferrals = NULL) {
-  select_list = c("Organization Name" = "OrganizationName",
-                  "Project ID" = "ProjectID",
-                  "Project Name" = "ProjectName",
-                  "Issue" = "Issue",
-                  "Personal ID" = "PersonalID",
-                  "Household ID" = "HouseholdID",
-                  "Entry Date"= "EntryDate")
-  
-  high_priority <- dqData %>% 
-    filter(Type == "High Priority") %>% 
-    select(all_of(select_list))
-  
-  errors <- dqData %>%
-    filter(Type == "Error") %>% 
-    select(all_of(select_list))
-  
-  warnings <- dqData %>%
-    filter(Type == "Warning") %>% 
-    select(all_of(select_list))
-  
-  dqOverlapDetails <- dqOverlaps %>%
-    select(-c(Issue, Type, Guidance, PreviousIssue)) %>%
-    relocate(OrganizationName,
-            ProjectID,
-            ProjectName,
-            ProjectType,
-            EnrollmentID,
-            HouseholdID,
-            PersonalID,
-            EntryDate,
-            FirstDateProvided,
-            "MoveInDate" = MoveInDateAdjust,
-            ExitDate,
-            PreviousOrganizationName,
-            PreviousProjectID,
-            PreviousProjectName,
-            PreviousProjectType,
-            PreviousEnrollmentID,
-            PreviousHouseholdID,
-            PreviousPersonalID,
-            PreviousEntryDate,
-            PreviousFirstDateProvided,
-            "PreviousMoveInDate" = PreviousMoveInDateAdjust,
-            PreviousExitDate
+getDQReportDataList <-
+  function(dqData,
+           dqOverlaps = NULL,
+           bySummaryLevel = NULL,
+           dqReferrals = NULL) {
+    
+    select_list <- c(
+      "Organization Name" = "OrganizationName",
+      "Project ID" = "ProjectID",
+      "Project Name" = "ProjectName",
+      "Issue" = "Issue",
+      "Personal ID" = "PersonalID",
+      "Household ID" = "HouseholdID",
+      "Entry Date" = "EntryDate"
     )
-  
-  dqReferralDetails <- dqReferrals %>%
-    filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
-    select(OrganizationName,
-           ProjectID,
-           ProjectName,
-           EventID,
-           PersonalID,
-           EventDate,
-           EventType,
-           Days)
+    
+    high_priority <- dqData %>%
+      filter(Type == "High Priority") %>%
+      select(all_of(select_list))
+    
+    errors <- dqData %>%
+      filter(Type == "Error") %>%
+      select(all_of(select_list))
+    
+    warnings <- dqData %>%
+      filter(Type == "Warning") %>%
+      select(all_of(select_list))
+    
+    dqOverlapDetails <- dqOverlaps %>%
+      select(-c(Issue, Type, Guidance, PreviousIssue)) %>%
+      relocate(
+        OrganizationName,
+        ProjectID,
+        ProjectName,
+        ProjectType,
+        EnrollmentID,
+        HouseholdID,
+        PersonalID,
+        EntryDate,
+        FirstDateProvided,
+        "MoveInDate" = MoveInDateAdjust,
+        ExitDate,
+        PreviousOrganizationName,
+        PreviousProjectID,
+        PreviousProjectName,
+        PreviousProjectType,
+        PreviousEnrollmentID,
+        PreviousHouseholdID,
+        PreviousPersonalID,
+        PreviousEntryDate,
+        PreviousFirstDateProvided,
+        "PreviousMoveInDate" = PreviousMoveInDateAdjust,
+        PreviousExitDate
+      )
+    
+    dqReferralDetails <- dqReferrals %>%
+      filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
+      select(
+        OrganizationName,
+        ProjectID,
+        ProjectName,
+        EventID,
+        PersonalID,
+        EventDate,
+        EventType,
+        Days
+      )
   
   mainsummary <- rbind(
       dqData %>% select(Type, Issue, PersonalID),
@@ -191,6 +201,7 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
     # group_by(ProjectName, Type, Issue) %>%
     group_by(Type, Issue) %>%
     summarise(Enrollments = n()) %>%
+    ungroup() %>%
     select(Type, Enrollments, Issue) %>%
     arrange(Type, desc(Enrollments))
   
@@ -201,6 +212,7 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
     ) %>%
     group_by(!!bySummaryLevel2, Type, Issue) %>%
     summarise(Enrollments = n()) %>%
+    ungroup() %>%
     select(!!bySummaryLevel2, Type, Enrollments, Issue) %>%
     arrange(Type, desc(Enrollments), !!bySummaryLevel2)
     
@@ -215,7 +227,8 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
                              c(meta_HUDCSV_Export_Start,
                                meta_HUDCSV_Export_End,
                                meta_HUDCSV_Export_Date))
-  colnames(exportDetail) = c("Export Field", "Value")
+  
+  colnames(exportDetail) <- c("Export Field", "Value")
   
   exportDFList <- list(
     exportDetail = exportDetail,
@@ -231,11 +244,21 @@ getDQReportDataList <- function(dqData, dqOverlaps = NULL, bySummaryLevel = NULL
   
   names(exportDFList) <- c(
     "Export Detail",
-    paste(if_else(bySummaryLevel == "OrganizationName", "System","Organization"),"Summary"),
-    paste(if_else(bySummaryLevel == "OrganizationName", "Organization","Project"),"Summary"),
+    paste(
+      if_else(bySummaryLevel == "OrganizationName", "System", "Organization"),
+      "Summary"
+    ),
+    paste(
+      if_else(
+        bySummaryLevel == "OrganizationName",
+        "Organization",
+        "Project"
+      ),
+      "Summary"
+    ),
     "Guidance",
     "High Priority",
-    "Errors", 
+    "Errors",
     "Warnings",
     "Overlap Details",
     "Referral Details"
@@ -394,7 +417,6 @@ calculate_outstanding_referrals <- function(input, projecttype){
     ) %>%
     filter(Event %in% c(10:15,17:18) &
              is.na(ResultDate) &
-             ProjectType %in% c(projecttype) &
              input < Days)
   
 }
