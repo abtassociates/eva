@@ -343,6 +343,9 @@ zip_initially_valid <- function () {
 is_hashed <- function() {
   # read Export file
   Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
+
+  logSessionData()
+  
   # read Client file
   Client <- importFile("Client",
                        col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
@@ -451,7 +454,38 @@ headerGeneric <- function(tabTitle, extraHTML = NULL) {
            extraHTML
       )
     } else {
-      h4("You have not successfully uploaded your zipped CSV file yet.")
+      h4("This tab will show relevant data once you have uploaded your HMIS CSV Export.")
     }
   })
+}
+
+logSessionData <- function() {
+  # put the export info in the log
+  print(
+    paste(
+      session$token,
+      Sys.time(), 
+      "Imported Export.csv: ", 
+      split(Export, seq(nrow(head(Export,1))))
+    )
+  )
+  
+  d <- data.frame(
+    SessionToken = session$token,
+    Datestamp = Sys.time(),
+    CoC = Export$SourceID,
+    ExportID = Export$ExportID,
+    SourceContactFirst = Export$SourceContactFirst,
+    SourceContactLast = Export$SourceContactLast,
+    SourceContactEmail = Export$SourceContactEmail,
+    SoftwareName = Export$SoftwareName
+  )
+    
+  filename <- "www/metadata/sessiondata.csv"
+  write_csv(
+    x = d,
+    filename,
+    append = TRUE,
+    col_names = !file.exists(filename)
+  )
 }
