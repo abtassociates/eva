@@ -269,25 +269,29 @@ dashboardPage(
             fluidRow(box(
               width = 12,
               HTML(
-                "<p>This check aims to help communities find Coordinated Entry Event
-                referrals that may be outstanding and missing a Result Date. (Note that
-                not all CE Events have an associated Result and Result Date.) First, the tool calculates the number of
-                days each referral has been open (the number of days
-                between the Referral Date and the date your upload was exported
-                from your HMIS). Then the check compares the length of each referral with assumptions
+                "<p>This check aims to help communities find Coordinated Entry
+                Event referrals that may be outstanding and missing a Result
+                Date. (Note that not all CE Events have an associated Result and
+                Result Date.) First, the tool calculates the number of days each
+                referral has been open (the number of days between the Referral
+                Date and the date your upload was exported from your HMIS). Then
+                the check compares the length of each referral with assumptions
                 entered about the expected maximum period of assistance envisioned
-                for the CoC's Coordinated Entry Referral process. This check is for all
-                project types that may have Coordinated Entry Event referrals.
+                for the CoC's Coordinated Entry Referral process. This check is
+                for all project types that may have Coordinated Entry Event
+                referrals.
 
-                <p>Any data quality flags about Outstanding Referrals is categorized as a Warning and is a suggestion to
-                verify that the identified referrals are still active or in progress.
-                It does not imply that any data should be changed.
+                <p>Any data quality flags about Outstanding Referrals is
+                categorized as a Warning and is a suggestion to verify that the
+                identified referrals are still active or in progress. It does
+                not imply that any data should be changed.
 
-                <p>Below, you can specify the expected maximum period of assistance
-                envisioned for the CoC's Coordinated Entry Referral process,
-                meaning the timeframe after which you would want an organization to confirm the
-                referral is still active. You can set these based on your current data or leave them at
-                the defaults (these defaults do not imply any HUD recommendations)."
+                <p>Below, you can specify the expected maximum period of
+                assistance envisioned for the CoC's Coordinated Entry Referral
+                process, meaning the timeframe after which you would want an
+                organization to confirm the referral is still active. You can
+                set these based on your current data or leave them at the
+                defaults (these defaults do not imply any HUD recommendations)."
               ),
               numericInput(
                 inputId = "CEOutstandingReferrals",
