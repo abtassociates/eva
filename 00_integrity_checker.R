@@ -65,36 +65,9 @@ df_date_types <-
   ) %>%
   select(all_of(display_cols)) %>% unique()
 
-# Creating Functions ------------------------------------------------------
-
-check_column_counts <- function(file) {
-  tibble(
-    ImportedColumnCount = 
-      ncol(!!rlang::ensym(file)),
-    CorrectColumnCount = 
-      col_counts %>%
-      filter(File == {{file}}) %>%
-      pull(ColumnCount)
-  ) %>%
-  filter(ImportedColumnCount != CorrectColumnCount) %>%
-    mutate(
-      Issue = "Incorrect Column Count",
-      Type = "High Priority",
-      Guidance = "You likely have extra columns in one or more of your files. Please review the Details to see which columns are missing or extraneous.",
-      Detail = str_squish(paste(
-          "The",
-          file,
-          "file has", 
-          ImportedColumnCount,
-          "columns when it should have",
-          CorrectColumnCount
-        ))
-    ) %>%
-    select(all_of(display_cols))
-}
-
-check_column_names <- function(file) {
-  tibble(
+# Incorrect Columns ------------------------------------------------------
+check_columns <- function(file) {
+  col_diffs <- tibble(
     ImportedColumns = 
       colnames(!!rlang::ensym(file)),
     CorrectColumns = 
@@ -102,21 +75,28 @@ check_column_names <- function(file) {
       filter(File == {{file}}) %>%
       pull(Column)
   ) %>%
-  filter(ImportedColumns != CorrectColumns) %>%
   mutate(
-    Issue = "Incorrect Column Name",
+    isExtra = !(ImportedColumns %in% CorrectColumns),
+    isMissing = !(CorrectColumns %in% ImportedColumns),
+    Issue = "Incorrect Columns",
     Type = if_else(CorrectColumns %in% c(high_priority_columns), 
                    "High Priority", "Warning"),
-    Guidance = "Column names must be spelled correctly",
-    Detail =
-     str_squish(paste("The",
-            ImportedColumns,
-            "column in the",
-            file,
-            "file should be spelled like",
-            CorrectColumns))
+    Guidance = str_squish(
+      "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - all and only the columns specified in the columns.csv file. 
+      Please remove any extra columns and make sure you have all missing columns."),
+    Detail = str_squish(paste(
+      "In the",
+      file,
+      "file,",
+      if_else(isExtra,
+              paste(ImportedColumns,"is an extra column"),
+              paste("the",CorrectColumns,"is missing")
+      )
+    ))
   ) %>%
-  select(all_of(display_cols))
+  filter(isExtra | isMissing) %>%
+  select(all_of(display_cols)) %>% 
+  unique()
 }
 
 check_data_types <- function(quotedfile) {
@@ -201,8 +181,7 @@ check_for_bad_nulls <- function(quotedfile) {
 
 # Integrity Structure -----------------------------------------------------
 
-df_column_names <- map_df(files, check_column_names)
-df_column_counts <- map_df(files, check_column_counts)
+df_column_diffs <- map_df(files, check_columns)
 df_data_types <- map_df(files, check_data_types)
 df_nulls <- map_df(files, check_for_bad_nulls)
 
@@ -495,8 +474,7 @@ nonstandard_CLS <- CurrentLivingSituation %>%
   select(all_of(display_cols))
 
 integrity_main <- rbind(
-  df_column_names,
-  df_column_counts,
+  df_column_diffs,
   df_data_types,
   df_date_types,
   df_nulls,
