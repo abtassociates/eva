@@ -58,6 +58,12 @@ function(input, output, session) {
     tribble(
   ~Date, ~Change,
   
+  "02/09/2023", "Added Outstanding Referrals as a Warning. Eva users can set
+  what constitutes and outstanding referral for their CoC on the Edit Local
+  Settings tab. The issue will show in the download on the Warnings tab and
+  on its own tab called Referrals so that end users can see which Referral is
+  considered outstanding.",
+
   "01-26-2023", "Fixes GitHub issue 82. Now the app times out after 10 minutes
   being idle.",
   
@@ -166,10 +172,15 @@ function(input, output, session) {
       DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
       ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
       
-      x <- dq_main %>%
-        filter(!Issue %in% c("Days Enrollment Active Exceeds CoC-specific Settings"))
+      #Calculating potential old referrals based on Local settings
+      CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+        select(all_of(vars_we_want))
       
-      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other)
+      x <- dq_main %>%
+        filter(!Issue %in% c("Days Enrollment Active Exceeds Local settings", 
+                             "Days Referral Active Exceeds Local settings"))
+      
+      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other, CE_Event)
       
     })
     
@@ -587,14 +598,19 @@ function(input, output, session) {
         filter(OrganizationName %in% c(input$orgList))
       
       orgDQoverlaps <- overlaps %>%
-        filter(OrganizationName %in% c(input$orgList) | PreviousOrganizationName %in% c(input$orgList))
+        filter(OrganizationName %in% c(input$orgList) | 
+                 PreviousOrganizationName %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName")
+      orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals)
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName")
+      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName",
+                          calculate_outstanding_referrals(input$CEOutstandingReferrals))
     })
     
     output$downloadOrgDQReport <- downloadHandler(
