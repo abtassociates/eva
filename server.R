@@ -378,8 +378,10 @@ function(input, output, session) {
     })
     
     ### Client Counts -------------------------------
-    # MAIN DATAFRAME: this is the primary client count dataset, calculating their status and number of days enrolled. 
-    # This will be used to create the summary and detail datasets used in the app, as well as the datasets used in the export
+    # MAIN DATAFRAME: this is the primary client count dataset, calculating
+    # their status and number of days enrolled. 
+    # This will be used to create the summary and detail datasets used in the
+    # app, as well as the datasets used in the export
     client_count_data_df <- reactive({
       ReportStart <- input$dateRangeCount[1]
       ReportEnd <- input$dateRangeCount[2]
@@ -521,7 +523,8 @@ function(input, output, session) {
         
         # this initial dataset removes the person-specific enrollment days from those statuses (e.g. (660 days))
         validationDF <- client_count_data_df() %>%
-          mutate(n=1, Status = sub(" \\(.*", "", Status))
+          mutate(n = 1, 
+                 Status = sub(" \\(.*", "", Status))
         
         # this function pivots by project and gets the counts of people with each status
         pivot_and_sum <- function(df, isDateRange = FALSE) {
@@ -546,38 +549,41 @@ function(input, output, session) {
             add_column(!!!necessaryCols[setdiff(names(necessaryCols), names(df))]) %>%
             select(!!keepCols, !!necessaryCols, ProjectType) %>%
             mutate(
-              across(!!necessaryCols, ~ replace(., is.na(.) & ProjectType %in% c(3,13), 0)),
+              across(!!necessaryCols, ~ replace(., is.na(.) &
+                                                  ProjectType %in% c(3, 13), 0)),
               "Currently in Project" = case_when(
-                ProjectType %in% c(3,13)
-                  ~ rowSums(select(.,`Currently Moved In`,`Active No Move-In`), na.rm=TRUE),
+                ProjectType %in% c(3, 13)  ~ 
+                  rowSums(select(., `Currently Moved In`, `Active No Move-In`),
+                          na.rm = TRUE),
                 TRUE ~ `Currently in project`
               )
-            ) %>%
-            relocate(`Currently in Project`, .after=`Project Name`)
+            ) %>% 
+            relocate(`Currently in Project`, .after = `Project Name`)
           return(pivoted)
         }
         
         # counts for each status, by project, across the date range provided
-        validationDateRange <- pivot_and_sum(validationDF, isDateRange=TRUE) %>%
+        validationDateRange <- pivot_and_sum(validationDF, isDateRange = TRUE) %>%
           mutate(
             "Exited Project" = case_when(
-              ProjectType %in% c(3,13)
-              ~ rowSums(select(.,`Exited with Move-In`,`Exited No Move-In`), na.rm=TRUE),
+              ProjectType %in% c(3,13) ~ 
+                rowSums(select(., `Exited with Move-In`, `Exited No Move-In`),
+                        na.rm = TRUE),
               TRUE ~ `Exited project`
             )
           ) %>%
           relocate(`Exited Project`, .after=`Currently Moved In`) %>%
-          select(-c(`Currently in project`,`Exited project`,ProjectType))
+          select(-c(`Currently in project`, `Exited project`, ProjectType))
         
         
         # counts for each status, by project for just the current date
         validationCurrent <- pivot_and_sum(validationDF %>% 
             filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
           ) %>%
-          select(-c(`Currently in project`,ProjectType))
+          select(-c(`Currently in project`, ProjectType))
         
-        validationDetail = validationDF %>% # full dataset for the detail
-          select(!!keepCols, !!clientCountDetailCols) 
+        validationDetail <- validationDF %>% # full dataset for the detail
+          select(!!keepCols, !!clientCountDetailCols)
         
         exportDFList <- list(
           validationCurrent = validationCurrent,
@@ -590,6 +596,7 @@ function(input, output, session) {
           "Validation - Date Range",
           "Validation - Detail"
         )
+        
         write_xlsx(exportDFList, path = file)
       }
     )
