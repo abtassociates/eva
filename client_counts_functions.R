@@ -125,6 +125,8 @@ get_clientcount_download_info <- function(file) {
       mutate(
         Status = sub(" \\(.*", "", Status)
       ) %>%
+      select(keepCols, n, Status, ProjectType, `Personal ID`) %>%
+      unique() %>%
       select(keepCols, n, Status, ProjectType) %>%
       pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
       add_column(!!!necessaryCols[setdiff(names(necessaryCols), names(df))]) %>%
