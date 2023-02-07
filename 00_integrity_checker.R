@@ -503,7 +503,9 @@ integrity_main <- rbind(
   rel_to_hoh_invalid,
   nonstandard_destination,
   nonstandard_CLS
-)
+) %>%
+  mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
+  arrange(Issue, Type)
 
 if(integrity_main %>% filter(Type == "High Priority") %>% nrow() > 0) {
   structural_issues <- 1

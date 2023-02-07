@@ -180,8 +180,7 @@ function(input, output, session) {
         a <- integrity_main %>%
           group_by(Issue, Type) %>%
           summarise(Count = n()) %>%
-          ungroup() %>%
-          arrange(desc(Type))
+          ungroup()
         
         datatable(
           a,
