@@ -523,8 +523,7 @@ function(input, output, session) {
         
         # this initial dataset removes the person-specific enrollment days from those statuses (e.g. (660 days))
         validationDF <- client_count_data_df() %>%
-          mutate(n = 1, 
-                 Status = sub(" \\(.*", "", Status))
+          mutate(n = 1)
         
         # this function pivots by project and gets the counts of people with each status
         pivot_and_sum <- function(df, isDateRange = FALSE) {
@@ -544,6 +543,9 @@ function(input, output, session) {
           )
             
           pivoted <- df %>%
+            mutate(
+              Status = sub(" \\(.*", "", Status)
+            ) %>%
             select(keepCols, n, Status, ProjectType) %>%
             pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
             add_column(!!!necessaryCols[setdiff(names(necessaryCols), names(df))]) %>%
