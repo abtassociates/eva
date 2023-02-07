@@ -67,9 +67,9 @@ dashboardPage(
       ))
     ),
     useShinyjs(),
-    disconnectMessage(text = "Eva has crashed. If you would like to submit an
+    disconnectMessage(text = str_squish("Eva has crashed. If you would like to submit an
                       issue to the team, please note the date and time in order
-                      to help the team diagnose the issue"),
+                      to help the team diagnose the issue")),
     tabItems(
       tabItem(
         tabName = "tabHome",
