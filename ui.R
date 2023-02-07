@@ -1,4 +1,3 @@
-
 dashboardPage(
   skin = "black",
   dashboardHeader(title = "Eva"),
@@ -54,7 +53,8 @@ dashboardPage(
           window.onkeypress = resetTimer;  //catches keyboard actions
     
           function logout() {
-            Shiny.setInputValue('timeOut', timeoutTime);
+            alert('Your session timed out. Your data has been cleared, please re-upload.');
+            Shiny.setInputValue('timeOut', 1)
           }
     
           function resetTimer() {
@@ -66,7 +66,11 @@ dashboardPage(
       ))
     ),
     useShinyjs(),
-    disconnectMessage(text = "Your session timed out, reload the application."),
+    disconnectMessage(
+      text = str_squish(
+        "Eva has crashed. Please submit an issue on GitHub and note the
+          date and time in order to help the team diagnose the issue."
+      )), 
     tabItems(
       tabItem(
         tabName = "tabHome",

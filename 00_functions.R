@@ -460,16 +460,7 @@ headerGeneric <- function(tabTitle, extraHTML = NULL) {
 }
 
 logSessionData <- function() {
-  # put the export info in the log
-  print(
-    paste(
-      session$token,
-      Sys.time(), 
-      "Imported Export.csv: ", 
-      split(Export, seq(nrow(head(Export,1))))
-    )
-  )
-  
+
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
@@ -480,6 +471,10 @@ logSessionData <- function() {
     SourceContactEmail = Export$SourceContactEmail,
     SoftwareName = Export$SoftwareName
   )
+  
+  # put the export info in the log
+  capture.output(d, file=stderr())
+  
     
   filename <- "www/metadata/sessiondata.csv"
   write_csv(
