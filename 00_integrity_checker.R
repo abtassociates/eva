@@ -90,7 +90,7 @@ check_columns <- function(file) {
       "file,",
       if_else(isExtra,
               paste(ImportedColumns,"is an extra column"),
-              paste("the",CorrectColumns,"is missing")
+              paste("the",CorrectColumns,"column is missing")
       )
     ))
   ) %>%
