@@ -152,31 +152,45 @@ check_data_types <- function(quotedfile) {
   }
 }
 
-check_for_bad_nulls <- function(quotedfile) {
-  barefile <- get(quotedfile)
-  if (nrow(barefile) > 1){
-    barefile %>%
-      mutate(across(everything(), ~ is.na(.x))) %>% 
-      summarise(across(everything(), max)) %>%
-      pivot_longer(cols = everything(), 
-                   names_to = "Column", 
-                   values_to = "NullsPresent") %>%
-      mutate(File = quotedfile) %>%
-      left_join(cols_and_data_types, by = c("File", "Column")) %>%
-      filter(NullsAllowed == 0 & NullsPresent == 1) %>%
-      mutate(
-        Issue = "Nulls not allowed or incompatible data type in column",
-        Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
-        Guidance = "Certain columns cannot contain nulls or incompatible data types.",
-        Detail = str_squish(paste(
-          "The",
-          Column,
-          "column in the",
-          File,
-          "file contains nulls or incompatible data types."
-        ))
-      ) %>%
-      select(all_of(display_cols))}
+check_for_bad_nulls <- function(file) {
+  barefile <- get(file)
+  total_rows = nrow(barefile)
+  if (total_rows > 1) {
+    # select nulls-not-allowed columns
+    nulls_not_allowed_cols <- cols_and_data_types %>%
+      filter(File==file & NullsAllowed == 0) %>%
+      pull(Column)
+
+    # select subset of columns with nulls
+    barefile <- get(file) %>%
+      select(all_of(nulls_not_allowed_cols)) %>%
+      mutate_all(~ifelse(is.na(.), 1, 0)) %>%
+      select_if(~any(. == 1))
+    
+    if(ncol(barefile) > 0) {
+      barefile %>%
+        mutate(row_id = row_number()) %>%
+        gather(key = "Column", value = "value", -row_id) %>%
+        group_by(Column) %>%
+        mutate(row_ids = case_when(
+          sum(value) == total_rows ~ "All rows affected", 
+          sum(value) <= 3 ~ paste("See rows: ", paste(row_id[value == 1], collapse = ", ")),
+          TRUE ~ paste("For example, see row",which(value == 1)[1])
+        )) %>%
+        ungroup() %>%
+        distinct(Column, row_ids) %>%
+        select(Column, row_ids) %>% 
+        left_join(cols_and_data_types %>% select(Column, DataTypeHighPriority), by="Column") %>%
+        mutate(
+          Issue = "Nulls not allowed or incompatible data type in column",
+          Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
+          Guidance = "Certain columns cannot contain nulls or incompatible data types.",
+          Detail = glue("The {Column} column in the {file} file contains nulls or incompatible data types. {row_ids}")
+        ) %>%
+        select(all_of(display_cols)) %>%
+        unique()
+    }
+  }
 }
 
 # Integrity Structure -----------------------------------------------------
