@@ -137,7 +137,7 @@ get_clientcount_download_info <- function(file) {
           ProjectType %in% c(3, 13)  ~ 
             rowSums(select(., `Currently Moved In`, `Active No Move-In`),
                     na.rm = TRUE),
-          TRUE ~ `Currently in project`
+          TRUE ~ replace_na(`Currently in project`, 0)
         )
       ) %>% 
       relocate(`Currently in Project`, .after = `Project Name`)
