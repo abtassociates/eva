@@ -58,6 +58,12 @@ function(input, output, session) {
     tribble(
   ~Date, ~Change,
   
+  "02/09/2023", "Added system-wide download of Client Counts data",
+  
+  "02/09/2023", "Separated app timeout and crash processing. 
+  Timeout triggers a javascript alert and clears the app data. Crashes trigger 
+  the gray screen with a message and a Refresh link.",
+  
   "02/09/2023", "Added Outstanding Referrals as a Warning. Eva users can set
   what constitutes and outstanding referral for their CoC on the Edit Local
   Settings tab. The issue will show in the download on the Warnings tab and
