@@ -49,8 +49,7 @@ client_count_data_df <- reactive({
         !ProjectType %in% c(3, 13) &
           !is.na(ExitDate) ~ "Exited project"
       ),
-      sort = today() - EntryDate,
-      MoveInDateAdjust = format.Date(MoveInDateAdjust, "%m-%d-%Y")
+      sort = today() - EntryDate
     ) %>%
     arrange(desc(sort), HouseholdID, PersonalID) %>%
     # make sure to include all columns that will be needed for the various uses
