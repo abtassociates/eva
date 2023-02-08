@@ -289,6 +289,7 @@ dashboardPage(
             title = "Outstanding Referrals",
             width = 12,
             collapsible = TRUE,
+            collapsed = TRUE,
             fluidRow(box(
               width = 12,
               HTML(
@@ -331,7 +332,7 @@ dashboardPage(
             title = "Long Stayers",
             width = 12,
             collapsible = TRUE,
-            # collapsed = TRUE,
+            collapsed = TRUE,
             fluidRow(
               box(
                 HTML("
