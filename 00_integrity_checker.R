@@ -57,9 +57,10 @@ df_date_types <-
     Issue = "Incorrect Date Format",
     Type = if_else(Column %in% c(high_priority_columns), 
                    "High Priority", "Error"),
-    Guidance = "Dates in the HMIS CSV Export should be in yyyy-mm-dd or
+    Guidance = str_squish("Dates in the HMIS CSV Export should be in yyyy-mm-dd or
       yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format
-      Specifications.",
+      Specifications. Please check the Specifications for the file and column identified in the Detail
+      and ensure the correct date format is used in the export."),
     Detail = str_squish(paste(
       "Please check that the", Column, "column in the", File, "file has the correct date format."))
   ) %>%
@@ -82,7 +83,7 @@ check_columns <- function(file) {
     Type = if_else(CorrectColumns %in% c(high_priority_columns), 
                    "High Priority", "Warning"),
     Guidance = str_squish(
-      "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - all and only the columns specified in the columns.csv file. 
+      "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. 
       Please remove any extra columns and make sure you have all missing columns."),
     Detail = str_squish(paste(
       "In the",
@@ -126,7 +127,9 @@ check_data_types <- function(quotedfile) {
       mutate(
         Issue = "Incorrect Data Type",
         Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
-        Guidance = "Data types must all be correct",
+        Guidance = str_squish("Data types must align with the HMIS CSV Format Specifications. 
+                    Please review the Specifications for the data types associated 
+                    with the file and column listed in the detail and make the necessary updates."),
         Detail = str_squish(paste0(
           "In the ",
           quotedfile,
@@ -184,7 +187,9 @@ check_for_bad_nulls <- function(file) {
         mutate(
           Issue = "Nulls not allowed or incompatible data type in column",
           Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
-          Guidance = "Certain columns cannot contain nulls or incompatible data types.",
+          Guidance = str_squish("Certain columns cannot contain nulls or incompatible data types.
+                    Please review the HMIS CSV Format Specifications for the data types and null requirements associated 
+                    with the file and column listed in the detail and make the necessary updates."),
           Detail = glue("The {Column} column in the {file} file contains nulls or incompatible data types. {row_ids}")
         ) %>%
         select(all_of(display_cols)) %>%
@@ -207,7 +212,9 @@ export_id_client <- Client %>%
   mutate(
     Issue = "ExportID mismatch",
     Type = "Error",
-    Guidance = "The ExportID in your Enrollment and Client files must match.",
+    Guidance = str_squish("Per the HMIS CSV Formatting Specifications, the ExportID in your Export and Client files must match.
+                There should be one unique ExportID that will be used to identify all CSV files genereated as part
+                of the same export process."),
     Detail = str_squish(paste(
       "The Export file says the ExportID is",
       export_id_from_export,
@@ -278,7 +285,9 @@ valid_values_client <- Client %>%
   mutate(
     Issue = "Invalid value in Client file",
     Type = "Error",
-    Guidance = "All columns in the client file should contain only valid values",
+    Guidance = str_squish("All columns in the client file should contain only the values listed in the HMIS CSV Format Specifications
+                for that specific column. Please review the Specifications for the column identified in the Detail and ensure
+                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
     Detail = case_when(
       name == "VeteranStatus" ~ paste("VeteranStatus has", n,
                                       "rows with invalid values"),
@@ -317,7 +326,9 @@ duplicate_client_id <- Client %>%
   mutate(
     Issue = "Duplicate PersonalIDs found in the Client file",
     Type = "High Priority",
-    Guidance = "PersonalIDs should be unique in the Client file",
+    Guidance = str_squish("PersonalIDs should be unique in the Client file. 
+                          Each unique client should only be listed once in the Client file.
+                          Please ensure that each unique client gets their own unique PersonalID in this file."),
     Detail = paste("There are", dupe_count, "for PersonalID", PersonalID)
   ) %>%
   select(all_of(display_cols))
@@ -329,7 +340,10 @@ duplicate_enrollment_id <- Enrollment %>%
   mutate(
     Issue = "Duplicate EnrollmentIDs found in the Enrollment file",
     Type = "High Priority",
-    Guidance = "EnrollmentIDs should be unique in the Enrollment file",
+    Guidance = str_squish("EnrollmentIDs should be unique in the Enrollment file. There may be no more than one
+                          record for any PersonalID with the same EnrollmentID. If there is more than one record
+                          for the same PersonalID with the same EnrollmentID, this represents an error in the
+                          CSV export algorithm."),
     Detail = str_squish(paste0(
       " There are ",
       dupe_count,
@@ -346,7 +360,8 @@ foreign_key_no_primary_personalid_enrollment <- Enrollment %>%
   mutate(
     Issue = "Client in the Enrollment file not found in Client file",
     Type = "High Priority",
-    Guidance = "All PersonalIDs in the Enrollment file should have a record in the Client file.",
+    Guidance = str_squish("Per the HMIS CSV Format Specifications, all PersonalIDs in the Enrollment 
+                          file should have a record in the Client file."),
     Detail = str_squish(paste(
       "PersonalID",
       PersonalID,
@@ -362,7 +377,8 @@ foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
   mutate(
     Issue = "ProjectID in the Enrollment file not found in Project file",
     Type = "High Priority",
-    Guidance = "All PerojectIDs in the Enrollment file should have a record in the Project file.",
+    Guidance = str_squish("Per the HMIS CSV Format Specifications, all ProjectIDs in the Enrollment 
+                          file should have a record in the Project file."),
     Detail = str_squish(paste(
       "ProjectID",
       ProjectID,
@@ -376,11 +392,12 @@ disabling_condition_invalid <- Enrollment %>%
   mutate(
     Issue = "Invalid Disabling Condition",
     Type = "Error",
-    Guidance = "Disabling Condition should only have valid values",
+    Guidance = str_squish("DisablingCondition should only have valid values. Please review the HMIS CSV Format Specifications for DisablingCondition and ensure
+                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
     Detail = str_squish(paste(
       "Enrollment ID",
       EnrollmentID,
-      "has a Disabling Condition of",
+      "has a DisablingCondition of",
       DisablingCondition,
       "which is an invalid value."
     ))
@@ -399,7 +416,8 @@ living_situation_invalid <- Enrollment %>%
   mutate(
     Issue = "Invalid Living Situation value",
     Type = "Error",
-    Guidance = "LivingSituation may only contain valid values",
+    Guidance = str_squish("LivingSituation may only contain valid values. Please review the HMIS CSV Format Specifications for LivingSituation and ensure
+                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
     Detail = str_squish(paste(
       "Enrollment ID",
       EnrollmentID,
@@ -415,7 +433,8 @@ rel_to_hoh_invalid <- Enrollment %>%
   mutate(
     Issue = "Invalid RelationshipToHoH value",
     Type = "Error",
-    Guidance = "RelationshipToHoH must be a valid value",
+    Guidance = str_squish("RelationshipToHoH must be a valid value. Please review the HMIS CSV Format Specifications for RelationshipToHoH and ensure
+                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
     Detail = str_squish(paste(
       "Enrollment ID",
       EnrollmentID,
@@ -463,7 +482,8 @@ nonstandard_destination <- Exit %>%
   mutate(
     Issue = "Invalid Destination value",
     Type = "Error",
-    Guidance = "Destination values must be valid",
+    Guidance = str_squish("Destination values must be valid. Please review the HMIS CSV Format Specifications for Destination and ensure
+                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
     Detail = str_squish(paste("EnrollmentID",
                      EnrollmentID,
                      "has a Destination value of",
@@ -479,7 +499,9 @@ nonstandard_CLS <- CurrentLivingSituation %>%
   mutate(
     Issue = "Non-standard Current Living Situation",
     Type = "Error",
-    Guidance = "This column contains a value that may have been retired from an old version of the Data Standards or was miskeyed. Please update the response to a current valid value.",
+    Guidance = str_squish("This column contains a value that may have been retired from an old version of the Data Standards or was miskeyed. 
+                Please review the HMIS CSV Format Specifications for CurrentLivingSituation and ensure
+                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
     Detail = str_squish(paste("EnrollmentID",
                      EnrollmentID,
                      "has a Current Living Situation value of",
