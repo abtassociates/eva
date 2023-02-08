@@ -156,18 +156,21 @@ get_clientcount_download_info <- function(file) {
       )
     ) %>%
     relocate(`Exited Project`, .after=`Currently Moved In`) %>%
-    select(-c(`Currently in project`, `Exited project`, ProjectType))
+    select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
+    arrange(Organization, `Project Name`)
   
   ### VALIDATION CURRENT TAB ###
   # counts for each status, by project for just the current date
   validationCurrent <- pivot_and_sum(validationDF %>% 
                                        filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
   ) %>%
-    select(-c(`Currently in project`, ProjectType))
+    select(-c(`Currently in project`, ProjectType)) %>%
+    arrange(Organization, `Project Name`)
   
   ### VALIDATION DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
-    select(!!keepCols, !!clientCountDetailCols)
+    select(!!keepCols, !!clientCountDetailCols) %>%
+    arrange(Organization, `Project Name`,`Entry Date`)
   
   exportDFList <- list(
     validationCurrent = validationCurrent,
