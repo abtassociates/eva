@@ -86,8 +86,19 @@ dashboardPage(
               your HMIS. In future iterations it will also assist communities in
               analyzing HMIS performance data, including coordinated entry, if 
               your community utilizes HMIS for this purpose. Use of this tool is
-              not required by HUD.</p>"
-            ),
+              not required by HUD.</p>
+              <p>Eva is a web-based tool built with R Shiny. This means:</p>
+              <ul>
+                <li>Eva will only access your CoC&rsquo;s data during your session.
+                <strong>No data is being retained or viewed by anyone besides 
+                you.</strong>
+                </li>
+                <li>You can upload a zipped CSV Export of up to 200 MB. The 
+                file must be hashed.</li>
+                <li>You can stay up to date with the new features by visiting 
+                the Changelog tab.</li>
+              </ul> 
+            "),
             actionButton("Go_to_upload","Click here to get started")
           ),
           box(
@@ -289,6 +300,7 @@ dashboardPage(
             title = "Outstanding Referrals",
             width = 12,
             collapsible = TRUE,
+            collapsed = TRUE,
             fluidRow(box(
               width = 12,
               HTML(
@@ -331,7 +343,7 @@ dashboardPage(
             title = "Long Stayers",
             width = 12,
             collapsible = TRUE,
-            # collapsed = TRUE,
+            collapsed = TRUE,
             fluidRow(
               box(
                 HTML("
