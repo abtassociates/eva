@@ -331,9 +331,9 @@ dashboardPage(
               numericInput(
                 inputId = "CEOutstandingReferrals",
                 label = "All Projects:",
-                value = 30,
+                value = 14,
                 min = 0,
-                max = 3650,
+                max = 365,
                 step = 5,
                 width = "200px"
               )
