@@ -212,7 +212,7 @@ es_no_tracking_method <- Project %>%
     Type = "Error",
     Guidance = str_squish("All Emergency Shelters must have a Tracking Method. Please update the 
     Emergency Shelter Tracking Method field at the project-level."),
-    Detail = paste0("Project ID", ProjectID, "is an Emergency Shelter with no Tracking Method")
+    Detail = paste("Project ID", ProjectID, "is an Emergency Shelter with no Tracking Method")
   ) %>%
   select(all_of(PDDEcols))
 
