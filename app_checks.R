@@ -1,3 +1,9 @@
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(scales)
+library(HMIS)
+
 #### LIST OF ALL EVA CHECKS #### -------------
 
 #Create empty dataframe for checks
@@ -7,9 +13,11 @@
 
 #Will follow a set up like check1 = c(Type = Error, Issue = "something, Guidance = "Do this.", DataElement = ...)
 
-#
-            # HIGH PRIORITY ERRORS
-            ##DataQuality Checks
+#Bring in guidance from separate R script
+source("03_guidance.R")
+
+#### HIGH PRIORITY ERRORS #### -------------
+##DataQuality Checks
 check1 = c(
   Source = "dq",
   Type = "High Priority",
@@ -57,55 +65,88 @@ check5 = c(
   "High Priority",
   "Missing Geography Information",
   "2.03.8 - Continuum of Care Information: Geography Type",
-  str_squish(
-    "Projects should not have missing geography information.
-                                  Please ensure geography information for projects is complete."),
-  ""
+  str_squish("Projects should not have missing geography information.
+             Please ensure geography information for projects is complete."),
+  "Mising geography information that makes this a High Priority Error are geocode, CoC code, and geography type."
 )
 
 ## Integrity Checker
-check6 = c("integrity", "High Priority", "Incorrect Column Name", "")
-
-check7 = c("integrity", "High Priority", "Incorrect Data Type", "")
-
 check8 = c("integrity",
            "High Priority",
            "Nulls not allowed in this column",
+           "",
+           "",
            "")
 
 check9 = c(
   "integrity",
   "High Priority",
   "Duplicate PersonalIDs found in the Client file",
-  "5.08 - Personal Identifier"
+  "5.08 - Personal Identifier",
+  "",
+  ""
 )
 check10 = c(
   "integrity",
   "High Priority",
   "Duplicate EnrollmentIDs found in the Enrollment file",
-  "5.06 - Enrollment Identifier"
+  "5.06 - Enrollment Identifier",
+  "",
+  ""
 )
+
 check11 = c(
   "integrity",
   "High Priority",
   "Client in the Enrollment file not found in Client file",
-  "5.08 - Personal Identifier"
+  "5.08 - Personal Identifier",
+  "",
+  ""
 )
+
 check12 = c(
   "integrity",
   "High Priority",
   "ProjectID in the Enrollment file not found in Project file",
-  "5.05 - Project Identifier"
+  "5.05 - Project Identifier",
+  "",
+  ""
 )
-check13 = c("integrity", "High Priority", "Incorrect Date Format", "")
 
-check14 = c("integrity", "High Priority", "Incorrect Column Count", "")
+check13 = c("integrity", 
+            "High Priority", 
+            "Incorrect Date Format", 
+            "", 
+            str_squish("Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format,
+                       in alginment with the HMIS CSV Format Specifications. Please check the Specifications
+                       for the file and column identified in the Detail and ensure the correct date format
+                       is used in the export."),
+            "")
 
-check15 = c("integrity", "High Priority", "Incorrect Column Name", "")
+check14 = c("integrity", 
+            "High Priority", 
+            "Incorrect Column Count", 
+            "",
+            "",
+            "")
 
-check16 = c("integrity", "High Priority", "Incorrect Data Type", "")
+check15 = c("integrity", 
+            "High Priority", 
+            "Incorrect Column Name", 
+            "",
+            "",
+            "")
 
-# GENERAL ERRORS
+check16 = c("integrity", 
+            "High Priority", 
+            "Incorrect Data Type", 
+            "",
+            str_squish("Data types must align with the HMIS CSV Format Specifications. Please review the specifications
+                       for the data types associated with the file and column liseted in the Detail and make the
+                       necessary updates."),
+            "")
+
+#### GENERAL ERRORS #### -------------
 ## Data Quality Checks
 check17 = c(
   "dq",
@@ -386,185 +427,382 @@ check45 = c(
   "pdde",
   "Error",
   "Missing Geography Information",
-  "2.03.1-2.03.7 - Continuum of Care Information"
+  "2.03.1-2.03.7 - Continuum of Care Information",
+  str_squish("Projects should not have missing geography information.
+         Please ensure geography information for projects is complete."),
+  str_squish("Missing geography information that makes this an error is the 
+             project address information like city, state, and ZIP code.")
 )
 check46 = c("pdde",
             "Error",
             "No Inventory Records",
-            "2.07 - Bed and Unit Inventory Information")
+            "2.07 - Bed and Unit Inventory Information",
+            str_squish("Residential projects should have inventory data.
+                       Please enter inventory in HMIS for the project(s)."),
+            "")
+
 check47 = c(
   "pdde",
   "Error",
   "Project Operating End precedes Inventory End",
-  "2.02.3 - Project Information: Operating Start Date, 3.10 - Project Information: Project Entry Date"
+  "2.02.3 - Project Information: Operating Start Date, 3.10 - Project Information: Project Entry Date",
+  str_squish("Inventory Start and End dates should be within Project Operating Start and End dates.
+             Please update either the inventory dates or the Project Operating dates."),
+  ""
 )
+
 check48 = c(
   "pdde",
   "Error",
   "Missing Tracking Method",
-  "2.02.C - Project Information: Emergency Shelter Tracking Method"
+  "2.02.C - Project Information: Emergency Shelter Tracking Method",
+  Guidance = str_squish("All Emergency Shelters must have a Tracking Method. Please update the 
+                        Emergency Shelter Tracking Method field at the project-level."),
+  ""
 )
+
 check49 = c(
   "pdde",
   "Error",
   "Sum of the dedicated beds should equal the Total Beds",
-  "2.07 - Bed and Unit Inventory Information"
+  "2.07 - Bed and Unit Inventory Information",
+  str_squish("Total Beds should match the sum of CH Vets, Youth Vets, Vets, 
+         CH Youth, Youth, CH, and Other beds. Please review project inventory records for the number 
+         of dedicated beds and ensure this number equals the Total Beds listed within each record."),
+  ""
 )
 
 ##Integrity Checker
-check50 = c("integrity", "Error", "Nulls not allowed in this column", "")
-check51 = c("integrity", "Error", "Incorrect Date Format", "")
-check52 = c("integrity", "Error", "Incorrect Data Type", "")
-check53 = c("integrity", "Error", "ExportID mismatch", "")
-check54 = c("integrity", "Error", "Invalid value in Client file", "")
+check50 = c("integrity", 
+            "Error", 
+            "Nulls not allowed in this column", 
+            "",
+            "",
+            "")
+
+check51 = c("integrity", 
+            "Error", 
+            "Incorrect Date Format", 
+            "",
+            "",
+            "")
+
+check52 = c("integrity", 
+            "Error", 
+            "Incorrect Data Type", 
+            "",
+            "",
+            "")
+
+check53 = c("integrity", 
+            "Error", 
+            "ExportID mismatch", 
+            "",
+            "",
+            "")
+
+check54 = c("integrity", 
+            "Error", 
+            "Invalid value in Client file", 
+            "",
+            "",
+            "")
+
 check55 = c("integrity",
             "Error",
             "Invalid Disabling Condition",
-            "3.01.5 - Name: Name Data Quality")
+            "3.01.5 - Name: Name Data Quality",
+            "",
+            "")
+
 check56 = c(
   "integrity",
   "Error",
   "Invalid Living Situation value",
-  "3.917.1 - Prior Living Situation: Living Situation"
+  "3.917.1 - Prior Living Situation: Living Situation",
+  "",
+  ""
 )
+
 check57 = c(
   "integrity",
   "Error",
   "Invalid RelationshipToHoH value",
-  "3.15 - Relationship to Head of Household"
+  "3.15 - Relationship to Head of Household",
+  "",
+  ""
 )
+
 check58 = c("integrity",
             "Error",
             "Invalid Destination value",
-            "3.12 - Destination")
+            "3.12 - Destination",
+            "",
+            "")
+
 check59 = c(
   "integrity",
   "Error",
   "Non-standard Current Living Situation",
-  "4.12 - Current Living Situation"
+  "4.12 - Current Living Situation",
+  "",
+  ""
 )
 
-# WARNINGS
+#### WARNINGS #### -------------
 ##Data Quality Checks
 check61 = c(
   "dq",
   "Warning",
   "Don't Know/Refused Discharge Status",
-  "V1.12 - Veteran's Information: Discharge Status"
+  "V1.12 - Veteran's Information: Discharge Status",
+  guidance_dkr_data,
+  ""
 )
+
 check62 = c(
   "dq",
   "Warning",
   "Don't Know/Refused War(s)",
-  "V1.3-V1.10 - Veteran's Information: Theaters of Operations"
+  "V1.3-V1.10 - Veteran's Information: Theaters of Operations",
+  guidance_dkr_data,
+  ""
 )
+
 check63 = c(
   "dq",
   "Warning",
   "Don't Know/Refused Military Branch",
-  "V1.11 - Veteran's Information: Branch of the Military"
+  "V1.11 - Veteran's Information: Branch of the Military",
+  guidance_dkr_data,
+  ""
 )
+
 check64 = c("dq",
             "Warning",
             "Don't Know/Refused Destination",
-            "3.12 - Destination")
+            "3.12 - Destination",
+            guidance_dkr_data,
+            "")
+
 check65 = c("dq",
             "Warning",
             "Don't Know/Refused/Data Not Collected DOB",
-            "3.03.1 - Date of Birth")
+            "3.03.1 - Date of Birth",
+            guidance_dkr_data,
+            "")
+
 check66 = c(
   "dq",
   "Warning",
   "Don't Know/Refused Months or Times Homeless",
-  "3.917.4 - Prior Living Situation: Times Homeless in Past 3 Years, 3.917.5 - Prior Living Situation: Months Homeless in Past 3 Years"
-)
+  "3.917.4 - Prior Living Situation: Times Homeless in Past 3 Years, 3.917.5 - Prior Living Situation: Months Homeless in Past 3 Years",
+  guidance_dkr_data,
+  "")
+
 check67 = c("dq",
             "Warning",
             "Don't Know/Refused Ethnicity",
-            "3.05 - Ethnicity")
-check68 = c("dq", "Warning", "Don't Know/Refused Race", "3.04 - Race")
+            "3.05 - Ethnicity",
+            guidance_dkr_data,
+            "")
+
+check68 = c("dq", 
+            "Warning", 
+            "Don't Know/Refused Race", 
+            "3.04 - Race",
+            guidance_dkr_data,
+            "")
+
 check69 = c(
   "dq",
   "Warning",
   "Don't Know/Refused Residence Prior",
-  "3.917.1 - Prior Living Situation: Living Situation"
+  "3.917.1 - Prior Living Situation: Living Situation",
+  guidance_dkr_data,
+  ""
 )
-check70 = c("dq", "Warning", "Don't Know/Refused Gender", "3.06 - Gender")
+
+check70 = c("dq", 
+            "Warning", 
+            "Don't Know/Refused Gender", 
+            "3.06 - Gender",
+            guidance_dkr_data,
+            "")
+
 check71 = c("dq",
             "Warning",
             "Don't Know/Refused Veteran Status",
-            "3.07 - Veteran Status")
+            "3.07 - Veteran Status",
+            guidance_dkr_data,
+            "")
+
 check72 = c("dq",
             "Warning",
             "Don't Know/Refused SSN",
-            "3.02 - Social Security Number")
+            "3.02 - Social Security Number",
+            guidance_dkr_data,
+            "")
+
 check73 = c("dq",
             "Warning",
             "Don't Know/Refused Living Situation",
-            "3.917 - Prior Living Situation")
+            "3.917 - Prior Living Situation",
+            guidance_dkr_data,
+            "")
+
 check74 = c(
   "dq",
   "Warning",
   "Homelessness Start Date Later Than Entry",
-  "3.10 - Project Start Date, 3.917.3 - Prior Living Situation: Date Homelessness Started"
+  "3.10 - Project Start Date, 3.917.3 - Prior Living Situation: Date Homelessness Started",
+  str_squish("This client has an Approximate Date Homelessness Started in their 
+        enrollment that is after their Project Start Date. The information 
+        at Project Start should reflect the client's situation at the point of 
+        Project Start, so this date may have been incorrectly entered."),
+  ""
 )
+
 check75 = c(
   "dq",
   "Warning",
   "Number of Months Homeless Can Be Determined",
-  "3.10 - Project Start Date, 3.917.3 - Prior Living Situation: Date Homelessness Started"
+  "3.10 - Project Start Date, 3.917.3 - Prior Living Situation: Date Homelessness Started",
+  str_squish("According to this client's assessment at Project Start, they 
+        experienced a single episode of homelessness in the three years prior to 
+        their Project Start and the approximate date homelessness started is known, 
+        but there was no response entered for the total number of months they 
+        experienced homelessness prior to this enrollment. It should be possible 
+        to determine and enter the total number of months they experienced
+        homelessness based on the Approximate Date Homelessness Started and the 
+        Project Start Date."),
+  ""
 )
+
 check76 = c(
   "dq",
   "Warning",
   "Invalid Homelessness Start Date/Number of Months Homeless",
-  "3.917.5 - Prior Living Situation: Months Homeless in Past 3 Years"
+  "3.917.5 - Prior Living Situation: Months Homeless in Past 3 Years",
+  str_squish("According to this client's assessment at Project Start, they experienced 
+        a single episode of homelessness in the three years prior to their 
+        enrollment and the approximate date homelessness started known, but the 
+        total number of months they experienced homelessness prior to this 
+        enrollment is inconsistent with the given dates. Please double-check this 
+        information for consistency and accuracy."),
+  ""
 )
+
 check77 = c("dq",
             "Warning",
             "Possible Missed Move-In Date",
-            "3.20 - Housing Move-In Date")
+            "3.20 - Housing Move-In Date",
+            str_squish("This enrollment may be missing a Move-In Date. It is being flagged because
+      the length of time since the enrollment date is in the top 1-2% for this project type. Please be sure this household is still awaiting
+      housing in this project and if not, record the date they either moved into
+      housing or exited your project. If they are still awaiting housing, do not
+      change the data."),
+      str_squish("1% if project type in PSH, PH - Housing Only, or PH - Housing with Services and
+                 2% for all other project types."))
+
 check78 = c("dq",
             "Warning",
             "Possible Missed Exit Date",
-            "3.11 - Project Exit Date")
-check79 = c("dq", "Warning", "Missing Destination", "3.12 - Destination")
-check80 = c("dq", "Warning", "Future Entry Date", "3.10 - Project Start Date")
+            "3.11 - Project Exit Date",
+            str_squish("This enrollment may be missing an Exit Date. It is being flagged because
+      the length of time since the enrollment date is in the top 1-2% for this project type. Please be sure this household is still
+              active in the project and if not, record the Project Exit Date. If
+              they are still active, do not change the data."),
+      str_squish("1% if project type in PSH, PH - Housing Only, or PH - Housing with Services and
+                 2% for all other project types."))
+
+check79 = c("dq", 
+            "Warning", 
+            "Missing Destination", 
+            "3.12 - Destination",
+            guidance_dkr_data,
+            "")
+
+check80 = c(
+  "dq",
+  "Warning",
+  "Future Entry Date",
+  "3.10 - Project Start Date",
+  str_squish(
+    "Users should not be entering a client into a project on a
+    date in the future. If the Project Start Date is correct, there is no action
+    needed, but going forward, please be sure that your data entry workflow
+    is correct according to your project type."
+  ),
+  ""
+)
+
 check81 = c(
   "dq",
   "Warning",
   "Entry Precedes Project's Operating Start",
-  "2.02.3 - Operating Start Date, 3.10 - Project Start Date"
+  "2.02.3 - Operating Start Date, 3.10 - Project Start Date",
+  guidance_enrl_active_outside_op,
+  ""
 )
+
 check82 = c("dq",
             "Warning",
             "Project Overlaps",
-            "3.10 - Project Start Date, 3.11 - Project Exit Date")
+            "3.10 - Project Start Date, 3.11 - Project Exit Date",
+            str_squish("This enrollment overlaps with another enrollment that would indicate a 
+      household spent the same night in different inventory beds. Please review
+      the HMIS Dual Enrollments and HIC Duplicate Inventory Training Resource for
+      more information."),
+            "")
+
 check83 = c(
   "dq",
   "Warning",
   "Incomplete or Don't Know/Refused Name",
-  "3.01.5 - Name: Name Data Quality"
+  "3.01.5 - Name: Name Data Quality",
+  guidance_dkr_data,
+  ""
 )
 
 ##PDDE Checks
 check84 = c("pdde",
             "Warning",
             "Inventory Start Precedes Project Operating Start",
+            "",
+            str_squish("Inventory Start and End dates should be within Project 
+                       Operating Start and End dates. Please update either the inventory 
+                       ates or the Project Operating dates."),
+            ""
 )
+
 check85 = c(
   "pdde",
   "Warning",
   "Non-HMIS-Participating project has client-level data",
-  "2.02.7 - Project Information: HMIS Particpating Project"
+  "2.02.7 - Project Information: HMIS Particpating Project",
+  str_squish("Non-HMIS-Participating projects should not have client-level data.
+         The HMIS Participating Project field may need to be updated, new projects may need to be created
+         based on changing HMIS participation status, or client-level data
+         may need to be removed from the Non-HMIS-Participating projects."),
+  ""
 )
+
 check86 = c(
   "pdde",
   "Warning",
   "Potentially Missing Operating End Date",
-  "2.02.4 - Project Information: Operating End Date"
+  "2.02.4 - Project Information: Operating End Date",
+  str_squish("Projects no longer in operation must have an Operating End Date.
+         Please verify if the project is still in operation and, if not, add in the Operating End Date."),
+  ""
 )
 
 ##Integrity Checker
-check87 = c("integrity", "Warning", "Incorrect Column Name", "")
+check87 = c("integrity", 
+            "Warning", 
+            "Incorrect Column Name", 
+            "",
+            "",
+            "")
 
