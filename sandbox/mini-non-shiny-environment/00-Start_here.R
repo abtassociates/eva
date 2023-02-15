@@ -14,14 +14,28 @@ if(dir.exists("sandbox/mini-non-shiny-environment/data/")) {
   dir.create("sandbox/mini-non-shiny-environment/data/")
 }
 
+directory <- "sandbox/mini-non-shiny-environment/"
+
 # Copy a sample dataset into the mini-non-shiny-environment/data directory
 
 # Run the scratch files in order. As you're running them, it's helpful to have
 # the Environment tab open so you can see what is going on
 
 # Functions
-source("sandbox/mini-non-shiny-environment/00-functions-scratch.R")
+source(paste0(directory, "00-functions-scratch.R"))
 
 # Get Export
 
-source("sandbox/mini-non-shiny-environment/01-get_export-scratch.R")
+source(paste0(directory, "01-get_export-scratch.R"))
+
+# File Structure Analysis
+
+source(paste0(directory, "03-integrity_checker-scratch.R"))
+
+if_else(structural_issues == 0,
+        "Looking good",
+        "There's structural issues")
+
+# Data prep! --------------------------------------------------------------
+
+
