@@ -8,8 +8,8 @@ library(HMIS)
 
 #Create empty dataframe for checks
 
-# dqChecks <- data.frame(matrix(ncol = 6, nrow = 0))
-# colnames(dqChecks) <- c("Source", "Type", "Issue", "DataElement", "Guidance",  "Notes")
+dqChecks <- data.frame(matrix(ncol = 6, nrow = 0))
+colnames(dqChecks) <- c("Source", "Type", "Issue", "DataElement", "Guidance", "Notes")
 
 #Will follow a set up like check1 = c(Type = Error, Issue = "something, Guidance = "Do this.", DataElement = ...)
 
@@ -71,14 +71,14 @@ check5 = c(
 )
 
 ## Integrity Checker
-check8 = c("integrity",
+check6 = c("integrity",
            "High Priority",
            "Nulls not allowed in this column",
            "",
            "",
            "")
 
-check9 = c(
+check7 = c(
   "integrity",
   "High Priority",
   "Duplicate PersonalIDs found in the Client file",
@@ -86,7 +86,7 @@ check9 = c(
   "",
   ""
 )
-check10 = c(
+check8 = c(
   "integrity",
   "High Priority",
   "Duplicate EnrollmentIDs found in the Enrollment file",
@@ -95,7 +95,7 @@ check10 = c(
   ""
 )
 
-check11 = c(
+check9 = c(
   "integrity",
   "High Priority",
   "Client in the Enrollment file not found in Client file",
@@ -104,7 +104,7 @@ check11 = c(
   ""
 )
 
-check12 = c(
+check10 = c(
   "integrity",
   "High Priority",
   "ProjectID in the Enrollment file not found in Project file",
@@ -113,7 +113,7 @@ check12 = c(
   ""
 )
 
-check13 = c("integrity", 
+check11 = c("integrity", 
             "High Priority", 
             "Incorrect Date Format", 
             "", 
@@ -123,21 +123,21 @@ check13 = c("integrity",
                        is used in the export."),
             "")
 
-check14 = c("integrity", 
+check12 = c("integrity", 
             "High Priority", 
             "Incorrect Column Count", 
             "",
             "",
             "")
 
-check15 = c("integrity", 
+check13 = c("integrity", 
             "High Priority", 
             "Incorrect Column Name", 
             "",
             "",
             "")
 
-check16 = c("integrity", 
+check14 = c("integrity", 
             "High Priority", 
             "Incorrect Data Type", 
             "",
@@ -148,7 +148,7 @@ check16 = c("integrity",
 
 #### GENERAL ERRORS #### -------------
 ## Data Quality Checks
-check17 = c(
+check15 = c(
   "dq",
   "Error",
   "Future Exit Date",
@@ -162,7 +162,7 @@ check17 = c(
   ""
 )
 
-check18 = c(
+check16 = c(
   "dq",
   "Error",
   "Missing Year Entered Service",
@@ -171,7 +171,7 @@ check18 = c(
   ""
 )
 
-check19 = c(
+check17 = c(
   "dq",
   "Error",
   "Incorrect Year Entered Service",
@@ -180,7 +180,7 @@ check19 = c(
   ""
 )
 
-check20 = c(
+check18 = c(
   "dq",
   "Error",
   "Missing Year Separated",
@@ -189,7 +189,7 @@ check20 = c(
   ""
 )
 
-check21 = c(
+check19 = c(
   "dq",
   "Error",
   "Incorrect Year Separated",
@@ -198,7 +198,7 @@ check21 = c(
   ""
 )
 
-check22 = c(
+check20 = c(
   "dq",
   "Error",
   "Missing War(s)",
@@ -207,7 +207,7 @@ check22 = c(
   ""
 )
 
-check23 = c(
+check21 = c(
   "dq",
   "Error",
   "Missing Military Branch",
@@ -216,7 +216,7 @@ check23 = c(
   ""
 )
 
-check24 = c(
+check22 = c(
   "dq",
   "Error",
   "Missing Discharge Status",
@@ -225,7 +225,7 @@ check24 = c(
   ""
 )
 
-check25 = c(
+check23 = c(
   "dq",
   "Error",
   "Missing Percent AMI",
@@ -234,7 +234,7 @@ check25 = c(
   ""
 )
 
-check26 = c(
+check24 = c(
   "dq",
   "Error",
   "Missing VAMC Station Number",
@@ -243,7 +243,7 @@ check26 = c(
   ""
 )
 
-check27 = c(
+check25 = c(
   "dq",
   "Error",
   "Missing Some or All of Last Permanent Address",
@@ -252,7 +252,7 @@ check27 = c(
   ""
 )
 
-check28 = c(
+check26 = c(
   "dq",
   "Error",
   "Missing HP Screening or Threshold Score",
@@ -261,7 +261,7 @@ check28 = c(
   ""
 )
 
-check29 = c(
+check27 = c(
   "dq",
   "Error",
   "Missing Length of Stay",
@@ -270,7 +270,7 @@ check29 = c(
   ""
 )
 
-check30 = c(
+check28 = c(
   "dq",
   "Error",
   "Missing Client Location",
@@ -279,7 +279,7 @@ check30 = c(
   ""
 )
 
-check31 = c(
+check29 = c(
   "dq",
   "Error",
   "Missing Approximate Date Homeless",
@@ -288,7 +288,7 @@ check31 = c(
   ""
 )
 
-check32 = c(
+check30 = c(
   "dq",
   "Error",
   "Missing Previously Unsheltered, ES, SH",
@@ -297,7 +297,7 @@ check32 = c(
   ""
 )
 
-check33 = c(
+check31 = c(
   "dq",
   "Error",
   "Missing Residence Prior",
@@ -306,7 +306,7 @@ check33 = c(
   ""
 )
 
-check34 = c(
+check32 = c(
   "dq",
   "Error",
   "Missing Months or Times Homeless",
@@ -315,7 +315,7 @@ check34 = c(
   ""
 )
 
-check35 = c(
+check33 = c(
   "dq",
   "Error",
   "Missing Disabling Condition",
@@ -324,7 +324,7 @@ check35 = c(
   ""
 )
 
-check36 = c(
+check34 = c(
   "dq",
   "Error",
   "Missing Name Data Quality",
@@ -333,7 +333,7 @@ check36 = c(
   ""
 )
 
-check37 = c(
+check35 = c(
   "dq",
   "Error",
   "Missing DOB",
@@ -348,7 +348,7 @@ check37 = c(
   ""
 )
 
-check38 = c(
+check36 = c(
   "dq",
   "Error",
   "Missing DOB Data Quality",
@@ -363,14 +363,14 @@ check38 = c(
   ""
 )
 
-check39 = c("dq",
+check37 = c("dq",
             "Error",
             "Missing Race",
             "3.04 - Race",
             guidance_missing_at_entry,
             "")
 
-check40 = c("dq",
+check38 = c("dq",
             "Error",
             "Missing Ethnicity",
             "3.05 - Ethnicity",
@@ -379,14 +379,14 @@ check40 = c("dq",
 
 #check41 = c("dq", "Error", "Invalid SSN", "3.02 - Social Security Number")
 
-check42 = c("dq",
+check39 = c("dq",
             "Error",
             "Missing Gender",
             "3.06 - Gender",
             guidance_missing_at_entry,
             "")
 
-check43 = c(
+check40 = c(
   "dq",
   "Error",
   "Missing Veteran Status",
@@ -395,7 +395,7 @@ check43 = c(
   ""
 )
 
-check44 = c(
+check41 = c(
   "dq",
   "Error",
   "Invalid Move-In Date",
@@ -407,7 +407,7 @@ check44 = c(
   ""
 )
 
-check60 = c(
+check42 = c(
   "dq",
   "Error",
   "Incomplete Living Situation Data",
@@ -423,7 +423,7 @@ check60 = c(
 )
 
 ##PDDE Checks
-check45 = c(
+check43 = c(
   "pdde",
   "Error",
   "Missing Geography Information",
@@ -433,7 +433,7 @@ check45 = c(
   str_squish("Missing geography information that makes this an error is the 
              project address information like city, state, and ZIP code.")
 )
-check46 = c("pdde",
+check44 = c("pdde",
             "Error",
             "No Inventory Records",
             "2.07 - Bed and Unit Inventory Information",
@@ -441,7 +441,7 @@ check46 = c("pdde",
                        Please enter inventory in HMIS for the project(s)."),
             "")
 
-check47 = c(
+check45 = c(
   "pdde",
   "Error",
   "Project Operating End precedes Inventory End",
@@ -451,7 +451,7 @@ check47 = c(
   ""
 )
 
-check48 = c(
+check46 = c(
   "pdde",
   "Error",
   "Missing Tracking Method",
@@ -461,7 +461,7 @@ check48 = c(
   ""
 )
 
-check49 = c(
+check47 = c(
   "pdde",
   "Error",
   "Sum of the dedicated beds should equal the Total Beds",
@@ -473,49 +473,49 @@ check49 = c(
 )
 
 ##Integrity Checker
-check50 = c("integrity", 
+check48 = c("integrity", 
             "Error", 
             "Nulls not allowed in this column", 
             "",
             "",
             "")
 
-check51 = c("integrity", 
+check49 = c("integrity", 
             "Error", 
             "Incorrect Date Format", 
             "",
             "",
             "")
 
-check52 = c("integrity", 
+check50 = c("integrity", 
             "Error", 
             "Incorrect Data Type", 
             "",
             "",
             "")
 
-check53 = c("integrity", 
+check51 = c("integrity", 
             "Error", 
             "ExportID mismatch", 
             "",
             "",
             "")
 
-check54 = c("integrity", 
+check52 = c("integrity", 
             "Error", 
             "Invalid value in Client file", 
             "",
             "",
             "")
 
-check55 = c("integrity",
+check53 = c("integrity",
             "Error",
             "Invalid Disabling Condition",
             "3.01.5 - Name: Name Data Quality",
             "",
             "")
 
-check56 = c(
+check54 = c(
   "integrity",
   "Error",
   "Invalid Living Situation value",
@@ -524,7 +524,7 @@ check56 = c(
   ""
 )
 
-check57 = c(
+check55 = c(
   "integrity",
   "Error",
   "Invalid RelationshipToHoH value",
@@ -533,14 +533,14 @@ check57 = c(
   ""
 )
 
-check58 = c("integrity",
+check56 = c("integrity",
             "Error",
             "Invalid Destination value",
             "3.12 - Destination",
             "",
             "")
 
-check59 = c(
+check57 = c(
   "integrity",
   "Error",
   "Non-standard Current Living Situation",
@@ -551,7 +551,7 @@ check59 = c(
 
 #### WARNINGS #### -------------
 ##Data Quality Checks
-check61 = c(
+check58 = c(
   "dq",
   "Warning",
   "Don't Know/Refused Discharge Status",
@@ -560,7 +560,7 @@ check61 = c(
   ""
 )
 
-check62 = c(
+check59 = c(
   "dq",
   "Warning",
   "Don't Know/Refused War(s)",
@@ -569,7 +569,7 @@ check62 = c(
   ""
 )
 
-check63 = c(
+check60 = c(
   "dq",
   "Warning",
   "Don't Know/Refused Military Branch",
@@ -578,21 +578,21 @@ check63 = c(
   ""
 )
 
-check64 = c("dq",
+check61 = c("dq",
             "Warning",
             "Don't Know/Refused Destination",
             "3.12 - Destination",
             guidance_dkr_data,
             "")
 
-check65 = c("dq",
+check62 = c("dq",
             "Warning",
             "Don't Know/Refused/Data Not Collected DOB",
             "3.03.1 - Date of Birth",
             guidance_dkr_data,
             "")
 
-check66 = c(
+check63 = c(
   "dq",
   "Warning",
   "Don't Know/Refused Months or Times Homeless",
@@ -600,21 +600,21 @@ check66 = c(
   guidance_dkr_data,
   "")
 
-check67 = c("dq",
+check64 = c("dq",
             "Warning",
             "Don't Know/Refused Ethnicity",
             "3.05 - Ethnicity",
             guidance_dkr_data,
             "")
 
-check68 = c("dq", 
+check65 = c("dq", 
             "Warning", 
             "Don't Know/Refused Race", 
             "3.04 - Race",
             guidance_dkr_data,
             "")
 
-check69 = c(
+check66 = c(
   "dq",
   "Warning",
   "Don't Know/Refused Residence Prior",
@@ -623,35 +623,35 @@ check69 = c(
   ""
 )
 
-check70 = c("dq", 
+check67 = c("dq", 
             "Warning", 
             "Don't Know/Refused Gender", 
             "3.06 - Gender",
             guidance_dkr_data,
             "")
 
-check71 = c("dq",
+check68 = c("dq",
             "Warning",
             "Don't Know/Refused Veteran Status",
             "3.07 - Veteran Status",
             guidance_dkr_data,
             "")
 
-check72 = c("dq",
+check69 = c("dq",
             "Warning",
             "Don't Know/Refused SSN",
             "3.02 - Social Security Number",
             guidance_dkr_data,
             "")
 
-check73 = c("dq",
+check70 = c("dq",
             "Warning",
             "Don't Know/Refused Living Situation",
             "3.917 - Prior Living Situation",
             guidance_dkr_data,
             "")
 
-check74 = c(
+check71 = c(
   "dq",
   "Warning",
   "Homelessness Start Date Later Than Entry",
@@ -663,7 +663,7 @@ check74 = c(
   ""
 )
 
-check75 = c(
+check72 = c(
   "dq",
   "Warning",
   "Number of Months Homeless Can Be Determined",
@@ -679,7 +679,7 @@ check75 = c(
   ""
 )
 
-check76 = c(
+check73 = c(
   "dq",
   "Warning",
   "Invalid Homelessness Start Date/Number of Months Homeless",
@@ -693,7 +693,7 @@ check76 = c(
   ""
 )
 
-check77 = c("dq",
+check74 = c("dq",
             "Warning",
             "Possible Missed Move-In Date",
             "3.20 - Housing Move-In Date",
@@ -705,7 +705,7 @@ check77 = c("dq",
       str_squish("1% if project type in PSH, PH - Housing Only, or PH - Housing with Services and
                  2% for all other project types."))
 
-check78 = c("dq",
+check75 = c("dq",
             "Warning",
             "Possible Missed Exit Date",
             "3.11 - Project Exit Date",
@@ -716,14 +716,14 @@ check78 = c("dq",
       str_squish("1% if project type in PSH, PH - Housing Only, or PH - Housing with Services and
                  2% for all other project types."))
 
-check79 = c("dq", 
+check76 = c("dq", 
             "Warning", 
             "Missing Destination", 
             "3.12 - Destination",
             guidance_dkr_data,
             "")
 
-check80 = c(
+check77 = c(
   "dq",
   "Warning",
   "Future Entry Date",
@@ -737,7 +737,7 @@ check80 = c(
   ""
 )
 
-check81 = c(
+check78 = c(
   "dq",
   "Warning",
   "Entry Precedes Project's Operating Start",
@@ -746,7 +746,7 @@ check81 = c(
   ""
 )
 
-check82 = c("dq",
+check79 = c("dq",
             "Warning",
             "Project Overlaps",
             "3.10 - Project Start Date, 3.11 - Project Exit Date",
@@ -756,7 +756,7 @@ check82 = c("dq",
       more information."),
             "")
 
-check83 = c(
+check80 = c(
   "dq",
   "Warning",
   "Incomplete or Don't Know/Refused Name",
@@ -766,7 +766,7 @@ check83 = c(
 )
 
 ##PDDE Checks
-check84 = c("pdde",
+check81 = c("pdde",
             "Warning",
             "Inventory Start Precedes Project Operating Start",
             "",
@@ -776,7 +776,7 @@ check84 = c("pdde",
             ""
 )
 
-check85 = c(
+check82 = c(
   "pdde",
   "Warning",
   "Non-HMIS-Participating project has client-level data",
@@ -788,7 +788,7 @@ check85 = c(
   ""
 )
 
-check86 = c(
+check83 = c(
   "pdde",
   "Warning",
   "Potentially Missing Operating End Date",
@@ -799,10 +799,100 @@ check86 = c(
 )
 
 ##Integrity Checker
-check87 = c("integrity", 
+check84 = c("integrity", 
             "Warning", 
             "Incorrect Column Name", 
             "",
             "",
             "")
 
+
+dqChecks <- data.frame(check1,
+                       check2,
+                       check3,
+                       check4,
+                       check5,
+                       check6,
+                       check7,
+                       check8,
+                       check9,
+                       check10,
+                       check11,
+                       check12,
+                       check13,
+                       check14,
+                       check15,
+                       check16,
+                       check17,
+                       check18,
+                       check19,
+                       check20,
+                       check21,
+                       check22,
+                       check23,
+                       check24,
+                       check25,
+                       check26,
+                       check27,
+                       check28,
+                       check29,
+                       check30,
+                       check31,
+                       check32,
+                       check33,
+                       check34,
+                       check35,
+                       check36,
+                       check37,
+                       check38,
+                       check39,
+                       check40,
+                       check41,
+                       check42,
+                       check43,
+                       check44,
+                       check45,
+                       check46,
+                       check47,
+                       check48,
+                       check49,
+                       check50,
+                       check51,
+                       check52,
+                       check53,
+                       check54,
+                       check55,
+                       check56,
+                       check57,
+                       check58,
+                       check59,
+                       check60,
+                       check61,
+                       check62,
+                       check63,
+                       check64,
+                       check65,
+                       check66,
+                       check67,
+                       check68,
+                       check69,
+                       check70,
+                       check71,
+                       check72,
+                       check73,
+                       check74,
+                       check75,
+                       check76,
+                       check77,
+                       check78,
+                       check79,
+                       check80,
+                       check81,
+                       check82,
+                       check83,
+                       check84
+)
+
+dqChecks_transpose <- t(dqChecks)
+dqChecks_t <- as.data.frame(dqChecks_transpose)
+write_xlsx(dqChecks_t,"~/DQ_CE/data/EvaChecks.xlsx")
