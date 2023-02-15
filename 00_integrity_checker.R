@@ -449,6 +449,23 @@ rel_to_hoh_invalid <- Enrollment %>%
   select(all_of(display_cols)) %>%
   unique()
 
+# Group by HouseholdID and ProjectID, and count the number of unique PersonalIDs in each group
+duplicate_household_id <- Enrollment %>%
+  distinct(HouseholdID, ProjectID) %>%
+  filter(!is.na(HouseholdID)) %>%
+  get_dupes(HouseholdID) %>%
+  mutate(
+    Issue = "Duplicate HouseholdIDs across Projects found in the Enrollment file",
+    Type = "High Priority",
+    Guidance = str_squish("HouseholdIDs should be unique across Projects in the Enrollment file. 
+                            Please ensure that each unique household gets their own unique HouseholdID for each project in this file."),
+    Detail = paste("There are", dupe_count, "for HouseholdID", HouseholdID)
+  ) %>%
+  select(all_of(display_cols))
+
+# Create a new data.frame with the HouseholdIDs and their associated ProjectIDs
+household_data <- data.frame(repeated_households)
+
 # move_in_date_invalid <- Enrollment %>%
 #   left_join(Exit %>% select(EnrollmentID, ExitDate), by = "EnrollmentID") %>%
 #   mutate(
@@ -521,6 +538,7 @@ integrity_main <- rbind(
   valid_values_client,
   duplicate_client_id,
   duplicate_enrollment_id,
+  duplicate_household_id,
   foreign_key_no_primary_personalid_enrollment,
   foreign_key_no_primary_projectid_enrollment,
   disabling_condition_invalid,
