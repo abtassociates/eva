@@ -461,7 +461,8 @@ duplicate_household_id <- Enrollment %>%
                             Please ensure that each unique household gets their own unique HouseholdID for each project in this file."),
     Detail = paste("There are", dupe_count, "for HouseholdID", HouseholdID)
   ) %>%
-  select(all_of(display_cols))
+  select(all_of(display_cols)) %>%
+  unique()
 
 # move_in_date_invalid <- Enrollment %>%
 #   left_join(Exit %>% select(EnrollmentID, ExitDate), by = "EnrollmentID") %>%
