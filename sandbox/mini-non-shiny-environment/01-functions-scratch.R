@@ -116,19 +116,6 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
-  if (is.null(input$imported)) {return()}
-  
-  filename = glue::glue("sandbox/mini-non-shiny-environment/data/{csvFile}.csv")
-  
-  data <- read_csv(unzip(zipfile = input$imported$datapath,
-                         files = filename),
-                   col_types = col_types
-  )
-  file.remove(filename)
-  return(data)
-}
-
 getDQReportDataList <-
   function(dqData,
            dqOverlaps = NULL,
