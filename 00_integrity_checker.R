@@ -463,9 +463,6 @@ duplicate_household_id <- Enrollment %>%
   ) %>%
   select(all_of(display_cols))
 
-# Create a new data.frame with the HouseholdIDs and their associated ProjectIDs
-household_data <- data.frame(repeated_households)
-
 # move_in_date_invalid <- Enrollment %>%
 #   left_join(Exit %>% select(EnrollmentID, ExitDate), by = "EnrollmentID") %>%
 #   mutate(
