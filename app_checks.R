@@ -4,20 +4,15 @@ library(lubridate)
 library(scales)
 library(HMIS)
 
-#### LIST OF ALL EVA CHECKS #### -------------
-
 #Create empty dataframe for checks
 
 dqChecks <- data.frame(matrix(ncol = 6, nrow = 0))
 colnames(dqChecks) <- c("Source", "Type", "Issue", "DataElement", "Guidance", "Notes")
 
-#Will follow a set up like check1 = c(Type = Error, Issue = "something, Guidance = "Do this.", DataElement = ...)
-
 #Bring in guidance from separate R script
 source("03_guidance.R")
 
-#### HIGH PRIORITY ERRORS #### -------------
-##DataQuality Checks
+#### LIST OF ALL EVA CHECKS #### -------------
 check1 = c(
   Source = "dq",
   Type = "High Priority",
@@ -59,7 +54,6 @@ check4 = c(
 )
 
 
-## PDDE Checks
 check5 = c(
   "pdde",
   "High Priority",
@@ -70,20 +64,24 @@ check5 = c(
   "Mising geography information that makes this a High Priority Error are geocode, CoC code, and geography type."
 )
 
-## Integrity Checker
+
 check6 = c("integrity",
            "High Priority",
-           "Nulls not allowed in this column",
+           "Nulls not allowed or incompatible data type in column",
            "",
-           "",
-           "")
+           str_squish("Certain columns cannot contain nulls or incompatible data types.
+                    Please review the HMIS CSV Format Specifications for the data types and null requirements associated 
+                    with the file and column listed in the detail and make the necessary updates."),
+           str_squish("If the data type is considered High Priority, this will be a High Priority issue. Otherwise, this will be considered a General Error."))
 
 check7 = c(
   "integrity",
   "High Priority",
   "Duplicate PersonalIDs found in the Client file",
   "5.08 - Personal Identifier",
-  "",
+  str_squish("PersonalIDs should be unique in the Client file. 
+                          Each unique client should only be listed once in the Client file.
+                          Please ensure that each unique client gets their own unique PersonalID in this file."),
   ""
 )
 check8 = c(
@@ -91,7 +89,10 @@ check8 = c(
   "High Priority",
   "Duplicate EnrollmentIDs found in the Enrollment file",
   "5.06 - Enrollment Identifier",
-  "",
+  str_squish("EnrollmentIDs should be unique in the Enrollment file. There may be no more than one
+                          record for any PersonalID with the same EnrollmentID. If there is more than one record
+                          for the same PersonalID with the same EnrollmentID, this represents an error in the
+                          CSV export algorithm."),
   ""
 )
 
@@ -100,7 +101,8 @@ check9 = c(
   "High Priority",
   "Client in the Enrollment file not found in Client file",
   "5.08 - Personal Identifier",
-  "",
+  str_squish("Per the HMIS CSV Format Specifications, all PersonalIDs in the Enrollment 
+                          file should have a record in the Client file."),
   ""
 )
 
@@ -109,7 +111,8 @@ check10 = c(
   "High Priority",
   "ProjectID in the Enrollment file not found in Project file",
   "5.05 - Project Identifier",
-  "",
+  str_squish("Per the HMIS CSV Format Specifications, all ProjectIDs in the Enrollment 
+                          file should have a record in the Project file."),
   ""
 )
 
@@ -125,17 +128,12 @@ check11 = c("integrity",
 
 check12 = c("integrity", 
             "High Priority", 
-            "Incorrect Column Count", 
+            "Incorrect Columns", 
             "",
-            "",
-            "")
-
-check13 = c("integrity", 
-            "High Priority", 
-            "Incorrect Column Name", 
-            "",
-            "",
-            "")
+            str_squish("Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. 
+      Please remove any extra columns and make sure you have all missing columns."),
+            str_squish("If the column is considered High Priority, this will be a 
+                       High Priority issue. Otherwise, this will be considered a Warning."))
 
 check14 = c("integrity", 
             "High Priority", 
@@ -146,8 +144,6 @@ check14 = c("integrity",
                        necessary updates."),
             "")
 
-#### GENERAL ERRORS #### -------------
-## Data Quality Checks
 check15 = c(
   "dq",
   "Error",
@@ -377,8 +373,6 @@ check38 = c("dq",
             guidance_missing_at_entry,
             "")
 
-#check41 = c("dq", "Error", "Invalid SSN", "3.02 - Social Security Number")
-
 check39 = c("dq",
             "Error",
             "Missing Gender",
@@ -422,7 +416,7 @@ check42 = c(
   ""
 )
 
-##PDDE Checks
+
 check43 = c(
   "pdde",
   "Error",
@@ -472,47 +466,61 @@ check47 = c(
   ""
 )
 
-##Integrity Checker
+
 check48 = c("integrity", 
             "Error", 
             "Nulls not allowed in this column", 
             "",
-            "",
-            "")
+            str_squish("Certain columns cannot contain nulls or incompatible data types.
+                    Please review the HMIS CSV Format Specifications for the data types and null requirements associated 
+                    with the file and column listed in the detail and make the necessary updates."),
+            str_squish("If the data type is considered High Priority, this will be a High Priority issue. 
+                       Otherwise, this will be considered a General Error."))
 
 check49 = c("integrity", 
             "Error", 
             "Incorrect Date Format", 
             "",
-            "",
-            "")
+            str_squish("Dates in the HMIS CSV Export should be in yyyy-mm-dd or
+      yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format
+      Specifications. Please check the Specifications for the file and column identified in the Detail
+      and ensure the correct date format is used in the export."),
+            str_squish("If the column is considered High Priority, this will be a High Priority issue. 
+                       Otherwise, this will be considered a General Error."))
 
 check50 = c("integrity", 
             "Error", 
             "Incorrect Data Type", 
             "",
-            "",
+            str_squish("Data types must align with the HMIS CSV Format Specifications. 
+                       Please review the specifications for the data types associated with the file and column liseted in the Detail and make the necessary updates."),
             "")
 
 check51 = c("integrity", 
             "Error", 
             "ExportID mismatch", 
             "",
-            "",
+            str_squish("Per the HMIS CSV Formatting Specifications, the ExportID in your Export and Client files must match.
+                There should be one unique ExportID that will be used to identify all CSV files genereated as part
+                of the same export process."),
             "")
 
 check52 = c("integrity", 
             "Error", 
             "Invalid value in Client file", 
             "",
-            "",
+            str_squish("All columns in the client file should contain only the values listed in the HMIS CSV Format Specifications
+                for that specific column. Please review the Specifications for the column identified in the Detail and ensure
+                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
             "")
 
 check53 = c("integrity",
             "Error",
             "Invalid Disabling Condition",
             "3.01.5 - Name: Name Data Quality",
-            "",
+            str_squish("DisablingCondition should only have valid values. Please review the HMIS CSV Format Specifications for 
+                       DisablingCondition and ensure all values in the export align with the associated values list found in 
+                       'Appendix B - Lists' of the Specifications."),
             "")
 
 check54 = c(
@@ -520,7 +528,8 @@ check54 = c(
   "Error",
   "Invalid Living Situation value",
   "3.917.1 - Prior Living Situation: Living Situation",
-  "",
+  str_squish("LivingSituation may only contain valid values. Please review the HMIS CSV Format Specifications for LivingSituation and ensure
+                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
   ""
 )
 
@@ -529,7 +538,8 @@ check55 = c(
   "Error",
   "Invalid RelationshipToHoH value",
   "3.15 - Relationship to Head of Household",
-  "",
+  str_squish("RelationshipToHoH must be a valid value. Please review the HMIS CSV Format Specifications for RelationshipToHoH and ensure
+                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
   ""
 )
 
@@ -537,7 +547,8 @@ check56 = c("integrity",
             "Error",
             "Invalid Destination value",
             "3.12 - Destination",
-            "",
+            str_squish("Destination values must be valid. Please review the HMIS CSV Format Specifications for Destination and ensure
+                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
             "")
 
 check57 = c(
@@ -545,12 +556,13 @@ check57 = c(
   "Error",
   "Non-standard Current Living Situation",
   "4.12 - Current Living Situation",
-  "",
+  str_squish("This column contains a value that may have been retired from an old version of the Data Standards or was miskeyed. 
+                Please review the HMIS CSV Format Specifications for CurrentLivingSituation and ensure
+                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
   ""
 )
 
-#### WARNINGS #### -------------
-##Data Quality Checks
+
 check58 = c(
   "dq",
   "Warning",
@@ -765,7 +777,7 @@ check80 = c(
   ""
 )
 
-##PDDE Checks
+
 check81 = c("pdde",
             "Warning",
             "Inventory Start Precedes Project Operating Start",
@@ -798,13 +810,22 @@ check83 = c(
   ""
 )
 
-##Integrity Checker
+
 check84 = c("integrity", 
             "Warning", 
-            "Incorrect Column Name", 
+            "Incorrect Columns", 
             "",
-            "",
-            "")
+            str_squish("Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. 
+      Please remove any extra columns and make sure you have all missing columns."),
+            str_squish("If the column is considered High Priority, this will be a High Priority issue. Otherwise, this will be considered a Warning."))
+
+#New check? Use the following template and then add it to dqChecks
+#check# = c(Source = "",
+          # Type = "",
+          # Issue = "", 
+          # DataElement = "",
+          # Guidance = ", 
+          # Note = ")
 
 
 dqChecks <- data.frame(check1,
@@ -819,7 +840,7 @@ dqChecks <- data.frame(check1,
                        check10,
                        check11,
                        check12,
-                       check13,
+                       #check13,
                        check14,
                        check15,
                        check16,
