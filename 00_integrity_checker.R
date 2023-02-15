@@ -68,36 +68,39 @@ df_date_types <-
 
 # Incorrect Columns ------------------------------------------------------
 check_columns <- function(file) {
-  col_diffs <- tibble(
-    ImportedColumns = 
-      colnames(!!rlang::ensym(file)),
-    CorrectColumns = 
-      cols_and_data_types %>%
+  ImportedColumns <- colnames(get(file))
+  CorrectColumns <- cols_and_data_types %>%
       filter(File == {{file}}) %>%
       pull(Column)
-  ) %>%
-  mutate(
-    isExtra = !(ImportedColumns %in% CorrectColumns),
-    isMissing = !(CorrectColumns %in% ImportedColumns),
-    Issue = "Incorrect Columns",
-    Type = if_else(CorrectColumns %in% c(high_priority_columns), 
-                   "High Priority", "Warning"),
-    Guidance = str_squish(
-      "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. 
-      Please remove any extra columns and make sure you have all missing columns."),
-    Detail = str_squish(paste(
-      "In the",
-      file,
-      "file,",
-      if_else(isExtra,
-              paste(ImportedColumns,"is an extra column"),
-              paste("the",CorrectColumns,"column is missing")
-      )
-    ))
-  ) %>%
-  filter(isExtra | isMissing) %>%
-  select(all_of(display_cols)) %>% 
-  unique()
+  
+  extra_columns <- setdiff(ImportedColumns, CorrectColumns)
+  missing_columns <- setdiff(CorrectColumns, ImportedColumns)
+  
+  if(length(extra_columns) || length(missing_columns)) {
+    col_diffs <- data.frame(
+      ColumnName = c(missing_columns, extra_columns),
+      Status = c(rep("Missing", length(missing_columns)), rep("Extra", length(extra_columns)))
+    ) %>% 
+    mutate(
+      Issue = "Incorrect Columns",
+      Type = if_else(ColumnName %in% c(high_priority_columns), 
+                     "High Priority", "Warning"),
+      Guidance = str_squish(
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. 
+        Please remove any extra columns and make sure you have all missing columns."),
+      Detail = str_squish(paste(
+        "In the",
+        file,
+        "file,",
+        if_else(Status == "Extra",
+                paste(ColumnName,"is an extra column"),
+                paste("the",ColumnName,"column is missing")
+        )
+      ))
+    ) %>%
+    select(all_of(display_cols)) %>% 
+    unique()
+  }
 }
 
 check_data_types <- function(quotedfile) {
