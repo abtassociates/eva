@@ -546,7 +546,7 @@ integrity_main <- rbind(
   nonstandard_CLS
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
-  arrange(Issue, Type)
+  arrange(Type)
 
 if(integrity_main %>% filter(Type == "High Priority") %>% nrow() > 0) {
   structural_issues <- 1

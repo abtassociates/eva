@@ -178,9 +178,10 @@ function(input, output, session) {
         req(initially_valid_zip)
 
         a <- integrity_main %>%
-          group_by(Issue, Type) %>%
+          group_by(Type, Issue) %>%
           summarise(Count = n()) %>%
-          ungroup()
+          ungroup() %>%
+          arrange(Type, desc(Count))
         
         datatable(
           a,
@@ -203,7 +204,8 @@ function(input, output, session) {
       },
       content = function(file) {
         write_xlsx(
-          integrity_main,
+          integrity_main %>%
+            arrange(Type, Issue),
           path = file
         )
         
