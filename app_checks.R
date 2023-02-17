@@ -1,16 +1,10 @@
 library(tidyverse)
-library(janitor)
-library(lubridate)
-library(scales)
-library(HMIS)
-
-#Create empty dataframe for checks
-
-dqChecks <- data.frame(matrix(ncol = 6, nrow = 0))
-colnames(dqChecks) <- c("Source", "Type", "Issue", "DataElement", "Guidance", "Notes")
+library(openxlsx)
 
 #Bring in guidance from separate R script
 source("03_guidance.R")
+
+### CTRL + F "new check" TO ADD NEW CHECK ----
 
 #### LIST OF ALL EVA CHECKS #### -------------
 check1 = c(
@@ -467,15 +461,15 @@ check47 = c(
 )
 
 
-check48 = c("integrity", 
-            "Error", 
-            "Nulls not allowed in this column", 
-            str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
-            str_squish("Certain columns cannot contain nulls or incompatible data types.
-                    Please review the HMIS CSV Format Specifications for the data types and null requirements associated 
-                    with the file and column listed in the detail and make the necessary updates."),
-            str_squish("If the data type is considered High Priority, this will be a High Priority issue. 
-                       Otherwise, this will be considered a General Error."))
+# check48 = c("integrity", 
+#             "Error", 
+#             "Nulls not allowed in this column", 
+#             str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
+#             str_squish("Certain columns cannot contain nulls or incompatible data types.
+#                     Please review the HMIS CSV Format Specifications for the data types and null requirements associated 
+#                     with the file and column listed in the detail and make the necessary updates."),
+#             str_squish("If the data type is considered High Priority, this will be a High Priority issue. 
+#                        Otherwise, this will be considered a General Error."))
 
 check49 = c("integrity", 
             "Error", 
@@ -819,7 +813,11 @@ check84 = c("integrity",
       Please remove any extra columns and make sure you have all missing columns."),
             str_squish("If the column is considered High Priority, this will be a High Priority issue. Otherwise, this will be considered a Warning."))
 
-#New check? Use the following template and then add it to dqChecks
+### ADD NEW CHECKS ABOVE ^^^ ------------------------------------
+
+#New check? Use the following template and then add it above the ADD NEW CHECKS lin
+#then add the check to dqChecks data frame below
+
 #check# = c(Source = "",
           # Type = "",
           # Issue = "", 
@@ -828,7 +826,7 @@ check84 = c("integrity",
           # Note = ")
 
 
-dqChecks <- data.frame(check1,
+dqChecks <- data.frame(rbind(check1,
                        check2,
                        check3,
                        check4,
@@ -875,7 +873,7 @@ dqChecks <- data.frame(check1,
                        check45,
                        check46,
                        check47,
-                       check48,
+                       #check48,
                        check49,
                        check50,
                        check51,
@@ -912,8 +910,23 @@ dqChecks <- data.frame(check1,
                        check82,
                        check83,
                        check84
-)
+))
 
-dqChecks_transpose <- t(dqChecks)
-dqChecks_t <- as.data.frame(dqChecks_transpose)
-write_xlsx(dqChecks_t,"~/DQ_CE/data/EvaChecks.xlsx")
+#Data frames separated out by Source
+dqChecks_integrity <- dqChecks %>%
+  filter(Source == "integrity")
+
+dqChecks_dq <- dqChecks %>%
+  filter(Source == "dq")
+
+dqChecks_pdde <- dqChecks %>%
+  filter(Source == "pdde")
+
+#Make a list of dfs to create tabs in export
+EvaChecks <- list('Integrity Checks' = dqChecks_integrity, 
+              'PDDE Checks' = dqChecks_pdde, 
+              'DQ Checks' = dqChecks_dq, 
+              "All Checks" = dqChecks)
+
+#Export checks to Excel doc
+write.xlsx(EvaChecks, file = "~/DQ_CE/data/EvaChecks.xlsx")
