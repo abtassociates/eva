@@ -146,3 +146,20 @@ desk_time_providers <- validation %>%
        exited_between(., today() - years(1), today())) &
       ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
   dplyr::select(ProjectName) %>% unique()
+
+vars_prep <- c(
+  "HouseholdID",
+  "PersonalID",
+  "OrganizationName",
+  "ProjectID",
+  "ProjectName",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitDate"
+)
+
+vars_we_want <- c(vars_prep,
+                  "Issue",
+                  "Type",
+                  "Guidance")
