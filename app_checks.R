@@ -68,7 +68,7 @@ check5 = c(
 check6 = c("integrity",
            "High Priority",
            "Nulls not allowed or incompatible data type in column",
-           "",
+           str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
            str_squish("Certain columns cannot contain nulls or incompatible data types.
                     Please review the HMIS CSV Format Specifications for the data types and null requirements associated 
                     with the file and column listed in the detail and make the necessary updates."),
@@ -119,7 +119,7 @@ check10 = c(
 check11 = c("integrity", 
             "High Priority", 
             "Incorrect Date Format", 
-            "", 
+            "Date-Based Data Elements", 
             str_squish("Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format,
                        in alginment with the HMIS CSV Format Specifications. Please check the Specifications
                        for the file and column identified in the Detail and ensure the correct date format
@@ -129,7 +129,7 @@ check11 = c("integrity",
 check12 = c("integrity", 
             "High Priority", 
             "Incorrect Columns", 
-            "",
+            str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
             str_squish("Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. 
       Please remove any extra columns and make sure you have all missing columns."),
             str_squish("If the column is considered High Priority, this will be a 
@@ -138,7 +138,7 @@ check12 = c("integrity",
 check14 = c("integrity", 
             "High Priority", 
             "Incorrect Data Type", 
-            "",
+            str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
             str_squish("Data types must align with the HMIS CSV Format Specifications. Please review the specifications
                        for the data types associated with the file and column liseted in the Detail and make the
                        necessary updates."),
@@ -470,7 +470,7 @@ check47 = c(
 check48 = c("integrity", 
             "Error", 
             "Nulls not allowed in this column", 
-            "",
+            str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
             str_squish("Certain columns cannot contain nulls or incompatible data types.
                     Please review the HMIS CSV Format Specifications for the data types and null requirements associated 
                     with the file and column listed in the detail and make the necessary updates."),
@@ -480,7 +480,7 @@ check48 = c("integrity",
 check49 = c("integrity", 
             "Error", 
             "Incorrect Date Format", 
-            "",
+            "Date-Based Data Elements",
             str_squish("Dates in the HMIS CSV Export should be in yyyy-mm-dd or
       yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format
       Specifications. Please check the Specifications for the file and column identified in the Detail
@@ -491,7 +491,7 @@ check49 = c("integrity",
 check50 = c("integrity", 
             "Error", 
             "Incorrect Data Type", 
-            "",
+            str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
             str_squish("Data types must align with the HMIS CSV Format Specifications. 
                        Please review the specifications for the data types associated with the file and column liseted in the Detail and make the necessary updates."),
             "")
@@ -499,7 +499,7 @@ check50 = c("integrity",
 check51 = c("integrity", 
             "Error", 
             "ExportID mismatch", 
-            "",
+            "ExportID",
             str_squish("Per the HMIS CSV Formatting Specifications, the ExportID in your Export and Client files must match.
                 There should be one unique ExportID that will be used to identify all CSV files genereated as part
                 of the same export process."),
@@ -508,7 +508,7 @@ check51 = c("integrity",
 check52 = c("integrity", 
             "Error", 
             "Invalid value in Client file", 
-            "",
+            "3.01-3.07, V1.1-V1.11",
             str_squish("All columns in the client file should contain only the values listed in the HMIS CSV Format Specifications
                 for that specific column. Please review the Specifications for the column identified in the Detail and ensure
                 all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
@@ -781,7 +781,7 @@ check80 = c(
 check81 = c("pdde",
             "Warning",
             "Inventory Start Precedes Project Operating Start",
-            "",
+            "2.07 - Bed and Unit Inventory Information, 3.10 - Project Start Date",
             str_squish("Inventory Start and End dates should be within Project 
                        Operating Start and End dates. Please update either the inventory 
                        ates or the Project Operating dates."),
@@ -814,7 +814,7 @@ check83 = c(
 check84 = c("integrity", 
             "Warning", 
             "Incorrect Columns", 
-            "",
+            str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
             str_squish("Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. 
       Please remove any extra columns and make sure you have all missing columns."),
             str_squish("If the column is considered High Priority, this will be a High Priority issue. Otherwise, this will be considered a Warning."))
