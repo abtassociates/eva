@@ -25,10 +25,12 @@ function(input, output, session) {
     logMetadata(paste("User on",input$sidebarmenuid))
   })
   
-  output$headerUpload <- headerGeneric("Upload HMIS CSV Export",
-                              h4(strong("Export Date: "),
-                                   format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
-                              ))
+  output$headerUpload <-
+    headerGeneric("Upload HMIS CSV Export",
+                  h4(
+                    strong("Export Date: "),
+                    format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
+                  ))
   
   output$fileInfo <- renderUI({
     if(valid_file() == 1) {
@@ -106,16 +108,19 @@ function(input, output, session) {
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
   })
+  
   observeEvent(input$timeOut, {
     reset("imported")
   })
 
   observeEvent(input$imported, {
-    source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+
+    # calling in HMIS-related functions that aren't in the HMIS pkg
+    source("00_functions.R", local = TRUE) 
     
     initially_valid_zip <- zip_initially_valid()
     
-    if(initially_valid_zip) {
+    if(initially_valid_zip == 1) {
 
       hide('imported_progress')
       
@@ -169,7 +174,7 @@ function(input, output, session) {
     }
     
     dq_main_reactive <- reactive({
-      req(valid_file()== 1)
+      req(valid_file() == 1)
       # browser()
       ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
       Other <- calculate_long_stayers(input$OtherLongStayers, 7)
@@ -191,7 +196,7 @@ function(input, output, session) {
     
     output$integrityChecker <- DT::renderDataTable(
       {
-        req(initially_valid_zip)
+        req(initially_valid_zip == 1)
 
         a <- integrity_main %>%
           group_by(Issue, Type) %>%
@@ -208,7 +213,7 @@ function(input, output, session) {
       })
     
     output$downloadIntegrityBtn <- renderUI({
-      req(initially_valid_zip)
+      req(initially_valid_zip == 1)
       downloadButton("downloadIntegrityCheck", "Download Structure Analysis Detail")
     })  
     
