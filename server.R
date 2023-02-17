@@ -1,12 +1,16 @@
 
 function(input, output, session) {
   
-  #record_heatmap(target = ".wrapper")
+  # record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
-  source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
   
+  # calling in HMIS-related functions that aren't in the HMIS pkg
+  source("00_functions.R", local = TRUE) 
   
+
+# If you want an initial dialog box, use this -----------------------------
+
  # showModal(modalDialog(
  #    title = "Changelog Alert",
  #    "Due to a recent update, Eva *may* reject exports that were previously
@@ -17,26 +21,29 @@ function(input, output, session) {
  #    easyClose = TRUE
  #  ))
   
+  valid_file <- reactiveVal(0)
   
   logMetadata("Session started")
-  valid_file <- reactiveVal(0)
 
   observe({ 
     logMetadata(paste("User on",input$sidebarmenuid))
   })
   
+  output$fileInfo <- renderUI({
+    if(valid_file() == 1) {
+      HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
+    }
+  }) 
+
+# Headers -----------------------------------------------------------------
+
   output$headerUpload <-
     headerGeneric("Upload HMIS CSV Export",
                   h4(
                     strong("Export Date: "),
                     format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
                   ))
-  
-  output$fileInfo <- renderUI({
-    if(valid_file() == 1) {
-      HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
-    }
-  })
+
   
   output$headerLocalSettings <- headerGeneric("Edit Local Settings")
   
@@ -55,6 +62,8 @@ function(input, output, session) {
   output$headerSystemDQ <- headerGeneric("System-level Data Quality")
     
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
+
+# Changelog ---------------------------------------------------------------
 
   output$changelog <- renderTable({
     tribble(
@@ -112,6 +121,8 @@ function(input, output, session) {
   observeEvent(input$timeOut, {
     reset("imported")
   })
+
+# Run scripts on upload ---------------------------------------------------
 
   observeEvent(input$imported, {
 
@@ -431,8 +442,9 @@ function(input, output, session) {
                      label = "Download System-Wide")
     })
     
-    # the download basically contains a pivoted and summarized version of the two app tables, but for all projects
-    # along with a Current tab limited to just the current date.
+    # the download basically contains a pivoted and summarized version of the
+    # two app tables, but for all projects along with a Current tab limited to
+    # just the current date.
     output$downloadClientCountsReport <- downloadHandler(
       filename = function() {
         paste("Client Counts Report-",
@@ -442,7 +454,7 @@ function(input, output, session) {
       },
       content = get_clientcount_download_info
     )
-    
+
     output$dq_org_guidance_summary <- DT::renderDataTable({
       req(valid_file() == 1)
       
