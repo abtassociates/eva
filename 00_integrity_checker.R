@@ -187,7 +187,7 @@ check_for_bad_nulls <- function(file) {
     if(ncol(barefile) > 0) {
       barefile %>%
         mutate(row_id = row_number()) %>%
-        gather(key = "Column", value = "value", -row_id) %>%
+        pivot_longer(key = "Column", value = "value", -row_id) %>%
         group_by(Column) %>%
         mutate(row_ids = case_when(
           sum(value) == total_rows ~ "All rows affected", 
