@@ -28,7 +28,7 @@ files <- c(
   "YouthEducationStatus"
 )
 
-display_cols <- c("Issue", "Type", "Guidance","Detail")
+display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 export_id_from_export <- Export %>% pull(ExportID)
 
@@ -57,12 +57,18 @@ df_date_types <-
     Issue = "Incorrect Date Format",
     Type = if_else(Column %in% c(high_priority_columns), 
                    "High Priority", "Error"),
-    Guidance = str_squish("Dates in the HMIS CSV Export should be in yyyy-mm-dd or
+    Guidance = 
+      str_squish("Dates in the HMIS CSV Export should be in yyyy-mm-dd or
       yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format
-      Specifications. Please check the Specifications for the file and column identified in the Detail
-      and ensure the correct date format is used in the export."),
+      Specifications. Please check the Specifications for the file and column
+      identified in the Detail and ensure the correct date format is used in the
+      export."),
     Detail = str_squish(paste(
-      "Please check that the", Column, "column in the", File, "file has the correct date format."))
+      "Please check that the",
+      Column,
+      "column in the",
+      File,
+      "file has the correct date format."))
   ) %>%
   select(all_of(display_cols)) %>% unique()
 
@@ -79,22 +85,25 @@ check_columns <- function(file) {
   if(length(extra_columns) || length(missing_columns)) {
     col_diffs <- data.frame(
       ColumnName = c(missing_columns, extra_columns),
-      Status = c(rep("Missing", length(missing_columns)), rep("Extra", length(extra_columns)))
+      Status = c(rep("Missing", length(missing_columns)),
+                 rep("Extra", length(extra_columns)))
     ) %>% 
     mutate(
       Issue = "Incorrect Columns",
       Type = if_else(ColumnName %in% c(high_priority_columns), 
                      "High Priority", "Warning"),
       Guidance = str_squish(
-        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. 
-        Please remove any extra columns and make sure you have all missing columns."),
+        "Your HMIS CSV Export should contain - with identical, case-sensitive
+        spelling - only the columns specified in the columns.csv file. Please
+        remove any extra columns and make sure you have all the required
+        columns."),
       Detail = str_squish(paste(
         "In the",
         file,
         "file,",
         if_else(Status == "Extra",
-                paste(ColumnName,"is an extra column"),
-                paste("the",ColumnName,"column is missing")
+                paste(ColumnName, "is an extra column"),
+                paste("the", ColumnName, "column is missing")
         )
       ))
     ) %>%
@@ -130,9 +139,11 @@ check_data_types <- function(quotedfile) {
       mutate(
         Issue = "Incorrect Data Type",
         Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
-        Guidance = str_squish("Data types must align with the HMIS CSV Format Specifications. 
-                    Please review the Specifications for the data types associated 
-                    with the file and column listed in the detail and make the necessary updates."),
+        Guidance = 
+          str_squish("Data types must align with the HMIS CSV Format
+                     Specifications. Please review the Specifications for the
+                     data types associated with the file and column listed in
+                     the detail and make the necessary updates."),
         Detail = str_squish(paste0(
           "In the ",
           quotedfile,
@@ -164,7 +175,7 @@ check_for_bad_nulls <- function(file) {
   if (total_rows > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
-      filter(File==file & NullsAllowed == 0) %>%
+      filter(File == file & NullsAllowed == 0) %>%
       pull(Column)
 
     # select subset of columns with nulls
