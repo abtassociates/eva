@@ -207,16 +207,16 @@ check_for_bad_nulls <- function(file) {
                     select(Column, DataTypeHighPriority),
                   by = "Column") %>%
         mutate(
-          Issue = "Nulls not allowed or incompatible data type in column",
+          Issue = "Nulls not allowed or incorrect data type",
           Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
           Guidance = 
-            str_squish("Certain columns cannot contain nulls or incompatible
-                       data types. Please review the HMIS CSV Format
-                       Specifications for the data types and null requirements
-                       associated with the file and column listed in the detail
-                       and make the necessary updates."),
+            str_squish("Either there is a column with nulls where they are not
+                       allowed, or there is a column with an incorrect data type.
+                       Please review the HMIS CSV Format Specifications for the
+                       data types and null requirements associated with the file
+                       and column listed in the detail and make the necessary updates."),
           Detail = glue("The {Column} column in the {file} file contains nulls
-                        or incompatible data types. {row_ids}")
+                        or incorrect data types. {row_ids}")
         ) %>%
         select(all_of(display_cols)) %>%
         unique()
