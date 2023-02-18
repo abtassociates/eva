@@ -87,28 +87,34 @@ check_columns <- function(file) {
       ColumnName = c(missing_columns, extra_columns),
       Status = c(rep("Missing", length(missing_columns)),
                  rep("Extra", length(extra_columns)))
-    ) %>% 
-    mutate(
-      Issue = "Incorrect Columns",
-      Type = if_else(ColumnName %in% c(high_priority_columns), 
-                     "High Priority", "Warning"),
-      Guidance = str_squish(
-        "Your HMIS CSV Export should contain - with identical, case-sensitive
+    ) %>%
+      arrange(ColumnName) %>%
+      mutate(
+        Issue = "Incorrect Columns",
+        Type = if_else(
+          ColumnName %in% c(high_priority_columns),
+          "High Priority",
+          "Warning"
+        ),
+        Guidance = str_squish(
+          "Your HMIS CSV Export should contain - with identical, case-sensitive
         spelling - only the columns specified in the columns.csv file. Please
         remove any extra columns and make sure you have all the required
-        columns."),
-      Detail = str_squish(paste(
-        "In the",
-        file,
-        "file,",
-        if_else(Status == "Extra",
-                paste(ColumnName, "is an extra column"),
-                paste("the", ColumnName, "column is missing")
-        )
-      ))
-    ) %>%
-    select(all_of(display_cols)) %>% 
-    unique()
+        columns."
+        ),
+        Detail = str_squish(paste(
+          "In the",
+          file,
+          "file,",
+          if_else(
+            Status == "Extra",
+            paste(ColumnName, "is an extra column"),
+            paste("the", ColumnName, "column is missing")
+          )
+        ))
+      ) %>%
+      select(all_of(display_cols)) %>%
+      unique()
   }
 }
 
