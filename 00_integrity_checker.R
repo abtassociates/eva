@@ -189,11 +189,14 @@ check_for_bad_nulls <- function(file) {
       select(all_of(nulls_not_allowed_cols)) %>%
       mutate_all(~ifelse(is.na(.), 1, 0)) %>%
       select_if(~any(. == 1))
-    
+
     if(ncol(barefile) > 0) {
       barefile %>%
         mutate(row_id = row_number()) %>%
-        pivot_longer(key = "Column", value = "value", -row_id) %>%
+        pivot_longer(
+          cols = !row_id,
+          names_to = "Column",
+          values_to = "value") %>%
         group_by(Column) %>%
         mutate(row_ids = case_when(
           sum(value) == total_rows ~ "All rows affected", 
