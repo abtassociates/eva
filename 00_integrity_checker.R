@@ -200,8 +200,10 @@ check_for_bad_nulls <- function(file) {
         group_by(Column) %>%
         mutate(row_ids = case_when(
           sum(value) == total_rows ~ "All rows affected", 
-          sum(value) <= 3 ~ paste("See rows: ", paste(row_id[value == 1], collapse = ", ")),
-          TRUE ~ paste("For example, see row",which(value == 1)[1])
+          sum(value) <= 3 ~ paste("See rows: ",
+                                  paste(row_id[value == 1],
+                                        collapse = ", ")),
+          TRUE ~ paste("For example, see row", which(value == 1)[1])
         )) %>%
         ungroup() %>%
         distinct(Column, row_ids) %>%
