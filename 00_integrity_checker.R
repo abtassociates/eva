@@ -498,13 +498,18 @@ duplicate_household_id <- Enrollment %>%
   filter(!is.na(HouseholdID)) %>%
   get_dupes(HouseholdID) %>%
   mutate(
-    Issue = "Duplicate HouseholdIDs across Projects found in the Enrollment file",
+    Issue = "Duplicate HouseholdIDs",
     Type = "High Priority",
-    Guidance = str_squish("HouseholdIDs should be unique across Projects in the
-                          Enrollment file. Please ensure that each unique
-                          household gets their own unique HouseholdID for each
-                          project in this file."),
-    Detail = paste("There are", dupe_count, "for HouseholdID", HouseholdID)
+    Guidance = 
+      str_squish("The HouseholdID must be unique to the household stay in a
+                 project; reuse of the idenfitcation of the same or similar
+                 household upon readmission into the project is unacceptable.
+                 Please review the HMIS Data Standards for more details."),
+    Detail = paste("HouseholdID", 
+                   HouseholdID,
+                   "is reused across",
+                   dupe_count,
+                   "Enrollments into different projects.")
   ) %>%
   select(all_of(display_cols)) %>%
   unique()
