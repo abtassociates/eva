@@ -161,7 +161,7 @@ check_data_types <- function(quotedfile) {
             ImportedDataType == "character" ~ "string",
             TRUE ~ ImportedDataType
             ),
-          ". The PersonalID must be unique within the Client.csv."
+          "."
         ))
       ) %>%
       select(all_of(display_cols))
