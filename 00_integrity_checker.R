@@ -346,7 +346,8 @@ valid_values_client <- Client %>%
                                    "rows with invalid values")
     )
   ) %>%
-  select(all_of(display_cols))
+  select(all_of(display_cols)) %>%
+  unique()
 
 duplicate_client_id <- Client %>%
   get_dupes(PersonalID) %>%
@@ -357,7 +358,8 @@ duplicate_client_id <- Client %>%
       str_squish("PersonalIDs should be unique in the Client file."),
     Detail = paste("There are", dupe_count, "for PersonalID", PersonalID)
   ) %>%
-  select(all_of(display_cols))
+  select(all_of(display_cols)) %>%
+  unique()
 
 # Integrity Enrollment ----------------------------------------------------
 
@@ -375,7 +377,8 @@ duplicate_enrollment_id <- Enrollment %>%
       EnrollmentID,
       "."))
   ) %>%
-  select(all_of(display_cols))
+  select(all_of(display_cols)) %>%
+  unique()
 
 personal_ids_in_client <- Client %>% pull(PersonalID)
 
@@ -393,7 +396,8 @@ foreign_key_no_primary_personalid_enrollment <- Enrollment %>%
       "is in the Enrollment file but not in the Client file."
     ))
   ) %>%
-  select(all_of(display_cols))
+  select(all_of(display_cols)) %>%
+  unique()
 
 projectids_in_project <- Project %>% pull(ProjectID)
 
@@ -412,7 +416,8 @@ foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
       "is in the Enrollment file but not in the Project file."
     ))
   ) %>%
-  select(all_of(display_cols))
+  select(all_of(display_cols)) %>%
+  unique()
 
 disabling_condition_invalid <- Enrollment %>%
   filter(!DisablingCondition %in% c(yes_no_enhanced)) %>%
@@ -458,7 +463,8 @@ living_situation_invalid <- Enrollment %>%
       "which is not a valid value."
     ))
   ) %>%
-  select(all_of(display_cols)) 
+  select(all_of(display_cols)) %>%
+  unique()
 
 rel_to_hoh_invalid <- Enrollment %>%
   filter(!RelationshipToHoH %in% c(1:5, 99) & !is.na(RelationshipToHoH)) %>%
