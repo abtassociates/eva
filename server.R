@@ -301,7 +301,7 @@ function(input, output, session) {
                 filter = 'top',
                 options = list(dom = 'ltpi'))
     })
-    
+
     output$DeskTimePlotDetail <- renderPlot({
       req(valid_file() == 1)
       provider <- input$providerDeskTime
@@ -318,7 +318,7 @@ function(input, output, session) {
                               EntryDate,
                               units = "days"),
           DeskTime = as.integer(floor(DeskTime)),
-          GoalMet = if_else(DeskTime > 5 |
+          GoalMet = if_else(DeskTime > input$DataEntryTimeliness |
                               DeskTime < 0,
                             "chocolate2",
                             "forestgreen")
@@ -336,7 +336,7 @@ function(input, output, session) {
         summarise(MedianDeskTime = median(DeskTime),
                   TotalEntered = n()) %>%
         ungroup()
-      
+
       dq_plot_desk_time <-
         ggplot(
           desk_time,
@@ -345,15 +345,25 @@ function(input, output, session) {
         geom_point(aes(color = GoalMet, size = 8, alpha = .2),
                    show.legend = FALSE)+
         scale_color_identity() +
-        geom_hline(yintercept = 5, color = "forestgreen") +
+        geom_hline(yintercept = input$DataEntryTimeliness,
+                   color = "forestgreen") +
         geom_hline(yintercept = 0, color = "forestgreen") +
         geom_hline(
           data = desk_time_medians,
           aes(yintercept = MedianDeskTime),
           color = "black"
         ) +
-        geom_ribbon(aes(ymin = 0, ymax = 5), fill = "forestgreen", alpha = .2) +
-        geom_label(x = meta_HUDCSV_Export_Start + days(floor(date_range_days/2)),
+        geom_ribbon(aes(ymin = 0, ymax = input$DataEntryTimeliness),
+                    fill = "forestgreen", alpha = .2) +
+        geom_label(x = meta_HUDCSV_Export_Start + 
+                     days(
+                       int_length(
+                         interval(
+                           meta_HUDCSV_Export_Start,
+                           meta_HUDCSV_Export_End))
+                       /172800 # int_length returns seconds: (60*60*24) days  
+                       # * 2 (to get us to the middle of date range) = 172800
+                       ),
                    y = desk_time_medians %>%
                      pull(MedianDeskTime),
                    label = paste("Median:", 
@@ -362,9 +372,11 @@ function(input, output, session) {
                                  "days | Total Clients:",
                                  desk_time_medians %>%
                                    pull(TotalEntered))) +
-        geom_label(x = meta_HUDCSV_Export_Start + days(floor(date_range_days/3)),
-                   y = 5,
-                   label = "DQ Standards (5 days or less)") +
+        geom_label(x = meta_HUDCSV_Export_Start +
+                     days(floor(date_range_days/1.2)),
+                   y = input$DataEntryTimeliness,
+                   label = paste("Local Standard:", input$DataEntryTimeliness,
+                                 "days or less")) +
         labs(x = "Entry Date",
              y = "Data Entry Delay (in days)") +
         theme_minimal(base_size = 18) +
