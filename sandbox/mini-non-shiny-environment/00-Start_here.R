@@ -45,11 +45,11 @@ if_else(structural_issues == 0,
 
 # Dates -------------------------------------------------------------------
 
-source(paste0(directory, "05-dates-scratch.R"))
+source(paste0(directory, "04-dates-scratch.R"))
 
 # Data prep! --------------------------------------------------------------
 
-source(paste0(directory, "04-initial_data_prep-scratch.R"))
+source(paste0(directory, "05-initial_data_prep-scratch.R"))
 
 # Cohorts -----------------------------------------------------------------
 
