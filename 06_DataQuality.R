@@ -2074,36 +2074,11 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      ungroup() %>%
      arrange(desc(clientsWithErrors))
    
-   dq_sys_lvl_high_priority_by_org$hover <-
+   dq_sys_lvl_high_priority_by_org$hover <- 
      with(dq_sys_lvl_high_priority_by_org,
           paste0(OrganizationName))
    
-   dq_sys_lvl_high_priority_by_org_plot <-
-     ggplot(
-       head(dq_sys_lvl_high_priority_by_org, 10L),
-       aes(
-         x = reorder(hover, clientsWithErrors),
-         y = clientsWithErrors
-       )
-     ) +
-     geom_col(show.legend = FALSE,
-              color = "#16697A",
-              fill = "#16697A") +
-     coord_flip() +
-     labs(x = "",
-          y = "Number of Enrollments") +
-     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
-     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
-     theme_classic() +
-     theme(axis.line = element_line(linetype = "blank"),
-           axis.text = element_text(size = 12),
-           axis.text.x = element_blank(),
-           axis.title = element_text(size = 12),
-           axis.ticks = element_line(linetype = "blank"),
-           plot.background = element_blank(),
-           panel.grid.minor = element_blank(),
-           panel.grid.major = element_blank()) +
-     geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")
+   dq_sys_lvl_high_priority_by_org_plot <- renderDQPlot(dq_sys_lvl_high_priority_by_org, "hover", "clientsWithErrors", "#16697A")
    
    # Most common high priority errors system-wide
    
@@ -2114,31 +2089,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      ungroup() %>%
      arrange(desc(Errors))
    
-   dq_sys_lvl_high_priority_by_issue_plot <-
-     ggplot(head(dq_sys_lvl_high_priority_by_issue, 10L),
-            aes(
-              x = reorder(Issue, Errors),
-              y = Errors
-            )) +
-     geom_col(show.legend = FALSE,
-              color = "#16697A",
-              fill = "#16697A") +
-     coord_flip() +
-     labs(x = "",
-          y = "Number of Enrollments") +
-     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
-     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
-     theme_classic() +
-     theme(axis.line = element_line(linetype = "blank"),
-           axis.text = element_text(size = 12),
-           axis.title = element_text(size = 12),
-           axis.text.x = element_blank(),
-           axis.ticks = element_line(linetype = "blank"),
-           plot.background = element_blank(),
-           panel.grid.minor = element_blank(),
-           panel.grid.major = element_blank()) +
-     geom_text(aes(label = Errors), hjust = -0.5, color = "black")
-   
+   dq_sys_lvl_high_priority_by_issue_plot <- renderDQPlot(dq_sys_lvl_high_priority_by_issue, "Issue", "Errors", "#16697A")
+     
    # Top orgs with Errors - General
    
    dq_sys_lvl_general_errors_by_org <- dq_plot_df %>%
@@ -2152,32 +2104,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      with(dq_sys_lvl_general_errors_by_org,
           paste0(OrganizationName))
    
-   dq_sys_lvl_general_errors_by_org_plot <-
-     ggplot(
-       head(dq_sys_lvl_general_errors_by_org, 10L),
-       aes(
-         x = reorder(hover, clientsWithErrors),
-         y = clientsWithErrors
-       )
-     ) +
-     geom_col(show.legend = FALSE,
-              color = "#489FB5",
-              fill = "#489FB5") +
-     coord_flip() +
-     labs(x = "",
-          y = "Number of Enrollments") +
-     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
-     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
-     theme_classic() +
-     theme(axis.line = element_line(linetype = "blank"),
-           axis.text = element_text(size = 12),
-           axis.text.x = element_blank(),
-           axis.title = element_text(size = 12),
-           axis.ticks = element_line(linetype = "blank"),
-           plot.background = element_blank(),
-           panel.grid.minor = element_blank(),
-           panel.grid.major = element_blank()) +
-     geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")
+   dq_sys_lvl_general_errors_by_org_plot <- renderDQPlot(dq_sys_lvl_general_errors_by_org, "hover", "clientsWithErrors", "#489FB5")
    
    # Most common general errors system-wide
    
@@ -2189,30 +2116,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      ungroup() %>%
      arrange(desc(Errors))
    
-   dq_sys_lvl_general_errors_by_issue_plot <-
-     ggplot(head(dq_sys_lvl_general_errors_by_issue, 10L),
-            aes(
-              x = reorder(Issue, Errors),
-              y = Errors
-            )) +
-     geom_col(show.legend = FALSE,
-              color = "#489FB5",
-              fill = "#489FB5") +
-     coord_flip() +
-     labs(x = "",
-          y = "Number of Enrollments") +
-     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
-     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
-     theme_classic() +
-     theme(axis.line = element_line(linetype = "blank"),
-           axis.text = element_text(size = 12),
-           axis.text.x = element_blank(),
-           axis.title = element_text(size = 12),
-           axis.ticks = element_line(linetype = "blank"),
-           plot.background = element_blank(),
-           panel.grid.minor = element_blank(),
-           panel.grid.major = element_blank()) +
-     geom_text(aes(label = Errors), hjust = -0.5, color = "black")
+   dq_sys_lvl_general_errors_by_issue_plot <-  renderDQPlot(dq_sys_lvl_general_errors_by_issue, "Issue", "Errors", "#489FB5")
    
    #Top orgs with warnings
    
@@ -2227,30 +2131,7 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      with(dq_sys_lvl_warnings_by_org,
           paste0(OrganizationName))
    
-   dq_sys_lvl_warnings_by_org_plot <-
-     ggplot(head(dq_sys_lvl_warnings_by_org, 10L),
-            aes(
-              x = reorder(hover, Warnings),
-              y = Warnings
-            )) +
-     geom_col(show.legend = FALSE,
-              color = "#82C0CC",
-              fill = "#82C0CC") +
-     coord_flip() +
-     labs(x = "",
-          y = "Number of Enrollments") +
-     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
-     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
-     theme_classic() +
-     theme(axis.line = element_line(linetype = "blank"),
-           axis.text = element_text(size = 12),
-           axis.text.x = element_blank(),
-           axis.title = element_text(size = 12),
-           axis.ticks = element_line(linetype = "blank"),
-           plot.background = element_blank(),
-           panel.grid.minor = element_blank(),
-           panel.grid.major = element_blank()) +
-     geom_text(aes(label = Warnings), hjust = -0.5, color = "black")
+   dq_sys_lvl_warnings_by_org_plot <- renderDQPlot(dq_sys_lvl_warnings_by_org, "hover", "Warnings", "#82C0CC")
    
    #Most common warnings system-wide
    
@@ -2261,30 +2142,8 @@ ssvf_hp_screen <- ssvf_served_in_date_range %>%
      ungroup() %>%
      arrange(desc(Warnings))
    
-   dq_sys_lvl_warnings_by_issue_plot <-
-     ggplot(head(dq_sys_lvl_warnings_by_issue, 10L),
-            aes(
-              x = reorder(Issue, Warnings),
-              y = Warnings
-            )) +
-     geom_col(show.legend = FALSE,
-              color = "#82C0CC",
-              fill = "#82C0CC") +
-     coord_flip() +
-     labs(x = "",
-          y = "Number of Enrollments") +
-     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
-     scale_y_discrete(expand = expansion(mult = c(0, .1))) +
-     theme_classic() +
-     theme(axis.line = element_line(linetype = "blank"),
-           axis.text = element_text(size = 12),
-           axis.text.x = element_blank(),
-           axis.title = element_text(size = 12),
-           axis.ticks = element_line(linetype = "blank"),
-           plot.background = element_blank(),
-           panel.grid.minor = element_blank(),
-           panel.grid.major = element_blank()) +
-     geom_text(aes(label = Warnings), hjust = -0.5, color = "black")
+   dq_sys_lvl_warnings_by_issue_plot <- renderDQPlot(dq_sys_lvl_warnings_by_issue, "Issue", "Warnings", "#82C0CC")
+
    
 # Prepping dataframes for plots for Organization-Level DQ Tab -----------------
    dq_org_plot_df <- dq_main %>%

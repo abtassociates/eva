@@ -227,3 +227,37 @@ calculate_outstanding_referrals <- function(input){
              input < Days)
   
 }
+
+renderDQPlot <- function(inDS, x_group, y_field, color) {
+  renderPlot({
+    req(valid_file() == 1)
+  
+    validate(need(nrow(inDS) > 0, 
+                  message = "Great job! No errors to show."))
+
+    ggplot(head(inDS, 10L),
+           aes(
+             x = reorder(!!as.name(x_group), !!as.name(y_field)),
+             y = !!as.name(y_field)
+           )) +
+      geom_col(show.legend = FALSE,
+               color = color,
+               fill = color) +
+      coord_flip() +
+      labs(x = "",
+           y = "Number of Enrollments") +
+      scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+      scale_y_discrete(expand = expansion(mult = c(0, .1))) +
+      theme_classic() +
+      theme(axis.line = element_line(linetype = "blank"),
+            axis.text = element_text(size = 12),
+            axis.text.x = element_blank(),
+            axis.title = element_text(size = 12),
+            axis.ticks = element_line(linetype = "blank"),
+            plot.background = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.grid.major = element_blank()) +
+      geom_text(aes(label = !!as.name(y_field)), hjust = -0.5, color = "black")
+  })
+}
+
