@@ -228,17 +228,58 @@ calculate_outstanding_referrals <- function(input){
   
 }
 
-renderDQPlot <- function(inDS, x_group, y_field, color) {
-  renderPlot({
+renderDQPlot <- function(level, issueType, group, color) {
+  
+  if(group == "Org") {
+    groupVars <- c("OrganizationName","OrganizationID")
+    x_group <- "OrganizationName"
+  } else if(group == "Issue" && level == "sys") {
+    groupVars <- "Issue"
+    x_group <- "Issue"
+  } else if(group == "Issue" && level == "org") {
+    groupVars <- c("OrganizationName","Issue")
+    x_group <- "Issue"
+  } else if(group == "Project") {
+    groupVars <- c("OrganizationName", "ProjectName", "ProjectID")
+    x_group <- "ProjectName"
+  }
+  
+  if(level == "sys") {
+    plot_df <- dq_plot_df
+  } else {
+    plot_df <- dq_org_plot_df
+  }
+  
+  plot_data <- plot_df %>%
+    filter(Type == issueType) %>% 
+    group_by(!!as.name(groupVars)) %>%
+    summarise(countVar = n()) %>%
+    ungroup() %>%
+    arrange(desc(countVar))
+  
+  if(level == "org") {
+    plot_data <- plot_data %>% 
+      filter(OrganizationName %in% c(input$orgList))
+  }
+
+  outputId <- paste0(
+    if_else(level == 'sys','system','org'),
+    "DQ",
+    if_else(issueType == 'High Priority', 'HighPriorityErrors', issueType),
+    "By",
+    group
+  )
+  
+  output[[outputId]] <- renderPlot({
     req(valid_file() == 1)
   
-    validate(need(nrow(inDS) > 0, 
+    validate(need(nrow(plot_data) > 0, 
                   message = "Great job! No errors to show."))
 
-    ggplot(head(inDS, 10L),
+    ggplot(head(plot_data, 10L),
            aes(
-             x = reorder(!!as.name(x_group), !!as.name(y_field)),
-             y = !!as.name(y_field)
+             x = reorder(!!as.name(x_group), countVar),
+             y = countVar
            )) +
       geom_col(show.legend = FALSE,
                color = color,
@@ -257,7 +298,15 @@ renderDQPlot <- function(inDS, x_group, y_field, color) {
             plot.background = element_blank(),
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank()) +
-      geom_text(aes(label = !!as.name(y_field)), hjust = -0.5, color = "black")
+      geom_text(aes(label = countVar), hjust = -0.5, color = "black")
   })
+  
+  plot_height = if_else(nrow(plot_data) == 0,50,400)
+
+  return(
+    renderUI({
+      plotOutput(outputId, height = plot_height)
+    })
+  )
 }
 
