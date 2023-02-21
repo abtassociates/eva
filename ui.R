@@ -283,8 +283,8 @@ dashboardPage(
           box(
             title = "Long Stayers",
             width = 12,
-            # collapsible = TRUE,
-            # collapsed = TRUE,
+            collapsible = TRUE,
+            collapsed = TRUE,
             fluidRow(
               box(
                 HTML("
@@ -393,6 +393,34 @@ dashboardPage(
                 width = 12
               )
             )
+          ),
+          box(
+            title = "Data Timeliness",
+            width = 12,
+            collapsible = TRUE,
+            collapsed = TRUE,
+            fluidRow(
+              box(
+                width = 12,
+                HTML("<p>The goal with data timeliness is that the HMIS meets not
+                     only basic reporting requirements but also Coordinated
+                     Entry placement and referral needs. Your CoC may have, in
+                     its HMIS Policies and Procedures manual, an expectation
+                     around how many hours/days after a household enters a
+                     project that that household must be entered into HMIS.
+                     If so, you can use the inputs below to indicate what your
+                     expectations are. While the default is set to 2 days, this
+                     does not imply a HUD recommendation.</p><br>"),
+                numericInput(
+                  inputId = "DataEntryTimeliness",
+                  label = "Days to Enter",
+                  value = 2,
+                  min = 0,
+                  max = 365,
+                  step = 5,
+                  width = "200px"
+                )              ))
+            
           )
         )
       ),
