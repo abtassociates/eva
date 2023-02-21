@@ -1,10 +1,14 @@
 
 function(input, output, session) {
   
+  # Hard-coded --------------------------------------------------------------
+  # hc = hard-coded
+  hc_prior_living_situation_required <- ymd("20161001")
+  
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
-  source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+  source("helper_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
   
   
  # showModal(modalDialog(
@@ -111,7 +115,6 @@ function(input, output, session) {
   })
 
   observeEvent(input$imported, {
-    source("00_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
     
     initially_valid_zip <- zip_initially_valid()
     
@@ -122,22 +125,21 @@ function(input, output, session) {
       withProgress({
         setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
-        source("00_get_Export.R", local = TRUE)
-        source("00_dates.R", local = TRUE)
+        source("01_get_Export.R", local = TRUE)
         setProgress(detail = "Checking file structure", value = .35)
-        source("00_integrity_checker.R", local = TRUE)
+        source("02_integrity_checker.R", local = TRUE)
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
           setProgress(detail = "Prepping initial data..", value = .4)
-          source("00_initial_data_prep.R", local = TRUE)
-          source("00_dates.R", local = TRUE)
+          source("03_initial_data_prep.R", local = TRUE)
+          source("04_dates.R", local = TRUE)
           setProgress(detail = "Making lists..", value = .5)
-          source("01_cohorts.R", local = TRUE)
+          source("05_cohorts.R", local = TRUE)
           setProgress(detail = "Assessing your data quality..", value = .7)
-          source("03_DataQuality.R", local = TRUE)
+          source("06_DataQuality.R", local = TRUE)
           setProgress(detail = "Checking your PDDEs", value = .85)
-          source("00_PDDE_Checker.R", local = TRUE)
+          source("07_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
           
           showModal(
@@ -168,27 +170,6 @@ function(input, output, session) {
       })
     }
     
-    dq_main_reactive <- reactive({
-      req(valid_file()== 1)
-      # browser()
-      ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
-      Other <- calculate_long_stayers(input$OtherLongStayers, 7)
-      Outreach <- calculate_long_stayers(input$OUTLongStayers, 4)
-      DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
-      ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
-      
-      #Calculating potential old referrals based on Local settings
-      CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
-        select(all_of(vars_we_want))
-      
-      x <- dq_main %>%
-        filter(!Issue %in% c("Days Enrollment Active Exceeds Local settings", 
-                             "Days Referral Active Exceeds Local settings"))
-      
-      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other, CE_Event)
-      
-    })
-    
     output$integrityChecker <- DT::renderDataTable(
       {
         req(initially_valid_zip)
@@ -215,9 +196,7 @@ function(input, output, session) {
     output$downloadIntegrityCheck <- downloadHandler(
       # req(valid_file() == 1)
 
-      filename = function() {
-        paste("File-Structure-Analysis-", Sys.Date(), ".xlsx", sep = "")
-      },
+      filename = date_stamped_filename("File-Structure-Analysis-"),
       content = function(file) {
         write_xlsx(
           integrity_main,
@@ -284,9 +263,7 @@ function(input, output, session) {
     # download button handler
     output$downloadPDDEReport <- downloadHandler(
       
-      filename = function() {
-        paste("PDDE Report-", Sys.Date(), ".xlsx", sep="")
-      },
+      filename = date_stamped_filename("PDDE Report-"),
       content = function(file) {
         req(valid_file() == 1)
         
@@ -429,12 +406,7 @@ function(input, output, session) {
     # the download basically contains a pivoted and summarized version of the two app tables, but for all projects
     # along with a Current tab limited to just the current date.
     output$downloadClientCountsReport <- downloadHandler(
-      filename = function() {
-        paste("Client Counts Report-",
-              Sys.Date(),
-              ".xlsx",
-              sep = "")
-      },
+      filename = date_stamped_filename("Client Counts Report-"),
       content = get_clientcount_download_info
     )
     
@@ -485,6 +457,8 @@ function(input, output, session) {
     })
     
     #### DQ ORG REPORT #### ----------------------
+    source("dq_functions.R", local = TRUE)
+    
     # button
     output$downloadOrgDQReportButton  <- renderUI({
       if (valid_file() == 1) {
@@ -517,13 +491,7 @@ function(input, output, session) {
     })
     
     output$downloadOrgDQReport <- downloadHandler(
-      filename = function() {
-        paste(input$orgList,
-              " Data Quality Report-",
-              Sys.Date(),
-              ".xlsx",
-              sep = "")
-      },
+      filename = date_stamped_filename(str_glue("{input$orgList} Data Quality Report-")),
       content = function(file) {
         write_xlsx(orgDQReportDataList(), path = file)
         logMetadata("Downloaded Org-level DQ Report")
@@ -1092,9 +1060,7 @@ function(input, output, session) {
   })
   
   output$downloadFullDQReport <- downloadHandler(
-    filename = function() {
-      paste("Full Data Quality Report-", Sys.Date(), ".xlsx", sep="")
-    },
+    filename = date_stamped_filename("Full Data Quality Report-"),
     content = function(file) {
       write_xlsx(fullDQReportDataList(), path = file)
       logMetadata("Downloaded System-level DQ Report")
