@@ -161,7 +161,7 @@ check_data_types <- function(quotedfile) {
             DataType == "character" ~ "string",
             TRUE ~ DataType
           ),
-          " but in this file, it is",
+          " but in this file, it is ",
           case_when(
             ImportedDataType == "numeric" ~ "integer",
             ImportedDataType == "character" ~ "string",
