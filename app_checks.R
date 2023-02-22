@@ -61,7 +61,7 @@ check5 = c(
 
 check6 = c("integrity",
            "High Priority",
-           "Nulls not allowed or incompatible data type in column",
+           "Nulls or incorrect data type",
            str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
            str_squish("Certain columns cannot contain nulls or incompatible data types.
                     Please review the HMIS CSV Format Specifications for the data types and null requirements associated 
@@ -815,15 +815,17 @@ check84 = c("integrity",
 
 ### ADD NEW CHECKS ABOVE ^^^ ------------------------------------
 
-#New check? Use the following template and then add it above the ADD NEW CHECKS lin
-#then add the check to dqChecks data frame below
+#New check? Copy the template below and then paste it above the ADD NEW CHECKS line.
+#The check number should be one number more than the last check. If the last check is check84,
+#the new check should be named check85. You don't need to keep the Source = , Type = , etc. from the template. 
+#Then add the check to dqChecks data frame below.
 
-#check# = c(Source = "",
-          # Type = "",
+#check00 = c(Source = "", #This should be "integrity," "pdde," or "dq"
+          # Type = "",   #This should be "High Priority," "Error," or "Warning"
           # Issue = "", 
           # DataElement = "",
-          # Guidance = ", 
-          # Note = ")
+          # Guidance = "", 
+          # Note = "")
 
 
 dqChecks <- data.frame(rbind(check1,
@@ -911,6 +913,9 @@ dqChecks <- data.frame(rbind(check1,
                        check83,
                        check84
 ))
+
+### ADD NEW CHECKS TO DATAFRAME ABOVE ^^^ ------------------
+### RUN THE LINES OF CODE BELOW TO PRODUCE EXCEL EXPORT-----
 
 #Data frames separated out by Source
 dqChecks_integrity <- dqChecks %>%
