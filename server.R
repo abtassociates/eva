@@ -9,7 +9,7 @@ function(input, output, session) {
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
   source("helper_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-  
+  source("guidance.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
   
  # showModal(modalDialog(
  #    title = "Changelog Alert",
@@ -457,7 +457,7 @@ function(input, output, session) {
     })
     
     #### DQ ORG REPORT #### ----------------------
-    source("dq_functions.R", local = TRUE)
+    source("06_DataQuality_functions.R", local = TRUE)
     
     # button
     output$downloadOrgDQReportButton  <- renderUI({
