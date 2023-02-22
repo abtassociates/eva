@@ -55,14 +55,12 @@ function(input, output, session) {
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
 
   output$changelog <- renderTable({
-    tribble(
+  changelog <- tribble(
   ~Date, ~Change,
-  "02-23-2023", "Addresses GitHub issue 152 by printing the detail for up to 3
-  rows as to which rows were affected. If all rows were affected, it will say
-  that.",
-  
-  "02-23-2023", "Adds a Detail column to the File Structure Analysis download
-  separate from the more general Guidance.",
+  "02-23-2023", "Addresses GitHub issue 152 by adding a Detail column to the
+  File Structure Analysis download separate from the more general Guidance. This
+  column includes more details about affected rows and column in order to help
+  the user identify issues in their data.",
   
   "02-23-2023", "Addresses GitHub issue 154 by checking for missing columns and
   extraneous columns in a similar way. This is a change from the prior issues
@@ -71,7 +69,7 @@ function(input, output, session) {
   (with the actual column name.)",
   
   "02-23-2023", "Addresses GitHub issue 172 by preventing R from counting the
-  value of \"NA\" from being considered an actual null",
+  value of \"NA\" as an actual null.",
   
   "01-26-2023", "Fixes GitHub issue 82. Now the app times out after 10 minutes
   being idle.",
@@ -102,7 +100,11 @@ function(input, output, session) {
   "12-29-2022", "Rewrote PDDE issues' Guidance so that it is general guidance,
   then added Details column to include IDs to help admins find specific issues."
   
-    )
+    ) %>%
+      mutate(
+        Date = format.Date(mdy(Date), "%m-%d-%Y")
+      )
+  changelog
     
   })
   
