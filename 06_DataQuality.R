@@ -5,8 +5,6 @@ library(lubridate)
 library(scales)
 library(HMIS)
 
-source("03_guidance.R")
-
 va_funded <- Funder %>%
   filter(Funder %in% c(va_fund_sources)) %>%
   pull(ProjectID)
