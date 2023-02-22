@@ -55,8 +55,21 @@ function(input, output, session) {
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
 
   output$changelog <- renderTable({
-    tribble(
+  changelog <- tribble(
   ~Date, ~Change,
+  "02-23-2023", "Addresses GitHub issue 152 by adding a Detail column to the
+  File Structure Analysis download separate from the more general Guidance. This
+  column includes more details about affected rows and column in order to help
+  the user identify issues in their data.",
+  
+  "02-23-2023", "Addresses GitHub issue 154 by checking for missing columns and
+  extraneous columns in a similar way. This is a change from the prior issues
+  specifying that a column name was misspelled. Now a misspelled column will show
+  as one missing column (with the correct column name) and one extraneous column
+  (with the actual column name.)",
+  
+  "02-23-2023", "Addresses GitHub issue 172 by preventing R from counting the
+  value of \"NA\" as an actual null.",
   
   "02-09-2023", "Added system-wide download of Client Counts data",
   
@@ -99,7 +112,11 @@ function(input, output, session) {
   "12-29-2022", "Rewrote PDDE issues' Guidance so that it is general guidance,
   then added Details column to include IDs to help admins find specific issues."
   
-    )
+    ) %>%
+      mutate(
+        Date = format.Date(mdy(Date), "%m-%d-%Y")
+      )
+  changelog
     
   })
   
@@ -194,10 +211,10 @@ function(input, output, session) {
         req(initially_valid_zip)
 
         a <- integrity_main %>%
-          group_by(Issue, Type) %>%
+          group_by(Type, Issue) %>%
           summarise(Count = n()) %>%
           ungroup() %>%
-          arrange(desc(Type))
+          arrange(Type, desc(Count))
         
         datatable(
           a,
@@ -220,7 +237,8 @@ function(input, output, session) {
       },
       content = function(file) {
         write_xlsx(
-          integrity_main,
+          integrity_main %>%
+            arrange(Type, Issue),
           path = file
         )
         
