@@ -71,13 +71,25 @@ function(input, output, session) {
   "02-23-2023", "Addresses GitHub issue 172 by preventing R from counting the
   value of \"NA\" as an actual null.",
   
-  "01-26-2023", "Fixes GitHub issue 82. Now the app times out after 10 minutes
+  "02-09-2023", "Added system-wide download of Client Counts data",
+  
+  "02-09-2023", "Separated app timeout and crash processing. 
+  Timeout triggers a javascript alert and clears the app data. Crashes trigger 
+  the gray screen with a message and a Refresh link.",
+  
+  "02-09-2023", "Added Outstanding Referrals as a Warning. Eva users can set
+  what constitutes and outstanding referral for their CoC on the Edit Local
+  Settings tab. The issue will show in the download on the Warnings tab and
+  on its own tab called Referrals so that end users can see which Referral is
+  considered outstanding.",
+
+  "01-26-2023", "Addresses GitHub issue 82. Now the app times out after 10 minutes
   being idle.",
   
-  "01-26-2023", "Fixes GitHub issue 122. Modified tab structure to spread things
+  "01-26-2023", "Addresses GitHub issue 122. Modified tab structure to spread things
   out and simplify the Home tab.",
   
-  "01-26-2023", "Fixes GitHub issue 124. Modified plot color for High Priority
+  "01-26-2023", "Addresses GitHub issue 124. Modified plot color for High Priority
   issues.",
   
   "01-23-2023", "Hotfix: Added improved metadata collection for troubleshooting
@@ -86,11 +98,11 @@ function(input, output, session) {
   "01-13-2023", "Hotfix: Set GrantID field so it is not considered a high priority column
   so that it will no longer cause Eva to reject a file for incorrect data type.",
   
-  "12-29-2022", "Fixes GitHub issue 118. Eva was not checking that all needed
+  "12-29-2022", "Addresses GitHub issue 118. Eva was not checking that all needed
   csvs were in the export. Now it checks this and rejects the export if they are
   not there.",
   
-  "12-29-2022", "Fixes GitHub issue 118. Eva was missing some instances where a date
+  "12-29-2022", "Addresses GitHub issue 118. Eva was missing some instances where a date
   variable is of the wrong type (e.g. ymd_hms instead of ymd). Now it rejects
   exports if an important variable has the wrong date type.",  
   
@@ -113,7 +125,6 @@ function(input, output, session) {
   })
   observeEvent(input$timeOut, {
     reset("imported")
-    session$close()
   })
 
   observeEvent(input$imported, {
@@ -183,10 +194,15 @@ function(input, output, session) {
       DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
       ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
       
-      x <- dq_main %>%
-        filter(!Issue %in% c("Days Enrollment Active Exceeds CoC-specific Settings"))
+      #Calculating potential old referrals based on Local settings
+      CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+        select(all_of(vars_we_want))
       
-      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other)
+      x <- dq_main %>%
+        filter(!Issue %in% c("Days Enrollment Active Exceeds Local settings", 
+                             "Days Referral Active Exceeds Local settings"))
+      
+      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other, CE_Event)
       
     })
     
@@ -391,156 +407,54 @@ function(input, output, session) {
       dq_plot_desk_time
     })
     
+    ### Client Counts -------------------------------
+    source("client_counts_functions.R", local = TRUE)
+    
+    # CLIENT COUNT DETAILS - APP
     output$clientCountData <- DT::renderDataTable({
       req(valid_file() == 1)
-      ReportStart <- input$dateRangeCount[1]
-      ReportEnd <- input$dateRangeCount[2]
-      
-      validate(need(ReportStart <= ReportEnd, "Please make sure date range is correct."))
-      
+
       datatable(
-        validation %>%
-          filter(served_between(., ReportStart, ReportEnd) &
-                   ProjectName == input$currentProviderList) %>%
-          mutate(
-            PersonalID = as.character(PersonalID),
-            RelationshipToHoH = case_when(
-              RelationshipToHoH == 1 ~ "Head of Household",
-              RelationshipToHoH == 2 ~ "Child",
-              RelationshipToHoH == 3 ~ "Spouse or Partner",
-              RelationshipToHoH == 4 ~ "Other relative",
-              RelationshipToHoH == 5 ~ "Unrelated household member",
-              RelationshipToHoH == 99 ~ "Data not collected (please correct)"
-            ),
-            Status = case_when(
-              ProjectType %in% c(3, 13) &
-                is.na(MoveInDateAdjust) &
-                is.na(ExitDate) ~ paste0("Active No Move-In (", 
-                                         today() - EntryDate,
-                                         " days)"),
-              ProjectType %in% c(3, 13) &
-                !is.na(MoveInDateAdjust) &
-                is.na(ExitDate) ~ paste0("Currently Moved In (",
-                                         today() - MoveInDateAdjust,
-                                         " days)"),
-              ProjectType %in% c(3, 13) &
-                is.na(MoveInDateAdjust) &
-                !is.na(ExitDate) ~ "Exited No Move-In",
-              ProjectType %in% c(3, 13) &
-                !is.na(MoveInDateAdjust) &
-                !is.na(ExitDate) ~ "Exited with Move-In",
-              !ProjectType %in% c(3, 13) &
-                is.na(ExitDate) ~ paste0("Currently in project (",
-                                         today() - EntryDate, 
-                                         " days)"),
-              !ProjectType %in% c(3, 13) &
-                !is.na(ExitDate) ~ "Exited project"
-            ),
-            sort = today() - EntryDate,
-            EntryDate = format.Date(EntryDate, "%m-%d-%Y"),
-            MoveInDateAdjust = format.Date(MoveInDateAdjust, "%m-%d-%Y"),
-            ExitDate = format.Date(ExitDate, "%m-%d-%Y")
-          ) %>%
-        #  mutate(PersonalID = as.character(PersonalID)) %>%
-          arrange(desc(sort), HouseholdID, PersonalID) %>%
-          select(
-            "Personal ID" = PersonalID,
-            "Relationship to Head of Household" = RelationshipToHoH,
-            "Entry Date" = EntryDate,
-            "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
-            "Exit Date" = ExitDate,
-            Status
-          ),
+        client_count_data_df() %>%
+          filter(`Project Name` == input$currentProviderList) %>%
+          select(clientCountDetailCols),
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')
       )
     })
-    
+      
+    # CLIENT COUNT SUMMARY - APP
     output$clientCountSummary <- DT::renderDataTable({
       req(valid_file() == 1)
-      ReportStart <- input$dateRangeCount[1]
-      ReportEnd <- input$dateRangeCount[2]
-      
-      validate(need(ReportStart <= ReportEnd, "Please make sure date range is correct."))
-      
-      hhs <- validation %>%
-        filter(served_between(., ReportStart, ReportEnd) &
-                 ProjectName == input$currentProviderList) %>%
-        select(HouseholdID,
-               ProjectType,
-               EntryDate,
-               MoveInDateAdjust,
-               ExitDate) %>%
-        unique() %>%
-        mutate(
-          # Entered = if_else(between(EntryDate, ReportStart, ReportEnd),
-          #                   "Entered in date range", "Entered outside date range"),
-          # Leaver = if_else(!is.na(ExitDate), "Leaver", "Stayer"),
-          Status = case_when(
-            ProjectType %in% c(3, 13) &
-              is.na(MoveInDateAdjust) &
-              is.na(ExitDate) ~ "Active No Move-In",
-            ProjectType %in% c(3, 13) &
-              !is.na(MoveInDateAdjust) &
-              is.na(ExitDate) ~ "Currently Moved In",
-            ProjectType %in% c(3, 13) &
-              is.na(MoveInDateAdjust) &
-              !is.na(ExitDate) ~ "Exited No Move-In",
-            ProjectType %in% c(3, 13) &
-              !is.na(MoveInDateAdjust) &
-              !is.na(ExitDate) ~ "Exited with Move-In",
-            !ProjectType %in% c(3, 13) &
-              is.na(ExitDate) ~ "Currently in project",
-            !ProjectType %in% c(3, 13) &
-              !is.na(ExitDate) ~ "Exited project",
-            TRUE ~ "something's wrong"
-          )
-        ) %>%
-        group_by(Status) %>%
-        summarise(Households = n())
-      
-      clients <- validation %>%
-        filter(served_between(., ReportStart, ReportEnd) &
-                 ProjectName == input$currentProviderList) %>%
-        select(PersonalID,
-               ProjectType,
-               EntryDate,
-               MoveInDateAdjust,
-               ExitDate) %>%
-        unique() %>%
-        mutate(
-          Status = case_when(
-            ProjectType %in% c(3, 13) &
-              is.na(MoveInDateAdjust) &
-              is.na(ExitDate) ~ "Active No Move-In",
-            ProjectType %in% c(3, 13) &
-              !is.na(MoveInDateAdjust) &
-              is.na(ExitDate) ~ "Currently Moved In",
-            ProjectType %in% c(3, 13) &
-              is.na(MoveInDateAdjust) &
-              !is.na(ExitDate) ~ "Exited No Move-In",
-            ProjectType %in% c(3, 13) &
-              !is.na(MoveInDateAdjust) &
-              !is.na(ExitDate) ~ "Exited with Move-In",
-            !ProjectType %in% c(3, 13) &
-              is.na(ExitDate) ~ "Currently in project",
-            !ProjectType %in% c(3, 13) &
-              !is.na(ExitDate) ~ "Exited project"
-          )
-        ) %>%
-        group_by(Status) %>%
-        summarise(Clients = n())
-      
-      final <- full_join(clients, hhs, by = "Status")
       
       datatable(
-        final,
+        client_count_summary_df(),
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't')
       )
     })
+    
+    # CLIENT COUNT DOWNLOAD
+    output$downloadClientCountsReportButton  <- renderUI({
+      req(valid_file() == 1)
+      
+      downloadButton(outputId = "downloadClientCountsReport",
+                     label = "Download System-Wide")
+    })
+    
+    # the download basically contains a pivoted and summarized version of the two app tables, but for all projects
+    # along with a Current tab limited to just the current date.
+    output$downloadClientCountsReport <- downloadHandler(
+      filename = function() {
+        paste("Client Counts Report-",
+              Sys.Date(),
+              ".xlsx",
+              sep = "")
+      },
+      content = get_clientcount_download_info
+    )
     
     output$dq_org_guidance_summary <- DT::renderDataTable({
       req(valid_file() == 1)
@@ -605,14 +519,19 @@ function(input, output, session) {
         filter(OrganizationName %in% c(input$orgList))
       
       orgDQoverlaps <- overlaps %>%
-        filter(OrganizationName %in% c(input$orgList) | PreviousOrganizationName %in% c(input$orgList))
+        filter(OrganizationName %in% c(input$orgList) | 
+                 PreviousOrganizationName %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName")
+      orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+        filter(OrganizationName %in% c(input$orgList))
+      
+      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals)
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName")
+      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName",
+                          calculate_outstanding_referrals(input$CEOutstandingReferrals))
     })
     
     output$downloadOrgDQReport <- downloadHandler(

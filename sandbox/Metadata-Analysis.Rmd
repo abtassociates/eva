@@ -18,7 +18,7 @@ library(gt)
 
 # whenever DDS sends the metadata zip file, copy it to anywhere in the ACE environment that you can find it again, navigate to the sandbox directory in your Eva RStudio project, click Upload, then find the zip file you copied in. Click OK or whatever, then the files will be pasted into a folder under sandbox/. Edit the folder_date variable to match that folder's name and run this.
 
-folder_date <- "01-23-2023"
+folder_date <- "2023-02-13"
 
 visits <-
   read_lines(here("www/metadata/site_visits.txt"))
@@ -129,7 +129,7 @@ The reasons Eva will reject an export are if the export:
 ```{r fig.width=8, fig.height=5}
 
 counts %>%
-  filter(str_detect(Event, "upload")) %>%
+  filter(str_detect(Event, " upload")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line() +
   geom_point() +

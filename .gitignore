@@ -20,3 +20,4 @@ www/metadata/
 *.txt
 sandbox/**/*.csv
 *.docx
+*.log

@@ -135,7 +135,8 @@ validation <- smallProject %>%
     ExitDate,
     LivingSituation,
     Destination,
-    DateCreated
+    DateCreated,
+    OrganizationName
   ) %>%
   filter(!is.na(EntryDate))
 

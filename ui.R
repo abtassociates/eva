@@ -1,4 +1,3 @@
-
 dashboardPage(
   skin = "black",
   dashboardHeader(title = "Eva"),
@@ -54,7 +53,8 @@ dashboardPage(
           window.onkeypress = resetTimer;  //catches keyboard actions
     
           function logout() {
-            Shiny.setInputValue('timeOut', timeoutTime);
+            alert('Your session timed out. Your data has been cleared, please re-upload.');
+            Shiny.setInputValue('timeOut', 1)
           }
     
           function resetTimer() {
@@ -66,7 +66,11 @@ dashboardPage(
       ))
     ),
     useShinyjs(),
-    disconnectMessage(text = "Your session timed out, reload the application."),
+    disconnectMessage(
+      text = str_squish(
+        "Eva has crashed. Please submit an issue on GitHub and note the
+          date and time in order to help the team diagnose the issue."
+      )), 
     tabItems(
       tabItem(
         tabName = "tabHome",
@@ -82,8 +86,19 @@ dashboardPage(
               your HMIS. In future iterations it will also assist communities in
               analyzing HMIS performance data, including coordinated entry, if 
               your community utilizes HMIS for this purpose. Use of this tool is
-              not required by HUD.</p>"
-            ),
+              not required by HUD.</p>
+              <p>Eva is a web-based tool built with R Shiny. This means:</p>
+              <ul>
+                <li>Eva will only access your CoC&rsquo;s data during your session.
+                <strong>No data is being retained or viewed by anyone besides 
+                you.</strong>
+                </li>
+                <li>You can upload a zipped CSV Export of up to 200 MB. The 
+                file must be hashed.</li>
+                <li>You can stay up to date with the new features by visiting 
+                the Changelog tab.</li>
+              </ul> 
+            "),
             actionButton("Go_to_upload","Click here to get started")
           ),
           box(
@@ -282,10 +297,53 @@ dashboardPage(
               ")
           ),
           box(
+            title = "Outstanding Referrals",
+            width = 12,
+            collapsible = TRUE,
+            collapsed = TRUE,
+            fluidRow(box(
+              width = 12,
+              HTML(
+                "<p>This check aims to help communities find Coordinated Entry
+                Event referrals that may be outstanding and missing a Result
+                Date. (Note that not all CE Events have an associated Result and
+                Result Date.) First, the tool calculates the number of days each
+                referral has been open (the number of days between the Referral
+                Date and the date your upload was exported from your HMIS). Then
+                the check compares the length of each referral with assumptions
+                entered about the expected maximum period of assistance envisioned
+                for the CoC's Coordinated Entry Referral process. This check is
+                for all project types that may have Coordinated Entry Event
+                referrals.
+
+                <p>Any data quality flags about Outstanding Referrals is
+                categorized as a Warning and is a suggestion to verify that the
+                identified referrals are still active or in progress. It does
+                not imply that any data should be changed.
+
+                <p>Below, you can specify the expected maximum period of
+                assistance envisioned for the CoC's Coordinated Entry Referral
+                process, meaning the timeframe after which you would want an
+                organization to confirm the referral is still active. You can
+                set these based on your current data or leave them at the
+                defaults (these defaults do not imply any HUD recommendations)."
+              ),
+              numericInput(
+                inputId = "CEOutstandingReferrals",
+                label = "All Projects:",
+                value = 14,
+                min = 0,
+                max = 365,
+                step = 5,
+                width = "200px"
+              )
+            ))
+          ), 
+          box(
             title = "Long Stayers",
             width = 12,
-            # collapsible = TRUE,
-            # collapsed = TRUE,
+            collapsible = TRUE,
+            collapsed = TRUE,
             fluidRow(
               box(
                 HTML("
@@ -452,20 +510,28 @@ dashboardPage(
                react and filter in that way.")
         )), 
         fluidRow(box(
-          pickerInput(
-            label = "Select Project",
-            inputId = "currentProviderList",
-            choices = NULL,
-            options = pickerOptions(liveSearch = TRUE,
-                                    liveSearchStyle = 'contains')
-          ),
           dateRangeInput(
             "dateRangeCount",
             "Date Range",
             format = "mm/dd/yyyy",
             width = 300
           ),
+          uiOutput("downloadClientCountsReportButton"),
           width = 12
+        )),
+        fluidRow(box(
+          pickerInput(
+            label = "",
+            inputId = "currentProviderList",
+            choices = NULL,
+            width = "600px",
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains')
+          ),
+          width = 12,
+          title = "Select Project",
+          status = "info",
+          solidHeader = TRUE
         )),
         fluidRow(box(
           title = "Client Counts Summary",
