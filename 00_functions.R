@@ -363,11 +363,7 @@ is_hashed <- function() {
 
 calculate_long_stayers <- function(days, projecttype){
   
-  cls_df <- validation %>%
-    left_join(CurrentLivingSituation %>%
-                select(CurrentLivingSitID,
-                       EnrollmentID,
-                       InformationDate), by = "EnrollmentID") %>%
+  cls_df <- CurrentLivingSituation %>%
     group_by(EnrollmentID) %>%
     slice_max(InformationDate) %>%
     ungroup() %>%
