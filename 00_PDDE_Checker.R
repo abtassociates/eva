@@ -26,8 +26,8 @@ subpopNotTotal <- Inventory %>%
          CH Youth, Youth, CH, and Other beds. Please review project inventory records for the number 
          of dedicated beds and ensure this number equals the Total Beds listed within each record."),
          Detail = 
-           paste0("Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth, CH, and 
-         Other sum up to ",
+           paste0("Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth, CH,
+                  and Other sum up to ",
          CHVetBedInventory + 
            YouthVetBedInventory + 
            VetBedInventory + 
@@ -58,8 +58,10 @@ operatingEndMissing <- Enrollment %>%
            is.null(OperatingEndDate)) %>%
   mutate(Issue = "Potentially Missing Operating End Date",
          Type = "Warning",
-         Guidance = str_squish("Projects no longer in operation must have an Operating End Date.
-         Please verify if the project is still in operation and, if not, add in the Operating End Date."),
+         Guidance = 
+           str_squish("Projects no longer in operation must have an Operating
+                      End Date. Please verify if the project is still in
+                      operation and, if not, add in the Operating End Date."),
          Detail = paste(
            "This project has no open enrollments and the most recent Exit was",
            MostRecentEnrollment
@@ -212,7 +214,9 @@ es_no_tracking_method <- Project %>%
     Type = "Error",
     Guidance = str_squish("All Emergency Shelters must have a Tracking Method. Please update the 
     Emergency Shelter Tracking Method field at the project-level."),
-    Detail = paste0("Project ID", ProjectID, "is an Emergency Shelter with no Tracking Method")
+    Detail = paste0("Project ID ",
+                    ProjectID,
+                    "is an Emergency Shelter with no Tracking Method")
   ) %>%
   select(all_of(PDDEcols))
 
