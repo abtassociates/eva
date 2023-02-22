@@ -491,7 +491,6 @@ logToConsole <- function(msg) {
     Datestamp = Sys.time(),
     CoC = Export$SourceID,
     ExportID = Export$ExportID,
-    SourceContactFirst = Export$SourceContactFirst,
     Msg = msg
   )
   capture.output(d, file=stderr())
