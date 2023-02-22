@@ -69,6 +69,10 @@ function(input, output, session) {
     tribble(
   ~Date, ~Change,
   
+  "02-23-2023", "Changed Long Stayers (aka Possible Missed Exit) logic so that
+  for Outreach and Coordinated Entry projects, it measures from the last 
+  Current Living Situation instead of from the Entry Date.",
+  
   "02/09/2023", "Added system-wide download of Client Counts data",
   
   "02/09/2023", "Separated app timeout and crash processing. 
