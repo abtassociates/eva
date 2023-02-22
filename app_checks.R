@@ -1,5 +1,6 @@
 library(tidyverse)
 library(openxlsx)
+library(here)
 
 #Bring in guidance from separate R script
 source("03_guidance.R")
@@ -945,4 +946,4 @@ EvaChecks <- list('Integrity Checks' = dqChecks_integrity,
               "All Checks" = dqChecks)
 
 #Export checks to Excel doc
-write.xlsx(EvaChecks, file = "~/DQ_CE/public_data/EvaChecks.xlsx")
+write.xlsx(EvaChecks, file = here("public_data/EvaChecks.xlsx"))
