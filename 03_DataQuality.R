@@ -5,7 +5,7 @@ library(lubridate)
 library(scales)
 library(HMIS)
 
-source("03_guidance.R")
+source("03_guidance.R", local=TRUE)
 
 logToConsole("Running Data Quality")
 
