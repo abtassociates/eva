@@ -484,3 +484,15 @@ logSessionData <- function() {
     col_names = !file.exists(filename)
   )
 }
+
+logToConsole <- function(msg) {
+  d <- data.frame(
+    SessionToken = session$token,
+    Datestamp = Sys.time(),
+    CoC = Export$SourceID,
+    ExportID = Export$ExportID,
+    SourceContactFirst = Export$SourceContactFirst,
+    Msg = msg
+  )
+  capture.output(d, file=stderr())
+}

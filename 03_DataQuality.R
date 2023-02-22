@@ -7,6 +7,8 @@ library(HMIS)
 
 source("03_guidance.R")
 
+logToConsole("Running Data Quality")
+
 va_funded <- Funder %>%
   filter(Funder %in% c(va_fund_sources)) %>%
   pull(ProjectID)

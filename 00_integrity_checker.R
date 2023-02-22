@@ -1,4 +1,5 @@
 
+logToConsole("Running integrity checker")
 
 # Prep --------------------------------------------------------------------
 

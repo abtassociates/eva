@@ -4,6 +4,8 @@ library(lubridate)
 library(readxl)
 library(HMIS)
 
+logToConsole("Running get export")
+
 Assessment <- 
   importFile("Assessment", col_types = "cccDcnnnTTcTc")
 
