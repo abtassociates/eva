@@ -238,18 +238,21 @@ renderDQPlot <- function(level, issueType, group, color) {
   } else if(group == "Project") {
     groupVars <- c("OrganizationName", "ProjectName", "ProjectID")
     x_group <- "ProjectName"
-  } else {
-    groupVars <- if_else(level == "org",c("OrganizationName","Issue"), "Issue")
+  } else if(group == "Issue" && level == "org") {
+    groupVars <- c("OrganizationName","Issue")
+    x_group <- "Issue"
+  } else if(group == "Issue" && level == "sys") {
+    groupVars <- "Issue"
     x_group <- "Issue"
   } 
-  
+
   # determine which data.frame we start with
   if(level == "sys") {
     plot_df <- dq_plot_df
   } else {
     plot_df <- dq_org_plot_df
   }
-  
+
   plot_data <- plot_df %>%
     filter(Type == issueType) %>% 
     group_by(!!as.name(groupVars)) %>%
