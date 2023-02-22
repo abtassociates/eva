@@ -14,9 +14,8 @@ check1 = c(
   Issue = "Duplicate Entries",
   DataElement = "3.10 - Project Start Date, 3.11 - Project Exit Date",
   Guidance = str_squish(
-    "A client cannot have two enrollments with the same entry date
-                                             into the same project. These are duplicate enrollment records.
-                                             Please address this issue."
+    "A client cannot have two enrollments with the same entry date into the same
+    project. These are duplicate enrollment records. Please address this issue."
   ),
   Notes = ""
 )
@@ -54,89 +53,105 @@ check5 = c(
   "High Priority",
   "Missing Geography Information",
   "2.03.8 - Continuum of Care Information: Geography Type",
-  str_squish("Projects should not have missing geography information.
-             Please ensure geography information for projects is complete."),
-  "Mising geography information that makes this a High Priority Error are geocode, CoC code, and geography type."
+  str_squish("Please ensure geography information for projects is complete."),
+  "Mising geography information that makes this a High Priority Error are
+  geocode, CoC code, and geography type."
 )
 
 
-check6 = c("integrity",
+check6 = c("file structure",
            "High Priority",
            "Nulls or incorrect data type",
-           str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
-           str_squish("Either there is a column with nulls where they are not allowed, or there is a column with an incorrect data type.
-                    Please review the HMIS CSV Format Specifications for the data types and null requirements associated 
-                    with the file and column listed in the detail and make the necessary updates."),
-           str_squish("If the data type is considered High Priority, this will be a High Priority issue. Otherwise, this will be considered a General Error."))
+           str_squish("Specific data elements will be identified in the Detail
+                      column of a CoC's Integrity Checks export."),
+           str_squish("Either there is a column with nulls where they are not
+                      allowed, or there is a column with an incorrect data type.
+                      Please review the HMIS CSV Format Specifications for the
+                      data types and null requirements associated with the file
+                      and column listed in the detail and make the necessary
+                      updates."),
+           str_squish("If the data type is considered High Priority, this will
+                      be a High Priority issue. Otherwise, this will be
+                      considered a General Error."))
 
 check7 = c(
-  "integrity",
+  "file structure",
   "High Priority",
   "Duplicate PersonalIDs found in the Client file",
   "5.08 - Personal Identifier",
-  str_squish("PersonalIDs should be unique in the Client file. 
-                          Each unique client should only be listed once in the Client file.
-                          Please ensure that each unique client gets their own unique PersonalID in this file."),
+  str_squish("PersonalIDs should be unique in the Client file. Each unique
+             client should only be listed once in the Client file. Please ensure
+             that each unique client gets their own unique PersonalID in this
+             file."),
   ""
 )
 check8 = c(
-  "integrity",
+  "file structure",
   "High Priority",
   "Duplicate EnrollmentIDs found in the Enrollment file",
   "5.06 - Enrollment Identifier",
-  str_squish("EnrollmentIDs should be unique in the Enrollment file. There may be no more than one
-                          record for any PersonalID with the same EnrollmentID. If there is more than one record
-                          for the same PersonalID with the same EnrollmentID, this represents an error in the
-                          CSV export algorithm."),
+  str_squish("EnrollmentIDs should be unique in the Enrollment file. There may
+             be no more than one record for any PersonalID with the same
+             EnrollmentID. If there is more than one record for the same
+             PersonalID with the same EnrollmentID, this represents an error in
+             the CSV export algorithm."),
   ""
 )
 
 check9 = c(
-  "integrity",
+  "file structure",
   "High Priority",
   "Client in the Enrollment file not found in Client file",
   "5.08 - Personal Identifier",
-  str_squish("Per the HMIS CSV Format Specifications, all PersonalIDs in the Enrollment 
-                          file should have a record in the Client file."),
+  str_squish("Per the HMIS CSV Format Specifications, all PersonalIDs in the
+             Enrollment file should have a record in the Client file."),
   ""
 )
 
 check10 = c(
-  "integrity",
+  "file structure",
   "High Priority",
   "ProjectID in the Enrollment file not found in Project file",
   "5.05 - Project Identifier",
-  str_squish("Per the HMIS CSV Format Specifications, all ProjectIDs in the Enrollment 
-                          file should have a record in the Project file."),
+  str_squish("Per the HMIS CSV Format Specifications, all ProjectIDs in the
+             Enrollment file should have a record in the Project file."),
   ""
 )
 
-check11 = c("integrity", 
+check11 = c("file structure", 
             "High Priority", 
             "Incorrect Date Format", 
             "Date-Based Data Elements", 
-            str_squish("Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format,
-                       in alginment with the HMIS CSV Format Specifications. Please check the Specifications
-                       for the file and column identified in the Detail and ensure the correct date format
-                       is used in the export."),
+            str_squish(
+              "Dates in the HMIS CSV Export should be in yyyy-mm-dd or
+              yyyy-mm-dd hh:mm:ss format, in alginment with the HMIS CSV Format
+              Specifications. Please check the Specifications for the file and
+              column identified in the Detail and ensure the correct date format
+              is used in the export."),
             "")
 
-check12 = c("integrity", 
+check12 = c("file structure", 
             "High Priority", 
             "Incorrect Columns", 
-            str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
-            str_squish("Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. 
-      Please remove any extra columns and make sure you have all missing columns."),
+            str_squish("Specific data elements will be identified in the Detail
+                       column of a CoC's Integrity Checks export."),
+            str_squish("Your HMIS CSV Export should contain - with identical,
+                       case-sensitive spelling - only the columns specified in
+                       the columns.csv file. Please remove any extra columns and
+                       make sure you have all missing columns."),
             str_squish("If the column is considered High Priority, this will be a 
-                       High Priority issue. Otherwise, this will be considered a Warning."))
+                       High Priority issue. Otherwise, this will be considered a
+                       Warning."))
 
-check14 = c("integrity", 
+check14 = c("file structure", 
             "High Priority", 
             "Incorrect Data Type", 
-            str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
-            str_squish("Data types must align with the HMIS CSV Format Specifications. Please review the specifications
-                       for the data types associated with the file and column liseted in the Detail and make the
-                       necessary updates."),
+            str_squish("Specific data elements will be identified in the Detail
+                       column of a CoC's Integrity Checks export."),
+            str_squish("Data types must align with the HMIS CSV Format
+                       Specifications. Please review the specifications for the
+                       data types associated with the file and column liseted in
+                       the Detail and make the necessary updates."),
             "")
 
 check15 = c(
@@ -145,10 +160,10 @@ check15 = c(
   "Future Exit Date",
   "3.11 - Project Exit Date",
   str_squish(
-    "This client's Exit Date is a date in the future. Please
-                                   enter the exact date the client left your program. If this client has not
-                                   yet exited, delete the Exit and then enter the Exit Date once the client
-                                   is no longer in your program."
+    "This client's Exit Date is a date in the future. Please enter the exact
+    date the client left your program. If this client has not yet exited, delete
+    the Exit and then enter the Exit Date once the client is no longer in your
+    program."
   ),
   ""
 )
@@ -301,7 +316,8 @@ check32 = c(
   "dq",
   "Error",
   "Missing Months or Times Homeless",
-  "3.917.4 - Prior Living Situation: Times Homeless in Past 3 Years, 3.917.5 - Prior Living Situation: Months Homeless in Past 3 Years",
+  "3.917.4 - Prior Living Situation: Times Homeless in Past 3 Years, 3.917.5 -
+  Prior Living Situation: Months Homeless in Past 3 Years",
   guidance_missing_at_entry,
   ""
 )
@@ -330,11 +346,10 @@ check35 = c(
   "Missing DOB",
   "3.03.1 - Date of Birth",
   str_squish(
-    "This data element is required to be collected at Project
-                   Start. Please go to the client's assessment at Project Start
-                   to enter this data to HMIS. If this data was not collected,
-                   the client declined to provide the information or was unable
-                   to provide it, please update the DOB Quality field accordingly."
+    "This data element is required to be collected at Project Start. Please go
+    to the client's assessment at Project Start to enter this data to HMIS. If
+    this data was not collected, the client declined to provide the information
+    or was unable to provide it, please update the DOB Quality field accordingly."
   ),
   ""
 )
@@ -345,11 +360,10 @@ check36 = c(
   "Missing DOB Data Quality",
   "3.03.2 - Date of Birth: DOB Data Quality",
   str_squish(
-    "This data element is required to be collected at Project
-                   Start. Please go to the client's assessment at Project Start
-                   to enter this data to HMIS. If this data was not collected,
-                   the client declined to provide the information or was unable
-                   to provide it, please update the DOB Quality field accordingly."
+    "This data element is required to be collected at Project Start. Please go
+    to the client's assessment at Project Start to enter this data to HMIS. If
+    this data was not collected, the client declined to provide the information
+    or was unable to provide it, please update the DOB Quality field accordingly."
   ),
   ""
 )
@@ -434,9 +448,11 @@ check45 = c(
   "pdde",
   "Error",
   "Project Operating End precedes Inventory End",
-  "2.02.3 - Project Information: Operating Start Date, 3.10 - Project Information: Project Entry Date",
-  str_squish("Inventory Start and End dates should be within Project Operating Start and End dates.
-             Please update either the inventory dates or the Project Operating dates."),
+  "2.02.3 - Project Information: Operating Start Date, 3.10 - Project
+  Information: Project Entry Date",
+  str_squish("Inventory Start and End dates should be within Project Operating
+             Start and End dates. Please update either the inventory dates or
+             the Project Operating dates."),
   ""
 )
 
@@ -445,8 +461,9 @@ check46 = c(
   "Error",
   "Missing Tracking Method",
   "2.02.C - Project Information: Emergency Shelter Tracking Method",
-  Guidance = str_squish("All Emergency Shelters must have a Tracking Method. Please update the 
-                        Emergency Shelter Tracking Method field at the project-level."),
+  Guidance = str_squish("All Emergency Shelters must have a Tracking Method.
+                        Please update the Emergency Shelter Tracking Method
+                        field at the project-level."),
   ""
 )
 
@@ -456,13 +473,14 @@ check47 = c(
   "Sum of the dedicated beds should equal the Total Beds",
   "2.07 - Bed and Unit Inventory Information",
   str_squish("Total Beds should match the sum of CH Vets, Youth Vets, Vets, 
-         CH Youth, Youth, CH, and Other beds. Please review project inventory records for the number 
-         of dedicated beds and ensure this number equals the Total Beds listed within each record."),
+         CH Youth, Youth, CH, and Other beds. Please review project inventory
+         records for the number of dedicated beds and ensure this number equals
+         the Total Beds listed within each record."),
   ""
 )
 
 
-# check48 = c("integrity", 
+# check48 = c("file structure", 
 #             "Error", 
 #             "Nulls not allowed in this column", 
 #             str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
@@ -472,88 +490,108 @@ check47 = c(
 #             str_squish("If the data type is considered High Priority, this will be a High Priority issue. 
 #                        Otherwise, this will be considered a General Error."))
 
-check49 = c("integrity", 
+check49 = c("file structure", 
             "Error", 
             "Incorrect Date Format", 
             "Date-Based Data Elements",
             str_squish("Dates in the HMIS CSV Export should be in yyyy-mm-dd or
       yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format
-      Specifications. Please check the Specifications for the file and column identified in the Detail
-      and ensure the correct date format is used in the export."),
-            str_squish("If the column is considered High Priority, this will be a High Priority issue. 
-                       Otherwise, this will be considered a General Error."))
+      Specifications. Please check the Specifications for the file and column
+      identified in the Detail and ensure the correct date format is used in the
+      export."),
+            str_squish("If the column is considered High Priority, this will be
+                       a High Priority issue. Otherwise, this will be considered
+                       a General Error."))
 
-check50 = c("integrity", 
+check50 = c("file structure", 
             "Error", 
             "Incorrect Data Type", 
-            str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
-            str_squish("Data types must align with the HMIS CSV Format Specifications. 
-                       Please review the specifications for the data types associated with the file and column liseted in the Detail and make the necessary updates."),
+            str_squish("Specific data elements will be identified in the Detail
+                       column of a CoC's Integrity Checks export."),
+            str_squish("Data types must align with the HMIS CSV Format
+                       Specifications. Please review the specifications for the
+                       data types associated with the file and column liseted in
+                       the Detail and make the necessary updates."),
             "")
 
-check51 = c("integrity", 
+check51 = c("file structure", 
             "Error", 
             "ExportID mismatch", 
             "ExportID",
-            str_squish("Per the HMIS CSV Formatting Specifications, the ExportID in your Export and Client files must match.
-                There should be one unique ExportID that will be used to identify all CSV files genereated as part
-                of the same export process."),
+            str_squish("Per the HMIS CSV Formatting Specifications, the
+                       ExportID in your Export and Client files must match.
+                       There should be one unique ExportID that will be used to
+                       identify all CSV files genereated as part of the same
+                       export process."),
             "")
 
-check52 = c("integrity", 
+check52 = c("file structure", 
             "Error", 
             "Invalid value in Client file", 
             "3.01-3.07, V1.1-V1.11",
-            str_squish("All columns in the client file should contain only the values listed in the HMIS CSV Format Specifications
-                for that specific column. Please review the Specifications for the column identified in the Detail and ensure
-                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
+            str_squish("All columns in the client file should contain only the
+                       values listed in the HMIS CSV Format Specifications for
+                       that specific column. Please review the Specifications for
+                       the column identified in the Detail and ensure all values
+                       in the export align with the associated values list found
+                       in 'Appendix B - Lists' of the Specifications."),
             "")
 
-check53 = c("integrity",
+check53 = c("file structure",
             "Error",
             "Invalid Disabling Condition",
             "3.01.5 - Name: Name Data Quality",
-            str_squish("DisablingCondition should only have valid values. Please review the HMIS CSV Format Specifications for 
-                       DisablingCondition and ensure all values in the export align with the associated values list found in 
-                       'Appendix B - Lists' of the Specifications."),
+            str_squish("DisablingCondition should only have valid values. Please
+                       review the HMIS CSV Format Specifications for 
+                       DisablingCondition and ensure all values in the export
+                       align with the associated values list found in 'Appendix
+                       B - Lists' of the Specifications."),
             "")
 
 check54 = c(
-  "integrity",
+  "file structure",
   "Error",
   "Invalid Living Situation value",
   "3.917.1 - Prior Living Situation: Living Situation",
-  str_squish("LivingSituation may only contain valid values. Please review the HMIS CSV Format Specifications for LivingSituation and ensure
-                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
+  str_squish("LivingSituation may only contain valid values. Please review the
+             HMIS CSV Format Specifications for LivingSituation and ensure all
+             values in the export align with the associated values list found in
+             'Appendix B - Lists' of the Specifications."),
   ""
 )
 
 check55 = c(
-  "integrity",
+  "file structure",
   "Error",
   "Invalid RelationshipToHoH value",
   "3.15 - Relationship to Head of Household",
-  str_squish("RelationshipToHoH must be a valid value. Please review the HMIS CSV Format Specifications for RelationshipToHoH and ensure
-                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
+  str_squish("RelationshipToHoH must be a valid value. Please review the HMIS
+             CSV Format Specifications for RelationshipToHoH and ensure all
+             values in the export align with the associated values list found in
+             'Appendix B - Lists' of the Specifications."),
   ""
 )
 
-check56 = c("integrity",
+check56 = c("file structure",
             "Error",
             "Invalid Destination value",
             "3.12 - Destination",
-            str_squish("Destination values must be valid. Please review the HMIS CSV Format Specifications for Destination and ensure
-                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
+            str_squish("Destination values must be valid. Please review the HMIS
+                       CSV Format Specifications for Destination and ensure all
+                       values in the export align with the associated values list
+                       found in 'Appendix B - Lists' of the Specifications."),
             "")
 
 check57 = c(
-  "integrity",
+  "file structure",
   "Error",
   "Non-standard Current Living Situation",
   "4.12 - Current Living Situation",
-  str_squish("This column contains a value that may have been retired from an old version of the Data Standards or was miskeyed. 
-                Please review the HMIS CSV Format Specifications for CurrentLivingSituation and ensure
-                all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications."),
+  str_squish("This column contains a value that may have been retired from an
+             old version of the Data Standards or was miskeyed. Please review the
+             HMIS CSV Format Specifications for CurrentLivingSituation and ensure
+             all values in the export align with the associated values list found
+             in 'Appendix B - Lists' of the Specifications."),
   ""
 )
 
@@ -603,7 +641,8 @@ check63 = c(
   "dq",
   "Warning",
   "Don't Know/Refused Months or Times Homeless",
-  "3.917.4 - Prior Living Situation: Times Homeless in Past 3 Years, 3.917.5 - Prior Living Situation: Months Homeless in Past 3 Years",
+  "3.917.4 - Prior Living Situation: Times Homeless in Past 3 Years, 3.917.5 -
+  Prior Living Situation: Months Homeless in Past 3 Years",
   guidance_dkr_data,
   "")
 
@@ -662,7 +701,8 @@ check71 = c(
   "dq",
   "Warning",
   "Homelessness Start Date Later Than Entry",
-  "3.10 - Project Start Date, 3.917.3 - Prior Living Situation: Date Homelessness Started",
+  "3.10 - Project Start Date, 3.917.3 - Prior Living Situation: Date
+  Homelessness Started",
   str_squish("This client has an Approximate Date Homelessness Started in their 
         enrollment that is after their Project Start Date. The information 
         at Project Start should reflect the client's situation at the point of 
@@ -674,7 +714,8 @@ check72 = c(
   "dq",
   "Warning",
   "Number of Months Homeless Can Be Determined",
-  "3.10 - Project Start Date, 3.917.3 - Prior Living Situation: Date Homelessness Started",
+  "3.10 - Project Start Date, 3.917.3 - Prior Living Situation: Date 
+  Homelessness Started",
   str_squish("According to this client's assessment at Project Start, they 
         experienced a single episode of homelessness in the three years prior to 
         their Project Start and the approximate date homelessness started is known, 
@@ -691,7 +732,8 @@ check73 = c(
   "Warning",
   "Invalid Homelessness Start Date/Number of Months Homeless",
   "3.917.5 - Prior Living Situation: Months Homeless in Past 3 Years",
-  str_squish("According to this client's assessment at Project Start, they experienced 
+  str_squish(
+    "According to this client's assessment at Project Start, they experienced 
         a single episode of homelessness in the three years prior to their 
         enrollment and the approximate date homelessness started known, but the 
         total number of months they experienced homelessness prior to this 
@@ -704,11 +746,13 @@ check74 = c("dq",
             "Warning",
             "Possible Missed Move-In Date",
             "3.20 - Housing Move-In Date",
-            str_squish("This enrollment may be missing a Move-In Date. It is being flagged because
-      the length of time since the enrollment date is in the top 1-2% for this project type. Please be sure this household is still awaiting
-      housing in this project and if not, record the date they either moved into
-      housing or exited your project. If they are still awaiting housing, do not
-      change the data."),
+            str_squish(
+              "This enrollment may be missing a Move-In Date. It is being
+              flagged because the length of time since the enrollment date is in
+              the top 1-2% for this project type. Please be sure this household
+              is still awaiting housing in this project and if not, record the
+              date they either moved into housing or exited your project. If
+              they are still awaiting housing, do not change the data."),
       str_squish("1% if project type in PSH, PH - Housing Only, or PH - Housing with Services and
                  2% for all other project types."))
 
@@ -716,12 +760,14 @@ check75 = c("dq",
             "Warning",
             "Possible Missed Exit Date",
             "3.11 - Project Exit Date",
-            str_squish("This enrollment may be missing an Exit Date. It is being flagged because
-      the length of time since the enrollment date is in the top 1-2% for this project type. Please be sure this household is still
-              active in the project and if not, record the Project Exit Date. If
-              they are still active, do not change the data."),
-      str_squish("1% if project type in PSH, PH - Housing Only, or PH - Housing with Services and
-                 2% for all other project types."))
+            str_squish("This enrollment may be missing an Exit Date. It is being
+                       flagged because the length of time since the enrollment
+                       date is in the top 1-2% for this project type. Please be
+                       sure this household is still active in the project and if
+                       not, record the Project Exit Date. If they are still
+                       active, do not change the data."),
+      str_squish("1% if project type in PSH, PH - Housing Only, or PH - Housing
+                 with Services and 2% for all other project types."))
 
 check76 = c("dq", 
             "Warning", 
@@ -757,10 +803,11 @@ check79 = c("dq",
             "Warning",
             "Project Overlaps",
             "3.10 - Project Start Date, 3.11 - Project Exit Date",
-            str_squish("This enrollment overlaps with another enrollment that would indicate a 
-      household spent the same night in different inventory beds. Please review
-      the HMIS Dual Enrollments and HIC Duplicate Inventory Training Resource for
-      more information."),
+            str_squish(
+              "This enrollment overlaps with another enrollment that would
+              indicate a household spent the same night in different inventory
+              beds. Please review the HMIS Dual Enrollments and HIC Duplicate
+              Inventory Training Resource for more information."),
             "")
 
 check80 = c(
@@ -777,9 +824,8 @@ check81 = c("pdde",
             "Warning",
             "Inventory Start Precedes Project Operating Start",
             "2.07 - Bed and Unit Inventory Information, 3.10 - Project Start Date",
-            str_squish("Inventory Start and End dates should be within Project 
-                       Operating Start and End dates. Please update either the inventory 
-                       ates or the Project Operating dates."),
+            str_squish("Please update either the inventory Start and End dates
+                       or the Project Operating dates."),
             ""
 )
 
@@ -789,9 +835,10 @@ check82 = c(
   "Non-HMIS-Participating project has client-level data",
   "2.02.7 - Project Information: HMIS Particpating Project",
   str_squish("Non-HMIS-Participating projects should not have client-level data.
-         The HMIS Participating Project field may need to be updated, new projects may need to be created
-         based on changing HMIS participation status, or client-level data
-         may need to be removed from the Non-HMIS-Participating projects."),
+         The HMIS Participating Project field may need to be updated, new
+         projects may need to be created based on changing HMIS participation
+         status, or client-level data may need to be removed from the
+         Non-HMIS-Participating projects."),
   ""
 )
 
@@ -801,26 +848,34 @@ check83 = c(
   "Potentially Missing Operating End Date",
   "2.02.4 - Project Information: Operating End Date",
   str_squish("Projects no longer in operation must have an Operating End Date.
-         Please verify if the project is still in operation and, if not, add in the Operating End Date."),
+         Please verify if the project is still in operation and, if not, add in
+         the Operating End Date."),
   ""
 )
 
 
-check84 = c("integrity", 
+check84 = c("file structure", 
             "Warning", 
             "Incorrect Columns", 
-            str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
-            str_squish("Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. 
-      Please remove any extra columns and make sure you have all missing columns."),
-            str_squish("If the column is considered High Priority, this will be a High Priority issue. Otherwise, this will be considered a Warning."))
+            str_squish("Specific data elements will be identified in the Detail
+                       column of a CoC's Integrity Checks export."),
+            str_squish("Your HMIS CSV Export should contain - with identical,
+                       case-sensitive spelling - only the columns specified in
+                       the columns.csv file. Please remove any extra columns and
+                       make sure you have all missing columns."),
+            str_squish("If the column is considered High Priority, this will be
+                       a High Priority issue. Otherwise, this will be considered
+                       a Warning."))
 
-check85 = c("integrity",
+check85 = c("file structure",
             "High Priority",
             "Duplicate HouseholdIDs",
             "5.09 - Household Identifier",
-            str_squish("The householdID must be unique to the household stay in a project; reuse of the identification
-                       of the same or similar household upon readmission into the project is unacceptable.
-                       Please review the HMIS Data Standards for more details."),
+            str_squish("The householdID must be unique to the household stay in
+                       a project; reuse of the identification of the same or
+                       similar household upon readmission into the project is
+                       unacceptable. Please review the HMIS Data Standards for
+                       more details."),
             ""
   
 )
@@ -832,7 +887,7 @@ check85 = c("integrity",
 #the new check should be named check85. You don't need to keep the Source = , Type = , etc. from the template. 
 #Then add the check to dqChecks data frame below.
 
-#check00 = c(Source = "", #This should be "integrity," "pdde," or "dq"
+#check00 = c(Source = "", #This should be "file structure," "pdde," or "dq"
           # Type = "",   #This should be "High Priority," "Error," or "Warning"
           # Issue = "", 
           # DataElement = "",
@@ -931,7 +986,7 @@ dqChecks <- data.frame(rbind(check1,
 
 #Data frames separated out by Source
 dqChecks_integrity <- dqChecks %>%
-  filter(Source == "integrity")
+  filter(Source == "file structure")
 
 dqChecks_dq <- dqChecks %>%
   filter(Source == "dq")
