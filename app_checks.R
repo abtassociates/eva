@@ -63,7 +63,7 @@ check6 = c("integrity",
            "High Priority",
            "Nulls or incorrect data type",
            str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
-           str_squish("Certain columns cannot contain nulls or incompatible data types.
+           str_squish("Either there is a column with nulls where they are not allowed, or there is a column with an incorrect data type.
                     Please review the HMIS CSV Format Specifications for the data types and null requirements associated 
                     with the file and column listed in the detail and make the necessary updates."),
            str_squish("If the data type is considered High Priority, this will be a High Priority issue. Otherwise, this will be considered a General Error."))
@@ -812,6 +812,17 @@ check84 = c("integrity",
             str_squish("Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. 
       Please remove any extra columns and make sure you have all missing columns."),
             str_squish("If the column is considered High Priority, this will be a High Priority issue. Otherwise, this will be considered a Warning."))
+
+check85 = c("integrity",
+            "High Priority",
+            "Duplicate HouseholdIDs",
+            "5.09 - Household Identifier",
+            str_squish("The householdID must be unique to the household stay in a project; reuse of the identification
+                       of the same or similar household upon readmission into the project is unacceptable.
+                       Please review the HMIS Data Standards for more details."),
+            ""
+  
+)
 
 ### ADD NEW CHECKS ABOVE ^^^ ------------------------------------
 
