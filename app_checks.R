@@ -945,4 +945,4 @@ EvaChecks <- list('Integrity Checks' = dqChecks_integrity,
               "All Checks" = dqChecks)
 
 #Export checks to Excel doc
-write.xlsx(EvaChecks, file = "~/DQ_CE/data/EvaChecks.xlsx")
+write.xlsx(EvaChecks, file = "~/DQ_CE/public_data/EvaChecks.xlsx")
