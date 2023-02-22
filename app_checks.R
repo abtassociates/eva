@@ -54,8 +54,8 @@ check5 = c(
   "Missing Geography Information",
   "2.03.8 - Continuum of Care Information: Geography Type",
   str_squish("Please ensure geography information for projects is complete."),
-  "Mising geography information that makes this a High Priority Error are
-  geocode, CoC code, and geography type."
+  str_squish("Missing geography information that makes this a High Priority Error are
+  geocode, CoC code, and geography type.")
 )
 
 
@@ -316,8 +316,8 @@ check32 = c(
   "dq",
   "Error",
   "Missing Months or Times Homeless",
-  "3.917.4 - Prior Living Situation: Times Homeless in Past 3 Years, 3.917.5 -
-  Prior Living Situation: Months Homeless in Past 3 Years",
+  str_squish("3.917.4 - Prior Living Situation: Times Homeless in Past 3 Years,
+             3.917.5 - Prior Living Situation: Months Homeless in Past 3 Years"),
   guidance_missing_at_entry,
   ""
 )
@@ -448,8 +448,8 @@ check45 = c(
   "pdde",
   "Error",
   "Project Operating End precedes Inventory End",
-  "2.02.3 - Project Information: Operating Start Date, 3.10 - Project
-  Information: Project Entry Date",
+  str_squish("2.02.3 - Project Information: Operating Start Date, 3.10 - Project
+  Information: Project Entry Date"),
   str_squish("Inventory Start and End dates should be within Project Operating
              Start and End dates. Please update either the inventory dates or
              the Project Operating dates."),
@@ -641,8 +641,8 @@ check63 = c(
   "dq",
   "Warning",
   "Don't Know/Refused Months or Times Homeless",
-  "3.917.4 - Prior Living Situation: Times Homeless in Past 3 Years, 3.917.5 -
-  Prior Living Situation: Months Homeless in Past 3 Years",
+  str_squish("3.917.4 - Prior Living Situation: Times Homeless in Past 3 Years,
+             3.917.5 - Prior Living Situation: Months Homeless in Past 3 Years"),
   guidance_dkr_data,
   "")
 
@@ -701,8 +701,8 @@ check71 = c(
   "dq",
   "Warning",
   "Homelessness Start Date Later Than Entry",
-  "3.10 - Project Start Date, 3.917.3 - Prior Living Situation: Date
-  Homelessness Started",
+  str_squish("3.10 - Project Start Date, 3.917.3 - Prior Living Situation: Date
+  Homelessness Started"),
   str_squish("This client has an Approximate Date Homelessness Started in their 
         enrollment that is after their Project Start Date. The information 
         at Project Start should reflect the client's situation at the point of 
@@ -753,8 +753,8 @@ check74 = c("dq",
               is still awaiting housing in this project and if not, record the
               date they either moved into housing or exited your project. If
               they are still awaiting housing, do not change the data."),
-      str_squish("1% if project type in PSH, PH - Housing Only, or PH - Housing with Services and
-                 2% for all other project types."))
+      str_squish("1% if project type in PSH, PH - Housing Only, or PH - Housing
+                 with Services and 2% for all other project types."))
 
 check75 = c("dq",
             "Warning",
@@ -995,7 +995,7 @@ dqChecks_pdde <- dqChecks %>%
   filter(Source == "pdde")
 
 #Make a list of dfs to create tabs in export
-EvaChecks <- list('Integrity Checks' = dqChecks_integrity, 
+EvaChecks <- list('File Structure' = dqChecks_integrity, 
               'PDDE Checks' = dqChecks_pdde, 
               'DQ Checks' = dqChecks_dq, 
               "All Checks" = dqChecks)
