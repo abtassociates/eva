@@ -121,6 +121,7 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
   filename = glue::glue("{csvFile}.csv")
   data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
                    ,col_types = col_types
+                   ,na = ""
   )
   file.remove(filename)
   return(data)
