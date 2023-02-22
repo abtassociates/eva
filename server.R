@@ -57,6 +57,21 @@ function(input, output, session) {
   output$changelog <- renderTable({
     tribble(
   ~Date, ~Change,
+  "02-23-2023", "Addresses GitHub issue 152 by printing the detail for up to 3
+  rows as to which rows were affected. If all rows were affected, it will say
+  that.",
+  
+  "02-23-2023", "Adds a Detail column to the File Structure Analysis download
+  separate from the more general Guidance.",
+  
+  "02-23-2023", "Addresses GitHub issue 154 by checking for missing columns and
+  extraneous columns in a similar way. This is a change from the prior issues
+  specifying that a column name was misspelled. Now a misspelled column will show
+  as one missing column (with the correct column name) and one extraneous column
+  (with the actual column name.)",
+  
+  "02-23-2023", "Addresses GitHub issue 172 by preventing R from counting the
+  value of \"NA\" from being considered an actual null",
   
   "01-26-2023", "Fixes GitHub issue 82. Now the app times out after 10 minutes
   being idle.",
