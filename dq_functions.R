@@ -255,7 +255,7 @@ renderDQPlot <- function(level, issueType, group, color) {
 
   plot_data <- plot_df %>%
     filter(Type == issueType) %>% 
-    group_by(!!as.name(groupVars)) %>%
+    group_by(across(all_of(groupVars))) %>%
     summarise(countVar = n()) %>%
     ungroup() %>%
     arrange(desc(countVar))
@@ -312,10 +312,6 @@ renderDQPlot <- function(level, issueType, group, color) {
   plot_height = if_else(nrow(plot_data) == 0,50,400)
 
   # finally, render the plot
-  return(
-    renderUI({
-      plotOutput(outputId, height = plot_height)
-    })
-  )
+  return(plotOutput(outputId, height = plot_height))
 }
 

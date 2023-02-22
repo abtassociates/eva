@@ -531,22 +531,56 @@ function(input, output, session) {
     #SYSTEM-LEVEL DQ TAB PLOTS
     # By-org shows organizations containing highest number of HP errors/errors/warnings
     # By-issue shows issues that are the most common of that type (HP errors/errors/warnings)
-    output$systemDQHighPriorityErrorsByOrg_ui <- renderDQPlot("sys", "High Priority", "Org", "#16697A")
-    output$systemDQHighPriorityErrorsByIssue_ui <- renderDQPlot("sys", "High Priority", "Issue", "#16697A")
-    output$systemDQErrorsByOrg_ui <- renderDQPlot("sys", "Error", "Org", "#489FB5")
-    output$systemDQErrorByIssue_ui <-  renderDQPlot("sys", "Error", "Issue", "#489FB5")
-    output$systemDQWarningsByOrg_ui <- renderDQPlot("sys", "Warning", "Org", "#82C0CC")
-    output$systemDQWarningByIssue_ui <- renderDQPlot("sys", "Warning", "Issue", "#82C0CC")
+    output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
+      renderDQPlot("sys", "High Priority", "Org", "#16697A")
+    })
+    
+    output$systemDQHighPriorityErrorsByIssue_ui <- renderUI({
+      renderDQPlot("sys", "High Priority", "Issue", "#16697A")
+    })
+    
+    output$systemDQErrorsByOrg_ui <- renderUI({
+      renderDQPlot("sys", "Error", "Org", "#489FB5")
+    })
+    
+    output$systemDQErrorByIssue_ui <- renderUI({
+      renderDQPlot("sys", "Error", "Issue", "#489FB5")
+    })
+    
+    output$systemDQWarningsByOrg_ui <- reactive({
+      renderDQPlot("sys", "Warning", "Org", "#82C0CC")
+    })
+    
+    output$systemDQWarningByIssue_ui <- renderUI({
+      renderDQPlot("sys", "Warning", "Issue", "#82C0CC")
+    })
 
     #ORG-LEVEL TAB PLOTS
     # By-project shows projects, within the selected org, containing highest number of HP errors/errors/warnings
     # By-issue shows issues, within the selected org, that are the most common of that type (HP errors/errors/warnings)
-    output$orgDQHighPriorityErrorsByProject_ui <- renderDQPlot("org", "High Priority", "Project", "#11697A")
-    output$orgDQHighPriorityErrorByIssue_ui <-  renderDQPlot("org", "High Priority", "Issue", "#11697A")
-    output$orgDQErrorsByProject_ui <- renderDQPlot("org", "Error", "Project", "#489FB5")
-    output$orgDQErrorByIssue_ui <- renderDQPlot("org", "Error", "Issue", "#489FB5")
-    output$orgDQWarningsByProject_ui <- renderDQPlot("org", "Warnings", "Project", "#82C0CC")
-    output$orgDQWarningsByIssue_ui <- renderDQPlot("org", "Warnings", "Issue", "#82C0CC")
+    output$orgDQHighPriorityErrorsByProject_ui <- renderUI({
+      renderDQPlot("org", "High Priority", "Project", "#11697A")
+    })
+    
+    output$orgDQHighPriorityErrorByIssue_ui <- renderUI({
+      renderDQPlot("org", "High Priority", "Issue", "#11697A")
+    })
+    
+    output$orgDQErrorsByProject_ui <- renderUI({
+      renderDQPlot("org", "Error", "Project", "#489FB5")
+    })
+    
+    output$orgDQErrorByIssue_ui <- renderUI({
+      renderDQPlot("org", "Error", "Issue", "#489FB5")
+    })
+    
+    output$orgDQWarningsByProject_ui <- renderUI({
+      renderDQPlot("org", "Warnings", "Project", "#82C0CC")
+    })
+    
+    output$orgDQWarningsByIssue_ui <- renderUI({
+      renderDQPlot("org", "Warnings", "Issue", "#82C0CC")
+    })
     
     ##
     
