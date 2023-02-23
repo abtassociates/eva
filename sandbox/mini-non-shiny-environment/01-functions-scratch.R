@@ -116,17 +116,6 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
-  if (is.null(input$imported)) {return()}
-  filename = glue::glue("{csvFile}.csv")
-  data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
-                   ,col_types = col_types
-                   ,na = ""
-  )
-  file.remove(filename)
-  return(data)
-}
-
 getDQReportDataList <-
   function(dqData,
            dqOverlaps = NULL,
@@ -362,40 +351,22 @@ is_hashed <- function() {
 
 # Non-Residential Long Stayers --------------------------------------------
 
-calculate_long_stayers <- function(days, projecttype){
-  
-  cls_df <- CurrentLivingSituation %>%
-    group_by(EnrollmentID) %>%
-    slice_max(InformationDate) %>%
-    ungroup() %>%
-    select(EnrollmentID, "MaxCLSInformationDate" = InformationDate)
+calculate_long_stayers <- function(input, projecttype){
   
   served_in_date_range %>%
-    left_join(cls_df, by = "EnrollmentID") %>%
-    select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
-    filter(ProjectType == projecttype &
-             is.na(ExitDate) &
-             ((
-               ProjectType %in% c(0, 4) &
-                 !is.na(MaxCLSInformationDate)
-             ) |
-               (!ProjectType %in% c(0, 4)))) %>% 
+    select(all_of(vars_prep), ProjectID) %>%
     mutate(
-      Days = 
-        as.numeric(difftime(
-          as.Date(meta_HUDCSV_Export_Date),
-          if_else(ProjectType %in% c(0, 4),
-                  MaxCLSInformationDate, # most recent CLS
-                  EntryDate), # project entry
-          units = "days"
-        )),
+      Days = as.numeric(
+          difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate, units = "days")),
       Issue = "Days Enrollment Active Exceeds Local Settings",
       Type = "Warning",
       Guidance = str_squish("You have at least one active enrollment that has been
          active for longer than the days set for this Project Type in your
          Referral settings on the Edit Local Settings tab.")
     ) %>%
-    filter(days < Days) %>% 
+    filter(is.na(ExitDate) &
+             ProjectType == projecttype &
+             input < Days) %>% 
     select(all_of(vars_we_want))
   
 }
