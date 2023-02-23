@@ -437,7 +437,7 @@ function(input, output, session) {
       datatable(
         client_count_data_df() %>%
           filter(`Project Name` == input$currentProviderList) %>%
-          select(clientCountDetailCols),
+          select(all_of(clientCountDetailCols)),
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')

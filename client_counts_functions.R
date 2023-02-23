@@ -77,7 +77,7 @@ client_count_summary_df <- reactive({
   client_count_summary_by <- function(vname, client_counts) {
     df <- client_counts %>%
       mutate(Status = sub(" \\(.*", "", Status)) %>%
-      select(vname, Status) %>%
+      select(all_of(vname), Status) %>%
       unique() %>%
       group_by(Status)
     return(df)
@@ -124,9 +124,9 @@ get_clientcount_download_info <- function(file) {
       mutate(
         Status = sub(" \\(.*", "", Status)
       ) %>%
-      select(keepCols, n, Status, ProjectType, `Personal ID`) %>%
+      select(all_of(keepCols), n, Status, ProjectType, `Personal ID`) %>%
       unique() %>%
-      select(keepCols, n, Status, ProjectType) %>%
+      select(all_of(keepCols), n, Status, ProjectType) %>%
       pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
       add_column(!!!necessaryCols[setdiff(names(necessaryCols), names(df))]) %>%
       select(!!keepCols, !!necessaryCols, ProjectType) %>%
