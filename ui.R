@@ -313,24 +313,22 @@ dashboardPage(
                 is uploaded, Eva calculates the referral has been open  by looking at 
                 the number of days between the Referral Date and the date your upload 
                 was exported from your HMIS. Then Eva compares the length of each 
-                open referral with the 'Expected days between Referral Date and Result Date'
-                assumption entered in the input field below. If the referral is open
-                longer than the expected timeframe, it is categorized as an
-                'Outstanding Referral.' This check is for all projects that have a
-                relevant CE Event referral.
+                open referral with the 'Max Days' assumption entered in the input 
+                field below. If the referral is open longer than the expected timeframe, 
+                it is categorized as an 'Outstanding Referral.' This check is for all 
+                projects that have a relevant CE Event referral.
                 
                 <p>Data quality flags about Outstanding Referrals are categorized
                 as Warnings, indicating that data should be reviewed for accuracy.
                 It does not imply that any data should be changed.
 
-                <p>In the field below, specify the expected maximum number of
-                days between the referral date and the result date 
-                for the CoC's Coordinated Entry Referral process. The value defaults
-                to 14 days. (These defaults do not imply any HUD recommendations)."
+                <p>In the field below, specify the maximum number of days a referral
+                can stay open according to the CoC's Coordinated Entry Referral process. 
+                The value defaults to 14 days. (These defaults do not imply any HUD recommendations)."
               ),
               numericInput(
                 inputId = "CEOutstandingReferrals",
-                label = "All Projects:",
+                label = "Max Days:",
                 value = 14,
                 min = 0,
                 max = 365,
