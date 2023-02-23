@@ -220,8 +220,8 @@ check_for_bad_nulls <- function(file) {
                        Please review the HMIS CSV Format Specifications for the
                        data types and null requirements associated with the file
                        and column listed in the detail and make the necessary updates."),
-          Detail = glue("The {Column} column in the {file} file contains nulls
-                        or incorrect data types. {row_ids}")
+          Detail = str_squish(glue("The {Column} column in the {file} file contains nulls
+                        or incorrect data types. {row_ids}"))
         ) %>%
         select(all_of(display_cols)) %>%
         unique()
