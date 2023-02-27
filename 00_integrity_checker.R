@@ -504,7 +504,7 @@ duplicate_household_id <- Enrollment %>%
   get_dupes(HouseholdID) %>%
   mutate(
     Issue = "Duplicate HouseholdIDs",
-    Type = "High Priority",
+    Type = "Error", # "High Priority", <- will be changed with March 23 update
     Guidance = 
       str_squish("The HouseholdID must be unique to the household stay in a
                  project; reuse of the idenfitcation of the same or similar
