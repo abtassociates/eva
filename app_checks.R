@@ -1001,4 +1001,4 @@ EvaChecks <- list('File Structure' = dqChecks_integrity,
               "All Checks" = dqChecks)
 
 #Export checks to Excel doc
-write.xlsx(EvaChecks, file = here("public_data/EvaChecks.xlsx"))
+write.xlsx(EvaChecks, file = here("public-resources/EvaChecks.xlsx"))
