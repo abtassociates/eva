@@ -868,7 +868,7 @@ check84 = c("file structure",
                        a Warning."))
 
 check85 = c("file structure",
-            "High Priority",
+            "Error",
             "Duplicate HouseholdIDs",
             "5.09 - Household Identifier",
             str_squish("The householdID must be unique to the household stay in
