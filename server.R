@@ -140,7 +140,7 @@ function(input, output, session) {
   })
   
   observeEvent(input$timeOut, {
-    reset("imported")
+    session$reload()
   })
 
 # Run scripts on upload ---------------------------------------------------
