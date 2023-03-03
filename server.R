@@ -68,6 +68,9 @@ function(input, output, session) {
   output$changelog <- renderTable({
   changelog <- tribble(
   ~Date, ~Change,
+  "03-02-2023", "Updated language on home page to match recent update to what
+  metadata is being logged by Eva.",
+  
   "02-23-2023", "Changed Long Stayers (aka Possible Missed Exit) logic so that,
   for Outreach and Coordinated Entry projects, it measures from the last 
   Current Living Situation instead of from the Entry Date.",
