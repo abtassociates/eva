@@ -91,7 +91,7 @@ dashboardPage(
               <ul>
                 <li>Eva will only access your CoC&rsquo;s data during your session, 
                 <strong>no data is being retained or viewed by anyone besides 
-                you.</strong>. Eva does retain metadata about the upload file itself, 
+                you.</strong> Eva does retain metadata about the upload file itself, 
                 such as the name of your software vendor, your export dates, hash 
                 status, and data source information. This is collected for 
                 troubleshooting and tool planning purposes.
