@@ -68,7 +68,7 @@ function(input, output, session) {
   output$changelog <- renderTable({
   changelog <- tribble(
   ~Date, ~Change,
-  "03-02-2023", "Fixed timeout to fully clear data by reloading the session.",
+  "03-02-2023", "Fixed timeout to fully clear data by reloading the session.s",
   
   "02-23-2023", "Changed Long Stayers (aka Possible Missed Exit) logic so that,
   for Outreach and Coordinated Entry projects, it measures from the last 
