@@ -11,15 +11,16 @@ function(input, output, session) {
 
 # If you want an initial dialog box, use this -----------------------------
 
- # showModal(modalDialog(
- #    title = "Changelog Alert",
- #    "Due to a recent update, Eva *may* reject exports that were previously
- #    accepted. If this affects you, please see the changelog for more
- #    information and contact your vendor.",
- #    footer = modalButton("OK"),
- #    size = "m",
- #    easyClose = TRUE
- #  ))
+ showModal(modalDialog(
+    title = "Changelog Alert",
+    "Please note the additional language on the home page and in the changelog.
+    Eva does retain metadata about the upload file itself, such as the name of
+    your software vendor, your export dates, hash status, and data source
+    information. This is collected for troubleshooting and tool planning purposes.",
+    footer = modalButton("OK"),
+    size = "m",
+    easyClose = TRUE
+  ))
   
   valid_file <- reactiveVal(0)
   
@@ -68,9 +69,11 @@ function(input, output, session) {
   output$changelog <- renderTable({
   changelog <- tribble(
   ~Date, ~Change,
+  "03-02-2023", "Fixed timeout to fully clear data by reloading the session.",
+  
   "03-02-2023", "Updated language on home page to match recent update to what
   metadata is being logged by Eva.",
-  
+
   "02-23-2023", "Changed Long Stayers (aka Possible Missed Exit) logic so that,
   for Outreach and Coordinated Entry projects, it measures from the last 
   Current Living Situation instead of from the Entry Date.",
@@ -143,7 +146,7 @@ function(input, output, session) {
   })
   
   observeEvent(input$timeOut, {
-    reset("imported")
+    session$reload()
   })
 
 # Run scripts on upload ---------------------------------------------------
