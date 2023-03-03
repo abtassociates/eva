@@ -89,9 +89,12 @@ dashboardPage(
               not required by HUD.</p>
               <p>Eva is a web-based tool built with R Shiny. This means:</p>
               <ul>
-                <li>Eva will only access your CoC&rsquo;s data during your session.
-                <strong>No data is being retained or viewed by anyone besides 
-                you.</strong>
+                <li>Eva will only access your CoC&rsquo;s data during your session,
+                <strong>no data is being retained or viewed by anyone besides 
+                you.</strong> Eva does retain metadata about the upload file itself, 
+                such as the name of your software vendor, your export dates, hash status, 
+                and data source information. This is collected for troubleshooting and 
+                tool planning purposes.
                 </li>
                 <li>You can upload a zipped CSV Export of up to 200 MB. The 
                 file must be hashed.</li>
