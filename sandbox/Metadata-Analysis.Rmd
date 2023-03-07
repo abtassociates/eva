@@ -14,11 +14,19 @@ library(lubridate)
 library(patchwork)
 library(gt)
 
+# Ignore this but don't remove it :)---------------------------------------
+
+# this is irrelevant to the metadata analysis but this script needs to be run
+# every week or so, so by putting it here, it is updating the EvaChecks.xlsx
+# document on GitHub in case there were any edits to checks!
+
+source(here("app_checks.R"))
+
 # Instructions ------------------------------------------------------------
 
 # whenever DDS sends the metadata zip file, copy it to anywhere in the ACE environment that you can find it again, navigate to the sandbox directory in your Eva RStudio project, click Upload, then find the zip file you copied in. Click OK or whatever, then the files will be pasted into a folder under sandbox/. Edit the folder_date variable to match that folder's name and run this.
 
-folder_date <- "2023-02-13"
+folder_date <- "2023-02-27"
 
 visits <-
   read_lines(here("www/metadata/site_visits.txt"))
