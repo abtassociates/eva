@@ -90,14 +90,14 @@ function(input, output, session) {
         setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
         source("01_get_Export.R", local = TRUE)
+        source("02_dates.R", local = TRUE)
         setProgress(detail = "Checking file structure", value = .35)
-        source("02_integrity_checker.R", local = TRUE)
+        source("03_integrity_checker.R", local = TRUE)
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
           setProgress(detail = "Prepping initial data..", value = .4)
-          source("03_initial_data_prep.R", local = TRUE)
-          source("04_dates.R", local = TRUE)
+          source("04_initial_data_prep.R", local = TRUE)
           setProgress(detail = "Making lists..", value = .5)
           source("05_cohorts.R", local = TRUE)
           setProgress(detail = "Assessing your data quality..", value = .7)
