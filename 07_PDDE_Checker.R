@@ -1,4 +1,6 @@
 
+logToConsole("Running PDDE checker")
+
 PDDEcols = c("OrganizationName",
              "ProjectID",
              "ProjectName",

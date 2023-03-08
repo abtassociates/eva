@@ -1,3 +1,4 @@
+logToConsole("Running Guidance")
 
 guidance_conflicting_hi <-
   str_squish("There is a discrepancy between the data element indicating that the

@@ -5,6 +5,10 @@ library(lubridate)
 library(scales)
 library(HMIS)
 
+source("guidance.R", local=TRUE)
+
+logToConsole("Running Data Quality")
+
 va_funded <- Funder %>%
   filter(Funder %in% c(va_fund_sources)) %>%
   pull(ProjectID)

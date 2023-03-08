@@ -22,7 +22,7 @@ library(shinydisconnect)
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 
 if(dir.exists("www/metadata/")) {
-  cat("All good")
+  capture.output("All good",file=stderr())
 } else {
   dir.create("www/metadata/")
 }
