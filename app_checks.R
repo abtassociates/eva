@@ -3,7 +3,7 @@ library(openxlsx)
 library(here)
 
 #Bring in guidance from separate R script
-source("03_guidance.R")
+source("guidance.R")
 
 ### CTRL + F "new check" TO ADD NEW CHECK ----
 
