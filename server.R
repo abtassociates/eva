@@ -1,12 +1,16 @@
 
 function(input, output, session) {
   
-  # record_heatmap(target = ".wrapper")
+  # Hard-coded --------------------------------------------------------------
+  # hc = hard-coded
+  hc_prior_living_situation_required <- ymd("20161001")
+  
+  #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
-  
-  # calling in HMIS-related functions that aren't in the HMIS pkg
-  source("00_functions.R", local = TRUE) 
+  source("helper_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+  source("guidance.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
+  source("changelog.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
   
 
 # If you want an initial dialog box, use this -----------------------------
@@ -63,83 +67,6 @@ function(input, output, session) {
   output$headerSystemDQ <- headerGeneric("System-level Data Quality")
     
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
-
-# Changelog ---------------------------------------------------------------
-
-  output$changelog <- renderTable({
-  changelog <- tribble(
-  ~Date, ~Change,
-  "03-02-2023", "Fixed timeout to fully clear data by reloading the session.",
-  
-  "03-02-2023", "Updated language on home page to match recent update to what
-  metadata is being logged by Eva.",
-
-  "02-23-2023", "Changed Long Stayers (aka Possible Missed Exit) logic so that,
-  for Outreach and Coordinated Entry projects, it measures from the last 
-  Current Living Situation instead of from the Entry Date.",
-
-  "02-23-2023", "Addresses GitHub issue 152 by adding a Detail column to the
-  File Structure Analysis download separate from the more general Guidance. This
-  column includes more details about affected rows and column in order to help
-  the user identify issues in their data.",
-  
-  "02-23-2023", "Addresses GitHub issue 154 by checking for missing columns and
-  extraneous columns in a similar way. This is a change from the prior issues
-  specifying that a column name was misspelled. Now a misspelled column will show
-  as one missing column (with the correct column name) and one extraneous column
-  (with the actual column name.)",
-  
-  "02-23-2023", "Addresses GitHub issue 172 by preventing R from counting the
-  value of \"NA\" as an actual null.",
-  
-  "02-09-2023", "Added system-wide download of Client Counts data",
-  
-  "02-09-2023", "Separated app timeout and crash processing. 
-  Timeout triggers a javascript alert and clears the app data. Crashes trigger 
-  the gray screen with a message and a Refresh link.",
-  
-  "02-09-2023", "Added Outstanding Referrals as a Warning. Eva users can set
-  what constitutes and outstanding referral for their CoC on the Edit Local
-  Settings tab. The issue will show in the download on the Warnings tab and
-  on its own tab called Referrals so that end users can see which Referral is
-  considered outstanding.",
-
-  "01-26-2023", "Addresses GitHub issue 82. Now the app times out after 10 minutes
-  being idle.",
-  
-  "01-26-2023", "Addresses GitHub issue 122. Modified tab structure to spread things
-  out and simplify the Home tab.",
-  
-  "01-26-2023", "Addresses GitHub issue 124. Modified plot color for High Priority
-  issues.",
-  
-  "01-23-2023", "Hotfix: Added improved metadata collection for troubleshooting
-  purposes.",
-  
-  "01-13-2023", "Hotfix: Set GrantID field so it is not considered a high priority column
-  so that it will no longer cause Eva to reject a file for incorrect data type.",
-  
-  "12-29-2022", "Addresses GitHub issue 118. Eva was not checking that all needed
-  csvs were in the export. Now it checks this and rejects the export if they are
-  not there.",
-  
-  "12-29-2022", "Addresses GitHub issue 118. Eva was missing some instances where a date
-  variable is of the wrong type (e.g. ymd_hms instead of ymd). Now it rejects
-  exports if an important variable has the wrong date type.",  
-  
-  "12-29-2022", "Client Counts report: if a user makes the Report Date Range so
-  that the Start > End, Eva now alerts the user in the data tables to check dates.",
-  
-  "12-29-2022", "Rewrote PDDE issues' Guidance so that it is general guidance,
-  then added Details column to include IDs to help admins find specific issues."
-  
-    ) %>%
-      mutate(
-        Date = format.Date(mdy(Date), "%m-%d-%Y")
-      )
-  changelog
-    
-  })
   
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
@@ -153,9 +80,6 @@ function(input, output, session) {
 
   observeEvent(input$imported, {
 
-    # calling in HMIS-related functions that aren't in the HMIS pkg
-    source("00_functions.R", local = TRUE) 
-    
     initially_valid_zip <- zip_initially_valid()
     
     if(initially_valid_zip == 1) {
@@ -165,22 +89,21 @@ function(input, output, session) {
       withProgress({
         setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
-        source("00_get_Export.R", local = TRUE)
-        source("00_dates.R", local = TRUE)
+        source("01_get_Export.R", local = TRUE)
+        source("02_dates.R", local = TRUE)
         setProgress(detail = "Checking file structure", value = .35)
-        source("00_integrity_checker.R", local = TRUE)
+        source("03_integrity_checker.R", local = TRUE)
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
           setProgress(detail = "Prepping initial data..", value = .4)
-          source("00_initial_data_prep.R", local = TRUE)
-          source("00_dates.R", local = TRUE)
+          source("04_initial_data_prep.R", local = TRUE)
           setProgress(detail = "Making lists..", value = .5)
-          source("01_cohorts.R", local = TRUE)
+          source("05_cohorts.R", local = TRUE)
           setProgress(detail = "Assessing your data quality..", value = .7)
-          source("03_DataQuality.R", local = TRUE)
+          source("06_DataQuality.R", local = TRUE)
           setProgress(detail = "Checking your PDDEs", value = .85)
-          source("00_PDDE_Checker.R", local = TRUE)
+          source("07_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
           
           showModal(
@@ -211,27 +134,6 @@ function(input, output, session) {
       })
     }
     
-    dq_main_reactive <- reactive({
-      req(valid_file() == 1)
-      # browser()
-      ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
-      Other <- calculate_long_stayers(input$OtherLongStayers, 7)
-      Outreach <- calculate_long_stayers(input$OUTLongStayers, 4)
-      DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
-      ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
-      
-      #Calculating potential old referrals based on Local settings
-      CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
-        select(all_of(vars_we_want))
-      
-      x <- dq_main %>%
-        filter(!Issue %in% c("Days Enrollment Active Exceeds Local settings", 
-                             "Days Referral Active Exceeds Local settings"))
-      
-      rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other, CE_Event)
-      
-    })
-    
     output$integrityChecker <- DT::renderDataTable(
       {
         req(initially_valid_zip == 1)
@@ -258,9 +160,7 @@ function(input, output, session) {
     output$downloadIntegrityCheck <- downloadHandler(
       # req(valid_file() == 1)
 
-      filename = function() {
-        paste("File-Structure-Analysis-", Sys.Date(), ".xlsx", sep = "")
-      },
+      filename = date_stamped_filename("File-Structure-Analysis-"),
       content = function(file) {
         write_xlsx(
           integrity_main %>%
@@ -328,9 +228,7 @@ function(input, output, session) {
     # download button handler
     output$downloadPDDEReport <- downloadHandler(
       
-      filename = function() {
-        paste("PDDE Report-", Sys.Date(), ".xlsx", sep="")
-      },
+      filename = date_stamped_filename("PDDE Report-"),
       content = function(file) {
         req(valid_file() == 1)
         
@@ -474,12 +372,7 @@ function(input, output, session) {
     # two app tables, but for all projects along with a Current tab limited to
     # just the current date.
     output$downloadClientCountsReport <- downloadHandler(
-      filename = function() {
-        paste("Client Counts Report-",
-              Sys.Date(),
-              ".xlsx",
-              sep = "")
-      },
+      filename = date_stamped_filename("Client Counts Report-"),
       content = get_clientcount_download_info
     )
 
@@ -530,6 +423,8 @@ function(input, output, session) {
     })
     
     #### DQ ORG REPORT #### ----------------------
+    source("06_DataQuality_functions.R", local = TRUE)
+    
     # button
     output$downloadOrgDQReportButton  <- renderUI({
       if (valid_file() == 1) {
@@ -562,13 +457,7 @@ function(input, output, session) {
     })
     
     output$downloadOrgDQReport <- downloadHandler(
-      filename = function() {
-        paste(input$orgList,
-              " Data Quality Report-",
-              Sys.Date(),
-              ".xlsx",
-              sep = "")
-      },
+      filename = date_stamped_filename(str_glue("{input$orgList} Data Quality Report-")),
       content = function(file) {
         write_xlsx(orgDQReportDataList(), path = file)
         logMetadata("Downloaded Org-level DQ Report")
@@ -1137,9 +1026,7 @@ function(input, output, session) {
   })
   
   output$downloadFullDQReport <- downloadHandler(
-    filename = function() {
-      paste("Full Data Quality Report-", Sys.Date(), ".xlsx", sep="")
-    },
+    filename = date_stamped_filename("Full Data Quality Report-"),
     content = function(file) {
       write_xlsx(fullDQReportDataList(), path = file)
       logMetadata("Downloaded System-level DQ Report")
