@@ -81,17 +81,21 @@ missingCoCInfo <- Project %>%
            is.na(ZIP) |
            is.na(CoCCode)
   ) %>%
-  mutate(Issue = "Missing Geography Information",
-         Guidance = str_squish("Projects should not have missing geography information.
-         Please ensure geography information for projects is complete."),
+  mutate(Issue = if_else(is.na(Geocode) | is.na(GeographyType) |
+                           is.na(CoCCode),
+                         "Missing Geography Information",
+                         "Missing Address"),
+         Guidance = str_squish("Please ensure geography information for projects
+                               is complete."),
          Detail = case_when(
-           is.na(CoCCode) ~ "This project's CoC Code is missing",
-           is.na(Address1) ~ "This project's Address is missing",
-           is.na(City) ~ "This project's City is missing",
-           is.na(State) ~ "This project's State is missing",
-           is.na(Geocode) ~ "This project's Geocode is missing",
-           is.na(GeographyType) ~ "This project's Geography Type is missing",
-           nchar(ZIP) != 5 | is.na(ZIP) ~ "ZIP is missing or not valid"
+           is.na(CoCCode) ~ "This project's CoC Code is missing.",
+           is.na(Address1) ~ "This project's Address is missing.",
+           is.na(City) ~ "This project's City is missing.",
+           is.na(State) ~ "This project's State is missing.",
+           is.na(Geocode) ~ "This project's Geocode is missing.",
+           is.na(GeographyType) ~ "This project's Geography Type is missing.",
+           nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000" ~
+             "ZIP is missing or not valid."
          ),
          Type = if_else(is.na(Geocode) | is.na(GeographyType) |
                           is.na(CoCCode),
