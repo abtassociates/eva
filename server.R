@@ -14,17 +14,6 @@ function(input, output, session) {
   
 
 # If you want an initial dialog box, use this -----------------------------
-
- showModal(modalDialog(
-    title = "Changelog Alert",
-    "Please note the additional language on the home page and in the changelog.
-    Eva does retain metadata about the upload file itself, such as the name of
-    your software vendor, your export dates, hash status, and data source
-    information. This is collected for troubleshooting and tool planning purposes.",
-    footer = modalButton("OK"),
-    size = "m",
-    easyClose = TRUE
-  ))
   
   valid_file <- reactiveVal(0)
   
