@@ -896,7 +896,7 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "General Errors",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorsByOrg_ui")),
+            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorByOrg_ui")),
             tabPanel("Top 10 Issues", uiOutput("systemDQErrorByIssue_ui")),
             width =12
           )
@@ -906,7 +906,7 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "Warnings",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsByOrg_ui")),
+            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsBy_ui")),
             tabPanel("Top 10 Issues", uiOutput("systemDQWarningByIssue_ui")),
             width = 12
           )

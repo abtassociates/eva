@@ -227,3 +227,91 @@ calculate_outstanding_referrals <- function(input){
              input < Days)
   
 }
+
+renderDQPlot <- function(level, issueType, group, color) {
+  
+  # groupVars is the variable(s) used to summarise/count rows
+  # x_group is the x variable used to in the ggplot reordering
+  if(group == "Org") {
+    groupVars <- c("OrganizationName","OrganizationID")
+    x_group <- "OrganizationName"
+  } else if(group == "Project") {
+    groupVars <- c("OrganizationName", "ProjectName", "ProjectID")
+    x_group <- "ProjectName"
+  } else if(group == "Issue" && level == "org") {
+    groupVars <- c("OrganizationName","Issue")
+    x_group <- "Issue"
+  } else if(group == "Issue" && level == "sys") {
+    groupVars <- "Issue"
+    x_group <- "Issue"
+  } 
+
+  # determine which data.frame we start with
+  if(level == "sys") {
+    plot_df <- dq_plot_df
+  } else {
+    plot_df <- dq_org_plot_df
+  }
+
+  plot_data <- plot_df %>%
+    filter(Type == issueType) %>% 
+    group_by(across(all_of(groupVars))) %>%
+    summarise(countVar = n()) %>%
+    ungroup() %>%
+    arrange(desc(countVar))
+  
+  if(level == "org") {
+    plot_data <- plot_data %>% 
+      filter(OrganizationName %in% c(input$orgList))
+  }
+
+  # dynamically refer to the UI element ID
+  outputId <- paste0(
+    if_else(level == 'sys','system','org'),
+    "DQ",
+    if_else(issueType == 'High Priority', 'HighPriorityErrors', issueType),
+    "By",
+    group
+  )
+  
+  # generate the plot
+  # note there's no ui.R element with this ID, but it's, necessary to have an 
+  # output element to refer to in the plotOutput statement below)
+  output[[outputId]] <- renderPlot({
+    req(valid_file() == 1)
+  
+    validate(need(nrow(plot_data) > 0, 
+                  message = "Great job! No errors to show."))
+
+    ggplot(head(plot_data, 10L),
+           aes(
+             x = reorder(!!as.name(x_group), countVar),
+             y = countVar
+           )) +
+      geom_col(show.legend = FALSE,
+               color = color,
+               fill = color) +
+      coord_flip() +
+      labs(x = "",
+           y = "Number of Enrollments") +
+      scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+      scale_y_discrete(expand = expansion(mult = c(0, .1))) +
+      theme_classic() +
+      theme(axis.line = element_line(linetype = "blank"),
+            axis.text = element_text(size = 12),
+            axis.text.x = element_blank(),
+            axis.title = element_text(size = 12),
+            axis.ticks = element_line(linetype = "blank"),
+            plot.background = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.grid.major = element_blank()) +
+      geom_text(aes(label = countVar), hjust = -0.5, color = "black")
+  })
+  
+  # this effectively collapses the plot if there are no rows
+  plot_height = if_else(nrow(plot_data) == 0,50,400)
+
+  # finally, render the plot
+  return(plotOutput(outputId, height = plot_height))
+}
+

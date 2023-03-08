@@ -493,405 +493,59 @@ function(input, output, session) {
     #             rownames = FALSE)
     # 
     # })
- 
-    #PLOTS
-    #Create reactive data sets for org-level tab plots
-
-# Org-Level High Priority Errors by Project
-    dq_org_hp_by_project_reac <- reactive({
-      req(valid_file() == 1)
-      dq_hp_top_projects_r <- dq_org_lvl_high_priority_by_project_df %>%
-        filter(OrganizationName %in% c(input$orgList))
-    })
     
-    #Org-Level High Priority Errors by Issue
-    dq_org_hp_by_issue_reac <- reactive({
-      req(valid_file() == 1)
-      dq_hp_error_types_org_level_r <- dq_org_lvl_high_priority_by_issue_df %>%
-        filter(OrganizationName %in% c(input$orgList))
-    })
-    
-    #Org-Level General Errors by Project
-    dq_org_gen_errors_by_project_reac <- reactive({
-      req(valid_file() == 1)
-      dq_general_errors_top_projects_r <- dq_org_lvl_general_errors_by_project_df %>%
-        filter(OrganizationName %in% c(input$orgList))
-    })
-    
-    #Org-Level General Errors by Issue
-    dq_org_gen_errors_by_issue_reac <- reactive({
-      req(valid_file() == 1)
-      dq_general_error_types_org_level_r <- dq_org_lvl_general_errors_by_issue_df %>%
-        filter(OrganizationName %in% c(input$orgList))
-    })
-    
-    #Org-Level Warnings by Project
-    dq_org_warnings_by_project_reac <- reactive({
-      req(valid_file() == 1)
-      dq_warnings_top_projects_r <- dq_org_lvl_warnings_by_project_df %>%
-        filter(OrganizationName %in% c(input$orgList))
-    })
-    
-    #Org-Level Warnings by Issue
-    dq_org_warnings_by_issue_reac <- reactive({
-      req(valid_file() == 1)
-      dq_warning_types_org_level_r <- dq_org_lvl_warnings_by_issue_df %>%
-        filter(OrganizationName %in% c(input$orgList))
-    })
-    
-    #Controls org-level plot heights reactively
-    plotHeight_hp_errors_org <- reactive({
-      req(valid_file() == 1)
-      if (nrow(dq_org_hp_by_issue_reac()) == 0)
-
-      {plotHeight_hp_errors = 50}
-      else {plotHeight_hp_errors = 400}
-    })
-    
-    plotHeight_general_errors_org <- reactive({
-      req(valid_file() == 1)
-      if (nrow(dq_org_gen_errors_by_issue_reac()) == 0)
-      {plotHeight_general_errors = 50}
-      else {plotHeight_general_errors = 400}
-    })
-    
-    plotHeight_warnings_org <- reactive({
-      req(valid_file() == 1)
-      if (nrow(dq_org_warnings_by_issue_reac()) == 0)
-
-      {plotHeight_warnings = 50}
-      else {plotHeight_warnings = 400}
-    })
-    
-    #Controls system-level plot heights reactively
-    plotHeight_hp_errors_system <- reactive({
-      req(valid_file() == 1)
-      if (nrow(dq_sys_lvl_high_priority_by_issue) == 0)
-      {plotHeight_hp_errors = 50}
-      else {plotHeight_hp_errors = 400}
-    })
-    
-    plotHeight_general_errors_system <- reactive({
-      req(valid_file() == 1)
-      if (nrow(dq_sys_lvl_general_errors_by_issue) == 0)
-      {plotHeight_general_errors = 50}
-      else {plotHeight_general_errors = 400}
-    })
-    
-    plotHeight_warnings_system <- reactive({
-      req(valid_file() == 1)
-      if (nrow(dq_sys_lvl_warnings_by_issue) == 0)
-      {plotHeight_warnings = 50}
-      else {plotHeight_warnings = 400}
-    })
-    
-    #SYSTEM-LEVEL TAB PLOTS
-    #Sys-Level High Priority Errors by Org
-    output$systemDQHighPriorityErrorsByOrg <- renderPlot({
-      req(valid_file() == 1)
-      
-      validate(need(nrow(dq_sys_lvl_high_priority_by_org) > 0, 
-                    message = "Great job! No errors to show."))
-      
-      dq_sys_lvl_high_priority_by_org_plot})
-    
+    #SYSTEM-LEVEL DQ TAB PLOTS
+    # By-org shows organizations containing highest number of HP errors/errors/warnings
+    # By-issue shows issues that are the most common of that type (HP errors/errors/warnings)
     output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
-      plotOutput("systemDQHighPriorityErrorsByOrg", height = plotHeight_hp_errors_system())
+      renderDQPlot("sys", "High Priority", "Org", "#16697A")
     })
-    
-    #Sys-Level High Priority Errors by Issue
-    output$systemDQHighPriorityErrorsByIssue <- renderPlot({
-      req(valid_file() == 1)
-      
-      validate(need(nrow(dq_sys_lvl_high_priority_by_issue) > 0, 
-                    message = "Great job! No errors to show."))
-      
-      dq_sys_lvl_high_priority_by_issue_plot})
     
     output$systemDQHighPriorityErrorsByIssue_ui <- renderUI({
-      plotOutput("systemDQHighPriorityErrorsByIssue", height = plotHeight_hp_errors_system())
+      renderDQPlot("sys", "High Priority", "Issue", "#16697A")
     })
-    
-    #Sys-Level General Errors by Org
-    output$systemDQErrorsByOrg <- renderPlot({
-      req(valid_file() == 1)
-      
-      validate(need(nrow(dq_sys_lvl_general_errors_by_org) > 0, 
-                    message = "Great job! No errors to show."))
-      
-      dq_sys_lvl_general_errors_by_org_plot})
     
     output$systemDQErrorsByOrg_ui <- renderUI({
-      plotOutput("systemDQErrorsByOrg", height = plotHeight_general_errors_system())
+      renderDQPlot("sys", "Error", "Org", "#489FB5")
     })
-    
-    #Sys-Level General Errors by Issue
-    output$systemDQErrorByIssue <- renderPlot({
-      req(valid_file() == 1)
-      
-      validate(need(nrow(dq_sys_lvl_general_errors_by_issue) > 0, 
-                    message = "Great job! No errors to show."))
-      
-      dq_sys_lvl_general_errors_by_issue_plot})
     
     output$systemDQErrorByIssue_ui <- renderUI({
-      plotOutput("systemDQErrorByIssue", height = plotHeight_general_errors_system())
+      renderDQPlot("sys", "Error", "Issue", "#489FB5")
     })
     
-    
-    #Sys-Level Warnings by Organization
-    output$systemDQWarningsByOrg <- renderPlot({
-      req(valid_file() == 1)
-      
-      validate(need(nrow(dq_sys_lvl_warnings_by_org) > 0, 
-                    message = "Great job! No warnings to show."))
-      
-      dq_sys_lvl_warnings_by_org_plot})
-    
-    output$systemDQWarningsByOrg_ui <- renderUI({
-      plotOutput("systemDQWarningsByOrg", height = plotHeight_warnings_system())
+    output$systemDQWarningsByOrg_ui <- reactive({
+      renderDQPlot("sys", "Warning", "Org", "#82C0CC")
     })
-    
-    #Sys-Level Warnings by Issue
-    output$systemDQWarningByIssue <- renderPlot({
-      req(valid_file() == 1)
-      
-      validate(need(nrow(dq_sys_lvl_warnings_by_issue) > 0, 
-                    message = "Great job! No warnings to show."))
-      
-      dq_sys_lvl_warnings_by_issue_plot})
     
     output$systemDQWarningByIssue_ui <- renderUI({
-      plotOutput("systemDQWarningByIssue", height = plotHeight_warnings_system())
+      renderDQPlot("sys", "Warning", "Issue", "#82C0CC")
     })
-    
-    #Plot of projects within selected org with most high priority errors
-    #Org-Level High Priority Errors
-    output$orgDQHighPriorityErrorsByProject <- renderPlot({
-      req(valid_file() == 1)
 
-      
-      validate(need(nrow(dq_org_hp_by_project_reac()) > 0, 
-                    message = "Great job! No errors to show."))
-      
-      # dq_hp_top_projects()$hover <-
-      #   with(dq_hp_top_projects(),
-      #        paste0(ProjectName))
-      # 
-      ggplot(
-        head(dq_org_hp_by_project_reac(), 10L),
-        aes(
-          x = reorder(ProjectName, clientsWithErrors),
-          y = clientsWithErrors
-        )
-      ) +
-        geom_col(show.legend = FALSE,
-                 color = "#11697A",
-                 fill = "#11697A") +
-        coord_flip() +
-        labs(x = "",
-             y = "Number of Enrollments") +
-        scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
-        scale_y_discrete(expand = expansion(mult = c(0, .1))) +
-        theme_classic() +
-        theme(axis.line = element_line(linetype = "blank"),
-              axis.text = element_text(size = 12),
-              axis.text.x = element_blank(),
-              axis.title = element_text(size = 12),
-              axis.ticks = element_line(linetype = "blank"),
-              plot.background = element_blank(),
-              panel.grid.minor = element_blank(),
-              panel.grid.major = element_blank()) +
-        geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")})
-    
-    
+    #ORG-LEVEL TAB PLOTS
+    # By-project shows projects, within the selected org, containing highest number of HP errors/errors/warnings
+    # By-issue shows issues, within the selected org, that are the most common of that type (HP errors/errors/warnings)
     output$orgDQHighPriorityErrorsByProject_ui <- renderUI({
-      plotOutput("orgDQHighPriorityErrorsByProject", height = plotHeight_hp_errors_org())
+      renderDQPlot("org", "High Priority", "Project", "#11697A")
     })
-    
-    #Org-Level Plot of most common high priority errors within an org
-    output$orgDQHighPriorityErrorByIssue <- renderPlot({
-      req(valid_file() == 1)
-      
-      validate(need(nrow(dq_org_hp_by_issue_reac()) > 0, 
-                    message = "Great job! No errors to show."))
-      
-      ggplot(head(dq_org_hp_by_issue_reac(), 10L),
-             aes(
-               x = reorder(Issue, Errors),
-               y = Errors
-             )) +
-        geom_col(show.legend = FALSE,
-                 color = "#11697A",
-                 fill = "#11697A") +
-        coord_flip() +
-        labs(x = "",
-             y = "Number of Enrollments") +
-        scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
-        scale_y_discrete(expand = expansion(mult = c(0, .1))) +
-        theme_classic() +
-        theme(axis.line = element_line(linetype = "blank"),
-              axis.text = element_text(size = 12),
-              axis.text.x = element_blank(),
-              axis.title = element_text(size = 12),
-              axis.ticks = element_line(linetype = "blank"),
-              plot.background = element_blank(),
-              panel.grid.minor = element_blank(),
-              panel.grid.major = element_blank()) +
-        geom_text(aes(label = Errors), hjust = -0.5, color = "black")})
     
     output$orgDQHighPriorityErrorByIssue_ui <- renderUI({
-      plotOutput("orgDQHighPriorityErrorByIssue", height = plotHeight_hp_errors_org())
+      renderDQPlot("org", "High Priority", "Issue", "#11697A")
     })
-    
-    #Org-Level Plot of projects within selected org with most general errors
-    output$orgDQErrorsByProject <- renderPlot({
-      req(valid_file() == 1)
-      
-      validate(need(nrow(dq_org_gen_errors_by_project_reac()) > 0, 
-                    message = "Great job! No errors to show."))
-      
-      # dq_general_errors_top_projects()$hover <-
-      #   with(dq_general_errors_top_projects(),
-      #        paste0(ProjectName))
-      
-      ggplot(
-        head(dq_org_gen_errors_by_project_reac(), 10L),
-        aes(
-          x = reorder(ProjectName, clientsWithErrors),
-          y = clientsWithErrors
-        )
-      ) +
-        geom_col(show.legend = FALSE,
-                 color = "#489FB5",
-                 fill = "#489FB5") +
-        coord_flip() +
-        labs(x = "",
-             y = "Number of Enrollments") +
-        scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
-        scale_y_discrete(expand = expansion(mult = c(0, .1))) +
-        theme_classic() +
-        theme(axis.line = element_line(linetype = "blank"),
-              axis.text = element_text(size = 12),
-              axis.text.x = element_blank(),
-              axis.title = element_text(size = 12),
-              axis.ticks = element_line(linetype = "blank"),
-              plot.background = element_blank(),
-              panel.grid.minor = element_blank(),
-              panel.grid.major = element_blank()) +
-        geom_text(aes(label = clientsWithErrors), hjust = -0.5, color = "black")})
     
     output$orgDQErrorsByProject_ui <- renderUI({
-      plotOutput("orgDQErrorsByProject", height = plotHeight_general_errors_org())
+      renderDQPlot("org", "Error", "Project", "#489FB5")
     })
-    
-    #Org-Level Plot of most common general errors within an org
-    output$orgDQErrorByIssue <- renderPlot({
-      req(valid_file() == 1)
-      
-      validate(need(nrow(dq_org_gen_errors_by_issue_reac()) > 0, 
-                    message = "Great job! No errors to show."))
-      
-      ggplot(head(dq_org_gen_errors_by_issue_reac(), 10L),
-             aes(
-               x = reorder(Issue, Errors),
-               y = Errors
-             )) +
-        geom_col(show.legend = FALSE,
-                 color = "#489FB5",
-                 fill = "#489FB5") +
-        coord_flip() +
-        labs(x = "",
-             y = "Number of Enrollments") +
-        scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
-        scale_y_discrete(expand = expansion(mult = c(0, .1))) +
-        theme_classic() +
-        theme(axis.line = element_line(linetype = "blank"),
-              axis.text = element_text(size = 12),
-              axis.text.x = element_blank(),
-              axis.title = element_text(size = 12),
-              axis.ticks = element_line(linetype = "blank"),
-              plot.background = element_blank(),
-              panel.grid.minor = element_blank(),
-              panel.grid.major = element_blank()) +
-        geom_text(aes(label = Errors), hjust = -0.5, color = "black")})
     
     output$orgDQErrorByIssue_ui <- renderUI({
-      plotOutput("orgDQErrorByIssue", height = plotHeight_general_errors_org())
+      renderDQPlot("org", "Error", "Issue", "#489FB5")
     })
-    
-    #Org-Level Plot of projects within selected org with most warnings
-    output$orgDQWarningsByProject <- renderPlot({
-      req(valid_file() == 1)
-      
-      validate(need(nrow(dq_org_warnings_by_project_reac()) > 0, 
-                    message = "Great job! No warnings to show."))
-      
-      # dq_warnings_top_projects()$hover <-
-      #   with(dq_warnings_top_projects(),
-      #        paste0(ProjectName))
-      
-      ggplot(head(dq_org_warnings_by_project_reac(), 10L),
-             aes(
-               x = reorder(ProjectName, Warnings),
-               y = Warnings
-             )) +
-        geom_col(show.legend = FALSE,
-                 color = "#82C0CC",
-                 fill = "#82C0CC") +
-        coord_flip() +
-        labs(x = "",
-             y = "Number of Enrollments") +
-        scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
-        scale_y_discrete(expand = expansion(mult = c(0, .1))) +
-        theme_classic() +
-        theme(axis.line = element_line(linetype = "blank"),
-              axis.text = element_text(size = 12),
-              axis.text.x = element_blank(),
-              axis.title = element_text(size = 12),
-              axis.ticks = element_line(linetype = "blank"),
-              plot.background = element_blank(),
-              panel.grid.minor = element_blank(),
-              panel.grid.major = element_blank()) +
-        geom_text(aes(label = Warnings), hjust = -0.5, color = "black")})
     
     output$orgDQWarningsByProject_ui <- renderUI({
-      plotOutput("orgDQWarningsByProject", height = plotHeight_warnings_org())
+      renderDQPlot("org", "Warnings", "Project", "#82C0CC")
     })
     
-    #Org-Level Plot of most common warnings within an org
-    output$orgDQWarningsByIssue <- renderPlot({
-      req(valid_file() == 1)
-      
-      validate(need(nrow(dq_org_warnings_by_issue_reac()) > 0, 
-                    message = "Great job! No warnings to show."))
-      
-      ggplot(head(dq_org_warnings_by_issue_reac(), 10L),
-             aes(
-               x = reorder(Issue, Warnings),
-               y = Warnings
-             )) +
-        geom_col(show.legend = FALSE,
-                 color = "#82C0CC",
-                 fill = "#82C0CC") +
-        coord_flip() +
-        labs(x = "",
-             y = "Number of Enrollments") +
-        scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
-        scale_y_discrete(expand = expansion(mult = c(0, .1))) +
-        theme_classic() +
-        theme(axis.line = element_line(linetype = "blank"),
-              axis.text = element_text(size = 12),
-              axis.text.x = element_blank(),
-              axis.title = element_text(size = 12),
-              axis.ticks = element_line(linetype = "blank"),
-              plot.background = element_blank(),
-              panel.grid.minor = element_blank(),
-              panel.grid.major = element_blank()) +
-        geom_text(aes(label = Warnings), hjust = -0.5, color = "black")})
-    
     output$orgDQWarningsByIssue_ui <- renderUI({
-      plotOutput("orgDQWarningsByIssue", height = plotHeight_warnings_org())
+      renderDQPlot("org", "Warnings", "Issue", "#82C0CC")
     })
     
     ##
