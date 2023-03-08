@@ -69,7 +69,8 @@ operatingEndMissing <- Enrollment %>%
   ) %>%
   select(all_of(PDDEcols))
 
-# Missing CoC Information Missing address field(s), Missing Geocode, Missing Geography Type, Invalid Zip Code if possible
+# Missing CoC Information Missing address field(s), Missing Geocode,
+# Missing Geography Type, Invalid Zip Code if possible
 missingCoCInfo <- Project %>%
   left_join(ProjectCoC, by = "ProjectID") %>%
   filter(is.na(Address1) | 
