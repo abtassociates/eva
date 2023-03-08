@@ -1,6 +1,32 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "03-08-2023", "Renaming files for improved organization",
+    
+    "03-08-2023", "Added console logging",
+    
+    "03-02-2023", "Fixed timeout to fully clear data by reloading the session.",
+    
+    "03-02-2023", "Updated language on home page to match recent update to what
+  metadata is being logged by Eva.",
+    
+    
+    "02-23-2023", "Changed Long Stayers (aka Possible Missed Exit) logic so that,
+  for Outreach and Coordinated Entry projects, it measures from the last 
+  Current Living Situation instead of from the Entry Date.",
+    "02-23-2023", "Addresses GitHub issue 152 by adding a Detail column to the
+  File Structure Analysis download separate from the more general Guidance. This
+  column includes more details about affected rows and column in order to help
+  the user identify issues in their data.",
+    
+    "02-23-2023", "Addresses GitHub issue 154 by checking for missing columns and
+  extraneous columns in a similar way. This is a change from the prior issues
+  specifying that a column name was misspelled. Now a misspelled column will show
+  as one missing column (with the correct column name) and one extraneous column
+  (with the actual column name.)",
+    
+    "02-23-2023", "Addresses GitHub issue 172 by preventing R from counting the
+  value of \"NA\" as an actual null.",
     
     "02-09-2023", "Added system-wide download of Client Counts data",
     
