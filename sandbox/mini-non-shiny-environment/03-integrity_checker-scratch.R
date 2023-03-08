@@ -30,7 +30,7 @@ files <- c(
 
 export_id_from_export <- Export %>% pull(ExportID)
 
-cols_and_data_types <- read_csv("public_data/columns.csv", col_types = cols())
+cols_and_data_types <- read_csv("public-resources/columns.csv", col_types = cols())
 
 col_counts <- cols_and_data_types %>%
   group_by(File) %>%

@@ -9,36 +9,46 @@ function(input, output, session) {
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
   source("helper_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+  source("guidance.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
+  source("changelog.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
   
+
+# If you want an initial dialog box, use this -----------------------------
+
+ showModal(modalDialog(
+    title = "Changelog Alert",
+    "Please note the additional language on the home page and in the changelog.
+    Eva does retain metadata about the upload file itself, such as the name of
+    your software vendor, your export dates, hash status, and data source
+    information. This is collected for troubleshooting and tool planning purposes.",
+    footer = modalButton("OK"),
+    size = "m",
+    easyClose = TRUE
+  ))
   
- # showModal(modalDialog(
- #    title = "Changelog Alert",
- #    "Due to a recent update, Eva *may* reject exports that were previously
- #    accepted. If this affects you, please see the changelog for more
- #    information and contact your vendor.",
- #    footer = modalButton("OK"),
- #    size = "m",
- #    easyClose = TRUE
- #  ))
-  
+  valid_file <- reactiveVal(0)
   
   logMetadata("Session started")
-  valid_file <- reactiveVal(0)
 
   observe({ 
     logMetadata(paste("User on",input$sidebarmenuid))
   })
   
-  output$headerUpload <- headerGeneric("Upload HMIS CSV Export",
-                              h4(strong("Export Date: "),
-                                   format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
-                              ))
-  
   output$fileInfo <- renderUI({
     if(valid_file() == 1) {
       HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
     }
-  })
+  }) 
+
+# Headers -----------------------------------------------------------------
+
+  output$headerUpload <-
+    headerGeneric("Upload HMIS CSV Export",
+                  h4(
+                    strong("Export Date: "),
+                    format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
+                  ))
+
   
   output$headerLocalSettings <- headerGeneric("Edit Local Settings")
   
@@ -57,68 +67,22 @@ function(input, output, session) {
   output$headerSystemDQ <- headerGeneric("System-level Data Quality")
     
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
-
-  output$changelog <- renderTable({
-    tribble(
-  ~Date, ~Change,
-  
-  "02-09-2023", "Added system-wide download of Client Counts data",
-  
-  "02-09-2023", "Separated app timeout and crash processing. 
-  Timeout triggers a javascript alert and clears the app data. Crashes trigger 
-  the gray screen with a message and a Refresh link.",
-  
-  "02-09-2023", "Added Outstanding Referrals as a Warning. Eva users can set
-  what constitutes and outstanding referral for their CoC on the Edit Local
-  Settings tab. The issue will show in the download on the Warnings tab and
-  on its own tab called Referrals so that end users can see which Referral is
-  considered outstanding.",
-
-  "01-26-2023", "Addresses GitHub issue 82. Now the app times out after 10 minutes
-  being idle.",
-  
-  "01-26-2023", "Addresses GitHub issue 122. Modified tab structure to spread things
-  out and simplify the Home tab.",
-  
-  "01-26-2023", "Addresses GitHub issue 124. Modified plot color for High Priority
-  issues.",
-  
-  "01-23-2023", "Hotfix: Added improved metadata collection for troubleshooting
-  purposes.",
-  
-  "01-13-2023", "Hotfix: Set GrantID field so it is not considered a high priority column
-  so that it will no longer cause Eva to reject a file for incorrect data type.",
-  
-  "12-29-2022", "Addresses GitHub issue 118. Eva was not checking that all needed
-  csvs were in the export. Now it checks this and rejects the export if they are
-  not there.",
-  
-  "12-29-2022", "Addresses GitHub issue 118. Eva was missing some instances where a date
-  variable is of the wrong type (e.g. ymd_hms instead of ymd). Now it rejects
-  exports if an important variable has the wrong date type.",  
-  
-  "12-29-2022", "Client Counts report: if a user makes the Report Date Range so
-  that the Start > End, Eva now alerts the user in the data tables to check dates.",
-  
-  "12-29-2022", "Rewrote PDDE issues' Guidance so that it is general guidance,
-  then added Details column to include IDs to help admins find specific issues."
-  
-    )
-    
-  })
   
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
   })
+  
   observeEvent(input$timeOut, {
-    reset("imported")
+    session$reload()
   })
 
+# Run scripts on upload ---------------------------------------------------
+
   observeEvent(input$imported, {
-    
+
     initially_valid_zip <- zip_initially_valid()
     
-    if(initially_valid_zip) {
+    if(initially_valid_zip == 1) {
 
       hide('imported_progress')
       
@@ -126,14 +90,14 @@ function(input, output, session) {
         setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
         source("01_get_Export.R", local = TRUE)
+        source("02_dates.R", local = TRUE)
         setProgress(detail = "Checking file structure", value = .35)
-        source("02_integrity_checker.R", local = TRUE)
+        source("03_integrity_checker.R", local = TRUE)
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
           setProgress(detail = "Prepping initial data..", value = .4)
-          source("03_initial_data_prep.R", local = TRUE)
-          source("04_dates.R", local = TRUE)
+          source("04_initial_data_prep.R", local = TRUE)
           setProgress(detail = "Making lists..", value = .5)
           source("05_cohorts.R", local = TRUE)
           setProgress(detail = "Assessing your data quality..", value = .7)
@@ -172,13 +136,13 @@ function(input, output, session) {
     
     output$integrityChecker <- DT::renderDataTable(
       {
-        req(initially_valid_zip)
+        req(initially_valid_zip == 1)
 
         a <- integrity_main %>%
-          group_by(Issue, Type) %>%
+          group_by(Type, Issue) %>%
           summarise(Count = n()) %>%
           ungroup() %>%
-          arrange(desc(Type))
+          arrange(Type, desc(Count))
         
         datatable(
           a,
@@ -189,7 +153,7 @@ function(input, output, session) {
       })
     
     output$downloadIntegrityBtn <- renderUI({
-      req(initially_valid_zip)
+      req(initially_valid_zip == 1)
       downloadButton("downloadIntegrityCheck", "Download Structure Analysis Detail")
     })  
     
@@ -199,7 +163,8 @@ function(input, output, session) {
       filename = date_stamped_filename("File-Structure-Analysis-"),
       content = function(file) {
         write_xlsx(
-          integrity_main,
+          integrity_main %>%
+            arrange(Type, Issue),
           path = file
         )
         
@@ -376,7 +341,7 @@ function(input, output, session) {
       datatable(
         client_count_data_df() %>%
           filter(`Project Name` == input$currentProviderList) %>%
-          select(clientCountDetailCols),
+          select(all_of(clientCountDetailCols)),
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')
@@ -403,13 +368,14 @@ function(input, output, session) {
                      label = "Download System-Wide")
     })
     
-    # the download basically contains a pivoted and summarized version of the two app tables, but for all projects
-    # along with a Current tab limited to just the current date.
+    # the download basically contains a pivoted and summarized version of the
+    # two app tables, but for all projects along with a Current tab limited to
+    # just the current date.
     output$downloadClientCountsReport <- downloadHandler(
       filename = date_stamped_filename("Client Counts Report-"),
       content = get_clientcount_download_info
     )
-    
+
     output$dq_org_guidance_summary <- DT::renderDataTable({
       req(valid_file() == 1)
       
@@ -457,7 +423,7 @@ function(input, output, session) {
     })
     
     #### DQ ORG REPORT #### ----------------------
-    source("dq_functions.R", local = TRUE)
+    source("06_DataQuality_functions.R", local = TRUE)
     
     # button
     output$downloadOrgDQReportButton  <- renderUI({
