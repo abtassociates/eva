@@ -89,9 +89,12 @@ dashboardPage(
               not required by HUD.</p>
               <p>Eva is a web-based tool built with R Shiny. This means:</p>
               <ul>
-                <li>Eva will only access your CoC&rsquo;s data during your session.
-                <strong>No data is being retained or viewed by anyone besides 
-                you.</strong>
+                <li>Eva will only access your CoC&rsquo;s data during your session, 
+                <strong>no CoC data is being retained or viewed by anyone besides 
+                you.</strong> Eva does retain metadata about the upload file itself, 
+                such as the name of your software vendor, your export dates, hash 
+                status, and data source information. This is collected for 
+                troubleshooting and tool planning purposes.
                 </li>
                 <li>You can upload a zipped CSV Export of up to 200 MB. The 
                 file must be hashed.</li>
@@ -304,33 +307,31 @@ dashboardPage(
             fluidRow(box(
               width = 12,
               HTML(
-                "<p>This check aims to help communities find Coordinated Entry
-                Event referrals that may be outstanding and missing a Result
-                Date. (Note that not all CE Events have an associated Result and
-                Result Date.) First, the tool calculates the number of days each
-                referral has been open (the number of days between the Referral
-                Date and the date your upload was exported from your HMIS). Then
-                the check compares the length of each referral with assumptions
-                entered about the expected maximum period of assistance envisioned
-                for the CoC's Coordinated Entry Referral process. This check is
-                for all project types that may have Coordinated Entry Event
-                referrals.
+                "<p>This check aims to help communities find Coordinated Entry (CE)
+                Event referrals that may be missing a Result Date. This check is
+                only applied to CE Event referrals which are expected to have an
+                associated Result and Result Date (4.20.2 responses 10-15, 17, 18 --
+                Please see the HMIS Data Standards for the complete list of CE Events.)
+                When a CE Event referral does not have a Result Date at the time data
+                is uploaded, Eva calculates the referral has been open  by looking at 
+                the number of days between the Referral Date and the date your upload 
+                was exported from your HMIS. Then Eva compares the length of each 
+                open referral with the 'Max Days' assumption entered in the input 
+                field below. If the referral is open longer than the expected timeframe, 
+                it is categorized as an 'Outstanding Referral.' This check is for all 
+                projects that have a relevant CE Event referral.
+                
+                <p>Data quality flags about Outstanding Referrals are categorized
+                as Warnings, indicating that data should be reviewed for accuracy.
+                It does not imply that any data should be changed.
 
-                <p>Any data quality flags about Outstanding Referrals is
-                categorized as a Warning and is a suggestion to verify that the
-                identified referrals are still active or in progress. It does
-                not imply that any data should be changed.
-
-                <p>Below, you can specify the expected maximum period of
-                assistance envisioned for the CoC's Coordinated Entry Referral
-                process, meaning the timeframe after which you would want an
-                organization to confirm the referral is still active. You can
-                set these based on your current data or leave them at the
-                defaults (these defaults do not imply any HUD recommendations)."
+                <p>In the field below, specify the maximum number of days a referral
+                can stay open according to the CoC's Coordinated Entry Referral process. 
+                The value defaults to 14 days. (These defaults do not imply any HUD recommendations)."
               ),
               numericInput(
                 inputId = "CEOutstandingReferrals",
-                label = "All Projects:",
+                label = "Max Days:",
                 value = 14,
                 min = 0,
                 max = 365,
@@ -895,7 +896,7 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "General Errors",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorsByOrg_ui")),
+            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorByOrg_ui")),
             tabPanel("Top 10 Issues", uiOutput("systemDQErrorByIssue_ui")),
             width =12
           )
@@ -905,7 +906,7 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "Warnings",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsByOrg_ui")),
+            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsBy_ui")),
             tabPanel("Top 10 Issues", uiOutput("systemDQWarningByIssue_ui")),
             width = 12
           )

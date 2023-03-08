@@ -71,7 +71,7 @@ User <-
 YouthEducationStatus <- 
   importFile("YouthEducationStatus", col_types = "cccDnnnnTTcTc")
 
-
+# problems() is a built-in function that collects the problems reported in theconsole from a read_csv() call.
 problems <- rbind(
   # problems(Affiliation),
   problems(Assessment),

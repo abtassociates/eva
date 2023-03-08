@@ -11,7 +11,7 @@ library(plotly)
 library(DT)
 library(writexl)
 library(viridis)
-library(HMIS)
+library(HMIS) #github.com/kiadso/HMIS
 library(glue)
 library(janitor)
 library(shinyjs)

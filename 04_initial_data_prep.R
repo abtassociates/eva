@@ -116,6 +116,6 @@ Services <- Services %>%
 
 # HUD CSV Specs -----------------------------------------------------------
 
-HUD_specs <- read_csv("public_data/HUDSpecs.csv",
+HUD_specs <- read_csv("public-resources/HUDSpecs.csv",
                       col_types = "ccnc") %>%
   as.data.frame()
