@@ -460,28 +460,20 @@ check42 = c(
 check43 = c(
   "pdde",
   "Error",
-  "Missing Geography Information",
+  "Missing Address",
   "2.03.1-2.03.7 - Continuum of Care Information",
-  str_squish(
-    "Projects should not have missing geography information.
-         Please ensure geography information for projects is complete."
-  ),
-  str_squish(
-    "Missing geography information that makes this an error is the
-             project address information like city, state, and ZIP code."
-  )
+  str_squish("Please ensure geography information for projects is complete."),
+  str_squish("Missing geography information that makes this an error is the 
+             project address information like city, state, and ZIP code.")
 )
-check44 = c(
-  "pdde",
-  "Error",
-  "No Inventory Records",
-  "2.07 - Bed and Unit Inventory Information",
-  str_squish(
-    "Residential projects should have inventory data.
-                       Please enter inventory in HMIS for the project(s)."
-  ),
-  ""
-)
+
+check44 = c("pdde",
+            "Error",
+            "No Inventory Records",
+            "2.07 - Bed and Unit Inventory Information",
+            str_squish("Residential projects should have inventory data.
+                       Please enter inventory in HMIS for the project(s)."),
+            "")
 
 check45 = c(
   "pdde",
