@@ -1,10 +1,14 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
-    "03-08-2023", "Renaming files for improved organization",
+    "03-09-2023", "Renaming R Scripts for improved organization",
     
-    "03-08-2023", "Added console logging",
+    "03-09-2023", "Added console logging to facilitate debugging",
     
+    "03-09-2023", "Previously, \"Missing Geography Information\" and 
+  \"Missing Address\" had the same Issue Name of \"Missing Geography 
+  Information.\" They were split out for clarity.",
+  
     "03-02-2023", "Fixed timeout to fully clear data by reloading the session.",
     
     "03-02-2023", "Updated language on home page to match recent update to what
