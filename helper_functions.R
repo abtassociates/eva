@@ -276,6 +276,17 @@ logSessionData <- function() {
   )
 }
 
+logToConsole <- function(msg) {
+  d <- data.frame(
+    SessionToken = session$token,
+    Datestamp = Sys.time(),
+    CoC = Export$SourceID,
+    ExportID = Export$ExportID,
+    Msg = msg
+  )
+  capture.output(d, file=stderr())
+}
+  
 date_stamped_filename <- function(filename) {
   paste(filename, Sys.Date(), ".xlsx", sep = "")
 }
