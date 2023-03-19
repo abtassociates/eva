@@ -196,7 +196,9 @@ inventoryOutsideOperating <- Inventory %>%
   filter(Issue != "none") %>%
   select(all_of(PDDEcols))
 
+# HMIS Participating ------------------------------------------------------
 # HMIS Participating != 1, OR VSP != 0 but client level data in file
+
 hmisNotParticipatingButClient <- Project %>%
   left_join(unique(Enrollment[c("PersonalID", "ProjectID")]), by = "ProjectID") %>%
   left_join(Organization %>% select(OrganizationID, VictimServiceProvider), 
@@ -227,9 +229,46 @@ es_no_tracking_method <- Project %>%
   ) %>%
   select(all_of(PDDEcols))
 
+
+# Zero Utilization --------------------------------------------------------
+
+projects_w_beds <- Inventory %>%
+  filter(
+    BedInventory > 0 &
+      coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start &
+      InventoryStartDate <= meta_HUDCSV_Export_End
+  ) %>%
+  pull(ProjectID) %>%
+  unique()
+
+projects_w_clients <- Enrollment %>%
+  pull(ProjectID) %>%
+  unique()
+
+res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
+
+zero_utilization <- Project %>%
+  filter(ProjectID %in% c(res_projects_no_clients)) %>%
+  mutate(
+    Issue = "Zero Utilization",
+    Type = "Error",
+    Guidance =
+      str_squish(
+        "Any project with active beds in the reporting period should have one or
+        more active clients in the reporting period."
+      ),
+    Detail = paste(
+      "Project",
+      ProjectID,
+      ProjectName,
+      "has active inventory beds in the report period but did not serve any
+      clients during that time."
+    )
+  ) %>%
+  select(all_of(PDDEcols))
+
 ##### For later-------
 # Incompatible Funding Source and Project Type Funding Source X can only be used with Project Type Y. Project Type A can only be used with Funding Source B. (this will need a lot more detail, hold on this one)
-# Utilization Hold - Push to next version
 
 ### Put it together ----
 pdde_main <- rbind(
@@ -239,7 +278,8 @@ pdde_main <- rbind(
   missingCoCInfo,
   missingInventoryRecord,
   inventoryOutsideOperating,
-  hmisNotParticipatingButClient
+  hmisNotParticipatingButClient,
+  zero_utilization
 )
 
 
