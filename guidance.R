@@ -1,4 +1,3 @@
-
 guidance_conflicting_hi <-
   str_squish("There is a discrepancy between the data element indicating that the
              client is receiving health insurance and the data elements regarding
