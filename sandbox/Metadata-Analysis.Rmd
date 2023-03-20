@@ -26,7 +26,7 @@ source(here("app_checks.R"))
 
 # whenever DDS sends the metadata zip file, copy it to anywhere in the ACE environment that you can find it again, navigate to the sandbox directory in your Eva RStudio project, click Upload, then find the zip file you copied in. Click OK or whatever, then the files will be pasted into a folder under sandbox/. Edit the folder_date variable to match that folder's name and run this.
 
-folder_date <- "2023-03-13"
+folder_date <- "2023-03-20"
 
 visits <-
   read_lines(here("www/metadata/site_visits.txt"))
@@ -107,7 +107,7 @@ counts %>%
   geom_point() +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Dark2") +
-  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d-%Y") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
   labs(
     title = "Eva Site Hits",
     x = "Week Ending",
@@ -143,7 +143,7 @@ counts %>%
   geom_point() +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Dark2") +
-  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d-%Y") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
   labs(title = "Eva Uploads",
        x = "Week Ending",
        y = "") +
@@ -168,7 +168,7 @@ counts %>%
   geom_point() +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Dark2") +
-  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d-%Y") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
   labs(title = "Eva Downloads",
        x = "Week Ending",
        y = "",
