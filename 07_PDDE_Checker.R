@@ -28,8 +28,8 @@ subpopNotTotal <- Inventory %>%
          CH Youth, Youth, CH, and Other beds. Please review project inventory records for the number 
          of dedicated beds and ensure this number equals the Total Beds listed within each record."),
          Detail = 
-           paste0("Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth, CH,
-                  and Other sum up to ",
+           paste(str_squish("Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth, CH,
+                  and Other sum up to"),
          CHVetBedInventory + 
            YouthVetBedInventory + 
            VetBedInventory + 
@@ -37,7 +37,7 @@ subpopNotTotal <- Inventory %>%
            YouthBedInventory + 
            CHBedInventory + 
            OtherBedInventory,
-         " but your Total Beds is ",
+         " but your Total Beds is",
          BedInventory,
          ". These totals must match.")
   ) %>%
@@ -223,7 +223,7 @@ es_no_tracking_method <- Project %>%
     Type = "Error",
     Guidance = str_squish("All Emergency Shelters must have a Tracking Method. Please update the 
     Emergency Shelter Tracking Method field at the project-level."),
-    Detail = paste0("Project ID ",
+    Detail = paste("Project ID",
                     ProjectID,
                     "is an Emergency Shelter with no Tracking Method")
   ) %>%
@@ -258,11 +258,13 @@ zero_utilization <- Project %>%
         more active clients in the reporting period."
       ),
     Detail = paste(
-      "Project",
+      "Project ID",
       ProjectID,
       ProjectName,
-      "has active inventory beds in the report period but did not serve any
-      clients during that time."
+      str_squish(
+        "has active inventory beds in the report period but did not serve any
+        clients during that time."
+      )
     )
   ) %>%
   select(all_of(PDDEcols))
