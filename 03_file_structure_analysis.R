@@ -1,7 +1,6 @@
+logToConsole("Running file structure analysis")
 
 # Prep --------------------------------------------------------------------
-
-issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 export_id_from_export <- Export %>% pull(ExportID)
 
@@ -421,10 +420,6 @@ disabling_condition_invalid <- Enrollment %>%
   ) %>%
   select(all_of(issue_display_cols)) %>%
   unique()
-
-allowed_living_situations <- 
-  c(16, 1, 18, 15, 6, 7, 25, 4, 5, 29, 14, 2, 32, 13, 36, 12, 22, 35, 23, 26,
-    27, 28, 19, 3, 31, 33, 34, 10, 20, 21, 11, 30, 17, 24, 37, 8, 9, 99)
 
 living_situation_invalid <- Enrollment %>%
   filter(!is.na(LivingSituation) &

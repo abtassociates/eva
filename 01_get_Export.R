@@ -1,18 +1,6 @@
 
 logToConsole("Running get export")
 
-# read in the files, columns, and data types we expect to see in the import
-cols_and_data_types <- read_csv("public-resources/columns.csv", col_types = cols())
-
-# create mapping between the data type in columns.csv and the data type required
-# by R's read_csv()
-data_type_mapping <- c(
-  character = "c", 
-  numeric = "n", 
-  date = "D",
-  datetime = "T"
-)
-
 # build a list of problems() with each data frame
 # problems() is a built-in function that collects the problems reported in the 
 # console from a read_csv() call.

@@ -20,72 +20,7 @@
 # clients = all members of the household
 ##############################
 
-library(tidyverse)
-library(lubridate)
-library(HMIS)
-
 logToConsole("Running initial data prep")
-
-hc_psh_started_collecting_move_in_date <- ymd("20171001")
-
-# Living Situations Groups (includes PLS, CLS, and destinations) 
-#(Updated to match FY2022 DS) ---------------------------
-
-perm_livingsituation <- c(3, 10, 11, 19:23, 26, 28, 31, 33, 34, 36)
-
-lh_livingsituation <- c(1,16,18)
-
-temp_livingsituation <- c(1, 2, 12, 13, 14, 16, 18, 27, 32, 35) 
-
-institutional_livingsituation <- c(4:7, 15, 25, 27, 29)
-
-other_livingsituation <- c(8, 9, 17, 24, 30, 37, 99)
-
-# Project Type Groupings --------------------------------------------------
-
-es_nbn_project_type <- 0
-
-es_ee_project_type <- 1
-
-th_project_type <- 2
-
-psh_project_type <- 3
-
-out_project_type <- 4
-
-sso_project_type <- 6
-
-other_project_project_type <- 7
-
-sh_project_type <- 8
-
-hp_project_type <- 12
-
-rrh_project_type <- 13
-
-ce_project_type <- 14
-
-lh_residential_project_types <- c(1, 2, 8)
-
-lh_project_types <- c(1, 2, 4, 8)
-
-psh_project_types <- c(3, 9, 10)
-
-ph_project_types <- c(3, 9, 10, 13)
-
-ph_other_project_types <- c(9, 10)
-
-lh_at_entry_project_types <- c(1, 2, 3, 4, 8, 9, 13)
-
-lh_ph_hp_project_types <- c(1, 2, 3, 4, 8, 9, 12, 13)
-
-coc_funded_project_types <- c(2, 3, 13)
-
-project_types_w_beds <- c(1, 2, 3, 8, 9, 10, 13)
-
-# Funding Source Groupings ------------------------------------------------
-
-ssvf_fund_sources <- 33
 
 # separate projectType = 1 into 1 and 0, based on TrackingMethod
 # also add Organization info into project dataset to more easily pull this info

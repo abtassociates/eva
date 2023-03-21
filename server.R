@@ -1,10 +1,5 @@
 
 function(input, output, session) {
-  
-  # Hard-coded --------------------------------------------------------------
-  # hc = hard-coded
-  hc_prior_living_situation_required <- ymd("20161001")
-  
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
