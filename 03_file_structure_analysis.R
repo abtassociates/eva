@@ -4,10 +4,6 @@ logToConsole("Running file structure analysis")
 
 export_id_from_export <- Export %>% pull(ExportID)
 
-col_counts <- cols_and_data_types %>%
-  group_by(File) %>%
-  summarise(ColumnCount = n())
-
 high_priority_columns <- cols_and_data_types %>%
   filter(DataTypeHighPriority == 1) %>%
   pull(Column) %>%
