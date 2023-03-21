@@ -1,3 +1,9 @@
+######################
+# PURPOSE: This program runs checks of the upload file's content
+# for example, it checks for incorrect date formats, missing columns,
+# unexpected nulls, and more
+######################
+
 logToConsole("Running file structure analysis")
 
 # Prep --------------------------------------------------------------------
