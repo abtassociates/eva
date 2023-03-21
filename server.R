@@ -7,22 +7,16 @@ function(input, output, session) {
   source("guidance.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
   source("changelog.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
   
-
-# If you want an initial dialog box, use this -----------------------------
+  # log that the session has started
+  logMetadata("Session started")
   
+  # this will be a requirement for proceeding with many parts of the code 
   valid_file <- reactiveVal(0)
   
-  logMetadata("Session started")
-
+  # log when user navigate to a tab
   observe({ 
     logMetadata(paste("User on",input$sidebarmenuid))
   })
-  
-  output$fileInfo <- renderUI({
-    if(valid_file() == 1) {
-      HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
-    }
-  }) 
 
 # Headers -----------------------------------------------------------------
 
@@ -61,7 +55,7 @@ function(input, output, session) {
   })
 
 # Run scripts on upload ---------------------------------------------------
-
+  
   observeEvent(input$imported, {
 
     initially_valid_zip <- zip_initially_valid()
