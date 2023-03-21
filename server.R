@@ -79,20 +79,18 @@ function(input, output, session) {
         setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
         source("01_get_Export.R", local = TRUE)
-        source("02_dates.R", local = TRUE)
+        source("02_export_dates.R", local = TRUE)
         setProgress(detail = "Checking file structure", value = .35)
-        source("03_integrity_checker.R", local = TRUE)
+        source("03_file_structure_analysis.R", local = TRUE)
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE)
-          setProgress(detail = "Making lists..", value = .5)
-          source("05_cohorts.R", local = TRUE)
           setProgress(detail = "Assessing your data quality..", value = .7)
-          source("06_DataQuality.R", local = TRUE)
+          source("05_DataQuality.R", local = TRUE)
           setProgress(detail = "Checking your PDDEs", value = .85)
-          source("07_PDDE_Checker.R", local = TRUE)
+          source("06_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
           
           showModal(
@@ -412,7 +410,7 @@ function(input, output, session) {
     })
     
     #### DQ ORG REPORT #### ----------------------
-    source("06_DataQuality_functions.R", local = TRUE)
+    source("05_DataQuality_functions.R", local = TRUE)
     
     # button
     output$downloadOrgDQReportButton  <- renderUI({
