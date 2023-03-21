@@ -87,71 +87,9 @@ project_types_w_beds <- c(1, 2, 3, 8, 9, 10, 13)
 
 ssvf_fund_sources <- 33
 
-# Build Validation df for app ---------------------------------------------
-
-validationProject <- Project %>%
-  select(ProjectID,
-         OrganizationName,
-         OperatingStartDate,
-         OperatingEndDate,
-         ProjectCommonName,
-         ProjectName,
-         ProjectType,
-         HMISParticipatingProject) %>%
-  filter(HMISParticipatingProject == 1 &
-           operating_between(., 
-                             ymd(meta_HUDCSV_Export_Start), 
-                             ymd(meta_HUDCSV_Export_End))) 
-
-validationEnrollment <- Enrollment %>% 
-  select(
-    EnrollmentID,
-    PersonalID,
-    HouseholdID,
-    ProjectID,
-    RelationshipToHoH,
-    EntryDate,
-    MoveInDate,
-    ExitDate,
-    EntryAdjust,
-    MoveInDateAdjust,
-    ExitAdjust,
-    LivingSituation,
-    Destination,
-    DateCreated
-  ) 
-
-validation <- validationProject %>%
-  left_join(validationEnrollment, by = "ProjectID") %>%
-  select(
-    ProjectID,
-    ProjectName,
-    ProjectType,
-    EnrollmentID,
-    PersonalID,
-    HouseholdID,
-    RelationshipToHoH,
-    EntryDate,
-    EntryAdjust,
-    MoveInDate,
-    MoveInDateAdjust,
-    ExitDate,
-    LivingSituation,
-    Destination,
-    DateCreated,
-    OrganizationName
-  ) %>%
-  filter(!is.na(EntryDate))
-
-desk_time_providers <- validation %>%
-  dplyr::filter(
-    (entered_between(., today() - years(1), today()) |
-       exited_between(., today() - years(1), today())) &
-      ProjectType %in% lh_ph_hp_project_types) %>%
-  dplyr::select(ProjectName) %>% unique()
-
 # separate projectType = 1 into 1 and 0, based on TrackingMethod
 # also add Organization info into project dataset to more easily pull this info
+
 Project <- Project %>%
   left_join(Organization %>%
               select(OrganizationID, OrganizationName),
@@ -264,7 +202,71 @@ Services <- Services %>%
   filter(RecordType == 200 & !is.na(DateProvided))
 
 # HUD CSV Specs -----------------------------------------------------------
-
+# AS 3/21/23: Can we just store HUD_specs as a dataframe directly in our app, rather than importing it each time?
 HUD_specs <- read_csv("public-resources/HUDSpecs.csv",
                       col_types = "ccnc") %>%
   as.data.frame()
+
+# Build Validation df for app ---------------------------------------------
+
+validationProject <- Project %>%
+  select(ProjectID,
+         OrganizationName,
+         OperatingStartDate,
+         OperatingEndDate,
+         ProjectCommonName,
+         ProjectName,
+         ProjectType,
+         HMISParticipatingProject) %>%
+  filter(HMISParticipatingProject == 1 &
+           operating_between(., 
+                             ymd(meta_HUDCSV_Export_Start), 
+                             ymd(meta_HUDCSV_Export_End))) 
+
+validationEnrollment <- Enrollment %>% 
+  select(
+    EnrollmentID,
+    PersonalID,
+    HouseholdID,
+    ProjectID,
+    RelationshipToHoH,
+    EntryDate,
+    MoveInDate,
+    ExitDate,
+    EntryAdjust,
+    MoveInDateAdjust,
+    ExitAdjust,
+    LivingSituation,
+    Destination,
+    DateCreated
+  ) 
+
+validation <- validationProject %>%
+  left_join(validationEnrollment, by = "ProjectID") %>%
+  select(
+    ProjectID,
+    ProjectName,
+    ProjectType,
+    EnrollmentID,
+    PersonalID,
+    HouseholdID,
+    RelationshipToHoH,
+    EntryDate,
+    EntryAdjust,
+    MoveInDate,
+    MoveInDateAdjust,
+    ExitDate,
+    LivingSituation,
+    Destination,
+    DateCreated,
+    OrganizationName
+  ) %>%
+  filter(!is.na(EntryDate))
+
+desk_time_providers <- validation %>%
+  dplyr::filter(
+    (entered_between(., today() - years(1), today()) |
+       exited_between(., today() - years(1), today())) &
+      ProjectType %in% lh_ph_hp_project_types) %>%
+  dplyr::select(ProjectName) %>% unique()
+
