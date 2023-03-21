@@ -9,26 +9,6 @@ source("guidance.R", local=TRUE)
 
 logToConsole("Running Data Quality")
 
-va_funded <- Funder %>%
-  filter(Funder %in% c(va_fund_sources)) %>%
-  pull(ProjectID)
-
-rhy_funded <- Funder %>%
-  filter(Funder %in% c(rhy_fund_sources)) %>%
-  pull(ProjectID)
-
-path_funded <- Funder %>%
-  filter(Funder %in% c(path_fund_sources)) %>%
-  pull(ProjectID)
-
-ssvf_funded <- Funder %>%
-  filter(Funder %in% c(ssvf_fund_sources)) %>%
-  pull(ProjectID)
-
-continuum_projects <- Project %>%
-  filter(ContinuumProject == 1) %>%
-  pull(ProjectID)
-
 # Projects to Check -------------------------------------------------------
 projects_current_hmis <- Project %>%
   filter(HMISParticipatingProject == 1 &
