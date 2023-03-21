@@ -58,10 +58,10 @@ function(input, output, session) {
 # Run scripts on upload ---------------------------------------------------
   
   observeEvent(input$imported, {
-
-    initially_valid_zip <- zip_initially_valid()
+    valid_file(0)
+    source("00_is_hashed_HMIS.R", local = TRUE)
     
-    if(initially_valid_zip == 1) {
+    if(is_hashed_HMIS) {
 
       hide('imported_progress')
       
@@ -119,7 +119,7 @@ function(input, output, session) {
     
     output$fileStructureAnalysis <- DT::renderDataTable(
       {
-        req(initially_valid_zip == 1)
+        req(is_hashed_HMIS)
 
         a <- file_structure_analysis_main %>%
           group_by(Type, Issue) %>%
@@ -136,7 +136,7 @@ function(input, output, session) {
       })
     
     output$downloadFileStructureAnalysisBtn <- renderUI({
-      req(initially_valid_zip == 1)
+      req(is_hashed_HMIS)
       downloadButton("downloadFileStructureAnalysis", "Download Structure Analysis Detail")
     })  
     
