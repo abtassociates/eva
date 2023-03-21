@@ -554,7 +554,7 @@ nonstandard_CLS <- CurrentLivingSituation %>%
                      "which is not a valid response."))) %>%
   select(all_of(issue_display_cols))
 
-integrity_main <- rbind(
+file_structure_analysis_main <- rbind(
   df_column_diffs,
   df_data_types,
   df_date_types,
@@ -575,7 +575,7 @@ integrity_main <- rbind(
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
 
-if(integrity_main %>% filter(Type == "High Priority") %>% nrow() > 0) {
+if(file_structure_analysis_main %>% filter(Type == "High Priority") %>% nrow() > 0) {
   structural_issues <- 1
 } else{
   structural_issues <- 0

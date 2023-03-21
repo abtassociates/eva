@@ -116,11 +116,17 @@ function(input, output, session) {
       })
     }
     
-    output$integrityChecker <- DT::renderDataTable(
+    output$fileInfo <- renderUI({
+      if(valid_file() == 1) {
+        HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
+      }
+    }) 
+    
+    output$fileStructureAnalysis <- DT::renderDataTable(
       {
         req(initially_valid_zip == 1)
 
-        a <- integrity_main %>%
+        a <- file_structure_analysis_main %>%
           group_by(Type, Issue) %>%
           summarise(Count = n()) %>%
           ungroup() %>%
@@ -134,18 +140,18 @@ function(input, output, session) {
         )
       })
     
-    output$downloadIntegrityBtn <- renderUI({
+    output$downloadFileStructureAnalysisBtn <- renderUI({
       req(initially_valid_zip == 1)
-      downloadButton("downloadIntegrityCheck", "Download Structure Analysis Detail")
+      downloadButton("downloadFileStructureAnalysis", "Download Structure Analysis Detail")
     })  
     
-    output$downloadIntegrityCheck <- downloadHandler(
+    output$downloadFileStructureAnalysis <- downloadHandler(
       # req(valid_file() == 1)
 
       filename = date_stamped_filename("File-Structure-Analysis-"),
       content = function(file) {
         write_xlsx(
-          integrity_main %>%
+          file_structure_analysis_main %>%
             arrange(Type, Issue),
           path = file
         )
