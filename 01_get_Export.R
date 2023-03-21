@@ -1,60 +1,36 @@
 
 logToConsole("Running get export")
 
-# create a list of file names and column types
-file_list <- list(
-  Assessment = "cccDcnnnTTcTc",
-  Client = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc",
-  CurrentLivingSituation = "cccDncnnnnncTTcTc",
-  Enrollment = "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc",
-  EnrollmentCoC = "cccccDcnTTcTc",
-  EmploymentEducation = "cccDnnnnnnTTcTc",
-  Exit = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc",
-  Event = "cccDnnncnDTTcTc",
-  Export = "cncccccccTDDcccnnn",
-  Funder = "ccnccDDTTcTc",
-  HealthAndDV = "cccDnnnnnnnDnnnnnTTcTc",
-  IncomeBenefits = "cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc",
-  Inventory = "cccnnnnnnnnnnnnDDTTcTc",
-  Organization = "ccncTTcTc",
-  Project = "ccccDDnnnnnnnnnTTcTc",
-  ProjectCoC = "cccccccccnTTcTc",
-  Services = "cccDnnccnnnTTcTc",
-  User = "ccccccTTTc",
-  YouthEducationStatus = "cccDnnnnTTcTc"
+# read in the files, columns, and data types we expect to see in the import
+cols_and_data_types <- read_csv("public-resources/columns.csv", col_types = cols())
+
+# create mapping between the data type in columns.csv and the data type required
+# by R's read_csv()
+data_type_mapping <- c(
+  character = "c", 
+  numeric = "n", 
+  date = "D",
+  datetime = "T"
 )
 
-# loop over the file names and import each file with its corresponding column types
-for (i in seq_along(file_list)) {
-  file_name <- names(file_list)[i]
-  col_types <- file_list[[i]]
-  assign(file_name, importFile(file_name, col_types = col_types))
+# build a list of problems() with each data frame
+# problems() is a built-in function that collects the problems reported in the 
+# console from a read_csv() call.
+list_of_problems <- list()
+
+# for each file in the csv, loop through the file names in the csv
+for (file in unique(cols_and_data_types$File)) {
+  # get the data_types to specify in the import
+  col_types <- cols_and_data_types %>%
+    filter(File == file) %>%
+    mutate(DataType = data_type_mapping[as.character(DataType)]) %>%
+    pull(DataType) %>%
+    paste0(collapse = "")
+  
+  #import the csv and save it as a data frame
+  assign(file, importFile(file, col_types = col_types))
+  
+  # add the problems() to the list
+  list_of_problems[[file]] <- problems(file)
 }
-
-# problems() is a built-in function that collects the problems reported in theconsole from a read_csv() call.
-problems <- rbind(
-  # problems(Affiliation),
-  problems(Assessment),
-  # problems(AssessmentQuestions),
-  # problems(AssessmentResults),
-  problems(Client),
-  problems(CurrentLivingSituation),
-  # problems(Disabilities),
-  problems(EmploymentEducation),
-  problems(Enrollment),
-  problems(EnrollmentCoC),
-  problems(Event),
-  problems(Exit),
-  problems(Export),
-  problems(Funder),
-  problems(HealthAndDV),
-  problems(IncomeBenefits),
-  problems(Inventory),
-  problems(Organization),
-  problems(Project),
-  problems(ProjectCoC),
-  problems(Services),
-  problems(User),
-  problems(YouthEducationStatus)
-)
-
+problems <- do.call(rbind, list_of_problems)
