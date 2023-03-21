@@ -28,7 +28,7 @@ files <- c(
   "YouthEducationStatus"
 )
 
-display_cols <- c("Issue", "Type", "Guidance", "Detail")
+issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 export_id_from_export <- Export %>% pull(ExportID)
 
@@ -70,7 +70,7 @@ df_date_types <-
       File,
       "file has the correct date format."))
   ) %>%
-  select(all_of(display_cols)) %>% unique()
+  select(all_of(issue_display_cols)) %>% unique()
 
 # Incorrect Columns ------------------------------------------------------
 check_columns <- function(file) {
@@ -113,7 +113,7 @@ check_columns <- function(file) {
           )
         ))
       ) %>%
-      select(all_of(display_cols)) %>%
+      select(all_of(issue_display_cols)) %>%
       unique()
   }
 }
@@ -170,7 +170,7 @@ check_data_types <- function(quotedfile) {
           "."
         ))
       ) %>%
-      select(all_of(display_cols))
+      select(all_of(issue_display_cols))
     y
   }
 }
@@ -223,7 +223,7 @@ check_for_bad_nulls <- function(file) {
           Detail = str_squish(glue("The {Column} column in the {file} file contains nulls
                         or incorrect data types. {row_ids}"))
         ) %>%
-        select(all_of(display_cols)) %>%
+        select(all_of(issue_display_cols)) %>%
         unique()
     }
   }
@@ -256,7 +256,7 @@ export_id_client <- Client %>%
       ExportID
     ))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 yes_no_enhanced <- c(0, 1, 8, 9, 99)
@@ -357,7 +357,7 @@ valid_values_client <- Client %>%
                                    "rows with invalid values")
     )
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 duplicate_client_id <- Client %>%
@@ -369,7 +369,7 @@ duplicate_client_id <- Client %>%
       str_squish("PersonalIDs should be unique in the Client file."),
     Detail = paste("There are", dupe_count, "for PersonalID", PersonalID)
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 # Integrity Enrollment ----------------------------------------------------
@@ -388,7 +388,7 @@ duplicate_enrollment_id <- Enrollment %>%
       EnrollmentID,
       "."))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 personal_ids_in_client <- Client %>% pull(PersonalID)
@@ -407,7 +407,7 @@ foreign_key_no_primary_personalid_enrollment <- Enrollment %>%
       "is in the Enrollment file but not in the Client file."
     ))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 projectids_in_project <- Project %>% pull(ProjectID)
@@ -427,7 +427,7 @@ foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
       "is in the Enrollment file but not in the Project file."
     ))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 disabling_condition_invalid <- Enrollment %>%
@@ -448,7 +448,7 @@ disabling_condition_invalid <- Enrollment %>%
       "which is an invalid value."
     ))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 allowed_living_situations <- 
@@ -474,7 +474,7 @@ living_situation_invalid <- Enrollment %>%
       "which is not a valid value."
     ))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 rel_to_hoh_invalid <- Enrollment %>%
@@ -494,7 +494,7 @@ rel_to_hoh_invalid <- Enrollment %>%
       "which is invalid value."
     ))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 # Group by HouseholdID and ProjectID, and count the number of unique PersonalIDs in each group
@@ -516,7 +516,7 @@ duplicate_household_id <- Enrollment %>%
                    dupe_count,
                    "Enrollments into different projects.")
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 # move_in_date_invalid <- Enrollment %>%
@@ -542,7 +542,7 @@ duplicate_household_id <- Enrollment %>%
 #       "and the Exit Date (or end of the reporting period.)")
 #   ) %>%
 #   filter(Issue != "Nothing") %>%
-#   select(all_of(display_cols)) %>%
+#   select(all_of(issue_display_cols)) %>%
 #   
 #   
 #   unique()
@@ -564,7 +564,7 @@ nonstandard_destination <- Exit %>%
                      "has a Destination value of",
                      Destination,
                      "which is not a valid Destination response."))) %>%
-  select(all_of(display_cols))
+  select(all_of(issue_display_cols))
 
 
 nonstandard_CLS <- CurrentLivingSituation %>%
@@ -586,7 +586,7 @@ nonstandard_CLS <- CurrentLivingSituation %>%
                      "has a Current Living Situation value of",
                      CurrentLivingSituation,
                      "which is not a valid response."))) %>%
-  select(all_of(display_cols))
+  select(all_of(issue_display_cols))
 
 integrity_main <- rbind(
   df_column_diffs,
