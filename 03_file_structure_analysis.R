@@ -1,32 +1,5 @@
 
-
 # Prep --------------------------------------------------------------------
-
-files <- c(
-#  "Affiliation",
-  "Assessment",
-  # "AssessmentQuestions",
-  # "AssessmentResults",
-  "Client",
-  "CurrentLivingSituation",
-  # "Disabilities",
-  "EmploymentEducation",
-  "Enrollment",
-  "EnrollmentCoC",
-  "Event",
-  "Exit",
-  "Export",
-  "Funder",
-  "HealthAndDV",
-  "IncomeBenefits",
-  "Inventory",
-  "Organization",
-  "Project",
-  "ProjectCoC",
-  "Services",
-  "User",
-  "YouthEducationStatus"
-)
 
 issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
@@ -231,11 +204,11 @@ check_for_bad_nulls <- function(file) {
 
 # Integrity Structure -----------------------------------------------------
 
-df_column_diffs <- map_df(files, check_columns)
+df_column_diffs <- map_df(names(file_list), check_columns)
 
-df_data_types <- map_df(files, check_data_types)
+df_data_types <- map_df(names(file_list), check_data_types)
 
-df_nulls <- map_df(files, check_for_bad_nulls)
+df_nulls <- map_df(names(file_list), check_for_bad_nulls)
 
 # Integrity Client --------------------------------------------------------
 
