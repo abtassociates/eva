@@ -201,11 +201,11 @@ check_for_bad_nulls <- function(file) {
 
 # Integrity Structure -----------------------------------------------------
 
-df_column_diffs <- map_df(names(file_list), check_columns)
+df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
 
-df_data_types <- map_df(names(file_list), check_data_types)
+df_data_types <- map_df(unique(cols_and_data_types$File), check_data_types)
 
-df_nulls <- map_df(names(file_list), check_for_bad_nulls)
+df_nulls <- map_df(unique(cols_and_data_types$File), check_for_bad_nulls)
 
 # Integrity Client --------------------------------------------------------
 

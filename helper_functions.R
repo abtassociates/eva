@@ -116,11 +116,11 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
+importFile <- function(csvFile, guess_max = 1000) {
   if (is.null(input$imported)) {return()}
   filename = str_glue("{csvFile}.csv")
   data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
-                   ,col_types = col_types
+                   ,col_types = get_col_types(csvFile)
                    ,na = ""
   )
   file.remove(filename)
@@ -128,30 +128,17 @@ importFile <- function(csvFile, col_types = NULL, guess_max = 1000) {
 }
 
 zip_initially_valid <- function () {
+  # extract file names from their uploaded zip
   zipContents <- unzip(zipfile = input$imported$datapath, list=TRUE)
-  requiredFiles <- c(
-    "Assessment.csv",
-    "Client.csv",
-    "CurrentLivingSituation.csv",
-    "EmploymentEducation.csv",
-    "Enrollment.csv",
-    "EnrollmentCoC.csv",
-    "Event.csv",
-    "Exit.csv",
-    "Export.csv",
-    "Funder.csv",
-    "HealthAndDV.csv",
-    "IncomeBenefits.csv",
-    "Inventory.csv",
-    "Organization.csv",
-    "Project.csv",
-    "ProjectCoC.csv",
-    "Services.csv",
-    "User.csv",
-    "YouthEducationStatus.csv"
-  )
   
-  missing_files <- requiredFiles[!(requiredFiles %in% zipContents$Name)]
+  zipFiles <- zipContents$Name %>% 
+    str_replace(".csv", "")
+  
+  # expected files
+  expected_files = unique(cols_and_data_types$File)
+  
+  # get missing files by comparing what we expect with what we got
+  missing_files <- expected_files[!(expected_files %in% zipFiles)]
 
   valid_file(0)
   if(grepl("/", zipContents$Name[1])) {
@@ -199,13 +186,12 @@ zip_initially_valid <- function () {
 
 is_hashed <- function() {
   # read Export file
-  Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
+  Export <<- importFile("Export")
 
   logSessionData()
   
   # read Client file
-  Client <- importFile("Client",
-                       col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
+  Client <- importFile("Client")
   
   # decide if the export is hashed
   return(  
@@ -214,6 +200,16 @@ is_hashed <- function() {
     min(nchar(Client$FirstName), na.rm = TRUE) ==
     max(nchar(Client$FirstName), na.rm = TRUE)
   )
+}
+
+get_col_types <- function(file) {
+  # get the column data types expected for the given file
+  col_types <- cols_and_data_types %>%
+    filter(File == file) %>%
+    mutate(DataType = data_type_mapping[as.character(DataType)]) %>%
+    pull(DataType) %>%
+    paste0(collapse = "")
+  return(col_types)
 }
 
 logMetadata <- function(detail) {
