@@ -5,8 +5,6 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 export_id_from_export <- Export %>% pull(ExportID)
 
-cols_and_data_types <- read_csv("public-resources/columns.csv", col_types = cols())
-
 col_counts <- cols_and_data_types %>%
   group_by(File) %>%
   summarise(ColumnCount = n())
