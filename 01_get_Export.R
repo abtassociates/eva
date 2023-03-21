@@ -1,9 +1,4 @@
 
-library(tidyverse)
-library(lubridate)
-library(readxl)
-library(HMIS)
-
 logToConsole("Running get export")
 
 # create a list of file names and column types
