@@ -6,70 +6,35 @@ library(HMIS)
 
 logToConsole("Running get export")
 
-Assessment <- 
-  importFile("Assessment", col_types = "cccDcnnnTTcTc")
+# create a list of file names and column types
+file_list <- list(
+  Assessment = "cccDcnnnTTcTc",
+  Client = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc",
+  CurrentLivingSituation = "cccDncnnnnncTTcTc",
+  Enrollment = "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc",
+  EnrollmentCoC = "cccccDcnTTcTc",
+  EmploymentEducation = "cccDnnnnnnTTcTc",
+  Exit = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc",
+  Event = "cccDnnncnDTTcTc",
+  Export = "cncccccccTDDcccnnn",
+  Funder = "ccnccDDTTcTc",
+  HealthAndDV = "cccDnnnnnnnDnnnnnTTcTc",
+  IncomeBenefits = "cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc",
+  Inventory = "cccnnnnnnnnnnnnDDTTcTc",
+  Organization = "ccncTTcTc",
+  Project = "ccccDDnnnnnnnnnTTcTc",
+  ProjectCoC = "cccccccccnTTcTc",
+  Services = "cccDnnccnnnTTcTc",
+  User = "ccccccTTTc",
+  YouthEducationStatus = "cccDnnnnTTcTc"
+)
 
-Client <- 
-  importFile("Client", col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
-
-client_problems <- problems(Client)
-
-CurrentLivingSituation <- 
-  importFile("CurrentLivingSituation", col_types = "cccDncnnnnncTTcTc")
-
-Enrollment <- 
-  importFile(
-    "Enrollment",
-    col_types = 
-      "cccDcnnnnnDnnnDDDnnnnccccnnnDnnnncnnnnnnnnnnnncnnnnnnnnnnnnnnnnnnnnTTcTc")
-
-EnrollmentCoC <- 
-  importFile("EnrollmentCoC", col_types = "cccccDcnTTcTc")
-
-EmploymentEducation <- 
-  importFile("EmploymentEducation", col_types = "cccDnnnnnnTTcTc")
-
-Exit <- 
-  importFile("Exit", col_types = "cccDncnnnnnnnnnnnnnnnnnnnnnnnnnDnnnnnnTTcTc")
-
-Event <- 
-  importFile("Event", col_types = "cccDnnncnDTTcTc")
-
-Export <- 
-  importFile("Export", col_types = "cncccccccTDDcccnnn")
-
-Funder <- 
-  importFile("Funder", col_types = "ccnccDDTTcTc")
-
-HealthAndDV <- 
-  importFile("HealthAndDV", col_types = "cccDnnnnnnnDnnnnnTTcTc")
-
-IncomeBenefits <- 
-  importFile(
-    "IncomeBenefits",
-    col_types =
-      "cccDnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncnnnnnnncnnnnnnnnnnnnnnnnnnnncnnnnnnnnTTcTc")
-
-Inventory <- 
-  importFile("Inventory", col_types = "cccnnnnnnnnnnnnDDTTcTc")
-
-Organization <- 
-  importFile("Organization", col_types = "ccncTTcTc")
-
-Project <- 
-  importFile("Project", col_types = "ccccDDnnnnnnnnnTTcTc")
-
-ProjectCoC <- 
-  importFile("ProjectCoC", col_types = "cccccccccnTTcTc")
-
-Services <- 
-  importFile("Services", col_types = "cccDnnccnnnTTcTc")
-
-User <- 
-  importFile("User", col_types = "ccccccTTTc")
-
-YouthEducationStatus <- 
-  importFile("YouthEducationStatus", col_types = "cccDnnnnTTcTc")
+# loop over the file names and import each file with its corresponding column types
+for (i in seq_along(file_list)) {
+  file_name <- names(file_list)[i]
+  col_types <- file_list[[i]]
+  assign(file_name, importFile(file_name, col_types = col_types))
+}
 
 # problems() is a built-in function that collects the problems reported in theconsole from a read_csv() call.
 problems <- rbind(
