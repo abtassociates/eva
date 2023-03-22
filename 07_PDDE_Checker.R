@@ -261,12 +261,12 @@ zero_utilization <- Project %>%
         "Any project with active beds in the reporting period should have one or
         more active clients in the reporting period."
       ),
-    Detail = paste(
+    Detail = str_squish(paste(
+      "Project",
+      ProjectName,
       "Project ID",
       ProjectID,
-      ProjectName,
-      str_squish(
-        "has active inventory beds in the report period but did not serve any
+      "has active inventory beds in the report period but did not serve any
         clients during that time."
       )
     )
