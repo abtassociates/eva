@@ -1,3 +1,17 @@
+###############################
+#   PURPOSE: This script conducts the data quality checks
+#   It starts by creating the served_in_date_range dataframe, which is 1 
+#   enrollment per row and combines the necessary datasets to contain all
+#   needed fields for all the checks
+#
+#   Checks include, but are not limited to:
+#     - Missing UDEs (Missing/Incomplete/Refused Name Data quality, DOB, etc.)
+#     - Missing Client Location
+#     - Household Issues (children-only, too many HoHs, etc.)
+#     - Missing Data at Entry (Living Situation,  Length of Stay, etc.)
+#     - Overlaps
+#     - Future Entry Exits
+###############################
 source("guidance.R", local=TRUE)
 
 logToConsole("Running Data Quality")
