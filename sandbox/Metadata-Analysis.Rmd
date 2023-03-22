@@ -40,11 +40,19 @@ new_way <-
     folder_date,
     "/metadata.csv"
   ))) %>%
+  group_by(SessionToken) %>%
+  mutate(sessionTime = difftime(max(Datestamp), min(Datestamp), units = "mins"),
+         is_timeout = sessionTime >= 10 & sessionTime < 11,
+         Details = if_else(Details == "Session started" & is_timeout == TRUE , 
+                            "Session restarted after timeout", 
+                           Details
+                           )
+         ) %>%
+  ungroup() %>%
   select("SessionID" = SessionToken,
          "Date" = Datestamp,
          "Event" = Details) %>%
   mutate(WeekEnding = ceiling_date(Date, unit = "week", week_start = 1))
-
 
 # building dataset
 visits_df <- data.frame(everything = visits) %>%

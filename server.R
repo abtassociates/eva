@@ -62,6 +62,7 @@ function(input, output, session) {
   })
   
   observeEvent(input$timeOut, {
+    logMetadata("Timed out")
     session$reload()
   })
 
