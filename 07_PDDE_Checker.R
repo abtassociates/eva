@@ -24,12 +24,15 @@ subpopNotTotal <- Inventory %>%
   ) %>%
   mutate(Issue = "Sum of the dedicated beds should equal the Total Beds",
          Type = "Error",
-         Guidance = str_squish("Total Beds should match the sum of CH Vets, Youth Vets, Vets, 
-         CH Youth, Youth, CH, and Other beds. Please review project inventory records for the number 
-         of dedicated beds and ensure this number equals the Total Beds listed within each record."),
+         Guidance = 
+           str_squish("Total Beds should match the sum of CH Vets, Youth Vets, Vets, 
+         CH Youth, Youth, CH, and Other beds. Please review project inventory
+         records for the number of dedicated beds and ensure this number equals
+         the Total Beds listed within each record."),
          Detail = 
-           paste(str_squish("Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth, CH,
-                  and Other sum up to"),
+           paste0(
+             str_squish("Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth,
+                        CH, and Other sum up to "),
          CHVetBedInventory + 
            YouthVetBedInventory + 
            VetBedInventory + 
@@ -37,13 +40,14 @@ subpopNotTotal <- Inventory %>%
            YouthBedInventory + 
            CHBedInventory + 
            OtherBedInventory,
-         " but your Total Beds is",
+         " but your Total Beds is ",
          BedInventory,
          ". These totals must match.")
   ) %>%
   select(all_of(PDDEcols))
 
-# Missing Operating End Date If a project has no open enrollments and the most recent Enrollment was 30+ days ago
+# Missing Operating End Date If a project has no open enrollments and the most
+# recent Enrollment was 30+ days ago
 operatingEndMissing <- Enrollment %>%
   group_by(ProjectID) %>%
   mutate(NumOpenEnrollments = sum(is.na(ExitDate)),
