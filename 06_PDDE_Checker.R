@@ -1,3 +1,7 @@
+###############################
+#   PURPOSE: This script conducts the PDDE checks, which are things admins fix 
+#   (rather than End-users who fix DQ checks)
+###############################
 
 logToConsole("Running PDDE checker")
 
