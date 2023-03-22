@@ -1,17 +1,16 @@
 ###############################
 # PURPOSE: 
-# This script contains many hard-coded variables used throughout the app
-# as well as intermediate dataframes that are also used in various places
+# This script creates the intermediate dataframes that are also used in various places, including:
+#     Enrollment, merged with other datasets and with added columns for faster access
+#     Project, merged with organization and with project type redefined to account for tracking method
+#     Services, limited to bed-nights only (record type = 200 and non-null date provided)
+#     validation, combining the Enrollment and Project, limited to non-null EntryDates, and limited to key fields
 #
 # Some definitions:
 # PH = PSH + RRH
 # household = one or more people who present for housing/homeless services
 # served = the Entry to Exit Date range crosses the Report Date range
 # entered = the Entry Date is inside the Report Date range
-# served_leaver = (regardless of Move-In) the Exit Date is inside the Report
-#     Date range
-# moved_in_leaver = a subset of served_leaver, these stays include a Move-In Date
-#     where that's relevant (PH projects)
 # moved_in = any stay in a non-PH project where the Entry to Exit Date range
 #     crosses the Report Date range PLUS any stay in a PH project where the 
 #     Move In Date to the Exit Date crosses the Report Date range
