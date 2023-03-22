@@ -1,10 +1,3 @@
-
-library(tidyverse)
-library(janitor)
-library(lubridate)
-library(scales)
-library(HMIS)
-
 source("guidance.R", local=TRUE)
 
 logToConsole("Running Data Quality")
