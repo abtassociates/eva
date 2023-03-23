@@ -1,6 +1,9 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "03-23-2023", "Added Zero Utilization to Project Descriptor Data Quality 
+    Checker",
+    
     "03-09-2023", "Renaming R Scripts for improved organization",
     
     "03-09-2023", "Added console logging to facilitate debugging",
