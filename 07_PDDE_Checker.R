@@ -121,8 +121,7 @@ missingInventoryRecord <- Project %>%
     Guidance = str_squish("Residential projects should have inventory data. 
     Please enter inventory in HMIS for the project(s)."),
     Detail = str_squish("This project has no Inventory records. Residential 
-project types should have inventory data.")
-    )
+      project types should have inventory data.")
   )  %>% 
   select(all_of(PDDEcols))
 
