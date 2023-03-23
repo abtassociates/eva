@@ -111,7 +111,7 @@ function(input, output, session) {
           reset("imported")
           showModal(
             modalDialog(
-              title = "Your HMIS CSV Export is not structurally valid",
+              title = "Unsuccessful Upload: Your HMIS CSV Export is not structurally valid",
               "Your HMIS CSV Export has some High Priority issues that must
               be addressed by your HMIS Vendor. Please download the File Structure
               Analysis for details.",
@@ -488,54 +488,54 @@ function(input, output, session) {
     # By-org shows organizations containing highest number of HP errors/errors/warnings
     # By-issue shows issues that are the most common of that type (HP errors/errors/warnings)
     output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
-      renderDQPlot("sys", "High Priority", "Org", "#16697A")
+      renderDQPlot("sys", "High Priority", "Org", "#71B4CB")
     })
     
     output$systemDQHighPriorityErrorsByIssue_ui <- renderUI({
-      renderDQPlot("sys", "High Priority", "Issue", "#16697A")
+      renderDQPlot("sys", "High Priority", "Issue", "#71B4CB")
     })
     
     output$systemDQErrorsByOrg_ui <- renderUI({
-      renderDQPlot("sys", "Error", "Org", "#489FB5")
+      renderDQPlot("sys", "Error", "Org", "#71B4CB")
     })
     
-    output$systemDQErrorByIssue_ui <- renderUI({
-      renderDQPlot("sys", "Error", "Issue", "#489FB5")
+    output$systemDQErrorsByIssue_ui <- renderUI({
+      renderDQPlot("sys", "Error", "Issue", "#71B4CB")
     })
     
-    output$systemDQWarningsByOrg_ui <- reactive({
-      renderDQPlot("sys", "Warning", "Org", "#82C0CC")
+    output$systemDQWarningsByOrg_ui <- renderUI({
+      renderDQPlot("sys", "Warning", "Org", "#71B4CB")
     })
     
-    output$systemDQWarningByIssue_ui <- renderUI({
-      renderDQPlot("sys", "Warning", "Issue", "#82C0CC")
+    output$systemDQWarningsByIssue_ui <- renderUI({
+      renderDQPlot("sys", "Warning", "Issue", "#71B4CB")
     })
 
     #ORG-LEVEL TAB PLOTS
     # By-project shows projects, within the selected org, containing highest number of HP errors/errors/warnings
     # By-issue shows issues, within the selected org, that are the most common of that type (HP errors/errors/warnings)
     output$orgDQHighPriorityErrorsByProject_ui <- renderUI({
-      renderDQPlot("org", "High Priority", "Project", "#11697A")
+      renderDQPlot("org", "High Priority", "Project", "#71B4CB")
     })
     
     output$orgDQHighPriorityErrorByIssue_ui <- renderUI({
-      renderDQPlot("org", "High Priority", "Issue", "#11697A")
+      renderDQPlot("org", "High Priority", "Issue", "#71B4CB")
     })
     
     output$orgDQErrorsByProject_ui <- renderUI({
-      renderDQPlot("org", "Error", "Project", "#489FB5")
+      renderDQPlot("org", "Error", "Project", "#71B4CB")
     })
     
     output$orgDQErrorByIssue_ui <- renderUI({
-      renderDQPlot("org", "Error", "Issue", "#489FB5")
+      renderDQPlot("org", "Error", "Issue", "#71B4CB")
     })
     
     output$orgDQWarningsByProject_ui <- renderUI({
-      renderDQPlot("org", "Warnings", "Project", "#82C0CC")
+      renderDQPlot("org", "Warning", "Project", "#71B4CB")
     })
     
     output$orgDQWarningsByIssue_ui <- renderUI({
-      renderDQPlot("org", "Warnings", "Issue", "#82C0CC")
+      renderDQPlot("org", "Warning", "Issue", "#71B4CB")
     })
     
     ##

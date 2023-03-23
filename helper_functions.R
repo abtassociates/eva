@@ -155,13 +155,13 @@ zip_initially_valid <- function () {
 
   valid_file(0)
   if(grepl("/", zipContents$Name[1])) {
-    title = "Your zip file is misstructured"
+    title = "Unsuccessful Upload: Your zip file is misstructured"
     err_msg = "It looks like you may have unzipped your HMIS csv because the
     individual csv files are contained within a subdirectory."
     logMetadata("Unsuccessful upload - zip file was misstructured")
   } 
   else if(length(missing_files)) {
-    title = "Missing Files"
+    title = "Unsuccessful Upload: Missing Files"
     err_msg = HTML(str_glue(
     "Your zip file appears to be missing the following files:<br/><br/>
     
@@ -175,7 +175,7 @@ zip_initially_valid <- function () {
     logMetadata("Unsuccessful upload - wrong/incomplete dataset")
   } 
   else if(!is_hashed()) {
-    title = "You uploaded an unhashed data set"
+    title = "Unsuccessful Upload: You uploaded an unhashed data set"
     err_msg = "You have uploaded an unhashed version of the HMIS CSV Export. If you
           are not sure how to run the hashed HMIS CSV Export in your HMIS, please
           contact your HMIS vendor."
