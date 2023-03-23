@@ -280,8 +280,17 @@ renderDQPlot <- function(level, issueType, group, color) {
   output[[outputId]] <- renderPlot({
     req(valid_file() == 1)
   
+    issueTypeDisplay = if_else(issueType == "High Priority", 
+                               "errors", 
+                               paste0(tolower(issueType),"s")
+                               )
+    
     validate(need(nrow(plot_data) > 0, 
-                  message = "Great job! No errors to show."))
+                  message = paste0("Great job! No ",
+                                   issueTypeDisplay,
+                                   " to show.")
+                  )
+             )
 
     ggplot(head(plot_data, 10L),
            aes(
