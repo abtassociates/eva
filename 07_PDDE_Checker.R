@@ -262,8 +262,6 @@ zero_utilization <- Project %>%
         more active clients in the reporting period."
       ),
     Detail = str_squish(paste(
-      "Project",
-      ProjectName,
       "Project ID",
       ProjectID,
       "has active inventory beds in the report period but did not serve any
