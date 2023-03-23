@@ -1,6 +1,7 @@
 
 
 # Prep --------------------------------------------------------------------
+logToConsole("Running file structure analysis")
 
 files <- c(
 #  "Affiliation",
