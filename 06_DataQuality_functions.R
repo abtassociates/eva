@@ -281,7 +281,7 @@ renderDQPlot <- function(level, issueType, group, color) {
     req(valid_file() == 1)
   
     issueTypeDisplay = if_else(issueType == "High Priority", 
-                               "errors", 
+                               "error", 
                                paste0(tolower(issueType),"s")
                                )
     

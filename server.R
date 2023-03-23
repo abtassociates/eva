@@ -531,11 +531,11 @@ function(input, output, session) {
     })
     
     output$orgDQWarningsByProject_ui <- renderUI({
-      renderDQPlot("org", "Warnings", "Project", "#71B4CB")
+      renderDQPlot("org", "Warning", "Project", "#71B4CB")
     })
     
     output$orgDQWarningsByIssue_ui <- renderUI({
-      renderDQPlot("org", "Warnings", "Issue", "#71B4CB")
+      renderDQPlot("org", "Warning", "Issue", "#71B4CB")
     })
     
     ##
