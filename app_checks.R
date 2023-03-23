@@ -8,7 +8,7 @@ source(here("guidance.R"))
 ### CTRL + F "new check" TO ADD NEW CHECK ----
 
 #### LIST OF ALL EVA CHECKS #### -------------
-check1 = c(
+check1 <- c(
   Source = "dq",
   Type = "High Priority",
   Issue = "Duplicate Entries",
@@ -20,7 +20,7 @@ check1 = c(
   Notes = ""
 )
 
-check2 = c(
+check2 <- c(
   "dq",
   "High Priority",
   "No Head of Household",
@@ -29,7 +29,7 @@ check2 = c(
   ""
 )
 
-check3 = c(
+check3 <- c(
   "dq",
   "High Priority",
   "Too Many Heads of Household",
@@ -38,7 +38,7 @@ check3 = c(
   ""
 )
 
-check4 = c(
+check4 <- c(
   "dq",
   "High Priority",
   "Missing Relationship to Head of Household",
@@ -48,7 +48,7 @@ check4 = c(
 )
 
 
-check5 = c(
+check5 <- c(
   "pdde",
   "High Priority",
   "Missing Geography Information",
@@ -61,7 +61,7 @@ check5 = c(
 )
 
 
-check6 = c("file structure",
+check6 <- c("file structure",
            "High Priority",
            "Nulls or incorrect data type",
            str_squish("Specific data elements will be identified in the Detail
@@ -76,7 +76,7 @@ check6 = c("file structure",
                       be a High Priority issue. Otherwise, this will be
                       considered a General Error."))
 
-check7 = c(
+check7 <- c(
   "file structure",
   "High Priority",
   "Duplicate PersonalIDs found in the Client file",
@@ -91,7 +91,7 @@ check7 = c(
 )
 
 
-check8 = c(
+check8 <- c(
   "file structure",
   "High Priority",
   "Duplicate EnrollmentIDs found in the Enrollment file",
@@ -106,7 +106,7 @@ check8 = c(
   ""
 )
 
-check9 = c(
+check9 <- c(
   "file structure",
   "High Priority",
   "Client in the Enrollment file not found in Client file",
@@ -118,7 +118,7 @@ check9 = c(
   ""
 )
 
-check10 = c(
+check10 <- c(
   "file structure",
   "High Priority",
   "ProjectID in the Enrollment file not found in Project file",
@@ -130,7 +130,7 @@ check10 = c(
   ""
 )
 
-check11 = c(
+check11 <- c(
   "file structure",
   "High Priority",
   "Incorrect Date Format",
@@ -145,7 +145,7 @@ check11 = c(
   ""
 )
 
-check12 = c(
+check12 <- c(
   "file structure",
   "High Priority",
   "Incorrect Columns",
@@ -166,7 +166,7 @@ check12 = c(
   )
 )
 
-check14 = c(
+check14 <- c(
   "file structure",
   "High Priority",
   "Incorrect Data Type",
@@ -183,7 +183,7 @@ check14 = c(
   ""
 )
 
-check15 = c(
+check15 <- c(
   "dq",
   "Error",
   "Future Exit Date",
@@ -197,7 +197,7 @@ check15 = c(
   ""
 )
 
-check16 = c(
+check16 <- c(
   "dq",
   "Error",
   "Missing Year Entered Service",
@@ -206,7 +206,7 @@ check16 = c(
   ""
 )
 
-check17 = c(
+check17 <- c(
   "dq",
   "Error",
   "Incorrect Year Entered Service",
@@ -215,7 +215,7 @@ check17 = c(
   ""
 )
 
-check18 = c(
+check18 <- c(
   "dq",
   "Error",
   "Missing Year Separated",
@@ -224,7 +224,7 @@ check18 = c(
   ""
 )
 
-check19 = c(
+check19 <- c(
   "dq",
   "Error",
   "Incorrect Year Separated",
@@ -233,7 +233,7 @@ check19 = c(
   ""
 )
 
-check20 = c(
+check20 <- c(
   "dq",
   "Error",
   "Missing War(s)",
@@ -242,7 +242,7 @@ check20 = c(
   ""
 )
 
-check21 = c(
+check21 <- c(
   "dq",
   "Error",
   "Missing Military Branch",
@@ -251,7 +251,7 @@ check21 = c(
   ""
 )
 
-check22 = c(
+check22 <- c(
   "dq",
   "Error",
   "Missing Discharge Status",
@@ -260,7 +260,7 @@ check22 = c(
   ""
 )
 
-check23 = c(
+check23 <- c(
   "dq",
   "Error",
   "Missing Percent AMI",
@@ -269,7 +269,7 @@ check23 = c(
   ""
 )
 
-check24 = c(
+check24 <- c(
   "dq",
   "Error",
   "Missing VAMC Station Number",
@@ -278,7 +278,7 @@ check24 = c(
   ""
 )
 
-check25 = c(
+check25 <- c(
   "dq",
   "Error",
   "Missing Some or All of Last Permanent Address",
@@ -287,7 +287,7 @@ check25 = c(
   ""
 )
 
-check26 = c(
+check26 <- c(
   "dq",
   "Error",
   "Missing HP Screening or Threshold Score",
@@ -296,7 +296,7 @@ check26 = c(
   ""
 )
 
-check27 = c(
+check27 <- c(
   "dq",
   "Error",
   "Missing Length of Stay",
@@ -305,7 +305,7 @@ check27 = c(
   ""
 )
 
-check28 = c(
+check28 <- c(
   "dq",
   "Error",
   "Missing Client Location",
@@ -314,7 +314,7 @@ check28 = c(
   ""
 )
 
-check29 = c(
+check29 <- c(
   "dq",
   "Error",
   "Missing Approximate Date Homeless",
@@ -323,7 +323,7 @@ check29 = c(
   ""
 )
 
-check30 = c(
+check30 <- c(
   "dq",
   "Error",
   "Missing Previously Unsheltered, ES, SH",
@@ -332,7 +332,7 @@ check30 = c(
   ""
 )
 
-check31 = c(
+check31 <- c(
   "dq",
   "Error",
   "Missing Residence Prior",
@@ -341,7 +341,7 @@ check31 = c(
   ""
 )
 
-check32 = c(
+check32 <- c(
   "dq",
   "Error",
   "Missing Months or Times Homeless",
@@ -353,7 +353,7 @@ check32 = c(
   ""
 )
 
-check33 = c(
+check33 <- c(
   "dq",
   "Error",
   "Missing Disabling Condition",
@@ -362,7 +362,7 @@ check33 = c(
   ""
 )
 
-check34 = c(
+check34 <- c(
   "dq",
   "Error",
   "Missing Name Data Quality",
@@ -371,7 +371,7 @@ check34 = c(
   ""
 )
 
-check35 = c(
+check35 <- c(
   "dq",
   "Error",
   "Missing DOB",
@@ -385,7 +385,7 @@ check35 = c(
   ""
 )
 
-check36 = c(
+check36 <- c(
   "dq",
   "Error",
   "Missing DOB Data Quality",
@@ -399,28 +399,28 @@ check36 = c(
   ""
 )
 
-check37 = c("dq",
+check37 <- c("dq",
             "Error",
             "Missing Race",
             "3.04 - Race",
             guidance_missing_at_entry,
             "")
 
-check38 = c("dq",
+check38 <- c("dq",
             "Error",
             "Missing Ethnicity",
             "3.05 - Ethnicity",
             guidance_missing_at_entry,
             "")
 
-check39 = c("dq",
+check39 <- c("dq",
             "Error",
             "Missing Gender",
             "3.06 - Gender",
             guidance_missing_at_entry,
             "")
 
-check40 = c(
+check40 <- c(
   "dq",
   "Error",
   "Missing Veteran Status",
@@ -429,7 +429,7 @@ check40 = c(
   ""
 )
 
-check41 = c(
+check41 <- c(
   "dq",
   "Error",
   "Invalid Move-In Date",
@@ -441,7 +441,7 @@ check41 = c(
   ""
 )
 
-check42 = c(
+check42 <- c(
   "dq",
   "Error",
   "Incomplete Living Situation Data",
@@ -457,7 +457,7 @@ check42 = c(
 )
 
 
-check43 = c(
+check43 <- c(
   "pdde",
   "Error",
   "Missing Address",
@@ -467,7 +467,7 @@ check43 = c(
              project address information like city, state, and ZIP code.")
 )
 
-check44 = c("pdde",
+check44 <- c("pdde",
             "Error",
             "No Inventory Records",
             "2.07 - Bed and Unit Inventory Information",
@@ -475,7 +475,7 @@ check44 = c("pdde",
                        Please enter inventory in HMIS for the project(s)."),
             "")
 
-check45 = c(
+check45 <- c(
   "pdde",
   "Error",
   "Project Operating End precedes Inventory End",
@@ -491,7 +491,7 @@ check45 = c(
   ""
 )
 
-check46 = c(
+check46 <- c(
   "pdde",
   "Error",
   "Missing Tracking Method",
@@ -504,7 +504,7 @@ check46 = c(
   ""
 )
 
-check47 = c(
+check47 <- c(
   "pdde",
   "Error",
   "Sum of the dedicated beds should equal the Total Beds",
@@ -519,7 +519,7 @@ check47 = c(
 )
 
 
-# check48 = c("file structure", 
+# check48 <- c("file structure", 
 #             "Error", 
 #             "Nulls not allowed in this column", 
 #             str_squish("Specific data elements will be identified in the Detail column of a CoC's Integrity Checks export."),
@@ -529,7 +529,7 @@ check47 = c(
 #             str_squish("If the data type is considered High Priority, this will be a High Priority issue. 
 #                        Otherwise, this will be considered a General Error."))
 
-check49 = c("file structure", 
+check49 <- c("file structure", 
             "Error", 
             "Incorrect Date Format", 
             "Date-Based Data Elements",
@@ -542,7 +542,7 @@ check49 = c("file structure",
                        a High Priority issue. Otherwise, this will be considered
                        a General Error."))
 
-check50 = c("file structure", 
+check50 <- c("file structure", 
             "Error", 
             "Incorrect Data Type", 
             str_squish("Specific data elements will be identified in the Detail
@@ -553,7 +553,7 @@ check50 = c("file structure",
                        the Detail and make the necessary updates."),
             "")
 
-check51 = c("file structure", 
+check51 <- c("file structure", 
             "Error", 
             "ExportID mismatch", 
             "ExportID",
@@ -564,7 +564,7 @@ check51 = c("file structure",
                        export process."),
             "")
 
-check52 = c("file structure", 
+check52 <- c("file structure", 
             "Error", 
             "Invalid value in Client file", 
             "3.01-3.07, V1.1-V1.11",
@@ -576,7 +576,7 @@ check52 = c("file structure",
                        in 'Appendix B - Lists' of the Specifications."),
             "")
 
-check53 = c("file structure",
+check53 <- c("file structure",
             "Error",
             "Invalid Disabling Condition",
             "3.01.5 - Name: Name Data Quality",
@@ -587,7 +587,7 @@ check53 = c("file structure",
                        B - Lists' of the Specifications."),
             "")
 
-check54 = c(
+check54 <- c(
   "file structure",
   "Error",
   "Invalid Living Situation value",
@@ -601,7 +601,7 @@ check54 = c(
   ""
 )
 
-check55 = c(
+check55 <- c(
   "file structure",
   "Error",
   "Invalid RelationshipToHoH value",
@@ -615,7 +615,7 @@ check55 = c(
   ""
 )
 
-check56 = c(
+check56 <- c(
   "file structure",
   "Error",
   "Invalid Destination value",
@@ -629,7 +629,7 @@ check56 = c(
   ""
 )
 
-check57 = c(
+check57 <- c(
   "file structure",
   "Error",
   "Non-standard Current Living Situation",
@@ -645,7 +645,7 @@ check57 = c(
 )
 
 
-check58 = c(
+check58 <- c(
   "dq",
   "Warning",
   "Don't Know/Refused Discharge Status",
@@ -654,7 +654,7 @@ check58 = c(
   ""
 )
 
-check59 = c(
+check59 <- c(
   "dq",
   "Warning",
   "Don't Know/Refused War(s)",
@@ -663,7 +663,7 @@ check59 = c(
   ""
 )
 
-check60 = c(
+check60 <- c(
   "dq",
   "Warning",
   "Don't Know/Refused Military Branch",
@@ -672,7 +672,7 @@ check60 = c(
   ""
 )
 
-check61 = c(
+check61 <- c(
   "dq",
   "Warning",
   "Don't Know/Refused Destination",
@@ -681,7 +681,7 @@ check61 = c(
   ""
 )
 
-check62 = c(
+check62 <- c(
   "dq",
   "Warning",
   "Don't Know/Refused/Data Not Collected DOB",
@@ -690,7 +690,7 @@ check62 = c(
   ""
 )
 
-check63 = c(
+check63 <- c(
   "dq",
   "Warning",
   "Don't Know/Refused Months or Times Homeless",
@@ -702,7 +702,7 @@ check63 = c(
   ""
 )
 
-check64 = c(
+check64 <- c(
   "dq",
   "Warning",
   "Don't Know/Refused Ethnicity",
@@ -711,14 +711,14 @@ check64 = c(
   ""
 )
 
-check65 = c("dq",
+check65 <- c("dq",
             "Warning",
             "Don't Know/Refused Race",
             "3.04 - Race",
             guidance_dkr_data,
             "")
 
-check66 = c(
+check66 <- c(
   "dq",
   "Warning",
   "Don't Know/Refused Residence Prior",
@@ -727,14 +727,14 @@ check66 = c(
   ""
 )
 
-check67 = c("dq",
+check67 <- c("dq",
             "Warning",
             "Don't Know/Refused Gender",
             "3.06 - Gender",
             guidance_dkr_data,
             "")
 
-check68 = c(
+check68 <- c(
   "dq",
   "Warning",
   "Don't Know/Refused Veteran Status",
@@ -743,7 +743,7 @@ check68 = c(
   ""
 )
 
-check69 = c(
+check69 <- c(
   "dq",
   "Warning",
   "Don't Know/Refused SSN",
@@ -752,7 +752,7 @@ check69 = c(
   ""
 )
 
-check70 = c(
+check70 <- c(
   "dq",
   "Warning",
   "Don't Know/Refused Living Situation",
@@ -761,7 +761,7 @@ check70 = c(
   ""
 )
 
-check71 = c(
+check71 <- c(
   "dq",
   "Warning",
   "Homelessness Start Date Later Than Entry",
@@ -778,7 +778,7 @@ check71 = c(
   ""
 )
 
-check72 = c(
+check72 <- c(
   "dq",
   "Warning",
   "Number of Months Homeless Can Be Determined",
@@ -797,7 +797,7 @@ check72 = c(
   ""
 )
 
-check73 = c(
+check73 <- c(
   "dq",
   "Warning",
   "Invalid Homelessness Start Date/Number of Months Homeless",
@@ -813,7 +813,7 @@ check73 = c(
   ""
 )
 
-check74 = c(
+check74 <- c(
   "dq",
   "Warning",
   "Possible Missed Move-In Date",
@@ -832,7 +832,7 @@ check74 = c(
   )
 )
 
-check75 = c(
+check75 <- c(
   "dq",
   "Warning",
   "Possible Missed Exit Date",
@@ -851,14 +851,14 @@ check75 = c(
   )
 )
 
-check76 = c("dq",
+check76 <- c("dq",
             "Warning",
             "Missing Destination",
             "3.12 - Destination",
             guidance_dkr_data,
             "")
 
-check77 = c(
+check77 <- c(
   "dq",
   "Warning",
   "Future Entry Date",
@@ -872,7 +872,7 @@ check77 = c(
   ""
 )
 
-check78 = c(
+check78 <- c(
   "dq",
   "Warning",
   "Entry Precedes Project's Operating Start",
@@ -881,7 +881,7 @@ check78 = c(
   ""
 )
 
-check79 = c(
+check79 <- c(
   "dq",
   "Warning",
   "Project Overlaps",
@@ -895,7 +895,7 @@ check79 = c(
   ""
 )
 
-check80 = c(
+check80 <- c(
   "dq",
   "Warning",
   "Incomplete or Don't Know/Refused Name",
@@ -905,7 +905,7 @@ check80 = c(
 )
 
 
-check81 = c(
+check81 <- c(
   "pdde",
   "Warning",
   "Inventory Start Precedes Project Operating Start",
@@ -917,7 +917,7 @@ check81 = c(
   ""
 )
 
-check82 = c(
+check82 <- c(
   "pdde",
   "Warning",
   "Non-HMIS-Participating project has client-level data",
@@ -932,7 +932,7 @@ check82 = c(
   ""
 )
 
-check83 = c(
+check83 <- c(
   "pdde",
   "Warning",
   "Potentially Missing Operating End Date",
@@ -946,7 +946,7 @@ check83 = c(
 )
 
 
-check84 = c(
+check84 <- c(
   "file structure",
   "Warning",
   "Incorrect Columns",
@@ -967,7 +967,7 @@ check84 = c(
   )
 )
 
-check85 = c(
+check85 <- c(
   "file structure",
   "Error",
   "Duplicate HouseholdIDs",
@@ -983,6 +983,16 @@ check85 = c(
   
 )
 
+check86 <- c(
+  "pdde",
+  "Error",
+  "Zero Utilization",
+  "5.06.1 - EnrollmentID, 2.07.14 - Bed Inventory",
+  str_squish("Any project with active beds in the reporting period should have one or more
+  active clients in the reporting period."),
+  ""
+)
+
 ### ADD NEW CHECKS ABOVE ^^^ ------------------------------------
 
 #New check? Copy the template below and then paste it above the ADD NEW CHECKS line.
@@ -990,7 +1000,7 @@ check85 = c(
 #the new check should be named check85. You don't need to keep the Source = , Type = , etc. from the template. 
 #Then add the check to dqChecks data frame below.
 
-#check00 = c(Source = "", #This should be "file structure," "pdde," or "dq"
+#check00 <- c(Source = "", #This should be "file structure," "pdde," or "dq"
           # Type = "",   #This should be "High Priority," "Error," or "Warning"
           # Issue = "", 
           # DataElement = "",
@@ -1081,7 +1091,9 @@ dqChecks <- data.frame(rbind(check1,
                        check81,
                        check82,
                        check83,
-                       check84
+                       check84,
+                       check85,
+                       check86
 ))
 
 ### ADD NEW CHECKS TO DATAFRAME ABOVE ^^^ ------------------

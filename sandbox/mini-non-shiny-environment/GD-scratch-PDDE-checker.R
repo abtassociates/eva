@@ -1,6 +1,3 @@
-
-logToConsole("Running PDDE checker")
-
 PDDEcols = c("OrganizationName",
              "ProjectID",
              "ProjectName",
@@ -22,37 +19,38 @@ subpopNotTotal <- Inventory %>%
               OtherBedInventory
            ) != BedInventory
   ) %>%
-  mutate(Issue = "Sum of the dedicated beds should equal the Total Beds",
-         Type = "Error",
-         Guidance = 
-           str_squish("Total Beds should match the sum of CH Vets, Youth Vets, Vets, 
-         CH Youth, Youth, CH, and Other beds. Please review project inventory
-         records for the number of dedicated beds and ensure this number equals
-         the Total Beds listed within each record."),
-         Detail = 
-           paste0(
-             str_squish("Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth,
-                        CH, and Other sum up to"), " ",
-         CHVetBedInventory + 
-           YouthVetBedInventory + 
-           VetBedInventory + 
-           CHYouthBedInventory + 
-           YouthBedInventory + 
-           CHBedInventory + 
-           OtherBedInventory,
-         " but your Total Beds is ",
-         BedInventory,
-         ". These totals must match.")
+  mutate(
+    Issue = "Sum of the dedicated beds should equal the Total Beds",
+    Type = "Error",
+    Guidance = str_squish(
+      "Total Beds should match the sum of CH Vets, Youth Vets, Vets,
+         CH Youth, Youth, CH, and Other beds. Please review project inventory records for the number
+         of dedicated beds and ensure this number equals the Total Beds listed within each record."
+    ),
+    Detail =
+      paste0(
+        "Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth, CH,
+                  and Other sum up to ",
+        CHVetBedInventory +
+          YouthVetBedInventory +
+          VetBedInventory +
+          CHYouthBedInventory +
+          YouthBedInventory +
+          CHBedInventory +
+          OtherBedInventory,
+        " but your Total Beds is ",
+        BedInventory,
+        ". These totals must match."
+      )
   ) %>%
   select(all_of(PDDEcols))
 
-# Missing Operating End Date If a project has no open enrollments and the most
-# recent Enrollment was 30+ days ago
+# Missing Operating End Date If a project has no open enrollments and the most recent Enrollment was 30+ days ago
 operatingEndMissing <- Enrollment %>%
   group_by(ProjectID) %>%
   mutate(NumOpenEnrollments = sum(is.na(ExitDate)),
          MostRecentEnrollment = max(ExitAdjust, na.rm = TRUE)
-
+         
   ) %>%
   ungroup() %>%
   left_join(Project %>% 
@@ -62,16 +60,19 @@ operatingEndMissing <- Enrollment %>%
            MostRecentEnrollment >= 
            coalesce(OperatingEndDate, Export$ExportDate) - 30 &
            is.null(OperatingEndDate)) %>%
-  mutate(Issue = "Potentially Missing Operating End Date",
-         Type = "Warning",
-         Guidance = 
-           str_squish("Projects no longer in operation must have an Operating
+  mutate(
+    Issue = "Potentially Missing Operating End Date",
+    Type = "Warning",
+    Guidance =
+      str_squish(
+        "Projects no longer in operation must have an Operating
                       End Date. Please verify if the project is still in
-                      operation and, if not, add in the Operating End Date."),
-         Detail = paste(
-           "This project has no open enrollments and the most recent Exit was",
-           MostRecentEnrollment
-         )
+                      operation and, if not, add in the Operating End Date."
+      ),
+    Detail = paste(
+      "This project has no open enrollments and the most recent Exit was",
+      MostRecentEnrollment
+    )
   ) %>%
   select(all_of(PDDEcols))
 
@@ -79,35 +80,41 @@ operatingEndMissing <- Enrollment %>%
 # Missing Geography Type, Invalid Zip Code if possible
 missingCoCInfo <- Project %>%
   left_join(ProjectCoC, by = "ProjectID") %>%
-  filter(is.na(Address1) | 
-           is.na(City) | 
-           is.na(State) | 
-           is.na(Geocode) | 
-           is.na(GeographyType) | 
-           nchar(ZIP) != 5 |
-           is.na(ZIP) |
-           is.na(CoCCode)
+  filter(
+    is.na(Address1) |
+      is.na(City) |
+      is.na(State) |
+      is.na(Geocode) |
+      is.na(GeographyType) |
+      nchar(ZIP) != 5 |
+      is.na(ZIP) |
+      is.na(CoCCode)
   ) %>%
-  mutate(Issue = if_else(is.na(Geocode) | is.na(GeographyType) |
-                           is.na(CoCCode),
-                         "Missing Geography Information",
-                         "Missing Address"),
-         Guidance = str_squish("Please ensure geography information for projects
+  mutate(
+    Issue = if_else(
+      is.na(Geocode) | is.na(GeographyType) |
+        is.na(CoCCode),
+      "Missing Geography Information",
+      "Missing Address"
+    ),
+    Guidance = str_squish("Please ensure geography information for projects
                                is complete."),
-         Detail = case_when(
-           is.na(CoCCode) ~ "This project's CoC Code is missing.",
-           is.na(Address1) ~ "This project's Address is missing.",
-           is.na(City) ~ "This project's City is missing.",
-           is.na(State) ~ "This project's State is missing.",
-           is.na(Geocode) ~ "This project's Geocode is missing.",
-           is.na(GeographyType) ~ "This project's Geography Type is missing.",
-           nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000" ~
-             "ZIP is missing or not valid."
-         ),
-         Type = if_else(is.na(Geocode) | is.na(GeographyType) |
-                          is.na(CoCCode),
-                        "High Priority",
-                        "Error")) %>%
+    Detail = case_when(
+      is.na(CoCCode) ~ "This project's CoC Code is missing.",
+      is.na(Address1) ~ "This project's Address is missing.",
+      is.na(City) ~ "This project's City is missing.",
+      is.na(State) ~ "This project's State is missing.",
+      is.na(Geocode) ~ "This project's Geocode is missing.",
+      is.na(GeographyType) ~ "This project's Geography Type is missing.",
+      nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000" ~
+        "ZIP is missing or not valid."
+    ),
+    Type = if_else(
+      is.na(Geocode) | is.na(GeographyType) |
+        is.na(CoCCode),
+      "High Priority",
+      "Error"
+    )) %>%
   select(all_of(PDDEcols))
 
 # Missing Inventory Record Is a residential project but has no active inventory for the duration of operating period OR for the reporting period
@@ -125,8 +132,7 @@ missingInventoryRecord <- Project %>%
             ProjectID,
             "has no Inventory records. Residential project types should have
             inventory data.")
-    )
-  )  %>% 
+    ))  %>% 
   select(all_of(PDDEcols))
 
 # Inventory Start < Operating Start AND
@@ -195,14 +201,11 @@ inventoryOutsideOperating <- Inventory %>%
             ". Please correct whichever date is incorrect."
           )
         )
-    )
-  ) %>% 
+    )) %>% 
   filter(Issue != "none") %>%
   select(all_of(PDDEcols))
 
-# HMIS Participating ------------------------------------------------------
 # HMIS Participating != 1, OR VSP != 0 but client level data in file
-
 hmisNotParticipatingButClient <- Project %>%
   left_join(unique(Enrollment[c("PersonalID", "ProjectID")]), by = "ProjectID") %>%
   left_join(Organization %>% select(OrganizationID, VictimServiceProvider), 
@@ -215,9 +218,9 @@ hmisNotParticipatingButClient <- Project %>%
          The HMIS Participating Project field may need to be updated, new projects may need to be created
          based on changing HMIS participation status, or client-level data
          may need to be removed from the Non-HMIS-Participating projects."),
-         Detail = str_squish("There is client data in this project. Please check that 
-                             this project is marked correctly as non-participating.")
-  ) %>%
+         Detail = str_squish(
+           "There is client data in this project. Please check that this project
+           is marked correctly as non-participating.")) %>%
   select(all_of(PDDEcols)) 
 
 es_no_tracking_method <- Project %>%
@@ -227,14 +230,17 @@ es_no_tracking_method <- Project %>%
     Type = "Error",
     Guidance = str_squish("All Emergency Shelters must have a Tracking Method. Please update the 
     Emergency Shelter Tracking Method field at the project-level."),
-    Detail = paste("Project ID",
+    Detail = paste0("Project ID ",
                     ProjectID,
-                    "is an Emergency Shelter with no Tracking Method")
-  ) %>%
+                    "is an Emergency Shelter with no Tracking Method")) %>%
   select(all_of(PDDEcols))
 
+##### For later-------
+# Incompatible Funding Source and Project Type Funding Source X can only be used
+# with Project Type Y. Project Type A can only be used with Funding Source B. 
+# (this will need a lot more detail, hold on this one)
 
-# Zero Utilization --------------------------------------------------------
+# Zero Utilization 
 
 projects_w_beds <- Inventory %>%
   filter(
@@ -252,7 +258,6 @@ projects_w_clients <- Enrollment %>%
 res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 
 zero_utilization <- Project %>%
-  filter(ProjectID %in% c(res_projects_no_clients)) %>%
   mutate(
     Issue = "Zero Utilization",
     Type = "Error",
@@ -261,18 +266,16 @@ zero_utilization <- Project %>%
         "Any project with active beds in the reporting period should have one or
         more active clients in the reporting period."
       ),
-    Detail = str_squish(paste(
-      "Project ID",
+    Detail = paste(
+      "Project",
       ProjectID,
+      ProjectName,
       "has active inventory beds in the report period but did not serve any
-        clients during that time."
-      )
+      clients during that time."
     )
   ) %>%
+  filter(ProjectID %in% c(res_projects_no_clients)) %>%
   select(all_of(PDDEcols))
-
-##### For later-------
-# Incompatible Funding Source and Project Type Funding Source X can only be used with Project Type Y. Project Type A can only be used with Funding Source B. (this will need a lot more detail, hold on this one)
 
 ### Put it together ----
 pdde_main <- rbind(
@@ -285,5 +288,3 @@ pdde_main <- rbind(
   hmisNotParticipatingButClient,
   zero_utilization
 )
-
-
