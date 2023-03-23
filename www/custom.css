@@ -8,6 +8,7 @@
 /* || HYPERLINKS*/
 /* || HELP TEXT CIRCLE*/
 /* || VALIDATION MESSAGES FOR PLOTS */
+/* || CHANGELOG */
 
 .content-wrapper {
   overflow: auto;
@@ -203,4 +204,9 @@ a:hover {
   font-size: 20px;
   text-align: center;
   color: black; /*text color*/
+}
+
+/* || CHANGELOG */
+#shiny-tab-tabChangelog td:first-child {
+  white-space:nowrap;
 }
