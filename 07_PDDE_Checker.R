@@ -32,7 +32,7 @@ subpopNotTotal <- Inventory %>%
          Detail = 
            paste0(
              str_squish("Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth,
-                        CH, and Other sum up to "),
+                        CH, and Other sum up to"), " ",
          CHVetBedInventory + 
            YouthVetBedInventory + 
            VetBedInventory + 
