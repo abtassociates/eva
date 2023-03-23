@@ -120,11 +120,8 @@ missingInventoryRecord <- Project %>%
     Type = "Error",
     Guidance = str_squish("Residential projects should have inventory data. 
     Please enter inventory in HMIS for the project(s)."),
-    Detail = str_squish(
-      paste("Project ID", 
-            ProjectID,
-            "has no Inventory records. Residential project types should have
-            inventory data.")
+    Detail = str_squish("This project has no Inventory records. Residential 
+project types should have inventory data.")
     )
   )  %>% 
   select(all_of(PDDEcols))
@@ -153,9 +150,7 @@ inventoryOutsideOperating <- Inventory %>%
       Issue == "Inventory Start Precedes Project Operating Start" ~
         str_squish(
           paste0(
-            "Project ID ",
-            ProjectID,
-            " may have been merged with another project which would explain
+            "This project may have been merged with another project which would explain
             why the Inventory Start Date of ",
             InventoryStartDate,
             " is prior to the project's Operating Start Date of ",
@@ -168,9 +163,7 @@ inventoryOutsideOperating <- Inventory %>%
         !is.na(OperatingEndDate) ~
         str_squish(
           paste0(
-            "Project ID ",
-            ProjectID,
-            " has an Inventory Record (",
+            "This project has an Inventory Record (",
             InventoryID,
             ") with an open Inventory End Date but the Project Operating End Date
             is ",
@@ -184,8 +177,7 @@ inventoryOutsideOperating <- Inventory %>%
         !is.na(OperatingEndDate) ~
         str_squish(
           paste0(
-            "Project ID ", ProjectID, 
-            " ended on ", OperatingEndDate,
+            "This project ended on ", OperatingEndDate,
             " but Inventory record ",
             InventoryID,
             " ended ",
@@ -227,9 +219,7 @@ es_no_tracking_method <- Project %>%
     Type = "Error",
     Guidance = str_squish("All Emergency Shelters must have a Tracking Method. Please update the 
     Emergency Shelter Tracking Method field at the project-level."),
-    Detail = paste("Project ID",
-                    ProjectID,
-                    "is an Emergency Shelter with no Tracking Method")
+    Detail = paste("This project is an Emergency Shelter with no Tracking Method")
   ) %>%
   select(all_of(PDDEcols))
 
@@ -261,11 +251,8 @@ zero_utilization <- Project %>%
         "Any project with active beds in the reporting period should have one or
         more active clients in the reporting period."
       ),
-    Detail = str_squish(paste(
-      "Project ID",
-      ProjectID,
-      "has active inventory beds in the report period but did not serve any
-        clients during that time."
+    Detail = str_squish("This project has active inventory beds in the 
+report period but did not serve any clients during that time."
       )
     )
   ) %>%
