@@ -250,10 +250,8 @@ zero_utilization <- Project %>%
         "Any project with active beds in the reporting period should have one or
         more active clients in the reporting period."
       ),
-    Detail = str_squish("This project has active inventory beds in the 
-report period but did not serve any clients during that time."
-      )
-    )
+    Detail = str_squish("This project has active inventory beds in the report
+                        period but did not serve any clients during that time.")
   ) %>%
   select(all_of(PDDEcols))
 
