@@ -585,18 +585,22 @@ missing_living_situation <- served_in_date_range %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate >= hc_prior_living_situation_required &
            # not req'd prior to this
-           ProjectType %in% c(2, 3, 6, 9, 10, 12, 13) &
+           ProjectType %in% c(
+             th_project_type,
+             psh_project_types,
+             sso_project_type,
+             hp_project_type,
+             rrh_project_type) &
            (
              (
-               LivingSituation %in% c(15, 6, 7, 24, 4, 5) &
-                 LengthOfStay %in% c(2, 3, 10, 11) &
+               LivingSituation %in% c(institutional_livingsituation) &
+                 LengthOfStay %in% c(2, 3, 10, 11) & # <= 30 days
                  (is.na(LOSUnderThreshold) |
                     is.na(PreviousStreetESSH))
              ) |
                (
-                 LivingSituation %in% c(2, 3, 12, 13, 14, 15, 19,
-                                        20, 21, 22, 23, 25, 26) &
-                   LengthOfStay %in% c(10, 11) &
+                 LivingSituation %in% c(perm_livingsituation) &
+                   LengthOfStay %in% c(10, 11) & # <= 7 days
                    (is.na(LOSUnderThreshold) |
                       is.na(PreviousStreetESSH))
                )
@@ -737,7 +741,7 @@ Top2_ES <- subset(es_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
 psh_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) & ProjectType %in% c(3, 9, 10)) %>%
+  filter(is.na(ExitDate) & ProjectType %in% c(psh_project_types)) %>%
   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
 
 Top1_PSH <- subset(psh_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
@@ -761,7 +765,7 @@ Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 missed_movein_stayers <- served_in_date_range %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
-           ProjectType %in% c(3, 9, 10, 13)
+           ProjectType %in% c(ph_project_types)
   ) %>%
   mutate(
     Days = as.numeric(difftime(MoveInDateAdjust, EntryDate))
@@ -776,7 +780,7 @@ Top2_movein <- subset(missed_movein_stayers,
     Guidance = paste(
       "This enrollment may be missing a Move-In Date. It is being flagged because
       the length of time since the enrollment date is in the top", 
-      case_when(ProjectType %in% c(3, 9, 10) ~ "1%",
+      case_when(ProjectType %in% c(psh_project_types) ~ "1%",
                 TRUE ~ "2%"),
       "for this project type. Please be sure this household is still awaiting
       housing in this project and if not, record the date they either moved into
@@ -798,7 +802,7 @@ long_stayers <- rbind(Top1_PSH,
       str_squish(
         paste("This enrollment may be missing an Exit Date. It is being flagged
               because the length of time since the enrollment date is in the top",
-              case_when(ProjectType %in% c(3, 9, 10) ~ "1%",
+              case_when(ProjectType %in% c(psh_project_types) ~ "1%",
                         TRUE ~ "2%"),              
               "for this project type. Please be sure this household is still
               active in the project and if not, record the Project Exit Date. If
@@ -1057,8 +1061,8 @@ duplicate_ees <-
 # day they moved in. So they're excused from this prior to Move In Date's existence.
 future_ees <- served_in_date_range %>%
   filter(EntryDate > DateCreated &
-           (!ProjectType %in% c(3, 9, 10) |
-              (ProjectType %in% c(3, 9, 10) & 
+           (!ProjectType %in% c(psh_project_types) |
+              (ProjectType %in% c(psh_project_types) & 
                   EntryDate >= hc_psh_started_collecting_move_in_date
               )))  %>%
   mutate(
@@ -1363,7 +1367,7 @@ dq_overlaps2 <- overlaps %>%
 # Invalid Move-in Date ----------------------------------------------------
 
 invalid_movein_date <- served_in_date_range %>%
-  filter(ProjectType %in% c(3, 9, 10, 13)) %>%
+  filter(ProjectType %in% c(ph_project_types)) %>%
   mutate(
     Issue = case_when(
       (!is.na(MoveInDate) & MoveInDate < EntryDate) | 

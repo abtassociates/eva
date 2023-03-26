@@ -35,11 +35,11 @@ Enrollment <- Enrollment %>%
 # only doing this for PH projects since Move In Date doesn't matter for ES, etc.
 
 HHMoveIn <- Enrollment %>%
-  filter(ProjectType %in% c(3, 9, 10, 13)) %>%
+  filter(ProjectType %in% c(ph_project_types)) %>%
   mutate(
     AssumedMoveIn = if_else(
       EntryDate < hc_psh_started_collecting_move_in_date &
-        ProjectType %in% c(3, 9, 10),
+        ProjectType %in% c(psh_project_types),
       1,
       0
     ),
@@ -48,7 +48,7 @@ HHMoveIn <- Enrollment %>%
       # prior to the date when PSH had to collect MID with the EntryDate (as
       # venders were instructed to do in the mapping documentation)
       AssumedMoveIn == 0 &
-        ProjectType %in% c(3, 9, 10) &
+        ProjectType %in% c(psh_project_types) &
         EntryDate <= MoveInDate &
         ExitAdjust > MoveInDate ~ MoveInDate,
       # the Move-In Dates must fall between the Entry and ExitAdjust to be
