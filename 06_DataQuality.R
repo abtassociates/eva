@@ -1242,8 +1242,7 @@ overlap_staging <- served_in_date_range %>%
              ProjectType %in% c(ph_project_types) &
                !is.na(MoveInDateAdjust)
            ) |
-             ProjectType %in% c(lh_residential_project_types,
-                                es_nbn_project_type)
+             ProjectType %in% c(lh_residential_project_types)
            )) %>%  
   left_join(
     Services %>% 
@@ -1256,8 +1255,8 @@ overlap_staging <- served_in_date_range %>%
   ) %>%
   mutate(
     EnrollmentStart = case_when(
-      ProjectType %in% c(lh_residential_project_types) ~ EntryDate,
       ProjectType == es_nbn_project_type ~ DateProvided, 
+      ProjectType %in% c(lh_residential_project_types) ~ EntryDate,
       ProjectType %in% c(ph_project_types) ~ MoveInDateAdjust,
       TRUE ~ EntryDate
     ),
