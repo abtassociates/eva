@@ -71,7 +71,8 @@ client_count_data_df <- reactive({
 
 ##### SUMMARY STUFF ######
 # this reactive df is the one used for the summary table in the app. 
-# using the function above, it gets and then combines the counts of households and people/clients
+# using the function above, it gets and then combines the counts of households
+# and people/clients
 client_count_summary_df <- reactive({
   # this function summarizes a project-specific client_count, returning a dataset with counts by status
   client_count_summary_by <- function(vname, client_counts) {
@@ -161,8 +162,10 @@ get_clientcount_download_info <- function(file) {
   
   ### VALIDATION CURRENT TAB ###
   # counts for each status, by project for just the current date
-  validationCurrent <- pivot_and_sum(validationDF %>% 
-                                       filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
+  validationCurrent <- 
+    pivot_and_sum(
+      validationDF %>%
+        filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
   ) %>%
     select(-c(`Currently in project`, ProjectType)) %>%
     arrange(Organization, `Project Name`)
