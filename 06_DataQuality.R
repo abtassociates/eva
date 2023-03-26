@@ -480,7 +480,11 @@ missing_months_times_homeless <- served_in_date_range %>%
   ) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate >= hc_prior_living_situation_required &
-           ProjectType %in% c(1, 4, 8) &
+           ProjectType %in% c(
+             es_nbn_project_type,
+             es_ee_project_type,
+             out_project_type,
+             sh_project_type) &
            (
              is.na(MonthsHomelessPastThreeYears) |
                is.na(TimesHomelessPastThreeYears) |
