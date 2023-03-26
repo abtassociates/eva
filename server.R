@@ -123,7 +123,9 @@ function(input, output, session) {
         }
       })
     }
-    
+
+# File Structure Analysis Summary -----------------------------------------
+
     output$integrityChecker <- DT::renderDataTable(
       {
         req(initially_valid_zip == 1)
@@ -141,7 +143,9 @@ function(input, output, session) {
           options = list(dom = 't')
         )
       })
-    
+
+# File Structure Analysis Download ----------------------------------------
+
     output$downloadIntegrityBtn <- renderUI({
       req(initially_valid_zip == 1)
       downloadButton("downloadIntegrityCheck", "Download Structure Analysis Detail")
@@ -190,8 +194,58 @@ function(input, output, session) {
                            max = meta_HUDCSV_Export_End,
                            end = meta_HUDCSV_Export_End)
     }
+
+
+# System Data Quality Overview --------------------------------------------
+
+output$dq_overview_df <- renderTable({
+  req(valid_file() == 1)
+
+  detail <- client_count_data_df() %>%
+    clean_names("upper_camel") %>%
+    group_by(OrganizationName, ProjectName, HouseholdID) %>%
+    summarise(HouseholdCount = n()) %>%
+    group_by(OrganizationName, ProjectName, PersonalID) %>%
+    summarise(ClientCount = n()) %>%
+    ungroup()
+  
+  # dq_plot_desk_time <-
+  #   ggplot(
+  #     desk_time,
+  #     aes(x = EntryDate, y = DeskTime)
+  #   ) +
+  #   geom_point(aes(color = GoalMet, size = 8, alpha = .2),
+  #              show.legend = FALSE)+
+  #   scale_color_identity() +
+  #   geom_hline(yintercept = 5, color = "forestgreen") +
+  #   geom_hline(yintercept = 0, color = "forestgreen") +
+  #   geom_hline(
+  #     data = desk_time_medians,
+  #     aes(yintercept = MedianDeskTime),
+  #     color = "black"
+  #   ) +
+  #   xlim(today() - years(1), today()) +
+  #   geom_label(x = today() - days(180),
+  #              y = desk_time_medians %>%
+  #                pull(MedianDeskTime),
+  #              label = paste("Median:", 
+  #                            desk_time_medians %>%
+  #                              pull(MedianDeskTime),
+  #                            "days | Total Clients:",
+  #                            desk_time_medians %>%
+  #                              pull(TotalEntered))) +
+  #   geom_label(x = today() - days(300),
+  #              y = 5,
+  #              label = "DQ Standards (5 days or less)") +
+  #   labs(x = "Entry Date",
+  #        y = "Data Entry Delay (in days)") +
+  #   theme_minimal(base_size = 18)
+  
+  detail
+})    
     
-    ##### PDDE Checker-----
+# PDDE Checker ------------------------------------------------------------
+
     # summary table
     output$pdde_summary_table <- DT::renderDataTable({
       req(valid_file() == 1)
@@ -206,16 +260,21 @@ function(input, output, session) {
         options = list(dom = 't')
       )
     })
+
     
-    # download button
+
+# PDDE Download Button ----------------------------------------------------
+
     output$downloadPDDEReportButton  <- renderUI({
       req(valid_file() == 1)
       
       downloadButton(outputId = "downloadPDDEReport",
                        label = "Download")
     })
-    
-    # download button handler
+
+
+# Download Button Handler -------------------------------------------------
+
     output$downloadPDDEReport <- downloadHandler(
       
       filename = date_stamped_filename("PDDE Report-"),
@@ -232,7 +291,9 @@ function(input, output, session) {
       }
     )
     
-    # guidance box
+
+# PDDE Guidance -----------------------------------------------------------
+
     output$pdde_guidance_summary <- DT::renderDataTable({
       req(valid_file() == 1)
       
@@ -249,7 +310,9 @@ function(input, output, session) {
                 filter = 'top',
                 options = list(dom = 'ltpi'))
     })
-    
+
+# DeskTime Plot Detail ----------------------------------------------------
+
     output$DeskTimePlotDetail <- renderPlot({
       req(valid_file() == 1)
       provider <- input$providerDeskTime
@@ -321,10 +384,12 @@ function(input, output, session) {
       dq_plot_desk_time
     })
     
-    ### Client Counts -------------------------------
+
+# Client Counts -----------------------------------------------------------
+
     source("client_counts_functions.R", local = TRUE)
     
-    # CLIENT COUNT DETAILS - APP
+# CLIENT COUNT DETAILS - APP ----------------------------------------------
     output$clientCountData <- DT::renderDataTable({
       req(valid_file() == 1)
 
@@ -338,7 +403,9 @@ function(input, output, session) {
       )
     })
       
-    # CLIENT COUNT SUMMARY - APP
+
+# CLIENT COUNT SUMMARY - APP ----------------------------------------------
+
     output$clientCountSummary <- DT::renderDataTable({
       req(valid_file() == 1)
       
@@ -350,7 +417,9 @@ function(input, output, session) {
       )
     })
     
-    # CLIENT COUNT DOWNLOAD
+
+# CLIENT COUNT DOWNLOAD ---------------------------------------------------
+
     output$downloadClientCountsReportButton  <- renderUI({
       req(valid_file() == 1)
       
@@ -412,7 +481,9 @@ function(input, output, session) {
       )
     })
     
-    #### DQ ORG REPORT #### ----------------------
+
+# DQ ORGANIZATION REPORT --------------------------------------------------
+
     source("06_DataQuality_functions.R", local = TRUE)
     
     # button
@@ -454,43 +525,15 @@ function(input, output, session) {
       }
     )
     
-# 
-#     output$cocOverlap <- DT::renderDataTable({
-# 
-#       a <- dq_overlaps %>%
-#         group_by(ProjectName) %>%
-#         summarise(Clients = n()) %>%
-#         arrange(desc(Clients)) %>%
-#         top_n(20L, wt = Clients) %>%
-#         select("Project Name" = ProjectName,
-#                "Clients with Overlapping Enrollments" = Clients)
-#       datatable(a,
-#                 rownames = FALSE)
-#     }) #revisit
-    
-    # output$cocWidespreadIssues <- DT::renderDataTable({
-    #   req(valid_file() == 1)
-    #   a <- dq_past_year() %>%
-    #     select(Issue, ProjectName, Type) %>%
-    #     unique() %>%
-    #     group_by(Issue, Type) %>%
-    #     summarise(HowManyProjects = n()) %>%
-    #     arrange(desc(HowManyProjects)) %>%
-    #     head(10L) %>%
-    #     select(Issue, Type, "How Many Providers" = HowManyProjects)
-    #   
-    #   datatable(a,
-    #             rownames = FALSE)
-    # 
-    # })
-    
-    #SYSTEM-LEVEL DQ TAB PLOTS
+# SYSTEM-LEVEL DQ TAB PLOTS -----------------------------------------------
+
     # By-org shows organizations containing highest number of HP errors/errors/warnings
     # By-issue shows issues that are the most common of that type (HP errors/errors/warnings)
     output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
       renderDQPlot("sys", "High Priority", "Org", "#71B4CB")
     })
-    
+
+   
     output$systemDQHighPriorityErrorsByIssue_ui <- renderUI({
       renderDQPlot("sys", "High Priority", "Issue", "#71B4CB")
     })
