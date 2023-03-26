@@ -24,7 +24,7 @@ library(HMIS)
 
 perm_livingsituation <- c(3, 10, 11, 19:23, 26, 28, 31, 33, 34, 36)
 
-lh_livingsituation <- c(1,16,18)
+lh_livingsituation <- c(1, 16, 18)
 
 temp_livingsituation <- c(1, 2, 12, 13, 14, 16, 18, 27, 32, 35) 
 
