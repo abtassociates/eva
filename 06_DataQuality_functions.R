@@ -222,7 +222,7 @@ calculate_outstanding_referrals <- function(input){
         Event == 18 ~ "Referral to a Housing Stability Voucher"
       )
     ) %>%
-    filter(Event %in% c(10:15,17:18) &
+    filter(Event %in% c(10:15, 17:18) &
              is.na(ResultDate) &
              input < Days)
   

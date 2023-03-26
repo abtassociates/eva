@@ -145,7 +145,7 @@ dq_name <- served_in_date_range %>%
     Issue = case_when(
       NameDataQuality == 99 | is.na(NameDataQuality) ~ 
         "Missing Name Data Quality",
-      NameDataQuality %in% c(8, 9) ~ 
+      NameDataQuality %in% c(dkr) ~ 
         "Incomplete or Don't Know/Refused Name"
     ),
     Type = case_when(
@@ -164,7 +164,7 @@ dq_dob <- served_in_date_range %>%
     Issue = case_when(
       is.na(DOB) & DOBDataQuality %in% c(1, 2) ~ "Missing DOB",
       is.na(DOBDataQuality) ~ "Missing DOB Data Quality",
-      DOBDataQuality %in% c(8, 9, 99) ~ 
+      DOBDataQuality %in% c(dkr_dnc) ~ 
         "Don't Know/Refused/Data Not Collected DOB",
       AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect DOB or Entry Date"
     ),
@@ -197,9 +197,9 @@ dq_dob <- served_in_date_range %>%
 dq_ssn <- served_in_date_range %>%
   mutate(
     SSN = case_when(
-      (is.na(SSN) & !SSNDataQuality %in% c(8, 9)) |
+      (is.na(SSN) & !SSNDataQuality %in% c(dkr)) |
         is.na(SSNDataQuality) | SSNDataQuality == 99 ~ "Missing",
-      SSNDataQuality %in% c(8, 9) ~ "DKR"
+      SSNDataQuality %in% c(dkr) ~ "DKR"
     ), 
     Issue = case_when(
       SSN == "Missing" ~ "Missing SSN",
@@ -233,7 +233,7 @@ dq_ssn <- served_in_date_range %>%
 dq_race <- served_in_date_range %>%
   mutate(
     Issue = case_when(
-      RaceNone %in% c(8, 9) ~ "Don't Know/Refused Race",
+      RaceNone %in% c(dkr) ~ "Don't Know/Refused Race",
       RaceNone == 99 |
         AmIndAKNative + Asian + BlackAfAmerican + NativeHIPacific + White == 0
       ~ "Missing Race"
@@ -253,7 +253,7 @@ dq_ethnicity <- served_in_date_range %>%
   mutate(
     Issue = case_when(
       Ethnicity == 99 | is.na(Ethnicity) ~ "Missing Ethnicity",
-      Ethnicity %in% c(8, 9) ~ "Don't Know/Refused Ethnicity"
+      Ethnicity %in% c(dkr) ~ "Don't Know/Refused Ethnicity"
     ),
     Type = case_when(
       Issue == "Missing Ethnicity" ~ "Error",
@@ -269,7 +269,7 @@ dq_ethnicity <- served_in_date_range %>%
 dq_gender <- served_in_date_range %>%
   mutate(
     Issue = case_when(
-      GenderNone %in% c(8, 9) ~ "Don't Know/Refused Gender",
+      GenderNone %in% c(dkr) ~ "Don't Know/Refused Gender",
       GenderNone == 99 |
         Female + Male + NoSingleGender + Transgender + Questioning == 0
       ~ "Missing Gender"
@@ -291,7 +291,7 @@ dq_veteran <- served_in_date_range %>%
       (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
         (VeteranStatus == 99 | is.na(VeteranStatus)) ~ "Missing Veteran Status",
       (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
-        VeteranStatus %in% c(8, 9) ~ "Don't Know/Refused Veteran Status"
+        VeteranStatus %in% c(dkr) ~ "Don't Know/Refused Veteran Status"
     ),
     Type = case_when(
       Issue == "Missing Veteran Status" ~ "Error",
@@ -440,7 +440,7 @@ dkr_residence_prior <- served_in_date_range %>%
          RelationshipToHoH,
          LivingSituation) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
-           LivingSituation %in% c(8, 9)) %>%
+           LivingSituation %in% c(dkr)) %>%
   mutate(Issue = "Don't Know/Refused Residence Prior",
          Type = "Warning",
          Guidance = guidance_dkr_data) %>%
@@ -464,7 +464,7 @@ dkr_LoS <- served_in_date_range %>%
          RelationshipToHoH,
          LengthOfStay) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
-           LengthOfStay %in% c(8, 9)) %>%
+           LengthOfStay %in% c(dkr)) %>%
   mutate(Issue = "Don't Know/Refused Residence Prior",
          Type = "Warning",
          Guidance = guidance_dkr_data) %>%
@@ -504,8 +504,8 @@ dkr_months_times_homeless <- served_in_date_range %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate >= hc_prior_living_situation_required &
            (
-             MonthsHomelessPastThreeYears %in% c(8, 9) |
-               TimesHomelessPastThreeYears %in% c(8, 9)
+             MonthsHomelessPastThreeYears %in% c(dkr) |
+               TimesHomelessPastThreeYears %in% c(dkr)
            )
   ) %>%
   mutate(Issue = "Don't Know/Refused Months or Times Homeless",
@@ -636,9 +636,9 @@ dkr_living_situation <- served_in_date_range %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate > hc_prior_living_situation_required &
            (
-             MonthsHomelessPastThreeYears %in% c(8, 9) |
-               TimesHomelessPastThreeYears %in% c(8, 9) |
-               LivingSituation %in% c(8, 9)
+             MonthsHomelessPastThreeYears %in% c(dkr) |
+               TimesHomelessPastThreeYears %in% c(dkr) |
+               LivingSituation %in% c(dkr)
            )
   ) %>%
   mutate(Issue = "Don't Know/Refused Living Situation", 
@@ -842,7 +842,7 @@ missing_destination <- served_in_date_range %>%
   select(all_of(vars_we_want))
 
 dkr_destination <- served_in_date_range %>%
-  filter(Destination %in% c(8, 9)) %>%
+  filter(Destination %in% c(dkr)) %>%
   mutate(Issue = "Don't Know/Refused Destination",
          Type = "Warning",
          Guidance = guidance_dkr_data) %>%
@@ -1926,16 +1926,16 @@ dkr_client_veteran_info <- ssvf_served_in_date_range %>%
   filter(VeteranStatus == 1) %>%
   mutate(
     Issue = case_when(
-      WorldWarII %in% c(8, 9) |
-        KoreanWar %in% c(8, 9) |
-        VietnamWar %in% c(8, 9) |
-        DesertStorm  %in% c(8, 9) |
-        AfghanistanOEF %in% c(8, 9) |
-        IraqOIF %in% c(8, 9) |
-        IraqOND %in% c(8, 9) |
-        OtherTheater  %in% c(8, 9)  ~ "Don't Know/Refused War(s)",
-      MilitaryBranch %in% c(8, 9) ~ "Don't Know/Refused Military Branch",
-      DischargeStatus %in% c(8, 9) ~ "Don't Know/Refused Discharge Status"
+      WorldWarII %in% c(dkr) |
+        KoreanWar %in% c(dkr) |
+        VietnamWar %in% c(dkr) |
+        DesertStorm  %in% c(dkr) |
+        AfghanistanOEF %in% c(dkr) |
+        IraqOIF %in% c(dkr) |
+        IraqOND %in% c(dkr) |
+        OtherTheater  %in% c(dkr)  ~ "Don't Know/Refused War(s)",
+      MilitaryBranch %in% c(dkr) ~ "Don't Know/Refused Military Branch",
+      DischargeStatus %in% c(dkr) ~ "Don't Know/Refused Discharge Status"
     ),
     Type = "Warning",
     Guidance = guidance_dkr_data
