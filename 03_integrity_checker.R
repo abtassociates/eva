@@ -452,14 +452,23 @@ disabling_condition_invalid <- Enrollment %>%
   select(all_of(display_cols)) %>%
   unique()
 
-allowed_living_situations <- 
-  c(16, 1, 18, 15, 6, 7, 25, 4, 5, 29, 14, 2, 32, 13, 36, 12, 22, 35, 23, 26,
-    27, 28, 19, 3, 31, 33, 34, 10, 20, 21, 11, 30, 17, 24, 37, 8, 9, 99)
+# For reference, these come from the HMIS CSV Export specs, pgs 41-43
+
+allowed_prior_living_sit <- 
+  c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 18, 19, 20, 21, 25, 28, 29,
+    31, 32, 33, 34, 35, 36, 99)
+
+allowed_current_living_sit <- 
+  c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 25, 28,
+    29, 31, 32, 33, 34, 35, 36, 37, 99)
+
+allowed_destinations <- 
+  c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 99)
 
 living_situation_invalid <- Enrollment %>%
   filter(!is.na(LivingSituation) &
-    (!LivingSituation %in% c(allowed_living_situations) |
-       LivingSituation %in% c(12, 13, 22, 23, 26, 27, 30, 17, 24, 37))) %>%
+    LivingSituation %in% c(allowed_prior_living_sit)) %>%
   mutate(
     Issue = "Invalid Living Situation value",
     Type = "Error",
@@ -551,8 +560,7 @@ duplicate_household_id <- Enrollment %>%
 # Integrity Living Situation ----------------------------------------------
 
 nonstandard_destination <- Exit %>%
-  filter(!Destination %in% c(allowed_living_situations) |
-           Destination %in% c(35, 36, 37)) %>%
+  filter(Destination %in% c(allowed_destinations)) %>%
   mutate(
     Issue = "Invalid Destination value",
     Type = "Error",
@@ -570,8 +578,7 @@ nonstandard_destination <- Exit %>%
 
 nonstandard_CLS <- CurrentLivingSituation %>%
   filter(!is.na(CurrentLivingSituation) &
-    (!CurrentLivingSituation %in% c(allowed_living_situations) |
-       CurrentLivingSituation %in% c(12, 13, 22, 23, 26, 27, 30, 24))) %>%
+    CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
   mutate(
     Issue = "Non-standard Current Living Situation",
     Type = "Error",
