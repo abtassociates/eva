@@ -470,7 +470,7 @@ allowed_destinations <-
 
 living_situation_invalid <- Enrollment %>%
   filter(!is.na(LivingSituation) &
-    LivingSituation %in% c(allowed_prior_living_sit)) %>%
+    !LivingSituation %in% c(allowed_prior_living_sit)) %>%
   mutate(
     Issue = "Invalid Living Situation value",
     Type = "Error",
@@ -562,7 +562,8 @@ duplicate_household_id <- Enrollment %>%
 # Integrity Living Situation ----------------------------------------------
 
 nonstandard_destination <- Exit %>%
-  filter(Destination %in% c(allowed_destinations)) %>%
+  filter(!is.na(Destination) &
+           !Destination %in% c(allowed_destinations)) %>%
   mutate(
     Issue = "Invalid Destination value",
     Type = "Error",
@@ -580,7 +581,7 @@ nonstandard_destination <- Exit %>%
 
 nonstandard_CLS <- CurrentLivingSituation %>%
   filter(!is.na(CurrentLivingSituation) &
-    CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
+    !CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
   mutate(
     Issue = "Non-standard Current Living Situation",
     Type = "Error",
