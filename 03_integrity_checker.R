@@ -262,11 +262,12 @@ export_id_client <- Client %>%
 
 yes_no_enhanced <- c(0, 1, 8, 9, 99)
 yes_no <- c(0, 1, 99)
+dkr <- c(8, 9, 99)
 
 valid_values_client <- Client %>%
   mutate(
     VeteranStatus = VeteranStatus %in% c(yes_no_enhanced),
-    RaceNone = RaceNone %in% c(8, 9, 99) | is.na(RaceNone),
+    RaceNone = RaceNone %in% c(dkr) | is.na(RaceNone),
     AmIndAKNative = AmIndAKNative %in% c(yes_no),
     Asian = Asian %in% c(yes_no),
     BlackAfAmerican = BlackAfAmerican %in% c(yes_no),
@@ -278,7 +279,7 @@ valid_values_client <- Client %>%
     NoSingleGender = NoSingleGender %in% c(yes_no),
     Transgender = Transgender %in% c(yes_no),
     Questioning = Questioning %in% c(yes_no),
-    GenderNone = GenderNone %in% c(8, 9, 99) | is.na(GenderNone)
+    GenderNone = GenderNone %in% c(dkr) | is.na(GenderNone)
   ) %>%
   group_by_all() %>%
   summarise(
