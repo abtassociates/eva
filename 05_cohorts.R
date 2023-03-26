@@ -34,7 +34,7 @@ other_livingsituation <- c(8, 9, 17, 24, 30, 37, 99)
 
 # Project Type Groupings --------------------------------------------------
 
-lh_project_types <- c(1, 2, 4, 8)
+lh_project_types <- c(0, 1, 2, 4, 8)
 
 ph_project_types <- c(3, 9, 10, 13)
 
@@ -44,11 +44,9 @@ psh_project_type <- 3
 
 ph_other_project_types <- c(9, 10)
 
-lh_at_entry_project_types <- c(1, 2, 3, 4, 8, 9, 13)
+lh_ph_hp_project_types <- c(0, 1, 2, 3, 4, 8, 9, 12, 13)
 
-lh_ph_hp_project_types <- c(1, 2, 3, 4, 8, 9, 12, 13)
-
-lh_residential_project_types <- c(1, 2, 8)
+lh_residential_project_types <- c(0, 1, 2, 8)
 
 coc_funded_project_types <- c(2, 3, 13)
 
