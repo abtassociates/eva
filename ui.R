@@ -277,6 +277,11 @@ dashboardPage(
             </p>"),
             p(),
             uiOutput('downloadIntegrityBtn')
+          ),
+          box(
+            title = "System Data Quality Overview",
+            width = 12
+            
           )
         )
       ),
