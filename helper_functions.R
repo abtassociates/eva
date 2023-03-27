@@ -215,10 +215,10 @@ date_stamped_filename <- function(filename) {
 #############################
 # SANDBOX
 #############################
-importFileSandbox <- function(csvFile, col_types = NULL, guess_max = 1000) {
+importFileSandbox <- function(csvFile, guess_max = 1000) {
   filename = str_glue("{csvFile}.csv")
-  data <- read_csv(paste0("data/", filename)
-                   ,col_types = col_types
+  data <- read_csv(paste0(directory, "data/", filename)
+                   ,col_types = get_col_types(csvFile)
                    ,na = ""
   )
   return(data)
