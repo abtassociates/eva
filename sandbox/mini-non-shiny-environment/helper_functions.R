@@ -332,12 +332,12 @@ zip_initially_valid <- function () {
 
 is_hashed <- function() {
   # read Export file
-  Export <<- importFile("Export", col_types = "cncccccccTDDcncnnn")
+  Export <<- importFileSandboxSandbox("Export", col_types = "cncccccccTDDcncnnn")
 
   logSessionData()
   
   # read Client file
-  Client <- importFile("Client",
+  Client <- importFileSandboxSandbox("Client",
                        col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
   
   # decide if the export is hashed

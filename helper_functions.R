@@ -211,3 +211,15 @@ logToConsole <- function(msg) {
 date_stamped_filename <- function(filename) {
   paste(filename, Sys.Date(), ".xlsx", sep = "")
 }
+
+#############################
+# SANDBOX
+#############################
+importFileSandbox <- function(csvFile, col_types = NULL, guess_max = 1000) {
+  filename = str_glue("{csvFile}.csv")
+  data <- read_csv(paste0("data/", filename)
+                   ,col_types = col_types
+                   ,na = ""
+  )
+  return(data)
+}

@@ -508,7 +508,14 @@ dashboardPage(
                together. All columns are searchable. For example, to find all
                enrollments with a Status of \'Active No Move-In Date\', you can
                type \'act\' in the Status search bar and the data table will
-               react and filter in that way.")
+               react and filter in that way.
+               
+               <h4>Download System-wide Client Counts</h4>
+               To download client count data for all projects in your HMIS CSV Export, 
+               click the System-wide download button. The download contains a Current 
+               tab limited to just the current date, a Date Range tab limited to the 
+               Date Range set, and a Detail tab with clients' PersonalIDs, Entry Date, 
+               Move-In Date (if applicable), Exit Date (if applicable), and project status.")
         )), 
         fluidRow(box(
           dateRangeInput(
@@ -896,8 +903,8 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "General Errors",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorByOrg_ui")),
-            tabPanel("Top 10 Issues", uiOutput("systemDQErrorByIssue_ui")),
+            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQErrorsByIssue_ui")),
             width =12
           )
         ),
@@ -906,8 +913,8 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "Warnings",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsBy_ui")),
-            tabPanel("Top 10 Issues", uiOutput("systemDQWarningByIssue_ui")),
+            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQWarningsByIssue_ui")),
             width = 12
           )
         )

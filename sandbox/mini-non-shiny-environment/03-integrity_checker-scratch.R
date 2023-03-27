@@ -1,5 +1,5 @@
 
-logToConsole("Running integrity checker")
+# logToConsole("Running integrity checker")
 
 # Prep --------------------------------------------------------------------
 

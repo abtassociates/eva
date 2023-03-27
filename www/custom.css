@@ -8,6 +8,7 @@
 /* || HYPERLINKS*/
 /* || HELP TEXT CIRCLE*/
 /* || VALIDATION MESSAGES FOR PLOTS */
+/* || CHANGELOG */
 
 .content-wrapper {
   overflow: auto;
@@ -16,15 +17,15 @@
 /* || HEADER */
 .skin-black .main-header>.logo:hover {
     color: white; /*text color*/
-    background-color: #16697A; /*ming blue*/
+    background-color: #16697A; /*dark blue*/
 }
 
 .skin-black .main-header .navbar {
-    background-color: #16697A; /*ming blue*/
+    background-color: #16697A; /*dark blue*/
 }
 
 .skin-black .main-header>.logo {
-    background-color: #16697A; /*ming blue*/
+    background-color: #16697A; /*dark blue*/
     color: white; /*text color*/
     border-bottom: 0 solid transparent;
     border-right: 1px solid #eee;
@@ -33,13 +34,13 @@
 /* menu toggle button */
 .skin-black .main-header .navbar>.sidebar-toggle {
     color: white; /*icon color*/
-    background-color: #16697A; /*ming blue*/
+    background-color: #16697A; /*dark blue*/
     border-right: 1px solid #eee;
 }
 
 /* toggle button hover */
 .skin-black .main-header .navbar .sidebar-toggle:hover {
-    color: #16697A; /*icon color - ming blue*/
+    color: #16697A; /*icon color - dark blue*/
     background: white;
 }
 
@@ -64,7 +65,7 @@
 /*sidebar color when menu option with a submenu is selected*/
 .skin-black .sidebar-menu>li.active>a, .skin-black .sidebar-menu>li:hover>a {
     color: black; /*text color*/
-    background: #82C0CC; /*middle blue*/
+    background: #D0E7EC; /*sky*/
     border-left-color: white;
 }
 
@@ -86,7 +87,7 @@
 .skin-black .treeview-menu>li.active>a, 
 .skin-black .treeview-menu>li>a:hover {
     color: black; /*text color*/
-    background: #82C0CC; /*middle blue*/
+    background: #D0E7EC; /*sky*/
 }
 
 /* || DROP DOWN MENUS */
@@ -94,7 +95,7 @@
 /*drop down select menu after data is uploaded*/
 .bootstrap-select>.dropdown-toggle {
     width: 100%;
-    border-color: #82C0CC; /*middle blue*/
+    border-color: #D0E7EC; /*sky*/
     color: black;
     background-color: white;
 }
@@ -102,7 +103,7 @@
 /*drop down select menu when data is not uploaded*/
 .bootstrap-select>.dropdown-toggle.bs-placeholder {
     width: 100%;
-    border-color: #82C0CC; /*middle blue*/
+    border-color: #D0E7EC; /*sky*/
     color: black;
     background-color: white;
 }
@@ -117,45 +118,45 @@
 /*fill and text color for box with positive/neutral information*/
 .box.box-solid.box-info>.box-header {
     color: black; /*text color*/
-    background: #82C0CC; /*middle blue*/
-    background-color: #82C0CC; /*middle blue*/
+    background: #D0E7EC; /*sky*/
+    background-color: #D0E7EC; /*sky*/
 }
 
 /*outline color for box with positive/neutral information*/
 .box.box-solid.box-info {
-    border: 1px solid #82C0CC; /*middle blue*/
+    border: 1px solid #D0E7EC; /*sky*/
 }
 /*box with negative alert or error info*/
 .box.box-solid.box-danger>.box-header {
     color: black; /*text color*/
-    background: #DD614A; /*fire opal*/
-    background-color: #DD614A; /*fire opal*/
+    background: #C2462E; /*coral*/
+    background-color: #C2462E; /*coral*/
 }
 
 /*box with warning info*/
 .box.box-solid.box-warning>.box-header {
     color: black; /*text color*/
-    background: #FFA62B; /*orange peel*/
-    background-color: #FFA62B; /*orange peel*/
+    background: #FCB248; /*orange*/
+    background-color: #FCB248; /*orange*/
 }
 
 /*color of tab for boxes*/
 .nav-tabs-custom>.nav-tabs>li.active {
-    border-top-color: #16697A; /*ming blue*/
+    border-top-color: #16697A; /*dark blue*/
 }
 
 /* || BUTTONS */
 .btn, .btn-default {
   color: white; /*text color*/
-  background-color:#DD614A; /*fire opal*/
-  border-color: #DD614A; /*fire opal*/
+  background-color:#C2462E; /*coral*/
+  border-color: #C2462E; /*coral*/
 }
 
 /*button hover*/
 .btn:hover {
-  color: #DD614A; /*text color - fire opal*/
+  color: #C2462E; /*text color - coral*/
   background-color: white;
-  border-color: #DD614A; /*text color - fire opal*/
+  border-color: #C2462E; /*text color - coral*/
 }
 
 .form-control {
@@ -169,14 +170,14 @@
 
 /*inactive hyperlink color*/
 a {
-    color: #16697A; /*text color - ming blue*/
+    color: #16697A; /*text color - dark blue*/
 }
 
 /*hyperlink hover*/
 a:hover {
     outline: 0;
     text-decoration: none;
-    color: #DD614A; /*text color - fore opal*/
+    color: #C2462E; /*text color - coral*/
 }
 
 /*progress bar*/
@@ -188,7 +189,7 @@ a:hover {
     line-height: 20px;
     color: white; /*text color*/
     text-align: center;
-    background-color: #16697A; /*ming blue*/
+    background-color: #16697A; /*dark blue*/
 }
 
 /* || HELP TEXT CIRCLE*/
@@ -203,4 +204,9 @@ a:hover {
   font-size: 20px;
   text-align: center;
   color: black; /*text color*/
+}
+
+/* || CHANGELOG */
+#shiny-tab-tabChangelog td:first-child {
+  white-space:nowrap;
 }

@@ -7,6 +7,7 @@
 logToConsole("Running file structure analysis")
 
 # Prep --------------------------------------------------------------------
+logToConsole("Running file structure analysis")
 
 export_id_from_export <- Export %>% pull(ExportID)
 
@@ -153,7 +154,7 @@ check_for_bad_nulls <- function(file) {
   if (total_rows > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
-      filter(File == file & NullsAllowed == 0) %>%
+      filter(File == file & NullsAllowed == 0 & Column %in% names(get(file))) %>%
       pull(Column)
 
     # select subset of columns with nulls
