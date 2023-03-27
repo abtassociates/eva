@@ -116,303 +116,26 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-getDQReportDataList <-
-  function(dqData,
-           dqOverlaps = NULL,
-           bySummaryLevel = NULL,
-           dqReferrals = NULL) {
-    
-    select_list <- c(
-      "Organization Name" = "OrganizationName",
-      "Project ID" = "ProjectID",
-      "Project Name" = "ProjectName",
-      "Issue" = "Issue",
-      "Personal ID" = "PersonalID",
-      "Household ID" = "HouseholdID",
-      "Entry Date" = "EntryDate"
-    )
-    
-    high_priority <- dqData %>%
-      filter(Type == "High Priority") %>%
-      select(all_of(select_list))
-    
-    errors <- dqData %>%
-      filter(Type == "Error") %>%
-      select(all_of(select_list))
-    
-    warnings <- dqData %>%
-      filter(Type == "Warning") %>%
-      select(all_of(select_list))
-    
-    dqOverlapDetails <- dqOverlaps %>%
-      select(-c(Issue, Type, Guidance, PreviousIssue)) %>%
-      relocate(
-        OrganizationName,
-        ProjectID,
-        ProjectName,
-        ProjectType,
-        EnrollmentID,
-        HouseholdID,
-        PersonalID,
-        EntryDate,
-        FirstDateProvided,
-        "MoveInDate" = MoveInDateAdjust,
-        ExitDate,
-        PreviousOrganizationName,
-        PreviousProjectID,
-        PreviousProjectName,
-        PreviousProjectType,
-        PreviousEnrollmentID,
-        PreviousHouseholdID,
-        PreviousPersonalID,
-        PreviousEntryDate,
-        PreviousFirstDateProvided,
-        "PreviousMoveInDate" = PreviousMoveInDateAdjust,
-        PreviousExitDate
-      )
-    
-    dqReferralDetails <- dqReferrals %>%
-      filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
-      select(
-        OrganizationName,
-        ProjectID,
-        ProjectName,
-        EventID,
-        PersonalID,
-        EventDate,
-        EventType,
-        Days
-      )
-  
-  mainsummary <- rbind(
-      dqData %>% select(Type, Issue, PersonalID),
-      dqOverlaps %>% select(Type, Issue, PersonalID)
-    ) %>%
-    # group_by(ProjectName, Type, Issue) %>%
-    group_by(Type, Issue) %>%
-    summarise(Enrollments = n()) %>%
-    ungroup() %>%
-    select(Type, Enrollments, Issue) %>%
-    arrange(Type, desc(Enrollments))
-  
-  bySummaryLevel2 <- rlang::sym(bySummaryLevel)
-  byunitsummary <- rbind(
-      dqData %>% select(!!bySummaryLevel2, Type, Issue, PersonalID),
-      dqOverlaps %>% select(!!bySummaryLevel2, Type, Issue, PersonalID)
-    ) %>%
-    group_by(!!bySummaryLevel2, Type, Issue) %>%
-    summarise(Enrollments = n()) %>%
-    ungroup() %>%
-    select(!!bySummaryLevel2, Type, Enrollments, Issue) %>%
-    arrange(Type, desc(Enrollments), !!bySummaryLevel2)
-    
-    
-  guidance <- dqData %>%
-    select(Type, Issue, Guidance) %>%
-    unique() %>%
-    mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
-    arrange(Type)
-  
-  exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
-                             c(meta_HUDCSV_Export_Start,
-                               meta_HUDCSV_Export_End,
-                               meta_HUDCSV_Export_Date))
-  
-  colnames(exportDetail) <- c("Export Field", "Value")
-  
-  exportDFList <- list(
-    exportDetail = exportDetail,
-    mainsummary = mainsummary,
-    byunisummary = byunitsummary,
-    guidance = guidance,
-    high_priority = high_priority,
-    errors = errors,
-    warnings = warnings,
-    overlaps = dqOverlapDetails,
-    dqReferrals = dqReferralDetails
+importFile <- function(csvFile, guess_max = 1000) {
+  if (is.null(input$imported)) {return()}
+  filename = str_glue("{csvFile}.csv")
+  data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
+                   ,col_types = get_col_types(csvFile)
+                   ,na = ""
   )
-  
-  names(exportDFList) <- c(
-    "Export Detail",
-    paste(
-      if_else(bySummaryLevel == "OrganizationName", "System", "Organization"),
-      "Summary"
-    ),
-    paste(
-      if_else(
-        bySummaryLevel == "OrganizationName",
-        "Organization",
-        "Project"
-      ),
-      "Summary"
-    ),
-    "Guidance",
-    "High Priority",
-    "Errors",
-    "Warnings",
-    "Overlap Details",
-    "Referral Details"
-  )
-  
-  exportDFList <- exportDFList[sapply(exportDFList, 
-                                      function(x) dim(x)[1]) > 0]
-  
-  return(exportDFList)
+  file.remove(filename)
+  return(data)
 }
 
-zip_initially_valid <- function () {
-  zipContents <- unzip(zipfile = input$imported$datapath, list=TRUE)
-  requiredFiles <- c(
-    "Assessment.csv",
-    "Client.csv",
-    "CurrentLivingSituation.csv",
-    "EmploymentEducation.csv",
-    "Enrollment.csv",
-    "EnrollmentCoC.csv",
-    "Event.csv",
-    "Exit.csv",
-    "Export.csv",
-    "Funder.csv",
-    "HealthAndDV.csv",
-    "IncomeBenefits.csv",
-    "Inventory.csv",
-    "Organization.csv",
-    "Project.csv",
-    "ProjectCoC.csv",
-    "Services.csv",
-    "User.csv",
-    "YouthEducationStatus.csv"
-  )
-  
-  missing_files <- requiredFiles[!(requiredFiles %in% zipContents$Name)]
-
-  valid_file(0)
-  if(grepl("/", zipContents$Name[1])) {
-    title = "Your zip file is misstructured"
-    err_msg = "It looks like you may have unzipped your HMIS csv because the
-    individual csv files are contained within a subdirectory."
-    logMetadata("Unsuccessful upload - zip file was misstructured")
-  } 
-  else if(length(missing_files)) {
-    title = "Missing Files"
-    err_msg = HTML(str_glue(
-    "Your zip file appears to be missing the following files:<br/><br/>
-    
-    {paste(missing_files,collapse=', ')}<br/><br/>
-    
-    You either uploaded something 
-    other than an HMIS CSV export or your export does not contain all the files outlined in 
-    the HMIS CSV Export specifications. Be sure that you haven't accidentally uploaded an APR 
-    or an LSA. If you are not sure how to run the hashed HMIS CSV Export in your HMIS,
-    please contact your HMIS vendor."))
-    logMetadata("Unsuccessful upload - wrong/incomplete dataset")
-  } 
-  else if(!is_hashed()) {
-    title = "You uploaded an unhashed data set"
-    err_msg = "You have uploaded an unhashed version of the HMIS CSV Export. If you
-          are not sure how to run the hashed HMIS CSV Export in your HMIS, please
-          contact your HMIS vendor."
-    logMetadata("Unsuccessful upload - not hashed")
-  } else {
-    return(TRUE)
-  }
-
-  if(!valid_file()) {
-    showModal(
-      modalDialog(
-        title = title,
-        err_msg,
-        easyClose = TRUE
-      )
-    )
-    reset("imported")
-    return(FALSE)
-  }
+get_col_types <- function(file) {
+  # get the column data types expected for the given file
+  col_types <- cols_and_data_types %>%
+    filter(File == file) %>%
+    mutate(DataType = data_type_mapping[as.character(DataType)]) %>%
+    pull(DataType) %>%
+    paste0(collapse = "")
+  return(col_types)
 }
-
-is_hashed <- function() {
-  # read Export file
-  Export <<- importFileSandboxSandbox("Export", col_types = "cncccccccTDDcncnnn")
-
-  logSessionData()
-  
-  # read Client file
-  Client <- importFileSandboxSandbox("Client",
-                       col_types = "cccccncnDnnnnnnnnnnnnnnnnnnnnnnnnnnnTTcTc")
-  
-  # decide if the export is hashed
-  return(  
-    # TRUE
-    Export$HashStatus == 4 &
-    min(nchar(Client$FirstName), na.rm = TRUE) ==
-    max(nchar(Client$FirstName), na.rm = TRUE)
-  )
-}
-
-# Non-Residential Long Stayers --------------------------------------------
-
-calculate_long_stayers <- function(input, projecttype){
-  
-  served_in_date_range %>%
-    select(all_of(vars_prep), ProjectID) %>%
-    mutate(
-      Days = as.numeric(
-          difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate, units = "days")),
-      Issue = "Days Enrollment Active Exceeds Local Settings",
-      Type = "Warning",
-      Guidance = str_squish("You have at least one active enrollment that has been
-         active for longer than the days set for this Project Type in your
-         Referral settings on the Edit Local Settings tab.")
-    ) %>%
-    filter(is.na(ExitDate) &
-             ProjectType == projecttype &
-             input < Days) %>% 
-    select(all_of(vars_we_want))
-  
-}
-
-# Outstanding Referrals --------------------------------------------
-
-calculate_outstanding_referrals <- function(input){
-  
-  served_in_date_range %>%
-    left_join(Event %>% select(EnrollmentID,
-                               EventID,
-                               EventDate,
-                               Event,
-                               ProbSolDivRRResult,
-                               ReferralCaseManageAfter,
-                               LocationCrisisOrPHHousing,
-                               ReferralResult,
-                               ResultDate),
-              by = "EnrollmentID") %>%
-    select(all_of(vars_prep), ProjectID, EventID, EventDate, ResultDate, Event) %>%
-    mutate(
-      Days = 
-        as.numeric(
-          difftime(as.Date(meta_HUDCSV_Export_Date), EventDate, units = "days")),
-      Issue = "Days Referral Active Exceeds Local Settings",
-      Type = "Warning",
-      Guidance = str_squish("You have at least one active referral that has been
-         active without a Result Date for longer than the days set in your
-         Local Settings on the Home tab."),
-      EventType = case_when(
-        Event == 10 ~ "Referral to Emergency Shelter bed opening",
-        Event == 11 ~ "Referral to Transitional Housing bed/unit opening",
-        Event == 12 ~ "Referral to Joint TH-RRH project/unit/resource opening",
-        Event == 13 ~ "Referral to RRH project resource opening",
-        Event == 14 ~ "Referral to PSH project resource opening",
-        Event == 15 ~ "Referral to Other PH project/unit/resource opening",
-        Event == 17 ~ "Referral to Emergency Housing Voucher (EHV)",
-        Event == 18 ~ "Referral to a Housing Stability Voucher"
-      )
-    ) %>%
-    filter(Event %in% c(10:15,17:18) &
-             is.na(ResultDate) &
-             input < Days)
-  
-}
-
 
 logMetadata <- function(detail) {
   d <- data.frame(
@@ -483,4 +206,20 @@ logToConsole <- function(msg) {
     Msg = msg
   )
   capture.output(d, file=stderr())
+}
+  
+date_stamped_filename <- function(filename) {
+  paste(filename, Sys.Date(), ".xlsx", sep = "")
+}
+
+#############################
+# SANDBOX
+#############################
+importFileSandbox <- function(csvFile, guess_max = 1000) {
+  filename = str_glue("{csvFile}.csv")
+  data <- read_csv(paste0(directory, "data/", filename)
+                   ,col_types = get_col_types(csvFile)
+                   ,na = ""
+  )
+  return(data)
 }

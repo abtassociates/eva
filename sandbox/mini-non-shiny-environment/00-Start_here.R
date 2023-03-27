@@ -32,7 +32,7 @@ source(paste0(directory, "helper_functions.R"))
 
 # Hard codes ---------------------------------------------------------------
 
-source(paste0(directory, "harcodes.R"))
+source(paste0(directory, "hardcodes.R"))
   
 # Get Export --------------------------------------------------------------
 
