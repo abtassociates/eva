@@ -389,7 +389,13 @@ output$dq_overview_plot <- renderPlot({
           summarise(Count = n()) %>%
           ungroup()
 
-        write_xlsx(list("Summary" = summary, "Data" = pdde_main), path = file)
+        write_xlsx(
+          list("Summary" = summary,
+               "Data" = pdde_main %>%
+                 clean_names("title",
+                             abbreviations = c("ID", "HoH", "HMIS", "CoC"))),
+          path = file)
+        
         logMetadata("Downloaded PDDE Report")
       }
     )
@@ -498,8 +504,10 @@ output$dq_overview_plot <- renderPlot({
 
       datatable(
         client_count_data_df() %>%
-          filter(`Project Name` == input$currentProviderList) %>%
-          select(all_of(clientCountDetailCols)),
+          filter(ProjectName == input$currentProviderList) %>%
+          select(all_of(clientCountDetailCols)) %>%
+          clean_names("title",
+                      abbreviations = c("ID", "HoH", "HMIS", "CoC")),
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')
@@ -513,7 +521,9 @@ output$dq_overview_plot <- renderPlot({
       req(valid_file() == 1)
       
       datatable(
-        client_count_summary_df(),
+        client_count_summary_df() %>%
+          clean_names("title",
+                      abbreviations = c("ID", "HoH", "HMIS", "CoC")),
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't')
@@ -611,19 +621,28 @@ output$dq_overview_plot <- renderPlot({
       orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
         filter(OrganizationName %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals)
+      getDQReportDataList(orgDQData,
+                          orgDQoverlaps,
+                          "ProjectName",
+                          orgDQReferrals)
     })
     
     fullDQReportDataList <- reactive({
       req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName",
-                          calculate_outstanding_referrals(input$CEOutstandingReferrals))
+      getDQReportDataList(
+        dq_main_reactive(),
+        overlaps,
+        "OrganizationName",
+        calculate_outstanding_referrals(input$CEOutstandingReferrals))
     })
     
     output$downloadOrgDQReport <- downloadHandler(
       filename = date_stamped_filename(str_glue("{input$orgList} Data Quality Report-")),
       content = function(file) {
-        write_xlsx(orgDQReportDataList(), path = file)
+        write_xlsx(
+          orgDQReportDataList(),
+          path = file)
+        
         logMetadata("Downloaded Org-level DQ Report")
       }
     )
@@ -818,7 +837,8 @@ output$dq_overview_plot <- renderPlot({
   output$downloadFullDQReport <- downloadHandler(
     filename = date_stamped_filename("Full Data Quality Report-"),
     content = function(file) {
-      write_xlsx(fullDQReportDataList(), path = file)
+      write_xlsx(
+        fullDQReportDataList(), path = file)
       logMetadata("Downloaded System-level DQ Report")
     }
   )
