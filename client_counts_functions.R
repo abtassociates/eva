@@ -83,12 +83,12 @@ client_count_summary_df <- reactive({
     return(df)
   }
   client_counts <- client_count_data_df() %>%
-    filter(`Project Name` == input$currentProviderList)
+    filter(ProjectName == input$currentProviderList)
   
-  hhs <- client_count_summary_by("Household ID", client_counts) %>%
+  hhs <- client_count_summary_by("HouseholdID", client_counts) %>%
     summarise(Households = n())
   
-  clients <- client_count_summary_by("Personal ID", client_counts) %>%
+  clients <- client_count_summary_by("PersonalID", client_counts) %>%
     summarise(Clients = n())
   
   full_join(clients, hhs, by = "Status")
@@ -96,7 +96,7 @@ client_count_summary_df <- reactive({
 
 ##### DOWNLOADING STUFF ######
 get_clientcount_download_info <- function(file) {
-  keepCols <- c("Organization", "Project ID", "Project Name")
+  keepCols <- c("OrganizationName", "ProjectID", "ProjectName")
   
   # initial dataset thta will make summarizing easier
   validationDF <- client_count_data_df() %>%
@@ -124,7 +124,7 @@ get_clientcount_download_info <- function(file) {
       mutate(
         Status = sub(" \\(.*", "", Status)
       ) %>%
-      select(all_of(keepCols), n, Status, ProjectType, `Personal ID`) %>%
+      select(all_of(keepCols), n, Status, ProjectType, PersonalID) %>%
       unique() %>%
       select(all_of(keepCols), n, Status, ProjectType) %>%
       pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
@@ -140,7 +140,8 @@ get_clientcount_download_info <- function(file) {
           TRUE ~ replace_na(`Currently in project`, 0)
         )
       ) %>% 
-      relocate(`Currently in Project`, .after = `Project Name`)
+      relocate(`Currently in Project`, .after = ProjectName)
+    
     return(pivoted)
   }
   
@@ -149,7 +150,7 @@ get_clientcount_download_info <- function(file) {
   validationDateRange <- pivot_and_sum(validationDF, isDateRange = TRUE) %>%
     mutate(
       "Exited Project" = case_when(
-        ProjectType %in% c(3,13) ~ 
+        ProjectType %in% c(3, 13) ~ 
           rowSums(select(., `Exited with Move-In`, `Exited No Move-In`),
                   na.rm = TRUE),
         TRUE ~ `Exited project`
@@ -157,7 +158,7 @@ get_clientcount_download_info <- function(file) {
     ) %>%
     relocate(`Exited Project`, .after=`Currently Moved In`) %>%
     select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
-    arrange(Organization, `Project Name`)
+    arrange(OrganizationName, ProjectName)
   
   ### VALIDATION CURRENT TAB ###
   # counts for each status, by project for just the current date
@@ -167,17 +168,23 @@ get_clientcount_download_info <- function(file) {
         filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
   ) %>%
     select(-c(`Currently in project`, ProjectType)) %>%
-    arrange(Organization, `Project Name`)
+    arrange(OrganizationName, ProjectName)
   
   ### VALIDATION DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
     select(!!keepCols, !!clientCountDetailCols) %>%
-    arrange(Organization, `Project Name`,`Entry Date`)
+    arrange(OrganizationName, ProjectName, EntryDate)
   
   exportDFList <- list(
-    validationCurrent = validationCurrent,
-    validationDateRange = validationDateRange,
-    validationDetail = validationDetail
+    validationCurrent = validationCurrent %>%
+      clean_names("title",
+                  abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+    validationDateRange = validationDateRange %>%
+      clean_names("title",
+                  abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+    validationDetail = validationDetail %>%
+      clean_names("title",
+                  abbreviations = c("ID", "HoH", "HMIS", "CoC"))
   )
   
   names(exportDFList) = c(
@@ -186,5 +193,6 @@ get_clientcount_download_info <- function(file) {
     "Validation - Detail"
   )
   
-  write_xlsx(exportDFList, path = file)
+  write_xlsx(exportDFList,
+             path = file)
 }
