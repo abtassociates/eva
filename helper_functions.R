@@ -322,7 +322,19 @@ nice_names <- function(df){
   df_names <- df %>%
     clean_names(
       "title",
-      abbreviations = c("ID", "ESSH", "AMI", "HH", "VAMC", "HP", "RRH")) %>%
+      abbreviations = c("ID",
+                        "ESSH",
+                        "AMI",
+                        "HH",
+                        "VAMC",
+                        "HP",
+                        "RRH",
+                        "PSH",
+                        "ES",
+                        "TH",
+                        "SH",
+                        "CE",
+                        "CSV")) %>%
     colnames()
   
   final_names <- str_replace_all(df_names, hmis_abbreviations)
