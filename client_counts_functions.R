@@ -176,15 +176,9 @@ get_clientcount_download_info <- function(file) {
     arrange(OrganizationName, ProjectName, EntryDate)
   
   exportDFList <- list(
-    validationCurrent = validationCurrent %>%
-      clean_names("title",
-                  abbreviations = c("ID", "HoH", "HMIS", "CoC")),
-    validationDateRange = validationDateRange %>%
-      clean_names("title",
-                  abbreviations = c("ID", "HoH", "HMIS", "CoC")),
-    validationDetail = validationDetail %>%
-      clean_names("title",
-                  abbreviations = c("ID", "HoH", "HMIS", "CoC"))
+    validationCurrent = validationCurrent %>% nice_names(),
+    validationDateRange = validationDateRange %>% nice_names(),
+    validationDetail = validationDetail %>% nice_names()
   )
   
   names(exportDFList) = c(

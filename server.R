@@ -157,8 +157,7 @@ function(input, output, session) {
         write_xlsx(
           integrity_main %>%
             arrange(Type, Issue) %>%
-            clean_names("title",
-                        abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+            nice_names(),
           path = file
         )
         
@@ -392,8 +391,7 @@ output$dq_overview_plot <- renderPlot({
         write_xlsx(
           list("Summary" = summary,
                "Data" = pdde_main %>%
-                 clean_names("title",
-                             abbreviations = c("ID", "HoH", "HMIS", "CoC"))),
+                 nice_names()),
           path = file)
         
         logMetadata("Downloaded PDDE Report")
@@ -506,8 +504,7 @@ output$dq_overview_plot <- renderPlot({
         client_count_data_df() %>%
           filter(ProjectName == input$currentProviderList) %>%
           select(all_of(clientCountDetailCols)) %>%
-          clean_names("title",
-                      abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+          nice_names(),
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')
@@ -522,8 +519,7 @@ output$dq_overview_plot <- renderPlot({
       
       datatable(
         client_count_summary_df() %>%
-          clean_names("title",
-                      abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+          nice_names(),
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't')

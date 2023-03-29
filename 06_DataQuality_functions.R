@@ -124,33 +124,15 @@ getDQReportDataList <-
     colnames(exportDetail) <- c("Export Field", "Value")
     
     exportDFList <- list(
-      exportDetail = exportDetail %>%
-        clean_names("title",
-                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
-      mainsummary = mainsummary %>%
-        clean_names("title",
-                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
-      byunisummary = byunitsummary %>%
-        clean_names("title",
-                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
-      guidance = guidance %>%
-        clean_names("title",
-                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
-      high_priority = high_priority %>%
-        clean_names("title",
-                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
-      errors = errors %>%
-        clean_names("title",
-                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
-      warnings = warnings %>%
-        clean_names("title",
-                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
-      overlaps = dqOverlapDetails %>%
-        clean_names("title",
-                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
-      dqReferrals = dqReferralDetails %>%
-        clean_names("title",
-                    abbreviations = c("ID", "HoH", "HMIS", "CoC"))
+      exportDetail = exportDetail %>% nice_names(),
+      mainsummary = mainsummary %>% nice_names(),
+      byunisummary = byunitsummary %>% nice_names(),
+      guidance = guidance %>% nice_names(),
+      high_priority = high_priority %>% nice_names(),
+      errors = errors %>% nice_names(),
+      warnings = warnings %>% nice_names(),
+      overlaps = dqOverlapDetails %>% nice_names(),
+      dqReferrals = dqReferralDetails %>% nice_names()
     )
     
     names(exportDFList) <- c(
