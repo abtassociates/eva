@@ -40,7 +40,7 @@ is_hashed <- function() {
 
 ### Now check whether the file is hashed, has the expected structure, and contains
 # the expected csv files
-is_hashed_HMIS = FALSE
+initially_valid_import = FALSE
 
 if(grepl("/", zipContents$Name[1])) {
   title = "Your zip file is misstructured"
@@ -73,11 +73,11 @@ if(grepl("/", zipContents$Name[1])) {
   logMetadata("Unsuccessful upload - not hashed")
   
 } else {
-  is_hashed_HMIS = TRUE
+  initially_valid_import = TRUE
 }
 
 # if it failed any of the checks, show the pop-up
-if(!is_hashed_HMIS) {
+if(!initially_valid_import) {
   showModal(
     modalDialog(
       title = title,

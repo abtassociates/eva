@@ -60,9 +60,9 @@ function(input, output, session) {
   
   observeEvent(input$imported, {
     valid_file(0)
-    source("00_is_hashed_HMIS.R", local = TRUE)
+    source("00_initially_valid_import.R", local = TRUE)
     
-    if(is_hashed_HMIS) {
+    if(initially_valid_import) {
 
       hide('imported_progress')
       
@@ -120,7 +120,7 @@ function(input, output, session) {
     
     output$fileStructureAnalysis <- DT::renderDataTable(
       {
-        req(is_hashed_HMIS)
+        req(initially_valid_import)
 
         a <- file_structure_analysis_main %>%
           group_by(Type, Issue) %>%
@@ -137,7 +137,7 @@ function(input, output, session) {
       })
     
     output$downloadFileStructureAnalysisBtn <- renderUI({
-      req(is_hashed_HMIS)
+      req(initially_valid_import)
       downloadButton("downloadFileStructureAnalysis", "Download Structure Analysis Detail")
     })  
     
