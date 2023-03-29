@@ -13,8 +13,6 @@ function(input, output, session) {
   source("changelog.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
   
 
-# If you want an initial dialog box, use this -----------------------------
-  
   valid_file <- reactiveVal(0)
   
   logMetadata("Session started")
