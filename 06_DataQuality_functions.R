@@ -26,13 +26,13 @@ getDQReportDataList <-
            dqReferrals = NULL) {
     
     select_list <- c(
-      "Organization Name" = "OrganizationName",
-      "Project ID" = "ProjectID",
-      "Project Name" = "ProjectName",
-      "Issue" = "Issue",
-      "Personal ID" = "PersonalID",
-      "Household ID" = "HouseholdID",
-      "Entry Date" = "EntryDate"
+      "OrganizationName",
+      "ProjectID",
+      "ProjectName",
+      "Issue",
+      "PersonalID",
+      "HouseholdID",
+      "EntryDate"
     )
     
     high_priority <- dqData %>%

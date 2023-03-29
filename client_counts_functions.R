@@ -1,12 +1,11 @@
 ##### REPORTING COLUMNS ######
 # these are the main columns that we will report out in the app and exports
-clientCountDetailCols <- c("Personal ID",
-                           "Relationship to Head of Household",
-                           "Entry Date" = "EntryDate",
-                           "Move In Date (RRH/PSH Only)",
-                           "Exit Date" = "ExitDate",
+clientCountDetailCols <- c("PersonalID",
+                           "RelationshipToHoH",
+                           "EntryDate",
+                           "MoveInDateAdjust",
+                           "ExitDate",
                            "Status")
-
 ##### MAIN DATAFRAME ######
 # this is the primary client count dataset, calculating
 # their status and number of days enrolled. 
@@ -54,16 +53,16 @@ client_count_data_df <- reactive({
     arrange(desc(sort), HouseholdID, PersonalID) %>%
     # make sure to include all columns that will be needed for the various uses
     select(
-      "Personal ID" = PersonalID,
-      "Household ID" = HouseholdID,
-      "Relationship to Head of Household" = RelationshipToHoH,
+      PersonalID,
+      HouseholdID,
+      RelationshipToHoH,
       EntryDate,
-      "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
+      MoveInDateAdjust,
       ExitDate,
       Status,
-      "Project ID" = ProjectID,
-      "Project Name" = ProjectName,
-      "Organization" = OrganizationName,
+      ProjectID,
+      ProjectName,
+      OrganizationName,
       ProjectType
     ) %>%
     filter(served_between(., ReportStart, ReportEnd))
