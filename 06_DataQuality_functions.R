@@ -124,26 +124,44 @@ getDQReportDataList <-
     colnames(exportDetail) <- c("Export Field", "Value")
     
     exportDFList <- list(
-      exportDetail = exportDetail,
-      mainsummary = mainsummary,
-      byunisummary = byunitsummary,
-      guidance = guidance,
-      high_priority = high_priority,
-      errors = errors,
-      warnings = warnings,
-      overlaps = dqOverlapDetails,
-      dqReferrals = dqReferralDetails
+      exportDetail = exportDetail %>%
+        clean_names("title",
+                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+      mainsummary = mainsummary %>%
+        clean_names("title",
+                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+      byunisummary = byunitsummary %>%
+        clean_names("title",
+                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+      guidance = guidance %>%
+        clean_names("title",
+                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+      high_priority = high_priority %>%
+        clean_names("title",
+                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+      errors = errors %>%
+        clean_names("title",
+                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+      warnings = warnings %>%
+        clean_names("title",
+                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+      overlaps = dqOverlapDetails %>%
+        clean_names("title",
+                    abbreviations = c("ID", "HoH", "HMIS", "CoC")),
+      dqReferrals = dqReferralDetails %>%
+        clean_names("title",
+                    abbreviations = c("ID", "HoH", "HMIS", "CoC"))
     )
     
     names(exportDFList) <- c(
       "Export Detail",
       paste(
-        if_else(bySummaryLevel == "OrganizationName", "System", "Organization"),
+        if_else(bySummaryLevel == "Organization Name", "System", "Organization"),
         "Summary"
       ),
       paste(
         if_else(
-          bySummaryLevel == "OrganizationName",
+          bySummaryLevel == "Organization Name",
           "Organization",
           "Project"
         ),
