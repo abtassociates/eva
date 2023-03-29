@@ -198,51 +198,154 @@ function(input, output, session) {
 
 # System Data Quality Overview --------------------------------------------
 
-output$dq_overview_df <- renderTable({
+output$dq_overview_plot <- renderPlot({
   req(valid_file() == 1)
+# browser()
+  detail <- dq_main_reactive() %>%
+    count(Type, name = "Total") %>%
+    mutate(Type = factor(
+      case_when(
+        Type == "High Priority" ~ "High Priority Issues",
+        Type == "Error" ~ "Errors",
+        Type == "Warning" ~ "Warnings"
+      ),
+      levels = c("High Priority Issues",
+                 "Errors",
+                 "Warnings")
+    ))
 
-  detail <- client_count_data_df() %>%
-    clean_names("upper_camel") %>%
-    group_by(OrganizationName, ProjectName, HouseholdID) %>%
-    summarise(HouseholdCount = n()) %>%
-    group_by(OrganizationName, ProjectName, PersonalID) %>%
-    summarise(ClientCount = n()) %>%
-    ungroup()
+  dq_plot_overview <-
+    ggplot(
+      detail,
+      aes(x = Type, y = Total)
+    ) +
+    geom_col(fill = "#71b4cb", alpha = .7, width = .4) +
+    scale_y_continuous(label = comma_format()) +
+    labs(
+      title = "System-wide Data Quality Issues",
+      x = "Data Quality Issue Type",
+      y = "System-wide Issues") +
+    theme_minimal(base_size = 18) +
+    theme(
+      plot.title.position = "plot",
+      title = element_text(colour = "#73655E")
+    ) +
+    geom_text(aes(label = prettyNum(Total, big.mark = ",")),
+               vjust = -.5,
+               color = "gray14")
   
-  # dq_plot_desk_time <-
-  #   ggplot(
-  #     desk_time,
-  #     aes(x = EntryDate, y = DeskTime)
-  #   ) +
-  #   geom_point(aes(color = GoalMet, size = 8, alpha = .2),
-  #              show.legend = FALSE)+
-  #   scale_color_identity() +
-  #   geom_hline(yintercept = 5, color = "forestgreen") +
-  #   geom_hline(yintercept = 0, color = "forestgreen") +
-  #   geom_hline(
-  #     data = desk_time_medians,
-  #     aes(yintercept = MedianDeskTime),
-  #     color = "black"
-  #   ) +
-  #   xlim(today() - years(1), today()) +
-  #   geom_label(x = today() - days(180),
-  #              y = desk_time_medians %>%
-  #                pull(MedianDeskTime),
-  #              label = paste("Median:", 
-  #                            desk_time_medians %>%
-  #                              pull(MedianDeskTime),
-  #                            "days | Total Clients:",
-  #                            desk_time_medians %>%
-  #                              pull(TotalEntered))) +
-  #   geom_label(x = today() - days(300),
-  #              y = 5,
-  #              label = "DQ Standards (5 days or less)") +
-  #   labs(x = "Entry Date",
-  #        y = "Data Entry Delay (in days)") +
-  #   theme_minimal(base_size = 18)
-  
-  detail
-})    
+  dq_plot_overview
+})  
+    
+
+    output$dq_orgs_overview_plot <- renderPlot({
+      req(valid_file() == 1)
+# browser()
+      highest_type <- dq_main_reactive() %>%
+        count(Type) %>% 
+        head(1L) %>%
+        mutate(Type = as.character(Type)) %>%
+        pull(Type)
+      
+      highest_type_display <-
+        case_when(
+          highest_type == "High Priority" ~ "High Priority Issues",
+          highest_type == "Error" ~ "Errors",
+          TRUE ~ "Warnings"
+        )
+      
+      detail <- dq_main_reactive() %>%
+        count(OrganizationName, Type, name = "Total") %>%
+        filter(Type == highest_type)
+      
+      dq_plot_overview <-
+        ggplot(
+          detail %>%
+            arrange(desc(Total)) %>%
+            head(5L) %>%
+            mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
+          aes(x = OrganizationName, y = Total)
+        ) +
+        geom_col(fill = "#71b4cb", alpha = .7)+
+        scale_y_continuous(label = comma_format()) +
+        labs(
+          title = paste("Highest Counts of",
+                        highest_type_display),
+          x = "Top 5 Organizations",
+          y = highest_type_display
+        ) +
+        coord_flip() +
+        theme_minimal(base_size = 18) +
+        theme(
+          plot.title.position = "plot",
+          title = element_text(colour = "#73655E")
+        ) +
+        geom_text(aes(label = prettyNum(Total, big.mark = ",")),
+                  nudge_y = 2,
+                  color = "gray14")
+      
+      dq_plot_overview
+    })
+    
+    output$validate_plot <- renderPlot({
+      req(valid_file() == 1)
+      # browser()
+
+      detail <- client_count_data_df() %>%
+        filter(str_detect(Status, "Exit", negate = TRUE)) %>%
+        mutate(Status = factor(
+          case_when(
+            str_detect(Status, "Currently in") ~ "Currently in project",
+            str_detect(Status, "Currently Moved") ~ "Currently Moved In",
+            TRUE ~ Status
+          ),
+          levels = c("Currently in project",
+                     "Active No Move-In",
+                     "Currently Moved In")
+        )) %>% 
+        count(ProjectType, Status, name = "Total")
+      
+      detail_order <- detail %>%
+        group_by(ProjectType) %>%
+        summarise(InProject = sum(Total, na.rm = FALSE)) %>%
+        ungroup()
+      
+      plot_data <- detail %>%
+        left_join(detail_order, by = "ProjectType")
+      
+      validate_by_org <-
+        ggplot(
+          plot_data,
+          aes(x = reorder(project_type_abb(ProjectType), InProject),
+              y = Total, fill = Status)
+        ) +
+        geom_col(alpha = .7, position = "stack") +
+        scale_y_continuous(label = comma_format()) +
+        scale_colour_manual(
+          values = c(
+            "Currently in project" = "#16697a",
+            "Active No Move-In" = "#c2462e",
+            "Currently Moved In" = "#71b4cb"
+          ),
+          aesthetics = "fill"
+        ) +
+        labs(
+          title = "Current System-wide Counts",
+          x = "",
+          y = ""
+        ) +
+        theme_minimal(base_size = 18) +
+        theme(
+          plot.title.position = "plot",
+          title = element_text(colour = "#73655E"),
+          legend.position = "top"
+        ) +
+        geom_text(aes(label = prettyNum(Total, big.mark = ",")),
+                  vjust = -.6,
+                  color = "gray14")
+      
+      validate_by_org
+    })
     
 # PDDE Checker ------------------------------------------------------------
 
