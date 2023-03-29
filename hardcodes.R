@@ -68,7 +68,7 @@ ssvf_fund_sources <- 33
 # Expected upload schema (files, columns, and data types) ------------------
 cols_and_data_types <- read_csv("public-resources/columns.csv", 
                                 col_types = cols()) %>%
-  filter(!(File %in% c("AssessmentResults","AssessmentQuestions", "Disabilities")))
+  filter(!(File %in% c("Affiliation","AssessmentResults","AssessmentQuestions", "Disabilities")))
 
 data_type_mapping <- c(
   character = "c", 
