@@ -60,12 +60,33 @@ project_type <- function(ReferenceNo){
     ReferenceNo == 3 ~ "Permanent Supportive Housing",
     ReferenceNo == 4 ~ "Street Outreach",
     ReferenceNo == 6 ~ "Services Only",
+    ReferenceNo == 7 ~ "Other",
     ReferenceNo == 8 ~ "Safe Haven",
     ReferenceNo == 9 ~ "PH - Housing Only",
     ReferenceNo == 10 ~ "PH - Housing with Services",
+    ReferenceNo == 11 ~ "Day Shelter",
     ReferenceNo == 12 ~ "Prevention",
     ReferenceNo == 13 ~ "Rapid Rehousing",
     ReferenceNo == 14 ~ "Coordinated Entry"
+  )
+}
+
+project_type_abb <- function(ReferenceNo){
+  case_when(
+    ReferenceNo == 0 ~ "ES (NbN)",
+    ReferenceNo == 1 ~ "ES (E/E)",
+    ReferenceNo == 2 ~ "TH",
+    ReferenceNo == 3 ~ "PSH",
+    ReferenceNo == 4 ~ "OUT",
+    ReferenceNo == 6 ~ "SSO",
+    ReferenceNo == 7 ~ "Other",
+    ReferenceNo == 8 ~ "SH",
+    ReferenceNo == 9 ~ "OPH no Svcs",
+    ReferenceNo == 10 ~ "OPH w/ Svcs",
+    ReferenceNo == 11 ~ "DAY",
+    ReferenceNo == 12 ~ "HP",
+    ReferenceNo == 13 ~ "RRH",
+    ReferenceNo == 14 ~ "CE"
   )
 }
 
