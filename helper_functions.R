@@ -311,3 +311,23 @@ logToConsole <- function(msg) {
 date_stamped_filename <- function(filename) {
   paste(filename, Sys.Date(), ".xlsx", sep = "")
 }
+
+nice_names <- function(df){
+  
+  names_from_janitor <- c("Ho h", "Co c", "Adjust")
+  hmis_abbreviations <- c("HoH", "CoC", "")
+  
+  names(hmis_abbreviations) <- names_from_janitor
+  
+  df_names <- df %>%
+    clean_names(
+      "title",
+      abbreviations = c("ID", "ESSH", "AMI", "HH", "VAMC", "HP", "RRH")) %>%
+    colnames()
+  
+  final_names <- str_replace_all(df_names, hmis_abbreviations)
+  
+  colnames(df) <- final_names
+  
+  df
+}
