@@ -156,7 +156,9 @@ function(input, output, session) {
       content = function(file) {
         write_xlsx(
           integrity_main %>%
-            arrange(Type, Issue),
+            arrange(Type, Issue) %>%
+            clean_names("title",
+                        abbreviations = c("ID", "HoH", "HMIS", "CoC")),
           path = file
         )
         
