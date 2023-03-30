@@ -131,7 +131,7 @@ dq_name <- base_dq_data %>%
     Issue = case_when(
       NameDataQuality == 99 | is.na(NameDataQuality) ~ 
         "Missing Name Data Quality",
-      NameDataQuality %in% c(8, 9) ~ 
+      NameDataQuality %in% c(dkr) ~ 
         "Incomplete or Don't Know/Refused Name"
     ),
     Type = case_when(
@@ -150,7 +150,7 @@ dq_dob <- base_dq_data %>%
     Issue = case_when(
       is.na(DOB) & DOBDataQuality %in% c(1, 2) ~ "Missing DOB",
       is.na(DOBDataQuality) ~ "Missing DOB Data Quality",
-      DOBDataQuality %in% c(8, 9, 99) ~ 
+      DOBDataQuality %in% c(dkr_dnc) ~ 
         "Don't Know/Refused/Data Not Collected DOB",
       AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect DOB or Entry Date"
     ),
@@ -183,9 +183,9 @@ dq_dob <- base_dq_data %>%
 dq_ssn <- base_dq_data %>%
   mutate(
     SSN = case_when(
-      (is.na(SSN) & !SSNDataQuality %in% c(8, 9)) |
+      (is.na(SSN) & !SSNDataQuality %in% c(dkr)) |
         is.na(SSNDataQuality) | SSNDataQuality == 99 ~ "Missing",
-      SSNDataQuality %in% c(8, 9) ~ "DKR"
+      SSNDataQuality %in% c(dkr) ~ "DKR"
     ), 
     Issue = case_when(
       SSN == "Missing" ~ "Missing SSN",
@@ -219,7 +219,7 @@ dq_ssn <- base_dq_data %>%
 dq_race <- base_dq_data %>%
   mutate(
     Issue = case_when(
-      RaceNone %in% c(8, 9) ~ "Don't Know/Refused Race",
+      RaceNone %in% c(dkr) ~ "Don't Know/Refused Race",
       RaceNone == 99 |
         AmIndAKNative + Asian + BlackAfAmerican + NativeHIPacific + White == 0
       ~ "Missing Race"
@@ -239,7 +239,7 @@ dq_ethnicity <- base_dq_data %>%
   mutate(
     Issue = case_when(
       Ethnicity == 99 | is.na(Ethnicity) ~ "Missing Ethnicity",
-      Ethnicity %in% c(8, 9) ~ "Don't Know/Refused Ethnicity"
+      Ethnicity %in% c(dkr) ~ "Don't Know/Refused Ethnicity"
     ),
     Type = case_when(
       Issue == "Missing Ethnicity" ~ "Error",
@@ -255,7 +255,7 @@ dq_ethnicity <- base_dq_data %>%
 dq_gender <- base_dq_data %>%
   mutate(
     Issue = case_when(
-      GenderNone %in% c(8, 9) ~ "Don't Know/Refused Gender",
+      GenderNone %in% c(dkr) ~ "Don't Know/Refused Gender",
       GenderNone == 99 |
         Female + Male + NoSingleGender + Transgender + Questioning == 0
       ~ "Missing Gender"
@@ -277,7 +277,7 @@ dq_veteran <- base_dq_data %>%
       (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
         (VeteranStatus == 99 | is.na(VeteranStatus)) ~ "Missing Veteran Status",
       (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
-        VeteranStatus %in% c(8, 9) ~ "Don't Know/Refused Veteran Status"
+        VeteranStatus %in% c(dkr) ~ "Don't Know/Refused Veteran Status"
     ),
     Type = case_when(
       Issue == "Missing Veteran Status" ~ "Error",
@@ -426,7 +426,7 @@ dkr_residence_prior <- base_dq_data %>%
          RelationshipToHoH,
          LivingSituation) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
-           LivingSituation %in% c(8, 9)) %>%
+           LivingSituation %in% c(dkr)) %>%
   mutate(Issue = "Don't Know/Refused Residence Prior",
          Type = "Warning",
          Guidance = guidance_dkr_data) %>%
@@ -450,7 +450,7 @@ dkr_LoS <- base_dq_data %>%
          RelationshipToHoH,
          LengthOfStay) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
-           LengthOfStay %in% c(8, 9)) %>%
+           LengthOfStay %in% c(dkr)) %>%
   mutate(Issue = "Don't Know/Refused Residence Prior",
          Type = "Warning",
          Guidance = guidance_dkr_data) %>%
@@ -466,7 +466,11 @@ missing_months_times_homeless <- base_dq_data %>%
   ) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate >= hc_prior_living_situation_required &
-           ProjectType %in% c(1, 4, 8) &
+           ProjectType %in% c(
+             es_nbn_project_type,
+             es_ee_project_type,
+             out_project_type,
+             sh_project_type) &
            (
              is.na(MonthsHomelessPastThreeYears) |
                is.na(TimesHomelessPastThreeYears) |
@@ -490,8 +494,8 @@ dkr_months_times_homeless <- base_dq_data %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate >= hc_prior_living_situation_required &
            (
-             MonthsHomelessPastThreeYears %in% c(8, 9) |
-               TimesHomelessPastThreeYears %in% c(8, 9)
+             MonthsHomelessPastThreeYears %in% c(dkr) |
+               TimesHomelessPastThreeYears %in% c(dkr)
            )
   ) %>%
   mutate(Issue = "Don't Know/Refused Months or Times Homeless",
@@ -571,18 +575,22 @@ missing_living_situation <- base_dq_data %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate >= hc_prior_living_situation_required &
            # not req'd prior to this
-           ProjectType %in% c(2, 3, 6, 9, 10, 12, 13) &
+           ProjectType %in% c(
+             th_project_type,
+             psh_project_types,
+             sso_project_type,
+             hp_project_type,
+             rrh_project_type) &
            (
              (
-               LivingSituation %in% c(15, 6, 7, 24, 4, 5) &
-                 LengthOfStay %in% c(2, 3, 10, 11) &
+               LivingSituation %in% c(institutional_livingsituation) &
+                 LengthOfStay %in% c(2, 3, 10, 11) & # <= 30 days
                  (is.na(LOSUnderThreshold) |
                     is.na(PreviousStreetESSH))
              ) |
                (
-                 LivingSituation %in% c(2, 3, 12, 13, 14, 15, 19,
-                                        20, 21, 22, 23, 25, 26) &
-                   LengthOfStay %in% c(10, 11) &
+                 LivingSituation %in% c(perm_livingsituation) &
+                   LengthOfStay %in% c(10, 11) & # <= 7 days
                    (is.na(LOSUnderThreshold) |
                       is.na(PreviousStreetESSH))
                )
@@ -622,9 +630,9 @@ dkr_living_situation <- base_dq_data %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate > hc_prior_living_situation_required &
            (
-             MonthsHomelessPastThreeYears %in% c(8, 9) |
-               TimesHomelessPastThreeYears %in% c(8, 9) |
-               LivingSituation %in% c(8, 9)
+             MonthsHomelessPastThreeYears %in% c(dkr) |
+               TimesHomelessPastThreeYears %in% c(dkr) |
+               LivingSituation %in% c(dkr)
            )
   ) %>%
   mutate(Issue = "Don't Know/Refused Living Situation", 
@@ -723,7 +731,7 @@ Top2_ES <- subset(es_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
 psh_stayers <- base_dq_data %>%
   select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) & ProjectType %in% c(3, 9, 10)) %>%
+  filter(is.na(ExitDate) & ProjectType %in% c(psh_project_types)) %>%
   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
 
 Top1_PSH <- subset(psh_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
@@ -747,7 +755,7 @@ Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 missed_movein_stayers <- base_dq_data %>%
   select(all_of(vars_prep), ProjectID) %>%
   filter(is.na(ExitDate) &
-           ProjectType %in% c(3, 9, 10, 13)
+           ProjectType %in% c(ph_project_types)
   ) %>%
   mutate(
     Days = as.numeric(difftime(MoveInDateAdjust, EntryDate))
@@ -762,7 +770,7 @@ Top2_movein <- subset(missed_movein_stayers,
     Guidance = paste(
       "This enrollment may be missing a Move-In Date. It is being flagged because
       the length of time since the enrollment date is in the top", 
-      case_when(ProjectType %in% c(3, 9, 10) ~ "1%",
+      case_when(ProjectType %in% c(psh_project_types) ~ "1%",
                 TRUE ~ "2%"),
       "for this project type. Please be sure this household is still awaiting
       housing in this project and if not, record the date they either moved into
@@ -784,7 +792,7 @@ long_stayers <- rbind(Top1_PSH,
       str_squish(
         paste("This enrollment may be missing an Exit Date. It is being flagged
               because the length of time since the enrollment date is in the top",
-              case_when(ProjectType %in% c(3, 9, 10) ~ "1%",
+              case_when(ProjectType %in% c(psh_project_types) ~ "1%",
                         TRUE ~ "2%"),              
               "for this project type. Please be sure this household is still
               active in the project and if not, record the Project Exit Date. If
@@ -827,8 +835,8 @@ missing_destination <- base_dq_data %>%
   ) %>%
   select(all_of(vars_we_want))
 
-dkr_destination <- base_dq_data %>%
-  filter(Destination %in% c(8, 9)) %>%
+dkr_destination <- served_in_date_range %>%
+  filter(Destination %in% c(dkr)) %>%
   mutate(Issue = "Don't Know/Refused Destination",
          Type = "Warning",
          Guidance = guidance_dkr_data) %>%
@@ -1043,8 +1051,8 @@ duplicate_ees <-
 # day they moved in. So they're excused from this prior to Move In Date's existence.
 future_ees <- base_dq_data %>%
   filter(EntryDate > DateCreated &
-           (!ProjectType %in% c(3, 9, 10) |
-              (ProjectType %in% c(3, 9, 10) & 
+           (!ProjectType %in% c(psh_project_types) |
+              (ProjectType %in% c(psh_project_types) & 
                   EntryDate >= hc_psh_started_collecting_move_in_date
               )))  %>%
   mutate(
@@ -1228,8 +1236,7 @@ overlap_staging <- base_dq_data %>%
              ProjectType %in% c(ph_project_types) &
                !is.na(MoveInDateAdjust)
            ) |
-             ProjectType %in% c(lh_residential_project_types,
-                                es_nbn_project_type)
+             ProjectType %in% c(lh_residential_project_types)
            )) %>%  
   left_join(
     Services %>% 
@@ -1242,8 +1249,8 @@ overlap_staging <- base_dq_data %>%
   ) %>%
   mutate(
     EnrollmentStart = case_when(
-      ProjectType %in% c(lh_residential_project_types) ~ EntryDate,
       ProjectType == es_nbn_project_type ~ DateProvided, 
+      ProjectType %in% c(lh_residential_project_types) ~ EntryDate,
       ProjectType %in% c(ph_project_types) ~ MoveInDateAdjust,
       TRUE ~ EntryDate
     ),
@@ -1349,8 +1356,8 @@ dq_overlaps2 <- overlaps %>%
 
 # Invalid Move-in Date ----------------------------------------------------
 
-invalid_movein_date <- base_dq_data %>%
-  filter(ProjectType %in% c(3, 9, 10, 13)) %>%
+invalid_movein_date <- served_in_date_range %>%
+  filter(ProjectType %in% c(ph_project_types)) %>%
   mutate(
     Issue = case_when(
       (!is.na(MoveInDate) & MoveInDate < EntryDate) | 
@@ -1666,16 +1673,16 @@ dkr_client_veteran_info <- ssvf_base_dq_data %>%
   filter(VeteranStatus == 1) %>%
   mutate(
     Issue = case_when(
-      WorldWarII %in% c(8, 9) |
-        KoreanWar %in% c(8, 9) |
-        VietnamWar %in% c(8, 9) |
-        DesertStorm  %in% c(8, 9) |
-        AfghanistanOEF %in% c(8, 9) |
-        IraqOIF %in% c(8, 9) |
-        IraqOND %in% c(8, 9) |
-        OtherTheater  %in% c(8, 9)  ~ "Don't Know/Refused War(s)",
-      MilitaryBranch %in% c(8, 9) ~ "Don't Know/Refused Military Branch",
-      DischargeStatus %in% c(8, 9) ~ "Don't Know/Refused Discharge Status"
+      WorldWarII %in% c(dkr) |
+        KoreanWar %in% c(dkr) |
+        VietnamWar %in% c(dkr) |
+        DesertStorm  %in% c(dkr) |
+        AfghanistanOEF %in% c(dkr) |
+        IraqOIF %in% c(dkr) |
+        IraqOND %in% c(dkr) |
+        OtherTheater  %in% c(dkr)  ~ "Don't Know/Refused War(s)",
+      MilitaryBranch %in% c(dkr) ~ "Don't Know/Refused Military Branch",
+      DischargeStatus %in% c(dkr) ~ "Don't Know/Refused Discharge Status"
     ),
     Type = "Warning",
     Guidance = guidance_dkr_data

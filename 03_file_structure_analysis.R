@@ -232,13 +232,10 @@ export_id_client <- Client %>%
   select(all_of(issue_display_cols)) %>%
   unique()
 
-yes_no_enhanced <- c(0, 1, 8, 9, 99)
-yes_no <- c(0, 1, 99)
-
 valid_values_client <- Client %>%
   mutate(
     VeteranStatus = VeteranStatus %in% c(yes_no_enhanced),
-    RaceNone = RaceNone %in% c(8, 9, 99) | is.na(RaceNone),
+    RaceNone = RaceNone %in% c(dkr_dnc) | is.na(RaceNone),
     AmIndAKNative = AmIndAKNative %in% c(yes_no),
     Asian = Asian %in% c(yes_no),
     BlackAfAmerican = BlackAfAmerican %in% c(yes_no),
@@ -250,7 +247,7 @@ valid_values_client <- Client %>%
     NoSingleGender = NoSingleGender %in% c(yes_no),
     Transgender = Transgender %in% c(yes_no),
     Questioning = Questioning %in% c(yes_no),
-    GenderNone = GenderNone %in% c(8, 9, 99) | is.na(GenderNone)
+    GenderNone = GenderNone %in% c(dkr_dnc) | is.na(GenderNone)
   ) %>%
   group_by_all() %>%
   summarise(
@@ -426,8 +423,7 @@ disabling_condition_invalid <- Enrollment %>%
 
 living_situation_invalid <- Enrollment %>%
   filter(!is.na(LivingSituation) &
-    (!LivingSituation %in% c(allowed_living_situations) |
-       LivingSituation %in% c(12, 13, 22, 23, 26, 27, 30, 17, 24, 37))) %>%
+    !LivingSituation %in% c(allowed_prior_living_sit)) %>%
   mutate(
     Issue = "Invalid Living Situation value",
     Type = "Error",
@@ -519,8 +515,8 @@ duplicate_household_id <- Enrollment %>%
 # Integrity Living Situation ----------------------------------------------
 
 nonstandard_destination <- Exit %>%
-  filter(!Destination %in% c(allowed_living_situations) |
-           Destination %in% c(35, 36, 37)) %>%
+  filter(!is.na(Destination) &
+           !Destination %in% c(allowed_destinations)) %>%
   mutate(
     Issue = "Invalid Destination value",
     Type = "Error",
@@ -538,8 +534,7 @@ nonstandard_destination <- Exit %>%
 
 nonstandard_CLS <- CurrentLivingSituation %>%
   filter(!is.na(CurrentLivingSituation) &
-    (!CurrentLivingSituation %in% c(allowed_living_situations) |
-       CurrentLivingSituation %in% c(12, 13, 22, 23, 26, 27, 30, 24))) %>%
+    !CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
   mutate(
     Issue = "Non-standard Current Living Situation",
     Type = "Error",

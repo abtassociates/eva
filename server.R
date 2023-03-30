@@ -254,7 +254,7 @@ function(input, output, session) {
       desk_time <- validation %>%
         filter(ProjectName == provider &
                  entered_between(., ReportStart, ReportEnd) &
-                 ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
+                 ProjectType %in% c(lh_ph_hp_project_types)) %>%
         select(ProjectName, PersonalID, HouseholdID, EntryDate, DateCreated) %>%
         mutate(
           DeskTime = difftime(floor_date(DateCreated, unit = "day"),
