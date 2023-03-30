@@ -560,83 +560,45 @@ function(input, output, session) {
       renderDQPlot("org", "Warning", "Issue", "#71B4CB")
     })
     
-    ##
+
+# DQ Data Tables ----------------------------------------------------------
     
-    output$DQHighPriority <- DT::renderDT({
-      req(valid_file() == 1)      
-      
-      ReportStart <- Export$ExportStartDate
-      ReportEnd <- meta_HUDCSV_Export_End
-      
-      DQHighPriority <- dq_main_reactive() %>%
-        filter(
+    dqDataTable <- function(issueType) {
+      DT::renderDT({
+        req(valid_file() == 1)      
+        
+        ReportStart <- Export$ExportStartDate
+        ReportEnd <- meta_HUDCSV_Export_End
+        
+        DQdata <- dq_main_reactive() %>%
+          filter(
             OrganizationName %in% c(input$orgList) &
-            Type == "High Priority"
-        ) %>%
-        mutate(EntryDate = format.Date(EntryDate, "%m-%d-%Y")) %>%
-        arrange(ProjectName, HouseholdID, PersonalID) %>%
-        select("Project Name" = ProjectName,
-               "Personal ID" = PersonalID,
-               "High Priority Issue" = Issue,
-               "Project Start Date" =  EntryDate)
-      
-      datatable(
-        DQHighPriority,
-        rownames = FALSE,
-        filter = 'top',
-        options = list(dom = 'ltpi')
-      )
-    })
-    
-    output$DQErrors <- DT::renderDT({
-      req(valid_file() == 1)      
-      
-      DQErrors <- dq_main_reactive() %>%
-        filter(
-            OrganizationName %in% c(input$orgList) &
-            Type == "Error"
-        ) %>%
-        mutate(EntryDate = format.Date(EntryDate, "%m-%d-%Y")) %>%
-        arrange(ProjectName, HouseholdID, PersonalID) %>%
-        select("Project Name" = ProjectName,
-               "Personal ID" = PersonalID,
-               "Error" = Issue,
-               "Project Start Date" =  EntryDate)
-      
-      datatable(
-        DQErrors,
-        rownames = FALSE,
-        filter = 'top',
-        options = list(dom = 'ltpi')
-      )
-      
-    })
-    
-    output$DQWarnings <- DT::renderDataTable({
-      req(valid_file() == 1)      
-      ReportStart <- Export$ExportStartDate
-      ReportEnd <- meta_HUDCSV_Export_End
-      
-      DQWarnings <- dq_main_reactive() %>%
-        filter(
-            OrganizationName %in% c(input$orgList) &
-            Type == "Warning"
-        ) %>%
-        #mutate(PersonalID = as.character(PersonalID)) %>%
-        arrange(ProjectName, HouseholdID, PersonalID) %>%
-        select(
-          "Project Name" = ProjectName,
-          "Personal ID" = PersonalID,
-          "Warning" = Issue,
-          "Project Start Date" =  EntryDate
+              Type ==issueType
+          ) %>%
+          mutate(EntryDate = format.Date(EntryDate, "%m-%d-%Y")) %>%
+          arrange(ProjectName, HouseholdID, PersonalID) %>%
+          select("Project Name" = ProjectName,
+                 "Personal ID" = PersonalID,
+                 case_when(
+                   issueType == "High Priority" ~ "High Priority Issue",
+                   TRUE ~ issueType
+                   ) = Issue,
+                 "Project Start Date" =  EntryDate)
+        
+        datatable(
+          DQdata,
+          rownames = FALSE,
+          filter = 'top',
+          options = list(dom = 'ltpi')
         )
-      
-      datatable(
-        DQWarnings,
-        rownames = FALSE,
-        filter = 'top',
-        options = list(dom = 'ltpi'))
-    })
+      })
+    }
+    
+    output$DQHighPriority <- dqDataTable("High Priority")
+    
+    output$DQErrors <- dqDataTable("Error")
+    
+    output$DQWarnings <- dqDataTable("Warning")
   
   # output$headerUtilization <- renderUI({
   #   req(valid_file() == 1)
