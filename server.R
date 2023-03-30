@@ -406,21 +406,16 @@ function(input, output, session) {
       )
     })
     
-    #### DQ ORG REPORT #### ----------------------
+
+# Prep DQ Downloads -------------------------------------------------------
+
     source("05_DataQuality_functions.R", local = TRUE)
     
-    # button
-    output$downloadOrgDQReportButton  <- renderUI({
-      if (valid_file() == 1) {
-        downloadButton(outputId = "downloadOrgDQReport",
-                       label = "Download")
-      }
-    })
-    
     # list of data frames to include in DQ Org Report
-    orgDQReportDataList <- reactive({
+    dqDownloadInfo <- reactive({
       req(valid_file() == 1)
-      
+
+      # org-level data prep (filtering to selected org)
       orgDQData <- dq_main_reactive() %>%
         filter(OrganizationName %in% c(input$orgList))
       
@@ -431,23 +426,53 @@ function(input, output, session) {
       orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
         filter(OrganizationName %in% c(input$orgList))
       
-      getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals)
+      # return a list for reference in downloadHandler
+      list(
+        orgDQData = getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals),
+        orgDQFilename = date_stamped_filename(str_glue("{input$orgList} Data Quality Report-")),
+           
+        systemDQData = getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName",
+                                              calculate_outstanding_referrals(input$CEOutstandingReferrals)),
+        systemDQFilename = date_stamped_filename("Full Data Quality Report-")
+      )
+      
     })
     
-    fullDQReportDataList <- reactive({
-      req(valid_file() == 1)
-      getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName",
-                          calculate_outstanding_referrals(input$CEOutstandingReferrals))
+
+# Download Org DQ Report --------------------------------------------------
+
+    output$downloadOrgDQReportButton  <- renderUI({
+      if (valid_file() == 1) {
+        downloadButton(outputId = "downloadOrgDQReport",
+                       label = "Download")
+      }
     })
     
     output$downloadOrgDQReport <- downloadHandler(
-      filename = date_stamped_filename(str_glue("{input$orgList} Data Quality Report-")),
+      filename = dqDownloadInfo()$orgDQFilename,
       content = function(file) {
-        write_xlsx(orgDQReportDataList(), path = file)
+        write_xlsx(dqDownloadInfo()$orgDQData, path = file)
         logMetadata("Downloaded Org-level DQ Report")
       }
     )
     
+
+# Download System DQ Report -----------------------------------------------
+    # button
+    output$downloadSystemDQReportButton  <- renderUI({
+      if (valid_file() == 1) {
+        downloadButton(outputId = "downloadFullDQReport",
+                       label = "Download")
+      }
+    })
+    
+    output$downloadSystemDQReport <- downloadHandler(
+      filename = dqDownloadInfo()$systemDQFilename,
+      content = function(file) {
+        write_xlsx(dqDownloadInfo()$systemDQData, path = file)
+        logMetadata("Downloaded System-level DQ Report")
+      }
+    )
 # 
 #     output$cocOverlap <- DT::renderDataTable({
 # 
