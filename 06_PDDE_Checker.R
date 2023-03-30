@@ -16,7 +16,7 @@ PDDEcols = c("OrganizationName",
 # Subpop beds = TotalBeds
 subpopNotTotal <- Inventory %>%
   left_join(Project, by = "ProjectID") %>%
-  filter(ProjectType %in% c(project_types_w_beds) &
+  filter(ProjectType %in% project_types_w_beds &
            (CHVetBedInventory + 
               YouthVetBedInventory + 
               VetBedInventory + 
@@ -117,7 +117,7 @@ missingCoCInfo <- Project %>%
 # Missing Inventory Record Is a residential project but has no active inventory for the duration of operating period OR for the reporting period
 missingInventoryRecord <- Project %>%
   left_join(Inventory, by = "ProjectID") %>%
-  filter(ProjectType %in% c(project_types_w_beds) &
+  filter(ProjectType %in% project_types_w_beds &
            is.na(InventoryID)) %>% 
   mutate(
     Issue = "No Inventory Records",

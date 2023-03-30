@@ -104,8 +104,8 @@ Enrollment <- Enrollment %>%
                                        HHMoveIn, EntryDate),
                                NA_real_), 
     EntryAdjust = case_when(
-      !ProjectType %in% c(ph_project_types) ~ EntryDate,
-      ProjectType %in% c(ph_project_types) &
+      !ProjectType %in% ph_project_types ~ EntryDate,
+      ProjectType %in% ph_project_types &
         !is.na(MoveInDateAdjust) ~ MoveInDateAdjust
     )
   )
