@@ -95,7 +95,7 @@ translate_HUD_yes_no <- function(column_name){
   case_when(
     column_name == 1 ~ "Yes", 
     column_name == 0 ~ "No",
-    column_name %in% c(dkr_dnc) ~ "Unknown",
+    column_name %in% c(8, 9, 99) ~ "Unknown",
     TRUE ~ "something's wrong"
   )
 }

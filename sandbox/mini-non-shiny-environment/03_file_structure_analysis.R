@@ -1,43 +1,13 @@
+######################
+# PURPOSE: This program runs checks of the upload file's content
+# for example, it checks for incorrect date formats, missing columns,
+# unexpected nulls, and more
+######################
 
 
 # Prep --------------------------------------------------------------------
-logToConsole("Running file structure analysis")
-
-files <- c(
-#  "Affiliation",
-  "Assessment",
-  # "AssessmentQuestions",
-  # "AssessmentResults",
-  "Client",
-  "CurrentLivingSituation",
-  # "Disabilities",
-  "EmploymentEducation",
-  "Enrollment",
-  "EnrollmentCoC",
-  "Event",
-  "Exit",
-  "Export",
-  "Funder",
-  "HealthAndDV",
-  "IncomeBenefits",
-  "Inventory",
-  "Organization",
-  "Project",
-  "ProjectCoC",
-  "Services",
-  "User",
-  "YouthEducationStatus"
-)
-
-display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 export_id_from_export <- Export %>% pull(ExportID)
-
-cols_and_data_types <- read_csv("public-resources/columns.csv", col_types = cols())
-
-col_counts <- cols_and_data_types %>%
-  group_by(File) %>%
-  summarise(ColumnCount = n())
 
 high_priority_columns <- cols_and_data_types %>%
   filter(DataTypeHighPriority == 1) %>%
@@ -71,7 +41,7 @@ df_date_types <-
       File,
       "file has the correct date format."))
   ) %>%
-  select(all_of(display_cols)) %>% unique()
+  select(all_of(issue_display_cols)) %>% unique()
 
 # Incorrect Columns ------------------------------------------------------
 check_columns <- function(file) {
@@ -114,7 +84,7 @@ check_columns <- function(file) {
           )
         ))
       ) %>%
-      select(all_of(display_cols)) %>%
+      select(all_of(issue_display_cols)) %>%
       unique()
   }
 }
@@ -171,7 +141,7 @@ check_data_types <- function(quotedfile) {
           "."
         ))
       ) %>%
-      select(all_of(display_cols))
+      select(all_of(issue_display_cols))
     y
   }
 }
@@ -224,7 +194,7 @@ check_for_bad_nulls <- function(file) {
           Detail = str_squish(glue("The {Column} column in the {file} file contains nulls
                         or incorrect data types. {row_ids}"))
         ) %>%
-        select(all_of(display_cols)) %>%
+        select(all_of(issue_display_cols)) %>%
         unique()
     }
   }
@@ -232,11 +202,11 @@ check_for_bad_nulls <- function(file) {
 
 # Integrity Structure -----------------------------------------------------
 
-df_column_diffs <- map_df(files, check_columns)
+df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
 
-df_data_types <- map_df(files, check_data_types)
+df_data_types <- map_df(unique(cols_and_data_types$File), check_data_types)
 
-df_nulls <- map_df(files, check_for_bad_nulls)
+df_nulls <- map_df(unique(cols_and_data_types$File), check_for_bad_nulls)
 
 # Integrity Client --------------------------------------------------------
 
@@ -257,18 +227,16 @@ export_id_client <- Client %>%
       ExportID
     ))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 yes_no_enhanced <- c(0, 1, 8, 9, 99)
 yes_no <- c(0, 1, 99)
-dkr_dnc <- c(8, 9, 99)
-dkr <- c(8, 9)
 
 valid_values_client <- Client %>%
   mutate(
     VeteranStatus = VeteranStatus %in% c(yes_no_enhanced),
-    RaceNone = RaceNone %in% c(dkr_dnc) | is.na(RaceNone),
+    RaceNone = RaceNone %in% c(8, 9, 99) | is.na(RaceNone),
     AmIndAKNative = AmIndAKNative %in% c(yes_no),
     Asian = Asian %in% c(yes_no),
     BlackAfAmerican = BlackAfAmerican %in% c(yes_no),
@@ -280,7 +248,7 @@ valid_values_client <- Client %>%
     NoSingleGender = NoSingleGender %in% c(yes_no),
     Transgender = Transgender %in% c(yes_no),
     Questioning = Questioning %in% c(yes_no),
-    GenderNone = GenderNone %in% c(dkr_dnc) | is.na(GenderNone)
+    GenderNone = GenderNone %in% c(8, 9, 99) | is.na(GenderNone)
   ) %>%
   group_by_all() %>%
   summarise(
@@ -360,7 +328,7 @@ valid_values_client <- Client %>%
                                    "rows with invalid values")
     )
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 duplicate_client_id <- Client %>%
@@ -372,7 +340,7 @@ duplicate_client_id <- Client %>%
       str_squish("PersonalIDs should be unique in the Client file."),
     Detail = paste("There are", dupe_count, "for PersonalID", PersonalID)
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 # Integrity Enrollment ----------------------------------------------------
@@ -391,7 +359,7 @@ duplicate_enrollment_id <- Enrollment %>%
       EnrollmentID,
       "."))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 personal_ids_in_client <- Client %>% pull(PersonalID)
@@ -410,7 +378,7 @@ foreign_key_no_primary_personalid_enrollment <- Enrollment %>%
       "is in the Enrollment file but not in the Client file."
     ))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 projectids_in_project <- Project %>% pull(ProjectID)
@@ -430,7 +398,7 @@ foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
       "is in the Enrollment file but not in the Project file."
     ))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 disabling_condition_invalid <- Enrollment %>%
@@ -451,26 +419,13 @@ disabling_condition_invalid <- Enrollment %>%
       "which is an invalid value."
     ))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
-
-# For reference, these come from the HMIS CSV Export specs, pgs 41-43
-
-allowed_prior_living_sit <- 
-  c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 18, 19, 20, 21, 25, 28, 29,
-    31, 32, 33, 34, 35, 36, 99)
-
-allowed_current_living_sit <- 
-  c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 25, 28,
-    29, 31, 32, 33, 34, 35, 36, 37, 99)
-
-allowed_destinations <- 
-  c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-    22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 99)
 
 living_situation_invalid <- Enrollment %>%
   filter(!is.na(LivingSituation) &
-    !LivingSituation %in% c(allowed_prior_living_sit)) %>%
+    (!LivingSituation %in% c(allowed_living_situations) |
+       LivingSituation %in% c(12, 13, 22, 23, 26, 27, 30, 17, 24, 37))) %>%
   mutate(
     Issue = "Invalid Living Situation value",
     Type = "Error",
@@ -486,7 +441,7 @@ living_situation_invalid <- Enrollment %>%
       "which is not a valid value."
     ))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 rel_to_hoh_invalid <- Enrollment %>%
@@ -506,7 +461,7 @@ rel_to_hoh_invalid <- Enrollment %>%
       "which is invalid value."
     ))
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 # Group by HouseholdID and ProjectID, and count the number of unique PersonalIDs in each group
@@ -528,7 +483,7 @@ duplicate_household_id <- Enrollment %>%
                    dupe_count,
                    "Enrollments into different projects.")
   ) %>%
-  select(all_of(display_cols)) %>%
+  select(all_of(issue_display_cols)) %>%
   unique()
 
 # move_in_date_invalid <- Enrollment %>%
@@ -554,7 +509,7 @@ duplicate_household_id <- Enrollment %>%
 #       "and the Exit Date (or end of the reporting period.)")
 #   ) %>%
 #   filter(Issue != "Nothing") %>%
-#   select(all_of(display_cols)) %>%
+#   select(all_of(issue_display_cols)) %>%
 #   
 #   
 #   unique()
@@ -562,8 +517,8 @@ duplicate_household_id <- Enrollment %>%
 # Integrity Living Situation ----------------------------------------------
 
 nonstandard_destination <- Exit %>%
-  filter(!is.na(Destination) &
-           !Destination %in% c(allowed_destinations)) %>%
+  filter(!Destination %in% c(allowed_living_situations) |
+           Destination %in% c(35, 36, 37)) %>%
   mutate(
     Issue = "Invalid Destination value",
     Type = "Error",
@@ -576,12 +531,13 @@ nonstandard_destination <- Exit %>%
                      "has a Destination value of",
                      Destination,
                      "which is not a valid Destination response."))) %>%
-  select(all_of(display_cols))
+  select(all_of(issue_display_cols))
 
 
 nonstandard_CLS <- CurrentLivingSituation %>%
   filter(!is.na(CurrentLivingSituation) &
-    !CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
+    (!CurrentLivingSituation %in% c(allowed_living_situations) |
+       CurrentLivingSituation %in% c(12, 13, 22, 23, 26, 27, 30, 24))) %>%
   mutate(
     Issue = "Non-standard Current Living Situation",
     Type = "Error",
@@ -597,9 +553,9 @@ nonstandard_CLS <- CurrentLivingSituation %>%
                      "has a Current Living Situation value of",
                      CurrentLivingSituation,
                      "which is not a valid response."))) %>%
-  select(all_of(display_cols))
+  select(all_of(issue_display_cols))
 
-integrity_main <- rbind(
+file_structure_analysis_main <- rbind(
   df_column_diffs,
   df_data_types,
   df_date_types,
@@ -620,7 +576,7 @@ integrity_main <- rbind(
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
 
-if(integrity_main %>% filter(Type == "High Priority") %>% nrow() > 0) {
+if(file_structure_analysis_main %>% filter(Type == "High Priority") %>% nrow() > 0) {
   structural_issues <- 1
 } else{
   structural_issues <- 0

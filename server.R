@@ -1,33 +1,23 @@
 
 function(input, output, session) {
-  
-  # Hard-coded --------------------------------------------------------------
-  # hc = hard-coded
-  hc_prior_living_situation_required <- ymd("20161001")
-  
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
+  source("hardcodes.R", local = TRUE) # hard-coded variables and data frames used throughout the app
   source("helper_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
   source("guidance.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
-  source("changelog.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
+  source("changelog.R", local = TRUE) # changelog entries
   
-
-# If you want an initial dialog box, use this -----------------------------
+  # log that the session has started
+  logMetadata("Session started")
   
+  # this will be a requirement for proceeding with many parts of the code 
   valid_file <- reactiveVal(0)
   
-  logMetadata("Session started")
-
+  # log when user navigate to a tab
   observe({ 
     logMetadata(paste("User on",input$sidebarmenuid))
   })
-  
-  output$fileInfo <- renderUI({
-    if(valid_file() == 1) {
-      HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
-    }
-  }) 
 
 # Headers -----------------------------------------------------------------
 
@@ -67,12 +57,12 @@ function(input, output, session) {
   })
 
 # Run scripts on upload ---------------------------------------------------
-
+  
   observeEvent(input$imported, {
-
-    initially_valid_zip <- zip_initially_valid()
+    valid_file(0)
+    source("00_initially_valid_import.R", local = TRUE)
     
-    if(initially_valid_zip == 1) {
+    if(initially_valid_import) {
 
       hide('imported_progress')
       
@@ -80,20 +70,18 @@ function(input, output, session) {
         setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
         source("01_get_Export.R", local = TRUE)
-        source("02_dates.R", local = TRUE)
+        source("02_export_dates.R", local = TRUE)
         setProgress(detail = "Checking file structure", value = .35)
-        source("03_integrity_checker.R", local = TRUE)
+        source("03_file_structure_analysis.R", local = TRUE)
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE)
-          setProgress(detail = "Making lists..", value = .5)
-          source("05_cohorts.R", local = TRUE)
           setProgress(detail = "Assessing your data quality..", value = .7)
-          source("06_DataQuality.R", local = TRUE)
+          source("05_DataQuality.R", local = TRUE)
           setProgress(detail = "Checking your PDDEs", value = .85)
-          source("07_PDDE_Checker.R", local = TRUE)
+          source("06_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
           
           showModal(
@@ -124,11 +112,17 @@ function(input, output, session) {
       })
     }
     
-    output$integrityChecker <- DT::renderDataTable(
+    output$fileInfo <- renderUI({
+      if(valid_file() == 1) {
+        HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
+      }
+    }) 
+    
+    output$fileStructureAnalysis <- DT::renderDataTable(
       {
-        req(initially_valid_zip == 1)
+        req(initially_valid_import)
 
-        a <- integrity_main %>%
+        a <- file_structure_analysis_main %>%
           group_by(Type, Issue) %>%
           summarise(Count = n()) %>%
           ungroup() %>%
@@ -142,18 +136,18 @@ function(input, output, session) {
         )
       })
     
-    output$downloadIntegrityBtn <- renderUI({
-      req(initially_valid_zip == 1)
-      downloadButton("downloadIntegrityCheck", "Download Structure Analysis Detail")
+    output$downloadFileStructureAnalysisBtn <- renderUI({
+      req(initially_valid_import)
+      downloadButton("downloadFileStructureAnalysis", "Download Structure Analysis Detail")
     })  
     
-    output$downloadIntegrityCheck <- downloadHandler(
+    output$downloadFileStructureAnalysis <- downloadHandler(
       # req(valid_file() == 1)
 
       filename = date_stamped_filename("File-Structure-Analysis-"),
       content = function(file) {
         write_xlsx(
-          integrity_main %>%
+          file_structure_analysis_main %>%
             arrange(Type, Issue),
           path = file
         )
@@ -413,7 +407,7 @@ function(input, output, session) {
     })
     
     #### DQ ORG REPORT #### ----------------------
-    source("06_DataQuality_functions.R", local = TRUE)
+    source("05_DataQuality_functions.R", local = TRUE)
     
     # button
     output$downloadOrgDQReportButton  <- renderUI({
