@@ -1,13 +1,12 @@
 ######################
-# PURPOSE: This program runs checks of the upload file's content
-# for example, it checks for incorrect date formats, missing columns,
+# PURPOSE: This program runs checks of the upload file's content.
+# For example, it checks for incorrect date formats, missing columns,
 # unexpected nulls, and more
 ######################
 
 logToConsole("Running file structure analysis")
 
 # Prep --------------------------------------------------------------------
-logToConsole("Running file structure analysis")
 
 export_id_from_export <- Export %>% pull(ExportID)
 
