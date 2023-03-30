@@ -459,7 +459,7 @@ function(input, output, session) {
     # button
     output$downloadSystemDQReportButton  <- renderUI({
       if (valid_file() == 1) {
-        downloadButton(outputId = "downloadFullDQReport",
+        downloadButton(outputId = "downloadSystemDQReport",
                        label = "Download")
       }
     })

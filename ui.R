@@ -808,7 +808,7 @@ dashboardPage(
         tabName = "tabDQSystem",
         fluidRow(box(
           htmlOutput("headerSystemDQ"), width = 12, 
-          uiOutput("downloadFullDQReportButton"))),
+          uiOutput("downloadSystemDQReportButton"))),
         fluidRow(box(
           title = "Instructions",
           width = 12,
