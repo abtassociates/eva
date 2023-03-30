@@ -682,23 +682,6 @@ function(input, output, session) {
   #        )))
   # })
   
-  #### DQ SYSTEM REPORT #### ----------------------
-  # button
-  output$downloadFullDQReportButton  <- renderUI({
-    if (valid_file() == 1) {
-      downloadButton(outputId = "downloadFullDQReport",
-                     label = "Download")
-    }
-  })
-  
-  output$downloadFullDQReport <- downloadHandler(
-    filename = date_stamped_filename("Full Data Quality Report-"),
-    content = function(file) {
-      write_xlsx(fullDQReportDataList(), path = file)
-      logMetadata("Downloaded System-level DQ Report")
-    }
-  )
-  
   
   output$deskTimeNote <- renderUI({
     HTML(
