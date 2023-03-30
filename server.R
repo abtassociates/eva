@@ -559,46 +559,6 @@ function(input, output, session) {
     output$orgDQWarningsByIssue_ui <- renderUI({
       renderDQPlot("org", "Warning", "Issue", "#71B4CB")
     })
-    
-
-# DQ Data Tables ----------------------------------------------------------
-    
-    dqDataTable <- function(issueType) {
-      DT::renderDT({
-        req(valid_file() == 1)      
-        
-        ReportStart <- Export$ExportStartDate
-        ReportEnd <- meta_HUDCSV_Export_End
-        
-        DQdata <- dq_main_reactive() %>%
-          filter(
-            OrganizationName %in% c(input$orgList) &
-              Type ==issueType
-          ) %>%
-          mutate(EntryDate = format.Date(EntryDate, "%m-%d-%Y")) %>%
-          arrange(ProjectName, HouseholdID, PersonalID) %>%
-          select("Project Name" = ProjectName,
-                 "Personal ID" = PersonalID,
-                 case_when(
-                   issueType == "High Priority" ~ "High Priority Issue",
-                   TRUE ~ issueType
-                   ) = Issue,
-                 "Project Start Date" =  EntryDate)
-        
-        datatable(
-          DQdata,
-          rownames = FALSE,
-          filter = 'top',
-          options = list(dom = 'ltpi')
-        )
-      })
-    }
-    
-    output$DQHighPriority <- dqDataTable("High Priority")
-    
-    output$DQErrors <- dqDataTable("Error")
-    
-    output$DQWarnings <- dqDataTable("Warning")
   
   # output$headerUtilization <- renderUI({
   #   req(valid_file() == 1)
