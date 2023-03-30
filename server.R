@@ -429,11 +429,9 @@ function(input, output, session) {
       # return a list for reference in downloadHandler
       list(
         orgDQData = getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals),
-        orgDQFilename = date_stamped_filename(str_glue("{input$orgList} Data Quality Report-")),
            
         systemDQData = getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName",
-                                              calculate_outstanding_referrals(input$CEOutstandingReferrals)),
-        systemDQFilename = date_stamped_filename("Full Data Quality Report-")
+                                              calculate_outstanding_referrals(input$CEOutstandingReferrals))
       )
       
     })
@@ -449,7 +447,7 @@ function(input, output, session) {
     })
     
     output$downloadOrgDQReport <- downloadHandler(
-      filename = dqDownloadInfo()$orgDQFilename,
+      filename = reactive(date_stamped_filename(str_glue("{input$orgList} Data Quality Report-"))),
       content = function(file) {
         write_xlsx(dqDownloadInfo()$orgDQData, path = file)
         logMetadata("Downloaded Org-level DQ Report")
@@ -467,7 +465,7 @@ function(input, output, session) {
     })
     
     output$downloadSystemDQReport <- downloadHandler(
-      filename = dqDownloadInfo()$systemDQFilename,
+      filename = date_stamped_filename("Full Data Quality Report-"),
       content = function(file) {
         write_xlsx(dqDownloadInfo()$systemDQData, path = file)
         logMetadata("Downloaded System-level DQ Report")
