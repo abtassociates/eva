@@ -171,7 +171,7 @@ getDQReportDataList <-
 
 calculate_long_stayers <- function(input, projecttype){
   
-  served_in_date_range %>%
+  base_dq_data %>%
     select(all_of(vars_prep), ProjectID) %>%
     mutate(
       Days = 
@@ -194,7 +194,7 @@ calculate_long_stayers <- function(input, projecttype){
 
 calculate_outstanding_referrals <- function(input){
   
-  served_in_date_range %>%
+  base_dq_data %>%
     left_join(Event %>% select(EnrollmentID,
                                EventID,
                                EventDate,

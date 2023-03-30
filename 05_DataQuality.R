@@ -835,7 +835,7 @@ missing_destination <- base_dq_data %>%
   ) %>%
   select(all_of(vars_we_want))
 
-dkr_destination <- served_in_date_range %>%
+dkr_destination <- base_dq_data %>%
   filter(Destination %in% c(dkr)) %>%
   mutate(Issue = "Don't Know/Refused Destination",
          Type = "Warning",
@@ -1356,7 +1356,7 @@ dq_overlaps2 <- overlaps %>%
 
 # Invalid Move-in Date ----------------------------------------------------
 
-invalid_movein_date <- served_in_date_range %>%
+invalid_movein_date <- base_dq_data %>%
   filter(ProjectType %in% ph_project_types) %>%
   mutate(
     Issue = case_when(
