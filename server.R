@@ -503,7 +503,7 @@ function(input, output, session) {
     # 
     # })
     
-    #SYSTEM-LEVEL DQ TAB PLOTS
+# SYSTEM-LEVEL DQ TAB PLOTS -----------------------------------------------
     # By-org shows organizations containing highest number of HP errors/errors/warnings
     # By-issue shows issues that are the most common of that type (HP errors/errors/warnings)
     output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
@@ -530,9 +530,12 @@ function(input, output, session) {
       renderDQPlot("sys", "Warning", "Issue", "#71B4CB")
     })
 
-    #ORG-LEVEL TAB PLOTS
-    # By-project shows projects, within the selected org, containing highest number of HP errors/errors/warnings
-    # By-issue shows issues, within the selected org, that are the most common of that type (HP errors/errors/warnings)
+
+# ORG-LEVEL TAB PLOTS -----------------------------------------------------
+    # By-project shows projects, within the selected org, containing highest 
+    # number of HP errors/errors/warnings
+    # By-issue shows issues, within the selected org, that are the most common 
+    # of that type (HP errors/errors/warnings)
     output$orgDQHighPriorityErrorsByProject_ui <- renderUI({
       renderDQPlot("org", "High Priority", "Project", "#71B4CB")
     })
