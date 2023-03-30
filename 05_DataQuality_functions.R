@@ -1,3 +1,7 @@
+###############################
+#   PURPOSE: This script contains functions used by the app
+#   for generating the DQ plots and DQ exports
+###############################
 dq_main_reactive <- reactive({
   req(valid_file()== 1)
   # browser()
@@ -167,7 +171,7 @@ getDQReportDataList <-
 
 calculate_long_stayers <- function(input, projecttype){
   
-  served_in_date_range %>%
+  base_dq_data %>%
     select(all_of(vars_prep), ProjectID) %>%
     mutate(
       Days = 
@@ -190,7 +194,7 @@ calculate_long_stayers <- function(input, projecttype){
 
 calculate_outstanding_referrals <- function(input){
   
-  served_in_date_range %>%
+  base_dq_data %>%
     left_join(Event %>% select(EnrollmentID,
                                EventID,
                                EventDate,
@@ -222,7 +226,7 @@ calculate_outstanding_referrals <- function(input){
         Event == 18 ~ "Referral to a Housing Stability Voucher"
       )
     ) %>%
-    filter(Event %in% c(10:15,17:18) &
+    filter(Event %in% c(10:15, 17:18) &
              is.na(ResultDate) &
              input < Days)
   

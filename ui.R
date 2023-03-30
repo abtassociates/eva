@@ -269,14 +269,14 @@ dashboardPage(
           box(
             title = "HMIS CSV Export File Structure Analysis",
             width = 12,
-            DT::dataTableOutput("integrityChecker"),
+            DT::dataTableOutput("fileStructureAnalysis"),
             p(),
             HTML("<p>Users should contact their vendor to resolve high priority 
             errors identified in the HMIS CSV Export File Structure Analysis, as
             well as any other structural issues which you feel need to be corrected.
             </p>"),
             p(),
-            uiOutput('downloadIntegrityBtn')
+            uiOutput('downloadFileStructureAnalysisBtn')
           )
         )
       ),
@@ -808,7 +808,7 @@ dashboardPage(
         tabName = "tabDQSystem",
         fluidRow(box(
           htmlOutput("headerSystemDQ"), width = 12, 
-          uiOutput("downloadFullDQReportButton"))),
+          uiOutput("downloadSystemDQReportButton"))),
         fluidRow(box(
           title = "Instructions",
           width = 12,
