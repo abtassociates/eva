@@ -46,6 +46,8 @@ jobs:
         shell: Rscript {0}
         run: |
           install.packages("webshot")
+          install.packages("shiny")
+          install.packages("shinytest")
           webshot::install_phantomjs()
           
       - name: Run tests
