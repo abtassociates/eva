@@ -50,5 +50,5 @@ jobs:
           options(repos = c(RSPM = "https://packagemanager.rstudio.com/all/latest"))
           renv::restore()
 
-      - name: Run Test
-        run: Rscript tests/shinytest.R
+      - name: Run tests
+        run: R -e 'shinytest::testApp()'
