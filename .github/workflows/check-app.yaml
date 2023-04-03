@@ -39,18 +39,6 @@ jobs:
         uses: r-lib/actions/setup-renv@v2
         with:
           profile: "shiny"
-          cache-version: 1
-          bypass-cache: false
-        env:
-          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-          R_KEEP_PKG_SOURCE: yes
-          RENV_PATHS_ROOT: /home/runner/work/_temp/renv
-          R_LIBS_USER: /home/runner/work/_temp/Library
-          TZ: UTC
-				  _R_CHECK_SYSTEM_CLOCK_: FALSE
-				  NOT_CRAN: true
-				  RSPM: https://packagemanager.posit.co/cran/__linux__/jammy/latest
-				  RENV_CONFIG_REPOS_OVERRIDE: https://packagemanager.posit.co/cran/__linux__/jammy/latest
 				  
 		  - name: Restore R environment cache
 		    uses: actions/cache@v2
