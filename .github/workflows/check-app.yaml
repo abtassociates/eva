@@ -58,5 +58,5 @@ jobs:
           install.packages("webshot")
           webshot::install_phantomjs()
           
-			- name: Run tests
-			  run: R -e 'shinytest::testApp()'
+      - name: Run tests
+        run: R -e 'shinytest::testApp()'
