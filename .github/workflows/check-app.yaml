@@ -38,7 +38,7 @@ jobs:
       - name: Setup R environment with renv
         uses: r-lib/actions/setup-renv@v2
         with:
-          profile: "shiny"
+          profile: '"shiny"'
         
       - name: Restore R environment cache
         uses: actions/cache@v2
