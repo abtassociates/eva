@@ -44,8 +44,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /home/runner/work/_temp/renv
-		      key: ${{ runner.os }}-R-${{ hashFiles('**/renv.lock') }}
-		      restore-keys: ${{ runner.os }}-R-
+          key: ${{ runner.os }}-R-${{ hashFiles('**/renv.lock') }}
+          restore-keys: ${{ runner.os }}-R-
 		    env:
 		      cache-name: cache-R-env
 
