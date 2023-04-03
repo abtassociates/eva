@@ -51,12 +51,12 @@ jobs:
 
       - name: Install packages from renv.lock
         run: Rscript -e "renv::activate(); renv::restore()"
-				
+        
       - name: Install PhantomJS
         shell: Rscript {0}
         run: |
           install.packages("webshot")
           webshot::install_phantomjs()
-				  
-      - name: Run tests
-        run: R -e 'shinytest::testApp()'
+          
+			- name: Run tests
+			  run: R -e 'shinytest::testApp()'
