@@ -39,18 +39,7 @@ jobs:
         uses: r-lib/actions/setup-renv@v2
         with:
           profile: '"shiny"'
-        
-      - name: Restore R environment cache
-        uses: actions/cache@v2
-        with:
-          path: /home/runner/work/_temp/renv
-          key: ${{ runner.os }}-R-${{ hashFiles('**/renv.lock') }}
-          restore-keys: ${{ runner.os }}-R-
-        env:
-          cache-name: cache-R-env
-
-      - name: Install packages from renv.lock
-        run: Rscript -e "renv::activate(); renv::restore()"
+          cache-version: 3
         
       - name: Install PhantomJS
         shell: Rscript {0}
