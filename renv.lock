@@ -547,6 +547,17 @@
       ],
       "Hash": "1f37fa4ab2f5f7eded42f78b9a887182"
     },
+    "debugme": {
+      "Package": "debugme",
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "crayon",
+        "grDevices"
+      ],
+      "Hash": "2d8a9e4f08f3dd669cb8ddd1eb575959"
+    },
     "desc": {
       "Package": "desc",
       "Version": "1.4.2",
@@ -1317,6 +1328,13 @@
       ],
       "Hash": "fc5e0e85d3a1e4282f04f303627b7e72"
     },
+    "parsedate": {
+      "Package": "parsedate",
+      "Version": "1.3.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "7f5024cc7af45eeecef657fa62beb568"
+    },
     "patchwork": {
       "Package": "patchwork",
       "Version": "1.1.1",
@@ -1422,6 +1440,16 @@
         "viridisLite"
       ],
       "Hash": "fbb11e44d057996ca5fe40d959cacfb0"
+    },
+    "png": {
+      "Package": "png",
+      "Version": "0.1-8",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "bd54ba8a0a5faded999a7aab6e46b374"
     },
     "praise": {
       "Package": "praise",
@@ -1815,31 +1843,34 @@
       ],
       "Hash": "802e4786b353a4bb27116957558548d5"
     },
-    "shinytest2": {
-      "Package": "shinytest2",
-      "Version": "0.2.1",
+    "shinytest": {
+      "Package": "shinytest",
+      "Version": "1.5.3",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R6",
+        "assertthat",
         "callr",
-        "checkmate",
-        "chromote",
-        "cpp11",
         "crayon",
-        "ellipsis",
-        "fs",
-        "globals",
+        "debugme",
+        "digest",
+        "htmlwidgets",
+        "httpuv",
         "httr",
         "jsonlite",
+        "parsedate",
         "pingr",
+        "rematch",
         "rlang",
-        "rmarkdown",
+        "rstudioapi",
         "shiny",
         "testthat",
+        "utils",
+        "webdriver",
         "withr"
       ],
-      "Hash": "da29b51211b28a7180977d94b638127e"
+      "Hash": "981229915650258e38ae95947210082d"
     },
     "shinyvalidate": {
       "Package": "shinyvalidate",
@@ -1853,6 +1884,17 @@
         "shiny"
       ],
       "Hash": "4ce7aa115e26a4eefbecab1b27bc3ada"
+    },
+    "showimage": {
+      "Package": "showimage",
+      "Version": "1.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "png",
+        "tools"
+      ],
+      "Hash": "841927b226db842d24d9c288c99ed27b"
     },
     "snakecase": {
       "Package": "snakecase",
@@ -2183,6 +2225,25 @@
         "tibble"
       ],
       "Hash": "035fba89d0c86e2113120f93301b98ad"
+    },
+    "webdriver": {
+      "Package": "webdriver",
+      "Version": "1.0.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R6",
+        "base64enc",
+        "callr",
+        "curl",
+        "debugme",
+        "httr",
+        "jsonlite",
+        "showimage",
+        "utils",
+        "withr"
+      ],
+      "Hash": "adc1e0db3ac0d75dcdb4b8179e7ca796"
     },
     "websocket": {
       "Package": "websocket",
