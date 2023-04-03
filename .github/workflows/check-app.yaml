@@ -36,7 +36,7 @@ jobs:
           use-public-rspm: true
 
       - name: Cache packages
-        uses: actions/cache@v3
+        uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
           key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
@@ -49,6 +49,10 @@ jobs:
           if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
           options(repos = c(RSPM = "https://packagemanager.rstudio.com/all/latest"))
           renv::restore()
-
+          
+      - name: Install PhantomJS
+        run: shinytest::installDependencies()
+      
+      
       - name: Run tests
         run: R -e 'shinytest::testApp()'
