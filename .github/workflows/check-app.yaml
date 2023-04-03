@@ -38,7 +38,7 @@ jobs:
       - name: Cache packages
         uses: actions/cache@v3
         with:
-          path: ${{ env.RENV_PATHS_ROOT }}
+          path: ${{ env.R_LIBS_USER }}
           key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
           restore-keys: |
             ${{ runner.os }}-renv-
