@@ -37,6 +37,9 @@ jobs:
 
       - uses: r-lib/actions/setup-renv@v2
 
+      - uses: browser-actions/setup-chrome@v1
+      - run: chrome --version
+
       - uses: rstudio/shinytest2/actions/test-app@v1
         with:
           path: "."
