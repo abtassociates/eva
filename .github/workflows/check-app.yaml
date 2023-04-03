@@ -39,8 +39,8 @@ jobs:
         uses: r-lib/actions/setup-renv@v2
         with:
           profile: "shiny"
-				  
-		  - name: Restore R environment cache
+        
+      - name: Restore R environment cache
 		    uses: actions/cache@v2
 		    with:
 		      path: /home/runner/work/_temp/renv
