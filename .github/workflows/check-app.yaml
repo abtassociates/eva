@@ -36,10 +36,10 @@ jobs:
           use-public-rspm: true
 
       - name: Restore renv snapshot
-      shell: Rscript {0}
-      run: |
-        if (!require('renv')) install.packages('renv')
-        renv::restore()
+        shell: Rscript {0}
+        run: |
+          if (!require('renv')) install.packages('renv')
+          renv::restore()
     
       - uses: r-lib/actions/setup-renv@v2
 
