@@ -40,7 +40,14 @@ jobs:
         with:
           profile: '"shiny"'
           cache-version: 3
-        
+          bypass-cache: true
+          
+      - name: List packages from renv.lock
+        run: |
+          echo "Packages in renv.lock:"
+          cat renv.lock | jq '.dependencies | keys | .[]'
+        shell: bash
+  
       - name: Install PhantomJS
         shell: Rscript {0}
         run: |
