@@ -41,7 +41,6 @@ jobs:
           profile: '"shiny"'
           cache-version: 3
           bypass-cache: true
-          lock-path: '**/renv.lock'
   
       - name: Install PhantomJS
         shell: Rscript {0}
