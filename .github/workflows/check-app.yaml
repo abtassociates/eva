@@ -46,8 +46,8 @@ jobs:
           path: /home/runner/work/_temp/renv
           key: ${{ runner.os }}-R-${{ hashFiles('**/renv.lock') }}
           restore-keys: ${{ runner.os }}-R-
-		    env:
-		      cache-name: cache-R-env
+        env:
+          cache-name: cache-R-env
 
       - name: Install packages from renv.lock
         run: Rscript -e "renv::activate(); renv::restore()"
