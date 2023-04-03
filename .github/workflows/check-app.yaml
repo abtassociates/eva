@@ -44,7 +44,7 @@ jobs:
         run: |
           install.packages("renv")
           renv::activate()
-          shell: Rscript {0}
+        shell: Rscript {0}
           
       - name: Get R and OS version
         id: get-version
