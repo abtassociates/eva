@@ -1,3 +1,3 @@
 library(shinytest)
-shinytest::testApp("../")
+shinytest::testApp("~/DQ_CE/")
 
