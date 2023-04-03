@@ -25,7 +25,7 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -37,9 +37,8 @@ jobs:
 
       - uses: r-lib/actions/setup-renv@v2
 
-      - uses: browser-actions/setup-chrome@v1
-      - run: chrome --version
+     # - uses: browser-actions/setup-chrome@v1
+     # - run: chrome --version
 
-      - uses: rstudio/shinytest2/actions/test-app@v1
-        with:
-          path: "."
+      - name: Run Test
+        run: Rscript tests/shinytest.R

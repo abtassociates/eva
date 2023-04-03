@@ -19,3 +19,5 @@ www/metadata/
 sandbox/**/*.csv
 *.docx
 *.log
+# {shinytest2}: Ignore new debug snapshots for `$expect_values()`
+*_.new.png
