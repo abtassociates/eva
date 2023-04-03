@@ -37,7 +37,7 @@ jobs:
 
       - uses: r-lib/actions/setup-renv@v2
         with:
-        profile: '"shiny"'
+          profile: '"shiny"'
     
       - name: Install PhantomJS
         shell: Rscript {0}
