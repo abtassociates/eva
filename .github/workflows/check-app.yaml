@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: my-custom-cache-key
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
           restore-keys: |
             ${{ runner.os }}-renv-
             
@@ -51,6 +51,7 @@ jobs:
           renv::restore()
           
       - name: Install PhantomJS
+        shell: Rscript {0}
         run: webshot::install_phantomjs()
       
       - name: Run tests
