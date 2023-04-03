@@ -36,12 +36,12 @@ jobs:
           use-public-rspm: true
 
       - name: Setup R environment with renv
-			  uses: r-lib/actions/setup-renv@v2
-			  with:
+        uses: r-lib/actions/setup-renv@v2
+        with:
 				  profile: "shiny"
 				  cache-version: 1
 				  bypass-cache: false
-			  env:
+				env:
 				  GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 				  R_KEEP_PKG_SOURCE: yes
 				  RENV_PATHS_ROOT: /home/runner/work/_temp/renv
