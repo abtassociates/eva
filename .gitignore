@@ -6,13 +6,11 @@ data
 rsconnect
 .Rprofile
 comparisons
-tests/
 *.jpg
 .DS_Store
 data/
 images/
 *.html
-test/
 /*.csv
 *.json
 logs/
