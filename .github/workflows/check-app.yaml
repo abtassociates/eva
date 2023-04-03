@@ -36,10 +36,10 @@ jobs:
           use-public-rspm: true
 
       - name: Cache packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          key: my-custom-cache-key
           restore-keys: |
             ${{ runner.os }}-renv-
             
@@ -51,8 +51,7 @@ jobs:
           renv::restore()
           
       - name: Install PhantomJS
-        run: shinytest::installDependencies()
-      
+        run: webshot::install_phantomjs()
       
       - name: Run tests
         run: R -e 'shinytest::testApp()'
