@@ -35,16 +35,20 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      - name: Restore renv snapshot
+      - name: Cache packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
+            
+      - name: Restore packages
         shell: Rscript {0}
         run: |
-          if (!require('renv')) install.packages('renv')
+          if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
+          options(repos = c(RSPM = "https://packagemanager.rstudio.com/all/latest"))
           renv::restore()
-    
-      - uses: r-lib/actions/setup-renv@v2
-
-     # - uses: browser-actions/setup-chrome@v1
-     # - run: chrome --version
 
       - name: Run Test
         run: Rscript tests/shinytest.R
