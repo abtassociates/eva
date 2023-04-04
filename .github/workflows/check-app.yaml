@@ -1,25 +1,38 @@
 # Workflow derived from https://github.com/rstudio/shinytest2/tree/main/actions/test-app/example-test-app-description.yaml
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
+  push:
   pull_request:
 
-name: Test1
+name: Test app w/ {renv}
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  test-app:
+    runs-on: ${{ matrix.config.os }}
 
-    name: shiny-test-automation
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     strategy:
       fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest, r: release}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      RSPM: ${{ matrix.config.rspm }}
 
     steps:
       - uses: actions/checkout@v3
 
+      - uses: r-lib/actions/setup-pandoc@v2
+
       - uses: r-lib/actions/setup-r@v2
         with:
-          r-version: '4.2'
+          r-version: ${{ matrix.config.r }}
+          use-public-rspm: true
 
       - name: Cache R packages
         uses: actions/cache@v3
