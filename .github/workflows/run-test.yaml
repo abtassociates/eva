@@ -25,6 +25,10 @@ jobs:
 
       #- name: Setup renv
       #  uses: r-lib/actions/setup-renv@v2
+      - name: Set RENV_PATHS_ROOT
+        shell: bash
+        run: |
+          echo "RENV_PATHS_ROOT=${{ runner.temp }}/renv" >> $GITHUB_ENV
       
       - name: Install renv
         run: |
@@ -33,6 +37,7 @@ jobs:
       - name: Restore renv library
         uses: actions/cache@v3
         with:
+          path: ${{ env.RENV_PATHS_ROOT }}
           key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
           restore-keys: |
             ${{ runner.os }}-renv-
