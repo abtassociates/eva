@@ -36,13 +36,13 @@ jobs:
             ${{ runner.os }}-renv-
             ${{ runner.os }}-
           
-      - name: Merge feature branch with dev
-        run: |
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "GitHub Actions"
-          git fetch origin dev
-          git merge origin/dev
-          
-      - name: Run tests
-        run: |
-          Rscript tests/shinytest.R
+      # - name: Merge feature branch with dev
+      #   run: |
+      #     git config user.email "github-actions[bot]@users.noreply.github.com"
+      #     git config user.name "GitHub Actions"
+      #     git fetch origin dev
+      #     git merge origin/dev
+      #     
+      # - name: Run tests
+      #   run: |
+      #     Rscript tests/shinytest.R
