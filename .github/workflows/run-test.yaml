@@ -14,7 +14,7 @@ jobs:
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
-      RENV_PATHS_CACHE: '~/.cache/R/renv/cache'
+      # RENV_PATHS_CACHE: '~/.cache/R/renv/cache'
       
     steps:
       - uses: actions/checkout@v3
