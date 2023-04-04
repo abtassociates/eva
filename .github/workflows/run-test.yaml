@@ -13,7 +13,6 @@ jobs:
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
-      # RENV_PATHS_CACHE: '~/.cache/R/renv/cache'
       
     steps:
       - uses: actions/checkout@v3
@@ -22,8 +21,6 @@ jobs:
         with:
           r-version: '4.2'
 
-      #- name: Setup renv
-      #  uses: r-lib/actions/setup-renv@v2
       - name: Set RENV_PATHS_ROOT
         shell: bash
         run: |
