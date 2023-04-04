@@ -33,7 +33,6 @@ jobs:
       - name: Restore renv library
         uses: actions/cache@v3
         with:
-          path: ${{ env.RENV_PATHS_CACHE }}
           key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
           restore-keys: |
             ${{ runner.os }}-renv-
