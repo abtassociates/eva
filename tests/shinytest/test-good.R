@@ -2,7 +2,7 @@ app <- ShinyDriver$new("../../", loadTimeout = 1e+05)
 app$snapshotInit("test-good")
 
 app$setInputs(Go_to_upload = "click")
-app$uploadFile(imported = "/media/projects/projects/CE_Data_Toolkit/Data Sets/HMIS CSV Export - Current Good.zip") # <-- This should be the path to the file, relative to the app's tests/shinytest directory
+app$uploadFile(imported = "../test_uploads/HMIS CSV Export - Current Good.zip") # <-- This should be the path to the file, relative to the app's tests/shinytest directory
 # Input 'fileStructureAnalysis_rows_current' was set, but doesn't have an input binding.
 # Input 'fileStructureAnalysis_rows_all' was set, but doesn't have an input binding.
 # Input 'fileStructureAnalysis_state' was set, but doesn't have an input binding.
