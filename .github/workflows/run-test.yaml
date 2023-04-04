@@ -28,8 +28,13 @@ jobs:
           Rscript -e 'install.packages("renv")'
       
       - name: Restore renv library
-        run: |
-          Rscript -e 'renv::restore()'
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.RENV_PATHS_CACHE }}
+          key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
+            ${{ runner.os }}-
           
       - name: Merge feature branch with dev
         run: |
