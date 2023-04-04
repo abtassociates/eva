@@ -815,7 +815,7 @@ rm(list = ls(pattern = "Top*"),
 
 # Project Exit Before Start --------------
 exit_before_start <- base_dq_data %>%
-  filter(ExitDate < EntryDate & !is_null(ExitDate) & !is_null(EntryDate)) %>% 
+  filter(ExitDate < EntryDate & !is.null(ExitDate) & !is.null(EntryDate)) %>% 
   mutate(Issue = "Project Exit Before Start",
          Type = "Error",
          Guidance = guidance_exit_before_start) %>%
