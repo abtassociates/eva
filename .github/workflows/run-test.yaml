@@ -23,18 +23,21 @@ jobs:
         with:
           r-version: '4.2'
         
-      - name: Install renv
-        run: |
-          Rscript -e 'install.packages("renv")'
+      - name: Setup renv
+        uses: r-lib/actions/setup-renv@v2
       
-      - name: Restore renv library
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.RENV_PATHS_CACHE }}
-          key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-renv-
-            ${{ runner.os }}-
+      # - name: Install renv
+      #   run: |
+      #     Rscript -e 'install.packages("renv")'
+      # 
+      # - name: Restore renv library
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ${{ env.RENV_PATHS_CACHE }}
+      #     key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-renv-
+      #       ${{ runner.os }}-
           
       # - name: Merge feature branch with dev
       #   run: |
