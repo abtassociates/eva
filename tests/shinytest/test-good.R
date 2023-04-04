@@ -1,4 +1,4 @@
-app <- ShinyDriver$new("../../", loadTimeout = 1e+05)
+app <- ShinyDriver$new("../../", seed=1234, loadTimeout = 1e+05)
 app$snapshotInit("test-good")
 
 app$setInputs(Go_to_upload = "click")
