@@ -31,7 +31,8 @@ jobs:
       
       - name: Install arrow package from GitHub using renv
         run: |
-          Rscript -e 'renv::install("arrow")'
+          Rscript -e 'Sys.setenv("NOT_CRAN" = "true")'
+          Rscript -e 'install.packages("arrow")'
       
       - name: Cache renv library
         uses: actions/cache@v3
