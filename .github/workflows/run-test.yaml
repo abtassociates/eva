@@ -22,15 +22,15 @@ jobs:
         with:
           r-version: '4.2'
 
+      - name: Install renv
+        run: |
+          Rscript -e 'install.packages("renv")'
+      
       - name: Set RENV_PATHS_ROOT
         shell: bash
         run: |
           echo "RENV_PATHS_ROOT=${{ runner.temp }}/Library/renv" >> $GITHUB_ENV
           
-      - name: Install renv
-        run: |
-          Rscript -e 'install.packages("renv")'
-      
       - name: Cache renv library
         uses: actions/cache@v3
         with:
