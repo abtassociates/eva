@@ -13,7 +13,7 @@ images/
 *.html
 /*.csv
 *.json
-!tests/*.json
+!tests/**/*.json
 logs/
 www/metadata/
 *.txt
