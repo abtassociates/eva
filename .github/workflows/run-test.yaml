@@ -3,7 +3,7 @@ on:
   push:
   pull_request:
 
-name: Test2
+name: Test
 
 jobs:
   test:
