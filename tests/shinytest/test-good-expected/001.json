@@ -15,52 +15,11 @@
 
     ],
     "fileStructureAnalysis_columns_selected": null,
-    "fileStructureAnalysis_rows_all": 1,
-    "fileStructureAnalysis_rows_current": 1,
+    "fileStructureAnalysis_rows_all": null,
+    "fileStructureAnalysis_rows_current": null,
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
-    "fileStructureAnalysis_state": {
-      "start": 0,
-      "length": 10,
-      "order": [
-
-      ],
-      "search": {
-        "search": "",
-        "smart": true,
-        "regex": false,
-        "caseInsensitive": true
-      },
-      "columns": [
-        {
-          "visible": true,
-          "search": {
-            "search": "",
-            "smart": true,
-            "regex": false,
-            "caseInsensitive": true
-          }
-        },
-        {
-          "visible": true,
-          "search": {
-            "search": "",
-            "smart": true,
-            "regex": false,
-            "caseInsensitive": true
-          }
-        },
-        {
-          "visible": true,
-          "search": {
-            "search": "",
-            "smart": true,
-            "regex": false,
-            "caseInsensitive": true
-          }
-        }
-      ]
-    },
+    "fileStructureAnalysis_state": null,
     "Go_to_upload": 1,
     "imported": {
       "name": [
