@@ -41,7 +41,7 @@ jobs:
       
       - name: Restore renv 
         run: |
-          Rscript -e renv::restore()
+          Rscript -e 'renv::restore()'
 
       - name: List cache contents
         run: |
