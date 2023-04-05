@@ -26,6 +26,10 @@ jobs:
         shell: bash
         run: |
           echo "RENV_PATHS_ROOT=${{ runner.temp }}/Library/renv" >> $GITHUB_ENV
+          
+      - name: Install renv
+        run: |
+          Rscript -e 'install.packages("renv")'
       
       - name: Cache renv library
         uses: actions/cache@v3
@@ -41,11 +45,6 @@ jobs:
         with:
           path: ${{ env.RENV_PATHS_ROOT }}
           key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
-            
-      # - name: Install renv
-      #   run: |
-      #     Rscript -e 'install.packages("renv")'
-
 
       - name: Check if package is installed
         run: Rscript -e 'if(!requireNamespace("shinytest", quietly = TRUE)) stop("shinytest not installed")'
