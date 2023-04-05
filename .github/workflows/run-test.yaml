@@ -1,6 +1,5 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
-  push:
   pull_request:
 
 name: Test
@@ -28,11 +27,7 @@ jobs:
         run: |
           echo "RENV_PATHS_ROOT=${{ runner.temp }}/Library/renv" >> $GITHUB_ENV
       
-      - name: Install renv
-        run: |
-          Rscript -e 'install.packages("renv")'
-
-      - name: Restore renv library
+      - name: Cache renv library
         uses: actions/cache@v3
         with:
           path: ${{ env.RENV_PATHS_ROOT }}
@@ -40,21 +35,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-renv-
             ${{ runner.os }}-
+      
+      - name: Restore packages
+        uses: actions/cache/restore@v3
+          with:
+            path: ${{ env.RENV_PATHS_ROOT }}
+            key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
+            
+      # - name: Install renv
+      #   run: |
+      #     Rscript -e 'install.packages("renv")'
+
 
       - name: Check if package is installed
         run: Rscript -e 'if(!requireNamespace("shinytest", quietly = TRUE)) stop("shinytest not installed")'
-  
-      - name: Merge feature branch with dev
-        run: |
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "GitHub Actions"
-          git fetch origin
-          git merge origin/dev
-        continue-on-error: true
-        
-      - name: Check for merge conflicts
-        run: |
-          git diff --check HEAD
 
       - name: Find PhantomJS path
         id: phantomjs
