@@ -39,15 +39,6 @@ jobs:
             ${{ runner.os }}-
           fail-on-cache-miss: false
 
-      - name: Restore packages
-        uses: actions/cache/restore@v3
-        with:
-          path: ${{ env.RENV_PATHS_ROOT }}
-          key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
-
-      - name: Check if package is installed
-        run: Rscript -e 'if(!requireNamespace("shinytest", quietly = TRUE)) stop("shinytest not installed")'
-
       - name: Find PhantomJS path
         id: phantomjs
         run: |
