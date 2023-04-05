@@ -38,9 +38,9 @@ jobs:
       
       - name: Restore packages
         uses: actions/cache/restore@v3
-          with:
-            path: ${{ env.RENV_PATHS_ROOT }}
-            key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
+        with:
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
             
       # - name: Install renv
       #   run: |
