@@ -26,29 +26,6 @@ jobs:
           r-version: '4.2'
 
       - uses: r-lib/actions/setup-renv@v2
-      # 
-      # - name: Set RENV_PATHS_ROOT
-      #   shell: bash
-      #   run: |
-      #     echo "RENV_PATHS_ROOT=${{ runner.temp }}/Library/renv" >> $GITHUB_ENV
-      #     
-      # - name: Install renv
-      #   run: |
-      #     Rscript -e 'install.packages("renv")'
-      # 
-      # - name: Cache renv library
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ${{ env.RENV_PATHS_ROOT }}
-      #     key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-renv-
-      #       ${{ runner.os }}-
-      #     fail-on-cache-miss: false
-      # 
-      # - name: Restore renv 
-      #   run: |
-      #     Rscript -e 'renv::restore()'
 
       - name: List cache contents
         run: |
