@@ -26,10 +26,6 @@ jobs:
           r-version: '4.2'
 
       - uses: r-lib/actions/setup-renv@v2
-
-      - name: List cache contents
-        run: |
-          ls -R ${{ env.RENV_PATHS_ROOT }}
     
       - name: Find PhantomJS path
         id: phantomjs
