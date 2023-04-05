@@ -38,6 +38,10 @@ jobs:
             ${{ runner.os }}-renv-
             ${{ runner.os }}-
           fail-on-cache-miss: false
+      
+      - name: Restore renv 
+        run: |
+          Rscript -e renv::restore()
 
       - name: List cache contents
         run: |
