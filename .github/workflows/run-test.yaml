@@ -41,11 +41,15 @@ jobs:
             ${{ runner.os }}-renv-
             ${{ runner.os }}-
 
+      - name: Check if package is installed
+        run: Rscript -e 'if(!requireNamespace("shinytest", quietly = TRUE)) stop("shinytest not installed")'
+  
       - name: Merge feature branch with dev
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "GitHub Actions"
-          git merge ${{ github.ref }}
+          git fetch origin
+          git merge origin/dev
         continue-on-error: true
         
       - name: Check for merge conflicts
@@ -57,7 +61,7 @@ jobs:
         run: |
           echo "::set-output name=path::$(Rscript -e 'cat(shinytest:::phantom_paths()[[1]])')"
       - name: Cache PhantomJS
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ${{ steps.phantomjs.outputs.path }}
           key: ${{ runner.os }}-phantomjs
