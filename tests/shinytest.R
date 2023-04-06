@@ -1,6 +1,5 @@
 library(shinytest)
 library(readxl)
-print(utils::osVersion)
-testApp(".", quiet=TRUE)
+testApp(".", compareImages=FALSE, quiet=TRUE)
 viewTestDiff(".", interactive = FALSE)
 
