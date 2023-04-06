@@ -326,5 +326,7 @@ renderDQPlot <- function(level, issueType, group, color) {
 
   # finally, render the plot
   return(plotOutput(outputId, height = plot_height))
+  
+  exportTestValues(get(outputId) = plotOutput(outputId, height = plot_height))
 }
 
