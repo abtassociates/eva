@@ -1,40 +1,39 @@
+customDownload <- function(downloadHandler, fname) {
+  app$snapshotDownload(downloadHandler, paste0(fname,".xlsx"))
+  downloadedFile <- import_xlsx(paste0("test-good-current/",fname,".xlsx"))
+  saveRDS(downloadedFile, paste0("test-good-current/",fname,".rds"))
+  file.remove(paste0("test-good-current/",fname,".xlsx"))
+}
+
+import_xlsx <- function(fpath) {
+  sheets <- excel_sheets(fpath)
+  data <- lapply(sheets, read_xlsx, path = fpath) 
+  return(data)
+}
+
 app <- ShinyDriver$new("../../", seed=1234, loadTimeout = 1e+05)
 app$snapshotInit("test-good")
 
 app$setInputs(Go_to_upload = "click")
 app$uploadFile(imported = "../test_uploads/HMIS CSV Export - Current Good.zip") # <-- This should be the path to the file, relative to the app's tests/shinytest directory
-# Input 'fileStructureAnalysis_rows_current' was set, but doesn't have an input binding.
-# Input 'fileStructureAnalysis_rows_all' was set, but doesn't have an input binding.
-# Input 'fileStructureAnalysis_state' was set, but doesn't have an input binding.
+app$findElement("button[data-dismiss='modal']")$click()
+Sys.sleep(2)
 app$snapshot()
+customDownload("downloadFileStructureAnalysis","File-Structure-Analysis")
+
 app$setInputs(sidebarmenuid = "tabClientCount")
-# Input 'clientCountSummary_rows_current' was set, but doesn't have an input binding.
-# Input 'clientCountSummary_rows_all' was set, but doesn't have an input binding.
-# Input 'clientCountSummary_state' was set, but doesn't have an input binding.
-# Input 'clientCountData_rows_current' was set, but doesn't have an input binding.
-# Input 'clientCountData_rows_all' was set, but doesn't have an input binding.
-# Input 'clientCountData_state' was set, but doesn't have an input binding.
 app$snapshot()
-app$snapshotDownload("downloadClientCountsReport")
+customDownload("downloadClientCountsReport", "Client-Counts-Download")
+
 app$setInputs(sidebarItemExpanded = "AssessDataQuality")
 app$setInputs(sidebarmenuid = "tabPDDE")
-# Input 'pdde_summary_table_rows_current' was set, but doesn't have an input binding.
-# Input 'pdde_summary_table_rows_all' was set, but doesn't have an input binding.
-# Input 'pdde_summary_table_state' was set, but doesn't have an input binding.
-# Input 'pdde_guidance_summary_rows_current' was set, but doesn't have an input binding.
-# Input 'pdde_guidance_summary_rows_all' was set, but doesn't have an input binding.
-# Input 'pdde_guidance_summary_state' was set, but doesn't have an input binding.
 app$snapshot()
-app$snapshotDownload("downloadPDDEReport")
+customDownload("downloadPDDEReport", "PDDE-Download")
+
 app$setInputs(sidebarmenuid = "tabDQSystem")
 app$snapshot()
-app$snapshotDownload("downloadSystemDQReport")
+customDownload("downloadSystemDQReport", "System-DQ-Download")
+
 app$setInputs(sidebarmenuid = "tabDQOrg")
-# Input 'dq_org_guidance_summary_rows_current' was set, but doesn't have an input binding.
-# Input 'dq_org_guidance_summary_rows_all' was set, but doesn't have an input binding.
-# Input 'dq_org_guidance_summary_state' was set, but doesn't have an input binding.
-# Input 'dq_organization_summary_table_rows_current' was set, but doesn't have an input binding.
-# Input 'dq_organization_summary_table_rows_all' was set, but doesn't have an input binding.
-# Input 'dq_organization_summary_table_state' was set, but doesn't have an input binding.
 app$snapshot()
-app$snapshotDownload("downloadOrgDQReport")
+customDownload("downloadOrgDQReport", "Org-DQ-Download")
