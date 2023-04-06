@@ -1,4 +1,6 @@
 library(shinytest)
 library(readxl)
-testApp(".", compareImages = grepl("^Ubuntu", utils::osVersion))
+print(utils::osVersion)
+testApp(".", quiet=TRUE)
+viewTestDiff(".", interactive = FALSE)
 
