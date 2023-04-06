@@ -19,7 +19,7 @@ app$uploadFile(imported = "../test_uploads/HMIS CSV Export - Current Good.zip") 
 app$findElement("button[data-dismiss='modal']")$click()
 Sys.sleep(2)
 app$snapshot()
-customDownload("downloadFileStructureAnalysis","File-Structure-Analysis")
+customDownload("downloadFileStructureAnalysis","File-Structure-Analysis-Download")
 
 app$setInputs(sidebarmenuid = "tabClientCount")
 app$waitForValue("clientCountData", iotype = "output", ignore = list(NULL))
