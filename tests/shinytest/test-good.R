@@ -22,6 +22,7 @@ app$snapshot()
 customDownload("downloadFileStructureAnalysis","File-Structure-Analysis")
 
 app$setInputs(sidebarmenuid = "tabClientCount")
+app$waitForValue("clientCountData", iotype = "output", ignore = list(NULL))
 app$snapshot()
 customDownload("downloadClientCountsReport", "Client-Counts-Download")
 

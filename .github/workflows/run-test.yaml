@@ -52,6 +52,6 @@ jobs:
         run: |
           git config --global user.email "alexsilverman96@example.com"
           git config --global user.name "Alex Silverman"
-          git add tests/testthat/shinytest/test-good-current/*
+          git add tests/shinytest/test-good-current/*
           git commit -m "Update test-good-current results"
           git push
