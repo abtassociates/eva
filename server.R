@@ -94,6 +94,8 @@ function(input, output, session) {
           )
 
           logMetadata("Successful upload")
+          
+          exportTestValues(output$clientCountData)
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")

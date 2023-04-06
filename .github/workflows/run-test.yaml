@@ -55,10 +55,3 @@ jobs:
           name: ${{ runner.os }}-4.2-tests
           path: tests
           
-      - name: Commit and push test results
-        run: |
-          git config --global user.email "alexsilverman96@example.com"
-          git config --global user.name "Alex Silverman"
-          git add tests/shinytest/test-good-current/*
-          git commit -m "Update test-good-current results"
-          git push origin HEAD:${{ github.head_ref }}
