@@ -322,7 +322,7 @@ function(input, output, session) {
     output$clientCountData <- DT::renderDataTable({
       req(valid_file() == 1)
 
-      datatable(
+      x <- datatable(
         client_count_data_df() %>%
           filter(`Project Name` == input$currentProviderList) %>%
           select(all_of(clientCountDetailCols)),
@@ -330,8 +330,10 @@ function(input, output, session) {
         filter = 'top',
         options = list(dom = 'ltpi')
       )
+      x
+      exportTestValues(x)
     })
-    exportTestValues(output$clientCountData)
+    
     
     # CLIENT COUNT SUMMARY - APP
     output$clientCountSummary <- DT::renderDataTable({
