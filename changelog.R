@@ -1,6 +1,10 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "04-06-2023", "Code refactoring, consolidating, reorganizing, and commenting",
+    
+    "04-06-2023", "Fixed bug where an Org-level DQ file name does not necessarilly match the selected organization",
+    
     "03-23-2023", "Modified DQ chart colors and unsuccessful upload pop-up text",
     
     "03-23-2023", "Added Client Count Download instructions",
