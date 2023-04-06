@@ -1,3 +1,4 @@
 library(shinytest)
-shinytest::testApp()
+library(readxl)
+expect_pass(testApp("."))
 
