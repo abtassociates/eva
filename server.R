@@ -331,7 +331,7 @@ function(input, output, session) {
         options = list(dom = 'ltpi')
       )
       x
-      exportTestValues(x)
+      exportTestValues(clientCountData = x)
     })
     
     
@@ -339,12 +339,14 @@ function(input, output, session) {
     output$clientCountSummary <- DT::renderDataTable({
       req(valid_file() == 1)
       
-      datatable(
+      x <- datatable(
         client_count_summary_df(),
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't')
       )
+      x
+      exportTestValues(clientCountSummary = x)
     })
     
     # CLIENT COUNT DOWNLOAD
