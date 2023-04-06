@@ -331,7 +331,9 @@ function(input, output, session) {
         options = list(dom = 'ltpi')
       )
       x
-      exportTestValues(clientCountData = x)
+      exportTestValues(clientCountData = client_count_data_df() %>%
+                         filter(`Project Name` == input$currentProviderList) %>%
+                         select(all_of(clientCountDetailCols)))
     })
     
     
@@ -346,7 +348,7 @@ function(input, output, session) {
         options = list(dom = 't')
       )
       x
-      exportTestValues(clientCountSummary = x)
+      exportTestValues(clientCountSummary = client_count_summary_df())
     })
     
     # CLIENT COUNT DOWNLOAD
