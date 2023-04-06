@@ -94,8 +94,6 @@ function(input, output, session) {
           )
 
           logMetadata("Successful upload")
-          
-          exportTestValues(output$clientCountData)
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
@@ -333,7 +331,8 @@ function(input, output, session) {
         options = list(dom = 'ltpi')
       )
     })
-      
+    exportTestValues(output$clientCountData)
+    
     # CLIENT COUNT SUMMARY - APP
     output$clientCountSummary <- DT::renderDataTable({
       req(valid_file() == 1)
