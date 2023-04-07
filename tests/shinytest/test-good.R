@@ -22,7 +22,7 @@ customDownload("downloadFileStructureAnalysis","File-Structure-Analysis-Download
 app$snapshot(items = list(output=TRUE))
 
 
-app$setInputs(sidebarmenuid = "tabClientCount")
+app$setInputs(sidebarmenuid = "tabClientCount", timeout_=10000)
 app$waitForValue("clientCountData", iotype = "output", ignore = list(NULL))
 customDownload("downloadClientCountsReport", "Client-Counts-Download")
 app$snapshot(items = list(output=TRUE))
