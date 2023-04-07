@@ -18,15 +18,15 @@ app$setInputs(Go_to_upload = "click")
 app$uploadFile(imported = "../test_uploads/HMIS CSV Export - Current Good.zip") # <-- This should be the path to the file, relative to the app's tests/shinytest directory
 app$findElement("button[data-dismiss='modal']")$click()
 Sys.sleep(2)
-app$takeScreenshot("test-good-current/File-Structure-Analysis.png")
+app$takeScreenshot("test-good-expected/File-Structure-Analysis.png")
 
 app$setInputs(sidebarmenuid = "tabClientCount")
 app$waitForValue("clientCountData", iotype = "output", ignore = list(NULL))
-app$takeScreenshot("test-good-current/tabClientCount.png")
+app$takeScreenshot("test-good-expected/tabClientCount.png")
 
 app$setInputs(sidebarItemExpanded = "AssessDataQuality")
 app$setInputs(sidebarmenuid = "tabPDDE")
-app$takeScreenshot("test-good-current/tabPDDE.png")
+app$takeScreenshot("test-good-expected/tabPDDE.png")
 
 app$setInputs(sidebarmenuid = "tabDQSystem")
 
