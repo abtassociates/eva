@@ -2,5 +2,4 @@
 library(shinytest)
 library(readxl)
 testApp(".")
-viewTestDiff(".", interactive = FALSE)
 
