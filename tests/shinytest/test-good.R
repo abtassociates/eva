@@ -11,30 +11,33 @@ import_xlsx <- function(fpath) {
   return(data)
 }
 
-app <- ShinyDriver$new("../../", seed=1234, loadTimeout = 1e+05)
+app <- ShinyDriver$new("~/DQ_CE", seed=1234, loadTimeout = 1e+05, checkNames = FALSE)
 app$snapshotInit("test-good")
 
 app$setInputs(Go_to_upload = "click")
 app$uploadFile(imported = "../test_uploads/HMIS CSV Export - Current Good.zip") # <-- This should be the path to the file, relative to the app's tests/shinytest directory
 app$findElement("button[data-dismiss='modal']")$click()
 Sys.sleep(2)
-app$snapshot(items = list(export=TRUE))
 customDownload("downloadFileStructureAnalysis","File-Structure-Analysis-Download")
+app$takeScreenshot("test-good-current/File-Structure-Analysis.png")
 
 app$setInputs(sidebarmenuid = "tabClientCount")
 app$waitForValue("clientCountData", iotype = "output", ignore = list(NULL))
-app$snapshot(items = list(export=TRUE))
 customDownload("downloadClientCountsReport", "Client-Counts-Download")
+app$takeScreenshot("test-good-current/tabClientCount.png")
 
 app$setInputs(sidebarItemExpanded = "AssessDataQuality")
 app$setInputs(sidebarmenuid = "tabPDDE")
-app$snapshot(items = list(export=TRUE))
 customDownload("downloadPDDEReport", "PDDE-Download")
+app$takeScreenshot("test-good-current/tabPDDE.png")
 
 app$setInputs(sidebarmenuid = "tabDQSystem")
-app$snapshot(items = list(export=TRUE))
 customDownload("downloadSystemDQReport", "System-DQ-Download")
+app$takeScreenshot("test-good-current/tabDQSystem.png")
 
 app$setInputs(sidebarmenuid = "tabDQOrg")
-app$snapshot(items = list(export=TRUE))
+app$waitForShiny()
 customDownload("downloadOrgDQReport", "Org-DQ-Download")
+app$takeScreenshot("test-good-current/tabDQOrg.png")
+
+app$snapshot(items = list(export=TRUE))

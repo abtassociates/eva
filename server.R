@@ -118,8 +118,7 @@ function(input, output, session) {
       }
     }) 
     
-    output$fileStructureAnalysis <- DT::renderDataTable(
-      {
+    output$fileStructureAnalysis <- DT::renderDataTable({
         req(initially_valid_import)
 
         a <- file_structure_analysis_main %>%
@@ -128,13 +127,15 @@ function(input, output, session) {
           ungroup() %>%
           arrange(Type, desc(Count))
         
+        
+        exportTestValues(fileStructureAnalysis = a)
+        
         datatable(
           a,
           rownames = FALSE,
           filter = 'none',
           options = list(dom = 't')
         )
-        exportTestValues(fileStructureAnalysis = a)
       })
     
     output$downloadFileStructureAnalysisBtn <- renderUI({
@@ -196,14 +197,14 @@ function(input, output, session) {
         summarise(Count = n()) %>%
         ungroup()
       
+      exportTestValues(pdde_summary_table = a)
+      
       datatable(
         a,
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't')
       )
-      
-      exportTestValues(pdde_summary_table = a)
     })
     
     # download button
@@ -242,13 +243,15 @@ function(input, output, session) {
         arrange(Type, Issue) %>%
         unique()
       
-      datatable(guidance, 
-                rownames = FALSE,
-                escape = FALSE,
-                filter = 'top',
-                options = list(dom = 'ltpi'))
-      
       exportTestValues(pdde_guidance_summary = guidance)
+      
+      datatable(
+        guidance, 
+        rownames = FALSE,
+        escape = FALSE,
+        filter = 'top',
+        options = list(dom = 'ltpi')
+      )
     })
     
     output$DeskTimePlotDetail <- renderPlot({
@@ -333,14 +336,14 @@ function(input, output, session) {
         filter(`Project Name` == input$currentProviderList) %>%
         select(all_of(clientCountDetailCols))
       
+      exportTestValues(clientCountData = x)
+      
       datatable(
         x,
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')
       )
-      
-      exportTestValues(clientCountData = x)
     })
     
     
@@ -348,14 +351,14 @@ function(input, output, session) {
     output$clientCountSummary <- DT::renderDataTable({
       req(valid_file() == 1)
       
-      x <- datatable(
+      exportTestValues(clientCountSummary = client_count_summary_df())
+      
+      datatable(
         client_count_summary_df(),
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't')
       )
-      x
-      exportTestValues(clientCountSummary = client_count_summary_df())
     })
     
     # CLIENT COUNT DOWNLOAD
@@ -386,13 +389,15 @@ function(input, output, session) {
         arrange(Type, Issue) %>%
         unique()
       
-      datatable(guidance, 
-                rownames = FALSE,
-                escape = FALSE,
-                filter = 'top',
-                options = list(dom = 'ltpi'))
-      
       exportTestValues(dq_org_guidance_summary = guidance)
+      
+      datatable(
+        guidance, 
+        rownames = FALSE,
+        escape = FALSE,
+        filter = 'top',
+        options = list(dom = 'ltpi')
+      )
     })
     
     output$dq_organization_summary_table <- DT::renderDataTable({
@@ -414,14 +419,14 @@ function(input, output, session) {
           Issue, 
           Clients)
       
+      exportTestValues(dq_organization_summary_table = a)
+      
       datatable(
         a,
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')
       )
-      
-      exportTestValues(dq_organization_summary_table = a)
     })
     
 

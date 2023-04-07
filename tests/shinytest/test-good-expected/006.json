@@ -1,613 +1,4 @@
 {
-  "input": {
-    "CEOutstandingReferrals": 14,
-    "currentProviderList": "CE - CoC SSO",
-    "dateRangeCount": [
-      "2014-10-21",
-      "2022-11-10"
-    ],
-    "DayShelterLongStayers": 90,
-    "ESNbNLongStayers": 90,
-    "fileStructureAnalysis_cell_clicked": {
-
-    },
-    "fileStructureAnalysis_cells_selected": [
-
-    ],
-    "fileStructureAnalysis_columns_selected": null,
-    "fileStructureAnalysis_rows_all": 1,
-    "fileStructureAnalysis_rows_current": 1,
-    "fileStructureAnalysis_rows_selected": null,
-    "fileStructureAnalysis_search": "",
-    "fileStructureAnalysis_state": {
-      "start": 0,
-      "length": 10,
-      "order": [
-
-      ],
-      "search": {
-        "search": "",
-        "smart": true,
-        "regex": false,
-        "caseInsensitive": true
-      },
-      "columns": [
-        {
-          "visible": true,
-          "search": {
-            "search": "",
-            "smart": true,
-            "regex": false,
-            "caseInsensitive": true
-          }
-        },
-        {
-          "visible": true,
-          "search": {
-            "search": "",
-            "smart": true,
-            "regex": false,
-            "caseInsensitive": true
-          }
-        },
-        {
-          "visible": true,
-          "search": {
-            "search": "",
-            "smart": true,
-            "regex": false,
-            "caseInsensitive": true
-          }
-        }
-      ]
-    },
-    "Go_to_upload": 1,
-    "imported": {
-      "name": [
-        "HMIS CSV Export - Current Good.zip"
-      ],
-      "size": [
-        1785003
-      ],
-      "type": [
-        "application/zip"
-      ],
-      "datapath": [
-        "0.zip"
-      ]
-    },
-    "orgList": "Organization A",
-    "OtherLongStayers": 90,
-    "OUTLongStayers": 90,
-    "pdde_guidance_summary_cell_clicked": {
-
-    },
-    "pdde_guidance_summary_cells_selected": [
-
-    ],
-    "pdde_guidance_summary_columns_selected": null,
-    "pdde_guidance_summary_rows_all": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6
-    ],
-    "pdde_guidance_summary_rows_current": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6
-    ],
-    "pdde_guidance_summary_rows_selected": null,
-    "pdde_guidance_summary_search": "",
-    "pdde_guidance_summary_search_columns": [
-      "",
-      "",
-      ""
-    ],
-    "pdde_guidance_summary_state": {
-      "start": 0,
-      "length": 10,
-      "order": [
-
-      ],
-      "search": {
-        "search": "",
-        "smart": true,
-        "regex": false,
-        "caseInsensitive": true
-      },
-      "columns": [
-        {
-          "visible": true,
-          "search": {
-            "search": "",
-            "smart": true,
-            "regex": false,
-            "caseInsensitive": true
-          }
-        },
-        {
-          "visible": true,
-          "search": {
-            "search": "",
-            "smart": true,
-            "regex": false,
-            "caseInsensitive": true
-          }
-        },
-        {
-          "visible": true,
-          "search": {
-            "search": "",
-            "smart": true,
-            "regex": false,
-            "caseInsensitive": true
-          }
-        }
-      ]
-    },
-    "pdde_summary_table_cell_clicked": {
-
-    },
-    "pdde_summary_table_cells_selected": [
-
-    ],
-    "pdde_summary_table_columns_selected": null,
-    "pdde_summary_table_rows_all": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6
-    ],
-    "pdde_summary_table_rows_current": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6
-    ],
-    "pdde_summary_table_rows_selected": null,
-    "pdde_summary_table_search": "",
-    "pdde_summary_table_state": {
-      "start": 0,
-      "length": 10,
-      "order": [
-
-      ],
-      "search": {
-        "search": "",
-        "smart": true,
-        "regex": false,
-        "caseInsensitive": true
-      },
-      "columns": [
-        {
-          "visible": true,
-          "search": {
-            "search": "",
-            "smart": true,
-            "regex": false,
-            "caseInsensitive": true
-          }
-        },
-        {
-          "visible": true,
-          "search": {
-            "search": "",
-            "smart": true,
-            "regex": false,
-            "caseInsensitive": true
-          }
-        },
-        {
-          "visible": true,
-          "search": {
-            "search": "",
-            "smart": true,
-            "regex": false,
-            "caseInsensitive": true
-          }
-        }
-      ]
-    },
-    "providerDeskTime": "ES - Other",
-    "ServicesOnlyLongStayers": 90,
-    "sidebarCollapsed": false,
-    "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabPDDE"
-  },
-  "output": {
-    "clientCountData": [
-      "'data' must be 2-dimensional (e.g. data frame or matrix)",
-      "c(\"(function (data, options = list(), class = \\\"display\\\", callback = JS(\\\"return table;\\\"), \", \"    rownames, colnames, container, caption = NULL, filter = c(\\\"none\\\", \", \"        \\\"bottom\\\", \\\"top\\\"), escape = TRUE, style = \\\"auto\\\", width = NULL, \", \"    height = NULL, elementId = NULL, fillContainer = getOption(\\\"DT.fillContainer\\\", \", \"        NULL), autoHideNavigation = getOption(\\\"DT.autoHideNavigation\\\", \", \"        NULL), selection = c(\\\"multiple\\\", \\\"single\\\", \\\"none\\\"), extensions = list(), \", \n\"    plugins = NULL, editable = FALSE) \", \"{\", \"    oop = base::options(stringsAsFactors = FALSE)\", \"    on.exit(base::options(oop), add = TRUE)\", \"    options = modifyList(getOption(\\\"DT.options\\\", list()), if (is.function(options)) \", \"        options()\", \"    else options)\", \"    if (is.character(btnOpts <- options[[\\\"buttons\\\"]])) \", \"        options[[\\\"buttons\\\"]] = as.list(btnOpts)\", \"    params = list()\", \"    attr(params, \\\"TOJSON_ARGS\\\") = getOption(\\\"DT.TOJSON_ARGS\\\")\", \"    if (crosstalk::is.SharedData(data)) {\", \n\"        params$crosstalkOptions = list(key = data$key(), group = data$groupName())\", \"        data = data$data(withSelection = FALSE, withFilter = TRUE, \", \"            withKey = FALSE)\", \"    }\", \"    rn = if (missing(rownames) || isTRUE(rownames)) \", \"        base::rownames(data)\", \"    else {\", \"        if (is.character(rownames)) \", \"            rownames\", \"    }\", \"    hideDataTable = FALSE\", \"    if (is.null(data) || identical(ncol(data), 0L)) {\", \"        data = matrix(ncol = 0, nrow = NROW(data))\", \n\"        hideDataTable = TRUE\", \"    }\", \"    else if (length(dim(data)) != 2) {\", \"        str(data)\", \"        stop(\\\"'data' must be 2-dimensional (e.g. data frame or matrix)\\\")\", \"    }\", \"    if (is.data.frame(data)) {\", \"        data = as.data.frame(data)\", \"        numc = unname(which(vapply(data, is.numeric, logical(1))))\", \"    }\", \"    else {\", \"        if (!is.matrix(data)) \", \"            stop(\\\"'data' must be either a matrix or a data frame, and cannot be \\\", \", \"                classes(data), \\\" (you may need to coerce it to matrix or data frame)\\\")\", \n\"        numc = if (is.numeric(data)) \", \"            seq_len(ncol(data))\", \"        data = as.data.frame(data)\", \"    }\", \"    if (!is.null(rn)) {\", \"        data = cbind(` ` = rn, data)\", \"        numc = numc + 1\", \"    }\", \"    options[[\\\"columnDefs\\\"]] = colDefsTgtHandle(options[[\\\"columnDefs\\\"]], \", \"        base::colnames(data))\", \"    if (length(numc)) {\", \"        undefined_numc = setdiff(numc - 1, classNameDefinedColumns(options, \", \"            ncol(data)))\", \"        if (length(undefined_numc)) \", \n\"            options = appendColumnDefs(options, list(className = \\\"dt-right\\\", \", \"                targets = undefined_numc))\", \"    }\", \"    if (is.null(options[[\\\"order\\\"]])) \", \"        options$order = list()\", \"    if (is.null(options[[\\\"autoWidth\\\"]])) \", \"        options$autoWidth = FALSE\", \"    if (is.null(options[[\\\"orderClasses\\\"]])) \", \"        options$orderClasses = FALSE\", \"    cn = base::colnames(data)\", \"    if (missing(colnames)) {\", \"        colnames = cn\", \"    }\", \"    else if (!is.null(names(colnames))) {\", \n\"        i = convertIdx(colnames, cn)\", \"        cn[i] = names(colnames)\", \"        colnames = cn\", \"    }\", \"    if (ncol(data) - length(colnames) == 1) \", \"        colnames = c(\\\" \\\", colnames)\", \"    if (length(colnames) && colnames[1] == \\\" \\\") \", \"        options = appendColumnDefs(options, list(orderable = FALSE, \", \"            targets = 0))\", \"    style = normalizeStyle(style)\", \"    if (grepl(\\\"^bootstrap\\\", style)) \", \"        class = DT2BSClass(class)\", \"    if (style != \\\"default\\\") \", \n\"        params$style = style\", \"    if (isTRUE(fillContainer)) \", \"        class = paste(class, \\\"fill-container\\\")\", \"    if (is.character(filter)) \", \"        filter = list(position = match.arg(filter))\", \"    filter = modifyList(list(position = \\\"none\\\", clear = TRUE, \", \"        plain = FALSE, vertical = FALSE, opacity = 1), filter)\", \"    filterHTML = as.character(filterRow(data, !is.null(rn) && \", \"        colnames[1] == \\\" \\\", filter))\", \"    if (filter$position == \\\"top\\\") \", \"        options$orderCellsTop = TRUE\", \n\"    params$filter = filter$position\", \"    params$vertical = filter$vertical\", \"    if (filter$position != \\\"none\\\") \", \"        params$filterHTML = filterHTML\", \"    if (missing(container)) {\", \"        container = tags$table(tableHeader(colnames, escape), \", \"            class = class)\", \"    }\", \"    else {\", \"        params$class = class\", \"    }\", \"    attr(options, \\\"escapeIdx\\\") = escapeToConfig(escape, colnames)\", \"    if (is.list(extensions)) {\", \"        extensions = names(extensions)\", \n\"    }\", \"    else if (!is.character(extensions)) {\", \"        stop(\\\"'extensions' must be either a character vector or a named list\\\")\", \"    }\", \"    params$extensions = if (length(extensions)) \", \"        as.list(extensions)\", \"    if (\\\"Responsive\\\" %in% extensions && is.null(options$responsive)) {\", \"        options$responsive = TRUE\", \"    }\", \"    params$caption = captionString(caption)\", \"    if (isTRUE(editable)) \", \"        editable = \\\"cell\\\"\", \"    if (is.character(editable)) \", \"        editable = list(target = editable, disable = list(columns = NULL))\", \n\"    if (is.list(editable)) {\", \"        editable$numeric = makeEditableNumericField(editable$numeric, \", \"            data, rn)\", \"        editable$area = makeEditableAreaField(editable$area, \", \"            data, rn)\", \"        params$editable = editable\", \"    }\", \"    if (!identical(class(callback), class(JS(\\\"\\\")))) \", \"        stop(\\\"The 'callback' argument only accept a value returned from JS()\\\")\", \"    if (length(options$pageLength) && length(options$lengthMenu) == \", \"        0) {\", \"        if (!isFALSE(options$lengthChange)) \", \n\"            options$lengthMenu = sort(unique(c(options$pageLength, \", \"                10, 25, 50, 100)))\", \"        if (identical(options$lengthMenu, c(10, 25, 50, 100))) \", \"            options$lengthMenu = NULL\", \"    }\", \"    if (!is.null(options[[\\\"search\\\"]]) && !is.list(options[[\\\"search\\\"]])) \", \"        stop(\\\"The value of `search` in `options` must be NULL or a list\\\")\", \"    if (!is.null(fillContainer)) \", \"        params$fillContainer = fillContainer\", \"    if (!is.null(autoHideNavigation)) {\", \n\"        if (isTRUE(autoHideNavigation) && length(options$pageLength) == \", \"            0L) \", \"            warning(\\\"`autoHideNavigation` will be ignored if the `pageLength` option is not provided.\\\", \", \"                immediate. = TRUE)\", \"        params$autoHideNavigation = autoHideNavigation\", \"    }\", \"    params = structure(modifyList(params, list(data = data, container = as.character(container), \", \"        options = options, callback = if (!missing(callback)) JS(\\\"function(table) {\\\", \", \n\"            callback, \\\"}\\\"))), colnames = cn, rownames = length(rn) > \", \"        0)\", \"    if (inShiny() || length(params$crosstalkOptions)) {\", \"        if (is.character(selection)) {\", \"            selection = list(mode = match.arg(selection))\", \"        }\", \"        selection = modifyList(list(mode = \\\"multiple\\\", selected = NULL, \", \"            target = \\\"row\\\", selectable = NULL), selection, keep.null = TRUE)\", \"        if (grepl(\\\"^row\\\", selection$target) && is.character(selection$selected) && \", \n\"            length(rn)) {\", \"            selection$selected = match(selection$selected, rn)\", \"        }\", \"        params$selection = validateSelection(selection)\", \"        if (\\\"Select\\\" %in% extensions && selection$mode != \\\"none\\\") \", \"            warning(\\\"The Select extension can't work properly with DT's own \\\", \", \"                \\\"selection implemention and is only recommended in the client mode. \\\", \", \"                \\\"If you really want to use the Select extension please set \\\", \", \n\"                \\\"`selection = 'none'`\\\", immediate. = TRUE)\", \"    }\", \"    deps = DTDependencies(style)\", \"    deps = c(deps, unlist(lapply(extensions, extDependency, style, \", \"        options), recursive = FALSE))\", \"    if (params$filter != \\\"none\\\") \", \"        deps = c(deps, filterDependencies())\", \"    if (isTRUE(options$searchHighlight)) \", \"        deps = c(deps, list(pluginDependency(\\\"searchHighlight\\\")))\", \"    if (length(plugins)) \", \"        deps = c(deps, lapply(plugins, pluginDependency))\", \n\"    deps = c(deps, crosstalk::crosstalkLibs())\", \"    if (isTRUE(fillContainer)) {\", \"        width = NULL\", \"        height = NULL\", \"    }\", \"    htmlwidgets::createWidget(\\\"datatables\\\", if (hideDataTable) \", \"        NULL\", \"    else params, package = \\\"DT\\\", width = width, height = height, \", \"        elementId = elementId, sizingPolicy = htmlwidgets::sizingPolicy(knitr.figure = FALSE, \", \"            knitr.defaultWidth = \\\"100%\\\", knitr.defaultHeight = \\\"auto\\\"), \", \"        dependencies = deps, preRenderHook = function(instance) {\", \n\"            data = instance[[\\\"x\\\"]][[\\\"data\\\"]]\", \"            if (object.size(data) > 1500000 && getOption(\\\"DT.warn.size\\\", \", \"                TRUE)) \", \"                warning(\\\"It seems your data is too big for client-side DataTables. You may \\\", \", \"                  \\\"consider server-side processing: https://rstudio.github.io/DT/server.html\\\")\", \"            data = escapeData(data, escape, colnames)\", \"            data = unname(data)\", \"            instance$x$data = data\", \"            instance\", \n\"        })\", \"})(list(clientCountData = list(expr = client_count_data_df() %>% \", \"    filter(`Project Name` == input$currentProviderList) %>% select(all_of(clientCountDetailCols)), \", \"    env = <environment>)))\")",
-      "NULL"
-    ],
-    "clientCountSummary": [
-      "'data' must be 2-dimensional (e.g. data frame or matrix)",
-      "c(\"(function (data, options = list(), class = \\\"display\\\", callback = JS(\\\"return table;\\\"), \", \"    rownames, colnames, container, caption = NULL, filter = c(\\\"none\\\", \", \"        \\\"bottom\\\", \\\"top\\\"), escape = TRUE, style = \\\"auto\\\", width = NULL, \", \"    height = NULL, elementId = NULL, fillContainer = getOption(\\\"DT.fillContainer\\\", \", \"        NULL), autoHideNavigation = getOption(\\\"DT.autoHideNavigation\\\", \", \"        NULL), selection = c(\\\"multiple\\\", \\\"single\\\", \\\"none\\\"), extensions = list(), \", \n\"    plugins = NULL, editable = FALSE) \", \"{\", \"    oop = base::options(stringsAsFactors = FALSE)\", \"    on.exit(base::options(oop), add = TRUE)\", \"    options = modifyList(getOption(\\\"DT.options\\\", list()), if (is.function(options)) \", \"        options()\", \"    else options)\", \"    if (is.character(btnOpts <- options[[\\\"buttons\\\"]])) \", \"        options[[\\\"buttons\\\"]] = as.list(btnOpts)\", \"    params = list()\", \"    attr(params, \\\"TOJSON_ARGS\\\") = getOption(\\\"DT.TOJSON_ARGS\\\")\", \"    if (crosstalk::is.SharedData(data)) {\", \n\"        params$crosstalkOptions = list(key = data$key(), group = data$groupName())\", \"        data = data$data(withSelection = FALSE, withFilter = TRUE, \", \"            withKey = FALSE)\", \"    }\", \"    rn = if (missing(rownames) || isTRUE(rownames)) \", \"        base::rownames(data)\", \"    else {\", \"        if (is.character(rownames)) \", \"            rownames\", \"    }\", \"    hideDataTable = FALSE\", \"    if (is.null(data) || identical(ncol(data), 0L)) {\", \"        data = matrix(ncol = 0, nrow = NROW(data))\", \n\"        hideDataTable = TRUE\", \"    }\", \"    else if (length(dim(data)) != 2) {\", \"        str(data)\", \"        stop(\\\"'data' must be 2-dimensional (e.g. data frame or matrix)\\\")\", \"    }\", \"    if (is.data.frame(data)) {\", \"        data = as.data.frame(data)\", \"        numc = unname(which(vapply(data, is.numeric, logical(1))))\", \"    }\", \"    else {\", \"        if (!is.matrix(data)) \", \"            stop(\\\"'data' must be either a matrix or a data frame, and cannot be \\\", \", \"                classes(data), \\\" (you may need to coerce it to matrix or data frame)\\\")\", \n\"        numc = if (is.numeric(data)) \", \"            seq_len(ncol(data))\", \"        data = as.data.frame(data)\", \"    }\", \"    if (!is.null(rn)) {\", \"        data = cbind(` ` = rn, data)\", \"        numc = numc + 1\", \"    }\", \"    options[[\\\"columnDefs\\\"]] = colDefsTgtHandle(options[[\\\"columnDefs\\\"]], \", \"        base::colnames(data))\", \"    if (length(numc)) {\", \"        undefined_numc = setdiff(numc - 1, classNameDefinedColumns(options, \", \"            ncol(data)))\", \"        if (length(undefined_numc)) \", \n\"            options = appendColumnDefs(options, list(className = \\\"dt-right\\\", \", \"                targets = undefined_numc))\", \"    }\", \"    if (is.null(options[[\\\"order\\\"]])) \", \"        options$order = list()\", \"    if (is.null(options[[\\\"autoWidth\\\"]])) \", \"        options$autoWidth = FALSE\", \"    if (is.null(options[[\\\"orderClasses\\\"]])) \", \"        options$orderClasses = FALSE\", \"    cn = base::colnames(data)\", \"    if (missing(colnames)) {\", \"        colnames = cn\", \"    }\", \"    else if (!is.null(names(colnames))) {\", \n\"        i = convertIdx(colnames, cn)\", \"        cn[i] = names(colnames)\", \"        colnames = cn\", \"    }\", \"    if (ncol(data) - length(colnames) == 1) \", \"        colnames = c(\\\" \\\", colnames)\", \"    if (length(colnames) && colnames[1] == \\\" \\\") \", \"        options = appendColumnDefs(options, list(orderable = FALSE, \", \"            targets = 0))\", \"    style = normalizeStyle(style)\", \"    if (grepl(\\\"^bootstrap\\\", style)) \", \"        class = DT2BSClass(class)\", \"    if (style != \\\"default\\\") \", \n\"        params$style = style\", \"    if (isTRUE(fillContainer)) \", \"        class = paste(class, \\\"fill-container\\\")\", \"    if (is.character(filter)) \", \"        filter = list(position = match.arg(filter))\", \"    filter = modifyList(list(position = \\\"none\\\", clear = TRUE, \", \"        plain = FALSE, vertical = FALSE, opacity = 1), filter)\", \"    filterHTML = as.character(filterRow(data, !is.null(rn) && \", \"        colnames[1] == \\\" \\\", filter))\", \"    if (filter$position == \\\"top\\\") \", \"        options$orderCellsTop = TRUE\", \n\"    params$filter = filter$position\", \"    params$vertical = filter$vertical\", \"    if (filter$position != \\\"none\\\") \", \"        params$filterHTML = filterHTML\", \"    if (missing(container)) {\", \"        container = tags$table(tableHeader(colnames, escape), \", \"            class = class)\", \"    }\", \"    else {\", \"        params$class = class\", \"    }\", \"    attr(options, \\\"escapeIdx\\\") = escapeToConfig(escape, colnames)\", \"    if (is.list(extensions)) {\", \"        extensions = names(extensions)\", \n\"    }\", \"    else if (!is.character(extensions)) {\", \"        stop(\\\"'extensions' must be either a character vector or a named list\\\")\", \"    }\", \"    params$extensions = if (length(extensions)) \", \"        as.list(extensions)\", \"    if (\\\"Responsive\\\" %in% extensions && is.null(options$responsive)) {\", \"        options$responsive = TRUE\", \"    }\", \"    params$caption = captionString(caption)\", \"    if (isTRUE(editable)) \", \"        editable = \\\"cell\\\"\", \"    if (is.character(editable)) \", \"        editable = list(target = editable, disable = list(columns = NULL))\", \n\"    if (is.list(editable)) {\", \"        editable$numeric = makeEditableNumericField(editable$numeric, \", \"            data, rn)\", \"        editable$area = makeEditableAreaField(editable$area, \", \"            data, rn)\", \"        params$editable = editable\", \"    }\", \"    if (!identical(class(callback), class(JS(\\\"\\\")))) \", \"        stop(\\\"The 'callback' argument only accept a value returned from JS()\\\")\", \"    if (length(options$pageLength) && length(options$lengthMenu) == \", \"        0) {\", \"        if (!isFALSE(options$lengthChange)) \", \n\"            options$lengthMenu = sort(unique(c(options$pageLength, \", \"                10, 25, 50, 100)))\", \"        if (identical(options$lengthMenu, c(10, 25, 50, 100))) \", \"            options$lengthMenu = NULL\", \"    }\", \"    if (!is.null(options[[\\\"search\\\"]]) && !is.list(options[[\\\"search\\\"]])) \", \"        stop(\\\"The value of `search` in `options` must be NULL or a list\\\")\", \"    if (!is.null(fillContainer)) \", \"        params$fillContainer = fillContainer\", \"    if (!is.null(autoHideNavigation)) {\", \n\"        if (isTRUE(autoHideNavigation) && length(options$pageLength) == \", \"            0L) \", \"            warning(\\\"`autoHideNavigation` will be ignored if the `pageLength` option is not provided.\\\", \", \"                immediate. = TRUE)\", \"        params$autoHideNavigation = autoHideNavigation\", \"    }\", \"    params = structure(modifyList(params, list(data = data, container = as.character(container), \", \"        options = options, callback = if (!missing(callback)) JS(\\\"function(table) {\\\", \", \n\"            callback, \\\"}\\\"))), colnames = cn, rownames = length(rn) > \", \"        0)\", \"    if (inShiny() || length(params$crosstalkOptions)) {\", \"        if (is.character(selection)) {\", \"            selection = list(mode = match.arg(selection))\", \"        }\", \"        selection = modifyList(list(mode = \\\"multiple\\\", selected = NULL, \", \"            target = \\\"row\\\", selectable = NULL), selection, keep.null = TRUE)\", \"        if (grepl(\\\"^row\\\", selection$target) && is.character(selection$selected) && \", \n\"            length(rn)) {\", \"            selection$selected = match(selection$selected, rn)\", \"        }\", \"        params$selection = validateSelection(selection)\", \"        if (\\\"Select\\\" %in% extensions && selection$mode != \\\"none\\\") \", \"            warning(\\\"The Select extension can't work properly with DT's own \\\", \", \"                \\\"selection implemention and is only recommended in the client mode. \\\", \", \"                \\\"If you really want to use the Select extension please set \\\", \", \n\"                \\\"`selection = 'none'`\\\", immediate. = TRUE)\", \"    }\", \"    deps = DTDependencies(style)\", \"    deps = c(deps, unlist(lapply(extensions, extDependency, style, \", \"        options), recursive = FALSE))\", \"    if (params$filter != \\\"none\\\") \", \"        deps = c(deps, filterDependencies())\", \"    if (isTRUE(options$searchHighlight)) \", \"        deps = c(deps, list(pluginDependency(\\\"searchHighlight\\\")))\", \"    if (length(plugins)) \", \"        deps = c(deps, lapply(plugins, pluginDependency))\", \n\"    deps = c(deps, crosstalk::crosstalkLibs())\", \"    if (isTRUE(fillContainer)) {\", \"        width = NULL\", \"        height = NULL\", \"    }\", \"    htmlwidgets::createWidget(\\\"datatables\\\", if (hideDataTable) \", \"        NULL\", \"    else params, package = \\\"DT\\\", width = width, height = height, \", \"        elementId = elementId, sizingPolicy = htmlwidgets::sizingPolicy(knitr.figure = FALSE, \", \"            knitr.defaultWidth = \\\"100%\\\", knitr.defaultHeight = \\\"auto\\\"), \", \"        dependencies = deps, preRenderHook = function(instance) {\", \n\"            data = instance[[\\\"x\\\"]][[\\\"data\\\"]]\", \"            if (object.size(data) > 1500000 && getOption(\\\"DT.warn.size\\\", \", \"                TRUE)) \", \"                warning(\\\"It seems your data is too big for client-side DataTables. You may \\\", \", \"                  \\\"consider server-side processing: https://rstudio.github.io/DT/server.html\\\")\", \"            data = escapeData(data, escape, colnames)\", \"            data = unname(data)\", \"            instance$x$data = data\", \"            instance\", \n\"        })\", \"})(list(clientCountData = list(expr = client_count_data_df() %>% \", \"    filter(`Project Name` == input$currentProviderList) %>% select(all_of(clientCountDetailCols)), \", \"    env = <environment>), clientCountSummary = list(expr = client_count_summary_df(), \", \"    env = <environment>)))\")",
-      "NULL"
-    ],
-    "downloadClientCountsReportButton": {
-      "html": "<a id=\"downloadClientCountsReport\" class=\"btn btn-default shiny-download-link \" href=\"\" target=\"_blank\" download>\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download System-Wide\n<\/a>",
-      "deps": [
-        {
-          "name": "font-awesome",
-          "version": "6.2.0",
-          "src": {
-            "href": "font-awesome-6.2.0"
-          },
-          "meta": null,
-          "script": null,
-          "stylesheet": [
-            "css/all.min.css",
-            "css/v4-shims.min.css"
-          ],
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        }
-      ]
-    },
-    "downloadFileStructureAnalysisBtn": {
-      "html": "<a id=\"downloadFileStructureAnalysis\" class=\"btn btn-default shiny-download-link \" href=\"\" target=\"_blank\" download>\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Structure Analysis Detail\n<\/a>",
-      "deps": [
-        {
-          "name": "font-awesome",
-          "version": "6.2.0",
-          "src": {
-            "href": "font-awesome-6.2.0"
-          },
-          "meta": null,
-          "script": null,
-          "stylesheet": [
-            "css/all.min.css",
-            "css/v4-shims.min.css"
-          ],
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        }
-      ]
-    },
-    "downloadPDDEReportButton": {
-      "html": "<a id=\"downloadPDDEReport\" class=\"btn btn-default shiny-download-link \" href=\"\" target=\"_blank\" download>\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download\n<\/a>",
-      "deps": [
-        {
-          "name": "font-awesome",
-          "version": "6.2.0",
-          "src": {
-            "href": "font-awesome-6.2.0"
-          },
-          "meta": null,
-          "script": null,
-          "stylesheet": [
-            "css/all.min.css",
-            "css/v4-shims.min.css"
-          ],
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        }
-      ]
-    },
-    "fileInfo": {
-      "html": "<p>You have successfully uploaded your hashed HMIS CSV Export!<\/p>",
-      "deps": [
-
-      ]
-    },
-    "fileStructureAnalysis": {
-      "x": {
-        "filter": "none",
-        "vertical": false,
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
-        "options": {
-          "dom": "t",
-          "columnDefs": [
-            {
-              "className": "dt-right",
-              "targets": 2
-            }
-          ],
-          "order": [
-
-          ],
-          "autoWidth": false,
-          "orderClasses": false,
-          "ajax": {
-            "type": "POST",
-            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
-          },
-          "serverSide": true,
-          "processing": true
-        },
-        "selection": {
-          "mode": "multiple",
-          "selected": null,
-          "target": "row",
-          "selectable": null
-        }
-      },
-      "evals": [
-        "options.ajax.data"
-      ],
-      "jsHooks": [
-
-      ],
-      "deps": [
-        {
-          "name": "jquery",
-          "version": "3.6.0",
-          "src": {
-            "href": "jquery-3.6.0"
-          },
-          "meta": null,
-          "script": "jquery-3.6.0.min.js",
-          "stylesheet": null,
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        },
-        {
-          "name": "dt-core",
-          "version": "1.11.3",
-          "src": {
-            "href": "dt-core-1.11.3"
-          },
-          "meta": null,
-          "script": "js/jquery.dataTables.min.js",
-          "stylesheet": [
-            "css/jquery.dataTables.min.css",
-            "css/jquery.dataTables.extra.css"
-          ],
-          "head": null,
-          "attachment": null,
-          "package": null,
-          "all_files": false
-        },
-        {
-          "name": "crosstalk",
-          "version": "1.2.0",
-          "src": {
-            "href": "crosstalk-1.2.0"
-          },
-          "meta": null,
-          "script": "js/crosstalk.min.js",
-          "stylesheet": "css/crosstalk.min.css",
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        }
-      ]
-    },
-    "headerClientCounts": {
-      "html": "<h2>Client Counts Report<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-21-2014 to 11-10-2022\n<\/h4>\n<div id=\"oute1fbbef2d894d83a\" class=\"shiny-html-output\"><\/div>",
-      "deps": [
-
-      ]
-    },
-    "headerPDDE": {
-      "html": "<h2>Project Descriptor Data Elements Checker<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-21-2014 to 11-10-2022\n<\/h4>",
-      "deps": [
-
-      ]
-    },
-    "headerUpload": {
-      "html": "<h2>Upload HMIS CSV Export<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-21-2014 to 11-10-2022\n<\/h4>\n<h4>\n  <strong>Export Date: <\/strong>\n  11-10-2022 at 05:04 PM\n<\/h4>",
-      "deps": [
-
-      ]
-    },
-    "oute1fbbef2d894d83a": {
-      "html": "<h4>Organization A | CE - CoC SSO<\/h4>",
-      "deps": [
-
-      ]
-    },
-    "pdde_guidance_summary": {
-      "x": {
-        "filter": "top",
-        "vertical": false,
-        "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Guidance<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
-        "options": {
-          "dom": "ltpi",
-          "columnDefs": [
-
-          ],
-          "order": [
-
-          ],
-          "autoWidth": false,
-          "orderClasses": false,
-          "orderCellsTop": true,
-          "ajax": {
-            "type": "POST",
-            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = false;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
-          },
-          "serverSide": true,
-          "processing": true
-        },
-        "selection": {
-          "mode": "multiple",
-          "selected": null,
-          "target": "row",
-          "selectable": null
-        }
-      },
-      "evals": [
-        "options.ajax.data"
-      ],
-      "jsHooks": [
-
-      ],
-      "deps": [
-        {
-          "name": "jquery",
-          "version": "3.6.0",
-          "src": {
-            "href": "jquery-3.6.0"
-          },
-          "meta": null,
-          "script": "jquery-3.6.0.min.js",
-          "stylesheet": null,
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        },
-        {
-          "name": "dt-core",
-          "version": "1.11.3",
-          "src": {
-            "href": "dt-core-1.11.3"
-          },
-          "meta": null,
-          "script": "js/jquery.dataTables.min.js",
-          "stylesheet": [
-            "css/jquery.dataTables.min.css",
-            "css/jquery.dataTables.extra.css"
-          ],
-          "head": null,
-          "attachment": null,
-          "package": null,
-          "all_files": false
-        },
-        {
-          "name": "nouislider",
-          "version": "7.0.10",
-          "src": {
-            "href": "nouislider-7.0.10"
-          },
-          "meta": null,
-          "script": "jquery.nouislider.min.js",
-          "stylesheet": "jquery.nouislider.min.css",
-          "head": null,
-          "attachment": null,
-          "package": null,
-          "all_files": true
-        },
-        {
-          "name": "selectize",
-          "version": "0.12.0",
-          "src": {
-            "href": "selectize-0.12.0"
-          },
-          "meta": null,
-          "script": "selectize.min.js",
-          "stylesheet": "selectize.bootstrap3.css",
-          "head": null,
-          "attachment": null,
-          "package": null,
-          "all_files": true
-        },
-        {
-          "name": "crosstalk",
-          "version": "1.2.0",
-          "src": {
-            "href": "crosstalk-1.2.0"
-          },
-          "meta": null,
-          "script": "js/crosstalk.min.js",
-          "stylesheet": "css/crosstalk.min.css",
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        }
-      ]
-    },
-    "pdde_summary_table": {
-      "x": {
-        "filter": "none",
-        "vertical": false,
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Issue<\/th>\n      <th>Type<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
-        "options": {
-          "dom": "t",
-          "columnDefs": [
-            {
-              "className": "dt-right",
-              "targets": 2
-            }
-          ],
-          "order": [
-
-          ],
-          "autoWidth": false,
-          "orderClasses": false,
-          "ajax": {
-            "type": "POST",
-            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
-          },
-          "serverSide": true,
-          "processing": true
-        },
-        "selection": {
-          "mode": "multiple",
-          "selected": null,
-          "target": "row",
-          "selectable": null
-        }
-      },
-      "evals": [
-        "options.ajax.data"
-      ],
-      "jsHooks": [
-
-      ],
-      "deps": [
-        {
-          "name": "jquery",
-          "version": "3.6.0",
-          "src": {
-            "href": "jquery-3.6.0"
-          },
-          "meta": null,
-          "script": "jquery-3.6.0.min.js",
-          "stylesheet": null,
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        },
-        {
-          "name": "dt-core",
-          "version": "1.11.3",
-          "src": {
-            "href": "dt-core-1.11.3"
-          },
-          "meta": null,
-          "script": "js/jquery.dataTables.min.js",
-          "stylesheet": [
-            "css/jquery.dataTables.min.css",
-            "css/jquery.dataTables.extra.css"
-          ],
-          "head": null,
-          "attachment": null,
-          "package": null,
-          "all_files": false
-        },
-        {
-          "name": "crosstalk",
-          "version": "1.2.0",
-          "src": {
-            "href": "crosstalk-1.2.0"
-          },
-          "meta": null,
-          "script": "js/crosstalk.min.js",
-          "stylesheet": "css/crosstalk.min.css",
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        }
-      ]
-    }
-  },
   "export": {
     "clientCountData": {
       "Personal ID": [
@@ -5399,6 +4790,460 @@
       "Households": [
         86,
         607
+      ]
+    },
+    "dq_org_guidance_summary": {
+      "Type": [
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning"
+      ],
+      "Issue": [
+        "Duplicate Entries",
+        "Missing Client Location",
+        "Missing Relationship to Head of Household",
+        "Conflicting Health Insurance yes/no at Entry",
+        "Conflicting Health Insurance yes/no at Exit",
+        "Conflicting Income yes/no at Entry",
+        "Conflicting Non-cash Benefits yes/no at Entry",
+        "Health Insurance Missing at Entry",
+        "Health Insurance Missing at Exit",
+        "Income Missing at Entry",
+        "Income Missing at Exit",
+        "Missing Disabling Condition",
+        "Missing Ethnicity",
+        "Missing Gender",
+        "Missing Length of Stay",
+        "Missing Months or Times Homeless",
+        "Missing Name Data Quality",
+        "Missing Race",
+        "Missing Residence Prior",
+        "Missing SSN",
+        "Missing Veteran Status",
+        "Non-cash Benefits Missing at Entry",
+        "Project Exit Before Start",
+        "Days Enrollment Active Exceeds Local Settings",
+        "Days Referral Active Exceeds Local Settings",
+        "Don't Know/Refused Living Situation",
+        "Don't Know/Refused Months or Times Homeless",
+        "Don't Know/Refused Race",
+        "Don't Know/Refused Residence Prior",
+        "Don't Know/Refused SSN",
+        "Don't Know/Refused/Data Not Collected DOB",
+        "Entry Precedes Project's Operating Start",
+        "Future Entry Date",
+        "Invalid Homelessness Start Date/Number of Months Homeless",
+        "Missing Destination",
+        "Overlap with a Transitional Housing project",
+        "Overlap with an Emergency Shelter (E/E) project",
+        "Possible Missed Exit Date",
+        "Possible Missed Move-In Date"
+      ],
+      "Guidance": [
+        "A client cannot have two enrollments with the same entry date into the same project. These are duplicate enrollment records. Please address this issue.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS.",
+        "Every household must have exactly one head of household. Please be sure: 1. All members of the household are included in the program stay; 2. Each household member's birthdate is correct; 3. Every household member has a Relationship to Head of Household; 4. One member is designated as the head of household for the entire duration of the enrollment.",
+        "There is a discrepancy between the data element indicating that the client is receiving health insurance and the data elements regarding the health insurance sources. Please verify this client's health insurance to correct this error.",
+        "There is a discrepancy between the data element indicating that the client is receiving health insurance and the data elements regarding the health insurance sources. Please verify this client's health insurance to correct this error.",
+        "There is a discrepancy between the data element indicating that the client is receiving income and the data elements regarding the income sources. Please verify this client's income to correct this error.",
+        "There is a discrepancy between the data element indicating that the client is receiving non-cash benefits and the data elements regarding the non-cash benefits sources. Please verify this client's non-cash benefits to correct this error.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS.",
+        "This data element is required to be collected at Project Exit. Please go to the client's assessment at Project Exit to enter this data to HMIS.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS.",
+        "This data element is required to be collected at Project Exit. Please go to the client's assessment at Project Exit to enter this data to HMIS.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS.",
+        "Please correct by providing the missing information in the client's record.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS. If this data was not collected because the client declined to provide the information or was unable to provide it, please update the SSN Quality field accordingly.",
+        "Please correct by providing the missing information in the client's record.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS.",
+        "This enrollment's exit date is before the enrollment's project start date. The exit date must be after the project start date. Please go to this enrollment and ensure that the correct project start date and exit date are entered.",
+        "You have at least one active enrollment that has been active for longer than the days set for this Project Type in your Referral settings on the Edit Local Settings tab.",
+        "You have at least one active referral that has been active without a Result Date for longer than the days set in your Local Settings on the Home tab.",
+        "This record is being flagged because it is incomplete. Some clients may decline or be unable to provide the answer to one or more questions during an assessment. Please review the HMIS Data Manual, pages 12-13, for further guidance on data completeness. If possible to complete this data, please update the record. Note that high levels of incomplete data for a given element may indicate the need for additional training.",
+        "This record is being flagged because it is incomplete. Some clients may decline or be unable to provide the answer to one or more questions during an assessment. Please review the HMIS Data Manual, pages 12-13, for further guidance on data completeness. If possible to complete this data, please update the record. Note that high levels of incomplete data for a given element may indicate the need for additional training.",
+        "This record is being flagged because it is incomplete. Some clients may decline or be unable to provide the answer to one or more questions during an assessment. Please review the HMIS Data Manual, pages 12-13, for further guidance on data completeness. If possible to complete this data, please update the record. Note that high levels of incomplete data for a given element may indicate the need for additional training.",
+        "This record is being flagged because it is incomplete. Some clients may decline or be unable to provide the answer to one or more questions during an assessment. Please review the HMIS Data Manual, pages 12-13, for further guidance on data completeness. If possible to complete this data, please update the record. Note that high levels of incomplete data for a given element may indicate the need for additional training.",
+        "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data to HMIS. If this data was not collected, the client declined to provide the information or was unable to provide it, please update the SSN Quality field accordingly.",
+        "This record is being flagged because it is incomplete. Some clients may decline or be unable to provide the answer to one or more questions during an assessment. Please review the HMIS Data Manual, pages 12-13, for further guidance on data completeness. If possible to complete this data, please update the record. Note that high levels of incomplete data for a given element may indicate the need for additional training.",
+        "This enrollment is active outside of the project's operating start and end dates. Please reconcile this by either correcting the enrollment dates or the project's operating dates.",
+        "Users should not be entering a client into a project on a date in the future. If the Project Start Date is correct, there is no action needed, but going forward, please be sure that your data entry workflow is correct according to your project type.",
+        "According to this client's assessment at Project Start, they experienced \n        a single episode of homelessness in the three years prior to their \n        enrollment and the approximate date homelessness started known, but the \n        total number of months they experienced homelessness prior to this \n        enrollment is inconsistent with the given dates. Please double-check this \n        information for consistency and accuracy.",
+        "This record is being flagged because it is incomplete. Some clients may decline or be unable to provide the answer to one or more questions during an assessment. Please review the HMIS Data Manual, pages 12-13, for further guidance on data completeness. If possible to complete this data, please update the record. Note that high levels of incomplete data for a given element may indicate the need for additional training.",
+        "This enrollment overlaps with another enrollment that would indicate a household spent the same night in different inventory beds. Please review the HMIS Dual Enrollments and HIC Duplicate Inventory Training Resource for more information.",
+        "This enrollment overlaps with another enrollment that would indicate a household spent the same night in different inventory beds. Please review the HMIS Dual Enrollments and HIC Duplicate Inventory Training Resource for more information.",
+        "This enrollment may be missing an Exit Date. It is being flagged because the length of time since the enrollment date is in the top 2% for this project type. Please be sure this household is still active in the project and if not, record the Project Exit Date. If they are still active, do not change the data.",
+        "This enrollment may be missing a Move-In Date. It is being flagged because\n      the length of time since the enrollment date is in the top 2% for this project type. Please be sure this household is still awaiting\n      housing in this project and if not, record the date they either moved into\n      housing or exited your project. If they are still awaiting housing, do not\n      change the data."
+      ]
+    },
+    "dq_organization_summary_table": {
+      "Project Name": [
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "SO - PATH",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "SO - PATH",
+        "SO - PATH",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "SO - PATH",
+        "SO - PATH",
+        "SO - PATH",
+        "SO - PATH",
+        "CE - CoC SSO",
+        "SO - PATH",
+        "SO - PATH",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "SO - PATH",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "SO - PATH",
+        "SO - PATH",
+        "CE - CoC SSO",
+        "SO - PATH",
+        "zz-RRH - Other",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "SO - PATH",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "SO - PATH",
+        "SO - PATH",
+        "SO - PATH",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "SO - PATH",
+        "CE - CoC SSO",
+        "TH - HOPWA TH",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "RRH - CoC TH/RRH",
+        "CE - CoC SSO",
+        "CE - CoC SSO",
+        "RRH - CoC TH/RRH",
+        "SO - PATH",
+        "TH - HOPWA TH",
+        "RRH - CoC TH/RRH",
+        "RRH - CoC TH/RRH",
+        "SO - PATH",
+        "SO - PATH",
+        "zz-RRH - Other",
+        "zz-RRH - Other",
+        "zz-RRH - Other"
+      ],
+      "Type": [
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning"
+      ],
+      "Issue": [
+        "Missing Relationship to Head of Household",
+        "Duplicate Entries",
+        "Duplicate Entries",
+        "Missing Client Location",
+        "Health Insurance Missing at Exit",
+        "Income Missing at Exit",
+        "Health Insurance Missing at Exit",
+        "Income Missing at Exit",
+        "Health Insurance Missing at Entry",
+        "Non-cash Benefits Missing at Entry",
+        "Income Missing at Entry",
+        "Missing Disabling Condition",
+        "Missing Length of Stay",
+        "Missing Months or Times Homeless",
+        "Health Insurance Missing at Entry",
+        "Missing Disabling Condition",
+        "Missing Length of Stay",
+        "Missing SSN",
+        "Non-cash Benefits Missing at Entry",
+        "Income Missing at Entry",
+        "Missing Race",
+        "Missing Ethnicity",
+        "Missing Name Data Quality",
+        "Missing Residence Prior",
+        "Conflicting Non-cash Benefits yes/no at Entry",
+        "Missing Veteran Status",
+        "Missing Residence Prior",
+        "Conflicting Health Insurance yes/no at Entry",
+        "Missing Gender",
+        "Conflicting Income yes/no at Entry",
+        "Conflicting Health Insurance yes/no at Entry",
+        "Conflicting Health Insurance yes/no at Exit",
+        "Project Exit Before Start",
+        "Missing Race",
+        "Missing Name Data Quality",
+        "Missing Destination",
+        "Invalid Homelessness Start Date/Number of Months Homeless",
+        "Missing Destination",
+        "Entry Precedes Project's Operating Start",
+        "Don't Know/Refused SSN",
+        "Days Referral Active Exceeds Local Settings",
+        "Don't Know/Refused Living Situation",
+        "Don't Know/Refused Months or Times Homeless",
+        "Don't Know/Refused Residence Prior",
+        "Don't Know/Refused Living Situation",
+        "Don't Know/Refused Months or Times Homeless",
+        "Invalid Homelessness Start Date/Number of Months Homeless",
+        "Don't Know/Refused Residence Prior",
+        "Invalid Homelessness Start Date/Number of Months Homeless",
+        "Don't Know/Refused Race",
+        "Don't Know/Refused/Data Not Collected DOB",
+        "Overlap with a Transitional Housing project",
+        "Future Entry Date",
+        "Possible Missed Exit Date",
+        "Future Entry Date",
+        "Days Enrollment Active Exceeds Local Settings",
+        "Overlap with an Emergency Shelter (E/E) project",
+        "Possible Missed Exit Date",
+        "Possible Missed Move-In Date",
+        "Don't Know/Refused SSN",
+        "Future Entry Date",
+        "Invalid Homelessness Start Date/Number of Months Homeless",
+        "Missing Destination",
+        "Overlap with a Transitional Housing project"
+      ],
+      "Clients": [
+        12,
+        6,
+        2,
+        1,
+        649,
+        584,
+        50,
+        49,
+        46,
+        41,
+        32,
+        28,
+        21,
+        20,
+        14,
+        14,
+        13,
+        12,
+        12,
+        11,
+        10,
+        8,
+        7,
+        7,
+        4,
+        4,
+        4,
+        3,
+        3,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        577,
+        105,
+        60,
+        29,
+        27,
+        17,
+        15,
+        15,
+        13,
+        12,
+        11,
+        10,
+        6,
+        5,
+        4,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "fileStructureAnalysis": {
+      "Type": [
+        "Warning"
+      ],
+      "Issue": [
+        "Incorrect Columns"
+      ],
+      "Count": [
+        6
+      ]
+    },
+    "pdde_guidance_summary": {
+      "Type": [
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Warning",
+        "Warning"
+      ],
+      "Issue": [
+        "Missing Address",
+        "Missing Tracking Method",
+        "No Inventory Records",
+        "Project Operating End precedes Inventory End",
+        "Inventory Start Precedes Project Operating Start",
+        "Non-HMIS-Participating project has client-level data"
+      ],
+      "Guidance": [
+        "Please ensure geography information for projects is complete.",
+        "All Emergency Shelters must have a Tracking Method. Please update the Emergency Shelter Tracking Method field at the project-level.",
+        "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
+        "Inventory Start and End dates should be within Project Operating Start and End dates. Please update either the inventory dates or the Project Operating dates.",
+        "Inventory Start and End dates should be within Project Operating Start and End dates. Please update either the inventory dates or the Project Operating dates.",
+        "Non-HMIS-Participating projects should not have client-level data. The HMIS Participating Project field may need to be updated, new projects may need to be created based on changing HMIS participation status, or client-level data may need to be removed from the Non-HMIS-Participating projects."
+      ]
+    },
+    "pdde_summary_table": {
+      "Issue": [
+        "Inventory Start Precedes Project Operating Start",
+        "Missing Address",
+        "Missing Tracking Method",
+        "No Inventory Records",
+        "Non-HMIS-Participating project has client-level data",
+        "Project Operating End precedes Inventory End"
+      ],
+      "Type": [
+        "Warning",
+        "Error",
+        "Error",
+        "Error",
+        "Warning",
+        "Error"
+      ],
+      "Count": [
+        1,
+        47,
+        1,
+        2,
+        620,
+        3
       ]
     }
   }
