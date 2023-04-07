@@ -1,6 +1,6 @@
 # https://rstudio.github.io/shinytest/articles/in-depth.html
 library(shinytest)
 library(readxl)
-testApp(".")
+expect_pass(testApp("."))
 viewTestDiff(".", interactive = FALSE)
 
