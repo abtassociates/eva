@@ -40,3 +40,4 @@ app$setInputs(sidebarmenuid = "tabDQOrg", timeout_=10000)
 customDownload("downloadOrgDQReport", "Org-DQ-Download")
 
 app$snapshot(items = list(export=TRUE), filename="AllExports.json")
+app$snapshotCompare("../../", images=FALSE)
