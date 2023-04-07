@@ -12,8 +12,6 @@ jobs:
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
-      ACTIONS_STEP_DEBUG: true
-      ACTIONS_RUNNER_DEBUG: true
       
     steps:
       - uses: actions/checkout@v3
@@ -33,6 +31,7 @@ jobs:
         id: phantomjs
         run: |
           echo "::set-output name=path::$(Rscript -e 'cat(shinytest:::phantom_paths()[[1]])')"
+          
       - name: Cache PhantomJS
         uses: actions/cache@v3
         with:

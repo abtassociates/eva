@@ -155,6 +155,8 @@ function(input, output, session) {
         )
         
         logMetadata("Downloaded File Structure Analysis Report")
+        
+        exportTestValues(file_structure_analysis_main = file_structure_analysis_main)
       }
     )
     
@@ -228,7 +230,10 @@ function(input, output, session) {
           ungroup()
 
         write_xlsx(list("Summary" = summary, "Data" = pdde_main), path = file)
+        
         logMetadata("Downloaded PDDE Report")
+        
+        exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main))
       }
     )
     
@@ -474,6 +479,7 @@ function(input, output, session) {
       content = function(file) {
         write_xlsx(dqDownloadInfo()$orgDQData, path = file)
         logMetadata("Downloaded Org-level DQ Report")
+        exportTestValues(orgDQ_download = dqDownloadInfo()$orgDQData)
       }
     )
     
@@ -492,6 +498,7 @@ function(input, output, session) {
       content = function(file) {
         write_xlsx(dqDownloadInfo()$systemDQData, path = file)
         logMetadata("Downloaded System-level DQ Report")
+        exportTestValues(systemDQ_download = dqDownloadInfo()$systemDQData)
       }
     )
 # 
