@@ -19,18 +19,19 @@ app$uploadFile(imported = "../test_uploads/HMIS CSV Export - Current Good.zip") 
 app$findElement("button[data-dismiss='modal']")$click()
 Sys.sleep(2)
 customDownload("downloadFileStructureAnalysis","File-Structure-Analysis-Download")
-app$snapshot(items = list(output=TRUE))
+app$snapshot()
 
 
 app$setInputs(sidebarmenuid = "tabClientCount", timeout_=10000)
-app$waitForValue("clientCountData", iotype = "output", ignore = list(NULL))
+Sys.sleep(2)
+#app$waitForValue("clientCountData", iotype = "output", ignore = list(NULL))
 customDownload("downloadClientCountsReport", "Client-Counts-Download")
-app$snapshot(items = list(output=TRUE))
+app$snapshot()
 
 app$setInputs(sidebarItemExpanded = "AssessDataQuality")
 app$setInputs(sidebarmenuid = "tabPDDE")
 customDownload("downloadPDDEReport", "PDDE-Download")
-app$snapshot(items = list(output=TRUE))
+app$snapshot()
 
 app$setInputs(sidebarmenuid = "tabDQSystem")
 customDownload("downloadSystemDQReport", "System-DQ-Download")
