@@ -35,8 +35,7 @@ app$setInputs(sidebarmenuid = "tabDQSystem")
 customDownload("downloadSystemDQReport", "System-DQ-Download")
 app$takeScreenshot("test-good-current/tabDQSystem.png")
 
-app$setInputs(sidebarmenuid = "tabDQOrg")
-app$waitForShiny()
+app$setInputs(sidebarmenuid = "tabDQOrg", timeout_=10000)
 customDownload("downloadOrgDQReport", "Org-DQ-Download")
 app$takeScreenshot("test-good-current/tabDQOrg.png")
 
