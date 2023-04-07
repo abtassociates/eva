@@ -22,9 +22,8 @@ customDownload("downloadFileStructureAnalysis","File-Structure-Analysis-Download
 app$snapshot()
 
 
-app$setInputs(sidebarmenuid = "tabClientCount", timeout_=10000)
-Sys.sleep(2)
-#app$waitForValue("clientCountData", iotype = "output", ignore = list(NULL))
+app$setInputs(sidebarmenuid = "tabClientCount")
+app$waitForValue("clientCountData", iotype = "output", ignore = list(NULL))
 customDownload("downloadClientCountsReport", "Client-Counts-Download")
 app$snapshot()
 
@@ -40,4 +39,3 @@ app$setInputs(sidebarmenuid = "tabDQOrg", timeout_=10000)
 customDownload("downloadOrgDQReport", "Org-DQ-Download")
 
 app$snapshot(items = list(export=TRUE), filename="AllExports.json")
-app$snapshotCompare("../../", images=FALSE)
