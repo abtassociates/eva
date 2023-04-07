@@ -50,6 +50,7 @@ jobs:
           Rscript tests/shinytest.R
           
       - name: Upload test results
+        if: falure()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ runner.os }}-4.2-tests
