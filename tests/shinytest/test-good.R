@@ -11,7 +11,7 @@ import_xlsx <- function(fpath) {
   return(data)
 }
 
-app <- ShinyDriver$new("~/DQ_CE", seed=1234, loadTimeout = 1e+05, checkNames = FALSE)
+app <- ShinyDriver$new("../../", seed=1234, loadTimeout = 1e+05, checkNames = FALSE)
 app$snapshotInit("test-good")
 
 app$setInputs(Go_to_upload = "click")
