@@ -15,7 +15,8 @@ images/
 *.json
 !tests/**/*.json
 logs/
-www/metadata/
+www/metadata/*.txt
+www/metadata/*.csv
 *.txt
 sandbox/**/*.csv
 *.docx
