@@ -17,6 +17,7 @@ test/
 *.json
 logs/
 www/metadata/
+metadata-analysis/metadata.csv
 *.txt
 sandbox/**/*.csv
 *.docx
