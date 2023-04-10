@@ -94,15 +94,14 @@ HHEntry <- Enrollment %>%
   unique() %>%
   left_join(HHMoveIn, by = "HouseholdID")
 
-
 Enrollment <- Enrollment %>%
   left_join(HHEntry, by = "HouseholdID") %>%
   mutate(
     MoveInDateAdjust = if_else(!is.na(HHMoveIn) &
                                  ymd(HHMoveIn) <= ExitAdjust,
                                if_else(EntryDate <= ymd(HHMoveIn),
-                                       HHMoveIn, EntryDate),
-                               NA_real_), 
+                                       ymd(HHMoveIn), EntryDate),
+                               ymd(NA)), 
     EntryAdjust = case_when(
       !ProjectType %in% ph_project_types ~ EntryDate,
       ProjectType %in% ph_project_types &
