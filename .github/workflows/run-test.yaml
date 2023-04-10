@@ -49,14 +49,14 @@ jobs:
           options(install.packages.check.source = "no")
           if (!shinytest::dependenciesInstalled()) shinytest::installDependencies()
           
-      # - name: Run tests
-      #   run: |
-      #     Rscript tests/shinytest.R
-      #     
-      # - name: Upload test results
-      #   if: failure()
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: ${{ runner.os }}-4.2-tests
-      #     path: tests
-      #     
+      - name: Run tests
+        run: |
+          Rscript tests/shinytest.R
+          
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ runner.os }}-4.2-tests
+          path: tests
+          
