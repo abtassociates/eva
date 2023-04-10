@@ -33,11 +33,21 @@ uploads <-
   read_lines(here("www/metadata/upload_metadata.txt"))
 
 #This is looking at metadata.csv, which does not have the SoftwareName column
+
 new_way <-
   read_csv(here(paste0(
     "sandbox/",
     "/metadata.csv"
   ))) %>%
+  group_by(SessionToken) %>%
+  mutate(sessionTime = difftime(max(Datestamp), min(Datestamp), units = "mins"),
+         is_timeout = sessionTime >= 10 & sessionTime < 11,
+         Details = if_else(Details == "Session started" & is_timeout == TRUE , 
+                            "Session restarted after timeout", 
+                           Details
+                           )
+         ) %>%
+  ungroup() %>%
   select("SessionID" = SessionToken,
          "Date" = Datestamp,
          "Event" = Details) %>%
