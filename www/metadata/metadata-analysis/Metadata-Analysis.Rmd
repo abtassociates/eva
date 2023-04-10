@@ -24,7 +24,7 @@ source(here("app_checks.R"))
 
 # Instructions ------------------------------------------------------------
 
-# whenever DDS sends the metadata zip file, copy it to anywhere in the ACE environment that you can find it again, navigate to the sandbox directory in your Eva RStudio project, click Upload, then find the zip file you copied in. Click OK or whatever, then the files will be pasted into a folder under sandbox/. Edit the folder_date variable to match that folder's name and run this.
+# whenever DDS sends the metadata zip file, copy it to anywhere in the ACE environment that you can find it again, navigate to the www/metadata directory in your Eva RStudio project, click Upload, then find the zip file you copied in. Click OK or whatever, then the files will be pasted in. Then run this.
 
 visits <-
   read_lines(here("www/metadata/site_visits.txt"))
@@ -35,10 +35,7 @@ uploads <-
 #This is looking at metadata.csv, which does not have the SoftwareName column
 
 new_way <-
-  read_csv(here(paste0(
-    "sandbox/",
-    "/metadata.csv"
-  ))) %>%
+  read_csv(here("www/metadata/metadata.csv")) %>%
   group_by(SessionToken) %>%
   mutate(sessionTime = difftime(max(Datestamp), min(Datestamp), units = "mins"),
          is_timeout = sessionTime >= 10 & sessionTime < 11,
