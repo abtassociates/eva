@@ -1,6 +1,8 @@
-Package: eva
-Title: eva
+Package: Eva
+Title: Eva
 Version: 0.0.1
+Authors@R: 
+    person("Alex", "Silverman", email = "Alex_Silverman@abtassoc.com", role = c("aut", "cre"))
 Description: eva
 Encoding: UTF-8
 LazyData: true
@@ -9,5 +11,21 @@ RoxygenNote: 7.1.0
 Imports:
     shiny
 Suggests:
-    shinytest,
+    shinytest
     testthat
+    tidyverse
+    shinydashboard
+    shiny
+    shinyWidgets
+    lubridate
+    scales
+    plotly
+    DT
+    writexl
+    viridis
+    HMIS
+    glue
+    janitor
+    shinyjs
+    shinydisconnect
+    here
