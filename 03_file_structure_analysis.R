@@ -358,19 +358,6 @@ if(nrow(Enrollment) == 0) {
   )
 }
 
-if(nrow(Enrollment) >= 1 && nrow(Enrollment) <= 12) {
-  showModal(
-    modalDialog(
-      title = str_squish("Warning: there are fewer than 20 enrollment records in
-                         the Enrollment.csv file. With such a small dataset, you
-                         might not get much from Eva's analyses. However you are
-                         free to use Eva if you'd like."),
-      easyClose = TRUE,
-      footer = modalButton("OK")
-    )
-  ) 
-}
-
 duplicate_enrollment_id <- Enrollment %>%
   get_dupes(EnrollmentID) %>%
   mutate(
