@@ -358,7 +358,7 @@ if(nrow(Enrollment) == 0) {
   )
 }
 
-if(nrow(Enrollment) %between% c(1,12)) {
+if(nrow(Enrollment) >= 1 && nrow(Enrollment) <= 12) {
   showModal(
     modalDialog(
       title = str_squish("Warning: there are fewer than 20 enrollment records in
