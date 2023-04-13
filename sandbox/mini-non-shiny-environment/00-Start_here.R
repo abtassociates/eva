@@ -22,6 +22,7 @@ if_else(file.exists(paste0(directory, "data/Enrollment.csv")),
 
 # Functions ---------------------------------------------------------------
 source("~/DQ_CE/global.R")
+source("~/DQ_CE/guidance.R")
 
 source(paste0(directory, "helper_functions.R"))
 

@@ -77,3 +77,6 @@ by the housing move-in date) overlaps with another permanent housing
 enrollment (indicated by the latter enrollment's housing move-in date). Please
 verify the enrollment dates and housing move-in dates of both projects to 
 correct this overlap.")
+
+# File Structure Analysis ----------------------------------------------------
+guidance_no_enrollments <- "There should be at least 20 enrollment records in the Enrollment.csv file"
