@@ -138,12 +138,11 @@ function(input, output, session) {
     
     output$downloadFileStructureAnalysisBtn <- renderUI({
       req(initially_valid_import)
+     # req(nrow(file_structure_analysis_main) > 0)
       downloadButton("downloadFileStructureAnalysis", "Download Structure Analysis Detail")
     })  
     
     output$downloadFileStructureAnalysis <- downloadHandler(
-      # req(valid_file() == 1)
-
       filename = date_stamped_filename("File-Structure-Analysis-"),
       content = function(file) {
         write_xlsx(
@@ -204,7 +203,7 @@ function(input, output, session) {
     # download button
     output$downloadPDDEReportButton  <- renderUI({
       req(valid_file() == 1)
-      
+      req(nrow(pdde_main) > 0)
       downloadButton(outputId = "downloadPDDEReport",
                        label = "Download")
     })
@@ -347,7 +346,6 @@ function(input, output, session) {
     # CLIENT COUNT DOWNLOAD
     output$downloadClientCountsReportButton  <- renderUI({
       req(valid_file() == 1)
-      
       downloadButton(outputId = "downloadClientCountsReport",
                      label = "Download System-Wide")
     })
@@ -440,10 +438,10 @@ function(input, output, session) {
 # Download Org DQ Report --------------------------------------------------
 
     output$downloadOrgDQReportButton  <- renderUI({
-      if (valid_file() == 1) {
+      req(valid_file() == 1)
+      req(nrow(dqDownloadInfo()$orgDQData) > 0)
         downloadButton(outputId = "downloadOrgDQReport",
                        label = "Download")
-      }
     })
     
     output$downloadOrgDQReport <- downloadHandler(
@@ -458,10 +456,10 @@ function(input, output, session) {
 # Download System DQ Report -----------------------------------------------
     # button
     output$downloadSystemDQReportButton  <- renderUI({
-      if (valid_file() == 1) {
-        downloadButton(outputId = "downloadSystemDQReport",
+      req(valid_file() == 1)
+      req(nrow(dqDownloadInfo()$systemDQData) > 0)
+      downloadButton(outputId = "downloadSystemDQReport",
                        label = "Download")
-      }
     })
     
     output$downloadSystemDQReport <- downloadHandler(
