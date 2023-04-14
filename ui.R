@@ -1,6 +1,7 @@
 dashboardPage(
+  title = "Eva",
   skin = "black",
-  dashboardHeader(title = "Eva"),
+  dashboardHeader(title = span(img(src = "Eva_logo_horizontal_white.png", height = 45))),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
