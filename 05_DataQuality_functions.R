@@ -237,13 +237,13 @@ renderDQPlot <- function(level, issueType, group, color) {
   # groupVars is the variable(s) used to summarise/count rows
   # x_group is the x variable used to in the ggplot reordering
   if(group == "Org") {
-    groupVars <- c("OrganizationName","OrganizationID")
+    groupVars <- c("OrganizationName", "OrganizationID")
     x_group <- "OrganizationName"
   } else if(group == "Project") {
     groupVars <- c("OrganizationName", "ProjectName", "ProjectID")
     x_group <- "ProjectName"
   } else if(group == "Issue" && level == "org") {
-    groupVars <- c("OrganizationName","Issue")
+    groupVars <- c("OrganizationName", "Issue")
     x_group <- "Issue"
   } else if(group == "Issue" && level == "sys") {
     groupVars <- "Issue"
