@@ -229,7 +229,7 @@ calculate_outstanding_referrals <- function(input){
 }
 
 renderDQPlot <- function(level, issueType, group, color) {
-  
+  req(exists("dq_main"))
   # groupVars is the variable(s) used to summarise/count rows
   # x_group is the x variable used to in the ggplot reordering
   if(group == "Org") {
