@@ -196,7 +196,27 @@ function(input, output, session) {
 
 
 # System Data Quality Overview --------------------------------------------
-
+empty_dq_overview_plot <- function(currPlot) {
+  return(currPlot + 
+    theme(
+      axis.line = element_blank(),
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank()
+    ) +
+    annotate(
+      "text",
+      x = 0.5,
+      y = 0.5,
+      label = "No issues!",
+      size = 12,
+      color = "gray50",
+      fontface = "bold"
+    )
+  )
+}
+    
 output$dq_overview_plot <- renderPlot({
   req(valid_file() == 1)
 # browser()
@@ -233,6 +253,9 @@ output$dq_overview_plot <- renderPlot({
                vjust = -.5,
                color = "gray14")
   
+  if (nrow(detail) == 0) {
+    dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
+  }
   dq_plot_overview
 })  
     
@@ -256,7 +279,7 @@ output$dq_overview_plot <- renderPlot({
       detail <- dq_main_reactive() %>%
         count(OrganizationName, Type, name = "Total") %>%
         filter(Type == highest_type)
-      
+
       dq_plot_overview <-
         ggplot(
           detail %>%
@@ -268,10 +291,9 @@ output$dq_overview_plot <- renderPlot({
         geom_col(fill = "#D5BFE6", alpha = .7)+
         scale_y_continuous(label = comma_format()) +
         labs(
-          title = paste("Highest Counts of",
-                        highest_type_display),
+          title = paste("Highest Counts of", ifelse(is_empty(highest_type_display),"Issue",highest_type_display)),
           x = "Top 5 Organizations",
-          y = highest_type_display
+          y = ifelse(is_empty(highest_type_display),"Issue",highest_type_display)
         ) +
         coord_flip() +
         theme_minimal(base_size = 18) +
@@ -283,6 +305,9 @@ output$dq_overview_plot <- renderPlot({
                   nudge_y = 2,
                   color = "gray14")
       
+      if (nrow(detail) == 0) {
+        dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
+      }
       dq_plot_overview
     })
     
