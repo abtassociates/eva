@@ -265,7 +265,7 @@ output$dq_overview_plot <- renderPlot({
             mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
           aes(x = OrganizationName, y = Total)
         ) +
-        geom_col(fill = "#71b4cb", alpha = .7)+
+        geom_col(fill = "#D5BFE6", alpha = .7)+
         scale_y_continuous(label = comma_format()) +
         labs(
           title = paste("Highest Counts of",
@@ -309,8 +309,19 @@ output$dq_overview_plot <- renderPlot({
         summarise(InProject = sum(Total, na.rm = FALSE)) %>%
         ungroup()
       
+      
       plot_data <- detail %>%
-        left_join(detail_order, by = "ProjectType")
+        left_join(detail_order, by = "ProjectType") %>%
+        group_by(ProjectType) %>%
+        arrange(ProjectType, desc(Total)) %>%
+        mutate(
+          movedin = lag(Total, default = 0),
+          text_position = case_when(
+            !ProjectType %in% c(ph_project_types) ~ InProject / 2,
+            ProjectType %in% c(ph_project_types) ~ 
+              Total / 2 + movedin
+          )
+        )
       
       validate_by_org <-
         ggplot(
@@ -318,13 +329,16 @@ output$dq_overview_plot <- renderPlot({
           aes(x = reorder(project_type_abb(ProjectType), InProject),
               y = Total, fill = Status)
         ) +
-        geom_col(alpha = .7, position = "stack") +
+        geom_col(alpha = .7, position = "stack")  +
+        geom_text(aes(label = prettyNum(Total, big.mark = ","),
+                      y = text_position),
+                  color = "gray14")+
         scale_y_continuous(label = comma_format()) +
         scale_colour_manual(
           values = c(
-            "Currently in project" = "#16697a",
-            "Active No Move-In" = "#c2462e",
-            "Currently Moved In" = "#71b4cb"
+            "Currently in project" = "#71B4CB",
+            "Active No Move-In" = "#7F5D9D",
+            "Currently Moved In" = "#52BFA5"
           ),
           aesthetics = "fill"
         ) +
@@ -338,10 +352,7 @@ output$dq_overview_plot <- renderPlot({
           plot.title.position = "plot",
           title = element_text(colour = "#73655E"),
           legend.position = "top"
-        ) +
-        geom_text(aes(label = prettyNum(Total, big.mark = ",")),
-                  vjust = -.6,
-                  color = "gray14")
+        )
       
       validate_by_org
     })
