@@ -247,15 +247,15 @@ dashboardPage(
               range of the files you uploaded, plus the date your Export was 
               downloaded from your HMIS.
               ")
-          ),
-          box(
+          )),
+          fluidRow(box(
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
             uiOutput("fileInfo"),
             width = 12
-          ),
+          )),
           #,
           # HTML(
           #   "<h4>Referrals</h4>
@@ -266,7 +266,7 @@ dashboardPage(
           #              label = "Outstanding Referral Days:",
           #              value = 7)
           
-          box(
+          fluidRow(box(
             title = "HMIS CSV Export File Structure Analysis",
             width = 12,
             DT::dataTableOutput("fileStructureAnalysis"),
@@ -276,7 +276,19 @@ dashboardPage(
             well as any other structural issues which you feel need to be corrected.
             </p>"),
             p(),
+<<<<<<< HEAD
+            uiOutput('downloadIntegrityBtn')
+          )),
+          fluidRow(box(
+            title = "System Data Quality Overview",
+            width = 12,
+            column(12, plotOutput("validate_plot")),
+            column(6, plotOutput("dq_overview_plot")),
+            column(6, plotOutput("dq_orgs_overview_plot"))
+            
+=======
             uiOutput('downloadFileStructureAnalysisBtn')
+>>>>>>> dev
           )
         )
       ),
