@@ -72,11 +72,18 @@ Please verify the bed night date, enrollment dates, and housing move-in date
 of both projects to correct this overlap.")
 
 overlapNEW_movein_and_exit_guidance <-
-  str_squish("This error indicates that a stay in a permanent housing enrollment (indicated
-by the housing move-in date) overlaps with another permanent housing 
-enrollment (indicated by the latter enrollment's housing move-in date). Please
-verify the enrollment dates and housing move-in dates of both projects to 
-correct this overlap.")
+  str_squish(
+    "This error indicates that a stay in a permanent housing enrollment
+    (indicated by the housing move-in date) overlaps with another permanent
+    housing enrollment (indicated by the latter enrollment's housing move-in
+    date). Please verify the enrollment dates and housing move-in dates of both
+    projects to correct this overlap.")
 
 # File Structure Analysis ----------------------------------------------------
-guidance_no_enrollments <- "There should be at least 20 enrollment records in the Enrollment.csv file"
+guidance_no_enrollments <- 
+  str_squish(
+    "Your export's Enrollment.csv has 0 records. Without any enrollment data,
+    Eva will not return any results on most analyses. If you are not sure how to
+    run your HMIS CSV Export correctly, please contact your vendor.")
+
+
