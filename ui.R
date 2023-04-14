@@ -102,7 +102,7 @@ dashboardPage(
                 the Changelog tab.</li>
               </ul> 
             "),
-            actionButton("Go_to_upload","Click here to get started")
+            actionButton("Go_to_upload", "Click here to get started")
           ),
           box(
             title = "Instructions",

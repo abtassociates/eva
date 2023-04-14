@@ -312,7 +312,7 @@ hh_children_only <- base_dq_data %>%
   ) %>%
   filter(maxAge < 12) %>%
   ungroup() %>%
-  left_join(base_dq_data, by = c("HouseholdID","maxAge" = "AgeAtEntry")) %>%
+  left_join(base_dq_data, by = c("HouseholdID", "maxAge" = "AgeAtEntry")) %>%
   distinct(HouseholdID, maxAge, .keep_all = TRUE) %>%
   mutate(Issue = "Oldest Household Member Under 12",
          Type = "High Priority",

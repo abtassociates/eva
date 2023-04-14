@@ -1,6 +1,8 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "04-20-2023", "Added Zero Enrollments as a High Priority File Structure issue.",
+    
     "04-20-2023", "Upgraded the Duplicate HouseholdIDs File Structure issue from
     Error to High Priority as promised",
     

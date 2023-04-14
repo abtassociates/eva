@@ -342,6 +342,21 @@ duplicate_client_id <- Client %>%
   unique()
 
 # Integrity Enrollment ----------------------------------------------------
+if(nrow(Enrollment) == 0) {
+  no_enrollment_records <- data.frame(
+    Issue = "No enrollment records",
+    Type = "High Priority",
+    Guidance = guidance_no_enrollments,
+    Detail = "There are 0 enrollment records in the Enrollment.csv file"
+  )
+} else {
+  no_enrollment_records <- data.frame(
+    Issue = character(),
+    Type = character(),
+    Guidance = character(),
+    Detail = character()
+  )
+}
 
 duplicate_enrollment_id <- Enrollment %>%
   get_dupes(EnrollmentID) %>%
@@ -567,7 +582,8 @@ file_structure_analysis_main <- rbind(
   living_situation_invalid,
   rel_to_hoh_invalid,
   nonstandard_destination,
-  nonstandard_CLS
+  nonstandard_CLS,
+  no_enrollment_records
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
