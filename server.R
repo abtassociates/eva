@@ -1,31 +1,27 @@
 
 function(input, output, session) {
-  
-  # Hard-coded --------------------------------------------------------------
-  # hc = hard-coded
-  hc_prior_living_situation_required <- ymd("20161001")
-  
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
+  source("hardcodes.R", local = TRUE) # hard-coded variables and data frames used throughout the app
   source("helper_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
   source("guidance.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
-  source("changelog.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
+  source("changelog.R", local = TRUE) # changelog entries
   
+<<<<<<< HEAD
 
+=======
+  # log that the session has started
+  logMetadata("Session started")
+  
+  # this will be a requirement for proceeding with many parts of the code 
+>>>>>>> dev
   valid_file <- reactiveVal(0)
   
-  logMetadata("Session started")
-
+  # log when user navigate to a tab
   observe({ 
     logMetadata(paste("User on",input$sidebarmenuid))
   })
-  
-  output$fileInfo <- renderUI({
-    if(valid_file() == 1) {
-      HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
-    }
-  }) 
 
 # Headers -----------------------------------------------------------------
 
@@ -65,12 +61,12 @@ function(input, output, session) {
   })
 
 # Run scripts on upload ---------------------------------------------------
-
+  
   observeEvent(input$imported, {
-
-    initially_valid_zip <- zip_initially_valid()
+    valid_file(0)
+    source("00_initially_valid_import.R", local = TRUE)
     
-    if(initially_valid_zip == 1) {
+    if(initially_valid_import) {
 
       hide('imported_progress')
       
@@ -78,20 +74,18 @@ function(input, output, session) {
         setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
         source("01_get_Export.R", local = TRUE)
-        source("02_dates.R", local = TRUE)
+        source("02_export_dates.R", local = TRUE)
         setProgress(detail = "Checking file structure", value = .35)
-        source("03_integrity_checker.R", local = TRUE)
+        source("03_file_structure_analysis.R", local = TRUE)
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE)
-          setProgress(detail = "Making lists..", value = .5)
-          source("05_cohorts.R", local = TRUE)
           setProgress(detail = "Assessing your data quality..", value = .7)
-          source("06_DataQuality.R", local = TRUE)
+          source("05_DataQuality.R", local = TRUE)
           setProgress(detail = "Checking your PDDEs", value = .85)
-          source("07_PDDE_Checker.R", local = TRUE)
+          source("06_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
           
           showModal(
@@ -121,14 +115,25 @@ function(input, output, session) {
         }
       })
     }
+<<<<<<< HEAD
 
 # File Structure Analysis Summary -----------------------------------------
 
     output$integrityChecker <- DT::renderDataTable(
+=======
+    
+    output$fileInfo <- renderUI({
+      if(valid_file() == 1) {
+        HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
+      }
+    }) 
+    
+    output$fileStructureAnalysis <- DT::renderDataTable(
+>>>>>>> dev
       {
-        req(initially_valid_zip == 1)
+        req(initially_valid_import)
 
-        a <- integrity_main %>%
+        a <- file_structure_analysis_main %>%
           group_by(Type, Issue) %>%
           summarise(Count = n()) %>%
           ungroup() %>%
@@ -141,23 +146,34 @@ function(input, output, session) {
           options = list(dom = 't')
         )
       })
+<<<<<<< HEAD
 
 # File Structure Analysis Download ----------------------------------------
 
     output$downloadIntegrityBtn <- renderUI({
       req(initially_valid_zip == 1)
       downloadButton("downloadIntegrityCheck", "Download Structure Analysis Detail")
+=======
+    
+    output$downloadFileStructureAnalysisBtn <- renderUI({
+      req(initially_valid_import)
+     # req(nrow(file_structure_analysis_main) > 0)
+      downloadButton("downloadFileStructureAnalysis", "Download Structure Analysis Detail")
+>>>>>>> dev
     })  
     
-    output$downloadIntegrityCheck <- downloadHandler(
-      # req(valid_file() == 1)
-
+    output$downloadFileStructureAnalysis <- downloadHandler(
       filename = date_stamped_filename("File-Structure-Analysis-"),
       content = function(file) {
         write_xlsx(
+<<<<<<< HEAD
           integrity_main %>%
             arrange(Type, Issue) %>%
             nice_names(),
+=======
+          file_structure_analysis_main %>%
+            arrange(Type, Issue),
+>>>>>>> dev
           path = file
         )
         
@@ -405,7 +421,7 @@ output$dq_overview_plot <- renderPlot({
 
     output$downloadPDDEReportButton  <- renderUI({
       req(valid_file() == 1)
-      
+      req(nrow(pdde_main) > 0)
       downloadButton(outputId = "downloadPDDEReport",
                        label = "Download")
     })
@@ -466,7 +482,7 @@ output$dq_overview_plot <- renderPlot({
       desk_time <- validation %>%
         filter(ProjectName == provider &
                  entered_between(., ReportStart, ReportEnd) &
-                 ProjectType %in% c(1, 2, 3, 4, 8, 9, 12, 13)) %>%
+                 ProjectType %in% lh_ph_hp_project_types) %>%
         select(ProjectName, PersonalID, HouseholdID, EntryDate, DateCreated) %>%
         mutate(
           DeskTime = difftime(floor_date(DateCreated, unit = "day"),
@@ -567,7 +583,6 @@ output$dq_overview_plot <- renderPlot({
 
     output$downloadClientCountsReportButton  <- renderUI({
       req(valid_file() == 1)
-      
       downloadButton(outputId = "downloadClientCountsReport",
                      label = "Download System-Wide")
     })
@@ -627,6 +642,7 @@ output$dq_overview_plot <- renderPlot({
     })
     
 
+<<<<<<< HEAD
 # DQ ORGANIZATION REPORT --------------------------------------------------
 
     source("06_DataQuality_functions.R", local = TRUE)
@@ -638,11 +654,17 @@ output$dq_overview_plot <- renderPlot({
                        label = "Download")
       }
     })
+=======
+# Prep DQ Downloads -------------------------------------------------------
+
+    source("05_DataQuality_functions.R", local = TRUE)
+>>>>>>> dev
     
     # list of data frames to include in DQ Org Report
-    orgDQReportDataList <- reactive({
+    dqDownloadInfo <- reactive({
       req(valid_file() == 1)
-      
+
+      # org-level data prep (filtering to selected org)
       orgDQData <- dq_main_reactive() %>%
         filter(OrganizationName %in% c(input$orgList))
       
@@ -653,34 +675,109 @@ output$dq_overview_plot <- renderPlot({
       orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
         filter(OrganizationName %in% c(input$orgList))
       
+<<<<<<< HEAD
       getDQReportDataList(orgDQData,
                           orgDQoverlaps,
                           "ProjectName",
                           orgDQReferrals)
+=======
+      # return a list for reference in downloadHandler
+      list(
+        orgDQData = getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals),
+           
+        systemDQData = getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName",
+                                              calculate_outstanding_referrals(input$CEOutstandingReferrals))
+      )
+      
+>>>>>>> dev
     })
     
-    fullDQReportDataList <- reactive({
+
+# Download Org DQ Report --------------------------------------------------
+
+    output$downloadOrgDQReportButton  <- renderUI({
       req(valid_file() == 1)
+<<<<<<< HEAD
       getDQReportDataList(
         dq_main_reactive(),
         overlaps,
         "OrganizationName",
         calculate_outstanding_referrals(input$CEOutstandingReferrals))
+=======
+      req(nrow(dqDownloadInfo()$orgDQData) > 0)
+        downloadButton(outputId = "downloadOrgDQReport",
+                       label = "Download")
+>>>>>>> dev
     })
     
     output$downloadOrgDQReport <- downloadHandler(
-      filename = date_stamped_filename(str_glue("{input$orgList} Data Quality Report-")),
+      filename = reactive(date_stamped_filename(str_glue("{input$orgList} Data Quality Report-"))),
       content = function(file) {
+<<<<<<< HEAD
         write_xlsx(
           orgDQReportDataList(),
           path = file)
         
+=======
+        write_xlsx(dqDownloadInfo()$orgDQData, path = file)
+>>>>>>> dev
         logMetadata("Downloaded Org-level DQ Report")
       }
     )
     
+<<<<<<< HEAD
 # SYSTEM-LEVEL DQ TAB PLOTS -----------------------------------------------
 
+=======
+
+# Download System DQ Report -----------------------------------------------
+    # button
+    output$downloadSystemDQReportButton  <- renderUI({
+      req(valid_file() == 1)
+      req(nrow(dqDownloadInfo()$systemDQData) > 0)
+      downloadButton(outputId = "downloadSystemDQReport",
+                       label = "Download")
+    })
+    
+    output$downloadSystemDQReport <- downloadHandler(
+      filename = date_stamped_filename("Full Data Quality Report-"),
+      content = function(file) {
+        write_xlsx(dqDownloadInfo()$systemDQData, path = file)
+        logMetadata("Downloaded System-level DQ Report")
+      }
+    )
+# 
+#     output$cocOverlap <- DT::renderDataTable({
+# 
+#       a <- dq_overlaps %>%
+#         group_by(ProjectName) %>%
+#         summarise(Clients = n()) %>%
+#         arrange(desc(Clients)) %>%
+#         top_n(20L, wt = Clients) %>%
+#         select("Project Name" = ProjectName,
+#                "Clients with Overlapping Enrollments" = Clients)
+#       datatable(a,
+#                 rownames = FALSE)
+#     }) #revisit
+    
+    # output$cocWidespreadIssues <- DT::renderDataTable({
+    #   req(valid_file() == 1)
+    #   a <- dq_past_year() %>%
+    #     select(Issue, ProjectName, Type) %>%
+    #     unique() %>%
+    #     group_by(Issue, Type) %>%
+    #     summarise(HowManyProjects = n()) %>%
+    #     arrange(desc(HowManyProjects)) %>%
+    #     head(10L) %>%
+    #     select(Issue, Type, "How Many Providers" = HowManyProjects)
+    #   
+    #   datatable(a,
+    #             rownames = FALSE)
+    # 
+    # })
+    
+# SYSTEM-LEVEL DQ TAB PLOTS -----------------------------------------------
+>>>>>>> dev
     # By-org shows organizations containing highest number of HP errors/errors/warnings
     # By-issue shows issues that are the most common of that type (HP errors/errors/warnings)
     output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
@@ -708,9 +805,12 @@ output$dq_overview_plot <- renderPlot({
       renderDQPlot("sys", "Warning", "Issue", "#71B4CB")
     })
 
-    #ORG-LEVEL TAB PLOTS
-    # By-project shows projects, within the selected org, containing highest number of HP errors/errors/warnings
-    # By-issue shows issues, within the selected org, that are the most common of that type (HP errors/errors/warnings)
+
+# ORG-LEVEL TAB PLOTS -----------------------------------------------------
+    # By-project shows projects, within the selected org, containing highest 
+    # number of HP errors/errors/warnings
+    # By-issue shows issues, within the selected org, that are the most common 
+    # of that type (HP errors/errors/warnings)
     output$orgDQHighPriorityErrorsByProject_ui <- renderUI({
       renderDQPlot("org", "High Priority", "Project", "#71B4CB")
     })
@@ -733,84 +833,6 @@ output$dq_overview_plot <- renderPlot({
     
     output$orgDQWarningsByIssue_ui <- renderUI({
       renderDQPlot("org", "Warning", "Issue", "#71B4CB")
-    })
-    
-    ##
-    
-    output$DQHighPriority <- DT::renderDT({
-      req(valid_file() == 1)      
-      
-      ReportStart <- Export$ExportStartDate
-      ReportEnd <- meta_HUDCSV_Export_End
-      
-      DQHighPriority <- dq_main_reactive() %>%
-        filter(
-            OrganizationName %in% c(input$orgList) &
-            Type == "High Priority"
-        ) %>%
-        mutate(EntryDate = format.Date(EntryDate, "%m-%d-%Y")) %>%
-        arrange(ProjectName, HouseholdID, PersonalID) %>%
-        select("Project Name" = ProjectName,
-               "Personal ID" = PersonalID,
-               "High Priority Issue" = Issue,
-               "Project Start Date" =  EntryDate)
-      
-      datatable(
-        DQHighPriority,
-        rownames = FALSE,
-        filter = 'top',
-        options = list(dom = 'ltpi')
-      )
-    })
-    
-    output$DQErrors <- DT::renderDT({
-      req(valid_file() == 1)      
-      
-      DQErrors <- dq_main_reactive() %>%
-        filter(
-            OrganizationName %in% c(input$orgList) &
-            Type == "Error"
-        ) %>%
-        mutate(EntryDate = format.Date(EntryDate, "%m-%d-%Y")) %>%
-        arrange(ProjectName, HouseholdID, PersonalID) %>%
-        select("Project Name" = ProjectName,
-               "Personal ID" = PersonalID,
-               "Error" = Issue,
-               "Project Start Date" =  EntryDate)
-      
-      datatable(
-        DQErrors,
-        rownames = FALSE,
-        filter = 'top',
-        options = list(dom = 'ltpi')
-      )
-      
-    })
-    
-    output$DQWarnings <- DT::renderDataTable({
-      req(valid_file() == 1)      
-      ReportStart <- Export$ExportStartDate
-      ReportEnd <- meta_HUDCSV_Export_End
-      
-      DQWarnings <- dq_main_reactive() %>%
-        filter(
-            OrganizationName %in% c(input$orgList) &
-            Type == "Warning"
-        ) %>%
-        #mutate(PersonalID = as.character(PersonalID)) %>%
-        arrange(ProjectName, HouseholdID, PersonalID) %>%
-        select(
-          "Project Name" = ProjectName,
-          "Personal ID" = PersonalID,
-          "Warning" = Issue,
-          "Project Start Date" =  EntryDate
-        )
-      
-      datatable(
-        DQWarnings,
-        rownames = FALSE,
-        filter = 'top',
-        options = list(dom = 'ltpi'))
     })
   
   # output$headerUtilization <- renderUI({
@@ -857,6 +879,7 @@ output$dq_overview_plot <- renderPlot({
   #        )))
   # })
   
+<<<<<<< HEAD
   #### DQ SYSTEM REPORT #### ----------------------
   # button
   output$downloadFullDQReportButton  <- renderUI({
@@ -875,6 +898,8 @@ output$dq_overview_plot <- renderPlot({
     }
   )
   
+=======
+>>>>>>> dev
   
   output$deskTimeNote <- renderUI({
     HTML(
