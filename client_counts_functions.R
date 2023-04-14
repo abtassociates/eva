@@ -27,25 +27,25 @@ client_count_data_df <- reactive({
         RelationshipToHoH == 99 ~ "Data not collected (please correct)"
       ),
       Status = case_when(
-        ProjectType %in% c(3, 13) &
+        ProjectType %in% c(ph_project_types) &
           is.na(MoveInDateAdjust) &
           is.na(ExitDate) ~ "Active No Move-In",
-        ProjectType %in% c(3, 13) &
+        ProjectType %in% c(ph_project_types) &
           !is.na(MoveInDateAdjust) &
           is.na(ExitDate) ~ paste0("Currently Moved In (",
                                    today() - MoveInDateAdjust,
                                    " days)"),
-        ProjectType %in% c(3, 13) &
+        ProjectType %in% c(ph_project_types) &
           is.na(MoveInDateAdjust) &
           !is.na(ExitDate) ~ "Exited No Move-In",
-        ProjectType %in% c(3, 13) &
+        ProjectType %in% c(ph_project_types) &
           !is.na(MoveInDateAdjust) &
           !is.na(ExitDate) ~ "Exited with Move-In",
-        !ProjectType %in% c(3, 13) &
+        !ProjectType %in% c(ph_project_types) &
           is.na(ExitDate) ~ paste0("Currently in project (",
                                    today() - EntryDate, 
                                    " days)"),
-        !ProjectType %in% c(3, 13) &
+        !ProjectType %in% c(ph_project_types) &
           !is.na(ExitDate) ~ "Exited project"
       ),
       sort = today() - EntryDate
@@ -132,9 +132,9 @@ get_clientcount_download_info <- function(file) {
       select(!!keepCols, !!necessaryCols, ProjectType) %>%
       mutate(
         across(!!necessaryCols, ~ replace(., is.na(.) &
-                                            ProjectType %in% c(3, 13), 0)),
+                                            ProjectType %in% c(ph_project_types), 0)),
         "Currently in Project" = case_when(
-          ProjectType %in% c(3, 13)  ~ 
+          ProjectType %in% c(ph_project_types)  ~ 
             rowSums(select(., `Currently Moved In`, `Active No Move-In`),
                     na.rm = TRUE),
           TRUE ~ replace_na(`Currently in project`, 0)
@@ -150,7 +150,7 @@ get_clientcount_download_info <- function(file) {
   validationDateRange <- pivot_and_sum(validationDF, isDateRange = TRUE) %>%
     mutate(
       "Exited Project" = case_when(
-        ProjectType %in% c(3, 13) ~ 
+        ProjectType %in% c(ph_project_types) ~ 
           rowSums(select(., `Exited with Move-In`, `Exited No Move-In`),
                   na.rm = TRUE),
         TRUE ~ `Exited project`
