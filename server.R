@@ -662,7 +662,7 @@ output$dq_overview_plot <- renderPlot({
 
     output$downloadOrgDQReportButton  <- renderUI({
       req(valid_file() == 1)
-      req(nrow(dqDownloadInfo()$orgDQData) > 0)
+      req(length(dqDownloadInfo()$orgDQData) > 0)
         downloadButton(outputId = "downloadOrgDQReport",
                        label = "Download")
     })
@@ -680,7 +680,7 @@ output$dq_overview_plot <- renderPlot({
     # button
     output$downloadSystemDQReportButton  <- renderUI({
       req(valid_file() == 1)
-      req(nrow(dqDownloadInfo()$systemDQData) > 0)
+      req(length(dqDownloadInfo()$systemDQData) > 0)
       downloadButton(outputId = "downloadSystemDQReport",
                        label = "Download")
     })
