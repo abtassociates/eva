@@ -8,14 +8,10 @@ function(input, output, session) {
   source("guidance.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
   source("changelog.R", local = TRUE) # changelog entries
   
-<<<<<<< HEAD
-
-=======
   # log that the session has started
   logMetadata("Session started")
   
   # this will be a requirement for proceeding with many parts of the code 
->>>>>>> dev
   valid_file <- reactiveVal(0)
   
   # log when user navigate to a tab
@@ -115,21 +111,16 @@ function(input, output, session) {
         }
       })
     }
-<<<<<<< HEAD
 
-# File Structure Analysis Summary -----------------------------------------
-
-    output$integrityChecker <- DT::renderDataTable(
-=======
-    
     output$fileInfo <- renderUI({
       if(valid_file() == 1) {
         HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
       }
     }) 
     
+# File Structure Analysis Summary -----------------------------------------
+    
     output$fileStructureAnalysis <- DT::renderDataTable(
->>>>>>> dev
       {
         req(initially_valid_import)
 
@@ -146,34 +137,23 @@ function(input, output, session) {
           options = list(dom = 't')
         )
       })
-<<<<<<< HEAD
 
 # File Structure Analysis Download ----------------------------------------
 
-    output$downloadIntegrityBtn <- renderUI({
-      req(initially_valid_zip == 1)
-      downloadButton("downloadIntegrityCheck", "Download Structure Analysis Detail")
-=======
-    
     output$downloadFileStructureAnalysisBtn <- renderUI({
       req(initially_valid_import)
      # req(nrow(file_structure_analysis_main) > 0)
-      downloadButton("downloadFileStructureAnalysis", "Download Structure Analysis Detail")
->>>>>>> dev
+      downloadButton("downloadFileStructureAnalysis",
+                     "Download Structure Analysis Detail")
     })  
     
     output$downloadFileStructureAnalysis <- downloadHandler(
       filename = date_stamped_filename("File-Structure-Analysis-"),
       content = function(file) {
         write_xlsx(
-<<<<<<< HEAD
-          integrity_main %>%
+          file_structure_analysis_main %>%
             arrange(Type, Issue) %>%
             nice_names(),
-=======
-          file_structure_analysis_main %>%
-            arrange(Type, Issue),
->>>>>>> dev
           path = file
         )
         
@@ -642,24 +622,10 @@ output$dq_overview_plot <- renderPlot({
     })
     
 
-<<<<<<< HEAD
-# DQ ORGANIZATION REPORT --------------------------------------------------
-
-    source("06_DataQuality_functions.R", local = TRUE)
-    
-    # button
-    output$downloadOrgDQReportButton  <- renderUI({
-      if (valid_file() == 1) {
-        downloadButton(outputId = "downloadOrgDQReport",
-                       label = "Download")
-      }
-    })
-=======
 # Prep DQ Downloads -------------------------------------------------------
 
     source("05_DataQuality_functions.R", local = TRUE)
->>>>>>> dev
-    
+
     # list of data frames to include in DQ Org Report
     dqDownloadInfo <- reactive({
       req(valid_file() == 1)
@@ -674,62 +640,42 @@ output$dq_overview_plot <- renderPlot({
       
       orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
         filter(OrganizationName %in% c(input$orgList))
+
       
-<<<<<<< HEAD
-      getDQReportDataList(orgDQData,
-                          orgDQoverlaps,
-                          "ProjectName",
-                          orgDQReferrals)
-=======
       # return a list for reference in downloadHandler
       list(
-        orgDQData = getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals),
+        orgDQData = 
+          getDQReportDataList(orgDQData,
+                              orgDQoverlaps,
+                              "ProjectName",
+                              orgDQReferrals),
            
-        systemDQData = getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName",
-                                              calculate_outstanding_referrals(input$CEOutstandingReferrals))
+        systemDQData = 
+          getDQReportDataList(dq_main_reactive(),
+                              overlaps,
+                              "OrganizationName",
+                              calculate_outstanding_referrals(input$CEOutstandingReferrals))
       )
-      
->>>>>>> dev
     })
-    
 
 # Download Org DQ Report --------------------------------------------------
 
     output$downloadOrgDQReportButton  <- renderUI({
       req(valid_file() == 1)
-<<<<<<< HEAD
-      getDQReportDataList(
-        dq_main_reactive(),
-        overlaps,
-        "OrganizationName",
-        calculate_outstanding_referrals(input$CEOutstandingReferrals))
-=======
       req(nrow(dqDownloadInfo()$orgDQData) > 0)
         downloadButton(outputId = "downloadOrgDQReport",
                        label = "Download")
->>>>>>> dev
     })
     
     output$downloadOrgDQReport <- downloadHandler(
-      filename = reactive(date_stamped_filename(str_glue("{input$orgList} Data Quality Report-"))),
+      filename = reactive(date_stamped_filename(
+        str_glue("{input$orgList} Data Quality Report-"))),
       content = function(file) {
-<<<<<<< HEAD
-        write_xlsx(
-          orgDQReportDataList(),
-          path = file)
-        
-=======
         write_xlsx(dqDownloadInfo()$orgDQData, path = file)
->>>>>>> dev
         logMetadata("Downloaded Org-level DQ Report")
       }
     )
     
-<<<<<<< HEAD
-# SYSTEM-LEVEL DQ TAB PLOTS -----------------------------------------------
-
-=======
-
 # Download System DQ Report -----------------------------------------------
     # button
     output$downloadSystemDQReportButton  <- renderUI({
@@ -746,38 +692,8 @@ output$dq_overview_plot <- renderPlot({
         logMetadata("Downloaded System-level DQ Report")
       }
     )
-# 
-#     output$cocOverlap <- DT::renderDataTable({
-# 
-#       a <- dq_overlaps %>%
-#         group_by(ProjectName) %>%
-#         summarise(Clients = n()) %>%
-#         arrange(desc(Clients)) %>%
-#         top_n(20L, wt = Clients) %>%
-#         select("Project Name" = ProjectName,
-#                "Clients with Overlapping Enrollments" = Clients)
-#       datatable(a,
-#                 rownames = FALSE)
-#     }) #revisit
-    
-    # output$cocWidespreadIssues <- DT::renderDataTable({
-    #   req(valid_file() == 1)
-    #   a <- dq_past_year() %>%
-    #     select(Issue, ProjectName, Type) %>%
-    #     unique() %>%
-    #     group_by(Issue, Type) %>%
-    #     summarise(HowManyProjects = n()) %>%
-    #     arrange(desc(HowManyProjects)) %>%
-    #     head(10L) %>%
-    #     select(Issue, Type, "How Many Providers" = HowManyProjects)
-    #   
-    #   datatable(a,
-    #             rownames = FALSE)
-    # 
-    # })
-    
+
 # SYSTEM-LEVEL DQ TAB PLOTS -----------------------------------------------
->>>>>>> dev
     # By-org shows organizations containing highest number of HP errors/errors/warnings
     # By-issue shows issues that are the most common of that type (HP errors/errors/warnings)
     output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
@@ -878,28 +794,6 @@ output$dq_overview_plot <- renderPlot({
   #          format(meta_HUDCSV_Export_End, "%m-%d-%Y")
   #        )))
   # })
-  
-<<<<<<< HEAD
-  #### DQ SYSTEM REPORT #### ----------------------
-  # button
-  output$downloadFullDQReportButton  <- renderUI({
-    if (valid_file() == 1) {
-      downloadButton(outputId = "downloadFullDQReport",
-                     label = "Download")
-    }
-  })
-  
-  output$downloadFullDQReport <- downloadHandler(
-    filename = date_stamped_filename("Full Data Quality Report-"),
-    content = function(file) {
-      write_xlsx(
-        fullDQReportDataList(), path = file)
-      logMetadata("Downloaded System-level DQ Report")
-    }
-  )
-  
-=======
->>>>>>> dev
   
   output$deskTimeNote <- renderUI({
     HTML(

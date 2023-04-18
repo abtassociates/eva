@@ -277,8 +277,7 @@ dashboardPage(
             well as any other structural issues which you feel need to be corrected.
             </p>"),
             p(),
-<<<<<<< HEAD
-            uiOutput('downloadIntegrityBtn')
+            uiOutput('downloadFileStructureAnalysisBtn')
           )),
           fluidRow(box(
             title = "System Data Quality Overview",
@@ -286,10 +285,6 @@ dashboardPage(
             column(12, plotOutput("validate_plot")),
             column(6, plotOutput("dq_overview_plot")),
             column(6, plotOutput("dq_orgs_overview_plot"))
-            
-=======
-            uiOutput('downloadFileStructureAnalysisBtn')
->>>>>>> dev
           )
         )
       ),
