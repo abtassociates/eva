@@ -1004,7 +1004,7 @@ check86 <- c(
           # Type = "",   #This should be "High Priority," "Error," or "Warning"
           # Issue = "", 
           # DataElement = "",
-          # Guidance = "", 
+          # Guidance = str_squish(""),   #str_squish("") will keep the guidance formatting uniform in export 
           # Note = "")
 
 
@@ -1098,6 +1098,9 @@ dqChecks <- data.frame(rbind(check1,
 
 ### ADD NEW CHECKS TO DATAFRAME ABOVE ^^^ ------------------
 ### RUN THE LINES OF CODE BELOW TO PRODUCE EXCEL EXPORT-----
+#Unless told that is is necessary, you do not need to run the remaining lines
+#of the script to create the export of checks. The app_checks.R script runs
+#and gets posted to GitHub automatically on a bi-weekly basis.
 
 #Data frames separated out by Source
 dqChecks_integrity <- dqChecks %>%

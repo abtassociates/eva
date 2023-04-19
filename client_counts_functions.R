@@ -1,12 +1,11 @@
 ##### REPORTING COLUMNS ######
 # these are the main columns that we will report out in the app and exports
-clientCountDetailCols <- c("Personal ID",
-                           "Relationship to Head of Household",
-                           "Entry Date" = "EntryDate",
-                           "Move In Date (RRH/PSH Only)",
-                           "Exit Date" = "ExitDate",
+clientCountDetailCols <- c("PersonalID",
+                           "RelationshipToHoH",
+                           "EntryDate",
+                           "MoveInDateAdjust",
+                           "ExitDate",
                            "Status")
-
 ##### MAIN DATAFRAME ######
 # this is the primary client count dataset, calculating
 # their status and number of days enrolled. 
@@ -28,25 +27,25 @@ client_count_data_df <- reactive({
         RelationshipToHoH == 99 ~ "Data not collected (please correct)"
       ),
       Status = case_when(
-        ProjectType %in% c(psh_project_type, rrh_project_type) &
+        ProjectType %in% c(ph_project_types) &
           is.na(MoveInDateAdjust) &
           is.na(ExitDate) ~ "Active No Move-In",
-        ProjectType %in% c(psh_project_type, rrh_project_type) &
+        ProjectType %in% c(ph_project_types) &
           !is.na(MoveInDateAdjust) &
           is.na(ExitDate) ~ paste0("Currently Moved In (",
                                    today() - MoveInDateAdjust,
                                    " days)"),
-        ProjectType %in% c(psh_project_type, rrh_project_type) &
+        ProjectType %in% c(ph_project_types) &
           is.na(MoveInDateAdjust) &
           !is.na(ExitDate) ~ "Exited No Move-In",
-        ProjectType %in% c(psh_project_type, rrh_project_type) &
+        ProjectType %in% c(ph_project_types) &
           !is.na(MoveInDateAdjust) &
           !is.na(ExitDate) ~ "Exited with Move-In",
-        !ProjectType %in% c(psh_project_type, rrh_project_type) &
+        !ProjectType %in% c(ph_project_types) &
           is.na(ExitDate) ~ paste0("Currently in project (",
                                    today() - EntryDate, 
                                    " days)"),
-        !ProjectType %in% c(psh_project_type, rrh_project_type) &
+        !ProjectType %in% c(ph_project_types) &
           !is.na(ExitDate) ~ "Exited project"
       ),
       sort = today() - EntryDate
@@ -54,16 +53,16 @@ client_count_data_df <- reactive({
     arrange(desc(sort), HouseholdID, PersonalID) %>%
     # make sure to include all columns that will be needed for the various uses
     select(
-      "Personal ID" = PersonalID,
-      "Household ID" = HouseholdID,
-      "Relationship to Head of Household" = RelationshipToHoH,
+      PersonalID,
+      HouseholdID,
+      RelationshipToHoH,
       EntryDate,
-      "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
+      MoveInDateAdjust,
       ExitDate,
       Status,
-      "Project ID" = ProjectID,
-      "Project Name" = ProjectName,
-      "Organization" = OrganizationName,
+      ProjectID,
+      ProjectName,
+      OrganizationName,
       ProjectType
     ) %>%
     filter(served_between(., ReportStart, ReportEnd))
@@ -71,7 +70,8 @@ client_count_data_df <- reactive({
 
 ##### SUMMARY STUFF ######
 # this reactive df is the one used for the summary table in the app. 
-# using the function above, it gets and then combines the counts of households and people/clients
+# using the function above, it gets and then combines the counts of households
+# and people/clients
 client_count_summary_df <- reactive({
   # this function summarizes a project-specific client_count, returning a dataset with counts by status
   client_count_summary_by <- function(vname, client_counts) {
@@ -83,12 +83,12 @@ client_count_summary_df <- reactive({
     return(df)
   }
   client_counts <- client_count_data_df() %>%
-    filter(`Project Name` == input$currentProviderList)
+    filter(ProjectName == input$currentProviderList)
   
-  hhs <- client_count_summary_by("Household ID", client_counts) %>%
+  hhs <- client_count_summary_by("HouseholdID", client_counts) %>%
     summarise(Households = n())
   
-  clients <- client_count_summary_by("Personal ID", client_counts) %>%
+  clients <- client_count_summary_by("PersonalID", client_counts) %>%
     summarise(Clients = n())
   
   full_join(clients, hhs, by = "Status")
@@ -96,7 +96,7 @@ client_count_summary_df <- reactive({
 
 ##### DOWNLOADING STUFF ######
 get_clientcount_download_info <- function(file) {
-  keepCols <- c("Organization", "Project ID", "Project Name")
+  keepCols <- c("OrganizationName", "ProjectID", "ProjectName")
   
   # initial dataset thta will make summarizing easier
   validationDF <- client_count_data_df() %>%
@@ -124,7 +124,7 @@ get_clientcount_download_info <- function(file) {
       mutate(
         Status = sub(" \\(.*", "", Status)
       ) %>%
-      select(all_of(keepCols), n, Status, ProjectType, `Personal ID`) %>%
+      select(all_of(keepCols), n, Status, ProjectType, PersonalID) %>%
       unique() %>%
       select(all_of(keepCols), n, Status, ProjectType) %>%
       pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
@@ -136,15 +136,13 @@ get_clientcount_download_info <- function(file) {
                            ProjectType %in% c(psh_project_type,
                                               rrh_project_type), 0)),
         "Currently in Project" = case_when(
-          ProjectType %in% c(psh_project_type, rrh_project_type)  ~ 
+          ProjectType %in% c(ph_project_types)  ~ 
             rowSums(select(., `Currently Moved In`, `Active No Move-In`),
                     na.rm = TRUE),
           TRUE ~ replace_na(`Currently in project`, 0)
         )
       ) %>% 
-      relocate(`Currently in Project`, .after = `Project Name`)
-    
-    exportTestValues(client_count_download = pivoted)
+      relocate(`Currently in Project`, .after = ProjectName)
     
     return(pivoted)
   }
@@ -154,7 +152,7 @@ get_clientcount_download_info <- function(file) {
   validationDateRange <- pivot_and_sum(validationDF, isDateRange = TRUE) %>%
     mutate(
       "Exited Project" = case_when(
-        ProjectType %in% c(3,13) ~ 
+        ProjectType %in% c(ph_project_types) ~ 
           rowSums(select(., `Exited with Move-In`, `Exited No Move-In`),
                   na.rm = TRUE),
         TRUE ~ `Exited project`
@@ -162,25 +160,27 @@ get_clientcount_download_info <- function(file) {
     ) %>%
     relocate(`Exited Project`, .after=`Currently Moved In`) %>%
     select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
-    arrange(Organization, `Project Name`)
+    arrange(OrganizationName, ProjectName)
   
   ### VALIDATION CURRENT TAB ###
   # counts for each status, by project for just the current date
-  validationCurrent <- pivot_and_sum(validationDF %>% 
-                                       filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
+  validationCurrent <- 
+    pivot_and_sum(
+      validationDF %>%
+        filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
   ) %>%
     select(-c(`Currently in project`, ProjectType)) %>%
-    arrange(Organization, `Project Name`)
+    arrange(OrganizationName, ProjectName)
   
   ### VALIDATION DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
     select(!!keepCols, !!clientCountDetailCols) %>%
-    arrange(Organization, `Project Name`,`Entry Date`)
+    arrange(OrganizationName, ProjectName, EntryDate)
   
   exportDFList <- list(
-    validationCurrent = validationCurrent,
-    validationDateRange = validationDateRange,
-    validationDetail = validationDetail
+    validationCurrent = validationCurrent %>% nice_names(),
+    validationDateRange = validationDateRange %>% nice_names(),
+    validationDetail = validationDetail %>% nice_names()
   )
   
   names(exportDFList) = c(
@@ -189,5 +189,6 @@ get_clientcount_download_info <- function(file) {
     "Validation - Detail"
   )
   
-  write_xlsx(exportDFList, path = file)
+  write_xlsx(exportDFList,
+             path = file)
 }
