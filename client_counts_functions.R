@@ -142,7 +142,7 @@ get_clientcount_download_info <- function(file) {
           TRUE ~ replace_na(`Currently in project`, 0)
         )
       ) %>% 
-      relocate(`Currently in Project`, .after = `Project Name`)
+      relocate(`Currently in Project`, .after = ProjectName)
     
     exportTestValues(client_count_download = pivoted)
     
