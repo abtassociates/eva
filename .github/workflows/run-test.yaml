@@ -31,11 +31,7 @@ jobs:
         with:
           r-version: '4.2'
 
-      - uses: r-lib/actions/setup-renv@v2
-        with:
-          bypass-cache: "true"
-          renv-version: "0.17.2"
-        
+      - uses: r-lib/actions/setup-renv@v2        
     
       - name: Find PhantomJS path
         id: phantomjs
