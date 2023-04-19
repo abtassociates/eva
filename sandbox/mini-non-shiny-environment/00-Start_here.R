@@ -1,9 +1,3 @@
-# start here
-library(tidyverse)
-library(lubridate)
-library(janitor)
-library(HMIS)
-
 # Instructions ------------------------------------------------------------
 
 # Run this, it will create a data directory here in case you don't already have one
@@ -27,6 +21,8 @@ if_else(file.exists(paste0(directory, "data/Enrollment.csv")),
 # the Environment tab open so you can see what is going on
 
 # Functions ---------------------------------------------------------------
+source("~/DQ_CE/global.R")
+source("~/DQ_CE/guidance.R")
 
 source(paste0(directory, "helper_functions.R"))
 
