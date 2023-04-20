@@ -481,12 +481,12 @@ duplicate_household_id <- Enrollment %>%
   filter(!is.na(HouseholdID)) %>%
   get_dupes(HouseholdID) %>%
   mutate(
-    Issue = "Duplicate HouseholdIDs",
-    Type = "Error", # "High Priority", <- will be changed with March 23 update
+    Issue = "HouseholdID not incrementing correctly",
+    Type = "High Priority",
     Guidance = 
       str_squish("The HouseholdID must be unique to the household stay in a
-                 project; reuse of the idenfitcation of the same or similar
-                 household upon readmission into the project is unacceptable.
+                 project; reuse of the identification of the same or similar
+                 household upon readmission into the project is not permitted.
                  Please review the HMIS Data Standards for more details."),
     Detail = paste("HouseholdID", 
                    HouseholdID,

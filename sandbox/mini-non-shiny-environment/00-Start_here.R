@@ -21,8 +21,8 @@ if_else(file.exists(paste0(directory, "data/Enrollment.csv")),
 # the Environment tab open so you can see what is going on
 
 # Functions ---------------------------------------------------------------
-source("~/DQ_CE/global.R")
-source("~/DQ_CE/guidance.R")
+source(here("global.R"))
+source(here("guidance.R"))
 
 source(paste0(directory, "helper_functions.R"))
 
@@ -45,8 +45,6 @@ source(paste0(directory, "03_file_structure_analysis.R"))
 if_else(structural_issues == 0,
         "Eva would not reject this export.",
         "Eva would reject this export.")
-
-
 
 # Data prep! --------------------------------------------------------------
 

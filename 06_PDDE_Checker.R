@@ -199,19 +199,26 @@ inventoryOutsideOperating <- Inventory %>%
 # HMIS Participating != 1, OR VSP != 0 but client level data in file
 
 hmisNotParticipatingButClient <- Project %>%
-  left_join(unique(Enrollment[c("PersonalID", "ProjectID")]), by = "ProjectID") %>%
-  left_join(Organization %>% select(OrganizationID, VictimServiceProvider), 
+  left_join(Organization %>% select(OrganizationID, VictimServiceProvider),
             by = "OrganizationID") %>%
-  filter((HMISParticipatingProject != 1 | VictimServiceProvider != 0) & 
-           !is.na(PersonalID)) %>%
-  mutate(Issue = "Non-HMIS-Participating project has client-level data",
-         Type = "Warning",
-         Guidance = str_squish("Non-HMIS-Participating projects should not have client-level data.
-         The HMIS Participating Project field may need to be updated, new projects may need to be created
-         based on changing HMIS participation status, or client-level data
-         may need to be removed from the Non-HMIS-Participating projects."),
-         Detail = str_squish("There is client data in this project. Please check that 
-                             this project is marked correctly as non-participating.")
+  filter((HMISParticipatingProject != 1 |
+            VictimServiceProvider != 0) &
+           ProjectID %in% c(Enrollment$ProjectID %>% unique())
+  ) %>%
+  mutate(
+    Issue = "Non-HMIS-Participating project has client-level data",
+    Type = "Warning",
+    Guidance = str_squish(
+      "Non-HMIS-Participating projects should not have client-level data. The
+      HMIS Participating Project field may need to be updated, new projects may
+      need to be created based on changing HMIS participation status, or
+      client-level data may need to be removed from the Non-HMIS-Participating
+      projects."
+    ),
+    Detail = str_squish(
+      "There is client data in this project. Please check that this project is
+      marked correctly as non-participating."
+    )
   ) %>%
   select(all_of(PDDEcols)) 
 
