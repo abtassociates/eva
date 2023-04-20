@@ -196,191 +196,191 @@ function(input, output, session) {
 
 
 # System Data Quality Overview --------------------------------------------
-empty_dq_overview_plot <- function(currPlot) {
-  return(currPlot + 
-    theme(
-      axis.line = element_blank(),
-      axis.text = element_blank(),
-      axis.ticks = element_blank(),
-      panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank()
-    ) +
-    annotate(
-      "text",
-      x = 0.5,
-      y = 0.5,
-      label = "No issues!",
-      size = 12,
-      color = "gray50",
-      fontface = "bold"
-    )
-  )
-}
+# empty_dq_overview_plot <- function(currPlot) {
+#   return(currPlot + 
+#     theme(
+#       axis.line = element_blank(),
+#       axis.text = element_blank(),
+#       axis.ticks = element_blank(),
+#       panel.grid.major = element_blank(),
+#       panel.grid.minor = element_blank()
+#     ) +
+#     annotate(
+#       "text",
+#       x = 0.5,
+#       y = 0.5,
+#       label = "No issues!",
+#       size = 12,
+#       color = "gray50",
+#       fontface = "bold"
+#     )
+#   )
+# }
     
-output$dq_overview_plot <- renderPlot({
-  req(valid_file() == 1)
-# browser()
-  detail <- dq_main_reactive() %>%
-    count(Type, name = "Total") %>%
-    mutate(Type = factor(
-      case_when(
-        Type == "High Priority" ~ "High Priority Issues",
-        Type == "Error" ~ "Errors",
-        Type == "Warning" ~ "Warnings"
-      ),
-      levels = c("High Priority Issues",
-                 "Errors",
-                 "Warnings")
-    ))
+# output$dq_overview_plot <- renderPlot({
+#   req(valid_file() == 1)
+# # browser()
+#   detail <- dq_main_reactive() %>%
+#     count(Type, name = "Total") %>%
+#     mutate(Type = factor(
+#       case_when(
+#         Type == "High Priority" ~ "High Priority Issues",
+#         Type == "Error" ~ "Errors",
+#         Type == "Warning" ~ "Warnings"
+#       ),
+#       levels = c("High Priority Issues",
+#                  "Errors",
+#                  "Warnings")
+#     ))
 
-  dq_plot_overview <-
-    ggplot(
-      detail,
-      aes(x = Type, y = Total)
-    ) +
-    geom_col(fill = "#71b4cb", alpha = .7, width = .4) +
-    scale_y_continuous(label = comma_format()) +
-    labs(
-      title = "System-wide Data Quality Issues",
-      x = "Data Quality Issue Type",
-      y = "System-wide Issues") +
-    theme_minimal(base_size = 18) +
-    theme(
-      plot.title.position = "plot",
-      title = element_text(colour = "#73655E")
-    ) +
-    geom_text(aes(label = prettyNum(Total, big.mark = ",")),
-               vjust = -.5,
-               color = "gray14")
+#   dq_plot_overview <-
+#     ggplot(
+#       detail,
+#       aes(x = Type, y = Total)
+#     ) +
+#     geom_col(fill = "#71b4cb", alpha = .7, width = .4) +
+#     scale_y_continuous(label = comma_format()) +
+#     labs(
+#       title = "System-wide Data Quality Issues",
+#       x = "Data Quality Issue Type",
+#       y = "System-wide Issues") +
+#     theme_minimal(base_size = 18) +
+#     theme(
+#       plot.title.position = "plot",
+#       title = element_text(colour = "#73655E")
+#     ) +
+#     geom_text(aes(label = prettyNum(Total, big.mark = ",")),
+#                vjust = -.5,
+#                color = "gray14")
   
-  if (nrow(detail) == 0) {
-    dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
-  }
-  dq_plot_overview
-})  
+#   if (nrow(detail) == 0) {
+#     dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
+#   }
+#   dq_plot_overview
+# })  
     
 
-    output$dq_orgs_overview_plot <- renderPlot({
-      req(valid_file() == 1)
-# browser()
-      highest_type <- dq_main_reactive() %>%
-        count(Type) %>% 
-        head(1L) %>%
-        mutate(Type = as.character(Type)) %>%
-        pull(Type)
+#     output$dq_orgs_overview_plot <- renderPlot({
+#       req(valid_file() == 1)
+# # browser()
+#       highest_type <- dq_main_reactive() %>%
+#         count(Type) %>% 
+#         head(1L) %>%
+#         mutate(Type = as.character(Type)) %>%
+#         pull(Type)
       
-      highest_type_display <-
-        case_when(
-          highest_type == "High Priority" ~ "High Priority Issues",
-          highest_type == "Error" ~ "Errors",
-          TRUE ~ "Warnings"
-        )
+#       highest_type_display <-
+#         case_when(
+#           highest_type == "High Priority" ~ "High Priority Issues",
+#           highest_type == "Error" ~ "Errors",
+#           TRUE ~ "Warnings"
+#         )
       
-      detail <- dq_main_reactive() %>%
-        count(OrganizationName, Type, name = "Total") %>%
-        filter(Type == highest_type)
+#       detail <- dq_main_reactive() %>%
+#         count(OrganizationName, Type, name = "Total") %>%
+#         filter(Type == highest_type)
 
-      dq_plot_overview <-
-        ggplot(
-          detail %>%
-            arrange(desc(Total)) %>%
-            head(5L) %>%
-            mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
-          aes(x = OrganizationName, y = Total)
-        ) +
-        geom_col(fill = "#D5BFE6", alpha = .7)+
-        scale_y_continuous(label = comma_format()) +
-        labs(
-          title = paste("Highest Counts of", ifelse(is_empty(highest_type_display),"Issue",highest_type_display)),
-          x = "Top 5 Organizations",
-          y = ifelse(is_empty(highest_type_display),"Issue",highest_type_display)
-        ) +
-        coord_flip() +
-        theme_minimal(base_size = 18) +
-        theme(
-          plot.title.position = "plot",
-          title = element_text(colour = "#73655E")
-        ) +
-        geom_text(aes(label = prettyNum(Total, big.mark = ",")),
-                  nudge_y = 2,
-                  color = "gray14")
+#       dq_plot_overview <-
+#         ggplot(
+#           detail %>%
+#             arrange(desc(Total)) %>%
+#             head(5L) %>%
+#             mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
+#           aes(x = OrganizationName, y = Total)
+#         ) +
+#         geom_col(fill = "#D5BFE6", alpha = .7)+
+#         scale_y_continuous(label = comma_format()) +
+#         labs(
+#           title = paste("Highest Counts of", ifelse(is_empty(highest_type_display),"Issue",highest_type_display)),
+#           x = "Top 5 Organizations",
+#           y = ifelse(is_empty(highest_type_display),"Issue",highest_type_display)
+#         ) +
+#         coord_flip() +
+#         theme_minimal(base_size = 18) +
+#         theme(
+#           plot.title.position = "plot",
+#           title = element_text(colour = "#73655E")
+#         ) +
+#         geom_text(aes(label = prettyNum(Total, big.mark = ",")),
+#                   nudge_y = 2,
+#                   color = "gray14")
       
-      if (nrow(detail) == 0) {
-        dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
-      }
-      dq_plot_overview
-    })
+#       if (nrow(detail) == 0) {
+#         dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
+#       }
+#       dq_plot_overview
+#     })
     
-    output$validate_plot <- renderPlot({
-      req(valid_file() == 1)
-      # browser()
+#     output$validate_plot <- renderPlot({
+#       req(valid_file() == 1)
+#       # browser()
 
-      detail <- client_count_data_df() %>%
-        filter(str_detect(Status, "Exit", negate = TRUE)) %>%
-        mutate(Status = factor(
-          case_when(
-            str_detect(Status, "Currently in") ~ "Currently in project",
-            str_detect(Status, "Currently Moved") ~ "Currently Moved In",
-            TRUE ~ Status
-          ),
-          levels = c("Currently in project",
-                     "Active No Move-In",
-                     "Currently Moved In")
-        )) %>% 
-        count(ProjectType, Status, name = "Total")
+#       detail <- client_count_data_df() %>%
+#         filter(str_detect(Status, "Exit", negate = TRUE)) %>%
+#         mutate(Status = factor(
+#           case_when(
+#             str_detect(Status, "Currently in") ~ "Currently in project",
+#             str_detect(Status, "Currently Moved") ~ "Currently Moved In",
+#             TRUE ~ Status
+#           ),
+#           levels = c("Currently in project",
+#                      "Active No Move-In",
+#                      "Currently Moved In")
+#         )) %>% 
+#         count(ProjectType, Status, name = "Total")
       
-      detail_order <- detail %>%
-        group_by(ProjectType) %>%
-        summarise(InProject = sum(Total, na.rm = FALSE)) %>%
-        ungroup()
+#       detail_order <- detail %>%
+#         group_by(ProjectType) %>%
+#         summarise(InProject = sum(Total, na.rm = FALSE)) %>%
+#         ungroup()
       
       
-      plot_data <- detail %>%
-        left_join(detail_order, by = "ProjectType") %>%
-        group_by(ProjectType) %>%
-        arrange(ProjectType, desc(Total)) %>%
-        mutate(
-          movedin = lag(Total, default = 0),
-          text_position = case_when(
-            !ProjectType %in% c(ph_project_types) ~ InProject / 2,
-            ProjectType %in% c(ph_project_types) ~ 
-              Total / 2 + movedin
-          )
-        )
+#       plot_data <- detail %>%
+#         left_join(detail_order, by = "ProjectType") %>%
+#         group_by(ProjectType) %>%
+#         arrange(ProjectType, desc(Total)) %>%
+#         mutate(
+#           movedin = lag(Total, default = 0),
+#           text_position = case_when(
+#             !ProjectType %in% c(ph_project_types) ~ InProject / 2,
+#             ProjectType %in% c(ph_project_types) ~ 
+#               Total / 2 + movedin
+#           )
+#         )
       
-      validate_by_org <-
-        ggplot(
-          plot_data,
-          aes(x = reorder(project_type_abb(ProjectType), InProject),
-              y = Total, fill = Status)
-        ) +
-        geom_col(alpha = .7, position = "stack")  +
-        geom_text(aes(label = prettyNum(Total, big.mark = ","),
-                      y = text_position),
-                  color = "gray14")+
-        scale_y_continuous(label = comma_format()) +
-        scale_colour_manual(
-          values = c(
-            "Currently in project" = "#71B4CB",
-            "Active No Move-In" = "#7F5D9D",
-            "Currently Moved In" = "#52BFA5"
-          ),
-          aesthetics = "fill"
-        ) +
-        labs(
-          title = "Current System-wide Counts",
-          x = "",
-          y = ""
-        ) +
-        theme_minimal(base_size = 18) +
-        theme(
-          plot.title.position = "plot",
-          title = element_text(colour = "#73655E"),
-          legend.position = "top"
-        )
+#       validate_by_org <-
+#         ggplot(
+#           plot_data,
+#           aes(x = reorder(project_type_abb(ProjectType), InProject),
+#               y = Total, fill = Status)
+#         ) +
+#         geom_col(alpha = .7, position = "stack")  +
+#         geom_text(aes(label = prettyNum(Total, big.mark = ","),
+#                       y = text_position),
+#                   color = "gray14")+
+#         scale_y_continuous(label = comma_format()) +
+#         scale_colour_manual(
+#           values = c(
+#             "Currently in project" = "#71B4CB",
+#             "Active No Move-In" = "#7F5D9D",
+#             "Currently Moved In" = "#52BFA5"
+#           ),
+#           aesthetics = "fill"
+#         ) +
+#         labs(
+#           title = "Current System-wide Counts",
+#           x = "",
+#           y = ""
+#         ) +
+#         theme_minimal(base_size = 18) +
+#         theme(
+#           plot.title.position = "plot",
+#           title = element_text(colour = "#73655E"),
+#           legend.position = "top"
+#         )
       
-      validate_by_org
-    })
+#       validate_by_org
+#     })
     
 # PDDE Checker ------------------------------------------------------------
 
