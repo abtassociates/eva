@@ -1,4 +1,5 @@
 customDownload <- function(downloadHandler, fname) {
+  app$waitForValue(paste0(downloadHandler,"Button"), iotype = "output", ignore = list(NULL))
   app$snapshotDownload(downloadHandler, paste0(fname,".xlsx"))
   #downloadedFile <- import_xlsx(paste0("test-good-current/",fname,".xlsx"))
   #saveRDS(downloadedFile, paste0("test-good-current/",fname,".rds"))
@@ -23,7 +24,6 @@ app$snapshot()
 
 
 app$setInputs(sidebarmenuid = "tabClientCount")
-app$waitForValue("clientCountData", iotype = "output", ignore = list(NULL))
 customDownload("downloadClientCountsReport", "Client-Counts-Download")
 app$snapshot()
 
