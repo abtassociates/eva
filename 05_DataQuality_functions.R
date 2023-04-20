@@ -30,13 +30,13 @@ getDQReportDataList <-
            dqReferrals = NULL) {
     
     select_list <- c(
-      "Organization Name" = "OrganizationName",
-      "Project ID" = "ProjectID",
-      "Project Name" = "ProjectName",
-      "Issue" = "Issue",
-      "Personal ID" = "PersonalID",
-      "Household ID" = "HouseholdID",
-      "Entry Date" = "EntryDate"
+      "OrganizationName",
+      "ProjectID",
+      "ProjectName",
+      "Issue",
+      "PersonalID",
+      "HouseholdID",
+      "EntryDate"
     )
     
     high_priority <- dqData %>%
@@ -128,26 +128,26 @@ getDQReportDataList <-
     colnames(exportDetail) <- c("Export Field", "Value")
     
     exportDFList <- list(
-      exportDetail = exportDetail,
-      mainsummary = mainsummary,
-      byunisummary = byunitsummary,
-      guidance = guidance,
-      high_priority = high_priority,
-      errors = errors,
-      warnings = warnings,
-      overlaps = dqOverlapDetails,
-      dqReferrals = dqReferralDetails
+      exportDetail = exportDetail %>% nice_names(),
+      mainsummary = mainsummary %>% nice_names(),
+      byunisummary = byunitsummary %>% nice_names(),
+      guidance = guidance %>% nice_names(),
+      high_priority = high_priority %>% nice_names(),
+      errors = errors %>% nice_names(),
+      warnings = warnings %>% nice_names(),
+      overlaps = dqOverlapDetails %>% nice_names(),
+      dqReferrals = dqReferralDetails %>% nice_names()
     )
     
     names(exportDFList) <- c(
       "Export Detail",
       paste(
-        if_else(bySummaryLevel == "OrganizationName", "System", "Organization"),
+        if_else(bySummaryLevel == "Organization Name", "System", "Organization"),
         "Summary"
       ),
       paste(
         if_else(
-          bySummaryLevel == "OrganizationName",
+          bySummaryLevel == "Organization Name",
           "Organization",
           "Project"
         ),
@@ -233,17 +233,17 @@ calculate_outstanding_referrals <- function(input){
 }
 
 renderDQPlot <- function(level, issueType, group, color) {
-  
+  req(exists("dq_main"))
   # groupVars is the variable(s) used to summarise/count rows
   # x_group is the x variable used to in the ggplot reordering
   if(group == "Org") {
-    groupVars <- c("OrganizationName","OrganizationID")
+    groupVars <- c("OrganizationName", "OrganizationID")
     x_group <- "OrganizationName"
   } else if(group == "Project") {
     groupVars <- c("OrganizationName", "ProjectName", "ProjectID")
     x_group <- "ProjectName"
   } else if(group == "Issue" && level == "org") {
-    groupVars <- c("OrganizationName","Issue")
+    groupVars <- c("OrganizationName", "Issue")
     x_group <- "Issue"
   } else if(group == "Issue" && level == "sys") {
     groupVars <- "Issue"

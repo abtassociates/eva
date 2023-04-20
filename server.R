@@ -111,12 +111,14 @@ function(input, output, session) {
         }
       })
     }
-    
+
     output$fileInfo <- renderUI({
       if(valid_file() == 1) {
         HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
       }
     }) 
+    
+# File Structure Analysis Summary -----------------------------------------
     
     output$fileStructureAnalysis <- DT::renderDataTable(
       {
@@ -135,20 +137,23 @@ function(input, output, session) {
           options = list(dom = 't')
         )
       })
-    
+
+# File Structure Analysis Download ----------------------------------------
+
     output$downloadFileStructureAnalysisBtn <- renderUI({
       req(initially_valid_import)
-      downloadButton("downloadFileStructureAnalysis", "Download Structure Analysis Detail")
+     # req(nrow(file_structure_analysis_main) > 0)
+      downloadButton("downloadFileStructureAnalysis",
+                     "Download Structure Analysis Detail")
     })  
     
     output$downloadFileStructureAnalysis <- downloadHandler(
-      # req(valid_file() == 1)
-
       filename = date_stamped_filename("File-Structure-Analysis-"),
       content = function(file) {
         write_xlsx(
           file_structure_analysis_main %>%
-            arrange(Type, Issue),
+            arrange(Type, Issue) %>%
+            nice_names(),
           path = file
         )
         
@@ -184,8 +189,197 @@ function(input, output, session) {
                            max = meta_HUDCSV_Export_End,
                            end = meta_HUDCSV_Export_End)
     }
+
+
+# # System Data Quality Overview --------------------------------------------
+# empty_dq_overview_plot <- function(currPlot) {
+#   return(currPlot + 
+#     theme(
+#       axis.line = element_blank(),
+#       axis.text = element_blank(),
+#       axis.ticks = element_blank(),
+#       panel.grid.major = element_blank(),
+#       panel.grid.minor = element_blank()
+#     ) +
+#     annotate(
+#       "text",
+#       x = 0.5,
+#       y = 0.5,
+#       label = "No issues!",
+#       size = 12,
+#       color = "gray50",
+#       fontface = "bold"
+#     )
+#   )
+# }
     
-    ##### PDDE Checker-----
+# output$dq_overview_plot <- renderPlot({
+#   req(valid_file() == 1)
+# # browser()
+#   detail <- dq_main_reactive() %>%
+#     count(Type, name = "Total") %>%
+#     mutate(Type = factor(
+#       case_when(
+#         Type == "High Priority" ~ "High Priority Issues",
+#         Type == "Error" ~ "Errors",
+#         Type == "Warning" ~ "Warnings"
+#       ),
+#       levels = c("High Priority Issues",
+#                  "Errors",
+#                  "Warnings")
+#     ))
+
+#   dq_plot_overview <-
+#     ggplot(
+#       detail,
+#       aes(x = Type, y = Total)
+#     ) +
+#     geom_col(fill = "#71b4cb", alpha = .7, width = .4) +
+#     scale_y_continuous(label = comma_format()) +
+#     labs(
+#       title = "System-wide Data Quality Issues",
+#       x = "Data Quality Issue Type",
+#       y = "System-wide Issues") +
+#     theme_minimal(base_size = 18) +
+#     theme(
+#       plot.title.position = "plot",
+#       title = element_text(colour = "#73655E")
+#     ) +
+#     geom_text(aes(label = prettyNum(Total, big.mark = ",")),
+#                vjust = -.5,
+#                color = "gray14")
+  
+#   if (nrow(detail) == 0) {
+#     dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
+#   }
+#   dq_plot_overview
+# })  
+    
+
+    output$dq_orgs_overview_plot <- renderPlot({
+      req(valid_file() == 1)
+# browser()
+      highest_type <- dq_main_reactive() %>%
+        count(Type) %>% 
+        head(1L) %>%
+        mutate(Type = as.character(Type)) %>%
+        pull(Type)
+      
+      highest_type_display <-
+        case_when(
+          highest_type == "High Priority" ~ "High Priority Issues",
+          highest_type == "Error" ~ "Errors",
+          TRUE ~ "Warnings"
+        )
+      
+      detail <- dq_main_reactive() %>%
+        count(OrganizationName, Type, name = "Total") %>%
+        filter(Type == highest_type)
+
+      dq_plot_overview <-
+        ggplot(
+          detail %>%
+            arrange(desc(Total)) %>%
+            head(5L) %>%
+            mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
+          aes(x = OrganizationName, y = Total)
+        ) +
+        geom_col(fill = "#D5BFE6", alpha = .7)+
+        scale_y_continuous(label = comma_format()) +
+        labs(
+          title = paste("Highest Counts of", ifelse(is_empty(highest_type_display),"Issue",highest_type_display)),
+          x = "Top 5 Organizations",
+          y = ifelse(is_empty(highest_type_display),"Issue",highest_type_display)
+        ) +
+        coord_flip() +
+        theme_minimal(base_size = 18) +
+        theme(
+          plot.title.position = "plot",
+          title = element_text(colour = "#73655E")
+        ) +
+        geom_text(aes(label = prettyNum(Total, big.mark = ",")),
+                  nudge_y = 2,
+                  color = "gray14")
+      
+      if (nrow(detail) == 0) {
+        dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
+      }
+      dq_plot_overview
+    })
+    
+    output$validate_plot <- renderPlot({
+      req(valid_file() == 1)
+      # browser()
+
+      detail <- client_count_data_df() %>%
+        filter(str_detect(Status, "Exit", negate = TRUE)) %>%
+        mutate(Status = factor(
+          case_when(
+            str_detect(Status, "Currently in") ~ "Currently in project",
+            str_detect(Status, "Currently Moved") ~ "Currently Moved In",
+            TRUE ~ Status
+          ),
+          levels = c("Currently in project",
+                     "Active No Move-In",
+                     "Currently Moved In")
+        )) %>% 
+        count(ProjectType, Status, name = "Total")
+      
+      detail_order <- detail %>%
+        group_by(ProjectType) %>%
+        summarise(InProject = sum(Total, na.rm = FALSE)) %>%
+        ungroup()
+      
+      
+      plot_data <- detail %>%
+        left_join(detail_order, by = "ProjectType") %>%
+        group_by(ProjectType) %>%
+        arrange(ProjectType, desc(Total)) %>%
+        mutate(
+          movedin = lag(Total, default = 0),
+          text_position = case_when(
+            !ProjectType %in% c(ph_project_types) ~ InProject / 2,
+            ProjectType %in% c(ph_project_types) ~ 
+              Total / 2 + movedin
+          )
+        )
+      
+      validate_by_org <-
+        ggplot(
+          plot_data,
+          aes(x = reorder(project_type_abb(ProjectType), InProject),
+              y = Total, fill = Status)
+        ) +
+        geom_col(alpha = .7, position = "stack")  +
+        geom_text(aes(label = prettyNum(Total, big.mark = ","),
+                      y = text_position),
+                  color = "gray14")+
+        scale_y_continuous(label = comma_format()) +
+        scale_colour_manual(
+          values = c(
+            "Currently in project" = "#71B4CB",
+            "Active No Move-In" = "#7F5D9D",
+            "Currently Moved In" = "#52BFA5"
+          ),
+          aesthetics = "fill"
+        ) +
+        labs(
+          title = "Current System-wide Counts",
+          x = "",
+          y = ""
+        ) +
+        theme_minimal(base_size = 18) +
+        theme(
+          plot.title.position = "plot",
+          title = element_text(colour = "#73655E"),
+          legend.position = "top"
+        )
+      
+      validate_by_org
+    })
+    
+# PDDE Checker ------------------------------------------------------------
+
     # summary table
     output$pdde_summary_table <- DT::renderDataTable({
       req(valid_file() == 1)
@@ -200,16 +394,21 @@ function(input, output, session) {
         options = list(dom = 't')
       )
     })
+
     
-    # download button
+
+# PDDE Download Button ----------------------------------------------------
+
     output$downloadPDDEReportButton  <- renderUI({
       req(valid_file() == 1)
-      
+      req(nrow(pdde_main) > 0)
       downloadButton(outputId = "downloadPDDEReport",
                        label = "Download")
     })
-    
-    # download button handler
+
+
+# Download Button Handler -------------------------------------------------
+
     output$downloadPDDEReport <- downloadHandler(
       
       filename = date_stamped_filename("PDDE Report-"),
@@ -221,12 +420,19 @@ function(input, output, session) {
           summarise(Count = n()) %>%
           ungroup()
 
-        write_xlsx(list("Summary" = summary, "Data" = pdde_main), path = file)
+        write_xlsx(
+          list("Summary" = summary,
+               "Data" = pdde_main %>%
+                 nice_names()),
+          path = file)
+        
         logMetadata("Downloaded PDDE Report")
       }
     )
     
-    # guidance box
+
+# PDDE Guidance -----------------------------------------------------------
+
     output$pdde_guidance_summary <- DT::renderDataTable({
       req(valid_file() == 1)
       
@@ -243,7 +449,9 @@ function(input, output, session) {
                 filter = 'top',
                 options = list(dom = 'ltpi'))
     })
-    
+
+# DeskTime Plot Detail ----------------------------------------------------
+
     output$DeskTimePlotDetail <- renderPlot({
       req(valid_file() == 1)
       provider <- input$providerDeskTime
@@ -315,39 +523,46 @@ function(input, output, session) {
       dq_plot_desk_time
     })
     
-    ### Client Counts -------------------------------
+
+# Client Counts -----------------------------------------------------------
+
     source("client_counts_functions.R", local = TRUE)
     
-    # CLIENT COUNT DETAILS - APP
+# CLIENT COUNT DETAILS - APP ----------------------------------------------
     output$clientCountData <- DT::renderDataTable({
       req(valid_file() == 1)
 
       datatable(
         client_count_data_df() %>%
-          filter(`Project Name` == input$currentProviderList) %>%
-          select(all_of(clientCountDetailCols)),
+          filter(ProjectName == input$currentProviderList) %>%
+          select(all_of(clientCountDetailCols)) %>%
+          nice_names(),
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')
       )
     })
       
-    # CLIENT COUNT SUMMARY - APP
+
+# CLIENT COUNT SUMMARY - APP ----------------------------------------------
+
     output$clientCountSummary <- DT::renderDataTable({
       req(valid_file() == 1)
       
       datatable(
-        client_count_summary_df(),
+        client_count_summary_df() %>%
+          nice_names(),
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't')
       )
     })
     
-    # CLIENT COUNT DOWNLOAD
+
+# CLIENT COUNT DOWNLOAD ---------------------------------------------------
+
     output$downloadClientCountsReportButton  <- renderUI({
       req(valid_file() == 1)
-      
       downloadButton(outputId = "downloadClientCountsReport",
                      label = "Download System-Wide")
     })
@@ -410,7 +625,7 @@ function(input, output, session) {
 # Prep DQ Downloads -------------------------------------------------------
 
     source("05_DataQuality_functions.R", local = TRUE)
-    
+
     # list of data frames to include in DQ Org Report
     dqDownloadInfo <- reactive({
       req(valid_file() == 1)
@@ -425,43 +640,49 @@ function(input, output, session) {
       
       orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
         filter(OrganizationName %in% c(input$orgList))
+
       
       # return a list for reference in downloadHandler
       list(
-        orgDQData = getDQReportDataList(orgDQData, orgDQoverlaps, "ProjectName", orgDQReferrals),
+        orgDQData = 
+          getDQReportDataList(orgDQData,
+                              orgDQoverlaps,
+                              "ProjectName",
+                              orgDQReferrals),
            
-        systemDQData = getDQReportDataList(dq_main_reactive(), overlaps, "OrganizationName",
-                                              calculate_outstanding_referrals(input$CEOutstandingReferrals))
+        systemDQData = 
+          getDQReportDataList(dq_main_reactive(),
+                              overlaps,
+                              "OrganizationName",
+                              calculate_outstanding_referrals(input$CEOutstandingReferrals))
       )
-      
     })
-    
 
 # Download Org DQ Report --------------------------------------------------
 
     output$downloadOrgDQReportButton  <- renderUI({
-      if (valid_file() == 1) {
+      req(valid_file() == 1)
+      req(length(dqDownloadInfo()$orgDQData) > 0)
         downloadButton(outputId = "downloadOrgDQReport",
                        label = "Download")
-      }
     })
     
     output$downloadOrgDQReport <- downloadHandler(
-      filename = reactive(date_stamped_filename(str_glue("{input$orgList} Data Quality Report-"))),
+      filename = reactive(date_stamped_filename(
+        str_glue("{input$orgList} Data Quality Report-"))),
       content = function(file) {
         write_xlsx(dqDownloadInfo()$orgDQData, path = file)
         logMetadata("Downloaded Org-level DQ Report")
       }
     )
     
-
 # Download System DQ Report -----------------------------------------------
     # button
     output$downloadSystemDQReportButton  <- renderUI({
-      if (valid_file() == 1) {
-        downloadButton(outputId = "downloadSystemDQReport",
+      req(valid_file() == 1)
+      req(length(dqDownloadInfo()$systemDQData) > 0)
+      downloadButton(outputId = "downloadSystemDQReport",
                        label = "Download")
-      }
     })
     
     output$downloadSystemDQReport <- downloadHandler(
@@ -471,43 +692,15 @@ function(input, output, session) {
         logMetadata("Downloaded System-level DQ Report")
       }
     )
-# 
-#     output$cocOverlap <- DT::renderDataTable({
-# 
-#       a <- dq_overlaps %>%
-#         group_by(ProjectName) %>%
-#         summarise(Clients = n()) %>%
-#         arrange(desc(Clients)) %>%
-#         top_n(20L, wt = Clients) %>%
-#         select("Project Name" = ProjectName,
-#                "Clients with Overlapping Enrollments" = Clients)
-#       datatable(a,
-#                 rownames = FALSE)
-#     }) #revisit
-    
-    # output$cocWidespreadIssues <- DT::renderDataTable({
-    #   req(valid_file() == 1)
-    #   a <- dq_past_year() %>%
-    #     select(Issue, ProjectName, Type) %>%
-    #     unique() %>%
-    #     group_by(Issue, Type) %>%
-    #     summarise(HowManyProjects = n()) %>%
-    #     arrange(desc(HowManyProjects)) %>%
-    #     head(10L) %>%
-    #     select(Issue, Type, "How Many Providers" = HowManyProjects)
-    #   
-    #   datatable(a,
-    #             rownames = FALSE)
-    # 
-    # })
-    
+
 # SYSTEM-LEVEL DQ TAB PLOTS -----------------------------------------------
     # By-org shows organizations containing highest number of HP errors/errors/warnings
     # By-issue shows issues that are the most common of that type (HP errors/errors/warnings)
     output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
       renderDQPlot("sys", "High Priority", "Org", "#71B4CB")
     })
-    
+
+   
     output$systemDQHighPriorityErrorsByIssue_ui <- renderUI({
       renderDQPlot("sys", "High Priority", "Issue", "#71B4CB")
     })
@@ -601,7 +794,6 @@ function(input, output, session) {
   #          format(meta_HUDCSV_Export_End, "%m-%d-%Y")
   #        )))
   # })
-  
   
   output$deskTimeNote <- renderUI({
     HTML(

@@ -1,6 +1,6 @@
 ######################
-# PURPOSE: This program runs checks of the upload file's content
-# for example, it checks for incorrect date formats, missing columns,
+# PURPOSE: This program runs checks of the upload file's content.
+# For example, it checks for incorrect date formats, missing columns,
 # unexpected nulls, and more
 ######################
 
@@ -230,13 +230,10 @@ export_id_client <- Client %>%
   select(all_of(issue_display_cols)) %>%
   unique()
 
-yes_no_enhanced <- c(0, 1, 8, 9, 99)
-yes_no <- c(0, 1, 99)
-
 valid_values_client <- Client %>%
   mutate(
     VeteranStatus = VeteranStatus %in% c(yes_no_enhanced),
-    RaceNone = RaceNone %in% c(8, 9, 99) | is.na(RaceNone),
+    RaceNone = RaceNone %in% c(dkr_dnc) | is.na(RaceNone),
     AmIndAKNative = AmIndAKNative %in% c(yes_no),
     Asian = Asian %in% c(yes_no),
     BlackAfAmerican = BlackAfAmerican %in% c(yes_no),
@@ -248,7 +245,7 @@ valid_values_client <- Client %>%
     NoSingleGender = NoSingleGender %in% c(yes_no),
     Transgender = Transgender %in% c(yes_no),
     Questioning = Questioning %in% c(yes_no),
-    GenderNone = GenderNone %in% c(8, 9, 99) | is.na(GenderNone)
+    GenderNone = GenderNone %in% c(dkr_dnc) | is.na(GenderNone)
   ) %>%
   group_by_all() %>%
   summarise(
@@ -344,6 +341,21 @@ duplicate_client_id <- Client %>%
   unique()
 
 # Integrity Enrollment ----------------------------------------------------
+if(nrow(Enrollment) == 0) {
+  no_enrollment_records <- data.frame(
+    Issue = "No enrollment records",
+    Type = "High Priority",
+    Guidance = guidance_no_enrollments,
+    Detail = "There are 0 enrollment records in the Enrollment.csv file"
+  )
+} else {
+  no_enrollment_records <- data.frame(
+    Issue = character(),
+    Type = character(),
+    Guidance = character(),
+    Detail = character()
+  )
+}
 
 duplicate_enrollment_id <- Enrollment %>%
   get_dupes(EnrollmentID) %>%
@@ -424,8 +436,7 @@ disabling_condition_invalid <- Enrollment %>%
 
 living_situation_invalid <- Enrollment %>%
   filter(!is.na(LivingSituation) &
-    (!LivingSituation %in% c(allowed_living_situations) |
-       LivingSituation %in% c(12, 13, 22, 23, 26, 27, 30, 17, 24, 37))) %>%
+    !LivingSituation %in% c(allowed_prior_living_sit)) %>%
   mutate(
     Issue = "Invalid Living Situation value",
     Type = "Error",
@@ -470,12 +481,12 @@ duplicate_household_id <- Enrollment %>%
   filter(!is.na(HouseholdID)) %>%
   get_dupes(HouseholdID) %>%
   mutate(
-    Issue = "Duplicate HouseholdIDs",
-    Type = "Error", # "High Priority", <- will be changed with March 23 update
+    Issue = "HouseholdID not incrementing correctly",
+    Type = "High Priority",
     Guidance = 
       str_squish("The HouseholdID must be unique to the household stay in a
-                 project; reuse of the idenfitcation of the same or similar
-                 household upon readmission into the project is unacceptable.
+                 project; reuse of the identification of the same or similar
+                 household upon readmission into the project is not permitted.
                  Please review the HMIS Data Standards for more details."),
     Detail = paste("HouseholdID", 
                    HouseholdID,
@@ -517,8 +528,8 @@ duplicate_household_id <- Enrollment %>%
 # Integrity Living Situation ----------------------------------------------
 
 nonstandard_destination <- Exit %>%
-  filter(!Destination %in% c(allowed_living_situations) |
-           Destination %in% c(35, 36, 37)) %>%
+  filter(!is.na(Destination) &
+           !Destination %in% c(allowed_destinations)) %>%
   mutate(
     Issue = "Invalid Destination value",
     Type = "Error",
@@ -536,8 +547,7 @@ nonstandard_destination <- Exit %>%
 
 nonstandard_CLS <- CurrentLivingSituation %>%
   filter(!is.na(CurrentLivingSituation) &
-    (!CurrentLivingSituation %in% c(allowed_living_situations) |
-       CurrentLivingSituation %in% c(12, 13, 22, 23, 26, 27, 30, 24))) %>%
+    !CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
   mutate(
     Issue = "Non-standard Current Living Situation",
     Type = "Error",
@@ -571,7 +581,8 @@ file_structure_analysis_main <- rbind(
   living_situation_invalid,
   rel_to_hoh_invalid,
   nonstandard_destination,
-  nonstandard_CLS
+  nonstandard_CLS,
+  no_enrollment_records
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
