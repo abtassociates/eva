@@ -1,5 +1,4 @@
 # https://rstudio.github.io/shinytest/articles/in-depth.html
 library(shinytest)
 library(readxl)
-testApp(".", compareImages = FALSE)
-snapshotUpdate()
+expect_pass(testApp(".", compareImages = FALSE))
