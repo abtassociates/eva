@@ -286,7 +286,7 @@ dashboardPage(
           #   column(6, plotOutput("dq_overview_plot")),
           #   column(6, plotOutput("dq_orgs_overview_plot"))
           # )
-        )
+        # )
       ),
       tabItem(
         tabName = "tabLocalSettings",
