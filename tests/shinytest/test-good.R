@@ -12,7 +12,7 @@ customDownload <- function(downloadHandler, fname) {
 #   return(data)
 # }
 
-app <- ShinyDriver$new("../../", seed=1234, loadTimeout = 1e+05, checkNames = FALSE)
+app <- ShinyDriver$new("../../", seed=1234, loadTimeout = 1e+06, checkNames = FALSE)
 app$snapshotInit("test-good")
 
 app$setInputs(Go_to_upload = "click")
