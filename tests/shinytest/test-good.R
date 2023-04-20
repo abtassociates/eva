@@ -1,16 +1,9 @@
 customDownload <- function(downloadHandler, fname) {
-  app$waitForValue(paste0(downloadHandler,"Button"), iotype = "output", ignore = list(NULL))
+  app$waitForShiny()
+  print(paste("downloading",downloadHandler))
   app$snapshotDownload(downloadHandler, paste0(fname,".xlsx"))
-  #downloadedFile <- import_xlsx(paste0("test-good-current/",fname,".xlsx"))
-  #saveRDS(downloadedFile, paste0("test-good-current/",fname,".rds"))
   file.remove(paste0("test-good-current/",fname,".xlsx"))
 }
-
-# import_xlsx <- function(fpath) {
-#   sheets <- excel_sheets(fpath)
-#   data <- lapply(sheets, read_xlsx, path = fpath) 
-#   return(data)
-# }
 
 app <- ShinyDriver$new("../../", seed=1234, loadTimeout = 1e+06, checkNames = FALSE)
 app$snapshotInit("test-good")
