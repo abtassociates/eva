@@ -278,15 +278,15 @@ dashboardPage(
             </p>"),
             p(),
             uiOutput('downloadFileStructureAnalysisBtn')
-          )),
-          fluidRow(box(
-            title = "System Data Quality Overview",
-            width = 12,
-            column(12, plotOutput("validate_plot")),
-            column(6, plotOutput("dq_overview_plot")),
-            column(6, plotOutput("dq_orgs_overview_plot"))
-          )
-        )
+          ))
+          # fluidRow(box(
+          #   title = "System Data Quality Overview",
+          #   width = 12,
+          #   column(12, plotOutput("validate_plot")),
+          #   column(6, plotOutput("dq_overview_plot")),
+          #   column(6, plotOutput("dq_orgs_overview_plot"))
+          # )
+        # )
       ),
       tabItem(
         tabName = "tabLocalSettings",
