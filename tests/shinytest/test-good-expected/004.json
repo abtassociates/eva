@@ -1279,106 +1279,6 @@
         }
       ]
     },
-    "dq_orgs_overview_plot": {
-      "src": "[image data sha1: 4077703aa230b56948b66afdf2bd25f311c9f445]",
-      "width": 326,
-      "height": 400,
-      "alt": "Plot object",
-      "coordmap": {
-        "panels": [
-          {
-            "panel": 1,
-            "row": 1,
-            "col": 1,
-            "panel_vars": {
-
-            },
-            "log": {
-              "x": null,
-              "y": null
-            },
-            "domain": {
-              "left": -3.35,
-              "right": 70.35,
-              "bottom": 0.4,
-              "top": 5.6,
-              "discrete_limits": {
-                "y": [
-                  "Organization B",
-                  "Organization H",
-                  "Organization I",
-                  "Organization A",
-                  "Organization J"
-                ]
-              }
-            },
-            "mapping": {
-              "x": "Total",
-              "y": "OrganizationName"
-            },
-            "range": {
-              "left": 134.503677615193,
-              "right": 317.033623910336,
-              "bottom": 348.472228329432,
-              "top": 36.9382514557385
-            }
-          }
-        ],
-        "dims": {
-          "width": 326,
-          "height": 400
-        }
-      }
-    },
-    "dq_overview_plot": {
-      "src": "[image data sha1: c49632674f3a93b72e9599b8524c20af37640ede]",
-      "width": 326,
-      "height": 400,
-      "alt": "Plot object",
-      "coordmap": {
-        "panels": [
-          {
-            "panel": 1,
-            "row": 1,
-            "col": 1,
-            "panel_vars": {
-
-            },
-            "log": {
-              "x": null,
-              "y": null
-            },
-            "domain": {
-              "left": 0.4,
-              "right": 3.6,
-              "bottom": -289.15,
-              "top": 6072.15,
-              "discrete_limits": {
-                "x": [
-                  "High Priority Issues",
-                  "Errors",
-                  "Warnings"
-                ]
-              }
-            },
-            "mapping": {
-              "x": "Type",
-              "y": "Total"
-            },
-            "range": {
-              "left": 74.519302615193,
-              "right": 317.033623910336,
-              "bottom": 348.472228329432,
-              "top": 36.9382514557385
-            }
-          }
-        ],
-        "dims": {
-          "width": 326,
-          "height": 400
-        }
-      }
-    },
     "fileInfo": {
       "html": "<p>You have successfully uploaded your hashed HMIS CSV Export!<\/p>",
       "deps": [
@@ -1486,63 +1386,6 @@
       "deps": [
 
       ]
-    },
-    "validate_plot": {
-      "src": "[image data sha1: bdeb683a1a0820169ea81df50f66986b1de28630]",
-      "width": 682,
-      "height": 400,
-      "alt": "Plot object",
-      "coordmap": {
-        "panels": [
-          {
-            "panel": 1,
-            "row": 1,
-            "col": 1,
-            "panel_vars": {
-
-            },
-            "log": {
-              "x": null,
-              "y": null
-            },
-            "domain": {
-              "left": 0.4,
-              "right": 10.6,
-              "bottom": -6.25,
-              "top": 131.25,
-              "discrete_limits": {
-                "x": [
-                  "OPH no Svcs",
-                  "OPH w/ Svcs",
-                  "TH",
-                  "OUT",
-                  "DAY",
-                  "PSH",
-                  "CE",
-                  "SSO",
-                  "RRH",
-                  "ES (E/E)"
-                ]
-              }
-            },
-            "mapping": {
-              "x": "reorder(project_type_abb(ProjectType), InProject)",
-              "y": "Total",
-              "fill": "Status"
-            },
-            "range": {
-              "left": 62.519302615193,
-              "right": 673.033623910336,
-              "bottom": 348.472228329432,
-              "top": 90.0837558143936
-            }
-          }
-        ],
-        "dims": {
-          "width": 682,
-          "height": 400
-        }
-      }
     }
   },
   "export": {
@@ -6371,7 +6214,7 @@
         "Exited project",
         "Exited project",
         "Exited project",
-        "Currently in project (504 days)",
+        "Currently in project (505 days)",
         "Exited project",
         "Exited project",
         "Exited project",
@@ -6443,14 +6286,14 @@
         "Exited project",
         "Exited project",
         "Exited project",
-        "Currently in project (440 days)",
+        "Currently in project (441 days)",
         "Exited project",
         "Exited project",
         "Exited project",
         "Exited project",
         "Exited project",
         "Exited project",
-        "Currently in project (421 days)",
+        "Currently in project (422 days)",
         "Exited project",
         "Exited project",
         "Exited project",
@@ -6471,8 +6314,8 @@
         "Exited project",
         "Exited project",
         "Exited project",
-        "Currently in project (400 days)",
-        "Currently in project (400 days)",
+        "Currently in project (401 days)",
+        "Currently in project (401 days)",
         "Exited project",
         "Exited project",
         "Exited project",
@@ -6483,10 +6326,11 @@
         "Exited project",
         "Exited project",
         "Exited project",
+        "Exited project",
+        "Currently in project (396 days)",
         "Exited project",
         "Currently in project (395 days)",
         "Exited project",
-        "Currently in project (394 days)",
         "Exited project",
         "Exited project",
         "Exited project",
@@ -6494,11 +6338,7 @@
         "Exited project",
         "Exited project",
         "Exited project",
-        "Exited project",
-        "Currently in project (380 days)",
-        "Exited project",
-        "Exited project",
-        "Exited project",
+        "Currently in project (381 days)",
         "Exited project",
         "Exited project",
         "Exited project",
@@ -6508,7 +6348,10 @@
         "Exited project",
         "Exited project",
         "Exited project",
-        "Currently in project (372 days)",
+        "Exited project",
+        "Exited project",
+        "Exited project",
+        "Currently in project (373 days)",
         "Exited project",
         "Exited project",
         "Exited project",
@@ -6516,102 +6359,102 @@
         "Exited project",
         "Exited project",
         "Exited project",
+        "Currently in project (364 days)",
         "Currently in project (363 days)",
-        "Currently in project (362 days)",
         "Exited project",
+        "Currently in project (360 days)",
         "Currently in project (359 days)",
         "Currently in project (358 days)",
-        "Currently in project (357 days)",
-        "Currently in project (357 days)",
+        "Currently in project (358 days)",
+        "Currently in project (354 days)",
+        "Currently in project (354 days)",
         "Currently in project (353 days)",
-        "Currently in project (353 days)",
-        "Currently in project (352 days)",
         "Exited project",
+        "Currently in project (352 days)",
+        "Currently in project (352 days)",
+        "Currently in project (352 days)",
         "Currently in project (351 days)",
         "Currently in project (351 days)",
-        "Currently in project (351 days)",
-        "Currently in project (350 days)",
         "Currently in project (350 days)",
         "Currently in project (349 days)",
-        "Currently in project (348 days)",
+        "Currently in project (347 days)",
+        "Currently in project (346 days)",
         "Currently in project (346 days)",
         "Currently in project (345 days)",
-        "Currently in project (345 days)",
         "Currently in project (344 days)",
-        "Currently in project (343 days)",
         "Exited project",
-        "Currently in project (341 days)",
+        "Currently in project (342 days)",
+        "Currently in project (340 days)",
+        "Currently in project (340 days)",
+        "Currently in project (340 days)",
+        "Currently in project (340 days)",
         "Currently in project (339 days)",
         "Currently in project (339 days)",
-        "Currently in project (339 days)",
-        "Currently in project (339 days)",
-        "Currently in project (338 days)",
-        "Currently in project (338 days)",
-        "Currently in project (336 days)",
+        "Currently in project (337 days)",
         "Exited project",
         "Exited project",
+        "Currently in project (333 days)",
         "Currently in project (332 days)",
-        "Currently in project (331 days)",
-        "Currently in project (328 days)",
+        "Currently in project (329 days)",
+        "Currently in project (325 days)",
         "Currently in project (324 days)",
         "Currently in project (323 days)",
         "Currently in project (322 days)",
-        "Currently in project (321 days)",
+        "Currently in project (318 days)",
+        "Currently in project (318 days)",
+        "Currently in project (318 days)",
+        "Currently in project (318 days)",
+        "Currently in project (318 days)",
         "Currently in project (317 days)",
         "Currently in project (317 days)",
         "Currently in project (317 days)",
-        "Currently in project (317 days)",
-        "Currently in project (317 days)",
-        "Currently in project (316 days)",
-        "Currently in project (316 days)",
         "Currently in project (316 days)",
         "Currently in project (315 days)",
+        "Exited project",
         "Currently in project (314 days)",
-        "Exited project",
-        "Currently in project (313 days)",
-        "Currently in project (313 days)",
+        "Currently in project (314 days)",
+        "Currently in project (312 days)",
+        "Currently in project (312 days)",
         "Currently in project (311 days)",
         "Currently in project (311 days)",
-        "Currently in project (310 days)",
-        "Currently in project (310 days)",
+        "Currently in project (309 days)",
+        "Currently in project (309 days)",
+        "Currently in project (309 days)",
+        "Currently in project (309 days)",
+        "Currently in project (309 days)",
+        "Currently in project (309 days)",
         "Currently in project (308 days)",
         "Currently in project (308 days)",
-        "Currently in project (308 days)",
-        "Currently in project (308 days)",
-        "Currently in project (308 days)",
-        "Currently in project (308 days)",
-        "Currently in project (307 days)",
-        "Currently in project (307 days)",
         "Exited project",
+        "Currently in project (303 days)",
+        "Currently in project (303 days)",
+        "Currently in project (303 days)",
         "Currently in project (302 days)",
-        "Currently in project (302 days)",
-        "Currently in project (302 days)",
-        "Currently in project (301 days)",
-        "Currently in project (298 days)",
-        "Currently in project (295 days)",
-        "Currently in project (293 days)",
-        "Currently in project (293 days)",
-        "Currently in project (290 days)",
+        "Currently in project (299 days)",
+        "Currently in project (296 days)",
+        "Currently in project (294 days)",
+        "Currently in project (294 days)",
+        "Currently in project (291 days)",
+        "Currently in project (289 days)",
         "Currently in project (288 days)",
-        "Currently in project (287 days)",
-        "Currently in project (287 days)",
+        "Currently in project (288 days)",
+        "Currently in project (284 days)",
+        "Currently in project (284 days)",
         "Currently in project (283 days)",
-        "Currently in project (283 days)",
+        "Currently in project (282 days)",
+        "Currently in project (282 days)",
+        "Currently in project (282 days)",
         "Currently in project (282 days)",
         "Currently in project (281 days)",
         "Currently in project (281 days)",
-        "Currently in project (281 days)",
-        "Currently in project (281 days)",
-        "Currently in project (280 days)",
-        "Currently in project (280 days)",
+        "Currently in project (276 days)",
+        "Currently in project (276 days)",
+        "Currently in project (276 days)",
+        "Currently in project (276 days)",
+        "Currently in project (276 days)",
         "Currently in project (275 days)",
         "Currently in project (275 days)",
-        "Currently in project (275 days)",
-        "Currently in project (275 days)",
-        "Currently in project (275 days)",
-        "Currently in project (274 days)",
-        "Currently in project (274 days)",
-        "Currently in project (273 days)"
+        "Currently in project (274 days)"
       ]
     },
     "clientCountSummary": {
