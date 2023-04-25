@@ -191,69 +191,69 @@ function(input, output, session) {
     }
 
 
-# System Data Quality Overview --------------------------------------------
-empty_dq_overview_plot <- function(currPlot) {
-  return(currPlot + 
-    theme(
-      axis.line = element_blank(),
-      axis.text = element_blank(),
-      axis.ticks = element_blank(),
-      panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank()
-    ) +
-    annotate(
-      "text",
-      x = 0.5,
-      y = 0.5,
-      label = "No issues!",
-      size = 12,
-      color = "gray50",
-      fontface = "bold"
-    )
-  )
-}
+# # System Data Quality Overview --------------------------------------------
+# empty_dq_overview_plot <- function(currPlot) {
+#   return(currPlot + 
+#     theme(
+#       axis.line = element_blank(),
+#       axis.text = element_blank(),
+#       axis.ticks = element_blank(),
+#       panel.grid.major = element_blank(),
+#       panel.grid.minor = element_blank()
+#     ) +
+#     annotate(
+#       "text",
+#       x = 0.5,
+#       y = 0.5,
+#       label = "No issues!",
+#       size = 12,
+#       color = "gray50",
+#       fontface = "bold"
+#     )
+#   )
+# }
     
-output$dq_overview_plot <- renderPlot({
-  req(valid_file() == 1)
-# browser()
-  detail <- dq_main_reactive() %>%
-    count(Type, name = "Total") %>%
-    mutate(Type = factor(
-      case_when(
-        Type == "High Priority" ~ "High Priority Issues",
-        Type == "Error" ~ "Errors",
-        Type == "Warning" ~ "Warnings"
-      ),
-      levels = c("High Priority Issues",
-                 "Errors",
-                 "Warnings")
-    ))
+# output$dq_overview_plot <- renderPlot({
+#   req(valid_file() == 1)
+# # browser()
+#   detail <- dq_main_reactive() %>%
+#     count(Type, name = "Total") %>%
+#     mutate(Type = factor(
+#       case_when(
+#         Type == "High Priority" ~ "High Priority Issues",
+#         Type == "Error" ~ "Errors",
+#         Type == "Warning" ~ "Warnings"
+#       ),
+#       levels = c("High Priority Issues",
+#                  "Errors",
+#                  "Warnings")
+#     ))
 
-  dq_plot_overview <-
-    ggplot(
-      detail,
-      aes(x = Type, y = Total)
-    ) +
-    geom_col(fill = "#71b4cb", alpha = .7, width = .4) +
-    scale_y_continuous(label = comma_format()) +
-    labs(
-      title = "System-wide Data Quality Issues",
-      x = "Data Quality Issue Type",
-      y = "System-wide Issues") +
-    theme_minimal(base_size = 18) +
-    theme(
-      plot.title.position = "plot",
-      title = element_text(colour = "#73655E")
-    ) +
-    geom_text(aes(label = prettyNum(Total, big.mark = ",")),
-               vjust = -.5,
-               color = "gray14")
+#   dq_plot_overview <-
+#     ggplot(
+#       detail,
+#       aes(x = Type, y = Total)
+#     ) +
+#     geom_col(fill = "#71b4cb", alpha = .7, width = .4) +
+#     scale_y_continuous(label = comma_format()) +
+#     labs(
+#       title = "System-wide Data Quality Issues",
+#       x = "Data Quality Issue Type",
+#       y = "System-wide Issues") +
+#     theme_minimal(base_size = 18) +
+#     theme(
+#       plot.title.position = "plot",
+#       title = element_text(colour = "#73655E")
+#     ) +
+#     geom_text(aes(label = prettyNum(Total, big.mark = ",")),
+#                vjust = -.5,
+#                color = "gray14")
   
-  if (nrow(detail) == 0) {
-    dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
-  }
-  dq_plot_overview
-})  
+#   if (nrow(detail) == 0) {
+#     dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
+#   }
+#   dq_plot_overview
+# })  
     
 
     output$dq_orgs_overview_plot <- renderPlot({
