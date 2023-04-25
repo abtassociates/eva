@@ -24,7 +24,11 @@ source(here("app_checks.R"))
 
 # Instructions ------------------------------------------------------------
 
-# whenever DDS sends the metadata zip file, copy it to anywhere in the ACE environment that you can find it again, navigate to the www/metadata directory in your Eva RStudio project, click Upload, then find the zip file you copied in. Click OK or whatever, then the files will be pasted in. Then run this.
+# whenever DDS sends the metadata zip file, copy it to anywhere in the ACE 
+# environment that you can find it again, navigate to the
+# metadata-analysis/metadata directory in your Eva RStudio project, click
+# Upload, then find the zip file you copied in. Click OK or whatever, then the
+# files will be pasted in. Then run this.
 
 visits <-
   read_lines(here("metadata-analysis/metadata/site_visits.txt"))
