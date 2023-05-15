@@ -164,15 +164,19 @@ dq_dob <- base_dq_data %>%
     ),
     Guidance = case_when(
       Issue == "Incorrect DOB or Entry Date" ~
-        str_squish("The HMIS data is indicating the client entered the project PRIOR to
-      being born. Correct either the Date of Birth or the Project Start Date, 
-      whichever is incorrect."),
+        str_squish(
+          "The HMIS data is indicating the client entered the project PRIOR to
+      being born. Correct either the Date of Birth or the Project Start Date,
+      whichever is incorrect."
+        ),
       Issue %in% c("Missing DOB", "Missing DOB Data Quality") ~
-        str_squish("This data element is required to be collected at Project
+        str_squish(
+          "This data element is required to be collected at Project
                    Start. Please go to the client's assessment at Project Start
                    to enter this data to HMIS. If this data was not collected,
                    the client declined to provide the information or was unable
-                   to provide it, please update the DOB Quality field accordingly."),
+                   to provide it, please update the DOB Quality field accordingly."
+        ),
       Issue == "Don't Know/Refused/Data Not Collected DOB" ~
         guidance_dkr_data
     )
@@ -186,7 +190,7 @@ dq_ssn <- base_dq_data %>%
       (is.na(SSN) & !SSNDataQuality %in% c(dkr)) |
         is.na(SSNDataQuality) | SSNDataQuality == 99 ~ "Missing",
       SSNDataQuality %in% c(dkr) ~ "DKR"
-    ), 
+    ),
     Issue = case_when(
       SSN == "Missing" ~ "Missing SSN",
       SSN == "DKR" ~ "Don't Know/Refused SSN"
@@ -196,7 +200,7 @@ dq_ssn <- base_dq_data %>%
       Issue == "Don't Know/Refused SSN" ~ "Warning"
     ),
     Guidance = case_when(
-      Issue == "Don't Know/Refused SSN" ~ 
+      Issue == "Don't Know/Refused SSN" ~
         str_squish(
           "This data element is required to be collected at Project Start.
           Please go to the client's assessment at Project Start to enter this
@@ -204,13 +208,15 @@ dq_ssn <- base_dq_data %>%
           provide the information or was unable to provide it, please update the
           SSN Quality field accordingly."
         ),
-      Issue == "Missing SSN" ~ 
-        str_squish("This data element is required to be collected at Project
+      Issue == "Missing SSN" ~
+        str_squish(
+          "This data element is required to be collected at Project
                    Start. Please go to the client's assessment at Project Start
                    to enter this data to HMIS. If this data was not collected
                    because the client declined to provide the information or was
                    unable to provide it, please update the SSN Quality field
-                   accordingly.")
+                   accordingly."
+        )
     )
   ) %>%
   filter(!is.na(Issue)) %>%
