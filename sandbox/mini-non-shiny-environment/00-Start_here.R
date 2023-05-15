@@ -10,6 +10,18 @@ if(dir.exists("sandbox/mini-non-shiny-environment/data/")) {
 
 directory <- "sandbox/mini-non-shiny-environment/"
 
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(DT)
+library(readxl)
+library(writexl)
+library(viridis)
+library(HMIS) #github.com/kiadso/HMIS
+library(glue)
+library(janitor)
+library(here)
+
 # Copy a sample dataset into the mini-non-shiny-environment/data directory
 
 if_else(file.exists(paste0(directory, "data/Enrollment.csv")),
