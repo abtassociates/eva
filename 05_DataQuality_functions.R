@@ -169,14 +169,35 @@ getDQReportDataList <-
 
 # Non-Residential Long Stayers --------------------------------------------
 
-calculate_long_stayers <- function(input, projecttype){
+calculate_long_stayers <- function(too_many_days, projecttype){
   
-  base_dq_data %>%
-    select(all_of(vars_prep), ProjectID) %>%
+  cls_df <- validation %>%
+    left_join(CurrentLivingSituation %>%
+                select(CurrentLivingSitID,
+                       EnrollmentID,
+                       InformationDate), by = "EnrollmentID") %>%
+    group_by(EnrollmentID) %>%
+    slice_max(InformationDate) %>%
+    slice(1L) %>%
+    ungroup() %>%
+    select(EnrollmentID, "MaxCLSInformationDate" = InformationDate)
+  
+  validation %>%
+    left_join(cls_df, by = "EnrollmentID") %>%
+    select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
+    filter(is.na(ExitDate) &
+             ((ProjectType %in% c(0, 4) &
+                 !is.na(MaxCLSInformationDate)) |
+                (!ProjectType %in% c(0, 4)))) %>%
     mutate(
       Days = 
-        as.numeric(
-          difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate, units = "days")),
+        as.numeric(difftime(
+          as.Date(meta_HUDCSV_Export_Date),
+          if_else(ProjectType %in% c(0, 4),
+                  MaxCLSInformationDate, # most recent CLS
+                  EntryDate), # project entry
+          units = "days"
+        )),
       Issue = "Days Enrollment Active Exceeds Local Settings",
       Type = "Warning",
       Guidance = str_squish("You have at least one active enrollment that has been
@@ -185,7 +206,7 @@ calculate_long_stayers <- function(input, projecttype){
     ) %>%
     filter(is.na(ExitDate) &
              ProjectType == projecttype &
-             input < Days) %>% 
+             too_many_days < Days) %>% 
     select(all_of(vars_we_want))
   
 }
