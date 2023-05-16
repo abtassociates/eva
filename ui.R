@@ -456,6 +456,15 @@ dashboardPage(
                     step = 5,
                     width = "200px"
                   ),
+                  numericInput(
+                    inputId = "CELongStayers",
+                    label = "Coordinated Entry:",
+                    value = 90,
+                    min = 0,
+                    max = 3650,
+                    step = 5,
+                    width = "200px"
+                  ),
                   width = 6
                 ),
                 width = 12
