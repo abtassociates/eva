@@ -993,6 +993,35 @@ check86 <- c(
   ""
 )
 
+check87 <-
+  c(
+    "dq",
+    "Warning",
+    "Days since Most Recent CLS Exceeds Local Settings",
+    "4.12 Current Living Situation, 3.10 Project Start Date, 3.11 Project Exit Date",
+    str_squish(
+      "This enrollment has been active without any updates to their Current
+      Living Situation for longer than the days set for this Project Type in
+      your Long Stayers settings on the Edit Local Settings tab. Please be sure
+      that any CLS updates or project exits are reflected in HMIS."
+    ),
+    ""
+  )
+
+check88 <-
+  c(
+    "dq",
+    "Warning",
+    "Days Enrollment Active Exceeds Local Settings",
+    "3.10 Project Start Date, 3.11 Project Exit Date",
+    str_squish(
+      "This enrollment has been active for longer than the days set for this
+      Project Type in your Long Stayers settings on the Edit Local Settings tab.
+      Please be sure that any project exits are reflected in HMIS."
+    ),
+    ""
+  )
+
 ### ADD NEW CHECKS ABOVE ^^^ ------------------------------------
 
 #New check? Copy the template below and then paste it above the ADD NEW CHECKS line.
@@ -1093,7 +1122,9 @@ dqChecks <- data.frame(rbind(check1,
                        check83,
                        check84,
                        check85,
-                       check86
+                       check86,
+                       check87,
+                       check88
 ))
 
 ### ADD NEW CHECKS TO DATAFRAME ABOVE ^^^ ------------------
