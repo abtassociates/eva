@@ -749,14 +749,14 @@ hp_stayers <- base_dq_data %>%
   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
 
 Top2_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-
-ce_stayers <- base_dq_data %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 14) %>%
-  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))) 
-
-Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+# 
+# ce_stayers <- base_dq_data %>%
+#   select(all_of(vars_prep), ProjectID) %>%
+#   filter(is.na(ExitDate) &
+#            ProjectType == 14) %>%
+#   mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))) 
+# 
+# Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
 missed_movein_stayers <- base_dq_data %>%
   select(all_of(vars_prep), ProjectID) %>%
@@ -789,8 +789,8 @@ long_stayers <- rbind(Top1_PSH,
                                 Top2_ES,
                                 Top2_RRH,
                                 Top2_TH,
-                                Top2_HP,
-                                Top2_CE) %>%
+                                # Top2_CE,
+                                Top2_HP) %>%
   mutate(
     Issue = "Possible Missed Exit Date",
     Type = "Warning",
