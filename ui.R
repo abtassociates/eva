@@ -394,11 +394,12 @@ dashboardPage(
                 <p><b>Enrollments active longer than the CoC-specified length of
                 assistance targets are flagged for the following project types:</b>
                 <ul>
-                <li>Street Outreach
-                <li>Services Only
-                <li>Other
-                <li>Day Shelter
                 <li>Emergency Shelter - Night-by-Night
+                <li>Street Outreach
+                <li>Other
+                <li>Services Only
+                <li>Day Shelter
+                <li>Coordinated Entry
                 </ul>
       
                 <p>Below, you can specify the expected maximum period of assistance
