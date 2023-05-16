@@ -1,4 +1,24 @@
 
+
+# The Variables That We Want ----------------------------------------------
+
+vars_prep <- c(
+  "HouseholdID",
+  "PersonalID",
+  "OrganizationName",
+  "ProjectID",
+  "ProjectName",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitDate"
+)
+
+vars_we_want <- c(vars_prep,
+                  "Issue",
+                  "Type",
+                  "Guidance")
+
 cls_df <- validation %>%
   left_join(CurrentLivingSituation %>%
               select(CurrentLivingSitID,
@@ -15,7 +35,7 @@ long_stayers <- validation %>%
   filter(is.na(ExitDate) &
            ((ProjectType %in% c(0, 4) &
            !is.na(MaxCLSInformationDate)) |
-           (!ProjectType %in% c(0,4)))) %>%
+           (!ProjectType %in% c(0, 4)))) %>%
   mutate(
     Days = 
       as.numeric(difftime(
