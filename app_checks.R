@@ -1022,6 +1022,20 @@ check88 <-
     ""
   )
 
+check89 <-
+  c(
+    Source = "dq",
+    Type = "Error",
+    Issue = "Incorrect DOB or Entry Date",
+    DataElement = "3.03.1 - Date of Birth, 3.10 Project Start Date",
+    Guidance = str_squish(
+      "The HMIS data is indicating the client entered the project PRIOR to being
+      born. Correct either the Date of Birth or the Project Start Date,
+      whichever is incorrect."
+    ),
+    Note = ""
+  )
+
 ### ADD NEW CHECKS ABOVE ^^^ ------------------------------------
 
 #New check? Copy the template below and then paste it above the ADD NEW CHECKS line.
