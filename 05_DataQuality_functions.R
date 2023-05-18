@@ -178,6 +178,7 @@ getDQReportDataList <-
 calculate_long_stayers <- function(too_many_days, projecttype){
 
   cls_df <- validation %>%
+    filter(is.na(ExitDate)) %>% # less data to deal w/
     left_join(CurrentLivingSituation %>%
                 select(CurrentLivingSitID,
                        EnrollmentID,
