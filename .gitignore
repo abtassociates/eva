@@ -21,3 +21,5 @@ www/metadata/
 sandbox/**/*.csv
 *.docx
 *.log
+metadata.csv
+sessiondata.csv
