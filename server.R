@@ -231,7 +231,9 @@ output$dq_overview_plot <- renderPlot({
     ) +
     geom_text(aes(label = prettyNum(Total, big.mark = ",")),
                vjust = -.5,
-               color = "gray14")
+               color = "gray14",
+              size = 6) +
+    coord_cartesian(clip = "off")
   
   dq_plot_overview
 })  
@@ -240,7 +242,7 @@ output$dq_overview_plot <- renderPlot({
     output$dq_orgs_overview_plot <- renderPlot({
       req(valid_file() == 1)
 # browser()
-      highest_type <- dq_main_reactive() %>%
+      highest_type <- pdde_main %>%
         count(Type) %>% 
         head(1L) %>%
         mutate(Type = as.character(Type)) %>%
@@ -253,24 +255,25 @@ output$dq_overview_plot <- renderPlot({
           TRUE ~ "Warnings"
         )
       
-      detail <- dq_main_reactive() %>%
-        count(OrganizationName, Type, name = "Total") %>%
+      detail <- pdde_main %>%
+        count(Issue, Type, name = "Total") %>%
         filter(Type == highest_type)
       
-      dq_plot_overview <-
+      pdde_plot_overview <-
         ggplot(
-          detail %>%
+          pdde_main %>%
+            count(Issue, Type, name = "Total") %>%
+            filter(Type == highest_type) %>%
             arrange(desc(Total)) %>%
-            head(5L) %>%
-            mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
-          aes(x = OrganizationName, y = Total)
+            head(5L),
+          aes(x = str_wrap(fct_reorder(Issue, Total), width = 20), y = Total)
         ) +
         geom_col(fill = "#D5BFE6", alpha = .7)+
         scale_y_continuous(label = comma_format()) +
         labs(
-          title = paste("Highest Counts of",
+          title = paste("Top 5 Project Descriptor Data Element ",
                         highest_type_display),
-          x = "Top 5 Organizations",
+          x = "Top 5 Issues",
           y = highest_type_display
         ) +
         coord_flip() +
@@ -279,11 +282,14 @@ output$dq_overview_plot <- renderPlot({
           plot.title.position = "plot",
           title = element_text(colour = "#73655E")
         ) +
-        geom_text(aes(label = prettyNum(Total, big.mark = ",")),
-                  nudge_y = 2,
-                  color = "gray14")
+        geom_text(
+          aes(label = prettyNum(Total, big.mark = ",")),
+          nudge_y = 2,
+          color = "gray14",
+          size = 6
+        )
       
-      dq_plot_overview
+      pdde_plot_overview
     })
     
     output$validate_plot <- renderPlot({
@@ -332,6 +338,7 @@ output$dq_overview_plot <- renderPlot({
         geom_col(alpha = .7, position = "stack")  +
         geom_text(aes(label = prettyNum(Total, big.mark = ","),
                       y = text_position),
+                  size = 6,
                   color = "gray14")+
         scale_y_continuous(label = comma_format()) +
         scale_colour_manual(
@@ -352,7 +359,8 @@ output$dq_overview_plot <- renderPlot({
           plot.title.position = "plot",
           title = element_text(colour = "#73655E"),
           legend.position = "top"
-        )
+        ) +
+        coord_cartesian(clip = "off")
       
       validate_by_org
     })
