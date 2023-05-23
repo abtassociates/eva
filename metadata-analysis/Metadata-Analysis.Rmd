@@ -24,9 +24,7 @@ source(here("app_checks.R"))
 
 # Instructions ------------------------------------------------------------
 
-# whenever DDS sends the metadata zip file, copy it to anywhere in the ACE environment that you can find it again, navigate to the sandbox directory in your Eva RStudio project, click Upload, then find the zip file you copied in. Click OK or whatever, then the files will be pasted into a folder under sandbox/. Edit the folder_date variable to match that folder's name and run this.
-
-folder_date <- "2023-03-20"
+# whenever DDS uploads the metadata zip file to ACE (S:\Projects\CE_Data_Toolkit\Eva metadata), navigate to the metadata-analysis directory in your Eva RStudio project, click Upload, then Choose File (not Browse), then upload that zip file. Click OK or whatever. Run this.
 
 visits <-
   read_lines(here("www/metadata/site_visits.txt"))
@@ -36,9 +34,7 @@ uploads <-
 
 new_way <-
   read_csv(here(paste0(
-    "sandbox/",
-    folder_date,
-    "/metadata.csv"
+    "metadata-analysis/metadata.csv"
   ))) %>%
   group_by(SessionToken) %>%
   mutate(sessionTime = difftime(max(Datestamp), min(Datestamp), units = "mins"),

@@ -9,6 +9,7 @@ library(lubridate)
 library(scales)
 library(plotly)
 library(DT)
+library(readxl)
 library(writexl)
 library(viridis)
 library(HMIS) #github.com/kiadso/HMIS
@@ -16,6 +17,7 @@ library(glue)
 library(janitor)
 library(shinyjs)
 library(shinydisconnect)
+library(here)
 #library(shinyHeatmap)
 #library(shinylogs)
 
@@ -26,5 +28,3 @@ if(dir.exists("www/metadata/")) {
 } else {
   dir.create("www/metadata/")
 }
-
-

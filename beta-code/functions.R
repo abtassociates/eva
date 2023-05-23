@@ -37,7 +37,11 @@ chronic_determination <- function(.data, aged_in = FALSE) {
                    ) &
                      DisablingCondition == 1 &
                      !is.na(DisablingCondition) ~ "Chronic",
-                   ProjectType %in% c(1, 8) &
+                   ProjectType %in% c(
+                     es_nbn_project_type,
+                     es_ee_project_type,
+                     sh_project_type
+                   ) &
                      ymd(DateToStreetESSH) + days(365) > ymd(EntryDate) &
                      !is.na(DateToStreetESSH) &
                      DaysHomelessBeforeEntry + DaysHomelessInProject >= 365 ~ "Aged In",

@@ -102,7 +102,7 @@ dashboardPage(
                 the Changelog tab.</li>
               </ul> 
             "),
-            actionButton("Go_to_upload","Click here to get started")
+            actionButton("Go_to_upload", "Click here to get started")
           ),
           box(
             title = "Instructions",
@@ -266,27 +266,29 @@ dashboardPage(
           #              label = "Outstanding Referral Days:",
           #              value = 7)
           
-          fluidRow(box(
+        fluidRow(
+          box(
             title = "HMIS CSV Export File Structure Analysis",
             width = 12,
-            DT::dataTableOutput("integrityChecker"),
+            DT::dataTableOutput("fileStructureAnalysis"),
             p(),
-            HTML("<p>Users should contact their vendor to resolve high priority 
+            HTML(
+              "<p>Users should contact their vendor to resolve high priority
             errors identified in the HMIS CSV Export File Structure Analysis, as
             well as any other structural issues which you feel need to be corrected.
-            </p>"),
+            </p>"
+            ),
             p(),
-            uiOutput('downloadIntegrityBtn')
-          )),
-          fluidRow(box(
-            title = "System Data Quality Overview",
-            width = 12,
-            column(12, plotOutput("validate_plot")),
-            column(6, plotOutput("dq_overview_plot")),
-            column(6, plotOutput("dq_orgs_overview_plot"))
-            
+            uiOutput('downloadFileStructureAnalysisBtn')
           )
-        )
+        ),
+        fluidRow(box(
+          title = "System Data Quality Overview",
+          width = 12,
+          column(12, plotOutput("validate_plot")),
+          column(6, plotOutput("dq_overview_plot")),
+          column(6, plotOutput("dq_orgs_overview_plot"))
+        ))
       ),
       tabItem(
         tabName = "tabLocalSettings",
@@ -816,7 +818,7 @@ dashboardPage(
         tabName = "tabDQSystem",
         fluidRow(box(
           htmlOutput("headerSystemDQ"), width = 12, 
-          uiOutput("downloadFullDQReportButton"))),
+          uiOutput("downloadSystemDQReportButton"))),
         fluidRow(box(
           title = "Instructions",
           width = 12,

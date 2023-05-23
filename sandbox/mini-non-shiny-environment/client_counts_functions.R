@@ -1,11 +1,12 @@
 ##### REPORTING COLUMNS ######
 # these are the main columns that we will report out in the app and exports
-clientCountDetailCols <- c("PersonalID",
-                           "RelationshipToHoH",
-                           "EntryDate",
-                           "MoveInDateAdjust",
-                           "ExitDate",
+clientCountDetailCols <- c("Personal ID",
+                           "Relationship to Head of Household",
+                           "Entry Date" = "EntryDate",
+                           "Move In Date (RRH/PSH Only)",
+                           "Exit Date" = "ExitDate",
                            "Status")
+
 ##### MAIN DATAFRAME ######
 # this is the primary client count dataset, calculating
 # their status and number of days enrolled. 
@@ -27,25 +28,25 @@ client_count_data_df <- reactive({
         RelationshipToHoH == 99 ~ "Data not collected (please correct)"
       ),
       Status = case_when(
-        ProjectType %in% c(ph_project_types) &
+        ProjectType %in% c(3, 13) &
           is.na(MoveInDateAdjust) &
           is.na(ExitDate) ~ "Active No Move-In",
-        ProjectType %in% c(ph_project_types) &
+        ProjectType %in% c(3, 13) &
           !is.na(MoveInDateAdjust) &
           is.na(ExitDate) ~ paste0("Currently Moved In (",
                                    today() - MoveInDateAdjust,
                                    " days)"),
-        ProjectType %in% c(ph_project_types) &
+        ProjectType %in% c(3, 13) &
           is.na(MoveInDateAdjust) &
           !is.na(ExitDate) ~ "Exited No Move-In",
-        ProjectType %in% c(ph_project_types) &
+        ProjectType %in% c(3, 13) &
           !is.na(MoveInDateAdjust) &
           !is.na(ExitDate) ~ "Exited with Move-In",
-        !ProjectType %in% c(ph_project_types) &
+        !ProjectType %in% c(3, 13) &
           is.na(ExitDate) ~ paste0("Currently in project (",
                                    today() - EntryDate, 
                                    " days)"),
-        !ProjectType %in% c(ph_project_types) &
+        !ProjectType %in% c(3, 13) &
           !is.na(ExitDate) ~ "Exited project"
       ),
       sort = today() - EntryDate
@@ -53,16 +54,16 @@ client_count_data_df <- reactive({
     arrange(desc(sort), HouseholdID, PersonalID) %>%
     # make sure to include all columns that will be needed for the various uses
     select(
-      PersonalID,
-      HouseholdID,
-      RelationshipToHoH,
+      "Personal ID" = PersonalID,
+      "Household ID" = HouseholdID,
+      "Relationship to Head of Household" = RelationshipToHoH,
       EntryDate,
-      MoveInDateAdjust,
+      "Move In Date (RRH/PSH Only)" = MoveInDateAdjust,
       ExitDate,
       Status,
-      ProjectID,
-      ProjectName,
-      OrganizationName,
+      "Project ID" = ProjectID,
+      "Project Name" = ProjectName,
+      "Organization" = OrganizationName,
       ProjectType
     ) %>%
     filter(served_between(., ReportStart, ReportEnd))
@@ -70,8 +71,7 @@ client_count_data_df <- reactive({
 
 ##### SUMMARY STUFF ######
 # this reactive df is the one used for the summary table in the app. 
-# using the function above, it gets and then combines the counts of households
-# and people/clients
+# using the function above, it gets and then combines the counts of households and people/clients
 client_count_summary_df <- reactive({
   # this function summarizes a project-specific client_count, returning a dataset with counts by status
   client_count_summary_by <- function(vname, client_counts) {
@@ -83,12 +83,12 @@ client_count_summary_df <- reactive({
     return(df)
   }
   client_counts <- client_count_data_df() %>%
-    filter(ProjectName == input$currentProviderList)
+    filter(`Project Name` == input$currentProviderList)
   
-  hhs <- client_count_summary_by("HouseholdID", client_counts) %>%
+  hhs <- client_count_summary_by("Household ID", client_counts) %>%
     summarise(Households = n())
   
-  clients <- client_count_summary_by("PersonalID", client_counts) %>%
+  clients <- client_count_summary_by("Personal ID", client_counts) %>%
     summarise(Clients = n())
   
   full_join(clients, hhs, by = "Status")
@@ -96,7 +96,7 @@ client_count_summary_df <- reactive({
 
 ##### DOWNLOADING STUFF ######
 get_clientcount_download_info <- function(file) {
-  keepCols <- c("OrganizationName", "ProjectID", "ProjectName")
+  keepCols <- c("Organization", "Project ID", "Project Name")
   
   # initial dataset thta will make summarizing easier
   validationDF <- client_count_data_df() %>%
@@ -124,26 +124,23 @@ get_clientcount_download_info <- function(file) {
       mutate(
         Status = sub(" \\(.*", "", Status)
       ) %>%
-      select(all_of(keepCols), n, Status, ProjectType, PersonalID) %>%
+      select(all_of(keepCols), n, Status, ProjectType, `Personal ID`) %>%
       unique() %>%
       select(all_of(keepCols), n, Status, ProjectType) %>%
       pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
       add_column(!!!necessaryCols[setdiff(names(necessaryCols), names(df))]) %>%
       select(!!keepCols, !!necessaryCols, ProjectType) %>%
       mutate(
-        across(!!necessaryCols, ~ 
-                 replace(., is.na(.) &
-                           ProjectType %in% c(psh_project_type,
-                                              rrh_project_type), 0)),
+        across(!!necessaryCols, ~ replace(., is.na(.) &
+                                            ProjectType %in% c(3, 13), 0)),
         "Currently in Project" = case_when(
-          ProjectType %in% c(ph_project_types)  ~ 
+          ProjectType %in% c(3, 13)  ~ 
             rowSums(select(., `Currently Moved In`, `Active No Move-In`),
                     na.rm = TRUE),
           TRUE ~ replace_na(`Currently in project`, 0)
         )
       ) %>% 
-      relocate(`Currently in Project`, .after = ProjectName)
-    
+      relocate(`Currently in Project`, .after = `Project Name`)
     return(pivoted)
   }
   
@@ -152,7 +149,7 @@ get_clientcount_download_info <- function(file) {
   validationDateRange <- pivot_and_sum(validationDF, isDateRange = TRUE) %>%
     mutate(
       "Exited Project" = case_when(
-        ProjectType %in% c(ph_project_types) ~ 
+        ProjectType %in% c(3,13) ~ 
           rowSums(select(., `Exited with Move-In`, `Exited No Move-In`),
                   na.rm = TRUE),
         TRUE ~ `Exited project`
@@ -160,27 +157,25 @@ get_clientcount_download_info <- function(file) {
     ) %>%
     relocate(`Exited Project`, .after=`Currently Moved In`) %>%
     select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
-    arrange(OrganizationName, ProjectName)
+    arrange(Organization, `Project Name`)
   
   ### VALIDATION CURRENT TAB ###
   # counts for each status, by project for just the current date
-  validationCurrent <- 
-    pivot_and_sum(
-      validationDF %>%
-        filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
+  validationCurrent <- pivot_and_sum(validationDF %>% 
+                                       filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
   ) %>%
     select(-c(`Currently in project`, ProjectType)) %>%
-    arrange(OrganizationName, ProjectName)
+    arrange(Organization, `Project Name`)
   
   ### VALIDATION DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
     select(!!keepCols, !!clientCountDetailCols) %>%
-    arrange(OrganizationName, ProjectName, EntryDate)
+    arrange(Organization, `Project Name`,`Entry Date`)
   
   exportDFList <- list(
-    validationCurrent = validationCurrent %>% nice_names(),
-    validationDateRange = validationDateRange %>% nice_names(),
-    validationDetail = validationDetail %>% nice_names()
+    validationCurrent = validationCurrent,
+    validationDateRange = validationDateRange,
+    validationDetail = validationDetail
   )
   
   names(exportDFList) = c(
@@ -189,6 +184,5 @@ get_clientcount_download_info <- function(file) {
     "Validation - Detail"
   )
   
-  write_xlsx(exportDFList,
-             path = file)
+  write_xlsx(exportDFList, path = file)
 }
