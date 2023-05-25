@@ -130,9 +130,9 @@ dq_name <- base_dq_data %>%
   mutate(
     Issue = case_when(
       NameDataQuality == 99 | is.na(NameDataQuality) ~ 
-        "Missing Name Data Quality", #34
+        "Missing Name Data Quality",
       NameDataQuality %in% c(dkr) ~ 
-        "Incomplete or Don't Know/Refused Name" #80
+        "Incomplete or Don't Know/Refused Name"
     ),
     Type = case_when(
       Issue == "Missing Name Data Quality" ~ "Error",
@@ -148,11 +148,11 @@ dq_name <- base_dq_data %>%
 dq_dob <- base_dq_data %>%
   mutate(
     Issue = case_when(
-      is.na(DOB) & DOBDataQuality %in% c(1, 2) ~ "Missing DOB", #35
-      is.na(DOBDataQuality) ~ "Missing DOB Data Quality", #36
+      is.na(DOB) & DOBDataQuality %in% c(1, 2) ~ "Missing DOB",
+      is.na(DOBDataQuality) ~ "Missing DOB Data Quality",
       DOBDataQuality %in% c(dkr_dnc) ~ 
-        "Don't Know/Refused/Data Not Collected DOB", #62
-      AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect DOB or Entry Date" #89
+        "Don't Know/Refused/Data Not Collected DOB",
+      AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect DOB or Entry Date"
     ),
     Type = case_when(
       Issue %in% c(

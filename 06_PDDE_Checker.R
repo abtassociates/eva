@@ -26,7 +26,7 @@ subpopNotTotal <- Inventory %>%
               OtherBedInventory
            ) != BedInventory
   ) %>%
-  mutate(Issue = "Sum of the dedicated beds should equal the Total Beds", #47
+  mutate(Issue = "Sum of the dedicated beds should equal the Total Beds",
          Type = "Error",
          Guidance = 
            str_squish("Total Beds should match the sum of CH Vets, Youth Vets, Vets, 
@@ -66,7 +66,7 @@ operatingEndMissing <- Enrollment %>%
            MostRecentEnrollment >= 
            coalesce(OperatingEndDate, Export$ExportDate) - 30 &
            is.null(OperatingEndDate)) %>%
-  mutate(Issue = "Potentially Missing Operating End Date", #83
+  mutate(Issue = "Potentially Missing Operating End Date",
          Type = "Warning",
          Guidance = 
            str_squish("Projects no longer in operation must have an Operating
@@ -94,8 +94,8 @@ missingCoCInfo <- Project %>%
   ) %>%
   mutate(Issue = if_else(is.na(Geocode) | is.na(GeographyType) |
                            is.na(CoCCode),
-                         "Missing Geography Information", #5
-                         "Missing Address"), #43
+                         "Missing Geography Information",
+                         "Missing Address"),
          Guidance = str_squish("Please ensure geography information for projects
                                is complete."),
          Detail = case_when(
@@ -120,7 +120,7 @@ missingInventoryRecord <- Project %>%
   filter(ProjectType %in% project_types_w_beds &
            is.na(InventoryID)) %>% 
   mutate(
-    Issue = "No Inventory Records", #44
+    Issue = "No Inventory Records",
     Type = "Error",
     Guidance = str_squish("Residential projects should have inventory data. 
     Please enter inventory in HMIS for the project(s)."),
@@ -136,10 +136,10 @@ inventoryOutsideOperating <- Inventory %>%
   mutate(
     Issue = case_when(
       InventoryStartDate < OperatingStartDate ~
-        "Inventory Start Precedes Project Operating Start", #78
+        "Inventory Start Precedes Project Operating Start",
       coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_Date)) >
         coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_Date)) ~
-        "Project Operating End precedes Inventory End", #45
+        "Project Operating End precedes Inventory End",
       TRUE ~ "none"
     ),
     Type = if_else(
@@ -206,7 +206,7 @@ hmisNotParticipatingButClient <- Project %>%
            ProjectID %in% c(Enrollment$ProjectID %>% unique())
   ) %>%
   mutate(
-    Issue = "Non-HMIS-Participating project has client-level data", #82
+    Issue = "Non-HMIS-Participating project has client-level data",
     Type = "Warning",
     Guidance = str_squish(
       "Non-HMIS-Participating projects should not have client-level data. The
@@ -225,7 +225,7 @@ hmisNotParticipatingButClient <- Project %>%
 es_no_tracking_method <- Project %>%
   filter(ProjectType %in% c(1, 0) & is.na(TrackingMethod)) %>%
   mutate(
-    Issue = "Missing Tracking Method", #46
+    Issue = "Missing Tracking Method",
     Type = "Error",
     Guidance = str_squish("All Emergency Shelters must have a Tracking Method. Please update the 
     Emergency Shelter Tracking Method field at the project-level."),
@@ -254,7 +254,7 @@ res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 zero_utilization <- Project %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
   mutate(
-    Issue = "Zero Utilization", #86
+    Issue = "Zero Utilization",
     Type = "Error",
     Guidance =
       str_squish(
