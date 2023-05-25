@@ -200,7 +200,7 @@ calculate_long_stayers <- function(too_many_days, projecttype){
           as.Date(meta_HUDCSV_Export_Date), EntryDate, 
           units = "days"
         )),
-      Issue = "Days Enrollment Active Exceeds Local Settings", #88
+      Issue = "Days Enrollment Active Exceeds Local Settings",
       Type = "Warning",
       Guidance = str_squish("This enrollment has been active for longer than the
                             days set for this Project Type in your Long Stayers
@@ -225,7 +225,7 @@ calculate_long_stayers <- function(too_many_days, projecttype){
                   EntryDate), # project entry
           units = "days"
         )),
-      Issue = "Days since Most Recent CLS Exceeds Local Settings", #87
+      Issue = "Days since Most Recent CLS Exceeds Local Settings",
       Type = "Warning",
       Guidance = str_squish("This enrollment has been active without any updates
                             to their Current Living Situation for longer than
@@ -265,7 +265,7 @@ calculate_outstanding_referrals <- function(input){
       Days = 
         as.numeric(
           difftime(as.Date(meta_HUDCSV_Export_Date), EventDate, units = "days")),
-      Issue = "Days Referral Active Exceeds Local Settings", #missing
+      Issue = "Days Referral Active Exceeds Local Settings",
       Type = "Warning",
       Guidance = str_squish("You have at least one active referral that has been
          active without a Result Date for longer than the days set in your

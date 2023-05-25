@@ -26,7 +26,7 @@ df_date_types <-
   ) %>%
   left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
   mutate(
-    Issue = "Incorrect Date Format", #11
+    Issue = "Incorrect Date Format",
     Type = if_else(Column %in% c(high_priority_columns), 
                    "High Priority", "Error"),
     Guidance = 
@@ -62,7 +62,7 @@ check_columns <- function(file) {
     ) %>%
       arrange(ColumnName) %>%
       mutate(
-        Issue = "Incorrect Columns", #12
+        Issue = "Incorrect Columns",
         Type = if_else(
           ColumnName %in% c(high_priority_columns),
           "High Priority",
@@ -115,7 +115,7 @@ check_data_types <- function(quotedfile) {
       left_join(data_types, by = c("File", "Column")) %>%
       filter(DataType != ImportedDataType) %>%
       mutate(
-        Issue = "Incorrect Data Type", #14
+        Issue = "Incorrect Data Type",
         Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
         Guidance = 
           str_squish("Data types must align with the HMIS CSV Format
@@ -184,7 +184,7 @@ check_for_bad_nulls <- function(file) {
                     select(Column, DataTypeHighPriority),
                   by = "Column") %>%
         mutate(
-          Issue = "Nulls not allowed or incorrect data type", #48 but it's dark?
+          Issue = "Nulls not allowed or incorrect data type",
           Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
           Guidance = 
             str_squish("Either there is a column with nulls where they are not
@@ -214,7 +214,7 @@ df_nulls <- map_df(unique(cols_and_data_types$File), check_for_bad_nulls)
 export_id_client <- Client %>%
   filter(as.character(ExportID) != export_id_from_export) %>%
   mutate(
-    Issue = "ExportID mismatch", #51
+    Issue = "ExportID mismatch",
     Type = "Error",
     Guidance = 
       str_squish("Per the HMIS CSV Formatting Specifications, the ExportID in
@@ -286,7 +286,7 @@ valid_values_client <- Client %>%
   filter(value == 0) %>%
   count(name) %>%
   mutate(
-    Issue = "Invalid value in Client file", #52
+    Issue = "Invalid value in Client file",
     Type = "Error",
     Guidance = 
       str_squish("All columns in the client file should contain only the values
@@ -332,7 +332,7 @@ valid_values_client <- Client %>%
 duplicate_client_id <- Client %>%
   get_dupes(PersonalID) %>%
   mutate(
-    Issue = "Duplicate PersonalIDs in Client.csv", #7
+    Issue = "Duplicate PersonalIDs in Client.csv",
     Type = "High Priority",
     Guidance = 
       str_squish("PersonalIDs should be unique in the Client file."),
@@ -344,7 +344,7 @@ duplicate_client_id <- Client %>%
 # Integrity Enrollment ----------------------------------------------------
 if(nrow(Enrollment) == 0) {
   no_enrollment_records <- data.frame(
-    Issue = "No enrollment records", #missing
+    Issue = "No enrollment records",
     Type = "High Priority",
     Guidance = guidance_no_enrollments,
     Detail = "There are 0 enrollment records in the Enrollment.csv file"
@@ -361,7 +361,7 @@ if(nrow(Enrollment) == 0) {
 duplicate_enrollment_id <- Enrollment %>%
   get_dupes(EnrollmentID) %>%
   mutate(
-    Issue = "Duplicate EnrollmentIDs", #8
+    Issue = "Duplicate EnrollmentIDs",
     Type = "High Priority",
     Guidance = 
       str_squish("EnrollmentIDs should be unique in the Enrollment.csv file."),
@@ -380,7 +380,7 @@ personal_ids_in_client <- Client %>% pull(PersonalID)
 foreign_key_no_primary_personalid_enrollment <- Enrollment %>%
   filter(!PersonalID %in% c(personal_ids_in_client)) %>%
   mutate(
-    Issue = "PersonalID missing from Client.csv", #missing
+    Issue = "PersonalID missing from Client.csv",
     Type = "High Priority",
     Guidance = 
       str_squish("Per the HMIS CSV Format Specifications, all PersonalIDs in the
@@ -399,7 +399,7 @@ projectids_in_project <- Project %>% pull(ProjectID)
 foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
   filter(!ProjectID %in% c(projectids_in_project)) %>%
   mutate(
-    Issue = "ProjectID missing from Project.csv", #10
+    Issue = "ProjectID missing from Project.csv",
     Type = "High Priority",
     Guidance = 
       str_squish("Per the HMIS CSV Format Specifications, all ProjectIDs in the
@@ -417,7 +417,7 @@ foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
 disabling_condition_invalid <- Enrollment %>%
   filter(!DisablingCondition %in% c(yes_no_enhanced)) %>%
   mutate(
-    Issue = "Invalid Disabling Condition", #53
+    Issue = "Invalid Disabling Condition",
     Type = "Error",
     Guidance = 
       str_squish("Please review the HMIS CSV Format Specifications for
@@ -439,7 +439,7 @@ living_situation_invalid <- Enrollment %>%
   filter(!is.na(LivingSituation) &
     !LivingSituation %in% c(allowed_prior_living_sit)) %>%
   mutate(
-    Issue = "Invalid Living Situation value", #54
+    Issue = "Invalid Living Situation value",
     Type = "Error",
     Guidance = str_squish("Please review the HMIS CSV Format Specifications for
                           LivingSituation and ensure all values in the export
@@ -459,7 +459,7 @@ living_situation_invalid <- Enrollment %>%
 rel_to_hoh_invalid <- Enrollment %>%
   filter(!RelationshipToHoH %in% c(1:5, 99) & !is.na(RelationshipToHoH)) %>%
   mutate(
-    Issue = "Invalid RelationshipToHoH value", #55
+    Issue = "Invalid RelationshipToHoH value",
     Type = "Error",
     Guidance = str_squish("Please review the HMIS CSV Format Specifications for
                           RelationshipToHoH and ensure all values in the export
@@ -482,7 +482,7 @@ duplicate_household_id <- Enrollment %>%
   filter(!is.na(HouseholdID)) %>%
   get_dupes(HouseholdID) %>%
   mutate(
-    Issue = "HouseholdID not incrementing correctly", #missing
+    Issue = "HouseholdID not incrementing correctly",
     Type = "High Priority",
     Guidance = 
       str_squish("The HouseholdID must be unique to the household stay in a
@@ -532,7 +532,7 @@ nonstandard_destination <- Exit %>%
   filter(!is.na(Destination) &
            !Destination %in% c(allowed_destinations)) %>%
   mutate(
-    Issue = "Invalid Destination value", #56
+    Issue = "Invalid Destination value",
     Type = "Error",
     Guidance = str_squish("Please review the HMIS CSV Format Specifications for
                           Destination and ensure all values in the export align
@@ -550,7 +550,7 @@ nonstandard_CLS <- CurrentLivingSituation %>%
   filter(!is.na(CurrentLivingSituation) &
     !CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
   mutate(
-    Issue = "Non-standard Current Living Situation", #57
+    Issue = "Non-standard Current Living Situation",
     Type = "Error",
     Guidance = 
       str_squish("This column contains a value that may have been retired from 
