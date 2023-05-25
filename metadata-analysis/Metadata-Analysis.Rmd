@@ -34,9 +34,8 @@ uploads <-
   read_lines(here("metadata-analysis/metadata/upload_metadata.txt"))
 
 new_way <-
-  read_csv(here(paste0(
-    "metadata-analysis/metadata.csv"
-  ))) %>%
+  read_csv(here("metadata-analysis/metadata/metadata.csv")) %>% # <- don't change this
+  # ^ change where your file is in your project directory
   group_by(SessionToken) %>%
   mutate(sessionTime = difftime(max(Datestamp), min(Datestamp), units = "mins"),
          is_timeout = sessionTime >= 10 & sessionTime < 11,
