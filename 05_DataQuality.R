@@ -457,7 +457,7 @@ dkr_LoS <- base_dq_data %>%
          LengthOfStay) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            LengthOfStay %in% c(dkr)) %>%
-  mutate(Issue = "Don't Know/Refused Length of Stay", #missing
+  mutate(Issue = "Don't Know/Refused Residence Prior",
          Type = "Warning",
          Guidance = guidance_dkr_data) %>%
   select(all_of(vars_we_want))
