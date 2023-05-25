@@ -21,7 +21,7 @@ library(scales)
 # every week or so, so by putting it here, it is updating the EvaChecks.xlsx
 # document on GitHub in case there were any edits to checks!
 
-#source(here("app_checks.R"))
+source(here("app_checks.R"))
 
 # Instructions ------------------------------------------------------------
 
