@@ -79,7 +79,7 @@ check6 <- c("file structure",
 check7 <- c(
   "file structure",
   "High Priority",
-  "Duplicate PersonalIDs found in Client.csv",
+  "Duplicate PersonalIDs found in the Client file",
   "5.08 - Personal Identifier",
   str_squish(
     "PersonalIDs should be unique in the Client file. Each unique
@@ -94,7 +94,7 @@ check7 <- c(
 check8 <- c(
   "file structure",
   "High Priority",
-  "Duplicate EnrollmentIDs",
+  "Duplicate EnrollmentIDs found in the Enrollment file",
   "5.06 - Enrollment Identifier",
   str_squish(
     "EnrollmentIDs should be unique in the Enrollment file. There may
@@ -121,7 +121,7 @@ check9 <- c(
 check10 <- c(
   "file structure",
   "High Priority",
-  "ProjectID missing from Project.csv",
+  "ProjectID in the Enrollment file not found in Project file",
   "5.05 - Project Identifier",
   str_squish(
     "Per the HMIS CSV Format Specifications, all ProjectIDs in the
@@ -497,8 +497,9 @@ check46 <- c(
   "Missing Tracking Method",
   "2.02.C - Project Information: Emergency Shelter Tracking Method",
   Guidance = str_squish(
-    "All Emergency Shelters must have a Tracking Method. Please update the
-    Emergency Shelter Tracking Method field at the project-level."
+    "All Emergency Shelters must have a Tracking Method.
+                        Please update the Emergency Shelter Tracking Method
+                        field at the project-level."
   ),
   ""
 )
@@ -972,10 +973,11 @@ check85 <- c(
   "Duplicate HouseholdIDs",
   "5.09 - Household Identifier",
   str_squish(
-    "The householdID must be unique to the household stay in a project; reuse of
-    the identification of the same or similar household upon readmission into
-    the project is unacceptable. Please review the HMIS Data Standards for more
-    details."
+    "The householdID must be unique to the household stay in
+                       a project; reuse of the identification of the same or
+                       similar household upon readmission into the project is
+                       unacceptable. Please review the HMIS Data Standards for
+                       more details."
   ),
   ""
   
