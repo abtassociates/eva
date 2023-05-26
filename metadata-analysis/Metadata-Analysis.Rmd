@@ -24,18 +24,22 @@ source(here("app_checks.R"))
 
 # Instructions ------------------------------------------------------------
 
-# whenever DDS uploads the metadata zip file to ACE (S:\Projects\CE_Data_Toolkit\Eva metadata), navigate to the metadata-analysis directory in your Eva RStudio project, click Upload, then Choose File (not Browse), then upload that zip file. Click OK or whatever. Run this.
+# whenever DDS sends the metadata zip file, copy it to anywhere in the ACE 
+# environment that you can find it again, navigate to the
+# metadata-analysis/metadata directory in your Eva RStudio project, click
+# Upload, then find the zip file you copied in. Click OK or whatever, then the
+# files will be pasted in. Then run this.
 
 visits <-
-  read_lines(here("www/metadata/site_visits.txt"))
+  read_lines(here("metadata-analysis/metadata/site_visits.txt"))
 
 uploads <-
-  read_lines(here("www/metadata/upload_metadata.txt"))
+  read_lines(here("metadata-analysis/metadata/upload_metadata.txt"))
+
+#This is looking at metadata.csv, which does not have the SoftwareName column
 
 new_way <-
-  read_csv(here(paste0(
-    "metadata-analysis/metadata.csv"
-  ))) %>%
+  read_csv(here("metadata-analysis/metadata/metadata.csv")) %>%
   group_by(SessionToken) %>%
   mutate(sessionTime = difftime(max(Datestamp), min(Datestamp), units = "mins"),
          is_timeout = sessionTime >= 10 & sessionTime < 11,
@@ -48,7 +52,23 @@ new_way <-
   select("SessionID" = SessionToken,
          "Date" = Datestamp,
          "Event" = Details) %>%
-  mutate(WeekEnding = ceiling_date(Date, unit = "week", week_start = 1))
+  mutate(
+    WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
+    MonthEnding = ceiling_date(Date, unit = "month"),
+    EventCategory = case_when(
+      Event %in% c(
+        "Unsuccessful upload - not structurally valid",
+        "Unsuccessful upload - not hashed",
+        "Unsuccessful upload - wrong dataset",
+        "Unsuccessful upload - wrong/incomplete dataset",
+        "Unsuccessful upload - file was mistructured",
+        "Unsuccessful upload - zip file was misstructured"
+      )
+      ~ "Unsuccessful upload",
+      Event %in% c("Successful upload") ~ "Successful upload",
+      TRUE ~ "Other"
+    )
+  )
 
 # building dataset
 visits_df <- data.frame(everything = visits) %>%
@@ -56,6 +76,7 @@ visits_df <- data.frame(everything = visits) %>%
     SessionID = str_squish(str_sub(everything, 1L, 33L)),
     Date = ymd_hms(str_squish(str_sub(everything, 35L, 54L))),
     WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
+    MonthEnding = ceiling_date(Date, unit = "month"),
     Event = str_squish(str_sub(everything, 57L, nchar(everything))),
     everything = NULL
   )
@@ -65,35 +86,48 @@ uploads_df <- data.frame(everything = uploads) %>%
     SessionID = str_squish(str_sub(everything, 1L, 33L)),
     Date = ymd_hms(str_squish(str_sub(everything, 35L, 54L))),
     WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
+    MonthEnding = ceiling_date(Date, unit = "month"),
     Event = str_squish(str_sub(everything, 57L, nchar(everything))),
     everything = NULL
   )
 
 old_way <- rbind(uploads_df, visits_df) %>%
   mutate(
-    Event = case_when(
-      Event == "Unsuccessful - not structurally valid" ~
-        "Unsuccessful upload - not structurally valid",
-      Event == "Unsuccessful - not hashed" ~
-        "Unsuccessful upload - not hashed",
-      Event == "Unsuccessful - wrong dataset" ~
-        "Unsuccessful upload - wrong/incomplete dataset",
-      Event == "Unsuccessful - file was mistructured" ~
-        "Unsuccessful upload - file was mistructured",
-      TRUE ~ Event
+    EventCategory = case_when(
+      Event %in% c("Unsuccessful upload - not structurally valid",
+      "Unsuccessful upload - not hashed",
+      "Unsuccessful upload - wrong dataset",
+      "Unsuccessful upload - wrong/incomplete dataset",
+      "Unsuccessful upload - file was mistructured",
+      "Unsuccessful upload - zip file was misstructured")
+      ~ "Unsuccessful upload",
+      Event %in% c("Successful upload") ~ "Successful Upload",
+      TRUE ~ "Other"
     )
   )
 
 staging <- rbind(new_way, old_way) %>%
   mutate(Event = if_else(Event == "Session started", "Site hits", Event),
-         WeekEnding = as.Date(WeekEnding))
+        WeekEnding = as.Date(WeekEnding),
+         MonthEnding = as.Date(MonthEnding))
 
-all <- staging %>%
+all_week <- staging %>%
   filter(WeekEnding < ceiling_date(max(ymd_hms(staging$Date)),
                                    unit = "week"))
 
-counts <- count(all, WeekEnding, Event) %>%
+all_month <- staging %>%
+  filter(MonthEnding < ceiling_date(max(ymd_hms(staging$Date)),
+                                   unit = "month"))
+
+counts_by_week <- count(all_week, WeekEnding, Event) %>%
   arrange(WeekEnding, desc(n))
+
+counts_by_month <- count(all_month, MonthEnding, Event) %>%
+  arrange(MonthEnding, desc(n))
+
+counts_category <- count(all_week, WeekEnding, EventCategory) %>%
+  arrange(WeekEnding, desc(n))
+
 ```
 
 # {.tabset}
@@ -104,7 +138,7 @@ Eva logs do not tell us how many Eva users there are, but a count of times someo
 
 ```{r fig.width=8, fig.height=5}
 
-counts %>%
+counts_by_week %>%
   filter(Event == "Site hits") %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line() +
@@ -140,9 +174,28 @@ The reasons Eva will reject an export are if the export:
 
 ```{r fig.width=8, fig.height=5}
 
-counts %>%
+counts_by_week %>%
   filter(str_detect(Event, " upload")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
+  geom_line() +
+  geom_point() +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
+  labs(title = "Eva Uploads",
+       x = "Week Ending",
+       y = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
+
+```
+
+```{r fig.width=8, fig.height=5}
+
+counts_category %>%
+  filter(str_detect(EventCategory, " upload")) %>%
+  ggplot(aes(x = WeekEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
   geom_line() +
   geom_point() +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
@@ -165,7 +218,7 @@ Eva did not begin tracking downloads until December 29, 2022.
 
 ```{r fig.width=8, fig.height=5}
 
-counts %>%
+counts_by_week %>%
   filter(str_detect(Event, "Download")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line() +
@@ -190,7 +243,7 @@ Below are the counts by Week. A week here is counted Monday to Sunday.
 <br>
 
 ```{r data}
-gt(counts %>%
+gt(counts_by_week %>%
      select(
        "Week Ending" = WeekEnding,
        Event,

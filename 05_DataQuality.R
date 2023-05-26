@@ -331,6 +331,7 @@ hh_no_hoh <- base_dq_data %>%
   filter(hasHoH == FALSE) %>%
   ungroup() %>%
   left_join(base_dq_data, by = c("PersonalID", "HouseholdID")) %>%
+
   mutate(
     Issue = "No Head of Household",
     Type = "High Priority",
@@ -346,10 +347,7 @@ hh_too_many_hohs <- base_dq_data %>%
   ungroup() %>%
   filter(HoHsinHousehold > 1) %>%
   left_join(base_dq_data, by = c("PersonalID", "HouseholdID")) %>%
-  mutate(Issue = "Too Many Heads of Household",
-         Type = "High Priority",
-         Guidance = guidance_hoh_issues) %>%
-  select(all_of(vars_we_want))
+  merge_check_info(CheckID = 3)
 
 hh_missing_rel_to_hoh <- base_dq_data %>%
   filter(RelationshipToHoH == 99) %>%

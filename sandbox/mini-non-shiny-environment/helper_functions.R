@@ -165,7 +165,7 @@ logMetadata <- function(detail) {
     Details = detail
   )
   
-  filename <- "www/metadata/metadata.csv"
+  filename <- "metadata-analysis/metadata/metadata.csv"
   write_csv(
     x = d,
     filename,
@@ -209,7 +209,7 @@ logSessionData <- function() {
   capture.output(d, file=stderr())
   
     
-  filename <- "www/metadata/sessiondata.csv"
+  filename <- "metadata-analysis/metadata/sessiondata.csv"
   write_csv(
     x = d,
     filename,

@@ -165,7 +165,7 @@ logMetadata <- function(detail) {
     Details = detail
   )
   
-  filename <- "www/metadata/metadata.csv"
+  filename <- "metadata-analysis/metadata/metadata.csv"
   write_csv(
     x = d,
     filename,
@@ -209,7 +209,7 @@ logSessionData <- function() {
   capture.output(d, file=stderr())
   
     
-  filename <- "www/metadata/sessiondata.csv"
+  filename <- "metadata-analysis/metadata/sessiondata.csv"
   write_csv(
     x = d,
     filename,
@@ -275,4 +275,17 @@ importFileSandbox <- function(csvFile, guess_max = 1000) {
                    ,na = ""
   )
   return(data)
+}
+
+
+############################
+# GENERATE CHECK DATA FROM EVACHECKS.XLSX
+############################
+merge_check_info <- function(data, checkID) {
+  merged_data <- data %>%
+    mutate(CheckID = checkID) %>%
+    left_join(evachecks, by = "CheckID") %>%
+    select(all_of(vars_we_want))
+
+  return(merged_data)
 }
