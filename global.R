@@ -9,6 +9,7 @@ library(lubridate)
 library(scales)
 library(plotly)
 library(DT)
+library(readxl)
 library(writexl)
 library(viridis)
 library(HMIS) #github.com/kiadso/HMIS
