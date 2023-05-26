@@ -12,7 +12,6 @@
 #     - Overlaps
 #     - Future Entry Exits
 ###############################
-source("guidance.R", local=TRUE)
 
 logToConsole("Running Data Quality")
 
@@ -125,171 +124,101 @@ vars_we_want <- c(vars_prep,
                   "Type",
                   "Guidance")
 
+# Duplicate EEs -----------------------------------------------------------
+
+duplicate_ees <-
+  get_dupes(base_dq_data, PersonalID, ProjectID, EntryDate) %>%
+  merge_check_info(checkID = 1) %>%
+  select(all_of(vars_we_want))
+
 # Missing UDEs ------------------------------------------------------------
-dq_name <- base_dq_data %>%
-  mutate(
-    Issue = case_when(
-      NameDataQuality == 99 | is.na(NameDataQuality) ~ 
-        "Missing Name Data Quality",
-      NameDataQuality %in% c(dkr) ~ 
-        "Incomplete or Don't Know/Refused Name"
-    ),
-    Type = case_when(
-      Issue == "Missing Name Data Quality" ~ "Error",
-      Issue == "Incomplete or Don't Know/Refused Name" ~ "Warning"
-    ),
-    Guidance = if_else(Type == "Warning", 
-                       guidance_dkr_data, 
-                       guidance_missing_pii)
-  ) %>%
-  filter(!is.na(Issue)) %>%
+dq_name1 <- base_dq_data %>%
+  filter(NameDataQuality == 99 | is.na(NameDataQuality)) %>%
+  merge_check_info(checkID = 34) %>%
   select(all_of(vars_we_want))
 
-dq_dob <- base_dq_data %>%
-  mutate(
-    Issue = case_when(
-      is.na(DOB) & DOBDataQuality %in% c(1, 2) ~ "Missing DOB",
-      is.na(DOBDataQuality) ~ "Missing DOB Data Quality",
-      DOBDataQuality %in% c(dkr_dnc) ~ 
-        "Don't Know/Refused/Data Not Collected DOB",
-      AgeAtEntry < 0 | AgeAtEntry > 100 ~ "Incorrect DOB or Entry Date"
-    ),
-    Type = case_when(
-      Issue %in% c(
-        "Missing DOB",
-        "Incorrect DOB or Entry Date",
-        "Missing DOB Data Quality"
-      ) ~ "Error",
-      Issue ==  "Don't Know/Refused/Data Not Collected DOB" ~ "Warning"
-    ),
-    Guidance = case_when(
-      Issue == "Incorrect DOB or Entry Date" ~
-        str_squish("The HMIS data is indicating the client entered the project PRIOR to
-      being born. Correct either the Date of Birth or the Project Start Date, 
-      whichever is incorrect."),
-      Issue %in% c("Missing DOB", "Missing DOB Data Quality") ~
-        str_squish("This data element is required to be collected at Project
-                   Start. Please go to the client's assessment at Project Start
-                   to enter this data to HMIS. If this data was not collected,
-                   the client declined to provide the information or was unable
-                   to provide it, please update the DOB Quality field accordingly."),
-      Issue == "Don't Know/Refused/Data Not Collected DOB" ~
-        guidance_dkr_data
-    )
-  ) %>%
-  filter(!is.na(Issue)) %>%
+dq_name2 <- base_dq_data %>%
+  filter(NameDataQuality %in% c(dkr)) %>%
+  merge_check_info(checkID = 80) %>%
   select(all_of(vars_we_want))
 
-dq_ssn <- base_dq_data %>%
-  mutate(
-    SSN = case_when(
-      (is.na(SSN) & !SSNDataQuality %in% c(dkr)) |
-        is.na(SSNDataQuality) | SSNDataQuality == 99 ~ "Missing",
-      SSNDataQuality %in% c(dkr) ~ "DKR"
-    ), 
-    Issue = case_when(
-      SSN == "Missing" ~ "Missing SSN",
-      SSN == "DKR" ~ "Don't Know/Refused SSN"
-    ),
-    Type = case_when(
-      Issue == "Missing SSN" ~ "Error",
-      Issue == "Don't Know/Refused SSN" ~ "Warning"
-    ),
-    Guidance = case_when(
-      Issue == "Don't Know/Refused SSN" ~ 
-        str_squish(
-          "This data element is required to be collected at Project Start.
-          Please go to the client's assessment at Project Start to enter this
-          data to HMIS. If this data was not collected, the client declined to
-          provide the information or was unable to provide it, please update the
-          SSN Quality field accordingly."
-        ),
-      Issue == "Missing SSN" ~ 
-        str_squish("This data element is required to be collected at Project
-                   Start. Please go to the client's assessment at Project Start
-                   to enter this data to HMIS. If this data was not collected
-                   because the client declined to provide the information or was
-                   unable to provide it, please update the SSN Quality field
-                   accordingly.")
-    )
-  ) %>%
-  filter(!is.na(Issue)) %>%
+dq_dob1 <- base_dq_data %>%
+  filter(is.na(DOB) & DOBDataQuality %in% c(1, 2)) %>%
+  merge_check_info(checkID = 35) %>%
   select(all_of(vars_we_want))
 
-dq_race <- base_dq_data %>%
-  mutate(
-    Issue = case_when(
-      RaceNone %in% c(dkr) ~ "Don't Know/Refused Race",
-      RaceNone == 99 |
-        AmIndAKNative + Asian + BlackAfAmerican + NativeHIPacific + White == 0
-      ~ "Missing Race"
-    ),
-    Type = case_when(
-      Issue == "Missing Race" ~ "Error",
-      Issue == "Don't Know/Refused Race" ~ "Warning"
-    ),
-    Guidance = if_else(Type == "Warning", 
-                       guidance_dkr_data, 
-                       guidance_missing_at_entry)
-  ) %>%
-  filter(!is.na(Issue)) %>%
+dq_dob2 <- base_dq_data %>%
+  filter(is.na(DOBDataQuality)) %>%
+  merge_check_info(checkID = 36) %>%
   select(all_of(vars_we_want))
 
-dq_ethnicity <- base_dq_data %>%
-  mutate(
-    Issue = case_when(
-      Ethnicity == 99 | is.na(Ethnicity) ~ "Missing Ethnicity",
-      Ethnicity %in% c(dkr) ~ "Don't Know/Refused Ethnicity"
-    ),
-    Type = case_when(
-      Issue == "Missing Ethnicity" ~ "Error",
-      Issue == "Don't Know/Refused Ethnicity" ~ "Warning"
-    ),
-    Guidance = if_else(Type == "Warning", 
-                       guidance_dkr_data, 
-                       guidance_missing_at_entry)
-  ) %>%
-  filter(!is.na(Issue)) %>%
+dq_dob3 <- base_dq_data %>%
+  filter(DOBDataQuality %in% c(dkr_dnc)) %>%
+  merge_check_info(checkID = 62) %>%
   select(all_of(vars_we_want))
 
-dq_gender <- base_dq_data %>%
-  mutate(
-    Issue = case_when(
-      GenderNone %in% c(dkr) ~ "Don't Know/Refused Gender",
-      GenderNone == 99 |
-        Female + Male + NoSingleGender + Transgender + Questioning == 0
-      ~ "Missing Gender"
-    ),
-    Type = case_when(
-      Issue == "Missing Gender" ~ "Error",
-      Issue == "Don't Know/Refused Gender" ~ "Warning"
-    ),
-    Guidance = if_else(Type == "Warning", 
-                       guidance_dkr_data, 
-                       guidance_missing_at_entry)
-  ) %>%
-  filter(!is.na(Issue)) %>%
+dq_dob4 <- base_dq_data %>%
+  filter(AgeAtEntry < 0 | AgeAtEntry > 100) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
-dq_veteran <- base_dq_data %>%
-  mutate(
-    Issue = case_when(
-      (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
-        (VeteranStatus == 99 | is.na(VeteranStatus)) ~ "Missing Veteran Status",
-      (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
-        VeteranStatus %in% c(dkr) ~ "Don't Know/Refused Veteran Status"
-    ),
-    Type = case_when(
-      Issue == "Missing Veteran Status" ~ "Error",
-      Issue %in% c(
-        "Don't Know/Refused Veteran Status"
-      ) ~ "Warning"
-    ),
-    Guidance = case_when(
-      Issue == "Missing Veteran Status" ~ guidance_missing_pii,
-      Issue == "Don't Know/Refused Veteran Status" ~ guidance_dkr_data)
+dq_ssn1 <- base_dq_data %>%
+  filter((is.na(SSN) & !SSNDataQuality %in% c(dkr)) |
+           is.na(SSNDataQuality) | SSNDataQuality == 99) %>%
+  merge_check_info(checkID = ???) %>%
+  select(all_of(vars_we_want))
+
+dq_ssn2 <- base_dq_data %>%
+  filter(SSNDataQuality %in% c(dkr)) %>%
+  merge_check_info(checkID = 69) %>%
+  select(all_of(vars_we_want))
+
+dq_race1 <- base_dq_data %>%
+  filter(RaceNone %in% c(dkr)) %>%
+  merge_check_info(checkID = 65) %>%
+  select(all_of(vars_we_want))
+
+dq_race2 <- base_dq_data %>%
+  filter(RaceNone == 99 |
+           AmIndAKNative + Asian + BlackAfAmerican + NativeHIPacific + White == 0) %>%
+  merge_check_info(checkID = 37) %>%
+  select(all_of(vars_we_want))
+
+dq_ethnicity1 <- base_dq_data %>%
+  filter(Ethnicity == 99 | is.na(Ethnicity)) %>%
+  merge_check_info(checkID = 38) %>%
+  select(all_of(vars_we_want))
+
+dq_ethnicity2 <- base_dq_data %>%
+  filter(Ethnicity %in% c(dkr)) %>%
+  merge_check_info(checkID = 64) %>%
+  select(all_of(vars_we_want))
+
+dq_gender1 <- base_dq_data %>%
+  filter(GenderNone %in% c(dkr)) %>%
+  merge_check_info(checkID = 67) %>%
+  select(all_of(vars_we_want))
+
+dq_gender2 <- base_dq_data %>%
+  filter(GenderNone == 99 |
+           Female + Male + NoSingleGender + Transgender + Questioning == 0) %>%
+  merge_check_info(checkID = 39) %>%
+  select(all_of(vars_we_want))
+
+dq_veteran1 <- base_dq_data %>%
+  filter(
+    (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
+    (VeteranStatus == 99 | is.na(VeteranStatus))
   ) %>%
-  filter(!is.na(Issue)) %>%
+  merge_check_info(checkID = 40) %>%
+  select(all_of(vars_we_want))
+
+dq_veteran2 <- base_dq_data %>%
+  filter(
+    (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
+    VeteranStatus %in% c(dkr)
+  ) %>%
+  merge_check_info(checkID = 68) %>%
   select(all_of(vars_we_want))
 
 # Missing Client Location -------------------------------------------------
@@ -298,9 +227,7 @@ missing_client_location <- base_dq_data %>%
   filter(is.na(ClientLocation) & 
          RelationshipToHoH == 1
   ) %>%
-  mutate(Type = "High Priority",
-         Issue = "Missing Client Location",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = 28) %>%
   select(all_of(vars_we_want))
 
 # Household Issues --------------------------------------------------------
@@ -314,12 +241,7 @@ hh_children_only <- base_dq_data %>%
   ungroup() %>%
   left_join(base_dq_data, by = c("HouseholdID", "maxAge" = "AgeAtEntry")) %>%
   distinct(HouseholdID, maxAge, .keep_all = TRUE) %>%
-  mutate(Issue = "Oldest Household Member Under 12",
-         Type = "High Priority",
-         Guidance = str_squish(
-           "This household has no one over the age of 12. This is unexpected and
-           it could be an error. Please confirm date(s) of birth and household composition to ensure
-           all members of the household are associated.")) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
 hh_no_hoh <- base_dq_data %>%
@@ -331,12 +253,7 @@ hh_no_hoh <- base_dq_data %>%
   filter(hasHoH == FALSE) %>%
   ungroup() %>%
   left_join(base_dq_data, by = c("PersonalID", "HouseholdID")) %>%
-
-  mutate(
-    Issue = "No Head of Household",
-    Type = "High Priority",
-    Guidance = guidance_hoh_issues
-  ) %>%
+  merge_check_info(checkID = 2) %>%
   select(all_of(vars_we_want))
 
 hh_too_many_hohs <- base_dq_data %>%
@@ -347,14 +264,12 @@ hh_too_many_hohs <- base_dq_data %>%
   ungroup() %>%
   filter(HoHsinHousehold > 1) %>%
   left_join(base_dq_data, by = c("PersonalID", "HouseholdID")) %>%
-  merge_check_info(CheckID = 3)
+  merge_check_info(checkID = 3)
 
 hh_missing_rel_to_hoh <- base_dq_data %>%
   filter(RelationshipToHoH == 99) %>%
   anti_join(hh_no_hoh["HouseholdID"], by = "HouseholdID") %>%
-  mutate(Issue = "Missing Relationship to Head of Household",
-         Type = "High Priority",
-         Guidance = guidance_hoh_issues) %>%
+  merge_check_info(checkID = 4) %>%
   select(all_of(vars_we_want))
 
 hh_issues <- rbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
@@ -382,9 +297,7 @@ missing_approx_date_homeless <- base_dq_data %>%
            LOSUnderThreshold == 1 &
            PreviousStreetESSH == 1
   ) %>%
-  mutate(Issue = "Missing Approximate Date Homeless", 
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = 29) %>%
   select(all_of(vars_we_want))
 
 missing_previous_street_ESSH <- base_dq_data %>%
@@ -401,9 +314,7 @@ missing_previous_street_ESSH <- base_dq_data %>%
            is.na(PreviousStreetESSH) &
            LOSUnderThreshold == 1
   ) %>%
-  mutate(Issue = "Missing Previously Unsheltered, ES, SH",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = 30) %>%
   select(all_of(vars_we_want))
 
 missing_residence_prior <- base_dq_data %>%
@@ -413,9 +324,7 @@ missing_residence_prior <- base_dq_data %>%
          LivingSituation) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            (is.na(LivingSituation) | LivingSituation == 99)) %>%
-  mutate(Issue = "Missing Residence Prior",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = 31) %>%
   select(all_of(vars_we_want))
 
 dkr_residence_prior <- base_dq_data %>%
@@ -425,9 +334,7 @@ dkr_residence_prior <- base_dq_data %>%
          LivingSituation) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            LivingSituation %in% c(dkr)) %>%
-  mutate(Issue = "Don't Know/Refused Residence Prior",
-         Type = "Warning",
-         Guidance = guidance_dkr_data) %>%
+  merge_check_info(checkID = 66) %>%
   select(all_of(vars_we_want))
 
 missing_LoS <- base_dq_data %>%
@@ -437,9 +344,7 @@ missing_LoS <- base_dq_data %>%
          LengthOfStay) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            (is.na(LengthOfStay) | LengthOfStay == 99)) %>%
-  mutate(Issue = "Missing Length of Stay",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = 27) %>%
   select(all_of(vars_we_want))
 
 dkr_LoS <- base_dq_data %>%
@@ -449,9 +354,7 @@ dkr_LoS <- base_dq_data %>%
          LengthOfStay) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            LengthOfStay %in% c(dkr)) %>%
-  mutate(Issue = "Don't Know/Refused Residence Prior",
-         Type = "Warning",
-         Guidance = guidance_dkr_data) %>%
+  merge_check_info(checkID = 66) %>%
   select(all_of(vars_we_want))
 
 missing_months_times_homeless <- base_dq_data %>%
@@ -476,9 +379,7 @@ missing_months_times_homeless <- base_dq_data %>%
                TimesHomelessPastThreeYears == 99
            )
   ) %>%
-  mutate(Issue = "Missing Months or Times Homeless",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = 32) %>%
   select(all_of(vars_we_want))
 
 dkr_months_times_homeless <- base_dq_data %>%
@@ -496,11 +397,8 @@ dkr_months_times_homeless <- base_dq_data %>%
                TimesHomelessPastThreeYears %in% c(dkr)
            )
   ) %>%
-  mutate(Issue = "Don't Know/Refused Months or Times Homeless",
-         Type = "Warning",
-         Guidance = guidance_dkr_data) %>%
+  merge_check_info(checkID = 63) %>%
   select(all_of(vars_we_want))
-
 
 invalid_months_times_homeless <- base_dq_data %>%
   select(
@@ -523,38 +421,22 @@ invalid_months_times_homeless <- base_dq_data %>%
     MonthEnteredProgram = floor_date(EntryDate, "month"),
     MonthDiff = interval(MonthHomelessnessBegan, MonthEnteredProgram) %/% months(1) + 1,
     MonthDiff = if_else(MonthDiff >= 13, 13, MonthDiff),
-    DateMonthsMismatch = if_else(MonthsHomelessPastThreeYears - MonthDiff != 100, 1, 0),
-    Issue = case_when(
-      MonthDiff <= 0 ~
-        "Homelessness Start Date Later Than Entry",
-      MonthsHomelessPastThreeYears < 100 ~
-        "Number of Months Homeless Can Be Determined",
-      DateMonthsMismatch == 1 ~ 
-        "Invalid Homelessness Start Date/Number of Months Homeless"),
-    Type = "Warning",
-    Guidance = case_when(
-      MonthDiff <= 0 ~
-        "This client has an Approximate Date Homelessness Started in their 
-        enrollment that is after their Project Start Date. The information 
-        at Project Start should reflect the client's situation at the point of 
-        Project Start, so this date may have been incorrectly entered.",
-      MonthsHomelessPastThreeYears < 100 ~
-        "According to this client's assessment at Project Start, they 
-        experienced a single episode of homelessness in the three years prior to 
-        their Project Start and the approximate date homelessness started is known, 
-        but there was no response entered for the total number of months they 
-        experienced homelessness prior to this enrollment. It should be possible 
-        to determine and enter the total number of months they experienced
-        homelessness based on the Approximate Date Homelessness Started and the 
-        Project Start Date.",
-      DateMonthsMismatch == 1 ~ 
-        "According to this client's assessment at Project Start, they experienced 
-        a single episode of homelessness in the three years prior to their 
-        enrollment and the approximate date homelessness started known, but the 
-        total number of months they experienced homelessness prior to this 
-        enrollment is inconsistent with the given dates. Please double-check this 
-        information for consistency and accuracy.")) %>%
-  filter(!is.na(Guidance)) %>%
+    DateMonthsMismatch = if_else(MonthsHomelessPastThreeYears - MonthDiff != 100, 1, 0)
+  )
+
+invalid_months_times_homeless1 <- invalid_months_times_homeless %>%
+  filter(MonthDiff <= 0) %>%
+  merge_check_info(checkID = 71) %>%
+  select(all_of(vars_we_want))
+
+invalid_months_times_homeless2 <- invalid_months_times_homeless %>%
+  filter(MonthsHomelessPastThreeYears < 100) %>%
+  merge_check_info(checkID = 72) %>%
+  select(all_of(vars_we_want))
+
+invalid_months_times_homeless3 <- invalid_months_times_homeless %>%
+  filter(DateMonthsMismatch == 1) %>%
+  merge_check_info(checkID = 73) %>%
   select(all_of(vars_we_want))
 
 missing_living_situation <- base_dq_data %>%
@@ -594,13 +476,7 @@ missing_living_situation <- base_dq_data %>%
                )
            )
   ) %>%
-  mutate(Issue = "Incomplete Living Situation Data", 
-         Type = "Error",
-         Guidance = str_squish("When responding to the Prior Living Situation questions in 
-         your assessment at Project Start, users must answer questions about the 
-         clients' situation prior to the \"Type of Residnce\" question that are 
-         important to help determine that client's Chronicity. Please answer these 
-         questions to the best of your knowledge.")) %>%
+  merge_check_info(checkID = 42) %>%
   select(all_of(vars_we_want))
 
 dkr_living_situation <- base_dq_data %>%
@@ -633,9 +509,7 @@ dkr_living_situation <- base_dq_data %>%
                LivingSituation %in% c(dkr)
            )
   ) %>%
-  mutate(Issue = "Don't Know/Refused Living Situation", 
-         Type = "Warning",
-         Guidance = guidance_dkr_data) %>%
+  merge_check_info(checkID = 70) %>%
   select(all_of(vars_we_want))
 
 # DisablingCondition at Entry
@@ -646,9 +520,7 @@ missing_disabilities <- base_dq_data %>%
          DisablingCondition) %>%
   filter(DisablingCondition == 99 |
            is.na(DisablingCondition)) %>%
-  mutate(Issue = "Missing Disabling Condition", 
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = 33) %>%
   select(all_of(vars_we_want))
 
 # smallDisabilities <- Disabilities %>%
@@ -762,20 +634,8 @@ missed_movein_stayers <- base_dq_data %>%
 Top2_movein <- subset(missed_movein_stayers,
                       Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE)) %>%
   select(all_of(vars_prep)) %>%
-  mutate(
-    Issue = "Possible Missed Move-In Date",
-    Type = "Warning",
-    Guidance = paste(
-      "This enrollment may be missing a Move-In Date. It is being flagged because
-      the length of time since the enrollment date is in the top", 
-      case_when(ProjectType %in% psh_project_types ~ "1%",
-                TRUE ~ "2%"),
-      "for this project type. Please be sure this household is still awaiting
-      housing in this project and if not, record the date they either moved into
-      housing or exited your project. If they are still awaiting housing, do not
-      change the data."
-    )
-  )
+  merge_check_info(checkID = 74) %>%
+  select(all_of(vars_we_want))
 
 long_stayers <- rbind(Top1_PSH,
                                 Top2_ES,
@@ -783,19 +643,7 @@ long_stayers <- rbind(Top1_PSH,
                                 Top2_TH,
                                 Top2_HP,
                                 Top2_CE) %>%
-  mutate(
-    Issue = "Possible Missed Exit Date",
-    Type = "Warning",
-    Guidance = 
-      str_squish(
-        paste("This enrollment may be missing an Exit Date. It is being flagged
-              because the length of time since the enrollment date is in the top",
-              case_when(ProjectType %in% psh_project_types ~ "1%",
-                        TRUE ~ "2%"),              
-              "for this project type. Please be sure this household is still
-              active in the project and if not, record the Project Exit Date. If
-              they are still active, do not change the data."))
-  ) %>% 
+  merge_check_info(checkID = 75) %>%
   select(all_of(vars_we_want))
 
 long_stayers <-
@@ -814,9 +662,7 @@ rm(list = ls(pattern = "Top*"),
 # Project Exit Before Start --------------
 exit_before_start <- base_dq_data %>%
   filter(ExitDate < EntryDate & !is.null(ExitDate) & !is.null(EntryDate)) %>% 
-  mutate(Issue = "Project Exit Before Start",
-         Type = "Error",
-         Guidance = guidance_exit_before_start) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
 
@@ -826,18 +672,12 @@ missing_destination <- base_dq_data %>%
   filter(!is.na(ExitDate) &
            (is.na(Destination) |
               Destination %in% c(99, 30))) %>%
-  mutate(
-    Issue = "Missing Destination",
-    Type = "Warning",
-    Guidance = guidance_dkr_data
-  ) %>%
+  merge_check_info(checkID = 76) %>%
   select(all_of(vars_we_want))
 
 dkr_destination <- base_dq_data %>%
   filter(Destination %in% c(dkr)) %>%
-  mutate(Issue = "Don't Know/Refused Destination",
-         Type = "Warning",
-         Guidance = guidance_dkr_data) %>%
+  merge_check_info(checkID = 61) %>%
   select(all_of(vars_we_want))
 
 # Missing PATH Data -------------------------------------------------------
@@ -1028,20 +868,6 @@ dkr_destination <- base_dq_data %>%
 #          issue.") %>%
 #   select(all_of(vars_we_want))
 
-# Duplicate EEs -----------------------------------------------------------
-
-duplicate_ees <-
-  get_dupes(base_dq_data, PersonalID, ProjectID, EntryDate) %>%
-  mutate(
-    Issue = "Duplicate Entries",
-    Type = "High Priority",
-    Guidance = 
-      str_squish("A client cannot have two enrollments with the same entry date
-                 into the same project. These are duplicate enrollment records.
-                 Please address this issue.")
-  ) %>%
-  select(all_of(vars_we_want))
-
 # Future Entry Exits ------------------------------------------------------
 
 # PSHs in the old days before Move In Dates would definitely have been entering
@@ -1053,30 +879,15 @@ future_ees <- base_dq_data %>%
               (ProjectType %in% psh_project_types & 
                   EntryDate >= hc_psh_started_collecting_move_in_date
               )))  %>%
-  mutate(
-    Issue = "Future Entry Date",
-    Type = "Warning",
-    Guidance = str_squish("Users should not be entering a client into a project on a 
-    date in the future. If the Project Start Date is correct, there is no action 
-    needed, but going forward, please be sure that your data entry workflow 
-    is correct according to your project type.")
-  ) %>%
+  merge_check_info(checkID = 77) %>%
   select(all_of(vars_we_want))
 
 future_exits <- base_dq_data %>%
   filter(ExitAdjust > as.Date(meta_HUDCSV_Export_Date)) %>%
-  mutate(
-    Issue = "Future Exit Date",
-    Type = "Error",
-    Guidance = str_squish("This client's Exit Date is a date in the future. Please 
-  enter the exact date the client left your program. If this client has not
-  yet exited, delete the Exit and then enter the Exit Date once the client
-  is no longer in your program.")
-  ) %>%
+  merge_check_info(checkID = 15) %>%
   select(all_of(vars_we_want))
     
 # Missing Income at Entry -------------------------------------------------
-
 missing_income_entry <- base_dq_data %>%
   left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
   select(
@@ -1091,9 +902,7 @@ missing_income_entry <- base_dq_data %>%
               is.na(AgeAtEntry)) &
            (IncomeFromAnySource == 99 |
               is.na(IncomeFromAnySource))) %>%
-  mutate(Issue = "Income Missing at Entry",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
 smallIncome <- IncomeBenefits %>%
@@ -1164,9 +973,7 @@ conflicting_income_entry <- income_subs %>%
               (IncomeFromAnySource == 0 &
                  IncomeCount > 0)
            )) %>%
-  mutate(Issue = "Conflicting Income yes/no at Entry",
-         Type = "Error",
-         Guidance = guidance_conflicting_income) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
 # Missing Income at Exit --------------------------------------------------
@@ -1185,9 +992,7 @@ missing_income_exit <- base_dq_data %>%
               is.na(AgeAtEntry)) &
            (IncomeFromAnySource == 99 |
               is.na(IncomeFromAnySource))) %>%
-  mutate(Issue = "Income Missing at Exit",
-         Type = "Error",
-         Guidance = guidance_missing_at_exit) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
 conflicting_income_exit <- income_subs %>%
@@ -1198,9 +1003,7 @@ conflicting_income_exit <- income_subs %>%
               (IncomeFromAnySource == 0 &
                  IncomeCount > 0)
            )) %>%
-  mutate(Issue = "Conflicting Income yes/no at Exit",
-         Type = "Error",
-         Guidance = guidance_conflicting_income) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
 rm(income_subs)
@@ -1209,10 +1012,7 @@ rm(income_subs)
 entry_precedes_OpStart <- base_dq_data %>%
   filter(RelationshipToHoH == 1 & 
            EntryDate < OperatingStartDate) %>%
-  mutate(Issue = "Entry Precedes Project's Operating Start",
-         Type = "Warning", # sometimes enrollments get transferred to a merged
-         # project and this is ok and should not be fixed
-         Guidance = guidance_enrl_active_outside_op) %>%
+  merge_check_info(checkID = 78) %>%
   select(all_of(vars_we_want))
 
 exit_after_OpEnd <- base_dq_data %>%
@@ -1220,9 +1020,7 @@ exit_after_OpEnd <- base_dq_data %>%
            (ExitDate > OperatingEndDate & !is.na(ExitDate)) |
            (is.na(ExitDate) & !is.na(OperatingEndDate))
   ) %>%
-  mutate(Issue = "Exit After Project's Operating End Date",
-         Type = "Error",
-         Guidance = guidance_enrl_active_outside_op) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
 # Overlaps ----------------------------------------------------------------
@@ -1355,46 +1153,32 @@ dq_overlaps2 <- overlaps %>%
 # Invalid Move-in Date ----------------------------------------------------
 
 invalid_movein_date <- base_dq_data %>%
-  filter(ProjectType %in% ph_project_types) %>%
-  mutate(
-    Issue = case_when(
-      (!is.na(MoveInDate) & MoveInDate < EntryDate) | 
-      (!is.na(MoveInDate) & MoveInDate > ExitAdjust) ~ 
-        "Invalid Move-In Date"
-    ),
-    Type = "Error",
-    Guidance = str_squish("This move-in date does not fall between the Entry Date 
-    and the Exit Date or this move-in date is after the date of the export.")) %>%
-  filter(Issue == "Invalid Move-In Date") %>%
+  filter(ProjectType %in% ph_project_types & 
+        (!is.na(MoveInDate) & MoveInDate < EntryDate) | 
+        (!is.na(MoveInDate) & MoveInDate > ExitAdjust)
+  ) %>%
+  merge_check_info(checkID = 41) %>%
   select(all_of(vars_we_want))
 
 # Missing Health Ins ------------------------------------------------------
 
-missing_health_insurance_entry <- base_dq_data %>%
+missing_health_insurance <- base_dq_data %>%
   left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
   select(all_of(vars_prep),
          AgeAtEntry,
          DataCollectionStage,
          InsuranceFromAnySource) %>%
-  filter(DataCollectionStage == 1 &
-           (InsuranceFromAnySource == 99 |
-              is.na(InsuranceFromAnySource))) %>%
-  mutate(Issue = "Health Insurance Missing at Entry",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  filter(InsuranceFromAnySource == 99 |
+              is.na(InsuranceFromAnySource))
+  
+missing_health_insurance_entry <- missing_health_insurance %>%
+  filter(DataCollectionStage == 1) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
-missing_health_insurance_exit <- base_dq_data %>%
-  left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
-  select(all_of(vars_prep),
-         DataCollectionStage,
-         InsuranceFromAnySource) %>%
-  filter(DataCollectionStage == 3 &
-           (InsuranceFromAnySource == 99 |
-              is.na(InsuranceFromAnySource))) %>%
-  mutate(Issue = "Health Insurance Missing at Exit",
-         Type = "Error",
-         Guidance = guidance_missing_at_exit) %>%
+missing_health_insurance_exit <- missing_health_insurance %>%
+  filter(DataCollectionStage == 3) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
 health_insurance_subs <- base_dq_data %>%
@@ -1420,32 +1204,20 @@ health_insurance_subs <- base_dq_data %>%
     SourceCount = Medicaid + SCHIP + VAMedicalServices + EmployerProvided +
       COBRA + PrivatePay + StateHealthIns + IndianHealthServices +
       OtherInsurance + Medicare
-  )
+  ) %>%
+  filter((InsuranceFromAnySource == 1 &
+            SourceCount == 0) |
+           (InsuranceFromAnySource == 0 &
+              SourceCount > 0))
 
 conflicting_health_insurance_entry <- health_insurance_subs %>%
-  filter(DataCollectionStage == 1 &
-           ((InsuranceFromAnySource == 1 &
-               SourceCount == 0) |
-              (InsuranceFromAnySource == 0 &
-                 SourceCount > 0)
-           )) %>%
-  mutate(Issue = "Conflicting Health Insurance yes/no at Entry",
-         Type = "Error",
-         Guidance = guidance_conflicting_hi) %>%
+  filter(DataCollectionStage == 1) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
 conflicting_health_insurance_exit <- health_insurance_subs %>%
-  filter(DataCollectionStage == 3 &
-           ((InsuranceFromAnySource == 1 &
-               SourceCount == 0) |
-              (InsuranceFromAnySource == 0 &
-                 SourceCount > 0)
-           )) %>%
-  mutate(
-    Issue = "Conflicting Health Insurance yes/no at Exit",
-    Type = "Error",
-    Guidance = guidance_conflicting_hi
-  ) %>%
+  filter(DataCollectionStage == 3) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
 rm(health_insurance_subs)
@@ -1508,7 +1280,7 @@ ncb_subs <- base_dq_data %>%
          BenefitCount) %>%
   unique()
 
-missing_ncbs_entry <- base_dq_data %>%
+ncbs_issues <- base_dq_data %>%
   left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
   select(AgeAtEntry,
          all_of(vars_prep),
@@ -1517,32 +1289,23 @@ missing_ncbs_entry <- base_dq_data %>%
   filter(
     DataCollectionStage == 1 &
       (AgeAtEntry > 17 |
-         is.na(AgeAtEntry)) &
-      (BenefitsFromAnySource == 99 |
-         is.na(BenefitsFromAnySource))
+         is.na(AgeAtEntry))
+  )
+
+missing_ncbs_entry <- ncbs_issues %>%
+  filter(BenefitsFromAnySource == 99 |
+         is.na(BenefitsFromAnySource)
   ) %>%
-  mutate(Issue = "Non-cash Benefits Missing at Entry",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
 
-conflicting_ncbs_entry <- base_dq_data %>%
-  left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
-  select(AgeAtEntry,
-         all_of(vars_prep),
-         DataCollectionStage,
-         BenefitsFromAnySource,
-         BenefitCount) %>%
-  filter(DataCollectionStage == 1 &
-           (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
-           ((BenefitsFromAnySource == 1 &
+conflicting_ncbs_entry <- ncbs_issues %>%
+  filter((BenefitsFromAnySource == 1 &
                BenefitCount == 0) |
               (BenefitsFromAnySource == 0 &
                  BenefitCount > 0)
-           )) %>%
-  mutate(Issue = "Conflicting Non-cash Benefits yes/no at Entry",
-         Type = "Error",
-         Guidance = guidance_conflicting_ncbs) %>%
+           ) %>%
+  merge_check_info(checkID = ???) %>%
   select(all_of(vars_we_want))
     
 # SSVF --------------------------------------------------------------------
@@ -1607,25 +1370,13 @@ ssvf_base_dq_data <- base_dq_data %>%
 
 veteran_missing_year_entered <- ssvf_base_dq_data %>%
   filter(VeteranStatus == 1) %>%
-  mutate(
-    Issue = case_when(
-      is.na(YearEnteredService) ~ "Missing Year Entered Service",
-      YearEnteredService > year(today()) ~ "Incorrect Year Entered Service"),
-    Type = "Error",
-    Guidance = guidance_missing_at_entry
-  ) %>%
+  merge_check_info(checkID = 16) %>%
   filter(!is.na(Issue)) %>%
   select(all_of(vars_we_want))
 
 veteran_missing_year_separated <- ssvf_base_dq_data %>%
   filter(VeteranStatus == 1) %>%
-  mutate(
-    Issue = case_when(
-      is.na(YearSeparated) ~ "Missing Year Separated",
-      YearSeparated > year(today()) ~ "Incorrect Year Separated"),
-    Type = "Error",
-    Guidance = guidance_missing_at_entry
-  ) %>%
+  merge_check_info(checkID = 18) %>%
   filter(!is.na(Issue)) %>%
   select(all_of(vars_we_want))
 
@@ -1644,64 +1395,55 @@ veteran_missing_wars <- ssvf_base_dq_data %>%
           OtherTheater == 99
       )
   ) %>%
-  mutate(Issue = "Missing War(s)",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
-  filter(!is.na(Issue)) %>%
+  merge_check_info(checkID = 20) %>%
   select(all_of(vars_we_want))
 
 veteran_missing_branch <- ssvf_base_dq_data %>%
-  filter(VeteranStatus == 1 &
-           is.na(MilitaryBranch)) %>%
-  mutate(Issue = "Missing Military Branch",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
-  filter(!is.na(Issue)) %>%
+  filter(VeteranStatus == 1 & is.na(MilitaryBranch)) %>%
+  merge_check_info(checkID = 21) %>%
   select(all_of(vars_we_want))
 
 veteran_missing_discharge_status <- ssvf_base_dq_data %>%
   filter(VeteranStatus == 1 & is.na(DischargeStatus)) %>%
-  mutate(Issue = "Missing Discharge Status",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
-  filter(!is.na(Issue)) %>%
+  merge_check_info(checkID = 22) %>%
   select(all_of(vars_we_want))
 
 dkr_client_veteran_info <- ssvf_base_dq_data %>%
-  filter(VeteranStatus == 1) %>%
-  mutate(
-    Issue = case_when(
-      WorldWarII %in% c(dkr) |
+  filter(VeteranStatus == 1)
+
+dkr_client_veteran_info1 <- dkr_client_veteran_info %>%
+  filter(WorldWarII %in% c(dkr) |
         KoreanWar %in% c(dkr) |
         VietnamWar %in% c(dkr) |
         DesertStorm  %in% c(dkr) |
         AfghanistanOEF %in% c(dkr) |
         IraqOIF %in% c(dkr) |
         IraqOND %in% c(dkr) |
-        OtherTheater  %in% c(dkr)  ~ "Don't Know/Refused War(s)",
-      MilitaryBranch %in% c(dkr) ~ "Don't Know/Refused Military Branch",
-      DischargeStatus %in% c(dkr) ~ "Don't Know/Refused Discharge Status"
-    ),
-    Type = "Warning",
-    Guidance = guidance_dkr_data
+        OtherTheater  %in% c(dkr)
   ) %>%
-  filter(!is.na(Issue)) %>%
+  merge_check_info(checkID = 59) %>%
+  select(all_of(vars_we_want))
+
+dkr_client_veteran_info2 <- dkr_client_veteran_info %>%
+  filter(MilitaryBranch %in% c(dkr)) %>%
+  merge_check_info(checkID = 60) %>%
+  select(all_of(vars_we_want))
+
+dkr_client_veteran_info3 <- dkr_client_veteran_info %>%
+  filter(DischargeStatus %in% c(dkr)) %>%
+  merge_check_info(checkID = 58) %>%
   select(all_of(vars_we_want))
 
 ssvf_missing_percent_ami <- ssvf_base_dq_data %>%
   filter(RelationshipToHoH == 1 &
            is.na(PercentAMI)) %>%
-  mutate(Issue = "Missing Percent AMI",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = 23) %>%
   select(all_of(vars_we_want))
 
 ssvf_missing_vamc <- ssvf_base_dq_data %>%
   filter(RelationshipToHoH == 1 &
            is.na(VAMCStation)) %>%
-  mutate(Issue = "Missing VAMC Station Number",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = 24) %>%
   select(all_of(vars_we_want))
 
 ssvf_missing_address <- ssvf_base_dq_data %>%
@@ -1712,9 +1454,7 @@ ssvf_missing_address <- ssvf_base_dq_data %>%
                is.na(LastPermanentState) |
                is.na(LastPermanentZIP)
            )) %>%
-  mutate(Issue = "Missing Some or All of Last Permanent Address",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = 25) %>%
   select(all_of(vars_we_want))
 
 ssvf_hp_screen <- ssvf_base_dq_data %>%
@@ -1722,9 +1462,7 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
            RelationshipToHoH == 1 &
            (is.na(HPScreeningScore) |
               is.na(ThresholdScore))) %>%
-  mutate(Issue = "Missing HP Screening or Threshold Score",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
+  merge_check_info(checkID = 26) %>%
   select(all_of(vars_we_want))
 
     # All together now --------------------------------------------------------
@@ -1734,19 +1472,30 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
       conflicting_income_entry,
       conflicting_income_exit,
       conflicting_ncbs_entry,
-      dkr_client_veteran_info,
+      dkr_client_veteran_info1,
+      dkr_client_veteran_info2,
+      dkr_client_veteran_info3,
       dkr_destination,
       dkr_living_situation,
       dkr_LoS,
       dkr_months_times_homeless,
       dkr_residence_prior,
-      dq_dob,
-      dq_ethnicity,
-      dq_gender,
-      dq_name,
-      dq_race,
-      dq_ssn,
-      dq_veteran,
+      dq_dob1,
+      dq_dob2,
+      dq_dob3,
+      dq_dob4,
+      dq_ethnicity1,
+      dq_ethnicity2,
+      dq_gender1,
+      dq_gender2,
+      dq_name1,
+      dq_name2,
+      dq_race1,
+      dq_race2,
+      dq_ssn1,
+      dq_ssn2,
+      dq_veteran1,
+      dq_veteran2,
       duplicate_ees,
       entry_precedes_OpStart,
       exit_after_OpEnd,
@@ -1755,7 +1504,9 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
       future_ees,
       future_exits,
       hh_issues,
-      invalid_months_times_homeless,
+      invalid_months_times_homeless1,
+      invalid_months_times_homeless2,
+      invalid_months_times_homeless3,
       invalid_movein_date,
       missing_approx_date_homeless,
       missing_client_location,

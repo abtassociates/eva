@@ -145,6 +145,7 @@ check11 <- c(
   ""
 )
 
+# AS: I don't think all of these are "High Priority". See columns.csv
 check12 <- c(
   "file structure",
   "High Priority",
@@ -778,6 +779,7 @@ check71 <- c(
   ""
 )
 
+# AS: Is this text here right? "Can" vs. "Can't"?
 check72 <- c(
   "dq",
   "Warning",
@@ -813,6 +815,8 @@ check73 <- c(
   ""
 )
 
+# AS: Guidance used to be 1% when projecttpye in psh_project_types, otherwise 2%. 
+# Are we okay with this being statically "1-2%"?
 check74 <- c(
   "dq",
   "Warning",
