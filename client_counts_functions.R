@@ -14,7 +14,7 @@ clientCountDetailCols <- c("PersonalID",
 client_count_data_df <- reactive({
   ReportStart <- input$dateRangeCount[1]
   ReportEnd <- input$dateRangeCount[2]
-  currDate = if_else(getOption("shiny.testmode"), ymd("20230421"), today())
+  currDate = if_else(isTRUE(getOption("shiny.testmode")), ymd("20230421"), today())
 
   validation %>%
     mutate(
