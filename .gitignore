@@ -4,7 +4,6 @@
 .Ruserdata
 data
 rsconnect
-.Rprofile
 comparisons
 *.jpg
 .DS_Store
