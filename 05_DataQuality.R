@@ -710,15 +710,19 @@ missing_disabilities <- base_dq_data %>%
 
 # Long Stayers ------------------------------------------------------------
 
-percentile_project_types <- c(1, 2, 3, 8, 9, 10, 12, 13, 14)
-
 top_percents_long_stayers <- base_dq_data %>%
   select(all_of(vars_prep)) %>%
-  filter(ProjectType %in% c(percentile_project_types) &
-           is.na(ExitDate) &
-           (!ProjectType %in% c(ph_project_types) |
-              (ProjectType %in% c(ph_project_types) &
-                 !is.na(MoveInDateAdjust)))) %>%
+  filter(
+    ProjectType %in% c(long_stayer_percentile_project_types) &
+      is.na(ExitDate) &
+      (
+        !ProjectType %in% c(ph_project_types) |
+          (
+            ProjectType %in% c(ph_project_types) &
+              !is.na(MoveInDateAdjust)
+          )
+      )
+  ) %>%
   mutate(Days = if_else(
     ProjectType %in% c(ph_project_types),
     as.numeric(difftime(
@@ -733,45 +737,45 @@ top_percents_long_stayers <- base_dq_data %>%
   ))) %>%
   ungroup()
 
-th_stayers <- base_dq_data %>%
-  select(all_of(vars_prep)) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 2) %>%
-  mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate)))
-# using Export Date here to reflect the date the export was run on
-
-Top2_TH <- subset(th_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-
-rrh_stayers <- base_dq_data %>%
-  select(all_of(vars_prep)) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 13) %>%
-  mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
-
-Top2_RRH <- subset(rrh_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-
-es_stayers <- base_dq_data %>%
-  select(all_of(vars_prep)) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 1) %>%
-  mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
-
-Top2_ES <- subset(es_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-
-psh_stayers <- base_dq_data %>%
-  select(all_of(vars_prep)) %>%
-  filter(is.na(ExitDate) & ProjectType %in% c(psh_project_types)) %>%
-  mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
-
-Top1_PSH <- subset(psh_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
-
-hp_stayers <- base_dq_data %>%
-  select(all_of(vars_prep)) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 12) %>%
-  mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
-
-Top2_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+# th_stayers <- base_dq_data %>%
+#   select(all_of(vars_prep)) %>%
+#   filter(is.na(ExitDate) &
+#            ProjectType == 2) %>%
+#   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate)))
+# # using Export Date here to reflect the date the export was run on
+# 
+# Top2_TH <- subset(th_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+# 
+# rrh_stayers <- base_dq_data %>%
+#   select(all_of(vars_prep)) %>%
+#   filter(is.na(ExitDate) &
+#            ProjectType == 13) %>%
+#   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
+# 
+# Top2_RRH <- subset(rrh_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+# 
+# es_stayers <- base_dq_data %>%
+#   select(all_of(vars_prep)) %>%
+#   filter(is.na(ExitDate) &
+#            ProjectType == 1) %>%
+#   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
+# 
+# Top2_ES <- subset(es_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+# 
+# psh_stayers <- base_dq_data %>%
+#   select(all_of(vars_prep)) %>%
+#   filter(is.na(ExitDate) & ProjectType %in% c(psh_project_types)) %>%
+#   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
+# 
+# Top1_PSH <- subset(psh_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
+# 
+# hp_stayers <- base_dq_data %>%
+#   select(all_of(vars_prep)) %>%
+#   filter(is.na(ExitDate) &
+#            ProjectType == 12) %>%
+#   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
+# 
+# Top2_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 # 
 # ce_stayers <- base_dq_data %>%
 #   select(all_of(vars_prep)) %>%
@@ -780,6 +784,39 @@ Top2_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 #   mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))) 
 # 
 # Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+
+
+long_stayers <- top_percents_long_stayers %>%
+  mutate(
+    Issue = "Long Stayers",
+    Type = "Warning",
+    Guidance = 
+      str_squish(
+        paste("...#FIX It is being flagged
+              because the length of time since the enrollment date is in the top",
+              case_when(ProjectType %in% psh_project_types ~ "1%",
+                        TRUE ~ "2%"),              
+              "for this project type. Please be sure this household is still
+              active in the project and if not, record the Project Exit Date. If
+              they are still active, do not change the data."))
+  ) %>% 
+  select(all_of(vars_we_want))
+
+# long_stayers <-
+#   rbind(
+#     long_stayers,
+#     Top2_movein
+#   )
+# 
+# rm(list = ls(pattern = "Top*"),
+#    es_stayers,
+#    th_stayers,
+#    psh_stayers,
+#    rrh_stayers,
+#    hp_stayers)
+
+
+# Possible Missing HMID ---------------------------------------------------
 
 missed_movein_stayers <- base_dq_data %>%
   select(all_of(vars_prep)) %>%
@@ -807,40 +844,6 @@ Top2_movein <- subset(missed_movein_stayers,
       change the data."
     )
   )
-
-long_stayers <- rbind(Top1_PSH,
-                                Top2_ES,
-                                Top2_RRH,
-                                Top2_TH,
-                                # Top2_CE,
-                                Top2_HP) %>%
-  mutate(
-    Issue = "Possible Missed Exit Date",
-    Type = "Warning",
-    Guidance = 
-      str_squish(
-        paste("This enrollment may be missing an Exit Date. It is being flagged
-              because the length of time since the enrollment date is in the top",
-              case_when(ProjectType %in% psh_project_types ~ "1%",
-                        TRUE ~ "2%"),              
-              "for this project type. Please be sure this household is still
-              active in the project and if not, record the Project Exit Date. If
-              they are still active, do not change the data."))
-  ) %>% 
-  select(all_of(vars_we_want))
-
-long_stayers <-
-  rbind(
-    long_stayers,
-    Top2_movein
-  )
-
-rm(list = ls(pattern = "Top*"),
-   es_stayers,
-   th_stayers,
-   psh_stayers,
-   rrh_stayers,
-   hp_stayers)
 
 # Project Exit Before Start --------------
 exit_before_start <- base_dq_data %>%
