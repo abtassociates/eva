@@ -737,55 +737,6 @@ top_percents_long_stayers <- base_dq_data %>%
   ))) %>%
   ungroup()
 
-# th_stayers <- base_dq_data %>%
-#   select(all_of(vars_prep)) %>%
-#   filter(is.na(ExitDate) &
-#            ProjectType == 2) %>%
-#   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate)))
-# # using Export Date here to reflect the date the export was run on
-# 
-# Top2_TH <- subset(th_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-# 
-# rrh_stayers <- base_dq_data %>%
-#   select(all_of(vars_prep)) %>%
-#   filter(is.na(ExitDate) &
-#            ProjectType == 13) %>%
-#   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
-# 
-# Top2_RRH <- subset(rrh_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-# 
-# es_stayers <- base_dq_data %>%
-#   select(all_of(vars_prep)) %>%
-#   filter(is.na(ExitDate) &
-#            ProjectType == 1) %>%
-#   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
-# 
-# Top2_ES <- subset(es_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-# 
-# psh_stayers <- base_dq_data %>%
-#   select(all_of(vars_prep)) %>%
-#   filter(is.na(ExitDate) & ProjectType %in% c(psh_project_types)) %>%
-#   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
-# 
-# Top1_PSH <- subset(psh_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
-# 
-# hp_stayers <- base_dq_data %>%
-#   select(all_of(vars_prep)) %>%
-#   filter(is.na(ExitDate) &
-#            ProjectType == 12) %>%
-#   mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
-# 
-# Top2_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-# 
-# ce_stayers <- base_dq_data %>%
-#   select(all_of(vars_prep)) %>%
-#   filter(is.na(ExitDate) &
-#            ProjectType == 14) %>%
-#   mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))) 
-# 
-# Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-
-
 long_stayers <- top_percents_long_stayers %>%
   mutate(
     Issue = "Long Stayers",
@@ -802,19 +753,7 @@ long_stayers <- top_percents_long_stayers %>%
   ) %>% 
   select(all_of(vars_we_want))
 
-# long_stayers <-
-#   rbind(
-#     long_stayers,
-#     Top2_movein
-#   )
-# 
-# rm(list = ls(pattern = "Top*"),
-#    es_stayers,
-#    th_stayers,
-#    psh_stayers,
-#    rrh_stayers,
-#    hp_stayers)
-
+# long stayers flags that come from inputs come from  calculate_long_stayers()
 
 # Possible Missing HMID ---------------------------------------------------
 
