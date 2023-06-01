@@ -1,7 +1,7 @@
-###############################
+
 #   PURPOSE: This script contains functions used by the app
 #   for generating the DQ plots and DQ exports
-###############################
+
 dq_main_reactive <- reactive({
   req(valid_file()== 1)
   # browser()
