@@ -75,6 +75,8 @@ project_types_w_beds <- c(1, 2, 3, 8, 9, 10, 13)
 
 project_types_w_cls <- c(0, 4, 14)
 
+long_stayer_percentile_project_types <- c(1, 2, 3, 8, 9, 10, 12, 13, 14)
+
 # Funding Source Groupings ------------------------------------------------
 
 ssvf_fund_sources <- 33
