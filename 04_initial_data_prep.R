@@ -102,7 +102,7 @@ Enrollment <- Enrollment %>%
                                  ymd(HHMoveIn) <= ExitAdjust,
                                if_else(EntryDate <= ymd(HHMoveIn),
                                        HHMoveIn, EntryDate),
-                               NA_real_), 
+                               NA_Date_), 
     EntryAdjust = case_when(
       !ProjectType %in% ph_project_types ~ EntryDate,
       ProjectType %in% ph_project_types &
