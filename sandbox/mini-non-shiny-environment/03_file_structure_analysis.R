@@ -20,29 +20,26 @@ high_priority_columns <- cols_and_data_types %>%
 df_date_types <-
   problems %>%
   filter(str_detect(expected, "date") == TRUE) %>%
-  mutate(File = str_remove(basename(file), ".csv")) %>%
+  mutate(
+    File = str_remove(basename(file), ".csv")
+  ) %>%
   left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
   mutate(
     Issue = "Incorrect Date Format",
-    Type = if_else(Column %in% c(high_priority_columns),
+    Type = if_else(Column %in% c(high_priority_columns), 
                    "High Priority", "Error"),
-    Guidance =
-      str_squish(
-        "Dates in the HMIS CSV Export should be in yyyy-mm-dd or
+    Guidance = 
+      str_squish("Dates in the HMIS CSV Export should be in yyyy-mm-dd or
       yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format
       Specifications. Please check the Specifications for the file and column
       identified in the Detail and ensure the correct date format is used in the
-      export."
-      ),
-    Detail = str_squish(
-      paste(
-        "Please check that the",
-        Column,
-        "column in the",
-        File,
-        "file has the correct date format."
-      )
-    )
+      export."),
+    Detail = str_squish(paste(
+      "Please check that the",
+      Column,
+      "column in the",
+      File,
+      "file has the correct date format."))
   ) %>%
   select(all_of(issue_display_cols)) %>% unique()
 
@@ -218,21 +215,17 @@ export_id_client <- Client %>%
   mutate(
     Issue = "ExportID mismatch",
     Type = "Error",
-    Guidance =
-      str_squish(
-        "Per the HMIS CSV Formatting Specifications, the ExportID in
+    Guidance = 
+      str_squish("Per the HMIS CSV Formatting Specifications, the ExportID in
                  your Export and Client files must match. There should be one
                  unique ExportID that will be used to identify all CSV files
-                 genereated as part of the same export process."
-      ),
-    Detail = str_squish(
-      paste(
-        "The Export file says the ExportID is",
-        export_id_from_export,
-        "but in your Client file, it is",
-        ExportID
-      )
-    )
+                 genereated as part of the same export process."),
+    Detail = str_squish(paste(
+      "The Export file says the ExportID is",
+      export_id_from_export,
+      "but in your Client file, it is",
+      ExportID
+    ))
   ) %>%
   select(all_of(issue_display_cols)) %>%
   unique()
