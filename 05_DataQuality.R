@@ -750,7 +750,7 @@ long_stayers <- top_percents_long_stayers %>%
               "for this project type. If this household has left the project,
               enter the Project Exit Date. If they are still active, do not
               change the data, but verify that your Coordinated Entry process
-              is actively working toward resolution.",
+              is actively working toward a permanent housing destination.",
               ProjectType == 12 ~
               "for this project type. If this household has stopped receiving
               services, enter the Project Exit Date. If they are still active,

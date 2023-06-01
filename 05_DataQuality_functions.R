@@ -200,12 +200,16 @@ calculate_long_stayers <- function(too_many_days, projecttype){
           as.Date(meta_HUDCSV_Export_Date), EntryDate, 
           units = "days"
         )),
-      Issue = "Days Enrollment Active Exceeds Local Settings",
+      Issue = "Long Stayers",
       Type = "Warning",
-      Guidance = str_squish("This enrollment has been active for longer than the
-                            days set for this Project Type in your Long Stayers
-                            settings on the Edit Local Settings tab. Please be
-                            sure that any project exits are reflected in HMIS.")
+      Guidance = str_squish("The number of days between Entry and the end of your
+                            CSV export exceeds the number of days in the Long
+                            Stayers settings for this project type. If this
+                            household has left the project, enter the Project
+                            Exit Date. If they are still active, do not change
+                            the data, but verify that your Coordinated Entry
+                            process is actively connecting this household to
+                            a permanent housing destination.")
     ) %>%
     filter(too_many_days < Days) %>% 
     select(all_of(vars_we_want))
