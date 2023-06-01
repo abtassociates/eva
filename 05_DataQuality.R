@@ -743,13 +743,30 @@ long_stayers <- top_percents_long_stayers %>%
     Type = "Warning",
     Guidance = 
       str_squish(
-        paste("...#FIX It is being flagged
-              because the length of time since the enrollment date is in the top",
-              case_when(ProjectType %in% psh_project_types ~ "1%",
-                        TRUE ~ "2%"),              
-              "for this project type. Please be sure this household is still
-              active in the project and if not, record the Project Exit Date. If
-              they are still active, do not change the data."))
+        paste("The number of days this enrollment has been active is in the top",
+              if_else(ProjectType %in% c(psh_project_types), "1%", "2%"),              
+              case_when(
+                ProjectType %in% c(lh_residential_project_types) ~
+              "for this project type. If this household has left the project,
+              enter the Project Exit Date. If they are still active, do not
+              change the data, but verify that your Coordinated Entry process
+              is actively working toward resolution.",
+              ProjectType == 12 ~
+              "for this project type. If this household has stopped receiving
+              services, enter the Project Exit Date. If they are still active,
+              do not change the data, but verify that the household still needs
+              the assistance.",
+              ProjectType $in$ c(psh_project_types) ~
+                "for this project type. If this household has left the project,
+              enter the Project Exit Date. If they are still active, consider
+              assessing the household for Move On Assistance funds or other ways
+              to a permanent housing exit. If the household needs to remain
+              active in the project, leave everything as is.",
+              ProjectType == 13 ~
+                "for this project type. If this household has left the project,
+              enter the Project Exit Date. If they are still active, verify
+              that they are on track for a permanent exit or that they are
+              receiving Shallow Subsidy services.")))
   ) %>% 
   select(all_of(vars_we_want))
 
