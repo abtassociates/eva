@@ -710,6 +710,29 @@ missing_disabilities <- base_dq_data %>%
 
 # Long Stayers ------------------------------------------------------------
 
+percentile_project_types <- c(1, 2, 3, 8, 9, 10, 12, 13, 14)
+
+top_percents_long_stayers <- base_dq_data %>%
+  select(all_of(vars_prep)) %>%
+  filter(ProjectType %in% c(percentile_project_types) &
+           is.na(ExitDate) &
+           (!ProjectType %in% c(ph_project_types) |
+              (ProjectType %in% c(ph_project_types) &
+                 !is.na(MoveInDateAdjust)))) %>%
+  mutate(Days = if_else(
+    ProjectType %in% c(ph_project_types),
+    as.numeric(difftime(
+      meta_HUDCSV_Export_End, MoveInDateAdjust
+    )),
+    as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))
+  )) %>%
+  group_by(ProjectType) %>%
+  arrange(desc(Days)) %>%
+  filter(Days > quantile(Days, if_else(
+    ProjectType %in% c(1, 2, 8, 12, 13, 14), .98, .99
+  ))) %>%
+  ungroup()
+
 th_stayers <- base_dq_data %>%
   select(all_of(vars_prep)) %>%
   filter(is.na(ExitDate) &
