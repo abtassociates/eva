@@ -24,3 +24,4 @@ sandbox/**/*.csv
 *_.new.png
 metadata.csv
 sessiondata.csv
+tests/shinytest/*-current/
