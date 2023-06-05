@@ -159,13 +159,13 @@ dq_dob3 <- base_dq_data %>%
 
 dq_dob4 <- base_dq_data %>%
   filter(AgeAtEntry < 0 | AgeAtEntry > 100) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 86) %>%
   select(all_of(vars_we_want))
 
 dq_ssn1 <- base_dq_data %>%
   filter((is.na(SSN) & !SSNDataQuality %in% c(dkr)) |
            is.na(SSNDataQuality) | SSNDataQuality == 99) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 87) %>%
   select(all_of(vars_we_want))
 
 dq_ssn2 <- base_dq_data %>%
@@ -241,7 +241,7 @@ hh_children_only <- base_dq_data %>%
   ungroup() %>%
   left_join(base_dq_data, by = c("HouseholdID", "maxAge" = "AgeAtEntry")) %>%
   distinct(HouseholdID, maxAge, .keep_all = TRUE) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 88) %>%
   select(all_of(vars_we_want))
 
 hh_no_hoh <- base_dq_data %>%
@@ -662,7 +662,7 @@ rm(list = ls(pattern = "Top*"),
 # Project Exit Before Start --------------
 exit_before_start <- base_dq_data %>%
   filter(ExitDate < EntryDate & !is.null(ExitDate) & !is.null(EntryDate)) %>% 
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 101) %>%
   select(all_of(vars_we_want))
 
 
@@ -902,7 +902,7 @@ missing_income_entry <- base_dq_data %>%
               is.na(AgeAtEntry)) &
            (IncomeFromAnySource == 99 |
               is.na(IncomeFromAnySource))) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 89) %>%
   select(all_of(vars_we_want))
 
 smallIncome <- IncomeBenefits %>%
@@ -973,7 +973,7 @@ conflicting_income_entry <- income_subs %>%
               (IncomeFromAnySource == 0 &
                  IncomeCount > 0)
            )) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 90) %>%
   select(all_of(vars_we_want))
 
 # Missing Income at Exit --------------------------------------------------
@@ -992,7 +992,7 @@ missing_income_exit <- base_dq_data %>%
               is.na(AgeAtEntry)) &
            (IncomeFromAnySource == 99 |
               is.na(IncomeFromAnySource))) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 91) %>%
   select(all_of(vars_we_want))
 
 conflicting_income_exit <- income_subs %>%
@@ -1003,7 +1003,7 @@ conflicting_income_exit <- income_subs %>%
               (IncomeFromAnySource == 0 &
                  IncomeCount > 0)
            )) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 92) %>%
   select(all_of(vars_we_want))
 
 rm(income_subs)
@@ -1020,7 +1020,7 @@ exit_after_OpEnd <- base_dq_data %>%
            (ExitDate > OperatingEndDate & !is.na(ExitDate)) |
            (is.na(ExitDate) & !is.na(OperatingEndDate))
   ) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 93) %>%
   select(all_of(vars_we_want))
 
 # Overlaps ----------------------------------------------------------------
@@ -1173,12 +1173,12 @@ missing_health_insurance <- base_dq_data %>%
   
 missing_health_insurance_entry <- missing_health_insurance %>%
   filter(DataCollectionStage == 1) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 94) %>%
   select(all_of(vars_we_want))
 
 missing_health_insurance_exit <- missing_health_insurance %>%
   filter(DataCollectionStage == 3) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 95) %>%
   select(all_of(vars_we_want))
 
 health_insurance_subs <- base_dq_data %>%
@@ -1212,12 +1212,12 @@ health_insurance_subs <- base_dq_data %>%
 
 conflicting_health_insurance_entry <- health_insurance_subs %>%
   filter(DataCollectionStage == 1) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 96) %>%
   select(all_of(vars_we_want))
 
 conflicting_health_insurance_exit <- health_insurance_subs %>%
   filter(DataCollectionStage == 3) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 97) %>%
   select(all_of(vars_we_want))
 
 rm(health_insurance_subs)
@@ -1296,7 +1296,7 @@ missing_ncbs_entry <- ncbs_issues %>%
   filter(BenefitsFromAnySource == 99 |
          is.na(BenefitsFromAnySource)
   ) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 98) %>%
   select(all_of(vars_we_want))
 
 conflicting_ncbs_entry <- ncbs_issues %>%
@@ -1305,7 +1305,7 @@ conflicting_ncbs_entry <- ncbs_issues %>%
               (BenefitsFromAnySource == 0 &
                  BenefitCount > 0)
            ) %>%
-  merge_check_info(checkID = ???) %>%
+  merge_check_info(checkID = 99) %>%
   select(all_of(vars_we_want))
     
 # SSVF --------------------------------------------------------------------

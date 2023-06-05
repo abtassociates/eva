@@ -220,7 +220,7 @@ res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 
 zero_utilization <- Project %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
-  merge_check_info(checkID = 86) %>%
+  merge_check_info(checkID = 85) %>%
   mutate(
     Detail = str_squish("This project has active inventory beds in the report
                         period but did not serve any clients during that time.")

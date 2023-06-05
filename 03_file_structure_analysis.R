@@ -300,15 +300,12 @@ duplicate_client_id <- Client %>%
   unique()
 
 # Integrity Enrollment ----------------------------------------------------
-# AS: Missing in app_checks.R
 if(nrow(Enrollment) == 0) {
   
   no_enrollment_records <- data.frame(
-    Issue = "No enrollment records",
-    Type = "High Priority",
-    Guidance = guidance_no_enrollments,
     Detail = "There are 0 enrollment records in the Enrollment.csv file"
-  )
+  ) %>%
+  merge_check_info(checkID = 103)
 } else {
   no_enrollment_records <- data.frame(
     Issue = character(),
@@ -416,7 +413,7 @@ duplicate_household_id <- Enrollment %>%
   distinct(HouseholdID, ProjectID) %>%
   filter(!is.na(HouseholdID)) %>%
   get_dupes(HouseholdID) %>%
-  merge_check_info(checkID = 85) %>%
+  merge_check_info(checkID = 100) %>%
   mutate(
     Detail = paste("HouseholdID", 
                    HouseholdID,
