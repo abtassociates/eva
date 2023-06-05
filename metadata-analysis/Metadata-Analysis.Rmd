@@ -14,14 +14,6 @@ library(lubridate)
 library(patchwork)
 library(gt)
 
-# Ignore this but don't remove it :)---------------------------------------
-
-# this is irrelevant to the metadata analysis but this script needs to be run
-# every week or so, so by putting it here, it is updating the EvaChecks.xlsx
-# document on GitHub in case there were any edits to checks!
-
-source(here("app_checks.R"))
-
 # Instructions ------------------------------------------------------------
 
 # whenever DDS sends the metadata zip file, copy it to anywhere in the ACE 
