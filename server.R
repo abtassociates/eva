@@ -5,7 +5,6 @@ function(input, output, session) {
   # Log the event to a database or file
   source("hardcodes.R", local = TRUE) # hard-coded variables and data frames used throughout the app
   source("helper_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-  source("guidance.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
   source("changelog.R", local = TRUE) # changelog entries
   
   # log that the session has started
