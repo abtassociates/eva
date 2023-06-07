@@ -120,8 +120,6 @@ function(input, output, session) {
     
 # File Structure Analysis Summary -----------------------------------------
     
-# File Structure Analysis Summary -----------------------------------------
-    
     output$fileStructureAnalysis <- DT::renderDataTable(
       {
         req(initially_valid_import)
