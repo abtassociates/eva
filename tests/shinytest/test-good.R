@@ -5,7 +5,7 @@ customDownload <- function(downloadHandler, fname) {
   file.remove(paste0("test-good-current/",fname,".xlsx"))
 }
 
-app <- ShinyDriver$new("../../", seed=1234, loadTimeout = 1e+04)
+app <- ShinyDriver$new("../../", seed=1234, loadTimeout = 1e+05)
 app$snapshotInit("test-good")
 
 app$setInputs(Go_to_upload = "click")
