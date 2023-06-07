@@ -31,6 +31,11 @@ jobs:
         with:
           r-version: '4.2'
 
+      - name: Install needed ubuntu packages to allow textshaping -> ragg -> tidyverse 2.0.0 to run
+        shell: bash
+        run: |
+          sudo apt install libharfbuzz-dev libfribidi-dev 
+          
       - uses: r-lib/actions/setup-renv@v2        
     
       - name: Find PhantomJS path
