@@ -19,7 +19,6 @@ Suggests:
     shinyWidgets
     lubridate
     scales
-    plotly
     DT
     writexl
     viridis
