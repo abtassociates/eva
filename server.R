@@ -130,6 +130,9 @@ function(input, output, session) {
           ungroup() %>%
           arrange(Type, desc(Count))
         
+        
+        exportTestValues(fileStructureAnalysis = a)
+        
         datatable(
           a,
           rownames = FALSE,
@@ -158,6 +161,8 @@ function(input, output, session) {
         )
         
         logMetadata("Downloaded File Structure Analysis Report")
+        
+        exportTestValues(file_structure_analysis_main = file_structure_analysis_main)
       }
     )
     
@@ -384,11 +389,15 @@ function(input, output, session) {
     output$pdde_summary_table <- DT::renderDataTable({
       req(valid_file() == 1)
       
+      a <- pdde_main %>%
+        group_by(Issue, Type) %>%
+        summarise(Count = n()) %>%
+        ungroup()
+      
+      exportTestValues(pdde_summary_table = a)
+      
       datatable(
-        pdde_main %>%
-          group_by(Issue, Type) %>%
-          summarise(Count = n()) %>%
-          ungroup(),
+        a,
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't')
@@ -427,6 +436,8 @@ function(input, output, session) {
           path = file)
         
         logMetadata("Downloaded PDDE Report")
+        
+        exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main))
       }
     )
     
@@ -443,11 +454,15 @@ function(input, output, session) {
         arrange(Type, Issue) %>%
         unique()
       
-      datatable(guidance, 
-                rownames = FALSE,
-                escape = FALSE,
-                filter = 'top',
-                options = list(dom = 'ltpi'))
+      exportTestValues(pdde_guidance_summary = guidance)
+      
+      datatable(
+        guidance, 
+        rownames = FALSE,
+        escape = FALSE,
+        filter = 'top',
+        options = list(dom = 'ltpi')
+      )
     })
 
 # DeskTime Plot Detail ----------------------------------------------------
@@ -532,11 +547,15 @@ function(input, output, session) {
     output$clientCountData <- DT::renderDataTable({
       req(valid_file() == 1)
 
+      x <- client_count_data_df() %>%
+        filter(ProjectName == input$currentProviderList) %>%
+        select(all_of(clientCountDetailCols)) %>%
+          nice_names()
+      
+      exportTestValues(clientCountData = x)
+      
       datatable(
-        client_count_data_df() %>%
-          filter(ProjectName == input$currentProviderList) %>%
-          select(all_of(clientCountDetailCols)) %>%
-          nice_names(),
+        x,
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')
@@ -548,6 +567,8 @@ function(input, output, session) {
 
     output$clientCountSummary <- DT::renderDataTable({
       req(valid_file() == 1)
+      
+      exportTestValues(clientCountSummary = client_count_summary_df())
       
       datatable(
         client_count_summary_df() %>%
@@ -587,11 +608,15 @@ function(input, output, session) {
         arrange(Type, Issue) %>%
         unique()
       
-      datatable(guidance, 
-                rownames = FALSE,
-                escape = FALSE,
-                filter = 'top',
-                options = list(dom = 'ltpi'))
+      exportTestValues(dq_org_guidance_summary = guidance)
+      
+      datatable(
+        guidance, 
+        rownames = FALSE,
+        escape = FALSE,
+        filter = 'top',
+        options = list(dom = 'ltpi')
+      )
     })
     
     output$dq_organization_summary_table <- DT::renderDataTable({
@@ -612,6 +637,8 @@ function(input, output, session) {
           Type, 
           Issue, 
           Clients)
+      
+      exportTestValues(dq_organization_summary_table = a)
       
       datatable(
         a,
@@ -673,6 +700,7 @@ function(input, output, session) {
       content = function(file) {
         write_xlsx(dqDownloadInfo()$orgDQData, path = file)
         logMetadata("Downloaded Org-level DQ Report")
+        exportTestValues(orgDQ_download = dqDownloadInfo()$orgDQData)
       }
     )
     
@@ -690,6 +718,7 @@ function(input, output, session) {
       content = function(file) {
         write_xlsx(dqDownloadInfo()$systemDQData, path = file)
         logMetadata("Downloaded System-level DQ Report")
+        exportTestValues(systemDQ_download = dqDownloadInfo()$systemDQData)
       }
     )
 

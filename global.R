@@ -2,24 +2,19 @@
 Sys.setenv(TZ = "America/New_York")
 
 library(tidyverse)
+library(lubridate)
 library(shinydashboard)
 library(shiny)
 library(shinyWidgets)
-library(lubridate)
 library(scales)
-library(plotly)
 library(DT)
-library(readxl)
 library(writexl)
-library(viridis)
 library(HMIS) #github.com/kiadso/HMIS
 library(glue)
 library(janitor)
 library(shinyjs)
 library(shinydisconnect)
 library(here)
-#library(shinyHeatmap)
-#library(shinylogs)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 

@@ -4,17 +4,15 @@
 .Ruserdata
 data
 rsconnect
-.Rprofile
 comparisons
-tests/
 *.jpg
 .DS_Store
 data/
 images/
 *.html
-test/
 /*.csv
 *.json
+!tests/**/*.json
 logs/
 www/metadata/*.txt
 www/metadata/*.csv
@@ -24,3 +22,8 @@ sessiondata.csv
 metadata.csv
 *.docx
 *.log
+# {shinytest2}: Ignore new debug snapshots for `$expect_values()`
+*_.new.png
+metadata.csv
+sessiondata.csv
+tests/shinytest/*-current/
