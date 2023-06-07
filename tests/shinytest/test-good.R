@@ -17,7 +17,7 @@ app$snapshot()
 
 
 app$setInputs(sidebarmenuid = "tabClientCount")
-app$waitForValue()
+app$waitForShiny()
 customDownload("downloadClientCountsReport", "Client-Counts-Download")
 app$snapshot()
 
