@@ -91,9 +91,9 @@
       "deps": [
         {
           "name": "font-awesome",
-          "version": "6.2.0",
+          "version": "6.4.0",
           "src": {
-            "href": "font-awesome-6.2.0"
+            "href": "font-awesome-6.4.0"
           },
           "meta": null,
           "script": null,
@@ -231,12 +231,12 @@
         "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure you have all the required columns."
       ],
       "Detail": [
-        "In the Enrollment file, HoHLeaseholder is an extra column",
         "In the Enrollment file, the HOHLeaseholder column is missing",
+        "In the Enrollment file, HoHLeaseholder is an extra column",
         "In the Exit file, AskedOrForcedToExchangeForSexPas is an extra column",
         "In the Exit file, the AskedOrForcedToExchangeForSexPastThreeMonths column is missing",
-        "In the Exit file, the WorkplaceViolenceThreats column is missing",
-        "In the Exit file, WorkPlaceViolenceThreats is an extra column"
+        "In the Exit file, WorkPlaceViolenceThreats is an extra column",
+        "In the Exit file, the WorkplaceViolenceThreats column is missing"
       ]
     },
     "fileStructureAnalysis": {
