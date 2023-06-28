@@ -159,10 +159,10 @@ Assessment,1,AssessmentID,character,0,0
 Assessment,2,EnrollmentID,character,1,0
 Assessment,3,PersonalID,character,1,0
 Assessment,4,AssessmentDate,date,1,0
-Assessment,5,AssessmentLocation,character,1,0
-Assessment,6,AssessmentType,numeric,1,0
+Assessment,5,AssessmentLocation,character,0,0
+Assessment,6,AssessmentType,numeric,0,0
 Assessment,7,AssessmentLevel,numeric,1,0
-Assessment,8,PrioritizationStatus,numeric,1,0
+Assessment,8,PrioritizationStatus,numeric,0,0
 Assessment,9,DateCreated,datetime,1,0
 Assessment,10,DateUpdated,datetime,0,0
 Assessment,11,UserID,character,0,0
