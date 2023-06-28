@@ -1,6 +1,14 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "06-28-2023", "Allow nulls in AssessmentLocation, AssessmentType, and PrioritizationStatus columns.",
+
+    "06-14-2023", "Added graceful rejection of non-zip files, including 7zip.",
+
+    "05-08-2023", "Fixed typo in DQ High Priority plot display when there were no issues of that type.",
+
+    "04-25-2023", "Small updates to the EvaChecks.xlsx file to better capture Eva's checks.",
+    
     "04-20-2023", "Added Zero Enrollments as a High Priority File Structure issue.",
     
     "04-20-2023", "Upgraded the Duplicate HouseholdIDs File Structure issue from
