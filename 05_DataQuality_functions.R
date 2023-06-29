@@ -284,7 +284,7 @@ renderDQPlot <- function(level, issueType, group, color) {
   output[[outputId]] <- renderPlot({
     req(valid_file() == 1)
   
-    issueTypeDisplay = if_else(issueType == "Warnings", 
+    issueTypeDisplay = if_else(issueType == "Warning", 
                                "warnings", 
                                "errors"
                                )
