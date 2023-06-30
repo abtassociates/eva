@@ -6,31 +6,37 @@ hc_psh_started_collecting_move_in_date <- ymd("20171001")
 # Living Situations Groups (includes PLS, CLS, and destinations) 
 #(Updated to match FY2022 DS) ---------------------------
 # For reference, these come from the HMIS CSV Export specs, pgs 41-43
+
 allowed_living_situations <- 
-  c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
-    22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 99)
+  c(8, 9, 99, 101, 116, 118, 204, 205, 206, 207, 215, 225, 302, 314, 329, 332,
+    335, 336, 410, 411, 421, 435)
 
 allowed_prior_living_sit <- 
-  c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 18, 19, 20, 21, 25, 28, 29,
-    31, 32, 33, 34, 35, 36, 99)
+  c(8, 9, 17, 37, 99, 101, 116, 118, 204, 205, 206, 207, 215, 225, 302, 314, 329,
+    332, 335, 336, 410, 411, 421, 435)
 
 allowed_current_living_sit <- 
-  c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 25, 28,
-    29, 31, 32, 33, 34, 35, 36, 37, 99)
+  c(8, 9, 30, 17, 24, 99, 101, 116, 118, 204, 205, 206, 207, 215, 225, 302, 312,
+    313, 327, 314, 329, 332, 410, 411, 421, 422, 423, 426, 435)
 
 allowed_destinations <- 
   c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
     22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 99)
 
-perm_livingsituation <- c(3, 10, 11, 19:23, 26, 28, 31, 33, 34, 36)
+perm_livingsituation <- 
+  fy22_to_fy24_living_situation(c(3, 10, 11, 19:23, 26, 28, 31, 33, 34, 36))
 
-lh_livingsituation <- c(1, 16, 18)
+lh_livingsituation <- 
+  fy22_to_fy24_living_situation(c(1, 16, 18))
 
-temp_livingsituation <- c(1, 2, 12, 13, 14, 16, 18, 27, 32, 35) 
+temp_livingsituation <- 
+  fy22_to_fy24_living_situation(c(1, 2, 12, 13, 14, 16, 18, 27, 32, 35)) 
 
-institutional_livingsituation <- c(4:7, 15, 25, 27, 29)
+institutional_livingsituation <- 
+  fy22_to_fy24_living_situation(c(4:7, 15, 25, 27, 29))
 
-other_livingsituation <- c(8, 9, 17, 24, 30, 37, 99)
+other_livingsituation <- 
+  fy22_to_fy24_living_situation(c(8, 9, 17, 24, 30, 37, 99))
 
 
 # Project Type Groupings --------------------------------------------------
