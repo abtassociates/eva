@@ -12,7 +12,7 @@ directory <- "sandbox/mini-non-shiny-environment/"
 
 # Copy a sample dataset into the mini-non-shiny-environment/data directory
 
-if_else(file.exists(paste0(directory, "data/Enrollment.csv")),
+ifelse(file.exists(paste0(directory, "data/Enrollment.csv")),
         "All good",
         "Please unzip a sample data set into your mini-non-shiny-environment/data
         directory before proceeding.")
