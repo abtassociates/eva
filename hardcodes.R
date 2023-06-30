@@ -29,6 +29,8 @@ perm_livingsituation <-
 lh_livingsituation <- 
   fy22_to_fy24_living_situation(c(1, 16, 18))
 
+homeless_livingsituation <- fy22_to_fy24_living_situation(c(1, 2, 16, 18))
+
 temp_livingsituation <- 
   fy22_to_fy24_living_situation(c(1, 2, 12, 13, 14, 16, 18, 27, 32, 35)) 
 
@@ -37,6 +39,10 @@ institutional_livingsituation <-
 
 other_livingsituation <- 
   fy22_to_fy24_living_situation(c(8, 9, 17, 24, 30, 37, 99))
+
+not_homeless_livingsituation <- 
+  fy22_to_fy24_living_situation(c(2, 3, 4, 5, 6, 7, 10, 11, 14, 15, 19, 20, 21,
+                                  25, 28, 29, 31, 32, 33, 34, 35, 36))
 
 
 # Project Type Groupings --------------------------------------------------
