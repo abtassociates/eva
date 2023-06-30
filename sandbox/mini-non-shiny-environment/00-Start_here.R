@@ -21,6 +21,8 @@ if_else(file.exists(paste0(directory, "data/Enrollment.csv")),
 # the Environment tab open so you can see what is going on
 
 # Functions ---------------------------------------------------------------
+library(here)
+
 source(here("global.R"))
 source(here("guidance.R"))
 
