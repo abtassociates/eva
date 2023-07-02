@@ -23,33 +23,27 @@ allowed_destinations <-
   c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
     22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 99)
 
-perm_livingsituation <- 
-  fy22_to_fy24_living_situation(c(3, 10, 11, 19:23, 26, 28, 31, 33, 34, 36))
+perm_livingsituation <- c(336, 410, 411, 421, 422, 423, 426, 435)
 
-lh_livingsituation <- 
-  fy22_to_fy24_living_situation(c(1, 16, 18))
+lh_livingsituation <- c(101, 116, 118)
 
-homeless_livingsituation <- fy22_to_fy24_living_situation(c(1, 2, 16, 18))
+homeless_livingsituation <- c(101, 302, 116, 118)
 
-temp_livingsituation <- 
-  fy22_to_fy24_living_situation(c(1, 2, 12, 13, 14, 16, 18, 27, 32, 35)) 
+temp_livingsituation <- c(101, 302, 312, 313, 314, 116, 118, 327, 332, 335)
 
-institutional_livingsituation <- 
-  fy22_to_fy24_living_situation(c(4:7, 15, 25, 27, 29))
+institutional_livingsituation <- c(204, 205, 206, 207, 215, 225, 327, 329)
 
-other_livingsituation <- 
-  fy22_to_fy24_living_situation(c(8, 9, 17, 24, 30, 37, 99))
+other_livingsituation <- c(8, 9, 17, 24, 30, 37, 99)
 
 not_homeless_livingsituation <- 
-  fy22_to_fy24_living_situation(c(2, 3, 4, 5, 6, 7, 10, 11, 14, 15, 19, 20, 21,
-                                  25, 28, 29, 31, 32, 33, 34, 35, 36))
+  c(204, 205, 206, 207, 215, 225, 302, 314, 329, 332, 335, 336, 410, 411, 421, 435)
 
 
 # Project Type Groupings --------------------------------------------------
 
-es_nbn_project_type <- 0
+es_nbn_project_type <- 1
 
-es_ee_project_type <- 1
+es_ee_project_type <- 0
 
 th_project_type <- 2
 
@@ -83,7 +77,7 @@ lh_ph_hp_project_types <- c(0, 1, 2, 3, 4, 8, 9, 12, 13)
 
 coc_funded_project_types <- c(2, 3, 13)
 
-project_types_w_beds <- c(1, 2, 3, 8, 9, 10, 13)
+project_types_w_beds <- c(0, 1, 2, 3, 8, 9, 10, 13)
 
 # Funding Source Groupings ------------------------------------------------
 
