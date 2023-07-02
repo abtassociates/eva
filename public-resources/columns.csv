@@ -17,7 +17,7 @@ Client,15,MidEastNAfrican,numeric,1,0
 Client,16,NativeHIPacific,numeric,1,0
 Client,17,White,numeric,1,0
 Client,18,RaceNone,numeric,1,1
-Client,19,AdditionalRaceEthnicity,numeric,1,0
+Client,19,AdditionalRaceEthnicity,numeric,1,1
 Client,20,Woman,numeric,1,0
 Client,21,Man,numeric,1,0
 Client,22,NonBinary,numeric,1,0
@@ -51,7 +51,7 @@ Enrollment,3,ProjectID,character,1,0
 Enrollment,4,EntryDate,date,1,0
 Enrollment,5,HouseholdID,character,1,0
 Enrollment,6,RelationshipToHoH,numeric,1,0
-Enrollment,7,EnrollmentCoC,character,1,0
+Enrollment,7,EnrollmentCoC,character,0,0
 Enrollment,8,LivingSituation,numeric,1,1
 Enrollment,9,RentalSubsidyType,numeric,1,1
 Enrollment,10,LengthOfStay,numeric,1,1
