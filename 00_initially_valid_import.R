@@ -62,7 +62,7 @@ if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
     err_msg = HTML(str_glue(
       "Your zip file appears to be missing the following files:<br/><br/>
     
-      {paste(missing_files,collapse=', ')}<br/><br/>
+      {paste(missing_files, collapse = ', ')}<br/><br/>
       
       You either uploaded something other than an HMIS CSV export or your export 
       does not contain all the files outlined in the HMIS CSV Export specifications.
