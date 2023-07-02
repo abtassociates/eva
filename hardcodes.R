@@ -77,7 +77,7 @@ lh_ph_hp_project_types <- c(0, 1, 2, 3, 4, 8, 9, 12, 13)
 
 coc_funded_project_types <- c(2, 3, 13)
 
-project_types_w_beds <- c(1, 2, 3, 8, 9, 10, 13)
+project_types_w_beds <- c(0, 1, 2, 3, 8, 9, 10, 13)
 
 # Funding Source Groupings ------------------------------------------------
 
