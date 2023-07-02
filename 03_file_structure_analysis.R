@@ -240,11 +240,14 @@ valid_values_client <- Client %>%
     BlackAfAmerican = BlackAfAmerican %in% c(yes_no),
     NativeHIPacific = NativeHIPacific %in% c(yes_no),
     White = White %in% c(yes_no),
-    Ethnicity = Ethnicity %in% c(yes_no_enhanced),
-    Female = Female %in% c(yes_no),
-    Male = Male %in% c(yes_no),
-    NoSingleGender = NoSingleGender %in% c(yes_no),
+    MidEastNAfrican = MidEastNAfrican %in% c(yes_no),
+    HispanicLatinaeo = HispanicLatinaeo %in% c(yes_no),
+    Woman = Woman %in% c(yes_no),
+    Man = Man %in% c(yes_no),
+    NonBinary = NonBinary %in% c(yes_no),
     Transgender = Transgender %in% c(yes_no),
+    CulturallySpecific = CulturallySpecific %in% c(yes_no),
+    DifferentIdentity = DifferentIdentity %in% c(yes_no),
     Questioning = Questioning %in% c(yes_no),
     GenderNone = GenderNone %in% c(dkr_dnc) | is.na(GenderNone)
   ) %>%
@@ -257,11 +260,14 @@ valid_values_client <- Client %>%
     BlackAfAmerican = min(BlackAfAmerican, na.rm = FALSE),
     NativeHIPacific = min(NativeHIPacific, na.rm = FALSE),
     White = min(White, na.rm = FALSE),
-    Ethnicity = min(Ethnicity, na.rm = FALSE),
-    Female = min(Female, na.rm = FALSE),
-    Male = min(Male, na.rm = FALSE),
-    NoSingleGender = min(NoSingleGender, na.rm = FALSE),
+    MidEastNAfrican = min(MidEastNAfrican, na.rm = FALSE),
+    HispanicLatinaeo = min(HispanicLatinaeo, na.rm = FALSE),
+    Woman = min(Woman, na.rm = FALSE),
+    Man = min(Man, na.rm = FALSE),
+    NonBinary = min(NonBinary, na.rm = FALSE),
     Transgender = min(Transgender, na.rm = FALSE),
+    CulturallySpecific = min(CulturallySpecific, na.rm = FALSE),
+    DifferentIdentity = min(DifferentIdentity, na.rm = FALSE),
     Questioning = min(Questioning, na.rm = FALSE),
     GenderNone = min(GenderNone, na.rm = FALSE)
   ) %>%
@@ -274,11 +280,14 @@ valid_values_client <- Client %>%
     BlackAfAmerican,
     NativeHIPacific,
     White,
-    Ethnicity,
-    Female,
-    Male,
-    NoSingleGender,
+    MidEastNAfrican,
+    HispanicLatinaeo,
+    Woman,
+    Man,
+    NonBinary,
     Transgender,
+    CulturallySpecific,
+    DifferentIdentity,
     Questioning,
     GenderNone
   ) %>%
@@ -295,36 +304,7 @@ valid_values_client <- Client %>%
                  identified in the Detail and ensure all values in the export
                  align with the associated values list found in 'Appendix B -
                  Lists' of the Specifications."),
-    Detail = case_when(
-      name == "VeteranStatus" ~ paste("VeteranStatus has", n,
-                                      "rows with invalid values"),
-      name == "RaceNone" ~ paste("RaceNone has", n,
-                                 "rows with invalid values"),
-      name == "AmIndAKNative" ~ paste("AmIndAKNative has", n,
-                                      "rows with invalid values"),
-      name == "Asian" ~ paste("Asian has", n,
-                              "rows with invalid values"),
-      name == "BlackAfAmerican" ~ paste("BlackAfAmerican has", n,
-                                        "rows with invalid values"),
-      name == "NativeHIPacific" ~ paste("NativeHIPacific has", n,
-                                        "Rows with invalid values"),
-      name == "White" ~ paste("White has", n,
-                              "rows with invalid values"),
-      name == "Ethnicity" ~ paste("Ethnicity has", n,
-                                  "rows with invalid values"),
-      name == "Female" ~ paste("Female has", n,
-                               "rows with invalid values"),
-      name == "Male" ~ paste("Male has", n,
-                             "rows with invalid values"),
-      name == "NoSingleGender" ~ paste("NoSingleGender has", n,
-                                       "rows with invalid values"),
-      name == "Transgender" ~ paste("Transgender has", n,
-                                    "rows with invalid values"),
-      name == "Questioning" ~ paste("Questioning has", n,
-                                    "rows with invalid values"),
-      name == "GenderNone" ~ paste("GenderNone has", n,
-                                   "rows with invalid values")
-    )
+    Detail = paste(name, "has", n, "rows with invalid values.")
   ) %>%
   select(all_of(issue_display_cols)) %>%
   unique()
