@@ -27,13 +27,7 @@ logToConsole("Running initial data prep")
 Project <- Project %>%
   left_join(Organization %>%
               select(OrganizationID, OrganizationName),
-            by = "OrganizationID") %>%
-  mutate(ProjectType = case_when(
-    ProjectType == es_ee_project_type & TrackingMethod == 3 ~ 0,
-    ProjectType == es_ee_project_type &
-      (is.na(TrackingMethod) | TrackingMethod != 3) ~ 1, 
-    TRUE ~ ProjectType
-  ))
+            by = "OrganizationID") 
 
 # This dataset is only used to populate the Client Counts header with the Project and Org names
 Project0 <<- Project %>% 
