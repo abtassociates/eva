@@ -39,7 +39,7 @@ small_project <- Project %>% select(ProjectID, ProjectType, ProjectName)
 
 Enrollment <- Enrollment %>%
   left_join(Exit %>% 
-              select(EnrollmentID, Destination, ExitDate, OtherDestination),
+              select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
             by = "EnrollmentID") %>% 
   left_join(small_project, by = "ProjectID") %>%
   mutate(ExitAdjust = coalesce(ExitDate, as.Date(meta_HUDCSV_Export_Date)))
