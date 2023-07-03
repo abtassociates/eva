@@ -27,7 +27,33 @@ logToConsole("Running initial data prep")
 Project <- Project %>%
   left_join(Organization %>%
               select(OrganizationID, OrganizationName),
-            by = "OrganizationID") 
+            by = "OrganizationID")
+
+ProjectsInHMIS <- Project %>%
+  left_join(
+    HMISParticipation %>%
+      filter(HMISParticipationType == 1) %>%
+      select(
+        ProjectID,
+        HMISParticipationStatusStartDate,
+        HMISParticipationStatusEndDate
+      ) %>%
+      unique(),
+    by = "ProjectID"
+  ) %>% 
+  mutate(
+    OperatingDateRange =
+      interval(
+        OperatingStartDate,
+        replace_na(OperatingEndDate, meta_HUDCSV_Export_End)
+      ),
+    ParticipatingDateRange =
+      interval(
+        HMISParticipationStatusStartDate,
+        replace_na(HMISParticipationStatusEndDate, meta_HUDCSV_Export_End)
+      )
+  )
+  
 
 # This dataset is only used to populate the Client Counts header with the Project and Org names
 Project0 <<- Project %>% 
@@ -120,7 +146,7 @@ Services <- Services %>%
 
 # Build Validation df for app ---------------------------------------------
 
-validationProject <- Project %>%
+validationProject <- ProjectsInHMIS %>%
   select(ProjectID,
          OrganizationName,
          OperatingStartDate,
@@ -128,21 +154,6 @@ validationProject <- Project %>%
          ProjectCommonName,
          ProjectName,
          ProjectType) %>%
-  left_join(HMISParticipation %>%
-              filter(HMISParticipationType == 1) %>%
-              select(ProjectID,
-                     HMISParticipationStatusStartDate,
-                     HMISParticipationStatusEndDate) %>%
-              unique(),
-            by = "ProjectID") %>%
-  mutate(
-    OperatingDateRange = 
-      interval(OperatingStartDate,
-               replace_na(OperatingEndDate, meta_HUDCSV_Export_End)),
-    ParticipatingDateRange = 
-      interval(HMISParticipationStatusStartDate,
-               replace_na(HMISParticipationStatusEndDate, meta_HUDCSV_Export_End))
-  ) %>%
 filter(int_overlaps(file_date_range, OperatingDateRange) &
          int_overlaps(file_date_range, ParticipatingDateRange))
 
