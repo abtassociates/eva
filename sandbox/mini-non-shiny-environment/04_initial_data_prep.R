@@ -174,6 +174,7 @@ validationEnrollment <- Enrollment %>%
     ExitAdjust,
     LivingSituation,
     Destination,
+    DestinationSubsidyType,
     DateCreated
   ) 
 
@@ -194,6 +195,7 @@ validation <- validationProject %>%
     ExitDate,
     LivingSituation,
     Destination,
+    DestinationSubsidyType,
     DateCreated,
     OrganizationName
   ) %>%
