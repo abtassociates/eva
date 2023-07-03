@@ -61,7 +61,7 @@ HHMoveIn <- Enrollment %>%
     ValidMoveIn = case_when(
       AssumedMoveIn == 1 ~ EntryDate, # overwrites any MID where the Entry is 
       # prior to the date when PSH had to collect MID with the EntryDate (as
-      # venders were instructed to do in the mapping documentation)
+      # vendors were instructed to do in the mapping documentation)
       AssumedMoveIn == 0 &
         ProjectType %in% psh_project_types &
         EntryDate <= MoveInDate &
@@ -95,7 +95,7 @@ Enrollment <- Enrollment %>%
                                  ymd(HHMoveIn) <= ExitAdjust,
                                if_else(EntryDate <= ymd(HHMoveIn),
                                        ymd(HHMoveIn), EntryDate),
-                               ymd(NA)), 
+                               NA), 
     EntryAdjust = case_when(
       !ProjectType %in% ph_project_types ~ EntryDate,
       ProjectType %in% ph_project_types &
@@ -110,29 +110,13 @@ Enrollment <- Enrollment %>%
   mutate(AgeAtEntry = age_years(DOB, EntryDate)) %>%
   select(-DOB)
 
-# Adding ClientLocation at Entry to Enrollment
-small_location <- EnrollmentCoC %>%
-  filter(DataCollectionStage == 1) %>%
-  select(EnrollmentID, "ClientLocation" = CoCCode)  %>%
-  mutate(EnrollmentID = as.character(EnrollmentID)) # in case a vendor's datatypes
-# are incorrect
-
-Enrollment <- Enrollment %>%
-  left_join(small_location, by = "EnrollmentID")
-
-rm(small_project, HHEntry, HHMoveIn, small_client, small_location)
+rm(small_project, HHEntry, HHMoveIn, small_client)
 
 
 # Only BedNight Services --------------------------------------------------
 
 Services <- Services %>%
   filter(RecordType == 200 & !is.na(DateProvided))
-
-# HUD CSV Specs -----------------------------------------------------------
-# AS 3/21/23: Can we just store HUD_specs as a dataframe directly in our app, rather than importing it each time?
-HUD_specs <- read_csv("public-resources/HUDSpecs.csv",
-                      col_types = "ccnc") %>%
-  as.data.frame()
 
 # Build Validation df for app ---------------------------------------------
 
@@ -143,12 +127,27 @@ validationProject <- Project %>%
          OperatingEndDate,
          ProjectCommonName,
          ProjectName,
-         ProjectType,
-         HMISParticipatingProject) %>%
-  filter(HMISParticipatingProject == 1 &
-           operating_between(., 
-                             ymd(meta_HUDCSV_Export_Start), 
-                             ymd(meta_HUDCSV_Export_End))) 
+         ProjectType) %>%
+  left_join(HMISParticipation %>%
+              filter(HMISParticipationType == 1) %>%
+              select(ProjectID,
+                     HMISParticipationStatusStartDate,
+                     HMISParticipationStatusEndDate) %>%
+              unique(),
+            by = "ProjectID") %>%
+  mutate(
+    OperatingDateRange = 
+      interval(OperatingStartDate,
+               replace_na(OperatingEndDate, meta_HUDCSV_Export_End)),
+    ParticipatingDateRange = 
+      interval(HMISParticipationStatusStartDate,
+               replace_na(HMISParticipationStatusEndDate, meta_HUDCSV_Export_End))
+  ) %>%
+filter(int_overlaps(file_date_range, OperatingDateRange) &
+         int_overlaps(file_date_range, ParticipatingDateRange))
+
+# a project's operating and participating date ranges must intersect the
+# reporting period ^
 
 validationEnrollment <- Enrollment %>% 
   select(
