@@ -99,8 +99,7 @@ get_clientcount_download_info <- function(file) {
   keepCols <- c("OrganizationName", "ProjectID", "ProjectName")
   
   # initial dataset thta will make summarizing easier
-  validationDF <- client_count_data_df() %>%
-    mutate(n = 1)
+  validationDF <- client_count_data_df()
   
   # this function pivots by project and gets the counts of people with each status
   pivot_and_sum <- function(df, isDateRange = FALSE) {
@@ -118,18 +117,18 @@ get_clientcount_download_info <- function(file) {
       "Exited with Move-In",
       "Exited No Move-In"
     )
-    
+
     pivoted <- df %>%
       # remove the person-specific enrollment days from those statuses (e.g. (660 days))
+      # and make sure everyone gets all necessary columns from status (even if they have no projects of that type)
       mutate(
         Status = sub(" \\(.*", "", Status)
       ) %>%
-      select(all_of(keepCols), n, Status, ProjectType, PersonalID) %>%
-      unique() %>%
-      select(all_of(keepCols), n, Status, ProjectType) %>%
+      distinct_at(vars(!!keepCols, Status, ProjectType, PersonalID)) %>%
+      select(-PersonalID) %>%
+      mutate(n=1) %>%
+      complete(nesting(!!!syms(c(keepCols, "ProjectType"))),Status = necessaryCols, fill = list(n = 0)) %>%
       pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
-      add_column(!!!necessaryCols[setdiff(names(necessaryCols), names(df))]) %>%
-      select(!!keepCols, !!necessaryCols, ProjectType) %>%
       mutate(
         across(!!necessaryCols, ~ 
                  replace(., is.na(.) &
@@ -173,7 +172,7 @@ get_clientcount_download_info <- function(file) {
   ) %>%
     select(-c(`Currently in project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
-  
+
   ### VALIDATION DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
     select(!!keepCols, !!clientCountDetailCols) %>%
