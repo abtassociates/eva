@@ -21,13 +21,14 @@
 
 logToConsole("Running initial data prep")
 
-# separate projectType = 1 into 1 and 0, based on TrackingMethod
-# also add Organization info into project dataset to more easily pull this info
+# add Organization info into project dataset to more easily pull this info
 
 Project <- Project %>%
   left_join(Organization %>%
               select(OrganizationID, OrganizationName),
             by = "OrganizationID")
+
+# breaking out Projects into their participating times, adjusting ProjectIDs
 
 ProjectsInHMIS <- Project %>%
   left_join(
@@ -40,7 +41,7 @@ ProjectsInHMIS <- Project %>%
       ) %>%
       unique(),
     by = "ProjectID"
-  ) %>% 
+  ) %>% # ^ changes granularity if there are any quit-starters
   mutate(
     OperatingDateRange =
       interval(
@@ -53,7 +54,27 @@ ProjectsInHMIS <- Project %>%
         replace_na(HMISParticipationStatusEndDate, meta_HUDCSV_Export_End)
       )
   )
+
+quit_and_start_projects <- ProjectsInHMIS %>%
+  get_dupes(ProjectID) %>% distinct(ProjectID)
+
+if(nrow(quit_and_start_projects) > 0){
+  QuitStarters <-  ProjectsInHMIS %>%
+    filter(ProjectID %in% c(quit_and_start_projects)) %>%
+    group_by(ProjectID) %>%
+    mutate(ProjectTimeID = paste0(ProjectID, letters[row_number()])) %>%
+    ungroup()
   
+  ProjectsInHMIS <- ProjectsInHMIS %>%
+    left_join(QuitStarters %>%
+                select(ProjectID, ProjectTimeID, ParticipatingDateRange),
+              by = c("ProjectID", "ParticipatingDateRange"))
+}
+
+# this version of Project is similar to the FY22 version of Project, except the
+# ProjectTimeID is the granularity. 
+Project <- ProjectsInHMIS %>%
+  mutate(ProjectTimeID = coalesce(ProjectTimeID, ProjectID))
 
 # This dataset is only used to populate the Client Counts header with the Project and Org names
 Project0 <<- Project %>% 
@@ -66,9 +87,46 @@ small_project <- Project %>% select(ProjectID, ProjectType, ProjectName)
 Enrollment <- Enrollment %>%
   left_join(Exit %>% 
               select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
-            by = "EnrollmentID") %>% 
+            by = "EnrollmentID")
+
+EnrollmentTest <- Enrollment %>%
+  mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_End),
+         EnrollmentDateRange = interval(EntryDate, ExitAdjust))
+
+# Truncating Enrollments based on Operating/Participating -----------------
+
+EnrollmentOutside <- EnrollmentTest %>%
+  left_join(Project %>%
+              select(ProjectID,
+                     ProjectTimeID,
+                     ParticipatingDateRange,
+                     OperatingDateRange), by = "ProjectID",
+            relationship = "many-to-many") %>%
+  mutate(
+    FallsOutside = case_when(
+      EnrollmentDateRange %within% OperatingDateRange &
+        EnrollmentDateRange %within% ParticipatingDateRange ~ "Good",
+      EnrollmentDateRange %within% OperatingDateRange &
+        !EnrollmentDateRange %within% ParticipatingDateRange ~ "Outside Participating",
+      EnrollmentDateRange %within% ParticipatingDateRange &
+        !EnrollmentDateRange %within% OperatingDateRange ~ "Outside Operating",
+      !EnrollmentDateRange %within% ParticipatingDateRange &
+        !EnrollmentDateRange %within% OperatingDateRange ~ "Outside Both Ranges"
+    )
+  ) %>%
+  select(EnrollmentID, ProjectID, ProjectTimeID, EnrollmentDateRange, OperatingDateRange,
+         ParticipatingDateRange, FallsOutside)
+
+EnrollmentGranularity <- EnrollmentOutside %>%
+  get_dupes(EnrollmentID) %>%
+  mutate(Keeper = if_else(FallsOutside %in% c("Good", "Outside Operating"), 1, 0)) %>%
+  group_by(EnrollmentID) %>%
+  summarise(NumberKeepers = sum(Keeper, na.rm = TRUE)) %>%
+  arrange()
+  
+filter(FallsOutside != "Outside Participating")
+
   left_join(small_project, by = "ProjectID") %>%
-  mutate(ExitAdjust = coalesce(ExitDate, as.Date(meta_HUDCSV_Export_Date)))
 
 # Adding ProjectType to Enrollment bc we need EntryAdjust & MoveInAdjust
 
@@ -139,6 +197,8 @@ Enrollment <- Enrollment %>%
 rm(small_project, HHEntry, HHMoveIn, small_client)
 
 
+
+
 # Only BedNight Services --------------------------------------------------
 
 Services <- Services %>%
@@ -147,15 +207,21 @@ Services <- Services %>%
 # Build Validation df for app ---------------------------------------------
 
 validationProject <- ProjectsInHMIS %>%
-  select(ProjectID,
-         OrganizationName,
-         OperatingDateRange,
-         ParticipatingDateRange,
-         ProjectCommonName,
-         ProjectName,
-         ProjectType) %>%
-filter(int_overlaps(file_date_range, OperatingDateRange) &
-         int_overlaps(file_date_range, ParticipatingDateRange))
+  select(
+    ProjectID,
+    ProjectTimeID,
+    OrganizationName,
+    OperatingDateRange,
+    ParticipatingDateRange,
+    ProjectCommonName,
+    ProjectName,
+    ProjectType
+  ) %>%
+  filter(
+    int_overlaps(file_date_range, OperatingDateRange) &
+      int_overlaps(file_date_range, ParticipatingDateRange)
+  ) %>%
+  get_dupes(ProjectID)
 
 # a project's operating and participating date ranges must intersect the
 # reporting period ^
