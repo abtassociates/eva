@@ -149,8 +149,8 @@ Services <- Services %>%
 validationProject <- ProjectsInHMIS %>%
   select(ProjectID,
          OrganizationName,
-         OperatingStartDate,
-         OperatingEndDate,
+         OperatingDateRange,
+         ParticipatingDateRange,
          ProjectCommonName,
          ProjectName,
          ProjectType) %>%
