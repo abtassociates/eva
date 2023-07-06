@@ -1120,23 +1120,26 @@ smallIncome <- IncomeBenefits %>%
     DataCollectionStage
   )
 
-smallIncome[is.na(smallIncome)] <- 0
+smallIncome[is.na(smallIncome)] <- 0 %>% unique()
 
 smallIncome <-
-  smallIncome %>% full_join(IncomeBenefits[c(
+  smallIncome %>%
+  full_join(IncomeBenefits[c(
     "PersonalID",
     "EnrollmentID",
     "DataCollectionStage",
     "TotalMonthlyIncome",
     "IncomeFromAnySource"
-  )],
+  )] %>% unique(),
   by = c("PersonalID",
          "EnrollmentID",
-         "DataCollectionStage"))
+         "DataCollectionStage"),
+  relationship = "many-to-many") # sometimes there are two conflicting subs,
+# like two IncomeBenefits records, e.g., one that says they are getting SSI & the
+# other says they aren't. we want both conflicting subs to show so they can both
+# be tested against the data quality logic
 
-income_subs <- base_dq_data[c("EnrollmentID",
-                                      "AgeAtEntry",
-                                      vars_prep)] %>%
+income_subs <- base_dq_data[c("EnrollmentID", "AgeAtEntry", vars_prep)] %>%
   left_join(smallIncome, by = c("PersonalID", "EnrollmentID")) %>%
   mutate(
     IncomeCount =
@@ -1156,7 +1159,6 @@ income_subs <- base_dq_data[c("EnrollmentID",
       Alimony +
       OtherIncomeSource
   )
-
 
 conflicting_income_entry <- income_subs %>%
   filter(DataCollectionStage == 1 &
