@@ -22,8 +22,6 @@ dashboardPage(
                            tabName = "tabDQOrg")),
       menuItem("View Changelog",
                tabName = "tabChangelog")
-        # menuSubItem("Data Entry Timeliness", 
-        #             tabName = "tabDeskTime")
       # ),
       # menuItem("System Analysis",
       #          menuSubItem("System Flow",
@@ -775,40 +773,6 @@ dashboardPage(
             # collapsed = TRUE,
             width = 12,
             tableOutput("changelog")
-          )
-        )
-      ),
-      tabItem(
-        tabName = "tabDeskTime",
-        fluidRow(box(htmlOutput("headerDeskTime"),
-                     width = 12)),
-          fluidRow(box(
-            title = "Instructions",
-            width = 12,
-            collapsible = TRUE,
-            collapsed = TRUE,
-            HTML("")
-          )), 
-        fluidRow(box(
-          pickerInput(
-            label = "Select Provider",
-            inputId = "providerDeskTime",
-            choices = NULL, #desk_time_providers,
-            options = pickerOptions(liveSearch = TRUE,
-                                    liveSearchStyle = 'contains'),
-            width = "100%",
-            selected = NULL # desk_time_providers[1]
-          ),
-          width = 12
-        )),
-        fluidRow(box(plotOutput("DeskTimePlotDetail"), width = 12)), 
-        fluidRow(
-          box(
-            uiOutput("deskTimeNote"),
-            title = "More Information",
-            collapsible = TRUE,
-            collapsed = TRUE,
-            width = 12
           )
         )
       ),

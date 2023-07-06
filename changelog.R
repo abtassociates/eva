@@ -1,6 +1,8 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "07-06-2023", "Fix bug when datasets have no projects of a certain status (e.g. Active No Move-In)",
+    
     "06-28-2023", "Allow nulls in AssessmentLocation, AssessmentType, and PrioritizationStatus columns.",
 
     "06-14-2023", "Added graceful rejection of non-zip files, including 7zip.",
