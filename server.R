@@ -169,9 +169,6 @@ function(input, output, session) {
     if(valid_file() == 1) {
       updatePickerInput(session = session, inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
-
-      updatePickerInput(session = session, inputId = "desk_time_providers",
-                        choices = sort(Project$ProjectName))
       
       updatePickerInput(session = session, inputId = "providerListDQ",
                         choices = dq_providers)
