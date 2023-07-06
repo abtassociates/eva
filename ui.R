@@ -775,7 +775,7 @@ dashboardPage(
             tableOutput("changelog")
           )
         )
-      )
+      ),
       tabItem(
         tabName = "tabDQSystem",
         fluidRow(box(
