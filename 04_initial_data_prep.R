@@ -114,30 +114,91 @@ EnrollmentOutside <- EnrollmentTest %>%
                      OperatingDateRange), by = "ProjectID",
             relationship = "many-to-many") %>%
   mutate(
-    FallsOutside = case_when(
-      EnrollmentDateRange %within% OperatingDateRange &
-        EnrollmentDateRange %within% ParticipatingDateRange ~ "Good",
-      EnrollmentDateRange %within% OperatingDateRange &
-        !EnrollmentDateRange %within% ParticipatingDateRange ~ "Outside Participating",
-      EnrollmentDateRange %within% ParticipatingDateRange &
-        !EnrollmentDateRange %within% OperatingDateRange ~ "Outside Operating",
-      !EnrollmentDateRange %within% ParticipatingDateRange &
-        !EnrollmentDateRange %within% OperatingDateRange ~ "Outside Both Ranges"
+    EnrollmentvParticipating = case_when(
+        EnrollmentDateRange %within% ParticipatingDateRange ~
+          "Inside",
+        int_start(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
+          "Entry and Exit After Participating",
+        int_start(EnrollmentDateRange) < int_start(ParticipatingDateRange) &
+          int_end(EnrollmentDateRange) > int_start(ParticipatingDateRange) ~
+          "Enrollment Crosses Participating Start",
+        int_end(EnrollmentDateRange) < int_start(ParticipatingDateRange) ~
+          "Entry and Exit Before Participating",
+        int_start(EnrollmentDateRange) > int_start(ParticipatingDateRange) &
+          int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~ 
+          "Enrollment Crosses Participating End",
+        int_start(EnrollmentDateRange) < int_start(ParticipatingDateRange) &
+          int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
+          "Enrollment Crosses Participation Period"),
+    EnrollmentvOperating = case_when(
+      EnrollmentDateRange %within% OperatingDateRange ~
+        "Inside",
+      int_start(EnrollmentDateRange) > int_end(OperatingDateRange) ~
+        "Entry and Exit After Operating",
+      int_start(EnrollmentDateRange) < int_start(OperatingDateRange) &
+        int_end(EnrollmentDateRange) > int_start(OperatingDateRange) ~
+        "Enrollment Crosses Operating Start",
+      int_end(EnrollmentDateRange) < int_start(OperatingDateRange) ~
+        "Entry and Exit Before Operating",
+      int_start(EnrollmentDateRange) > int_start(OperatingDateRange) &
+        int_end(EnrollmentDateRange) > int_end(OperatingDateRange) ~ 
+        "Enrollment Crosses Operating End",
+      int_start(EnrollmentDateRange) < int_start(OperatingDateRange) &
+        int_end(EnrollmentDateRange) > int_end(OperatingDateRange) ~
+        "Enrollment Crosses Operating Period")
+  ) %>%
+  select(EnrollmentID, ProjectID, ProjectTimeID, EnrollmentDateRange,
+         OperatingDateRange, ParticipatingDateRange, EnrollmentvParticipating,
+         EnrollmentvOperating)
+
+EnrollmentAdjust <- EnrollmentTest %>%
+  left_join(EnrollmentOutside,
+            by = c("EnrollmentID", "ProjectID", "EnrollmentDateRange")) %>%
+  filter(
+    !EnrollmentvParticipating %in% c(
+      "Entry and Exit After Participating",
+      "Entry and Exit Before Participating"
+    ) &
+      !EnrollmentvOperating %in% c("Entry and Exit After Operating",
+                                   "Entry and Exit Before Operating")
+  ) %>%
+  mutate(
+    RawEntryDate = EntryDate,
+    EntryDate = if_else(
+      EnrollmentvOperating %in% c("Enrollment Crosses Operating Start",
+                                  "Enrollment Crosses Operating Period") |
+        EnrollmentvParticipating %in% c("Enrollment Crosses Participating Start",
+                                        "Enrollment Crosses Participating Period"),
+      max(int_start(ParticipatingDateRange),
+          int_start(OperatingDateRange), na.rm = TRUE),
+      EntryDate
+    ),
+    RawExitAdjust = ExitAdjust,
+    ExitAdjust = if_else(
+      EnrollmentvOperating %in% c("Enrollment Crosses Operating End",
+                                  "Enrollment Crosses Operating Period") |
+        EnrollmentvParticipating %in% c("Enrollment Crosses Participating End",
+                                        "Enrollment Crosses Participating Period"),
+      max(int_end(ParticipatingDateRange), int_end(OperatingDateRange), na.rm = TRUE),
+      ExitAdjust
     )
   ) %>%
-  select(EnrollmentID, ProjectID, ProjectTimeID, EnrollmentDateRange, OperatingDateRange,
-         ParticipatingDateRange, FallsOutside)
+  select(
+    EnrollmentID,
+    ProjectID,
+    ProjectTimeID,
+    RawEntryDate,
+    EntryDate,
+    MoveInDate,
+    RawExitAdjust,
+    ExitAdjust,
+    EnrollmentvOperating,
+    EnrollmentvParticipating,
+    OperatingDateRange,
+    ParticipatingDateRange
+  )
 
-EnrollmentGranularity <- EnrollmentOutside %>%
-  get_dupes(EnrollmentID) %>%
-  mutate(Keeper = if_else(FallsOutside %in% c("Good", "Outside Operating"), 1, 0)) %>%
-  group_by(EnrollmentID) %>%
-  summarise(NumberKeepers = sum(Keeper, na.rm = TRUE)) %>%
-  arrange()
-  
-filter(FallsOutside != "Outside Participating")
-
-  left_join(small_project, by = "ProjectID") %>%
+(ISTHEREAPROBLEM <- EnrollmentAdjust %>% get_dupes(EnrollmentID)%>% nrow() > 0)
 
 # Adding ProjectType to Enrollment bc we need EntryAdjust & MoveInAdjust
 
