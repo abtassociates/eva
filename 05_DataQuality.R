@@ -723,7 +723,7 @@ ce_stayers <- base_dq_data %>%
 Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
 missed_movein_stayers <- base_dq_data %>%
-  select(all_of(vars_prep), ProjectID) %>%
+  select(all_of(vars_prep)) %>%
   filter(is.na(ExitDate) &
            ProjectType %in% c(ph_project_types)
   ) %>%
