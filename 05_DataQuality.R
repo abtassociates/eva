@@ -264,12 +264,12 @@ dq_veteran <- base_dq_data %>%
 
 # Missing Client Location -------------------------------------------------
 
-missing_client_location <- base_dq_data %>%
-  filter(is.na(ClientLocation) & 
+missing_enrollment_coc <- base_dq_data %>%
+  filter(is.na(EnrollmentCoC) & 
          RelationshipToHoH == 1
   ) %>%
-  mutate(Type = "High Priority",
-         Issue = "Missing Client Location",
+  mutate(Type = "High Priority", # revisit
+         Issue = "Missing Enrollment CoC",
          Guidance = guidance_missing_at_entry) %>%
   select(all_of(vars_we_want))
 
