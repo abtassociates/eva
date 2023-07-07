@@ -27,8 +27,8 @@ logToConsole("Running Data Quality")
 base_dq_data <- Enrollment %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
-  left_join(Project %>% select(ProjectID, TrackingMethod, OrganizationName),
-            by = "ProjectID") %>%
+  left_join(Project %>% select(ProjectTimeID, ProjectName, OrganizationName),
+            by = "ProjectTimeID") %>%
   select(
     PersonalID,
     FirstName,
@@ -37,22 +37,30 @@ base_dq_data <- Enrollment %>%
     SSNDataQuality,
     DOB,
     DOBDataQuality,
+    RaceNone,
     AmIndAKNative,
     Asian,
     BlackAfAmerican,
     NativeHIPacific,
     White,
-    RaceNone,
-    Ethnicity,
-    Female,
-    Male,
-    NoSingleGender,
+    MidEastNAfrican,
+    HispanicLatinaeo,
+    Woman,
+    Man,
+    NonBinary,
     Transgender,
+    CulturallySpecific,
+    DifferentIdentity,
     Questioning,
     GenderNone,
     VeteranStatus,
     EnrollmentID,
     ProjectID,
+    ProjectTimeID,
+    ProjectName,
+    ProjectType,
+    OrganizationName,
+    EnrollmentCoC,
     EntryDate,
     HouseholdID,
     RelationshipToHoH,
@@ -70,20 +78,14 @@ base_dq_data <- Enrollment %>%
     MoveInDateAdjust,
     ExitDate,
     Destination,
+    DestinationSubsidyType,
     ExitAdjust,
-    DateCreated,
-    ClientEnrolledInPATH,
-    LengthOfStay,
-    DateOfPATHStatus,
-    ReasonNotEnrolled,
-    ClientLocation,
-    TrackingMethod
-  ) %>%
-  inner_join(projects_current_hmis, by = "ProjectID")
+    DateCreated
+  )
 
 DV <- HealthAndDV %>%
   filter(DataCollectionStage == 1) %>%
-  select(EnrollmentID, DomesticViolenceVictim, WhenOccurred, CurrentlyFleeing)
+  select(EnrollmentID, DomesticViolenceSurvivor, WhenOccurred, CurrentlyFleeing)
 
 base_dq_data <- base_dq_data %>%
   left_join(DV, by = "EnrollmentID")
@@ -219,29 +221,13 @@ dq_race <- base_dq_data %>%
   filter(!is.na(Issue)) %>%
   select(all_of(vars_we_want))
 
-dq_ethnicity <- base_dq_data %>%
-  mutate(
-    Issue = case_when(
-      Ethnicity == 99 | is.na(Ethnicity) ~ "Missing Ethnicity",
-      Ethnicity %in% c(dkr) ~ "Don't Know/Refused Ethnicity"
-    ),
-    Type = case_when(
-      Issue == "Missing Ethnicity" ~ "Error",
-      Issue == "Don't Know/Refused Ethnicity" ~ "Warning"
-    ),
-    Guidance = if_else(Type == "Warning", 
-                       guidance_dkr_data, 
-                       guidance_missing_at_entry)
-  ) %>%
-  filter(!is.na(Issue)) %>%
-  select(all_of(vars_we_want))
-
 dq_gender <- base_dq_data %>%
   mutate(
     Issue = case_when(
       GenderNone %in% c(dkr) ~ "Don't Know/Refused Gender",
       GenderNone == 99 |
-        Female + Male + NoSingleGender + Transgender + Questioning == 0
+        Woman + Man + NonBinary + Transgender + CulturallySpecific + 
+        DifferentIdentity + Questioning == 0
       ~ "Missing Gender"
     ),
     Type = case_when(
