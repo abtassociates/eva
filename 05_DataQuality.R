@@ -1239,15 +1239,49 @@ if(nrow(Services) > 0){
     EnrollmentEnd = if_else(ProjectType == es_nbn_project_type, 
                             DateProvided, 
                             as.Date(ExitAdjust))
-  ) %>% # 40 secs
-  select(PersonalID, EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd, FirstDateProvided)
+  )
+}
+
+overlap_staging_no_nbn <- overlap_staging %>%  
+  mutate(
+    EnrollmentStart = case_when(
+      ProjectType %in% lh_residential_project_types ~ EntryDate,
+      ProjectType %in% ph_project_types ~ MoveInDateAdjust,
+      TRUE ~ EntryDate
+    ),
+    EnrollmentEnd = as.Date(ExitAdjust)
+  )
+
+if(nrow(Services) > 0){
+  overlap_staging <- overlap_staging_nbn %>% 
+    select(
+      PersonalID,
+      EnrollmentID,
+      ProjectType,
+      EnrollmentStart,
+      EnrollmentEnd,
+      FirstDateProvided
+    )
+} else{
+  overlap_staging <- overlap_staging_no_nbn %>% 
+    mutate(FirstDateProvided = NA) %>%
+    select(
+      PersonalID,
+      EnrollmentID,
+      ProjectType,
+      EnrollmentStart,
+      EnrollmentEnd,
+      FirstDateProvided
+    )
+}
 
 overlaps <- overlap_staging %>%
   # sort enrollments for each person
   group_by(PersonalID) %>%
   arrange(EnrollmentStart, EnrollmentEnd) %>%
   mutate(
-    # pull in previous enrollment into current enrollment record so we can compare intervals
+    # pull in previous enrollment into current enrollment record so we can 
+    # compare intervals
     PreviousEnrollmentID = lag(EnrollmentID)) %>%
   ungroup() %>%
   filter(!is.na(PreviousEnrollmentID)) %>% # 48 secs
