@@ -1382,7 +1382,7 @@ invalid_movein_date <- base_dq_data %>%
     ),
     Type = "Error",
     Guidance = str_squish("This move-in date does not fall between the Entry Date 
-    and the Exit Date or this move-in date is after the date of the export.")) %>%
+    and the Exit Date.")) %>%
   filter(Issue == "Invalid Move-In Date") %>%
   select(all_of(vars_we_want))
 
