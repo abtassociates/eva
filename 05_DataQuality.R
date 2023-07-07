@@ -1179,26 +1179,34 @@ conflicting_income_exit <- income_subs %>%
 rm(income_subs)
 
 # Enrollment Active Outside Operating Dates ------------------------
-entry_precedes_OpStart <- base_dq_data %>%
-  filter(RelationshipToHoH == 1 & 
-           EntryDate < OperatingStartDate) %>%
-  mutate(Issue = "Entry Precedes Project's Operating Start",
-         Type = "Warning", # sometimes enrollments get transferred to a merged
-         # project and this is ok and should not be fixed
+enrollment_v_operating <- EnrollmentOutside %>%
+  filter(!EnrollmentvOperating %in% c("Inside")) %>%
+  select(EnrollmentID, EnrollmentvOperating) %>%
+  left_join(base_dq_data, by = c("EnrollmentID")) %>%
+  mutate(Issue = EnrollmentvOperating,
+         Type = case_when(
+           EnrollmentvOperating == "Enrollment Crosses Operating Start" ~
+             "Warning", # sometimes enrollments get transferred to a merged
+           # project and this is ok and should not be edited
+           EnrollmentvOperating != "Enrollment Crosses Operating Start" ~
+             "Error",
+           TRUE ~ "Something's wrong"),
          Guidance = guidance_enrl_active_outside_op) %>%
   select(all_of(vars_we_want))
 
-exit_after_OpEnd <- base_dq_data %>%
-  filter(RelationshipToHoH == 1 &
-           (ExitDate > OperatingEndDate & !is.na(ExitDate)) |
-           (is.na(ExitDate) & !is.na(OperatingEndDate))
-  ) %>%
-  mutate(Issue = "Exit After Project's Operating End Date",
+# Enrollment Outside of Participating Dates -------------------------------
+
+enrollment_v_participating <- EnrollmentOutside %>%
+  filter(!EnrollmentvParticipating %in% c("Inside")) %>%
+  select(EnrollmentID, EnrollmentvParticipating) %>%
+  left_join(base_dq_data, by = c("EnrollmentID")) %>%
+  mutate(Issue = EnrollmentvParticipating,
          Type = "Error",
          Guidance = guidance_enrl_active_outside_op) %>%
   select(all_of(vars_we_want))
 
 # Overlaps ----------------------------------------------------------------
+
 
 overlap_staging <- base_dq_data %>% 
   select(!!vars_prep, ExitAdjust, EnrollmentID) %>%
@@ -1208,12 +1216,15 @@ overlap_staging <- base_dq_data %>%
                !is.na(MoveInDateAdjust)
            ) |
              ProjectType %in% lh_residential_project_types
-           )) %>%  
+           ))
+
+if(nrow(Services) > 0){
+  overlap_staging_nbn <- overlap_staging %>%  
   left_join(
     Services %>% 
       select(EnrollmentID, DateProvided) %>%
       group_by(EnrollmentID) %>%
-      mutate(FirstDateProvided = min(DateProvided)) %>% 
+      slice_min(DateProvided, n = 1L) %>% 
       ungroup() %>%
       unique()
     , by = "EnrollmentID"
