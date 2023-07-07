@@ -16,22 +16,6 @@ source("guidance.R", local=TRUE)
 
 logToConsole("Running Data Quality")
 
-# Projects to Check -------------------------------------------------------
-projects_current_hmis <- Project %>%
-  filter(HMISParticipatingProject == 1 &
-           operating_between(., 
-                             ymd(meta_HUDCSV_Export_Start),
-                             ymd(meta_HUDCSV_Export_End))) %>%
-  select(
-    ProjectID,
-    OrganizationID,
-    OperatingStartDate,
-    OperatingEndDate,
-    ProjectType,
-    ProjectName,
-    OrganizationName
-  ) %>% unique()
-
 # Clients to Check --------------------------------------------------------
 
 # base_dq_data is meant to serve as a basic dataset with a granularity
