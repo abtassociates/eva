@@ -116,12 +116,12 @@ EnrollmentOutside <- EnrollmentStaging %>%
         EnrollmentDateRange %within% ParticipatingDateRange ~
           "Inside",
         int_start(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
-          "Entry and Exit After Participating",
+          "Enrollment After Participating Period",
         int_start(EnrollmentDateRange) < int_start(ParticipatingDateRange) &
           int_end(EnrollmentDateRange) > int_start(ParticipatingDateRange) ~
           "Enrollment Crosses Participating Start",
         int_end(EnrollmentDateRange) < int_start(ParticipatingDateRange) ~
-          "Entry and Exit Before Participating",
+          "Enrollment Before Participating Period",
         int_start(EnrollmentDateRange) > int_start(ParticipatingDateRange) &
           int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~ 
           "Enrollment Crosses Participating End",
@@ -132,12 +132,12 @@ EnrollmentOutside <- EnrollmentStaging %>%
       EnrollmentDateRange %within% OperatingDateRange ~
         "Inside",
       int_start(EnrollmentDateRange) > int_end(OperatingDateRange) ~
-        "Entry and Exit After Operating",
+        "Enrollment After Operating Period",
       int_start(EnrollmentDateRange) < int_start(OperatingDateRange) &
         int_end(EnrollmentDateRange) > int_start(OperatingDateRange) ~
         "Enrollment Crosses Operating Start",
       int_end(EnrollmentDateRange) < int_start(OperatingDateRange) ~
-        "Entry and Exit Before Operating",
+        "Enrollment Before Operating Period",
       int_start(EnrollmentDateRange) > int_start(OperatingDateRange) &
         int_end(EnrollmentDateRange) > int_end(OperatingDateRange) ~ 
         "Enrollment Crosses Operating End",
@@ -213,11 +213,11 @@ Enrollment <- EnrollmentStaging %>%
 EnrollmentAdjust <- Enrollment %>%
   filter(
     !EnrollmentvParticipating %in% c(
-      "Entry and Exit After Participating",
-      "Entry and Exit Before Participating"
+      "Enrollment After Participating Period",
+      "Enrollment Before Participating Period"
     ) &
-      !EnrollmentvOperating %in% c("Entry and Exit After Operating",
-                                   "Entry and Exit Before Operating")
+      !EnrollmentvOperating %in% c("Enrollment After Operating Period",
+                                   "Enrollment Before Operating Period")
   ) 
 
 # getting HH information
