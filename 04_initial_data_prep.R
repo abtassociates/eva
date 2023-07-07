@@ -23,14 +23,14 @@ logToConsole("Running initial data prep")
 
 # add Organization info into project dataset to more easily pull this info
 
-Project <- Project %>%
+ProjectStaging <- Project %>%
   left_join(Organization %>%
               select(OrganizationID, OrganizationName),
             by = "OrganizationID")
 
 # breaking out Projects into their participating times, adjusting ProjectIDs
 
-ProjectsInHMIS <- Project %>%
+ProjectsInHMIS <- ProjectStaging %>%
   left_join(
     HMISParticipation %>%
       filter(HMISParticipationType == 1) %>%
@@ -95,21 +95,20 @@ small_project <- Project %>% select(ProjectID, ProjectType, ProjectName) %>%
 
 # Enrollment --------------------------------------------------------------
 
-Enrollment <- Enrollment %>%
+EnrollmentStaging <- Enrollment %>%
   left_join(Exit %>% 
               select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
-            by = "EnrollmentID")
-
-EnrollmentTest <- Enrollment %>%
+            by = "EnrollmentID") %>%
   mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_End),
          EnrollmentDateRange = interval(EntryDate, ExitAdjust))
 
 # Truncating Enrollments based on Operating/Participating -----------------
 
-EnrollmentOutside <- EnrollmentTest %>%
+EnrollmentOutside <- EnrollmentStaging %>%
   left_join(Project %>%
               select(ProjectID,
                      ProjectTimeID,
+                     ProjectType,
                      ParticipatingDateRange,
                      OperatingDateRange), by = "ProjectID",
             relationship = "many-to-many") %>%
@@ -147,21 +146,17 @@ EnrollmentOutside <- EnrollmentTest %>%
         int_end(EnrollmentDateRange) > int_end(OperatingDateRange) ~
         "Enrollment Crosses Operating Period")
   ) %>%
-  select(EnrollmentID, ProjectID, ProjectTimeID, EnrollmentDateRange,
+  group_by(ProjectID, EnrollmentID) %>%
+  arrange(EntryDate) %>%
+  slice(1L) %>%
+  ungroup() %>%
+  select(EnrollmentID, ProjectID, ProjectTimeID, ProjectType, EnrollmentDateRange,
          OperatingDateRange, ParticipatingDateRange, EnrollmentvParticipating,
          EnrollmentvOperating)
 
-EnrollmentAdjust <- EnrollmentTest %>%
+Enrollment <- EnrollmentStaging %>%
   left_join(EnrollmentOutside,
             by = c("EnrollmentID", "ProjectID", "EnrollmentDateRange")) %>%
-  filter(
-    !EnrollmentvParticipating %in% c(
-      "Entry and Exit After Participating",
-      "Entry and Exit Before Participating"
-    ) &
-      !EnrollmentvOperating %in% c("Entry and Exit After Operating",
-                                   "Entry and Exit Before Operating")
-  ) %>%
   mutate(
     RawEntryDate = EntryDate,
     EntryDate = if_else(
@@ -174,6 +169,15 @@ EnrollmentAdjust <- EnrollmentTest %>%
       EntryDate
     ),
     RawExitAdjust = ExitAdjust,
+    RawExitDate = ExitDate,
+    ExitDate = if_else(
+      EnrollmentvOperating %in% c("Enrollment Crosses Operating End",
+                                  "Enrollment Crosses Operating Period") |
+        EnrollmentvParticipating %in% c("Enrollment Crosses Participating End",
+                                        "Enrollment Crosses Participating Period"),
+      max(int_end(ParticipatingDateRange), int_end(OperatingDateRange), na.rm = TRUE),
+      ExitDate
+    ),
     ExitAdjust = if_else(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating End",
                                   "Enrollment Crosses Operating Period") |
@@ -187,20 +191,35 @@ EnrollmentAdjust <- EnrollmentTest %>%
     EnrollmentID,
     ProjectID,
     ProjectTimeID,
+    ProjectType,
     RawEntryDate,
     EntryDate,
-    MoveInDate,
     RawExitAdjust,
     ExitAdjust,
+    RawExitDate,
+    ExitDate,
+    Destination,
+    DestinationSubsidyType,
     EnrollmentvOperating,
     EnrollmentvParticipating,
     OperatingDateRange,
     ParticipatingDateRange
-  )
+  ) %>%
+  right_join(Enrollment %>%
+               select(-EntryDate),
+             by = c("EnrollmentID", "ProjectID"))
 
-(ISTHEREAPROBLEM <- EnrollmentAdjust %>% get_dupes(EnrollmentID)%>% nrow() > 0)
+# Only contains EEs within Operating and Participating Dates --------------
 
-# Adding ProjectType to Enrollment bc we need EntryAdjust & MoveInAdjust
+EnrollmentAdjust <- Enrollment %>%
+  filter(
+    !EnrollmentvParticipating %in% c(
+      "Entry and Exit After Participating",
+      "Entry and Exit Before Participating"
+    ) &
+      !EnrollmentvOperating %in% c("Entry and Exit After Operating",
+                                   "Entry and Exit Before Operating")
+  ) 
 
 # getting HH information
 # only doing this for PH projects since Move In Date doesn't matter for ES, etc.
@@ -251,13 +270,7 @@ Enrollment <- Enrollment %>%
                                  ymd(HHMoveIn) <= ExitAdjust,
                                if_else(EntryDate <= ymd(HHMoveIn),
                                        ymd(HHMoveIn), EntryDate),
-                               NA), 
-    EntryAdjust = case_when(
-      !ProjectType %in% ph_project_types ~ EntryDate,
-      ProjectType %in% ph_project_types &
-        !is.na(MoveInDateAdjust) ~ MoveInDateAdjust
-    )
-  )
+                               NA))
 
 # Adding Age at Entry to Enrollment
 small_client <- Client %>% select(PersonalID, DOB)
@@ -278,25 +291,16 @@ Services <- Services %>%
 
 # Build Validation df for app ---------------------------------------------
 
-validationProject <- ProjectsInHMIS %>%
+validationProject <- Project %>%
   select(
     ProjectID,
     ProjectTimeID,
     OrganizationName,
     OperatingDateRange,
     ParticipatingDateRange,
-    ProjectCommonName,
     ProjectName,
     ProjectType
-  ) %>%
-  filter(
-    int_overlaps(file_date_range, OperatingDateRange) &
-      int_overlaps(file_date_range, ParticipatingDateRange)
-  ) %>%
-  get_dupes(ProjectID)
-
-# a project's operating and participating date ranges must intersect the
-# reporting period ^
+  )
 
 validationEnrollment <- Enrollment %>% 
   select(
@@ -304,13 +308,16 @@ validationEnrollment <- Enrollment %>%
     PersonalID,
     HouseholdID,
     ProjectID,
+    ProjectTimeID,
     RelationshipToHoH,
     EntryDate,
+    RawEntryDate,
     MoveInDate,
     ExitDate,
-    EntryAdjust,
+    RawExitDate,
     MoveInDateAdjust,
     ExitAdjust,
+    RawExitAdjust,
     LivingSituation,
     Destination,
     DestinationSubsidyType,
@@ -318,9 +325,11 @@ validationEnrollment <- Enrollment %>%
   ) 
 
 validation <- validationProject %>%
-  left_join(validationEnrollment, by = "ProjectID") %>%
+  left_join(validationEnrollment, by = c("ProjectTimeID", "ProjectID")) %>%
   select(
     ProjectID,
+    ProjectTimeID,
+    OrganizationName,
     ProjectName,
     ProjectType,
     EnrollmentID,
@@ -328,22 +337,19 @@ validation <- validationProject %>%
     HouseholdID,
     RelationshipToHoH,
     EntryDate,
-    EntryAdjust,
-    MoveInDate,
     MoveInDateAdjust,
     ExitDate,
     LivingSituation,
     Destination,
     DestinationSubsidyType,
-    DateCreated,
-    OrganizationName
+    DateCreated
   ) %>%
   filter(!is.na(EntryDate))
 
-desk_time_providers <- validation %>%
-  dplyr::filter(
-    (entered_between(., today() - years(1), today()) |
-       exited_between(., today() - years(1), today())) &
-      ProjectType %in% lh_ph_hp_project_types) %>%
-  dplyr::select(ProjectName) %>% unique()
+# desk_time_providers <- validation %>%
+#   dplyr::filter(
+#     (entered_between(., today() - years(1), today()) |
+#        exited_between(., today() - years(1), today())) &
+#       ProjectType %in% lh_ph_hp_project_types) %>%
+#   dplyr::select(ProjectName) %>% unique()
 
