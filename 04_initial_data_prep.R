@@ -73,14 +73,25 @@ if(nrow(quit_and_start_projects) > 0){
 
 # this version of Project is similar to the FY22 version of Project, except the
 # ProjectTimeID is the granularity. 
-Project <- ProjectsInHMIS %>%
-  mutate(ProjectTimeID = coalesce(ProjectTimeID, ProjectID))
 
-# This dataset is only used to populate the Client Counts header with the Project and Org names
+if("ProjectTimeID" %in% colnames(ProjectsInHMIS)){
+  Project <- ProjectsInHMIS %>%
+  mutate(ProjectTimeID = coalesce(ProjectTimeID, ProjectID)) %>%
+    relocate(ProjectTimeID, .after = ProjectID)
+} else{
+  Project <- ProjectsInHMIS %>%
+    mutate(ProjectTimeID = ProjectID) %>%
+    relocate(ProjectTimeID, .after = ProjectID)
+}
+
+# This dataset is only used to populate the Client Counts header with the 
+# Project and Org names
 Project0 <<- Project %>% 
-  select(ProjectID, ProjectName, OrganizationID, OrganizationName, ProjectType)
+  select(ProjectID, ProjectName, OrganizationID, OrganizationName, ProjectType) %>%
+  unique()
 
-small_project <- Project %>% select(ProjectID, ProjectType, ProjectName)
+small_project <- Project %>% select(ProjectID, ProjectType, ProjectName) %>%
+  unique()
 
 # Enrollment --------------------------------------------------------------
 
