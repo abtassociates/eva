@@ -750,11 +750,11 @@ Top2_movein <- subset(missed_movein_stayers,
   )
 
 long_stayers <- rbind(Top1_PSH,
-                                Top2_ES,
-                                Top2_RRH,
-                                Top2_TH,
-                                Top2_HP,
-                                Top2_CE) %>%
+                      Top2_ES,
+                      Top2_RRH,
+                      Top2_TH,
+                      Top2_HP,
+                      Top2_CE) %>% 
   mutate(
     Issue = "Possible Missed Exit Date",
     Type = "Warning",
@@ -1007,10 +1007,11 @@ duplicate_ees <-
   mutate(
     Issue = "Duplicate Entries",
     Type = "High Priority",
-    Guidance = 
-      str_squish("A client cannot have two enrollments with the same entry date
-                 into the same project. These are duplicate enrollment records.
-                 Please address this issue.")
+    Guidance =
+      str_squish(
+        "A client cannot have two enrollments with the same entry date into the
+        same project. These are duplicate enrollment records."
+      )
   ) %>%
   select(all_of(vars_we_want))
 
