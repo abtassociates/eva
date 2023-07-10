@@ -1094,16 +1094,19 @@ smallIncome <- IncomeBenefits %>%
 smallIncome[is.na(smallIncome)] <- 0
 
 smallIncome <-
-  smallIncome %>% full_join(IncomeBenefits[c(
+  smallIncome %>% unique() %>%
+  full_join(IncomeBenefits[c(
     "PersonalID",
     "EnrollmentID",
     "DataCollectionStage",
     "TotalMonthlyIncome",
     "IncomeFromAnySource"
-  )],
+  )] %>%
+    unique(),
   by = c("PersonalID",
          "EnrollmentID",
-         "DataCollectionStage"))
+         "DataCollectionStage"),
+  relationship = "many-to-many")
 
 income_subs <- base_dq_data[c("EnrollmentID",
                                       "AgeAtEntry",
