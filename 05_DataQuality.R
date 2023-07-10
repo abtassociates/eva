@@ -1479,21 +1479,28 @@ ncb_subs <- IncomeBenefits %>%
     TANFTransportation,
     OtherTANF,
     OtherBenefitsSource
-  )
+  ) %>%
+  unique()
 
 ncb_subs[is.na(ncb_subs)] <- 0
 
-ncb_subs <- ncb_subs %>%
+ncbs <- ncb_subs %>%
   full_join(IncomeBenefits[c("PersonalID",
                              "EnrollmentID",
                              "DataCollectionStage",
-                             "BenefitsFromAnySource")],
+                             "BenefitsFromAnySource")] %>%
+              unique(),
             by = c("PersonalID",
                    "EnrollmentID",
-                   "DataCollectionStage"))
+                   "DataCollectionStage"),
+            relationship = "many-to-many")
 
-ncb_subs <- base_dq_data %>%
-  left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
+# if there are conflicting yes/no records or conflicting subs, this will catch
+# any that conflict with each other, which will prompt the user to correct the
+# record(s) that's incorrect
+
+ncb_staging <- base_dq_data %>%
+  left_join(ncbs, by = c("PersonalID", "EnrollmentID")) %>%
   select(
     PersonalID,
     EnrollmentID,
@@ -1543,7 +1550,7 @@ missing_ncbs_entry <- base_dq_data %>%
   select(all_of(vars_we_want))
 
 conflicting_ncbs_entry <- base_dq_data %>%
-  left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
+  left_join(ncb_staging, by = c("PersonalID", "EnrollmentID")) %>%
   select(AgeAtEntry,
          all_of(vars_prep),
          DataCollectionStage,
