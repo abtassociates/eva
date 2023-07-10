@@ -130,6 +130,9 @@ function(input, output, session) {
           ungroup() %>%
           arrange(Type, desc(Count))
         
+        
+        exportTestValues(fileStructureAnalysis = a)
+        
         datatable(
           a,
           rownames = FALSE,
@@ -158,21 +161,17 @@ function(input, output, session) {
         )
         
         logMetadata("Downloaded File Structure Analysis Report")
+        
+        exportTestValues(file_structure_analysis_main = file_structure_analysis_main)
       }
     )
     
     if(valid_file() == 1) {
       updatePickerInput(session = session, inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
-
-      updatePickerInput(session = session, inputId = "desk_time_providers",
-                        choices = sort(Project$ProjectName))
       
       updatePickerInput(session = session, inputId = "providerListDQ",
                         choices = dq_providers)
-      
-      updatePickerInput(session = session, inputId = "providerDeskTime",
-                        choices = desk_time_providers)
       
       updatePickerInput(session = session, inputId = "orgList",
                         choices = c(unique(sort(Organization$OrganizationName))))
@@ -384,11 +383,15 @@ function(input, output, session) {
     output$pdde_summary_table <- DT::renderDataTable({
       req(valid_file() == 1)
       
+      a <- pdde_main %>%
+        group_by(Issue, Type) %>%
+        summarise(Count = n()) %>%
+        ungroup()
+      
+      exportTestValues(pdde_summary_table = a)
+      
       datatable(
-        pdde_main %>%
-          group_by(Issue, Type) %>%
-          summarise(Count = n()) %>%
-          ungroup(),
+        a,
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't')
@@ -427,6 +430,8 @@ function(input, output, session) {
           path = file)
         
         logMetadata("Downloaded PDDE Report")
+        
+        exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main))
       }
     )
     
@@ -443,86 +448,17 @@ function(input, output, session) {
         arrange(Type, Issue) %>%
         unique()
       
-      datatable(guidance, 
-                rownames = FALSE,
-                escape = FALSE,
-                filter = 'top',
-                options = list(dom = 'ltpi'))
+      exportTestValues(pdde_guidance_summary = guidance)
+      
+      datatable(
+        guidance, 
+        rownames = FALSE,
+        escape = FALSE,
+        filter = 'top',
+        options = list(dom = 'ltpi')
+      )
     })
 
-# DeskTime Plot Detail ----------------------------------------------------
-
-    output$DeskTimePlotDetail <- renderPlot({
-      req(valid_file() == 1)
-      provider <- input$providerDeskTime
-      
-      ReportStart <- ymd(meta_HUDCSV_Export_Start - years(1))
-      ReportEnd <- ymd(meta_HUDCSV_Export_End)
-      
-      desk_time <- validation %>%
-        filter(ProjectName == provider &
-                 entered_between(., ReportStart, ReportEnd) &
-                 ProjectType %in% lh_ph_hp_project_types) %>%
-        select(ProjectName, PersonalID, HouseholdID, EntryDate, DateCreated) %>%
-        mutate(
-          DeskTime = difftime(floor_date(DateCreated, unit = "day"),
-                              EntryDate,
-                              units = "days"),
-          DeskTime = as.integer(floor(DeskTime)),
-          GoalMet = if_else(DeskTime > 5 |
-                              DeskTime < 0,
-                            "chocolate2",
-                            "forestgreen")
-        ) %>%
-        select(HouseholdID,
-               PersonalID,
-               ProjectName,
-               EntryDate,
-               DateCreated,
-               DeskTime,
-               GoalMet) 
-      
-      desk_time_medians <- desk_time %>%
-        group_by(ProjectName) %>%
-        summarise(MedianDeskTime = median(DeskTime),
-                  TotalEntered = n()) %>%
-        ungroup()
-      
-      dq_plot_desk_time <-
-        ggplot(
-          desk_time,
-          aes(x = EntryDate, y = DeskTime)
-        ) +
-        geom_point(aes(color = GoalMet, size = 8, alpha = .2),
-                   show.legend = FALSE)+
-        scale_color_identity() +
-        geom_hline(yintercept = 5, color = "forestgreen") +
-        geom_hline(yintercept = 0, color = "forestgreen") +
-        geom_hline(
-          data = desk_time_medians,
-          aes(yintercept = MedianDeskTime),
-          color = "black"
-        ) +
-        xlim(today() - years(1), today()) +
-        geom_label(x = today() - days(180),
-                   y = desk_time_medians %>%
-                     pull(MedianDeskTime),
-                   label = paste("Median:", 
-                                 desk_time_medians %>%
-                                   pull(MedianDeskTime),
-                                 "days | Total Clients:",
-                                 desk_time_medians %>%
-                                   pull(TotalEntered))) +
-        geom_label(x = today() - days(300),
-                   y = 5,
-                   label = "DQ Standards (5 days or less)") +
-        labs(x = "Entry Date",
-             y = "Data Entry Delay (in days)") +
-        theme_minimal(base_size = 18)
-      
-      dq_plot_desk_time
-    })
-    
 
 # Client Counts -----------------------------------------------------------
 
@@ -532,11 +468,15 @@ function(input, output, session) {
     output$clientCountData <- DT::renderDataTable({
       req(valid_file() == 1)
 
+      x <- client_count_data_df() %>%
+        filter(ProjectName == input$currentProviderList) %>%
+        select(all_of(clientCountDetailCols)) %>%
+          nice_names()
+      
+      exportTestValues(clientCountData = x)
+      
       datatable(
-        client_count_data_df() %>%
-          filter(ProjectName == input$currentProviderList) %>%
-          select(all_of(clientCountDetailCols)) %>%
-          nice_names(),
+        x,
         rownames = FALSE,
         filter = 'top',
         options = list(dom = 'ltpi')
@@ -548,6 +488,8 @@ function(input, output, session) {
 
     output$clientCountSummary <- DT::renderDataTable({
       req(valid_file() == 1)
+      
+      exportTestValues(clientCountSummary = client_count_summary_df())
       
       datatable(
         client_count_summary_df() %>%
@@ -587,11 +529,15 @@ function(input, output, session) {
         arrange(Type, Issue) %>%
         unique()
       
-      datatable(guidance, 
-                rownames = FALSE,
-                escape = FALSE,
-                filter = 'top',
-                options = list(dom = 'ltpi'))
+      exportTestValues(dq_org_guidance_summary = guidance)
+      
+      datatable(
+        guidance, 
+        rownames = FALSE,
+        escape = FALSE,
+        filter = 'top',
+        options = list(dom = 'ltpi')
+      )
     })
     
     output$dq_organization_summary_table <- DT::renderDataTable({
@@ -612,6 +558,8 @@ function(input, output, session) {
           Type, 
           Issue, 
           Clients)
+      
+      exportTestValues(dq_organization_summary_table = a)
       
       datatable(
         a,
@@ -673,6 +621,7 @@ function(input, output, session) {
       content = function(file) {
         write_xlsx(dqDownloadInfo()$orgDQData, path = file)
         logMetadata("Downloaded Org-level DQ Report")
+        exportTestValues(orgDQ_download = dqDownloadInfo()$orgDQData)
       }
     )
     
@@ -690,6 +639,7 @@ function(input, output, session) {
       content = function(file) {
         write_xlsx(dqDownloadInfo()$systemDQData, path = file)
         logMetadata("Downloaded System-level DQ Report")
+        exportTestValues(systemDQ_download = dqDownloadInfo()$systemDQData)
       }
     )
 
@@ -751,25 +701,16 @@ function(input, output, session) {
       renderDQPlot("org", "Warning", "Issue", "#71B4CB")
     })
   
-  # output$headerUtilization <- renderUI({
-  #   req(valid_file() == 1)
-  #   list(h2("Bed and Unit Utilization"),
-  #        h4(input$providerListUtilization),
-  #        h4(format(ymd(
-  #          input$utilizationDate
-  #        ), "%B %Y"))
-  #        )
-  # })
-  # 
-  # output$headerDeskTime <- renderUI({
-  #   req(valid_file() == 1)
-  #   list(h2("Data Entry Timeliness"),
-  #        h4(input$providersDeskTime),
-  #        h4(paste("Fixed Date Range:",
-  #                 format(today() - years(1), "%m-%d-%Y"),
-  #                 "to",
-  #                 format(today(), "%m-%d-%Y"))))
-  # })
+    
+    
+    # output$headerUtilization <- renderUI({
+    #   list(h2("Bed and Unit Utilization"),
+    #        h4(input$providerListUtilization),
+    #        h4(format(ymd(
+    #          input$utilizationDate
+    #        ), "%B %Y"))
+    #        )
+    # })
   
   # output$headerExitsToPH <- renderUI({
   #   req(valid_file() == 1)
@@ -784,126 +725,13 @@ function(input, output, session) {
   #          ReportEnd
   #        )))
   # })
-  
-  # output$headerOrganizationDQ <- renderUI({
-  #   req(valid_file() == 1)
-  #   list(h2("Data Quality Summary (Organization)"),
-  #        h4(paste(
-  #          format(input$dq_startdate, "%m-%d-%Y"),
-  #          "to",
-  #          format(meta_HUDCSV_Export_End, "%m-%d-%Y")
-  #        )))
-  # })
-  
-  output$deskTimeNote <- renderUI({
-    HTML(
-      "<h4>HUD and Data Quality</h4>
-        <p>HUD defines \"Data Quality\" as having three elements:
-    1. Accuracy, 2. Completeness, and 3. Timeliness. Data Entry Delay (aka
-    \"Desk Time\") refers to how long it is taking to enter a client into HMIS
-    from the day they enter your project.
-    <h4>Ohio Balance of State CoC Data Standards</h4>
-    <p>According to the Data Quality Standards for the Ohio Balance of State
-    CoC, all clients should be entered within 5 days of their entry into your
-    project.
-    <h4>How Do We Fix This?</h4>
-    <p><strong>There is nothing a user can do</strong> to \"correct\" a client
-    entered into the system outside the window. We can only resolve to enter
-    clients within the 5-day range going forward. As you catch up on data entry,
-    you may see your median get worse at first, but this data looks back exactly
-    one year, so any clients with an Entry Date over a year ago will fall off
-    of this plot and your median will change accordingly.
-    <h4>Interpretation</h4>
-    <p>Green dots here represent clients entered within the range and orange
-    dots represent clients entered outside the range. The darker the dot, the
-    more clients entered your project on that day. (Likely a household.)
-    <p>The metric COHHIO looks at here is the Median, so if you have orange dots
-    but your Median is within the 5 day range, that is great!
-    <p>If you have orange dots BELOW the 0 mark, that means you entered Entry
-    Dates into the future, which means there is potentially a mis-keyed date or
-    the user needs technical assistance about how to know what date to enter for
-    the Entry Date. If this is the case, please email the HMIS team.
-            <h4>Is it possible there's a mistake?</h4>
-    It's rare that this occurs, but if an Entry Exit has been created, deleted,
-    and then recreated, the Entry Exit's \"Date Created\" date is reset,
-    thus inflating the number of days between the Date Created and the Entry Date.
-    If you need us to check if this was the case for a particular dot on the
-    plot, please email us with the provider and number of days it is
-    displaying that you think may be incorrect so we can verify if this is the
-        issue."
-    )})
-  
+
   }, ignoreInit = TRUE)
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")
   })
 }
-  # output$headerCocDQ <- renderUI({
-  #   req(!is.null(input$imported))
-  #   list(h2("System-wide Data Quality"),
-  #        h4(
-  #          paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-  #                "through",
-  #                format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
-  #        ))
-  # })
-  # output$deskTimeNote <- renderUI({
-  #   HTML(
-  #     "<h4>HUD and Data Quality</h4>
-  #       <p>HUD defines \"Data Quality\" as having three elements:
-  #   1. Accuracy, 2. Completeness, and 3. Timeliness. Data Entry Delay (aka
-  #   \"Desk Time\") refers to how long it is taking to enter a client into HMIS
-  #   from the day they enter your project.
-  #   <h4>Ohio Balance of State CoC Data Standards</h4>
-  #   <p>According to the Data Quality Standards for the Ohio Balance of State
-  #   CoC, all clients should be entered within 5 days of their entry into your
-  #   project.
-  #   <h4>How Do We Fix This?</h4>
-  #   <p><strong>There is nothing a user can do</strong> to \"correct\" a client
-  #   entered into the system outside the window. We can only resolve to enter
-  #   clients within the 5-day range going forward. As you catch up on data entry,
-  #   you may see your median get worse at first, but this data looks back exactly
-  #   one year, so any clients with an Entry Date over a year ago will fall off
-  #   of this plot and your median will change accordingly.
-  #   <h4>Interpretation</h4>
-  #   <p>Green dots here represent clients entered within the range and orange
-  #   dots represent clients entered outside the range. The darker the dot, the
-  #   more clients entered your project on that day. (Likely a household.)
-  #   <p>The metric COHHIO looks at here is the Median, so if you have orange dots
-  #   but your Median is within the 5 day range, that is great!
-  #   <p>If you have orange dots BELOW the 0 mark, that means you entered Entry
-  #   Dates into the future, which means there is potentially a mis-keyed date or
-  #   the user needs technical assistance about how to know what date to enter for
-  #   the Entry Date. If this is the case, please email the HMIS team.
-  #           <h4>Is it possible there's a mistake?</h4>
-  #   It's rare that this occurs, but if an Entry Exit has been created, deleted,
-  #   and then recreated, the Entry Exit's \"Date Created\" date is reset,
-  #   thus inflating the number of days between the Date Created and the Entry Date.
-  #   If you need us to check if this was the case for a particular dot on the
-  #   plot, please email us with the provider and number of days it is
-  #   displaying that you think may be incorrect so we can verify if this is the
-  #       issue."
-  #   )})
-  
-# output$headerUtilization <- renderUI({
-#   list(h2("Bed and Unit Utilization"),
-#        h4(input$providerListUtilization),
-#        h4(format(ymd(
-#          input$utilizationDate
-#        ), "%B %Y"))
-#        )
-# })
-
-# output$headerDeskTime <- renderUI({
-#   list(h2("Data Entry Timeliness"),
-#        h4(input$providersDeskTime),
-#        h4(paste("Fixed Date Range:",
-#                 format(today() - years(1), "%m-%d-%Y"),
-#                 "to",
-#                 format(today(), "%m-%d-%Y"))))
-# })
-
   
   
   # output$cocDQErrors <- renderPlot(dq_plot_projects_errors)

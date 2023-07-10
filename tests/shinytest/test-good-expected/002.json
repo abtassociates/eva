@@ -1,0 +1,253 @@
+{
+  "input": {
+    "CEOutstandingReferrals": 14,
+    "currentProviderList": "CE - CoC SSO",
+    "dateRangeCount": [
+      "2014-10-21",
+      "2022-11-10"
+    ],
+    "DayShelterLongStayers": 90,
+    "ESNbNLongStayers": 90,
+    "fileStructureAnalysis_cell_clicked": {
+
+    },
+    "fileStructureAnalysis_cells_selected": [
+
+    ],
+    "fileStructureAnalysis_columns_selected": null,
+    "fileStructureAnalysis_rows_all": 1,
+    "fileStructureAnalysis_rows_current": 1,
+    "fileStructureAnalysis_rows_selected": null,
+    "fileStructureAnalysis_search": "",
+    "fileStructureAnalysis_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
+    "Go_to_upload": 1,
+    "imported": {
+      "name": [
+        "HMIS CSV Export - Current Good.zip"
+      ],
+      "size": [
+        1785003
+      ],
+      "type": [
+        "application/zip"
+      ],
+      "datapath": [
+        "0.zip"
+      ]
+    },
+    "orgList": "Organization A",
+    "OtherLongStayers": 90,
+    "OUTLongStayers": 90,
+    "ServicesOnlyLongStayers": 90,
+    "sidebarCollapsed": false,
+    "sidebarItemExpanded": null,
+    "sidebarmenuid": "tabUpload"
+  },
+  "output": {
+    "downloadFileStructureAnalysisBtn": {
+      "html": "<a id=\"downloadFileStructureAnalysis\" class=\"btn btn-default shiny-download-link \" href=\"\" target=\"_blank\" download>\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Structure Analysis Detail\n<\/a>",
+      "deps": [
+        {
+          "name": "font-awesome",
+          "version": "6.4.0",
+          "src": {
+            "href": "font-awesome-6.4.0"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": [
+            "css/all.min.css",
+            "css/v4-shims.min.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "fileInfo": {
+      "html": "<p>You have successfully uploaded your hashed HMIS CSV Export!<\/p>",
+      "deps": [
+
+      ]
+    },
+    "fileStructureAnalysis": {
+      "x": {
+        "filter": "none",
+        "vertical": false,
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "options": {
+          "dom": "t",
+          "columnDefs": [
+            {
+              "className": "dt-right",
+              "targets": 2
+            }
+          ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
+          "ajax": {
+            "type": "POST",
+            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
+          },
+          "serverSide": true,
+          "processing": true
+        },
+        "selection": {
+          "mode": "multiple",
+          "selected": null,
+          "target": "row",
+          "selectable": null
+        }
+      },
+      "evals": [
+        "options.ajax.data"
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "jquery",
+          "version": "3.6.0",
+          "src": {
+            "href": "jquery-3.6.0"
+          },
+          "meta": null,
+          "script": "jquery-3.6.0.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "dt-core",
+          "version": "1.11.3",
+          "src": {
+            "href": "dt-core-1.11.3"
+          },
+          "meta": null,
+          "script": "js/jquery.dataTables.min.js",
+          "stylesheet": [
+            "css/jquery.dataTables.min.css",
+            "css/jquery.dataTables.extra.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.2.0",
+          "src": {
+            "href": "crosstalk-1.2.0"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.min.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "headerUpload": {
+      "html": "<h2>Upload HMIS CSV Export<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-21-2014 to 11-10-2022\n<\/h4>\n<h4>\n  <strong>Export Date: <\/strong>\n  11-10-2022 at 05:04 PM\n<\/h4>",
+      "deps": [
+
+      ]
+    }
+  },
+  "export": {
+    "file_structure_analysis_main": {
+      "Issue": [
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns"
+      ],
+      "Type": [
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning"
+      ],
+      "Guidance": [
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure you have all the required columns.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure you have all the required columns.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure you have all the required columns.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure you have all the required columns.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure you have all the required columns.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure you have all the required columns."
+      ],
+      "Detail": [
+        "In the Enrollment file, the HOHLeaseholder column is missing",
+        "In the Enrollment file, HoHLeaseholder is an extra column",
+        "In the Exit file, AskedOrForcedToExchangeForSexPas is an extra column",
+        "In the Exit file, the AskedOrForcedToExchangeForSexPastThreeMonths column is missing",
+        "In the Exit file, WorkPlaceViolenceThreats is an extra column",
+        "In the Exit file, the WorkplaceViolenceThreats column is missing"
+      ]
+    },
+    "fileStructureAnalysis": {
+      "Type": [
+        "Warning"
+      ],
+      "Issue": [
+        "Incorrect Columns"
+      ],
+      "Count": [
+        6
+      ]
+    }
+  }
+}
