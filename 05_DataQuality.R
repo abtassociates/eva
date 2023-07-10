@@ -1746,26 +1746,27 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
       dkr_months_times_homeless,
       dkr_residence_prior,
       dq_dob,
-      dq_ethnicity,
       dq_gender,
       dq_name,
+      dq_overlaps1,
+      dq_overlaps2,
       dq_race,
       dq_ssn,
       dq_veteran,
       duplicate_ees,
-      entry_precedes_OpStart,
-      exit_after_OpEnd,
+      enrollment_v_operating,
+      enrollment_v_participating,
       exit_before_start,
-      long_stayers,
       future_ees,
       future_exits,
       hh_issues,
       invalid_months_times_homeless,
       invalid_movein_date,
+      long_stayers,
       missing_approx_date_homeless,
-      missing_client_location,
       missing_destination,
       missing_disabilities,
+      missing_enrollment_coc,
       missing_health_insurance_entry,
       missing_health_insurance_exit,
       missing_income_entry,
@@ -1773,45 +1774,30 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
       missing_living_situation,
       missing_LoS,
       missing_months_times_homeless,
-      missing_previous_street_ESSH,
       missing_ncbs_entry,
+      missing_previous_street_ESSH,
       missing_residence_prior,
-      ssvf_missing_address,
-      ssvf_missing_vamc,
-      ssvf_missing_percent_ami,      
       ssvf_hp_screen,
-      veteran_missing_year_entered,
-      veteran_missing_year_separated,
-      veteran_missing_wars,
+      ssvf_missing_percent_ami,
+      ssvf_missing_vamc,
       veteran_missing_branch,
       veteran_missing_discharge_status,
-      entry_precedes_OpStart,
-      exit_after_OpEnd,
-      exit_before_start,
-      dq_overlaps1,
-      dq_overlaps2
+      veteran_missing_wars,
+      veteran_missing_year_entered,
+      veteran_missing_year_separated
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
                                         "Error",
                                         "Warning")))
     
-   dq_providers <- sort(projects_current_hmis$ProjectName)
+   dq_providers <- sort(Project0$ProjectName) # revisit (do we really need this?)
    
-   # Controls what is shown in the System-Level DQ tab ------------------------
-   
-   dq_w_organization_names <- dq_main %>%
-     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName")
-   
-   # Controls what is shown in the Organization-Level DQ tab ------------------------
-   
-   dq_w_ids <- dq_main %>%
-     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName")
-     # left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
-     
-
 # Plots for System-Level DQ Tab -------------------------------------------
-   dq_plot_df <- dq_w_organization_names %>%
+   dq_plot_df <- dq_main %>%
+     left_join(Project %>%
+                 select(ProjectID, OrganizationID) %>%
+                 unique(), by = "ProjectID") %>%
      select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue, Type) %>%
      unique()
 
