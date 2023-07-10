@@ -1424,18 +1424,16 @@ health_insurance_subs <- base_dq_data %>%
     Medicaid,
     Medicare,
     SCHIP,
-    VAMedicalServices,
+    VHAServicesHA,
     EmployerProvided,
     COBRA,
     PrivatePay,
     StateHealthIns,
     IndianHealthServices,
-    OtherInsurance,
-    HIVAIDSAssistance,
-    ADAP
+    OtherInsurance
   ) %>%
   mutate(
-    SourceCount = Medicaid + SCHIP + VAMedicalServices + EmployerProvided +
+    SourceCount = Medicaid + SCHIP + VHAServicesHA + EmployerProvided +
       COBRA + PrivatePay + StateHealthIns + IndianHealthServices +
       OtherInsurance + Medicare
   )
@@ -1591,11 +1589,6 @@ ssvf_base_dq_data <- base_dq_data %>%
         ExitDate,
         RelationshipToHoH,
         PercentAMI,
-        LastPermanentStreet,
-        LastPermanentCity,
-        LastPermanentState,
-        LastPermanentZIP,
-        AddressDataQuality,
         VAMCStation,
         HPScreeningScore,
         ThresholdScore
@@ -1718,19 +1711,6 @@ ssvf_missing_vamc <- ssvf_base_dq_data %>%
   filter(RelationshipToHoH == 1 &
            is.na(VAMCStation)) %>%
   mutate(Issue = "Missing VAMC Station Number",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
-  select(all_of(vars_we_want))
-
-ssvf_missing_address <- ssvf_base_dq_data %>%
-  filter(RelationshipToHoH == 1 &
-           (
-             is.na(LastPermanentStreet) |
-               is.na(LastPermanentCity) |
-               is.na(LastPermanentState) |
-               is.na(LastPermanentZIP)
-           )) %>%
-  mutate(Issue = "Missing Some or All of Last Permanent Address",
          Type = "Error",
          Guidance = guidance_missing_at_entry) %>%
   select(all_of(vars_we_want))
