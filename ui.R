@@ -778,40 +778,40 @@ dashboardPage(
           )
         )
       ),
-      tabItem(
-        tabName = "tabDeskTime",
-        fluidRow(box(htmlOutput("headerDeskTime"),
-                     width = 12)),
-          fluidRow(box(
-            title = "Instructions",
-            width = 12,
-            collapsible = TRUE,
-            collapsed = TRUE,
-            HTML("")
-          )), 
-        fluidRow(box(
-          pickerInput(
-            label = "Select Provider",
-            inputId = "providerDeskTime",
-            choices = NULL, #desk_time_providers,
-            options = pickerOptions(liveSearch = TRUE,
-                                    liveSearchStyle = 'contains'),
-            width = "100%",
-            selected = NULL # desk_time_providers[1]
-          ),
-          width = 12
-        )),
-        fluidRow(box(plotOutput("DeskTimePlotDetail"), width = 12)), 
-        fluidRow(
-          box(
-            uiOutput("deskTimeNote"),
-            title = "More Information",
-            collapsible = TRUE,
-            collapsed = TRUE,
-            width = 12
-          )
-        )
-      ),
+      # tabItem(
+      #   tabName = "tabDeskTime",
+      #   fluidRow(box(htmlOutput("headerDeskTime"),
+      #                width = 12)),
+      #     fluidRow(box(
+      #       title = "Instructions",
+      #       width = 12,
+      #       collapsible = TRUE,
+      #       collapsed = TRUE,
+      #       HTML("")
+      #     )), 
+      #   fluidRow(box(
+      #     pickerInput(
+      #       label = "Select Provider",
+      #       inputId = "providerDeskTime",
+      #       choices = NULL, #desk_time_providers,
+      #       options = pickerOptions(liveSearch = TRUE,
+      #                               liveSearchStyle = 'contains'),
+      #       width = "100%",
+      #       selected = NULL # desk_time_providers[1]
+      #     ),
+      #     width = 12
+      #   )),
+      #   fluidRow(box(plotOutput("DeskTimePlotDetail"), width = 12)), 
+      #   fluidRow(
+      #     box(
+      #       uiOutput("deskTimeNote"),
+      #       title = "More Information",
+      #       collapsible = TRUE,
+      #       collapsed = TRUE,
+      #       width = 12
+      #     )
+      #   )
+      # ),
       tabItem(
         tabName = "tabDQSystem",
         fluidRow(box(
