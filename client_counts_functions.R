@@ -104,6 +104,12 @@ necessaryCols <- c(
   "Currently Moved In"
 )
 
+keepCols <- c(
+  "OrganizationName", 
+  "ProjectID", 
+  "ProjectName"
+)
+
 # function to pivot statuses to cols for the summary datasets
 pivot_and_sum <- function(df, isDateRange = FALSE) {
   if(isDateRange) necessaryCols <- c(
@@ -144,8 +150,6 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
 }
 
 get_clientcount_download_info <- function(file) {
-  keepCols <- c("OrganizationName", "ProjectID", "ProjectName")
-  
   # initial dataset that will make summarizing easier
   validationDF <- client_count_data_df()
   
