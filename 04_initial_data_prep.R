@@ -90,9 +90,6 @@ Project0 <<- Project %>%
   select(ProjectID, ProjectName, OrganizationID, OrganizationName, ProjectType) %>%
   unique()
 
-small_project <- Project %>% select(ProjectID, ProjectType, ProjectName) %>%
-  unique()
-
 # Enrollment --------------------------------------------------------------
 
 EnrollmentStaging <- Enrollment %>%
@@ -279,7 +276,7 @@ Enrollment <- Enrollment %>%
   mutate(AgeAtEntry = age_years(DOB, EntryDate)) %>%
   select(-DOB)
 
-rm(small_project, HHEntry, HHMoveIn, small_client)
+rm(HHEntry, HHMoveIn, small_client)
 
 # Only BedNight Services --------------------------------------------------
 
