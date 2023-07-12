@@ -177,7 +177,7 @@ Enrollment <- EnrollmentStaging %>%
                                   "Enrollment Crosses Operating Period") |
         EnrollmentvParticipating %in% c("Enrollment Crosses Participating End",
                                         "Enrollment Crosses Participating Period"),
-      max(int_end(ParticipatingDateRange), int_end(OperatingDateRange), na.rm = TRUE),
+      min(int_end(ParticipatingDateRange), int_end(OperatingDateRange), na.rm = TRUE),
       ExitDate
     ),
     ExitAdjust = replace_na(ExitDate, meta_HUDCSV_Export_End)
