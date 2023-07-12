@@ -62,6 +62,7 @@ if(nrow(quit_and_start_projects) > 0){
   QuitStarters <-  ProjectsInHMIS %>%
     filter(ProjectID %in% c(quit_and_start_projects)) %>%
     group_by(ProjectID) %>%
+    arrange(OperatingStartDate) %>%
     mutate(ProjectTimeID = paste0(ProjectID, letters[row_number()])) %>%
     ungroup()
   
@@ -144,7 +145,7 @@ EnrollmentOutside <- EnrollmentStaging %>%
         "Enrollment Crosses Operating Period")
   ) %>%
   group_by(ProjectID, EnrollmentID) %>%
-  arrange(EntryDate) %>%
+  arrange(ProjectTimeID) %>%
   slice(1L) %>%
   ungroup() %>%
   select(EnrollmentID, ProjectID, ProjectTimeID, ProjectType, EnrollmentDateRange,
