@@ -110,6 +110,10 @@ EnrollmentOutside <- EnrollmentStaging %>%
                      ParticipatingDateRange,
                      OperatingDateRange), by = "ProjectID",
             relationship = "many-to-many") %>%
+  # many-to-many bc there will be ees that match to 2 rows of the same ProjectID
+  # and this is expected at this point in the code bc we want to sus out which
+  # project period the enrollment should be attached to. these extra ees will
+  # be excluded later
   mutate(
     EnrollmentvParticipating = case_when(
         EnrollmentDateRange %within% ParticipatingDateRange ~
