@@ -733,7 +733,7 @@ top_percents_long_stayers <- base_dq_data %>%
   group_by(ProjectType) %>%
   arrange(desc(Days)) %>%
   filter(Days > quantile(Days, if_else(
-    ProjectType %in% c(1, 2, 8, 12, 13, 14), .98, .99
+    ProjectType %in% c(long_stayer_98_percentile_project_types), .98, .99
   ))) %>%
   ungroup()
 
@@ -751,7 +751,7 @@ long_stayers <- top_percents_long_stayers %>%
               enter the Project Exit Date. If they are still active, do not
               change the data, but verify that your Coordinated Entry process
               is actively working toward a permanent housing destination.",
-              ProjectType == 12 ~
+              ProjectType == hp_project_type ~
               "for this project type. If this household has stopped receiving
               services, enter the Project Exit Date. If they are still active,
               do not change the data, but verify that the household still needs
@@ -762,7 +762,7 @@ long_stayers <- top_percents_long_stayers %>%
               assessing the household for Move On Assistance funds or other ways
               to a permanent housing exit. If the household needs to remain
               active in the project, leave everything as is.",
-              ProjectType == 13 ~
+              ProjectType == rrh_project_type ~
                 "for this project type. If this household has left the project,
               enter the Project Exit Date. If they are still active, verify
               that they are on track for a permanent exit or that they are
