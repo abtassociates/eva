@@ -241,6 +241,7 @@ output$dq_overview_plot <- renderPlot({
     theme_minimal(base_size = 18) +
     theme(
       plot.title.position = "plot",
+       panel.grid.major.x = element_blank(),
       title = element_text(colour = "#73655E")
     ) +
     geom_text(aes(label = prettyNum(Total, big.mark = ",")),
@@ -297,6 +298,7 @@ output$dq_overview_plot <- renderPlot({
         theme_minimal(base_size = 18) +
         theme(
           plot.title.position = "plot",
+          panel.grid.major.y = element_blank(),
           title = element_text(colour = "#73655E")
         ) +
         geom_text(
@@ -378,6 +380,7 @@ output$dq_overview_plot <- renderPlot({
         theme_minimal(base_size = 18) +
         theme(
           plot.title.position = "plot",
+          panel.grid.major.x = element_blank(),
           title = element_text(colour = "#73655E"),
           legend.position = "top"
         ) +
