@@ -77,7 +77,6 @@ project_types_w_beds <- c(1, 2, 3, 8, 9, 10, 13)
 
 ssvf_fund_sources <- 33
 
-
 # Race Values -------------------------------------------------------------
 
 yes_no_enhanced <- c(0, 1, 8, 9, 99)
