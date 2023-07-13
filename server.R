@@ -308,7 +308,7 @@ output$dq_overview_plot <- renderPlot({
       
       
       if (nrow(detail) == 0) {
-        print("come back to this") #fix
+        print("You have no Project Descriptor Elements errors or warnings.") #fix
       }
       pdde_plot_overview
     })
@@ -360,7 +360,7 @@ output$dq_overview_plot <- renderPlot({
         geom_text(aes(label = prettyNum(Total, big.mark = ","),
                       y = text_position),
                   size = 6,
-                  color = "gray14")+
+                  color = "gray14") +
         scale_y_continuous(label = comma_format()) +
         scale_colour_manual(
           values = c(
