@@ -340,7 +340,7 @@ output$dq_overview_plot <- renderPlot({
       plot_data <- detail %>%
         left_join(detail_order, by = "ProjectType") %>%
         group_by(ProjectType) %>%
-        arrange(ProjectType, desc(Total)) %>%
+        arrange(ProjectType, desc(Status)) %>%
         mutate(
           movedin = lag(Total, default = 0),
           text_position = case_when(
