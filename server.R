@@ -275,18 +275,16 @@ output$dq_overview_plot <- renderPlot({
       
       detail <- pdde_main %>%
         count(Issue, Type, name = "Total") %>%
-        filter(Type == highest_type)
+        filter(Type == highest_type) %>%
+        arrange(desc(Total))
 
       pdde_plot_overview <-
         ggplot(
-          pdde_main %>%
-            count(Issue, Type, name = "Total") %>%
-            filter(Type == highest_type) %>%
-            arrange(desc(Total)) %>%
+          detail %>%
             head(5L),
-          aes(x = str_wrap(fct_reorder(Issue, Total), width = 20), y = Total)
+          aes(x = reorder(x = str_wrap(Issue, width = 20), X = Total), y = Total)
         ) +
-        geom_col(fill = "#D5BFE6", alpha = .7)+
+        geom_col(fill = "#71b4cb", alpha = .7) +
         scale_y_continuous(label = comma_format()) +
         labs(
           title = paste("Top 5 Project Descriptor Data Element ",
