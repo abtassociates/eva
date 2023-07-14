@@ -473,7 +473,6 @@ dkr_months_times_homeless <- base_dq_data %>%
          Guidance = guidance_dkr_data) %>%
   select(all_of(vars_we_want))
 
-
 invalid_months_times_homeless <- base_dq_data %>%
   select(
     all_of(vars_prep),
@@ -791,7 +790,6 @@ exit_before_start <- base_dq_data %>%
          Guidance = guidance_exit_before_start) %>%
   select(all_of(vars_we_want))
 
-
 # Missing Destination -----------------------------------------------------
 
 missing_destination <- base_dq_data %>%
@@ -811,6 +809,19 @@ dkr_destination <- base_dq_data %>%
          Type = "Warning",
          Guidance = guidance_dkr_data) %>%
   select(all_of(vars_we_want))
+
+missing_destination_subsidy <- base_dq_data %>%
+  filter(!is.na(ExitDate) &
+           Destination == 435 &
+           is.na(DestinationSubsidyType)) %>%
+  mutate(
+    Issue = "Missing Destination Subsidy Type",
+    Type = "Error",
+    Guidance = str_squish(
+      "If a client exits to Rental by Client, the user must record the Subsidy
+      Type."
+    )
+  )
 
 # Missing PATH Data -------------------------------------------------------
 
@@ -1768,6 +1779,7 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
       long_stayers,
       missing_approx_date_homeless,
       missing_destination,
+      missing_destination_subsidy,
       missing_disabilities,
       missing_enrollment_coc,
       missing_health_insurance_entry,
