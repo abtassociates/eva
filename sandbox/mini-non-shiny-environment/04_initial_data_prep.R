@@ -61,6 +61,7 @@ if(nrow(quit_and_start_projects) > 0){
   QuitStarters <-  ProjectsInHMIS %>%
     filter(ProjectID %in% c(quit_and_start_projects)) %>%
     group_by(ProjectID) %>%
+    arrange(OperatingStartDate) %>%
     mutate(ProjectTimeID = paste0(ProjectID, letters[row_number()])) %>%
     ungroup()
   
@@ -89,9 +90,6 @@ Project0 <<- Project %>%
   select(ProjectID, ProjectName, OrganizationID, OrganizationName, ProjectType) %>%
   unique()
 
-small_project <- Project %>% select(ProjectID, ProjectType, ProjectName) %>%
-  unique()
-
 # Enrollment --------------------------------------------------------------
 
 EnrollmentStaging <- Enrollment %>%
@@ -111,6 +109,10 @@ EnrollmentOutside <- EnrollmentStaging %>%
                      ParticipatingDateRange,
                      OperatingDateRange), by = "ProjectID",
             relationship = "many-to-many") %>%
+  # many-to-many bc there will be ees that match to 2 rows of the same ProjectID
+  # and this is expected at this point in the code bc we want to sus out which
+  # project period the enrollment should be attached to. these extra ees will
+  # be excluded later
   mutate(
     EnrollmentvParticipating = case_when(
         EnrollmentDateRange %within% ParticipatingDateRange ~
@@ -146,7 +148,7 @@ EnrollmentOutside <- EnrollmentStaging %>%
         "Enrollment Crosses Operating Period")
   ) %>%
   group_by(ProjectID, EnrollmentID) %>%
-  arrange(EntryDate) %>%
+  arrange(ProjectTimeID) %>%
   slice(1L) %>%
   ungroup() %>%
   select(EnrollmentID, ProjectID, ProjectTimeID, ProjectType, EnrollmentDateRange,
@@ -174,17 +176,10 @@ Enrollment <- EnrollmentStaging %>%
                                   "Enrollment Crosses Operating Period") |
         EnrollmentvParticipating %in% c("Enrollment Crosses Participating End",
                                         "Enrollment Crosses Participating Period"),
-      max(int_end(ParticipatingDateRange), int_end(OperatingDateRange), na.rm = TRUE),
+      min(int_end(ParticipatingDateRange), int_end(OperatingDateRange), na.rm = TRUE),
       ExitDate
     ),
-    ExitAdjust = if_else(
-      EnrollmentvOperating %in% c("Enrollment Crosses Operating End",
-                                  "Enrollment Crosses Operating Period") |
-        EnrollmentvParticipating %in% c("Enrollment Crosses Participating End",
-                                        "Enrollment Crosses Participating Period"),
-      max(int_end(ParticipatingDateRange), int_end(OperatingDateRange), na.rm = TRUE),
-      ExitAdjust
-    )
+    ExitAdjust = replace_na(ExitDate, meta_HUDCSV_Export_End)
   ) %>%
   select(
     EnrollmentID,
@@ -278,10 +273,7 @@ Enrollment <- Enrollment %>%
   mutate(AgeAtEntry = age_years(DOB, EntryDate)) %>%
   select(-DOB)
 
-rm(small_project, HHEntry, HHMoveIn, small_client)
-
-
-
+rm(HHEntry, HHMoveIn, small_client)
 
 # Only BedNight Services --------------------------------------------------
 
