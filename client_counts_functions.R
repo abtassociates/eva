@@ -33,7 +33,7 @@ client_count_data_df <- reactive({
         ProjectType %in% c(ph_project_types) &
           !is.na(MoveInDateAdjust) &
           is.na(ExitDate) ~ paste0("Currently Moved In (",
-                                   ReportEnd - MoveInDateAdjust,
+                                   ymd(ReportEnd) - ymd(MoveInDateAdjust),
                                    " days)"),
         ProjectType %in% c(ph_project_types) &
           is.na(MoveInDateAdjust) &
@@ -43,12 +43,12 @@ client_count_data_df <- reactive({
           !is.na(ExitDate) ~ "Exited with Move-In",
         !ProjectType %in% c(ph_project_types) &
           is.na(ExitDate) ~ paste0("Currently in project (",
-                                   ReportEnd - EntryDate, 
+                                   ymd(ReportEnd) - ymd(EntryDate),
                                    " days)"),
         !ProjectType %in% c(ph_project_types) &
           !is.na(ExitDate) ~ "Exited project"
       ),
-      sort = ReportEnd - EntryDate
+      sort = ymd(ReportEnd) - ymd(EntryDate)
     ) %>%
     arrange(desc(sort), HouseholdID, PersonalID) %>%
     # make sure to include all columns that will be needed for the various uses

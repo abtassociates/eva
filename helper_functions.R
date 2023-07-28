@@ -236,7 +236,7 @@ logToConsole <- function(msg) {
     ExportID = Export$ExportID,
     Msg = msg
   )
-  capture.output(d, file=stderr())
+  capture.output(d, file = stderr())
 }
   
 date_stamped_filename <- function(filename) {

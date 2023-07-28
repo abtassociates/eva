@@ -15,7 +15,7 @@ PDDEcols = c("OrganizationName",
 
 # Subpop beds = TotalBeds
 subpopNotTotal <- Inventory %>%
-  left_join(Project, by = "ProjectID") %>%
+  left_join(Project0, by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
            (CHVetBedInventory + 
               YouthVetBedInventory + 
@@ -60,7 +60,8 @@ operatingEndMissing <- Enrollment %>%
   ) %>%
   ungroup() %>%
   left_join(Project %>% 
-              select(ProjectID, OrganizationName, OperatingEndDate), 
+              select(ProjectID, ProjectName, OrganizationName, OperatingEndDate) %>%
+              unique(), 
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
            MostRecentEnrollment >= 
@@ -115,7 +116,7 @@ missingCoCInfo <- Project %>%
   select(all_of(PDDEcols))
 
 # Missing Inventory Record Is a residential project but has no active inventory for the duration of operating period OR for the reporting period
-missingInventoryRecord <- Project %>%
+missingInventoryRecord <- Project0 %>%
   left_join(Inventory, by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
            is.na(InventoryID)) %>% 
@@ -132,7 +133,13 @@ missingInventoryRecord <- Project %>%
 # Inventory Start < Operating Start AND
 # Inventory End > Operating End or Null
 inventoryOutsideOperating <- Inventory %>%
-  left_join(Project, by = "ProjectID") %>%
+  left_join(Project %>%
+              select(ProjectID,
+                     OrganizationName,
+                     ProjectName,
+                     OperatingStartDate,
+                     OperatingEndDate) %>%
+              unique(), by = "ProjectID") %>%
   mutate(
     Issue = case_when(
       InventoryStartDate < OperatingStartDate ~
@@ -195,44 +202,18 @@ inventoryOutsideOperating <- Inventory %>%
   filter(Issue != "none") %>%
   select(all_of(PDDEcols))
 
-# HMIS Participating ------------------------------------------------------
-# HMIS Participating != 1, OR VSP != 0 but client level data in file
+# RRH project w no SubType ------------------------------------------------
 
-hmisNotParticipatingButClient <- Project %>%
-  left_join(Organization %>% select(OrganizationID, VictimServiceProvider),
-            by = "OrganizationID") %>%
-  filter((HMISParticipatingProject != 1 |
-            VictimServiceProvider != 0) &
-           ProjectID %in% c(Enrollment$ProjectID %>% unique())
-  ) %>%
+rrh_no_subtype <- Project %>%
+  filter(ProjectType == 13 & is.na(RRHSubType)) %>%
   mutate(
-    Issue = "Non-HMIS-Participating project has client-level data",
-    Type = "Warning",
-    Guidance = str_squish(
-      "Non-HMIS-Participating projects should not have client-level data. The
-      HMIS Participating Project field may need to be updated, new projects may
-      need to be created based on changing HMIS participation status, or
-      client-level data may need to be removed from the Non-HMIS-Participating
-      projects."
-    ),
-    Detail = str_squish(
-      "There is client data in this project. Please check that this project is
-      marked correctly as non-participating."
-    )
-  ) %>%
-  select(all_of(PDDEcols)) 
-
-es_no_tracking_method <- Project %>%
-  filter(ProjectType %in% c(1, 0) & is.na(TrackingMethod)) %>%
-  mutate(
-    Issue = "Missing Tracking Method",
+    Issue = "Missing RRH SubType",
     Type = "Error",
-    Guidance = str_squish("All Emergency Shelters must have a Tracking Method. Please update the 
-    Emergency Shelter Tracking Method field at the project-level."),
-    Detail = paste("This project is an Emergency Shelter with no Tracking Method")
+    Guidance = str_squish("All RRH projects must have an RRH SubType. Please
+                          update the data at the project level."),
+    Detail = paste("This project is an RRH project with no SubType.")
   ) %>%
   select(all_of(PDDEcols))
-
 
 # Zero Utilization --------------------------------------------------------
 
@@ -251,7 +232,7 @@ projects_w_clients <- Enrollment %>%
 
 res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 
-zero_utilization <- Project %>%
+zero_utilization <- Project0 %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
   mutate(
     Issue = "Zero Utilization",
@@ -273,11 +254,10 @@ zero_utilization <- Project %>%
 pdde_main <- rbind(
   subpopNotTotal,
   operatingEndMissing,
-  es_no_tracking_method,
+  rrh_no_subtype,
   missingCoCInfo,
   missingInventoryRecord,
   inventoryOutsideOperating,
-  hmisNotParticipatingButClient,
   zero_utilization
 )
 
