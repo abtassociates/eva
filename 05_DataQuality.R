@@ -1198,13 +1198,7 @@ enrollment_v_operating <- EnrollmentOutside %>%
   select(EnrollmentID, EnrollmentvOperating) %>%
   left_join(base_dq_data, by = c("EnrollmentID")) %>%
   mutate(Issue = EnrollmentvOperating,
-         Type = case_when(
-           EnrollmentvOperating == "Enrollment Crosses Operating Start" ~
-             "Warning", # sometimes enrollments get transferred to a merged
-           # project and this is ok and should not be edited
-           EnrollmentvOperating != "Enrollment Crosses Operating Start" ~
-             "Error",
-           TRUE ~ "Something's wrong"),
+         Type = "Error",
          Guidance = guidance_enrl_active_outside_op) %>%
   select(all_of(vars_we_want))
 
