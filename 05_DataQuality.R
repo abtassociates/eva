@@ -1800,7 +1800,7 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
                                         "Error",
                                         "Warning")))
     
-   dq_providers <- sort(Project0$ProjectName) # revisit (do we really need this?)
+   dq_providers <- sort(Project0$ProjectName) 
    
 # Plots for System-Level DQ Tab -------------------------------------------
    dq_plot_df <- dq_main %>%
