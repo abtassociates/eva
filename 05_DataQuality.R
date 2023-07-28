@@ -1078,6 +1078,8 @@ missing_income_entry <- base_dq_data %>%
          Guidance = guidance_missing_at_entry) %>%
   select(all_of(vars_we_want))
 
+# if IncomeFromAnySource is yes then one of these should be a yes, and if it's a 
+# no, then all of them should be no
 smallIncome <- IncomeBenefits %>%
   select(
     PersonalID,
@@ -1143,7 +1145,7 @@ income_subs <- base_dq_data[c("EnrollmentID",
 
 conflicting_income_entry <- income_subs %>%
   filter(DataCollectionStage == 1 &
-           (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
+           (AgeAtEntry > 17 | is.na(AgeAtEntry)) & # revisit
            ((IncomeFromAnySource == 1 &
                IncomeCount == 0) |
               (IncomeFromAnySource == 0 &
