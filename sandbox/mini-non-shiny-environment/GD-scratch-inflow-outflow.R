@@ -49,9 +49,7 @@ ees_with_statuses <- Enrollment %>%
         (is.na(ExitDate) |
            ExitDate >= meta_HUDCSV_Export_Start),
       1, 0
-    ),
-    
-    FY24Translation = fy22_to_fy24_living_situation(LivingSituation)
+    )
       
   )
   
