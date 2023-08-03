@@ -16,22 +16,6 @@ source("guidance.R", local=TRUE)
 
 logToConsole("Running Data Quality")
 
-# Projects to Check -------------------------------------------------------
-projects_current_hmis <- Project %>%
-  filter(HMISParticipatingProject == 1 &
-           operating_between(., 
-                             ymd(meta_HUDCSV_Export_Start),
-                             ymd(meta_HUDCSV_Export_End))) %>%
-  select(
-    ProjectID,
-    OrganizationID,
-    OperatingStartDate,
-    OperatingEndDate,
-    ProjectType,
-    ProjectName,
-    OrganizationName
-  ) %>% unique()
-
 # Clients to Check --------------------------------------------------------
 
 # base_dq_data is meant to serve as a basic dataset with a granularity
@@ -43,8 +27,8 @@ projects_current_hmis <- Project %>%
 base_dq_data <- Enrollment %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
-  left_join(Project %>% select(ProjectID, TrackingMethod, OrganizationName),
-            by = "ProjectID") %>%
+  left_join(Project %>% select(ProjectTimeID, ProjectName, OrganizationName),
+            by = "ProjectTimeID") %>%
   select(
     PersonalID,
     FirstName,
@@ -53,22 +37,30 @@ base_dq_data <- Enrollment %>%
     SSNDataQuality,
     DOB,
     DOBDataQuality,
+    RaceNone,
     AmIndAKNative,
     Asian,
     BlackAfAmerican,
     NativeHIPacific,
     White,
-    RaceNone,
-    Ethnicity,
-    Female,
-    Male,
-    NoSingleGender,
+    MidEastNAfrican,
+    HispanicLatinaeo,
+    Woman,
+    Man,
+    NonBinary,
     Transgender,
+    CulturallySpecific,
+    DifferentIdentity,
     Questioning,
     GenderNone,
     VeteranStatus,
     EnrollmentID,
     ProjectID,
+    ProjectTimeID,
+    ProjectName,
+    ProjectType,
+    OrganizationName,
+    EnrollmentCoC,
     EntryDate,
     HouseholdID,
     RelationshipToHoH,
@@ -86,20 +78,14 @@ base_dq_data <- Enrollment %>%
     MoveInDateAdjust,
     ExitDate,
     Destination,
+    DestinationSubsidyType,
     ExitAdjust,
-    DateCreated,
-    ClientEnrolledInPATH,
-    LengthOfStay,
-    DateOfPATHStatus,
-    ReasonNotEnrolled,
-    ClientLocation,
-    TrackingMethod
-  ) %>%
-  inner_join(projects_current_hmis, by = "ProjectID")
+    DateCreated
+  )
 
 DV <- HealthAndDV %>%
   filter(DataCollectionStage == 1) %>%
-  select(EnrollmentID, DomesticViolenceVictim, WhenOccurred, CurrentlyFleeing)
+  select(EnrollmentID, DomesticViolenceSurvivor, WhenOccurred, CurrentlyFleeing)
 
 base_dq_data <- base_dq_data %>%
   left_join(DV, by = "EnrollmentID")
@@ -235,29 +221,13 @@ dq_race <- base_dq_data %>%
   filter(!is.na(Issue)) %>%
   select(all_of(vars_we_want))
 
-dq_ethnicity <- base_dq_data %>%
-  mutate(
-    Issue = case_when(
-      Ethnicity == 99 | is.na(Ethnicity) ~ "Missing Ethnicity",
-      Ethnicity %in% c(dkr) ~ "Don't Know/Refused Ethnicity"
-    ),
-    Type = case_when(
-      Issue == "Missing Ethnicity" ~ "Error",
-      Issue == "Don't Know/Refused Ethnicity" ~ "Warning"
-    ),
-    Guidance = if_else(Type == "Warning", 
-                       guidance_dkr_data, 
-                       guidance_missing_at_entry)
-  ) %>%
-  filter(!is.na(Issue)) %>%
-  select(all_of(vars_we_want))
-
 dq_gender <- base_dq_data %>%
   mutate(
     Issue = case_when(
       GenderNone %in% c(dkr) ~ "Don't Know/Refused Gender",
       GenderNone == 99 |
-        Female + Male + NoSingleGender + Transgender + Questioning == 0
+        Woman + Man + NonBinary + Transgender + CulturallySpecific + 
+        DifferentIdentity + Questioning == 0
       ~ "Missing Gender"
     ),
     Type = case_when(
@@ -294,12 +264,10 @@ dq_veteran <- base_dq_data %>%
 
 # Missing Client Location -------------------------------------------------
 
-missing_client_location <- base_dq_data %>%
-  filter(is.na(ClientLocation) & 
-         RelationshipToHoH == 1
-  ) %>%
+missing_enrollment_coc <- base_dq_data %>%
+  filter(is.na(EnrollmentCoC) & RelationshipToHoH == 1) %>%
   mutate(Type = "High Priority",
-         Issue = "Missing Client Location",
+         Issue = "Missing Enrollment CoC",
          Guidance = guidance_missing_at_entry) %>%
   select(all_of(vars_we_want))
 
@@ -502,7 +470,6 @@ dkr_months_times_homeless <- base_dq_data %>%
          Type = "Warning",
          Guidance = guidance_dkr_data) %>%
   select(all_of(vars_we_want))
-
 
 invalid_months_times_homeless <- base_dq_data %>%
   select(
@@ -753,7 +720,7 @@ ce_stayers <- base_dq_data %>%
 Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
 
 missed_movein_stayers <- base_dq_data %>%
-  select(all_of(vars_prep), ProjectID) %>%
+  select(all_of(vars_prep)) %>%
   filter(is.na(ExitDate) &
            ProjectType %in% c(ph_project_types)
   ) %>%
@@ -780,11 +747,11 @@ Top2_movein <- subset(missed_movein_stayers,
   )
 
 long_stayers <- rbind(Top1_PSH,
-                                Top2_ES,
-                                Top2_RRH,
-                                Top2_TH,
-                                Top2_HP,
-                                Top2_CE) %>%
+                      Top2_ES,
+                      Top2_RRH,
+                      Top2_TH,
+                      Top2_HP,
+                      Top2_CE) %>% 
   mutate(
     Issue = "Possible Missed Exit Date",
     Type = "Warning",
@@ -821,7 +788,6 @@ exit_before_start <- base_dq_data %>%
          Guidance = guidance_exit_before_start) %>%
   select(all_of(vars_we_want))
 
-
 # Missing Destination -----------------------------------------------------
 
 missing_destination <- base_dq_data %>%
@@ -841,6 +807,19 @@ dkr_destination <- base_dq_data %>%
          Type = "Warning",
          Guidance = guidance_dkr_data) %>%
   select(all_of(vars_we_want))
+
+missing_destination_subsidy <- base_dq_data %>%
+  filter(!is.na(ExitDate) &
+           Destination == 435 &
+           is.na(DestinationSubsidyType)) %>%
+  mutate(
+    Issue = "Missing Destination Subsidy Type",
+    Type = "Error",
+    Guidance = str_squish(
+      "If a client exits to Rental by Client, the user must record the Subsidy
+      Type."
+    )
+  )
 
 # Missing PATH Data -------------------------------------------------------
 
@@ -1037,10 +1016,11 @@ duplicate_ees <-
   mutate(
     Issue = "Duplicate Entries",
     Type = "High Priority",
-    Guidance = 
-      str_squish("A client cannot have two enrollments with the same entry date
-                 into the same project. These are duplicate enrollment records.
-                 Please address this issue.")
+    Guidance =
+      str_squish(
+        "A client cannot have two enrollments with the same entry date into the
+        same project. These are duplicate enrollment records."
+      )
   ) %>%
   select(all_of(vars_we_want))
 
@@ -1098,6 +1078,8 @@ missing_income_entry <- base_dq_data %>%
          Guidance = guidance_missing_at_entry) %>%
   select(all_of(vars_we_want))
 
+# if IncomeFromAnySource is yes then one of these should be a yes, and if it's a 
+# no, then all of them should be no
 smallIncome <- IncomeBenefits %>%
   select(
     PersonalID,
@@ -1123,16 +1105,19 @@ smallIncome <- IncomeBenefits %>%
 smallIncome[is.na(smallIncome)] <- 0
 
 smallIncome <-
-  smallIncome %>% full_join(IncomeBenefits[c(
+  smallIncome %>% unique() %>%
+  full_join(IncomeBenefits[c(
     "PersonalID",
     "EnrollmentID",
     "DataCollectionStage",
     "TotalMonthlyIncome",
     "IncomeFromAnySource"
-  )],
+  )] %>%
+    unique(),
   by = c("PersonalID",
          "EnrollmentID",
-         "DataCollectionStage"))
+         "DataCollectionStage"),
+  relationship = "many-to-many")
 
 income_subs <- base_dq_data[c("EnrollmentID",
                                       "AgeAtEntry",
@@ -1160,7 +1145,7 @@ income_subs <- base_dq_data[c("EnrollmentID",
 
 conflicting_income_entry <- income_subs %>%
   filter(DataCollectionStage == 1 &
-           (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
+           (AgeAtEntry > 17 | is.na(AgeAtEntry)) & # revisit
            ((IncomeFromAnySource == 1 &
                IncomeCount == 0) |
               (IncomeFromAnySource == 0 &
@@ -1208,26 +1193,28 @@ conflicting_income_exit <- income_subs %>%
 rm(income_subs)
 
 # Enrollment Active Outside Operating Dates ------------------------
-entry_precedes_OpStart <- base_dq_data %>%
-  filter(RelationshipToHoH == 1 & 
-           EntryDate < OperatingStartDate) %>%
-  mutate(Issue = "Entry Precedes Project's Operating Start",
-         Type = "Warning", # sometimes enrollments get transferred to a merged
-         # project and this is ok and should not be fixed
+enrollment_v_operating <- EnrollmentOutside %>%
+  filter(!EnrollmentvOperating %in% c("Inside")) %>%
+  select(EnrollmentID, EnrollmentvOperating) %>%
+  left_join(base_dq_data, by = c("EnrollmentID")) %>%
+  mutate(Issue = EnrollmentvOperating,
+         Type = "Error",
          Guidance = guidance_enrl_active_outside_op) %>%
   select(all_of(vars_we_want))
 
-exit_after_OpEnd <- base_dq_data %>%
-  filter(RelationshipToHoH == 1 &
-           (ExitDate > OperatingEndDate & !is.na(ExitDate)) |
-           (is.na(ExitDate) & !is.na(OperatingEndDate))
-  ) %>%
-  mutate(Issue = "Exit After Project's Operating End Date",
+# Enrollment Outside of Participating Dates -------------------------------
+
+enrollment_v_participating <- EnrollmentOutside %>%
+  filter(!EnrollmentvParticipating %in% c("Inside")) %>%
+  select(EnrollmentID, EnrollmentvParticipating) %>%
+  left_join(base_dq_data, by = c("EnrollmentID")) %>%
+  mutate(Issue = EnrollmentvParticipating,
          Type = "Error",
          Guidance = guidance_enrl_active_outside_op) %>%
   select(all_of(vars_we_want))
 
 # Overlaps ----------------------------------------------------------------
+
 
 overlap_staging <- base_dq_data %>% 
   select(!!vars_prep, ExitAdjust, EnrollmentID) %>%
@@ -1237,12 +1224,15 @@ overlap_staging <- base_dq_data %>%
                !is.na(MoveInDateAdjust)
            ) |
              ProjectType %in% lh_residential_project_types
-           )) %>%  
+           ))
+
+if(nrow(Services) > 0){
+  overlap_staging_nbn <- overlap_staging %>%  
   left_join(
     Services %>% 
       select(EnrollmentID, DateProvided) %>%
       group_by(EnrollmentID) %>%
-      mutate(FirstDateProvided = min(DateProvided)) %>% 
+      slice_min(DateProvided, n = 1L) %>% 
       ungroup() %>%
       unique()
     , by = "EnrollmentID"
@@ -1257,15 +1247,49 @@ overlap_staging <- base_dq_data %>%
     EnrollmentEnd = if_else(ProjectType == es_nbn_project_type, 
                             DateProvided, 
                             as.Date(ExitAdjust))
-  ) %>% # 40 secs
-  select(PersonalID, EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd, FirstDateProvided)
+  )
+}
+
+overlap_staging_no_nbn <- overlap_staging %>%  
+  mutate(
+    EnrollmentStart = case_when(
+      ProjectType %in% lh_residential_project_types ~ EntryDate,
+      ProjectType %in% ph_project_types ~ MoveInDateAdjust,
+      TRUE ~ EntryDate
+    ),
+    EnrollmentEnd = as.Date(ExitAdjust)
+  )
+
+if(nrow(Services) > 0){
+  overlap_staging <- overlap_staging_nbn %>% 
+    select(
+      PersonalID,
+      EnrollmentID,
+      ProjectType,
+      EnrollmentStart,
+      EnrollmentEnd,
+      FirstDateProvided
+    )
+} else{
+  overlap_staging <- overlap_staging_no_nbn %>% 
+    mutate(FirstDateProvided = NA) %>%
+    select(
+      PersonalID,
+      EnrollmentID,
+      ProjectType,
+      EnrollmentStart,
+      EnrollmentEnd,
+      FirstDateProvided
+    )
+}
 
 overlaps <- overlap_staging %>%
   # sort enrollments for each person
   group_by(PersonalID) %>%
   arrange(EnrollmentStart, EnrollmentEnd) %>%
   mutate(
-    # pull in previous enrollment into current enrollment record so we can compare intervals
+    # pull in previous enrollment into current enrollment record so we can 
+    # compare intervals
     PreviousEnrollmentID = lag(EnrollmentID)) %>%
   ungroup() %>%
   filter(!is.na(PreviousEnrollmentID)) %>% # 48 secs
@@ -1366,7 +1390,7 @@ invalid_movein_date <- base_dq_data %>%
     ),
     Type = "Error",
     Guidance = str_squish("This move-in date does not fall between the Entry Date 
-    and the Exit Date or this move-in date is after the date of the export.")) %>%
+    and the Exit Date.")) %>%
   filter(Issue == "Invalid Move-In Date") %>%
   select(all_of(vars_we_want))
 
@@ -1408,18 +1432,16 @@ health_insurance_subs <- base_dq_data %>%
     Medicaid,
     Medicare,
     SCHIP,
-    VAMedicalServices,
+    VHAServicesHA,
     EmployerProvided,
     COBRA,
     PrivatePay,
     StateHealthIns,
     IndianHealthServices,
-    OtherInsurance,
-    HIVAIDSAssistance,
-    ADAP
+    OtherInsurance
   ) %>%
   mutate(
-    SourceCount = Medicaid + SCHIP + VAMedicalServices + EmployerProvided +
+    SourceCount = Medicaid + SCHIP + VHAServicesHA + EmployerProvided +
       COBRA + PrivatePay + StateHealthIns + IndianHealthServices +
       OtherInsurance + Medicare
   )
@@ -1465,21 +1487,28 @@ ncb_subs <- IncomeBenefits %>%
     TANFTransportation,
     OtherTANF,
     OtherBenefitsSource
-  )
+  ) %>%
+  unique()
 
 ncb_subs[is.na(ncb_subs)] <- 0
 
-ncb_subs <- ncb_subs %>%
+ncbs <- ncb_subs %>%
   full_join(IncomeBenefits[c("PersonalID",
                              "EnrollmentID",
                              "DataCollectionStage",
-                             "BenefitsFromAnySource")],
+                             "BenefitsFromAnySource")] %>%
+              unique(),
             by = c("PersonalID",
                    "EnrollmentID",
-                   "DataCollectionStage"))
+                   "DataCollectionStage"),
+            relationship = "many-to-many")
 
-ncb_subs <- base_dq_data %>%
-  left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
+# if there are conflicting yes/no records or conflicting subs, this will catch
+# any that conflict with each other, which will prompt the user to correct the
+# record(s) that's incorrect
+
+ncb_staging <- base_dq_data %>%
+  left_join(ncbs, by = c("PersonalID", "EnrollmentID")) %>%
   select(
     PersonalID,
     EnrollmentID,
@@ -1529,7 +1558,7 @@ missing_ncbs_entry <- base_dq_data %>%
   select(all_of(vars_we_want))
 
 conflicting_ncbs_entry <- base_dq_data %>%
-  left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
+  left_join(ncb_staging, by = c("PersonalID", "EnrollmentID")) %>%
   select(AgeAtEntry,
          all_of(vars_prep),
          DataCollectionStage,
@@ -1575,11 +1604,6 @@ ssvf_base_dq_data <- base_dq_data %>%
         ExitDate,
         RelationshipToHoH,
         PercentAMI,
-        LastPermanentStreet,
-        LastPermanentCity,
-        LastPermanentState,
-        LastPermanentZIP,
-        AddressDataQuality,
         VAMCStation,
         HPScreeningScore,
         ThresholdScore
@@ -1706,19 +1730,6 @@ ssvf_missing_vamc <- ssvf_base_dq_data %>%
          Guidance = guidance_missing_at_entry) %>%
   select(all_of(vars_we_want))
 
-ssvf_missing_address <- ssvf_base_dq_data %>%
-  filter(RelationshipToHoH == 1 &
-           (
-             is.na(LastPermanentStreet) |
-               is.na(LastPermanentCity) |
-               is.na(LastPermanentState) |
-               is.na(LastPermanentZIP)
-           )) %>%
-  mutate(Issue = "Missing Some or All of Last Permanent Address",
-         Type = "Error",
-         Guidance = guidance_missing_at_entry) %>%
-  select(all_of(vars_we_want))
-
 ssvf_hp_screen <- ssvf_base_dq_data %>%
   filter(ProjectType == 12 &
            RelationshipToHoH == 1 &
@@ -1743,26 +1754,28 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
       dkr_months_times_homeless,
       dkr_residence_prior,
       dq_dob,
-      dq_ethnicity,
       dq_gender,
       dq_name,
+      dq_overlaps1,
+      dq_overlaps2,
       dq_race,
       dq_ssn,
       dq_veteran,
       duplicate_ees,
-      entry_precedes_OpStart,
-      exit_after_OpEnd,
+      enrollment_v_operating,
+      enrollment_v_participating,
       exit_before_start,
-      long_stayers,
       future_ees,
       future_exits,
       hh_issues,
       invalid_months_times_homeless,
       invalid_movein_date,
+      long_stayers,
       missing_approx_date_homeless,
-      missing_client_location,
       missing_destination,
+      missing_destination_subsidy,
       missing_disabilities,
+      missing_enrollment_coc,
       missing_health_insurance_entry,
       missing_health_insurance_exit,
       missing_income_entry,
@@ -1770,45 +1783,30 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
       missing_living_situation,
       missing_LoS,
       missing_months_times_homeless,
-      missing_previous_street_ESSH,
       missing_ncbs_entry,
+      missing_previous_street_ESSH,
       missing_residence_prior,
-      ssvf_missing_address,
-      ssvf_missing_vamc,
-      ssvf_missing_percent_ami,      
       ssvf_hp_screen,
-      veteran_missing_year_entered,
-      veteran_missing_year_separated,
-      veteran_missing_wars,
+      ssvf_missing_percent_ami,
+      ssvf_missing_vamc,
       veteran_missing_branch,
       veteran_missing_discharge_status,
-      entry_precedes_OpStart,
-      exit_after_OpEnd,
-      exit_before_start,
-      dq_overlaps1,
-      dq_overlaps2
+      veteran_missing_wars,
+      veteran_missing_year_entered,
+      veteran_missing_year_separated
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
                                         "Error",
                                         "Warning")))
     
-   dq_providers <- sort(projects_current_hmis$ProjectName)
+   dq_providers <- sort(Project0$ProjectName) 
    
-   # Controls what is shown in the System-Level DQ tab ------------------------
-   
-   dq_w_organization_names <- dq_main %>%
-     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName")
-   
-   # Controls what is shown in the Organization-Level DQ tab ------------------------
-   
-   dq_w_ids <- dq_main %>%
-     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName")
-     # left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
-     
-
 # Plots for System-Level DQ Tab -------------------------------------------
-   dq_plot_df <- dq_w_organization_names %>%
+   dq_plot_df <- dq_main %>%
+     left_join(Project %>%
+                 select(ProjectID, OrganizationID) %>%
+                 unique(), by = "ProjectID") %>%
      select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue, Type) %>%
      unique()
 
