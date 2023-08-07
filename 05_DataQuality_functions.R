@@ -275,9 +275,9 @@ renderDQPlot <- function(level, issueType, group, color) {
   output[[outputId]] <- renderPlot({
     req(valid_file() == 1)
   
-    issueTypeDisplay = if_else(issueType == "High Priority", 
-                               "errors", 
-                               paste0(tolower(issueType),"s")
+    issueTypeDisplay = if_else(issueType == "Warning", 
+                               "warnings", 
+                               "errors"
                                )
     
     validate(need(nrow(plot_data) > 0, 

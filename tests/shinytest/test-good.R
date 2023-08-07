@@ -17,6 +17,7 @@ app$snapshot()
 
 
 app$setInputs(sidebarmenuid = "tabClientCount")
+app$waitForShiny()
 customDownload("downloadClientCountsReport", "Client-Counts-Download")
 app$snapshot()
 
@@ -26,6 +27,7 @@ customDownload("downloadPDDEReport", "PDDE-Download")
 app$snapshot()
 
 app$setInputs(sidebarmenuid = "tabDQSystem")
+app$waitForShiny()
 customDownload("downloadSystemDQReport", "System-DQ-Download")
 
 app$setInputs(sidebarmenuid = "tabDQOrg", timeout_=10000)

@@ -13,14 +13,18 @@ library(tidyverse)
 library(lubridate)
 library(patchwork)
 library(gt)
+library(scales)
+
+# Ignore this but don't remove it :)---------------------------------------
+
+# this is irrelevant to the metadata analysis but this script needs to be run
+# every week or so, so by putting it here, it is updating the EvaChecks.xlsx
+# document on GitHub in case there were any edits to checks!
+
 
 # Instructions ------------------------------------------------------------
 
-# whenever DDS sends the metadata zip file, copy it to anywhere in the ACE 
-# environment that you can find it again, navigate to the
-# metadata-analysis/metadata directory in your Eva RStudio project, click
-# Upload, then find the zip file you copied in. Click OK or whatever, then the
-# files will be pasted in. Then run this.
+# whenever DDS uploads the metadata zip file to ACE (S:\Projects\CE_Data_Toolkit\Eva metadata), navigate to the metadata-analysis directory in your Eva RStudio project, click Upload, then Choose File (not Browse), then upload that zip file. Click OK or whatever. Run this.
 
 visits <-
   read_lines(here("metadata-analysis/metadata/site_visits.txt"))
@@ -28,10 +32,9 @@ visits <-
 uploads <-
   read_lines(here("metadata-analysis/metadata/upload_metadata.txt"))
 
-#This is looking at metadata.csv, which does not have the SoftwareName column
-
 new_way <-
-  read_csv(here("metadata-analysis/metadata/metadata.csv")) %>%
+  read_csv(here("metadata-analysis/metadata/metadata.csv")) %>% # <- don't change this
+  # ^ change where your file is in your project directory
   group_by(SessionToken) %>%
   mutate(sessionTime = difftime(max(Datestamp), min(Datestamp), units = "mins"),
          is_timeout = sessionTime >= 10 & sessionTime < 11,
@@ -44,23 +47,21 @@ new_way <-
   select("SessionID" = SessionToken,
          "Date" = Datestamp,
          "Event" = Details) %>%
-  mutate(
-    WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
-    MonthEnding = ceiling_date(Date, unit = "month"),
-    EventCategory = case_when(
-      Event %in% c(
-        "Unsuccessful upload - not structurally valid",
-        "Unsuccessful upload - not hashed",
-        "Unsuccessful upload - wrong dataset",
-        "Unsuccessful upload - wrong/incomplete dataset",
-        "Unsuccessful upload - file was mistructured",
-        "Unsuccessful upload - zip file was misstructured"
-      )
-      ~ "Unsuccessful upload",
-      Event %in% c("Successful upload") ~ "Successful upload",
-      TRUE ~ "Other"
-    )
-  )
+  mutate(WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
+         MonthEnding = ceiling_date(Date, unit = "month"),
+         EventCategory = case_when(
+           Event %in% c(
+             "Unsuccessful upload - not structurally valid",
+             "Unsuccessful upload - not hashed",
+             "Unsuccessful upload - wrong dataset",
+             "Unsuccessful upload - wrong/incomplete dataset",
+             "Unsuccessful upload - file was mistructured",
+             "Unsuccessful upload - zip file was misstructured"
+           )
+           ~ "Unsuccessful upload",
+           Event %in% c("Successful upload") ~ "Successful upload",
+           TRUE ~ "Other"
+         ))
 
 # building dataset
 visits_df <- data.frame(everything = visits) %>%
@@ -86,12 +87,13 @@ uploads_df <- data.frame(everything = uploads) %>%
 old_way <- rbind(uploads_df, visits_df) %>%
   mutate(
     EventCategory = case_when(
-      Event %in% c("Unsuccessful upload - not structurally valid",
-      "Unsuccessful upload - not hashed",
-      "Unsuccessful upload - wrong dataset",
-      "Unsuccessful upload - wrong/incomplete dataset",
-      "Unsuccessful upload - file was mistructured",
-      "Unsuccessful upload - zip file was misstructured")
+      Event %in% c(
+        "Unsuccessful upload - not structurally valid",
+        "Unsuccessful upload - not hashed",
+        "Unsuccessful upload - wrong dataset",
+        "Unsuccessful upload - wrong/incomplete dataset",
+        "Unsuccessful upload - file was mistructured",
+        "Unsuccessful upload - zip file was misstructured")
       ~ "Unsuccessful upload",
       Event %in% c("Successful upload") ~ "Successful Upload",
       TRUE ~ "Other"
@@ -100,12 +102,12 @@ old_way <- rbind(uploads_df, visits_df) %>%
 
 staging <- rbind(new_way, old_way) %>%
   mutate(Event = if_else(Event == "Session started", "Site hits", Event),
-        WeekEnding = as.Date(WeekEnding),
+         WeekEnding = as.Date(WeekEnding),
          MonthEnding = as.Date(MonthEnding))
 
 all_week <- staging %>%
-  filter(WeekEnding < ceiling_date(max(ymd_hms(staging$Date)),
-                                   unit = "week"))
+  filter(WeekEnding >= ceiling_date(max(ymd_hms(staging$Date)),
+                                   unit = "week")- weeks(8))
 
 all_month <- staging %>%
   filter(MonthEnding < ceiling_date(max(ymd_hms(staging$Date)),
@@ -128,7 +130,7 @@ counts_category <- count(all_week, WeekEnding, EventCategory) %>%
 
 Eva logs do not tell us how many Eva users there are, but a count of times someone came to Eva initially or refreshed Eva in their browser. A single user will likely be represented in these counts multiple times. Eva was released on December 19, 2022 and clearly generated a lot of interest up front.
 
-```{r fig.width=8, fig.height=5}
+```{r fig.width=10, fig.height=5}
 
 counts_by_week %>%
   filter(Event == "Site hits") %>%
@@ -145,6 +147,7 @@ counts_by_week %>%
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")
+  
 ```
 
 ## Uploads
@@ -164,7 +167,7 @@ The reasons Eva will reject an export are if the export:
 * has clients/projects represented in the Enrollment file but not in the Client/Project file 
 
 
-```{r fig.width=8, fig.height=5}
+```{r fig.width=10, fig.height=5}
 
 counts_by_week %>%
   filter(str_detect(Event, " upload")) %>%
@@ -180,10 +183,11 @@ counts_by_week %>%
   theme_minimal() +
   theme(legend.position = "bottom") +
   guides(color = guide_legend(ncol = 2))
+  
 
 ```
 
-```{r fig.width=8, fig.height=5}
+```{r fig.width=10, fig.height=5}
 
 counts_category %>%
   filter(str_detect(EventCategory, " upload")) %>%
@@ -199,6 +203,7 @@ counts_category %>%
   theme_minimal() +
   theme(legend.position = "bottom") +
   guides(color = guide_legend(ncol = 2))
+  
 
 ```
 
@@ -208,7 +213,7 @@ Once an Eva user has uploaded their HMIS CSV Export successfully, they can use E
 
 Eva did not begin tracking downloads until December 29, 2022.
 
-```{r fig.width=8, fig.height=5}
+```{r fig.width=10, fig.height=5}
 
 counts_by_week %>%
   filter(str_detect(Event, "Download")) %>%
@@ -226,18 +231,34 @@ counts_by_week %>%
   theme(legend.position = "bottom") +
   guides(color = guide_legend(ncol = 2))
 
+
 ```
 
-## Data
+## Data by week
 
 Below are the counts by Week. A week here is counted Monday to Sunday.
 
 <br>
 
-```{r data}
+```{r data by week}
 gt(counts_by_week %>%
      select(
        "Week Ending" = WeekEnding,
+       Event,
+       "Count" = n
+     ))
+```
+
+## Data by month
+
+Below are the counts by Month. 
+
+<br>
+
+```{r data by month}
+gt(counts_by_month %>%
+     select(
+       "Month Ending" = MonthEnding,
        Event,
        "Count" = n
      ))

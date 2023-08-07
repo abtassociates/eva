@@ -1,25 +1,24 @@
 
 Sys.setenv(TZ = "America/New_York")
 
+# add package path to renv library
+.libPaths(c(.libPaths(), "/renv/library/R-4.2/x86_64-pc-linux-gnu/"))
+
 library(tidyverse)
+library(lubridate)
 library(shinydashboard)
 library(shiny)
 library(shinyWidgets)
-library(lubridate)
 library(scales)
-# library(plotly)
 library(DT)
 library(readxl)
 library(writexl)
-# library(viridis)
 library(HMIS) #github.com/kiadso/HMIS
 library(glue)
 library(janitor)
 library(shinyjs)
 library(shinydisconnect)
 library(here)
-#library(shinyHeatmap)
-#library(shinylogs)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 

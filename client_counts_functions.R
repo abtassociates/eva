@@ -14,7 +14,7 @@ clientCountDetailCols <- c("PersonalID",
 client_count_data_df <- reactive({
   ReportStart <- input$dateRangeCount[1]
   ReportEnd <- input$dateRangeCount[2]
-  
+
   validation %>%
     mutate(
       PersonalID = as.character(PersonalID),
@@ -33,7 +33,7 @@ client_count_data_df <- reactive({
         ProjectType %in% c(ph_project_types) &
           !is.na(MoveInDateAdjust) &
           is.na(ExitDate) ~ paste0("Currently Moved In (",
-                                   today() - MoveInDateAdjust,
+                                   ReportEnd - MoveInDateAdjust,
                                    " days)"),
         ProjectType %in% c(ph_project_types) &
           is.na(MoveInDateAdjust) &
@@ -43,12 +43,12 @@ client_count_data_df <- reactive({
           !is.na(ExitDate) ~ "Exited with Move-In",
         !ProjectType %in% c(ph_project_types) &
           is.na(ExitDate) ~ paste0("Currently in project (",
-                                   today() - EntryDate, 
+                                   ReportEnd - EntryDate, 
                                    " days)"),
         !ProjectType %in% c(ph_project_types) &
           !is.na(ExitDate) ~ "Exited project"
       ),
-      sort = today() - EntryDate
+      sort = ReportEnd - EntryDate
     ) %>%
     arrange(desc(sort), HouseholdID, PersonalID) %>%
     # make sure to include all columns that will be needed for the various uses
@@ -82,6 +82,7 @@ client_count_summary_df <- reactive({
       group_by(Status)
     return(df)
   }
+  
   client_counts <- client_count_data_df() %>%
     filter(ProjectName == input$currentProviderList)
   
@@ -94,64 +95,70 @@ client_count_summary_df <- reactive({
   full_join(clients, hhs, by = "Status")
 })
 
+
 ##### DOWNLOADING STUFF ######
+# make sure these columns are there; they wouldn't be after pivoting if nobody had that status
+necessaryCols <- c(
+  "Currently in project",
+  "Active No Move-In",
+  "Currently Moved In"
+)
+
+keepCols <- c(
+  "OrganizationName", 
+  "ProjectID", 
+  "ProjectName"
+)
+
+# function to pivot statuses to cols for the summary datasets
+pivot_and_sum <- function(df, isDateRange = FALSE) {
+  if(isDateRange) necessaryCols <- c(
+    necessaryCols,
+    "Exited project",
+    "Exited with Move-In",
+    "Exited No Move-In"
+  )
+  
+  pivoted <- df %>%
+    # remove the person-specific enrollment days from those statuses (e.g. (660 days))
+    # and make sure everyone gets all necessary columns from status (even if they have no projects of that type)
+    mutate(
+      Status = sub(" \\(.*", "", Status)
+    ) %>%
+    distinct_at(vars(!!keepCols, Status, ProjectType, PersonalID)) %>%
+    select(-PersonalID) %>%
+    mutate(n=1) %>%
+    complete(nesting(!!!syms(c(keepCols, "ProjectType"))),Status = necessaryCols, fill = list(n = 0)) %>%
+    pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
+    mutate(
+      across(!!necessaryCols, ~ 
+               replace(., is.na(.) &
+                         ProjectType %in% c(psh_project_type,
+                                            rrh_project_type), 0)),
+      "Currently in Project" = case_when(
+        ProjectType %in% c(ph_project_types)  ~ 
+          rowSums(select(., `Currently Moved In`, `Active No Move-In`),
+                  na.rm = TRUE),
+        TRUE ~ replace_na(`Currently in project`, 0)
+      )
+    ) %>% 
+    relocate(`Currently in Project`, .after = ProjectName)
+  
+  exportTestValues(client_count_download = pivoted)
+  
+  return(pivoted)
+}
+
 get_clientcount_download_info <- function(file) {
-  keepCols <- c("OrganizationName", "ProjectID", "ProjectName")
-  
-  # initial dataset thta will make summarizing easier
-  validationDF <- client_count_data_df() %>%
-    mutate(n = 1)
-  
-  # this function pivots by project and gets the counts of people with each status
-  pivot_and_sum <- function(df, isDateRange = FALSE) {
-    
-    # make sure these columns are there; they wouldn't be after pivoting if nobody had that status
-    necessaryCols <- c(
-      "Currently in project",
-      "Active No Move-In",
-      "Currently Moved In"
-    )
-    
-    if(isDateRange) necessaryCols <- c(
-      necessaryCols,
-      "Exited project",
-      "Exited with Move-In",
-      "Exited No Move-In"
-    )
-    
-    pivoted <- df %>%
-      # remove the person-specific enrollment days from those statuses (e.g. (660 days))
-      mutate(
-        Status = sub(" \\(.*", "", Status)
-      ) %>%
-      select(all_of(keepCols), n, Status, ProjectType, PersonalID) %>%
-      unique() %>%
-      select(all_of(keepCols), n, Status, ProjectType) %>%
-      pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
-      add_column(!!!necessaryCols[setdiff(names(necessaryCols), names(df))]) %>%
-      select(!!keepCols, !!necessaryCols, ProjectType) %>%
-      mutate(
-        across(!!necessaryCols, ~ 
-                 replace(., is.na(.) &
-                           ProjectType %in% c(psh_project_type,
-                                              rrh_project_type), 0)),
-        "Currently in Project" = case_when(
-          ProjectType %in% c(ph_project_types)  ~ 
-            rowSums(select(., `Currently Moved In`, `Active No Move-In`),
-                    na.rm = TRUE),
-          TRUE ~ replace_na(`Currently in project`, 0)
-        )
-      ) %>% 
-      relocate(`Currently in Project`, .after = ProjectName)
-    
-    exportTestValues(client_count_download = pivoted)
-    
-    return(pivoted)
-  }
+  # initial dataset that will make summarizing easier
+  validationDF <- client_count_data_df()
   
   ### VALIDATION DATE RANGE TAB ###
   # counts for each status, by project, across the date range provided
-  validationDateRange <- pivot_and_sum(validationDF, isDateRange = TRUE) %>%
+  validationDateRange <- 
+    pivot_and_sum(
+      validationDF, isDateRange = TRUE
+    ) %>%
     mutate(
       "Exited Project" = case_when(
         ProjectType %in% c(ph_project_types) ~ 
@@ -170,10 +177,10 @@ get_clientcount_download_info <- function(file) {
     pivot_and_sum(
       validationDF %>%
         filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
-  ) %>%
+    ) %>%
     select(-c(`Currently in project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
-  
+
   ### VALIDATION DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
     select(!!keepCols, !!clientCountDetailCols) %>%

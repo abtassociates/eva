@@ -1,12 +1,15 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 # system libraries:
 #   libcurl -- needed to complete setup-renv
-#   OLD: libharfbuzz-dev libfribidi-dev -- needed for the textshaping package
+#   libharfbuzz-dev libfribidi-dev -- needed for the textshaping package
 #   which is a dependency of ragg, which is a dependency of the new tidyverse (2.0.0)
-#   we use tidyverse 1.3.1 right now. Now sure how/why 2.0.0 came into my library
-#   may be when I started setting up things in VS Code.
+
 on:
   pull_request:
+  push:
+    branches:
+      - main
+      - dev
 
 name: Test
 
@@ -25,18 +28,18 @@ jobs:
       - name: install needed system libs
         shell: bash
         run: |
-          sudo apt install libcurl4-openssl-dev 
-      
+          sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
+          
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: '4.2'
-
-      - uses: r-lib/actions/setup-renv@v2        
-    
+          
+      - uses: r-lib/actions/setup-renv@v2
+      
       - name: Find PhantomJS path
         id: phantomjs
         run: |
-          echo "::set-output name=path::$(Rscript -e 'cat(shinytest:::phantom_paths()[[1]])')"
+          echo "path=$(Rscript -e 'cat(shinytest:::phantom_paths()[[1]])')" >> $GITHUB_OUTPUT
           
       - name: Cache PhantomJS
         uses: actions/cache@v3
@@ -49,16 +52,4 @@ jobs:
         shell: Rscript {0}
         run: |
           options(install.packages.check.source = "no")
-          if (!shinytest::dependenciesInstalled()) shinytest::installDependencies()
-          
-      - name: Run tests
-        run: |
-          Rscript tests/shinytest.R
-          
-      - name: Upload test results
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ runner.os }}-4.2-tests
-          path: tests
-          
+          if (!shinytest::dependenciesInstalled()) shinytest::installDependencies()        

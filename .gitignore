@@ -4,7 +4,6 @@
 .Ruserdata
 data
 rsconnect
-.Rprofile
 comparisons
 *.jpg
 .DS_Store
@@ -27,3 +26,4 @@ metadata.csv
 *_.new.png
 metadata.csv
 sessiondata.csv
+tests/shinytest/*-current/
