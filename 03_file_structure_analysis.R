@@ -373,7 +373,7 @@ disabling_condition_invalid <- Enrollment %>%
 living_situation_invalid <- Enrollment %>%
   filter(!is.na(LivingSituation) &
     !LivingSituation %in% c(allowed_prior_living_sit)) %>%
-  merge_check_info(checkIDs = 523 %>%
+  merge_check_info(checkIDs = 52) %>%
   mutate(
     Detail = str_squish(paste(
       "Enrollment ID",
