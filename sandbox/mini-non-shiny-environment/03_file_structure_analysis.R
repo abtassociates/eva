@@ -24,7 +24,6 @@ df_date_types <-
     File = str_remove(basename(file), ".csv")
   ) %>%
   left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
-  merge_check_info(checkIDs = c(11, 47)) %>%
   mutate(
     Detail = str_squish(paste(
       "Please check that the",
@@ -34,6 +33,14 @@ df_date_types <-
       "file has the correct date format."))
   ) %>%
   select(all_of(issue_display_cols)) %>% unique()
+
+incorrect_date_types_hp <- df_date_types %>%
+  filter(Column %in% c(high_priority_columns)) %>%
+  merge_check_info(checkIDs = 11)
+
+incorrect_date_types_error <- df_date_types %>%
+  filter(!(Column %in% c(high_priority_columns))) %>%
+  merge_check_info(checkIDs = 47)
 
 # Incorrect Columns ------------------------------------------------------
 check_columns <- function(file) {
@@ -52,7 +59,6 @@ check_columns <- function(file) {
                  rep("Extra", length(extra_columns)))
     ) %>%
     arrange(ColumnName) %>%
-    merge_check_info(checkIDs = c(12, 82)) %>%
     mutate(
       Detail = str_squish(paste(
         "In the",
@@ -67,6 +73,18 @@ check_columns <- function(file) {
     ) %>%
     select(all_of(issue_display_cols)) %>%
     unique()
+
+    col_diffs_hp <- col_diffs %>%
+      filter(ColumnName %in% c(high_priority_columns)) %>%
+      merge_check_info(checkIDs = 12)
+
+    col_diffs_error <- col_diffs %>%
+      filter(!(ColumnName %in% c(high_priority_columns))) %>%
+      merge_check_info(checkIDs = 82)
+
+    return(
+      rbind(col_diffs_hp, col_diffs_error)
+    )
   }
 }
 
@@ -94,7 +112,6 @@ check_data_types <- function(quotedfile) {
     y <- cols_and_data_types %>% 
       left_join(data_types, by = c("File", "Column")) %>%
       filter(DataType != ImportedDataType) %>%
-      merge_check_info(checkIDs = c(13, 48)) %>%
       mutate(
         Detail = str_squish(paste0(
           "In the ",
@@ -117,7 +134,17 @@ check_data_types <- function(quotedfile) {
         ))
       ) %>%
       select(all_of(issue_display_cols))
-    y
+
+    return(
+      rbind(
+        y %>% 
+          filter(DataTypeHighPriority == 1) %>% 
+          merge_check_info(checkIDs = 13),
+        y %>% 
+          filter(DataTypeHighPriority == 0) %>% 
+          merge_check_info(checkIDs = 48)
+      )
+    )
   }
 }
 
@@ -474,7 +501,8 @@ nonstandard_CLS <- CurrentLivingSituation %>%
 file_structure_analysis_main <- rbind(
   df_column_diffs,
   df_data_types,
-  df_date_types,
+  incorrect_date_types_hp,
+  incorrect_date_types_error,
   df_nulls,
   export_id_client,
   valid_values_client,
