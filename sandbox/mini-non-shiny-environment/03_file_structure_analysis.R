@@ -4,7 +4,6 @@
 # unexpected nulls, and more
 ######################
 
-logToConsole("Running file structure analysis")
 
 # Prep --------------------------------------------------------------------
 

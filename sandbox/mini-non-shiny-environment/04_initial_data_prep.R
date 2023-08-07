@@ -19,7 +19,6 @@
 # clients = all members of the household
 ##############################
 
-logToConsole("Running initial data prep")
 
 # separate projectType = 1 into 1 and 0, based on TrackingMethod
 # also add Organization info into project dataset to more easily pull this info
