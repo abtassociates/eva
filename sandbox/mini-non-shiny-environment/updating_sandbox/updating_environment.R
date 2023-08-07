@@ -7,7 +7,7 @@ library(here)
 sandbox_dir <- here("sandbox/mini-non-shiny-environment/")
 
 replace_code <- function(fname, replacelist) {
-  filepath = paste0(sandbox_dir, fname)
+  filepath <- paste0(sandbox_dir, fname)
   # read in the contents of the script
   lines <- readLines(filepath)
 
