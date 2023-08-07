@@ -8,7 +8,7 @@ library(here)
 sandbox_dir <- here("sandbox/mini-non-shiny-environment/")
 
 replace_code <- function(fname, replacelist) {
-  filepath = paste0(sandbox_dir, fname)
+  filepath <- paste0(sandbox_dir, fname)
   # read in the contents of the script
   lines <- readLines(filepath)
 
@@ -28,7 +28,7 @@ replace_code <- function(fname, replacelist) {
   # cat(lines, file = filepath, sep = "\n")
 }
 
-files_to_copy = list(
+files_to_copy <- list(
   "/hardcodes.R",
   "/helper_functions.R",
   "/01_get_Export.R",

@@ -19,6 +19,7 @@
 # clients = all members of the household
 ##############################
 
+logToConsole("Running initial data prep")
 
 # separate projectType = 1 into 1 and 0, based on TrackingMethod
 # also add Organization info into project dataset to more easily pull this info
@@ -93,15 +94,19 @@ HHEntry <- Enrollment %>%
   unique() %>%
   left_join(HHMoveIn, by = "HouseholdID")
 
-
 Enrollment <- Enrollment %>%
   left_join(HHEntry, by = "HouseholdID") %>%
   mutate(
     MoveInDateAdjust = if_else(!is.na(HHMoveIn) &
                                  ymd(HHMoveIn) <= ExitAdjust,
                                if_else(EntryDate <= ymd(HHMoveIn),
+<<<<<<< HEAD
                                        HHMoveIn, EntryDate),
                                NA_Date_), 
+=======
+                                       ymd(HHMoveIn), EntryDate),
+                               NA), 
+>>>>>>> generate_app_checks
     EntryAdjust = case_when(
       !ProjectType %in% ph_project_types ~ EntryDate,
       ProjectType %in% ph_project_types &

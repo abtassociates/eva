@@ -195,23 +195,16 @@ calculate_long_stayers <- function(too_many_days, projecttype){
              ProjectType == projecttype
     ) %>%
     mutate(
-      Days = 
+      Days =
         as.numeric(difftime(
           as.Date(meta_HUDCSV_Export_Date), EntryDate, 
           units = "days"
         )),
-      Issue = "Long Stayers",
-      Type = "Warning",
-      Guidance = str_squish("The number of days between Entry and the end of your
-                            CSV export exceeds the number of days in the Long
-                            Stayers settings for this project type. If this
-                            household has left the project, enter the Project
-                            Exit Date. If they are still active, do not change
-                            the data, but verify that your Coordinated Entry
-                            process is actively connecting this household to
-                            a permanent housing destination.")
     ) %>%
-    filter(too_many_days < Days) %>% 
+    filter(is.na(ExitDate) &
+             ProjectType == projecttype &
+             input < Days) %>% 
+    merge_check_info(checkIDs = 105) %>%
     select(all_of(vars_we_want))
   
   cls_project_types <- validation %>%
@@ -269,11 +262,6 @@ calculate_outstanding_referrals <- function(input){
       Days = 
         as.numeric(
           difftime(as.Date(meta_HUDCSV_Export_Date), EventDate, units = "days")),
-      Issue = "Days Referral Active Exceeds Local Settings",
-      Type = "Warning",
-      Guidance = str_squish("You have at least one active referral that has been
-         active without a Result Date for longer than the days set in your
-         Local Settings on the Home tab."),
       EventType = case_when(
         Event == 10 ~ "Referral to Emergency Shelter bed opening",
         Event == 11 ~ "Referral to Transitional Housing bed/unit opening",
@@ -287,8 +275,8 @@ calculate_outstanding_referrals <- function(input){
     ) %>%
     filter(Event %in% c(10:15, 17:18) &
              is.na(ResultDate) &
-             input < Days)
-  
+             input < Days) %>%
+    merge_check_info(checkIDs = 100)
 }
 
 renderDQPlot <- function(level, issueType, group, color) {
@@ -343,9 +331,9 @@ renderDQPlot <- function(level, issueType, group, color) {
   output[[outputId]] <- renderPlot({
     req(valid_file() == 1)
   
-    issueTypeDisplay = if_else(issueType == "High Priority", 
-                               "error", 
-                               paste0(tolower(issueType),"s")
+    issueTypeDisplay = if_else(issueType == "Warning", 
+                               "warnings", 
+                               "errors"
                                )
     
     validate(need(nrow(plot_data) > 0, 
@@ -382,7 +370,7 @@ renderDQPlot <- function(level, issueType, group, color) {
   
   # this effectively collapses the plot if there are no rows
   plot_height = if_else(nrow(plot_data) == 0,50,400)
-
+  
   # finally, render the plot
   return(plotOutput(outputId, height = plot_height))
 }
