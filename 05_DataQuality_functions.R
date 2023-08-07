@@ -203,16 +203,14 @@ calculate_long_stayers <- function(too_many_days, projecttype){
     ) %>%
     filter(is.na(ExitDate) &
              ProjectType == projecttype &
-             input < Days) %>% 
-    merge_check_info(checkIDs = 105) %>%
+             input < Days & 
+             too_many_days < Days) %>%
+    merge_check_info(checkIDs = 102) %>%
     select(all_of(vars_we_want))
   
   cls_project_types <- validation %>%
     left_join(cls_df, by = "EnrollmentID") %>%
     select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
-    filter(is.na(ExitDate) &
-             ProjectType %in% c(project_types_w_cls) &
-             ProjectType == projecttype) %>%
     mutate(
       Days = 
         as.numeric(difftime(
@@ -221,17 +219,13 @@ calculate_long_stayers <- function(too_many_days, projecttype){
                   MaxCLSInformationDate, # most recent CLS
                   EntryDate), # project entry
           units = "days"
-        )),
-      Issue = "Days since Most Recent CLS Exceeds Local Settings",
-      Type = "Warning",
-      Guidance = str_squish("This enrollment has been active without any updates
-                            to their Current Living Situation for longer than
-                            the days set for this Project Type in your Long
-                            Stayers settings on the Edit Local Settings tab.
-                            Please be sure that any CLS updates or project exits
-                            are reflected in HMIS.")
+        ))
     ) %>%
-    filter(too_many_days < Days) %>% 
+    filter(is.na(ExitDate) &
+             ProjectType %in% c(project_types_w_cls) &
+             ProjectType == projecttype & 
+             too_many_days < Days) %>%
+    merge_check_info(checkIDs = 103) %>%
     select(all_of(vars_we_want))
   
   if (projecttype %in% c(project_types_w_cls)) {
