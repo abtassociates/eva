@@ -25,7 +25,7 @@ df_date_types <-
     File = str_remove(basename(file), ".csv")
   ) %>%
   left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
-  merge_check_info(checkID = 11) %>%
+  merge_check_info(checkIDs = c(11, 47)) %>%
   mutate(
     Detail = str_squish(paste(
       "Please check that the",
@@ -53,13 +53,8 @@ check_columns <- function(file) {
                  rep("Extra", length(extra_columns)))
     ) %>%
     arrange(ColumnName) %>%
-    merge_check_info(checkID = 12) %>%
+    merge_check_info(checkIDs = c(12, 82)) %>%
     mutate(
-      Type = if_else(
-        ColumnName %in% c(high_priority_columns),
-        "High Priority",
-        "Warning"
-      ),
       Detail = str_squish(paste(
         "In the",
         file,
@@ -100,9 +95,8 @@ check_data_types <- function(quotedfile) {
     y <- cols_and_data_types %>% 
       left_join(data_types, by = c("File", "Column")) %>%
       filter(DataType != ImportedDataType) %>%
-      merge_check_info(checkID = 14) %>%
+      merge_check_info(checkIDs = c(13, 48)) %>%
       mutate(
-        Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
         Detail = str_squish(paste0(
           "In the ",
           quotedfile,
@@ -164,7 +158,7 @@ check_for_bad_nulls <- function(file) {
         left_join(cols_and_data_types %>% 
                     select(Column, DataTypeHighPriority),
                   by = "Column") %>%
-        merge_check_info(checkID = 6) %>%
+        merge_check_info(checkIDs = 6) %>%
         mutate(
           Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
           Detail = str_squish(glue("The {Column} column in the {file} file contains nulls
@@ -188,7 +182,7 @@ df_nulls <- map_df(unique(cols_and_data_types$File), check_for_bad_nulls)
 
 export_id_client <- Client %>%
   filter(as.character(ExportID) != export_id_from_export) %>%
-  merge_check_info(checkID = 51) %>%
+  merge_check_info(checkIDs = 49) %>%
   mutate(
     Detail = str_squish(paste(
       "The Export file says the ExportID is",
@@ -254,7 +248,7 @@ valid_values_client <- Client %>%
   pivot_longer(cols = everything()) %>%
   filter(value == 0) %>%
   count(name) %>%
-  merge_check_info(checkID = 52) %>%
+  merge_check_info(checkIDs = 501) %>%
   mutate(
     Detail = case_when(
       name == "VeteranStatus" ~ paste("VeteranStatus has", n,
@@ -292,7 +286,7 @@ valid_values_client <- Client %>%
 
 duplicate_client_id <- Client %>%
   get_dupes(PersonalID) %>%
-  merge_check_info(checkID = 7) %>%
+  merge_check_info(checkIDs = 7) %>%
   mutate(
     Detail = paste("There are", dupe_count, "for PersonalID", PersonalID)
   ) %>%
@@ -300,12 +294,11 @@ duplicate_client_id <- Client %>%
   unique()
 
 # Integrity Enrollment ----------------------------------------------------
-if(nrow(Enrollment) == 0) {
-  
+if (nrow(Enrollment) == 0) {
   no_enrollment_records <- data.frame(
     Detail = "There are 0 enrollment records in the Enrollment.csv file"
   ) %>%
-  merge_check_info(checkID = 103)
+  merge_check_info(checkIDs = 101)
 } else {
   no_enrollment_records <- data.frame(
     Issue = character(),
@@ -317,7 +310,7 @@ if(nrow(Enrollment) == 0) {
 
 duplicate_enrollment_id <- Enrollment %>%
   get_dupes(EnrollmentID) %>%
-  merge_check_info(checkID = 8) %>%
+  merge_check_info(checkIDs = 8) %>%
   mutate(
     Detail = str_squish(
       paste0(
@@ -336,7 +329,7 @@ personal_ids_in_client <- Client %>% pull(PersonalID)
 
 foreign_key_no_primary_personalid_enrollment <- Enrollment %>%
   filter(!PersonalID %in% c(personal_ids_in_client)) %>%
-  merge_check_info(checkID = 9) %>%
+  merge_check_info(checkIDs = 9) %>%
   mutate(
     Detail = str_squish(paste(
       "PersonalID",
@@ -351,7 +344,7 @@ projectids_in_project <- Project %>% pull(ProjectID)
 
 foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
   filter(!ProjectID %in% c(projectids_in_project)) %>%
-  merge_check_info(checkID = 10) %>%
+  merge_check_info(checkIDs = 10) %>%
   mutate(
     Detail = str_squish(paste(
       "ProjectID",
@@ -364,7 +357,7 @@ foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
 
 disabling_condition_invalid <- Enrollment %>%
   filter(!DisablingCondition %in% c(yes_no_enhanced)) %>%
-  merge_check_info(checkID = 53) %>%
+  merge_check_info(checkIDs = 51) %>%
   mutate(
     Detail = str_squish(paste(
       "Enrollment ID",
@@ -380,7 +373,7 @@ disabling_condition_invalid <- Enrollment %>%
 living_situation_invalid <- Enrollment %>%
   filter(!is.na(LivingSituation) &
     !LivingSituation %in% c(allowed_prior_living_sit)) %>%
-  merge_check_info(checkID = 54) %>%
+  merge_check_info(checkIDs = 523 %>%
   mutate(
     Detail = str_squish(paste(
       "Enrollment ID",
@@ -395,7 +388,7 @@ living_situation_invalid <- Enrollment %>%
 
 rel_to_hoh_invalid <- Enrollment %>%
   filter(!RelationshipToHoH %in% c(1:5, 99) & !is.na(RelationshipToHoH)) %>%
-  merge_check_info(checkID = 55) %>%
+  merge_check_info(checkIDs = 53) %>%
   mutate(
     Detail = str_squish(paste(
       "Enrollment ID",
@@ -413,7 +406,7 @@ duplicate_household_id <- Enrollment %>%
   distinct(HouseholdID, ProjectID) %>%
   filter(!is.na(HouseholdID)) %>%
   get_dupes(HouseholdID) %>%
-  merge_check_info(checkID = 100) %>%
+  merge_check_info(checkIDs = 98) %>%
   mutate(
     Detail = paste("HouseholdID", 
                    HouseholdID,
@@ -457,7 +450,7 @@ duplicate_household_id <- Enrollment %>%
 nonstandard_destination <- Exit %>%
   filter(!is.na(Destination) &
            !Destination %in% c(allowed_destinations)) %>%
-  merge_check_info(checkID = 56) %>%
+  merge_check_info(checkIDs = 54) %>%
   mutate(
     Detail = str_squish(paste("EnrollmentID",
                      EnrollmentID,
@@ -470,7 +463,7 @@ nonstandard_destination <- Exit %>%
 nonstandard_CLS <- CurrentLivingSituation %>%
   filter(!is.na(CurrentLivingSituation) &
     !CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
-  merge_check_info(checkID = 57) %>%
+  merge_check_info(checkIDs = 55) %>%
   mutate(
     Detail = str_squish(paste("EnrollmentID",
                      EnrollmentID,

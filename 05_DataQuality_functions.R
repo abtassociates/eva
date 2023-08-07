@@ -181,7 +181,7 @@ calculate_long_stayers <- function(input, projecttype){
     filter(is.na(ExitDate) &
              ProjectType == projecttype &
              input < Days) %>% 
-    merge_check_info(checkID = 105) %>%
+    merge_check_info(checkIDs = 105) %>%
     select(all_of(vars_we_want))
   
 }
@@ -220,7 +220,7 @@ calculate_outstanding_referrals <- function(input){
     filter(Event %in% c(10:15, 17:18) &
              is.na(ResultDate) &
              input < Days) %>%
-    merge_check_info(checkID = 102)
+    merge_check_info(checkIDs = 100)
 }
 
 renderDQPlot <- function(level, issueType, group, color) {

@@ -26,7 +26,7 @@ subpopNotTotal <- Inventory %>%
               OtherBedInventory
            ) != BedInventory
   ) %>%
-  merge_check_info(checkID = 47) %>%
+  merge_check_info(checkIDs = 46) %>%
   mutate(Detail = 
            paste0(
              str_squish("Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth,
@@ -46,7 +46,7 @@ subpopNotTotal <- Inventory %>%
 
 # Missing Operating End Date If a project has no open enrollments and the most
 # recent Enrollment was 30+ days ago
-operatingEndMissing <- Enrollment %>%
+operating_end_missing <- Enrollment %>%
   group_by(ProjectID) %>%
   mutate(NumOpenEnrollments = sum(is.na(ExitDate)),
          MostRecentEnrollment = max(ExitAdjust, na.rm = TRUE)
@@ -60,7 +60,7 @@ operatingEndMissing <- Enrollment %>%
            MostRecentEnrollment >= 
            coalesce(OperatingEndDate, Export$ExportDate) - 30 &
            is.null(OperatingEndDate)) %>%
-  merge_check_info(checkID = 83) %>%
+  merge_check_info(checkIDs = 81) %>%
   mutate(Detail = paste(
            "This project has no open enrollments and the most recent Exit was",
            MostRecentEnrollment
@@ -70,7 +70,7 @@ operatingEndMissing <- Enrollment %>%
 
 # Missing CoC Information Missing address field(s), Missing Geocode,
 # Missing Geography Type, Invalid Zip Code if possible
-missingCoCInfo <- Project %>%
+missing_CoC_Info <- Project %>%
   left_join(ProjectCoC, by = "ProjectID") %>%
   filter(is.na(Address1) | 
            is.na(City) | 
@@ -82,10 +82,10 @@ missingCoCInfo <- Project %>%
            is.na(CoCCode)
   )
 
-missingCoCInfo1 <- missingCoCInfo %>%
+missing_CoC_Geography <- missing_CoC_Info %>%
   filter(is.na(Geocode) | is.na(GeographyType) |
            is.na(CoCCode)) %>%
-  merge_check_info(checkID = 5) %>%
+  merge_check_info(checkIDs = 5) %>%
   mutate(
     Detail = case_when(
       is.na(CoCCode) ~ "This project's CoC Code is missing.",
@@ -98,11 +98,11 @@ missingCoCInfo1 <- missingCoCInfo %>%
         "ZIP is missing or not valid."
     )) %>%
   select(all_of(PDDEcols))
-  
-missingCoCInfo2 <- missingCoCInfo %>%
+
+missing_CoC_Address <- missing_CoC_Info %>%
   filter(!(is.na(Geocode) | is.na(GeographyType) |
            is.na(CoCCode))) %>%
-  merge_check_info(checkID = 43) %>%
+  merge_check_info(checkIDs = 42) %>%
   mutate(
     Detail = case_when(
       is.na(CoCCode) ~ "This project's CoC Code is missing.",
@@ -117,11 +117,11 @@ missingCoCInfo2 <- missingCoCInfo %>%
   select(all_of(PDDEcols))
 
 # Missing Inventory Record Is a residential project but has no active inventory for the duration of operating period OR for the reporting period
-missingInventoryRecord <- Project %>%
+missing_inventory_record <- Project %>%
   left_join(Inventory, by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
            is.na(InventoryID)) %>% 
-  merge_check_info(checkID = 44) %>%
+  merge_check_info(checkIDs = 43) %>%
   mutate(
     Detail = str_squish("This project has no Inventory records. Residential 
       project types should have inventory data.")
@@ -133,9 +133,9 @@ missingInventoryRecord <- Project %>%
 inventoryOutsideOperating <- Inventory %>%
   left_join(Project, by = "ProjectID")
 
-inventoryOutsideOperating1 <- inventoryOutsideOperating %>%
+inventoryStartPrecedesOp <- inventoryOutsideOperating %>%
   filter(InventoryStartDate < OperatingStartDate) %>%
-  merge_check_info(checkID = 81) %>%
+  merge_check_info(checkIDs = 79) %>%
   mutate(
     Detail = str_squish(
       paste0(
@@ -151,11 +151,11 @@ inventoryOutsideOperating1 <- inventoryOutsideOperating %>%
   select(all_of(PDDEcols))
 
 
-inventoryOutsideOperating2 <- inventoryOutsideOperating %>%
+operating_end_precedes_inventory_end <- inventoryOutsideOperating %>%
   filter(coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_Date)) >
            coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_Date))
   ) %>%
-  merge_check_info(checkID = 45)
+  merge_check_info(checkIDs = 44)
   mutate(
     Detail = is.na(InventoryEndDate) &
       !is.na(OperatingEndDate) ~
@@ -176,14 +176,14 @@ inventoryOutsideOperating2 <- inventoryOutsideOperating %>%
 # HMIS Participating ------------------------------------------------------
 # HMIS Participating != 1, OR VSP != 0 but client level data in file
 
-hmisNotParticipatingButClient <- Project %>%
+hmis_not_participating_but_client <- Project %>%
   left_join(Organization %>% select(OrganizationID, VictimServiceProvider),
             by = "OrganizationID") %>%
   filter((HMISParticipatingProject != 1 |
             VictimServiceProvider != 0) &
            ProjectID %in% c(Enrollment$ProjectID %>% unique())
   ) %>%
-  merge_check_info(checkID = 82) %>%
+  merge_check_info(checkIDs = 80) %>%
   mutate(
     Detail = str_squish(
       "There is client data in this project. Please check that this project is
@@ -194,7 +194,7 @@ hmisNotParticipatingButClient <- Project %>%
 
 es_no_tracking_method <- Project %>%
   filter(ProjectType %in% c(1, 0) & is.na(TrackingMethod)) %>%
-  merge_check_info(checkID = 46) %>%
+  merge_check_info(checkIDs = 45) %>%
   mutate(
     Detail = paste("This project is an Emergency Shelter with no Tracking Method")
   ) %>%
@@ -220,7 +220,7 @@ res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 
 zero_utilization <- Project %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
-  merge_check_info(checkID = 85) %>%
+  merge_check_info(checkIDs = 83) %>%
   mutate(
     Detail = str_squish("This project has active inventory beds in the report
                         period but did not serve any clients during that time.")
@@ -233,14 +233,14 @@ zero_utilization <- Project %>%
 ### Put it together ----
 pdde_main <- rbind(
   subpopNotTotal,
-  operatingEndMissing,
+  operating_end_missing,
   es_no_tracking_method,
-  missingCoCInfo1,
-  missingCoCInfo2,
-  missingInventoryRecord,
-  inventoryOutsideOperating1,
-  inventoryOutsideOperating2,
-  hmisNotParticipatingButClient,
+  missing_CoC_Geography,
+  missing_CoC_Address,
+  missing_inventory_record,
+  inventoryStartPrecedesOp,
+  operating_end_precedes_inventory_end,
+  hmis_not_participating_but_client,
   zero_utilization
 )
 
