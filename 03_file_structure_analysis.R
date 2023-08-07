@@ -32,16 +32,18 @@ df_date_types <-
       "column in the",
       File,
       "file has the correct date format."))
-  ) %>%
-  select(all_of(issue_display_cols)) %>% unique()
+  )
+  
 
 incorrect_date_types_hp <- df_date_types %>%
   filter(Column %in% c(high_priority_columns)) %>%
-  merge_check_info(checkIDs = 11)
+  merge_check_info(checkIDs = 11) %>%
+  select(all_of(issue_display_cols)) %>% unique()
 
 incorrect_date_types_error <- df_date_types %>%
   filter(!(Column %in% c(high_priority_columns))) %>%
-  merge_check_info(checkIDs = 47)
+  merge_check_info(checkIDs = 47) %>%
+  select(all_of(issue_display_cols)) %>% unique()
 
 # Incorrect Columns ------------------------------------------------------
 check_columns <- function(file) {
