@@ -74,7 +74,7 @@ check_columns <- function(file) {
         )
       ))
     )
-
+    
     col_diffs_hp <- col_diffs %>%
       filter(ColumnName %in% c(high_priority_columns)) %>%
       merge_check_info(checkIDs = 12) %>%
