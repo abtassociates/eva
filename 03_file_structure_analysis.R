@@ -138,17 +138,19 @@ check_data_types <- function(quotedfile) {
             ),
           "."
         ))
-      ) %>%
-      select(all_of(issue_display_cols))
+      )
 
     return(
       rbind(
         y %>% 
           filter(DataTypeHighPriority == 1) %>% 
-          merge_check_info(checkIDs = 13),
+          merge_check_info(checkIDs = 13) %>%
+          select(all_of(issue_display_cols)),
+          
         y %>% 
           filter(DataTypeHighPriority == 0) %>% 
-          merge_check_info(checkIDs = 48)
+          merge_check_info(checkIDs = 48) %>%
+          select(all_of(issue_display_cols))
       )
     )
   }
