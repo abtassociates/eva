@@ -3,7 +3,7 @@
 #   for generating the DQ plots and DQ exports
 ###############################
 dq_main_reactive <- reactive({
-  req(valid_file()== 1)
+  req(valid_file() == 1)
   # browser()
   ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
   Other <- calculate_long_stayers(input$OtherLongStayers, 7)
@@ -181,7 +181,13 @@ calculate_long_stayers <- function(input, projecttype){
     filter(is.na(ExitDate) &
              ProjectType == projecttype &
              input < Days) %>% 
-    merge_check_info(checkIDs = 105) %>%
+    mutate(
+      Issue = "Days Enrollment Active Exceeds Local Settings",
+      Type = "Warning",
+      Guidance = str_squish("You have at least one active enrollment that has been
+         active for longer than the days set for this Project Type in your
+         Referral settings on the Edit Local Settings tab.")
+    ) %>%
     select(all_of(vars_we_want))
   
 }
