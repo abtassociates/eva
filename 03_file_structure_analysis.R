@@ -73,17 +73,20 @@ check_columns <- function(file) {
           paste("the", ColumnName, "column is missing")
         )
       ))
-    ) %>%
-    select(all_of(issue_display_cols)) %>%
-    unique()
+    )
 
     col_diffs_hp <- col_diffs %>%
       filter(ColumnName %in% c(high_priority_columns)) %>%
-      merge_check_info(checkIDs = 12)
+      merge_check_info(checkIDs = 12) %>%
+      select(all_of(issue_display_cols)) %>%
+      unique()
+
 
     col_diffs_error <- col_diffs %>%
       filter(!(ColumnName %in% c(high_priority_columns))) %>%
-      merge_check_info(checkIDs = 82)
+      merge_check_info(checkIDs = 82) %>%
+      select(all_of(issue_display_cols)) %>%
+      unique()
 
     return(
       rbind(col_diffs_hp, col_diffs_error)
