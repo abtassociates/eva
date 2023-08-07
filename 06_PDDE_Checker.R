@@ -210,7 +210,7 @@ es_no_tracking_method <- Project %>%
   filter(ProjectType %in% c(1, 0) & is.na(TrackingMethod)) %>%
   merge_check_info(checkIDs = 45) %>%
   mutate(
-    Detail = paste("This project is an Emergency Shelter with no Tracking Method")
+    Detail = "This project is an Emergency Shelter with no Tracking Method."
   ) %>%
   select(all_of(PDDEcols))
 
