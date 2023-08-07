@@ -50,7 +50,6 @@ ees_with_statuses <- Enrollment %>%
            ExitDate >= meta_HUDCSV_Export_Start),
       1, 0
     )
-      
   )
   
   
