@@ -100,13 +100,8 @@ Enrollment <- Enrollment %>%
     MoveInDateAdjust = if_else(!is.na(HHMoveIn) &
                                  ymd(HHMoveIn) <= ExitAdjust,
                                if_else(EntryDate <= ymd(HHMoveIn),
-<<<<<<< HEAD
-                                       HHMoveIn, EntryDate),
-                               NA_Date_), 
-=======
                                        ymd(HHMoveIn), EntryDate),
-                               NA), 
->>>>>>> generate_app_checks
+                               NA),
     EntryAdjust = case_when(
       !ProjectType %in% ph_project_types ~ EntryDate,
       ProjectType %in% ph_project_types &
