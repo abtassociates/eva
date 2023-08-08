@@ -187,10 +187,9 @@ calculate_long_stayers <- function(too_many_days, projecttype){
         as.numeric(difftime(
           as.Date(meta_HUDCSV_Export_Date), EntryDate, 
           units = "days"
-        )),
+        ))
     ) %>%
-    filter(input < Days & 
-             too_many_days < Days) %>%
+    filter(too_many_days < Days) %>%
     merge_check_info(checkIDs = 102) %>%
     select(all_of(vars_we_want))
   
