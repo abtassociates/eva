@@ -6,11 +6,11 @@ dq_main_reactive <- reactive({
   req(valid_file()== 1)
   # browser()
   ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
-  Other <- calculate_long_stayers(input$OtherLongStayers, 7)
   Outreach <- calculate_long_stayers(input$OUTLongStayers, 4)
-  DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
-  ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
   CoordinatedEntry <- calculate_long_stayers(input$CELongStayers, 14)
+  ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
+  Other <- calculate_long_stayers(input$OtherLongStayers, 7)
+  DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
   
   #Calculating potential old referrals based on Local settings
   CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
@@ -176,18 +176,6 @@ getDQReportDataList <-
 # Non-Residential Long Stayers --------------------------------------------
 
 calculate_long_stayers <- function(too_many_days, projecttype){
-
-  cls_df <- validation %>%
-    filter(is.na(ExitDate)) %>% # less data to deal w/
-    left_join(CurrentLivingSituation %>%
-                select(CurrentLivingSitID,
-                       EnrollmentID,
-                       InformationDate), by = "EnrollmentID") %>%
-    group_by(EnrollmentID) %>%
-    slice_max(InformationDate) %>%
-    slice(1L) %>%
-    ungroup() %>%
-    select(EnrollmentID, "MaxCLSInformationDate" = InformationDate)
   
   entryexit_project_types <- validation %>%
     filter(is.na(ExitDate) &
@@ -201,13 +189,23 @@ calculate_long_stayers <- function(too_many_days, projecttype){
           units = "days"
         )),
     ) %>%
-    filter(is.na(ExitDate) &
-             ProjectType == projecttype &
-             input < Days & 
+    filter(input < Days & 
              too_many_days < Days) %>%
     merge_check_info(checkIDs = 102) %>%
     select(all_of(vars_we_want))
   
+  cls_df <- validation %>%
+    filter(is.na(ExitDate)) %>% # less data to deal w/
+    left_join(CurrentLivingSituation %>%
+                select(CurrentLivingSitID,
+                       EnrollmentID,
+                       InformationDate), by = "EnrollmentID") %>%
+    group_by(EnrollmentID) %>%
+    slice_max(InformationDate) %>%
+    slice(1L) %>%
+    ungroup() %>%
+    select(EnrollmentID, "MaxCLSInformationDate" = InformationDate)
+    
   cls_project_types <- validation %>%
     left_join(cls_df, by = "EnrollmentID") %>%
     select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
