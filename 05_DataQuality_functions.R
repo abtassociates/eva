@@ -3,7 +3,7 @@
 #   for generating the DQ plots and DQ exports
 
 dq_main_reactive <- reactive({
-  req(valid_file()== 1)
+  req(valid_file() == 1)
   # browser()
   ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
   Outreach <- calculate_long_stayers(input$OUTLongStayers, 4)

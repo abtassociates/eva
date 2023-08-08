@@ -155,21 +155,35 @@ operating_end_precedes_inventory_end <- inventoryOutsideOperating %>%
   filter(coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_Date)) >
            coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_Date))
   ) %>%
-  merge_check_info(checkIDs = 44)
+  merge_check_info(checkIDs = 44) %>%
   mutate(
-    Detail = is.na(InventoryEndDate) &
-      !is.na(OperatingEndDate) ~
-      str_squish(
-        paste0(
-          "This project has an Inventory Record (",
-          InventoryID,
-          ") with an open Inventory End Date but the Project Operating End Date
-            is ",
-          OperatingEndDate,
-          ". Please either end-date the Inventory, or if the project is still
-            operating, clear the project's Operating End Date."
+    Detail = case_when(
+      is.na(InventoryEndDate) & !is.na(OperatingEndDate) ~
+        str_squish(
+          paste0(
+            "This project has an Inventory Record (",
+            InventoryID,
+            ") with an open Inventory End Date but the Project Operating End Date
+              is ",
+            OperatingEndDate,
+            ". Please either end-date the Inventory, or if the project is still
+              operating, clear the project's Operating End Date."
+          )
+        ),
+      !is.na(InventoryEndDate) & !is.na(OperatingEndDate) ~
+        str_squish(
+          paste0(
+            "This project ended on ", OperatingEndDate,
+            " but Inventory record ",
+            InventoryID,
+            " ended ",
+            as.numeric(difftime(InventoryEndDate, OperatingEndDate, units = "days")),
+            " days after that on ",
+            InventoryEndDate,
+            ". Please correct whichever date is incorrect."
+          )
         )
-      )
+    )
   ) %>%
   select(all_of(PDDEcols))
 
@@ -196,7 +210,7 @@ es_no_tracking_method <- Project %>%
   filter(ProjectType %in% c(1, 0) & is.na(TrackingMethod)) %>%
   merge_check_info(checkIDs = 45) %>%
   mutate(
-    Detail = paste("This project is an Emergency Shelter with no Tracking Method")
+    Detail = "This project is an Emergency Shelter with no Tracking Method."
   ) %>%
   select(all_of(PDDEcols))
 

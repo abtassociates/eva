@@ -1245,56 +1245,31 @@ ncb_subs <- ncb_subs %>%
 
 ncb_subs <- base_dq_data %>%
   left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
-  select(
-    PersonalID,
-    EnrollmentID,
-    HouseholdID,
-    AgeAtEntry,
-    ProjectName,
-    EntryDate,
-    MoveInDateAdjust,
-    ExitDate,
-    ProjectType,
-    DataCollectionStage,
-    BenefitsFromAnySource,
-    SNAP,
-    WIC,
-    TANFChildCare,
-    TANFTransportation,
-    OtherTANF,
-    OtherBenefitsSource
-  ) %>%
   mutate(
     BenefitCount = SNAP + WIC + TANFChildCare + TANFTransportation +
       OtherTANF + OtherBenefitsSource
   ) %>%
-  select(PersonalID,
+  select(all_of(vars_prep),
+         AgeAtEntry,
          EnrollmentID,
          DataCollectionStage,
          BenefitsFromAnySource,
          BenefitCount) %>%
-  unique()
-
-ncbs_issues <- base_dq_data %>%
-  left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
-  select(AgeAtEntry,
-         all_of(vars_prep),
-         DataCollectionStage,
-         BenefitsFromAnySource) %>%
   filter(
     DataCollectionStage == 1 &
       (AgeAtEntry > 17 |
          is.na(AgeAtEntry))
-  )
+  ) %>%
+  unique()
 
-missing_ncbs_entry <- ncbs_issues %>%
+missing_ncbs_entry <- ncb_subs %>%
   filter(BenefitsFromAnySource == 99 |
          is.na(BenefitsFromAnySource)
   ) %>%
   merge_check_info(checkIDs = 96) %>%
   select(all_of(vars_we_want))
 
-conflicting_ncbs_entry <- ncbs_issues %>%
+conflicting_ncbs_entry <- ncb_subs %>%
   filter((BenefitsFromAnySource == 1 &
                BenefitCount == 0) |
               (BenefitsFromAnySource == 0 &
