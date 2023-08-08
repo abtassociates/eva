@@ -503,7 +503,6 @@ dkr_months_times_homeless <- base_dq_data %>%
          Guidance = guidance_dkr_data) %>%
   select(all_of(vars_we_want))
 
-
 invalid_months_times_homeless <- base_dq_data %>%
   select(
     all_of(vars_prep),
@@ -515,47 +514,62 @@ invalid_months_times_homeless <- base_dq_data %>%
   ) %>%
   filter(
     ProjectType != 12 &
+      !is.na(DateToStreetESSH) &
       (RelationshipToHoH == 1 | AgeAtEntry > 17) &
-      EntryDate >= hc_prior_living_situation_required &
-      TimesHomelessPastThreeYears == 1 &
-      !is.na(DateToStreetESSH)
-  ) %>% 
+      EntryDate >= hc_prior_living_situation_required
+  ) %>%
   mutate(
     MonthHomelessnessBegan = floor_date(DateToStreetESSH, "month"),
     MonthEnteredProgram = floor_date(EntryDate, "month"),
     MonthDiff = interval(MonthHomelessnessBegan, MonthEnteredProgram) %/% months(1) + 1,
     MonthDiff = if_else(MonthDiff >= 13, 13, MonthDiff),
-    DateMonthsMismatch = if_else(MonthsHomelessPastThreeYears - MonthDiff != 100, 1, 0),
+    DateMonthsMismatch = if_else(
+      MonthsHomelessPastThreeYears - MonthDiff != 100 &
+        TimesHomelessPastThreeYears == 1, 1, 0),
+    ApproxHomelessDateConflicts = if_else(
+      ymd(DateToStreetESSH) <= ymd(EntryDate) - years(3) & (
+        TimesHomelessPastThreeYears != 1 |
+          MonthsHomelessPastThreeYears < 112) ,1, 0),
     Issue = case_when(
       MonthDiff <= 0 ~
         "Homelessness Start Date Later Than Entry",
-      MonthsHomelessPastThreeYears < 100 ~
+      ApproxHomelessDateConflicts == 1 ~
+        "Homelessness Start Date conflicts with Living Situation Data",
+      MonthsHomelessPastThreeYears %in% c(dkr_dnc) &
+        TimesHomelessPastThreeYears == 1 ~
         "Number of Months Homeless Can Be Determined",
       DateMonthsMismatch == 1 ~ 
-        "Invalid Homelessness Start Date/Number of Months Homeless"),
+        "Number of Months Homeless conflicts with Living Situation Data"),
     Type = "Warning",
     Guidance = case_when(
       MonthDiff <= 0 ~
-        "This client has an Approximate Date Homelessness Started in their 
-        enrollment that is after their Project Start Date. The information 
-        at Project Start should reflect the client's situation at the point of 
+        "This client has an Approximate Date Homelessness Started in their
+        enrollment that is after their Project Start Date. The information
+        at Project Start should reflect the client's situation at the point of
         Project Start, so this date may have been incorrectly entered.",
-      MonthsHomelessPastThreeYears < 100 ~
-        "According to this client's assessment at Project Start, they 
-        experienced a single episode of homelessness in the three years prior to 
-        their Project Start and the approximate date homelessness started is known, 
-        but there was no response entered for the total number of months they 
-        experienced homelessness prior to this enrollment. It should be possible 
+      ApproxHomelessDateConflicts == 1 ~
+        "According to this client's assessment at Project Start, their Approximate
+      Date Homeless was over three years ago, which would mean their Number of
+      Times Homeless would have to be 1 and their Number of Months Homeless would
+      have to be \"More than 12 months\".",
+      MonthsHomelessPastThreeYears %in% c(dkr_dnc) &
+        TimesHomelessPastThreeYears == 1 ~
+        "According to this client's assessment at Project Start, they
+        experienced a single episode of homelessness in the three years prior to
+        their Project Start and the approximate date homelessness started is known,
+        but there was no response entered for the total number of months they
+        experienced homelessness prior to this enrollment. It should be possible
         to determine and enter the total number of months they experienced
-        homelessness based on the Approximate Date Homelessness Started and the 
+        homelessness based on the Approximate Date Homelessness Started and the
         Project Start Date.",
-      DateMonthsMismatch == 1 ~ 
-        "According to this client's assessment at Project Start, they experienced 
-        a single episode of homelessness in the three years prior to their 
-        enrollment and the approximate date homelessness started known, but the 
-        total number of months they experienced homelessness prior to this 
-        enrollment is inconsistent with the given dates. Please double-check this 
-        information for consistency and accuracy.")) %>%
+      DateMonthsMismatch == 1 ~
+        "According to this client's assessment at Project Start, they experienced
+        a single episode of homelessness in the three years prior to their
+        enrollment and the approximate date homelessness started is known, but the
+        total number of months they experienced homelessness prior to this
+        enrollment is inconsistent with the given dates. Please double-check this
+        information for consistency and accuracy."
+    )) %>%
   filter(!is.na(Guidance)) %>%
   select(all_of(vars_we_want))
 
