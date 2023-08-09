@@ -600,39 +600,8 @@ top_percents_long_stayers <- base_dq_data %>%
   filter(Days > quantile(Days, if_else(
     ProjectType %in% c(long_stayer_98_percentile_project_types), .98, .99
   ))) %>%
-  ungroup()
-
-long_stayers <- top_percents_long_stayers %>%
-  mutate(
-    Issue = "Long Stayers",
-    Type = "Warning",
-    Guidance = 
-      str_squish(
-        paste("The number of days this enrollment has been active is in the top",
-              if_else(ProjectType %in% c(psh_project_types), "1%", "2%"),              
-              case_when(
-                ProjectType %in% c(lh_residential_project_types) ~
-              "for this project type. If this household has left the project,
-              enter the Project Exit Date. If they are still active, do not
-              change the data, but verify that your Coordinated Entry process
-              is actively working toward a permanent housing destination.",
-              ProjectType == hp_project_type ~
-              "for this project type. If this household has stopped receiving
-              services, enter the Project Exit Date. If they are still active,
-              do not change the data, but verify that the household still needs
-              the assistance.",
-              ProjectType %in% c(psh_project_types) ~
-                "for this project type. If this household has left the project,
-              enter the Project Exit Date. If they are still active, consider
-              assessing the household for Move On Assistance funds or other ways
-              to a permanent housing exit. If the household needs to remain
-              active in the project, leave everything as is.",
-              ProjectType == rrh_project_type ~
-                "for this project type. If this household has left the project,
-              enter the Project Exit Date. If they are still active, verify
-              that they are on track for a permanent exit or that they are
-              receiving Shallow Subsidy services.")))
-  ) %>% 
+  ungroup() %>% 
+  merge_check_info(checkIDs = 104) %>%
   select(all_of(vars_we_want))
 
 # long stayers flags that come from inputs come from  calculate_long_stayers()
@@ -1482,7 +1451,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       entry_precedes_OpStart,
       exit_after_OpEnd,
       exit_before_start,
-      long_stayers,
+      top_percents_long_stayers,
       future_ees,
       future_exits,
       hh_issues,
