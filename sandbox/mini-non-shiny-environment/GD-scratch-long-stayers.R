@@ -1,4 +1,24 @@
 
+
+# The Variables That We Want ----------------------------------------------
+
+vars_prep <- c(
+  "HouseholdID",
+  "PersonalID",
+  "OrganizationName",
+  "ProjectID",
+  "ProjectName",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitDate"
+)
+
+vars_we_want <- c(vars_prep,
+                  "Issue",
+                  "Type",
+                  "Guidance")
+
 cls_df <- validation %>%
   left_join(CurrentLivingSituation %>%
               select(CurrentLivingSitID,
@@ -13,14 +33,14 @@ long_stayers <- validation %>%
   left_join(cls_df, by = "EnrollmentID") %>%
   select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
   filter(is.na(ExitDate) &
-           ((ProjectType %in% c(0, 4) &
+           ((ProjectType %in% c(project_types_w_cls) &
            !is.na(MaxCLSInformationDate)) |
-           (!ProjectType %in% c(0,4)))) %>%
+           (!ProjectType %in% c(project_types_w_cls)))) %>%
   mutate(
     Days = 
       as.numeric(difftime(
         as.Date(meta_HUDCSV_Export_Date),
-        if_else(ProjectType %in% c(0, 4),
+        if_else(ProjectType %in% c(project_types_w_cls),
                 MaxCLSInformationDate, # most recent CLS
                 EntryDate), # project entry
         units = "days"
@@ -30,7 +50,7 @@ long_stayers <- validation %>%
     Guidance = str_squish(
       "You have at least one active enrollment that has been
          active for longer than the days set for this Project Type in your
-         Referral settings on the Edit Local Settings tab."
+         Referral settings on the Edit Local Settings tab. Please check that "
     )
   ) %>%
   filter(# ProjectType == projecttype &

@@ -1,26 +1,32 @@
-###############################
+
 #   PURPOSE: This script contains functions used by the app
 #   for generating the DQ plots and DQ exports
-###############################
+
 dq_main_reactive <- reactive({
   req(valid_file() == 1)
   # browser()
-  ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
-  Other <- calculate_long_stayers(input$OtherLongStayers, 7)
-  Outreach <- calculate_long_stayers(input$OUTLongStayers, 4)
-  DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
-  ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
+  ESNbN <- calculate_long_stayers_local_settings(input$ESNbNLongStayers, 0)
+  Outreach <- calculate_long_stayers_local_settings(input$OUTLongStayers, 4)
+  CoordinatedEntry <- calculate_long_stayers_local_settings(input$CELongStayers, 14)
+  ServicesOnly <- calculate_long_stayers_local_settings(input$ServicesOnlyLongStayers, 6)
+  Other <- calculate_long_stayers_local_settings(input$OtherLongStayers, 7)
+  DayShelter <- calculate_long_stayers_local_settings(input$DayShelterLongStayers, 11)
   
   #Calculating potential old referrals based on Local settings
   CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
     select(all_of(vars_we_want))
   
   x <- dq_main %>%
-    filter(!Issue %in% c("Days Enrollment Active Exceeds Local settings", 
-                         "Days Referral Active Exceeds Local settings"))
+    filter(str_detect(Issue, "Exceeds Local Settings", negate = TRUE) == TRUE)
   
-  rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other, CE_Event)
-  
+  rbind(x,
+        ESNbN,
+        Outreach,
+        DayShelter,
+        ServicesOnly,
+        Other,
+        CoordinatedEntry,
+        CE_Event)
 })
 
 getDQReportDataList <-
@@ -169,26 +175,61 @@ getDQReportDataList <-
 
 # Non-Residential Long Stayers --------------------------------------------
 
-calculate_long_stayers <- function(input, projecttype){
+calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
   
-  base_dq_data %>%
-    select(all_of(vars_prep), ProjectID) %>%
+  entryexit_project_types <- validation %>%
+    filter(is.na(ExitDate) &
+             !ProjectType %in% c(project_types_w_cls) &
+             ProjectType == projecttype
+    ) %>%
+    mutate(
+      Days =
+        as.numeric(difftime(
+          as.Date(meta_HUDCSV_Export_Date), EntryDate, 
+          units = "days"
+        ))
+    ) %>%
+    filter(too_many_days < Days) %>%
+    merge_check_info(checkIDs = 102) %>%
+    select(all_of(vars_we_want))
+  
+  cls_df <- validation %>%
+    filter(is.na(ExitDate)) %>% # less data to deal w/
+    left_join(CurrentLivingSituation %>%
+                select(CurrentLivingSitID,
+                       EnrollmentID,
+                       InformationDate), by = "EnrollmentID") %>%
+    group_by(EnrollmentID) %>%
+    slice_max(InformationDate) %>%
+    slice(1L) %>%
+    ungroup() %>%
+    select(EnrollmentID, "MaxCLSInformationDate" = InformationDate)
+    
+  cls_project_types <- validation %>%
+    left_join(cls_df, by = "EnrollmentID") %>%
+    select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
     mutate(
       Days = 
-        as.numeric(
-          difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate, units = "days")),
+        as.numeric(difftime(
+          as.Date(meta_HUDCSV_Export_Date),
+          if_else(!is.na(MaxCLSInformationDate),
+                  MaxCLSInformationDate, # most recent CLS
+                  EntryDate), # project entry
+          units = "days"
+        ))
     ) %>%
     filter(is.na(ExitDate) &
-             ProjectType == projecttype &
-             input < Days) %>% 
-    mutate(
-      Issue = "Days Enrollment Active Exceeds Local Settings",
-      Type = "Warning",
-      Guidance = str_squish("You have at least one active enrollment that has been
-         active for longer than the days set for this Project Type in your
-         Referral settings on the Edit Local Settings tab.")
-    ) %>%
+             ProjectType %in% c(project_types_w_cls) &
+             ProjectType == projecttype & 
+             too_many_days < Days) %>%
+    merge_check_info(checkIDs = 103) %>%
     select(all_of(vars_we_want))
+  
+  if (projecttype %in% c(project_types_w_cls)) {
+    cls_project_types
+  } else{
+    entryexit_project_types
+  } 
   
 }
 
