@@ -650,7 +650,7 @@ missed_movein_stayers <- base_dq_data %>%
 Top2_movein <- subset(missed_movein_stayers,
                       Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE)) %>%
   select(all_of(vars_prep)) %>%
-  merge_check_info(checkIDs = 74) %>%
+  merge_check_info(checkIDs = 72) %>%
   select(all_of(vars_we_want))
 
 
