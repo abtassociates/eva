@@ -236,13 +236,15 @@ output$dq_overview_plot <- renderPlot({
     scale_y_continuous(label = comma_format()) +
     labs(
       title = "System-wide Data Quality Issues",
-      x = "Data Quality Issue Type",
-      y = "System-wide Issues") +
+      x = "",
+      y = "") +
     theme_minimal(base_size = 18) +
     theme(
+      plot.title = element_text(vjust = 3),
       plot.title.position = "plot",
-       panel.grid.major.x = element_blank(),
-      title = element_text(colour = "#73655E")
+      panel.grid = element_blank(),
+      title = element_text(colour = "#73655E"),
+      axis.text.y = element_blank()
     ) +
     geom_text(aes(label = prettyNum(Total, big.mark = ",")),
                vjust = -.5,
@@ -289,14 +291,15 @@ output$dq_overview_plot <- renderPlot({
         labs(
           title = paste("Top 5 Project Descriptor Data Element ",
                         highest_type_display),
-          x = "Top 5 Issues",
-          y = highest_type_display
+          x = "",
+          y = ""
         ) +
         coord_flip() +
         theme_minimal(base_size = 18) +
         theme(
+          plot.title = element_text(vjust = 3),
           plot.title.position = "plot",
-          panel.grid.major.y = element_blank(),
+          panel.grid = element_blank(),
           title = element_text(colour = "#73655E")
         ) +
         geom_text(
