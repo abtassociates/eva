@@ -300,7 +300,8 @@ output$dq_overview_plot <- renderPlot({
           plot.title = element_text(vjust = 3),
           plot.title.position = "plot",
           panel.grid = element_blank(),
-          title = element_text(colour = "#73655E")
+          title = element_text(colour = "#73655E"),
+          axis.text.x = element_blank()
         ) +
         geom_text(
           aes(label = prettyNum(Total, big.mark = ",")),
