@@ -5,12 +5,12 @@
 dq_main_reactive <- reactive({
   req(valid_file() == 1)
   # browser()
-  ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
-  Outreach <- calculate_long_stayers(input$OUTLongStayers, 4)
-  CoordinatedEntry <- calculate_long_stayers(input$CELongStayers, 14)
-  ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
-  Other <- calculate_long_stayers(input$OtherLongStayers, 7)
-  DayShelter <- calculate_long_stayers(input$DayShelterLongStayers, 11)
+  ESNbN <- calculate_long_stayers_local_settings(input$ESNbNLongStayers, 0)
+  Outreach <- calculate_long_stayers_local_settings(input$OUTLongStayers, 4)
+  CoordinatedEntry <- calculate_long_stayers_local_settings(input$CELongStayers, 14)
+  ServicesOnly <- calculate_long_stayers_local_settings(input$ServicesOnlyLongStayers, 6)
+  Other <- calculate_long_stayers_local_settings(input$OtherLongStayers, 7)
+  DayShelter <- calculate_long_stayers_local_settings(input$DayShelterLongStayers, 11)
   
   #Calculating potential old referrals based on Local settings
   CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
@@ -175,7 +175,7 @@ getDQReportDataList <-
 
 # Non-Residential Long Stayers --------------------------------------------
 
-calculate_long_stayers <- function(too_many_days, projecttype){
+calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
   
   entryexit_project_types <- validation %>%
     filter(is.na(ExitDate) &
