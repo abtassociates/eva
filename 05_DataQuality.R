@@ -1450,6 +1450,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       duplicate_ees,
       entry_precedes_OpStart,
       exit_after_OpEnd,
+      Top2_movein,
       exit_before_start,
       top_percents_long_stayers,
       future_ees,
