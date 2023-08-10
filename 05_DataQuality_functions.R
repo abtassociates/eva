@@ -185,7 +185,7 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
     mutate(
       Days =
         as.numeric(difftime(
-          as.Date(meta_HUDCSV_Export_End), EntryDate, 
+          as.Date(meta_HUDCSV_Export_Date), EntryDate, 
           units = "days"
         ))
     ) %>%
@@ -211,7 +211,7 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
     mutate(
       Days = 
         as.numeric(difftime(
-          as.Date(meta_HUDCSV_Export_End),
+          as.Date(meta_HUDCSV_Export_Date),
           if_else(!is.na(MaxCLSInformationDate),
                   MaxCLSInformationDate, # most recent CLS
                   EntryDate), # project entry
