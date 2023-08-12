@@ -282,7 +282,7 @@ valid_values_client <- Client %>%
   pivot_longer(cols = everything()) %>%
   filter(value == 0) %>%
   count(name) %>%
-  merge_check_info(checkIDs = 501) %>%
+  merge_check_info(checkIDs = 50) %>%
   mutate(
     Detail = case_when(
       name == "VeteranStatus" ~ paste("VeteranStatus has", n,

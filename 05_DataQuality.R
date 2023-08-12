@@ -140,7 +140,7 @@ dq_name_dataquality <- base_dq_data %>%
 
 dkr_name <- base_dq_data %>%
   filter(NameDataQuality %in% c(dkr)) %>%
-  merge_check_info(checkIDs = 77) %>%
+  merge_check_info(checkIDs = 78) %>%
   select(all_of(vars_we_want))
 
 dq_dob_missing <- base_dq_data %>%
@@ -355,7 +355,7 @@ dkr_LoS <- base_dq_data %>%
          LengthOfStay) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            LengthOfStay %in% c(dkr)) %>%
-  merge_check_info(checkIDs = 66) %>%
+  merge_check_info(checkIDs = 73) %>%
   select(all_of(vars_we_want))
 
 missing_months_times_homeless <- base_dq_data %>%
