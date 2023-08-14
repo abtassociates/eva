@@ -1,6 +1,14 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "08-10-2023", "Demoted several null-column File Structure Analysis issues to \"Error\" from \"High Priority\"",
+
+    "08-10-2023", "Added missing checks to EvaChecks.xlsx",
+    
+    "08-10-2023", "Changed to pull issue-related text from EvaChecks.xlsx",
+    
+    "07-06-2023", "Fix bug when datasets have no projects of a certain status (e.g. Active No Move-In)",
+    
     "06-28-2023", "Allow nulls in AssessmentLocation, AssessmentType, and PrioritizationStatus columns.",
 
     "06-14-2023", "Added graceful rejection of non-zip files, including 7zip.",

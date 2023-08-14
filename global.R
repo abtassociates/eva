@@ -1,6 +1,9 @@
 
 Sys.setenv(TZ = "America/New_York")
 
+# add package path to renv library
+.libPaths(c(.libPaths(), "/renv/library/R-4.2/x86_64-pc-linux-gnu/"))
+
 library(tidyverse)
 library(lubridate)
 library(shinydashboard)
@@ -8,6 +11,7 @@ library(shiny)
 library(shinyWidgets)
 library(scales)
 library(DT)
+library(readxl)
 library(writexl)
 library(HMIS) #github.com/kiadso/HMIS
 library(glue)

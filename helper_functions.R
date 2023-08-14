@@ -302,3 +302,15 @@ importFileSandbox <- function(csvFile, guess_max = 1000) {
   )
   return(data)
 }
+
+
+############################
+# GENERATE CHECK DATA FROM EVACHECKS.XLSX
+############################
+merge_check_info <- function(data, checkIDs) {
+  return(data %>%
+    bind_cols(
+      evachecks %>% filter(ID %in% checkIDs)
+    )
+  )
+}

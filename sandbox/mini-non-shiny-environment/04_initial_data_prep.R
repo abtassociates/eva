@@ -264,7 +264,13 @@ Enrollment <- Enrollment %>%
                                  ymd(HHMoveIn) <= ExitAdjust,
                                if_else(EntryDate <= ymd(HHMoveIn),
                                        ymd(HHMoveIn), EntryDate),
-                               NA))
+                               NA), 
+    EntryAdjust = case_when(
+      !ProjectType %in% ph_project_types ~ EntryDate,
+      ProjectType %in% ph_project_types &
+        !is.na(MoveInDateAdjust) ~ MoveInDateAdjust
+    )
+  )
 
 # Adding Age at Entry to Enrollment
 small_client <- Client %>% select(PersonalID, DOB)

@@ -24,7 +24,6 @@ ifelse(file.exists(paste0(directory, "data/Enrollment.csv")),
 library(here)
 
 source(here("global.R"))
-source(here("guidance.R"))
 
 source(paste0(directory, "helper_functions.R"))
 

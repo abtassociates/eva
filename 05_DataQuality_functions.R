@@ -3,7 +3,7 @@
 #   for generating the DQ plots and DQ exports
 ###############################
 dq_main_reactive <- reactive({
-  req(valid_file()== 1)
+  req(valid_file() == 1)
   # browser()
   ESNbN <- calculate_long_stayers(input$ESNbNLongStayers, 0)
   Other <- calculate_long_stayers(input$OtherLongStayers, 7)
@@ -178,15 +178,17 @@ calculate_long_stayers <- function(input, projecttype){
       Days = 
         as.numeric(
           difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate, units = "days")),
+    ) %>%
+    filter(is.na(ExitDate) &
+             ProjectType == projecttype &
+             input < Days) %>% 
+    mutate(
       Issue = "Days Enrollment Active Exceeds Local Settings",
       Type = "Warning",
       Guidance = str_squish("You have at least one active enrollment that has been
          active for longer than the days set for this Project Type in your
          Referral settings on the Edit Local Settings tab.")
     ) %>%
-    filter(is.na(ExitDate) &
-             ProjectType == projecttype &
-             input < Days) %>% 
     select(all_of(vars_we_want))
   
 }
@@ -211,11 +213,6 @@ calculate_outstanding_referrals <- function(input){
       Days = 
         as.numeric(
           difftime(as.Date(meta_HUDCSV_Export_Date), EventDate, units = "days")),
-      Issue = "Days Referral Active Exceeds Local Settings",
-      Type = "Warning",
-      Guidance = str_squish("You have at least one active referral that has been
-         active without a Result Date for longer than the days set in your
-         Local Settings on the Home tab."),
       EventType = case_when(
         Event == 10 ~ "Referral to Emergency Shelter bed opening",
         Event == 11 ~ "Referral to Transitional Housing bed/unit opening",
@@ -229,8 +226,8 @@ calculate_outstanding_referrals <- function(input){
     ) %>%
     filter(Event %in% c(10:15, 17:18) &
              is.na(ResultDate) &
-             input < Days)
-  
+             input < Days) %>%
+    merge_check_info(checkIDs = 100)
 }
 
 renderDQPlot <- function(level, issueType, group, color) {
