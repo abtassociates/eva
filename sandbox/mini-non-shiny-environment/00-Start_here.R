@@ -27,7 +27,7 @@ source(here("global.R"))
 
 source(paste0(directory, "helper_functions.R"))
 
-# Hard codes ---------------------------------------------------------------
+# Hard codes --------------------------------------------------------------
 
 source(paste0(directory, "hardcodes.R"))
   
@@ -35,7 +35,7 @@ source(paste0(directory, "hardcodes.R"))
 
 source(paste0(directory, "01_get_Export.R"))
 
-# Export Dates -------------------------------------------------------------------
+# Export Dates ------------------------------------------------------------
 
 source(paste0(directory, "02_export_dates.R"))
   

@@ -15,7 +15,7 @@ PDDEcols = c("OrganizationName",
 
 # Subpop beds = TotalBeds
 subpopNotTotal <- Inventory %>%
-  left_join(Project, by = "ProjectID") %>%
+  left_join(Project0, by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
            (CHVetBedInventory + 
               YouthVetBedInventory + 
@@ -54,7 +54,8 @@ operating_end_missing <- Enrollment %>%
   ) %>%
   ungroup() %>%
   left_join(Project %>% 
-              select(ProjectID, OrganizationName, OperatingEndDate), 
+              select(ProjectID, ProjectName, OrganizationName, OperatingEndDate) %>%
+              unique(), 
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
            MostRecentEnrollment >= 
@@ -117,7 +118,8 @@ missing_CoC_Address <- missing_CoC_Info %>%
   select(all_of(PDDEcols))
 
 # Missing Inventory Record Is a residential project but has no active inventory for the duration of operating period OR for the reporting period
-missing_inventory_record <- Project %>%
+
+missing_inventory_record <- Project0 %>%
   left_join(Inventory, by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
            is.na(InventoryID)) %>% 
@@ -131,11 +133,13 @@ missing_inventory_record <- Project %>%
 # Inventory Start < Operating Start AND
 # Inventory End > Operating End or Null
 inventoryOutsideOperating <- Inventory %>%
-  left_join(Project, by = "ProjectID")
-
-inventoryStartPrecedesOp <- inventoryOutsideOperating %>%
-  filter(InventoryStartDate < OperatingStartDate) %>%
-  merge_check_info(checkIDs = 79) %>%
+  left_join(Project %>%
+              select(ProjectID,
+                     OrganizationName,
+                     ProjectName,
+                     OperatingStartDate,
+                     OperatingEndDate) %>%
+              unique(), by = "ProjectID") %>%
   mutate(
     Detail = str_squish(
       paste0(
@@ -187,33 +191,18 @@ operating_end_precedes_inventory_end <- inventoryOutsideOperating %>%
   ) %>%
   select(all_of(PDDEcols))
 
-# HMIS Participating ------------------------------------------------------
-# HMIS Participating != 1, OR VSP != 0 but client level data in file
+# RRH project w no SubType ------------------------------------------------
 
-hmis_not_participating_but_client <- Project %>%
-  left_join(Organization %>% select(OrganizationID, VictimServiceProvider),
-            by = "OrganizationID") %>%
-  filter((HMISParticipatingProject != 1 |
-            VictimServiceProvider != 0) &
-           ProjectID %in% c(Enrollment$ProjectID %>% unique())
-  ) %>%
-  merge_check_info(checkIDs = 80) %>%
+rrh_no_subtype <- Project %>%
+  filter(ProjectType == 13 & is.na(RRHSubType)) %>%
   mutate(
-    Detail = str_squish(
-      "There is client data in this project. Please check that this project is
-      marked correctly as non-participating."
-    )
-  ) %>%
-  select(all_of(PDDEcols)) 
-
-es_no_tracking_method <- Project %>%
-  filter(ProjectType %in% c(1, 0) & is.na(TrackingMethod)) %>%
-  merge_check_info(checkIDs = 45) %>%
-  mutate(
-    Detail = "This project is an Emergency Shelter with no Tracking Method."
+    Issue = "Missing RRH SubType",
+    Type = "Error",
+    Guidance = str_squish("All RRH projects must have an RRH SubType. Please
+                          update the data at the project level."),
+    Detail = paste("This project is an RRH project with no SubType.")
   ) %>%
   select(all_of(PDDEcols))
-
 
 # Zero Utilization --------------------------------------------------------
 
@@ -232,7 +221,7 @@ projects_w_clients <- Enrollment %>%
 
 res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 
-zero_utilization <- Project %>%
+zero_utilization <- Project0 %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
   merge_check_info(checkIDs = 83) %>%
   mutate(
@@ -248,13 +237,13 @@ zero_utilization <- Project %>%
 pdde_main <- rbind(
   subpopNotTotal,
   operating_end_missing,
-  es_no_tracking_method,
-  missing_CoC_Geography,
+  rrh_no_subtype,
   missing_CoC_Address,
+  missing_CoC_Info,
+  missing_CoC_Geography,
   missing_inventory_record,
-  inventoryStartPrecedesOp,
   operating_end_precedes_inventory_end,
-  hmis_not_participating_but_client,
+  inventoryOutsideOperating,
   zero_utilization
 )
 

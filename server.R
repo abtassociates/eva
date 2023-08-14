@@ -458,7 +458,6 @@ function(input, output, session) {
       )
     })
 
-
 # Client Counts -----------------------------------------------------------
 
     source("client_counts_functions.R", local = TRUE)
@@ -585,8 +584,8 @@ function(input, output, session) {
         filter(OrganizationName %in% c(input$orgList) | 
                  PreviousOrganizationName %in% c(input$orgList))
       
-      orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
-        filter(OrganizationName %in% c(input$orgList))
+      # orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+      #   filter(OrganizationName %in% c(input$orgList))
 
       
       # return a list for reference in downloadHandler
@@ -594,14 +593,14 @@ function(input, output, session) {
         orgDQData = 
           getDQReportDataList(orgDQData,
                               orgDQoverlaps,
-                              "ProjectName",
-                              orgDQReferrals),
+                              "ProjectName"#, orgDQReferrals
+                              ),
            
         systemDQData = 
           getDQReportDataList(dq_main_reactive(),
                               overlaps,
-                              "OrganizationName",
-                              calculate_outstanding_referrals(input$CEOutstandingReferrals))
+                              "OrganizationName", # calculate_outstanding_referrals(input$CEOutstandingReferrals)
+                              )
       )
     })
 

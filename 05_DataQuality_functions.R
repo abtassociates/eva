@@ -12,14 +12,15 @@ dq_main_reactive <- reactive({
   ServicesOnly <- calculate_long_stayers(input$ServicesOnlyLongStayers, 6)
   
   #Calculating potential old referrals based on Local settings
-  CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
-    select(all_of(vars_we_want))
+  # CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+  #   select(all_of(vars_we_want))
   
   x <- dq_main %>%
     filter(!Issue %in% c("Days Enrollment Active Exceeds Local settings", 
                          "Days Referral Active Exceeds Local settings"))
   
-  rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other, CE_Event)
+  rbind(x, ESNbN, Outreach, DayShelter, ServicesOnly, Other#, CE_Event
+        )
   
 })
 
@@ -78,18 +79,18 @@ getDQReportDataList <-
         PreviousExitDate
       )
     
-    dqReferralDetails <- dqReferrals %>%
-      filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
-      select(
-        OrganizationName,
-        ProjectID,
-        ProjectName,
-        EventID,
-        PersonalID,
-        EventDate,
-        EventType,
-        Days
-      )
+    # dqReferralDetails <- dqReferrals %>%
+    #   filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
+    #   select(
+    #     OrganizationName,
+    #     ProjectID,
+    #     ProjectName,
+    #     EventID,
+    #     PersonalID,
+    #     EventDate,
+    #     EventType,
+    #     Days
+    #   )
     
     mainsummary <- rbind(
       dqData %>% select(Type, Issue, PersonalID),
@@ -135,8 +136,8 @@ getDQReportDataList <-
       high_priority = high_priority %>% nice_names(),
       errors = errors %>% nice_names(),
       warnings = warnings %>% nice_names(),
-      overlaps = dqOverlapDetails %>% nice_names(),
-      dqReferrals = dqReferralDetails %>% nice_names()
+      overlaps = dqOverlapDetails %>% nice_names()#,
+      # dqReferrals = dqReferralDetails %>% nice_names()
     )
     
     names(exportDFList) <- c(
@@ -157,8 +158,8 @@ getDQReportDataList <-
       "High Priority",
       "Errors",
       "Warnings",
-      "Overlap Details",
-      "Referral Details"
+      "Overlap Details"#,
+      # "Referral Details"
     )
     
     exportDFList <- exportDFList[sapply(exportDFList, 
