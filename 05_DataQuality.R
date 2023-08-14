@@ -1008,7 +1008,7 @@ enrollment_v_operating <- EnrollmentOutside %>%
   left_join(base_dq_data, by = c("EnrollmentID")) %>%
   mutate(Issue = EnrollmentvOperating,
          Type = "Error",
-         Guidance = guidance_enrl_active_outside_op) %>%
+         Guidance = "replaceme") %>%
   select(all_of(vars_we_want))
 
 # Enrollment Outside of Participating Dates -------------------------------
@@ -1019,7 +1019,7 @@ enrollment_v_participating <- EnrollmentOutside %>%
   left_join(base_dq_data, by = c("EnrollmentID")) %>%
   mutate(Issue = EnrollmentvParticipating,
          Type = "Error",
-         Guidance = guidance_enrl_active_outside_op) %>%
+         Guidance = "replaceme") %>%
   select(all_of(vars_we_want))
 
 # Overlaps ----------------------------------------------------------------
