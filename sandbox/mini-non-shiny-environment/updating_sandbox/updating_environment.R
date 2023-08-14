@@ -1,4 +1,5 @@
 library(fs)
+library(here)
 
 # # Get the app directory
 # app_dir <- "~/DQ_CE/"
@@ -7,7 +8,7 @@ library(fs)
 sandbox_dir <- here("sandbox/mini-non-shiny-environment/")
 
 replace_code <- function(fname, replacelist) {
-  filepath = paste0(sandbox_dir, fname)
+  filepath <- paste0(sandbox_dir, fname)
   # read in the contents of the script
   lines <- readLines(filepath)
 
@@ -27,7 +28,7 @@ replace_code <- function(fname, replacelist) {
   # cat(lines, file = filepath, sep = "\n")
 }
 
-files_to_copy = list(
+files_to_copy <- list(
   "/hardcodes.R",
   "/helper_functions.R",
   "/01_get_Export.R",
@@ -40,7 +41,7 @@ file.copy(from = paste0(here(), files_to_copy),
           to = paste0(sandbox_dir, files_to_copy),
           overwrite = TRUE)
 
-replace_code("01_get_Export.R",  list("importFile" = "importFileSandbox"))
-replace_code("02_export_dates.R",  list())
-replace_code("03_file_structure_analysis.R",  list())
-replace_code("04_initial_data_prep.R",  list())
+replace_code("/01_get_Export.R",  list("importFile" = "importFileSandbox"))
+replace_code("/02_export_dates.R",  list())
+replace_code("/03_file_structure_analysis.R",  list())
+replace_code("/04_initial_data_prep.R",  list())
