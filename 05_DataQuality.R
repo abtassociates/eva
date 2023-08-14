@@ -36,6 +36,7 @@ base_dq_data <- Enrollment %>%
     SSNDataQuality,
     DOB,
     DOBDataQuality,
+    AgeAtEntry,
     RaceNone,
     AmIndAKNative,
     Asian,
@@ -199,7 +200,6 @@ dkr_veteran <- base_dq_data %>%
   select(all_of(vars_we_want))
 
 # Missing Client Location -------------------------------------------------
-
 
 missing_enrollment_coc <- base_dq_data %>%
   filter(is.na(EnrollmentCoC) & RelationshipToHoH == 1) %>%
@@ -1258,6 +1258,7 @@ rm(health_insurance_subs)
 
 # Missing NCBs at Entry ---------------------------------------------------
 
+#just the different kinds of non-cash benefits, many to an enrollment
 ncb_subs <- IncomeBenefits %>%
   select(
     PersonalID,
@@ -1274,6 +1275,8 @@ ncb_subs <- IncomeBenefits %>%
 
 ncb_subs[is.na(ncb_subs)] <- 0
 
+# basic ncb data but adding BenefitsFromAnySource, an ee-level data element
+# BenefitsFromAnySource will repeat depending on its EEID & collection stage
 ncbs <- ncb_subs %>%
   full_join(IncomeBenefits[c("PersonalID",
                              "EnrollmentID",
@@ -1291,43 +1294,23 @@ ncbs <- ncb_subs %>%
 
 ncb_staging <- base_dq_data %>%
   left_join(ncbs, by = c("PersonalID", "EnrollmentID")) %>%
-  select(
-    PersonalID,
-    EnrollmentID,
-    HouseholdID,
-    AgeAtEntry,
-    ProjectName,
-    EntryDate,
-    MoveInDateAdjust,
-    ExitDate,
-    ProjectType,
-    DataCollectionStage,
-    BenefitsFromAnySource,
-    SNAP,
-    WIC,
-    TANFChildCare,
-    TANFTransportation,
-    OtherTANF,
-    OtherBenefitsSource
+  filter(
+    DataCollectionStage == 1 &
+      (AgeAtEntry > 17 |
+         is.na(AgeAtEntry))
   ) %>%
   mutate(
     BenefitCount = SNAP + WIC + TANFChildCare + TANFTransportation +
       OtherTANF + OtherBenefitsSource
   ) %>%
   select(all_of(vars_prep),
-         AgeAtEntry,
          EnrollmentID,
          DataCollectionStage,
          BenefitsFromAnySource,
          BenefitCount) %>%
-  filter(
-    DataCollectionStage == 1 &
-      (AgeAtEntry > 17 |
-         is.na(AgeAtEntry))
-  ) %>%
   unique()
 
-missing_ncbs_entry <- ncb_subs %>%
+missing_ncbs_entry <- ncb_staging %>%
   filter(BenefitsFromAnySource == 99 |
          is.na(BenefitsFromAnySource)
   ) %>%
@@ -1335,7 +1318,14 @@ missing_ncbs_entry <- ncb_subs %>%
   select(all_of(vars_we_want))
 
 conflicting_ncbs_entry <- base_dq_data %>%
-  left_join(ncb_staging, by = c("PersonalID", "EnrollmentID")) %>%
+  left_join(ncb_staging %>%
+              select("PersonalID",
+                     "EnrollmentID",
+                     "DataCollectionStage",
+                     "BenefitsFromAnySource",
+                     "BenefitCount"),
+            by = c("PersonalID",
+                   "EnrollmentID")) %>%
   select(AgeAtEntry,
          all_of(vars_prep),
          DataCollectionStage,
@@ -1570,7 +1560,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       veteran_missing_year_entered,
       veteran_missing_year_separated,
       veteran_incorrect_year_entered,
-      veteran_incorrect_year_separated,
+      veteran_incorrect_year_separated
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
