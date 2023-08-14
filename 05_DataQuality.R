@@ -177,7 +177,8 @@ dkr_gender <- base_dq_data %>%
 
 missing_gender <- base_dq_data %>%
   filter(GenderNone == 99 |
-           Woman + Man + NoSingleGender + Transgender + Questioning == 0) %>%
+           Woman + Man + NonBinary + Transgender + CulturallySpecific +
+           DifferentIdentity + Questioning == 0) %>%
   merge_check_info(checkIDs = 38) %>%
   select(all_of(vars_we_want))
 
@@ -201,7 +202,7 @@ dkr_veteran <- base_dq_data %>%
 
 
 missing_enrollment_coc <- base_dq_data %>%
-  filter(is.na(ClientLocation) & RelationshipToHoH == 1) %>%
+  filter(is.na(EnrollmentCoC) & RelationshipToHoH == 1) %>%
   merge_check_info(checkIDs = 27) %>%
   select(all_of(vars_we_want))
 
@@ -1346,7 +1347,7 @@ conflicting_ncbs_entry <- base_dq_data %>%
                BenefitCount == 0) |
               (BenefitsFromAnySource == 0 &
                  BenefitCount > 0)
-           ) %>%
+           )) %>%
   merge_check_info(checkIDs = 97) %>%
   select(all_of(vars_we_want))
     
