@@ -84,8 +84,7 @@ if("ProjectTimeID" %in% colnames(ProjectsInHMIS)){
     relocate(ProjectTimeID, .after = ProjectID)
 }
 
-# This dataset is only used to populate the Client Counts header with the 
-# Project and Org names
+# This dataset is used when we need an unduplicated concise df for project
 Project0 <<- Project %>% 
   select(ProjectID, ProjectName, OrganizationID, OrganizationName, ProjectType) %>%
   unique()
@@ -264,13 +263,8 @@ Enrollment <- Enrollment %>%
                                  ymd(HHMoveIn) <= ExitAdjust,
                                if_else(EntryDate <= ymd(HHMoveIn),
                                        ymd(HHMoveIn), EntryDate),
-                               NA), 
-    EntryAdjust = case_when(
-      !ProjectType %in% ph_project_types ~ EntryDate,
-      ProjectType %in% ph_project_types &
-        !is.na(MoveInDateAdjust) ~ MoveInDateAdjust
-    )
-  )
+                               NA))
+
 
 # Adding Age at Entry to Enrollment
 small_client <- Client %>% select(PersonalID, DOB)

@@ -31,16 +31,18 @@ df_date_types <-
       "column in the",
       File,
       "file has the correct date format."))
-  ) %>%
-  select(all_of(issue_display_cols)) %>% unique()
+  )
+  
 
 incorrect_date_types_hp <- df_date_types %>%
   filter(Column %in% c(high_priority_columns)) %>%
-  merge_check_info(checkIDs = 11)
+  merge_check_info(checkIDs = 11) %>%
+  select(all_of(issue_display_cols)) %>% unique()
 
 incorrect_date_types_error <- df_date_types %>%
   filter(!(Column %in% c(high_priority_columns))) %>%
-  merge_check_info(checkIDs = 47)
+  merge_check_info(checkIDs = 47) %>%
+  select(all_of(issue_display_cols)) %>% unique()
 
 # Incorrect Columns ------------------------------------------------------
 check_columns <- function(file) {
@@ -70,17 +72,20 @@ check_columns <- function(file) {
           paste("the", ColumnName, "column is missing")
         )
       ))
-    ) %>%
-    select(all_of(issue_display_cols)) %>%
-    unique()
-
+    )
+    
     col_diffs_hp <- col_diffs %>%
       filter(ColumnName %in% c(high_priority_columns)) %>%
-      merge_check_info(checkIDs = 12)
+      merge_check_info(checkIDs = 12) %>%
+      select(all_of(issue_display_cols)) %>%
+      unique()
+
 
     col_diffs_error <- col_diffs %>%
       filter(!(ColumnName %in% c(high_priority_columns))) %>%
-      merge_check_info(checkIDs = 82)
+      merge_check_info(checkIDs = 82) %>%
+      select(all_of(issue_display_cols)) %>%
+      unique()
 
     return(
       rbind(col_diffs_hp, col_diffs_error)
@@ -132,17 +137,19 @@ check_data_types <- function(quotedfile) {
             ),
           "."
         ))
-      ) %>%
-      select(all_of(issue_display_cols))
+      )
 
     return(
       rbind(
         y %>% 
           filter(DataTypeHighPriority == 1) %>% 
-          merge_check_info(checkIDs = 13),
+          merge_check_info(checkIDs = 13) %>%
+          select(all_of(issue_display_cols)),
+          
         y %>% 
           filter(DataTypeHighPriority == 0) %>% 
-          merge_check_info(checkIDs = 48)
+          merge_check_info(checkIDs = 48) %>%
+          select(all_of(issue_display_cols))
       )
     )
   }
@@ -296,24 +303,30 @@ valid_values_client <- Client %>%
                               "rows with invalid values"),
       name == "BlackAfAmerican" ~ paste("BlackAfAmerican has", n,
                                         "rows with invalid values"),
+      name == "HispanicLatinaeo" ~ paste("HispanicLatinaeo has", n,
+                                        "Rows with invalid values"),
+      name == "MidEastNAfrican" ~ paste("MidEastNAfrican has", n,
+                                        "Rows with invalid values"),
       name == "NativeHIPacific" ~ paste("NativeHIPacific has", n,
                                         "Rows with invalid values"),
       name == "White" ~ paste("White has", n,
                               "rows with invalid values"),
-      name == "Ethnicity" ~ paste("Ethnicity has", n,
-                                  "rows with invalid values"),
-      name == "Female" ~ paste("Female has", n,
-                               "rows with invalid values"),
-      name == "Male" ~ paste("Male has", n,
+      name == "Woman" ~ paste("Woman has", n,
+                              "rows with invalid values"),
+      name == "Man" ~ paste("Man has", n,
                              "rows with invalid values"),
-      name == "NoSingleGender" ~ paste("NoSingleGender has", n,
-                                       "rows with invalid values"),
+      name == "NonBinary" ~ paste("NonBinary has", n,
+                                  "rows with invalid values"),
+      name == "CulturallySpecific" ~ paste("CulturallySpecific has", n,
+                                           "rows with invalid values"),
       name == "Transgender" ~ paste("Transgender has", n,
                                     "rows with invalid values"),
       name == "Questioning" ~ paste("Questioning has", n,
                                     "rows with invalid values"),
       name == "GenderNone" ~ paste("GenderNone has", n,
-                                   "rows with invalid values")
+                                   "rows with invalid values"),
+      name == "DifferentIdentity" ~ paste("DifferentIdentity has", n,
+                                          "rows with invalid values")
     )
   ) %>%
   select(all_of(issue_display_cols)) %>%
