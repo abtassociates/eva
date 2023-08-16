@@ -265,7 +265,8 @@ hh_too_many_hohs <- base_dq_data %>%
   ungroup() %>%
   filter(HoHsinHousehold > 1) %>%
   left_join(base_dq_data, by = c("PersonalID", "HouseholdID")) %>%
-  merge_check_info(checkIDs = 3)
+  merge_check_info(checkIDs = 3) %>%
+  select(all_of(vars_we_want))
 
 hh_missing_rel_to_hoh <- base_dq_data %>%
   filter(RelationshipToHoH == 99) %>%
@@ -886,7 +887,8 @@ smallIncome <- IncomeBenefits %>%
     Alimony,
     OtherIncomeSource,
     DataCollectionStage
-  )
+  ) %>%
+  filter(DataCollectionStage %in% c(1, 3))
 
 smallIncome[is.na(smallIncome)] <- 0
 
@@ -900,7 +902,8 @@ smallIncome <-
   )],
   by = c("PersonalID",
          "EnrollmentID",
-         "DataCollectionStage"))
+         "DataCollectionStage")) %>%
+  unique()
 
 income_subs <- base_dq_data[c("EnrollmentID",
                                       "AgeAtEntry",
@@ -1420,39 +1423,39 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       conflicting_income_entry,
       conflicting_income_exit,
       conflicting_ncbs_entry,
-      dkr_client_veteran_wars,
-      dkr_client_veteran_military_branch,
       dkr_client_veteran_discharge,
+      dkr_client_veteran_military_branch,
+      dkr_client_veteran_wars,
       dkr_destination,
+      dkr_dob,
+      dkr_ethnicity,
+      dkr_gender,
       dkr_living_situation,
       dkr_LoS,
       dkr_months_times_homeless,
-      dkr_residence_prior,
-      dq_dob_missing,
-      dq_dob_dataquality_missing,
-      dkr_dob,
-      incorrect_dob,
-      dq_ethnicity_missing,
-      dkr_ethnicity,
-      dkr_gender,
-      dq_gender_missing,
-      dq_name_dataquality,
       dkr_name,
       dkr_race,
-      dq_race_missing,
-      missing_ssn,
+      dkr_residence_prior,
       dkr_ssn,
-      dq_veteran_status_missing,
       dkr_veteran,
+      dq_dob_dataquality_missing,
+      dq_dob_missing,
+      dq_ethnicity_missing,
+      dq_gender_missing,
+      dq_name_dataquality,
+      dq_overlaps1,
+      dq_overlaps2,
+      dq_race_missing,
+      dq_veteran_status_missing,
       duplicate_ees,
       entry_precedes_OpStart,
       exit_after_OpEnd,
-      Top2_movein,
       exit_before_start,
-      top_percents_long_stayers,
       future_ees,
       future_exits,
       hh_issues,
+      incomplete_living_situation,
+      incorrect_dob,
       invalid_months_times_homeless1,
       invalid_months_times_homeless2,
       invalid_months_times_homeless3,
@@ -1465,28 +1468,25 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       missing_health_insurance_exit,
       missing_income_entry,
       missing_income_exit,
-      incomplete_living_situation,
       missing_LoS,
       missing_months_times_homeless,
-      missing_previous_street_ESSH,
       missing_ncbs_entry,
+      missing_previous_street_ESSH,
       missing_residence_prior,
-      ssvf_missing_address,
-      ssvf_missing_vamc,
-      ssvf_missing_percent_ami,      
+      missing_ssn,
       ssvf_hp_screen,
-      veteran_missing_year_entered,
+      ssvf_missing_address,
+      ssvf_missing_percent_ami,
+      ssvf_missing_vamc,
+      top_percents_long_stayers,
+      Top2_movein,
       veteran_incorrect_year_entered,
-      veteran_missing_year_separated,
       veteran_incorrect_year_separated,
-      veteran_missing_wars,
       veteran_missing_branch,
       veteran_missing_discharge_status,
-      entry_precedes_OpStart,
-      exit_after_OpEnd,
-      exit_before_start,
-      dq_overlaps1,
-      dq_overlaps2
+      veteran_missing_wars,
+      veteran_missing_year_entered,
+      veteran_missing_year_separated
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
