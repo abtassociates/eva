@@ -1239,23 +1239,6 @@
       ],
       "Hash": "0f7cd2962e3044bb940cca4f4b5cecbe"
     },
-    "openxlsx": {
-      "Package": "openxlsx",
-      "Version": "4.2.5.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "grDevices",
-        "methods",
-        "stats",
-        "stringi",
-        "utils",
-        "zip"
-      ],
-      "Hash": "c03b4c18d42da881fb8e15a085c2b9d6"
-    },
     "packrat": {
       "Package": "packrat",
       "Version": "0.9.1",
@@ -1544,7 +1527,12 @@
     "renv": {
       "Package": "renv",
       "Version": "1.0.0",
-      "Source": "Repository"
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "c321cd99d56443dbffd1c9e673c0c1a2"
     },
     "reprex": {
       "Package": "reprex",
@@ -2244,13 +2232,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "0d0056cc5383fbc240ccd0cb584bf436"
-    },
-    "zip": {
-      "Package": "zip",
-      "Version": "2.3.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "d98c94dacb7e0efcf83b0a133a705504"
     }
   }
 }
