@@ -265,7 +265,8 @@ hh_too_many_hohs <- base_dq_data %>%
   ungroup() %>%
   filter(HoHsinHousehold > 1) %>%
   left_join(base_dq_data, by = c("PersonalID", "HouseholdID")) %>%
-  merge_check_info(checkIDs = 3)
+  merge_check_info(checkIDs = 3) %>%
+  select(all_of(vars_we_want))
 
 hh_missing_rel_to_hoh <- base_dq_data %>%
   filter(RelationshipToHoH == 99) %>%
