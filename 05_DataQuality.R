@@ -512,66 +512,56 @@ invalid_months_times_homeless <- base_dq_data %>%
     TimesHomelessPastThreeYears,
     DateToStreetESSH
   ) %>%
-  filter(
-    ProjectType != 12 &
-      !is.na(DateToStreetESSH) &
-      (RelationshipToHoH == 1 | AgeAtEntry > 17) &
-      EntryDate >= hc_prior_living_situation_required
-  ) %>%
+  filter(ProjectType != 12 &
+           (RelationshipToHoH == 1 | AgeAtEntry > 17) &
+           EntryDate >= hc_prior_living_situation_required)
+
+approx_start_after_entry <- invalid_months_times_homeless %>%
+  filter(!is.na(DateToStreetESSH) &
+           EntryDate < DateToStreetESSH) %>%
+  merge_check_info(checkIDs = 69) %>%
+  select(all_of(vars_we_want))
+
+no_months_can_be_determined <- invalid_months_times_homeless %>%
+  filter(MonthsHomelessPastThreeYears %in% c(dkr_dnc) &
+           TimesHomelessPastThreeYears == 1) %>%
+  merge_check_info(checkIDs = 70) %>%
+  select(all_of(vars_we_want))
+
+no_months_v_living_situation_data <-
+  invalid_months_times_homeless %>%
   mutate(
     MonthHomelessnessBegan = floor_date(DateToStreetESSH, "month"),
     MonthEnteredProgram = floor_date(EntryDate, "month"),
-    MonthDiff = interval(MonthHomelessnessBegan, MonthEnteredProgram) %/% months(1) + 1,
+    MonthDiff =
+      interval(MonthHomelessnessBegan, MonthEnteredProgram) %/% months(1) + 1,
     MonthDiff = if_else(MonthDiff >= 13, 13, MonthDiff),
     DateMonthsMismatch = if_else(
       MonthsHomelessPastThreeYears - MonthDiff != 100 &
-        TimesHomelessPastThreeYears == 1, 1, 0),
-    ApproxHomelessDateConflicts = if_else(
-      ymd(DateToStreetESSH) <= ymd(EntryDate) - years(3) & (
-        TimesHomelessPastThreeYears != 1 |
-          MonthsHomelessPastThreeYears < 112) ,1, 0),
-    Issue = case_when(
-      MonthDiff <= 0 ~
-        "Homelessness Start Date Later Than Entry",
-      ApproxHomelessDateConflicts == 1 ~
-        "Homelessness Start Date conflicts with Living Situation Data",
-      MonthsHomelessPastThreeYears %in% c(dkr_dnc) &
-        TimesHomelessPastThreeYears == 1 ~
-        "Number of Months Homeless Can Be Determined",
-      DateMonthsMismatch == 1 ~ 
-        "Number of Months Homeless conflicts with Living Situation Data"),
-    Type = "Warning",
-    Guidance = case_when(
-      MonthDiff <= 0 ~
-        "This client has an Approximate Date Homelessness Started in their
-        enrollment that is after their Project Start Date. The information
-        at Project Start should reflect the client's situation at the point of
-        Project Start, so this date may have been incorrectly entered.",
-      ApproxHomelessDateConflicts == 1 ~
-        "According to this client's assessment at Project Start, their Approximate
-      Date Homeless was over three years ago, which would mean their Number of
-      Times Homeless would have to be 1 and their Number of Months Homeless would
-      have to be \"More than 12 months\".",
-      MonthsHomelessPastThreeYears %in% c(dkr_dnc) &
-        TimesHomelessPastThreeYears == 1 ~
-        "According to this client's assessment at Project Start, they
-        experienced a single episode of homelessness in the three years prior to
-        their Project Start and the approximate date homelessness started is known,
-        but there was no response entered for the total number of months they
-        experienced homelessness prior to this enrollment. It should be possible
-        to determine and enter the total number of months they experienced
-        homelessness based on the Approximate Date Homelessness Started and the
-        Project Start Date.",
-      DateMonthsMismatch == 1 ~
-        "According to this client's assessment at Project Start, they experienced
-        a single episode of homelessness in the three years prior to their
-        enrollment and the approximate date homelessness started is known, but the
-        total number of months they experienced homelessness prior to this
-        enrollment is inconsistent with the given dates. Please double-check this
-        information for consistency and accuracy."
-    )) %>%
-  filter(!is.na(Guidance)) %>%
+        TimesHomelessPastThreeYears == 1,
+      1,
+      0
+    )
+  ) %>%
+  filter(TimesHomelessPastThreeYears == 1 &
+           !is.na(DateToStreetESSH) &
+           DateMonthsMismatch == 1) %>%
+  merge_check_info(checkIDs = 71) %>%
   select(all_of(vars_we_want))
+
+approx_start_v_living_situation_data <-
+  invalid_months_times_homeless %>%
+  filter(
+    !is.na(DateToStreetESSH) &
+      DateToStreetESSH <= (EntryDate - years(3)) & (
+        TimesHomelessPastThreeYears != 1 |
+          MonthsHomelessPastThreeYears < 112
+      )
+  ) %>%
+  merge_check_info(checkIDs = 105) %>%
+  select(all_of(vars_we_want))
+
+rm(invalid_months_times_homeless)
 
 missing_living_situation <- base_dq_data %>%
   select(
@@ -1745,6 +1735,8 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
 
     # All together now --------------------------------------------------------
     dq_main <- rbind(
+      approx_start_after_entry,
+      approx_start_v_living_situation_data,
       conflicting_health_insurance_entry,
       conflicting_health_insurance_exit,
       conflicting_income_entry,
@@ -1771,7 +1763,6 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
       future_ees,
       future_exits,
       hh_issues,
-      invalid_months_times_homeless,
       invalid_movein_date,
       missing_approx_date_homeless,
       missing_client_location,
@@ -1787,6 +1778,8 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
       missing_previous_street_ESSH,
       missing_ncbs_entry,
       missing_residence_prior,
+      no_months_can_be_determined,
+      no_months_v_living_situation_data,
       ssvf_missing_address,
       ssvf_missing_vamc,
       ssvf_missing_percent_ami,      
