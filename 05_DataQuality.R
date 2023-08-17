@@ -551,13 +551,13 @@ no_months_v_living_situation_data <-
 
 approx_start_v_living_situation_data <-
   invalid_months_times_homeless %>%
-  filter(
-    !is.na(DateToStreetESSH) &
-      DateToStreetESSH <= (EntryDate - years(3)) & (
-        TimesHomelessPastThreeYears != 1 |
-          MonthsHomelessPastThreeYears < 112
-      )
+  mutate(
+    HomelessOver3YearsAgo = !is.na(DateToStreetESSH) &
+      DateToStreetESSH <= (ymd(EntryDate) - years(3)),
+    SomethingsNotRight = TimesHomelessPastThreeYears != 1 |
+      MonthsHomelessPastThreeYears < 112
   ) %>%
+  filter(HomelessOver3YearsAgo == TRUE & SomethingsNotRight == TRUE) %>%
   merge_check_info(checkIDs = 105) %>%
   select(all_of(vars_we_want))
 
