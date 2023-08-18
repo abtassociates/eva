@@ -553,7 +553,7 @@ approx_start_v_living_situation_data <-
   invalid_months_times_homeless %>%
   mutate(
     HomelessOver3YearsAgo = !is.na(DateToStreetESSH) &
-      DateToStreetESSH <= (ymd(EntryDate) - years(3)),
+      ymd(DateToStreetESSH) <= ymd(EntryDate) %m-% months(36),
     SomethingsNotRight = TimesHomelessPastThreeYears != 1 |
       MonthsHomelessPastThreeYears < 112
   ) %>%
