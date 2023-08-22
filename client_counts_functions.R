@@ -65,7 +65,8 @@ client_count_data_df <- reactive({
       OrganizationName,
       ProjectType
     ) %>%
-    filter(served_between(., ReportStart, ReportEnd))
+    filter(EntryDate <= ReportEnd &
+             (is.na(ExitDate) | ExitDate >= ReportStart))
 })
 
 ##### SUMMARY STUFF ######
@@ -176,7 +177,8 @@ get_clientcount_download_info <- function(file) {
   validationCurrent <- 
     pivot_and_sum(
       validationDF %>%
-        filter(served_between(., input$dateRangeCount[2], input$dateRangeCount[2]))
+        filter(EntryDate <= input$dateRangeCount[2] &
+                 (is.na(ExitDate) | ExitDate >= input$dateRangeCount[2]))
     ) %>%
     select(-c(`Currently in project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
