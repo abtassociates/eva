@@ -564,13 +564,10 @@ top_percents_long_stayers <- base_dq_data %>%
           )
       )
   ) %>%
-  mutate(Days = if_else(
-    ProjectType %in% c(ph_project_types),
-    as.numeric(difftime(
-      meta_HUDCSV_Export_End, MoveInDateAdjust
-    )),
-    as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))
-  )) %>%
+  mutate(Days = as.numeric(difftime(
+      meta_HUDCSV_Export_Date, 
+      if_else(ProjectType %in% c(ph_project_types),MoveInDateAdjust, EntryDate)
+  ))) %>%
   group_by(ProjectType) %>%
   arrange(desc(Days)) %>%
   filter(Days > quantile(Days, if_else(
@@ -590,7 +587,7 @@ missed_movein_stayers <- base_dq_data %>%
            is.na(MoveInDateAdjust) &
            ProjectType %in% c(ph_project_types)
   ) %>%
-  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate)))
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate)))
 
 Top2_movein <- subset(missed_movein_stayers,
                       Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE)) %>%
