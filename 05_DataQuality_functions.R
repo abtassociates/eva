@@ -13,8 +13,8 @@ dq_main_reactive <- reactive({
   DayShelter <- calculate_long_stayers_local_settings(input$DayShelterLongStayers, 11)
   
   #Calculating potential old referrals based on Local settings
-  # CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
-  #   select(all_of(vars_we_want))
+  CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+    select(all_of(vars_we_want))
   
   x <- dq_main %>%
     filter(str_detect(tolower(Issue), "local settings", negate = TRUE) == TRUE)
