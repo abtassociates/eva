@@ -124,9 +124,10 @@ missing_name_dataquality <- base_dq_data %>%
   merge_check_info(checkIDs = 33) %>%
   select(all_of(vars_we_want))
 
+
 dkr_name <- base_dq_data %>%
   filter(NameDataQuality %in% c(dkr)) %>%
-  merge_check_info(checkIDs = 77) %>%
+  merge_check_info(checkIDs = 78) %>%
   select(all_of(vars_we_want))
 
 missing_dob <- base_dq_data %>%
@@ -330,7 +331,7 @@ dkr_LoS <- base_dq_data %>%
          LengthOfStay) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            LengthOfStay %in% c(dkr)) %>%
-  merge_check_info(checkIDs = 66) %>%
+  merge_check_info(checkIDs = 73) %>%
   select(all_of(vars_we_want))
 
 missing_months_times_homeless <- base_dq_data %>%
@@ -550,90 +551,49 @@ missing_disabilities <- base_dq_data %>%
 
 # Long Stayers ------------------------------------------------------------
 
-th_stayers <- base_dq_data %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 2) %>%
-  mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate)))
-# using Export Date here to reflect the date the export was run on
+top_percents_long_stayers <- base_dq_data %>%
+  select(all_of(vars_prep)) %>%
+  filter(
+    ProjectType %in% c(long_stayer_percentile_project_types) &
+      is.na(ExitDate) &
+      (
+        !ProjectType %in% c(ph_project_types) |
+          (
+            ProjectType %in% c(ph_project_types) &
+              !is.na(MoveInDateAdjust)
+          )
+      )
+  ) %>%
+  mutate(Days = as.numeric(difftime(
+      meta_HUDCSV_Export_Date, 
+      if_else(ProjectType %in% c(ph_project_types),MoveInDateAdjust, EntryDate)
+  ))) %>%
+  group_by(ProjectType) %>%
+  arrange(desc(Days)) %>%
+  filter(Days > quantile(Days, if_else(
+    ProjectType %in% c(long_stayer_98_percentile_project_types), .98, .99
+  ))) %>%
+  ungroup() %>% 
+  merge_check_info(checkIDs = 104) %>%
+  select(all_of(vars_we_want))
 
-Top2_TH <- subset(th_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+# long stayers flags that come from inputs come from  calculate_long_stayers()
 
-rrh_stayers <- base_dq_data %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 13) %>%
-  mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
-
-Top2_RRH <- subset(rrh_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-
-es_stayers <- base_dq_data %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 1) %>%
-  mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
-
-Top2_ES <- subset(es_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-
-psh_stayers <- base_dq_data %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) & ProjectType %in% c(psh_project_types)) %>%
-  mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
-
-Top1_PSH <- subset(psh_stayers, Days > quantile(Days, prob = 1 - 1 / 100))
-
-hp_stayers <- base_dq_data %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 12) %>%
-  mutate(Days = as.numeric(difftime(as.Date(meta_HUDCSV_Export_Date), EntryDate))) 
-
-Top2_HP <- subset(hp_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
-
-ce_stayers <- base_dq_data %>%
-  select(all_of(vars_prep), ProjectID) %>%
-  filter(is.na(ExitDate) &
-           ProjectType == 14) %>%
-  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_End, EntryDate))) 
-
-Top2_CE <- subset(ce_stayers, Days > quantile(Days, prob = 1 - 2 / 100))
+# Possible Missing HMID ---------------------------------------------------
 
 missed_movein_stayers <- base_dq_data %>%
   select(all_of(vars_prep)) %>%
   filter(is.na(ExitDate) &
+           is.na(MoveInDateAdjust) &
            ProjectType %in% c(ph_project_types)
   ) %>%
-  mutate(
-    Days = as.numeric(difftime(MoveInDateAdjust, EntryDate))
-  )
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate)))
 
 Top2_movein <- subset(missed_movein_stayers,
                       Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE)) %>%
   select(all_of(vars_prep)) %>%
-  merge_check_info(checkIDs = 74) %>%
+  merge_check_info(checkIDs = 72) %>%
   select(all_of(vars_we_want))
-
-long_stayers <- rbind(Top1_PSH,
-                      Top2_ES,
-                      Top2_RRH,
-                      Top2_TH,
-                      Top2_HP,
-                      Top2_CE) %>%
-  merge_check_info(checkIDs = 75) %>%
-  select(all_of(vars_we_want))
-
-long_stayers <-
-  rbind(
-    long_stayers,
-    Top2_movein
-  )
-
-rm(list = ls(pattern = "Top*"),
-   es_stayers,
-   th_stayers,
-   psh_stayers,
-   rrh_stayers,
-   hp_stayers)
 
 # Project Exit Before Start --------------
 exit_before_start <- base_dq_data %>%

@@ -10,6 +10,17 @@ if(dir.exists("sandbox/mini-non-shiny-environment/data/")) {
 
 directory <- "sandbox/mini-non-shiny-environment/"
 
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(DT)
+library(readxl)
+library(writexl)
+library(HMIS) #github.com/kiadso/HMIS
+library(glue)
+library(janitor)
+library(here)
+
 # Copy a sample dataset into the mini-non-shiny-environment/data directory
 
 ifelse(file.exists(paste0(directory, "data/Enrollment.csv")),
@@ -50,3 +61,4 @@ if_else(structural_issues == 0,
 # Data prep! --------------------------------------------------------------
 
 source(paste0(directory, "04_initial_data_prep.R"))
+
