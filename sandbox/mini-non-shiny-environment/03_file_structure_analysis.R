@@ -290,7 +290,7 @@ valid_values_client <- Client %>%
   pivot_longer(cols = everything()) %>%
   filter(value == 0) %>%
   count(name) %>%
-  merge_check_info(checkIDs = 501) %>%
+  merge_check_info(checkIDs = 50) %>%
   mutate(
     Detail = case_when(
       name == "VeteranStatus" ~ paste("VeteranStatus has", n,
@@ -464,34 +464,6 @@ duplicate_household_id <- Enrollment %>%
   ) %>%
   select(all_of(issue_display_cols)) %>%
   unique()
-
-# move_in_date_invalid <- Enrollment %>%
-#   left_join(Exit %>% select(EnrollmentID, ExitDate), by = "EnrollmentID") %>%
-#   mutate(
-#     Issue = if_else(
-#       (
-#         MoveInDate >= EntryDate &
-#           MoveInDate <= coalesce(ExitDate, meta_HUDCSV_Export_Date))
-#        |
-#         is.na(MoveInDate),
-#       "Nothing",
-#       "Invalid MoveInDate"
-#     ),
-#     Type = "Error",
-#     Guidance = paste(
-#       "Enrollment ID", 
-#       EnrollmentID, 
-#       "has a Move-In Date of",
-#       MoveInDate,
-#       "which does not fall between the Entry Date of",
-#       EntryDate,
-#       "and the Exit Date (or end of the reporting period.)")
-#   ) %>%
-#   filter(Issue != "Nothing") %>%
-#   select(all_of(issue_display_cols)) %>%
-#   
-#   
-#   unique()
 
 # Integrity Living Situation ----------------------------------------------
 
