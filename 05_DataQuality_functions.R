@@ -17,7 +17,7 @@ dq_main_reactive <- reactive({
   #   select(all_of(vars_we_want))
   
   x <- dq_main %>%
-    filter(str_detect(Issue, "Exceeds Local Settings", negate = TRUE) == TRUE)
+    filter(str_detect(tolower(Issue), "local settings", negate = TRUE) == TRUE)
 
   
   rbind(x,
