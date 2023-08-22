@@ -310,7 +310,8 @@ importFileSandbox <- function(csvFile, guess_max = 1000) {
 merge_check_info <- function(data, checkIDs) {
   return(data %>%
     bind_cols(
-      evachecks %>% filter(ID %in% checkIDs)
+      evachecks %>% filter(ID %in% c(checkIDs))
     )
   )
 }
+
