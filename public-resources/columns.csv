@@ -216,7 +216,7 @@ Project,19,DateDeleted,datetime,0,1
 Project,20,ExportID,character,0,0
 Inventory,1,InventoryID,character,1,0
 Inventory,2,ProjectID,character,1,0
-Inventory,3,CoCCode,character,1,0
+Inventory,3,CoCCode,character,0,0
 Inventory,4,HouseholdType,numeric,1,0
 Inventory,5,Availability,numeric,1,1
 Inventory,6,UnitInventory,numeric,1,0
