@@ -198,8 +198,7 @@ dashboardPage(
                  <p> Special thanks to 
                  <a href=\"http://www.squarepegdata.com/\" 
                  target= '_blank' rel='noopener noreferrer'>
-                 Square Peg Data</a>, the San Diego City and County CoC (CA-601),
-                 and the Minneapolis/Hennepin County CoC (MN-500) for providing
+                 Square Peg Data</a>, the CoCs who provided us with
                  sample datasets to support programming.")
           )
         )
