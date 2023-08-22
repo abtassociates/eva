@@ -265,7 +265,6 @@ Enrollment <- Enrollment %>%
                                        ymd(HHMoveIn), EntryDate),
                                NA))
 
-
 # Adding Age at Entry to Enrollment
 small_client <- Client %>% select(PersonalID, DOB)
 Enrollment <- Enrollment %>%
