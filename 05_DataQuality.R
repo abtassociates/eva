@@ -960,26 +960,63 @@ conflicting_income_exit <- income_subs %>%
 
 rm(income_subs)
 
-# Enrollment Active Outside Operating Dates ------------------------
+# Enrollment Active Outside Participating Dates ---------------------------
 
-enrollment_v_operating <- EnrollmentOutside %>%
+enrollment_positions <- EnrollmentOutside %>%
   filter(!EnrollmentvOperating %in% c("Inside")) %>%
-  select(EnrollmentID, EnrollmentvOperating) %>%
-  left_join(base_dq_data, by = c("EnrollmentID")) %>%
-  mutate(Issue = EnrollmentvOperating,
-         Type = "Error",
-         Guidance = "replaceme") %>%
+  select(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating) %>%
+  left_join(base_dq_data, by = c("EnrollmentID"))
+
+enrollment_after_participating_period <- enrollment_positions %>%
+  filter(EnrollmentvParticipating == "Enrollment After Participating Period") %>%
+  merge_check_info(checkIDs = 111) %>%
   select(all_of(vars_we_want))
 
-# Enrollment Outside of Participating Dates -------------------------------
+enrollment_x_participating_start <- enrollment_positions %>%
+  filter(EnrollmentvParticipating == "Enrollment Crosses Participating Start") %>%
+  merge_check_info(checkIDs = 112) %>%
+  select(all_of(vars_we_want))
 
-enrollment_v_participating <- EnrollmentOutside %>%
-  filter(!EnrollmentvParticipating %in% c("Inside")) %>%
-  select(EnrollmentID, EnrollmentvParticipating) %>%
-  left_join(base_dq_data, by = c("EnrollmentID")) %>%
-  mutate(Issue = EnrollmentvParticipating,
-         Type = "Error",
-         Guidance = "replaceme") %>%
+enrollment_before_participating_period <- enrollment_positions %>%
+  filter(EnrollmentvParticipating == "Enrollment Before Participating Period") %>%
+  merge_check_info(checkIDs = 113) %>%
+  select(all_of(vars_we_want))
+
+enrollment_x_participating_end <- enrollment_positions %>%
+  filter(EnrollmentvParticipating == "Enrollment Crosses Participating End") %>%
+  merge_check_info(checkIDs = 114) %>%
+  select(all_of(vars_we_want))
+
+enrollment_x_participating_period <- enrollment_positions %>%
+  filter(EnrollmentvParticipating == "Enrollment Crosses Participation Period") %>%
+  merge_check_info(checkIDs = 115) %>%
+  select(all_of(vars_we_want))
+
+# Enrollment v Operating --------------------------------------------------
+
+enrollment_after_operating_period <- enrollment_positions %>%
+  filter(EnrollmentvOperating == "Enrollment After Operating Period") %>%
+  merge_check_info(checkIDs = 116) %>%
+  select(all_of(vars_we_want))
+
+enrollment_x_operating_start <- enrollment_positions %>%
+  filter(EnrollmentvOperating == "Enrollment Crosses Operating Start") %>%
+  merge_check_info(checkIDs = 117) %>%
+  select(all_of(vars_we_want))
+
+enrollment_before_operating_period <- enrollment_positions %>%
+  filter(EnrollmentvOperating == "Enrollment Before Operating Period") %>%
+  merge_check_info(checkIDs = 118) %>%
+  select(all_of(vars_we_want))
+
+enrollment_x_operating_end <- enrollment_positions %>%
+  filter(EnrollmentvOperating == "Enrollment Crosses Operating End") %>%
+  merge_check_info(checkIDs = 119) %>%
+  select(all_of(vars_we_want))
+
+enrollment_x_operating_period <- enrollment_positions %>%
+  filter(EnrollmentvOperating == "Enrollment Crosses Operating Period") %>%
+  merge_check_info(checkIDs = 120) %>%
   select(all_of(vars_we_want))
 
 # Overlaps ----------------------------------------------------------------
@@ -1477,8 +1514,16 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       dq_overlaps1,
       dq_overlaps2,
       duplicate_ees,
-      enrollment_v_operating,
-      enrollment_v_participating,
+      enrollment_after_operating_period,
+      enrollment_after_participating_period,
+      enrollment_before_operating_period,
+      enrollment_before_participating_period,
+      enrollment_x_operating_end,
+      enrollment_x_operating_period,
+      enrollment_x_operating_start,
+      enrollment_x_participating_end,
+      enrollment_x_participating_period,
+      enrollment_x_participating_start,
       exit_before_start,
       future_ees,
       future_exits,
