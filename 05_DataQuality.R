@@ -577,7 +577,7 @@ top_percents_long_stayers <- base_dq_data %>%
   merge_check_info(checkIDs = 104) %>%
   select(all_of(vars_we_want))
 
-# long stayers flags that come from inputs come from  calculate_long_stayers()
+# long stayers flags that come from inputs come from calculate_long_stayers()
 
 # Possible Missing HMID ---------------------------------------------------
 
@@ -1489,7 +1489,6 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       invalid_months_times_homeless2,
       invalid_months_times_homeless3,
       invalid_movein_date,
-      long_stayers,
       missing_approx_date_homeless,
       missing_destination,
       missing_destination_subsidy,
@@ -1514,6 +1513,8 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       ssvf_hp_screen,
       ssvf_missing_percent_ami,
       ssvf_missing_vamc,
+      Top2_movein,
+      top_percents_long_stayers,
       veteran_missing_branch,
       veteran_missing_discharge_status,
       veteran_missing_wars,
