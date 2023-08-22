@@ -124,10 +124,7 @@ missing_inventory_record <- Project0 %>%
   filter(ProjectType %in% project_types_w_beds &
            is.na(InventoryID)) %>% 
   merge_check_info(checkIDs = 43) %>%
-  mutate(
-    Detail = str_squish("This project has no Inventory records. Residential 
-      project types should have inventory data.")
-  ) %>% 
+  mutate(Detail = "") %>%
   select(all_of(PDDEcols))
 
 # Inventory Start < Operating Start AND
@@ -152,14 +149,21 @@ inventoryOutsideOperating <- Inventory %>%
       )
     )
   ) %>% 
+  merge_check_info(checkIDs = 79) %>%
   select(all_of(PDDEcols))
 
 
-operating_end_precedes_inventory_end <- inventoryOutsideOperating %>%
+operating_end_precedes_inventory_end <- Inventory %>%
+  left_join(Project %>%
+              select(ProjectID,
+                     OrganizationName,
+                     ProjectName,
+                     OperatingStartDate,
+                     OperatingEndDate) %>%
+              unique(), by = "ProjectID") %>%
   filter(coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_Date)) >
            coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_Date))
   ) %>%
-  merge_check_info(checkIDs = 44) %>%
   mutate(
     Detail = case_when(
       is.na(InventoryEndDate) & !is.na(OperatingEndDate) ~
@@ -189,19 +193,15 @@ operating_end_precedes_inventory_end <- inventoryOutsideOperating %>%
         )
     )
   ) %>%
+  merge_check_info(checkIDs = 44) %>%
   select(all_of(PDDEcols))
 
 # RRH project w no SubType ------------------------------------------------
 
 rrh_no_subtype <- Project %>%
   filter(ProjectType == 13 & is.na(RRHSubType)) %>%
-  mutate(
-    Issue = "Missing RRH SubType",
-    Type = "Error",
-    Guidance = str_squish("All RRH projects must have an RRH SubType. Please
-                          update the data at the project level."),
-    Detail = paste("This project is an RRH project with no SubType.")
-  ) %>%
+  merge_check_info(checkIDs = 110) %>%
+  mutate(Detail = "") %>%
   select(all_of(PDDEcols))
 
 # Zero Utilization --------------------------------------------------------
@@ -224,10 +224,7 @@ res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 zero_utilization <- Project0 %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
   merge_check_info(checkIDs = 83) %>%
-  mutate(
-    Detail = str_squish("This project has active inventory beds in the report
-                        period but did not serve any clients during that time.")
-  ) %>%
+  mutate(Detail = "") %>%
   select(all_of(PDDEcols))
 
 ##### For later-------
@@ -239,7 +236,6 @@ pdde_main <- rbind(
   operating_end_missing,
   rrh_no_subtype,
   missing_CoC_Address,
-  missing_CoC_Info,
   missing_CoC_Geography,
   missing_inventory_record,
   operating_end_precedes_inventory_end,
