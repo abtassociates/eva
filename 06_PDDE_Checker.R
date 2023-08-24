@@ -137,7 +137,9 @@ inventoryOutsideOperating <- Inventory %>%
                      OperatingStartDate,
                      OperatingEndDate) %>%
               unique(), by = "ProjectID") %>%
-  filter(InventoryStartDate < OperatingStartDate) %>%
+  filter(InventoryStartDate < OperatingStartDate &
+           coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_Date)) >=
+           as.Date(meta_HUDCSV_Export_Date)) %>%
   mutate(
     Detail = str_squish(
       paste0(
