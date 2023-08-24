@@ -137,6 +137,7 @@ inventoryOutsideOperating <- Inventory %>%
                      OperatingStartDate,
                      OperatingEndDate) %>%
               unique(), by = "ProjectID") %>%
+  filter(InventoryStartDate < OperatingStartDate) %>%
   mutate(
     Detail = str_squish(
       paste0(
