@@ -567,7 +567,7 @@ AssessmentResults,8,DateUpdated,datetime,0,0
 AssessmentResults,9,UserID,character,0,0
 AssessmentResults,10,DateDeleted,datetime,0,1
 AssessmentResults,11,ExportID,character,0,0
-Event,1,EventID,character,character,1,0
+Event,1,EventID,character,1,0
 Event,2,EnrollmentID,character,1,0
 Event,3,PersonalID,character,1,0
 Event,4,EventDate,date,1,0
