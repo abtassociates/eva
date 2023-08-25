@@ -365,15 +365,14 @@ dashboardPage(
                 the check compares the length of each enrollment with assumptions
                 entered about the expected maximum period of assistance envisioned
                 for the project type. For the latter check, users can set the
-                assumptions for each project type. Any data quality flags about
-                Long Stayers is categorized as a Warning and is a suggestion to
+                assumptions for each project type. All data quality flags about
+                Long Stayers are categorized as Warnings and is a suggestion to
                 verify that the identified clients are still active in these
                 projects. It does not imply that any data should be changed.
       
                 <p><b>Top 2% longest enrollments are flagged for the following
                 project types:</b>
                 <ul>
-                <li>Coordinated Entry
                 <li>Emergency Shelter - Entry/Exit
                 <li>Safe Haven
                 <li>Transitional Housing
@@ -392,11 +391,12 @@ dashboardPage(
                 <p><b>Enrollments active longer than the CoC-specified length of
                 assistance targets are flagged for the following project types:</b>
                 <ul>
-                <li>Street Outreach
-                <li>Services Only
-                <li>Other
-                <li>Day Shelter
                 <li>Emergency Shelter - Night-by-Night
+                <li>Street Outreach
+                <li>Other
+                <li>Services Only
+                <li>Day Shelter
+                <li>Coordinated Entry
                 </ul>
       
                 <p>Below, you can specify the expected maximum period of assistance
@@ -448,6 +448,15 @@ dashboardPage(
                   numericInput(
                     inputId = "ServicesOnlyLongStayers",
                     label = "Services Only:",
+                    value = 90,
+                    min = 0,
+                    max = 3650,
+                    step = 5,
+                    width = "200px"
+                  ),
+                  numericInput(
+                    inputId = "CELongStayers",
+                    label = "Coordinated Entry:",
                     value = 90,
                     min = 0,
                     max = 3650,

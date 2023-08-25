@@ -73,6 +73,12 @@ coc_funded_project_types <- c(2, 3, 13)
 
 project_types_w_beds <- c(1, 2, 3, 8, 9, 10, 13)
 
+project_types_w_cls <- c(0, 4, 14)
+
+long_stayer_98_percentile_project_types <- c(1, 2, 8, 12, 13)
+
+long_stayer_percentile_project_types <- c(1, 2, 3, 8, 9, 10, 12, 13)
+
 # Funding Source Groupings ------------------------------------------------
 
 ssvf_fund_sources <- 33
@@ -106,6 +112,9 @@ issue_levels <- c("High Priority", "Error", "Warning")
 issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 # EvaChecks data (contains issue, type, guidance for each check) --------
-
 evachecks <- readxl::read_xlsx("public-resources/EvaChecks.xlsx",
                                sheet = "All Checks")
+
+
+# EvaChecks data (contains issue, type, guidance for each check) ------------------------------------------------
+evachecks <- readxl::read_xlsx("public-resources/EvaChecks.xlsx", sheet = "All Checks")
