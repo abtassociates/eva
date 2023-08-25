@@ -22,8 +22,6 @@ dashboardPage(
                            tabName = "tabDQOrg")),
       menuItem("View Changelog",
                tabName = "tabChangelog")
-        # menuSubItem("Data Entry Timeliness", 
-        #             tabName = "tabDeskTime")
       # ),
       # menuItem("System Analysis",
       #          menuSubItem("System Flow",
@@ -200,8 +198,7 @@ dashboardPage(
                  <p> Special thanks to 
                  <a href=\"http://www.squarepegdata.com/\" 
                  target= '_blank' rel='noopener noreferrer'>
-                 Square Peg Data</a>, the San Diego City and County CoC (CA-601),
-                 and the Minneapolis/Hennepin County CoC (MN-500) for providing
+                 Square Peg Data</a>, the CoCs who provided us with
                  sample datasets to support programming.")
           )
         )
@@ -300,7 +297,7 @@ dashboardPage(
             HTML("
               <p>To make Eva reporting more useful at the local level, you can
               adjust the local settings to better analyze your data in a
-              way that is meaningful to the CoC. To edit these, click on the 
+              way that is meaningful to your CoC. To edit these, click on the 
               Edit Local Settings tab. If you do not edit them, the reporting will 
               use the defaults listed. These defaults do not imply any HUD 
               recommendations. Please read the description in the
@@ -367,15 +364,14 @@ dashboardPage(
                 the check compares the length of each enrollment with assumptions
                 entered about the expected maximum period of assistance envisioned
                 for the project type. For the latter check, users can set the
-                assumptions for each project type. Any data quality flags about
-                Long Stayers is categorized as a Warning and is a suggestion to
+                assumptions for each project type. All data quality flags about
+                Long Stayers are categorized as Warnings and is a suggestion to
                 verify that the identified clients are still active in these
                 projects. It does not imply that any data should be changed.
       
                 <p><b>Top 2% longest enrollments are flagged for the following
                 project types:</b>
                 <ul>
-                <li>Coordinated Entry
                 <li>Emergency Shelter - Entry/Exit
                 <li>Safe Haven
                 <li>Transitional Housing
@@ -394,11 +390,12 @@ dashboardPage(
                 <p><b>Enrollments active longer than the CoC-specified length of
                 assistance targets are flagged for the following project types:</b>
                 <ul>
-                <li>Street Outreach
-                <li>Services Only
-                <li>Other
-                <li>Day Shelter
                 <li>Emergency Shelter - Night-by-Night
+                <li>Street Outreach
+                <li>Other
+                <li>Services Only
+                <li>Day Shelter
+                <li>Coordinated Entry
                 </ul>
       
                 <p>Below, you can specify the expected maximum period of assistance
@@ -450,6 +447,15 @@ dashboardPage(
                   numericInput(
                     inputId = "ServicesOnlyLongStayers",
                     label = "Services Only:",
+                    value = 90,
+                    min = 0,
+                    max = 3650,
+                    step = 5,
+                    width = "200px"
+                  ),
+                  numericInput(
+                    inputId = "CELongStayers",
+                    label = "Coordinated Entry:",
                     value = 90,
                     min = 0,
                     max = 3650,
@@ -778,40 +784,6 @@ dashboardPage(
           )
         )
       ),
-      # tabItem(
-      #   tabName = "tabDeskTime",
-      #   fluidRow(box(htmlOutput("headerDeskTime"),
-      #                width = 12)),
-      #     fluidRow(box(
-      #       title = "Instructions",
-      #       width = 12,
-      #       collapsible = TRUE,
-      #       collapsed = TRUE,
-      #       HTML("")
-      #     )), 
-      #   fluidRow(box(
-      #     pickerInput(
-      #       label = "Select Provider",
-      #       inputId = "providerDeskTime",
-      #       choices = NULL, #desk_time_providers,
-      #       options = pickerOptions(liveSearch = TRUE,
-      #                               liveSearchStyle = 'contains'),
-      #       width = "100%",
-      #       selected = NULL # desk_time_providers[1]
-      #     ),
-      #     width = 12
-      #   )),
-      #   fluidRow(box(plotOutput("DeskTimePlotDetail"), width = 12)), 
-      #   fluidRow(
-      #     box(
-      #       uiOutput("deskTimeNote"),
-      #       title = "More Information",
-      #       collapsible = TRUE,
-      #       collapsed = TRUE,
-      #       width = 12
-      #     )
-      #   )
-      # ),
       tabItem(
         tabName = "tabDQSystem",
         fluidRow(box(
