@@ -61,7 +61,8 @@ new_way <-
            ~ "Unsuccessful upload",
            Event %in% c("Successful upload") ~ "Successful upload",
            TRUE ~ "Other"
-         ))
+         )) %>%
+  filter(today() >= WeekEnding)
 
 # building dataset
 visits_df <- data.frame(everything = visits) %>%
