@@ -242,7 +242,7 @@ EnrollmentCoC,3,HouseholdID,character,1,0
 EnrollmentCoC,4,ProjectID,character,1,0
 EnrollmentCoC,5,PersonalID,character,1,0
 EnrollmentCoC,6,InformationDate,date,1,0
-EnrollmentCoC,7,CoCCode,character,1,0
+EnrollmentCoC,7,CoCCode,character,0,0
 EnrollmentCoC,8,DataCollectionStage,numeric,1,0
 EnrollmentCoC,9,DateCreated,datetime,0,0
 EnrollmentCoC,10,DateUpdated,datetime,0,0
@@ -452,7 +452,7 @@ IncomeBenefits,78,DateDeleted,datetime,0,1
 IncomeBenefits,79,ExportID,character,0,0
 ProjectCoC,1,ProjectCoCID,character,1,0
 ProjectCoC,2,ProjectID,character,1,0
-ProjectCoC,3,CoCCode,character,1,0
+ProjectCoC,3,CoCCode,character,0,0
 ProjectCoC,4,Geocode,character,1,0
 ProjectCoC,5,Address1,character,0,1
 ProjectCoC,6,Address2,character,0,1
