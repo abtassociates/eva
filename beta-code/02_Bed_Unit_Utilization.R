@@ -2,7 +2,6 @@
 library(tidyverse)
 library(lubridate)
 library(scales)
-library(HMIS)
 
 # Creating Beds table -----------------------------------------------------
 small_project <- Project %>%

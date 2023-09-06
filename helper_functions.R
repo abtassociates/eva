@@ -316,3 +316,16 @@ merge_check_info <- function(data, checkIDs) {
   )
 }
 
+
+# Between functions -------------------------------------------------------
+
+# entry is less than or equal to report end and
+# exit is null or greater than or equal to report start
+served_between <- function(df, start, end){
+  df %>%
+    filter(
+      ymd(EntryDate) <= ymd(start) &
+        coalesce(ymd(ExitDate), ymd(end)) >= ymd(end)
+    )
+}
+
