@@ -1228,7 +1228,7 @@ health_insurance_subs <- base_dq_data %>%
     Medicaid,
     Medicare,
     SCHIP,
-    VHAServicesHA,
+    VHAServices,
     EmployerProvided,
     COBRA,
     PrivatePay,
@@ -1237,7 +1237,7 @@ health_insurance_subs <- base_dq_data %>%
     OtherInsurance
   ) %>%
   mutate(
-    SourceCount = Medicaid + SCHIP + VHAServicesHA + EmployerProvided +
+    SourceCount = Medicaid + SCHIP + VHAServices + EmployerProvided +
       COBRA + PrivatePay + StateHealthIns + IndianHealthServices +
       OtherInsurance + Medicare
   ) %>%
