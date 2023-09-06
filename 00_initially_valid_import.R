@@ -89,9 +89,9 @@ if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
 if(!initially_valid_import) {
   showModal(
     modalDialog(
-      title <- title,
+      title = title,
       err_msg,
-      easyClose <- TRUE
+      easyClose = TRUE
     )
   )
   reset("imported")
