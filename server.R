@@ -61,7 +61,7 @@ function(input, output, session) {
     valid_file(0)
     source("00_initially_valid_import.R", local = TRUE)
     
-    if(initially_valid_import) {
+    if(initially_valid_import == 1) {
 
       hide('imported_progress')
       

@@ -67,7 +67,7 @@ if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
       You either uploaded something other than an HMIS CSV export or your export 
       does not contain all the files outlined in the HMIS CSV Export specifications.
       Be sure that you haven't accidentally uploaded an APR or an LSA. If you are 
-      not sure how to run the hashed HMIS CSV Export in your HMIS,please contact 
+      not sure how to run the hashed HMIS CSV Export in your HMIS, please contact 
       your HMIS vendor."))
     
     logMetadata("Unsuccessful upload - wrong/incomplete dataset")
@@ -89,9 +89,9 @@ if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
 if(!initially_valid_import) {
   showModal(
     modalDialog(
-      title <- title,
+      title = title,
       err_msg,
-      easyClose <- TRUE
+      easyClose = TRUE
     )
   )
   reset("imported")

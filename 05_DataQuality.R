@@ -619,14 +619,8 @@ missing_destination_subsidy <- base_dq_data %>%
   filter(!is.na(ExitDate) &
            Destination == 435 &
            is.na(DestinationSubsidyType)) %>%
-  mutate(
-    Issue = "Missing Destination Subsidy Type",
-    Type = "Error",
-    Guidance = str_squish(
-      "If a client exits to Rental by Client, the user must record the Subsidy
-      Type."
-    )
-  )
+  merge_check_info(checkIDs = 121) %>%
+  select(all_of(vars_we_want))
 
 # Missing PATH Data -------------------------------------------------------
 
