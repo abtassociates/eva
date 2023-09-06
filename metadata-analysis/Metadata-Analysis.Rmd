@@ -142,8 +142,28 @@ counts_by_week %>%
   scale_color_brewer(palette = "Dark2") +
   scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
   labs(
-    title = "Eva Site Hits",
+    title = "Weekly Eva Site Hits",
     x = "Week Ending",
+    y = ""
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+  
+```
+
+```{r fig.width=10, fig.height=5}
+
+counts_by_month %>%
+  filter(Event == "Site hits") %>%
+  ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
+  geom_line() +
+  geom_point() +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%m-%y") +
+  labs(
+    title = "Monthly Eva Site Hits",
+    x = "Month Ending",
     y = ""
   ) +
   theme_minimal() +
@@ -178,7 +198,7 @@ counts_by_week %>%
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Dark2") +
   scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
-  labs(title = "Eva Uploads",
+  labs(title = "Weekly Eva Uploads",
        x = "Week Ending",
        y = "") +
   theme_minimal() +
@@ -198,7 +218,7 @@ counts_category %>%
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Dark2") +
   scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
-  labs(title = "Eva Uploads",
+  labs(title = "Weekly Eva Uploads - Successful vs. Unsuccessful",
        x = "Week Ending",
        y = "") +
   theme_minimal() +
@@ -224,7 +244,7 @@ counts_by_week %>%
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Dark2") +
   scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
-  labs(title = "Eva Downloads",
+  labs(title = "Weekly Eva Downloads",
        x = "Week Ending",
        y = "",
        caption = "Download data not collected until Dec 29, 2022.") +
