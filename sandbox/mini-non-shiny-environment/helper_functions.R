@@ -176,12 +176,13 @@ logMetadata <- function(detail) {
   )
   
   filename <- "metadata-analysis/metadata/metadata.csv"
-  write_csv(
+  
+  invisible(write_csv(
     x = d,
     filename,
     append = TRUE,
     col_names = !file.exists(filename)
-  )
+  ))
 }
 
 headerGeneric <- function(tabTitle, extraHTML = NULL) {
@@ -314,4 +315,3 @@ merge_check_info <- function(data, checkIDs) {
     )
   )
 }
-
