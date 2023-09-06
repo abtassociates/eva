@@ -385,10 +385,11 @@ function(input, output, session) {
       a <- pdde_main %>%
         group_by(Issue, Type) %>%
         summarise(Count = n()) %>%
-        ungroup()
+        ungroup() %>%
+        arrange(Type)
       
       exportTestValues(pdde_summary_table = a)
-      
+
       datatable(
         a,
         rownames = FALSE,
@@ -396,8 +397,6 @@ function(input, output, session) {
         options = list(dom = 't')
       )
     })
-
-    
 
 # PDDE Download Button ----------------------------------------------------
 
@@ -442,8 +441,6 @@ function(input, output, session) {
       
       guidance <- pdde_main %>%
         select(Type, Issue, Guidance) %>%
-        mutate(Type = factor(Type, levels = c("Error",
-                                              "Warning"))) %>%
         arrange(Type, Issue) %>%
         unique()
       

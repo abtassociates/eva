@@ -244,6 +244,7 @@ pdde_main <- rbind(
   operating_end_precedes_inventory_end,
   inventoryOutsideOperating,
   zero_utilization
-)
+) %>%
+  mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
 
 

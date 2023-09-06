@@ -709,7 +709,6 @@ dashboardPage(
           uiOutput("downloadOrgDQReportButton"),
           width = 12
         )), 
-        
         fluidRow(
           tabBox(
             side = "right",
