@@ -114,7 +114,3 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 # EvaChecks data (contains issue, type, guidance for each check) --------
 evachecks <- readxl::read_xlsx("public-resources/EvaChecks.xlsx",
                                sheet = "All Checks")
-
-
-# EvaChecks data (contains issue, type, guidance for each check) ------------------------------------------------
-evachecks <- readxl::read_xlsx("public-resources/EvaChecks.xlsx", sheet = "All Checks")
