@@ -414,8 +414,8 @@ IncomeBenefits,49,Medicare,numeric,1,1
 IncomeBenefits,50,NoMedicareReason,numeric,1,1
 IncomeBenefits,51,SCHIP,numeric,1,1
 IncomeBenefits,52,NoSCHIPReason,numeric,1,1
-IncomeBenefits,53,VHAServicesHA,numeric,1,1
-IncomeBenefits,54,NoVHAReasonHA,numeric,1,1
+IncomeBenefits,53,VHAServices,numeric,1,1
+IncomeBenefits,54,NoVHAReason,numeric,1,1
 IncomeBenefits,55,EmployerProvided,numeric,1,1
 IncomeBenefits,56,NoEmployerProvidedReason,numeric,1,1
 IncomeBenefits,57,COBRA,numeric,1,1
