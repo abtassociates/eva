@@ -59,6 +59,17 @@ Client_hashed <- Client %>%
 
 # Write it back out -------------------------------------------------------
 
-write_csv(Export, here(paste0(directory, "data/Export.csv")))
+write.csv(
+  Export,
+  here(paste0(directory, "data/Export.csv")),
+  na = "",
+  row.names = FALSE
+)
 
-write_csv(Client_hashed, here(paste0(directory, "data/Client.csv")))
+write.csv(
+  Client_hashed,
+  here(paste0(directory, "data/Client.csv")),
+  na = "",
+  row.names = FALSE
+)
+
