@@ -1061,14 +1061,24 @@ overlap_staging_no_nbn <- overlap_staging %>%
   )
 
 if(nrow(Services) > 0){
-  overlap_staging <- overlap_staging_nbn %>% 
+  overlap_staging <- overlap_staging_nbn %>%
+    group_by(
+      PersonalID,
+      EnrollmentID,
+      ProjectType,
+      EnrollmentStart,
+      EnrollmentEnd,
+      DateProvided
+    ) %>%
+    slice_min(DateProvided, with_ties = FALSE) %>%
+    ungroup() %>% 
     select(
       PersonalID,
       EnrollmentID,
       ProjectType,
       EnrollmentStart,
       EnrollmentEnd,
-      FirstDateProvided
+      "FirstDateProvided" = DateProvided
     )
 } else{
   overlap_staging <- overlap_staging_no_nbn %>% 
