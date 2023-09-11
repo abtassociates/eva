@@ -34,7 +34,8 @@ files_to_copy <- list(
   "/01_get_Export.R",
   "/02_export_dates.R",
   "/03_file_structure_analysis.R",
-  "/04_initial_data_prep.R"
+  "/04_initial_data_prep.R",
+  "/client_counts_functions.R"
 )
 
 file.copy(from = paste0(here(), files_to_copy),
