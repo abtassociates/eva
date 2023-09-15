@@ -378,46 +378,54 @@ dkr_months_times_homeless <- base_dq_data %>%
   merge_check_info(checkIDs = 61) %>%
   select(all_of(vars_we_want))
 
-invalid_months_times_homeless <- base_dq_data %>%
-  select(
-    all_of(vars_prep),
-    AgeAtEntry,
-    RelationshipToHoH,
-    MonthsHomelessPastThreeYears,
-    TimesHomelessPastThreeYears,
-    DateToStreetESSH
-  ) %>%
-  filter(
-    ProjectType != 12 &
-      (RelationshipToHoH == 1 | AgeAtEntry > 17) &
-      EntryDate >= hc_prior_living_situation_required &
-      TimesHomelessPastThreeYears == 1 &
-      !is.na(DateToStreetESSH)
-  ) %>% 
-  mutate(
-    MonthHomelessnessBegan = floor_date(DateToStreetESSH, "month"),
-    MonthEnteredProgram = floor_date(EntryDate, "month"),
-    MonthDiff = interval(MonthHomelessnessBegan, MonthEnteredProgram) %/% months(1) + 1,
-    MonthDiff = if_else(MonthDiff >= 13, 13, MonthDiff),
-    DateMonthsMismatch = if_else(MonthsHomelessPastThreeYears - MonthDiff != 100, 1, 0)
-  )
-
-invalid_months_times_homeless1 <- invalid_months_times_homeless %>%
-  filter(MonthDiff <= 0) %>%
+approx_start_after_entry <- invalid_months_times_homeless %>%
+  filter(!is.na(DateToStreetESSH) &
+           EntryDate < DateToStreetESSH) %>%
   merge_check_info(checkIDs = 69) %>%
   select(all_of(vars_we_want))
 
-invalid_months_times_homeless2 <- invalid_months_times_homeless %>%
-  filter(MonthsHomelessPastThreeYears < 100) %>%
+no_months_can_be_determined <- invalid_months_times_homeless %>%
+  filter(MonthsHomelessPastThreeYears %in% c(dkr_dnc) &
+           TimesHomelessPastThreeYears == 1) %>%
   merge_check_info(checkIDs = 70) %>%
   select(all_of(vars_we_want))
 
-invalid_months_times_homeless3 <- invalid_months_times_homeless %>%
-  filter(DateMonthsMismatch == 1) %>%
+no_months_v_living_situation_data <-
+  invalid_months_times_homeless %>%
+  mutate(
+    MonthHomelessnessBegan = floor_date(DateToStreetESSH, "month"),
+    MonthEnteredProgram = floor_date(EntryDate, "month"),
+    MonthDiff =
+      interval(MonthHomelessnessBegan, MonthEnteredProgram) %/% months(1) + 1,
+    MonthDiff = if_else(MonthDiff >= 13, 13, MonthDiff),
+    DateMonthsMismatch = if_else(
+      MonthsHomelessPastThreeYears - MonthDiff != 100 &
+        TimesHomelessPastThreeYears == 1,
+      1,
+      0
+    )
+  ) %>%
+  filter(TimesHomelessPastThreeYears == 1 &
+           !is.na(DateToStreetESSH) &
+           DateMonthsMismatch == 1) %>%
   merge_check_info(checkIDs = 71) %>%
   select(all_of(vars_we_want))
 
-incomplete_living_situation <- base_dq_data %>%
+approx_start_v_living_situation_data <-
+  invalid_months_times_homeless %>%
+  mutate(
+    HomelessOver3YearsAgo = !is.na(DateToStreetESSH) &
+      ymd(DateToStreetESSH) <= ymd(EntryDate) %m-% months(36),
+    SomethingsNotRight = TimesHomelessPastThreeYears != 1 |
+      MonthsHomelessPastThreeYears < 112
+  ) %>%
+  filter(HomelessOver3YearsAgo == TRUE & SomethingsNotRight == TRUE) %>%
+  merge_check_info(checkIDs = 105) %>%
+  select(all_of(vars_we_want))
+
+rm(invalid_months_times_homeless)
+
+missing_living_situation <- base_dq_data %>%
   select(
     all_of(vars_prep),
     AgeAtEntry,
@@ -1498,6 +1506,8 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
 
     # All together now --------------------------------------------------------
     dq_main <- rbind(
+      approx_start_after_entry,
+      approx_start_v_living_situation_data,
       conflicting_health_insurance_entry,
       conflicting_health_insurance_exit,
       conflicting_income_entry,
@@ -1509,6 +1519,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       dkr_destination,
       dkr_dob,
       dkr_gender,
+      dkr_living_situation,
       dkr_LoS,
       dkr_months_times_homeless,
       dkr_name,
@@ -1551,6 +1562,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       missing_health_insurance_exit,
       missing_income_entry,
       missing_income_exit,
+      missing_living_situation,
       missing_LoS,
       missing_months_times_homeless,
       missing_name_dataquality,
@@ -1560,6 +1572,8 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       missing_residence_prior,
       missing_ssn,
       missing_veteran_status,
+      no_months_can_be_determined,
+      no_months_v_living_situation_data,
       ssvf_hp_screen,
       ssvf_missing_percent_ami,
       ssvf_missing_vamc,
