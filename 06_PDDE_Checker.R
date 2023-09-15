@@ -130,6 +130,11 @@ missing_inventory_record <- Project0 %>%
 # Inventory Start < Operating Start AND
 # Inventory End > Operating End or Null
 inventoryOutsideOperating <- Inventory %>%
+  filter(
+	    BedInventory > 0 &
+	      coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start &
+	      InventoryStartDate <= meta_HUDCSV_Export_End
+  ) %>%
   left_join(Project %>%
               select(ProjectID,
                      OrganizationName,
