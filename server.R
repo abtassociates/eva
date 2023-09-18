@@ -581,8 +581,8 @@ function(input, output, session) {
         filter(OrganizationName %in% c(input$orgList) | 
                  PreviousOrganizationName %in% c(input$orgList))
       
-      # orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
-      #   filter(OrganizationName %in% c(input$orgList))
+      orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+        filter(OrganizationName %in% c(input$orgList))
 
       
       # return a list for reference in downloadHandler
