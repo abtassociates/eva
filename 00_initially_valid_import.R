@@ -47,7 +47,7 @@ if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
   }
   
   isFY2024Export <- function() {
-    return(grepl("2024",as.character(Export$CSVVersion)))
+    return(grepl("2024",as.character(importFile("Export")$CSVVersion)))
   }
 
   ### Now check whether the file is hashed, has the expected structure, and contains
