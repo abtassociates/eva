@@ -1487,6 +1487,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       missing_health_insurance_exit,
       missing_income_entry,
       missing_income_exit,
+      missing_living_situation,
       missing_LoS,
       missing_months_times_homeless,
       missing_ncbs_entry,
