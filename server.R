@@ -580,23 +580,24 @@ function(input, output, session) {
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | 
                  PreviousOrganizationName %in% c(input$orgList))
-      
+#browser()
       orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
         filter(OrganizationName %in% c(input$orgList))
-
       
       # return a list for reference in downloadHandler
       list(
         orgDQData = 
           getDQReportDataList(orgDQData,
                               orgDQoverlaps,
-                              "ProjectName"#, orgDQReferrals
+                              "ProjectName",
+                              orgDQReferrals
                               ),
            
         systemDQData = 
           getDQReportDataList(dq_main_reactive(),
                               overlaps,
-                              "OrganizationName", # calculate_outstanding_referrals(input$CEOutstandingReferrals)
+                              "OrganizationName",
+                              calculate_outstanding_referrals(input$CEOutstandingReferrals)
                               )
       )
     })
@@ -605,6 +606,7 @@ function(input, output, session) {
 
     output$downloadOrgDQReportButton  <- renderUI({
       req(valid_file() == 1)
+      
       req(length(dqDownloadInfo()$orgDQData) > 0)
         downloadButton(outputId = "downloadOrgDQReport",
                        label = "Download")
