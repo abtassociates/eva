@@ -85,18 +85,18 @@ getDQReportDataList <-
         PreviousExitDate
       )
     
-    # dqReferralDetails <- dqReferrals %>%
-    #   filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
-    #   select(
-    #     OrganizationName,
-    #     ProjectID,
-    #     ProjectName,
-    #     EventID,
-    #     PersonalID,
-    #     EventDate,
-    #     EventType,
-    #     Days
-    #   )
+    dqReferralDetails <- dqReferrals %>%
+      filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
+      select(
+        OrganizationName,
+        ProjectID,
+        ProjectName,
+        EventID,
+        PersonalID,
+        EventDate,
+        EventType,
+        Days
+      )
     
     mainsummary <- rbind(
       dqData %>% select(Type, Issue, PersonalID),
@@ -142,8 +142,8 @@ getDQReportDataList <-
       high_priority = high_priority %>% nice_names(),
       errors = errors %>% nice_names(),
       warnings = warnings %>% nice_names(),
-      overlaps = dqOverlapDetails %>% nice_names()#,
-      # dqReferrals = dqReferralDetails %>% nice_names()
+      overlaps = dqOverlapDetails %>% nice_names(),
+      dqReferrals = dqReferralDetails %>% nice_names()
     )
     
     names(exportDFList) <- c(
@@ -164,8 +164,8 @@ getDQReportDataList <-
       "High Priority",
       "Errors",
       "Warnings",
-      "Overlap Details"#,
-      # "Referral Details"
+      "Overlap Details",
+      "Referral Details"
     )
     
     exportDFList <- exportDFList[sapply(exportDFList, 
@@ -236,8 +236,8 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
 
 # Outstanding Referrals --------------------------------------------
 
-calculate_outstanding_referrals <- function(input){
-  
+calculate_outstanding_referrals <- function(too_many_days){
+
   base_dq_data %>%
     left_join(Event %>% select(EnrollmentID,
                                EventID,
@@ -267,7 +267,7 @@ calculate_outstanding_referrals <- function(input){
     ) %>%
     filter(Event %in% c(10:15, 17:18) &
              is.na(ResultDate) &
-             input < Days) %>%
+             too_many_days < Days) %>%
     merge_check_info(checkIDs = 100)
 }
 
