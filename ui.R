@@ -317,7 +317,7 @@ dashboardPage(
                 been delayed in getting the client to housing. This check is
                 only applied to CE Event referrals which are expected to have an
                 associated Result and Result Date (4.20.2 responses 10-15, 17,
-                18, ... Please see the HMIS Data Standards for the complete list
+                18. Please see the HMIS Data Standards for the complete list
                 of CE Events.) 
                 
                 <p>When a CE Event referral does not have a Result Date at the
