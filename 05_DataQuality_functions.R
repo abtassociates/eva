@@ -149,12 +149,12 @@ getDQReportDataList <-
     names(exportDFList) <- c(
       "Export Detail",
       paste(
-        if_else(bySummaryLevel == "Organization Name", "System", "Organization"),
+        if_else(bySummaryLevel == "OrganizationName", "System", "Organization"),
         "Summary"
       ),
       paste(
         if_else(
-          bySummaryLevel == "Organization Name",
+          bySummaryLevel == "OrganizationName",
           "Organization",
           "Project"
         ),
