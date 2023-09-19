@@ -287,8 +287,8 @@ dashboardPage(
             HTML("
               <p>To make Eva reporting more useful at the local level, you can
               adjust the local settings to better analyze your data in a
-              way that is meaningful to your CoC. To edit these, click on the 
-              Edit Local Settings tab. If you do not edit them, the reporting will 
+              way that is meaningful to your CoC. To edit these, click to expand the 
+              relevant box below. If you do not edit them, the reporting will 
               use the defaults listed. These defaults do not imply any HUD 
               recommendations. Please read the description in the
               Edit Local Settings tab for more information.</p>
