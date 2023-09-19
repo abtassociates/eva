@@ -313,26 +313,31 @@ dashboardPage(
               width = 12,
               HTML(
                 "<p>This check aims to help communities find Coordinated Entry (CE)
-                Event referrals that may be missing a Result Date. This check is
+                Event referrals that may be missing a Result Date or may have
+                been delayed in getting the client to housing. This check is
                 only applied to CE Event referrals which are expected to have an
-                associated Result and Result Date (4.20.2 responses 10-15, 17, 18 --
-                Please see the HMIS Data Standards for the complete list of CE Events.)
-                When a CE Event referral does not have a Result Date at the time data
-                is uploaded, Eva calculates the referral has been open  by looking at 
-                the number of days between the Referral Date and the date your upload 
-                was exported from your HMIS. Then Eva compares the length of each 
-                open referral with the 'Max Days' assumption entered in the input 
-                field below. If the referral is open longer than the expected timeframe, 
-                it is categorized as an 'Outstanding Referral.' This check is for all 
-                projects that have a relevant CE Event referral.
+                associated Result and Result Date (4.20.2 responses 10-15, 17,
+                18, ... Please see the HMIS Data Standards for the complete list
+                of CE Events.) 
+                
+                <p>When a CE Event referral does not have a Result Date at the
+                time the export is uploaded, Eva calculates how many days the
+                referral has been open by looking at the number of days
+                between the Referral Date and the date your upload was exported
+                from your HMIS. Then Eva compares the length of each open
+                referral with the 'Max Days' assumption entered in the input
+                field below. If the referral is open longer than the expected
+                timeframe, it is categorized as an 'Outstanding Referral.' This
+                check is for all projects that have a relevant CE Event referral.
                 
                 <p>Data quality flags about Outstanding Referrals are categorized
                 as Warnings, indicating that data should be reviewed for accuracy.
                 It does not imply that any data should be changed.
 
                 <p>In the field below, specify the maximum number of days a referral
-                can stay open according to the CoC's Coordinated Entry Referral process. 
-                The value defaults to 14 days. (These defaults do not imply any HUD recommendations)."
+                can stay open according to the CoC's Coordinated Entry Referral
+                process. The value defaults to 14 days. (These defaults do not
+                imply any HUD recommendations)."
               ),
               numericInput(
                 inputId = "CEOutstandingReferrals",
@@ -340,7 +345,7 @@ dashboardPage(
                 value = 14,
                 min = 0,
                 max = 365,
-                step = 5,
+                step = 7,
                 width = "200px"
               )
             ))
