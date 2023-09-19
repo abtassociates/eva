@@ -254,16 +254,6 @@ dashboardPage(
             uiOutput("fileInfo"),
             width = 12
           )),
-          #,
-          # HTML(
-          #   "<h4>Referrals</h4>
-          #   <p>Please enter the number of days your CoC would consider a Referral
-          #     to be \"outstanding\"."
-          # ),
-          # numericInput(inputId = "OutstandingReferrals",
-          #              label = "Outstanding Referral Days:",
-          #              value = 7)
-          
           fluidRow(box(
             title = "HMIS CSV Export File Structure Analysis",
             width = 12,
