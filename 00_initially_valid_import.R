@@ -45,10 +45,11 @@ if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
         max(nchar(Client$FirstName), na.rm = TRUE)
     )
   }
-  browser()
+
   isFY2024Export <- function() {
-    return(grepl("2024", as.character(importFile("Export")$CSVVersion)) &
-             !"Export" %in% missing_files)
+    return(
+      grepl("2024", as.character(importFile("Export")$CSVVersion))
+    )
   }
   
   ### Now check whether the file is hashed, has the expected structure, and contains
@@ -62,6 +63,16 @@ if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
     
     logMetadata("Unsuccessful upload - zip file was misstructured")
     
+  } else if(!"Export" %in% missing_files) {
+    title <- "You are missing the Export.csv file"
+    err_msg <- str_squish("It looks like you are missing the Export.csv 
+      file from your HMIS CSV Export. You either uploaded something other 
+      than an HMIS CSV export or your export does not contain all the files 
+      outlined in the HMIS CSV Export specifications. Be sure that you haven't 
+      accidentally uploaded an APR or an LSA. If you are not sure how to run the 
+      hashed HMIS CSV Export in your HMIS,please contact your HMIS vendor.")
+
+    logMetadata("Unsuccessful upload - missing Export.csv")
   } else if(!isFY2024Export()) {
     title <- "Your HMIS CSV Export is out of date"
     err_msg <- str_squish("It looks like you either uploaded an FY2022 HMIS CSV 
