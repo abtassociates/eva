@@ -1477,6 +1477,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       future_ees,
       future_exits,
       hh_issues,
+      incorrect_dob,
       invalid_movein_date,
       missing_approx_date_homeless,
       missing_client_location,
