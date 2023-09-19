@@ -220,7 +220,7 @@ Project,18,DateDeleted,datetime,0,1
 Project,19,ExportID,character,0,0
 Inventory,1,InventoryID,character,1,0
 Inventory,2,ProjectID,character,1,0
-Inventory,3,CoCCode,character,1,0
+Inventory,3,CoCCode,character,0,0
 Inventory,4,HouseholdType,numeric,1,0
 Inventory,5,Availability,numeric,1,1
 Inventory,6,UnitInventory,numeric,1,0
@@ -441,7 +441,7 @@ IncomeBenefits,76,DateDeleted,datetime,0,1
 IncomeBenefits,77,ExportID,character,0,0
 ProjectCoC,1,ProjectCoCID,character,1,0
 ProjectCoC,2,ProjectID,character,1,0
-ProjectCoC,3,CoCCode,character,1,0
+ProjectCoC,3,CoCCode,character,0,0
 ProjectCoC,4,Geocode,character,1,0
 ProjectCoC,5,Address1,character,0,1
 ProjectCoC,6,Address2,character,0,1
