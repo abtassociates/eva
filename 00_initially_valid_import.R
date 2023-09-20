@@ -45,8 +45,11 @@ if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
         max(nchar(Client$FirstName), na.rm = TRUE)
     )
   }
-
+browser()
   isFY2024Export <- function() {
+
+      if("Export" %in% missing_files) return(FALSE)
+      
     return(
       grepl("2024", as.character(importFile("Export")$CSVVersion))
     )
