@@ -110,7 +110,7 @@ dashboardPage(
             collapsed = TRUE,
             HTML(
               "<p>Eva works by uploading a hashed 
-              <a href='https://www.hudhdx.info/Resources/Vendors/HMIS_CSV_Specifications_FY2022_v1.3.pdf'
+              <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
               target= '_blank' rel='noopener noreferrer'>HMIS CSV Export</a>.
               </p>
               <p>Generate a hashed HMIS CSV Export from your local HMIS and store
@@ -254,16 +254,6 @@ dashboardPage(
             uiOutput("fileInfo"),
             width = 12
           )),
-          #,
-          # HTML(
-          #   "<h4>Referrals</h4>
-          #   <p>Please enter the number of days your CoC would consider a Referral
-          #     to be \"outstanding\"."
-          # ),
-          # numericInput(inputId = "OutstandingReferrals",
-          #              label = "Outstanding Referral Days:",
-          #              value = 7)
-          
           fluidRow(box(
             title = "HMIS CSV Export File Structure Analysis",
             width = 12,
@@ -297,8 +287,8 @@ dashboardPage(
             HTML("
               <p>To make Eva reporting more useful at the local level, you can
               adjust the local settings to better analyze your data in a
-              way that is meaningful to your CoC. To edit these, click on the 
-              Edit Local Settings tab. If you do not edit them, the reporting will 
+              way that is meaningful to your CoC. To edit these, click to expand the 
+              relevant box below. If you do not edit them, the reporting will 
               use the defaults listed. These defaults do not imply any HUD 
               recommendations. Please read the description in the
               Edit Local Settings tab for more information.</p>
@@ -313,26 +303,31 @@ dashboardPage(
               width = 12,
               HTML(
                 "<p>This check aims to help communities find Coordinated Entry (CE)
-                Event referrals that may be missing a Result Date. This check is
+                Event referrals that may be missing a Result Date or may have
+                been delayed in getting the client to housing. This check is
                 only applied to CE Event referrals which are expected to have an
-                associated Result and Result Date (4.20.2 responses 10-15, 17, 18 --
-                Please see the HMIS Data Standards for the complete list of CE Events.)
-                When a CE Event referral does not have a Result Date at the time data
-                is uploaded, Eva calculates the referral has been open  by looking at 
-                the number of days between the Referral Date and the date your upload 
-                was exported from your HMIS. Then Eva compares the length of each 
-                open referral with the 'Max Days' assumption entered in the input 
-                field below. If the referral is open longer than the expected timeframe, 
-                it is categorized as an 'Outstanding Referral.' This check is for all 
-                projects that have a relevant CE Event referral.
+                associated Result and Result Date (4.20.2 responses 10-15, 17,
+                18. Please see the HMIS Data Standards for the complete list
+                of CE Events.) 
+                
+                <p>When a CE Event referral does not have a Result Date at the
+                time the export is uploaded, Eva calculates how many days the
+                referral has been open by looking at the number of days
+                between the Referral Date and the date your upload was exported
+                from your HMIS. Then Eva compares the length of each open
+                referral with the 'Max Days' assumption entered in the input
+                field below. If the referral is open longer than the expected
+                timeframe, it is categorized as an 'Outstanding Referral.' This
+                check is for all projects that have a relevant CE Event referral.
                 
                 <p>Data quality flags about Outstanding Referrals are categorized
                 as Warnings, indicating that data should be reviewed for accuracy.
                 It does not imply that any data should be changed.
 
                 <p>In the field below, specify the maximum number of days a referral
-                can stay open according to the CoC's Coordinated Entry Referral process. 
-                The value defaults to 14 days. (These defaults do not imply any HUD recommendations)."
+                can stay open according to the CoC's Coordinated Entry Referral
+                process. The value defaults to 14 days. (These defaults do not
+                imply any HUD recommendations)."
               ),
               numericInput(
                 inputId = "CEOutstandingReferrals",
@@ -340,7 +335,7 @@ dashboardPage(
                 value = 14,
                 min = 0,
                 max = 365,
-                step = 5,
+                step = 7,
                 width = "200px"
               )
             ))

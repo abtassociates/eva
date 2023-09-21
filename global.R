@@ -13,7 +13,6 @@ library(scales)
 library(DT)
 library(readxl)
 library(writexl)
-# library(HMIS) #github.com/kiadso/HMIS
 library(glue)
 library(janitor)
 library(shinyjs)

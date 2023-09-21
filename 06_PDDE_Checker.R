@@ -129,7 +129,7 @@ missing_inventory_record <- Project0 %>%
 
 # Inventory Start < Operating Start AND
 # Inventory End > Operating End or Null
-inventoryOutsideOperating <- Inventory %>%
+activeInventory <- Inventory %>%
   left_join(Project %>%
               select(ProjectID,
                      OrganizationName,
@@ -137,9 +137,13 @@ inventoryOutsideOperating <- Inventory %>%
                      OperatingStartDate,
                      OperatingEndDate) %>%
               unique(), by = "ProjectID") %>%
-  filter(InventoryStartDate < OperatingStartDate &
-           coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_Date)) >=
-           as.Date(meta_HUDCSV_Export_Date)) %>%
+  filter(
+    coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start & 
+    InventoryStartDate <= meta_HUDCSV_Export_End
+  )
+
+inventory_start_precedes_operating_start <- activeInventory %>%
+  filter(InventoryStartDate < OperatingStartDate) %>%
   mutate(
     Detail = str_squish(
       paste0(
@@ -156,16 +160,9 @@ inventoryOutsideOperating <- Inventory %>%
   select(all_of(PDDEcols))
 
 
-operating_end_precedes_inventory_end <- Inventory %>%
-  left_join(Project %>%
-              select(ProjectID,
-                     OrganizationName,
-                     ProjectName,
-                     OperatingStartDate,
-                     OperatingEndDate) %>%
-              unique(), by = "ProjectID") %>%
-  filter(coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_Date)) >
-           coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_Date))
+operating_end_precedes_inventory_end <- activeInventory %>%
+  filter(coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_End)) >
+           coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_End))
   ) %>%
   mutate(
     Detail = case_when(
@@ -242,7 +239,7 @@ pdde_main <- rbind(
   missing_CoC_Geography,
   missing_inventory_record,
   operating_end_precedes_inventory_end,
-  inventoryOutsideOperating,
+  inventory_start_precedes_operating_start,
   zero_utilization
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))

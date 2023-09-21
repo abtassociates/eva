@@ -4,20 +4,20 @@ hc_prior_living_situation_required <- ymd("20161001")
 hc_psh_started_collecting_move_in_date <- ymd("20171001")
 
 # Living Situations Groups (includes PLS, CLS, and destinations) 
-#(Updated to match FY2022 DS) ---------------------------
+#(Updated to match FY2024 DS) ---------------------------------------------
 # For reference, these come from the HMIS CSV Export specs, pgs 41-43
 
 allowed_prior_living_sit <- 
-  c(116, 101, 118, 215, 206, 207, 225, 204, 205, 302, 329, 314, 332, 335, 336, 410, 435,
-    421, 411, 8, 9, 99)
+  c(116, 101, 118, 215, 206, 207, 225, 204, 205, 302, 329, 314, 332, 335, 336,
+    410, 435, 421, 411, 8, 9, 99)
 
 allowed_current_living_sit <- 
-  c(116, 101, 118, 215, 206, 207, 225, 204, 205, 302, 329, 314, 332, 335, 336, 410, 435,
-    421, 411, 17, 37, 8, 9, 99)
+  c(116, 101, 118, 215, 206, 207, 225, 204, 205, 302, 329, 314, 332, 335, 336,
+    410, 435, 421, 411, 17, 37, 8, 9, 99)
 
 allowed_destinations <- 
-  c(116, 101, 118, 215, 206, 207, 225, 204, 205, 302, 329, 314, 332, 312, 313, 327,
-    422, 423, 426, 410, 435, 421, 411, 30, 17, 24, 8, 9, 99)
+  c(116, 101, 118, 215, 206, 207, 225, 204, 205, 302, 329, 314, 332, 312, 313,
+    327, 422, 423, 426, 410, 435, 421, 411, 30, 17, 24, 8, 9, 99)
 
 allowed_living_situations <- 
   c(allowed_prior_living_sit,
@@ -88,12 +88,12 @@ long_stayer_98_percentile_project_types <- c(1, 2, 8, 12, 13)
 
 long_stayer_percentile_project_types <- c(1, 2, 3, 8, 9, 10, 12, 13)
 
-# Funding Source Groupings ------------------------------------------------
+# Funding Source Groupings -------------------------------------------------
 
 ssvf_fund_sources <- 33
 
 
-# Race Values -------------------------------------------------------------
+# Race Values --------------------------------------------------------------
 
 yes_no_enhanced <- c(0, 1, 8, 9, 99)
 yes_no <- c(0, 1, 99)
@@ -115,11 +115,13 @@ data_type_mapping <- c(
   datetime = "T"
 )
 
-# Issue types and levels ------------------------------------------------
+# Issue types and levels --------------------------------------------------
 issue_levels <- c("High Priority", "Error", "Warning")
 
 issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
-# EvaChecks data (contains issue, type, guidance for each check) ------------------------------------------------
-evachecks <- read_xlsx("public-resources/EvaChecks.xlsx", sheet = "All Checks")
+
+# EvaChecks data (contains issue, type, guidance for each check) ----------
+evachecks <- 
+  readxl::read_xlsx("public-resources/EvaChecks.xlsx", sheet = "All Checks")
 
