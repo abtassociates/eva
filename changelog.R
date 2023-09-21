@@ -1,6 +1,9 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "09-21-2023", "Added back accidentally removed Incorrect DOB and Missing 
+    Living Situation checks",
+    
     "08-30-2023", "Fixed missed demotion of null CoCCode File Structure Analysis 
     issue in EnrollmentCoC.csv and ProjectCoC.csv to \"Error\" 
     from \"High Priority\"",
