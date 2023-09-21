@@ -378,6 +378,19 @@ dkr_months_times_homeless <- base_dq_data %>%
   merge_check_info(checkIDs = 61) %>%
   select(all_of(vars_we_want))
 
+invalid_months_times_homeless <- base_dq_data %>%
+  select(
+    all_of(vars_prep),
+    AgeAtEntry,
+    RelationshipToHoH,
+    MonthsHomelessPastThreeYears,
+    TimesHomelessPastThreeYears,
+    DateToStreetESSH
+  ) %>%
+  filter(ProjectType != 12 &
+           (RelationshipToHoH == 1 | AgeAtEntry > 17) &
+           EntryDate >= hc_prior_living_situation_required)
+
 approx_start_after_entry <- invalid_months_times_homeless %>%
   filter(!is.na(DateToStreetESSH) &
            EntryDate < DateToStreetESSH) %>%
