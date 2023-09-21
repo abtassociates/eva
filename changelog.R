@@ -1,6 +1,17 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    
+    "08-30-2023", "Fixed missed demotion of null CoCCode File Structure Analysis 
+    issue in EnrollmentCoC.csv and ProjectCoC.csv to \"Error\" 
+    from \"High Priority\"",
+    
+    "08-30-2023", "Replaced 'Invalid Homelessness Start Date/Number of Months 
+    Homeless' data quality check with two checks: 'Homelessness Start Date 
+    conflicts with Living Situation Data' and 'Number of Months Homeless conflicts 
+    with Living Situation Data' to include cases where Aproximate date homeless 
+    is over 3 years ago",
+    
     "08-14-2023", "Modified Long Stayer logic so the issue names match the
     terminology in the Local Settings. Prepping the current Long Stayers issues
     to fit with the ones we plan to add in upcoming releases.",
