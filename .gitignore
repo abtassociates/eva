@@ -27,3 +27,4 @@ metadata.csv
 metadata.csv
 sessiondata.csv
 tests/shinytest/*-current/
+runShinyApp.R
