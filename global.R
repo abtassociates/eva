@@ -1,5 +1,6 @@
 
 Sys.setenv(TZ = "America/New_York")
+Sys.setenv(RENV_PATHS_CACHE = "/renv/library/R-4.2/x86_64-pc-linux-gnu/")
 
 # add package path to renv library
 .libPaths(c(.libPaths(), "/renv/library/R-4.2/x86_64-pc-linux-gnu/"))
