@@ -1,6 +1,10 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "10-02-2023", "Added a High Priority File Structure issue that requires the
+    user to upload an HMIS CSV Export that is compliant with the FY 2024
+    specifications",
+    
     "10-02-2023", "Added High Priority File Structure issues to the EvaChecks.xlsx
     workbook",
     
