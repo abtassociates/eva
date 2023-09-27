@@ -9,7 +9,7 @@ app <- ShinyDriver$new("../../", seed=1234, loadTimeout = 1e+04)
 app$snapshotInit("test-good")
 
 app$setInputs(Go_to_upload = "click")
-app$uploadFile(imported = "../test_uploads/HMIS CSV Export - Current Good.zip") # <-- This should be the path to the file, relative to the app's tests/shinytest directory
+app$uploadFile(imported = "../test_uploads/FY24-ICF-hashed.zip") # <-- This should be the path to the file, relative to the app's tests/shinytest directory
 app$findElement("button[data-dismiss='modal']")$click()
 Sys.sleep(2)
 customDownload("downloadFileStructureAnalysis","File-Structure-Analysis-Download")
