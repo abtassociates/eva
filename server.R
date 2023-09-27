@@ -40,6 +40,8 @@ function(input, output, session) {
     ))
   }))
   
+  output$headerSystemOverview <- headerGeneric("System Overview")
+  
   output$headerPDDE <- headerGeneric("Project Descriptor Data Elements Checker")
   
   output$headerSystemDQ <- headerGeneric("System-level Data Quality")
@@ -166,6 +168,7 @@ function(input, output, session) {
     )
     
     if(valid_file() == 1) {
+      # DQ tab inputs
       updatePickerInput(session = session, inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
       
@@ -186,6 +189,16 @@ function(input, output, session) {
                            start = meta_HUDCSV_Export_Start,
                            max = meta_HUDCSV_Export_End,
                            end = meta_HUDCSV_Export_End)
+
+      # System Overview tab inputs
+      updatePickerInput(session = session, inputId = "hh_type",
+                          choices = hh_types)
+
+      updatePickerInput(session = session, inputId = "level_of_detail",
+                          choices = level_of_detail)
+
+      updatePickerInput(session = session, inputId = "project_type",
+                        choices = c(unique(sort(Project$ProjectType))))
     }
 
 

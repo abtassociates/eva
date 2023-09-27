@@ -120,6 +120,11 @@ issue_levels <- c("High Priority", "Error", "Warning")
 
 issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
+# System Overview tab
+hh_types <- c("All Households", "Adult-Only", "Adult-Child", "Child-Only" ,"Youth and Young Adult", "Unknown Households")
+
+level_of_detail <- c("All People", "All Adults and Heads of Households", "All Heads of Households")
+
 
 # EvaChecks data (contains issue, type, guidance for each check) ----------
 evachecks <- read_csv("public-resources/EvaChecks.csv")

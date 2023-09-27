@@ -13,6 +13,11 @@ dashboardPage(
                tabName = "tabLocalSettings"),
       menuItem("View Client Counts",
                   tabName = "tabClientCount"),
+      menuItem("System Performance",
+              menuSubItem("System Overview",
+                           tabName = "systemOverview"),
+              menuSubItem("System Exit Detail",
+                           tabName = "systemExitDetail")),
       menuItem("Assess Data Quality",
                menuSubItem("Check PDDEs",
                            tabName = "tabPDDE"),
@@ -565,6 +570,62 @@ dashboardPage(
           width = 12
         ))
       ),
+      tabItem(
+        tabName = "systemOverview",
+        fluidRow(box(htmlOutput("headerSystemOverview"), width = 12)),
+        fluidRow(box(
+          title = "Instructions",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          HTML("<h4>Placeholder</h4>")
+        )),
+        fluidRow(
+          box(
+            title = "Filters",
+            dateRangeInput(
+              "systemOverviewDateRangeCount",
+              "Date Range for System Overview",
+              format = "mm/dd/yyyy",
+              width = "20%"
+            ),
+            column(2, pickerInput(
+              label = "Household Type",
+              inputId = "hh_type",
+              choices = NULL,
+              width = "100%",
+              selected = "All Households",
+              choicesOpt = list(style = "width:100%")
+            )),
+            column(2, pickerInput(
+              label = "Level of Detail",
+              inputId = "level_of_detail",
+              choices = NULL,
+              width = "100%",
+              selected = "All People",
+              choicesOpt = list(style = "width:100%")
+            )),
+            column(2, pickerInput(
+              label = "Project Type",
+              inputId = "project_type",
+              choices = NULL,
+              width = "100%",
+              selected = "PSH",
+              choicesOpt = list(style = "width:100%")
+            )),
+            width = 12
+          )
+        )
+      ),
+      tabItem(
+        tabName = "systemExitDetail",
+        fluidRow(
+          box(
+            width = 12,
+            HTML("<h2>Placeholder</h2>")
+          )
+        )
+      ), 
       tabItem(
         tabName = "tabPDDE",
         fluidRow(box(htmlOutput(
