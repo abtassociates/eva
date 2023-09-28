@@ -5,8 +5,8 @@ customDownload <- function(downloadHandler, fname) {
   file.remove(paste0("test-good-current/",fname,".xlsx"))
 }
 
-app <- ShinyDriver$new("../../", seed=1234, loadTimeout = 1e+04)
-app$snapshotInit("test-good")
+app <- ShinyDriver$new("../../", seed = 1234, loadTimeout = 1e+04)
+app$snapshotInit("test-good", screenshot = FALSE)
 
 app$setInputs(Go_to_upload = "click")
 app$uploadFile(imported = "../test_uploads/FY24-ICF-hashed.zip") # <-- This should be the path to the file, relative to the app's tests/shinytest directory
