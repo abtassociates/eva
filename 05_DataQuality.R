@@ -168,7 +168,11 @@ dkr_race <- base_dq_data %>%
 
 missing_race <- base_dq_data %>%
   filter(RaceNone == 99 |
-           AmIndAKNative + Asian + BlackAfAmerican + NativeHIPacific + White == 0) %>%
+           AmIndAKNative +
+           Asian +
+           BlackAfAmerican +
+           NativeHIPacific +
+           White == 0) %>%
   merge_check_info(checkIDs = 36) %>%
   select(all_of(vars_we_want))
 
@@ -250,7 +254,8 @@ hh_missing_rel_to_hoh <- base_dq_data %>%
   merge_check_info(checkIDs = 4) %>%
   select(all_of(vars_we_want))
 
-hh_issues <- rbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
+hh_issues <- 
+  rbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
 
 rm(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
 
@@ -1168,7 +1173,8 @@ overlaps <- overlap_staging %>%
       the HMIS Dual Enrollments and HIC Duplicate Inventory Training Resource for
       more information."
     ),
-    # this is the issue that the Project folks will see, and it's the overlap with the Previous project
+    # this is the issue that the Project folks will see, and it's the overlap
+    # with the Previous project
     Issue = paste("Overlap with", 
                   if_else(str_sub(project_type(PreviousProjectType), 1, 1) %in%
                             c("A", "E", "I", "O", "U"),
@@ -1176,7 +1182,8 @@ overlaps <- overlap_staging %>%
                           "a"),  
                   project_type(PreviousProjectType), 
                   "project"),
-    # this is the issue that the Previous Project folks will see, and it's the overlap with the main project
+    # this is the issue that the Previous Project folks will see, and it's the
+    # overlap with the main project
     PreviousIssue = paste("Overlap with", 
                   if_else(str_sub(project_type(ProjectType), 1, 1) %in%
                             c("A", "E", "I", "O", "U"),
@@ -1185,9 +1192,19 @@ overlaps <- overlap_staging %>%
                   project_type(ProjectType), 
                   "project")
   ) %>%
-  select(EnrollmentID, PreviousEnrollmentID, Issue, PreviousIssue, Type, Guidance, FirstDateProvided, PreviousFirstDateProvided) %>%
+  select(
+    EnrollmentID,
+    PreviousEnrollmentID,
+    Issue,
+    PreviousIssue,
+    Type,
+    Guidance,
+    FirstDateProvided,
+    PreviousFirstDateProvided
+  ) %>%
   unique() %>%
-  #bring back in the fields they'll need to see (EntryDate, ExitDate, MoveInDate, ProjectName, OrganizationName)
+  #bring back in the fields they'll need to see (EntryDate, ExitDate, MoveInDate,
+  # ProjectName, OrganizationName)
   left_join(base_dq_data %>% 
             select(!!vars_prep, EnrollmentID),
             by = "EnrollmentID") %>%
@@ -1199,7 +1216,8 @@ overlaps <- overlap_staging %>%
   mutate(
     ProjectType = project_type(ProjectType),
     PreviousProjectType = project_type(PreviousProjectType)
-  )
+  ) # matches with checkids = 77 but doesn't refer explicitly to it given the
+# way the Issue is built dynamically
 
 dq_overlaps1 <- overlaps %>%
   select(!!vars_we_want)
@@ -1608,11 +1626,22 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
      left_join(Project %>%
                  select(ProjectID, OrganizationID) %>%
                  unique(), by = "ProjectID") %>%
-     select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue, Type) %>%
+     select(PersonalID,
+            OrganizationID,
+            OrganizationName,
+            HouseholdID,
+            Issue,
+            Type) %>%
      unique()
 
 # Prepping dataframes for plots for Organization-Level DQ Tab -----------------
    dq_org_plot_df <- dq_main %>%
-     select(PersonalID, ProjectID, ProjectName, OrganizationName, HouseholdID, Issue, Type) %>%
+     select(PersonalID,
+            ProjectID,
+            ProjectName,
+            OrganizationName,
+            HouseholdID,
+            Issue,
+            Type) %>%
      unique()
    
