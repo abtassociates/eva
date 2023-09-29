@@ -192,13 +192,19 @@ function(input, output, session) {
 
       # System Overview tab inputs
       updatePickerInput(session = session, inputId = "syso_hh_type",
-                          choices = hh_types)
+                          choices = syso_hh_types)
 
       updatePickerInput(session = session, inputId = "syso_level_of_detail",
-                          choices = level_of_detail)
+                          choices = syso_level_of_detail)
 
       updatePickerInput(session = session, inputId = "syso_project_type",
                         choices = c(unique(sort(Project$ProjectType))))
+
+      updatePickerInput(session = session, inputId = "syso_age",
+                          choices = syso_age)
+
+      updatePickerInput(session = session, inputId = "syso_gender",
+                          choices = syso_gender)
     }
 
 
@@ -576,7 +582,11 @@ function(input, output, session) {
         options = list(dom = 'ltpi')
       )
     })
-    
+
+# System Activity -------------------------------------------------------
+output$system_activity_summary_ui <- renderUI({
+  
+})
 
 # Prep DQ Downloads -------------------------------------------------------
 
