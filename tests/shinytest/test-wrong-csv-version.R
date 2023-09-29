@@ -1,3 +1,4 @@
+print("Running test-wrong-csv-version")
 app <- ShinyDriver$new("../../", seed = 1234, loadTimeout = 1e+04)
 app$snapshotInit("test-wrong-csv-version", screenshot = FALSE)
 

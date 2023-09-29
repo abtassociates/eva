@@ -1,3 +1,4 @@
+print("Running test-unhashed")
 app <- ShinyDriver$new("../../", seed = 1234, loadTimeout = 1e+04)
 app$snapshotInit("test-unhashed", screenshot = FALSE)
 
