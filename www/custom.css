@@ -210,3 +210,9 @@ a:hover {
 #shiny-tab-tabChangelog td:first-child {
   white-space:nowrap;
 }
+
+
+/* || SYSTEM OVERVIEW FILTERS */
+#syso_date_range {
+  display: inline-block;
+}

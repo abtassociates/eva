@@ -191,13 +191,13 @@ function(input, output, session) {
                            end = meta_HUDCSV_Export_End)
 
       # System Overview tab inputs
-      updatePickerInput(session = session, inputId = "hh_type",
+      updatePickerInput(session = session, inputId = "syso_hh_type",
                           choices = hh_types)
 
-      updatePickerInput(session = session, inputId = "level_of_detail",
+      updatePickerInput(session = session, inputId = "syso_level_of_detail",
                           choices = level_of_detail)
 
-      updatePickerInput(session = session, inputId = "project_type",
+      updatePickerInput(session = session, inputId = "syso_project_type",
                         choices = c(unique(sort(Project$ProjectType))))
     }
 

@@ -582,38 +582,78 @@ dashboardPage(
         )),
         fluidRow(
           box(
-            title = "Filters",
-            dateRangeInput(
-              "systemOverviewDateRangeCount",
+            title = "Universe Filters",
+            width = 12,
+            id = "universe_filters",
+            column(12, dateRangeInput(
+              "syso_date_range",
               "Date Range for System Overview",
-              format = "mm/dd/yyyy",
-              width = "20%"
-            ),
-            column(2, pickerInput(
+              format = "mm/dd/yyyy"
+            )),
+            column(4, pickerInput(
               label = "Household Type",
-              inputId = "hh_type",
+              inputId = "syso_hh_type",
               choices = NULL,
-              width = "100%",
               selected = "All Households",
-              choicesOpt = list(style = "width:100%")
             )),
-            column(2, pickerInput(
+            column(4, pickerInput(
               label = "Level of Detail",
-              inputId = "level_of_detail",
+              inputId = "syso_level_of_detail",
               choices = NULL,
-              width = "100%",
               selected = "All People",
-              choicesOpt = list(style = "width:100%")
+              width = "100%"
             )),
-            column(2, pickerInput(
+            column(4, pickerInput(
               label = "Project Type",
-              inputId = "project_type",
+              inputId = "syso_project_type",
               choices = NULL,
-              width = "100%",
               selected = "PSH",
-              choicesOpt = list(style = "width:100%")
-            )),
-            width = 12
+              width = "100%"
+            ))
+          ),
+        ),
+        fluidRow(
+          box(
+            width = 12,
+            title = "System Inflow and Outflow",
+            status = "info",
+            solidHeader = TRUE,
+            box(
+              title = "Subpopulation Filters",
+              width = 12,
+              pickerInput(
+                label = "Age",
+                inputId = "syso_age",
+                choices = NULL,
+                width = "100%",
+                selected = "All Households",
+                choicesOpt = list(style = "width:100%")
+              ),
+              pickerInput(
+                label = "Gender",
+                inputId = "syso_gender",
+                choices = NULL,
+                width = "100%",
+                selected = "All Households",
+                choicesOpt = list(style = "width:100%")
+              ),
+              pickerInput(
+                label = "Race/Ethnicity",
+                inputId = "syso_race_ethnicity",
+                choices = NULL,
+                width = "100%",
+                selected = "All Households",
+                choicesOpt = list(style = "width:100%")
+              ),
+              pickerInput(
+                label = "Special Populations",
+                inputId = "syso_special_populations",
+                choices = NULL,
+                width = "100%",
+                selected = "All Households",
+                choicesOpt = list(style = "width:100%")
+              )
+            )
           )
         )
       ),
