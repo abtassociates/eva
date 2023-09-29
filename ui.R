@@ -618,6 +618,41 @@ dashboardPage(
             "System Inflow and Outflow",
             width = 12
           )
+        ),
+        fluidRow(
+          box(
+            title = "Subpopulation Filters",
+            width = 12,
+            column(3, pickerInput(
+              label = "Age",
+              inputId = "syso_age",
+              choices = NULL,
+              width = "100%",
+              selected = "All Households"
+            )),
+            column(3, pickerInput(
+              label = "Gender",
+              inputId = "syso_gender",
+              choices = NULL,
+              width = "100%",
+              selected = "All Households"
+            )),
+            column(3, pickerInput(
+              label = "Race/Ethnicity",
+              inputId = "syso_race_ethnicity",
+              choices = NULL,
+              width = "100%",
+              selected = "All Households"
+            )),
+            column(3, pickerInput(
+              label = "Special Populations",
+              inputId = "syso_special_populations",
+              choices = NULL,
+              width = "100%",
+              selected = "All Households"
+            ))
+          )
+        ),
           )
         )
       ),
