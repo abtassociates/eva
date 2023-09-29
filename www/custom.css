@@ -216,3 +216,9 @@ a:hover {
 #syso_date_range {
   display: inline-block;
 }
+
+#syso_header {
+  background-color: #16697A;
+  color: white;
+  font-size: 1.4em;
+}
