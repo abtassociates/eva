@@ -122,4 +122,4 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 
 # EvaChecks data (contains issue, type, guidance for each check) ----------
-evachecks <- read_csv("public-resources/EvaChecks.csv")
+evachecks <- read_csv("public-resources/EvaChecks.csv", show_col_types = FALSE)
