@@ -5,22 +5,6 @@ output$changelog <- renderTable({
     user to upload an HMIS CSV Export that is compliant with the FY 2024
     specifications",
     
-    "10-02-2023", "Added High Priority File Structure issues to the EvaChecks.xlsx
-    workbook",
-    
-    "10-02-2023", "Added initial file check for the CSV Version which separates
-    the upload issue \'Missing Files\' into \'You may have uploaded the wrong
-    dataset,\' \'Your HMIS CSV Export is out of date,\' and \'Incomplete dataset.\'",
-    
-    "10-02-2023", "Adjusted data element references to account for new Race/Ethnicity
-    and Gender options",
-    
-    "10-02-2023", "Adjusted HMIS Participating, Tracking Method, and
-    EnrollmentCoC logic to fit new structure",
-    
-    "10-02-2023", "Changed \'Missing Client Location\' to \'Missing Enrollment
-    CoC\'",
-    
     "10-02-2023", "Added \'Missing Destination Subsidy\' check",
     
     "10-02-2023", "Added \'Enrollment After Participating Period\' check",
@@ -39,25 +23,41 @@ output$changelog <- renderTable({
     
     "10-02-2023", "Added \'Enrollment Before Operating Period\' check",
     
-    "10-02-2023", "Added \'Enrollment Crosses Operating End\' check and removed
-    \'Exit After Project's Operating End Date\'",
-    
-    "10-02-2023", "Added \'Enrollment Crosses Operating Start\' check and removed
-    \'Entry Precedes Operating Start Date.\'",
-    
-    "10-02-2023", "Removed \'Non-HMIS Participating Discrepancy.\'",
-    
-    "10-02-2023", "Corrected \'Missing Non-cash Benefits\' and \'Conflicting Non-cash
-    Benefits\' logic",
-    
-    "10-02-2023", "Removed \'Missing Last Permanent Address\' check for SSVF
-    enrollments",
-    
     "10-02-2023", "Added \'Missing Destination Subsidy\' check",
     
     "10-02-2023", "Added \'RRH No SubType\' PDDE check",
     
+    "10-02-2023", "Changed \'Missing Client Location\' to \'Missing Enrollment
+    CoC\'",
+    
+    "10-02-2023", "Changed \'Exit After Project's Operating End Date\' to 
+    \'Enrollment Crosses Operating End.\'",
+    
+    "10-02-2023", "Changed \'Entry Precedes Operating Start Date.\' to
+    \'Enrollment Crosses Operating Start.\'",
+    
+    "10-02-2023", "Removed \'Non-HMIS Participating Discrepancy.\'",
+    
+    "10-02-2023", "Removed \'Missing Last Permanent Address\' check for SSVF
+    enrollments",
+    
     "10-02-2023", "Removed \'Missing Tracking Method\' PDDE check",
+    
+    "10-02-2023", "Added High Priority File Structure issues to the EvaChecks.xlsx
+    workbook",
+    
+    "10-02-2023", "Added initial file check for the CSV Version which separates
+    the upload issue \'Missing Files\' into \'You may have uploaded the wrong
+    dataset,\' \'Your HMIS CSV Export is out of date,\' and \'Incomplete dataset.\'",
+    
+    "10-02-2023", "Adjusted data element references to account for new Race/Ethnicity
+    and Gender options",
+    
+    "10-02-2023", "Adjusted HMIS Participating, Tracking Method, and
+    EnrollmentCoC logic to fit new structure",
+    
+    "10-02-2023", "Corrected \'Missing Non-cash Benefits\' and \'Conflicting Non-cash
+    Benefits\' logic",
     
     "10-02-2023", "Removed HMIS package from development (no change to user
     experience)",
