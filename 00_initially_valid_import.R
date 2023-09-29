@@ -6,13 +6,11 @@
 # if it is not, we will show them a pop-up indicating the problem
 ######################
 
+initially_valid_import <- FALSE
+
 # extract file names from their uploaded zip
 if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
-  title <- "Wrong File Type"
-  err_msg <- HTML(str_glue(
-    "Eva can only import .zip files. If you are using a 7-zip file, 
-    please contact your vendor for help converting to the .zip format."))
-  initially_valid_import <- FALSE
+  initially_valid_df <- evachecks %>% filter(ID = 127)
 } else {
 
   zipContents <- unzip(zipfile = input$imported$datapath, list=TRUE)
@@ -54,55 +52,31 @@ if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
   
   ### Now check whether the file is hashed, has the expected structure, and contains
   # the expected csv files
-  initially_valid_import = FALSE
-  
   if(grepl("/", zipContents$Name[1])) {
-    title <- "Your zip file is misstructured"
-    err_msg <- str_squish("It looks like you may have unzipped your HMIS csv 
-          because the individual csv files are contained within a subdirectory.")
-    
+    initially_valid_df <- evachecks %>% filter(ID = 122)
     logMetadata("Unsuccessful upload - zip file was misstructured")
-    
   } else if("Export" %in% missing_files) {
-    title <- "You may have uploaded the wrong dataset"
-    err_msg <- str_squish("Your upload does not contain an Export.csv file which
-      means you either uploaded something other than an HMIS CSV export or your
-      export does not contain all the files outlined in the HMIS CSV Export
-      specifications. Be sure that you haven't accidentally uploaded an APR or
-      an LSA. If you are not sure how to run the hashed HMIS CSV Export in your
-      HMIS,please contact your HMIS vendor.")
-
+    initially_valid_df <- evachecks %>% filter(ID == 123)
     logMetadata("Unsuccessful upload - not an HMIS CSV Export")
   } else if(!isFY2024Export()) {
-    title <- "Your HMIS CSV Export is out of date"
-    err_msg <- str_squish("It looks like you either uploaded an FY2022 HMIS CSV 
-      Export or your vendor needs to update your Export.csv's CSV Version. If you
-      are not sure how to obtain an FY2024 HMIS CSV Export in your HMIS, please
-      contact your HMIS vendor.")
-    
+    initially_valid_df <- evachecks %>% filter(ID == 124)
     logMetadata("Unsuccessful upload - out of date HMIS CSV Export")
   } else if(length(missing_files)) {
-    title <- "Missing Files"
-    err_msg <- HTML(str_glue(
-      "Your zip file appears to be missing the following files:<br/><br/>
-    
-      {paste(missing_files, collapse = ', ')}<br/><br/>
+    initially_valid_df <- evachecks %>% filter(ID == 125) %>% 
+      mutate(Guidance = HTML(str_glue(
+        "Your zip file appears to be missing the following files:<br/><br/>
       
-      You either uploaded something other than an HMIS CSV export or your export 
-      does not contain all the files outlined in the HMIS CSV Export specifications.
-      If you are not sure how to run the hashed HMIS CSV Export in your HMIS,
-      please contact your HMIS vendor."))
-    
+        {paste(missing_files, collapse = ', ')}<br/><br/>
+        
+        You either uploaded something other than an HMIS CSV export or your export 
+        does not contain all the files outlined in the HMIS CSV Export specifications.
+        If you are not sure how to run the hashed HMIS CSV Export in your HMIS,
+        please contact your HMIS vendor."))
+      )
     logMetadata("Unsuccessful upload - incomplete dataset")
-    
   } else if(!is_hashed()) {
-    title <- "You uploaded an unhashed data set"
-    err_msg <- str_squish("You have uploaded an unhashed version of the HMIS CSV 
-      Export. If you are not sure how to run the hashed HMIS CSV Export in your 
-      HMIS, please contact your HMIS vendor.")
-    
+    initially_valid_df <- evachecks %>% filter(ID == 126)
     logMetadata("Unsuccessful upload - not hashed")
-    
   } else {
     initially_valid_import = TRUE
   }
@@ -112,8 +86,8 @@ if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
 if(!initially_valid_import) {
   showModal(
     modalDialog(
-      title = title,
-      err_msg,
+      initially_valid_df$Guidance,
+      title = initially_valid_df$Issue,
       easyClose = TRUE
     )
   )
