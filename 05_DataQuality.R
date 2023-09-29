@@ -1214,7 +1214,7 @@ dq_overlaps2 <- overlaps %>%
 invalid_movein_date <- base_dq_data %>%
   filter(ProjectType %in% ph_project_types & 
         (!is.na(MoveInDate) & MoveInDate < EntryDate) | 
-        (!is.na(MoveInDate) & MoveInDate > ExitAdjust)
+        (!is.na(MoveInDate) & !is.na(ExitDate) & MoveInDate > ExitDate)
   ) %>%
   merge_check_info(checkIDs = 40) %>%
   select(all_of(vars_we_want))
