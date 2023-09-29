@@ -127,5 +127,8 @@ syso_level_of_detail <- c("All People", "All Adults and Heads of Households", "A
 
 syso_age <- c("All people","0-12","13-17","18-21","21-24","25-34","35-44","45-54","55-64","65-74","75 and older")
 
+syso_gender <- c("Male", "Female", "Transgender", "Non-Binary")
+
+
 # EvaChecks data (contains issue, type, guidance for each check) ----------
 evachecks <- read_csv("public-resources/EvaChecks.csv")
