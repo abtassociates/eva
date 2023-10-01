@@ -3,8 +3,10 @@ function(input, output, session) {
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
-  source("hardcodes.R", local = TRUE) # hard-coded variables and data frames used throughout the app
-  source("helper_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+  source("hardcodes.R", local = TRUE) # hard-coded variables and data frames
+  # used throughout the app
+  source("helper_functions.R", local = TRUE) # calling in HMIS-related functions
+  # that aren't in the HMIS pkg
   source("changelog.R", local = TRUE) # changelog entries
   
   # log that the session has started
@@ -98,7 +100,8 @@ function(input, output, session) {
           reset("imported")
           showModal(
             modalDialog(
-              title = "Unsuccessful Upload: Your HMIS CSV Export is not structurally valid",
+              title = "Unsuccessful Upload: Your HMIS CSV Export is not
+              structurally valid",
               "Your HMIS CSV Export has some High Priority issues that must
               be addressed by your HMIS Vendor. Please download the File Structure
               Analysis for details.",
@@ -285,7 +288,10 @@ function(input, output, session) {
         geom_col(fill = "#D5BFE6", alpha = .7)+
         scale_y_continuous(label = comma_format()) +
         labs(
-          title = paste("Highest Counts of", ifelse(is_empty(highest_type_display),"Issue",highest_type_display)),
+          title = paste("Highest Counts of",
+                        ifelse(is_empty(highest_type_display),
+                               "Issue",
+                               highest_type_display)),
           x = "Top 5 Organizations",
           y = ifelse(is_empty(highest_type_display),"Issue",highest_type_display)
         ) +
@@ -581,7 +587,8 @@ function(input, output, session) {
         filter(OrganizationName %in% c(input$orgList) | 
                  PreviousOrganizationName %in% c(input$orgList))
 #browser()
-      orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+      orgDQReferrals <- 
+        calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
         filter(OrganizationName %in% c(input$orgList))
       
       # return a list for reference in downloadHandler
@@ -641,8 +648,8 @@ function(input, output, session) {
     )
 
 # SYSTEM-LEVEL DQ TAB PLOTS -----------------------------------------------
-    # By-org shows organizations containing highest number of HP errors/errors/warnings
-    # By-issue shows issues that are the most common of that type (HP errors/errors/warnings)
+    # By-org shows organizations containing highest number of HP/errors/warnings
+    # By-issue shows issues that are the most common of that type
     output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
       renderDQPlot("sys", "High Priority", "Org", "#71B4CB")
     })

@@ -1,7 +1,8 @@
 dashboardPage(
   title = "Eva",
   skin = "black",
-  dashboardHeader(title = span(img(src = "Eva_logo_horizontal_white.png", height = 45))),
+  dashboardHeader(title = span(img(src = "Eva_logo_horizontal_white.png",
+                                   height = 45))),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -52,7 +53,8 @@ dashboardPage(
           window.onkeypress = resetTimer;  //catches keyboard actions
     
           function logout() {
-            alert('Your session timed out. Your data has been cleared, please re-upload.');
+            alert('Your session timed out. Your data has been cleared,
+              please re-upload.');
             Shiny.setInputValue('timeOut', 1)
           }
     
@@ -524,7 +526,8 @@ dashboardPage(
                click the System-wide download button. The download contains a Current 
                tab limited to just the current date, a Date Range tab limited to the 
                Date Range set, and a Detail tab with clients' PersonalIDs, Entry Date, 
-               Move-In Date (if applicable), Exit Date (if applicable), and project status.")
+               Move-In Date (if applicable), Exit Date (if applicable), and
+               project status.")
         )), 
         fluidRow(box(
           dateRangeInput(
@@ -709,8 +712,10 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "High Priority Errors",
-            tabPanel("Top 10 Projects", uiOutput("orgDQHighPriorityErrorsByProject_ui")),
-            tabPanel("Top 10 Issues", uiOutput("orgDQHighPriorityErrorByIssue_ui")),
+            tabPanel("Top 10 Projects",
+                     uiOutput("orgDQHighPriorityErrorsByProject_ui")),
+            tabPanel("Top 10 Issues",
+                     uiOutput("orgDQHighPriorityErrorByIssue_ui")),
             width = 12
           )
         ),
@@ -764,8 +769,9 @@ dashboardPage(
           box(
             width = 12,
             HTML("
-              <p>This tab will list the most recent technical updates and changes to Eva.
-              For more in-depth information on current and past issues, please go to <a
+              <p>This tab will list the most recent technical updates and
+              changes to Eva. For more in-depth information on current and past
+              issues, please go to <a
               href='https://github.com/abtassociates/eva/issues' target= '_blank'
               rel='noopener noreferrer'>GitHub</a>.</p>
             ")
@@ -867,8 +873,10 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "High Priority Errors",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
-            tabPanel("Top 10 Issues", uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
+            tabPanel("Top 10 Organizations",
+                     uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
+            tabPanel("Top 10 Issues",
+                     uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
             width = 12
           )
         ),
@@ -897,82 +905,3 @@ dashboardPage(
   )
 )
 
-
-# tabItem(
-#   tabName = "utilizationTab",
-#   fluidRow(box(htmlOutput(
-#     "headerUtilization"
-#   ), width = 12)),
-#   fluidRow(box(
-#     pickerInput(
-#       label = "Select Project",
-#       inputId = "providerListUtilization",
-#       choices = NULL, 
-#       options = pickerOptions(liveSearch = TRUE,
-#                               liveSearchStyle = 'contains'),
-#       width = "100%"
-#     ),
-#     airDatepickerInput(
-#       inputId = "utilizationDate",
-#       label = "Report End Month for Annual Plot",
-#       max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-#       min = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date - days(335), unit = "month")),
-#       dateFormat = "MM yyyy",
-#       view = "month",
-#       value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-#       minView = "months",
-#       addon = "none",
-#       autoClose = TRUE,
-#       width = '25%'
-#     ),
-#     width = 12
-#   )),
-#   plotlyOutput("bedPlot"),
-#   br(),
-#   fluidRow(
-#     box(
-#       uiOutput("bedNote"),
-#       title = "What is Bed Utilization?",
-#       collapsible = TRUE,
-#       collapsed = TRUE
-#     ),
-#     box(
-#       uiOutput("unitNote"),
-#       title = "What is Unit Utilization?",
-#       collapsible = TRUE,
-#       collapsed = TRUE
-#     ),
-#     box(
-#       uiOutput("utilizationNote"),
-#       title = "Methodology",
-#       collapsible = TRUE,
-#       collapsed = TRUE
-#     )
-#   ),
-#   fluidRow(box(
-#     airDatepickerInput(
-#       inputId = "utilizationDetailDate",
-#       label = "Choose Month for Detail Data",
-#       max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-#       min = NULL, # ymd(floor_date(ymd(meta_HUDCSV_Export_End), "month") - years(2) + days(1)),
-#       dateFormat = "MM yyyy",
-#       view = "month",
-#       value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-#       minView = "months",
-#       addon = "none",
-#       autoClose = TRUE,
-#       width = '50%'
-#     ),
-#     width = 12
-#   )),
-#   fluidRow(box(
-#     infoBoxOutput("utilizationSummary0", width = '100%'),
-#     infoBoxOutput("utilizationSummary1", width = '100%'),
-#     infoBoxOutput("utilizationSummary2", width = '100%'),
-#     width = 12
-#   )),
-#   fluidRow(box(
-#     DT::dataTableOutput("utilizationDetail"), width = 12
-#   ))
-# ),
-#)
