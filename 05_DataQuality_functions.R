@@ -18,6 +18,7 @@ dq_main_reactive <- reactive({
   
   x <- dq_main %>%
     filter(str_detect(tolower(Issue), "local settings", negate = TRUE) == TRUE)
+
   
   rbind(x,
         ESNbN,
@@ -235,8 +236,8 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
 
 # Outstanding Referrals --------------------------------------------
 
-calculate_outstanding_referrals <- function(input){
-  
+calculate_outstanding_referrals <- function(too_many_days){
+
   base_dq_data %>%
     left_join(Event %>% select(EnrollmentID,
                                EventID,
@@ -266,7 +267,7 @@ calculate_outstanding_referrals <- function(input){
     ) %>%
     filter(Event %in% c(10:15, 17:18) &
              is.na(ResultDate) &
-             input < Days) %>%
+             too_many_days < Days) %>%
     merge_check_info(checkIDs = 100)
 }
 

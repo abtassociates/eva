@@ -11,51 +11,61 @@ age_years <- function(earlier, later)
 
 living_situation <- function(ReferenceNo) {
   case_when(
-    ReferenceNo == 1 ~ "Emergency shelter/ h/motel paid for by a third party/Host Home shelter",
-    ReferenceNo == 2 ~ "Transitional housing",
-    ReferenceNo == 3 ~ "Permanent housing (other than RRH) for formerly homeless persons",
-    ReferenceNo == 4 ~ "Psychiatric hospital/ other psychiatric facility",
-    ReferenceNo == 5 ~ "Substance abuse treatment facility or detox center",
-    ReferenceNo == 6 ~ "Hospital or other residential non-psychiatric medical facility",
-    ReferenceNo == 7 ~ "Jail/prison/juvenile detention",
     ReferenceNo == 8 ~ "Client doesn't know",
     ReferenceNo == 9 ~ "Client refused",
-    ReferenceNo == 32 ~ "Host Home (non-crisis)",
-    ReferenceNo == 13 ~ "Staying or living with friends, temporary tenure",
-    ReferenceNo == 36 ~ "Staying or living in a friend's room, apartment or house",
-    ReferenceNo == 18 ~ "Safe Haven",
-    ReferenceNo == 15 ~ "Foster care home of foster care group home",
-    ReferenceNo == 12 ~ "Staying or living with family, temporary tenure",
-    ReferenceNo == 25 ~ "Long-term care facility or nursing home",
-    ReferenceNo == 22 ~ "Staying or living with family, permanent tenure",
-    ReferenceNo == 35 ~ "Staying or living in a family member's room, apartment, or house",
-    ReferenceNo == 16 ~ "Place not meant for habitation",
-    ReferenceNo == 23 ~ "Staying or living with friends, permanent tenure",
-    ReferenceNo == 29 ~ "Residential project or halfway house with no homeless criteria",
-    ReferenceNo == 14 ~ "H/Motel paid for by household",
-    ReferenceNo == 26 ~ "Moved from one HOPWA funded project to HOPWA PH",
-    ReferenceNo == 27 ~ "Moved from HOPWA funded project to HOPWA TH",
-    ReferenceNo == 28 ~ "Rental by client, with GPD TIP housing subsidy",
-    ReferenceNo == 19 ~ "Rental by client, with VASH housing subsidy",
-    ReferenceNo == 31 ~ "Rental by client, with RRH or equivalent subsidy",
-    ReferenceNo == 33 ~ "Rental by client, with HCV voucher",
-    ReferenceNo == 34 ~ "Rental by client in a public housing unit",
-    ReferenceNo == 10 ~ "Rental by client, no ongoing housing subsidy",
-    ReferenceNo == 20 ~ "Rental by client, with other ongoing housing subsidy",
-    ReferenceNo == 21 ~ "Owned by client, with ongoing housing subsidy",
-    ReferenceNo == 11 ~ "Owned by client, no ongoing housing subsidy",
-    ReferenceNo == 30 ~ "No exit interview completed",
     ReferenceNo == 17 ~ "Other",
     ReferenceNo == 24 ~ "Deceased",
+    ReferenceNo == 30 ~ "No exit interview completed",
     ReferenceNo == 37 ~ "Worker unable to determine",
-    ReferenceNo == 99 ~ "Data not collected"
+    ReferenceNo == 99 ~ "Data not collected",
+    ReferenceNo == 101 ~ "Emergency shelter/ h/motel paid for by a third party/Host Home shelter",
+    ReferenceNo == 116 ~ "Place not meant for habitation",
+    ReferenceNo == 118 ~ "Safe Haven",
+    ReferenceNo == 204 ~ "Psychiatric hospital/ other psychiatric facility",
+    ReferenceNo == 205 ~ "Substance abuse treatment facility or detox center",
+    ReferenceNo == 206 ~ "Hospital or other residential non-psychiatric medical facility",
+    ReferenceNo == 207 ~ "Jail/prison/juvenile detention",
+    ReferenceNo == 225 ~ "Long-term care facility or nursing home",
+    ReferenceNo == 215 ~ "Foster care home of foster care group home",
+    ReferenceNo == 327 ~ "Moved from HOPWA funded project to HOPWA TH",
+    ReferenceNo == 302 ~ "Transitional housing",
+    ReferenceNo == 332 ~ "Host Home (non-crisis)",
+    ReferenceNo == 329 ~ "Residential project or halfway house with no homeless criteria",
+    ReferenceNo == 314 ~ "H/Motel paid for by household",
+    ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
+    ReferenceNo == 335 ~ "Staying or living with family, temporary tenure",
+    ReferenceNo == 336 ~ "Staying or living in a friend's room, apartment or house",
+    ReferenceNo == 335 ~ "Staying or living in a family member's room, apartment, or house",
+    ReferenceNo == 423 ~ "Staying or living with friends, permanent tenure",
+    ReferenceNo == 422 ~ "Staying or living with family, permanent tenure",
+    ReferenceNo == 435 ~ "Rental by client, with ongoing housing subsidy",
+    ReferenceNo == 410 ~ "Rental by client, no ongoing housing subsidy",
+    ReferenceNo == 426 ~ "Moved from one HOPWA funded project to HOPWA PH",
+    ReferenceNo == 421 ~ "Owned by client, with ongoing housing subsidy",
+    ReferenceNo == 411 ~ "Owned by client, no ongoing housing subsidy"
+  )
+}
+
+rental_subsidy_types <- function(ReferenceNo){
+  case_when(
+    ReferenceNo == 419 ~ "VASH",
+    ReferenceNo == 420 ~ "Other subsidy",
+    ReferenceNo == 428 ~ "GPD TIP",
+    ReferenceNo == 431 ~ "RRH or equivalent",
+    ReferenceNo == 433 ~ "HCV vouncer (tenant or project based) (not dedicated)",
+    ReferenceNo == 434 ~ "Public housing unit",
+    ReferenceNo == 436 ~ "Emergency Housing Voucher",
+    ReferenceNo == 437 ~ "Family Unification Program Voucher (FUP)",
+    ReferenceNo == 438 ~ "Foster Youth to Independence Initiative (FYI)",
+    ReferenceNo == 439 ~ "Permanent Supportive Housing",
+    ReferenceNo == 440 ~ "Other permanent housing dedicated for formerly homeless persons",
   )
 }
 
 project_type <- function(ReferenceNo){
   case_when(
-    ReferenceNo == 0 ~ "Emergency Shelter (NbN)",
-    ReferenceNo == 1 ~ "Emergency Shelter (E/E)",
+    ReferenceNo == 1 ~ "Emergency Shelter (NbN)",
+    ReferenceNo == 0 ~ "Emergency Shelter (E/E)",
     ReferenceNo == 2 ~ "Transitional Housing",
     ReferenceNo == 3 ~ "Permanent Supportive Housing",
     ReferenceNo == 4 ~ "Street Outreach",
@@ -73,8 +83,8 @@ project_type <- function(ReferenceNo){
 
 project_type_abb <- function(ReferenceNo){
   case_when(
-    ReferenceNo == 0 ~ "ES (NbN)",
-    ReferenceNo == 1 ~ "ES (E/E)",
+    ReferenceNo == 1 ~ "ES (NbN)",
+    ReferenceNo == 0 ~ "ES (E/E)",
     ReferenceNo == 2 ~ "TH",
     ReferenceNo == 3 ~ "PSH",
     ReferenceNo == 4 ~ "OUT",
@@ -106,7 +116,7 @@ enhanced_yes_no_translator <- function(ReferenceNo) {
     ReferenceNo == 0 ~ "No",
     ReferenceNo == 1 ~ "Yes",
     ReferenceNo == 8 ~ "Client doesn't know",
-    ReferenceNo == 9 ~ "Client refused",
+    ReferenceNo == 9 ~ "Client declined",
     ReferenceNo == 99 ~ "Data not collected",
     TRUE ~ "something's wrong"
   )
@@ -166,12 +176,13 @@ logMetadata <- function(detail) {
   )
   
   filename <- "metadata-analysis/metadata/metadata.csv"
-  write_csv(
+  
+  invisible(write_csv(
     x = d,
     filename,
     append = TRUE,
     col_names = !file.exists(filename)
-  )
+  ))
 }
 
 headerGeneric <- function(tabTitle, extraHTML = NULL) {
@@ -206,7 +217,7 @@ logSessionData <- function() {
   )
   
   # put the export info in the log
-  capture.output(d, file=stderr())
+  capture.output(d, file = stderr())
   
     
   filename <- "metadata-analysis/metadata/sessiondata.csv"
@@ -226,7 +237,7 @@ logToConsole <- function(msg) {
     ExportID = Export$ExportID,
     Msg = msg
   )
-  capture.output(d, file=stderr())
+  capture.output(d, file = stderr())
 }
   
 date_stamped_filename <- function(filename) {
@@ -265,6 +276,22 @@ nice_names <- function(df){
   df
 }
 
+
+# Old to New Living SItuations --------------------------------------------
+
+fy22_to_fy24_living_situation <- function(value){
+  case_when(
+    value %in% c(3, 19, 20, 28, 31, 33, 34, 38, 39) ~ 435,
+    value %in% c(1, 16, 18) ~ value + 100,
+    value %in% c(4, 5, 6, 7, 15, 25) ~ value + 200,
+    value %in% c(2, 12, 13, 14, 27, 29, 32, 35, 36) ~ value + 300,
+    value %in% c(10, 11, 21, 22, 23, 26) ~ value + 400,
+    value %in% c(8, 9, 17, 24, 30, 37, 99) ~ value,
+    is.na(value) ~ NA,
+    TRUE ~ 0 # 0 would mean something's wrong
+  )
+}
+
 #############################
 # SANDBOX
 #############################
@@ -282,8 +309,8 @@ importFileSandbox <- function(csvFile, guess_max = 1000) {
 ############################
 merge_check_info <- function(data, checkIDs) {
   return(data %>%
-           bind_cols(
-             evachecks %>% filter(ID %in% checkIDs)
-           )
+    bind_cols(
+      evachecks %>% filter(ID %in% c(checkIDs))
+    )
   )
 }

@@ -15,22 +15,6 @@
 
 logToConsole("Running Data Quality")
 
-# Projects to Check -------------------------------------------------------
-projects_current_hmis <- Project %>%
-  filter(HMISParticipatingProject == 1 &
-           operating_between(., 
-                             ymd(meta_HUDCSV_Export_Start),
-                             ymd(meta_HUDCSV_Export_End))) %>%
-  select(
-    ProjectID,
-    OrganizationID,
-    OperatingStartDate,
-    OperatingEndDate,
-    ProjectType,
-    ProjectName,
-    OrganizationName
-  ) %>% unique()
-
 # Clients to Check --------------------------------------------------------
 
 # base_dq_data is meant to serve as a basic dataset with a granularity
@@ -42,8 +26,8 @@ projects_current_hmis <- Project %>%
 base_dq_data <- Enrollment %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
-  left_join(Project %>% select(ProjectID, TrackingMethod, OrganizationName),
-            by = "ProjectID") %>%
+  left_join(Project %>% select(ProjectTimeID, ProjectName, OrganizationName),
+            by = "ProjectTimeID") %>%
   select(
     PersonalID,
     FirstName,
@@ -52,22 +36,31 @@ base_dq_data <- Enrollment %>%
     SSNDataQuality,
     DOB,
     DOBDataQuality,
+    AgeAtEntry,
+    RaceNone,
     AmIndAKNative,
     Asian,
     BlackAfAmerican,
     NativeHIPacific,
     White,
-    RaceNone,
-    Ethnicity,
-    Female,
-    Male,
-    NoSingleGender,
+    MidEastNAfrican,
+    HispanicLatinaeo,
+    Woman,
+    Man,
+    NonBinary,
     Transgender,
+    CulturallySpecific,
+    DifferentIdentity,
     Questioning,
     GenderNone,
     VeteranStatus,
     EnrollmentID,
     ProjectID,
+    ProjectTimeID,
+    ProjectName,
+    ProjectType,
+    OrganizationName,
+    EnrollmentCoC,
     EntryDate,
     HouseholdID,
     RelationshipToHoH,
@@ -85,20 +78,14 @@ base_dq_data <- Enrollment %>%
     MoveInDateAdjust,
     ExitDate,
     Destination,
+    DestinationSubsidyType,
     ExitAdjust,
-    DateCreated,
-    ClientEnrolledInPATH,
-    LengthOfStay,
-    DateOfPATHStatus,
-    ReasonNotEnrolled,
-    ClientLocation,
-    TrackingMethod
-  ) %>%
-  inner_join(projects_current_hmis, by = "ProjectID")
+    DateCreated
+  )
 
 DV <- HealthAndDV %>%
   filter(DataCollectionStage == 1) %>%
-  select(EnrollmentID, DomesticViolenceVictim, WhenOccurred, CurrentlyFleeing)
+  select(EnrollmentID, DomesticViolenceSurvivor, WhenOccurred, CurrentlyFleeing)
 
 base_dq_data <- base_dq_data %>%
   left_join(DV, by = "EnrollmentID")
@@ -132,7 +119,7 @@ duplicate_ees <-
   select(all_of(vars_we_want))
 
 # Missing UDEs ------------------------------------------------------------
-dq_name_dataquality <- base_dq_data %>%
+missing_name_dataquality <- base_dq_data %>%
   filter(NameDataQuality == 99 | is.na(NameDataQuality)) %>%
   merge_check_info(checkIDs = 33) %>%
   select(all_of(vars_we_want))
@@ -143,12 +130,12 @@ dkr_name <- base_dq_data %>%
   merge_check_info(checkIDs = 78) %>%
   select(all_of(vars_we_want))
 
-dq_dob_missing <- base_dq_data %>%
+missing_dob <- base_dq_data %>%
   filter(is.na(DOB) & DOBDataQuality %in% c(1, 2)) %>%
   merge_check_info(checkIDs = 34) %>%
   select(all_of(vars_we_want))
 
-dq_dob_dataquality_missing <- base_dq_data %>%
+missing_dob_dataquality <- base_dq_data %>%
   filter(is.na(DOBDataQuality)) %>%
   merge_check_info(checkIDs = 35) %>%
   select(all_of(vars_we_want))
@@ -179,20 +166,14 @@ dkr_race <- base_dq_data %>%
   merge_check_info(checkIDs = 63) %>%
   select(all_of(vars_we_want))
 
-dq_race_missing <- base_dq_data %>%
+missing_race <- base_dq_data %>%
   filter(RaceNone == 99 |
-           AmIndAKNative + Asian + BlackAfAmerican + NativeHIPacific + White == 0) %>%
+           AmIndAKNative +
+           Asian +
+           BlackAfAmerican +
+           NativeHIPacific +
+           White == 0) %>%
   merge_check_info(checkIDs = 36) %>%
-  select(all_of(vars_we_want))
-
-dq_ethnicity_missing <- base_dq_data %>%
-  filter(Ethnicity == 99 | is.na(Ethnicity)) %>%
-  merge_check_info(checkIDs = 37) %>%
-  select(all_of(vars_we_want))
-
-dkr_ethnicity <- base_dq_data %>%
-  filter(Ethnicity %in% c(dkr)) %>%
-  merge_check_info(checkIDs = 62) %>%
   select(all_of(vars_we_want))
 
 dkr_gender <- base_dq_data %>%
@@ -200,13 +181,14 @@ dkr_gender <- base_dq_data %>%
   merge_check_info(checkIDs = 65) %>%
   select(all_of(vars_we_want))
 
-dq_gender_missing <- base_dq_data %>%
+missing_gender <- base_dq_data %>%
   filter(GenderNone == 99 |
-           Female + Male + NoSingleGender + Transgender + Questioning == 0) %>%
+           Woman + Man + NonBinary + Transgender + CulturallySpecific +
+           DifferentIdentity + Questioning == 0) %>%
   merge_check_info(checkIDs = 38) %>%
   select(all_of(vars_we_want))
 
-dq_veteran_status_missing <- base_dq_data %>%
+missing_veteran_status <- base_dq_data %>%
   filter(
     (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
     (VeteranStatus == 99 | is.na(VeteranStatus))
@@ -224,10 +206,8 @@ dkr_veteran <- base_dq_data %>%
 
 # Missing Client Location -------------------------------------------------
 
-missing_client_location <- base_dq_data %>%
-  filter(is.na(ClientLocation) & 
-         RelationshipToHoH == 1
-  ) %>%
+missing_enrollment_coc <- base_dq_data %>%
+  filter(is.na(EnrollmentCoC) & RelationshipToHoH == 1) %>%
   merge_check_info(checkIDs = 27) %>%
   select(all_of(vars_we_want))
 
@@ -274,7 +254,8 @@ hh_missing_rel_to_hoh <- base_dq_data %>%
   merge_check_info(checkIDs = 4) %>%
   select(all_of(vars_we_want))
 
-hh_issues <- rbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
+hh_issues <- 
+  rbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
 
 rm(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
 
@@ -623,7 +604,7 @@ top_percents_long_stayers <- base_dq_data %>%
   merge_check_info(checkIDs = 104) %>%
   select(all_of(vars_we_want))
 
-# long stayers flags that come from inputs come from  calculate_long_stayers()
+# long stayers flags that come from inputs come from calculate_long_stayers()
 
 # Possible Missing HMID ---------------------------------------------------
 
@@ -641,13 +622,11 @@ Top2_movein <- subset(missed_movein_stayers,
   merge_check_info(checkIDs = 72) %>%
   select(all_of(vars_we_want))
 
-
 # Project Exit Before Start --------------
 exit_before_start <- base_dq_data %>%
   filter(ExitDate < EntryDate & !is.null(ExitDate) & !is.null(EntryDate)) %>% 
   merge_check_info(checkIDs = 99) %>%
   select(all_of(vars_we_want))
-
 
 # Missing Destination -----------------------------------------------------
 
@@ -661,6 +640,13 @@ missing_destination <- base_dq_data %>%
 dkr_destination <- base_dq_data %>%
   filter(Destination %in% c(dkr)) %>%
   merge_check_info(checkIDs = 59) %>%
+  select(all_of(vars_we_want))
+
+missing_destination_subsidy <- base_dq_data %>%
+  filter(!is.na(ExitDate) &
+           Destination == 435 &
+           is.na(DestinationSubsidyType)) %>%
+  merge_check_info(checkIDs = 121) %>%
   select(all_of(vars_we_want))
 
 # Missing PATH Data -------------------------------------------------------
@@ -888,6 +874,8 @@ missing_income_entry <- base_dq_data %>%
   merge_check_info(checkIDs = 87) %>%
   select(all_of(vars_we_want))
 
+# if IncomeFromAnySource is yes then one of these should be a yes, and if it's a 
+# no, then all of them should be no
 smallIncome <- IncomeBenefits %>%
   select(
     PersonalID,
@@ -914,17 +902,19 @@ smallIncome <- IncomeBenefits %>%
 smallIncome[is.na(smallIncome)] <- 0
 
 smallIncome <-
-  smallIncome %>% full_join(IncomeBenefits[c(
+  smallIncome %>% unique() %>%
+  full_join(IncomeBenefits[c(
     "PersonalID",
     "EnrollmentID",
     "DataCollectionStage",
     "TotalMonthlyIncome",
     "IncomeFromAnySource"
-  )],
+  )] %>%
+    unique(),
   by = c("PersonalID",
          "EnrollmentID",
-         "DataCollectionStage")) %>%
-  unique()
+         "DataCollectionStage"),
+  relationship = "many-to-many")
 
 income_subs <- base_dq_data[c("EnrollmentID",
                                       "AgeAtEntry",
@@ -949,10 +939,9 @@ income_subs <- base_dq_data[c("EnrollmentID",
       OtherIncomeSource
   )
 
-
 conflicting_income_entry <- income_subs %>%
   filter(DataCollectionStage == 1 &
-           (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
+           (AgeAtEntry > 17 | is.na(AgeAtEntry)) & # revisit
            ((IncomeFromAnySource == 1 &
                IncomeCount == 0) |
               (IncomeFromAnySource == 0 &
@@ -993,19 +982,63 @@ conflicting_income_exit <- income_subs %>%
 
 rm(income_subs)
 
-# Enrollment Active Outside Operating Dates ------------------------
-entry_precedes_OpStart <- base_dq_data %>%
-  filter(RelationshipToHoH == 1 &
-           EntryDate < OperatingStartDate) %>%
-  merge_check_info(checkIDs = 76) %>%
+# Enrollment Active Outside Participating Dates ---------------------------
+
+enrollment_positions <- EnrollmentOutside %>%
+  filter(!EnrollmentvOperating %in% c("Inside")) %>%
+  select(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating) %>%
+  left_join(base_dq_data, by = c("EnrollmentID"))
+
+enrollment_after_participating_period <- enrollment_positions %>%
+  filter(EnrollmentvParticipating == "Enrollment After Participating Period") %>%
+  merge_check_info(checkIDs = 111) %>%
   select(all_of(vars_we_want))
 
-exit_after_OpEnd <- base_dq_data %>%
-  filter(RelationshipToHoH == 1 &
-           (ExitDate > OperatingEndDate & !is.na(ExitDate)) |
-           (is.na(ExitDate) & !is.na(OperatingEndDate))
-  ) %>%
-  merge_check_info(checkIDs = 91) %>%
+enrollment_x_participating_start <- enrollment_positions %>%
+  filter(EnrollmentvParticipating == "Enrollment Crosses Participating Start") %>%
+  merge_check_info(checkIDs = 112) %>%
+  select(all_of(vars_we_want))
+
+enrollment_before_participating_period <- enrollment_positions %>%
+  filter(EnrollmentvParticipating == "Enrollment Before Participating Period") %>%
+  merge_check_info(checkIDs = 113) %>%
+  select(all_of(vars_we_want))
+
+enrollment_x_participating_end <- enrollment_positions %>%
+  filter(EnrollmentvParticipating == "Enrollment Crosses Participating End") %>%
+  merge_check_info(checkIDs = 114) %>%
+  select(all_of(vars_we_want))
+
+enrollment_x_participating_period <- enrollment_positions %>%
+  filter(EnrollmentvParticipating == "Enrollment Crosses Participation Period") %>%
+  merge_check_info(checkIDs = 115) %>%
+  select(all_of(vars_we_want))
+
+# Enrollment v Operating --------------------------------------------------
+
+enrollment_after_operating_period <- enrollment_positions %>%
+  filter(EnrollmentvOperating == "Enrollment After Operating Period") %>%
+  merge_check_info(checkIDs = 116) %>%
+  select(all_of(vars_we_want))
+
+enrollment_x_operating_start <- enrollment_positions %>%
+  filter(EnrollmentvOperating == "Enrollment Crosses Operating Start") %>%
+  merge_check_info(checkIDs = 117) %>%
+  select(all_of(vars_we_want))
+
+enrollment_before_operating_period <- enrollment_positions %>%
+  filter(EnrollmentvOperating == "Enrollment Before Operating Period") %>%
+  merge_check_info(checkIDs = 118) %>%
+  select(all_of(vars_we_want))
+
+enrollment_x_operating_end <- enrollment_positions %>%
+  filter(EnrollmentvOperating == "Enrollment Crosses Operating End") %>%
+  merge_check_info(checkIDs = 119) %>%
+  select(all_of(vars_we_want))
+
+enrollment_x_operating_period <- enrollment_positions %>%
+  filter(EnrollmentvOperating == "Enrollment Crosses Operating Period") %>%
+  merge_check_info(checkIDs = 120) %>%
   select(all_of(vars_we_want))
 
 # Overlaps ----------------------------------------------------------------
@@ -1018,12 +1051,15 @@ overlap_staging <- base_dq_data %>%
                !is.na(MoveInDateAdjust)
            ) |
              ProjectType %in% lh_residential_project_types
-           )) %>%  
+           ))
+
+if(nrow(Services) > 0){
+  overlap_staging_nbn <- overlap_staging %>%  
   left_join(
     Services %>% 
       select(EnrollmentID, DateProvided) %>%
       group_by(EnrollmentID) %>%
-      mutate(FirstDateProvided = min(DateProvided)) %>% 
+      slice_min(DateProvided, n = 1L) %>% 
       ungroup() %>%
       unique()
     , by = "EnrollmentID"
@@ -1038,15 +1074,59 @@ overlap_staging <- base_dq_data %>%
     EnrollmentEnd = if_else(ProjectType == es_nbn_project_type, 
                             DateProvided, 
                             as.Date(ExitAdjust))
-  ) %>% # 40 secs
-  select(PersonalID, EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd, FirstDateProvided)
+  )
+}
+
+overlap_staging_no_nbn <- overlap_staging %>%  
+  mutate(
+    EnrollmentStart = case_when(
+      ProjectType %in% lh_residential_project_types ~ EntryDate,
+      ProjectType %in% ph_project_types ~ MoveInDateAdjust,
+      TRUE ~ EntryDate
+    ),
+    EnrollmentEnd = as.Date(ExitAdjust)
+  )
+
+if(nrow(Services) > 0){
+  overlap_staging <- overlap_staging_nbn %>%
+    group_by(
+      PersonalID,
+      EnrollmentID,
+      ProjectType,
+      EnrollmentStart,
+      EnrollmentEnd,
+      DateProvided
+    ) %>%
+    slice_min(DateProvided, with_ties = FALSE) %>%
+    ungroup() %>% 
+    select(
+      PersonalID,
+      EnrollmentID,
+      ProjectType,
+      EnrollmentStart,
+      EnrollmentEnd,
+      "FirstDateProvided" = DateProvided
+    )
+} else{
+  overlap_staging <- overlap_staging_no_nbn %>% 
+    mutate(FirstDateProvided = NA) %>%
+    select(
+      PersonalID,
+      EnrollmentID,
+      ProjectType,
+      EnrollmentStart,
+      EnrollmentEnd,
+      FirstDateProvided
+    )
+}
 
 overlaps <- overlap_staging %>%
   # sort enrollments for each person
   group_by(PersonalID) %>%
   arrange(EnrollmentStart, EnrollmentEnd) %>%
   mutate(
-    # pull in previous enrollment into current enrollment record so we can compare intervals
+    # pull in previous enrollment into current enrollment record so we can 
+    # compare intervals
     PreviousEnrollmentID = lag(EnrollmentID)) %>%
   ungroup() %>%
   filter(!is.na(PreviousEnrollmentID)) %>% # 48 secs
@@ -1094,7 +1174,8 @@ overlaps <- overlap_staging %>%
       the HMIS Dual Enrollments and HIC Duplicate Inventory Training Resource for
       more information."
     ),
-    # this is the issue that the Project folks will see, and it's the overlap with the Previous project
+    # this is the issue that the Project folks will see, and it's the overlap
+    # with the Previous project
     Issue = paste("Overlap with", 
                   if_else(str_sub(project_type(PreviousProjectType), 1, 1) %in%
                             c("A", "E", "I", "O", "U"),
@@ -1102,7 +1183,8 @@ overlaps <- overlap_staging %>%
                           "a"),  
                   project_type(PreviousProjectType), 
                   "project"),
-    # this is the issue that the Previous Project folks will see, and it's the overlap with the main project
+    # this is the issue that the Previous Project folks will see, and it's the
+    # overlap with the main project
     PreviousIssue = paste("Overlap with", 
                   if_else(str_sub(project_type(ProjectType), 1, 1) %in%
                             c("A", "E", "I", "O", "U"),
@@ -1111,9 +1193,19 @@ overlaps <- overlap_staging %>%
                   project_type(ProjectType), 
                   "project")
   ) %>%
-  select(EnrollmentID, PreviousEnrollmentID, Issue, PreviousIssue, Type, Guidance, FirstDateProvided, PreviousFirstDateProvided) %>%
+  select(
+    EnrollmentID,
+    PreviousEnrollmentID,
+    Issue,
+    PreviousIssue,
+    Type,
+    Guidance,
+    FirstDateProvided,
+    PreviousFirstDateProvided
+  ) %>%
   unique() %>%
-  #bring back in the fields they'll need to see (EntryDate, ExitDate, MoveInDate, ProjectName, OrganizationName)
+  #bring back in the fields they'll need to see (EntryDate, ExitDate, MoveInDate,
+  # ProjectName, OrganizationName)
   left_join(base_dq_data %>% 
             select(!!vars_prep, EnrollmentID),
             by = "EnrollmentID") %>%
@@ -1125,7 +1217,8 @@ overlaps <- overlap_staging %>%
   mutate(
     ProjectType = project_type(ProjectType),
     PreviousProjectType = project_type(PreviousProjectType)
-  )
+  ) # matches with checkids = 77 but doesn't refer explicitly to it given the
+# way the Issue is built dynamically
 
 dq_overlaps1 <- overlaps %>%
   select(!!vars_we_want)
@@ -1140,7 +1233,7 @@ dq_overlaps2 <- overlaps %>%
 invalid_movein_date <- base_dq_data %>%
   filter(ProjectType %in% ph_project_types & 
         (!is.na(MoveInDate) & MoveInDate < EntryDate) | 
-        (!is.na(MoveInDate) & MoveInDate > ExitAdjust)
+        (!is.na(MoveInDate) & !is.na(ExitDate) & MoveInDate > ExitDate)
   ) %>%
   merge_check_info(checkIDs = 40) %>%
   select(all_of(vars_we_want))
@@ -1175,18 +1268,16 @@ health_insurance_subs <- base_dq_data %>%
     Medicaid,
     Medicare,
     SCHIP,
-    VAMedicalServices,
+    VHAServices,
     EmployerProvided,
     COBRA,
     PrivatePay,
     StateHealthIns,
     IndianHealthServices,
-    OtherInsurance,
-    HIVAIDSAssistance,
-    ADAP
+    OtherInsurance
   ) %>%
   mutate(
-    SourceCount = Medicaid + SCHIP + VAMedicalServices + EmployerProvided +
+    SourceCount = Medicaid + SCHIP + VHAServices + EmployerProvided +
       COBRA + PrivatePay + StateHealthIns + IndianHealthServices +
       OtherInsurance + Medicare
   ) %>%
@@ -1209,6 +1300,7 @@ rm(health_insurance_subs)
 
 # Missing NCBs at Entry ---------------------------------------------------
 
+#just the different kinds of non-cash benefits, many to an enrollment
 ncb_subs <- IncomeBenefits %>%
   select(
     PersonalID,
@@ -1220,51 +1312,74 @@ ncb_subs <- IncomeBenefits %>%
     TANFTransportation,
     OtherTANF,
     OtherBenefitsSource
-  )
+  ) %>%
+  unique()
 
 ncb_subs[is.na(ncb_subs)] <- 0
 
-ncb_subs <- ncb_subs %>%
+# basic ncb data but adding BenefitsFromAnySource, an ee-level data element
+# BenefitsFromAnySource will repeat depending on its EEID & collection stage
+ncbs <- ncb_subs %>%
   full_join(IncomeBenefits[c("PersonalID",
                              "EnrollmentID",
                              "DataCollectionStage",
-                             "BenefitsFromAnySource")],
+                             "BenefitsFromAnySource")] %>%
+              unique(),
             by = c("PersonalID",
                    "EnrollmentID",
-                   "DataCollectionStage"))
+                   "DataCollectionStage"),
+            relationship = "many-to-many")
 
-ncb_subs <- base_dq_data %>%
-  left_join(ncb_subs, by = c("PersonalID", "EnrollmentID")) %>%
-  mutate(
-    BenefitCount = SNAP + WIC + TANFChildCare + TANFTransportation +
-      OtherTANF + OtherBenefitsSource
-  ) %>%
-  select(all_of(vars_prep),
-         AgeAtEntry,
-         EnrollmentID,
-         DataCollectionStage,
-         BenefitsFromAnySource,
-         BenefitCount) %>%
+# if there are conflicting yes/no records or conflicting subs, this will catch
+# any that conflict with each other, which will prompt the user to correct the
+# record(s) that's incorrect
+
+ncb_staging <- base_dq_data %>%
+  left_join(ncbs, by = c("PersonalID", "EnrollmentID")) %>%
   filter(
     DataCollectionStage == 1 &
       (AgeAtEntry > 17 |
          is.na(AgeAtEntry))
   ) %>%
+  mutate(
+    BenefitCount = SNAP + WIC + TANFChildCare + TANFTransportation +
+      OtherTANF + OtherBenefitsSource
+  ) %>%
+  select(all_of(vars_prep),
+         EnrollmentID,
+         DataCollectionStage,
+         BenefitsFromAnySource,
+         BenefitCount) %>%
   unique()
 
-missing_ncbs_entry <- ncb_subs %>%
+missing_ncbs_entry <- ncb_staging %>%
   filter(BenefitsFromAnySource == 99 |
          is.na(BenefitsFromAnySource)
   ) %>%
   merge_check_info(checkIDs = 96) %>%
   select(all_of(vars_we_want))
 
-conflicting_ncbs_entry <- ncb_subs %>%
-  filter((BenefitsFromAnySource == 1 &
+conflicting_ncbs_entry <- base_dq_data %>%
+  left_join(ncb_staging %>%
+              select("PersonalID",
+                     "EnrollmentID",
+                     "DataCollectionStage",
+                     "BenefitsFromAnySource",
+                     "BenefitCount"),
+            by = c("PersonalID",
+                   "EnrollmentID")) %>%
+  select(AgeAtEntry,
+         all_of(vars_prep),
+         DataCollectionStage,
+         BenefitsFromAnySource,
+         BenefitCount) %>%
+  filter(DataCollectionStage == 1 &
+           (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
+           ((BenefitsFromAnySource == 1 &
                BenefitCount == 0) |
               (BenefitsFromAnySource == 0 &
                  BenefitCount > 0)
-           ) %>%
+           )) %>%
   merge_check_info(checkIDs = 97) %>%
   select(all_of(vars_we_want))
     
@@ -1296,11 +1411,6 @@ ssvf_base_dq_data <- base_dq_data %>%
         ExitDate,
         RelationshipToHoH,
         PercentAMI,
-        LastPermanentStreet,
-        LastPermanentCity,
-        LastPermanentState,
-        LastPermanentZIP,
-        AddressDataQuality,
         VAMCStation,
         HPScreeningScore,
         ThresholdScore
@@ -1392,17 +1502,6 @@ ssvf_missing_vamc <- ssvf_base_dq_data %>%
   merge_check_info(checkIDs = 23) %>%
   select(all_of(vars_we_want))
 
-ssvf_missing_address <- ssvf_base_dq_data %>%
-  filter(RelationshipToHoH == 1 &
-           (
-             is.na(LastPermanentStreet) |
-               is.na(LastPermanentCity) |
-               is.na(LastPermanentState) |
-               is.na(LastPermanentZIP)
-           )) %>%
-  merge_check_info(checkIDs = 24) %>%
-  select(all_of(vars_we_want))
-
 ssvf_hp_screen <- ssvf_base_dq_data %>%
   filter(ProjectType == 12 &
            RelationshipToHoH == 1 &
@@ -1451,7 +1550,6 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       dkr_client_veteran_wars,
       dkr_destination,
       dkr_dob,
-      dkr_ethnicity,
       dkr_gender,
       dkr_living_situation,
       dkr_LoS,
@@ -1461,18 +1559,19 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       dkr_residence_prior,
       dkr_ssn,
       dkr_veteran,
-      dq_dob_dataquality_missing,
-      dq_dob_missing,
-      dq_ethnicity_missing,
-      dq_gender_missing,
-      dq_name_dataquality,
       dq_overlaps1,
       dq_overlaps2,
-      dq_race_missing,
-      dq_veteran_status_missing,
       duplicate_ees,
-      entry_precedes_OpStart,
-      exit_after_OpEnd,
+      enrollment_after_operating_period,
+      enrollment_after_participating_period,
+      enrollment_before_operating_period,
+      enrollment_before_participating_period,
+      enrollment_x_operating_end,
+      enrollment_x_operating_period,
+      enrollment_x_operating_start,
+      enrollment_x_participating_end,
+      enrollment_x_participating_period,
+      enrollment_x_participating_start,
       exit_before_start,
       future_ees,
       future_exits,
@@ -1480,9 +1579,13 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       incorrect_dob,
       invalid_movein_date,
       missing_approx_date_homeless,
-      missing_client_location,
       missing_destination,
+      missing_destination_subsidy,
       missing_disabilities,
+      missing_dob,
+      missing_dob_dataquality,
+      missing_enrollment_coc,
+      missing_gender,
       missing_health_insurance_entry,
       missing_health_insurance_exit,
       missing_income_entry,
@@ -1490,18 +1593,20 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       missing_living_situation,
       missing_LoS,
       missing_months_times_homeless,
+      missing_name_dataquality,
       missing_ncbs_entry,
       missing_previous_street_ESSH,
+      missing_race,
       missing_residence_prior,
       missing_ssn,
+      missing_veteran_status,
       no_months_can_be_determined,
-      no_months_v_living_situation_data,    
+      no_months_v_living_situation_data,
       ssvf_hp_screen,
-      ssvf_missing_address,
       ssvf_missing_percent_ami,
       ssvf_missing_vamc,
-      top_percents_long_stayers,
       Top2_movein,
+      top_percents_long_stayers,
       veteran_incorrect_year_entered,
       veteran_incorrect_year_separated,
       veteran_missing_branch,
@@ -1515,27 +1620,29 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
                                         "Error",
                                         "Warning")))
     
-   dq_providers <- sort(projects_current_hmis$ProjectName)
+   dq_providers <- sort(Project0$ProjectName) 
    
-   # Controls what is shown in the System-Level DQ tab ------------------------
-   
-   dq_w_organization_names <- dq_main %>%
-     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName")
-   
-   # Controls what is shown in the Organization-Level DQ tab ------------------------
-   
-   dq_w_ids <- dq_main %>%
-     left_join(Organization[c("OrganizationID", "OrganizationName")], by = "OrganizationName")
-     # left_join(Project[c("ProjectID", "ProjectName")], by = "ProjectName")
-     
-
 # Plots for System-Level DQ Tab -------------------------------------------
-   dq_plot_df <- dq_w_organization_names %>%
-     select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue, Type) %>%
+   dq_plot_df <- dq_main %>%
+     left_join(Project %>%
+                 select(ProjectID, OrganizationID) %>%
+                 unique(), by = "ProjectID") %>%
+     select(PersonalID,
+            OrganizationID,
+            OrganizationName,
+            HouseholdID,
+            Issue,
+            Type) %>%
      unique()
 
 # Prepping dataframes for plots for Organization-Level DQ Tab -----------------
    dq_org_plot_df <- dq_main %>%
-     select(PersonalID, ProjectID, ProjectName, OrganizationName, HouseholdID, Issue, Type) %>%
+     select(PersonalID,
+            ProjectID,
+            ProjectName,
+            OrganizationName,
+            HouseholdID,
+            Issue,
+            Type) %>%
      unique()
    

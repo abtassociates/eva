@@ -15,7 +15,7 @@ PDDEcols = c("OrganizationName",
 
 # Subpop beds = TotalBeds
 subpopNotTotal <- Inventory %>%
-  left_join(Project, by = "ProjectID") %>%
+  left_join(Project0, by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
            (CHVetBedInventory + 
               YouthVetBedInventory + 
@@ -54,7 +54,8 @@ operating_end_missing <- Enrollment %>%
   ) %>%
   ungroup() %>%
   left_join(Project %>% 
-              select(ProjectID, OrganizationName, OperatingEndDate), 
+              select(ProjectID, ProjectName, OrganizationName, OperatingEndDate) %>%
+              unique(), 
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
            MostRecentEnrollment >= 
@@ -117,25 +118,32 @@ missing_CoC_Address <- missing_CoC_Info %>%
   select(all_of(PDDEcols))
 
 # Missing Inventory Record Is a residential project but has no active inventory for the duration of operating period OR for the reporting period
-missing_inventory_record <- Project %>%
+
+missing_inventory_record <- Project0 %>%
   left_join(Inventory, by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
            is.na(InventoryID)) %>% 
   merge_check_info(checkIDs = 43) %>%
-  mutate(
-    Detail = str_squish("This project has no Inventory records. Residential 
-      project types should have inventory data.")
-  ) %>% 
+  mutate(Detail = "") %>%
   select(all_of(PDDEcols))
 
 # Inventory Start < Operating Start AND
 # Inventory End > Operating End or Null
-inventoryOutsideOperating <- Inventory %>%
-  left_join(Project, by = "ProjectID")
+activeInventory <- Inventory %>%
+  left_join(Project %>%
+              select(ProjectID,
+                     OrganizationName,
+                     ProjectName,
+                     OperatingStartDate,
+                     OperatingEndDate) %>%
+              unique(), by = "ProjectID") %>%
+  filter(
+    coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start & 
+    InventoryStartDate <= meta_HUDCSV_Export_End
+  )
 
-inventoryStartPrecedesOp <- inventoryOutsideOperating %>%
+inventory_start_precedes_operating_start <- activeInventory %>%
   filter(InventoryStartDate < OperatingStartDate) %>%
-  merge_check_info(checkIDs = 79) %>%
   mutate(
     Detail = str_squish(
       paste0(
@@ -148,14 +156,14 @@ inventoryStartPrecedesOp <- inventoryOutsideOperating %>%
       )
     )
   ) %>% 
+  merge_check_info(checkIDs = 79) %>%
   select(all_of(PDDEcols))
 
 
-operating_end_precedes_inventory_end <- inventoryOutsideOperating %>%
-  filter(coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_Date)) >
-           coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_Date))
+operating_end_precedes_inventory_end <- activeInventory %>%
+  filter(coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_End)) >
+           coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_End))
   ) %>%
-  merge_check_info(checkIDs = 44) %>%
   mutate(
     Detail = case_when(
       is.na(InventoryEndDate) & !is.na(OperatingEndDate) ~
@@ -185,35 +193,16 @@ operating_end_precedes_inventory_end <- inventoryOutsideOperating %>%
         )
     )
   ) %>%
+  merge_check_info(checkIDs = 44) %>%
   select(all_of(PDDEcols))
 
-# HMIS Participating ------------------------------------------------------
-# HMIS Participating != 1, OR VSP != 0 but client level data in file
+# RRH project w no SubType ------------------------------------------------
 
-hmis_not_participating_but_client <- Project %>%
-  left_join(Organization %>% select(OrganizationID, VictimServiceProvider),
-            by = "OrganizationID") %>%
-  filter((HMISParticipatingProject != 1 |
-            VictimServiceProvider != 0) &
-           ProjectID %in% c(Enrollment$ProjectID %>% unique())
-  ) %>%
-  merge_check_info(checkIDs = 80) %>%
-  mutate(
-    Detail = str_squish(
-      "There is client data in this project. Please check that this project is
-      marked correctly as non-participating."
-    )
-  ) %>%
-  select(all_of(PDDEcols)) 
-
-es_no_tracking_method <- Project %>%
-  filter(ProjectType %in% c(1, 0) & is.na(TrackingMethod)) %>%
-  merge_check_info(checkIDs = 45) %>%
-  mutate(
-    Detail = "This project is an Emergency Shelter with no Tracking Method."
-  ) %>%
+rrh_no_subtype <- Project %>%
+  filter(ProjectType == 13 & is.na(RRHSubType)) %>%
+  merge_check_info(checkIDs = 110) %>%
+  mutate(Detail = "") %>%
   select(all_of(PDDEcols))
-
 
 # Zero Utilization --------------------------------------------------------
 
@@ -232,13 +221,10 @@ projects_w_clients <- Enrollment %>%
 
 res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 
-zero_utilization <- Project %>%
+zero_utilization <- Project0 %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
   merge_check_info(checkIDs = 83) %>%
-  mutate(
-    Detail = str_squish("This project has active inventory beds in the report
-                        period but did not serve any clients during that time.")
-  ) %>%
+  mutate(Detail = "") %>%
   select(all_of(PDDEcols))
 
 ##### For later-------
@@ -248,14 +234,14 @@ zero_utilization <- Project %>%
 pdde_main <- rbind(
   subpopNotTotal,
   operating_end_missing,
-  es_no_tracking_method,
-  missing_CoC_Geography,
+  rrh_no_subtype,
   missing_CoC_Address,
+  missing_CoC_Geography,
   missing_inventory_record,
-  inventoryStartPrecedesOp,
   operating_end_precedes_inventory_end,
-  hmis_not_participating_but_client,
+  inventory_start_precedes_operating_start,
   zero_utilization
-)
+) %>%
+  mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
 
 
