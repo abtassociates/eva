@@ -653,6 +653,15 @@ dashboardPage(
             ))
           )
         ),
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Summary",
+            title = "System Activity by Demographic",
+            tabPanel("Instructions", uiOutput("system_activity_instructions_ui")),
+            tabPanel("Detail", uiOutput("system_activity_detail_ui")),
+            tabPanel("Summary", uiOutput("system_activity_summary_ui")),
+            width = 12
           )
         )
       ),
