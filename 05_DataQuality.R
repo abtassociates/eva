@@ -168,7 +168,11 @@ dkr_race <- base_dq_data %>%
 
 missing_race <- base_dq_data %>%
   filter(RaceNone == 99 |
-           AmIndAKNative + Asian + BlackAfAmerican + NativeHIPacific + White == 0) %>%
+           AmIndAKNative +
+           Asian +
+           BlackAfAmerican +
+           NativeHIPacific +
+           White == 0) %>%
   merge_check_info(checkIDs = 36) %>%
   select(all_of(vars_we_want))
 
@@ -250,7 +254,8 @@ hh_missing_rel_to_hoh <- base_dq_data %>%
   merge_check_info(checkIDs = 4) %>%
   select(all_of(vars_we_want))
 
-hh_issues <- rbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
+hh_issues <- 
+  rbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
 
 rm(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
 
@@ -377,6 +382,19 @@ dkr_months_times_homeless <- base_dq_data %>%
   ) %>%
   merge_check_info(checkIDs = 61) %>%
   select(all_of(vars_we_want))
+
+invalid_months_times_homeless <- base_dq_data %>%
+  select(
+    all_of(vars_prep),
+    AgeAtEntry,
+    RelationshipToHoH,
+    MonthsHomelessPastThreeYears,
+    TimesHomelessPastThreeYears,
+    DateToStreetESSH
+  ) %>%
+  filter(ProjectType != 12 &
+           (RelationshipToHoH == 1 | AgeAtEntry > 17) &
+           EntryDate >= hc_prior_living_situation_required)
 
 approx_start_after_entry <- invalid_months_times_homeless %>%
   filter(!is.na(DateToStreetESSH) &
@@ -878,7 +896,8 @@ smallIncome <- IncomeBenefits %>%
     Alimony,
     OtherIncomeSource,
     DataCollectionStage
-  )
+  ) %>%
+  filter(DataCollectionStage %in% c(1, 3))
 
 smallIncome[is.na(smallIncome)] <- 0
 
@@ -1155,7 +1174,8 @@ overlaps <- overlap_staging %>%
       the HMIS Dual Enrollments and HIC Duplicate Inventory Training Resource for
       more information."
     ),
-    # this is the issue that the Project folks will see, and it's the overlap with the Previous project
+    # this is the issue that the Project folks will see, and it's the overlap
+    # with the Previous project
     Issue = paste("Overlap with", 
                   if_else(str_sub(project_type(PreviousProjectType), 1, 1) %in%
                             c("A", "E", "I", "O", "U"),
@@ -1163,7 +1183,8 @@ overlaps <- overlap_staging %>%
                           "a"),  
                   project_type(PreviousProjectType), 
                   "project"),
-    # this is the issue that the Previous Project folks will see, and it's the overlap with the main project
+    # this is the issue that the Previous Project folks will see, and it's the
+    # overlap with the main project
     PreviousIssue = paste("Overlap with", 
                   if_else(str_sub(project_type(ProjectType), 1, 1) %in%
                             c("A", "E", "I", "O", "U"),
@@ -1172,9 +1193,19 @@ overlaps <- overlap_staging %>%
                   project_type(ProjectType), 
                   "project")
   ) %>%
-  select(EnrollmentID, PreviousEnrollmentID, Issue, PreviousIssue, Type, Guidance, FirstDateProvided, PreviousFirstDateProvided) %>%
+  select(
+    EnrollmentID,
+    PreviousEnrollmentID,
+    Issue,
+    PreviousIssue,
+    Type,
+    Guidance,
+    FirstDateProvided,
+    PreviousFirstDateProvided
+  ) %>%
   unique() %>%
-  #bring back in the fields they'll need to see (EntryDate, ExitDate, MoveInDate, ProjectName, OrganizationName)
+  #bring back in the fields they'll need to see (EntryDate, ExitDate, MoveInDate,
+  # ProjectName, OrganizationName)
   left_join(base_dq_data %>% 
             select(!!vars_prep, EnrollmentID),
             by = "EnrollmentID") %>%
@@ -1186,7 +1217,8 @@ overlaps <- overlap_staging %>%
   mutate(
     ProjectType = project_type(ProjectType),
     PreviousProjectType = project_type(PreviousProjectType)
-  )
+  ) # matches with checkids = 77 but doesn't refer explicitly to it given the
+# way the Issue is built dynamically
 
 dq_overlaps1 <- overlaps %>%
   select(!!vars_we_want)
@@ -1201,7 +1233,7 @@ dq_overlaps2 <- overlaps %>%
 invalid_movein_date <- base_dq_data %>%
   filter(ProjectType %in% ph_project_types & 
         (!is.na(MoveInDate) & MoveInDate < EntryDate) | 
-        (!is.na(MoveInDate) & MoveInDate > ExitAdjust)
+        (!is.na(MoveInDate) & !is.na(ExitDate) & MoveInDate > ExitDate)
   ) %>%
   merge_check_info(checkIDs = 40) %>%
   select(all_of(vars_we_want))
@@ -1513,9 +1545,9 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       conflicting_income_entry,
       conflicting_income_exit,
       conflicting_ncbs_entry,
-      dkr_client_veteran_wars,
-      dkr_client_veteran_military_branch,
       dkr_client_veteran_discharge,
+      dkr_client_veteran_military_branch,
+      dkr_client_veteran_wars,
       dkr_destination,
       dkr_dob,
       dkr_gender,
@@ -1575,13 +1607,13 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       ssvf_missing_vamc,
       Top2_movein,
       top_percents_long_stayers,
+      veteran_incorrect_year_entered,
+      veteran_incorrect_year_separated,
       veteran_missing_branch,
       veteran_missing_discharge_status,
       veteran_missing_wars,
       veteran_missing_year_entered,
-      veteran_missing_year_separated,
-      veteran_incorrect_year_entered,
-      veteran_incorrect_year_separated
+      veteran_missing_year_separated
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
@@ -1595,11 +1627,22 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
      left_join(Project %>%
                  select(ProjectID, OrganizationID) %>%
                  unique(), by = "ProjectID") %>%
-     select(PersonalID, OrganizationID, OrganizationName, HouseholdID, Issue, Type) %>%
+     select(PersonalID,
+            OrganizationID,
+            OrganizationName,
+            HouseholdID,
+            Issue,
+            Type) %>%
      unique()
 
 # Prepping dataframes for plots for Organization-Level DQ Tab -----------------
    dq_org_plot_df <- dq_main %>%
-     select(PersonalID, ProjectID, ProjectName, OrganizationName, HouseholdID, Issue, Type) %>%
+     select(PersonalID,
+            ProjectID,
+            ProjectName,
+            OrganizationName,
+            HouseholdID,
+            Issue,
+            Type) %>%
      unique()
    
