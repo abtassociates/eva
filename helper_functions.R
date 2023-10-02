@@ -304,7 +304,6 @@ importFileSandbox <- function(csvFile, guess_max = 1000) {
   return(data)
 }
 
-
 ############################
 # GENERATE CHECK DATA FROM EVACHECKS.XLSX
 ############################

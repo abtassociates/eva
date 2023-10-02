@@ -896,7 +896,8 @@ smallIncome <- IncomeBenefits %>%
     Alimony,
     OtherIncomeSource,
     DataCollectionStage
-  )
+  ) %>%
+  filter(DataCollectionStage %in% c(1, 3))
 
 smallIncome[is.na(smallIncome)] <- 0
 
@@ -1544,9 +1545,9 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       conflicting_income_entry,
       conflicting_income_exit,
       conflicting_ncbs_entry,
-      dkr_client_veteran_wars,
-      dkr_client_veteran_military_branch,
       dkr_client_veteran_discharge,
+      dkr_client_veteran_military_branch,
+      dkr_client_veteran_wars,
       dkr_destination,
       dkr_dob,
       dkr_gender,
@@ -1606,13 +1607,13 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       ssvf_missing_vamc,
       Top2_movein,
       top_percents_long_stayers,
+      veteran_incorrect_year_entered,
+      veteran_incorrect_year_separated,
       veteran_missing_branch,
       veteran_missing_discharge_status,
       veteran_missing_wars,
       veteran_missing_year_entered,
-      veteran_missing_year_separated,
-      veteran_incorrect_year_entered,
-      veteran_incorrect_year_separated
+      veteran_missing_year_separated
     ) %>%
   unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority",
