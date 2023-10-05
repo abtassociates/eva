@@ -976,13 +976,13 @@
     },
     "jsonlite": {
       "Package": "jsonlite",
-      "Version": "1.8.5",
+      "Version": "1.8.7",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "methods"
       ],
-      "Hash": "3ee4d9899e4db3e976fc82b98d24a31a"
+      "Hash": "266a20443ca13c65688b2116d5220f76"
     },
     "juicyjuice": {
       "Package": "juicyjuice",
@@ -2094,6 +2094,16 @@
       ],
       "Hash": "8318e64ffb3a70e652494017ec455561"
     },
+    "vscDebugger": {
+      "Package": "vscDebugger",
+      "Version": "0.5.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R6",
+        "jsonlite"
+      ]
+    },
     "waldo": {
       "Package": "waldo",
       "Version": "0.5.1",
@@ -2190,6 +2200,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "0d0056cc5383fbc240ccd0cb584bf436"
+    },
+    "zip": {
+      "Package": "zip",
+      "Version": "2.3.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "d98c94dacb7e0efcf83b0a133a705504"
     }
   }
 }
