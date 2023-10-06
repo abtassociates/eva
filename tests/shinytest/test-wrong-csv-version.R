@@ -1,5 +1,5 @@
 print("Running test-wrong-csv-version")
-app <- ShinyDriver$new("../../", seed = 1234, loadTimeout = 1e+04)
+app <- ShinyDriver$new("../../", seed = 1234, loadTimeout = 1e+04, shinyOptions = list(test.mode = TRUE))
 source("../testing_functions.R", local = TRUE)
 
 app$snapshotInit("test-wrong-csv-version", screenshot = FALSE)
