@@ -5,7 +5,7 @@ library(shinytest)
 source("tests/create_test_datasets.R", local = TRUE)
 
 # run the tests
-testApp(".", compareImages = FALSE, quiet = FALSE)
+expect_pass(testApp(".", compareImages = FALSE, quiet = FALSE))
 
 # remove the temp directory
 unlink("tests/temp", recursive = TRUE)
