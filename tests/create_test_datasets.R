@@ -29,7 +29,7 @@ original_data <- lapply(csv_files, data.table::fread)
 reduced_data <- lapply(original_data, function(x) if(nrow(x)) x[1, ])
 dir.create("temp/reduced")
 lapply(names(reduced_data), function(fname) {
-    write.csv(reduced_data[[fname]], paste0("temp/reduced/",fname, ".csv"), row.names = FALSE)
+    write.csv(reduced_data[[fname]], paste0("temp/reduced/",fname, ".csv"), row.names = FALSE, na="")
 })
 reduced_files <- list.files("temp/reduced", pattern = "*.csv", full.names = TRUE)
 names(reduced_files) <- tools::file_path_sans_ext(basename(reduced_files))
@@ -38,13 +38,13 @@ names(reduced_files) <- tools::file_path_sans_ext(basename(reduced_files))
 # Unhashed ---------------------------------------------------
 data <- reduced_data[["Export"]]
 data$HashStatus <- 1
-write.csv(data, reduced_files[["Export"]], row.names = FALSE)
+write.csv(data, reduced_files[["Export"]], row.names = FALSE, na="")
 save_new_zip("temp/FY24-ICF-unhashed.zip", "temp/reduced")
 
 # CSVVersion -------------------------------------------------
 data <- reduced_data[["Export"]]
 data$CSVVersion <- '2022 v1'
-write.csv(data, reduced_files[["Export"]], row.names = FALSE)
+write.csv(data, reduced_files[["Export"]], row.names = FALSE, na="")
 save_new_zip("temp/FY24-ICF-wrong-csv-version.zip", "temp/reduced")
 
 # Wrong File Type --------------------------------------------
@@ -53,14 +53,14 @@ save_new_zip("temp/FY24-ICF-wrong-file-type.gz", "temp/reduced")
 # Missing Export (APR or LSA) --------------------------------
 file.remove(reduced_files[["Export"]])
 save_new_zip("temp/FY24-ICF-missing-export.zip", "temp/reduced")
-write.csv(reduced_data[["Export"]], reduced_files[["Export"]]) # bring export dataset back
+write.csv(reduced_data[["Export"]], reduced_files[["Export"]], na="") # bring export dataset back
 
 # Missing Files ----------------------------------------------
 file.remove(reduced_files[["Enrollment"]])
 file.remove(reduced_files[["Exit"]])
 save_new_zip("temp/FY24-ICF-missing-multiple-files.zip", "temp/reduced")
-write.csv(reduced_data[["Enrollment"]], reduced_files[["Enrollment"]], row.names = FALSE)
-write.csv(reduced_data[["Exit"]], reduced_files[["Exit"]], row.names = FALSE)
+write.csv(reduced_data[["Enrollment"]], reduced_files[["Enrollment"]], row.names = FALSE, na="")
+write.csv(reduced_data[["Exit"]], reduced_files[["Exit"]], row.names = FALSE, na="")
 
 setwd("..")
 
