@@ -1,9 +1,11 @@
 print("Running test-unhashed")
 app <- ShinyDriver$new("../../", seed = 1234, loadTimeout = 1e+04)
+source("../testing_functions.R", local = TRUE)
+
 app$snapshotInit("test-unhashed", screenshot = FALSE)
 
 app$setInputs(Go_to_upload = "click")
-app$uploadFile(imported = "../test_uploads/FY24-ICF-unhashed.zip") # <-- This should be the path to the file, relative to the app's tests/shinytest directory
+app$uploadFile(imported = "../temp/FY24-ICF-unhashed.zip") # <-- This should be the path to the file, relative to the app's tests/shinytest directory
 app$snapshot()
 app$findElement("button[data-dismiss='modal']")$click()
 Sys.sleep(2)

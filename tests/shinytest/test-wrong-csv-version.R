@@ -1,9 +1,11 @@
 print("Running test-wrong-csv-version")
 app <- ShinyDriver$new("../../", seed = 1234, loadTimeout = 1e+04)
+source("../testing_functions.R", local = TRUE)
+
 app$snapshotInit("test-wrong-csv-version", screenshot = FALSE)
 
 app$setInputs(Go_to_upload = "click")
-app$uploadFile(imported = "../test_uploads/FY24-ICF-wrong-csv.zip") 
+app$uploadFile(imported = "../temp/FY24-ICF-wrong-csv-version.zip") 
 app$snapshot()
 app$findElement("button[data-dismiss='modal']")$click()
 Sys.sleep(2)
