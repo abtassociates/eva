@@ -234,13 +234,14 @@ output$dq_overview_plot <- renderPlot({
     ) +
     geom_col(fill = "#71b4cb", alpha = .7, width = .4) +
     scale_y_continuous(label = comma_format()) +
-    labs(
-      title = "System-wide Data Quality Issues",
-      x = "",
-      y = "") +
-    theme_minimal(base_size = 18) +
+  labs(
+    title = "System-wide Data Quality Issues",
+    x = "",
+    y = ""
+  ) +
+    theme_minimal(base_size = 16) +
     theme(
-      plot.title = element_text(vjust = 3),
+      plot.title = element_text(margin = margin(0, 0, 30, 0)),
       plot.title.position = "plot",
       panel.grid = element_blank(),
       title = element_text(colour = "#73655E"),
