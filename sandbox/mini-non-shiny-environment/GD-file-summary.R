@@ -111,3 +111,77 @@ validate_by_org <-
     title = element_text(colour = "#73655E"),
     legend.position = "top"
   )
+
+# pdde plot ---------------------------------------------------------------
+
+# run PDDE checker script minus log to console command
+types <- pdde_main %>%
+  right_join(data.frame(Type = c("High Priority", "Error", "Warning")),
+             by = "Type") %>%
+  mutate(CountThis = if_else(is.na(ProjectID), 0, 1)) %>%
+  group_by(Type) %>%
+  summarise(Total = sum(CountThis, na.rm = TRUE)) %>%
+  ungroup()
+
+high_priority_yn <- types %>%
+  filter(Type == "High Priority") %>%
+  nrow()
+
+errors_yn <- types %>%
+  filter(Type == "Error") %>%
+  nrow()
+
+warnings_yn <- types %>%
+  filter(Type == "Warning") %>%
+  nrow()
+
+colors <- c("#71538c", "#b19bc4", "#d0c3db")
+
+detail <- pdde_main %>%
+  mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
+  count(Issue, Type, name = "Total") %>%
+  arrange(Type, desc(Total)) %>%
+  mutate(Order = 1:n())
+
+# pdde_plot_overview <-
+  ggplot(
+    detail %>%
+      head(5L),
+    aes(x = reorder(x = str_wrap(Issue, width = 20),
+                    X = Order,
+                    decreasing = TRUE),
+        y = Total,
+        fill = Type)
+  ) +
+  geom_col(alpha = .7) +
+  scale_y_continuous(label = comma_format()) +
+  scale_fill_manual(values = colors) +
+  labs(
+    title = "Top 5 Project Descriptor Data Element Issues",
+    subtitle = paste(
+      "High Priority:",
+      types %>% filter(Type == "High Priority") %>% pull(Total),
+      "| Errors:",
+      types %>% filter(Type == "Error") %>% pull(Total),
+      "| Warnings:",
+      types %>% filter(Type == "Warning") %>% pull(Total)
+    ),
+    x = "",
+    y = ""
+  ) +
+  coord_flip() +
+  theme_minimal(base_size = 16) +
+  theme(
+    plot.title.position = "plot",
+    panel.grid = element_blank(),
+    title = element_text(colour = "#73655E"),
+    axis.text.x = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_blank()
+  ) +
+  geom_text(
+    aes(label = prettyNum(Total, big.mark = ",")),
+    nudge_y = 2,
+    color = "gray14",
+    size = 6
+  )
