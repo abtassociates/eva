@@ -263,46 +263,70 @@ output$dq_overview_plot <- renderPlot({
     output$dq_orgs_overview_plot <- renderPlot({
       req(valid_file() == 1)
 # browser()
-      highest_type <- pdde_main %>%
-        count(Type) %>% 
-        head(1L) %>%
-        mutate(Type = as.character(Type)) %>%
-        pull(Type)
+      types <- pdde_main %>%
+        right_join(data.frame(Type = c("High Priority", "Error", "Warning")),
+                   by = "Type") %>%
+        mutate(CountThis = if_else(is.na(ProjectID), 0, 1)) %>%
+        group_by(Type) %>%
+        summarise(Total = sum(CountThis, na.rm = TRUE)) %>%
+        ungroup()
       
-      highest_type_display <-
-        case_when(
-          highest_type == "High Priority" ~ "High Priority Issues",
-          highest_type == "Error" ~ "Errors",
-          TRUE ~ "Warnings"
-        )
+      high_priority_yn <- types %>%
+        filter(Type == "High Priority") %>%
+        nrow()
+      
+      errors_yn <- types %>%
+        filter(Type == "Error") %>%
+        nrow()
+      
+      warnings_yn <- types %>%
+        filter(Type == "Warning") %>%
+        nrow()
+      
+      colors <- c("#71538c", "#b19bc4", "#d0c3db")
       
       detail <- pdde_main %>%
+        mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
         count(Issue, Type, name = "Total") %>%
-        filter(Type == highest_type) %>%
-        arrange(desc(Total))
-
+        arrange(Type, desc(Total)) %>%
+        mutate(Order = 1:n())
+      
       pdde_plot_overview <-
         ggplot(
           detail %>%
             head(5L),
-          aes(x = reorder(x = str_wrap(Issue, width = 20), X = Total), y = Total)
+          aes(x = reorder(x = str_wrap(Issue, width = 20),
+                          X = Order,
+                          decreasing = TRUE),
+              y = Total,
+              fill = Type)
         ) +
-        geom_col(fill = "#71b4cb", alpha = .7) +
+        geom_col(alpha = .7) +
         scale_y_continuous(label = comma_format()) +
+        scale_fill_manual(values = colors) +
         labs(
-          title = paste("Top 5 Project Descriptor Data Element ",
-                        highest_type_display),
+          title = "Top 5 Project Descriptor Data Element Issues",
+          subtitle = paste(
+            "High Priority:",
+            types %>% filter(Type == "High Priority") %>% pull(Total),
+            "| Errors:",
+            types %>% filter(Type == "Error") %>% pull(Total),
+            "| Warnings:",
+            types %>% filter(Type == "Warning") %>% pull(Total)
+          ),
           x = "",
           y = ""
         ) +
         coord_flip() +
         theme_minimal(base_size = 18) +
         theme(
-          plot.title = element_text(vjust = 3),
+          # plot.title = element_text(vjust = 3),
           plot.title.position = "plot",
           panel.grid = element_blank(),
           title = element_text(colour = "#73655E"),
-          axis.text.x = element_blank()
+          axis.text.x = element_blank(),
+          legend.position = "bottom",
+          legend.title = element_blank()
         ) +
         geom_text(
           aes(label = prettyNum(Total, big.mark = ",")),
