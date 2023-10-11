@@ -645,8 +645,33 @@ dkr_destination <- base_dq_data %>%
 missing_destination_subsidy <- base_dq_data %>%
   filter(!is.na(ExitDate) &
            Destination == 435 &
-           is.na(DestinationSubsidyType)) %>%
+           (is.na(DestinationSubsidyType) |
+           !DestinationSubsidyType %in% c(subsidy_types))) %>%
   merge_check_info(checkIDs = 121) %>%
+  select(all_of(vars_we_want))
+
+# Missing ResPrior Subsidy ------------------------------------------------
+
+missing_res_prior_subsidy <- base_dq_data %>%
+  left_join(Enrollment %>% select(EnrollmentID, RentalSubsidyType),
+            join_by(EnrollmentID)) %>%
+  filter(LivingSituation == 435 &
+           (is.na(RentalSubsidyType) |
+           !RentalSubsidyType %in% c(subsidy_types))) %>%
+  merge_check_info(checkIDs = 130) %>%
+  select(all_of(vars_we_want))
+
+
+# Missing CLS Subsidy -----------------------------------------------------
+
+missing_cls_subsidy <- base_dq_data %>%
+  inner_join(CurrentLivingSituation %>%
+              filter(CurrentLivingSituation == 435 &
+                       (is.na(CLSSubsidyType) |
+                       !CLSSubsidyType %in% c(subsidy_types))) %>%
+              select(CurrentLivingSitID, EnrollmentID, CLSSubsidyType),
+            join_by(EnrollmentID)) %>%
+  merge_check_info(checkIDs = 129) %>%
   select(all_of(vars_we_want))
 
 # Missing PATH Data -------------------------------------------------------
@@ -1579,6 +1604,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       incorrect_dob,
       invalid_movein_date,
       missing_approx_date_homeless,
+      missing_cls_subsidy,
       missing_destination,
       missing_destination_subsidy,
       missing_disabilities,
@@ -1598,6 +1624,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       missing_previous_street_ESSH,
       missing_race,
       missing_residence_prior,
+      missing_res_prior_subsidy,
       missing_ssn,
       missing_veteran_status,
       no_months_can_be_determined,
