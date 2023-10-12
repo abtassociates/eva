@@ -1,6 +1,8 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "10-20-2023", "Updated columns.csv to the new nullability edits from ICF",
+    
     "10-02-2023", "Added a High Priority File Structure issue that requires the
     user to upload an HMIS CSV Export that is compliant with the FY 2024
     specifications",
