@@ -12,7 +12,7 @@ age_years <- function(earlier, later)
 living_situation <- function(ReferenceNo) {
   case_when(
     ReferenceNo == 8 ~ "Client doesn't know",
-    ReferenceNo == 9 ~ "Client refused",
+    ReferenceNo == 9 ~ "Client prefers not to answer",
     ReferenceNo == 17 ~ "Other",
     ReferenceNo == 24 ~ "Deceased",
     ReferenceNo == 30 ~ "No exit interview completed",
