@@ -2099,7 +2099,7 @@
       "Version": "0.5.2",
       "RemoteType": "git",
       "RemoteURL": "https://github.com/ManuelHentschel/vscDebugger",
-      "Source": "git",
+      "Source": "https://github.com/ManuelHentschel/vscDebugger/releases/download/v0.5.2/vscDebugger_0.5.2.tar.gz",
       "Requirements": [
         "R6",
         "jsonlite"
