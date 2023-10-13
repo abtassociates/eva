@@ -2099,6 +2099,7 @@
       "Version": "0.5.2",
       "RemoteType": "git",
       "RemoteURL": "https://github.com/ManuelHentschel/vscDebugger",
+      "Source": "git",
       "Requirements": [
         "R6",
         "jsonlite"
