@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.2.0",
+    "Version": "4.3.1",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -2098,7 +2098,7 @@
       "Package": "vscDebugger",
       "Version": "0.5.2",
       "Source": "Repository",
-      "Repository": "https://github.com/ManuelHentschel/vscDebugger",
+      "Repository": "https://github.com/ManuelHentschel/vscDebugger/releases/tag/v0.5.2",
       "Requirements": [
         "R6",
         "jsonlite"
