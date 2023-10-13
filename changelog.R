@@ -1,6 +1,9 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "10-20-2023", "Added PDDE issue that flags when an RRH-SO project has active
+    inventory",
+    
     "10-02-2023", "Added a High Priority File Structure issue that requires the
     user to upload an HMIS CSV Export that is compliant with the FY 2024
     specifications",
