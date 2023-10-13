@@ -262,6 +262,7 @@ pdde_main <- rbind(
   missing_inventory_record,
   operating_end_precedes_inventory_end,
   inventory_start_precedes_operating_start,
+  rrh_so_w_inventory,
   zero_utilization
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
