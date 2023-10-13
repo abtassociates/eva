@@ -4,13 +4,13 @@ source("../testing_functions.R", local = TRUE)
 
 app$snapshotInit("test-good", screenshot = FALSE)
 app$setInputs(Go_to_upload = "click")
-app$uploadFile(imported = "../FY24-ICF-hashed-current-good.zip") # <-- This should be the path to the file, relative to the app's tests/shinytest directory
+app$uploadFile(imported = "../FY24-ICF-hashed-current-good.zip", timeout_ = 60000) # <-- This should be the path to the file, relative to the app's tests/shinytest directory
 app$findElement("button[data-dismiss='modal']")$click()
 Sys.sleep(2)
 customDownload("downloadFileStructureAnalysis","File-Structure-Analysis-Download")
 app$snapshot()
 
-
+print("going to client counts")
 app$setInputs(sidebarmenuid = "tabClientCount")
 app$waitForShiny()
 customDownload("downloadClientCountsReport", "Client-Counts-Download")
