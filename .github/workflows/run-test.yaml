@@ -2,7 +2,7 @@
 # system libraries:
 #   libcurl -- needed to complete setup-renv
 #   libharfbuzz-dev libfribidi-dev -- needed for the textshaping package
-#   which is a dependency of ragg, which is a dependency of the new tidyverse (2.0.0)
+#     which is a dependency of ragg, which is a dependency of the new tidyverse (2.0.0)
 
 on:
   pull_request:
@@ -25,10 +25,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
+      - name: Update and upgrade packages
+        run: sudo apt-get update && sudo apt-get upgrade -y
+
       - name: install needed system libs
         shell: bash
         run: |
-          sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
+          sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev -o Debug::pkgProblemResolver=yes
           
       - uses: r-lib/actions/setup-r@v2
         with:
