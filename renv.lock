@@ -2098,7 +2098,7 @@
       "Package": "vscDebugger",
       "Version": "0.5.2",
       "Source": "Repository",
-      "Repository": "https://github.com/ManuelHentschel/vscDebugger/releases/tag/v0.5.2",
+      "Repository": "https://github.com/ManuelHentschel/vscDebugger/releases/download/v0.5.2/vscDebugger_0.5.2.tar.gz",
       "Requirements": [
         "R6",
         "jsonlite"
