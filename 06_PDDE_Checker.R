@@ -227,6 +227,28 @@ zero_utilization <- Project0 %>%
   mutate(Detail = "") %>%
   select(all_of(PDDEcols))
 
+
+# RRH-SO projects with active inventory -----------------------------------
+
+rrh_so_w_inventory <- Inventory %>%
+  mutate(
+    InventoryActivePeriod = 
+      interval(InventoryStartDate,
+               coalesce(InventoryEndDate, meta_HUDCSV_Export_End))
+  ) %>%
+  select(InventoryID, ProjectID, InventoryActivePeriod, BedInventory) %>%
+  left_join(Project, join_by(ProjectID)) %>%
+  mutate(RRHSOyn = ProjectType == 13 & RRHSubType == 1,
+         RRHSOActivePeriod =
+           interval(OperatingStartDate,
+                    coalesce(OperatingEndDate, meta_HUDCSV_Export_End)),
+         Detail = "") %>%
+  filter(RRHSOyn == TRUE & 
+           !is.na(BedInventory) & BedInventory > 0 &
+           int_overlaps(InventoryActivePeriod, RRHSOActivePeriod)) %>%
+  merge_check_info(checkIDs = 130) %>%
+  select(all_of(PDDEcols))
+
 ##### For later-------
 # Incompatible Funding Source and Project Type Funding Source X can only be used with Project Type Y. Project Type A can only be used with Funding Source B. (this will need a lot more detail, hold on this one)
 
