@@ -2094,17 +2094,6 @@
       ],
       "Hash": "9db52c1656cf19c124f93124ea57f0fd"
     },
-    "vscDebugger": {
-      "Package": "vscDebugger",
-      "Version": "0.5.2",
-      "RemoteType": "git",
-      "RemoteURL": "https://github.com/ManuelHentschel/vscDebugger",
-      "Source": "https://github.com/ManuelHentschel/vscDebugger/releases/download/v0.5.2/vscDebugger_0.5.2.tar.gz",
-      "Requirements": [
-        "R6",
-        "jsonlite"
-      ]
-    },
     "waldo": {
       "Package": "waldo",
       "Version": "0.5.1",
