@@ -1,4 +1,4 @@
-customDownload <- function(downloadHandler, fname) {
+customDownload <- function(app, downloadHandler, fname) {
   print(paste("downloading",downloadHandler))
   app$expect_download(downloadHandler, paste0(fname,".xlsx"))
   file.remove(paste0("./_snaps/",fname,".xlsx"))
