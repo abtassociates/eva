@@ -1,8 +1,7 @@
 customDownload <- function(downloadHandler, fname) {
-  app$waitForShiny()
   print(paste("downloading",downloadHandler))
-  app$snapshotDownload(downloadHandler, paste0(fname,".xlsx"))
-  file.remove(paste0(app$getSnapshotDir(),"-current/",fname,".xlsx"))
+  app$expect_download(downloadHandler, paste0(fname,".xlsx"))
+  file.remove(paste0("./_snaps/",fname,".xlsx"))
 }
 
 initially_invalid_test_script <- function(test_script_name, test_dataset) {
