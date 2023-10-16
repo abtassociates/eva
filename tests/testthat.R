@@ -1,1 +1,6 @@
-shinytest2::test_app()
+library(shinytest2)
+source("testing_functions.R", local = TRUE)
+# create the various test datasets (will be saved in a temp directory)
+source("create_test_datasets.R", local = TRUE)
+test_app()
+unlink("temp", recursive = TRUE)
