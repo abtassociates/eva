@@ -35,9 +35,7 @@ function(input, output, session) {
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
     
-    h4(paste(
-      organization, "|", input$currentProviderList
-    ))
+    h4(organization, "|", input$currentProviderList)
   }))
   
   output$headerPDDE <- headerGeneric("Project Descriptor Data Elements Checker")
