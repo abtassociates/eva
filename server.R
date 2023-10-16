@@ -30,13 +30,14 @@ function(input, output, session) {
   
   output$headerLocalSettings <- headerGeneric("Edit Local Settings")
   
-  output$headerClientCounts <- headerGeneric("Client Counts Report", renderUI({ 
+  output$headerClientCounts_supp <- renderUI({ 
     organization <- Project0 %>%
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
     
     h4(organization, "|", input$currentProviderList)
-  }))
+  })
+  output$headerClientCounts <- headerGeneric("Client Counts Report", htmlOutput("headerClientCounts_supp"))
   
   output$headerPDDE <- headerGeneric("Project Descriptor Data Elements Checker")
   
