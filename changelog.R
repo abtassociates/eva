@@ -1,10 +1,12 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
-    "10-19-2023", "Added 2 new Data Quality issues: Missing Current Living
+    "10-20-2023", "Added 2 new Data Quality issues: Missing Current Living
     Situation Subsidy Type and Missing Prior Living Situation Subsidy Type and
     updated Missing Destination Subsidy Type to also flag subsidy types that
     are not valid subsidy types, like 99, as an example.",
+
+    "10-20-2023", "Updated columns.csv to the new nullability edits from ICF",
     
     "10-02-2023", "Added a High Priority File Structure issue that requires the
     user to upload an HMIS CSV Export that is compliant with the FY 2024
