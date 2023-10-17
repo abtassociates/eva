@@ -256,11 +256,11 @@ overlapping_ce_participation <- CEParticipation %>%
   mutate(ParticipationPeriod =
            interval(
              CEParticipationStatusStartDate,
-             coalesce(CEParticipationStatusEndDate, meta_HUDCSV_Export_Date)),
+             coalesce(CEParticipationStatusEndDate, meta_HUDCSV_Export_End)),
          PreviousParticipationPeriod = 
            interval(
              PreviousCEStart,
-             coalesce(PreviousCEEnd, meta_HUDCSV_Export_Date)
+             coalesce(PreviousCEEnd, meta_HUDCSV_Export_End)
            ),
          OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod),
          Detail = paste(
@@ -294,11 +294,11 @@ overlapping_hmis_participation <- HMISParticipation %>%
   mutate(ParticipationPeriod =
            interval(
              HMISParticipationStatusStartDate,
-             coalesce(HMISParticipationStatusEndDate, meta_HUDCSV_Export_Date)),
+             coalesce(HMISParticipationStatusEndDate, meta_HUDCSV_Export_End)),
          PreviousParticipationPeriod = 
            interval(
              PreviousHMISStart,
-             coalesce(PreviousHMISEnd, meta_HUDCSV_Export_Date)
+             coalesce(PreviousHMISEnd, meta_HUDCSV_Export_End)
            ),
          OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod),
          Detail = paste(
@@ -306,13 +306,13 @@ overlapping_hmis_participation <- HMISParticipation %>%
            HMISParticipationStatusStartDate,
            "to",
            if_else(is.na(HMISParticipationStatusEndDate),
-                   "current,",
+                   "today,",
                    paste0(HMISParticipationStatusEndDate, ",")),
            "and the other participation period goes from",
            PreviousHMISStart,
            "to",
            if_else(is.na(PreviousHMISEnd),
-                   "current.",
+                   "today.",
                    paste0(PreviousHMISEnd, "."))
          )) %>%
   merge_check_info(checkIDs = 129) %>%
