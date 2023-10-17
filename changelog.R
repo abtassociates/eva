@@ -1,6 +1,9 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "10-20-2023", "Added 2 new PDDE issues: Overlapping HMIS Participation
+    records and Overlapping CE Participation records",
+
     "10-20-2023", "Updated columns.csv to the new nullability edits from ICF",
     
     "10-02-2023", "Added a High Priority File Structure issue that requires the
