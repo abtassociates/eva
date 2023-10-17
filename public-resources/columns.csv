@@ -234,11 +234,11 @@ Event,2,EnrollmentID,character,1,0
 Event,3,PersonalID,character,1,0
 Event,4,EventDate,date,1,0
 Event,5,Event,numeric,0,0
-Event,6,ProbSolDivRRResult,numeric,1,1
-Event,7,ReferralCaseManageAfter,numeric,1,1
-Event,8,LocationCrisisOrPHHousing,character,1,1
-Event,9,ReferralResult,numeric,1,1
-Event,10,ResultDate,date,1,1
+Event,6,ProbSolDivRRResult,numeric,0,1
+Event,7,ReferralCaseManageAfter,numeric,0,1
+Event,8,LocationCrisisOrPHHousing,character,0,1
+Event,9,ReferralResult,numeric,0,1
+Event,10,ResultDate,date,0,1
 Event,11,DateCreated,datetime,0,0
 Event,12,DateUpdated,datetime,0,0
 Event,13,UserID,character,0,0
@@ -324,8 +324,8 @@ HealthAndDV,2,EnrollmentID,character,1,0
 HealthAndDV,3,PersonalID,character,1,0
 HealthAndDV,4,InformationDate,date,1,0
 HealthAndDV,5,DomesticViolenceSurvivor,numeric,1,1
-HealthAndDV,6,WhenOccurred,numeric,1,1
-HealthAndDV,7,CurrentlyFleeing,numeric,1,1
+HealthAndDV,6,WhenOccurred,numeric,0,1
+HealthAndDV,7,CurrentlyFleeing,numeric,0,1
 HealthAndDV,8,GeneralHealthStatus,numeric,0,1
 HealthAndDV,9,DentalHealthStatus,numeric,0,1
 HealthAndDV,10,MentalHealthStatus,numeric,0,1
