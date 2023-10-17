@@ -51,7 +51,7 @@ Enrollment,3,ProjectID,character,1,0
 Enrollment,4,EntryDate,date,1,0
 Enrollment,5,HouseholdID,character,1,0
 Enrollment,6,RelationshipToHoH,numeric,1,0
-Enrollment,7,EnrollmentCoC,character,0,0
+Enrollment,7,EnrollmentCoC,character,0,1
 Enrollment,8,LivingSituation,numeric,1,1
 Enrollment,9,RentalSubsidyType,numeric,1,1
 Enrollment,10,LengthOfStay,numeric,1,1
@@ -220,7 +220,7 @@ Project,18,DateDeleted,datetime,0,1
 Project,19,ExportID,character,0,0
 Inventory,1,InventoryID,character,1,0
 Inventory,2,ProjectID,character,1,0
-Inventory,3,CoCCode,character,0,0
+Inventory,3,CoCCode,character,0,1
 Inventory,4,HouseholdType,numeric,1,0
 Inventory,5,Availability,numeric,1,1
 Inventory,6,UnitInventory,numeric,1,0
@@ -336,7 +336,7 @@ Funder,1,FunderID,character,1,0
 Funder,2,ProjectID,character,1,0
 Funder,3,Funder,numeric,1,0
 Funder,4,OtherFunder,character,0,1
-Funder,5,GrantID,character,0,0
+Funder,5,GrantID,character,0,1
 Funder,6,StartDate,date,1,0
 Funder,7,EndDate,date,1,1
 Funder,8,DateCreated,datetime,0,0
@@ -442,7 +442,7 @@ IncomeBenefits,77,ExportID,character,0,0
 ProjectCoC,1,ProjectCoCID,character,1,0
 ProjectCoC,2,ProjectID,character,1,0
 ProjectCoC,3,CoCCode,character,0,0
-ProjectCoC,4,Geocode,character,1,0
+ProjectCoC,4,Geocode,character,1,1
 ProjectCoC,5,Address1,character,0,1
 ProjectCoC,6,Address2,character,0,1
 ProjectCoC,7,City,character,0,1
@@ -534,10 +534,10 @@ Assessment,1,AssessmentID,character,1,0
 Assessment,2,EnrollmentID,character,1,0
 Assessment,3,PersonalID,character,1,0
 Assessment,4,AssessmentDate,date,0,0
-Assessment,5,AssessmentLocation,character,0,0
-Assessment,6,AssessmentType,numeric,0,0
-Assessment,7,AssessmentLevel,numeric,0,0
-Assessment,8,PrioritizationStatus,numeric,0,0
+Assessment,5,AssessmentLocation,character,0,1
+Assessment,6,AssessmentType,numeric,0,1
+Assessment,7,AssessmentLevel,numeric,0,1
+Assessment,8,PrioritizationStatus,numeric,0,1
 Assessment,9,DateCreated,datetime,0,0
 Assessment,10,DateUpdated,datetime,0,0
 Assessment,11,UserID,character,0,0
