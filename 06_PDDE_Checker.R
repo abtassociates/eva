@@ -252,7 +252,7 @@ rrh_so_w_inventory <- Inventory %>%
   filter(RRHSOyn == TRUE & 
            !is.na(BedInventory) & BedInventory > 0 &
            int_overlaps(InventoryActivePeriod, RRHSOActivePeriod)) %>%
-  merge_check_info(checkIDs = 130) %>%
+  merge_check_info(checkIDs = 132) %>%
   select(all_of(PDDEcols))
 
 # For later.. -------------------------------------------------------------
@@ -336,7 +336,7 @@ overlapping_hmis_participation <- HMISParticipation %>%
                    "today.",
                    paste0(PreviousHMISEnd, "."))
          )) %>%
-  merge_check_info(checkIDs = 129) %>%
+  merge_check_info(checkIDs = 131) %>%
   select(all_of(PDDEcols))
 
 # Put it all together -----------------------------------------------------

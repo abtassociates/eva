@@ -115,6 +115,10 @@ data_type_mapping <- c(
   datetime = "T"
 )
 
+# Allowed Subsidy Types ---------------------------------------------------
+
+subsidy_types <- c(419, 420, 428, 431, 433, 434, 436, 437, 438, 439, 440)
+
 # Issue types and levels --------------------------------------------------
 issue_levels <- c("High Priority", "Error", "Warning")
 
