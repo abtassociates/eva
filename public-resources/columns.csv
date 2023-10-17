@@ -11,10 +11,10 @@ Assessment,1,AssessmentID,character,0,0
 Assessment,2,EnrollmentID,character,1,0
 Assessment,3,PersonalID,character,1,0
 Assessment,4,AssessmentDate,date,0,0
-Assessment,5,AssessmentLocation,character,0,0
-Assessment,6,AssessmentType,numeric,0,0
-Assessment,7,AssessmentLevel,numeric,0,0
-Assessment,8,PrioritizationStatus,numeric,0,0
+Assessment,5,AssessmentLocation,character,0,1
+Assessment,6,AssessmentType,numeric,0,1
+Assessment,7,AssessmentLevel,numeric,0,1
+Assessment,8,PrioritizationStatus,numeric,0,1
 Assessment,9,DateCreated,datetime,0,0
 Assessment,10,DateUpdated,datetime,0,0
 Assessment,11,UserID,character,0,0
@@ -426,7 +426,7 @@ IncomeBenefits,76,DateDeleted,datetime,0,1
 IncomeBenefits,77,ExportID,character,0,0
 Inventory,1,InventoryID,character,1,0
 Inventory,2,ProjectID,character,1,0
-Inventory,3,CoCCode,character,0,0
+Inventory,3,CoCCode,character,0,1
 Inventory,4,HouseholdType,numeric,1,0
 Inventory,5,Availability,numeric,1,1
 Inventory,6,UnitInventory,numeric,1,0
