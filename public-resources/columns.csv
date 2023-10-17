@@ -188,7 +188,7 @@ Event,1,EventID,character,1,0
 Event,2,EnrollmentID,character,1,0
 Event,3,PersonalID,character,1,0
 Event,4,EventDate,date,1,0
-Event,5,Event,numeric,1,0
+Event,5,Event,numeric,0,0
 Event,6,ProbSolDivRRResult,numeric,1,1
 Event,7,ReferralCaseManageAfter,numeric,1,1
 Event,8,LocationCrisisOrPHHousing,character,1,1
@@ -209,7 +209,7 @@ Project,7,ContinuumProject,numeric,1,0
 Project,8,ProjectType,numeric,1,1
 Project,9,HousingType,numeric,0,1
 Project,10,RRHSubType,numeric,1,1
-Project,11,ResidentialAffiliation,numeric,1,1
+Project,11,ResidentialAffiliation,numeric,0,1
 Project,12,TargetPopulation,numeric,0,1
 Project,13,HOPWAMedAssistedLivingFac,numeric,0,1
 Project,14,PITCount,numeric,0,1
@@ -261,7 +261,7 @@ CurrentLivingSituation,9,SubsequentResidence,numeric,0,1
 CurrentLivingSituation,10,ResourcesToObtain,numeric,0,1
 CurrentLivingSituation,11,LeaseOwn60Day,numeric,0,1
 CurrentLivingSituation,12,MovedTwoOrMore,numeric,0,1
-CurrentLivingSituation,13,LocationDetails,character,1,1
+CurrentLivingSituation,13,LocationDetails,character,0,1
 CurrentLivingSituation,14,DateCreated,datetime,0,0
 CurrentLivingSituation,15,DateUpdated,datetime,0,0
 CurrentLivingSituation,16,UserID,character,0,0
@@ -567,18 +567,3 @@ AssessmentResults,8,DateUpdated,datetime,0,0
 AssessmentResults,9,UserID,character,0,0
 AssessmentResults,10,DateDeleted,datetime,0,1
 AssessmentResults,11,ExportID,character,0,0
-Event,1,EventID,character,1,0
-Event,2,EnrollmentID,character,1,0
-Event,3,PersonalID,character,1,0
-Event,4,EventDate,date,1,0
-Event,5,Event,numeric,0,0
-Event,6,ProbSolDivRRResult,numeric,0,1
-Event,7,ReferralCaseManageAfter,numeric,0,1
-Event,8,LocationCrisisOrPHHousing,character,0,1
-Event,9,ReferralResult,numeric,0,1
-Event,10,ResultDate,date,0,1
-Event,11,DateCreated,datetime,0,0
-Event,12,DateUpdated,datetime,0,0
-Event,13,UserID,character,0,0
-Event,14,DateDeleted,datetime,0,1
-Event,15,ExportID,character,0,0
