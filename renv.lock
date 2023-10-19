@@ -43,26 +43,6 @@
       ],
       "Hash": "d35337fd4278be35c50d7eeeec439f68"
     },
-    "HMIS": {
-      "Package": "HMIS",
-      "Version": "0.0.1",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "HMIS",
-      "RemoteUsername": "kiadso",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "d18bf83d2923a0c012cf55601d964f5fe22c6494",
-      "Requirements": [
-        "arrow",
-        "dplyr",
-        "lubridate",
-        "purrr",
-        "rlang",
-        "stringr"
-      ],
-      "Hash": "28f6555b4c6f6a4cc1f0d4ffcc6369fa"
-    },
     "MASS": {
       "Package": "MASS",
       "Version": "7.3-60",
@@ -149,28 +129,6 @@
         "Rcpp"
       ],
       "Hash": "74a64813f17b492da9c6afda6b128e3d"
-    },
-    "arrow": {
-      "Package": "arrow",
-      "Version": "12.0.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "R6",
-        "assertthat",
-        "bit64",
-        "cpp11",
-        "glue",
-        "methods",
-        "purrr",
-        "rlang",
-        "stats",
-        "tidyselect",
-        "utils",
-        "vctrs"
-      ],
-      "Hash": "991f97485cc1db28ff463683ed195ada"
     },
     "askpass": {
       "Package": "askpass",
@@ -1239,23 +1197,6 @@
       ],
       "Hash": "0f7cd2962e3044bb940cca4f4b5cecbe"
     },
-    "openxlsx": {
-      "Package": "openxlsx",
-      "Version": "4.2.5.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "grDevices",
-        "methods",
-        "stats",
-        "stringi",
-        "utils",
-        "zip"
-      ],
-      "Hash": "c03b4c18d42da881fb8e15a085c2b9d6"
-    },
     "packrat": {
       "Package": "packrat",
       "Version": "0.9.1",
@@ -1543,13 +1484,13 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.17.3",
+      "Version": "1.0.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "utils"
       ],
-      "Hash": "4543b8cd233ae25c6aba8548be9e747e"
+      "Hash": "c321cd99d56443dbffd1c9e673c0c1a2"
     },
     "reprex": {
       "Package": "reprex",
@@ -2249,13 +2190,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "0d0056cc5383fbc240ccd0cb584bf436"
-    },
-    "zip": {
-      "Package": "zip",
-      "Version": "2.3.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "d98c94dacb7e0efcf83b0a133a705504"
     }
   }
 }

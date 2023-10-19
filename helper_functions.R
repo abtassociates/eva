@@ -12,7 +12,7 @@ age_years <- function(earlier, later)
 living_situation <- function(ReferenceNo) {
   case_when(
     ReferenceNo == 8 ~ "Client doesn't know",
-    ReferenceNo == 9 ~ "Client refused",
+    ReferenceNo == 9 ~ "Client prefers not to answer",
     ReferenceNo == 17 ~ "Other",
     ReferenceNo == 24 ~ "Deceased",
     ReferenceNo == 30 ~ "No exit interview completed",
@@ -176,12 +176,13 @@ logMetadata <- function(detail) {
   )
   
   filename <- "metadata-analysis/metadata/metadata.csv"
-  write_csv(
+  
+  invisible(write_csv(
     x = d,
     filename,
     append = TRUE,
     col_names = !file.exists(filename)
-  )
+  ))
 }
 
 headerGeneric <- function(tabTitle, extraHTML = NULL) {
@@ -301,4 +302,15 @@ importFileSandbox <- function(csvFile, guess_max = 1000) {
                    ,na = ""
   )
   return(data)
+}
+
+############################
+# GENERATE CHECK DATA FROM EVACHECKS.XLSX
+############################
+merge_check_info <- function(data, checkIDs) {
+  return(data %>%
+    bind_cols(
+      evachecks %>% filter(ID %in% c(checkIDs))
+    )
+  )
 }

@@ -1,13 +1,124 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
-    "06-28-2023", "Allow nulls in AssessmentLocation, AssessmentType, and PrioritizationStatus columns.",
+    "10-20-2023", "Added 2 new Data Quality issues: Missing Current Living
+    Situation Subsidy Type and Missing Prior Living Situation Subsidy Type and
+    updated Missing Destination Subsidy Type to also flag subsidy types that
+    are not valid subsidy types, like 99, as an example.",
+
+    "10-20-2023", "Added PDDE issue that flags when an RRH-SO project has active
+    inventory",
+    
+    "10-20-2023", "Added 2 new PDDE issues: Overlapping HMIS Participation
+    records and Overlapping CE Participation records",
+
+    "10-20-2023", "Updated columns.csv to the new nullability edits from the 
+    Data Lab",
+
+    "10-02-2023", "Added a High Priority File Structure issue that requires the
+    user to upload an HMIS CSV Export that is compliant with the FY 2024
+    specifications",
+    
+    "10-02-2023", "Added \'Missing Destination Subsidy\' check",
+    
+    "10-02-2023", "Added \'Enrollment After Participating Period\' check",
+    
+    "10-02-2023", "Added \'Enrollment Crosses Participating Period\' check",
+    
+    "10-02-2023", "Added \'Enrollment Before Participating Period\' check",
+    
+    "10-02-2023", "Added \'Enrollment Crosses Participating End\' check",
+    
+    "10-02-2023", "Added \'Enrollment Crosses Participating Start\' check",
+    
+    "10-02-2023", "Added \'Enrollment After Operating Period\' check",
+    
+    "10-02-2023", "Added \'Enrollment Crosses Operating Period\' check",
+    
+    "10-02-2023", "Added \'Enrollment Before Operating Period\' check",
+    
+    "10-02-2023", "Added \'Missing Destination Subsidy\' check",
+    
+    "10-02-2023", "Added \'RRH No SubType\' PDDE check",
+    
+    "10-02-2023", "Changed \'Missing Client Location\' to \'Missing Enrollment
+    CoC\'",
+    
+    "10-02-2023", "Changed \'Exit After Project's Operating End Date\' to 
+    \'Enrollment Crosses Operating End.\'",
+    
+    "10-02-2023", "Changed \'Entry Precedes Operating Start Date.\' to
+    \'Enrollment Crosses Operating Start.\'",
+    
+    "10-02-2023", "Removed \'Non-HMIS Participating Discrepancy.\'",
+    
+    "10-02-2023", "Removed \'Missing Last Permanent Address\' check for SSVF
+    enrollments",
+    
+    "10-02-2023", "Removed \'Missing Tracking Method\' PDDE check",
+    
+    "10-02-2023", "Added High Priority File Structure issues to the EvaChecks.xlsx
+    workbook",
+    
+    "10-02-2023", "Added initial file check for the CSV Version which separates
+    the upload issue \'Missing Files\' into \'You may have uploaded the wrong
+    dataset,\' \'Your HMIS CSV Export is out of date,\' and \'Incomplete dataset.\'",
+    
+    "10-02-2023", "Adjusted data element references to account for new Race/Ethnicity
+    and Gender options",
+    
+    "10-02-2023", "Adjusted HMIS Participating, Tracking Method, and
+    EnrollmentCoC logic to fit new structure",
+    
+    "10-02-2023", "Corrected \'Missing Non-cash Benefits\' and \'Conflicting Non-cash
+    Benefits\' logic",
+    
+    "10-02-2023", "Removed HMIS package from development (no change to user
+    experience)",
+    
+    "10-02-2023", "Updated link to the HMIS CSV specifications on the Home tab in
+    the \'Instructions\' box",
+    
+    "10-02-2023", "Changed the EvaChecks.xlsx document to EvaChecks.csv so that
+    the document can be version controlled more transparently",
+    
+    "09-21-2023", "Added back accidentally removed Incorrect DOB and Missing
+    Living Situation checks",
+    
+    "08-30-2023", "Fixed missed demotion of null CoCCode File Structure Analysis 
+    issue in EnrollmentCoC.csv and ProjectCoC.csv to \"Error\" 
+    from \"High Priority\"",
+    
+    "08-30-2023", "Replaced 'Invalid Homelessness Start Date/Number of Months 
+    Homeless' data quality check with two checks: 'Homelessness Start Date 
+    conflicts with Living Situation Data' and 'Number of Months Homeless conflicts 
+    with Living Situation Data' to include cases where Aproximate date homeless 
+    is over 3 years ago",
+    
+    "08-14-2023", "Modified Long Stayer logic so the issue names match the
+    terminology in the Local Settings. Prepping the current Long Stayers issues
+    to fit with the ones we plan to add in upcoming releases.",
+    
+    "08-10-2023", "Demoted several null-column File Structure Analysis issues
+    to \"Error\" from \"High Priority\"",
+
+    "08-10-2023", "Added missing checks to EvaChecks.xlsx",
+    
+    "08-10-2023", "Changed to pull issue-related text from EvaChecks.xlsx",
+    
+    "07-06-2023", "Fix bug when datasets have no projects of a certain status
+    (e.g. Active No Move-In)",
+    
+    "06-28-2023", "Allow nulls in AssessmentLocation, AssessmentType, and
+    PrioritizationStatus columns.",
 
     "06-14-2023", "Added graceful rejection of non-zip files, including 7zip.",
 
-    "05-08-2023", "Fixed typo in DQ High Priority plot display when there were no issues of that type.",
+    "05-08-2023", "Fixed typo in DQ High Priority plot display when there were
+    no issues of that type.",
 
-    "04-25-2023", "Small updates to the EvaChecks.xlsx file to better capture Eva's checks.",
+    "04-25-2023", "Small updates to the EvaChecks.xlsx file to better capture
+    Eva's checks.",
     
     "04-20-2023", "Added Zero Enrollments as a High Priority File Structure issue.",
     
@@ -16,13 +127,15 @@ output$changelog <- renderTable({
     
     "04-06-2023", "Code refactoring, consolidating, reorganizing, and commenting",
     
-    "04-06-2023", "Fixed bug where an Org-level DQ file name does not necessarilly match the selected organization",
+    "04-06-2023", "Fixed bug where an Org-level DQ file name does not
+    necessarilly match the selected organization",
     
     "03-23-2023", "Modified DQ chart colors and unsuccessful upload pop-up text",
     
     "03-23-2023", "Added Client Count Download instructions",
     
-    "03-23-2023", "Fixed display of system-level, Top 10 Orgs charts for errors and warnings",
+    "03-23-2023", "Fixed display of system-level, Top 10 Orgs charts for errors
+    and warnings",
     
     "03-23-2023", "Added Zero Utilization to Project Descriptor Data Quality 
     Checker",
@@ -70,11 +183,11 @@ output$changelog <- renderTable({
   on its own tab called Referrals so that end users can see which Referral is
   considered outstanding.",
     
-    "01-26-2023", "Addresses GitHub issue 82. Now the app times out after 10 minutes
-  being idle.",
+    "01-26-2023", "Addresses GitHub issue 82. Now the app times out after 10
+  minutes being idle.",
     
-    "01-26-2023", "Addresses GitHub issue 122. Modified tab structure to spread things
-  out and simplify the Home tab.",
+    "01-26-2023", "Addresses GitHub issue 122. Modified tab structure to spread
+  things out and simplify the Home tab.",
     
     "01-26-2023", "Addresses GitHub issue 124. Modified plot color for High Priority
   issues.",
@@ -82,16 +195,17 @@ output$changelog <- renderTable({
     "01-23-2023", "Hotfix: Added improved metadata collection for troubleshooting
   purposes.",
     
-    "01-13-2023", "Hotfix: Set GrantID field so it is not considered a high priority column
-  so that it will no longer cause Eva to reject a file for incorrect data type.",
+    "01-13-2023", "Hotfix: Set GrantID field so it is not considered a high
+  priority column so that it will no longer cause Eva to reject a file for
+  incorrect data type.",
     
     "12-29-2022", "Addresses GitHub issue 118. Eva was not checking that all needed
   csvs were in the export. Now it checks this and rejects the export if they are
   not there.",
     
-    "12-29-2022", "Addresses GitHub issue 118. Eva was missing some instances where a date
-  variable is of the wrong type (e.g. ymd_hms instead of ymd). Now it rejects
-  exports if an important variable has the wrong date type.",  
+    "12-29-2022", "Addresses GitHub issue 118. Eva was missing some instances
+  where a date variable is of the wrong type (e.g. ymd_hms instead of ymd). Now
+  it rejects exports if an important variable has the wrong date type.",  
     
     "12-29-2022", "Client Counts report: if a user makes the Report Date Range so
   that the Start > End, Eva now alerts the user in the data tables to check dates.",

@@ -3,9 +3,10 @@ function(input, output, session) {
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
-  source("hardcodes.R", local = TRUE) # hard-coded variables and data frames used throughout the app
-  source("helper_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
-  source("guidance.R", local = TRUE) # guidance text for various issues across the app (DQ, PDDE, etc.)
+  source("hardcodes.R", local = TRUE) # hard-coded variables and data frames
+  # used throughout the app
+  source("helper_functions.R", local = TRUE) # calling in HMIS-related functions
+  # that aren't in the HMIS pkg
   source("changelog.R", local = TRUE) # changelog entries
   
   # log that the session has started
@@ -19,7 +20,29 @@ function(input, output, session) {
     logMetadata(paste("User on",input$sidebarmenuid))
   })
 
-# Headers -----------------------------------------------------------------
+  
+  # Initial popup -----------------------------------------------------------
+  
+  showModal(
+    modalDialog(
+      title = "NOTICE(S):",
+      HTML("
+      1.  <strong>Eva is experiencing some slowness in uploading files.</strong>
+      If Eva should be showing a progress bar but is not, please wait. The app is
+      working, it is just taking some extra time. The Eva team is investigating
+      this issue and hope to resolve it shortly.
+      <br><br><p>
+      2. <strong>Eva only accepts FY 2024 HMIS CSV Exports.</strong> Attempting
+      to upload a file in the previous format will result in a rejected file.
+      Please contact your vendor for information on how to run your updated HMIS
+      CSV Export so that it complies with the new FY2024 HMIS CSV Export
+      Specifications."),
+      easyClose = TRUE,
+      footer = modalButton("OK")
+    )
+  )  
+  
+  # Headers -----------------------------------------------------------------
 
   output$headerUpload <-
     headerGeneric("Upload HMIS CSV Export",
@@ -62,7 +85,7 @@ function(input, output, session) {
     valid_file(0)
     source("00_initially_valid_import.R", local = TRUE)
     
-    if(initially_valid_import) {
+    if(initially_valid_import == 1) {
 
       hide('imported_progress')
       
@@ -99,7 +122,8 @@ function(input, output, session) {
           reset("imported")
           showModal(
             modalDialog(
-              title = "Unsuccessful Upload: Your HMIS CSV Export is not structurally valid",
+              title = "Unsuccessful Upload: Your HMIS CSV Export is not
+              structurally valid",
               "Your HMIS CSV Export has some High Priority issues that must
               be addressed by your HMIS Vendor. Please download the File Structure
               Analysis for details.",
@@ -169,15 +193,9 @@ function(input, output, session) {
     if(valid_file() == 1) {
       updatePickerInput(session = session, inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
-
-      # updatePickerInput(session = session, inputId = "desk_time_providers",
-      #                   choices = sort(Project$ProjectName))
-      # 
+      
       updatePickerInput(session = session, inputId = "providerListDQ",
                         choices = dq_providers)
-      
-      # updatePickerInput(session = session, inputId = "providerDeskTime",
-      #                   choices = desk_time_providers)
       
       updatePickerInput(session = session, inputId = "orgList",
                         choices = c(unique(sort(Organization$OrganizationName))))
@@ -292,7 +310,10 @@ function(input, output, session) {
         geom_col(fill = "#D5BFE6", alpha = .7)+
         scale_y_continuous(label = comma_format()) +
         labs(
-          title = paste("Highest Counts of", ifelse(is_empty(highest_type_display),"Issue",highest_type_display)),
+          title = paste("Highest Counts of",
+                        ifelse(is_empty(highest_type_display),
+                               "Issue",
+                               highest_type_display)),
           x = "Top 5 Organizations",
           y = ifelse(is_empty(highest_type_display),"Issue",highest_type_display)
         ) +
@@ -392,10 +413,11 @@ function(input, output, session) {
       a <- pdde_main %>%
         group_by(Issue, Type) %>%
         summarise(Count = n()) %>%
-        ungroup()
+        ungroup() %>%
+        arrange(Type)
       
       exportTestValues(pdde_summary_table = a)
-      
+
       datatable(
         a,
         rownames = FALSE,
@@ -403,8 +425,6 @@ function(input, output, session) {
         options = list(dom = 't')
       )
     })
-
-    
 
 # PDDE Download Button ----------------------------------------------------
 
@@ -449,8 +469,6 @@ function(input, output, session) {
       
       guidance <- pdde_main %>%
         select(Type, Issue, Guidance) %>%
-        mutate(Type = factor(Type, levels = c("Error",
-                                              "Warning"))) %>%
         arrange(Type, Issue) %>%
         unique()
       
@@ -464,80 +482,6 @@ function(input, output, session) {
         options = list(dom = 'ltpi')
       )
     })
-
-# DeskTime Plot Detail ----------------------------------------------------
-
-    # output$DeskTimePlotDetail <- renderPlot({
-    #   req(valid_file() == 1)
-    #   provider <- input$providerDeskTime
-    #   
-    #   ReportStart <- ymd(meta_HUDCSV_Export_Start - years(1))
-    #   ReportEnd <- ymd(meta_HUDCSV_Export_End)
-    #   
-    #   desk_time <- validation %>%
-    #     filter(ProjectName == provider &
-    #              entered_between(., ReportStart, ReportEnd) &
-    #              ProjectType %in% lh_ph_hp_project_types) %>%
-    #     select(ProjectName, PersonalID, HouseholdID, EntryDate, DateCreated) %>%
-    #     mutate(
-    #       DeskTime = difftime(floor_date(DateCreated, unit = "day"),
-    #                           EntryDate,
-    #                           units = "days"),
-    #       DeskTime = as.integer(floor(DeskTime)),
-    #       GoalMet = if_else(DeskTime > 5 |
-    #                           DeskTime < 0,
-    #                         "chocolate2",
-    #                         "forestgreen")
-    #     ) %>%
-    #     select(HouseholdID,
-    #            PersonalID,
-    #            ProjectName,
-    #            EntryDate,
-    #            DateCreated,
-    #            DeskTime,
-    #            GoalMet) 
-    #   
-    #   desk_time_medians <- desk_time %>%
-    #     group_by(ProjectName) %>%
-    #     summarise(MedianDeskTime = median(DeskTime),
-    #               TotalEntered = n()) %>%
-    #     ungroup()
-    #   
-    #   dq_plot_desk_time <-
-    #     ggplot(
-    #       desk_time,
-    #       aes(x = EntryDate, y = DeskTime)
-    #     ) +
-    #     geom_point(aes(color = GoalMet, size = 8, alpha = .2),
-    #                show.legend = FALSE)+
-    #     scale_color_identity() +
-    #     geom_hline(yintercept = 5, color = "forestgreen") +
-    #     geom_hline(yintercept = 0, color = "forestgreen") +
-    #     geom_hline(
-    #       data = desk_time_medians,
-    #       aes(yintercept = MedianDeskTime),
-    #       color = "black"
-    #     ) +
-    #     xlim(today() - years(1), today()) +
-    #     geom_label(x = today() - days(180),
-    #                y = desk_time_medians %>%
-    #                  pull(MedianDeskTime),
-    #                label = paste("Median:", 
-    #                              desk_time_medians %>%
-    #                                pull(MedianDeskTime),
-    #                              "days | Total Clients:",
-    #                              desk_time_medians %>%
-    #                                pull(TotalEntered))) +
-    #     geom_label(x = today() - days(300),
-    #                y = 5,
-    #                label = "DQ Standards (5 days or less)") +
-    #     labs(x = "Entry Date",
-    #          y = "Data Entry Delay (in days)") +
-    #     theme_minimal(base_size = 18)
-    #   
-    #   dq_plot_desk_time
-    # })
-    # 
 
 # Client Counts -----------------------------------------------------------
 
@@ -664,23 +608,25 @@ function(input, output, session) {
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | 
                  PreviousOrganizationName %in% c(input$orgList))
-      
-      # orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
-      #   filter(OrganizationName %in% c(input$orgList))
-
+#browser()
+      orgDQReferrals <- 
+        calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+        filter(OrganizationName %in% c(input$orgList))
       
       # return a list for reference in downloadHandler
       list(
         orgDQData = 
           getDQReportDataList(orgDQData,
                               orgDQoverlaps,
-                              "ProjectName"#, orgDQReferrals
+                              "ProjectName",
+                              orgDQReferrals
                               ),
            
         systemDQData = 
           getDQReportDataList(dq_main_reactive(),
                               overlaps,
-                              "OrganizationName", # calculate_outstanding_referrals(input$CEOutstandingReferrals)
+                              "OrganizationName",
+                              calculate_outstanding_referrals(input$CEOutstandingReferrals)
                               )
       )
     })
@@ -689,6 +635,7 @@ function(input, output, session) {
 
     output$downloadOrgDQReportButton  <- renderUI({
       req(valid_file() == 1)
+      
       req(length(dqDownloadInfo()$orgDQData) > 0)
         downloadButton(outputId = "downloadOrgDQReport",
                        label = "Download")
@@ -723,8 +670,8 @@ function(input, output, session) {
     )
 
 # SYSTEM-LEVEL DQ TAB PLOTS -----------------------------------------------
-    # By-org shows organizations containing highest number of HP errors/errors/warnings
-    # By-issue shows issues that are the most common of that type (HP errors/errors/warnings)
+    # By-org shows organizations containing highest number of HP/errors/warnings
+    # By-issue shows issues that are the most common of that type
     output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
       renderDQPlot("sys", "High Priority", "Org", "#71B4CB")
     })
@@ -780,25 +727,16 @@ function(input, output, session) {
       renderDQPlot("org", "Warning", "Issue", "#71B4CB")
     })
   
-  # output$headerUtilization <- renderUI({
-  #   req(valid_file() == 1)
-  #   list(h2("Bed and Unit Utilization"),
-  #        h4(input$providerListUtilization),
-  #        h4(format(ymd(
-  #          input$utilizationDate
-  #        ), "%B %Y"))
-  #        )
-  # })
-  # 
-  # output$headerDeskTime <- renderUI({
-  #   req(valid_file() == 1)
-  #   list(h2("Data Entry Timeliness"),
-  #        h4(input$providersDeskTime),
-  #        h4(paste("Fixed Date Range:",
-  #                 format(today() - years(1), "%m-%d-%Y"),
-  #                 "to",
-  #                 format(today(), "%m-%d-%Y"))))
-  # })
+    
+    
+    # output$headerUtilization <- renderUI({
+    #   list(h2("Bed and Unit Utilization"),
+    #        h4(input$providerListUtilization),
+    #        h4(format(ymd(
+    #          input$utilizationDate
+    #        ), "%B %Y"))
+    #        )
+    # })
   
   # output$headerExitsToPH <- renderUI({
   #   req(valid_file() == 1)
@@ -813,126 +751,13 @@ function(input, output, session) {
   #          ReportEnd
   #        )))
   # })
-  
-  # output$headerOrganizationDQ <- renderUI({
-  #   req(valid_file() == 1)
-  #   list(h2("Data Quality Summary (Organization)"),
-  #        h4(paste(
-  #          format(input$dq_startdate, "%m-%d-%Y"),
-  #          "to",
-  #          format(meta_HUDCSV_Export_End, "%m-%d-%Y")
-  #        )))
-  # })
-  
-  output$deskTimeNote <- renderUI({
-    HTML(
-      "<h4>HUD and Data Quality</h4>
-        <p>HUD defines \"Data Quality\" as having three elements:
-    1. Accuracy, 2. Completeness, and 3. Timeliness. Data Entry Delay (aka
-    \"Desk Time\") refers to how long it is taking to enter a client into HMIS
-    from the day they enter your project.
-    <h4>Ohio Balance of State CoC Data Standards</h4>
-    <p>According to the Data Quality Standards for the Ohio Balance of State
-    CoC, all clients should be entered within 5 days of their entry into your
-    project.
-    <h4>How Do We Fix This?</h4>
-    <p><strong>There is nothing a user can do</strong> to \"correct\" a client
-    entered into the system outside the window. We can only resolve to enter
-    clients within the 5-day range going forward. As you catch up on data entry,
-    you may see your median get worse at first, but this data looks back exactly
-    one year, so any clients with an Entry Date over a year ago will fall off
-    of this plot and your median will change accordingly.
-    <h4>Interpretation</h4>
-    <p>Green dots here represent clients entered within the range and orange
-    dots represent clients entered outside the range. The darker the dot, the
-    more clients entered your project on that day. (Likely a household.)
-    <p>The metric COHHIO looks at here is the Median, so if you have orange dots
-    but your Median is within the 5 day range, that is great!
-    <p>If you have orange dots BELOW the 0 mark, that means you entered Entry
-    Dates into the future, which means there is potentially a mis-keyed date or
-    the user needs technical assistance about how to know what date to enter for
-    the Entry Date. If this is the case, please email the HMIS team.
-            <h4>Is it possible there's a mistake?</h4>
-    It's rare that this occurs, but if an Entry Exit has been created, deleted,
-    and then recreated, the Entry Exit's \"Date Created\" date is reset,
-    thus inflating the number of days between the Date Created and the Entry Date.
-    If you need us to check if this was the case for a particular dot on the
-    plot, please email us with the provider and number of days it is
-    displaying that you think may be incorrect so we can verify if this is the
-        issue."
-    )})
-  
+
   }, ignoreInit = TRUE)
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")
   })
 }
-  # output$headerCocDQ <- renderUI({
-  #   req(!is.null(input$imported))
-  #   list(h2("System-wide Data Quality"),
-  #        h4(
-  #          paste(format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
-  #                "through",
-  #                format(meta_HUDCSV_Export_End, "%m-%d-%Y"))
-  #        ))
-  # })
-  # output$deskTimeNote <- renderUI({
-  #   HTML(
-  #     "<h4>HUD and Data Quality</h4>
-  #       <p>HUD defines \"Data Quality\" as having three elements:
-  #   1. Accuracy, 2. Completeness, and 3. Timeliness. Data Entry Delay (aka
-  #   \"Desk Time\") refers to how long it is taking to enter a client into HMIS
-  #   from the day they enter your project.
-  #   <h4>Ohio Balance of State CoC Data Standards</h4>
-  #   <p>According to the Data Quality Standards for the Ohio Balance of State
-  #   CoC, all clients should be entered within 5 days of their entry into your
-  #   project.
-  #   <h4>How Do We Fix This?</h4>
-  #   <p><strong>There is nothing a user can do</strong> to \"correct\" a client
-  #   entered into the system outside the window. We can only resolve to enter
-  #   clients within the 5-day range going forward. As you catch up on data entry,
-  #   you may see your median get worse at first, but this data looks back exactly
-  #   one year, so any clients with an Entry Date over a year ago will fall off
-  #   of this plot and your median will change accordingly.
-  #   <h4>Interpretation</h4>
-  #   <p>Green dots here represent clients entered within the range and orange
-  #   dots represent clients entered outside the range. The darker the dot, the
-  #   more clients entered your project on that day. (Likely a household.)
-  #   <p>The metric COHHIO looks at here is the Median, so if you have orange dots
-  #   but your Median is within the 5 day range, that is great!
-  #   <p>If you have orange dots BELOW the 0 mark, that means you entered Entry
-  #   Dates into the future, which means there is potentially a mis-keyed date or
-  #   the user needs technical assistance about how to know what date to enter for
-  #   the Entry Date. If this is the case, please email the HMIS team.
-  #           <h4>Is it possible there's a mistake?</h4>
-  #   It's rare that this occurs, but if an Entry Exit has been created, deleted,
-  #   and then recreated, the Entry Exit's \"Date Created\" date is reset,
-  #   thus inflating the number of days between the Date Created and the Entry Date.
-  #   If you need us to check if this was the case for a particular dot on the
-  #   plot, please email us with the provider and number of days it is
-  #   displaying that you think may be incorrect so we can verify if this is the
-  #       issue."
-  #   )})
-  
-# output$headerUtilization <- renderUI({
-#   list(h2("Bed and Unit Utilization"),
-#        h4(input$providerListUtilization),
-#        h4(format(ymd(
-#          input$utilizationDate
-#        ), "%B %Y"))
-#        )
-# })
-
-# output$headerDeskTime <- renderUI({
-#   list(h2("Data Entry Timeliness"),
-#        h4(input$providersDeskTime),
-#        h4(paste("Fixed Date Range:",
-#                 format(today() - years(1), "%m-%d-%Y"),
-#                 "to",
-#                 format(today(), "%m-%d-%Y"))))
-# })
-
   
   
   # output$cocDQErrors <- renderPlot(dq_plot_projects_errors)

@@ -1,7 +1,8 @@
 dashboardPage(
   title = "Eva",
   skin = "black",
-  dashboardHeader(title = span(img(src = "Eva_logo_horizontal_white.png", height = 45))),
+  dashboardHeader(title = span(img(src = "Eva_logo_horizontal_white.png",
+                                   height = 45))),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -22,8 +23,6 @@ dashboardPage(
                            tabName = "tabDQOrg")),
       menuItem("View Changelog",
                tabName = "tabChangelog")
-        # menuSubItem("Data Entry Timeliness", 
-        #             tabName = "tabDeskTime")
       # ),
       # menuItem("System Analysis",
       #          menuSubItem("System Flow",
@@ -54,7 +53,8 @@ dashboardPage(
           window.onkeypress = resetTimer;  //catches keyboard actions
     
           function logout() {
-            alert('Your session timed out. Your data has been cleared, please re-upload.');
+            alert('Your session timed out. Your data has been cleared,
+              please re-upload.');
             Shiny.setInputValue('timeOut', 1)
           }
     
@@ -112,7 +112,7 @@ dashboardPage(
             collapsed = TRUE,
             HTML(
               "<p>Eva works by uploading a hashed 
-              <a href='https://www.hudhdx.info/Resources/Vendors/HMIS_CSV_Specifications_FY2022_v1.3.pdf'
+              <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
               target= '_blank' rel='noopener noreferrer'>HMIS CSV Export</a>.
               </p>
               <p>Generate a hashed HMIS CSV Export from your local HMIS and store
@@ -200,8 +200,7 @@ dashboardPage(
                  <p> Special thanks to 
                  <a href=\"http://www.squarepegdata.com/\" 
                  target= '_blank' rel='noopener noreferrer'>
-                 Square Peg Data</a>, the San Diego City and County CoC (CA-601),
-                 and the Minneapolis/Hennepin County CoC (MN-500) for providing
+                 Square Peg Data</a>, the CoCs who provided us with
                  sample datasets to support programming.")
           )
         )
@@ -257,16 +256,6 @@ dashboardPage(
             uiOutput("fileInfo"),
             width = 12
           )),
-          #,
-          # HTML(
-          #   "<h4>Referrals</h4>
-          #   <p>Please enter the number of days your CoC would consider a Referral
-          #     to be \"outstanding\"."
-          # ),
-          # numericInput(inputId = "OutstandingReferrals",
-          #              label = "Outstanding Referral Days:",
-          #              value = 7)
-          
           fluidRow(box(
             title = "HMIS CSV Export File Structure Analysis",
             width = 12,
@@ -300,8 +289,8 @@ dashboardPage(
             HTML("
               <p>To make Eva reporting more useful at the local level, you can
               adjust the local settings to better analyze your data in a
-              way that is meaningful to the CoC. To edit these, click on the 
-              Edit Local Settings tab. If you do not edit them, the reporting will 
+              way that is meaningful to your CoC. To edit these, click to expand the 
+              relevant box below. If you do not edit them, the reporting will 
               use the defaults listed. These defaults do not imply any HUD 
               recommendations. Please read the description in the
               Edit Local Settings tab for more information.</p>
@@ -316,26 +305,31 @@ dashboardPage(
               width = 12,
               HTML(
                 "<p>This check aims to help communities find Coordinated Entry (CE)
-                Event referrals that may be missing a Result Date. This check is
+                Event referrals that may be missing a Result Date or may have
+                been delayed in getting the client to housing. This check is
                 only applied to CE Event referrals which are expected to have an
-                associated Result and Result Date (4.20.2 responses 10-15, 17, 18 --
-                Please see the HMIS Data Standards for the complete list of CE Events.)
-                When a CE Event referral does not have a Result Date at the time data
-                is uploaded, Eva calculates the referral has been open  by looking at 
-                the number of days between the Referral Date and the date your upload 
-                was exported from your HMIS. Then Eva compares the length of each 
-                open referral with the 'Max Days' assumption entered in the input 
-                field below. If the referral is open longer than the expected timeframe, 
-                it is categorized as an 'Outstanding Referral.' This check is for all 
-                projects that have a relevant CE Event referral.
+                associated Result and Result Date (4.20.2 responses 10-15, 17,
+                18. Please see the HMIS Data Standards for the complete list
+                of CE Events.) 
+                
+                <p>When a CE Event referral does not have a Result Date at the
+                time the export is uploaded, Eva calculates how many days the
+                referral has been open by looking at the number of days
+                between the Referral Date and the date your upload was exported
+                from your HMIS. Then Eva compares the length of each open
+                referral with the 'Max Days' assumption entered in the input
+                field below. If the referral is open longer than the expected
+                timeframe, it is categorized as an 'Outstanding Referral.' This
+                check is for all projects that have a relevant CE Event referral.
                 
                 <p>Data quality flags about Outstanding Referrals are categorized
                 as Warnings, indicating that data should be reviewed for accuracy.
                 It does not imply that any data should be changed.
 
                 <p>In the field below, specify the maximum number of days a referral
-                can stay open according to the CoC's Coordinated Entry Referral process. 
-                The value defaults to 14 days. (These defaults do not imply any HUD recommendations)."
+                can stay open according to the CoC's Coordinated Entry Referral
+                process. The value defaults to 14 days. (These defaults do not
+                imply any HUD recommendations)."
               ),
               numericInput(
                 inputId = "CEOutstandingReferrals",
@@ -343,7 +337,7 @@ dashboardPage(
                 value = 14,
                 min = 0,
                 max = 365,
-                step = 5,
+                step = 7,
                 width = "200px"
               )
             ))
@@ -367,15 +361,14 @@ dashboardPage(
                 the check compares the length of each enrollment with assumptions
                 entered about the expected maximum period of assistance envisioned
                 for the project type. For the latter check, users can set the
-                assumptions for each project type. Any data quality flags about
-                Long Stayers is categorized as a Warning and is a suggestion to
+                assumptions for each project type. All data quality flags about
+                Long Stayers are categorized as Warnings and is a suggestion to
                 verify that the identified clients are still active in these
                 projects. It does not imply that any data should be changed.
       
                 <p><b>Top 2% longest enrollments are flagged for the following
                 project types:</b>
                 <ul>
-                <li>Coordinated Entry
                 <li>Emergency Shelter - Entry/Exit
                 <li>Safe Haven
                 <li>Transitional Housing
@@ -394,11 +387,12 @@ dashboardPage(
                 <p><b>Enrollments active longer than the CoC-specified length of
                 assistance targets are flagged for the following project types:</b>
                 <ul>
-                <li>Street Outreach
-                <li>Services Only
-                <li>Other
-                <li>Day Shelter
                 <li>Emergency Shelter - Night-by-Night
+                <li>Street Outreach
+                <li>Other
+                <li>Services Only
+                <li>Day Shelter
+                <li>Coordinated Entry
                 </ul>
       
                 <p>Below, you can specify the expected maximum period of assistance
@@ -450,6 +444,15 @@ dashboardPage(
                   numericInput(
                     inputId = "ServicesOnlyLongStayers",
                     label = "Services Only:",
+                    value = 90,
+                    min = 0,
+                    max = 3650,
+                    step = 5,
+                    width = "200px"
+                  ),
+                  numericInput(
+                    inputId = "CELongStayers",
+                    label = "Coordinated Entry:",
                     value = 90,
                     min = 0,
                     max = 3650,
@@ -523,7 +526,8 @@ dashboardPage(
                click the System-wide download button. The download contains a Current 
                tab limited to just the current date, a Date Range tab limited to the 
                Date Range set, and a Detail tab with clients' PersonalIDs, Entry Date, 
-               Move-In Date (if applicable), Exit Date (if applicable), and project status.")
+               Move-In Date (if applicable), Exit Date (if applicable), and
+               project status.")
         )), 
         fluidRow(box(
           dateRangeInput(
@@ -703,14 +707,15 @@ dashboardPage(
           uiOutput("downloadOrgDQReportButton"),
           width = 12
         )), 
-        
         fluidRow(
           tabBox(
             side = "right",
             selected = "Top 10 Issues",
             title = "High Priority Errors",
-            tabPanel("Top 10 Projects", uiOutput("orgDQHighPriorityErrorsByProject_ui")),
-            tabPanel("Top 10 Issues", uiOutput("orgDQHighPriorityErrorByIssue_ui")),
+            tabPanel("Top 10 Projects",
+                     uiOutput("orgDQHighPriorityErrorsByProject_ui")),
+            tabPanel("Top 10 Issues",
+                     uiOutput("orgDQHighPriorityErrorByIssue_ui")),
             width = 12
           )
         ),
@@ -764,8 +769,9 @@ dashboardPage(
           box(
             width = 12,
             HTML("
-              <p>This tab will list the most recent technical updates and changes to Eva.
-              For more in-depth information on current and past issues, please go to <a
+              <p>This tab will list the most recent technical updates and
+              changes to Eva. For more in-depth information on current and past
+              issues, please go to <a
               href='https://github.com/abtassociates/eva/issues' target= '_blank'
               rel='noopener noreferrer'>GitHub</a>.</p>
             ")
@@ -778,40 +784,6 @@ dashboardPage(
           )
         )
       ),
-      # tabItem(
-      #   tabName = "tabDeskTime",
-      #   fluidRow(box(htmlOutput("headerDeskTime"),
-      #                width = 12)),
-      #     fluidRow(box(
-      #       title = "Instructions",
-      #       width = 12,
-      #       collapsible = TRUE,
-      #       collapsed = TRUE,
-      #       HTML("")
-      #     )), 
-      #   fluidRow(box(
-      #     pickerInput(
-      #       label = "Select Provider",
-      #       inputId = "providerDeskTime",
-      #       choices = NULL, #desk_time_providers,
-      #       options = pickerOptions(liveSearch = TRUE,
-      #                               liveSearchStyle = 'contains'),
-      #       width = "100%",
-      #       selected = NULL # desk_time_providers[1]
-      #     ),
-      #     width = 12
-      #   )),
-      #   fluidRow(box(plotOutput("DeskTimePlotDetail"), width = 12)), 
-      #   fluidRow(
-      #     box(
-      #       uiOutput("deskTimeNote"),
-      #       title = "More Information",
-      #       collapsible = TRUE,
-      #       collapsed = TRUE,
-      #       width = 12
-      #     )
-      #   )
-      # ),
       tabItem(
         tabName = "tabDQSystem",
         fluidRow(box(
@@ -901,8 +873,10 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "High Priority Errors",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
-            tabPanel("Top 10 Issues", uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
+            tabPanel("Top 10 Organizations",
+                     uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
+            tabPanel("Top 10 Issues",
+                     uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
             width = 12
           )
         ),
@@ -931,82 +905,3 @@ dashboardPage(
   )
 )
 
-
-# tabItem(
-#   tabName = "utilizationTab",
-#   fluidRow(box(htmlOutput(
-#     "headerUtilization"
-#   ), width = 12)),
-#   fluidRow(box(
-#     pickerInput(
-#       label = "Select Project",
-#       inputId = "providerListUtilization",
-#       choices = NULL, 
-#       options = pickerOptions(liveSearch = TRUE,
-#                               liveSearchStyle = 'contains'),
-#       width = "100%"
-#     ),
-#     airDatepickerInput(
-#       inputId = "utilizationDate",
-#       label = "Report End Month for Annual Plot",
-#       max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-#       min = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date - days(335), unit = "month")),
-#       dateFormat = "MM yyyy",
-#       view = "month",
-#       value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-#       minView = "months",
-#       addon = "none",
-#       autoClose = TRUE,
-#       width = '25%'
-#     ),
-#     width = 12
-#   )),
-#   plotlyOutput("bedPlot"),
-#   br(),
-#   fluidRow(
-#     box(
-#       uiOutput("bedNote"),
-#       title = "What is Bed Utilization?",
-#       collapsible = TRUE,
-#       collapsed = TRUE
-#     ),
-#     box(
-#       uiOutput("unitNote"),
-#       title = "What is Unit Utilization?",
-#       collapsible = TRUE,
-#       collapsed = TRUE
-#     ),
-#     box(
-#       uiOutput("utilizationNote"),
-#       title = "Methodology",
-#       collapsible = TRUE,
-#       collapsed = TRUE
-#     )
-#   ),
-#   fluidRow(box(
-#     airDatepickerInput(
-#       inputId = "utilizationDetailDate",
-#       label = "Choose Month for Detail Data",
-#       max = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-#       min = NULL, # ymd(floor_date(ymd(meta_HUDCSV_Export_End), "month") - years(2) + days(1)),
-#       dateFormat = "MM yyyy",
-#       view = "month",
-#       value = NULL, # ymd(floor_date(meta_HUDCSV_Export_Date, unit = "month") - days(1)),
-#       minView = "months",
-#       addon = "none",
-#       autoClose = TRUE,
-#       width = '50%'
-#     ),
-#     width = 12
-#   )),
-#   fluidRow(box(
-#     infoBoxOutput("utilizationSummary0", width = '100%'),
-#     infoBoxOutput("utilizationSummary1", width = '100%'),
-#     infoBoxOutput("utilizationSummary2", width = '100%'),
-#     width = 12
-#   )),
-#   fluidRow(box(
-#     DT::dataTableOutput("utilizationDetail"), width = 12
-#   ))
-# ),
-#)
