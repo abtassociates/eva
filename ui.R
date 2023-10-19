@@ -53,8 +53,7 @@ dashboardPage(
           window.onkeypress = resetTimer;  //catches keyboard actions
     
           function logout() {
-            alert('Your session timed out. Your data has been cleared,
-              please re-upload.');
+            alert('Your session timed out. Your data has been cleared, please re-upload.');
             Shiny.setInputValue('timeOut', 1)
           }
     
