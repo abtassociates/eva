@@ -45,7 +45,7 @@ system_df_prep <- EnrollmentAdjust %>%
 
 hh_adjustments <- system_df_prep %>%
   mutate(VeteranStatus = if_else(VeteranStatus == 1, 1, 0)) %>%
-  group_by(HouseholdID) %>%
+  group_by(HouseholdID, ProjectID) %>%
   arrange(desc(VeteranStatus), desc(AgeAtEntry)) %>%
   mutate(Sequence = seq(n()),
          CorrectedHoH = if_else(Sequence == 1, 1, 0)) %>%
@@ -55,5 +55,6 @@ hh_adjustments <- system_df_prep %>%
 # adding corrected hoh ----------------------------------------------------
 
 system_df <- system_df_prep %>%
-  left_join(hh_adjustments, join_by(EnrollmentID))
+  left_join(hh_adjustments, join_by(EnrollmentID)) %>%
+  relocate(CorrectedHoH, .after = RelationshipToHoH)
 
