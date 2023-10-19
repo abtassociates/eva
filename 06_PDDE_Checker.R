@@ -13,7 +13,8 @@ PDDEcols = c("OrganizationName",
              "Guidance",
              "Detail")
 
-# Subpop beds = TotalBeds
+# Subpop beds should equal Total Beds -------------------------------------
+
 subpopNotTotal <- Inventory %>%
   left_join(Project0, by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
@@ -117,7 +118,8 @@ missing_CoC_Address <- missing_CoC_Info %>%
    )) %>%
   select(all_of(PDDEcols))
 
-# Missing Inventory Record Is a residential project but has no active inventory for the duration of operating period OR for the reporting period
+# Missing Inventory Record Is a residential project but has no active inventory
+# for the duration of operating period OR for the reporting period
 
 missing_inventory_record <- Project0 %>%
   left_join(Inventory, by = "ProjectID") %>%
@@ -130,16 +132,21 @@ missing_inventory_record <- Project0 %>%
 # Inventory Start < Operating Start AND
 # Inventory End > Operating End or Null
 activeInventory <- Inventory %>%
-  left_join(Project %>%
-              select(ProjectID,
-                     OrganizationName,
-                     ProjectName,
-                     OperatingStartDate,
-                     OperatingEndDate) %>%
-              unique(), by = "ProjectID") %>%
+  left_join(
+    Project %>%
+      select(
+        ProjectID,
+        OrganizationName,
+        ProjectName,
+        OperatingStartDate,
+        OperatingEndDate
+      ) %>%
+      unique(),
+    by = "ProjectID"
+  ) %>%
   filter(
-    coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start & 
-    InventoryStartDate <= meta_HUDCSV_Export_End
+    coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start &
+      InventoryStartDate <= meta_HUDCSV_Export_End
   )
 
 inventory_start_precedes_operating_start <- activeInventory %>%
@@ -227,10 +234,113 @@ zero_utilization <- Project0 %>%
   mutate(Detail = "") %>%
   select(all_of(PDDEcols))
 
-##### For later-------
-# Incompatible Funding Source and Project Type Funding Source X can only be used with Project Type Y. Project Type A can only be used with Funding Source B. (this will need a lot more detail, hold on this one)
+# RRH-SO projects with active inventory -----------------------------------
 
-### Put it together ----
+rrh_so_w_inventory <- Inventory %>%
+  mutate(
+    InventoryActivePeriod = 
+      interval(InventoryStartDate,
+               coalesce(InventoryEndDate, meta_HUDCSV_Export_End))
+  ) %>%
+  select(InventoryID, ProjectID, InventoryActivePeriod, BedInventory) %>%
+  left_join(Project, join_by(ProjectID)) %>%
+  mutate(RRHSOyn = ProjectType == 13 & RRHSubType == 1,
+         RRHSOActivePeriod =
+           interval(OperatingStartDate,
+                    coalesce(OperatingEndDate, meta_HUDCSV_Export_End)),
+         Detail = "") %>%
+  filter(RRHSOyn == TRUE & 
+           !is.na(BedInventory) & BedInventory > 0 &
+           int_overlaps(InventoryActivePeriod, RRHSOActivePeriod)) %>%
+  merge_check_info(checkIDs = 132) %>%
+  select(all_of(PDDEcols))
+
+# For later.. -------------------------------------------------------------
+
+# Incompatible Funding Source and Project Type Funding Source X can only be used
+# with Project Type Y. Project Type A can only be used with Funding Source B.
+# (this will need a lot more detail, hold on this one)
+
+
+# Overlapping participations ----------------------------------------------
+
+overlapping_ce_participation <- CEParticipation %>%
+  left_join(Project0 %>% select(ProjectID, OrganizationName, ProjectName),
+            by = "ProjectID") %>%
+  group_by(ProjectID) %>%
+  arrange(CEParticipationStatusStartDate) %>%
+  mutate(PreviousCEParticipationID = lag(CEParticipationID),
+         PreviousCEStart = lag(CEParticipationStatusStartDate),
+         PreviousCEEnd = lag(CEParticipationStatusEndDate)) %>%
+  ungroup() %>%
+  filter(!is.na(PreviousCEParticipationID)) %>%
+  mutate(ParticipationPeriod =
+           interval(
+             CEParticipationStatusStartDate,
+             coalesce(CEParticipationStatusEndDate, meta_HUDCSV_Export_End)),
+         PreviousParticipationPeriod = 
+           interval(
+             PreviousCEStart,
+             coalesce(PreviousCEEnd, meta_HUDCSV_Export_End)
+           ),
+         OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod),
+         Detail = paste(
+           "This project's first participation period goes from",
+           CEParticipationStatusStartDate,
+           "to",
+           if_else(is.na(CEParticipationStatusEndDate),
+                   "current,",
+                   paste0(CEParticipationStatusEndDate, ",")),
+           "and the other participation period goes from",
+           PreviousCEStart,
+           "to",
+           if_else(is.na(PreviousCEEnd),
+                   "current.",
+                   paste0(PreviousCEEnd, "."))
+         )) %>%
+  merge_check_info(checkIDs = 128) %>%
+  select(all_of(PDDEcols))
+
+overlapping_hmis_participation <- HMISParticipation %>%
+  left_join(Project0 %>% select(ProjectID, OrganizationName, ProjectName),
+            by = "ProjectID") %>%
+  group_by(ProjectID) %>%
+  arrange(HMISParticipationStatusStartDate) %>%
+  mutate(
+    PreviousHMISParticipationID = lag(HMISParticipationID),
+    PreviousHMISStart = lag(HMISParticipationStatusStartDate),
+    PreviousHMISEnd = lag(HMISParticipationStatusEndDate)) %>%
+  ungroup() %>%
+  filter(!is.na(PreviousHMISParticipationID)) %>%
+  mutate(ParticipationPeriod =
+           interval(
+             HMISParticipationStatusStartDate,
+             coalesce(HMISParticipationStatusEndDate, meta_HUDCSV_Export_End)),
+         PreviousParticipationPeriod = 
+           interval(
+             PreviousHMISStart,
+             coalesce(PreviousHMISEnd, meta_HUDCSV_Export_End)
+           ),
+         OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod),
+         Detail = paste(
+           "This project's first HMIS participation period goes from",
+           HMISParticipationStatusStartDate,
+           "to",
+           if_else(is.na(HMISParticipationStatusEndDate),
+                   "today,",
+                   paste0(HMISParticipationStatusEndDate, ",")),
+           "and the other participation period goes from",
+           PreviousHMISStart,
+           "to",
+           if_else(is.na(PreviousHMISEnd),
+                   "today.",
+                   paste0(PreviousHMISEnd, "."))
+         )) %>%
+  merge_check_info(checkIDs = 131) %>%
+  select(all_of(PDDEcols))
+
+# Put it all together -----------------------------------------------------
+
 pdde_main <- rbind(
   subpopNotTotal,
   operating_end_missing,
@@ -239,7 +349,10 @@ pdde_main <- rbind(
   missing_CoC_Geography,
   missing_inventory_record,
   operating_end_precedes_inventory_end,
+  overlapping_ce_participation,
+  overlapping_hmis_participation,
   inventory_start_precedes_operating_start,
+  rrh_so_w_inventory,
   zero_utilization
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
