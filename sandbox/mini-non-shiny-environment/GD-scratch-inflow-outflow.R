@@ -1,6 +1,7 @@
 
 
-ees_with_statuses <- Enrollment %>%
+ees_with_statuses <- system_df %>%
+  filter(ProjectType )
   select(
     PersonalID,
     HouseholdID,
