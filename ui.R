@@ -533,6 +533,8 @@ dashboardPage(
             "dateRangeCount",
             "Date Range",
             format = "mm/dd/yyyy",
+            start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
+            end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
             width = 300
           ),
           uiOutput("downloadClientCountsReportButton"),

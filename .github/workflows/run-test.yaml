@@ -2,7 +2,7 @@
 # system libraries:
 #   libcurl -- needed to complete setup-renv
 #   libharfbuzz-dev libfribidi-dev -- needed for the textshaping package
-#   which is a dependency of ragg, which is a dependency of the new tidyverse (2.0.0)
+#     which is a dependency of ragg, which is a dependency of the new tidyverse (2.0.0)
 
 on:
   pull_request:
@@ -10,6 +10,7 @@ on:
     branches:
       - main
       - dev
+      - testing-setup
 
 name: Test
 
@@ -23,40 +24,22 @@ jobs:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       
     steps:
-      - uses: actions/checkout@v3
-      
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'renv'
+
       - name: install needed system libs
         shell: bash
         run: |
           sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
-          
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: '4.2'
-          
+              
       - uses: r-lib/actions/setup-renv@v2
-      
-      - name: Find PhantomJS path
-        id: phantomjs
-        run: |
-          echo "path=$(Rscript -e 'cat(shinytest:::phantom_paths()[[1]])')" >> $GITHUB_OUTPUT
-          
-      - name: Cache PhantomJS
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.phantomjs.outputs.path }}
-          key: ${{ runner.os }}-phantomjs
-          restore-keys: ${{ runner.os }}-phantomjs
-          
-      - name: Install PhantomJS
-        shell: Rscript {0}
-        run: |
-          options(install.packages.check.source = "no")
-          if (!shinytest::dependenciesInstalled()) shinytest::installDependencies()        
 
       - name: Run tests
         run: |
-          Rscript tests/shinytest.R
+          Rscript tests/testthat.R
           
       - name: Upload test results
         if: failure()
