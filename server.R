@@ -105,6 +105,15 @@ function(input, output, session) {
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE)
           setProgress(detail = "Assessing your data quality..", value = .7)
+          
+          # if we're in shiny testmode and the script has gotten here,
+          # that means we're using the hashed-test-good file. 
+          # we will update that file to capture the various issues we want to test
+          # we have confirmed that it is correctly capturing these issues
+          if(isTRUE(getOption("shiny.testmode"))) {
+            source("tests/update_test_good.R", local = TRUE)  
+          }
+          
           source("05_DataQuality.R", local = TRUE)
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)

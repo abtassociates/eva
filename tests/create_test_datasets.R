@@ -8,23 +8,25 @@ source("helper_functions.R", local = TRUE)
 
 setwd("tests")
 
-# start with the main test dataset
+# unzip main test data to temp directory. 
+# this will allow us to overwrite individual csv files
 unzip("FY24-ICF-hashed-current-good.zip", exdir = "temp")
 
-# function to save the file as a zip file
+# function to save a directory of CSVs as a zip file for upload
 save_new_zip <- function(zipfname, files_directory) {
-    zipr(
-        zipfile = zipfname, 
-        files = list.files(files_directory, pattern = "*.csv", full.names = TRUE),
-        mode = "cherry-pick" # so the files are at the top directory
-    )
+  zipr(
+    zipfile = zipfname, 
+    files = list.files(files_directory, pattern = "*.csv", full.names = TRUE),
+    mode = "cherry-pick" # so the files are at the top directory
+  )
 }
-# store the original data so we can modify from scratch each time
+
+# store the original data as an R data set, so we can modify from scratch each time
 csv_files <- list.files("temp", pattern = "*.csv", full.names = TRUE)
 names(csv_files) <- tools::file_path_sans_ext(basename(csv_files))
 original_data <- lapply(csv_files, data.table::fread)
 
-# store a reduced-size dataset
+# store a reduced-size dataset (1 row per csv file)
 # we don't need so much data for initially valid import checks
 reduced_data <- lapply(original_data, function(x) if(nrow(x)) x[1, ])
 dir.create("temp/reduced")
@@ -61,6 +63,9 @@ file.remove(reduced_files[["Exit"]])
 save_new_zip("temp/FY24-ICF-missing-multiple-files.zip", "temp/reduced")
 write.csv(reduced_data[["Enrollment"]], reduced_files[["Enrollment"]], row.names = FALSE, na="")
 write.csv(reduced_data[["Exit"]], reduced_files[["Exit"]], row.names = FALSE, na="")
+
+
+################# MORE TESTS ######################
 
 setwd("..")
 
