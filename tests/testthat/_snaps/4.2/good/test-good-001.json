@@ -24,7 +24,48 @@
     "fileStructureAnalysis_rows_current": null,
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
-    "fileStructureAnalysis_state": null,
+    "fileStructureAnalysis_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
     "imported": {
       "name": [
         "FY24-ICF-hashed-current-good.zip"
