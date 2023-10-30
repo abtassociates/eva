@@ -1,3 +1,4 @@
+set.seed(12345)
 select_random_rows <- function(cond) {
   return(
     split(
@@ -6,7 +7,7 @@ select_random_rows <- function(cond) {
     )
   )
 }
-# Destination Subsidy Type ------------------------------------------------
+# Destination Subsidy Type -----------------------------------------------------
 
 # pull 6 random rows to change (that fit criteria)
 # we split up the 6 rows into 3 groups of 2, to test 3 issues
@@ -22,7 +23,7 @@ Exit <- Exit %>%
   )
 
 
-# CLS Subsidy Type --------------------------------------------------------
+# CLS Subsidy Type -------------------------------------------------------------
 split_rows <- select_random_rows(CurrentLivingSituation$CurrentLivingSituation == 435)
 CurrentLivingSituation <- CurrentLivingSituation %>%
   mutate(CLSSubsidyType = 
@@ -34,7 +35,7 @@ CurrentLivingSituation <- CurrentLivingSituation %>%
            )
   )
 
-# Prior Living Situation Subsidy ------------------------------------------
+# Prior Living Situation Subsidy -----------------------------------------------
 split_rows <- select_random_rows(Enrollment$LivingSituation == 435)
 Enrollment <- Enrollment %>%
   mutate(RentalSubsidyType = 
@@ -47,7 +48,7 @@ Enrollment <- Enrollment %>%
   )
 
 
-# Participation overlap (checkIDs = 131) -------------------------------
+# Participation overlap (checkIDs = 131) ---------------------------------------
 # this creates an "overlap" by duplicating a randomly selected existing record 
 # and modifying the start date to be 2 days before the original record's end date
 # to create a "gap", simply add/change the number to a positive number
@@ -61,11 +62,14 @@ HMISParticipation <- map_dfr(c(-2), ~ {
 }) %>%
   bind_rows(HMISParticipation)
 
-# RRH-SO projects with active inventory (checkID = 132) ----------------------
+# RRH-SO projects with active inventory (checkID = 132) ------------------------
 # this selects a random project with inventory and projecttype = 13
 random_project <- Inventory %>% 
   filter(BedInventory > 0) %>%
-  semi_join(Project %>% filter(ProjectType == 13), by = "ProjectID") %>%
+  semi_join(
+    Project %>% 
+      filter(ProjectType == 13), 
+    by = "ProjectID") %>%
   sample_n(1) %>%
   pull(ProjectID)
 
@@ -81,8 +85,8 @@ Project <- Project %>%
 # finally, make sure inventory period overlaps project operating period
 Inventory <- Inventory %>% 
   left_join(Project %>% 
-              select(ProjectID, OperatingStartDate, OperatingEndDate)
-            ,by = "ProjectID") %>%
+              select(ProjectID, OperatingStartDate, OperatingEndDate), 
+            by = "ProjectID") %>%
   mutate(InventoryStartDate = OperatingStartDate - days(1),
          InventoryEndDate = OperatingEndDate + days(1)) %>%
   select(-c(OperatingStartDate, OperatingEndDate))
