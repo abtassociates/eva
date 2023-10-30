@@ -290,60 +290,60 @@ function(input, output, session) {
 #   dq_plot_overview
 # })  
     
-
-    output$dq_orgs_overview_plot <- renderPlot({
-      req(valid_file() == 1)
-# browser()
-      highest_type <- dq_main_reactive() %>%
-        count(Type) %>% 
-        head(1L) %>%
-        mutate(Type = as.character(Type)) %>%
-        pull(Type)
-      
-      highest_type_display <-
-        case_when(
-          highest_type == "High Priority" ~ "High Priority Issues",
-          highest_type == "Error" ~ "Errors",
-          TRUE ~ "Warnings"
-        )
-      
-      detail <- dq_main_reactive() %>%
-        count(OrganizationName, Type, name = "Total") %>%
-        filter(Type == highest_type)
-
-      dq_plot_overview <-
-        ggplot(
-          detail %>%
-            arrange(desc(Total)) %>%
-            head(5L) %>%
-            mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
-          aes(x = OrganizationName, y = Total)
-        ) +
-        geom_col(fill = "#D5BFE6", alpha = .7)+
-        scale_y_continuous(label = comma_format()) +
-        labs(
-          title = paste("Highest Counts of",
-                        ifelse(is_empty(highest_type_display),
-                               "Issue",
-                               highest_type_display)),
-          x = "Top 5 Organizations",
-          y = ifelse(is_empty(highest_type_display),"Issue",highest_type_display)
-        ) +
-        coord_flip() +
-        theme_minimal(base_size = 18) +
-        theme(
-          plot.title.position = "plot",
-          title = element_text(colour = "#73655E")
-        ) +
-        geom_text(aes(label = prettyNum(Total, big.mark = ",")),
-                  nudge_y = 2,
-                  color = "gray14")
-      
-      if (nrow(detail) == 0) {
-        dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
-      }
-      dq_plot_overview
-    })
+# 
+#     output$dq_orgs_overview_plot <- renderPlot({
+#       req(valid_file() == 1)
+# # browser()
+#       highest_type <- dq_main_reactive() %>%
+#         count(Type) %>% 
+#         head(1L) %>%
+#         mutate(Type = as.character(Type)) %>%
+#         pull(Type)
+#       
+#       highest_type_display <-
+#         case_when(
+#           highest_type == "High Priority" ~ "High Priority Issues",
+#           highest_type == "Error" ~ "Errors",
+#           TRUE ~ "Warnings"
+#         )
+#       
+#       detail <- dq_main_reactive() %>%
+#         count(OrganizationName, Type, name = "Total") %>%
+#         filter(Type == highest_type)
+# 
+#       dq_plot_overview <-
+#         ggplot(
+#           detail %>%
+#             arrange(desc(Total)) %>%
+#             head(5L) %>%
+#             mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
+#           aes(x = OrganizationName, y = Total)
+#         ) +
+#         geom_col(fill = "#D5BFE6", alpha = .7)+
+#         scale_y_continuous(label = comma_format()) +
+#         labs(
+#           title = paste("Highest Counts of",
+#                         ifelse(is_empty(highest_type_display),
+#                                "Issue",
+#                                highest_type_display)),
+#           x = "Top 5 Organizations",
+#           y = ifelse(is_empty(highest_type_display),"Issue",highest_type_display)
+#         ) +
+#         coord_flip() +
+#         theme_minimal(base_size = 18) +
+#         theme(
+#           plot.title.position = "plot",
+#           title = element_text(colour = "#73655E")
+#         ) +
+#         geom_text(aes(label = prettyNum(Total, big.mark = ",")),
+#                   nudge_y = 2,
+#                   color = "gray14")
+#       
+#       if (nrow(detail) == 0) {
+#         dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
+#       }
+#       dq_plot_overview
+#     })
     
     output$validate_plot <- renderPlot({
       req(valid_file() == 1)
