@@ -26,13 +26,7 @@ function(input, output, session) {
   showModal(
     modalDialog(
       title = "NOTICE(S):",
-      HTML("
-      1.  <strong>Eva is experiencing some slowness in uploading files.</strong>
-      If Eva should be showing a progress bar but is not, please wait. The app is
-      working, it is just taking some extra time. The Eva team is investigating
-      this issue and hope to resolve it shortly.
-      <br><br><p>
-      2. <strong>Eva only accepts FY 2024 HMIS CSV Exports.</strong> Attempting
+      HTML("<strong>Eva only accepts FY 2024 HMIS CSV Exports.</strong> Attempting
       to upload a file in the previous format will result in a rejected file.
       Please contact your vendor for information on how to run your updated HMIS
       CSV Export so that it complies with the new FY2024 HMIS CSV Export
@@ -54,15 +48,14 @@ function(input, output, session) {
   
   output$headerLocalSettings <- headerGeneric("Edit Local Settings")
   
-  output$headerClientCounts <- headerGeneric("Client Counts Report", renderUI({ 
+  output$headerClientCounts_supp <- renderUI({ 
     organization <- Project0 %>%
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
     
-    h4(paste(
-      organization, "|", input$currentProviderList
-    ))
-  }))
+    h4(organization, "|", input$currentProviderList)
+  })
+  output$headerClientCounts <- headerGeneric("Client Counts Report", htmlOutput("headerClientCounts_supp"))
   
   output$headerPDDE <- headerGeneric("Project Descriptor Data Elements Checker")
   
@@ -161,10 +154,13 @@ function(input, output, session) {
           a,
           rownames = FALSE,
           filter = 'none',
-          options = list(dom = 't')
+          options = list(dom = 't', 
+                         language = list(
+                          zeroRecords = "No file structure analysis issues! 
+                        Visit the other tabs to view the rest of Eva's output")
+                         )
         )
       })
-
 # File Structure Analysis Download ----------------------------------------
 
     output$downloadFileStructureAnalysisBtn <- renderUI({

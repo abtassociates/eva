@@ -1,6 +1,18 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "11-2-2023", "Fixed issue with overidentifying overlapping CE Participation
+    records.",
+
+    "11-2-2023", "Removed slowness warning at the beginning. Slowness seems to
+    be limited to Abt machines.",
+
+    "11-2-2023", "Fixed bug where Eva crashed when a demographic column name
+    was misspelled in Client.csv.",
+
+    "11-2-2023", "Modified empty File Structure Anaysis results text to be 
+    more explicit and helpful.",
+
     "10-20-2023", "Added 2 new Data Quality issues: Missing Current Living
     Situation Subsidy Type and Missing Prior Living Situation Subsidy Type and
     updated Missing Destination Subsidy Type to also flag subsidy types that
