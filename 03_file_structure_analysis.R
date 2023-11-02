@@ -235,9 +235,9 @@ cols <- c("VeteranStatus", "RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerica
           "Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
           "DifferentIdentity", "Questioning", "GenderNone")
 
-valid_values <- list(yes_no_enhanced, dkr_dnc, yes_no, yes_no, yes_no, yes_no, 
+valid_values <- list(yes_no_enhanced, c(dkr_dnc, NA), yes_no, yes_no, yes_no, yes_no, 
                      yes_no, yes_no, yes_no, yes_no, yes_no, yes_no, yes_no,
-                     yes_no, yes_no, yes_no, dkr_dnc)
+                     yes_no, yes_no, yes_no, c(dkr_dnc, NA))
 
 
 # Only take existing columns - this solves the issue of misspelled demographic 
@@ -252,8 +252,7 @@ valid_values_named <- setNames(valid_values, cols)[existing_cols]
 # it refers to the particular column in the loop. Equivalent to pull(.)
 # The ~ defines an anonymous function, as opposed to creating a specific function
 get_unexpected_count <- function(col_name) {
-  unexpected <- !Client[[col_name]] %in% valid_values_named[[col_name]] & 
-    !is.na(Client[[col_name]])
+  unexpected <- !Client[[col_name]] %in% valid_values_named[[col_name]]
   data.frame(name = col_name, n = sum(unexpected))
 }
 
