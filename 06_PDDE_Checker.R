@@ -277,11 +277,11 @@ overlapping_ce_participation <- CEParticipation %>%
   mutate(ParticipationPeriod =
            interval(
              CEParticipationStatusStartDate,
-             coalesce(CEParticipationStatusEndDate, meta_HUDCSV_Export_End)),
+             coalesce(CEParticipationStatusEndDate, no_end_date)),
          PreviousParticipationPeriod = 
            interval(
              PreviousCEStart,
-             coalesce(PreviousCEEnd, meta_HUDCSV_Export_End)
+             coalesce(PreviousCEEnd, no_end_date)
            ),
          OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod),
          Detail = paste(
