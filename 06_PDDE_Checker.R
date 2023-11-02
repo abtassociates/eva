@@ -285,7 +285,7 @@ overlapping_ce_participation <- CEParticipation %>%
            ),
          OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod)
   ) %>%
-  filter(OverlapYN) %>%
+  filter(OverlapYN == TRUE) %>%
   mutate(Detail = paste(
            "This project's first participation period goes from",
            CEParticipationStatusStartDate,
