@@ -283,7 +283,7 @@ overlapping_ce_participation <- CEParticipation %>%
              PreviousCEStart,
              coalesce(PreviousCEEnd, no_end_date)
            ),
-         OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod),
+         OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod)
   ) %>%
   filter(OverlapYN) %>%
   mutate(Detail = paste(
@@ -317,14 +317,16 @@ overlapping_hmis_participation <- HMISParticipation %>%
   mutate(ParticipationPeriod =
            interval(
              HMISParticipationStatusStartDate,
-             coalesce(HMISParticipationStatusEndDate, meta_HUDCSV_Export_End)),
+             coalesce(HMISParticipationStatusEndDate, no_end_date)),
          PreviousParticipationPeriod = 
            interval(
              PreviousHMISStart,
-             coalesce(PreviousHMISEnd, meta_HUDCSV_Export_End)
+             coalesce(PreviousHMISEnd, no_end_date)
            ),
-         OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod),
-         Detail = paste(
+         OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod)
+         ) %>% 
+         filter(OverlapYN) %>%
+         mutate(Detail = paste(
            "This project's first HMIS participation period goes from",
            HMISParticipationStatusStartDate,
            "to",
