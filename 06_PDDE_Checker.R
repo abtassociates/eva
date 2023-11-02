@@ -284,7 +284,9 @@ overlapping_ce_participation <- CEParticipation %>%
              coalesce(PreviousCEEnd, no_end_date)
            ),
          OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod),
-         Detail = paste(
+  ) %>%
+  filter(OverlapYN) %>%
+  mutate(Detail = paste(
            "This project's first participation period goes from",
            CEParticipationStatusStartDate,
            "to",
