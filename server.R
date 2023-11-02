@@ -160,10 +160,13 @@ function(input, output, session) {
           a,
           rownames = FALSE,
           filter = 'none',
-          options = list(dom = 't')
+          options = list(dom = 't', 
+                         language = list(
+                          zeroRecords = "No file structure analysis issues! 
+                        Visit the other tabs to view the rest of Eva's output")
+                         )
         )
       })
-
 # File Structure Analysis Download ----------------------------------------
 
     output$downloadFileStructureAnalysisBtn <- renderUI({
