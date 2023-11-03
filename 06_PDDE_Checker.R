@@ -229,10 +229,16 @@ projects_w_clients <- Enrollment %>%
 res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 
 zero_utilization <- Project0 %>%
+  inner_join(HMISParticipation %>%
+              filter(HMISParticipationType == 1) %>%
+              select(ProjectID, HMISParticipationType) %>%
+              unique(), by = "ProjectID") %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
   merge_check_info(checkIDs = 83) %>%
   mutate(Detail = "") %>%
   select(all_of(PDDEcols))
+
+# if a comparable db uses Eva, this will not flag for them^
 
 # RRH-SO projects with active inventory -----------------------------------
 
