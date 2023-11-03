@@ -24,7 +24,48 @@
     "fileStructureAnalysis_rows_current": null,
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
-    "fileStructureAnalysis_state": null,
+    "fileStructureAnalysis_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
     "imported": {
       "name": [
         "FY24-ICF-hashed-current-good.zip"
@@ -79,6 +120,9 @@
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "t",
+          "language": {
+            "zeroRecords": "No file structure analysis issues! \n                        Visit the other tabs to view the rest of Eva's output"
+          },
           "columnDefs": [
             {
               "className": "dt-right",
