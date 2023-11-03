@@ -877,7 +877,8 @@ future_ees <- base_dq_data %>%
   select(all_of(vars_we_want))
 
 future_exits <- base_dq_data %>%
-  filter(ExitAdjust > as.Date(meta_HUDCSV_Export_Date)) %>%
+  filter(!is.na(ExitDate) &
+           ExitDate > as.Date(meta_HUDCSV_Export_Date)) %>%
   merge_check_info(checkIDs = 14) %>%
   select(all_of(vars_we_want))
     
