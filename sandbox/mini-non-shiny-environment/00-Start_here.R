@@ -54,7 +54,7 @@ source(paste0(directory, "02_export_dates.R"))
 source(paste0(directory, "03_file_structure_analysis.R"))
 
 if_else(structural_issues == 0,
-        "Eva would not reject this export.",
+        "Eva would accept this export.",
         "Eva would reject this export.")
 
 # Data prep! --------------------------------------------------------------
