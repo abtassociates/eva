@@ -231,7 +231,7 @@ export_id_client <- Client %>%
 # CHECK: Invalid demographic values
 # first, get a mapping of variables and their expected values
 cols <- c("VeteranStatus", "RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
-          "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeO", 
+          "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo", 
           "Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
           "DifferentIdentity", "Questioning", "GenderNone")
 
