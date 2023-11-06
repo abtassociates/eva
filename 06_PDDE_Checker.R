@@ -231,8 +231,7 @@ res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 zero_utilization <- Project0 %>%
   inner_join(HMISParticipation %>%
               filter(HMISParticipationType == 1) %>%
-              select(ProjectID, HMISParticipationType) %>%
-              unique(), by = "ProjectID") %>%
+              distinct(ProjectID), by = "ProjectID") %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
   merge_check_info(checkIDs = 83) %>%
   mutate(Detail = "") %>%
