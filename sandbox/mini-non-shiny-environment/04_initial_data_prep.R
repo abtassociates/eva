@@ -95,7 +95,7 @@ EnrollmentStaging <- Enrollment %>%
   left_join(Exit %>% 
               select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
             by = "EnrollmentID") %>%
-  mutate(ExitAdjust = coalesce(ExitDate, no_end_date),
+  mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_End),
          EnrollmentDateRange = interval(EntryDate, ExitAdjust))
 
 # Truncating Enrollments based on Operating/Participating -----------------
@@ -178,7 +178,7 @@ Enrollment <- EnrollmentStaging %>%
       min(int_end(ParticipatingDateRange), int_end(OperatingDateRange), na.rm = TRUE),
       ExitDate
     ),
-    ExitAdjust = replace_na(ExitDate, no_end_date)
+    ExitAdjust = replace_na(ExitDate, meta_HUDCSV_Export_End)
   ) %>%
   select(
     EnrollmentID,
