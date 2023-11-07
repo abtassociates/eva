@@ -159,7 +159,7 @@ Enrollment <- EnrollmentStaging %>%
   left_join(EnrollmentOutside,
             by = c("EnrollmentID", "ProjectID", "EnrollmentDateRange")) %>%
   mutate(
-    EntryDateAdj = if_else(
+    EntryDateTruncated = if_else(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating Start",
                                   "Enrollment Crosses Operating Period") |
         EnrollmentvParticipating %in% c("Enrollment Crosses Participating Start",
@@ -168,9 +168,8 @@ Enrollment <- EnrollmentStaging %>%
           int_start(OperatingDateRange), na.rm = TRUE),
       EntryDate
     ),
-    RawExitAdjust = ExitAdjust,
     RawExitDate = ExitDate,
-    ExitDate = if_else(
+    ExitDateTruncated = if_else(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating End",
                                   "Enrollment Crosses Operating Period") |
         EnrollmentvParticipating %in% c("Enrollment Crosses Participating End",
