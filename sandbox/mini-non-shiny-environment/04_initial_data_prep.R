@@ -158,8 +158,7 @@ Enrollment <- EnrollmentStaging %>%
   left_join(EnrollmentOutside,
             by = c("EnrollmentID", "ProjectID", "EnrollmentDateRange")) %>%
   mutate(
-    RawEntryDate = EntryDate,
-    EntryDate = if_else(
+    EntryDateTruncated = if_else(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating Start",
                                   "Enrollment Crosses Operating Period") |
         EnrollmentvParticipating %in% c("Enrollment Crosses Participating Start",
@@ -168,9 +167,7 @@ Enrollment <- EnrollmentStaging %>%
           int_start(OperatingDateRange), na.rm = TRUE),
       EntryDate
     ),
-    RawExitAdjust = ExitAdjust,
-    RawExitDate = ExitDate,
-    ExitDate = if_else(
+    ExitDateTruncated = if_else(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating End",
                                   "Enrollment Crosses Operating Period") |
         EnrollmentvParticipating %in% c("Enrollment Crosses Participating End",
@@ -185,11 +182,10 @@ Enrollment <- EnrollmentStaging %>%
     ProjectID,
     ProjectTimeID,
     ProjectType,
-    RawEntryDate,
+    EntryDateTruncated,
     EntryDate,
-    RawExitAdjust,
     ExitAdjust,
-    RawExitDate,
+    ExitDateTruncated,
     ExitDate,
     Destination,
     DestinationSubsidyType,
@@ -302,13 +298,12 @@ validationEnrollment <- Enrollment %>%
     ProjectTimeID,
     RelationshipToHoH,
     EntryDate,
-    RawEntryDate,
+    EntryDateTruncated,
     MoveInDate,
     ExitDate,
-    RawExitDate,
+    ExitDateTruncated,
     MoveInDateAdjust,
     ExitAdjust,
-    RawExitAdjust,
     LivingSituation,
     Destination,
     DestinationSubsidyType,
