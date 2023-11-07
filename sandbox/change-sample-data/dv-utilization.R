@@ -5,7 +5,7 @@
 Project <- Project %>%
   add_row(
     "ProjectID" = "1800",
-    "OrganizationID" = "234",
+    "OrganizationID" = "80",
     "ProjectName" = "A Safe Place - ES DV",
     "ProjectCommonName" = NA,
     "OperatingStartDate" = ymd("20001001"),
@@ -85,33 +85,6 @@ write.csv(
   row.names = FALSE
 )
 
-projects_w_beds <- Inventory %>%
-  filter(
-    BedInventory > 0 &
-      coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start &
-      InventoryStartDate <= meta_HUDCSV_Export_End
-  ) %>%
-  pull(ProjectID) %>%
-  unique()
-
-projects_w_clients <- Enrollment %>%
-  pull(ProjectID) %>%
-  unique()
-
-dv_projects <- HMISParticipation %>%
-  group_by(ProjectID) %>%
-  slice_min(HMISParticipationType) %>%
-  ungroup() %>%
-  filter(HMISParticipationType == 2) %>%
-  pull(ProjectID)
-
-dv_projects %in% c(projects_w_beds)
-
-dv_projects %in% c(projects_w_clients)
-
-res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
-
-
 # remove enrollments from one of the dv projects --------------------------
 
 # 2 projects in the sample data are represented twice in the HMISParticipation
@@ -141,3 +114,28 @@ write.csv(
 # ignoring the fact that that project is not HMIS Participating and thus
 # shouldn't have any enrollments. We do NOT want 1800 to flag.
 
+projects_w_beds <- Inventory %>%
+  filter(
+    BedInventory > 0 &
+      coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start &
+      InventoryStartDate <= meta_HUDCSV_Export_End
+  ) %>%
+  pull(ProjectID) %>%
+  unique()
+
+projects_w_clients <- Enrollment %>%
+  pull(ProjectID) %>%
+  unique()
+
+dv_projects <- HMISParticipation %>%
+  group_by(ProjectID) %>%
+  slice_min(HMISParticipationType) %>%
+  ungroup() %>%
+  filter(HMISParticipationType == 2) %>%
+  pull(ProjectID)
+
+dv_projects %in% c(projects_w_beds)
+
+dv_projects %in% c(projects_w_clients)
+
+res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
