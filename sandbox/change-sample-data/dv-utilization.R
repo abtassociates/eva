@@ -2,6 +2,9 @@
 
 # sample data has no projects that are just comparable db particip --------
 
+Organization <- Organization %>%
+  mutate(VictimServiceProvider = if_else(OrganizationID == 80, 1, 0))
+
 Project <- Project %>%
   add_row(
     "ProjectID" = "1800",
@@ -35,7 +38,8 @@ HMISParticipation <- HMISParticipation %>%
    "DateCreated" = ymd_hms("20001001 06:00:00"),
    "DateUpdated" = ymd_hms("20001001 06:00:00"),
    "UserID" = "4566",
-   "DateDeleted" = NA
+   "DateDeleted" = NA,
+   "ExportID" = Export$ExportID
   )
 
 Inventory <- Inventory %>%
@@ -66,21 +70,28 @@ Inventory <- Inventory %>%
 
 write.csv(
   Project,
-  here(paste0(directory, "data/Enrollment.csv")),
+  here(paste0(directory, "data/Project.csv")),
   na = "",
   row.names = FALSE
 )
 
 write.csv(
   HMISParticipation,
-  here(paste0(directory, "data/Enrollment.csv")),
+  here(paste0(directory, "data/HMISParticipation.csv")),
   na = "",
   row.names = FALSE
 )
 
 write.csv(
   Inventory,
-  here(paste0(directory, "data/Enrollment.csv")),
+  here(paste0(directory, "data/Inventory.csv")),
+  na = "",
+  row.names = FALSE
+)
+
+write.csv(
+  Organization,
+  here(paste0(directory, "data/Organization.csv")),
   na = "",
   row.names = FALSE
 )
