@@ -159,8 +159,7 @@ Enrollment <- EnrollmentStaging %>%
   left_join(EnrollmentOutside,
             by = c("EnrollmentID", "ProjectID", "EnrollmentDateRange")) %>%
   mutate(
-    RawEntryDate = EntryDate,
-    EntryDate = if_else(
+    EntryDateAdj = if_else(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating Start",
                                   "Enrollment Crosses Operating Period") |
         EnrollmentvParticipating %in% c("Enrollment Crosses Participating Start",
