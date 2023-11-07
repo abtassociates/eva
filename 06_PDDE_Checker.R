@@ -211,7 +211,33 @@ rrh_no_subtype <- Project %>%
   mutate(Detail = "") %>%
   select(all_of(PDDEcols))
 
-# Zero Utilization --------------------------------------------------------
+
+# VSP with HMIS Participation ---------------------------------------------
+
+vsp_projects <- Project %>%
+  inner_join(Organization %>%
+               filter(VictimServiceProvider == 1),
+             by = "OrganizationID") %>%
+  pull(ProjectID) %>%
+  unique()
+
+participating_projects <- Project %>%
+  inner_join(HMISParticipation %>%
+               filter(HMISParticipationType == 1),
+             by = "ProjectID") %>%
+  pull(ProjectID) %>%
+  unique()
+
+vsps_that_are_hmis_participating <- 
+  base::intersect(vsp_projects, participating_projects)
+
+vsps_in_hmis <- Project %>%
+  filter(ProjectID %in% c(vsps_that_are_hmis_participating)) %>%
+  merge_check_info(checkIDs = 133) %>%
+  mutate(Detail = "") %>%
+  select(all_of(PDDEcols))
+  
+ # Zero Utilization --------------------------------------------------------
 
 projects_w_beds <- Inventory %>%
   filter(
@@ -362,6 +388,7 @@ pdde_main <- rbind(
   overlapping_hmis_participation,
   inventory_start_precedes_operating_start,
   rrh_so_w_inventory,
+  vsps_in_hmis,
   zero_utilization
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
