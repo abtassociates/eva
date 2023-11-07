@@ -158,15 +158,14 @@ check_data_types <- function(quotedfile) {
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
-  total_rows = nrow(barefile)
-  if (total_rows > 1) {
+  if (nrow(barefile) > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
       filter(File == file & NullsAllowed == 0 & Column %in% names(get(file))) %>%
       pull(Column)
 
     # select subset of columns with nulls
-    barefile <- get(file) %>%
+    barefile <- barefile %>%
       select(all_of(nulls_not_allowed_cols)) %>%
       mutate_all(~ifelse(is.na(.), 1, 0)) %>%
       select_if(~any(. == 1))
