@@ -93,68 +93,51 @@ check_columns <- function(file) {
     )
   }
 }
+df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
 
-check_data_types <- function(quotedfile) {
-  barefile <- get(quotedfile)
-  if(nrow(barefile) > 0) {
-    
-    data_types <- as.data.frame(summary.default(barefile)) %>% 
-      filter(Var2 != "Length" & 
-               ((Var2 == "Class" & Freq %in% c("Date", "POSIXct")) |
-                  Var2 == "Mode")) %>% 
-      mutate(
-        File = quotedfile,
-        ImportedDataType = case_when(
-          Var2 == "Class" & Freq == "Date" ~ "date",
-          Var2 == "Class" & Freq == "POSIXct" ~ "datetime",
-          Var2 == "Mode" ~ Freq,
-          TRUE ~ "something's wrong"
-        )) %>%
-      group_by(Var1) %>%
-      slice_min(order_by = Var2)  %>%
-      ungroup() %>%
-      select(File, "Column" = Var1, ImportedDataType)
-    
-    y <- cols_and_data_types %>% 
-      left_join(data_types, by = c("File", "Column")) %>%
-      filter(DataType != ImportedDataType) %>%
-      mutate(
-        Detail = str_squish(paste0(
-          "In the ",
-          quotedfile,
-          " file, the ",
-          Column,
-          " column should have a data type of ",
-          case_when(
-            DataType == "numeric" ~ "integer",
-            DataType == "character" ~ "string",
-            TRUE ~ DataType
-          ),
-          " but in this file, it is ",
-          case_when(
-            ImportedDataType == "numeric" ~ "integer",
-            ImportedDataType == "character" ~ "string",
-            TRUE ~ ImportedDataType
-            ),
-          "."
-        ))
-      )
+# Unexpected (non-date) data types -----------------------------------------------------
+data_types <- problems %>%
+  filter(str_detect(expected, "date") != TRUE) %>%
+  mutate(
+    File = str_remove(basename(file), ".csv"),
+  ) %>%
+  left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
+  mutate(
+    Detail = str_squish(paste0(
+      "In the ",
+      File,
+      " file, the ",
+      Column,
+      " column should have a data type of ",
+      case_when(
+        DataType == "numeric" ~ "integer",
+        DataType == "character" ~ "string",
+        TRUE ~ DataType
+      ),
+      " but in this file, it is ",
+      case_when(
+        all(map_lgl(actual, is.numeric)) ~ "integer",
+        all(map_lgl(actual, is.Date)) ~ "date",
+        TRUE ~ "string"
+      ),
+      "."
+    ))
+  )
 
-    return(
-      rbind(
-        y %>% 
-          filter(DataTypeHighPriority == 1) %>% 
-          merge_check_info(checkIDs = 13) %>%
-          select(all_of(issue_display_cols)),
-          
-        y %>% 
-          filter(DataTypeHighPriority == 0) %>% 
-          merge_check_info(checkIDs = 48) %>%
-          select(all_of(issue_display_cols))
-      )
-    )
-  }
-}
+df_data_types <- rbind(
+  data_types %>% 
+    filter(DataTypeHighPriority == 1) %>% 
+    merge_check_info(checkIDs = 13) %>%
+    select(all_of(issue_display_cols)) %>%
+    unique(),
+  
+  data_types %>% 
+    filter(DataTypeHighPriority == 0) %>% 
+    merge_check_info(checkIDs = 48) %>%
+    select(all_of(issue_display_cols)) %>%
+    unique()
+)
+
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
@@ -203,13 +186,6 @@ check_for_bad_nulls <- function(file) {
     }
   }
 }
-
-# Integrity Structure -----------------------------------------------------
-
-df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
-
-df_data_types <- map_df(unique(cols_and_data_types$File), check_data_types)
-
 df_nulls <- map_df(unique(cols_and_data_types$File), check_for_bad_nulls)
 
 # Integrity Client --------------------------------------------------------
