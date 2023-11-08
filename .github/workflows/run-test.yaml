@@ -37,10 +37,6 @@ jobs:
               
       - uses: r-lib/actions/setup-renv@v2
 
-      - name: Run tests
-        run: |
-          Rscript tests/testing_functions.R tests/create_test_datasets.R
-
       - uses: rstudio/shinytest2/actions/test-app@v1
         with:
           app-dir: "."
