@@ -41,3 +41,8 @@ jobs:
         with:
           app-dir: "."
           upload-snapshots: true
+        
+      - uses: Remove temp
+      - name: Run tests
+        run: |
+          Rscript unlink(here("tests/temp"), recursive = TRUE)
