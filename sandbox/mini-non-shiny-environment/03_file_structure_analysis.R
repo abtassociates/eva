@@ -14,7 +14,6 @@ high_priority_columns <- cols_and_data_types %>%
   pull(Column) %>%
   unique()
 
-
 # Incorrect Date Formats --------------------------------------------------
 
 df_date_types <-
@@ -32,7 +31,6 @@ df_date_types <-
       File,
       "file has the correct date format."))
   )
-  
 
 incorrect_date_types_hp <- df_date_types %>%
   filter(Column %in% c(high_priority_columns)) %>%
@@ -96,7 +94,7 @@ df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
 
 # Unexpected (non-date) data types -----------------------------------------------------
 data_types <- problems %>%
-  filter(str_detect(expected, "date") != TRUE) %>%
+  filter(str_detect(expected, "date", negate = TRUE)) %>%
   mutate(
     File = str_remove(basename(file), ".csv"),
   ) %>%
@@ -140,7 +138,7 @@ df_data_types <- rbind(
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
-  total_rows = nrow(barefile)
+  total_rows <- nrow(barefile)
   if (total_rows > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
@@ -217,7 +215,7 @@ valid_values <- list(yes_no_enhanced, c(dkr_dnc, NA), yes_no, yes_no, yes_no, ye
 
 # Only take existing columns - this solves the issue of misspelled demographic 
 # columns
-existing_cols <- intersect(cols, names(Client))
+existing_cols <- base::intersect(cols, names(Client))
 
 # Create a named list of valid values for existing columns
 valid_values_named <- setNames(valid_values, cols)[existing_cols]
@@ -243,7 +241,7 @@ duplicate_client_id <- Client %>%
   get_dupes(PersonalID) %>%
   merge_check_info(checkIDs = 7) %>%
   mutate(
-    Detail = paste("There are", dupe_count, "for PersonalID", PersonalID)
+    Detail = paste("There are", dupe_count, "duplicates for PersonalID", PersonalID)
   ) %>%
   select(all_of(issue_display_cols)) %>%
   unique()
@@ -386,7 +384,6 @@ nonstandard_destination <- Exit %>%
                      "which is not a valid Destination response."))) %>%
   select(all_of(issue_display_cols))
 
-
 nonstandard_CLS <- CurrentLivingSituation %>%
   filter(!is.na(CurrentLivingSituation) &
     !CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
@@ -402,22 +399,22 @@ nonstandard_CLS <- CurrentLivingSituation %>%
 file_structure_analysis_main <- rbind(
   df_column_diffs,
   df_data_types,
-  incorrect_date_types_hp,
-  incorrect_date_types_error,
   df_nulls,
-  export_id_client,
-  valid_values_client,
+  disabling_condition_invalid,
   duplicate_client_id,
   duplicate_enrollment_id,
   duplicate_household_id,
+  export_id_client,
   foreign_key_no_primary_personalid_enrollment,
   foreign_key_no_primary_projectid_enrollment,
-  disabling_condition_invalid,
+  incorrect_date_types_hp,
+  incorrect_date_types_error,
   living_situation_invalid,
-  rel_to_hoh_invalid,
-  nonstandard_destination,
+  no_enrollment_records,
   nonstandard_CLS,
-  no_enrollment_records
+  nonstandard_destination,
+  rel_to_hoh_invalid,
+  valid_values_client
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
