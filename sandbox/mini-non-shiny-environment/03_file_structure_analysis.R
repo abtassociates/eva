@@ -94,7 +94,50 @@ check_columns <- function(file) {
 }
 df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
 
-# invalid nulls
+# Unexpected (non-date) data types -----------------------------------------------------
+data_types <- problems %>%
+  filter(str_detect(expected, "date") != TRUE) %>%
+  mutate(
+    File = str_remove(basename(file), ".csv"),
+  ) %>%
+  left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
+  mutate(
+    Detail = str_squish(paste0(
+      "In the ",
+      File,
+      " file, the ",
+      Column,
+      " column should have a data type of ",
+      case_when(
+        DataType == "numeric" ~ "integer",
+        DataType == "character" ~ "string",
+        TRUE ~ DataType
+      ),
+      " but in this file, it is ",
+      case_when(
+        all(map_lgl(actual, is.numeric)) ~ "integer",
+        all(map_lgl(actual, is.Date)) ~ "date",
+        TRUE ~ "string"
+      ),
+      "."
+    ))
+  )
+
+df_data_types <- rbind(
+  data_types %>% 
+    filter(DataTypeHighPriority == 1) %>% 
+    merge_check_info(checkIDs = 13) %>%
+    select(all_of(issue_display_cols)) %>%
+    unique(),
+  
+  data_types %>% 
+    filter(DataTypeHighPriority == 0) %>% 
+    merge_check_info(checkIDs = 48) %>%
+    select(all_of(issue_display_cols)) %>%
+    unique()
+)
+
+
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
   total_rows = nrow(barefile)
@@ -144,53 +187,8 @@ check_for_bad_nulls <- function(file) {
 }
 df_nulls <- map_df(unique(cols_and_data_types$File), check_for_bad_nulls)
 
-# Unexpected (non-date) data types -----------------------------------------------------
-data_types <- problems %>%
-  filter(str_detect(expected, "date") != TRUE) %>%
-  mutate(
-    File = str_remove(basename(file), ".csv"),
-  ) %>%
-  left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
-  mutate(
-    Detail = str_squish(paste0(
-      "In the ",
-      File,
-      " file, the ",
-      Column,
-      " column should have a data type of ",
-      case_when(
-        DataType == "numeric" ~ "integer",
-        DataType == "character" ~ "string",
-        TRUE ~ DataType
-      ),
-      " but in this file, it is ",
-      case_when(
-        all(map_lgl(actual, is.numeric)) ~ "integer",
-        all(map_lgl(actual, is.Date)) ~ "date",
-        TRUE ~ "string"
-      ),
-      "."
-    ))
-  )
-  
-df_data_types <- rbind(
-  data_types %>% 
-    filter(DataTypeHighPriority == 1) %>% 
-    merge_check_info(checkIDs = 13) %>%
-    select(all_of(issue_display_cols)) %>%
-    unique(),
-  
-  data_types %>% 
-    filter(DataTypeHighPriority == 0) %>% 
-    merge_check_info(checkIDs = 48) %>%
-    select(all_of(issue_display_cols)) %>%
-    unique()
-)
-
-
-
 # Integrity Client --------------------------------------------------------
-
+# CHECK: export ID differs
 export_id_client <- Client %>%
   filter(as.character(ExportID) != export_id_from_export) %>%
   merge_check_info(checkIDs = 49) %>%
@@ -205,111 +203,42 @@ export_id_client <- Client %>%
   select(all_of(issue_display_cols)) %>%
   unique()
 
-valid_values_client <- Client %>%
-  mutate(
-    VeteranStatus = VeteranStatus %in% c(yes_no_enhanced),
-    RaceNone = RaceNone %in% c(dkr_dnc) | is.na(RaceNone),
-    AmIndAKNative = AmIndAKNative %in% c(yes_no),
-    Asian = Asian %in% c(yes_no),
-    BlackAfAmerican = BlackAfAmerican %in% c(yes_no),
-    NativeHIPacific = NativeHIPacific %in% c(yes_no),
-    White = White %in% c(yes_no),
-    MidEastNAfrican = MidEastNAfrican %in% c(yes_no),
-    HispanicLatinaeo = HispanicLatinaeo %in% c(yes_no),
-    Woman = Woman %in% c(yes_no),
-    Man = Man %in% c(yes_no),
-    NonBinary = NonBinary %in% c(yes_no),
-    Transgender = Transgender %in% c(yes_no),
-    CulturallySpecific = CulturallySpecific %in% c(yes_no),
-    DifferentIdentity = DifferentIdentity %in% c(yes_no),
-    Questioning = Questioning %in% c(yes_no),
-    GenderNone = GenderNone %in% c(dkr_dnc) | is.na(GenderNone)
-  ) %>%
-  group_by_all() %>%
-  summarise(
-    VeteranStatus = min(VeteranStatus, na.rm = FALSE),
-    RaceNone = min(RaceNone, na.rm = FALSE),
-    AmIndAKNative = min(AmIndAKNative, na.rm = FALSE),
-    Asian = min(Asian, na.rm = FALSE),
-    BlackAfAmerican = min(BlackAfAmerican, na.rm = FALSE),
-    NativeHIPacific = min(NativeHIPacific, na.rm = FALSE),
-    White = min(White, na.rm = FALSE),
-    MidEastNAfrican = min(MidEastNAfrican, na.rm = FALSE),
-    HispanicLatinaeo = min(HispanicLatinaeo, na.rm = FALSE),
-    Woman = min(Woman, na.rm = FALSE),
-    Man = min(Man, na.rm = FALSE),
-    NonBinary = min(NonBinary, na.rm = FALSE),
-    Transgender = min(Transgender, na.rm = FALSE),
-    CulturallySpecific = min(CulturallySpecific, na.rm = FALSE),
-    DifferentIdentity = min(DifferentIdentity, na.rm = FALSE),
-    Questioning = min(Questioning, na.rm = FALSE),
-    GenderNone = min(GenderNone, na.rm = FALSE)
-  ) %>%
-  ungroup() %>%
-  select(
-    VeteranStatus,
-    RaceNone,
-    AmIndAKNative,
-    Asian,
-    BlackAfAmerican,
-    NativeHIPacific,
-    White,
-    MidEastNAfrican,
-    HispanicLatinaeo,
-    Woman,
-    Man,
-    NonBinary,
-    Transgender,
-    CulturallySpecific,
-    DifferentIdentity,
-    Questioning,
-    GenderNone
-  ) %>%
-  pivot_longer(cols = everything()) %>%
-  filter(value == 0) %>%
-  count(name) %>%
-  merge_check_info(checkIDs = 50) %>%
-  mutate(
-    Detail = case_when(
-      name == "VeteranStatus" ~ paste("VeteranStatus has", n,
-                                      "rows with invalid values"),
-      name == "RaceNone" ~ paste("RaceNone has", n,
-                                 "rows with invalid values"),
-      name == "AmIndAKNative" ~ paste("AmIndAKNative has", n,
-                                      "rows with invalid values"),
-      name == "Asian" ~ paste("Asian has", n,
-                              "rows with invalid values"),
-      name == "BlackAfAmerican" ~ paste("BlackAfAmerican has", n,
-                                        "rows with invalid values"),
-      name == "HispanicLatinaeo" ~ paste("HispanicLatinaeo has", n,
-                                        "Rows with invalid values"),
-      name == "MidEastNAfrican" ~ paste("MidEastNAfrican has", n,
-                                        "Rows with invalid values"),
-      name == "NativeHIPacific" ~ paste("NativeHIPacific has", n,
-                                        "Rows with invalid values"),
-      name == "White" ~ paste("White has", n,
-                              "rows with invalid values"),
-      name == "Woman" ~ paste("Woman has", n,
-                              "rows with invalid values"),
-      name == "Man" ~ paste("Man has", n,
-                             "rows with invalid values"),
-      name == "NonBinary" ~ paste("NonBinary has", n,
-                                  "rows with invalid values"),
-      name == "CulturallySpecific" ~ paste("CulturallySpecific has", n,
-                                           "rows with invalid values"),
-      name == "Transgender" ~ paste("Transgender has", n,
-                                    "rows with invalid values"),
-      name == "Questioning" ~ paste("Questioning has", n,
-                                    "rows with invalid values"),
-      name == "GenderNone" ~ paste("GenderNone has", n,
-                                   "rows with invalid values"),
-      name == "DifferentIdentity" ~ paste("DifferentIdentity has", n,
-                                          "rows with invalid values")
-    )
-  ) %>%
-  select(all_of(issue_display_cols)) %>%
-  unique()
+# CHECK: Invalid demographic values
+# first, get a mapping of variables and their expected values
+cols <- c("VeteranStatus", "RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
+          "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo", 
+          "Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
+          "DifferentIdentity", "Questioning", "GenderNone")
 
+valid_values <- list(yes_no_enhanced, c(dkr_dnc, NA), yes_no, yes_no, yes_no, yes_no, 
+                     yes_no, yes_no, yes_no, yes_no, yes_no, yes_no, yes_no,
+                     yes_no, yes_no, yes_no, c(dkr_dnc, NA))
+
+
+# Only take existing columns - this solves the issue of misspelled demographic 
+# columns
+existing_cols <- intersect(cols, names(Client))
+
+# Create a named list of valid values for existing columns
+valid_values_named <- setNames(valid_values, cols)[existing_cols]
+
+# looping through only the columns that are actually (not misspelled) in Client
+# check if it's an unexpected, non-na value. That's what the [[.]] does -
+# it refers to the particular column in the loop. Equivalent to pull(.)
+# The ~ defines an anonymous function, as opposed to creating a specific function
+get_unexpected_count <- function(col_name) {
+  unexpected <- !Client[[col_name]] %in% valid_values_named[[col_name]]
+  data.frame(name = col_name, n = sum(unexpected))
+}
+
+valid_values_client <- existing_cols %>%
+  map_df(get_unexpected_count) %>%
+  filter(n > 0) %>%
+  merge_check_info(checkIDs = 50) %>%
+  mutate(Detail = paste(name, "has", n, "rows with invalid values")) %>% 
+  select(all_of(issue_display_cols))
+
+# CHECK: duplicate client ID
 duplicate_client_id <- Client %>%
   get_dupes(PersonalID) %>%
   merge_check_info(checkIDs = 7) %>%
