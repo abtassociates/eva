@@ -157,7 +157,7 @@ function(input, output, session) {
           options = list(dom = 't', 
                          language = list(
                           zeroRecords = "No file structure analysis issues! 
-                        Visit the other tabs to view the rest of Eva's outputTEST")
+                        Visit the other tabs to view the rest of Eva's output")
                          )
         )
       })
