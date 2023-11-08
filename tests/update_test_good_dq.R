@@ -90,3 +90,6 @@ Inventory <- Inventory %>%
   mutate(InventoryStartDate = OperatingStartDate - days(1),
          InventoryEndDate = OperatingEndDate + days(1)) %>%
   select(-c(OperatingStartDate, OperatingEndDate))
+
+
+## add more checks here --------------------------------------------
