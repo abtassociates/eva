@@ -65,7 +65,13 @@ write.csv(reduced_data[["Enrollment"]], reduced_files[["Enrollment"]], row.names
 write.csv(reduced_data[["Exit"]], reduced_files[["Exit"]], row.names = FALSE, na="")
 
 
-################# MORE TESTS ######################
+################# FSA ######################
+reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[6, ])
+dir.create("temp/reduced_fsa")
+lapply(names(reduced_data_fsa), function(fname) {
+    write.csv(reduced_data_fsa[[fname]], paste0("temp/reduced_fsa/",fname, ".csv"), row.names = FALSE, na="")
+})
+save_new_zip("temp/FY24-ICF-fsa-test.zip", "temp/reduced_fsa")
 
 setwd("..")
 
