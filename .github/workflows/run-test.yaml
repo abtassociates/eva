@@ -41,7 +41,3 @@ jobs:
         with:
           app-dir: "."
           upload-snapshots: true
-        
-      - name: Run tests
-        run: |
-          Rscript unlink(here("tests/temp"), recursive = TRUE)
