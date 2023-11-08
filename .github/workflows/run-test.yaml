@@ -2,8 +2,8 @@
 # system libraries:
 #   libcurl -- needed to complete setup-renv
 #   libharfbuzz-dev libfribidi-dev -- needed for the textshaping package
-#     which is a dependency of ragg, which is a dependency of the new tidyverse (2.0.0)
-
+#   Also using shinytest2 action to try running test -
+# https://cran.r-project.org/web/packages/shinytest2/vignettes/use-ci.html
 on:
   pull_request:
   push:
@@ -37,9 +37,10 @@ jobs:
               
       - uses: r-lib/actions/setup-renv@v2
 
-      - name: Run tests
-        run: |
-          Rscript tests/testthat.R
+      - uses: rstudio/shinytest2/actions/test-app@v1
+        with:
+          app-dir: "."
+          upload-snapshots: true
           
       - name: Upload test results
         if: failure()
