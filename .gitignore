@@ -26,6 +26,6 @@ metadata.csv
 *_.new.png
 metadata.csv
 sessiondata.csv
-tests/shinytest/*-current/
+tests/temp/
 runShinyApp.R
 vscDebugger

@@ -991,6 +991,9 @@
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "t",
+          "language": {
+            "zeroRecords": "No file structure analysis issues! \n                        Visit the other tabs to view the rest of Eva's output"
+          },
           "columnDefs": [
             {
               "className": "dt-right",
@@ -5267,18 +5270,18 @@
           "Please ensure geography information for projects is complete.",
           "Please ensure geography information for projects is complete.",
           "Please ensure geography information for projects is complete.",
-          "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
-          "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
-          "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
-          "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
-          "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
-          "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
-          "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
-          "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
-          "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
-          "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
-          "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
-          "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
+          "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
+          "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
+          "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
+          "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
+          "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
+          "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
+          "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
+          "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
+          "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
+          "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
+          "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
+          "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
           "Inventory records should end whenever a project stops operating. Please correct either the inventory dates or the Project Operating End Date.",
           "Inventory records may begin prior to a Project Operating Start Date, but sometimes this can indicate an incorrect date in either the Project Operating Start or the Inventory Start Date. Please review and if any dates are incorrect, update the record.",
           "Inventory records may begin prior to a Project Operating Start Date, but sometimes this can indicate an incorrect date in either the Project Operating Start or the Inventory Start Date. Please review and if any dates are incorrect, update the record.",
@@ -5396,7 +5399,7 @@
       ],
       "Guidance": [
         "Please ensure geography information for projects is complete.",
-        "Residential projects should have inventory data. Please enter inventory in HMIS for the project(s).",
+        "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
         "Inventory records should end whenever a project stops operating. Please correct either the inventory dates or the Project Operating End Date.",
         "Inventory records may begin prior to a Project Operating Start Date, but sometimes this can indicate an incorrect date in either the Project Operating Start or the Inventory Start Date. Please review and if any dates are incorrect, update the record."
       ]

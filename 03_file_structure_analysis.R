@@ -15,7 +15,6 @@ high_priority_columns <- cols_and_data_types %>%
   pull(Column) %>%
   unique()
 
-
 # Incorrect Date Formats --------------------------------------------------
 
 df_date_types <-
@@ -34,7 +33,6 @@ df_date_types <-
       "file has the correct date format."))
   )
   
-
 incorrect_date_types_hp <- df_date_types %>%
   filter(Column %in% c(high_priority_columns)) %>%
   merge_check_info(checkIDs = 11) %>%
@@ -93,72 +91,55 @@ check_columns <- function(file) {
     )
   }
 }
+df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
 
-check_data_types <- function(quotedfile) {
-  barefile <- get(quotedfile)
-  if(nrow(barefile) > 0) {
-    
-    data_types <- as.data.frame(summary.default(barefile)) %>% 
-      filter(Var2 != "Length" & 
-               ((Var2 == "Class" & Freq %in% c("Date", "POSIXct")) |
-                  Var2 == "Mode")) %>% 
-      mutate(
-        File = quotedfile,
-        ImportedDataType = case_when(
-          Var2 == "Class" & Freq == "Date" ~ "date",
-          Var2 == "Class" & Freq == "POSIXct" ~ "datetime",
-          Var2 == "Mode" ~ Freq,
-          TRUE ~ "something's wrong"
-        )) %>%
-      group_by(Var1) %>%
-      slice_min(order_by = Var2)  %>%
-      ungroup() %>%
-      select(File, "Column" = Var1, ImportedDataType)
-    
-    y <- cols_and_data_types %>% 
-      left_join(data_types, by = c("File", "Column")) %>%
-      filter(DataType != ImportedDataType) %>%
-      mutate(
-        Detail = str_squish(paste0(
-          "In the ",
-          quotedfile,
-          " file, the ",
-          Column,
-          " column should have a data type of ",
-          case_when(
-            DataType == "numeric" ~ "integer",
-            DataType == "character" ~ "string",
-            TRUE ~ DataType
-          ),
-          " but in this file, it is ",
-          case_when(
-            ImportedDataType == "numeric" ~ "integer",
-            ImportedDataType == "character" ~ "string",
-            TRUE ~ ImportedDataType
-            ),
-          "."
-        ))
-      )
+# Unexpected (non-date) data types -----------------------------------------------------
+data_types <- problems %>%
+  filter(str_detect(expected, "date", negate = TRUE)) %>%
+  mutate(
+    File = str_remove(basename(file), ".csv"),
+  ) %>%
+  left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
+  mutate(
+    Detail = str_squish(paste0(
+      "In the ",
+      File,
+      " file, the ",
+      Column,
+      " column should have a data type of ",
+      case_when(
+        DataType == "numeric" ~ "integer",
+        DataType == "character" ~ "string",
+        TRUE ~ DataType
+      ),
+      " but in this file, it is ",
+      case_when(
+        all(map_lgl(actual, is.numeric)) ~ "integer",
+        all(map_lgl(actual, is.Date)) ~ "date",
+        TRUE ~ "string"
+      ),
+      "."
+    ))
+  )
 
-    return(
-      rbind(
-        y %>% 
-          filter(DataTypeHighPriority == 1) %>% 
-          merge_check_info(checkIDs = 13) %>%
-          select(all_of(issue_display_cols)),
-          
-        y %>% 
-          filter(DataTypeHighPriority == 0) %>% 
-          merge_check_info(checkIDs = 48) %>%
-          select(all_of(issue_display_cols))
-      )
-    )
-  }
-}
+df_data_types <- rbind(
+  data_types %>% 
+    filter(DataTypeHighPriority == 1) %>% 
+    merge_check_info(checkIDs = 13) %>%
+    select(all_of(issue_display_cols)) %>%
+    unique(),
+  
+  data_types %>% 
+    filter(DataTypeHighPriority == 0) %>% 
+    merge_check_info(checkIDs = 48) %>%
+    select(all_of(issue_display_cols)) %>%
+    unique()
+)
+
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
-  total_rows = nrow(barefile)
+  total_rows <- nrow(barefile)
   if (total_rows > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
@@ -203,13 +184,6 @@ check_for_bad_nulls <- function(file) {
     }
   }
 }
-
-# Integrity Structure -----------------------------------------------------
-
-df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
-
-df_data_types <- map_df(unique(cols_and_data_types$File), check_data_types)
-
 df_nulls <- map_df(unique(cols_and_data_types$File), check_for_bad_nulls)
 
 # Integrity Client --------------------------------------------------------
@@ -268,7 +242,7 @@ duplicate_client_id <- Client %>%
   get_dupes(PersonalID) %>%
   merge_check_info(checkIDs = 7) %>%
   mutate(
-    Detail = paste("There are", dupe_count, "for PersonalID", PersonalID)
+    Detail = paste("There are", dupe_count, "duplicates for PersonalID", PersonalID)
   ) %>%
   select(all_of(issue_display_cols)) %>%
   unique()
@@ -411,7 +385,6 @@ nonstandard_destination <- Exit %>%
                      "which is not a valid Destination response."))) %>%
   select(all_of(issue_display_cols))
 
-
 nonstandard_CLS <- CurrentLivingSituation %>%
   filter(!is.na(CurrentLivingSituation) &
     !CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
@@ -427,22 +400,22 @@ nonstandard_CLS <- CurrentLivingSituation %>%
 file_structure_analysis_main <- rbind(
   df_column_diffs,
   df_data_types,
-  incorrect_date_types_hp,
-  incorrect_date_types_error,
   df_nulls,
-  export_id_client,
-  valid_values_client,
+  disabling_condition_invalid,
   duplicate_client_id,
   duplicate_enrollment_id,
   duplicate_household_id,
+  export_id_client,
   foreign_key_no_primary_personalid_enrollment,
   foreign_key_no_primary_projectid_enrollment,
-  disabling_condition_invalid,
+  incorrect_date_types_error,
+  incorrect_date_types_hp,
   living_situation_invalid,
-  rel_to_hoh_invalid,
-  nonstandard_destination,
+  no_enrollment_records,
   nonstandard_CLS,
-  no_enrollment_records
+  nonstandard_destination,
+  rel_to_hoh_invalid,
+  valid_values_client
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
