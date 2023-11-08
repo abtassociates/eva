@@ -171,6 +171,8 @@ missing_race <- base_dq_data %>%
            AmIndAKNative +
            Asian +
            BlackAfAmerican +
+           HispanicLatinaeo +
+           MidEastNAfrican +
            NativeHIPacific +
            White == 0) %>%
   merge_check_info(checkIDs = 36) %>%

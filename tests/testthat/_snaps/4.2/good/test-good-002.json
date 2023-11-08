@@ -839,6 +839,9 @@
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "t",
+          "language": {
+            "zeroRecords": "No file structure analysis issues! \n                        Visit the other tabs to view the rest of Eva's output"
+          },
           "columnDefs": [
             {
               "className": "dt-right",

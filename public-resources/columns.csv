@@ -86,7 +86,7 @@ Client,24,Transgender,numeric,1,0
 Client,25,Questioning,numeric,1,0
 Client,26,DifferentIdentity,numeric,1,0
 Client,27,GenderNone,numeric,1,1
-Client,28,DifferentIdentityText,numeric,1,1
+Client,28,DifferentIdentityText,character,1,1
 Client,29,VeteranStatus,numeric,1,0
 Client,30,YearEnteredService,numeric,0,1
 Client,31,YearSeparated,numeric,0,1
