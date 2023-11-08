@@ -20,12 +20,6 @@ jobs:
 
     name: shiny-test-automation
 
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {os: ubuntu-latest}
-          
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       
@@ -47,3 +41,10 @@ jobs:
         with:
           app-dir: "."
           upload-snapshots: true
+      
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ runner.os }}-4.2-tests
+          path: tests
