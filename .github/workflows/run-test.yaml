@@ -20,6 +20,12 @@ jobs:
 
     name: shiny-test-automation
 
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest}
+          
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       
