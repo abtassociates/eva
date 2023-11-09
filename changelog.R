@@ -2,7 +2,7 @@ output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
     "11-09-2023", "Fixed EntryDate bug so that EntryDate aligns with the original
-    data.",
+    data rather than an adjusted date.",
     
     "11-09-2023", "Added 'VSP participating in HMIS' as a Data Quality Error.",
     
