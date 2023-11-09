@@ -1,16 +1,30 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
-    "11-2-2023", "Fixed issue with overidentifying overlapping CE Participation
+    "11-09-2023", "Fixed EntryDate bug so that EntryDate aligns with the original
+    data rather than an adjusted date.",
+    
+    "11-09-2023", "Added 'VSP participating in HMIS' as a Data Quality Error.",
+    
+    "11-09-2023", "Data Quality Warning 'Zero Utilization' now only looks at
+    projects that are set as HMIS Participating.",
+    
+    "11-09-2023", "Changed Data Quality Warning 'Future Exit Date' to exclude all
+    enrollments without an Exit Date.",
+    
+    "11-09-2023", "Corrected language throughout for 'Client Refused' to 'Client
+    prefers not to answer' and 'Don't know' to 'Doesn't know.'",
+    
+    "11-02-2023", "Fixed issue with overidentifying overlapping CE Participation
     records.",
 
-    "11-2-2023", "Removed slowness warning at the beginning. Slowness seems to
+    "11-02-2023", "Removed slowness warning at the beginning. Slowness seems to
     be limited to Abt machines.",
 
-    "11-2-2023", "Fixed bug where Eva crashed when a demographic column name
+    "11-02-2023", "Fixed bug where Eva crashed when a demographic column name
     was misspelled in Client.csv.",
 
-    "11-2-2023", "Modified empty File Structure Anaysis results text to be 
+    "11-02-2023", "Modified empty File Structure Anaysis results text to be 
     more explicit and helpful.",
 
     "10-20-2023", "Added 2 new Data Quality issues: Missing Current Living
