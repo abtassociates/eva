@@ -1,6 +1,8 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "11-09-2023", "Corrected a few incorrect data types in columns.csv.",
+    
     "11-09-2023", "Fixed EntryDate bug so that EntryDate aligns with the original
     data rather than an adjusted date.",
     
