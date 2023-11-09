@@ -2,6 +2,7 @@
 # hc = hard-coded
 hc_prior_living_situation_required <- ymd("20161001")
 hc_psh_started_collecting_move_in_date <- ymd("20171001")
+no_end_date <- ymd("20990909")
 
 # Living Situations Groups (includes PLS, CLS, and destinations) 
 #(Updated to match FY2024 DS) ---------------------------------------------
