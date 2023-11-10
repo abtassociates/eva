@@ -216,7 +216,7 @@ valid_values <- list(yes_no_enhanced, c(dkr_dnc, NA), yes_no, yes_no, yes_no, ye
 
 # Only take existing columns - this solves the issue of misspelled demographic 
 # columns
-existing_cols <- intersect(cols, names(Client))
+existing_cols <- base::intersect(cols, names(Client))
 
 # Create a named list of valid values for existing columns
 valid_values_named <- setNames(valid_values, cols)[existing_cols]
