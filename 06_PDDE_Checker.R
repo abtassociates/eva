@@ -50,7 +50,7 @@ subpopNotTotal <- Inventory %>%
 operating_end_missing <- Enrollment %>%
   group_by(ProjectID) %>%
   mutate(NumOpenEnrollments = sum(is.na(ExitDate)),
-         MostRecentEnrollment = max(ExitAdjust, na.rm = TRUE) # keep or change
+         MostRecentEnrollment = max(ExitAdjust, na.rm = TRUE) # keep* or change
 
   ) %>%
   ungroup() %>%
