@@ -60,7 +60,7 @@ operating_end_missing <- Enrollment %>%
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
            MostRecentEnrollment < 
-           meta_HUDCSV_Export_Date - 30 & # keep or change
+           meta_HUDCSV_Export_Date - 30 & # keep or change*
            is.null(OperatingEndDate)) %>%
   merge_check_info(checkIDs = 81) %>%
   mutate(Detail = paste(
