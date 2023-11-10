@@ -24,7 +24,7 @@ AssessmentQuestions,1,AssessmentQuestionID,character,1,0
 AssessmentQuestions,2,AssessmentID,character,1,0
 AssessmentQuestions,3,EnrollmentID,character,1,0
 AssessmentQuestions,4,PersonalID,character,1,0
-AssessmentQuestions,5,AssessmentQuestionGroup,numeric,0,1
+AssessmentQuestions,5,AssessmentQuestionGroup,character,0,1
 AssessmentQuestions,6,AssessmentQuestionOrder,numeric,0,1
 AssessmentQuestions,7,AssessmentQuestion,character,0,0
 AssessmentQuestions,8,AssessmentAnswer,character,0,1
@@ -37,7 +37,7 @@ AssessmentResults,1,AssessmentResultID,character,1,0
 AssessmentResults,2,AssessmentID,character,1,0
 AssessmentResults,3,EnrollmentID,character,1,0
 AssessmentResults,4,PersonalID,character,1,0
-AssessmentResults,5,AssessmentResultType,numeric,0,0
+AssessmentResults,5,AssessmentResultType,character,0,0
 AssessmentResults,6,AssessmentResult,character,0,1
 AssessmentResults,7,DateCreated,datetime,0,0
 AssessmentResults,8,DateUpdated,datetime,0,0
@@ -77,7 +77,7 @@ Client,15,MidEastNAfrican,numeric,1,0
 Client,16,NativeHIPacific,numeric,1,0
 Client,17,White,numeric,1,0
 Client,18,RaceNone,numeric,1,1
-Client,19,AdditionalRaceEthnicity,numeric,1,1
+Client,19,AdditionalRaceEthnicity,character,1,1
 Client,20,Woman,numeric,1,0
 Client,21,Man,numeric,1,0
 Client,22,NonBinary,numeric,1,0
