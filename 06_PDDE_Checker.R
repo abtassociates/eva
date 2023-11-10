@@ -46,7 +46,7 @@ subpopNotTotal <- Inventory %>%
   select(all_of(PDDEcols))
 
 # Missing Operating End Date If a project has no open enrollments and the most
-# recent Enrollment was 30+ days ago
+# recent exit was 30+ days ago
 operating_end_missing <- Enrollment %>%
   group_by(ProjectID) %>%
   mutate(NumOpenEnrollments = sum(is.na(ExitDate)),
