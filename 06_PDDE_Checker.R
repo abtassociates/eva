@@ -59,7 +59,7 @@ operating_end_missing <- Enrollment %>%
               unique(), 
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
-           MostRecentEnrollment >= 
+           MostRecentEnrollment < 
            coalesce(OperatingEndDate, Export$ExportDate) - 30 & # keep or change
            is.null(OperatingEndDate)) %>%
   merge_check_info(checkIDs = 81) %>%
