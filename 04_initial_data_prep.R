@@ -46,12 +46,12 @@ ProjectsInHMIS <- ProjectStaging %>%
     OperatingDateRange =
       interval(
         OperatingStartDate,
-        replace_na(OperatingEndDate, meta_HUDCSV_Export_End)
+        replace_na(OperatingEndDate, no_end_date)
       ),
     ParticipatingDateRange =
       interval(
         HMISParticipationStatusStartDate,
-        replace_na(HMISParticipationStatusEndDate, meta_HUDCSV_Export_End)
+        replace_na(HMISParticipationStatusEndDate, no_end_date)
       )
   )
 
@@ -96,7 +96,7 @@ EnrollmentStaging <- Enrollment %>%
   left_join(Exit %>% 
               select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
             by = "EnrollmentID") %>%
-  mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_End), # keep or change
+  mutate(ExitAdjust = coalesce(ExitDate, no_end_date), # keep or change*
          EnrollmentDateRange = interval(EntryDate, ExitAdjust)) # <- using ExitAdjust
 
 # Truncating Enrollments based on Operating/Participating -----------------
