@@ -278,8 +278,8 @@ rrh_so_w_inventory <- Inventory %>%
   left_join(Project, join_by(ProjectID)) %>%
   mutate(RRHSOyn = ProjectType == 13 & RRHSubType == 1,
          RRHSOActivePeriod =
-           interval(OperatingStartDate, # keep or change
-                    coalesce(OperatingEndDate, meta_HUDCSV_Export_End)),
+           interval(OperatingStartDate, # keep or change*
+                    coalesce(OperatingEndDate, no_end_date)),
          Detail = "") %>%
   filter(RRHSOyn == TRUE & 
            !is.na(BedInventory) & BedInventory > 0 &
