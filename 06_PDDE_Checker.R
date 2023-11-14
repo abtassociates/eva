@@ -144,8 +144,8 @@ activeInventory <- Inventory %>%
       unique(),
     by = "ProjectID"
   ) %>%
-  filter( # keep or change
-    coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start &
+  filter( # keep or change*
+    coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start &
       InventoryStartDate <= meta_HUDCSV_Export_End
   )
 
