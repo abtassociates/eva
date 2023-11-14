@@ -168,7 +168,7 @@ inventory_start_precedes_operating_start <- activeInventory %>%
 
 
 operating_end_precedes_inventory_end <- activeInventory %>%
-  # keep or change
+  # keep or change*
   filter(coalesce(InventoryEndDate, no_end_date) >
            coalesce(OperatingEndDate, no_end_date)
   ) %>%
@@ -242,8 +242,8 @@ vsps_in_hmis <- Project %>%
 
 projects_w_beds <- Inventory %>%
   filter(
-    BedInventory > 0 & # keep or change
-      coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start &
+    BedInventory > 0 & # keep or change*
+      coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start &
       InventoryStartDate <= meta_HUDCSV_Export_End
   ) %>%
   pull(ProjectID) %>%
@@ -271,8 +271,8 @@ zero_utilization <- Project0 %>%
 rrh_so_w_inventory <- Inventory %>%
   mutate(
     InventoryActivePeriod = 
-      interval(InventoryStartDate, # keep or change
-               coalesce(InventoryEndDate, meta_HUDCSV_Export_End))
+      interval(InventoryStartDate, # keep or change*
+               coalesce(InventoryEndDate, no_end_date))
   ) %>%
   select(InventoryID, ProjectID, InventoryActivePeriod, BedInventory) %>%
   left_join(Project, join_by(ProjectID)) %>%
