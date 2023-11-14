@@ -169,8 +169,8 @@ inventory_start_precedes_operating_start <- activeInventory %>%
 
 operating_end_precedes_inventory_end <- activeInventory %>%
   # keep or change
-  filter(coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_End)) >
-           coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_End))
+  filter(coalesce(InventoryEndDate, no_end_date) >
+           coalesce(OperatingEndDate, no_end_date)
   ) %>%
   mutate(
     Detail = case_when(
