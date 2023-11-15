@@ -240,12 +240,8 @@ vsps_in_hmis <- Project %>%
   
  # Zero Utilization --------------------------------------------------------
 
-projects_w_beds <- Inventory %>%
-  filter(
-    BedInventory > 0 & # keep or change*
-      coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start &
-      InventoryStartDate <= meta_HUDCSV_Export_End
-  ) %>%
+projects_w_beds <- activeInventory %>% # keep or change*
+  filter(BedInventory > 0) %>%
   pull(ProjectID) %>%
   unique()
 
@@ -268,7 +264,7 @@ zero_utilization <- Project0 %>%
 
 # RRH-SO projects with active inventory -----------------------------------
 
-rrh_so_w_inventory <- Inventory %>%
+rrh_so_w_inventory <- activeInventory %>%
   mutate(
     InventoryActivePeriod = 
       interval(InventoryStartDate, # keep or change*
