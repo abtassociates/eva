@@ -83,7 +83,7 @@ coc_funded_project_types <- c(2, 3, 13)
 
 project_types_w_beds <- c(0, 1, 2, 3, 8, 9, 10, 13)
 
-project_types_w_cls <- c(1, 4, 14)
+project_types_w_cls <- c(1, 4, 6, 14)
 
 long_stayer_98_percentile_project_types <- c(0, 2, 8, 12, 13)
 
