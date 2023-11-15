@@ -153,7 +153,7 @@ EnrollmentOutside <- EnrollmentStaging %>%
   ungroup() %>%
   select(EnrollmentID, ProjectID, ProjectTimeID, ProjectType, EnrollmentDateRange,
          OperatingDateRange, ParticipatingDateRange, EnrollmentvParticipating,
-         EnrollmentvOperating, ExitAdjust)
+         EnrollmentvOperating)
 
 Enrollment <- EnrollmentStaging %>%
   left_join(EnrollmentOutside,
