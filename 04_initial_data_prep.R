@@ -46,12 +46,12 @@ ProjectsInHMIS <- ProjectStaging %>%
     OperatingDateRange =
       interval(
         OperatingStartDate,
-        replace_na(OperatingEndDate, no_end_date)
+        coalesce(OperatingEndDate, no_end_date)
       ),
     ParticipatingDateRange =
       interval(
         HMISParticipationStatusStartDate,
-        replace_na(HMISParticipationStatusEndDate, no_end_date)
+        coalesce(HMISParticipationStatusEndDate, no_end_date)
       )
   )
 
