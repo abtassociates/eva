@@ -26,8 +26,8 @@ main_test_script <- function(test_script_name, test_dataset) {
 
     app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
     app$set_inputs(sidebarmenuid = "tabPDDE")
-    customDownload(app, "downloadPDDEReport", "PDDE-Download")
     app$wait_for_idle()
+    customDownload(app, "downloadPDDEReport", "PDDE-Download")
     app$expect_values()
 
     app$set_inputs(sidebarmenuid = "tabDQSystem")
