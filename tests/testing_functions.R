@@ -35,6 +35,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "downloadSystemDQReport", "System-DQ-Download")
 
     app$set_inputs(sidebarmenuid = "tabDQOrg")
+    app$wait_for_idle(timeout = 1e+07)
     customDownload(app, "downloadOrgDQReport", "Org-DQ-Download")
   })
 }
