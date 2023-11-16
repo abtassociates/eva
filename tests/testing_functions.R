@@ -15,6 +15,7 @@ main_test_script <- function(test_script_name, test_dataset) {
 
     app$set_inputs(Go_to_upload = "click")
     app$upload_file(imported = paste0("../",test_dataset))
+    app$wait_for_idle(500)
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
 
@@ -30,9 +31,11 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$expect_values()
 
     app$set_inputs(sidebarmenuid = "tabDQSystem")
+    app$wait_for_idle(500)
     customDownload(app, "downloadSystemDQReport", "System-DQ-Download")
 
     app$set_inputs(sidebarmenuid = "tabDQOrg")
+    app$wait_for_idle(500)
     customDownload(app, "downloadOrgDQReport", "Org-DQ-Download")
   })
 }
