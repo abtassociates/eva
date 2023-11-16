@@ -12,10 +12,10 @@ clientCountDetailCols <- c("PersonalID",
 # This will be used to create the summary and detail datasets used in the
 # app, as well as the datasets used in the export
 client_count_data_df <- reactive({
-  ReportStart <- ymd(today())
-  ReportEnd <- ymd(today())
+  ReportStart <- input$dateRangeCount[1]
+  ReportEnd <- input$dateRangeCount[2]
 
-  validationDF <- validation %>%
+  validation %>%
     mutate(
       PersonalID = as.character(PersonalID),
       RelationshipToHoH = case_when(
@@ -175,8 +175,8 @@ get_clientcount_download_info <- function(file) {
   validationCurrent <- 
     pivot_and_sum(
       validationDF %>%
-        filter(EntryDate <= ymd(today()) &
-                 (is.na(ExitDate) | ExitDate >= ymd(today())))
+        filter(EntryDate <= input$dateRangeCount[2] &
+                 (is.na(ExitDate) | ExitDate >= input$dateRangeCount[2]))
     ) %>%
     select(-c(`Currently in project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
