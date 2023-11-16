@@ -15,27 +15,27 @@ main_test_script <- function(test_script_name, test_dataset) {
 
     app$set_inputs(Go_to_upload = "click")
     app$upload_file(imported = paste0("../",test_dataset))
-    app$wait_for_idle(500)
+    app$wait_for_idle(2000)
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
 
     app$set_inputs(sidebarmenuid = "tabClientCount")
-    app$wait_for_idle(500) #wait until whole application is idle for 500ms
+    app$wait_for_idle(2000) #wait until whole application is idle for 500ms
     customDownload(app, "downloadClientCountsReport", "Client-Counts-Download")
     app$expect_values()
 
     app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
     app$set_inputs(sidebarmenuid = "tabPDDE")
-    app$wait_for_idle(500)
+    app$wait_for_idle(2000)
     customDownload(app, "downloadPDDEReport", "PDDE-Download")
     app$expect_values()
 
     app$set_inputs(sidebarmenuid = "tabDQSystem")
-    app$wait_for_idle(500)
+    app$wait_for_idle(2000)
     customDownload(app, "downloadSystemDQReport", "System-DQ-Download")
 
     app$set_inputs(sidebarmenuid = "tabDQOrg")
-    app$wait_for_idle(500)
+    app$wait_for_idle(2000)
     customDownload(app, "downloadOrgDQReport", "Org-DQ-Download")
   })
 }
