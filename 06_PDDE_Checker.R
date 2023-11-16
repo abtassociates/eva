@@ -46,11 +46,11 @@ subpopNotTotal <- Inventory %>%
   select(all_of(PDDEcols))
 
 # Missing Operating End Date If a project has no open enrollments and the most
-# recent Enrollment was 30+ days ago
+# recent exit was 30+ days ago
 operating_end_missing <- Enrollment %>%
   group_by(ProjectID) %>%
   mutate(NumOpenEnrollments = sum(is.na(ExitDate)),
-         MostRecentEnrollment = max(ExitAdjust, na.rm = TRUE)
+         MostRecentEnrollment = max(ExitAdjust, na.rm = TRUE) # keep* or change
 
   ) %>%
   ungroup() %>%
@@ -59,8 +59,8 @@ operating_end_missing <- Enrollment %>%
               unique(), 
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
-           MostRecentEnrollment >= 
-           coalesce(OperatingEndDate, Export$ExportDate) - 30 &
+           MostRecentEnrollment < 
+           meta_HUDCSV_Export_Date - 30 &
            is.null(OperatingEndDate)) %>%
   merge_check_info(checkIDs = 81) %>%
   mutate(Detail = paste(
@@ -145,7 +145,7 @@ activeInventory <- Inventory %>%
     by = "ProjectID"
   ) %>%
   filter(
-    coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start &
+    coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start &
       InventoryStartDate <= meta_HUDCSV_Export_End
   )
 
@@ -168,8 +168,8 @@ inventory_start_precedes_operating_start <- activeInventory %>%
 
 
 operating_end_precedes_inventory_end <- activeInventory %>%
-  filter(coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_End)) >
-           coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_End))
+  filter(coalesce(InventoryEndDate, no_end_date) >
+           coalesce(OperatingEndDate, no_end_date)
   ) %>%
   mutate(
     Detail = case_when(
@@ -239,12 +239,8 @@ vsps_in_hmis <- Project %>%
   
  # Zero Utilization --------------------------------------------------------
 
-projects_w_beds <- Inventory %>%
-  filter(
-    BedInventory > 0 &
-      coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start &
-      InventoryStartDate <= meta_HUDCSV_Export_End
-  ) %>%
+projects_w_beds <- activeInventory %>%
+  filter(BedInventory > 0) %>%
   pull(ProjectID) %>%
   unique()
 
@@ -267,18 +263,18 @@ zero_utilization <- Project0 %>%
 
 # RRH-SO projects with active inventory -----------------------------------
 
-rrh_so_w_inventory <- Inventory %>%
+rrh_so_w_inventory <- activeInventory %>%
   mutate(
     InventoryActivePeriod = 
       interval(InventoryStartDate,
-               coalesce(InventoryEndDate, meta_HUDCSV_Export_End))
+               coalesce(InventoryEndDate, no_end_date))
   ) %>%
   select(InventoryID, ProjectID, InventoryActivePeriod, BedInventory) %>%
   left_join(Project, join_by(ProjectID)) %>%
   mutate(RRHSOyn = ProjectType == 13 & RRHSubType == 1,
          RRHSOActivePeriod =
            interval(OperatingStartDate,
-                    coalesce(OperatingEndDate, meta_HUDCSV_Export_End)),
+                    coalesce(OperatingEndDate, no_end_date)),
          Detail = "") %>%
   filter(RRHSOyn == TRUE & 
            !is.na(BedInventory) & BedInventory > 0 &

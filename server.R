@@ -20,22 +20,6 @@ function(input, output, session) {
     logMetadata(paste("User on",input$sidebarmenuid))
   })
 
-  
-  # Initial popup -----------------------------------------------------------
-  
-  showModal(
-    modalDialog(
-      title = "NOTICE(S):",
-      HTML("<strong>Eva only accepts FY 2024 HMIS CSV Exports.</strong> Attempting
-      to upload a file in the previous format will result in a rejected file.
-      Please contact your vendor for information on how to run your updated HMIS
-      CSV Export so that it complies with the new FY2024 HMIS CSV Export
-      Specifications."),
-      easyClose = TRUE,
-      footer = modalButton("OK")
-    )
-  )  
-  
   # Headers -----------------------------------------------------------------
 
   output$headerUpload <-
