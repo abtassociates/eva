@@ -15,7 +15,7 @@ main_test_script <- function(test_script_name, test_dataset) {
 
     app$set_inputs(Go_to_upload = "click")
     app$upload_file(imported = paste0("../",test_dataset))
-    app$wait_for_value(input="fileStructureAnalysis") #wait until whole application is idle for 500ms
+    app$set_inputs(fileStructureAnalysis_state = null, allow_no_input_binding_ = TRUE)
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
 
