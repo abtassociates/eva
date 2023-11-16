@@ -95,7 +95,7 @@ EnrollmentStaging <- Enrollment %>%
   left_join(Exit %>% 
               select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
             by = "EnrollmentID") %>%
-  mutate(ExitAdjust = coalesce(ExitDate, no_end_date), # keep or change*
+  mutate(ExitAdjust = coalesce(ExitDate, no_end_date),
          EnrollmentDateRange = interval(EntryDate, ExitAdjust)) # <- using ExitAdjust
 
 # Truncating Enrollments based on Operating/Participating -----------------
