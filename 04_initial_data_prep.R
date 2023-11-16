@@ -97,7 +97,7 @@ EnrollmentStaging <- Enrollment %>%
               select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
             by = "EnrollmentID") %>%
   mutate(ExitAdjust = coalesce(ExitDate, no_end_date),
-         EnrollmentDateRange = interval(EntryDate, ExitAdjust)) # <- using ExitAdjust
+         EnrollmentDateRange = interval(EntryDate, ExitAdjust))
 
 # Truncating Enrollments based on Operating/Participating -----------------
 
@@ -229,10 +229,10 @@ HHMoveIn <- Enrollment %>%
       AssumedMoveIn == 0 &
         ProjectType %in% psh_project_types &
         EntryDate <= MoveInDate &
-        ExitAdjust > MoveInDate ~ MoveInDate, # <- using ExitAdjust
+        ExitAdjust > MoveInDate ~ MoveInDate,
       # the Move-In Dates must fall between the Entry and ExitAdjust to be
       # considered valid and for PSH the hmid cannot = ExitDate
-      MoveInDate <= ExitAdjust & # <- using ExitAdjust
+      MoveInDate <= ExitAdjust &
         MoveInDate >= EntryDate &
         ProjectType == rrh_project_type ~ MoveInDate
     )
@@ -256,7 +256,7 @@ Enrollment <- Enrollment %>%
   left_join(HHEntry, by = "HouseholdID") %>%
   mutate(
     MoveInDateAdjust = if_else(!is.na(HHMoveIn) &
-                                 ymd(HHMoveIn) <= ExitAdjust, # <- using ExitAdjust
+                                 ymd(HHMoveIn) <= ExitAdjust,
                                if_else(EntryDate <= ymd(HHMoveIn),
                                        ymd(HHMoveIn), EntryDate),
                                NA))

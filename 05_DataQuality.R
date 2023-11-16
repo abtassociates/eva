@@ -1073,7 +1073,7 @@ enrollment_x_operating_period <- enrollment_positions %>%
 
 overlap_staging <- base_dq_data %>% 
   select(!!vars_prep, ExitAdjust, EnrollmentID) %>%
-  filter(EntryDate != ExitAdjust & # <- using ExitAdjust
+  filter(EntryDate != ExitAdjust &
            ((
              ProjectType %in% ph_project_types &
                !is.na(MoveInDateAdjust)
@@ -1101,7 +1101,7 @@ if(nrow(Services) > 0){
     ),
     EnrollmentEnd = if_else(ProjectType == es_nbn_project_type, 
                             DateProvided, 
-                            as.Date(ExitAdjust)) # <- using ExitAdjust
+                            as.Date(ExitAdjust))
   )
 }
 
@@ -1112,7 +1112,7 @@ overlap_staging_no_nbn <- overlap_staging %>%
       ProjectType %in% ph_project_types ~ MoveInDateAdjust,
       TRUE ~ EntryDate
     ),
-    EnrollmentEnd = as.Date(ExitAdjust) # <- using ExitAdjust
+    EnrollmentEnd = as.Date(ExitAdjust)
   )
 
 if(nrow(Services) > 0){
