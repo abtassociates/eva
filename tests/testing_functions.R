@@ -31,7 +31,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$expect_values()
 
     app$set_inputs(sidebarmenuid = "tabDQSystem")
-    app$wait_for_idle(timeout = 1+e07)
+    app$wait_for_idle(timeout = 1e+07)
     customDownload(app, "downloadSystemDQReport", "System-DQ-Download")
 
     app$set_inputs(sidebarmenuid = "tabDQOrg")
