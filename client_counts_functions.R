@@ -12,10 +12,10 @@ clientCountDetailCols <- c("PersonalID",
 # This will be used to create the summary and detail datasets used in the
 # app, as well as the datasets used in the export
 client_count_data_df <- reactive({
-  ReportStart <- input$dateRangeCount[1]
-  ReportEnd <- input$dateRangeCount[2]
+  ReportStart <- ymd(today())
+  ReportEnd <- ymd(today())
 
-  validation %>%
+  validationDF <- validation %>%
     mutate(
       PersonalID = as.character(PersonalID),
       RelationshipToHoH = case_when(
@@ -145,8 +145,6 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
     ) %>% 
     relocate(`Currently in Project`, .after = ProjectName)
   
-  exportTestValues(client_count_download = pivoted)
-  
   return(pivoted)
 }
 
@@ -177,8 +175,8 @@ get_clientcount_download_info <- function(file) {
   validationCurrent <- 
     pivot_and_sum(
       validationDF %>%
-        filter(EntryDate <= input$dateRangeCount[2] &
-                 (is.na(ExitDate) | ExitDate >= input$dateRangeCount[2]))
+        filter(EntryDate <= ymd(today()) &
+                 (is.na(ExitDate) | ExitDate >= ymd(today())))
     ) %>%
     select(-c(`Currently in project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
@@ -199,6 +197,10 @@ get_clientcount_download_info <- function(file) {
     "Validation - Date Range",
     "Validation - Detail"
   )
+  
+  exportTestValues(client_count_download_current = validationCurrent %>% nice_names())
+  exportTestValues(client_count_download_date_range = validationDateRange %>% nice_names())
+  exportTestValues(client_count_download_detail = validationDetail %>% nice_names())
   
   write_xlsx(exportDFList,
              path = file)
