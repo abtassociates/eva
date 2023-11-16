@@ -31,7 +31,7 @@ df_date_types <-
       File,
       "file has the correct date format."))
   )
-
+  
 incorrect_date_types_hp <- df_date_types %>%
   filter(Column %in% c(high_priority_columns)) %>%
   merge_check_info(checkIDs = 11) %>%
@@ -215,7 +215,6 @@ valid_values <- list(yes_no_enhanced, c(dkr_dnc, NA), yes_no, yes_no, yes_no, ye
 
 # Only take existing columns - this solves the issue of misspelled demographic 
 # columns
-
 existing_cols <- base::intersect(cols, names(Client))
 
 # Create a named list of valid values for existing columns
@@ -408,8 +407,8 @@ file_structure_analysis_main <- rbind(
   export_id_client,
   foreign_key_no_primary_personalid_enrollment,
   foreign_key_no_primary_projectid_enrollment,
-  incorrect_date_types_hp,
   incorrect_date_types_error,
+  incorrect_date_types_hp,
   living_situation_invalid,
   no_enrollment_records,
   nonstandard_CLS,
