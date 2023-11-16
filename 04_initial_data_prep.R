@@ -46,12 +46,12 @@ ProjectsInHMIS <- ProjectStaging %>%
     OperatingDateRange =
       interval(
         OperatingStartDate,
-        replace_na(OperatingEndDate, meta_HUDCSV_Export_End)
+        coalesce(OperatingEndDate, no_end_date)
       ),
     ParticipatingDateRange =
       interval(
         HMISParticipationStatusStartDate,
-        replace_na(HMISParticipationStatusEndDate, meta_HUDCSV_Export_End)
+        coalesce(HMISParticipationStatusEndDate, no_end_date)
       )
   )
 
@@ -96,7 +96,7 @@ EnrollmentStaging <- Enrollment %>%
   left_join(Exit %>% 
               select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
             by = "EnrollmentID") %>%
-  mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_End),
+  mutate(ExitAdjust = coalesce(ExitDate, no_end_date),
          EnrollmentDateRange = interval(EntryDate, ExitAdjust))
 
 # Truncating Enrollments based on Operating/Participating -----------------
@@ -175,8 +175,7 @@ Enrollment <- EnrollmentStaging %>%
                                         "Enrollment Crosses Participating Period"),
       min(int_end(ParticipatingDateRange), int_end(OperatingDateRange), na.rm = TRUE),
       ExitDate
-    ),
-    ExitAdjust = replace_na(ExitDate, meta_HUDCSV_Export_End)
+    )
   ) %>%
   select(
     EnrollmentID,
