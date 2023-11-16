@@ -20,7 +20,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$expect_values()
 
     app$set_inputs(sidebarmenuid = "tabClientCount")
-    app$wait_for_value() #wait until whole application is idle for 500ms
+    app$wait_for_idle() #wait until whole application is idle for 500ms
     customDownload(app, "downloadClientCountsReport", "Client-Counts-Download")
     app$expect_values()
 
