@@ -2,6 +2,7 @@
 # hc = hard-coded
 hc_prior_living_situation_required <- ymd("20161001")
 hc_psh_started_collecting_move_in_date <- ymd("20171001")
+no_end_date <- ymd("20990909")
 
 # Living Situations Groups (includes PLS, CLS, and destinations) 
 #(Updated to match FY2024 DS) ---------------------------------------------
@@ -82,11 +83,11 @@ coc_funded_project_types <- c(2, 3, 13)
 
 project_types_w_beds <- c(0, 1, 2, 3, 8, 9, 10, 13)
 
-project_types_w_cls <- c(0, 4, 14)
+project_types_w_cls <- c(1, 4, 6, 14)
 
-long_stayer_98_percentile_project_types <- c(1, 2, 8, 12, 13)
+long_stayer_98_percentile_project_types <- c(0, 2, 8, 12, 13)
 
-long_stayer_percentile_project_types <- c(1, 2, 3, 8, 9, 10, 12, 13)
+long_stayer_percentile_project_types <- c(0, 2, 3, 8, 9, 10, 12, 13)
 
 # Funding Source Groupings -------------------------------------------------
 

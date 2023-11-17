@@ -45,12 +45,12 @@ ProjectsInHMIS <- ProjectStaging %>%
     OperatingDateRange =
       interval(
         OperatingStartDate,
-        replace_na(OperatingEndDate, meta_HUDCSV_Export_End)
+        coalesce(OperatingEndDate, no_end_date)
       ),
     ParticipatingDateRange =
       interval(
         HMISParticipationStatusStartDate,
-        replace_na(HMISParticipationStatusEndDate, meta_HUDCSV_Export_End)
+        coalesce(HMISParticipationStatusEndDate, no_end_date)
       )
   )
 
@@ -95,7 +95,7 @@ EnrollmentStaging <- Enrollment %>%
   left_join(Exit %>% 
               select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
             by = "EnrollmentID") %>%
-  mutate(ExitAdjust = coalesce(ExitDate, meta_HUDCSV_Export_End),
+  mutate(ExitAdjust = coalesce(ExitDate, no_end_date),
          EnrollmentDateRange = interval(EntryDate, ExitAdjust))
 
 # Truncating Enrollments based on Operating/Participating -----------------
@@ -158,8 +158,7 @@ Enrollment <- EnrollmentStaging %>%
   left_join(EnrollmentOutside,
             by = c("EnrollmentID", "ProjectID", "EnrollmentDateRange")) %>%
   mutate(
-    RawEntryDate = EntryDate,
-    EntryDate = if_else(
+    EntryDateTruncated = if_else(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating Start",
                                   "Enrollment Crosses Operating Period") |
         EnrollmentvParticipating %in% c("Enrollment Crosses Participating Start",
@@ -168,29 +167,25 @@ Enrollment <- EnrollmentStaging %>%
           int_start(OperatingDateRange), na.rm = TRUE),
       EntryDate
     ),
-    RawExitAdjust = ExitAdjust,
-    RawExitDate = ExitDate,
-    ExitDate = if_else(
+    ExitDateTruncated = if_else(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating End",
                                   "Enrollment Crosses Operating Period") |
         EnrollmentvParticipating %in% c("Enrollment Crosses Participating End",
                                         "Enrollment Crosses Participating Period"),
       min(int_end(ParticipatingDateRange), int_end(OperatingDateRange), na.rm = TRUE),
       ExitDate
-    ),
-    ExitAdjust = replace_na(ExitDate, meta_HUDCSV_Export_End)
+    )
   ) %>%
   select(
     EnrollmentID,
     ProjectID,
     ProjectTimeID,
     ProjectType,
-    RawEntryDate,
     EntryDate,
-    RawExitAdjust,
-    ExitAdjust,
-    RawExitDate,
+    EntryDateTruncated,
     ExitDate,
+    ExitDateTruncated,
+    ExitAdjust,
     Destination,
     DestinationSubsidyType,
     EnrollmentvOperating,
@@ -302,13 +297,12 @@ validationEnrollment <- Enrollment %>%
     ProjectTimeID,
     RelationshipToHoH,
     EntryDate,
-    RawEntryDate,
+    EntryDateTruncated,
     MoveInDate,
     ExitDate,
-    RawExitDate,
+    ExitDateTruncated,
     MoveInDateAdjust,
     ExitAdjust,
-    RawExitAdjust,
     LivingSituation,
     Destination,
     DestinationSubsidyType,
