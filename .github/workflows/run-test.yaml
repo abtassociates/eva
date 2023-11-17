@@ -44,3 +44,8 @@ jobs:
         with:
           name: ${{ runner.os }}-4.2-tests
           path: tests
+        
+      - name: review diff
+        if: failure()
+        run: |
+          Rscript snapshot_review()
