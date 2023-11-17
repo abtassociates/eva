@@ -47,5 +47,6 @@ jobs:
         
       - name: review diff
         if: failure()
+        shell: Rscript {0}
         run: |
-          Rscript snapshot_review()
+          snapshot_review()
