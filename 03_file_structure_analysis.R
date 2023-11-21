@@ -139,15 +139,14 @@ df_data_types <- rbind(
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
-  total_rows <- nrow(barefile)
-  if (total_rows > 1) {
+  if (nrow(barefile) > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
       filter(File == file & NullsAllowed == 0 & Column %in% names(get(file))) %>%
       pull(Column)
 
     # select subset of columns with nulls
-    barefile <- get(file) %>%
+    barefile <- barefile %>%
       select(all_of(nulls_not_allowed_cols)) %>%
       mutate_all(~ifelse(is.na(.), 1, 0)) %>%
       select_if(~any(. == 1))
@@ -216,7 +215,7 @@ valid_values <- list(yes_no_enhanced, c(dkr_dnc, NA), yes_no, yes_no, yes_no, ye
 
 # Only take existing columns - this solves the issue of misspelled demographic 
 # columns
-existing_cols <- intersect(cols, names(Client))
+existing_cols <- base::intersect(cols, names(Client))
 
 # Create a named list of valid values for existing columns
 valid_values_named <- setNames(valid_values, cols)[existing_cols]
