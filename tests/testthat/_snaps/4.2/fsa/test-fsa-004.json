@@ -15,16 +15,16 @@
     ],
     "imported": {
       "name": [
-        "FY24-ICF-wrong-file-type.gz"
+        "FY24-ICF-fsa-test.zip"
       ],
       "size": [
-        6861
+        8748
       ],
       "type": [
-        "application/gzip"
+        "application/zip"
       ],
       "datapath": [
-        "0.gz"
+        "0.zip"
       ]
     },
     "orgList": null,
@@ -32,8 +32,8 @@
 
     },
     "sidebarCollapsed": false,
-    "sidebarItemExpanded": null,
-    "sidebarmenuid": "tabClientCount"
+    "sidebarItemExpanded": "AssessDataQuality",
+    "sidebarmenuid": "tabDQSystem"
   },
   "output": {
     "clientCountData": [
@@ -62,6 +62,22 @@
         "validation"
       ]
     },
+    "downloadPDDEReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "downloadSystemDQReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
     "fileInfo": null,
     "fileStructureAnalysis": [
       "",
@@ -74,10 +90,56 @@
 
       ]
     },
+    "headerPDDE": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "headerSystemDQ": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
     "headerUpload": {
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
+      ]
+    },
+    "pdde_guidance_summary": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "pdde_summary_table": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "systemDQErrorsByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "systemDQHighPriorityErrorsByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "systemDQWarningsByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
       ]
     }
   },

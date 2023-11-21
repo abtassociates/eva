@@ -102,7 +102,7 @@ dkr_dnc <- c(8, 9, 99)
 dkr <- c(8, 9)
 
 # Expected upload schema (files, columns, and data types) ------------------
-cols_and_data_types <- read_csv("public-resources/columns.csv", 
+cols_and_data_types <- read_csv(here("public-resources/columns.csv"), 
                                 col_types = cols()) %>%
   filter(!(File %in% c("Affiliation",
                        "AssessmentResults",
@@ -126,7 +126,7 @@ issue_levels <- c("High Priority", "Error", "Warning")
 issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 # EvaChecks data (contains issue, type, guidance for each check) ----------
-evachecks <- read_csv("public-resources/EvaChecks.csv", show_col_types = FALSE)
+evachecks <- read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
 
 evachecks_no_dupes <- evachecks %>%
   janitor::get_dupes(ID) %>% nrow() == 0
