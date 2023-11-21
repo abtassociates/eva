@@ -15,16 +15,16 @@
     ],
     "imported": {
       "name": [
-        "FY24-ICF-wrong-file-type.gz"
+        "FY24-ICF-fsa-test.zip"
       ],
       "size": [
-        6861
+        8748
       ],
       "type": [
-        "application/gzip"
+        "application/zip"
       ],
       "datapath": [
-        "0.gz"
+        "0.zip"
       ]
     },
     "orgList": null,
@@ -33,27 +33,9 @@
     },
     "sidebarCollapsed": false,
     "sidebarItemExpanded": null,
-    "sidebarmenuid": "tabClientCount"
+    "sidebarmenuid": "tabUpload"
   },
   "output": {
-    "clientCountData": [
-      "",
-      "NULL",
-      "c(\"shiny.silent.error\", \"validation\")"
-    ],
-    "clientCountSummary": [
-      "",
-      "NULL",
-      "c(\"shiny.silent.error\", \"validation\")"
-    ],
-    "downloadClientCountsReportButton": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
     "downloadFileStructureAnalysisBtn": {
       "message": "",
       "call": "NULL",
@@ -68,12 +50,6 @@
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
     ],
-    "headerClientCounts": {
-      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
-      "deps": [
-
-      ]
-    },
     "headerUpload": {
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [

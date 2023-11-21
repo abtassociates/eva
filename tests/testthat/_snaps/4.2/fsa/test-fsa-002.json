@@ -15,16 +15,16 @@
     ],
     "imported": {
       "name": [
-        "FY24-ICF-wrong-file-type.gz"
+        "FY24-ICF-fsa-test.zip"
       ],
       "size": [
-        6861
+        8748
       ],
       "type": [
-        "application/gzip"
+        "application/zip"
       ],
       "datapath": [
-        "0.gz"
+        "0.zip"
       ]
     },
     "orgList": null,

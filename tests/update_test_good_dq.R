@@ -1,3 +1,5 @@
+print("updating test good for DQ")
+
 set.seed(12345)
 select_random_rows <- function(cond) {
   return(

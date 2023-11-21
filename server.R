@@ -82,8 +82,8 @@ function(input, output, session) {
         # we can edit those to capture all File Structure Analysis 
         # issues and then continue running to test
         if(isTRUE(getOption("shiny.testmode")) && 
-           input$imported$name == "File-Structure-Analysis-Check.zip") {
-          source("tests/update_test_data_fsa.R", local = TRUE)  
+           input$imported$name == "FY24-ICF-fsa-test.zip") {
+          source("tests/update_test_good_fsa.R", local = TRUE)  
         }
         
         source("03_file_structure_analysis.R", local = TRUE)
@@ -100,7 +100,7 @@ function(input, output, session) {
           # we have confirmed that it is correctly capturing these issues
           if(isTRUE(getOption("shiny.testmode")) && 
              input$imported$name == "FY24-ICF-hashed-current-good.zip") {
-            source("tests/update_test_data_dq.R", local = TRUE)  
+            source("tests/update_test_good_dq.R", local = TRUE)  
           }
           
           source("05_DataQuality.R", local = TRUE)
