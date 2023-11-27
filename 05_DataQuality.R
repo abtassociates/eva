@@ -1276,7 +1276,7 @@ invalid_movein_date <- base_dq_data %>%
 
 # Missing Health Ins ------------------------------------------------------
 
-projects_require_ncb <- projects_funders_types %>% filter(ncb == 1) %>%
+projects_require_hi <- projects_funders_types %>% filter(hi == 1) %>%
   pull(ProjectID)
 
 missing_health_insurance <- base_dq_data %>%
@@ -1287,7 +1287,7 @@ missing_health_insurance <- base_dq_data %>%
          InsuranceFromAnySource) %>%
   filter((InsuranceFromAnySource == 99 |
               is.na(InsuranceFromAnySource)) &
-           ProjectID %in% c(projects_require_ncb))
+           ProjectID %in% c(projects_require_hi))
   
 missing_health_insurance_entry <- missing_health_insurance %>%
   filter(DataCollectionStage == 1) %>%
@@ -1298,9 +1298,6 @@ missing_health_insurance_exit <- missing_health_insurance %>%
   filter(DataCollectionStage == 3) %>%
   merge_check_info(checkIDs = 93) %>%
   select(all_of(vars_we_want))
-
-projects_require_hi <- projects_funders_types %>% filter(hi == 1) %>%
-  pull(ProjectID)
 
 health_insurance_subs <- base_dq_data %>%
   left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
@@ -1344,6 +1341,9 @@ conflicting_health_insurance_exit <- health_insurance_subs %>%
 rm(health_insurance_subs)
 
 # Missing NCBs at Entry ---------------------------------------------------
+
+projects_require_ncb <- projects_funders_types %>% filter(ncb == 1) %>%
+  pull(ProjectID)
 
 #just the different kinds of non-cash benefits, many to an enrollment
 ncb_subs <- IncomeBenefits %>%
