@@ -49,4 +49,4 @@ jobs:
         if: failure()
         shell: Rscript {0}
         run: |
-          shinytest2::snapshot_review()
+          testthat::snapshot_review()
