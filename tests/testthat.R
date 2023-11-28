@@ -1,3 +1,3 @@
 library(shinytest2)
-test_app(filter="dq_and_pdde")
+test_app()
 unlink(here("tests/temp"), recursive = TRUE)
