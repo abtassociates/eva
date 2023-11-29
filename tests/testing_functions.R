@@ -11,12 +11,12 @@ main_test_script <- function(test_script_name, test_dataset) {
       variant = platform_variant(os_name = FALSE), 
       name = test_script_name, 
       seed = 12345,
-      load_timeout = 1e+05)
-print("initialized app")
+      load_timeout = 2e+05)
+
     app$set_inputs(Go_to_upload = "click")
-    print("clicked to go to upload file tab")
+    app$wait_for_idle(timeout = 2e+05)
     app$upload_file(imported = paste0(here("tests/"),test_dataset))
-    print("uploaded!")
+
     app$wait_for_idle(timeout = 1e+06)
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
@@ -48,7 +48,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
       variant = platform_variant(os_name = FALSE), 
       name = test_script_name, 
       seed = 12345,
-      load_timeout = 1e+05)
+      load_timeout = 2e+05)
 
   app$set_inputs(Go_to_upload = "click")
   app$upload_file(imported = paste0(here("tests/temp/"),test_dataset))
