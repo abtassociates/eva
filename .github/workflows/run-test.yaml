@@ -44,10 +44,3 @@ jobs:
         with:
           name: ${{ runner.os }}-4.2-tests
           path: tests
-        
-      - name: review diff
-        if: failure()
-        shell: Rscript {0}
-        run: |
-          install.packages("diffviewer")
-          testthat::snapshot_review()
