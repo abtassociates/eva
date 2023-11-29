@@ -49,4 +49,5 @@ jobs:
         if: failure()
         shell: Rscript {0}
         run: |
+          install.packages("diffviewer")
           testthat::snapshot_review()
