@@ -174,7 +174,7 @@ logMetadata <- function(detail) {
     Details = detail
   )
   
-  filename <- "metadata-analysis/metadata/metadata.csv"
+  filename <- here("metadata-analysis/metadata/metadata.csv")
   
   invisible(write_csv(
     x = d,
@@ -219,7 +219,7 @@ logSessionData <- function() {
   capture.output(d, file = stderr())
   
     
-  filename <- "metadata-analysis/metadata/sessiondata.csv"
+  filename <- here("metadata-analysis/metadata/sessiondata.csv")
   write_csv(
     x = d,
     filename,

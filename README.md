@@ -16,5 +16,7 @@ This app takes an upload of your HMIS system's hashed HMIS CSV Export, runs logi
 
 No HMIS data is ever included in the code in this repository. To make this code work, you will need to supply your own HMIS data. You are responsible for securing your HUD CSV export on your computer and ensuring that it is not compromised using the security measures you use for that locally.
 
+### Compliance
 
+As per the [HMIS CSV Specs](https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf), right single quotation marks (’) and right double quotation marks (”) are not among the permitted characters in string fields. These invalid characters can make their way into CSV files by copy-pasting from Microsoft Word. Please be aware that Eva will not work if these characters are included in string fields.
 

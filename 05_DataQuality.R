@@ -885,6 +885,10 @@ future_exits <- base_dq_data %>%
   select(all_of(vars_we_want))
     
 # Missing Income at Entry -------------------------------------------------
+
+projects_require_income <- projects_funders_types %>% filter(inc == 1) %>%
+  pull(ProjectID)
+
 missing_income_entry <- base_dq_data %>%
   left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
   select(
@@ -895,6 +899,7 @@ missing_income_entry <- base_dq_data %>%
     IncomeFromAnySource
   ) %>%
   filter(DataCollectionStage == 1 &
+           ProjectID %in% c(projects_require_income) &
            (AgeAtEntry > 17 |
               is.na(AgeAtEntry)) &
            (IncomeFromAnySource == 99 |
@@ -969,6 +974,7 @@ income_subs <- base_dq_data[c("EnrollmentID",
 
 conflicting_income_entry <- income_subs %>%
   filter(DataCollectionStage == 1 &
+           ProjectID %in% c(projects_require_income) &
            (AgeAtEntry > 17 | is.na(AgeAtEntry)) & # revisit
            ((IncomeFromAnySource == 1 &
                IncomeCount == 0) |
@@ -990,6 +996,7 @@ missing_income_exit <- base_dq_data %>%
     IncomeFromAnySource
   ) %>%
   filter(DataCollectionStage == 3 &
+           ProjectID %in% c(projects_require_income) &
            (AgeAtEntry > 17 |
               is.na(AgeAtEntry)) &
            (IncomeFromAnySource == 99 |
@@ -999,6 +1006,7 @@ missing_income_exit <- base_dq_data %>%
 
 conflicting_income_exit <- income_subs %>%
   filter(DataCollectionStage == 3 &
+           ProjectID %in% c(projects_require_income) &
            (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
            ((IncomeFromAnySource == 1 &
                IncomeCount == 0) |
@@ -1268,14 +1276,18 @@ invalid_movein_date <- base_dq_data %>%
 
 # Missing Health Ins ------------------------------------------------------
 
+projects_require_hi <- projects_funders_types %>% filter(hi == 1) %>%
+  pull(ProjectID)
+
 missing_health_insurance <- base_dq_data %>%
   left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
   select(all_of(vars_prep),
          AgeAtEntry,
          DataCollectionStage,
          InsuranceFromAnySource) %>%
-  filter(InsuranceFromAnySource == 99 |
-              is.na(InsuranceFromAnySource))
+  filter((InsuranceFromAnySource == 99 |
+              is.na(InsuranceFromAnySource)) &
+           ProjectID %in% c(projects_require_hi))
   
 missing_health_insurance_entry <- missing_health_insurance %>%
   filter(DataCollectionStage == 1) %>%
@@ -1315,18 +1327,23 @@ health_insurance_subs <- base_dq_data %>%
               SourceCount > 0))
 
 conflicting_health_insurance_entry <- health_insurance_subs %>%
-  filter(DataCollectionStage == 1) %>%
+  filter(DataCollectionStage == 1 &
+           ProjectID %in% c(projects_require_hi)) %>%
   merge_check_info(checkIDs = 94) %>%
   select(all_of(vars_we_want))
 
 conflicting_health_insurance_exit <- health_insurance_subs %>%
-  filter(DataCollectionStage == 3) %>%
+  filter(DataCollectionStage == 3 &
+           ProjectID %in% c(projects_require_hi)) %>%
   merge_check_info(checkIDs = 95) %>%
   select(all_of(vars_we_want))
 
 rm(health_insurance_subs)
 
 # Missing NCBs at Entry ---------------------------------------------------
+
+projects_require_ncb <- projects_funders_types %>% filter(ncb == 1) %>%
+  pull(ProjectID)
 
 #just the different kinds of non-cash benefits, many to an enrollment
 ncb_subs <- IncomeBenefits %>%
@@ -1381,8 +1398,9 @@ ncb_staging <- base_dq_data %>%
   unique()
 
 missing_ncbs_entry <- ncb_staging %>%
-  filter(BenefitsFromAnySource == 99 |
-         is.na(BenefitsFromAnySource)
+  filter((BenefitsFromAnySource == 99 |
+         is.na(BenefitsFromAnySource)) &
+           ProjectID %in% c(projects_require_ncb)
   ) %>%
   merge_check_info(checkIDs = 96) %>%
   select(all_of(vars_we_want))
@@ -1402,6 +1420,7 @@ conflicting_ncbs_entry <- base_dq_data %>%
          BenefitsFromAnySource,
          BenefitCount) %>%
   filter(DataCollectionStage == 1 &
+           ProjectID %in% c(projects_require_ncb) &
            (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
            ((BenefitsFromAnySource == 1 &
                BenefitCount == 0) |
