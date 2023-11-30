@@ -12,7 +12,7 @@ age_years <- function(earlier, later)
 living_situation <- function(ReferenceNo) {
   case_when(
     ReferenceNo == 8 ~ "Client doesn't know",
-    ReferenceNo == 9 ~ "Client refused",
+    ReferenceNo == 9 ~ "Client prefers not to answer",
     ReferenceNo == 17 ~ "Other",
     ReferenceNo == 24 ~ "Deceased",
     ReferenceNo == 30 ~ "No exit interview completed",
@@ -148,7 +148,6 @@ parseDate <- function(datevar) {
 }
 
 importFile <- function(csvFile, guess_max = 1000) {
-  if (is.null(input$imported)) {return()}
   filename = str_glue("{csvFile}.csv")
   data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
                    ,col_types = get_col_types(csvFile)
@@ -295,7 +294,7 @@ fy22_to_fy24_living_situation <- function(value){
 #############################
 # SANDBOX
 #############################
-importFileSandbox <- function(csvFile, guess_max = 1000) {
+importFileSandbox <- function(csvFile) {
   filename = str_glue("{csvFile}.csv")
   data <- read_csv(paste0(directory, "data/", filename)
                    ,col_types = get_col_types(csvFile)
@@ -303,7 +302,6 @@ importFileSandbox <- function(csvFile, guess_max = 1000) {
   )
   return(data)
 }
-
 
 ############################
 # GENERATE CHECK DATA FROM EVACHECKS.XLSX

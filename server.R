@@ -3,8 +3,10 @@ function(input, output, session) {
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
-  source("hardcodes.R", local = TRUE) # hard-coded variables and data frames used throughout the app
-  source("helper_functions.R", local = TRUE) # calling in HMIS-related functions that aren't in the HMIS pkg
+  source("hardcodes.R", local = TRUE) # hard-coded variables and data frames
+  # used throughout the app
+  source("helper_functions.R", local = TRUE) # calling in HMIS-related functions
+  # that aren't in the HMIS pkg
   source("changelog.R", local = TRUE) # changelog entries
   
   # log that the session has started
@@ -18,7 +20,7 @@ function(input, output, session) {
     logMetadata(paste("User on",input$sidebarmenuid))
   })
 
-# Headers -----------------------------------------------------------------
+  # Headers -----------------------------------------------------------------
 
   output$headerUpload <-
     headerGeneric("Upload HMIS CSV Export",
@@ -30,15 +32,18 @@ function(input, output, session) {
   
   output$headerLocalSettings <- headerGeneric("Edit Local Settings")
   
-  output$headerClientCounts <- headerGeneric("Client Counts Report", renderUI({ 
+  # the reason we split the Client Count header into two is for shinytest reasons
+  # this _supp renderUI needed to be associated with an output in order to make 
+  # the HTML <div> id the same each time. Without associating with an output, 
+  # the id changed each time and the shinytest would catch the difference and fail
+  output$headerClientCounts_supp <- renderUI({ 
     organization <- Project0 %>%
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
     
-    h4(paste(
-      organization, "|", input$currentProviderList
-    ))
-  }))
+    h4(organization, "|", input$currentProviderList)
+  })
+  output$headerClientCounts <- headerGeneric("Client Counts Report", htmlOutput("headerClientCounts_supp"))
   
   output$headerSystemOverview <- headerGeneric("System Overview")
   
@@ -73,6 +78,16 @@ function(input, output, session) {
         source("01_get_Export.R", local = TRUE)
         source("02_export_dates.R", local = TRUE)
         setProgress(detail = "Checking file structure", value = .35)
+        
+        # if we're in shiny testmode and the script has gotten here,
+        # that means we've gotten all the exports 
+        # we can edit those to capture all File Structure Analysis 
+        # issues and then continue running to test
+        if(isTRUE(getOption("shiny.testmode")) && 
+           input$imported$name == "FY24-ICF-fsa-test.zip") {
+          source("tests/update_test_good_fsa.R", local = TRUE)  
+        }
+        
         source("03_file_structure_analysis.R", local = TRUE)
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
@@ -80,6 +95,16 @@ function(input, output, session) {
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE)
           setProgress(detail = "Assessing your data quality..", value = .7)
+          
+          # if we're in shiny testmode and the script has gotten here,
+          # that means we're using the hashed-test-good file. 
+          # we will update that file to capture the various issues we want to test
+          # we have confirmed that it is correctly capturing these issues
+          if(isTRUE(getOption("shiny.testmode")) && 
+             input$imported$name == "FY24-ICF-hashed-current-good.zip") {
+            source("tests/update_test_good_dq.R", local = TRUE)  
+          }
+          
           source("05_DataQuality.R", local = TRUE)
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
@@ -100,7 +125,8 @@ function(input, output, session) {
           reset("imported")
           showModal(
             modalDialog(
-              title = "Unsuccessful Upload: Your HMIS CSV Export is not structurally valid",
+              title = "Unsuccessful Upload: Your HMIS CSV Export is not
+              structurally valid",
               "Your HMIS CSV Export has some High Priority issues that must
               be addressed by your HMIS Vendor. Please download the File Structure
               Analysis for details.",
@@ -138,10 +164,13 @@ function(input, output, session) {
           a,
           rownames = FALSE,
           filter = 'none',
-          options = list(dom = 't')
+          options = list(dom = 't', 
+                         language = list(
+                          zeroRecords = "No file structure analysis issues! 
+                        Visit the other tabs to view the rest of Eva's output")
+                         )
         )
       })
-
 # File Structure Analysis Download ----------------------------------------
 
     output$downloadFileStructureAnalysisBtn <- renderUI({
@@ -272,57 +301,60 @@ function(input, output, session) {
 #   dq_plot_overview
 # })  
     
-
-    output$dq_orgs_overview_plot <- renderPlot({
-      req(valid_file() == 1)
-# browser()
-      highest_type <- dq_main_reactive() %>%
-        count(Type) %>% 
-        head(1L) %>%
-        mutate(Type = as.character(Type)) %>%
-        pull(Type)
-      
-      highest_type_display <-
-        case_when(
-          highest_type == "High Priority" ~ "High Priority Issues",
-          highest_type == "Error" ~ "Errors",
-          TRUE ~ "Warnings"
-        )
-      
-      detail <- dq_main_reactive() %>%
-        count(OrganizationName, Type, name = "Total") %>%
-        filter(Type == highest_type)
-
-      dq_plot_overview <-
-        ggplot(
-          detail %>%
-            arrange(desc(Total)) %>%
-            head(5L) %>%
-            mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
-          aes(x = OrganizationName, y = Total)
-        ) +
-        geom_col(fill = "#D5BFE6", alpha = .7)+
-        scale_y_continuous(label = comma_format()) +
-        labs(
-          title = paste("Highest Counts of", ifelse(is_empty(highest_type_display),"Issue",highest_type_display)),
-          x = "Top 5 Organizations",
-          y = ifelse(is_empty(highest_type_display),"Issue",highest_type_display)
-        ) +
-        coord_flip() +
-        theme_minimal(base_size = 18) +
-        theme(
-          plot.title.position = "plot",
-          title = element_text(colour = "#73655E")
-        ) +
-        geom_text(aes(label = prettyNum(Total, big.mark = ",")),
-                  nudge_y = 2,
-                  color = "gray14")
-      
-      if (nrow(detail) == 0) {
-        dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
-      }
-      dq_plot_overview
-    })
+# 
+#     output$dq_orgs_overview_plot <- renderPlot({
+#       req(valid_file() == 1)
+# # browser()
+#       highest_type <- dq_main_reactive() %>%
+#         count(Type) %>% 
+#         head(1L) %>%
+#         mutate(Type = as.character(Type)) %>%
+#         pull(Type)
+#       
+#       highest_type_display <-
+#         case_when(
+#           highest_type == "High Priority" ~ "High Priority Issues",
+#           highest_type == "Error" ~ "Errors",
+#           TRUE ~ "Warnings"
+#         )
+#       
+#       detail <- dq_main_reactive() %>%
+#         count(OrganizationName, Type, name = "Total") %>%
+#         filter(Type == highest_type)
+# 
+#       dq_plot_overview <-
+#         ggplot(
+#           detail %>%
+#             arrange(desc(Total)) %>%
+#             head(5L) %>%
+#             mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
+#           aes(x = OrganizationName, y = Total)
+#         ) +
+#         geom_col(fill = "#D5BFE6", alpha = .7)+
+#         scale_y_continuous(label = comma_format()) +
+#         labs(
+#           title = paste("Highest Counts of",
+#                         ifelse(is_empty(highest_type_display),
+#                                "Issue",
+#                                highest_type_display)),
+#           x = "Top 5 Organizations",
+#           y = ifelse(is_empty(highest_type_display),"Issue",highest_type_display)
+#         ) +
+#         coord_flip() +
+#         theme_minimal(base_size = 18) +
+#         theme(
+#           plot.title.position = "plot",
+#           title = element_text(colour = "#73655E")
+#         ) +
+#         geom_text(aes(label = prettyNum(Total, big.mark = ",")),
+#                   nudge_y = 2,
+#                   color = "gray14")
+#       
+#       if (nrow(detail) == 0) {
+#         dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
+#       }
+#       dq_plot_overview
+#     })
     
     output$validate_plot <- renderPlot({
       req(valid_file() == 1)
@@ -604,7 +636,8 @@ output$system_activity_summary_ui <- renderUI({
         filter(OrganizationName %in% c(input$orgList) | 
                  PreviousOrganizationName %in% c(input$orgList))
 #browser()
-      orgDQReferrals <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+      orgDQReferrals <- 
+        calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
         filter(OrganizationName %in% c(input$orgList))
       
       # return a list for reference in downloadHandler
@@ -664,8 +697,8 @@ output$system_activity_summary_ui <- renderUI({
     )
 
 # SYSTEM-LEVEL DQ TAB PLOTS -----------------------------------------------
-    # By-org shows organizations containing highest number of HP errors/errors/warnings
-    # By-issue shows issues that are the most common of that type (HP errors/errors/warnings)
+    # By-org shows organizations containing highest number of HP/errors/warnings
+    # By-issue shows issues that are the most common of that type
     output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
       renderDQPlot("sys", "High Priority", "Org", "#71B4CB")
     })

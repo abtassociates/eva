@@ -13,7 +13,8 @@ PDDEcols = c("OrganizationName",
              "Guidance",
              "Detail")
 
-# Subpop beds = TotalBeds
+# Subpop beds should equal Total Beds -------------------------------------
+
 subpopNotTotal <- Inventory %>%
   left_join(Project0, by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
@@ -45,11 +46,11 @@ subpopNotTotal <- Inventory %>%
   select(all_of(PDDEcols))
 
 # Missing Operating End Date If a project has no open enrollments and the most
-# recent Enrollment was 30+ days ago
+# recent exit was 30+ days ago
 operating_end_missing <- Enrollment %>%
   group_by(ProjectID) %>%
   mutate(NumOpenEnrollments = sum(is.na(ExitDate)),
-         MostRecentEnrollment = max(ExitAdjust, na.rm = TRUE)
+         MostRecentEnrollment = max(ExitAdjust, na.rm = TRUE) # keep* or change
 
   ) %>%
   ungroup() %>%
@@ -58,8 +59,8 @@ operating_end_missing <- Enrollment %>%
               unique(), 
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
-           MostRecentEnrollment >= 
-           coalesce(OperatingEndDate, Export$ExportDate) - 30 &
+           MostRecentEnrollment < 
+           meta_HUDCSV_Export_Date - 30 &
            is.null(OperatingEndDate)) %>%
   merge_check_info(checkIDs = 81) %>%
   mutate(Detail = paste(
@@ -117,7 +118,8 @@ missing_CoC_Address <- missing_CoC_Info %>%
    )) %>%
   select(all_of(PDDEcols))
 
-# Missing Inventory Record Is a residential project but has no active inventory for the duration of operating period OR for the reporting period
+# Missing Inventory Record Is a residential project but has no active inventory
+# for the duration of operating period OR for the reporting period
 
 missing_inventory_record <- Project0 %>%
   left_join(Inventory, by = "ProjectID") %>%
@@ -130,16 +132,21 @@ missing_inventory_record <- Project0 %>%
 # Inventory Start < Operating Start AND
 # Inventory End > Operating End or Null
 activeInventory <- Inventory %>%
-  left_join(Project %>%
-              select(ProjectID,
-                     OrganizationName,
-                     ProjectName,
-                     OperatingStartDate,
-                     OperatingEndDate) %>%
-              unique(), by = "ProjectID") %>%
+  left_join(
+    Project %>%
+      select(
+        ProjectID,
+        OrganizationName,
+        ProjectName,
+        OperatingStartDate,
+        OperatingEndDate
+      ) %>%
+      unique(),
+    by = "ProjectID"
+  ) %>%
   filter(
-    coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start & 
-    InventoryStartDate <= meta_HUDCSV_Export_End
+    coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start &
+      InventoryStartDate <= meta_HUDCSV_Export_End
   )
 
 inventory_start_precedes_operating_start <- activeInventory %>%
@@ -161,8 +168,8 @@ inventory_start_precedes_operating_start <- activeInventory %>%
 
 
 operating_end_precedes_inventory_end <- activeInventory %>%
-  filter(coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_End)) >
-           coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_End))
+  filter(coalesce(InventoryEndDate, no_end_date) >
+           coalesce(OperatingEndDate, no_end_date)
   ) %>%
   mutate(
     Detail = case_when(
@@ -204,14 +211,36 @@ rrh_no_subtype <- Project %>%
   mutate(Detail = "") %>%
   select(all_of(PDDEcols))
 
-# Zero Utilization --------------------------------------------------------
 
-projects_w_beds <- Inventory %>%
-  filter(
-    BedInventory > 0 &
-      coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start &
-      InventoryStartDate <= meta_HUDCSV_Export_End
-  ) %>%
+# VSP with HMIS Participation ---------------------------------------------
+
+vsp_projects <- Project %>%
+  inner_join(Organization %>%
+               filter(VictimServiceProvider == 1),
+             by = "OrganizationID") %>%
+  pull(ProjectID) %>%
+  unique()
+
+participating_projects <- Project %>%
+  inner_join(HMISParticipation %>%
+               filter(HMISParticipationType == 1),
+             by = "ProjectID") %>%
+  pull(ProjectID) %>%
+  unique()
+
+vsps_that_are_hmis_participating <- 
+  base::intersect(vsp_projects, participating_projects)
+
+vsps_in_hmis <- Project %>%
+  filter(ProjectID %in% c(vsps_that_are_hmis_participating)) %>%
+  merge_check_info(checkIDs = 133) %>%
+  mutate(Detail = "") %>%
+  select(all_of(PDDEcols))
+  
+ # Zero Utilization --------------------------------------------------------
+
+projects_w_beds <- activeInventory %>%
+  filter(BedInventory > 0) %>%
   pull(ProjectID) %>%
   unique()
 
@@ -222,15 +251,127 @@ projects_w_clients <- Enrollment %>%
 res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 
 zero_utilization <- Project0 %>%
+  inner_join(HMISParticipation %>%
+              filter(HMISParticipationType == 1) %>%
+              distinct(ProjectID), by = "ProjectID") %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
   merge_check_info(checkIDs = 83) %>%
   mutate(Detail = "") %>%
   select(all_of(PDDEcols))
 
-##### For later-------
-# Incompatible Funding Source and Project Type Funding Source X can only be used with Project Type Y. Project Type A can only be used with Funding Source B. (this will need a lot more detail, hold on this one)
+# if a comparable db uses Eva, this will not flag for them^
 
-### Put it together ----
+# RRH-SO projects with active inventory -----------------------------------
+
+rrh_so_w_inventory <- activeInventory %>%
+  mutate(
+    InventoryActivePeriod = 
+      interval(InventoryStartDate,
+               coalesce(InventoryEndDate, no_end_date))
+  ) %>%
+  select(InventoryID, ProjectID, InventoryActivePeriod, BedInventory) %>%
+  left_join(Project, join_by(ProjectID)) %>%
+  mutate(RRHSOyn = ProjectType == 13 & RRHSubType == 1,
+         RRHSOActivePeriod =
+           interval(OperatingStartDate,
+                    coalesce(OperatingEndDate, no_end_date)),
+         Detail = "") %>%
+  filter(RRHSOyn == TRUE & 
+           !is.na(BedInventory) & BedInventory > 0 &
+           int_overlaps(InventoryActivePeriod, RRHSOActivePeriod)) %>%
+  merge_check_info(checkIDs = 132) %>%
+  select(all_of(PDDEcols))
+
+# For later.. -------------------------------------------------------------
+
+# Incompatible Funding Source and Project Type Funding Source X can only be used
+# with Project Type Y. Project Type A can only be used with Funding Source B.
+# (this will need a lot more detail, hold on this one)
+
+
+# Overlapping participations ----------------------------------------------
+
+overlapping_ce_participation <- CEParticipation %>%
+  left_join(Project0 %>% select(ProjectID, OrganizationName, ProjectName),
+            by = "ProjectID") %>%
+  group_by(ProjectID) %>%
+  arrange(CEParticipationStatusStartDate) %>%
+  mutate(PreviousCEParticipationID = lag(CEParticipationID),
+         PreviousCEStart = lag(CEParticipationStatusStartDate),
+         PreviousCEEnd = lag(CEParticipationStatusEndDate)) %>%
+  ungroup() %>%
+  filter(!is.na(PreviousCEParticipationID)) %>%
+  mutate(ParticipationPeriod =
+           interval(
+             CEParticipationStatusStartDate,
+             coalesce(CEParticipationStatusEndDate, no_end_date)),
+         PreviousParticipationPeriod = 
+           interval(
+             PreviousCEStart,
+             coalesce(PreviousCEEnd, no_end_date)
+           ),
+         OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod)
+  ) %>%
+  filter(OverlapYN == TRUE) %>%
+  mutate(Detail = paste(
+           "This project's first participation period goes from",
+           CEParticipationStatusStartDate,
+           "to",
+           if_else(is.na(CEParticipationStatusEndDate),
+                   "current,",
+                   paste0(CEParticipationStatusEndDate, ",")),
+           "and the other participation period goes from",
+           PreviousCEStart,
+           "to",
+           if_else(is.na(PreviousCEEnd),
+                   "current.",
+                   paste0(PreviousCEEnd, "."))
+         )) %>%
+  merge_check_info(checkIDs = 128) %>%
+  select(all_of(PDDEcols))
+
+overlapping_hmis_participation <- HMISParticipation %>%
+  left_join(Project0 %>% select(ProjectID, OrganizationName, ProjectName),
+            by = "ProjectID") %>%
+  group_by(ProjectID) %>%
+  arrange(HMISParticipationStatusStartDate) %>%
+  mutate(
+    PreviousHMISParticipationID = lag(HMISParticipationID),
+    PreviousHMISStart = lag(HMISParticipationStatusStartDate),
+    PreviousHMISEnd = lag(HMISParticipationStatusEndDate)) %>%
+  ungroup() %>%
+  filter(!is.na(PreviousHMISParticipationID)) %>%
+  mutate(ParticipationPeriod =
+           interval(
+             HMISParticipationStatusStartDate,
+             coalesce(HMISParticipationStatusEndDate, no_end_date)),
+         PreviousParticipationPeriod = 
+           interval(
+             PreviousHMISStart,
+             coalesce(PreviousHMISEnd, no_end_date)
+           ),
+         OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod)
+         ) %>% 
+         filter(OverlapYN) %>%
+         mutate(Detail = paste(
+           "This project's first HMIS participation period goes from",
+           HMISParticipationStatusStartDate,
+           "to",
+           if_else(is.na(HMISParticipationStatusEndDate),
+                   "today,",
+                   paste0(HMISParticipationStatusEndDate, ",")),
+           "and the other participation period goes from",
+           PreviousHMISStart,
+           "to",
+           if_else(is.na(PreviousHMISEnd),
+                   "today.",
+                   paste0(PreviousHMISEnd, "."))
+         )) %>%
+  merge_check_info(checkIDs = 131) %>%
+  select(all_of(PDDEcols))
+
+# Put it all together -----------------------------------------------------
+
 pdde_main <- rbind(
   subpopNotTotal,
   operating_end_missing,
@@ -239,7 +380,11 @@ pdde_main <- rbind(
   missing_CoC_Geography,
   missing_inventory_record,
   operating_end_precedes_inventory_end,
+  overlapping_ce_participation,
+  overlapping_hmis_participation,
   inventory_start_precedes_operating_start,
+  rrh_so_w_inventory,
+  vsps_in_hmis,
   zero_utilization
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))

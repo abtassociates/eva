@@ -2,6 +2,7 @@
 # hc = hard-coded
 hc_prior_living_situation_required <- ymd("20161001")
 hc_psh_started_collecting_move_in_date <- ymd("20171001")
+no_end_date <- ymd("20990909")
 
 # Living Situations Groups (includes PLS, CLS, and destinations) 
 #(Updated to match FY2024 DS) ---------------------------------------------
@@ -82,11 +83,13 @@ coc_funded_project_types <- c(2, 3, 13)
 
 project_types_w_beds <- c(0, 1, 2, 3, 8, 9, 10, 13)
 
-project_types_w_cls <- c(0, 4, 14)
+project_types_w_cls <- c(1, 4, 6, 14)
 
-long_stayer_98_percentile_project_types <- c(1, 2, 8, 12, 13)
+long_stayer_98_percentile_project_types <- c(0, 2, 8, 12, 13)
 
-long_stayer_percentile_project_types <- c(1, 2, 3, 8, 9, 10, 12, 13)
+long_stayer_percentile_project_types <- c(0, 2, 3, 8, 9, 10, 12, 13)
+
+all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) # minus Other
 
 # Funding Source Groupings -------------------------------------------------
 
@@ -101,7 +104,7 @@ dkr_dnc <- c(8, 9, 99)
 dkr <- c(8, 9)
 
 # Expected upload schema (files, columns, and data types) ------------------
-cols_and_data_types <- read_csv("public-resources/columns.csv", 
+cols_and_data_types <- read_csv(here("public-resources/columns.csv"), 
                                 col_types = cols()) %>%
   filter(!(File %in% c("Affiliation",
                        "AssessmentResults",
@@ -114,6 +117,10 @@ data_type_mapping <- c(
   date = "D",
   datetime = "T"
 )
+
+# Allowed Subsidy Types ---------------------------------------------------
+
+subsidy_types <- c(419, 420, 428, 431, 433, 434, 436, 437, 438, 439, 440)
 
 # Issue types and levels --------------------------------------------------
 issue_levels <- c("High Priority", "Error", "Warning")
@@ -131,4 +138,65 @@ syso_gender <- c("Male", "Female", "Transgender", "Non-Binary")
 
 
 # EvaChecks data (contains issue, type, guidance for each check) ----------
-evachecks <- read_csv("public-resources/EvaChecks.csv")
+evachecks <- read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
+
+evachecks_no_dupes <- evachecks %>%
+  janitor::get_dupes(ID) %>% nrow() == 0
+
+# Funding and Project Type Considerations DQ ------------------------------
+
+# if a funder isn't listed, it is not required to collect any of these elements.
+
+inc_ncb_hi_required_prep <- tribble(
+  ~Funder, ~ProjectType, ~inc, ~ncb, ~hi, ~dv,
+  1, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  2, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  3, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  4, setdiff(all_project_types, 14), TRUE, TRUE, TRUE, TRUE,
+  5, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  6, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  7, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  8, setdiff(all_project_types, 1), TRUE, TRUE, TRUE, FALSE,
+  9, setdiff(all_project_types, 1), TRUE, TRUE, TRUE, FALSE,
+  10, setdiff(all_project_types, 1), TRUE, TRUE, TRUE, FALSE,
+  11, setdiff(all_project_types, 1), TRUE, TRUE, TRUE, FALSE,
+  8, 1, FALSE, FALSE, FALSE, TRUE,
+  9, 1, FALSE, FALSE, FALSE, TRUE,
+  10, 1, FALSE, FALSE, FALSE, TRUE,
+  11, 1, FALSE, FALSE, FALSE, TRUE,
+  13, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  14, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  15, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  16, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  17, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  18, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  19, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  20, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  21, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  22, c(all_project_types), FALSE, TRUE, TRUE, FALSE,
+  23, c(all_project_types), TRUE, TRUE, TRUE, FALSE,
+  24, c(all_project_types), TRUE, TRUE, TRUE, FALSE,
+  25, c(all_project_types), FALSE, FALSE, TRUE, FALSE,
+  26, c(all_project_types), TRUE, TRUE, TRUE, FALSE,
+  27, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  30, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  33, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  35, c(ph_project_types), TRUE, TRUE, TRUE, TRUE,
+  37, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  38, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  39, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  40, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  41, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  42, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  45, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  53, setdiff(all_project_types, c(0, 1, 4)), TRUE, TRUE, TRUE, TRUE,
+  54, setdiff(all_project_types, 14), TRUE, TRUE, TRUE, TRUE,
+  55, setdiff(all_project_types, 14), TRUE, TRUE, TRUE, TRUE
+)
+
+# this will break out all the project types so they each get a row
+
+inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
+  unique()
+
+
