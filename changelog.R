@@ -1,6 +1,10 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "11-30-2023", "Added filters for income, non-cash, health insurance data 
+    quality issues so that projects that don't need to collect that, based on
+    their funding source and project type are not being false flagged",
+    
     "11-15-2023", "Corrected date logic in several places",
     
     "11-09-2023", "Corrected a few incorrect data types in columns.csv.",
