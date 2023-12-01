@@ -53,8 +53,7 @@ dashboardPage(
           window.onkeypress = resetTimer;  //catches keyboard actions
     
           function logout() {
-            alert('Your session timed out. Your data has been cleared,
-              please re-upload.');
+            alert('Your session timed out. Your data has been cleared, please re-upload.');
             Shiny.setInputValue('timeOut', 1)
           }
     
@@ -534,6 +533,8 @@ dashboardPage(
             "dateRangeCount",
             "Date Range",
             format = "mm/dd/yyyy",
+            start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
+            end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
             width = 300
           ),
           uiOutput("downloadClientCountsReportButton"),
