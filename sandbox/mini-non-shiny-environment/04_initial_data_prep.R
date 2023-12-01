@@ -209,7 +209,7 @@ Enrollment <- EnrollmentStaging %>%
 
 # Only contains EEs within Operating and Participating Dates --------------
 
-EnrollmentAdjust <- Enrollment %>%
+EnrollmentsInside <- Enrollment %>%
   filter(
     !EnrollmentvParticipating %in% c(
       "Enrollment After Participating Period",
@@ -282,7 +282,7 @@ Enrollment <- Enrollment %>%
 # to be used for system data analysis purposes. has been culled of enrollments
 # that fall outside of participation/operation date ranges.
 
-EnrollmentAdjust <- EnrollmentAdjust %>%
+EnrollmentAdjust <- EnrollmentsInside %>%
   left_join(HHEntry, by = "HouseholdID") %>%
   mutate(MoveInDateAdjust = if_else(
     !is.na(HHMoveIn) &
