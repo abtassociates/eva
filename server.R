@@ -20,28 +20,6 @@ function(input, output, session) {
     logMetadata(paste("User on",input$sidebarmenuid))
   })
 
-  
-  # Initial popup -----------------------------------------------------------
-  
-  showModal(
-    modalDialog(
-      title = "NOTICE(S):",
-      HTML("
-      1.  <strong>Eva is experiencing some slowness in uploading files.</strong>
-      If Eva should be showing a progress bar but is not, please wait. The app is
-      working, it is just taking some extra time. The Eva team is investigating
-      this issue and hope to resolve it shortly.
-      <br><br><p>
-      2. <strong>Eva only accepts FY 2024 HMIS CSV Exports.</strong> Attempting
-      to upload a file in the previous format will result in a rejected file.
-      Please contact your vendor for information on how to run your updated HMIS
-      CSV Export so that it complies with the new FY2024 HMIS CSV Export
-      Specifications."),
-      easyClose = TRUE,
-      footer = modalButton("OK")
-    )
-  )  
-  
   # Headers -----------------------------------------------------------------
 
   output$headerUpload <-
@@ -54,15 +32,18 @@ function(input, output, session) {
   
   output$headerLocalSettings <- headerGeneric("Edit Local Settings")
   
-  output$headerClientCounts <- headerGeneric("Client Counts Report", renderUI({ 
+  # the reason we split the Client Count header into two is for shinytest reasons
+  # this _supp renderUI needed to be associated with an output in order to make 
+  # the HTML <div> id the same each time. Without associating with an output, 
+  # the id changed each time and the shinytest would catch the difference and fail
+  output$headerClientCounts_supp <- renderUI({ 
     organization <- Project0 %>%
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
     
-    h4(paste(
-      organization, "|", input$currentProviderList
-    ))
-  }))
+    h4(organization, "|", input$currentProviderList)
+  })
+  output$headerClientCounts <- headerGeneric("Client Counts Report", htmlOutput("headerClientCounts_supp"))
   
   output$headerPDDE <- headerGeneric("Project Descriptor Data Elements Checker")
   
@@ -95,6 +76,16 @@ function(input, output, session) {
         source("01_get_Export.R", local = TRUE)
         source("02_export_dates.R", local = TRUE)
         setProgress(detail = "Checking file structure", value = .35)
+        
+        # if we're in shiny testmode and the script has gotten here,
+        # that means we've gotten all the exports 
+        # we can edit those to capture all File Structure Analysis 
+        # issues and then continue running to test
+        if(isTRUE(getOption("shiny.testmode")) && 
+           input$imported$name == "FY24-ICF-fsa-test.zip") {
+          source("tests/update_test_good_fsa.R", local = TRUE)  
+        }
+        
         source("03_file_structure_analysis.R", local = TRUE)
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
@@ -102,6 +93,16 @@ function(input, output, session) {
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE)
           setProgress(detail = "Assessing your data quality..", value = .7)
+          
+          # if we're in shiny testmode and the script has gotten here,
+          # that means we're using the hashed-test-good file. 
+          # we will update that file to capture the various issues we want to test
+          # we have confirmed that it is correctly capturing these issues
+          if(isTRUE(getOption("shiny.testmode")) && 
+             input$imported$name == "FY24-ICF-hashed-current-good.zip") {
+            source("tests/update_test_good_dq.R", local = TRUE)  
+          }
+          
           source("05_DataQuality.R", local = TRUE)
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
@@ -161,10 +162,13 @@ function(input, output, session) {
           a,
           rownames = FALSE,
           filter = 'none',
-          options = list(dom = 't')
+          options = list(dom = 't', 
+                         language = list(
+                          zeroRecords = "No file structure analysis issues! 
+                        Visit the other tabs to view the rest of Eva's output")
+                         )
         )
       })
-
 # File Structure Analysis Download ----------------------------------------
 
     output$downloadFileStructureAnalysisBtn <- renderUI({
@@ -278,60 +282,60 @@ function(input, output, session) {
 #   dq_plot_overview
 # })  
     
-
-    output$dq_orgs_overview_plot <- renderPlot({
-      req(valid_file() == 1)
-# browser()
-      highest_type <- dq_main_reactive() %>%
-        count(Type) %>% 
-        head(1L) %>%
-        mutate(Type = as.character(Type)) %>%
-        pull(Type)
-      
-      highest_type_display <-
-        case_when(
-          highest_type == "High Priority" ~ "High Priority Issues",
-          highest_type == "Error" ~ "Errors",
-          TRUE ~ "Warnings"
-        )
-      
-      detail <- dq_main_reactive() %>%
-        count(OrganizationName, Type, name = "Total") %>%
-        filter(Type == highest_type)
-
-      dq_plot_overview <-
-        ggplot(
-          detail %>%
-            arrange(desc(Total)) %>%
-            head(5L) %>%
-            mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
-          aes(x = OrganizationName, y = Total)
-        ) +
-        geom_col(fill = "#D5BFE6", alpha = .7)+
-        scale_y_continuous(label = comma_format()) +
-        labs(
-          title = paste("Highest Counts of",
-                        ifelse(is_empty(highest_type_display),
-                               "Issue",
-                               highest_type_display)),
-          x = "Top 5 Organizations",
-          y = ifelse(is_empty(highest_type_display),"Issue",highest_type_display)
-        ) +
-        coord_flip() +
-        theme_minimal(base_size = 18) +
-        theme(
-          plot.title.position = "plot",
-          title = element_text(colour = "#73655E")
-        ) +
-        geom_text(aes(label = prettyNum(Total, big.mark = ",")),
-                  nudge_y = 2,
-                  color = "gray14")
-      
-      if (nrow(detail) == 0) {
-        dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
-      }
-      dq_plot_overview
-    })
+# 
+#     output$dq_orgs_overview_plot <- renderPlot({
+#       req(valid_file() == 1)
+# # browser()
+#       highest_type <- dq_main_reactive() %>%
+#         count(Type) %>% 
+#         head(1L) %>%
+#         mutate(Type = as.character(Type)) %>%
+#         pull(Type)
+#       
+#       highest_type_display <-
+#         case_when(
+#           highest_type == "High Priority" ~ "High Priority Issues",
+#           highest_type == "Error" ~ "Errors",
+#           TRUE ~ "Warnings"
+#         )
+#       
+#       detail <- dq_main_reactive() %>%
+#         count(OrganizationName, Type, name = "Total") %>%
+#         filter(Type == highest_type)
+# 
+#       dq_plot_overview <-
+#         ggplot(
+#           detail %>%
+#             arrange(desc(Total)) %>%
+#             head(5L) %>%
+#             mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
+#           aes(x = OrganizationName, y = Total)
+#         ) +
+#         geom_col(fill = "#D5BFE6", alpha = .7)+
+#         scale_y_continuous(label = comma_format()) +
+#         labs(
+#           title = paste("Highest Counts of",
+#                         ifelse(is_empty(highest_type_display),
+#                                "Issue",
+#                                highest_type_display)),
+#           x = "Top 5 Organizations",
+#           y = ifelse(is_empty(highest_type_display),"Issue",highest_type_display)
+#         ) +
+#         coord_flip() +
+#         theme_minimal(base_size = 18) +
+#         theme(
+#           plot.title.position = "plot",
+#           title = element_text(colour = "#73655E")
+#         ) +
+#         geom_text(aes(label = prettyNum(Total, big.mark = ",")),
+#                   nudge_y = 2,
+#                   color = "gray14")
+#       
+#       if (nrow(detail) == 0) {
+#         dq_plot_overview <- empty_dq_overview_plot(dq_plot_overview)
+#       }
+#       dq_plot_overview
+#     })
     
     output$validate_plot <- renderPlot({
       req(valid_file() == 1)

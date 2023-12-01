@@ -148,7 +148,6 @@ parseDate <- function(datevar) {
 }
 
 importFile <- function(csvFile, guess_max = 1000) {
-  if (is.null(input$imported)) {return()}
   filename = str_glue("{csvFile}.csv")
   data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
                    ,col_types = get_col_types(csvFile)
@@ -175,7 +174,7 @@ logMetadata <- function(detail) {
     Details = detail
   )
   
-  filename <- "metadata-analysis/metadata/metadata.csv"
+  filename <- here("metadata-analysis/metadata/metadata.csv")
   
   invisible(write_csv(
     x = d,
@@ -220,7 +219,7 @@ logSessionData <- function() {
   capture.output(d, file = stderr())
   
     
-  filename <- "metadata-analysis/metadata/sessiondata.csv"
+  filename <- here("metadata-analysis/metadata/sessiondata.csv")
   write_csv(
     x = d,
     filename,
@@ -295,7 +294,7 @@ fy22_to_fy24_living_situation <- function(value){
 #############################
 # SANDBOX
 #############################
-importFileSandbox <- function(csvFile, guess_max = 1000) {
+importFileSandbox <- function(csvFile) {
   filename = str_glue("{csvFile}.csv")
   data <- read_csv(paste0(directory, "data/", filename)
                    ,col_types = get_col_types(csvFile)
