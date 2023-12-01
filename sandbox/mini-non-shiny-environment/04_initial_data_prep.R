@@ -54,7 +54,7 @@ ProjectsInHMIS <- ProjectStaging %>%
   )
 
 quit_and_start_projects <- ProjectsInHMIS %>%
-  get_dupes(ProjectID) %>% distinct(ProjectID)
+  get_dupes(ProjectID) %>% pull(ProjectID) %>% unique()
 
 if(nrow(quit_and_start_projects) > 0){
   QuitStarters <-  ProjectsInHMIS %>%
