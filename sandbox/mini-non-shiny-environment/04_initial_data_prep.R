@@ -32,7 +32,6 @@ ProjectStaging <- Project %>%
 ProjectsInHMIS <- ProjectStaging %>%
   left_join(
     HMISParticipation %>%
-      filter(HMISParticipationType == 1) %>%
       select(
         ProjectID,
         HMISParticipationStatusStartDate,
@@ -40,7 +39,7 @@ ProjectsInHMIS <- ProjectStaging %>%
       ) %>%
       unique(),
     by = "ProjectID"
-  ) %>% # ^ changes granularity if there are any quit-starters
+  ) %>% 
   mutate(
     OperatingDateRange =
       interval(
