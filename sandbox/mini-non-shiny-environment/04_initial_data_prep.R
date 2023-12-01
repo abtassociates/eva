@@ -19,17 +19,12 @@
 # clients = all members of the household
 ##############################
 
-
-# add Organization info into project dataset to more easily pull this info
-
-ProjectStaging <- Project %>%
-  left_join(Organization %>%
-              select(OrganizationID, OrganizationName),
-            by = "OrganizationID")
-
 # breaking out Projects into their participating times, adjusting ProjectIDs
 
-ProjectsInHMIS <- ProjectStaging %>%
+ProjectsInHMIS <- Project %>%
+  left_join(Organization %>%
+              select(OrganizationID, OrganizationName),
+            by = "OrganizationID") %>%
   left_join(
     HMISParticipation %>%
       select(
