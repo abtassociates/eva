@@ -10,7 +10,6 @@ list_of_problems <- list()
 for (file in unique(cols_and_data_types$File)) {
   #import the csv and save it as a data frame
   assign(file, importFile(file))
-  
   # add the problems() to the list
   list_of_problems[[file]] <- problems(get(file))
 }
