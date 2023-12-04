@@ -138,15 +138,14 @@ df_data_types <- rbind(
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
-  total_rows <- nrow(barefile)
-  if (total_rows > 1) {
+  if (nrow(barefile) > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
       filter(File == file & NullsAllowed == 0 & Column %in% names(get(file))) %>%
       pull(Column)
 
     # select subset of columns with nulls
-    barefile <- get(file) %>%
+    barefile <- barefile %>%
       select(all_of(nulls_not_allowed_cols)) %>%
       mutate_all(~ifelse(is.na(.), 1, 0)) %>%
       select_if(~any(. == 1))
@@ -160,7 +159,7 @@ check_for_bad_nulls <- function(file) {
           values_to = "value") %>%
         group_by(Column) %>%
         mutate(row_ids = case_when(
-          sum(value) == total_rows ~ "All rows affected", 
+          sum(value) == nrow(barefile) ~ "All rows affected", 
           sum(value) <= 3 ~ paste("See rows: ",
                                   paste(row_id[value == 1],
                                         collapse = ", ")),
