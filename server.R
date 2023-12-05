@@ -1089,45 +1089,6 @@ function(input, output, session) {
   output$system_activity_summary_ui <- renderPlot({
     req(valid_file() == 1)
     
-    df.tmp <- system_activity_raw %>%
-      # \_Set the factor levels in the order you want ----
-      mutate(
-        x.axis.Var = factor(x.axis.Var,
-                            levels = c(paste0("Active as of ",input$syso_date_range[1]), "Inflow", "Outflow", paste0("Active as of ", input$syso_date_range[2]))),
-        cat.Var = factor(cat.Var,
-                            levels = c("Enrolled: Homeless", "Enrolled: Housed"))
-      ) %>%
-      # \_Sort by Group and Category ----
-      arrange(x.axis.Var, desc(cat.Var)) %>%
-      # \_Get the start and end points of the bars ----
-      mutate(end.Bar = cumsum(values),
-            start.Bar = c(0, head(end.Bar, -1))) %>%
-      # \_Add a new Group called 'Total' with total by category ----
-      rbind(
-        df %>%
-          # \___Sum by Categories ----
-          group_by(cat.Var) %>% 
-          summarise(values = sum(values)) %>%
-          # \___Create new Group: 'Total' ----
-          mutate(
-            x.axis.Var = "Total",
-            cat.Var = factor(cat.Var,
-                            levels = c("Enrolled: Homeless", "Enrolled: Housed"))
-          ) %>%
-          # \___Sort by Group and Category ----
-          arrange(x.axis.Var, desc(cat.Var)) %>%
-          # \___Get the start and end points of the bars ----
-          mutate(end.Bar = cumsum(values),
-                start.Bar = c(0, head(end.Bar, -1))) %>%
-          # \___Put variables in the same order ----
-          select(names(df),end.Bar,start.Bar)
-      ) %>%
-      # \_Get numeric index for the groups ----
-      mutate(group.id = group_indices(., x.axis.Var)) %>%
-      # \_Create new variable with total by group ----
-      group_by(x.axis.Var) %>%
-      mutate(total.by.x = sum(values)) %>%
-      # \_Order the columns ----
-      select(x.axis.Var, cat.Var, group.id, start.Bar, values, end.Bar, total.by.x)
+    source("07a_system_overview_plot.R", local = TRUE)
   })
 }
