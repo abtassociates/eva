@@ -587,34 +587,75 @@ dashboardPage(
         fluidRow(
           box(
             title = "Universe Filters",
-            width = 12,
+            width = 6,
             id = "universe_filters",
             column(12, dateRangeInput(
               "syso_date_range",
-              "Date Range for System Overview",
-              format = "mm/dd/yyyy"
+              "Date Range",
+              format = "mm/dd/yyyy",
+              start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
+              end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today()))
             )),
-            column(4, pickerInput(
-              label = "Household Type",
-              inputId = "syso_hh_type",
-              choices = NULL,
-              selected = "All Households",
+            br(),
+            h4("Universe Selectors"),
+            column(4, fluidRow(
+              br(),
+              pickerInput(
+                label = "Household Type",
+                inputId = "syso_hh_type",
+                choices = syso_hh_types,
+                selected = "All Households",
+                width = "90%"
+              )
             )),
-            column(4, pickerInput(
-              label = "Level of Detail",
-              inputId = "syso_level_of_detail",
-              choices = NULL,
-              selected = "All People",
-              width = "100%"
+            column(4, fluidRow(
+              br(),
+              pickerInput(
+                label = "Level of Detail",
+                inputId = "syso_level_of_detail",
+                choices = syso_level_of_detail,
+                selected = "All People",
+                width = "90%"
+              )
             )),
-            column(4, pickerInput(
-              label = "Project Type",
-              inputId = "syso_project_type",
-              choices = NULL,
-              selected = "PSH",
-              width = "100%"
+            column(4, fluidRow(
+              a(href="www.google.com", "Click for Project Type Information"),
+              pickerInput(
+                label = "Project Type",
+                inputId = "syso_project_type",
+                choices = syso_project_types,
+                selected = "PSH",
+                width = "90%"
+              )
             ))
           ),
+          box(
+            # div(class="box-header", h3("Advanced Settings", class="box-title")),
+            # div(class="box-body",
+            #   radioButtons("methodology_type",
+            #     HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
+            #     choices = syso_methodology_type,
+            #     width = "100%"
+            #   )),
+            # hr(),
+            # div(class="box-header", h3("Download Tabular View of System Overview Charts", class="box-title")),
+            # width = 6
+            box(
+              title = "Advanced Settings",
+              radioButtons("methodology_type",
+                HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
+                choices = syso_methodology_type,
+                width = "100%"
+              ),
+              width = 12
+            ),
+            box(
+              title = "Download Tabular View of System Overview Charts",
+              uiOutput("downloadSysOverviewTabBtn"),
+              width = 12
+            ),
+            width = 6
+          )
         ),
         fluidRow(
           box(
@@ -625,35 +666,43 @@ dashboardPage(
         ),
         fluidRow(
           box(
-            title = "Subpopulation Filters",
-            width = 12,
-            column(3, pickerInput(
+            title = "Age and Special Population Filters",
+            width = 6,
+            column(6, pickerInput(
               label = "Age",
               inputId = "syso_age",
-              choices = NULL,
+              choices = syso_age,
+              multiple = TRUE,
               width = "100%",
-              selected = "All Households"
+              selected = "All Age Groups"
             )),
-            column(3, pickerInput(
-              label = "Gender",
-              inputId = "syso_gender",
-              choices = NULL,
-              width = "100%",
-              selected = "All Households"
-            )),
-            column(3, pickerInput(
-              label = "Race/Ethnicity",
-              inputId = "syso_race_ethnicity",
-              choices = NULL,
-              width = "100%",
-              selected = "All Households"
-            )),
-            column(3, pickerInput(
+            column(6, pickerInput(
               label = "Special Populations",
               inputId = "syso_special_populations",
               choices = NULL,
+              multiple = TRUE,
               width = "100%",
               selected = "All Households"
+            ))
+          ),
+          box(
+            title = "Gender and Race/Ethnicity Filters",
+            width = 6,
+            column(6, pickerInput(
+              label = "Gender",
+              inputId = "syso_gender",
+              choices = syso_gender,
+              multiple = TRUE,
+              width = "100%",
+              selected = "All Genders"
+            )),
+            column(6, pickerInput(
+              label = "Race/Ethnicity",
+              inputId = "syso_race_ethnicity",
+              choices = NULL,
+              multiple = TRUE,
+              width = "100%",
+              selected = "All Races"
             ))
           )
         ),
@@ -662,15 +711,24 @@ dashboardPage(
             side = "right",
             selected = "Summary",
             title = "System Activity by Demographic",
-            tabPanel("Instructions", uiOutput("system_activity_instructions_ui")),
-            tabPanel("Detail", uiOutput("system_activity_detail_ui")),
-            tabPanel("Summary", uiOutput("system_activity_summary_ui")),
+            tabPanel("Instructions", 
+              uiOutput("system_activity_instructions_ui")
+            ),
+            tabPanel("Detail", 
+              uiOutput("sys_act_detail_filter_selections"),
+              uiOutput("sys_act_detail_ui")
+            ),
+            tabPanel("Summary", 
+              uiOutput("sys_act_summary_filter_selections"),
+              uiOutput("sys_act_summary_ui")
+            ),
             width = 12
           )
         )
       ),
       tabItem(
         tabName = "systemExitDetail",
+        fluidRow(box(htmlOutput("headerSystemExit"), width = 12)),
         fluidRow(
           box(
             width = 12,
