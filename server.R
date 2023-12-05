@@ -110,6 +110,8 @@ function(input, output, session) {
           source("05_DataQuality.R", local = TRUE)
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
+          setProgress(detail = "Preparing System Overview Data", value = .85)
+          source("07_system_overview.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
           logToConsole("Done processing")
           
