@@ -53,6 +53,10 @@ function(input, output, session) {
     
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
   
+  output$headerSystemOverview <- headerGeneric("System Overview")
+
+  output$headerSystemExit <- headerGeneric("System Exit")
+  
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
   })
