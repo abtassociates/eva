@@ -45,8 +45,6 @@ function(input, output, session) {
   })
   output$headerClientCounts <- headerGeneric("Client Counts Report", htmlOutput("headerClientCounts_supp"))
   
-  output$headerSystemOverview <- headerGeneric("System Overview")
-  
   output$headerPDDE <- headerGeneric("Project Descriptor Data Elements Checker")
   
   output$headerSystemDQ <- headerGeneric("System-level Data Quality")
@@ -113,6 +111,7 @@ function(input, output, session) {
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
+          logToConsole("Done processing")
           
           showModal(
             modalDialog(
@@ -224,20 +223,14 @@ function(input, output, session) {
                            end = meta_HUDCSV_Export_End)
 
       # System Overview tab inputs
-      updatePickerInput(session = session, inputId = "syso_hh_type",
-                          choices = syso_hh_types)
-
-      updatePickerInput(session = session, inputId = "syso_level_of_detail",
-                          choices = syso_level_of_detail)
-
+      updateDateRangeInput(session = session, inputId = "syso_date_range",
+                           min = meta_HUDCSV_Export_Start,
+                           start = meta_HUDCSV_Export_Start,
+                           max = meta_HUDCSV_Export_End,
+                           end = meta_HUDCSV_Export_End)
+                
       updatePickerInput(session = session, inputId = "syso_project_type",
                         choices = c(unique(sort(Project$ProjectType))))
-
-      updatePickerInput(session = session, inputId = "syso_age",
-                          choices = syso_age)
-
-      updatePickerInput(session = session, inputId = "syso_gender",
-                          choices = syso_gender)
     }
 
 
@@ -619,10 +612,6 @@ function(input, output, session) {
       )
     })
 
-# System Activity -------------------------------------------------------
-output$system_activity_summary_ui <- renderUI({
-  
-})
 
 # Prep DQ Downloads -------------------------------------------------------
 
@@ -788,7 +777,6 @@ output$system_activity_summary_ui <- renderUI({
   session$onSessionEnded(function() {
     logMetadata("Session Ended")
   })
-}
   
   
   # output$cocDQErrors <- renderPlot(dq_plot_projects_errors)
@@ -1063,3 +1051,81 @@ output$system_activity_summary_ui <- renderUI({
 #                      bedUtilization)
 #   )
 # })
+  # SYSTEM ACTIVITY - SYSTEM OVERVIEW -------------------------------------------
+  output$downloadSysOverviewTabBtn  <- renderUI({
+      req(valid_file() == 1)
+      downloadButton(outputId = "downloadSysOverviewTabView",
+                       label = "Download")
+    })
+
+  output$downloadSysOverviewTabView <- downloadHandler(
+    filename = date_stamped_filename("System Overview Tabular View -"),
+    content = function(file) {
+      req(valid_file() == 1)
+
+    }
+  )
+
+  detailBox <- function(id) {
+    list(
+      (paste0("Household Type: ", input$syso_hh_type)),
+      (paste0("Level of Detail: ", input$syso_level_of_detail)),
+      (paste0("Project Type: ", input$syso_project_type)),
+      (paste0("Age: ", input$syso_age)),
+      (paste0("Gender: ", input$syso_gender)),
+      (paste0("Race/Ethnicity: ", input$syso_race_ethnicity)),
+      (paste0("Special Populations: ", input$syso_special_populations))
+    )
+  }
+  output$sys_act_detail_filter_selections <- renderUI({ detailBox("detail") })
+  output$sys_act_summary_filter_selections <- renderUI({ detailBox("summary") })
+  output$syso_hh_type_detail <- renderText({ input$syso_hh_type })
+  output$syso_level_of_detail_detail <- renderText({ input$syso_level_of_detail })
+  output$syso_hh_type_summary <- renderText({ input$syso_hh_type })
+  output$syso_level_of_detail_summary <- renderText({ input$syso_level_of_detail })
+
+  output$system_activity_summary_ui <- renderPlot({
+    req(valid_file() == 1)
+    
+    df.tmp <- system_activity_raw %>%
+      # \_Set the factor levels in the order you want ----
+      mutate(
+        x.axis.Var = factor(x.axis.Var,
+                            levels = c(paste0("Active as of ",input$syso_date_range[1]), "Inflow", "Outflow", paste0("Active as of ", input$syso_date_range[2]))),
+        cat.Var = factor(cat.Var,
+                            levels = c("Enrolled: Homeless", "Enrolled: Housed"))
+      ) %>%
+      # \_Sort by Group and Category ----
+      arrange(x.axis.Var, desc(cat.Var)) %>%
+      # \_Get the start and end points of the bars ----
+      mutate(end.Bar = cumsum(values),
+            start.Bar = c(0, head(end.Bar, -1))) %>%
+      # \_Add a new Group called 'Total' with total by category ----
+      rbind(
+        df %>%
+          # \___Sum by Categories ----
+          group_by(cat.Var) %>% 
+          summarise(values = sum(values)) %>%
+          # \___Create new Group: 'Total' ----
+          mutate(
+            x.axis.Var = "Total",
+            cat.Var = factor(cat.Var,
+                            levels = c("Enrolled: Homeless", "Enrolled: Housed"))
+          ) %>%
+          # \___Sort by Group and Category ----
+          arrange(x.axis.Var, desc(cat.Var)) %>%
+          # \___Get the start and end points of the bars ----
+          mutate(end.Bar = cumsum(values),
+                start.Bar = c(0, head(end.Bar, -1))) %>%
+          # \___Put variables in the same order ----
+          select(names(df),end.Bar,start.Bar)
+      ) %>%
+      # \_Get numeric index for the groups ----
+      mutate(group.id = group_indices(., x.axis.Var)) %>%
+      # \_Create new variable with total by group ----
+      group_by(x.axis.Var) %>%
+      mutate(total.by.x = sum(values)) %>%
+      # \_Order the columns ----
+      select(x.axis.Var, cat.Var, group.id, start.Bar, values, end.Bar, total.by.x)
+  })
+}

@@ -127,15 +127,25 @@ issue_levels <- c("High Priority", "Error", "Warning")
 
 issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
-# System Overview tab
+# System Overview - Filters -----------------------------------------------
 syso_hh_types <- c("All Households", "Adult-Only", "Adult-Child", "Child-Only" ,"Youth and Young Adult", "Unknown Households")
 
 syso_level_of_detail <- c("All People", "All Adults and Heads of Households", "All Heads of Households")
 
-syso_age <- c("All people","0-12","13-17","18-21","21-24","25-34","35-44","45-54","55-64","65-74","75 and older")
+syso_age <- c("All Age Groups","0 to 12","13 to 17","18 to 21","21 to 24","25 to 34","35 to 44","45 to 54","55 to 64","65 to 74","75 and older")
 
-syso_gender <- c("Male", "Female", "Transgender", "Non-Binary")
+syso_gender <- c("All Genders", "Male", "Female", "Transgender", "Non-Binary")
 
+syso_race_ethnicity <- c("All Races/Ethnicities", "Black", "White", "Hispanic")
+
+syso_project_types <- c("All Project Types")
+
+syso_special_populations <- c("Domestic Violence", "Veteran Status", "Homeless Status")
+
+syso_methodology_type <- c(
+  "A person is only counted once in a chart (Exclusive Groupings)",
+  "A person may be multiple times in a chart (Inclusive Groupings)"
+)
 
 # EvaChecks data (contains issue, type, guidance for each check) ----------
 evachecks <- read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
