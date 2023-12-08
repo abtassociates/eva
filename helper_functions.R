@@ -148,6 +148,10 @@ parseDate <- function(datevar) {
 }
 
 importFile <- function(csvFile, guess_max = 1000) {
+  if(grepl(".gz", input$imported$datapath)) {
+    capture.output("User tried uploading a .gz file!") 
+  }
+     
   filename = str_glue("{csvFile}.csv")
   data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
                    ,col_types = get_col_types(csvFile)
