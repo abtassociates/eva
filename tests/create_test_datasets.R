@@ -54,12 +54,6 @@ data$CSVVersion <- '2022 v1'
 write.csv(data, reduced_files[["Export"]], row.names = FALSE, na = "")
 save_new_zip("FY24-ICF-wrong-csv-version.zip", "reduced")
 
-# Wrong File Type --------------------------------------------
-save_new_zip("FY24-ICF-wrong-file-type.zip", "reduced")
-gzip(here("tests/temp/FY24-ICF-wrong-file-type.zip"), 
-     destname = here("tests/temp/FY24-ICF-wrong-file-type.gz"), 
-     remove = TRUE)
-
 # Missing Export (APR or LSA) --------------------------------
 file.remove(reduced_files[["Export"]])
 save_new_zip("FY24-ICF-missing-export.zip", "reduced")
