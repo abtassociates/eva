@@ -148,7 +148,7 @@ parseDate <- function(datevar) {
 }
 
 importFile <- function(csvFile, guess_max = 1000) {
-  if(grepl(".gz", input$imported$datapath)) {
+  if(str_sub(input$imported$datapath,-3,-1) == ".gz") {
     capture.output("User tried uploading a .gz file!") 
   }
   
