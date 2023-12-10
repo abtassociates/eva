@@ -4,6 +4,7 @@
 # unexpected nulls, and more
 ######################
 
+logToConsole("Running file structure analysis")
 
 # Prep --------------------------------------------------------------------
 
@@ -13,6 +14,51 @@ high_priority_columns <- cols_and_data_types %>%
   filter(DataTypeHighPriority == 1) %>%
   pull(Column) %>%
   unique()
+
+
+non_ascii_files <- function() {
+  library(stringi)
+  # Initialize an empty dataframe to store the results
+  files_with_non_ascii <- data.frame(File = character(), Line = integer(), Column = character(), Char = character())
+  
+  for(file in unique(cols_and_data_types$File)) {
+    # Replace ASCII characters with NA
+    non_ascii_data <- get(file) %>%
+      mutate_all(~ifelse(!stri_enc_isascii(.), ., NA))
+    
+    # Find rows that contain any non-ASCII characters
+    non_ascii_rows <- apply(non_ascii_data, 1, function(x) any(!is.na(x)))
+    
+    if(any(non_ascii_rows)) {
+      non_ascii_info <- data.frame(
+        Column = names(non_ascii_data)[which(!is.na(non_ascii_data[non_ascii_rows, ]))],
+        Detail = paste0(
+          "Found non-ascii character(s) on line ", 
+          which(non_ascii_rows),
+          ". The characters are: ",
+          unlist(
+          stri_extract_all_regex(
+            non_ascii_data[non_ascii_rows, 
+                           which(!is.na(non_ascii_data[non_ascii_rows, ]))],
+            "[^ -~]")
+          )
+        )
+      )
+      
+      files_with_non_ascii <- rbind(files_with_non_ascii, non_ascii_info)
+    }
+  }
+  
+  return(files_with_non_ascii)
+}
+
+# non-ascii
+files_with_non_ascii <- non_ascii_files() %>%
+  left_join(cols_and_data_types %>% 
+              select(Column, DataTypeHighPriority),
+            by = "Column") %>%
+  merge_check_info(checkIDs = 140) %>%
+  select(all_of(issue_display_cols)) %>% unique()
 
 # Incorrect Date Formats --------------------------------------------------
 
@@ -31,7 +77,7 @@ df_date_types <-
       File,
       "file has the correct date format."))
   )
-  
+
 incorrect_date_types_hp <- df_date_types %>%
   filter(Column %in% c(high_priority_columns)) %>%
   merge_check_info(checkIDs = 11) %>%
@@ -46,8 +92,8 @@ incorrect_date_types_error <- df_date_types %>%
 check_columns <- function(file) {
   ImportedColumns <- colnames(get(file))
   CorrectColumns <- cols_and_data_types %>%
-      filter(File == {{file}}) %>%
-      pull(Column)
+    filter(File == {{file}}) %>%
+    pull(Column)
   
   extra_columns <- setdiff(ImportedColumns, CorrectColumns)
   missing_columns <- setdiff(CorrectColumns, ImportedColumns)
@@ -58,33 +104,33 @@ check_columns <- function(file) {
       Status = c(rep("Missing", length(missing_columns)),
                  rep("Extra", length(extra_columns)))
     ) %>%
-    arrange(ColumnName) %>%
-    mutate(
-      Detail = str_squish(paste(
-        "In the",
-        file,
-        "file,",
-        if_else(
-          Status == "Extra",
-          paste(ColumnName, "is an extra column"),
-          paste("the", ColumnName, "column is missing")
-        )
-      ))
-    )
+      arrange(ColumnName) %>%
+      mutate(
+        Detail = str_squish(paste(
+          "In the",
+          file,
+          "file,",
+          if_else(
+            Status == "Extra",
+            paste(ColumnName, "is an extra column"),
+            paste("the", ColumnName, "column is missing")
+          )
+        ))
+      )
     
     col_diffs_hp <- col_diffs %>%
       filter(ColumnName %in% c(high_priority_columns)) %>%
       merge_check_info(checkIDs = 12) %>%
       select(all_of(issue_display_cols)) %>%
       unique()
-
-
+    
+    
     col_diffs_error <- col_diffs %>%
       filter(!(ColumnName %in% c(high_priority_columns))) %>%
       merge_check_info(checkIDs = 82) %>%
       select(all_of(issue_display_cols)) %>%
       unique()
-
+    
     return(
       rbind(col_diffs_hp, col_diffs_error)
     )
@@ -138,19 +184,18 @@ df_data_types <- rbind(
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
-  total_rows <- nrow(barefile)
-  if (total_rows > 1) {
+  if (nrow(barefile) > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
       filter(File == file & NullsAllowed == 0 & Column %in% names(get(file))) %>%
       pull(Column)
-
+    
     # select subset of columns with nulls
-    barefile <- get(file) %>%
+    barefile <- barefile %>%
       select(all_of(nulls_not_allowed_cols)) %>%
       mutate_all(~ifelse(is.na(.), 1, 0)) %>%
       select_if(~any(. == 1))
-
+    
     if(ncol(barefile) > 0) {
       barefile %>%
         mutate(row_id = row_number()) %>%
@@ -160,7 +205,7 @@ check_for_bad_nulls <- function(file) {
           values_to = "value") %>%
         group_by(Column) %>%
         mutate(row_ids = case_when(
-          sum(value) == total_rows ~ "All rows affected", 
+          sum(value) == nrow(barefile) ~ "All rows affected", 
           sum(value) <= 3 ~ paste("See rows: ",
                                   paste(row_id[value == 1],
                                         collapse = ", ")),
@@ -251,7 +296,7 @@ if (nrow(Enrollment) == 0) {
   no_enrollment_records <- data.frame(
     Detail = "There are 0 enrollment records in the Enrollment.csv file"
   ) %>%
-  merge_check_info(checkIDs = 101)
+    merge_check_info(checkIDs = 101)
 } else {
   no_enrollment_records <- data.frame(
     Issue = character(),
@@ -325,7 +370,7 @@ disabling_condition_invalid <- Enrollment %>%
 
 living_situation_invalid <- Enrollment %>%
   filter(!is.na(LivingSituation) &
-    !LivingSituation %in% c(allowed_prior_living_sit)) %>%
+           !LivingSituation %in% c(allowed_prior_living_sit)) %>%
   merge_check_info(checkIDs = 52) %>%
   mutate(
     Detail = str_squish(paste(
@@ -378,22 +423,22 @@ nonstandard_destination <- Exit %>%
   merge_check_info(checkIDs = 54) %>%
   mutate(
     Detail = str_squish(paste("EnrollmentID",
-                     EnrollmentID,
-                     "has a Destination value of",
-                     Destination,
-                     "which is not a valid Destination response."))) %>%
+                              EnrollmentID,
+                              "has a Destination value of",
+                              Destination,
+                              "which is not a valid Destination response."))) %>%
   select(all_of(issue_display_cols))
 
 nonstandard_CLS <- CurrentLivingSituation %>%
   filter(!is.na(CurrentLivingSituation) &
-    !CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
+           !CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
   merge_check_info(checkIDs = 55) %>%
   mutate(
     Detail = str_squish(paste("EnrollmentID",
-                     EnrollmentID,
-                     "has a Current Living Situation value of",
-                     CurrentLivingSituation,
-                     "which is not a valid response."))) %>%
+                              EnrollmentID,
+                              "has a Current Living Situation value of",
+                              CurrentLivingSituation,
+                              "which is not a valid response."))) %>%
   select(all_of(issue_display_cols))
 
 file_structure_analysis_main <- rbind(
@@ -414,7 +459,8 @@ file_structure_analysis_main <- rbind(
   nonstandard_CLS,
   nonstandard_destination,
   rel_to_hoh_invalid,
-  valid_values_client
+  valid_values_client,
+  files_with_non_ascii
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
