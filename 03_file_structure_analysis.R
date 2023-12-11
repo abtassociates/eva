@@ -17,7 +17,6 @@ high_priority_columns <- cols_and_data_types %>%
 
 
 non_ascii_files <- function() {
-  library(stringi)
   # Initialize an empty dataframe to store the results
   files_with_non_ascii <- data.frame(Column = character(), Detail = character())
   
