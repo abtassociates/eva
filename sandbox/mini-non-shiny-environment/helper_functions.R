@@ -148,11 +148,26 @@ parseDate <- function(datevar) {
 }
 
 importFile <- function(csvFile, guess_max = 1000) {
-  filename = str_glue("{csvFile}.csv")
-  data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
-                   ,col_types = get_col_types(csvFile)
-                   ,na = ""
-  )
+  filename <- str_glue("{csvFile}.csv")
+
+  if(csvFile == "Export"){
+    data <-
+      read_csv(
+        unzip(zipfile = input$imported$datapath, files = filename),
+        col_types = get_col_types(csvFile),
+        na = ""
+      )
+  } else{
+    data <-
+      read_csv(
+        unzip(zipfile = input$imported$datapath, files = filename),
+        col_types = get_col_types(csvFile),
+        na = ""
+      ) %>%
+      filter(is.na(DateDeleted))
+    
+  }
+  
   file.remove(filename)
   return(data)
 }
@@ -174,7 +189,7 @@ logMetadata <- function(detail) {
     Details = detail
   )
   
-  filename <- "metadata-analysis/metadata/metadata.csv"
+  filename <- here("metadata-analysis/metadata/metadata.csv")
   
   invisible(write_csv(
     x = d,
@@ -219,7 +234,7 @@ logSessionData <- function() {
   capture.output(d, file = stderr())
   
     
-  filename <- "metadata-analysis/metadata/sessiondata.csv"
+  filename <- here("metadata-analysis/metadata/sessiondata.csv")
   write_csv(
     x = d,
     filename,
