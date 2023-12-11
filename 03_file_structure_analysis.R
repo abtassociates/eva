@@ -22,18 +22,21 @@ non_ascii_files <- function() {
   files_with_non_ascii <- data.frame(Column = character(), Detail = character())
   
   for(file in unique(cols_and_data_types$File)) {
-    # Replace ASCII characters with NA
+    # Replace cells with ASCII-only characters with NA, so we're left with just non-ASCII cells
     non_ascii_data <- get(file) %>%
       mutate_all(~ifelse(!stri_enc_isascii(.), ., NA))
-    
+
     # Find rows that contain any non-ASCII characters
     non_ascii_rows <- apply(non_ascii_data, 1, function(x) any(!is.na(x)))
     
     if(any(non_ascii_rows)) {
       non_ascii_info <- data.frame(
+        File = file,
         Column = names(non_ascii_data)[which(!is.na(non_ascii_data[non_ascii_rows, ]))],
         Detail = paste0(
-          "Found non-ascii character(s) on line ", 
+          "Found impermissible character(s) in ",
+          file, ".csv",
+          ", line ", 
           which(non_ascii_rows),
           ". The characters are: ",
           unlist(
@@ -48,15 +51,12 @@ non_ascii_files <- function() {
       files_with_non_ascii <- rbind(files_with_non_ascii, non_ascii_info)
     }
   }
-  
+
   return(files_with_non_ascii)
 }
 
 # non-ascii --------------------------------------------------------------
 files_with_non_ascii <- non_ascii_files() %>%
-  left_join(cols_and_data_types %>% 
-              select(Column, DataTypeHighPriority),
-            by = "Column") %>%
   merge_check_info(checkIDs = 134) %>%
   select(all_of(issue_display_cols)) %>% unique()
 
