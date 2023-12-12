@@ -1,5 +1,5 @@
-###############################
-# PURPOSE: 
+# Purpose: ----------------------------------------------------------------
+
 # This script creates the intermediate dataframes that are also used in various
 # places, including:
 # Enrollment, merged with other datasets and with added columns for faster access
