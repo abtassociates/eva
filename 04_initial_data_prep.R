@@ -226,18 +226,11 @@ HHMoveIn <- EnrollmentStaging %>%
   ) %>%
   filter(!is.na(ValidMoveIn)) %>%
   group_by(HouseholdID) %>%
-  summarise(HHMoveIn = min(ValidMoveIn, na.rm = TRUE)) %>%
+  summarise(HHMoveIn = min(ValidMoveIn, na.rm = TRUE),
+            HHEntry = min(EntryDate)) %>%
   ungroup() %>%
-  select(HouseholdID, HHMoveIn) %>%
+  select(HouseholdID, HHEntry, HHMoveIn) %>%
   unique()
-
-HHEntry <- Enrollment %>%
-  group_by(HouseholdID) %>%
-  mutate(FirstEntry = min(EntryDate)) %>%
-  ungroup() %>%
-  select(HouseholdID, "HHEntry" = FirstEntry) %>%
-  unique() %>%
-  left_join(HHMoveIn, by = "HouseholdID")
 
 Enrollment <- Enrollment %>%
   left_join(HHEntry, by = "HouseholdID") %>%
