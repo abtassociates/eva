@@ -194,14 +194,17 @@ EnrollmentAdjust <- EnrollmentStaging %>%
                                    "Enrollment Before Operating Period")
   ) 
 
-# getting HH information
-# only doing this for PH projects since Move In Date doesn't matter for ES, etc.
+
+# Move In Dates -----------------------------------------------------------
+
+# granularity: HouseholdIDs with ValidMoveIns
 
 HHMoveIn <- EnrollmentStaging %>%
   filter(ProjectType %in% ph_project_types) %>%
   mutate(
     AssumedMoveIn = if_else(
       EntryDate < hc_psh_started_collecting_move_in_date &
+        MoveInDate != EntryDate &
         ProjectType %in% psh_project_types,
       1,
       0
