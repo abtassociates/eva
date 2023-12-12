@@ -21,9 +21,9 @@ non_ascii_files <- function() {
   files_with_non_ascii <- data.frame(Column = character(), Detail = character())
   
   for(file in unique(cols_and_data_types$File)) {
-    # Replace cells with ASCII-only characters with NA, so we're left with just non-ASCII cells
+    # Replace cells with ASCII-only characters and bracket characters with NA
     non_ascii_data <- get(file) %>%
-      mutate_all(~ifelse(!stri_enc_isascii(.), ., NA))
+      mutate_all(~ifelse(!stri_enc_isascii(.) | grepl("[\\(\\)\\[\\]\\<\\>\\{\\}]", .), ., NA))
 
     # Find rows that contain any non-ASCII characters
     non_ascii_rows <- apply(non_ascii_data, 1, function(x) any(!is.na(x)))
@@ -42,7 +42,7 @@ non_ascii_files <- function() {
             stri_extract_all_regex(
               non_ascii_data[non_ascii_rows, 
                              which(!is.na(non_ascii_data[non_ascii_rows, ]))],
-              "[^ -~]")
+              "[^ -~\\(\\)\\[\\]\\<\\>\\{\\}]")
           )
         )
       )
