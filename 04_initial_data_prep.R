@@ -232,15 +232,14 @@ HHMoveIn <- EnrollmentStaging %>%
   select(HouseholdID, HHEntry, HHMoveIn) %>%
   unique()
 
-Enrollment <- Enrollment %>%
-  left_join(HHEntry, by = "HouseholdID") %>%
-  mutate(MoveInDateAdjust = if_else(
+Enrollment <- EnrollmentStaging %>%
+  left_join(HHMoveIn, by = "HouseholdID") %>%
+  mutate(MoveInDateAdjust = case_when(
+    EntryDate < hc_psh_started_collecting_move_in_date &
+      MoveInDate != EntryDate &
+      ProjectType %in% psh_project_types ~ EntryDate,
     !is.na(HHMoveIn) &
-      ymd(HHMoveIn) <= ExitAdjust,
-    if_else(EntryDate <= ymd(HHMoveIn),
-            ymd(HHMoveIn), EntryDate),
-    NA
-  ))
+      ymd(HHMoveIn) <= ExitAdjust ~ MoveInDate))
 
 
 # to be used for system data analysis purposes. has been culled of enrollments
