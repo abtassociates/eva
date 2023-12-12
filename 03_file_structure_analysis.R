@@ -23,8 +23,16 @@ non_ascii_files <- function() {
   for(file in unique(cols_and_data_types$File)) {
     # Replace cells with ASCII-only characters and bracket characters with NA
     non_ascii_data <- get(file) %>%
-      mutate_all(~ifelse(!stri_enc_isascii(.) | grepl("[\\(\\)\\[\\]\\<\\>\\{\\}]", .), ., NA))
+      mutate_all( ~ ifelse(
+        !stri_enc_isascii(.) |
+          str_detect(., ".\\(|\\)|\\[|\\]|\\<|\\>|\\{|\\}"),
+        .,
+        NA
+      ))
 
+    if (file == "Project") {
+      browser()
+    }
     # Find rows that contain any non-ASCII characters
     non_ascii_rows <- apply(non_ascii_data, 1, function(x) any(!is.na(x)))
     
