@@ -160,11 +160,7 @@ EnrollmentStaging <- Enrollment %>%
   arrange(ProjectTimeID) %>%
   slice(1L) %>%
   ungroup() %>%
-  select(EnrollmentID, ProjectID, ProjectTimeID, ProjectType, EnrollmentDateRange,
-         OperatingDateRange, ParticipatingDateRange, EnrollmentvParticipating,
-         EnrollmentvOperating)
-
-Enrollment <- EnrollmentStaging %>%
+  # here we should have enrollment granularity
   mutate( # truncates to the most recent Participating/Operating Start Date
     EntryDateTruncated = if_else(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating Start",
@@ -184,30 +180,11 @@ Enrollment <- EnrollmentStaging %>%
       ExitDate
     )
   ) %>%
-  select(
-    EnrollmentID,
-    ProjectID,
-    ProjectTimeID,
-    ProjectType,
-    EntryDate,
-    EntryDateTruncated,
-    ExitDate,
-    ExitDateTruncated,
-    ExitAdjust,
-    Destination,
-    DestinationSubsidyType,
-    EnrollmentvOperating,
-    EnrollmentvParticipating,
-    OperatingDateRange,
-    ParticipatingDateRange
-  ) %>%
-  right_join(Enrollment %>%
-               select(-EntryDate),
-             by = c("EnrollmentID", "ProjectID"))
+  relocate(Destination:ExitDateTruncated, .before = RelationshipToHoH)
 
 # Only contains EEs within Operating and Participating Dates --------------
 
-EnrollmentAdjust <- Enrollment %>%
+EnrollmentAdjust <- EnrollmentStaging %>%
   filter(
     !EnrollmentvParticipating %in% c(
       "Enrollment After Participating Period",
@@ -220,7 +197,7 @@ EnrollmentAdjust <- Enrollment %>%
 # getting HH information
 # only doing this for PH projects since Move In Date doesn't matter for ES, etc.
 
-HHMoveIn <- Enrollment %>%
+HHMoveIn <- EnrollmentStaging %>%
   filter(ProjectType %in% ph_project_types) %>%
   mutate(
     AssumedMoveIn = if_else(
