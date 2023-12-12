@@ -1,10 +1,14 @@
 ###############################
 # PURPOSE: 
-# This script creates the intermediate dataframes that are also used in various places, including:
-#     Enrollment, merged with other datasets and with added columns for faster access
-#     Project, merged with organization and with project type redefined to account for tracking method
-#     Services, limited to bed-nights only (record type = 200 and non-null date provided)
-#     validation, combining the Enrollment and Project, limited to non-null EntryDates, and limited to key fields
+# This script creates the intermediate dataframes that are also used in various
+# places, including:
+# Enrollment, merged with other datasets and with added columns for faster access
+# Project, merged with organization and with project type redefined to account
+# for tracking method
+# Services, limited to bed-nights only (record type = 200 and non-null date
+# provided)
+# validation, combining the Enrollment and Project, limited to non-null
+# EntryDates, and limited to key fields
 #
 # Some definitions:
 # PH = PSH + RRH
