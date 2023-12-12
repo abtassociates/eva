@@ -19,14 +19,20 @@
 # clients = all members of the household
 ##############################
 
-# breaking out Projects into their participating times, adjusting ProjectIDs
 
-ProjectsInHMIS <- Project %>%
+# add Organization info into project dataset to more easily pull this info
+
+ProjectStaging <- Project %>%
   left_join(Organization %>%
               select(OrganizationID, OrganizationName),
-            by = "OrganizationID") %>%
+            by = "OrganizationID")
+
+# breaking out Projects into their participating times, adjusting ProjectIDs
+
+ProjectsInHMIS <- ProjectStaging %>%
   left_join(
     HMISParticipation %>%
+      filter(HMISParticipationType == 1) %>%
       select(
         ProjectID,
         HMISParticipationStatusStartDate,
@@ -34,7 +40,7 @@ ProjectsInHMIS <- Project %>%
       ) %>%
       unique(),
     by = "ProjectID"
-  ) %>% 
+  ) %>% # ^ changes granularity if there are any quit-starters
   mutate(
     OperatingDateRange =
       interval(
@@ -49,7 +55,7 @@ ProjectsInHMIS <- Project %>%
   )
 
 quit_and_start_projects <- ProjectsInHMIS %>%
-  get_dupes(ProjectID) %>% pull(ProjectID) %>% unique()
+  get_dupes(ProjectID) %>% distinct(ProjectID)
 
 if(nrow(quit_and_start_projects) > 0){
   QuitStarters <-  ProjectsInHMIS %>%
@@ -198,7 +204,7 @@ Enrollment <- EnrollmentStaging %>%
 
 # Only contains EEs within Operating and Participating Dates --------------
 
-EnrollmentsInside <- Enrollment %>%
+EnrollmentAdjust <- Enrollment %>%
   filter(
     !EnrollmentvParticipating %in% c(
       "Enrollment After Participating Period",
@@ -271,7 +277,7 @@ Enrollment <- Enrollment %>%
 # to be used for system data analysis purposes. has been culled of enrollments
 # that fall outside of participation/operation date ranges.
 
-EnrollmentAdjust <- EnrollmentsInside %>%
+EnrollmentAdjust <- EnrollmentAdjust %>%
   left_join(HHEntry, by = "HouseholdID") %>%
   mutate(MoveInDateAdjust = if_else(
     !is.na(HHMoveIn) &
@@ -350,6 +356,27 @@ validation <- validationProject %>%
     DateCreated
   ) %>%
   filter(!is.na(EntryDate))
+
+# Checking requirements by projectid --------------------------------------
+
+projects_funders_types <- Funder %>%
+  left_join(Project %>%
+              select(ProjectID, ProjectType),
+            join_by(ProjectID)) %>%
+  filter(is.na(EndDate) | EndDate > meta_HUDCSV_Export_Start) %>%
+  select(ProjectID, ProjectType, Funder) %>%
+  unique() %>%
+  left_join(inc_ncb_hi_required, join_by(ProjectType, Funder)) %>%
+  mutate(inc = replace_na(inc, FALSE),
+         ncb = replace_na(ncb, FALSE),
+         hi = replace_na(hi, FALSE),
+         dv = replace_na(dv, FALSE)) %>%
+  group_by(ProjectID) %>%
+  summarise(inc = max(inc, na.rm = TRUE),
+            ncb = max(ncb, na.rm = TRUE),
+            hi = max(hi, na.rm = TRUE),
+            dv = max(dv, na.rm = TRUE)) %>%
+  ungroup()
 
 # desk_time_providers <- validation %>%
 #   dplyr::filter(
