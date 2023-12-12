@@ -21,20 +21,19 @@
 # hohs = heads of household
 # adults = all adults in a household
 # clients = all members of the household
-##############################
 
 logToConsole("Running initial data prep")
 
-# add Organization info into project dataset to more easily pull this info
-
-ProjectStaging <- Project %>%
-  left_join(Organization %>%
-              select(OrganizationID, OrganizationName),
-            by = "OrganizationID")
+# Project data ------------------------------------------------------------
 
 # breaking out Projects into their participating times, adjusting ProjectIDs
 
-ProjectsInHMIS <- ProjectStaging %>%
+ProjectsInHMIS <- Project %>%
+  left_join(
+    Organization %>%
+      select(OrganizationID, OrganizationName, VictimServiceProvider),
+    by = "OrganizationID"
+  ) %>%
   left_join(
     HMISParticipation %>%
       filter(HMISParticipationType == 1) %>%
