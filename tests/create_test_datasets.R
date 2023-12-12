@@ -45,39 +45,42 @@ names(reduced_files) <- tools::file_path_sans_ext(basename(reduced_files))
 # Unhashed ---------------------------------------------------
 data <- reduced_data[["Export"]]
 data$HashStatus <- 1
-write.csv(data, reduced_files[["Export"]], row.names = FALSE, na="")
+write.csv(data, reduced_files[["Export"]], row.names = FALSE, na = "")
 save_new_zip("FY24-ICF-unhashed.zip", "reduced")
 
 # CSVVersion -------------------------------------------------
 data <- reduced_data[["Export"]]
 data$CSVVersion <- '2022 v1'
-write.csv(data, reduced_files[["Export"]], row.names = FALSE, na="")
+write.csv(data, reduced_files[["Export"]], row.names = FALSE, na = "")
 save_new_zip("FY24-ICF-wrong-csv-version.zip", "reduced")
-
-# Wrong File Type --------------------------------------------
-save_new_zip("FY24-ICF-wrong-file-type.zip", "reduced")
-gzip(here("tests/temp/FY24-ICF-wrong-file-type.zip"), 
-     destname = here("tests/temp/FY24-ICF-wrong-file-type.gz"), 
-     remove = TRUE)
 
 # Missing Export (APR or LSA) --------------------------------
 file.remove(reduced_files[["Export"]])
 save_new_zip("FY24-ICF-missing-export.zip", "reduced")
-write.csv(reduced_data[["Export"]], reduced_files[["Export"]], na="") # bring export dataset back
+write.csv(reduced_data[["Export"]], reduced_files[["Export"]], na = "") # bring export dataset back
 
 # Missing Files ----------------------------------------------
 file.remove(reduced_files[["Enrollment"]])
 file.remove(reduced_files[["Exit"]])
 save_new_zip("FY24-ICF-missing-multiple-files.zip", "reduced")
-write.csv(reduced_data[["Enrollment"]], reduced_files[["Enrollment"]], row.names = FALSE, na="")
-write.csv(reduced_data[["Exit"]], reduced_files[["Exit"]], row.names = FALSE, na="")
+write.csv(reduced_data[["Enrollment"]],
+          reduced_files[["Enrollment"]],
+          row.names = FALSE,
+          na = "")
+write.csv(reduced_data[["Exit"]],
+          reduced_files[["Exit"]],
+          row.names = FALSE,
+          na = "")
 
 
 ################# FSA ######################
 reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[6, ])
 dir.create(here("tests/temp/reduced_fsa"))
 lapply(names(reduced_data_fsa), function(fname) {
-    write.csv(reduced_data_fsa[[fname]], paste0(here("tests/temp/reduced_fsa/"),fname, ".csv"), row.names = FALSE, na="")
+    write.csv(reduced_data_fsa[[fname]],
+              paste0(here("tests/temp/reduced_fsa/"),
+                     fname, ".csv"),
+              row.names = FALSE, na="")
 })
 save_new_zip("FY24-ICF-fsa-test.zip", "reduced_fsa")
 

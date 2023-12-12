@@ -14,6 +14,51 @@ high_priority_columns <- cols_and_data_types %>%
   pull(Column) %>%
   unique()
 
+
+non_ascii_files <- function() {
+  library(stringi)
+  # Initialize an empty dataframe to store the results
+  files_with_non_ascii <- data.frame(Column = character(), Detail = character())
+  
+  for(file in unique(cols_and_data_types$File)) {
+    # Replace cells with ASCII-only characters with NA, so we're left with just non-ASCII cells
+    non_ascii_data <- get(file) %>%
+      mutate_all(~ifelse(!stri_enc_isascii(.), ., NA))
+
+    # Find rows that contain any non-ASCII characters
+    non_ascii_rows <- apply(non_ascii_data, 1, function(x) any(!is.na(x)))
+    
+    if(any(non_ascii_rows)) {
+      non_ascii_info <- data.frame(
+        File = file,
+        Column = names(non_ascii_data)[which(!is.na(non_ascii_data[non_ascii_rows, ]))],
+        Detail = paste0(
+          "Found impermissible character(s) in ",
+          file, ".csv",
+          ", line ", 
+          which(non_ascii_rows),
+          ". The characters are: ",
+          unlist(
+            stri_extract_all_regex(
+              non_ascii_data[non_ascii_rows, 
+                             which(!is.na(non_ascii_data[non_ascii_rows, ]))],
+              "[^ -~]")
+          )
+        )
+      )
+      
+      files_with_non_ascii <- rbind(files_with_non_ascii, non_ascii_info)
+    }
+  }
+
+  return(files_with_non_ascii)
+}
+
+# non-ascii --------------------------------------------------------------
+files_with_non_ascii <- non_ascii_files() %>%
+  merge_check_info(checkIDs = 134) %>%
+  select(all_of(issue_display_cols)) %>% unique()
+
 # Incorrect Date Formats --------------------------------------------------
 
 df_date_types <-
@@ -138,15 +183,14 @@ df_data_types <- rbind(
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
-  total_rows <- nrow(barefile)
-  if (total_rows > 1) {
+  if (nrow(barefile) > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
       filter(File == file & NullsAllowed == 0 & Column %in% names(get(file))) %>%
       pull(Column)
 
     # select subset of columns with nulls
-    barefile <- get(file) %>%
+    barefile <- barefile %>%
       select(all_of(nulls_not_allowed_cols)) %>%
       mutate_all(~ifelse(is.na(.), 1, 0)) %>%
       select_if(~any(. == 1))
@@ -160,7 +204,7 @@ check_for_bad_nulls <- function(file) {
           values_to = "value") %>%
         group_by(Column) %>%
         mutate(row_ids = case_when(
-          sum(value) == total_rows ~ "All rows affected", 
+          sum(value) == nrow(barefile) ~ "All rows affected", 
           sum(value) <= 3 ~ paste("See rows: ",
                                   paste(row_id[value == 1],
                                         collapse = ", ")),
@@ -414,7 +458,8 @@ file_structure_analysis_main <- rbind(
   nonstandard_CLS,
   nonstandard_destination,
   rel_to_hoh_invalid,
-  valid_values_client
+  valid_values_client,
+  files_with_non_ascii
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
