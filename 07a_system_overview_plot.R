@@ -1,6 +1,6 @@
 
 # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
-system_activity_raw <- system_df %>%
+system_activity_filtered <- system_df %>%
     group_by(HouseholdID) %>%
     mutate(
         Household_Type = case_when(
@@ -52,10 +52,48 @@ system_activity_raw <- system_df %>%
         (
             input$syso_race_ethnicity == "All Races/Ethnicities"
         )
+    ) %>%
+    group_by(PersonalID) %>%
+    mutate(
+        EarliestEntry = min(EntryDate),
+        LatestExit = coalesce(max(ExitDate), no_end_date) 
+    ) %>%
+    ungroup()
+
+system_activity_prep <- system_activity_filtered %>%
+    distinct(PersonalID, EarliestEntry, LatestExit) %>%
+    mutate(
+        x.axis.Var = case_when(
+            EarliestEntry <= input$syso_date_range[1] & 
+            LatestExit > input$syso_date_range[1] ~ paste0("Active as of ",input$syso_date_range[1]),
+            EarliestEntry > input$syso_date_range[1] ~ "Inflow",
+            LatestExit < input$syso_date_range[2] ~ "Outflow",
+            EarliestEntry <= input$syso_date_range[2] & 
+            LatestExit > input$syso_date_range[2] ~ paste0("Active as of ",input$syso_date_range[2])
+        ),
+        cat.Var = case_when(
+            ProjectType %in% coc_funded_project_types &
+            EntryDate <= input$syso_date_range[1] &
+            LatestExit > input$syso_date_range[1] &
+            PriorLivingSituation = Literally Homeless OR
+            ProjectType IN (0,2,8) OR
+            ProjectType IN (1, 4, 14) AND Bednight/Contact within __ days of ReportStartDate ~ "Enrolled: Homeless",
+
+            ProjectType %in% coc_funded_project_types &
+            EntryDate <= ReportStartDate
+            ExitDate is null or > ReportStartDate
+            PriorLivingSituation = Literally Homeless
+            ProjectType IN (3, 9, 10, 13)
+            MoveInDate <= ReportStartDate  ~ "Enrolled: Housed"
+
+        )
     )
 
+system_activity_chart_prep <- system_activity_prep %>%
+
+
 # x.axis.Var cat.Var   group.id start.Bar values end.Bar total.by.x
-system_activity_prep <- data.frame(
+system_activity_prep2 <- data.frame(
     x.axis.Var = rep(c(paste0("Active as of ",ymd("20230105")), "Inflow", "Outflow", paste0("Active as of ", ymd("20230210"))), 4),
     cat.Var = rep(c("Enrolled: Homeless", "Enrolled: Housed", "Inflow", "Outflow"), each=4),
     values = c(700, 0, 0, -750, # Enrolled: Homeless
