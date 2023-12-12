@@ -99,17 +99,18 @@ Project0 <<- Project %>%
   unique()
 
 # Enrollment --------------------------------------------------------------
+# Truncating Enrollments based on Operating/Participating -----------------
 
 EnrollmentStaging <- Enrollment %>%
-  left_join(Exit %>% 
+  left_join(Client %>% select(PersonalID, DOB),
+            by = "PersonalID")%>%
+  left_join(Exit %>%
               select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
             by = "EnrollmentID") %>%
   mutate(ExitAdjust = coalesce(ExitDate, no_end_date),
-         EnrollmentDateRange = interval(EntryDate, ExitAdjust))
-
-# Truncating Enrollments based on Operating/Participating -----------------
-
-EnrollmentOutside <- EnrollmentStaging %>%
+         EnrollmentDateRange = interval(EntryDate, ExitAdjust),
+         AgeAtEntry = age_years(DOB, EntryDate),
+         DOB = NULL) %>%
   left_join(Project %>%
               select(ProjectID,
                      ProjectTimeID,
@@ -164,9 +165,7 @@ EnrollmentOutside <- EnrollmentStaging %>%
          EnrollmentvOperating)
 
 Enrollment <- EnrollmentStaging %>%
-  left_join(EnrollmentOutside,
-            by = c("EnrollmentID", "ProjectID", "EnrollmentDateRange")) %>%
-  mutate(
+  mutate( # truncates to the most recent Participating/Operating Start Date
     EntryDateTruncated = if_else(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating Start",
                                   "Enrollment Crosses Operating Period") |
@@ -175,7 +174,7 @@ Enrollment <- EnrollmentStaging %>%
       max(int_start(ParticipatingDateRange),
           int_start(OperatingDateRange), na.rm = TRUE),
       EntryDate
-    ),
+    ), # truncates to the earliest Participating/Operating End Date
     ExitDateTruncated = if_else(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating End",
                                   "Enrollment Crosses Operating Period") |
@@ -270,13 +269,6 @@ Enrollment <- Enrollment %>%
     NA
   ))
 
-
-# Adding Age at Entry to Enrollment
-small_client <- Client %>% select(PersonalID, DOB)
-Enrollment <- Enrollment %>%
-  left_join(small_client, by = "PersonalID") %>%
-  mutate(AgeAtEntry = age_years(DOB, EntryDate)) %>%
-  select(-DOB)
 
 # to be used for system data analysis purposes. has been culled of enrollments
 # that fall outside of participation/operation date ranges.
