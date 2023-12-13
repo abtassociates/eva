@@ -8,7 +8,7 @@ on:
   pull_request:
     branches: [dev, main]
   push:
-    branches: [phase2-system-over]
+    branches: [phase2-system-overview]
   
 name: Test
 
