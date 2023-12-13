@@ -17,6 +17,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$wait_for_idle(timeout = 2e+05)
     app$upload_file(imported = paste0(here("tests/"),test_dataset))
 
+    print("about to download FSA")
     app$wait_for_idle(timeout = 1e+06)
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
