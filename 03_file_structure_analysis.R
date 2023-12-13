@@ -25,7 +25,7 @@ non_ascii_files <- function() {
     non_ascii_data <- get(file) %>%
       mutate_all( ~ ifelse(
         !stri_enc_isascii(.) |
-          str_detect(., ".\\(|\\)|\\[|\\]|\\<|\\>|\\{|\\}"),
+          str_detect(., ".\\[|\\]|\\<|\\>|\\{|\\}"),
         .,
         NA
       ))
@@ -47,7 +47,7 @@ non_ascii_files <- function() {
             stri_extract_all_regex(
               non_ascii_data[non_ascii_rows, 
                              which(!is.na(non_ascii_data[non_ascii_rows, ]))],
-              "[^ -~\\(\\)\\[\\]\\<\\>\\{\\}]")
+              "[^ -~\\[\\]\\<\\>\\{\\}]")
           )
         )
       )
