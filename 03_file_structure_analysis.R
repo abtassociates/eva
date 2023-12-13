@@ -33,11 +33,12 @@ non_ascii_files <- function() {
       non_ascii_cells <- non_ascii_data[non_ascii_rows, non_ascii_cols]
       
       non_ascii_info <- data.frame()
+
       for (row in which(non_ascii_rows)) {
         for (col in which(non_ascii_cols)) {
           value = non_ascii_data[row, col]
           if (!is.na(value)) {
-            chars = unlist(stri_extract_all_regex(value, "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}]"))
+            chars = unlist(stri_extract_all_regex(value, "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}"))
             for (char in chars) {
               non_ascii_info <- rbind(non_ascii_info, data.frame(
                 File = file,
