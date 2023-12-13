@@ -30,9 +30,6 @@ non_ascii_files <- function() {
         NA
       ))
 
-    if (file == "Project") {
-      browser()
-    }
     # Find rows that contain any non-ASCII characters
     non_ascii_rows <- apply(non_ascii_data, 1, function(x) any(!is.na(x)))
     
