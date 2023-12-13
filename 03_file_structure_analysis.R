@@ -47,7 +47,7 @@ non_ascii_files <- function() {
           }
         }
       }
-      
+
       return(non_ascii_info)
     }
   })
@@ -58,9 +58,13 @@ non_ascii_files <- function() {
   return(files_with_non_ascii)
 }
 
-files_with_non_ascii <- non_ascii_files() %>%
-  merge_check_info(checkIDs = 134) %>%
-  select(all_of(issue_display_cols))
+files_with_non_ascii <- non_ascii_files() 
+if(nrow(files_with_non_ascii) > 0) {
+  files_with_non_ascii <- files_with_non_ascii %>%
+    merge_check_info(checkIDs = 134) %>%
+    select(all_of(issue_display_cols))
+}
+
 
 
 # Incorrect Date Formats --------------------------------------------------
