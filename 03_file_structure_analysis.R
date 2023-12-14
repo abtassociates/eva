@@ -19,35 +19,43 @@ high_priority_columns <- cols_and_data_types %>%
 non_ascii_files <- function() {
   # Initialize an empty list to store the results
   files_with_non_ascii <- list()
+  non_ascii_or_bracket <- function(x) {
+    str_detect(x, "[^ -~]|.\\[|\\]|\\<|\\>|\\{|\\}")
+  }
   
   files_with_non_ascii <- lapply(unique(cols_and_data_types$File), function(file) {
-    # Replace cells with ASCII-only characters and bracket characters with NA
-    non_ascii_data <- get(file) %>% mutate_all( ~ ifelse( !stri_enc_isascii(.) | str_detect(., ".\\[|\\]|\\<|\\>|\\{|\\}"), ., NA ))
+    # Flag cells containing brackets or non-ascii chars
+    non_ascii_data <- get(file) %>%
+      mutate(across(everything(), non_ascii_or_bracket))
     
-    # Find rows that contain any non-ASCII characters
-    non_ascii_rows <- apply(non_ascii_data, 1, function(x) any(!is.na(x)))
-    
-    if(any(non_ascii_rows)) {
+    if(any(non_ascii_data, na.rm = TRUE)) {
       # get the cells that contain a non-ascii or bracket char
-      non_ascii_cols <- apply(non_ascii_data, 2, function(x) any(!is.na(x)))
-      non_ascii_cells <- non_ascii_data[non_ascii_rows, non_ascii_cols]
+      # Find rows that contain any non-ASCII characters
+      non_ascii_cells <- which(as.matrix(non_ascii_data), arr.ind = TRUE)
       
-      non_ascii_info <- data.frame()
-
-      for (row in which(non_ascii_rows)) {
-        for (col in which(non_ascii_cols)) {
-          value = non_ascii_data[row, col]
-          if (!is.na(value)) {
-            chars = unlist(stri_extract_all_regex(value, "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}"))
-            for (char in chars) {
-              non_ascii_info <- rbind(non_ascii_info, data.frame(
-                File = file,
-                Detail = paste0("Found impermissible character in ", file, ".csv, ", "column ", col, ", line ", row, ". The character is: ", char)
-              ))
-            }
-          }
+      non_ascii_info <- mapply(function(row, col) {
+        value <- get(file)[row, col]
+        if (!is.na(value)) {
+          chars <- unlist(
+            stringi::stri_extract_all_regex(
+              value, "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}"
+            )
+          )
+          data.frame(
+            File = file,
+            Detail = paste0(
+              "Found impermissible character(s) in ", 
+              file, ".csv, ", 
+              "column ", col, 
+              ", line ", row, 
+              ": ", paste(chars, collapse=", ")
+            )
+          )
         }
-      }
+      }, non_ascii_cells[, "row"], non_ascii_cells[, "col"], SIMPLIFY = FALSE)
+      
+      # Convert the list of data frames to a single data frame
+      non_ascii_info <- do.call(rbind, non_ascii_info)
 
       return(non_ascii_info)
     }
