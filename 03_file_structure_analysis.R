@@ -15,6 +15,59 @@ high_priority_columns <- cols_and_data_types %>%
   pull(Column) %>%
   unique()
 
+# non-ascii --------------------------------------------------------------
+non_ascii_files <- function() {
+  # Initialize an empty list to store the results
+  files_with_non_ascii <- list()
+  
+  files_with_non_ascii <- lapply(unique(cols_and_data_types$File), function(file) {
+    # Replace cells with ASCII-only characters and bracket characters with NA
+    non_ascii_data <- get(file) %>% mutate_all( ~ ifelse( !stri_enc_isascii(.) | str_detect(., ".\\[|\\]|\\<|\\>|\\{|\\}"), ., NA ))
+    
+    # Find rows that contain any non-ASCII characters
+    non_ascii_rows <- apply(non_ascii_data, 1, function(x) any(!is.na(x)))
+    
+    if(any(non_ascii_rows)) {
+      # get the cells that contain a non-ascii or bracket char
+      non_ascii_cols <- apply(non_ascii_data, 2, function(x) any(!is.na(x)))
+      non_ascii_cells <- non_ascii_data[non_ascii_rows, non_ascii_cols]
+      
+      non_ascii_info <- data.frame()
+
+      for (row in which(non_ascii_rows)) {
+        for (col in which(non_ascii_cols)) {
+          value = non_ascii_data[row, col]
+          if (!is.na(value)) {
+            chars = unlist(stri_extract_all_regex(value, "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}"))
+            for (char in chars) {
+              non_ascii_info <- rbind(non_ascii_info, data.frame(
+                File = file,
+                Detail = paste0("Found impermissible character in ", file, ".csv, ", "column ", col, ", line ", row, ". The character is: ", char)
+              ))
+            }
+          }
+        }
+      }
+
+      return(non_ascii_info)
+    }
+  })
+  
+  # Combine all data frames in the list into one data frame
+  files_with_non_ascii <- bind_rows(files_with_non_ascii)
+  
+  return(files_with_non_ascii)
+}
+
+files_with_non_ascii <- non_ascii_files() 
+if(nrow(files_with_non_ascii) > 0) {
+  files_with_non_ascii <- files_with_non_ascii %>%
+    merge_check_info(checkIDs = 134) %>%
+    select(all_of(issue_display_cols))
+}
+
+
+
 # Incorrect Date Formats --------------------------------------------------
 
 df_date_types <-
@@ -414,7 +467,8 @@ file_structure_analysis_main <- rbind(
   nonstandard_CLS,
   nonstandard_destination,
   rel_to_hoh_invalid,
-  valid_values_client
+  valid_values_client,
+  files_with_non_ascii
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)

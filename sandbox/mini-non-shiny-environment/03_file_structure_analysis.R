@@ -14,6 +14,51 @@ high_priority_columns <- cols_and_data_types %>%
   pull(Column) %>%
   unique()
 
+
+non_ascii_files <- function() {
+  library(stringi)
+  # Initialize an empty dataframe to store the results
+  files_with_non_ascii <- data.frame(Column = character(), Detail = character())
+  
+  for(file in unique(cols_and_data_types$File)) {
+    # Replace cells with ASCII-only characters with NA, so we're left with just non-ASCII cells
+    non_ascii_data <- get(file) %>%
+      mutate_all(~ifelse(!stri_enc_isascii(.), ., NA))
+
+    # Find rows that contain any non-ASCII characters
+    non_ascii_rows <- apply(non_ascii_data, 1, function(x) any(!is.na(x)))
+    
+    if(any(non_ascii_rows)) {
+      non_ascii_info <- data.frame(
+        File = file,
+        Column = names(non_ascii_data)[which(!is.na(non_ascii_data[non_ascii_rows, ]))],
+        Detail = paste0(
+          "Found impermissible character(s) in ",
+          file, ".csv",
+          ", line ", 
+          which(non_ascii_rows),
+          ". The characters are: ",
+          unlist(
+            stri_extract_all_regex(
+              non_ascii_data[non_ascii_rows, 
+                             which(!is.na(non_ascii_data[non_ascii_rows, ]))],
+              "[^ -~]")
+          )
+        )
+      )
+      
+      files_with_non_ascii <- rbind(files_with_non_ascii, non_ascii_info)
+    }
+  }
+
+  return(files_with_non_ascii)
+}
+
+# non-ascii --------------------------------------------------------------
+files_with_non_ascii <- non_ascii_files() %>%
+  merge_check_info(checkIDs = 134) %>%
+  select(all_of(issue_display_cols)) %>% unique()
+
 # Incorrect Date Formats --------------------------------------------------
 
 df_date_types <-
@@ -413,7 +458,8 @@ file_structure_analysis_main <- rbind(
   nonstandard_CLS,
   nonstandard_destination,
   rel_to_hoh_invalid,
-  valid_values_client
+  valid_values_client,
+  files_with_non_ascii
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
