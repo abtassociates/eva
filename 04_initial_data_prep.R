@@ -219,7 +219,8 @@ HHMoveIn <- EnrollmentStaging %>%
   select(HouseholdID, HHEntry, HHMoveIn) %>%
   unique()
 
-# adding HHEntry and HHMoveIn to Enrollment
+# adding HHEntry and HHMoveIn to Enrollment now that those exist
+# (2 steps but it's ok) and then creating MoveInDateAdjust
 Enrollment <- EnrollmentStaging %>%
   left_join(HHMoveIn, by = "HouseholdID") %>%
   mutate(
@@ -231,11 +232,11 @@ Enrollment <- EnrollmentStaging %>%
     )
   )
 
+# Only contains EEs within Operating and Participating Dates --------------
 # to be used for system data analysis purposes. has been culled of enrollments
 # that fall outside of participation/operation date ranges.
-# Only contains EEs within Operating and Participating Dates --------------
 
-EnrollmentAdjust <- EnrollmentStaging %>%
+EnrollmentAdjust <- Enrollment %>%
   filter(
     !EnrollmentvParticipating %in% c(
       "Enrollment After Participating Period",
@@ -245,19 +246,7 @@ EnrollmentAdjust <- EnrollmentStaging %>%
         "Enrollment After Operating Period",
         "Enrollment Before Operating Period"
       )
-  ) %>%
-  left_join(HHEntry, by = "HouseholdID") %>%
-  mutate(
-    MoveInDateAdjust = case_when(
-      EntryDate < hc_psh_started_collecting_move_in_date &
-        MoveInDate != EntryDate &
-        ProjectType %in% psh_project_types ~ EntryDate,!is.na(HHMoveIn) &
-        ymd(HHMoveIn) <= ExitAdjust ~ MoveInDate
-    )
-  ) %>%
-left_join(small_client, by = "PersonalID") %>%
-  mutate(AgeAtEntry = age_years(DOB, EntryDate)) %>%
-  select(-DOB)
+  ) 
   
 
 rm(HHEntry, HHMoveIn, small_client)
