@@ -182,21 +182,6 @@ EnrollmentStaging <- Enrollment %>%
   ) %>%
   relocate(Destination:ExitDateTruncated, .before = RelationshipToHoH)
 
-# Only contains EEs within Operating and Participating Dates --------------
-
-EnrollmentAdjust <- EnrollmentStaging %>%
-  filter(
-    !EnrollmentvParticipating %in% c(
-      "Enrollment After Participating Period",
-      "Enrollment Before Participating Period"
-    ) &
-      !EnrollmentvOperating %in% c(
-        "Enrollment After Operating Period",
-        "Enrollment Before Operating Period"
-      )
-  )
-
-
 # Move In Dates -----------------------------------------------------------
 
 # granularity: HouseholdIDs with ValidMoveIns
@@ -234,6 +219,7 @@ HHMoveIn <- EnrollmentStaging %>%
   select(HouseholdID, HHEntry, HHMoveIn) %>%
   unique()
 
+# adding HHEntry and HHMoveIn to Enrollment
 Enrollment <- EnrollmentStaging %>%
   left_join(HHMoveIn, by = "HouseholdID") %>%
   mutate(
@@ -245,11 +231,21 @@ Enrollment <- EnrollmentStaging %>%
     )
   )
 
-
 # to be used for system data analysis purposes. has been culled of enrollments
 # that fall outside of participation/operation date ranges.
+# Only contains EEs within Operating and Participating Dates --------------
 
-EnrollmentAdjust <- EnrollmentAdjust %>%
+EnrollmentAdjust <- EnrollmentStaging %>%
+  filter(
+    !EnrollmentvParticipating %in% c(
+      "Enrollment After Participating Period",
+      "Enrollment Before Participating Period"
+    ) &
+      !EnrollmentvOperating %in% c(
+        "Enrollment After Operating Period",
+        "Enrollment Before Operating Period"
+      )
+  ) %>%
   left_join(HHEntry, by = "HouseholdID") %>%
   mutate(
     MoveInDateAdjust = case_when(
