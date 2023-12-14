@@ -56,7 +56,7 @@ if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
   logMetadata("Unsuccessful upload - zip file not .zip")
 } else {
 
-  zipContents <- unzip(zipfile = input$imported$datapath, list=TRUE)
+  zipContents <- utils::unzip(zipfile = input$imported$datapath, list=TRUE)
     
   zipFiles <- zipContents$Name %>% str_replace(".csv", "")
     
