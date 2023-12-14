@@ -13,13 +13,19 @@ main_test_script <- function(test_script_name, test_dataset) {
       seed = 12345,
       load_timeout = 2e+05)
 
+    print(paste0("About to click in ",test_script_name))
+    
     app$set_inputs(Go_to_upload = "click")
     app$wait_for_idle(timeout = 2e+05)
     app$upload_file(imported = paste0(here("tests/"),test_dataset))
 
+    print(paste0("Just uploaded in ",test_script_name))
+
     app$wait_for_idle(timeout = 1e+06)
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
+
+    print(paste0("Just downloaded FSA ",test_script_name))
 
     app$set_inputs(sidebarmenuid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)

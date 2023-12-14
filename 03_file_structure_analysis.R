@@ -15,6 +15,67 @@ high_priority_columns <- cols_and_data_types %>%
   pull(Column) %>%
   unique()
 
+# non-ascii --------------------------------------------------------------
+non_ascii_files <- function() {
+  # Initialize an empty list to store the results
+  files_with_non_ascii <- list()
+  non_ascii_or_bracket <- function(x) {
+    str_detect(x, "[^ -~]|.\\[|\\]|\\<|\\>|\\{|\\}")
+  }
+  
+  files_with_non_ascii <- lapply(unique(cols_and_data_types$File), function(file) {
+    # Flag cells containing brackets or non-ascii chars
+    non_ascii_data <- get(file) %>%
+      mutate(across(everything(), non_ascii_or_bracket))
+    
+    if(any(non_ascii_data, na.rm = TRUE)) {
+      # get the cells that contain a non-ascii or bracket char
+      # Find rows that contain any non-ASCII characters
+      non_ascii_cells <- which(as.matrix(non_ascii_data), arr.ind = TRUE)
+      
+      non_ascii_info <- mapply(function(row, col) {
+        value <- get(file)[row, col]
+        if (!is.na(value)) {
+          chars <- unlist(
+            stringi::stri_extract_all_regex(
+              value, "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}"
+            )
+          )
+          data.frame(
+            File = file,
+            Detail = paste0(
+              "Found impermissible character(s) in ", 
+              file, ".csv, ", 
+              "column ", col, 
+              ", line ", row, 
+              ": ", paste(chars, collapse=", ")
+            )
+          )
+        }
+      }, non_ascii_cells[, "row"], non_ascii_cells[, "col"], SIMPLIFY = FALSE)
+      
+      # Convert the list of data frames to a single data frame
+      non_ascii_info <- do.call(rbind, non_ascii_info)
+
+      return(non_ascii_info)
+    }
+  })
+  
+  # Combine all data frames in the list into one data frame
+  files_with_non_ascii <- bind_rows(files_with_non_ascii)
+  
+  return(files_with_non_ascii)
+}
+
+files_with_non_ascii <- non_ascii_files() 
+if(nrow(files_with_non_ascii) > 0) {
+  files_with_non_ascii <- files_with_non_ascii %>%
+    merge_check_info(checkIDs = 134) %>%
+    select(all_of(issue_display_cols))
+}
+
+
+
 # Incorrect Date Formats --------------------------------------------------
 
 df_date_types <-
@@ -414,7 +475,8 @@ file_structure_analysis_main <- rbind(
   nonstandard_CLS,
   nonstandard_destination,
   rel_to_hoh_invalid,
-  valid_values_client
+  valid_values_client,
+  files_with_non_ascii
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
