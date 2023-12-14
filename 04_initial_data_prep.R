@@ -190,9 +190,11 @@ EnrollmentAdjust <- EnrollmentStaging %>%
       "Enrollment After Participating Period",
       "Enrollment Before Participating Period"
     ) &
-      !EnrollmentvOperating %in% c("Enrollment After Operating Period",
-                                   "Enrollment Before Operating Period")
-  ) 
+      !EnrollmentvOperating %in% c(
+        "Enrollment After Operating Period",
+        "Enrollment Before Operating Period"
+      )
+  )
 
 
 # Move In Dates -----------------------------------------------------------
