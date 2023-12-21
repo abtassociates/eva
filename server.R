@@ -90,6 +90,19 @@ function(input, output, session) {
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
+          
+          if(nrow(
+            file_structure_analysis_main %>%
+              filter(Issue == "Impermissible characters"))) {
+            showModal(
+              modalDialog(
+                "Eva has detected impermissible characters in your HMIS CSV file. 
+                Please note that these characters may cause Eva to crash.",
+                title = "Impermissible characters",
+                easyClose = TRUE
+              )
+            )
+          }
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE)
           setProgress(detail = "Assessing your data quality..", value = .7)
