@@ -23,3 +23,4 @@ if(dir.exists("metadata-analysis/metadata/")) {
 } else {
   dir.create("metadata-analysis/metadata/")
 }
+source("hardcodes.R", local = TRUE) # hard-coded variables and data frames
