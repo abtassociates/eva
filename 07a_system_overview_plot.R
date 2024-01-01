@@ -1,66 +1,5 @@
-
 # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
-system_activity_filtered <- system_df %>%
-    group_by(HouseholdID) %>%
-    mutate(
-        Household_Type = case_when(
-            all(is.na(AgeAtEntry)) ~ "Unknown Households",
-            all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~ "Adult-Only",
-            any(AgeAtEntry < 18, na.rm = TRUE) & any(AgeAtEntry >= 18, na.rm = TRUE) ~ "Adult-Child",
-            all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~ "Child-Only",
-            all(AgeAtEntry < 25 & AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~ "Youth and Young Adult",
-            any(is.na(AgeAtEntry)) ~ "Unknown Households"
-        )
-    ) %>% 
-    ungroup() %>%
-    filter(
-        # Household Type
-        Household_Type == input$syso_hh_types &
-
-        # Level of Detail
-        (
-            (input$syso_level_of_detail == "All Adults and Heads of Households" & (AgeAtEntry >= 18 | RelationshipToHoH == 1)) |
-            (input$syso_level_of_detail == "All Heads of Households" & RelationshipToHoH == 1) |
-            (input$syso_level_of_detail == "All People")
-        ) & 
-
-        # Project Type
-        (
-            (ProjectType %in% input$syso_project_types) | input$syso_project_types == "All Project Types"
-        ) & 
-
-         # Age
-        (
-            (AgeAtEntry >= 0 & AgeAtEntry <= 12 & syso_age[1] %in% input$syso_age) |
-            (AgeAtEntry >= 13 & AgeAtEntry <= 17 & syso_age[2] %in% input$syso_age) |
-            (AgeAtEntry >= 18 & AgeAtEntry <= 20 & syso_age[3] %in% input$syso_age) |
-            (AgeAtEntry >= 21 & AgeAtEntry <= 24 & syso_age[4] %in% input$syso_age) |
-            (AgeAtEntry >= 25 & AgeAtEntry <= 34 & syso_age[5] %in% input$syso_age) |
-            (AgeAtEntry >= 35 & AgeAtEntry <= 44 & syso_age[6] %in% input$syso_age) |
-            (AgeAtEntry >= 45 & AgeAtEntry <= 54 & syso_age[7] %in% input$syso_age) |
-            (AgeAtEntry >= 55 & AgeAtEntry <= 64 & syso_age[8] %in% input$syso_age) |
-            (AgeAtEntry >= 65 & AgeAtEntry <= 74 & syso_age[9] %in% input$syso_age) |
-            (AgeAtEntry >= 75 ~ syso_age[10] %in% input$syso_age)
-        ) &
-
-        # Gender
-        (
-            input$syso_gender == "All Genders"
-        ) & 
-
-        # Race/Ethnicity
-        (
-            input$syso_race_ethnicity == "All Races/Ethnicities"
-        )
-    ) %>%
-    group_by(PersonalID) %>%
-    mutate(
-        EarliestEntry = min(EntryDate),
-        LatestExit = coalesce(max(ExitDate), no_end_date) 
-    ) %>%
-    ungroup()
-
-system_activity_prep <- system_activity_filtered %>%
+system_activity_prep <- system_activity_filtered() %>%
     distinct(PersonalID, EarliestEntry, LatestExit) %>%
     mutate(
         x.axis.Var = case_when(
@@ -75,25 +14,28 @@ system_activity_prep <- system_activity_filtered %>%
             ProjectType %in% coc_funded_project_types &
             EntryDate <= input$syso_date_range[1] &
             LatestExit > input$syso_date_range[1] &
-            PriorLivingSituation = Literally Homeless OR
-            ProjectType IN (0,2,8) OR
-            ProjectType IN (1, 4, 14) AND Bednight/Contact within __ days of ReportStartDate ~ "Enrolled: Homeless",
+            (
+              #PriorLivingSituation = "Literally Homeless" | 
+                (
+              ProjectType %in% c(0,2,8) |
+              (ProjectType %in% c(1, 4, 14) & Bednight/Contact within __ days of ReportStartDate)
+            )) ~ "Enrolled: Homeless",
 
             ProjectType %in% coc_funded_project_types &
-            EntryDate <= ReportStartDate
-            ExitDate is null or > ReportStartDate
-            PriorLivingSituation = Literally Homeless
-            ProjectType IN (3, 9, 10, 13)
-            MoveInDate <= ReportStartDate  ~ "Enrolled: Housed"
+            EntryDate <= input$syso_date_range[1] &
+            (is_null(ExitDate) | ExitDate > input$syso_date_range[1]) &
+            #PriorLivingSituation == "Literally Homeless" &
+            ProjectType %in% ph_project_types &
+            MoveInDate <= input$syso_date_range[1]  ~ "Enrolled: Housed"
 
         )
     )
 
-system_activity_chart_prep <- system_activity_prep %>%
+# system_activity_chart_prep <- system_activity_prep %>%
 
 
 # x.axis.Var cat.Var   group.id start.Bar values end.Bar total.by.x
-system_activity_prep2 <- data.frame(
+system_activity_prep <- data.frame(
     x.axis.Var = rep(c(paste0("Active as of ",ymd("20230105")), "Inflow", "Outflow", paste0("Active as of ", ymd("20230210"))), 4),
     cat.Var = rep(c("Enrolled: Homeless", "Enrolled: Housed", "Inflow", "Outflow"), each=4),
     values = c(700, 0, 0, -750, # Enrolled: Homeless
