@@ -229,9 +229,6 @@ function(input, output, session) {
                            start = meta_HUDCSV_Export_Start,
                            max = meta_HUDCSV_Export_End,
                            end = meta_HUDCSV_Export_End)
-                
-      updatePickerInput(session = session, inputId = "syso_project_type",
-                        choices = c(unique(sort(Project$ProjectType))))
     }
 
 
@@ -747,32 +744,48 @@ function(input, output, session) {
     output$orgDQWarningsByIssue_ui <- renderUI({
       renderDQPlot("org", "Warning", "Issue", "#71B4CB")
     })
-  
-    
-    
-    # output$headerUtilization <- renderUI({
-    #   list(h2("Bed and Unit Utilization"),
-    #        h4(input$providerListUtilization),
-    #        h4(format(ymd(
-    #          input$utilizationDate
-    #        ), "%B %Y"))
-    #        )
-    # })
-  
-  # output$headerExitsToPH <- renderUI({
-  #   req(valid_file() == 1)
-  #   ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
-  #   ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%B %d, %Y")
-  #   
-  #   list(h2("Successful Placement Detail"),
-  #        h4(input$ExitsToPHProjectList),
-  #        h4(paste(
-  #          ReportStart,
-  #          "to",
-  #          ReportEnd
-  #        )))
-  # })
 
+    # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
+    #### FILTERS ###
+    observeEvent(input$methodology_type, {
+      updatePickerInput(session, "syso_gender", choices = syso_gender_cats())
+      updatePickerInput(session, "syso_race_ethnicity", choices = syso_race_ethnicity_cats())
+    })
+    
+    observeEvent(input$syso_level_of_detail, {
+      updatePickerInput(session, "syso_spec_pops", choices = syso_spec_pops_cats())
+    })
+    
+    #### DOWNLOAD TABULAR FORMAT ###
+    output$downloadSysOverviewTabBtn  <- renderUI({
+      req(valid_file() == 1)
+      downloadButton(outputId = "downloadSysOverviewTabView",
+                     label = "Download")
+    })
+    
+    output$downloadSysOverviewTabView <- downloadHandler(
+      filename = date_stamped_filename("System Overview Tabular View -"),
+      content = function(file) {
+        req(valid_file() == 1)
+ 
+      }
+    )
+    
+    #### DISPLAY FILTER SELECTIONS ###
+    output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
+    output$sys_act_summary_filter_selections <- renderUI({ syso_detailBox() })
+    
+    #### DISPLAY CHART SUBHEADER ###
+    output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
+    output$sys_act_summary_chart_subheader <- renderUI({ syso_chartSubheader() })
+    
+    #### SYS ACT SUMMARY PLOT ###
+    output$system_activity_summary_ui <- renderPlot({
+      req(valid_file() == 1)
+      
+      source("07a_system_overview_plot.R", local = TRUE)
+    })
+    
   }, ignoreInit = TRUE)
   
   session$onSessionEnded(function() {
@@ -1052,42 +1065,4 @@ function(input, output, session) {
 #                      bedUtilization)
 #   )
 # })
-  # SYSTEM ACTIVITY - SYSTEM OVERVIEW -------------------------------------------
-  output$downloadSysOverviewTabBtn  <- renderUI({
-      req(valid_file() == 1)
-      downloadButton(outputId = "downloadSysOverviewTabView",
-                       label = "Download")
-    })
-
-  output$downloadSysOverviewTabView <- downloadHandler(
-    filename = date_stamped_filename("System Overview Tabular View -"),
-    content = function(file) {
-      req(valid_file() == 1)
-
-    }
-  )
-
-  detailBox <- function(id) {
-    list(
-      (paste0("Household Type: ", input$syso_hh_type)),
-      (paste0("Level of Detail: ", input$syso_level_of_detail)),
-      (paste0("Project Type: ", input$syso_project_type)),
-      (paste0("Age: ", input$syso_age)),
-      (paste0("Gender: ", input$syso_gender)),
-      (paste0("Race/Ethnicity: ", input$syso_race_ethnicity)),
-      (paste0("Special Populations: ", input$syso_special_populations))
-    )
-  }
-  output$sys_act_detail_filter_selections <- renderUI({ detailBox("detail") })
-  output$sys_act_summary_filter_selections <- renderUI({ detailBox("summary") })
-  output$syso_hh_type_detail <- renderText({ input$syso_hh_type })
-  output$syso_level_of_detail_detail <- renderText({ input$syso_level_of_detail })
-  output$syso_hh_type_summary <- renderText({ input$syso_hh_type })
-  output$syso_level_of_detail_summary <- renderText({ input$syso_level_of_detail })
-
-  output$system_activity_summary_ui <- renderPlot({
-    req(valid_file() == 1)
-    
-    source("07a_system_overview_plot.R", local = TRUE)
-  })
 }
