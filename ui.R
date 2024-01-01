@@ -604,7 +604,7 @@ dashboardPage(
                 label = "Household Type",
                 inputId = "syso_hh_type",
                 choices = syso_hh_types,
-                selected = "All Households",
+                selected = syso_hh_types[1],
                 width = "90%"
               )
             )),
@@ -614,7 +614,7 @@ dashboardPage(
                 label = "Level of Detail",
                 inputId = "syso_level_of_detail",
                 choices = syso_level_of_detail,
-                selected = "All People",
+                selected = syso_level_of_detail[1],
                 width = "90%"
               )
             )),
@@ -624,7 +624,7 @@ dashboardPage(
                 label = "Project Type",
                 inputId = "syso_project_type",
                 choices = syso_project_types,
-                selected = "PSH",
+                selected = syso_project_types[1],
                 width = "90%"
               )
             ))
@@ -644,7 +644,7 @@ dashboardPage(
               title = "Advanced Settings",
               radioButtons("methodology_type",
                 HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
-                choices = syso_methodology_type,
+                choices = syso_methodology_types,
                 width = "100%"
               ),
               width = 12
@@ -668,21 +668,22 @@ dashboardPage(
           box(
             title = "Age and Special Population Filters",
             width = 6,
-            column(6, pickerInput(
+            column(6, virtualSelectInput(
               label = "Age",
+              selected = syso_age_cats,
               inputId = "syso_age",
-              choices = syso_age,
+              choices = syso_age_cats,
               multiple = TRUE,
               width = "100%",
-              selected = "All Age Groups"
+              selectAllText = "All Ages",
+              allOptionsSelectedText = "All Ages"
             )),
             column(6, pickerInput(
               label = "Special Populations",
-              inputId = "syso_special_populations",
-              choices = NULL,
-              multiple = TRUE,
+              inputId = "syso_spec_pops",
+              choices = syso_spec_pops_people,
               width = "100%",
-              selected = "All Households"
+              selected = syso_spec_pops_people[1]
             ))
           ),
           box(
@@ -691,18 +692,16 @@ dashboardPage(
             column(6, pickerInput(
               label = "Gender",
               inputId = "syso_gender",
-              choices = syso_gender,
-              multiple = TRUE,
+              choices = syso_gender_incl,
               width = "100%",
-              selected = "All Genders"
+              selected = syso_gender_incl[1]
             )),
             column(6, pickerInput(
               label = "Race/Ethnicity",
               inputId = "syso_race_ethnicity",
-              choices = NULL,
-              multiple = TRUE,
+              choices = syso_race_ethnicity_incl,
               width = "100%",
-              selected = "All Races"
+              selected = syso_race_ethnicity_incl[1]
             ))
           )
         ),
@@ -710,16 +709,18 @@ dashboardPage(
           tabBox(
             side = "right",
             selected = "Summary",
-            title = "System Activity by Demographic",
+            title = "System Activity",
             tabPanel("Instructions", 
               uiOutput("system_activity_instructions_ui")
             ),
             tabPanel("Detail", 
               uiOutput("sys_act_detail_filter_selections"),
+              uiOutput("sys_act_detail_chart_subheader"),
               uiOutput("sys_act_detail_ui")
             ),
             tabPanel("Summary", 
               uiOutput("sys_act_summary_filter_selections"),
+              uiOutput("sys_act_summary_chart_subheader"),
               uiOutput("sys_act_summary_ui")
             ),
             width = 12
