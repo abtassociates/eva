@@ -58,7 +58,7 @@ ProjectsInHMIS <- Project %>%
       )
   )
 
-quit_and_start_projects <- ProjectsInHMIS %>%
+quit_and_start_projects <- HMISParticipation %>%
   get_dupes(ProjectID) %>% distinct(ProjectID)
 
 if(nrow(quit_and_start_projects) > 0){
