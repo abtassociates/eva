@@ -36,9 +36,9 @@ ProjectsInHMIS <- Project %>%
   ) %>%
   left_join(
     HMISParticipation %>%
-      filter(HMISParticipationType == 1) %>%
       select(
         ProjectID,
+        HMISParticipationType,
         HMISParticipationStatusStartDate,
         HMISParticipationStatusEndDate
       ) %>%
@@ -58,10 +58,10 @@ ProjectsInHMIS <- Project %>%
       )
   )
 
-quit_and_start_projects <- HMISParticipation %>%
-  get_dupes(ProjectID) %>% distinct(ProjectID)
+quit_and_start_projects <- ProjectsInHMIS %>%
+  get_dupes(ProjectID) %>% distinct(ProjectID) %>% pull()
 
-if(nrow(quit_and_start_projects) > 0){
+if(length(quit_and_start_projects) > 0){
   QuitStarters <-  ProjectsInHMIS %>%
     filter(ProjectID %in% c(quit_and_start_projects)) %>%
     group_by(ProjectID) %>%
