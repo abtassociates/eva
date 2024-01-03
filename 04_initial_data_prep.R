@@ -79,11 +79,11 @@ if(length(quit_and_start_projects) > 0){
 # ProjectTimeID is the granularity. 
 
 if("ProjectTimeID" %in% colnames(ProjectsInHMIS)){
-  Project <- ProjectsInHMIS %>%
+  ProjectSegments <- ProjectsInHMIS %>%
   mutate(ProjectTimeID = coalesce(ProjectTimeID, ProjectID)) %>%
     relocate(ProjectTimeID, .after = ProjectID)
 } else{
-  Project <- ProjectsInHMIS %>%
+  ProjectSegments <- ProjectsInHMIS %>%
     mutate(ProjectTimeID = ProjectID) %>%
     relocate(ProjectTimeID, .after = ProjectID)
 }
