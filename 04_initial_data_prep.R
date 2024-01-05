@@ -28,12 +28,14 @@ logToConsole("Running initial data prep")
 
 # breaking out Projects into their participating times, adjusting ProjectIDs
 
-ProjectSegments <- Project %>%
+project_prep <- Project %>%
   left_join(
     Organization %>%
       select(OrganizationID, OrganizationName, VictimServiceProvider),
     by = "OrganizationID"
-  ) %>%
+  )
+
+ProjectSegments <- project_prep %>%
   left_join(
     HMISParticipation %>%
       select(
@@ -72,7 +74,7 @@ ProjectSegments <- Project %>%
 # * Use Project if you need something from the original data as it came in that's
 #     not in Project0 or ProjectSegments
 
-Project0 <<- ProjectsPrep %>%
+Project0 <<- project_prep %>%
   select(ProjectID,
          ProjectName,
          OrganizationID,
@@ -80,6 +82,8 @@ Project0 <<- ProjectsPrep %>%
          ProjectType,
          RRHSubType) %>%
   unique()
+
+rm(project_prep)
 
 # Enrollment --------------------------------------------------------------
 # Truncating Enrollments based on Operating/Participating -----------------
