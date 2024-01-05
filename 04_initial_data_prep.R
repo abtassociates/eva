@@ -28,7 +28,7 @@ logToConsole("Running initial data prep")
 
 # breaking out Projects into their participating times, adjusting ProjectIDs
 
-ProjectsPrep <- Project %>%
+ProjectSegments <- Project %>%
   left_join(
     Organization %>%
       select(OrganizationID, OrganizationName, VictimServiceProvider),
@@ -44,7 +44,7 @@ ProjectsPrep <- Project %>%
       ) %>%
       unique(),
     by = "ProjectID"
-  ) %>% # ^ changes granularity *if* there are any quit-starters
+  ) %>% # ^ changes granularity *if* there are any participation changers
   mutate(
     OperatingDateRange =
       interval(
@@ -56,45 +56,16 @@ ProjectsPrep <- Project %>%
         HMISParticipationStatusStartDate,
         coalesce(HMISParticipationStatusEndDate, no_end_date)
       )
-  )
-
-quit_and_start_projects <- ProjectsPrep %>%
-  get_dupes(ProjectID) %>% distinct(ProjectID) %>% pull()
-
-if(length(quit_and_start_projects) > 0){
-  QuitStarters <-  ProjectsPrep %>%
-    filter(ProjectID %in% c(quit_and_start_projects)) %>%
-    group_by(ProjectID) %>%
-    arrange(OperatingStartDate) %>%
-    mutate(ProjectTimeID = paste0(ProjectID, letters[row_number()])) %>%
-    ungroup()
-  
-  ProjectsPrep <- ProjectsPrep %>%
-    left_join(QuitStarters %>%
-                select(ProjectID, ProjectTimeID, ParticipatingDateRange),
-              by = c("ProjectID", "ParticipatingDateRange"))
-}
-
-# creating new df: similar to the FY22 version of Project, except the ProjectTimeID
-# is the granularity. 
-
-if("ProjectTimeID" %in% colnames(ProjectsPrep)){
-  ProjectSegments <- ProjectsPrep %>%
-    mutate(ProjectTimeID = coalesce(ProjectTimeID, ProjectID)) %>%
-    relocate(ProjectTimeID, .after = ProjectID)
-} else{
-  ProjectSegments <- ProjectsPrep %>%
-    mutate(ProjectTimeID = ProjectID) %>%
-    relocate(ProjectTimeID, .after = ProjectID)
-}
-
-# adding the following cols to Project, keeping the same granularity:
-# OrganizationName, VictimServiceProvider, HMISParticipationType,  
-# HMISParticipationStatusStartDate, HMISParticipationStatusEndDate,
-# OperatingDateRange, ParticipatingDateRange, ProjectTimeID
-# the factor order of 1, 2, and 0 align to 1 = HMIS Participating, 2 = 
-# Comparable DB Participating, and 0 = Not Participating so this means a project
-# with multiple rows due to changes in participation status will 
+  ) %>%
+  group_by(ProjectID) %>%
+  arrange(OperatingStartDate, .by_group = TRUE) %>%
+  mutate(
+    ProjectTimeID = case_when(
+      n() > 1 ~ paste0(ProjectID, letters[row_number()]),
+      TRUE ~ ProjectID)
+    ) %>%
+  ungroup() %>%
+  relocate(ProjectTimeID, .after = ProjectID)
 
 # * Use Project0 for most things.
 # * Use ProjectSegments if your analysis uses specific participation data
