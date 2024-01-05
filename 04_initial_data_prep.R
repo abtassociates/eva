@@ -28,7 +28,7 @@ logToConsole("Running initial data prep")
 
 # breaking out Projects into their participating times, adjusting ProjectIDs
 
-ProjectsInHMIS <- Project %>%
+ProjectsPrep <- Project %>%
   left_join(
     Organization %>%
       select(OrganizationID, OrganizationName, VictimServiceProvider),
@@ -44,7 +44,7 @@ ProjectsInHMIS <- Project %>%
       ) %>%
       unique(),
     by = "ProjectID"
-  ) %>% # ^ changes granularity if there are any quit-starters
+  ) %>% # ^ changes granularity *if* there are any quit-starters
   mutate(
     OperatingDateRange =
       interval(
@@ -58,38 +58,50 @@ ProjectsInHMIS <- Project %>%
       )
   )
 
-quit_and_start_projects <- ProjectsInHMIS %>%
+quit_and_start_projects <- ProjectsPrep %>%
   get_dupes(ProjectID) %>% distinct(ProjectID) %>% pull()
 
 if(length(quit_and_start_projects) > 0){
-  QuitStarters <-  ProjectsInHMIS %>%
+  QuitStarters <-  ProjectsPrep %>%
     filter(ProjectID %in% c(quit_and_start_projects)) %>%
     group_by(ProjectID) %>%
     arrange(OperatingStartDate) %>%
     mutate(ProjectTimeID = paste0(ProjectID, letters[row_number()])) %>%
     ungroup()
   
-  ProjectsInHMIS <- ProjectsInHMIS %>%
+  ProjectsPrep <- ProjectsPrep %>%
     left_join(QuitStarters %>%
                 select(ProjectID, ProjectTimeID, ParticipatingDateRange),
               by = c("ProjectID", "ParticipatingDateRange"))
 }
 
-# this version of Project is similar to the FY22 version of Project, except the
-# ProjectTimeID is the granularity. 
+# creating new df: similar to the FY22 version of Project, except the ProjectTimeID
+# is the granularity. 
 
-if("ProjectTimeID" %in% colnames(ProjectsInHMIS)){
-  ProjectSegments <- ProjectsInHMIS %>%
-  mutate(ProjectTimeID = coalesce(ProjectTimeID, ProjectID)) %>%
+if("ProjectTimeID" %in% colnames(ProjectsPrep)){
+  ProjectSegments <- ProjectsPrep %>%
+    mutate(ProjectTimeID = coalesce(ProjectTimeID, ProjectID)) %>%
     relocate(ProjectTimeID, .after = ProjectID)
 } else{
-  ProjectSegments <- ProjectsInHMIS %>%
+  ProjectSegments <- ProjectsPrep %>%
     mutate(ProjectTimeID = ProjectID) %>%
     relocate(ProjectTimeID, .after = ProjectID)
 }
 
-# This dataset is used when we need an unduplicated concise df for project
-Project0 <<- Project %>% 
+# adding the following cols to Project, keeping the same granularity:
+# OrganizationName, VictimServiceProvider, HMISParticipationType,  
+# HMISParticipationStatusStartDate, HMISParticipationStatusEndDate,
+# OperatingDateRange, ParticipatingDateRange, ProjectTimeID
+# the factor order of 1, 2, and 0 align to 1 = HMIS Participating, 2 = 
+# Comparable DB Participating, and 0 = Not Participating so this means a project
+# with multiple rows due to changes in participation status will 
+
+# * Use Project0 for most things.
+# * Use ProjectSegments if your analysis uses specific participation data
+# * Use Project if you need something from the original data as it came in that's
+#     not in Project0 or ProjectSegments
+
+Project0 <<- ProjectsPrep %>%
   select(ProjectID,
          ProjectName,
          OrganizationID,
