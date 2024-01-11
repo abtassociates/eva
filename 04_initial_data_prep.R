@@ -98,7 +98,7 @@ EnrollmentStaging <- Enrollment %>%
          EnrollmentDateRange = interval(EntryDate, ExitAdjust),
          AgeAtEntry = age_years(DOB, EntryDate),
          DOB = NULL) %>%
-  left_join(Project %>%
+  left_join(ProjectSegments %>%
               select(ProjectID,
                      ProjectTimeID,
                      ProjectType,
@@ -236,7 +236,7 @@ EnrollmentAdjust <- Enrollment %>%
   ) 
   
 
-rm(HHEntry, HHMoveIn, small_client)
+rm(HHMoveIn)
 
 # Only BedNight Services --------------------------------------------------
 
@@ -245,7 +245,7 @@ Services <- Services %>%
 
 # Build Validation df for app ---------------------------------------------
 
-validationProject <- Project %>%
+validationProject <- ProjectSegments %>%
   select(
     ProjectID,
     ProjectTimeID,
