@@ -124,7 +124,7 @@ missing_CoC_Address <- missing_CoC_Info %>%
 missing_inventory_record <- Project0 %>%
   left_join(Inventory, by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
-           RRHSubType == 2,
+           (RRHSubType == 2 | is.na(RRHSubType)) &
            is.na(InventoryID)) %>% 
   merge_check_info(checkIDs = 43) %>%
   mutate(Detail = "") %>%
