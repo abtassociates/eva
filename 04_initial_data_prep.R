@@ -141,10 +141,17 @@ EnrollmentStaging <- Enrollment %>%
         "Enrollment Crosses Operating End",
       int_start(EnrollmentDateRange) < int_start(OperatingDateRange) &
         int_end(EnrollmentDateRange) > int_end(OperatingDateRange) ~
-        "Enrollment Crosses Operating Period")
+        "Enrollment Crosses Operating Period"),
+    InsideOrNot = case_when(
+      EnrollmentvOperating == "Inside" & EnrollmentvParticipating == "Inside" ~
+        1,
+      EnrollmentvOperating == "Inside" | EnrollmentvParticipating == "Inside" ~ 
+        2,
+      TRUE ~ 3
+    )
   ) %>%
   group_by(ProjectID, EnrollmentID) %>%
-  arrange(ProjectTimeID) %>%
+  arrange(InsideOrNot, .by_group = TRUE) %>%
   slice(1L) %>%
   ungroup() %>%
   # here we should have enrollment granularity
@@ -165,7 +172,8 @@ EnrollmentStaging <- Enrollment %>%
                                         "Enrollment Crosses Participating Period"),
       min(int_end(ParticipatingDateRange), int_end(OperatingDateRange), na.rm = TRUE),
       ExitDate
-    )
+    ),
+    InsideOrNot = NULL
   ) %>%
   relocate(Destination:ExitDateTruncated, .before = RelationshipToHoH)
 
