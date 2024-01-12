@@ -111,21 +111,22 @@ EnrollmentStaging <- Enrollment %>%
   # be excluded later
   mutate(
     EnrollmentvParticipating = case_when(
-        EnrollmentDateRange %within% ParticipatingDateRange ~
-          "Inside",
-        int_start(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
-          "Enrollment After Participating Period",
-        int_start(EnrollmentDateRange) < int_start(ParticipatingDateRange) &
-          int_end(EnrollmentDateRange) > int_start(ParticipatingDateRange) ~
-          "Enrollment Crosses Participating Start",
-        int_end(EnrollmentDateRange) < int_start(ParticipatingDateRange) ~
-          "Enrollment Before Participating Period",
-        int_start(EnrollmentDateRange) > int_start(ParticipatingDateRange) &
-          int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~ 
-          "Enrollment Crosses Participating End",
-        int_start(EnrollmentDateRange) < int_start(ParticipatingDateRange) &
-          int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
-          "Enrollment Crosses Participation Period"),
+      EnrollmentDateRange %within% ParticipatingDateRange ~
+        "Inside",
+      int_start(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
+        "Enrollment After Participating Period",
+      int_start(EnrollmentDateRange) < int_start(ParticipatingDateRange) &
+        int_end(EnrollmentDateRange) > int_start(ParticipatingDateRange) ~
+        "Enrollment Crosses Participating Start",
+      int_end(EnrollmentDateRange) < int_start(ParticipatingDateRange) ~
+        "Enrollment Before Participating Period",
+      int_start(EnrollmentDateRange) > int_start(ParticipatingDateRange) &
+        int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
+        "Enrollment Crosses Participating End",
+      int_start(EnrollmentDateRange) < int_start(ParticipatingDateRange) &
+        int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
+        "Enrollment Crosses Participation Period"
+    ),
     EnrollmentvOperating = case_when(
       EnrollmentDateRange %within% OperatingDateRange ~
         "Inside",
