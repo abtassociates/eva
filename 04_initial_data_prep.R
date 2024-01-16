@@ -115,7 +115,11 @@ EnrollmentOutside <- EnrollmentStaging %>%
   # be excluded later
   mutate(
     EnrollmentvParticipating = case_when(
-        EnrollmentDateRange %within% ParticipatingDateRange ~
+        EnrollmentDateRange %within% ParticipatingDateRange |
+          (
+            int_start(EnrollmentDateRange) >= int_start(ParticipatingDateRange) & 
+              int_end(ParticipatingDateRange) >= Sys.Date()
+          ) ~
           "Inside",
         int_start(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
           "Enrollment After Participating Period",
@@ -131,7 +135,11 @@ EnrollmentOutside <- EnrollmentStaging %>%
           int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
           "Enrollment Crosses Participation Period"),
     EnrollmentvOperating = case_when(
-      EnrollmentDateRange %within% OperatingDateRange ~
+      EnrollmentDateRange %within% OperatingDateRange |
+        (
+          int_start(EnrollmentDateRange) >= int_start(OperatingDateRange) & 
+            int_end(OperatingDateRange) >= Sys.Date()
+        ) ~
         "Inside",
       int_start(EnrollmentDateRange) > int_end(OperatingDateRange) ~
         "Enrollment After Operating Period",
