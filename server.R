@@ -787,12 +787,10 @@ function(input, output, session) {
     output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
     output$sys_act_summary_chart_subheader <- renderUI({ syso_chartSubheader() })
     
-    #### SYS ACT SUMMARY PLOT ###
-    output$system_activity_summary_ui <- renderPlot({
-      req(valid_file() == 1)
-      
-      source("07a_system_overview_plot.R", local = TRUE)
-    })
+    
+    source("07a_system_overview_plot.R", local = TRUE)
+    renderSystemPlot("sys_act_summary_ui_chart")
+    renderSystemPlot("sys_act_detail_ui_chart")
     
   }, ignoreInit = TRUE)
   
