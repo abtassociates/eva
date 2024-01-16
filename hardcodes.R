@@ -20,6 +20,10 @@ allowed_destinations <-
   c(116, 101, 118, 215, 206, 207, 225, 204, 205, 302, 329, 314, 332, 312, 313,
     327, 422, 423, 426, 410, 435, 421, 411, 30, 17, 24, 8, 9, 99)
 
+perm_destinations <- c(422,423,426,410,435,421,411)
+
+temp_destinations <- c(116,101,118,302,329,314,332,312,313,327)
+
 allowed_living_situations <- 
   c(allowed_prior_living_sit,
     allowed_current_living_sit,
@@ -89,6 +93,8 @@ project_types_w_cls <- c(1, 4, 6, 14)
 
 long_stayer_98_percentile_project_types <- c(0, 2, 8, 12, 13)
 
+project_types_enrolled_homeless <- c(lh_project_types, 14)
+   
 long_stayer_percentile_project_types <- c(0, 2, 3, 8, 9, 10, 12, 13)
 
 all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) # minus Other
@@ -183,6 +189,7 @@ syso_age_cats <- c(
   "75 and older" = 10)
 
 syso_race_ethnicity_incl <- list(
+  "Group 0" = c("All Races/Ethnicities" = 0),
   "Group 1" = c("American Indian, Alaska Native, or Indigenous Inclusive" = 1,
                 "Asian or Asian American Inclusive" = 2,
                 "Black, African American, or African Inclusive" = 3,
@@ -197,6 +204,7 @@ syso_race_ethnicity_incl <- list(
 )
 
 syso_race_ethnicity_excl <- list(
+  "Group 0" = c("All Races/Ethnicities" = 0),
   "Group 1" = c("American Indian, Alaska Native, or Indigenous Alone" = 1,
                 "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" = 2,
                 "Asian or Asian American Alone" = 3,
