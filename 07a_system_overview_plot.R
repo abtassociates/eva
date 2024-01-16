@@ -1,24 +1,26 @@
 # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
 # Define the hardcoded values for x.axis.var and cat.var
 # we need all combinations for the 0s
+active_as_of_start <- reactive({ paste0("Active as of ", "\n", input$syso_date_range[1]) })
+active_as_of_end <- reactive({ paste0("Active as of ", "\n", input$syso_date_range[2]) })
 x.axis.var_summary_values <- reactive({
   c(
-    paste0("Active as of ",input$syso_date_range[1]),
+    active_as_of_start(),
     "Inflow",
     "Outflow",
-    paste0("Active as of ",input$syso_date_range[2])
+    active_as_of_end()
   )
 })
 
 x.axis.var_detail_values <- reactive({
   c(
-    paste0("Active as of ",input$syso_date_range[1]), 
+    active_as_of_start(),
     "Newly Homeless", 
     "Returned from Permanent", 
     "Re-engaged from Temporary or Unknown",
     "Permanent Destination",
     "Temporary/Unknown Destination",
-    paste0("Active as of ",input$syso_date_range[2])
+    active_as_of_end()
   )
 })
 
@@ -54,11 +56,11 @@ system_activity_prep <- reactive({
       x.axis.var = case_when(
         x.axis.var == "InflowType" &
           cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed")
-        ~ paste0("Active as of ",input$syso_date_range[1]),
+        ~ active_as_of_start(),
         
         x.axis.var == "OutflowType" &
           cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed")
-        ~ paste0("Active as of ",input$syso_date_range[2]),
+        ~ active_as_of_end(),
           
         x.axis.var == "InflowType"
         ~ "Inflow",
