@@ -744,12 +744,20 @@ function(input, output, session) {
     output$orgDQWarningsByIssue_ui <- renderUI({
       renderDQPlot("org", "Warning", "Issue", "#71B4CB")
     })
-
+    
     # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
     #### FILTERS ###
     observeEvent(input$methodology_type, {
-      updatePickerInput(session, "syso_gender", choices = syso_gender_cats())
-      updatePickerInput(session, "syso_race_ethnicity", choices = syso_race_ethnicity_cats())
+      updatePickerInput(
+        session, 
+        "syso_gender", 
+        choices = syso_gender_cats())
+      # selected = syso_gender_cats()[1]
+      updatePickerInput(
+        session, 
+        "syso_race_ethnicity", 
+        choices = syso_race_ethnicity_cats())
+      # selected = syso_race_ethnicity_cats())
     })
     
     observeEvent(input$syso_level_of_detail, {
