@@ -118,7 +118,7 @@ EnrollmentOutside <- EnrollmentStaging %>%
         EnrollmentDateRange %within% ParticipatingDateRange |
           (
             int_start(EnrollmentDateRange) >= int_start(ParticipatingDateRange) & 
-              int_end(ParticipatingDateRange) >= Sys.Date()
+              int_end(ParticipatingDateRange) > Sys.Date()
           ) ~
           "Inside",
         int_start(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
@@ -138,7 +138,7 @@ EnrollmentOutside <- EnrollmentStaging %>%
       EnrollmentDateRange %within% OperatingDateRange |
         (
           int_start(EnrollmentDateRange) >= int_start(OperatingDateRange) & 
-            int_end(OperatingDateRange) >= Sys.Date()
+            int_end(OperatingDateRange) > Sys.Date()
         ) ~
         "Inside",
       int_start(EnrollmentDateRange) > int_end(OperatingDateRange) ~
