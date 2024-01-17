@@ -226,7 +226,7 @@ function(input, output, session) {
       # System Overview tab inputs
       updateDateRangeInput(session = session, inputId = "syso_date_range",
                            min = meta_HUDCSV_Export_Start,
-                           start = meta_HUDCSV_Export_Start,
+                           start = meta_HUDCSV_Export_End - years(1),
                            max = meta_HUDCSV_Export_End,
                            end = meta_HUDCSV_Export_End)
     }
@@ -787,8 +787,7 @@ function(input, output, session) {
     output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
     output$sys_act_summary_chart_subheader <- renderUI({ syso_chartSubheader() })
     
-    
-    source("07a_system_overview_plot.R", local = TRUE)
+    source("07a_system_activity_plots.R", local = TRUE)
     renderSystemPlot("sys_act_summary_ui_chart")
     renderSystemPlot("sys_act_detail_ui_chart")
     
