@@ -42,7 +42,7 @@ cat.var_detail_values <- c(
 )
 
 system_activity_prep <- reactive({
-  system_df_people_filtered() %>% # this is a people-level df
+  system_df_people() %>% # this is a people-level df
     pivot_longer(
       cols = c(InflowType, OutflowType), 
       names_to = "x.axis.var", 
