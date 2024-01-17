@@ -330,7 +330,7 @@ getNameByValue <- function(vector, val) {
 # for a set of 1/0, or checkbox, variables, check whether no other variables 
 # were checked except for the specified ones
 no_cols_selected_except <- function(df, l, e) {
-  sum(df[e], na.rm = TRUE) > 0 & sum(df[setdiff(l, e)], na.rm = TRUE) == 0
+  rowSums(df[e], na.rm = TRUE) > 0 & rowSums(df[setdiff(l, e)], na.rm = TRUE) == 0
 }
 
 any_cols_selected_except <- function(df, l, e) {
@@ -341,7 +341,7 @@ any_cols_selected_except <- function(df, l, e) {
 # for a set of 1/0, or checkbox, variables, check whether at least 
 # the specified numbers of variables were checked, except for the specified ones
 min_cols_selected_except <- function(df, l, e, num_cols_seleted) {
-  sum(df[e], na.rm = TRUE) == 0 & sum(df[setdiff(l, e)], na.rm = TRUE) >= num_cols_seleted
+  rowSums(df[e], na.rm = TRUE) == 0 & rowSums(df[setdiff(l, e)], na.rm = TRUE) >= num_cols_seleted
 }
 
 # custom round to the smaller of the nearest 10, 100, etc.
