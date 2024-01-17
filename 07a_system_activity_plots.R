@@ -1,8 +1,8 @@
 # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
 # Define the hardcoded values for x.axis.var and cat.var
 # we need all combinations for the 0s
-active_as_of_start <- reactive({ paste0("Active as of ", "\n", input$syso_date_range[1]) })
-active_as_of_end <- reactive({ paste0("Active as of ", "\n", input$syso_date_range[2]) })
+active_as_of_start <- reactive({ paste0("Active as of \n", input$syso_date_range[1]) })
+active_as_of_end <- reactive({ paste0("Active as of \n", input$syso_date_range[2]) })
 x.axis.var_summary_values <- reactive({
   c(
     active_as_of_start(),
@@ -16,10 +16,10 @@ x.axis.var_detail_values <- reactive({
   c(
     active_as_of_start(),
     "Newly Homeless", 
-    "Returned from Permanent", 
-    "Re-engaged from Temporary or Unknown",
+    "Returned from \nPermanent", 
+    "Re-engaged from \nTemporary or Unknown",
     "Permanent Destination",
-    "Temporary/Unknown Destination",
+    "Temporary/Unknown \nDestination",
     active_as_of_end()
   )
 })
@@ -35,14 +35,14 @@ cat.var_detail_values <- c(
   "Enrolled: Homeless", 
   "Enrolled: Housed", 
   "Newly Homeless", 
-  "Returned from Permanent", 
-  "Re-engaged from Temporary or Unknown",
+  "Returned from \nPermanent", 
+  "Re-engaged from \nTemporary or Unknown",
   "Permanent Destination",
-  "Temporary/Unknown Destination"
+  "Temporary/Unknown \nDestination"
 )
 
 system_activity_prep <- reactive({
-  system_df_filtered() %>%
+  system_df_people_filtered() %>% # this is a people-level df
     pivot_longer(
       cols = c(InflowType, OutflowType), 
       names_to = "x.axis.var", 
@@ -102,7 +102,7 @@ system_activity_detail_prep <- reactive({
       x.axis.var = ifelse(
         !(cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed")),
         cat.var,
-        NA
+        x.axis.var
       )
     )
 })
@@ -173,11 +173,11 @@ renderSystemPlot <- function(id) {
         y=ifelse(cat.var == last(cat.var),
                     end.Bar,
                     # these will be removed once we set the y limits
-                    s+500), 
+                    s+segment_size), 
         yend=ifelse(cat.var == last(cat.var),
                     end.Bar,
                     # these will be removed once we set the y limits
-                    s+500),
+                    s+segment_size),
         colour="black"
       ), show.legend = FALSE) +
       # \_Numbers inside bars (each category) ----
@@ -189,7 +189,7 @@ renderSystemPlot <- function(id) {
               as.character(values),
               ""),
             y = ifelse(
-              abs(values) < 150, 
+              abs(values) < segment_size/4, 
               end.Bar + 10, 
               rowSums(cbind(start.Bar,values/2))
             )
@@ -203,7 +203,7 @@ renderSystemPlot <- function(id) {
       # \_Change y axis to same scale as original ----
       scale_y_continuous(
           expand=c(0,0),
-          limits = c(0, s+200)
+          limits = c(0, s+segment_size/2)
       ) +
       # \_Add tick marks on x axis to look like the original plot ----
       scale_x_continuous(
