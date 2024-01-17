@@ -173,17 +173,17 @@ system_df_enrl_filtered <- reactive({
 # Set special populations options based on level of detail selection
 syso_race_ethnicity_cats <- reactive({
   ifelse(
-    input$methodology_type == "1",
-    list(syso_race_ethnicity_incl),
-    list(syso_race_ethnicity_excl)
+    input$methodology_type == 1,
+    list(syso_race_ethnicity_excl),
+    list(syso_race_ethnicity_incl)
   )[[1]]
 })
 
 syso_gender_cats <- reactive({
   ifelse(
-    input$methodology_type == "1",
-    list(syso_gender_incl),
-    list(syso_gender_excl)
+    input$methodology_type == 1,
+    list(syso_gender_excl),
+    list(syso_gender_incl)
   )[[1]]
 })
 
@@ -230,159 +230,160 @@ system_df_people_filtered <- reactive({
       ) &
       # Gender
       (
-        # inclusive
-        (input$methodology_type == "1" & (
+        # Exclusive
+        (input$methodology_type == 1 & (
+          # All genders
           input$syso_gender == 1 |
-            (input$syso_gender == 2 & (
-              (Woman == 1 & Man == 1) | 
-                !(Woman == 1 & Man == 1)
-            )) |
-            (input$syso_gender == 3 & Man == 1) | 
-            (input$syso_gender == 4 & NonBinary == 1) | 
-            (input$syso_gender == 5 & (Man == 1 | Woman == 1)) | 
-            (input$syso_gender == 6 & Woman == 1) 
+            
+          # Gender diverse
+          (input$syso_gender == 2 & 
+             min_cols_selected_except(., gender_cols, "Transgender", 1)) |
+          
+          # Man alone
+          (input$syso_gender == 3 & 
+             no_cols_selected_except(., gender_cols, "Man")) | 
+          
+          # Transgender, alone or in combo
+          (input$syso_gender == 4 & Transgender == 1) | 
+          
+          # Woman, alone
+          (input$syso_gender == 5 & 
+             no_cols_selected_except(., gender_cols, "Woman")) |
+          
+          # Unknown
+          (input$syso_gender == 6 & 
+             no_cols_selected_except(., gender_cols, "GenderNone"))
         )) |
-          # Exclusive
-          (input$methodology_type != "1" & (
-            # All genders
-            input$syso_gender == 1 |
-              
-              # Gender diverse
-              (input$syso_gender == 2 & 
-                 min_cols_selected_except(., gender_cols, "Transgender", 1)) |
-              
-              # Man alone
-              (input$syso_gender == 3 & 
-                 no_cols_selected_except(., gender_cols, "Man")) | 
-              
-              # Transgender, alone or in combo
-              (input$syso_gender == 4 & Transgender == 1) | 
-              
-              # Woman, alone
-              (input$syso_gender == 5 & 
-                 no_cols_selected_except(., gender_cols, "Woman")) |
-              
-              # Unknown
-              (input$syso_gender == 6 & 
-                 no_cols_selected_except(., gender_cols, "GenderNone"))
-          ))
+        # inclusive
+        (input$methodology_type == 2 & (
+          input$syso_gender == 1 |
+          (input$syso_gender == 2 & (
+            (Woman == 1 & Man == 1) | 
+              !(Woman == 1 & Man == 1)
+          )) |
+          (input$syso_gender == 3 & Man == 1) | 
+          (input$syso_gender == 4 & NonBinary == 1) | 
+          (input$syso_gender == 5 & (Man == 1 | Woman == 1)) | 
+          (input$syso_gender == 6 & Woman == 1) 
+        ))
       ) &
       # Race/Ethnicity
       (
-        # Inclusive
-        (input$methodology_type == "1" & (
-          # All Races/Ethnicities" = 0,
-          input$syso_race_ethnicity == 0 |
-            
-            #American Indian, Alaska Native, or Indigenous Inclusive" = 1,
-            (input$syso_race_ethnicity == 1 & AmIndAKNative == 1) |
-            
-            # Asian or Asian American Inclusive" = 2,
-            (input$syso_race_ethnicity == 2 & Asian == 1) |
-            
-            # Black, African American, or African Inclusive" = 3,
-            (input$syso_race_ethnicity == 3 & BlackAfAmerican == 1) |
-            
-            # Middle Eastern Inclusive" = 4,
-            (input$syso_race_ethnicity == 4 & MidEastNAfrican == 1) |
-            
-            # Native Hawaiin or Pacific Islander Inclusive" = 5,
-            (input$syso_race_ethnicity == 5 & NativeHIPacific == 1) |
-            
-            # White Inclusive" = 6),
-            (input$syso_race_ethnicity == 6 & White == 1) |
-            
-            # All People of Color" = 7,
-            (input$syso_race_ethnicity == 7 & 
-               any_cols_selected_except(., race_cols, c("RaceNone", "White"))) |
-            
-            # White Only" = 8),
-            (input$syso_race_ethnicity == 8 & 
-               no_cols_selected_except(., race_cols, "White")) |
-            
-            # Black, African American or African and Hispanic/Latina/e/o Inclusive" = 9,
-            (input$syso_race_ethnicity == 9 & 
-               (BlackAfAmerican == 1 | HispanicLatinaeo == 1)) |
-            
-            # Hispanic/Latina/e/o Inclusive" = 10,
-            (input$syso_race_ethnicity == 10 & HispanicLatinaeo == 1) |
-            
-            # Hispanic/Latina/e/o Alone" = 11)
-            (input$syso_race_ethnicity == 11 & 
-               no_cols_selected_except(., race_cols, "HispanicLatinaeo"))
-        )) |
         # Exclusive
-        (input$methodology_type != "1" & (
+        (input$methodology_type == 1 & (
           # All Races/Ethnicities" = 0,
           input$syso_race_ethnicity == 0 |
             
-            # American Indian, Alaska Native, or Indigenous Alone" = 1,
-            (input$syso_race_ethnicity == 1 & 
-               no_cols_selected_except(., race_cols, "AmIndAKNative")) |
+          # American Indian, Alaska Native, or Indigenous Alone" = 1,
+          (input$syso_race_ethnicity == 1 & 
+             no_cols_selected_except(., race_cols, "AmIndAKNative")) |
+          
+          # American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" = 2,
+          (input$syso_race_ethnicity == 2 & 
+             no_cols_selected_except(., race_cols, c("AmIndAKNative", "HispanicLatinaeo"))) |
+          
+          # Asian or Asian American Alone" = 3,
+          (input$syso_race_ethnicity == 3 & 
+             no_cols_selected_except(., race_cols, "Asian")) |
+          
+          # Asian or Asian American & Hispanic/Latina/e/o" = 4,
+          (input$syso_race_ethnicity == 4 & 
+             no_cols_selected_except(., race_cols, c("Asian", "HispanicLatinaeo"))) |
+          
+          # Black, African American, or African Alone" = 5,
+          (input$syso_race_ethnicity == 5 & 
+             no_cols_selected_except(., race_cols, "BlackAfAmerican")) |
+          
+          # Black, African American, or African & Hispanic/Latina/e/o" = 6,
+          (input$syso_race_ethnicity == 6 & 
+             no_cols_selected_except(., race_cols, c("BlackAfAmerican", "HispanicLatinaeo"))) |
+          
+          # Hispanic/Latina/e/o Alone" = 7,
+          (input$syso_race_ethnicity == 7 & 
+             no_cols_selected_except(., race_cols, "HispanicLatinaeo")) |
+          
+          # Middle Eastern or North African Alone" = 8,
+          (input$syso_race_ethnicity == 8 & 
+             no_cols_selected_except(., race_cols, "MidEastNAfrican")) |
+          
+          # Middle Eastern or North African & Hispanic/Latina/e/o" = 9,
+          (input$syso_race_ethnicity == 9 & 
+             no_cols_selected_except(., race_cols, c("MidEastNAfrican", "HispanicLatinaeo"))) |
+          
+          # Native Hawaiin or Pacific Islander Alone" = 10,
+          (input$syso_race_ethnicity == 10 & 
+             no_cols_selected_except(., race_cols, "NativeHIPacific")) |
+          
+          # Native Hawaiin or Pacific Islander & Hispanic/Latina/e/o" = 11,
+          (input$syso_race_ethnicity == 11 & 
+             no_cols_selected_except(., race_cols, c("NativeHIPacific","HispanicLatinaeo"))) |
+          
+          # White Alone" = 12,
+          (input$syso_race_ethnicity == 12 & 
+             no_cols_selected_except(., race_cols, "White")) |
+          
+          # White & Hispanic/Latina/e/o" = 13,
+          (input$syso_race_ethnicity == 13 & 
+             no_cols_selected_except(., race_cols, c("White", "HispanicLatinaeo"))) |
+          
+          # Multi-Racial (not Hispanic/Latina/e/o)" = 14,
+          (input$syso_race_ethnicity == 14 & 
+             min_cols_selected_except(., race_cols, c("RaceNone", "HispanicLatinaeo"), 2)) |
+          
+          # Multi-Racial & Hispanic/Latina/e/o" = 15),
+          (input$syso_race_ethnicity == 15 & 
+             min_cols_selected_except(., race_cols, "RaceNone", 2)) |
+          
+          # All People of Color" = 16,
+          (input$syso_race_ethnicity == 16 & 
+             no_cols_selected_except(., race_cols, c("AmIndAKNative", "HispanicLatinaeo"))) |
+          
+          # White Only" = 17
+          (input$syso_race_ethnicity == 17 & 
+             no_cols_selected_except(., race_cols, "White"))
+        )) |
+        
+        # Inclusive
+        (input$methodology_type == 2 & (
+          # All Races/Ethnicities" = 0,
+          input$syso_race_ethnicity == 0 |
             
-            # American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" = 2,
-            (input$syso_race_ethnicity == 2 & 
-               no_cols_selected_except(., race_cols, c("AmIndAKNative", "HispanicLatinaeo"))) |
-            
-            # Asian or Asian American Alone" = 3,
-            (input$syso_race_ethnicity == 3 & 
-               no_cols_selected_except(., race_cols, "Asian")) |
-            
-            # Asian or Asian American & Hispanic/Latina/e/o" = 4,
-            (input$syso_race_ethnicity == 4 & 
-               no_cols_selected_except(., race_cols, c("Asian", "HispanicLatinaeo"))) |
-            
-            # Black, African American, or African Alone" = 5,
-            (input$syso_race_ethnicity == 5 & 
-               no_cols_selected_except(., race_cols, "BlackAfAmerican")) |
-            
-            # Black, African American, or African & Hispanic/Latina/e/o" = 6,
-            (input$syso_race_ethnicity == 6 & 
-               no_cols_selected_except(., race_cols, c("BlackAfAmerican", "HispanicLatinaeo"))) |
-            
-            # Hispanic/Latina/e/o Alone" = 7,
-            (input$syso_race_ethnicity == 7 & 
-               no_cols_selected_except(., race_cols, "HispanicLatinaeo")) |
-            
-            # Middle Eastern or North African Alone" = 8,
-            (input$syso_race_ethnicity == 8 & 
-               no_cols_selected_except(., race_cols, "MidEastNAfrican")) |
-            
-            # Middle Eastern or North African & Hispanic/Latina/e/o" = 9,
-            (input$syso_race_ethnicity == 9 & 
-               no_cols_selected_except(., race_cols, c("MidEastNAfrican", "HispanicLatinaeo"))) |
-            
-            # Native Hawaiin or Pacific Islander Alone" = 10,
-            (input$syso_race_ethnicity == 10 & 
-               no_cols_selected_except(., race_cols, "NativeHIPacific")) |
-            
-            # Native Hawaiin or Pacific Islander & Hispanic/Latina/e/o" = 11,
-            (input$syso_race_ethnicity == 11 & 
-               no_cols_selected_except(., race_cols, c("NativeHIPacific","HispanicLatinaeo"))) |
-            
-            # White Alone" = 12,
-            (input$syso_race_ethnicity == 12 & 
-               no_cols_selected_except(., race_cols, "White")) |
-            
-            # White & Hispanic/Latina/e/o" = 13,
-            (input$syso_race_ethnicity == 13 & 
-               no_cols_selected_except(., race_cols, c("White", "HispanicLatinaeo"))) |
-            
-            # Multi-Racial (not Hispanic/Latina/e/o)" = 14,
-            (input$syso_race_ethnicity == 14 & 
-               min_cols_selected_except(., race_cols, c("RaceNone", "HispanicLatinaeo"), 2)) |
-            
-            # Multi-Racial & Hispanic/Latina/e/o" = 15),
-            (input$syso_race_ethnicity == 15 & 
-               min_cols_selected_except(., race_cols, "RaceNone", 2)) |
-            
-            # All People of Color" = 16,
-            (input$syso_race_ethnicity == 16 & 
-               no_cols_selected_except(., race_cols, c("AmIndAKNative", "HispanicLatinaeo"))) |
-            
-            # White Only" = 17
-            (input$syso_race_ethnicity == 17 & 
-               no_cols_selected_except(., race_cols, "White"))
+          #American Indian, Alaska Native, or Indigenous Inclusive" = 1,
+          (input$syso_race_ethnicity == 1 & AmIndAKNative == 1) |
+          
+          # Asian or Asian American Inclusive" = 2,
+          (input$syso_race_ethnicity == 2 & Asian == 1) |
+          
+          # Black, African American, or African Inclusive" = 3,
+          (input$syso_race_ethnicity == 3 & BlackAfAmerican == 1) |
+          
+          # Middle Eastern Inclusive" = 4,
+          (input$syso_race_ethnicity == 4 & MidEastNAfrican == 1) |
+          
+          # Native Hawaiin or Pacific Islander Inclusive" = 5,
+          (input$syso_race_ethnicity == 5 & NativeHIPacific == 1) |
+          
+          # White Inclusive" = 6),
+          (input$syso_race_ethnicity == 6 & White == 1) |
+          
+          # All People of Color" = 7,
+          (input$syso_race_ethnicity == 7 & 
+             any_cols_selected_except(., race_cols, c("RaceNone", "White"))) |
+          
+          # White Only" = 8),
+          (input$syso_race_ethnicity == 8 & 
+             no_cols_selected_except(., race_cols, "White")) |
+          
+          # Black, African American or African and Hispanic/Latina/e/o Inclusive" = 9,
+          (input$syso_race_ethnicity == 9 & 
+             (BlackAfAmerican == 1 | HispanicLatinaeo == 1)) |
+          
+          # Hispanic/Latina/e/o Inclusive" = 10,
+          (input$syso_race_ethnicity == 10 & HispanicLatinaeo == 1) |
+          
+          # Hispanic/Latina/e/o Alone" = 11)
+          (input$syso_race_ethnicity == 11 & 
+             no_cols_selected_except(., race_cols, "HispanicLatinaeo"))
         ))
       )
     ) %>%
