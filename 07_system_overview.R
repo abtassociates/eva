@@ -520,7 +520,14 @@ system_df_people <- reactive({
       NoEnrollmentsToLHFor14DaysFromLECR = !any(
         as.numeric(difftime(ExitDate_lecr, EntryDate, "days")) <= -14 & 
           ProjectType %in% lh_project_types
-      )
+      ),
+      return_from_permanent = any(EntryStatusHomeless & 
+        as.numeric(difftime(EntryDate_eecr, ExitDate, unit="days")) >= 14 &
+        Destination_eecr %in% perm_destinations),
+      
+      reengaged_from_temporary = any(EntryStatusHomeless &
+        as.numeric(difftime(EntryDate_eecr, ExitDate, unit="days")) >= 14 &
+        Destination %in% temp_destinations)
     ) %>%
     ungroup() %>%
     mutate(
@@ -532,14 +539,10 @@ system_df_people <- reactive({
         !entered_as_homeless
         ~ "Newly Homeless",
         
-        EntryStatusHomeless & 
-          as.numeric(difftime(EntryDate_eecr, ExitDate, unit="days")) >= 14 &
-          Destination_eecr %in% perm_destinations
+        return_from_permanent
         ~ "Returned from \nPermanent",
         
-        EntryStatusHomeless &
-          as.numeric(difftime(EntryDate_eecr, ExitDate, unit="days")) >= 14 &
-          Destination %in% temp_destinations
+        reengaged_from_temporary
         ~ "Re-engaged from \nTemporary/Unknown",
         
         EnrolledHomeless_eecr
