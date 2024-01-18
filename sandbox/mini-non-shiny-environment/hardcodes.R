@@ -20,6 +20,10 @@ allowed_destinations <-
   c(116, 101, 118, 215, 206, 207, 225, 204, 205, 302, 329, 314, 332, 312, 313,
     327, 422, 423, 426, 410, 435, 421, 411, 30, 17, 24, 8, 9, 99)
 
+perm_destinations <- c(422,423,426,410,435,421,411)
+
+temp_destinations <- c(116,101,118,302,329,314,332,312,313,327)
+
 allowed_living_situations <- 
   c(allowed_prior_living_sit,
     allowed_current_living_sit,
@@ -83,11 +87,18 @@ coc_funded_project_types <- c(2, 3, 13)
 
 project_types_w_beds <- c(0, 1, 2, 3, 8, 9, 10, 13)
 
+non_res_project_types <- c(4, 6, 7, 11, 12, 14)
+
 project_types_w_cls <- c(1, 4, 6, 14)
 
 long_stayer_98_percentile_project_types <- c(0, 2, 8, 12, 13)
 
+project_types_enrolled_homeless <- c(lh_project_types, 14)
+   
 long_stayer_percentile_project_types <- c(0, 2, 3, 8, 9, 10, 12, 13)
+
+all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) # minus Other
+all_project_types2 <- c(0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14)
 
 # Funding Source Groupings -------------------------------------------------
 
@@ -102,7 +113,7 @@ dkr_dnc <- c(8, 9, 99)
 dkr <- c(8, 9)
 
 # Expected upload schema (files, columns, and data types) ------------------
-cols_and_data_types <- read_csv("public-resources/columns.csv", 
+cols_and_data_types <- read_csv(here("public-resources/columns.csv"), 
                                 col_types = cols()) %>%
   filter(!(File %in% c("Affiliation",
                        "AssessmentResults",
@@ -125,8 +136,191 @@ issue_levels <- c("High Priority", "Error", "Warning")
 
 issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
+# System Overview - Filters -----------------------------------------------
+syso_hh_types <- c(
+  "All Households" = 1, 
+  "Adult-Only" = 2, 
+  "Adult-Child" = 3, 
+  "Child-Only" = 4,
+  "Youth and Young Adult" = 5, 
+  "Unknown Households" = 6
+)
+
+syso_level_of_detail <- c(
+  "All People" = 1, 
+  "All Adults and Heads of Households" = 2, 
+  "All Heads of Households" = 3
+)
+
+gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
+                   "DifferentIdentity", "Questioning", "GenderNone")
+
+race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
+               "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
+
+syso_gender_incl <- c(
+  "All Genders" = 1,
+  "Gender Diverse" = 2,
+  "Man (Boy, if child), alone or in combination" = 3,
+  "Non-Binary" = 4,
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = 5,
+  "Woman (Girl, if child), alone or in combination" = 6
+)
+
+syso_gender_excl <- c(
+  "All Genders" = 1,
+  "Gender Diverse" = 2,
+  "Man (Boy, if child) alone" = 3,
+  "Transgender, alone or in combination" = 4,
+  "Woman (Girl, if child) alone" = 5,
+  "Unknown" = 6
+)
+
+syso_age_cats <- c(
+  "0 to 12" = 1,
+  "13 to 17" = 2,
+  "18 to 21" = 3,
+  "21 to 24" = 4,
+  "25 to 34" = 5,
+  "35 to 44" = 6,
+  "45 to 54" = 7,
+  "55 to 64" = 8,
+  "65 to 74" = 9,
+  "75 and older" = 10)
+
+syso_race_ethnicity_incl <- list(
+  "Group 0" = c("All Races/Ethnicities" = 0),
+  "Group 1" = c("American Indian, Alaska Native, or Indigenous Inclusive" = 1,
+                "Asian or Asian American Inclusive" = 2,
+                "Black, African American, or African Inclusive" = 3,
+                "Middle Eastern Inclusive" = 4,
+                "Native Hawaiin or Pacific Islander Inclusive" = 5,
+                "White Inclusive" = 6),
+  "Group 2" = c("All People of Color" = 7,
+                "White Only" = 8),
+  "Group 3" = c("Black, African American or African and Hispanic/Latina/e/o Inclusive" = 9,
+                "Hispanic/Latina/e/o Inclusive" = 10,
+                "Hispanic/Latina/e/o Alone" = 11)
+)
+
+syso_race_ethnicity_excl <- list(
+  "Group 0" = c("All Races/Ethnicities" = 0),
+  "Group 1" = c("American Indian, Alaska Native, or Indigenous Alone" = 1,
+                "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" = 2,
+                "Asian or Asian American Alone" = 3,
+                "Asian or Asian American & Hispanic/Latina/e/o" = 4,
+                "Black, African American, or African Alone" = 5,
+                "Black, African American, or African & Hispanic/Latina/e/o" = 6,
+                "Hispanic/Latina/e/o Alone" = 7,
+                "Middle Eastern or North African Alone" = 8,
+                "Middle Eastern or North African & Hispanic/Latina/e/o" = 9,
+                "Native Hawaiin or Pacific Islander Alone" = 10,
+                "Native Hawaiin or Pacific Islander & Hispanic/Latina/e/o" = 11,
+                "White Alone" = 12,
+                "White & Hispanic/Latina/e/o" = 13,
+                "Multi-Racial (not Hispanic/Latina/e/o)" = 14,
+                "Multi-Racial & Hispanic/Latina/e/o" = 15),
+  "Group 2" = c("All People of Color" = 16,
+                "White Only" = 17)
+)
+
+
+syso_project_types <- c(
+  "All Project Types" = 1,
+  "Residential Project Types" = 2,
+  "Non-Residential Project Types" = 3
+)
+
+
+syso_spec_pops_people <- c(
+  "No Special Population Selected" = 1,
+  "Domestic Violence Survivor: Currently Fleeing" = 2,
+  "Domestic Violence Survivor: Not Currently Fleeing" = 3,
+  "Domestic Violence Survivor: Total" = 4,
+  "Chronically Homeless" = 5,
+  "Inflow" = 6,
+  "Long-term Homeless" = 7,
+  "Veteran" = 8,
+  "Non-Veteran" = 9
+)
+
+syso_spec_pops_hoh <- c(
+  "No Special Population Selected" = 1,
+  "All DV Households" = 2,
+  "DV Households: Currently Fleeing" = 3,
+  "DV Households: Not Currently Fleeing" = 4,
+  "Chronically Homeless Households" = 5,
+  "Inflow Households" = 6,
+  "Long-term Homeless Households" = 7,
+  "Veteran Households" = 8,
+  "Non-Veteran Households" = 9
+)
+
+syso_methodology_types <- c(
+  "A person is only counted once in a chart (Exclusive Groupings)" = 1,
+  "A person may be counted multiple times in a chart (Inclusive Groupings)" = 2
+)
+
 # EvaChecks data (contains issue, type, guidance for each check) ----------
-evachecks <- read_csv("public-resources/EvaChecks.csv", show_col_types = FALSE)
+evachecks <- read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
 
 evachecks_no_dupes <- evachecks %>%
   janitor::get_dupes(ID) %>% nrow() == 0
+
+# Funding and Project Type Considerations DQ ------------------------------
+
+# if a funder isn't listed, it is not required to collect any of these elements.
+
+inc_ncb_hi_required_prep <- tribble(
+  ~Funder, ~ProjectType, ~inc, ~ncb, ~hi, ~dv,
+  1, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  2, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  3, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  4, setdiff(all_project_types, 14), TRUE, TRUE, TRUE, TRUE,
+  5, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  6, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  7, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  8, setdiff(all_project_types, 1), TRUE, TRUE, TRUE, FALSE,
+  9, setdiff(all_project_types, 1), TRUE, TRUE, TRUE, FALSE,
+  10, setdiff(all_project_types, 1), TRUE, TRUE, TRUE, FALSE,
+  11, setdiff(all_project_types, 1), TRUE, TRUE, TRUE, FALSE,
+  8, 1, FALSE, FALSE, FALSE, TRUE,
+  9, 1, FALSE, FALSE, FALSE, TRUE,
+  10, 1, FALSE, FALSE, FALSE, TRUE,
+  11, 1, FALSE, FALSE, FALSE, TRUE,
+  13, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  14, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  15, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  16, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  17, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  18, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  19, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  20, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  21, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  22, c(all_project_types), FALSE, TRUE, TRUE, FALSE,
+  23, c(all_project_types), TRUE, TRUE, TRUE, FALSE,
+  24, c(all_project_types), TRUE, TRUE, TRUE, FALSE,
+  25, c(all_project_types), FALSE, FALSE, TRUE, FALSE,
+  26, c(all_project_types), TRUE, TRUE, TRUE, FALSE,
+  27, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  30, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  33, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  35, c(ph_project_types), TRUE, TRUE, TRUE, TRUE,
+  37, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  38, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  39, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  40, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  41, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  42, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  45, c(all_project_types), TRUE, TRUE, TRUE, TRUE,
+  53, setdiff(all_project_types, c(0, 1, 4)), TRUE, TRUE, TRUE, TRUE,
+  54, setdiff(all_project_types, 14), TRUE, TRUE, TRUE, TRUE,
+  55, setdiff(all_project_types, 14), TRUE, TRUE, TRUE, TRUE
+)
+
+# this will break out all the project types so they each get a row
+
+inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
+  unique()
+
+

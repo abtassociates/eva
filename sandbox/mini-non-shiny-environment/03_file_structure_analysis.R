@@ -138,15 +138,14 @@ df_data_types <- rbind(
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
-  total_rows <- nrow(barefile)
-  if (total_rows > 1) {
+  if (nrow(barefile) > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
       filter(File == file & NullsAllowed == 0 & Column %in% names(get(file))) %>%
       pull(Column)
 
     # select subset of columns with nulls
-    barefile <- get(file) %>%
+    barefile <- barefile %>%
       select(all_of(nulls_not_allowed_cols)) %>%
       mutate_all(~ifelse(is.na(.), 1, 0)) %>%
       select_if(~any(. == 1))
@@ -203,10 +202,7 @@ export_id_client <- Client %>%
 
 # CHECK: Invalid demographic values
 # first, get a mapping of variables and their expected values
-cols <- c("VeteranStatus", "RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
-          "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo", 
-          "Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
-          "DifferentIdentity", "Questioning", "GenderNone")
+cols <- c("VeteranStatus", all_of(race_cols), all_of(gender_cols))
 
 valid_values <- list(yes_no_enhanced, c(dkr_dnc, NA), yes_no, yes_no, yes_no, yes_no, 
                      yes_no, yes_no, yes_no, yes_no, yes_no, yes_no, yes_no,
