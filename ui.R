@@ -619,7 +619,7 @@ dashboardPage(
               )
             )),
             column(4, fluidRow(
-              a(href="www.google.com", "Click for Project Type Information"),
+              # a(href="www.google.com", "Click for Project Type Information"),
               pickerInput(
                 label = "Project Type",
                 inputId = "syso_project_type",
