@@ -99,7 +99,7 @@ system_df_enrl_flags <- system_df_prep %>%
           PreviousStreetESSH == 1
       ),
     
-    EntryStatusHomeless = EnteredAsHomeless & 
+    EntryStatusHomeless = EnteredAsHomeless | 
       ProjectType %in% lh_project_types,
  
     EnrolledHomeless = ContinuumProject == 1 &
@@ -495,11 +495,12 @@ enrollments_crossing_report <- reactive({
 # get final people-level, inflow/outflow dataframe by joining the filtered----- 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 system_df_people <- reactive({
+  browser()
   # add inflow type and active enrollment typed used for system overview plots
   system_df_enrl_filtered() %>%
     inner_join(system_df_people_filtered(),
                by="PersonalID") %>%
-    right_join(
+    inner_join(
       enrollments_crossing_report()$eecr, 
       by="PersonalID") %>%
     left_join(
@@ -527,29 +528,19 @@ system_df_people <- reactive({
       
       reengaged_from_temporary = any(EntryStatusHomeless &
         as.numeric(difftime(EntryDate_eecr, ExitDate, unit="days")) >= 14 &
-        Destination %in% temp_destinations)
+        !(Destination %in% perm_destinations))
     ) %>%
     ungroup() %>%
     mutate(
       InflowType = case_when(
         #1) If project type is in (lh_project_types), then client is not newly homeless (0)
-        !stay_in_lh &
         #2) If LivingSituation is in (hs_living_situation), then client is not newly homeless (0)
         #3) If LivingSituation is in (non_hs_living_sit) and both LOSUnderThreshold and PreviousStreetESSH == 1, then client is not newly homeless (0)
-        !entered_as_homeless
-        ~ "Newly Homeless",
-        
-        return_from_permanent
-        ~ "Returned from \nPermanent",
-        
-        reengaged_from_temporary
-        ~ "Re-engaged from \nTemporary/Unknown",
-        
-        EnrolledHomeless_eecr
-        ~ "Enrolled: Homeless",
-        
-        EnrolledHoused_eecr
-        ~ "Enrolled: Housed"
+        EnrolledHomeless_eecr ~ "Enrolled: Homeless",
+        EnrolledHoused_eecr ~ "Enrolled: Housed",
+        !stay_in_lh & !entered_as_homeless ~ "Newly Homeless",
+        return_from_permanent ~ "Returned from \nPermanent",
+        reengaged_from_temporary ~ "Re-engaged from \nTemporary/Unknown"
       ),
       
       OutflowType = case_when(
@@ -563,7 +554,7 @@ system_df_people <- reactive({
         # The client has exited from an enrollment with a temporary/unknown destination 
         # and does not have any other enrollments (aside from RRH/PSH with a move-in date?) 
         # in emergency shelter, transitional housing, safe haven, or street outreach for at least 14 days following.
-        Destination_lecr %in% temp_destinations & 
+        !(Destination_lecr %in% perm_destinations) & 
           NoEnrollmentsToLHFor14DaysFromLECR
         ~ "Temporary/Unknown \nDestination",
         
