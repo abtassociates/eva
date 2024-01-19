@@ -115,7 +115,7 @@ prep_for_chart <- function(df, catvar_values, xvar_values) {
       expand.grid(x.axis.var = xvar_values,
                   cat.var = catvar_values),
       by = c("x.axis.var", "cat.var")) %>%
-    replace_na(list(values=0)) %>%
+    replace_na(list(values = 0)) %>%
     mutate(
       x.axis.var = factor(x.axis.var, levels = xvar_values),
       cat.var = factor(cat.var, levels = catvar_values)
@@ -149,7 +149,7 @@ renderSystemPlot <- function(id) {
       )
     }
 
-    s = max(df$end.Bar)+20
+    s = max(df$end.Bar) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
     
@@ -159,26 +159,26 @@ renderSystemPlot <- function(id) {
                       xmax = group.id + 0.25, 
                       ymin = end.Bar,
                       ymax = start.Bar),
-                  color="black", 
-                  alpha=0.95
+                color = "black",
+                alpha = 0.8
       ) + 
       # \_Lines Between Bars ----
       geom_segment(aes(
-        x=ifelse(group.id == last(group.id),
-                                  last(group.id),
+        x = ifelse(group.id == last(group.id),
+                   last(group.id),
                                   group.id+0.25), 
-        xend=ifelse(group.id == last(group.id),
-                    last(group.id),
-                    group.id+0.75), 
-        y=ifelse(cat.var == last(cat.var),
-                    end.Bar,
+        xend = ifelse(group.id == last(group.id),
+                      last(group.id),
+                      group.id + 0.75),
+        y = ifelse(cat.var == last(cat.var),
+                   end.Bar,
                     # these will be removed once we set the y limits
-                    s+segment_size), 
-        yend=ifelse(cat.var == last(cat.var),
-                    end.Bar,
+                   s + segment_size),
+        yend = ifelse(cat.var == last(cat.var),
+                      end.Bar,
                     # these will be removed once we set the y limits
-                    s+segment_size),
-        colour="black"
+                    s + segment_size),
+        colour = "black"
       ), show.legend = FALSE) +
       # \_Numbers inside bars (each category) ----
       geom_text(
@@ -196,28 +196,26 @@ renderSystemPlot <- function(id) {
           ),
           color = "black",
           fontface = "bold",
-          size=4
+          size = 4
       ) +
       # \_Change colors ----
       scale_fill_manual(values = colors) +
       # \_Change y axis to same scale as original ----
       scale_y_continuous(
-          expand=c(0,0),
-          limits = c(0, s+segment_size/2)
+        expand = c(0, 0),
+        limits = c(0, s + segment_size / 2)
       ) +
       # \_Add tick marks on x axis to look like the original plot ----
       scale_x_continuous(
-          expand=c(0,0),
-          limits = c(min(df$group.id)-0.4,max(df$group.id)+0.4),
-          breaks = c(min(df$group.id)-0.4,
-                  unique(df$group.id), 
-                  unique(df$group.id) + 0.4
-                  ),
-          labels = 
-          c("", 
-              as.character(unique(df$x.axis.var)), 
-              rep(c(""), length(unique(df$x.axis.var)))
-          )
+        expand = c(0, 0),
+        limits = c(min(df$group.id) - 0.4, max(df$group.id) + 0.4),
+        breaks = c(min(df$group.id) - 0.4,
+                   unique(df$group.id),
+                   unique(df$group.id) + 0.4),
+        labels = 
+          c("",
+            as.character(unique(df$x.axis.var)),
+            rep(c(""), length(unique(df$x.axis.var))))
       ) +
       # \_Theme options to make it look like the original plot ----
       theme(
