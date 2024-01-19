@@ -204,15 +204,24 @@ system_df_people_filtered <- reactive({
       # Age
       (
         setequal(syso_age_cats, input$syso_age) |
-          (AgeAtEntry >= 0 & AgeAtEntry <= 12 & syso_age_cats["0 to 12"] %in% input$syso_age) |
-          (AgeAtEntry >= 13 & AgeAtEntry <= 17 & syso_age_cats["13 to 17"] %in% input$syso_age) |
-          (AgeAtEntry >= 18 & AgeAtEntry <= 20 & syso_age_cats["18 to 21"] %in% input$syso_age) |
-          (AgeAtEntry >= 21 & AgeAtEntry <= 24 & syso_age_cats["21 to 24"] %in% input$syso_age) |
-          (AgeAtEntry >= 25 & AgeAtEntry <= 34 & syso_age_cats["25 to 34"] %in% input$syso_age) |
-          (AgeAtEntry >= 35 & AgeAtEntry <= 44 & syso_age_cats["35 to 44"] %in% input$syso_age) |
-          (AgeAtEntry >= 45 & AgeAtEntry <= 54 & syso_age_cats["45 to 54"] %in% input$syso_age) |
-          (AgeAtEntry >= 55 & AgeAtEntry <= 64 & syso_age_cats["55 to 64"] %in% input$syso_age) |
-          (AgeAtEntry >= 65 & AgeAtEntry <= 74 & syso_age_cats["65 to 74"] %in% input$syso_age) |
+          (AgeAtEntry >= 0 & AgeAtEntry <= 12 &
+             syso_age_cats["0 to 12"] %in% input$syso_age) |
+          (AgeAtEntry >= 13 & AgeAtEntry <= 17 &
+             syso_age_cats["13 to 17"] %in% input$syso_age) |
+          (AgeAtEntry >= 18 & AgeAtEntry <= 20 &
+             syso_age_cats["18 to 21"] %in% input$syso_age) |
+          (AgeAtEntry >= 21 & AgeAtEntry <= 24 &
+             syso_age_cats["21 to 24"] %in% input$syso_age) |
+          (AgeAtEntry >= 25 & AgeAtEntry <= 34 &
+             syso_age_cats["25 to 34"] %in% input$syso_age) |
+          (AgeAtEntry >= 35 & AgeAtEntry <= 44 &
+             syso_age_cats["35 to 44"] %in% input$syso_age) |
+          (AgeAtEntry >= 45 & AgeAtEntry <= 54 &
+             syso_age_cats["45 to 54"] %in% input$syso_age) |
+          (AgeAtEntry >= 55 & AgeAtEntry <= 64 &
+             syso_age_cats["55 to 64"] %in% input$syso_age) |
+          (AgeAtEntry >= 65 & AgeAtEntry <= 74 &
+             syso_age_cats["65 to 74"] %in% input$syso_age) |
           (AgeAtEntry >= 75 & syso_age_cats["75 and older"] %in% input$syso_age)
       ) &
       # Special Populations
@@ -399,22 +408,38 @@ syso_detailBox <- reactive({
   names(syso_race_ethnicitys) <- gsub("Group [0-9]+\\.", "", names(syso_race_ethnicitys))
   
   list(
-    strong("Date Range: "), input$syso_date_range[1], " to ", input$syso_date_range[2], 
+    strong("Date Range: "),
+    input$syso_date_range[1],
+    " to ",
+    input$syso_date_range[2], 
     br(),
-    strong("Household Type: "), getNameByValue(syso_hh_types, input$syso_hh_type), " | ",
-    strong("Level of Detail: "), getNameByValue(syso_level_of_detail, input$syso_level_of_detail), " | ",
-    strong("Project Type: "), getNameByValue(syso_project_types, input$syso_project_type), 
+    strong("Household Type: "),
+    getNameByValue(syso_hh_types, input$syso_hh_type),
+    " | ",
+    strong("Level of Detail: "),
+    getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
+    " | ",
+    strong("Project Type: "),
+    getNameByValue(syso_project_types, input$syso_project_type), 
     br(),
-    strong("Age: "), if_else(
+    strong("Age: "),
+    if_else(
       setequal(syso_age_cats, input$syso_age),
       "All Ages",
       getNameByValue(syso_age_cats, input$syso_age)
-    ), " | ",
-    strong("Gender: "), getNameByValue(syso_gender_cats(), input$syso_gender), " | ",
-    strong("Race/Ethnicity: "), getNameByValue(syso_race_ethnicitys, input$syso_race_ethnicity), " | ",
-    strong("Special Populations: "), getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops), 
+    ),
+    " | ",
+    strong("Gender: "),
+    getNameByValue(syso_gender_cats(), input$syso_gender),
+    " | ",
+    strong("Race/Ethnicity: "),
+    getNameByValue(syso_race_ethnicitys, input$syso_race_ethnicity),
+    " | ",
+    strong("Special Populations: "),
+    getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops), 
     br(),
-    strong("Methodology Type: "), getNameByValue(syso_methodology_types, input$methodology_type) 
+    strong("Methodology Type: "),
+    getNameByValue(syso_methodology_types, input$methodology_type) 
   )
 })
 
@@ -423,8 +448,8 @@ syso_chartSubheader <- reactive({
     strong("Total Served: "), 
     formatC(
       nrow(system_df_people()),
-      format="d",
-      big.mark=","
+      format = "d",
+      big.mark = ","
     ),
     br()
   )
@@ -495,22 +520,15 @@ enrollments_crossing_report <- reactive({
 # get final people-level, inflow/outflow dataframe by joining the filtered----- 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 system_df_people <- reactive({
+  browser()
   # add inflow type and active enrollment typed used for system overview plots
-  system_df_enrl_filtered() %>%
-    inner_join(system_df_people_filtered(),
-               by="PersonalID") %>%
-    right_join(
-      enrollments_crossing_report()$eecr, 
-      by="PersonalID") %>%
-    left_join(
-      enrollments_crossing_report()$lecr, 
-      by="PersonalID") %>%
-    filter(
-      as.numeric(difftime(ExitDate, input$syso_date_range[1], unit="days"))/365 <= 2
-    ) %>%
-    mutate(
-      is_before_eecr = EntryDate < EntryDate_eecr
-    ) %>%
+  x <- system_df_enrl_filtered() %>%
+    inner_join(system_df_people_filtered(), by = "PersonalID") %>%
+    right_join(enrollments_crossing_report()$eecr, by = "PersonalID") %>%
+    left_join(enrollments_crossing_report()$lecr, by = "PersonalID") %>%
+    filter(as.numeric(difftime(ExitDate, input$syso_date_range[1], unit =
+                                 "days")) / 365 <= 2) %>%
+    mutate(is_before_eecr = EntryDate < EntryDate_eecr) %>%
     # create enrollment-level variables/flags that will be used to 
     # label people to be counted in the system activity charts
     group_by(PersonalID) %>%
