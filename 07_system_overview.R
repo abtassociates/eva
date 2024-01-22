@@ -133,26 +133,39 @@ system_df_enrl_flags <- system_df_prep %>%
     Destination,
     EnrollmentDateRange,
     AgeAtEntry,
-    RelationshipToHoH,
-    gender_cols,
-    race_cols
-  )
-
-# universe filters/enrollment-level filters -----------------------------------
-system_df_enrl_filtered <- reactive({
-  system_df_enrl_flags %>%
+    RelationshipToHoH#,
+    # gender_cols,
+    # race_cols
+  ) %>%
   group_by(HouseholdID) %>%
   mutate(
     Household_Type = case_when(
       all(is.na(AgeAtEntry)) ~ "Unknown Households",
-      all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~ "Adult-Only",
-      any(AgeAtEntry < 18, na.rm = TRUE) & any(AgeAtEntry >= 18, na.rm = TRUE) ~ "Adult-Child",
-      all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~ "Child-Only",
-      all(AgeAtEntry < 25 & AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~ "Youth and Young Adult",
+      all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
+        "Adult-Only",
+      any(AgeAtEntry < 18, na.rm = TRUE) & any(AgeAtEntry >= 18, na.rm = TRUE) ~
+        "Adult-Child",
+      all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
+        "Child-Only",
+      all(AgeAtEntry < 25 & AgeAtEntry >= 18, na.rm = TRUE) &
+        !any(is.na(AgeAtEntry)) ~ "Youth and Young Adult",
       TRUE ~ "All Households"
     )
   ) %>% 
-  ungroup() %>%
+  ungroup()
+
+system_df_client_flags <- Client %>%
+  mutate(AgeAtReportEnd = age_years(DOB, meta_HUDCSV_Export_End)) %>%
+  select(PersonalID,
+         all_of(race_cols),
+         all_of(gender_cols),
+         AgeAtReportEnd,
+         VeteranStatus
+         )
+
+# universe filters/enrollment-level filters -----------------------------------
+system_df_enrl_filtered <- reactive({
+  system_df_enrl_flags %>%
   filter(
     # Household Type
     (
@@ -163,10 +176,10 @@ system_df_enrl_filtered <- reactive({
       # Level of Detail
       (
         (input$syso_level_of_detail == 1) |
-          (input$syso_level_of_detail == 2 & (AgeAtEntry >= 18 | RelationshipToHoH == 1)) |
+          (input$syso_level_of_detail == 2 & 
+             (AgeAtEntry >= 18 | RelationshipToHoH == 1)) |
           (input$syso_level_of_detail == 3 & RelationshipToHoH == 1)
       ) & 
-      
       # Project Type
       (
         input$syso_project_type == 1 |
