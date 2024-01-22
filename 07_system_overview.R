@@ -165,6 +165,7 @@ system_df_client_flags <- Client %>%
 
 # universe filters/enrollment-level filters -----------------------------------
 system_df_enrl_filtered <- reactive({
+  browser()
   system_df_enrl_flags %>%
   filter(
     # Household Type
@@ -541,7 +542,6 @@ enrollments_crossing_report <- reactive({
 # get final people-level, inflow/outflow dataframe by joining the filtered----- 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 system_df_people <- reactive({
-browser()
   # add inflow type and active enrollment typed used for system overview plots
   system_df_enrl_filtered() %>%
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
