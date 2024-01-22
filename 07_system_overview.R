@@ -89,11 +89,10 @@ system_df_prep <- system_df_prep %>%
   left_join(hh_adjustments, join_by(EnrollmentID)) %>%
   relocate(CorrectedHoH, .after = RelationshipToHoH)
 
-# Enrollment-level flags. will help us categorize people
+# Enrollment-level flags. will help us categorize enrollments
 system_df_enrl_flags <- system_df_prep %>%
   mutate(
     EnrollmentDateRange = interval(EntryDate, coalesce(ExitDate, no_end_date)),
-    
     EnteredAsHomeless = !is.na(LivingSituation) &
       (
         LivingSituation %in% homeless_livingsituation |
@@ -154,6 +153,7 @@ system_df_enrl_flags <- system_df_prep %>%
   ) %>% 
   ungroup()
 
+# Client-level flags. will help us categorize people
 system_df_client_flags <- Client %>%
   mutate(AgeAtReportEnd = age_years(DOB, meta_HUDCSV_Export_End)) %>%
   select(PersonalID,
