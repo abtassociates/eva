@@ -215,9 +215,7 @@ rrh_no_subtype <- Project %>%
 # VSP with HMIS Participation ---------------------------------------------
 
 vsp_projects <- Project %>%
-  inner_join(Organization %>%
-               filter(VictimServiceProvider == 1),
-             by = "OrganizationID") %>%
+  filter(VictimServiceProvider == 1) %>%
   pull(ProjectID) %>%
   unique()
 
