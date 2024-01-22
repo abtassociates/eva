@@ -593,8 +593,12 @@ dashboardPage(
               "syso_date_range",
               "Date Range",
               format = "mm/dd/yyyy",
-              start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
-              end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today()))
+              start = if_else(isTRUE(getOption("shiny.testmode")),
+                              ymd("20231005"),
+                              ymd(today())),
+              end = if_else(isTRUE(getOption("shiny.testmode")),
+                            ymd("20231005"),
+                            ymd(today()))
             )),
             br(),
             h4("Universe Selectors"),
