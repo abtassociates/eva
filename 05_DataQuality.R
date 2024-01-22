@@ -26,7 +26,7 @@ logToConsole("Running Data Quality")
 base_dq_data <- Enrollment %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
-  left_join(Project %>% select(ProjectTimeID, ProjectName, OrganizationName),
+  left_join(ProjectSegments %>% select(ProjectTimeID, ProjectName, OrganizationName),
             by = "ProjectTimeID") %>%
   select(
     PersonalID,
