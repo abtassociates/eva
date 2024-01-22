@@ -24,6 +24,7 @@ system_df_prep <- EnrollmentAdjust %>%
               filter(DataCollectionStage == 1) %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
+  filter(ContinuumProject == 1) %>%
   select(
     ContinuumProject,
     CurrentlyFleeing,
@@ -107,11 +108,9 @@ system_df_enrl_flags <- system_df_prep %>%
     ,
     EntryStatusHomeless = EnteredAsHomeless |
       ProjectType %in% lh_project_types,
-    EnrolledHomeless = ContinuumProject == 1 &
-      ProjectType %in% project_types_enrolled_homeless &
+    EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless &
       LivingSituation %in% lh_livingsituation,
-    EnrolledHoused = ContinuumProject == 1 &
-      ProjectType %in% ph_project_types & 
+    EnrolledHoused = ProjectType %in% ph_project_types & 
       LivingSituation %in% homeless_livingsituation
   ) %>%
   select(
@@ -163,7 +162,6 @@ system_df_client_flags <- Client %>%
 
 # universe filters/enrollment-level filters -----------------------------------
 system_df_enrl_filtered <- reactive({
-  browser()
   system_df_enrl_flags %>%
   filter(
     # Household Type
