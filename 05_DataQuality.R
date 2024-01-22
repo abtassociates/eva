@@ -1020,8 +1020,7 @@ rm(income_subs)
 
 # Enrollment Active Outside Participating Dates ---------------------------
 
-enrollment_positions <- EnrollmentOutside %>%
-  filter(!EnrollmentvOperating %in% c("Inside")) %>%
+enrollment_positions <- EnrollmentAdjust %>%
   select(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating) %>%
   left_join(base_dq_data, by = c("EnrollmentID"))
 

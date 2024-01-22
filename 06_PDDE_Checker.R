@@ -54,7 +54,7 @@ operating_end_missing <- Enrollment %>%
 
   ) %>%
   ungroup() %>%
-  left_join(Project %>% 
+  left_join(Project0 %>% 
               select(ProjectID, ProjectName, OrganizationName, OperatingEndDate) %>%
               unique(), 
             by = "ProjectID") %>%
@@ -133,7 +133,7 @@ missing_inventory_record <- Project0 %>%
 # Inventory End > Operating End or Null
 activeInventory <- Inventory %>%
   left_join(
-    Project %>%
+    Project0 %>%
       select(
         ProjectID,
         OrganizationName,
