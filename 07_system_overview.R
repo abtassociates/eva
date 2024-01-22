@@ -1,5 +1,7 @@
 logToConsole("Running system overview")
 
+# using EnrollmentAdjust because that df doesn't contain enrollments that fall
+# outside periods of operation/participation
 system_df_prep <- EnrollmentAdjust %>%
   left_join(Project %>% 
               select(ProjectID,
@@ -13,10 +15,10 @@ system_df_prep <- EnrollmentAdjust %>%
             by = "OrganizationID") %>%
   left_join(Client %>%
               select(
-                PersonalID, 
-                VeteranStatus, 
-                all_of(gender_cols),
-                all_of(race_cols)
+                PersonalID,
+                VeteranStatus#,
+                # all_of(gender_cols),
+                # all_of(race_cols)
               ), by = "PersonalID") %>%
   left_join(HealthAndDV %>%
               filter(DataCollectionStage == 1) %>%
@@ -51,9 +53,9 @@ system_df_prep <- EnrollmentAdjust %>%
     RelationshipToHoH,
     RentalSubsidyType,
     TimesHomelessPastThreeYears,
-    VeteranStatus,
-    all_of(gender_cols),
-    all_of(race_cols)
+    VeteranStatus#,
+    # all_of(gender_cols),
+    # all_of(race_cols)
   )
 
 # corrected hohs ----------------------------------------------------------
@@ -104,14 +106,11 @@ system_df_enrl_flags <- system_df_prep %>%
           )
       )
     ,
-    
     EntryStatusHomeless = EnteredAsHomeless |
       ProjectType %in% lh_project_types,
- 
     EnrolledHomeless = ContinuumProject == 1 &
       ProjectType %in% project_types_enrolled_homeless &
       LivingSituation %in% lh_livingsituation,
-    
     EnrolledHoused = ContinuumProject == 1 &
       ProjectType %in% ph_project_types & 
       LivingSituation %in% homeless_livingsituation
