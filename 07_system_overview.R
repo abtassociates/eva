@@ -218,32 +218,30 @@ syso_spec_pops_cats <- reactive({
 
 # get filtered people-level system dataframe
 system_df_people_filtered <- reactive({
-  system_df_people <- 
-    system_df_enrl_flags[!duplicated(system_df_enrl_flags$PersonalID), ]
-  system_df_people %>%
+  system_df_client_flags %>%
     filter(
       # Age
       (
         setequal(syso_age_cats, input$syso_age) |
-          (AgeAtEntry >= 0 & AgeAtEntry <= 12 &
+          (AgeAtReportEnd >= 0 & AgeAtReportEnd <= 12 &
              syso_age_cats["0 to 12"] %in% input$syso_age) |
-          (AgeAtEntry >= 13 & AgeAtEntry <= 17 &
+          (AgeAtReportEnd >= 13 & AgeAtReportEnd <= 17 &
              syso_age_cats["13 to 17"] %in% input$syso_age) |
-          (AgeAtEntry >= 18 & AgeAtEntry <= 20 &
+          (AgeAtReportEnd >= 18 & AgeAtReportEnd <= 20 &
              syso_age_cats["18 to 21"] %in% input$syso_age) |
-          (AgeAtEntry >= 21 & AgeAtEntry <= 24 &
+          (AgeAtReportEnd >= 21 & AgeAtReportEnd <= 24 &
              syso_age_cats["21 to 24"] %in% input$syso_age) |
-          (AgeAtEntry >= 25 & AgeAtEntry <= 34 &
+          (AgeAtReportEnd >= 25 & AgeAtReportEnd <= 34 &
              syso_age_cats["25 to 34"] %in% input$syso_age) |
-          (AgeAtEntry >= 35 & AgeAtEntry <= 44 &
+          (AgeAtReportEnd >= 35 & AgeAtReportEnd <= 44 &
              syso_age_cats["35 to 44"] %in% input$syso_age) |
-          (AgeAtEntry >= 45 & AgeAtEntry <= 54 &
+          (AgeAtReportEnd >= 45 & AgeAtReportEnd <= 54 &
              syso_age_cats["45 to 54"] %in% input$syso_age) |
-          (AgeAtEntry >= 55 & AgeAtEntry <= 64 &
+          (AgeAtReportEnd >= 55 & AgeAtReportEnd <= 64 &
              syso_age_cats["55 to 64"] %in% input$syso_age) |
-          (AgeAtEntry >= 65 & AgeAtEntry <= 74 &
+          (AgeAtReportEnd >= 65 & AgeAtReportEnd <= 74 &
              syso_age_cats["65 to 74"] %in% input$syso_age) |
-          (AgeAtEntry >= 75 & syso_age_cats["75 and older"] %in% input$syso_age)
+          (AgeAtReportEnd >= 75 & syso_age_cats["75 and older"] %in% input$syso_age)
       ) &
       # Special Populations
       (
