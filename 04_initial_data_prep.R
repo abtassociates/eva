@@ -244,7 +244,6 @@ EnrollmentAdjust <- Enrollment %>%
       )
   ) 
   
-
 rm(HHMoveIn)
 
 # Only BedNight Services --------------------------------------------------

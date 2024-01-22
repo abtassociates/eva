@@ -14,6 +14,11 @@ dashboardPage(
                tabName = "tabLocalSettings"),
       menuItem("View Client Counts",
                   tabName = "tabClientCount"),
+      menuItem("System Performance",
+              menuSubItem("System Overview",
+                           tabName = "systemOverview"),
+              menuSubItem("System Exit Detail",
+                           tabName = "systemExitDetail")),
       menuItem("Assess Data Quality",
                menuSubItem("Check PDDEs",
                            tabName = "tabPDDE"),
@@ -569,6 +574,169 @@ dashboardPage(
           width = 12
         ))
       ),
+      tabItem(
+        tabName = "systemOverview",
+        fluidRow(box(htmlOutput("headerSystemOverview"), width = 12)),
+        fluidRow(box(
+          title = "Instructions",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          HTML("<h4>Placeholder</h4>")
+        )),
+        fluidRow(
+          box(
+            title = "Universe Filters",
+            width = 6,
+            id = "universe_filters",
+            column(12, dateRangeInput(
+              "syso_date_range",
+              "Date Range",
+              format = "mm/dd/yyyy",
+              start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
+              end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today()))
+            )),
+            br(),
+            h4("Universe Selectors"),
+            column(4, fluidRow(
+              br(),
+              pickerInput(
+                label = "Household Type",
+                inputId = "syso_hh_type",
+                choices = syso_hh_types,
+                selected = syso_hh_types[1],
+                width = "90%"
+              )
+            )),
+            column(4, fluidRow(
+              br(),
+              pickerInput(
+                label = "Level of Detail",
+                inputId = "syso_level_of_detail",
+                choices = syso_level_of_detail,
+                selected = syso_level_of_detail[1],
+                width = "90%"
+              )
+            )),
+            column(4, fluidRow(
+              # a(href="www.google.com", "Click for Project Type Information"),
+              pickerInput(
+                label = "Project Type",
+                inputId = "syso_project_type",
+                choices = syso_project_types,
+                selected = syso_project_types[1],
+                width = "90%"
+              )
+            ))
+          ),
+          box(
+            # div(class="box-header", h3("Advanced Settings", class="box-title")),
+            # div(class="box-body",
+            #   radioButtons("methodology_type",
+            #     HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
+            #     choices = syso_methodology_type,
+            #     width = "100%"
+            #   )),
+            # hr(),
+            # div(class="box-header", h3("Download Tabular View of System Overview Charts", class="box-title")),
+            # width = 6
+            box(
+              title = "Advanced Settings",
+              radioButtons("methodology_type",
+                HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
+                choices = syso_methodology_types,
+                width = "100%"
+              ),
+              width = 12
+            ),
+            box(
+              title = "Download Tabular View of System Overview Charts",
+              uiOutput("downloadSysOverviewTabBtn"),
+              width = 12
+            ),
+            width = 6
+          )
+        ),
+        fluidRow(
+          box(
+            id = "syso_header",
+            "System Inflow and Outflow",
+            width = 12
+          )
+        ),
+        fluidRow(
+          box(
+            title = "Age and Special Population Filters",
+            width = 6,
+            column(6, virtualSelectInput(
+              label = "Age",
+              selected = syso_age_cats,
+              inputId = "syso_age",
+              choices = syso_age_cats,
+              multiple = TRUE,
+              width = "100%",
+              selectAllText = "All Ages",
+              allOptionsSelectedText = "All Ages"
+            )),
+            column(6, pickerInput(
+              label = "Special Populations",
+              inputId = "syso_spec_pops",
+              choices = syso_spec_pops_people,
+              width = "100%",
+              selected = syso_spec_pops_people[1]
+            ))
+          ),
+          box(
+            title = "Gender and Race/Ethnicity Filters",
+            width = 6,
+            column(6, pickerInput(
+              label = "Gender",
+              inputId = "syso_gender",
+              choices = syso_gender_incl,
+              width = "100%",
+              selected = syso_gender_incl[1]
+            )),
+            column(6, pickerInput(
+              label = "Race/Ethnicity",
+              inputId = "syso_race_ethnicity",
+              choices = syso_race_ethnicity_incl,
+              width = "100%",
+              selected = syso_race_ethnicity_incl[1]
+            ))
+          )
+        ),
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Summary",
+            title = "System Activity",
+            tabPanel("Instructions", 
+              uiOutput("system_activity_instructions_ui")
+            ),
+            tabPanel("Detail", 
+              uiOutput("sys_act_detail_filter_selections"),
+              uiOutput("sys_act_detail_chart_subheader"),
+              plotOutput("sys_act_detail_ui_chart")
+            ),
+            tabPanel("Summary", 
+              uiOutput("sys_act_summary_filter_selections"),
+              uiOutput("sys_act_summary_chart_subheader"),
+              plotOutput("sys_act_summary_ui_chart")
+            ),
+            width = 12
+          )
+        )
+      ),
+      tabItem(
+        tabName = "systemExitDetail",
+        fluidRow(box(htmlOutput("headerSystemExit"), width = 12)),
+        fluidRow(
+          box(
+            width = 12,
+            HTML("<h2>Placeholder</h2>")
+          )
+        )
+      ), 
       tabItem(
         tabName = "tabPDDE",
         fluidRow(box(htmlOutput(
