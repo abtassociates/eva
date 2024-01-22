@@ -139,7 +139,7 @@ system_df_enrl_flags <- system_df_prep %>%
   group_by(HouseholdID) %>%
   mutate(
     Household_Type = case_when(
-      all(is.na(AgeAtEntry)) ~ "Unknown Households",
+      all(is.na(AgeAtEntry)) ~ "Unknown Household",
       all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
         "Adult-Only",
       any(AgeAtEntry < 18, na.rm = TRUE) & any(AgeAtEntry >= 18, na.rm = TRUE) ~
