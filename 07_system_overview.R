@@ -92,12 +92,18 @@ system_df_enrl_flags <- system_df_prep %>%
   mutate(
     EnrollmentDateRange = interval(EntryDate, coalesce(ExitDate, no_end_date)),
     
-    EnteredAsHomeless = LivingSituation %in% homeless_livingsituation |
-      (LivingSituation %in% not_homeless_livingsituation & # GD not sure about this
-          LOSUnderThreshold == 1 &
-          PreviousStreetESSH == 1) |
-      is.na(LivingSituation)
-      ,
+    EnteredAsHomeless = !is.na(LivingSituation) &
+      (
+        LivingSituation %in% homeless_livingsituation |
+          (
+            LivingSituation %in% institutional_livingsituation &
+              LOSUnderThreshold == 1 &
+              PreviousStreetESSH == 1 &
+              !is.na(LOSUnderThreshold) &
+              !is.na(PreviousStreetESSH)
+          )
+      )
+    ,
     
     EntryStatusHomeless = EnteredAsHomeless |
       ProjectType %in% lh_project_types,
