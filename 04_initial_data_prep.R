@@ -79,8 +79,11 @@ Project0 <<- project_prep %>%
          ProjectName,
          OrganizationID,
          OrganizationName,
+         OperatingStartDate,
+         OperatingEndDate,
          ProjectType,
-         RRHSubType) %>%
+         RRHSubType,
+         VictimServiceProvider) %>%
   unique()
 
 rm(project_prep)
