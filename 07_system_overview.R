@@ -131,21 +131,21 @@ system_df_enrl_flags <- system_df_prep %>%
     PreviousStreetESSH,
     Destination,
     EnrollmentDateRange,
-    AgeAtEntry,
-    RelationshipToHoH#,
+    AgeAtReportEnd,
+    CorrectedHoH#,
     # gender_cols,
     # race_cols
   ) %>%
   group_by(HouseholdID) %>%
   mutate(
     HouseholdType = case_when(
-      all(AgeAtEntry < 25 & AgeAtEntry >= 18, na.rm = TRUE) &
-        !any(is.na(AgeAtEntry)) ~ "Youth and Young Adult",
-      all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
+      all(AgeAtReportEnd < 25 & AgeAtReportEnd >= 18, na.rm = TRUE) &
+        !any(is.na(AgeAtReportEnd)) ~ "Youth and Young Adult",
+      all(AgeAtReportEnd >= 18, na.rm = TRUE) & !any(is.na(AgeAtReportEnd)) ~
         "Adult-Only",
-      any(AgeAtEntry < 18, na.rm = TRUE) & any(AgeAtEntry >= 18, na.rm = TRUE) ~
+      any(AgeAtReportEnd < 18, na.rm = TRUE) & any(AgeAtReportEnd >= 18, na.rm = TRUE) ~
         "Adult-Child",
-      all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
+      all(AgeAtReportEnd < 18, na.rm = TRUE) & !any(is.na(AgeAtReportEnd)) ~
         "Child-Only",
       TRUE ~ "Unknown Household"
     )
@@ -177,8 +177,8 @@ system_df_enrl_filtered <- reactive({
       (
         (input$syso_level_of_detail == 1) |
           (input$syso_level_of_detail == 2 & 
-             (AgeAtEntry >= 18 | RelationshipToHoH == 1)) |
-          (input$syso_level_of_detail == 3 & RelationshipToHoH == 1)
+             (AgeAtReportEnd >= 18 | CorrectedHoH == 1)) |
+          (input$syso_level_of_detail == 3 & CorrectedHoH == 1)
       ) & 
       # Project Type
       (
