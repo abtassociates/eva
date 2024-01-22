@@ -98,12 +98,12 @@ project_types_enrolled_homeless <- c(lh_project_types, 14)
 long_stayer_percentile_project_types <- c(0, 2, 3, 8, 9, 10, 12, 13)
 
 all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) # minus Other
+
 all_project_types2 <- c(0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14)
 
 # Funding Source Groupings -------------------------------------------------
 
 ssvf_fund_sources <- 33
-
 
 # Race Values --------------------------------------------------------------
 
