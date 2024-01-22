@@ -242,7 +242,7 @@ system_df_people_filtered <- reactive({
       ) &
       # Special Populations
       (
-        input$syso_spec_pops == 1
+        input$syso_spec_pops == 1 # no special populations (all)
         
         # # People
         # input$syso_level_of_detail %in% c(1,2) & (
@@ -427,7 +427,8 @@ syso_detailBox <- reactive({
   # remove group names from race/ethnicity filter
   # so we can use getNameByValue() to grab the selected option label
   syso_race_ethnicitys <- unlist(syso_race_ethnicity_cats())
-  names(syso_race_ethnicitys) <- gsub("Group [0-9]+\\.", "", names(syso_race_ethnicitys))
+  names(syso_race_ethnicitys) <- gsub("Group [0-9]+\\.", "",
+                                      names(syso_race_ethnicitys))
   
   list(
     strong("Date Range: "),
@@ -535,8 +536,6 @@ enrollments_crossing_report <- reactive({
     lecr = calc_ecr("max")
   ))
 })
-
-
 
 # AS TO GD: Please review this closely.
 # get final people-level, inflow/outflow dataframe by joining the filtered----- 

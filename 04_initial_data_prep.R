@@ -88,7 +88,6 @@ Project0 <<- project_prep %>%
 
 rm(project_prep)
 
-
 # Client ------------------------------------------------------------------
 
 Client <- Client %>%
