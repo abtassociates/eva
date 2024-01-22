@@ -529,20 +529,21 @@ enrollments_crossing_report <- reactive({
 # get final people-level, inflow/outflow dataframe by joining the filtered----- 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 system_df_people <- reactive({
-  browser()
+browser()
   # add inflow type and active enrollment typed used for system overview plots
   system_df_enrl_filtered() %>%
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
     inner_join(enrollments_crossing_report()$eecr, by = "PersonalID") %>%
     left_join(enrollments_crossing_report()$lecr, by = "PersonalID") %>%
-    filter(as.numeric(difftime(ExitDate, input$syso_date_range[1], unit =
-                                 "days")) / 365 <= 2) %>%
+    # remove enrollments where the exit is over 2 years prior to report start
+    filter(as.numeric(difftime(ExitDate, input$syso_date_range[1],
+                               unit = "days")) / 365 <= 2) %>%
     mutate(is_before_eecr = EntryDate < EntryDate_eecr) %>%
     # create enrollment-level variables/flags that will be used to 
     # label people to be counted in the system activity charts
     group_by(PersonalID) %>%
     mutate(
-      stay_in_lh = any(ProjectType %in% lh_project_types & is_before_eecr),
+      stay_in_lh = any(ProjectType %in% lh_project_types & is_before_eecr == TRUE),
       entered_as_homeless = any(EnteredAsHomeless & is_before_eecr),
       NoEnrollmentsToLHFor14DaysFromLECR = !any(
         as.numeric(difftime(ExitDate_lecr, EntryDate, "days")) <= -14 & 
@@ -553,10 +554,11 @@ system_df_people <- reactive({
         Destination_eecr %in% perm_destinations),
       
       reengaged_from_temporary = any(EntryStatusHomeless &
-        as.numeric(difftime(EntryDate_eecr, ExitDate, unit="days")) >= 14 &
+        as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
         !(Destination %in% perm_destinations))
     ) %>%
     ungroup() %>%
+    unique() %>%
     mutate(
       InflowType = case_when(
         #1) If project type is in (lh_project_types), then client is not newly homeless (0)
