@@ -88,11 +88,17 @@ Project0 <<- project_prep %>%
 
 rm(project_prep)
 
+
+# Client ------------------------------------------------------------------
+
+Client <- Client %>%
+  mutate(AgeAtReportEnd = age_years(DOB, meta_HUDCSV_Export_End))
+
 # Enrollment --------------------------------------------------------------
 # Truncating Enrollments based on Operating/Participating -----------------
 
 EnrollmentStaging <- Enrollment %>%
-  left_join(Client %>% select(PersonalID, DOB),
+  left_join(Client %>% select(PersonalID, DOB, AgeAtReportEnd),
             by = "PersonalID")%>%
   left_join(Exit %>%
               select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),

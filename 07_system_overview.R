@@ -25,7 +25,6 @@ system_df_prep <- EnrollmentAdjust %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
   select(
-    AgeAtReportEnd,
     ContinuumProject,
     CurrentlyFleeing,
     DateToStreetESSH,
@@ -53,7 +52,8 @@ system_df_prep <- EnrollmentAdjust %>%
     RelationshipToHoH,
     RentalSubsidyType,
     TimesHomelessPastThreeYears,
-    VeteranStatus#,
+    VeteranStatus,
+    AgeAtReportEnd#,
     # all_of(gender_cols),
     # all_of(race_cols)
   )
@@ -154,7 +154,6 @@ system_df_enrl_flags <- system_df_prep %>%
 
 # Client-level flags. will help us categorize people
 system_df_client_flags <- Client %>%
-  mutate(AgeAtReportEnd = age_years(DOB, meta_HUDCSV_Export_End)) %>%
   select(PersonalID,
          all_of(race_cols),
          all_of(gender_cols),
