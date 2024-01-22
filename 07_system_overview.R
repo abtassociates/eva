@@ -138,7 +138,7 @@ system_df_enrl_flags <- system_df_prep %>%
   ) %>%
   group_by(HouseholdID) %>%
   mutate(
-    Household_Type = case_when(
+    HouseholdType = case_when(
       all(AgeAtEntry < 25 & AgeAtEntry >= 18, na.rm = TRUE) &
         !any(is.na(AgeAtEntry)) ~ "Youth and Young Adult",
       all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
@@ -171,7 +171,7 @@ system_df_enrl_filtered <- reactive({
     (
       # "All Households" = 1, 
       input$syso_hh_type == 1 |
-        Household_Type == getNameByValue(syso_hh_types, input$syso_hh_type)
+        HouseholdType == getNameByValue(syso_hh_types, input$syso_hh_type)
     ) & 
       # Level of Detail
       (
