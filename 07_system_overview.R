@@ -25,7 +25,7 @@ system_df_prep <- EnrollmentAdjust %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
   select(
-    AgeAtEntry,
+    AgeAtReportEnd,
     ContinuumProject,
     CurrentlyFleeing,
     DateToStreetESSH,
@@ -64,9 +64,9 @@ hh_adjustments <- system_df_prep %>%
   mutate(VeteranStatus = if_else(VeteranStatus == 1 &
                                    !is.na(VeteranStatus), 1, 0),
          HoHAlready = if_else(RelationshipToHoH == 1 &
-                                AgeAtEntry > 17, 1, 0)) %>%
+                                AgeAtReportEnd > 17, 1, 0)) %>%
   group_by(HouseholdID, ProjectID) %>%
-  arrange(desc(HoHAlready), desc(VeteranStatus), desc(AgeAtEntry), PersonalID) %>%
+  arrange(desc(HoHAlready), desc(VeteranStatus), desc(AgeAtReportEnd), PersonalID) %>%
   mutate(Sequence = seq(n()),
          CorrectedHoH = if_else(Sequence == 1, 1, 0)) %>%
   ungroup() %>%
@@ -326,7 +326,8 @@ system_df_people_filtered <- reactive({
           
           # Black, African American, or African & Hispanic/Latina/e/o" = 6,
           (input$syso_race_ethnicity == 6 & 
-             no_cols_selected_except(., race_cols, c("BlackAfAmerican", "HispanicLatinaeo"))) |
+             no_cols_selected_except(., race_cols, c("BlackAfAmerican",
+                                                     "HispanicLatinaeo"))) |
           
           # Hispanic/Latina/e/o Alone" = 7,
           (input$syso_race_ethnicity == 7 & 
@@ -338,7 +339,8 @@ system_df_people_filtered <- reactive({
           
           # Middle Eastern or North African & Hispanic/Latina/e/o" = 9,
           (input$syso_race_ethnicity == 9 & 
-             no_cols_selected_except(., race_cols, c("MidEastNAfrican", "HispanicLatinaeo"))) |
+             no_cols_selected_except(., race_cols, c("MidEastNAfrican",
+                                                     "HispanicLatinaeo"))) |
           
           # Native Hawaiin or Pacific Islander Alone" = 10,
           (input$syso_race_ethnicity == 10 & 
@@ -346,7 +348,8 @@ system_df_people_filtered <- reactive({
           
           # Native Hawaiin or Pacific Islander & Hispanic/Latina/e/o" = 11,
           (input$syso_race_ethnicity == 11 & 
-             no_cols_selected_except(., race_cols, c("NativeHIPacific","HispanicLatinaeo"))) |
+             no_cols_selected_except(., race_cols, c("NativeHIPacific",
+                                                     "HispanicLatinaeo"))) |
           
           # White Alone" = 12,
           (input$syso_race_ethnicity == 12 & 
@@ -354,11 +357,13 @@ system_df_people_filtered <- reactive({
           
           # White & Hispanic/Latina/e/o" = 13,
           (input$syso_race_ethnicity == 13 & 
-             no_cols_selected_except(., race_cols, c("White", "HispanicLatinaeo"))) |
+             no_cols_selected_except(., race_cols, c("White",
+                                                     "HispanicLatinaeo"))) |
           
           # Multi-Racial (not Hispanic/Latina/e/o)" = 14,
           (input$syso_race_ethnicity == 14 & 
-             min_cols_selected_except(., race_cols, c("RaceNone", "HispanicLatinaeo"), 2)) |
+             min_cols_selected_except(., race_cols, c("RaceNone",
+                                                      "HispanicLatinaeo"), 2)) |
           
           # Multi-Racial & Hispanic/Latina/e/o" = 15),
           (input$syso_race_ethnicity == 15 & 
@@ -366,7 +371,8 @@ system_df_people_filtered <- reactive({
           
           # All People of Color" = 16,
           (input$syso_race_ethnicity == 16 & 
-             no_cols_selected_except(., race_cols, c("AmIndAKNative", "HispanicLatinaeo"))) |
+             no_cols_selected_except(., race_cols, c("AmIndAKNative",
+                                                     "HispanicLatinaeo"))) |
           
           # White Only" = 17
           (input$syso_race_ethnicity == 17 & 
