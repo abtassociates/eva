@@ -143,7 +143,7 @@ syso_hh_types <- c(
   "Adult-Child" = 3, 
   "Child-Only" = 4,
   "Youth and Young Adult" = 5, 
-  "Unknown Households" = 6
+  "Unknown Household" = 6
 )
 
 syso_level_of_detail <- c(
