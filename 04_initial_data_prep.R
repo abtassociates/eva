@@ -88,11 +88,6 @@ Project0 <<- project_prep %>%
 
 rm(project_prep)
 
-# Client ------------------------------------------------------------------
-
-Client <- Client %>%
-  mutate(AgeAtReportEnd = age_years(DOB, meta_HUDCSV_Export_End))
-
 # Enrollment --------------------------------------------------------------
 # Truncating Enrollments based on Operating/Participating -----------------
 

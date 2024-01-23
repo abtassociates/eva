@@ -125,9 +125,7 @@ system_df_enrl_flags <- system_df_prep %>%
     Destination,
     EnrollmentDateRange,
     AgeAtReportEnd,
-    CorrectedHoH#,
-    # gender_cols,
-    # race_cols
+    CorrectedHoH
   ) %>%
   group_by(HouseholdID) %>%
   mutate(
@@ -146,7 +144,9 @@ system_df_enrl_flags <- system_df_prep %>%
   ungroup()
 
 # Client-level flags. will help us categorize people
+
 system_df_client_flags <- Client %>%
+  mutate(AgeAtReportEnd = age_years(DOB, meta_HUDCSV_Export_End)) %>%
   select(PersonalID,
          all_of(race_cols),
          all_of(gender_cols),
