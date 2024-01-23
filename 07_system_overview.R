@@ -470,12 +470,39 @@ syso_chartSubheader <- reactive({
   )
 })
 
+# Early & Late Enrollments Crossing the Date Range ------------------------
 
 # determine the earliest and latest enrollments crossing the report
 # based on the enrollment-level filtered dataset
 # get the earliest enrollment cross the report range
 # this is needed for inflow types Returned from Permanent and Re-Engaged from Temporary/Unknown
 # in case there are overlapping enrollments (caught by DQ), take first
+
+# Function to calculate min and max enrollments crossing 
+# start and end of the report period, respectively
+
+calc_ecr <- function(crosstype, ecr_DT) {
+  # Calculate the minimum EnrollmentDateRange for each PersonalID
+  crosstype_ecr <- ecr_DT[, 
+                      .(crosstype_enrollmentstart = get(crosstype)(EntryDate)), 
+                      by = PersonalID]
+  
+  # Merge the minimum EnrollmentDateRange back to the original data table
+  ecr <- ecr_DT[
+    crosstype_ecr, 
+    on = .(PersonalID, EntryDate = crosstype_enrollmentstart)]
+  
+  # Use unique() to remove duplicates based on PersonalID
+  ecr <- unique(ecr, by = c("PersonalID"))
+  
+  # Rename columns except household ID and PersonalID
+  suffix <- ifelse(crosstype == "min", "_eecr", "_lecr")
+  names(ecr) <- paste0(names(ecr), suffix)
+  names(ecr)[names(ecr) == paste0("PersonalID", suffix)] <- "PersonalID"
+  
+  return(ecr)
+}
+# AS: maybe move to enrollment_filtered()
 enrollments_crossing_report <- reactive({
   ecr <- system_df_enrl_filtered() %>%
     filter(
@@ -500,32 +527,9 @@ enrollments_crossing_report <- reactive({
   
   ecr_DT <- as.data.table(ecr)
   
-  # Function to calculate min and max enrollments crossing 
-  # start and end of the report period, respectively
-  calc_ecr <- function(ctype) {
-    # Calculate the minimum EnrollmentDateRange for each PersonalID
-    ctype_ecr <- ecr_DT[, 
-                        .(ctype_enrollmentstart = get(ctype)(EntryDate)), 
-                        by = PersonalID]
-    
-    # Merge the minimum EnrollmentDateRange back to the original data table
-    ecr <- ecr_DT[
-      ctype_ecr, 
-      on = .(PersonalID, EntryDate = ctype_enrollmentstart)]
-    
-    # Use unique() to remove duplicates based on PersonalID
-    ecr <- unique(ecr, by = c("PersonalID"))
-    
-    # Rename columns except household ID and PersonalID
-    suffix <- ifelse(ctype == "min", "_eecr", "_lecr")
-    names(ecr) <- paste0(names(ecr), suffix)
-    names(ecr)[names(ecr) == paste0("PersonalID", suffix)] <- "PersonalID"
-    
-    return(ecr)
-  }
   return(list(
-    eecr = calc_ecr("min"),
-    lecr = calc_ecr("max")
+    eecr = calc_ecr("min", ecr_DT),
+    lecr = calc_ecr("max", ecr_DT)
   ))
 })
 
@@ -534,10 +538,11 @@ enrollments_crossing_report <- reactive({
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 system_df_people <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
+  browser()
   system_df_enrl_filtered() %>%
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
     inner_join(enrollments_crossing_report()$eecr, by = "PersonalID") %>%
-    left_join(enrollments_crossing_report()$lecr, by = "PersonalID") %>%
+    inner_join(enrollments_crossing_report()$lecr, by = "PersonalID") %>%
     # remove enrollments where the exit is over 2 years prior to report start
     filter(as.numeric(difftime(ExitDate, input$syso_date_range[1],
                                unit = "days")) / 365 <= 2) %>%
@@ -546,21 +551,21 @@ system_df_people <- reactive({
     # label people to be counted in the system activity charts
     group_by(PersonalID) %>%
     mutate(
-      stay_in_lh = any(ProjectType %in% lh_project_types & is_before_eecr == TRUE),
-      entered_as_homeless = any(EnteredAsHomeless & is_before_eecr),
+      lookback_stay_in_lh = any(ProjectType %in% lh_project_types & is_before_eecr == TRUE),
+      lookback_entered_as_homeless = any(EnteredAsHomeless & is_before_eecr),
       NoEnrollmentsToLHFor14DaysFromLECR = !any(
         as.numeric(difftime(ExitDate_lecr, EntryDate, "days")) <= -14 & 
           ProjectType %in% lh_project_types
       ),
       return_from_permanent = any(EntryStatusHomeless & 
-        as.numeric(difftime(EntryDate_eecr, ExitDate, unit="days")) >= 14 &
-        Destination_eecr %in% perm_destinations),
-      
+        as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
+        Destination %in% perm_destinations),
       reengaged_from_temporary = any(EntryStatusHomeless &
         as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
         !(Destination %in% perm_destinations))
     ) %>%
     ungroup() %>%
+    # consider dropping all the enrollment-level vars here
     unique() %>%
     mutate(
       InflowType = case_when(
@@ -569,7 +574,7 @@ system_df_people <- reactive({
         #3) If LivingSituation is in (non_hs_living_sit) and both LOSUnderThreshold and PreviousStreetESSH == 1, then client is not newly homeless (0)
         EnrolledHomeless_eecr ~ "Enrolled: Homeless",
         EnrolledHoused_eecr ~ "Enrolled: Housed",
-        !stay_in_lh & !entered_as_homeless ~ "Newly Homeless",
+        !lookback_stay_in_lh & !lookback_entered_as_homeless ~ "Newly Homeless",
         return_from_permanent ~ "Returned from \nPermanent",
         reengaged_from_temporary ~ "Re-engaged from \nTemporary/Unknown"
       ),
@@ -596,7 +601,7 @@ system_df_people <- reactive({
         ~ "Enrolled: Housed"
       )
     ) %>%
-    filter(!is.na(InflowType) | !is.na(OutflowType)) %>%
+    filter(!is.na(InflowType) & !is.na(OutflowType)) %>%
     select(
       PersonalID,
       InflowType,
