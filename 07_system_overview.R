@@ -82,10 +82,12 @@ system_df_prep <- system_df_prep %>%
   left_join(hh_adjustments, join_by(EnrollmentID)) %>%
   relocate(CorrectedHoH, .after = RelationshipToHoH)
 
+rm(hh_adjustments)
+
 # Enrollment-level flags. will help us categorize enrollments
 system_df_enrl_flags <- system_df_prep %>%
   mutate(
-    EnrollmentDateRange = interval(EntryDate, coalesce(ExitDate, no_end_date)),
+    EnrollmentDateRange = interval(EntryDate, ExitAdjust),
     EnteredAsHomeless = !is.na(LivingSituation) &
       (
         LivingSituation %in% homeless_livingsituation |
