@@ -8,25 +8,20 @@ system_df_prep <- EnrollmentAdjust %>%
                      ProjectName,
                      OrganizationID,
                      RRHSubType,
-                     ContinuumProject) %>%
+                     ContinuumProject),
+            join_by(ProjectID)) %>%
+  left_join(Organization %>%
+              select(OrganizationID, OrganizationName) %>%
               unique(),
-            by = "ProjectID") %>%
-  left_join(Organization %>% select(OrganizationID, OrganizationName),
             by = "OrganizationID") %>%
-  left_join(Client %>%
-              select(
-                PersonalID,
-                VeteranStatus#,
-                # all_of(gender_cols),
-                # all_of(race_cols)
-              ), by = "PersonalID") %>%
+  left_join(Client %>% select(PersonalID, VeteranStatus), by = "PersonalID") %>%
   left_join(HealthAndDV %>%
               filter(DataCollectionStage == 1) %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
   filter(ContinuumProject == 1) %>%
   select(
-    ContinuumProject,
+    AgeAtReportEnd,
     CurrentlyFleeing,
     DateToStreetESSH,
     Destination,
@@ -53,10 +48,7 @@ system_df_prep <- EnrollmentAdjust %>%
     RelationshipToHoH,
     RentalSubsidyType,
     TimesHomelessPastThreeYears,
-    VeteranStatus,
-    AgeAtReportEnd#,
-    # all_of(gender_cols),
-    # all_of(race_cols)
+    VeteranStatus
   )
 
 # corrected hohs ----------------------------------------------------------
