@@ -1,6 +1,9 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "01-24-2024", "Corrected 'No Inventory Records' logic so that it does not flag
+    RRH-SSO projects",
+    
     "12-14-2023", "Eva now filters out records in any csv file that has a value
     in the DateDeleted column.",
     
