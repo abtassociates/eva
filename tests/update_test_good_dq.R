@@ -68,7 +68,7 @@ random_project <- Inventory %>%
   filter(BedInventory > 0) %>%
   semi_join(
     Project %>% 
-      filter(ProjectType == 13), 
+      filter(ProjectType == 13 & RRHSubType != 1), 
     by = "ProjectID") %>%
   sample_n(1) %>%
   pull(ProjectID)
