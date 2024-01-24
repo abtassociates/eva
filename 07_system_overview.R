@@ -1,5 +1,11 @@
 logToConsole("Running system overview")
 
+system_person_ages <- EnrollmentAdjust %>%
+  group_by(PersonalID) %>%
+  slice_max(AgeAtEntry, na_rm = TRUE, with_ties = FALSE) %>%
+  ungroup() %>%
+  select(PersonalID, "MostRecentAgeAtEntry" = AgeAtEntry)
+
 # using EnrollmentAdjust because that df doesn't contain enrollments that fall
 # outside periods of operation/participation
 system_df_prep <- EnrollmentAdjust %>%
@@ -14,14 +20,16 @@ system_df_prep <- EnrollmentAdjust %>%
               select(OrganizationID, OrganizationName) %>%
               unique(),
             by = "OrganizationID") %>%
-  left_join(Client %>% select(PersonalID, VeteranStatus), by = "PersonalID") %>%
+  left_join(Client %>%
+              select(PersonalID, VeteranStatus), by = "PersonalID") %>%
   left_join(HealthAndDV %>%
               filter(DataCollectionStage == 1) %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
+  left_join(system_person_ages, join_by(PersonalID)) %>%
   filter(ContinuumProject == 1) %>%
   select(
-    AgeAtReportEnd,
+    AgeAtEntry,
     CurrentlyFleeing,
     DateToStreetESSH,
     Destination,
@@ -38,6 +46,7 @@ system_df_prep <- EnrollmentAdjust %>%
     LivingSituation,
     MoveInDateAdjust,
     MonthsHomelessPastThreeYears,
+    MostRecentAgeAtEntry,
     OrganizationName,
     PersonalID,
     PreviousStreetESSH,
@@ -57,9 +66,9 @@ hh_adjustments <- system_df_prep %>%
   mutate(VeteranStatus = if_else(VeteranStatus == 1 &
                                    !is.na(VeteranStatus), 1, 0),
          HoHAlready = if_else(RelationshipToHoH == 1 &
-                                AgeAtReportEnd > 17, 1, 0)) %>%
+                                AgeAtEntry > 17, 1, 0)) %>%
   group_by(HouseholdID, ProjectID) %>%
-  arrange(desc(HoHAlready), desc(VeteranStatus), desc(AgeAtReportEnd), PersonalID) %>%
+  arrange(desc(HoHAlready), desc(VeteranStatus), desc(AgeAtEntry), PersonalID) %>%
   mutate(Sequence = seq(n()),
          CorrectedHoH = if_else(Sequence == 1, 1, 0)) %>%
   ungroup() %>%
@@ -88,7 +97,7 @@ rm(hh_adjustments)
 system_df_enrl_flags <- system_df_prep %>%
   mutate(
     EnrollmentDateRange = interval(EntryDate, ExitAdjust),
-    EnteredAsHomeless = !is.na(LivingSituation) &
+    lh_prior_livingsituation = !is.na(LivingSituation) &
       (
         LivingSituation %in% homeless_livingsituation |
           (
@@ -168,7 +177,7 @@ system_df_enrl_filtered <- reactive({
       (
         (input$syso_level_of_detail == 1) |
           (input$syso_level_of_detail == 2 & 
-             (AgeAtReportEnd >= 18 | CorrectedHoH == 1)) |
+             (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
           (input$syso_level_of_detail == 3 & CorrectedHoH == 1)
       ) & 
       # Project Type
@@ -214,25 +223,26 @@ system_df_people_filtered <- reactive({
       # Age
       (
         setequal(syso_age_cats, input$syso_age) |
-          (AgeAtReportEnd >= 0 & AgeAtReportEnd <= 12 &
+          (MostRecentAgeAtEntry >= 0 & MostRecentAgeAtEntry <= 12 &
              syso_age_cats["0 to 12"] %in% input$syso_age) |
-          (AgeAtReportEnd >= 13 & AgeAtReportEnd <= 17 &
+          (MostRecentAgeAtEntry >= 13 & MostRecentAgeAtEntry <= 17 &
              syso_age_cats["13 to 17"] %in% input$syso_age) |
-          (AgeAtReportEnd >= 18 & AgeAtReportEnd <= 20 &
+          (MostRecentAgeAtEntry >= 18 & MostRecentAgeAtEntry <= 20 &
              syso_age_cats["18 to 21"] %in% input$syso_age) |
-          (AgeAtReportEnd >= 21 & AgeAtReportEnd <= 24 &
+          (MostRecentAgeAtEntry >= 21 & MostRecentAgeAtEntry <= 24 &
              syso_age_cats["21 to 24"] %in% input$syso_age) |
-          (AgeAtReportEnd >= 25 & AgeAtReportEnd <= 34 &
+          (MostRecentAgeAtEntry >= 25 & MostRecentAgeAtEntry <= 34 &
              syso_age_cats["25 to 34"] %in% input$syso_age) |
-          (AgeAtReportEnd >= 35 & AgeAtReportEnd <= 44 &
+          (MostRecentAgeAtEntry >= 35 & MostRecentAgeAtEntry <= 44 &
              syso_age_cats["35 to 44"] %in% input$syso_age) |
-          (AgeAtReportEnd >= 45 & AgeAtReportEnd <= 54 &
+          (MostRecentAgeAtEntry >= 45 & MostRecentAgeAtEntry <= 54 &
              syso_age_cats["45 to 54"] %in% input$syso_age) |
-          (AgeAtReportEnd >= 55 & AgeAtReportEnd <= 64 &
+          (MostRecentAgeAtEntry >= 55 & MostRecentAgeAtEntry <= 64 &
              syso_age_cats["55 to 64"] %in% input$syso_age) |
-          (AgeAtReportEnd >= 65 & AgeAtReportEnd <= 74 &
+          (MostRecentAgeAtEntry >= 65 & MostRecentAgeAtEntry <= 74 &
              syso_age_cats["65 to 74"] %in% input$syso_age) |
-          (AgeAtReportEnd >= 75 & syso_age_cats["75 and older"] %in% input$syso_age)
+          (MostRecentAgeAtEntry >= 75 &
+             syso_age_cats["75 and older"] %in% input$syso_age)
       ) &
       # Special Populations
       (
@@ -540,7 +550,7 @@ enrollments_crossing_report <- reactive({
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 system_df_people <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
-  browser()
+  # browser()
   system_df_enrl_filtered() %>%
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
     inner_join(enrollments_crossing_report()$eecr, by = "PersonalID") %>%
