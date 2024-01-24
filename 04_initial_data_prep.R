@@ -92,7 +92,7 @@ rm(project_prep)
 # Truncating Enrollments based on Operating/Participating -----------------
 
 EnrollmentStaging <- Enrollment %>%
-  left_join(Client %>% select(PersonalID, DOB, AgeAtReportEnd),
+  left_join(Client %>% select(PersonalID, DOB),
             by = "PersonalID")%>%
   left_join(Exit %>%
               select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
