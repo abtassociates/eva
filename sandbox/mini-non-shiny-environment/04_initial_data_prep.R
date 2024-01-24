@@ -86,7 +86,12 @@ if("ProjectTimeID" %in% colnames(ProjectsInHMIS)){
 
 # This dataset is used when we need an unduplicated concise df for project
 Project0 <<- Project %>% 
-  select(ProjectID, ProjectName, OrganizationID, OrganizationName, ProjectType) %>%
+  select(ProjectID,
+         ProjectName,
+         OrganizationID,
+         OrganizationName,
+         ProjectType,
+         RRHSubType) %>%
   unique()
 
 # Enrollment --------------------------------------------------------------

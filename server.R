@@ -59,10 +59,19 @@ function(input, output, session) {
     logMetadata("Timed out")
     session$reload()
   })
-
+  
+  output$fileInfo <- renderUI({
+    HTML("<p>Please upload your hashed HMIS CSV Export!</p>")
+    if(is.null(input$imported)) return("")
+  }) 
+  
 # Run scripts on upload ---------------------------------------------------
   
   observeEvent(input$imported, {
+    
+    output$fileInfo <- renderUI({
+      return("")
+    }) 
     valid_file(0)
     source("00_initially_valid_import.R", local = TRUE)
     
