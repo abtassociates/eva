@@ -1,12 +1,15 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "01-24-2024", "If a project has an Operating or Participating end date in 
+    the future Eva will not flag these enrollments as Enrollment Crosses 
+    Operating/Participating End errors.",
 
     "01-24-2024", "Corrected 'No Inventory Records' logic so that it does not flag
-    RRH-SSO projects",
+    RRH-SSO projects.",
 
     "01-24-2024", "Added upload progress display text so it's clear Eva is 
-    working.",
+    working and not freezing.",
     
     "12-14-2023", "Eva now filters out records in any csv file that has a value
     in the DateDeleted column.",
