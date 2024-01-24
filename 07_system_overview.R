@@ -109,12 +109,19 @@ system_df_enrl_flags <- system_df_prep %>%
           )
       )
     ,
-    EntryStatusHomeless = EnteredAsHomeless |
+    lh_at_entry = lh_prior_livingsituation == TRUE |
       ProjectType %in% lh_project_types,
     EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless &
       LivingSituation %in% lh_livingsituation,
     EnrolledHoused = ProjectType %in% ph_project_types & 
-      LivingSituation %in% homeless_livingsituation
+      LivingSituation %in% homeless_livingsituation,
+    EnrolledAtStart = case_when(
+      ProjectType %in% project_types_enrolled_homeless &
+        LivingSituation %in% lh_livingsituation ~ "EnrolledHomeless",
+      ProjectType %in% ph_project_types & 
+        LivingSituation %in% homeless_livingsituation ~ "EnrolledHoused",
+      TRUE ~ "something's wrong"
+    )
   ) %>%
   select(
     EnrollmentID, 
@@ -123,8 +130,8 @@ system_df_enrl_flags <- system_df_prep %>%
     EntryDate, 
     ExitDate, 
     ProjectType, 
-    EnteredAsHomeless,
-    EntryStatusHomeless,
+    lh_prior_livingsituation,
+    lh_at_entry,
     EnrolledHomeless,
     EnrolledHoused,
     MoveInDateAdjust,
@@ -133,19 +140,19 @@ system_df_enrl_flags <- system_df_prep %>%
     PreviousStreetESSH,
     Destination,
     EnrollmentDateRange,
-    AgeAtReportEnd,
+    AgeAtEntry,
     CorrectedHoH
   ) %>%
   group_by(HouseholdID) %>%
   mutate(
     HouseholdType = case_when(
-      all(AgeAtReportEnd < 25 & AgeAtReportEnd >= 18, na.rm = TRUE) &
-        !any(is.na(AgeAtReportEnd)) ~ "Youth and Young Adult",
-      all(AgeAtReportEnd >= 18, na.rm = TRUE) & !any(is.na(AgeAtReportEnd)) ~
+      all(AgeAtEntry < 25 & AgeAtEntry >= 18, na.rm = TRUE) &
+        !any(is.na(AgeAtEntry)) ~ "Youth and Young Adult",
+      all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
         "Adult-Only",
-      any(AgeAtReportEnd < 18, na.rm = TRUE) & any(AgeAtReportEnd >= 18, na.rm = TRUE) ~
+      any(AgeAtEntry < 18, na.rm = TRUE) & any(AgeAtEntry >= 18, na.rm = TRUE) ~
         "Adult-Child",
-      all(AgeAtReportEnd < 18, na.rm = TRUE) & !any(is.na(AgeAtReportEnd)) ~
+      all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
         "Child-Only",
       TRUE ~ "Unknown Household"
     )
@@ -155,11 +162,9 @@ system_df_enrl_flags <- system_df_prep %>%
 # Client-level flags. will help us categorize people
 
 system_df_client_flags <- Client %>%
-  mutate(AgeAtReportEnd = age_years(DOB, meta_HUDCSV_Export_End)) %>%
   select(PersonalID,
          all_of(race_cols),
          all_of(gender_cols),
-         AgeAtReportEnd,
          VeteranStatus
          )
 
@@ -529,10 +534,10 @@ enrollments_crossing_report <- reactive({
       Destination, 
       ExitDate,
       EntryDate,
-      EnteredAsHomeless,
+      lh_prior_livingsituation,
       EnrolledHomeless,
       EnrolledHoused,
-      EntryStatusHomeless,
+      lh_at_entry,
       MoveInDateAdjust,
       ProjectType
     )
@@ -564,15 +569,15 @@ system_df_people <- reactive({
     group_by(PersonalID) %>%
     mutate(
       lookback_stay_in_lh = any(ProjectType %in% lh_project_types & is_before_eecr == TRUE),
-      lookback_entered_as_homeless = any(EnteredAsHomeless & is_before_eecr),
+      lookback_entered_as_homeless = any(lh_prior_livingsituation & is_before_eecr),
       NoEnrollmentsToLHFor14DaysFromLECR = !any(
         as.numeric(difftime(ExitDate_lecr, EntryDate, "days")) <= -14 & 
           ProjectType %in% lh_project_types
       ),
-      return_from_permanent = any(EntryStatusHomeless & 
+      return_from_permanent = any(lh_at_entry == TRUE & 
         as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
         Destination %in% perm_destinations),
-      reengaged_from_temporary = any(EntryStatusHomeless &
+      reengaged_from_temporary = any(lh_at_entry == TRUE &
         as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
         !(Destination %in% perm_destinations))
     ) %>%
