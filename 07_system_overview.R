@@ -141,6 +141,7 @@ system_df_enrl_flags <- system_df_prep %>%
     Destination,
     EnrollmentDateRange,
     AgeAtEntry,
+    MostRecentAgeAtEntry,
     CorrectedHoH
   ) %>%
   group_by(HouseholdID) %>%
@@ -166,7 +167,8 @@ system_df_client_flags <- Client %>%
          all_of(race_cols),
          all_of(gender_cols),
          VeteranStatus
-         )
+         ) %>%
+  left_join(system_person_ages, join_by(PersonalID))
 
 # universe filters/enrollment-level filters -----------------------------------
 system_df_enrl_filtered <- reactive({
