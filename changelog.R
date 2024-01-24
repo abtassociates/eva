@@ -1,6 +1,10 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+
+    "01-24-2024", "Corrected 'No Inventory Records' logic so that it does not flag
+    RRH-SSO projects",
+
     "01-24-2024", "Added upload progress display text so it's clear Eva is 
     working.",
     
