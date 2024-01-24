@@ -210,3 +210,10 @@ a:hover {
 #shiny-tab-tabChangelog td:first-child {
   white-space:nowrap;
 }
+
+#fileInfo.recalculating::before {
+  content: "Your file is being processed";
+}
+#fileInfo.recalculating p {
+  display: none;
+}
