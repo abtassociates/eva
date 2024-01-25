@@ -557,7 +557,7 @@ enrollments_crossing_report <- reactive({
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 system_df_people <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
-  # browser()
+  browser()
   system_df_enrl_filtered() %>%
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
     inner_join(enrollments_crossing_report()$eecr, by = "PersonalID") %>%
@@ -599,28 +599,32 @@ system_df_people <- reactive({
       ),
       
       OutflowType = case_when(
-        # The client has exited from an enrollment with a permanent destination 
-        # and does not have any other enrollments (aside from RRH/PSH with a move-in date?) 
+        # The client has exited from an enrollment with a permanent destination
+        # and does not have any other enrollments (aside from RRH/PSH with a move-in date?)
         # in emergency shelter, transitional housing, safe haven, or street outreach for at least 14 days following.
-        Destination_lecr %in% perm_destinations & 
-          NoEnrollmentsToLHFor14DaysFromLECR
+        Destination_lecr %in% perm_destinations &
+          !is.na(ExitDate_lecr)# &
+          # NoEnrollmentsToLHFor14DaysFromLECR == TRUE
         ~ "Permanent Destination",
         
-        # The client has exited from an enrollment with a temporary/unknown destination 
-        # and does not have any other enrollments (aside from RRH/PSH with a move-in date?) 
-        # in emergency shelter, transitional housing, safe haven, or street outreach for at least 14 days following.
-        !(Destination_lecr %in% perm_destinations) & 
-          NoEnrollmentsToLHFor14DaysFromLECR
-        ~ "Temporary/Unknown \nDestination",
+        # The client has exited from an enrollment with a temporary/unknown destination
+        # and does not have any other enrollments (aside from RRH/PSH with a move-in date?)
+        # in emergency shelter, transitional housing, safe haven, or street outreach for at least 14 days following.!(Destination_lecr %in% perm_destinations) &
+        !is.na(ExitDate_lecr) &
+          !Destination_lecr %in% perm_destinations
+          ~ "Non-Permanent \nDestination",
         
-        EnrolledHomeless_lecr
+        EnrolledHomeless_lecr == TRUE & is.na(ExitDate_lecr) &
+          HouseholdID == HouseholdID_lecr
         ~ "Enrolled: Homeless",
         
-        EnrolledHoused_lecr
-        ~ "Enrolled: Housed"
+        EnrolledHoused_lecr == TRUE & is.na(ExitDate_lecr) &
+          HouseholdID == HouseholdID_lecr
+        ~ "Enrolled: Housed",
+        TRUE ~ "something's wrong"
       )
     ) %>%
-    filter(!is.na(InflowType) & !is.na(OutflowType)) %>%
+    filter(HouseholdID == HouseholdID_eecr | HouseholdID == HouseholdID_lecr) %>%
     select(
       PersonalID,
       InflowType,
