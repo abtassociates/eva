@@ -19,7 +19,7 @@ x.axis.var_detail_values <- reactive({
     "Returned from \nPermanent", 
     "Re-engaged from \nTemporary or Unknown",
     "Permanent Destination",
-    "Temporary/Unknown \nDestination",
+    "Non-Permanent \nDestination",
     active_as_of_end()
   )
 })
@@ -36,9 +36,9 @@ cat.var_detail_values <- c(
   "Enrolled: Housed", 
   "Newly Homeless", 
   "Returned from \nPermanent", 
-  "Re-engaged from \nTemporary or Unknown",
+  "Re-engaged from \nNon-Permanent",
   "Permanent Destination",
-  "Temporary/Unknown \nDestination"
+  "Non-Permanent \nDestination"
 )
 
 system_activity_prep <- reactive({
