@@ -600,12 +600,16 @@ enrollments_crossing_report <- reactive({
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 system_df_people <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
-  browser()
+  # browser()
+  
+  eecr_lecr <- full_join(
+    enrollments_crossing_report()$eecr,
+    enrollments_crossing_report()$lecr,
+    join_by(PersonalID))
+  
   universe <- system_df_enrl_filtered() %>%
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
-    left_join(enrollments_crossing_report()$eecr,
-              join_by(PersonalID)) %>%
-    left_join(enrollments_crossing_report()$lecr,
+    left_join(eecr_lecr,
               join_by(PersonalID)) %>%
     # remove enrollments where the exit is over 2 years prior to report start
     filter(as.numeric(difftime(ExitDate, input$syso_date_range[1],
