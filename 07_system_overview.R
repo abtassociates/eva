@@ -603,8 +603,10 @@ system_df_people <- reactive({
   browser()
   universe <- system_df_enrl_filtered() %>%
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
-    inner_join(enrollments_crossing_report()$eecr, by = "PersonalID") %>%
-    inner_join(enrollments_crossing_report()$lecr, by = "PersonalID") %>%
+    left_join(enrollments_crossing_report()$eecr,
+              join_by(PersonalID)) %>%
+    left_join(enrollments_crossing_report()$lecr,
+              join_by(PersonalID)) %>%
     # remove enrollments where the exit is over 2 years prior to report start
     filter(as.numeric(difftime(ExitDate, input$syso_date_range[1],
                                unit = "days")) / 365 <= 2) %>%
@@ -613,8 +615,12 @@ system_df_people <- reactive({
     # label people to be counted in the system activity charts
     group_by(PersonalID) %>%
     mutate(
-      lookback_stay_in_lh = any(ProjectType %in% lh_project_types & is_before_eecr == TRUE),
-      lookback_entered_as_homeless = any(lh_prior_livingsituation & is_before_eecr),
+      lookback_stay_in_lh = 
+        any(ProjectType %in% lh_project_types &
+              is_before_eecr == TRUE),
+      lookback_entered_as_homeless = 
+        any(lh_prior_livingsituation &
+              is_before_eecr == TRUE),
       NoEnrollmentsToLHFor14DaysFromLECR = !any(
         as.numeric(difftime(ExitDate_lecr, EntryDate, "days")) <= -14 & 
           ProjectType %in% lh_project_types
