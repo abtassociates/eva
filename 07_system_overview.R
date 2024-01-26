@@ -258,8 +258,16 @@ syso_spec_pops_cats <- reactive({
 
 # get filtered people-level system dataframe
 system_df_people_filtered <- reactive({
+  
+  clients_in_report_date_range <- system_df_prep %>%
+    filter(
+      EntryDate <= input$syso_date_range[2] &
+        ExitAdjust >= input$syso_date_range[1]) %>%
+    pull(PersonalID)
+  
   system_df_client_flags %>%
     filter(
+      PersonalID %in% c(clients_in_report_date_range) &
       # Age
       (
         setequal(syso_age_cats, input$syso_age) |
