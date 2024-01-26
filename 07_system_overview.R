@@ -591,7 +591,7 @@ enrollments_crossing_report <- reactive({
 system_df_people <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
   browser()
-  system_df_enrl_filtered() %>%
+  universe <- system_df_enrl_filtered() %>%
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
     inner_join(enrollments_crossing_report()$eecr, by = "PersonalID") %>%
     inner_join(enrollments_crossing_report()$lecr, by = "PersonalID") %>%
@@ -610,70 +610,64 @@ system_df_people <- reactive({
           ProjectType %in% lh_project_types
       ),
       return_from_permanent = any(lh_at_entry == TRUE & 
-        as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
-        Destination %in% perm_destinations),
+                                    as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
+                                    Destination %in% perm_destinations),
       reengaged_from_temporary = any(lh_at_entry == TRUE &
-        as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
-        !(Destination %in% perm_destinations))
+                                       as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
+                                       !(Destination %in% perm_destinations))
     ) %>%
-    ungroup() %>%
-    # consider dropping all the enrollment-level vars here
+    ungroup()
+  
+  inflow <- universe %>%
+    select(PersonalID, lookback_stay_in_lh, lookback_entered_as_homeless,
+           NoEnrollmentsToLHFor14DaysFromLECR, return_from_permanent,
+           reengaged_from_temporary, EnrolledHomeless_eecr, EnrolledHoused_eecr) %>%
     unique() %>%
-    mutate(
-      InflowType = case_when(
-        #1) If project type is in (lh_project_types), then client is not newly homeless (0)
-        #2) If LivingSituation is in (hs_living_situation), then client is not newly homeless (0)
-        #3) If LivingSituation is in (non_hs_living_sit) and both LOSUnderThreshold and PreviousStreetESSH == 1, then client is not newly homeless (0)
-        EnrolledHomeless_eecr == TRUE &
-          HouseholdID == HouseholdID_eecr ~ "Enrolled: Homeless",
-        EnrolledHoused_eecr == TRUE &
-          HouseholdID == HouseholdID_eecr ~ "Enrolled: Housed",
-        lookback_stay_in_lh == FALSE &
-          lookback_entered_as_homeless == FALSE &
-          HouseholdID == HouseholdID_eecr ~ "Newly Homeless",
-        return_from_permanent == TRUE &
-          HouseholdID == HouseholdID_eecr ~ "Returned from \nPermanent",
-        reengaged_from_temporary == TRUE &
-          HouseholdID == HouseholdID_eecr ~ "Re-engaged from \nTemporary/Unknown",
-        TRUE ~ "enrollment is not first in reporting period"
-      ),
+    mutate(InflowType = case_when(
+      #1) If project type is in (lh_project_types), then client is not newly homeless (0)
+      #2) If LivingSituation is in (hs_living_situation), then client is not newly homeless (0)
+      #3) If LivingSituation is in (non_hs_living_sit) and both LOSUnderThreshold and PreviousStreetESSH == 1, then client is not newly homeless (0)
+      EnrolledHomeless_eecr == TRUE ~ "Enrolled: Homeless",
+      EnrolledHoused_eecr == TRUE ~ "Enrolled: Housed",
+      lookback_stay_in_lh == FALSE &
+        lookback_entered_as_homeless == FALSE ~ "Newly Homeless",
+      return_from_permanent == TRUE ~ "Returned from \nPermanent",
+      reengaged_from_temporary == TRUE ~ "Re-engaged from \nTemporary/Unknown",
+      TRUE ~ "something's wrong"
+    )) %>%
+    select(PersonalID, InflowType)
+  
+  outflow <- universe %>%
+    select(PersonalID, Destination_lecr, ExitDate_lecr, EnrolledHomeless_lecr,
+           EnrolledHoused_lecr) %>%
+    unique() %>%
+    mutate(OutflowType = case_when(
+      # The client has exited from an enrollment with a permanent destination
+      # and does not have any other enrollments (aside from RRH/PSH with a move-in date?)
+      # in emergency shelter, transitional housing, safe haven, or street outreach for at least 14 days following.
+      Destination_lecr %in% perm_destinations &
+        !is.na(ExitDate_lecr)# &
+      # NoEnrollmentsToLHFor14DaysFromLECR == TRUE
+      ~ "Permanent Destination",
       
-      OutflowType = case_when(
-        # The client has exited from an enrollment with a permanent destination
-        # and does not have any other enrollments (aside from RRH/PSH with a move-in date?)
-        # in emergency shelter, transitional housing, safe haven, or street outreach for at least 14 days following.
-        Destination_lecr %in% perm_destinations &
-          !is.na(ExitDate_lecr) &
-          HouseholdID == HouseholdID_lecr# &
-          # NoEnrollmentsToLHFor14DaysFromLECR == TRUE
-        ~ "Permanent Destination",
-        
-        # The client has exited from an enrollment with a temporary/unknown destination
-        # and does not have any other enrollments (aside from RRH/PSH with a move-in date?)
-        # in emergency shelter, transitional housing, safe haven, or street outreach for at least 14 days following.!(Destination_lecr %in% perm_destinations) &
-        !is.na(ExitDate_lecr) &
-          !Destination_lecr %in% perm_destinations &
-          HouseholdID == HouseholdID_lecr
-          ~ "Non-Permanent \nDestination",
-        
-        EnrolledHomeless_lecr == TRUE &
-          is.na(ExitDate_lecr) &
-          HouseholdID == HouseholdID_lecr
-        ~ "Enrolled: Homeless",
-        
-        EnrolledHoused_lecr == TRUE &
-          is.na(ExitDate_lecr) &
-          HouseholdID == HouseholdID_lecr
-        ~ "Enrolled: Housed",
-        TRUE ~ "enrollment is not last in reporting period"
-      )
-    ) %>%
-    filter(HouseholdID == HouseholdID_eecr | HouseholdID == HouseholdID_lecr) %>%
-    select(
-      PersonalID,
-      InflowType,
-      OutflowType
-    ) %>%
-    unique()
+      # The client has exited from an enrollment with a temporary/unknown destination
+      # and does not have any other enrollments (aside from RRH/PSH with a move-in date?)
+      # in emergency shelter, transitional housing, safe haven, or street outreach for at least 14 days following.!(Destination_lecr %in% perm_destinations) &
+      !is.na(ExitDate_lecr) &
+        !Destination_lecr %in% perm_destinations
+      ~ "Non-Permanent \nDestination",
+      
+      EnrolledHomeless_lecr == TRUE &
+        is.na(ExitDate_lecr)
+      ~ "Enrolled: Homeless",
+      
+      EnrolledHoused_lecr == TRUE &
+        is.na(ExitDate_lecr)
+      ~ "Enrolled: Housed",
+      TRUE ~ "something's wrong"
+    )) %>%
+    select(PersonalID, OutflowType)
+  
+  full_join(inflow, outflow, join_by(PersonalID))
 })
 
