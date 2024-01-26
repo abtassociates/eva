@@ -632,15 +632,28 @@ system_df_people <- reactive({
       return_from_permanent = any(lh_at_entry == TRUE & 
                                     as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
                                     Destination %in% perm_destinations),
-      reengaged_from_temporary = any(lh_at_entry == TRUE &
-                                       as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
-                                       !(Destination %in% perm_destinations)),
-      enrolled_homeless = EntryDate_eecr <= input$syso_date_range[1] &
+      reengaged_from_temporary = 
+        any(lh_at_entry == TRUE &
+              is_before_eecr == TRUE &
+              as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
+              !(Destination %in% perm_destinations)),
+      pathway_skipped_report_start = 
+        any(lh_at_entry == TRUE &
+              is_before_eecr == TRUE &
+              as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) < 14 &
+              !(Destination %in% perm_destinations)),
+      enrolled_homeless_at_start = EntryDate_eecr <= input$syso_date_range[1] &
         coalesce(ExitDate_eecr, no_end_date) > input$syso_date_range[1] &
         EnrolledHomeless_eecr == TRUE,
-      enrolled_housed = EntryDate_eecr <= input$syso_date_range[1] &
+      enrolled_housed_at_start = EntryDate_eecr <= input$syso_date_range[1] &
         coalesce(ExitDate_eecr, no_end_date) > input$syso_date_range[1] &
-        EnrolledHomeless_eecr == FALSE
+        EnrolledHomeless_eecr == FALSE,
+      enrolled_homeless_at_end = EntryDate_lecr <= input$syso_date_range[2] &
+        coalesce(ExitDate_lecr, no_end_date) > input$syso_date_range[2] &
+        EnrolledHomeless_lecr == TRUE,
+      enrolled_housed_at_end = EntryDate_lecr <= input$syso_date_range[2] &
+        coalesce(ExitDate_lecr, no_end_date) > input$syso_date_range[2] &
+        EnrolledHomeless_lecr == FALSE
     ) %>%
     ungroup()
   
@@ -648,26 +661,28 @@ system_df_people <- reactive({
     filter(!is.na(HouseholdID_eecr)) %>%
     select(PersonalID, lookback_stay_in_lh, lookback_entered_as_homeless,
            NoEnrollmentsToLHFor14DaysFromLECR, return_from_permanent,
-           reengaged_from_temporary, enrolled_homeless, enrolled_housed) %>%
+           reengaged_from_temporary, enrolled_homeless_at_start,
+           enrolled_housed_at_start, pathway_skipped_report_start) %>%
     unique() %>%
     mutate(InflowType = case_when(
       #1) If project type is in (lh_project_types), then client is not newly homeless (0)
       #2) If LivingSituation is in (hs_living_situation), then client is not newly homeless (0)
       #3) If LivingSituation is in (non_hs_living_sit) and both LOSUnderThreshold and PreviousStreetESSH == 1, then client is not newly homeless (0)
-      enrolled_homeless == TRUE ~ "Enrolled: Homeless",
-      enrolled_housed == TRUE ~ "Enrolled: Housed",
+      enrolled_homeless_at_start == TRUE ~ "Enrolled: Homeless",
+      enrolled_housed_at_start == TRUE ~ "Enrolled: Housed",
       lookback_stay_in_lh == FALSE &
         lookback_entered_as_homeless == FALSE ~ "Newly Homeless",
       return_from_permanent == TRUE ~ "Returned from \nPermanent",
       reengaged_from_temporary == TRUE ~ "Re-engaged from \nNon-Permanent",
+      pathway_skipped_report_start == TRUE ~ "Continued system \nengagement",
       TRUE ~ "something's wrong"
     )) %>%
     select(PersonalID, InflowType)
   
   outflow <- universe %>%
     filter(!is.na(HouseholdID_lecr)) %>%
-    select(PersonalID, Destination_lecr, ExitDate_lecr, EnrolledHomeless_lecr,
-           EnrolledHoused_lecr) %>%
+    select(PersonalID, Destination_lecr, ExitDate_lecr, enrolled_homeless_at_end,
+           enrolled_housed_at_end) %>%
     unique() %>%
     mutate(OutflowType = case_when(
       # The client has exited from an enrollment with a permanent destination
@@ -685,13 +700,9 @@ system_df_people <- reactive({
         !Destination_lecr %in% perm_destinations
       ~ "Non-Permanent \nDestination",
       
-      EnrolledHomeless_lecr == TRUE &
-        is.na(ExitDate_lecr)
-      ~ "Enrolled: Homeless",
+      enrolled_homeless_at_end == TRUE ~ "Enrolled: Homeless",
       
-      EnrolledHoused_lecr == TRUE &
-        is.na(ExitDate_lecr)
-      ~ "Enrolled: Housed",
+      enrolled_housed_at_end == TRUE ~ "Enrolled: Housed",
       TRUE ~ "something's wrong"
     )) %>%
     select(PersonalID, OutflowType)

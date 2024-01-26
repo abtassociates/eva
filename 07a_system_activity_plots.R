@@ -25,6 +25,7 @@ x.axis.var_detail_values <- reactive({
     "Newly Homeless", 
     "Returned from \nPermanent", 
     "Re-engaged from \nNon-Permanent",
+    "Continued system \nengagement",
     "Permanent Destination",
     "Non-Permanent \nDestination",
     active_as_of_end()
@@ -44,11 +45,14 @@ cat.var_detail_values <- c(
   "Newly Homeless", 
   "Returned from \nPermanent", 
   "Re-engaged from \nNon-Permanent",
+  "Continued system \nengagement",
   "Permanent Destination",
   "Non-Permanent \nDestination"
 )
 
 system_activity_prep <- reactive({
+  # browser()
+
   system_df_people() %>% # this is a people-level df
     pivot_longer(
       cols = c(InflowType, OutflowType), 
@@ -148,7 +152,15 @@ renderSystemPlot <- function(id) {
         x.axis.var_summary_values()
       )
     } else {
-      colors <- c('#73655E','#C6BDB9','#C34931', '#C34931', '#C34931', '#16697A', '#16697A')
+      colors <-
+        c('#73655E',
+          '#C6BDB9',
+          '#C34931',
+          '#C34931',
+          '#C34931',
+          '#C34931',
+          '#16697A',
+          '#16697A')
       df <- prep_for_chart(
         system_activity_detail_prep(),
         cat.var_detail_values,
