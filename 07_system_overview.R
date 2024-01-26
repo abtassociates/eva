@@ -634,7 +634,13 @@ system_df_people <- reactive({
                                     Destination %in% perm_destinations),
       reengaged_from_temporary = any(lh_at_entry == TRUE &
                                        as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
-                                       !(Destination %in% perm_destinations))
+                                       !(Destination %in% perm_destinations)),
+      enrolled_homeless = EntryDate_eecr <= input$syso_date_range[1] &
+        coalesce(ExitDate_eecr, no_end_date) > input$syso_date_range[1] &
+        EnrolledHomeless_eecr == TRUE,
+      enrolled_housed = EntryDate_eecr <= input$syso_date_range[1] &
+        coalesce(ExitDate_eecr, no_end_date) > input$syso_date_range[1] &
+        EnrolledHomeless_eecr == FALSE
     ) %>%
     ungroup()
   
@@ -642,14 +648,14 @@ system_df_people <- reactive({
     filter(!is.na(HouseholdID_eecr)) %>%
     select(PersonalID, lookback_stay_in_lh, lookback_entered_as_homeless,
            NoEnrollmentsToLHFor14DaysFromLECR, return_from_permanent,
-           reengaged_from_temporary, EnrolledHomeless_eecr, EnrolledHoused_eecr) %>%
+           reengaged_from_temporary, enrolled_homeless, enrolled_housed) %>%
     unique() %>%
     mutate(InflowType = case_when(
       #1) If project type is in (lh_project_types), then client is not newly homeless (0)
       #2) If LivingSituation is in (hs_living_situation), then client is not newly homeless (0)
       #3) If LivingSituation is in (non_hs_living_sit) and both LOSUnderThreshold and PreviousStreetESSH == 1, then client is not newly homeless (0)
-      EnrolledHomeless_eecr == TRUE ~ "Enrolled: Homeless",
-      EnrolledHoused_eecr == TRUE ~ "Enrolled: Housed",
+      enrolled_homeless == TRUE ~ "Enrolled: Homeless",
+      enrolled_housed == TRUE ~ "Enrolled: Housed",
       lookback_stay_in_lh == FALSE &
         lookback_entered_as_homeless == FALSE ~ "Newly Homeless",
       return_from_permanent == TRUE ~ "Returned from \nPermanent",
