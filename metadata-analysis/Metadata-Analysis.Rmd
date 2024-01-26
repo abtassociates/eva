@@ -32,6 +32,10 @@ visits <-
 uploads <-
   read_lines(here("metadata-analysis/metadata/upload_metadata.txt"))
 
+session_data <- read_csv(here("metadata-analysis/metadata/sessiondata.csv")) %>%
+  group_by(SessionToken) %>%
+  count(CoC)
+
 new_way <-
   read_csv(here("metadata-analysis/metadata/metadata.csv")) %>% # <- don't change this
   # ^ change where your file is in your project directory
@@ -48,7 +52,7 @@ new_way <-
          "Date" = Datestamp,
          "Event" = Details) %>%
   mutate(WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
-         MonthEnding = ceiling_date(Date, unit = "month"),
+         MonthEnding = floor_date(Date, unit = "month"),
          EventCategory = case_when(
            Event %in% c(
              "Unsuccessful upload - not structurally valid",
@@ -56,7 +60,8 @@ new_way <-
              "Unsuccessful upload - wrong dataset",
              "Unsuccessful upload - wrong/incomplete dataset",
              "Unsuccessful upload - file was mistructured",
-             "Unsuccessful upload - zip file was misstructured"
+             "Unsuccessful upload - zip file was misstructured",
+             "Unsuccessful upload - out of date HMIS CSV Export"
            )
            ~ "Unsuccessful upload",
            Event %in% c("Successful upload") ~ "Successful upload",
@@ -70,7 +75,7 @@ visits_df <- data.frame(everything = visits) %>%
     SessionID = str_squish(str_sub(everything, 1L, 33L)),
     Date = ymd_hms(str_squish(str_sub(everything, 35L, 54L))),
     WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
-    MonthEnding = ceiling_date(Date, unit = "month"),
+    MonthEnding = floor_date(Date, unit = "month"),
     Event = str_squish(str_sub(everything, 57L, nchar(everything))),
     everything = NULL
   )
@@ -80,7 +85,7 @@ uploads_df <- data.frame(everything = uploads) %>%
     SessionID = str_squish(str_sub(everything, 1L, 33L)),
     Date = ymd_hms(str_squish(str_sub(everything, 35L, 54L))),
     WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
-    MonthEnding = ceiling_date(Date, unit = "month"),
+    MonthEnding = floor_date(Date, unit = "month"),
     Event = str_squish(str_sub(everything, 57L, nchar(everything))),
     everything = NULL
   )
@@ -94,7 +99,8 @@ old_way <- rbind(uploads_df, visits_df) %>%
         "Unsuccessful upload - wrong dataset",
         "Unsuccessful upload - wrong/incomplete dataset",
         "Unsuccessful upload - file was mistructured",
-        "Unsuccessful upload - zip file was misstructured")
+        "Unsuccessful upload - zip file was misstructured",
+        "Unsuccessful upload - out of date HMIS CSV Export")
       ~ "Unsuccessful upload",
       Event %in% c("Successful upload") ~ "Successful Upload",
       TRUE ~ "Other"
@@ -120,8 +126,16 @@ counts_by_week <- count(all_week, WeekEnding, Event) %>%
 counts_by_month <- count(all_month, MonthEnding, Event) %>%
   arrange(MonthEnding, desc(n))
 
-counts_category <- count(all_week, WeekEnding, EventCategory) %>%
-  arrange(WeekEnding, desc(n))
+counts_category <- count(all_month, MonthEnding, EventCategory) %>%
+  arrange(MonthEnding, desc(n))
+
+end_date_last6months <- floor_date(Sys.Date(),"month") - days(1)
+
+start_date_last6months <- end_date_last6months - months(5) + 1
+
+staging_last6months <- staging %>%
+  filter(Date >= start_date_last6months & Date <= end_date_last6months)
+
 
 ```
 
@@ -140,7 +154,7 @@ counts_by_week %>%
   geom_point() +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Dark2") +
-  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m/%d") +
   labs(
     title = "Weekly Eva Site Hits",
     x = "Week Ending",
@@ -160,7 +174,9 @@ counts_by_month %>%
   geom_point() +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Dark2") +
-  scale_x_date(date_breaks = "1 month", date_labels = "%m-%y") +
+  scale_x_date(
+    date_breaks = "1 month",
+    date_labels = "%B") +
   labs(
     title = "Monthly Eva Site Hits",
     x = "Month Ending",
@@ -169,6 +185,77 @@ counts_by_month %>%
   theme_minimal() +
   theme(legend.position = "bottom")
   
+```
+
+## Tabs Visited
+
+```{r fig.width=7, fig.height=6}
+
+staging_last6months %>%
+  filter(str_detect(Event, "User on") & 
+           !(Event %in% c("User on tabHome", "User on tabUpload", "User on"))) %>%
+  mutate(Tab = case_when(
+    str_detect(Event, "tabChangelog") ~ "Changelog",
+    str_detect(Event, "tabClientCount") ~ "Client Counts",
+    str_detect(Event, "tabDQOrg") ~ "Organization DQ",
+    str_detect(Event, "tabDQSystem") ~ "System DQ",
+    str_detect(Event, "tabLocalSettings") ~ "Local Settings",
+    str_detect(Event, "tabPDDE") ~ "PDDE DQ",
+    TRUE ~ as.character(Event)), 
+    Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "Changelog"))) %>%
+  count(Tab) %>%
+  ggplot(aes(x = Tab, y = n, fill = Tab)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(n/sum(n))), color = "gray15", vjust = -0.5) +
+  scale_fill_manual(values = 
+                   c("Changelog" = "#f94144",
+                      "Client Counts" = "#f3722c",
+                      "Organization DQ" = "#f8961e",
+                      "System DQ" = "#f9c74f",
+                      "Local Settings" = "#90be6d",
+                      "PDDE DQ" = "#43aa8b")) +
+ labs(title = "Tabs Visited in the Last 6 Months",
+       x = "Tab",
+       y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(ncol = 2))
+
+```
+
+```{r fig.width=7, fig.height=6}
+
+staging %>%
+  filter(str_detect(Event, "User on") & 
+           Date >= as.Date("2023-01-01") & Date <=("2023-06-30") &
+           !(Event %in% c("User on tabHome", "User on tabUpload", "User on"))) %>%
+  mutate(Tab = case_when(
+    str_detect(Event, "tabChangelog") ~ "Changelog",
+    str_detect(Event, "tabClientCount") ~ "Client Counts",
+    str_detect(Event, "tabDQOrg") ~ "Organization DQ",
+    str_detect(Event, "tabDQSystem") ~ "System DQ",
+    str_detect(Event, "tabLocalSettings") ~ "Local Settings",
+    str_detect(Event, "tabPDDE") ~ "PDDE DQ",
+    TRUE ~ as.character(Event)), 
+    Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "Changelog"))) %>%
+  count(Tab) %>%
+  ggplot(aes(x = Tab, y = n, fill = Tab)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(n/sum(n))), color = "gray15", vjust = -0.5) +
+  scale_fill_manual(values = 
+                   c("Changelog" = "#f94144",
+                      "Client Counts" = "#f3722c",
+                      "Organization DQ" = "#f8961e",
+                      "System DQ" = "#f9c74f",
+                      "Local Settings" = "#90be6d",
+                      "PDDE DQ" = "#43aa8b")) +
+ labs(title = "Tabs Visited from January 2023 to June 2023",
+       x = "Tab",
+       y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(ncol = 2))
+
 ```
 
 ## Uploads
@@ -193,11 +280,11 @@ The reasons Eva will reject an export are if the export:
 counts_by_week %>%
   filter(str_detect(Event, " upload")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line() +
-  geom_point() +
+  geom_line(na.rm = FALSE) +
+  geom_point(na.rm = FALSE) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_brewer(palette = "Dark2") +
-  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
+  scale_color_brewer(palette = "Set1") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m/%d") +
   labs(title = "Weekly Eva Uploads",
        x = "Week Ending",
        y = "") +
@@ -208,18 +295,97 @@ counts_by_week %>%
 
 ```
 
+```{r fig.width=8, fig.height=5}
+
+#counts_by_month %>%
+#  filter(str_detect(Event, " upload")) %>%
+#  filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
+#  ggplot(aes(x = MonthEnding, y = n, group = Event, fill = Event)) +
+#  geom_bar(stat = "identity") +
+#  scale_fill_manual(values = 
+#                      c("Successful upload" = "#208b3a",
+#                      "Unsuccessful upload - incomplete dataset" = "#ff0606",
+#                      "Unsuccessful upload - not an HMIS CSV Export" = "#ff4b00",
+#                      "Unsuccessful upload - not hashed" = "#ff6f00",
+#                      "Unsuccessful upload - not structurally valid" = "#ff8f00",
+#                      "Unsuccessful upload - out of date HMIS CSV Export" = "#ffac00",
+#                      "Unsuccessful upload - wrong/incomplete dataset" = "#ffc700",
+#                      "Unsuccessful upload - zip file not.zip" = "#ffe200",
+#                      "Unsuccessful upload - zip file was misstructured" = "#fffc00")) +
+#   geom_text(
+#    aes(label = ifelse(Event == "Successful upload", n, "")), vjust = -0.5, size = 3) +
+#  scale_x_date(date_breaks = "1 month", date_labels = "%B") +
+#  labs(title = "Monthly Eva Uploads",
+#       x = "Month Ending",
+#       y = "") +
+#  theme_minimal() +
+#  theme(legend.position = "bottom") +
+#  guides(fill = guide_legend(ncol = 2))
+  
+
+```
+
+
+```{r fig.width=7, fig.height=5}
+
+# Bar chart
+#tab_percentage_january_to_may %>%
+#mutate(Page = factor(Page, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "Changelog"))) %>% 
+#ggplot(aes(x = Page, y = Percentage, fill = Page)) +
+#  geom_bar(stat = "identity") +
+#  scale_y_continuous(limits = c(0,35)) +
+#  scale_fill_manual(values = 
+#                      c("Changelog" = "#f94144",
+#                      "Client Counts" = "#f3722c",
+#                      "Organization DQ" = "#f8961e",
+#                      "System DQ" = "#f9c74f",
+#                      "Local Settings" = "#90be6d",
+#                      "PDDE DQ" = "#43aa8b")) +
+#  labs(title = "Tabs Visited",
+#       x = "Page",
+#       y = "Percentage") +
+#  theme_minimal() +
+#  theme(legend.position = "bottom") +
+#  guides(fill = guide_legend(ncol = 2))
+
+```
+
+```{r fig.width=7, fig.height=5}
+
+# Bar chart
+#tab_percentage_june_to_november %>%
+#mutate(Page = factor(Page, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "Changelog"))) %>% 
+#ggplot(aes(x = Page, y = Percentage, fill = Page)) +
+#  geom_bar(stat = "identity") +
+#  scale_y_continuous(limits = c(0,35)) +
+#  scale_fill_manual(values = 
+#                      c("Changelog" = "#f94144",
+#                      "Client Counts" = "#f3722c",
+#                      "Organization DQ" = "#f8961e",
+#                      "System DQ" = "#f9c74f",
+#                      "Local Settings" = "#90be6d",
+#                      "PDDE DQ" = "#43aa8b")) +
+#  labs(title = "Tabs Visited",
+#       x = "Page",
+#       y = "Percentage") +
+#  theme_minimal() +
+#  theme(legend.position = "bottom") +
+#  guides(fill = guide_legend(ncol = 2))
+
+```
+
 ```{r fig.width=10, fig.height=5}
 
 counts_category %>%
   filter(str_detect(EventCategory, " upload")) %>%
-  ggplot(aes(x = WeekEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
+  ggplot(aes(x = MonthEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
   geom_line() +
   geom_point() +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_brewer(palette = "Dark2") +
-  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
-  labs(title = "Weekly Eva Uploads - Successful vs. Unsuccessful",
-       x = "Week Ending",
+  scale_color_brewer(palette = "Set1") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%B") +
+  labs(title = "Monthly Eva Uploads - Successful vs. Unsuccessful",
+       x = "Month Ending",
        y = "") +
   theme_minimal() +
   theme(legend.position = "bottom") +
@@ -248,6 +414,27 @@ counts_by_week %>%
        x = "Week Ending",
        y = "",
        caption = "Download data not collected until Dec 29, 2022.") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
+
+
+```
+
+```{r fig.width=10, fig.height=5}
+
+counts_by_month %>%
+  filter(str_detect(Event, "Download")) %>%
+  #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
+  ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
+  geom_line() +
+  geom_point() +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%B") +
+  labs(title = "Monthly Eva Downloads",
+       x = "Month Ending",
+       y = "") +
   theme_minimal() +
   theme(legend.position = "bottom") +
   guides(color = guide_legend(ncol = 2))
@@ -286,4 +473,5 @@ gt(counts_by_month %>%
 ```
 
 # {-}
+
 
