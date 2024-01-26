@@ -639,6 +639,7 @@ system_df_people <- reactive({
     ungroup()
   
   inflow <- universe %>%
+    filter(!is.na(HouseholdID_eecr)) %>%
     select(PersonalID, lookback_stay_in_lh, lookback_entered_as_homeless,
            NoEnrollmentsToLHFor14DaysFromLECR, return_from_permanent,
            reengaged_from_temporary, EnrolledHomeless_eecr, EnrolledHoused_eecr) %>%
@@ -658,6 +659,7 @@ system_df_people <- reactive({
     select(PersonalID, InflowType)
   
   outflow <- universe %>%
+    filter(!is.na(HouseholdID_lecr)) %>%
     select(PersonalID, Destination_lecr, ExitDate_lecr, EnrolledHomeless_lecr,
            EnrolledHoused_lecr) %>%
     unique() %>%
