@@ -111,17 +111,9 @@ system_df_enrl_flags <- system_df_prep %>%
     ,
     lh_at_entry = lh_prior_livingsituation == TRUE |
       ProjectType %in% lh_project_types,
-    EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless &
-      LivingSituation %in% lh_livingsituation,
-    EnrolledHoused = ProjectType %in% ph_project_types & 
-      LivingSituation %in% homeless_livingsituation,
-    EnrolledAtStart = case_when(
-      ProjectType %in% project_types_enrolled_homeless &
-        LivingSituation %in% lh_livingsituation ~ "EnrolledHomeless",
-      ProjectType %in% ph_project_types & 
-        LivingSituation %in% homeless_livingsituation ~ "EnrolledHoused",
-      TRUE ~ "something's wrong"
-    )
+    EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
+      lh_prior_livingsituation == TRUE,
+    EnrolledHoused = EnrolledHomeless == FALSE
   ) %>%
   select(
     EnrollmentID, 
