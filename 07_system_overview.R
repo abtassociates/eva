@@ -591,11 +591,18 @@ system_df_people <- reactive({
         #1) If project type is in (lh_project_types), then client is not newly homeless (0)
         #2) If LivingSituation is in (hs_living_situation), then client is not newly homeless (0)
         #3) If LivingSituation is in (non_hs_living_sit) and both LOSUnderThreshold and PreviousStreetESSH == 1, then client is not newly homeless (0)
-        EnrolledHomeless_eecr ~ "Enrolled: Homeless",
-        EnrolledHoused_eecr ~ "Enrolled: Housed",
-        !lookback_stay_in_lh & !lookback_entered_as_homeless ~ "Newly Homeless",
-        return_from_permanent ~ "Returned from \nPermanent",
-        reengaged_from_temporary ~ "Re-engaged from \nTemporary/Unknown"
+        EnrolledHomeless_eecr == TRUE &
+          HouseholdID == HouseholdID_eecr ~ "Enrolled: Homeless",
+        EnrolledHoused_eecr == TRUE &
+          HouseholdID == HouseholdID_eecr ~ "Enrolled: Housed",
+        lookback_stay_in_lh == FALSE &
+          lookback_entered_as_homeless == FALSE &
+          HouseholdID == HouseholdID_eecr ~ "Newly Homeless",
+        return_from_permanent == TRUE &
+          HouseholdID == HouseholdID_eecr ~ "Returned from \nPermanent",
+        reengaged_from_temporary == TRUE &
+          HouseholdID == HouseholdID_eecr ~ "Re-engaged from \nTemporary/Unknown",
+        TRUE ~ "enrollment is not first in reporting period"
       ),
       
       OutflowType = case_when(
@@ -603,7 +610,8 @@ system_df_people <- reactive({
         # and does not have any other enrollments (aside from RRH/PSH with a move-in date?)
         # in emergency shelter, transitional housing, safe haven, or street outreach for at least 14 days following.
         Destination_lecr %in% perm_destinations &
-          !is.na(ExitDate_lecr)# &
+          !is.na(ExitDate_lecr) &
+          HouseholdID == HouseholdID_lecr# &
           # NoEnrollmentsToLHFor14DaysFromLECR == TRUE
         ~ "Permanent Destination",
         
@@ -611,17 +619,20 @@ system_df_people <- reactive({
         # and does not have any other enrollments (aside from RRH/PSH with a move-in date?)
         # in emergency shelter, transitional housing, safe haven, or street outreach for at least 14 days following.!(Destination_lecr %in% perm_destinations) &
         !is.na(ExitDate_lecr) &
-          !Destination_lecr %in% perm_destinations
+          !Destination_lecr %in% perm_destinations &
+          HouseholdID == HouseholdID_lecr
           ~ "Non-Permanent \nDestination",
         
-        EnrolledHomeless_lecr == TRUE & is.na(ExitDate_lecr) &
+        EnrolledHomeless_lecr == TRUE &
+          is.na(ExitDate_lecr) &
           HouseholdID == HouseholdID_lecr
         ~ "Enrolled: Homeless",
         
-        EnrolledHoused_lecr == TRUE & is.na(ExitDate_lecr) &
+        EnrolledHoused_lecr == TRUE &
+          is.na(ExitDate_lecr) &
           HouseholdID == HouseholdID_lecr
         ~ "Enrolled: Housed",
-        TRUE ~ "something's wrong"
+        TRUE ~ "enrollment is not last in reporting period"
       )
     ) %>%
     filter(HouseholdID == HouseholdID_eecr | HouseholdID == HouseholdID_lecr) %>%
