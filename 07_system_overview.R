@@ -172,8 +172,29 @@ system_df_client_flags <- Client %>%
 
 # universe filters/enrollment-level filters -----------------------------------
 system_df_enrl_filtered <- reactive({
+  
+  nbn_enrollments_w_proper_services <- EnrollmentAdjust %>%
+    select(EnrollmentID, ProjectType) %>%
+    filter(ProjectType == 1) %>%
+    left_join(Services %>%
+                filter(RecordType == 200 &
+                         between(DateProvided,
+                                 input$syso_date_range[1] - days(15),
+                                 input$syso_date_range[1] + days(15))) %>%
+                select(EnrollmentID, DateProvided),
+              join_by(EnrollmentID)) %>%
+    filter(!is.na(DateProvided)) %>%
+    pull(EnrollmentID) %>%
+    unique()
+    
+  
   system_df_enrl_flags %>%
   filter(
+    (ProjectType %in% c(es_ee_project_type, th_project_type, sh_project_type)) |
+      (ProjectType == es_nbn_project_type) |
+      () |
+      () &
+               
     # Household Type
     (
       # "All Households" = 1, 
@@ -190,8 +211,10 @@ system_df_enrl_filtered <- reactive({
       # Project Type
       (
         input$syso_project_type == 1 |
-          (input$syso_project_type == 2 & ProjectType %in% project_types_w_beds) |
-          (input$syso_project_type == 3 & ProjectType %in% non_res_project_types)
+          (input$syso_project_type == 2 &
+             ProjectType %in% project_types_w_beds) |
+          (input$syso_project_type == 3 &
+             ProjectType %in% non_res_project_types)
       )
   )
 })
