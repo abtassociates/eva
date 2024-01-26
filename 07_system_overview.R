@@ -168,14 +168,13 @@ system_df_enrl_filtered <- reactive({
   nbn_enrollments_w_proper_services <- EnrollmentAdjust %>%
     select(EnrollmentID, ProjectType) %>%
     filter(ProjectType == 1) %>%
-    left_join(Services %>%
+    inner_join(Services %>%
                 filter(RecordType == 200 &
                          between(DateProvided,
                                  input$syso_date_range[1] - days(15),
                                  input$syso_date_range[1] + days(15))) %>%
                 select(EnrollmentID, DateProvided),
               join_by(EnrollmentID)) %>%
-    filter(!is.na(DateProvided)) %>%
     pull(EnrollmentID) %>%
     unique()
   
@@ -640,7 +639,7 @@ system_df_people <- reactive({
       lookback_stay_in_lh == FALSE &
         lookback_entered_as_homeless == FALSE ~ "Newly Homeless",
       return_from_permanent == TRUE ~ "Returned from \nPermanent",
-      reengaged_from_temporary == TRUE ~ "Re-engaged from \nTemporary/Unknown",
+      reengaged_from_temporary == TRUE ~ "Re-engaged from \nNon-Permanent",
       TRUE ~ "something's wrong"
     )) %>%
     select(PersonalID, InflowType)
