@@ -178,14 +178,32 @@ system_df_enrl_filtered <- reactive({
     filter(!is.na(DateProvided)) %>%
     pull(EnrollmentID) %>%
     unique()
-    
+  
+  outreach_w_proper_cls <- CurrentLivingSituation %>%
+    filter(CurrentLivingSituation %in% c(101, 116, 118, 302) &
+             between(InformationDate,
+                     input$syso_date_range[1] - days(90),
+                     input$syso_date_range[1] + days(90))) %>%
+    pull(EnrollmentID) %>%
+    unique()
   
   system_df_enrl_flags %>%
   filter(
-    (ProjectType %in% c(es_ee_project_type, th_project_type, sh_project_type)) |
-      (ProjectType == es_nbn_project_type) |
-      () |
-      () &
+    # Active At Start logic
+    ((ProjectType %in% c(es_ee_project_type, th_project_type, sh_project_type)) |
+      (ProjectType == es_nbn_project_type &
+         EnrollmentID %in% nbn_enrollments_w_proper_services) |
+      (ProjectType == out_project_type &
+         EnrollmentID %in% outreach_w_proper_cls &
+         lh_prior_livingsituation == TRUE) |
+      (ProjectType %in% c(ph_project_types) &
+         is.na(MoveInDateAdjust) &
+         lh_prior_livingsituation == TRUE) |
+      (ProjectType == ce_project_type &
+         lh_prior_livingsituation == TRUE &
+         between(EntryDate,
+                 input$syso_date_range[1] - days(90),
+                 input$syso_date_range[1] + days(90)))) &
                
     # Household Type
     (
