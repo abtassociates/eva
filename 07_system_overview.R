@@ -197,14 +197,15 @@ system_df_enrl_filtered <- reactive({
          EnrollmentID %in% outreach_w_proper_cls &
          lh_prior_livingsituation == TRUE) |
       (ProjectType %in% c(ph_project_types) &
-         is.na(MoveInDateAdjust) &
+         (is.na(MoveInDateAdjust) |
+            MoveInDateAdjust > input$syso_date_range[1]) &
          lh_prior_livingsituation == TRUE) |
       (ProjectType == ce_project_type &
          lh_prior_livingsituation == TRUE &
          between(EntryDate,
                  input$syso_date_range[1] - days(90),
                  input$syso_date_range[1] + days(90)))) &
-               
+
     # Household Type
     (
       # "All Households" = 1, 
