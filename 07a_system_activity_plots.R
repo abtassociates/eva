@@ -60,9 +60,9 @@ system_activity_prep <- reactive({
       values_to = "cat.var") %>%
     group_by(x.axis.var, cat.var) %>%
     summarise(values = n()) %>%
-    filter(!is.na(cat.var)) %>%
+    # filter(!is.na(cat.var)) %>%
     mutate(
-      values = ifelse(x.axis.var == "OutflowType", values*-1, values),
+      values = ifelse(x.axis.var == "OutflowType", values * -1, values),
       inflow_outflow = x.axis.var,
       x.axis.var = case_when(
         x.axis.var == "InflowType" &
@@ -171,7 +171,7 @@ renderSystemPlot <- function(id) {
     s = max(df$end.Bar) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
-    
+    browser()
     ggplot(df, aes(x = group.id, fill = cat.var)) + 
       # \_Simple Waterfall Chart ----
       geom_rect(aes(xmin = group.id - 0.25, # control bar gap width
@@ -185,7 +185,7 @@ renderSystemPlot <- function(id) {
       geom_segment(aes(
         x = ifelse(group.id == last(group.id),
                    last(group.id),
-                                  group.id+0.25), 
+                   group.id + 0.25),
         xend = ifelse(group.id == last(group.id),
                       last(group.id),
                       group.id + 0.75),
@@ -203,15 +203,14 @@ renderSystemPlot <- function(id) {
       geom_text(
           mapping = aes(
             label = ifelse(
-              !is.na(inflow_outflow) | 
+              !is.na(inflow_outflow) |
                 as.character(x.axis.var) == as.character(cat.var),
-              as.character(values),
-              ""),
-            y = ifelse(
-              abs(values) < segment_size/4, 
-              end.Bar + 10, 
-              rowSums(cbind(start.Bar,values/2))
-            )
+              scales::comma(values),
+              ""
+            ),
+            y = ifelse(abs(values) < segment_size / 4,
+                       end.Bar + 10,
+                       rowSums(cbind(start.Bar, values / 2)))
           ),
           color = "black",
           fontface = "bold",
@@ -231,44 +230,49 @@ renderSystemPlot <- function(id) {
         breaks = c(min(df$group.id) - 0.4,
                    unique(df$group.id),
                    unique(df$group.id) + 0.4),
-        labels = 
+        labels =
           c("",
             as.character(unique(df$x.axis.var)),
             rep(c(""), length(unique(df$x.axis.var))))
       ) +
       # \_Theme options to make it look like the original plot ----
-      theme(
-          text = element_text(size = 14, color = "#4e4d47"),
-          axis.text = element_text(size = 10, color = "#4e4d47", face = "bold"),
-          axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
-          axis.ticks.x = element_line(
-              color =
-                  c("black",
-                  rep(NA, length(unique(df$x.axis.var))),
-                  rep("black", length(unique(df$x.axis.var))-1)
-                  )
-          ),
-          axis.line = element_line(colour = "#4e4d47", linewidth = 0.5),
-          axis.ticks.length = unit(.15, "cm"),
-          axis.title.x =      element_blank(),
-          # hide y axis
-          axis.title.y =      element_blank(),
-          axis.ticks.y =      element_blank(),
-          axis.line.y =      element_blank(),
-          axis.text.y =      element_blank(),
-          panel.background =  element_blank(),
-          panel.border    =   element_blank(),
-          panel.grid.major=   element_blank(),
-          panel.grid.minor=   element_blank(),
-          plot.background=    element_blank(),
-          plot.margin =        unit(c(1, 1, 1, 1), "lines"),
-          legend.text =        element_text(size = 10, 
-                                          color = "#4e4d47",
-                                          face = "bold",
-                                          margin = margin(l = 0.25, unit = "cm")
-                                          ),
-          legend.title =       element_blank()
-      )
+    theme(
+      text = element_text(size = 14, color = "#4e4d47"),
+      axis.text = element_text(
+        size = 10,
+        color = "#4e4d47",
+        face = "bold"
+      ),
+      axis.text.x = element_text(vjust = 1),
+      axis.ticks.x = element_line(color =
+                                    c(
+                                      "black",
+                                      rep(NA, length(unique(df$x.axis.var))),
+                                      rep("black", length(unique(df$x.axis.var)) - 1)
+                                    )),
+      axis.line = element_line(colour = "#4e4d47", linewidth = 0.5),
+      axis.ticks.length = unit(.15, "cm"),
+      axis.title.x =      element_blank(),
+      # hide y axis
+      axis.title.y =      element_blank(),
+      axis.ticks.y =      element_blank(),
+      axis.line.y =       element_blank(),
+      axis.text.y =       element_blank(),
+      panel.background =  element_blank(),
+      panel.border    =   element_blank(),
+      panel.grid.major =  element_blank(),
+      panel.grid.minor =  element_blank(),
+      plot.background =   element_blank(),
+      plot.margin =       unit(c(1, 1, 1, 1), "lines"),
+      legend.text =       element_text(
+        size = 10,
+        color = "#4e4d47",
+        face = "bold",
+        margin = margin(l = 0.25, unit = "cm"
+        )
+      ),
+      legend.title =       element_blank()
+    )
   })
  # return(plotOutput(id, height = 400))
 }
