@@ -114,8 +114,17 @@ system_df_enrl_flags <- system_df_prep %>%
       ProjectType %in% lh_project_types,
     EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
       lh_prior_livingsituation == TRUE,
-    EnrolledHoused = EnrolledHomeless == FALSE
+    EnrolledHoused = EnrolledHomeless == FALSE,
+    crosses_rp = int_overlaps(EnrollmentDateRange,
+                              interval(input$syso_date_range[1],
+                                       input$syso_date_range[2]))
   ) %>%
+  group_by(PersonalID) %>%
+  arrange(EntryDate, .by_group = TRUE) %>%
+  mutate(enrollment_before = lag(EnrollmentID, order_by = EntryDate),
+         enrollment_after = lead(EnrollmentID, order_by = ExitAdjust),
+         ordinal = row_number()) %>%
+  ungroup() %>%
   select(
     EnrollmentID, 
     PersonalID, 
@@ -126,6 +135,10 @@ system_df_enrl_flags <- system_df_prep %>%
     ProjectType, 
     lh_prior_livingsituation,
     lh_at_entry,
+    crosses_rp,
+    enrollment_before,
+    enrollment_after,
+    ordinal,
     EnrolledHomeless,
     EnrolledHoused,
     LivingSituation,
@@ -230,7 +243,12 @@ system_df_enrl_filtered <- reactive({
           (input$syso_project_type == 3 &
              ProjectType %in% non_res_project_types)
       )
-  )
+  ) %>%
+    mutate(
+      enrollment_role = case_when(
+        
+      )
+    )
 })
 
 # system inflow_outflow filters/people-level filters---------------------------
@@ -615,7 +633,19 @@ system_df_people <- reactive({
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
     left_join(eecr_lecr,
               join_by(PersonalID)) %>%
-    mutate(is_before_eecr = EntryDate < EntryDate_eecr) %>%
+    mutate(
+      is_before_eecr = EntryDate < EntryDate_eecr,
+      enrollment_ordinal = case_when(
+        is_before_eecr == TRUE ~ 0,
+        HouseholdID == HouseholdID_eecr &
+          HouseholdID_eecr == HouseholdID_lecr ~ 2,
+        HouseholdID == HouseholdID_eecr &
+          HouseholdID != HouseholdID_lecr ~ 1,
+        HouseholdID == HouseholdID_lecr &
+          HouseholdID != HouseholdID_eecr ~ 3,
+        TRUE ~ 99
+      )
+    ) %>%
     # create enrollment-level variables/flags that will be used to 
     # label people to be counted in the system activity charts
     group_by(PersonalID) %>%
