@@ -629,32 +629,37 @@ system_df_people <- reactive({
       NoEnrollmentsToLHFor14DaysFromLECR = !any(
         as.numeric(difftime(ExitDate_lecr, EntryDate, "days")) <= -14 & 
           ProjectType %in% lh_project_types
-      ),
-      return_from_permanent = any(lh_at_entry == TRUE & 
-                                    as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
-                                    Destination %in% perm_destinations),
-      reengaged_from_temporary = 
-        any(lh_at_entry == TRUE &
-              is_before_eecr == TRUE &
+      ), # is this what the logic means (VL)
+      return_from_permanent = 
+        lh_at_entry == TRUE &
+        is_before_eecr == FALSE &
+        any(lh_at_entry == TRUE & 
               as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
-              !(Destination %in% perm_destinations)),
-      pathway_skipped_report_start = 
-        any(lh_at_entry == TRUE &
-              is_before_eecr == TRUE &
-              as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) < 14 &
-              !(Destination %in% perm_destinations)),
+              Destination %in% perm_destinations),
+      reengaged_from_temporary =
+        lh_at_entry == TRUE &
+        is_before_eecr == FALSE &
+        any(
+          is_before_eecr == TRUE &
+            as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
+            !(Destination %in% perm_destinations)
+        ),
+      pathway_skipped_report_start =
+        lh_at_entry == TRUE &
+        is_before_eecr == FALSE &
+        any(
+          is_before_eecr == TRUE &
+            as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) < 14 &
+            !(Destination %in% perm_destinations)
+        ),
       enrolled_homeless_at_start = EntryDate_eecr <= input$syso_date_range[1] &
         coalesce(ExitDate_eecr, no_end_date) > input$syso_date_range[1] &
         EnrolledHomeless_eecr == TRUE,
-      enrolled_housed_at_start = EntryDate_eecr <= input$syso_date_range[1] &
-        coalesce(ExitDate_eecr, no_end_date) > input$syso_date_range[1] &
-        EnrolledHomeless_eecr == FALSE,
+      enrolled_housed_at_start = enrolled_homeless_at_start == FALSE,
       enrolled_homeless_at_end = EntryDate_lecr <= input$syso_date_range[2] &
         coalesce(ExitDate_lecr, no_end_date) > input$syso_date_range[2] &
         EnrolledHomeless_lecr == TRUE,
-      enrolled_housed_at_end = EntryDate_lecr <= input$syso_date_range[2] &
-        coalesce(ExitDate_lecr, no_end_date) > input$syso_date_range[2] &
-        EnrolledHomeless_lecr == FALSE
+      enrolled_housed_at_end = enrolled_homeless_at_end == FALSE
     ) %>%
     ungroup()
   
