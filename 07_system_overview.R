@@ -188,7 +188,10 @@ system_df_enrl_filtered <- reactive({
     unique()
   
   system_df_enrl_flags %>%
-  filter(
+    filter(
+    # remove enrollments where the exit is over 2 years prior to report start
+      as.numeric(difftime(ExitDate, input$syso_date_range[1],
+                          unit = "days")) / 365 <= 2 &
     # Active At Start logic
     ((ProjectType %in% c(es_ee_project_type, th_project_type, sh_project_type)) |
       (ProjectType == es_nbn_project_type &
@@ -601,7 +604,7 @@ enrollments_crossing_report <- reactive({
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 system_df_people <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
-  # browser()
+  browser()
   
   eecr_lecr <- full_join(
     enrollments_crossing_report()$eecr,
@@ -612,9 +615,6 @@ system_df_people <- reactive({
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
     left_join(eecr_lecr,
               join_by(PersonalID)) %>%
-    # remove enrollments where the exit is over 2 years prior to report start
-    filter(as.numeric(difftime(ExitDate, input$syso_date_range[1],
-                               unit = "days")) / 365 <= 2) %>%
     mutate(is_before_eecr = EntryDate < EntryDate_eecr) %>%
     # create enrollment-level variables/flags that will be used to 
     # label people to be counted in the system activity charts
