@@ -180,7 +180,7 @@ system_df_enrl_filtered <- reactive({
     unique()
   
   outreach_w_proper_cls <- CurrentLivingSituation %>%
-    filter(CurrentLivingSituation %in% c(101, 116, 118, 302) &
+    filter(CurrentLivingSituation %in% homeless_livingsituation &
              between(InformationDate,
                      input$syso_date_range[1] - days(90),
                      input$syso_date_range[1] + days(90))) %>%
@@ -668,8 +668,10 @@ system_df_people <- reactive({
       #1) If project type is in (lh_project_types), then client is not newly homeless (0)
       #2) If LivingSituation is in (hs_living_situation), then client is not newly homeless (0)
       #3) If LivingSituation is in (non_hs_living_sit) and both LOSUnderThreshold and PreviousStreetESSH == 1, then client is not newly homeless (0)
-      enrolled_homeless_at_start == TRUE ~ "Enrolled: Homeless",
-      enrolled_housed_at_start == TRUE ~ "Enrolled: Housed",
+      enrolled_homeless_at_start == TRUE ~
+        "Enrolled: Homeless",
+      enrolled_housed_at_start == TRUE ~
+        "Enrolled: Housed",
       lookback_stay_in_lh == FALSE &
         lookback_entered_as_homeless == FALSE ~ "Newly Homeless",
       return_from_permanent == TRUE ~ "Returned from \nPermanent",
