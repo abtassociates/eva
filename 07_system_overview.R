@@ -59,7 +59,11 @@ hh_adjustments <- system_df_prep %>%
          HoHAlready = if_else(RelationshipToHoH == 1 &
                                 AgeAtEntry > 17, 1, 0)) %>%
   group_by(HouseholdID, ProjectID) %>%
-  arrange(desc(HoHAlready), desc(VeteranStatus), desc(AgeAtEntry), PersonalID) %>%
+  arrange(desc(HoHAlready),
+          desc(VeteranStatus),
+          desc(AgeAtEntry),
+          PersonalID,
+          .by_group = TRUE) %>%
   mutate(Sequence = seq(n()),
          CorrectedHoH = if_else(Sequence == 1, 1, 0)) %>%
   ungroup() %>%
