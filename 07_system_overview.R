@@ -97,7 +97,6 @@ rm(hh_adjustments)
 # Enrollment-level flags. will help us categorize enrollments
 system_df_enrl_flags <- system_df_prep %>%
   mutate(
-    EnrollmentDateRange = interval(EntryDate, ExitAdjust),
     lh_prior_livingsituation = !is.na(LivingSituation) &
       (
         LivingSituation %in% homeless_livingsituation |
