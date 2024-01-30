@@ -9,6 +9,28 @@ system_person_ages <- EnrollmentAdjust %>%
 # using EnrollmentAdjust because that df doesn't contain enrollments that fall
 # outside periods of operation/participation
 system_df_prep <- EnrollmentAdjust %>%
+  select(EnrollmentID,
+         PersonalID,
+         ProjectID,
+         ProjectType,
+         HouseholdID,
+         EntryDate,
+         MoveInDateAdjust,
+         ExitDate,
+         ExitAdjust,
+         EnrollmentDateRange,
+         AgeAtEntry,
+         RelationshipToHoH,
+         LivingSituation,
+         RentalSubsidyType,
+         LengthOfStay,
+         LOSUnderThreshold,
+         PreviousStreetESSH,
+         DateToStreetESSH,
+         TimesHomelessPastThreeYears,
+         MonthsHomelessPastThreeYears,
+         DisablingCondition
+         ) %>%
   left_join(Project %>% 
               select(ProjectID,
                      ProjectName,
@@ -27,39 +49,7 @@ system_df_prep <- EnrollmentAdjust %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  filter(ContinuumProject == 1) %>%
-  select(
-    EnrollmentID,
-    HouseholdID,
-    PersonalID,
-    ProjectID,
-    OrganizationName,
-    ProjectName,
-    ProjectType,
-    RRHSubType,
-    EntryDate,
-    MoveInDateAdjust,
-    ExitAdjust,
-    ExitDate,
-    EnrollmentDateRange,
-    Destination,
-    DestinationSubsidyType,
-    AgeAtEntry,
-    MostRecentAgeAtEntry,
-    CurrentlyFleeing,
-    DateToStreetESSH,
-    DisablingCondition,
-    DomesticViolenceSurvivor,
-    LivingSituation,
-    LengthOfStay,
-    PreviousStreetESSH,
-    LOSUnderThreshold,
-    TimesHomelessPastThreeYears,
-    MonthsHomelessPastThreeYears,
-    RelationshipToHoH,
-    RentalSubsidyType,
-    VeteranStatus
-  )
+  filter(ContinuumProject == 1)
 
 # corrected hohs ----------------------------------------------------------
 
