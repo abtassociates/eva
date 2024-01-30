@@ -113,10 +113,7 @@ system_df_enrl_flags <- system_df_prep %>%
       ProjectType %in% lh_project_types,
     EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
       lh_prior_livingsituation == TRUE,
-    EnrolledHoused = EnrolledHomeless == FALSE,
-    crosses_rp = int_overlaps(EnrollmentDateRange,
-                              interval(input$syso_date_range[1],
-                                       input$syso_date_range[2]))
+    EnrolledHoused = EnrolledHomeless == FALSE
   ) %>%
   group_by(PersonalID) %>%
   arrange(EntryDate, .by_group = TRUE) %>%
