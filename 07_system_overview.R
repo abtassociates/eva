@@ -29,7 +29,8 @@ system_df_prep <- EnrollmentAdjust %>%
          DateToStreetESSH,
          TimesHomelessPastThreeYears,
          MonthsHomelessPastThreeYears,
-         DisablingCondition
+         DisablingCondition,
+         Destination
          ) %>%
   left_join(Project %>% 
               select(ProjectID,
@@ -125,7 +126,7 @@ system_df_enrl_flags <- system_df_prep %>%
     ProjectType, 
     lh_prior_livingsituation,
     lh_at_entry,
-    crosses_rp,
+    # crosses_rp,
     enrollment_before,
     enrollment_after,
     ordinal,
@@ -221,9 +222,9 @@ system_df_enrl_filtered <- reactive({
       # Level of Detail
       (
         (input$syso_level_of_detail == 1) |
-          (input$syso_level_of_detail == 2 & 
-             (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-          (input$syso_level_of_detail == 3 & CorrectedHoH == 1)
+        (input$syso_level_of_detail == 2 & 
+           (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+        (input$syso_level_of_detail == 3 & CorrectedHoH == 1)
       ) & 
       # Project Type
       (
@@ -233,12 +234,13 @@ system_df_enrl_filtered <- reactive({
           (input$syso_project_type == 3 &
              ProjectType %in% non_res_project_types)
       )
-  ) %>%
-    mutate(
-      enrollment_role = case_when(
-        
-      )
-    )
+  )
+  #%>%
+  #  mutate(
+  #    enrollment_role = case_when(
+  #      
+  #    )
+  #  )
 })
 
 # system inflow_outflow filters/people-level filters---------------------------
