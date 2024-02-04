@@ -454,32 +454,27 @@ system_df_people_filtered <- reactive({
           # Black, African American, or African Inclusive" = 3,
           (input$syso_race_ethnicity == 3 & BlackAfAmerican == 1) |
           
-          # Middle Eastern Inclusive" = 4,
-          (input$syso_race_ethnicity == 4 & MidEastNAfrican == 1) |
+          # Hispanic/Latina/e/o = 4
+          (input$syso_race_ethnicity == 4 & HispanicLatinaeo == 1) |
+            
+          # Middle Eastern Inclusive = 5
+          (input$syso_race_ethnicity == 5 & MidEastNAfrican == 1) |
           
-          # Native Hawaiin or Pacific Islander Inclusive" = 5,
-          (input$syso_race_ethnicity == 5 & NativeHIPacific == 1) |
+          # Native Hawaiin or Pacific Islander Inclusive" = 6,
+          (input$syso_race_ethnicity == 6 & NativeHIPacific == 1) |
           
-          # White Inclusive" = 6),
-          (input$syso_race_ethnicity == 6 & White == 1) |
-          
-          # All People of Color" = 7,
-          (input$syso_race_ethnicity == 7 & 
-             any_cols_selected_except(., race_cols, c("RaceNone", "White"))) |
-          
-          # White Only" = 8),
+          # White Inclusive" = 7),
+          (input$syso_race_ethnicity == 7 & White == 1) |
+            
+          # Black, African American or African and Hispanic/Latina/e/o Inclusive" = 8,
           (input$syso_race_ethnicity == 8 & 
-             no_cols_selected_except(., race_cols, "White")) |
-          
-          # Black, African American or African and Hispanic/Latina/e/o Inclusive" = 9,
-          (input$syso_race_ethnicity == 9 & 
-             (BlackAfAmerican == 1 | HispanicLatinaeo == 1)) |
-          
-          # Hispanic/Latina/e/o Inclusive" = 10,
-          (input$syso_race_ethnicity == 10 & HispanicLatinaeo == 1) |
-          
-          # Hispanic/Latina/e/o Alone" = 11)
-          (input$syso_race_ethnicity == 11 & 
+            (BlackAfAmerican == 1 | HispanicLatinaeo == 1)) |
+            
+          # Hispanic/Latina/e/o Inclusive" = 9,
+          (input$syso_race_ethnicity == 9 & HispanicLatinaeo == 1) |
+            
+          # Hispanic/Latina/e/o Alone" = 10)
+          (input$syso_race_ethnicity == 10 & 
              no_cols_selected_except(., race_cols, "HispanicLatinaeo"))
         ))
       )
