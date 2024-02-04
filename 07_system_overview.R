@@ -326,9 +326,16 @@ system_df_people_filtered <- reactive({
           # All genders
           input$syso_gender == 1 |
             
-          # Gender diverse
+          # Gender diverse/expansive, not including transgender
           (input$syso_gender == 2 & 
-             min_cols_selected_except(., gender_cols, "Transgender", 1)) |
+             any_cols_selected_except(., c(
+               CulturallySpecific, 
+               NonBinary, 
+               Questioning, 
+               DifferentIdentity), "Transgender") & 
+             any_cols_selected_except(., gender_cols, c("GenderNone","Transgender"))
+          ) |
+             
           
           # Man alone
           (input$syso_gender == 3 & 
@@ -347,14 +354,28 @@ system_df_people_filtered <- reactive({
         )) |
         # inclusive
         (input$methodology_type == 2 & (
+          # All Genders
           input$syso_gender == 1 |
+            
+          # Gender Diverse/Expansive, including transgender
           (input$syso_gender == 2 & (
             (Woman == 1 & Man == 1) | 
-              !(Woman == 1 & Man == 1)
+            min_cols_selected_except(., gender_cols, c("Man","Woman"), 1)
           )) |
+          
+          # Man (Boy, if child) alone or in combination" = 3,
           (input$syso_gender == 3 & Man == 1) | 
+        
+          # Non-Binary alone or in combination
           (input$syso_gender == 4 & NonBinary == 1) | 
-          (input$syso_gender == 5 & (Man == 1 | Woman == 1)) | 
+            
+          # Only Woman (Girl, if child) OR Only Man (Boy, if child)
+          (input$syso_gender == 5 & (
+            (Man == 1 & Woman != 1) | 
+            (Woman == 1 & Man != 1)
+          )) | 
+          
+          # Woman (Girl, if child) alone or in combination
           (input$syso_gender == 6 & Woman == 1) 
         ))
       ) &
