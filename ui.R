@@ -698,7 +698,8 @@ dashboardPage(
               inputId = "syso_gender",
               choices = syso_gender_incl,
               width = "100%",
-              selected = syso_gender_incl[1]
+              selected = syso_gender_incl[1],
+              multiple = TRUE
             )),
             column(6, pickerInput(
               label = "Race/Ethnicity",

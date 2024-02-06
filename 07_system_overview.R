@@ -30,7 +30,8 @@ system_df_prep <- EnrollmentAdjust %>%
          DateToStreetESSH,
          TimesHomelessPastThreeYears,
          MonthsHomelessPastThreeYears,
-         DisablingCondition
+         DisablingCondition,
+         Destination
          ) %>%
   left_join(Project %>% 
               select(ProjectID,
@@ -221,9 +222,9 @@ system_df_enrl_filtered <- reactive({
       # Level of Detail
       (
         (input$syso_level_of_detail == 1) |
-          (input$syso_level_of_detail == 2 & 
-             (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-          (input$syso_level_of_detail == 3 & CorrectedHoH == 1)
+        (input$syso_level_of_detail == 2 & 
+           (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+        (input$syso_level_of_detail == 3 & CorrectedHoH == 1)
       ) & 
       # Project Type
       (
@@ -233,12 +234,13 @@ system_df_enrl_filtered <- reactive({
           (input$syso_project_type == 3 &
              ProjectType %in% non_res_project_types)
       )
-  ) %>%
-    mutate(
-      enrollment_role = case_when(
-        
-      )
-    )
+  )
+  #%>%
+  #  mutate(
+  #    enrollment_role = case_when(
+  #      
+  #    )
+  #  )
 })
 
 # system inflow_outflow filters/people-level filters---------------------------
@@ -326,9 +328,16 @@ system_df_people_filtered <- reactive({
           # All genders
           input$syso_gender == 1 |
             
-          # Gender diverse
+          # Gender diverse/expansive, not including transgender
           (input$syso_gender == 2 & 
-             min_cols_selected_except(., gender_cols, "Transgender", 1)) |
+             any_cols_selected_except(., c(
+               CulturallySpecific, 
+               NonBinary, 
+               Questioning, 
+               DifferentIdentity), "Transgender") & 
+             any_cols_selected_except(., gender_cols, c("GenderNone","Transgender"))
+          ) |
+             
           
           # Man alone
           (input$syso_gender == 3 & 
@@ -347,14 +356,28 @@ system_df_people_filtered <- reactive({
         )) |
         # inclusive
         (input$methodology_type == 2 & (
+          # All Genders
           input$syso_gender == 1 |
+            
+          # Gender Diverse/Expansive, including transgender
           (input$syso_gender == 2 & (
             (Woman == 1 & Man == 1) | 
-              !(Woman == 1 & Man == 1)
+            min_cols_selected_except(., gender_cols, c("Man","Woman"), 1)
           )) |
+          
+          # Man (Boy, if child) alone or in combination" = 3,
           (input$syso_gender == 3 & Man == 1) | 
+        
+          # Non-Binary alone or in combination
           (input$syso_gender == 4 & NonBinary == 1) | 
-          (input$syso_gender == 5 & (Man == 1 | Woman == 1)) | 
+            
+          # Only Woman (Girl, if child) OR Only Man (Boy, if child)
+          (input$syso_gender == 5 & (
+            (Man == 1 & Woman != 1) | 
+            (Woman == 1 & Man != 1)
+          )) | 
+          
+          # Woman (Girl, if child) alone or in combination
           (input$syso_gender == 6 & Woman == 1) 
         ))
       ) &
@@ -454,32 +477,27 @@ system_df_people_filtered <- reactive({
           # Black, African American, or African Inclusive" = 3,
           (input$syso_race_ethnicity == 3 & BlackAfAmerican == 1) |
           
-          # Middle Eastern Inclusive" = 4,
-          (input$syso_race_ethnicity == 4 & MidEastNAfrican == 1) |
+          # Hispanic/Latina/e/o = 4
+          (input$syso_race_ethnicity == 4 & HispanicLatinaeo == 1) |
+            
+          # Middle Eastern Inclusive = 5
+          (input$syso_race_ethnicity == 5 & MidEastNAfrican == 1) |
           
-          # Native Hawaiin or Pacific Islander Inclusive" = 5,
-          (input$syso_race_ethnicity == 5 & NativeHIPacific == 1) |
+          # Native Hawaiin or Pacific Islander Inclusive" = 6,
+          (input$syso_race_ethnicity == 6 & NativeHIPacific == 1) |
           
-          # White Inclusive" = 6),
-          (input$syso_race_ethnicity == 6 & White == 1) |
-          
-          # All People of Color" = 7,
-          (input$syso_race_ethnicity == 7 & 
-             any_cols_selected_except(., race_cols, c("RaceNone", "White"))) |
-          
-          # White Only" = 8),
+          # White Inclusive" = 7),
+          (input$syso_race_ethnicity == 7 & White == 1) |
+            
+          # Black, African American or African and Hispanic/Latina/e/o Inclusive" = 8,
           (input$syso_race_ethnicity == 8 & 
-             no_cols_selected_except(., race_cols, "White")) |
-          
-          # Black, African American or African and Hispanic/Latina/e/o Inclusive" = 9,
-          (input$syso_race_ethnicity == 9 & 
-             (BlackAfAmerican == 1 | HispanicLatinaeo == 1)) |
-          
-          # Hispanic/Latina/e/o Inclusive" = 10,
-          (input$syso_race_ethnicity == 10 & HispanicLatinaeo == 1) |
-          
-          # Hispanic/Latina/e/o Alone" = 11)
-          (input$syso_race_ethnicity == 11 & 
+            (BlackAfAmerican == 1 | HispanicLatinaeo == 1)) |
+            
+          # Hispanic/Latina/e/o Inclusive" = 9,
+          (input$syso_race_ethnicity == 9 & HispanicLatinaeo == 1) |
+            
+          # Hispanic/Latina/e/o Alone" = 10)
+          (input$syso_race_ethnicity == 10 & 
              no_cols_selected_except(., race_cols, "HispanicLatinaeo"))
         ))
       )
