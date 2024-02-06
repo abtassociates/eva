@@ -19,6 +19,7 @@ system_df_prep <- EnrollmentAdjust %>%
          ExitDate,
          ExitAdjust,
          EnrollmentDateRange,
+         Destination,
          AgeAtEntry,
          RelationshipToHoH,
          LivingSituation,
@@ -125,7 +126,6 @@ system_df_enrl_flags <- system_df_prep %>%
     ProjectType, 
     lh_prior_livingsituation,
     lh_at_entry,
-    crosses_rp,
     enrollment_before,
     enrollment_after,
     ordinal,
@@ -612,7 +612,7 @@ enrollments_crossing_report <- reactive({
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 system_df_people <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
-  browser()
+  # browser()
   
   eecr_lecr <- full_join(
     enrollments_crossing_report()$eecr,
