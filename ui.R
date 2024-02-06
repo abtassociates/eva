@@ -1,8 +1,38 @@
 dashboardPage(
   title = "Eva",
   skin = "black",
-  dashboardHeader(title = span(img(src = "Eva_logo_horizontal_white.png",
-                                   height = 45))),
+  dashboardHeader(
+    title = span(img(src = "Eva_logo_horizontal_white.png",
+                                   height = 45)),
+    # https://alvarotrigo.com/blog/toggle-switch-css/
+    tags$li(class="dropdown",
+            HTML('<div class="toggle-button-cover">
+      <div class="button-cover">
+        <div id="demo-label">
+          <span>Mode? </span>
+          <i class="fas fa-circle-info demo-tooltip">
+          <span class="demo-tooltiptext">
+            <strong>Off</strong>: Upload your own HMIS CSV Export.
+            <br>
+            <br>
+            <strong>On</strong>: Uses a demo HMIS CSV Export. 
+            This will overwrite your imported file.
+          </span>
+          </i>
+        </div>
+        <div class="button r" id="button-1">
+          <input id="isdemo" type="checkbox" class="checkbox" />
+          <div class="knobs"></div>
+          <div class="layer"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+    document.getElementById("isdemo").onchange = function() {
+        Shiny.setInputValue("in_demo_mode", this.checked, {priority: "event"});
+    }
+    </script>'))
+  ),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
