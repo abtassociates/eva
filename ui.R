@@ -9,7 +9,7 @@ dashboardPage(
             HTML('<div class="toggle-button-cover">
       <div class="button-cover">
         <div id="demo-label">
-          <span>Mode? </span>
+          <span>DEMO MODE </span>
           <i class="fas fa-circle-info demo-tooltip">
           <span class="demo-tooltiptext">
             <strong>Off</strong>: Upload your own HMIS CSV Export.
