@@ -241,8 +241,8 @@ function(input, output, session) {
     
     output$fileStructureAnalysis <- DT::renderDataTable(
       {
-        req(initially_valid_import)
-
+        req(exists("file_structure_analysis_main"))
+        
         a <- file_structure_analysis_main %>%
           group_by(Type, Issue) %>%
           summarise(Count = n()) %>%
@@ -262,12 +262,12 @@ function(input, output, session) {
                         Visit the other tabs to view the rest of Eva's output")
                          )
         )
-      })
+      }) |> bindEvent(input$imported, input$in_demo_mode)
 # File Structure Analysis Download ----------------------------------------
 
     output$downloadFileStructureAnalysisBtn <- renderUI({
-      req(initially_valid_import)
-     # req(nrow(file_structure_analysis_main) > 0)
+      req(exists("file_structure_analysis_main"))
+      req(nrow(file_structure_analysis_main) > 0)
       downloadButton("downloadFileStructureAnalysis",
                      "Download Structure Analysis Detail")
     })  
