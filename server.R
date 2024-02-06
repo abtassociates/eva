@@ -236,7 +236,7 @@ function(input, output, session) {
         }
       })
     }
-    
+  }, ignoreInit = TRUE)
 # File Structure Analysis Summary -----------------------------------------
     
     output$fileStructureAnalysis <- DT::renderDataTable(
@@ -849,14 +849,9 @@ function(input, output, session) {
   #          ReportEnd
   #        )))
   # })
-
-  }, ignoreInit = TRUE)
-  
   session$onSessionEnded(function() {
     logMetadata("Session Ended")
   })
-}
-  
   
   # output$cocDQErrors <- renderPlot(dq_plot_projects_errors)
   # 
@@ -1130,3 +1125,4 @@ function(input, output, session) {
 #                      bedUtilization)
 #   )
 # })
+}
