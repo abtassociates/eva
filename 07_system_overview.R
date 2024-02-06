@@ -111,12 +111,6 @@ system_df_enrl_flags <- system_df_prep %>%
       lh_prior_livingsituation == TRUE,
     EnrolledHoused = EnrolledHomeless == FALSE
   ) %>%
-  group_by(PersonalID) %>%
-  arrange(EntryDate, .by_group = TRUE) %>%
-  mutate(enrollment_before = lag(EnrollmentID, order_by = EntryDate),
-         enrollment_after = lead(EnrollmentID, order_by = ExitAdjust),
-         ordinal = row_number()) %>%
-  ungroup() %>%
   select(
     EnrollmentID, 
     PersonalID, 
@@ -124,12 +118,10 @@ system_df_enrl_flags <- system_df_prep %>%
     EntryDate, 
     MoveInDateAdjust,
     ExitDate, 
+    ExitAdjust,
     ProjectType, 
     lh_prior_livingsituation,
     lh_at_entry,
-    enrollment_before,
-    enrollment_after,
-    ordinal,
     EnrolledHomeless,
     EnrolledHoused,
     LivingSituation,
@@ -169,7 +161,7 @@ system_df_client_flags <- Client %>%
 
 # universe filters/enrollment-level filters -----------------------------------
 system_df_enrl_filtered <- reactive({
-  
+  browser()
   nbn_enrollments_w_proper_services <- EnrollmentAdjust %>%
     select(EnrollmentID, ProjectType) %>%
     filter(ProjectType == 1) %>%
@@ -221,7 +213,7 @@ system_df_enrl_filtered <- reactive({
     ) & 
       # Level of Detail
       (
-        (input$syso_level_of_detail == 1) |
+        input$syso_level_of_detail == 1 |
         (input$syso_level_of_detail == 2 & 
            (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
         (input$syso_level_of_detail == 3 & CorrectedHoH == 1)
@@ -234,13 +226,24 @@ system_df_enrl_filtered <- reactive({
           (input$syso_project_type == 3 &
              ProjectType %in% non_res_project_types)
       )
-  )
-  #%>%
-  #  mutate(
-  #    enrollment_role = case_when(
-  #      
-  #    )
-  #  )
+    ) %>%
+    group_by(PersonalID) %>%
+    arrange(EntryDate, .by_group = TRUE) %>%
+    mutate(enrollment_before = lag(EnrollmentID, order_by = EntryDate),
+           enrollment_after = lead(EnrollmentID, order_by = ExitAdjust),
+           ordinal = row_number()) %>%
+    ungroup() %>%
+    mutate(
+      in_date_range =
+        int_overlaps(EnrollmentDateRange,
+                     interval(input$syso_date_range[1], input$syso_date_range[2])
+        )) %>%
+    group_by(PersonalID, in_date_range) %>%
+    mutate(
+      lecr = in_date_range == TRUE & max(ordinal) == ordinal,
+      eecr = in_date_range == TRUE & min(ordinal) == ordinal,
+      lookback = if_else(in_date_range == FALSE, rev(row_number()), 0)) %>%
+    ungroup()
 })
 
 # system inflow_outflow filters/people-level filters---------------------------
