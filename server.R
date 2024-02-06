@@ -70,69 +70,72 @@ function(input, output, session) {
     }
   }) 
   
+  should_activate_demo <- reactive({
+    if(length(input$imported)) {
+      showModal(
+        modalDialog(
+          "If you switch to demo mode, your uploaded HMIS CSV will be removed. Continue?",
+          title = NULL,
+          footer = tagList(actionButton("continue_demo_btn", "Continue"),
+                           modalButton("Cancel"))
+        )
+      )
+      return(FALSE)
+    } else {
+      return(TRUE)
+    }
+  })
+  observeEvent(input$continue_demo_btn, {
+    browser()
+    should_activate_demo(TRUE)
+  })
+  
+  activate_demo <- reactive({
+    capture.output("Switching to demo mode!")
+    # clear environment
+    rm(list = ls())
+    
+    # let user know things take a min to load then load the demo data
+    showModal(
+      modalDialog(
+        "Activating demo mode. This may take a minute...",
+        title = NULL,
+        footer = NULL
+      )
+    )
+    load("demo.Rdata", envir = .GlobalEnv)
+    removeModal()
+    
+    # mark the file as valid
+    valid_file(1)
+    
+    # update inputs choices and defaults
+    updatePickerInput(session = session, inputId = "currentProviderList",
+                      choices = sort(Project$ProjectName))
+    
+    updatePickerInput(session = session, inputId = "providerListDQ",
+                      choices = dq_providers)
+    
+    updatePickerInput(session = session, inputId = "orgList",
+                      choices = c(unique(sort(Organization$OrganizationName))))
+    
+    updateDateInput(session = session, inputId = "dq_org_startdate", 
+                    value = meta_HUDCSV_Export_Start)
+    
+    updateDateInput(session = session, inputId = "dq_startdate", 
+                    value = meta_HUDCSV_Export_Start)
+    
+    updateDateRangeInput(session = session, inputId = "dateRangeCount",
+                         min = meta_HUDCSV_Export_Start,
+                         start = meta_HUDCSV_Export_Start,
+                         max = meta_HUDCSV_Export_End,
+                         end = meta_HUDCSV_Export_End)
+  })
   # Handle demo mode ------------------------------------------------------
   observeEvent(input$in_demo_mode, {
     if(input$in_demo_mode == TRUE) {
-      should_activate_demo <- reactiveVal({
-        should_activate_demo <- FALSE
-        if(length(input$imported)) {
-          showModal(
-            modalDialog(
-              "If you switch to demo mode, your uploaded HMIS CSV will be removed. Continue?",
-              title = NULL,
-              footer = tagList(actionButton("continue_demo_btn", "Continue"),
-                               modalButton("Cancel"))
-            )
-          )
-          
-        } else {
-          return(TRUE)
-        }
-      })
-      
-      observeEvent(input$continue_demo_btn, {
-        should_activate_demo(TRUE)
-      })
-      
-      activate_demo <- reactive({
-        req(should_activate_demo)
-        browser()
-        logToConsole("Switching to demo mode!")
-        rm(list = ls())
-        showModal(
-          modalDialog(
-            "Activating demo mode. This may take a minute...",
-            title = NULL,
-            footer = NULL
-          )
-        )
-        load("demo.Rdata", envir = .GlobalEnv)
-        removeModal()
-        valid_file(1)
-        source("02_export_dates.R", local=TRUE)
-        
-        # update inputs choices and defaults
-        updatePickerInput(session = session, inputId = "currentProviderList",
-                          choices = sort(Project$ProjectName))
-        
-        updatePickerInput(session = session, inputId = "providerListDQ",
-                          choices = dq_providers)
-        
-        updatePickerInput(session = session, inputId = "orgList",
-                          choices = c(unique(sort(Organization$OrganizationName))))
-        
-        updateDateInput(session = session, inputId = "dq_org_startdate", 
-                        value = meta_HUDCSV_Export_Start)
-        
-        updateDateInput(session = session, inputId = "dq_startdate", 
-                        value = meta_HUDCSV_Export_Start)
-        
-        updateDateRangeInput(session = session, inputId = "dateRangeCount",
-                             min = meta_HUDCSV_Export_Start,
-                             start = meta_HUDCSV_Export_Start,
-                             max = meta_HUDCSV_Export_End,
-                             end = meta_HUDCSV_Export_End)
-      })
+      req(should_activate_demo())
+      activate_demo()
     } else {
       print("It's in live mode!")
       rm(list = ls())
