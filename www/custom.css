@@ -217,3 +217,174 @@ a:hover {
 #fileInfo.recalculating p {
   display: none;
 }
+
+/* DEMO MODE*/
+#demo_toggle.pill-60, #demo_toggle.pill-60:hover {
+  background: #000000
+}
+#demo_toggle-stateText {
+  color: white;
+}
+.container-55 {
+  padding: 11px;
+}
+.toggle-button-cover {
+  display: table-cell;
+  position: relative;
+  width: 200px;
+  box-sizing: border-box;
+}
+
+.button-cover {
+  height: 13px;
+  margin: 20px;
+  box-shadow: 0 10px 20px -8px #c5d6d6;
+  border-radius: 4px;
+}
+/*
+.button-cover:before {
+  counter-increment: button-counter;
+  content: counter(button-counter);
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  color: #d7e3e3;
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px;
+}*/
+
+.button-cover,
+.knobs,
+.layer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.button {
+  position: relative;
+  top: 50%;
+  width: 74px;
+  height: 36px;
+  margin: -20px auto 0 auto;
+  overflow: hidden;
+}
+
+.button.r,
+.button.r .layer {
+  border-radius: 100px;
+}
+
+.button.b2 {
+  border-radius: 2px;
+}
+
+.checkbox {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.knobs {
+  z-index: 2;
+}
+
+.layer {
+  width: 100%;
+  background-color: #f5d9d3;
+  transition: 0.3s ease all;
+  z-index: 1;
+}
+/* Demo Mode - OFF */
+#button-1 .knobs:before {
+  content: "OFF";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 33px;
+  height: 28px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1;
+  padding: 9px 4px;
+  background-color: #C2462E;
+  border-radius: 50%;
+  transition: 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
+}
+/* Demo Mode - OFF */
+#button-1 .checkbox:checked + .knobs:before {
+  content: "ON";
+  left: 37px;
+  background-color: #4BB543;
+}
+
+#button-1 .checkbox:checked ~ .layer {
+  background-color:#dff3dd;
+}
+
+#button-1 .knobs,
+#button-1 .knobs:before,
+#button-1 .layer {
+  transition: 0.3s ease all;
+}
+
+#demo-label {
+  color: white;
+  position: absolute;
+  left: -25px;
+  top: -4px;
+}
+
+/* Tooltip container */
+.demo-tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.demo-tooltip .demo-tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  background-color: white;
+  border: 1px solid black;
+  font-family: Arial;
+  font-weight: normal;
+  color: black;
+  padding: 5px;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 3;
+  margin-left: -120px;
+  top: 20px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.demo-tooltip .demo-tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.demo-tooltip:hover .demo-tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
