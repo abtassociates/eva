@@ -287,29 +287,6 @@ function(input, output, session) {
         exportTestValues(file_structure_analysis_main = file_structure_analysis_main)
       }
     )
-    
-    if(valid_file() == 1) {
-      updatePickerInput(session = session, inputId = "currentProviderList",
-                        choices = sort(Project$ProjectName))
-      
-      updatePickerInput(session = session, inputId = "providerListDQ",
-                        choices = dq_providers)
-      
-      updatePickerInput(session = session, inputId = "orgList",
-                        choices = c(unique(sort(Organization$OrganizationName))))
-      
-      updateDateInput(session = session, inputId = "dq_org_startdate", 
-                      value = meta_HUDCSV_Export_Start)
-      
-      updateDateInput(session = session, inputId = "dq_startdate", 
-                      value = meta_HUDCSV_Export_Start)
-      
-      updateDateRangeInput(session = session, inputId = "dateRangeCount",
-                           min = meta_HUDCSV_Export_Start,
-                           start = meta_HUDCSV_Export_Start,
-                           max = meta_HUDCSV_Export_End,
-                           end = meta_HUDCSV_Export_End)
-    }
 
 
 # # System Data Quality Overview --------------------------------------------
