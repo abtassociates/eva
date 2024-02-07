@@ -589,197 +589,164 @@ syso_chartSubheader <- reactive({
   )
 })
 
-# Early & Late Enrollments Crossing the Date Range ------------------------
-
-# determine the earliest and latest enrollments crossing the report
-# based on the enrollment-level filtered dataset
-# get the earliest enrollment cross the report range
-# this is needed for inflow types Returned from Permanent and Re-Engaged from Temporary/Unknown
-# in case there are overlapping enrollments (caught by DQ), take first
-
-# Function to calculate min and max enrollments crossing 
-# start and end of the report period, respectively
-
-calc_ecr <- function(crosstype, ecr_DT) {
-  # Calculate the minimum EnrollmentDateRange for each PersonalID
-  crosstype_ecr <- ecr_DT[, 
-                      .(crosstype_enrollmentstart = get(crosstype)(EntryDate)), 
-                      by = PersonalID]
-  
-  # Merge the minimum EnrollmentDateRange back to the original data table
-  ecr <- ecr_DT[
-    crosstype_ecr, 
-    on = .(PersonalID, EntryDate = crosstype_enrollmentstart)]
-  
-  # Use unique() to remove duplicates based on PersonalID
-  ecr <- unique(ecr, by = c("PersonalID"))
-  
-  # Rename columns except household ID and PersonalID
-  suffix <- ifelse(crosstype == "min", "_eecr", "_lecr")
-  names(ecr) <- paste0(names(ecr), suffix)
-  names(ecr)[names(ecr) == paste0("PersonalID", suffix)] <- "PersonalID"
-  
-  return(ecr)
-}
-# AS: maybe move to enrollment_filtered()
-enrollments_crossing_report <- reactive({
-  ecr <- system_df_enrl_filtered() %>%
-    filter(
-      int_overlaps(
-        EnrollmentDateRange,
-        interval(input$syso_date_range[1], input$syso_date_range[2])
-      ) 
-    ) %>%
-    select(
-      PersonalID, 
-      HouseholdID,
-      Destination, 
-      EntryDate,
-      ExitDate,
-      lh_prior_livingsituation,
-      EnrolledHomeless,
-      EnrolledHoused,
-      lh_at_entry,
-      MoveInDateAdjust,
-      ProjectType
-    )
-  
-  ecr_DT <- as.data.table(ecr)
-  
-  return(list(
-    eecr = calc_ecr("min", ecr_DT),
-    lecr = calc_ecr("max", ecr_DT)
-  ))
-})
-
-# AS TO GD: Please review this closely.
 # get final people-level, inflow/outflow dataframe by joining the filtered----- 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 system_df_people <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
-  # browser()
-  
-  eecr_lecr <- full_join(
-    enrollments_crossing_report()$eecr,
-    enrollments_crossing_report()$lecr,
-    join_by(PersonalID))
-  
   universe <- system_df_enrl_filtered() %>%
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
-    left_join(eecr_lecr,
-              join_by(PersonalID)) %>%
+    filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
     mutate(
-      is_before_eecr = EntryDate < EntryDate_eecr,
-      enrollment_ordinal = case_when(
-        is_before_eecr == TRUE ~ 0,
-        HouseholdID == HouseholdID_eecr &
-          HouseholdID_eecr == HouseholdID_lecr ~ 2,
-        HouseholdID == HouseholdID_eecr &
-          HouseholdID != HouseholdID_lecr ~ 1,
-        HouseholdID == HouseholdID_lecr &
-          HouseholdID != HouseholdID_eecr ~ 3,
-        TRUE ~ 99
+      # INFLOW CALCULATOR COLUMNS
+      #LOGIC: enrolled homeless at start
+        # basically it has to straddle report start
+          # the entry date of the EECR needs to be on or before the report date range
+          # the exitadjust has to be after report start
+        # EnrolledHomeless status of the EECR needs to be true
+          # JUST FOR FULL DISCLOSURE, this means: 
+            # ProjectType %in% project_types_enrolled_homeless |
+            # lh_prior_livingsituation == TRUE
+      
+      homeless_at_start = eecr == TRUE & 
+        EntryDate <= input$syso_date_range[1] &
+        ExitAdjust > input$syso_date_range[1] &
+        EnrolledHomeless == TRUE,
+      
+      #LOGIC: enrolled housed at start
+      # Exit.ExitDate is null or > ReportStartDate AND
+    
+      # Project.ProjectType IN (3, 9, 10, 13) AND
+      # Enrollment.MoveInDate is !NULL OR <= ReportStartDate AND
+      # Enrollment.LivingSituation is LiterallyHomeless*"
+      housed_at_start = eecr == TRUE & 
+        ExitAdjust > input$syso_date_range[1] &
+        ProjectType %in% ph_project_types & 
+        (!is.na(MoveInDateAdjust) & MoveInDateAdjust <= input$syso_date_range[1]) &
+        lh_prior_livingsituation == TRUE,
+      
+      # LOGIC Return from permanent
+      # must be at least 14 days from the lookback1's exit and the eecr's entry
+      
+      lookback1_perm_dest = lookback == 1 & 
+        Destination %in% perm_destinations,
+      
+      eecr_lh_at_entry = eecr == TRUE &
+        lh_at_entry == TRUE,
+      
+      at_least_14_days_to_eecr_enrl = lookback == 1 & 
+        days_to_next_enrl >= 14,
+      
+      # LOGIC Re-engaged from temporary
+      # identical to return-from-permanet except dest NOT IN perm
+      lookback1_temp_dest = lookback == 1 & 
+        !(Destination %in% perm_destinations),
+      
+      # LOGIC Newly homeless
+      # MAYBE WILL DO: meta_export_start < report_start - 2 years
+      newly_homeless = lookback > 0 & 
+        lh_at_entry == FALSE,
+      
+      # OUTFLOW CALCULATOR COLUMNS
+      perm_dest = lecr == TRUE &
+        Destination %in% perm_destinations &
+        !is.na(ExitDate), # &
+      # NoEnrollmentsToLHFor14DaysFromLECR == TRUE
+      
+      temp_dest = lecr == TRUE &
+        !(Destination %in% perm_destinations) &
+        !is.na(ExitAdjust),
+      
+      homeless_at_end = lecr == TRUE & 
+        EntryDate <= input$syso_date_range[2] &
+        (is.na(ExitAdjust) | ExitAdjust > input$syso_date_range[2]) &
+        (
+          ProjectType %in% c(0, 2, 8) |
+          (ProjectType == 1 &
+           (DateProvided > input$syso_date_range[2] + 15 | DateProvided < input$syso_date_range[2] - 15)
+          )
+        ) | (
+          ProjectType == 4 &
+          (InformationDate > input$syso_date_range[2] + 15 | InformationDate < input$syso_date_range[2] - 15) &
+          (
+            CurrentLivingSituation %in% homeless_livingsituation |
+            lh_at_entry == TRUE
+          )
+        ) | (
+          ProjectType %in% ph_project_types &
+          (is.na(MoveInDateAdjust) | MoveInDateAdjust >= input$syso_date_range[2]) &
+          lh_at_entry == TRUE
+        ),
+
+      housed_at_end = lecr == TRUE & 
+        EntryDate <= input$syso_date_range[2] &
+        (is.na(ExitAdjust) | ExitAdjust > input$syso_date_range[2]) &
+        ProjectType %in% ph_project_types & 
+        (!is.na(MoveInDateAdjust) & MoveInDateAdjust <= input$syso_date_range[1]) &
+        lh_at_entry == TRUE
+    ) %>%
+    group_by(PersonalID) %>%
+    filter(max(lecr) == 1 & max(eecr) == 1) %>%
+    mutate(
+      # INFLOW
+      homeless_at_start_client = max(homeless_at_start) == 1,
+      
+      housed_at_start_client = max(housed_at_start) == 1,
+      
+      return_from_perm_client = max(lookback1_perm_dest) == 1 & 
+        max(eecr_lh_at_entry) == 1 & 
+        max(at_least_14_days_to_eecr_enrl) == 1,
+      
+      reengaged_from_temp_client = max(lookback1_temp_dest) == 1 & 
+        max(eecr_lh_at_entry) == 1 & 
+        max(at_least_14_days_to_eecr_enrl) == 1,
+      
+      newly_homeless_client = max(newly_homeless) == 1,
+      
+      InflowType = case_when(
+        homeless_at_start_client == TRUE ~ "Homeless",
+        housed_at_start_client == TRUE ~ "Housed",
+        newly_homeless_client == TRUE ~ "Newly Homeless",
+        return_from_perm_client == TRUE ~ "Returned from \nPermanent",
+        reengaged_from_temp_client == TRUE ~ "Re-engaged from \nNon-Permanent",
+        TRUE ~ "something's wrong"
+      ),
+      
+      # OUTFLOW
+      perm_dest_client = max(perm_dest) == 1,
+      
+      temp_dest_client = max(temp_dest) == 1,
+      
+      homeless_at_end_client = max(homeless_at_end) == 1,
+      
+      housed_at_end_client  = max(housed_at_end) == 1,
+      
+      OutflowType = case_when(
+        perm_dest_client == TRUE ~ "Permanent Destination",
+      
+        temp_dest_client == TRUE ~ "Non-Permanent \nDestination",
+      
+        homeless_at_end_client == TRUE ~ "Homeless",
+        
+        housed_at_end_client == TRUE ~ "Housed"
       )
     ) %>%
-    # create enrollment-level variables/flags that will be used to 
-    # label people to be counted in the system activity charts
-    group_by(PersonalID) %>%
-    mutate(
-      lookback_stay_in_lh = 
-        any(ProjectType %in% lh_project_types &
-              is_before_eecr == TRUE),
-      lookback_entered_as_homeless = 
-        any(lh_prior_livingsituation &
-              is_before_eecr == TRUE),
-      NoEnrollmentsToLHFor14DaysFromLECR = !any(
-        as.numeric(difftime(ExitDate_lecr, EntryDate, "days")) <= -14 & 
-          ProjectType %in% lh_project_types
-      ), # is this what the logic means (VL)
-      return_from_permanent = 
-        lh_at_entry == TRUE &
-        is_before_eecr == FALSE &
-        any(lh_at_entry == TRUE & 
-              as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
-              Destination %in% perm_destinations),
-      reengaged_from_temporary =
-        lh_at_entry == TRUE &
-        is_before_eecr == FALSE &
-        any(
-          is_before_eecr == TRUE &
-            as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) >= 14 &
-            !(Destination %in% perm_destinations)
-        ),
-      pathway_skipped_report_start =
-        lh_at_entry == TRUE &
-        is_before_eecr == FALSE &
-        any(
-          is_before_eecr == TRUE &
-            as.numeric(difftime(EntryDate_eecr, ExitDate, unit = "days")) < 14 &
-            !(Destination %in% perm_destinations)
-        ),
-      enrolled_homeless_at_start = EntryDate_eecr <= input$syso_date_range[1] &
-        coalesce(ExitDate_eecr, no_end_date) > input$syso_date_range[1] &
-        EnrolledHomeless_eecr == TRUE,
-      enrolled_housed_at_start = enrolled_homeless_at_start == FALSE,
-      enrolled_homeless_at_end = EntryDate_lecr <= input$syso_date_range[2] &
-        coalesce(ExitDate_lecr, no_end_date) > input$syso_date_range[2] &
-        EnrolledHomeless_lecr == TRUE,
-      enrolled_housed_at_end = enrolled_homeless_at_end == FALSE
+    ungroup() 
+  
+  browser()
+  
+  universe %>%
+    select(PersonalID, 
+           homeless_at_start_client, 
+           housed_at_start_client,
+           return_from_perm_client,
+           reengaged_from_temp_client,
+           InflowType,
+           perm_dest_client,
+           temp_dest_client,
+           homeless_at_end_client,
+           housed_at_end_client,
+           OutflowType
     ) %>%
-    ungroup()
-  
-  inflow <- universe %>%
-    filter(!is.na(HouseholdID_eecr)) %>%
-    select(PersonalID, lookback_stay_in_lh, lookback_entered_as_homeless,
-           NoEnrollmentsToLHFor14DaysFromLECR, return_from_permanent,
-           reengaged_from_temporary, enrolled_homeless_at_start,
-           enrolled_housed_at_start, pathway_skipped_report_start) %>%
-    unique() %>%
-    mutate(InflowType = case_when(
-      #1) If project type is in (lh_project_types), then client is not newly homeless (0)
-      #2) If LivingSituation is in (hs_living_situation), then client is not newly homeless (0)
-      #3) If LivingSituation is in (non_hs_living_sit) and both LOSUnderThreshold and PreviousStreetESSH == 1, then client is not newly homeless (0)
-      enrolled_homeless_at_start == TRUE ~
-        "Enrolled: Homeless",
-      enrolled_housed_at_start == TRUE ~
-        "Enrolled: Housed",
-      lookback_stay_in_lh == FALSE &
-        lookback_entered_as_homeless == FALSE ~ "Newly Homeless",
-      return_from_permanent == TRUE ~ "Returned from \nPermanent",
-      reengaged_from_temporary == TRUE ~ "Re-engaged from \nNon-Permanent",
-      pathway_skipped_report_start == TRUE ~ "Continued system \nengagement",
-      TRUE ~ "something's wrong"
-    )) %>%
-    select(PersonalID, InflowType)
-  
-  outflow <- universe %>%
-    filter(!is.na(HouseholdID_lecr)) %>%
-    select(PersonalID, Destination_lecr, ExitDate_lecr, enrolled_homeless_at_end,
-           enrolled_housed_at_end) %>%
-    unique() %>%
-    mutate(OutflowType = case_when(
-      # The client has exited from an enrollment with a permanent destination
-      # and does not have any other enrollments (aside from RRH/PSH with a move-in date?)
-      # in emergency shelter, transitional housing, safe haven, or street outreach for at least 14 days following.
-      Destination_lecr %in% perm_destinations &
-        !is.na(ExitDate_lecr)# &
-      # NoEnrollmentsToLHFor14DaysFromLECR == TRUE
-      ~ "Permanent Destination",
-      
-      # The client has exited from an enrollment with a temporary/unknown destination
-      # and does not have any other enrollments (aside from RRH/PSH with a move-in date?)
-      # in emergency shelter, transitional housing, safe haven, or street outreach for at least 14 days following.!(Destination_lecr %in% perm_destinations) &
-      !is.na(ExitDate_lecr) &
-        !Destination_lecr %in% perm_destinations
-      ~ "Non-Permanent \nDestination",
-      
-      enrolled_homeless_at_end == TRUE ~ "Enrolled: Homeless",
-      
-      enrolled_housed_at_end == TRUE ~ "Enrolled: Housed",
-      TRUE ~ "something's wrong"
-    )) %>%
-    select(PersonalID, OutflowType)
-  
-  full_join(inflow, outflow, join_by(PersonalID))
+    unique()
 })
 
