@@ -248,7 +248,13 @@ system_df_enrl_filtered <- reactive({
     arrange(EntryDate, .by_group = TRUE) %>%
     mutate(enrollment_before = lag(EnrollmentID, order_by = EntryDate),
            enrollment_after = lead(EnrollmentID, order_by = ExitAdjust),
-           ordinal = row_number()) %>%
+           ordinal = row_number(),
+           days_to_next_enrl = difftime(
+             lead(EntryDate, order_by = EntryDate), # later date
+             EntryDate, # earlier date
+             unit = "days"
+           )
+    ) %>%
     ungroup() %>%
     mutate(
       in_date_range =
@@ -259,7 +265,8 @@ system_df_enrl_filtered <- reactive({
     mutate(
       lecr = in_date_range == TRUE & max(ordinal) == ordinal,
       eecr = in_date_range == TRUE & min(ordinal) == ordinal,
-      lookback = if_else(in_date_range == FALSE, rev(row_number()), 0)) %>%
+      lookback = if_else(in_date_range == TRUE, 0, rev(row_number()))
+    ) %>%
     ungroup()
 })
 
