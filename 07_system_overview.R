@@ -51,6 +51,20 @@ system_df_prep <- EnrollmentAdjust %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
+  left_join(Services %>%
+              filter(RecordType == 200 &
+                     between(DateProvided,
+                             input$syso_date_range[1] - days(15),
+                             input$syso_date_range[1] + days(15))) %>%
+              select(EnrollmentID, DateProvided), 
+            join_by(EnrollmentID)) %>%
+  left_join(CurrentLivingSituation %>%
+              filter(CurrentLivingSituation %in% homeless_livingsituation &
+                       between(InformationDate,
+                               input$syso_date_range[1] - days(90),
+                               input$syso_date_range[1] + days(90))) %>%
+              select(InformationDate, CurrentLivingSituation, EnrollmentID),
+            join_by(EnrollmentID)) %>%
   filter(ContinuumProject == 1)
 
 # corrected hohs ----------------------------------------------------------
@@ -131,7 +145,10 @@ system_df_enrl_flags <- system_df_prep %>%
     EnrollmentDateRange,
     AgeAtEntry,
     MostRecentAgeAtEntry,
-    CorrectedHoH
+    CorrectedHoH,
+    DateProvided,
+    InformationDate,
+    CurrentLivingSituation
   ) %>%
   group_by(HouseholdID) %>%
   mutate(
