@@ -9,6 +9,8 @@ active_as_of_end <- reactive({
   paste0("Active as of \n", input$syso_date_range[2])
   })
 
+active_at_vals <- c("Homeless", "Housed")
+
 x.axis.var_summary_values <- reactive({
   
   c(
@@ -33,15 +35,15 @@ x.axis.var_detail_values <- reactive({
 })
 
 cat.var_summary_values <- c(
-  "Enrolled: Homeless", 
-  "Enrolled: Housed", 
+  "Homeless", 
+  "Housed", 
   "Inflow", 
   "Outflow"
 )
 
 cat.var_detail_values <- c(
-  "Enrolled: Homeless", 
-  "Enrolled: Housed", 
+  "Homeless", 
+  "Housed", 
   "Newly Homeless", 
   "Returned from \nPermanent", 
   "Re-engaged from \nNon-Permanent",
@@ -66,11 +68,11 @@ system_activity_prep <- reactive({
       inflow_outflow = x.axis.var,
       x.axis.var = case_when(
         x.axis.var == "InflowType" &
-          cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed")
+          cat.var %in% active_at_vals
         ~ active_as_of_start(),
         
         x.axis.var == "OutflowType" &
-          cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed")
+          cat.var %in% active_at_vals
         ~ active_as_of_end(),
           
         x.axis.var == "InflowType"
@@ -89,11 +91,11 @@ system_activity_summary_prep <- reactive({
     mutate(
       cat.var = case_when(
         x.axis.var == "Inflow" &
-        !(cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed"))
+        !(cat.var %in% active_at_vals)
         ~ "Inflow",
   
         x.axis.var == "Outflow" &
-        !(cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed"))
+        !(cat.var %in% active_at_vals)
         ~ "Outflow",
   
         TRUE ~ cat.var
@@ -111,7 +113,7 @@ system_activity_detail_prep <- reactive({
   system_activity_prep() %>%
     mutate(
       x.axis.var = ifelse(
-        !(cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed")),
+        !(cat.var %in% active_at_vals),
         cat.var,
         x.axis.var
       )
