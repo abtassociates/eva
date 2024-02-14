@@ -138,7 +138,7 @@ function(input, output, session) {
       activate_demo()
     } else {
       print("It's in live mode!")
-      rm(list = ls())
+      rm(list = ls(), envir=.GlobalEnv)
       showModal(
         modalDialog(
           "Please upload your HMIC CSV file.",
@@ -221,6 +221,16 @@ function(input, output, session) {
           )
 
           logMetadata("Successful upload")
+          # # AS 2/13/24: For saving the demo data file:
+          ## browser is needed to pause so you can save from the console
+          # browser()
+          # # this saves everything in the global and calling environment. 
+          ## The former includes the meta_ variables,
+          ## the latter includes everything else: functions, data frames, and values
+          ## xz compression gets the file down to 22MB, instead of the default
+          ## which gets down to 1GB, which is too large to upload to GitHub
+          # save(list = c(ls(envir = .GlobalEnv, all.names = TRUE), ls(all.names = TRUE)), file = "demo.RData", compress="xz")
+          
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
