@@ -86,8 +86,8 @@ function(input, output, session) {
     }
   })
   observeEvent(input$continue_demo_btn, {
-    browser()
-    should_activate_demo(TRUE)
+    # browser()
+    should_activate_demo()
   })
   
   activate_demo <- reactive({
