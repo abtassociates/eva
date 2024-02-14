@@ -13,7 +13,7 @@ dashboardPage(
       menuItem("Edit Local Settings",
                tabName = "tabLocalSettings"),
       menuItem("View Client Counts",
-                  tabName = "tabClientCount"),
+               tabName = "tabClientCount"),
       menuItem("Assess Data Quality",
                menuSubItem("Check PDDEs",
                            tabName = "tabPDDE"),
@@ -247,33 +247,33 @@ dashboardPage(
               downloaded from your HMIS.
               ")
           )),
-          fluidRow(box(
-            fileInput("imported",
-                      label = NULL,
-                      multiple = FALSE,
-                      accept = ".zip"),
-            uiOutput("fileInfo"),
-            width = 12
-          )),
-          fluidRow(box(
-            title = "HMIS CSV Export File Structure Analysis",
-            width = 12,
-            DT::dataTableOutput("fileStructureAnalysis"),
-            p(),
-            HTML("<p>Users should contact their vendor to resolve high priority 
+        fluidRow(box(
+          fileInput("imported",
+                    label = NULL,
+                    multiple = FALSE,
+                    accept = ".zip"),
+          uiOutput("fileInfo"),
+          width = 12
+        )),
+        fluidRow(box(
+          title = "HMIS CSV Export File Structure Analysis",
+          width = 12,
+          DT::dataTableOutput("fileStructureAnalysis"),
+          p(),
+          HTML("<p>Users should contact their vendor to resolve high priority 
             errors identified in the HMIS CSV Export File Structure Analysis, as
             well as any other structural issues which you feel need to be corrected.
             </p>"),
-            p(),
-            uiOutput('downloadFileStructureAnalysisBtn')
-          ))
-          # fluidRow(box(
-          #   title = "System Data Quality Overview",
-          #   width = 12,
-          #   column(12, plotOutput("validate_plot")),
-          #   column(6, plotOutput("dq_overview_plot")),
-          #   column(6, plotOutput("dq_orgs_overview_plot"))
-          # )
+          p(),
+          uiOutput('downloadFileStructureAnalysisBtn')
+        ))
+        # fluidRow(box(
+        #   title = "System Data Quality Overview",
+        #   width = 12,
+        #   column(12, plotOutput("validate_plot")),
+        #   column(6, plotOutput("dq_overview_plot")),
+        #   column(6, plotOutput("dq_orgs_overview_plot"))
+        # )
         # )
       ),
       tabItem(
@@ -714,9 +714,9 @@ dashboardPage(
             selected = "Top 10 Issues",
             title = "High Priority Errors",
             tabPanel("Top 10 Projects",
-                     uiOutput("orgDQHighPriorityErrorsByProject_ui")),
+                     plotOutput("orgDQHighPriorityErrorsByProject")),
             tabPanel("Top 10 Issues",
-                     uiOutput("orgDQHighPriorityErrorByIssue_ui")),
+                     plotOutput("orgDQHighPriorityErrorByIssue")),
             width = 12
           )
         ),
@@ -725,8 +725,8 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "General Errors",
-            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui")),
-            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui")),
+            tabPanel("Top 10 Projects", plotOutput("orgDQErrorsByProject")),
+            tabPanel("Top 10 Issues", plotOutput("orgDQErrorByIssue")),
             width =12
           )
         ),
@@ -735,12 +735,12 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "Warnings",
-            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui")),
-            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui")),
+            tabPanel("Top 10 Projects", plotOutput("orgDQWarningsByProject")),
+            tabPanel("Top 10 Issues", plotOutput("orgDQWarningsByIssue")),
             width = 12
           )
         ),
-       
+        
         fluidRow(
           box(
             id = "DQSummaryOrganization",
@@ -868,16 +868,16 @@ dashboardPage(
                your CoC leadership, a broader view of the state of your HMIS
                data quality.</p>")
         )), 
-
+        
         fluidRow(
           tabBox(
             side = "right",
             selected = "Top 10 Issues",
             title = "High Priority Errors",
-            tabPanel("Top 10 Organizations",
-                     uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
+            tabPanel("Top 10 Organizations", plotOutput("systemDQHighPriorityErrorsByOrg")),
+            # uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
             tabPanel("Top 10 Issues",
-                     uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
+                     plotOutput("systemDQHighPriorityErrorsByIssue")),
             width = 12
           )
         ),
@@ -886,8 +886,8 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "General Errors",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorsByOrg_ui")),
-            tabPanel("Top 10 Issues", uiOutput("systemDQErrorsByIssue_ui")),
+            tabPanel("Top 10 Organizations", plotOutput("systemDQErrorsByOrg")),
+            tabPanel("Top 10 Issues", plotOutput("systemDQErrorsByIssue")),
             width =12
           )
         ),
@@ -896,8 +896,8 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "Warnings",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsByOrg_ui")),
-            tabPanel("Top 10 Issues", uiOutput("systemDQWarningsByIssue_ui")),
+            tabPanel("Top 10 Organizations", plotOutput("systemDQWarningsByOrg")),
+            tabPanel("Top 10 Issues", plotOutput("systemDQWarningsByIssue")),
             width = 12
           )
         )
@@ -905,4 +905,3 @@ dashboardPage(
     )
   )
 )
-

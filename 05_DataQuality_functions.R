@@ -273,6 +273,7 @@ calculate_outstanding_referrals <- function(too_many_days){
 
 renderDQPlot <- function(level, issueType, group, color) {
   req(exists("dq_main"))
+    
   # groupVars is the variable(s) used to summarise/count rows
   # x_group is the x variable used to in the ggplot reordering
   if(group == "Org") {
@@ -309,18 +310,18 @@ renderDQPlot <- function(level, issueType, group, color) {
   }
 
   # dynamically refer to the UI element ID
-  outputId <- paste0(
-    if_else(level == 'sys','system','org'),
-    "DQ",
-    if_else(issueType == 'High Priority', 'HighPriorityErrors', issueType),
-    "By",
-    group
-  )
+  # outputId <- paste0(
+  #   if_else(level == 'sys','system','org'),
+  #   "DQ",
+  #   if_else(issueType == 'High Priority', 'HighPriorityErrors', issueType),
+  #   "By",
+  #   group
+  # )
   
   # generate the plot
   # note there's no ui.R element with this ID, but it's, necessary to have an 
   # output element to refer to in the plotOutput statement below)
-  output[[outputId]] <- renderPlot({
+  renderPlot({
     req(valid_file() == 1)
   
     issueTypeDisplay = if_else(issueType == "Warning", 
@@ -359,11 +360,10 @@ renderDQPlot <- function(level, issueType, group, color) {
             panel.grid.major = element_blank()) +
       geom_text(aes(label = countVar), hjust = -0.5, color = "black")
   })
-  
   # this effectively collapses the plot if there are no rows
-  plot_height = if_else(nrow(plot_data) == 0,50,400)
+  # plot_height = if_else(nrow(plot_data) == 0,50,400)
   
   # finally, render the plot
-  return(plotOutput(outputId, height = plot_height))
+  # return(plotOutput(outputId, height = plot_height))
 }
 
