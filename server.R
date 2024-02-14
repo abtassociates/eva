@@ -103,7 +103,7 @@ function(input, output, session) {
         footer = NULL
       )
     )
-    load("demo.Rdata", envir = .GlobalEnv)
+    load("demo.RData", envir = .GlobalEnv)
     removeModal()
     
     # mark the file as valid
