@@ -673,12 +673,12 @@ system_df_people <- reactive({
         lh_at_entry == TRUE
     ) %>%
     group_by(PersonalID) %>%
-    filter(max(lecr) == 1 & max(eecr) == 1) %>%
-    mutate(
+    # filter(max(lecr) == 1 & max(eecr) == 1) %>%
+    summarise(
       # INFLOW
-      homeless_at_start_client = max(homeless_at_start) == 1,
+      homeless_at_start_client = max(homeless_at_start),
       
-      housed_at_start_client = max(housed_at_start) == 1,
+      housed_at_start_client = max(housed_at_start),
       
       return_from_perm_client = max(lookback1_perm_dest) == 1 & 
         max(eecr_lh_at_entry) == 1 & 
@@ -700,13 +700,13 @@ system_df_people <- reactive({
       ),
       
       # OUTFLOW
-      perm_dest_client = max(perm_dest) == 1,
+      perm_dest_client = max(perm_dest),
       
-      temp_dest_client = max(temp_dest) == 1,
+      temp_dest_client = max(temp_dest),
       
-      homeless_at_end_client = max(homeless_at_end) == 1,
+      homeless_at_end_client = max(homeless_at_end),
       
-      housed_at_end_client  = max(housed_at_end) == 1,
+      housed_at_end_client  = max(housed_at_end),
       
       OutflowType = case_when(
         perm_dest_client == TRUE ~ "Permanent Destination",
