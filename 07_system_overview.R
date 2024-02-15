@@ -131,10 +131,7 @@ system_df_enrl_flags <- system_df_prep %>%
     EnrollmentDateRange,
     AgeAtEntry,
     MostRecentAgeAtEntry,
-    CorrectedHoH,
-    DateProvided,
-    InformationDate,
-    CurrentLivingSituation
+    CorrectedHoH
   ) %>%
   group_by(HouseholdID) %>%
   mutate(
@@ -623,7 +620,7 @@ system_df_people <- reactive({
         days_to_next_enrl >= 14,
       
       # LOGIC Re-engaged from temporary
-      # identical to return-from-permanet except dest NOT IN perm
+      # identical to return-from-permanent except dest NOT IN perm
       lookback1_temp_dest = lookback == 1 & 
         !(Destination %in% perm_destinations),
       
@@ -633,34 +630,34 @@ system_df_people <- reactive({
         lh_at_entry == FALSE,
       
       # OUTFLOW CALCULATOR COLUMNS
-      perm_dest = lecr == TRUE &
+      perm_dest_lecr = lecr == TRUE &
         Destination %in% perm_destinations &
         !is.na(ExitDate), # &
       # NoEnrollmentsToLHFor14DaysFromLECR == TRUE
       
-      temp_dest = lecr == TRUE &
+      temp_dest_lecr = lecr == TRUE &
         !(Destination %in% perm_destinations) &
         !is.na(ExitAdjust),
       
       homeless_at_end = lecr == TRUE & 
         EntryDate <= input$syso_date_range[2] &
         (is.na(ExitAdjust) | ExitAdjust > input$syso_date_range[2]) &
-        (
-          ProjectType %in% c(0, 2, 8) |
-          (ProjectType == 1 &
-           (DateProvided > input$syso_date_range[2] + 15 |
-              DateProvided < input$syso_date_range[2] - 15)
-          )
-        ) | (
-          ProjectType == 4 &
-          (InformationDate > input$syso_date_range[2] + 15 |
-             InformationDate < input$syso_date_range[2] - 15) &
-          (
-            CurrentLivingSituation %in% homeless_livingsituation |
-            lh_at_entry == TRUE
-          )
-        ) | (
-          ProjectType %in% ph_project_types &
+        # (
+        #   ProjectType %in% c(0, 1, 2, 8) |
+        #   (ProjectType == 1 &
+        #    (DateProvided > input$syso_date_range[2] + 15 |
+        #       DateProvided < input$syso_date_range[2] - 15)
+        #   )
+        # ) | (
+        #   ProjectType == 4 &
+        #   (InformationDate > input$syso_date_range[2] + 15 |
+        #      InformationDate < input$syso_date_range[2] - 15) &
+        #   (
+        #     CurrentLivingSituation %in% homeless_livingsituation |
+        #     lh_at_entry == TRUE
+        #   )
+        # ) | (
+          (ProjectType %in% ph_project_types &
           (is.na(MoveInDateAdjust) | MoveInDateAdjust >= input$syso_date_range[2]) &
           lh_at_entry == TRUE
         ),
@@ -700,9 +697,9 @@ system_df_people <- reactive({
       ),
       
       # OUTFLOW
-      perm_dest_client = max(perm_dest),
+      perm_dest_client = max(perm_dest_lecr),
       
-      temp_dest_client = max(temp_dest),
+      temp_dest_client = max(temp_dest_lecr),
       
       homeless_at_end_client = max(homeless_at_end),
       
