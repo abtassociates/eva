@@ -52,8 +52,12 @@ function(input, output, session) {
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
   
   observeEvent(input$Go_to_upload, {
-    updateTabItems(session, "sidebarmenuid", "tabUpload")
-  })
+    if(isTruthy(input$in_demo_mode)) {
+      updateTabItems(session, "sidebarmenuid", "tabClientCount")
+    } else {
+      updateTabItems(session, "sidebarmenuid", "tabUpload")
+    }
+  }) 
   
   observeEvent(input$timeOut, {
     logMetadata("Timed out")
