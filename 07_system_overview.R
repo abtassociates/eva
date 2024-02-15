@@ -229,15 +229,11 @@ system_df_enrl_filtered <- reactive({
     ) %>%
     group_by(PersonalID) %>%
     arrange(EntryDate, .by_group = TRUE) %>%
-    mutate(enrollment_before = lag(EnrollmentID, order_by = EntryDate),
-           enrollment_after = lead(EnrollmentID, order_by = ExitAdjust),
-           ordinal = row_number(),
-           days_to_next_enrl = difftime(
-             lead(EntryDate, order_by = EntryDate), # later date
-             EntryDate, # earlier date
-             unit = "days"
-           )
-    ) %>%
+    mutate(ordinal = row_number(),
+           days_to_next_enrl = 
+             difftime(lead(EntryDate, order_by = EntryDate), # later date
+                      EntryDate, # earlier date
+                      unit = "days")) %>%
     ungroup() %>%
     mutate(
       in_date_range =
