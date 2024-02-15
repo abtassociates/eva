@@ -74,7 +74,13 @@ function(input, output, session) {
     }
   }) 
   
+  # Handle demo mode toggle --------------------------------------------------
   should_activate_demo <- reactive({
+    observeEvent(input$continue_demo_btn, {
+      removeModal()
+      return(TRUE)
+    });
+    
     if(length(input$imported)) {
       showModal(
         modalDialog(
@@ -84,20 +90,19 @@ function(input, output, session) {
                            modalButton("Cancel"))
         )
       )
+      shinyjs::runjs('document.getElementById("isdemo").checked = false;')
       return(FALSE)
     } else {
       return(TRUE)
     }
   })
-  observeEvent(input$continue_demo_btn, {
-    browser()
-    should_activate_demo(TRUE)
-  })
   
   activate_demo <- reactive({
     capture.output("Switching to demo mode!")
+    print("Switching to demo mode!")
     # clear environment
-    rm(list = ls())
+    reset("imported")
+    rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
     
     # let user know things take a min to load then load the demo data
     showModal(
@@ -135,21 +140,53 @@ function(input, output, session) {
                          max = meta_HUDCSV_Export_End,
                          end = meta_HUDCSV_Export_End)
   })
-  # Handle demo mode ------------------------------------------------------
+  
+  
+  values <- reactiveValues(modal_closed=0)
+  
+  observeEvent(input$continue_demo_btn, {
+    removeModal()
+    activate_demo()
+  })
+  
+  observeEvent(input$cancel_demo, {
+    values$modal_closed <- 1
+    removeModal()
+  })
+  
+  observe({
+    if(values$modal_closed){
+      shinyjs::runjs('document.getElementById("isdemo").checked = false;')
+    }
+  })
+  
   observeEvent(input$in_demo_mode, {
-    if(input$in_demo_mode == TRUE) {
-      req(should_activate_demo())
-      activate_demo()
+    if(input$in_demo_mode) {
+      if(length(input$imported)) {
+        values$modal_closed <- 0
+        showModal(
+          modalDialog(
+            "If you switch to demo mode, your uploaded HMIS CSV will be removed. Continue?",
+            title = NULL,
+            footer = tagList(actionButton("continue_demo_btn", "Continue"),
+                             actionButton("cancel_demo", "Cancel"))
+          )
+        )
+      } else {
+        activate_demo()
+      }
+      
     } else {
       print("It's in live mode!")
-      rm(list = ls(), envir=.GlobalEnv)
       showModal(
         modalDialog(
-          "Please upload your HMIC CSV file.",
-          title = "Upload your HMIS CSV file",
+          "Please upload your hashed HMIS CSV Export.",
+          title = "Upload your HMIS CSV Export",
           easyClose = TRUE
         )
       )
+      valid_file(0)
+      reset("imported")
       updateTabItems(session, "sidebarmenuid", "tabUpload")
     }
   }, ignoreInit = TRUE)
@@ -158,6 +195,8 @@ function(input, output, session) {
   
   observeEvent(input$imported, {
     valid_file(0)
+    shinyjs::runjs('document.getElementById("isdemo").checked = false;')
+    
     source("00_initially_valid_import.R", local = TRUE)
     
     if(initially_valid_import == 1) {
@@ -225,6 +264,7 @@ function(input, output, session) {
           )
 
           logMetadata("Successful upload")
+          rlang::env_coalesce(.GlobalEnv, environment())
           # # AS 2/13/24: For saving the demo data file:
           ## browser is needed to pause so you can save from the console
           # browser()
