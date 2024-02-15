@@ -51,20 +51,6 @@ system_df_prep <- EnrollmentAdjust %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  left_join(Services %>%
-              filter(RecordType == 200 &
-                     between(DateProvided,
-                             input$syso_date_range[1] - days(15),
-                             input$syso_date_range[1] + days(15))) %>%
-              select(EnrollmentID, DateProvided), 
-            join_by(EnrollmentID)) %>%
-  left_join(CurrentLivingSituation %>%
-              filter(CurrentLivingSituation %in% homeless_livingsituation &
-                       between(InformationDate,
-                               input$syso_date_range[1] - days(90),
-                               input$syso_date_range[1] + days(90))) %>%
-              select(InformationDate, CurrentLivingSituation, EnrollmentID),
-            join_by(EnrollmentID)) %>%
   filter(ContinuumProject == 1)
 
 # corrected hohs ----------------------------------------------------------
@@ -178,7 +164,7 @@ system_df_client_flags <- Client %>%
 
 # universe filters/enrollment-level filters -----------------------------------
 system_df_enrl_filtered <- reactive({
-  browser()
+  # browser()
   nbn_enrollments_w_proper_services <- EnrollmentAdjust %>%
     select(EnrollmentID, ProjectType) %>%
     filter(ProjectType == 1) %>%
@@ -662,11 +648,13 @@ system_df_people <- reactive({
         (
           ProjectType %in% c(0, 2, 8) |
           (ProjectType == 1 &
-           (DateProvided > input$syso_date_range[2] + 15 | DateProvided < input$syso_date_range[2] - 15)
+           (DateProvided > input$syso_date_range[2] + 15 |
+              DateProvided < input$syso_date_range[2] - 15)
           )
         ) | (
           ProjectType == 4 &
-          (InformationDate > input$syso_date_range[2] + 15 | InformationDate < input$syso_date_range[2] - 15) &
+          (InformationDate > input$syso_date_range[2] + 15 |
+             InformationDate < input$syso_date_range[2] - 15) &
           (
             CurrentLivingSituation %in% homeless_livingsituation |
             lh_at_entry == TRUE
