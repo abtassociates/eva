@@ -279,11 +279,8 @@ syso_spec_pops_cats <- reactive({
 # get filtered people-level system dataframe
 system_df_people_filtered <- reactive({
   
-  clients_in_report_date_range <- system_df_prep %>%
-    filter(int_overlaps(
-      EnrollmentDateRange,
-      interval(input$syso_date_range[1], input$syso_date_range[2])
-    )) %>%
+  clients_in_report_date_range <- system_df_enrl_filtered() %>%
+    filter(in_date_range == TRUE) %>%
     pull(PersonalID) %>% unique()
   
   system_df_client_flags %>%
