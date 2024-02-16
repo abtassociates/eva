@@ -254,8 +254,8 @@ system_df_enrl_filtered <- reactive({
                       ExitAdjust, # enrollment date
                       unit = "days"),
            previous_exit_days =
-             difftime(lag(ExitAdjust, order_by = EntryDate), # previous date
-                      EntryDate, # enrollment date
+             difftime(EntryDate, # enrollment date
+                      lag(ExitAdjust, order_by = ExitAdjust), # previous date
                       unit = "days")) %>%
     ungroup() %>%
     mutate(
