@@ -656,10 +656,9 @@ system_df_people <- reactive({
         !(Destination %in% perm_destinations),
       
       # LOGIC Newly homeless
-      # MAYBE WILL DO: meta_export_start < report_start - 2 years
-      newly_homeless = lookback > 0 & 
-        lh_at_entry == FALSE,
-      
+      # The intermediary here is whether the client has any lookback enrollments
+      # so that's just done later in the group_by with max(lookback) == 0
+
       # OUTFLOW CALCULATOR COLUMNS
       perm_dest_lecr = lecr == TRUE &
         Destination %in% perm_destinations &
@@ -716,7 +715,7 @@ system_df_people <- reactive({
         max(eecr_lh_at_entry) == 1 & 
         max(at_least_14_days_to_eecr_enrl) == 1,
       
-      newly_homeless_client = max(newly_homeless) == 1,
+      newly_homeless_client = max(lookback) == 0,
       
       InflowTypeSummary = case_when(
         active_at_start_homeless_client == TRUE |
