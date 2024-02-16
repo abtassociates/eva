@@ -1,5 +1,7 @@
 logToConsole("Running system overview")
 
+# Data prep ---------------------------------------------------------------
+
 system_person_ages <- EnrollmentAdjust %>%
   group_by(PersonalID) %>%
   slice_max(AgeAtEntry, na_rm = TRUE, with_ties = FALSE) %>%
@@ -90,7 +92,9 @@ system_df_prep <- system_df_prep %>%
 
 rm(hh_adjustments)
 
-# Enrollment-level flags. will help us categorize enrollments
+
+# Enrollment-level flags --------------------------------------------------
+# will help us categorize enrollments
 system_df_enrl_flags <- system_df_prep %>%
   mutate(
     lh_prior_livingsituation = !is.na(LivingSituation) &
@@ -149,7 +153,8 @@ system_df_enrl_flags <- system_df_prep %>%
   ) %>% 
   ungroup()
 
-# Client-level flags. will help us categorize people
+# Client-level flags ------------------------------------------------------
+# will help us categorize people
 
 system_df_client_flags <- Client %>%
   select(PersonalID,
@@ -159,7 +164,8 @@ system_df_client_flags <- Client %>%
          ) %>%
   left_join(system_person_ages, join_by(PersonalID))
 
-# universe filters/enrollment-level filters -----------------------------------
+# Enrollment-level reactive -----------------------------------------------
+
 system_df_enrl_filtered <- reactive({
   # browser()
   nbn_enrollments_w_proper_services <- EnrollmentAdjust %>%
@@ -249,7 +255,7 @@ system_df_enrl_filtered <- reactive({
     ungroup()
 })
 
-# system inflow_outflow filters/people-level filters---------------------------
+# Client-level reactive ---------------------------------------------------
 # Set race/ethnicity + gender filter options based on methodology type selection
 # Set special populations options based on level of detail selection
 syso_race_ethnicity_cats <- reactive({
@@ -509,7 +515,9 @@ system_df_people_filtered <- reactive({
     unique()
 })
 
-# detail stuff above chart---------------------------
+
+# Plot prompts for plot subtitle ------------------------------------------
+
 syso_detailBox <- reactive({
   # remove group names from race/ethnicity filter
   # so we can use getNameByValue() to grab the selected option label
@@ -565,6 +573,8 @@ syso_chartSubheader <- reactive({
   )
 })
 
+
+# Client-level enrollment summary data reactive ---------------------------
 # get final people-level, inflow/outflow dataframe by joining the filtered----- 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 system_df_people <- reactive({
