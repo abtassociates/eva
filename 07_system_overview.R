@@ -126,7 +126,6 @@ system_df_enrl_flags <- system_df_prep %>%
     lh_prior_livingsituation,
     lh_at_entry,
     EnrolledHomeless,
-    EnrolledHoused,
     LivingSituation,
     LOSUnderThreshold,
     PreviousStreetESSH,
