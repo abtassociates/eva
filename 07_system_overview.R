@@ -607,20 +607,24 @@ system_df_people <- reactive({
     filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
     mutate(
       # INFLOW CALCULATOR COLUMNS
-      #LOGIC: enrolled homeless at start
+      #LOGIC: active homeless at start
         # basically it has to straddle report start
           # the entry date of the EECR needs to be on or before the report date range
           # the exitadjust has to be after report start
+      # OR the eecr & lookback1 have to end and start within 14 days of each
+      # other and of the report start
         # EnrolledHomeless status of the EECR needs to be true
           # JUST FOR FULL DISCLOSURE, this means: 
             # ProjectType %in% project_types_enrolled_homeless |
             # lh_prior_livingsituation == TRUE
       
-      homeless_at_start = eecr == TRUE & 
-        ((straddles_entry == TRUE & EnrolledHomeless == TRUE) |
-        (between(difftime(EntryDate, input$syso_date_range[1], "days"), 0, 14) &
-           !is.na(previous_exit_days) &
-           between(previous_exit_days, 0, 14))),
+      active_at_start_homeless =
+        eecr == TRUE &
+        EnrolledHomeless == TRUE &
+        (straddles_entry == TRUE |
+           (between(difftime(EntryDate, input$syso_date_range[1], "days"), 0, 14) &
+              !is.na(previous_exit_days) &
+              between(previous_exit_days, 0, 14))),
       
       #LOGIC: enrolled housed at start
       # Exit.ExitDate is null or > ReportStartDate AND
@@ -628,7 +632,7 @@ system_df_people <- reactive({
       # Project.ProjectType IN (3, 9, 10, 13) AND
       # Enrollment.MoveInDate is !NULL OR <= ReportStartDate AND
       # Enrollment.LivingSituation is LiterallyHomeless*"
-      housed_at_start = eecr == TRUE & 
+      active_at_start_housed = eecr == TRUE & 
         ProjectType %in% ph_project_types & 
         (!is.na(MoveInDateAdjust) & MoveInDateAdjust <= input$syso_date_range[1]) &
         lh_prior_livingsituation == TRUE,
@@ -699,9 +703,9 @@ system_df_people <- reactive({
     # filter(max(lecr) == 1 & max(eecr) == 1) %>%
     summarise(
       # INFLOW
-      homeless_at_start_client = max(homeless_at_start),
+      active_at_start_homeless_client = max(active_at_start_homeless),
       
-      housed_at_start_client = max(housed_at_start),
+      active_at_start_housed_client = max(active_at_start_housed),
       
       return_from_perm_client = max(lookback1_perm_dest) == 1 & 
         max(eecr_lh_at_entry) == 1 & 
@@ -714,8 +718,8 @@ system_df_people <- reactive({
       newly_homeless_client = max(newly_homeless) == 1,
       
       InflowTypeSummary = case_when(
-        homeless_at_start_client == TRUE |
-          housed_at_start_client == TRUE ~
+        active_at_start_homeless_client == TRUE |
+          active_at_start_housed_client == TRUE ~
           "Active at Start",
         newly_homeless_client == TRUE |
           return_from_perm_client == TRUE |
@@ -725,8 +729,8 @@ system_df_people <- reactive({
       ),
       
       InflowTypeDetail = case_when(
-        homeless_at_start_client == TRUE ~ "Homeless",
-        housed_at_start_client == TRUE ~ "Housed",
+        active_at_start_homeless_client == TRUE ~ "Homeless",
+        active_at_start_housed_client == TRUE ~ "Housed",
         newly_homeless_client == TRUE ~ "Newly Homeless",
         return_from_perm_client == TRUE ~ "Returned from \nPermanent",
         reengaged_from_temp_client == TRUE ~ "Re-engaged from \nNon-Permanent",
@@ -766,8 +770,8 @@ system_df_people <- reactive({
   
   universe %>%
     select(PersonalID, 
-           homeless_at_start_client, 
-           housed_at_start_client,
+           active_at_start_homeless_client, 
+           active_at_start_housed_client,
            return_from_perm_client,
            reengaged_from_temp_client,
            InflowTypeSummary,
