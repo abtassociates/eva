@@ -261,7 +261,7 @@ system_df_enrl_filtered <- reactive({
     mutate(
       straddles_entry =
         EntryDate <= input$syso_date_range[1] &
-        ExitAdjust > input$syso_date_range[1],
+        ExitAdjust >= input$syso_date_range[1],
       in_date_range =
         int_overlaps(EnrollmentDateRange,
                      interval(input$syso_date_range[1], input$syso_date_range[2])
