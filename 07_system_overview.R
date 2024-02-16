@@ -634,7 +634,8 @@ system_df_people <- reactive({
       # Enrollment.LivingSituation is LiterallyHomeless*"
       active_at_start_housed = eecr == TRUE & 
         ProjectType %in% ph_project_types & 
-        (!is.na(MoveInDateAdjust) & MoveInDateAdjust <= input$syso_date_range[1]) &
+        !is.na(MoveInDateAdjust) &
+        MoveInDateAdjust <= input$syso_date_range[1] &
         lh_prior_livingsituation == TRUE,
       
       # LOGIC Return from permanent
