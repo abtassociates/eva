@@ -166,16 +166,30 @@ system_df_client_flags <- Client %>%
 
 system_df_enrl_filtered <- reactive({
   # browser()
-  nbn_enrollments_w_proper_services <- EnrollmentAdjust %>%
-    select(EnrollmentID, ProjectType) %>%
-    filter(ProjectType == 1) %>%
-    inner_join(Services %>%
-                filter(RecordType == 200 &
-                         between(DateProvided,
-                                 input$syso_date_range[1] - days(15),
-                                 input$syso_date_range[1] + days(15))) %>%
-                select(EnrollmentID, DateProvided),
+  nbn_enrollments_services <- Services %>%
+    filter(RecordType == 200) %>%
+    inner_join(EnrollmentAdjust %>%
+                filter(ProjectType == 1) %>%
+                select(EnrollmentID),
               join_by(EnrollmentID)) %>%
+    mutate(
+      nbn_service_within15_start =
+        between(DateProvided,
+                input$syso_date_range[1] - days(15),
+                input$syso_date_range[1] + days(15)),
+      nbn_service_within15_end =
+        between(DateProvided,
+                input$syso_date_range[2] - days(15),
+                input$syso_date_range[2] + days(15))
+    ) %>%
+    filter(
+      nbn_service_within15_start == TRUE |
+        nbn_service_within15_end == TRUE) %>%
+    select(EnrollmentID,
+           nbn_service_within15_start,
+           nbn_service_within15_end)
+  
+  nbn_enrollments_w_proper_services <-  nbn_enrollments_services %>%
     pull(EnrollmentID) %>%
     unique()
   
@@ -188,9 +202,10 @@ system_df_enrl_filtered <- reactive({
     unique()
   
   system_df_enrl_flags %>%
+    left_join(nbn_enrollments_services, join_by(EnrollmentID)) %>%
     filter(
     # remove enrollments where the exit is over 2 years prior to report start
-      as.numeric(difftime(ExitDate, input$syso_date_range[1],
+      as.numeric(difftime(ExitAdjust, input$syso_date_range[1],
                           unit = "days")) / 365 <= 2 &
     # Active At Start logic
     ((ProjectType %in% c(es_ee_project_type, th_project_type, sh_project_type)) |
@@ -527,9 +542,9 @@ system_df_people_filtered <- reactive({
 syso_detailBox <- reactive({
   # remove group names from race/ethnicity filter
   # so we can use getNameByValue() to grab the selected option label
-  syso_race_ethnicitys <- unlist(syso_race_ethnicity_cats())
-  names(syso_race_ethnicitys) <- gsub("Group [0-9]+\\.", "",
-                                      names(syso_race_ethnicitys))
+  syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
+  names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
+                                      names(syso_race_ethnicities))
   
   list(
     strong("Date Range: "),
@@ -557,7 +572,7 @@ syso_detailBox <- reactive({
     getNameByValue(syso_gender_cats(), input$syso_gender),
     " | ",
     strong("Race/Ethnicity: "),
-    getNameByValue(syso_race_ethnicitys, input$syso_race_ethnicity),
+    getNameByValue(syso_race_ethnicities, input$syso_race_ethnicity),
     " | ",
     strong("Special Populations: "),
     getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops), 
@@ -656,7 +671,7 @@ system_df_people <- reactive({
         EntryDate <= input$syso_date_range[2] &
         (is.na(ExitAdjust) | ExitAdjust > input$syso_date_range[2]) &
         # (
-        #   ProjectType %in% c(0, 1, 2, 8) |
+        #   ProjectType %in% c(0, 2, 8) |
         #   (ProjectType == 1 &
         #    (DateProvided > input$syso_date_range[2] + 15 |
         #       DateProvided < input$syso_date_range[2] - 15)
