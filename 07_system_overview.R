@@ -630,7 +630,7 @@ system_df_people <- reactive({
         lh_at_entry == TRUE,
       
       at_least_14_days_to_eecr_enrl = lookback == 1 & 
-        days_to_next_enrl >= 14,
+        next_entry_days >= 14,
       
       # LOGIC Re-engaged from temporary
       # identical to return-from-permanent except dest NOT IN perm
