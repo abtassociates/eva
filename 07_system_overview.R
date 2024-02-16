@@ -602,8 +602,11 @@ system_df_people <- reactive({
             # lh_prior_livingsituation == TRUE
       
       homeless_at_start = 
-        (eecr == TRUE & straddles_entry = TRUE & EnrolledHomeless == TRUE) |
-        (active_in_system_at_start == TRUE),
+        (eecr == TRUE & straddles_entry == TRUE & EnrolledHomeless == TRUE) |
+        (eecr == TRUE &
+           between(difftime(EntryDate, input$syso_date_range[1], "days"), 0, 14) &
+           !is.na(previous_exit_days) &
+           between(previous_exit_days, 0, 14)),
       
       #LOGIC: enrolled housed at start
       # Exit.ExitDate is null or > ReportStartDate AND
