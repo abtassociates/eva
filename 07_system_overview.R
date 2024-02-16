@@ -257,7 +257,8 @@ system_df_enrl_filtered <- reactive({
     ungroup()
 })
 
-# Client-level reactive ---------------------------------------------------
+# Population reactives ----------------------------------------------------
+
 # Set race/ethnicity + gender filter options based on methodology type selection
 # Set special populations options based on level of detail selection
 syso_race_ethnicity_cats <- reactive({
@@ -284,6 +285,7 @@ syso_spec_pops_cats <- reactive({
   )[[1]]
 })
 
+# Client-level reactive ---------------------------------------------------
 # get filtered people-level system dataframe
 system_df_people_filtered <- reactive({
   
