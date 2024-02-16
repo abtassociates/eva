@@ -691,7 +691,18 @@ system_df_people <- reactive({
       
       newly_homeless_client = max(newly_homeless) == 1,
       
-      InflowType = case_when(
+      InflowTypeSummary = case_when(
+        homeless_at_start_client == TRUE |
+          housed_at_start_client == TRUE ~
+          "Active at Start",
+        newly_homeless_client == TRUE |
+          return_from_perm_client == TRUE |
+          reengaged_from_temp_client == TRUE ~
+          "Inflow",
+        TRUE ~ "something's wrong"
+      ),
+      
+      InflowTypeDetail = case_when(
         homeless_at_start_client == TRUE ~ "Homeless",
         housed_at_start_client == TRUE ~ "Housed",
         newly_homeless_client == TRUE ~ "Newly Homeless",
@@ -709,14 +720,22 @@ system_df_people <- reactive({
       
       housed_at_end_client  = max(housed_at_end),
       
-      OutflowType = case_when(
-        perm_dest_client == TRUE ~ "Permanent Destination",
-      
-        temp_dest_client == TRUE ~ "Non-Permanent \nDestination",
-      
+      OutflowTypeSummary = case_when(
+        perm_dest_client == TRUE |
+          temp_dest_client == TRUE ~
+          "Outflow",
+        homeless_at_end_client == TRUE |
+          housed_at_end_client == TRUE ~
+          "Active at End",
+        TRUE ~ "something's wrong"
+      ),
+
+      OutflowTypeDetail = case_when(
+        perm_dest_client == TRUE ~ "Exited to \nPermanent Destination",
+        temp_dest_client == TRUE ~ "Exited to \nNon-Permanent Destination",
         homeless_at_end_client == TRUE ~ "Homeless",
-        
-        housed_at_end_client == TRUE ~ "Housed"
+        housed_at_end_client == TRUE ~ "Housed",
+        TRUE ~ "something's wrong"
       )
     ) %>%
     ungroup() 
@@ -729,12 +748,14 @@ system_df_people <- reactive({
            housed_at_start_client,
            return_from_perm_client,
            reengaged_from_temp_client,
-           InflowType,
+           InflowTypeSummary,
+           InflowTypeDetail,
            perm_dest_client,
            temp_dest_client,
            homeless_at_end_client,
            housed_at_end_client,
-           OutflowType
+           OutflowTypeSummary,
+           OutflowTypeDetail
     ) %>%
     unique()
 })
