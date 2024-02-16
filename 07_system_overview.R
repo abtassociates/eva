@@ -235,9 +235,13 @@ system_df_enrl_filtered <- reactive({
     group_by(PersonalID) %>%
     arrange(EntryDate, .by_group = TRUE) %>%
     mutate(ordinal = row_number(),
-           days_to_next_enrl = 
-             difftime(lead(EntryDate, order_by = EntryDate), # later date
-                      EntryDate, # earlier date
+           next_entry_days = 
+             difftime(lead(EntryDate, order_by = EntryDate), # next date
+                      ExitAdjust, # enrollment date
+                      unit = "days"),
+           previous_exit_days =
+             difftime(lag(ExitAdjust, order_by = EntryDate), # previous date
+                      EntryDate, # enrollment date
                       unit = "days")) %>%
     ungroup() %>%
     mutate(
@@ -296,7 +300,6 @@ system_df_people_filtered <- reactive({
   system_df_client_flags %>%
     filter(
       PersonalID %in% c(clients_in_report_date_range) &
-        
       # Age
       (
         setequal(syso_age_cats, input$syso_age) |
@@ -585,6 +588,8 @@ system_df_people <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
   universe <- system_df_enrl_filtered() %>%
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
+    # get rid of rows where the enrollment is neither a lookback enrollment,
+    # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
     filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
     mutate(
       # INFLOW CALCULATOR COLUMNS
@@ -597,9 +602,9 @@ system_df_people <- reactive({
             # ProjectType %in% project_types_enrolled_homeless |
             # lh_prior_livingsituation == TRUE
       
-      homeless_at_start = eecr == TRUE & 
-        straddles_entry = TRUE &
-        EnrolledHomeless == TRUE,
+      homeless_at_start = 
+        (eecr == TRUE & straddles_entry = TRUE & EnrolledHomeless == TRUE) |
+        (active_in_system_at_start == TRUE),
       
       #LOGIC: enrolled housed at start
       # Exit.ExitDate is null or > ReportStartDate AND
