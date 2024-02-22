@@ -299,7 +299,7 @@ a:hover {
 
 .layer {
   width: 100%;
-  background-color: #f5d9d3;
+  background-color: #ececec;
   transition: 0.3s ease all;
   z-index: 1;
 }
@@ -317,19 +317,19 @@ a:hover {
   text-align: center;
   line-height: 1;
   padding: 9px 4px;
-  background-color: #C2462E;
+  background-color: #a6a6a6;
   border-radius: 50%;
   transition: 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
 }
-/* Demo Mode - OFF */
+/* Demo Mode - ON */
 #button-1 .checkbox:checked + .knobs:before {
   content: "ON";
   left: 37px;
-  background-color: #4BB543;
+  background-color: #FCB248;
 }
 
 #button-1 .checkbox:checked ~ .layer {
-  background-color:#dff3dd;
+  background-color:#fdd293;
 }
 
 #button-1 .knobs,
