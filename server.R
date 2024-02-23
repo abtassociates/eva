@@ -75,29 +75,9 @@ function(input, output, session) {
   }) 
   
   # Handle demo mode toggle --------------------------------------------------
-  should_activate_demo <- reactive({
-    observeEvent(input$continue_demo_btn, {
-      removeModal()
-      return(TRUE)
-    });
-    
-    if(length(input$imported)) {
-      showModal(
-        modalDialog(
-          "If you switch to demo mode, your uploaded HMIS CSV will be removed. Continue?",
-          title = NULL,
-          footer = tagList(actionButton("continue_demo_btn", "Continue"),
-                           modalButton("Cancel"))
-        )
-      )
-      shinyjs::runjs('document.getElementById("isdemo").checked = false;')
-      return(FALSE)
-    } else {
-      return(TRUE)
-    }
-  })
-  
-  activate_demo <- reactive({
+  demo_values <- reactiveValues(modal_closed=0)
+  demo_fsa <- reactiveValues()
+  activate_demo <- function() {
     capture.output("Switching to demo mode!")
     print("Switching to demo mode!")
     # clear environment
@@ -113,11 +93,21 @@ function(input, output, session) {
       )
     )
     load("demo.Rdata", envir = .GlobalEnv)
-    removeModal()
-    
+    demo_fsa$fsa_main <- file_structure_analysis_main
     # mark the file as valid
     valid_file(1)
     
+    # run dq download reactive so charts load faster
+    # x <- dqDownloadInfo()
+    # x <- file_structure_analysis_main
+    removeModal()
+    shinyjs::runjs("document
+      .getElementById('home_instructions1')
+      .previousElementSibling
+      .querySelector('.btn-box-tool')
+      .click(); 
+      document.querySelectorAll('.in_demo_mode').forEach((el) => {
+    el.style.display = 'block'});")
     # update inputs choices and defaults
     updatePickerInput(session = session, inputId = "currentProviderList",
                       choices = sort(Project$ProjectName))
@@ -139,10 +129,8 @@ function(input, output, session) {
                          start = meta_HUDCSV_Export_Start,
                          max = meta_HUDCSV_Export_End,
                          end = meta_HUDCSV_Export_End)
-  })
-  
-  
-  values <- reactiveValues(modal_closed=0)
+    print("It's in demo mode!")
+  }
   
   observeEvent(input$continue_demo_btn, {
     removeModal()
@@ -150,31 +138,34 @@ function(input, output, session) {
   })
   
   observeEvent(input$cancel_demo, {
-    values$modal_closed <- 1
+    demo_values$modal_closed <- 1
     removeModal()
   })
   
   observe({
-    if(values$modal_closed){
+    if(demo_values$modal_closed){
       shinyjs::runjs('document.getElementById("isdemo").checked = false;')
     }
   })
   
   observeEvent(input$in_demo_mode, {
     if(input$in_demo_mode) {
+      demo_values$modal_closed <- 0
+      msg <- "Demo mode allows you to explore Eva with sample data, 
+            rather than having to have your own file."
       if(length(input$imported)) {
-        values$modal_closed <- 0
-        showModal(
-          modalDialog(
-            "If you switch to demo mode, your uploaded HMIS CSV will be removed. Continue?",
-            title = NULL,
-            footer = tagList(actionButton("continue_demo_btn", "Continue"),
-                             actionButton("cancel_demo", "Cancel"))
-          )
-        )
-      } else {
-        activate_demo()
+        msg <- paste0(msg, " If you switch to demo mode, your uploaded HMIS CSV 
+        will be removed. However, you can still re-upload your data again if you wish.
+        Continue?")
       }
+      showModal(
+        modalDialog(
+          msg,
+          title = NULL,
+          footer = tagList(actionButton("continue_demo_btn", "Continue"),
+                           actionButton("cancel_demo", "Cancel"))
+        )
+      )
       
     } else {
       print("It's in live mode!")
@@ -187,6 +178,10 @@ function(input, output, session) {
       )
       valid_file(0)
       reset("imported")
+      shinyjs::runjs("
+      document.querySelectorAll('.in_demo_mode').forEach((el) => {
+    el.style.display = 'none'});") 
+      rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
       updateTabItems(session, "sidebarmenuid", "tabUpload")
     }
   }, ignoreInit = TRUE)
@@ -195,8 +190,11 @@ function(input, output, session) {
   
   observeEvent(input$imported, {
     valid_file(0)
-    shinyjs::runjs('document.getElementById("isdemo").checked = false;')
+    shinyjs::runjs('document.getElementById("isdemo").checked = false;
+                   document.querySelectorAll(".in_demo_mode").forEach((el) => {
+    el.style.display = "none"});') 
     
+    rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
     source("00_initially_valid_import.R", local = TRUE)
     
     if(initially_valid_import == 1) {
@@ -223,6 +221,7 @@ function(input, output, session) {
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
+          demo_fsa$fsa_main <- file_structure_analysis_main
           
           if(nrow(
             file_structure_analysis_main %>%
@@ -295,18 +294,11 @@ function(input, output, session) {
     }
   }, ignoreInit = TRUE)
 # File Structure Analysis Summary -----------------------------------------
-    
-    output$fileStructureAnalysis <- DT::renderDataTable(
+    output$fileStructureAnalysis <- DT::renderDT(
       {
         req(exists("file_structure_analysis_main"))
-        
-        a <- file_structure_analysis_main %>%
-          group_by(Type, Issue) %>%
-          summarise(Count = n()) %>%
-          ungroup() %>%
-          arrange(Type, desc(Count))
-        
-        
+        # a <- fsa_main()
+        a <- demo_fsa$fsa_main
         exportTestValues(fileStructureAnalysis = a)
         
         datatable(
@@ -327,7 +319,7 @@ function(input, output, session) {
       req(nrow(file_structure_analysis_main) > 0)
       downloadButton("downloadFileStructureAnalysis",
                      "Download Structure Analysis Detail")
-    })  
+    }) 
     
     output$downloadFileStructureAnalysis <- downloadHandler(
       filename = date_stamped_filename("File-Structure-Analysis-"),
@@ -736,7 +728,7 @@ function(input, output, session) {
       # org-level data prep (filtering to selected org)
       orgDQData <- dq_main_reactive() %>%
         filter(OrganizationName %in% c(input$orgList))
-      
+
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | 
                  PreviousOrganizationName %in% c(input$orgList))

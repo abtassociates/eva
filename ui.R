@@ -135,6 +135,7 @@ dashboardPage(
             actionButton("Go_to_upload", "Click here to get started")
           ),
           box(
+            id = 'home_instructions1',
             title = "Instructions",
             width = 12,
             collapsible = TRUE,
@@ -144,6 +145,7 @@ dashboardPage(
               <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
               target= '_blank' rel='noopener noreferrer'>HMIS CSV Export</a>.
               </p>
+              <p class='in_demo_mode'>In demo mode, blah blah blah</p>
               <p>Generate a hashed HMIS CSV Export from your local HMIS and store
               it in a secure location that you can easily find again. It must be
               a .zip file with 23 csv files in it.
@@ -278,6 +280,11 @@ dashboardPage(
               ")
           )),
           fluidRow(box(
+            HTML("<p class='in_demo_mode'>
+                 You're currently in demo mode. View the File Structure analysis
+                 below to see examples of errors your could get in your own 
+                 uploads. You don't need to upload a file. 
+                 If you do, you will exit out of demo mode</p>"),
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,
