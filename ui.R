@@ -819,7 +819,7 @@ dashboardPage(
         tabName = "tabDQSystem",
         fluidRow(box(
           htmlOutput("headerSystemDQ"), width = 12, 
-          uiOutput("downloadSystemDQReportButton"))),
+          uiOutput("downloadSystemDQReportButton") %>% withSpinner())),
         fluidRow(box(
           title = "Instructions",
           width = 12,
