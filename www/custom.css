@@ -329,7 +329,7 @@ a:hover {
 }
 
 #button-1 .checkbox:checked ~ .layer {
-  background-color:#fdd293;
+  background-color:#fef1de;
 }
 
 #button-1 .knobs,
