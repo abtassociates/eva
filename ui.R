@@ -280,7 +280,7 @@ dashboardPage(
               ")
           )),
           fluidRow(box(
-            HTML("<p class='in_demo_mode'>
+            HTML("<p class='in_demo_mode' style='display:none'>
                  You're currently in demo mode. View the File Structure analysis
                  below to see examples of errors your could get in your own 
                  uploads. You don't need to upload a file. 
