@@ -135,7 +135,7 @@ dashboardPage(
             actionButton("Go_to_upload", "Click here to get started")
           ),
           box(
-            id = 'home_instructions1',
+            id = "home_live_instructions",
             title = "Instructions",
             width = 12,
             collapsible = TRUE,
@@ -145,7 +145,6 @@ dashboardPage(
               <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
               target= '_blank' rel='noopener noreferrer'>HMIS CSV Export</a>.
               </p>
-              <p class='in_demo_mode'>In demo mode, blah blah blah</p>
               <p>Generate a hashed HMIS CSV Export from your local HMIS and store
               it in a secure location that you can easily find again. It must be
               a .zip file with 23 csv files in it.
@@ -163,6 +162,16 @@ dashboardPage(
               ready to engage with Eva. Navigate to the \'Upload HMIS CSV Export\' tab
               and follow the instructions there.</p>
               
+              ")
+          ),
+          box(
+            id = 'home_demo_instructions',
+            title = "Demo Instructions",
+            width = 12,
+            collapsible = TRUE,
+            collapsed = FALSE,
+            HTML(
+              "<p class='in_demo_mode'>In demo mode, blah blah blah</p>
               ")
           ),
           box(
@@ -289,7 +298,7 @@ dashboardPage(
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
-            uiOutput("fileInfo"),
+            uiOutput("fileInfo") %>% withSpinner(),
             width = 12
           )),
           fluidRow(box(
@@ -636,7 +645,7 @@ dashboardPage(
             DT::dataTableOutput("pdde_summary_table"),
             width = 12,
             br(),
-            uiOutput("downloadPDDEReportButton")
+            uiOutput("downloadPDDEReportButton") %>% withSpinner()
           ),
           box(id = "PDDEGuidance",
               DT::dataTableOutput("pdde_guidance_summary"),
@@ -751,9 +760,9 @@ dashboardPage(
             selected = "Top 10 Issues",
             title = "High Priority Errors",
             tabPanel("Top 10 Projects",
-                     uiOutput("orgDQHighPriorityErrorsByProject_ui")),
+                     uiOutput("orgDQHighPriorityErrorsByProject_ui")  %>% withSpinner()),
             tabPanel("Top 10 Issues",
-                     uiOutput("orgDQHighPriorityErrorByIssue_ui")),
+                     uiOutput("orgDQHighPriorityErrorByIssue_ui") %>% withSpinner()),
             width = 12
           )
         ),
@@ -762,8 +771,8 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "General Errors",
-            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui")),
-            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui")),
+            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui") %>% withSpinner()),
+            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()),
             width =12
           )
         ),
@@ -772,8 +781,8 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "Warnings",
-            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui")),
-            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui")),
+            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui") %>% withSpinner()),
+            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui") %>% withSpinner()),
             width = 12
           )
         ),

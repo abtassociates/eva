@@ -74,42 +74,7 @@ function(input, output, session) {
     }
   }) 
   
-  # Handle demo mode toggle --------------------------------------------------
-  demo_values <- reactiveValues(modal_closed=0)
-  demo_fsa <- reactiveValues()
-  activate_demo <- function() {
-    capture.output("Switching to demo mode!")
-    print("Switching to demo mode!")
-    # clear environment
-    reset("imported")
-    rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
-    
-    # let user know things take a min to load then load the demo data
-    showModal(
-      modalDialog(
-        "Activating demo mode. This may take a minute...",
-        title = NULL,
-        footer = NULL
-      )
-    )
-    load("demo.Rdata", envir = .GlobalEnv)
-    demo_fsa$fsa_main <- file_structure_analysis_main
-
-    # mark the file as valid
-    valid_file(1)
-    
-    # run dq download reactive so charts load faster
-    # x <- dqDownloadInfo()
-    # x <- file_structure_analysis_main
-    removeModal()
-    shinyjs::runjs("document
-      .getElementById('home_instructions1')
-      .previousElementSibling
-      .querySelector('.btn-box-tool')
-      .click(); 
-      document.querySelectorAll('.in_demo_mode').forEach((el) => {
-    el.style.display = 'block'});")
-    # update inputs choices and defaults
+  update_inputs <- function() {
     updatePickerInput(session = session, inputId = "currentProviderList",
                       choices = sort(Project$ProjectName))
     
@@ -130,6 +95,56 @@ function(input, output, session) {
                          start = meta_HUDCSV_Export_Start,
                          max = meta_HUDCSV_Export_End,
                          end = meta_HUDCSV_Export_End)
+    
+  }
+  # Handle demo mode toggle --------------------------------------------------
+  toggleDemoJs <- function(t) {
+    js_t <- ifelse(t, 'true','false')
+    shinyjs::runjs(str_glue("
+      $('#home_demo_instructions').parent().parent().toggle({js_t});
+      $('.in_demo_mode').toggle({js_t});
+      $('#home_live_instructions').parent().parent().toggle(!{js_t});
+      document.getElementById('isdemo').checked = {js_t};
+      "))
+  }
+  
+  toggleDemoJs(FALSE)
+  
+  demo_values <- reactiveValues(modal_closed=0)
+  activate_demo <- function() {
+    capture.output("Switching to demo mode!")
+    print("Switching to demo mode!")
+    # clear environment
+    reset("imported")
+    rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
+    
+    # let user know things take a min to load then load the demo data
+    showModal(
+      modalDialog(
+        "Activating demo mode. This may take a minute...",
+        title = NULL,
+        footer = NULL
+      )
+    )
+    load("demo.Rdata", envir = .GlobalEnv)
+#    demo_fsa$fsa_main <- file_structure_analysis_main
+
+    # mark the file as valid
+    valid_file(1)
+    
+    removeModal()
+
+    # update inputs choices and defaults
+    update_inputs()
+    
+    updateTabItems(session, "sidebarmenuid", "tabHome")
+    
+    toggleDemoJs(TRUE)
+    
+    shinyjs::show('fileStructureAnalysis')
+    
+    update_fsa()
+    
     print("It's in demo mode!")
   }
   
@@ -145,7 +160,7 @@ function(input, output, session) {
   
   observe({
     if(demo_values$modal_closed){
-      shinyjs::runjs('document.getElementById("isdemo").checked = false;')
+      toggleDemoJs(FALSE)
     }
   })
   
@@ -179,11 +194,12 @@ function(input, output, session) {
       )
       valid_file(0)
       reset("imported")
-      shinyjs::runjs("
-      document.querySelectorAll('.in_demo_mode').forEach((el) => {
-    el.style.display = 'none'});") 
+      
       rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
       updateTabItems(session, "sidebarmenuid", "tabUpload")
+      shinyjs::hide('fileStructureAnalysis')
+      
+      toggleDemoJs(FALSE)
     }
   }, ignoreInit = TRUE)
   
@@ -191,9 +207,7 @@ function(input, output, session) {
   
   observeEvent(input$imported, {
     valid_file(0)
-    shinyjs::runjs('document.getElementById("isdemo").checked = false;
-                   document.querySelectorAll(".in_demo_mode").forEach((el) => {
-    el.style.display = "none"});') 
+    toggleDemoJs(FALSE)
     
     rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
     source("00_initially_valid_import.R", local = TRUE)
@@ -222,7 +236,6 @@ function(input, output, session) {
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
-          demo_fsa$fsa_main <- file_structure_analysis_main
           
           if(nrow(
             file_structure_analysis_main %>%
@@ -254,6 +267,8 @@ function(input, output, session) {
           source("06_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
           
+          logToConsole("Upload processing complete")
+          
           showModal(
             modalDialog(
               title = "Upload successful",
@@ -265,6 +280,10 @@ function(input, output, session) {
 
           logMetadata("Successful upload")
           rlang::env_coalesce(.GlobalEnv, environment())
+          
+          logToConsole("Updating inputs")
+          update_inputs()
+          
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
@@ -282,14 +301,16 @@ function(input, output, session) {
           logMetadata("Unsuccessful upload - not structurally valid")
         }
       })
+      
+      update_fsa()
     }
   }, ignoreInit = TRUE)
 # File Structure Analysis Summary -----------------------------------------
-    output$fileStructureAnalysis <- DT::renderDT(
+  update_fsa <- function() {
+    output$fileStructureAnalysis <- DT::renderDataTable(
       {
         req(exists("file_structure_analysis_main"))
-        # a <- fsa_main()
-        a <- demo_fsa$fsa_main
+        a <- file_structure_analysis_main
         exportTestValues(fileStructureAnalysis = a)
         
         datatable(
@@ -302,7 +323,8 @@ function(input, output, session) {
                         Visit the other tabs to view the rest of Eva's output")
                          )
         )
-      }) |> bindEvent(input$imported, input$in_demo_mode)
+      })
+  }
 # File Structure Analysis Download ----------------------------------------
 
     output$downloadFileStructureAnalysisBtn <- renderUI({
