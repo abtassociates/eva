@@ -135,7 +135,7 @@ dashboardPage(
             actionButton("Go_to_upload", "Click here to get started")
           ),
           box(
-            id = 'home_instructions1',
+            id = "home_live_instructions",
             title = "Instructions",
             width = 12,
             collapsible = TRUE,
@@ -145,7 +145,6 @@ dashboardPage(
               <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
               target= '_blank' rel='noopener noreferrer'>HMIS CSV Export</a>.
               </p>
-              <p class='in_demo_mode'>In demo mode, blah blah blah</p>
               <p>Generate a hashed HMIS CSV Export from your local HMIS and store
               it in a secure location that you can easily find again. It must be
               a .zip file with 23 csv files in it.
@@ -163,6 +162,16 @@ dashboardPage(
               ready to engage with Eva. Navigate to the \'Upload HMIS CSV Export\' tab
               and follow the instructions there.</p>
               
+              ")
+          ),
+          box(
+            id = 'home_demo_instructions',
+            title = "Demo Instructions",
+            width = 12,
+            collapsible = TRUE,
+            collapsed = FALSE,
+            HTML(
+              "<p class='in_demo_mode'>In demo mode, blah blah blah</p>
               ")
           ),
           box(

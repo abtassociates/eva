@@ -74,7 +74,42 @@ function(input, output, session) {
     }
   }) 
   
+  update_inputs <- function() {
+    updatePickerInput(session = session, inputId = "currentProviderList",
+                      choices = sort(Project$ProjectName))
+    
+    updatePickerInput(session = session, inputId = "providerListDQ",
+                      choices = dq_providers)
+    
+    updatePickerInput(session = session, inputId = "orgList",
+                      choices = c(unique(sort(Organization$OrganizationName))))
+    
+    updateDateInput(session = session, inputId = "dq_org_startdate", 
+                    value = meta_HUDCSV_Export_Start)
+    
+    updateDateInput(session = session, inputId = "dq_startdate", 
+                    value = meta_HUDCSV_Export_Start)
+    
+    updateDateRangeInput(session = session, inputId = "dateRangeCount",
+                         min = meta_HUDCSV_Export_Start,
+                         start = meta_HUDCSV_Export_Start,
+                         max = meta_HUDCSV_Export_End,
+                         end = meta_HUDCSV_Export_End)
+    
+  }
   # Handle demo mode toggle --------------------------------------------------
+  toggleDemoJs <- function(t) {
+    js_t <- ifelse(t, 'true','false')
+    shinyjs::runjs(str_glue("
+      $('#home_demo_instructions').parent().parent().toggle({js_t});
+      $('.in_demo_mode').toggle({js_t});
+      $('#home_live_instructions').parent().parent().toggle(!{js_t});
+      document.getElementById('isdemo').checked = {js_t};
+      "))
+  }
+  
+  toggleDemoJs(FALSE)
+  
   demo_values <- reactiveValues(modal_closed=0)
   demo_fsa <- reactiveValues()
   activate_demo <- function() {
@@ -101,34 +136,14 @@ function(input, output, session) {
     # x <- dqDownloadInfo()
     # x <- file_structure_analysis_main
     removeModal()
-    shinyjs::runjs("document
-      .getElementById('home_instructions1')
-      .previousElementSibling
-      .querySelector('.btn-box-tool')
-      .click(); 
-      document.querySelectorAll('.in_demo_mode').forEach((el) => {
-    el.style.display = 'block'});")
+
     # update inputs choices and defaults
-    updatePickerInput(session = session, inputId = "currentProviderList",
-                      choices = sort(Project$ProjectName))
+    update_inputs()
     
-    updatePickerInput(session = session, inputId = "providerListDQ",
-                      choices = dq_providers)
+    updateTabItems(session, "sidebarmenuid", "tabHome")
     
-    updatePickerInput(session = session, inputId = "orgList",
-                      choices = c(unique(sort(Organization$OrganizationName))))
+    toggleDemoJs(TRUE)
     
-    updateDateInput(session = session, inputId = "dq_org_startdate", 
-                    value = meta_HUDCSV_Export_Start)
-    
-    updateDateInput(session = session, inputId = "dq_startdate", 
-                    value = meta_HUDCSV_Export_Start)
-    
-    updateDateRangeInput(session = session, inputId = "dateRangeCount",
-                         min = meta_HUDCSV_Export_Start,
-                         start = meta_HUDCSV_Export_Start,
-                         max = meta_HUDCSV_Export_End,
-                         end = meta_HUDCSV_Export_End)
     print("It's in demo mode!")
   }
   
@@ -144,7 +159,7 @@ function(input, output, session) {
   
   observe({
     if(demo_values$modal_closed){
-      shinyjs::runjs('document.getElementById("isdemo").checked = false;')
+      toggleDemoJs(FALSE)
     }
   })
   
@@ -178,11 +193,11 @@ function(input, output, session) {
       )
       valid_file(0)
       reset("imported")
-      shinyjs::runjs("
-      document.querySelectorAll('.in_demo_mode').forEach((el) => {
-    el.style.display = 'none'});") 
+      
       rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
       updateTabItems(session, "sidebarmenuid", "tabUpload")
+      
+      toggleDemoJs(FALSE)
     }
   }, ignoreInit = TRUE)
   
@@ -190,9 +205,7 @@ function(input, output, session) {
   
   observeEvent(input$imported, {
     valid_file(0)
-    shinyjs::runjs('document.getElementById("isdemo").checked = false;
-                   document.querySelectorAll(".in_demo_mode").forEach((el) => {
-    el.style.display = "none"});') 
+    toggleDemoJs(FALSE)
     
     rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
     source("00_initially_valid_import.R", local = TRUE)
@@ -253,6 +266,8 @@ function(input, output, session) {
           source("06_PDDE_Checker.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
           
+          logToConsole("Upload processing complete")
+          
           showModal(
             modalDialog(
               title = "Upload successful",
@@ -264,6 +279,10 @@ function(input, output, session) {
 
           logMetadata("Successful upload")
           rlang::env_coalesce(.GlobalEnv, environment())
+          
+          logToConsole("Updating inputs")
+          update_inputs()
+          
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
