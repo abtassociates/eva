@@ -85,6 +85,35 @@ for (file in unique(cols_and_data_types$File)) {
     next
   }
   
+  
+  if(file == "Project") {
+    write.csv(
+      Project %>% 
+        filter(ProjectID %in% project_ids) %>%
+        mutate(
+          RRHSubType = ifelse(ProjectID == 1606, NA, RRHSubType)
+        ),
+      here(paste0(directory, "data/Project.csv")),
+      na = "",
+      row.names = FALSE
+    )
+    next
+  }
+  
+  if(file == "ProjectCoC") {
+    write.csv(
+      ProjectCoC %>% 
+        filter(ProjectID %in% project_ids) %>%
+        mutate(
+          Geocode = ifelse(ProjectID == 1377, NA, Geocode),
+        ),
+      here(paste0(directory, "data/ProjectCoC.csv")),
+      na = "",
+      row.names = FALSE
+    )
+    next
+  }
+  
   tryCatch({
     write.csv(
       get(file) %>% filter(EnrollmentID %in% enrollment_ids),
@@ -127,7 +156,6 @@ zipr(
   mode = "cherry-pick" # so the files are at the top directory
 )
 
-demo_zip <- "/media/projects/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-demo_small.zip"
 # Now before running Eva with this new zip, 
 # put a browser() at the end of the successful load block
 # then run the following to save the workspace as demo.Rdata
