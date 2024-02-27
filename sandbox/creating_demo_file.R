@@ -21,14 +21,14 @@ source(paste0(directory, "helper_functions.R"))
 source(paste0(directory, "hardcodes.R"))
 
 # Get Export --------------------------------------------------------------
-unzip("/media/projects/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-hashed-current-good.zip", exdir=here("mini-non-shiny-environment/data"))
+unzip("/media/projects/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-hashed-current-good.zip", exdir=here("sandbox/mini-non-shiny-environment/data"))
 source(paste0(directory, "01_get_Export.R"))
 
 
 # Org A (OrgId = 4), Org B = 6, Org N = 95
-orgs <- c("4","6")
+organization_ids <- c("4","6")
 # get project IDs
-project_ids <- Project %>% filter(OrganizationID %in% orgs) %>% pull(ProjectID) %>% unique()
+project_ids <- Project %>% filter(OrganizationID %in% organization_ids) %>% pull(ProjectID) %>% unique()
 
 enrollment_ids <- Enrollment %>% filter(ProjectID %in% project_ids) %>% pull(EnrollmentID) %>% unique()
 
@@ -40,7 +40,7 @@ for (file in unique(cols_and_data_types$File)) {
   
   if(file == "Organization") {
     write.csv(
-      Organization %>% filter(OrganizationID %in% orgs),
+      Organization %>% filter(OrganizationID %in% organization_ids),
       here(paste0(directory, "data/Organization.csv")),
       na = "",
       row.names = FALSE
@@ -57,9 +57,37 @@ for (file in unique(cols_and_data_types$File)) {
     next
   }
   
+  # Add FSA issues
+  if(file == "Client") {
+    write.csv(
+      Client %>% 
+        filter(PersonalID %in% personal_ids) %>%
+        mutate(DateUpdated = format(DateUpdated, "%d-%m-%y")),
+      here(paste0(directory, "data/Client.csv")),
+      na = "",
+      row.names = FALSE
+    )
+    next
+  }
+  
+  if(file == "CurrentLivingSituation") {
+    write.csv(
+      CurrentLivingSituation %>% 
+        filter(EnrollmentID %in% enrollment_ids) %>%
+        mutate(
+          CurrentLivingSituation = ifelse(
+            EnrollmentID == 813537, 999, CurrentLivingSituation)
+          ),
+      here(paste0(directory, "data/CurrentLivingSituation.csv")),
+      na = "",
+      row.names = FALSE
+    )
+    next
+  }
+  
   tryCatch({
     write.csv(
-      get(file) %>% filter(ProjectID %in% project_ids),
+      get(file) %>% filter(EnrollmentID %in% enrollment_ids),
       here(paste0(directory, "data/", file, ".csv")),
       na = "",
       row.names = FALSE
@@ -67,18 +95,27 @@ for (file in unique(cols_and_data_types$File)) {
   }, error = function(e) {
     tryCatch({
       write.csv(
-        get(file) %>% filter(EnrollmentID %in% enrollment_ids),
-        here(paste0(directory, "data/", file, ".csv")),
-        na = "",
-        row.names = FALSE
-      )
-    }, error = function(e2) {
-      write.csv(
         get(file) %>% filter(PersonalID %in% personal_ids),
         here(paste0(directory, "data/", file, ".csv")),
         na = "",
         row.names = FALSE
       )
+    }, error = function(e2) {
+      tryCatch({
+        write.csv(
+          get(file) %>% filter(ProjectID %in% project_ids),
+          here(paste0(directory, "data/", file, ".csv")),
+          na = "",
+          row.names = FALSE
+        )
+      }, error = function(e2) {
+        write.csv(
+          get(file) %>% filter(OrganizationID %in% organization_ids),
+          here(paste0(directory, "data/", file, ".csv")),
+          na = "",
+          row.names = FALSE
+        )
+      })
     })
   })
 }
@@ -90,19 +127,12 @@ zipr(
   mode = "cherry-pick" # so the files are at the top directory
 )
 
-# Now run Eva and upload this file, pausing after 06_PDDE to save the environment
+demo_zip <- "/media/projects/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-demo_small.zip"
+# Now before running Eva with this new zip, 
+# put a browser() at the end of the successful load block
+# then run the following to save the workspace as demo.Rdata
 # save(list = c(ls(envir = .GlobalEnv, all.names = TRUE), ls(all.names = TRUE)), file = "demo.RData", compress="xz")
-test_that("Creasting demo.Rdata", {
-  app <- AppDriver$new(
-    variant = platform_variant(os_name = FALSE), 
-    name = "build_demo_rdata", 
-    seed = 12345,
-    load_timeout = 2e+05)
-  
-  app$set_inputs(Go_to_upload = "click")
-  app$wait_for_idle(timeout = 2e+05)
-  app$upload_file(imported = demo_zip)
-  
-  app$wait_for_idle(timeout = 1e+06)
-  save(list = c(ls(envir = .GlobalEnv, all.names = TRUE), ls(all.names = TRUE)), file = "demo.RData", compress="xz")
-})
+# # this saves everything in the global and calling environment. 
+## The global environment includes the meta_ variables,
+## the calling environment/observe includes everything else: functions, data frames, and values
+## xz compression makes the file small enough to get around GitHub's 100MB size limit
