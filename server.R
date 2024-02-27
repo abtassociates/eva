@@ -98,10 +98,30 @@ function(input, output, session) {
     js_t <- ifelse(t, 'true','false')
     shinyjs::runjs(str_glue("
       $('#home_demo_instructions').parent().parent().toggle({js_t});
+      
       $('.in_demo_mode').toggle({js_t});
+      
       $('#home_live_instructions').parent().parent().toggle(!{js_t});
+      
       document.getElementById('isdemo').checked = {js_t};
-      "))
+      
+      $('#imported').closest('.btn')
+        .on('click',!{js_t})
+        .attr('disabled',{js_t});
+    "))
+    if(t) {
+      shinyjs::runjs(paste0(
+          "var demoBannerHTML = \"<div id='demo_banner' class='in_demo_mode'>",
+              "DEMO",
+            "</div>\";",
+          "$('header.main-header').append(demoBannerHTML);"
+        ))
+      
+      shinyjs::runjs("$('#sidebarItemExpanded').css({
+                     'top': '1.5em',
+                     'position':'relative'})")
+      shinyjs::hide(id = "successful_upload")
+    }
   }
   
   toggleDemoJs(FALSE)
