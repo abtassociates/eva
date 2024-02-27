@@ -298,7 +298,7 @@ dashboardPage(
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
-            uiOutput("fileInfo"),
+            uiOutput("fileInfo") %>% withSpinner(),
             width = 12
           )),
           fluidRow(box(
