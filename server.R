@@ -111,7 +111,6 @@ function(input, output, session) {
   toggleDemoJs(FALSE)
   
   demo_values <- reactiveValues(modal_closed=0)
-  demo_fsa <- reactiveValues()
   activate_demo <- function() {
     capture.output("Switching to demo mode!")
     print("Switching to demo mode!")
@@ -128,13 +127,9 @@ function(input, output, session) {
       )
     )
     load("demo.Rdata", envir = .GlobalEnv)
-    demo_fsa$fsa_main <- file_structure_analysis_main
     # mark the file as valid
     valid_file(1)
     
-    # run dq download reactive so charts load faster
-    # x <- dqDownloadInfo()
-    # x <- file_structure_analysis_main
     removeModal()
 
     # update inputs choices and defaults
@@ -143,6 +138,8 @@ function(input, output, session) {
     updateTabItems(session, "sidebarmenuid", "tabHome")
     
     toggleDemoJs(TRUE)
+    
+    shinyjs::show('fileStructureAnalysis')
     
     update_fsa()
     
@@ -198,6 +195,7 @@ function(input, output, session) {
       
       rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
       updateTabItems(session, "sidebarmenuid", "tabUpload")
+      shinyjs::hide('fileStructureAnalysis')
       
       toggleDemoJs(FALSE)
     }
@@ -236,7 +234,6 @@ function(input, output, session) {
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
-          demo_fsa$fsa_main <- file_structure_analysis_main
           
           if(nrow(
             file_structure_analysis_main %>%
@@ -308,11 +305,10 @@ function(input, output, session) {
   }, ignoreInit = TRUE)
 # File Structure Analysis Summary -----------------------------------------
   update_fsa <- function() {
-    output$fileStructureAnalysis <- DT::renderDT(
+    output$fileStructureAnalysis <- DT::renderDataTable(
       {
         req(exists("file_structure_analysis_main"))
-        # a <- fsa_main()
-        a <- demo_fsa$fsa_main
+        a <- file_structure_analysis_main
         exportTestValues(fileStructureAnalysis = a)
         
         datatable(
@@ -325,7 +321,7 @@ function(input, output, session) {
                         Visit the other tabs to view the rest of Eva's output")
                          )
         )
-      }) |> bindEvent(input$imported, input$in_demo_mode)
+      })
   }
 # File Structure Analysis Download ----------------------------------------
 
