@@ -66,7 +66,7 @@ function(input, output, session) {
     if(is.null(input$imported)) {
       return("")
     } else if(valid_file() == 1) {
-      HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
+      HTML("<p id='successful_upload'>You have successfully uploaded your hashed HMIS CSV Export!</p>")
     }
   }) 
   
