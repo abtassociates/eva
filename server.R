@@ -144,6 +144,8 @@ function(input, output, session) {
     
     toggleDemoJs(TRUE)
     
+    update_fsa()
+    
     print("It's in demo mode!")
   }
   
@@ -300,9 +302,12 @@ function(input, output, session) {
           logMetadata("Unsuccessful upload - not structurally valid")
         }
       })
+      
+      update_fsa()
     }
   }, ignoreInit = TRUE)
 # File Structure Analysis Summary -----------------------------------------
+  update_fsa <- function() {
     output$fileStructureAnalysis <- DT::renderDT(
       {
         req(exists("file_structure_analysis_main"))
@@ -321,6 +326,7 @@ function(input, output, session) {
                          )
         )
       }) |> bindEvent(input$imported, input$in_demo_mode)
+  }
 # File Structure Analysis Download ----------------------------------------
 
     output$downloadFileStructureAnalysisBtn <- renderUI({
