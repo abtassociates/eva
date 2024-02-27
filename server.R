@@ -52,8 +52,12 @@ function(input, output, session) {
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
   
   observeEvent(input$Go_to_upload, {
-    updateTabItems(session, "sidebarmenuid", "tabUpload")
-  })
+    if(isTruthy(input$in_demo_mode)) {
+      updateTabItems(session, "sidebarmenuid", "tabClientCount")
+    } else {
+      updateTabItems(session, "sidebarmenuid", "tabUpload")
+    }
+  }) 
   
   observeEvent(input$timeOut, {
     logMetadata("Timed out")
@@ -70,30 +74,15 @@ function(input, output, session) {
     }
   }) 
   
-  should_activate_demo <- reactive({
-    if(length(input$imported)) {
-      showModal(
-        modalDialog(
-          "If you switch to demo mode, your uploaded HMIS CSV will be removed. Continue?",
-          title = NULL,
-          footer = tagList(actionButton("continue_demo_btn", "Continue"),
-                           modalButton("Cancel"))
-        )
-      )
-      return(FALSE)
-    } else {
-      return(TRUE)
-    }
-  })
-  observeEvent(input$continue_demo_btn, {
-    # browser()
-    should_activate_demo()
-  })
-  
-  activate_demo <- reactive({
+  # Handle demo mode toggle --------------------------------------------------
+  demo_values <- reactiveValues(modal_closed=0)
+  demo_fsa <- reactiveValues()
+  activate_demo <- function() {
     capture.output("Switching to demo mode!")
+    print("Switching to demo mode!")
     # clear environment
-    rm(list = ls())
+    reset("imported")
+    rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
     
     # let user know things take a min to load then load the demo data
     showModal(
@@ -103,12 +92,23 @@ function(input, output, session) {
         footer = NULL
       )
     )
-    load("demo.RData", envir = .GlobalEnv)
-    removeModal()
-    
+    load("demo.Rdata", envir = .GlobalEnv)
+    demo_fsa$fsa_main <- file_structure_analysis_main
+
     # mark the file as valid
     valid_file(1)
     
+    # run dq download reactive so charts load faster
+    # x <- dqDownloadInfo()
+    # x <- file_structure_analysis_main
+    removeModal()
+    shinyjs::runjs("document
+      .getElementById('home_instructions1')
+      .previousElementSibling
+      .querySelector('.btn-box-tool')
+      .click(); 
+      document.querySelectorAll('.in_demo_mode').forEach((el) => {
+    el.style.display = 'block'});")
     # update inputs choices and defaults
     updatePickerInput(session = session, inputId = "currentProviderList",
                       choices = sort(Project$ProjectName))
@@ -130,22 +130,59 @@ function(input, output, session) {
                          start = meta_HUDCSV_Export_Start,
                          max = meta_HUDCSV_Export_End,
                          end = meta_HUDCSV_Export_End)
+    print("It's in demo mode!")
+  }
+  
+  observeEvent(input$continue_demo_btn, {
+    removeModal()
+    activate_demo()
   })
-  # Handle demo mode ------------------------------------------------------
+  
+  observeEvent(input$cancel_demo, {
+    demo_values$modal_closed <- 1
+    removeModal()
+  })
+  
+  observe({
+    if(demo_values$modal_closed){
+      shinyjs::runjs('document.getElementById("isdemo").checked = false;')
+    }
+  })
+  
   observeEvent(input$in_demo_mode, {
-    if(input$in_demo_mode == TRUE) {
-      req(should_activate_demo())
-      activate_demo()
-    } else {
-      print("It's in live mode!")
-      rm(list = ls(), envir=.GlobalEnv)
+    if(input$in_demo_mode) {
+      demo_values$modal_closed <- 0
+      msg <- "Demo mode allows you to explore Eva with sample data, 
+            rather than having to have your own file."
+      if(length(input$imported)) {
+        msg <- paste0(msg, " If you switch to demo mode, your uploaded HMIS CSV 
+        will be removed. However, you can still re-upload your data again if you wish.
+        Continue?")
+      }
       showModal(
         modalDialog(
-          "Please upload your HMIC CSV file.",
-          title = "Upload your HMIS CSV file",
+          msg,
+          title = NULL,
+          footer = tagList(actionButton("continue_demo_btn", "Continue"),
+                           actionButton("cancel_demo", "Cancel"))
+        )
+      )
+      
+    } else {
+      print("It's in live mode!")
+      showModal(
+        modalDialog(
+          "Please upload your hashed HMIS CSV Export.",
+          title = "Upload your HMIS CSV Export",
           easyClose = TRUE
         )
       )
+      valid_file(0)
+      reset("imported")
+      shinyjs::runjs("
+      document.querySelectorAll('.in_demo_mode').forEach((el) => {
+    el.style.display = 'none'});") 
+      rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
       updateTabItems(session, "sidebarmenuid", "tabUpload")
     }
   }, ignoreInit = TRUE)
@@ -154,6 +191,11 @@ function(input, output, session) {
   
   observeEvent(input$imported, {
     valid_file(0)
+    shinyjs::runjs('document.getElementById("isdemo").checked = false;
+                   document.querySelectorAll(".in_demo_mode").forEach((el) => {
+    el.style.display = "none"});') 
+    
+    rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
     source("00_initially_valid_import.R", local = TRUE)
     
     if(initially_valid_import == 1) {
@@ -180,6 +222,7 @@ function(input, output, session) {
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
+          demo_fsa$fsa_main <- file_structure_analysis_main
           
           if(nrow(
             file_structure_analysis_main %>%
@@ -221,16 +264,7 @@ function(input, output, session) {
           )
 
           logMetadata("Successful upload")
-          # # AS 2/13/24: For saving the demo data file:
-          ## browser is needed to pause so you can save from the console
-          # browser()
-          # # this saves everything in the global and calling environment. 
-          ## The former includes the meta_ variables,
-          ## the latter includes everything else: functions, data frames, and values
-          ## xz compression gets the file down to 22MB, instead of the default
-          ## which gets down to 1GB, which is too large to upload to GitHub
-          # save(list = c(ls(envir = .GlobalEnv, all.names = TRUE), ls(all.names = TRUE)), file = "demo.RData", compress="xz")
-          
+          rlang::env_coalesce(.GlobalEnv, environment())
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
@@ -251,18 +285,11 @@ function(input, output, session) {
     }
   }, ignoreInit = TRUE)
 # File Structure Analysis Summary -----------------------------------------
-    
-    output$fileStructureAnalysis <- DT::renderDataTable(
+    output$fileStructureAnalysis <- DT::renderDT(
       {
         req(exists("file_structure_analysis_main"))
-        
-        a <- file_structure_analysis_main %>%
-          group_by(Type, Issue) %>%
-          summarise(Count = n()) %>%
-          ungroup() %>%
-          arrange(Type, desc(Count))
-        
-        
+        # a <- fsa_main()
+        a <- demo_fsa$fsa_main
         exportTestValues(fileStructureAnalysis = a)
         
         datatable(
@@ -283,7 +310,7 @@ function(input, output, session) {
       req(nrow(file_structure_analysis_main) > 0)
       downloadButton("downloadFileStructureAnalysis",
                      "Download Structure Analysis Detail")
-    })  
+    }) 
     
     output$downloadFileStructureAnalysis <- downloadHandler(
       filename = date_stamped_filename("File-Structure-Analysis-"),
@@ -692,7 +719,7 @@ function(input, output, session) {
       # org-level data prep (filtering to selected org)
       orgDQData <- dq_main_reactive() %>%
         filter(OrganizationName %in% c(input$orgList))
-      
+
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | 
                  PreviousOrganizationName %in% c(input$orgList))
