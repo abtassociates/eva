@@ -117,7 +117,7 @@ function(input, output, session) {
            data quality checks across projects within a given organization."
     )
     req(msg)
-    req(seen_message[[selectedTabId]] == FALSE)
+    req(!isTruthy(seen_message[[selectedTabId]]))
     seen_message[[selectedTabId]] <- TRUE
     showModal(modalDialog(msg))
   }) 
