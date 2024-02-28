@@ -94,6 +94,34 @@ function(input, output, session) {
     
   }
   # Handle demo mode toggle --------------------------------------------------
+  seen_message <- reactiveValues()
+  observeEvent(input$sidebarmenuid, {
+    req(input$in_demo_mode)
+    selectedTabId <- input$sidebarmenuid
+    msg <- switch(selectedTabId,
+                  "tabUpload" = "On the Upload tab you can view the 
+           File Structure Analysis summary of your uploaded file",
+                  
+                  "tabLocalSettings" = "On the Local Settings tab you can adjust the 
+           local settings.",
+                  
+                  "tabClientCount" = "On the Client Count tab you can view a summary
+           of your client counts in the selected project.",
+                  
+                  "tabPDDE" = "On the PDDE tab you can view a summary of the PDDE checks.",
+                  
+                  "tabDQSystem" = "On the DQ System tab you can view a summary of the 
+           data quality checks across organizations in your system.",
+                  
+                  "tabDQOrg" = "On the DQ Organization tab you can view a summary of
+           data quality checks across projects within a given organization."
+    )
+    req(msg)
+    req(seen_message[[selectedTabId]] == FALSE)
+    seen_message[[selectedTabId]] <- TRUE
+    showModal(modalDialog(msg))
+  }) 
+  
   toggleDemoJs <- function(t) {
     js_t <- ifelse(t, 'true','false')
     shinyjs::runjs(str_glue("
