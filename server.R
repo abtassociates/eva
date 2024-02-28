@@ -133,13 +133,14 @@ function(input, output, session) {
       
       document.getElementById('isdemo').checked = {js_t};
       
-      $('#imported').closest('.btn')
-        .on('click',!{js_t})
-        .attr('disabled',{js_t});
+      $('#imported').closest('.btn').attr('disabled',{js_t});
+      
+      $('#demo_banner').remove();
     "))
+    
     if(t) {
       shinyjs::runjs(paste0(
-          "var demoBannerHTML = \"<div id='demo_banner' class='in_demo_mode'>",
+        "var demoBannerHTML = \"<div id='demo_banner' class='in_demo_mode'>",
               "DEMO",
             "</div>\";",
           "$('header.main-header').append(demoBannerHTML);"
@@ -149,6 +150,17 @@ function(input, output, session) {
                      'top': '1.5em',
                      'position':'relative'})")
       shinyjs::hide(id = "successful_upload")
+      shinyjs::disable("imported")
+      
+    } else {
+      shinyjs::runjs("
+          $('#imported').closest('.btn').removeAttr('disabled');
+      ")
+      shinyjs::runjs("$('#sidebarItemExpanded').css({
+                     'top': '',
+                     'position':''})")
+      shinyjs::enable("imported")
+      
     }
   }
   
