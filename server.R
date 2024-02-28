@@ -198,6 +198,7 @@ function(input, output, session) {
     shinyjs::show('fileStructureAnalysis')
     
     update_fsa()
+    update_pdde_output()
     
     print("It's in demo mode!")
   }
@@ -357,6 +358,7 @@ function(input, output, session) {
       })
       
       update_fsa()
+      update_pdde_output()
     }
   }, ignoreInit = TRUE)
 # File Structure Analysis Summary -----------------------------------------
@@ -594,86 +596,7 @@ function(input, output, session) {
       
       validate_by_org
     })
-    
-# PDDE Checker ------------------------------------------------------------
-
-    # summary table
-    output$pdde_summary_table <- DT::renderDataTable({
-      req(valid_file() == 1)
-      
-      a <- pdde_main %>%
-        group_by(Issue, Type) %>%
-        summarise(Count = n()) %>%
-        ungroup() %>%
-        arrange(Type)
-      
-      exportTestValues(pdde_summary_table = a)
-
-      datatable(
-        a,
-        rownames = FALSE,
-        filter = 'none',
-        options = list(dom = 't')
-      )
-    })
-
-# PDDE Download Button ----------------------------------------------------
-
-    output$downloadPDDEReportButton  <- renderUI({
-      req(valid_file() == 1)
-      req(nrow(pdde_main) > 0)
-      downloadButton(outputId = "downloadPDDEReport",
-                       label = "Download")
-    })
-
-
-# Download Button Handler -------------------------------------------------
-
-    output$downloadPDDEReport <- downloadHandler(
-      
-      filename = date_stamped_filename("PDDE Report-"),
-      content = function(file) {
-        req(valid_file() == 1)
-        
-        summary <- pdde_main %>% 
-          group_by(Issue, Type) %>%
-          summarise(Count = n()) %>%
-          ungroup()
-
-        write_xlsx(
-          list("Summary" = summary,
-               "Data" = pdde_main %>%
-                 nice_names()),
-          path = file)
-        
-        logMetadata("Downloaded PDDE Report")
-        
-        exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main))
-      }
-    )
-    
-
-# PDDE Guidance -----------------------------------------------------------
-
-    output$pdde_guidance_summary <- DT::renderDataTable({
-      req(valid_file() == 1)
-      
-      guidance <- pdde_main %>%
-        select(Type, Issue, Guidance) %>%
-        arrange(Type, Issue) %>%
-        unique()
-      
-      exportTestValues(pdde_guidance_summary = guidance)
-      
-      datatable(
-        guidance, 
-        rownames = FALSE,
-        escape = FALSE,
-        filter = 'top',
-        options = list(dom = 'ltpi')
-      )
-    })
-
+   
 # Client Counts -----------------------------------------------------------
 
     source("client_counts_functions.R", local = TRUE)
@@ -731,6 +654,120 @@ function(input, output, session) {
       content = get_clientcount_download_info
     )
 
+    
+# PDDE Download Button ----------------------------------------------------
+    
+    output$downloadPDDEReportButton  <- renderUI({
+      req(valid_file() == 1)
+      req(nrow(pdde_main) > 0)
+      downloadButton(outputId = "downloadPDDEReport",
+                     label = "Download")
+    })
+    
+    
+# Download Button Handler -------------------------------------------------
+    
+    output$downloadPDDEReport <- downloadHandler(
+      
+      filename = date_stamped_filename("PDDE Report-"),
+      content = function(file) {
+        req(valid_file() == 1)
+        
+        summary <- pdde_main %>% 
+          group_by(Issue, Type) %>%
+          summarise(Count = n()) %>%
+          ungroup()
+        
+        write_xlsx(
+          list("Summary" = summary,
+               "Data" = pdde_main %>%
+                 nice_names()),
+          path = file)
+        
+        logMetadata("Downloaded PDDE Report")
+        
+        exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main))
+      }
+    )
+    
+  update_pdde_output <- function() {
+# PDDE Checker ------------------------------------------------------------
+    
+    # summary table
+    output$pdde_summary_table <- DT::renderDataTable({
+      req(valid_file() == 1)
+      
+      a <- pdde_main %>%
+        group_by(Issue, Type) %>%
+        summarise(Count = n()) %>%
+        ungroup() %>%
+        arrange(Type)
+      
+      exportTestValues(pdde_summary_table = a)
+      
+      datatable(
+        a,
+        rownames = FALSE,
+        filter = 'none',
+        options = list(dom = 't')
+      )
+    })
+    
+# PDDE Guidance -----------------------------------------------------------
+    
+    output$pdde_guidance_summary <- DT::renderDataTable({
+      req(valid_file() == 1)
+      
+      guidance <- pdde_main %>%
+        select(Type, Issue, Guidance) %>%
+        arrange(Type, Issue) %>%
+        unique()
+      
+      exportTestValues(pdde_guidance_summary = guidance)
+      
+      datatable(
+        guidance, 
+        rownames = FALSE,
+        escape = FALSE,
+        filter = 'top',
+        options = list(dom = 'ltpi')
+      )
+    })
+  }
+
+  
+# DQ Org Summary -------------------------------------------------------
+  output$dq_organization_summary_table <- DT::renderDataTable({
+    req(valid_file() == 1)
+    
+    a <- dq_main_reactive() %>%
+      filter(OrganizationName %in% c(input$orgList)) %>%
+      select(ProjectName, 
+             Type, 
+             Issue, 
+             PersonalID) %>%
+      group_by(ProjectName, 
+               Type, 
+               Issue) %>%
+      summarise(Clients = n()) %>%
+      arrange(Type, desc(Clients)) %>%
+      select("Project Name" = ProjectName, 
+             Type, 
+             Issue, 
+             Clients)
+    
+    exportTestValues(dq_organization_summary_table = a)
+    
+    datatable(
+      a,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    )
+  })
+  
+# DQ Org Guidance -------------------------------------------------------
+  
     output$dq_org_guidance_summary <- DT::renderDataTable({
       req(valid_file() == 1)
       
@@ -753,36 +790,6 @@ function(input, output, session) {
         options = list(dom = 'ltpi')
       )
     })
-    
-    output$dq_organization_summary_table <- DT::renderDataTable({
-      req(valid_file() == 1)
-      
-      a <- dq_main_reactive() %>%
-        filter(OrganizationName %in% c(input$orgList)) %>%
-        select(ProjectName, 
-               Type, 
-               Issue, 
-               PersonalID) %>%
-        group_by(ProjectName, 
-                 Type, 
-                 Issue) %>%
-        summarise(Clients = n()) %>%
-        arrange(Type, desc(Clients)) %>%
-        select("Project Name" = ProjectName, 
-          Type, 
-          Issue, 
-          Clients)
-      
-      exportTestValues(dq_organization_summary_table = a)
-      
-      datatable(
-        a,
-        rownames = FALSE,
-        filter = 'top',
-        options = list(dom = 'ltpi')
-      )
-    })
-    
 
 # Prep DQ Downloads -------------------------------------------------------
 
