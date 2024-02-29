@@ -293,7 +293,8 @@ dashboardPage(
                  You're currently in demo mode. View the File Structure analysis
                  below to see examples of errors your could get in your own 
                  uploads. You don't need to upload a file. 
-                 If you do, you will exit out of demo mode</p>"),
+                 If you would like to, exit out of demo mode using the toggle
+                 at the top.</p>"),
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,

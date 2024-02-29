@@ -326,6 +326,7 @@ a:hover {
   content: "ON";
   left: 37px;
   background-color: #FCB248;
+  color: #000000;
 }
 
 #button-1 .checkbox:checked ~ .layer {
@@ -387,4 +388,11 @@ a:hover {
 .demo-tooltip:hover .demo-tooltiptext {
   visibility: visible;
   opacity: 1;
+}
+
+#demo_banner {
+  background-color: #FCB248;
+  color: #000000; 
+  text-align:center;
+  height: 1.5em;
 }
