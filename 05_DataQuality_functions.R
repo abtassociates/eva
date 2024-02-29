@@ -4,22 +4,22 @@
 
 dq_main_reactive <- reactive({
   req(valid_file() == 1)
-  # browser()
+
   ESNbN <- calculate_long_stayers_local_settings(input$ESNbNLongStayers, 0)
   Outreach <- calculate_long_stayers_local_settings(input$OUTLongStayers, 4)
   CoordinatedEntry <- calculate_long_stayers_local_settings(input$CELongStayers, 14)
   ServicesOnly <- calculate_long_stayers_local_settings(input$ServicesOnlyLongStayers, 6)
   Other <- calculate_long_stayers_local_settings(input$OtherLongStayers, 7)
   DayShelter <- calculate_long_stayers_local_settings(input$DayShelterLongStayers, 11)
-  
+  browser()
   #Calculating potential old referrals based on Local settings
   CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
-    select(all_of(vars_we_want))
+    select(all_of(vars_we_want), EnrollmentID)
   
+  browser()
   x <- dq_main %>%
     filter(str_detect(tolower(Issue), "local settings", negate = TRUE) == TRUE)
-
-  
+browser()
   rbind(x,
         ESNbN,
         Outreach,
@@ -42,6 +42,7 @@ getDQReportDataList <-
       "ProjectName",
       "Issue",
       "PersonalID",
+      "EnrollmentID",
       "HouseholdID",
       "EntryDate"
     )
@@ -192,7 +193,7 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
     ) %>%
     filter(too_many_days < Days) %>%
     merge_check_info(checkIDs = 102) %>%
-    select(all_of(vars_we_want))
+    select(all_of(vars_we_want), EnrollmentID)
   
   cls_df <- validation %>%
     filter(is.na(ExitDate)) %>% # less data to deal w/
@@ -208,7 +209,7 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
     
   cls_project_types <- validation %>%
     left_join(cls_df, by = "EnrollmentID") %>%
-    select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
+    select(all_of(vars_prep), EnrollmentID, ProjectID, MaxCLSInformationDate) %>%
     mutate(
       Days = 
         as.numeric(difftime(
@@ -224,14 +225,13 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
              ProjectType == projecttype & 
              too_many_days < Days) %>%
     merge_check_info(checkIDs = 103) %>%
-    select(all_of(vars_we_want))
+    select(all_of(vars_we_want), EnrollmentID)
   
   if (projecttype %in% c(project_types_w_cls)) {
     cls_project_types
   } else{
     entryexit_project_types
   } 
-  
 }
 
 # Outstanding Referrals --------------------------------------------

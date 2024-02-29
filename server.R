@@ -630,11 +630,11 @@ function(input, output, session) {
       # org-level data prep (filtering to selected org)
       orgDQData <- dq_main_reactive() %>%
         filter(OrganizationName %in% c(input$orgList))
-      
+
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | 
                  PreviousOrganizationName %in% c(input$orgList))
-#browser()
+browser()
       orgDQReferrals <- 
         calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
         filter(OrganizationName %in% c(input$orgList))
