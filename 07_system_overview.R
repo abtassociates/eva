@@ -598,7 +598,7 @@ syso_chartSubheader <- reactive({
 # Client-level enrollment summary data reactive ---------------------------
 # get final people-level, inflow/outflow dataframe by joining the filtered----- 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
-system_df_people <- reactive({
+system_plot_data <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
   universe <- system_df_enrl_filtered() %>%
     inner_join(system_df_people_filtered(), by = "PersonalID") %>%
@@ -639,8 +639,7 @@ system_df_people <- reactive({
         MoveInDateAdjust <= input$syso_date_range[1] &
         lh_prior_livingsituation == TRUE,
       
-      # LOGIC Return from permanent
-      # must be at least 14 days from the lookback1's exit and the eecr's entry
+      # LOGIC helper columns for outflow
       
       lookback1_perm_dest = lookback == 1 & 
         Destination %in% perm_destinations,
@@ -651,53 +650,47 @@ system_df_people <- reactive({
       at_least_14_days_to_eecr_enrl = lookback == 1 & 
         next_entry_days >= 14,
       
-      # LOGIC Re-engaged from temporary
-      # identical to return-from-permanent except dest NOT IN perm
       lookback1_temp_dest = lookback == 1 & 
         !(Destination %in% perm_destinations),
       
-      # LOGIC Newly homeless
-      # The intermediary here is whether the client has any lookback enrollments
-      # so that's just done later in the group_by with max(lookback) == 0
-
-      # OUTFLOW CALCULATOR COLUMNS
+      # outflow columns
       perm_dest_lecr = lecr == TRUE &
         Destination %in% perm_destinations &
-        !is.na(ExitDate), # &
-      # NoEnrollmentsToLHFor14DaysFromLECR == TRUE
+        !is.na(ExitDate), # 
       
       temp_dest_lecr = lecr == TRUE &
         !(Destination %in% perm_destinations) &
-        !is.na(ExitAdjust),
+        !is.na(ExitDate),
       
-      homeless_at_end = lecr == TRUE & 
+      homeless_at_end = lecr == TRUE & # REVISIT GD, CHECK LOGIC
         EntryDate <= input$syso_date_range[2] &
-        (is.na(ExitAdjust) | ExitAdjust > input$syso_date_range[2]) &
-        # (
-        #   ProjectType %in% c(0, 2, 8) |
-        #   (ProjectType == 1 &
-        #    (DateProvided > input$syso_date_range[2] + 15 |
-        #       DateProvided < input$syso_date_range[2] - 15)
-        #   )
-        # ) | (
-        #   ProjectType == 4 &
-        #   (InformationDate > input$syso_date_range[2] + 15 |
-        #      InformationDate < input$syso_date_range[2] - 15) &
-        #   (
-        #     CurrentLivingSituation %in% homeless_livingsituation |
-        #     lh_at_entry == TRUE
-        #   )
-        # ) | (
+        ExitAdjust > input$syso_date_range[2] & 
+        ( # REVISIT can we use a helper column here instead
+          ProjectType %in% c(0, 2, 8) |
+          (ProjectType == 1 &
+           (DateProvided > input$syso_date_range[2] + 15 |
+              DateProvided < input$syso_date_range[2] - 15)
+          )
+        ) | (
+          ProjectType == 4 &
+          (InformationDate > input$syso_date_range[2] + 15 |
+             InformationDate < input$syso_date_range[2] - 15) &
+          (
+            CurrentLivingSituation %in% homeless_livingsituation |
+            lh_at_entry == TRUE
+          )
+        ) | (
           (ProjectType %in% ph_project_types &
           (is.na(MoveInDateAdjust) | MoveInDateAdjust >= input$syso_date_range[2]) &
           lh_at_entry == TRUE
-        ),
+        )),
 
       housed_at_end = lecr == TRUE & 
         EntryDate <= input$syso_date_range[2] &
-        (is.na(ExitAdjust) | ExitAdjust > input$syso_date_range[2]) &
+        ExitAdjust > input$syso_date_range[2] &
         ProjectType %in% ph_project_types & 
-        (!is.na(MoveInDateAdjust) & MoveInDateAdjust <= input$syso_date_range[1]) &
+        !is.na(MoveInDateAdjust) &
+        MoveInDateAdjust <= input$syso_date_range[1] &
         lh_at_entry == TRUE
     ) %>%
     group_by(PersonalID) %>%
