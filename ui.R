@@ -171,7 +171,27 @@ dashboardPage(
             collapsible = TRUE,
             collapsed = FALSE,
             HTML(
-              "<p class='in_demo_mode'>In demo mode, blah blah blah</p>
+              "<div class = 'in_demo_mode' style='display:none'>
+              <p>Welcome to Eva’s Demo Mode. In Demo Mode, you can explore the 
+              functionality of Eva with a pre-uploaded HMIS CSV Export file 
+              that uses sample HMIS data. Demo Mode has the same functionality 
+              as the normal mode of Eva and provides examples of possible File 
+              Structure Errors, Data Quality Errors and Warnings. Select any of 
+              Eva's pages from the navigation menu to the left to explore the 
+              application.</p>
+              <h4>Switching Modes</h4>
+              <p>To switch between the two modes, please use the Demo Mode toggle 
+              on the top right of the screen. This toggle will be available from 
+              every page in Eva. When you switch from Demo Mode to Eva's normal 
+              mode, the example HMIS data will disappear, and you will need to 
+              upload your own HMIS data to use Eva's functionalities. When you 
+              switch from Eva's normal mode to Demo Mode, you will lose the HMIS 
+              data you uploaded. Eva does not store any uploaded data after as 
+              session ends, so to see your results again, users will need to 
+              re-upload their HMIS CSV Export file</p>
+              <p>Please note that you can switch between Eva’s normal mode and 
+              Demo Mode at any time. Every time you switch to Demo Mode, the 
+              sample HMIS data will populate</p></div>
               ")
           ),
           box(
@@ -289,12 +309,17 @@ dashboardPage(
               ")
           )),
           fluidRow(box(
-            HTML("<p class='in_demo_mode' style='display:none'>
-                 You're currently in demo mode. View the File Structure analysis
-                 below to see examples of errors your could get in your own 
-                 uploads. You don't need to upload a file. 
-                 If you would like to, exit out of demo mode using the toggle
-                 at the top.</p>"),
+            HTML(paste0("<div class='in_demo_mode' style='display:none'><p>
+                 You're currently in Demo Mode and viewing sample HMIS data from 
+                 a curated HMIS CSV Export file. View the File Structure Analysis 
+                 below to see examples of the File Structure Errors you could 
+                 get in your own uploads. For a full list of possible errors, 
+                 see ",a('Eva Checks', here("public-resources/EvaChecks.csv")),
+                 "</p>
+                 <p>Below, you have the option to upload your own HMIS CSV Export. 
+                 However, if you do, you will exit Demo Mode and Eva will process 
+                 your file</p></div>
+            ")),
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,
@@ -836,7 +861,7 @@ dashboardPage(
         tabName = "tabDQSystem",
         fluidRow(box(
           htmlOutput("headerSystemDQ"), width = 12, 
-          uiOutput("downloadSystemDQReportButton") %>% withSpinner())),
+          uiOutput("downloadSystemDQReportButton"))),
         fluidRow(box(
           title = "Instructions",
           width = 12,

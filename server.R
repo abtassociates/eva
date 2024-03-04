@@ -895,7 +895,7 @@ function(input, output, session) {
       req(valid_file() == 1)
       req(length(dqDownloadInfo()$systemDQData) > 0)
       downloadButton(outputId = "downloadSystemDQReport",
-                       label = "Download")
+                       label = "Download") %>% withSpinner()
     })
     
     output$downloadSystemDQReport <- downloadHandler(
