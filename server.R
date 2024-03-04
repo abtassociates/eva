@@ -182,7 +182,7 @@ function(input, output, session) {
         footer = NULL
       )
     )
-    load("demo.Rdata", envir = .GlobalEnv)
+    load(here("demo.RData"), envir = .GlobalEnv)
     # mark the file as valid
     valid_file(1)
     
