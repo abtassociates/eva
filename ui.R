@@ -314,7 +314,7 @@ dashboardPage(
                  a curated HMIS CSV Export file. View the File Structure Analysis 
                  below to see examples of the File Structure Errors you could 
                  get in your own uploads. For a full list of possible errors, 
-                 see ",a('Eva Checks', here("public-resources/EvaChecks.csv")),
+                 see ",a('Eva Checks', href=here("public-resources/EvaChecks.csv")),
                  "</p>
                  <p>Below, you have the option to upload your own HMIS CSV Export. 
                  However, if you do, you will exit Demo Mode and Eva will process 
