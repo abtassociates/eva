@@ -177,7 +177,7 @@ function(input, output, session) {
     # let user know things take a min to load then load the demo data
     showModal(
       modalDialog(
-        "Activating demo mode. This may take a minute...",
+        "Activating demo mode...",
         title = NULL,
         footer = NULL
       )
@@ -199,8 +199,27 @@ function(input, output, session) {
     
     update_fsa()
     update_pdde_output()
+    update_dq_output()
     
     print("It's in demo mode!")
+  }
+  
+  deactivate_demo <- function() {
+    valid_file(0)
+    reset("imported")
+    
+    rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
+    updateTabItems(session, "sidebarmenuid", "tabUpload")
+    shinyjs::hide('fileStructureAnalysis')
+    
+    toggleDemoJs(FALSE)
+    
+    update_fsa()
+    update_pdde_output()
+    update_dq_output()
+    
+    print("Switched into live mode!")
+    capture.output("Switched into live mode")
   }
   
   observeEvent(input$continue_demo_btn, {
@@ -208,63 +227,79 @@ function(input, output, session) {
     activate_demo()
   })
   
-  observeEvent(input$cancel_demo, {
+  observeEvent(input$stay_in_demo, {
     demo_values$modal_closed <- 1
     removeModal()
+    runjs('document.getElementById("isdemo").checked = true;')
   })
   
-  observe({
-    if(demo_values$modal_closed){
-      toggleDemoJs(FALSE)
-    }
+  observeEvent(input$stay_in_live, {
+    demo_values$modal_closed <- 1
+    removeModal()
+    runjs('document.getElementById("isdemo").checked = false;')
+    browser()
   })
+  
+  observeEvent(input$continue_live_btn, {
+    removeModal()
+    deactivate_demo()
+  })
+  
+  # observe({
+  #   browser()
+  #   if(demo_values$modal_closed){
+  #     toggleDemoJs(input$in_demo_mode)
+  #   }
+  # })
   
   observeEvent(input$in_demo_mode, {
     if(input$in_demo_mode) {
-      demo_values$modal_closed <- 0
-      msg <- "Demo mode allows you to explore Eva with sample data, 
-            rather than having to have your own file."
+      msg <- "<p>You're currently requesting to switch into Demo Mode. Demo Mode 
+      allows you to explore Eva with sample HMIS data, rather than having to use 
+      your own HMIS CSV Export file."
       if(length(input$imported)) {
-        msg <- paste0(msg, " If you switch to demo mode, your uploaded HMIS CSV 
-        will be removed. However, you can still re-upload your data again if you wish.
-        Continue?")
+        msg <- paste0(msg, " If you switch to Demo Mode now, your uploaded HMIS 
+        CSV Export data will be erased from Eva and replaced with the sample 
+        HMIS data.")
       }
+      msg <- paste0(msg, "You will be able to re-upload your HMIS CSV 
+        Export file if you switch out of Demo Mode.</p>
+        <p>Please select 'Continue' to switch to Demo Mode</p>")
+      
+      # save user's upload so they can easily switch back
+      # save(
+      #   list = c(
+      #     ls(envir = .GlobalEnv, all.names = TRUE), 
+      #     ls(all.names = TRUE)
+      #   ), 
+      #   file = "coc.Rdata", 
+      #   compress="xz")
+      # 
       showModal(
         modalDialog(
-          msg,
-          title = NULL,
+          HTML(msg),
+          title = "Switch into Demo Mode?",
           footer = tagList(actionButton("continue_demo_btn", "Continue"),
-                           actionButton("cancel_demo", "Cancel"))
+                           actionButton("stay_in_live", "Cancel"))
         )
       )
       
     } else {
-      print("It's in live mode!")
       showModal(
         modalDialog(
-          "Please upload your hashed HMIS CSV Export.",
-          title = "Upload your HMIS CSV Export",
-          easyClose = TRUE
+          "You're currently requesting to switch out of Demo Mode. To use Eva 
+          for your own CoC's data, please upload your hashed HMIS CSV Export.",
+          title = "Switch out of Demo Mode?",
+          footer = tagList(actionButton("continue_live_btn", "Continue"),
+                           actionButton("stay_in_demo", "Cancel"))
         )
       )
-      valid_file(0)
-      reset("imported")
-      
-      rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
-      updateTabItems(session, "sidebarmenuid", "tabUpload")
-      shinyjs::hide('fileStructureAnalysis')
-      
-      toggleDemoJs(FALSE)
     }
   }, ignoreInit = TRUE)
   
 # Run scripts on upload ---------------------------------------------------
   
   observeEvent(input$imported, {
-    valid_file(0)
-    toggleDemoJs(FALSE)
-    
-    rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
     source("00_initially_valid_import.R", local = TRUE)
     
     if(initially_valid_import == 1) {
@@ -288,6 +323,7 @@ function(input, output, session) {
         }
         
         source("03_file_structure_analysis.R", local = TRUE)
+        update_fsa()
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
@@ -304,9 +340,9 @@ function(input, output, session) {
               )
             )
           }
+          
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE)
-          setProgress(detail = "Assessing your data quality..", value = .7)
           
           # if we're in shiny testmode and the script has gotten here,
           # that means we're using the hashed-test-good file. 
@@ -317,10 +353,16 @@ function(input, output, session) {
             source("tests/update_test_good_dq.R", local = TRUE)  
           }
           
+          setProgress(detail = "Assessing your data quality..", value = .7)
           source("05_DataQuality.R", local = TRUE)
+          update_dq_output()
+          
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
+          update_pdde_output()
+          
           setProgress(detail = "Done!", value = 1)
+          
           
           logToConsole("Upload processing complete")
           
@@ -356,9 +398,6 @@ function(input, output, session) {
           logMetadata("Unsuccessful upload - not structurally valid")
         }
       })
-      
-      update_fsa()
-      update_pdde_output()
     }
   }, ignoreInit = TRUE)
 # File Structure Analysis Summary -----------------------------------------
@@ -737,6 +776,7 @@ function(input, output, session) {
 
   
 # DQ Org Summary -------------------------------------------------------
+  update_dq_output <- function() {
   output$dq_organization_summary_table <- DT::renderDataTable({
     req(valid_file() == 1)
     
@@ -924,7 +964,7 @@ function(input, output, session) {
     output$orgDQWarningsByIssue_ui <- renderUI({
       renderDQPlot("org", "Warning", "Issue", "#71B4CB")
     })
-  
+  }
     
     
     # output$headerUtilization <- renderUI({
