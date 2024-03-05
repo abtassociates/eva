@@ -54,31 +54,30 @@ cat.var_detail_values <- c(
 
 system_activity_prep <- reactive({
   # browser()
-
-  system_df_people() %>% # this is a people-level df
+  system_plot_data() %>% # this is a people-level df
     pivot_longer(
-      cols = c(InflowType, OutflowType), 
+      cols = c(InflowTypeDetail, OutflowTypeDetail), 
       names_to = "x.axis.var", 
       values_to = "cat.var") %>%
     group_by(x.axis.var, cat.var) %>%
     summarise(values = n()) %>%
     # filter(!is.na(cat.var)) %>%
     mutate(
-      values = ifelse(x.axis.var == "OutflowType", values * -1, values),
+      values = ifelse(x.axis.var == "OutflowTypeDetail", values * -1, values),
       inflow_outflow = x.axis.var,
       x.axis.var = case_when(
-        x.axis.var == "InflowType" &
+        x.axis.var == "InflowTypeDetail" &
           cat.var %in% active_at_vals
         ~ active_as_of_start(),
         
-        x.axis.var == "OutflowType" &
+        x.axis.var == "OutflowTypeDetail" &
           cat.var %in% active_at_vals
         ~ active_as_of_end(),
           
-        x.axis.var == "InflowType"
+        x.axis.var == "InflowTypeDetail"
         ~ "Inflow",
         
-        x.axis.var == "OutflowType"
+        x.axis.var == "OutflowTypeDetail"
         ~ "Outflow"
       )
     )
@@ -90,11 +89,11 @@ system_activity_summary_prep <- reactive({
   system_activity_prep() %>%
     mutate(
       cat.var = case_when(
-        x.axis.var == "Inflow" &
+        x.axis.var == "InflowTypeDetail" &
         !(cat.var %in% active_at_vals)
         ~ "Inflow",
   
-        x.axis.var == "Outflow" &
+        x.axis.var == "OutflowTypeDetail" &
         !(cat.var %in% active_at_vals)
         ~ "Outflow",
   
@@ -173,7 +172,7 @@ renderSystemPlot <- function(id) {
     s = max(df$end.Bar) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
-    browser()
+
     ggplot(df, aes(x = group.id, fill = cat.var)) + 
       # \_Simple Waterfall Chart ----
       geom_rect(aes(xmin = group.id - 0.25, # control bar gap width
