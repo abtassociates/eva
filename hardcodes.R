@@ -35,9 +35,9 @@ perm_livingsituation <- c(336, 410, 411, 421, 422, 423, 426, 435)
 
 lh_livingsituation <- c(101, 116, 118)
 
-homeless_livingsituation <- c(101, 302, 116, 118)
+homeless_livingsituation <- c(lh_livingsituation, 302)
 
-temp_livingsituation <- c(101, 302, 312, 313, 314, 116, 118, 327, 332, 335)
+temp_livingsituation <- c(homeless_livingsituation, 312, 313, 314, 327, 332, 335)
 
 institutional_livingsituation <- c(204, 205, 206, 207, 215, 225, 327, 329)
 
@@ -70,6 +70,8 @@ hp_project_type <- 12
 rrh_project_type <- 13
 
 ce_project_type <- 14
+
+lh_project_types_nc <- c(0, 2, 8)
 
 lh_residential_project_types <- c(0, 1, 2, 8)
 
