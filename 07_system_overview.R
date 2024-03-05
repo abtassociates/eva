@@ -203,36 +203,33 @@ system_df_enrl_filtered <- reactive({
     pull(EnrollmentID) %>%
     unique()
   
-  outreach_w_proper_cls <- CurrentLivingSituation %>%
-    filter(CurrentLivingSituation %in% homeless_livingsituation &
-             between(InformationDate,
-                     input$syso_date_range[1] - days(90),
-                     input$syso_date_range[1] + days(90))) %>%
-    pull(EnrollmentID) %>%
-    unique()
-  
   system_df_enrl_flags %>%
     left_join(nbn_enrollments_services, join_by(EnrollmentID)) %>%
     filter(
     # remove enrollments where the exit is over 2 years prior to report start
       as.numeric(difftime(ExitAdjust, input$syso_date_range[1],
                           unit = "days")) / 365 <= 2 &
+    
+    # excluding these because Project Type 12 is Homelessness Prevention. 
+    # Households in that project are technically already housed
+    ProjectType != 12 &
+      
     # Active At Start logic
-    ((ProjectType %in% c(es_ee_project_type, th_project_type, sh_project_type)) |
-      (ProjectType == es_nbn_project_type &
-         EnrollmentID %in% nbn_enrollments_w_proper_services) |
-      (ProjectType == out_project_type &
-         EnrollmentID %in% outreach_w_proper_cls &
-         lh_prior_livingsituation == TRUE) |
-      (ProjectType %in% c(ph_project_types) &
-         (is.na(MoveInDateAdjust) |
-            MoveInDateAdjust > input$syso_date_range[1]) &
-         lh_prior_livingsituation == TRUE) |
-      (ProjectType == ce_project_type &
-         lh_prior_livingsituation == TRUE &
-         between(EntryDate,
-                 input$syso_date_range[1] - days(90),
-                 input$syso_date_range[1] + days(90)))) &
+    # ((ProjectType %in% c(es_ee_project_type, th_project_type, sh_project_type)) |
+    #   (ProjectType == es_nbn_project_type &
+    #      EnrollmentID %in% nbn_enrollments_w_proper_services) |
+    #   (ProjectType == out_project_type &
+    #      EnrollmentID %in% outreach_w_proper_cls() &
+    #      lh_prior_livingsituation == TRUE) |
+    #   (ProjectType %in% c(ph_project_types) &
+    #      (is.na(MoveInDateAdjust) |
+    #         MoveInDateAdjust > input$syso_date_range[1]) &
+    #      lh_prior_livingsituation == TRUE) |
+      # (ProjectType == ce_project_type &
+      #    lh_prior_livingsituation == TRUE &
+      #    between(EntryDate,
+      #            input$syso_date_range[1] - days(90),
+      #            input$syso_date_range[1] + days(90)))) &
 
     # Household Type
     (
