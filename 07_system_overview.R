@@ -266,7 +266,7 @@ system_df_enrl_filtered <- reactive({
                       unit = "days")) %>%
     ungroup() %>%
     mutate(
-      straddles_entry =
+      straddles_start =
         EntryDate <= input$syso_date_range[1] &
         ExitAdjust >= input$syso_date_range[1],
       in_date_range =
@@ -627,8 +627,24 @@ system_plot_data <- reactive({
 
       active_at_start_homeless =
         eecr == TRUE &
-        EnrolledHomeless == TRUE &
-        (straddles_entry == TRUE |
+        (
+          # PH project types have move-in after start (or no move-in)
+          (
+            ProjectType %in% ph_project_types &
+            (
+              is.na(MoveInDateAdjust) |
+              MoveInDateAdjust > input$syso_date_range[1]
+            )
+          ) |
+          # Otherwise, EnrolledHomeless = TRUE (includes 0,1,2,4,8,14 and 6,11)
+          (
+            !(ProjectType %in% ph_project_types) &
+            EnrolledHomeless == TRUE
+          )
+        ) &
+        # Enrollment straddles start or the enrollment is within 2 weeks from start
+        # and within 2 weeks of prev enrollment
+        (straddles_start == TRUE |
            (EntryDate >= input$syso_date_range[1] &
               between(difftime(EntryDate, input$syso_date_range[1], units = "days"), 0, 14) &
               !is.na(previous_exit_days) &
@@ -663,34 +679,30 @@ system_plot_data <- reactive({
       # outflow columns
       perm_dest_lecr = lecr == TRUE &
         Destination %in% perm_destinations &
-        !is.na(ExitDate), # 
+        ExitAdjust < input$syso_date_range[2], # 
       
       temp_dest_lecr = lecr == TRUE &
         !(Destination %in% perm_destinations) &
-        !is.na(ExitDate),
+        ExitAdjust < input$syso_date_range[2],
       
       homeless_at_end = lecr == TRUE & # REVISIT GD, CHECK LOGIC
         EntryDate <= input$syso_date_range[2] &
         ExitAdjust > input$syso_date_range[2] & 
-        ( # REVISIT can we use a helper column here instead
-          ProjectType %in% c(0, 2, 8) |
-          (ProjectType == 1 &
-           (DateProvided > input$syso_date_range[2] + 15 |
-              DateProvided < input$syso_date_range[2] - 15)
-          )
-        ) | (
-          ProjectType == 4 &
-          (InformationDate > input$syso_date_range[2] + 15 |
-             InformationDate < input$syso_date_range[2] - 15) &
-          (
-            CurrentLivingSituation %in% homeless_livingsituation |
-            lh_at_entry == TRUE
-          )
-        ) | (
+        ( # 1
+          ProjectType %in% lh_project_types_nc |
+            
+          # 2
+          (ProjectType == es_nbn_project_type & nbn_service_within15_end == TRUE) |
+         
+          # 3
+          (ProjectType == out_project_type & 
+            EnrollmentID %in% outreach_w_proper_cls()) |
+          
+          # 4
           (ProjectType %in% ph_project_types &
           (is.na(MoveInDateAdjust) | MoveInDateAdjust >= input$syso_date_range[2]) &
-          lh_at_entry == TRUE
-        )),
+          lh_prior_livingsituation == TRUE) 
+        ),
 
       housed_at_end = lecr == TRUE & 
         EntryDate <= input$syso_date_range[2] &
@@ -698,8 +710,10 @@ system_plot_data <- reactive({
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
         MoveInDateAdjust <= input$syso_date_range[1] &
-        lh_at_entry == TRUE
-    ) %>%
+        lh_prior_livingsituation == TRUE
+    )
+  
+  universe_ppl <- universe %>%
     group_by(PersonalID) %>%
     # filter(max(lecr) == 1 & max(eecr) == 1) %>%
     summarise(
