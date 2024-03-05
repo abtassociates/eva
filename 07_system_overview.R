@@ -593,7 +593,7 @@ syso_chartSubheader <- reactive({
   list(
     strong("Total Served: "), 
     formatC(
-      nrow(system_df_people()),
+      nrow(system_df_people_filtered()),
       format = "d",
       big.mark = ","
     ),
