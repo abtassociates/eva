@@ -164,6 +164,16 @@ system_df_client_flags <- Client %>%
 
 # Enrollment-level reactive -----------------------------------------------
 
+outreach_w_proper_cls <- reactive({
+  CurrentLivingSituation %>%
+    filter(CurrentLivingSituation %in% homeless_livingsituation &
+             between(InformationDate,
+                     input$syso_date_range[2] - days(60),
+                     input$syso_date_range[2] + days(60))) %>%
+    pull(EnrollmentID) %>%
+    unique()
+})
+
 system_df_enrl_filtered <- reactive({
   # browser()
   nbn_enrollments_services <- Services %>%
