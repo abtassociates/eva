@@ -228,7 +228,7 @@ function(input, output, session) {
                            min = meta_HUDCSV_Export_Start,
                            start = meta_HUDCSV_Export_End - years(1),
                            max = meta_HUDCSV_Export_End,
-                           end = meta_HUDCSV_Export_End)
+                           end = meta_HUDCSV_Export_End - months(3))
     }
 
 

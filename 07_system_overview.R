@@ -781,9 +781,25 @@ system_plot_data <- reactive({
     ) %>%
     ungroup() 
   
+  # AS QC check:
+  missing_types <- universe %>% 
+    inner_join(
+      universe_ppl %>% 
+        filter(
+          OutflowTypeDetail == "something's wrong" | 
+            InflowTypeDetail == "something's wrong"), 
+        by="PersonalID") %>% 
+    mutate(
+      missing_inflow = eecr & InflowTypeDetail == "something's wrong",
+      missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
+    ) %>%
+    filter(
+      missing_inflow | missing_outflow
+    )
+  
   browser()
   
-  universe %>%
+  universe_ppl %>%
     select(PersonalID, 
            active_at_start_homeless_client, 
            active_at_start_housed_client,
