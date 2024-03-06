@@ -800,14 +800,9 @@ system_plot_data <- reactive({
     mutate(
       missing_inflow = eecr & InflowTypeDetail == "something's wrong",
       missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
-    ) %>%
-    filter(
-      missing_inflow | missing_outflow
     )
   
-  browser()
-  
-  universe_ppl %>%
+  x <- universe_ppl %>%
     select(PersonalID, 
            active_at_start_homeless_client, 
            active_at_start_housed_client,
@@ -823,5 +818,33 @@ system_plot_data <- reactive({
            OutflowTypeDetail
     ) %>%
     unique()
+  
+  category_counts <- x %>% pivot_longer(
+    cols = c(InflowTypeDetail, OutflowTypeDetail), 
+    names_to = "x.axis.var", 
+    values_to = "cat.var") %>%
+    group_by(x.axis.var, cat.var) %>%
+    summarise(values = n()) %>%
+    # filter(!is.na(cat.var)) %>%
+    mutate(
+      values = ifelse(x.axis.var == "OutflowTypeDetail", values * -1, values),
+      inflow_outflow = x.axis.var,
+      x.axis.var = case_when(
+        x.axis.var == "InflowTypeDetail" &
+          cat.var %in% active_at_vals
+        ~ active_as_of_start(),
+        
+        x.axis.var == "OutflowTypeDetail" &
+          cat.var %in% active_at_vals
+        ~ active_as_of_end(),
+        
+        x.axis.var == "InflowTypeDetail"
+        ~ "Inflow",
+        
+        x.axis.var == "OutflowTypeDetail"
+        ~ "Outflow"
+      )
+    )
+  x
 })
 
