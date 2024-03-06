@@ -73,7 +73,7 @@ function(input, output, session) {
     )
   )
   observeEvent(input$waterfall, {
-    load("waterfall.RData", envir = .GlobalEnv)
+    load("waterfall.RD", envir = .GlobalEnv)
     removeModal()
     output$sys_act_summary_ui_chart <- renderPlot({
       renderSystemPlot("sys_act_summary_ui_chart")
@@ -82,7 +82,9 @@ function(input, output, session) {
     output$sys_act_detail_ui_chart <- renderPlot({
       renderSystemPlot("sys_act_detail_ui_chart")
     })
+    browser()
   })
+  
   observeEvent(input$normal, {
     removeModal()
   })
