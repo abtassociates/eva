@@ -1005,6 +1005,7 @@ renderSystemPlot <<- function(id) {
         cat.var_summary_values,
         x.axis.var_summary_values()
       )
+      system_act_summary_plot_df <<- df
     } else {
       colors <-
         c('#73655E',
@@ -1020,6 +1021,7 @@ renderSystemPlot <<- function(id) {
         cat.var_detail_values,
         x.axis.var_detail_values()
       )
+      system_act_detail_plot_df <<- df
     }
 
     s = max(df$end.Bar) + 20
