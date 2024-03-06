@@ -638,6 +638,14 @@ system_plot_data <- reactive({
           ) |
           # Otherwise, EnrolledHomeless = TRUE (includes 0,1,2,4,8,14 and 6,11)
           (
+            ProjectType == ce_project_type &
+            lh_prior_livingsituation == TRUE &
+              between(EntryDate,
+                      input$syso_date_range[1] - days(90),
+                      input$syso_date_range[1] + days(90))
+          ) |
+          # Otherwise, EnrolledHomeless = TRUE (includes 0,1,2,4,8,14 and 6,11)
+          (
             !(ProjectType %in% ph_project_types) &
             EnrolledHomeless == TRUE
           )
