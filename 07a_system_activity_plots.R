@@ -89,11 +89,11 @@ system_activity_summary_prep <- reactive({
   system_activity_prep() %>%
     mutate(
       cat.var = case_when(
-        x.axis.var == "InflowTypeDetail" &
+        x.axis.var == "Inflow" &
         !(cat.var %in% active_at_vals)
         ~ "Inflow",
   
-        x.axis.var == "OutflowTypeDetail" &
+        x.axis.var == "Outflow" &
         !(cat.var %in% active_at_vals)
         ~ "Outflow",
   
