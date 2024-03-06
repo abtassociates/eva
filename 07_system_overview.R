@@ -997,7 +997,7 @@ prep_for_chart <<- function(df, catvar_values, xvar_values) {
 }
 
 renderSystemPlot <<- function(id) {
-  req(valid_file() == 1)
+  # req(valid_file() == 1)
     if(id == "sys_act_summary_ui_chart") {
       colors <- c('#73655E','#C6BDB9','#C34931', '#16697A')
       df <- prep_for_chart(
