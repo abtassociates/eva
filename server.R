@@ -64,11 +64,32 @@ function(input, output, session) {
   })
 
 # Run scripts on upload ---------------------------------------------------
-  
+  showModal(
+    modalDialog(
+      title = "Skip to waterfall?",
+      "Do you want to upload your own data or load up the testing waterfall data?",
+      footer = tagList(actionButton("waterfall", "Waterfall"),
+                       actionButton("normal", "Normal"))
+    )
+  )
+  observeEvent(input$waterfall, {
+    load("waterfall.RData", envir = .GlobalEnv)
+    removeModal()
+    output$sys_act_summary_ui_chart <- renderPlot({
+      renderSystemPlot("sys_act_summary_ui_chart")
+    })
+    
+    output$sys_act_detail_ui_chart <- renderPlot({
+      renderSystemPlot("sys_act_detail_ui_chart")
+    })
+  })
+  observeEvent(input$normal, {
+    removeModal()
+  })
   observeEvent(input$imported, {
     valid_file(0)
     source("00_initially_valid_import.R", local = TRUE)
-    
+
     if(initially_valid_import == 1) {
 
       hide('imported_progress')
@@ -787,10 +808,14 @@ function(input, output, session) {
     output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
     output$sys_act_summary_chart_subheader <- renderUI({ syso_chartSubheader() })
     
-    source("07a_system_activity_plots.R", local = TRUE)
-    renderSystemPlot("sys_act_summary_ui_chart")
-    renderSystemPlot("sys_act_detail_ui_chart")
+    # source("07a_system_activity_plots.R", local = TRUE)
+    output$sys_act_summary_ui_chart <- renderPlot({
+      renderSystemPlot("sys_act_summary_ui_chart")
+    })
     
+    output$sys_act_detail_ui_chart <- renderPlot({
+      renderSystemPlot("sys_act_detail_ui_chart")
+    })
   }, ignoreInit = TRUE)
   
   session$onSessionEnded(function() {

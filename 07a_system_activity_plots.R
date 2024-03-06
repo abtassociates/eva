@@ -53,7 +53,6 @@ cat.var_detail_values <- c(
 )
 
 system_activity_prep <- reactive({
-  # browser()
   system_plot_data() %>% # this is a people-level df
     pivot_longer(
       cols = c(InflowTypeDetail, OutflowTypeDetail), 
@@ -143,7 +142,6 @@ prep_for_chart <- function(df, catvar_values, xvar_values) {
 
 renderSystemPlot <- function(id) {
   req(valid_file() == 1)
-  
   output[[id]] <- renderPlot({
     if(id == "sys_act_summary_ui_chart") {
       colors <- c('#73655E','#C6BDB9','#C34931', '#16697A')
