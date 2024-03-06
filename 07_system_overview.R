@@ -31,8 +31,8 @@ x.axis.var_detail_values <<- reactive({
     "Returned from \nPermanent", 
     "Re-engaged from \nNon-Permanent",
     "Continued system \nengagement",
-    "Permanent Destination",
-    "Non-Permanent \nDestination",
+    "Exited to \nPermanent Destination",
+    "Exited to \nNon-Permanent \nDestination",
     active_as_of_end()
   )
 })
@@ -51,8 +51,8 @@ cat.var_detail_values <<- c(
   "Returned from \nPermanent", 
   "Re-engaged from \nNon-Permanent",
   "Continued system \nengagement",
-  "Permanent Destination",
-  "Non-Permanent \nDestination"
+  "Exited to \nPermanent Destination",
+  "Exited to \nNon-Permanent \nDestination"
 )
 
 # Data prep ---------------------------------------------------------------
@@ -1021,7 +1021,7 @@ renderSystemPlot <<- function(id) {
         x.axis.var_detail_values()
       )
     }
-    
+
     s = max(df$end.Bar) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
