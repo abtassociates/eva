@@ -53,8 +53,10 @@ cat.var_detail_values <- c(
 )
 
 system_activity_prep <- reactive({
-  # browser()
+  browser()
   system_plot_data() %>% # this is a people-level df
+    filter(InflowTypeDetail != "something's wrong" &
+             OutflowTypeDetail != "something's wrong") %>%
     pivot_longer(
       cols = c(InflowTypeDetail, OutflowTypeDetail), 
       names_to = "x.axis.var", 
@@ -215,7 +217,7 @@ renderSystemPlot <- function(id) {
           ),
           color = "black",
           fontface = "bold",
-          size = 4
+          size = 5
       ) +
       # \_Change colors ----
       scale_fill_manual(values = colors) +
@@ -245,12 +247,15 @@ renderSystemPlot <- function(id) {
         face = "bold"
       ),
       axis.text.x = element_text(vjust = 1),
-      axis.ticks.x = element_line(color =
-                                    c(
-                                      "black",
-                                      rep(NA, length(unique(df$x.axis.var))),
-                                      rep("black", length(unique(df$x.axis.var)) - 1)
-                                    )),
+      axis.ticks.x = 
+        element_line(color =
+                       c("black",
+                         rep(NA, length(
+                           unique(df$x.axis.var)
+                         )),
+                         rep("black", length(
+                           unique(df$x.axis.var)
+                         ) - 1))),
       axis.line = element_line(colour = "#4e4d47", linewidth = 0.5),
       axis.ticks.length = unit(.15, "cm"),
       axis.title.x =      element_blank(),
