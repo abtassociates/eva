@@ -623,6 +623,7 @@ dashboardPage(
               )
             )),
             column(4, fluidRow(
+              br(),
               # a(href="www.google.com", "Click for Project Type Information"),
               pickerInput(
                 label = "Project Type",
@@ -721,12 +722,12 @@ dashboardPage(
             tabPanel("Detail", 
               uiOutput("sys_act_detail_filter_selections"),
               uiOutput("sys_act_detail_chart_subheader"),
-              plotOutput("sys_act_detail_ui_chart")
+              plotOutput("sys_act_detail_ui_chart", height=600)
             ),
             tabPanel("Summary", 
               uiOutput("sys_act_summary_filter_selections"),
               uiOutput("sys_act_summary_chart_subheader"),
-              plotOutput("sys_act_summary_ui_chart")
+              plotOutput("sys_act_summary_ui_chart", height=600)
             ),
             width = 12
           )

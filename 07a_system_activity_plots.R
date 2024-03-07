@@ -28,8 +28,8 @@ x.axis.var_detail_values <- reactive({
     "Returned from \nPermanent", 
     "Re-engaged from \nNon-Permanent",
     "Continued system \nengagement",
-    "Permanent Destination",
-    "Non-Permanent \nDestination",
+    "Exited to \nPermanent Destination",
+    "Exited to \nNon-Permanent Destination",
     active_as_of_end()
   )
 })
@@ -48,8 +48,8 @@ cat.var_detail_values <- c(
   "Returned from \nPermanent", 
   "Re-engaged from \nNon-Permanent",
   "Continued system \nengagement",
-  "Permanent Destination",
-  "Non-Permanent \nDestination"
+  "Exited to \nPermanent Destination",
+  "Exited to \nNon-Permanent Destination"
 )
 
 system_activity_prep <- reactive({
