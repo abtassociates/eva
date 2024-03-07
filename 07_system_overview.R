@@ -32,7 +32,7 @@ x.axis.var_detail_values <<- reactive({
     "Re-engaged from \nNon-Permanent",
     "Continued system \nengagement",
     "Exited to \nPermanent Destination",
-    "Exited to \nNon-Permanent \nDestination",
+    "Exited to \nNon-Permanent Destination",
     active_as_of_end()
   )
 })
@@ -52,7 +52,7 @@ cat.var_detail_values <<- c(
   "Re-engaged from \nNon-Permanent",
   "Continued system \nengagement",
   "Exited to \nPermanent Destination",
-  "Exited to \nNon-Permanent \nDestination"
+  "Exited to \nNon-Permanent Destination"
 )
 
 # Data prep ---------------------------------------------------------------
