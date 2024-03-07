@@ -162,7 +162,7 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
 
 syso_gender_incl <- c(
   "All Genders" = 1,
-  "Gender Diverse/Expansive, including transgender" = 2,
+  "Gender Expansive, including transgender" = 2,
   "Man (Boy, if child) alone or in combination" = 3,
   "Non-Binary alone or in combination" = 4,
   "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = 5,
@@ -171,7 +171,7 @@ syso_gender_incl <- c(
 
 syso_gender_excl <- c(
   "All Genders" = 1,
-  "Gender Diverse/Expansive, not including transgender" = 2,
+  "Gender Expansive, not including transgender" = 2,
   "Man (Boy, if child) alone" = 3,
   "Transgender, alone or in combination" = 4,
   "Woman (Girl, if child) alone" = 5,
