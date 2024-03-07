@@ -249,7 +249,7 @@ function(input, output, session) {
       # System Overview tab inputs
       updateDateRangeInput(session = session, inputId = "syso_date_range",
                            min = meta_HUDCSV_Export_Start,
-                           start = meta_HUDCSV_Export_End - years(1),
+                           start = meta_HUDCSV_Export_End - years(1) - months(3),
                            max = meta_HUDCSV_Export_End,
                            end = meta_HUDCSV_Export_End - months(3))
     }
