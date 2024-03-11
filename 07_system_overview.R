@@ -373,34 +373,34 @@ system_df_people_filtered <<- reactive({
     filter(in_date_range == TRUE) %>%
     pull(PersonalID) %>% unique()
   
-  browser()
+  # browser()
   
   system_df_client_flags %>%
     filter(
       PersonalID %in% c(clients_in_report_date_range) &
       # Age
       (
-        setequal(syso_age_cats, input$syso_age) |
+        setequal(syso_age_cats, rv$syso_age_final) |
           (MostRecentAgeAtEntry >= 0 & MostRecentAgeAtEntry <= 12 &
-             syso_age_cats["0 to 12"] %in% input$syso_age) |
+             syso_age_cats["0 to 12"] %in% rv$syso_age_final) |
           (MostRecentAgeAtEntry >= 13 & MostRecentAgeAtEntry <= 17 &
-             syso_age_cats["13 to 17"] %in% input$syso_age) |
+             syso_age_cats["13 to 17"] %in% rv$syso_age_final) |
           (MostRecentAgeAtEntry >= 18 & MostRecentAgeAtEntry <= 20 &
-             syso_age_cats["18 to 21"] %in% input$syso_age) |
+             syso_age_cats["18 to 21"] %in% rv$syso_age_final) |
           (MostRecentAgeAtEntry >= 21 & MostRecentAgeAtEntry <= 24 &
-             syso_age_cats["21 to 24"] %in% input$syso_age) |
+             syso_age_cats["21 to 24"] %in% rv$syso_age_final) |
           (MostRecentAgeAtEntry >= 25 & MostRecentAgeAtEntry <= 34 &
-             syso_age_cats["25 to 34"] %in% input$syso_age) |
+             syso_age_cats["25 to 34"] %in% rv$syso_age_final) |
           (MostRecentAgeAtEntry >= 35 & MostRecentAgeAtEntry <= 44 &
-             syso_age_cats["35 to 44"] %in% input$syso_age) |
+             syso_age_cats["35 to 44"] %in% rv$syso_age_final) |
           (MostRecentAgeAtEntry >= 45 & MostRecentAgeAtEntry <= 54 &
-             syso_age_cats["45 to 54"] %in% input$syso_age) |
+             syso_age_cats["45 to 54"] %in% rv$syso_age_final) |
           (MostRecentAgeAtEntry >= 55 & MostRecentAgeAtEntry <= 64 &
-             syso_age_cats["55 to 64"] %in% input$syso_age) |
+             syso_age_cats["55 to 64"] %in% rv$syso_age_final) |
           (MostRecentAgeAtEntry >= 65 & MostRecentAgeAtEntry <= 74 &
-             syso_age_cats["65 to 74"] %in% input$syso_age) |
+             syso_age_cats["65 to 74"] %in% rv$syso_age_final) |
           (MostRecentAgeAtEntry >= 75 &
-             syso_age_cats["75 and older"] %in% input$syso_age)
+             syso_age_cats["75 and older"] %in% rv$syso_age_final)
       ) &
       # Special Populations
       (
@@ -420,58 +420,58 @@ system_df_people_filtered <<- reactive({
         # Exclusive
         (input$methodology_type == 1 & (
           # All genders
-          setequal(syso_gender_excl, input$syso_gender) |
-
+          setequal(syso_gender_excl, rv$syso_gender_final) |
+          
           # Gender Expansive, not including transgender
-          (input$syso_gender == 2 & (
+          (rv$syso_gender_final == 2 & (
              any_cols_selected_except(., c(
-               CulturallySpecific,
-               NonBinary,
-               Questioning,
-               DifferentIdentity), "Transgender") |
+               "CulturallySpecific",
+               "NonBinary",
+               "Questioning",
+               "DifferentIdentity"), "Transgender") |
              (Woman == 1 & Man == 1 & Transgender != 1 & GenderNone != 1))
           ) |
 
           # Man alone
-          (input$syso_gender == 3 &
+          (rv$syso_gender_final == 3 &
              no_cols_selected_except(., gender_cols, "Man")) |
 
           # Transgender, alone or in combo
-          (input$syso_gender == 4 & Transgender == 1 & GenderNone != 1) |
+          (rv$syso_gender_final == 4 & Transgender == 1 & GenderNone != 1) |
 
           # Woman, alone
-          (input$syso_gender == 5 &
+          (rv$syso_gender_final == 5 &
              no_cols_selected_except(., gender_cols, "Woman")) |
 
           # Unknown
-          (input$syso_gender == 6 &
+          (rv$syso_gender_final == 6 &
              no_cols_selected_except(., gender_cols, "GenderNone"))
         )) |
         # inclusive
         (input$methodology_type == 2 & (
           # All Genders
-          setequal(syso_gender_incl, input$syso_gender) |
+          setequal(syso_gender_incl, rv$syso_gender_final) |
 
           # Gender Expansive, including transgender
-          (input$syso_gender == 2 & (
+          (rv$syso_gender_final == 2 & (
             (Woman == 1 & Man == 1) |
             min_cols_selected_except(., gender_cols, c("Man","Woman"), 1)
           )) |
 
           # Man (Boy, if child) alone or in combination" = 3,
-          (input$syso_gender == 3 & Man == 1) |
+          (rv$syso_gender_final == 3 & Man == 1) |
 
           # Non-Binary alone or in combination
-          (input$syso_gender == 4 & NonBinary == 1) |
+          (rv$syso_gender_final == 4 & NonBinary == 1) |
 
           # Only Woman (Girl, if child) OR Only Man (Boy, if child)
-          (input$syso_gender == 5 & (
+          (rv$syso_gender_final == 5 & (
             (Man == 1 & Woman != 1) |
             (Woman == 1 & Man != 1)
           )) |
 
           # Woman (Girl, if child) alone or in combination
-          (input$syso_gender == 6 & Woman == 1)
+          (rv$syso_gender_final == 6 & Woman == 1)
         ))
       ) &
       # Race/Ethnicity

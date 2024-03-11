@@ -818,6 +818,20 @@ function(input, output, session) {
     output$sys_act_detail_ui_chart <- renderPlot({
       renderSystemPlot("sys_act_detail_ui_chart")
     })
+    
+    rv <- reactiveValues()
+    observeEvent(input$syso_age_open, {
+      if (!isTRUE(input$syso_age_open)) {
+        rv$syso_age_final <- input$syso_age
+        updateVirtualSelect(selected = syso_age_cats)
+      }
+    })
+    observeEvent(input$syso_gender, {
+      if (!isTRUE(input$syso_gender_open)) {
+        rv$syso_gender_final <- input$syso_gender
+        updateVirtualSelect(selected = syso_gender_cats())
+      }
+    })
   }, ignoreInit = TRUE)
   
   session$onSessionEnded(function() {

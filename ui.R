@@ -680,6 +680,7 @@ dashboardPage(
               multiple = TRUE,
               width = "100%",
               selectAllText = "All Ages",
+              hideClearButton = TRUE,
               allOptionsSelectedText = "All Ages"
             )),
             column(6, pickerInput(
@@ -701,6 +702,7 @@ dashboardPage(
               multiple = TRUE,
               width = "100%",
               selectAllText = "All Genders",
+              hideClearButton = TRUE,
               allOptionsSelectedText = "All Genders"
             )),
             column(6, pickerInput(
