@@ -693,13 +693,15 @@ dashboardPage(
           box(
             title = "Gender and Race/Ethnicity Filters",
             width = 6,
-            column(6, pickerInput(
+            column(6, virtualSelectInput(
               label = "Gender",
+              selected = all_of(syso_gender_incl),
               inputId = "syso_gender",
               choices = syso_gender_incl,
+              multiple = TRUE,
               width = "100%",
-              selected = syso_gender_incl[1],
-              multiple = TRUE
+              selectAllText = "All Genders",
+              allOptionsSelectedText = "All Genders"
             )),
             column(6, pickerInput(
               label = "Race/Ethnicity",

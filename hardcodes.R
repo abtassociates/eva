@@ -161,21 +161,19 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
 
 syso_gender_incl <- c(
-  "All Genders" = 1,
-  "Gender Diverse/Expansive, including transgender" = 2,
-  "Man (Boy, if child) alone or in combination" = 3,
-  "Non-Binary alone or in combination" = 4,
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = 5,
-  "Woman (Girl, if child) alone or in combination" = 6
+  "Gender Expansive, including transgender" = 1,
+  "Man (Boy, if child) alone or in combination" = 2,
+  "Non-Binary alone or in combination" = 3,
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = 4,
+  "Woman (Girl, if child) alone or in combination" = 5
 )
 
 syso_gender_excl <- c(
-  "All Genders" = 1,
-  "Gender Diverse/Expansive, not including transgender" = 2,
-  "Man (Boy, if child) alone" = 3,
-  "Transgender, alone or in combination" = 4,
-  "Woman (Girl, if child) alone" = 5,
-  "Unknown" = 6
+  "Gender Expansive, not including transgender" = 1,
+  "Man (Boy, if child) alone" = 2,
+  "Transgender, alone or in combination" = 3,
+  "Woman (Girl, if child) alone" = 4,
+  "Unknown" = 5
 )
 
 syso_age_cats <- c(
