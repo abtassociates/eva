@@ -864,52 +864,25 @@ system_universe_ppl <<- reactive({
         TRUE ~ "something's wrong"
       )
     ) %>%
-    ungroup() 
+    ungroup() %>%
+    filter(InflowTypeDetail !=  "something's wrong" & 
+             OutflowTypeDetail != "something's wrong")
 })
 
-# AS QC check:
-missing_types <<- system_universe_enrl() %>% 
-  inner_join(
-    system_universe_ppl() %>% 
-      filter(
-        OutflowTypeDetail == "something's wrong" | 
-          InflowTypeDetail == "something's wrong"), 
-      by="PersonalID") %>% 
-  mutate(
-    missing_inflow = eecr & InflowTypeDetail == "something's wrong",
-    missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
-  )
-
-category_counts <<- system_plot_data() %>% 
-  pivot_longer(
-    cols = c(InflowTypeDetail, OutflowTypeDetail), 
-    names_to = "x.axis.var", 
-    values_to = "cat.var"
-  ) %>%
-  group_by(x.axis.var, cat.var) %>%
-  summarise(values = n()) %>%
-  # filter(!is.na(cat.var)) %>%
-  mutate(
-    values = ifelse(x.axis.var == "OutflowTypeDetail", values * -1, values),
-    inflow_outflow = x.axis.var,
-    x.axis.var = case_when(
-      x.axis.var == "InflowTypeDetail" &
-        cat.var %in% active_at_vals
-      ~ active_as_of_start(),
-      
-      x.axis.var == "OutflowTypeDetail" &
-        cat.var %in% active_at_vals
-      ~ active_as_of_end(),
-      
-      x.axis.var == "InflowTypeDetail"
-      ~ "Inflow",
-      
-      x.axis.var == "OutflowTypeDetail"
-      ~ "Outflow"
-    )
-  )
-
 system_activity_prep <<- reactive({
+  # AS QC check:
+  missing_types <<- system_universe_enrl() %>% 
+    inner_join(
+      system_universe_ppl() %>% 
+        filter(
+          OutflowTypeDetail == "something's wrong" | 
+            InflowTypeDetail == "something's wrong"), 
+      by="PersonalID") %>% 
+    mutate(
+      missing_inflow = eecr & InflowTypeDetail == "something's wrong",
+      missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
+    )
+  
   system_plot_data() %>% # this is a people-level df
     pivot_longer(
       cols = c(InflowTypeDetail, OutflowTypeDetail), 
