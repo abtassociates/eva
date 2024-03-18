@@ -591,16 +591,15 @@ syso_detailBox <- reactive({
 
 syso_chartSubheader <- reactive({
   list(
-    strong("Total Served: "), 
-    formatC(
-      nrow(system_df_people_filtered()),
-      format = "d",
-      big.mark = ","
-    ),
+    strong(""), 
+    # formatC(
+    #   nrow(system_df_people_filtered()),
+    #   format = "d",
+    #   big.mark = ","
+    # ),
     br()
   )
 })
-
 
 # Client-level enrollment summary data reactive ---------------------------
 # get final people-level, inflow/outflow dataframe by joining the filtered----- 
