@@ -153,7 +153,7 @@ importFile <- function(csvFile, guess_max = 1000) {
   }
      
   filename = str_glue("{csvFile}.csv")
-  data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
+  data <- read_csv(utils::unzip(zipfile = input$imported$datapath, files = filename)
                    ,col_types = get_col_types(csvFile)
                    ,na = ""
   )
@@ -323,7 +323,7 @@ merge_check_info <- function(data, checkIDs) {
 ############################
 getNameByValue <- function(vector, val) {
   return(
-    paste(names(vector)[which(vector %in% val)], collapse=", ")
+    paste(names(vector)[which(vector %in% val)], collapse = ", ")
   )
 }
 
