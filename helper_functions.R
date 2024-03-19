@@ -323,7 +323,7 @@ merge_check_info <- function(data, checkIDs) {
 ############################
 getNameByValue <- function(vector, val) {
   return(
-    paste(names(vector)[which(vector %in% val)], collapse=", ")
+    paste(names(vector)[which(vector %in% val)], collapse = ", ")
   )
 }
 

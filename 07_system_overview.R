@@ -324,7 +324,7 @@ system_df_people_filtered <- reactive({
       # Age
       (
         setequal(syso_age_cats, input$syso_age) |
-          is.na(input$syso_age) |
+          is.null(input$syso_age) |
           (MostRecentAgeAtEntry >= 0 & MostRecentAgeAtEntry <= 12 &
              syso_age_cats["0 to 12"] %in% input$syso_age) |
           (MostRecentAgeAtEntry >= 13 & MostRecentAgeAtEntry <= 17 &
@@ -572,7 +572,7 @@ syso_detailBox <- reactive({
     strong("Age: "),
     if_else(
       setequal(syso_age_cats, input$syso_age) |
-        is.na(input$syso_age),
+        is.null(input$syso_age),
       "All Ages",
       getNameByValue(syso_age_cats, input$syso_age)
     ),
