@@ -53,7 +53,7 @@ cat.var_detail_values <- c(
 )
 
 system_activity_prep <- reactive({
-  browser()
+  # browser()
   system_plot_data() %>% # this is a people-level df
     filter(InflowTypeDetail != "something's wrong" &
              OutflowTypeDetail != "something's wrong") %>%

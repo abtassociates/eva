@@ -317,13 +317,14 @@ system_df_people_filtered <- reactive({
   clients_in_report_date_range <- system_df_enrl_filtered() %>%
     filter(in_date_range == TRUE) %>%
     pull(PersonalID) %>% unique()
-  
+  # browser()
   system_df_client_flags %>%
     filter(
       PersonalID %in% c(clients_in_report_date_range) &
       # Age
       (
         setequal(syso_age_cats, input$syso_age) |
+          is.na(input$syso_age) |
           (MostRecentAgeAtEntry >= 0 & MostRecentAgeAtEntry <= 12 &
              syso_age_cats["0 to 12"] %in% input$syso_age) |
           (MostRecentAgeAtEntry >= 13 & MostRecentAgeAtEntry <= 17 &
@@ -570,7 +571,8 @@ syso_detailBox <- reactive({
     br(),
     strong("Age: "),
     if_else(
-      setequal(syso_age_cats, input$syso_age),
+      setequal(syso_age_cats, input$syso_age) |
+        is.na(input$syso_age),
       "All Ages",
       getNameByValue(syso_age_cats, input$syso_age)
     ),
