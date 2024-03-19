@@ -18,7 +18,7 @@ function(input, output, session) {
   # log when user navigate to a tab
   observe({ 
     logMetadata(paste0("User on ",input$sidebarmenuid, 
-                       if_else(input$in_demo_mode, " - DEMO MODE", "")))
+                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   })
 
   # Headers -----------------------------------------------------------------
@@ -127,6 +127,7 @@ function(input, output, session) {
     js_t <- ifelse(t, 'true','false')
     shinyjs::runjs(str_glue("
       $('#home_demo_instructions').parent().parent().toggle({js_t});
+      $('#home_demo_instructions').parent().css('border', '2px solid #FCB248');
       
       $('.in_demo_mode').toggle({js_t});
       
