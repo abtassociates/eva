@@ -15,8 +15,7 @@ dashboardPage(
             <strong>Off</strong>: Upload your own HMIS CSV Export.
             <br>
             <br>
-            <strong>On</strong>: Uses a demo HMIS CSV Export. 
-            This will overwrite your imported file.
+            <strong>On</strong>: Uses a demo HMIS CSV Export.
           </span>
           </i>
         </div>
