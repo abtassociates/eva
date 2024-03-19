@@ -17,7 +17,8 @@ function(input, output, session) {
   
   # log when user navigate to a tab
   observe({ 
-    logMetadata(paste("User on",input$sidebarmenuid))
+    logMetadata(paste0("User on ",input$sidebarmenuid, 
+                       if_else(input$in_demo_mode, " - DEMO MODE", "")))
   })
 
   # Headers -----------------------------------------------------------------
@@ -169,7 +170,6 @@ function(input, output, session) {
   demo_values <- reactiveValues(modal_closed=0)
   activate_demo <- function() {
     capture.output("Switching to demo mode!")
-    print("Switching to demo mode!")
     # clear environment
     reset("imported")
     rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
@@ -202,6 +202,8 @@ function(input, output, session) {
     update_dq_output()
     
     print("It's in demo mode!")
+    logMetadata("Switched to demo mode")
+    
   }
   
   deactivate_demo <- function() {
@@ -220,6 +222,7 @@ function(input, output, session) {
     
     print("Switched into live mode!")
     capture.output("Switched into live mode")
+    logMetadata("Switched into live mode")
   }
   
   observeEvent(input$continue_demo_btn, {
@@ -231,13 +234,14 @@ function(input, output, session) {
     demo_values$modal_closed <- 1
     removeModal()
     runjs('document.getElementById("isdemo").checked = true;')
+    logMetadata("Chose to stay in demo mode")
   })
   
   observeEvent(input$stay_in_live, {
     demo_values$modal_closed <- 1
     removeModal()
     runjs('document.getElementById("isdemo").checked = false;')
-    browser()
+    logMetadata("Chose to stay in live mode")
   })
   
   observeEvent(input$continue_live_btn, {
@@ -439,7 +443,8 @@ function(input, output, session) {
           path = file
         )
         
-        logMetadata("Downloaded File Structure Analysis Report")
+        logMetadata(paste0("Downloaded File Structure Analysis Report", 
+                           if_else(input$in_demo_mode, " - DEMO MODE", "")))
         
         exportTestValues(file_structure_analysis_main = file_structure_analysis_main)
       }
@@ -723,7 +728,8 @@ function(input, output, session) {
                  nice_names()),
           path = file)
         
-        logMetadata("Downloaded PDDE Report")
+        logMetadata(paste0("Downloaded PDDE Report",
+                           if_else(input$in_demo_mode, " - DEMO MODE", "")))
         
         exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main))
       }
@@ -884,7 +890,8 @@ function(input, output, session) {
         str_glue("{input$orgList} Data Quality Report-"))),
       content = function(file) {
         write_xlsx(dqDownloadInfo()$orgDQData, path = file)
-        logMetadata("Downloaded Org-level DQ Report")
+        logMetadata(paste0("Downloaded Org-level DQ Report",
+                    if_else(input$in_demo_mode, " - DEMO MODE", "")))
         exportTestValues(orgDQ_download = dqDownloadInfo()$orgDQData)
       }
     )
@@ -902,7 +909,8 @@ function(input, output, session) {
       filename = date_stamped_filename("Full Data Quality Report-"),
       content = function(file) {
         write_xlsx(dqDownloadInfo()$systemDQData, path = file)
-        logMetadata("Downloaded System-level DQ Report")
+        logMetadata(paste0("Downloaded System-level DQ Report",
+                           if_else(input$in_demo_mode, " - DEMO MODE", "")))
         exportTestValues(systemDQ_download = dqDownloadInfo()$systemDQData)
       }
     )
