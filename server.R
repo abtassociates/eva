@@ -44,7 +44,8 @@ function(input, output, session) {
     
     h4(organization, "|", input$currentProviderList)
   })
-  output$headerClientCounts <- headerGeneric("Client Counts Report", htmlOutput("headerClientCounts_supp"))
+  output$headerClientCounts <- headerGeneric("Client Counts Report",
+                                             htmlOutput("headerClientCounts_supp"))
   
   output$headerPDDE <- headerGeneric("Project Descriptor Data Elements Checker")
   
@@ -67,7 +68,8 @@ function(input, output, session) {
     if(is.null(input$imported)) {
       return("")
     } else if(valid_file() == 1) {
-      HTML("<p id='successful_upload'>You have successfully uploaded your hashed HMIS CSV Export!</p>")
+      HTML("<p id='successful_upload'>You have successfully uploaded your hashed
+           HMIS CSV Export!</p>")
     }
   }) 
   
