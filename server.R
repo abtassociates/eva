@@ -99,23 +99,51 @@ function(input, output, session) {
   observeEvent(input$sidebarmenuid, {
     req(input$in_demo_mode)
     selectedTabId <- input$sidebarmenuid
-    msg <- switch(selectedTabId,
-                  "tabUpload" = "On the Upload tab you can view the 
-           File Structure Analysis summary of your uploaded file",
+    msg <- 
+      switch(selectedTabId,
+             "tabUpload" = "Welcome to the Upload HMIS CSV Export page. This
+             page is where users upload their hashed HMIS CSV Export and review
+             any File Structure Errors in their export. In Demo Mode, you can
+             see an example of the types of issues the File Structure Analysis
+             identifies. ",
+             
+             "tabLocalSettings" = "Welcome to the Edit Local Settings page. This
+             page is where users can adjust the local settings of their uploaded
+             dataset so Eva can better analyze their data in a way that is
+             meaningful to their CoC. In Demo Mode, changing these settings will
+             cause Eva to recalculate the data quality metrics with the selected
+             parameters.",
+             
+             "tabClientCount" = "Welcome to the View Client Counts page. This
+             page helps users review the counts of households/clients served in
+             each project and verify that a project is up to date on their HMIS
+             data entry. In Demo Mode, you can see an example Client Counts
+             report.",
                   
-                  "tabLocalSettings" = "On the Local Settings tab you can adjust the 
-           local settings.",
-                  
-                  "tabClientCount" = "On the Client Count tab you can view a summary
-           of your client counts in the selected project.",
-                  
-                  "tabPDDE" = "On the PDDE tab you can view a summary of the PDDE checks.",
-                  
-                  "tabDQSystem" = "On the DQ System tab you can view a summary of the 
-           data quality checks across organizations in your system.",
-                  
-                  "tabDQOrg" = "On the DQ Organization tab you can view a summary of
-           data quality checks across projects within a given organization."
+             "tabPDDE" = "Welcome to the Check Project Data page. This page
+             helps users review the Project Descriptor Data Element (PDDE) data
+             quality issues in their HMIS data. Users can use this information
+             to identify where corrections should be made in their HMIS. In Demo
+             Mode, you can see an example of the types of issues the PDDE Check
+             Summary identifies.",
+             
+             "tabDQSystem" = "Welcome to the System-wide HMIS Data Quality page.
+             This page helps users review the system-level data quality issues
+             in their HMIS data. Users can use this information to identify which
+             organizations may benefit from additional assistance and training on
+             HMIS entry. In Demo Mode, you can see an example of the types of
+             data quality errors and warnings identified by Eva organized either
+             by the most common issues in the overall system, or by the
+             organizations with the most issues overall.",
+             
+             "tabDQOrg" = "Welcome to the Organization-wide HMIS Data Quality
+             page. This page helps users review the organization-level data
+             quality issues in their HMIS data. Users can use this information
+             to identify where corrections should be made in their HMIS. In Demo
+             Mode, you can see an example of the types of data quality errors
+             and warnings identified by Eva organized either by the most common
+             issues overall in the selected organization, or by the projects
+             with the most issues overall."
     )
     req(msg)
     req(!isTruthy(seen_message[[selectedTabId]]))
@@ -251,40 +279,29 @@ function(input, output, session) {
     deactivate_demo()
   })
   
-  # observe({
-  #   browser()
-  #   if(demo_values$modal_closed){
-  #     toggleDemoJs(input$in_demo_mode)
-  #   }
-  # })
-  
   observeEvent(input$in_demo_mode, {
-    if(input$in_demo_mode) {
-      msg <- "<p>You're currently requesting to switch into Demo Mode. Demo Mode 
-      allows you to explore Eva with sample HMIS data, rather than having to use 
-      your own HMIS CSV Export file."
-      if(length(input$imported)) {
-        msg <- paste0(msg, " If you switch to Demo Mode now, your uploaded HMIS 
+        if(input$in_demo_mode == TRUE) {
+      msg <- "<p>You’re currently requesting to turn on Demo Mode. Demo Mode
+      allows you to explore Eva using sample HMIS data, rather than having to
+      use your own HMIS CSV Export file."
+      if(length(input$imported) > 0) {
+        msg <- paste(msg, "<p>If you turn on Demo Mode now, your uploaded HMIS 
         CSV Export data will be erased from Eva and replaced with the sample 
-        HMIS data.")
+        HMIS data. You will be able to re-upload your HMIS CSV 
+        Export file if you switch out of Demo Mode.</p>")
+      } else{
+        msg <- paste(msg, "You will still be able to upload your own HMIS CSV
+                     Export file when you turn off Demo Mode. ")
       }
-      msg <- paste0(msg, "You will be able to re-upload your HMIS CSV 
-        Export file if you switch out of Demo Mode.</p>
-        <p>Please select 'Continue' to switch to Demo Mode</p>")
+      msg <- paste0(msg,
+                    "<p>Please select \"Continue\" to switch to Demo Mode</p>")
       
-      # save user's upload so they can easily switch back
-      # save(
-      #   list = c(
-      #     ls(envir = .GlobalEnv, all.names = TRUE), 
-      #     ls(all.names = TRUE)
-      #   ), 
-      #   file = "coc.Rdata", 
-      #   compress="xz")
-      # 
+      
+      
       showModal(
         modalDialog(
           HTML(msg),
-          title = "Switch into Demo Mode?",
+          title = "Turn on Demo Mode?",
           footer = tagList(actionButton("continue_demo_btn", "Continue"),
                            actionButton("stay_in_live", "Cancel"))
         )
@@ -293,9 +310,11 @@ function(input, output, session) {
     } else {
       showModal(
         modalDialog(
-          "You're currently requesting to switch out of Demo Mode. To use Eva 
-          for your own CoC's data, please upload your hashed HMIS CSV Export.",
-          title = "Switch out of Demo Mode?",
+          "<p>You’re currently requesting to turn off Demo Mode. When Demo Mode
+          is off, the sample HMIS data will clear, and you will be able to
+          explore Eva by uploading your own hashed HMIS CSV Export file.
+          <p>Please select \"Continue\" to turn off Demo Mode.",
+          title = "Turn off Demo Mode?",
           footer = tagList(actionButton("continue_live_btn", "Continue"),
                            actionButton("stay_in_demo", "Cancel"))
         )
