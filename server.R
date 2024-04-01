@@ -17,7 +17,8 @@ function(input, output, session) {
   
   # log when user navigate to a tab
   observe({ 
-    logMetadata(paste("User on",input$sidebarmenuid))
+    logMetadata(paste0("User on ",input$sidebarmenuid, 
+                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   })
 
   # Headers -----------------------------------------------------------------
@@ -43,7 +44,8 @@ function(input, output, session) {
     
     h4(organization, "|", input$currentProviderList)
   })
-  output$headerClientCounts <- headerGeneric("Client Counts Report", htmlOutput("headerClientCounts_supp"))
+  output$headerClientCounts <- headerGeneric("Client Counts Report",
+                                             htmlOutput("headerClientCounts_supp"))
   
   output$headerPDDE <- headerGeneric("Project Descriptor Data Elements Checker")
   
@@ -53,26 +55,279 @@ function(input, output, session) {
   
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
-  })
+  }) 
   
   observeEvent(input$timeOut, {
     logMetadata("Timed out")
     session$reload()
   })
   
+  # file upload status text ----------------------------------------------------
   output$fileInfo <- renderUI({
     HTML("<p>Please upload your hashed HMIS CSV Export!</p>")
-    if(is.null(input$imported)) return("")
+    if(is.null(input$imported)) {
+      return("")
+    } else if(valid_file() == 1) {
+      HTML("<p id='successful_upload'>You have successfully uploaded your hashed
+           HMIS CSV Export!</p>")
+    }
   }) 
+  
+  update_inputs <- function() {
+    updatePickerInput(session = session, inputId = "currentProviderList",
+                      choices = sort(Project$ProjectName))
+    
+    updatePickerInput(session = session, inputId = "providerListDQ",
+                      choices = dq_providers)
+    
+    updatePickerInput(session = session, inputId = "orgList",
+                      choices = c(unique(sort(Organization$OrganizationName))))
+    
+    updateDateInput(session = session, inputId = "dq_org_startdate", 
+                    value = meta_HUDCSV_Export_Start)
+    
+    updateDateInput(session = session, inputId = "dq_startdate", 
+                    value = meta_HUDCSV_Export_Start)
+    
+    updateDateRangeInput(session = session, inputId = "dateRangeCount",
+                         min = meta_HUDCSV_Export_Start,
+                         start = meta_HUDCSV_Export_Start,
+                         max = meta_HUDCSV_Export_End,
+                         end = meta_HUDCSV_Export_End)
+    
+  }
+  # Handle demo mode toggle --------------------------------------------------
+  seen_message <- reactiveValues()
+  observeEvent(input$sidebarmenuid, {
+    req(input$in_demo_mode)
+    req(input$continue_demo_btn)
+    selectedTabId <- input$sidebarmenuid
+    msg <- 
+      switch(selectedTabId,
+             "tabUpload" = "Welcome to the Upload HMIS CSV Export page. This
+             page is where users upload their hashed HMIS CSV Export and review
+             any File Structure Errors in their export. In Demo Mode, you can
+             see an example of the types of issues the File Structure Analysis
+             identifies. ",
+             
+             "tabLocalSettings" = "Welcome to the Edit Local Settings page. This
+             page is where users can adjust the local settings of their uploaded
+             dataset so Eva can better analyze their data in a way that is
+             meaningful to their CoC. In Demo Mode, changing these settings will
+             cause Eva to recalculate the data quality metrics with the selected
+             parameters.",
+             
+             "tabClientCount" = "Welcome to the View Client Counts page. This
+             page helps users review the counts of households/clients served in
+             each project and verify that a project is up to date on their HMIS
+             data entry. In Demo Mode, you can see an example Client Counts
+             report.",
+                  
+             "tabPDDE" = "Welcome to the Check Project Data page. This page
+             helps users review the Project Descriptor Data Element (PDDE) data
+             quality issues in their HMIS data. Users can use this information
+             to identify where corrections should be made in their HMIS. In Demo
+             Mode, you can see an example of the types of issues the PDDE Check
+             Summary identifies.",
+             
+             "tabDQSystem" = "Welcome to the System-wide HMIS Data Quality page.
+             This page helps users review the system-level data quality issues
+             in their HMIS data. Users can use this information to identify which
+             organizations may benefit from additional assistance and training on
+             HMIS entry. In Demo Mode, you can see an example of the types of
+             data quality errors and warnings identified by Eva organized either
+             by the most common issues in the overall system, or by the
+             organizations with the most issues overall.",
+             
+             "tabDQOrg" = "Welcome to the Organization-wide HMIS Data Quality
+             page. This page helps users review the organization-level data
+             quality issues in their HMIS data. Users can use this information
+             to identify where corrections should be made in their HMIS. In Demo
+             Mode, you can see an example of the types of data quality errors
+             and warnings identified by Eva organized either by the most common
+             issues overall in the selected organization, or by the projects
+             with the most issues overall."
+    )
+    req(msg)
+    req(!isTruthy(seen_message[[selectedTabId]]))
+    seen_message[[selectedTabId]] <- TRUE
+    showModal(modalDialog(msg))
+  }) 
+  
+  toggleDemoJs <- function(t) {
+    js_t <- ifelse(t, 'true','false')
+    shinyjs::runjs(str_glue("
+      $('#home_demo_instructions').parent().parent().toggle({js_t});
+      $('#home_demo_instructions').parent().css('border', '2px solid #FCB248');
+      
+      $('.in_demo_mode').toggle({js_t});
+      
+      $('#home_live_instructions').parent().parent().toggle(!{js_t});
+      
+      document.getElementById('isdemo').checked = {js_t};
+      
+      $('#imported').closest('.btn').attr('disabled',{js_t});
+      
+      $('#demo_banner').remove();
+    "))
+    
+    if(t) {
+      shinyjs::runjs(paste0(
+        "var demoBannerHTML = \"<div id='demo_banner' class='in_demo_mode'>",
+              "DEMO",
+            "</div>\";",
+          "$('header.main-header').append(demoBannerHTML);"
+        ))
+      
+      shinyjs::runjs("$('#sidebarItemExpanded').css({
+                     'top': '1.5em',
+                     'position':'relative'})")
+      shinyjs::hide(id = "successful_upload")
+      shinyjs::disable("imported")
+      
+    } else {
+      shinyjs::runjs("
+          $('#imported').closest('.btn').removeAttr('disabled');
+      ")
+      shinyjs::runjs("$('#sidebarItemExpanded').css({
+                     'top': '',
+                     'position':''})")
+      shinyjs::enable("imported")
+      
+    }
+  }
+  
+  toggleDemoJs(FALSE)
+  
+  demo_values <- reactiveValues(modal_closed=0)
+  activate_demo <- function() {
+    capture.output("Switching to demo mode!")
+    # clear environment
+    reset("imported")
+    rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
+    
+    # let user know things take a min to load then load the demo data
+    showModal(
+      modalDialog(
+        "Activating demo mode...",
+        title = NULL,
+        footer = NULL
+      )
+    )
+
+    load(here("demo.RData"), envir = .GlobalEnv)
+    # mark the file as valid
+    valid_file(1)
+    
+    removeModal()
+
+    # update inputs choices and defaults
+    update_inputs()
+    
+    updateTabItems(session, "sidebarmenuid", "tabHome")
+    
+    toggleDemoJs(TRUE)
+    
+    shinyjs::show('fileStructureAnalysis')
+    
+    update_fsa()
+    update_pdde_output()
+    update_dq_output()
+    
+    print("It's in demo mode!")
+    logMetadata("Switched to demo mode")
+    
+  }
+  
+  deactivate_demo <- function() {
+    valid_file(0)
+    reset("imported")
+    
+    rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
+    updateTabItems(session, "sidebarmenuid", "tabUpload")
+    shinyjs::hide('fileStructureAnalysis')
+    
+    toggleDemoJs(FALSE)
+    
+    update_fsa()
+    update_pdde_output()
+    update_dq_output()
+    
+    print("Switched into live mode!")
+    capture.output("Switched into live mode")
+    logMetadata("Switched into live mode")
+  }
+  
+  observeEvent(input$continue_demo_btn, {
+    removeModal()
+    activate_demo()
+  })
+  
+  observeEvent(input$stay_in_demo, {
+    demo_values$modal_closed <- 1
+    removeModal()
+    runjs('document.getElementById("isdemo").checked = true;')
+    logMetadata("Chose to stay in demo mode")
+  })
+  
+  observeEvent(input$stay_in_live, {
+    demo_values$modal_closed <- 1
+    removeModal()
+    runjs('document.getElementById("isdemo").checked = false;')
+    logMetadata("Chose to stay in live mode")
+  })
+  
+  observeEvent(input$continue_live_btn, {
+    removeModal()
+    deactivate_demo()
+  })
+  
+  observeEvent(input$in_demo_mode, {
+        if(input$in_demo_mode == TRUE) {
+      msg <- "<p>You’re currently requesting to turn on Demo Mode. Demo Mode
+      allows you to explore Eva using sample HMIS data, rather than having to
+      use your own HMIS CSV Export file."
+      if(length(input$imported) > 0) {
+        msg <- paste(msg, "<p>If you turn on Demo Mode now, your uploaded HMIS 
+        CSV Export data will be erased from Eva and replaced with the sample 
+        HMIS data. You will be able to re-upload your HMIS CSV 
+        Export file if you switch out of Demo Mode.</p>")
+      } else{
+        msg <- paste(msg, "You will still be able to upload your own HMIS CSV
+                     Export file when you turn off Demo Mode. ")
+      }
+      msg <- paste0(msg,
+                    "<p>Please select \"Continue\" to switch to Demo Mode</p>")
+      
+      
+      
+      showModal(
+        modalDialog(
+          HTML(msg),
+          title = "Turn on Demo Mode?",
+          footer = tagList(actionButton("continue_demo_btn", "Continue"),
+                           actionButton("stay_in_live", "Cancel"))
+        )
+      )
+      
+    } else {
+      showModal(
+        modalDialog(
+          "<p>You’re currently requesting to turn off Demo Mode. When Demo Mode
+          is off, the sample HMIS data will clear, and you will be able to
+          explore Eva by uploading your own hashed HMIS CSV Export file.
+          <p>Please select \"Continue\" to turn off Demo Mode.",
+          title = "Turn off Demo Mode?",
+          footer = tagList(actionButton("continue_live_btn", "Continue"),
+                           actionButton("stay_in_demo", "Cancel"))
+        )
+      )
+    }
+  }, ignoreInit = TRUE)
   
 # Run scripts on upload ---------------------------------------------------
   
   observeEvent(input$imported, {
-    
-    output$fileInfo <- renderUI({
-      return("")
-    }) 
-    valid_file(0)
     source("00_initially_valid_import.R", local = TRUE)
     
     if(initially_valid_import == 1) {
@@ -96,6 +351,7 @@ function(input, output, session) {
         }
         
         source("03_file_structure_analysis.R", local = TRUE)
+        update_fsa()
         # if structural issues were not found, keep going
         if (structural_issues == 0) {
           valid_file(1)
@@ -112,9 +368,9 @@ function(input, output, session) {
               )
             )
           }
+          
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE)
-          setProgress(detail = "Assessing your data quality..", value = .7)
           
           # if we're in shiny testmode and the script has gotten here,
           # that means we're using the hashed-test-good file. 
@@ -125,10 +381,18 @@ function(input, output, session) {
             source("tests/update_test_good_dq.R", local = TRUE)  
           }
           
+          setProgress(detail = "Assessing your data quality..", value = .7)
           source("05_DataQuality.R", local = TRUE)
+          update_dq_output()
+          
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
+          update_pdde_output()
+          
           setProgress(detail = "Done!", value = 1)
+          
+          
+          logToConsole("Upload processing complete")
           
           showModal(
             modalDialog(
@@ -140,6 +404,11 @@ function(input, output, session) {
           )
 
           logMetadata("Successful upload")
+          rlang::env_coalesce(.GlobalEnv, environment())
+          
+          logToConsole("Updating inputs")
+          update_inputs()
+          
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
           reset("imported")
@@ -158,26 +427,13 @@ function(input, output, session) {
         }
       })
     }
-
-    output$fileInfo <- renderUI({
-      if(valid_file() == 1) {
-        HTML("<p>You have successfully uploaded your hashed HMIS CSV Export!</p>")
-      }
-    }) 
-    
+  }, ignoreInit = TRUE)
 # File Structure Analysis Summary -----------------------------------------
-    
+  update_fsa <- function() {
     output$fileStructureAnalysis <- DT::renderDataTable(
       {
-        req(initially_valid_import)
-
-        a <- file_structure_analysis_main %>%
-          group_by(Type, Issue) %>%
-          summarise(Count = n()) %>%
-          ungroup() %>%
-          arrange(Type, desc(Count))
-        
-        
+        req(exists("file_structure_analysis_main"))
+        a <- file_structure_analysis_main
         exportTestValues(fileStructureAnalysis = a)
         
         datatable(
@@ -191,14 +447,15 @@ function(input, output, session) {
                          )
         )
       })
+  }
 # File Structure Analysis Download ----------------------------------------
 
     output$downloadFileStructureAnalysisBtn <- renderUI({
-      req(initially_valid_import)
-     # req(nrow(file_structure_analysis_main) > 0)
+      req(exists("file_structure_analysis_main"))
+      req(nrow(file_structure_analysis_main) > 0)
       downloadButton("downloadFileStructureAnalysis",
                      "Download Structure Analysis Detail")
-    })  
+    }) 
     
     output$downloadFileStructureAnalysis <- downloadHandler(
       filename = date_stamped_filename("File-Structure-Analysis-"),
@@ -210,34 +467,12 @@ function(input, output, session) {
           path = file
         )
         
-        logMetadata("Downloaded File Structure Analysis Report")
+        logMetadata(paste0("Downloaded File Structure Analysis Report", 
+                           if_else(input$in_demo_mode, " - DEMO MODE", "")))
         
         exportTestValues(file_structure_analysis_main = file_structure_analysis_main)
       }
     )
-    
-    if(valid_file() == 1) {
-      updatePickerInput(session = session, inputId = "currentProviderList",
-                        choices = sort(Project$ProjectName))
-      
-      updatePickerInput(session = session, inputId = "providerListDQ",
-                        choices = dq_providers)
-      
-      updatePickerInput(session = session, inputId = "orgList",
-                        choices = c(unique(sort(Organization$OrganizationName))))
-      
-      updateDateInput(session = session, inputId = "dq_org_startdate", 
-                      value = meta_HUDCSV_Export_Start)
-      
-      updateDateInput(session = session, inputId = "dq_startdate", 
-                      value = meta_HUDCSV_Export_Start)
-      
-      updateDateRangeInput(session = session, inputId = "dateRangeCount",
-                           min = meta_HUDCSV_Export_Start,
-                           start = meta_HUDCSV_Export_Start,
-                           max = meta_HUDCSV_Export_End,
-                           end = meta_HUDCSV_Export_End)
-    }
 
 
 # # System Data Quality Overview --------------------------------------------
@@ -429,86 +664,7 @@ function(input, output, session) {
       
       validate_by_org
     })
-    
-# PDDE Checker ------------------------------------------------------------
-
-    # summary table
-    output$pdde_summary_table <- DT::renderDataTable({
-      req(valid_file() == 1)
-      
-      a <- pdde_main %>%
-        group_by(Issue, Type) %>%
-        summarise(Count = n()) %>%
-        ungroup() %>%
-        arrange(Type)
-      
-      exportTestValues(pdde_summary_table = a)
-
-      datatable(
-        a,
-        rownames = FALSE,
-        filter = 'none',
-        options = list(dom = 't')
-      )
-    })
-
-# PDDE Download Button ----------------------------------------------------
-
-    output$downloadPDDEReportButton  <- renderUI({
-      req(valid_file() == 1)
-      req(nrow(pdde_main) > 0)
-      downloadButton(outputId = "downloadPDDEReport",
-                       label = "Download")
-    })
-
-
-# Download Button Handler -------------------------------------------------
-
-    output$downloadPDDEReport <- downloadHandler(
-      
-      filename = date_stamped_filename("PDDE Report-"),
-      content = function(file) {
-        req(valid_file() == 1)
-        
-        summary <- pdde_main %>% 
-          group_by(Issue, Type) %>%
-          summarise(Count = n()) %>%
-          ungroup()
-
-        write_xlsx(
-          list("Summary" = summary,
-               "Data" = pdde_main %>%
-                 nice_names()),
-          path = file)
-        
-        logMetadata("Downloaded PDDE Report")
-        
-        exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main))
-      }
-    )
-    
-
-# PDDE Guidance -----------------------------------------------------------
-
-    output$pdde_guidance_summary <- DT::renderDataTable({
-      req(valid_file() == 1)
-      
-      guidance <- pdde_main %>%
-        select(Type, Issue, Guidance) %>%
-        arrange(Type, Issue) %>%
-        unique()
-      
-      exportTestValues(pdde_guidance_summary = guidance)
-      
-      datatable(
-        guidance, 
-        rownames = FALSE,
-        escape = FALSE,
-        filter = 'top',
-        options = list(dom = 'ltpi')
-      )
-    })
-
+   
 # Client Counts -----------------------------------------------------------
 
     source("client_counts_functions.R", local = TRUE)
@@ -566,6 +722,122 @@ function(input, output, session) {
       content = get_clientcount_download_info
     )
 
+    
+# PDDE Download Button ----------------------------------------------------
+    
+    output$downloadPDDEReportButton  <- renderUI({
+      req(valid_file() == 1)
+      req(nrow(pdde_main) > 0)
+      downloadButton(outputId = "downloadPDDEReport",
+                     label = "Download")
+    })
+    
+    
+# Download Button Handler -------------------------------------------------
+    
+    output$downloadPDDEReport <- downloadHandler(
+      
+      filename = date_stamped_filename("PDDE Report-"),
+      content = function(file) {
+        req(valid_file() == 1)
+        
+        summary <- pdde_main %>% 
+          group_by(Issue, Type) %>%
+          summarise(Count = n()) %>%
+          ungroup()
+        
+        write_xlsx(
+          list("Summary" = summary,
+               "Data" = pdde_main %>%
+                 nice_names()),
+          path = file)
+        
+        logMetadata(paste0("Downloaded PDDE Report",
+                           if_else(input$in_demo_mode, " - DEMO MODE", "")))
+        
+        exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main))
+      }
+    )
+    
+  update_pdde_output <- function() {
+# PDDE Checker ------------------------------------------------------------
+    
+    # summary table
+    output$pdde_summary_table <- DT::renderDataTable({
+      req(valid_file() == 1)
+      
+      a <- pdde_main %>%
+        group_by(Issue, Type) %>%
+        summarise(Count = n()) %>%
+        ungroup() %>%
+        arrange(Type)
+      
+      exportTestValues(pdde_summary_table = a)
+      
+      datatable(
+        a,
+        rownames = FALSE,
+        filter = 'none',
+        options = list(dom = 't')
+      )
+    })
+    
+# PDDE Guidance -----------------------------------------------------------
+    
+    output$pdde_guidance_summary <- DT::renderDataTable({
+      req(valid_file() == 1)
+      
+      guidance <- pdde_main %>%
+        select(Type, Issue, Guidance) %>%
+        arrange(Type, Issue) %>%
+        unique()
+      
+      exportTestValues(pdde_guidance_summary = guidance)
+      
+      datatable(
+        guidance, 
+        rownames = FALSE,
+        escape = FALSE,
+        filter = 'top',
+        options = list(dom = 'ltpi')
+      )
+    })
+  }
+
+  
+# DQ Org Summary -------------------------------------------------------
+  update_dq_output <- function() {
+  output$dq_organization_summary_table <- DT::renderDataTable({
+    req(valid_file() == 1)
+    
+    a <- dq_main_reactive() %>%
+      filter(OrganizationName %in% c(input$orgList)) %>%
+      select(ProjectName, 
+             Type, 
+             Issue, 
+             PersonalID) %>%
+      group_by(ProjectName, 
+               Type, 
+               Issue) %>%
+      summarise(Clients = n()) %>%
+      arrange(Type, desc(Clients)) %>%
+      select("Project Name" = ProjectName, 
+             Type, 
+             Issue, 
+             Clients)
+    
+    exportTestValues(dq_organization_summary_table = a)
+    
+    datatable(
+      a,
+      rownames = FALSE,
+      filter = 'top',
+      options = list(dom = 'ltpi')
+    )
+  })
+  
+# DQ Org Guidance -------------------------------------------------------
+  
     output$dq_org_guidance_summary <- DT::renderDataTable({
       req(valid_file() == 1)
       
@@ -588,36 +860,6 @@ function(input, output, session) {
         options = list(dom = 'ltpi')
       )
     })
-    
-    output$dq_organization_summary_table <- DT::renderDataTable({
-      req(valid_file() == 1)
-      
-      a <- dq_main_reactive() %>%
-        filter(OrganizationName %in% c(input$orgList)) %>%
-        select(ProjectName, 
-               Type, 
-               Issue, 
-               PersonalID) %>%
-        group_by(ProjectName, 
-                 Type, 
-                 Issue) %>%
-        summarise(Clients = n()) %>%
-        arrange(Type, desc(Clients)) %>%
-        select("Project Name" = ProjectName, 
-          Type, 
-          Issue, 
-          Clients)
-      
-      exportTestValues(dq_organization_summary_table = a)
-      
-      datatable(
-        a,
-        rownames = FALSE,
-        filter = 'top',
-        options = list(dom = 'ltpi')
-      )
-    })
-    
 
 # Prep DQ Downloads -------------------------------------------------------
 
@@ -630,7 +872,7 @@ function(input, output, session) {
       # org-level data prep (filtering to selected org)
       orgDQData <- dq_main_reactive() %>%
         filter(OrganizationName %in% c(input$orgList))
-      
+
       orgDQoverlaps <- overlaps %>%
         filter(OrganizationName %in% c(input$orgList) | 
                  PreviousOrganizationName %in% c(input$orgList))
@@ -672,7 +914,8 @@ function(input, output, session) {
         str_glue("{input$orgList} Data Quality Report-"))),
       content = function(file) {
         write_xlsx(dqDownloadInfo()$orgDQData, path = file)
-        logMetadata("Downloaded Org-level DQ Report")
+        logMetadata(paste0("Downloaded Org-level DQ Report",
+                    if_else(input$in_demo_mode, " - DEMO MODE", "")))
         exportTestValues(orgDQ_download = dqDownloadInfo()$orgDQData)
       }
     )
@@ -683,14 +926,15 @@ function(input, output, session) {
       req(valid_file() == 1)
       req(length(dqDownloadInfo()$systemDQData) > 0)
       downloadButton(outputId = "downloadSystemDQReport",
-                       label = "Download")
+                       label = "Download") %>% withSpinner()
     })
     
     output$downloadSystemDQReport <- downloadHandler(
       filename = date_stamped_filename("Full Data Quality Report-"),
       content = function(file) {
         write_xlsx(dqDownloadInfo()$systemDQData, path = file)
-        logMetadata("Downloaded System-level DQ Report")
+        logMetadata(paste0("Downloaded System-level DQ Report",
+                           if_else(input$in_demo_mode, " - DEMO MODE", "")))
         exportTestValues(systemDQ_download = dqDownloadInfo()$systemDQData)
       }
     )
@@ -752,7 +996,7 @@ function(input, output, session) {
     output$orgDQWarningsByIssue_ui <- renderUI({
       renderDQPlot("org", "Warning", "Issue", "#71B4CB")
     })
-  
+  }
     
     
     # output$headerUtilization <- renderUI({
@@ -777,14 +1021,9 @@ function(input, output, session) {
   #          ReportEnd
   #        )))
   # })
-
-  }, ignoreInit = TRUE)
-  
   session$onSessionEnded(function() {
     logMetadata("Session Ended")
   })
-}
-  
   
   # output$cocDQErrors <- renderPlot(dq_plot_projects_errors)
   # 
@@ -1058,3 +1297,4 @@ function(input, output, session) {
 #                      bedUtilization)
 #   )
 # })
+}
