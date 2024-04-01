@@ -100,6 +100,7 @@ function(input, output, session) {
   seen_message <- reactiveValues()
   observeEvent(input$sidebarmenuid, {
     req(input$in_demo_mode)
+    req(input$continue_demo_btn)
     selectedTabId <- input$sidebarmenuid
     msg <- 
       switch(selectedTabId,
