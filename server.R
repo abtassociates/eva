@@ -284,7 +284,7 @@ function(input, output, session) {
   
   observeEvent(input$in_demo_mode, {
         if(input$in_demo_mode == TRUE) {
-      msg <- "<p>You’re currently requesting to turn on Demo Mode. Demo Mode
+      msg <- "<p>You're currently requesting to turn on Demo Mode. Demo Mode
       allows you to explore Eva using sample HMIS data, rather than having to
       use your own HMIS CSV Export file."
       if(length(input$imported) > 0) {
@@ -313,10 +313,10 @@ function(input, output, session) {
     } else {
       showModal(
         modalDialog(
-          "<p>You’re currently requesting to turn off Demo Mode. When Demo Mode
+          HTML("<p>You're currently requesting to turn off Demo Mode. When Demo Mode
           is off, the sample HMIS data will clear, and you will be able to
           explore Eva by uploading your own hashed HMIS CSV Export file.
-          <p>Please select \"Continue\" to turn off Demo Mode.",
+          <p>Please select \"Continue\" to turn off Demo Mode."),
           title = "Turn off Demo Mode?",
           footer = tagList(actionButton("continue_live_btn", "Continue"),
                            actionButton("stay_in_demo", "Cancel"))
