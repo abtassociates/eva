@@ -160,7 +160,9 @@ dashboardPage(
               <p>Once you have exported the correct file from your HMIS, you are
               ready to engage with Eva. Navigate to the \'Upload HMIS CSV Export\' tab
               and follow the instructions there.</p>
-              
+
+              <p>Want to explore Eva without uploading? Use Eva's Demo Mode by clicking the 
+              toggle at the top.</p>
               ")
           ),
           box(
@@ -187,8 +189,7 @@ dashboardPage(
               <p>If you uploaded your own dataset to Eva and then decide to turn
               on Demo Mode, Eva will (1) clear the application of your HMIS data,
               ending the session, and (2) replace it with that of the sample
-              dataset. <strong>Eva does not retain any uploaded data after a
-              session ends, so to see your results again, you will need to
+              dataset. <strong>If you wish to see your results again you will need to
               re-upload your hashed HMIS CSV Export file.</strong> To do so, you
               need to turn off Demo Mode. This will clear the sample HMIS data
               from the application so you can operate Eva as normal and upload
