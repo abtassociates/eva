@@ -160,7 +160,9 @@ dashboardPage(
               <p>Once you have exported the correct file from your HMIS, you are
               ready to engage with Eva. Navigate to the \'Upload HMIS CSV Export\' tab
               and follow the instructions there.</p>
-              
+
+              <p>Want to explore Eva without uploading? Use Eva's Demo Mode by clicking the 
+              toggle at the top.</p>
               ")
           ),
           box(
