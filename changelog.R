@@ -4,6 +4,9 @@ output$changelog <- renderTable({
     "04-01-2024", "Added 'Demo Mode', which allows users to play around with a 
     test dataset in Eva in order to understand how the tool works without having 
     to upload any data",
+
+     "04-01-2024", "Added loading spinners to make clear when something is loading
+     as opposed to frozen",
     
     "01-24-2024", "If a project has an Operating or Participating end date in 
     the future Eva will not flag these enrollments as Enrollment Crosses 
