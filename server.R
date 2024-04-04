@@ -26,7 +26,7 @@ function(input, output, session) {
     headerGeneric("Upload HMIS CSV Export",
                   h4(
                     strong("Export Date: "),
-                    format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
+                    format(meta_HUDCSV_Export_Date(), "%m-%d-%Y at %I:%M %p")
                   ))
 
   
@@ -37,7 +37,7 @@ function(input, output, session) {
   # the HTML <div> id the same each time. Without associating with an output, 
   # the id changed each time and the shinytest would catch the difference and fail
   output$headerClientCounts_supp <- renderUI({ 
-    organization <- Project0 %>%
+    organization <- Project0() %>%
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
     
@@ -66,6 +66,14 @@ function(input, output, session) {
   }) 
   
 # Run scripts on upload ---------------------------------------------------
+  
+  # "global" variables (NOT visible to multiple sessions)
+  validation <- reactiveVal()
+  Export <- reactiveVal()
+  Project0 <- reactiveVal()
+  meta_HUDCSV_Export_Start <- reactiveVal()
+  meta_HUDCSV_Export_End <- reactiveVal()
+  meta_HUDCSV_Export_Date <- reactiveVal()
   
   observeEvent(input$imported, {
     
@@ -227,16 +235,16 @@ function(input, output, session) {
                         choices = c(unique(sort(Organization$OrganizationName))))
       
       updateDateInput(session = session, inputId = "dq_org_startdate", 
-                      value = meta_HUDCSV_Export_Start)
+                      value = meta_HUDCSV_Export_Start())
       
       updateDateInput(session = session, inputId = "dq_startdate", 
-                      value = meta_HUDCSV_Export_Start)
+                      value = meta_HUDCSV_Export_Start())
       
       updateDateRangeInput(session = session, inputId = "dateRangeCount",
-                           min = meta_HUDCSV_Export_Start,
-                           start = meta_HUDCSV_Export_Start,
-                           max = meta_HUDCSV_Export_End,
-                           end = meta_HUDCSV_Export_End)
+                           min = meta_HUDCSV_Export_Start(),
+                           start = meta_HUDCSV_Export_Start(),
+                           max = meta_HUDCSV_Export_End(),
+                           end = meta_HUDCSV_Export_End())
     }
 
 

@@ -14,7 +14,7 @@ if(is_empty(stopped_participating)) { # if no projects stopped participating
   random_project_id <-
     Project$ProjectID[runif(n = 1, min = 1, max = total_projects)]
   
-  stopped_date <- meta_HUDCSV_Export_End - weeks(4)
+  stopped_date <- meta_HUDCSV_Export_End() - weeks(4)
   
   HMISParticipation <- HMISParticipation %>%
     mutate(

@@ -86,7 +86,7 @@ if("ProjectTimeID" %in% colnames(ProjectsInHMIS)){
 }
 
 # This dataset is used when we need an unduplicated concise df for project
-Project0 <<- Project %>% 
+Project0(Project %>% 
   select(ProjectID,
          ProjectName,
          OrganizationID,
@@ -94,6 +94,7 @@ Project0 <<- Project %>%
          ProjectType,
          RRHSubType) %>%
   unique()
+)
 
 # Enrollment --------------------------------------------------------------
 
@@ -289,7 +290,7 @@ rm(HHEntry, HHMoveIn, small_client)
 Services <- Services %>%
   filter(RecordType == 200 & !is.na(DateProvided))
 
-# Build Validation df for app ---------------------------------------------
+# Build validation() df for app ---------------------------------------------
 
 validationProject <- Project %>%
   select(
@@ -323,7 +324,7 @@ validationEnrollment <- Enrollment %>%
     DateCreated
   ) 
 
-validation <- validationProject %>%
+validation(validationProject %>%
   left_join(validationEnrollment, by = c("ProjectTimeID", "ProjectID")) %>%
   select(
     ProjectID,
@@ -344,6 +345,7 @@ validation <- validationProject %>%
     DateCreated
   ) %>%
   filter(!is.na(EntryDate))
+)
 
 # Checking requirements by projectid --------------------------------------
 
@@ -351,7 +353,7 @@ projects_funders_types <- Funder %>%
   left_join(Project %>%
               select(ProjectID, ProjectType),
             join_by(ProjectID)) %>%
-  filter(is.na(EndDate) | EndDate > meta_HUDCSV_Export_Start) %>%
+  filter(is.na(EndDate) | EndDate > meta_HUDCSV_Export_Start()) %>%
   select(ProjectID, ProjectType, Funder) %>%
   unique() %>%
   left_join(inc_ncb_hi_required, join_by(ProjectType, Funder)) %>%
@@ -366,7 +368,7 @@ projects_funders_types <- Funder %>%
             dv = max(dv, na.rm = TRUE)) %>%
   ungroup()
 
-# desk_time_providers <- validation %>%
+# desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |
 #        exited_between(., today() - years(1), today())) &

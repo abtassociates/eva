@@ -29,25 +29,25 @@ ees_with_statuses <- Enrollment %>%
       EntryStatusHomeless == 1 &
         ProjectType %in% c(ph_project_types) &
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust >= meta_HUDCSV_Export_Start &
-        MoveInDateAdjust <= meta_HUDCSV_Export_End &
+        MoveInDateAdjust >= meta_HUDCSV_Export_Start() &
+        MoveInDateAdjust <= meta_HUDCSV_Export_End() &
         ProjectType != 12 &
         Destination %in% c(perm_livingsituation) &
         !is.na(ExitDate) &
-        ExitDate >= meta_HUDCSV_Export_Start &
-        ExitDate <= meta_HUDCSV_Export_End,
+        ExitDate >= meta_HUDCSV_Export_Start() &
+        ExitDate <= meta_HUDCSV_Export_End(),
       1, 0
       ),
     HousedAll = if_else(
       EntryStatusHomeless == 1 &
         ProjectType %in% c(ph_project_types) &
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust >= meta_HUDCSV_Export_Start &
-        MoveInDateAdjust <= meta_HUDCSV_Export_End &
+        MoveInDateAdjust >= meta_HUDCSV_Export_Start() &
+        MoveInDateAdjust <= meta_HUDCSV_Export_End() &
         ProjectType != 12 &
         Destination %in% fy22_to_fy24_living_situation(c(perm_livingsituation)) &
         (is.na(ExitDate) |
-           ExitDate >= meta_HUDCSV_Export_Start),
+           ExitDate >= meta_HUDCSV_Export_Start()),
       1, 0
     ),
     
