@@ -79,7 +79,7 @@ Project <- Project %>%
     RRHSubType = if_else(ProjectID == random_project, 1, RRHSubType),
     RRHSOActivePeriod =
       interval(OperatingStartDate,
-        coalesce(OperatingEndDate, meta_HUDCSV_Export_End))
+        coalesce(OperatingEndDate, meta_HUDCSV_Export_End()))
     )
 
 # finally, make sure inventory period overlaps project operating period

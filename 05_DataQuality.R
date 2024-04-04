@@ -594,7 +594,7 @@ top_percents_long_stayers <- base_dq_data %>%
       )
   ) %>%
   mutate(Days = as.numeric(difftime(
-      meta_HUDCSV_Export_Date, 
+      meta_HUDCSV_Export_Date(), 
       if_else(ProjectType %in% c(ph_project_types),MoveInDateAdjust, EntryDate)
   ))) %>%
   group_by(ProjectType) %>%
@@ -616,7 +616,7 @@ missed_movein_stayers <- base_dq_data %>%
            is.na(MoveInDateAdjust) &
            ProjectType %in% c(ph_project_types)
   ) %>%
-  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date, EntryDate)))
+  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date(), EntryDate)))
 
 Top2_movein <- subset(missed_movein_stayers,
                       Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE)) %>%
@@ -880,7 +880,7 @@ future_ees <- base_dq_data %>%
 
 future_exits <- base_dq_data %>%
   filter(!is.na(ExitDate) &
-           ExitDate > as.Date(meta_HUDCSV_Export_Date)) %>%
+           ExitDate > as.Date(meta_HUDCSV_Export_Date())) %>%
   merge_check_info(checkIDs = 14) %>%
   select(all_of(vars_we_want))
     
@@ -1669,7 +1669,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
                                         "Error",
                                         "Warning")))
     
-   dq_providers <- sort(Project0$ProjectName) 
+   dq_providers <- sort(Project0()$ProjectName) 
    
 # Plots for System-Level DQ Tab -------------------------------------------
    dq_plot_df <- dq_main %>%

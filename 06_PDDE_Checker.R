@@ -16,7 +16,7 @@ PDDEcols = c("OrganizationName",
 # Subpop beds should equal Total Beds -------------------------------------
 
 subpopNotTotal <- Inventory %>%
-  left_join(Project0, by = "ProjectID") %>%
+  left_join(Project0(), by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
            (CHVetBedInventory + 
               YouthVetBedInventory + 
@@ -60,7 +60,7 @@ operating_end_missing <- Enrollment %>%
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
            MostRecentEnrollment < 
-           meta_HUDCSV_Export_Date - 30 &
+           meta_HUDCSV_Export_Date() - 30 &
            is.null(OperatingEndDate)) %>%
   merge_check_info(checkIDs = 81) %>%
   mutate(Detail = paste(
@@ -121,7 +121,7 @@ missing_CoC_Address <- missing_CoC_Info %>%
 # Missing Inventory Record Is a residential project but has no active inventory
 # for the duration of operating period OR for the reporting period
 
-missing_inventory_record <- Project0 %>%
+missing_inventory_record <- Project0() %>%
   left_join(Inventory, by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
            (RRHSubType == 2 | is.na(RRHSubType)) &
@@ -146,8 +146,8 @@ activeInventory <- Inventory %>%
     by = "ProjectID"
   ) %>%
   filter(
-    coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start &
-      InventoryStartDate <= meta_HUDCSV_Export_End
+    coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start() &
+      InventoryStartDate <= meta_HUDCSV_Export_End()
   )
 
 inventory_start_precedes_operating_start <- activeInventory %>%
@@ -251,7 +251,7 @@ projects_w_clients <- Enrollment %>%
 
 res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 
-zero_utilization <- Project0 %>%
+zero_utilization <- Project0() %>%
   inner_join(HMISParticipation %>%
               filter(HMISParticipationType == 1) %>%
               distinct(ProjectID), by = "ProjectID") %>%
@@ -293,7 +293,7 @@ rrh_so_w_inventory <- activeInventory %>%
 # Overlapping participations ----------------------------------------------
 
 overlapping_ce_participation <- CEParticipation %>%
-  left_join(Project0 %>% select(ProjectID, OrganizationName, ProjectName),
+  left_join(Project0() %>% select(ProjectID, OrganizationName, ProjectName),
             by = "ProjectID") %>%
   group_by(ProjectID) %>%
   arrange(CEParticipationStatusStartDate) %>%
@@ -332,7 +332,7 @@ overlapping_ce_participation <- CEParticipation %>%
   select(all_of(PDDEcols))
 
 overlapping_hmis_participation <- HMISParticipation %>%
-  left_join(Project0 %>% select(ProjectID, OrganizationName, ProjectName),
+  left_join(Project0() %>% select(ProjectID, OrganizationName, ProjectName),
             by = "ProjectID") %>%
   group_by(ProjectID) %>%
   arrange(HMISParticipationStatusStartDate) %>%

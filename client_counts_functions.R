@@ -15,7 +15,7 @@ client_count_data_df <- reactive({
   ReportStart <- input$dateRangeCount[1]
   ReportEnd <- input$dateRangeCount[2]
 
-  validation %>%
+  validation() %>%
     mutate(
       PersonalID = as.character(PersonalID),
       RelationshipToHoH = case_when(
@@ -212,4 +212,8 @@ get_clientcount_download_info <- function(file) {
   
   write_xlsx(exportDFList,
              path = file)
+  
+  logMetadata(paste0("Downloaded Client Counts Report",
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+  
 }

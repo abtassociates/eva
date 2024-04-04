@@ -147,8 +147,8 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-importFile <- function(csvFile, guess_max = 1000) {
-  if(str_sub(input$imported$datapath,-4,-1) != ".zip") {
+importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
+  if(str_sub(upload_filepath,-4,-1) != ".zip") {
     capture.output("User tried uploading a non-zip file!") 
   }
   
@@ -156,7 +156,7 @@ importFile <- function(csvFile, guess_max = 1000) {
   
   data <-
     read_csv(
-      utils::unzip(zipfile = input$imported$datapath, files = filename),
+      utils::unzip(zipfile = upload_filepath, files = filename),
       col_types = get_col_types(csvFile),
       na = ""
     )
@@ -203,9 +203,9 @@ headerGeneric <- function(tabTitle, extraHTML = NULL) {
       list(h2(tabTitle),
            h4(strong("Date Range of Current File: "),
             paste(
-             format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+             format(meta_HUDCSV_Export_Start(), "%m-%d-%Y"),
              "to",
-             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+             format(meta_HUDCSV_Export_End(), "%m-%d-%Y")
            )),
            extraHTML
       )
@@ -220,12 +220,12 @@ logSessionData <- function() {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = Export$SourceID,
-    ExportID = Export$ExportID,
-    SourceContactFirst = Export$SourceContactFirst,
-    SourceContactLast = Export$SourceContactLast,
-    SourceContactEmail = Export$SourceContactEmail,
-    SoftwareName = Export$SoftwareName
+    CoC = Export()$SourceID,
+    ExportID = Export()$ExportID,
+    SourceContactFirst = Export()$SourceContactFirst,
+    SourceContactLast = Export()$SourceContactLast,
+    SourceContactEmail = Export()$SourceContactEmail,
+    SoftwareName = Export()$SoftwareName
   )
   
   # put the export info in the log
@@ -245,8 +245,8 @@ logToConsole <- function(msg) {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = Export$SourceID,
-    ExportID = Export$ExportID,
+    CoC = Export()$SourceID,
+    ExportID = Export()$ExportID,
     Msg = msg
   )
   capture.output(d, file = stderr())

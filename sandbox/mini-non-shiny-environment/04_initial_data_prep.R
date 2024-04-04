@@ -342,7 +342,7 @@ projects_funders_types <- Funder %>%
   left_join(Project %>%
               select(ProjectID, ProjectType),
             join_by(ProjectID)) %>%
-  filter(is.na(EndDate) | EndDate > meta_HUDCSV_Export_Start) %>%
+  filter(is.na(EndDate) | EndDate > meta_HUDCSV_Export_Start()) %>%
   select(ProjectID, ProjectType, Funder) %>%
   unique() %>%
   left_join(inc_ncb_hi_required, join_by(ProjectType, Funder)) %>%

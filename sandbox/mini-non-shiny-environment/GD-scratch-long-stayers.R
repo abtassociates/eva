@@ -39,7 +39,7 @@ long_stayers <- validation %>%
   mutate(
     Days = 
       as.numeric(difftime(
-        as.Date(meta_HUDCSV_Export_Date),
+        as.Date(meta_HUDCSV_Export_Date()),
         if_else(ProjectType %in% c(project_types_w_cls),
                 MaxCLSInformationDate, # most recent CLS
                 EntryDate), # project entry

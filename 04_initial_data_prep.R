@@ -86,7 +86,7 @@ if("ProjectTimeID" %in% colnames(ProjectsInHMIS)){
 }
 
 # This dataset is used when we need an unduplicated concise df for project
-Project0 <<- Project %>% 
+Project0(Project %>% 
   select(ProjectID,
          ProjectName,
          OrganizationID,
@@ -94,6 +94,7 @@ Project0 <<- Project %>%
          ProjectType,
          RRHSubType) %>%
   unique()
+)
 
 # Enrollment --------------------------------------------------------------
 
@@ -323,27 +324,29 @@ validationEnrollment <- Enrollment %>%
     DateCreated
   ) 
 
-validation <- validationProject %>%
-  left_join(validationEnrollment, by = c("ProjectTimeID", "ProjectID")) %>%
-  select(
-    ProjectID,
-    ProjectTimeID,
-    OrganizationName,
-    ProjectName,
-    ProjectType,
-    EnrollmentID,
-    PersonalID,
-    HouseholdID,
-    RelationshipToHoH,
-    EntryDate,
-    MoveInDateAdjust,
-    ExitDate,
-    LivingSituation,
-    Destination,
-    DestinationSubsidyType,
-    DateCreated
-  ) %>%
-  filter(!is.na(EntryDate))
+validation(
+  validationProject %>%
+    left_join(validationEnrollment, by = c("ProjectTimeID", "ProjectID")) %>%
+    select(
+      ProjectID,
+      ProjectTimeID,
+      OrganizationName,
+      ProjectName,
+      ProjectType,
+      EnrollmentID,
+      PersonalID,
+      HouseholdID,
+      RelationshipToHoH,
+      EntryDate,
+      MoveInDateAdjust,
+      ExitDate,
+      LivingSituation,
+      Destination,
+      DestinationSubsidyType,
+      DateCreated
+    ) %>%
+    filter(!is.na(EntryDate))
+)
 
 # Checking requirements by projectid --------------------------------------
 
@@ -351,7 +354,7 @@ projects_funders_types <- Funder %>%
   left_join(Project %>%
               select(ProjectID, ProjectType),
             join_by(ProjectID)) %>%
-  filter(is.na(EndDate) | EndDate > meta_HUDCSV_Export_Start) %>%
+  filter(is.na(EndDate) | EndDate > meta_HUDCSV_Export_Start()) %>%
   select(ProjectID, ProjectType, Funder) %>%
   unique() %>%
   left_join(inc_ncb_hi_required, join_by(ProjectType, Funder)) %>%

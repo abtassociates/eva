@@ -2,6 +2,24 @@
 #   PURPOSE: This script contains functions used by the app
 #   for generating the DQ plots and DQ exports
 
+
+vars_prep <- c(
+  "HouseholdID",
+  "PersonalID",
+  "OrganizationName",
+  "ProjectID",
+  "ProjectName",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitDate"
+)
+
+vars_we_want <- c(vars_prep,
+                  "Issue",
+                  "Type",
+                  "Guidance")
+
 dq_main_reactive <- reactive({
   req(valid_file() == 1)
   # browser()
@@ -16,6 +34,7 @@ dq_main_reactive <- reactive({
   CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
     select(all_of(vars_we_want))
   
+  browser()
   x <- dq_main %>%
     filter(str_detect(tolower(Issue), "local settings", negate = TRUE) == TRUE)
 
@@ -128,9 +147,9 @@ getDQReportDataList <-
       arrange(Type)
     
     exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
-                               c(meta_HUDCSV_Export_Start,
-                                 meta_HUDCSV_Export_End,
-                                 meta_HUDCSV_Export_Date))
+                               c(meta_HUDCSV_Export_Start(),
+                                 meta_HUDCSV_Export_End(),
+                                 meta_HUDCSV_Export_Date()))
     
     colnames(exportDetail) <- c("Export Field", "Value")
     
@@ -178,7 +197,7 @@ getDQReportDataList <-
 
 calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
   
-  entryexit_project_types <- validation %>%
+  entryexit_project_types <- validation() %>%
     filter(is.na(ExitDate) &
              !ProjectType %in% c(project_types_w_cls) &
              ProjectType == projecttype
@@ -186,7 +205,7 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
     mutate(
       Days =
         as.numeric(difftime(
-          as.Date(meta_HUDCSV_Export_Date), EntryDate, 
+          as.Date(meta_HUDCSV_Export_Date()), EntryDate, 
           units = "days"
         ))
     ) %>%
@@ -194,7 +213,7 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
     merge_check_info(checkIDs = 102) %>%
     select(all_of(vars_we_want))
   
-  cls_df <- validation %>%
+  cls_df <- validation() %>%
     filter(is.na(ExitDate)) %>% # less data to deal w/
     left_join(CurrentLivingSituation %>%
                 select(CurrentLivingSitID,
@@ -206,13 +225,13 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
     ungroup() %>%
     select(EnrollmentID, "MaxCLSInformationDate" = InformationDate)
     
-  cls_project_types <- validation %>%
+  cls_project_types <- validation() %>%
     left_join(cls_df, by = "EnrollmentID") %>%
     select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
     mutate(
       Days = 
         as.numeric(difftime(
-          as.Date(meta_HUDCSV_Export_Date),
+          as.Date(meta_HUDCSV_Export_Date()),
           if_else(!is.na(MaxCLSInformationDate),
                   MaxCLSInformationDate, # most recent CLS
                   EntryDate), # project entry
@@ -253,7 +272,7 @@ calculate_outstanding_referrals <- function(too_many_days){
     mutate(
       Days = 
         as.numeric(
-          difftime(as.Date(meta_HUDCSV_Export_Date), EventDate, units = "days")),
+          difftime(as.Date(meta_HUDCSV_Export_Date()), EventDate, units = "days")),
       EventType = case_when(
         Event == 10 ~ "Referral to Emergency Shelter bed opening",
         Event == 11 ~ "Referral to Transitional Housing bed/unit opening",
