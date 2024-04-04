@@ -20,9 +20,9 @@ vars_we_want <- c(vars_prep,
                   "Type",
                   "Guidance")
 
-dq_main_reactive <- reactive({
+dq_main_reactive(reactive({
   req(valid_file() == 1)
-  # browser()
+  
   ESNbN <- calculate_long_stayers_local_settings(input$ESNbNLongStayers, 0)
   Outreach <- calculate_long_stayers_local_settings(input$OUTLongStayers, 4)
   CoordinatedEntry <- calculate_long_stayers_local_settings(input$CELongStayers, 14)
@@ -34,7 +34,6 @@ dq_main_reactive <- reactive({
   CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
     select(all_of(vars_we_want))
   
-  browser()
   x <- dq_main %>%
     filter(str_detect(tolower(Issue), "local settings", negate = TRUE) == TRUE)
 
@@ -47,7 +46,7 @@ dq_main_reactive <- reactive({
         Other,
         CoordinatedEntry,
         CE_Event)
-})
+}))
 
 getDQReportDataList <-
   function(dqData,
@@ -77,7 +76,7 @@ getDQReportDataList <-
       filter(Type == "Warning") %>%
       select(all_of(select_list))
     
-    dqOverlapDetails <- dqOverlaps %>%
+    dqOverlapDetails <- dqoverlaps() %>% 
       select(-c(Issue, Type, Guidance, PreviousIssue)) %>%
       relocate(
         OrganizationName,
@@ -119,7 +118,7 @@ getDQReportDataList <-
     
     mainsummary <- rbind(
       dqData %>% select(Type, Issue, PersonalID),
-      dqOverlaps %>% select(Type, Issue, PersonalID)
+      dqoverlaps() %>%  select(Type, Issue, PersonalID)
     ) %>%
       # group_by(ProjectName, Type, Issue) %>%
       group_by(Type, Issue) %>%
@@ -131,7 +130,7 @@ getDQReportDataList <-
     bySummaryLevel2 <- rlang::sym(bySummaryLevel)
     byunitsummary <- rbind(
       dqData %>% select(!!bySummaryLevel2, Type, Issue, PersonalID),
-      dqOverlaps %>% select(!!bySummaryLevel2, Type, Issue, PersonalID)
+      dqoverlaps() %>%  select(!!bySummaryLevel2, Type, Issue, PersonalID)
     ) %>%
       group_by(!!bySummaryLevel2, Type, Issue) %>%
       summarise(Enrollments = n()) %>%
@@ -255,7 +254,7 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
 
 # Outstanding Referrals --------------------------------------------
 
-calculate_outstanding_referrals <- function(too_many_days){
+calculate_outstanding_referrals(function(too_many_days){
 
   base_dq_data %>%
     left_join(Event %>% select(EnrollmentID,
@@ -288,9 +287,9 @@ calculate_outstanding_referrals <- function(too_many_days){
              is.na(ResultDate) &
              too_many_days < Days) %>%
     merge_check_info(checkIDs = 100)
-}
+})
 
-renderDQPlot <- function(level, issueType, group, color) {
+renderDQPlot(function(level, issueType, group, color) {
   req(exists("dq_main"))
   # groupVars is the variable(s) used to summarise/count rows
   # x_group is the x variable used to in the ggplot reordering
@@ -384,5 +383,4 @@ renderDQPlot <- function(level, issueType, group, color) {
   
   # finally, render the plot
   return(plotOutput(outputId, height = plot_height))
-}
-
+})

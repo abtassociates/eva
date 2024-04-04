@@ -1156,7 +1156,7 @@ if(nrow(Services) > 0){
     )
 }
 
-overlaps <- overlap_staging %>%
+overlaps(overlap_staging %>%
   # sort enrollments for each person
   group_by(PersonalID) %>%
   arrange(EnrollmentStart, EnrollmentEnd) %>%
@@ -1253,13 +1253,13 @@ overlaps <- overlap_staging %>%
   mutate(
     ProjectType = project_type(ProjectType),
     PreviousProjectType = project_type(PreviousProjectType)
-  ) # matches with checkids = 77 but doesn't refer explicitly to it given the
+  )) # matches with checkids = 77 but doesn't refer explicitly to it given the
 # way the Issue is built dynamically
 
-dq_overlaps1 <- overlaps %>%
+dq_overlaps1 <- overlaps() %>% 
   select(!!vars_we_want)
 
-dq_overlaps2 <- overlaps %>%
+dq_overlaps2 <- overlaps() %>% 
   select(starts_with("Previous"), Type, Guidance) %>%
   rename_all(~str_replace(.,"^Previous","")) %>%
   select(!!vars_we_want)
@@ -1695,3 +1695,4 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
             Type) %>%
      unique()
    
+base_dq_data_func(base_dq_data)
