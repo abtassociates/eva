@@ -29,9 +29,8 @@ function(input, output, session) {
                     format(meta_HUDCSV_Export_Date(), "%m-%d-%Y at %I:%M %p")
                   ))
 
-  
   output$headerLocalSettings <- headerGeneric("Edit Local Settings")
-  
+
   # the reason we split the Client Count header into two is for shinytest reasons
   # this _supp renderUI needed to be associated with an output in order to make 
   # the HTML <div> id the same each time. Without associating with an output, 
@@ -51,10 +50,12 @@ function(input, output, session) {
     
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
   
+  # operates the 'Click here to get started' button
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
   })
   
+  # decides when it's time to time out the session
   observeEvent(input$timeOut, {
     logMetadata("Timed out")
     session$reload()
@@ -67,7 +68,7 @@ function(input, output, session) {
   
 # Run scripts on upload ---------------------------------------------------
   
-  # "global" variables (NOT visible to multiple sessions)
+  # session-wide variables
   validation <- reactiveVal()
   Export <- reactiveVal()
   Project0 <- reactiveVal()
