@@ -373,7 +373,7 @@ overlapping_hmis_participation <- HMISParticipation %>%
 
 # Put it all together -----------------------------------------------------
 
-pdde_main <- rbind(
+pdde_main(rbind(
   subpopNotTotal,
   operating_end_missing,
   rrh_no_subtype,
@@ -389,5 +389,5 @@ pdde_main <- rbind(
   zero_utilization
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
-
+)
 

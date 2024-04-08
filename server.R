@@ -304,16 +304,19 @@ function(input, output, session) {
   
   # "global" variables (NOT visible to multiple sessions)
   validation <- reactiveVal()
+  CurrentLivingSituation <- reactiveVal()
   Export <- reactiveVal()
   Project0 <- reactiveVal()
+  Event <- reactiveVal()
   meta_HUDCSV_Export_Start <- reactiveVal()
   meta_HUDCSV_Export_End <- reactiveVal()
   meta_HUDCSV_Export_Date <- reactiveVal()
-  dq_main_reactive <- reactiveVal()
   overlaps <- reactiveVal()
-  renderDQPlot <- reactiveVal()
-  calculate_outstanding_referrals <- reactiveVal()
   base_dq_data_func <- reactiveVal()
+  dq_main_df <- reactiveVal()
+  pdde_main <- reactiveVal()
+  # source("05_DataQuality_functions.R", local = TRUE)
+  
   
   process_upload <- function(upload_filename, upload_filepath) {
     source("00_initially_valid_import.R", local = TRUE)
@@ -371,7 +374,6 @@ function(input, output, session) {
           }
           
           setProgress(detail = "Assessing your data quality..", value = .7)
-          source("05_DataQuality_functions.R", local = TRUE)
           source("05_DataQuality.R", local = TRUE)
           
           setProgress(detail = "Checking your PDDEs", value = .85)
@@ -524,7 +526,7 @@ function(input, output, session) {
   # output$dq_overview_plot <- renderPlot({
   #   req(valid_file() == 1)
   # # browser()
-  #   detail <- dq_main_reactive()() %>%
+  #   detail <- dq_main_reactive() %>%
   #     count(Type, name = "Total") %>%
   #     mutate(Type = factor(
   #       case_when(
@@ -567,7 +569,7 @@ function(input, output, session) {
   #     output$dq_orgs_overview_plot <- renderPlot({
   #       req(valid_file() == 1)
   # # browser()
-  #       highest_type <- dq_main_reactive()() %>%
+  #       highest_type <- dq_main_reactive() %>%
   #         count(Type) %>% 
   #         head(1L) %>%
   #         mutate(Type = as.character(Type)) %>%
@@ -580,7 +582,7 @@ function(input, output, session) {
   #           TRUE ~ "Warnings"
   #         )
   #       
-  #       detail <- dq_main_reactive()() %>%
+  #       detail <- dq_main_reactive() %>%
   #         count(OrganizationName, Type, name = "Total") %>%
   #         filter(Type == highest_type)
   # 
@@ -628,7 +630,7 @@ function(input, output, session) {
   # the HTML <div> id the same each time. Without associating with an output, 
   # the id changed each time and the shinytest would catch the difference and fail
   output$headerClientCounts_supp <- renderUI({ 
-    req(length(Project0()) > 0)
+    req(nrow(Project0()) > 0)
     organization <- Project0() %>%
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
@@ -710,7 +712,7 @@ function(input, output, session) {
   # CLIENT COUNT DETAILS - APP ----------------------------------------------
   output$clientCountData <- DT::renderDataTable({
     req(valid_file() == 1)
-    req(length(validation()) > 0)
+    req(nrow(validation()) > 0)
     
     x <- client_count_data_df() %>%
       filter(ProjectName == input$currentProviderList) %>%
@@ -767,7 +769,7 @@ function(input, output, session) {
   # update_pdde_output <- function() {
   output$downloadPDDEReportButton  <- renderUI({
     req(valid_file() == 1)
-    req(nrow(pdde_main) > 0)
+    req(nrow(pdde_main()) > 0)
     downloadButton(outputId = "downloadPDDEReport",
                    label = "Download")
   })
@@ -781,21 +783,21 @@ function(input, output, session) {
     content = function(file) {
       req(valid_file() == 1)
       
-      summary <- pdde_main %>% 
+      summary <- pdde_main() %>% 
         group_by(Issue, Type) %>%
         summarise(Count = n()) %>%
         ungroup()
       
       write_xlsx(
         list("Summary" = summary,
-             "Data" = pdde_main %>%
+             "Data" = pdde_main() %>%
                nice_names()),
         path = file)
       
       logMetadata(paste0("Downloaded PDDE Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main))
+      exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main()))
     }
   )
   
@@ -803,7 +805,7 @@ function(input, output, session) {
   output$pdde_summary_table <- DT::renderDataTable({
     req(valid_file() == 1)
     
-    a <- pdde_main %>%
+    a <- pdde_main() %>%
       group_by(Issue, Type) %>%
       summarise(Count = n()) %>%
       ungroup() %>%
@@ -824,7 +826,7 @@ function(input, output, session) {
   output$pdde_guidance_summary <- DT::renderDataTable({
     req(valid_file() == 1)
     
-    guidance <- pdde_main %>%
+    guidance <- pdde_main() %>%
       select(Type, Issue, Guidance) %>%
       arrange(Type, Issue) %>%
       unique()
@@ -844,11 +846,12 @@ function(input, output, session) {
   
   # DQ Org Summary -------------------------------------------------------
   # update_dq_output <- function() {
+  source("05_DataQuality_functions.R", local = TRUE)
+  
   output$dq_organization_summary_table <- DT::renderDataTable({
     req(valid_file() == 1)
     
-    browser()
-    a <- dq_main_reactive()() %>%
+    a <- dq_main_reactive() %>%
       filter(OrganizationName %in% c(input$orgList)) %>%
       select(ProjectName, 
              Type, 
@@ -879,7 +882,7 @@ function(input, output, session) {
   output$dq_org_guidance_summary <- DT::renderDataTable({
     req(valid_file() == 1)
     
-    guidance <- dq_main_reactive()() %>%
+    guidance <- dq_main_reactive() %>%
       filter(OrganizationName %in% c(input$orgList)) %>%
       select(Type, Issue, Guidance) %>%
       mutate(Type = factor(Type, levels = c("High Priority",
@@ -899,48 +902,12 @@ function(input, output, session) {
     )
   })
   
-  # Prep DQ Downloads -------------------------------------------------------
-  
-  # list of data frames to include in DQ Org Report
-  dqDownloadInfo <- reactive({
-    req(valid_file() == 1)
-    
-    # org-level data prep (filtering to selected org)
-    orgDQData <- dq_main_reactive()() %>%
-      filter(OrganizationName %in% c(input$orgList))
-    
-    orgDQoverlaps <- overlaps() %>% 
-      filter(OrganizationName %in% c(input$orgList) | 
-               PreviousOrganizationName %in% c(input$orgList))
-    #browser()
-    orgDQReferrals <- 
-      calculate_outstanding_referrals_func()(input$CEOutstandingReferrals) %>%
-      filter(OrganizationName %in% c(input$orgList))
-    
-    # return a list for reference in downloadHandler
-    list(
-      orgDQData = 
-        getDQReportDataList(orgDQData,
-                            orgDQoverlaps,
-                            "ProjectName",
-                            orgDQReferrals
-        ),
-      
-      systemDQData = 
-        getDQReportDataList(dq_main_reactive(),
-                            overlaps,
-                            "OrganizationName",
-                            calculate_outstanding_referrals_func()(input$CEOutstandingReferrals)
-        )
-    )
-  })
-  
   # Download Org DQ Report --------------------------------------------------
   
   output$downloadOrgDQReportButton  <- renderUI({
     req(valid_file() == 1)
     
-    req(length(dqDownloadInfo()$orgDQData) > 0)
+    req(nrow(dqDownloadInfo()$orgDQData) > 0)
     downloadButton(outputId = "downloadOrgDQReport",
                    label = "Download")
   })
@@ -961,7 +928,7 @@ function(input, output, session) {
   # button
   output$downloadSystemDQReportButton  <- renderUI({
     req(valid_file() == 1)
-    req(length(dqDownloadInfo()$systemDQData) > 0)
+    req(nrow(dqDownloadInfo()$systemDQData) > 0)
     downloadButton(outputId = "downloadSystemDQReport",
                    label = "Download") %>% withSpinner()
   })
@@ -980,28 +947,28 @@ function(input, output, session) {
   # By-org shows organizations containing highest number of HP/errors/warnings
   # By-issue shows issues that are the most common of that type
   output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
-    renderDQPlot()("sys", "High Priority", "Org", "#71B4CB")
+    renderDQPlot("sys", "High Priority", "Org", "#71B4CB")
   })
   
   
   output$systemDQHighPriorityErrorsByIssue_ui <- renderUI({
-    renderDQPlot()("sys", "High Priority", "Issue", "#71B4CB")
+    renderDQPlot("sys", "High Priority", "Issue", "#71B4CB")
   })
   
   output$systemDQErrorsByOrg_ui <- renderUI({
-    renderDQPlot()("sys", "Error", "Org", "#71B4CB")
+    renderDQPlot("sys", "Error", "Org", "#71B4CB")
   })
   
   output$systemDQErrorsByIssue_ui <- renderUI({
-    renderDQPlot()("sys", "Error", "Issue", "#71B4CB")
+    renderDQPlot("sys", "Error", "Issue", "#71B4CB")
   })
   
   output$systemDQWarningsByOrg_ui <- renderUI({
-    renderDQPlot()("sys", "Warning", "Org", "#71B4CB")
+    renderDQPlot("sys", "Warning", "Org", "#71B4CB")
   })
   
   output$systemDQWarningsByIssue_ui <- renderUI({
-    renderDQPlot()("sys", "Warning", "Issue", "#71B4CB")
+    renderDQPlot("sys", "Warning", "Issue", "#71B4CB")
   })
   
   
@@ -1011,27 +978,28 @@ function(input, output, session) {
   # By-issue shows issues, within the selected org, that are the most common 
   # of that type (HP errors/errors/warnings)
   output$orgDQHighPriorityErrorsByProject_ui <- renderUI({
-    renderDQPlot()("org", "High Priority", "Project", "#71B4CB")
+    browser()
+    renderDQPlot("org", "High Priority", "Project", "#71B4CB")
   })
   
   output$orgDQHighPriorityErrorByIssue_ui <- renderUI({
-    renderDQPlot()("org", "High Priority", "Issue", "#71B4CB")
+    renderDQPlot("org", "High Priority", "Issue", "#71B4CB")
   })
   
   output$orgDQErrorsByProject_ui <- renderUI({
-    renderDQPlot()("org", "Error", "Project", "#71B4CB")
+    renderDQPlot("org", "Error", "Project", "#71B4CB")
   })
   
   output$orgDQErrorByIssue_ui <- renderUI({
-    renderDQPlot()("org", "Error", "Issue", "#71B4CB")
+    renderDQPlot("org", "Error", "Issue", "#71B4CB")
   })
   
   output$orgDQWarningsByProject_ui <- renderUI({
-    renderDQPlot()("org", "Warning", "Project", "#71B4CB")
+    renderDQPlot("org", "Warning", "Project", "#71B4CB")
   })
   
   output$orgDQWarningsByIssue_ui <- renderUI({
-    renderDQPlot()("org", "Warning", "Issue", "#71B4CB")
+    renderDQPlot("org", "Warning", "Issue", "#71B4CB")
   })
   # }
   
