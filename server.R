@@ -75,6 +75,7 @@ function(input, output, session) {
   meta_HUDCSV_Export_Start <- reactiveVal()
   meta_HUDCSV_Export_End <- reactiveVal()
   meta_HUDCSV_Export_Date <- reactiveVal()
+  initially_valid_import <- reactiveVal(TRUE)
   
   observeEvent(input$imported, {
     
@@ -83,8 +84,8 @@ function(input, output, session) {
     }) 
     valid_file(0)
     source("00_initially_valid_import.R", local = TRUE)
-    
-    if(initially_valid_import == 1) {
+
+    if(initially_valid_import() == 1) {
 
       hide('imported_progress')
       
@@ -178,7 +179,7 @@ function(input, output, session) {
     
     output$fileStructureAnalysis <- DT::renderDataTable(
       {
-        req(initially_valid_import)
+        req(initially_valid_import() == 1)
 
         a <- file_structure_analysis_main %>%
           group_by(Type, Issue) %>%
@@ -203,7 +204,7 @@ function(input, output, session) {
 # File Structure Analysis Download ----------------------------------------
 
     output$downloadFileStructureAnalysisBtn <- renderUI({
-      req(initially_valid_import)
+      req(initially_valid_import() == 1)
      # req(nrow(file_structure_analysis_main) > 0)
       downloadButton("downloadFileStructureAnalysis",
                      "Download Structure Analysis Detail")
