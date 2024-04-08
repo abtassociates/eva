@@ -241,6 +241,38 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
     merge_check_info(checkIDs = 102) %>%
     select(all_of(vars_we_want))
   
+  cls_df <- validation() %>%
+    filter(is.na(ExitDate)) %>% # less data to deal w/
+    left_join(CurrentLivingSituation %>%
+                select(CurrentLivingSitID,
+                       EnrollmentID,
+                       InformationDate), by = "EnrollmentID") %>%
+    group_by(EnrollmentID) %>%
+    slice_max(InformationDate) %>%
+    slice(1L) %>%
+    ungroup() %>%
+    select(EnrollmentID, "MaxCLSInformationDate" = InformationDate)
+    
+  cls_project_types <- validation() %>%
+    left_join(cls_df, by = "EnrollmentID") %>%
+    select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
+    mutate(
+      Days = 
+        as.numeric(difftime(
+          as.Date(meta_HUDCSV_Export_Date()),
+          if_else(!is.na(MaxCLSInformationDate),
+                  MaxCLSInformationDate, # most recent CLS
+                  EntryDate), # project entry
+          units = "days"
+        ))
+    ) %>%
+    filter(is.na(ExitDate) &
+             ProjectType %in% c(project_types_w_cls) &
+             ProjectType == projecttype & 
+             too_many_days < Days) %>%
+    merge_check_info(checkIDs = 103) %>%
+    select(all_of(vars_we_want))
+  
   if (projecttype %in% c(project_types_w_cls)) {
     cls_project_types() %>%
       filter(is.na(ExitDate) &

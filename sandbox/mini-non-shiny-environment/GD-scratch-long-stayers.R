@@ -19,7 +19,7 @@ vars_we_want <- c(vars_prep,
                   "Type",
                   "Guidance")
 
-cls_df <- validation %>%
+cls_df <- validation() %>%
   left_join(CurrentLivingSituation %>%
               select(CurrentLivingSitID,
                      EnrollmentID,
@@ -29,7 +29,7 @@ cls_df <- validation %>%
   ungroup() %>%
   select(EnrollmentID, "MaxCLSInformationDate" = InformationDate)
 
-long_stayers <- validation %>%
+long_stayers <- validation() %>%
   left_join(cls_df, by = "EnrollmentID") %>%
   select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
   filter(is.na(ExitDate) &

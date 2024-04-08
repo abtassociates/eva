@@ -29,14 +29,21 @@ function(input, output, session) {
                     strong("Export Date: "),
                     format(meta_HUDCSV_Export_Date(), "%m-%d-%Y at %I:%M %p")
                   ))
-  
-  
+
   output$headerLocalSettings <- headerGeneric("Edit Local Settings")
-  
+
   # the reason we split the Client Count header into two is for shinytest reasons
   # this _supp renderUI needed to be associated with an output in order to make 
   # the HTML <div> id the same each time. Without associating with an output, 
   # the id changed each time and the shinytest would catch the difference and fail
+  output$headerClientCounts_supp <- renderUI({ 
+    organization <- Project0() %>%
+      filter(ProjectName == input$currentProviderList) %>%
+      pull(OrganizationName)
+    
+    h4(organization, "|", input$currentProviderList)
+  })
+  
   output$headerClientCounts <- headerGeneric("Client Counts Report",
                                              htmlOutput("headerClientCounts_supp"))
   
@@ -46,10 +53,12 @@ function(input, output, session) {
   
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
   
+  # operates the 'Click here to get started' button
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
   }) 
   
+  # decides when it's time to time out the session
   observeEvent(input$timeOut, {
     logMetadata("Timed out")
     session$reload()
@@ -123,6 +132,15 @@ function(input, output, session) {
     seen_message[[selectedTabId]] <- TRUE
     showModal(modalDialog(msg))
   }) 
+  
+  # session-wide variables
+  validation <- reactiveVal()
+  Export <- reactiveVal()
+  Project0 <- reactiveVal()
+  meta_HUDCSV_Export_Start <- reactiveVal()
+  meta_HUDCSV_Export_End <- reactiveVal()
+  meta_HUDCSV_Export_Date <- reactiveVal()
+  initially_valid_import <- reactiveVal(TRUE)
   
   toggleDemoJs <- function(t) {
     js_t <- ifelse(t, 'true','false')
@@ -321,8 +339,8 @@ function(input, output, session) {
   process_upload <- function(upload_filename, upload_filepath) {
     source("00_initially_valid_import.R", local = TRUE)
     
-    if(initially_valid_import == 1) {
-      
+    if(initially_valid_import() == 1) {
+
       hide('imported_progress')
       
       withProgress({
@@ -453,13 +471,18 @@ function(input, output, session) {
         }
       })
     }
-  }
+
   # File Structure Analysis Summary -----------------------------------------
   # update_fsa <- function() {
   output$fileStructureAnalysis <- DT::renderDataTable(
     {
       req(exists("file_structure_analysis_main"))
-      a <- file_structure_analysis_main
+      req(initially_valid_import() == 1)
+      a <- file_structure_analysis_main # %>%
+          # group_by(Type, Issue) %>%
+          # summarise(Count = n()) %>%
+          # ungroup() %>%
+          # arrange(Type, desc(Count))
       exportTestValues(fileStructureAnalysis = a)
       
       datatable(

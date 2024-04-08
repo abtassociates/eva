@@ -280,7 +280,7 @@ rm(HHEntry, HHMoveIn, small_client)
 Services <- Services %>%
   filter(RecordType == 200 & !is.na(DateProvided))
 
-# Build Validation df for app ---------------------------------------------
+# Build validation() df for app ---------------------------------------------
 
 validationProject <- Project %>%
   select(
@@ -314,7 +314,7 @@ validationEnrollment <- Enrollment %>%
     DateCreated
   ) 
 
-validation <- validationProject %>%
+validation() <- validationProject %>%
   left_join(validationEnrollment, by = c("ProjectTimeID", "ProjectID")) %>%
   select(
     ProjectID,
@@ -357,7 +357,7 @@ projects_funders_types <- Funder %>%
             dv = max(dv, na.rm = TRUE)) %>%
   ungroup()
 
-# desk_time_providers <- validation %>%
+# desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |
 #        exited_between(., today() - years(1), today())) &

@@ -6,12 +6,10 @@
 # if it is not, we will show them a pop-up indicating the problem
 ######################
 
-initially_valid_import <- TRUE
-
 show_invalid_popup <- function(issueID) {
   initially_valid_df <- evachecks %>% filter(ID == issueID)
 
-  initially_valid_import <- FALSE
+  initially_valid_import(FALSE)
 
   showModal(
     modalDialog(

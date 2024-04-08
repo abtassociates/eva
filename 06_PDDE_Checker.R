@@ -14,7 +14,6 @@ PDDEcols = c("OrganizationName",
              "Detail")
 
 # Subpop beds should equal Total Beds -------------------------------------
-
 subpopNotTotal <- Inventory %>%
   left_join(Project0(), by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
@@ -291,7 +290,6 @@ rrh_so_w_inventory <- activeInventory %>%
 
 
 # Overlapping participations ----------------------------------------------
-
 overlapping_ce_participation <- CEParticipation %>%
   left_join(Project0() %>% select(ProjectID, OrganizationName, ProjectName),
             by = "ProjectID") %>%
