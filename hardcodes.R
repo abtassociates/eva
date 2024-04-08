@@ -189,4 +189,4 @@ inc_ncb_hi_required_prep <- tribble(
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
   unique()
 
-
+rm(inc_ncb_hi_required_prep)
