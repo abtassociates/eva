@@ -26,18 +26,17 @@ function(input, output, session) {
     headerGeneric("Upload HMIS CSV Export",
                   h4(
                     strong("Export Date: "),
-                    format(meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
+                    format(meta_HUDCSV_Export_Date(), "%m-%d-%Y at %I:%M %p")
                   ))
 
-  
   output$headerLocalSettings <- headerGeneric("Edit Local Settings")
-  
+
   # the reason we split the Client Count header into two is for shinytest reasons
   # this _supp renderUI needed to be associated with an output in order to make 
   # the HTML <div> id the same each time. Without associating with an output, 
   # the id changed each time and the shinytest would catch the difference and fail
   output$headerClientCounts_supp <- renderUI({ 
-    organization <- Project0 %>%
+    organization <- Project0() %>%
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
     
@@ -51,10 +50,12 @@ function(input, output, session) {
     
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
   
+  # operates the 'Click here to get started' button
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
   })
   
+  # decides when it's time to time out the session
   observeEvent(input$timeOut, {
     logMetadata("Timed out")
     session$reload()
@@ -67,6 +68,15 @@ function(input, output, session) {
   
 # Run scripts on upload ---------------------------------------------------
   
+  # session-wide variables
+  validation <- reactiveVal()
+  Export <- reactiveVal()
+  Project0 <- reactiveVal()
+  meta_HUDCSV_Export_Start <- reactiveVal()
+  meta_HUDCSV_Export_End <- reactiveVal()
+  meta_HUDCSV_Export_Date <- reactiveVal()
+  initially_valid_import <- reactiveVal(TRUE)
+  
   observeEvent(input$imported, {
     
     output$fileInfo <- renderUI({
@@ -74,8 +84,8 @@ function(input, output, session) {
     }) 
     valid_file(0)
     source("00_initially_valid_import.R", local = TRUE)
-    
-    if(initially_valid_import == 1) {
+
+    if(initially_valid_import() == 1) {
 
       hide('imported_progress')
       
@@ -169,7 +179,7 @@ function(input, output, session) {
     
     output$fileStructureAnalysis <- DT::renderDataTable(
       {
-        req(initially_valid_import)
+        req(initially_valid_import() == 1)
 
         a <- file_structure_analysis_main %>%
           group_by(Type, Issue) %>%
@@ -194,7 +204,7 @@ function(input, output, session) {
 # File Structure Analysis Download ----------------------------------------
 
     output$downloadFileStructureAnalysisBtn <- renderUI({
-      req(initially_valid_import)
+      req(initially_valid_import() == 1)
      # req(nrow(file_structure_analysis_main) > 0)
       downloadButton("downloadFileStructureAnalysis",
                      "Download Structure Analysis Detail")
@@ -227,16 +237,16 @@ function(input, output, session) {
                         choices = c(unique(sort(Organization$OrganizationName))))
       
       updateDateInput(session = session, inputId = "dq_org_startdate", 
-                      value = meta_HUDCSV_Export_Start)
+                      value = meta_HUDCSV_Export_Start())
       
       updateDateInput(session = session, inputId = "dq_startdate", 
-                      value = meta_HUDCSV_Export_Start)
+                      value = meta_HUDCSV_Export_Start())
       
       updateDateRangeInput(session = session, inputId = "dateRangeCount",
-                           min = meta_HUDCSV_Export_Start,
-                           start = meta_HUDCSV_Export_Start,
-                           max = meta_HUDCSV_Export_End,
-                           end = meta_HUDCSV_Export_End)
+                           min = meta_HUDCSV_Export_Start(),
+                           start = meta_HUDCSV_Export_Start(),
+                           max = meta_HUDCSV_Export_End(),
+                           end = meta_HUDCSV_Export_End())
     }
 
 

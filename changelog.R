@@ -1,6 +1,9 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "04-09-2024", "Moved data frames \"Export\" and \"Project0\" from the global
+    environment to a session environment to ensure appropriate visibility.",
+    
     "01-24-2024", "If a project has an Operating or Participating end date in 
     the future Eva will not flag these enrollments as Enrollment Crosses 
     Operating/Participating End errors.",

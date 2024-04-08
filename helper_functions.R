@@ -203,9 +203,9 @@ headerGeneric <- function(tabTitle, extraHTML = NULL) {
       list(h2(tabTitle),
            h4(strong("Date Range of Current File: "),
             paste(
-             format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+             format(meta_HUDCSV_Export_Start(), "%m-%d-%Y"),
              "to",
-             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+             format(meta_HUDCSV_Export_End(), "%m-%d-%Y")
            )),
            extraHTML
       )
@@ -220,12 +220,12 @@ logSessionData <- function() {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = Export$SourceID,
-    ExportID = Export$ExportID,
-    SourceContactFirst = Export$SourceContactFirst,
-    SourceContactLast = Export$SourceContactLast,
-    SourceContactEmail = Export$SourceContactEmail,
-    SoftwareName = Export$SoftwareName
+    CoC = Export()$SourceID,
+    ExportID = Export()$ExportID,
+    SourceContactFirst = Export()$SourceContactFirst,
+    SourceContactLast = Export()$SourceContactLast,
+    SourceContactEmail = Export()$SourceContactEmail,
+    SoftwareName = Export()$SoftwareName
   )
   
   # put the export info in the log
@@ -245,8 +245,8 @@ logToConsole <- function(msg) {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = Export$SourceID,
-    ExportID = Export$ExportID,
+    CoC = Export()$SourceID,
+    ExportID = Export()$ExportID,
     Msg = msg
   )
   capture.output(d, file = stderr())

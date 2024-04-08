@@ -7,7 +7,7 @@
 
 # Prep --------------------------------------------------------------------
 
-export_id_from_export <- Export %>% pull(ExportID)
+export_id_from_export <- Export() %>% pull(ExportID)
 
 high_priority_columns <- cols_and_data_types %>%
   filter(DataTypeHighPriority == 1) %>%
