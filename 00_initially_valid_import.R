@@ -9,7 +9,7 @@
 show_invalid_popup <- function(issueID) {
   initially_valid_df <- evachecks %>% filter(ID == issueID)
 
-  initially_valid_import(FALSE)
+  initially_valid_import(0)
 
   showModal(
     modalDialog(
@@ -52,7 +52,6 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   show_invalid_popup(127)
   logMetadata("Unsuccessful upload - zip file not .zip")
 } else {
-
   zipContents <- utils::unzip(zipfile = upload_filepath, list=TRUE)
     
   zipFiles <- zipContents$Name %>% str_replace(".csv", "")
@@ -91,5 +90,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   } else if(!is_hashed()) {
     show_invalid_popup(126)
     logMetadata("Unsuccessful upload - not hashed")
+  } else {
+    initially_valid_import(1)
   }
 }

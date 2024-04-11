@@ -2,18 +2,46 @@
 function(input, output, session) {
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
-  # Log the event to a database or file
-  source("hardcodes.R", local = TRUE) # hard-coded variables and data frames
-  # used throughout the app
-  source("helper_functions.R", local = TRUE) # calling in HMIS-related functions
-  # that aren't in the HMIS pkg
-  source("changelog.R", local = TRUE) # changelog entries
+
+  # hard-coded variables and data frames used throughout the app
+  source("hardcodes.R", local = TRUE) 
+
+  # functions used throughout the app
+  source("helper_functions.R", local = TRUE)
+  
+  # changelog entries
+  source("changelog.R", local = TRUE)
+  
+  # manages toggling demo mode on and off
+  source("demo_management.R", local = TRUE)
   
   # log that the session has started
   logMetadata("Session started")
   
-  # this will be a requirement for proceeding with many parts of the code 
-  valid_file <- reactiveVal(0)
+  # session-wide variables (NOT visible to multiple sessions) -----------------
+  validation <- reactiveVal()
+  CurrentLivingSituation <- reactiveVal()
+  Export <- reactiveVal()
+  Project0 <- reactiveVal()
+  Event <- reactiveVal()
+  meta_HUDCSV_Export_Start <- reactiveVal()
+  meta_HUDCSV_Export_End <- reactiveVal()
+  meta_HUDCSV_Export_Date <- reactiveVal()
+  overlaps <- reactiveVal()
+  base_dq_data_func <- reactiveVal()
+  dq_main_df <- reactiveVal()
+  pdde_main <- reactiveVal()
+  valid_file <- reactiveVal() # from FSA. Most stuff is hidden unless valid == 1
+  
+  # set during initially valid processing stop. Rest of processing stops if invalid
+  # FSA is hidden unless initially_valid_import() == 1
+  initially_valid_import <- reactiveVal() 
+  
+  # in Demo Mode, tracks if user has seen tab-specific pop-up
+  seen_message <- reactiveValues() 
+  
+  demo_modal_closed <- reactiveVal()
+  
   
   # log when user navigate to a tab
   observe({ 
@@ -75,270 +103,11 @@ function(input, output, session) {
     }
   }) 
   
-  # Handle demo mode toggle --------------------------------------------------
-  seen_message <- reactiveValues()
-  observeEvent(input$sidebarmenuid, {
-    req(input$in_demo_mode)
-    req(input$continue_demo_btn)
-    selectedTabId <- input$sidebarmenuid
-    msg <- 
-      switch(selectedTabId,
-             "tabUpload" = "Welcome to the Upload HMIS CSV Export page. This
-             page is where users upload their hashed HMIS CSV Export and review
-             any File Structure Errors in their export. In Demo Mode, you can
-             see an example of the types of issues the File Structure Analysis
-             identifies. ",
-             
-             "tabLocalSettings" = "Welcome to the Edit Local Settings page. This
-             page is where users can adjust the local settings of their uploaded
-             dataset so Eva can better analyze their data in a way that is
-             meaningful to their CoC. In Demo Mode, changing these settings will
-             cause Eva to recalculate the data quality metrics with the selected
-             parameters.",
-             
-             "tabClientCount" = "Welcome to the View Client Counts page. This
-             page helps users review the counts of households/clients served in
-             each project and verify that a project is up to date on their HMIS
-             data entry. In Demo Mode, you can see an example Client Counts
-             report.",
-                  
-             "tabPDDE" = "Welcome to the Check Project Data page. This page
-             helps users review the Project Descriptor Data Element (PDDE) data
-             quality issues in their HMIS data. Users can use this information
-             to identify where corrections should be made in their HMIS. In Demo
-             Mode, you can see an example of the types of issues the PDDE Check
-             Summary identifies.",
-             
-             "tabDQSystem" = "Welcome to the System-wide HMIS Data Quality page.
-             This page helps users review the system-level data quality issues
-             in their HMIS data. Users can use this information to identify which
-             organizations may benefit from additional assistance and training on
-             HMIS entry. In Demo Mode, you can see an example of the types of
-             data quality errors and warnings identified by Eva organized either
-             by the most common issues in the overall system, or by the
-             organizations with the most issues overall.",
-             
-             "tabDQOrg" = "Welcome to the Organization-wide HMIS Data Quality
-             page. This page helps users review the organization-level data
-             quality issues in their HMIS data. Users can use this information
-             to identify where corrections should be made in their HMIS. In Demo
-             Mode, you can see an example of the types of data quality errors
-             and warnings identified by Eva organized either by the most common
-             issues overall in the selected organization, or by the projects
-             with the most issues overall."
-    )
-    req(msg)
-    req(!isTruthy(seen_message[[selectedTabId]]))
-    seen_message[[selectedTabId]] <- TRUE
-    showModal(modalDialog(msg))
-  }) 
-  
-  # session-wide variables
-  validation <- reactiveVal()
-  Export <- reactiveVal()
-  Project0 <- reactiveVal()
-  meta_HUDCSV_Export_Start <- reactiveVal()
-  meta_HUDCSV_Export_End <- reactiveVal()
-  meta_HUDCSV_Export_Date <- reactiveVal()
-  initially_valid_import <- reactiveVal(TRUE)
-  
-  toggleDemoJs <- function(t) {
-    js_t <- ifelse(t, 'true','false')
-    shinyjs::runjs(str_glue("
-      $('#home_demo_instructions').parent().parent().toggle({js_t});
-      $('#home_demo_instructions').parent().css('border', '2px solid #FCB248');
-      
-      $('.in_demo_mode').toggle({js_t});
-      
-      $('#home_live_instructions').parent().parent().toggle(!{js_t});
-      
-      document.getElementById('isdemo').checked = {js_t};
-      
-      $('#imported').closest('.btn').attr('disabled',{js_t});
-      
-      $('#demo_banner').remove();
-    "))
-    
-    if(t) {
-      shinyjs::runjs(paste0(
-        "var demoBannerHTML = \"<div id='demo_banner' class='in_demo_mode'>",
-              "DEMO",
-            "</div>\";",
-          "$('header.main-header').append(demoBannerHTML);"
-        ))
-      
-      shinyjs::runjs("$('#sidebarItemExpanded').css({
-                     'top': '1.5em',
-                     'position':'relative'})")
-      shinyjs::hide(id = "successful_upload")
-      shinyjs::disable("imported")
-      
-    } else {
-      shinyjs::runjs("
-          $('#imported').closest('.btn').removeAttr('disabled');
-      ")
-      shinyjs::runjs("$('#sidebarItemExpanded').css({
-                     'top': '',
-                     'position':''})")
-      shinyjs::enable("imported")
-      
-    }
-  }
-  
-  toggleDemoJs(FALSE)
-  
-  demo_values <- reactiveValues(modal_closed=0)
-  activate_demo <- function() {
-    capture.output("Switching to demo mode!")
-    
-    # let user know things take a min to load then load the demo data
-    showModal(
-      modalDialog(
-        "Activating demo mode...",
-        title = NULL,
-        footer = NULL
-      )
-    )
-    
-    process_upload("demo.zip", here("demo.zip"))
-    
-    valid_file(1)
-    
-    removeModal()
-    
-    # update inputs choices and defaults
-    # update_inputs()
-    
-    updateTabItems(session, "sidebarmenuid", "tabHome")
-    
-    toggleDemoJs(TRUE)
-    
-    shinyjs::show('fileStructureAnalysis')
-    
-    # update_fsa()
-    # update_client_counts()
-    # update_pdde_output()
-    # update_dq_output()
-    
-    print("It's in demo mode!")
-    logMetadata("Switched to demo mode")
-    
-  }
-  
-  deactivate_demo <- function() {
-    # valid_file(0)
-    # reset("imported")
-    
-    # rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
-    updateTabItems(session, "sidebarmenuid", "tabUpload")
-    shinyjs::hide('fileStructureAnalysis')
-    
-    toggleDemoJs(FALSE)
-    
-    # update_fsa()
-    # update_client_counts()
-    # update_pdde_output()
-    # update_dq_output()
-    # update_inputs()
-    
-    print("Switched into live mode!")
-    capture.output("Switched into live mode")
-    logMetadata("Switched into live mode")
-    
-  }
-  
-  observeEvent(input$continue_demo_btn, {
-    removeModal()
-    activate_demo()
-  })
-  
-  observeEvent(input$stay_in_demo, {
-    demo_values$modal_closed <- 1
-    removeModal()
-    runjs('document.getElementById("isdemo").checked = true;')
-    logMetadata("Chose to stay in demo mode")
-  })
-  
-  observeEvent(input$stay_in_live, {
-    demo_values$modal_closed <- 1
-    removeModal()
-    runjs('document.getElementById("isdemo").checked = false;')
-    logMetadata("Chose to stay in live mode")
-  })
-  
-  observeEvent(input$continue_live_btn, {
-    removeModal()
-    deactivate_demo()
-  })
-  
-  observeEvent(input$in_demo_mode, {
-        if(input$in_demo_mode == TRUE) {
-      msg <- "<p>You're currently requesting to turn on Demo Mode. Demo Mode
-      allows you to explore Eva using sample HMIS data, rather than having to
-      use your own HMIS CSV Export file."
-      if(length(input$imported) > 0) {
-        msg <- paste(msg, "<p>If you turn on Demo Mode now, your uploaded HMIS 
-        CSV Export data will be erased from Eva and replaced with the sample 
-        HMIS data. You will be able to re-upload your HMIS CSV 
-        Export file if you switch out of Demo Mode.</p>")
-      } else{
-        msg <- paste(msg, "You will still be able to upload your own HMIS CSV
-                     Export file when you turn off Demo Mode. ")
-      }
-      msg <- paste0(msg,
-                    "<p>Please select \"Continue\" to switch to Demo Mode</p>")
-      
-      
-      
-      showModal(
-        modalDialog(
-          HTML(msg),
-          title = "Turn on Demo Mode?",
-          footer = tagList(actionButton("continue_demo_btn", "Continue"),
-                           actionButton("stay_in_live", "Cancel"))
-        )
-      )
-      
-    } else {
-      showModal(
-        modalDialog(
-          HTML("<p>You're currently requesting to turn off Demo Mode. When Demo Mode
-          is off, the sample HMIS data will clear, and you will be able to
-          explore Eva by uploading your own hashed HMIS CSV Export file.
-          <p>Please select \"Continue\" to turn off Demo Mode."),
-          title = "Turn off Demo Mode?",
-          footer = tagList(actionButton("continue_live_btn", "Continue"),
-                           actionButton("stay_in_demo", "Cancel"))
-        )
-      )
-    }
-  }, ignoreInit = TRUE)
-  
   # Run scripts on upload ---------------------------------------------------
-  
-  observeEvent(input$imported, {
-    process_upload(input$imported$name, input$imported$datapath)
-  }, ignoreInit = TRUE)
-  
-  # "global" variables (NOT visible to multiple sessions)
-  validation <- reactiveVal()
-  CurrentLivingSituation <- reactiveVal()
-  Export <- reactiveVal()
-  Project0 <- reactiveVal()
-  Event <- reactiveVal()
-  meta_HUDCSV_Export_Start <- reactiveVal()
-  meta_HUDCSV_Export_End <- reactiveVal()
-  meta_HUDCSV_Export_Date <- reactiveVal()
-  overlaps <- reactiveVal()
-  base_dq_data_func <- reactiveVal()
-  dq_main_df <- reactiveVal()
-  pdde_main <- reactiveVal()
-  # source("05_DataQuality_functions.R", local = TRUE)
-  
   
   process_upload <- function(upload_filename, upload_filepath) {
     source("00_initially_valid_import.R", local = TRUE)
-    
+
     if(initially_valid_import() == 1) {
 
       hide('imported_progress')
@@ -355,16 +124,14 @@ function(input, output, session) {
         # we can edit those to capture all File Structure Analysis 
         # issues and then continue running to test
         if(isTRUE(getOption("shiny.testmode")) && 
-           upload_filename == "FY24-ICF-fsa-test.zip") {
+        upload_filename == "FY24-ICF-fsa-test.zip") {
           source("tests/update_test_good_fsa.R", local = TRUE)  
         }
         
         source("03_file_structure_analysis.R", local = TRUE)
-        # update_fsa()
+
         # if structural issues were not found, keep going
-        if (structural_issues == 0) {
-          valid_file(1)
-          
+        if (valid_file() == 1) {
           if(nrow(
             file_structure_analysis_main %>%
             filter(Issue == "Impermissible characters"))) {
@@ -380,7 +147,6 @@ function(input, output, session) {
           
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE)
-          # update_client_counts()
           
           # if we're in shiny testmode and the script has gotten here,
           # that means we're using the hashed-test-good file. 
@@ -413,7 +179,6 @@ function(input, output, session) {
           )
           
           logMetadata("Successful upload")
-          # rlang::env_coalesce(.GlobalEnv, environment())
           
           logToConsole("Updating inputs")
           
@@ -471,7 +236,12 @@ function(input, output, session) {
         }
       })
     }
-
+  }
+  
+  observeEvent(input$imported, {
+    process_upload(input$imported$name, input$imported$datapath)
+  }, ignoreInit = TRUE)
+  
   # File Structure Analysis Summary -----------------------------------------
   # update_fsa <- function() {
   output$fileStructureAnalysis <- DT::renderDataTable(
@@ -483,10 +253,10 @@ function(input, output, session) {
           # summarise(Count = n()) %>%
           # ungroup() %>%
           # arrange(Type, desc(Count))
-      exportTestValues(fileStructureAnalysis = a)
+      exportTestValues(fileStructureAnalysis = file_structure_analysis_main)
       
       datatable(
-        a,
+        file_structure_analysis_main,
         rownames = FALSE,
         filter = 'none',
         options = list(dom = 't', 
@@ -647,20 +417,6 @@ function(input, output, session) {
   
   source("client_counts_functions.R", local = TRUE)
   
-  # update_client_counts <- function() {
-  # the reason we split the Client Count header into two is for shinytest reasons
-  # this _supp renderUI needed to be associated with an output in order to make 
-  # the HTML <div> id the same each time. Without associating with an output, 
-  # the id changed each time and the shinytest would catch the difference and fail
-  output$headerClientCounts_supp <- renderUI({ 
-    req(nrow(Project0()) > 0)
-    organization <- Project0() %>%
-      filter(ProjectName == input$currentProviderList) %>%
-      pull(OrganizationName)
-    
-    h4(organization, "|", input$currentProviderList)
-  })
-  
   output$validate_plot <- renderPlot({
     req(valid_file() == 1)
     # browser()
@@ -789,7 +545,6 @@ function(input, output, session) {
   
   # PDDE Checker ------------------------------------------------------------
   # PDDE Download Button ----------------------------------------------------
-  # update_pdde_output <- function() {
   output$downloadPDDEReportButton  <- renderUI({
     req(valid_file() == 1)
     req(nrow(pdde_main()) > 0)
@@ -864,11 +619,9 @@ function(input, output, session) {
       options = list(dom = 'ltpi')
     )
   })
-  # }
   
   
   # DQ Org Summary -------------------------------------------------------
-  # update_dq_output <- function() {
   source("05_DataQuality_functions.R", local = TRUE)
   
   output$dq_organization_summary_table <- DT::renderDataTable({
@@ -971,7 +724,6 @@ function(input, output, session) {
     renderDQPlot("sys", "High Priority", "Org", "#71B4CB")
   })
   
-  
   output$systemDQHighPriorityErrorsByIssue_ui <- renderUI({
     renderDQPlot("sys", "High Priority", "Issue", "#71B4CB")
   })
@@ -999,7 +751,6 @@ function(input, output, session) {
   # By-issue shows issues, within the selected org, that are the most common 
   # of that type (HP errors/errors/warnings)
   output$orgDQHighPriorityErrorsByProject_ui <- renderUI({
-    browser()
     renderDQPlot("org", "High Priority", "Project", "#71B4CB")
   })
   
@@ -1022,7 +773,6 @@ function(input, output, session) {
   output$orgDQWarningsByIssue_ui <- renderUI({
     renderDQPlot("org", "Warning", "Issue", "#71B4CB")
   })
-  # }
   
   
   # output$headerUtilization <- renderUI({

@@ -481,8 +481,10 @@ file_structure_analysis_main <- rbind(
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
 
-if(file_structure_analysis_main %>% filter(Type == "High Priority") %>% nrow() > 0) {
-  structural_issues <- 1
+if(file_structure_analysis_main %>% 
+filter(Type == "High Priority") %>% 
+nrow() > 0) {
+  valid_file(0)
 } else{
-  structural_issues <- 0
+  valid_file(1)
 }
