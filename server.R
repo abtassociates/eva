@@ -31,7 +31,7 @@ function(input, output, session) {
   base_dq_data_func <- reactiveVal()
   dq_main_df <- reactiveVal()
   pdde_main <- reactiveVal()
-  valid_file <- reactiveVal() # from FSA. Most stuff is hidden unless valid == 1
+  valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
   file_structure_analysis_main <- reactiveVal()
   
   # set during initially valid processing stop. Rest of processing stops if invalid
