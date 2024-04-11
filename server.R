@@ -32,6 +32,7 @@ function(input, output, session) {
   dq_main_df <- reactiveVal()
   pdde_main <- reactiveVal()
   valid_file <- reactiveVal() # from FSA. Most stuff is hidden unless valid == 1
+  file_structure_analysis_main <- reactiveVal()
   
   # set during initially valid processing stop. Rest of processing stops if invalid
   # FSA is hidden unless initially_valid_import() == 1
@@ -133,7 +134,7 @@ function(input, output, session) {
         # if structural issues were not found, keep going
         if (valid_file() == 1) {
           if(nrow(
-            file_structure_analysis_main %>%
+            file_structure_analysis_main() %>%
             filter(Issue == "Impermissible characters"))) {
             showModal(
               modalDialog(
@@ -244,34 +245,32 @@ function(input, output, session) {
   
   # File Structure Analysis Summary -----------------------------------------
   # update_fsa <- function() {
-  output$fileStructureAnalysis <- DT::renderDataTable(
-    {
-      req(exists("file_structure_analysis_main"))
-      req(initially_valid_import() == 1)
-      a <- file_structure_analysis_main # %>%
-          # group_by(Type, Issue) %>%
-          # summarise(Count = n()) %>%
-          # ungroup() %>%
-          # arrange(Type, desc(Count))
-      exportTestValues(fileStructureAnalysis = file_structure_analysis_main)
-      
-      datatable(
-        file_structure_analysis_main,
-        rownames = FALSE,
-        filter = 'none',
-        options = list(dom = 't', 
-                       language = list(
-                         zeroRecords = "No file structure analysis issues! 
-                        Visit the other tabs to view the rest of Eva's output")
-        )
+  output$fileStructureAnalysis <- DT::renderDataTable({
+    req(nrow(file_structure_analysis_main()))
+    req(initially_valid_import() == 1)
+    a <- file_structure_analysis_main() # %>%
+        # group_by(Type, Issue) %>%
+        # summarise(Count = n()) %>%
+        # ungroup() %>%
+        # arrange(Type, desc(Count))
+    exportTestValues(fileStructureAnalysis = file_structure_analysis_main())
+    
+    datatable(
+      file_structure_analysis_main(),
+      rownames = FALSE,
+      filter = 'none',
+      options = list(dom = 't', 
+                     language = list(
+                       zeroRecords = "No file structure analysis issues! 
+                      Visit the other tabs to view the rest of Eva's output")
       )
-    })
+    )
+  })
   
   # File Structure Analysis Download ----------------------------------------
   
   output$downloadFileStructureAnalysisBtn <- renderUI({
-    req(exists("file_structure_analysis_main"))
-    req(nrow(file_structure_analysis_main) > 0)
+    req(nrow(file_structure_analysis_main()) > 0)
     downloadButton("downloadFileStructureAnalysis",
                    "Download Structure Analysis Detail")
   }) 
@@ -280,7 +279,7 @@ function(input, output, session) {
     filename = date_stamped_filename("File-Structure-Analysis-"),
     content = function(file) {
       write_xlsx(
-        file_structure_analysis_main %>%
+        file_structure_analysis_main() %>%
           arrange(Type, Issue) %>%
           nice_names(),
         path = file
@@ -289,7 +288,7 @@ function(input, output, session) {
       logMetadata(paste0("Downloaded File Structure Analysis Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(file_structure_analysis_main = file_structure_analysis_main)
+      exportTestValues(file_structure_analysis_main = file_structure_analysis_main())
     }
   )
   # }
