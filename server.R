@@ -929,8 +929,7 @@ function(input, output, session) {
   
   output$downloadOrgDQReportButton  <- renderUI({
     req(valid_file() == 1)
-    
-    req(nrow(dqDownloadInfo()$orgDQData) > 0)
+    req(length(dqDownloadInfo()$orgDQData) > 0)
     downloadButton(outputId = "downloadOrgDQReport",
                    label = "Download")
   })
@@ -939,7 +938,6 @@ function(input, output, session) {
     filename = reactive(date_stamped_filename(
       str_glue("{input$orgList} Data Quality Report-"))),
     content = function(file) {
-      browser()
       write_xlsx(dqDownloadInfo()$orgDQData, path = file)
       logMetadata(paste0("Downloaded Org-level DQ Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
@@ -951,7 +949,7 @@ function(input, output, session) {
   # button
   output$downloadSystemDQReportButton  <- renderUI({
     req(valid_file() == 1)
-    req(nrow(dqDownloadInfo()$systemDQData) > 0)
+    req(length(dqDownloadInfo()$systemDQData) > 0)
     downloadButton(outputId = "downloadSystemDQReport",
                    label = "Download") %>% withSpinner()
   })
