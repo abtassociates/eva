@@ -741,7 +741,40 @@ dashboardPage(
             ),
             width = 12
           )
-        )
+        ),
+        fluidRow(box(htmlOutput("headerSystemComposition"), width = 12)),
+        fluidRow(
+          box(
+            checkboxGroupInput(
+              "system_composition_filter",
+              label = "Gender, Race/Ethnicity, and Special Populations",
+              choices = c(
+                "Age", 
+                "Domestic Violence",
+                "Gender",
+                "Homelessness Type",
+                "Race/Ethnicity",
+                "Veteran Status"
+              ),
+              inline = TRUE
+            ),
+          )
+        ),
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Summary",
+            title = "Composition of All Served in Period",
+            tabPanel("Instructions", 
+                     uiOutput("system_activity_instructions_ui")
+            ),
+            tabPanel("Summary", 
+                     uiOutput("sys_comp_summary_filter_selections"),
+                     plotOutput("sys_comp_summary_ui_chart", height=600)
+            ),
+            width = 12
+          )
+        ),
       ),
       tabItem(
         tabName = "systemExitDetail",

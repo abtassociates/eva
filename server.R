@@ -797,6 +797,10 @@ function(input, output, session) {
     logMetadata("Session Ended")
   })
   
+  output$sys_comp_summary_ui_chart <- renderUI({
+    
+  })
+    
   
   # output$cocDQErrors <- renderPlot(dq_plot_projects_errors)
   # 
