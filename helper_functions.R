@@ -334,8 +334,8 @@ no_cols_selected_except <- function(df, l, e) {
 }
 
 any_cols_selected_except <- function(df, l, e) {
-  rowSums(df[, l] == 1, na.rm = TRUE) > 0 & 
-  rowSums(df[, e] == 1, na.rm = TRUE) == 0
+  rowSums(df[l] == 1, na.rm = TRUE) > 0 & 
+  rowSums(df[e] == 1, na.rm = TRUE) == 0
 }
 
 # for a set of 1/0, or checkbox, variables, check whether at least 
