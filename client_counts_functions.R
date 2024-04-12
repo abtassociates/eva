@@ -166,7 +166,7 @@ get_clientcount_download_info <- function(file) {
         TRUE ~ `Exited project`
       )
     ) %>%
-    # relocate(`Exited Project`, .after=`Currently Moved In`) %>%
+    relocate(`Exited Project`, .after=`Currently Moved In`) %>%
     select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
   
