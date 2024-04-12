@@ -161,21 +161,19 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
 
 syso_gender_incl <- c(
-  "All Genders" = 1,
-  "Gender Expansive, including transgender" = 2,
-  "Man (Boy, if child) alone or in combination" = 3,
-  "Non-Binary alone or in combination" = 4,
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = 5,
-  "Woman (Girl, if child) alone or in combination" = 6
+  "Gender Expansive, including transgender" = 1,
+  "Man (Boy, if child) alone or in combination" = 2,
+  "Non-Binary alone or in combination" = 3,
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = 4,
+  "Woman (Girl, if child) alone or in combination" = 5
 )
 
 syso_gender_excl <- c(
-  "All Genders" = 1,
-  "Gender Expansive, not including transgender" = 2,
-  "Man (Boy, if child) alone" = 3,
-  "Transgender, alone or in combination" = 4,
-  "Woman (Girl, if child) alone" = 5,
-  "Unknown" = 6
+  "Gender Expansive, not including transgender" = 1,
+  "Man (Boy, if child) alone" = 2,
+  "Transgender, alone or in combination" = 3,
+  "Woman (Girl, if child) alone" = 4,
+  "Unknown" = 5
 )
 
 syso_age_cats <- c(
@@ -191,7 +189,6 @@ syso_age_cats <- c(
   "75 and older" = 10)
 
 syso_race_ethnicity_incl <- list(
-  "Group 0" = c("All Races/Ethnicities" = 0),
   "Group 1" = c("American Indian, Alaska Native, or Indigenous Inclusive" = 1,
                 "Asian or Asian American Inclusive" = 2,
                 "Black, African American, or African Inclusive" = 3,
@@ -205,7 +202,6 @@ syso_race_ethnicity_incl <- list(
 )
 
 syso_race_ethnicity_excl <- list(
-  "Group 0" = c("All Races/Ethnicities" = 0),
   "Group 1" = c("American Indian, Alaska Native, or Indigenous Alone" = 1,
                 "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" = 2,
                 "Asian or Asian American Alone" = 3,

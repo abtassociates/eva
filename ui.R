@@ -709,15 +709,27 @@ dashboardPage(
               inputId = "syso_gender",
               choices = syso_gender_incl,
               width = "100%",
-              selected = syso_gender_incl[1],
-              multiple = TRUE
+              selected = syso_gender_incl,
+              multiple = TRUE,
+              options = pickerOptions(
+                actionsBox = TRUE,
+                selectedTextFormat = paste("count >", length(syso_gender_incl)-1),
+                countSelectedText = "All Genders",
+                noneSelectedText = "All Genders" 
+              )
             )),
             column(6, pickerInput(
               label = "Race/Ethnicity",
               inputId = "syso_race_ethnicity",
               choices = syso_race_ethnicity_incl,
               width = "100%",
-              selected = syso_race_ethnicity_incl[1]
+              selected = syso_race_ethnicity_incl,
+              options = pickerOptions(
+                actionsBox = TRUE,
+                selectedTextFormat = paste("count >", length(syso_race_ethnicity_incl)-1),
+                countSelectedText = "All Races/Ethnicities",
+                noneSelectedText = "All Races/Ethnicities" 
+              )
             ))
           )
         ),

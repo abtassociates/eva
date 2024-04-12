@@ -751,12 +751,26 @@ function(input, output, session) {
       updatePickerInput(
         session, 
         "syso_gender", 
-        choices = syso_gender_cats())
+        choices = syso_gender_cats(),
+        options = pickerOptions(
+          actionsBox = TRUE,
+          selectedTextFormat = paste("count >", length(syso_gender_cats())-1),
+          countSelectedText = "All Genders",
+          noneSelectedText = "All Genders" 
+        )
+        )
       # selected = syso_gender_cats()[1]
       updatePickerInput(
         session, 
         "syso_race_ethnicity", 
-        choices = syso_race_ethnicity_cats())
+        choices = syso_race_ethnicity_cats(),
+        options = pickerOptions(
+          actionsBox = TRUE,
+          selectedTextFormat = paste("count >", length(syso_race_ethnicity_cats())-1),
+          countSelectedText = "All Races/Ethnicities",
+          noneSelectedText = "All Races/Ethnicities" 
+        )
+      )
       # selected = syso_race_ethnicity_cats())
     })
     
