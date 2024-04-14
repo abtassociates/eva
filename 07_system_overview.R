@@ -316,11 +316,13 @@ system_df_people_filtered <- reactive({
   
   clients_in_report_date_range <- system_df_enrl_filtered() %>%
     filter(in_date_range == TRUE) %>%
-    pull(PersonalID) %>% unique()
+    select(PersonalID) %>% 
+    unique()
+  
   # browser()
   system_df_client_flags %>%
+    left_join(clients_in_report_date_range, join_by(PersonalID)) %>%
     filter(
-      PersonalID %in% c(clients_in_report_date_range) &
       # Age
       (
         setequal(syso_age_cats, input$syso_age) |
