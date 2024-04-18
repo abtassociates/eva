@@ -347,8 +347,8 @@ sys_comp_plot <- function(vars) {
     theme(legend.position = "none",
           axis.ticks = element_blank(),
           panel.grid = element_blank(),
-          axis.title.x = element_blank(),
-          axis.title.y = element_blank(),
-          axis.text = element_text(size = 12))
+          axis.title.x = element_text(v1),
+          axis.title.y = element_text(v2),
+          axis.text = element_text(size = 13))
   )
 }
