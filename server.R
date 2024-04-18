@@ -754,13 +754,14 @@ function(input, output, session) {
         session, 
         "syso_gender", 
         choices = syso_gender_cats(),
+        selected = all_of(syso_gender_cats()),
         options = pickerOptions(
           actionsBox = TRUE,
           selectedTextFormat = paste("count >", length(syso_gender_cats())-1),
           countSelectedText = "All Genders",
           noneSelectedText = "All Genders" 
         )
-        )
+      )
       # selected = syso_gender_cats()[1]
       updatePickerInput(
         session, 
