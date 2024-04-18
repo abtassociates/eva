@@ -318,8 +318,7 @@ system_df_people_filtered <- reactive({
     filter(in_date_range == TRUE) %>%
     select(PersonalID) %>% 
     unique()
-  
-  # browser()
+
   system_df_client_flags %>%
     left_join(clients_in_report_date_range, join_by(PersonalID)) %>%
     filter(
