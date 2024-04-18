@@ -808,8 +808,8 @@ function(input, output, session) {
     
     # System Composition ------------------------------------
     observe({
-      if(length(input$system_composition_filter) > 3){
-        updateCheckboxGroupInput(
+      if(length(input$system_composition_filter) > 2){
+        updateCheckboxGroupButtons(
           session, 
           "system_composition_filter", 
           selected = tail(input$system_composition_filter,2))
