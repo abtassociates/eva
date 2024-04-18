@@ -1,8 +1,6 @@
 
 function(input, output, session) {
   #record_heatmap(target = ".wrapper")
-  # track_usage(storage_mode = store_json(path = "logs/"))
-  # Log the event to a database or file
   # used throughout the app
   source("helper_functions.R", local = TRUE) # calling in HMIS-related functions
   # that aren't in the HMIS pkg
@@ -808,14 +806,44 @@ function(input, output, session) {
     renderSystemPlot("sys_act_summary_ui_chart")
     renderSystemPlot("sys_act_detail_ui_chart")
     
+    # System Composition ------------------------------------
+    observe({
+      if(length(input$system_composition_filter) > 3){
+        updateCheckboxGroupInput(
+          session, 
+          "system_composition_filter", 
+          selected = tail(input$system_composition_filter,2))
+      }
+    })
+    
+    output$sys_comp_summary_filter_selections <- renderUI({
+      list(
+        strong("Date Range: "),
+        input$syso_date_range[1],
+        " to ",
+        input$syso_date_range[2], 
+        br(),
+        strong("Household Type: "),
+        getNameByValue(syso_hh_types, input$syso_hh_type),
+        " | ",
+        strong("Level of Detail: "),
+        getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
+        " | ",
+        strong("Project Types: "),
+        getNameByValue(syso_project_types, input$syso_project_types),
+        br(),
+        strong("Methodology Type: "),
+        getNameByValue(syso_methodology_types, input$methodology_type) 
+      )
+    })
+    
+    output$sys_comp_summary_ui_chart <- renderPlot({
+      sys_comp_plot(input$system_composition_filter)
+    })
   }, ignoreInit = TRUE)
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")
-  })
-  
-  output$sys_comp_summary_ui_chart <- renderUI({
-    
   })
     
   
