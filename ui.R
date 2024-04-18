@@ -744,12 +744,12 @@ dashboardPage(
             tabPanel("Detail", 
               uiOutput("sys_act_detail_filter_selections"),
               uiOutput("sys_act_detail_chart_subheader"),
-              plotOutput("sys_act_detail_ui_chart", height=600)
+              plotOutput("sys_act_detail_ui_chart")
             ),
             tabPanel("Summary", 
               uiOutput("sys_act_summary_filter_selections"),
               uiOutput("sys_act_summary_chart_subheader"),
-              plotOutput("sys_act_summary_ui_chart", height=600)
+              plotOutput("sys_act_summary_ui_chart")
             ),
             width = 12
           )
@@ -763,9 +763,12 @@ dashboardPage(
         ),
         fluidRow(
           box(
-            checkboxGroupInput(
+            checkboxGroupButtons(
               "system_composition_filter",
-              label = "Gender, Race/Ethnicity, and Special Populations",
+              label = paste0(
+                "Gender, Race/Ethnicity, and Special Populations",
+                "(select up to 2)"
+              ),
               choices = c(
                 "Age", 
                 "Domestic Violence",
@@ -774,7 +777,7 @@ dashboardPage(
                 "Race/Ethnicity",
                 "Veteran Status"
               ),
-              inline = TRUE
+              individual = TRUE
             ),
             width = 12
           )
