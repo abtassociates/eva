@@ -754,7 +754,13 @@ dashboardPage(
             width = 12
           )
         ),
-        fluidRow(box(htmlOutput("headerSystemComposition"), width = 12)),
+        fluidRow(
+          box(
+            id = "syso_header",
+            "System Composition",
+            width = 12
+          )
+        ),
         fluidRow(
           box(
             checkboxGroupInput(
@@ -770,6 +776,7 @@ dashboardPage(
               ),
               inline = TRUE
             ),
+            width = 12
           )
         ),
         fluidRow(
@@ -778,7 +785,7 @@ dashboardPage(
             selected = "Summary",
             title = "Composition of All Served in Period",
             tabPanel("Instructions", 
-                     uiOutput("system_activity_instructions_ui")
+                     p("Some instructions")
             ),
             tabPanel("Summary", 
                      uiOutput("sys_comp_summary_filter_selections"),
@@ -797,7 +804,7 @@ dashboardPage(
             HTML("<h2>Placeholder</h2>")
           )
         )
-      ), 
+      ),
       tabItem(
         tabName = "tabPDDE",
         fluidRow(box(htmlOutput(
