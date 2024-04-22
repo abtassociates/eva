@@ -519,6 +519,7 @@ syso_spec_pops_cats <- reactive({
 system_df_people_universe_filtered <- reactive({
   system_df_enrl_filtered() %>%
     filter(in_date_range == TRUE) %>%
+    select(-MostRecentAgeAtEntry) %>%
     left_join(system_df_client_flags(), join_by(PersonalID))
 })
 system_df_people_syso_filtered <- reactive({
