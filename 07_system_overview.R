@@ -227,7 +227,7 @@ system_df_client_flags <- reactive({
         ~ syso_gender_incl["Woman (Girl, if child) alone or in combination"]
       ),
       
-      RaceEthnicity = case_when(
+      AllRaceEthnicity = case_when(
         # Exclusive
         # American Indian, Alaska Native, or Indigenous Alone" = 1,
         input$methodology_type == 1 & 
@@ -308,17 +308,6 @@ system_df_client_flags <- reactive({
           min_cols_selected_except(., race_cols, "RaceNone", 2)
         ~ syso_race_ethnicity_excl[["Group 1"]][15],
         
-        # All People of Color" = 16,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, c("AmIndAKNative",
-                                                  "HispanicLatinaeo"))
-        ~ syso_race_ethnicity_excl[["Group 2"]][16],
-        
-        # White Only" = 17
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, "White")
-        ~ syso_race_ethnicity_excl[["Group 2"]][17],
-        
         # Inclusive
         #American Indian, Alaska Native, or Indigenous Inclusive" = 1,
         input$methodology_type == 2 & AmIndAKNative == 1
@@ -346,7 +335,20 @@ system_df_client_flags <- reactive({
         
         # White Inclusive" = 7),
         input$methodology_type == 2 & White == 1
-        ~ syso_race_ethnicity_incl[["Group 1"]][7],
+        ~ syso_race_ethnicity_incl[["Group 1"]][7]
+        
+      ),
+      GroupedRaceEthnicity = case_when(
+        # All People of Color" = 16,
+        input$methodology_type == 1 & 
+          no_cols_selected_except(., race_cols, c("AmIndAKNative",
+                                                  "HispanicLatinaeo"))
+        ~ syso_race_ethnicity_excl[["Group 2"]][16],
+        
+        # White Only" = 17
+        input$methodology_type == 1 & 
+          no_cols_selected_except(., race_cols, "White")
+        ~ syso_race_ethnicity_excl[["Group 2"]][17],
         
         # Black, African American or African and Hispanic/Latina/e/o Inclusive" = 8,
         input$methodology_type == 2 & (BlackAfAmerican == 1 | HispanicLatinaeo == 1)
@@ -548,7 +550,8 @@ system_df_people_syso_filtered <- reactive({
             Gender %in% input$syso_gender
         ) |
         # Race/Ethnicity
-        RaceEthnicity %in% input$syso_race_ethnicity
+        AllRaceEthnicity %in% input$syso_race_ethnicity | 
+        GroupedRaceEthnicity %in% input$syso_race_ethnicity
     ) %>%
     select(PersonalID) %>% 
     unique()
