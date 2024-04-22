@@ -1,62 +1,96 @@
-syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
-names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
-                                     names(syso_race_ethnicities))
+syso_race_ethnicities_all <- unlist(syso_race_ethnicity_cats()["Group 1"])
+names(syso_race_ethnicities_all) <- gsub("Group [0-9]+\\.", "",
+                                     names(syso_race_ethnicities_all))
+
+syso_race_ethnicities_grouped <- unlist(syso_race_ethnicity_cats()["Group 2"])
+names(syso_race_ethnicities_grouped) <- gsub("Group [0-9]+\\.", "",
+                                         names(syso_race_ethnicities_grouped))
+
+
+sys_comp_filter_choices <- reactive({
+  ifelse(
+    input$methodology_type == 1,
+    list(sys_comp_filter_choices1),
+    list(sys_comp_filter_choices2)
+  )[[1]]
+})
 
 get_v_cats <- function(v) {
   return(
     switch(v,
       "Gender" = syso_gender_cats(), 
       "Age" = syso_age_cats, 
-      "RaceEthnicity" = syso_race_ethnicities, 
+      "All Races/Ethnicities" = syso_race_ethnicities_all, 
+      "Grouped Races/Ethnicities" = syso_race_ethnicities_grouped, 
     )
   )
 }
 
-get_sys_comp_plot_df <- function(vars) {
-  cats <- lapply(vars, get_v_cats)
-  names(cats) <- vars
+get_sys_comp_plot_df <- function(varnames) {
+  cats <- lapply(varnames, get_v_cats)
+  names(cats) <- varnames
+
+  var_cols <- sapply(varnames, get_sys_comp_var)
   
   return(
     system_df_people_universe_filtered() %>%
-      select(PersonalID, Age, Gender, RaceEthnicity, VeteranStatus) %>%
-      count(!!!syms(vars)) %>%
+      select(PersonalID, var_cols) %>%
+      count(!!!syms(varnames)) %>%
       filter(n > 10) %>%
       mutate(pct = prop.table(n)) %>%
       right_join(
         do.call(expand.grid, cats),
-        by = vars
+        by = varnames
       )
+  )
+}
+
+get_sys_comp_var <- function(v) {
+  return(
+    switch(v,
+           "All Races/Ethnicities" = "AllRaceEthnicity", 
+           "Grouped Races/Ethnicities" = "GroupedRaceEthnicity",
+           v
+    )
   )
 }
 
 sys_comp_plot <- function(vars) {
   req(length(vars) == 2)
   
-  # remove the / from Race/Ethnicity, since the varname is RaceEthnicity
-  vars <- str_remove(vars, "/")
-  v1 <- vars[1]
-  v2 <- vars[2]
+  # race/ethnicity should always be on the row
+  if(vars[1] == "All Races/Ethnicities" |  
+     vars[1] == "Grouped Races/Ethnicities") {
+    x <- vars[1]
+    vars[2] <- vars[1]
+    vars[1] <- x
+  }
   
-  cats <- lapply(vars, get_v_cats)
+  cats1 <- get_v_cats(vars[1])
+  cats2 <- get_v_cats(vars[2])
   
   plot_df <- get_sys_comp_plot_df(vars)
-  plot_df[[v1]] <- factor(plot_df[[v1]], levels = cats[[1]])
-  plot_df[[v2]] <- factor(plot_df[[v2]], levels = cats[[2]])
+  
+  if(all(is.na(plot_df$n))) return()
+  
+  plot_df[vars[1]] <- factor(plot_df[[vars[1]]])
+  plot_df[vars[2]] <- factor(plot_df[[vars[2]]])
   
   h_total <- plot_df %>% 
-    group_by(!!!syms(v2)) %>% 
+    group_by(!!!syms(vars[2])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
-    mutate(!!v1 := 'Total')
+    mutate(!!vars[1] := 'Total')
   
   v_total <- plot_df %>% 
-    group_by(!!!syms(v1)) %>% 
+    group_by(!!!syms(vars[1])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
-    mutate(!!v2 := 'Total')
+    mutate(!!vars[2] := 'Total')
 
+  
   font_size <- 10/.pt
   
   return(
-    ggplot(plot_df, aes(.data[[v1]], .data[[v2]])) +   
+    ggplot(plot_df, aes(.data[[vars[1]]], .data[[vars[2]]])) +
     # main data into cells for each cross-combination
     geom_tile(
       color = 'white',
@@ -129,13 +163,13 @@ sys_comp_plot <- function(vars) {
       
     # axis labels
     scale_x_discrete(
-      labels = str_wrap(c(names(cats[[1]]), "Total"), width=20),
-      limits = c(levels(plot_df[[v1]]), "Total"),
+      labels = str_wrap(c(names(cats1), "Total"), width=20),
+      limits = c(levels(plot_df[[vars[1]]]), "Total"),
       position = "top"
     ) +
     scale_y_discrete(
-      labels = str_wrap(c("Total", names(cats[[2]])), width=30),
-      limits = c("Total", rev(levels(plot_df[[v2]])))
+      labels = str_wrap(c("Total", names(cats2)), width=30),
+      limits = c("Total", rev(levels(plot_df[[vars[2]]])))
     ) +
       
     # other stuff
@@ -143,8 +177,8 @@ sys_comp_plot <- function(vars) {
     theme(legend.position = "none",
           axis.ticks = element_blank(),
           panel.grid = element_blank(),
-          axis.title.x = element_text(v1),
-          axis.title.y = element_text(v2),
+          axis.title.x = element_text(vars[1]),
+          axis.title.y = element_text(vars[2]),
           axis.text = element_text(size = 13))
   )
 }
