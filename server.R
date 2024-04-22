@@ -772,7 +772,12 @@ function(input, output, session) {
           noneSelectedText = "All Races/Ethnicities" 
         )
       )
-      # selected = syso_race_ethnicity_cats())
+      
+      updateCheckboxGroupButtons(
+        session, 
+        "system_composition_filter", 
+        choices = sys_comp_filter_choices()
+      )
     })
     
     observeEvent(input$syso_level_of_detail, {
