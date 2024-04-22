@@ -812,13 +812,25 @@ function(input, output, session) {
     renderSystemPlot("sys_act_detail_ui_chart")
     
     # System Composition ------------------------------------
-    observe({
+    observeEvent(input$system_composition_filter, {
+      # they can select up to 2
       if(length(input$system_composition_filter) > 2){
         updateCheckboxGroupButtons(
           session, 
           "system_composition_filter", 
           selected = tail(input$system_composition_filter,2))
-      }
+      } 
+
+      # they cannot select both Race/Ethnicity buttons
+      if("All Races/Ethnicities" %in% input$system_composition_filter & (
+          "Hispanic-Focused Races/Ethnicities" %in% input$system_composition_filter |
+          "Grouped Races/Ethnicities" %in% input$system_composition_filter)
+        ) {
+        updateCheckboxGroupButtons(
+          session, 
+          "system_composition_filter", 
+          selected = tail(input$system_composition_filter,1))
+      } 
     })
     
     output$sys_comp_summary_filter_selections <- renderUI({
