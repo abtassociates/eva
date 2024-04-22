@@ -769,14 +769,7 @@ dashboardPage(
                 "Gender, Race/Ethnicity, and Special Populations",
                 "(select up to 2)"
               ),
-              choices = c(
-                "Age", 
-                "Domestic Violence",
-                "Gender",
-                "Homelessness Type",
-                "Race/Ethnicity",
-                "Veteran Status"
-              ),
+              choices = sys_comp_filter_choices1,
               individual = TRUE
             ),
             width = 12
