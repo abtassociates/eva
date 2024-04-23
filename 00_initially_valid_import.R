@@ -23,6 +23,7 @@ show_invalid_popup <- function(issueID) {
 
 # function to check if the file is hashed
 is_hashed <- function() {
+
   # read Client file
   Client <- importFile(upload_filepath, "Client")
   
@@ -52,7 +53,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   show_invalid_popup(127)
   logMetadata("Unsuccessful upload - zip file not .zip")
 } else {
-  zipContents <- utils::unzip(zipfile = upload_filepath, list=TRUE)
+  zipContents <- utils::unzip(zipfile = upload_filepath, list = TRUE)
     
   zipFiles <- zipContents$Name %>% str_replace(".csv", "")
     
