@@ -128,7 +128,7 @@ activate_demo <- function() {
 }
 
 deactivate_demo <- function() {
-  browser()
+  
   capture.output("Switching to live mode")
   
   updateTabItems(session, "sidebarmenuid", "tabUpload")
