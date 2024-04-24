@@ -80,6 +80,7 @@
         "0.zip"
       ]
     },
+    "isdemo": false,
     "orgList": "Organization A",
     "sidebarCollapsed": false,
     "sidebarItemExpanded": null,
@@ -87,28 +88,15 @@
   },
   "output": {
     "downloadFileStructureAnalysisBtn": {
-      "html": "<a id=\"downloadFileStructureAnalysis\" class=\"btn btn-default shiny-download-link \" href=\"\" target=\"_blank\" download>\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Structure Analysis Detail\n<\/a>",
-      "deps": [
-        {
-          "name": "font-awesome",
-          "version": "6.4.2",
-          "src": {
-            "href": "font-awesome-6.4.2"
-          },
-          "meta": null,
-          "script": null,
-          "stylesheet": [
-            "css/all.min.css",
-            "css/v4-shims.min.css"
-          ],
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        }
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
       ]
     },
     "fileInfo": {
-      "html": "<p>You have successfully uploaded your hashed HMIS CSV Export!<\/p>",
+      "html": "<p id='successful_upload'>You have successfully uploaded your hashed\n           HMIS CSV Export!<\/p>",
       "deps": [
 
       ]
@@ -121,7 +109,7 @@
         "options": {
           "dom": "t",
           "language": {
-            "zeroRecords": "No file structure analysis issues! \n                        Visit the other tabs to view the rest of Eva's output"
+            "zeroRecords": "No file structure analysis issues! \n                      Visit the other tabs to view the rest of Eva's output"
           },
           "columnDefs": [
             {
@@ -209,17 +197,6 @@
   },
   "export": {
     "fileStructureAnalysis": {
-      "Type": [
-
-      ],
-      "Issue": [
-
-      ],
-      "Count": [
-
-      ]
-    },
-    "file_structure_analysis_main": {
       "Issue": [
 
       ],
