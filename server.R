@@ -833,26 +833,7 @@ function(input, output, session) {
       } 
     })
     
-    output$sys_comp_summary_filter_selections <- renderUI({
-      list(
-        strong("Date Range: "),
-        input$syso_date_range[1],
-        " to ",
-        input$syso_date_range[2], 
-        br(),
-        strong("Household Type: "),
-        getNameByValue(syso_hh_types, input$syso_hh_type),
-        " | ",
-        strong("Level of Detail: "),
-        getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
-        " | ",
-        strong("Project Types: "),
-        getNameByValue(syso_project_types, input$syso_project_types),
-        br(),
-        strong("Methodology Type: "),
-        getNameByValue(syso_methodology_types, input$methodology_type) 
-      )
-    })
+    output$sys_comp_summary_filter_selections <- renderUI({sys_comp_filters()})
     
     output$sys_comp_summary_ui_chart <- renderPlot({
       sys_comp_plot(input$system_composition_filter)

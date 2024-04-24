@@ -112,7 +112,13 @@ system_df_enrl_flags <- system_df_prep %>%
     lh_at_entry = lh_prior_livingsituation == TRUE |
       ProjectType %in% lh_project_types,
     EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
-      lh_prior_livingsituation == TRUE
+      lh_prior_livingsituation == TRUE,
+    
+    # Domestic Violence - this is needed for the System Composition chart
+    DomesticViolence = case_when(
+      DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 0 ~ syso_spec_pops_people[2],
+      DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1 ~ syso_spec_pops_people[3],
+    )
   ) %>%
   select(
     EnrollmentID, 
@@ -133,7 +139,10 @@ system_df_enrl_flags <- system_df_prep %>%
     EnrollmentDateRange,
     AgeAtEntry,
     MostRecentAgeAtEntry,
-    CorrectedHoH
+    CorrectedHoH,
+    DomesticViolence,
+    CurrentlyFleeing,
+    DomesticViolenceSurvivor
   ) %>%
   group_by(HouseholdID) %>%
   mutate(
@@ -362,7 +371,7 @@ system_df_client_flags <- reactive({
         input$methodology_type == 2 &
           no_cols_selected_except(., race_cols, "HispanicLatinaeo")
         ~ syso_race_ethnicity_incl[["Group 2"]][10],
-      )
+      ),
     )
 })
 
@@ -531,28 +540,33 @@ system_df_people_syso_filtered <- reactive({
           is.null(input$syso_age) |
           Age %in% input$syso_age
       ) &
-        # Special Populations
-        (
-          input$syso_spec_pops == 1 # no special populations (all)
-          
-          # # People
-          # input$syso_level_of_detail %in% c(1,2) & (
-          #   input$syso_spec_pops == 2 & TRUE
-          # ) |
-          # # Households
-          # !(input$syso_level_of_detail %in% c(1,2)) & (
-          #   input$syso_spec_pops == 2 & TRUE
-          # )
-        ) &
-        # Gender
-        (
-          setequal(syso_gender_cats(), input$syso_gender) |
-            is.null(input$syso_gender) |
-            Gender %in% input$syso_gender
-        ) |
-        # Race/Ethnicity
+      # Special Populations
+      (
+        input$syso_spec_pops == 1 | # no special populations (all)
+        
+        # # People
+        # input$syso_level_of_detail %in% c(1,2) & (
+        #   input$syso_spec_pops == 2 & TRUE
+        # ) |
+        # # Households
+        # !(input$syso_level_of_detail %in% c(1,2)) & (
+        #   input$syso_spec_pops == 2 & TRUE
+        # )
+        (input$syso_spec_pops == 2 & DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 0) |
+        (input$syso_spec_pops == 3 & DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1) |
+        (input$syso_spec_pops == 4 & DomesticViolenceSurvivor == 1)
+      ) &
+      # Gender
+      (
+        setequal(syso_gender_cats(), input$syso_gender) |
+          is.null(input$syso_gender) |
+          Gender %in% input$syso_gender
+      ) &
+      # Race/Ethnicity
+      (
         AllRaceEthnicity %in% input$syso_race_ethnicity | 
-        GroupedRaceEthnicity %in% input$syso_race_ethnicity
+        GroupedRaceEthnicity %in% input$syso_race_ethnicity 
+      )
     ) %>%
     select(PersonalID) %>% 
     unique()

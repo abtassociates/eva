@@ -22,6 +22,7 @@ get_v_cats <- function(v) {
       "Age" = syso_age_cats, 
       "All Races/Ethnicities" = syso_race_ethnicities_all, 
       "Grouped Races/Ethnicities" = syso_race_ethnicities_grouped, 
+      "Domestic Violence" = syso_spec_pops_people[2:3]
     )
   )
 }
@@ -50,7 +51,34 @@ get_sys_comp_var <- function(v) {
     switch(v,
            "All Races/Ethnicities" = "AllRaceEthnicity", 
            "Grouped Races/Ethnicities" = "GroupedRaceEthnicity",
+           "Domestic Violence" = "DomesticViolence",
            v
+    )
+  )
+}
+
+sys_comp_filters <- function(session) {
+  return(
+    list(
+      strong("Date Range: "),
+      input$syso_date_range[1],
+      " to ",
+      input$syso_date_range[2], 
+      br(),
+      strong("Household Type: "),
+      getNameByValue(syso_hh_types, input$syso_hh_type),
+      " | ",
+      strong("Level of Detail: "),
+      getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
+      " | ",
+      strong("Project Types: "),
+      getNameByValue(syso_project_types, input$syso_project_types),
+      br(),
+      strong("Filter Selections: "),
+      paste(input$system_composition_filter, collapse=" and "),
+      br(),
+      strong("Methodology Type: "),
+      getNameByValue(syso_methodology_types, input$methodology_type) 
     )
   )
 }
