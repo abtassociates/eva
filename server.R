@@ -248,15 +248,16 @@ function(input, output, session) {
   output$fileStructureAnalysis <- DT::renderDataTable({
     req(nrow(file_structure_analysis_main()))
     req(initially_valid_import() == 1)
-    a <- file_structure_analysis_main() # %>%
-        # group_by(Type, Issue) %>%
-        # summarise(Count = n()) %>%
-        # ungroup() %>%
-        # arrange(Type, desc(Count))
-    exportTestValues(fileStructureAnalysis = file_structure_analysis_main())
+    a <- file_structure_analysis_main() %>%
+      group_by(Type, Issue) %>%
+      summarise(Count = n()) %>%
+      ungroup() %>%
+      arrange(Type, desc(Count))
     
+    exportTestValues(fileStructureAnalysis = file_structure_analysis_main())
+
     datatable(
-      file_structure_analysis_main(),
+      a,
       rownames = FALSE,
       filter = 'none',
       options = list(dom = 't', 
