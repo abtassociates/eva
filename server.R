@@ -773,10 +773,11 @@ function(input, output, session) {
         )
       )
       
-      updateCheckboxGroupButtons(
+      updateCheckboxGroupInput(
         session, 
         "system_composition_filter", 
-        choices = sys_comp_filter_choices()
+        choices = sys_comp_filter_choices(),
+        inline = TRUE
       )
     })
     
@@ -815,10 +816,11 @@ function(input, output, session) {
     observeEvent(input$system_composition_filter, {
       # they can select up to 2
       if(length(input$system_composition_filter) > 2){
-        updateCheckboxGroupButtons(
+        updateCheckboxGroupInput(
           session, 
           "system_composition_filter", 
-          selected = tail(input$system_composition_filter,2))
+          selected = tail(input$system_composition_filter,2),
+          inline = TRUE)
       } 
 
       # they cannot select both Race/Ethnicity buttons
@@ -826,17 +828,31 @@ function(input, output, session) {
           "Hispanic-Focused Races/Ethnicities" %in% input$system_composition_filter |
           "Grouped Races/Ethnicities" %in% input$system_composition_filter)
         ) {
-        updateCheckboxGroupButtons(
+        updateCheckboxGroupInput(
           session, 
           "system_composition_filter", 
-          selected = tail(input$system_composition_filter,1))
+          selected = tail(input$system_composition_filter,1),
+          inline = TRUE)
       } 
     })
     
     output$sys_comp_summary_filter_selections <- renderUI({sys_comp_filters()})
     
-    output$sys_comp_summary_ui_chart <- renderPlot({
+    sys_comp_p <- reactive({
+      req(!is.null(input$system_composition_filter))
       sys_comp_plot(input$system_composition_filter)
+    })
+    
+    output$sys_comp_summary_ui_chart <- renderPlot({
+      validate(
+        need(
+          any(!is.na(sys_comp_p()$data$n)), 
+          message = paste0("No data to show.")
+        )
+      )
+      sys_comp_p()
+    }, height = function() { 
+      if_else(length(input$system_composition_filter) == 2, 600, 100) 
     })
   }, ignoreInit = TRUE)
   
