@@ -763,14 +763,14 @@ dashboardPage(
         ),
         fluidRow(
           box(
-            checkboxGroupButtons(
+            checkboxGroupInput(
               "system_composition_filter",
               label = paste0(
                 "Gender, Race/Ethnicity, and Special Populations",
                 "(select up to 2)"
               ),
               choices = sys_comp_filter_choices1,
-              individual = TRUE
+              inline = TRUE
             ),
             width = 12
           )
@@ -785,7 +785,7 @@ dashboardPage(
             ),
             tabPanel("Summary", 
                      uiOutput("sys_comp_summary_filter_selections"),
-                     plotOutput("sys_comp_summary_ui_chart", height=600)
+                     plotOutput("sys_comp_summary_ui_chart")
             ),
             width = 12
           )
