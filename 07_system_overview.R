@@ -175,8 +175,8 @@ system_df_client_flags <- reactive({
       Age = case_when(
         MostRecentAgeAtEntry >= 0 & MostRecentAgeAtEntry <= 12 ~ syso_age_cats["0 to 12"],
         MostRecentAgeAtEntry >= 13 & MostRecentAgeAtEntry <= 17 ~ syso_age_cats["13 to 17"],
-        MostRecentAgeAtEntry >= 18 & MostRecentAgeAtEntry <= 20 ~ syso_age_cats["18 to 20"],
-        MostRecentAgeAtEntry >= 21 & MostRecentAgeAtEntry <= 24 ~ syso_age_cats["21 to 24"],
+        MostRecentAgeAtEntry >= 18 & MostRecentAgeAtEntry <= 21 ~ syso_age_cats["18 to 21"],
+        MostRecentAgeAtEntry >= 22 & MostRecentAgeAtEntry <= 24 ~ syso_age_cats["22 to 24"],
         MostRecentAgeAtEntry >= 25 & MostRecentAgeAtEntry <= 34 ~ syso_age_cats["25 to 34"],
         MostRecentAgeAtEntry >= 35 & MostRecentAgeAtEntry <= 44 ~ syso_age_cats["35 to 44"],
         MostRecentAgeAtEntry >= 45 & MostRecentAgeAtEntry <= 54 ~ syso_age_cats["45 to 54"],
