@@ -1,6 +1,7 @@
 
 
-ees_with_statuses <- Enrollment %>%
+ees_with_statuses <- system_df %>%
+  filter(ProjectType )
   select(
     PersonalID,
     HouseholdID,
@@ -23,7 +24,9 @@ ees_with_statuses <- Enrollment %>%
         (LivingSituation %in% c(not_homeless_livingsituation) & 
            ProjectType != 12 &
            LOSUnderThreshold == 1 &
-           PreviousStreetESSH == 1), 1, 0
+           PreviousStreetESSH == 1),
+      1,
+      0
     ),
     HousedLeavers = if_else(
       EntryStatusHomeless == 1 &
@@ -34,10 +37,18 @@ ees_with_statuses <- Enrollment %>%
         ProjectType != 12 &
         Destination %in% c(perm_livingsituation) &
         !is.na(ExitDate) &
+<<<<<<< HEAD
         ExitDate >= meta_HUDCSV_Export_Start() &
         ExitDate <= meta_HUDCSV_Export_End(),
       1, 0
       ),
+=======
+        ExitDate >= meta_HUDCSV_Export_Start &
+        ExitDate <= meta_HUDCSV_Export_End,
+      1,
+      0
+    ),
+>>>>>>> math-fixes-g
     HousedAll = if_else(
       EntryStatusHomeless == 1 &
         ProjectType %in% c(ph_project_types) &
@@ -45,14 +56,21 @@ ees_with_statuses <- Enrollment %>%
         MoveInDateAdjust >= meta_HUDCSV_Export_Start() &
         MoveInDateAdjust <= meta_HUDCSV_Export_End() &
         ProjectType != 12 &
-        Destination %in% fy22_to_fy24_living_situation(c(perm_livingsituation)) &
+        Destination %in% c(perm_livingsituation) &
         (is.na(ExitDate) |
+<<<<<<< HEAD
            ExitDate >= meta_HUDCSV_Export_Start()),
       1, 0
     ),
     
     FY24Translation = fy22_to_fy24_living_situation(LivingSituation)
       
+=======
+           ExitDate >= meta_HUDCSV_Export_Start),
+      1,
+      0
+    )
+>>>>>>> math-fixes-g
   )
   
   
