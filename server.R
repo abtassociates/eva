@@ -30,6 +30,33 @@ function(input, output, session) {
   pdde_main <- reactiveVal()
   valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
   file_structure_analysis_main <- reactiveVal()
+  # Population reactives ----------------------------------------------------
+  
+  # Set race/ethnicity + gender filter options based on methodology type selection
+  # Set special populations options based on level of detail selection
+  syso_race_ethnicity_cats <- reactive({
+    ifelse(
+      input$methodology_type == 1,
+      list(syso_race_ethnicity_excl),
+      list(syso_race_ethnicity_incl)
+    )[[1]]
+  })
+  
+  syso_gender_cats <- reactive({
+    ifelse(
+      input$methodology_type == 1,
+      list(syso_gender_excl),
+      list(syso_gender_incl)
+    )[[1]]
+  })
+  
+  syso_spec_pops_cats <- reactive({
+    ifelse(
+      input$syso_level_of_detail %in% c(1,2),
+      list(syso_spec_pops_people),
+      list(syso_spec_pops_hoh)
+    )[[1]]
+  })
   
   # set during initially valid processing stop. Rest of processing stops if invalid
   # FSA is hidden unless initially_valid_import() == 1
