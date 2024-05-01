@@ -115,7 +115,7 @@ sys_comp_plot <- function(vars) {
     mutate(!!vars[2] := 'Total')
 
   
-  font_size <- 10/.pt
+  font_size <- 14/.pt
   
   return(
     ggplot(plot_df, aes(.data[[vars[1]]], .data[[vars[2]]])) +
@@ -196,8 +196,8 @@ sys_comp_plot <- function(vars) {
       position = "top"
     ) +
     scale_y_discrete(
-      labels = str_wrap(c("Total", names(cats2)), width=30),
-      limits = c("Total", rev(levels(plot_df[[vars[2]]])))
+      labels = str_wrap(c("Total", rev(names(cats2))), width=30),
+      limits = c("Total", levels(plot_df[[vars[2]]]))
     ) +
       
     # other stuff
@@ -205,8 +205,8 @@ sys_comp_plot <- function(vars) {
     theme(legend.position = "none",
           axis.ticks = element_blank(),
           panel.grid = element_blank(),
-          axis.title.x = element_text(vars[1]),
-          axis.title.y = element_text(vars[2]),
-          axis.text = element_text(size = 13))
+          axis.title.x = element_text(vars[1], size = 13),
+          axis.title.y = element_text(vars[2], size = 13),
+          axis.text = element_text(size = 14))
   )
 }
