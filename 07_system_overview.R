@@ -348,29 +348,29 @@ system_df_client_flags <- reactive({
         
       ),
       GroupedRaceEthnicity = case_when(
-        # All People of Color" = 16,
+        # All People of Color" = 16 or Group 2, item 1
         input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, c("AmIndAKNative",
-                                                  "HispanicLatinaeo"))
-        ~ syso_race_ethnicity_excl[["Group 2"]][16],
+          !no_cols_selected_except(., race_cols, c("White","RaceNone")) > 0
+        ~ syso_race_ethnicity_excl[["Group 2"]][1],
         
-        # White Only" = 17
+        # White Only" = 17, or Group 2, item 2
         input$methodology_type == 1 & 
           no_cols_selected_except(., race_cols, "White")
-        ~ syso_race_ethnicity_excl[["Group 2"]][17],
+        ~ syso_race_ethnicity_excl[["Group 2"]][2],
         
         # Black, African American or African and Hispanic/Latina/e/o Inclusive" = 8,
+        #  or Group 2, item 1
         input$methodology_type == 2 & (BlackAfAmerican == 1 | HispanicLatinaeo == 1)
-        ~ syso_race_ethnicity_incl[["Group 2"]][8],
+        ~ syso_race_ethnicity_incl[["Group 2"]][1],
         
-        # Hispanic/Latina/e/o Inclusive" = 9,
+        # Hispanic/Latina/e/o Inclusive" = 9 or Group 2, item 2
         input$methodology_type == 2 & HispanicLatinaeo == 1
-        ~ syso_race_ethnicity_incl[["Group 2"]][9],
+        ~ syso_race_ethnicity_incl[["Group 2"]][2],
         
-        # Hispanic/Latina/e/o Alone" = 10)
+        # Hispanic/Latina/e/o Alone" = 10 or Group 2, item 3
         input$methodology_type == 2 &
           no_cols_selected_except(., race_cols, "HispanicLatinaeo")
-        ~ syso_race_ethnicity_incl[["Group 2"]][10],
+        ~ syso_race_ethnicity_incl[["Group 2"]][3],
       ),
     )
 })
