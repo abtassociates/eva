@@ -30,6 +30,7 @@ function(input, output, session) {
   pdde_main <- reactiveVal()
   valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
   file_structure_analysis_main <- reactiveVal()
+  sys_inflow_outflow_plot_data <- reactiveVal()
   # Population reactives ----------------------------------------------------
   
   # Set race/ethnicity + gender filter options based on methodology type selection
@@ -225,6 +226,12 @@ function(input, output, session) {
               start = NULL,
               max = NULL,
               end = NULL))
+            session$sendCustomMessage("syso_date_range", list(
+             min = NULL,
+             start = NULL,
+             max = NULL,
+             end = NULL
+            ))
           } else {
             
             updatePickerInput(session = session, inputId = "currentProviderList",
@@ -906,6 +913,8 @@ function(input, output, session) {
     }
   )
   
+  source("07a_system_activity_plots.R", local = TRUE)
+  
   #### DISPLAY FILTER SELECTIONS ###
   output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
   output$sys_act_summary_filter_selections <- renderUI({ syso_detailBox() })
@@ -914,7 +923,6 @@ function(input, output, session) {
   output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
   output$sys_act_summary_chart_subheader <- renderUI({ syso_chartSubheader() })
   
-  source("07a_system_activity_plots.R", local = TRUE)
   renderSystemPlot("sys_act_summary_ui_chart")
   renderSystemPlot("sys_act_detail_ui_chart")
   
