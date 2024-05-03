@@ -66,6 +66,7 @@ function(input, output, session) {
   # the HTML <div> id the same each time. Without associating with an output, 
   # the id changed each time and the shinytest would catch the difference and fail
   output$headerClientCounts_supp <- renderUI({ 
+    req(valid_file() == 1)
     organization <- Project0() %>%
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
@@ -185,16 +186,7 @@ function(input, output, session) {
           
           # Update inputs --------------------------------
           if(is.null(input$imported) & !isTruthy(input$in_demo_mode)) {
-            session$sendInputMessage('currentProviderList', list(choices = NULL))
-            session$sendInputMessage('providerListDQ', list(choices = NULL))
-            session$sendInputMessage('orgList', list(choices = NULL))
-            session$sendInputMessage('dq_org_startdate', list(value = NULL))
-            session$sendInputMessage('dq_startdate', list(value = NULL))
-            session$sendCustomMessage('dateRangeCount', list(
-              min = NULL,
-              start = NULL,
-              max = NULL,
-              end = NULL))
+            browser() #this shouldn't happen because process_upload only runs when they've uploaded a file or triggered demo
           } else {
             # mark the "uploaded file" as demo.zip
             if(isTruthy(input$in_demo_mode)) {
@@ -209,17 +201,8 @@ function(input, output, session) {
             updatePickerInput(session = session, inputId = "currentProviderList",
                               choices = sort(Project$ProjectName))
             
-            updatePickerInput(session = session, inputId = "providerListDQ",
-                              choices = dq_providers)
-            
             updatePickerInput(session = session, inputId = "orgList",
                               choices = c(unique(sort(Organization$OrganizationName))))
-            
-            updateDateInput(session = session, inputId = "dq_org_startdate", 
-                            value = meta_HUDCSV_Export_Start())
-            
-            updateDateInput(session = session, inputId = "dq_startdate", 
-                            value = meta_HUDCSV_Export_Start())
             
             updateDateRangeInput(session = session, inputId = "dateRangeCount",
                                  min = meta_HUDCSV_Export_Start(),
