@@ -18,7 +18,6 @@ show_invalid_popup <- function(issueID) {
       easyClose = TRUE
     )
   )
-  reset("imported")
 }
 
 # function to check if the file is hashed

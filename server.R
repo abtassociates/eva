@@ -233,6 +233,15 @@ function(input, output, session) {
              end = NULL
             ))
           } else {
+            # mark the "uploaded file" as demo.zip
+            if(isTruthy(input$in_demo_mode)) {
+              shinyjs::runjs(str_glue("
+                $('#imported')
+                  .closest('.input-group-btn')
+                  .next()
+                  .val('demo.zip');
+              "))
+            }
             
             updatePickerInput(session = session, inputId = "currentProviderList",
                               choices = sort(Project$ProjectName))

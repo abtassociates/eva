@@ -95,6 +95,10 @@ toggleDemoJs <- function(t) {
                      'position':''})")
     shinyjs::enable("imported")
     
+    shinyjs::runjs("
+      $('#imported').closest('.input-group-btn').next().val('');
+      ")
+    
   }
 }
 
