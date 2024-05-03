@@ -729,7 +729,7 @@ function(input, output, session) {
     orgDQData <- dq_main_reactive() %>%
       filter(OrganizationName %in% c(input$orgList))
     
-    orgDQoverlaps <- overlaps %>%
+    orgDQoverlaps <- overlaps() %>%
       filter(OrganizationName %in% c(input$orgList) | 
                PreviousOrganizationName %in% c(input$orgList))
     #browser()
@@ -748,7 +748,7 @@ function(input, output, session) {
       
       systemDQData = 
         getDQReportDataList(dq_main_reactive(),
-                            overlaps,
+                            overlaps(),
                             "OrganizationName",
                             calculate_outstanding_referrals(input$CEOutstandingReferrals)
         )
