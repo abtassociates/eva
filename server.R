@@ -14,6 +14,7 @@ function(input, output, session) {
   
   # manages toggling demo mode on and off
   source("demo_management.R", local = TRUE)
+  toggleDemoJs(FALSE)
   
   # log that the session has started
   logMetadata("Session started")
