@@ -25,7 +25,7 @@ Project <- Project %>%
     "DateUpdated" = ymd_hms("20001001 06:00:00"),
     "UserID" = "4566",
     "DateDeleted" = NA,
-    "ExportID" = Export$ExportID
+    "ExportID" = Export()$ExportID
   )
 
 HMISParticipation <- HMISParticipation %>%
@@ -39,7 +39,7 @@ HMISParticipation <- HMISParticipation %>%
    "DateUpdated" = ymd_hms("20001001 06:00:00"),
    "UserID" = "4566",
    "DateDeleted" = NA,
-   "ExportID" = Export$ExportID
+   "ExportID" = Export()$ExportID
   )
 
 Inventory <- Inventory %>%
@@ -65,7 +65,7 @@ Inventory <- Inventory %>%
     "DateUpdated" = ymd_hms("20001001 06:00:00"),          
     "UserID" = "4566",              
     "DateDeleted" = NA, 
-    "ExportID" = Export$ExportID
+    "ExportID" = Export()$ExportID
   )
 
 write.csv(
@@ -128,8 +128,8 @@ write.csv(
 projects_w_beds <- Inventory %>%
   filter(
     BedInventory > 0 &
-      coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start &
-      InventoryStartDate <= meta_HUDCSV_Export_End
+      coalesce(InventoryEndDate, meta_HUDCSV_Export_End()) >= meta_HUDCSV_Export_Start() &
+      InventoryStartDate <= meta_HUDCSV_Export_End()
   ) %>%
   pull(ProjectID) %>%
   unique()

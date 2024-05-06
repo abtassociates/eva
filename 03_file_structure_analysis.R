@@ -8,7 +8,7 @@ logToConsole("Running file structure analysis")
 
 # Prep --------------------------------------------------------------------
 
-export_id_from_export <- Export %>% pull(ExportID)
+export_id_from_export <- Export() %>% pull(ExportID)
 
 high_priority_columns <- cols_and_data_types %>%
   filter(DataTypeHighPriority == 1) %>%
@@ -457,7 +457,7 @@ nonstandard_CLS <- CurrentLivingSituation %>%
                      "which is not a valid response."))) %>%
   select(all_of(issue_display_cols))
 
-file_structure_analysis_main <- rbind(
+file_structure_analysis_main(rbind(
   df_column_diffs,
   df_data_types,
   df_nulls,
@@ -480,9 +480,12 @@ file_structure_analysis_main <- rbind(
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
+)
 
-if(file_structure_analysis_main %>% filter(Type == "High Priority") %>% nrow() > 0) {
-  structural_issues <- 1
+if(file_structure_analysis_main() %>% 
+filter(Type == "High Priority") %>% 
+nrow() > 0) {
+  valid_file(0)
 } else{
-  structural_issues <- 0
+  valid_file(1)
 }
