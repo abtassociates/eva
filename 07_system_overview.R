@@ -655,7 +655,10 @@ system_plot_data <- reactive({
         # and within 2 weeks of prev enrollment
         (straddles_start == TRUE |
            (EntryDate >= input$syso_date_range[1] &
-              between(difftime(EntryDate, input$syso_date_range[1], units = "days"), 0, 14) &
+              between(difftime(EntryDate, input$syso_date_range[1],
+                               units = "days"),
+                      0,
+                      14) &
               !is.na(previous_exit_days) &
               between(as.numeric(previous_exit_days), 0, 14))),
       
