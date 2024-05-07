@@ -718,7 +718,7 @@ system_plot_data <- reactive({
         ExitAdjust > input$syso_date_range[2] &
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= input$syso_date_range[1] &
+        MoveInDateAdjust <= input$syso_date_range[2] &
         lh_prior_livingsituation == TRUE
     )
   
