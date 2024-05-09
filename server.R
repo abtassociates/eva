@@ -34,6 +34,23 @@ function(input, output, session) {
   valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
   file_structure_analysis_main <- reactiveVal()
   
+  reset_reactivevals <- function() {
+    validation(NULL)
+    CurrentLivingSituation(NULL)
+    Export(NULL)
+    Project0(NULL)
+    Event(NULL)
+    meta_HUDCSV_Export_Start(NULL)
+    meta_HUDCSV_Export_End(NULL)
+    meta_HUDCSV_Export_Date(NULL)
+    overlaps(NULL)
+    base_dq_data_func(NULL)
+    dq_main_df(NULL)
+    pdde_main(NULL)
+    valid_file(0) # from FSA. Most stuff is hidden unless valid == 1
+    file_structure_analysis_main(NULL)
+  }
+  
   # set during initially valid processing stop. Rest of processing stops if invalid
   # FSA is hidden unless initially_valid_import() == 1
   initially_valid_import <- reactiveVal() 
