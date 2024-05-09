@@ -153,11 +153,10 @@ importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
   }
   
   filename <- str_glue("{csvFile}.csv")
-  
   data <-
     read_csv(
       utils::unzip(zipfile = upload_filepath, files = filename),
-      col_types = get_col_types(csvFile),
+      col_types = get_col_types(upload_filepath, csvFile),
       na = ""
     )
 
@@ -170,7 +169,7 @@ importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
   return(data)
 }
 
-get_col_types <- function(file) {
+get_col_types <- function(upload_filepath, file) {
   # returns the datatypes as a concatenated string, based on the order
   # of the columns in the imported file, rather than the expected order
   # e.g. "ccccDDnnnnnnnnTTcTc"
@@ -183,7 +182,7 @@ get_col_types <- function(file) {
   # get the columns in the order they appear in the imported file
   cols_in_file <- colnames(read.table(
     utils::unzip(
-      zipfile = input$imported$datapath, 
+      zipfile = upload_filepath, 
       files = str_glue("{file}.csv")
     ),             
     head = TRUE,
