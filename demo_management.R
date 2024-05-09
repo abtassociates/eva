@@ -220,3 +220,5 @@ observeEvent(input$in_demo_mode, {
     )
   }
 }, ignoreInit = TRUE)
+
+shinyjs::runjs("$('#home_demo_instructions').parent().parent().hide()")
