@@ -203,7 +203,7 @@ function(input, output, session) {
           
           # Update inputs --------------------------------
           if(is.null(input$imported) & !isTruthy(input$in_demo_mode)) {
-            browser() #this shouldn't happen because process_upload only runs when they've uploaded a file or triggered demo
+            logToConsole("User is in upload processing but imported is null and demo_mode is not on")
           } else {
             # mark the "uploaded file" as demo.zip
             if(isTruthy(input$in_demo_mode)) {
