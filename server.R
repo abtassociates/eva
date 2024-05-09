@@ -159,7 +159,14 @@ function(input, output, session) {
           }
           
           setProgress(detail = "Assessing your data quality..", value = .7)
+          startTime <- Sys.time()
+          # Rprof(tmp <- tempfile(), line.profiling=TRUE)
+          profvis::profvis({
           source("05_DataQuality.R", local = TRUE)
+          })
+          # summaryRprof("profile1.out")
+          print(Sys.time() - startTime)
+          browser()
           
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
