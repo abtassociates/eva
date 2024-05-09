@@ -21,12 +21,12 @@ vars_we_want <- c(vars_prep,
                   "Guidance")
 
 dq_main_reactive <- reactive({
-  ESNbN <- calculate_long_stayers_local_settings(input$ESNbNLongStayers, 0)
-  Outreach <- calculate_long_stayers_local_settings(input$OUTLongStayers, 4)
-  CoordinatedEntry <- calculate_long_stayers_local_settings(input$CELongStayers, 14)
-  ServicesOnly <- calculate_long_stayers_local_settings(input$ServicesOnlyLongStayers, 6)
-  Other <- calculate_long_stayers_local_settings(input$OtherLongStayers, 7)
-  DayShelter <- calculate_long_stayers_local_settings(input$DayShelterLongStayers, 11)
+  ESNbN <- calculate_long_stayers_local_settings_dt(input$ESNbNLongStayers, 0)
+  Outreach <- calculate_long_stayers_local_settings_dt(input$OUTLongStayers, 4)
+  CoordinatedEntry <- calculate_long_stayers_local_settings_dt(input$CELongStayers, 14)
+  ServicesOnly <- calculate_long_stayers_local_settings_dt(input$ServicesOnlyLongStayers, 6)
+  Other <- calculate_long_stayers_local_settings_dt(input$OtherLongStayers, 7)
+  DayShelter <- calculate_long_stayers_local_settings_dt(input$DayShelterLongStayers, 11)
   
   
   #Calculating potential old referrals based on Local settings
@@ -254,6 +254,32 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
   
 }
 
+calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
+  if (projecttype %in% c(project_types_w_cls)) {
+    merge_check_info_dt(
+      as.data.table(cls_project_types())[
+        is.na(ExitDate) &
+          ProjectType %in% project_types_w_cls &
+          ProjectType == projecttype &
+          too_many_days < Days,
+      ],
+      103
+    )[, ..vars_we_want]
+  } else{
+    entryexit_project_types <- as.data.table(validation())
+    entryexit_project_types[, Days := as.numeric(difftime(
+      as.Date(meta_HUDCSV_Export_Date()), EntryDate, units = "days"
+    ))]
+    merge_check_info_dt(entryexit_project_types[
+      is.na(ExitDate) &
+        !ProjectType %in% project_types_w_cls &
+        ProjectType == projecttype &
+        too_many_days < Days],
+      102
+    )[, ..vars_we_want]
+  } 
+  
+}
 # Outstanding Referrals --------------------------------------------
 
 calculate_outstanding_referrals <- function(too_many_days){

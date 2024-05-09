@@ -326,3 +326,11 @@ merge_check_info <- function(data, checkIDs) {
     )
   )
 }
+merge_check_info_dt <- function(data, checkIDs) {
+  return(
+    cbind(
+      data,
+      as.data.table(evachecks)[ID %in% c(checkIDs)]
+    )
+  )
+}
