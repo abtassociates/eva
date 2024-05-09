@@ -1208,7 +1208,6 @@ overlap_dt <- overlap_dt[!is.na(PreviousEnrollmentID)]
 #             ),
 #           by = c("PreviousEnrollmentID")) %>%
 
-browser()
 overlap_dt <- overlap_dt[
   overlap_staging_dt[, .(EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd, FirstDateProvided)],
   on = c(PreviousEnrollmentID = "EnrollmentID"),
@@ -1275,10 +1274,18 @@ overlap_dt[, NumOverlaps := sum(IsOverlap, na.rm = TRUE), by = PersonalID]
 #          PreviousProjectType == es_nbn_project_type))) %>% 
 # Keep overlaps based on conditions
 overlap_dt <- overlap_dt[
-  (ProjectType == es_nbn_project_type | PreviousProjectType == es_nbn_project_type) & NumOverlaps > 2 |
-    (NumOverlaps > 0 & !(ProjectType == es_nbn_project_type | PreviousProjectType == es_nbn_project_type))
+  (
+    (
+      ProjectType == es_nbn_project_type | 
+      PreviousProjectType == es_nbn_project_type
+    ) & NumOverlaps > 2
+  ) | (
+    !(
+      ProjectType == es_nbn_project_type | 
+      PreviousProjectType == es_nbn_project_type
+    ) & NumOverlaps > 0
+  )
 ]
-
 
 # # label issue types
 # mutate(
@@ -1308,39 +1315,25 @@ overlap_dt <- overlap_dt[
 #                 project_type(ProjectType), 
 #                 "project")
 # ) %>%
-# Label issue types
-overlap_dt[, Type := "Warning"]
-overlap_dt[, Guidance := "This enrollment overlaps with another enrollment 
-           that would indicate a household spent the same night in different 
-           inventory beds. Please review the HMIS Dual Enrollments and HIC 
-           Duplicate Inventory Training Resource for more information."]
+overlap_dt <- merge_check_info_dt(overlap_dt, 77)
 create_issue_text <- function(ptypeCol) {
   return(
     paste(
       "Overlap with",
       ifelse(str_sub(ptypeCol, 1, 1) %in% c("A", "E", "I", "O", "U"), "an", "a"),
-      ptypeCol,
+      project_type(ptypeCol),
       "project"
     )
   )
 }
 overlap_dt[, c("Issue", "PreviousIssue") := .(
-  create_issue_text(.PreviousProjectType),
-  create_issue_text(.ProjectType)
+  create_issue_text(PreviousProjectType),
+  create_issue_text(ProjectType)
 )]
 
-# select(
-#   EnrollmentID,
-#   PreviousEnrollmentID,
-#   Issue,
-#   PreviousIssue,
-#   Type,
-#   Guidance,
-#   FirstDateProvided,
-#   PreviousFirstDateProvided
-# ) %>%
 # Select relevant columns
 overlap_dt <- overlap_dt[, .(
+# select(
   EnrollmentID,
   PreviousEnrollmentID,
   Issue,
@@ -1358,9 +1351,9 @@ overlap_dt <- overlap_dt[, .(
 #           select(!!vars_prep, EnrollmentID),
 #           by = "EnrollmentID") %>%
 # 
+base_dq_data_dt <- as.data.table(base_dq_data)
 overlap_dt <- overlap_dt[
-  base_dq_data,
-  .(EntryDate, ExitDate, MoveInDate, ProjectName, OrganizationName),
+  base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with=F],
   on = "EnrollmentID"
 ]
 
@@ -1370,8 +1363,10 @@ overlap_dt <- overlap_dt[
 #           setNames(paste0('Previous', names(.))),
 #           by = "PreviousEnrollmentID") %>%
 overlap_dt <- overlap_dt[
-  base_dq_data,
-  setNames(.SD, paste0("Previous", names(.SD))),
+  setNames(
+    base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with=F], 
+    paste0("Previous", c(vars_prep, "EnrollmentID"))
+  ),
   on = "PreviousEnrollmentID"
 ]
 
@@ -1383,12 +1378,12 @@ overlap_dt[, ProjectType := project_type(ProjectType)]
 overlap_dt[, PreviousProjectType := project_type(PreviousProjectType)]
 
 # way the Issue is built dynamically
-overlaps(overlaps_dt)
+overlaps(overlap_dt)
 
-dq_overlaps1 <- overlaps() %>% 
+dq_overlaps1 <- as.data.frame(overlap_dt) %>% 
   select(!!vars_we_want)
 
-dq_overlaps2 <- overlaps() %>% 
+dq_overlaps2 <- as.data.frame(overlap_dt) %>% 
   select(starts_with("Previous"), Type, Guidance) %>%
   rename_all(~str_replace(.,"^Previous","")) %>%
   select(!!vars_we_want)
