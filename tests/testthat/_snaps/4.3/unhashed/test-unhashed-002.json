@@ -15,10 +15,10 @@
     ],
     "imported": {
       "name": [
-        "FY24-ICF-fsa-test.zip"
+        "FY24-ICF-unhashed.zip"
       ],
       "size": [
-        8748
+        8779
       ],
       "type": [
         "application/zip"
@@ -30,8 +30,8 @@
     "isdemo": false,
     "orgList": null,
     "sidebarCollapsed": false,
-    "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabDQSystem"
+    "sidebarItemExpanded": null,
+    "sidebarmenuid": "tabClientCount"
   },
   "output": {
     "clientCountData": [
@@ -60,22 +60,6 @@
         "validation"
       ]
     },
-    "downloadPDDEReportButton": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
-    "downloadSystemDQReportButton": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
     "fileInfo": null,
     "fileStructureAnalysis": [
       "",
@@ -88,56 +72,10 @@
 
       ]
     },
-    "headerPDDE": {
-      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
-      "deps": [
-
-      ]
-    },
-    "headerSystemDQ": {
-      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
-      "deps": [
-
-      ]
-    },
     "headerUpload": {
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
-      ]
-    },
-    "pdde_guidance_summary": [
-      "",
-      "NULL",
-      "c(\"shiny.silent.error\", \"validation\")"
-    ],
-    "pdde_summary_table": [
-      "",
-      "NULL",
-      "c(\"shiny.silent.error\", \"validation\")"
-    ],
-    "systemDQErrorsByIssue_ui": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
-    "systemDQHighPriorityErrorsByIssue_ui": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
-    "systemDQWarningsByIssue_ui": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
       ]
     }
   },

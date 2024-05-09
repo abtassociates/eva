@@ -73,6 +73,26 @@ toggleDemoJs <- function(t) {
     "))
   
   if(t) {
+    capture.output("Switching to demo mode!")
+    
+    # let user know things take a min to load then load the demo data
+    showModal(
+      modalDialog(
+        "Activating demo mode...",
+        title = NULL,
+        footer = NULL
+      )
+    )
+    
+    process_upload("demo.zip", here("demo.zip"))
+    
+    valid_file(1)
+    
+    removeModal()
+    
+    updateTabItems(session, "sidebarmenuid", "tabHome")
+    
+    
     shinyjs::runjs(paste0(
       "var demoBannerHTML = \"<div id='demo_banner' class='in_demo_mode'>",
       "DEMO",
@@ -86,7 +106,17 @@ toggleDemoJs <- function(t) {
     shinyjs::hide(id = "successful_upload")
     shinyjs::disable("imported")
     
+    shinyjs::show('fileStructureAnalysis')
+    
+    print("Switched to demo mode!")
+    logMetadata("Switched to demo mode")
+    
   } else {
+    capture.output("Switching to live mode")
+    
+    updateTabItems(session, "sidebarmenuid", "tabUpload")
+    shinyjs::hide('fileStructureAnalysis')
+    
     shinyjs::runjs("
           $('#imported').closest('.btn').removeAttr('disabled');
       ")
@@ -95,55 +125,39 @@ toggleDemoJs <- function(t) {
                      'position':''})")
     shinyjs::enable("imported")
     
+    shinyjs::runjs("
+      $('#imported').closest('.input-group-btn').next().val('');
+      ")
+    
+    reset_reactivevals()
+    # if(is.null(input$imported) & !isTruthy(input$in_demo_mode))
+    #   valid_file(0)
+    
+    session$sendInputMessage('currentProviderList', list(
+      choices = NULL
+      # selected = "none"
+    ))
+    session$sendInputMessage('orgList', list(
+      choices = NULL
+      # selected = "none"
+    ))
+    session$sendCustomMessage('dateRangeCount', list(
+      min = NULL,
+      start = ymd(today()),
+      max = NULL,
+      end = ymd(today())
+    ))
+    
+    print("Switched into live mode!")
+    capture.output("Switched into live mode")
+    logMetadata("Switched into live mode")
+    
   }
-}
-
-activate_demo <- function() {
-  capture.output("Switching to demo mode!")
-  
-  # let user know things take a min to load then load the demo data
-  showModal(
-    modalDialog(
-      "Activating demo mode...",
-      title = NULL,
-      footer = NULL
-    )
-  )
-  
-  process_upload("demo.zip", here("demo.zip"))
-  
-  valid_file(1)
-  
-  removeModal()
-  
-  updateTabItems(session, "sidebarmenuid", "tabHome")
-  
-  toggleDemoJs(TRUE)
-  
-  shinyjs::show('fileStructureAnalysis')
-  
-  print("Switched to demo mode!")
-  logMetadata("Switched to demo mode")
-  
-}
-
-deactivate_demo <- function() {
-  
-  capture.output("Switching to live mode")
-  
-  updateTabItems(session, "sidebarmenuid", "tabUpload")
-  shinyjs::hide('fileStructureAnalysis')
-  
-  toggleDemoJs(FALSE)
-  
-  print("Switched into live mode!")
-  capture.output("Switched into live mode")
-  logMetadata("Switched into live mode")
 }
 
 observeEvent(input$continue_demo_btn, {
   removeModal()
-  activate_demo()
+  toggleDemoJs(TRUE)
 })
 
 observeEvent(input$stay_in_demo, {
@@ -162,7 +176,7 @@ observeEvent(input$stay_in_live, {
 
 observeEvent(input$continue_live_btn, {
   removeModal()
-  deactivate_demo()
+  toggleDemoJs(FALSE)
 })
 
 observeEvent(input$in_demo_mode, {
@@ -206,3 +220,5 @@ observeEvent(input$in_demo_mode, {
     )
   }
 }, ignoreInit = TRUE)
+
+shinyjs::runjs("$('#home_demo_instructions').parent().parent().hide()")

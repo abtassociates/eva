@@ -15,10 +15,10 @@
     ],
     "imported": {
       "name": [
-        "FY24-ICF-fsa-test.zip"
+        "FY24-ICF-unhashed.zip"
       ],
       "size": [
-        8748
+        8779
       ],
       "type": [
         "application/zip"
@@ -31,7 +31,7 @@
     "orgList": null,
     "sidebarCollapsed": false,
     "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabDQSystem"
+    "sidebarmenuid": "tabDQOrg"
   },
   "output": {
     "clientCountData": [
@@ -60,6 +60,14 @@
         "validation"
       ]
     },
+    "downloadOrgDQReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
     "downloadPDDEReportButton": {
       "message": "",
       "call": "NULL",
@@ -76,6 +84,16 @@
         "validation"
       ]
     },
+    "dq_org_guidance_summary": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "dq_organization_summary_table": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
     "fileInfo": null,
     "fileStructureAnalysis": [
       "",
@@ -83,6 +101,12 @@
       "c(\"shiny.silent.error\", \"validation\")"
     ],
     "headerClientCounts": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "headerDataQuality": {
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
@@ -104,6 +128,30 @@
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
+      ]
+    },
+    "orgDQErrorByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "orgDQHighPriorityErrorByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "orgDQWarningsByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
       ]
     },
     "pdde_guidance_summary": [

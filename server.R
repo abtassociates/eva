@@ -34,6 +34,23 @@ function(input, output, session) {
   valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
   file_structure_analysis_main <- reactiveVal()
   
+  reset_reactivevals <- function() {
+    validation(NULL)
+    CurrentLivingSituation(NULL)
+    Export(NULL)
+    Project0(NULL)
+    Event(NULL)
+    meta_HUDCSV_Export_Start(NULL)
+    meta_HUDCSV_Export_End(NULL)
+    meta_HUDCSV_Export_Date(NULL)
+    overlaps(NULL)
+    base_dq_data_func(NULL)
+    dq_main_df(NULL)
+    pdde_main(NULL)
+    valid_file(0) # from FSA. Most stuff is hidden unless valid == 1
+    file_structure_analysis_main(NULL)
+  }
+  
   # set during initially valid processing stop. Rest of processing stops if invalid
   # FSA is hidden unless initially_valid_import() == 1
   initially_valid_import <- reactiveVal() 
@@ -66,6 +83,7 @@ function(input, output, session) {
   # the HTML <div> id the same each time. Without associating with an output, 
   # the id changed each time and the shinytest would catch the difference and fail
   output$headerClientCounts_supp <- renderUI({ 
+    req(valid_file() == 1)
     organization <- Project0() %>%
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
@@ -185,32 +203,23 @@ function(input, output, session) {
           
           # Update inputs --------------------------------
           if(is.null(input$imported) & !isTruthy(input$in_demo_mode)) {
-            session$sendInputMessage('currentProviderList', list(choices = NULL))
-            session$sendInputMessage('providerListDQ', list(choices = NULL))
-            session$sendInputMessage('orgList', list(choices = NULL))
-            session$sendInputMessage('dq_org_startdate', list(value = NULL))
-            session$sendInputMessage('dq_startdate', list(value = NULL))
-            session$sendCustomMessage('dateRangeCount', list(
-              min = NULL,
-              start = NULL,
-              max = NULL,
-              end = NULL))
+            logToConsole("User is in upload processing but imported is null and demo_mode is not on")
           } else {
+            # mark the "uploaded file" as demo.zip
+            if(isTruthy(input$in_demo_mode)) {
+              shinyjs::runjs(str_glue("
+                $('#imported')
+                  .closest('.input-group-btn')
+                  .next()
+                  .val('demo.zip');
+              "))
+            }
             
             updatePickerInput(session = session, inputId = "currentProviderList",
                               choices = sort(Project$ProjectName))
             
-            updatePickerInput(session = session, inputId = "providerListDQ",
-                              choices = dq_providers)
-            
             updatePickerInput(session = session, inputId = "orgList",
                               choices = c(unique(sort(Organization$OrganizationName))))
-            
-            updateDateInput(session = session, inputId = "dq_org_startdate", 
-                            value = meta_HUDCSV_Export_Start())
-            
-            updateDateInput(session = session, inputId = "dq_startdate", 
-                            value = meta_HUDCSV_Export_Start())
             
             updateDateRangeInput(session = session, inputId = "dateRangeCount",
                                  min = meta_HUDCSV_Export_Start(),
