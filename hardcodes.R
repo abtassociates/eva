@@ -35,9 +35,9 @@ perm_livingsituation <- c(336, 410, 411, 421, 422, 423, 426, 435)
 
 lh_livingsituation <- c(101, 116, 118)
 
-homeless_livingsituation <- c(101, 302, 116, 118)
+homeless_livingsituation <- c(lh_livingsituation, 302)
 
-temp_livingsituation <- c(101, 302, 312, 313, 314, 116, 118, 327, 332, 335)
+temp_livingsituation <- c(homeless_livingsituation, 312, 313, 314, 327, 332, 335)
 
 institutional_livingsituation <- c(204, 205, 206, 207, 215, 225, 327, 329)
 
@@ -70,6 +70,8 @@ hp_project_type <- 12
 rrh_project_type <- 13
 
 ce_project_type <- 14
+
+lh_project_types_nc <- c(0, 2, 8)
 
 lh_residential_project_types <- c(0, 1, 2, 8)
 
@@ -143,7 +145,7 @@ syso_hh_types <- c(
   "Adult-Child" = 3, 
   "Child-Only" = 4,
   "Youth and Young Adult" = 5, 
-  "Unknown Households" = 6
+  "Unknown Household" = 6
 )
 
 syso_level_of_detail <- c(
@@ -160,16 +162,16 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
 
 syso_gender_incl <- c(
   "All Genders" = 1,
-  "Gender Diverse" = 2,
-  "Man (Boy, if child), alone or in combination" = 3,
-  "Non-Binary" = 4,
+  "Gender Expansive, including transgender" = 2,
+  "Man (Boy, if child) alone or in combination" = 3,
+  "Non-Binary alone or in combination" = 4,
   "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = 5,
-  "Woman (Girl, if child), alone or in combination" = 6
+  "Woman (Girl, if child) alone or in combination" = 6
 )
 
 syso_gender_excl <- c(
   "All Genders" = 1,
-  "Gender Diverse" = 2,
+  "Gender Expansive, not including transgender" = 2,
   "Man (Boy, if child) alone" = 3,
   "Transgender, alone or in combination" = 4,
   "Woman (Girl, if child) alone" = 5,
@@ -193,14 +195,13 @@ syso_race_ethnicity_incl <- list(
   "Group 1" = c("American Indian, Alaska Native, or Indigenous Inclusive" = 1,
                 "Asian or Asian American Inclusive" = 2,
                 "Black, African American, or African Inclusive" = 3,
-                "Middle Eastern Inclusive" = 4,
-                "Native Hawaiin or Pacific Islander Inclusive" = 5,
-                "White Inclusive" = 6),
-  "Group 2" = c("All People of Color" = 7,
-                "White Only" = 8),
-  "Group 3" = c("Black, African American or African and Hispanic/Latina/e/o Inclusive" = 9,
-                "Hispanic/Latina/e/o Inclusive" = 10,
-                "Hispanic/Latina/e/o Alone" = 11)
+                "Hispanic/Latina/e/o" = 4,
+                "Middle Eastern or North African Inclusive" = 5,
+                "Native Hawaiin or Pacific Islander Inclusive" = 6,
+                "White Inclusive" = 7),
+  "Group 2" = c("Black, African American or African and Hispanic/Latina/e/o Inclusive" = 8,
+                "Hispanic/Latina/e/o Inclusive" = 9,
+                "Hispanic/Latina/e/o Alone" = 10)
 )
 
 syso_race_ethnicity_excl <- list(

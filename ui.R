@@ -593,8 +593,12 @@ dashboardPage(
               "syso_date_range",
               "Date Range",
               format = "mm/dd/yyyy",
-              start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
-              end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today()))
+              start = if_else(isTRUE(getOption("shiny.testmode")),
+                              ymd("20231005"),
+                              ymd(today())),
+              end = if_else(isTRUE(getOption("shiny.testmode")),
+                            ymd("20231005"),
+                            ymd(today()))
             )),
             br(),
             h4("Universe Selectors"),
@@ -619,7 +623,8 @@ dashboardPage(
               )
             )),
             column(4, fluidRow(
-              a(href="www.google.com", "Click for Project Type Information"),
+              br(),
+              # a(href="www.google.com", "Click for Project Type Information"),
               pickerInput(
                 label = "Project Type",
                 inputId = "syso_project_type",
@@ -668,23 +673,33 @@ dashboardPage(
           box(
             title = "Age and Special Population Filters",
             width = 6,
-            column(6, virtualSelectInput(
-              label = "Age",
-              selected = syso_age_cats,
-              inputId = "syso_age",
-              choices = syso_age_cats,
-              multiple = TRUE,
-              width = "100%",
-              selectAllText = "All Ages",
-              allOptionsSelectedText = "All Ages"
-            )),
-            column(6, pickerInput(
-              label = "Special Populations",
-              inputId = "syso_spec_pops",
-              choices = syso_spec_pops_people,
-              width = "100%",
-              selected = syso_spec_pops_people[1]
-            ))
+            column(
+              6,
+              pickerInput(
+                inputId = "syso_age",
+                label = "Age",
+                selected = syso_age_cats,
+                choices = syso_age_cats,
+                multiple = TRUE,
+                width = "100%",
+                options = pickerOptions(
+                  actionsBox = TRUE,
+                  selectedTextFormat = paste("count >", length(syso_age_cats)-1),
+                  countSelectedText = "All ages",
+                  noneSelectedText = "All ages" 
+                )
+              )
+            ),
+            column(
+              6,
+              pickerInput(
+                label = "Special Populations",
+                inputId = "syso_spec_pops",
+                choices = syso_spec_pops_people,
+                width = "100%",
+                selected = syso_spec_pops_people[1]
+              )
+            )
           ),
           box(
             title = "Gender and Race/Ethnicity Filters",
@@ -694,7 +709,8 @@ dashboardPage(
               inputId = "syso_gender",
               choices = syso_gender_incl,
               width = "100%",
-              selected = syso_gender_incl[1]
+              selected = syso_gender_incl[1],
+              multiple = TRUE
             )),
             column(6, pickerInput(
               label = "Race/Ethnicity",
@@ -716,12 +732,12 @@ dashboardPage(
             tabPanel("Detail", 
               uiOutput("sys_act_detail_filter_selections"),
               uiOutput("sys_act_detail_chart_subheader"),
-              plotOutput("sys_act_detail_ui_chart")
+              plotOutput("sys_act_detail_ui_chart", height=600)
             ),
             tabPanel("Summary", 
               uiOutput("sys_act_summary_filter_selections"),
               uiOutput("sys_act_summary_chart_subheader"),
-              plotOutput("sys_act_summary_ui_chart")
+              plotOutput("sys_act_summary_ui_chart", height=600)
             ),
             width = 12
           )
