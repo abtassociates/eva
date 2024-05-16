@@ -148,15 +148,26 @@ parseDate <- function(datevar) {
 }
 
 importFile <- function(csvFile, guess_max = 1000) {
-  if(grepl(".gz", input$imported$datapath)) {
-    capture.output("User tried uploading a .gz file!") 
+  filename <- str_glue("{csvFile}.csv")
+
+  if(csvFile == "Export"){
+    data <-
+      read_csv(
+        unzip(zipfile = input$imported$datapath, files = filename),
+        col_types = get_col_types(csvFile),
+        na = ""
+      )
+  } else{
+    data <-
+      read_csv(
+        unzip(zipfile = input$imported$datapath, files = filename),
+        col_types = get_col_types(csvFile),
+        na = ""
+      ) %>%
+      filter(is.na(DateDeleted))
+    
   }
-     
-  filename = str_glue("{csvFile}.csv")
-  data <- read_csv(unzip(zipfile = input$imported$datapath, files = filename)
-                   ,col_types = get_col_types(csvFile)
-                   ,na = ""
-  )
+  
   file.remove(filename)
   return(data)
 }

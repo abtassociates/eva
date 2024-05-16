@@ -1,6 +1,9 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "12-14-2023", "Eva now filters out records in any csv file that has a value
+    in the DateDeleted column.",
+    
     "11-30-2023", "Added filters for income, non-cash, health insurance data 
     quality issues so that projects that don't need to collect that, based on
     their funding source and project type are not being false flagged",
