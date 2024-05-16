@@ -24,7 +24,6 @@ Exit <- Exit %>%
            )
   )
 
-
 # CLS Subsidy Type -------------------------------------------------------------
 split_rows <- select_random_rows(CurrentLivingSituation$CurrentLivingSituation == 435)
 CurrentLivingSituation <- CurrentLivingSituation %>%
@@ -48,7 +47,6 @@ Enrollment <- Enrollment %>%
              TRUE ~ RentalSubsidyType
            )
   )
-
 
 # Participation overlap (checkIDs = 131) ---------------------------------------
 # this creates an "overlap" by duplicating a randomly selected existing record 
@@ -93,5 +91,9 @@ Inventory <- Inventory %>%
          InventoryEndDate = OperatingEndDate + days(1)) %>%
   select(-c(OperatingStartDate, OperatingEndDate))
 
+# there are deleted records in the data -----------------------------------
+
+Organization <- rbind(Organization[1,], Organization) %>%
+  mutate(DateDeleted = if_else(row_number() == 1, ymd("20231101"), NA))
 
 ## add more checks here --------------------------------------------
