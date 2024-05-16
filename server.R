@@ -3,19 +3,6 @@ function(input, output, session) {
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
 
-  # functions used throughout the app
-  source("helper_functions.R", local = TRUE)
-  
-  # changelog entries
-  source("changelog.R", local = TRUE)
-  
-  # manages toggling demo mode on and off
-  source("demo_management.R", local = TRUE)
-  toggleDemoJs(FALSE)
-  
-  # log that the session has started
-  logMetadata("Session started")
-  
   # session-wide variables (NOT visible to multiple sessions) -----------------
   validation <- reactiveVal()
   CurrentLivingSituation <- reactiveVal()
@@ -32,6 +19,37 @@ function(input, output, session) {
   valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
   file_structure_analysis_main <- reactiveVal()
   sys_inflow_outflow_plot_data <- reactiveVal()
+  
+  reset_reactivevals <- function() {
+    validation(NULL)
+    CurrentLivingSituation(NULL)
+    Export(NULL)
+    Project0(NULL)
+    Event(NULL)
+    meta_HUDCSV_Export_Start(NULL)
+    meta_HUDCSV_Export_End(NULL)
+    meta_HUDCSV_Export_Date(NULL)
+    overlaps(NULL)
+    base_dq_data_func(NULL)
+    dq_main_df(NULL)
+    pdde_main(NULL)
+    valid_file(0) # from FSA. Most stuff is hidden unless valid == 1
+    file_structure_analysis_main(NULL)
+  }
+  
+  # functions used throughout the app
+  source("helper_functions.R", local = TRUE)
+  
+  # changelog entries
+  source("changelog.R", local = TRUE)
+  
+  # manages toggling demo mode on and off
+  source("demo_management.R", local = TRUE)
+  toggleDemoJs(FALSE)
+  
+  # log that the session has started
+  logMetadata("Session started")
+  
   # Population reactives ----------------------------------------------------
   
   # Set race/ethnicity + gender filter options based on methodology type selection
@@ -218,7 +236,7 @@ function(input, output, session) {
           
           # Update inputs --------------------------------
           if(is.null(input$imported) & !isTruthy(input$in_demo_mode)) {
-            browser() #this shouldn't happen because process_upload only runs when they've uploaded a file or triggered demo
+            logToConsole("User is in upload processing but imported is null and demo_mode is not on")
           } else {
             # mark the "uploaded file" as demo.zip
             if(isTruthy(input$in_demo_mode)) {
@@ -276,7 +294,7 @@ function(input, output, session) {
   
   # File Structure Analysis Summary -----------------------------------------
   # update_fsa <- function() {
-  output$fileStructureAnalysis <- DT::renderDataTable({
+  output$fileStructureAnalysis <- renderDT({
     req(nrow(file_structure_analysis_main()))
     req(initially_valid_import() == 1)
     a <- file_structure_analysis_main() %>%
@@ -520,7 +538,7 @@ function(input, output, session) {
   })
   
   # CLIENT COUNT DETAILS - APP ----------------------------------------------
-  output$clientCountData <- DT::renderDataTable({
+  output$clientCountData <- renderDT({
     req(valid_file() == 1)
     req(nrow(validation()) > 0)
     
@@ -542,7 +560,7 @@ function(input, output, session) {
   
   # CLIENT COUNT SUMMARY - APP ----------------------------------------------
   
-  output$clientCountSummary <- DT::renderDataTable({
+  output$clientCountSummary <- renderDT({
     req(valid_file() == 1)
     
     exportTestValues(clientCountSummary = client_count_summary_df())
@@ -611,7 +629,7 @@ function(input, output, session) {
   )
   
   # summary table
-  output$pdde_summary_table <- DT::renderDataTable({
+  output$pdde_summary_table <- renderDT({
     req(valid_file() == 1)
     
     a <- pdde_main() %>%
@@ -632,7 +650,7 @@ function(input, output, session) {
   
   # PDDE Guidance -----------------------------------------------------------
   
-  output$pdde_guidance_summary <- DT::renderDataTable({
+  output$pdde_guidance_summary <- renderDT({
     req(valid_file() == 1)
     
     guidance <- pdde_main() %>%
@@ -655,7 +673,7 @@ function(input, output, session) {
   # DQ Org Summary -------------------------------------------------------
   source("05_DataQuality_functions.R", local = TRUE)
   
-  output$dq_organization_summary_table <- DT::renderDataTable({
+  output$dq_organization_summary_table <- renderDT({
     req(valid_file() == 1)
     
     a <- dq_main_reactive() %>%
@@ -686,7 +704,7 @@ function(input, output, session) {
   
   # DQ Org Guidance -------------------------------------------------------
   
-  output$dq_org_guidance_summary <- DT::renderDataTable({
+  output$dq_org_guidance_summary <- renderDT({
     req(valid_file() == 1)
     
     guidance <- dq_main_reactive() %>%

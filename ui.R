@@ -337,7 +337,7 @@ dashboardPage(
           fluidRow(box(
             title = "HMIS CSV Export File Structure Analysis",
             width = 12,
-            DT::dataTableOutput("fileStructureAnalysis"),
+            DTOutput("fileStructureAnalysis"),
             p(),
             HTML("<p>Users should contact their vendor to resolve high priority 
             errors identified in the HMIS CSV Export File Structure Analysis, as
@@ -637,14 +637,14 @@ dashboardPage(
           title = "Client Counts Summary",
           status = "info",
           solidHeader = TRUE,
-          DT::dataTableOutput("clientCountSummary"),
+          DTOutput("clientCountSummary"),
           width = 12
         )),
         fluidRow(box(
           title = "Client Counts Detail",
           status = "info",
           solidHeader = TRUE,
-          DT::dataTableOutput("clientCountData"),
+          DTOutput("clientCountData"),
           width = 12
         ))
       ),
@@ -854,13 +854,13 @@ dashboardPage(
             title = paste("PDDE Check Summary"),
             status = "info",
             solidHeader = TRUE,
-            DT::dataTableOutput("pdde_summary_table"),
+            DTOutput("pdde_summary_table"),
             width = 12,
             br(),
             uiOutput("downloadPDDEReportButton") %>% withSpinner()
           ),
           box(id = "PDDEGuidance",
-              DT::dataTableOutput("pdde_guidance_summary"),
+              DTOutput("pdde_guidance_summary"),
               title = "Guidance",
               width = 12,
               status = "info",
@@ -1005,7 +1005,7 @@ dashboardPage(
             title = paste("Data Quality Summary"),
             status = "info",
             solidHeader = TRUE,
-            DT::dataTableOutput("dq_organization_summary_table"),
+            DTOutput("dq_organization_summary_table"),
             width = 12
           )
         ),
@@ -1013,7 +1013,7 @@ dashboardPage(
         fluidRow(
           box(
             id = "DQSummaryProvider",
-            DT::dataTableOutput("dq_org_guidance_summary"),
+            DTOutput("dq_org_guidance_summary"),
             title = "Data Quality Guidance",
             width = 12,
             status = "info",

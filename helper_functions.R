@@ -153,11 +153,10 @@ importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
   }
   
   filename <- str_glue("{csvFile}.csv")
-  
   data <-
     read_csv(
       utils::unzip(zipfile = upload_filepath, files = filename),
-      col_types = get_col_types(csvFile),
+      col_types = get_col_types(upload_filepath, csvFile),
       na = ""
     )
 
@@ -170,14 +169,32 @@ importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
   return(data)
 }
 
-get_col_types <- function(file) {
+get_col_types <- function(upload_filepath, file) {
+  # returns the datatypes as a concatenated string, based on the order
+  # of the columns in the imported file, rather than the expected order
+  # e.g. "ccccDDnnnnnnnnTTcTc"
+  
   # get the column data types expected for the given file
   col_types <- cols_and_data_types %>%
     filter(File == file) %>%
-    mutate(DataType = data_type_mapping[as.character(DataType)]) %>%
-    pull(DataType) %>%
-    paste0(collapse = "")
-  return(col_types)
+    mutate(DataType = data_type_mapping[as.character(DataType)])
+  
+  # get the columns in the order they appear in the imported file
+  cols_in_file <- colnames(read.table(
+    utils::unzip(
+      zipfile = upload_filepath, 
+      files = str_glue("{file}.csv")
+    ),             
+    head = TRUE,
+    nrows = 1,
+    sep = ","))
+  
+  # get the data types for those columns
+  data_types <- sapply(cols_in_file, function(col_name) {
+    col_types$DataType[col_types$Column == col_name]
+  })
+  
+  return(paste(data_types, collapse = ""))
 }
 
 logMetadata <- function(detail) {

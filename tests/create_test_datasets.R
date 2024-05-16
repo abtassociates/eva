@@ -57,7 +57,7 @@ save_new_zip("FY24-ICF-wrong-csv-version.zip", "reduced")
 # Missing Export (APR or LSA) --------------------------------
 file.remove(reduced_files[["Export"]])
 save_new_zip("FY24-ICF-missing-export.zip", "reduced")
-write.csv(reduced_data[["Export"]], reduced_files[["Export"]], na = "") # bring export dataset back
+write.csv(reduced_data[["Export"]], reduced_files[["Export"]], row.names=FALSE, na = "") # bring export dataset back
 
 # Missing Files ----------------------------------------------
 file.remove(reduced_files[["Enrollment"]])

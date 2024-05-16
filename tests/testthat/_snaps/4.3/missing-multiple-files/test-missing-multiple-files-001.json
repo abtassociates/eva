@@ -18,7 +18,7 @@
         "FY24-ICF-missing-multiple-files.zip"
       ],
       "size": [
-        7313
+        7310
       ],
       "type": [
         "application/zip"
@@ -30,9 +30,6 @@
     "isdemo": false,
     "methodology_type": "1",
     "orgList": null,
-    "shinyjs-resettable-imported": {
-
-    },
     "sidebarCollapsed": false,
     "sidebarItemExpanded": null,
     "sidebarmenuid": "tabUpload",
