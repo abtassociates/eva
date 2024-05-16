@@ -1708,7 +1708,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
   select(all_of(vars_we_want))
 
     # All together now --------------------------------------------------------
-    dq_main <- rbind(
+    dq_main <- as.data.table(rbind(
       approx_start_after_entry,
       approx_start_v_living_situation_data,
       conflicting_health_insurance_entry,
@@ -1787,11 +1787,10 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       veteran_missing_wars,
       veteran_missing_year_entered,
       veteran_missing_year_separated
-    ) %>%
-  unique() %>%
-  mutate(Type = factor(Type, levels = c("High Priority",
-                                        "Error",
-                                        "Warning")))
+    ))
+
+    dq_main <- unique(dq_main)[, Type := factor(Type, levels = c("High Priority", "Error", "Warning"))]
+    dq_main <- as.data.frame(dq_main)
     
    dq_providers <- sort(Project0()$ProjectName) 
    
