@@ -95,6 +95,28 @@ toggleDemoJs <- function(t) {
                      'position':''})")
     shinyjs::enable("imported")
     
+    shinyjs::runjs("
+      $('#imported').closest('.input-group-btn').next().val('');
+      ")
+    
+    if(is.null(input$imported) & !isTruthy(input$in_demo_mode))
+      valid_file(0)
+    
+    session$sendInputMessage('currentProviderList', list(
+      choices = NULL
+      # selected = "none"
+    ))
+    session$sendInputMessage('orgList', list(
+      choices = NULL
+      # selected = "none"
+    ))
+    session$sendCustomMessage('dateRangeCount', list(
+      min = NULL,
+      start = ymd(today()),
+      max = NULL,
+      end = ymd(today())
+    ))
+    
   }
 }
 

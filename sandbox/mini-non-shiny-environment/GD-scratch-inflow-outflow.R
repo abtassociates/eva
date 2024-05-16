@@ -37,18 +37,10 @@ ees_with_statuses <- system_df %>%
         ProjectType != 12 &
         Destination %in% c(perm_livingsituation) &
         !is.na(ExitDate) &
-<<<<<<< HEAD
         ExitDate >= meta_HUDCSV_Export_Start() &
         ExitDate <= meta_HUDCSV_Export_End(),
       1, 0
       ),
-=======
-        ExitDate >= meta_HUDCSV_Export_Start &
-        ExitDate <= meta_HUDCSV_Export_End,
-      1,
-      0
-    ),
->>>>>>> math-fixes-g
     HousedAll = if_else(
       EntryStatusHomeless == 1 &
         ProjectType %in% c(ph_project_types) &
@@ -58,19 +50,12 @@ ees_with_statuses <- system_df %>%
         ProjectType != 12 &
         Destination %in% c(perm_livingsituation) &
         (is.na(ExitDate) |
-<<<<<<< HEAD
            ExitDate >= meta_HUDCSV_Export_Start()),
-      1, 0
+      1,
+      0
     ),
     
     FY24Translation = fy22_to_fy24_living_situation(LivingSituation)
-      
-=======
-           ExitDate >= meta_HUDCSV_Export_Start),
-      1,
-      0
-    )
->>>>>>> math-fixes-g
   )
   
   

@@ -1,6 +1,6 @@
 library(shinytest2)
-test_app()
 
-testthat::snapshot_review()
+# testthat::snapshot_review()
 
+test_app(".")
 unlink(here("tests/temp"), recursive = TRUE)

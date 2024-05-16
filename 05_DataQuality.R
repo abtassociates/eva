@@ -1672,7 +1672,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
    
 # Plots for System-Level DQ Tab -------------------------------------------
    dq_plot_df <- dq_main %>%
-     left_join(Project0 %>%
+     left_join(Project0() %>%
                  select(ProjectID, OrganizationID), by = "ProjectID") %>%
      select(PersonalID,
             OrganizationID,

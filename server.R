@@ -11,6 +11,7 @@ function(input, output, session) {
   
   # manages toggling demo mode on and off
   source("demo_management.R", local = TRUE)
+  toggleDemoJs(FALSE)
   
   # log that the session has started
   logMetadata("Session started")
@@ -30,6 +31,34 @@ function(input, output, session) {
   pdde_main <- reactiveVal()
   valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
   file_structure_analysis_main <- reactiveVal()
+  sys_inflow_outflow_plot_data <- reactiveVal()
+  # Population reactives ----------------------------------------------------
+  
+  # Set race/ethnicity + gender filter options based on methodology type selection
+  # Set special populations options based on level of detail selection
+  syso_race_ethnicity_cats <- reactive({
+    ifelse(
+      input$methodology_type == 1,
+      list(syso_race_ethnicity_excl),
+      list(syso_race_ethnicity_incl)
+    )[[1]]
+  })
+  
+  syso_gender_cats <- reactive({
+    ifelse(
+      input$methodology_type == 1,
+      list(syso_gender_excl),
+      list(syso_gender_incl)
+    )[[1]]
+  })
+  
+  syso_spec_pops_cats <- reactive({
+    ifelse(
+      input$syso_level_of_detail %in% c(1,2),
+      list(syso_spec_pops_people),
+      list(syso_spec_pops_hoh)
+    )[[1]]
+  })
   
   # set during initially valid processing stop. Rest of processing stops if invalid
   # FSA is hidden unless initially_valid_import() == 1
@@ -63,6 +92,7 @@ function(input, output, session) {
   # the HTML <div> id the same each time. Without associating with an output, 
   # the id changed each time and the shinytest would catch the difference and fail
   output$headerClientCounts_supp <- renderUI({ 
+    req(valid_file() == 1)
     organization <- Project0() %>%
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
@@ -188,32 +218,23 @@ function(input, output, session) {
           
           # Update inputs --------------------------------
           if(is.null(input$imported) & !isTruthy(input$in_demo_mode)) {
-            session$sendInputMessage('currentProviderList', list(choices = NULL))
-            session$sendInputMessage('providerListDQ', list(choices = NULL))
-            session$sendInputMessage('orgList', list(choices = NULL))
-            session$sendInputMessage('dq_org_startdate', list(value = NULL))
-            session$sendInputMessage('dq_startdate', list(value = NULL))
-            session$sendCustomMessage('dateRangeCount', list(
-              min = NULL,
-              start = NULL,
-              max = NULL,
-              end = NULL))
+            browser() #this shouldn't happen because process_upload only runs when they've uploaded a file or triggered demo
           } else {
+            # mark the "uploaded file" as demo.zip
+            if(isTruthy(input$in_demo_mode)) {
+              shinyjs::runjs(str_glue("
+                $('#imported')
+                  .closest('.input-group-btn')
+                  .next()
+                  .val('demo.zip');
+              "))
+            }
             
             updatePickerInput(session = session, inputId = "currentProviderList",
                               choices = sort(Project$ProjectName))
             
-            updatePickerInput(session = session, inputId = "providerListDQ",
-                              choices = dq_providers)
-            
             updatePickerInput(session = session, inputId = "orgList",
                               choices = c(unique(sort(Organization$OrganizationName))))
-            
-            updateDateInput(session = session, inputId = "dq_org_startdate", 
-                            value = meta_HUDCSV_Export_Start())
-            
-            updateDateInput(session = session, inputId = "dq_startdate", 
-                            value = meta_HUDCSV_Export_Start())
             
             updateDateRangeInput(session = session, inputId = "dateRangeCount",
                                  min = meta_HUDCSV_Export_Start(),
@@ -223,10 +244,10 @@ function(input, output, session) {
             
             # System Overview tab inputs
             updateDateRangeInput(session = session, inputId = "syso_date_range",
-                                 min = meta_HUDCSV_Export_Start,
-                                 start = meta_HUDCSV_Export_End - years(1) - months(3),
-                                 max = meta_HUDCSV_Export_End,
-                                 end = meta_HUDCSV_Export_End - months(3))
+                                 min = meta_HUDCSV_Export_Start(),
+                                 start = meta_HUDCSV_Export_End() - years(1) - months(3),
+                                 max = meta_HUDCSV_Export_End(),
+                                 end = meta_HUDCSV_Export_End() - months(3))
           }
           
         } else{ # if structural issues were found, reset gracefully
@@ -695,7 +716,7 @@ function(input, output, session) {
     orgDQData <- dq_main_reactive() %>%
       filter(OrganizationName %in% c(input$orgList))
     
-    orgDQoverlaps <- overlaps %>%
+    orgDQoverlaps <- overlaps() %>%
       filter(OrganizationName %in% c(input$orgList) | 
                PreviousOrganizationName %in% c(input$orgList))
     #browser()
@@ -714,7 +735,7 @@ function(input, output, session) {
       
       systemDQData = 
         getDQReportDataList(dq_main_reactive(),
-                            overlaps,
+                            overlaps(),
                             "OrganizationName",
                             calculate_outstanding_referrals(input$CEOutstandingReferrals)
         )
@@ -879,6 +900,8 @@ function(input, output, session) {
     }
   )
   
+  source("07a_system_activity_plots.R", local = TRUE)
+  
   #### DISPLAY FILTER SELECTIONS ###
   output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
   output$sys_act_summary_filter_selections <- renderUI({ syso_detailBox() })
@@ -887,7 +910,6 @@ function(input, output, session) {
   output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
   output$sys_act_summary_chart_subheader <- renderUI({ syso_chartSubheader() })
   
-  source("07a_system_activity_plots.R", local = TRUE)
   renderSystemPlot("sys_act_summary_ui_chart")
   renderSystemPlot("sys_act_detail_ui_chart")
   
