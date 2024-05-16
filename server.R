@@ -215,6 +215,8 @@ function(input, output, session) {
               "))
             }
             
+            shinyjs::show('fileStructureAnalysis')
+            
             updatePickerInput(session = session, inputId = "currentProviderList",
                               choices = sort(Project$ProjectName))
             
