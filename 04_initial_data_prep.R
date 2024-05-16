@@ -87,7 +87,12 @@ if("ProjectTimeID" %in% colnames(ProjectsInHMIS)){
 
 # This dataset is used when we need an unduplicated concise df for project
 Project0 <<- Project %>% 
-  select(ProjectID, ProjectName, OrganizationID, OrganizationName, ProjectType) %>%
+  select(ProjectID,
+         ProjectName,
+         OrganizationID,
+         OrganizationName,
+         ProjectType,
+         RRHSubType) %>%
   unique()
 
 # Enrollment --------------------------------------------------------------
@@ -254,12 +259,13 @@ HHEntry <- Enrollment %>%
 
 Enrollment <- Enrollment %>%
   left_join(HHEntry, by = "HouseholdID") %>%
-  mutate(
-    MoveInDateAdjust = if_else(!is.na(HHMoveIn) &
-                                 ymd(HHMoveIn) <= ExitAdjust,
-                               if_else(EntryDate <= ymd(HHMoveIn),
-                                       ymd(HHMoveIn), EntryDate),
-                               NA))
+  mutate(MoveInDateAdjust = if_else(
+    !is.na(HHMoveIn) &
+      ymd(HHMoveIn) <= ExitAdjust,
+    if_else(EntryDate <= ymd(HHMoveIn),
+            ymd(HHMoveIn), EntryDate),
+    NA
+  ))
 
 
 # Adding Age at Entry to Enrollment
@@ -268,6 +274,23 @@ Enrollment <- Enrollment %>%
   left_join(small_client, by = "PersonalID") %>%
   mutate(AgeAtEntry = age_years(DOB, EntryDate)) %>%
   select(-DOB)
+
+# to be used for system data analysis purposes. has been culled of enrollments
+# that fall outside of participation/operation date ranges.
+
+EnrollmentAdjust <- EnrollmentAdjust %>%
+  left_join(HHEntry, by = "HouseholdID") %>%
+  mutate(MoveInDateAdjust = if_else(
+    !is.na(HHMoveIn) &
+      ymd(HHMoveIn) <= ExitAdjust,
+    if_else(EntryDate <= ymd(HHMoveIn),
+            ymd(HHMoveIn), EntryDate),
+    NA
+  )) %>%
+  left_join(small_client, by = "PersonalID") %>%
+  mutate(AgeAtEntry = age_years(DOB, EntryDate)) %>%
+  select(-DOB)
+  
 
 rm(HHEntry, HHMoveIn, small_client)
 
@@ -309,6 +332,9 @@ validationEnrollment <- Enrollment %>%
     DestinationSubsidyType,
     DateCreated
   ) 
+
+# to be used for more literal, data-quality-based analyses. contains enrollments
+# that do not intersect any period of HMIS participation or project operation
 
 validation <- validationProject %>%
   left_join(validationEnrollment, by = c("ProjectTimeID", "ProjectID")) %>%

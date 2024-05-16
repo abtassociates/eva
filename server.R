@@ -3,7 +3,6 @@ function(input, output, session) {
   #record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   # Log the event to a database or file
-  source("hardcodes.R", local = TRUE) # hard-coded variables and data frames
   # used throughout the app
   source("helper_functions.R", local = TRUE) # calling in HMIS-related functions
   # that aren't in the HMIS pkg
@@ -50,6 +49,10 @@ function(input, output, session) {
   output$headerSystemDQ <- headerGeneric("System-level Data Quality")
     
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
+  
+  output$headerSystemOverview <- headerGeneric("System Overview")
+
+  output$headerSystemExit <- headerGeneric("System Exit")
   
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
@@ -106,7 +109,10 @@ function(input, output, session) {
           source("05_DataQuality.R", local = TRUE)
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
+          setProgress(detail = "Preparing System Overview Data", value = .85)
+          source("07_system_overview.R", local = TRUE)
           setProgress(detail = "Done!", value = 1)
+          logToConsole("Done processing")
           
           showModal(
             modalDialog(
@@ -195,6 +201,7 @@ function(input, output, session) {
     )
     
     if(valid_file() == 1) {
+      # DQ tab inputs
       updatePickerInput(session = session, inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
       
@@ -213,6 +220,13 @@ function(input, output, session) {
       updateDateRangeInput(session = session, inputId = "dateRangeCount",
                            min = meta_HUDCSV_Export_Start,
                            start = meta_HUDCSV_Export_Start,
+                           max = meta_HUDCSV_Export_End,
+                           end = meta_HUDCSV_Export_End)
+
+      # System Overview tab inputs
+      updateDateRangeInput(session = session, inputId = "syso_date_range",
+                           min = meta_HUDCSV_Export_Start,
+                           start = meta_HUDCSV_Export_End - years(1),
                            max = meta_HUDCSV_Export_End,
                            end = meta_HUDCSV_Export_End)
     }
@@ -595,7 +609,7 @@ function(input, output, session) {
         options = list(dom = 'ltpi')
       )
     })
-    
+
 
 # Prep DQ Downloads -------------------------------------------------------
 
@@ -730,38 +744,58 @@ function(input, output, session) {
     output$orgDQWarningsByIssue_ui <- renderUI({
       renderDQPlot("org", "Warning", "Issue", "#71B4CB")
     })
-  
     
+    # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
+    #### FILTERS ###
+    observeEvent(input$methodology_type, {
+      updatePickerInput(
+        session, 
+        "syso_gender", 
+        choices = syso_gender_cats())
+      # selected = syso_gender_cats()[1]
+      updatePickerInput(
+        session, 
+        "syso_race_ethnicity", 
+        choices = syso_race_ethnicity_cats())
+      # selected = syso_race_ethnicity_cats())
+    })
     
-    # output$headerUtilization <- renderUI({
-    #   list(h2("Bed and Unit Utilization"),
-    #        h4(input$providerListUtilization),
-    #        h4(format(ymd(
-    #          input$utilizationDate
-    #        ), "%B %Y"))
-    #        )
-    # })
-  
-  # output$headerExitsToPH <- renderUI({
-  #   req(valid_file() == 1)
-  #   ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
-  #   ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%B %d, %Y")
-  #   
-  #   list(h2("Successful Placement Detail"),
-  #        h4(input$ExitsToPHProjectList),
-  #        h4(paste(
-  #          ReportStart,
-  #          "to",
-  #          ReportEnd
-  #        )))
-  # })
-
+    observeEvent(input$syso_level_of_detail, {
+      updatePickerInput(session, "syso_spec_pops", choices = syso_spec_pops_cats())
+    })
+    
+    #### DOWNLOAD TABULAR FORMAT ###
+    output$downloadSysOverviewTabBtn  <- renderUI({
+      req(valid_file() == 1)
+      downloadButton(outputId = "downloadSysOverviewTabView",
+                     label = "Download")
+    })
+    
+    output$downloadSysOverviewTabView <- downloadHandler(
+      filename = date_stamped_filename("System Overview Tabular View -"),
+      content = function(file) {
+        req(valid_file() == 1)
+ 
+      }
+    )
+    
+    #### DISPLAY FILTER SELECTIONS ###
+    output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
+    output$sys_act_summary_filter_selections <- renderUI({ syso_detailBox() })
+    
+    #### DISPLAY CHART SUBHEADER ###
+    output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
+    output$sys_act_summary_chart_subheader <- renderUI({ syso_chartSubheader() })
+    
+    source("07a_system_activity_plots.R", local = TRUE)
+    renderSystemPlot("sys_act_summary_ui_chart")
+    renderSystemPlot("sys_act_detail_ui_chart")
+    
   }, ignoreInit = TRUE)
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")
   })
-}
   
   
   # output$cocDQErrors <- renderPlot(dq_plot_projects_errors)
@@ -1036,3 +1070,4 @@ function(input, output, session) {
 #                      bedUtilization)
 #   )
 # })
+}
