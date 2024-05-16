@@ -581,6 +581,7 @@
       ]
     },
     "isdemo": false,
+    "methodology_type": "1",
     "orgList": "Organization A",
     "pdde_guidance_summary_cell_clicked": {
 
@@ -594,16 +595,14 @@
       2,
       3,
       4,
-      5,
-      6
+      5
     ],
     "pdde_guidance_summary_rows_current": [
       1,
       2,
       3,
       4,
-      5,
-      6
+      5
     ],
     "pdde_guidance_summary_rows_selected": null,
     "pdde_guidance_summary_search": "",
@@ -666,16 +665,14 @@
       2,
       3,
       4,
-      5,
-      6
+      5
     ],
     "pdde_summary_table_rows_current": [
       1,
       2,
       3,
       4,
-      5,
-      6
+      5
     ],
     "pdde_summary_table_rows_selected": null,
     "pdde_summary_table_search": "",
@@ -723,7 +720,29 @@
     },
     "sidebarCollapsed": false,
     "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabPDDE"
+    "sidebarmenuid": "tabPDDE",
+    "syso_age": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
+    "syso_date_range": [
+      "2021-06-30",
+      "2022-06-30"
+    ],
+    "syso_gender": null,
+    "syso_hh_type": "1",
+    "syso_level_of_detail": "1",
+    "syso_project_type": "1",
+    "syso_race_ethnicity": "0",
+    "syso_spec_pops": "1"
   },
   "output": {
     "clientCountData": {
@@ -4089,7 +4108,7 @@
         0,
         0,
         0,
-        7,
+        9,
         0,
         0,
         0,
@@ -4222,7 +4241,7 @@
         0,
         3,
         0,
-        18,
+        22,
         0,
         0,
         0,
@@ -4264,7 +4283,7 @@
         0,
         0,
         0,
-        58,
+        56,
         4,
         0,
         0,
@@ -4397,7 +4416,7 @@
         12,
         8,
         0,
-        61,
+        57,
         0,
         0,
         0,
@@ -5457,7 +5476,7 @@
         0,
         0,
         0,
-        7,
+        9,
         0,
         0,
         0,
@@ -5613,7 +5632,7 @@
         3,
         0,
         0,
-        18,
+        22,
         0,
         0,
         0,
@@ -5665,7 +5684,7 @@
         0,
         0,
         0,
-        58,
+        56,
         4,
         0,
         0,
@@ -5821,7 +5840,7 @@
         8,
         0,
         0,
-        61,
+        57,
         0,
         0,
         0,
@@ -6081,7 +6100,7 @@
         0,
         0,
         0,
-        8,
+        10,
         16,
         0,
         0,
@@ -6143,8 +6162,8 @@
         0,
         0,
         0,
-        49,
-        0,
+        53,
+        5,
         117,
         6,
         0,
@@ -6289,7 +6308,7 @@
         0,
         0,
         0,
-        39,
+        37,
         105,
         0,
         0,
@@ -6351,8 +6370,8 @@
         0,
         0,
         0,
-        24,
-        36,
+        20,
+        31,
         279,
         12,
         13,
@@ -9204,24 +9223,21 @@
           "Missing Geography Information",
           "No Inventory Records",
           "Operating End precedes Inventory End",
-          "Overlapping HMIS Participation Records",
-          "RRH-SO has active bed inventory"
+          "Overlapping HMIS Participation Records"
         ],
         "Type": [
           "Warning",
           "High Priority",
           "Error",
           "Error",
-          "High Priority",
-          "Error"
+          "High Priority"
         ],
         "Count": [
           730,
           3,
           11,
           6,
-          1,
-          8
+          1
         ]
       },
       "Data": {
@@ -9976,15 +9992,7 @@
           "Organization H",
           "Organization H",
           "Organization N",
-          "Organization N",
-          "Organization M",
-          "Organization M",
-          "Organization M",
-          "Organization M",
-          "Organization M",
-          "Organization M",
-          "Organization M",
-          "Organization M"
+          "Organization N"
         ],
         "ProjectID": [
           "1002",
@@ -10737,15 +10745,7 @@
           "1743",
           "1743",
           "1745",
-          "1745",
-          "1518",
-          "1518",
-          "1518",
-          "1518",
-          "1518",
-          "1518",
-          "1518",
-          "1518"
+          "1745"
         ],
         "ProjectName": [
           "Organization J - HP",
@@ -11498,15 +11498,7 @@
           "Organization H - HP - 3",
           "Organization H - HP - 3",
           "Organization N - ES - 2",
-          "Organization N - ES - 2",
-          "Organization M - RRH - 2",
-          "Organization M - RRH - 2",
-          "Organization M - RRH - 2",
-          "Organization M - RRH - 2",
-          "Organization M - RRH - 2",
-          "Organization M - RRH - 2",
-          "Organization M - RRH - 2",
-          "Organization M - RRH - 2"
+          "Organization N - ES - 2"
         ],
         "Issue": [
           "Missing Geography Information",
@@ -12259,15 +12251,7 @@
           "Inventory Start Precedes Operating Start",
           "Inventory Start Precedes Operating Start",
           "Inventory Start Precedes Operating Start",
-          "Inventory Start Precedes Operating Start",
-          "RRH-SO has active bed inventory",
-          "RRH-SO has active bed inventory",
-          "RRH-SO has active bed inventory",
-          "RRH-SO has active bed inventory",
-          "RRH-SO has active bed inventory",
-          "RRH-SO has active bed inventory",
-          "RRH-SO has active bed inventory",
-          "RRH-SO has active bed inventory"
+          "Inventory Start Precedes Operating Start"
         ],
         "Type": [
           "High Priority",
@@ -13020,15 +13004,7 @@
           "Warning",
           "Warning",
           "Warning",
-          "Warning",
-          "Error",
-          "Error",
-          "Error",
-          "Error",
-          "Error",
-          "Error",
-          "Error",
-          "Error"
+          "Warning"
         ],
         "Guidance": [
           "Please ensure geography information for projects is complete.",
@@ -13781,15 +13757,7 @@
           "Inventory records may begin prior to a Project Operating Start Date, but sometimes this can indicate an incorrect date in either the Project Operating Start or the Inventory Start Date. Please review and if any dates are incorrect, update the record.",
           "Inventory records may begin prior to a Project Operating Start Date, but sometimes this can indicate an incorrect date in either the Project Operating Start or the Inventory Start Date. Please review and if any dates are incorrect, update the record.",
           "Inventory records may begin prior to a Project Operating Start Date, but sometimes this can indicate an incorrect date in either the Project Operating Start or the Inventory Start Date. Please review and if any dates are incorrect, update the record.",
-          "Inventory records may begin prior to a Project Operating Start Date, but sometimes this can indicate an incorrect date in either the Project Operating Start or the Inventory Start Date. Please review and if any dates are incorrect, update the record.",
-          "You have designated this project as Rapid Rehousing, subtype Services Only. The FY2024 Data Standards Manual says this kind of project \"provides services only and does not provide ongoing rental assistance or support any inventory for participants.\" If the project fits this description, please be sure there are no active inventory records associated with the project.",
-          "You have designated this project as Rapid Rehousing, subtype Services Only. The FY2024 Data Standards Manual says this kind of project \"provides services only and does not provide ongoing rental assistance or support any inventory for participants.\" If the project fits this description, please be sure there are no active inventory records associated with the project.",
-          "You have designated this project as Rapid Rehousing, subtype Services Only. The FY2024 Data Standards Manual says this kind of project \"provides services only and does not provide ongoing rental assistance or support any inventory for participants.\" If the project fits this description, please be sure there are no active inventory records associated with the project.",
-          "You have designated this project as Rapid Rehousing, subtype Services Only. The FY2024 Data Standards Manual says this kind of project \"provides services only and does not provide ongoing rental assistance or support any inventory for participants.\" If the project fits this description, please be sure there are no active inventory records associated with the project.",
-          "You have designated this project as Rapid Rehousing, subtype Services Only. The FY2024 Data Standards Manual says this kind of project \"provides services only and does not provide ongoing rental assistance or support any inventory for participants.\" If the project fits this description, please be sure there are no active inventory records associated with the project.",
-          "You have designated this project as Rapid Rehousing, subtype Services Only. The FY2024 Data Standards Manual says this kind of project \"provides services only and does not provide ongoing rental assistance or support any inventory for participants.\" If the project fits this description, please be sure there are no active inventory records associated with the project.",
-          "You have designated this project as Rapid Rehousing, subtype Services Only. The FY2024 Data Standards Manual says this kind of project \"provides services only and does not provide ongoing rental assistance or support any inventory for participants.\" If the project fits this description, please be sure there are no active inventory records associated with the project.",
-          "You have designated this project as Rapid Rehousing, subtype Services Only. The FY2024 Data Standards Manual says this kind of project \"provides services only and does not provide ongoing rental assistance or support any inventory for participants.\" If the project fits this description, please be sure there are no active inventory records associated with the project."
+          "Inventory records may begin prior to a Project Operating Start Date, but sometimes this can indicate an incorrect date in either the Project Operating Start or the Inventory Start Date. Please review and if any dates are incorrect, update the record."
         ],
         "Detail": [
           "This project's Geography Type is missing.",
@@ -14542,15 +14510,7 @@
           "This project may have been merged with another project which would explain why the Inventory Start Date of 2022-05-31 is prior to the project's Operating Start Date of 2022-06-01. Please be sure this is the case and that it is not a typo.",
           "This project may have been merged with another project which would explain why the Inventory Start Date of 2022-05-31 is prior to the project's Operating Start Date of 2022-06-01. Please be sure this is the case and that it is not a typo.",
           "This project may have been merged with another project which would explain why the Inventory Start Date of 2022-05-31 is prior to the project's Operating Start Date of 2022-06-01. Please be sure this is the case and that it is not a typo.",
-          "This project may have been merged with another project which would explain why the Inventory Start Date of 2022-05-31 is prior to the project's Operating Start Date of 2022-06-01. Please be sure this is the case and that it is not a typo.",
-          "",
-          "",
-          "",
-          "",
-          "",
-          "",
-          "",
-          ""
+          "This project may have been merged with another project which would explain why the Inventory Start Date of 2022-05-31 is prior to the project's Operating Start Date of 2022-06-01. Please be sure this is the case and that it is not a typo."
         ]
       }
     },
@@ -14560,7 +14520,6 @@
         "High Priority",
         "Error",
         "Error",
-        "Error",
         "Warning"
       ],
       "Issue": [
@@ -14568,7 +14527,6 @@
         "Overlapping HMIS Participation Records",
         "No Inventory Records",
         "Operating End precedes Inventory End",
-        "RRH-SO has active bed inventory",
         "Inventory Start Precedes Operating Start"
       ],
       "Guidance": [
@@ -14576,7 +14534,6 @@
         "This project has more than one HMIS Participation record that covers the same time period. Please be sure you are ending any records that are no longer accurate before creating a new record.",
         "Residential projects should have inventory data. Please enter inventory in HMIS for the project.",
         "Inventory records should end whenever a project stops operating. Please correct either the inventory dates or the Project Operating End Date.",
-        "You have designated this project as Rapid Rehousing, subtype Services Only. The FY2024 Data Standards Manual says this kind of project \"provides services only and does not provide ongoing rental assistance or support any inventory for participants.\" If the project fits this description, please be sure there are no active inventory records associated with the project.",
         "Inventory records may begin prior to a Project Operating Start Date, but sometimes this can indicate an incorrect date in either the Project Operating Start or the Inventory Start Date. Please review and if any dates are incorrect, update the record."
       ]
     },
@@ -14586,13 +14543,11 @@
         "Overlapping HMIS Participation Records",
         "No Inventory Records",
         "Operating End precedes Inventory End",
-        "RRH-SO has active bed inventory",
         "Inventory Start Precedes Operating Start"
       ],
       "Type": [
         "High Priority",
         "High Priority",
-        "Error",
         "Error",
         "Error",
         "Warning"
@@ -14602,7 +14557,6 @@
         1,
         11,
         6,
-        8,
         730
       ]
     }

@@ -127,8 +127,6 @@ toggleDemoJs <- function(t) {
       ")
     
     reset_reactivevals()
-    # if(is.null(input$imported) & !isTruthy(input$in_demo_mode))
-    #   valid_file(0)
     
     session$sendInputMessage('currentProviderList', list(
       choices = NULL
@@ -148,7 +146,6 @@ toggleDemoJs <- function(t) {
     print("Switched into live mode!")
     capture.output("Switched into live mode")
     logMetadata("Switched into live mode")
-    
   }
 }
 

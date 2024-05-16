@@ -396,3 +396,14 @@ a:hover {
   text-align:center;
   height: 1.5em;
 }
+
+/* || SYSTEM OVERVIEW FILTERS */
+#syso_date_range {
+  display: inline-block;
+}
+
+#syso_header {
+  background-color: #16697A;
+  color: white;
+  font-size: 1.4em;
+}
