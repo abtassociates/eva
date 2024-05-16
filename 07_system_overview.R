@@ -568,7 +568,10 @@ sys_inflow_outflow_plot_df <- reactive({
         # and within 2 weeks of prev enrollment
         (straddles_start == TRUE |
            (EntryDate >= input$syso_date_range[1] &
-              between(difftime(EntryDate, input$syso_date_range[1], units = "days"), 0, 14) &
+              between(difftime(EntryDate, input$syso_date_range[1],
+                               units = "days"),
+                      0,
+                      14) &
               !is.na(previous_exit_days) &
               between(as.numeric(previous_exit_days), 0, 14))),
       
@@ -631,7 +634,7 @@ sys_inflow_outflow_plot_df <- reactive({
         ExitAdjust > input$syso_date_range[2] &
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= input$syso_date_range[1] &
+        MoveInDateAdjust <= input$syso_date_range[2] &
         lh_prior_livingsituation == TRUE
     )
   

@@ -88,6 +88,34 @@ function(input, output, session) {
   demo_modal_closed <- reactiveVal()
   
   
+  # Population reactives ----------------------------------------------------
+  
+  # Set race/ethnicity + gender filter options based on methodology type selection
+  # Set special populations options based on level of detail selection
+  syso_race_ethnicity_cats <- reactive({
+    ifelse(
+      input$methodology_type == 1,
+      list(syso_race_ethnicity_excl),
+      list(syso_race_ethnicity_incl)
+    )[[1]]
+  })
+  
+  syso_gender_cats <- reactive({
+    ifelse(
+      input$methodology_type == 1,
+      list(syso_gender_excl),
+      list(syso_gender_incl)
+    )[[1]]
+  })
+  
+  syso_spec_pops_cats <- reactive({
+    ifelse(
+      input$syso_level_of_detail %in% c(1,2),
+      list(syso_spec_pops_people),
+      list(syso_spec_pops_hoh)
+    )[[1]]
+  })
+  
   # log when user navigate to a tab
   observe({ 
     logMetadata(paste0("User on ",input$sidebarmenuid, 

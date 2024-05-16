@@ -151,7 +151,7 @@ importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
   if(str_sub(upload_filepath,-4,-1) != ".zip") {
     capture.output("User tried uploading a non-zip file!") 
   }
-  
+
   filename <- str_glue("{csvFile}.csv")
   data <-
     read_csv(
@@ -164,7 +164,7 @@ importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
     data <- data %>%
       filter(is.na(DateDeleted))
   }
-  
+
   file.remove(filename)
   return(data)
 }

@@ -47,6 +47,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "downloadOrgDQReport", "Org-DQ-Download")
   })
 }
+
 initially_invalid_test_script <- function(test_script_name, test_dataset) {
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
     print(paste0("Running ",test_script_name))
