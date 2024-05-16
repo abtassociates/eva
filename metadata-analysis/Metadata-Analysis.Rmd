@@ -405,6 +405,7 @@ Eva did not begin tracking downloads until December 29, 2022.
 
 counts_by_week %>%
   filter(str_detect(Event, "Download")) %>%
+  filter(!str_detect(Event, "DEMO MODE")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line() +
   geom_point() +
@@ -426,6 +427,7 @@ counts_by_week %>%
 
 counts_by_month %>%
   filter(str_detect(Event, "Download")) %>%
+  filter(!str_detect(Event, "DEMO MODE")) %>%
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line() +
