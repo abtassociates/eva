@@ -1,8 +1,8 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
-    "05-02-2024", "Added demo mode, where users can try out Eva even if they
-    don't have access to an FY 2024 HMIS CSV Export",
+    "05-20-2024", "Added demo mode, where users can try out Eva even if they
+    don't have access to an FY 2024 HMIS CSV Export.",
     
     "04-09-2024", "Moved all variables from global environment to a session 
     environment to ensure appropriate visibility.",
