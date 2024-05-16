@@ -52,21 +52,27 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
         seed = 12345,
         load_timeout = 2e+05)
   
+    print("Finished running app init")
     app$set_inputs(Go_to_upload = "click")
     app$upload_file(imported = paste0(here("tests/temp/"),test_dataset))
+    app$wait_for_idle(timeout = 2e+05)
     app$expect_values()
   
     app$set_inputs(sidebarmenuid = "tabClientCount")
+    app$wait_for_idle(timeout = 2e+05)
     app$expect_values()
   
     app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
     app$set_inputs(sidebarmenuid = "tabPDDE")
+    app$wait_for_idle(timeout = 2e+05)
     app$expect_values()
   
     app$set_inputs(sidebarmenuid = "tabDQSystem")
+    app$wait_for_idle(timeout = 2e+05)
     app$expect_values()
   
     app$set_inputs(sidebarmenuid = "tabDQOrg")
+    app$wait_for_idle(timeout = 2e+05)
     app$expect_values()
   })
 }
