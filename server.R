@@ -197,6 +197,8 @@ function(input, output, session) {
             )
           )
           
+          shinyjs::show("fileStructureAnalysis")
+          
           logMetadata("Successful upload")
           
           logToConsole("Updating inputs")
@@ -226,6 +228,7 @@ function(input, output, session) {
                                  start = meta_HUDCSV_Export_Start(),
                                  max = meta_HUDCSV_Export_End(),
                                  end = meta_HUDCSV_Export_End())
+            
           }
           
         } else{ # if structural issues were found, reset gracefully
