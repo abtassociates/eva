@@ -254,7 +254,7 @@ function(input, output, session) {
   
   # File Structure Analysis Summary -----------------------------------------
   # update_fsa <- function() {
-  output$fileStructureAnalysis <- DT::renderDataTable({
+  output$fileStructureAnalysis <- renderDT({
     req(nrow(file_structure_analysis_main()))
     req(initially_valid_import() == 1)
     a <- file_structure_analysis_main() %>%
@@ -498,7 +498,7 @@ function(input, output, session) {
   })
   
   # CLIENT COUNT DETAILS - APP ----------------------------------------------
-  output$clientCountData <- DT::renderDataTable({
+  output$clientCountData <- renderDT({
     req(valid_file() == 1)
     req(nrow(validation()) > 0)
     
@@ -520,7 +520,7 @@ function(input, output, session) {
   
   # CLIENT COUNT SUMMARY - APP ----------------------------------------------
   
-  output$clientCountSummary <- DT::renderDataTable({
+  output$clientCountSummary <- renderDT({
     req(valid_file() == 1)
     
     exportTestValues(clientCountSummary = client_count_summary_df())
@@ -589,7 +589,7 @@ function(input, output, session) {
   )
   
   # summary table
-  output$pdde_summary_table <- DT::renderDataTable({
+  output$pdde_summary_table <- renderDT({
     req(valid_file() == 1)
     
     a <- pdde_main() %>%
@@ -610,7 +610,7 @@ function(input, output, session) {
   
   # PDDE Guidance -----------------------------------------------------------
   
-  output$pdde_guidance_summary <- DT::renderDataTable({
+  output$pdde_guidance_summary <- renderDT({
     req(valid_file() == 1)
     
     guidance <- pdde_main() %>%
@@ -633,7 +633,7 @@ function(input, output, session) {
   # DQ Org Summary -------------------------------------------------------
   source("05_DataQuality_functions.R", local = TRUE)
   
-  output$dq_organization_summary_table <- DT::renderDataTable({
+  output$dq_organization_summary_table <- renderDT({
     req(valid_file() == 1)
     
     a <- dq_main_reactive() %>%
@@ -664,7 +664,7 @@ function(input, output, session) {
   
   # DQ Org Guidance -------------------------------------------------------
   
-  output$dq_org_guidance_summary <- DT::renderDataTable({
+  output$dq_org_guidance_summary <- renderDT({
     req(valid_file() == 1)
     
     guidance <- dq_main_reactive() %>%
@@ -903,7 +903,7 @@ function(input, output, session) {
   # 
   # output$utilizationNote <- renderUI(HTML(note_calculation_utilization))
   # 
-  # output$utilizationDetail <- DT::renderDataTable({
+  # output$utilizationDetail <- renderDT({
   #   ReportStart <-
   #     floor_date(ymd(input$utilizationDate),
   #                unit = "month")

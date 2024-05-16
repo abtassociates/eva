@@ -106,8 +106,6 @@ toggleDemoJs <- function(t) {
     shinyjs::hide(id = "successful_upload")
     shinyjs::disable("imported")
     
-    shinyjs::show('fileStructureAnalysis')
-    
     print("Switched to demo mode!")
     logMetadata("Switched to demo mode")
     
@@ -115,7 +113,6 @@ toggleDemoJs <- function(t) {
     capture.output("Switching to live mode")
     
     updateTabItems(session, "sidebarmenuid", "tabUpload")
-    shinyjs::hide('fileStructureAnalysis')
     
     shinyjs::runjs("
           $('#imported').closest('.btn').removeAttr('disabled');
