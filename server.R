@@ -243,6 +243,9 @@ function(input, output, session) {
           setProgress(detail = "Preparing System Overview Data", value = .85)
           source("07_system_overview.R", local = TRUE)
 
+          setProgress(detail = "Preparing System Composition", value = .9)
+          source("08_system_composition.R", local=TRUE)
+
           setProgress(detail = "Done!", value = 1)
           logToConsole("Done processing")
           
@@ -917,13 +920,34 @@ function(input, output, session) {
     updatePickerInput(
       session, 
       "syso_gender", 
-      choices = syso_gender_cats())
+      choices = syso_gender_cats(),
+      selected = all_of(syso_gender_cats()),
+      options = pickerOptions(
+        actionsBox = TRUE,
+        selectedTextFormat = paste("count >", length(syso_gender_cats())-1),
+        countSelectedText = "All Genders",
+        noneSelectedText = "All Genders" 
+      )
+    )
     # selected = syso_gender_cats()[1]
     updatePickerInput(
       session, 
       "syso_race_ethnicity", 
-      choices = syso_race_ethnicity_cats())
-    # selected = syso_race_ethnicity_cats())
+      choices = syso_race_ethnicity_cats(),
+      options = pickerOptions(
+        actionsBox = TRUE,
+        selectedTextFormat = paste("count >", length(syso_race_ethnicity_cats())-1),
+        countSelectedText = "All Races/Ethnicities",
+        noneSelectedText = "All Races/Ethnicities" 
+      )
+    )
+
+    updateCheckboxGroupInput(
+      session, 
+      "system_composition_filter", 
+      choices = sys_comp_filter_choices(),
+      inline = TRUE
+    )
   })
   
   observeEvent(input$syso_level_of_detail, {
@@ -944,19 +968,63 @@ function(input, output, session) {
 
     }
   )
-  
+    
   source("07a_system_activity_plots.R", local = TRUE)
-  
+    
   #### DISPLAY FILTER SELECTIONS ###
   output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
   output$sys_act_summary_filter_selections <- renderUI({ syso_detailBox() })
-  
+
   #### DISPLAY CHART SUBHEADER ###
   output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
   output$sys_act_summary_chart_subheader <- renderUI({ syso_chartSubheader() })
-  
+
   renderSystemPlot("sys_act_summary_ui_chart")
   renderSystemPlot("sys_act_detail_ui_chart")
+
+  # System Composition ------------------------------------
+  observeEvent(input$system_composition_filter, {
+    # they can select up to 2
+    if(length(input$system_composition_filter) > 2){
+      updateCheckboxGroupInput(
+        session, 
+        "system_composition_filter", 
+        selected = tail(input$system_composition_filter,2),
+        inline = TRUE)
+    } 
+
+    # they cannot select both Race/Ethnicity buttons
+    if("All Races/Ethnicities" %in% input$system_composition_filter & (
+        "Hispanic-Focused Races/Ethnicities" %in% input$system_composition_filter |
+        "Grouped Races/Ethnicities" %in% input$system_composition_filter)
+      ) {
+      updateCheckboxGroupInput(
+        session, 
+        "system_composition_filter", 
+        selected = tail(input$system_composition_filter,1),
+        inline = TRUE)
+    } 
+  })
+
+  output$sys_comp_summary_filter_selections <- renderUI({sys_comp_filters()})
+
+  sys_comp_p <- reactive({
+    req(!is.null(input$system_composition_filter))
+    sys_comp_plot(input$system_composition_filter)
+  })
+
+  output$sys_comp_summary_ui_chart <- renderPlot({
+    validate(
+      need(
+        any(!is.na(sys_comp_p()$data$n)), 
+        message = paste0("No data to show.")
+      )
+    )
+    sys_comp_p()
+  }, height = function() { 
+      if_else(length(input$system_composition_filter) == 2, 600, 100) 
+  })
+  
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")

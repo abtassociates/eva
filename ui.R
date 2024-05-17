@@ -783,15 +783,27 @@ dashboardPage(
               inputId = "syso_gender",
               choices = syso_gender_incl,
               width = "100%",
-              selected = syso_gender_incl[1],
-              multiple = TRUE
+              selected = syso_gender_incl,
+              multiple = TRUE,
+              options = pickerOptions(
+                actionsBox = TRUE,
+                selectedTextFormat = paste("count >", length(syso_gender_incl)-1),
+                countSelectedText = "All Genders",
+                noneSelectedText = "All Genders" 
+              )
             )),
             column(6, pickerInput(
               label = "Race/Ethnicity",
               inputId = "syso_race_ethnicity",
               choices = syso_race_ethnicity_incl,
               width = "100%",
-              selected = syso_race_ethnicity_incl[1]
+              selected = syso_race_ethnicity_incl,
+              options = pickerOptions(
+                actionsBox = TRUE,
+                selectedTextFormat = paste("count >", length(syso_race_ethnicity_incl)-1),
+                countSelectedText = "All Races/Ethnicities",
+                noneSelectedText = "All Races/Ethnicities" 
+              )
             ))
           )
         ),
@@ -806,16 +818,52 @@ dashboardPage(
             tabPanel("Detail", 
               uiOutput("sys_act_detail_filter_selections"),
               uiOutput("sys_act_detail_chart_subheader"),
-              plotOutput("sys_act_detail_ui_chart", height=600)
+              plotOutput("sys_act_detail_ui_chart")
             ),
             tabPanel("Summary", 
               uiOutput("sys_act_summary_filter_selections"),
               uiOutput("sys_act_summary_chart_subheader"),
-              plotOutput("sys_act_summary_ui_chart", height=600)
+              plotOutput("sys_act_summary_ui_chart")
             ),
             width = 12
           )
-        )
+        ),
+        fluidRow(
+          box(
+            id = "syso_header",
+            "System Composition",
+            width = 12
+          )
+        ),
+        fluidRow(
+          box(
+            checkboxGroupInput(
+              "system_composition_filter",
+              label = paste0(
+                "Gender, Race/Ethnicity, and Special Populations",
+                "(select up to 2)"
+              ),
+              choices = sys_comp_filter_choices1,
+              inline = TRUE
+            ),
+            width = 12
+          )
+        ),
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Summary",
+            title = "Composition of All Served in Period",
+            tabPanel("Instructions", 
+                     p("Some instructions")
+            ),
+            tabPanel("Summary", 
+                     uiOutput("sys_comp_summary_filter_selections"),
+                     plotOutput("sys_comp_summary_ui_chart")
+            ),
+            width = 12
+          )
+        ),
       ),
       tabItem(
         tabName = "systemExitDetail",
@@ -826,7 +874,7 @@ dashboardPage(
             HTML("<h2>Placeholder</h2>")
           )
         )
-      ), 
+      ),
       tabItem(
         tabName = "tabPDDE",
         fluidRow(box(htmlOutput(
