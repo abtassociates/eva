@@ -6,15 +6,6 @@ syso_race_ethnicities_grouped <- unlist(syso_race_ethnicity_cats()["Group 2"])
 names(syso_race_ethnicities_grouped) <- gsub("Group [0-9]+\\.", "",
                                          names(syso_race_ethnicities_grouped))
 
-
-sys_comp_filter_choices <- reactive({
-  ifelse(
-    input$methodology_type == 1,
-    list(sys_comp_filter_choices1),
-    list(sys_comp_filter_choices2)
-  )[[1]]
-})
-
 get_v_cats <- function(v) {
   return(
     switch(v,

@@ -916,6 +916,13 @@ function(input, output, session) {
   
   # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
   #### FILTERS ###
+  sys_comp_filter_choices <- reactive({
+    ifelse(
+      input$methodology_type == 1,
+      list(sys_comp_filter_choices1),
+      list(sys_comp_filter_choices2)
+    )[[1]]
+  })
   observeEvent(input$methodology_type, {
     updatePickerInput(
       session, 
@@ -941,7 +948,7 @@ function(input, output, session) {
         noneSelectedText = "All Races/Ethnicities" 
       )
     )
-
+    
     updateCheckboxGroupInput(
       session, 
       "system_composition_filter", 
