@@ -298,7 +298,6 @@ function(input, output, session) {
           
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
-          reset("imported")
           showModal(
             modalDialog(
               title = "Unsuccessful Upload: Your HMIS CSV Export is not
