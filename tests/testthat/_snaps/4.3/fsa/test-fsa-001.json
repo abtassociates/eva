@@ -27,11 +27,9 @@
         "0.zip"
       ]
     },
+    "isdemo": false,
     "methodology_type": "1",
     "orgList": null,
-    "shinyjs-resettable-imported": {
-
-    },
     "sidebarCollapsed": false,
     "sidebarItemExpanded": null,
     "sidebarmenuid": "tabUpload",

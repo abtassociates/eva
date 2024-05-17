@@ -147,25 +147,23 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-importFile <- function(csvFile, guess_max = 1000) {
+importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
+  if(str_sub(upload_filepath,-4,-1) != ".zip") {
+    capture.output("User tried uploading a non-zip file!") 
+  }
+  
   filename <- str_glue("{csvFile}.csv")
+  
+  data <-
+    read_csv(
+      utils::unzip(zipfile = upload_filepath, files = filename),
+      col_types = get_col_types(csvFile),
+      na = ""
+    )
 
-  if(csvFile == "Export"){
-    data <-
-      read_csv(
-        unzip(zipfile = input$imported$datapath, files = filename),
-        col_types = get_col_types(csvFile),
-        na = ""
-      )
-  } else{
-    data <-
-      read_csv(
-        unzip(zipfile = input$imported$datapath, files = filename),
-        col_types = get_col_types(csvFile),
-        na = ""
-      ) %>%
+  if(csvFile != "Export"){
+    data <- data %>%
       filter(is.na(DateDeleted))
-    
   }
   
   file.remove(filename)
@@ -205,9 +203,9 @@ headerGeneric <- function(tabTitle, extraHTML = NULL) {
       list(h2(tabTitle),
            h4(strong("Date Range of Current File: "),
             paste(
-             format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+             format(meta_HUDCSV_Export_Start(), "%m-%d-%Y"),
              "to",
-             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+             format(meta_HUDCSV_Export_End(), "%m-%d-%Y")
            )),
            extraHTML
       )
@@ -222,12 +220,12 @@ logSessionData <- function() {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = Export$SourceID,
-    ExportID = Export$ExportID,
-    SourceContactFirst = Export$SourceContactFirst,
-    SourceContactLast = Export$SourceContactLast,
-    SourceContactEmail = Export$SourceContactEmail,
-    SoftwareName = Export$SoftwareName
+    CoC = Export()$SourceID,
+    ExportID = Export()$ExportID,
+    SourceContactFirst = Export()$SourceContactFirst,
+    SourceContactLast = Export()$SourceContactLast,
+    SourceContactEmail = Export()$SourceContactEmail,
+    SoftwareName = Export()$SoftwareName
   )
   
   # put the export info in the log
@@ -247,8 +245,8 @@ logToConsole <- function(msg) {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = Export$SourceID,
-    ExportID = Export$ExportID,
+    CoC = Export()$SourceID,
+    ExportID = Export()$ExportID,
     Msg = msg
   )
   capture.output(d, file = stderr())
@@ -334,7 +332,7 @@ merge_check_info <- function(data, checkIDs) {
 ############################
 getNameByValue <- function(vector, val) {
   return(
-    paste(names(vector)[which(vector %in% val)], collapse=", ")
+    paste(names(vector)[which(vector %in% val)], collapse = ", ")
   )
 }
 

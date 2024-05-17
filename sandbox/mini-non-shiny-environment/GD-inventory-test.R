@@ -8,10 +8,10 @@ Inventory %>% #filter(ProjectID == "1330") %>% # <- has a lot of inv records
   left_join(Project %>% select(ProjectID, OrganizationName, OperatingStartDate, OperatingEndDate),
             by = "ProjectID") %>%
   mutate(
-    ReportPeriod = interval(meta_HUDCSV_Export_Start, meta_HUDCSV_Export_End),
+    ReportPeriod = interval(meta_HUDCSV_Export_Start(), meta_HUDCSV_Export_End()),
     OperatingPeriod = interval(
       OperatingStartDate,
-      coalesce(OperatingEndDate, meta_HUDCSV_Export_End)
+      coalesce(OperatingEndDate, meta_HUDCSV_Export_End())
     ),
     Active = if_else(
       is.na(InventoryEndDate) |

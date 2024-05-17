@@ -48,7 +48,7 @@ source(paste0(directory, "01_get_Export.R"))
 
 # Edits -------------------------------------------------------------------
 
-Export$HashStatus <- 4
+Export()$HashStatus <- 4
 
 Client_hashed <- Client %>%
   mutate(FirstName = digest(FirstName, algo = "md5"),
