@@ -45,7 +45,7 @@ function(input, output, session) {
   
   # manages toggling demo mode on and off
   source("demo_management.R", local = TRUE)
-  toggleDemoJs(FALSE)
+  shinyjs::runjs("$('#home_demo_instructions').parent().parent().toggle({js_t});")
   
   # log that the session has started
   logMetadata("Session started")
