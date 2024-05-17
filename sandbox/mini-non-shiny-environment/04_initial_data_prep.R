@@ -73,7 +73,7 @@ ProjectSegments <- project_prep %>%
 # * Use Project if you need something from the original data as it came in that's
 #     not in Project0 or ProjectSegments
 
-Project0 <<- project_prep %>%
+Project0(project_prep %>%
   select(ProjectID,
          ProjectName,
          OrganizationID,
@@ -84,6 +84,7 @@ Project0 <<- project_prep %>%
          RRHSubType,
          VictimServiceProvider) %>%
   unique()
+)
 
 rm(project_prep)
 
@@ -113,7 +114,11 @@ EnrollmentStaging <- Enrollment %>%
   # be excluded later
   mutate(
     EnrollmentvParticipating = case_when(
-      EnrollmentDateRange %within% ParticipatingDateRange ~
+      EnrollmentDateRange %within% ParticipatingDateRange |
+        (
+          int_start(EnrollmentDateRange) >= int_start(ParticipatingDateRange) & 
+            int_end(ParticipatingDateRange) > Sys.Date()
+        ) ~
         "Inside",
       int_start(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
         "Enrollment After Participating Period",
@@ -123,14 +128,18 @@ EnrollmentStaging <- Enrollment %>%
       int_end(EnrollmentDateRange) < int_start(ParticipatingDateRange) ~
         "Enrollment Before Participating Period",
       int_start(EnrollmentDateRange) > int_start(ParticipatingDateRange) &
-        int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
+        int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~ 
         "Enrollment Crosses Participating End",
       int_start(EnrollmentDateRange) < int_start(ParticipatingDateRange) &
         int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange) ~
-        "Enrollment Crosses Participation Period"
-    ),
+        "Enrollment Crosses Participation Period"),
+
     EnrollmentvOperating = case_when(
-      EnrollmentDateRange %within% OperatingDateRange ~
+      EnrollmentDateRange %within% OperatingDateRange |
+        (
+          int_start(EnrollmentDateRange) >= int_start(OperatingDateRange) & 
+            int_end(OperatingDateRange) > Sys.Date()
+        ) ~
         "Inside",
       int_start(EnrollmentDateRange) > int_end(OperatingDateRange) ~
         "Enrollment After Operating Period",
@@ -253,7 +262,7 @@ rm(HHMoveIn)
 Services <- Services %>%
   filter(RecordType == 200 & !is.na(DateProvided))
 
-# Build Validation df for app ---------------------------------------------
+# Build validation() df for app ---------------------------------------------
 
 validationProject <- ProjectSegments %>%
   select(
@@ -289,28 +298,29 @@ validationEnrollment <- Enrollment %>%
 
 # to be used for more literal, data-quality-based analyses. contains enrollments
 # that do not intersect any period of HMIS participation or project operation
-
-validation <- validationProject %>%
-  left_join(validationEnrollment, by = c("ProjectTimeID", "ProjectID")) %>%
-  select(
-    ProjectID,
-    ProjectTimeID,
-    OrganizationName,
-    ProjectName,
-    ProjectType,
-    EnrollmentID,
-    PersonalID,
-    HouseholdID,
-    RelationshipToHoH,
-    EntryDate,
-    MoveInDateAdjust,
-    ExitDate,
-    LivingSituation,
-    Destination,
-    DestinationSubsidyType,
-    DateCreated
-  ) %>%
-  filter(!is.na(EntryDate))
+validation(
+  validationProject %>%
+    left_join(validationEnrollment, by = c("ProjectTimeID", "ProjectID")) %>%
+    select(
+      ProjectID,
+      ProjectTimeID,
+      OrganizationName,
+      ProjectName,
+      ProjectType,
+      EnrollmentID,
+      PersonalID,
+      HouseholdID,
+      RelationshipToHoH,
+      EntryDate,
+      MoveInDateAdjust,
+      ExitDate,
+      LivingSituation,
+      Destination,
+      DestinationSubsidyType,
+      DateCreated
+    ) %>%
+    filter(!is.na(EntryDate))
+)
 
 # Checking requirements by projectid --------------------------------------
 
@@ -318,7 +328,7 @@ projects_funders_types <- Funder %>%
   left_join(Project %>%
               select(ProjectID, ProjectType),
             join_by(ProjectID)) %>%
-  filter(is.na(EndDate) | EndDate > meta_HUDCSV_Export_Start) %>%
+  filter(is.na(EndDate) | EndDate > meta_HUDCSV_Export_Start()) %>%
   select(ProjectID, ProjectType, Funder) %>%
   unique() %>%
   left_join(inc_ncb_hi_required, join_by(ProjectType, Funder)) %>%
@@ -333,10 +343,12 @@ projects_funders_types <- Funder %>%
             dv = max(dv, na.rm = TRUE)) %>%
   ungroup()
 
-# desk_time_providers <- validation %>%
+# desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |
 #        exited_between(., today() - years(1), today())) &
 #       ProjectType %in% lh_ph_hp_project_types) %>%
 #   dplyr::select(ProjectName) %>% unique()
 
+CurrentLivingSituation(CurrentLivingSituation)
+Event(Event)

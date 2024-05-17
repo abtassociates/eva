@@ -1,6 +1,38 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "05-20-2024", "Added demo mode, where users can try out Eva even if they
+    don't have access to an FY 2024 HMIS CSV Export.",
+    
+    "04-09-2024", "Moved all variables from global environment to a session 
+    environment to ensure appropriate visibility.",
+  
+    "04-09-2024", "Moved data frames \"Export\" and \"Project0\" from the global
+    environment to a session environment to ensure appropriate visibility.",
+
+    "04-01-2024", "Added 'Demo Mode', which allows users to play around with a 
+    test dataset in Eva in order to understand how the tool works without having 
+    to upload any data",
+
+     "04-01-2024", "Added loading spinners to make clear when something is loading
+     as opposed to frozen",
+    
+    "01-24-2024", "If a project has an Operating or Participating end date in 
+    the future Eva will not flag these enrollments as Enrollment Crosses 
+    Operating/Participating End errors.",
+
+    "01-24-2024", "Corrected 'No Inventory Records' logic so that it does not flag
+    RRH-SSO projects.",
+
+    "01-24-2024", "Added upload progress display text so it's clear Eva is 
+    working and not freezing.",
+    
+    "12-14-2023", "Eva now filters out records in any csv file that has a value
+    in the DateDeleted column.",
+    
+    "12-14-2023", "Added check for non-ASCII (i.e. impermissible) characters that
+    caused Eva to crash",
+    
     "11-30-2023", "Added filters for income, non-cash, health insurance data 
     quality issues so that projects that don't need to collect that, based on
     their funding source and project type are not being false flagged",

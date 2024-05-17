@@ -24,7 +24,6 @@ Exit <- Exit %>%
            )
   )
 
-
 # CLS Subsidy Type -------------------------------------------------------------
 split_rows <- select_random_rows(CurrentLivingSituation$CurrentLivingSituation == 435)
 CurrentLivingSituation <- CurrentLivingSituation %>%
@@ -49,7 +48,6 @@ Enrollment <- Enrollment %>%
            )
   )
 
-
 # Participation overlap (checkIDs = 131) ---------------------------------------
 # this creates an "overlap" by duplicating a randomly selected existing record 
 # and modifying the start date to be 2 days before the original record's end date
@@ -70,7 +68,7 @@ random_project <- Inventory %>%
   filter(BedInventory > 0) %>%
   semi_join(
     Project %>% 
-      filter(ProjectType == 13), 
+      filter(ProjectType == 13 & RRHSubType != 1), 
     by = "ProjectID") %>%
   sample_n(1) %>%
   pull(ProjectID)
@@ -81,7 +79,7 @@ Project <- Project %>%
     RRHSubType = if_else(ProjectID == random_project, 1, RRHSubType),
     RRHSOActivePeriod =
       interval(OperatingStartDate,
-        coalesce(OperatingEndDate, meta_HUDCSV_Export_End))
+        coalesce(OperatingEndDate, meta_HUDCSV_Export_End()))
     )
 
 # finally, make sure inventory period overlaps project operating period
@@ -93,5 +91,9 @@ Inventory <- Inventory %>%
          InventoryEndDate = OperatingEndDate + days(1)) %>%
   select(-c(OperatingStartDate, OperatingEndDate))
 
+# there are deleted records in the data -----------------------------------
+
+Organization <- rbind(Organization[1,], Organization) %>%
+  mutate(DateDeleted = if_else(row_number() == 1, ymd("20231101"), NA))
 
 ## add more checks here --------------------------------------------

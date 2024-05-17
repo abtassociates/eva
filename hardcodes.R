@@ -339,3 +339,5 @@ sys_comp_filter_choices2 = c(
   "Hispanic-Focused Races/Ethnicities",
   "Veteran Status"
 )
+
+rm(inc_ncb_hi_required_prep)

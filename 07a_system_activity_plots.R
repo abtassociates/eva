@@ -53,8 +53,7 @@ cat.var_detail_values <- c(
 )
 
 system_activity_prep <- reactive({
-  # browser()
-  system_plot_data() %>% # this is a people-level df
+  sys_inflow_outflow_plot_data()() %>% # this is a people-level df
     filter(InflowTypeDetail != "something's wrong" &
              OutflowTypeDetail != "something's wrong") %>%
     pivot_longer(
@@ -144,9 +143,9 @@ prep_for_chart <- function(df, catvar_values, xvar_values) {
 }
 
 renderSystemPlot <- function(id) {
-  req(valid_file() == 1)
-  
   output[[id]] <- renderPlot({
+    req(valid_file() == 1)
+    
     if(id == "sys_act_summary_ui_chart") {
       colors <- c('#73655E','#C6BDB9','#C34931', '#16697A')
       df <- prep_for_chart(
@@ -281,4 +280,63 @@ renderSystemPlot <- function(id) {
     )
   })
  # return(plotOutput(id, height = 400))
-}
+} 
+
+
+# Plot prompts for plot subtitle ------------------------------------------
+
+syso_detailBox <- reactive({
+  # remove group names from race/ethnicity filter
+  # so we can use getNameByValue() to grab the selected option label
+  syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
+  names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
+                                       names(syso_race_ethnicities))
+  
+  list(
+    strong("Date Range: "),
+    input$syso_date_range[1],
+    " to ",
+    input$syso_date_range[2], 
+    br(),
+    strong("Household Type: "),
+    getNameByValue(syso_hh_types, input$syso_hh_type),
+    " | ",
+    strong("Level of Detail: "),
+    getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
+    " | ",
+    strong("Project Type: "),
+    getNameByValue(syso_project_types, input$syso_project_type), 
+    br(),
+    strong("Age: "),
+    if_else(
+      setequal(syso_age_cats, input$syso_age) |
+        is.null(input$syso_age),
+      "All Ages",
+      getNameByValue(syso_age_cats, input$syso_age)
+    ),
+    " | ",
+    strong("Gender: "),
+    getNameByValue(syso_gender_cats(), input$syso_gender),
+    " | ",
+    strong("Race/Ethnicity: "),
+    getNameByValue(syso_race_ethnicities, input$syso_race_ethnicity),
+    " | ",
+    strong("Special Populations: "),
+    getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops), 
+    br(),
+    strong("Methodology Type: "),
+    getNameByValue(syso_methodology_types, input$methodology_type) 
+  )
+})
+
+syso_chartSubheader <- reactive({
+  list(
+    strong(""), 
+    # formatC(
+    #   nrow(system_df_people_filtered()),
+    #   format = "d",
+    #   big.mark = ","
+    # ),
+    br()
+  )
+})

@@ -495,34 +495,6 @@ system_df_enrl_filtered <- reactive({
     ungroup()
 })
 
-# Population reactives ----------------------------------------------------
-
-# Set race/ethnicity + gender filter options based on methodology type selection
-# Set special populations options based on level of detail selection
-syso_race_ethnicity_cats <- reactive({
-  ifelse(
-    input$methodology_type == 1,
-    list(syso_race_ethnicity_excl),
-    list(syso_race_ethnicity_incl)
-  )[[1]]
-})
-
-syso_gender_cats <- reactive({
-  ifelse(
-    input$methodology_type == 1,
-    list(syso_gender_excl),
-    list(syso_gender_incl)
-  )[[1]]
-})
-
-syso_spec_pops_cats <- reactive({
-  ifelse(
-    input$syso_level_of_detail %in% c(1,2),
-    list(syso_spec_pops_people),
-    list(syso_spec_pops_hoh)
-  )[[1]]
-})
-
 # Client-level reactive ---------------------------------------------------
 # get filtered people-level system dataframe
 system_df_people_universe_filtered <- reactive({
@@ -572,69 +544,10 @@ system_df_people_syso_filtered <- reactive({
     unique()
 })
 
-
-# Plot prompts for plot subtitle ------------------------------------------
-
-syso_detailBox <- reactive({
-  # remove group names from race/ethnicity filter
-  # so we can use getNameByValue() to grab the selected option label
-  syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
-  names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
-                                      names(syso_race_ethnicities))
-  
-  list(
-    strong("Date Range: "),
-    input$syso_date_range[1],
-    " to ",
-    input$syso_date_range[2], 
-    br(),
-    strong("Household Type: "),
-    getNameByValue(syso_hh_types, input$syso_hh_type),
-    " | ",
-    strong("Level of Detail: "),
-    getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
-    " | ",
-    strong("Project Type: "),
-    getNameByValue(syso_project_types, input$syso_project_type), 
-    br(),
-    strong("Age: "),
-    if_else(
-      setequal(syso_age_cats, input$syso_age) |
-        is.null(input$syso_age),
-      "All Ages",
-      getNameByValue(syso_age_cats, input$syso_age)
-    ),
-    " | ",
-    strong("Gender: "),
-    getNameByValue(syso_gender_cats(), input$syso_gender),
-    " | ",
-    strong("Race/Ethnicity: "),
-    getNameByValue(syso_race_ethnicities, input$syso_race_ethnicity),
-    " | ",
-    strong("Special Populations: "),
-    getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops), 
-    br(),
-    strong("Methodology Type: "),
-    getNameByValue(syso_methodology_types, input$methodology_type) 
-  )
-})
-
-syso_chartSubheader <- reactive({
-  list(
-    strong(""), 
-    # formatC(
-    #   nrow(system_df_people_syso_filtered()),
-    #   format = "d",
-    #   big.mark = ","
-    # ),
-    br()
-  )
-})
-
 # Client-level enrollment summary data reactive ---------------------------
 # get final people-level, inflow/outflow dataframe by joining the filtered----- 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
-system_plot_data <- reactive({
+sys_inflow_outflow_plot_df <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
   universe <- system_df_enrl_filtered() %>%
     inner_join(system_df_people_syso_filtered(), join_by(PersonalID)) %>%
@@ -683,7 +596,10 @@ system_plot_data <- reactive({
         # and within 2 weeks of prev enrollment
         (straddles_start == TRUE |
            (EntryDate >= input$syso_date_range[1] &
-              between(difftime(EntryDate, input$syso_date_range[1], units = "days"), 0, 14) &
+              between(difftime(EntryDate, input$syso_date_range[1],
+                               units = "days"),
+                      0,
+                      14) &
               !is.na(previous_exit_days) &
               between(as.numeric(previous_exit_days), 0, 14))),
       
@@ -746,7 +662,7 @@ system_plot_data <- reactive({
         ExitAdjust > input$syso_date_range[2] &
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= input$syso_date_range[1] &
+        MoveInDateAdjust <= input$syso_date_range[2] &
         lh_prior_livingsituation == TRUE
     )
   
@@ -818,20 +734,7 @@ system_plot_data <- reactive({
     ) %>%
     ungroup() 
   
-  # AS QC check:
-  missing_types <- universe %>% 
-    inner_join(
-      universe_ppl %>% 
-        filter(
-          OutflowTypeDetail == "something's wrong" | 
-            InflowTypeDetail == "something's wrong"), 
-        by="PersonalID") %>% 
-    mutate(
-      missing_inflow = eecr & InflowTypeDetail == "something's wrong",
-      missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
-    )
-  
-  x <- universe_ppl %>%
+  plot_data <- universe_ppl %>%
     select(PersonalID, 
            active_at_start_homeless_client, 
            active_at_start_housed_client,
@@ -848,10 +751,24 @@ system_plot_data <- reactive({
     ) %>%
     unique()
   
-  category_counts <- x %>% pivot_longer(
-    cols = c(InflowTypeDetail, OutflowTypeDetail), 
-    names_to = "x.axis.var", 
-    values_to = "cat.var") %>%
+  # AS QC check:
+  missing_types <- universe %>% 
+    inner_join(
+      universe_ppl %>% 
+        filter(
+          OutflowTypeDetail == "something's wrong" | 
+            InflowTypeDetail == "something's wrong"), 
+      by="PersonalID") %>% 
+    mutate(
+      missing_inflow = eecr & InflowTypeDetail == "something's wrong",
+      missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
+    )
+  
+  category_counts <- plot_data %>% 
+    pivot_longer(
+      cols = c(InflowTypeDetail, OutflowTypeDetail), 
+      names_to = "x.axis.var", 
+      values_to = "cat.var") %>%
     group_by(x.axis.var, cat.var) %>%
     summarise(values = n()) %>%
     # filter(!is.na(cat.var)) %>%
@@ -874,6 +791,6 @@ system_plot_data <- reactive({
         ~ "Outflow"
       )
     )
-  x
+  plot_data
 })
-
+sys_inflow_outflow_plot_data(sys_inflow_outflow_plot_df)

@@ -2,9 +2,25 @@
 #   PURPOSE: This script contains functions used by the app
 #   for generating the DQ plots and DQ exports
 
+
+vars_prep <- c(
+  "HouseholdID",
+  "PersonalID",
+  "OrganizationName",
+  "ProjectID",
+  "ProjectName",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitDate"
+)
+
+vars_we_want <- c(vars_prep,
+                  "Issue",
+                  "Type",
+                  "Guidance")
+
 dq_main_reactive <- reactive({
-  req(valid_file() == 1)
-  # browser()
   ESNbN <- calculate_long_stayers_local_settings(input$ESNbNLongStayers, 0)
   Outreach <- calculate_long_stayers_local_settings(input$OUTLongStayers, 4)
   CoordinatedEntry <- calculate_long_stayers_local_settings(input$CELongStayers, 14)
@@ -12,15 +28,15 @@ dq_main_reactive <- reactive({
   Other <- calculate_long_stayers_local_settings(input$OtherLongStayers, 7)
   DayShelter <- calculate_long_stayers_local_settings(input$DayShelterLongStayers, 11)
   
+  
   #Calculating potential old referrals based on Local settings
   CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
     select(all_of(vars_we_want))
   
-  x <- dq_main %>%
-    filter(str_detect(tolower(Issue), "local settings", negate = TRUE) == TRUE)
-
-  
-  rbind(x,
+  rbind(dq_main_df() %>%
+          filter(
+            str_detect(tolower(Issue), "local settings", negate = TRUE) == TRUE
+          ),
         ESNbN,
         Outreach,
         DayShelter,
@@ -58,7 +74,7 @@ getDQReportDataList <-
       filter(Type == "Warning") %>%
       select(all_of(select_list))
     
-    dqOverlapDetails <- dqOverlaps %>%
+    dqOverlapDetails <- dqOverlaps %>% 
       select(-c(Issue, Type, Guidance, PreviousIssue)) %>%
       relocate(
         OrganizationName,
@@ -100,7 +116,7 @@ getDQReportDataList <-
     
     mainsummary <- rbind(
       dqData %>% select(Type, Issue, PersonalID),
-      dqOverlaps %>% select(Type, Issue, PersonalID)
+      dqOverlaps %>%  select(Type, Issue, PersonalID)
     ) %>%
       # group_by(ProjectName, Type, Issue) %>%
       group_by(Type, Issue) %>%
@@ -112,7 +128,7 @@ getDQReportDataList <-
     bySummaryLevel2 <- rlang::sym(bySummaryLevel)
     byunitsummary <- rbind(
       dqData %>% select(!!bySummaryLevel2, Type, Issue, PersonalID),
-      dqOverlaps %>% select(!!bySummaryLevel2, Type, Issue, PersonalID)
+      dqOverlaps %>%  select(!!bySummaryLevel2, Type, Issue, PersonalID)
     ) %>%
       group_by(!!bySummaryLevel2, Type, Issue) %>%
       summarise(Enrollments = n()) %>%
@@ -128,9 +144,9 @@ getDQReportDataList <-
       arrange(Type)
     
     exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
-                               c(meta_HUDCSV_Export_Start,
-                                 meta_HUDCSV_Export_End,
-                                 meta_HUDCSV_Export_Date))
+                               c(meta_HUDCSV_Export_Start(),
+                                 meta_HUDCSV_Export_End(),
+                                 meta_HUDCSV_Export_Date()))
     
     colnames(exportDetail) <- c("Export Field", "Value")
     
@@ -176,9 +192,39 @@ getDQReportDataList <-
 
 # Non-Residential Long Stayers --------------------------------------------
 
+cls_df <- reactive({
+  validation() %>%
+  filter(is.na(ExitDate)) %>% # less data to deal w/
+  left_join(CurrentLivingSituation() %>%
+              select(CurrentLivingSitID,
+                     EnrollmentID,
+                     InformationDate), by = "EnrollmentID") %>%
+  group_by(EnrollmentID) %>%
+  slice_max(InformationDate) %>%
+  slice(1L) %>%
+  ungroup() %>%
+  select(EnrollmentID, "MaxCLSInformationDate" = InformationDate)
+})
+
+cls_project_types <- reactive({
+  validation() %>%
+  left_join(cls_df(), by = "EnrollmentID") %>%
+  select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
+  mutate(
+    Days = 
+      as.numeric(difftime(
+        as.Date(meta_HUDCSV_Export_Date()),
+        if_else(!is.na(MaxCLSInformationDate),
+                MaxCLSInformationDate, # most recent CLS
+                EntryDate), # project entry
+        units = "days"
+      ))
+  )
+})
+
 calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
   
-  entryexit_project_types <- validation %>%
+  entryexit_project_types <- validation() %>%
     filter(is.na(ExitDate) &
              !ProjectType %in% c(project_types_w_cls) &
              ProjectType == projecttype
@@ -186,7 +232,7 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
     mutate(
       Days =
         as.numeric(difftime(
-          as.Date(meta_HUDCSV_Export_Date), EntryDate, 
+          as.Date(meta_HUDCSV_Export_Date()), EntryDate, 
           units = "days"
         ))
     ) %>%
@@ -194,40 +240,14 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
     merge_check_info(checkIDs = 102) %>%
     select(all_of(vars_we_want))
   
-  cls_df <- validation %>%
-    filter(is.na(ExitDate)) %>% # less data to deal w/
-    left_join(CurrentLivingSituation %>%
-                select(CurrentLivingSitID,
-                       EnrollmentID,
-                       InformationDate), by = "EnrollmentID") %>%
-    group_by(EnrollmentID) %>%
-    slice_max(InformationDate) %>%
-    slice(1L) %>%
-    ungroup() %>%
-    select(EnrollmentID, "MaxCLSInformationDate" = InformationDate)
-    
-  cls_project_types <- validation %>%
-    left_join(cls_df, by = "EnrollmentID") %>%
-    select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
-    mutate(
-      Days = 
-        as.numeric(difftime(
-          as.Date(meta_HUDCSV_Export_Date),
-          if_else(!is.na(MaxCLSInformationDate),
-                  MaxCLSInformationDate, # most recent CLS
-                  EntryDate), # project entry
-          units = "days"
-        ))
-    ) %>%
-    filter(is.na(ExitDate) &
-             ProjectType %in% c(project_types_w_cls) &
-             ProjectType == projecttype & 
-             too_many_days < Days) %>%
-    merge_check_info(checkIDs = 103) %>%
-    select(all_of(vars_we_want))
-  
   if (projecttype %in% c(project_types_w_cls)) {
-    cls_project_types
+    cls_project_types() %>%
+      filter(is.na(ExitDate) &
+       ProjectType %in% c(project_types_w_cls) &
+       ProjectType == projecttype & 
+       too_many_days < Days) %>%
+      merge_check_info(checkIDs = 103) %>%
+      select(all_of(vars_we_want))
   } else{
     entryexit_project_types
   } 
@@ -238,8 +258,8 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
 
 calculate_outstanding_referrals <- function(too_many_days){
 
-  base_dq_data %>%
-    left_join(Event %>% select(EnrollmentID,
+  base_dq_data_func() %>%
+    left_join(Event() %>% select(EnrollmentID,
                                EventID,
                                EventDate,
                                Event,
@@ -253,7 +273,7 @@ calculate_outstanding_referrals <- function(too_many_days){
     mutate(
       Days = 
         as.numeric(
-          difftime(as.Date(meta_HUDCSV_Export_Date), EventDate, units = "days")),
+          difftime(as.Date(meta_HUDCSV_Export_Date()), EventDate, units = "days")),
       EventType = case_when(
         Event == 10 ~ "Referral to Emergency Shelter bed opening",
         Event == 11 ~ "Referral to Transitional Housing bed/unit opening",
@@ -272,7 +292,7 @@ calculate_outstanding_referrals <- function(too_many_days){
 }
 
 renderDQPlot <- function(level, issueType, group, color) {
-  req(exists("dq_main"))
+  req(nrow(dq_main_df()) > 0 & valid_file() == 1)
   # groupVars is the variable(s) used to summarise/count rows
   # x_group is the x variable used to in the ggplot reordering
   if(group == "Org") {
@@ -289,11 +309,31 @@ renderDQPlot <- function(level, issueType, group, color) {
     x_group <- "Issue"
   } 
 
+  
+  # Plots for System-Level DQ Tab -------------------------------------------
   # determine which data.frame we start with
   if(level == "sys") {
-    plot_df <- dq_plot_df
+    plot_df <- dq_main_df() %>%
+      left_join(Project0() %>%
+                  select(ProjectID, OrganizationID) %>%
+                  unique(), by = "ProjectID") %>%
+      select(PersonalID,
+             OrganizationID,
+             OrganizationName,
+             HouseholdID,
+             Issue,
+             Type) %>%
+      unique()
   } else {
-    plot_df <- dq_org_plot_df
+    plot_df <- dq_main_df() %>%
+      select(PersonalID,
+             ProjectID,
+             ProjectName,
+             OrganizationName,
+             HouseholdID,
+             Issue,
+             Type) %>%
+      unique()
   }
 
   plot_data <- plot_df %>%
@@ -367,3 +407,36 @@ renderDQPlot <- function(level, issueType, group, color) {
   return(plotOutput(outputId, height = plot_height))
 }
 
+# list of data frames to include in DQ Org Report
+dqDownloadInfo <- reactive({
+  req(valid_file() == 1)
+  
+  # org-level data prep (filtering to selected org)
+  orgDQData <- dq_main_reactive() %>%
+    filter(OrganizationName %in% c(input$orgList))
+  
+  orgDQoverlaps <- overlaps() %>% 
+    filter(OrganizationName %in% c(input$orgList) | 
+             PreviousOrganizationName %in% c(input$orgList))
+  #browser()
+  orgDQReferrals <- 
+    calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+    filter(OrganizationName %in% c(input$orgList))
+  
+  # return a list for reference in downloadHandler
+  list(
+    orgDQData = 
+      getDQReportDataList(orgDQData,
+                          orgDQoverlaps,
+                          "ProjectName",
+                          orgDQReferrals
+      ),
+    
+    systemDQData = 
+      getDQReportDataList(dq_main_reactive(),
+                          overlaps(),
+                          "OrganizationName",
+                          calculate_outstanding_referrals(input$CEOutstandingReferrals)
+      )
+  )
+})

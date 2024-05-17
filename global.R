@@ -15,6 +15,7 @@ library(janitor)
 library(shinyjs)
 library(shinydisconnect)
 library(here)
+library(shinycssloaders)
 library(dtplyr)
 library(data.table)
 
