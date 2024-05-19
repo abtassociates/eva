@@ -850,4 +850,6 @@ sys_inflow_outflow_plot_df <- reactive({
     )
   plot_data
 })
+
+sys_df_people_universe_filtered_r(system_df_people_universe_filtered)
 sys_inflow_outflow_plot_data(sys_inflow_outflow_plot_df)

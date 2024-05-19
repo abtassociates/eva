@@ -19,6 +19,7 @@ function(input, output, session) {
   valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
   file_structure_analysis_main <- reactiveVal()
   sys_inflow_outflow_plot_data <- reactiveVal()
+  sys_df_people_universe_filtered_r <- reactiveVal()
   
   reset_reactivevals <- function() {
     validation(NULL)
