@@ -243,9 +243,6 @@ function(input, output, session) {
           setProgress(detail = "Preparing System Overview Data", value = .85)
           source("07_system_overview.R", local = TRUE)
 
-          setProgress(detail = "Preparing System Composition", value = .9)
-          source("08_system_composition.R", local=TRUE)
-
           setProgress(detail = "Done!", value = 1)
           logToConsole("Done processing")
           
