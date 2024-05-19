@@ -593,6 +593,7 @@ system_df_people_syso_filtered <- reactive({
       ) &
       # Race/Ethnicity
       (
+        input$syso_race_ethnicity == 0 |
         AllRaceEthnicity %in% input$syso_race_ethnicity | 
         GroupedRaceEthnicity %in% input$syso_race_ethnicity 
       )

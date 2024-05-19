@@ -937,13 +937,7 @@ function(input, output, session) {
     updatePickerInput(
       session, 
       "syso_race_ethnicity", 
-      choices = syso_race_ethnicity_cats(),
-      options = pickerOptions(
-        actionsBox = TRUE,
-        selectedTextFormat = paste("count >", length(syso_race_ethnicity_cats())-1),
-        countSelectedText = "All Races/Ethnicities",
-        noneSelectedText = "All Races/Ethnicities" 
-      )
+      choices = syso_race_ethnicity_cats()
     )
     
     updateCheckboxGroupInput(

@@ -797,13 +797,7 @@ dashboardPage(
               inputId = "syso_race_ethnicity",
               choices = syso_race_ethnicity_incl,
               width = "100%",
-              selected = syso_race_ethnicity_incl,
-              options = pickerOptions(
-                actionsBox = TRUE,
-                selectedTextFormat = paste("count >", length(syso_race_ethnicity_incl)-1),
-                countSelectedText = "All Races/Ethnicities",
-                noneSelectedText = "All Races/Ethnicities" 
-              )
+              selected = syso_race_ethnicity_incl[1]
             ))
           )
         ),

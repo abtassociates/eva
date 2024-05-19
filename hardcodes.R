@@ -189,6 +189,7 @@ syso_age_cats <- c(
   "75 and older" = 10)
 
 syso_race_ethnicity_incl <- list(
+  "Group 0" = c("All Races/Ethnicities" = 0),
   "Group 1" = c("American Indian, Alaska Native, or Indigenous Inclusive" = 1,
                 "Asian or Asian American Inclusive" = 2,
                 "Black, African American, or African Inclusive" = 3,
@@ -202,6 +203,7 @@ syso_race_ethnicity_incl <- list(
 )
 
 syso_race_ethnicity_excl <- list(
+  "Group 0" = c("All Races/Ethnicities" = 0),
   "Group 1" = c("American Indian, Alaska Native, or Indigenous Alone" = 1,
                 "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" = 2,
                 "Asian or Asian American Alone" = 3,
