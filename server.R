@@ -912,6 +912,14 @@ function(input, output, session) {
   })
   
   # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
+  sys_comp_p <- reactive({
+    req(!is.null(input$system_composition_filter))
+    sys_comp_plot(input$system_composition_filter)
+  })
+  
+  source("system_composition_functions.R", local=TRUE)
+  
+  
   #### FILTERS ###
   sys_comp_filter_choices <- reactive({
     ifelse(
@@ -1004,12 +1012,8 @@ function(input, output, session) {
     } 
   })
 
+  
   output$sys_comp_summary_filter_selections <- renderUI({sys_comp_filters()})
-
-  sys_comp_p <- reactive({
-    req(!is.null(input$system_composition_filter))
-    sys_comp_plot(input$system_composition_filter)
-  })
 
   output$sys_comp_summary_ui_chart <- renderPlot({
     validate(
