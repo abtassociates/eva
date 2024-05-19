@@ -373,7 +373,7 @@ min_cols_selected_except <- function(df, l, e, num_cols_seleted) {
 # custom round to the smaller of the nearest 10, 100, etc.
 # good for chart segment sizing
 get_segment_size <- function(x) {
-  thresholds <- c(10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
+  thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
   rounded <- sapply(thresholds, function(t) {
     if (x > t) {
       return(t * ceiling(x / t))
