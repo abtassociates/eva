@@ -9,7 +9,7 @@
 show_invalid_popup <- function(issueID) {
   initially_valid_df <- evachecks %>% filter(ID == issueID)
 
-  initially_valid_import(FALSE)
+  initially_valid_import(0)
 
   showModal(
     modalDialog(
@@ -18,13 +18,13 @@ show_invalid_popup <- function(issueID) {
       easyClose = TRUE
     )
   )
-  reset("imported")
 }
 
 # function to check if the file is hashed
 is_hashed <- function() {
+
   # read Client file
-  Client <- importFile("Client")
+  Client <- importFile(upload_filepath, "Client")
   
   # decide if the export is hashed
   return(  
@@ -36,25 +36,23 @@ is_hashed <- function() {
 }
 
 isFY2024Export <- function() {
-  # read Export file
-  Export(importFile("Export"))
+  Export(importFile(upload_filepath, "Export"))
   
   # this is the soonest we can log the session data, with 
   # the export info, since this is the first time we import the Export.csv file
   logSessionData() 
   
   return(
-    grepl("2024", as.character(importFile("Export")$CSVVersion))
+    grepl("2024", as.character(Export()$CSVVersion))
   )
 }
 
 # extract file names from their uploaded zip
-if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
+if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   show_invalid_popup(127)
   logMetadata("Unsuccessful upload - zip file not .zip")
 } else {
-
-  zipContents <- utils::unzip(zipfile = input$imported$datapath, list=TRUE)
+  zipContents <- utils::unzip(zipfile = upload_filepath, list = TRUE)
     
   zipFiles <- zipContents$Name %>% str_replace(".csv", "")
     
@@ -92,5 +90,7 @@ if(tolower(tools::file_ext(input$imported$datapath)) != "zip") {
   } else if(!is_hashed()) {
     show_invalid_popup(126)
     logMetadata("Unsuccessful upload - not hashed")
+  } else {
+    initially_valid_import(1)
   }
 }

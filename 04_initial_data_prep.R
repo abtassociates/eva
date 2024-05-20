@@ -324,27 +324,28 @@ validationEnrollment <- Enrollment %>%
     DateCreated
   ) 
 
-validation(validationProject %>%
-  left_join(validationEnrollment, by = c("ProjectTimeID", "ProjectID")) %>%
-  select(
-    ProjectID,
-    ProjectTimeID,
-    OrganizationName,
-    ProjectName,
-    ProjectType,
-    EnrollmentID,
-    PersonalID,
-    HouseholdID,
-    RelationshipToHoH,
-    EntryDate,
-    MoveInDateAdjust,
-    ExitDate,
-    LivingSituation,
-    Destination,
-    DestinationSubsidyType,
-    DateCreated
-  ) %>%
-  filter(!is.na(EntryDate))
+validation(
+  validationProject %>%
+    left_join(validationEnrollment, by = c("ProjectTimeID", "ProjectID")) %>%
+    select(
+      ProjectID,
+      ProjectTimeID,
+      OrganizationName,
+      ProjectName,
+      ProjectType,
+      EnrollmentID,
+      PersonalID,
+      HouseholdID,
+      RelationshipToHoH,
+      EntryDate,
+      MoveInDateAdjust,
+      ExitDate,
+      LivingSituation,
+      Destination,
+      DestinationSubsidyType,
+      DateCreated
+    ) %>%
+    filter(!is.na(EntryDate))
 )
 
 # Checking requirements by projectid --------------------------------------
@@ -375,3 +376,5 @@ projects_funders_types <- Funder %>%
 #       ProjectType %in% lh_ph_hp_project_types) %>%
 #   dplyr::select(ProjectName) %>% unique()
 
+CurrentLivingSituation(CurrentLivingSituation)
+Event(Event)

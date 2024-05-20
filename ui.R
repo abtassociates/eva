@@ -1,8 +1,37 @@
 dashboardPage(
   title = "Eva",
   skin = "black",
-  dashboardHeader(title = span(img(src = "Eva_logo_horizontal_white.png",
-                                   height = 45))),
+  dashboardHeader(
+    title = span(img(src = "Eva_logo_horizontal_white.png",
+                                   height = 45)),
+    # https://alvarotrigo.com/blog/toggle-switch-css/
+    tags$li(class="dropdown",
+            HTML('<div class="toggle-button-cover">
+      <div class="button-cover">
+        <div id="demo-label">
+          <span>DEMO MODE </span>
+          <i class="fas fa-circle-info demo-tooltip">
+          <span class="demo-tooltiptext">
+            <strong>Off</strong>: Upload your own HMIS CSV Export.
+            <br>
+            <br>
+            <strong>On</strong>: Uses a demo HMIS CSV Export.
+          </span>
+          </i>
+        </div>
+        <div class="button r" id="button-1">
+          <input id="isdemo" type="checkbox" class="checkbox" />
+          <div class="knobs"></div>
+          <div class="layer"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+    document.getElementById("isdemo").onchange = function() {
+        Shiny.setInputValue("in_demo_mode", this.checked, {priority: "event"});
+    }
+    </script>'))
+  ),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -105,6 +134,7 @@ dashboardPage(
             actionButton("Go_to_upload", "Click here to get started")
           ),
           box(
+            id = "home_live_instructions",
             title = "Instructions",
             width = 12,
             collapsible = TRUE,
@@ -130,7 +160,40 @@ dashboardPage(
               <p>Once you have exported the correct file from your HMIS, you are
               ready to engage with Eva. Navigate to the \'Upload HMIS CSV Export\' tab
               and follow the instructions there.</p>
-              
+
+              <p>Want to explore Eva without uploading? Use Eva's Demo Mode by clicking the 
+              toggle at the top.</p>
+              ")
+          ),
+          box(
+            id = 'home_demo_instructions',
+            title = "Demo Instructions",
+            width = 12,
+            collapsible = TRUE,
+            collapsed = FALSE,
+            HTML(
+              "<div class = 'in_demo_mode' style='display:none'>
+              <p>Welcome to Eva’s Demo Mode. In Demo Mode, you can explore the
+              functionality of Eva with a pre-uploaded HMIS CSV Export file that
+              uses sample HMIS data. When Demo Mode is on, Eva has the same
+              functionality but uses the sample HMIS data to provide examples of
+              possible File Structure Errors, Data Quality Errors, and Warnings.
+              Select any of Eva's pages from the navigation menu to the left to
+              explore the application. </p>
+              <h4>Turning Demo Mode On & Off</h4>
+              <p>To turn Demo Mode on and off, use the yellow Demo Mode toggle
+              on the top right of the screen. This toggle will be available from
+              every page in Eva. Please note that you can turn Demo Mode off or
+              on at any time, the application will just ask you to confirm your
+              choice.</p>
+              <p>If you uploaded your own dataset to Eva and then decide to turn
+              on Demo Mode, Eva will (1) clear the application of your HMIS data,
+              ending the session, and (2) replace it with that of the sample
+              dataset. <strong>If you wish to see your results again you will need to
+              re-upload your hashed HMIS CSV Export file.</strong> To do so, you
+              need to turn off Demo Mode. This will clear the sample HMIS data
+              from the application so you can operate Eva as normal and upload
+              your own HMIS data again.</p></div>
               ")
           ),
           box(
@@ -248,17 +311,28 @@ dashboardPage(
               ")
           )),
           fluidRow(box(
+            HTML(paste0("<div class='in_demo_mode' style='display:none'>
+                 <p>You’re currently in Demo Mode and viewing sample HMIS data
+                 from a curated HMIS CSV Export file. View the File Structure
+                 Analysis below to see examples of the File Structure Errors you
+                 could get in your own uploads. For a full list of possible
+                 errors, see ",
+                 a('Eva Checks', href=here("public-resources/EvaChecks.csv")),
+                 ".</p>
+                 <p>To explore your own File Structure Errors, turn off Demo
+                 Mode and upload your own hashed HMIS CSV Export file.</p></div>
+            ")),
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
-            uiOutput("fileInfo"),
+            uiOutput("fileInfo") %>% withSpinner(),
             width = 12
           )),
           fluidRow(box(
             title = "HMIS CSV Export File Structure Analysis",
             width = 12,
-            DT::dataTableOutput("fileStructureAnalysis"),
+            DTOutput("fileStructureAnalysis"),
             p(),
             HTML("<p>Users should contact their vendor to resolve high priority 
             errors identified in the HMIS CSV Export File Structure Analysis, as
@@ -558,14 +632,14 @@ dashboardPage(
           title = "Client Counts Summary",
           status = "info",
           solidHeader = TRUE,
-          DT::dataTableOutput("clientCountSummary"),
+          DTOutput("clientCountSummary"),
           width = 12
         )),
         fluidRow(box(
           title = "Client Counts Detail",
           status = "info",
           solidHeader = TRUE,
-          DT::dataTableOutput("clientCountData"),
+          DTOutput("clientCountData"),
           width = 12
         ))
       ),
@@ -596,13 +670,13 @@ dashboardPage(
             title = paste("PDDE Check Summary"),
             status = "info",
             solidHeader = TRUE,
-            DT::dataTableOutput("pdde_summary_table"),
+            DTOutput("pdde_summary_table"),
             width = 12,
             br(),
-            uiOutput("downloadPDDEReportButton")
+            uiOutput("downloadPDDEReportButton") %>% withSpinner()
           ),
           box(id = "PDDEGuidance",
-              DT::dataTableOutput("pdde_guidance_summary"),
+              DTOutput("pdde_guidance_summary"),
               title = "Guidance",
               width = 12,
               status = "info",
@@ -714,9 +788,9 @@ dashboardPage(
             selected = "Top 10 Issues",
             title = "High Priority Errors",
             tabPanel("Top 10 Projects",
-                     uiOutput("orgDQHighPriorityErrorsByProject_ui")),
+                     uiOutput("orgDQHighPriorityErrorsByProject_ui")  %>% withSpinner()),
             tabPanel("Top 10 Issues",
-                     uiOutput("orgDQHighPriorityErrorByIssue_ui")),
+                     uiOutput("orgDQHighPriorityErrorByIssue_ui") %>% withSpinner()),
             width = 12
           )
         ),
@@ -725,8 +799,8 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "General Errors",
-            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui")),
-            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui")),
+            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui") %>% withSpinner()),
+            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()),
             width =12
           )
         ),
@@ -735,8 +809,8 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "Warnings",
-            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui")),
-            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui")),
+            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui") %>% withSpinner()),
+            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui") %>% withSpinner()),
             width = 12
           )
         ),
@@ -747,7 +821,7 @@ dashboardPage(
             title = paste("Data Quality Summary"),
             status = "info",
             solidHeader = TRUE,
-            DT::dataTableOutput("dq_organization_summary_table"),
+            DTOutput("dq_organization_summary_table"),
             width = 12
           )
         ),
@@ -755,7 +829,7 @@ dashboardPage(
         fluidRow(
           box(
             id = "DQSummaryProvider",
-            DT::dataTableOutput("dq_org_guidance_summary"),
+            DTOutput("dq_org_guidance_summary"),
             title = "Data Quality Guidance",
             width = 12,
             status = "info",

@@ -1,8 +1,21 @@
 output$changelog <- renderTable({
   tribble(
     ~Date, ~Change,
+    "05-20-2024", "Added demo mode, where users can try out Eva even if they
+    don't have access to an FY 2024 HMIS CSV Export.",
+    
+    "04-09-2024", "Moved all variables from global environment to a session 
+    environment to ensure appropriate visibility.",
+  
     "04-09-2024", "Moved data frames \"Export\" and \"Project0\" from the global
     environment to a session environment to ensure appropriate visibility.",
+
+    "04-01-2024", "Added 'Demo Mode', which allows users to play around with a 
+    test dataset in Eva in order to understand how the tool works without having 
+    to upload any data",
+
+     "04-01-2024", "Added loading spinners to make clear when something is loading
+     as opposed to frozen",
     
     "01-24-2024", "If a project has an Operating or Participating end date in 
     the future Eva will not flag these enrollments as Enrollment Crosses 
