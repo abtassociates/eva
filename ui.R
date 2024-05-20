@@ -43,6 +43,11 @@ dashboardPage(
                tabName = "tabLocalSettings"),
       menuItem("View Client Counts",
                   tabName = "tabClientCount"),
+      menuItem("System Performance",
+              menuSubItem("System Overview",
+                           tabName = "systemOverview"),
+              menuSubItem("System Exit Detail",
+                           tabName = "systemExitDetail")),
       menuItem("Assess Data Quality",
                menuSubItem("Check PDDEs",
                            tabName = "tabPDDE"),
@@ -332,7 +337,7 @@ dashboardPage(
           fluidRow(box(
             title = "HMIS CSV Export File Structure Analysis",
             width = 12,
-            DT::dataTableOutput("fileStructureAnalysis"),
+            DTOutput("fileStructureAnalysis"),
             p(),
             HTML("<p>Users should contact their vendor to resolve high priority 
             errors identified in the HMIS CSV Export File Structure Analysis, as
@@ -632,16 +637,237 @@ dashboardPage(
           title = "Client Counts Summary",
           status = "info",
           solidHeader = TRUE,
-          DT::dataTableOutput("clientCountSummary"),
+          DTOutput("clientCountSummary"),
           width = 12
         )),
         fluidRow(box(
           title = "Client Counts Detail",
           status = "info",
           solidHeader = TRUE,
-          DT::dataTableOutput("clientCountData"),
+          DTOutput("clientCountData"),
           width = 12
         ))
+      ),
+      tabItem(
+        tabName = "systemOverview",
+        fluidRow(box(htmlOutput("headerSystemOverview"), width = 12)),
+        fluidRow(box(
+          title = "Instructions",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          HTML("<h4>Placeholder</h4>")
+        )),
+        fluidRow(
+          box(
+            title = "Universe Filters",
+            width = 6,
+            id = "universe_filters",
+            column(12, dateRangeInput(
+              "syso_date_range",
+              "Date Range",
+              format = "mm/dd/yyyy",
+              start = if_else(isTRUE(getOption("shiny.testmode")),
+                              ymd("20231005"),
+                              NA),
+              end = if_else(isTRUE(getOption("shiny.testmode")),
+                            ymd("20231005"),
+                            NA)
+            )),
+            br(),
+            h4("Universe Selectors"),
+            column(4, fluidRow(
+              br(),
+              pickerInput(
+                label = "Household Type",
+                inputId = "syso_hh_type",
+                choices = syso_hh_types,
+                selected = syso_hh_types[1],
+                width = "90%"
+              )
+            )),
+            column(4, fluidRow(
+              br(),
+              pickerInput(
+                label = "Level of Detail",
+                inputId = "syso_level_of_detail",
+                choices = syso_level_of_detail,
+                selected = syso_level_of_detail[1],
+                width = "90%"
+              )
+            )),
+            column(4, fluidRow(
+              br(),
+              # a(href="www.google.com", "Click for Project Type Information"),
+              pickerInput(
+                label = "Project Type",
+                inputId = "syso_project_type",
+                choices = syso_project_types,
+                selected = syso_project_types[1],
+                width = "90%"
+              )
+            ))
+          ),
+          box(
+            # div(class="box-header", h3("Advanced Settings", class="box-title")),
+            # div(class="box-body",
+            #   radioButtons("methodology_type",
+            #     HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
+            #     choices = syso_methodology_type,
+            #     width = "100%"
+            #   )),
+            # hr(),
+            # div(class="box-header", h3("Download Tabular View of System Overview Charts", class="box-title")),
+            # width = 6
+            box(
+              title = "Advanced Settings",
+              radioButtons("methodology_type",
+                HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
+                choices = syso_methodology_types,
+                width = "100%"
+              ),
+              width = 12
+            ),
+            box(
+              title = "Download Tabular View of System Overview Charts",
+              uiOutput("downloadSysOverviewTabBtn"),
+              width = 12
+            ),
+            width = 6
+          )
+        ),
+        fluidRow(
+          box(
+            id = "syso_header",
+            "System Inflow and Outflow",
+            width = 12
+          )
+        ),
+        fluidRow(
+          box(
+            title = "Age and Special Population Filters",
+            width = 6,
+            column(
+              6,
+              pickerInput(
+                inputId = "syso_age",
+                label = "Age",
+                selected = syso_age_cats,
+                choices = syso_age_cats,
+                multiple = TRUE,
+                width = "100%",
+                options = pickerOptions(
+                  actionsBox = TRUE,
+                  selectedTextFormat = paste("count >", length(syso_age_cats)-1),
+                  countSelectedText = "All ages",
+                  noneSelectedText = "All ages" 
+                )
+              )
+            ),
+            column(
+              6,
+              pickerInput(
+                label = "Special Populations",
+                inputId = "syso_spec_pops",
+                choices = syso_spec_pops_people,
+                width = "100%",
+                selected = syso_spec_pops_people[1]
+              )
+            )
+          ),
+          box(
+            title = "Gender and Race/Ethnicity Filters",
+            width = 6,
+            column(6, pickerInput(
+              label = "Gender",
+              inputId = "syso_gender",
+              choices = syso_gender_incl,
+              width = "100%",
+              selected = syso_gender_incl,
+              multiple = TRUE,
+              options = pickerOptions(
+                actionsBox = TRUE,
+                selectedTextFormat = paste("count >", length(syso_gender_incl)-1),
+                countSelectedText = "All Genders",
+                noneSelectedText = "All Genders" 
+              )
+            )),
+            column(6, pickerInput(
+              label = "Race/Ethnicity",
+              inputId = "syso_race_ethnicity",
+              choices = syso_race_ethnicity_incl,
+              width = "100%",
+              selected = syso_race_ethnicity_incl[1]
+            ))
+          )
+        ),
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Summary",
+            title = "System Activity",
+            tabPanel("Instructions", 
+              uiOutput("system_activity_instructions_ui")
+            ),
+            tabPanel("Detail", 
+              uiOutput("sys_act_detail_filter_selections"),
+              uiOutput("sys_act_detail_chart_subheader"),
+              plotOutput("sys_act_detail_ui_chart")
+            ),
+            tabPanel("Summary", 
+              uiOutput("sys_act_summary_filter_selections"),
+              uiOutput("sys_act_summary_chart_subheader"),
+              plotOutput("sys_act_summary_ui_chart")
+            ),
+            width = 12
+          )
+        ),
+        fluidRow(
+          box(
+            id = "syso_header",
+            "System Composition",
+            width = 12
+          )
+        ),
+        fluidRow(
+          box(
+            checkboxGroupInput(
+              "system_composition_filter",
+              label = paste0(
+                "Gender, Race/Ethnicity, and Special Populations",
+                "(select up to 2)"
+              ),
+              choices = sys_comp_filter_choices1,
+              inline = TRUE
+            ),
+            width = 12
+          )
+        ),
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Summary",
+            title = "Composition of All Served in Period",
+            tabPanel("Instructions", 
+                     p("Some instructions")
+            ),
+            tabPanel("Summary", 
+                     uiOutput("sys_comp_summary_filter_selections"),
+                     plotOutput("sys_comp_summary_ui_chart")
+            ),
+            width = 12
+          )
+        ),
+      ),
+      tabItem(
+        tabName = "systemExitDetail",
+        fluidRow(box(htmlOutput("headerSystemExit"), width = 12)),
+        fluidRow(
+          box(
+            width = 12,
+            HTML("<h2>Placeholder</h2>")
+          )
+        )
       ),
       tabItem(
         tabName = "tabPDDE",
@@ -670,13 +896,13 @@ dashboardPage(
             title = paste("PDDE Check Summary"),
             status = "info",
             solidHeader = TRUE,
-            DT::dataTableOutput("pdde_summary_table"),
+            DTOutput("pdde_summary_table"),
             width = 12,
             br(),
             uiOutput("downloadPDDEReportButton") %>% withSpinner()
           ),
           box(id = "PDDEGuidance",
-              DT::dataTableOutput("pdde_guidance_summary"),
+              DTOutput("pdde_guidance_summary"),
               title = "Guidance",
               width = 12,
               status = "info",
@@ -821,7 +1047,7 @@ dashboardPage(
             title = paste("Data Quality Summary"),
             status = "info",
             solidHeader = TRUE,
-            DT::dataTableOutput("dq_organization_summary_table"),
+            DTOutput("dq_organization_summary_table"),
             width = 12
           )
         ),
@@ -829,7 +1055,7 @@ dashboardPage(
         fluidRow(
           box(
             id = "DQSummaryProvider",
-            DT::dataTableOutput("dq_org_guidance_summary"),
+            DTOutput("dq_org_guidance_summary"),
             title = "Data Quality Guidance",
             width = 12,
             status = "info",
