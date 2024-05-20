@@ -15,7 +15,7 @@ client_count_data_df <- reactive({
   ReportStart <- input$dateRangeCount[1]
   ReportEnd <- input$dateRangeCount[2]
 
-  validation %>%
+  validation() %>%
     mutate(
       PersonalID = as.character(PersonalID),
       RelationshipToHoH = case_when(
@@ -152,7 +152,7 @@ get_clientcount_download_info <- function(file) {
   # initial dataset that will make summarizing easier
   validationDF <- client_count_data_df()
   
-  ### VALIDATION DATE RANGE TAB ###
+  ### validation() DATE RANGE TAB ###
   # counts for each status, by project, across the date range provided
   validationDateRange <- 
     pivot_and_sum(
@@ -170,7 +170,7 @@ get_clientcount_download_info <- function(file) {
     select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
   
-  ### VALIDATION CURRENT TAB ###
+  ### validation() CURRENT TAB ###
   # counts for each status, by project for just the current date
   validationCurrent <- 
     pivot_and_sum(
@@ -181,7 +181,7 @@ get_clientcount_download_info <- function(file) {
     select(-c(`Currently in project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
 
-  ### VALIDATION DETAIL TAB ###
+  ### validation() DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
     select(!!keepCols, !!clientCountDetailCols) %>%
     arrange(OrganizationName, ProjectName, EntryDate)
@@ -193,9 +193,9 @@ get_clientcount_download_info <- function(file) {
   )
   
   names(exportDFList) = c(
-    "Validation - Current",
-    "Validation - Date Range",
-    "Validation - Detail"
+    "validation - Current",
+    "validation - Date Range",
+    "validation - Detail"
   )
   
   exportTestValues(
@@ -212,4 +212,8 @@ get_clientcount_download_info <- function(file) {
   
   write_xlsx(exportDFList,
              path = file)
+  
+  logMetadata(paste0("Downloaded Client Counts Report",
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+  
 }

@@ -1,3 +1,3 @@
 library(shinytest2)
-test_app()
+test_app(".")
 unlink(here("tests/temp"), recursive = TRUE)
