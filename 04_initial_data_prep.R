@@ -48,6 +48,7 @@ ProjectSegments <- project_prep %>%
     by = "ProjectID"
   ) %>% # ^ changes granularity *if* there are any participation changers
   mutate(
+    HMISParticipationStatusEndDate = coalesce(HMISParticipationStatusEndDate, no_end_date),
     OperatingDateRange =
       interval(
         OperatingStartDate,
@@ -102,7 +103,7 @@ EnrollmentStaging <- Enrollment %>%
          EnrollmentDateRange = interval(EntryDate, ExitAdjust),
          AgeAtEntry = age_years(DOB, EntryDate),
          DOB = NULL)
-            
+
 # Truncating Enrollments based on Operating/Participating -----------------
 # Perform the join
 EnrollmentOutside <- as.data.table(EnrollmentStaging %>%
@@ -110,7 +111,11 @@ EnrollmentOutside <- as.data.table(EnrollmentStaging %>%
               select(ProjectID,
                      ProjectTimeID,
                      ProjectType,
+                     HMISParticipationStatusStartDate,
+                     HMISParticipationStatusEndDate,
                      ParticipatingDateRange,
+                     OperatingStartDate,
+                     OperatingEndDate,
                      OperatingDateRange), by = "ProjectID",
             relationship = "many-to-many")) # %>%
 # AS 5/5/24: commenting out for now because this merge doesn't work correctly with intervals
@@ -135,56 +140,28 @@ EnrollmentOutside <- as.data.table(EnrollmentStaging %>%
 # be excluded later
 # mutate(
   # EnrollmentvParticipating = case_when(
-EnrollmentvParticipating <- function(EnrollmentDateRange, ParticipatingDateRange) {
+Enrollmentvs <- function(EntryDate, ExitAdjust, ComparisonStart, ComparisonEnd, comparisonWord) {
   fcase(
-    EnrollmentDateRange %within% ParticipatingDateRange |
-      (
-        int_start(EnrollmentDateRange) >= int_start(ParticipatingDateRange) & 
-          int_end(ParticipatingDateRange) > Sys.Date()
-      ),
+    (EntryDate >= ComparisonStart & ExitAdjust <= ComparisonEnd) |
+    (EntryDate >= ComparisonStart & ComparisonEnd > Sys.Date()),
       "Inside",
-    int_start(EnrollmentDateRange) > int_end(ParticipatingDateRange),
-      "Enrollment After Participating Period",
-    int_start(EnrollmentDateRange) < int_start(ParticipatingDateRange) &
-      int_end(EnrollmentDateRange) > int_start(ParticipatingDateRange),
-      "Enrollment Crosses Participating Start",
-    int_end(EnrollmentDateRange) < int_start(ParticipatingDateRange),
-      "Enrollment Before Participating Period",
-    int_start(EnrollmentDateRange) > int_start(ParticipatingDateRange) &
-      int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange),
-      "Enrollment Crosses Participating End",
-    int_start(EnrollmentDateRange) < int_start(ParticipatingDateRange) &
-      int_end(EnrollmentDateRange) > int_end(ParticipatingDateRange),
-      "Enrollment Crosses Participation Period"
+    EntryDate > ComparisonEnd,
+      paste0("Enrollment After ", comparisonWord," Period"),
+    EntryDate < ComparisonStart & ExitAdjust > ComparisonStart,
+      paste0("Enrollment Crosses ", comparisonWord, " Start"),
+    ExitAdjust < ComparisonStart,
+      paste0("Enrollment Before ", comparisonWord, " Period"),
+    EntryDate > ComparisonStart & ExitAdjust > ComparisonEnd,
+      paste0("Enrollment Crosses ", comparisonWord, " End"),
+    EntryDate < ComparisonStart & ExitAdjust > ComparisonEnd,
+      paste0("Enrollment Crosses ", comparisonWord, " Period")
   )
 }
 
-# EnrollmentvOperating = case_when(
-EnrollmentvOperating <- function(EnrollmentDateRange, OperatingDateRange) {
-  fcase(
-    EnrollmentDateRange %within% OperatingDateRange |
-      (
-        int_start(EnrollmentDateRange) >= int_start(OperatingDateRange) & 
-          int_end(OperatingDateRange) > Sys.Date()
-      ),
-      "Inside",
-    int_start(EnrollmentDateRange) > int_end(OperatingDateRange),
-      "Enrollment After Operating Period",
-    int_start(EnrollmentDateRange) < int_start(OperatingDateRange) &
-      int_end(EnrollmentDateRange) > int_start(OperatingDateRange),
-      "Enrollment Crosses Operating Start",
-    int_end(EnrollmentDateRange) < int_start(OperatingDateRange),
-      "Enrollment Before Operating Period",
-    int_start(EnrollmentDateRange) > int_start(OperatingDateRange) &
-      int_end(EnrollmentDateRange) > int_end(OperatingDateRange),
-      "Enrollment Crosses Operating End",
-    int_start(EnrollmentDateRange) < int_start(OperatingDateRange) &
-      int_end(EnrollmentDateRange) > int_end(OperatingDateRange),
-      "Enrollment Crosses Operating Period"
-  )
-} 
-EnrollmentOutside[, `:=`(EnrollmentvParticipating = EnrollmentvParticipating(EnrollmentDateRange, ParticipatingDateRange),
-                         EnrollmentvOperating = EnrollmentvOperating(EnrollmentDateRange, OperatingDateRange))]
+EnrollmentOutside[, `:=`(
+  EnrollmentvParticipating = Enrollmentvs(EntryDate, ExitAdjust, HMISParticipationStatusStartDate, HMISParticipationStatusEndDate, "Participating"),
+  EnrollmentvOperating = Enrollmentvs(EntryDate, ExitAdjust, OperatingStartDate, OperatingEndDate, "Operating")
+  )]
 
 #   group_by(ProjectID, EnrollmentID) %>%
 #   arrange(ProjectTimeID) %>%
@@ -195,8 +172,11 @@ EnrollmentOutside <- EnrollmentOutside[order(ProjectTimeID), .SD[1], by = .(Proj
 # select(EnrollmentID, ProjectID, ProjectTimeID, ProjectType, EnrollmentDateRange,
 #        OperatingDateRange, ParticipatingDateRange, EnrollmentvParticipating,
 #        EnrollmentvOperating)
-EnrollmentOutside <- EnrollmentOutside[, .(EnrollmentID, ProjectID, ProjectTimeID, ProjectType, EnrollmentDateRange,
-                                           OperatingDateRange, ParticipatingDateRange, EnrollmentvParticipating,
+EnrollmentOutside <- EnrollmentOutside[, .(EnrollmentID, ProjectID, ProjectTimeID, ProjectType, 
+                                           EnrollmentDateRange,
+                                           OperatingDateRange, 
+                                           ParticipatingDateRange,
+                                           EnrollmentvParticipating,
                                            EnrollmentvOperating)]
   
 Enrollment <- EnrollmentStaging %>%
@@ -208,8 +188,9 @@ Enrollment <- EnrollmentStaging %>%
                                   "Enrollment Crosses Operating Period") |
         EnrollmentvParticipating %in% c("Enrollment Crosses Participating Start",
                                         "Enrollment Crosses Participating Period"),
-      max(int_start(ParticipatingDateRange),
-          int_start(OperatingDateRange), na.rm = TRUE),
+      max(
+        int_start(ParticipatingDateRange), int_start(OperatingDateRange), na.rm = TRUE
+      ),
       EntryDate
     ), # truncates to the earliest Participating/Operating End Date
     ExitDateTruncated = if_else(
@@ -330,8 +311,8 @@ EnrollmentAdjust <- Enrollment %>%
         "Enrollment After Operating Period",
         "Enrollment Before Operating Period"
       )
-  ) 
-  
+  )
+
 rm(HHMoveIn)
 
 # Only BedNight Services --------------------------------------------------
