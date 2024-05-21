@@ -417,6 +417,9 @@ a:hover {
     padding: 0;
 }
 
+#sys_comp_summary_ui_chart {
+  height:100% !important; /*otherwise, we get a 2nd scrollbar on sys overview page*/
+}
 #sys_comp_summary_ui_chart >img {
   width:100%
 }
