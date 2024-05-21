@@ -407,3 +407,16 @@ a:hover {
   color: white;
   font-size: 1.4em;
 }
+
+/* fix all-sertved chart spacing*/
+#sys_comp_summary_filter_selections {
+  padding:10px;
+}
+
+.nav-tabs-custom>.tab-content[data-tabsetid="6238"] {
+    padding: 0;
+}
+
+#sys_comp_summary_ui_chart >img {
+  width:100%
+}
