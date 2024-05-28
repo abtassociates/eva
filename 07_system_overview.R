@@ -1,12 +1,33 @@
 logToConsole("Running system overview")
 
-# Data prep ---------------------------------------------------------------
-
+# Age ---------------------------------------------------------------------
+browser()
 system_person_ages <- EnrollmentAdjust %>%
   group_by(PersonalID) %>%
   slice_max(AgeAtEntry, na_rm = TRUE, with_ties = FALSE) %>%
   ungroup() %>%
   select(PersonalID, "MostRecentAgeAtEntry" = AgeAtEntry)
+
+# Build report dates ------------------------------------------------------
+
+# if the start date's day of the month = 1, then that's the start date
+# otherwise go forward a month and use the 1st of that month.
+ReportStart <- if_else(
+  day(meta_HUDCSV_Export_Start()) == 1,
+  meta_HUDCSV_Export_Start(),
+  floor_date(meta_HUDCSV_Export_Start() %m+% months(1), unit = "month"))
+
+# if you go forward to the first day of the next month and then subtract a day,
+# and that equals the raw ExportEndDate, that means it is already a last day of
+# the month so we just return the raw ExportEndDate. If the date is something
+# other than that, then we want to get the first day of the month and go back 
+# a day so that it cuts off on the last day of the month previous to the raw
+# ExportEndDate
+ReportEnd <- if_else(
+  floor_date(meta_HUDCSV_Export_End() %m+% months(1), unit = "month") - days(1) ==
+    meta_HUDCSV_Export_End(),
+  meta_HUDCSV_Export_End(),
+  floor_date(meta_HUDCSV_Export_End(), unit = "month") - days(1))
 
 # using EnrollmentAdjust because that df doesn't contain enrollments that fall
 # outside periods of operation/participation
