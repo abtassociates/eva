@@ -258,6 +258,91 @@ outreach_w_proper_cls_vector <-
 # Client-level flags ------------------------------------------------------
 # will help us categorize people
 
+client_categories <- Client %>%
+  select(PersonalID,
+         all_of(race_cols),
+         all_of(gender_cols),
+         VeteranStatus
+  ) %>%
+  left_join(system_person_ages, join_by(PersonalID)) %>%
+  mutate(AgeCategory = factor(
+    case_when(
+      MostRecentAgeAtEntry >= 0 & MostRecentAgeAtEntry <= 12 ~ "0 to 12",
+      MostRecentAgeAtEntry >= 13 & MostRecentAgeAtEntry <= 17 ~ "13 to 17",
+      MostRecentAgeAtEntry >= 18 & MostRecentAgeAtEntry <= 21 ~ "18 to 21",
+      MostRecentAgeAtEntry >= 22 & MostRecentAgeAtEntry <= 24 ~ "22 to 24",
+      MostRecentAgeAtEntry >= 25 & MostRecentAgeAtEntry <= 34 ~ "25 to 34",
+      MostRecentAgeAtEntry >= 35 & MostRecentAgeAtEntry <= 44 ~ "35 to 44",
+      MostRecentAgeAtEntry >= 45 & MostRecentAgeAtEntry <= 54 ~ "45 to 54",
+      MostRecentAgeAtEntry >= 55 & MostRecentAgeAtEntry <= 64 ~ "55 to 64",
+      MostRecentAgeAtEntry >= 65 & MostRecentAgeAtEntry <= 74 ~ "65 to 74",
+      MostRecentAgeAtEntry >= 75 ~ "75 and older",
+      TRUE ~ "something's wrong"
+    ),
+    levels = c(
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older"
+    )
+  ),
+  ExclusiveGenderCategory = case_when(
+    any_cols_selected_except(
+      .,
+      list = c(
+        "CulturallySpecific",
+        "NonBinary",
+        "Questioning",
+        "DifferentIdentity"
+      ),
+      exception = "Transgender"
+    ) &
+    any_cols_selected_except(.,
+                             list = gender_cols,
+                             exception = c("GenderNone", "Transgender")) ~
+    "Gender Expansive, not including transgender",
+  no_cols_selected_except(.,
+                          list = gender_cols,
+                          exception = "Man") ~
+    "Man (Boy, if child) alone",
+  
+  Transgender == 1 ~ 
+    "Transgender, alone or in combination",
+  
+    no_cols_selected_except(.,
+                            list = gender_cols,
+                            exception = "Woman") ~
+    "Woman (Girl, if child) alone",  
+  
+    no_cols_selected_except(.,
+                            list = gender_cols,
+                            exception = "GenderNone") ~
+    "Unknown",
+  TRUE ~ "something's wrong"),
+  InclusiveGenderCategory = case_when(# using a case_when here will make this "exclusive"
+      (Woman == 1 & Man == 1) |
+        min_cols_selected_except(., gender_cols, c("Man", "Woman"), 1) ~
+        "Gender Expansive, including transgender",
+    
+    Man == 1 ~
+      "Man (Boy, if child) alone or in combination",
+    
+    Woman == 1 ~
+      "Woman (Girl, if child) alone or in combination",
+    
+    NonBinary == 1 ~
+      "Non-Binary alone or in combination",      
+    
+    (Man == 1 & Woman != 1) | (Woman == 1 & Man != 1) ~
+      "Only Woman (Girl, if child) OR Only Man (Boy, if child)"
+  ))
+
 client_categories_reactive <- reactive({
   Client %>%
     select(PersonalID,
@@ -266,56 +351,21 @@ client_categories_reactive <- reactive({
            VeteranStatus
            ) %>%
     left_join(system_person_ages, join_by(PersonalID)) %>%
-    mutate(AgeCategory = factor(
-      case_when(
-        MostRecentAgeAtEntry >= 0 & MostRecentAgeAtEntry <= 12 ~
-          syso_age_cats["0 to 12"],
-        MostRecentAgeAtEntry >= 13 & MostRecentAgeAtEntry <= 17 ~
-          syso_age_cats["13 to 17"],
-        MostRecentAgeAtEntry >= 18 & MostRecentAgeAtEntry <= 21 ~
-          syso_age_cats["18 to 21"],
-        MostRecentAgeAtEntry >= 22 & MostRecentAgeAtEntry <= 24 ~
-          syso_age_cats["22 to 24"],
-        MostRecentAgeAtEntry >= 25 & MostRecentAgeAtEntry <= 34 ~
-          syso_age_cats["25 to 34"],
-        MostRecentAgeAtEntry >= 35 & MostRecentAgeAtEntry <= 44 ~
-          syso_age_cats["35 to 44"],
-        MostRecentAgeAtEntry >= 45 & MostRecentAgeAtEntry <= 54 ~
-          syso_age_cats["45 to 54"],
-        MostRecentAgeAtEntry >= 55 & MostRecentAgeAtEntry <= 64 ~
-          syso_age_cats["55 to 64"],
-        MostRecentAgeAtEntry >= 65 & MostRecentAgeAtEntry <= 74 ~
-          syso_age_cats["65 to 74"],
-        MostRecentAgeAtEntry >= 75 ~
-          syso_age_cats["75 and older"]
-      ),
-      levels = c(
-        "0 to 12",
-        "13 to 17",
-        "18 to 21",
-        "22 to 24",
-        "25 to 34",
-        "35 to 44",
-        "45 to 54",
-        "55 to 64",
-        "65 to 74",
-        "75 and older"
-      )
-    ),
-    
-      Gender = case_when(
+    mutate(
+      GenderCategory = case_when(
         # Exclusive ---
         input$methodology_type == 1 &
-          any_cols_selected_except(.,
-                                   c(CulturallySpecific,
-                                     NonBinary,
-                                     Questioning,
-                                     DifferentIdentity),
-                                   "Transgender") &
-          any_cols_selected_except(., gender_cols, c("GenderNone", "Transgender")) ~
+          any_cols_selected_except(
+            .,
+            list = c(CulturallySpecific, NonBinary, Questioning, DifferentIdentity),
+            exception = "Transgender") &
+          any_cols_selected_except(
+            .,
+            list = gender_cols,
+            exception = c("GenderNone", "Transgender")) ~
           syso_gender_excl["Gender Expansive, not including transgender"],
         
-        input$methodology_type == 1 & 
+        input$methodology_type == 1 &
           no_cols_selected_except(., gender_cols, "Man") ~
           syso_gender_excl["Man (Boy, if child) alone"],
         
@@ -487,7 +537,41 @@ client_categories_reactive <- reactive({
           no_cols_selected_except(., race_cols, "HispanicLatinaeo")
         ~ syso_race_ethnicity_incl[["Group 2"]][3],
       ),
-    )
+    ) %>%
+    filter(
+      # Age
+      (
+        setequal(syso_age_cats, input$syso_age) |
+          is.null(input$syso_age) |
+          AgeCategory%in% input$syso_age
+      ) &
+        # Special Populations
+        (
+          input$syso_spec_pops == 1 | # no special populations (all)
+            (input$syso_spec_pops == 2 &
+               DomesticViolenceSurvivor == 1 &
+               CurrentlyFleeing == 0) |
+            (input$syso_spec_pops == 3 &
+               DomesticViolenceSurvivor == 1 &
+               CurrentlyFleeing == 1) |
+            (input$syso_spec_pops == 4 &
+               DomesticViolenceSurvivor == 1)
+        ) &
+        # Gender
+        (
+          setequal(syso_gender_cats(), input$syso_gender) |
+            is.null(input$syso_gender) |
+            GenderCategory %in% input$syso_gender
+        ) &
+        # Race/Ethnicity
+        (
+          input$syso_race_ethnicity == 0 |
+            AllRaceEthnicity %in% input$syso_race_ethnicity | 
+            GroupedRaceEthnicity %in% input$syso_race_ethnicity 
+        )
+    ) %>%
+    select(PersonalID) %>% 
+    unique()
 })
 
 # Enrollment-level reactive -----------------------------------------------
@@ -495,18 +579,22 @@ client_categories_reactive <- reactive({
 enrollment_categories_reactive <- reactive({
   
   # Filter enrollments by hhtype, project type, and level-of-detail inputs
-  enrollment_categories_dt <- enrollment_categories_dt[
-      (input$syso_hh_type == 1 |
-         HouseholdType == getNameByValue(syso_hh_types, input$syso_hh_type)) &
-      (input$syso_level_of_detail == 1 |
-         (input$syso_level_of_detail == 2 &
+  x <- enrollment_categories_dt[
+      (input$syso_hh_types == "All Households" |
+         HouseholdType == input$syso_hh_type) &
+      (input$syso_level_of_detail == "All People" |
+         (input$syso_level_of_detail == "All Adults and Heads of Households" &
             (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-         (input$syso_level_of_detail == 3 &
+         (input$syso_level_of_detail == "All Heads of Households" &
             CorrectedHoH == 1)) &
-      (input$syso_project_type == 1 |
-         (input$syso_project_type == 2 & ProjectType %in% project_types_w_beds) |
-         (input$syso_project_type == 3 & ProjectType %in% non_res_project_types))
+      (input$syso_project_type == "All Project Types" |
+         (input$syso_project_type == "Residential Project Types" &
+            ProjectType %in% project_types_w_beds) |
+         (input$syso_project_type == "Non-Residential Project Types" &
+            ProjectType %in% non_res_project_types))
   ]
+  
+  x
   
 })
 
@@ -515,7 +603,7 @@ enrollment_categories_reactive <- reactive({
 clients_enrollments_reactive <- reactive({
   enrollment_categories_reactive() %>%
     filter(in_date_range == TRUE) %>%
-    left_join(client_categories_reactive(), join_by(PersonalID))
+    inner_join(client_categories_reactive(), join_by(PersonalID))
 })
 
 system_df_people_syso_filtered <- reactive({
@@ -552,7 +640,7 @@ system_df_people_syso_filtered <- reactive({
       (
         setequal(syso_gender_cats(), input$syso_gender) |
           is.null(input$syso_gender) |
-          Gender %in% input$syso_gender
+          GenderCategory %in% input$syso_gender
       ) &
       # Race/Ethnicity
       (
