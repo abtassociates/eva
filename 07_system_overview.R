@@ -440,10 +440,6 @@ nbn_enrollments_services <- Services %>%
            nbn_service_within15_start,
            nbn_service_within15_end)
 
-  nbn_enrollments_w_proper_services <-  nbn_enrollments_services %>%
-    pull(EnrollmentID) %>%
-    unique()
-  
   # Perform left join @REVISIT (shouldn't this be an inner join?)
   system_df_enrl_flags_dt <-
     as.data.table(nbn_enrollments_services)[as.data.table(enrollment_categories),
