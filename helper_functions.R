@@ -148,7 +148,7 @@ parseDate <- function(datevar) {
 }
 
 importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
-  if(str_sub(upload_filepath,-4,-1) != ".zip") {
+  if(str_sub(upload_filepath, -4, -1) != ".zip") {
     capture.output("User tried uploading a non-zip file!") 
   }
 
