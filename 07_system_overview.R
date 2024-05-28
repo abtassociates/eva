@@ -261,7 +261,7 @@ client_categories_reactive <- reactive({
            VeteranStatus
            ) %>%
     left_join(system_person_ages, join_by(PersonalID)) %>%
-    mutate(Age = factor(
+    mutate(AgeCategory = factor(
       case_when(
         MostRecentAgeAtEntry >= 0 & MostRecentAgeAtEntry <= 12 ~
           syso_age_cats["0 to 12"],
@@ -520,7 +520,7 @@ system_df_people_syso_filtered <- reactive({
       (
         setequal(syso_age_cats, input$syso_age) |
           is.null(input$syso_age) |
-          Age %in% input$syso_age
+          AgeCategory%in% input$syso_age
       ) &
       # Special Populations
       (
