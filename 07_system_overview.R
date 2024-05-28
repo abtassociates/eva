@@ -109,7 +109,7 @@ hh_adjustments <- system_df_prep %>%
 # age 53 (hoh), age 46 (hoh), age 17 -> only the age 53 and not the age 46
 
 # adding corrected hoh ----------------------------------------------------
-system_df_prep <- system_df_prep %>%
+system_df <- system_df_prep %>%
   left_join(hh_adjustments, join_by(EnrollmentID)) %>%
   relocate(CorrectedHoH, .after = RelationshipToHoH)
 
@@ -118,7 +118,7 @@ rm(hh_adjustments)
 
 # Enrollment-level flags --------------------------------------------------
 # will help us categorize enrollments
-system_df_enrl_flags <- system_df_prep %>%
+enrollment_categories <- system_df %>%
   mutate(
     lh_prior_livingsituation = !is.na(LivingSituation) &
       (
@@ -186,7 +186,7 @@ system_df_enrl_flags <- system_df_prep %>%
 # Client-level flags ------------------------------------------------------
 # will help us categorize people
 
-system_df_client_flags <- reactive({
+client_categories_reactive <- reactive({
   Client %>%
     select(PersonalID,
            all_of(race_cols),
