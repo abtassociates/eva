@@ -116,8 +116,11 @@ rm(hh_adjustments)
 
 
 # Enrollment-level flags --------------------------------------------------
-# will help us categorize enrollments
+# as much wrangling as possible without needing hhtype, project type, and level
+# of detail inputs
 enrollment_categories <- system_df %>%
+  filter(as.numeric(difftime(ExitAdjust, ReportStart, unit = "days")) / 365 <= 2 &
+           ProjectType != 12) %>%
   mutate(
     lh_prior_livingsituation = !is.na(LivingSituation) &
       (
@@ -135,11 +138,17 @@ enrollment_categories <- system_df %>%
       ProjectType %in% lh_project_types,
     EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
       lh_prior_livingsituation == TRUE,
-    
+    straddles_start = EntryDate <= ReportStart &
+      ExitAdjust >= ReportStart,
+    in_date_range = 
+      ExitAdjust >= ReportStart &
+      EntryDate <= ReportEnd,
     # Domestic Violence - this is needed for the System Composition chart
     DomesticViolence = case_when(
-      DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 0 ~ syso_spec_pops_people[2],
-      DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1 ~ syso_spec_pops_people[3],
+      DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 0 ~
+        syso_spec_pops_people[2],
+      DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1 ~
+        syso_spec_pops_people[3],
     )
   ) %>%
   select(
@@ -153,13 +162,14 @@ enrollment_categories <- system_df %>%
     ProjectType, 
     lh_prior_livingsituation,
     lh_at_entry,
+    straddles_start,
+    in_date_range,
     EnrolledHomeless,
     LivingSituation,
     LOSUnderThreshold,
     PreviousStreetESSH,
     Destination,
     AgeAtEntry,
-    MostRecentAgeAtEntry,
     CorrectedHoH,
     DomesticViolence,
     CurrentlyFleeing,
@@ -179,7 +189,64 @@ enrollment_categories <- system_df %>%
       TRUE ~ "Unknown Household"
     )
   ) %>% 
-  ungroup()
+  group_by(PersonalID) %>%
+  arrange(EntryDate, .by_group = TRUE) %>%
+  mutate(
+    ordinal = row_number(),
+    next_entry_days =
+      difftime(lead(EntryDate, order_by = EntryDate),
+               ExitAdjust,
+               units = "days"),
+    previous_exit_days =
+      difftime(EntryDate,
+               lag(ExitAdjust, order_by = ExitAdjust),
+               units = "days")
+  ) %>%
+  group_by(PersonalID, in_date_range) %>%
+  mutate(
+    lecr = in_date_range == TRUE & max(ordinal) == ordinal,
+    eecr = in_date_range == TRUE & min(ordinal) == ordinal,
+    lookback = if_else(in_date_range == TRUE, 0, rev(row_number()))
+  ) %>%
+  ungroup() %>%
+  select(-AgeAtEntry)
+
+nbn_enrollments_services <- Services %>%
+  filter(RecordType == 200) %>%
+  inner_join(EnrollmentAdjust %>%
+               filter(ProjectType == 1) %>%
+               select(EnrollmentID),
+             join_by(EnrollmentID)) %>%
+  mutate(
+    nbn_service_within15_start =
+      between(DateProvided,
+              ReportStart - days(15),
+              ReportStart + days(15)),
+    nbn_service_within15_end =
+      between(DateProvided,
+              ReportEnd - days(15),
+              ReportEnd + days(15))
+  ) %>%
+  filter(
+    nbn_service_within15_start == TRUE |
+      nbn_service_within15_end == TRUE) %>%
+  select(EnrollmentID,
+         nbn_service_within15_start,
+         nbn_service_within15_end)
+
+# Perform left join
+enrollment_categories_dt <-
+  as.data.table(nbn_enrollments_services)[as.data.table(enrollment_categories),
+                                          on = .(EnrollmentID)]
+
+outreach_w_proper_cls_vector <- 
+  CurrentLivingSituation %>%
+  filter(CurrentLivingSituation %in% homeless_livingsituation &
+           between(InformationDate,
+                   ReportEnd - days(60),
+                   ReportEnd + days(60))) %>%
+  pull(EnrollmentID) %>%
+  unique()
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people
@@ -192,8 +259,8 @@ client_categories_reactive <- reactive({
            VeteranStatus
            ) %>%
     left_join(system_person_ages, join_by(PersonalID)) %>%
-    mutate(
-      Age = case_when(
+    mutate(Age = factor(
+      case_when(
         MostRecentAgeAtEntry >= 0 & MostRecentAgeAtEntry <= 12 ~
           syso_age_cats["0 to 12"],
         MostRecentAgeAtEntry >= 13 & MostRecentAgeAtEntry <= 17 ~
@@ -215,28 +282,38 @@ client_categories_reactive <- reactive({
         MostRecentAgeAtEntry >= 75 ~
           syso_age_cats["75 and older"]
       ),
-      
+      levels = c(
+        "0 to 12",
+        "13 to 17",
+        "18 to 21",
+        "22 to 24",
+        "25 to 34",
+        "35 to 44",
+        "45 to 54",
+        "55 to 64",
+        "65 to 74",
+        "75 and older"
+      )
+    ),
+    
       Gender = case_when(
         # Exclusive ---
         input$methodology_type == 1 &
-          any_cols_selected_except(., 
-                                   c(
-                                     CulturallySpecific,
+          any_cols_selected_except(.,
+                                   c(CulturallySpecific,
                                      NonBinary,
                                      Questioning,
-                                     DifferentIdentity
-                                   ), 
-                                   "Transgender"
-          ) &
-          any_cols_selected_except(., gender_cols, c("GenderNone","Transgender")) 
-        ~ syso_gender_excl["Gender Expansive, not including transgender"],
+                                     DifferentIdentity),
+                                   "Transgender") &
+          any_cols_selected_except(., gender_cols, c("GenderNone", "Transgender")) ~
+          syso_gender_excl["Gender Expansive, not including transgender"],
         
         input$methodology_type == 1 & 
-          no_cols_selected_except(., gender_cols, "Man") 
-        ~ syso_gender_excl["Man (Boy, if child) alone"],
+          no_cols_selected_except(., gender_cols, "Man") ~
+          syso_gender_excl["Man (Boy, if child) alone"],
         
-        input$methodology_type == 1 & Transgender == 1
-        ~ syso_gender_excl["Transgender, alone or in combination"],
+        input$methodology_type == 1 & Transgender == 1 ~ 
+        syso_gender_excl["Transgender, alone or in combination"],
         
         input$methodology_type == 1 & 
           no_cols_selected_except(., gender_cols, "Woman")
@@ -408,49 +485,10 @@ client_categories_reactive <- reactive({
 
 # Enrollment-level reactive -----------------------------------------------
 
-outreach_w_proper_cls <- 
-  CurrentLivingSituation %>%
-    filter(CurrentLivingSituation %in% homeless_livingsituation &
-             between(InformationDate,
-                     ReportEnd - days(60),
-                     ReportEnd + days(60))) %>%
-    pull(EnrollmentID) %>%
-    unique()
-
-nbn_enrollments_services <- Services %>%
-    filter(RecordType == 200) %>%
-    inner_join(EnrollmentAdjust %>%
-                filter(ProjectType == 1) %>%
-                select(EnrollmentID),
-              join_by(EnrollmentID)) %>%
-    mutate(
-      nbn_service_within15_start =
-        between(DateProvided,
-                ReportStart - days(15),
-                ReportStart + days(15)),
-      nbn_service_within15_end =
-        between(DateProvided,
-                ReportEnd - days(15),
-                ReportEnd + days(15))
-    ) %>%
-    filter(
-      nbn_service_within15_start == TRUE |
-        nbn_service_within15_end == TRUE) %>%
-    select(EnrollmentID,
-           nbn_service_within15_start,
-           nbn_service_within15_end)
-
-  # Perform left join @REVISIT (shouldn't this be an inner join?)
-  system_df_enrl_flags_dt <-
-    as.data.table(nbn_enrollments_services)[as.data.table(enrollment_categories),
-                                            on = .(EnrollmentID)]
+enrollment_categories_reactive <- reactive({
   
-system_df_enrl_filtered <- reactive({
-  
-  # Filter data
-  system_df_enrl_flags_dt <- system_df_enrl_flags_dt[
-    as.numeric(difftime(ExitAdjust, ReportStart, unit = "days")) / 365 <= 2 &
-      ProjectType != 12 &
+  # Filter enrollments by hhtype, project type, and level-of-detail inputs
+  enrollment_categories_dt <- enrollment_categories_dt[
       (input$syso_hh_type == 1 |
          HouseholdType == getNameByValue(syso_hh_types, input$syso_hh_type)) &
       (input$syso_level_of_detail == 1 |
@@ -463,47 +501,13 @@ system_df_enrl_filtered <- reactive({
          (input$syso_project_type == 3 & ProjectType %in% non_res_project_types))
   ]
   
-  # Group by PersonalID and arrange by EntryDate
-  system_df_enrl_flags_dt[, `:=`(
-    ordinal = seq_len(.N),
-    next_entry_days = difftime(c(EntryDate[-1], NA), ExitAdjust, units = "days"),
-    previous_exit_days = difftime(EntryDate, c(ExitAdjust[-1], NA), units = "days")
-  ), by = PersonalID]
-  
-  # Mutate new columns
-  system_df_enrl_flags_dt[, `:=`(
-    straddles_start = EntryDate <= input$syso_date_range[1] &
-      ExitAdjust >= input$syso_date_range[1],
-    in_date_range = 
-      (
-        EntryDate <= input$syso_date_range[1] & 
-          ExitAdjust > input$syso_date_range[1]
-      ) |
-      (
-        EntryDate <= input$syso_date_range[2] & 
-          ExitAdjust > input$syso_date_range[2]
-      ) |
-      (
-        EntryDate >= input$syso_date_range[1] & 
-          ExitAdjust <= input$syso_date_range[2]
-      )
-  )]
-  
-  # Group by PersonalID and in_date_range and mutate new columns
-  system_df_enrl_flags_dt[, `:=`(
-    lecr = in_date_range == TRUE & max(ordinal) == ordinal,
-    eecr = in_date_range == TRUE & min(ordinal) == ordinal,
-    lookback = ifelse(in_date_range == TRUE, 0, rev(seq_len(.N)))
-  ), by = .(PersonalID, in_date_range)]
-  
 })
 
 # Client-level reactive ---------------------------------------------------
 # get filtered people-level system dataframe
-system_df_people_universe_filtered <- reactive({
-  system_df_enrl_filtered() %>%
+clients_enrollments_reactive <- reactive({
+  enrollment_categories_reactive() %>%
     filter(in_date_range == TRUE) %>%
-    select(-MostRecentAgeAtEntry) %>%
     left_join(client_categories_reactive(), join_by(PersonalID))
 })
 
@@ -528,9 +532,14 @@ system_df_people_syso_filtered <- reactive({
         # !(input$syso_level_of_detail %in% c(1,2)) & (
         #   input$syso_spec_pops == 2 & TRUE
         # )
-        (input$syso_spec_pops == 2 & DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 0) |
-        (input$syso_spec_pops == 3 & DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1) |
-        (input$syso_spec_pops == 4 & DomesticViolenceSurvivor == 1)
+        (input$syso_spec_pops == 2 &
+           DomesticViolenceSurvivor == 1 &
+           CurrentlyFleeing == 0) |
+        (input$syso_spec_pops == 3 &
+           DomesticViolenceSurvivor == 1 &
+           CurrentlyFleeing == 1) |
+        (input$syso_spec_pops == 4 &
+           DomesticViolenceSurvivor == 1)
       ) &
       # Gender
       (
