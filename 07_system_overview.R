@@ -149,7 +149,9 @@ enrollment_categories <- system_df %>%
         syso_spec_pops_people[2],
       DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 0 ~
         syso_spec_pops_people[3],
-    )
+      TRUE ~
+        syso_spec_pops_people[1]
+      )
   ) %>%
   select(
     EnrollmentID, 
