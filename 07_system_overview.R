@@ -179,7 +179,7 @@ enrollment_categories <- system_df %>%
   ) %>%
   group_by(HouseholdID) %>%
   mutate(
-    HouseholdType = case_when(
+    HouseholdType = factor(case_when(
       all(AgeAtEntry < 25 & AgeAtEntry >= 18, na.rm = TRUE) &
         !any(is.na(AgeAtEntry)) ~ "Youth and Young Adult",
       all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
@@ -189,7 +189,12 @@ enrollment_categories <- system_df %>%
       all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
         "Child-Only",
       TRUE ~ "Unknown Household"
-    )
+    ),
+    levels = c("Youth and Young Adult",
+               "Adult-Only",
+               "Adult-Child",
+               "Child-Only",
+               "Unknown Household"))
   ) %>% 
   group_by(PersonalID) %>%
   arrange(EntryDate, .by_group = TRUE) %>%
