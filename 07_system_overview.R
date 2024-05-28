@@ -43,7 +43,6 @@ system_df_prep <- EnrollmentAdjust %>%
          MoveInDateAdjust,
          ExitDate,
          ExitAdjust,
-         EnrollmentDateRange,
          Destination,
          AgeAtEntry,
          RelationshipToHoH,
@@ -159,7 +158,6 @@ enrollment_categories <- system_df %>%
     LOSUnderThreshold,
     PreviousStreetESSH,
     Destination,
-    EnrollmentDateRange,
     AgeAtEntry,
     MostRecentAgeAtEntry,
     CorrectedHoH,
@@ -410,18 +408,16 @@ client_categories_reactive <- reactive({
 
 # Enrollment-level reactive -----------------------------------------------
 
-outreach_w_proper_cls <- reactive({
+outreach_w_proper_cls <- 
   CurrentLivingSituation %>%
     filter(CurrentLivingSituation %in% homeless_livingsituation &
              between(InformationDate,
-                     input$syso_date_range[2] - days(60),
-                     input$syso_date_range[2] + days(60))) %>%
+                     ReportEnd - days(60),
+                     ReportEnd + days(60))) %>%
     pull(EnrollmentID) %>%
     unique()
-})
 
-system_df_enrl_filtered <- reactive({
-  nbn_enrollments_services <- Services %>%
+nbn_enrollments_services <- Services %>%
     filter(RecordType == 200) %>%
     inner_join(EnrollmentAdjust %>%
                 filter(ProjectType == 1) %>%
@@ -430,12 +426,12 @@ system_df_enrl_filtered <- reactive({
     mutate(
       nbn_service_within15_start =
         between(DateProvided,
-                input$syso_date_range[1] - days(15),
-                input$syso_date_range[1] + days(15)),
+                ReportStart - days(15),
+                ReportStart + days(15)),
       nbn_service_within15_end =
         between(DateProvided,
-                input$syso_date_range[2] - days(15),
-                input$syso_date_range[2] + days(15))
+                ReportEnd - days(15),
+                ReportEnd + days(15))
     ) %>%
     filter(
       nbn_service_within15_start == TRUE |
@@ -443,30 +439,29 @@ system_df_enrl_filtered <- reactive({
     select(EnrollmentID,
            nbn_service_within15_start,
            nbn_service_within15_end)
-  
+
   nbn_enrollments_w_proper_services <-  nbn_enrollments_services %>%
     pull(EnrollmentID) %>%
     unique()
   
-  # Perform left join
-  system_df_enrl_flags_dt <- as.data.table(nbn_enrollments_services)[
-    as.data.table(
-      system_df_enrl_flags %>% 
-        mutate(
-          EnrollmentDateRangeStart = int_start(EnrollmentDateRange),
-          EnrollmentDateRangeEnd = int_end(EnrollmentDateRange),
-        ) %>%
-        select(-EnrollmentDateRange)
-    ), on=.(EnrollmentID)]
+  # Perform left join @REVISIT (shouldn't this be an inner join?)
+  system_df_enrl_flags_dt <-
+    as.data.table(nbn_enrollments_services)[as.data.table(enrollment_categories),
+                                            on = .(EnrollmentID)]
+  
+system_df_enrl_filtered <- reactive({
   
   # Filter data
   system_df_enrl_flags_dt <- system_df_enrl_flags_dt[
-    as.numeric(difftime(ExitAdjust, input$syso_date_range[1], unit = "days")) / 365 <= 2 &
+    as.numeric(difftime(ExitAdjust, ReportStart, unit = "days")) / 365 <= 2 &
       ProjectType != 12 &
-      (input$syso_hh_type == 1 | HouseholdType == getNameByValue(syso_hh_types, input$syso_hh_type)) &
+      (input$syso_hh_type == 1 |
+         HouseholdType == getNameByValue(syso_hh_types, input$syso_hh_type)) &
       (input$syso_level_of_detail == 1 |
-         (input$syso_level_of_detail == 2 & (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-         (input$syso_level_of_detail == 3 & CorrectedHoH == 1)) &
+         (input$syso_level_of_detail == 2 &
+            (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+         (input$syso_level_of_detail == 3 &
+            CorrectedHoH == 1)) &
       (input$syso_project_type == 1 |
          (input$syso_project_type == 2 & ProjectType %in% project_types_w_beds) |
          (input$syso_project_type == 3 & ProjectType %in% non_res_project_types))
@@ -481,19 +476,20 @@ system_df_enrl_filtered <- reactive({
   
   # Mutate new columns
   system_df_enrl_flags_dt[, `:=`(
-    straddles_start = EntryDate <= input$syso_date_range[1] & ExitAdjust >= input$syso_date_range[1],
+    straddles_start = EntryDate <= input$syso_date_range[1] &
+      ExitAdjust >= input$syso_date_range[1],
     in_date_range = 
       (
-        EnrollmentDateRangeStart <= input$syso_date_range[1] & 
-          EnrollmentDateRangeEnd > input$syso_date_range[1]
+        EntryDate <= input$syso_date_range[1] & 
+          ExitAdjust > input$syso_date_range[1]
       ) |
       (
-        EnrollmentDateRangeStart <= input$syso_date_range[2] & 
-          EnrollmentDateRangeEnd > input$syso_date_range[2]
+        EntryDate <= input$syso_date_range[2] & 
+          ExitAdjust > input$syso_date_range[2]
       ) |
       (
-        EnrollmentDateRangeStart >= input$syso_date_range[1] & 
-          EnrollmentDateRangeEnd <= input$syso_date_range[2]
+        EntryDate >= input$syso_date_range[1] & 
+          ExitAdjust <= input$syso_date_range[2]
       )
   )]
   
@@ -504,84 +500,6 @@ system_df_enrl_filtered <- reactive({
     lookback = ifelse(in_date_range == TRUE, 0, rev(seq_len(.N)))
   ), by = .(PersonalID, in_date_range)]
   
-  
-  # system_df_enrl_flags %>%
-  #   left_join(nbn_enrollments_services, join_by(EnrollmentID)) %>%
-  #   filter(
-  #   # remove enrollments where the exit is over 2 years prior to report start
-  #     as.numeric(difftime(ExitAdjust, input$syso_date_range[1],
-  #                         unit = "days")) / 365 <= 2 &
-  #   
-  #   # excluding these because Project Type 12 is Homelessness Prevention. 
-  #   # Households in that project are technically already housed
-  #   ProjectType != 12 &
-  #     
-  #   # Active At Start logic
-  #   # ((ProjectType %in% c(es_ee_project_type, th_project_type, sh_project_type)) |
-  #   #   (ProjectType == es_nbn_project_type &
-  #   #      EnrollmentID %in% nbn_enrollments_w_proper_services) |
-  #   #   (ProjectType == out_project_type &
-  #   #      EnrollmentID %in% outreach_w_proper_cls() &
-  #   #      lh_prior_livingsituation == TRUE) |
-  #   #   (ProjectType %in% c(ph_project_types) &
-  #   #      (is.na(MoveInDateAdjust) |
-  #   #         MoveInDateAdjust > input$syso_date_range[1]) &
-  #   #      lh_prior_livingsituation == TRUE) |
-  #     # (ProjectType == ce_project_type &
-  #     #    lh_prior_livingsituation == TRUE &
-  #     #    between(EntryDate,
-  #     #            input$syso_date_range[1] - days(90),
-  #     #            input$syso_date_range[1] + days(90)))) &
-  # 
-  #   # Household Type
-  #   (
-  #     # "All Households" = 1, 
-  #     input$syso_hh_type == 1 |
-  #       HouseholdType == getNameByValue(syso_hh_types, input$syso_hh_type)
-  #   ) & 
-  #     # Level of Detail
-  #     (
-  #       input$syso_level_of_detail == 1 |
-  #       (input$syso_level_of_detail == 2 & 
-  #          (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-  #       (input$syso_level_of_detail == 3 & CorrectedHoH == 1)
-  #     ) & 
-  #     # Project Type
-  #     (
-  #       input$syso_project_type == 1 |
-  #         (input$syso_project_type == 2 &
-  #            ProjectType %in% project_types_w_beds) |
-  #         (input$syso_project_type == 3 &
-  #            ProjectType %in% non_res_project_types)
-  #     )
-  #   ) %>%
-  #   group_by(PersonalID) %>%
-  #   arrange(EntryDate, .by_group = TRUE) %>%
-  #   mutate(ordinal = row_number(),
-  #          next_entry_days = 
-  #            difftime(lead(EntryDate, order_by = EntryDate), # next date
-  #                     ExitAdjust, # enrollment date
-  #                     unit = "days"),
-  #          previous_exit_days =
-  #            difftime(EntryDate, # enrollment date
-  #                     lag(ExitAdjust, order_by = ExitAdjust), # previous date
-  #                     unit = "days")) %>%
-  #   ungroup() %>%
-  #   mutate(
-  #     straddles_start =
-  #       EntryDate <= input$syso_date_range[1] &
-  #       ExitAdjust >= input$syso_date_range[1],
-  #     in_date_range =
-  #       int_overlaps(EnrollmentDateRange,
-  #                    interval(input$syso_date_range[1], input$syso_date_range[2])
-  #       )) %>%
-  #   group_by(PersonalID, in_date_range) %>%
-  #   mutate(
-  #     lecr = in_date_range == TRUE & max(ordinal) == ordinal,
-  #     eecr = in_date_range == TRUE & min(ordinal) == ordinal,
-  #     lookback = if_else(in_date_range == TRUE, 0, rev(row_number()))
-  #   ) %>%
-  #   ungroup()
 })
 
 # Client-level reactive ---------------------------------------------------
@@ -590,7 +508,7 @@ system_df_people_universe_filtered <- reactive({
   system_df_enrl_filtered() %>%
     filter(in_date_range == TRUE) %>%
     select(-MostRecentAgeAtEntry) %>%
-    left_join(system_df_client_flags(), join_by(PersonalID))
+    left_join(client_categories_reactive(), join_by(PersonalID))
 })
 
 system_df_people_syso_filtered <- reactive({
