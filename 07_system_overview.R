@@ -145,9 +145,9 @@ enrollment_categories <- system_df %>%
       EntryDate <= ReportEnd,
     # Domestic Violence - this is needed for the System Composition chart
     DomesticViolence = case_when(
-      DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 0 ~
-        syso_spec_pops_people[2],
       DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1 ~
+        syso_spec_pops_people[2],
+      DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 0 ~
         syso_spec_pops_people[3],
     )
   ) %>%
