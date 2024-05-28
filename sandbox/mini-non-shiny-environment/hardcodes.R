@@ -161,28 +161,26 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
 
 syso_gender_incl <- c(
-  "All Genders" = 1,
-  "Gender Expansive, including transgender" = 2,
-  "Man (Boy, if child) alone or in combination" = 3,
-  "Non-Binary alone or in combination" = 4,
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = 5,
-  "Woman (Girl, if child) alone or in combination" = 6
+  "Gender Expansive, including transgender" = 1,
+  "Man (Boy, if child) alone or in combination" = 2,
+  "Non-Binary alone or in combination" = 3,
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = 4,
+  "Woman (Girl, if child) alone or in combination" = 5
 )
 
 syso_gender_excl <- c(
-  "All Genders" = 1,
-  "Gender Expansive, not including transgender" = 2,
-  "Man (Boy, if child) alone" = 3,
-  "Transgender, alone or in combination" = 4,
-  "Woman (Girl, if child) alone" = 5,
-  "Unknown" = 6
+  "Gender Expansive, not including transgender" = 1,
+  "Man (Boy, if child) alone" = 2,
+  "Transgender, alone or in combination" = 3,
+  "Woman (Girl, if child) alone" = 4,
+  "Unknown" = 5
 )
 
 syso_age_cats <- c(
   "0 to 12" = 1,
   "13 to 17" = 2,
   "18 to 21" = 3,
-  "21 to 24" = 4,
+  "22 to 24" = 4,
   "25 to 34" = 5,
   "35 to 44" = 6,
   "45 to 54" = 7,
@@ -323,5 +321,25 @@ inc_ncb_hi_required_prep <- tribble(
 
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
   unique()
+
+sys_comp_filter_choices1 = c(
+  "Age", 
+  "Domestic Violence",
+  "Gender",
+  "Homelessness Type",
+  "All Races/Ethnicities",
+  "Grouped Races/Ethnicities",
+  "Veteran Status"
+)
+
+sys_comp_filter_choices2 = c(
+  "Age", 
+  "Domestic Violence",
+  "Gender",
+  "Homelessness Type",
+  "All Races/Ethnicities",
+  "Hispanic-Focused Races/Ethnicities",
+  "Veteran Status"
+)
 
 rm(inc_ncb_hi_required_prep)
