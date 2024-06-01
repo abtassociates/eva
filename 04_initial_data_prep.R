@@ -159,30 +159,40 @@ Enrollmentvs <- function(EntryDate, ExitAdjust, ComparisonStart, ComparisonEnd, 
 }
 
 EnrollmentOutside[, `:=`(
-  EnrollmentvParticipating = Enrollmentvs(EntryDate, ExitAdjust, HMISParticipationStatusStartDate, HMISParticipationStatusEndDate, "Participating"),
-  EnrollmentvOperating = Enrollmentvs(EntryDate, ExitAdjust, OperatingStartDate, OperatingEndDate, "Operating")
+  EnrollmentvParticipating = Enrollmentvs(
+    EntryDate, ExitAdjust, 
+    HMISParticipationStatusStartDate, HMISParticipationStatusEndDate, 
+    "Participating"
+    ),
+  EnrollmentvOperating = Enrollmentvs(
+    EntryDate, ExitAdjust, 
+    OperatingStartDate, OperatingEndDate, 
+    "Operating")
   )]
 
 #   group_by(ProjectID, EnrollmentID) %>%
 #   arrange(ProjectTimeID) %>%
 #   slice(1L) %>%
 # ungroup() %>%
-EnrollmentOutside <- EnrollmentOutside[order(ProjectTimeID), .SD[1], by = .(ProjectID, EnrollmentID)]
+EnrollmentOutside <- EnrollmentOutside[order(ProjectTimeID), head(.SD, 1), by = .(ProjectID, EnrollmentID)]
 
 # select(EnrollmentID, ProjectID, ProjectTimeID, ProjectType, EnrollmentDateRange,
 #        OperatingDateRange, ParticipatingDateRange, EnrollmentvParticipating,
 #        EnrollmentvOperating)
 EnrollmentOutside <- EnrollmentOutside[, .(EnrollmentID, ProjectID, ProjectTimeID, ProjectType, 
-                                           EnrollmentDateRange,
-                                           OperatingDateRange, 
-                                           ParticipatingDateRange,
+                                           EntryDate, ExitAdjust,
+                                           OperatingStartDate, OperatingEndDate, 
+                                           HMISParticipationStatusStartDate,
+                                           HMISParticipationStatusEndDate,
                                            EnrollmentvParticipating,
                                            EnrollmentvOperating)]
-  
+
 Enrollment <- EnrollmentStaging %>%
-  left_join(EnrollmentOutside,
-            by = c("EnrollmentID", "ProjectID", "EnrollmentDateRange")) %>%
+  left_join(as.data.frame(EnrollmentOutside),
+            by = c("EnrollmentID", "ProjectID", "EntryDate", "ExitAdjust")) %>%
   mutate(
+    ParticipatingDateRange = interval(HMISParticipationStatusStartDate, HMISParticipationStatusEndDate),
+    OperatingDateRange = interval(OperatingStartDate, OperatingEndDate),
     EntryDateTruncated = if_else(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating Start",
                                   "Enrollment Crosses Operating Period") |
