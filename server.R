@@ -183,14 +183,20 @@ function(input, output, session) {
   # Run scripts on upload ---------------------------------------------------
   
   process_upload <- function(upload_filename, upload_filepath) {
-    source("00_initially_valid_import.R", local = TRUE)
+    withProgress({
+      
+      setProgress(message = "Checking initial validity ", value = .05)
+      source("00_initially_valid_import.R", local = TRUE)
 
     if(initially_valid_import() == 1) {
 
       hide('imported_progress')
       
-      withProgress({
-        setProgress(message = "Processing...", value = .15)
+      setProgress(message = "Unzipping...", value = .10)
+      list_of_files <- unzip(
+        zipfile = upload_filepath, 
+        files = paste0(unique(cols_and_data_types$File), ".csv"))
+      
         setProgress(detail = "Reading your files..", value = .2)
         custom_rprof({ 
           source("01_get_Export.R", local = TRUE)
@@ -323,8 +329,8 @@ function(input, output, session) {
           )
           logMetadata("Unsuccessful upload - not structurally valid")
         }
-      })
     }
+    })
   }
   
   observeEvent(input$imported, {

@@ -147,25 +147,33 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
-  if(str_sub(upload_filepath,-4,-1) != ".zip") {
-    capture.output("User tried uploading a non-zip file!") 
-  }
-
+importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   filename <- str_glue("{csvFile}.csv")
+  if(!is.null(upload_filepath))
+    filename = utils::unzip(zipfile = upload_filepath, files=filename)
+  
+  colTypes <- get_col_types(upload_filepath, csvFile)
+
   data <-
     read_csv(
-      utils::unzip(zipfile = upload_filepath, files = filename),
-      col_types = get_col_types(upload_filepath, csvFile),
+      filename,
+      col_types = colTypes,
       na = ""
     )
+    # AS 5/29/24: This seems a bit faster, but has problems with missing columns, 
+    # like DateDeleted in Client.csv. they come inas character, and not NA
+    # data.table::fread(
+    #   here(filename),
+    #   colClasses = colTypes,
+    #   na.strings="NA"
+    # )
 
+  
   if(csvFile != "Export"){
     data <- data %>%
       filter(is.na(DateDeleted))
   }
 
-  file.remove(filename)
   return(data)
 }
 
@@ -180,11 +188,12 @@ get_col_types <- function(upload_filepath, file) {
     mutate(DataType = data_type_mapping[as.character(DataType)])
   
   # get the columns in the order they appear in the imported file
+  filename = paste0(file, ".csv")
+  if(!is.null(upload_filepath))
+    filename = utils::unzip(zipfile = upload_filepath, files=filename)
+  
   cols_in_file <- colnames(read.table(
-    utils::unzip(
-      zipfile = upload_filepath, 
-      files = str_glue("{file}.csv")
-    ),             
+    filename,
     head = TRUE,
     nrows = 1,
     sep = ","))
