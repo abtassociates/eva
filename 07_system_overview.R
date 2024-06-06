@@ -627,7 +627,7 @@ clients_enrollments_reactive <- reactive({
 })
 
 system_df_people_syso_filtered <- reactive({
-  system_df_people_universe_filtered() %>%
+  clients_enrollments_reactive() %>%
     filter(
       # Age
       (
@@ -674,7 +674,7 @@ system_df_people_syso_filtered <- reactive({
 })
 
 # Client-level enrollment summary data reactive ---------------------------
-# get final people-level, inflow/outflow dataframe by joining the filtered----- 
+# get final people-level, inflow/outflow dataframe by joining the filtered 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 sys_inflow_outflow_plot_df <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
