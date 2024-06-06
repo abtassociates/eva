@@ -184,15 +184,16 @@ function(input, output, session) {
   
   process_upload <- function(upload_filename, upload_filepath) {
     withProgress({
+      setProgress(message = "Processing...", value = .05)
       
-      setProgress(message = "Checking initial validity ", value = .05)
+      setProgress(detail = "Checking initial validity ", value = .05)
       source("00_initially_valid_import.R", local = TRUE)
 
     if(initially_valid_import() == 1) {
 
       hide('imported_progress')
       
-      setProgress(message = "Unzipping...", value = .10)
+      setProgress(detail = "Unzipping...", value = .10)
       list_of_files <- unzip(
         zipfile = upload_filepath, 
         files = paste0(unique(cols_and_data_types$File), ".csv"))
