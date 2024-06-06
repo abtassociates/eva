@@ -209,6 +209,7 @@ a:hover {
 /* || CHANGELOG */
 #shiny-tab-tabChangelog td:first-child {
   white-space:nowrap;
+  padding: 10px;
 }
 
 #fileInfo.recalculating::before {
