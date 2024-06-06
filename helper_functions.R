@@ -367,7 +367,7 @@ merge_check_info_dt <- function(data, checkIDs) {
 ############################
 custom_rprof <- function(expr, code_block_name) {
   # Start profiling
-  Rprof(tmp <- tempfile(), line.profiling = TRUE)
+  Rprof(tmp <- tempfile(), line.profiling = TRUE, numfiles=500L)
   
   # Evaluate the expression
   startTime <- Sys.time()
@@ -379,20 +379,15 @@ custom_rprof <- function(expr, code_block_name) {
   
   # Get profiling summaries
   x <- summaryRprof(tmp, lines = "show")$by.total
-  # x2 <- summaryRprof(tmp, lines = "show")$by.line
   
   # Filter rows related to the source file
   x_final <- x[grepl(code_block_name, row.names(x)), ]
-  # x2_final <- x2[grepl(code_block_name, row.names(x2)), ]
   
-  # Order by self.time
-  x_final <- x_final[order(-x_final$self.time),]
-  # x2_final <- x2_final[order(-x2_final$self.time),]
-  
+  # Order by time
+  x_final <- x_final[order(-x_final$total.time),]
   
   # Print the final results
   print(x_final)
-  # print(x2_final)
   
   # Remove the temporary file
   unlink(tmp)
