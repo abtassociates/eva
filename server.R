@@ -199,11 +199,9 @@ function(input, output, session) {
         files = paste0(unique(cols_and_data_types$File), ".csv"))
       
         setProgress(detail = "Reading your files..", value = .2)
-        custom_rprof({ 
-          source("01_get_Export.R", local = TRUE)
-        }, "01_get_Export.R")
+        source("01_get_Export.R", local = TRUE)
+        
         source("02_export_dates.R", local = TRUE)
-        setProgress(detail = "Checking file structure", value = .35)
         
         # if we're in shiny testmode and the script has gotten here,
         # that means we've gotten all the exports 
@@ -213,9 +211,8 @@ function(input, output, session) {
         upload_filename == "FY24-ICF-fsa-test.zip") {
           source("tests/update_test_good_fsa.R", local = TRUE)  
         }
-        custom_rprof({ 
+        setProgress(detail = "Checking file structure", value = .35)
         source("03_file_structure_analysis.R", local = TRUE)
-        }, "03_file_structure_analysis.R")
         
         # if structural issues were not found, keep going
         if (valid_file() == 1) {
@@ -233,9 +230,7 @@ function(input, output, session) {
           }
           
           setProgress(detail = "Prepping initial data..", value = .4)
-          custom_rprof({ 
           source("04_initial_data_prep.R", local = TRUE) 
-          }, "04_initial_data_prep.R")
           
           # if we're in shiny testmode and the script has gotten here,
           # that means we're using the hashed-test-good file. 
@@ -247,20 +242,13 @@ function(input, output, session) {
           }
           
           setProgress(detail = "Assessing your data quality..", value = .7)
-          custom_rprof({ 
           source("05_DataQuality.R", local = TRUE)
-          }, "05_DataQuality.R")
           
           setProgress(detail = "Checking your PDDEs", value = .85)
-          
-          custom_rprof({ 
           source("06_PDDE_Checker.R", local = TRUE)
-          }, "06_PDDE_Checker.R")
-
+          
           setProgress(detail = "Preparing System Overview Data", value = .85)
-          custom_rprof({ 
-            source("07_system_overview.R", local = TRUE)
-          }, "07_system_overview.R")
+          source("07_system_overview.R", local = TRUE)
           
           setProgress(detail = "Done!", value = 1)
           logToConsole("Done processing")
