@@ -365,14 +365,19 @@ merge_check_info_dt <- function(data, checkIDs) {
 ############################
 # CUSTOM Rprof() FUNCTION
 ############################
-custom_rprof <- function(expr, code_block_name) {
+custom_rprof <- function(expr, source_file_name, code_block_name = NULL) {
   # Start profiling
-  Rprof(tmp <- tempfile(), line.profiling = TRUE, numfiles=500L)
+  Rprof(tmp <- tempfile(), line.profiling = TRUE, numfiles=500L, filter.callframes=TRUE)
   
   # Evaluate the expression
   startTime <- Sys.time()
   eval(expr)
-  print(paste0(code_block_name, " took: ", Sys.time() - startTime))
+  if(is.null(code_block_name)) {
+    print(paste0(source_file_name, " took: "))
+  } else {
+    print(paste0(code_block_name, " in ", source_file_name, " took: "))
+  }
+  print(Sys.time() - startTime)
   
   # Stop profiling
   Rprof(NULL)
@@ -381,7 +386,7 @@ custom_rprof <- function(expr, code_block_name) {
   x <- summaryRprof(tmp, lines = "show")$by.total
   
   # Filter rows related to the source file
-  x_final <- x[grepl(code_block_name, row.names(x)), ]
+  x_final <- x[grepl(source_file_name, row.names(x)), ]
   
   # Order by time
   x_final <- x_final[order(-x_final$total.time),]
