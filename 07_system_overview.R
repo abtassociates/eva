@@ -241,10 +241,30 @@ nbn_enrollments_services <- Services %>%
          nbn_service_within15_start,
          nbn_service_within15_end)
 
-# Perform left join
+# using data.table --------------------------------------------------------
+before_dt <- now()
+# Left join enrollment_categories on nbn_enrollments_services
 enrollment_categories_dt <-
   as.data.table(nbn_enrollments_services)[as.data.table(enrollment_categories),
                                           on = .(EnrollmentID)]
+after_dt <- now()
+
+
+# using table.express -----------------------------------------------------
+
+before_te <- now()
+# Left join enrollment_categories on nbn_enrollments_services
+enrollment_categories_exp <- as.data.table(enrollment_categories) %>%
+  table.express::left_join(as.data.table(nbn_enrollments_services), EnrollmentID)
+after_te <- now()
+
+# compare -----------------------------------------------------------------
+
+after_dt - before_dt
+
+after_te - before_te
+
+
 
 outreach_w_proper_cls_vector <- 
   CurrentLivingSituation %>%
