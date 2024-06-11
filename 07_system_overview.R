@@ -103,7 +103,8 @@ enrollment_prep <- EnrollmentAdjust %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  filter(ContinuumProject == 1)
+  filter(ContinuumProject == 1) 
+# IMPORTANT: ^ same granularity as EnrollmentAdjust!
 
 # corrected hohs ----------------------------------------------------------
 
@@ -139,6 +140,8 @@ hh_adjustments <- enrollment_prep %>%
 enrollment_prep_hohs <- enrollment_prep %>%
   left_join(hh_adjustments, join_by(EnrollmentID)) %>%
   relocate(CorrectedHoH, .after = RelationshipToHoH)
+
+# (^ also same granularity as EnrollmentAdjust)
 
 rm(hh_adjustments)
 
