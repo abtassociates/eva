@@ -254,21 +254,21 @@ nbn_enrollments_services <- Services %>%
                select(EnrollmentID),
              join_by(EnrollmentID)) %>%
   mutate(
-    nbn_service_within15_start =
+    nbn_service_15_before_start =
       between(DateProvided,
               ReportStart - days(15),
               DateProvided),
-    nbn_service_within15_end =
+    nbn_service_15_after_end =
       between(DateProvided,
               DateProvided,
               ReportEnd + days(15))
   ) %>%
   filter(
-    nbn_service_within15_start == TRUE |
-      nbn_service_within15_end == TRUE) %>%
+    nbn_service_15_before_start == TRUE |
+      nbn_service_15_after_end == TRUE) %>%
   select(EnrollmentID,
-         nbn_service_within15_start,
-         nbn_service_within15_end)
+         nbn_service_15_before_start,
+         nbn_service_15_after_end)
 
 # using data.table --------------------------------------------------------
 before_dt <- now()
