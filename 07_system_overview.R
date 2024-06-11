@@ -345,23 +345,24 @@ client_categories <- Client %>%
                             exception = "GenderNone") ~
     "Unknown",
   TRUE ~ "something's wrong"),
-  InclusiveGenderCategory = case_when(# using a case_when here will make this "exclusive"
-      (Woman == 1 & Man == 1) |
-        min_cols_selected_except(., gender_cols, c("Man", "Woman"), 1) ~
-        "Gender Expansive, including transgender",
-    
-    Man == 1 ~
-      "Man (Boy, if child) alone or in combination",
-    
-    Woman == 1 ~
-      "Woman (Girl, if child) alone or in combination",
-    
-    NonBinary == 1 ~
-      "Non-Binary alone or in combination",      
-    
-    (Man == 1 & Woman != 1) | (Woman == 1 & Man != 1) ~
-      "Only Woman (Girl, if child) OR Only Man (Boy, if child)"
-  ))
+  TransgenderInclusive = if_else(Transgender == 1 |
+                                   (Woman == 1 & Man == 1), 1, 0),
+  WomanInclusive = if_else(Woman == 1, 1, 0),
+  ManInclusive = if_else(Man == 1, 1, 0),
+  CisInclusive = if_else ((
+    Woman == 1 &
+      Man + NonBinary + Transgender + CulturallySpecific +
+      DifferentIdentity + Questioning + GenderNone == 0
+  ) |
+    (
+      Man == 1 &
+        Woman + NonBinary + Transgender + CulturallySpecific +
+        DifferentIdentity + Questioning + GenderNone == 0
+    ),
+  1,
+  0
+  ),
+  NonBinaryInclusive = if_else(NonBinary == 1, 1, 0))
 
 client_categories_reactive <- reactive({
   Client %>%
