@@ -148,7 +148,7 @@ parseDate <- function(datevar) {
 }
 
 importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
-  if(str_sub(upload_filepath,-4,-1) != ".zip") {
+  if(str_sub(upload_filepath, -4, -1) != ".zip") {
     capture.output("User tried uploading a non-zip file!") 
   }
 
@@ -325,7 +325,7 @@ fy22_to_fy24_living_situation <- function(value){
 # SANDBOX
 #############################
 importFileSandbox <- function(csvFile) {
-  filename = str_glue("{csvFile}.csv")
+  filename <- str_glue("{csvFile}.csv")
   data <- read_csv(paste0(directory, "data/", filename)
                    ,col_types = get_col_types(csvFile)
                    ,na = ""
@@ -355,19 +355,21 @@ getNameByValue <- function(vector, val) {
 
 # for a set of 1/0, or checkbox, variables, check whether no other variables 
 # were checked except for the specified ones
-no_cols_selected_except <- function(df, l, e) {
-  rowSums(df[e], na.rm = TRUE) > 0 & rowSums(df[setdiff(l, e)], na.rm = TRUE) == 0
+no_cols_selected_except <- function(df, list, exception) {
+  rowSums(df[exception], na.rm = TRUE) > 0 &
+    rowSums(df[setdiff(list, exception)], na.rm = TRUE) == 0
 }
 
-any_cols_selected_except <- function(df, l, e) {
-  rowSums(df[l] == 1, na.rm = TRUE) > 0 & 
-  rowSums(df[e] == 1, na.rm = TRUE) == 0
+any_cols_selected_except <- function(df, list, exception) {
+  rowSums(df[list] == 1, na.rm = TRUE) > 0 &
+    rowSums(df[exception] == 1, na.rm = TRUE) == 0
 }
 
 # for a set of 1/0, or checkbox, variables, check whether at least 
 # the specified numbers of variables were checked, except for the specified ones
-min_cols_selected_except <- function(df, l, e, num_cols_seleted) {
-  rowSums(df[e], na.rm = TRUE) == 0 & rowSums(df[setdiff(l, e)], na.rm = TRUE) >= num_cols_seleted
+min_cols_selected_except <- function(df, list, exception, num_cols_selected) {
+  rowSums(df[exception], na.rm = TRUE) == 0 &
+    rowSums(df[setdiff(list, exception)], na.rm = TRUE) >= num_cols_selected
 }
 
 # custom round to the smaller of the nearest 10, 100, etc.
