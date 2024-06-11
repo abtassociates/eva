@@ -40,7 +40,7 @@ system_person_ages <- EnrollmentAdjust %>%
 
 # if the start date's day of the month = 1, then that's the start date
 # otherwise go forward a month and use the 1st of that month.
-ReportStart <- if_else(
+ExportStartAdjusted <- if_else(
   day(meta_HUDCSV_Export_Start()) == 1,
   meta_HUDCSV_Export_Start(),
   floor_date(meta_HUDCSV_Export_Start() %m+% months(1), unit = "month"))
@@ -51,11 +51,14 @@ ReportStart <- if_else(
 # other than that, then we want to get the first day of the month and go back 
 # a day so that it cuts off on the last day of the month previous to the raw
 # ExportEndDate
-ReportEnd <- if_else(
+ExportEndAdjusted <- if_else(
   floor_date(meta_HUDCSV_Export_End() %m+% months(1), unit = "month") - days(1) ==
     meta_HUDCSV_Export_End(),
   meta_HUDCSV_Export_End(),
   floor_date(meta_HUDCSV_Export_End(), unit = "month") - days(1))
+
+ReportEnd <- ExportEndAdjusted
+ReportStart <- ReportEnd - years(1) + days(1)
 
 # Data prep ---------------------------------------------------------------
 
