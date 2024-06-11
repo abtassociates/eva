@@ -174,11 +174,11 @@ enrollment_categories <- enrollment_prep_hohs %>%
     # Domestic Violence - this is needed for the System Composition chart
     DomesticViolence = case_when(
       DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1 ~
-        syso_spec_pops_people[2],
+        syso_spec_pops_people[2], # DV Currently Fleeing
       DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 0 ~
-        syso_spec_pops_people[3],
+        syso_spec_pops_people[3], # DV Not Currently Fleeing
       TRUE ~
-        syso_spec_pops_people[1]
+        syso_spec_pops_people[1] # No Special Population Selected
       )
   ) %>%
   select(
