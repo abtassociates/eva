@@ -160,15 +160,17 @@ enrollment_categories <- enrollment_prep_hohs %>%
               !is.na(LOSUnderThreshold) &
               !is.na(PreviousStreetESSH)
           )
-      )
-    ,
-    lh_at_entry = lh_prior_livingsituation == TRUE |
+      ),
+    lh_at_entry =
+      lh_prior_livingsituation == TRUE |
       ProjectType %in% lh_project_types,
-    EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
+    EnrolledHomeless =
+      ProjectType %in% project_types_enrolled_homeless |
       lh_prior_livingsituation == TRUE,
-    straddles_start = EntryDate <= ReportStart &
+    straddles_start =
+      EntryDate <= ReportStart &
       ExitAdjust >= ReportStart,
-    in_date_range = 
+    in_date_range =
       ExitAdjust >= ReportStart &
       EntryDate <= ReportEnd,
     # Domestic Violence - this is needed for the System Composition chart
@@ -178,6 +180,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
       DomesticViolenceSurvivor == 1 &
         (is.na(CurrentlyFleeing) | CurrentlyFleeing != 1) ~
         syso_spec_pops_people[3], # DV Not Currently Fleeing
+      DomesticViolenceSurvivor == 1 ~
+        syso_spec_pops_people[4] # DV Total
       TRUE ~
         syso_spec_pops_people[1] # No Special Population Selected
       )
