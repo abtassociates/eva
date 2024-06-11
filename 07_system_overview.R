@@ -175,7 +175,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
     DomesticViolence = case_when(
       DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1 ~
         syso_spec_pops_people[2], # DV Currently Fleeing
-      DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 0 ~
+      DomesticViolenceSurvivor == 1 &
+        (is.na(CurrentlyFleeing) | CurrentlyFleeing != 1) ~
         syso_spec_pops_people[3], # DV Not Currently Fleeing
       TRUE ~
         syso_spec_pops_people[1] # No Special Population Selected
