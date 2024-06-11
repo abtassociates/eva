@@ -200,7 +200,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
       ExitAdjust >= ReportStart &
       EntryDate <= ReportEnd,
     # Domestic Violence - this is needed for the System Composition chart
-    DomesticViolence = case_when(
+    DomesticViolenceCategory = case_when(
       DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1 ~
         syso_spec_pops_people[2], # DV Currently Fleeing
       DomesticViolenceSurvivor == 1 &
@@ -232,9 +232,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
     Destination,
     AgeAtEntry,
     CorrectedHoH,
-    DomesticViolence,
-    CurrentlyFleeing,
-    DomesticViolenceSurvivor
+    DomesticViolenceCategory
   ) %>% 
   group_by(PersonalID) %>%
   arrange(EntryDate, .by_group = TRUE) %>%
