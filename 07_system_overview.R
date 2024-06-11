@@ -173,8 +173,8 @@ rm(hh_adjustments)
 # as much wrangling as possible without needing hhtype, project type, and level
 # of detail inputs
 enrollment_categories <- enrollment_prep_hohs %>%
-  filter(as.numeric(difftime(ExitAdjust, ReportStart, unit = "days")) / 365 <= 2 &
-           ProjectType != 12) %>%
+  filter(ReportStart - years(2) <= ExitAdjust &
+           ProjectType != 12) %>% 
   mutate(
     lh_prior_livingsituation = !is.na(LivingSituation) &
       (
