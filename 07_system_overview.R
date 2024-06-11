@@ -256,10 +256,10 @@ nbn_enrollments_services <- Services %>%
     nbn_service_within15_start =
       between(DateProvided,
               ReportStart - days(15),
-              ReportStart + days(15)),
+              DateProvided),
     nbn_service_within15_end =
       between(DateProvided,
-              ReportEnd - days(15),
+              DateProvided,
               ReportEnd + days(15))
   ) %>%
   filter(
