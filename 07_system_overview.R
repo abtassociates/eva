@@ -61,7 +61,7 @@ ReportEnd <- if_else(
 
 # using EnrollmentAdjust because that df doesn't contain enrollments that fall
 # outside periods of operation/participation
-system_df_prep <- EnrollmentAdjust %>%
+enrollment_prep <- EnrollmentAdjust %>%
   select(EnrollmentID,
          PersonalID,
          ProjectID,
@@ -107,7 +107,7 @@ system_df_prep <- EnrollmentAdjust %>%
 
 # corrected hohs ----------------------------------------------------------
 
-hh_adjustments <- system_df_prep %>%
+hh_adjustments <- enrollment_prep %>%
   mutate(VeteranStatus = if_else(VeteranStatus == 1 &
                                    !is.na(VeteranStatus), 1, 0),
          HoHAlready = if_else(RelationshipToHoH == 1 &
@@ -136,7 +136,7 @@ hh_adjustments <- system_df_prep %>%
 # age 53 (hoh), age 46 (hoh), age 17 -> only the age 53 and not the age 46
 
 # adding corrected hoh ----------------------------------------------------
-system_df <- system_df_prep %>%
+enrollment_prep_hohs <- enrollment_prep %>%
   left_join(hh_adjustments, join_by(EnrollmentID)) %>%
   relocate(CorrectedHoH, .after = RelationshipToHoH)
 
@@ -146,7 +146,7 @@ rm(hh_adjustments)
 # Enrollment-level flags --------------------------------------------------
 # as much wrangling as possible without needing hhtype, project type, and level
 # of detail inputs
-enrollment_categories <- system_df %>%
+enrollment_categories <- enrollment_prep_hohs %>%
   filter(as.numeric(difftime(ExitAdjust, ReportStart, unit = "days")) / 365 <= 2 &
            ProjectType != 12) %>%
   mutate(
@@ -288,11 +288,9 @@ after_te <- now()
 
 # compare -----------------------------------------------------------------
 
-after_dt - before_dt
-
-after_te - before_te
-
-
+# after_dt - before_dt
+# 
+# after_te - before_te
 
 outreach_w_proper_cls_vector <- 
   CurrentLivingSituation %>%
