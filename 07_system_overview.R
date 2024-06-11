@@ -399,28 +399,25 @@ client_categories_reactive <- reactive({
         
         input$methodology_type == 1 & 
           no_cols_selected_except(., gender_cols, "GenderNone")
-        ~ syso_gender_excl["Unknown"],
+        ~ syso_gender_excl["Unknown"]),
         
-        # Inclusive ----
-        input$methodology_type == 2 & (
-          (Woman == 1 & Man == 1) |
-            min_cols_selected_except(., gender_cols, c("Man","Woman"), 1)
-        ) ~ syso_gender_incl["Gender Expansive, including transgender"],
-        
-        input$methodology_type == 2 & Man == 1
-        ~ syso_gender_incl["Man (Boy, if child) alone or in combination"],
-        
-        input$methodology_type == 2 & NonBinary == 1
-        ~ syso_gender_incl["Non-Binary alone or in combination"],      
-        
-        input$methodology_type == 2 & (
-          (Man == 1 & Woman != 1) |
-            (Woman == 1 & Man != 1)
-        ) ~ syso_gender_incl["Only Woman (Girl, if child) OR Only Man (Boy, if child)"],
-        
-        input$methodology_type == 2 & Woman == 1
-        ~ syso_gender_incl["Woman (Girl, if child) alone or in combination"]
-      ),
+        # # Inclusive ----
+        # TransgenderInclusiveDescr = if_else(
+        #   input$methodology_type == 2 & TransgenderInclusive == 1,
+        # syso_gender_incl["Gender Expansive, including transgender"],
+        # 
+        # input$methodology_type == 2 & ManInclusive == 1
+        # ~ syso_gender_incl["Man (Boy, if child) alone or in combination"],
+        # 
+        # input$methodology_type == 2 & NonBinaryInclusive == 1
+        # ~ syso_gender_incl["Non-Binary alone or in combination"],      
+        # 
+        # input$methodology_type == 2 & CisInclusive == 1 ~
+        # syso_gender_incl["Only Woman (Girl, if child) OR Only Man (Boy, if child)"],
+        # 
+        # input$methodology_type == 2 & WomanInclusive == 1
+        # ~ syso_gender_incl["Woman (Girl, if child) alone or in combination"]
+      # ),
       
       AllRaceEthnicity = case_when(
         # Exclusive
