@@ -207,7 +207,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
         (is.na(CurrentlyFleeing) | CurrentlyFleeing != 1) ~
         syso_spec_pops_people[3], # DV Not Currently Fleeing
       DomesticViolenceSurvivor == 1 ~
-        syso_spec_pops_people[4] # DV Total
+        syso_spec_pops_people[4], # DV Total
       TRUE ~
         syso_spec_pops_people[1] # No Special Population Selected
       )
