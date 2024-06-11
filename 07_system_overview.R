@@ -6,7 +6,35 @@ system_person_ages <- EnrollmentAdjust %>%
   group_by(PersonalID) %>%
   slice_max(AgeAtEntry, na_rm = TRUE, with_ties = FALSE) %>%
   ungroup() %>%
-  select(PersonalID, "MostRecentAgeAtEntry" = AgeAtEntry)
+  mutate(AgeCategory = factor(
+    case_when(
+      is.na(AgeAtEntry) ~ "Unknown",
+      AgeAtEntry >= 0 & AgeAtEntry <= 12 ~ "0 to 12",
+      AgeAtEntry >= 13 & AgeAtEntry <= 17 ~ "13 to 17",
+      AgeAtEntry >= 18 & AgeAtEntry <= 21 ~ "18 to 21",
+      AgeAtEntry >= 22 & AgeAtEntry <= 24 ~ "22 to 24",
+      AgeAtEntry >= 25 & AgeAtEntry <= 34 ~ "25 to 34",
+      AgeAtEntry >= 35 & AgeAtEntry <= 44 ~ "35 to 44",
+      AgeAtEntry >= 45 & AgeAtEntry <= 54 ~ "45 to 54",
+      AgeAtEntry >= 55 & AgeAtEntry <= 64 ~ "55 to 64",
+      AgeAtEntry >= 65 & AgeAtEntry <= 74 ~ "65 to 74",
+      AgeAtEntry >= 75 ~ "75 and older",
+      TRUE ~ "something's wrong"
+    ),
+    levels = c(
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older"
+    )
+  )) %>%
+  select(PersonalID, "MostRecentAgeAtEntry" = AgeAtEntry, AgeCategory)
 
 # Build report dates ------------------------------------------------------
 
@@ -285,33 +313,7 @@ client_categories <- Client %>%
          VeteranStatus
   ) %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  mutate(AgeCategory = factor(
-    case_when(
-      MostRecentAgeAtEntry >= 0 & MostRecentAgeAtEntry <= 12 ~ "0 to 12",
-      MostRecentAgeAtEntry >= 13 & MostRecentAgeAtEntry <= 17 ~ "13 to 17",
-      MostRecentAgeAtEntry >= 18 & MostRecentAgeAtEntry <= 21 ~ "18 to 21",
-      MostRecentAgeAtEntry >= 22 & MostRecentAgeAtEntry <= 24 ~ "22 to 24",
-      MostRecentAgeAtEntry >= 25 & MostRecentAgeAtEntry <= 34 ~ "25 to 34",
-      MostRecentAgeAtEntry >= 35 & MostRecentAgeAtEntry <= 44 ~ "35 to 44",
-      MostRecentAgeAtEntry >= 45 & MostRecentAgeAtEntry <= 54 ~ "45 to 54",
-      MostRecentAgeAtEntry >= 55 & MostRecentAgeAtEntry <= 64 ~ "55 to 64",
-      MostRecentAgeAtEntry >= 65 & MostRecentAgeAtEntry <= 74 ~ "65 to 74",
-      MostRecentAgeAtEntry >= 75 ~ "75 and older",
-      TRUE ~ "something's wrong"
-    ),
-    levels = c(
-      "0 to 12",
-      "13 to 17",
-      "18 to 21",
-      "22 to 24",
-      "25 to 34",
-      "35 to 44",
-      "45 to 54",
-      "55 to 64",
-      "65 to 74",
-      "75 and older"
-    )
-  ),
+  mutate(,
   ExclusiveGenderCategory = case_when(
     any_cols_selected_except(
       .,
