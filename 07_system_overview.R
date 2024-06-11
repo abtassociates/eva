@@ -125,7 +125,27 @@ hh_adjustments <- enrollment_prep %>%
   mutate(Sequence = seq(n()),
          CorrectedHoH = if_else(Sequence == 1, 1, 0)) %>%
   ungroup() %>%
-  select(EnrollmentID, CorrectedHoH)
+  group_by(HouseholdID) %>%
+  mutate(
+    HouseholdType = factor(case_when(
+      all(AgeAtEntry < 25 & AgeAtEntry >= 18, na.rm = TRUE) &
+        !any(is.na(AgeAtEntry)) ~ "Youth and Young Adult",
+      all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
+        "Adult-Only",
+      any(AgeAtEntry < 18, na.rm = TRUE) & any(AgeAtEntry >= 18, na.rm = TRUE) ~
+        "Adult-Child",
+      all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
+        "Child-Only",
+      TRUE ~ "Unknown Household"
+    ),
+    levels = c("Youth and Young Adult",
+               "Adult-Only",
+               "Adult-Child",
+               "Child-Only",
+               "Unknown Household"))
+  ) %>%
+  ungroup() %>%
+  select(EnrollmentID, CorrectedHoH, HouseholdType)
 
 # keeps original HoH unless the HoH is younger than 18 or if there are mult hohs
 # if they are younger than 18, or if there are mult hohs, it will take the
@@ -215,35 +235,16 @@ enrollment_categories <- enrollment_prep_hohs %>%
     DomesticViolence,
     CurrentlyFleeing,
     DomesticViolenceSurvivor
-  ) %>%
-  group_by(HouseholdID) %>%
-  mutate(
-    HouseholdType = factor(case_when(
-      all(AgeAtEntry < 25 & AgeAtEntry >= 18, na.rm = TRUE) &
-        !any(is.na(AgeAtEntry)) ~ "Youth and Young Adult",
-      all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
-        "Adult-Only",
-      any(AgeAtEntry < 18, na.rm = TRUE) & any(AgeAtEntry >= 18, na.rm = TRUE) ~
-        "Adult-Child",
-      all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
-        "Child-Only",
-      TRUE ~ "Unknown Household"
-    ),
-    levels = c("Youth and Young Adult",
-               "Adult-Only",
-               "Adult-Child",
-               "Child-Only",
-               "Unknown Household"))
   ) %>% 
   group_by(PersonalID) %>%
   arrange(EntryDate, .by_group = TRUE) %>%
   mutate(
     ordinal = row_number(),
-    next_entry_days =
+    days_to_next_entry =
       difftime(lead(EntryDate, order_by = EntryDate),
                ExitAdjust,
                units = "days"),
-    previous_exit_days =
+    days_since_previous_exit =
       difftime(EntryDate,
                lag(ExitAdjust, order_by = ExitAdjust),
                units = "days")
@@ -738,8 +739,8 @@ sys_inflow_outflow_plot_df <- reactive({
                                units = "days"),
                       0,
                       14) &
-              !is.na(previous_exit_days) &
-              between(as.numeric(previous_exit_days), 0, 14))),
+              !is.na(days_since_previous_exit) &
+              between(as.numeric(days_since_previous_exit), 0, 14))),
       
       #LOGIC: enrolled housed at start
       # Exit.ExitDate is null or > ReportStartDate AND
@@ -762,7 +763,7 @@ sys_inflow_outflow_plot_df <- reactive({
         lh_at_entry == TRUE,
       
       at_least_14_days_to_eecr_enrl = lookback == 1 & 
-        next_entry_days >= 14,
+        days_to_next_entry >= 14,
       
       lookback1_temp_dest = lookback == 1 & 
         !(Destination %in% perm_destinations),
