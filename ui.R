@@ -317,7 +317,7 @@ dashboardPage(
                  Analysis below to see examples of the File Structure Errors you
                  could get in your own uploads. For a full list of possible
                  errors, see ",
-                 a('Eva Checks', href=here("public-resources/EvaChecks.csv")),
+                 a('Eva Checks', href=here("https://github.com/abtassociates/eva/blob/main/public-resources/EvaChecks.csv")),
                  ".</p>
                  <p>To explore your own File Structure Errors, turn off Demo
                  Mode and upload your own hashed HMIS CSV Export file.</p></div>
