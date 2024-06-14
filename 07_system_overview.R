@@ -1,14 +1,13 @@
 logToConsole("Running system overview")
 
 # Age ---------------------------------------------------------------------
-browser()
 system_person_ages <- EnrollmentAdjust %>%
   group_by(PersonalID) %>%
   slice_max(AgeAtEntry, na_rm = TRUE, with_ties = FALSE) %>%
   ungroup() %>%
   mutate(AgeCategory = factor(
     case_when(
-      is.na(AgeAtEntry) ~ "Unknown",
+      is.na(AgeAtEntry) | AgeAtEntry < 0 ~ "Unknown",
       AgeAtEntry >= 0 & AgeAtEntry <= 12 ~ "0 to 12",
       AgeAtEntry >= 13 & AgeAtEntry <= 17 ~ "13 to 17",
       AgeAtEntry >= 18 & AgeAtEntry <= 21 ~ "18 to 21",
@@ -31,7 +30,8 @@ system_person_ages <- EnrollmentAdjust %>%
       "45 to 54",
       "55 to 64",
       "65 to 74",
-      "75 and older"
+      "75 and older",
+      "Unknown"
     )
   )) %>%
   select(PersonalID, "MostRecentAgeAtEntry" = AgeAtEntry, AgeCategory)
@@ -930,6 +930,6 @@ sys_inflow_outflow_plot_df <- reactive({
     )
   plot_data
 })
-
-sys_df_people_universe_filtered_r(system_df_people_universe_filtered)
-sys_inflow_outflow_plot_data(sys_inflow_outflow_plot_df)
+# 
+# sys_df_people_universe_filtered_r(system_df_people_universe_filtered)
+# sys_inflow_outflow_plot_data(sys_inflow_outflow_plot_df)
