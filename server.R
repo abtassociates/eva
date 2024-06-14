@@ -63,20 +63,20 @@ function(input, output, session) {
   })
   
   syso_gender_cats <- reactive({
-    ifelse(
+    if_else(
       input$methodology_type == 1,
       list(syso_gender_excl),
       list(syso_gender_incl)
     )[[1]]
   })
   
-  syso_spec_pops_cats <- reactive({
-    ifelse(
-      input$syso_level_of_detail %in% c(1,2),
-      list(syso_spec_pops_people),
-      list(syso_spec_pops_hoh)
-    )[[1]]
-  })
+  # syso_spec_pops_cats <- reactive({
+  #   if_else(
+  #     input$syso_level_of_detail %in% c("All", "HoHsAndAdults"),
+  #     list(special_pops_description(syso_spec_pops_people)),
+  #     list(syso_spec_pops_hoh)
+  #   )[[1]]
+  # })
   
   # set during initially valid processing stop. Rest of processing stops if invalid
   # FSA is hidden unless initially_valid_import() == 1
@@ -108,13 +108,13 @@ function(input, output, session) {
     )[[1]]
   })
   
-  syso_spec_pops_cats <- reactive({
-    ifelse(
-      input$syso_level_of_detail %in% c(1,2),
-      list(syso_spec_pops_people),
-      list(syso_spec_pops_hoh)
-    )[[1]]
-  })
+  # syso_spec_pops_cats <- reactive({
+  #   ifelse(
+  #     input$syso_level_of_detail %in% c(1,2),
+  #     list(syso_spec_pops_people),
+  #     list(syso_spec_pops_hoh)
+  #   )[[1]]
+  # })
   
   # log when user navigate to a tab
   observe({ 
@@ -239,7 +239,7 @@ function(input, output, session) {
           
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
-
+browser()
           setProgress(detail = "Preparing System Overview Data", value = .85)
           source("07_system_overview.R", local = TRUE)
 
@@ -928,6 +928,7 @@ function(input, output, session) {
       list(sys_comp_filter_choices2)
     )[[1]]
   })
+  
   observeEvent(input$methodology_type, {
     updatePickerInput(
       session, 
@@ -957,7 +958,9 @@ function(input, output, session) {
   })
   
   observeEvent(input$syso_level_of_detail, {
-    updatePickerInput(session, "syso_spec_pops", choices = syso_spec_pops_cats())
+    updatePickerInput(session, "syso_spec_pops",
+                      label = special_pops_description(syso_spec_pops_people),
+                      choices = syso_spec_pops_people)
   })
   
   #### DOWNLOAD TABULAR FORMAT ###
