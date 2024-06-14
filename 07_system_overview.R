@@ -281,21 +281,21 @@ nbn_enrollments_services <- Services %>%
          nbn_service_15_after_end)
 
 # using data.table --------------------------------------------------------
-before_dt <- now()
+# before_dt <- now()
 # Left join enrollment_categories on nbn_enrollments_services
 enrollment_categories_dt <-
   as.data.table(nbn_enrollments_services)[as.data.table(enrollment_categories),
                                           on = .(EnrollmentID)]
-after_dt <- now()
+# after_dt <- now()
 
 
 # using table.express -----------------------------------------------------
 
-before_te <- now()
+# before_te <- now()
 # Left join enrollment_categories on nbn_enrollments_services
 enrollment_categories_exp <- as.data.table(enrollment_categories) %>%
   table.express::left_join(as.data.table(nbn_enrollments_services), EnrollmentID)
-after_te <- now()
+# after_te <- now()
 
 # compare -----------------------------------------------------------------
 
