@@ -232,7 +232,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
     Destination,
     AgeAtEntry,
     CorrectedHoH,
-    DomesticViolenceCategory
+    DomesticViolenceCategory,
+    HouseholdType
   ) %>% 
   group_by(PersonalID) %>%
   arrange(EntryDate, .by_group = TRUE) %>%
