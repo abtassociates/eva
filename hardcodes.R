@@ -106,8 +106,7 @@ all_project_types2 <- c(0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14)
 
 ssvf_fund_sources <- 33
 
-
-# Race Values --------------------------------------------------------------
+# HUD Values ---------------------------------------------------------------
 
 yes_no_enhanced <- c(0, 1, 8, 9, 99)
 yes_no <- c(0, 1, 99)
@@ -140,18 +139,18 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 # System Overview - Filters -----------------------------------------------
 syso_hh_types <- c(
-  "All Households" = 1, 
-  "Adult-Only" = 2, 
-  "Adult-Child" = 3, 
-  "Child-Only" = 4,
-  "Youth and Young Adult" = 5, 
-  "Unknown Household" = 6
+  "All Households", 
+  "Adult-Only", 
+  "Adult-Child", 
+  "Child-Only",
+  "Youth and Young Adult", 
+  "Unknown Household"
 )
 
 syso_level_of_detail <- c(
-  "All People" = 1, 
-  "All Adults and Heads of Households" = 2, 
-  "All Heads of Households" = 3
+  "All", 
+  "HoHsAndAdults", 
+  "HoHsOnly"
 )
 
 gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
@@ -161,68 +160,68 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
 
 syso_gender_incl <- c(
-  "Gender Expansive, including transgender" = 1,
-  "Man (Boy, if child) alone or in combination" = 2,
-  "Non-Binary alone or in combination" = 3,
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = 4,
-  "Woman (Girl, if child) alone or in combination" = 5
+  "TransgenderInclusive",
+  "ManInclusive",
+  "NonBinaryInclusive",
+  "CisInclusive",
+  "WomanInclusive"
 )
 
 syso_gender_excl <- c(
-  "Gender Expansive, not including transgender" = 1,
-  "Man (Boy, if child) alone" = 2,
-  "Transgender, alone or in combination" = 3,
-  "Woman (Girl, if child) alone" = 4,
-  "Unknown" = 5
+  "GenderExpansiveExclusive",
+  "ManExclusive",
+  "TransgenderExclusive",
+  "WomanExclusive",
+  "UnknownExclusive"
 )
 
 syso_age_cats <- c(
-  "0 to 12" = 1,
-  "13 to 17" = 2,
-  "18 to 21" = 3,
-  "22 to 24" = 4,
-  "25 to 34" = 5,
-  "35 to 44" = 6,
-  "45 to 54" = 7,
-  "55 to 64" = 8,
-  "65 to 74" = 9,
-  "75 and older" = 10)
+  "0 to 12",
+  "13 to 17",
+  "18 to 21",
+  "22 to 24",
+  "25 to 34",
+  "35 to 44",
+  "45 to 54",
+  "55 to 64",
+  "65 to 74",
+  "75 and older",
+  "Unknown")
 
 syso_race_ethnicity_incl <- list(
-  "Group 0" = c("All Races/Ethnicities" = 0),
-  "Group 1" = c("American Indian, Alaska Native, or Indigenous Inclusive" = 1,
-                "Asian or Asian American Inclusive" = 2,
-                "Black, African American, or African Inclusive" = 3,
-                "Hispanic/Latina/e/o" = 4,
-                "Middle Eastern or North African Inclusive" = 5,
-                "Native Hawaiin or Pacific Islander Inclusive" = 6,
-                "White Inclusive" = 7),
-  "Group 2" = c("Black, African American or African and Hispanic/Latina/e/o Inclusive" = 8,
-                "Hispanic/Latina/e/o Inclusive" = 9,
-                "Hispanic/Latina/e/o Alone" = 10)
+  "Group 0" = "All",
+  "Group 1" = c("AmIndAKNativeInclusive1",
+                "AsianInclusive1",
+                "BlackAfAmericanInclusive1",
+                "LatineInclusive1",
+                "MENAInclusive1",
+                "NativeHIPacificInclusive1",
+                "WhiteInclusive1"),
+  "Group 2" = c("BlackAfAmericanLatineInclusive2",
+                "LatineInclusive2",
+                "LatineAloneInclusive2")
 )
 
 syso_race_ethnicity_excl <- list(
-  "Group 0" = c("All Races/Ethnicities" = 0),
-  "Group 1" = c("American Indian, Alaska Native, or Indigenous Alone" = 1,
-                "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" = 2,
-                "Asian or Asian American Alone" = 3,
-                "Asian or Asian American & Hispanic/Latina/e/o" = 4,
-                "Black, African American, or African Alone" = 5,
-                "Black, African American, or African & Hispanic/Latina/e/o" = 6,
-                "Hispanic/Latina/e/o Alone" = 7,
-                "Middle Eastern or North African Alone" = 8,
-                "Middle Eastern or North African & Hispanic/Latina/e/o" = 9,
-                "Native Hawaiin or Pacific Islander Alone" = 10,
-                "Native Hawaiin or Pacific Islander & Hispanic/Latina/e/o" = 11,
-                "White Alone" = 12,
-                "White & Hispanic/Latina/e/o" = 13,
-                "Multi-Racial (not Hispanic/Latina/e/o)" = 14,
-                "Multi-Racial & Hispanic/Latina/e/o" = 15),
-  "Group 2" = c("All People of Color" = 16,
-                "White Only" = 17)
+  # "Group 0" = c("All"),
+  "Group 1" = c("AmIndAKNativeAloneExclusive1",
+                "AmIndAKNativeLatineExclusive1",
+                "AsianAloneExclusive1",
+                "AsianLatineExclusive1",
+                "BlackAfAmericanAloneExclusive1",
+                "BlackAfAmericanLatineExclusive1",
+                "LatineAloneExclusive1",
+                "MENAAloneExclusive1",
+                "MENALatineExclusive1",
+                "NativeHIPacificAloneExclusive1",
+                "NativeHIPacificLatineExclusive1" ,
+                "WhiteAloneExclusive1",
+                "WhiteLatineExclusive1",
+                "MultipleNotLatineExclusive1",
+                "MultipleLatineExclusive1"),
+  "Group 2" = c("BILPOCExclusive2",
+                "WhiteExclusive2")
 )
-
 
 syso_project_types <- c(
   "All Project Types" = 1,
@@ -230,34 +229,37 @@ syso_project_types <- c(
   "Non-Residential Project Types" = 3
 )
 
-
-syso_spec_pops_people <- c(
-  "No Special Population Selected" = 1,
-  "Domestic Violence Survivor: Currently Fleeing" = 2,
-  "Domestic Violence Survivor: Not Currently Fleeing" = 3,
-  "Domestic Violence Survivor: Total" = 4,
-  "Chronically Homeless" = 5,
-  "Inflow" = 6,
-  "Long-term Homeless" = 7,
-  "Veteran" = 8,
-  "Non-Veteran" = 9
+syso_veteran_pops <- c(
+  "Veteran",
+  "NonVeteran"
 )
 
-syso_spec_pops_hoh <- c(
-  "No Special Population Selected" = 1,
-  "All DV Households" = 2,
-  "DV Households: Currently Fleeing" = 3,
-  "DV Households: Not Currently Fleeing" = 4,
-  "Chronically Homeless Households" = 5,
-  "Inflow Households" = 6,
-  "Long-term Homeless Households" = 7,
-  "Veteran Households" = 8,
-  "Non-Veteran Households" = 9
+syso_dv_pops <- c(
+  "DVFleeing",
+  "DVNotFleeing",
+  "DVTotal"
+)
+
+syso_chronic_pops <- c(
+  "Chronic",
+  "LongTerm"
+)
+
+syso_spec_pops_people <- c(
+  "None",
+  "Inflow",
+  syso_veteran_pops,
+  syso_dv_pops,
+  syso_chronic_pops
 )
 
 syso_methodology_types <- c(
   "A person is only counted once in a chart (Exclusive Groupings)" = 1,
   "A person may be counted multiple times in a chart (Inclusive Groupings)" = 2
+)
+
+syso_grouping_detail <- c(
+  ""
 )
 
 # EvaChecks data (contains issue, type, guidance for each check) ----------
