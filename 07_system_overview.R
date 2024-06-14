@@ -712,7 +712,7 @@ sys_inflow_outflow_plot_df <- reactive({
             ProjectType %in% ph_project_types &
             (
               is.na(MoveInDateAdjust) |
-              MoveInDateAdjust > input$syso_date_range[1]
+              MoveInDateAdjust > ReportStart
             )
           ) |
           # Otherwise, EnrolledHomeless = TRUE (includes 0,1,2,4,8,14 and 6,11)
@@ -720,8 +720,8 @@ sys_inflow_outflow_plot_df <- reactive({
             ProjectType == ce_project_type &
             lh_prior_livingsituation == TRUE &
               between(EntryDate,
-                      input$syso_date_range[1] - days(90),
-                      input$syso_date_range[1] + days(90))
+                      ReportStart - days(90),
+                      ReportStart + days(90))
           ) |
           # Otherwise, EnrolledHomeless = TRUE (includes 0,1,2,4,8,14 and 6,11)
           (
@@ -732,8 +732,8 @@ sys_inflow_outflow_plot_df <- reactive({
         # Enrollment straddles start or the enrollment is within 2 weeks from start
         # and within 2 weeks of prev enrollment
         (straddles_start == TRUE |
-           (EntryDate >= input$syso_date_range[1] &
-              between(difftime(EntryDate, input$syso_date_range[1],
+           (EntryDate >= ReportStart &
+              between(difftime(EntryDate, ReportStart,
                                units = "days"),
                       0,
                       14) &
@@ -749,7 +749,7 @@ sys_inflow_outflow_plot_df <- reactive({
       active_at_start_housed = eecr == TRUE & 
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= input$syso_date_range[1] &
+        MoveInDateAdjust <= ReportStart &
         lh_prior_livingsituation == TRUE,
       
       # LOGIC helper columns for outflow
@@ -769,15 +769,15 @@ sys_inflow_outflow_plot_df <- reactive({
       # outflow columns
       perm_dest_lecr = lecr == TRUE &
         Destination %in% perm_destinations &
-        ExitAdjust < input$syso_date_range[2], # 
+        ExitAdjust < ReportEnd, # 
       
       temp_dest_lecr = lecr == TRUE &
         !(Destination %in% perm_destinations) &
-        ExitAdjust < input$syso_date_range[2],
+        ExitAdjust < ReportEnd,
       
       homeless_at_end = lecr == TRUE & # REVISIT GD, CHECK LOGIC
-        EntryDate <= input$syso_date_range[2] &
-        ExitAdjust > input$syso_date_range[2] & 
+        EntryDate <= ReportEnd &
+        ExitAdjust > ReportEnd & 
         ( # 1
           ProjectType %in% lh_project_types_nc |
             
@@ -790,16 +790,16 @@ sys_inflow_outflow_plot_df <- reactive({
           
           # 4
           (ProjectType %in% ph_project_types &
-          (is.na(MoveInDateAdjust) | MoveInDateAdjust >= input$syso_date_range[2]) &
+          (is.na(MoveInDateAdjust) | MoveInDateAdjust >= ReportEnd) &
           lh_prior_livingsituation == TRUE) 
         ),
 
       housed_at_end = lecr == TRUE & 
-        EntryDate <= input$syso_date_range[2] &
-        ExitAdjust > input$syso_date_range[2] &
+        EntryDate <= ReportEnd &
+        ExitAdjust > ReportEnd &
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= input$syso_date_range[2] &
+        MoveInDateAdjust <= ReportEnd &
         lh_prior_livingsituation == TRUE
     )
   
