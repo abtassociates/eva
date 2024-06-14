@@ -322,285 +322,327 @@ client_categories <- Client %>%
          VeteranStatus
   ) %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  mutate(,
-  ExclusiveGenderCategory = case_when(
-    any_cols_selected_except(
-      .,
-      list = c(
-        "CulturallySpecific",
-        "NonBinary",
-        "Questioning",
-        "DifferentIdentity"
-      ),
-      exception = "Transgender"
-    ) &
-    any_cols_selected_except(.,
-                             list = gender_cols,
-                             exception = c("GenderNone", "Transgender")) ~
-    "Gender Expansive, not including transgender",
-  no_cols_selected_except(.,
-                          list = gender_cols,
-                          exception = "Man") ~
-    "Man (Boy, if child) alone",
-  
-  Transgender == 1 ~ 
-    "Transgender, alone or in combination",
-  
-    no_cols_selected_except(.,
-                            list = gender_cols,
-                            exception = "Woman") ~
-    "Woman (Girl, if child) alone",  
-  
-    no_cols_selected_except(.,
-                            list = gender_cols,
-                            exception = "GenderNone") ~
-    "Unknown",
-  TRUE ~ "something's wrong"),
-  TransgenderInclusive = if_else(Transgender == 1 |
-                                   (Woman == 1 & Man == 1), 1, 0),
+  mutate(
+    VeteranStatus = if_else(VeteranStatus == 1 &
+                              !is.na(VeteranStatus), 1, 0),
+    # flattening data and eliminating nulls in case they're present
+    Woman = if_else(Woman == 1 & !is.na(Woman), 1, 0),
+    Man = if_else(Man == 1 & !is.na(Man), 1, 0),
+    NonBinary = if_else(NonBinary == 1 & !is.na(NonBinary), 1, 0),
+    Transgender = if_else(Transgender == 1 & !is.na(Transgender), 1, 0),
+    CulturallySpecific = if_else(CulturallySpecific == 1 & !is.na(CulturallySpecific), 1, 0),
+    DifferentIdentity = if_else(DifferentIdentity == 1 & !is.na(DifferentIdentity), 1, 0),
+    Questioning = if_else(Questioning == 1 & !is.na(Questioning), 1, 0),
+    # exclusive logic
+    TransgenderExclusive = if_else(Transgender == 1, 1, 0),
+    GenderExpansiveExclusive = if_else(
+      Transgender == 0 &
+        (CulturallySpecific + NonBinary + DifferentIdentity + Questioning > 0 | 
+        (Man == 1 & Woman == 1)),
+      1,
+      0
+    ),
+    ManExclusive = if_else(
+      Man == 1 &
+        CulturallySpecific +
+        NonBinary +
+        DifferentIdentity +
+        Questioning +
+        Woman +
+        Transgender == 0, 1, 0),
+    WomanExclusive = if_else(
+      Woman == 1 &
+        CulturallySpecific +
+        NonBinary +
+        DifferentIdentity +
+        Questioning +
+        Man +
+        Transgender == 0, 1, 0),
+    UnknownExclusive = if_else(
+      Woman +
+        CulturallySpecific +
+        NonBinary +
+        DifferentIdentity +
+        Questioning +
+        Man +
+        Transgender == 0, 1, 0),
+    DQExclusive = TransgenderExclusive + GenderExpansiveExclusive + ManExclusive +
+        WomanExclusive + UnknownExclusive, # all values should = 1
+    # inclusive logic
+  TransgenderInclusive = if_else(
+    Transgender == 1 |
+      (Woman == 1 & Man == 1) |
+      CulturallySpecific + NonBinary + DifferentIdentity + Questioning > 0, 1, 0),
   WomanInclusive = if_else(Woman == 1, 1, 0),
   ManInclusive = if_else(Man == 1, 1, 0),
   CisInclusive = if_else ((
     Woman == 1 &
       Man + NonBinary + Transgender + CulturallySpecific +
-      DifferentIdentity + Questioning + GenderNone == 0
+      DifferentIdentity + Questioning == 0
   ) |
     (
       Man == 1 &
         Woman + NonBinary + Transgender + CulturallySpecific +
-        DifferentIdentity + Questioning + GenderNone == 0
+        DifferentIdentity + Questioning == 0
     ),
   1,
   0
   ),
-  NonBinaryInclusive = if_else(NonBinary == 1, 1, 0))
+  NonBinaryInclusive = if_else(NonBinary == 1, 1, 0),
+  ## Race/Ethnicity
+  # flattening the values, eliminating nulls
+  AmIndAKNative = if_else(AmIndAKNative == 1 & !is.na(AmIndAKNative), 1, 0),
+  Asian = if_else(Asian == 1 & !is.na(Asian), 1, 0),
+  BlackAfAmerican = if_else(BlackAfAmerican == 1 & !is.na(BlackAfAmerican), 1, 0),
+  NativeHIPacific = if_else(NativeHIPacific == 1 & !is.na(NativeHIPacific), 1, 0),
+  White = if_else(White == 1 & !is.na(White), 1, 0),
+  MidEastNAfrican = if_else(MidEastNAfrican == 1 & !is.na(MidEastNAfrican), 1, 0),
+  HispanicLatinaeo = if_else(HispanicLatinaeo == 1 & !is.na(HispanicLatinaeo), 1, 0),
+  # exclusive logic group 1
+  AmIndAKNativeAloneExclusive1 = 
+    if_else(AmIndAKNative == 1 &
+              Asian +
+              BlackAfAmerican +
+              NativeHIPacific +
+              White +
+              MidEastNAfrican +
+              HispanicLatinaeo == 0, 1, 0),
+  AmIndAKNativeLatineExclusive1 = 
+    if_else(AmIndAKNative == 1 & HispanicLatinaeo == 1 &
+              Asian +
+              BlackAfAmerican +
+              NativeHIPacific +
+              White +
+              MidEastNAfrican == 0, 1, 0),
+  AsianAloneExclusive1 =
+    if_else(Asian == 1 &
+              AmIndAKNative +
+              BlackAfAmerican +
+              NativeHIPacific +
+              White +
+              MidEastNAfrican +
+              HispanicLatinaeo == 0, 1, 0),
+  AsianLatineExclusive1 =
+    if_else(Asian == 1 & HispanicLatinaeo == 1 &
+              AmIndAKNative +
+              BlackAfAmerican +
+              NativeHIPacific +
+              White +
+              MidEastNAfrican == 0, 1, 0),
+  BlackAfAmericanAloneExclusive1 =
+    if_else(BlackAfAmerican == 1 &
+              AmIndAKNative +
+              Asian +
+              NativeHIPacific +
+              White +
+              MidEastNAfrican +
+              HispanicLatinaeo == 0, 1, 0),
+  BlackAfAmericanLatineExclusive1 =
+    if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1 &
+              AmIndAKNative +
+              Asian +
+              NativeHIPacific +
+              White +
+              MidEastNAfrican == 0, 1, 0),
+  LatineAloneExclusive1 =
+    if_else(HispanicLatinaeo == 1 &
+              AmIndAKNative +
+              Asian +
+              NativeHIPacific +
+              White +
+              MidEastNAfrican +
+              BlackAfAmerican == 0, 1, 0),
+  MENAAloneExclusive1 =
+    if_else(MidEastNAfrican == 1 &
+              AmIndAKNative +
+              Asian +
+              NativeHIPacific +
+              White +
+              HispanicLatinaeo +
+              BlackAfAmerican == 0, 1, 0),
+  MENALatineExclusive1 =
+    if_else(MidEastNAfrican == 1 & HispanicLatinaeo == 1 &
+              AmIndAKNative +
+              Asian +
+              NativeHIPacific +
+              White +
+              BlackAfAmerican == 0, 1, 0),
+  NativeHIPacificAloneExclusive1 =
+    if_else(NativeHIPacific == 1 &
+              AmIndAKNative +
+              Asian +
+              MidEastNAfrican +
+              White +
+              HispanicLatinaeo +
+              BlackAfAmerican == 0, 1, 0),
+  NativeHIPacificLatineExclusive1 =
+    if_else(NativeHIPacific == 1 & HispanicLatinaeo == 1 &
+              AmIndAKNative +
+              Asian +
+              MidEastNAfrican +
+              White +
+              BlackAfAmerican == 0, 1, 0),
+  WhiteAloneExclusive1 =
+    if_else(White == 1 &
+              AmIndAKNative +
+              Asian +
+              MidEastNAfrican +
+              NativeHIPacific +
+              HispanicLatinaeo +
+              BlackAfAmerican == 0, 1, 0),
+  WhiteLatineExclusive1 =
+    if_else(White == 1 & HispanicLatinaeo == 1 &
+              AmIndAKNative +
+              Asian +
+              MidEastNAfrican +
+              NativeHIPacific +
+              BlackAfAmerican == 0, 1, 0),
+  MultipleNotLatineExclusive1 =
+    if_else(HispanicLatinaeo == 0 &
+              AmIndAKNative +
+              Asian +
+              MidEastNAfrican +
+              NativeHIPacific +
+              White +
+              BlackAfAmerican > 1, 1, 0),
+  MultipleLatineExclusive1 =
+    if_else(HispanicLatinaeo == 1 &
+              AmIndAKNative +
+              Asian +
+              MidEastNAfrican +
+              NativeHIPacific +
+              White +
+              BlackAfAmerican > 1, 1, 0),
+  RaceEthnicityNoneExclusive =
+    if_else(
+      HispanicLatinaeo +
+        AmIndAKNative +
+        Asian +
+        MidEastNAfrican +
+        NativeHIPacific +
+        White +
+        BlackAfAmerican == 0,
+      1,
+      0
+    ),
+  # Data quality column to check for mutual exclusivity
+  DQExclusive1RaceEth =
+    AmIndAKNativeAloneExclusive1 +
+    AmIndAKNativeLatineExclusive1 +
+    AsianAloneExclusive1 +
+    AsianLatineExclusive1 +
+    BlackAfAmericanAloneExclusive1 +
+    BlackAfAmericanLatineExclusive1 +
+    LatineAloneExclusive1 +
+    MENAAloneExclusive1 +
+    MENALatineExclusive1 +
+    NativeHIPacificAloneExclusive1 +
+    NativeHIPacificLatineExclusive1 +
+    WhiteAloneExclusive1 +
+    WhiteLatineExclusive1 +
+    MultipleNotLatineExclusive1 +
+    MultipleLatineExclusive1 +
+    RaceEthnicityNoneExclusive, # all should equal 1
+  # exclusive logic group 2
+  BILPOCExclusive2 = if_else(
+    AmIndAKNative +
+      Asian +
+      MidEastNAfrican +
+      NativeHIPacific +
+      HispanicLatinaeo +
+      BlackAfAmerican > 0, 1, 0
+  ),
+  WhiteExclusive2 = if_else(
+    White == 1 &
+      AmIndAKNative +
+      Asian +
+      MidEastNAfrican +
+      NativeHIPacific +
+      HispanicLatinaeo +
+      BlackAfAmerican == 0, 1, 0
+  ),
+  # Data quality check for exclusive group 2
+  DQRaceEthExclusive2 =
+    BILPOCExclusive2 +
+    WhiteExclusive2 +
+    RaceEthnicityNoneExclusive, # all rows should equal 1
+  # inclusive logic group 1
+  AmIndAKNativeInclusive1 = if_else(AmIndAKNative == 1, 1, 0),
+  AsianInclusive1 = if_else(Asian == 1, 1, 0),
+  BlackAfAmericanInclusive1 = if_else(BlackAfAmerican == 1, 1, 0),
+  LatineInclusive1 = if_else(HispanicLatinaeo == 1, 1, 0),
+  MENAInclusive1 = if_else(MidEastNAfrican == 1, 1, 0),
+  NativeHIPacificInclusive1 = if_else(NativeHIPacific == 1, 1, 0),
+  WhiteInclusive1 = if_else(White == 1, 1, 0),
+  # catches missings, any methodology any group
+  RaceEthnicityNone = if_else(
+    AmIndAKNative +
+      Asian +
+      BlackAfAmerican +
+      NativeHIPacific +
+      White +
+      MidEastNAfrican +
+      HispanicLatinaeo == 0, 1, 0),
+  # inclusive logic group 2
+  BlackAfAmericanLatineInclusive2 =
+    if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1, 1, 0),
+  LatineInclusive2 = if_else(HispanicLatinaeo == 1, 1, 0),
+  LatineAloneInclusive2 = if_else(
+    HispanicLatinaeo == 1 &
+      AmIndAKNative +
+      Asian +
+      NativeHIPacific +
+      White +
+      MidEastNAfrican +
+      BlackAfAmerican == 0, 1, 0
+  )) %>%
+  select(-all_of(gender_cols), -all_of(race_cols))
+
+browser()
 
 client_categories_reactive <- reactive({
-  Client %>%
+  
+  exclusive_methodology <- client_categories %>%
     select(PersonalID,
-           all_of(race_cols),
-           all_of(gender_cols),
-           VeteranStatus
+           VeteranStatus,
+           ends_with("Exclusive"),
+           ends_with("Exclusive1"),
+           ends_with("Exclusive2")
            ) %>%
     left_join(system_person_ages, join_by(PersonalID)) %>%
-    mutate(
-      GenderCategory = case_when(
-        # Exclusive ---
-        input$methodology_type == 1 &
-          any_cols_selected_except(
-            .,
-            list = c(CulturallySpecific, NonBinary, Questioning, DifferentIdentity),
-            exception = "Transgender") &
-          any_cols_selected_except(
-            .,
-            list = gender_cols,
-            exception = c("GenderNone", "Transgender")) ~
-          syso_gender_excl["Gender Expansive, not including transgender"],
-        
-        input$methodology_type == 1 &
-          no_cols_selected_except(., gender_cols, "Man") ~
-          syso_gender_excl["Man (Boy, if child) alone"],
-        
-        input$methodology_type == 1 & Transgender == 1 ~ 
-        syso_gender_excl["Transgender, alone or in combination"],
-        
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., gender_cols, "Woman")
-        ~ syso_gender_excl["Woman (Girl, if child) alone"],  
-        
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., gender_cols, "GenderNone")
-        ~ syso_gender_excl["Unknown"]),
-        
-        # # Inclusive ----
-        # TransgenderInclusiveDescr = if_else(
-        #   input$methodology_type == 2 & TransgenderInclusive == 1,
-        # syso_gender_incl["Gender Expansive, including transgender"],
-        # 
-        # input$methodology_type == 2 & ManInclusive == 1
-        # ~ syso_gender_incl["Man (Boy, if child) alone or in combination"],
-        # 
-        # input$methodology_type == 2 & NonBinaryInclusive == 1
-        # ~ syso_gender_incl["Non-Binary alone or in combination"],      
-        # 
-        # input$methodology_type == 2 & CisInclusive == 1 ~
-        # syso_gender_incl["Only Woman (Girl, if child) OR Only Man (Boy, if child)"],
-        # 
-        # input$methodology_type == 2 & WomanInclusive == 1
-        # ~ syso_gender_incl["Woman (Girl, if child) alone or in combination"]
-      # ),
-      
-      AllRaceEthnicity = case_when(
-        # Exclusive
-        # American Indian, Alaska Native, or Indigenous Alone" = 1,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, "AmIndAKNative")
-        ~ syso_race_ethnicity_excl[["Group 1"]][1],
-        
-        # American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" = 2,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, c("AmIndAKNative", "HispanicLatinaeo"))
-        ~ syso_race_ethnicity_excl[["Group 1"]][2],
-        
-        # Asian or Asian American Alone" = 3,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, "Asian")
-        ~ syso_race_ethnicity_excl[["Group 1"]][3],
-        
-        # Asian or Asian American & Hispanic/Latina/e/o" = 4,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, c("Asian", "HispanicLatinaeo"))
-        ~ syso_race_ethnicity_excl[["Group 1"]][4],
-        
-        # Black, African American, or African Alone" = 5,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, "BlackAfAmerican")
-        ~ syso_race_ethnicity_excl[["Group 1"]][5],  
-        
-        # Black, African American, or African & Hispanic/Latina/e/o" = 6,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, c("BlackAfAmerican",
-                                                  "HispanicLatinaeo"))
-        ~ syso_race_ethnicity_excl[["Group 1"]][6],
-        
-        # Hispanic/Latina/e/o Alone" = 7,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, "HispanicLatinaeo")
-        ~ syso_race_ethnicity_excl[["Group 1"]][7],
-        
-        # Middle Eastern or North African Alone" = 8,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, "MidEastNAfrican")
-        ~ syso_race_ethnicity_excl[["Group 1"]][8],
-        
-        # Middle Eastern or North African & Hispanic/Latina/e/o" = 9,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, c("MidEastNAfrican",
-                                                  "HispanicLatinaeo"))
-        ~ syso_race_ethnicity_excl[["Group 1"]][9],
-        
-        # Native Hawaiin or Pacific Islander Alone" = 10,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, "NativeHIPacific")
-        ~ syso_race_ethnicity_excl[["Group 1"]][10],
-        
-        # Native Hawaiin or Pacific Islander & Hispanic/Latina/e/o" = 11,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, c("NativeHIPacific",
-                                                  "HispanicLatinaeo"))
-        ~ syso_race_ethnicity_excl[["Group 1"]][11],
-        
-        # White Alone" = 12,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, "White")
-        ~ syso_race_ethnicity_excl[["Group 1"]][12],
-        
-        # White & Hispanic/Latina/e/o" = 13,
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, c("White", "HispanicLatinaeo"))
-        ~ syso_race_ethnicity_excl[["Group 1"]][13],
-        
-        # Multi-Racial (not Hispanic/Latina/e/o)" = 14,
-        input$methodology_type == 1 & 
-          min_cols_selected_except(., race_cols, c("RaceNone",
-                                                   "HispanicLatinaeo"), 2)
-        ~ syso_race_ethnicity_excl[["Group 1"]][14],
-        
-        # Multi-Racial & Hispanic/Latina/e/o" = 15),
-        input$methodology_type == 1 & 
-          min_cols_selected_except(., race_cols, "RaceNone", 2)
-        ~ syso_race_ethnicity_excl[["Group 1"]][15],
-        
-        # Inclusive
-        #American Indian, Alaska Native, or Indigenous Inclusive" = 1,
-        input$methodology_type == 2 & AmIndAKNative == 1
-        ~ syso_race_ethnicity_incl[["Group 1"]][1],
-        
-        # Asian or Asian American Inclusive" = 2,
-        input$methodology_type == 2 & Asian == 1
-        ~ syso_race_ethnicity_incl[["Group 1"]][2],
-        
-        # Black, African American, or African Inclusive" = 3,
-        input$methodology_type == 2 & BlackAfAmerican == 1
-        ~ syso_race_ethnicity_incl[["Group 1"]][3],
-        
-        # Hispanic/Latina/e/o = 4
-        input$methodology_type == 2 & HispanicLatinaeo == 1
-        ~ syso_race_ethnicity_incl[["Group 1"]][4],
-        
-        # Middle Eastern Inclusive = 5
-        input$methodology_type == 2 & MidEastNAfrican == 1
-        ~ syso_race_ethnicity_incl[["Group 1"]][5],
-        
-        # Native Hawaiin or Pacific Islander Inclusive" = 6,
-        input$methodology_type == 2 & NativeHIPacific == 1
-        ~ syso_race_ethnicity_incl[["Group 1"]][6],
-        
-        # White Inclusive" = 7),
-        input$methodology_type == 2 & White == 1
-        ~ syso_race_ethnicity_incl[["Group 1"]][7]
-        
-      ),
-      GroupedRaceEthnicity = case_when(
-        # All People of Color" = 16 or Group 2, item 1
-        input$methodology_type == 1 & 
-          !no_cols_selected_except(., race_cols, c("White","RaceNone")) > 0
-        ~ syso_race_ethnicity_excl[["Group 2"]][1],
-        
-        # White Only" = 17, or Group 2, item 2
-        input$methodology_type == 1 & 
-          no_cols_selected_except(., race_cols, "White")
-        ~ syso_race_ethnicity_excl[["Group 2"]][2],
-        
-        # Black, African American or African and Hispanic/Latina/e/o Inclusive" = 8,
-        #  or Group 2, item 1
-        input$methodology_type == 2 & (BlackAfAmerican == 1 | HispanicLatinaeo == 1)
-        ~ syso_race_ethnicity_incl[["Group 2"]][1],
-        
-        # Hispanic/Latina/e/o Inclusive" = 9 or Group 2, item 2
-        input$methodology_type == 2 & HispanicLatinaeo == 1
-        ~ syso_race_ethnicity_incl[["Group 2"]][2],
-        
-        # Hispanic/Latina/e/o Alone" = 10 or Group 2, item 3
-        input$methodology_type == 2 &
-          no_cols_selected_except(., race_cols, "HispanicLatinaeo")
-        ~ syso_race_ethnicity_incl[["Group 2"]][3],
-      ),
+    mutate(AgeCategory = if_else(is.na(AgeCategory), "Unknown", AgeCategory)) %>%
+    filter(AgeCategory %in% input$syso_age &
+             input$methodology_type == 1 &
+             if_any(.cols = c(input$syso_gender), ~isTruthy(.)) &
+             if_any(.cols = c(input$syso_race_ethnicity), ~isTruthy(.)) &
+             ((input$syso_spec_pops == "Veteran" &
+                VeteranStatus == 1) |
+             (input$syso_spec_pops == "NonVeteran" &
+                VeteranStatus == 0) |
+               input$syso_spec_pops == "None"))
+  
+  inclusive_methodology <- client_categories %>%
+    select(PersonalID,
+           VeteranStatus,
+           ends_with("Inclusive"),
+           ends_with("Inclusive1"),
+           ends_with("Inclusive2")
     ) %>%
-    filter(
-      # Age
-      (
-        setequal(syso_age_cats, input$syso_age) |
-          is.null(input$syso_age) |
-          AgeCategory%in% input$syso_age
-      ) &
-        # Special Populations
-        (
-          input$syso_spec_pops == 1 | # no special populations (all)
-            (input$syso_spec_pops == 2 &
-               DomesticViolenceSurvivor == 1 &
-               CurrentlyFleeing == 0) |
-            (input$syso_spec_pops == 3 &
-               DomesticViolenceSurvivor == 1 &
-               CurrentlyFleeing == 1) |
-            (input$syso_spec_pops == 4 &
-               DomesticViolenceSurvivor == 1)
-        ) &
-        # Gender
-        (
-          setequal(syso_gender_cats(), input$syso_gender) |
-            is.null(input$syso_gender) |
-            GenderCategory %in% input$syso_gender
-        ) &
-        # Race/Ethnicity
-        (
-          input$syso_race_ethnicity == 0 |
-            AllRaceEthnicity %in% input$syso_race_ethnicity | 
-            GroupedRaceEthnicity %in% input$syso_race_ethnicity 
-        )
-    ) %>%
-    select(PersonalID) %>% 
-    unique()
+    left_join(system_person_ages, join_by(PersonalID)) %>%
+    mutate(AgeCategory = if_else(is.na(AgeCategory), "Unknown", AgeCategory)) %>%
+    filter(AgeCategory %in% input$syso_age &
+             input$methodology_type == 2 &
+             if_any(.cols = c(input$syso_gender), ~isTruthy(.)) &
+             if_any(.cols = c(input$syso_race_ethnicity), ~isTruthy(.)) &
+             ((input$syso_spec_pops == "Veteran" &
+                 VeteranStatus == 1) |
+                (input$syso_spec_pops == "NonVeteran" &
+                   VeteranStatus == 0) |
+                input$syso_spec_pops == "None"))
+  
+  if_else(input$methodology_type == 1,
+          exclusive_methodology,
+          inclusive_methodology)
 })
 
 # Enrollment-level reactive -----------------------------------------------
