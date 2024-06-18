@@ -263,23 +263,27 @@ nbn_enrollments_services <- Services %>%
   inner_join(EnrollmentAdjust %>%
                filter(ProjectType == 1) %>%
                select(EnrollmentID),
-             join_by(EnrollmentID)) %>%
+             join_by(EnrollmentID)) %>% 
+  # ^ limits shelter night services to enrollments associated to NbN shelters
   mutate(
     nbn_service_15_before_start =
       between(DateProvided,
               ReportStart - days(15),
-              DateProvided),
+              ReportStart),
     nbn_service_15_after_end =
       between(DateProvided,
-              DateProvided,
+              ReportEnd,
               ReportEnd + days(15))
   ) %>%
-  filter(
-    nbn_service_15_before_start == TRUE |
-      nbn_service_15_after_end == TRUE) %>%
+  group_by(EnrollmentID) %>%
+  summarise(
+    NbN15DaysPrior = max(nbn_service_15_before_start),
+    NbN15DaysAfter = max(nbn_service_15_after_end)) %>%
+  ungroup() %>%
   select(EnrollmentID,
-         nbn_service_15_before_start,
-         nbn_service_15_after_end)
+         NbN15DaysPrior,
+         NbN15DaysAfter) %>%
+  filter(NbN15DaysPrior == 1 | NbN15DaysAfter == 1)
 
 # using data.table --------------------------------------------------------
 # before_dt <- now()
