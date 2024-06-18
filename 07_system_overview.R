@@ -221,7 +221,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
     MoveInDateAdjust,
     ExitDate, 
     ExitAdjust,
-    ProjectType, 
+    ProjectType,
+    MostRecentAgeAtEntry,
     lh_prior_livingsituation,
     lh_at_entry,
     straddles_start,
@@ -603,11 +604,9 @@ client_categories <- Client %>%
   )) %>%
   select(-all_of(gender_cols), -all_of(race_cols))
 
-browser()
-
 client_categories_reactive <- reactive({
-  
-  exclusive_methodology <- client_categories %>%
+  if (input$methodology_type == 1) {
+  client_categories %>%
     select(PersonalID,
            VeteranStatus,
            ends_with("Exclusive"),
@@ -625,8 +624,9 @@ client_categories_reactive <- reactive({
              (input$syso_spec_pops == "NonVeteran" &
                 VeteranStatus == 0) |
                input$syso_spec_pops == "None"))
+  } else{
   
-  inclusive_methodology <- client_categories %>%
+  client_categories %>%
     select(PersonalID,
            VeteranStatus,
            ends_with("Inclusive"),
@@ -644,10 +644,7 @@ client_categories_reactive <- reactive({
                 (input$syso_spec_pops == "NonVeteran" &
                    VeteranStatus == 0) |
                 input$syso_spec_pops == "None"))
-  
-  if_else(input$methodology_type == 1,
-          exclusive_methodology,
-          inclusive_methodology)
+  }
 })
 
 # Enrollment-level reactive -----------------------------------------------
@@ -655,26 +652,28 @@ client_categories_reactive <- reactive({
 enrollment_categories_reactive <- reactive({
   
   # Filter enrollments by hhtype, project type, and level-of-detail inputs
-  x <- enrollment_categories_dt[
-      (input$syso_hh_types == "All Households" |
+  enrollment_categories %>%
+    left_join(nbn_enrollments_services, join_by(EnrollmentID)) %>%
+    mutate(NbN15DaysPrior = replace_na(NbN15DaysPrior, 0),
+           NbN15DaysAfter = replace_na(NbN15DaysAfter, 0)) %>%
+    filter((input$syso_hh_type == "All" |
          HouseholdType == input$syso_hh_type) &
-      (input$syso_level_of_detail == "All People" |
-         (input$syso_level_of_detail == "All Adults and Heads of Households" &
+      (input$syso_level_of_detail == "All" |
+         (input$syso_level_of_detail == "HoHs&Adults" &
             (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-         (input$syso_level_of_detail == "All Heads of Households" &
-            CorrectedHoH == 1)) &
-      (input$syso_project_type == "All Project Types" |
-         (input$syso_project_type == "Residential Project Types" &
-            ProjectType %in% project_types_w_beds) |
-         (input$syso_project_type == "Non-Residential Project Types" &
-            ProjectType %in% non_res_project_types))
-  ]
-  
-  x
+         (input$syso_level_of_detail == "HoHsOnly" &
+            CorrectedHoH == 1))&
+        (input$syso_project_type == "All" |
+           (input$syso_project_type == "Residential" &
+              ProjectType %in% project_types_w_beds) |
+           (input$syso_project_type == "NonResidential" &
+              ProjectType %in% non_res_project_types))
+           )
   
 })
 
 # Client-level reactive ---------------------------------------------------
+browser()
 # get filtered people-level system dataframe
 clients_enrollments_reactive <- reactive({
   enrollment_categories_reactive() %>%
