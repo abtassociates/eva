@@ -783,16 +783,17 @@ inflow_outflow_df <- reactive({
           ProjectType %in% lh_project_types_nc |
             
           # 2
-          (ProjectType == es_nbn_project_type & nbn_service_within15_end == TRUE) |
+          (ProjectType == es_nbn_project_type & (in_date_range == TRUE |
+                                                   NbN15DaysAfter == TRUE)) |
          
           # 3
           (ProjectType == out_project_type & 
-            EnrollmentID %in% outreach_w_proper_cls()) |
+            (in_date_range == TRUE |
+              EnrollmentID %in% outreach_w_proper_cls_vector)) |
           
           # 4
           (ProjectType %in% ph_project_types &
-          (is.na(MoveInDateAdjust) | MoveInDateAdjust >= ReportEnd) &
-          lh_prior_livingsituation == TRUE) 
+          (is.na(MoveInDateAdjust) | MoveInDateAdjust >= ReportEnd)) 
         ),
 
       housed_at_end = lecr == TRUE & 
@@ -800,8 +801,8 @@ inflow_outflow_df <- reactive({
         ExitAdjust > ReportEnd &
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= ReportEnd &
-        lh_prior_livingsituation == TRUE
+        MoveInDateAdjust <= ReportEnd# &
+        # lh_prior_livingsituation == TRUE
     )
   
   universe_ppl <- universe %>%
