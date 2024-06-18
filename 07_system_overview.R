@@ -677,64 +677,18 @@ browser()
 # get filtered people-level system dataframe
 clients_enrollments_reactive <- reactive({
   enrollment_categories_reactive() %>%
+    select(-MostRecentAgeAtEntry) %>%
     filter(in_date_range == TRUE) %>%
     inner_join(client_categories_reactive(), join_by(PersonalID))
-})
-
-system_df_people_syso_filtered <- reactive({
-  clients_enrollments_reactive() %>%
-    filter(
-      # Age
-      (
-        setequal(syso_age_cats, input$syso_age) |
-          is.null(input$syso_age) |
-          AgeCategory%in% input$syso_age
-      ) &
-      # Special Populations
-      (
-        input$syso_spec_pops == 1 | # no special populations (all)
-        
-        # # People
-        # input$syso_level_of_detail %in% c(1,2) & (
-        #   input$syso_spec_pops == 2 & TRUE
-        # ) |
-        # # Households
-        # !(input$syso_level_of_detail %in% c(1,2)) & (
-        #   input$syso_spec_pops == 2 & TRUE
-        # )
-        (input$syso_spec_pops == 2 &
-           DomesticViolenceSurvivor == 1 &
-           CurrentlyFleeing == 0) |
-        (input$syso_spec_pops == 3 &
-           DomesticViolenceSurvivor == 1 &
-           CurrentlyFleeing == 1) |
-        (input$syso_spec_pops == 4 &
-           DomesticViolenceSurvivor == 1)
-      ) &
-      # Gender
-      (
-        setequal(syso_gender_cats(), input$syso_gender) |
-          is.null(input$syso_gender) |
-          GenderCategory %in% input$syso_gender
-      ) &
-      # Race/Ethnicity
-      (
-        input$syso_race_ethnicity == 0 |
-        AllRaceEthnicity %in% input$syso_race_ethnicity | 
-        GroupedRaceEthnicity %in% input$syso_race_ethnicity 
-      )
-    ) %>%
-    select(PersonalID) %>% 
-    unique()
 })
 
 # Client-level enrollment summary data reactive ---------------------------
 # get final people-level, inflow/outflow dataframe by joining the filtered 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
-sys_inflow_outflow_plot_df <- reactive({
+inflow_outflow_df <- reactive({
   # add inflow type and active enrollment typed used for system overview plots
-  universe <- system_df_enrl_filtered() %>%
-    inner_join(system_df_people_syso_filtered(), join_by(PersonalID)) %>%
+  universe <-
+    clients_enrollments_reactive() %>%
     # get rid of rows where the enrollment is neither a lookback enrollment,
     # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
     filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
