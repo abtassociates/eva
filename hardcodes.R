@@ -139,7 +139,7 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 # System Overview - Filters -----------------------------------------------
 syso_hh_types <- c(
-  "All Households", 
+  "All", 
   "Adult-Only", 
   "Adult-Child", 
   "Child-Only",
@@ -224,9 +224,9 @@ syso_race_ethnicity_excl <- list(
 )
 
 syso_project_types <- c(
-  "All Project Types" = 1,
-  "Residential Project Types" = 2,
-  "Non-Residential Project Types" = 3
+  "All",
+  "Residential",
+  "NonResidential"
 )
 
 syso_veteran_pops <- c(

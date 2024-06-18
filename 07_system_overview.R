@@ -138,12 +138,7 @@ hh_adjustments <- enrollment_prep %>%
         "CO",
       TRUE ~ "UN"
     ),
-    levels = c("YYA", "AO", "AC", "CO", "UN"),
-    labels = c("Youth and Young Adult",
-               "Adult-Only",
-               "Adult-Child",
-               "Child-Only",
-               "Unknown Household"))
+    levels = c("AO", "AC", "CO", "YYA", "UN"))
   ) %>%
   ungroup() %>%
   select(EnrollmentID, CorrectedHoH, HouseholdType)
