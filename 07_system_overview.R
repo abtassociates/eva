@@ -129,16 +129,17 @@ hh_adjustments <- enrollment_prep %>%
   mutate(
     HouseholdType = factor(case_when(
       all(AgeAtEntry < 25 & AgeAtEntry >= 18, na.rm = TRUE) &
-        !any(is.na(AgeAtEntry)) ~ "Youth and Young Adult",
+        !any(is.na(AgeAtEntry)) ~ "YYA",
       all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
-        "Adult-Only",
+        "AO",
       any(AgeAtEntry < 18, na.rm = TRUE) & any(AgeAtEntry >= 18, na.rm = TRUE) ~
-        "Adult-Child",
+        "AC",
       all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
-        "Child-Only",
-      TRUE ~ "Unknown Household"
+        "CO",
+      TRUE ~ "UN"
     ),
-    levels = c("Youth and Young Adult",
+    levels = c("YYA", "AO", "AC", "CO", "UN"),
+    labels = c("Youth and Young Adult",
                "Adult-Only",
                "Adult-Child",
                "Child-Only",
