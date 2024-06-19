@@ -239,7 +239,7 @@ function(input, output, session) {
           
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
-browser()
+# browser()
           setProgress(detail = "Preparing System Overview Data", value = .85)
           source("07_system_overview.R", local = TRUE)
 
@@ -934,7 +934,7 @@ browser()
       session, 
       "syso_gender", 
       choices = syso_gender_cats(),
-      selected = all_of(syso_gender_cats()),
+      selected = syso_gender_cats(),
       options = pickerOptions(
         actionsBox = TRUE,
         selectedTextFormat = paste("count >", length(syso_gender_cats())-1),
