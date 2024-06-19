@@ -20,7 +20,7 @@ function(input, output, session) {
   file_structure_analysis_main <- reactiveVal()
   sys_inflow_outflow_plot_data <- reactiveVal()
   sys_df_people_universe_filtered_r <- reactiveVal()
-  
+
   reset_reactivevals <- function() {
     validation(NULL)
     CurrentLivingSituation(NULL)
@@ -38,7 +38,6 @@ function(input, output, session) {
     file_structure_analysis_main(NULL)
     sys_inflow_outflow_plot_data(NULL)
     sys_df_people_universe_filtered_r(NULL)
-    
   }
   
   # functions used throughout the app
@@ -224,7 +223,29 @@ function(input, output, session) {
               )
             )
           }
+          # Build report dates ------------------------------------------------------
           
+          # if the start date's day of the month = 1, then that's the start date
+          # otherwise go forward a month and use the 1st of that month.
+          ExportStartAdjusted <- if_else(
+            day(meta_HUDCSV_Export_Start()) == 1,
+            meta_HUDCSV_Export_Start(),
+            floor_date(meta_HUDCSV_Export_Start() %m+% months(1), unit = "month"))
+          
+          # if you go forward to the first day of the next month and then subtract a day,
+          # and that equals the raw ExportEndDate, that means it is already a last day of
+          # the month so we just return the raw ExportEndDate. If the date is something
+          # other than that, then we want to get the first day of the month and go back 
+          # a day so that it cuts off on the last day of the month previous to the raw
+          # ExportEndDate
+          ExportEndAdjusted <- if_else(
+            floor_date(meta_HUDCSV_Export_End() %m+% months(1), unit = "month") - days(1) ==
+              meta_HUDCSV_Export_End(),
+            meta_HUDCSV_Export_End(),
+            floor_date(meta_HUDCSV_Export_End(), unit = "month") - days(1))
+          
+          ReportEnd <- ExportEndAdjusted
+          ReportStart <- ReportEnd - years(1) + days(1)
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE)
           
@@ -265,6 +286,7 @@ function(input, output, session) {
           
           logToConsole("Updating inputs")
           
+          
           # Update inputs --------------------------------
           if(is.null(input$imported) & !isTruthy(input$in_demo_mode)) {
             logToConsole("User is in upload processing but imported is null and demo_mode is not on")
@@ -297,6 +319,7 @@ function(input, output, session) {
                                  start = meta_HUDCSV_Export_End() - years(1) - months(3),
                                  max = meta_HUDCSV_Export_End(),
                                  end = meta_HUDCSV_Export_End() - months(3))
+            
           }
           
         } else{ # if structural issues were found, reset gracefully
