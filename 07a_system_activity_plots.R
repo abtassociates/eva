@@ -2,37 +2,27 @@
 # Define the hardcoded values for x.axis.var and cat.var
 # we need all combinations for the 0s
 
-active_as_of_start <- reactive({
-  
-  paste0("Active as of \n", ReportStart)
-  })
-
-active_as_of_end <- reactive({
-  paste0("Active as of \n", ReportEnd)
-  })
-
 active_at_values <- c("Homeless", "Housed")
 
 x.axis.var_summary_values <- reactive({
-  
   c(
-    active_as_of_start(),
+    paste0("Active as of \n", ReportStart),
     "Inflow",
     "Outflow",
-    active_as_of_end()
+    paste0("Active as of \n", ReportEnd)
   )
 })
 
 x.axis.var_detail_values <- reactive({
   c(
-    active_as_of_start(),
+    paste0("Active as of \n", ReportStart),
     "Newly Homeless", 
     "Returned from \nPermanent", 
     "Re-engaged from \nNon-Permanent",
     "Continued system \nengagement",
     "Exited to \nPermanent Destination",
     "Exited to \nNon-Permanent Destination",
-    active_as_of_end()
+    paste0("Active as of \n", ReportEnd)
   )
 })
 
@@ -71,11 +61,11 @@ system_activity_prep <- reactive({
       x.axis.var = case_when(
         x.axis.var == "InflowTypeDetail" &
           cat.var %in% active_at_values
-        ~ active_as_of_start(),
+        ~ paste0("Active as of \n", ReportStart),
         
         x.axis.var == "OutflowTypeDetail" &
           cat.var %in% active_at_values
-        ~ active_as_of_end(),
+        ~ paste0("Active as of \n", ReportEnd),
           
         x.axis.var == "InflowTypeDetail"
         ~ "Inflow",
