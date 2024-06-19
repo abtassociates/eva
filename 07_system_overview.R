@@ -897,6 +897,7 @@ inflow_outflow_df <- reactive({
       missing_inflow = eecr & InflowTypeDetail == "something's wrong",
       missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
     )
+  browser()
   
   category_counts <- plot_data %>% 
     pivot_longer(
@@ -927,6 +928,7 @@ inflow_outflow_df <- reactive({
     )
   plot_data
 })
-# 
-# sys_df_people_universe_filtered_r(system_df_people_universe_filtered)
-# sys_inflow_outflow_plot_data(sys_inflow_outflow_plot_df)
+
+
+sys_df_people_universe_filtered_r(clients_enrollments_reactive)
+sys_inflow_outflow_plot_data(inflow_outflow_df)
