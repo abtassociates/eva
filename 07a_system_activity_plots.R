@@ -1,15 +1,17 @@
 # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
 # Define the hardcoded values for x.axis.var and cat.var
 # we need all combinations for the 0s
+
 active_as_of_start <- reactive({
-  paste0("Active as of \n", input$syso_date_range[1])
+  
+  paste0("Active as of \n", ReportStart)
   })
 
 active_as_of_end <- reactive({
-  paste0("Active as of \n", input$syso_date_range[2])
+  paste0("Active as of \n", ReportEnd)
   })
 
-active_at_vals <- c("Homeless", "Housed")
+active_at_values <- c("Homeless", "Housed")
 
 x.axis.var_summary_values <- reactive({
   
@@ -68,11 +70,11 @@ system_activity_prep <- reactive({
       inflow_outflow = x.axis.var,
       x.axis.var = case_when(
         x.axis.var == "InflowTypeDetail" &
-          cat.var %in% active_at_vals
+          cat.var %in% active_at_values
         ~ active_as_of_start(),
         
         x.axis.var == "OutflowTypeDetail" &
-          cat.var %in% active_at_vals
+          cat.var %in% active_at_values
         ~ active_as_of_end(),
           
         x.axis.var == "InflowTypeDetail"
@@ -91,11 +93,11 @@ system_activity_summary_prep <- reactive({
     mutate(
       cat.var = case_when(
         x.axis.var == "Inflow" &
-        !(cat.var %in% active_at_vals)
+        !(cat.var %in% active_at_values)
         ~ "Inflow",
   
         x.axis.var == "Outflow" &
-        !(cat.var %in% active_at_vals)
+        !(cat.var %in% active_at_values)
         ~ "Outflow",
   
         TRUE ~ cat.var
@@ -113,7 +115,7 @@ system_activity_detail_prep <- reactive({
   system_activity_prep() %>%
     mutate(
       x.axis.var = ifelse(
-        !(cat.var %in% active_at_vals),
+        !(cat.var %in% active_at_values),
         cat.var,
         x.axis.var
       )
