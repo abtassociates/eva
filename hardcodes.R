@@ -247,10 +247,10 @@ syso_chronic_pops <- c(
 
 syso_spec_pops_people <- c(
   "None",
-  "Inflow",
+  # "Inflow",
   syso_veteran_pops,
-  syso_dv_pops,
-  syso_chronic_pops
+  syso_dv_pops#,
+  # syso_chronic_pops
 )
 
 syso_methodology_types <- c(
