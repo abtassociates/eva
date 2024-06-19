@@ -668,7 +668,7 @@ enrollment_categories_reactive <- reactive({
 })
 
 # Client-level reactive ---------------------------------------------------
-browser()
+
 # get filtered people-level system dataframe
 clients_enrollments_reactive <- reactive({
   enrollment_categories_reactive() %>%
