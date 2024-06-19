@@ -36,6 +36,9 @@ function(input, output, session) {
     pdde_main(NULL)
     valid_file(0) # from FSA. Most stuff is hidden unless valid == 1
     file_structure_analysis_main(NULL)
+    sys_inflow_outflow_plot_data(NULL)
+    sys_df_people_universe_filtered_r(NULL)
+    
   }
   
   # functions used throughout the app
