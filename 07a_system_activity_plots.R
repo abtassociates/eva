@@ -1,39 +1,15 @@
 # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
-# Define the hardcoded values for x.axis.var and cat.var
+# Define the hardcoded values for Time and Status
 # we need all combinations for the 0s
 
-active_at_values <- c("Homeless", "Housed")
-
-x.axis.var_summary_values <- reactive({
-  c(
-    paste0("Active as of \n", ReportStart),
-    "Inflow",
-    "Outflow",
-    paste0("Active as of \n", ReportEnd)
-  )
-})
-
-x.axis.var_detail_values <- reactive({
-  c(
-    paste0("Active as of \n", ReportStart),
-    "Newly Homeless", 
-    "Returned from \nPermanent", 
-    "Re-engaged from \nNon-Permanent",
-    "Continued system \nengagement",
-    "Exited to \nPermanent Destination",
-    "Exited to \nNon-Permanent Destination",
-    paste0("Active as of \n", ReportEnd)
-  )
-})
-
-cat.var_summary_values <- c(
+status_summary_values <- c(
   "Homeless", 
   "Housed", 
   "Inflow", 
   "Outflow"
 )
 
-cat.var_detail_values <- c(
+status_detail_values <- c(
   "Homeless", 
   "Housed", 
   "Newly Homeless", 
@@ -45,32 +21,50 @@ cat.var_detail_values <- c(
 )
 
 system_activity_prep <- reactive({
+
+  time_summary_values <- c(
+    paste0("Active as of \n", ReportStart()),
+    "Inflow",
+    "Outflow",
+    paste0("Active as of \n", ReportEnd())
+  )
+  
+  time_detail_values <- c(
+    paste0("Active as of \n", ReportStart()),
+    "Newly Homeless",
+    "Returned from \nPermanent",
+    "Re-engaged from \nNon-Permanent",
+    "Continued system \nengagement",
+    "Exited to \nPermanent Destination",
+    "Exited to \nNon-Permanent Destination",
+    paste0("Active as of \n", ReportEnd())
+  )
   sys_inflow_outflow_plot_data()() %>% # this is a people-level df
     filter(InflowTypeDetail != "something's wrong" &
              OutflowTypeDetail != "something's wrong") %>%
     pivot_longer(
       cols = c(InflowTypeDetail, OutflowTypeDetail), 
-      names_to = "x.axis.var", 
-      values_to = "cat.var") %>%
-    group_by(x.axis.var, cat.var) %>%
+      names_to = "Time", 
+      values_to = "Status") %>%
+    group_by(Time, Status) %>%
     summarise(values = n()) %>%
-    # filter(!is.na(cat.var)) %>%
+    # filter(!is.na(Status)) %>%
     mutate(
-      values = ifelse(x.axis.var == "OutflowTypeDetail", values * -1, values),
-      inflow_outflow = x.axis.var,
-      x.axis.var = case_when(
-        x.axis.var == "InflowTypeDetail" &
-          cat.var %in% active_at_values
-        ~ paste0("Active as of \n", ReportStart),
+      values = ifelse(Time == "OutflowTypeDetail", values * -1, values),
+      inflow_outflow = Time,
+      Time = case_when(
+        Time == "InflowTypeDetail" &
+          Status %in% c("Homeless", "Housed")
+        ~ paste0("Active as of \n", ReportStart()),
         
-        x.axis.var == "OutflowTypeDetail" &
-          cat.var %in% active_at_values
-        ~ paste0("Active as of \n", ReportEnd),
+        Time == "OutflowTypeDetail" &
+          Status %in% c("Homeless", "Housed")
+        ~ paste0("Active as of \n", ReportEnd()),
           
-        x.axis.var == "InflowTypeDetail"
+        Time == "InflowTypeDetail"
         ~ "Inflow",
         
-        x.axis.var == "OutflowTypeDetail"
+        Time == "OutflowTypeDetail"
         ~ "Outflow"
       )
     )
@@ -81,33 +75,33 @@ system_activity_prep <- reactive({
 system_activity_summary_prep <- reactive({
   system_activity_prep() %>%
     mutate(
-      cat.var = case_when(
-        x.axis.var == "Inflow" &
-        !(cat.var %in% active_at_values)
+      Status = case_when(
+        Time == "Inflow" &
+        !(Status %in% c("Homeless", "Housed"))
         ~ "Inflow",
   
-        x.axis.var == "Outflow" &
-        !(cat.var %in% active_at_values)
+        Time == "Outflow" &
+        !(Status %in% c("Homeless", "Housed"))
         ~ "Outflow",
   
-        TRUE ~ cat.var
+        TRUE ~ Status
       )
     ) %>%
-    group_by(x.axis.var, cat.var) %>%
+    group_by(Time, Status) %>%
     mutate(values = sum(values)) %>%
     ungroup() %>%
     unique()
 })
 
 # Rename the x-axis.var values to be the inflow and outflow types, 
-# which are in cat.var
+# which are in Status
 system_activity_detail_prep <- reactive({
   system_activity_prep() %>%
     mutate(
-      x.axis.var = ifelse(
-        !(cat.var %in% active_at_values),
-        cat.var,
-        x.axis.var
+      Time = ifelse(
+        !(Status %in% c("Homeless", "Housed")),
+        Status,
+        Time
       )
     )
 })
@@ -117,21 +111,21 @@ prep_for_chart <- function(df, catvar_values, xvar_values) {
   # also factor, sort, and group for the chart
   df %>%
     right_join(
-      expand.grid(x.axis.var = xvar_values,
-                  cat.var = catvar_values),
-      by = c("x.axis.var", "cat.var")) %>%
+      expand.grid(Time = xvar_values,
+                  Status = catvar_values),
+      by = c("Time", "Status")) %>%
     replace_na(list(values = 0)) %>%
     mutate(
-      x.axis.var = factor(x.axis.var, levels = xvar_values),
-      cat.var = factor(cat.var, levels = catvar_values)
+      Time = factor(Time, levels = xvar_values),
+      Status = factor(Status, levels = catvar_values)
     ) %>%
-    arrange(x.axis.var, desc(cat.var)) %>%
-    group_by(x.axis.var) %>%
+    arrange(Time, desc(Status)) %>%
+    group_by(Time) %>%
     mutate(group.id = cur_group_id()) %>%
     ungroup() %>%
     mutate(end.Bar = cumsum(values),
            start.Bar = c(0, head(end.Bar, -1))) %>%
-    select(inflow_outflow, x.axis.var, cat.var, values, group.id, end.Bar, start.Bar)
+    select(inflow_outflow, Time, Status, values, group.id, end.Bar, start.Bar)
 }
 
 renderSystemPlot <- function(id) {
@@ -142,8 +136,8 @@ renderSystemPlot <- function(id) {
       colors <- c('#73655E','#C6BDB9','#C34931', '#16697A')
       df <- prep_for_chart(
         system_activity_summary_prep(),
-        cat.var_summary_values,
-        x.axis.var_summary_values()
+        status_summary_values,
+        time_summary_values
       )
     } else {
       colors <-
@@ -157,8 +151,8 @@ renderSystemPlot <- function(id) {
           '#16697A')
       df <- prep_for_chart(
         system_activity_detail_prep(),
-        cat.var_detail_values,
-        x.axis.var_detail_values()
+        status_detail_values,
+        time_detail_values
       )
     }
 
@@ -166,7 +160,7 @@ renderSystemPlot <- function(id) {
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
 
-    ggplot(df, aes(x = group.id, fill = cat.var)) + 
+    ggplot(df, aes(x = group.id, fill = Status)) + 
       # \_Simple Waterfall Chart ----
       geom_rect(aes(xmin = group.id - 0.25, # control bar gap width
                       xmax = group.id + 0.25, 
@@ -183,11 +177,11 @@ renderSystemPlot <- function(id) {
         xend = ifelse(group.id == last(group.id),
                       last(group.id),
                       group.id + 0.75),
-        y = ifelse(cat.var == last(cat.var),
+        y = ifelse(Status == last(Status),
                    end.Bar,
                     # these will be removed once we set the y limits
                    s + segment_size),
-        yend = ifelse(cat.var == last(cat.var),
+        yend = ifelse(Status == last(Status),
                       end.Bar,
                     # these will be removed once we set the y limits
                     s + segment_size),
@@ -198,7 +192,7 @@ renderSystemPlot <- function(id) {
           mapping = aes(
             label = ifelse(
               !is.na(inflow_outflow) |
-                as.character(x.axis.var) == as.character(cat.var),
+                as.character(Time) == as.character(Status),
               scales::comma(values),
               ""
             ),
@@ -226,8 +220,8 @@ renderSystemPlot <- function(id) {
                    unique(df$group.id) + 0.4),
         labels =
           c("",
-            as.character(unique(df$x.axis.var)),
-            rep(c(""), length(unique(df$x.axis.var))))
+            as.character(unique(df$Time)),
+            rep(c(""), length(unique(df$Time))))
       ) +
       # \_Theme options to make it look like the original plot ----
     theme(
@@ -242,10 +236,10 @@ renderSystemPlot <- function(id) {
         element_line(color =
                        c("black",
                          rep(NA, length(
-                           unique(df$x.axis.var)
+                           unique(df$Time)
                          )),
                          rep("black", length(
-                           unique(df$x.axis.var)
+                           unique(df$Time)
                          ) - 1))),
       axis.line = element_line(colour = "#4e4d47", linewidth = 0.5),
       axis.ticks.length = unit(.15, "cm"),
@@ -291,33 +285,33 @@ syso_detailBox <- reactive({
     input$syso_date_range[2], 
     br(),
     strong("Household Type: "),
-    getNameByValue(syso_hh_types, input$syso_hh_type),
+    # getNameByValue(syso_hh_types, input$syso_hh_type),
     " | ",
     strong("Level of Detail: "),
-    getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
+    # getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
     " | ",
     strong("Project Type: "),
-    getNameByValue(syso_project_types, input$syso_project_type), 
+    # getNameByValue(syso_project_types, input$syso_project_type), 
     br(),
     strong("Age: "),
-    if_else(
-      setequal(syso_age_cats, input$syso_age) |
-        is.null(input$syso_age),
-      "All Ages",
-      getNameByValue(syso_age_cats, input$syso_age)
-    ),
+    # if_else(
+    #   setequal(syso_age_cats, input$syso_age) |
+    #     is.null(input$syso_age),
+    #   "All Ages"#,
+    #   # getNameByValue(syso_age_cats, input$syso_age)
+    # ),
     " | ",
     strong("Gender: "),
-    getNameByValue(syso_gender_cats(), input$syso_gender),
+    # getNameByValue(syso_gender_cats(), input$syso_gender),
     " | ",
     strong("Race/Ethnicity: "),
-    getNameByValue(syso_race_ethnicities, input$syso_race_ethnicity),
+    # getNameByValue(syso_race_ethnicities, input$syso_race_ethnicity),
     " | ",
     strong("Special Populations: "),
-    getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops), 
+    # getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops), 
     br(),
-    strong("Methodology Type: "),
-    getNameByValue(syso_methodology_types, input$methodology_type) 
+    strong("Methodology Type: ")#,
+    # getNameByValue(syso_methodology_types, input$methodology_type) 
   )
 })
 
