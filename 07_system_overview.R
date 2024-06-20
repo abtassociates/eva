@@ -153,12 +153,12 @@ nbn_enrollments_services <- Services %>%
   mutate(
     NbN15DaysPrior =
       between(DateProvided,
-              ReportStart - days(15),
-              ReportStart),
+              ReportStart() - days(15),
+              ReportStart()),
     NbN15DaysAfter =
       between(DateProvided,
-              ReportEnd,
-              ReportEnd + days(15))
+              ReportEnd(),
+              ReportEnd() + days(15))
   )
 
 if(nbn_enrollments_services %>% nrow() > 0) nbn_enrollments_services <-
@@ -175,12 +175,11 @@ nbn_enrollments_services <- nbn_enrollments_services %>%
          NbN15DaysAfter) %>%
   filter(NbN15DaysPrior == 1 | NbN15DaysAfter == 1)
 
-browser()
 # Enrollment-level flags --------------------------------------------------
 # as much wrangling as possible without needing hhtype, project type, and level
 # of detail inputs
 enrollment_categories <- enrollment_prep_hohs %>%
-  filter(ReportStart - years(2) <= ExitAdjust &
+  filter(ReportStart() - years(2) <= ExitAdjust &
            ProjectType != 12) %>% 
   mutate(
     lh_prior_livingsituation = !is.na(LivingSituation) &
@@ -201,11 +200,11 @@ enrollment_categories <- enrollment_prep_hohs %>%
       ProjectType %in% project_types_enrolled_homeless |
       lh_prior_livingsituation == TRUE,
     straddles_start =
-      EntryDate <= ReportStart &
-      ExitAdjust >= ReportStart,
+      EntryDate <= ReportStart() &
+      ExitAdjust >= ReportStart(),
     in_date_range =
-      ExitAdjust >= ReportStart &
-      EntryDate <= ReportEnd,
+      ExitAdjust >= ReportStart() &
+      EntryDate <= ReportEnd(),
     # Domestic Violence - this is needed for the System Composition chart
     DomesticViolenceCategory = case_when(
       DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1 ~
@@ -691,7 +690,7 @@ inflow_outflow_df <- reactive({
             ProjectType %in% ph_project_types &
             (
               is.na(MoveInDateAdjust) |
-              MoveInDateAdjust > ReportStart
+              MoveInDateAdjust > ReportStart()
             )
           ) |
           # Otherwise, EnrolledHomeless = TRUE (includes 0,1,2,4,8,14 and 6,11)
@@ -699,8 +698,8 @@ inflow_outflow_df <- reactive({
             ProjectType == ce_project_type &
             lh_prior_livingsituation == TRUE &
               between(EntryDate,
-                      ReportStart - days(90),
-                      ReportStart + days(90))
+                      ReportStart() - days(90),
+                      ReportStart() + days(90))
           ) |
           # Otherwise, EnrolledHomeless = TRUE (includes 0,1,2,4,8,14 and 6,11)
           (
@@ -711,8 +710,8 @@ inflow_outflow_df <- reactive({
         # Enrollment straddles start or the enrollment is within 2 weeks from start
         # and within 2 weeks of prev enrollment
         (straddles_start == TRUE |
-           (EntryDate >= ReportStart &
-              between(difftime(EntryDate, ReportStart,
+           (EntryDate >= ReportStart() &
+              between(difftime(EntryDate, ReportStart(),
                                units = "days"),
                       0,
                       14) &
@@ -728,7 +727,7 @@ inflow_outflow_df <- reactive({
       active_at_start_housed = eecr == TRUE & 
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= ReportStart &
+        MoveInDateAdjust <= ReportStart() &
         lh_prior_livingsituation == TRUE,
       
       # LOGIC helper columns for outflow
@@ -748,15 +747,15 @@ inflow_outflow_df <- reactive({
       # outflow columns
       perm_dest_lecr = lecr == TRUE &
         Destination %in% perm_destinations &
-        ExitAdjust < ReportEnd, # 
+        ExitAdjust < ReportEnd(), # 
       
       temp_dest_lecr = lecr == TRUE &
         !(Destination %in% perm_destinations) &
-        ExitAdjust < ReportEnd,
+        ExitAdjust < ReportEnd(),
       
       homeless_at_end = lecr == TRUE & # REVISIT GD, CHECK LOGIC
-        EntryDate <= ReportEnd &
-        ExitAdjust > ReportEnd & 
+        EntryDate <= ReportEnd() &
+        ExitAdjust > ReportEnd() & 
         ( # 1
           ProjectType %in% lh_project_types_nc |
             
@@ -771,15 +770,15 @@ inflow_outflow_df <- reactive({
           
           # 4
           (ProjectType %in% ph_project_types &
-          (is.na(MoveInDateAdjust) | MoveInDateAdjust >= ReportEnd)) 
+          (is.na(MoveInDateAdjust) | MoveInDateAdjust >= ReportEnd())) 
         ),
 
       housed_at_end = lecr == TRUE & 
-        EntryDate <= ReportEnd &
-        ExitAdjust > ReportEnd &
+        EntryDate <= ReportEnd() &
+        ExitAdjust > ReportEnd() &
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= ReportEnd# &
+        MoveInDateAdjust <= ReportEnd()# &
         # lh_prior_livingsituation == TRUE
     )
   
