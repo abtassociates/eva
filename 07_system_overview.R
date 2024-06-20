@@ -880,32 +880,33 @@ inflow_outflow_df <- reactive({
       missing_inflow = eecr & InflowTypeDetail == "something's wrong",
       missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
     )
-  # browser()
+  browser()
   
-  category_counts <- plot_data %>% 
+  category_counts <- plot_data %>%
+    select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%
     pivot_longer(
       cols = c(InflowTypeDetail, OutflowTypeDetail), 
-      names_to = "x.axis.var", 
-      values_to = "cat.var") %>%
-    group_by(x.axis.var, cat.var) %>%
+      names_to = "Time", 
+      values_to = "Status") %>%
+    group_by(Time, Status) %>%
     summarise(values = n()) %>%
-    # filter(!is.na(cat.var)) %>%
+    filter(!is.na(Status)) %>%
     mutate(
-      values = ifelse(x.axis.var == "OutflowTypeDetail", values * -1, values),
-      inflow_outflow = x.axis.var,
-      x.axis.var = case_when(
-        x.axis.var == "InflowTypeDetail" &
-          cat.var %in% active_at_vals
-        ~ active_as_of_start(),
+      values = ifelse(Time == "OutflowTypeDetail", values * -1, values),
+      inflow_outflow = Time,
+      Time = case_when(
+        Time == "InflowTypeDetail" &
+          Status %in% c("Homeless", "Housed")
+        ~ paste0("Active as of \n", ReportStart()),
         
-        x.axis.var == "OutflowTypeDetail" &
-          cat.var %in% active_at_vals
-        ~ active_as_of_end(),
+        Time == "OutflowTypeDetail" &
+          Status %in% c("Homeless", "Housed")
+        ~ paste0("Active as of \n", ReportEnd()),
         
-        x.axis.var == "InflowTypeDetail"
+        Time == "InflowTypeDetail"
         ~ "Inflow",
         
-        x.axis.var == "OutflowTypeDetail"
+        Time == "OutflowTypeDetail"
         ~ "Outflow"
       )
     )
