@@ -294,8 +294,8 @@ outreach_w_proper_cls_vector <-
   CurrentLivingSituation %>%
   filter(CurrentLivingSituation %in% homeless_livingsituation &
            between(InformationDate,
-                   ReportEnd - days(60),
-                   ReportEnd + days(60))) %>%
+                   ReportEnd() - days(60),
+                   ReportEnd() + days(60))) %>%
   pull(EnrollmentID) %>%
   unique()
 
@@ -304,15 +304,14 @@ outreach_w_proper_cls_vector <-
 
 client_categories <- Client %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  mutate(AgeCategory = if_else(is.na(AgeCategory), "Unknown", AgeCategory)) %>%
   select(PersonalID,
          all_of(race_cols),
          all_of(gender_cols),
          VeteranStatus,
          AgeCategory
   ) %>%
-  left_join(system_person_ages, join_by(PersonalID)) %>%
   mutate(
+    AgeCategory = if_else(is.na(AgeCategory), "Unknown", AgeCategory),
     VeteranStatus = if_else(VeteranStatus == 1 &
                               !is.na(VeteranStatus), 1, 0),
     # flattening data and eliminating nulls in case they're present
@@ -593,6 +592,7 @@ client_categories_reactive <- reactive({
   client_categories %>%
     select(PersonalID,
            VeteranStatus,
+           AgeCategory,
            ends_with("Exclusive"),
            ends_with("Exclusive1"),
            ends_with("Exclusive2")
@@ -611,6 +611,7 @@ client_categories_reactive <- reactive({
   client_categories %>%
     select(PersonalID,
            VeteranStatus,
+           AgeCategory,
            ends_with("Inclusive"),
            ends_with("Inclusive1"),
            ends_with("Inclusive2")
