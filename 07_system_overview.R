@@ -271,9 +271,9 @@ enrollment_categories <- enrollment_prep_hohs %>%
 # using data.table --------------------------------------------------------
 # before_dt <- now()
 # Left join enrollment_categories on nbn_enrollments_services
-enrollment_categories_dt <-
-  as.data.table(nbn_enrollments_services)[as.data.table(enrollment_categories),
-                                          on = .(EnrollmentID)]
+# enrollment_categories_dt <-
+#   as.data.table(nbn_enrollments_services)[as.data.table(enrollment_categories),
+#                                           on = .(EnrollmentID)]
 # after_dt <- now()
 
 
@@ -281,8 +281,8 @@ enrollment_categories_dt <-
 
 # before_te <- now()
 # Left join enrollment_categories on nbn_enrollments_services
-enrollment_categories_exp <- as.data.table(enrollment_categories) %>%
-  table.express::left_join(as.data.table(nbn_enrollments_services), EnrollmentID)
+# enrollment_categories_exp <- as.data.table(enrollment_categories) %>%
+#   table.express::left_join(as.data.table(nbn_enrollments_services), EnrollmentID)
 # after_te <- now()
 
 # compare -----------------------------------------------------------------
