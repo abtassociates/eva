@@ -304,10 +304,13 @@ outreach_w_proper_cls_vector <-
 # will help us categorize people
 
 client_categories <- Client %>%
+  left_join(system_person_ages, join_by(PersonalID)) %>%
+  mutate(AgeCategory = if_else(is.na(AgeCategory), "Unknown", AgeCategory)) %>%
   select(PersonalID,
          all_of(race_cols),
          all_of(gender_cols),
-         VeteranStatus
+         VeteranStatus,
+         AgeCategory
   ) %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
   mutate(
@@ -595,8 +598,6 @@ client_categories_reactive <- reactive({
            ends_with("Exclusive1"),
            ends_with("Exclusive2")
            ) %>%
-    left_join(system_person_ages, join_by(PersonalID)) %>%
-    mutate(AgeCategory = if_else(is.na(AgeCategory), "Unknown", AgeCategory)) %>%
     filter(AgeCategory %in% input$syso_age &
              input$methodology_type == 1 &
              if_any(.cols = c(input$syso_gender), ~isTruthy(.)) &
@@ -615,8 +616,6 @@ client_categories_reactive <- reactive({
            ends_with("Inclusive1"),
            ends_with("Inclusive2")
     ) %>%
-    left_join(system_person_ages, join_by(PersonalID)) %>%
-    mutate(AgeCategory = if_else(is.na(AgeCategory), "Unknown", AgeCategory)) %>%
     filter(AgeCategory %in% input$syso_age &
              input$methodology_type == 2 &
              if_any(.cols = c(input$syso_gender), ~isTruthy(.)) &
