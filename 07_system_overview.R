@@ -232,31 +232,39 @@ enrollment_categories <- enrollment_prep_hohs %>%
 
 nbn_enrollments_services <- Services %>%
   filter(RecordType == 200) %>%
-  inner_join(EnrollmentAdjust %>%
-               filter(ProjectType == 1) %>%
-               select(EnrollmentID),
-             join_by(EnrollmentID)) %>% 
-  # ^ limits shelter night services to enrollments associated to NbN shelters
-  mutate(
-    nbn_service_15_before_start =
-      between(DateProvided,
-              ReportStart - days(15),
-              ReportStart),
-    nbn_service_15_after_end =
-      between(DateProvided,
-              ReportEnd,
-              ReportEnd + days(15))
-  ) %>%
-  group_by(EnrollmentID) %>%
-  summarise(
-    NbN15DaysPrior = max(nbn_service_15_before_start),
-    NbN15DaysAfter = max(nbn_service_15_after_end)) %>%
-  ungroup() %>%
-  select(EnrollmentID,
-         NbN15DaysPrior,
-         NbN15DaysAfter) %>%
-  filter(NbN15DaysPrior == 1 | NbN15DaysAfter == 1)
+  inner_join(
+        EnrollmentAdjust %>%
+          filter(ProjectType == 1) %>%
+          select(EnrollmentID),
+        join_by(EnrollmentID)
+      ) %>%
+      # ^ limits shelter night services to enrollments associated to NbN shelters
+      mutate(
+        NbN15DaysPrior =
+          between(DateProvided,
+                  ReportStart - days(15),
+                  ReportStart),
+        NbN15DaysAfter =
+          between(DateProvided,
+                  ReportEnd,
+                  ReportEnd + days(15))
+      )
 
+if(nbn_enrollments_services %>% nrow() > 0) nbn_enrollments_services <-
+  nbn_enrollments_services %>%
+      group_by(EnrollmentID) %>%
+      summarise(
+        NbN15DaysPrior = max(NbN15DaysPrior, na.rm = TRUE),
+        NbN15DaysAfter = max(NbN15DaysAfter, na.rm = TRUE)) %>%
+      ungroup()
+
+nbn_enrollments_services <- nbn_enrollments_services %>%
+      select(EnrollmentID,
+             NbN15DaysPrior,
+             NbN15DaysAfter) %>%
+      filter(NbN15DaysPrior == 1 | NbN15DaysAfter == 1)
+
+        
 # using data.table --------------------------------------------------------
 # before_dt <- now()
 # Left join enrollment_categories on nbn_enrollments_services
@@ -868,12 +876,12 @@ inflow_outflow_df <- reactive({
         filter(
           OutflowTypeDetail == "something's wrong" | 
             InflowTypeDetail == "something's wrong"), 
-      by="PersonalID") %>% 
+      by = "PersonalID") %>%
     mutate(
       missing_inflow = eecr & InflowTypeDetail == "something's wrong",
       missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
     )
-  browser()
+  # browser()
   
   category_counts <- plot_data %>% 
     pivot_longer(
