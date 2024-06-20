@@ -660,55 +660,75 @@ dashboardPage(
         )),
         fluidRow(
           box(
-            title = "Universe Filters",
+            title = "Universe Selectors",
             width = 6,
-            id = "universe_filters",
-            column(12, dateRangeInput(
-              "syso_date_range",
-              "Date Range",
-              format = "mm/dd/yyyy",
-              start = if_else(isTRUE(getOption("shiny.testmode")),
-                              ymd("20231005"),
-                              NA),
-              end = if_else(isTRUE(getOption("shiny.testmode")),
-                            ymd("20231005"),
-                            NA)
-            )),
-            br(),
-            h4("Universe Selectors"),
-            column(4, fluidRow(
-              br(),
+            id = "universe_selectors",
+            column(
+              4,
               pickerInput(
                 label = "Household Type",
                 inputId = "syso_hh_type",
                 choices = syso_hh_types,
-                selected = syso_hh_types[1],
-                width = "90%"
+                selected = syso_hh_types[1]
               )
-            )),
-            column(4, fluidRow(
-              br(),
+            ),
+            column(
+              4,
               pickerInput(
                 label = "Level of Detail",
                 inputId = "syso_level_of_detail",
                 choices = syso_level_of_detail,
-                selected = syso_level_of_detail[1],
-                width = "90%"
+                selected = syso_level_of_detail[1]
               )
-            )),
-            column(4, fluidRow(
-              br(),
-              # a(href="www.google.com", "Click for Project Type Information"),
+            ),
+            column(
+              4,
               pickerInput(
                 label = "Project Type",
                 inputId = "syso_project_type",
                 choices = syso_project_types,
-                selected = syso_project_types[1],
-                width = "90%"
+                selected = syso_project_types[1]
               )
-            ))
+            )
           ),
           box(
+            title = "Advanced Settings",
+            width = 6,
+            radioButtons(
+              "methodology_type",
+              HTML(
+                "Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"
+              ),
+              choices = syso_methodology_types,
+              width = "100%"
+            ),
+            h4("Download Tabular View of System Overview Charts"),
+            uiOutput("downloadSysOverviewTabBtn")
+          )
+        ), 
+        # fluidRow(column(4, 
+        #       br(),
+        #       pickerInput(
+        #         label = "Level of Detail",
+        #         inputId = "syso_level_of_detail",
+        #         choices = syso_level_of_detail,
+        #         selected = syso_level_of_detail[1],
+        #         width = "90%"
+        #       )
+        #     )),
+        # fluidRow(
+        #       br(),
+        #       column(4,
+        #       # a(href="www.google.com", "Click for Project Type Information"),
+        #       pickerInput(
+        #         label = "Project Type",
+        #         inputId = "syso_project_type",
+        #         choices = syso_project_types,
+        #         selected = syso_project_types[1],
+        #         width = "90%"
+        #       )
+        #     )),
+          # box(
             # div(class="box-header", h3("Advanced Settings", class="box-title")),
             # div(class="box-body",
             #   radioButtons("methodology_type",
@@ -719,23 +739,20 @@ dashboardPage(
             # hr(),
             # div(class="box-header", h3("Download Tabular View of System Overview Charts", class="box-title")),
             # width = 6
-            box(
-              title = "Advanced Settings",
-              radioButtons("methodology_type",
-                HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
-                choices = syso_methodology_types,
-                width = "100%"
-              ),
-              width = 12
-            ),
-            box(
-              title = "Download Tabular View of System Overview Charts",
-              uiOutput("downloadSysOverviewTabBtn"),
-              width = 12
-            ),
-            width = 6
-          )
-        ),
+        #     box(
+        #       title = "Advanced Settings",
+        #       radioButtons("methodology_type",
+        #         HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
+        #         choices = syso_methodology_types,
+        #         width = "100%"
+        #       ),
+        #       width = 12
+        #     ),
+        #     box(
+        #       title = "Download Tabular View of System Overview Charts",
+        #       uiOutput("downloadSysOverviewTabBtn"),
+        #       width = 12
+        # ),
         fluidRow(
           box(
             id = "syso_header",
