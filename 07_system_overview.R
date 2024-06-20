@@ -135,10 +135,45 @@ hh_adjustments <- enrollment_prep %>%
 enrollment_prep_hohs <- enrollment_prep %>%
   left_join(hh_adjustments, join_by(EnrollmentID)) %>%
   relocate(CorrectedHoH, .after = RelationshipToHoH)
-
 # (^ also same granularity as EnrollmentAdjust)
-
 rm(hh_adjustments)
+
+
+# NbN prep ----------------------------------------------------------------
+
+nbn_enrollments_services <- Services %>%
+  filter(RecordType == 200) %>%
+  inner_join(
+    EnrollmentAdjust %>%
+      filter(ProjectType == 1) %>%
+      select(EnrollmentID),
+    join_by(EnrollmentID)
+  ) %>%
+  # ^ limits shelter night services to enrollments associated to NbN shelters
+  mutate(
+    NbN15DaysPrior =
+      between(DateProvided,
+              ReportStart - days(15),
+              ReportStart),
+    NbN15DaysAfter =
+      between(DateProvided,
+              ReportEnd,
+              ReportEnd + days(15))
+  )
+
+if(nbn_enrollments_services %>% nrow() > 0) nbn_enrollments_services <-
+  nbn_enrollments_services %>%
+  group_by(EnrollmentID) %>%
+  summarise(
+    NbN15DaysPrior = max(NbN15DaysPrior, na.rm = TRUE),
+    NbN15DaysAfter = max(NbN15DaysAfter, na.rm = TRUE)) %>%
+  ungroup()
+
+nbn_enrollments_services <- nbn_enrollments_services %>%
+  select(EnrollmentID,
+         NbN15DaysPrior,
+         NbN15DaysAfter) %>%
+  filter(NbN15DaysPrior == 1 | NbN15DaysAfter == 1)
 
 browser()
 # Enrollment-level flags --------------------------------------------------
@@ -228,43 +263,11 @@ enrollment_categories <- enrollment_prep_hohs %>%
     lookback = if_else(in_date_range == TRUE, 0, rev(row_number()))
   ) %>%
   ungroup() %>%
-  select(-AgeAtEntry)
+  select(-AgeAtEntry) %>%
+  left_join(nbn_enrollments_services, join_by(EnrollmentID)) %>%
+  mutate(NbN15DaysPrior = replace_na(NbN15DaysPrior, 0),
+         NbN15DaysAfter = replace_na(NbN15DaysAfter, 0))
 
-nbn_enrollments_services <- Services %>%
-  filter(RecordType == 200) %>%
-  inner_join(
-        EnrollmentAdjust %>%
-          filter(ProjectType == 1) %>%
-          select(EnrollmentID),
-        join_by(EnrollmentID)
-      ) %>%
-      # ^ limits shelter night services to enrollments associated to NbN shelters
-      mutate(
-        NbN15DaysPrior =
-          between(DateProvided,
-                  ReportStart - days(15),
-                  ReportStart),
-        NbN15DaysAfter =
-          between(DateProvided,
-                  ReportEnd,
-                  ReportEnd + days(15))
-      )
-
-if(nbn_enrollments_services %>% nrow() > 0) nbn_enrollments_services <-
-  nbn_enrollments_services %>%
-      group_by(EnrollmentID) %>%
-      summarise(
-        NbN15DaysPrior = max(NbN15DaysPrior, na.rm = TRUE),
-        NbN15DaysAfter = max(NbN15DaysAfter, na.rm = TRUE)) %>%
-      ungroup()
-
-nbn_enrollments_services <- nbn_enrollments_services %>%
-      select(EnrollmentID,
-             NbN15DaysPrior,
-             NbN15DaysAfter) %>%
-      filter(NbN15DaysPrior == 1 | NbN15DaysAfter == 1)
-
-        
 # using data.table --------------------------------------------------------
 # before_dt <- now()
 # Left join enrollment_categories on nbn_enrollments_services
@@ -632,9 +635,6 @@ enrollment_categories_reactive <- reactive({
   
   # Filter enrollments by hhtype, project type, and level-of-detail inputs
   enrollment_categories %>%
-    left_join(nbn_enrollments_services, join_by(EnrollmentID)) %>%
-    mutate(NbN15DaysPrior = replace_na(NbN15DaysPrior, 0),
-           NbN15DaysAfter = replace_na(NbN15DaysAfter, 0)) %>%
     filter((input$syso_hh_type == "All" |
          HouseholdType == input$syso_hh_type) &
       (input$syso_level_of_detail == "All" |
