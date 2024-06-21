@@ -292,14 +292,21 @@ enrollment_categories <- enrollment_prep_hohs %>%
 # 
 # after_te - before_te
 
-outreach_w_proper_cls_vector <- 
-  CurrentLivingSituation %>%
-  filter(CurrentLivingSituation %in% homeless_livingsituation &
-           between(InformationDate,
-                   ReportEnd() - days(60),
-                   ReportEnd() + days(60))) %>%
-  pull(EnrollmentID) %>%
-  unique()
+homeless_cls_finder <- function(date, window = "before", days = 60) {
+    
+    plus_days <- if_else(window == "before", 0, days)
+    minus_days <- if_else(window == "after", 0, days)
+    
+    CurrentLivingSituation %>%
+      filter(
+        CurrentLivingSituation %in% homeless_livingsituation &
+          between(InformationDate,
+                  date - days(minus_days),
+                  date + days(plus_days))
+      ) %>%
+      pull(EnrollmentID) %>%
+      unique()
+  }
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people
