@@ -20,23 +20,23 @@ status_detail_values <- c(
   "Exited to \nNon-Permanent Destination"
 )
 
-time_summary_values <- c(
-    paste0("Active as of \n", ReportStart()),
+time_summary_values <- reactive(
+    c(paste0("Active as of \n", ReportStart()),
     "Inflow",
     "Outflow",
-    paste0("Active as of \n", ReportEnd())
+    paste0("Active as of \n", ReportEnd()))
   )
 
-time_detail_values <- c(
-    paste0("Active as of \n", ReportStart()),
-    "Newly Homeless",
-    "Returned from \nPermanent",
-    "Re-engaged from \nNon-Permanent",
-    "Continued system \nengagement",
-    "Exited to \nPermanent Destination",
-    "Exited to \nNon-Permanent Destination",
-    paste0("Active as of \n", ReportEnd())
-  )
+time_detail_values <- reactive({
+  c(paste0("Active as of \n", ReportStart()),
+  "Newly Homeless",
+  "Returned from \nPermanent",
+  "Re-engaged from \nNon-Permanent",
+  "Continued system \nengagement",
+  "Exited to \nPermanent Destination",
+  "Exited to \nNon-Permanent Destination",
+  paste0("Active as of \n", ReportEnd()))
+})
 
 system_activity_prep <- reactive({
 
@@ -138,7 +138,7 @@ renderSystemPlot <- function(id) {
       df <- prep_for_chart(
         system_activity_summary_prep(),
         status_summary_values,
-        time_summary_values
+        time_summary_values()
       )
     } else {
       colors <-
@@ -153,11 +153,11 @@ renderSystemPlot <- function(id) {
       df <- prep_for_chart(
         system_activity_detail_prep(),
         status_detail_values,
-        time_detail_values
+        time_detail_values()
       )
     }
 
-    s = max(df$end.Bar) + 20
+    s <- max(df$end.Bar) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
 

@@ -880,7 +880,7 @@ inflow_outflow_df <- reactive({
       missing_inflow = eecr & InflowTypeDetail == "something's wrong",
       missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
     )
-  browser()
+  # browser()
   
   category_counts <- plot_data %>%
     select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%
