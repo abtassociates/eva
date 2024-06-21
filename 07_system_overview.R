@@ -706,10 +706,11 @@ inflow_outflow_df <- reactive({
           # Otherwise, EnrolledHomeless = TRUE (includes 0,1,2,4,8,14 and 6,11)
           (
             ProjectType == ce_project_type &
-            lh_prior_livingsituation == TRUE &
+              (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 60) |
+              lh_prior_livingsituation == TRUE) &
               between(EntryDate,
                       ReportStart() - days(90),
-                      ReportStart() + days(90))
+                      ReportStart())
           ) |
           # Otherwise, EnrolledHomeless = TRUE (includes 0,1,2,4,8,14 and 6,11)
           (
@@ -757,15 +758,15 @@ inflow_outflow_df <- reactive({
       # outflow columns
       perm_dest_lecr = lecr == TRUE &
         Destination %in% perm_destinations &
-        ExitAdjust < ReportEnd(), # 
+        ExitAdjust <= ReportEnd(), # 
       
       temp_dest_lecr = lecr == TRUE &
         !(Destination %in% perm_destinations) &
-        ExitAdjust < ReportEnd(),
+        ExitAdjust <= ReportEnd(),
       
       homeless_at_end = lecr == TRUE & # REVISIT GD, CHECK LOGIC
         EntryDate <= ReportEnd() &
-        ExitAdjust > ReportEnd() & 
+        ExitAdjust >= ReportEnd() & 
         ( # 1
           ProjectType %in% lh_project_types_nc |
             
@@ -776,16 +777,24 @@ inflow_outflow_df <- reactive({
           # 3
           (ProjectType == out_project_type & 
             (in_date_range == TRUE |
-              EnrollmentID %in% outreach_w_proper_cls_vector)) |
+              EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60))) |
           
           # 4
           (ProjectType %in% ph_project_types &
-          (is.na(MoveInDateAdjust) | MoveInDateAdjust >= ReportEnd())) 
+          (is.na(MoveInDateAdjust) | MoveInDateAdjust >= ReportEnd())) |
+            
+            (ProjectType %in% ce_project_type &
+               between(EntryDate,
+                       ReportEnd() - days(90),
+                       ReportEnd()) &
+               (EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 90) &
+                  (lh_livingsituation == TRUE |
+                     EnrollmentID %in% homeless_cls_finder(ReportEnd(), "after", 90))))
         ),
 
       housed_at_end = lecr == TRUE & 
         EntryDate <= ReportEnd() &
-        ExitAdjust > ReportEnd() &
+        ExitAdjust >= ReportEnd() &
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
         MoveInDateAdjust <= ReportEnd()# &
