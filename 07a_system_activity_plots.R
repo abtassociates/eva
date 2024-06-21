@@ -20,16 +20,14 @@ status_detail_values <- c(
   "Exited to \nNon-Permanent Destination"
 )
 
-system_activity_prep <- reactive({
-
-  time_summary_values <- c(
+time_summary_values <- c(
     paste0("Active as of \n", ReportStart()),
     "Inflow",
     "Outflow",
     paste0("Active as of \n", ReportEnd())
   )
-  
-  time_detail_values <- c(
+
+time_detail_values <- c(
     paste0("Active as of \n", ReportStart()),
     "Newly Homeless",
     "Returned from \nPermanent",
@@ -39,6 +37,9 @@ system_activity_prep <- reactive({
     "Exited to \nNon-Permanent Destination",
     paste0("Active as of \n", ReportEnd())
   )
+
+system_activity_prep <- reactive({
+
   sys_inflow_outflow_plot_data()() %>% # this is a people-level df
     filter(InflowTypeDetail != "something's wrong" &
              OutflowTypeDetail != "something's wrong") %>%
