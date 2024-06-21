@@ -253,7 +253,9 @@ enrollment_categories <- enrollment_prep_hohs %>%
     days_since_previous_exit =
       difftime(EntryDate,
                lag(ExitAdjust, order_by = ExitAdjust),
-               units = "days")
+               units = "days"),
+    next_enrollment_project_type = lead(ProjectType),
+    previous_enrollment_project_type = lag(ProjectType)
   ) %>%
   group_by(PersonalID, in_date_range) %>%
   mutate(
@@ -880,7 +882,7 @@ inflow_outflow_df <- reactive({
       missing_inflow = eecr & InflowTypeDetail == "something's wrong",
       missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
     )
-  # browser()
+  browser()
   
   category_counts <- plot_data %>%
     select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%
