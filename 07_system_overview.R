@@ -145,7 +145,7 @@ nbn_enrollments_services <- Services %>%
   filter(RecordType == 200) %>%
   inner_join(
     EnrollmentAdjust %>%
-      filter(ProjectType == 1) %>%
+      filter(ProjectType == es_nbn_project_type) %>%
       select(EnrollmentID),
     join_by(EnrollmentID)
   ) %>%
