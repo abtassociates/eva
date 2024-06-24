@@ -176,11 +176,28 @@ nbn_enrollments_services <- nbn_enrollments_services %>%
   filter(NbN15DaysPrior == 1 | NbN15DaysAfter == 1)
 
 # Enrollment-level flags --------------------------------------------------
+
+homeless_cls_finder <- function(date, window = "before", days = 60) {
+  
+  plus_days <- if_else(window == "before", 0, days)
+  minus_days <- if_else(window == "after", 0, days)
+  
+  CurrentLivingSituation %>%
+    filter(
+      CurrentLivingSituation %in% homeless_livingsituation &
+        between(InformationDate,
+                date - days(minus_days),
+                date + days(plus_days))
+    ) %>%
+    pull(EnrollmentID) %>%
+    unique()
+}
+
 # as much wrangling as possible without needing hhtype, project type, and level
 # of detail inputs
+
+
 enrollment_categories <- enrollment_prep_hohs %>%
-  filter(ReportStart() - years(2) <= ExitAdjust &
-           ProjectType != 12) %>% 
   mutate(
     lh_prior_livingsituation = !is.na(LivingSituation) &
       (
@@ -217,6 +234,43 @@ enrollment_categories <- enrollment_prep_hohs %>%
       TRUE ~
         "NotDV" # No Special Population Selected
       )
+  ) %>%
+  filter(
+    ReportStart() - years(2) <= ExitAdjust &
+      ProjectType != hp_project_type &
+      (ProjectType != ce_project_type |
+         (ProjectType == ce_project_type &
+          (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 90) |
+             EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 90) |
+              (
+                between(EntryDate, ReportStart() - days(90), ReportStart()) == TRUE &
+                  lh_prior_livingsituation == TRUE
+              ) |
+              (
+                between(EntryDate, ReportEnd() - days(90), ReportEnd()) &
+                  lh_prior_livingsituation == TRUE
+              )
+          )
+      )) &
+      (!ProjectType %in% c(out_project_type,
+                          sso_project_type,
+                          other_project_project_type,
+                          day_project_type) |
+         (ProjectType %in% c(out_project_type,
+                             sso_project_type,
+                             other_project_project_type,
+                             day_project_type) &
+            (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 60) |
+               EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60) |
+               (
+                 between(EntryDate, ReportStart() - days(60), ReportStart()) == TRUE &
+                   lh_prior_livingsituation == TRUE
+               ) |
+               (
+                 between(EntryDate, ReportEnd() - days(60), ReportEnd()) == TRUE &
+                   lh_prior_livingsituation == TRUE
+               )
+            )))
   ) %>%
   select(
     EnrollmentID, 
@@ -291,22 +345,6 @@ enrollment_categories <- enrollment_prep_hohs %>%
 # after_dt - before_dt
 # 
 # after_te - before_te
-
-homeless_cls_finder <- function(date, window = "before", days = 60) {
-    
-    plus_days <- if_else(window == "before", 0, days)
-    minus_days <- if_else(window == "after", 0, days)
-    
-    CurrentLivingSituation %>%
-      filter(
-        CurrentLivingSituation %in% homeless_livingsituation &
-          between(InformationDate,
-                  date - days(minus_days),
-                  date + days(plus_days))
-      ) %>%
-      pull(EnrollmentID) %>%
-      unique()
-  }
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people
@@ -703,14 +741,12 @@ inflow_outflow_df <- reactive({
               MoveInDateAdjust > ReportStart()
             )
           ) |
-          # Otherwise, EnrolledHomeless = TRUE (includes 0,1,2,4,8,14 and 6,11)
+            
           (
             ProjectType == ce_project_type &
-              (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 60) |
-              lh_prior_livingsituation == TRUE) &
-              between(EntryDate,
-                      ReportStart() - days(90),
-                      ReportStart())
+              (EnrollmentID %in% c(homeless_cls_finder(ReportEnd(), "before", 90)) |
+                 (between(EntryDate, ReportStart() - days(90), ReportStart()) &
+                    lh_prior_livingsituation == TRUE))
           ) |
           # Otherwise, EnrolledHomeless = TRUE (includes 0,1,2,4,8,14 and 6,11)
           (
@@ -764,41 +800,39 @@ inflow_outflow_df <- reactive({
         !(Destination %in% perm_destinations) &
         ExitAdjust <= ReportEnd(),
       
-      homeless_at_end = lecr == TRUE & # REVISIT GD, CHECK LOGIC
+      homeless_at_end = lecr == TRUE & 
         EntryDate <= ReportEnd() &
-        ExitAdjust >= ReportEnd() & 
-        ( # 1
+        ExitAdjust >= ReportEnd() &
+        ( # e/e shelter, th, sh
           ProjectType %in% lh_project_types_nc |
             
-          # 2
-          (ProjectType == es_nbn_project_type & (in_date_range == TRUE |
+            # nbn shelter
+            (ProjectType == es_nbn_project_type & (in_date_range == TRUE |
                                                    NbN15DaysAfter == TRUE)) |
-         
-          # 3
-          (ProjectType == out_project_type & 
-            (in_date_range == TRUE |
-              EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60))) |
-          
-          # 4
-          (ProjectType %in% ph_project_types &
-          (is.na(MoveInDateAdjust) | MoveInDateAdjust >= ReportEnd())) |
+            # outreach
+            (ProjectType == out_project_type &
+               (in_date_range == TRUE |
+                  EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60))) |
             
+            # PSH, OPH, RRH
+            (ProjectType %in% ph_project_types &
+               (is.na(MoveInDateAdjust) | MoveInDateAdjust >= ReportEnd())) |
+            
+            # CE
             (ProjectType %in% ce_project_type &
-               between(EntryDate,
-                       ReportEnd() - days(90),
-                       ReportEnd()) &
-               (EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 90) &
-                  (lh_livingsituation == TRUE |
-                     EnrollmentID %in% homeless_cls_finder(ReportEnd(), "after", 90))))
-        ),
+               (EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 90) |
+                  (between(EntryDate, ReportEnd() - days(90), ReportEnd()) &
+                     lh_prior_livingsituation == TRUE)
+                )
+             )
+          ),
 
       housed_at_end = lecr == TRUE & 
         EntryDate <= ReportEnd() &
         ExitAdjust >= ReportEnd() &
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= ReportEnd()# &
-        # lh_prior_livingsituation == TRUE
+        MoveInDateAdjust <= ReportEnd()
     )
   
   universe_ppl <- universe %>%
@@ -847,7 +881,7 @@ inflow_outflow_df <- reactive({
       
       homeless_at_end_client = max(homeless_at_end),
       
-      housed_at_end_client  = max(housed_at_end),
+      housed_at_end_client = max(housed_at_end),
       
       OutflowTypeSummary = case_when(
         perm_dest_client == TRUE |
@@ -898,6 +932,7 @@ inflow_outflow_df <- reactive({
       missing_inflow = eecr & InflowTypeDetail == "something's wrong",
       missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
     )
+  
   browser()
   
   category_counts <- plot_data %>%
@@ -908,6 +943,7 @@ inflow_outflow_df <- reactive({
       values_to = "Status") %>%
     group_by(Time, Status) %>%
     summarise(values = n()) %>%
+    ungroup() %>%
     filter(!is.na(Status)) %>%
     mutate(
       values = ifelse(Time == "OutflowTypeDetail", values * -1, values),
