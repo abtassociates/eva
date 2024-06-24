@@ -65,6 +65,8 @@ other_project_project_type <- 7
 
 sh_project_type <- 8
 
+day_project_type <- 11
+
 hp_project_type <- 12
 
 rrh_project_type <- 13
