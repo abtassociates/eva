@@ -196,9 +196,17 @@ homeless_cls_finder <- function(date, window = "before", days = 60) {
 # as much wrangling as possible without needing hhtype, project type, and level
 # of detail inputs
 
-
 enrollment_categories <- enrollment_prep_hohs %>%
   mutate(
+    ProjectTypeWeight = case_when(
+      ProjectType %in% ph_project_types &
+        !is.na(MoveInDateAdjust) ~ 100,
+      ProjectType %in% ph_project_types &
+        is.na(MoveInDateAdjust) ~ 80,
+      ProjectType %in% lh_residential_project_types ~ 60,
+      ProjectType %in% non_res_project_types ~ 40,
+      TRUE ~ 20
+    ),
     lh_prior_livingsituation = !is.na(LivingSituation) &
       (
         LivingSituation %in% homeless_livingsituation |
@@ -294,7 +302,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
     AgeAtEntry,
     CorrectedHoH,
     DomesticViolenceCategory,
-    HouseholdType
+    HouseholdType,
+    ProjectTypeWeight
   ) %>% 
   group_by(PersonalID) %>%
   arrange(EntryDate, .by_group = TRUE) %>%
@@ -311,10 +320,15 @@ enrollment_categories <- enrollment_prep_hohs %>%
     next_enrollment_project_type = lead(ProjectType),
     previous_enrollment_project_type = lag(ProjectType)
   ) %>%
+  arrange(desc(ProjectTypeWeight), EntryDate, .by_group = TRUE) %>%
+  mutate(find_eecr = row_number()) %>%
+  arrange(ProjectTypeWeight, desc(EntryDate), .by_group = TRUE) %>%
+  mutate(find_lecr = row_number()) %>%
   group_by(PersonalID, in_date_range) %>%
+  arrange(EntryDate, .by_group = TRUE) %>%
   mutate(
-    lecr = in_date_range == TRUE & max(ordinal) == ordinal,
-    eecr = in_date_range == TRUE & min(ordinal) == ordinal,
+    lecr = in_date_range == TRUE & max(find_eecr) == ordinal,
+    eecr = in_date_range == TRUE & max(find_lecr) == ordinal,
     lookback = if_else(in_date_range == TRUE, 0, rev(row_number()))
   ) %>%
   ungroup() %>%
