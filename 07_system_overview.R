@@ -877,7 +877,7 @@ inflow_outflow_df <- reactive({
   
   universe_ppl <- universe %>%
     group_by(PersonalID) %>%
-    # filter(max(lecr) == 1 & max(eecr) == 1) %>%
+    filter(max(lecr) == 1 & max(eecr) == 1) %>%
     summarise(
       # INFLOW
       active_at_start_homeless_client = max(active_at_start_homeless),
@@ -959,6 +959,7 @@ inflow_outflow_df <- reactive({
            temp_dest_client,
            homeless_at_end_client,
            housed_at_end_client,
+           unknown_at_end_client,
            OutflowTypeSummary,
            OutflowTypeDetail
     ) %>%
@@ -995,11 +996,11 @@ inflow_outflow_df <- reactive({
       inflow_outflow = Time,
       Time = case_when(
         Time == "InflowTypeDetail" &
-          Status %in% c("Homeless", "Housed", "Unknown")
+          Status %in% c("Homeless", "Housed")
         ~ paste0("Active as of \n", ReportStart()),
         
         Time == "OutflowTypeDetail" &
-          Status %in% c("Homeless", "Housed", "Unknown")
+          Status %in% c("Homeless", "Housed", "Unknown Status")
         ~ paste0("Active as of \n", ReportEnd()),
         
         Time == "InflowTypeDetail"
