@@ -285,9 +285,9 @@ syso_detailBox <- reactive({
   
   list(
     strong("Date Range: "),
-    input$syso_date_range[1],
+    ReportStart(),
     " to ",
-    input$syso_date_range[2], 
+    ReportEnd(), 
     br(),
     strong("Household Type: "),
     # getNameByValue(syso_hh_types, input$syso_hh_type),
