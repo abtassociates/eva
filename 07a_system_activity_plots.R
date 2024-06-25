@@ -3,6 +3,7 @@
 # we need all combinations for the 0s
 
 status_summary_values <- c(
+  "Unknown Status",
   "Homeless", 
   "Housed", 
   "Inflow", 
@@ -11,7 +12,8 @@ status_summary_values <- c(
 
 status_detail_values <- c(
   "Homeless", 
-  "Housed", 
+  "Housed",
+  "Unknown Status",
   "Newly Homeless", 
   "Returned from \nPermanent", 
   "Re-engaged from \nNon-Permanent",
@@ -39,10 +41,10 @@ time_detail_values <- reactive({
 })
 
 system_activity_prep <- reactive({
-
+browser()
   sys_inflow_outflow_plot_data()() %>% # this is a people-level df
-    filter(InflowTypeDetail != "something's wrong" &
-             OutflowTypeDetail != "something's wrong") %>%
+    # filter(InflowTypeDetail != "something's wrong" &
+    #          OutflowTypeDetail != "something's wrong") %>%
     pivot_longer(
       cols = c(InflowTypeDetail, OutflowTypeDetail), 
       names_to = "Time", 
@@ -59,7 +61,7 @@ system_activity_prep <- reactive({
         ~ paste0("Active as of \n", ReportStart()),
         
         Time == "OutflowTypeDetail" &
-          Status %in% c("Homeless", "Housed")
+          Status %in% c("Homeless", "Housed", "Unknown Status")
         ~ paste0("Active as of \n", ReportEnd()),
           
         Time == "InflowTypeDetail"
@@ -82,7 +84,7 @@ system_activity_summary_prep <- reactive({
         ~ "Inflow",
   
         Time == "Outflow" &
-        !(Status %in% c("Homeless", "Housed"))
+        !(Status %in% c("Homeless", "Housed", "Unknown Status"))
         ~ "Outflow",
   
         TRUE ~ Status
@@ -100,7 +102,7 @@ system_activity_detail_prep <- reactive({
   system_activity_prep() %>%
     mutate(
       Time = ifelse(
-        !(Status %in% c("Homeless", "Housed")),
+        !(Status %in% c("Homeless", "Housed", "Unknown Status")),
         Status,
         Time
       )
