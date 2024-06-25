@@ -756,13 +756,14 @@ inflow_outflow_df <- reactive({
             )
           ) |
             
-          (
+          ( # take only ce enrollments where the PLS or the CLS is <= 90 days
+            # prior to ReportStart
             ProjectType == ce_project_type &
-              (EnrollmentID %in% c(homeless_cls_finder(ReportEnd(), "before", 90)) |
+              (EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 90) |
                  (between(EntryDate, ReportStart() - days(90), ReportStart()) &
                     lh_prior_livingsituation == TRUE))
           ) |
-          # Otherwise, EnrolledHomeless = TRUE (includes 0,1,2,4,8,14 and 6,11)
+          # take any other enrollments if their PLS was literally homeless
           (
             !(ProjectType %in% ph_project_types) &
             EnrolledHomeless == TRUE
@@ -771,7 +772,8 @@ inflow_outflow_df <- reactive({
         # Enrollment straddles start or the enrollment is within 2 weeks from start
         # and within 2 weeks of prev enrollment
         (straddles_start == TRUE |
-           (EntryDate >= ReportStart() &
+           (straddles_start == FALSE &
+              EntryDate >= ReportStart() &
               between(difftime(EntryDate, ReportStart(),
                                units = "days"),
                       0,
@@ -823,14 +825,14 @@ inflow_outflow_df <- reactive({
             # nbn shelter
             (ProjectType == es_nbn_project_type & (in_date_range == TRUE |
                                                    NbN15DaysAfter == TRUE)) |
-            # outreach
-            (ProjectType == out_project_type &
-               (in_date_range == TRUE |
-                  EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60))) |
-            
-            # PSH, OPH, RRH
-            (ProjectType %in% ph_project_types &
-               (is.na(MoveInDateAdjust) | MoveInDateAdjust >= ReportEnd())) |
+            # outreach, sso, other, day shelter
+            (ProjectType %in% c(out_project_type,
+                                sso_project_type,
+                                other_project_project_type,
+                                day_project_type) &
+               (EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60) |
+                  (between(EntryDate, ReportEnd() - days(60), ReportEnd()) &
+                     lh_prior_livingsituation == TRUE))) |
             
             # CE
             (ProjectType %in% ce_project_type &
@@ -838,7 +840,11 @@ inflow_outflow_df <- reactive({
                   (between(EntryDate, ReportEnd() - days(90), ReportEnd()) &
                      lh_prior_livingsituation == TRUE)
                 )
-             )
+             ) |
+            
+            # PSH, OPH, RRH
+            (ProjectType %in% ph_project_types &
+               (is.na(MoveInDateAdjust) | MoveInDateAdjust >= ReportEnd()))
           ),
 
       housed_at_end = lecr == TRUE & 
@@ -846,7 +852,27 @@ inflow_outflow_df <- reactive({
         ExitAdjust >= ReportEnd() &
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= ReportEnd()
+        MoveInDateAdjust <= ReportEnd(),
+      
+      unknown_at_end = lecr == TRUE &
+        EntryDate <= ReportEnd() &
+        ExitAdjust >= ReportEnd() &
+        # outreach, sso, other, day shelter
+        ((ProjectType %in% c(out_project_type,
+                            sso_project_type,
+                            other_project_project_type,
+                            day_project_type) &
+            !EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60) &
+            (!between(EntryDate, ReportEnd() - days(60), ReportEnd()) |
+               lh_prior_livingsituation == FALSE)) |
+        
+        # CE
+        (ProjectType %in% ce_project_type &
+           !EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 90) &
+           (!between(EntryDate, ReportEnd() - days(90), ReportEnd()) |
+              lh_prior_livingsituation == FALSE)
+           
+        ))
     )
   
   universe_ppl <- universe %>%
@@ -897,12 +923,15 @@ inflow_outflow_df <- reactive({
       
       housed_at_end_client = max(housed_at_end),
       
+      unknown_at_end_client = max(unknown_at_end),
+      
       OutflowTypeSummary = case_when(
         perm_dest_client == TRUE |
           temp_dest_client == TRUE ~
           "Outflow",
         homeless_at_end_client == TRUE |
-          housed_at_end_client == TRUE ~
+          housed_at_end_client == TRUE |
+          unknown_at_end_client == TRUE ~
           "Active at End",
         TRUE ~ "something's wrong"
       ),
@@ -912,6 +941,7 @@ inflow_outflow_df <- reactive({
         temp_dest_client == TRUE ~ "Exited to \nNon-Permanent Destination",
         homeless_at_end_client == TRUE ~ "Homeless",
         housed_at_end_client == TRUE ~ "Housed",
+        unknown_at_end_client == TRUE ~ "Unknown Status",
         TRUE ~ "something's wrong"
       )
     ) %>%
@@ -943,11 +973,12 @@ inflow_outflow_df <- reactive({
             InflowTypeDetail == "something's wrong"), 
       by = "PersonalID") %>%
     mutate(
-      missing_inflow = eecr & InflowTypeDetail == "something's wrong",
-      missing_outflow = lecr & OutflowTypeDetail == "something's wrong",
-    )
+      missing_inflow = eecr == TRUE & InflowTypeDetail == "something's wrong",
+      missing_outflow = lecr == TRUE & OutflowTypeDetail == "something's wrong",
+    ) %>%
+    filter(missing_inflow == TRUE | missing_outflow == TRUE)
   
-  browser()
+ # browser()
   
   category_counts <- plot_data %>%
     select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%
@@ -964,11 +995,11 @@ inflow_outflow_df <- reactive({
       inflow_outflow = Time,
       Time = case_when(
         Time == "InflowTypeDetail" &
-          Status %in% c("Homeless", "Housed")
+          Status %in% c("Homeless", "Housed", "Unknown")
         ~ paste0("Active as of \n", ReportStart()),
         
         Time == "OutflowTypeDetail" &
-          Status %in% c("Homeless", "Housed")
+          Status %in% c("Homeless", "Housed", "Unknown")
         ~ paste0("Active as of \n", ReportEnd()),
         
         Time == "InflowTypeDetail"
