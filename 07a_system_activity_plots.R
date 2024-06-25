@@ -136,7 +136,7 @@ renderSystemPlot <- function(id) {
     req(valid_file() == 1)
     
     if(id == "sys_act_summary_ui_chart") {
-      colors <- c('#73655E','#C6BDB9','#C34931', '#16697A')
+      colors <- c('#73655E', '#C6BDB9', '#ede7e3', '#C34931', '#16697A')
       df <- prep_for_chart(
         system_activity_summary_prep(),
         status_summary_values,
@@ -144,8 +144,10 @@ renderSystemPlot <- function(id) {
       )
     } else {
       colors <-
-        c('#73655E',
+        c(
+          '#73655E',
           '#C6BDB9',
+          '#ede7e3',
           '#C34931',
           '#C34931',
           '#C34931',
