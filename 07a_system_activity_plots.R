@@ -193,22 +193,22 @@ renderSystemPlot <- function(id) {
         colour = "black"
       ), show.legend = FALSE) +
       # \_Numbers inside bars (each category) ----
-      geom_text(
-          mapping = aes(
-            label = ifelse(
-              !is.na(inflow_outflow) |
-                as.character(Time) == as.character(Status),
-              scales::comma(values),
-              ""
-            ),
-            y = ifelse(abs(values) < segment_size / 4,
-                       end.Bar + 10,
-                       rowSums(cbind(start.Bar, values / 2)))
-          ),
-          color = "black",
-          fontface = "bold",
-          size = 5
-      ) +
+    geom_text(
+      aes(
+        label = ifelse(
+          !is.na(inflow_outflow) |
+            as.character(Time) == as.character(Status),
+          scales::comma(values),
+          ""
+        ),
+        y = ifelse(abs(values) < segment_size / 4,
+                   end.Bar + 10,
+                   rowSums(cbind(start.Bar, values / 2)))
+      ),
+      color = "black",
+      # fontface = "bold",
+      size = 7
+    ) +
       # \_Change colors ----
       scale_fill_manual(values = colors) +
       # \_Change y axis to same scale as original ----
