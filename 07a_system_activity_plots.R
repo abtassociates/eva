@@ -230,9 +230,9 @@ renderSystemPlot <- function(id) {
       ) +
       # \_Theme options to make it look like the original plot ----
     theme(
-      text = element_text(size = 14, color = "#4e4d47"),
+      text = element_text(size = 16, color = "#4e4d47"),
       axis.text = element_text(
-        size = 10,
+        size = 16,
         color = "#4e4d47",
         face = "bold"
       ),
