@@ -41,7 +41,7 @@ time_detail_values <- reactive({
 })
 
 system_activity_prep <- reactive({
-browser()
+# browser()
   sys_inflow_outflow_plot_data()() %>% # this is a people-level df
     # filter(InflowTypeDetail != "something's wrong" &
     #          OutflowTypeDetail != "something's wrong") %>%
@@ -164,7 +164,7 @@ renderSystemPlot <- function(id) {
     s <- max(df$end.Bar) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
-
+browser()
     ggplot(df, aes(x = group.id, fill = Status)) + 
       # \_Simple Waterfall Chart ----
       geom_rect(aes(xmin = group.id - 0.25, # control bar gap width
@@ -189,9 +189,9 @@ renderSystemPlot <- function(id) {
         yend = ifelse(Status == last(Status),
                       end.Bar,
                     # these will be removed once we set the y limits
-                    s + segment_size),
-        colour = "black"
-      ), show.legend = FALSE) +
+                    s + segment_size)),
+        colour = "black",
+        show.legend = FALSE) +
       # \_Numbers inside bars (each category) ----
     geom_text(
       aes(
