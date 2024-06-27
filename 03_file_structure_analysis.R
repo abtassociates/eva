@@ -16,7 +16,7 @@ high_priority_columns <- cols_and_data_types %>%
   unique()
 
 # non-ascii --------------------------------------------------------------
-non_ascii_files <- function() {
+non_ascii_files_detail <- function() {
   # Initialize an empty list to store the results
   files_with_non_ascii <- list()
   non_ascii_or_bracket <- function(x) {
@@ -67,7 +67,48 @@ non_ascii_files <- function() {
   return(files_with_non_ascii)
 }
 
-files_with_non_ascii <- non_ascii_files() 
+non_ascii_files_simple <- function(files) {
+  # Helper function to detect non-ASCII characters
+  non_ascii_or_bracket <- function(x) {
+    str_detect(x, "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}")
+  }
+  
+  # Initialize an empty data.table to store results
+  results <- data.table(File = character(), Detail = character())
+  
+  # Iterate over each file in the list
+  for (file in files) {
+    # Get the data from the file
+    data <- get(file)
+    
+    # Convert to data.table for faster processing
+    data <- as.data.table(data)
+    
+    # Check for non-ASCII characters in each column
+    non_ascii_found <- any(
+      data[, 
+           lapply(.SD, function(col) any(non_ascii_or_bracket(col))), 
+           .SDcols = names(data)
+      ], 
+      na.rm = TRUE
+    )
+    
+    # If non-ASCII characters are found, add a row to the results
+    if (non_ascii_found) {
+      results <- rbind(
+        results, 
+        data.table(
+          File = file, 
+          Detail = paste0("Found non-ascii character in ", file, ".csv")
+        )
+      )
+    }
+  }
+  
+  return(results)
+}
+
+files_with_non_ascii <- non_ascii_files_simple(unique(cols_and_data_types$File))
 if(nrow(files_with_non_ascii) > 0) {
   files_with_non_ascii <- files_with_non_ascii %>%
     merge_check_info(checkIDs = 134) %>%
@@ -474,7 +515,7 @@ file_structure_analysis_main(rbind(
   rel_to_hoh_invalid,
   valid_values_client,
   files_with_non_ascii
-) %>%
+  ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
 )
