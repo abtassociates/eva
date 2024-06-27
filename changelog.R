@@ -4,7 +4,7 @@ chglog <- tribble(
     - Added demo mode, where users can try out Eva even if they
     don't have access to an FY 2024 HMIS CSV Export.",
   
-  "04-09-2024", "<b>Bug Fix:</b> <br>
+  "04-09-2024", "<b>Bug Fixes:</b> <br>
     - Moved all variables from global environment to a session 
     environment to ensure appropriate visibility. <br>
     - Moved data frames \"Export\" and \"Project0\" from the global
@@ -24,7 +24,7 @@ chglog <- tribble(
     - Added upload progress display text so it's clear Eva is 
     working and not freezing. <br>
     
-    <b>Bug Fix:</b> <br>
+    <b>Bug Fixes:</b> <br>
     - Corrected 'No Inventory Records' logic so that it does not flag
     RRH-SSO projects.",
   
@@ -32,19 +32,19 @@ chglog <- tribble(
     - Eva now filters out records in any csv file that has a value
     in the DateDeleted column. <br>
     
-    <b>Bug Fix:</b> <br>
+    <b>Bug Fixes:</b> <br>
     - Added check for non-ASCII (i.e. impermissible) characters that
     caused Eva to crash",
   
-  "11-30-2023", "<b>Bug Fix:</b> <br>
+  "11-30-2023", "<b>Bug Fixes:</b> <br>
     - Added filters for income, non-cash, health insurance data 
     quality issues so that projects that don't need to collect that, based on
     their funding source and project type are not being false flagged.",
   
-  "11-15-2023", "<b>Bug Fix:</b> <br>
+  "11-15-2023", "<b>Bug Fixes:</b> <br>
     - Corrected date logic in several places.",
   
-  "11-09-2023", "<b>Bug Fix:</b> <br>
+  "11-09-2023", "<b>Bug Fixes:</b> <br>
     - Corrected a few incorrect data types in columns.csv. <br>
     - Fixed EntryDate bug so that EntryDate aligns with the original
     data rather than an adjusted date. <br>
@@ -56,7 +56,7 @@ chglog <- tribble(
     - Corrected language throughout for 'Client Refused' to 'Client
     prefers not to answer' and 'Don't know' to 'Doesn't know.'",
   
-  "11-02-2023", "<b>Bug Fix:</b> <br>
+  "11-02-2023", "<b>Bug Fixes:</b> <br>
     - Fixed issue with overidentifying overlapping CE Participation
     records. <br>
     - Removed slowness warning at the beginning. Slowness seems to
@@ -121,11 +121,11 @@ chglog <- tribble(
     - Changed the EvaChecks.xlsx document to EvaChecks.csv so that
     the document can be version controlled more transparently",
   
-  "09-21-2023", "<b>Bug Fix:</b> <br>
+  "09-21-2023", "<b>Bug Fixes:</b> <br>
     - Added back accidentally removed Incorrect DOB and Missing
     Living Situation checks",
   
-  "08-30-2023", "<b>Bug Fix:</b> <br>
+  "08-30-2023", "<b>Bug Fixes:</b> <br>
     - Fixed missed demotion of null CoCCode File Structure Analysis 
     issue in EnrollmentCoC.csv and ProjectCoC.csv to \"Error\" 
     from \"High Priority\" <br>
@@ -137,12 +137,12 @@ chglog <- tribble(
     with Living Situation Data' to include cases where Aproximate date homeless 
     is over 3 years ago.",
   
-  "08-14-2023", "<b>Bug Fix:</b> <br>
+  "08-14-2023", "<b>Bug Fixes:</b> <br>
     - Modified Long Stayer logic so the issue names match the
     terminology in the Local Settings. Prepping the current Long Stayers issues
     to fit with the ones we plan to add in upcoming releases.",
   
-  "08-10-2023", "<b>Bug Fix:</b> <br>
+  "08-10-2023", "<b>Bug Fixes:</b> <br>
     - Demoted several null-column File Structure Analysis issues
     to \"Error\" from \"High Priority\" <br>
     - Added missing checks to EvaChecks.xlsx <br>
@@ -150,7 +150,7 @@ chglog <- tribble(
     <b>New Features:</b> <br>
     - Changed to pull issue-related text from EvaChecks.xlsx",
   
-  "07-06-2023", "<b>Bug Fix:</b> <br>
+  "07-06-2023", "<b>Bug Fixes:</b> <br>
     - Fix bug when datasets have no projects of a certain status
     (e.g. Active No Move-In)",
   
@@ -161,7 +161,7 @@ chglog <- tribble(
   "06-14-2023", "<b>New Features:</b> <br>
     - Added graceful rejection of non-zip files, including 7zip.",
   
-  "05-08-2023", "<b>Bug Fix:</b> <br>
+  "05-08-2023", "<b>Bug Fixes:</b> <br>
     - Fixed typo in DQ High Priority plot display when there were
     no issues of that type.",
   
@@ -175,11 +175,11 @@ chglog <- tribble(
     Error to High Priority as promised. <br>
     - Code refactoring, consolidating, reorganizing, and commenting",
   
-  "04-06-2023", "<b>Bug Fix:</b> <br>
+  "04-06-2023", "<b>Bug Fixes:</b> <br>
     - Fixed bug where an Org-level DQ file name does not
     necessarilly match the selected organization",
   
-  "03-23-2023", "<b>Bug Fix:</b> <br>
+  "03-23-2023", "<b>Bug Fixes:</b> <br>
     - Modified DQ chart colors and unsuccessful upload pop-up text. <br>
     - Fixed display of system-level, Top 10 Orgs charts for errors
     and warnings. <br>
@@ -196,7 +196,7 @@ chglog <- tribble(
   \"Missing Address\" had the same Issue Name of \"Missing Geography 
   Information.\" They were split out for clarity.",
   
-  "03-02-2023", "<b>Bug Fix:</b> <br>
+  "03-02-2023", "<b>Bug Fixes:</b> <br>
     - Fixed timeout to fully clear data by reloading the session. <br>
     - Updated language on home page to match recent update to what
   metadata is being logged by Eva.",
@@ -236,21 +236,21 @@ chglog <- tribble(
   - Addresses GitHub issue 124. Modified plot color for High Priority
   issues.",
   
-  "01-23-2023", "<b>Bug Fix:</b> <br>
+  "01-23-2023", "<b>Bug Fixes:</b> <br>
     - Hotfix: Added improved metadata collection for troubleshooting
   purposes.",
   
-  "01-13-2023", "<b>Bug Fix:</b> <br>
+  "01-13-2023", "<b>Bug Fixes:</b> <br>
     - Hotfix: Set GrantID field so it is not considered a high
   priority column so that it will no longer cause Eva to reject a file for
   incorrect data type.",
   
-  "12-29-2022", "<b>Bug Fix:</b> <br>
+  "12-29-2022", "<b>Bug Fixes:</b> <br>
     - Addresses GitHub issue 118. Eva was not checking that all needed
   csvs were in the export. Now it checks this and rejects the export if they are
   not there.",
   
-  "12-29-2022", "<b>Bug Fix:</b> <br>
+  "12-29-2022", "<b>Bug Fixes:</b> <br>
     - Addresses GitHub issue 118. Eva was missing some instances
   where a date variable is of the wrong type (e.g. ymd_hms instead of ymd). Now
   it rejects exports if an important variable has the wrong date type.",  
