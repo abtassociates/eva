@@ -211,6 +211,7 @@ a:hover {
   white-space:nowrap;
   padding-right: 10px;
   padding-bottom:10px;
+  vertical-align: top;
 }
 
 #shiny-tab-tabChangelog td:nth-child(2) {
