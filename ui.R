@@ -855,7 +855,7 @@ dashboardPage(
             # collapsible = TRUE,
             # collapsed = TRUE,
             width = 12,
-            tableOutput("changelog")
+            htmlTableWidgetOutput("changelog")
           )
         )
       ),
