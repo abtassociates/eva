@@ -168,73 +168,68 @@ renderSystemPlot <- function(id) {
     segment_size <- get_segment_size(s/num_segments)
 browser()
 
+# waterfall plot ----------------------------------------------------------
 ggplot(df, aes(x = group.id, fill = Status)) +
-  # \_Simple Waterfall Chart ----
-geom_rect(
-  aes(
-    xmin = group.id - 0.25,
-    # control bar gap width
-    xmax = group.id + 0.25,
-    ymin = end.Bar,
-    ymax = start.Bar
-  ),
-  colour = "#4e4d47",
-  linewidth = .2,
-  alpha = 0.8
-) +
-  # \_Lines Between Bars ----
-geom_segment(
-  data = df %>%
-    filter(group.id == group.id) %>%
-    group_by(group.id) %>% summarise(y = max(end.Bar)) %>%
-    ungroup(),
-  aes(
-    x = group.id,
-    xend = if_else(group.id == last(group.id), last(group.id), group.id + 1),
-    y = y,
-    yend = y
-  ),
-  linewidth = .3,
-  colour = "gray25",
-  linetype = "dashed",
-  show.legend = FALSE,
-  inherit.aes = FALSE
-) +
-  # \_Numbers inside bars (each category) ----
-ggrepel::geom_text_repel(
-  aes(
-    label = ifelse(
-      !is.na(inflow_outflow) |
-        as.character(Time) == as.character(Status),
-      scales::comma(values),
-      ""
+  geom_rect( # the bars
+    aes(
+      xmin = group.id - 0.25,
+      # control bar gap width
+      xmax = group.id + 0.25,
+      ymin = end.Bar,
+      ymax = start.Bar
     ),
-    y = rowSums(cbind(start.Bar, values / 2)),
-    segment.colour = "gray33"
-  ),
-  nudge_x = -.5,
-  colour = "#4e4d47",
-  # fontface = "bold",
-  size = 6
-) +
-  # \_Change colors ----
-scale_fill_manual(values = colors) +
-scale_y_continuous(expand = c(0,0)) +
-# \_Add tick marks on x axis to look like the original plot ----
-scale_x_continuous(labels = df$Time %>% unique(),
+    colour = "#4e4d47",
+    linewidth = .2,
+    alpha = 0.8
+  ) +
+  geom_segment( # the connecting segments between bars
+    data = df %>%
+      filter(group.id == group.id) %>%
+      group_by(group.id) %>% summarise(y = max(end.Bar)) %>%
+      ungroup(),
+    aes(
+      x = group.id,
+      xend = if_else(group.id == last(group.id), last(group.id), group.id + 1),
+      y = y,
+      yend = y
+    ),
+    linewidth = .3,
+    colour = "gray25",
+    linetype = "dashed",
+    show.legend = FALSE,
+    inherit.aes = FALSE
+  ) +
+  ggrepel::geom_text_repel(# the labels
+    aes(
+      label = ifelse(
+        !is.na(inflow_outflow) |
+          as.character(Time) == as.character(Status),
+        scales::comma(values),
+        ""
+      ),
+      y = rowSums(cbind(start.Bar, values / 2)),
+      segment.colour = "gray33"
+    ),
+    nudge_x = -.5,
+    colour = "#4e4d47",
+    # fontface = "bold",
+    size = 6
+  ) +
+  scale_fill_manual(values = colors) + # color palette
+  scale_y_continuous(expand = c(0,0)) + # distance between bars and x axis line
+  scale_x_continuous(labels = df$Time %>% unique(), # x axis labels
                    breaks = df$group.id %>% unique()) +
-  # \_Theme options to make it look like the original plot ----
-theme_void() +
-theme(
-  text = element_text(size = 16, colour = "#4e4d47"),
-  axis.text.x = element_text(size = 16),
-  axis.ticks.x = element_line(),
-  axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
-  axis.ticks.length.x = unit(.15, "cm"),
-  plot.margin = unit(c(1, 1, 1, 1), "lines"),
-  legend.text = element_text( size = 16),
-  legend.title = element_blank()
-    )
+  theme_void() + # totally clear all theme elements
+  theme(# add back in what theme elements we want
+    text = element_text(size = 16, colour = "#4e4d47"),
+    axis.text.x = element_text(size = 16),
+    axis.ticks.x = element_line(),
+    axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
+    axis.ticks.length.x = unit(.15, "cm"),
+    plot.margin = unit(c(1, 1, 1, 1), "lines"),
+    legend.text = element_text(size = 16),
+    legend.title = element_blank()
+  )
   })
  # return(plotOutput(id, height = 400))
 } 
