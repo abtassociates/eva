@@ -33,9 +33,9 @@ lh_livingsituation <- c(101, 116, 118)
 
 homeless_livingsituation <- c(101, 302, 116, 118)
 
-temp_livingsituation <- c(101, 302, 312, 313, 314, 116, 118, 327, 332, 335)
+temp_livingsituation <- c(101, 302, 312, 313, 314, 116, 118, 327, 329, 332, 335)
 
-institutional_livingsituation <- c(204, 205, 206, 207, 215, 225, 327, 329)
+institutional_livingsituation <- c(204, 205, 206, 207, 215, 225)
 
 other_livingsituation <- c(8, 9, 17, 24, 30, 37, 99)
 
