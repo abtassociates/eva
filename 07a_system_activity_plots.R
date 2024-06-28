@@ -141,7 +141,8 @@ renderSystemPlot <- function(id) {
         system_activity_summary_prep(),
         status_summary_values,
         time_summary_values()
-      )
+      ) %>%
+        filter(!is.na(inflow_outflow))
     } else {
       colors <-
         c(
@@ -158,116 +159,81 @@ renderSystemPlot <- function(id) {
         system_activity_detail_prep(),
         status_detail_values,
         time_detail_values()
-      )
+      ) %>%
+        filter(!is.na(inflow_outflow))
     }
 
     s <- max(df$end.Bar) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
 browser()
-    ggplot(df, aes(x = group.id, fill = Status)) + 
-      # \_Simple Waterfall Chart ----
-      geom_rect(aes(xmin = group.id - 0.25, # control bar gap width
-                      xmax = group.id + 0.25, 
-                      ymin = end.Bar,
-                      ymax = start.Bar),
-                color = "black",
-                alpha = 0.8
-      ) + 
-      # \_Lines Between Bars ----
-      geom_segment(aes(
-        x = ifelse(group.id == last(group.id),
-                   last(group.id),
-                   group.id + 0.25),
-        xend = ifelse(group.id == last(group.id),
-                      last(group.id),
-                      group.id + 0.75),
-        y = ifelse(Status == last(Status),
-                   end.Bar,
-                    # these will be removed once we set the y limits
-                   s + segment_size),
-        yend = ifelse(Status == last(Status),
-                      end.Bar,
-                    # these will be removed once we set the y limits
-                    s + segment_size)),
-        colour = "black",
-        show.legend = FALSE) +
-      # \_Numbers inside bars (each category) ----
-    geom_text(
-      aes(
-        label = ifelse(
-          !is.na(inflow_outflow) |
-            as.character(Time) == as.character(Status),
-          scales::comma(values),
-          ""
-        ),
-        y = ifelse(abs(values) < segment_size / 4,
-                   end.Bar + 10,
-                   rowSums(cbind(start.Bar, values / 2)))
-      ),
-      color = "black",
-      # fontface = "bold",
-      size = 7
-    ) +
-      # \_Change colors ----
-      scale_fill_manual(values = colors) +
-      # \_Change y axis to same scale as original ----
-      scale_y_continuous(
-        expand = c(0, 0),
-        limits = c(0, s + segment_size / 2)
-      ) +
-      # \_Add tick marks on x axis to look like the original plot ----
-      scale_x_continuous(
-        expand = c(0, 0),
-        limits = c(min(df$group.id) - 0.4, max(df$group.id) + 0.4),
-        breaks = c(min(df$group.id) - 0.4,
-                   unique(df$group.id),
-                   unique(df$group.id) + 0.4),
-        labels =
-          c("",
-            as.character(unique(df$Time)),
-            rep(c(""), length(unique(df$Time))))
-      ) +
-      # \_Theme options to make it look like the original plot ----
-    theme(
-      text = element_text(size = 16, color = "#4e4d47"),
-      axis.text = element_text(
-        size = 16,
-        color = "#4e4d47",
-        face = "bold"
-      ),
-      axis.text.x = element_text(vjust = 1),
-      axis.ticks.x = 
-        element_line(color =
-                       c("black",
-                         rep(NA, length(
-                           unique(df$Time)
-                         )),
-                         rep("black", length(
-                           unique(df$Time)
-                         ) - 1))),
-      axis.line = element_line(colour = "#4e4d47", linewidth = 0.5),
-      axis.ticks.length = unit(.15, "cm"),
-      axis.title.x =      element_blank(),
-      # hide y axis
-      axis.title.y =      element_blank(),
-      axis.ticks.y =      element_blank(),
-      axis.line.y =       element_blank(),
-      axis.text.y =       element_blank(),
-      panel.background =  element_blank(),
-      panel.border    =   element_blank(),
-      panel.grid.major =  element_blank(),
-      panel.grid.minor =  element_blank(),
-      plot.background =   element_blank(),
-      plot.margin =       unit(c(1, 1, 1, 1), "lines"),
-      legend.text =       element_text(
-        size = 10,
-        color = "#4e4d47",
-        face = "bold",
-        margin = margin(l = 0.25, unit = "cm"
-        )
-      ),
-      legend.title =       element_blank()
+
+ggplot(df, aes(x = group.id, fill = Status)) +
+  # \_Simple Waterfall Chart ----
+geom_rect(
+  aes(
+    xmin = group.id - 0.25,
+    # control bar gap width
+    xmax = group.id + 0.25,
+    ymin = end.Bar,
+    ymax = start.Bar
+  ),
+  colour = "#4e4d47",
+  linewidth = .2,
+  alpha = 0.8
+) +
+  # \_Lines Between Bars ----
+geom_segment(
+  data = df %>%
+    filter(group.id == group.id) %>%
+    group_by(group.id) %>% summarise(y = max(end.Bar)) %>%
+    ungroup(),
+  aes(
+    x = group.id,
+    xend = if_else(group.id == last(group.id), last(group.id), group.id + 1),
+    y = y,
+    yend = y
+  ),
+  linewidth = .3,
+  colour = "gray25",
+  linetype = "dashed",
+  show.legend = FALSE,
+  inherit.aes = FALSE
+) +
+  # \_Numbers inside bars (each category) ----
+ggrepel::geom_text_repel(
+  aes(
+    label = ifelse(
+      !is.na(inflow_outflow) |
+        as.character(Time) == as.character(Status),
+      scales::comma(values),
+      ""
+    ),
+    y = rowSums(cbind(start.Bar, values / 2)),
+    segment.colour = "gray33"
+  ),
+  nudge_x = -.5,
+  colour = "#4e4d47",
+  # fontface = "bold",
+  size = 6
+) +
+  # \_Change colors ----
+scale_fill_manual(values = colors) +
+scale_y_continuous(expand = c(0,0)) +
+# \_Add tick marks on x axis to look like the original plot ----
+scale_x_continuous(labels = df$Time %>% unique(),
+                   breaks = df$group.id %>% unique()) +
+  # \_Theme options to make it look like the original plot ----
+theme_void() +
+theme(
+  text = element_text(size = 16, colour = "#4e4d47"),
+  axis.text.x = element_text(size = 16),
+  axis.ticks.x = element_line(),
+  axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
+  axis.ticks.length.x = unit(.15, "cm"),
+  plot.margin = unit(c(1, 1, 1, 1), "lines"),
+  legend.text = element_text( size = 16),
+  legend.title = element_blank()
     )
   })
  # return(plotOutput(id, height = 400))
