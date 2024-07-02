@@ -927,22 +927,26 @@ inflow_outflow_df <- reactive({
       
       OutflowTypeSummary = case_when(
         perm_dest_client == TRUE |
-          temp_dest_client == TRUE ~
+          temp_dest_client == TRUE |
+          unknown_at_end_client == TRUE ~
           "Outflow",
         homeless_at_end_client == TRUE |
-          housed_at_end_client == TRUE |
-          unknown_at_end_client == TRUE ~
+          housed_at_end_client == TRUE ~
           "Active at End",
         TRUE ~ "something's wrong"
       ),
 
       OutflowTypeDetail = case_when(
-        perm_dest_client == TRUE ~ "Exited to \nPermanent Destination",
-        temp_dest_client == TRUE ~ "Exited to \nNon-Permanent Destination",
-        homeless_at_end_client == TRUE ~ "Homeless",
-        housed_at_end_client == TRUE ~ "Housed",
-        unknown_at_end_client == TRUE ~ "Unknown Status",
-        TRUE ~ "something's wrong"
+        perm_dest_client == TRUE ~
+          "Exited to \nPermanent Destination",
+        temp_dest_client == TRUE | unknown_at_end_client == TRUE ~
+          "Exited to \nNon-Permanent Destination",
+        homeless_at_end_client == TRUE ~
+          "Homeless",
+        housed_at_end_client == TRUE ~
+          "Housed",
+        TRUE ~
+          "something's wrong"
       )
     ) %>%
     ungroup() 
@@ -1000,7 +1004,7 @@ inflow_outflow_df <- reactive({
         ~ paste0("Active as of \n", ReportStart()),
         
         Time == "OutflowTypeDetail" &
-          Status %in% c("Homeless", "Housed", "Unknown Status")
+          Status %in% c("Homeless", "Housed")
         ~ paste0("Active as of \n", ReportEnd()),
         
         Time == "InflowTypeDetail"
