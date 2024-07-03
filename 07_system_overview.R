@@ -18,7 +18,7 @@ system_person_ages <- EnrollmentAdjust %>%
       AgeAtEntry >= 55 & AgeAtEntry <= 64 ~ "55 to 64",
       AgeAtEntry >= 65 & AgeAtEntry <= 74 ~ "65 to 74",
       AgeAtEntry >= 75 ~ "75 and older",
-      TRUE ~ "something's wrong"
+      TRUE ~ "Unknown"
     ),
     levels = c(
       "0 to 12",
@@ -372,7 +372,6 @@ client_categories <- Client %>%
          AgeCategory
   ) %>%
   mutate(
-    AgeCategory = if_else(is.na(AgeCategory), "Unknown", AgeCategory),
     VeteranStatus = if_else(VeteranStatus == 1 &
                               !is.na(VeteranStatus), 1, 0),
     # flattening data and eliminating nulls in case they're present
