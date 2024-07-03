@@ -82,13 +82,17 @@ enrollment_prep <- EnrollmentAdjust %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  filter(ContinuumProject == 1) 
-# IMPORTANT: ^ same granularity as EnrollmentAdjust!
+  filter(ContinuumProject == 1) %>%
+  select(-ContinuumProject)
+# IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
+# check that
+# enrollment_prep %>% nrow() == EnrollmentAdjust %>% filter(ContinuumProject == 1) %>% nrow()
 # This aims to add demographic data that lives in various other tables added
 # to the enrollment data *without changing the granularity*
 
 # corrected hohs ----------------------------------------------------------
 
+# preps household data to match the way we need the app to 
 hh_adjustments <- enrollment_prep %>%
   mutate(VeteranStatus = if_else(VeteranStatus == 1 &
                                    !is.na(VeteranStatus), 1, 0),
