@@ -84,6 +84,8 @@ enrollment_prep <- EnrollmentAdjust %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
   filter(ContinuumProject == 1) 
 # IMPORTANT: ^ same granularity as EnrollmentAdjust!
+# This aims to add demographic data that lives in various other tables added
+# to the enrollment data *without changing the granularity*
 
 # corrected hohs ----------------------------------------------------------
 
@@ -186,22 +188,6 @@ nbn_enrollments_services <- nbn_enrollments_services %>%
   filter(NbN15DaysPrior == 1 | NbN15DaysAfter == 1)
 
 # Enrollment-level flags --------------------------------------------------
-
-homeless_cls_finder <- function(date, window = "before", days = 60) {
-  
-  plus_days <- if_else(window == "before", 0, days)
-  minus_days <- if_else(window == "after", 0, days)
-  
-  CurrentLivingSituation %>%
-    filter(
-      CurrentLivingSituation %in% homeless_livingsituation &
-        between(InformationDate,
-                date - days(minus_days),
-                date + days(plus_days))
-    ) %>%
-    pull(EnrollmentID) %>%
-    unique()
-}
 
 # as much wrangling as possible without needing hhtype, project type, and level
 # of detail inputs
@@ -993,7 +979,7 @@ inflow_outflow_df <- reactive({
     ) %>%
     filter(missing_inflow == TRUE | missing_outflow == TRUE)
   
- browser()
+ # browser()
   
   category_counts <- plot_data %>%
     select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%
