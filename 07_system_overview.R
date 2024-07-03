@@ -103,19 +103,29 @@ hh_adjustments <- enrollment_prep %>%
   ungroup() %>%
   group_by(HouseholdID) %>%
   mutate(
-    HouseholdType = factor(case_when(
-      all(AgeAtEntry < 25 & AgeAtEntry >= 18, na.rm = TRUE) &
-        !any(is.na(AgeAtEntry)) ~ "YYA",
-      all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
-        "AO",
-      any(AgeAtEntry < 18, na.rm = TRUE) & any(AgeAtEntry >= 18, na.rm = TRUE) ~
-        "AC",
-      all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
-        "CO",
-      TRUE ~ "UN"
+    HouseholdType = factor(
+      case_when(
+        all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
+          "AO",
+        any(AgeAtEntry < 18, na.rm = TRUE) &
+          any(AgeAtEntry >= 18, na.rm = TRUE) ~
+          "AC",
+        all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
+          "CO",
+        TRUE ~ "UN"
+      ),
+      levels = c("AO", "AC", "CO", "UN")
     ),
-    levels = c("AO", "AC", "CO", "YYA", "UN"))
-  ) %>%
+    HouseholdType2 = factor(
+      case_when(
+        HouseholdType == "AC" & max(AgeAtEntry) < 25 & !any(is.na(AgeAtEntry)) ~ "PY",
+        HouseholdType == "AO" & max(AgeAtEntry) < 25 ~ "YYA",
+        HouseholdType == "AC" ~ "ACminusPY",
+        HouseholdType == "AO" ~ "AOminusYYA",
+        TRUE ~ HouseholdType
+      ),
+      levels = c("AOminusYYA", "ACminusPY", "CO", "UN", "PY", "YYA")
+    )) %>%
   ungroup() %>%
   select(EnrollmentID, CorrectedHoH, HouseholdType)
 
@@ -927,11 +937,11 @@ inflow_outflow_df <- reactive({
       
       OutflowTypeSummary = case_when(
         perm_dest_client == TRUE |
-          temp_dest_client == TRUE ~
+          temp_dest_client == TRUE |
+          unknown_at_end_client == TRUE ~
           "Outflow",
         homeless_at_end_client == TRUE |
-          housed_at_end_client == TRUE |
-          unknown_at_end_client == TRUE ~
+          housed_at_end_client == TRUE ~
           "Active at End",
         TRUE ~ "something's wrong"
       ),
@@ -979,7 +989,7 @@ inflow_outflow_df <- reactive({
     ) %>%
     filter(missing_inflow == TRUE | missing_outflow == TRUE)
   
- # browser()
+ browser()
   
   category_counts <- plot_data %>%
     select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%
@@ -1000,7 +1010,7 @@ inflow_outflow_df <- reactive({
         ~ paste0("Active as of \n", ReportStart()),
         
         Time == "OutflowTypeDetail" &
-          Status %in% c("Homeless", "Housed", "Unknown Status")
+          Status %in% c("Homeless", "Housed")
         ~ paste0("Active as of \n", ReportEnd()),
         
         Time == "InflowTypeDetail"
