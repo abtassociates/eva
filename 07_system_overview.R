@@ -947,12 +947,16 @@ inflow_outflow_df <- reactive({
       ),
 
       OutflowTypeDetail = case_when(
-        perm_dest_client == TRUE ~ "Exited to \nPermanent Destination",
-        temp_dest_client == TRUE ~ "Exited to \nNon-Permanent Destination",
-        homeless_at_end_client == TRUE ~ "Homeless",
-        housed_at_end_client == TRUE ~ "Housed",
-        unknown_at_end_client == TRUE ~ "Unknown Status",
-        TRUE ~ "something's wrong"
+        perm_dest_client == TRUE ~
+          "Exited to \nPermanent Destination",
+        temp_dest_client == TRUE | unknown_at_end_client == TRUE ~
+          "Exited to \nNon-Permanent Destination",
+        homeless_at_end_client == TRUE ~
+          "Homeless",
+        housed_at_end_client == TRUE ~
+          "Housed",
+        TRUE ~
+          "something's wrong"
       )
     ) %>%
     ungroup() 
