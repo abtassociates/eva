@@ -117,6 +117,10 @@ all_week <- staging %>%
                                    unit = "week")- weeks(8))
 
 all_month <- staging %>%
+  filter(MonthEnding >= ceiling_date(max(ymd_hms(staging$Date)),
+                                   unit = "month")- months(12))
+
+all_month_history <- staging %>%
   filter(MonthEnding < ceiling_date(max(ymd_hms(staging$Date)),
                                    unit = "month"))
 
@@ -126,7 +130,13 @@ counts_by_week <- count(all_week, WeekEnding, Event) %>%
 counts_by_month <- count(all_month, MonthEnding, Event) %>%
   arrange(MonthEnding, desc(n))
 
-counts_category <- count(all_month, MonthEnding, EventCategory) %>%
+counts_by_month_history <- count(all_month_history, MonthEnding, Event) %>%
+  arrange(MonthEnding, desc(n))
+
+counts_category_week <- count(all_week, WeekEnding, EventCategory) %>%
+  arrange(WeekEnding, desc(n))
+
+counts_category_month <- count(all_month, MonthEnding, EventCategory) %>%
   arrange(MonthEnding, desc(n))
 
 end_date_last6months <- floor_date(Sys.Date(),"month") - days(1)
@@ -135,7 +145,6 @@ start_date_last6months <- end_date_last6months - months(5) + 1
 
 staging_last6months <- staging %>%
   filter(Date >= start_date_last6months & Date <= end_date_last6months)
-
 
 ```
 
@@ -194,7 +203,9 @@ counts_by_month %>%
 
 staging_last6months %>%
   filter(str_detect(Event, "User on") & 
-           !(Event %in% c("User on tabHome", "User on tabUpload", "User on"))) %>%
+           !(Event %in% c("User on tabHome", "User on tabUpload", "User on"))
+         & !str_detect(Event, "DEMO MODE")) %>%
+  distinct(SessionID, Event, .keep_all = TRUE) %>%
   mutate(Tab = case_when(
     str_detect(Event, "tabChangelog") ~ "Changelog",
     str_detect(Event, "tabClientCount") ~ "Client Counts",
@@ -230,6 +241,7 @@ staging %>%
   filter(str_detect(Event, "User on") & 
            Date >= as.Date("2023-01-01") & Date <=("2023-06-30") &
            !(Event %in% c("User on tabHome", "User on tabUpload", "User on"))) %>%
+  distinct(SessionID, Event, .keep_all = TRUE) %>%
   mutate(Tab = case_when(
     str_detect(Event, "tabChangelog") ~ "Changelog",
     str_detect(Event, "tabClientCount") ~ "Client Counts",
@@ -293,10 +305,9 @@ counts_by_week %>%
   theme(legend.position = "bottom") +
   guides(color = guide_legend(ncol = 2))
   
-
 ```
 
-```{r fig.width=8, fig.height=5}
+```{r fig.width=10, fig.height=5}
 
 #counts_by_month %>%
 #  filter(str_detect(Event, " upload")) %>%
@@ -323,61 +334,30 @@ counts_by_week %>%
 #  theme(legend.position = "bottom") +
 #  guides(fill = guide_legend(ncol = 2))
   
-
-```
-
-
-```{r fig.width=7, fig.height=5}
-
-# Bar chart
-#tab_percentage_january_to_may %>%
-#mutate(Page = factor(Page, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "Changelog"))) %>% 
-#ggplot(aes(x = Page, y = Percentage, fill = Page)) +
-#  geom_bar(stat = "identity") +
-#  scale_y_continuous(limits = c(0,35)) +
-#  scale_fill_manual(values = 
-#                      c("Changelog" = "#f94144",
-#                      "Client Counts" = "#f3722c",
-#                      "Organization DQ" = "#f8961e",
-#                      "System DQ" = "#f9c74f",
-#                      "Local Settings" = "#90be6d",
-#                      "PDDE DQ" = "#43aa8b")) +
-#  labs(title = "Tabs Visited",
-#       x = "Page",
-#       y = "Percentage") +
-#  theme_minimal() +
-#  theme(legend.position = "bottom") +
-#  guides(fill = guide_legend(ncol = 2))
-
-```
-
-```{r fig.width=7, fig.height=5}
-
-# Bar chart
-#tab_percentage_june_to_november %>%
-#mutate(Page = factor(Page, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "Changelog"))) %>% 
-#ggplot(aes(x = Page, y = Percentage, fill = Page)) +
-#  geom_bar(stat = "identity") +
-#  scale_y_continuous(limits = c(0,35)) +
-#  scale_fill_manual(values = 
-#                      c("Changelog" = "#f94144",
-#                      "Client Counts" = "#f3722c",
-#                      "Organization DQ" = "#f8961e",
-#                      "System DQ" = "#f9c74f",
-#                      "Local Settings" = "#90be6d",
-#                      "PDDE DQ" = "#43aa8b")) +
-#  labs(title = "Tabs Visited",
-#       x = "Page",
-#       y = "Percentage") +
-#  theme_minimal() +
-#  theme(legend.position = "bottom") +
-#  guides(fill = guide_legend(ncol = 2))
-
 ```
 
 ```{r fig.width=10, fig.height=5}
 
-counts_category %>%
+counts_category_week %>%
+  filter(str_detect(EventCategory, " upload")) %>%
+  ggplot(aes(x = WeekEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
+  geom_line() +
+  geom_point() +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_brewer(palette = "Set1") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m/%d") +
+  labs(title = "Weekly Eva Uploads - Successful vs. Unsuccessful",
+       x = "Week Ending",
+       y = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
+  
+```
+
+```{r fig.width=10, fig.height=5}
+
+counts_category_month %>%
   filter(str_detect(EventCategory, " upload")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
   geom_line() +
@@ -392,7 +372,6 @@ counts_category %>%
   theme(legend.position = "bottom") +
   guides(color = guide_legend(ncol = 2))
   
-
 ```
 
 ## Downloads
@@ -445,6 +424,85 @@ counts_by_month %>%
 
 ```
 
+## Demo Mode Stats
+
+```{r fig.width=10, fig.height=5}
+
+counts_by_week %>%
+  filter(str_detect(Event, "Switched to demo mode")) %>%
+  ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
+  geom_line(na.rm = FALSE) +
+  geom_point(na.rm = FALSE) +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_brewer(palette = "Set1") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m/%d") +
+  labs(title = "Weekly Switches to Demo Mode",
+       x = "Week Ending",
+       y = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
+  
+```
+
+```{r fig.width=7, fig.height=6}
+
+staging_last6months %>%
+  filter(str_detect(Event, "User on") &
+        str_detect(Event, "DEMO MODE") &
+           !(Event %in% c("User on tabHome", "User on tabHome - DEMO MODE", "User on tabUpload - DEMO MODE", "User on tabUpload", "User on"))) %>%
+  distinct(SessionID, Event, .keep_all = TRUE) %>%
+  mutate(Tab = case_when(
+    str_detect(Event, "tabChangelog") ~ "Changelog",
+    str_detect(Event, "tabClientCount") ~ "Client Counts",
+    str_detect(Event, "tabDQOrg") ~ "Organization DQ",
+    str_detect(Event, "tabDQSystem") ~ "System DQ",
+    str_detect(Event, "tabLocalSettings") ~ "Local Settings",
+    str_detect(Event, "tabPDDE") ~ "PDDE DQ",
+    TRUE ~ as.character(Event)), 
+    Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "Changelog"))) %>%
+  count(Tab) %>%
+  ggplot(aes(x = Tab, y = n, fill = Tab)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(n/sum(n))), color = "gray15", vjust = -0.5) +
+  scale_fill_manual(values = 
+                   c("Changelog" = "#f94144",
+                      "Client Counts" = "#f3722c",
+                      "Organization DQ" = "#f8961e",
+                      "System DQ" = "#f9c74f",
+                      "Local Settings" = "#90be6d",
+                      "PDDE DQ" = "#43aa8b")) +
+ labs(title = "Tabs Visited in the Last 6 Months",
+       x = "Tab",
+       y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(ncol = 2))
+
+```
+
+```{r fig.width=10, fig.height=5}
+
+counts_by_week %>%
+  filter(str_detect(Event, "Download")) %>%
+  filter(str_detect(Event, "DEMO MODE")) %>%
+  ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
+  geom_line() +
+  geom_point() +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
+  labs(title = "Weekly Eva Downloads While in Demo Mode",
+       x = "Week Ending",
+       y = "",
+       caption = "Download data not collected until Dec 29, 2022.") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
+
+
+```
+
 ## Data by week
 
 Below are the counts by Week. A week here is counted Monday to Sunday.
@@ -467,7 +525,7 @@ Below are the counts by Month.
 <br>
 
 ```{r data by month}
-gt(counts_by_month %>%
+gt(counts_by_month_history %>%
      select(
        "Month Ending" = MonthEnding,
        Event,
