@@ -43,10 +43,15 @@ function(input, output, session) {
     ReportStart(NULL)
     ReportEnd(NULL)
   }
+  # 
+  # # functions used throughout the app
+  # source("helper_functions.R", local = TRUE)
   
   # functions used throughout the app
   source("helper_functions.R", local = TRUE)
   
+  # changelog entries
+  source("changelog.R", local = TRUE)
   # changelog entries
   source("changelog.R", local = TRUE)
   
