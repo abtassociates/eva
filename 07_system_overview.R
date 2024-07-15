@@ -124,10 +124,14 @@ hh_adjustments <- enrollment_prep %>%
     ),
     HouseholdType2 = factor(
       case_when(
-        HouseholdType == "AC" & max(AgeAtEntry) < 25 & !any(is.na(AgeAtEntry)) ~ "PY",
+        HouseholdType == "AC" &
+          max(AgeAtEntry) < 25 &
+          !any(is.na(AgeAtEntry)) ~ "PY",
         HouseholdType == "AO" & max(AgeAtEntry) < 25 ~ "YYA",
         HouseholdType == "AC" ~ "ACminusPY",
+        # ^ relies on cascading logic (rest of ACs)
         HouseholdType == "AO" ~ "AOminusYYA",
+        # ^ relies on cascading logic (rest of AOs)
         TRUE ~ HouseholdType
       ),
       levels = c("AOminusYYA", "ACminusPY", "CO", "UN", "PY", "YYA")
