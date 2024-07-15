@@ -529,21 +529,3 @@ get_segment_size <- function(x) {
   min(rounded, na.rm = TRUE)
 }
 
-
-# homeless cls finder function --------------------------------------------
-
-homeless_cls_finder <- function(date, window = "before", days = 60) {
-  
-  plus_days <- if_else(window == "before", 0, days)
-  minus_days <- if_else(window == "after", 0, days)
-  
-  CurrentLivingSituation %>%
-    filter(
-      CurrentLivingSituation %in% homeless_livingsituation &
-        between(InformationDate,
-                date - days(minus_days),
-                date + days(plus_days))
-    ) %>%
-    pull(EnrollmentID) %>%
-    unique()
-}
