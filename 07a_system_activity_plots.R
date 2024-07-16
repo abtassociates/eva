@@ -213,13 +213,15 @@ ggplot(df, aes(x = group.id, fill = Status)) +
   geom_segment( # the connecting segments between bars
     data = df %>%
       filter(group.id == group.id) %>%
-      group_by(group.id) %>% summarise(y = max(yend)) %>%
-      ungroup(),
+      group_by(group.id) %>%
+      slice_tail() %>%
+      ungroup() %>%
+      select(group.id, yend),
     aes(
       x = group.id,
       xend = if_else(group.id == last(group.id), last(group.id), group.id + 1),
-      y = y,
-      yend = y
+      y = yend,
+      yend = yend
     ),
     linewidth = .3,
     colour = "gray25",
@@ -229,7 +231,7 @@ ggplot(df, aes(x = group.id, fill = Status)) +
   ) +
   ggrepel::geom_text_repel(# the labels
     aes(
-      label = scales::comma(values),
+      label = scales::comma(abs(values)),
       y = rowSums(cbind(ystart, values / 2)),
       segment.colour = "gray33"
     ),
