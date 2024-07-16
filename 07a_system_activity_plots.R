@@ -52,43 +52,33 @@ frame_summary <-
 
 system_activity_prep_detail <- reactive({
 # browser()
-  prep <- sys_inflow_outflow_plot_data()() %>% # this is a people-level df
+  inflow <- sys_inflow_outflow_plot_data()() %>%
+    select(PersonalID,
+           InflowTypeSummary,
+           InflowTypeDetail) %>%
+    group_by(InflowTypeDetail) %>%
+    summarise(values = n()) %>%
+    ungroup() %>%
+    rename("Time" = InflowTypeDetail) %>%
     mutate(
-      InflowSummaryMatrix = case_when(
-        InflowTypeSummary == "Active at Start" & InflowTypeDetail == "Homeless" ~
-          "Homeless",
-        InflowTypeSummary == "Active at Start" & InflowTypeDetail == "Housed" ~
-          "Housed",
-        TRUE ~ InflowTypeSummary
+      Status = case_when(
+        Time %in% c(
+          "Newly Homeless",
+          "Returned from Permanent",
+          "Re-engaged from Temporary/Unknown"
+        ) ~ "Inflow",
+        TRUE ~ Time
       ),
-      OutflowSummaryMatrix = case_when(
-        OutflowTypeSummary == "Active at End" & OutflowTypeDetail == "Homeless" ~
-          "Homeless",
-        OutflowTypeSummary == "Active at End" & OutflowTypeDetail == "Housed" ~
-          "Housed",
-        TRUE ~ OutflowTypeSummary
+      Time = case_when(
+        Time %in% c("Homeless", "Housed") ~ "Inflow",
+        TRUE ~ Time
       )
     )
   
-  inflow <- prep %>%
-    select(PersonalID,
-           InflowTypeSummary,
-           InflowTypeDetail,
-           InflowSummaryMatrix) %>%
-    group_by(InflowSummaryMatrix) %>%
-    summarise(values = n()) %>%
-    ungroup() %>%
-    rename("Status" = InflowSummaryMatrix) %>%
-    mutate(
-      Time = if_else(Status != "Inflow",
-                     "Active at Start",
-                     Status))
-  
-  outflow <- prep %>%
+  outflow <- sys_inflow_outflow_plot_data()() %>%
     select(PersonalID,
            OutflowTypeSummary,
-           OutflowTypeDetail,
-           OutflowSummaryMatrix) %>%
+           OutflowTypeDetail) %>%
     group_by(OutflowSummaryMatrix) %>%
     summarise(values = n()) %>%
     ungroup() %>%
