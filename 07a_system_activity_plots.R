@@ -20,7 +20,7 @@
 #   # "Exited to\nNon-Permanent Destination"
 # )
 
-frame_detail <- reactive({
+frame_detail <- 
   data.frame(
     Status = c("Homeless",
                "Housed",
@@ -28,16 +28,15 @@ frame_detail <- reactive({
                rep("Outflow", 2),
                "Homeless",
                "Housed"),
-    Time = c(rep(paste0("Active as of \n", ReportStart()), 2),
+    Time = c(rep(paste0("Active at Start"), 2),
              "Newly Homeless",
              "Returned from Permanent",
              "Re-engaged from Temporary/Unknown",
              "Exited to \nPermanent Destination",
              "Exited to \nNon-Permanent Destination",
-             rep(paste0("Active as of \n", ReportEnd()), 2)))
-})
+             rep(paste0("Active at End"), 2)))
 
-frame_summary <- reactive({
+frame_summary <-
   data.frame(
     Status = c("Homeless",
                "Housed",
@@ -45,32 +44,84 @@ frame_summary <- reactive({
                "Outflow",
                "Homeless",
                "Housed"),
-    Time = c(rep(paste0("Active as of \n", ReportStart()), 2),
+    Time = c(rep(paste0("Active at Start"), 2),
              "Inflow",
              "Outflow",
-             rep(paste0("Active as of \n", ReportEnd()), 2)))
-})
-
-# time_summary_values <- reactive(
-#     c(paste0("Active as of \n", ReportStart()),
-#     "Inflow",
-#     "Outflow",
-#     paste0("Active as of \n", ReportEnd()))
-#   )
-
-# time_detail_values <- reactive({
-#   c(paste0("Active as of \n", ReportStart()),
-#   "Newly Homeless",
-#   "Returned from \nPermanent",
-#   "Re-engaged from \nNon-Permanent",
-#   # "Continued system \nengagement",
-#   "Exited to \nPermanent Destination",
-#   "Exited to \nNon-Permanent Destination",
-#   paste0("Active as of \n", ReportEnd()))
-# })
+             rep(paste0("Active at End"), 2))
+  )
 
 system_activity_prep_detail <- reactive({
 # browser()
+  prep <- sys_inflow_outflow_plot_data()() %>% # this is a people-level df
+    mutate(
+      InflowSummaryMatrix = case_when(
+        InflowTypeSummary == "Active at Start" & InflowTypeDetail == "Homeless" ~
+          "Homeless",
+        InflowTypeSummary == "Active at Start" & InflowTypeDetail == "Housed" ~
+          "Housed",
+        TRUE ~ InflowTypeSummary
+      ),
+      OutflowSummaryMatrix = case_when(
+        OutflowTypeSummary == "Active at End" & OutflowTypeDetail == "Homeless" ~
+          "Homeless",
+        OutflowTypeSummary == "Active at End" & OutflowTypeDetail == "Housed" ~
+          "Housed",
+        TRUE ~ OutflowTypeSummary
+      )
+    )
+  
+  inflow <- prep %>%
+    select(PersonalID,
+           InflowTypeSummary,
+           InflowTypeDetail,
+           InflowSummaryMatrix) %>%
+    group_by(InflowSummaryMatrix) %>%
+    summarise(values = n()) %>%
+    ungroup() %>%
+    rename("Status" = InflowSummaryMatrix) %>%
+    mutate(
+      Time = if_else(Status != "Inflow",
+                     "Active at Start",
+                     Status))
+  
+  outflow <- prep %>%
+    select(PersonalID,
+           OutflowTypeSummary,
+           OutflowTypeDetail,
+           OutflowSummaryMatrix) %>%
+    group_by(OutflowSummaryMatrix) %>%
+    summarise(values = n()) %>%
+    ungroup() %>%
+    rename("Status" = OutflowSummaryMatrix) %>%
+    mutate(
+      Time = if_else(Status != "Outflow",
+                     "Active at End",
+                     Status))
+  
+  inflow %>%
+    full_join(outflow, join_by(Status, values, Time)) %>%
+    full_join(frame_summary, join_by(Status, Time)) %>%
+    mutate(
+      values = replace_na(values, 0),
+      Time = factor(
+        Time,
+        levels = c("Active at Start",
+                   "Inflow",
+                   "Outflow",
+                   "Active at End")
+      )
+    ) %>%
+    arrange(Time) %>%
+    group_by(Time) %>%
+    mutate(group.id = cur_group_id()) %>%
+    ungroup() %>%
+    mutate(
+      values = ifelse(Time %in% c("Outflow", "Active at End"), values * -1, values),
+      ystart = lag(cumsum(values), default = 0),
+      yend = round(cumsum(values))
+    )
+  
+  
   sys_inflow_outflow_plot_data()() %>% # this is a people-level df
     pivot_longer(
       cols = c(InflowTypeDetail, OutflowTypeDetail), 
@@ -80,16 +131,22 @@ system_activity_prep_detail <- reactive({
     summarise(values = n()) %>%
     filter(!is.na(Status)) %>%
     ungroup() %>%
+    mutate(Time = str_remove(Time, "TypeDetail"))
+    group_by(Time, Status) %>%
+    mutate(group.id = cur_group_id()) %>%
+    ungroup() %>%
     mutate(
       values = ifelse(Time == "OutflowTypeDetail", values * -1, values),
+      ystart = lag(cumsum(values), default = 0),
+      yend = round(cumsum(values)),
       Time = case_when(
         Time == "InflowTypeDetail" &
           Status %in% c("Homeless", "Housed")
-        ~ paste0("Active as of \n", ReportStart()),
+        ~ paste0("Active at Start"),
         
         Time == "OutflowTypeDetail" &
           Status %in% c("Homeless", "Housed")
-        ~ paste0("Active as of \n", ReportEnd()),
+        ~ paste0("Active at End"),
           
         Time == "InflowTypeDetail"
         ~ Status,
@@ -105,76 +162,85 @@ system_activity_prep_detail <- reactive({
     )
 })
 
-# Combine the inflow types (newly homeless, returned from permanent, re-engaged
-# into one group)
-# system_activity_summary_prep <- reactive({
-#   system_activity_prep() %>%
-#     mutate(
-#       Status = case_when(
-#         Time == "Inflow" &
-#         !(Status %in% c("Homeless", "Housed"))
-#         ~ "Inflow",
-#   
-#         Time == "Outflow" &
-#         !(Status %in% c("Homeless", "Housed"))
-#         ~ "Outflow",
-#   
-#         TRUE ~ Status
-#       )
-#     ) %>%
-#     group_by(Time, Status) %>%
-#     mutate(values = sum(values)) %>%
-#     ungroup() %>%
-#     unique()
-# })
-
-# Rename the x-axis.var values to be the inflow and outflow types, 
-# which are in Status
-# system_activity_detail_prep <- reactive({
-#   system_activity_prep() %>%
-#     mutate(
-#       Time = ifelse(
-#         !(Status %in% c("Homeless", "Housed")),
-#         Status,
-#         Time
-#       )
-#     )
-# })
-
-prep_for_chart <- function(df, level = "detail") {
-  # expand to make sure all combinations are included so the spacing is right
-  # also factor, sort, and group for the chart
-
-  browser()
-  
-  system_activity_prep_detail() %>%
-    full_join(frame_detail(), join_by(Time, Status)) %>%
-    replace_na(list(values = 0)) %>%
+system_activity_prep_summary <- reactive({
+  # browser()
+  prep <- sys_inflow_outflow_plot_data()() %>% # this is a people-level df
     mutate(
-      Time = factor(Time, levels = frame_detail()$Time %>% unique()),
-      Status = factor(Status, levels = frame_detail()$Status %>% unique())
+      InflowSummaryMatrix = case_when(
+        InflowTypeSummary == "Active at Start" & InflowTypeDetail == "Homeless" ~
+          "Homeless",
+        InflowTypeSummary == "Active at Start" & InflowTypeDetail == "Housed" ~
+          "Housed",
+        TRUE ~ InflowTypeSummary
+      ),
+      OutflowSummaryMatrix = case_when(
+        OutflowTypeSummary == "Active at End" & OutflowTypeDetail == "Homeless" ~
+          "Homeless",
+        OutflowTypeSummary == "Active at End" & OutflowTypeDetail == "Housed" ~
+          "Housed",
+        TRUE ~ OutflowTypeSummary
+      )
+    )
+  
+  inflow <- prep %>%
+    select(PersonalID,
+           InflowTypeSummary,
+           InflowTypeDetail,
+           InflowSummaryMatrix) %>%
+    group_by(InflowSummaryMatrix) %>%
+    summarise(values = n()) %>%
+    ungroup() %>%
+    rename("Status" = InflowSummaryMatrix) %>%
+    mutate(
+      Time = if_else(Status != "Inflow",
+                     "Active at Start",
+                     Status))
+  
+  outflow <- prep %>%
+    select(PersonalID,
+           OutflowTypeSummary,
+           OutflowTypeDetail,
+           OutflowSummaryMatrix) %>%
+    group_by(OutflowSummaryMatrix) %>%
+    summarise(values = n()) %>%
+    ungroup() %>%
+    rename("Status" = OutflowSummaryMatrix) %>%
+    mutate(
+      Time = if_else(Status != "Outflow",
+                     "Active at End",
+                     Status))
+  
+  inflow %>%
+    full_join(outflow, join_by(Status, values, Time)) %>%
+    full_join(frame_summary, join_by(Status, Time)) %>%
+    mutate(
+      values = replace_na(values, 0),
+      Time = factor(
+        Time,
+        levels = c("Active at Start",
+                   "Inflow",
+                   "Outflow",
+                   "Active at End")
+      )
     ) %>%
-    arrange(Time, desc(Status)) %>%
+    arrange(Time) %>%
     group_by(Time) %>%
     mutate(group.id = cur_group_id()) %>%
     ungroup() %>%
-    mutate(end.Bar = cumsum(values),
-           start.Bar = c(0, head(end.Bar, -1))) %>%
-    select(Time, Status, values, group.id, end.Bar, start.Bar)
-}
+    mutate(
+      values = ifelse(Time %in% c("Outflow", "Active at End"), values * -1, values),
+      ystart = lag(cumsum(values), default = 0),
+      yend = round(cumsum(values))
+    )
+})
 
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
-    browser()
+browser()
     if(id == "sys_act_summary_ui_chart") {
       colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
-      df <- prep_for_chart(
-        system_activity_summary_prep(),
-        status_summary_values,
-        time_summary_values()
-      ) %>%
-        filter(!is.na(inflow_outflow))
+      df <- system_activity_prep_summary()
     } else {
       colors <-
         c(
@@ -188,18 +254,12 @@ renderSystemPlot <- function(id) {
           '#16697A',
           '#16697A')
       
-      df <- 
-      prep_for_chart(
-        system_activity_detail_prep(),
-        system_activity_detail_prep()$Status %>% unique(),
-        system_activity_detail_prep()$Time %>% unique()) %>%
-        filter(!is.na(inflow_outflow))
+      df <- system_activity_prep_detail()
     }
 
-    s <- max(df$end.Bar) + 20
+    s <- max(df$yend) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
-# browser()
 
 # waterfall plot ----------------------------------------------------------
 ggplot(df, aes(x = group.id, fill = Status)) +
@@ -208,8 +268,8 @@ ggplot(df, aes(x = group.id, fill = Status)) +
       xmin = group.id - 0.25,
       # control bar gap width
       xmax = group.id + 0.25,
-      ymin = end.Bar,
-      ymax = start.Bar
+      ymin = ystart,
+      ymax = yend
     ),
     colour = "#4e4d47",
     linewidth = .2,
@@ -218,7 +278,7 @@ ggplot(df, aes(x = group.id, fill = Status)) +
   geom_segment( # the connecting segments between bars
     data = df %>%
       filter(group.id == group.id) %>%
-      group_by(group.id) %>% summarise(y = max(end.Bar)) %>%
+      group_by(group.id) %>% summarise(y = max(yend)) %>%
       ungroup(),
     aes(
       x = group.id,
@@ -234,22 +294,16 @@ ggplot(df, aes(x = group.id, fill = Status)) +
   ) +
   ggrepel::geom_text_repel(# the labels
     aes(
-      label = ifelse(
-        !is.na(inflow_outflow) |
-          as.character(Time) == as.character(Status),
-        scales::comma(values),
-        ""
-      ),
-      y = rowSums(cbind(start.Bar, values / 2)),
+      label = scales::comma(values),
+      y = rowSums(cbind(ystart, values / 2)),
       segment.colour = "gray33"
     ),
     nudge_x = -.5,
     colour = "#4e4d47",
-    # fontface = "bold",
     size = 6
   ) +
   scale_fill_manual(values = colors) + # color palette
-  scale_y_continuous(expand = c(0,0)) + # distance between bars and x axis line
+  scale_y_continuous(expand = c(0,0)) #+ # distance between bars and x axis line
   scale_x_continuous(labels = df$Time %>% unique(), # x axis labels
                    breaks = df$group.id %>% unique()) +
   theme_void() + # totally clear all theme elements
