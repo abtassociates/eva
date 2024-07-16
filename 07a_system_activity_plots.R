@@ -237,8 +237,8 @@ ggplot(df, aes(x = group.id, fill = Status)) +
     size = 6
   ) +
   scale_fill_manual(values = colors) + # color palette
-  scale_y_continuous(expand = c(0,0)) #+ # distance between bars and x axis line
-  scale_x_continuous(labels = df$Time %>% unique(), # x axis labels
+  scale_y_continuous(expand = c(0,0)) + # distance between bars and x axis line
+  scale_x_continuous(labels = str_wrap(df$Time %>% unique(), width = 10), # x axis labels
                    breaks = df$group.id %>% unique()) +
   theme_void() + # totally clear all theme elements
   theme(# add back in what theme elements we want
