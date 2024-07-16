@@ -175,10 +175,20 @@ renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
     browser()
-    colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
     if (id == "sys_act_summary_ui_chart") {
-         df <- system_activity_prep_summary()
-       } else {
+      colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
+      df <- system_activity_prep_summary()
+    } else {
+      colors <- c(
+        '#73655E',
+        '#C6BDB9',
+        "#e5a699",
+        '#d15e48',
+        "#8f3524",
+        '#93dcec',
+        "#3dc1dc",
+        '#1b8297'
+      )
          df <- system_activity_prep_detail()
        }
        
