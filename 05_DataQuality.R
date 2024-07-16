@@ -26,7 +26,7 @@ logToConsole("Running Data Quality")
 base_dq_data <- Enrollment %>%
   left_join(Client %>%
               select(-DateCreated), by = "PersonalID") %>%
-  left_join(Project %>% select(ProjectTimeID, ProjectName, OrganizationName),
+  left_join(ProjectSegments %>% select(ProjectTimeID, ProjectName, OrganizationName),
             by = "ProjectTimeID") %>%
   select(
     PersonalID,
@@ -595,7 +595,7 @@ top_percents_long_stayers <- base_dq_data %>%
   ) %>%
   mutate(Days = as.numeric(difftime(
       meta_HUDCSV_Export_Date(), 
-      if_else(ProjectType %in% c(ph_project_types),MoveInDateAdjust, EntryDate)
+      if_else(ProjectType %in% c(ph_project_types), MoveInDateAdjust, EntryDate)
   ))) %>%
   group_by(ProjectType) %>%
   arrange(desc(Days)) %>%
@@ -1020,8 +1020,7 @@ rm(income_subs)
 
 # Enrollment Active Outside Participating Dates ---------------------------
 
-enrollment_positions <- EnrollmentOutside %>%
-  filter(!EnrollmentvOperating %in% c("Inside")) %>%
+enrollment_positions <- EnrollmentAdjust %>%
   select(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating) %>%
   left_join(base_dq_data, by = c("EnrollmentID"))
 
@@ -1673,9 +1672,8 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
    
 # Plots for System-Level DQ Tab -------------------------------------------
    dq_plot_df <- dq_main %>%
-     left_join(Project %>%
-                 select(ProjectID, OrganizationID) %>%
-                 unique(), by = "ProjectID") %>%
+     left_join(Project0() %>%
+                 select(ProjectID, OrganizationID), by = "ProjectID") %>%
      select(PersonalID,
             OrganizationID,
             OrganizationName,

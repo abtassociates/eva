@@ -131,6 +131,149 @@ translate_HUD_yes_no <- function(column_name){
   )
 }
 
+gender_description <- function(gender_abb, methodology = 1){
+  case_when(
+    gender_abb == "TransgenderExclusive" & methodology == 1 ~
+      "Transgender, alone or in combination",
+    gender_abb == "GenderExpansiveExclusive" & methodology == 1 ~
+      "Gender Expansive, not including transgender",
+    gender_abb == "ManExclusive" & methodology == 1 ~
+      "Man (Boy, if child) alone",
+    gender_abb == "WomanExclusive" & methodology == 1 ~
+      "Woman, alone or in combination",
+    gender_abb == "UnknownExclusive" & methodology == 1 ~
+      "Unknown",
+    gender_abb == "TransgenderInclusive" & methodology == 2 ~
+      "Gender Expansive, including transgender",
+    gender_abb == "WomanInclusive" & methodology == 2 ~
+      "Woman (Girl, if child) alone or in combination",
+    gender_abb == "ManInclusive" & methodology == 2 ~
+      "Man (Boy, if child) alone or in combination",
+    gender_abb == "CisInclusive" & methodology == 2 ~
+      "Only Woman (Girl, if child) OR Only Man (Boy, if child)",
+    gender_abb == "NonBinaryInclusive" & methodology == 2 ~
+      "Non-Binary alone or in combination"
+  )
+}
+
+race_eth_description <- function(race_eth_abb = NA, methodology = 1, group = 0){
+case_when(
+  is.na(race_eth_abb) & group == 0 ~ "All Races/Ethnicities",
+  race_eth_abb == "AmIndAKNativeAloneExclusive1" & methodology == 1 & group == 1 ~
+    "American Indian, Alaska Native, or Indigenous Alone",
+  race_eth_abb == "AmIndAKNativeLatineExclusive1" & methodology == 1 & group == 1 ~
+    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/é/o",
+  race_eth_abb == "AsianAloneExclusive1" & methodology == 1 & group == 1 ~
+    "Asian or Asian American Alone",
+  race_eth_abb == "AsianLatineExclusive1" & methodology == 1 & group == 1 ~
+    "Asian or Asian American & Hispanic/Latina/é/o",
+  race_eth_abb == "BlackAfAmericanAloneExclusive1" & methodology == 1 & group == 1 ~
+    "Black, African American, or African Alone",
+  race_eth_abb == "BlackAfAmericanLatineExclusive1" & methodology == 1 & group == 1 ~
+    "Black, African American, or African Alone",
+  race_eth_abb == "LatineAloneExclusive1" & methodology == 1 & group == 1 ~
+    "Hispanic/Latina/é/o Alone",
+  race_eth_abb == "MENAAloneExclusive1" & methodology == 1 & group == 1 ~
+    "Middle Eastern or North African Alone",
+  race_eth_abb == "MENALatineExclusive1" & methodology == 1 & group == 1 ~
+    "Middle Eastern or North African & Hispanic/Latina/é/o",
+  race_eth_abb == "NativeHIPacificAloneExclusive1" & methodology == 1 & group == 1 ~
+    "Native Hawaiin or Pacific Islander Alone",
+  race_eth_abb == "NativeHIPacificLatineExclusive1" & methodology == 1 & group == 1 ~
+    "Native Hawaiin or Pacific Islander & Hispanic/Latina/é/o",
+  race_eth_abb == "WhiteAloneExclusive1" & methodology == 1 & group == 1 ~
+    "White Alone",
+  race_eth_abb == "WhiteLatineExclusive1" & methodology == 1 & group == 1 ~
+    "White & Hispanic/Latina/é/o",
+  race_eth_abb == "MultipleNotLatineExclusive1" & methodology == 1 & group == 1 ~
+    "Multi-Racial (not Hispanic/Latina/é/o)",
+  race_eth_abb == "MultipleLatineExclusive1" & methodology == 1 & group == 1 ~
+    "Multi-Racial & Hispanic/Latina/é/o",
+  race_eth_abb == "BILPOCExclusive2" & methodology == 1 & group == 2 ~
+    "All People of Color",
+  race_eth_abb == "WhiteExclusive2" & methodology == 1 & group == 2 ~
+    "White Only",
+  race_eth_abb == "AmIndAKNativeInclusive1" & methodology == 2 & group == 1 ~
+    "American Indian, Alaska Native, or Indigenous Inclusive",
+  race_eth_abb == "AsianInclusive1" & methodology == 2 & group == 1 ~
+    "Asian or Asian American Inclusive",
+  race_eth_abb == "BlackAfAmericanInclusive1" & methodology == 2 & group == 1 ~
+    "Black, African American, or African Inclusive",
+  race_eth_abb == "LatineInclusive1" & methodology == 2 & group == 1 ~
+    "Hispanic/Latina/é/o",
+  race_eth_abb == "MENAInclusive1" & methodology == 2 & group == 1 ~
+    "Middle Eastern or North African Inclusive",
+  race_eth_abb == "NativeHIPacificInclusive1" & methodology == 2 & group == 1 ~
+    "Native Hawaiin or Pacific Islander Inclusive",
+  race_eth_abb == "WhiteInclusive1" & methodology == 2 & group == 1 ~
+    "White Inclusive",
+  race_eth_abb == "RaceEthnicityNone" ~
+    "Unknown",
+  race_eth_abb == "BlackAfAmericanLatineInclusive2" & methodology == 2 & group == 2 ~
+    "Black, African American or African and Hispanic/Latina/é/o Inclusive",
+  race_eth_abb == "LatineInclusive2" & methodology == 2 & group == 2 ~
+    "Hispanic/Latina/é/o Inclusive",
+  race_eth_abb == "LatineAloneInclusive2" & methodology == 2 & group == 2 ~
+    "Hispanic/Latina/é/o Alone")
+}
+
+special_pops_description <- function(pop_abb){
+  
+  hh_role <- input$syso_level_of_detail
+  
+  case_when(
+    pop_abb == "None" ~ "No Special Population Selected",
+    hh_role %in% c("All", "HoHsAndAdults") & pop_abb == "DVFleeing" ~
+      "Domestic Violence Survivor: Currently Fleeing",
+    hh_role %in% c("All", "HoHsAndAdults") & pop_abb == "DVNotFleeing" ~
+      "Domestic Violence Survivor: Not Currently Fleeing",
+    hh_role %in% c("All", "HoHsAndAdults") & pop_abb == "DVTotal" ~
+      "Domestic Violence Survivor: Total",
+    hh_role %in% c("All", "HoHsAndAdults") & pop_abb == "Chronic" ~
+      "Chronically Homeless",
+    hh_role %in% c("All", "HoHsAndAdults") & pop_abb == "LongTerm" ~
+      "Long-term Homeless",
+    hh_role %in% c("All", "HoHsAndAdults") & pop_abb == "Veteran" ~
+      "Veteran",
+    hh_role %in% c("All", "HoHsAndAdults") & pop_abb == "NonVeteran" ~
+      "Non-Veteran",
+    hh_role == "HoHsOnly" & pop_abb == "DVFleeing" ~
+      "DV Households: Currently Fleeing",
+    hh_role == "HoHsOnly" & pop_abb == "DVNotFleeing" ~
+      "DV Households: Not Currently Fleeing",
+    hh_role == "HoHsOnly" & pop_abb == "DVTotal" ~
+      "All DV Households",
+    hh_role == "HoHsOnly" & pop_abb == "Chronic" ~
+      "Chronically Homeless Households",
+    hh_role == "HoHsOnly" & pop_abb == "LongTerm" ~
+      "Long-term Homeless Households",
+    hh_role == "HoHsOnly" & pop_abb == "Veteran" ~
+      "Veteran Households",
+    hh_role == "HoHsOnly" & pop_abb == "NonVeteran" ~
+      "Non-Veteran Households"
+  )
+}
+
+level_of_detail_description <- function(detail_abb){
+  case_when(
+    detail_abb == "All" ~ "All People",
+    detail_abb == "HoHsAndAdults" ~ "All Adults and Heads of Household",
+    detail_abb == "HoHsOnly" ~ "All Heads of Household"
+  )
+}
+
+syso_race_ethnicity_incl <- list(
+  "Group 0" = c("All Races/Ethnicities" = 0),
+  "Group 1" = c("American Indian, Alaska Native, or Indigenous Inclusive" = 1,
+                "Asian or Asian American Inclusive" = 2,
+                "Black, African American, or African Inclusive" = 3,
+                "Hispanic/Latina/é/o" = 4,
+                "Middle Eastern or North African Inclusive" = 5,
+                "Native Hawaiin or Pacific Islander Inclusive" = 6,
+                "White Inclusive" = 7),
+  "Group 2" = c("Black, African American or African and Hispanic/Latina/é/o Inclusive" = 8,
+                "Hispanic/Latina/é/o Inclusive" = 9,
+                "Hispanic/Latina/é/o Alone" = 10))
 # Translate to Values -----------------------------------------------------
 
 replace_yes_no <- function(column_name) {
@@ -148,10 +291,10 @@ parseDate <- function(datevar) {
 }
 
 importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
-  if(str_sub(upload_filepath,-4,-1) != ".zip") {
+  if(str_sub(upload_filepath, -4, -1) != ".zip") {
     capture.output("User tried uploading a non-zip file!") 
   }
-  
+
   filename <- str_glue("{csvFile}.csv")
   data <-
     read_csv(
@@ -164,7 +307,7 @@ importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
     data <- data %>%
       filter(is.na(DateDeleted))
   }
-  
+
   file.remove(filename)
   return(data)
 }
@@ -321,9 +464,9 @@ fy22_to_fy24_living_situation <- function(value){
   )
 }
 
-#############################
-# SANDBOX
-#############################
+
+# Sandbox -----------------------------------------------------------------
+
 importFileSandbox <- function(csvFile) {
   filename = str_glue("{csvFile}.csv")
   data <- read_csv(paste0(directory, "data/", filename)
@@ -333,9 +476,9 @@ importFileSandbox <- function(csvFile) {
   return(data)
 }
 
-############################
-# GENERATE CHECK DATA FROM EVACHECKS.XLSX
-############################
+
+# Generate check data from evachecks.csv ----------------------------------
+
 merge_check_info <- function(data, checkIDs) {
   return(data %>%
     bind_cols(
@@ -343,3 +486,46 @@ merge_check_info <- function(data, checkIDs) {
     )
   )
 }
+
+
+# Misc --------------------------------------------------------------------
+
+getNameByValue <- function(vector, val) {
+  return(
+    paste(names(vector)[which(vector %in% val)], collapse = ", ")
+  )
+}
+
+# for a set of 1/0, or checkbox, variables, check whether no other variables 
+# were checked except for the specified ones
+no_cols_selected_except <- function(df, list, exception) {
+  rowSums(df[exception], na.rm = TRUE) > 0 &
+    rowSums(df[setdiff(list, exception)], na.rm = TRUE) == 0
+}
+
+any_cols_selected_except <- function(df, list, exception) {
+  rowSums(df[list] == 1, na.rm = TRUE) > 0 &
+    rowSums(df[exception] == 1, na.rm = TRUE) == 0
+}
+
+# for a set of 1/0, or checkbox, variables, check whether at least 
+# the specified numbers of variables were checked, except for the specified ones
+min_cols_selected_except <- function(df, list, exception, num_cols_selected) {
+  rowSums(df[exception], na.rm = TRUE) == 0 &
+    rowSums(df[setdiff(list, exception)], na.rm = TRUE) >= num_cols_selected
+}
+
+# custom round to the smaller of the nearest 10, 100, etc.
+# good for chart segment sizing
+get_segment_size <- function(x) {
+  thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
+  rounded <- sapply(thresholds, function(t) {
+    if (x > t) {
+      return(t * ceiling(x / t))
+    } else {
+      return(NA)
+    }
+  })
+  min(rounded, na.rm = TRUE)
+}
+
