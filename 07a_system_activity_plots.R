@@ -2,24 +2,6 @@
 # Define the hardcoded values for Time and Status
 # we need all combinations for the 0s
 
-# status_summary_values <- c(
-#   "Homeless", 
-#   "Housed", 
-#   "Inflow", 
-#   "Outflow"
-# )
-
-# status_detail_values <- c(
-#   "Homeless",
-#   "Housed",
-#   "Inflow", 
-#   # "Returned from\nPermanent", 
-#   # "Re-engaged from\nNon-Permanent",
-#   # "Continued system\nengagement",
-#   "Outflow"#,
-#   # "Exited to\nNon-Permanent Destination"
-# )
-
 frame_detail <- 
   data.frame(
     Status = c("Homeless",
@@ -85,16 +67,25 @@ system_activity_prep_detail <- reactive({
       Time = factor(
         Time,
         levels = c("Active at Start",
-                   "Newly Homeless",
-                   "Returned from Permanent",
-                   "Re-engaged from Temporary/Unknown",
-                   "Exited to \nNon-Permanent Destination",
-                   "Exited to \nPermanent Destination",
-                   "Inactive",
+                   "Inflow",
+                   "Outflow",
                    "Active at End")
+      ),
+      Status = factor(
+        Status,
+        levels = c(
+          "Homeless",                          
+          "Housed",
+          "Newly Homeless",
+          "Returned from Permanent",
+          "Re-engaged from Temporary/Unknown",
+          "Exited to \nNon-Permanent Destination",
+          "Exited to \nPermanent Destination",
+          "Inactive"
+        )
       )
     ) %>%
-    arrange(Time) %>%
+    arrange(Time, Status) %>%
     group_by(Time) %>%
     mutate(group.id = cur_group_id()) %>%
     ungroup() %>%
