@@ -183,26 +183,14 @@ system_activity_prep_summary <- reactive({
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
-browser()
-    if(id == "sys_act_summary_ui_chart") {
-      colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
-      df <- system_activity_prep_summary()
-    } else {
-      colors <-
-        c(
-          '#73655E',
-          '#C6BDB9',
-          '#C34931',
-          '#C34931',
-          '#C34931',
-          '#C34931',
-          '#16697A',
-          '#16697A',
-          '#16697A')
-      
-      df <- system_activity_prep_detail()
-    }
-
+    browser()
+    colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
+    if (id == "sys_act_summary_ui_chart") {
+         df <- system_activity_prep_summary()
+       } else {
+         df <- system_activity_prep_detail()
+       }
+       
     s <- max(df$yend) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
