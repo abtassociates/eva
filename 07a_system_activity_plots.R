@@ -24,17 +24,19 @@ frame_detail <-
   data.frame(
     Status = c("Homeless",
                "Housed",
-               rep("Inflow", 3),
-               rep("Outflow", 2),
+               "Newly Homeless",
+               "Returned from Permanent",
+               "Re-engaged from Temporary/Unknown",
+               "Exited to \nPermanent Destination",
+               "Exited to \nNon-Permanent Destination",
+               "Inactive",
                "Homeless",
                "Housed"),
-    Time = c(rep(paste0("Active at Start"), 2),
-             "Newly Homeless",
-             "Returned from Permanent",
-             "Re-engaged from Temporary/Unknown",
-             "Exited to \nPermanent Destination",
-             "Exited to \nNon-Permanent Destination",
-             rep(paste0("Active at End"), 2)))
+    Time = c(rep("Active at Start", 2),
+             rep("Inflow", 3),
+             rep("Outflow", 3),
+             rep("Active at End", 2)),
+    InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)))
 
 frame_summary <-
   data.frame(
@@ -47,7 +49,8 @@ frame_summary <-
     Time = c(rep(paste0("Active at Start"), 2),
              "Inflow",
              "Outflow",
-             rep(paste0("Active at End"), 2))
+             rep(paste0("Active at End"), 2)),
+    InflowOutflow = c(rep("Inflow", 3), rep("Outflow", 3))
   )
 
 system_activity_prep_detail <- reactive({
@@ -59,45 +62,35 @@ system_activity_prep_detail <- reactive({
     group_by(InflowTypeDetail) %>%
     summarise(values = n()) %>%
     ungroup() %>%
-    rename("Time" = InflowTypeDetail) %>%
-    mutate(
-      Status = case_when(
-        Time %in% c(
-          "Newly Homeless",
-          "Returned from Permanent",
-          "Re-engaged from Temporary/Unknown"
-        ) ~ "Inflow",
-        TRUE ~ Time
-      ),
-      Time = case_when(
-        Time %in% c("Homeless", "Housed") ~ "Inflow",
-        TRUE ~ Time
-      )
-    )
+    rename("Status" = InflowTypeDetail) %>%
+    full_join(frame_detail %>%
+                filter(InflowOutflow == "Inflow")) %>%
+    mutate(values = replace_na(values, 0))
   
   outflow <- sys_inflow_outflow_plot_data()() %>%
     select(PersonalID,
            OutflowTypeSummary,
            OutflowTypeDetail) %>%
-    group_by(OutflowSummaryMatrix) %>%
+    group_by(OutflowTypeDetail) %>%
     summarise(values = n()) %>%
     ungroup() %>%
-    rename("Status" = OutflowSummaryMatrix) %>%
-    mutate(
-      Time = if_else(Status != "Outflow",
-                     "Active at End",
-                     Status))
+    rename("Status" = OutflowTypeDetail) %>%
+    full_join(frame_detail %>%
+                filter(InflowOutflow == "Outflow")) %>%
+    mutate(values = replace_na(values, 0))
   
   inflow %>%
-    full_join(outflow, join_by(Status, values, Time)) %>%
-    full_join(frame_summary, join_by(Status, Time)) %>%
+    full_join(outflow, join_by(Time, values, Status, InflowOutflow)) %>%
     mutate(
-      values = replace_na(values, 0),
       Time = factor(
         Time,
         levels = c("Active at Start",
-                   "Inflow",
-                   "Outflow",
+                   "Newly Homeless",
+                   "Returned from Permanent",
+                   "Re-engaged from Temporary/Unknown",
+                   "Exited to \nNon-Permanent Destination",
+                   "Exited to \nPermanent Destination",
+                   "Inactive",
                    "Active at End")
       )
     ) %>%
@@ -106,50 +99,13 @@ system_activity_prep_detail <- reactive({
     mutate(group.id = cur_group_id()) %>%
     ungroup() %>%
     mutate(
-      values = ifelse(Time %in% c("Outflow", "Active at End"), values * -1, values),
+      values = ifelse(InflowOutflow == "Outflow", values * -1, values),
       ystart = lag(cumsum(values), default = 0),
       yend = round(cumsum(values))
     )
   
   
-  sys_inflow_outflow_plot_data()() %>% # this is a people-level df
-    pivot_longer(
-      cols = c(InflowTypeDetail, OutflowTypeDetail), 
-      names_to = "Time", 
-      values_to = "Status") %>%
-    group_by(Time, Status) %>%
-    summarise(values = n()) %>%
-    filter(!is.na(Status)) %>%
-    ungroup() %>%
-    mutate(Time = str_remove(Time, "TypeDetail"))
-    group_by(Time, Status) %>%
-    mutate(group.id = cur_group_id()) %>%
-    ungroup() %>%
-    mutate(
-      values = ifelse(Time == "OutflowTypeDetail", values * -1, values),
-      ystart = lag(cumsum(values), default = 0),
-      yend = round(cumsum(values)),
-      Time = case_when(
-        Time == "InflowTypeDetail" &
-          Status %in% c("Homeless", "Housed")
-        ~ paste0("Active at Start"),
-        
-        Time == "OutflowTypeDetail" &
-          Status %in% c("Homeless", "Housed")
-        ~ paste0("Active at End"),
-          
-        Time == "InflowTypeDetail"
-        ~ Status,
-        
-        Time == "OutflowTypeDetail"
-        ~ Status
-      ),
-      Status = case_when(
-        values > -1 & !Status %in% c("Homeless", "Housed") ~ "Inflow",
-        values < 0 & !Status %in% c("Homeless", "Housed") ~ "Outflow",
-        TRUE ~ Status
-      )
-    )
+  
 })
 
 system_activity_prep_summary <- reactive({
