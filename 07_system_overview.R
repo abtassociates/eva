@@ -220,6 +220,7 @@ homeless_cls_finder <- function(date, window = "before", days = 60) {
 enrollment_categories <- enrollment_prep_hohs %>%
   mutate(
     ProjectTypeWeight = case_when(
+      # speaks to presumed trustworthiness of data, not urgency
       ProjectType %in% ph_project_types &
         !is.na(MoveInDateAdjust) ~ 100,
       ProjectType %in% ph_project_types &
@@ -346,10 +347,10 @@ enrollment_categories <- enrollment_prep_hohs %>%
   arrange(ProjectTypeWeight, desc(EntryDate), .by_group = TRUE) %>%
   mutate(find_lecr = row_number()) %>%
   group_by(PersonalID, in_date_range) %>%
-  arrange(EntryDate, .by_group = TRUE) %>%
+  arrange(find_lecr, .by_group = TRUE) %>%
   mutate(
-    lecr = in_date_range == TRUE & max(find_eecr) == ordinal,
-    eecr = in_date_range == TRUE & max(find_lecr) == ordinal,
+    lecr = in_date_range == TRUE & find_lecr == 1,
+    eecr = in_date_range == TRUE & find_eecr == 1,
     lookback = if_else(in_date_range == TRUE, 0, rev(row_number()))
   ) %>%
   ungroup() %>%
