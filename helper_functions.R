@@ -31,6 +31,8 @@ living_situation <- function(ReferenceNo) {
     ReferenceNo == 302 ~ "Transitional housing",
     ReferenceNo == 332 ~ "Host Home (non-crisis)",
     ReferenceNo == 329 ~ "Residential project or halfway house with no homeless criteria",
+    ReferenceNo == 312 ~ "Staying or living with family, temporary tenure",
+    ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
     ReferenceNo == 314 ~ "H/Motel paid for by household",
     ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
     ReferenceNo == 335 ~ "Staying or living with family, temporary tenure",
