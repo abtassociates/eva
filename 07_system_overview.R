@@ -746,7 +746,7 @@ clients_enrollments_reactive <- reactive({
 # get final people-level, inflow/outflow dataframe by joining the filtered 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 inflow_outflow_df <- reactive({
-  browser()
+  # browser()
   # add inflow type and active enrollment typed used for system overview plots
   universe <-
     clients_enrollments_reactive() %>%
