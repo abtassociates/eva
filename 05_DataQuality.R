@@ -270,7 +270,6 @@ rm(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
 missing_approx_date_homeless <- base_dq_data %>%
   select(
     all_of(vars_prep),
-    EnrollmentID,
     ProjectID,
     AgeAtEntry,
     RelationshipToHoH,
@@ -1079,7 +1078,7 @@ enrollment_x_operating_period <- enrollment_positions %>%
 # Overlaps ----------------------------------------------------------------
 
 overlap_staging <- base_dq_data %>% 
-  select(!!vars_prep, ExitAdjust, EnrollmentID) %>%
+  select(!!vars_prep, ExitAdjust) %>%
   filter(EntryDate != ExitAdjust &
            ((
              ProjectType %in% ph_project_types &
@@ -1242,11 +1241,11 @@ overlaps(overlap_staging %>%
   #bring back in the fields they'll need to see (EntryDate, ExitDate, MoveInDate,
   # ProjectName, OrganizationName)
   left_join(base_dq_data %>% 
-            select(!!vars_prep, EnrollmentID),
+            select(!!vars_prep),
             by = "EnrollmentID") %>%
 
   left_join(base_dq_data %>% 
-            select(!!vars_prep, EnrollmentID) %>%
+            select(!!vars_prep) %>%
             setNames(paste0('Previous', names(.))),
             by = "PreviousEnrollmentID") %>%
   mutate(
@@ -1390,7 +1389,6 @@ ncb_staging <- base_dq_data %>%
       OtherTANF + OtherBenefitsSource
   ) %>%
   select(all_of(vars_prep),
-         EnrollmentID,
          DataCollectionStage,
          BenefitsFromAnySource,
          BenefitCount) %>%
