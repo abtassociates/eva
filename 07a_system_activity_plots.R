@@ -174,7 +174,7 @@ system_activity_prep_summary <- reactive({
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
-    # browser()
+    browser()
     if (id == "sys_act_summary_ui_chart") {
       colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
       df <- system_activity_prep_summary()
@@ -183,8 +183,8 @@ renderSystemPlot <- function(id) {
         '#73655E',
         '#C6BDB9',
         "#e5a699",
-        '#d15e48',
-        "#8f3524",
+        '#b7452e',
+        "#66261a",
         '#93dcec',
         "#3dc1dc",
         '#1b8297'
@@ -231,13 +231,17 @@ ggplot(df, aes(x = group.id, fill = Status)) +
   ) +
   ggrepel::geom_text_repel(# the labels
     aes(
-      label = scales::comma(abs(values)),
+      x = group.id,
+      label = paste0(scales::comma(abs(values))),
       y = rowSums(cbind(ystart, values / 2)),
       segment.colour = "gray33"
     ),
     nudge_x = -.5,
+    arrow = arrow(type = "open", length = unit(.1, "inches")),
     colour = "#4e4d47",
-    size = 6
+    # alpha = .7,
+    size = 5,
+    inherit.aes = FALSE
   ) +
   scale_fill_manual(values = colors) + # color palette
   scale_y_continuous(expand = c(0,0)) + # distance between bars and x axis line
@@ -252,7 +256,8 @@ ggplot(df, aes(x = group.id, fill = Status)) +
     axis.ticks.length.x = unit(.15, "cm"),
     plot.margin = unit(c(1, 1, 1, 1), "lines"),
     legend.text = element_text(size = 16),
-    legend.title = element_blank()
+    legend.title = element_blank()#,
+    # legend.position = "none"
   )
   })
  # return(plotOutput(id, height = 400))
