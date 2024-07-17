@@ -899,7 +899,7 @@ inflow_outflow_df <- reactive({
   
   universe_ppl <- universe %>%
     group_by(PersonalID) %>%
-    filter(max(lecr) == 1 & max(eecr) == 1) %>%
+    filter(max(lecr) == 1 & max(eecr) == 1) %>% # drops ppl w/o an eecr or lecr
     summarise(
       # INFLOW
       active_at_start_homeless_client = max(active_at_start_homeless),
@@ -914,7 +914,9 @@ inflow_outflow_df <- reactive({
         max(eecr_lh_at_entry) == 1 & 
         max(at_least_14_days_to_eecr_enrl) == 1,
       
-      newly_homeless_client = max(lookback) == 0,
+      newly_homeless_client = max(lookback) == 0 |
+        max(eecr_lh_at_entry) == 0 | 
+        max(at_least_14_days_to_eecr_enrl) == 0,
       
       InflowTypeSummary = case_when(
         active_at_start_homeless_client == TRUE |
