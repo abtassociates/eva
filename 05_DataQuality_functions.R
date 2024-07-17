@@ -4,6 +4,7 @@
 
 
 vars_prep <- c(
+  "EnrollmentID",
   "HouseholdID",
   "PersonalID",
   "OrganizationName",
@@ -59,7 +60,8 @@ getDQReportDataList <-
       "Issue",
       "PersonalID",
       "HouseholdID",
-      "EntryDate"
+      "EntryDate",
+      "EnrollmentID"
     )
     
     high_priority <- dqData %>%
@@ -111,7 +113,8 @@ getDQReportDataList <-
         PersonalID,
         EventDate,
         EventType,
-        Days
+        Days,
+        EnrollmentID
       )
     
     mainsummary <- rbind(
@@ -124,7 +127,7 @@ getDQReportDataList <-
       ungroup() %>%
       select(Type, Enrollments, Issue) %>%
       arrange(Type, desc(Enrollments))
-    
+
     bySummaryLevel2 <- rlang::sym(bySummaryLevel)
     byunitsummary <- rbind(
       dqData %>% select(!!bySummaryLevel2, Type, Issue, PersonalID),
@@ -422,7 +425,7 @@ dqDownloadInfo <- reactive({
   orgDQReferrals <- 
     calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
     filter(OrganizationName %in% c(input$orgList))
-  
+
   # return a list for reference in downloadHandler
   list(
     orgDQData = 

@@ -95,6 +95,7 @@ rm(DV)
 # The Variables That We Want ----------------------------------------------
 
 vars_prep <- c(
+  "EnrollmentID",
   "HouseholdID",
   "PersonalID",
   "OrganizationName",
@@ -214,6 +215,7 @@ missing_enrollment_coc <- base_dq_data %>%
   select(all_of(vars_we_want))
 
 # Household Issues --------------------------------------------------------
+
 hh_children_only <- base_dq_data %>%
   group_by(HouseholdID) %>%
   summarise(
@@ -949,9 +951,7 @@ smallIncome <-
          "DataCollectionStage"),
   relationship = "many-to-many")
 
-income_subs <- base_dq_data[c("EnrollmentID",
-                                      "AgeAtEntry",
-                                      vars_prep)] %>%
+income_subs <- base_dq_data[c("AgeAtEntry", vars_prep)] %>%
   left_join(smallIncome, by = c("PersonalID", "EnrollmentID")) %>%
   mutate(
     IncomeCount =
@@ -985,7 +985,6 @@ conflicting_income_entry <- income_subs %>%
   select(all_of(vars_we_want))
 
 # Missing Income at Exit --------------------------------------------------
-
 missing_income_exit <- base_dq_data %>%
   left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
   select(
