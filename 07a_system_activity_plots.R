@@ -237,7 +237,6 @@ system_activity_prep_summary <- reactive({
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
-browser()
     if(id == "sys_act_summary_ui_chart") {
       colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
       df <- system_activity_prep_summary()
@@ -303,7 +302,7 @@ ggplot(df, aes(x = group.id, fill = Status)) +
     size = 6
   ) +
   scale_fill_manual(values = colors) + # color palette
-  scale_y_continuous(expand = c(0,0)) #+ # distance between bars and x axis line
+  scale_y_continuous(expand = c(0,0)) + # distance between bars and x axis line
   scale_x_continuous(labels = df$Time %>% unique(), # x axis labels
                    breaks = df$group.id %>% unique()) +
   theme_void() + # totally clear all theme elements
