@@ -354,20 +354,21 @@ enrollment_categories <- enrollment_prep_hohs %>%
       !is.na(next_enrollment_project_type) &
       !is.na(previous_enrollment_project_type) &
       next_enrollment_project_type > 0 &
-      previous_enrollment_project_type > 0,
-    ProjectTypeWeight = if_else(
-      involved_in_overlap_start == FALSE &
-        involved_in_overlap_end == FALSE,
-      200,
-      ProjectTypeWeight
-    )
-  ) %>%
-  arrange(desc(ProjectTypeWeight), EntryDate, .by_group = TRUE) %>%
-  mutate(find_eecr = row_number()) %>%
-  arrange(ProjectTypeWeight, desc(EntryDate), .by_group = TRUE) %>%
-  mutate(find_lecr = row_number()) %>%
+      previous_enrollment_project_type > 0
+    ) %>%
   group_by(PersonalID, in_date_range) %>%
-  arrange(find_lecr, .by_group = TRUE) %>%
+  arrange(desc(ProjectTypeWeight), desc(EntryDate), desc(ExitAdjust), .by_group = TRUE) %>%
+  mutate(
+    pick_the_overlap = if_else(
+      in_date_range == TRUE &
+        (involved_in_overlap_end == TRUE | involved_in_overlap_start == TRUE),
+      row_number(),
+      0),
+    find_eecr = if_else(max(pick_the_overlap) > 0, 1, ordinal)) %>%
+  arrange(ProjectTypeWeight, desc(EntryDate), desc(ExitAdjust), .by_group = TRUE) %>%
+  mutate(find_lecr = if_else(in_date_range == TRUE, row_number(), 0)) %>%
+  # group_by(PersonalID, in_date_range) %>%
+  # arrange(EntryDate, .by_group = TRUE) %>%
   mutate(
     lecr = in_date_range == TRUE & find_lecr == 1,
     eecr = in_date_range == TRUE & find_eecr == 1,
@@ -834,7 +835,7 @@ inflow_outflow_df <- reactive({
         MoveInDateAdjust <= ReportStart() &
         lh_prior_livingsituation == TRUE,
       
-      # LOGIC helper columns for outflow
+      # LOGIC helper columns
       
       lookback1_perm_dest = lookback == 1 & 
         Destination %in% perm_destinations,
@@ -843,6 +844,7 @@ inflow_outflow_df <- reactive({
         lh_at_entry == TRUE,
       
       at_least_14_days_to_eecr_enrl = lookback == 1 & 
+        !is.na(days_to_next_entry) &
         days_to_next_entry >= 14,
       
       lookback1_temp_dest = lookback == 1 & 
@@ -954,9 +956,9 @@ inflow_outflow_df <- reactive({
       InflowTypeDetail = case_when(
         active_at_start_homeless_client == TRUE ~ "Homeless",
         active_at_start_housed_client == TRUE ~ "Housed",
-        newly_homeless_client == TRUE ~ "Newly Homeless",
         return_from_perm_client == TRUE ~ "Returned from \nPermanent",
         reengaged_from_temp_client == TRUE ~ "Re-engaged from \nNon-Permanent",
+        newly_homeless_client == TRUE ~ "Newly Homeless",
         TRUE ~ "something's wrong"
       ),
       
