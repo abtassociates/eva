@@ -249,6 +249,9 @@ enrollment_categories <- enrollment_prep_hohs %>%
     straddles_start =
       EntryDate <= ReportStart() &
       ExitAdjust >= ReportStart(),
+    straddles_end = 
+      EntryDate <= ReportEnd() &
+      ExitAdjust >= ReportEnd(),
     in_date_range =
       ExitAdjust >= ReportStart() &
       EntryDate <= ReportEnd(),
@@ -315,6 +318,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
     lh_prior_livingsituation,
     lh_at_entry,
     straddles_start,
+    straddles_end,
     in_date_range,
     EnrolledHomeless,
     LivingSituation,
@@ -340,7 +344,23 @@ enrollment_categories <- enrollment_prep_hohs %>%
                lag(ExitAdjust, order_by = ExitAdjust),
                units = "days"),
     next_enrollment_project_type = lead(ProjectType),
-    previous_enrollment_project_type = lag(ProjectType)
+    previous_enrollment_project_type = lag(ProjectType),
+    involved_in_overlap_start = straddles_start == TRUE &
+      !is.na(next_enrollment_project_type) &
+      !is.na(previous_enrollment_project_type) &
+      next_enrollment_project_type > 0 &
+      previous_enrollment_project_type > 0,
+    involved_in_overlap_end = straddles_end == TRUE &
+      !is.na(next_enrollment_project_type) &
+      !is.na(previous_enrollment_project_type) &
+      next_enrollment_project_type > 0 &
+      previous_enrollment_project_type > 0,
+    ProjectTypeWeight = if_else(
+      involved_in_overlap_start == FALSE &
+        involved_in_overlap_end == FALSE,
+      200,
+      ProjectTypeWeight
+    )
   ) %>%
   arrange(desc(ProjectTypeWeight), EntryDate, .by_group = TRUE) %>%
   mutate(find_eecr = row_number()) %>%
@@ -738,7 +758,6 @@ enrollment_categories_reactive <- reactive({
 clients_enrollments_reactive <- reactive({
   enrollment_categories_reactive() %>%
     select(-MostRecentAgeAtEntry) %>%
-    # filter(in_date_range == TRUE) %>%
     inner_join(client_categories_reactive(), join_by(PersonalID))
 })
 
@@ -746,7 +765,7 @@ clients_enrollments_reactive <- reactive({
 # get final people-level, inflow/outflow dataframe by joining the filtered 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 inflow_outflow_df <- reactive({
-  # browser()
+  browser()
   # add inflow type and active enrollment typed used for system overview plots
   universe <-
     clients_enrollments_reactive() %>%
@@ -757,7 +776,7 @@ inflow_outflow_df <- reactive({
       # INFLOW CALCULATOR COLUMNS
       #LOGIC: active homeless at start
         # basically it has to straddle report start
-          # the entry date of the EECR needs to be on or before the report date range
+          # the entry date of the EECR needs to be on or before the reporting period
           # the exitadjust has to be after report start
       # OR the eecr & lookback1 have to end and start within 14 days of each
       # other and of the report start
