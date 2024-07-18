@@ -82,7 +82,7 @@ enrollment_prep <- EnrollmentAdjust %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  filter(ContinuumProject == 1) %>%
+  filter(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>%
   select(-ContinuumProject)
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
 # check that
@@ -897,6 +897,9 @@ inflow_outflow_df <- reactive({
         ))
     )
   
+  # hello weary traveler amongst these date ranges. you may find it helpful to
+  # find example clients and their Entry and Exit Dates and enter them into
+  # https://onlinetools.com/time/visualize-date-intervals <- here.
   universe_ppl <- universe %>%
     group_by(PersonalID) %>%
     filter(max(lecr) == 1 & max(eecr) == 1) %>% # drops ppl w/o an eecr or lecr
