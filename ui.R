@@ -876,6 +876,89 @@ dashboardPage(
             width = 12
           )
         ),
+        fluidRow(
+          box(
+            id = "syso_header_sankey",
+            "System Status",
+            width = 12
+          )
+        ),
+        fluidRow(
+          box(
+            title = "Age and Special Population Filters",
+            width = 6,
+            column(
+              6,
+              pickerInput(
+                inputId = "syso_age_sankey",
+                label = "Age",
+                selected = syso_age_cats,
+                choices = syso_age_cats,
+                multiple = TRUE,
+                width = "100%",
+                options = pickerOptions(
+                  actionsBox = TRUE,
+                  selectedTextFormat = paste("count >", length(syso_age_cats)-1),
+                  countSelectedText = "All ages",
+                  noneSelectedText = "All ages" 
+                )
+              )
+            ),
+            column(
+              6,
+              pickerInput(
+                label = "Special Populations",
+                inputId = "syso_spec_pops_sankey",
+                choices = syso_spec_pops_people,
+                width = "100%",
+                selected = syso_spec_pops_people[1]
+              )
+            )
+          ),
+          box(
+            title = "Gender and Race/Ethnicity Filters",
+            width = 6,
+            column(6, pickerInput(
+              label = "Gender",
+              inputId = "syso_gender_sankey",
+              choices = syso_gender_excl,
+              width = "100%",
+              selected = syso_gender_excl,
+              # labels = gender_description(syso_gender_excl),
+              multiple = TRUE,
+              options = pickerOptions(
+                actionsBox = TRUE,
+                selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
+                countSelectedText = "All Genders",
+                noneSelectedText = "All Genders" 
+              )
+            )),
+            column(6, pickerInput(
+              label = "Race/Ethnicity",
+              inputId = "syso_race_ethnicity_sankey",
+              choices = syso_race_ethnicity_incl,
+              width = "100%",
+              selected = "All Races/Ethnicities"
+            ))
+          )
+        ),
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Summary",
+            title = "Cleint System Status",
+            tabPanel("Summary", 
+                     uiOutput("sankey_filter_selections"),
+                     uiOutput("sankey_chart_subheader"),
+                     plotOutput("sankey_ui_chart")
+            ),
+            tabPanel("Instructions", 
+                     uiOutput("sankey_instructions_ui")
+            ),
+            
+            width = 12
+          )
+        ),
       ),
       tabItem(
         tabName = "systemExitDetail",

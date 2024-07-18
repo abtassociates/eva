@@ -22,7 +22,8 @@ function(input, output, session) {
   sys_df_people_universe_filtered_r <- reactiveVal()
   ReportStart <- reactiveVal()
   ReportEnd <- reactiveVal()
-
+  sankey_plot_data <- reactiveVal()
+  
   reset_reactivevals <- function() {
     validation(NULL)
     CurrentLivingSituation(NULL)
@@ -254,6 +255,9 @@ function(input, output, session) {
           setProgress(detail = "Preparing System Overview Data", value = .85)
           source("07_system_overview.R", local = TRUE)
 
+          setProgress(detail = "Preparing Sankey Chart", value = .95)
+          source("09_sankey_chart.R", local = TRUE)
+          
           setProgress(detail = "Done!", value = 1)
           logToConsole("Done processing")
           
@@ -1038,6 +1042,12 @@ function(input, output, session) {
       if_else(length(input$system_composition_filter) == 2, 600, 100) 
   })
   
+  
+  ### SANKEY CHART/SYSTEM STATUS
+  source("09a_render_sankey.R", local = TRUE)
+  output$sankey_filter_selections <- renderUI({ syso_detailBox() })
+  output$sankey_chart_subheader <- renderUI({ syso_chartSubheader() })
+  output$sankey_ui_chart <- renderSankeyChart(sankey_plot_data())
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")
