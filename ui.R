@@ -339,7 +339,9 @@ dashboardPage(
             well as any other structural issues which you feel need to be corrected.
             </p>"),
             p(),
-            uiOutput('downloadFileStructureAnalysisBtn')
+            uiOutput('downloadFileStructureAnalysisBtn'),
+            p(),
+            uiOutput('downloadImpermissibleCharacterDetailBtn')
           ))
           # fluidRow(box(
           #   title = "System Data Quality Overview",

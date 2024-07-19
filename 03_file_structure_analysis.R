@@ -62,29 +62,25 @@ non_ascii_files_detail <- function() {
   })
   
   # Combine all data frames in the list into one data frame
-  files_with_non_ascii <- bind_rows(files_with_non_ascii)
+  files_with_non_ascii <- bind_rows(files_with_non_ascii)  %>% 
+    merge_check_info(checkIDs = 134) %>%
+    select(all_of(issue_display_cols))
   
   return(files_with_non_ascii)
 }
 
-non_ascii_files_simple <- function(files) {
+non_ascii_files_simple <- function() {
   # Helper function to detect non-ASCII characters
   non_ascii_or_bracket <- function(x) {
     str_detect(x, "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}")
   }
   
   # Initialize an empty data.table to store results
-  results <- data.table(File = character(), Detail = character())
+  results <- lapply(unique(cols_and_data_types$File), function(file) {
   
-  # Iterate over each file in the list
-  for (file in files) {
-    # Get the data from the file
-    data <- get(file)
+    # Check for non-ASCII characters in each column in each file
+    data <- as.data.table(get(file))
     
-    # Convert to data.table for faster processing
-    data <- as.data.table(data)
-    
-    # Check for non-ASCII characters in each column
     non_ascii_found <- any(
       data[, 
            lapply(.SD, function(col) any(non_ascii_or_bracket(col))), 
@@ -95,20 +91,18 @@ non_ascii_files_simple <- function(files) {
     
     # If non-ASCII characters are found, add a row to the results
     if (non_ascii_found) {
-      results <- rbind(
-        results, 
+      return(
         data.table(
           File = file, 
           Detail = paste0("Found non-ascii character in ", file, ".csv")
         )
       )
     }
-  }
-  
-  return(results)
+  })
+  return(bind_rows(results))
 }
 
-files_with_non_ascii <- non_ascii_files_simple(unique(cols_and_data_types$File))
+files_with_non_ascii <- non_ascii_files_simple()
 if(nrow(files_with_non_ascii) > 0) {
   files_with_non_ascii <- files_with_non_ascii %>%
     merge_check_info(checkIDs = 134) %>%
@@ -530,3 +524,4 @@ nrow() > 0) {
 } else{
   valid_file(1)
 }
+non_ascii_files_detail_df(non_ascii_files_detail)
