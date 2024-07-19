@@ -2,7 +2,6 @@ renderSankeyChart <- function(sankey_plot_data) {
   renderPlot({
     req(valid_file() == 1)
     
-    browser()
     begin_labels <- sankey_plot_data %>%
       group_by(Begin) %>%
       summarize(freq = sum(freq)) %>%
