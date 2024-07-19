@@ -20,6 +20,7 @@ function(input, output, session) {
   file_structure_analysis_main <- reactiveVal()
   sys_inflow_outflow_plot_data <- reactiveVal()
   sys_df_people_universe_filtered_r <- reactiveVal()
+  non_ascii_files_detail_df <- reactiveVal()
   
   reset_reactivevals <- function() {
     validation(NULL)
@@ -352,6 +353,14 @@ function(input, output, session) {
                    "Download Structure Analysis Detail")
   }) 
   
+  output$downloadImpermissibleCharacterDetailBtn <- renderUI({
+    req(nrow(file_structure_analysis_main()) > 0)
+    req(nrow(file_structure_analysis_main() %>% 
+      filter(Issue == "Impermissible characters")) > 0)
+    downloadButton("downloadImpermissibleCharacterDetail",
+                   "Download Impermissible Character Detail")
+  }) 
+  
   output$downloadFileStructureAnalysis <- downloadHandler(
     filename = date_stamped_filename("File-Structure-Analysis-"),
     content = function(file) {
@@ -366,6 +375,23 @@ function(input, output, session) {
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
       exportTestValues(file_structure_analysis_main = file_structure_analysis_main())
+    }
+  )
+  
+  output$downloadImpermissibleCharacterDetail <- downloadHandler(
+    filename = date_stamped_filename("Impermissible-Character-Locations-"),
+    content = function(file) {
+      write_xlsx(
+        non_ascii_files_detail_df()() %>%
+          arrange(Type, Issue) %>%
+          nice_names(),
+        path = file
+      )
+      
+      logMetadata(paste0("Impermissible Character Locations Report", 
+                         if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+      
+      exportTestValues(non_ascii_files_detail = non_ascii_files_detail_df())
     }
   )
   # }
