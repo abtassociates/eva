@@ -77,17 +77,9 @@ non_ascii_files_simple <- function() {
   
   # Initialize an empty data.table to store results
   results <- lapply(unique(cols_and_data_types$File), function(file) {
-  
-    # Check for non-ASCII characters in each column in each file
-    data <- as.data.table(get(file))
-    
-    non_ascii_found <- any(
-      data[, 
-           lapply(.SD, function(col) any(non_ascii_or_bracket(col))), 
-           .SDcols = names(data)
-      ], 
-      na.rm = TRUE
-    )
+    # convert to string for faster searching
+    str_data <- sapply(get("Organization"), as.character)
+    non_ascii_found <- any(str_detect(str_data,  "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}"))
     
     # If non-ASCII characters are found, add a row to the results
     if (non_ascii_found) {
