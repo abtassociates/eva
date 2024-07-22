@@ -148,7 +148,6 @@ toggleDemoJs <- function(t) {
     print("Switched into live mode!")
     capture.output("Switched into live mode")
     logMetadata("Switched into live mode")
-    
   }
 }
 
