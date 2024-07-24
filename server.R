@@ -34,7 +34,8 @@ function(input, output, session) {
   valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
   file_structure_analysis_main <- reactiveVal()
   non_ascii_files_detail_df <- reactiveVal()
-
+  non_ascii_files_detail_r <- reactiveVal()
+  
   reset_reactivevals <- function() {
     validation(NULL)
     CurrentLivingSituation(NULL)
@@ -289,14 +290,6 @@ function(input, output, session) {
                    "Download Structure Analysis Detail")
   }) 
   
-  output$downloadImpermissibleCharacterDetailBtn <- renderUI({
-    req(nrow(file_structure_analysis_main()) > 0)
-    req(nrow(file_structure_analysis_main() %>% 
-      filter(Issue == "Impermissible characters")) > 0)
-    downloadButton("downloadImpermissibleCharacterDetail",
-                   "Download Impermissible Character Detail")
-  }) 
-  
   output$downloadFileStructureAnalysis <- downloadHandler(
     filename = date_stamped_filename("File-Structure-Analysis-"),
     content = function(file) {
@@ -314,11 +307,23 @@ function(input, output, session) {
     }
   )
   
+  output$downloadImpermissibleCharacterDetailBtn <- renderUI({
+    req(nrow(file_structure_analysis_main()) > 0)
+    tagList(
+      actionButton("showDownloadImpermissibleButton",
+                   "Download Impermissible Character Detail", 
+                   icon("download")),
+      downloadButton("downloadImpermissibleCharacterDetail",
+                     "Download Impermissible Character Detail", style="visibility:hidden;")
+    )
+  })
+  
   output$downloadImpermissibleCharacterDetail <- downloadHandler(
     filename = date_stamped_filename("Impermissible-Character-Locations-"),
     content = function(file) {
+      non_ascii_files_detail <- non_ascii_files_detail_r()()
       write_xlsx(
-        non_ascii_files_detail_df()() %>%
+        non_ascii_files_detail %>%
           arrange(Type, Issue) %>%
           nice_names(),
         path = file
@@ -327,9 +332,28 @@ function(input, output, session) {
       logMetadata(paste0("Impermissible Character Locations Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(non_ascii_files_detail = non_ascii_files_detail_df())
+      exportTestValues(non_ascii_files_detail = non_ascii_files_detail)
     }
   )
+  
+  observeEvent(input$showDownloadImpermissibleButton, {
+    showModal(modalDialog(
+      title = "Confirmation",
+      "The Impermissible Character Detail export identifies the precise location 
+      of all impermissible characters in your HMIS CSV export. 
+      Therefore, it can take up to several minutes to run. Are you sure you want 
+      to download the export?",
+      footer = tagList(
+        modalButton("Cancel"),
+        actionButton("confirmDownload", "Download", icon("download"))
+      )
+    ))
+  })
+  
+  observeEvent(input$confirmDownload, {
+    removeModal()
+    shinyjs::click("downloadImpermissibleCharacterDetail")
+  })
   # }
   
   # # System Data Quality Overview --------------------------------------------
