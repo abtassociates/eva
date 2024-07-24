@@ -76,32 +76,28 @@ non_ascii_files_simple <- function() {
   }
   
   # Initialize an empty data.table to store results
-  results <- lapply(unique(cols_and_data_types$File), function(file) {
+  for (file in unique(cols_and_data_types$File)) {
     # convert to string for faster searching
     str_data <- sapply(get("Organization"), as.character)
     non_ascii_found <- any(str_detect(str_data,  "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}"))
     
     # If non-ASCII characters are found, add a row to the results
-    if (non_ascii_found) {
+    if (isTruthy(non_ascii_found)) {
       return(
-        data.table(
-          File = file, 
-          Detail = paste0("Found non-ascii character in ", file, ".csv")
-        )
+        data.frame(
+          Detail = "Found non-ascii character in your HMIS CSV Export. 
+          See Impermissible Character Detail export for the precise location of 
+          these characters."
+        ) %>%
+          merge_check_info(checkIDs = 134) %>%
+          select(all_of(issue_display_cols))
       )
     }
-  })
-  return(bind_rows(results))
+  }
+  return(data.frame())
 }
 
 files_with_non_ascii <- non_ascii_files_simple()
-if(nrow(files_with_non_ascii) > 0) {
-  files_with_non_ascii <- files_with_non_ascii %>%
-    merge_check_info(checkIDs = 134) %>%
-    select(all_of(issue_display_cols))
-}
-
-
 
 # Incorrect Date Formats --------------------------------------------------
 
