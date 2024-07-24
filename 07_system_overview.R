@@ -331,9 +331,20 @@ enrollment_categories <- enrollment_prep_hohs %>%
     HouseholdType,
     ProjectTypeWeight
   ) %>% 
+  group_by(PersonalID, straddles_start) %>%
+  mutate(StraddlesStart = n(),
+         MaxProjectTypeStart = max(ProjectTypeWeight)) %>%
+  group_by(PersonalID, straddles_end) %>%
+  mutate(StraddlesEnd = n(),
+         MaxProjectTypeEnd = max(ProjectTypeWeight)) %>%
+  
   group_by(PersonalID) %>%
   arrange(EntryDate, .by_group = TRUE) %>%
   mutate(
+    InvolvedInOverlapStart = straddles_start == TRUE &
+      StraddlesStart > 1,
+    InvolvedInOverlapEnd = straddles_end == TRUE &
+      StraddlesEnd > 1,
     ordinal = row_number(),
     days_to_next_entry =
       difftime(lead(EntryDate, order_by = EntryDate),
@@ -344,34 +355,31 @@ enrollment_categories <- enrollment_prep_hohs %>%
                lag(ExitAdjust, order_by = ExitAdjust),
                units = "days"),
     next_enrollment_project_type = lead(ProjectType),
-    previous_enrollment_project_type = lag(ProjectType),
-    involved_in_overlap_start = straddles_start == TRUE &
-      !is.na(next_enrollment_project_type) &
-      !is.na(previous_enrollment_project_type) &
-      next_enrollment_project_type > 0 &
-      previous_enrollment_project_type > 0,
-    involved_in_overlap_end = straddles_end == TRUE &
-      !is.na(next_enrollment_project_type) &
-      !is.na(previous_enrollment_project_type) &
-      next_enrollment_project_type > 0 &
-      previous_enrollment_project_type > 0
+    previous_enrollment_project_type = lag(ProjectType)
     ) %>%
+  group_by(PersonalID, InvolvedInOverlapStart) %>%
+  arrange(desc(ProjectTypeWeight), EntryDate, ExitAdjust,
+          .by_group = TRUE) %>%
+  mutate(RankOrderStartOverlaps = row_number()) %>%
+  # getting rid of enrollments involved in an overlap across ReportStart that
+  # didn't get picked as the eecr
+  filter((InvolvedInOverlapStart == TRUE & RankOrderStartOverlaps == 1) |
+           InvolvedInOverlapStart == FALSE) %>%
+  group_by(PersonalID, InvolvedInOverlapEnd) %>%
+  arrange(desc(ProjectTypeWeight), EntryDate, ExitAdjust,
+          .by_group = TRUE) %>%
+  mutate(RankOrderEndOverlaps = row_number()) %>%
+  # getting rid of enrollments involved in an overlap across ReportEnd that
+  # didn't get picked as the lecr
+  filter((InvolvedInOverlapEnd == TRUE & RankOrderEndOverlaps == 1) |
+           InvolvedInOverlapEnd == FALSE) %>%
   group_by(PersonalID, in_date_range) %>%
-  arrange(desc(ProjectTypeWeight), desc(EntryDate), desc(ExitAdjust), .by_group = TRUE) %>%
+  arrange(EntryDate,
+          ExitAdjust,
+          .by_group = TRUE) %>%
   mutate(
-    pick_the_overlap = if_else(
-      in_date_range == TRUE &
-        (involved_in_overlap_end == TRUE | involved_in_overlap_start == TRUE),
-      row_number(),
-      0),
-    find_eecr = if_else(max(pick_the_overlap) > 0, 1, ordinal)) %>%
-  arrange(ProjectTypeWeight, desc(EntryDate), desc(ExitAdjust), .by_group = TRUE) %>%
-  mutate(find_lecr = if_else(in_date_range == TRUE, row_number(), 0)) %>%
-  # group_by(PersonalID, in_date_range) %>%
-  # arrange(EntryDate, .by_group = TRUE) %>%
-  mutate(
-    lecr = in_date_range == TRUE & find_lecr == 1,
-    eecr = in_date_range == TRUE & find_eecr == 1,
+    lecr = in_date_range == TRUE & max(ordinal) == ordinal,
+    eecr = in_date_range == TRUE & min(ordinal) == ordinal,
     lookback = if_else(in_date_range == TRUE, 0, rev(row_number()))
   ) %>%
   ungroup() %>%
