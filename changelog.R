@@ -1,5 +1,17 @@
 chglog <- tribble(
   ~Date, ~Change,
+  "08-01-2024", "<b>New Features:</b> <br>
+    - Updated LivingSituation something something <br>
+    - Formatted changelog for readability <br>
+    
+    <b>Bug Fixes:</b><br>
+    - Added Enrollment ID and Project Type to exports (Issues 
+    <a href='https://github.com/abtassociates/eva/issues/482'>#482</a> and 
+    <a href='https://github.com/abtassociates/eva/issues/529'>529</a>),<br>
+    - Corrected the institutional living situations and temporary living situations 
+  to align to the HMIS Data Standards. Issue 
+  <a href='https://github.com/abtassociates/eva/issues/490'>#490</a>",
+  
   "05-20-2024", "<b>New Features:</b> <br>
     - Added demo mode, where users can try out Eva even if they
     don't have access to an FY 2024 HMIS CSV Export.",
