@@ -140,19 +140,20 @@ issue_levels <- c("High Priority", "Error", "Warning")
 issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 # System Overview - Filters -----------------------------------------------
-syso_hh_types <- c(
-  "All", 
-  "Adult-Only", 
-  "Adult-Child", 
-  "Child-Only",
-  "Youth and Young Adult", 
-  "Unknown Household"
+
+syso_hh_types <- list(
+  "All" = "All",
+  "Households without children" = "AO",
+  "Households with children" = "AC",
+  "Children Only" = "CO",
+  "Youth and Young Adults" = "YYA",
+  "Parenting Youth" = "PY"
 )
 
-syso_level_of_detail <- c(
-  "All", 
-  "HoHsAndAdults", 
-  "HoHsOnly"
+syso_level_of_detail <- list(
+  "All" = "All", 
+  "HoHsAndAdults" = "Heads of Household and Adults", 
+  "HoHsOnly" = "Heads of Household Only"
 )
 
 gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
