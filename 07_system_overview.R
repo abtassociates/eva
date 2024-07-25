@@ -109,7 +109,7 @@ hh_adjustments <- enrollment_prep %>%
   ungroup() %>%
   group_by(HouseholdID) %>%
   mutate(
-    HouseholdType = factor(
+    HouseholdTypeMutuallyExclusive = factor(
       case_when(
         all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
           "AO",
@@ -122,17 +122,17 @@ hh_adjustments <- enrollment_prep %>%
       ),
       levels = c("AO", "AC", "CO", "UN")
     ),
-    HouseholdType2 = factor(
+    HouseholdType = factor(
       case_when(
-        HouseholdType == "AC" &
+        HouseholdTypeMutuallyExclusive == "AC" &
           max(AgeAtEntry) < 25 &
           !any(is.na(AgeAtEntry)) ~ "PY",
-        HouseholdType == "AO" & max(AgeAtEntry) < 25 ~ "YYA",
-        HouseholdType == "AC" ~ "ACminusPY",
+        HouseholdTypeMutuallyExclusive == "AO" & max(AgeAtEntry) < 25 ~ "YYA",
+        HouseholdTypeMutuallyExclusive == "AC" ~ "ACminusPY",
         # ^ relies on cascading logic (rest of ACs)
-        HouseholdType == "AO" ~ "AOminusYYA",
+        HouseholdTypeMutuallyExclusive == "AO" ~ "AOminusYYA",
         # ^ relies on cascading logic (rest of AOs)
-        TRUE ~ HouseholdType
+        TRUE ~ HouseholdTypeMutuallyExclusive
       ),
       levels = c("AOminusYYA", "ACminusPY", "CO", "UN", "PY", "YYA")
     )) %>%
@@ -746,9 +746,12 @@ enrollment_categories_reactive <- reactive({
   # Filter enrollments by hhtype, project type, and level-of-detail inputs
   enrollment_categories %>%
     filter((input$syso_hh_type == "All" |
-         HouseholdType == input$syso_hh_type) &
+         case_when(
+           input$syso_hh_type == "AC" ~ HouseholdType %in% c("ACminusPY", "PY"),
+           input$syso_hh_type == "AO" ~ HouseholdType %in% c("AOminusYYA", "YYA"),
+           input$syso_hh_type == HouseholdType ~ HouseholdType == input$syso_hh_type)) &
       (input$syso_level_of_detail == "All" |
-         (input$syso_level_of_detail == "HoHs&Adults" &
+         (input$syso_level_of_detail == "HoHsAndAdults" &
             (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
          (input$syso_level_of_detail == "HoHsOnly" &
             CorrectedHoH == 1))&
@@ -774,7 +777,7 @@ clients_enrollments_reactive <- reactive({
 # get final people-level, inflow/outflow dataframe by joining the filtered 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 inflow_outflow_df <- reactive({
-  browser()
+  # browser()
   # add inflow type and active enrollment typed used for system overview plots
   universe <-
     clients_enrollments_reactive() %>%
