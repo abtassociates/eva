@@ -152,9 +152,29 @@ syso_hh_types <- list(
 
 syso_level_of_detail <- list(
   "All" = "All", 
-  "HoHsAndAdults" = "Heads of Household and Adults", 
-  "HoHsOnly" = "Heads of Household Only"
+  "Heads of Household and Adults" = "HoHsAndAdults", 
+  "Heads of Household Only" = "HoHsOnly"
 )
+
+syso_project_types <- list(
+  "All" = "All",
+  "Residential" = "Residential",
+  "Non-residential" = "NonResidential"
+)
+
+syso_age_cats <- c(
+  # "All ages",
+  "0 to 12",
+  "13 to 17",
+  "18 to 21",
+  "22 to 24",
+  "25 to 34",
+  "35 to 44",
+  "45 to 54",
+  "55 to 64",
+  "65 to 74",
+  "75 and older",
+  "Unknown")
 
 gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
                    "DifferentIdentity", "Questioning", "GenderNone")
@@ -177,19 +197,6 @@ syso_gender_excl <- c(
   "WomanExclusive",
   "UnknownExclusive"
 )
-
-syso_age_cats <- c(
-  "0 to 12",
-  "13 to 17",
-  "18 to 21",
-  "22 to 24",
-  "25 to 34",
-  "35 to 44",
-  "45 to 54",
-  "55 to 64",
-  "65 to 74",
-  "75 and older",
-  "Unknown")
 
 syso_race_ethnicity_incl <- list(
   "Group 0" = "All",
@@ -226,26 +233,23 @@ syso_race_ethnicity_excl <- list(
                 "WhiteExclusive2")
 )
 
-syso_project_types <- list(
-  "All" = "All",
-  "Residential" = "Residential",
-  "NonResidential" = "Non-residential"
+# Special Populations -----------------------------------------------------
+
+syso_veteran_pops <- list(
+  "Veteran" = "Veteran",
+  "Non-Veteran" = "NonVeteran"
 )
 
-syso_veteran_pops <- c(
-  "Veteran",
-  "NonVeteran"
+syso_dv_pops <- list(
+  "Currently Fleeing DV" = "DVFleeing",
+  "Not Currently Fleeing DV" = "DVNotFleeing",
+  "Total Experienced Domestic Violence" = "DVTotal",
+  "No Domestic Violence Indicated" = "NotDV"
 )
 
-syso_dv_pops <- c(
-  "DVFleeing",
-  "DVNotFleeing",
-  "DVTotal"
-)
-
-syso_chronic_pops <- c(
-  "Chronic",
-  "LongTerm"
+syso_chronic_pops <- list(
+  "Chronically Homeless" = "Chronic",
+  "Long-term Homeless" = "LongTerm"
 )
 
 syso_spec_pops_people <- c(
