@@ -965,7 +965,7 @@ function(input, output, session) {
   
   observeEvent(input$syso_level_of_detail, {
     updatePickerInput(session, "syso_spec_pops",
-                      label = special_pops_description(syso_spec_pops_people),
+                      # label = "Special Populations",
                       choices = syso_spec_pops_people)
   })
   
