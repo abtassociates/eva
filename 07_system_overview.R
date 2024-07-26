@@ -699,22 +699,22 @@ client_categories <- Client %>%
 client_categories_reactive <- reactive({
   if (input$methodology_type == 1) {
   client_categories %>%
-    select(PersonalID,
+      select(PersonalID,
            VeteranStatus,
            AgeCategory,
            ends_with("Exclusive"),
            ends_with("Exclusive1"),
            ends_with("Exclusive2")
            ) %>%
-    filter(AgeCategory %in% input$syso_age &
+      filter(AgeCategory %in% input$syso_age &
              input$methodology_type == 1 &
-             if_any(.cols = c(input$syso_gender), ~isTruthy(.)) &
-             if_any(.cols = c(input$syso_race_ethnicity), ~isTruthy(.)) &
+             if_any(.cols = c(input$syso_gender), ~ .x == 1) &
+             # if_any(.cols = c(input$syso_race_ethnicity), ~ .x == 1) &
              ((input$syso_spec_pops == "Veteran" &
                 VeteranStatus == 1) |
-             (input$syso_spec_pops == "NonVeteran" &
-                VeteranStatus == 0) |
-               input$syso_spec_pops %in% c("None", syso_dv_pops)))
+                (input$syso_spec_pops == "NonVeteran" &
+                   VeteranStatus == 0) |
+                input$syso_spec_pops %in% c("None", syso_dv_pops)))
   } else{
   
   client_categories %>%
