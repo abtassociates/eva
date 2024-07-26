@@ -213,7 +213,7 @@ homeless_cls_finder <- function(date, window = "before", days = 60) {
     unique()
 }
 # Enrollment-level flags --------------------------------------------------
-browser()
+# browser()
 # as much wrangling as possible without needing hhtype, project type, and level
 # of detail inputs
 
@@ -714,7 +714,7 @@ client_categories_reactive <- reactive({
                 VeteranStatus == 1) |
              (input$syso_spec_pops == "NonVeteran" &
                 VeteranStatus == 0) |
-               input$syso_spec_pops == "None"))
+               input$syso_spec_pops %in% c("None", syso_dv_pops)))
   } else{
   
   client_categories %>%
