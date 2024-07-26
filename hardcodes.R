@@ -182,20 +182,20 @@ gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific
 race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
 
-syso_gender_incl <- c(
-  "TransgenderInclusive",
-  "ManInclusive",
-  "NonBinaryInclusive",
-  "CisInclusive",
-  "WomanInclusive"
+syso_gender_incl <- list(
+  "Gender expansive, including transgender" = "TransgenderInclusive",
+  "Man (Boy, if child) alone or in combination" = "ManInclusive",
+  "Non-binary alone or in combination" = "NonBinaryInclusive",
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive",
+  "Woman (Girl, if child) alone or in combination" = "WomanInclusive"
 )
 
-syso_gender_excl <- c(
-  "GenderExpansiveExclusive",
-  "ManExclusive",
-  "TransgenderExclusive",
-  "WomanExclusive",
-  "UnknownExclusive"
+syso_gender_excl <- list(
+  "Gender expansive, not transgender" = "GenderExpansiveExclusive",
+  "Man (Boy, if child), alone" = "ManExclusive",
+  "Transgender, alone or in combination" = "TransgenderExclusive",
+  "Woman (Girl, if child), alone" = "WomanExclusive",
+  "Unknown" = "UnknownExclusive"
 )
 
 syso_race_ethnicity_incl <- list(
