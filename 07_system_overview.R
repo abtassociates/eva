@@ -213,7 +213,7 @@ homeless_cls_finder <- function(date, window = "before", days = 60) {
     unique()
 }
 # Enrollment-level flags --------------------------------------------------
-# browser()
+browser()
 # as much wrangling as possible without needing hhtype, project type, and level
 # of detail inputs
 
@@ -709,7 +709,7 @@ client_categories_reactive <- reactive({
       filter(AgeCategory %in% input$syso_age &
              input$methodology_type == 1 &
              if_any(.cols = c(input$syso_gender), ~ .x == 1) &
-             # if_any(.cols = c(input$syso_race_ethnicity), ~ .x == 1) &
+             if_any(.cols = c(input$syso_race_ethnicity), ~ .x == 1) &
              ((input$syso_spec_pops == "Veteran" &
                 VeteranStatus == 1) |
                 (input$syso_spec_pops == "NonVeteran" &

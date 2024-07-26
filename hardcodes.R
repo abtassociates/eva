@@ -179,9 +179,6 @@ syso_age_cats <- c(
 gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
                    "DifferentIdentity", "Questioning", "GenderNone")
 
-race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
-               "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
-
 syso_gender_incl <- list(
   "Gender expansive, including transgender" = "TransgenderInclusive",
   "Man (Boy, if child) alone or in combination" = "ManInclusive",
@@ -197,6 +194,9 @@ syso_gender_excl <- list(
   "Woman (Girl, if child), alone" = "WomanExclusive",
   "Unknown" = "UnknownExclusive"
 )
+
+race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
+               "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
 
 syso_race_ethnicity_incl <- list(
   "Group 0" = "All",
