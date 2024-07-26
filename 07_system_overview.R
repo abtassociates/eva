@@ -213,7 +213,7 @@ homeless_cls_finder <- function(date, window = "before", days = 60) {
     unique()
 }
 # Enrollment-level flags --------------------------------------------------
-
+browser()
 # as much wrangling as possible without needing hhtype, project type, and level
 # of detail inputs
 
@@ -262,10 +262,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
       DomesticViolenceSurvivor == 1 &
         (is.na(CurrentlyFleeing) | CurrentlyFleeing != 1) ~
         "DVNotFleeing",
-      DomesticViolenceSurvivor == 1 ~
-        "DVTotal",
       TRUE ~
-        "NotDV" # No Special Population Selected
+        "NotDV" 
       )
   ) %>%
   filter(
@@ -412,7 +410,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
 # after_te - before_te
 
 # Client-level flags ------------------------------------------------------
-# will help us categorize people
+# will help us categorize people for filtering
 
 client_categories <- Client %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
@@ -754,12 +752,17 @@ enrollment_categories_reactive <- reactive({
          (input$syso_level_of_detail == "HoHsAndAdults" &
             (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
          (input$syso_level_of_detail == "HoHsOnly" &
-            CorrectedHoH == 1))&
+            CorrectedHoH == 1)) &
         (input$syso_project_type == "All" |
            (input$syso_project_type == "Residential" &
               ProjectType %in% project_types_w_beds) |
            (input$syso_project_type == "NonResidential" &
-              ProjectType %in% non_res_project_types))
+              ProjectType %in% non_res_project_types)) &
+        (input$syso_spec_pops %in% c("None", "Veteran", "NonVeteran") |
+           (input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV") |
+           (input$syso_spec_pops == "NotDV" & DomesticViolenceCategory == "NotDV") |
+           input$syso_spec_pops == DomesticViolenceCategory
+           )
            )
   
 })
