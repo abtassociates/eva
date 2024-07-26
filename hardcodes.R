@@ -226,10 +226,10 @@ syso_race_ethnicity_excl <- list(
                 "WhiteExclusive2")
 )
 
-syso_project_types <- c(
-  "All",
-  "Residential",
-  "NonResidential"
+syso_project_types <- list(
+  "All" = "All",
+  "Residential" = "Residential",
+  "NonResidential" = "Non-residential"
 )
 
 syso_veteran_pops <- c(
