@@ -734,12 +734,12 @@ client_categories_reactive <- reactive({
         ends_with("Inclusive1"),
         ends_with("Inclusive2")
       ) %>%
-      mutate(All = "All") %>%
+      mutate(All = 1) %>%
       filter(
         AgeCategory %in% input$syso_age &
           input$methodology_type == 2 &
           if_any(.cols = c(input$syso_gender), ~ .x == 1) &
-          if_any(.cols = c(input$syso_race_ethnicity), ~ .x == 1) &
+          # if_any(.cols = c(input$syso_race_ethnicity), ~ .x == 1) &
           ((input$syso_spec_pops == "Veteran" &
               VeteranStatus == 1) |
              (input$syso_spec_pops == "NonVeteran" &
