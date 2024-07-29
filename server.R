@@ -940,7 +940,7 @@ function(input, output, session) {
       session, 
       "syso_gender", 
       choices = syso_gender_cats(),
-      selected = syso_gender_cats(),
+      selected = syso_gender_cats()[1],
       options = pickerOptions(
         actionsBox = TRUE,
         selectedTextFormat = paste("count >", length(syso_gender_cats())-1),
