@@ -199,22 +199,22 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
 
 syso_race_ethnicity_incl <- list(
-  "Group 0" = "All",
-  "Group 1" = c("AmIndAKNativeInclusive1",
+  "All" = "All",
+  "Detailed" = c("AmIndAKNativeInclusive1",
                 "AsianInclusive1",
                 "BlackAfAmericanInclusive1",
                 "LatineInclusive1",
                 "MENAInclusive1",
                 "NativeHIPacificInclusive1",
                 "WhiteInclusive1"),
-  "Group 2" = c("BlackAfAmericanLatineInclusive2",
+  "Summarized" = c("BlackAfAmericanLatineInclusive2",
                 "LatineInclusive2",
                 "LatineAloneInclusive2")
 )
 
 syso_race_ethnicity_excl <- list(
-  # "Group 0" = c("All"),
-  "Group 1" = c("AmIndAKNativeAloneExclusive1",
+  "All" = c("All"),
+  "Detailed" = c("AmIndAKNativeAloneExclusive1",
                 "AmIndAKNativeLatineExclusive1",
                 "AsianAloneExclusive1",
                 "AsianLatineExclusive1",
@@ -229,7 +229,7 @@ syso_race_ethnicity_excl <- list(
                 "WhiteLatineExclusive1",
                 "MultipleNotLatineExclusive1",
                 "MultipleLatineExclusive1"),
-  "Group 2" = c("BILPOCExclusive2",
+  "Summarized" = c("BILPOCExclusive2",
                 "WhiteExclusive2")
 )
 
