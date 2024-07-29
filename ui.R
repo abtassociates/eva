@@ -795,31 +795,36 @@ dashboardPage(
           box(
             title = "Gender and Race/Ethnicity Filters",
             width = 6,
-            column(6, pickerInput(
-              label = "Gender",
-              inputId = "syso_gender",
-              choices = "",
-              width = "100%",
-              selected = "",
-              # labels = gender_description(syso_gender_excl),
-              multiple = TRUE,
-              options = pickerOptions(
-                actionsBox = TRUE,
-                selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
-                countSelectedText = "All",
-                noneSelectedText = "All" 
+            column(
+              6,
+              pickerInput(
+                label = "Gender",
+                inputId = "syso_gender",
+                choices = "",
+                width = "100%",
+                selected = "",
+                # labels = gender_description(syso_gender_excl),
+                multiple = TRUE#,
+                # options = pickerOptions(
+                #   actionsBox = TRUE,
+                #   selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
+                #   countSelectedText = "All",
+                #   noneSelectedText = "All"
+                # )
               )
-            )),
-            column(6, pickerInput(
-              label = "Race/Ethnicity",
-              inputId = "syso_race_ethnicity",
-              choices = "",
-              width = "100%",
-              selected = ""
-            ))
+            ),
+            column(
+              6,
+              pickerInput(
+                label = "Race/Ethnicity",
+                inputId = "syso_race_ethnicity",
+                choices = "",
+                width = "100%",
+                selected = ""
+              )
+            )
           )
-        ),
-        fluidRow(
+        ),         fluidRow(
           tabBox(
             side = "right",
             selected = "Summary",
