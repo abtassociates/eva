@@ -696,59 +696,24 @@ client_categories <- Client %>%
   select(-all_of(gender_cols), -all_of(race_cols))
 
 client_categories_reactive <- reactive({
-  if (input$methodology_type == 2)
+  # if (input$methodology_type == 2)
     browser()
+
+  client_categories %>%
+    mutate(All = 1) %>%
+    filter(
+      AgeCategory %in% input$syso_age &
+        if_any(.cols = c(input$syso_gender), ~ .x == 1) &
+        if_any(.cols = c(input$syso_race_ethnicity), ~ .x == 1) &
+        ((input$syso_spec_pops == "Veteran" &
+            VeteranStatus == 1) |
+           (input$syso_spec_pops == "NonVeteran" &
+              VeteranStatus == 0) |
+           input$syso_spec_pops %in% c("None", syso_dv_pops)
+        )
+    ) %>%
+    select(-All)
   
-  if (input$methodology_type == 1) {
-    client_categories %>%
-      select(
-        PersonalID,
-        VeteranStatus,
-        AgeCategory,
-        ends_with("Exclusive"),
-        ends_with("Exclusive1"),
-        ends_with("Exclusive2")
-      ) %>%
-      mutate(All = 1) %>%
-      filter(
-        AgeCategory %in% input$syso_age &
-          input$methodology_type == 1 &
-          if_any(.cols = c(input$syso_gender), ~ .x == 1) &
-          if_any(.cols = c(input$syso_race_ethnicity), ~ .x == 1) &
-          ((input$syso_spec_pops == "Veteran" &
-              VeteranStatus == 1) |
-             (input$syso_spec_pops == "NonVeteran" &
-                VeteranStatus == 0) |
-             input$syso_spec_pops %in% c("None", syso_dv_pops)
-          )
-      ) %>%
-      select(-All)
-  } else{
-  
-    client_categories %>%
-      select(
-        PersonalID,
-        VeteranStatus,
-        AgeCategory,
-        ends_with("Inclusive"),
-        ends_with("Inclusive1"),
-        ends_with("Inclusive2")
-      ) %>%
-      mutate(All = 1) %>%
-      filter(
-        AgeCategory %in% input$syso_age &
-          input$methodology_type == 2 &
-          if_any(.cols = c(input$syso_gender), ~ .x == 1) &
-          # if_any(.cols = c(input$syso_race_ethnicity), ~ .x == 1) &
-          ((input$syso_spec_pops == "Veteran" &
-              VeteranStatus == 1) |
-             (input$syso_spec_pops == "NonVeteran" &
-                VeteranStatus == 0) |
-             input$syso_spec_pops %in% c("None", syso_dv_pops)
-          )
-      ) %>%
-      select(-All)
-  }
 })
 
 # Enrollment-level reactive -----------------------------------------------
