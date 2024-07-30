@@ -19,7 +19,8 @@ library(shinycssloaders)
 library(dtplyr)
 library(data.table)
 
-options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
+options(shiny.maxRequestSize = 200000000, # <- about 200MB, aka 200*1024^2
+        shiny.reactlog = TRUE)
 
 if(dir.exists("metadata-analysis/metadata/")) {
   capture.output("All good", file = stderr())
@@ -31,5 +32,5 @@ source("hardcodes.R", local = TRUE) # hard-coded variables and data frames
 # functions used throughout the app
 source("helper_functions.R", local = TRUE)
 
-# runApp(host = "172.19.46.18")
+# runApp(display.mode = "showcase")
 
