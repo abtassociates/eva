@@ -800,17 +800,16 @@ dashboardPage(
               pickerInput(
                 label = "Gender",
                 inputId = "syso_gender",
-                choices = "",
+                choices = syso_gender_excl,
                 width = "100%",
-                selected = "",
-                # labels = gender_description(syso_gender_excl),
-                multiple = TRUE#,
-                # options = pickerOptions(
-                #   actionsBox = TRUE,
-                #   selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
-                #   countSelectedText = "All",
-                #   noneSelectedText = "All"
-                # )
+                selected = syso_gender_excl,
+                multiple = TRUE,
+                options = pickerOptions(
+                  actionsBox = TRUE,
+                  selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
+                  countSelectedText = "All",
+                  noneSelectedText = "All"
+                )
               )
             ),
             column(
@@ -818,9 +817,9 @@ dashboardPage(
               pickerInput(
                 label = "Race/Ethnicity",
                 inputId = "syso_race_ethnicity",
-                choices = "",
+                choices = syso_race_ethnicity_excl,
                 width = "100%",
-                selected = ""
+                selected = syso_race_ethnicity_excl
               )
             )
           )
