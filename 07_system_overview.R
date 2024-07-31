@@ -696,8 +696,6 @@ client_categories <- Client %>%
   select(-all_of(gender_cols), -all_of(race_cols))
 
 client_categories_reactive <- reactive({
-  # if (input$methodology_type == 2)
-    browser()
 
   client_categories %>%
     mutate(All = 1) %>%

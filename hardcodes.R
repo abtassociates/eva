@@ -227,24 +227,42 @@ syso_race_ethnicity_incl <- list(
   )
 )
 syso_race_ethnicity_excl <- list(
-  "All" = c("All"),
-  "Detailed" = c("AmIndAKNativeAloneExclusive1",
-                "AmIndAKNativeLatineExclusive1",
-                "AsianAloneExclusive1",
-                "AsianLatineExclusive1",
-                "BlackAfAmericanAloneExclusive1",
-                "BlackAfAmericanLatineExclusive1",
-                "LatineAloneExclusive1",
-                "MENAAloneExclusive1",
-                "MENALatineExclusive1",
-                "NativeHIPacificAloneExclusive1",
-                "NativeHIPacificLatineExclusive1" ,
-                "WhiteAloneExclusive1",
-                "WhiteLatineExclusive1",
-                "MultipleNotLatineExclusive1",
-                "MultipleLatineExclusive1"),
-  "Summarized" = c("BILPOCExclusive2",
-                "WhiteExclusive2")
+  "All" = c("All Races/Ethnicities" = "All"),
+  "Detailed" = c(
+    "American Indian, Alaska Native, or Indigenous Alone" =
+      "AmIndAKNativeAloneExclusive1",
+    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" =
+      "AmIndAKNativeLatineExclusive1",
+    "Asian or Asian American Alone" =
+      "AsianAloneExclusive1",
+    "Asian or Asian American & Hispanic/Latina/e/o" =
+      "AsianLatineExclusive1",
+    "Black, African American, or African Alone" =
+      "BlackAfAmericanAloneExclusive1",
+    "Black, African American, or African & Hispanic/Latina/e/o" =
+      "BlackAfAmericanLatineExclusive1",
+    "Hispanic/Latina/e/o Alone" =
+      "LatineAloneExclusive1",
+    "Middle Eastern or North African Alone" =
+      "MENAAloneExclusive1",
+    "Middle Eastern or North African & Hispanic/Latina/e/o" =
+      "MENALatineExclusive1",
+    "Native Hawaiin or Pacific Islander Alone" =
+      "NativeHIPacificAloneExclusive1",
+    "Native Hawaiin or Pacific Islander & Hispanic/Latina/e/o" =
+      "NativeHIPacificLatineExclusive1" ,
+    "White Alone" =
+      "WhiteAloneExclusive1",
+    "White & Hispanic/Latina/e/o" =
+      "WhiteLatineExclusive1",
+    "Multi-Racial (not Hispanic/Latina/e/o)" =
+      "MultipleNotLatineExclusive1",
+    "Multi-Racial & Hispanic/Latina/e/o" =
+      "MultipleLatineExclusive1"
+  ),
+  "Summarized" = c("All People of Color" =
+                     "BILPOCExclusive2", "White Only" =
+                     "WhiteExclusive2")
 )
 
 # Special Populations -----------------------------------------------------
