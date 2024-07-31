@@ -198,20 +198,34 @@ syso_gender_excl <- list(
 race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
 
-syso_race_ethnicity_incl <- list(
-  "All" = "All",
-  "Detailed" = c("AmIndAKNativeInclusive1",
-                "AsianInclusive1",
-                "BlackAfAmericanInclusive1",
-                "LatineInclusive1",
-                "MENAInclusive1",
-                "NativeHIPacificInclusive1",
-                "WhiteInclusive1"),
-  "Summarized" = c("BlackAfAmericanLatineInclusive2",
-                "LatineInclusive2",
-                "LatineAloneInclusive2")
-)
 
+syso_race_ethnicity_incl <- list(
+  "All" = c("All Races/Ethnicities" = "All"),
+  "Detailed" = c(
+    "American Indian, Alaska Native, or Indigenous Inclusive" =
+      "AmIndAKNativeInclusive1",
+    "Asian or Asian American Inclusive" =
+      "AsianInclusive1",
+    "Black, African American, or African Inclusive" =
+      "BlackAfAmericanInclusive1",
+    "Hispanic/Latina/é/o" =
+      "LatineInclusive1",
+    "Middle Eastern or North African Inclusive" =
+      "MENAInclusive1",
+    "Native Hawaiin or Pacific Islander Inclusive" =
+      "NativeHIPacificInclusive1",
+    "White Inclusive" =
+      "WhiteInclusive1"
+  ),
+  "Summarized" = c(
+    "Black, African American or African and Hispanic/Latina/é/o Inclusive" =
+      "BlackAfAmericanLatineInclusive2",
+    "Hispanic/Latina/é/o Inclusive" =
+      "LatineInclusive2",
+    "Hispanic/Latina/é/o Alone" =
+      "LatineAloneInclusive2"
+  )
+)
 syso_race_ethnicity_excl <- list(
   "All" = c("All"),
   "Detailed" = c("AmIndAKNativeAloneExclusive1",
