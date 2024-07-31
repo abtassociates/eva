@@ -140,44 +140,30 @@ issue_levels <- c("High Priority", "Error", "Warning")
 issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 # System Overview - Filters -----------------------------------------------
-syso_hh_types <- c(
-  "All", 
-  "Adult-Only", 
-  "Adult-Child", 
-  "Child-Only",
-  "Youth and Young Adult", 
-  "Unknown Household"
+
+syso_hh_types <- list(
+  "All" = "All",
+  "Households without children" = "AO",
+  "Households with children" = "AC",
+  "Children Only" = "CO",
+  "Youth and Young Adults" = "YYA",
+  "Parenting Youth" = "PY"
 )
 
-syso_level_of_detail <- c(
-  "All", 
-  "HoHsAndAdults", 
-  "HoHsOnly"
+syso_level_of_detail <- list(
+  "All" = "All", 
+  "Heads of Household and Adults" = "HoHsAndAdults", 
+  "Heads of Household Only" = "HoHsOnly"
 )
 
-gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
-                   "DifferentIdentity", "Questioning", "GenderNone")
-
-race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
-               "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
-
-syso_gender_incl <- c(
-  "TransgenderInclusive",
-  "ManInclusive",
-  "NonBinaryInclusive",
-  "CisInclusive",
-  "WomanInclusive"
-)
-
-syso_gender_excl <- c(
-  "GenderExpansiveExclusive",
-  "ManExclusive",
-  "TransgenderExclusive",
-  "WomanExclusive",
-  "UnknownExclusive"
+syso_project_types <- list(
+  "All" = "All",
+  "Residential" = "Residential",
+  "Non-residential" = "NonResidential"
 )
 
 syso_age_cats <- c(
+  # "All ages",
   "0 to 12",
   "13 to 17",
   "18 to 21",
@@ -190,23 +176,45 @@ syso_age_cats <- c(
   "75 and older",
   "Unknown")
 
+gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
+                   "DifferentIdentity", "Questioning", "GenderNone")
+
+syso_gender_incl <- list(
+  "Gender expansive, including transgender" = "TransgenderInclusive",
+  "Man (Boy, if child) alone or in combination" = "ManInclusive",
+  "Non-binary alone or in combination" = "NonBinaryInclusive",
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive",
+  "Woman (Girl, if child) alone or in combination" = "WomanInclusive"
+)
+
+syso_gender_excl <- list(
+  "Gender expansive, not transgender" = "GenderExpansiveExclusive",
+  "Man (Boy, if child), alone" = "ManExclusive",
+  "Transgender, alone or in combination" = "TransgenderExclusive",
+  "Woman (Girl, if child), alone" = "WomanExclusive",
+  "Unknown" = "UnknownExclusive"
+)
+
+race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
+               "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
+
 syso_race_ethnicity_incl <- list(
-  "Group 0" = "All",
-  "Group 1" = c("AmIndAKNativeInclusive1",
+  "All" = "All",
+  "Detailed" = c("AmIndAKNativeInclusive1",
                 "AsianInclusive1",
                 "BlackAfAmericanInclusive1",
                 "LatineInclusive1",
                 "MENAInclusive1",
                 "NativeHIPacificInclusive1",
                 "WhiteInclusive1"),
-  "Group 2" = c("BlackAfAmericanLatineInclusive2",
+  "Summarized" = c("BlackAfAmericanLatineInclusive2",
                 "LatineInclusive2",
                 "LatineAloneInclusive2")
 )
 
 syso_race_ethnicity_excl <- list(
-  # "Group 0" = c("All"),
-  "Group 1" = c("AmIndAKNativeAloneExclusive1",
+  "All" = c("All"),
+  "Detailed" = c("AmIndAKNativeAloneExclusive1",
                 "AmIndAKNativeLatineExclusive1",
                 "AsianAloneExclusive1",
                 "AsianLatineExclusive1",
@@ -221,30 +229,27 @@ syso_race_ethnicity_excl <- list(
                 "WhiteLatineExclusive1",
                 "MultipleNotLatineExclusive1",
                 "MultipleLatineExclusive1"),
-  "Group 2" = c("BILPOCExclusive2",
+  "Summarized" = c("BILPOCExclusive2",
                 "WhiteExclusive2")
 )
 
-syso_project_types <- c(
-  "All",
-  "Residential",
-  "NonResidential"
+# Special Populations -----------------------------------------------------
+
+syso_veteran_pops <- list(
+  "Veteran" = "Veteran",
+  "Non-Veteran" = "NonVeteran"
 )
 
-syso_veteran_pops <- c(
-  "Veteran",
-  "NonVeteran"
+syso_dv_pops <- list(
+  "Currently Fleeing DV" = "DVFleeing",
+  "Not Currently Fleeing DV" = "DVNotFleeing",
+  "Total Experienced Domestic Violence" = "DVTotal",
+  "No Domestic Violence Indicated" = "NotDV"
 )
 
-syso_dv_pops <- c(
-  "DVFleeing",
-  "DVNotFleeing",
-  "DVTotal"
-)
-
-syso_chronic_pops <- c(
-  "Chronic",
-  "LongTerm"
+syso_chronic_pops <- list(
+  "Chronically Homeless" = "Chronic",
+  "Long-term Homeless" = "LongTerm"
 )
 
 syso_spec_pops_people <- c(

@@ -795,31 +795,35 @@ dashboardPage(
           box(
             title = "Gender and Race/Ethnicity Filters",
             width = 6,
-            column(6, pickerInput(
-              label = "Gender",
-              inputId = "syso_gender",
-              choices = syso_gender_excl,
-              width = "100%",
-              selected = syso_gender_excl,
-              # labels = gender_description(syso_gender_excl),
-              multiple = TRUE,
-              options = pickerOptions(
-                actionsBox = TRUE,
-                selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
-                countSelectedText = "All Genders",
-                noneSelectedText = "All Genders" 
+            column(
+              6,
+              pickerInput(
+                label = "Gender",
+                inputId = "syso_gender",
+                choices = syso_gender_excl,
+                width = "100%",
+                selected = syso_gender_excl,
+                multiple = TRUE,
+                options = pickerOptions(
+                  actionsBox = TRUE,
+                  selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
+                  countSelectedText = "All",
+                  noneSelectedText = "All"
+                )
               )
-            )),
-            column(6, pickerInput(
-              label = "Race/Ethnicity",
-              inputId = "syso_race_ethnicity",
-              choices = syso_race_ethnicity_incl,
-              width = "100%",
-              selected = "All Races/Ethnicities"
-            ))
+            ),
+            column(
+              6,
+              pickerInput(
+                label = "Race/Ethnicity",
+                inputId = "syso_race_ethnicity",
+                choices = syso_race_ethnicity_excl,
+                width = "100%",
+                selected = syso_race_ethnicity_excl
+              )
+            )
           )
-        ),
-        fluidRow(
+        ),         fluidRow(
           tabBox(
             side = "right",
             selected = "Summary",
