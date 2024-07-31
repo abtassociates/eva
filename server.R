@@ -900,43 +900,42 @@ function(input, output, session) {
   })
   
     # Population reactives ----------------------------------------------------
-  syso_race_ethnicity_cats <- reactive({
-    ifelse(
-      input$methodology_type == 1,
-      list(syso_race_ethnicity_excl),
-      list(syso_race_ethnicity_incl)
-    )[[1]]
-  })
-  
-  observeEvent(input$methodology_type, {
     
     # Set race/ethnicity + gender filter options based on methodology type selection
     # Set special populations options based on level of detail selection
-    syso_gender_cats <- reactive({
-      ifelse(
-        input$methodology_type == 1,
-        list(syso_gender_excl),
-        list(syso_gender_incl)
-      )[[1]]
-    })
+  syso_race_ethnicity_cats <- function(methodology = 1){
+    ifelse(
+      methodology == 1,
+      list(syso_race_ethnicity_excl),
+      list(syso_race_ethnicity_incl)
+    )[[1]]
+  }
+  
+  syso_gender_cats <- function(methodology = 1){
+    ifelse(methodology == 1,
+           list(syso_gender_excl),
+           list(syso_gender_incl))[[1]]
+  }
+  
+  observeEvent(input$methodology_type, {
     
     updatePickerInput(
       session = session,
       "syso_gender", 
-      choices = syso_gender_cats(),
-      selected = unlist(syso_gender_cats(), use.names = FALSE),
+      choices = syso_gender_cats(input$methodology_type),
+      selected = unlist(syso_gender_cats(input$methodology_type), use.names = FALSE),
       options = pickerOptions(
-        actionsBox = TRUE,
-        selectedTextFormat = paste("count >", length(syso_gender_cats())-1),
-        countSelectedText = "All Genders",
-        noneSelectedText = "All Genders" 
+        # actionsBox = TRUE,
+        selectedTextFormat = paste("count >", length(syso_gender_cats(input$methodology_type))-1)
+        # countSelectedText = "All Genders",
+        # noneSelectedText = "All Genders" 
       )
     )
     # selected = syso_gender_cats()[1]
     updatePickerInput(
       session, 
       "syso_race_ethnicity", 
-      choices = syso_race_ethnicity_cats()
+      choices = syso_race_ethnicity_cats(input$methodology_type)
     )
     
     updateCheckboxGroupInput(

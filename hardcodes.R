@@ -198,39 +198,71 @@ syso_gender_excl <- list(
 race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
 
-syso_race_ethnicity_incl <- list(
-  "All" = "All",
-  "Detailed" = c("AmIndAKNativeInclusive1",
-                "AsianInclusive1",
-                "BlackAfAmericanInclusive1",
-                "LatineInclusive1",
-                "MENAInclusive1",
-                "NativeHIPacificInclusive1",
-                "WhiteInclusive1"),
-  "Summarized" = c("BlackAfAmericanLatineInclusive2",
-                "LatineInclusive2",
-                "LatineAloneInclusive2")
-)
 
+syso_race_ethnicity_incl <- list(
+  "All" = c("All Races/Ethnicities" = "All"),
+  "Detailed" = c(
+    "American Indian, Alaska Native, or Indigenous Inclusive" =
+      "AmIndAKNativeInclusive1",
+    "Asian or Asian American Inclusive" =
+      "AsianInclusive1",
+    "Black, African American, or African Inclusive" =
+      "BlackAfAmericanInclusive1",
+    "Hispanic/Latina/é/o" =
+      "LatineInclusive1",
+    "Middle Eastern or North African Inclusive" =
+      "MENAInclusive1",
+    "Native Hawaiin or Pacific Islander Inclusive" =
+      "NativeHIPacificInclusive1",
+    "White Inclusive" =
+      "WhiteInclusive1"
+  ),
+  "Summarized" = c(
+    "Black, African American or African and Hispanic/Latina/é/o Inclusive" =
+      "BlackAfAmericanLatineInclusive2",
+    "Hispanic/Latina/é/o Inclusive" =
+      "LatineInclusive2",
+    "Hispanic/Latina/é/o Alone" =
+      "LatineAloneInclusive2"
+  )
+)
 syso_race_ethnicity_excl <- list(
-  "All" = c("All"),
-  "Detailed" = c("AmIndAKNativeAloneExclusive1",
-                "AmIndAKNativeLatineExclusive1",
-                "AsianAloneExclusive1",
-                "AsianLatineExclusive1",
-                "BlackAfAmericanAloneExclusive1",
-                "BlackAfAmericanLatineExclusive1",
-                "LatineAloneExclusive1",
-                "MENAAloneExclusive1",
-                "MENALatineExclusive1",
-                "NativeHIPacificAloneExclusive1",
-                "NativeHIPacificLatineExclusive1" ,
-                "WhiteAloneExclusive1",
-                "WhiteLatineExclusive1",
-                "MultipleNotLatineExclusive1",
-                "MultipleLatineExclusive1"),
-  "Summarized" = c("BILPOCExclusive2",
-                "WhiteExclusive2")
+  "All" = c("All Races/Ethnicities" = "All"),
+  "Detailed" = c(
+    "American Indian, Alaska Native, or Indigenous Alone" =
+      "AmIndAKNativeAloneExclusive1",
+    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" =
+      "AmIndAKNativeLatineExclusive1",
+    "Asian or Asian American Alone" =
+      "AsianAloneExclusive1",
+    "Asian or Asian American & Hispanic/Latina/e/o" =
+      "AsianLatineExclusive1",
+    "Black, African American, or African Alone" =
+      "BlackAfAmericanAloneExclusive1",
+    "Black, African American, or African & Hispanic/Latina/e/o" =
+      "BlackAfAmericanLatineExclusive1",
+    "Hispanic/Latina/e/o Alone" =
+      "LatineAloneExclusive1",
+    "Middle Eastern or North African Alone" =
+      "MENAAloneExclusive1",
+    "Middle Eastern or North African & Hispanic/Latina/e/o" =
+      "MENALatineExclusive1",
+    "Native Hawaiin or Pacific Islander Alone" =
+      "NativeHIPacificAloneExclusive1",
+    "Native Hawaiin or Pacific Islander & Hispanic/Latina/e/o" =
+      "NativeHIPacificLatineExclusive1" ,
+    "White Alone" =
+      "WhiteAloneExclusive1",
+    "White & Hispanic/Latina/e/o" =
+      "WhiteLatineExclusive1",
+    "Multi-Racial (not Hispanic/Latina/e/o)" =
+      "MultipleNotLatineExclusive1",
+    "Multi-Racial & Hispanic/Latina/e/o" =
+      "MultipleLatineExclusive1"
+  ),
+  "Summarized" = c("All People of Color" =
+                     "BILPOCExclusive2", "White Only" =
+                     "WhiteExclusive2")
 )
 
 # Special Populations -----------------------------------------------------

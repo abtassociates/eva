@@ -264,18 +264,18 @@ level_of_detail_description <- function(detail_abb){
   )
 }
 
-syso_race_ethnicity_incl <- list(
-  "Group 0" = c("All Races/Ethnicities" = 0),
-  "Group 1" = c("American Indian, Alaska Native, or Indigenous Inclusive" = 1,
-                "Asian or Asian American Inclusive" = 2,
-                "Black, African American, or African Inclusive" = 3,
-                "Hispanic/Latina/é/o" = 4,
-                "Middle Eastern or North African Inclusive" = 5,
-                "Native Hawaiin or Pacific Islander Inclusive" = 6,
-                "White Inclusive" = 7),
-  "Group 2" = c("Black, African American or African and Hispanic/Latina/é/o Inclusive" = 8,
-                "Hispanic/Latina/é/o Inclusive" = 9,
-                "Hispanic/Latina/é/o Alone" = 10))
+# syso_race_ethnicity_incl <- list(
+#   "Group 0" = c("All Races/Ethnicities" = 0),
+#   "Group 1" = c("American Indian, Alaska Native, or Indigenous Inclusive" = 1,
+#                 "Asian or Asian American Inclusive" = 2,
+#                 "Black, African American, or African Inclusive" = 3,
+#                 "Hispanic/Latina/é/o" = 4,
+#                 "Middle Eastern or North African Inclusive" = 5,
+#                 "Native Hawaiin or Pacific Islander Inclusive" = 6,
+#                 "White Inclusive" = 7),
+#   "Group 2" = c("Black, African American or African and Hispanic/Latina/é/o Inclusive" = 8,
+#                 "Hispanic/Latina/é/o Inclusive" = 9,
+#                 "Hispanic/Latina/é/o Alone" = 10))
 # Translate to Values -----------------------------------------------------
 
 replace_yes_no <- function(column_name) {
