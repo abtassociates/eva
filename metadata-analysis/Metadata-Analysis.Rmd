@@ -28,17 +28,20 @@ library(scales)
 
 visits <-
   read_lines(here("metadata-analysis/metadata/site_visits.txt"))
-
+  #read_lines(here("~/sdrive_ce/eva_dz/metadata-analysis/metadata/site_visits.txt"))
 uploads <-
   read_lines(here("metadata-analysis/metadata/upload_metadata.txt"))
+  #read_lines(here("~/sdrive_ce/eva_dz/metadata-analysis/metadata/upload_metadata.txt"))
 
 session_data <- read_csv(here("metadata-analysis/metadata/sessiondata.csv")) %>%
+#session_data <- read_csv(here("~/sdrive_ce/eva_dz/metadata-analysis/metadata/sessiondata.csv")) %>%
   group_by(SessionToken) %>%
   count(CoC)
 
 new_way <-
   read_csv(here("metadata-analysis/metadata/metadata.csv")) %>% # <- don't change this
   # ^ change where your file is in your project directory
+  #read_csv(here("~/sdrive_ce/eva_dz/metadata-analysis/metadata/metadata.csv")) %>%
   group_by(SessionToken) %>%
   mutate(sessionTime = difftime(max(Datestamp), min(Datestamp), units = "mins"),
          is_timeout = sessionTime >= 10 & sessionTime < 11,
@@ -65,6 +68,7 @@ new_way <-
            )
            ~ "Unsuccessful upload",
            Event %in% c("Successful upload") ~ "Successful upload",
+           grepl("Downloaded", Event, ignore.case = TRUE) ~ "Downloaded",
            TRUE ~ "Other"
          )) %>%
   filter(today() >= WeekEnding)
@@ -103,6 +107,7 @@ old_way <- rbind(uploads_df, visits_df) %>%
         "Unsuccessful upload - out of date HMIS CSV Export")
       ~ "Unsuccessful upload",
       Event %in% c("Successful upload") ~ "Successful Upload",
+      grepl("Downloaded", Event, ignore.case = TRUE) ~ "Downloaded",
       TRUE ~ "Other"
     )
   )
@@ -402,6 +407,28 @@ counts_by_week %>%
 
 ```
 
+
+```{r fig.width=10, fig.height=5}
+
+counts_category_week %>%
+  filter(str_detect(EventCategory, "Download")) %>%
+  ggplot(aes(x = WeekEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
+  geom_line() +
+  geom_point() +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_brewer(palette = "Set1") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m/%d") +
+  labs(title = "Weekly Eva Downloads - Total Downloads",
+       x = "Week Ending",
+       y = "",
+       caption = "Download data not collected until Dec 29, 2022.") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
+  
+```
+
+
 ```{r fig.width=10, fig.height=5}
 
 counts_by_month %>%
@@ -423,6 +450,29 @@ counts_by_month %>%
 
 
 ```
+
+```{r fig.width=10, fig.height=5}
+
+counts_category_month %>%
+  filter(str_detect(EventCategory, "Download")) %>%
+  filter(!str_detect(EventCategory, "DEMO MODE")) %>%
+  #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
+  ggplot(aes(x = MonthEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
+  geom_line() +
+  geom_point() +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%B") +
+  labs(title = "Monthly Eva Downloads - Total Downloads",
+       x = "Month Ending",
+       y = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
+
+
+```
+
 
 ## Demo Mode Stats
 
