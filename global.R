@@ -29,8 +29,8 @@ if(dir.exists("metadata-analysis/metadata/")) {
 }
 source("hardcodes.R", local = TRUE) # hard-coded variables and data frames
 
-# functions used throughout the app
-source("helper_functions.R", local = TRUE)
+# # functions used throughout the app
+# source("helper_functions.R", local = TRUE)
 
 # runApp(display.mode = "showcase")
 
