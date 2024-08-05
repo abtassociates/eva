@@ -19,8 +19,7 @@ library(shinycssloaders)
 library(dtplyr)
 library(data.table)
 
-options(shiny.maxRequestSize = 200000000, # <- about 200MB, aka 200*1024^2
-        shiny.reactlog = TRUE)
+options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 
 if(dir.exists("metadata-analysis/metadata/")) {
   capture.output("All good", file = stderr())
