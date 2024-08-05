@@ -914,7 +914,8 @@ inflow_outflow_df <- reactive({
   # https://onlinetools.com/time/visualize-date-intervals <- here.
   universe_ppl <- universe %>%
     group_by(PersonalID) %>%
-    filter(max(lecr) == 1 & max(eecr) == 1) %>% # drops ppl w/o an eecr or lecr
+    filter(max(lecr, na.rm = TRUE) == 1 & max(eecr, na.rm = TRUE) == 1) %>%
+    # drops ppl w/o an eecr or lecr
     summarise(
       # INFLOW
       active_at_start_homeless_client = max(active_at_start_homeless),
