@@ -52,9 +52,7 @@ function(input, output, session) {
   
   # changelog entries
   source("changelog.R", local = TRUE)
-  # changelog entries
-  source("changelog.R", local = TRUE)
-  
+
   # manages toggling demo mode on and off
   source("demo_management.R", local = TRUE)
   
