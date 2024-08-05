@@ -263,7 +263,6 @@ function(input, output, session) {
                                  start = meta_HUDCSV_Export_Start(),
                                  max = meta_HUDCSV_Export_End(),
                                  end = meta_HUDCSV_Export_End())
-            
           }
           
         } else{ # if structural issues were found, reset gracefully
