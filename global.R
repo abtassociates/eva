@@ -16,6 +16,7 @@ library(shinyjs)
 library(shinydisconnect)
 library(here)
 library(shinycssloaders)
+library(htmlTable)
 library(dtplyr)
 library(data.table)
 
