@@ -372,7 +372,8 @@ function(input, output, session) {
   )
   
   output$downloadImpermissibleCharacterDetailBtn <- renderUI({
-    req(nrow(file_structure_analysis_main()) > 0)
+    # browser()
+    req("Impermissible characters" %in% c(file_structure_analysis_main()$Issue))
     tagList(
       actionButton("showDownloadImpermissibleButton",
                    "Download Impermissible Character Detail", 
