@@ -228,6 +228,8 @@ function(input, output, session) {
             )
           )
           
+          shinyjs::show("fileStructureAnalysis")
+          
           logMetadata("Successful upload")
           
           logToConsole("Updating inputs")
