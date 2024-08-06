@@ -58,7 +58,7 @@ operatingEndMissing <- Enrollment %>%
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
            MostRecentEnrollment >= 
-           coalesce(OperatingEndDate, Export$ExportDate) - 30 &
+           coalesce(OperatingEndDate, Export()$ExportDate) - 30 &
            is.null(OperatingEndDate)) %>%
   mutate(
     Issue = "Potentially Missing Operating End Date",
@@ -143,8 +143,8 @@ inventoryOutsideOperating <- Inventory %>%
     Issue = case_when(
       InventoryStartDate < OperatingStartDate ~
         "Inventory Start Precedes Project Operating Start",
-      coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_Date)) >
-        coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_Date)) ~
+      coalesce(InventoryEndDate, as.Date(meta_HUDCSV_Export_Date())) >
+        coalesce(OperatingEndDate, as.Date(meta_HUDCSV_Export_Date())) ~
         "Project Operating End precedes Inventory End",
       TRUE ~ "none"
     ),
@@ -245,8 +245,8 @@ es_no_tracking_method <- Project %>%
 projects_w_beds <- Inventory %>%
   filter(
     BedInventory > 0 &
-      coalesce(InventoryEndDate, meta_HUDCSV_Export_End) >= meta_HUDCSV_Export_Start &
-      InventoryStartDate <= meta_HUDCSV_Export_End
+      coalesce(InventoryEndDate, meta_HUDCSV_Export_End()) >= meta_HUDCSV_Export_Start() &
+      InventoryStartDate <= meta_HUDCSV_Export_End()
   ) %>%
   pull(ProjectID) %>%
   unique()

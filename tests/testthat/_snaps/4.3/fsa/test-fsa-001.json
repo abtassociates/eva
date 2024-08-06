@@ -1,0 +1,84 @@
+{
+  "input": {
+    "CELongStayers": 90,
+    "CEOutstandingReferrals": 14,
+    "DayShelterLongStayers": 90,
+    "ESNbNLongStayers": 90,
+    "Go_to_upload": 1,
+    "OUTLongStayers": 90,
+    "OtherLongStayers": 90,
+    "ServicesOnlyLongStayers": 90,
+    "currentProviderList": null,
+    "dateRangeCount": [
+      "2023-10-05",
+      "2023-10-05"
+    ],
+    "imported": {
+      "name": [
+        "FY24-ICF-fsa-test.zip"
+      ],
+      "size": [
+        8748
+      ],
+      "type": [
+        "application/zip"
+      ],
+      "datapath": [
+        "0.zip"
+      ]
+    },
+    "isdemo": false,
+    "methodology_type": "1",
+    "orgList": null,
+    "sidebarCollapsed": false,
+    "sidebarItemExpanded": null,
+    "sidebarmenuid": "tabUpload",
+    "syso_age": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
+    "syso_date_range": [
+      "2023-10-05",
+      "2023-10-05"
+    ],
+    "syso_gender": null,
+    "syso_hh_type": "1",
+    "syso_level_of_detail": "1",
+    "syso_project_type": "1",
+    "syso_race_ethnicity": "0",
+    "syso_spec_pops": "1"
+  },
+  "output": {
+    "downloadFileStructureAnalysisBtn": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "fileInfo": null,
+    "fileStructureAnalysis": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "headerUpload": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    }
+  },
+  "export": {
+
+  }
+}

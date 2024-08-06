@@ -1,257 +1,323 @@
 # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
-# Define the hardcoded values for x.axis.var and cat.var
+# Define the hardcoded values for Time and Status
 # we need all combinations for the 0s
-active_as_of_start <- reactive({ paste0("Active as of \n", input$syso_date_range[1]) })
-active_as_of_end <- reactive({ paste0("Active as of \n", input$syso_date_range[2]) })
-x.axis.var_summary_values <- reactive({
-  c(
-    active_as_of_start(),
-    "Inflow",
-    "Outflow",
-    active_as_of_end()
+
+frame_detail <- 
+  data.frame(
+    Status = c("Homeless",
+               "Housed",
+               "Newly Homeless",
+               "Returned from \nPermanent",
+               "Re-engaged from \nNon-Permanent",
+               "Exited to \nPermanent Destination",
+               "Exited to \nNon-Permanent Destination",
+               "Inactive",
+               "Homeless",
+               "Housed"),
+    Time = c(rep("Active at Start", 2),
+             rep("Inflow", 3),
+             rep("Outflow", 3),
+             rep("Active at End", 2)),
+    InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)))
+
+frame_summary <-
+  data.frame(
+    Status = c("Homeless",
+               "Housed",
+               "Inflow",
+               "Outflow",
+               "Homeless",
+               "Housed"),
+    Time = c(rep(paste0("Active at Start"), 2),
+             "Inflow",
+             "Outflow",
+             rep(paste0("Active at End"), 2)),
+    InflowOutflow = c(rep("Inflow", 3), rep("Outflow", 3))
   )
-})
 
-x.axis.var_detail_values <- reactive({
-  c(
-    active_as_of_start(),
-    "Newly Homeless", 
-    "Returned from \nPermanent", 
-    "Re-engaged from \nTemporary or Unknown",
-    "Permanent Destination",
-    "Temporary/Unknown \nDestination",
-    active_as_of_end()
-  )
-})
-
-cat.var_summary_values <- c(
-  "Enrolled: Homeless", 
-  "Enrolled: Housed", 
-  "Inflow", 
-  "Outflow"
-)
-
-cat.var_detail_values <- c(
-  "Enrolled: Homeless", 
-  "Enrolled: Housed", 
-  "Newly Homeless", 
-  "Returned from \nPermanent", 
-  "Re-engaged from \nTemporary or Unknown",
-  "Permanent Destination",
-  "Temporary/Unknown \nDestination"
-)
-
-system_activity_prep <- reactive({
-  system_df_people() %>% # this is a people-level df
-    pivot_longer(
-      cols = c(InflowType, OutflowType), 
-      names_to = "x.axis.var", 
-      values_to = "cat.var") %>%
-    group_by(x.axis.var, cat.var) %>%
+system_activity_prep_detail <- reactive({
+# browser()
+  inflow <- sys_inflow_outflow_plot_data()() %>%
+    select(PersonalID,
+           InflowTypeSummary,
+           InflowTypeDetail) %>%
+    group_by(InflowTypeDetail) %>%
     summarise(values = n()) %>%
-    filter(!is.na(cat.var)) %>%
-    mutate(
-      values = ifelse(x.axis.var == "OutflowType", values*-1, values),
-      inflow_outflow = x.axis.var,
-      x.axis.var = case_when(
-        x.axis.var == "InflowType" &
-          cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed")
-        ~ active_as_of_start(),
-        
-        x.axis.var == "OutflowType" &
-          cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed")
-        ~ active_as_of_end(),
-          
-        x.axis.var == "InflowType"
-        ~ "Inflow",
-        
-        x.axis.var == "OutflowType"
-        ~ "Outflow"
-      )
-    )
-})
-
-# Combine the inflow types (newly homeless, returned from permanent, re-engaged
-# into one group)
-system_activity_summary_prep <- reactive({
-  system_activity_prep() %>%
-    mutate(
-      cat.var = case_when(
-        x.axis.var == "Inflow" &
-        !(cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed"))
-        ~ "Inflow",
-  
-        x.axis.var == "Outflow" &
-        !(cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed"))
-        ~ "Outflow",
-  
-        TRUE ~ cat.var
-      )
-    ) %>%
-    group_by(x.axis.var, cat.var) %>%
-    mutate(values = sum(values)) %>%
     ungroup() %>%
-    unique()
-})
-
-# Rename the x-axis.var values to be the inflow and outflow types, 
-# which are in cat.var
-system_activity_detail_prep <- reactive({
-  system_activity_prep() %>%
+    rename("Status" = InflowTypeDetail) %>%
+    full_join(frame_detail %>%
+                filter(InflowOutflow == "Inflow")) %>%
+    mutate(values = replace_na(values, 0))
+  
+  outflow <- sys_inflow_outflow_plot_data()() %>%
+    select(PersonalID,
+           OutflowTypeSummary,
+           OutflowTypeDetail) %>%
+    group_by(OutflowTypeDetail) %>%
+    summarise(values = n()) %>%
+    ungroup() %>%
+    rename("Status" = OutflowTypeDetail) %>%
+    full_join(frame_detail %>%
+                filter(InflowOutflow == "Outflow")) %>%
+    mutate(values = replace_na(values, 0))
+  
+  inflow %>%
+    full_join(outflow, join_by(Time, values, Status, InflowOutflow)) %>%
     mutate(
-      x.axis.var = ifelse(
-        !(cat.var %in% c("Enrolled: Homeless", "Enrolled: Housed")),
-        cat.var,
-        x.axis.var
+      Time = factor(
+        Time,
+        levels = c("Active at Start",
+                   "Inflow",
+                   "Outflow",
+                   "Active at End")
+      ),
+      Status = factor(
+        Status,
+        levels = c(
+          "Homeless",                          
+          "Housed",
+          "Newly Homeless",
+          "Returned from \nPermanent",
+          "Re-engaged from \nNon-Permanent",
+          "Exited to \nNon-Permanent Destination",
+          "Exited to \nPermanent Destination",
+          "Inactive"
+        )
       )
-    )
-})
-
-prep_for_chart <- function(df, catvar_values, xvar_values) {
-  # expand to make sure all combinations are included so the spacing is right
-  # also factor, sort, and group for the chart
-  df %>%
-    right_join(
-      expand.grid(x.axis.var = xvar_values,
-                  cat.var = catvar_values),
-      by = c("x.axis.var", "cat.var")) %>%
-    replace_na(list(values=0)) %>%
-    mutate(
-      x.axis.var = factor(x.axis.var, levels = xvar_values),
-      cat.var = factor(cat.var, levels = catvar_values)
     ) %>%
-    arrange(x.axis.var, desc(cat.var)) %>%
-    group_by(x.axis.var) %>%
+    arrange(Time, Status) %>%
+    group_by(Time) %>%
     mutate(group.id = cur_group_id()) %>%
     ungroup() %>%
-    mutate(end.Bar = cumsum(values),
-           start.Bar = c(0, head(end.Bar, -1))) %>%
-    select(inflow_outflow, x.axis.var, cat.var, values, group.id, end.Bar, start.Bar)
-}
+    mutate(
+      values = ifelse(InflowOutflow == "Outflow", values * -1, values),
+      ystart = lag(cumsum(values), default = 0),
+      yend = round(cumsum(values))
+    )
+  
+  
+  
+})
+
+system_activity_prep_summary <- reactive({
+  # browser()
+  prep <- sys_inflow_outflow_plot_data()() %>% # this is a people-level df
+    mutate(
+      InflowSummaryMatrix = case_when(
+        InflowTypeSummary == "Active at Start" & InflowTypeDetail == "Homeless" ~
+          "Homeless",
+        InflowTypeSummary == "Active at Start" & InflowTypeDetail == "Housed" ~
+          "Housed",
+        TRUE ~ InflowTypeSummary
+      ),
+      OutflowSummaryMatrix = case_when(
+        OutflowTypeSummary == "Active at End" & OutflowTypeDetail == "Homeless" ~
+          "Homeless",
+        OutflowTypeSummary == "Active at End" & OutflowTypeDetail == "Housed" ~
+          "Housed",
+        TRUE ~ OutflowTypeSummary
+      )
+    )
+  
+  inflow <- prep %>%
+    select(PersonalID,
+           InflowTypeSummary,
+           InflowTypeDetail,
+           InflowSummaryMatrix) %>%
+    group_by(InflowSummaryMatrix) %>%
+    summarise(values = n()) %>%
+    ungroup() %>%
+    rename("Status" = InflowSummaryMatrix) %>%
+    mutate(
+      Time = if_else(Status != "Inflow",
+                     "Active at Start",
+                     Status))
+  
+  outflow <- prep %>%
+    select(PersonalID,
+           OutflowTypeSummary,
+           OutflowTypeDetail,
+           OutflowSummaryMatrix) %>%
+    group_by(OutflowSummaryMatrix) %>%
+    summarise(values = n()) %>%
+    ungroup() %>%
+    rename("Status" = OutflowSummaryMatrix) %>%
+    mutate(
+      Time = if_else(Status != "Outflow",
+                     "Active at End",
+                     Status))
+  
+  inflow %>%
+    full_join(outflow, join_by(Status, values, Time)) %>%
+    full_join(frame_summary, join_by(Status, Time)) %>%
+    mutate(
+      values = replace_na(values, 0),
+      Time = factor(
+        Time,
+        levels = c("Active at Start",
+                   "Inflow",
+                   "Outflow",
+                   "Active at End")
+      )
+    ) %>%
+    arrange(Time) %>%
+    group_by(Time) %>%
+    mutate(group.id = cur_group_id()) %>%
+    ungroup() %>%
+    mutate(
+      values = ifelse(Time %in% c("Outflow", "Active at End"), values * -1, values),
+      ystart = lag(cumsum(values), default = 0),
+      yend = round(cumsum(values))
+    )
+})
 
 renderSystemPlot <- function(id) {
-  req(valid_file() == 1)
-  
   output[[id]] <- renderPlot({
-    if(id == "sys_act_summary_ui_chart") {
-      colors <- c('#73655E','#C6BDB9','#C34931', '#16697A')
-      df <- prep_for_chart(
-        system_activity_summary_prep(),
-        cat.var_summary_values,
-        x.axis.var_summary_values()
-      )
+    req(valid_file() == 1)
+    # browser()
+    if (id == "sys_act_summary_ui_chart") {
+      colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
+      df <- system_activity_prep_summary()
     } else {
-      colors <- c('#73655E','#C6BDB9','#C34931', '#C34931', '#C34931', '#16697A', '#16697A')
-      df <- prep_for_chart(
-        system_activity_detail_prep(),
-        cat.var_detail_values,
-        x.axis.var_detail_values()
+      colors <- c(
+        '#73655E',
+        '#C6BDB9',
+        "#e5a699",
+        '#b7452e',
+        "#66261a",
+        '#93dcec',
+        "#3dc1dc",
+        '#1b8297'
       )
-    }
-
-    s = max(df$end.Bar)+20
+         df <- system_activity_prep_detail()
+       }
+       
+    s <- max(df$yend) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
-    
-    ggplot(df, aes(x = group.id, fill = cat.var)) + 
-      # \_Simple Waterfall Chart ----
-      geom_rect(aes(xmin = group.id - 0.25, # control bar gap width
-                      xmax = group.id + 0.25, 
-                      ymin = end.Bar,
-                      ymax = start.Bar),
-                  color="black", 
-                  alpha=0.95
-      ) + 
-      # \_Lines Between Bars ----
-      geom_segment(aes(
-        x=ifelse(group.id == last(group.id),
-                                  last(group.id),
-                                  group.id+0.25), 
-        xend=ifelse(group.id == last(group.id),
-                    last(group.id),
-                    group.id+0.75), 
-        y=ifelse(cat.var == last(cat.var),
-                    end.Bar,
-                    # these will be removed once we set the y limits
-                    s+segment_size), 
-        yend=ifelse(cat.var == last(cat.var),
-                    end.Bar,
-                    # these will be removed once we set the y limits
-                    s+segment_size),
-        colour="black"
-      ), show.legend = FALSE) +
-      # \_Numbers inside bars (each category) ----
-      geom_text(
-          mapping = aes(
-            label = ifelse(
-              !is.na(inflow_outflow) | 
-                as.character(x.axis.var) == as.character(cat.var),
-              as.character(values),
-              ""),
-            y = ifelse(
-              abs(values) < segment_size/4, 
-              end.Bar + 10, 
-              rowSums(cbind(start.Bar,values/2))
-            )
-          ),
-          color = "black",
-          fontface = "bold",
-          size=4
-      ) +
-      # \_Change colors ----
-      scale_fill_manual(values = colors) +
-      # \_Change y axis to same scale as original ----
-      scale_y_continuous(
-          expand=c(0,0),
-          limits = c(0, s+segment_size/2)
-      ) +
-      # \_Add tick marks on x axis to look like the original plot ----
-      scale_x_continuous(
-          expand=c(0,0),
-          limits = c(min(df$group.id)-0.4,max(df$group.id)+0.4),
-          breaks = c(min(df$group.id)-0.4,
-                  unique(df$group.id), 
-                  unique(df$group.id) + 0.4
-                  ),
-          labels = 
-          c("", 
-              as.character(unique(df$x.axis.var)), 
-              rep(c(""), length(unique(df$x.axis.var)))
-          )
-      ) +
-      # \_Theme options to make it look like the original plot ----
-      theme(
-          text = element_text(size = 14, color = "#4e4d47"),
-          axis.text = element_text(size = 10, color = "#4e4d47", face = "bold"),
-          axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
-          axis.ticks.x = element_line(
-              color =
-                  c("black",
-                  rep(NA, length(unique(df$x.axis.var))),
-                  rep("black", length(unique(df$x.axis.var))-1)
-                  )
-          ),
-          axis.line = element_line(colour = "#4e4d47", linewidth = 0.5),
-          axis.ticks.length = unit(.15, "cm"),
-          axis.title.x =      element_blank(),
-          # hide y axis
-          axis.title.y =      element_blank(),
-          axis.ticks.y =      element_blank(),
-          axis.line.y =      element_blank(),
-          axis.text.y =      element_blank(),
-          panel.background =  element_blank(),
-          panel.border    =   element_blank(),
-          panel.grid.major=   element_blank(),
-          panel.grid.minor=   element_blank(),
-          plot.background=    element_blank(),
-          plot.margin =        unit(c(1, 1, 1, 1), "lines"),
-          legend.text =        element_text(size = 10, 
-                                          color = "#4e4d47",
-                                          face = "bold",
-                                          margin = margin(l = 0.25, unit = "cm")
-                                          ),
-          legend.title =       element_blank()
-      )
+
+# waterfall plot ----------------------------------------------------------
+ggplot(df, aes(x = group.id, fill = Status)) +
+  geom_rect( # the bars
+    aes(
+      xmin = group.id - 0.25,
+      # control bar gap width
+      xmax = group.id + 0.25,
+      ymin = ystart,
+      ymax = yend
+    ),
+    colour = "#4e4d47",
+    linewidth = .2,
+    alpha = 0.8
+  ) +
+  geom_segment( # the connecting segments between bars
+    data = df %>%
+      filter(group.id == group.id) %>%
+      group_by(group.id) %>%
+      slice_tail() %>%
+      ungroup() %>%
+      select(group.id, yend),
+    aes(
+      x = group.id,
+      xend = if_else(group.id == last(group.id), last(group.id), group.id + 1),
+      y = yend,
+      yend = yend
+    ),
+    linewidth = .3,
+    colour = "gray25",
+    linetype = "dashed",
+    show.legend = FALSE,
+    inherit.aes = FALSE
+  ) +
+  ggrepel::geom_text_repel(# the labels
+    aes(
+      x = group.id,
+      label = paste0(scales::comma(abs(values))),
+      y = rowSums(cbind(ystart, values / 2)),
+      segment.colour = "gray33"
+    ),
+    nudge_x = -.5,
+    arrow = arrow(type = "open", length = unit(.1, "inches")),
+    colour = "#4e4d47",
+    # alpha = .7,
+    size = 5,
+    inherit.aes = FALSE
+  ) +
+  scale_fill_manual(values = colors) + # color palette
+  scale_y_continuous(expand = c(0,0)) + # distance between bars and x axis line
+  scale_x_continuous(labels = str_wrap(df$Time %>% unique(), width = 10), # x axis labels
+                   breaks = df$group.id %>% unique()) +
+  theme_void() + # totally clear all theme elements
+  theme(# add back in what theme elements we want
+    text = element_text(size = 16, colour = "#4e4d47"),
+    axis.text.x = element_text(size = 16),
+    axis.ticks.x = element_line(),
+    axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
+    axis.ticks.length.x = unit(.15, "cm"),
+    plot.margin = unit(c(1, 1, 1, 1), "lines"),
+    legend.text = element_text(size = 16),
+    legend.title = element_blank()#,
+    # legend.position = "none"
+  )
   })
  # return(plotOutput(id, height = 400))
-}
+} 
+
+
+# Plot prompts for plot subtitle ------------------------------------------
+
+syso_detailBox <- reactive({
+  # remove group names from race/ethnicity filter
+  # so we can use getNameByValue() to grab the selected option label
+  syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
+  names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
+                                       names(syso_race_ethnicities))
+  
+  list(
+    strong("Date Range: "),
+    ReportStart(),
+    " to ",
+    ReportEnd(), 
+    br(),
+    strong("Household Type: "),
+    getNameByValue(syso_hh_types, input$syso_hh_type),
+    br(),
+    strong("Level of Detail: "),
+    getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
+    br(),
+    strong("Project Type: "),
+    getNameByValue(syso_project_types, input$syso_project_type),
+    br(),
+    strong("Age: "),
+    # if_else(
+    #   setequal(syso_age_cats, input$syso_age) |
+    #     is.null(input$syso_age),
+    #   "All Ages"#,
+    #   # getNameByValue(syso_age_cats, input$syso_age)
+    # ),
+    " | ",
+    strong("Gender: "),
+    # getNameByValue(syso_gender_cats(), input$syso_gender),
+    " | ",
+    strong("Race/Ethnicity: "),
+    # getNameByValue(syso_race_ethnicities, input$syso_race_ethnicity),
+    " | ",
+    strong("Special Populations: "),
+    # getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops), 
+    br(),
+    strong("Methodology Type: ")#,
+    # getNameByValue(syso_methodology_types, input$methodology_type) 
+  )
+})
+
+syso_chartSubheader <- reactive({
+  list(
+    strong(""), 
+    # formatC(
+    #   nrow(system_df_people_filtered()),
+    #   format = "d",
+    #   big.mark = ","
+    # ),
+    br()
+  )
+})

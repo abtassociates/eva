@@ -1,8 +1,37 @@
 dashboardPage(
   title = "Eva",
   skin = "black",
-  dashboardHeader(title = span(img(src = "Eva_logo_horizontal_white.png",
-                                   height = 45))),
+  dashboardHeader(
+    title = span(img(src = "Eva_logo_horizontal_white.png",
+                                   height = 45)),
+    # https://alvarotrigo.com/blog/toggle-switch-css/
+    tags$li(class="dropdown",
+            HTML('<div class="toggle-button-cover">
+      <div class="button-cover">
+        <div id="demo-label">
+          <span>DEMO MODE </span>
+          <i class="fas fa-circle-info demo-tooltip">
+          <span class="demo-tooltiptext">
+            <strong>Off</strong>: Upload your own HMIS CSV Export.
+            <br>
+            <br>
+            <strong>On</strong>: Uses a demo HMIS CSV Export.
+          </span>
+          </i>
+        </div>
+        <div class="button r" id="button-1">
+          <input id="isdemo" type="checkbox" class="checkbox" />
+          <div class="knobs"></div>
+          <div class="layer"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+    document.getElementById("isdemo").onchange = function() {
+        Shiny.setInputValue("in_demo_mode", this.checked, {priority: "event"});
+    }
+    </script>'))
+  ),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebarmenuid",
@@ -110,6 +139,7 @@ dashboardPage(
             actionButton("Go_to_upload", "Click here to get started")
           ),
           box(
+            id = "home_live_instructions",
             title = "Instructions",
             width = 12,
             collapsible = TRUE,
@@ -135,7 +165,40 @@ dashboardPage(
               <p>Once you have exported the correct file from your HMIS, you are
               ready to engage with Eva. Navigate to the \'Upload HMIS CSV Export\' tab
               and follow the instructions there.</p>
-              
+
+              <p>Want to explore Eva without uploading? Use Eva's Demo Mode by clicking the 
+              toggle at the top.</p>
+              ")
+          ),
+          box(
+            id = 'home_demo_instructions',
+            title = "Demo Instructions",
+            width = 12,
+            collapsible = TRUE,
+            collapsed = FALSE,
+            HTML(
+              "<div class = 'in_demo_mode' style='display:none'>
+              <p>Welcome to Eva’s Demo Mode. In Demo Mode, you can explore the
+              functionality of Eva with a pre-uploaded HMIS CSV Export file that
+              uses sample HMIS data. When Demo Mode is on, Eva has the same
+              functionality but uses the sample HMIS data to provide examples of
+              possible File Structure Errors, Data Quality Errors, and Warnings.
+              Select any of Eva's pages from the navigation menu to the left to
+              explore the application. </p>
+              <h4>Turning Demo Mode On & Off</h4>
+              <p>To turn Demo Mode on and off, use the yellow Demo Mode toggle
+              on the top right of the screen. This toggle will be available from
+              every page in Eva. Please note that you can turn Demo Mode off or
+              on at any time, the application will just ask you to confirm your
+              choice.</p>
+              <p>If you uploaded your own dataset to Eva and then decide to turn
+              on Demo Mode, Eva will (1) clear the application of your HMIS data,
+              ending the session, and (2) replace it with that of the sample
+              dataset. <strong>If you wish to see your results again you will need to
+              re-upload your hashed HMIS CSV Export file.</strong> To do so, you
+              need to turn off Demo Mode. This will clear the sample HMIS data
+              from the application so you can operate Eva as normal and upload
+              your own HMIS data again.</p></div>
               ")
           ),
           box(
@@ -253,24 +316,37 @@ dashboardPage(
               ")
           )),
           fluidRow(box(
+            HTML(paste0("<div class='in_demo_mode' style='display:none'>
+                 <p>You’re currently in Demo Mode and viewing sample HMIS data
+                 from a curated HMIS CSV Export file. View the File Structure
+                 Analysis below to see examples of the File Structure Errors you
+                 could get in your own uploads. For a full list of possible
+                 errors, see ",
+                 a('Eva Checks', href=here("https://github.com/abtassociates/eva/blob/main/public-resources/EvaChecks.csv")),
+                 ".</p>
+                 <p>To explore your own File Structure Errors, turn off Demo
+                 Mode and upload your own hashed HMIS CSV Export file.</p></div>
+            ")),
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
-            uiOutput("fileInfo"),
+            uiOutput("fileInfo") %>% withSpinner(),
             width = 12
           )),
           fluidRow(box(
             title = "HMIS CSV Export File Structure Analysis",
             width = 12,
-            DT::dataTableOutput("fileStructureAnalysis"),
+            DTOutput("fileStructureAnalysis"),
             p(),
             HTML("<p>Users should contact their vendor to resolve high priority 
             errors identified in the HMIS CSV Export File Structure Analysis, as
             well as any other structural issues which you feel need to be corrected.
             </p>"),
             p(),
-            uiOutput('downloadFileStructureAnalysisBtn')
+            uiOutput('downloadFileStructureAnalysisBtn'),
+            p(),
+            uiOutput('downloadImpermissibleCharacterDetailBtn')
           ))
           # fluidRow(box(
           #   title = "System Data Quality Overview",
@@ -563,14 +639,14 @@ dashboardPage(
           title = "Client Counts Summary",
           status = "info",
           solidHeader = TRUE,
-          DT::dataTableOutput("clientCountSummary"),
+          DTOutput("clientCountSummary"),
           width = 12
         )),
         fluidRow(box(
           title = "Client Counts Detail",
           status = "info",
           solidHeader = TRUE,
-          DT::dataTableOutput("clientCountData"),
+          DTOutput("clientCountData"),
           width = 12
         ))
       ),
@@ -586,50 +662,75 @@ dashboardPage(
         )),
         fluidRow(
           box(
-            title = "Universe Filters",
+            title = "Universe Selectors",
             width = 6,
-            id = "universe_filters",
-            column(12, dateRangeInput(
-              "syso_date_range",
-              "Date Range",
-              format = "mm/dd/yyyy",
-              start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
-              end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today()))
-            )),
-            br(),
-            h4("Universe Selectors"),
-            column(4, fluidRow(
-              br(),
+            id = "universe_selectors",
+            column(
+              4,
               pickerInput(
                 label = "Household Type",
                 inputId = "syso_hh_type",
                 choices = syso_hh_types,
-                selected = syso_hh_types[1],
-                width = "90%"
+                selected = syso_hh_types[1]
               )
-            )),
-            column(4, fluidRow(
-              br(),
+            ),
+            column(
+              4,
               pickerInput(
                 label = "Level of Detail",
                 inputId = "syso_level_of_detail",
                 choices = syso_level_of_detail,
-                selected = syso_level_of_detail[1],
-                width = "90%"
+                selected = syso_level_of_detail[1]
               )
-            )),
-            column(4, fluidRow(
-              a(href="www.google.com", "Click for Project Type Information"),
+            ),
+            column(
+              4,
               pickerInput(
                 label = "Project Type",
                 inputId = "syso_project_type",
                 choices = syso_project_types,
-                selected = syso_project_types[1],
-                width = "90%"
+                selected = syso_project_types[1]
               )
-            ))
+            )
           ),
           box(
+            title = "Advanced Settings",
+            width = 6,
+            radioButtons(
+              "methodology_type",
+              HTML(
+                "Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"
+              ),
+              choices = syso_methodology_types,
+              width = "100%"
+            ),
+            h4("Download Tabular View of System Overview Charts"),
+            uiOutput("downloadSysOverviewTabBtn")
+          )
+        ), 
+        # fluidRow(column(4, 
+        #       br(),
+        #       pickerInput(
+        #         label = "Level of Detail",
+        #         inputId = "syso_level_of_detail",
+        #         choices = syso_level_of_detail,
+        #         selected = syso_level_of_detail[1],
+        #         width = "90%"
+        #       )
+        #     )),
+        # fluidRow(
+        #       br(),
+        #       column(4,
+        #       # a(href="www.google.com", "Click for Project Type Information"),
+        #       pickerInput(
+        #         label = "Project Type",
+        #         inputId = "syso_project_type",
+        #         choices = syso_project_types,
+        #         selected = syso_project_types[1],
+        #         width = "90%"
+        #       )
+        #     )),
+          # box(
             # div(class="box-header", h3("Advanced Settings", class="box-title")),
             # div(class="box-body",
             #   radioButtons("methodology_type",
@@ -640,23 +741,20 @@ dashboardPage(
             # hr(),
             # div(class="box-header", h3("Download Tabular View of System Overview Charts", class="box-title")),
             # width = 6
-            box(
-              title = "Advanced Settings",
-              radioButtons("methodology_type",
-                HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
-                choices = syso_methodology_types,
-                width = "100%"
-              ),
-              width = 12
-            ),
-            box(
-              title = "Download Tabular View of System Overview Charts",
-              uiOutput("downloadSysOverviewTabBtn"),
-              width = 12
-            ),
-            width = 6
-          )
-        ),
+        #     box(
+        #       title = "Advanced Settings",
+        #       radioButtons("methodology_type",
+        #         HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
+        #         choices = syso_methodology_types,
+        #         width = "100%"
+        #       ),
+        #       width = 12
+        #     ),
+        #     box(
+        #       title = "Download Tabular View of System Overview Charts",
+        #       uiOutput("downloadSysOverviewTabBtn"),
+        #       width = 12
+        # ),
         fluidRow(
           box(
             id = "syso_header",
@@ -668,44 +766,66 @@ dashboardPage(
           box(
             title = "Age and Special Population Filters",
             width = 6,
-            column(6, virtualSelectInput(
-              label = "Age",
-              selected = syso_age_cats,
-              inputId = "syso_age",
-              choices = syso_age_cats,
-              multiple = TRUE,
-              width = "100%",
-              selectAllText = "All Ages",
-              allOptionsSelectedText = "All Ages"
-            )),
-            column(6, pickerInput(
-              label = "Special Populations",
-              inputId = "syso_spec_pops",
-              choices = syso_spec_pops_people,
-              width = "100%",
-              selected = syso_spec_pops_people[1]
-            ))
+            column(
+              6,
+              pickerInput(
+                inputId = "syso_age",
+                label = "Age",
+                selected = syso_age_cats,
+                choices = syso_age_cats,
+                multiple = TRUE,
+                width = "100%",
+                options = pickerOptions(
+                  actionsBox = TRUE,
+                  selectedTextFormat = paste("count >", length(syso_age_cats)-1),
+                  countSelectedText = "All ages",
+                  noneSelectedText = "All ages" 
+                )
+              )
+            ),
+            column(
+              6,
+              pickerInput(
+                label = "Special Populations",
+                inputId = "syso_spec_pops",
+                choices = syso_spec_pops_people,
+                width = "100%",
+                selected = syso_spec_pops_people[1]
+              )
+            )
           ),
           box(
             title = "Gender and Race/Ethnicity Filters",
             width = 6,
-            column(6, pickerInput(
-              label = "Gender",
-              inputId = "syso_gender",
-              choices = syso_gender_incl,
-              width = "100%",
-              selected = syso_gender_incl[1]
-            )),
-            column(6, pickerInput(
-              label = "Race/Ethnicity",
-              inputId = "syso_race_ethnicity",
-              choices = syso_race_ethnicity_incl,
-              width = "100%",
-              selected = syso_race_ethnicity_incl[1]
-            ))
+            column(
+              6,
+              pickerInput(
+                label = "Gender",
+                inputId = "syso_gender",
+                choices = syso_gender_excl,
+                width = "100%",
+                selected = syso_gender_excl,
+                multiple = TRUE,
+                options = pickerOptions(
+                  actionsBox = TRUE,
+                  selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
+                  countSelectedText = "All",
+                  noneSelectedText = "All"
+                )
+              )
+            ),
+            column(
+              6,
+              pickerInput(
+                label = "Race/Ethnicity",
+                inputId = "syso_race_ethnicity",
+                choices = syso_race_ethnicity_excl,
+                width = "100%",
+                selected = syso_race_ethnicity_excl
+              )
+            )
           )
-        ),
-        fluidRow(
+        ),         fluidRow(
           tabBox(
             side = "right",
             selected = "Summary",
@@ -725,7 +845,43 @@ dashboardPage(
             ),
             width = 12
           )
-        )
+        ),
+        fluidRow(
+          box(
+            id = "syso_header",
+            "System Composition",
+            width = 12
+          )
+        ),
+        fluidRow(
+          box(
+            checkboxGroupInput(
+              "system_composition_filter",
+              label = paste0(
+                "Gender, Race/Ethnicity, and Special Populations",
+                "(select up to 2)"
+              ),
+              choices = sys_comp_filter_choices1,
+              inline = TRUE
+            ),
+            width = 12
+          )
+        ),
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Summary",
+            title = "Composition of All Served in Period",
+            tabPanel("Instructions", 
+                     p("Some instructions")
+            ),
+            tabPanel("Summary", 
+                     uiOutput("sys_comp_summary_filter_selections"),
+                     plotOutput("sys_comp_summary_ui_chart")
+            ),
+            width = 12
+          )
+        ),
       ),
       tabItem(
         tabName = "systemExitDetail",
@@ -736,7 +892,7 @@ dashboardPage(
             HTML("<h2>Placeholder</h2>")
           )
         )
-      ), 
+      ),
       tabItem(
         tabName = "tabPDDE",
         fluidRow(box(htmlOutput(
@@ -764,13 +920,13 @@ dashboardPage(
             title = paste("PDDE Check Summary"),
             status = "info",
             solidHeader = TRUE,
-            DT::dataTableOutput("pdde_summary_table"),
+            DTOutput("pdde_summary_table"),
             width = 12,
             br(),
-            uiOutput("downloadPDDEReportButton")
+            uiOutput("downloadPDDEReportButton") %>% withSpinner()
           ),
           box(id = "PDDEGuidance",
-              DT::dataTableOutput("pdde_guidance_summary"),
+              DTOutput("pdde_guidance_summary"),
               title = "Guidance",
               width = 12,
               status = "info",
@@ -882,9 +1038,9 @@ dashboardPage(
             selected = "Top 10 Issues",
             title = "High Priority Errors",
             tabPanel("Top 10 Projects",
-                     uiOutput("orgDQHighPriorityErrorsByProject_ui")),
+                     uiOutput("orgDQHighPriorityErrorsByProject_ui")  %>% withSpinner()),
             tabPanel("Top 10 Issues",
-                     uiOutput("orgDQHighPriorityErrorByIssue_ui")),
+                     uiOutput("orgDQHighPriorityErrorByIssue_ui") %>% withSpinner()),
             width = 12
           )
         ),
@@ -893,8 +1049,8 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "General Errors",
-            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui")),
-            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui")),
+            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui") %>% withSpinner()),
+            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()),
             width =12
           )
         ),
@@ -903,8 +1059,8 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "Warnings",
-            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui")),
-            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui")),
+            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui") %>% withSpinner()),
+            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui") %>% withSpinner()),
             width = 12
           )
         ),
@@ -915,7 +1071,7 @@ dashboardPage(
             title = paste("Data Quality Summary"),
             status = "info",
             solidHeader = TRUE,
-            DT::dataTableOutput("dq_organization_summary_table"),
+            DTOutput("dq_organization_summary_table"),
             width = 12
           )
         ),
@@ -923,7 +1079,7 @@ dashboardPage(
         fluidRow(
           box(
             id = "DQSummaryProvider",
-            DT::dataTableOutput("dq_org_guidance_summary"),
+            DTOutput("dq_org_guidance_summary"),
             title = "Data Quality Guidance",
             width = 12,
             status = "info",
@@ -949,7 +1105,7 @@ dashboardPage(
             # collapsible = TRUE,
             # collapsed = TRUE,
             width = 12,
-            tableOutput("changelog")
+            htmlTableWidgetOutput("changelog")
           )
         )
       ),

@@ -14,9 +14,8 @@ PDDEcols = c("OrganizationName",
              "Detail")
 
 # Subpop beds should equal Total Beds -------------------------------------
-
 subpopNotTotal <- Inventory %>%
-  left_join(Project0, by = "ProjectID") %>%
+  left_join(Project0(), by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
            (CHVetBedInventory + 
               YouthVetBedInventory + 
@@ -54,13 +53,13 @@ operating_end_missing <- Enrollment %>%
 
   ) %>%
   ungroup() %>%
-  left_join(Project %>% 
+  left_join(Project0() %>% 
               select(ProjectID, ProjectName, OrganizationName, OperatingEndDate) %>%
               unique(), 
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
            MostRecentEnrollment < 
-           meta_HUDCSV_Export_Date - 30 &
+           meta_HUDCSV_Export_Date() - 30 &
            is.null(OperatingEndDate)) %>%
   merge_check_info(checkIDs = 81) %>%
   mutate(Detail = paste(
@@ -72,7 +71,7 @@ operating_end_missing <- Enrollment %>%
 
 # Missing CoC Information Missing address field(s), Missing Geocode,
 # Missing Geography Type, Invalid Zip Code if possible
-missing_CoC_Info <- Project %>%
+missing_CoC_Info <- Project0() %>%
   left_join(ProjectCoC, by = "ProjectID") %>%
   filter(is.na(Address1) | 
            is.na(City) | 
@@ -121,9 +120,10 @@ missing_CoC_Address <- missing_CoC_Info %>%
 # Missing Inventory Record Is a residential project but has no active inventory
 # for the duration of operating period OR for the reporting period
 
-missing_inventory_record <- Project0 %>%
+missing_inventory_record <- Project0() %>%
   left_join(Inventory, by = "ProjectID") %>%
   filter(ProjectType %in% project_types_w_beds &
+           (RRHSubType == 2 | is.na(RRHSubType)) &
            is.na(InventoryID)) %>% 
   merge_check_info(checkIDs = 43) %>%
   mutate(Detail = "") %>%
@@ -133,7 +133,7 @@ missing_inventory_record <- Project0 %>%
 # Inventory End > Operating End or Null
 activeInventory <- Inventory %>%
   left_join(
-    Project %>%
+    Project0() %>%
       select(
         ProjectID,
         OrganizationName,
@@ -145,8 +145,8 @@ activeInventory <- Inventory %>%
     by = "ProjectID"
   ) %>%
   filter(
-    coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start &
-      InventoryStartDate <= meta_HUDCSV_Export_End
+    coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start() &
+      InventoryStartDate <= meta_HUDCSV_Export_End()
   )
 
 inventory_start_precedes_operating_start <- activeInventory %>%
@@ -205,7 +205,7 @@ operating_end_precedes_inventory_end <- activeInventory %>%
 
 # RRH project w no SubType ------------------------------------------------
 
-rrh_no_subtype <- Project %>%
+rrh_no_subtype <- Project0() %>%
   filter(ProjectType == 13 & is.na(RRHSubType)) %>%
   merge_check_info(checkIDs = 110) %>%
   mutate(Detail = "") %>%
@@ -214,14 +214,12 @@ rrh_no_subtype <- Project %>%
 
 # VSP with HMIS Participation ---------------------------------------------
 
-vsp_projects <- Project %>%
-  inner_join(Organization %>%
-               filter(VictimServiceProvider == 1),
-             by = "OrganizationID") %>%
+vsp_projects <- Project0() %>%
+  filter(VictimServiceProvider == 1) %>%
   pull(ProjectID) %>%
   unique()
 
-participating_projects <- Project %>%
+participating_projects <- Project0() %>%
   inner_join(HMISParticipation %>%
                filter(HMISParticipationType == 1),
              by = "ProjectID") %>%
@@ -231,7 +229,7 @@ participating_projects <- Project %>%
 vsps_that_are_hmis_participating <- 
   base::intersect(vsp_projects, participating_projects)
 
-vsps_in_hmis <- Project %>%
+vsps_in_hmis <- Project0() %>%
   filter(ProjectID %in% c(vsps_that_are_hmis_participating)) %>%
   merge_check_info(checkIDs = 133) %>%
   mutate(Detail = "") %>%
@@ -250,7 +248,7 @@ projects_w_clients <- Enrollment %>%
 
 res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 
-zero_utilization <- Project0 %>%
+zero_utilization <- Project0() %>%
   inner_join(HMISParticipation %>%
               filter(HMISParticipationType == 1) %>%
               distinct(ProjectID), by = "ProjectID") %>%
@@ -270,7 +268,7 @@ rrh_so_w_inventory <- activeInventory %>%
                coalesce(InventoryEndDate, no_end_date))
   ) %>%
   select(InventoryID, ProjectID, InventoryActivePeriod, BedInventory) %>%
-  left_join(Project, join_by(ProjectID)) %>%
+  left_join(Project0(), join_by(ProjectID)) %>%
   mutate(RRHSOyn = ProjectType == 13 & RRHSubType == 1,
          RRHSOActivePeriod =
            interval(OperatingStartDate,
@@ -290,9 +288,8 @@ rrh_so_w_inventory <- activeInventory %>%
 
 
 # Overlapping participations ----------------------------------------------
-
 overlapping_ce_participation <- CEParticipation %>%
-  left_join(Project0 %>% select(ProjectID, OrganizationName, ProjectName),
+  left_join(Project0() %>% select(ProjectID, OrganizationName, ProjectName),
             by = "ProjectID") %>%
   group_by(ProjectID) %>%
   arrange(CEParticipationStatusStartDate) %>%
@@ -331,7 +328,7 @@ overlapping_ce_participation <- CEParticipation %>%
   select(all_of(PDDEcols))
 
 overlapping_hmis_participation <- HMISParticipation %>%
-  left_join(Project0 %>% select(ProjectID, OrganizationName, ProjectName),
+  left_join(Project0() %>% select(ProjectID, OrganizationName, ProjectName),
             by = "ProjectID") %>%
   group_by(ProjectID) %>%
   arrange(HMISParticipationStatusStartDate) %>%
@@ -372,7 +369,7 @@ overlapping_hmis_participation <- HMISParticipation %>%
 
 # Put it all together -----------------------------------------------------
 
-pdde_main <- rbind(
+pdde_main(rbind(
   subpopNotTotal,
   operating_end_missing,
   rrh_no_subtype,
@@ -388,5 +385,5 @@ pdde_main <- rbind(
   zero_utilization
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
-
+)
 

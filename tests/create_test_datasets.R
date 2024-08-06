@@ -57,7 +57,7 @@ save_new_zip("FY24-ICF-wrong-csv-version.zip", "reduced")
 # Missing Export (APR or LSA) --------------------------------
 file.remove(reduced_files[["Export"]])
 save_new_zip("FY24-ICF-missing-export.zip", "reduced")
-write.csv(reduced_data[["Export"]], reduced_files[["Export"]], na = "") # bring export dataset back
+write.csv(reduced_data[["Export"]], reduced_files[["Export"]], row.names=FALSE, na = "") # bring export dataset back
 
 # Missing Files ----------------------------------------------
 file.remove(reduced_files[["Enrollment"]])
@@ -72,6 +72,10 @@ write.csv(reduced_data[["Exit"]],
           row.names = FALSE,
           na = "")
 
+# Wrong File Type
+gz1 <- gzfile(here("tests/temp/FY24-ICF-wrong-file-type.gz"), "w")
+write.csv(data.frame(), gz1)
+close(gz1)
 
 ################# FSA ######################
 reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[6, ])

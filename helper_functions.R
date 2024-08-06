@@ -31,6 +31,8 @@ living_situation <- function(ReferenceNo) {
     ReferenceNo == 302 ~ "Transitional housing",
     ReferenceNo == 332 ~ "Host Home (non-crisis)",
     ReferenceNo == 329 ~ "Residential project or halfway house with no homeless criteria",
+    ReferenceNo == 312 ~ "Staying or living with family, temporary tenure",
+    ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
     ReferenceNo == 314 ~ "H/Motel paid for by household",
     ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
     ReferenceNo == 335 ~ "Staying or living with family, temporary tenure",
@@ -147,17 +149,16 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-importFile <- function(csvFile, guess_max = 1000) {
-  if(str_sub(input$imported$datapath,-4,-1) != ".zip") {
+importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
+  if(str_sub(upload_filepath, -4, -1) != ".zip") {
     capture.output("User tried uploading a non-zip file!") 
   }
-  
+
   filename <- str_glue("{csvFile}.csv")
-  
   data <-
     read_csv(
-      unzip(zipfile = input$imported$datapath, files = filename),
-      col_types = get_col_types(csvFile),
+      utils::unzip(zipfile = upload_filepath, files = filename),
+      col_types = get_col_types(upload_filepath, csvFile),
       na = ""
     )
 
@@ -170,14 +171,32 @@ importFile <- function(csvFile, guess_max = 1000) {
   return(data)
 }
 
-get_col_types <- function(file) {
+get_col_types <- function(upload_filepath, file) {
+  # returns the datatypes as a concatenated string, based on the order
+  # of the columns in the imported file, rather than the expected order
+  # e.g. "ccccDDnnnnnnnnTTcTc"
+  
   # get the column data types expected for the given file
   col_types <- cols_and_data_types %>%
     filter(File == file) %>%
-    mutate(DataType = data_type_mapping[as.character(DataType)]) %>%
-    pull(DataType) %>%
-    paste0(collapse = "")
-  return(col_types)
+    mutate(DataType = data_type_mapping[as.character(DataType)])
+  
+  # get the columns in the order they appear in the imported file
+  cols_in_file <- colnames(read.table(
+    utils::unzip(
+      zipfile = upload_filepath, 
+      files = str_glue("{file}.csv")
+    ),             
+    head = TRUE,
+    nrows = 1,
+    sep = ","))
+  
+  # get the data types for those columns
+  data_types <- sapply(cols_in_file, function(col_name) {
+    col_types$DataType[col_types$Column == col_name]
+  })
+  
+  return(paste(data_types, collapse = ""))
 }
 
 logMetadata <- function(detail) {
@@ -203,9 +222,9 @@ headerGeneric <- function(tabTitle, extraHTML = NULL) {
       list(h2(tabTitle),
            h4(strong("Date Range of Current File: "),
             paste(
-             format(meta_HUDCSV_Export_Start, "%m-%d-%Y"),
+             format(meta_HUDCSV_Export_Start(), "%m-%d-%Y"),
              "to",
-             format(meta_HUDCSV_Export_End, "%m-%d-%Y")
+             format(meta_HUDCSV_Export_End(), "%m-%d-%Y")
            )),
            extraHTML
       )
@@ -220,12 +239,12 @@ logSessionData <- function() {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = Export$SourceID,
-    ExportID = Export$ExportID,
-    SourceContactFirst = Export$SourceContactFirst,
-    SourceContactLast = Export$SourceContactLast,
-    SourceContactEmail = Export$SourceContactEmail,
-    SoftwareName = Export$SoftwareName
+    CoC = Export()$SourceID,
+    ExportID = Export()$ExportID,
+    SourceContactFirst = Export()$SourceContactFirst,
+    SourceContactLast = Export()$SourceContactLast,
+    SourceContactEmail = Export()$SourceContactEmail,
+    SoftwareName = Export()$SoftwareName
   )
   
   # put the export info in the log
@@ -245,8 +264,8 @@ logToConsole <- function(msg) {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = Export$SourceID,
-    ExportID = Export$ExportID,
+    CoC = Export()$SourceID,
+    ExportID = Export()$ExportID,
     Msg = msg
   )
   capture.output(d, file = stderr())
@@ -304,9 +323,9 @@ fy22_to_fy24_living_situation <- function(value){
   )
 }
 
-#############################
-# SANDBOX
-#############################
+
+# Sandbox -----------------------------------------------------------------
+
 importFileSandbox <- function(csvFile) {
   filename = str_glue("{csvFile}.csv")
   data <- read_csv(paste0(directory, "data/", filename)
@@ -316,9 +335,9 @@ importFileSandbox <- function(csvFile) {
   return(data)
 }
 
-############################
-# GENERATE CHECK DATA FROM EVACHECKS.XLSX
-############################
+
+# Generate check data from evachecks.csv ----------------------------------
+
 merge_check_info <- function(data, checkIDs) {
   return(data %>%
     bind_cols(
@@ -327,36 +346,38 @@ merge_check_info <- function(data, checkIDs) {
   )
 }
 
-############################
-# MISC
-############################
+
+# Misc --------------------------------------------------------------------
+
 getNameByValue <- function(vector, val) {
   return(
-    paste(names(vector)[which(vector %in% val)], collapse=", ")
+    paste(names(vector)[which(vector %in% val)], collapse = ", ")
   )
 }
 
 # for a set of 1/0, or checkbox, variables, check whether no other variables 
 # were checked except for the specified ones
-no_cols_selected_except <- function(df, l, e) {
-  rowSums(df[e], na.rm = TRUE) > 0 & rowSums(df[setdiff(l, e)], na.rm = TRUE) == 0
+no_cols_selected_except <- function(df, list, exception) {
+  rowSums(df[exception], na.rm = TRUE) > 0 &
+    rowSums(df[setdiff(list, exception)], na.rm = TRUE) == 0
 }
 
-any_cols_selected_except <- function(df, l, e) {
-  rowSums(df[, l] == 1, na.rm = TRUE) > 0 & 
-  rowSums(df[, e] == 1, na.rm = TRUE) == 0
+any_cols_selected_except <- function(df, list, exception) {
+  rowSums(df[list] == 1, na.rm = TRUE) > 0 &
+    rowSums(df[exception] == 1, na.rm = TRUE) == 0
 }
 
 # for a set of 1/0, or checkbox, variables, check whether at least 
 # the specified numbers of variables were checked, except for the specified ones
-min_cols_selected_except <- function(df, l, e, num_cols_seleted) {
-  rowSums(df[e], na.rm = TRUE) == 0 & rowSums(df[setdiff(l, e)], na.rm = TRUE) >= num_cols_seleted
+min_cols_selected_except <- function(df, list, exception, num_cols_selected) {
+  rowSums(df[exception], na.rm = TRUE) == 0 &
+    rowSums(df[setdiff(list, exception)], na.rm = TRUE) >= num_cols_selected
 }
 
 # custom round to the smaller of the nearest 10, 100, etc.
 # good for chart segment sizing
 get_segment_size <- function(x) {
-  thresholds <- c(10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
+  thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
   rounded <- sapply(thresholds, function(t) {
     if (x > t) {
       return(t * ceiling(x / t))
@@ -366,3 +387,4 @@ get_segment_size <- function(x) {
   })
   min(rounded, na.rm = TRUE)
 }
+
