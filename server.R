@@ -185,18 +185,25 @@ function(input, output, session) {
   # Run scripts on upload ---------------------------------------------------
   
   process_upload <- function(upload_filename, upload_filepath) {
-    source("00_initially_valid_import.R", local = TRUE)
+    withProgress({
+      setProgress(message = "Processing...", value = .05)
+      
+      setProgress(detail = "Checking initial validity ", value = .05)
+      source("00_initially_valid_import.R", local = TRUE)
 
     if(initially_valid_import() == 1) {
 
       hide('imported_progress')
       
-      withProgress({
-        setProgress(message = "Processing...", value = .15)
+      setProgress(detail = "Unzipping...", value = .10)
+      list_of_files <- unzip(
+        zipfile = upload_filepath, 
+        files = paste0(unique(cols_and_data_types$File), ".csv"))
+      
         setProgress(detail = "Reading your files..", value = .2)
         source("01_get_Export.R", local = TRUE)
+        
         source("02_export_dates.R", local = TRUE)
-        setProgress(detail = "Checking file structure", value = .35)
         
         # if we're in shiny testmode and the script has gotten here,
         # that means we've gotten all the exports 
@@ -206,9 +213,9 @@ function(input, output, session) {
         upload_filename == "FY24-ICF-fsa-test.zip") {
           source("tests/update_test_good_fsa.R", local = TRUE)  
         }
-        
+        setProgress(detail = "Checking file structure", value = .35)
         source("03_file_structure_analysis.R", local = TRUE)
-
+        
         # if structural issues were not found, keep going
         if (valid_file() == 1) {
           if(nrow(
@@ -225,7 +232,7 @@ function(input, output, session) {
           }
           
           setProgress(detail = "Prepping initial data..", value = .4)
-          source("04_initial_data_prep.R", local = TRUE)
+          source("04_initial_data_prep.R", local = TRUE) 
           
           # if we're in shiny testmode and the script has gotten here,
           # that means we're using the hashed-test-good file. 
@@ -241,10 +248,10 @@ function(input, output, session) {
           
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
-
+          
           setProgress(detail = "Preparing System Overview Data", value = .85)
           source("07_system_overview.R", local = TRUE)
-
+          
           setProgress(detail = "Done!", value = 1)
           logToConsole("Done processing")
           
@@ -308,8 +315,8 @@ function(input, output, session) {
           )
           logMetadata("Unsuccessful upload - not structurally valid")
         }
-      })
     }
+    })
   }
   
   observeEvent(input$imported, {
