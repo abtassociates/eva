@@ -595,7 +595,7 @@ top_percents_long_stayers <- base_dq_data %>%
   ) %>%
   mutate(Days = as.numeric(difftime(
       meta_HUDCSV_Export_Date(), 
-      if_else(ProjectType %in% c(ph_project_types),MoveInDateAdjust, EntryDate)
+      if_else(ProjectType %in% c(ph_project_types), MoveInDateAdjust, EntryDate)
   ))) %>%
   group_by(ProjectType) %>%
   arrange(desc(Days)) %>%

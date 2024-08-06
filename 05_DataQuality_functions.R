@@ -401,7 +401,7 @@ renderDQPlot <- function(level, issueType, group, color) {
   })
   
   # this effectively collapses the plot if there are no rows
-  plot_height = if_else(nrow(plot_data) == 0,50,400)
+  plot_height = if_else(nrow(plot_data) == 0, 50, 400)
   
   # finally, render the plot
   return(plotOutput(outputId, height = plot_height))
