@@ -284,7 +284,7 @@ syso_chronic_pops <- list(
   "Long-term Homeless" = "LongTerm"
 )
 
-syso_spec_pops_people <- list(
+syso_spec_pops_people <- c(
   "None" = "None",
   # "Inflow",
   syso_veteran_pops,
