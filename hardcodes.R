@@ -231,33 +231,33 @@ syso_race_ethnicity_excl <- list(
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous Alone" =
       "AmIndAKNativeAloneExclusive1",
-    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" =
+    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/é/o" =
       "AmIndAKNativeLatineExclusive1",
     "Asian or Asian American Alone" =
       "AsianAloneExclusive1",
-    "Asian or Asian American & Hispanic/Latina/e/o" =
+    "Asian or Asian American & Hispanic/Latina/é/o" =
       "AsianLatineExclusive1",
     "Black, African American, or African Alone" =
       "BlackAfAmericanAloneExclusive1",
-    "Black, African American, or African & Hispanic/Latina/e/o" =
+    "Black, African American, or African & Hispanic/Latina/é/o" =
       "BlackAfAmericanLatineExclusive1",
-    "Hispanic/Latina/e/o Alone" =
+    "Hispanic/Latina/é/o Alone" =
       "LatineAloneExclusive1",
     "Middle Eastern or North African Alone" =
       "MENAAloneExclusive1",
-    "Middle Eastern or North African & Hispanic/Latina/e/o" =
+    "Middle Eastern or North African & Hispanic/Latina/é/o" =
       "MENALatineExclusive1",
     "Native Hawaiin or Pacific Islander Alone" =
       "NativeHIPacificAloneExclusive1",
-    "Native Hawaiin or Pacific Islander & Hispanic/Latina/e/o" =
+    "Native Hawaiin or Pacific Islander & Hispanic/Latina/é/o" =
       "NativeHIPacificLatineExclusive1" ,
     "White Alone" =
       "WhiteAloneExclusive1",
-    "White & Hispanic/Latina/e/o" =
+    "White & Hispanic/Latina/é/o" =
       "WhiteLatineExclusive1",
-    "Multi-Racial (not Hispanic/Latina/e/o)" =
+    "Multi-Racial (not Hispanic/Latina/é/o)" =
       "MultipleNotLatineExclusive1",
-    "Multi-Racial & Hispanic/Latina/e/o" =
+    "Multi-Racial & Hispanic/Latina/é/o" =
       "MultipleLatineExclusive1"
   ),
   "Summarized" = c("All People of Color" =
@@ -284,7 +284,7 @@ syso_chronic_pops <- list(
   "Long-term Homeless" = "LongTerm"
 )
 
-syso_spec_pops_people <- c(
+syso_spec_pops_people <- list(
   "None" = "None",
   # "Inflow",
   syso_veteran_pops,
