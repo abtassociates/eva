@@ -289,24 +289,21 @@ syso_detailBox <- reactive({
     getNameByValue(syso_project_types, input$syso_project_type),
     br(),
     strong("Age: "),
-    # if_else(
-    #   setequal(syso_age_cats, input$syso_age) |
-    #     is.null(input$syso_age),
-    #   "All Ages"#,
-    #   # getNameByValue(syso_age_cats, input$syso_age)
-    # ),
-    " | ",
-    strong("Gender: "),
-    # getNameByValue(syso_gender_cats(), input$syso_gender),
-    " | ",
-    strong("Race/Ethnicity: "),
-    # getNameByValue(syso_race_ethnicities, input$syso_race_ethnicity),
-    " | ",
-    strong("Special Populations: "),
-    # getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops), 
+    if_else(length(input$syso_age) == 11,
+            "All Ages",
+            paste(input$syso_age, collapse = ', ')),
     br(),
-    strong("Methodology Type: ")#,
-    # getNameByValue(syso_methodology_types, input$methodology_type) 
+    strong("Gender: "),
+    getNameByValue(syso_gender_cats(), input$syso_gender),
+    br(),
+    strong("Race/Ethnicity: "),
+    getNameByValue(syso_race_ethnicities, input$syso_race_ethnicity),
+    br(),
+    strong("Special Populations: "),
+    # getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops),
+    br(),
+    strong("Methodology Type: "),
+    getNameByValue(syso_methodology_types, input$methodology_type)
   )
 })
 
