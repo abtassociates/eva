@@ -272,7 +272,7 @@ syso_detailBox <- reactive({
   syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
   names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
                                        names(syso_race_ethnicities))
-  browser()
+  # browser()
   list(
     strong("Date Range: "),
     ReportStart(),
@@ -302,12 +302,16 @@ syso_detailBox <- reactive({
             getNameByValue(syso_gender_cats(), input$syso_gender)),
     br(),
     strong("Race/Ethnicity: "),
-    getNameByValue(
-      syso_race_ethnicity_cats(),
+    str_sub(getNameByValue(
+      unlist(syso_race_ethnicity_cats()),
       input$syso_race_ethnicity),
+      start = str_locate(getNameByValue(
+        unlist(syso_race_ethnicity_cats()),
+        input$syso_race_ethnicity), "\\.")[,1] + 1,
+      end = -1L),
     br(),
     strong("Special Populations: "),
-    input$syso_spec_pops,
+    getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
     br(),
     strong("Methodology Type: "),
     getNameByValue(syso_methodology_types, input$methodology_type)
