@@ -272,7 +272,7 @@ syso_detailBox <- reactive({
   syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
   names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
                                        names(syso_race_ethnicities))
-  
+  browser()
   list(
     strong("Date Range: "),
     ReportStart(),
@@ -294,10 +294,17 @@ syso_detailBox <- reactive({
             paste(input$syso_age, collapse = ', ')),
     br(),
     strong("Gender: "),
-    getNameByValue(syso_gender_cats(), input$syso_gender),
+    if_else(length(input$syso_gender) == 5, 
+            # this works only because there are 5 categories in both
+            # inclusive and exclusive methodologies so this will need
+            # rewriting if the number of categories changes 
+            "All Genders",
+            getNameByValue(syso_gender_cats(), input$syso_gender)),
     br(),
     strong("Race/Ethnicity: "),
-    getNameByValue(syso_race_ethnicities, input$syso_race_ethnicity),
+    getNameByValue(
+      syso_race_ethnicity_cats(),
+      input$syso_race_ethnicity),
     br(),
     strong("Special Populations: "),
     input$syso_spec_pops,
