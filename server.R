@@ -954,8 +954,8 @@ function(input, output, session) {
   syso_race_ethnicity_cats <- function(methodology = 1){
     ifelse(
       methodology == 1,
-      syso_race_ethnicity_excl,
-      syso_race_ethnicity_incl
+      list(syso_race_ethnicity_excl),
+      list(syso_race_ethnicity_incl)
     )[[1]]
   }
   
