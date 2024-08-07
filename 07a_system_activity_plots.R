@@ -300,7 +300,7 @@ syso_detailBox <- reactive({
     getNameByValue(syso_race_ethnicities, input$syso_race_ethnicity),
     br(),
     strong("Special Populations: "),
-    # getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops),
+    input$syso_spec_pops,
     br(),
     strong("Methodology Type: "),
     getNameByValue(syso_methodology_types, input$methodology_type)
