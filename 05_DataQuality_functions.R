@@ -57,11 +57,12 @@ getDQReportDataList <-
       "OrganizationName",
       "ProjectID",
       "ProjectName",
+      "ProjectType",
       "Issue",
       "PersonalID",
+      "EnrollmentID",
       "HouseholdID",
-      "EntryDate",
-      "EnrollmentID"
+      "EntryDate"
     )
     
     high_priority <- dqData %>%
@@ -109,12 +110,13 @@ getDQReportDataList <-
         OrganizationName,
         ProjectID,
         ProjectName,
+        ProjectType,
         EventID,
         PersonalID,
+        EnrollmentID,
         EventDate,
         EventType,
-        Days,
-        EnrollmentID
+        Days
       )
     
     mainsummary <- rbind(
