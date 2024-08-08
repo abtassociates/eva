@@ -20,9 +20,9 @@ allowed_destinations <-
   c(116, 101, 118, 215, 206, 207, 225, 204, 205, 302, 329, 314, 332, 312, 313,
     327, 422, 423, 426, 410, 435, 421, 411, 30, 17, 24, 8, 9, 99)
 
-perm_destinations <- c(422,423,426,410,435,421,411)
+perm_destinations <- c(400:499)
 
-temp_destinations <- c(116,101,118,302,329,314,332,312,313,327)
+temp_destinations <- c(300:399)
 
 allowed_living_situations <- 
   c(allowed_prior_living_sit,
@@ -31,20 +31,19 @@ allowed_living_situations <-
   unique() %>%
   sort()
 
-perm_livingsituation <- c(336, 410, 411, 421, 422, 423, 426, 435)
+perm_livingsituation <- perm_destinations
 
-lh_livingsituation <- c(101, 116, 118)
+lh_livingsituation <- c(100:199)
 
 homeless_livingsituation <- c(lh_livingsituation, 302)
 
-temp_livingsituation <- c(homeless_livingsituation, 312, 313, 314, 327, 329, 2, 335)
+temp_livingsituation <- temp_destinations
 
-institutional_livingsituation <- c(204, 205, 206, 207, 215, 225)
+institutional_livingsituation <- c(200:299)
 
-other_livingsituation <- c(8, 9, 17, 24, 30, 37, 99)
+other_livingsituation <- c(0:99)
 
-not_homeless_livingsituation <- 
-  c(204, 205, 206, 207, 215, 225, 302, 314, 329, 332, 335, 336, 410, 411, 421, 435)
+not_homeless_livingsituation <- c(200:499)
 
 
 # Project Type Groupings --------------------------------------------------
