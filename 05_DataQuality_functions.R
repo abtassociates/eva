@@ -67,14 +67,17 @@ getDQReportDataList <-
     
     high_priority <- dqData %>%
       filter(Type == "High Priority") %>%
+      mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(all_of(select_list))
     
     errors <- dqData %>%
       filter(Type == "Error") %>%
+      mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(all_of(select_list))
     
     warnings <- dqData %>%
       filter(Type == "Warning") %>%
+      mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(all_of(select_list))
     
     dqOverlapDetails <- dqOverlaps %>% 
@@ -106,6 +109,7 @@ getDQReportDataList <-
     
     dqReferralDetails <- dqReferrals %>%
       filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
+      mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(
         OrganizationName,
         ProjectID,
