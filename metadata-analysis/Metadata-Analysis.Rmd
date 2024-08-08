@@ -26,22 +26,18 @@ library(scales)
 
 # whenever DDS uploads the metadata zip file to ACE (S:\Projects\CE_Data_Toolkit\Eva metadata), navigate to the metadata-analysis directory in your Eva RStudio project, click Upload, then Choose File (not Browse), then upload that zip file. Click OK or whatever. Run this.
 
-visits <-
-  read_lines(here("metadata-analysis/metadata/site_visits.txt"))
-  #read_lines(here("~/sdrive_ce/eva_dz/metadata-analysis/metadata/site_visits.txt"))
-uploads <-
-  read_lines(here("metadata-analysis/metadata/upload_metadata.txt"))
-  #read_lines(here("~/sdrive_ce/eva_dz/metadata-analysis/metadata/upload_metadata.txt"))
+visits <- read_lines(here("metadata-analysis/metadata/site_visits.txt"))
+
+uploads <- read_lines(here("metadata-analysis/metadata/upload_metadata.txt"))
+
 
 session_data <- read_csv(here("metadata-analysis/metadata/sessiondata.csv")) %>%
-#session_data <- read_csv(here("~/sdrive_ce/eva_dz/metadata-analysis/metadata/sessiondata.csv")) %>%
   group_by(SessionToken) %>%
   count(CoC)
 
 new_way <-
   read_csv(here("metadata-analysis/metadata/metadata.csv")) %>% # <- don't change this
   # ^ change where your file is in your project directory
-  #read_csv(here("~/sdrive_ce/eva_dz/metadata-analysis/metadata/metadata.csv")) %>%
   group_by(SessionToken) %>%
   mutate(sessionTime = difftime(max(Datestamp), min(Datestamp), units = "mins"),
          is_timeout = sessionTime >= 10 & sessionTime < 11,
