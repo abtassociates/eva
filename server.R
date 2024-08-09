@@ -973,7 +973,10 @@ function(input, output, session) {
     
   #### DISPLAY FILTER SELECTIONS ###
   output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
-  output$sys_act_summary_filter_selections <- renderUI({ syso_detailBox() })
+  output$sys_act_summary_filter_selections <- renderUI({
+    req(valid_file() == 1)
+    syso_detailBox() 
+  })
 
   #### DISPLAY CHART SUBHEADER ###
   output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
@@ -983,6 +986,11 @@ function(input, output, session) {
   renderSystemPlot("sys_act_detail_ui_chart")
 
   # System Composition ------------------------------------
+  observeEvent(input$syso_tabsetpanel, {
+    if(input$syso_tabsetpanel == "Composition of All Served in Period") {
+      addClass(id="syso_inflowoutflow_filters", class="filter-disabled")
+    }
+  })
   observeEvent(input$system_composition_filter, {
     # they can select up to 2
     if(length(input$system_composition_filter) > 2){
@@ -1007,7 +1015,10 @@ function(input, output, session) {
   })
 
   
-  output$sys_comp_summary_filter_selections <- renderUI({sys_comp_filters()})
+  output$sys_comp_summary_filter_selections <- renderUI({
+    req(length(input$system_composition_filter) > 2)
+    sys_comp_filters()
+  })
 
   output$sys_comp_summary_ui_chart <- renderPlot({
     validate(
