@@ -36,7 +36,6 @@ frame_summary <-
   )
 
 system_activity_prep_detail <- reactive({
-# browser()
   inflow <- sys_inflow_outflow_plot_data()() %>%
     select(PersonalID,
            InflowTypeSummary,
@@ -269,10 +268,12 @@ ggplot(df, aes(x = group.id, fill = Status)) +
 syso_detailBox <- reactive({
   # remove group names from race/ethnicity filter
   # so we can use getNameByValue() to grab the selected option label
-  syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
-  names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
-                                       names(syso_race_ethnicities))
-  # browser()
+  if (input$methodology_type == 2) {
+    browser()
+  }
+  # syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
+  # names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
+  #                                      names(syso_race_ethnicities))
   list(
     strong("Date Range: "),
     ReportStart(),
