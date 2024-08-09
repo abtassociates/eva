@@ -25,18 +25,20 @@ sys_comp_filters <- function(session) {
 }
 
 get_v_cats <- function(v) {
-  syso_race_ethnicities_all <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Detailed"])
-  names(syso_race_ethnicities_all) <- gsub("Detailed", "",
-                                           names(syso_race_ethnicities_all))
-  
-  syso_race_ethnicities_grouped <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Summarized"])
-  names(syso_race_ethnicities_grouped) <- gsub("Detailed", "",
-                                               names(syso_race_ethnicities_grouped))
+  if(v == "All Races/Ethnicities") {
+    syso_race_ethnicities_all <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Detailed"])
+    names(syso_race_ethnicities_all) <- gsub("Detailed", "",
+                                             names(syso_race_ethnicities_all))
+  } else if(v == "Grouped Races/Ethnicities") {
+    syso_race_ethnicities_grouped <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Summarized"])
+    names(syso_race_ethnicities_grouped) <- gsub("Detailed", "",
+                                                 names(syso_race_ethnicities_grouped))
+  }
   
   return(
     switch(v,
-           "Gender" = syso_gender_cats(input$methodology_type), 
-           "Age" = syso_age_cats, 
+           "Gender" = syso_gender_cats(input$methodology_type),
+           "AgeCategory" = syso_age_cats, 
            "All Races/Ethnicities" = syso_race_ethnicities_all, 
            "Grouped Races/Ethnicities" = syso_race_ethnicities_grouped, 
            "Domestic Violence" = syso_spec_pops_people[2:3]
