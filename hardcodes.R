@@ -208,7 +208,7 @@ syso_race_ethnicity_incl <- list(
       "AsianInclusive1",
     "Black, African American, or African Inclusive" =
       "BlackAfAmericanInclusive1",
-    "Hispanic/Latina/é/o" =
+    "Hispanic/Latina/e/o" =
       "LatineInclusive1",
     "Middle Eastern or North African Inclusive" =
       "MENAInclusive1",
@@ -218,11 +218,11 @@ syso_race_ethnicity_incl <- list(
       "WhiteInclusive1"
   ),
   "Summarized" = c(
-    "Black, African American or African and Hispanic/Latina/é/o Inclusive" =
+    "Black, African American or African and Hispanic/Latina/e/o Inclusive" =
       "BlackAfAmericanLatineInclusive2",
-    "Hispanic/Latina/é/o Inclusive" =
+    "Hispanic/Latina/e/o Inclusive" =
       "LatineInclusive2",
-    "Hispanic/Latina/é/o Alone" =
+    "Hispanic/Latina/e/o Alone" =
       "LatineAloneInclusive2"
   )
 )
@@ -231,33 +231,33 @@ syso_race_ethnicity_excl <- list(
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous Alone" =
       "AmIndAKNativeAloneExclusive1",
-    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/é/o" =
+    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" =
       "AmIndAKNativeLatineExclusive1",
     "Asian or Asian American Alone" =
       "AsianAloneExclusive1",
-    "Asian or Asian American & Hispanic/Latina/é/o" =
+    "Asian or Asian American & Hispanic/Latina/e/o" =
       "AsianLatineExclusive1",
     "Black, African American, or African Alone" =
       "BlackAfAmericanAloneExclusive1",
-    "Black, African American, or African & Hispanic/Latina/é/o" =
+    "Black, African American, or African & Hispanic/Latina/e/o" =
       "BlackAfAmericanLatineExclusive1",
-    "Hispanic/Latina/é/o Alone" =
+    "Hispanic/Latina/e/o Alone" =
       "LatineAloneExclusive1",
     "Middle Eastern or North African Alone" =
       "MENAAloneExclusive1",
-    "Middle Eastern or North African & Hispanic/Latina/é/o" =
+    "Middle Eastern or North African & Hispanic/Latina/e/o" =
       "MENALatineExclusive1",
     "Native Hawaiin or Pacific Islander Alone" =
       "NativeHIPacificAloneExclusive1",
-    "Native Hawaiin or Pacific Islander & Hispanic/Latina/é/o" =
+    "Native Hawaiin or Pacific Islander & Hispanic/Latina/e/o" =
       "NativeHIPacificLatineExclusive1" ,
     "White Alone" =
       "WhiteAloneExclusive1",
-    "White & Hispanic/Latina/é/o" =
+    "White & Hispanic/Latina/e/o" =
       "WhiteLatineExclusive1",
-    "Multi-Racial (not Hispanic/Latina/é/o)" =
+    "Multi-Racial (not Hispanic/Latina/e/o)" =
       "MultipleNotLatineExclusive1",
-    "Multi-Racial & Hispanic/Latina/é/o" =
+    "Multi-Racial & Hispanic/Latina/e/o" =
       "MultipleLatineExclusive1"
   ),
   "Summarized" = c("All People of Color" =
