@@ -844,13 +844,13 @@ dashboardPage(
             width = 12
           )
         ),
-        fluidRow(
-          box(
-            id = "syso_header",
-            "System Composition",
-            width = 12
-          )
-        ),
+        # fluidRow(
+        #   box(
+        #     id = "syso_header",
+        #     "System Composition",
+        #     width = 12
+        #   )
+        # ),
         fluidRow(
           box(
             checkboxGroupInput(
