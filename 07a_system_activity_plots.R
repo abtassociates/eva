@@ -303,11 +303,12 @@ syso_detailBox <- reactive({
             getNameByValue(syso_gender_cats(), input$syso_gender)),
     br(),
     strong("Race/Ethnicity: "),
-    str_sub(getNameByValue(
-      unlist(syso_race_ethnicity_cats()),
-      input$syso_race_ethnicity),
+    str_sub(
+      getNameByValue(
+        unlist(syso_race_ethnicity_cats(input$methodology_type)),
+        input$syso_race_ethnicity),
       start = str_locate(getNameByValue(
-        unlist(syso_race_ethnicity_cats()),
+        unlist(syso_race_ethnicity_cats(input$methodology_type)),
         input$syso_race_ethnicity), "\\.")[,1] + 1,
       end = -1L),
     br(),
