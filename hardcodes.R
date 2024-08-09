@@ -164,17 +164,17 @@ syso_project_types <- list(
 
 syso_age_cats <- c(
   # "All ages",
-  "0 to 12",
-  "13 to 17",
-  "18 to 21",
-  "22 to 24",
-  "25 to 34",
-  "35 to 44",
-  "45 to 54",
-  "55 to 64",
-  "65 to 74",
-  "75 and older",
-  "Unknown")
+  "0 to 12" =  "0 to 12",
+  "13 to 17" = "13 to 17",
+  "18 to 21" = "18 to 21",
+  "22 to 24" = "22 to 24",
+  "25 to 34" = "25 to 34",
+  "35 to 44" = "35 to 44",
+  "45 to 54" = "45 to 54",
+  "55 to 64" = "55 to 64",
+  "65 to 74" = "65 to 74",
+  "75 and older" = "75 and older",
+  "Unknown" = "Unknown")
 
 gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
                    "DifferentIdentity", "Questioning", "GenderNone")
