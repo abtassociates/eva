@@ -278,8 +278,7 @@ chglog <- tribble(
 )
 
 
-output$changelog <- renderHtmlTableWidget({ 
-  chglog %>% 
-    addHtmlTableStyle(align="l") %>% 
-    htmlTableWidget(rnames=FALSE) 
-})
+output$changelog <- renderDataTable({
+  chglog2 <- chglog
+}, rownames=FALSE, escape=FALSE)
+
