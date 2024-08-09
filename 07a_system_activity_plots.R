@@ -36,7 +36,6 @@ frame_summary <-
   )
 
 system_activity_prep_detail <- reactive({
-# browser()
   inflow <- sys_inflow_outflow_plot_data()() %>%
     select(PersonalID,
            InflowTypeSummary,
@@ -269,10 +268,12 @@ ggplot(df, aes(x = group.id, fill = Status)) +
 syso_detailBox <- reactive({
   # remove group names from race/ethnicity filter
   # so we can use getNameByValue() to grab the selected option label
-  syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
-  names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
-                                       names(syso_race_ethnicities))
-  
+  # if (input$methodology_type == 2) {
+  #   browser()
+  # }
+  # syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
+  # names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
+  #                                      names(syso_race_ethnicities))
   list(
     strong("Date Range: "),
     ReportStart(),
@@ -289,24 +290,33 @@ syso_detailBox <- reactive({
     getNameByValue(syso_project_types, input$syso_project_type),
     br(),
     strong("Age: "),
-    # if_else(
-    #   setequal(syso_age_cats, input$syso_age) |
-    #     is.null(input$syso_age),
-    #   "All Ages"#,
-    #   # getNameByValue(syso_age_cats, input$syso_age)
-    # ),
-    " | ",
-    strong("Gender: "),
-    # getNameByValue(syso_gender_cats(), input$syso_gender),
-    " | ",
-    strong("Race/Ethnicity: "),
-    # getNameByValue(syso_race_ethnicities, input$syso_race_ethnicity),
-    " | ",
-    strong("Special Populations: "),
-    # getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops), 
+    if_else(length(input$syso_age) == 11,
+            "All Ages",
+            paste(input$syso_age, collapse = ', ')),
     br(),
-    strong("Methodology Type: ")#,
-    # getNameByValue(syso_methodology_types, input$methodology_type) 
+    strong("Gender: "),
+    if_else(length(input$syso_gender) == 5, 
+            # this works only because there are 5 categories in both
+            # inclusive and exclusive methodologies so this will need
+            # rewriting if the number of categories changes 
+            "All Genders",
+            getNameByValue(syso_gender_cats(), input$syso_gender)),
+    br(),
+    strong("Race/Ethnicity: "),
+    str_sub(
+      getNameByValue(
+        unlist(syso_race_ethnicity_cats(input$methodology_type)),
+        input$syso_race_ethnicity),
+      start = str_locate(getNameByValue(
+        unlist(syso_race_ethnicity_cats(input$methodology_type)),
+        input$syso_race_ethnicity), "\\.")[,1] + 1,
+      end = -1L),
+    br(),
+    strong("Special Populations: "),
+    getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
+    br(),
+    strong("Methodology Type: "),
+    getNameByValue(syso_methodology_types, input$methodology_type)
   )
 })
 
