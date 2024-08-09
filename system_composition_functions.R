@@ -52,17 +52,72 @@ get_sys_comp_plot_df <- function(varnames) {
   
   var_cols <- sapply(varnames, get_sys_comp_var)
   
-  return(
-    sys_df_people_universe_filtered_r()() %>%
-      select(PersonalID, var_cols) %>%
-      count(!!!syms(varnames)) %>%
-      filter(n > 10) %>%
-      mutate(pct = prop.table(n)) %>%
-      right_join(
-        do.call(expand.grid, cats),
-        by = varnames
-      )
-  )
+  comp_df <- sys_df_people_universe_filtered_r()() %>%
+    select(PersonalID, unname(var_cols[[1]]), unname(var_cols[[2]]))
+  
+  # if("Gender" %in% varnames) {
+  #   comp_df <- comp_df %>% 
+  #     mutate(
+  #       Gender = if_any(.cols = names(var_cols[["Gender"]]), ~.x==1)
+  #     )
+  # }
+  
+  is_multiselect <- function(v) {length(v) > 1}
+  
+  # for binary/dummy vars, filter to the 1s 
+  # and change the 1s to the label of the variable so when we combine later, 
+  # reporting will be easier
+  handle_binary_var <- function(freq_df, vnum, v) {
+    return(
+      freq_df <- freq_df %>%
+        filter(!!sym(v) == 1) %>%
+        mutate(!!names(var_cols[vnum]) := names(var_cols[[vnum]])[var_cols[[vnum]] == v]) %>%
+        select(-!!sym(v))
+    )
+  }
+  
+  # Function to process each combination of the variables underlying the all-served
+  # selections. E.g. if Age and Gender (and Exclusive methopdology type), 
+  # then we'd combine 0 to 12 with ManExclusive, 0 to 12 with WomanExclusive, 
+  # 13 to 24 with ManExclusive, etc.
+  process_combination <- function(v1, v2, comp_df) {
+    freq_df <- as.data.frame(
+      table(comp_df[[v1]], comp_df[[v2]])
+    )
+    names(freq_df) <- c(v1, v2, "n")
+    
+    if (is_multiselect(var_cols[[1]])) {
+      freq_df <- handle_binary_var(freq_df, 1, v1)
+    }
+    
+    if (is_multiselect(var_cols[[2]])) {
+      freq_df <- handle_binary_var(freq_df, 2, v2)
+    }
+    
+    freq_df %>% 
+      mutate(n = ifelse(n <= 10, NA, n))
+  }
+  
+  # Get a dataframe of the freqs of all combinations
+  # along with percents
+  freqs <- expand_grid(
+      v1 = var_cols[[1]], 
+      v2 = var_cols[[2]]
+    ) %>%
+    pmap_dfr(~ process_combination(..1, ..2, comp_df)) %>%
+    mutate(
+      pct = (n / sum(n, na.rm = TRUE))
+    )
+  
+  return(freqs)
+}
+
+syso_gender_cats <- function(methodology = 1){
+  ifelse(
+    methodology == 1,
+    list(syso_gender_excl),
+    list(syso_gender_incl)
+  )[[1]]
 }
 
 get_sys_comp_var <- function(v) {
@@ -71,15 +126,17 @@ get_sys_comp_var <- function(v) {
            "All Races/Ethnicities" = "AllRaceEthnicity", 
            "Grouped Races/Ethnicities" = "GroupedRaceEthnicity",
            "Domestic Violence" = "DomesticViolence",
+           "Gender" = unlist(syso_gender_cats(input$methodology_type)),
            v
     )
   )
 }
 
 sys_comp_plot <- function(vars) {
+  # must have selected 2 variables to cross-tab
   req(length(vars) == 2)
   
-  # race/ethnicity should always be on the row
+  # race/ethnicity, if selected, should always be on the row
   if(vars[1] == "All Races/Ethnicities" |  
      vars[1] == "Grouped Races/Ethnicities") {
     x <- vars[1]
@@ -87,6 +144,11 @@ sys_comp_plot <- function(vars) {
     vars[1] <- x
   }
   
+  vars <- sapply(vars, function(v) {
+    if_else(v == "Age", "AgeCategory", v)
+  })
+  
+  # these are the categories/values of the selected variables
   cats1 <- get_v_cats(vars[1])
   cats2 <- get_v_cats(vars[2])
   
@@ -94,25 +156,25 @@ sys_comp_plot <- function(vars) {
   
   if(all(is.na(plot_df$n))) return()
   
-  plot_df <- as.data.frame(plot_df)
+  # plot_df <- as.data.frame(plot_df)
   plot_df[vars[1]] <- factor(plot_df[[vars[1]]])
   plot_df[vars[2]] <- factor(plot_df[[vars[2]]])
   
   h_total <- plot_df %>% 
-    group_by(!!!syms(vars[2])) %>% 
+    group_by(!!!syms(vars[[2]])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
-    mutate(!!vars[1] := 'Total')
+    mutate(!!vars[[1]] := 'Total')
   
   v_total <- plot_df %>% 
-    group_by(!!!syms(vars[1])) %>% 
+    group_by(!!!syms(vars[[1]])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
-    mutate(!!vars[2] := 'Total')
+    mutate(!!vars[[2]] := 'Total')
   
   
   font_size <- 14/.pt
-  
+
   return(
-    ggplot(plot_df, aes(.data[[vars[1]]], .data[[vars[2]]])) +
+    ggplot(plot_df, aes(.data[[vars2[1]]], .data[[vars2[2]]])) +
       # main data into cells for each cross-combination
       geom_tile(
         color = 'white',
@@ -186,12 +248,12 @@ sys_comp_plot <- function(vars) {
       # axis labels
       scale_x_discrete(
         labels = str_wrap(c(names(cats1), "Total"), width=20),
-        limits = c(levels(plot_df[[vars[1]]]), "Total"),
+        limits = c(levels(plot_df[[vars2[1]]]), "Total"),
         position = "top"
       ) +
       scale_y_discrete(
         labels = str_wrap(c("Total", rev(names(cats2))), width=30),
-        limits = c("Total", levels(plot_df[[vars[2]]]))
+        limits = c("Total", levels(plot_df[[vars2[2]]]))
       ) +
       
       # other stuff
@@ -199,8 +261,8 @@ sys_comp_plot <- function(vars) {
       theme(legend.position = "none",
             axis.ticks = element_blank(),
             panel.grid = element_blank(),
-            axis.title.x = element_text(vars[1], size = 13),
-            axis.title.y = element_text(vars[2], size = 13),
+            axis.title.x = element_text(vars2[1], size = 13),
+            axis.title.y = element_text(vars2[2], size = 13),
             axis.text = element_text(size = 14))
   )
 }
