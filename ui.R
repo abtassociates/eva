@@ -694,13 +694,11 @@ dashboardPage(
             )
           ),
           box(
-            title = "Advanced Settings",
+            title = "Methodology Type",
             width = 6,
             radioButtons(
               "methodology_type",
-              HTML(
-                "Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"
-              ),
+              label = NULL,
               choices = syso_methodology_types,
               width = "100%"
             ),
