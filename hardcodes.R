@@ -208,7 +208,7 @@ syso_race_ethnicity_incl <- list(
       "AsianInclusive1",
     "Black, African American, or African Inclusive" =
       "BlackAfAmericanInclusive1",
-    "Hispanic/Latina/é/o" =
+    "Hispanic/Latina/e/o" =
       "LatineInclusive1",
     "Middle Eastern or North African Inclusive" =
       "MENAInclusive1",
@@ -218,11 +218,11 @@ syso_race_ethnicity_incl <- list(
       "WhiteInclusive1"
   ),
   "Summarized" = c(
-    "Black, African American or African and Hispanic/Latina/é/o Inclusive" =
+    "Black, African American or African and Hispanic/Latina/e/o Inclusive" =
       "BlackAfAmericanLatineInclusive2",
-    "Hispanic/Latina/é/o Inclusive" =
+    "Hispanic/Latina/e/o Inclusive" =
       "LatineInclusive2",
-    "Hispanic/Latina/é/o Alone" =
+    "Hispanic/Latina/e/o Alone" =
       "LatineAloneInclusive2"
   )
 )
