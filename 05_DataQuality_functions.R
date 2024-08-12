@@ -4,6 +4,7 @@
 
 
 vars_prep <- c(
+  "EnrollmentID",
   "HouseholdID",
   "PersonalID",
   "OrganizationName",
@@ -56,22 +57,27 @@ getDQReportDataList <-
       "OrganizationName",
       "ProjectID",
       "ProjectName",
+      "ProjectType",
       "Issue",
       "PersonalID",
+      "EnrollmentID",
       "HouseholdID",
       "EntryDate"
     )
     
     high_priority <- dqData %>%
       filter(Type == "High Priority") %>%
+      mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(all_of(select_list))
     
     errors <- dqData %>%
       filter(Type == "Error") %>%
+      mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(all_of(select_list))
     
     warnings <- dqData %>%
       filter(Type == "Warning") %>%
+      mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(all_of(select_list))
     
     dqOverlapDetails <- dqOverlaps %>% 
@@ -103,12 +109,15 @@ getDQReportDataList <-
     
     dqReferralDetails <- dqReferrals %>%
       filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
+      mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(
         OrganizationName,
         ProjectID,
         ProjectName,
+        ProjectType,
         EventID,
         PersonalID,
+        EnrollmentID,
         EventDate,
         EventType,
         Days
@@ -124,7 +133,7 @@ getDQReportDataList <-
       ungroup() %>%
       select(Type, Enrollments, Issue) %>%
       arrange(Type, desc(Enrollments))
-    
+
     bySummaryLevel2 <- rlang::sym(bySummaryLevel)
     byunitsummary <- rbind(
       dqData %>% select(!!bySummaryLevel2, Type, Issue, PersonalID),
@@ -422,7 +431,7 @@ dqDownloadInfo <- reactive({
   orgDQReferrals <- 
     calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
     filter(OrganizationName %in% c(input$orgList))
-  
+
   # return a list for reference in downloadHandler
   list(
     orgDQData = 
