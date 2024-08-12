@@ -279,6 +279,12 @@ syso_detailBox <- reactive({
       ))
     )
   }
+  
+  selected_race <- getNameByValue(
+    unlist(syso_race_ethnicity_cats(input$methodology_type)),
+    input$syso_race_ethnicity
+  )
+  
   list(
     strong("Date Range: "),
     
@@ -302,19 +308,19 @@ syso_detailBox <- reactive({
     if (length(input$syso_gender) != length(syso_gender_cats(input$methodology_type)))
       detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
     
-    if (getNameByValue(syso_race_ethnicity_cats(input$methodology_type),
-                       input$syso_race_ethnicity) != "All Races/Ethnicities")
-      strong("Race/Ethnicity: "), str_sub(
-        getNameByValue(
-          unlist(syso_race_ethnicity_cats(input$methodology_type)),
-          input$syso_race_ethnicity
-        ),
-        start = str_locate(getNameByValue(
-          unlist(syso_race_ethnicity_cats(input$methodology_type)),
-          input$syso_race_ethnicity
-        ), "\\.")[, 1] + 1,
-        end = -1L
-      ), br(),
+    if (selected_race != "All.All Races/Ethnicities")
+      HTML(glue(
+        "<b>Race/Ethnicity:</b> {
+          str_sub(
+            selected_race, 
+            start = str_locate(
+              selected_race,
+              '\\\\.'
+            )[, 1] + 1,
+            end = -1L
+          )
+        } <br>"
+      )),
     
     if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
       detail_line("Special Populations", syso_spec_pops_people, input$syso_spec_pops)
