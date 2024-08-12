@@ -53,12 +53,14 @@ save_new_zip("FY24-ICF-unhashed.zip", "reduced")
 data <- reduced_data[["Export"]]
 data$CSVVersion <- '2022 v1'
 write.csv(data, reduced_files[["Export"]], row.names = FALSE, na = "")
+Sys.sleep(1)
 save_new_zip("FY24-ICF-wrong-csv-version.zip", "reduced")
 
 # Missing Export (APR or LSA) --------------------------------
 file.remove(reduced_files[["Export"]])
 save_new_zip("FY24-ICF-missing-export.zip", "reduced")
 write.csv(reduced_data[["Export"]], reduced_files[["Export"]], row.names=FALSE, na = "") # bring export dataset back
+Sys.sleep(1)
 
 # Missing Files ----------------------------------------------
 file.remove(reduced_files[["Enrollment"]])
@@ -72,7 +74,7 @@ write.csv(reduced_data[["Exit"]],
           reduced_files[["Exit"]],
           row.names = FALSE,
           na = "")
-
+Sys.sleep(1)
 
 ################# FSA ######################
 reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[6, ])
