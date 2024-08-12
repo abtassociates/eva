@@ -47,6 +47,7 @@ names(reduced_files) <- tools::file_path_sans_ext(basename(reduced_files))
 data <- reduced_data[["Export"]]
 data$HashStatus <- 1
 write.csv(data, reduced_files[["Export"]], row.names = FALSE, na = "")
+Sys.sleep(1)
 save_new_zip("FY24-ICF-unhashed.zip", "reduced")
 
 # CSVVersion -------------------------------------------------
@@ -85,6 +86,7 @@ lapply(names(reduced_data_fsa), function(fname) {
                      fname, ".csv"),
               row.names = FALSE, na="")
 })
+Sys.sleep(1)
 save_new_zip("FY24-ICF-fsa-test.zip", "reduced_fsa")
 
 print("done creating test datasets")
