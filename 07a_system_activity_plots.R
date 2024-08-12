@@ -272,47 +272,39 @@ syso_detailBox <- reactive({
     # browser()
   # }
 
+  detail_line <- function(detail_label, val_list, inputVal) {
+    return(
+      HTML(glue(
+        "<b>{detail_label}:</b> {getNameByValue(val_list, inputVal)} <br>"
+      ))
+    )
+  }
   list(
     strong("Date Range: "),
-    ReportStart(),
-    " to ",
-    ReportEnd(), 
+    
+    ReportStart(), " to ", ReportEnd(), br(),
+    
     if (getNameByValue(syso_hh_types, input$syso_hh_type) != "All People")
-      br(),
-    if (getNameByValue(syso_hh_types, input$syso_hh_type) != "All People")
-      strong("Household Type: "),
-    if (getNameByValue(syso_hh_types, input$syso_hh_type) != "All People")
-      getNameByValue(syso_hh_types, input$syso_hh_type),
-    br(),
-    strong("Level of Detail: "),
-    getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
+      detail_line("Household Type", syso_hh_types, input$syso_hh_type),
+    
+    detail_line("Level of Detail", syso_level_of_detail, input$syso_level_of_detail),
+    
     if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
-      br(),
-    if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
-      strong("Project Type: "),
-    if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
-      getNameByValue(syso_project_types, input$syso_project_type),
-    if (length(input$syso_age) != 11)
-      br(),
-    if (length(input$syso_age) != 11)
-      strong("Age: "),
-    if (length(input$syso_age) != 11)
-            paste(input$syso_age, collapse = ', '),
+      detail_line("Project Type", syso_project_types, input$syso_project_type),
+    
+    detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
+    
+    if (length(input$syso_age) != length(syso_age_cats))
+      HTML(glue(
+        "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
+      )),
+    
     if (length(input$syso_gender) != length(syso_gender_cats(input$methodology_type)))
-      br(),
-    if (length(input$syso_gender) != length(syso_gender_cats(input$methodology_type)))
-      strong("Gender: "),
-    if (length(input$syso_gender) != length(syso_gender_cats(input$methodology_type)))
-      getNameByValue(syso_gender_cats(input$methodology_type), input$syso_gender),
+      detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
+    
     if (getNameByValue(syso_race_ethnicity_cats(input$methodology_type),
-                       input$syso_race_ethnicity) != "All")
-      br(),
-    if (getNameByValue(syso_race_ethnicity_cats(input$methodology_type),
-                               input$syso_race_ethnicity) != "All")
-        strong("Race/Ethnicity: "),
-    if (getNameByValue(syso_race_ethnicity_cats(input$methodology_type),
-                       input$syso_race_ethnicity) != "All")
-      str_sub(
+                       input$syso_race_ethnicity) != "All Races/Ethnicities")
+      strong("Race/Ethnicity: "), str_sub(
         getNameByValue(
           unlist(syso_race_ethnicity_cats(input$methodology_type)),
           input$syso_race_ethnicity
@@ -322,16 +314,11 @@ syso_detailBox <- reactive({
           input$syso_race_ethnicity
         ), "\\.")[, 1] + 1,
         end = -1L
-      ),
+      ), br(),
+    
     if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
-      br(),
-    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
-      strong("Special Populations: "),
-    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
-      getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
-    br(),
-    strong("Methodology Type: "),
-    getNameByValue(syso_methodology_types, input$methodology_type)
+      detail_line("Special Populations", syso_spec_pops_people, input$syso_spec_pops)
+    
   )
 })
 
