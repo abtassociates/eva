@@ -78,14 +78,7 @@ function(input, output, session) {
   #   )[[1]]
   # })
   
-  # syso_spec_pops_cats <- reactive({
-  #   ifelse(
-  #     input$syso_level_of_detail %in% c(1,2),
-  #     list(syso_spec_pops_people),
-  #     list(syso_spec_pops_hoh)
-  #   )[[1]]
-  # })
-  
+
   # log when user navigate to a tab
   observe({ 
     logMetadata(paste0("User on ",input$sidebarmenuid, 
