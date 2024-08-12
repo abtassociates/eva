@@ -269,7 +269,7 @@ syso_detailBox <- reactive({
   # remove group names from race/ethnicity filter
   # so we can use getNameByValue() to grab the selected option label
   # if (input$methodology_type == 2) {
-  #   browser()
+    # browser()
   # }
   # syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
   # names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
@@ -279,41 +279,58 @@ syso_detailBox <- reactive({
     ReportStart(),
     " to ",
     ReportEnd(), 
-    br(),
-    strong("Household Type: "),
-    getNameByValue(syso_hh_types, input$syso_hh_type),
+    if (getNameByValue(syso_hh_types, input$syso_hh_type) != "All People")
+      br(),
+    if (getNameByValue(syso_hh_types, input$syso_hh_type) != "All People")
+      strong("Household Type: "),
+    if (getNameByValue(syso_hh_types, input$syso_hh_type) != "All People")
+      getNameByValue(syso_hh_types, input$syso_hh_type),
     br(),
     strong("Level of Detail: "),
     getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
-    br(),
-    strong("Project Type: "),
-    getNameByValue(syso_project_types, input$syso_project_type),
-    br(),
-    strong("Age: "),
-    if_else(length(input$syso_age) == 11,
-            "All Ages",
-            paste(input$syso_age, collapse = ', ')),
-    br(),
-    strong("Gender: "),
-    if_else(length(input$syso_gender) == 5, 
-            # this works only because there are 5 categories in both
-            # inclusive and exclusive methodologies so this will need
-            # rewriting if the number of categories changes 
-            "All Genders",
-            getNameByValue(syso_gender_cats(), input$syso_gender)),
-    br(),
-    strong("Race/Ethnicity: "),
-    str_sub(
-      getNameByValue(
-        unlist(syso_race_ethnicity_cats(input$methodology_type)),
-        input$syso_race_ethnicity),
-      start = str_locate(getNameByValue(
-        unlist(syso_race_ethnicity_cats(input$methodology_type)),
-        input$syso_race_ethnicity), "\\.")[,1] + 1,
-      end = -1L),
-    br(),
-    strong("Special Populations: "),
-    getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
+    if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
+      br(),
+    if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
+      strong("Project Type: "),
+    if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
+      getNameByValue(syso_project_types, input$syso_project_type),
+    if (length(input$syso_age) != 11)
+      br(),
+    if (length(input$syso_age) != 11)
+      strong("Age: "),
+    if (length(input$syso_age) != 11)
+            paste(input$syso_age, collapse = ', '),
+    if (length(input$syso_gender) != length(syso_gender_cats(input$methodology_type)))
+      br(),
+    if (length(input$syso_gender) != length(syso_gender_cats(input$methodology_type)))
+      strong("Gender: "),
+    if (length(input$syso_gender) != length(syso_gender_cats(input$methodology_type)))
+      getNameByValue(syso_gender_cats(input$methodology_type), input$syso_gender),
+    if (getNameByValue(syso_race_ethnicity_cats(input$methodology_type),
+                       input$syso_race_ethnicity) != "All")
+      br(),
+    if (getNameByValue(syso_race_ethnicity_cats(input$methodology_type),
+                               input$syso_race_ethnicity) != "All")
+        strong("Race/Ethnicity: "),
+    if (getNameByValue(syso_race_ethnicity_cats(input$methodology_type),
+                       input$syso_race_ethnicity) != "All")
+      str_sub(
+        getNameByValue(
+          unlist(syso_race_ethnicity_cats(input$methodology_type)),
+          input$syso_race_ethnicity
+        ),
+        start = str_locate(getNameByValue(
+          unlist(syso_race_ethnicity_cats(input$methodology_type)),
+          input$syso_race_ethnicity
+        ), "\\.")[, 1] + 1,
+        end = -1L
+      ),
+    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
+      br(),
+    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
+      strong("Special Populations: "),
+    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
+      getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
     br(),
     strong("Methodology Type: "),
     getNameByValue(syso_methodology_types, input$methodology_type)
