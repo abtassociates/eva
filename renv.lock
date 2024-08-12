@@ -320,7 +320,7 @@
     },
     "chromote": {
       "Package": "chromote",
-      "Version": "0.1.2",
+      "Version": "0.2.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -333,9 +333,10 @@
         "processx",
         "promises",
         "rlang",
+        "utils",
         "websocket"
       ],
-      "Hash": "14c8f71bf7b112634b154f8a6a0867e1"
+      "Hash": "3cfaf9cbd331e07055acada321664e12"
     },
     "cli": {
       "Package": "cli",
@@ -1538,7 +1539,12 @@
     "renv": {
       "Package": "renv",
       "Version": "1.0.7",
-      "Source": "Repository"
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "397b7b2a265bc5a7a06852524dabae20"
     },
     "reprex": {
       "Package": "reprex",
@@ -1788,7 +1794,7 @@
     },
     "shinytest2": {
       "Package": "shinytest2",
-      "Version": "0.3.1",
+      "Version": "0.3.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1798,7 +1804,6 @@
         "chromote",
         "cpp11",
         "crayon",
-        "ellipsis",
         "fs",
         "globals",
         "httr",
@@ -1810,7 +1815,7 @@
         "testthat",
         "withr"
       ],
-      "Hash": "04e60b31d4afef1d221ede5fafb0c6f6"
+      "Hash": "a414c1bb2eb6e2a920742d3ebce84962"
     },
     "snakecase": {
       "Package": "snakecase",
