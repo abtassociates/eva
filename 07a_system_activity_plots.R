@@ -271,9 +271,7 @@ syso_detailBox <- reactive({
   # if (input$methodology_type == 2) {
     # browser()
   # }
-  # syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
-  # names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
-  #                                      names(syso_race_ethnicities))
+
   list(
     strong("Date Range: "),
     ReportStart(),
