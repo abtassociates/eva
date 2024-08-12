@@ -17,6 +17,7 @@ save_new_zip <- function(zipfname, files_directory) {
     files = list.files(paste0(here("tests/temp/"),files_directory), pattern = "*.csv", full.names = TRUE),
     mode = "cherry-pick" # so the files are at the top directory
   )
+  Sys.sleep(1)
 }
 
 # store the original data as an R data set, so we can modify from scratch each time
