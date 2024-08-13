@@ -4,9 +4,11 @@ output$changelog <- renderDataTable({
     ~ Change,
     "08-01-2024",
     "<b>New Features:</b> <br>
-      - Updated LivingSituation something something <br>
       - Formatted changelog for readability <br>
-
+      - Split processing tasks so that Eva does a quick check for any
+      impermissible characters, then if any are found, the user can choose to
+      run a more detailed report about the impermissible characters< and their
+      precise location in the uploaded file<br>
       <b>Bug Fixes:</b><br>
       - Added Enrollment ID and Project Type to exports (Issues
       <a href='https://github.com/abtassociates/eva/issues/482'>#482</a> and
