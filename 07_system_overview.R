@@ -82,7 +82,7 @@ enrollment_prep <- EnrollmentAdjust %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  filter(ContinuumProject == 1) %>%
+  filter(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>%
   select(-ContinuumProject)
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
 # check that
@@ -109,7 +109,7 @@ hh_adjustments <- enrollment_prep %>%
   ungroup() %>%
   group_by(HouseholdID) %>%
   mutate(
-    HouseholdType = factor(
+    HouseholdTypeMutuallyExclusive = factor(
       case_when(
         all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
           "AO",
@@ -122,17 +122,17 @@ hh_adjustments <- enrollment_prep %>%
       ),
       levels = c("AO", "AC", "CO", "UN")
     ),
-    HouseholdType2 = factor(
+    HouseholdType = factor(
       case_when(
-        HouseholdType == "AC" &
+        HouseholdTypeMutuallyExclusive == "AC" &
           max(AgeAtEntry) < 25 &
           !any(is.na(AgeAtEntry)) ~ "PY",
-        HouseholdType == "AO" & max(AgeAtEntry) < 25 ~ "YYA",
-        HouseholdType == "AC" ~ "ACminusPY",
+        HouseholdTypeMutuallyExclusive == "AO" & max(AgeAtEntry) < 25 ~ "YYA",
+        HouseholdTypeMutuallyExclusive == "AC" ~ "ACminusPY",
         # ^ relies on cascading logic (rest of ACs)
-        HouseholdType == "AO" ~ "AOminusYYA",
+        HouseholdTypeMutuallyExclusive == "AO" ~ "AOminusYYA",
         # ^ relies on cascading logic (rest of AOs)
-        TRUE ~ HouseholdType
+        TRUE ~ HouseholdTypeMutuallyExclusive
       ),
       levels = c("AOminusYYA", "ACminusPY", "CO", "UN", "PY", "YYA")
     )) %>%
@@ -213,13 +213,13 @@ homeless_cls_finder <- function(date, window = "before", days = 60) {
     unique()
 }
 # Enrollment-level flags --------------------------------------------------
-
 # as much wrangling as possible without needing hhtype, project type, and level
 # of detail inputs
 
 enrollment_categories <- enrollment_prep_hohs %>%
   mutate(
     ProjectTypeWeight = case_when(
+      # speaks to presumed trustworthiness of data, not urgency
       ProjectType %in% ph_project_types &
         !is.na(MoveInDateAdjust) ~ 100,
       ProjectType %in% ph_project_types &
@@ -248,6 +248,9 @@ enrollment_categories <- enrollment_prep_hohs %>%
     straddles_start =
       EntryDate <= ReportStart() &
       ExitAdjust >= ReportStart(),
+    straddles_end = 
+      EntryDate <= ReportEnd() &
+      ExitAdjust >= ReportEnd(),
     in_date_range =
       ExitAdjust >= ReportStart() &
       EntryDate <= ReportEnd(),
@@ -258,10 +261,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
       DomesticViolenceSurvivor == 1 &
         (is.na(CurrentlyFleeing) | CurrentlyFleeing != 1) ~
         "DVNotFleeing",
-      DomesticViolenceSurvivor == 1 ~
-        "DVTotal",
       TRUE ~
-        "NotDV" # No Special Population Selected
+        "NotDV" 
       )
   ) %>%
   filter(
@@ -314,6 +315,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
     lh_prior_livingsituation,
     lh_at_entry,
     straddles_start,
+    straddles_end,
     in_date_range,
     EnrolledHomeless,
     LivingSituation,
@@ -326,9 +328,20 @@ enrollment_categories <- enrollment_prep_hohs %>%
     HouseholdType,
     ProjectTypeWeight
   ) %>% 
+  group_by(PersonalID, straddles_start) %>%
+  mutate(StraddlesStart = n(),
+         MaxProjectTypeStart = max(ProjectTypeWeight)) %>%
+  group_by(PersonalID, straddles_end) %>%
+  mutate(StraddlesEnd = n(),
+         MaxProjectTypeEnd = max(ProjectTypeWeight)) %>%
+  
   group_by(PersonalID) %>%
   arrange(EntryDate, .by_group = TRUE) %>%
   mutate(
+    InvolvedInOverlapStart = straddles_start == TRUE &
+      StraddlesStart > 1,
+    InvolvedInOverlapEnd = straddles_end == TRUE &
+      StraddlesEnd > 1,
     ordinal = row_number(),
     days_to_next_entry =
       difftime(lead(EntryDate, order_by = EntryDate),
@@ -340,16 +353,30 @@ enrollment_categories <- enrollment_prep_hohs %>%
                units = "days"),
     next_enrollment_project_type = lead(ProjectType),
     previous_enrollment_project_type = lag(ProjectType)
-  ) %>%
-  arrange(desc(ProjectTypeWeight), EntryDate, .by_group = TRUE) %>%
-  mutate(find_eecr = row_number()) %>%
-  arrange(ProjectTypeWeight, desc(EntryDate), .by_group = TRUE) %>%
-  mutate(find_lecr = row_number()) %>%
+    ) %>%
+  group_by(PersonalID, InvolvedInOverlapStart) %>%
+  arrange(desc(ProjectTypeWeight), EntryDate, ExitAdjust,
+          .by_group = TRUE) %>%
+  mutate(RankOrderStartOverlaps = row_number()) %>%
+  # getting rid of enrollments involved in an overlap across ReportStart that
+  # didn't get picked as the eecr
+  filter((InvolvedInOverlapStart == TRUE & RankOrderStartOverlaps == 1) |
+           InvolvedInOverlapStart == FALSE) %>%
+  group_by(PersonalID, InvolvedInOverlapEnd) %>%
+  arrange(desc(ProjectTypeWeight), EntryDate, ExitAdjust,
+          .by_group = TRUE) %>%
+  mutate(RankOrderEndOverlaps = row_number()) %>%
+  # getting rid of enrollments involved in an overlap across ReportEnd that
+  # didn't get picked as the lecr
+  filter((InvolvedInOverlapEnd == TRUE & RankOrderEndOverlaps == 1) |
+           InvolvedInOverlapEnd == FALSE) %>%
   group_by(PersonalID, in_date_range) %>%
-  arrange(EntryDate, .by_group = TRUE) %>%
+  arrange(EntryDate,
+          ExitAdjust,
+          .by_group = TRUE) %>%
   mutate(
-    lecr = in_date_range == TRUE & max(find_eecr) == ordinal,
-    eecr = in_date_range == TRUE & max(find_lecr) == ordinal,
+    lecr = in_date_range == TRUE & max(ordinal) == ordinal,
+    eecr = in_date_range == TRUE & min(ordinal) == ordinal,
     lookback = if_else(in_date_range == TRUE, 0, rev(row_number()))
   ) %>%
   ungroup() %>%
@@ -382,7 +409,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
 # after_te - before_te
 
 # Client-level flags ------------------------------------------------------
-# will help us categorize people
+# will help us categorize people for filtering
 
 client_categories <- Client %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
@@ -669,44 +696,22 @@ client_categories <- Client %>%
   select(-all_of(gender_cols), -all_of(race_cols))
 
 client_categories_reactive <- reactive({
-  if (input$methodology_type == 1) {
+
   client_categories %>%
-    select(PersonalID,
-           VeteranStatus,
-           AgeCategory,
-           ends_with("Exclusive"),
-           ends_with("Exclusive1"),
-           ends_with("Exclusive2")
-           ) %>%
-    filter(AgeCategory %in% input$syso_age &
-             input$methodology_type == 1 &
-             if_any(.cols = c(input$syso_gender), ~isTruthy(.)) &
-             if_any(.cols = c(input$syso_race_ethnicity), ~isTruthy(.)) &
-             ((input$syso_spec_pops == "Veteran" &
-                VeteranStatus == 1) |
-             (input$syso_spec_pops == "NonVeteran" &
-                VeteranStatus == 0) |
-               input$syso_spec_pops == "None"))
-  } else{
-  
-  client_categories %>%
-    select(PersonalID,
-           VeteranStatus,
-           AgeCategory,
-           ends_with("Inclusive"),
-           ends_with("Inclusive1"),
-           ends_with("Inclusive2")
+    mutate(All = 1) %>%
+    filter(
+      AgeCategory %in% input$syso_age &
+        if_any(.cols = c(input$syso_gender), ~ .x == 1) &
+        if_any(.cols = c(input$syso_race_ethnicity), ~ .x == 1) &
+        ((input$syso_spec_pops == "Veteran" &
+            VeteranStatus == 1) |
+           (input$syso_spec_pops == "NonVeteran" &
+              VeteranStatus == 0) |
+           input$syso_spec_pops %in% c("None", syso_dv_pops)
+        )
     ) %>%
-    filter(AgeCategory %in% input$syso_age &
-             input$methodology_type == 2 &
-             if_any(.cols = c(input$syso_gender), ~isTruthy(.)) &
-             if_any(.cols = c(input$syso_race_ethnicity), ~isTruthy(.)) &
-             ((input$syso_spec_pops == "Veteran" &
-                 VeteranStatus == 1) |
-                (input$syso_spec_pops == "NonVeteran" &
-                   VeteranStatus == 0) |
-                input$syso_spec_pops == "None"))
-  }
+    select(-All)
+  
 })
 
 # Enrollment-level reactive -----------------------------------------------
@@ -716,17 +721,25 @@ enrollment_categories_reactive <- reactive({
   # Filter enrollments by hhtype, project type, and level-of-detail inputs
   enrollment_categories %>%
     filter((input$syso_hh_type == "All" |
-         HouseholdType == input$syso_hh_type) &
+         case_when(
+           input$syso_hh_type == "AC" ~ HouseholdType %in% c("ACminusPY", "PY"),
+           input$syso_hh_type == "AO" ~ HouseholdType %in% c("AOminusYYA", "YYA"),
+           input$syso_hh_type == HouseholdType ~ HouseholdType == input$syso_hh_type)) &
       (input$syso_level_of_detail == "All" |
-         (input$syso_level_of_detail == "HoHs&Adults" &
+         (input$syso_level_of_detail == "HoHsAndAdults" &
             (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
          (input$syso_level_of_detail == "HoHsOnly" &
-            CorrectedHoH == 1))&
+            CorrectedHoH == 1)) &
         (input$syso_project_type == "All" |
            (input$syso_project_type == "Residential" &
               ProjectType %in% project_types_w_beds) |
            (input$syso_project_type == "NonResidential" &
-              ProjectType %in% non_res_project_types))
+              ProjectType %in% non_res_project_types)) &
+        (input$syso_spec_pops %in% c("None", "Veteran", "NonVeteran") |
+           (input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV") |
+           (input$syso_spec_pops == "NotDV" & DomesticViolenceCategory == "NotDV") |
+           input$syso_spec_pops == DomesticViolenceCategory
+           )
            )
   
 })
@@ -737,7 +750,6 @@ enrollment_categories_reactive <- reactive({
 clients_enrollments_reactive <- reactive({
   enrollment_categories_reactive() %>%
     select(-MostRecentAgeAtEntry) %>%
-    filter(in_date_range == TRUE) %>%
     inner_join(client_categories_reactive(), join_by(PersonalID))
 })
 
@@ -745,6 +757,7 @@ clients_enrollments_reactive <- reactive({
 # get final people-level, inflow/outflow dataframe by joining the filtered 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 inflow_outflow_df <- reactive({
+  # browser()
   # add inflow type and active enrollment typed used for system overview plots
   universe <-
     clients_enrollments_reactive() %>%
@@ -755,7 +768,7 @@ inflow_outflow_df <- reactive({
       # INFLOW CALCULATOR COLUMNS
       #LOGIC: active homeless at start
         # basically it has to straddle report start
-          # the entry date of the EECR needs to be on or before the report date range
+          # the entry date of the EECR needs to be on or before the reporting period
           # the exitadjust has to be after report start
       # OR the eecr & lookback1 have to end and start within 14 days of each
       # other and of the report start
@@ -813,7 +826,7 @@ inflow_outflow_df <- reactive({
         MoveInDateAdjust <= ReportStart() &
         lh_prior_livingsituation == TRUE,
       
-      # LOGIC helper columns for outflow
+      # LOGIC helper columns
       
       lookback1_perm_dest = lookback == 1 & 
         Destination %in% perm_destinations,
@@ -822,6 +835,7 @@ inflow_outflow_df <- reactive({
         lh_at_entry == TRUE,
       
       at_least_14_days_to_eecr_enrl = lookback == 1 & 
+        !is.na(days_to_next_entry) &
         days_to_next_entry >= 14,
       
       lookback1_temp_dest = lookback == 1 & 
@@ -895,9 +909,12 @@ inflow_outflow_df <- reactive({
         ))
     )
   
+  # hello weary traveler amongst these date ranges. you may find it helpful to
+  # find example clients and their Entry and Exit Dates and enter them into
+  # https://onlinetools.com/time/visualize-date-intervals <- here.
   universe_ppl <- universe %>%
     group_by(PersonalID) %>%
-    filter(max(lecr) == 1 & max(eecr) == 1) %>%
+    filter(max(lecr) == 1 & max(eecr) == 1) %>% # drops ppl w/o an eecr or lecr
     summarise(
       # INFLOW
       active_at_start_homeless_client = max(active_at_start_homeless),
@@ -912,7 +929,9 @@ inflow_outflow_df <- reactive({
         max(eecr_lh_at_entry) == 1 & 
         max(at_least_14_days_to_eecr_enrl) == 1,
       
-      newly_homeless_client = max(lookback) == 0,
+      newly_homeless_client = max(lookback) == 0 |
+        max(eecr_lh_at_entry) == 0 | 
+        max(at_least_14_days_to_eecr_enrl) == 0,
       
       InflowTypeSummary = case_when(
         active_at_start_homeless_client == TRUE |
@@ -928,9 +947,9 @@ inflow_outflow_df <- reactive({
       InflowTypeDetail = case_when(
         active_at_start_homeless_client == TRUE ~ "Homeless",
         active_at_start_housed_client == TRUE ~ "Housed",
-        newly_homeless_client == TRUE ~ "Newly Homeless",
         return_from_perm_client == TRUE ~ "Returned from \nPermanent",
         reengaged_from_temp_client == TRUE ~ "Re-engaged from \nNon-Permanent",
+        newly_homeless_client == TRUE ~ "Newly Homeless",
         TRUE ~ "something's wrong"
       ),
       
@@ -959,8 +978,10 @@ inflow_outflow_df <- reactive({
       OutflowTypeDetail = case_when(
         perm_dest_client == TRUE ~
           "Exited to \nPermanent Destination",
-        temp_dest_client == TRUE | unknown_at_end_client == TRUE ~
+        temp_dest_client == TRUE ~
           "Exited to \nNon-Permanent Destination",
+        unknown_at_end_client == TRUE ~
+          "Inactive",
         homeless_at_end_client == TRUE ~
           "Homeless",
         housed_at_end_client == TRUE ~

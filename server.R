@@ -62,34 +62,6 @@ function(input, output, session) {
   # log that the session has started
   logMetadata("Session started")
   
-  # Population reactives ----------------------------------------------------
-  
-  # Set race/ethnicity + gender filter options based on methodology type selection
-  # Set special populations options based on level of detail selection
-  syso_race_ethnicity_cats <- reactive({
-    ifelse(
-      input$methodology_type == 1,
-      list(syso_race_ethnicity_excl),
-      list(syso_race_ethnicity_incl)
-    )[[1]]
-  })
-  
-  syso_gender_cats <- reactive({
-    if_else(
-      input$methodology_type == 1,
-      list(syso_gender_excl),
-      list(syso_gender_incl)
-    )[[1]]
-  })
-  
-  # syso_spec_pops_cats <- reactive({
-  #   if_else(
-  #     input$syso_level_of_detail %in% c("All", "HoHsAndAdults"),
-  #     list(special_pops_description(syso_spec_pops_people)),
-  #     list(syso_spec_pops_hoh)
-  #   )[[1]]
-  # })
-  
   # set during initially valid processing stop. Rest of processing stops if invalid
   # FSA is hidden unless initially_valid_import() == 1
   initially_valid_import <- reactiveVal() 
@@ -99,26 +71,13 @@ function(input, output, session) {
   
   demo_modal_closed <- reactiveVal()
   
-  
-  # Population reactives ----------------------------------------------------
-  
-  # Set race/ethnicity + gender filter options based on methodology type selection
-  # Set special populations options based on level of detail selection
-  syso_race_ethnicity_cats <- reactive({
-    ifelse(
-      input$methodology_type == 1,
-      list(syso_race_ethnicity_excl),
-      list(syso_race_ethnicity_incl)
-    )[[1]]
-  })
-  
-  syso_gender_cats <- reactive({
-    ifelse(
-      input$methodology_type == 1,
-      list(syso_gender_excl),
-      list(syso_gender_incl)
-    )[[1]]
-  })
+  # syso_gender_cats <- reactive({
+  #   ifelse(
+  #     input$methodology_type == 1,
+  #     list(syso_gender_excl),
+  #     list(syso_gender_incl)
+  #   )[[1]]
+  # })
   
   # syso_spec_pops_cats <- reactive({
   #   ifelse(
@@ -294,13 +253,16 @@ function(input, output, session) {
               "))
             }
             
-            updatePickerInput(session = session, inputId = "currentProviderList",
+            updatePickerInput(session = session,
+                              inputId = "currentProviderList",
                               choices = sort(Project$ProjectName))
             
-            updatePickerInput(session = session, inputId = "orgList",
+            updatePickerInput(session = session,
+                              inputId = "orgList",
                               choices = c(unique(sort(Organization$OrganizationName))))
             
-            updateDateRangeInput(session = session, inputId = "dateRangeCount",
+            updateDateRangeInput(session = session,
+                                 inputId = "dateRangeCount",
                                  min = meta_HUDCSV_Export_Start(),
                                  start = meta_HUDCSV_Export_Start(),
                                  max = meta_HUDCSV_Export_End(),
@@ -941,24 +903,43 @@ function(input, output, session) {
     )[[1]]
   })
   
+    # Population reactives ----------------------------------------------------
+    
+    # Set race/ethnicity + gender filter options based on methodology type selection
+    # Set special populations options based on level of detail selection
+  syso_race_ethnicity_cats <- function(methodology = 1){
+    ifelse(
+      methodology == 1,
+      list(syso_race_ethnicity_excl),
+      list(syso_race_ethnicity_incl)
+    )[[1]]
+  }
+  
+  syso_gender_cats <- function(methodology = 1){
+    ifelse(methodology == 1,
+           list(syso_gender_excl),
+           list(syso_gender_incl))[[1]]
+  }
+  
   observeEvent(input$methodology_type, {
+    
     updatePickerInput(
-      session, 
+      session = session,
       "syso_gender", 
-      choices = syso_gender_cats(),
-      selected = syso_gender_cats(),
+      choices = syso_gender_cats(input$methodology_type),
+      selected = unlist(syso_gender_cats(input$methodology_type), use.names = FALSE),
       options = pickerOptions(
-        actionsBox = TRUE,
-        selectedTextFormat = paste("count >", length(syso_gender_cats())-1),
-        countSelectedText = "All Genders",
-        noneSelectedText = "All Genders" 
+        # actionsBox = TRUE,
+        selectedTextFormat = paste("count >", length(syso_gender_cats(input$methodology_type))-1)
+        # countSelectedText = "All Genders",
+        # noneSelectedText = "All Genders" 
       )
     )
     # selected = syso_gender_cats()[1]
     updatePickerInput(
       session, 
       "syso_race_ethnicity", 
-      choices = syso_race_ethnicity_cats()
+      choices = syso_race_ethnicity_cats(input$methodology_type)
     )
     
     updateCheckboxGroupInput(
@@ -967,11 +948,13 @@ function(input, output, session) {
       choices = sys_comp_filter_choices(),
       inline = TRUE
     )
-  })
+    
+  },
+  ignoreInit = TRUE)
   
   observeEvent(input$syso_level_of_detail, {
     updatePickerInput(session, "syso_spec_pops",
-                      label = special_pops_description(syso_spec_pops_people),
+                      # label = "Special Populations",
                       choices = syso_spec_pops_people)
   })
   
@@ -994,7 +977,10 @@ function(input, output, session) {
     
   #### DISPLAY FILTER SELECTIONS ###
   output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
-  output$sys_act_summary_filter_selections <- renderUI({ syso_detailBox() })
+  output$sys_act_summary_filter_selections <- renderUI({
+    req(valid_file() == 1)
+    syso_detailBox() 
+  })
 
   #### DISPLAY CHART SUBHEADER ###
   output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
@@ -1004,6 +990,11 @@ function(input, output, session) {
   renderSystemPlot("sys_act_detail_ui_chart")
 
   # System Composition ------------------------------------
+  observeEvent(input$syso_tabsetpanel, {
+    if(input$syso_tabsetpanel == "Composition of All Served in Period") {
+      addClass(id="syso_inflowoutflow_filters", class="filter-disabled")
+    }
+  })
   observeEvent(input$system_composition_filter, {
     # they can select up to 2
     if(length(input$system_composition_filter) > 2){
@@ -1028,7 +1019,10 @@ function(input, output, session) {
   })
 
   
-  output$sys_comp_summary_filter_selections <- renderUI({sys_comp_filters()})
+  output$sys_comp_summary_filter_selections <- renderUI({
+    req(length(input$system_composition_filter) > 2)
+    sys_comp_filters()
+  })
 
   output$sys_comp_summary_ui_chart <- renderPlot({
     validate(

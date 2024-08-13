@@ -21,7 +21,8 @@ library(data.table)
 library(ggplot2)
 library(ggalluvial)
 
-options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
+options(shiny.maxRequestSize = 200000000, # <- about 200MB, aka 200*1024^2
+        shiny.reactlog = TRUE)
 
 if(dir.exists("metadata-analysis/metadata/")) {
   capture.output("All good", file = stderr())
@@ -32,4 +33,6 @@ source("hardcodes.R", local = TRUE) # hard-coded variables and data frames
 
 # functions used throughout the app
 source("helper_functions.R", local = TRUE)
+
+# runApp(display.mode = "showcase")
 

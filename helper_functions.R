@@ -31,6 +31,8 @@ living_situation <- function(ReferenceNo) {
     ReferenceNo == 302 ~ "Transitional housing",
     ReferenceNo == 332 ~ "Host Home (non-crisis)",
     ReferenceNo == 329 ~ "Residential project or halfway house with no homeless criteria",
+    ReferenceNo == 312 ~ "Staying or living with family, temporary tenure",
+    ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
     ReferenceNo == 314 ~ "H/Motel paid for by household",
     ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
     ReferenceNo == 335 ~ "Staying or living with family, temporary tenure",
@@ -262,18 +264,18 @@ level_of_detail_description <- function(detail_abb){
   )
 }
 
-syso_race_ethnicity_incl <- list(
-  "Group 0" = c("All Races/Ethnicities" = 0),
-  "Group 1" = c("American Indian, Alaska Native, or Indigenous Inclusive" = 1,
-                "Asian or Asian American Inclusive" = 2,
-                "Black, African American, or African Inclusive" = 3,
-                "Hispanic/Latina/é/o" = 4,
-                "Middle Eastern or North African Inclusive" = 5,
-                "Native Hawaiin or Pacific Islander Inclusive" = 6,
-                "White Inclusive" = 7),
-  "Group 2" = c("Black, African American or African and Hispanic/Latina/é/o Inclusive" = 8,
-                "Hispanic/Latina/é/o Inclusive" = 9,
-                "Hispanic/Latina/é/o Alone" = 10))
+# syso_race_ethnicity_incl <- list(
+#   "Group 0" = c("All Races/Ethnicities" = 0),
+#   "Group 1" = c("American Indian, Alaska Native, or Indigenous Inclusive" = 1,
+#                 "Asian or Asian American Inclusive" = 2,
+#                 "Black, African American, or African Inclusive" = 3,
+#                 "Hispanic/Latina/é/o" = 4,
+#                 "Middle Eastern or North African Inclusive" = 5,
+#                 "Native Hawaiin or Pacific Islander Inclusive" = 6,
+#                 "White Inclusive" = 7),
+#   "Group 2" = c("Black, African American or African and Hispanic/Latina/é/o Inclusive" = 8,
+#                 "Hispanic/Latina/é/o Inclusive" = 9,
+#                 "Hispanic/Latina/é/o Alone" = 10))
 # Translate to Values -----------------------------------------------------
 
 replace_yes_no <- function(column_name) {
