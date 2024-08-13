@@ -31,20 +31,10 @@
     "orgList": null,
     "sidebarCollapsed": false,
     "sidebarItemExpanded": null,
-    "sidebarmenuid": "tabClientCount"
+    "sidebarmenuid": "tabUpload"
   },
   "output": {
-    "clientCountData": [
-      "",
-      "NULL",
-      "c(\"shiny.silent.error\", \"validation\")"
-    ],
-    "clientCountSummary": [
-      "",
-      "NULL",
-      "c(\"shiny.silent.error\", \"validation\")"
-    ],
-    "downloadClientCountsReportButton": {
+    "downloadFileStructureAnalysisBtn": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -52,7 +42,7 @@
         "validation"
       ]
     },
-    "downloadFileStructureAnalysisBtn": {
+    "downloadImpermissibleCharacterDetailBtn": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -66,12 +56,6 @@
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
     ],
-    "headerClientCounts": {
-      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
-      "deps": [
-
-      ]
-    },
     "headerUpload": {
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
