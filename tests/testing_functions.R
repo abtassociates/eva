@@ -61,6 +61,10 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     app$set_inputs(Go_to_upload = "click")
     app$upload_file(imported = paste0(here("tests/temp/"),test_dataset))
     app$expect_values()
+    
+    app$wait_for_idle(timeout = 1e+06)
+    customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
+    app$expect_values()
   
     app$set_inputs(sidebarmenuid = "tabClientCount")
     app$expect_values()
