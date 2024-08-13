@@ -174,7 +174,7 @@ sys_comp_plot <- function(vars) {
   font_size <- 14/.pt
 
   return(
-    ggplot(plot_df, aes(.data[[vars2[1]]], .data[[vars2[2]]])) +
+    ggplot(plot_df, aes(.data[[vars[1]]], .data[[vars[2]]])) +
       # main data into cells for each cross-combination
       geom_tile(
         color = 'white',
@@ -248,12 +248,12 @@ sys_comp_plot <- function(vars) {
       # axis labels
       scale_x_discrete(
         labels = str_wrap(c(names(cats1), "Total"), width=20),
-        limits = c(levels(plot_df[[vars2[1]]]), "Total"),
+        limits = c(levels(plot_df[[vars[1]]]), "Total"),
         position = "top"
       ) +
       scale_y_discrete(
         labels = str_wrap(c("Total", rev(names(cats2))), width=30),
-        limits = c("Total", levels(plot_df[[vars2[2]]]))
+        limits = c("Total", levels(plot_df[[vars[2]]]))
       ) +
       
       # other stuff
@@ -261,8 +261,8 @@ sys_comp_plot <- function(vars) {
       theme(legend.position = "none",
             axis.ticks = element_blank(),
             panel.grid = element_blank(),
-            axis.title.x = element_text(vars2[1], size = 13),
-            axis.title.y = element_text(vars2[2], size = 13),
+            axis.title.x = element_text(vars[1], size = 13),
+            axis.title.y = element_text(vars[2], size = 13),
             axis.text = element_text(size = 14))
   )
 }
