@@ -17,6 +17,7 @@ save_new_zip <- function(zipfname, files_directory) {
     files = list.files(paste0(here("tests/temp/"),files_directory), pattern = "*.csv", full.names = TRUE),
     mode = "cherry-pick" # so the files are at the top directory
   )
+  Sys.sleep(1)
 }
 
 # store the original data as an R data set, so we can modify from scratch each time
@@ -46,18 +47,21 @@ names(reduced_files) <- tools::file_path_sans_ext(basename(reduced_files))
 data <- reduced_data[["Export"]]
 data$HashStatus <- 1
 write.csv(data, reduced_files[["Export"]], row.names = FALSE, na = "")
+Sys.sleep(1)
 save_new_zip("FY24-ICF-unhashed.zip", "reduced")
 
 # CSVVersion -------------------------------------------------
 data <- reduced_data[["Export"]]
 data$CSVVersion <- '2022 v1'
 write.csv(data, reduced_files[["Export"]], row.names = FALSE, na = "")
+Sys.sleep(1)
 save_new_zip("FY24-ICF-wrong-csv-version.zip", "reduced")
 
 # Missing Export (APR or LSA) --------------------------------
 file.remove(reduced_files[["Export"]])
 save_new_zip("FY24-ICF-missing-export.zip", "reduced")
 write.csv(reduced_data[["Export"]], reduced_files[["Export"]], row.names=FALSE, na = "") # bring export dataset back
+Sys.sleep(1)
 
 # Missing Files ----------------------------------------------
 file.remove(reduced_files[["Enrollment"]])
@@ -71,7 +75,7 @@ write.csv(reduced_data[["Exit"]],
           reduced_files[["Exit"]],
           row.names = FALSE,
           na = "")
-
+Sys.sleep(1)
 
 ################# FSA ######################
 reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[6, ])
@@ -82,6 +86,7 @@ lapply(names(reduced_data_fsa), function(fname) {
                      fname, ".csv"),
               row.names = FALSE, na="")
 })
+Sys.sleep(1)
 save_new_zip("FY24-ICF-fsa-test.zip", "reduced_fsa")
 
 print("done creating test datasets")
