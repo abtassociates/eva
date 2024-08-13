@@ -78,7 +78,7 @@ write.csv(reduced_data[["Exit"]],
 Sys.sleep(1)
 
 ################# FSA ######################
-reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[6, ])
+reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[min(nrow(x), 6), ])
 dir.create(here("tests/temp/reduced_fsa"))
 lapply(names(reduced_data_fsa), function(fname) {
     write.csv(reduced_data_fsa[[fname]],
