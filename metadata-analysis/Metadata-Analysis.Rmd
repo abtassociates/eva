@@ -231,7 +231,7 @@ staging_last6months %>%
        x = "Tab",
        y = "Count") +
   theme_minimal() +
-  theme(legend.position = "bottom") +
+  theme(legend.position = "none") +
   guides(fill = guide_legend(ncol = 2))
 
 ```
@@ -267,7 +267,7 @@ staging %>%
        x = "Tab",
        y = "Count") +
   theme_minimal() +
-  theme(legend.position = "bottom") +
+  theme(legend.position = "none") +
   guides(fill = guide_legend(ncol = 2))
 
 ```
@@ -522,7 +522,7 @@ staging_last6months %>%
        x = "Tab",
        y = "Count") +
   theme_minimal() +
-  theme(legend.position = "bottom") +
+  theme(legend.position = "none") +
   guides(fill = guide_legend(ncol = 2))
 
 ```
