@@ -237,17 +237,48 @@ vsps_in_hmis <- Project0() %>%
   
  # Zero Utilization --------------------------------------------------------
 
-projects_w_beds <- activeInventory %>%
-  filter(BedInventory > 0) %>%
-  pull(ProjectID) %>%
-  unique()
+res_projects_no_clients <- ProjectSegments %>%
+  inner_join(activeInventory %>%
+               group_by(ProjectID) %>%
+               summarise(ActiveInventorySpan =
+                           interval(min(InventoryStartDate), max(coalesce(
+                             InventoryEndDate, no_end_date
+                           )))) %>%
+               ungroup(),
+            join_by(ProjectID)) %>%
+  filter(HMISParticipationType == 1) %>%
+  mutate(
+    ProjectOperatingInterval =
+      interval(OperatingStartDate, coalesce(OperatingEndDate, no_end_date)),
+    ParticipatingInterval =
+      interval(
+        HMISParticipationStatusStartDate,
+        coalesce(HMISParticipationStatusEndDate, no_end_date)
+      ),
+    OperatingAndParticipating =
+      intersect(ProjectOperatingInterval, ParticipatingInterval),
+    OperatingParticipatingAndActiveInventory =
+      intersect(OperatingAndParticipating, ActiveInventorySpan)
+  ) %>%
+  select(
+    ProjectID,
+    ProjectTimeID,
+    ProjectName,
+    OperatingParticipatingAndActiveInventory
+  ) %>%
+  filter(!is.na(OperatingParticipatingAndActiveInventory)) %>%
+  left_join(
+    Enrollment %>%
+      group_by(ProjectTimeID) %>%
+      summarise(EnrollmentSpan = interval(min(EntryDate), max(ExitAdjust))) %>%
+      ungroup(),
+    join_by(ProjectTimeID)
+  ) %>%
+  filter(int_start(EnrollmentSpan) > int_start(OperatingParticipatingAndActiveInventory) |
+           int_end(EnrollmentSpan) < int_end(OperatingParticipatingAndActiveInventory)) %>%
+  pull(ProjectID) %>% unique()
 
-projects_w_clients <- Enrollment %>%
-  pull(ProjectID) %>%
-  unique()
-
-res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
-
+  
 zero_utilization <- Project0() %>%
   inner_join(HMISParticipation %>%
               filter(HMISParticipationType == 1) %>%
