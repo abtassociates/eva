@@ -158,6 +158,30 @@ function(input, output, session) {
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE)
           
+          # if(isTRUE(getOption("shiny.testmode")) && 
+          #    upload_filename == "FY24-ICF-dq_and_pdde.zip") {
+          #   set.seed(123)
+          # clientCountDetailCols <- c("PersonalID",
+          #                            "EnrollmentID",
+          #                            "RelationshipToHoH",
+          #                            "EntryDate",
+          #                            "MoveInDateAdjust",
+          #                            "ExitDate",
+          #                            "Status")
+          # 
+          # keepCols <- c(
+          #   "OrganizationName", 
+          #   "ProjectID", 
+          #   "ProjectName"
+          # )
+          # message("about to save current good original - from dev")
+          # write.csv(client_count_data_df() %>%
+          #             select(!!keepCols, !!clientCountDetailCols) %>%
+          #             arrange(OrganizationName, ProjectName, EntryDate) %>%
+          #             nice_names() %>%
+          #             sample_n(300), "/media/gdrive/silvermanA/eva/current_good_new_from_consolidating.csv")
+          # }
+          
           setProgress(detail = "Assessing your data quality..", value = .7)
           source("05_DataQuality.R", local = TRUE)
           
