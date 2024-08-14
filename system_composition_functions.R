@@ -12,16 +12,8 @@ get_race_ethnicity_vars <- function(v) {
   }
 }
 
-# this gets all the categories of the selected variable
-get_v_cats <- function(v) {
 syscomp_detailBox <- function(session) {
   return(
-    switch(v,
-           "Gender" = syso_gender_cats(input$methodology_type),
-           "Age" = syso_age_cats, 
-           "All Races/Ethnicities" = get_race_ethnicity_vars("All Races/Ethnicities"), 
-           "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped Races/Ethnicities"), 
-           "Domestic Violence" = syso_dv_pops
     list(
       strong("Date Range: "),
       
@@ -121,13 +113,16 @@ syso_gender_cats <- function(methodology = 1){
 }
 
 get_sys_comp_var <- function(v) {
+# this gets all the categories of the selected variable
+# this is used to make sure even empty categories are included in the chart
+get_v_cats <- function(v) {
   return(
     switch(v,
-           "All Races/Ethnicities" = "AllRaceEthnicity", 
-           "Grouped Races/Ethnicities" = "GroupedRaceEthnicity",
-           "Domestic Violence" = "DomesticViolence",
-           "Gender" = unlist(syso_gender_cats(input$methodology_type)),
-           v
+           "Gender" = syso_gender_cats(input$methodology_type),
+           "Age" = syso_age_cats, 
+           "All Races/Ethnicities" = get_race_ethnicity_vars("All Races/Ethnicities"), 
+           "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped Races/Ethnicities"), 
+           "Domestic Violence" = syso_dv_pops
     )
   )
 }
