@@ -1,29 +1,3 @@
-sys_comp_filters <- function(session) {
-  return(
-    list(
-      strong("Date Range: "),
-      input$syso_date_range[1],
-      " to ",
-      input$syso_date_range[2], 
-      br(),
-      strong("Household Type: "),
-      getNameByValue(syso_hh_types, input$syso_hh_type),
-      " | ",
-      strong("Level of Detail: "),
-      getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
-      " | ",
-      strong("Project Types: "),
-      getNameByValue(syso_project_types, input$syso_project_types),
-      br(),
-      strong("Filter Selections: "),
-      paste(input$system_composition_filter, collapse=" and "),
-      br(),
-      strong("Methodology Type: "),
-      getNameByValue(syso_methodology_types, input$methodology_type) 
-    )
-  )
-}
-
 get_race_ethnicity_vars <- function(v) {
   if(v == "All Races/Ethnicities") {
     syso_race_ethnicities_all <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Detailed"])
@@ -40,6 +14,7 @@ get_race_ethnicity_vars <- function(v) {
 
 # this gets all the categories of the selected variable
 get_v_cats <- function(v) {
+syscomp_detailBox <- function(session) {
   return(
     switch(v,
            "Gender" = syso_gender_cats(input$methodology_type),
@@ -47,6 +22,26 @@ get_v_cats <- function(v) {
            "All Races/Ethnicities" = get_race_ethnicity_vars("All Races/Ethnicities"), 
            "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped Races/Ethnicities"), 
            "Domestic Violence" = syso_dv_pops
+    list(
+      strong("Date Range: "),
+      
+      ReportStart(), " to ", ReportEnd(), br(),
+      
+      if (getNameByValue(syso_hh_types, input$syso_hh_type) != "All People")
+        chart_selection_detail_line("Household Type", syso_hh_types, input$syso_hh_type),
+      
+      chart_selection_detail_line("Level of Detail", syso_level_of_detail, input$syso_level_of_detail),
+      
+      if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
+        chart_selection_detail_line("Project Type", syso_project_types, input$syso_project_type),
+      
+      chart_selection_detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
+      
+      HTML(glue(
+        "<strong>Filter Selections</strong>: {paste(input$system_composition_filter, collapse=' and ')} <br>"
+      )),
+      
+      chart_selection_detail_line("Methodology Type", syso_methodology_types, input$methodology_type)
     )
   )
 }
