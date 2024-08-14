@@ -348,8 +348,7 @@ function(input, output, session) {
       title = "Confirmation",
       "The Impermissible Character Detail export identifies the precise location 
       of all impermissible characters in your HMIS CSV export. 
-      Therefore, it can take up to several minutes to run. To continue, please click
-      Download.",
+      Therefore, it can take up to several minutes to run. To proceed with this export, please click Continue.",
       footer = tagList(
         modalButton("Cancel"),
         actionButton("confirmDownload", "Continue")
