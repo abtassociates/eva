@@ -1015,7 +1015,7 @@ function(input, output, session) {
 
   
   output$sys_comp_summary_filter_selections <- renderUI({
-    req(length(input$system_composition_filter) > 2)
+    req(length(input$system_composition_filter) == 2)
     syscomp_detailBox()
   })
 
