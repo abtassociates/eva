@@ -240,6 +240,9 @@ vsps_in_hmis <- Project0() %>%
 res_projects_no_clients <- ProjectSegments %>%
   filter(HMISParticipationType == 1) %>%
   inner_join(activeInventory %>%
+               filter(is.na(Availability) | Availability != 3) %>%
+               # excluding overflow projects since their enrollments will
+               # by definition contain gaps of zero utilization
                group_by(ProjectID) %>%
                summarise(ActiveInventorySpan =
                            interval(min(InventoryStartDate), max(coalesce(
