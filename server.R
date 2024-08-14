@@ -33,6 +33,8 @@ function(input, output, session) {
   pdde_main <- reactiveVal()
   valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
   file_structure_analysis_main <- reactiveVal()
+  non_ascii_files_detail_df <- reactiveVal()
+  non_ascii_files_detail_r <- reactiveVal()
   
   reset_reactivevals <- function() {
     validation(NULL)
@@ -156,8 +158,14 @@ function(input, output, session) {
             filter(Issue == "Impermissible characters"))) {
             showModal(
               modalDialog(
-                "Eva has detected impermissible characters in your HMIS CSV file. 
-                Please note that these characters may cause Eva to crash.",
+                list(
+                  span("Eva has detected impermissible characters in your HMIS CSV file. 
+                Eva is able to handle most impermissible characters, and will 
+                continue processing your file. However, if Eva does crash, please 
+                report this via a "),
+                  a(href="https://github.com/abtassociates/eva/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=", "GitHub Issue"),
+                  span(".")
+                ),
                 title = "Impermissible characters",
                 easyClose = TRUE
               )
@@ -304,6 +312,55 @@ function(input, output, session) {
       exportTestValues(file_structure_analysis_main = file_structure_analysis_main())
     }
   )
+  
+  output$downloadImpermissibleCharacterDetailBtn <- renderUI({
+    # browser()
+    req("Impermissible characters" %in% c(file_structure_analysis_main()$Issue))
+    tagList(
+      actionButton("showDownloadImpermissibleButton",
+                   "Download Impermissible Character Detail", 
+                   icon("download")),
+      downloadButton("downloadImpermissibleCharacterDetail",
+                     "Download Impermissible Character Detail", style="visibility:hidden;")
+    )
+  })
+  
+  output$downloadImpermissibleCharacterDetail <- downloadHandler(
+    filename = date_stamped_filename("Impermissible-Character-Locations-"),
+    content = function(file) {
+      non_ascii_files_detail <- non_ascii_files_detail_r()()
+      write_xlsx(
+        non_ascii_files_detail %>%
+          arrange(Type, Issue) %>%
+          nice_names(),
+        path = file
+      )
+      
+      logMetadata(paste0("Impermissible Character Locations Report", 
+                         if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+      
+      exportTestValues(non_ascii_files_detail = non_ascii_files_detail)
+    }
+  )
+  
+  observeEvent(input$showDownloadImpermissibleButton, {
+    showModal(modalDialog(
+      title = "Confirmation",
+      "The Impermissible Character Detail export identifies the precise location 
+      of all impermissible characters in your HMIS CSV export. 
+      Therefore, it can take up to several minutes to run. To continue, please click
+      Download.",
+      footer = tagList(
+        modalButton("Cancel"),
+        actionButton("confirmDownload", "Continue")
+      )
+    ))
+  })
+  
+  observeEvent(input$confirmDownload, {
+    removeModal()
+    shinyjs::click("downloadImpermissibleCharacterDetail")
+  })
   # }
   
   # # System Data Quality Overview --------------------------------------------
