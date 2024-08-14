@@ -17,7 +17,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     
     app$set_inputs(Go_to_upload = "click")
     app$wait_for_idle(timeout = 2e+05)
-    app$upload_file(imported = paste0(here("tests/"),test_dataset))
+    app$upload_file(imported = paste0(here("tests/temp/"),test_dataset))
 
     print(paste0("Just uploaded in ",test_script_name))
 
