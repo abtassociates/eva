@@ -38,35 +38,23 @@ syscomp_detailBox <- function(session) {
   )
 }
 
+
 get_sys_comp_plot_df <- function(varnames) {
-  cats <- lapply(varnames, get_v_cats)
-  names(cats) <- varnames
+  # named list of all selected options and 
+  # the corresponding variables in the underlying data
+  var_cols <- list(
+    "Age" = "AgeCategory",
+    "All Races/Ethnicities" = get_race_ethnicity_vars("All Races/Ethnicities"),
+    "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped Races/Ethnicities"),
+    "Domestic Violence" = "DomesticViolenceCategory",
+    "Gender" = unlist(syso_gender_cats(input$methodology_type)),
+    "Homelessness Type" =  "HomelessnessType",
+    "Veteran Status" =  "VeteranStatus"
+  )
   
-  var_cols <- sapply(varnames, get_sys_comp_var)
-  
+  # get dataset underlying the freqs we will produce below
   comp_df <- sys_df_people_universe_filtered_r()() %>%
-    select(PersonalID, unname(var_cols[[1]]), unname(var_cols[[2]]))
-  
-  # if("Gender" %in% varnames) {
-  #   comp_df <- comp_df %>% 
-  #     mutate(
-  #       Gender = if_any(.cols = names(var_cols[["Gender"]]), ~.x==1)
-  #     )
-  # }
-  
-  is_multiselect <- function(v) {length(v) > 1}
-  
-  # for binary/dummy vars, filter to the 1s 
-  # and change the 1s to the label of the variable so when we combine later, 
-  # reporting will be easier
-  handle_binary_var <- function(freq_df, vnum, v) {
-    return(
-      freq_df <- freq_df %>%
-        filter(!!sym(v) == 1) %>%
-        mutate(!!names(var_cols[vnum]) := names(var_cols[[vnum]])[var_cols[[vnum]] == v]) %>%
-        select(-!!sym(v))
-    )
-  }
+    select(PersonalID, unname(var_cols[[varnames[1]]]), unname(var_cols[[varnames[2]]]))
   
   # Function to process each combination of the variables underlying the all-served
   # selections. E.g. if Age and Gender (and Exclusive methopdology type), 
@@ -78,34 +66,39 @@ get_sys_comp_plot_df <- function(varnames) {
     )
     names(freq_df) <- c(v1, v2, "n")
     
-    if (is_multiselect(var_cols[[1]])) {
-      freq_df <- handle_binary_var(freq_df, 1, v1)
+    # make adjustments to the data frame based on the types of the user's selections
+    #   - for binary/dummy vars (e.g. Gender or Race), filter to the 1s 
+    #   and change to the variable label, which will make reporting will be easier
+    #   - for other vars, rename so column names are closer to the original selections
+    #   which will make code easier to read later
+    for (i in seq_along(varnames)) {
+      if(length(var_cols[[varnames[i]]]) > 1) {
+        # multi-select/binary
+        v <- get(paste0("v", i))
+        freq_df <- freq_df %>%
+          filter(!!sym(v) == 1) %>%
+          mutate(!!names(var_cols[varnames[i]]) := names(var_cols[[varnames[i]]])[var_cols[[varnames[i]]] == v]) %>%
+          select(-!!sym(v))
+      } else {
+        # otherwise
+        freq_df <- rename(freq_df, !!varnames[i] := get(paste0("v", i)))
+      }
     }
-    
-    if (is_multiselect(var_cols[[2]])) {
-      freq_df <- handle_binary_var(freq_df, 2, v2)
-    }
-    
-    freq_df %>% 
-      mutate(n = ifelse(n <= 10, NA, n))
+    return(freq_df)
   }
   
   # Get a dataframe of the freqs of all combinations
   # along with percents
-  freqs <- expand_grid(
-      v1 = var_cols[[1]], 
-      v2 = var_cols[[2]]
-    ) %>%
-    pmap_dfr(~ process_combination(..1, ..2, comp_df)) %>%
+  freqs <- expand_grid(v1 = var_cols[[varnames[1]]], v2 = var_cols[[varnames[2]]]) %>%
+    pmap_dfr( ~ process_combination(..1, ..2, comp_df)) %>%
     mutate(
-      pct = (n / sum(n, na.rm = TRUE))
+      pct = (n / sum(n, na.rm = TRUE)),
+      n = ifelse(n <= 10, NA, n) # redcat counts under 10
     )
   
   return(freqs)
 }
 
-
-get_sys_comp_var <- function(v) {
 # this gets all the categories of the selected variable
 # this is used to make sure even empty categories are included in the chart
 get_v_cats <- function(v) {
@@ -132,16 +125,7 @@ sys_comp_plot <- function(vars) {
     vars[1] <- x
   }
   
-  vars <- sapply(vars, function(v) {
-    if_else(v == "Age", "AgeCategory", v)
-  })
-  
-  # these are the categories/values of the selected variables
-  cats1 <- get_v_cats(vars[1])
-  cats2 <- get_v_cats(vars[2])
-  
   plot_df <- get_sys_comp_plot_df(vars)
-  
   if(all(is.na(plot_df$n))) return()
   
   # plot_df <- as.data.frame(plot_df)
@@ -161,6 +145,7 @@ sys_comp_plot <- function(vars) {
   
   font_size <- 14/.pt
 
+  
   return(
     ggplot(plot_df, aes(.data[[vars[1]]], .data[[vars[2]]])) +
       # main data into cells for each cross-combination
@@ -235,12 +220,12 @@ sys_comp_plot <- function(vars) {
       
       # axis labels
       scale_x_discrete(
-        labels = str_wrap(c(names(cats1), "Total"), width=20),
+        labels = str_wrap(c(names(get_v_cats(vars[1])), "Total"), width=20),
         limits = c(levels(plot_df[[vars[1]]]), "Total"),
         position = "top"
       ) +
       scale_y_discrete(
-        labels = str_wrap(c("Total", rev(names(cats2))), width=30),
+        labels = str_wrap(c("Total", rev(names(get_v_cats(vars[2])))), width=30),
         limits = c("Total", levels(plot_df[[vars[2]]]))
       ) +
       
