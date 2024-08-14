@@ -30,8 +30,8 @@
     "isdemo": false,
     "orgList": null,
     "sidebarCollapsed": false,
-    "sidebarItemExpanded": null,
-    "sidebarmenuid": "tabClientCount"
+    "sidebarItemExpanded": "AssessDataQuality",
+    "sidebarmenuid": "tabPDDE"
   },
   "output": {
     "clientCountData": [
@@ -68,6 +68,14 @@
         "validation"
       ]
     },
+    "downloadPDDEReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
     "fileInfo": null,
     "fileStructureAnalysis": [
       "",
@@ -80,12 +88,28 @@
 
       ]
     },
+    "headerPDDE": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
     "headerUpload": {
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
       ]
-    }
+    },
+    "pdde_guidance_summary": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "pdde_summary_table": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ]
   },
   "export": {
 

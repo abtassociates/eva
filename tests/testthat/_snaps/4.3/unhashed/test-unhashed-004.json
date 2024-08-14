@@ -31,7 +31,7 @@
     "orgList": null,
     "sidebarCollapsed": false,
     "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabPDDE"
+    "sidebarmenuid": "tabDQSystem"
   },
   "output": {
     "clientCountData": [
@@ -76,6 +76,14 @@
         "validation"
       ]
     },
+    "downloadSystemDQReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
     "fileInfo": null,
     "fileStructureAnalysis": [
       "",
@@ -89,6 +97,12 @@
       ]
     },
     "headerPDDE": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "headerSystemDQ": {
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
@@ -109,7 +123,31 @@
       "",
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
-    ]
+    ],
+    "systemDQErrorsByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "systemDQHighPriorityErrorsByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "systemDQWarningsByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    }
   },
   "export": {
 
