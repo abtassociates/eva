@@ -238,6 +238,7 @@ vsps_in_hmis <- Project0() %>%
  # Zero Utilization --------------------------------------------------------
 
 res_projects_no_clients <- ProjectSegments %>%
+  filter(HMISParticipationType == 1) %>%
   inner_join(activeInventory %>%
                group_by(ProjectID) %>%
                summarise(ActiveInventorySpan =
@@ -246,19 +247,27 @@ res_projects_no_clients <- ProjectSegments %>%
                            )))) %>%
                ungroup(),
             join_by(ProjectID)) %>%
-  filter(HMISParticipationType == 1) %>%
+  # collapsing project segments (periods of participation) down into a single
+  # date range of time that they had any active inventory ^
   mutate(
     ProjectOperatingInterval =
-      interval(OperatingStartDate, coalesce(OperatingEndDate, no_end_date)),
+      intersect(
+        interval(OperatingStartDate, coalesce(OperatingEndDate, no_end_date)),
+        interval(meta_HUDCSV_Export_Start(), meta_HUDCSV_Export_End())),
+    # when in the reporting period was this project segment operating?
     ParticipatingInterval =
-      interval(
+      intersect(interval(
         HMISParticipationStatusStartDate,
         coalesce(HMISParticipationStatusEndDate, no_end_date)
       ),
+      interval(meta_HUDCSV_Export_Start(), meta_HUDCSV_Export_End())),
+    # when in the reporting period was the project participating?
     OperatingAndParticipating =
       intersect(ProjectOperatingInterval, ParticipatingInterval),
+    # when was the project both participating and operating (within the rpt period?)
     OperatingParticipatingAndActiveInventory =
       intersect(OperatingAndParticipating, ActiveInventorySpan)
+    # when did this project have active inventory and all the other conditions?
   ) %>%
   select(
     ProjectID,
@@ -267,22 +276,25 @@ res_projects_no_clients <- ProjectSegments %>%
     OperatingParticipatingAndActiveInventory
   ) %>%
   filter(!is.na(OperatingParticipatingAndActiveInventory)) %>%
+  # excluding any project segments that had no active inventory during the 
+  # reporting period ^
   left_join(
     Enrollment %>%
       group_by(ProjectTimeID) %>%
       summarise(EnrollmentSpan = interval(min(EntryDate), max(ExitAdjust))) %>%
       ungroup(),
     join_by(ProjectTimeID)
+    # looking within each Project segment for the earliest Entry and latest Exit
   ) %>%
-  filter(int_start(EnrollmentSpan) > int_start(OperatingParticipatingAndActiveInventory) |
-           int_end(EnrollmentSpan) < int_end(OperatingParticipatingAndActiveInventory)) %>%
+  filter(
+    int_start(EnrollmentSpan) > int_start(OperatingParticipatingAndActiveInventory) |
+    int_end(EnrollmentSpan) < int_end(OperatingParticipatingAndActiveInventory)) %>%
+  # finding rows where the span of enrollments falls within (NOT inclusive) the 
+  # span of time the project had active inventory (and was participating, etc.)
   pull(ProjectID) %>% unique()
 
   
 zero_utilization <- Project0() %>%
-  inner_join(HMISParticipation %>%
-              filter(HMISParticipationType == 1) %>%
-              distinct(ProjectID), by = "ProjectID") %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
   merge_check_info(checkIDs = 83) %>%
   mutate(Detail = "") %>%
