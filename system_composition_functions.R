@@ -104,13 +104,6 @@ get_sys_comp_plot_df <- function(varnames) {
   return(freqs)
 }
 
-syso_gender_cats <- function(methodology = 1){
-  ifelse(
-    methodology == 1,
-    list(syso_gender_excl),
-    list(syso_gender_incl)
-  )[[1]]
-}
 
 get_sys_comp_var <- function(v) {
 # this gets all the categories of the selected variable
