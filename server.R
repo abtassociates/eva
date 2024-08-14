@@ -882,13 +882,6 @@ function(input, output, session) {
   })
   
   # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
-  sys_comp_p <- reactive({
-    req(!is.null(input$system_composition_filter))
-    sys_comp_plot(input$system_composition_filter)
-  })
-  
-  source("system_composition_functions.R", local=TRUE)
-  
   
   #### FILTERS ###
   sys_comp_filter_choices <- reactive({
@@ -986,6 +979,12 @@ function(input, output, session) {
   renderSystemPlot("sys_act_detail_ui_chart")
 
   # System Composition ------------------------------------
+  source("system_composition_functions.R", local=TRUE)
+  sys_comp_p <- reactive({
+    req(!is.null(input$system_composition_filter))
+    sys_comp_plot(input$system_composition_filter)
+  })
+  
   observeEvent(input$syso_tabsetpanel, {
     if(input$syso_tabsetpanel == "Composition of All Served in Period") {
       addClass(id="syso_inflowoutflow_filters", class="filter-disabled")
