@@ -49,7 +49,7 @@ get_sys_comp_plot_df <- function(varnames) {
     "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
     "Domestic Violence" = "DomesticViolenceCategory",
     "Gender" = unlist(syso_gender_cats(input$methodology_type)),
-    "Homelessness Type" =  "HomelessnessType",
+    # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
     "Veteran Status" =  "VeteranStatus"
   )
   
@@ -112,7 +112,7 @@ get_v_cats <- function(v) {
            "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"), 
            "Domestic Violence" = syso_dv_pops,
            "Veteran Status" = syso_veteran_pops,
-           "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2")
+           # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
     )
   )
 }
