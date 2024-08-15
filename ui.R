@@ -316,9 +316,9 @@ dashboardPage(
                  from a curated HMIS CSV Export file. View the File Structure
                  Analysis below to see examples of the File Structure Errors you
                  could get in your own uploads. For a full list of possible
-                 errors, see ",
-                 a('Eva Checks', href=here("public-resources/EvaChecks.csv")),
-                 ".</p>
+                 errors, see <a href =
+                 'https://github.com/abtassociates/eva/blob/main/public-resources/EvaChecks.csv' 
+                 target= '_blank' rel='noopener noreferrer'>Eva Checks</a>.</p>
                  <p>To explore your own File Structure Errors, turn off Demo
                  Mode and upload your own hashed HMIS CSV Export file.</p></div>
             ")),
@@ -339,7 +339,9 @@ dashboardPage(
             well as any other structural issues which you feel need to be corrected.
             </p>"),
             p(),
-            uiOutput('downloadFileStructureAnalysisBtn')
+            uiOutput('downloadFileStructureAnalysisBtn'),
+            p(),
+            uiOutput('downloadImpermissibleCharacterDetailBtn')
           ))
           # fluidRow(box(
           #   title = "System Data Quality Overview",
@@ -855,7 +857,7 @@ dashboardPage(
             # collapsible = TRUE,
             # collapsed = TRUE,
             width = 12,
-            tableOutput("changelog")
+            dataTableOutput("changelog")
           )
         )
       ),
