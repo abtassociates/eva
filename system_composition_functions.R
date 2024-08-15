@@ -165,7 +165,7 @@ sys_comp_plot <- function(sys_comp_filter_selections) {
       # display like 14/(0.8%)
       # set text color to be 508 compliant contrasting
       geom_text(
-        aes(label = paste0(n, "\n", "(",scales::percent(pct, accuracy = 0.1),")")), 
+        aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")), 
         size = font_size,
         color = ifelse(
           plot_df$n > mean(plot_df$n,na.rm=TRUE),
@@ -188,7 +188,7 @@ sys_comp_plot <- function(sys_comp_filter_selections) {
         aes(label= ifelse(
           is.na(N),
           "",
-          paste0(N, "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
+          paste0(scales::comma(N), "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
         )), 
         size = font_size,
         color = ifelse(
