@@ -125,7 +125,7 @@ sys_comp_plot <- function(sys_comp_filter_selections) {
   if(sys_comp_filter_selections[1] == "All Races/Ethnicities" |  
      sys_comp_filter_selections[1] == "Grouped Races/Ethnicities" | 
      sys_comp_filter_selections[1] == "Hispanic-Focused Races/Ethnicities") {
-    x <- sys_comp_filter_selections[1]
+    x <- sys_comp_filter_selections[2]
     sys_comp_filter_selections[2] <- sys_comp_filter_selections[1]
     sys_comp_filter_selections[1] <- x
   }
