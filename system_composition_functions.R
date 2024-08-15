@@ -1,10 +1,10 @@
 get_race_ethnicity_vars <- function(v) {
-  if(v == "All Races/Ethnicities") {
+  if(v == "All") {
     syso_race_ethnicities_all <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Detailed"])
     names(syso_race_ethnicities_all) <- gsub("Detailed.", "",
                                              names(syso_race_ethnicities_all))
     return(syso_race_ethnicities_all)
-  } else if(v == "Grouped Races/Ethnicities") {
+  } else if(v %in% c("Grouped")) {
     syso_race_ethnicities_grouped <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Summarized"])
     names(syso_race_ethnicities_grouped) <- gsub("Summarized.", "",
                                                  names(syso_race_ethnicities_grouped))
@@ -44,8 +44,9 @@ get_sys_comp_plot_df <- function(varnames) {
   # the corresponding variables in the underlying data
   var_cols <- list(
     "Age" = "AgeCategory",
-    "All Races/Ethnicities" = get_race_ethnicity_vars("All Races/Ethnicities"),
-    "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped Races/Ethnicities"),
+    "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
+    "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
+    "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
     "Domestic Violence" = "DomesticViolenceCategory",
     "Gender" = unlist(syso_gender_cats(input$methodology_type)),
     "Homelessness Type" =  "HomelessnessType",
@@ -106,9 +107,12 @@ get_v_cats <- function(v) {
     switch(v,
            "Gender" = syso_gender_cats(input$methodology_type),
            "Age" = syso_age_cats, 
-           "All Races/Ethnicities" = get_race_ethnicity_vars("All Races/Ethnicities"), 
-           "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped Races/Ethnicities"), 
-           "Domestic Violence" = syso_dv_pops
+           "All Races/Ethnicities" = get_race_ethnicity_vars("All"), 
+           "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"), 
+           "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"), 
+           "Domestic Violence" = syso_dv_pops,
+           "Veteran Status" = syso_veteran_pops,
+           "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2")
     )
   )
 }
@@ -119,7 +123,8 @@ sys_comp_plot <- function(vars) {
   
   # race/ethnicity, if selected, should always be on the row
   if(vars[1] == "All Races/Ethnicities" |  
-     vars[1] == "Grouped Races/Ethnicities") {
+     vars[1] == "Grouped Races/Ethnicities" | 
+     vars[1] == "Hispanic-Focused Races/Ethnicities") {
     x <- vars[1]
     vars[2] <- vars[1]
     vars[1] <- x
