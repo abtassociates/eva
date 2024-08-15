@@ -290,6 +290,7 @@ res_projects_no_clients <- ProjectSegments %>%
     # looking within each Project segment for the earliest Entry and latest Exit
   ) %>%
   filter(
+    is.na(EnrollmentSpan) | # <- projects without any enrollments at all
     int_start(EnrollmentSpan) > int_start(OperatingParticipatingAndActiveInventory) |
     int_end(EnrollmentSpan) < int_end(OperatingParticipatingAndActiveInventory)) %>%
   # finding rows where the span of enrollments falls within (NOT inclusive) the 

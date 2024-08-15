@@ -199,10 +199,10 @@ function(input, output, session) {
           
           setProgress(detail = "Assessing your data quality..", value = .7)
           source("05_DataQuality.R", local = TRUE)
+# browser()
           
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
-# browser()
           setProgress(detail = "Preparing System Overview Data", value = .85)
           source("07_system_overview.R", local = TRUE)
 
