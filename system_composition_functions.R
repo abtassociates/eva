@@ -136,6 +136,7 @@ sys_comp_plot <- function(vars) {
   # plot_df <- as.data.frame(plot_df)
   plot_df[vars[1]] <- factor(plot_df[[vars[1]]])
   plot_df[vars[2]] <- factor(plot_df[[vars[2]]])
+  plot_df[[sys_comp_filter_selections[2]]] <- factor(plot_df[[sys_comp_filter_selections[2]]], levels = rev(names(get_v_cats(sys_comp_filter_selections[2]))))
   
   h_total <- plot_df %>% 
     group_by(!!!syms(vars[[2]])) %>% 
