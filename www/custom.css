@@ -209,6 +209,13 @@ a:hover {
 /* || CHANGELOG */
 #shiny-tab-tabChangelog td:first-child {
   white-space:nowrap;
+  padding-right: 10px;
+  padding-bottom:10px;
+  vertical-align: top;
+}
+
+#shiny-tab-tabChangelog td:nth-child(2) {
+  padding-bottom: 10px;;
 }
 
 #fileInfo.recalculating::before {
@@ -406,4 +413,20 @@ a:hover {
   background-color: #16697A;
   color: white;
   font-size: 1.4em;
+}
+
+/* fix all-sertved chart spacing*/
+#sys_comp_summary_filter_selections {
+  padding:10px;
+}
+
+.nav-tabs-custom>.tab-content[data-tabsetid="6238"] {
+    padding: 0;
+}
+
+#sys_comp_summary_ui_chart {
+  height:100% !important; /*otherwise, we get a 2nd scrollbar on sys overview page*/
+}
+#sys_comp_summary_ui_chart >img {
+  width:100%
 }

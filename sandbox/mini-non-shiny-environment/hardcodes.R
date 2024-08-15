@@ -140,18 +140,18 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 # System Overview - Filters -----------------------------------------------
 syso_hh_types <- c(
-  "All Households" = 1, 
-  "Adult-Only" = 2, 
-  "Adult-Child" = 3, 
-  "Child-Only" = 4,
-  "Youth and Young Adult" = 5, 
-  "Unknown Household" = 6
+  "All Households", 
+  "Adult-Only", 
+  "Adult-Child", 
+  "Child-Only",
+  "Youth and Young Adult", 
+  "Unknown Household"
 )
 
 syso_level_of_detail <- c(
-  "All People" = 1, 
-  "All Adults and Heads of Households" = 2, 
-  "All Heads of Households" = 3
+  "All People", 
+  "All Adults and Heads of Households", 
+  "All Heads of Households"
 )
 
 gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
@@ -161,34 +161,32 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
 
 syso_gender_incl <- c(
-  "All Genders" = 1,
-  "Gender Expansive, including transgender" = 2,
-  "Man (Boy, if child) alone or in combination" = 3,
-  "Non-Binary alone or in combination" = 4,
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = 5,
-  "Woman (Girl, if child) alone or in combination" = 6
+  "Gender Expansive, including transgender",
+  "Man (Boy, if child) alone or in combination",
+  "Non-Binary alone or in combination",
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)",
+  "Woman (Girl, if child) alone or in combination"
 )
 
 syso_gender_excl <- c(
-  "All Genders" = 1,
-  "Gender Expansive, not including transgender" = 2,
-  "Man (Boy, if child) alone" = 3,
-  "Transgender, alone or in combination" = 4,
-  "Woman (Girl, if child) alone" = 5,
-  "Unknown" = 6
+  "Gender Expansive, not including transgender",
+  "Man (Boy, if child) alone",
+  "Transgender, alone or in combination",
+  "Woman (Girl, if child) alone",
+  "Unknown"
 )
 
 syso_age_cats <- c(
-  "0 to 12" = 1,
-  "13 to 17" = 2,
-  "18 to 21" = 3,
-  "21 to 24" = 4,
-  "25 to 34" = 5,
-  "35 to 44" = 6,
-  "45 to 54" = 7,
-  "55 to 64" = 8,
-  "65 to 74" = 9,
-  "75 and older" = 10)
+  "0 to 12",
+  "13 to 17",
+  "18 to 21",
+  "22 to 24",
+  "25 to 34",
+  "35 to 44",
+  "45 to 54",
+  "55 to 64",
+  "65 to 74",
+  "75 and older")
 
 syso_race_ethnicity_incl <- list(
   "Group 0" = c("All Races/Ethnicities" = 0),
@@ -323,5 +321,25 @@ inc_ncb_hi_required_prep <- tribble(
 
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
   unique()
+
+sys_comp_filter_choices1 = c(
+  "Age", 
+  "Domestic Violence",
+  "Gender",
+  "Homelessness Type",
+  "All Races/Ethnicities",
+  "Grouped Races/Ethnicities",
+  "Veteran Status"
+)
+
+sys_comp_filter_choices2 = c(
+  "Age", 
+  "Domestic Violence",
+  "Gender",
+  "Homelessness Type",
+  "All Races/Ethnicities",
+  "Hispanic-Focused Races/Ethnicities",
+  "Veteran Status"
+)
 
 rm(inc_ncb_hi_required_prep)

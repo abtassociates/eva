@@ -263,7 +263,7 @@ export_id_client <- Client %>%
 
 # CHECK: Invalid demographic values
 # first, get a mapping of variables and their expected values
-cols <- c("VeteranStatus", all_of(race_cols), all_of(gender_cols))
+cols <- c("VeteranStatus", race_cols, gender_cols)
 
 valid_values <- list(yes_no_enhanced, c(dkr_dnc, NA), yes_no, yes_no, yes_no, yes_no, 
                      yes_no, yes_no, yes_no, yes_no, yes_no, yes_no, yes_no,

@@ -126,6 +126,8 @@ toggleDemoJs <- function(t) {
       $('#imported').closest('.input-group-btn').next().val('');
       ")
     
+    shinyjs::hide("fileStructureAnalysis")
+    
     reset_reactivevals()
     
     session$sendInputMessage('currentProviderList', list(

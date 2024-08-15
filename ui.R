@@ -322,7 +322,7 @@ dashboardPage(
                  Analysis below to see examples of the File Structure Errors you
                  could get in your own uploads. For a full list of possible
                  errors, see ",
-                 a('Eva Checks', href=here("public-resources/EvaChecks.csv")),
+                 a('Eva Checks', href=here("https://github.com/abtassociates/eva/blob/main/public-resources/EvaChecks.csv")),
                  ".</p>
                  <p>To explore your own File Structure Errors, turn off Demo
                  Mode and upload your own hashed HMIS CSV Export file.</p></div>
@@ -344,7 +344,9 @@ dashboardPage(
             well as any other structural issues which you feel need to be corrected.
             </p>"),
             p(),
-            uiOutput('downloadFileStructureAnalysisBtn')
+            uiOutput('downloadFileStructureAnalysisBtn'),
+            p(),
+            uiOutput('downloadImpermissibleCharacterDetailBtn')
           ))
           # fluidRow(box(
           #   title = "System Data Quality Overview",
@@ -660,55 +662,75 @@ dashboardPage(
         )),
         fluidRow(
           box(
-            title = "Universe Filters",
+            title = "Universe Selectors",
             width = 6,
-            id = "universe_filters",
-            column(12, dateRangeInput(
-              "syso_date_range",
-              "Date Range",
-              format = "mm/dd/yyyy",
-              start = if_else(isTRUE(getOption("shiny.testmode")),
-                              ymd("20231005"),
-                              NA),
-              end = if_else(isTRUE(getOption("shiny.testmode")),
-                            ymd("20231005"),
-                            NA)
-            )),
-            br(),
-            h4("Universe Selectors"),
-            column(4, fluidRow(
-              br(),
+            id = "universe_selectors",
+            column(
+              4,
               pickerInput(
                 label = "Household Type",
                 inputId = "syso_hh_type",
                 choices = syso_hh_types,
-                selected = syso_hh_types[1],
-                width = "90%"
+                selected = syso_hh_types[1]
               )
-            )),
-            column(4, fluidRow(
-              br(),
+            ),
+            column(
+              4,
               pickerInput(
                 label = "Level of Detail",
                 inputId = "syso_level_of_detail",
                 choices = syso_level_of_detail,
-                selected = syso_level_of_detail[1],
-                width = "90%"
+                selected = syso_level_of_detail[1]
               )
-            )),
-            column(4, fluidRow(
-              br(),
-              # a(href="www.google.com", "Click for Project Type Information"),
+            ),
+            column(
+              4,
               pickerInput(
                 label = "Project Type",
                 inputId = "syso_project_type",
                 choices = syso_project_types,
-                selected = syso_project_types[1],
-                width = "90%"
+                selected = syso_project_types[1]
               )
-            ))
+            )
           ),
           box(
+            title = "Advanced Settings",
+            width = 6,
+            radioButtons(
+              "methodology_type",
+              HTML(
+                "Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"
+              ),
+              choices = syso_methodology_types,
+              width = "100%"
+            ),
+            h4("Download Tabular View of System Overview Charts"),
+            uiOutput("downloadSysOverviewTabBtn")
+          )
+        ), 
+        # fluidRow(column(4, 
+        #       br(),
+        #       pickerInput(
+        #         label = "Level of Detail",
+        #         inputId = "syso_level_of_detail",
+        #         choices = syso_level_of_detail,
+        #         selected = syso_level_of_detail[1],
+        #         width = "90%"
+        #       )
+        #     )),
+        # fluidRow(
+        #       br(),
+        #       column(4,
+        #       # a(href="www.google.com", "Click for Project Type Information"),
+        #       pickerInput(
+        #         label = "Project Type",
+        #         inputId = "syso_project_type",
+        #         choices = syso_project_types,
+        #         selected = syso_project_types[1],
+        #         width = "90%"
+        #       )
+        #     )),
+          # box(
             # div(class="box-header", h3("Advanced Settings", class="box-title")),
             # div(class="box-body",
             #   radioButtons("methodology_type",
@@ -719,23 +741,20 @@ dashboardPage(
             # hr(),
             # div(class="box-header", h3("Download Tabular View of System Overview Charts", class="box-title")),
             # width = 6
-            box(
-              title = "Advanced Settings",
-              radioButtons("methodology_type",
-                HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
-                choices = syso_methodology_types,
-                width = "100%"
-              ),
-              width = 12
-            ),
-            box(
-              title = "Download Tabular View of System Overview Charts",
-              uiOutput("downloadSysOverviewTabBtn"),
-              width = 12
-            ),
-            width = 6
-          )
-        ),
+        #     box(
+        #       title = "Advanced Settings",
+        #       radioButtons("methodology_type",
+        #         HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
+        #         choices = syso_methodology_types,
+        #         width = "100%"
+        #       ),
+        #       width = 12
+        #     ),
+        #     box(
+        #       title = "Download Tabular View of System Overview Charts",
+        #       uiOutput("downloadSysOverviewTabBtn"),
+        #       width = 12
+        # ),
         fluidRow(
           box(
             id = "syso_header",
@@ -778,30 +797,35 @@ dashboardPage(
           box(
             title = "Gender and Race/Ethnicity Filters",
             width = 6,
-            column(6, pickerInput(
-              label = "Gender",
-              inputId = "syso_gender",
-              choices = syso_gender_incl,
-              width = "100%",
-              selected = syso_gender_incl,
-              multiple = TRUE,
-              options = pickerOptions(
-                actionsBox = TRUE,
-                selectedTextFormat = paste("count >", length(syso_gender_incl)-1),
-                countSelectedText = "All Genders",
-                noneSelectedText = "All Genders" 
+            column(
+              6,
+              pickerInput(
+                label = "Gender",
+                inputId = "syso_gender",
+                choices = syso_gender_excl,
+                width = "100%",
+                selected = syso_gender_excl,
+                multiple = TRUE,
+                options = pickerOptions(
+                  actionsBox = TRUE,
+                  selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
+                  countSelectedText = "All",
+                  noneSelectedText = "All"
+                )
               )
-            )),
-            column(6, pickerInput(
-              label = "Race/Ethnicity",
-              inputId = "syso_race_ethnicity",
-              choices = syso_race_ethnicity_incl,
-              width = "100%",
-              selected = syso_race_ethnicity_incl[1]
-            ))
+            ),
+            column(
+              6,
+              pickerInput(
+                label = "Race/Ethnicity",
+                inputId = "syso_race_ethnicity",
+                choices = syso_race_ethnicity_excl,
+                width = "100%",
+                selected = syso_race_ethnicity_excl
+              )
+            )
           )
-        ),
-        fluidRow(
+        ),         fluidRow(
           tabBox(
             side = "right",
             selected = "Summary",
@@ -1081,7 +1105,7 @@ dashboardPage(
             # collapsible = TRUE,
             # collapsed = TRUE,
             width = 12,
-            tableOutput("changelog")
+            htmlTableWidgetOutput("changelog")
           )
         )
       ),

@@ -193,9 +193,9 @@ get_clientcount_download_info <- function(file) {
   )
   
   names(exportDFList) = c(
-    "validation() - Current",
-    "validation() - Date Range",
-    "validation() - Detail"
+    "validation - Current",
+    "validation - Date Range",
+    "validation - Detail"
   )
   
   exportTestValues(

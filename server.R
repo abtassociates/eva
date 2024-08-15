@@ -20,7 +20,11 @@ function(input, output, session) {
   file_structure_analysis_main <- reactiveVal()
   sys_inflow_outflow_plot_data <- reactiveVal()
   sys_df_people_universe_filtered_r <- reactiveVal()
-  
+  ReportStart <- reactiveVal()
+  ReportEnd <- reactiveVal()
+  non_ascii_files_detail_df <- reactiveVal()
+  non_ascii_files_detail_r <- reactiveVal()
+
   reset_reactivevals <- function() {
     validation(NULL)
     CurrentLivingSituation(NULL)
@@ -36,47 +40,26 @@ function(input, output, session) {
     pdde_main(NULL)
     valid_file(0) # from FSA. Most stuff is hidden unless valid == 1
     file_structure_analysis_main(NULL)
+    sys_inflow_outflow_plot_data(NULL)
+    sys_df_people_universe_filtered_r(NULL)
+    ReportStart(NULL)
+    ReportEnd(NULL)
   }
+  # 
+  # # functions used throughout the app
+  # source("helper_functions.R", local = TRUE)
   
   # functions used throughout the app
   source("helper_functions.R", local = TRUE)
   
   # changelog entries
   source("changelog.R", local = TRUE)
-  
+
   # manages toggling demo mode on and off
   source("demo_management.R", local = TRUE)
   
   # log that the session has started
   logMetadata("Session started")
-  
-  # Population reactives ----------------------------------------------------
-  
-  # Set race/ethnicity + gender filter options based on methodology type selection
-  # Set special populations options based on level of detail selection
-  syso_race_ethnicity_cats <- reactive({
-    ifelse(
-      input$methodology_type == 1,
-      list(syso_race_ethnicity_excl),
-      list(syso_race_ethnicity_incl)
-    )[[1]]
-  })
-  
-  syso_gender_cats <- reactive({
-    ifelse(
-      input$methodology_type == 1,
-      list(syso_gender_excl),
-      list(syso_gender_incl)
-    )[[1]]
-  })
-  
-  syso_spec_pops_cats <- reactive({
-    ifelse(
-      input$syso_level_of_detail %in% c(1,2),
-      list(syso_spec_pops_people),
-      list(syso_spec_pops_hoh)
-    )[[1]]
-  })
   
   # set during initially valid processing stop. Rest of processing stops if invalid
   # FSA is hidden unless initially_valid_import() == 1
@@ -87,35 +70,15 @@ function(input, output, session) {
   
   demo_modal_closed <- reactiveVal()
   
+  # syso_gender_cats <- reactive({
+  #   ifelse(
+  #     input$methodology_type == 1,
+  #     list(syso_gender_excl),
+  #     list(syso_gender_incl)
+  #   )[[1]]
+  # })
   
-  # Population reactives ----------------------------------------------------
-  
-  # Set race/ethnicity + gender filter options based on methodology type selection
-  # Set special populations options based on level of detail selection
-  syso_race_ethnicity_cats <- reactive({
-    ifelse(
-      input$methodology_type == 1,
-      list(syso_race_ethnicity_excl),
-      list(syso_race_ethnicity_incl)
-    )[[1]]
-  })
-  
-  syso_gender_cats <- reactive({
-    ifelse(
-      input$methodology_type == 1,
-      list(syso_gender_excl),
-      list(syso_gender_incl)
-    )[[1]]
-  })
-  
-  syso_spec_pops_cats <- reactive({
-    ifelse(
-      input$syso_level_of_detail %in% c(1,2),
-      list(syso_spec_pops_people),
-      list(syso_spec_pops_hoh)
-    )[[1]]
-  })
-  
+
   # log when user navigate to a tab
   observe({ 
     logMetadata(paste0("User on ",input$sidebarmenuid, 
@@ -184,7 +147,7 @@ function(input, output, session) {
   
   process_upload <- function(upload_filename, upload_filepath) {
     withProgress({
-      setProgress(message = "Processing...", value = .05)
+      setProgress(message = "Processing...", value = .01)
       
       setProgress(detail = "Checking initial validity ", value = .05)
       source("00_initially_valid_import.R", local = TRUE)
@@ -192,7 +155,7 @@ function(input, output, session) {
     if(initially_valid_import() == 1) {
 
       hide('imported_progress')
-      
+
       setProgress(detail = "Unzipping...", value = .10)
       list_of_files <- unzip(
         zipfile = upload_filepath, 
@@ -228,7 +191,7 @@ function(input, output, session) {
               )
             )
           }
-          
+
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE) 
           
@@ -246,7 +209,7 @@ function(input, output, session) {
           
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
-          
+
           setProgress(detail = "Preparing System Overview Data", value = .85)
           source("07_system_overview.R", local = TRUE)
           
@@ -265,9 +228,12 @@ function(input, output, session) {
             )
           )
           
+          shinyjs::show("fileStructureAnalysis")
+          
           logMetadata("Successful upload")
           
           logToConsole("Updating inputs")
+          
           
           # Update inputs --------------------------------
           if(is.null(input$imported) & !isTruthy(input$in_demo_mode)) {
@@ -283,24 +249,20 @@ function(input, output, session) {
               "))
             }
             
-            updatePickerInput(session = session, inputId = "currentProviderList",
+            updatePickerInput(session = session,
+                              inputId = "currentProviderList",
                               choices = sort(Project$ProjectName))
             
-            updatePickerInput(session = session, inputId = "orgList",
+            updatePickerInput(session = session,
+                              inputId = "orgList",
                               choices = c(unique(sort(Organization$OrganizationName))))
             
-            updateDateRangeInput(session = session, inputId = "dateRangeCount",
+            updateDateRangeInput(session = session,
+                                 inputId = "dateRangeCount",
                                  min = meta_HUDCSV_Export_Start(),
                                  start = meta_HUDCSV_Export_Start(),
                                  max = meta_HUDCSV_Export_End(),
                                  end = meta_HUDCSV_Export_End())
-            
-            # System Overview tab inputs
-            updateDateRangeInput(session = session, inputId = "syso_date_range",
-                                 min = meta_HUDCSV_Export_Start(),
-                                 start = meta_HUDCSV_Export_End() - years(1) - months(3),
-                                 max = meta_HUDCSV_Export_End(),
-                                 end = meta_HUDCSV_Export_End() - months(3))
           }
           
         } else{ # if structural issues were found, reset gracefully
@@ -375,6 +337,55 @@ function(input, output, session) {
       exportTestValues(file_structure_analysis_main = file_structure_analysis_main())
     }
   )
+  
+  output$downloadImpermissibleCharacterDetailBtn <- renderUI({
+    # browser()
+    req("Impermissible characters" %in% c(file_structure_analysis_main()$Issue))
+    tagList(
+      actionButton("showDownloadImpermissibleButton",
+                   "Download Impermissible Character Detail", 
+                   icon("download")),
+      downloadButton("downloadImpermissibleCharacterDetail",
+                     "Download Impermissible Character Detail", style="visibility:hidden;")
+    )
+  })
+  
+  output$downloadImpermissibleCharacterDetail <- downloadHandler(
+    filename = date_stamped_filename("Impermissible-Character-Locations-"),
+    content = function(file) {
+      non_ascii_files_detail <- non_ascii_files_detail_r()()
+      write_xlsx(
+        non_ascii_files_detail %>%
+          arrange(Type, Issue) %>%
+          nice_names(),
+        path = file
+      )
+      
+      logMetadata(paste0("Impermissible Character Locations Report", 
+                         if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+      
+      exportTestValues(non_ascii_files_detail = non_ascii_files_detail)
+    }
+  )
+  
+  observeEvent(input$showDownloadImpermissibleButton, {
+    showModal(modalDialog(
+      title = "Confirmation",
+      "The Impermissible Character Detail export identifies the precise location 
+      of all impermissible characters in your HMIS CSV export. 
+      Therefore, it can take up to several minutes to run. Are you sure you want 
+      to download the export?",
+      footer = tagList(
+        modalButton("Cancel"),
+        actionButton("confirmDownload", "Download", icon("download"))
+      )
+    ))
+  })
+  
+  observeEvent(input$confirmDownload, {
+    removeModal()
+    shinyjs::click("downloadImpermissibleCharacterDetail")
+  })
   # }
   
   # # System Data Quality Overview --------------------------------------------
@@ -935,24 +946,44 @@ function(input, output, session) {
       list(sys_comp_filter_choices2)
     )[[1]]
   })
+  
+    # Population reactives ----------------------------------------------------
+    
+    # Set race/ethnicity + gender filter options based on methodology type selection
+    # Set special populations options based on level of detail selection
+  syso_race_ethnicity_cats <- function(methodology = 1){
+    ifelse(
+      methodology == 1,
+      list(syso_race_ethnicity_excl),
+      list(syso_race_ethnicity_incl)
+    )[[1]]
+  }
+  
+  syso_gender_cats <- function(methodology = 1){
+    ifelse(methodology == 1,
+           list(syso_gender_excl),
+           list(syso_gender_incl))[[1]]
+  }
+  
   observeEvent(input$methodology_type, {
+    
     updatePickerInput(
-      session, 
+      session = session,
       "syso_gender", 
-      choices = syso_gender_cats(),
-      selected = all_of(syso_gender_cats()),
+      choices = syso_gender_cats(input$methodology_type),
+      selected = unlist(syso_gender_cats(input$methodology_type), use.names = FALSE),
       options = pickerOptions(
-        actionsBox = TRUE,
-        selectedTextFormat = paste("count >", length(syso_gender_cats())-1),
-        countSelectedText = "All Genders",
-        noneSelectedText = "All Genders" 
+        # actionsBox = TRUE,
+        selectedTextFormat = paste("count >", length(syso_gender_cats(input$methodology_type))-1)
+        # countSelectedText = "All Genders",
+        # noneSelectedText = "All Genders" 
       )
     )
     # selected = syso_gender_cats()[1]
     updatePickerInput(
       session, 
       "syso_race_ethnicity", 
-      choices = syso_race_ethnicity_cats()
+      choices = syso_race_ethnicity_cats(input$methodology_type)
     )
     
     updateCheckboxGroupInput(
@@ -961,10 +992,14 @@ function(input, output, session) {
       choices = sys_comp_filter_choices(),
       inline = TRUE
     )
-  })
+    
+  },
+  ignoreInit = TRUE)
   
   observeEvent(input$syso_level_of_detail, {
-    updatePickerInput(session, "syso_spec_pops", choices = syso_spec_pops_cats())
+    updatePickerInput(session, "syso_spec_pops",
+                      # label = "Special Populations",
+                      choices = syso_spec_pops_people)
   })
   
   #### DOWNLOAD TABULAR FORMAT ###

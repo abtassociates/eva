@@ -31,6 +31,8 @@ living_situation <- function(ReferenceNo) {
     ReferenceNo == 302 ~ "Transitional housing",
     ReferenceNo == 332 ~ "Host Home (non-crisis)",
     ReferenceNo == 329 ~ "Residential project or halfway house with no homeless criteria",
+    ReferenceNo == 312 ~ "Staying or living with family, temporary tenure",
+    ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
     ReferenceNo == 314 ~ "H/Motel paid for by household",
     ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
     ReferenceNo == 335 ~ "Staying or living with family, temporary tenure",
@@ -148,6 +150,10 @@ parseDate <- function(datevar) {
 }
 
 importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
+  if(str_sub(upload_filepath, -4, -1) != ".zip") {
+    capture.output("User tried uploading a non-zip file!") 
+  }
+
   filename <- str_glue("{csvFile}.csv")
   if(!is.null(upload_filepath))
     filename = utils::unzip(zipfile = upload_filepath, files=filename)
@@ -330,9 +336,9 @@ fy22_to_fy24_living_situation <- function(value){
   )
 }
 
-#############################
-# SANDBOX
-#############################
+
+# Sandbox -----------------------------------------------------------------
+
 importFileSandbox <- function(csvFile) {
   filename = str_glue("{csvFile}.csv")
   data <- read_csv(paste0(directory, "data/", filename)
@@ -342,9 +348,9 @@ importFileSandbox <- function(csvFile) {
   return(data)
 }
 
-############################
-# GENERATE CHECK DATA FROM EVACHECKS.XLSX
-############################
+
+# Generate check data from evachecks.csv ----------------------------------
+
 merge_check_info <- function(data, checkIDs) {
   return(data %>%
     bind_cols(
@@ -400,9 +406,9 @@ custom_rprof <- function(expr, source_file_name, code_block_name = NULL) {
   unlink("Rprof.out")
 }
 
-############################
-# MISC
-############################
+
+# Misc --------------------------------------------------------------------
+
 getNameByValue <- function(vector, val) {
   return(
     paste(names(vector)[which(vector %in% val)], collapse = ", ")
@@ -411,19 +417,21 @@ getNameByValue <- function(vector, val) {
 
 # for a set of 1/0, or checkbox, variables, check whether no other variables 
 # were checked except for the specified ones
-no_cols_selected_except <- function(df, l, e) {
-  rowSums(df[e], na.rm = TRUE) > 0 & rowSums(df[setdiff(l, e)], na.rm = TRUE) == 0
+no_cols_selected_except <- function(df, list, exception) {
+  rowSums(df[exception], na.rm = TRUE) > 0 &
+    rowSums(df[setdiff(list, exception)], na.rm = TRUE) == 0
 }
 
-any_cols_selected_except <- function(df, l, e) {
-  rowSums(df[l] == 1, na.rm = TRUE) > 0 & 
-  rowSums(df[e] == 1, na.rm = TRUE) == 0
+any_cols_selected_except <- function(df, list, exception) {
+  rowSums(df[list] == 1, na.rm = TRUE) > 0 &
+    rowSums(df[exception] == 1, na.rm = TRUE) == 0
 }
 
 # for a set of 1/0, or checkbox, variables, check whether at least 
 # the specified numbers of variables were checked, except for the specified ones
-min_cols_selected_except <- function(df, l, e, num_cols_seleted) {
-  rowSums(df[e], na.rm = TRUE) == 0 & rowSums(df[setdiff(l, e)], na.rm = TRUE) >= num_cols_seleted
+min_cols_selected_except <- function(df, list, exception, num_cols_selected) {
+  rowSums(df[exception], na.rm = TRUE) == 0 &
+    rowSums(df[setdiff(list, exception)], na.rm = TRUE) >= num_cols_selected
 }
 
 # custom round to the smaller of the nearest 10, 100, etc.
@@ -439,3 +447,4 @@ get_segment_size <- function(x) {
   })
   min(rounded, na.rm = TRUE)
 }
+
