@@ -117,43 +117,42 @@ get_v_cats <- function(v) {
   )
 }
 
-sys_comp_plot <- function(vars) {
+sys_comp_plot <- function(sys_comp_filter_selections) {
   # must have selected 2 variables to cross-tab
-  req(length(vars) == 2)
+  req(length(sys_comp_filter_selections) == 2)
   
   # race/ethnicity, if selected, should always be on the row
-  if(vars[1] == "All Races/Ethnicities" |  
-     vars[1] == "Grouped Races/Ethnicities" | 
-     vars[1] == "Hispanic-Focused Races/Ethnicities") {
-    x <- vars[1]
-    vars[2] <- vars[1]
-    vars[1] <- x
+  if(sys_comp_filter_selections[1] == "All Races/Ethnicities" |  
+     sys_comp_filter_selections[1] == "Grouped Races/Ethnicities" | 
+     sys_comp_filter_selections[1] == "Hispanic-Focused Races/Ethnicities") {
+    x <- sys_comp_filter_selections[1]
+    sys_comp_filter_selections[2] <- sys_comp_filter_selections[1]
+    sys_comp_filter_selections[1] <- x
   }
   
-  plot_df <- get_sys_comp_plot_df(vars)
+  plot_df <- get_sys_comp_plot_df(sys_comp_filter_selections)
   if(all(is.na(plot_df$n))) return()
   
   # plot_df <- as.data.frame(plot_df)
-  plot_df[vars[1]] <- factor(plot_df[[vars[1]]])
-  plot_df[vars[2]] <- factor(plot_df[[vars[2]]])
+  plot_df[sys_comp_filter_selections[1]] <- factor(plot_df[[sys_comp_filter_selections[1]]])
   plot_df[[sys_comp_filter_selections[2]]] <- factor(plot_df[[sys_comp_filter_selections[2]]], levels = rev(names(get_v_cats(sys_comp_filter_selections[2]))))
   
   h_total <- plot_df %>% 
-    group_by(!!!syms(vars[[2]])) %>% 
+    group_by(!!!syms(sys_comp_filter_selections[[2]])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
-    mutate(!!vars[[1]] := 'Total')
+    mutate(!!sys_comp_filter_selections[[1]] := 'Total')
   
   v_total <- plot_df %>% 
-    group_by(!!!syms(vars[[1]])) %>% 
+    group_by(!!!syms(sys_comp_filter_selections[[1]])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
-    mutate(!!vars[[2]] := 'Total')
+    mutate(!!sys_comp_filter_selections[[2]] := 'Total')
   
   
   font_size <- 14/.pt
 
   
   return(
-    ggplot(plot_df, aes(.data[[vars[1]]], .data[[vars[2]]])) +
+    ggplot(plot_df, aes(.data[[sys_comp_filter_selections[1]]], .data[[sys_comp_filter_selections[2]]])) +
       # main data into cells for each cross-combination
       geom_tile(
         color = 'white',
@@ -226,13 +225,13 @@ sys_comp_plot <- function(vars) {
       
       # axis labels
       scale_x_discrete(
-        labels = str_wrap(c(names(get_v_cats(vars[1])), "Total"), width=20),
-        limits = c(levels(plot_df[[vars[1]]]), "Total"),
+        labels = str_wrap(c(names(get_v_cats(sys_comp_filter_selections[1])), "Total"), width=20),
+        limits = c(levels(plot_df[[sys_comp_filter_selections[1]]]), "Total"),
         position = "top"
       ) +
       scale_y_discrete(
-        labels = str_wrap(c("Total", rev(names(get_v_cats(vars[2])))), width=30),
-        limits = c("Total", levels(plot_df[[vars[2]]]))
+        labels = str_wrap(c("Total", rev(names(get_v_cats(sys_comp_filter_selections[2])))), width=30),
+        limits = c("Total", levels(plot_df[[sys_comp_filter_selections[2]]]))
       ) +
       
       # other stuff
@@ -240,8 +239,8 @@ sys_comp_plot <- function(vars) {
       theme(legend.position = "none",
             axis.ticks = element_blank(),
             panel.grid = element_blank(),
-            axis.title.x = element_text(vars[1], size = 13),
-            axis.title.y = element_text(vars[2], size = 13),
+            axis.title.x = element_text(sys_comp_filter_selections[1], size = 13),
+            axis.title.y = element_text(sys_comp_filter_selections[2], size = 13),
             axis.text = element_text(size = 14))
   )
 }
