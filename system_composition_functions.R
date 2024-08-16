@@ -86,11 +86,27 @@ get_sys_comp_plot_df <- function(selections) {
   # along with percents
   freqs <- expand_grid(v1 = var_cols[[selections[1]]], v2 = var_cols[[selections[2]]]) %>%
     pmap_dfr( ~ process_combination(..1, ..2, comp_df)) %>%
-    mutate(
-      pct = (n / sum(n, na.rm = TRUE)),
-      n = ifelse(n <= 10, NA, n) # redcat counts under 10
-    )
+    mutate(pct = (n / sum(n, na.rm = TRUE)))
   
+  # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
+  if("Domestic Violence Status" %in% selections) {
+    dv_totals <- freqs %>%
+      filter(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
+      group_by(!!sym(ifelse(selections[1] == "Domestic Violence Status", selections[2], selections[1]))) %>%
+      summarize(
+        `Domestic Violence Status` = "DVTotal",
+        n = sum(n, na.rm = TRUE),
+        pct = sum(pct, na.rm = TRUE)
+      )
+    freqs <- bind_rows(freqs, dv_totals)
+  }
+  
+  # now redact if n < 10
+  freqs <- freqs %>% 
+    mutate(
+      n = ifelse(n <= 10, NA, n),
+      pct = ifelse(n <= 10, NA, pct),
+    ) # redcat counts under 10
   return(freqs)
 }
 
