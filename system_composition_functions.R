@@ -39,7 +39,7 @@ syscomp_detailBox <- function(session) {
 }
 
 
-get_sys_comp_plot_df <- function(varnames) {
+get_sys_comp_plot_df <- function(selections) {
   # named list of all selected options and 
   # the corresponding variables in the underlying data
   var_cols <- list(
@@ -55,7 +55,7 @@ get_sys_comp_plot_df <- function(varnames) {
   
   # get dataset underlying the freqs we will produce below
   comp_df <- sys_df_people_universe_filtered_r()() %>%
-    select(PersonalID, unname(var_cols[[varnames[1]]]), unname(var_cols[[varnames[2]]]))
+    select(PersonalID, unname(var_cols[[selections[1]]]), unname(var_cols[[selections[2]]]))
   
   # Function to process each combination of the variables underlying the all-served
   # selections. E.g. if Age and Gender (and Exclusive methopdology type), 
@@ -65,32 +65,26 @@ get_sys_comp_plot_df <- function(varnames) {
     freq_df <- as.data.frame(
       table(comp_df[[v1]], comp_df[[v2]])
     )
-    names(freq_df) <- c(v1, v2, "n")
+    names(freq_df) <- c(selections[1], selections[2], "n")
     
-    # make adjustments to the data frame based on the types of the user's selections
-    #   - for binary/dummy vars (e.g. Gender or Race), filter to the 1s 
-    #   and change to the variable label, which will make reporting will be easier
-    #   - for other vars, rename so column names are closer to the original selections
-    #   which will make code easier to read later
-    for (i in seq_along(varnames)) {
-      if(length(var_cols[[varnames[i]]]) > 1) {
-        # multi-select/binary
-        v <- get(paste0("v", i))
+    # for selections comprised of multiple (binary/dummy) vars (e.g. Gender or Race), 
+    # filter to the 1s and change the 1 to the variable name
+    for (i in seq_along(selections)) {
+      v <- get(paste0("v", i))
+      vname <- sym(selections[i])
+      var_cats <- var_cols[[vname]]
+      if(length(var_cats) > 1) {
         freq_df <- freq_df %>%
-          filter(!!sym(v) == 1) %>%
-          mutate(!!names(var_cols[varnames[i]]) := names(var_cols[[varnames[i]]])[var_cols[[varnames[i]]] == v]) %>%
-          select(-!!sym(v))
-      } else {
-        # otherwise
-        freq_df <- rename(freq_df, !!varnames[i] := get(paste0("v", i)))
+          filter(!!vname == 1) %>%
+          mutate(!!vname := v)
       }
     }
     return(freq_df)
   }
-  
+
   # Get a dataframe of the freqs of all combinations
   # along with percents
-  freqs <- expand_grid(v1 = var_cols[[varnames[1]]], v2 = var_cols[[varnames[2]]]) %>%
+  freqs <- expand_grid(v1 = var_cols[[selections[1]]], v2 = var_cols[[selections[2]]]) %>%
     pmap_dfr( ~ process_combination(..1, ..2, comp_df)) %>%
     mutate(
       pct = (n / sum(n, na.rm = TRUE)),
@@ -117,42 +111,46 @@ get_v_cats <- function(v) {
   )
 }
 
-sys_comp_plot <- function(sys_comp_filter_selections) {
+sys_comp_plot <- function(selections) {
   # must have selected 2 variables to cross-tab
-  req(length(sys_comp_filter_selections) == 2)
+  req(length(selections) == 2)
   
   # race/ethnicity, if selected, should always be on the row
-  if(sys_comp_filter_selections[1] == "All Races/Ethnicities" |  
-     sys_comp_filter_selections[1] == "Grouped Races/Ethnicities" | 
-     sys_comp_filter_selections[1] == "Hispanic-Focused Races/Ethnicities") {
-    x <- sys_comp_filter_selections[2]
-    sys_comp_filter_selections[2] <- sys_comp_filter_selections[1]
-    sys_comp_filter_selections[1] <- x
+  if(selections[1] == "All Races/Ethnicities" |  
+     selections[1] == "Grouped Races/Ethnicities" | 
+     selections[1] == "Hispanic-Focused Races/Ethnicities") {
+    x <- selections[2]
+    selections[2] <- selections[1]
+    selections[1] <- x
   }
   
-  plot_df <- get_sys_comp_plot_df(sys_comp_filter_selections)
+  plot_df <- get_sys_comp_plot_df(selections)
   if(all(is.na(plot_df$n))) return()
   
   # plot_df <- as.data.frame(plot_df)
-  plot_df[sys_comp_filter_selections[1]] <- factor(plot_df[[sys_comp_filter_selections[1]]])
-  plot_df[[sys_comp_filter_selections[2]]] <- factor(plot_df[[sys_comp_filter_selections[2]]], levels = rev(names(get_v_cats(sys_comp_filter_selections[2]))))
+  plot_df[selections[1]] <- factor(plot_df[[selections[1]]], 
+                                   levels = get_v_cats(selections[1]),
+                                   labels = names(get_v_cats(selections[1])))
+  
+  plot_df[selections[2]] <- factor(plot_df[[selections[2]]],
+                                   levels = rev(get_v_cats(selections[2])),
+                                   labels = rev(names(get_v_cats(selections[2]))))
   
   h_total <- plot_df %>% 
-    group_by(!!!syms(sys_comp_filter_selections[[2]])) %>% 
+    group_by(!!!syms(selections[[2]])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
-    mutate(!!sys_comp_filter_selections[[1]] := 'Total')
+    mutate(!!selections[[1]] := 'Total')
   
   v_total <- plot_df %>% 
-    group_by(!!!syms(sys_comp_filter_selections[[1]])) %>% 
+    group_by(!!!syms(selections[[1]])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
-    mutate(!!sys_comp_filter_selections[[2]] := 'Total')
+    mutate(!!selections[[2]] := 'Total')
   
   
   font_size <- 14/.pt
 
-  
   return(
-    ggplot(plot_df, aes(.data[[sys_comp_filter_selections[1]]], .data[[sys_comp_filter_selections[2]]])) +
+    ggplot(plot_df, aes(.data[[selections[1]]], .data[[selections[2]]])) +
       # main data into cells for each cross-combination
       geom_tile(
         color = 'white',
@@ -225,13 +223,13 @@ sys_comp_plot <- function(sys_comp_filter_selections) {
       
       # axis labels
       scale_x_discrete(
-        labels = str_wrap(c(names(get_v_cats(sys_comp_filter_selections[1])), "Total"), width=20),
-        limits = c(levels(plot_df[[sys_comp_filter_selections[1]]]), "Total"),
+        labels = str_wrap(c(names(get_v_cats(selections[1])), "Total"), width=20),
+        limits = c(levels(plot_df[[selections[1]]]), "Total"),
         position = "top"
       ) +
       scale_y_discrete(
-        labels = str_wrap(c("Total", rev(names(get_v_cats(sys_comp_filter_selections[2])))), width=30),
-        limits = c("Total", levels(plot_df[[sys_comp_filter_selections[2]]]))
+        labels = str_wrap(c("Total", rev(names(get_v_cats(selections[2])))), width=30),
+        limits = c("Total", levels(plot_df[[selections[2]]]))
       ) +
       
       # other stuff
@@ -239,8 +237,8 @@ sys_comp_plot <- function(sys_comp_filter_selections) {
       theme(legend.position = "none",
             axis.ticks = element_blank(),
             panel.grid = element_blank(),
-            axis.title.x = element_text(sys_comp_filter_selections[1], size = 13),
-            axis.title.y = element_text(sys_comp_filter_selections[2], size = 13),
+            axis.title.x = element_text(selections[1], size = 13),
+            axis.title.y = element_text(selections[2], size = 13),
             axis.text = element_text(size = 14))
   )
 }
