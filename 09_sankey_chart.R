@@ -1,12 +1,12 @@
-plot_data <-sys_inflow_outflow_plot_data()()
+# The universe is anyone who was Housed or Homeless at Period Start
+plot_data <- sys_inflow_outflow_plot_data()() %>%
+  filter(InflowTypeDetail %in% c("Homeless", "Housed"))
 
 startBind <- plot_data %>%
-  filter(InflowTypeDetail %in% c("Homeless", "Housed")) %>%
   select(PersonalID, "Type" = InflowTypeDetail) %>%
   mutate("Period" = "Begin")
 
 endBind <- plot_data %>%
-  filter(InflowTypeDetail %in% c("Homeless", "Housed")) %>%
   mutate(
     "Period" = "End",
     "Type" = case_when(
