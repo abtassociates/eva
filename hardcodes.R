@@ -365,7 +365,7 @@ inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
 
 sys_comp_filter_choices1 = c(
   "Age", 
-  "Domestic Violence",
+  "Domestic Violence Status",
   "Gender",
    #"Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
   "All Races/Ethnicities",
@@ -375,7 +375,7 @@ sys_comp_filter_choices1 = c(
 
 sys_comp_filter_choices2 = c(
   "Age", 
-  "Domestic Violence",
+  "Domestic Violence Status",
   "Gender",
   #"Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
   "All Races/Ethnicities",

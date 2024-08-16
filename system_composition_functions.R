@@ -47,7 +47,7 @@ get_sys_comp_plot_df <- function(selections) {
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
     "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-    "Domestic Violence" = "DomesticViolenceCategory",
+    "Domestic Violence Status" = "DomesticViolenceCategory",
     "Gender" = unlist(syso_gender_cats(input$methodology_type)),
     # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
     "Veteran Status" =  "VeteranStatus"
@@ -104,7 +104,7 @@ get_v_cats <- function(v) {
            "All Races/Ethnicities" = get_race_ethnicity_vars("All"), 
            "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"), 
            "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"), 
-           "Domestic Violence" = syso_dv_pops,
+           "Domestic Violence Status" = syso_dv_pops,
            "Veteran Status" = syso_veteran_pops,
            # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
     )
