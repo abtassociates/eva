@@ -16,13 +16,13 @@ library(shinyjs)
 library(shinydisconnect)
 library(here)
 library(shinycssloaders)
+library(htmlTable)
 library(dtplyr)
 library(data.table)
 library(ggplot2)
 library(ggalluvial)
 
-options(shiny.maxRequestSize = 200000000, # <- about 200MB, aka 200*1024^2
-        shiny.reactlog = TRUE)
+options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 
 if(dir.exists("metadata-analysis/metadata/")) {
   capture.output("All good", file = stderr())
@@ -31,8 +31,8 @@ if(dir.exists("metadata-analysis/metadata/")) {
 }
 source("hardcodes.R", local = TRUE) # hard-coded variables and data frames
 
-# functions used throughout the app
-source("helper_functions.R", local = TRUE)
+# # functions used throughout the app
+# source("helper_functions.R", local = TRUE)
 
 # runApp(display.mode = "showcase")
 

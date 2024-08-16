@@ -37,9 +37,9 @@ lh_livingsituation <- c(101, 116, 118)
 
 homeless_livingsituation <- c(lh_livingsituation, 302)
 
-temp_livingsituation <- c(homeless_livingsituation, 312, 313, 314, 327, 332, 335)
+temp_livingsituation <- c(homeless_livingsituation, 312, 313, 314, 327, 329, 2, 335)
 
-institutional_livingsituation <- c(204, 205, 206, 207, 215, 225, 327, 329)
+institutional_livingsituation <- c(204, 205, 206, 207, 215, 225)
 
 other_livingsituation <- c(8, 9, 17, 24, 30, 37, 99)
 
@@ -142,7 +142,7 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 # System Overview - Filters -----------------------------------------------
 
 syso_hh_types <- list(
-  "All" = "All",
+  "All People" = "All",
   "Households without children" = "AO",
   "Households with children" = "AC",
   "Children Only" = "CO",
@@ -151,7 +151,7 @@ syso_hh_types <- list(
 )
 
 syso_level_of_detail <- list(
-  "All" = "All", 
+  "All People" = "All", 
   "Heads of Household and Adults" = "HoHsAndAdults", 
   "Heads of Household Only" = "HoHsOnly"
 )
@@ -208,7 +208,7 @@ syso_race_ethnicity_incl <- list(
       "AsianInclusive1",
     "Black, African American, or African Inclusive" =
       "BlackAfAmericanInclusive1",
-    "Hispanic/Latina/é/o" =
+    "Hispanic/Latina/e/o" =
       "LatineInclusive1",
     "Middle Eastern or North African Inclusive" =
       "MENAInclusive1",
@@ -218,11 +218,11 @@ syso_race_ethnicity_incl <- list(
       "WhiteInclusive1"
   ),
   "Summarized" = c(
-    "Black, African American or African and Hispanic/Latina/é/o Inclusive" =
+    "Black, African American or African and Hispanic/Latina/e/o Inclusive" =
       "BlackAfAmericanLatineInclusive2",
-    "Hispanic/Latina/é/o Inclusive" =
+    "Hispanic/Latina/e/o Inclusive" =
       "LatineInclusive2",
-    "Hispanic/Latina/é/o Alone" =
+    "Hispanic/Latina/e/o Alone" =
       "LatineAloneInclusive2"
   )
 )
@@ -285,7 +285,7 @@ syso_chronic_pops <- list(
 )
 
 syso_spec_pops_people <- c(
-  "None",
+  "None" = "None",
   # "Inflow",
   syso_veteran_pops,
   syso_dv_pops#,
