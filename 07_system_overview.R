@@ -204,7 +204,7 @@ homeless_cls_finder <- function(date, window = "before", days = 60) {
   
   CurrentLivingSituation %>%
     filter(
-      CurrentLivingSituation %in% homeless_livingsituation &
+      CurrentLivingSituation %in% homeless_livingsituation_incl_TH &
         between(InformationDate,
                 date - days(minus_days),
                 date + days(plus_days))
@@ -230,7 +230,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
     ),
     lh_prior_livingsituation = !is.na(LivingSituation) &
       (
-        LivingSituation %in% homeless_livingsituation |
+        LivingSituation %in% homeless_livingsituation_incl_TH |
           (
             LivingSituation %in% institutional_livingsituation &
               LOSUnderThreshold == 1 &
@@ -829,7 +829,7 @@ inflow_outflow_df <- reactive({
       # LOGIC helper columns
       
       lookback1_perm_dest = lookback == 1 & 
-        Destination %in% perm_destinations,
+        Destination %in% perm_livingsituation,
       
       eecr_lh_at_entry = eecr == TRUE &
         lh_at_entry == TRUE,
@@ -839,15 +839,15 @@ inflow_outflow_df <- reactive({
         days_to_next_entry >= 14,
       
       lookback1_temp_dest = lookback == 1 & 
-        !(Destination %in% perm_destinations),
+        !(Destination %in% perm_livingsituation),
       
       # outflow columns
       perm_dest_lecr = lecr == TRUE &
-        Destination %in% perm_destinations &
+        Destination %in% perm_livingsituation &
         ExitAdjust <= ReportEnd(), # 
       
       temp_dest_lecr = lecr == TRUE &
-        !(Destination %in% perm_destinations) &
+        !(Destination %in% perm_livingsituation) &
         ExitAdjust <= ReportEnd(),
       
       homeless_at_end = lecr == TRUE & 
