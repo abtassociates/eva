@@ -1066,7 +1066,3 @@ inflow_outflow_df <- reactive({
     )
   plot_data
 })
-
-
-sys_df_people_universe_filtered_r(clients_enrollments_reactive)
-sys_inflow_outflow_plot_data(inflow_outflow_df)

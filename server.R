@@ -196,6 +196,24 @@ function(input, output, session) {
           setProgress(detail = "Preparing Sankey Chart", value = .95)
           source("09_sankey_chart.R", local = TRUE)
           
+          # if user changes filters, update the reactive vals
+          # which get used for the various System Overview charts
+          observeEvent({
+            input$syso_hh_type
+            input$syso_level_of_detail
+            input$syso_project_type
+            input$methodology_type
+            input$syso_age
+            input$syso_spec_pops
+            input$syso_gender
+            input$syso_race_ethnicity
+          }, {
+            sys_df_universe(universe_ppl_flags())
+            sys_inflow_outflow_plot_data(inflow_outflow_df())
+            sys_df_people_universe_filtered_r(clients_enrollments_reactive())
+            sankey_plot_data(plot_data())
+          })
+          
           setProgress(detail = "Done!", value = 1)
           logToConsole("Done processing")
           
