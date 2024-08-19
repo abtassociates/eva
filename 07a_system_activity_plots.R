@@ -9,14 +9,18 @@ frame_detail <-
                "Newly Homeless",
                "Returned from \nPermanent",
                "Re-engaged from \nNon-Permanent",
-               "Exited to \nPermanent Destination",
-               "Exited to \nNon-Permanent Destination",
+               "Permanent\nDestination",
+               "Non-Permanent\nDestination",
                "Inactive",
                "Homeless",
                "Housed"),
     Time = c(rep("Active at Start", 2),
-             rep("Inflow", 3),
-             rep("Outflow", 3),
+             "Newly Homeless",
+             "Returned from \nPermanent",
+             "Re-engaged from \nNon-Permanent",
+             "Permanent\nDestination",
+             "Non-Permanent\nDestination",
+             "Inactive",
              rep("Active at End", 2)),
     InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)))
 
@@ -67,8 +71,12 @@ system_activity_prep_detail <- reactive({
       Time = factor(
         Time,
         levels = c("Active at Start",
-                   "Inflow",
-                   "Outflow",
+                   "Newly Homeless",
+                   "Returned from \nPermanent",
+                   "Re-engaged from \nNon-Permanent",
+                   "Non-Permanent\nDestination",
+                   "Permanent\nDestination",
+                   "Inactive",
                    "Active at End")
       ),
       Status = factor(
@@ -79,8 +87,8 @@ system_activity_prep_detail <- reactive({
           "Newly Homeless",
           "Returned from \nPermanent",
           "Re-engaged from \nNon-Permanent",
-          "Exited to \nNon-Permanent Destination",
-          "Exited to \nPermanent Destination",
+          "Non-Permanent\nDestination",
+          "Permanent\nDestination",
           "Inactive"
         )
       )
@@ -230,21 +238,20 @@ ggplot(df, aes(x = group.id, fill = Status)) +
     inherit.aes = FALSE
   ) +
   ggrepel::geom_text_repel(# the labels
+      # geom_text(
     aes(
-      x = group.id,
+      x = group.id - .25,
       label = paste0(scales::comma(abs(values))),
       y = rowSums(cbind(ystart, values / 2)),
       segment.colour = "gray33"
     ),
-    nudge_x = -.5,
-    arrow = arrow(type = "open", length = unit(.1, "inches")),
+    direction = "y",
     colour = "#4e4d47",
-    # alpha = .7,
     size = 5,
     inherit.aes = FALSE
   ) +
   scale_fill_manual(values = colors) + # color palette
-  scale_y_continuous(expand = c(0,0)) + # distance between bars and x axis line
+  scale_y_continuous(expand = expansion()) + # distance between bars and x axis line
   scale_x_continuous(labels = str_wrap(df$Time %>% unique(), width = 10), # x axis labels
                    breaks = df$group.id %>% unique()) +
   theme_void() + # totally clear all theme elements

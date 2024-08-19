@@ -978,9 +978,9 @@ inflow_outflow_df <- reactive({
 
       OutflowTypeDetail = case_when(
         perm_dest_client == TRUE ~
-          "Exited to \nPermanent Destination",
+          "Permanent\nDestination",
         temp_dest_client == TRUE ~
-          "Exited to \nNon-Permanent Destination",
+          "Non-Permanent\nDestination",
         unknown_at_end_client == TRUE ~
           "Inactive",
         homeless_at_end_client == TRUE ~
