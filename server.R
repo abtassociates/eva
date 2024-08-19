@@ -1066,9 +1066,15 @@ function(input, output, session) {
   
   ### SANKEY CHART/SYSTEM STATUS
   source("09a_render_sankey.R", local = TRUE)
-  output$sankey_filter_selections <- renderUI({ syso_detailBox() })
-  output$sankey_chart_subheader <- renderUI({ syso_chartSubheader() })
   output$sankey_ui_chart <- renderSankeyChart(sankey_plot_data())
+  output$sankey_filter_selections <- renderUI({ 
+    req(valid_file() == 1)
+    syso_detailBox() 
+  })
+  output$sankey_chart_subheader <- renderUI({ 
+    req(valid_file() == 1)
+    syso_chartSubheader() 
+  })
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")
