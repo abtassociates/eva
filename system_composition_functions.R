@@ -32,9 +32,7 @@ syscomp_detailBox <- function(session) {
       
       HTML(glue(
         "<strong>Filter Selections</strong>: {paste(input$system_composition_filter, collapse=' and ')} <br>"
-      )),
-      
-      chart_selection_detail_line("Methodology Type", syso_methodology_types, input$methodology_type)
+      ))
     )
   )
 }
