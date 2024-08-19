@@ -19,12 +19,13 @@ syscomp_detailBox <- function(session) {
       
       ReportStart(), " to ", ReportEnd(), br(),
       
-      if (getNameByValue(syso_hh_types, input$syso_hh_type) != "All People")
+      if (input$syso_hh_type != "All")
         chart_selection_detail_line("Household Type", syso_hh_types, input$syso_hh_type),
       
-      chart_selection_detail_line("Level of Detail", syso_level_of_detail, input$syso_level_of_detail),
+      if(input$syso_level_of_detail != "All")
+        chart_selection_detail_line("Level of Detail", syso_level_of_detail, input$syso_level_of_detail),
       
-      if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
+      if (input$syso_project_type != "All")
         chart_selection_detail_line("Project Type", syso_project_types, input$syso_project_type),
       
       chart_selection_detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
