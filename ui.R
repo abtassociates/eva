@@ -662,226 +662,185 @@ dashboardPage(
         )),
         fluidRow(
           box(
-            title = "Universe Selectors",
-            width = 6,
-            id = "universe_selectors",
-            column(
-              4,
-              pickerInput(
-                label = "Household Type",
-                inputId = "syso_hh_type",
-                choices = syso_hh_types,
-                selected = syso_hh_types[1]
-              )
-            ),
-            column(
-              4,
-              pickerInput(
-                label = "Level of Detail",
-                inputId = "syso_level_of_detail",
-                choices = syso_level_of_detail,
-                selected = syso_level_of_detail[1]
-              )
-            ),
-            column(
-              4,
-              pickerInput(
-                label = "Project Type",
-                inputId = "syso_project_type",
-                choices = syso_project_types,
-                selected = syso_project_types[1]
-              )
-            )
-          ),
-          box(
-            title = "Advanced Settings",
-            width = 6,
-            radioButtons(
-              "methodology_type",
-              HTML(
-                "Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"
+            title = "Filters",
+            width = 12,
+            id = "syso_filters",
+            fluidRow(
+              id="universe_filters",
+              column(
+                2,
+                pickerInput(
+                  label = "Household Type",
+                  inputId = "syso_hh_type",
+                  choices = syso_hh_types,
+                  selected = syso_hh_types[1]
+                )
               ),
-              choices = syso_methodology_types,
-              width = "100%"
+              column(
+                2,
+                pickerInput(
+                  label = "Level of Detail",
+                  inputId = "syso_level_of_detail",
+                  choices = syso_level_of_detail,
+                  selected = syso_level_of_detail[1]
+                ),
+              ),
+              column(
+                2,
+                pickerInput(
+                  label = "Project Type",
+                  inputId = "syso_project_type",
+                  choices = syso_project_types,
+                  selected = syso_project_types[1]
+                ),
+              ),
+              column(
+                6,
+                pickerInput(
+                  label = a(href="#", "Methodology Type"),
+                  inputId = "methodology_type",
+                  multiple = FALSE,
+                  selected = syso_methodology_types[1],
+                  choices = syso_methodology_types,
+                  width = "100%"
+                ),
+              ),
             ),
-            h4("Download Tabular View of System Overview Charts"),
-            uiOutput("downloadSysOverviewTabBtn")
-          )
-        ), 
-        # fluidRow(column(4, 
-        #       br(),
-        #       pickerInput(
-        #         label = "Level of Detail",
-        #         inputId = "syso_level_of_detail",
-        #         choices = syso_level_of_detail,
-        #         selected = syso_level_of_detail[1],
-        #         width = "90%"
-        #       )
-        #     )),
-        # fluidRow(
-        #       br(),
-        #       column(4,
-        #       # a(href="www.google.com", "Click for Project Type Information"),
-        #       pickerInput(
-        #         label = "Project Type",
-        #         inputId = "syso_project_type",
-        #         choices = syso_project_types,
-        #         selected = syso_project_types[1],
-        #         width = "90%"
-        #       )
-        #     )),
-          # box(
-            # div(class="box-header", h3("Advanced Settings", class="box-title")),
-            # div(class="box-body",
-            #   radioButtons("methodology_type",
-            #     HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
-            #     choices = syso_methodology_type,
-            #     width = "100%"
-            #   )),
-            # hr(),
-            # div(class="box-header", h3("Download Tabular View of System Overview Charts", class="box-title")),
-            # width = 6
-        #     box(
-        #       title = "Advanced Settings",
-        #       radioButtons("methodology_type",
-        #         HTML("Methdology Type <br/> <a href='www.google.com'>Click for Methodology Type Information</a>"),
-        #         choices = syso_methodology_types,
-        #         width = "100%"
-        #       ),
-        #       width = 12
-        #     ),
-        #     box(
-        #       title = "Download Tabular View of System Overview Charts",
-        #       uiOutput("downloadSysOverviewTabBtn"),
-        #       width = 12
-        # ),
-        fluidRow(
-          box(
-            id = "syso_header",
-            "System Inflow and Outflow",
-            width = 12
-          )
-        ),
-        fluidRow(
-          box(
-            title = "Age and Special Population Filters",
-            width = 6,
-            column(
-              6,
-              pickerInput(
-                inputId = "syso_age",
-                label = "Age",
-                selected = syso_age_cats,
-                choices = syso_age_cats,
-                multiple = TRUE,
-                width = "100%",
-                options = pickerOptions(
-                  actionsBox = TRUE,
-                  selectedTextFormat = paste("count >", length(syso_age_cats)-1),
-                  countSelectedText = "All ages",
-                  noneSelectedText = "All ages" 
+            fluidRow(
+              id="syso_inflowoutflow_filters",
+              column(
+                3,
+                pickerInput(
+                  inputId = "syso_age",
+                  label = "Age",
+                  selected = syso_age_cats,
+                  choices = syso_age_cats,
+                  multiple = TRUE,
+                  width = "100%",
+                  options = pickerOptions(
+                    actionsBox = TRUE,
+                    selectedTextFormat = paste("count >", length(syso_age_cats)-1),
+                    countSelectedText = "All ages",
+                    noneSelectedText = "All ages" 
+                  )
+                )
+              ),
+              column(
+                3,
+                pickerInput(
+                  label = "Special Populations",
+                  inputId = "syso_spec_pops",
+                  choices = syso_spec_pops_people,
+                  width = "100%",
+                  selected = syso_spec_pops_people[1]
+                )
+              ),
+              column(
+                3,
+                pickerInput(
+                  label = "Gender",
+                  inputId = "syso_gender",
+                  choices = syso_gender_excl,
+                  width = "100%",
+                  selected = syso_gender_excl,
+                  multiple = TRUE,
+                  options = pickerOptions(
+                    actionsBox = TRUE,
+                    selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
+                    countSelectedText = "All",
+                    noneSelectedText = "All"
+                  )
+                )
+              ),
+              column(
+                3,
+                pickerInput(
+                  label = "Race/Ethnicity",
+                  inputId = "syso_race_ethnicity",
+                  choices = syso_race_ethnicity_excl,
+                  width = "100%",
+                  selected = syso_race_ethnicity_excl
                 )
               )
-            ),
-            column(
-              6,
-              pickerInput(
-                label = "Special Populations",
-                inputId = "syso_spec_pops",
-                choices = syso_spec_pops_people,
-                width = "100%",
-                selected = syso_spec_pops_people[1]
-              )
             )
-          ),
+          )
+        ),
+        fluidRow(
           box(
-            title = "Gender and Race/Ethnicity Filters",
-            width = 6,
-            column(
-              6,
-              pickerInput(
-                label = "Gender",
-                inputId = "syso_gender",
-                choices = syso_gender_excl,
-                width = "100%",
-                selected = syso_gender_excl,
-                multiple = TRUE,
-                options = pickerOptions(
-                  actionsBox = TRUE,
-                  selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
-                  countSelectedText = "All",
-                  noneSelectedText = "All"
+            width=12,
+            tabsetPanel(
+              id = "syso_tabsetpanel",
+              type = "tabs",
+              tabPanel(
+                id="syso_inflowoutflow", 
+                title="System Inflow/Outflow",
+                tabsetPanel(
+                  selected = "Summary",
+                  tabPanel("Summary", 
+                           uiOutput("sys_act_summary_filter_selections"),
+                           uiOutput("sys_act_summary_chart_subheader"),
+                           plotOutput("sys_act_summary_ui_chart")
+                  ),
+                  tabPanel("Detail", 
+                           uiOutput("sys_act_detail_filter_selections"),
+                           uiOutput("sys_act_detail_chart_subheader"),
+                           plotOutput("sys_act_detail_ui_chart")
+                  ),
+                  tabPanel("Insights", 
+                           uiOutput("system_activity_instructions_ui")
+                  )
                 )
-              )
-            ),
-            column(
-              6,
-              pickerInput(
-                label = "Race/Ethnicity",
-                inputId = "syso_race_ethnicity",
-                choices = syso_race_ethnicity_excl,
-                width = "100%",
-                selected = syso_race_ethnicity_excl
+              ),
+              tabPanel(
+                id = "syso_systemstatus",
+                side = "left",
+                selected = "Summary",
+                title = "Client System Status",
+                tabsetPanel(
+                  tabPanel("Summary", 
+                           uiOutput("sankey_filter_selections"),
+                           uiOutput("sankey_chart_subheader"),
+                           plotOutput("sankey_ui_chart")
+                  ),
+                  tabPanel("Insights", 
+                           uiOutput("sankey_instructions_ui")
+                  ),
+                ),
+                width = 12
+              ),
+              tabPanel(
+                id = "syso_composition",
+                side = "left",
+                selected = "Summary",
+                title = "Composition of All Served in Period",
+                tabsetPanel(
+                  tabPanel("Summary", 
+                           fluidRow(
+                             box(
+                               checkboxGroupInput(
+                                 "system_composition_filter",
+                                 label = paste0(
+                                   "Gender, Race/Ethnicity, and Special Populations",
+                                   "(select up to 2)"
+                                 ),
+                                 choices = sys_comp_filter_choices1,
+                                 inline = TRUE
+                               ),
+                               width = 12
+                             )
+                          ),
+                          uiOutput("sys_comp_summary_filter_selections"),
+                          plotOutput("sys_comp_summary_ui_chart")
+                  ),
+                  tabPanel("Instructions", 
+                           p("Some instructions")
+                  )
+                ),
+                width = 12
               )
             )
           )
-        ),         fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Summary",
-            title = "System Activity",
-            tabPanel("Instructions", 
-              uiOutput("system_activity_instructions_ui")
-            ),
-            tabPanel("Detail", 
-              uiOutput("sys_act_detail_filter_selections"),
-              uiOutput("sys_act_detail_chart_subheader"),
-              plotOutput("sys_act_detail_ui_chart")
-            ),
-            tabPanel("Summary", 
-              uiOutput("sys_act_summary_filter_selections"),
-              uiOutput("sys_act_summary_chart_subheader"),
-              plotOutput("sys_act_summary_ui_chart")
-            ),
-            width = 12
-          )
-        ),
-        fluidRow(
-          box(
-            id = "syso_header",
-            "System Composition",
-            width = 12
-          )
-        ),
-        fluidRow(
-          box(
-            checkboxGroupInput(
-              "system_composition_filter",
-              label = paste0(
-                "Gender, Race/Ethnicity, and Special Populations",
-                "(select up to 2)"
-              ),
-              choices = sys_comp_filter_choices1,
-              inline = TRUE
-            ),
-            width = 12
-          )
-        ),
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Summary",
-            title = "Composition of All Served in Period",
-            tabPanel("Instructions", 
-                     p("Some instructions")
-            ),
-            tabPanel("Summary", 
-                     uiOutput("sys_comp_summary_filter_selections"),
-                     plotOutput("sys_comp_summary_ui_chart")
-            ),
-            width = 12
-          )
-        ),
+        )
       ),
       tabItem(
         tabName = "systemExitDetail",

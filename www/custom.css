@@ -430,3 +430,14 @@ a:hover {
 #sys_comp_summary_ui_chart >img {
   width:100%
 }
+
+/* DISABLE FILTERS*/
+.filter-disabled {
+  pointer-events: none;
+  color: gray;
+}
+
+.filter-disabled .dropdown-toggle {
+  background-color: #F1F1F1;
+}
+

@@ -164,17 +164,17 @@ syso_project_types <- list(
 
 syso_age_cats <- c(
   # "All ages",
-  "0 to 12",
-  "13 to 17",
-  "18 to 21",
-  "22 to 24",
-  "25 to 34",
-  "35 to 44",
-  "45 to 54",
-  "55 to 64",
-  "65 to 74",
-  "75 and older",
-  "Unknown")
+  "0 to 12" =  "0 to 12",
+  "13 to 17" = "13 to 17",
+  "18 to 21" = "18 to 21",
+  "22 to 24" = "22 to 24",
+  "25 to 34" = "25 to 34",
+  "35 to 44" = "35 to 44",
+  "45 to 54" = "45 to 54",
+  "55 to 64" = "55 to 64",
+  "65 to 74" = "65 to 74",
+  "75 and older" = "75 and older",
+  "Unknown" = "Unknown")
 
 gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
                    "DifferentIdentity", "Questioning", "GenderNone")
@@ -268,8 +268,8 @@ syso_race_ethnicity_excl <- list(
 # Special Populations -----------------------------------------------------
 
 syso_veteran_pops <- list(
-  "Veteran" = "Veteran",
-  "Non-Veteran" = "NonVeteran"
+  "Veteran" = 1,
+  "Non-Veteran" = 0
 )
 
 syso_dv_pops <- list(
@@ -365,9 +365,9 @@ inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
 
 sys_comp_filter_choices1 = c(
   "Age", 
-  "Domestic Violence",
+  "Domestic Violence Status",
   "Gender",
-  "Homelessness Type",
+   #"Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
   "All Races/Ethnicities",
   "Grouped Races/Ethnicities",
   "Veteran Status"
@@ -375,9 +375,9 @@ sys_comp_filter_choices1 = c(
 
 sys_comp_filter_choices2 = c(
   "Age", 
-  "Domestic Violence",
+  "Domestic Violence Status",
   "Gender",
-  "Homelessness Type",
+  #"Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
   "All Races/Ethnicities",
   "Hispanic-Focused Races/Ethnicities",
   "Veteran Status"
