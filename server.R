@@ -1066,7 +1066,6 @@ function(input, output, session) {
   
   ### SANKEY CHART/SYSTEM STATUS
   source("09a_render_sankey.R", local = TRUE)
-  output$sankey_ui_chart <- renderSankeyChart(sankey_plot_data())
   output$sankey_filter_selections <- renderUI({ 
     req(valid_file() == 1)
     syso_detailBox() 
@@ -1074,6 +1073,16 @@ function(input, output, session) {
   output$sankey_chart_subheader <- renderUI({ 
     req(valid_file() == 1)
     syso_chartSubheader() 
+  })
+  output$sankey_ui_chart <- renderPlot({
+    req(valid_file() == 1)
+    validate(
+      need(
+        nrow(sankey_plot_data()) > 0, 
+        message = paste0("No data to show.")
+      )
+    )
+    renderSankeyChart(sankey_plot_data())
   })
   
   session$onSessionEnded(function() {
