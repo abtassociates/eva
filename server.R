@@ -4,47 +4,33 @@ function(input, output, session) {
   # track_usage(storage_mode = store_json(path = "logs/"))
 
   # session-wide variables (NOT visible to multiple sessions) -----------------
-  validation <- reactiveVal()
-  CurrentLivingSituation <- reactiveVal()
-  Export <- reactiveVal()
-  Project0 <- reactiveVal()
-  Event <- reactiveVal()
-  meta_HUDCSV_Export_Start <- reactiveVal()
-  meta_HUDCSV_Export_End <- reactiveVal()
-  meta_HUDCSV_Export_Date <- reactiveVal()
-  overlaps <- reactiveVal()
-  base_dq_data_func <- reactiveVal()
-  dq_main_df <- reactiveVal()
-  pdde_main <- reactiveVal()
-  valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
-  file_structure_analysis_main <- reactiveVal()
-  sys_inflow_outflow_plot_data <- reactiveVal()
-  sys_df_people_universe_filtered_r <- reactiveVal()
-  ReportStart <- reactiveVal()
-  ReportEnd <- reactiveVal()
-  sankey_plot_data <- reactiveVal()
-  non_ascii_files_detail_df <- reactiveVal()
-  non_ascii_files_detail_r <- reactiveVal()
-
+  visible_reactive_vals <- list(
+    validation <- reactiveVal(),
+    CurrentLivingSituation <- reactiveVal(),
+    Export <- reactiveVal(),
+    Project0 <- reactiveVal(),
+    Event <- reactiveVal(),
+    meta_HUDCSV_Export_Start <- reactiveVal(),
+    meta_HUDCSV_Export_End <- reactiveVal(),
+    meta_HUDCSV_Export_Date <- reactiveVal(),
+    overlaps <- reactiveVal(),
+    base_dq_data_func <- reactiveVal(),
+    dq_main_df <- reactiveVal(),
+    pdde_main <- reactiveVal(),
+    valid_file <- reactiveVal(0), # from FSA. Most stuff is hidden unless valid == 1
+    file_structure_analysis_main <- reactiveVal(),
+    sys_inflow_outflow_plot_data <- reactiveVal(),
+    sys_df_people_universe_filtered_r <- reactiveVal(),
+    ReportStart <- reactiveVal(),
+    ReportEnd <- reactiveVal(),
+    sys_df_universe <- reactiveVal(),
+    sankey_plot_data <- reactiveVal(),
+    non_ascii_files_detail_df <- reactiveVal(),
+    non_ascii_files_detail_r <- reactiveVal()
+  )
+  
   reset_reactivevals <- function() {
-    validation(NULL)
-    CurrentLivingSituation(NULL)
-    Export(NULL)
-    Project0(NULL)
-    Event(NULL)
-    meta_HUDCSV_Export_Start(NULL)
-    meta_HUDCSV_Export_End(NULL)
-    meta_HUDCSV_Export_Date(NULL)
-    overlaps(NULL)
-    base_dq_data_func(NULL)
-    dq_main_df(NULL)
-    pdde_main(NULL)
-    valid_file(0) # from FSA. Most stuff is hidden unless valid == 1
-    file_structure_analysis_main(NULL)
-    sys_inflow_outflow_plot_data(NULL)
-    sys_df_people_universe_filtered_r(NULL)
-    ReportStart(NULL)
-    ReportEnd(NULL)
+    lapply(visible_reactive_vals, function(r) r(NULL))
   }
   # 
   # # functions used throughout the app
