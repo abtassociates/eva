@@ -388,3 +388,10 @@ get_segment_size <- function(x) {
   min(rounded, na.rm = TRUE)
 }
 
+chart_selection_detail_line <- function(detail_label, val_list, inputVal) {
+  return(
+    HTML(glue(
+      "<strong>{detail_label}:</strong> {getNameByValue(val_list, inputVal)} <br>"
+    ))
+  )
+}
