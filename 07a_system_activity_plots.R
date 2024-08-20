@@ -9,8 +9,8 @@ frame_detail <-
                "Newly Homeless",
                "Returned from \nPermanent",
                "Re-engaged from \nNon-Permanent",
-               "Permanent\nDestination",
-               "Non-Permanent\nDestination",
+               "Exited,\nPermanent",
+               "Exited,\nNon-Permanent",
                "Inactive",
                "Homeless",
                "Housed"),
@@ -18,8 +18,8 @@ frame_detail <-
              "Newly Homeless",
              "Returned from \nPermanent",
              "Re-engaged from \nNon-Permanent",
-             "Permanent\nDestination",
-             "Non-Permanent\nDestination",
+             "Exited,\nPermanent",
+             "Exited,\nNon-Permanent",
              "Inactive",
              rep("Active at End", 2)),
     InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)))
@@ -74,8 +74,8 @@ system_activity_prep_detail <- reactive({
                    "Newly Homeless",
                    "Returned from \nPermanent",
                    "Re-engaged from \nNon-Permanent",
-                   "Non-Permanent\nDestination",
-                   "Permanent\nDestination",
+                   "Exited,\nNon-Permanent",
+                   "Exited,\nPermanent",
                    "Inactive",
                    "Active at End")
       ),
@@ -87,8 +87,8 @@ system_activity_prep_detail <- reactive({
           "Newly Homeless",
           "Returned from \nPermanent",
           "Re-engaged from \nNon-Permanent",
-          "Non-Permanent\nDestination",
-          "Permanent\nDestination",
+          "Exited,\nNon-Permanent",
+          "Exited,\nPermanent",
           "Inactive"
         )
       )
@@ -238,14 +238,14 @@ ggplot(df, aes(x = group.id, fill = Status)) +
     inherit.aes = FALSE
   ) +
   ggrepel::geom_text_repel(# the labels
-      # geom_text(
     aes(
-      x = group.id - .25,
+      x = group.id,
       label = paste0(scales::comma(abs(values))),
       y = rowSums(cbind(ystart, values / 2)),
       segment.colour = "gray33"
     ),
     direction = "y",
+    nudge_x = -.3,
     colour = "#4e4d47",
     size = 5,
     inherit.aes = FALSE
