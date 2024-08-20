@@ -4,25 +4,37 @@
 
 frame_detail <- 
   data.frame(
-    Status = c("Homeless",
-               "Housed",
-               "Newly Homeless",
-               "Returned from \nPermanent",
-               "Re-engaged from \nNon-Permanent",
-               "Exited,\nPermanent",
-               "Exited,\nNon-Permanent",
-               "Inactive",
-               "Homeless",
-               "Housed"),
-    Time = c(rep("Active at Start", 2),
-             "Newly Homeless",
-             "Returned from \nPermanent",
-             "Re-engaged from \nNon-Permanent",
-             "Exited,\nPermanent",
-             "Exited,\nNon-Permanent",
-             "Inactive",
-             rep("Active at End", 2)),
-    InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)))
+    Status = c(
+      "Homeless",
+      "Housed",
+      "Newly Homeless",
+      "Returned from \nPermanent",
+      "Re-engaged from \nNon-Permanent",
+      "Exited,\nPermanent",
+      "Exited,\nNon-Permanent",
+      "Inactive",
+      "Homeless",
+      "Housed"
+    ),
+    Time = c(
+      rep("Active at Start", 2),
+      "Newly Homeless",
+      "Returned from \nPermanent",
+      "Re-engaged from \nNon-Permanent",
+      "Exited,\nPermanent",
+      "Exited,\nNon-Permanent",
+      "Inactive",
+      rep("Active at End", 2)
+    ),
+    InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)),
+    PlotFillGroups = 
+      c("Homeless",
+        "Housed",
+        rep("Inflow", 3),
+        rep("Outflow", 3),
+        "Homeless",
+        "Housed")
+  )
 
 frame_summary <-
   data.frame(
@@ -36,7 +48,11 @@ frame_summary <-
              "Inflow",
              "Outflow",
              rep(paste0("Active at End"), 2)),
-    InflowOutflow = c(rep("Inflow", 3), rep("Outflow", 3))
+    InflowOutflow = c(rep("Inflow", 3), rep("Outflow", 3)),
+    PlotFillGroups = c(rep("Active at Start", 2),
+                       "Inflow",
+                       "Outflow",
+                       c(rep("Active at End", 2)))
   )
 
 system_activity_prep_detail <- reactive({
@@ -66,7 +82,9 @@ system_activity_prep_detail <- reactive({
     mutate(values = replace_na(values, 0))
   
   inflow %>%
-    full_join(outflow, join_by(Time, values, Status, InflowOutflow)) %>%
+    full_join(outflow,
+              join_by(Time, values, Status, InflowOutflow, PlotFillGroups)
+              ) %>%
     mutate(
       Time = factor(
         Time,
@@ -102,9 +120,6 @@ system_activity_prep_detail <- reactive({
       ystart = lag(cumsum(values), default = 0),
       yend = round(cumsum(values))
     )
-  
-  
-  
 })
 
 system_activity_prep_summary <- reactive({
@@ -190,12 +205,8 @@ renderSystemPlot <- function(id) {
       colors <- c(
         '#73655E',
         '#C6BDB9',
-        "#e5a699",
-        '#b7452e',
-        "#66261a",
-        '#93dcec',
-        "#3dc1dc",
-        '#1b8297'
+        '#C34931',
+        "#16697A"
       )
          df <- system_activity_prep_detail()
        }
@@ -205,7 +216,7 @@ renderSystemPlot <- function(id) {
     segment_size <- get_segment_size(s/num_segments)
 
 # waterfall plot ----------------------------------------------------------
-ggplot(df, aes(x = group.id, fill = Status)) +
+ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
   geom_rect( # the bars
     aes(
       xmin = group.id - 0.25,
@@ -216,7 +227,7 @@ ggplot(df, aes(x = group.id, fill = Status)) +
     ),
     colour = "#4e4d47",
     linewidth = .2,
-    alpha = 0.8
+    alpha = 0.7
   ) +
   geom_segment( # the connecting segments between bars
     data = df %>%
@@ -260,11 +271,12 @@ ggplot(df, aes(x = group.id, fill = Status)) +
     axis.text.x = element_text(size = 16),
     axis.ticks.x = element_line(),
     axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
-    axis.ticks.length.x = unit(.15, "cm"),
+    # axis.ticks.length.x = unit(.15, "cm"),
     plot.margin = unit(c(1, 1, 1, 1), "lines"),
     legend.text = element_text(size = 16),
-    legend.title = element_blank()#,
-    # legend.position = "none"
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.margin = margin(.5, 0, 0, 0, unit = "inch")
   )
   })
  # return(plotOutput(id, height = 400))
