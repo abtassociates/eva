@@ -245,7 +245,7 @@ ggplot(df, aes(x = group.id, fill = Status)) +
       segment.colour = "gray33"
     ),
     direction = "y",
-    nudge_x = -.3,
+    nudge_x = -.35,
     colour = "#4e4d47",
     size = 5,
     inherit.aes = FALSE
