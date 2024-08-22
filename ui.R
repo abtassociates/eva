@@ -49,7 +49,7 @@ dashboardPage(
               menuSubItem("System Exit Detail",
                            tabName = "systemExitDetail")),
       menuItem("Assess Data Quality",
-               menuSubItem("Check PDDEs",
+               menuSubItem("Check Project Data",
                            tabName = "tabPDDE"),
                menuSubItem("System-level",
                            tabName = "tabDQSystem"),
