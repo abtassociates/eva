@@ -78,14 +78,7 @@ function(input, output, session) {
   #   )[[1]]
   # })
   
-  # syso_spec_pops_cats <- reactive({
-  #   ifelse(
-  #     input$syso_level_of_detail %in% c(1,2),
-  #     list(syso_spec_pops_people),
-  #     list(syso_spec_pops_hoh)
-  #   )[[1]]
-  # })
-  
+
   # log when user navigate to a tab
   observe({ 
     logMetadata(paste0("User on ",input$sidebarmenuid, 
@@ -930,13 +923,6 @@ function(input, output, session) {
   })
   
   # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
-  sys_comp_p <- reactive({
-    req(!is.null(input$system_composition_filter))
-    sys_comp_plot(input$system_composition_filter)
-  })
-  
-  source("system_composition_functions.R", local=TRUE)
-  
   
   #### FILTERS ###
   sys_comp_filter_choices <- reactive({
@@ -1021,7 +1007,10 @@ function(input, output, session) {
     
   #### DISPLAY FILTER SELECTIONS ###
   output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
-  output$sys_act_summary_filter_selections <- renderUI({ syso_detailBox() })
+  output$sys_act_summary_filter_selections <- renderUI({
+    req(valid_file() == 1)
+    syso_detailBox() 
+  })
 
   #### DISPLAY CHART SUBHEADER ###
   output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
@@ -1031,6 +1020,17 @@ function(input, output, session) {
   renderSystemPlot("sys_act_detail_ui_chart")
 
   # System Composition ------------------------------------
+  source("system_composition_functions.R", local=TRUE)
+  sys_comp_p <- reactive({
+    req(!is.null(input$system_composition_filter))
+    sys_comp_plot(input$system_composition_filter)
+  })
+  
+  observeEvent(input$syso_tabsetpanel, {
+    if(input$syso_tabsetpanel == "Composition of All Served in Period") {
+      addClass(id="syso_inflowoutflow_filters", class="filter-disabled")
+    }
+  })
   observeEvent(input$system_composition_filter, {
     # they can select up to 2
     if(length(input$system_composition_filter) > 2){
@@ -1055,7 +1055,10 @@ function(input, output, session) {
   })
 
   
-  output$sys_comp_summary_filter_selections <- renderUI({sys_comp_filters()})
+  output$sys_comp_summary_filter_selections <- renderUI({
+    req(length(input$system_composition_filter) == 2)
+    syscomp_detailBox()
+  })
 
   output$sys_comp_summary_ui_chart <- renderPlot({
     validate(
