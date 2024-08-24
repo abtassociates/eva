@@ -357,7 +357,7 @@ sys_comp_filter_choices1 = c(
   "Age", 
   "Domestic Violence",
   "Gender",
-  # "Homelessness Type",
+  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launc
   "All Races/Ethnicities",
   "Grouped Races/Ethnicities",
   "Veteran Status"
@@ -367,7 +367,7 @@ sys_comp_filter_choices2 = c(
   "Age", 
   "Domestic Violence",
   "Gender",
-  # "Homelessness Type",
+  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launc
   "All Races/Ethnicities",
   "Hispanic-Focused Races/Ethnicities",
   "Veteran Status"
