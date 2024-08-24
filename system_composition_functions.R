@@ -46,7 +46,7 @@ get_sys_comp_plot_df <- function(selections) {
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
     "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-    "Domestic Violence Status" = "DomesticViolenceCategory",
+    "Domestic Violence" = "DomesticViolenceCategory",
     "Gender" = unlist(syso_gender_cats(input$methodology_type)),
     # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
     "Veteran Status" =  "VeteranStatus"
@@ -88,12 +88,13 @@ get_sys_comp_plot_df <- function(selections) {
     mutate(pct = (n / sum(n, na.rm = TRUE)))
   
   # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
-  if("Domestic Violence Status" %in% selections) {
+  if("Domestic Violence" %in% selections) {
     dv_totals <- freqs %>%
       filter(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
-      group_by(!!sym(ifelse(selections[1] == "Domestic Violence Status", selections[2], selections[1]))) %>%
+      group_by(!!sym(ifelse(selections[1] == "Domestic Violence",
+                            selections[2], selections[1]))) %>%
       summarize(
-        `Domestic Violence Status` = "DVTotal",
+        `Domestic Violence` = "DVTotal",
         n = sum(n, na.rm = TRUE),
         pct = sum(pct, na.rm = TRUE)
       )
@@ -119,7 +120,7 @@ get_v_cats <- function(v) {
            "All Races/Ethnicities" = get_race_ethnicity_vars("All"), 
            "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"), 
            "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"), 
-           "Domestic Violence Status" = syso_dv_pops,
+           "Domestic Violence" = syso_dv_pops,
            "Veteran Status" = syso_veteran_pops,
            # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
     )
