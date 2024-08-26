@@ -701,8 +701,8 @@ client_categories_reactive <- reactive({
     mutate(All = 1) %>%
     filter(
       AgeCategory %in% input$syso_age &
-        if_any(.cols = c(input$syso_gender), ~ .x == 1) &
-        if_any(.cols = c(input$syso_race_ethnicity), ~ .x == 1) &
+        !!sym(input$syso_gender) == 1 &
+        !!sym(input$syso_race_ethnicity) == 1 &
         ((input$syso_spec_pops == "Veteran" &
             VeteranStatus == 1) |
            (input$syso_spec_pops == "NonVeteran" &
