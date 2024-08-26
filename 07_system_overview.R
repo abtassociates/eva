@@ -753,14 +753,16 @@ clients_enrollments_reactive <- reactive({
     inner_join(client_categories_reactive(), join_by(PersonalID))
 })
 
-# Client-level enrollment summary data reactive ---------------------------
-# get final people-level, inflow/outflow dataframe by joining the filtered 
-# enrollment and people dfs, as well as flagging their inflow and outflow types
-inflow_outflow_df <- reactive({
-  # browser()
-  # add inflow type and active enrollment typed used for system overview plots
-  universe <-
-    clients_enrollments_reactive() %>%
+
+# Enrollment-level universe -----------------------
+# only includes people and their lookback thru LECR enrollments
+
+# hello weary traveler amongst these date ranges. you may find it helpful to
+# find example clients and their Entry and Exit Dates and enter them into
+# https://onlinetools.com/time/visualize-date-intervals <- here.
+# add inflow type and active enrollment typed used for system overview plots
+universe <- reactive({
+  clients_enrollments_reactive() %>%
     # get rid of rows where the enrollment is neither a lookback enrollment,
     # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
     filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
@@ -908,15 +910,16 @@ inflow_outflow_df <- reactive({
            
         ))
     )
-  
-  # hello weary traveler amongst these date ranges. you may find it helpful to
-  # find example clients and their Entry and Exit Dates and enter them into
-  # https://onlinetools.com/time/visualize-date-intervals <- here.
-  universe_ppl <- universe %>%
+})
+
+# Enrollment-level universe with client-level flags -----------------------
+# Need to keep it enrollment-level so other scripts can reference the enrollments
+universe_ppl_flags <- reactive({
+  universe() %>%
     group_by(PersonalID) %>%
     filter(max(lecr, na.rm = TRUE) == 1 & max(eecr, na.rm = TRUE) == 1) %>%
     # drops ppl w/o an eecr or lecr
-    summarise(
+    mutate(
       # INFLOW
       active_at_start_homeless_client = max(active_at_start_homeless),
       
@@ -991,11 +994,16 @@ inflow_outflow_df <- reactive({
           "something's wrong"
       )
     ) %>%
-    ungroup() 
-  
-  plot_data <- universe_ppl %>%
-    select(PersonalID, 
-           active_at_start_homeless_client, 
+    ungroup()
+})
+
+# Client-level enrollment summary data reactive ---------------------------
+# get final people-level, inflow/outflow dataframe by joining the filtered 
+# enrollment and people dfs, as well as flagging their inflow and outflow types
+inflow_outflow_df <- reactive({
+  plot_data <- universe_ppl_flags() %>%
+    select(PersonalID,
+           active_at_start_homeless_client,
            active_at_start_housed_client,
            return_from_perm_client,
            reengaged_from_temp_client,
@@ -1012,9 +1020,9 @@ inflow_outflow_df <- reactive({
     unique()
   
   # AS QC check:
-  missing_types <- universe %>% 
+  missing_types <- universe() %>% 
     inner_join(
-      universe_ppl %>% 
+      plot_data %>% 
         filter(
           OutflowTypeDetail == "something's wrong" | 
             InflowTypeDetail == "something's wrong"), 
@@ -1058,7 +1066,3 @@ inflow_outflow_df <- reactive({
     )
   plot_data
 })
-
-
-sys_df_people_universe_filtered_r(clients_enrollments_reactive)
-sys_inflow_outflow_plot_data(inflow_outflow_df)
