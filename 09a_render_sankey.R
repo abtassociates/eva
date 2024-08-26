@@ -107,7 +107,13 @@ renderSankeyChart <- function(plot_data) {
       x = 1.5,
       y = max(plot_data$yend) * 1.1,
       label = paste0(
-        "Total People: ",
+        "Total ",
+        if_else(
+          getNameByValue(syso_level_of_detail, input$syso_level_of_detail) == "All",
+          "People",
+          getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+        ),
+        ": ",
         sum(plot_data$freq)
       ),
       size = 16
