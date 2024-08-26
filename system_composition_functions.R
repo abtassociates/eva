@@ -53,7 +53,7 @@ get_sys_comp_plot_df <- function(selections) {
   )
   
   # get dataset underlying the freqs we will produce below
-  comp_df <- sys_df_people_universe_filtered_r()() %>%
+  comp_df <- sys_df_people_universe_filtered_r() %>%
     select(PersonalID, unname(var_cols[[selections[1]]]), unname(var_cols[[selections[2]]]))
   
   # Function to process each combination of the variables underlying the all-served
