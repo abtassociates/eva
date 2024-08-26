@@ -142,15 +142,19 @@ sys_comp_plot <- function(selections) {
   
   plot_df <- get_sys_comp_plot_df(selections)
   if(all(is.na(plot_df$n))) return()
-  
-  # plot_df <- as.data.frame(plot_df)
+  v_cats1 <- get_v_cats(selections[1])
+  v_cats1_labels <- if(is.null(names(v_cats1))) {v_cats1} else {names(v_cats1)}
+
+  v_cats2 <- get_v_cats(selections[2])
+  v_cats2_labels <- if(is.null(names(v_cats2))) {rev(v_cats2)} else {rev(names(v_cats2))}
+
   plot_df[selections[1]] <- factor(plot_df[[selections[1]]], 
-                                   levels = get_v_cats(selections[1]),
-                                   labels = names(get_v_cats(selections[1])))
+                                   levels = v_cats1,
+                                   labels = v_cats1_labels)
   
   plot_df[selections[2]] <- factor(plot_df[[selections[2]]],
-                                   levels = rev(get_v_cats(selections[2])),
-                                   labels = rev(names(get_v_cats(selections[2]))))
+                                   levels = rev(v_cats2),
+                                   labels = v_cats2_labels)
   
   h_total <- plot_df %>% 
     group_by(!!!syms(selections[[2]])) %>% 
