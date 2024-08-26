@@ -58,9 +58,9 @@ renderSankeyChart <- function(plot_data) {
         "Inactive" = "#d5d1cf",
         "Exited, Non-Permanent" = "#f0c9c1",
         "Enrolled, Homeless" = "#c2462e",
-        "Housed" = "#aba39e", 
+        "Housed" = "#C6BDB9", 
         "Homeless" = "#73655E"),
-    na.value = c("#aba39e", "#73655E")) +
+    na.value = c("#C6BDB9", "#73655E")) +
       
     #Color for alluvial flow borders
     scale_color_manual(
@@ -70,10 +70,10 @@ renderSankeyChart <- function(plot_data) {
         "Inactive" = "#d5d1cf",
         "Exited, Non-Permanent" = "#f0c9c1",
         "Enrolled, Homeless" = "#c2462e",
-        "Housed" = "#aba39e", 
+        "Housed" = "#C6BDB9", 
         "Homeless" = "#73655E"),
-      na.value = c("#aba39e", "#73655E")) +
-      
+      na.value = c("#C6BDB9", "#73655E")) +
+
     # Numbers in bars
     geom_text(stat = "stratum",
               aes(label = after_stat(count)),
