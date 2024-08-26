@@ -31,6 +31,7 @@ function(input, output, session) {
   
   reset_reactivevals <- function() {
     lapply(visible_reactive_vals, function(r) r(NULL))
+    valid_file(0)
   }
   # 
   # # functions used throughout the app
