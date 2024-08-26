@@ -84,8 +84,8 @@ get_sys_comp_plot_df <- function(selections) {
   # Get a dataframe of the freqs of all combinations
   # along with percents
   freqs <- expand_grid(v1 = var_cols[[selections[1]]], v2 = var_cols[[selections[2]]]) %>%
-    pmap_dfr( ~ process_combination(..1, ..2, comp_df)) %>%
-    mutate(pct = (n / sum(n, na.rm = TRUE)))
+    pmap_dfr( ~ process_combination(..1, ..2, comp_df)) # %>%
+    # mutate(pct = (n / sum(n, na.rm = TRUE)))
   
   # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
   if("Domestic Violence" %in% selections) {
@@ -95,8 +95,8 @@ get_sys_comp_plot_df <- function(selections) {
                             selections[2], selections[1]))) %>%
       summarize(
         `Domestic Violence` = "DVTotal",
-        n = sum(n, na.rm = TRUE),
-        pct = sum(pct, na.rm = TRUE)
+        n = sum(n, na.rm = TRUE) #,
+        # pct = sum(pct, na.rm = TRUE)
       )
     freqs <- bind_rows(freqs, dv_totals)
   }
@@ -104,8 +104,8 @@ get_sys_comp_plot_df <- function(selections) {
   # now redact if n < 10
   freqs <- freqs %>% 
     mutate(
-      n = ifelse(n <= 10, NA, n),
-      pct = ifelse(n <= 10, NA, pct),
+      n = ifelse(n <= 10, NA, n) #,
+      # pct = ifelse(n <= 10, NA, pct),
     ) # redcat counts under 10
   return(freqs)
 }
@@ -183,7 +183,8 @@ sys_comp_plot <- function(selections) {
       # display like 14/(0.8%)
       # set text color to be 508 compliant contrasting
       geom_text(
-        aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")), 
+        # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
+        aes(label = scales::comma(n)),
         size = font_size,
         color = ifelse(
           plot_df$n > mean(plot_df$n,na.rm=TRUE),
