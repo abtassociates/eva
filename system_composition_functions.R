@@ -90,7 +90,7 @@ get_sys_comp_plot_df <- function(selections) {
   # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
   if("Domestic Violence" %in% selections) {
     dv_totals <- freqs %>%
-      filter(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
+      filter(`Domestic Violence` %in% c("DVFleeing", "DVNotFleeing")) %>%
       group_by(!!sym(ifelse(selections[1] == "Domestic Violence",
                             selections[2], selections[1]))) %>%
       summarize(
