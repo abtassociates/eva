@@ -1100,6 +1100,10 @@ function(input, output, session) {
       need(
         sum(sankey_plot_data()$freq) > 0, 
         message = paste0("No data to show.")
+      ),
+      need(
+        sum(sankey_plot_data()$freq) > 10,
+        message = paste0("Not enough data to show.")
       )
     )
     renderSankeyChart(sankey_plot_data())
