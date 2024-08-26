@@ -1098,7 +1098,7 @@ function(input, output, session) {
     req(valid_file() == 1)
     validate(
       need(
-        nrow(sankey_plot_data()) > 0, 
+        sum(sankey_plot_data()$freq) > 0, 
         message = paste0("No data to show.")
       )
     )
