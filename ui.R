@@ -824,6 +824,7 @@ dashboardPage(
                                    "(select up to 2)"
                                  ),
                                  choices = sys_comp_filter_choices1,
+                                 selected = c("All Races/Ethnicities", "Age"),
                                  inline = TRUE
                                ),
                                width = 12
