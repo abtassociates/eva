@@ -23,10 +23,10 @@ plot_data <- reactive({
         OutflowTypeDetail == "Housed" ~ "Enrolled, Housed",
         OutflowTypeDetail == "Homeless" ~ "Enrolled, Homeless",
         lastExit == TRUE & 
-          Destination %in% perm_destinations &
+          Destination %in% perm_livingsituation &
           ExitAdjust <= ReportEnd() ~ "Exited, Permanent",
         lastExit == TRUE & 
-          !(Destination %in% perm_destinations) &
+          !(Destination %in% perm_livingsituation) &
           ExitAdjust <= ReportEnd() ~ "Exited, Non-Permanent",
         TRUE ~ OutflowTypeDetail
       )
