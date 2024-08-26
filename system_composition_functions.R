@@ -249,7 +249,7 @@ sys_comp_plot <- function(selections) {
       ) +
       scale_y_discrete(
         labels = str_wrap(c("Total", v_cats2_labels), width=30),
-        limits = c("Total", levels(plot_df[[selections[2]]]))
+        limits = c("Total", levels(plot_df[[selections[2]]])),
       ) +
       
       # other stuff
@@ -257,8 +257,8 @@ sys_comp_plot <- function(selections) {
       theme(legend.position = "none",
             axis.ticks = element_blank(),
             panel.grid = element_blank(),
-            axis.title.x = element_text(selections[1], size = 13),
-            axis.title.y = element_text(selections[2], size = 13),
+            axis.title.x = element_text(selections[1], size = 13, margin=margin(b=50)),
+            axis.title.y = element_text(selections[2], size = 13, margin=margin(r=10)),
             axis.text = element_text(size = 14))
   )
 }
