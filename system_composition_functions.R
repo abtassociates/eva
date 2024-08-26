@@ -255,9 +255,20 @@ sys_comp_plot <- function(selections) {
       
       # other stuff
       theme_bw() +
+      ggtitle(paste0(
+        "Total ",
+        if_else(
+          getNameByValue(syso_level_of_detail, input$syso_level_of_detail) == "All",
+          "People",
+          getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+        ),
+        ": ",
+        nrow(plot_df)
+      )) +
       theme(legend.position = "none",
             axis.ticks = element_blank(),
             panel.grid = element_blank(),
+            plot.title = element_text(size=17, hjust=0.5),
             axis.title.x = element_text(selections[1], size = 13),
             axis.title.y = element_text(selections[2], size = 13),
             axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
