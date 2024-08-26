@@ -965,15 +965,9 @@ function(input, output, session) {
       session = session,
       "syso_gender", 
       choices = syso_gender_cats(input$methodology_type),
-      selected = unlist(syso_gender_cats(input$methodology_type), use.names = FALSE),
-      options = pickerOptions(
-        # actionsBox = TRUE,
-        selectedTextFormat = paste("count >", length(syso_gender_cats(input$methodology_type))-1)
-        # countSelectedText = "All Genders",
-        # noneSelectedText = "All Genders" 
-      )
+      selected = "All Genders"
     )
-    # selected = syso_gender_cats()[1]
+
     updatePickerInput(
       session, 
       "syso_race_ethnicity", 
