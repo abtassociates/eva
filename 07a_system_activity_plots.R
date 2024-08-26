@@ -173,7 +173,7 @@ system_activity_prep_summary <- reactive({
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
-    browser()
+    # browser()
     if (id == "sys_act_summary_ui_chart") {
       colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
       df <- system_activity_prep_summary()
