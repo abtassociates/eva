@@ -31,6 +31,16 @@ renderSankeyChart <- function(plot_data) {
       by = "Begin"
     )
   
+  colors <- c(
+    "Housed" = "#73655E", 
+    "Homeless" = "#C6BDB9",
+    "Exited, Non-Permanent" = "#f0c9c1",
+    "Enrolled, Homeless" = "#c2462e",
+    "Inactive" = "#d5d1cf",
+    "Exited, Permanent" = "#beeaf3",
+    "Enrolled, Housed" = "#16697a"
+  )
+
   return(
     ggplot(
       data = plot_data,
@@ -51,28 +61,10 @@ renderSankeyChart <- function(plot_data) {
     ) +
         
     #Color for End stratum and alluvial flows
-    scale_fill_manual(
-      values = c(
-        "Exited, Permanent" = "#beeaf3",
-        "Enrolled, Housed" = "#16697a",
-        "Inactive" = "#d5d1cf",
-        "Exited, Non-Permanent" = "#f0c9c1",
-        "Enrolled, Homeless" = "#c2462e",
-        "Housed" = "#C6BDB9", 
-        "Homeless" = "#73655E"),
-    na.value = c("#C6BDB9", "#73655E")) +
+    scale_fill_manual(values = colors) +
       
     #Color for alluvial flow borders
-    scale_color_manual(
-      values = c(
-        "Exited, Permanent" = "#beeaf3",
-        "Enrolled, Housed" = "#16697a",
-        "Inactive" = "#d5d1cf",
-        "Exited, Non-Permanent" = "#f0c9c1",
-        "Enrolled, Homeless" = "#c2462e",
-        "Housed" = "#C6BDB9", 
-        "Homeless" = "#73655E"),
-      na.value = c("#C6BDB9", "#73655E")) +
+    scale_color_manual(values = colors) +
 
     # Numbers in bars
     geom_text(stat = "stratum",
@@ -116,7 +108,7 @@ renderSankeyChart <- function(plot_data) {
         ": ",
         sum(plot_data$freq)
       ),
-      size = 16
+      size = 13
     ) +
     
     # remove legend, axis sizing

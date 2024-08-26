@@ -48,13 +48,18 @@ plot_data <- reactive({
   names(allu) <- c("Begin", "End", "freq")
   
   #Convert statuses as factors and re-order levels
-  allu$Begin <- factor(allu$Begin, levels = c("Housed",
-                                              "Homeless"))
+  allu$Begin <- factor(allu$Begin, levels = c("Homeless",
+                                              "Housed"))
   
-  allu$End <- factor(allu$End, levels = c("Exited, Permanent",
-                     "Enrolled, Housed",
-                     "Inactive",
-                     "Exited, Non-Permanent",
-                     "Enrolled, Homeless"))
+  allu$End <- factor(
+    allu$End,
+    levels = c(
+      "Exited, Non-Permanent",
+      "Enrolled, Homeless",
+      "Inactive",
+      "Exited, Permanent",
+      "Enrolled, Housed"
+    )
+  )
   allu
 })
