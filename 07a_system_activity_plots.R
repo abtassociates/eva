@@ -268,11 +268,15 @@ renderSystemPlot <- function(id) {
               "Total ",
               case_when(
                 input$syso_level_of_detail == "All" ~ "People",
+                input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
                 TRUE ~
                   getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
               ),
               case_when(
                 input$syso_hh_type == "All" ~ "",
+                str_detect(input$syso_hh_type, "Household") == FALSE ~
+                  paste(" in", getNameByValue(syso_hh_types, input$syso_hh_type),
+                        " Households"),
                 TRUE ~
                   paste(" in", getNameByValue(syso_hh_types, input$syso_hh_type))
               ),
