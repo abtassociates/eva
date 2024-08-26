@@ -1035,9 +1035,11 @@ function(input, output, session) {
   })
   
   observeEvent(input$syso_tabsetpanel, {
-    if(input$syso_tabsetpanel == "Composition of All Served in Period") {
-      addClass(id="syso_inflowoutflow_filters", class="filter-disabled")
-    }
+    toggleClass(
+      id = "syso_inflowoutflow_filters",
+      condition = input$syso_tabsetpanel == "Composition of All Served in Period",
+      class = "filter-disabled"
+    )
   })
   observeEvent(input$system_composition_filter, {
     # they can select up to 2
