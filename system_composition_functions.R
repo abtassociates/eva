@@ -257,8 +257,9 @@ sys_comp_plot <- function(selections) {
       theme(legend.position = "none",
             axis.ticks = element_blank(),
             panel.grid = element_blank(),
-            axis.title.x = element_text(selections[1], size = 13, margin=margin(b=50)),
-            axis.title.y = element_text(selections[2], size = 13, margin=margin(r=10)),
+            axis.title.x = element_text(selections[1], size = 13),
+            axis.title.y = element_text(selections[2], size = 13),
+            axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
             axis.text = element_text(size = 14))
   )
 }
