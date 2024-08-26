@@ -243,12 +243,12 @@ sys_comp_plot <- function(selections) {
       
       # axis labels
       scale_x_discrete(
-        labels = str_wrap(c(names(get_v_cats(selections[1])), "Total"), width=20),
+        labels = str_wrap(c(v_cats1_labels, "Total"), width=20),
         limits = c(levels(plot_df[[selections[1]]]), "Total"),
         position = "top"
       ) +
       scale_y_discrete(
-        labels = str_wrap(c("Total", rev(names(get_v_cats(selections[2])))), width=30),
+        labels = str_wrap(c("Total", v_cats2_labels), width=30),
         limits = c("Total", levels(plot_df[[selections[2]]]))
       ) +
       
