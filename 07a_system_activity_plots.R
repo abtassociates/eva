@@ -261,17 +261,33 @@ renderSystemPlot <- function(id) {
         geom = "text",
         x = mid_plot,
         y = max(df$yend) * 1.1,
+        size = 16/.pt,
         label = paste0(
-          "Total ",
-          getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
-          ": ",
-          total_clients,
+          str_wrap(
+            paste0(
+              "Total ",
+              case_when(
+                input$syso_level_of_detail == "All" ~ "People",
+                TRUE ~
+                  getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+              ),
+              case_when(
+                input$syso_hh_type == "All" ~ "",
+                TRUE ~
+                  paste(" in", getNameByValue(syso_hh_types, input$syso_hh_type))
+              ),
+              ": ",
+              total_clients
+            ),
+            width = 30
+          ),
           "\nTotal Change: ",
           inflow_to_outflow
         )
       ) +
       scale_fill_manual(values = colors) + # color palette
-      scale_y_continuous(expand = expansion()) + # distance between bars and x axis line
+      scale_y_continuous(expand = expansion()) + 
+        # distance between bars and x axis line
       scale_x_continuous(
         labels = str_wrap(df$Time %>% unique(), width = 10),
         # x axis labels
@@ -285,8 +301,8 @@ renderSystemPlot <- function(id) {
         axis.text.x = element_text(size = 16),
         axis.ticks.x = element_line(),
         axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
-        axis.ticks.length.x = unit(.15, "cm"),
-        plot.margin = unit(c(1, 1, 1, 1), "lines"),
+        # axis.ticks.length.x = unit(.15, "cm"),
+        plot.margin = unit(c(3, 1, 1, 1), "lines"),
         legend.text = element_text(size = 16),
         legend.title = element_blank()#,
         # legend.position = "none"
