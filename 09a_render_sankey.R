@@ -101,6 +101,18 @@ renderSankeyChart <- function(plot_data) {
                      limits = c("Period Start", "Period End"),
                      expand = c(0.5, 0.5)) +
     
+    # Total People
+    annotate(
+      geom = "text",
+      x = 1.5,
+      y = max(plot_data$yend) * 1.1,
+      label = paste0(
+        "Total People: ",
+        sum(plot_data$freq)
+      ),
+      size = 16
+    ) +
+    
     # remove legend, axis sizing
     theme_void() +
     theme(legend.position = "none",
