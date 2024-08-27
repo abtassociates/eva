@@ -1077,26 +1077,26 @@ function(input, output, session) {
         \"Grouped Races/Ethnicities\" %in% input$system_composition_filter
       }\";
       $('#system_composition_filter input[type=checkbox][value*=\"Races/Ethnicities\"]:not(\":checked\")')
-        .attr('disabled', reSelected == \"TRUE\");
+        .attr('disabled', reSelected == 'TRUE');
     "))
   })
 
   
   output$sys_comp_summary_filter_selections <- renderUI({
-    req(length(input$system_composition_filter) == 2)
+    req(!is.null(input$system_composition_filter) & valid_file() == 1)
     syscomp_detailBox()
   })
 
   output$sys_comp_summary_ui_chart <- renderPlot({
     validate(
       need(
-        any(!is.na(sys_comp_p()$data$n)), 
+        any(!is.na(sys_comp_p()$data$n)) & valid_file() == 1, 
         message = paste0("No data to show.")
       )
     )
     sys_comp_p()
   }, height = function() { 
-      if_else(length(input$system_composition_filter) == 2, 600, 100) 
+      if_else(!is.null(input$system_composition_filter), 600, 100) 
   })
   
   
