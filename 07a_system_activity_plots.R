@@ -206,7 +206,19 @@ renderSystemPlot <- function(id) {
       filter(Status %in% c("Inflow", "Outflow")) %>%
       pull(values) %>%
       sum()
-
+    
+    if(total_clients < 11){
+      ggplot(PlantGrowth, aes(x = weight, y = group)) +
+        annotate(
+          geom = "text",
+          label = "The data has been filtered to less than 11 records, therefore\n
+          the plot will not be displayed for privacy purposes.",
+          size = 6,
+          x = 1,
+          y = 1) +
+        theme_void()
+    } else{
+    
 # waterfall plot ----------------------------------------------------------
     ggplot(df, aes(x = group.id, fill = Status)) +
       geom_rect(
@@ -310,7 +322,7 @@ renderSystemPlot <- function(id) {
         legend.text = element_text(size = 16),
         legend.title = element_blank()#,
         # legend.position = "none"
-      )
+      )}
   })
  # return(plotOutput(id, height = 400))
 } 
