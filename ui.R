@@ -817,6 +817,15 @@ dashboardPage(
                   tabPanel("Summary", 
                            fluidRow(
                              box(
+                               strong("Select Demographic Categories"),
+                               p(str_glue(
+                                 "Choose up to two demographic selections from 
+                                 the categories below. Selecting a single category 
+                                 will provide totals for just that category. 
+                                 Note that you can only select one Race/Ethnicity 
+                                 group at a time."
+                               )),
+                               br(),
                                checkboxGroupInput(
                                  "system_composition_filter",
                                  label = paste0(
