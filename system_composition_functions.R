@@ -37,11 +37,8 @@ syscomp_detailBox <- function(session) {
   )
 }
 
-
-get_sys_comp_plot_df <- function(selections) {
-  # named list of all selected options and 
-  # the corresponding variables in the underlying data
-  var_cols <- list(
+get_var_cols <- function() {
+  return(list(
     "Age" = "AgeCategory",
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
@@ -50,7 +47,12 @@ get_sys_comp_plot_df <- function(selections) {
     "Gender" = unlist(syso_gender_cats(input$methodology_type)),
     # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
     "Veteran Status" =  "VeteranStatus"
-  )
+  ))
+}
+get_sys_comp_plot_df <- function(selections) {
+  # named list of all selected options and 
+  # the corresponding variables in the underlying data
+  var_cols <- get_var_cols()
   
   # get dataset underlying the freqs we will produce below
   comp_df <- sys_df_people_universe_filtered_r() %>%
@@ -121,10 +123,91 @@ get_v_cats <- function(v) {
   )
 }
 
-sys_comp_plot <- function(selections) {
-  # must have selected 2 variables to cross-tab
-  req(length(selections) == 2)
+sys_comp_plot_1var <- function(selection) {
+  var_cols <- get_var_cols()
+  v <- var_cols[[selection]]
+  comp_df <- sys_df_people_universe_filtered_r() %>%
+    select(PersonalID, unname(v))
   
+  if(length(v) > 1) {
+    plot_df <- comp_df %>%
+      pivot_longer(cols = -PersonalID,
+                   names_to = selection,
+                   values_to = "value") %>%
+      group_by(!!sym(selection)) %>%
+      summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
+
+    v_cats1 <- get_v_cats(selection)
+    v_cats1_labels <- if(is.null(names(v_cats1))) {v_cats1} else {names(v_cats1)}
+    
+    plot_df[selection] <- factor(plot_df[[selection]], 
+                                     levels = v_cats1,
+                                     labels = v_cats1_labels)
+  } else {
+    plot_df <- as.data.frame(
+      table(comp_df[[v]])
+    )
+    names(plot_df) <- c(selection, "n")
+  }
+  plot_df <- plot_df %>%
+    mutate(
+      wasRedacted = between(n, 1, 10),
+      n = ifelse(n <= 10, NA, n)
+    )
+  
+  font_size <- 14/.pt
+  return(
+    ggplot(plot_df, aes(NA, .data[[selection]])) +
+      # main data into cells for each cross-combination
+      geom_tile(
+        color = 'white',
+        lwd = 0.5,
+        linetype = 1,
+        aes(fill = n)) +
+      scale_fill_gradient(low = "#D2E3D9", 
+                          high = "#084954",
+                          na.value = 'white') + # na.value makes 0s invisible
+      # set text color to be 508 compliant contrasting
+      geom_text(
+        aes(label = ifelse(
+          wasRedacted,
+          "***",
+          scales::comma(n)
+        )),
+        size = font_size,
+        color = ifelse(
+          plot_df$n > mean(plot_df$n,na.rm=TRUE) & !plot_df$wasRedacted,
+          'white', 
+          'black'
+        )
+      ) +
+      scale_y_discrete(
+        labels = str_wrap(c("Total", v_cats1_labels), width=30),
+        limits = c("Total", levels(plot_df[[selections]])),
+      ) +
+      # other stuff
+      theme_bw() +
+      ggtitle(paste0(
+        "Total ",
+        if_else(
+          getNameByValue(syso_level_of_detail, input$syso_level_of_detail) == "All",
+          "People",
+          getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+        ),
+        ": ",
+        nrow(sys_df_people_universe_filtered_r())
+      )) +
+      theme(legend.position = "none",
+            axis.ticks = element_blank(),
+            panel.grid = element_blank(),
+            plot.title = element_text(size=17, hjust=0.5),
+            axis.title.x = element_blank(),
+            axis.title.y = element_text(selection, size = 13),
+            axis.text = element_text(size = 14))
+  )
+}
+
+sys_comp_plot_2vars <- function(selections) {
   # race/ethnicity, if selected, should always be on the row
   if(selections[1] == "All Races/Ethnicities" |  
      selections[1] == "Grouped Races/Ethnicities" | 
