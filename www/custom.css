@@ -441,3 +441,6 @@ a:hover {
   background-color: #F1F1F1;
 }
 
+#sys_comp_subtabs li:nth-child(3) {
+  float:right;
+}

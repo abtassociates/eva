@@ -1037,8 +1037,29 @@ function(input, output, session) {
   observeEvent(input$syso_tabsetpanel, {
     if(input$syso_tabsetpanel == "Composition of All Served in Period") {
       addClass(id="syso_inflowoutflow_filters", class="filter-disabled")
+      shinyjs::runjs(str_glue("
+        document.getElementById('sys_comp_subtabs').insertAdjacentHTML('beforeEnd', '<li id=\"sys_comp_download_tab\"></li>');
+        var toggleDownload = '{valid_file() == 1 & any(!is.na(sys_comp_p()$data$n))}';
+        $('#sys_comp_download_btn').appendTo('#sys_comp_download_tab').toggle(toggleDownload == 'TRUE')
+      "))
     }
   })
+  
+  output$sys_comp_download_btn <- downloadHandler(
+    filename = date_stamped_filename("Sys Comp Download"),
+    content = function(file) {
+      write_xlsx(
+        sys_comp_p(),
+        path = file
+      )
+      
+      logMetadata(paste0("Downloaded Sys Comp Report", 
+                         if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+      
+      exportTestValues(sys_comp_report = sys_comp_p())
+    }
+  )
+  
   observeEvent(input$system_composition_filter, {
     # they can select up to 2
     #disable all unchecked boxes if they've already selected 2

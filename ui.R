@@ -814,6 +814,7 @@ dashboardPage(
                 selected = "Summary",
                 title = "Composition of All Served in Period",
                 tabsetPanel(
+                  id = "sys_comp_subtabs",
                   tabPanel("Summary", 
                            fluidRow(
                              box(
@@ -846,6 +847,7 @@ dashboardPage(
                            p("Some instructions")
                   )
                 ),
+                downloadButton("sys_comp_download_btn", "Download"),
                 width = 12
               )
             )
