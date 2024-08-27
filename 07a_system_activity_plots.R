@@ -195,7 +195,7 @@ system_activity_prep_summary <- reactive({
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
-    browser()
+    # browser()
     if (id == "sys_act_summary_ui_chart") {
       df <- system_activity_prep_summary()
     } else {
