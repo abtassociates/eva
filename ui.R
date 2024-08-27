@@ -830,7 +830,7 @@ dashboardPage(
                                checkboxGroupInput(
                                  "system_composition_filter",
                                  label = paste0(
-                                   "Gender, Race/Ethnicity, and Special Populations",
+                                   "Gender, Race/Ethnicity, and Special Populations ",
                                    "(select up to 2)"
                                  ),
                                  choices = sys_comp_filter_choices1,
