@@ -166,7 +166,7 @@ sys_comp_plot_1var <- function(selection) {
         aes(fill = n)) +
       scale_fill_gradient(low = "#D2E3D9", 
                           high = "#084954",
-                          na.value = 'white') + # na.value makes 0s invisible
+                          na.value = ifelse(plot_df$wasRedacted,'#D2E3D9','white')) + # na.value makes 0s invisible
       # set text color to be 508 compliant contrasting
       geom_text(
         aes(label = ifelse(
@@ -268,7 +268,7 @@ sys_comp_plot_2vars <- function(selections) {
         aes(fill = n)) +
       scale_fill_gradient(low = "#D2E3D9", 
                           high = "#084954",
-                          na.value = 'white') + # na.value makes 0s invisible
+                          na.value = ifelse(plot_df$wasRedacted,'#D2E3D9','white')) + # na.value makes 0s invisible
       # display like 14/(0.8%)
       # set text color to be 508 compliant contrasting
       geom_text(
@@ -294,7 +294,11 @@ sys_comp_plot_2vars <- function(selections) {
                 linetype = 1,
                 aes(fill = N)) +
       
-      scale_fill_gradient(low = "#ede7e3", high = "#73655e", na.value = 'white') +
+      scale_fill_gradient(
+        low = "#ede7e3",
+        high = "#73655e",
+        na.value = ifelse(h_total$wasRedacted,"#ede7e3",'white')
+      ) +
       
       geom_text(
         aes(label= ifelse(
@@ -319,7 +323,11 @@ sys_comp_plot_2vars <- function(selections) {
                 lwd = 0.5,
                 linetype = 1,
                 aes(fill = N)) +
-      scale_fill_gradient(low = "#ede7e3", high = "#73655e", na.value = 'white') +
+      scale_fill_gradient(
+        low = "#ede7e3",
+        high = "#73655e",
+        na.value = ifelse(v_total$wasRedacted,"#ede7e3",'white')
+      ) +
       
       geom_text(
         aes(label= ifelse(
