@@ -101,12 +101,6 @@ get_sys_comp_plot_df <- function(selections) {
     freqs <- bind_rows(freqs, dv_totals)
   }
   
-  # now redact if n < 10
-  freqs <- freqs %>% 
-    mutate(
-      n = ifelse(n <= 10, NA, n) #,
-      # pct = ifelse(n <= 10, NA, pct),
-    ) # redcat counts under 10
   return(freqs)
 }
 
@@ -159,16 +153,28 @@ sys_comp_plot <- function(selections) {
   h_total <- plot_df %>% 
     group_by(!!!syms(selections[[2]])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
-    mutate(!!selections[[1]] := 'Total')
+    mutate(
+      !!selections[[1]] := 'Total',
+      wasRedacted = between(N, 1, 10),
+      N = ifelse(N <= 10, NA, N)
+    )
   
   v_total <- plot_df %>% 
     group_by(!!!syms(selections[[1]])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
-    mutate(!!selections[[2]] := 'Total')
+    mutate(
+      !!selections[[2]] := 'Total',
+      wasRedacted = between(N, 1, 10),
+      N = ifelse(N <= 10, NA, N)
+    )
   
+  plot_df <- plot_df %>% mutate(
+    wasRedacted = between(n, 1, 10),
+    n = ifelse(n <= 10, NA, n)
+  )
   
   font_size <- 14/.pt
-
+  
   return(
     ggplot(plot_df, aes(.data[[selections[1]]], .data[[selections[2]]])) +
       # main data into cells for each cross-combination
@@ -184,10 +190,14 @@ sys_comp_plot <- function(selections) {
       # set text color to be 508 compliant contrasting
       geom_text(
         # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
-        aes(label = scales::comma(n)),
+        aes(label = ifelse(
+          wasRedacted,
+          "***",
+          scales::comma(n)
+        )),
         size = font_size,
         color = ifelse(
-          plot_df$n > mean(plot_df$n,na.rm=TRUE),
+          plot_df$n > mean(plot_df$n,na.rm=TRUE) & !plot_df$wasRedacted,
           'white', 
           'black'
         )
@@ -205,13 +215,14 @@ sys_comp_plot <- function(selections) {
       
       geom_text(
         aes(label= ifelse(
-          is.na(N),
-          "",
-          paste0(scales::comma(N), "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
+          wasRedacted,
+          "***",
+          # paste0(scales::comma(N), "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
+          scales::comma(N)
         )), 
         size = font_size,
         color = ifelse(
-          h_total$N > mean(h_total$N,na.rm=TRUE),
+          h_total$N > mean(h_total$N,na.rm=TRUE) & !h_total$wasRedacted,
           'white', 
           'black'
         ),
@@ -229,13 +240,14 @@ sys_comp_plot <- function(selections) {
       
       geom_text(
         aes(label= ifelse(
-          is.na(N),
-          "",
-          paste0(N, "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
+          wasRedacted,
+          "***",
+          # paste0(N, "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
+          scales::comma(N)
         )),
         size = font_size,
         color = ifelse(
-          v_total$N > mean(v_total$N,na.rm=TRUE),
+          v_total$N > mean(v_total$N,na.rm=TRUE) & !v_total$wasRedacted,
           'white', 
           'black'
         ),
