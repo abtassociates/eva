@@ -811,11 +811,11 @@ dashboardPage(
               tabPanel(
                 id = "syso_composition",
                 side = "left",
-                selected = "Summary",
+                selected = "Chart",
                 title = "Composition of All Served in Period",
                 tabsetPanel(
                   id = "sys_comp_subtabs",
-                  tabPanel("Summary", 
+                  tabPanel("Chart", 
                            fluidRow(
                              box(
                                strong("Select Demographic Categories"),
@@ -843,7 +843,7 @@ dashboardPage(
                           uiOutput("sys_comp_summary_filter_selections"),
                           plotOutput("sys_comp_summary_ui_chart")
                   ),
-                  tabPanel("Instructions", 
+                  tabPanel("Information", 
                            p("Some instructions")
                   )
                 ),
