@@ -358,7 +358,7 @@ sys_comp_plot_2vars <- function(selections) {
           getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
         ),
         ": ",
-        nrow(plot_df)
+        nrow(sys_df_people_universe_filtered_r())
       )) +
       theme(legend.position = "none",
             axis.ticks = element_blank(),
