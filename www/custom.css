@@ -441,6 +441,13 @@ a:hover {
   background-color: #F1F1F1;
 }
 
+#sys_comp_subtabs, 
+#sys_comp_subtabs + div.tab-content > div[data-value='Summary'],
+#sys_comp_subtabs + div.tab-content > div[data-value='Instructions'] {
+  display:none;
+}
+
+
 #sys_comp_subtabs li:nth-child(3) {
   float:right;
 }
