@@ -13,8 +13,8 @@ frame_detail <-
       "Exited,\nPermanent",
       "Exited,\nNon-Permanent",
       "Inactive",
-      "Homeless",
-      "Housed"
+      "Housed",
+      "Homeless"
     ),
     Time = c(
       rep("Active at Start", 2),
@@ -32,8 +32,8 @@ frame_detail <-
         "Housed",
         rep("Inflow", 3),
         rep("Outflow", 3),
-        "Homeless",
-        "Housed")
+        "Housed",
+        "Homeless")
   )
 
 frame_summary <-
@@ -42,8 +42,8 @@ frame_summary <-
                "Housed",
                "Inflow",
                "Outflow",
-               "Homeless",
-               "Housed"),
+               "Housed",
+               "Homeless"),
     Time = c(rep(paste0("Active at Start"), 2),
              "Inflow",
              "Outflow",
@@ -196,7 +196,7 @@ system_activity_prep_summary <- reactive({
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
-    # browser()
+    browser()
     if (id == "sys_act_summary_ui_chart") {
       colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
       df <- system_activity_prep_summary()
@@ -215,7 +215,7 @@ renderSystemPlot <- function(id) {
     segment_size <- get_segment_size(s/num_segments)
 
 # waterfall plot ----------------------------------------------------------
-ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
+ggplot(df, aes(x = group.id, fill = Status)) +
   geom_rect( # the bars
     aes(
       xmin = group.id - 0.25,
