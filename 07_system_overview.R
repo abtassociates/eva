@@ -1033,7 +1033,7 @@ inflow_outflow_df <- reactive({
     ) %>%
     filter(missing_inflow == TRUE | missing_outflow == TRUE)
   
- # browser()
+# browser()
   
   category_counts <- plot_data %>%
     select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%
