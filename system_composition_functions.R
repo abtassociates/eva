@@ -157,7 +157,7 @@ sys_comp_plot_1var <- function(selection) {
   
   font_size <- 14/.pt
   return(
-    ggplot(plot_df, aes(NA, .data[[selection]])) +
+    ggplot(plot_df, aes("", .data[[selection]])) +
       # main data into cells for each cross-combination
       geom_tile(
         color = 'white',
