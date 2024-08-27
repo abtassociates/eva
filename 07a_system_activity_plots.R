@@ -53,7 +53,7 @@ frame_summary <-
   )
 
 system_activity_prep_detail <- reactive({
-  inflow <- sys_inflow_outflow_plot_data()() %>%
+  inflow <- sys_inflow_outflow_plot_data() %>%
     select(PersonalID,
            InflowTypeSummary,
            InflowTypeDetail) %>%
@@ -121,7 +121,7 @@ system_activity_prep_detail <- reactive({
 
 system_activity_prep_summary <- reactive({
   # browser()
-  prep <- sys_inflow_outflow_plot_data()() %>% # this is a people-level df
+  prep <- sys_inflow_outflow_plot_data() %>% # this is a people-level df
     mutate(
       InflowSummaryMatrix = case_when(
         InflowTypeSummary == "Active at Start" & InflowTypeDetail == "Homeless" ~
