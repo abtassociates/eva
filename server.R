@@ -1030,17 +1030,29 @@ function(input, output, session) {
   # System Composition ------------------------------------
   source("system_composition_functions.R", local=TRUE)
   sys_comp_p <- reactive({
-    req(!is.null(input$system_composition_filter))
-    sys_comp_plot(input$system_composition_filter)
+    req(!is.null(input$system_composition_filter) & valid_file() == 1)
+    
+    if(length(input$system_composition_filter) == 1) {
+      sys_comp_plot_1var(input$system_composition_filter)
+    } else {
+      sys_comp_plot_2vars(input$system_composition_filter)
+    }
   })
   
   observeEvent(input$syso_tabsetpanel, {
     if(input$syso_tabsetpanel == "Composition of All Served in Period") {
+      shinyjs::toggle('sys_comp_subtabs', condition = valid_file() == 1)
+      shinyjs::toggle('sys_comp_summary', condition = valid_file() == 1)
+      shinyjs::toggle('sys_comp_instructions', condition = valid_file() == 1)
+      shinyjs::toggle('sys_comp_download_btn', condition = valid_file() == 1)
+
       addClass(id="syso_inflowoutflow_filters", class="filter-disabled")
+      # move download button to subtab row and only show if there's data
       shinyjs::runjs(str_glue("
         document.getElementById('sys_comp_subtabs').insertAdjacentHTML('beforeEnd', '<li id=\"sys_comp_download_tab\"></li>');
-        var toggleDownload = '{valid_file() == 1 & any(!is.na(sys_comp_p()$data$n))}';
-        $('#sys_comp_download_btn').appendTo('#sys_comp_download_tab').toggle(toggleDownload == 'TRUE')
+        $('#sys_comp_download_btn').appendTo('#sys_comp_download_tab');
+        var toggleDownload = '{any(!is.na(sys_comp_p()$n))}';
+        $('#sys_comp_download_btn').toggle(toggleDownload == 'TRUE')
       "))
     }
   })
