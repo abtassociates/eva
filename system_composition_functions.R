@@ -183,7 +183,7 @@ sys_comp_plot_1var <- function(selection) {
       ) +
       scale_y_discrete(
         labels = str_wrap(c("Total", v_cats1_labels), width=30),
-        limits = c("Total", levels(plot_df[[selections]])),
+        limits = c("Total", levels(plot_df[[selection]])),
       ) +
       # other stuff
       theme_bw() +
