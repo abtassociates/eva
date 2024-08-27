@@ -56,7 +56,6 @@ frame_summary <-
   )
 
 system_activity_prep_detail <- reactive({
-# browser()
   inflow <- sys_inflow_outflow_plot_data()() %>%
     select(PersonalID,
            InflowTypeSummary,
@@ -288,44 +287,65 @@ ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
 syso_detailBox <- reactive({
   # remove group names from race/ethnicity filter
   # so we can use getNameByValue() to grab the selected option label
-  syso_race_ethnicities <- unlist(syso_race_ethnicity_cats())
-  names(syso_race_ethnicities) <- gsub("Group [0-9]+\\.", "",
-                                       names(syso_race_ethnicities))
+  # if (input$methodology_type == 2) {
+    # browser()
+  # }
+
+  detail_line <- function(detail_label, val_list, inputVal) {
+    return(
+      HTML(glue(
+        "<b>{detail_label}:</b> {getNameByValue(val_list, inputVal)} <br>"
+      ))
+    )
+  }
+  
+  selected_race <- getNameByValue(
+    unlist(syso_race_ethnicity_cats(input$methodology_type)),
+    input$syso_race_ethnicity
+  )
+  
+  race_ethnicity_line <- HTML(glue(
+    "<b>Race/Ethnicity:</b> {
+          str_sub(
+            selected_race, 
+            start = str_locate(
+              selected_race,
+              '\\\\.'
+            )[, 1] + 1,
+            end = -1L
+          )
+        } <br>"
+  ))
   
   list(
     strong("Date Range: "),
-    ReportStart(),
-    " to ",
-    ReportEnd(), 
-    br(),
-    strong("Household Type: "),
-    getNameByValue(syso_hh_types, input$syso_hh_type),
-    br(),
-    strong("Level of Detail: "),
-    getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
-    br(),
-    strong("Project Type: "),
-    getNameByValue(syso_project_types, input$syso_project_type),
-    br(),
-    strong("Age: "),
-    # if_else(
-    #   setequal(syso_age_cats, input$syso_age) |
-    #     is.null(input$syso_age),
-    #   "All Ages"#,
-    #   # getNameByValue(syso_age_cats, input$syso_age)
-    # ),
-    " | ",
-    strong("Gender: "),
-    # getNameByValue(syso_gender_cats(), input$syso_gender),
-    " | ",
-    strong("Race/Ethnicity: "),
-    # getNameByValue(syso_race_ethnicities, input$syso_race_ethnicity),
-    " | ",
-    strong("Special Populations: "),
-    # getNameByValue(syso_spec_pops_cats(), input$syso_spec_pops), 
-    br(),
-    strong("Methodology Type: ")#,
-    # getNameByValue(syso_methodology_types, input$methodology_type) 
+    
+    ReportStart(), " to ", ReportEnd(), br(),
+    
+    if (getNameByValue(syso_hh_types, input$syso_hh_type) != "All People")
+      detail_line("Household Type", syso_hh_types, input$syso_hh_type),
+    
+    detail_line("Level of Detail", syso_level_of_detail, input$syso_level_of_detail),
+    
+    if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
+      detail_line("Project Type", syso_project_types, input$syso_project_type),
+    
+    detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
+    
+    if (length(input$syso_age) != length(syso_age_cats))
+      HTML(glue(
+        "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
+      )),
+    
+    if (length(input$syso_gender) != length(syso_gender_cats(input$methodology_type)))
+      detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
+    
+    if (selected_race != "All.All Races/Ethnicities")
+      race_ethnicity_line,
+    
+    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
+      detail_line("Special Populations", syso_spec_pops_people, input$syso_spec_pops)
+    
   )
 })
 
