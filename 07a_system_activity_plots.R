@@ -198,18 +198,12 @@ renderSystemPlot <- function(id) {
     req(valid_file() == 1)
     browser()
     if (id == "sys_act_summary_ui_chart") {
-      colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
       df <- system_activity_prep_summary()
     } else {
-      colors <- c(
-        '#73655E',
-        '#C6BDB9',
-        '#C34931',
-        "#16697A"
-      )
-         df <- system_activity_prep_detail()
-       }
-       
+      df <- system_activity_prep_detail()
+    }
+    
+    colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
     s <- max(df$yend) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
