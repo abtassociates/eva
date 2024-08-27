@@ -49,10 +49,7 @@ frame_summary <-
              "Outflow",
              rep(paste0("Active at End"), 2)),
     InflowOutflow = c(rep("Inflow", 3), rep("Outflow", 3)),
-    PlotFillGroups = c(rep("Active at Start", 2),
-                       "Inflow",
-                       "Outflow",
-                       c(rep("Active at End", 2)))
+    PlotFillGroups = c("Homeless", "Housed", "Inflow", "Outflow", "Housed", "Homeless")
   )
 
 system_activity_prep_detail <- reactive({
@@ -114,6 +111,7 @@ system_activity_prep_detail <- reactive({
     group_by(Time) %>%
     mutate(group.id = cur_group_id()) %>%
     ungroup() %>%
+    slice(1:8, 10, 9) %>%
     mutate(
       values = ifelse(InflowOutflow == "Outflow", values * -1, values),
       ystart = lag(cumsum(values), default = 0),
@@ -172,6 +170,7 @@ system_activity_prep_summary <- reactive({
   inflow %>%
     full_join(outflow, join_by(Status, values, Time)) %>%
     full_join(frame_summary, join_by(Status, Time)) %>%
+    slice(1:3, 6, 5, 4) %>%
     mutate(
       values = replace_na(values, 0),
       Time = factor(
@@ -207,9 +206,10 @@ renderSystemPlot <- function(id) {
     s <- max(df$yend) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
+    
 
 # waterfall plot ----------------------------------------------------------
-ggplot(df, aes(x = group.id, fill = Status)) +
+ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
   geom_rect( # the bars
     aes(
       xmin = group.id - 0.25,
