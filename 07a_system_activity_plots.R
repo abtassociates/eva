@@ -65,7 +65,7 @@ system_activity_prep_detail <- reactive({
                 filter(InflowOutflow == "Inflow")) %>%
     mutate(values = replace_na(values, 0))
   
-  outflow <- sys_inflow_outflow_plot_data()() %>%
+  outflow <- sys_inflow_outflow_plot_data() %>%
     select(PersonalID,
            OutflowTypeSummary,
            OutflowTypeDetail) %>%
@@ -206,7 +206,6 @@ renderSystemPlot <- function(id) {
     s <- max(df$yend) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
-    
 
 # waterfall plot ----------------------------------------------------------
 ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
