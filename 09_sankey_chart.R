@@ -1,6 +1,6 @@
 # The universe is anyone who was Housed or Homeless at Period Start
 # We also need the latest exit for the folks in the Exited categories
-plot_data <- reactive({
+sankey_plot_df <- reactive({
   
   plot_df <- sys_inflow_outflow_plot_data() %>%
     filter(InflowTypeDetail == "Housed" | InflowTypeDetail == "Homeless") %>%
