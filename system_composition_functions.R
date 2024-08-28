@@ -404,7 +404,7 @@ sys_comp_plot_2vars <- function(selections) {
       annotate(
         geom = "text",
         x = 1.5,
-        y = max(plot_data$yend) * 1.1,
+        y = max(plot_df$yend) * 1.1,
         size = 16/.pt,
         label = sys_total_count_line(sum(plot_df$n, na.rm = TRUE))
       ) +
