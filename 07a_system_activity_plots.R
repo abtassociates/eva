@@ -5,16 +5,16 @@
 frame_detail <- 
   data.frame(
     Status = c(
-      "Homeless",
       "Housed",
+      "Homeless",
       "Newly Homeless",
       "Returned from \nPermanent",
       "Re-engaged from \nNon-Permanent",
       "Exited,\nPermanent",
       "Exited,\nNon-Permanent",
       "Inactive",
-      "Housed",
-      "Homeless"
+      "Homeless",
+      "Housed"
     ),
     Time = c(
       rep("Active at Start", 2),
@@ -28,28 +28,30 @@ frame_detail <-
     ),
     InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)),
     PlotFillGroups = 
-      c("Homeless",
-        "Housed",
+      c("Housed",
+        "Homeless",
         rep("Inflow", 3),
         rep("Outflow", 3),
-        "Housed",
-        "Homeless")
+        "Homeless",
+        "Housed")
   )
 
 frame_summary <-
   data.frame(
-    Status = c("Homeless",
-               "Housed",
+    Status = c("Housed",
+               "Homeless",
                "Inflow",
                "Outflow",
-               "Housed",
-               "Homeless"),
+               "Homeless",
+               "Housed"),
     Time = c(rep(paste0("Active at Start"), 2),
              "Inflow",
              "Outflow",
              rep(paste0("Active at End"), 2)),
     InflowOutflow = c(rep("Inflow", 3), rep("Outflow", 3)),
-    PlotFillGroups = c("Homeless", "Housed", "Inflow", "Outflow", "Housed", "Homeless")
+    PlotFillGroups = c("Housed", "Homeless",
+                       "Inflow", "Outflow",
+                       "Homeless", "Housed")
   )
 
 system_activity_prep_detail <- reactive({
@@ -96,8 +98,8 @@ system_activity_prep_detail <- reactive({
       Status = factor(
         Status,
         levels = c(
-          "Homeless",                          
           "Housed",
+          "Homeless",                          
           "Newly Homeless",
           "Returned from \nPermanent",
           "Re-engaged from \nNon-Permanent",
