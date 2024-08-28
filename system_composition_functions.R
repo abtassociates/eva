@@ -273,6 +273,10 @@ sys_comp_plot_2vars <- function(selections) {
                                    levels = rev(v_cats2),
                                    labels = v_cats2_labels)
   
+  plot_df <- plot_df %>% 
+    complete(!!sym(selections[1]), !!sym(selections[2])) %>%
+    replace(is.na(.), 0)
+    
   h_total <- plot_df %>% 
     group_by(!!!syms(selections[[2]])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
