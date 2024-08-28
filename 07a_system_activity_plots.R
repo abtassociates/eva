@@ -210,7 +210,7 @@ renderSystemPlot <- function(id) {
       df <- system_activity_prep_detail()
     }
     
-    colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
+    colors <- c('#C6BDB9', '#73655E', '#C34931', '#16697A')
     s <- max(df$yend) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
