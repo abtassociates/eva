@@ -301,7 +301,6 @@ sys_comp_plot_2vars <- function(selections) {
   plot_df <- suppress_next_lowest_val(plot_df, selections[1], "n")
   plot_df <- suppress_next_lowest_val(plot_df, selections[2], "n")
   
-  browser()
   return(
     ggplot(plot_df, aes(.data[[selections[1]]], .data[[selections[2]]])) +
       # main data into cells for each cross-combination
