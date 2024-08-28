@@ -243,6 +243,17 @@ sys_comp_plot_2vars <- function(selections) {
   }
   
   plot_df <- get_sys_comp_plot_df(selections)
+  validate(
+    need(
+      sum(plot_df$n > 0, na.rm=TRUE) > 0,
+      message = "No data to show"
+    ),
+    need(
+      sum(plot_df$n > 10, na.rm=TRUE) > 0,
+      message = "Not enough data to show"
+    )
+  )
+  
   if(all(is.na(plot_df$n))) return()
   v_cats1 <- get_v_cats(selections[1])
   v_cats1_labels <- if(is.null(names(v_cats1))) {v_cats1} else {names(v_cats1)}

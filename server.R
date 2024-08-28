@@ -1103,12 +1103,6 @@ function(input, output, session) {
   })
 
   output$sys_comp_summary_ui_chart <- renderPlot({
-    validate(
-      need(
-        any(!is.na(sys_comp_p()$data$n)) & valid_file() == 1, 
-        message = paste0("No data to show.")
-      )
-    )
     sys_comp_p()
   }, height = function() { 
       if_else(!is.null(input$system_composition_filter), 600, 100) 
