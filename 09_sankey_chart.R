@@ -4,13 +4,11 @@ plot_data <- reactive({
   plot_df <- sys_df_universe() %>%
     filter(InflowTypeDetail == "Housed" | InflowTypeDetail == "Homeless") %>%
     group_by(PersonalID) %>%
-    mutate(
-      lastExit = max(ExitAdjust) == ExitAdjust
-    ) %>%
-    filter(max(lastExit) == lastExit) %>%
+    filter(max(ExitAdjust) == ExitAdjust) %>%
     ungroup() %>%
-    select(PersonalID, InflowTypeDetail, OutflowTypeDetail, lastExit, ExitAdjust, Destination) %>%
+    select(PersonalID, InflowTypeDetail, OutflowTypeDetail, Destination, EnrollmentID, ExitAdjust) %>%
     unique()
+    
   # if any enrollments share the same exit date, dedup them using the following logic
     # 1. take permanent over temp over other
     # 2. within a destination type (perm, temp, oother) take the lower destination value
@@ -49,11 +47,9 @@ plot_data <- reactive({
       "Type" = case_when(
         OutflowTypeDetail == "Housed" ~ "Enrolled, Housed",
         OutflowTypeDetail == "Homeless" ~ "Enrolled, Homeless",
-        lastExit == TRUE & 
-          Destination %in% perm_livingsituation &
+        Destination %in% perm_livingsituation &
           ExitAdjust <= ReportEnd() ~ "Exited, Permanent",
-        lastExit == TRUE & 
-          !(Destination %in% perm_livingsituation) &
+        !(Destination %in% perm_livingsituation) &
           ExitAdjust <= ReportEnd() ~ "Exited, Non-Permanent",
         TRUE ~ OutflowTypeDetail
       )
