@@ -132,7 +132,7 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 # System Overview - Filters -----------------------------------------------
 
 syso_hh_types <- list(
-  "All" = "All",
+  "All Household Types" = "All",
   "Households without children" = "AO",
   "Households with children" = "AC",
   "Children Only" = "CO",
@@ -170,14 +170,16 @@ gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific
                    "DifferentIdentity", "Questioning", "GenderNone")
 
 syso_gender_incl <- list(
+  "All Genders" = "All",
   "Gender expansive, including transgender" = "TransgenderInclusive",
   "Man (Boy, if child) alone or in combination" = "ManInclusive",
   "Non-binary alone or in combination" = "NonBinaryInclusive",
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive",
-  "Woman (Girl, if child) alone or in combination" = "WomanInclusive"
+  "Woman (Girl, if child) alone or in combination" = "WomanInclusive",
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive"
 )
 
 syso_gender_excl <- list(
+  "All Genders" = "All",
   "Gender expansive, not transgender" = "GenderExpansiveExclusive",
   "Man (Boy, if child), alone" = "ManExclusive",
   "Transgender, alone or in combination" = "TransgenderExclusive",

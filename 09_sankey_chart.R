@@ -10,7 +10,7 @@ sankey_plot_df <- reactive({
     mutate("Period" = "Begin")
   
   endBind <- plot_df %>%
-    select(PersonalID, "Type" = OutflowTypeDetail) %>%
+    select(PersonalID, OutflowTypeDetail) %>%
     mutate(
       "Period" = "End",
       Type = case_when(
