@@ -349,15 +349,3 @@ syso_detailBox <- reactive({
     
   )
 })
-
-syso_chartSubheader <- reactive({
-  list(
-    strong(""), 
-    # formatC(
-    #   nrow(system_df_people_filtered()),
-    #   format = "d",
-    #   big.mark = ","
-    # ),
-    br()
-  )
-})

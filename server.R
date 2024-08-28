@@ -1013,10 +1013,7 @@ function(input, output, session) {
     syso_detailBox() 
   })
 
-  #### DISPLAY CHART SUBHEADER ###
-  output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
-  output$sys_act_summary_chart_subheader <- renderUI({ syso_chartSubheader() })
-
+  #### DISPLAY CHART ###
   renderSystemPlot("sys_act_summary_ui_chart")
   renderSystemPlot("sys_act_detail_ui_chart")
 
@@ -1082,10 +1079,7 @@ function(input, output, session) {
     req(valid_file() == 1)
     syso_detailBox() 
   })
-  output$sankey_chart_subheader <- renderUI({ 
-    req(valid_file() == 1)
-    syso_chartSubheader() 
-  })
+
   output$sankey_ui_chart <- renderPlot({
     req(valid_file() == 1)
     validate(

@@ -793,7 +793,6 @@ dashboardPage(
                 tabsetPanel(
                   tabPanel("Summary", 
                            uiOutput("sankey_filter_selections"),
-                           uiOutput("sankey_chart_subheader"),
                            plotOutput("sankey_ui_chart")
                   ),
                   tabPanel("Insights", 
