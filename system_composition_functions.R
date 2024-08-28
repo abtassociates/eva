@@ -401,24 +401,13 @@ sys_comp_plot_2vars <- function(selections) {
       
       # other stuff
       theme_bw() +
-      annotate(
-        geom = "text",
-        x = 1.5,
-        y = max(plot_df$yend) * 1.1,
-        size = 16/.pt,
-        label = sys_total_count_line(sum(plot_df$n, na.rm = TRUE))
+
+      ggtitle(
+        sys_total_count_line(
+          nrow(sys_df_people_universe_filtered_r())
+        )
       ) +
       
-      ggtitle(paste0(
-        "Total ",
-        if_else(
-          getNameByValue(syso_level_of_detail, input$syso_level_of_detail) == "All",
-          "People",
-          getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-        ),
-        ": ",
-        nrow(sys_df_people_universe_filtered_r())
-      )) +
       theme(legend.position = "none",
             axis.ticks = element_blank(),
             panel.grid = element_blank(),
