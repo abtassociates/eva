@@ -23,7 +23,6 @@ function(input, output, session) {
     sys_df_people_universe_filtered_r <- reactiveVal(),
     ReportStart <- reactiveVal(),
     ReportEnd <- reactiveVal(),
-    sys_df_universe <- reactiveVal(),
     sankey_plot_data <- reactiveVal(),
     non_ascii_files_detail_df <- reactiveVal(),
     non_ascii_files_detail_r <- reactiveVal()
@@ -209,10 +208,9 @@ function(input, output, session) {
             input$syso_gender
             input$syso_race_ethnicity
           }, {
-            sys_df_universe(universe_ppl_flags())
             sys_inflow_outflow_plot_data(inflow_outflow_df())
             sys_df_people_universe_filtered_r(clients_enrollments_reactive())
-            sankey_plot_data(plot_data())
+            sankey_plot_data(sankey_plot_df())
           })
           
           setProgress(detail = "Done!", value = 1)

@@ -1,38 +1,17 @@
 # The universe is anyone who was Housed or Homeless at Period Start
 # We also need the latest exit for the folks in the Exited categories
-plot_data <- reactive({
-  plot_df <- sys_df_universe() %>%
+sankey_plot_df <- reactive({
+  
+  plot_df <- sys_inflow_outflow_plot_data() %>%
     filter(InflowTypeDetail == "Housed" | InflowTypeDetail == "Homeless") %>%
-    group_by(PersonalID) %>%
-    mutate(
-      lastExit = max(ExitAdjust) == ExitAdjust
-    ) %>%
-    filter(max(lastExit) == lastExit) %>%
-    ungroup() %>%
-    select(PersonalID, InflowTypeDetail, OutflowTypeDetail, lastExit, ExitAdjust, Destination) %>%
-    unique()
 
   startBind <- plot_df %>%
     select(PersonalID, "Type" = InflowTypeDetail) %>%
     mutate("Period" = "Begin")
   
   endBind <- plot_df %>%
-    mutate(
-      "Period" = "End",
-      "Type" = case_when(
-        OutflowTypeDetail == "Housed" ~ "Enrolled, Housed",
-        OutflowTypeDetail == "Homeless" ~ "Enrolled, Homeless",
-        lastExit == TRUE & 
-          Destination %in% perm_livingsituation &
-          ExitAdjust <= ReportEnd() ~ "Exited, Permanent",
-        lastExit == TRUE & 
-          !(Destination %in% perm_livingsituation) &
-          ExitAdjust <= ReportEnd() ~ "Exited, Non-Permanent",
-        TRUE ~ OutflowTypeDetail
-      )
-    ) %>%
-    select(PersonalID, Period, Type)
-  
+    select(PersonalID, "Type" = OutflowTypeDetail) %>%
+    mutate("Period" = "End")
     
   allBind <- rbind(startBind, endBind)
   
