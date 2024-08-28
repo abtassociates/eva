@@ -981,9 +981,9 @@ universe_ppl_flags <- reactive({
 
       OutflowTypeDetail = case_when(
         perm_dest_client == TRUE ~
-          "Exited to \nPermanent Destination",
+          "Exited,\nPermanent",
         temp_dest_client == TRUE ~
-          "Exited to \nNon-Permanent Destination",
+          "Exited,\nNon-Permanent",
         unknown_at_end_client == TRUE ~
           "Inactive",
         homeless_at_end_client == TRUE ~
@@ -1033,7 +1033,7 @@ inflow_outflow_df <- reactive({
     ) %>%
     filter(missing_inflow == TRUE | missing_outflow == TRUE)
   
- # browser()
+# browser()
   
   category_counts <- plot_data %>%
     select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%

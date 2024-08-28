@@ -4,26 +4,42 @@
 
 frame_detail <- 
   data.frame(
-    Status = c("Homeless",
-               "Housed",
-               "Newly Homeless",
-               "Returned from \nPermanent",
-               "Re-engaged from \nNon-Permanent",
-               "Exited to \nPermanent Destination",
-               "Exited to \nNon-Permanent Destination",
-               "Inactive",
-               "Homeless",
-               "Housed"),
-    Time = c(rep("Active at Start", 2),
-             rep("Inflow", 3),
-             rep("Outflow", 3),
-             rep("Active at End", 2)),
-    InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)))
+    Status = c(
+      "Housed",
+      "Homeless",
+      "Newly Homeless",
+      "Returned from \nPermanent",
+      "Re-engaged from \nNon-Permanent",
+      "Exited,\nPermanent",
+      "Exited,\nNon-Permanent",
+      "Inactive",
+      "Homeless",
+      "Housed"
+    ),
+    Time = c(
+      rep("Active at Start", 2),
+      "Newly Homeless",
+      "Returned from \nPermanent",
+      "Re-engaged from \nNon-Permanent",
+      "Exited,\nPermanent",
+      "Exited,\nNon-Permanent",
+      "Inactive",
+      rep("Active at End", 2)
+    ),
+    InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)),
+    PlotFillGroups = 
+      c("Housed",
+        "Homeless",
+        rep("Inflow", 3),
+        rep("Outflow", 3),
+        "Homeless",
+        "Housed")
+  )
 
 frame_summary <-
   data.frame(
-    Status = c("Homeless",
-               "Housed",
+    Status = c("Housed",
+               "Homeless",
                "Inflow",
                "Outflow",
                "Homeless",
@@ -32,7 +48,10 @@ frame_summary <-
              "Inflow",
              "Outflow",
              rep(paste0("Active at End"), 2)),
-    InflowOutflow = c(rep("Inflow", 3), rep("Outflow", 3))
+    InflowOutflow = c(rep("Inflow", 3), rep("Outflow", 3)),
+    PlotFillGroups = c("Housed", "Homeless",
+                       "Inflow", "Outflow",
+                       "Homeless", "Housed")
   )
 
 system_activity_prep_detail <- reactive({
@@ -48,7 +67,7 @@ system_activity_prep_detail <- reactive({
                 filter(InflowOutflow == "Inflow")) %>%
     mutate(values = replace_na(values, 0))
   
-  outflow <- sys_inflow_outflow_plot_data()() %>%
+  outflow <- sys_inflow_outflow_plot_data() %>%
     select(PersonalID,
            OutflowTypeSummary,
            OutflowTypeDetail) %>%
@@ -61,25 +80,31 @@ system_activity_prep_detail <- reactive({
     mutate(values = replace_na(values, 0))
   
   inflow %>%
-    full_join(outflow, join_by(Time, values, Status, InflowOutflow)) %>%
+    full_join(outflow,
+              join_by(Time, values, Status, InflowOutflow, PlotFillGroups)
+              ) %>%
     mutate(
       Time = factor(
         Time,
         levels = c("Active at Start",
-                   "Inflow",
-                   "Outflow",
+                   "Newly Homeless",
+                   "Returned from \nPermanent",
+                   "Re-engaged from \nNon-Permanent",
+                   "Exited,\nNon-Permanent",
+                   "Exited,\nPermanent",
+                   "Inactive",
                    "Active at End")
       ),
       Status = factor(
         Status,
         levels = c(
-          "Homeless",                          
           "Housed",
+          "Homeless",                          
           "Newly Homeless",
           "Returned from \nPermanent",
           "Re-engaged from \nNon-Permanent",
-          "Exited to \nNon-Permanent Destination",
-          "Exited to \nPermanent Destination",
+          "Exited,\nNon-Permanent",
+          "Exited,\nPermanent",
           "Inactive"
         )
       )
@@ -88,14 +113,15 @@ system_activity_prep_detail <- reactive({
     group_by(Time) %>%
     mutate(group.id = cur_group_id()) %>%
     ungroup() %>%
+    slice(1:8, 10, 9) %>%
+    # ^ since factor levels can only be controlled across unique values, we have
+    # to manually order the rows here so that the ystart and yend get built in
+    # a way that places the rectangles in the right order
     mutate(
       values = ifelse(InflowOutflow == "Outflow", values * -1, values),
       ystart = lag(cumsum(values), default = 0),
       yend = round(cumsum(values))
     )
-  
-  
-  
 })
 
 system_activity_prep_summary <- reactive({
@@ -163,6 +189,10 @@ system_activity_prep_summary <- reactive({
     group_by(Time) %>%
     mutate(group.id = cur_group_id()) %>%
     ungroup() %>%
+    slice(2, 1, 3:6) %>%
+    # ^ since factor levels can only be controlled across unique values, we have
+    # to manually order the rows here so that the ystart and yend get built in
+    # a way that places the rectangles in the right order
     mutate(
       values = ifelse(Time %in% c("Outflow", "Active at End"), values * -1, values),
       ystart = lag(cumsum(values), default = 0),
@@ -175,28 +205,18 @@ renderSystemPlot <- function(id) {
     req(valid_file() == 1)
     # browser()
     if (id == "sys_act_summary_ui_chart") {
-      colors <- c('#73655E', '#C6BDB9', '#C34931', '#16697A')
       df <- system_activity_prep_summary()
     } else {
-      colors <- c(
-        '#73655E',
-        '#C6BDB9',
-        "#e5a699",
-        '#b7452e',
-        "#66261a",
-        '#93dcec',
-        "#3dc1dc",
-        '#1b8297'
-      )
-         df <- system_activity_prep_detail()
-       }
-       
+      df <- system_activity_prep_detail()
+    }
+    
+    colors <- c('#C6BDB9', '#73655E', '#C34931', '#16697A')
     s <- max(df$yend) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
 
 # waterfall plot ----------------------------------------------------------
-ggplot(df, aes(x = group.id, fill = Status)) +
+ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
   geom_rect( # the bars
     aes(
       xmin = group.id - 0.25,
@@ -207,7 +227,7 @@ ggplot(df, aes(x = group.id, fill = Status)) +
     ),
     colour = "#4e4d47",
     linewidth = .2,
-    alpha = 0.8
+    alpha = 0.7
   ) +
   geom_segment( # the connecting segments between bars
     data = df %>%
@@ -235,15 +255,14 @@ ggplot(df, aes(x = group.id, fill = Status)) +
       y = rowSums(cbind(ystart, values / 2)),
       segment.colour = "gray33"
     ),
-    nudge_x = -.5,
-    arrow = arrow(type = "open", length = unit(.1, "inches")),
+    direction = "y",
+    nudge_x = -.35,
     colour = "#4e4d47",
-    # alpha = .7,
     size = 5,
     inherit.aes = FALSE
   ) +
   scale_fill_manual(values = colors) + # color palette
-  scale_y_continuous(expand = c(0,0)) + # distance between bars and x axis line
+  scale_y_continuous(expand = expansion()) + # distance between bars and x axis line
   scale_x_continuous(labels = str_wrap(df$Time %>% unique(), width = 10), # x axis labels
                    breaks = df$group.id %>% unique()) +
   theme_void() + # totally clear all theme elements
@@ -252,11 +271,12 @@ ggplot(df, aes(x = group.id, fill = Status)) +
     axis.text.x = element_text(size = 16),
     axis.ticks.x = element_line(),
     axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
-    axis.ticks.length.x = unit(.15, "cm"),
+    # axis.ticks.length.x = unit(.15, "cm"),
     plot.margin = unit(c(1, 1, 1, 1), "lines"),
     legend.text = element_text(size = 16),
-    legend.title = element_blank()#,
-    # legend.position = "none"
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.margin = margin(.5, 0, 0, 0, unit = "inch")
   )
   })
  # return(plotOutput(id, height = 400))

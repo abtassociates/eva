@@ -132,7 +132,7 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 # System Overview - Filters -----------------------------------------------
 
 syso_hh_types <- list(
-  "All" = "All",
+  "All Household Types" = "All",
   "Households without children" = "AO",
   "Households with children" = "AC",
   "Children Only" = "CO",
