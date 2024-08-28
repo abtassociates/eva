@@ -3,7 +3,7 @@
 sankey_plot_df <- reactive({
   
   plot_df <- sys_inflow_outflow_plot_data() %>%
-    filter(InflowTypeDetail == "Housed" | InflowTypeDetail == "Homeless") %>%
+    filter(InflowTypeDetail == "Housed" | InflowTypeDetail == "Homeless")
 
   startBind <- plot_df %>%
     select(PersonalID, "Type" = InflowTypeDetail) %>%
