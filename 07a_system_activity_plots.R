@@ -401,7 +401,7 @@ syso_detailBox <- reactive({
         "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
       )),
     
-    if (length(input$syso_gender) != length(syso_gender_cats(input$methodology_type)))
+    if (getNameByValue(syso_gender_cats(), input$syso_gender) != "All Genders")
       detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
     
     if (selected_race != "All.All Races/Ethnicities")
