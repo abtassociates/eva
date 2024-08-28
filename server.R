@@ -210,7 +210,10 @@ function(input, output, session) {
           }, {
             sys_df_universe(universe_ppl_flags())
             sys_inflow_outflow_plot_data(inflow_outflow_df())
-            sys_df_people_universe_filtered_r(clients_enrollments_reactive())
+            sys_df_people_universe_filtered_r(enrollment_categories_reactive() %>%
+                                                select(PersonalID) %>%
+                                                inner_join(client_categories, join_by(PersonalID)) %>%
+                                                unique())
             sankey_plot_data(plot_data())
           })
           
