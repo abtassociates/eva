@@ -417,6 +417,6 @@ sys_total_count_line <- function(total_count) {
       ": ",
       total_count
     ),
-    width = 30
+    width = 40
   ))
 }
