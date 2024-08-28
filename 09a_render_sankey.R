@@ -98,19 +98,10 @@ renderSankeyChart <- function(plot_data) {
       geom = "text",
       x = 1.5,
       y = max(plot_data$yend) * 1.1,
-      label = paste0(
-        "Total ",
-        if_else(
-          getNameByValue(syso_level_of_detail, input$syso_level_of_detail) == "All",
-          "People",
-          getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-        ),
-        ": ",
-        sum(plot_data$freq)
-      ),
-      size = 13
+      size = 16/.pt,
+      label = sys_total_count_line(sum(plot_data$freq))
     ) +
-    
+      
     # remove legend, axis sizing
     theme_void() +
     theme(legend.position = "none",
