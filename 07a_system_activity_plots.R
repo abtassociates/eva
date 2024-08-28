@@ -323,11 +323,6 @@ syso_detailBox <- reactive({
     
     ReportStart(), " to ", ReportEnd(), br(),
     
-    if (getNameByValue(syso_hh_types, input$syso_hh_type) != "All People")
-      detail_line("Household Type", syso_hh_types, input$syso_hh_type),
-    
-    detail_line("Level of Detail", syso_level_of_detail, input$syso_level_of_detail),
-    
     if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
       detail_line("Project Type", syso_project_types, input$syso_project_type),
     
