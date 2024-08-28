@@ -114,6 +114,9 @@ system_activity_prep_detail <- reactive({
     mutate(group.id = cur_group_id()) %>%
     ungroup() %>%
     slice(1:8, 10, 9) %>%
+    # ^ since factor levels can only be controlled across unique values, we have
+    # to manually order the rows here so that the ystart and yend get built in
+    # a way that places the rectangles in the right order
     mutate(
       values = ifelse(InflowOutflow == "Outflow", values * -1, values),
       ystart = lag(cumsum(values), default = 0),
@@ -172,7 +175,6 @@ system_activity_prep_summary <- reactive({
   inflow %>%
     full_join(outflow, join_by(Status, values, Time)) %>%
     full_join(frame_summary, join_by(Status, Time)) %>%
-    slice(1:3, 6, 5, 4) %>%
     mutate(
       values = replace_na(values, 0),
       Time = factor(
@@ -187,6 +189,10 @@ system_activity_prep_summary <- reactive({
     group_by(Time) %>%
     mutate(group.id = cur_group_id()) %>%
     ungroup() %>%
+    slice(2, 1, 3:6) %>%
+    # ^ since factor levels can only be controlled across unique values, we have
+    # to manually order the rows here so that the ystart and yend get built in
+    # a way that places the rectangles in the right order
     mutate(
       values = ifelse(Time %in% c("Outflow", "Active at End"), values * -1, values),
       ystart = lag(cumsum(values), default = 0),
