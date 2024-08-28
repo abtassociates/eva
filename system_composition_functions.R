@@ -185,13 +185,17 @@ sys_comp_plot_1var <- function(selection) {
     ggplot(plot_df, aes("", .data[[selection]])) +
       # main data into cells for each cross-combination
       geom_tile(
-        color = 'white',
+        color = '#f0f0f0',
         lwd = 0.5,
         linetype = 1,
         aes(fill = n)) +
       scale_fill_gradient(low = "#D2E3D9", 
                           high = "#084954",
-                          na.value = ifelse(plot_df$wasRedacted,'#D2E3D9','white')) + # na.value makes 0s invisible
+                          na.value = ifelse(
+                            is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
+                            "white",
+                            "#D2E3D9"
+                          )) +
       # set text color to be 508 compliant contrasting
       geom_text(
         aes(label = ifelse(
@@ -305,13 +309,17 @@ sys_comp_plot_2vars <- function(selections) {
     ggplot(plot_df, aes(.data[[selections[1]]], .data[[selections[2]]])) +
       # main data into cells for each cross-combination
       geom_tile(
-        color = 'white',
+        color = '#f0f0f0',
         lwd = 0.5,
         linetype = 1,
         aes(fill = n)) +
       scale_fill_gradient(low = "#D2E3D9", 
                           high = "#084954",
-                          na.value = ifelse(plot_df$wasRedacted,'#D2E3D9','white')) + # na.value makes 0s invisible
+                          na.value = ifelse(
+                            is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
+                            "white",
+                            "#D2E3D9"
+                          )) + # na.value makes 0s invisible
       # display like 14/(0.8%)
       # set text color to be 508 compliant contrasting
       geom_text(
