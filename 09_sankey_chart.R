@@ -10,15 +10,15 @@ sankey_plot_df <- reactive({
     mutate("Period" = "Begin")
   
   endBind <- plot_df %>%
-    select(PersonalID, OutflowTypeDetail) %>%
+    select(PersonalID, "Type" = OutflowTypeDetail) %>%
     mutate(
       "Period" = "End",
       Type = case_when(
         Type == "Exited,\nPermanent" ~ "Exited, Permanent",
-        Type == "Exited,\nNon-Permanent", ~ "Exited, Non-Permanent",
-        Type == "Homeless", ~ "Enrolled, Homeless",
-        Type == "Housed", ~ "Enrolled, Housed",
-        TRUE ~ OutflowTypeDetail
+        Type == "Exited,\nNon-Permanent" ~ "Exited, Non-Permanent",
+        Type == "Homeless" ~ "Enrolled, Homeless",
+        Type == "Housed" ~ "Enrolled, Housed",
+        TRUE ~ Type
       ))
   
   allBind <- rbind(startBind, endBind)
