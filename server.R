@@ -4,46 +4,34 @@ function(input, output, session) {
   # track_usage(storage_mode = store_json(path = "logs/"))
 
   # session-wide variables (NOT visible to multiple sessions) -----------------
-  validation <- reactiveVal()
-  CurrentLivingSituation <- reactiveVal()
-  Export <- reactiveVal()
-  Project0 <- reactiveVal()
-  Event <- reactiveVal()
-  meta_HUDCSV_Export_Start <- reactiveVal()
-  meta_HUDCSV_Export_End <- reactiveVal()
-  meta_HUDCSV_Export_Date <- reactiveVal()
-  overlaps <- reactiveVal()
-  base_dq_data_func <- reactiveVal()
-  dq_main_df <- reactiveVal()
-  pdde_main <- reactiveVal()
-  valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
-  file_structure_analysis_main <- reactiveVal()
-  sys_inflow_outflow_plot_data <- reactiveVal()
-  sys_df_people_universe_filtered_r <- reactiveVal()
-  ReportStart <- reactiveVal()
-  ReportEnd <- reactiveVal()
-  non_ascii_files_detail_df <- reactiveVal()
-  non_ascii_files_detail_r <- reactiveVal()
-
+  visible_reactive_vals <- list(
+    validation <- reactiveVal(),
+    CurrentLivingSituation <- reactiveVal(),
+    Export <- reactiveVal(),
+    Project0 <- reactiveVal(),
+    Event <- reactiveVal(),
+    meta_HUDCSV_Export_Start <- reactiveVal(),
+    meta_HUDCSV_Export_End <- reactiveVal(),
+    meta_HUDCSV_Export_Date <- reactiveVal(),
+    overlaps <- reactiveVal(),
+    base_dq_data_func <- reactiveVal(),
+    dq_main_df <- reactiveVal(),
+    pdde_main <- reactiveVal(),
+    valid_file <- reactiveVal(0), # from FSA. Most stuff is hidden unless valid == 1
+    file_structure_analysis_main <- reactiveVal(),
+    sys_inflow_outflow_plot_data <- reactiveVal(),
+    sys_df_people_universe_filtered_r <- reactiveVal(),
+    ReportStart <- reactiveVal(),
+    ReportEnd <- reactiveVal(),
+    sys_df_universe <- reactiveVal(),
+    sankey_plot_data <- reactiveVal(),
+    non_ascii_files_detail_df <- reactiveVal(),
+    non_ascii_files_detail_r <- reactiveVal()
+  )
+  
   reset_reactivevals <- function() {
-    validation(NULL)
-    CurrentLivingSituation(NULL)
-    Export(NULL)
-    Project0(NULL)
-    Event(NULL)
-    meta_HUDCSV_Export_Start(NULL)
-    meta_HUDCSV_Export_End(NULL)
-    meta_HUDCSV_Export_Date(NULL)
-    overlaps(NULL)
-    base_dq_data_func(NULL)
-    dq_main_df(NULL)
-    pdde_main(NULL)
-    valid_file(0) # from FSA. Most stuff is hidden unless valid == 1
-    file_structure_analysis_main(NULL)
-    sys_inflow_outflow_plot_data(NULL)
-    sys_df_people_universe_filtered_r(NULL)
-    ReportStart(NULL)
-    ReportEnd(NULL)
+    lapply(visible_reactive_vals, function(r) r(NULL))
+    valid_file(0)
   }
   # 
   # # functions used throughout the app
@@ -206,6 +194,27 @@ function(input, output, session) {
           setProgress(detail = "Preparing System Overview Data", value = .85)
           source("07_system_overview.R", local = TRUE)
 
+          setProgress(detail = "Preparing Sankey Chart", value = .95)
+          source("09_sankey_chart.R", local = TRUE)
+          
+          # if user changes filters, update the reactive vals
+          # which get used for the various System Overview charts
+          observeEvent({
+            input$syso_hh_type
+            input$syso_level_of_detail
+            input$syso_project_type
+            input$methodology_type
+            input$syso_age
+            input$syso_spec_pops
+            input$syso_gender
+            input$syso_race_ethnicity
+          }, {
+            sys_df_universe(universe_ppl_flags())
+            sys_inflow_outflow_plot_data(inflow_outflow_df())
+            sys_df_people_universe_filtered_r(clients_enrollments_reactive())
+            sankey_plot_data(plot_data())
+          })
+          
           setProgress(detail = "Done!", value = 1)
           logToConsole("Done processing")
           
@@ -957,15 +966,9 @@ function(input, output, session) {
       session = session,
       "syso_gender", 
       choices = syso_gender_cats(input$methodology_type),
-      selected = unlist(syso_gender_cats(input$methodology_type), use.names = FALSE),
-      options = pickerOptions(
-        # actionsBox = TRUE,
-        selectedTextFormat = paste("count >", length(syso_gender_cats(input$methodology_type))-1)
-        # countSelectedText = "All Genders",
-        # noneSelectedText = "All Genders" 
-      )
+      selected = "All Genders"
     )
-    # selected = syso_gender_cats()[1]
+
     updatePickerInput(
       session, 
       "syso_race_ethnicity", 
@@ -1072,6 +1075,27 @@ function(input, output, session) {
       if_else(length(input$system_composition_filter) == 2, 600, 100) 
   })
   
+  
+  ### SANKEY CHART/SYSTEM STATUS
+  source("09a_render_sankey.R", local = TRUE)
+  output$sankey_filter_selections <- renderUI({ 
+    req(valid_file() == 1)
+    syso_detailBox() 
+  })
+  output$sankey_chart_subheader <- renderUI({ 
+    req(valid_file() == 1)
+    syso_chartSubheader() 
+  })
+  output$sankey_ui_chart <- renderPlot({
+    req(valid_file() == 1)
+    validate(
+      need(
+        nrow(sankey_plot_data()) > 0, 
+        message = paste0("No data to show.")
+      )
+    )
+    renderSankeyChart(sankey_plot_data())
+  })
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")

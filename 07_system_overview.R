@@ -204,7 +204,7 @@ homeless_cls_finder <- function(date, window = "before", days = 60) {
   
   CurrentLivingSituation %>%
     filter(
-      CurrentLivingSituation %in% homeless_livingsituation &
+      CurrentLivingSituation %in% homeless_livingsituation_incl_TH &
         between(InformationDate,
                 date - days(minus_days),
                 date + days(plus_days))
@@ -230,7 +230,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
     ),
     lh_prior_livingsituation = !is.na(LivingSituation) &
       (
-        LivingSituation %in% homeless_livingsituation |
+        LivingSituation %in% homeless_livingsituation_incl_TH |
           (
             LivingSituation %in% institutional_livingsituation &
               LOSUnderThreshold == 1 &
@@ -701,8 +701,8 @@ client_categories_reactive <- reactive({
     mutate(All = 1) %>%
     filter(
       AgeCategory %in% input$syso_age &
-        if_any(.cols = c(input$syso_gender), ~ .x == 1) &
-        if_any(.cols = c(input$syso_race_ethnicity), ~ .x == 1) &
+        !!sym(input$syso_gender) == 1 &
+        !!sym(input$syso_race_ethnicity) == 1 &
         ((input$syso_spec_pops == "Veteran" &
             VeteranStatus == 1) |
            (input$syso_spec_pops == "NonVeteran" &
@@ -753,14 +753,16 @@ clients_enrollments_reactive <- reactive({
     inner_join(client_categories_reactive(), join_by(PersonalID))
 })
 
-# Client-level enrollment summary data reactive ---------------------------
-# get final people-level, inflow/outflow dataframe by joining the filtered 
-# enrollment and people dfs, as well as flagging their inflow and outflow types
-inflow_outflow_df <- reactive({
-  # browser()
-  # add inflow type and active enrollment typed used for system overview plots
-  universe <-
-    clients_enrollments_reactive() %>%
+
+# Enrollment-level universe -----------------------
+# only includes people and their lookback thru LECR enrollments
+
+# hello weary traveler amongst these date ranges. you may find it helpful to
+# find example clients and their Entry and Exit Dates and enter them into
+# https://onlinetools.com/time/visualize-date-intervals <- here.
+# add inflow type and active enrollment typed used for system overview plots
+universe <- reactive({
+  clients_enrollments_reactive() %>%
     # get rid of rows where the enrollment is neither a lookback enrollment,
     # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
     filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
@@ -829,7 +831,7 @@ inflow_outflow_df <- reactive({
       # LOGIC helper columns
       
       lookback1_perm_dest = lookback == 1 & 
-        Destination %in% perm_destinations,
+        Destination %in% perm_livingsituation,
       
       eecr_lh_at_entry = eecr == TRUE &
         lh_at_entry == TRUE,
@@ -839,15 +841,15 @@ inflow_outflow_df <- reactive({
         days_to_next_entry >= 14,
       
       lookback1_temp_dest = lookback == 1 & 
-        !(Destination %in% perm_destinations),
+        !(Destination %in% perm_livingsituation),
       
       # outflow columns
       perm_dest_lecr = lecr == TRUE &
-        Destination %in% perm_destinations &
+        Destination %in% perm_livingsituation &
         ExitAdjust <= ReportEnd(), # 
       
       temp_dest_lecr = lecr == TRUE &
-        !(Destination %in% perm_destinations) &
+        !(Destination %in% perm_livingsituation) &
         ExitAdjust <= ReportEnd(),
       
       homeless_at_end = lecr == TRUE & 
@@ -908,15 +910,16 @@ inflow_outflow_df <- reactive({
            
         ))
     )
-  
-  # hello weary traveler amongst these date ranges. you may find it helpful to
-  # find example clients and their Entry and Exit Dates and enter them into
-  # https://onlinetools.com/time/visualize-date-intervals <- here.
-  universe_ppl <- universe %>%
+})
+
+# Enrollment-level universe with client-level flags -----------------------
+# Need to keep it enrollment-level so other scripts can reference the enrollments
+universe_ppl_flags <- reactive({
+  universe() %>%
     group_by(PersonalID) %>%
     filter(max(lecr, na.rm = TRUE) == 1 & max(eecr, na.rm = TRUE) == 1) %>%
     # drops ppl w/o an eecr or lecr
-    summarise(
+    mutate(
       # INFLOW
       active_at_start_homeless_client = max(active_at_start_homeless),
       
@@ -978,9 +981,9 @@ inflow_outflow_df <- reactive({
 
       OutflowTypeDetail = case_when(
         perm_dest_client == TRUE ~
-          "Exited to \nPermanent Destination",
+          "Exited,\nPermanent",
         temp_dest_client == TRUE ~
-          "Exited to \nNon-Permanent Destination",
+          "Exited,\nNon-Permanent",
         unknown_at_end_client == TRUE ~
           "Inactive",
         homeless_at_end_client == TRUE ~
@@ -991,11 +994,16 @@ inflow_outflow_df <- reactive({
           "something's wrong"
       )
     ) %>%
-    ungroup() 
-  
-  plot_data <- universe_ppl %>%
-    select(PersonalID, 
-           active_at_start_homeless_client, 
+    ungroup()
+})
+
+# Client-level enrollment summary data reactive ---------------------------
+# get final people-level, inflow/outflow dataframe by joining the filtered 
+# enrollment and people dfs, as well as flagging their inflow and outflow types
+inflow_outflow_df <- reactive({
+  plot_data <- universe_ppl_flags() %>%
+    select(PersonalID,
+           active_at_start_homeless_client,
            active_at_start_housed_client,
            return_from_perm_client,
            reengaged_from_temp_client,
@@ -1012,9 +1020,9 @@ inflow_outflow_df <- reactive({
     unique()
   
   # AS QC check:
-  missing_types <- universe %>% 
+  missing_types <- universe() %>% 
     inner_join(
-      universe_ppl %>% 
+      plot_data %>% 
         filter(
           OutflowTypeDetail == "something's wrong" | 
             InflowTypeDetail == "something's wrong"), 
@@ -1025,7 +1033,7 @@ inflow_outflow_df <- reactive({
     ) %>%
     filter(missing_inflow == TRUE | missing_outflow == TRUE)
   
- # browser()
+# browser()
   
   category_counts <- plot_data %>%
     select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%
@@ -1058,7 +1066,3 @@ inflow_outflow_df <- reactive({
     )
   plot_data
 })
-
-
-sys_df_people_universe_filtered_r(clients_enrollments_reactive)
-sys_inflow_outflow_plot_data(inflow_outflow_df)

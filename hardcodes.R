@@ -20,10 +20,6 @@ allowed_destinations <-
   c(116, 101, 118, 215, 206, 207, 225, 204, 205, 302, 329, 314, 332, 312, 313,
     327, 422, 423, 426, 410, 435, 421, 411, 30, 17, 24, 8, 9, 99)
 
-perm_destinations <- c(422,423,426,410,435,421,411)
-
-temp_destinations <- c(116,101,118,302,329,314,332,312,313,327)
-
 allowed_living_situations <- 
   c(allowed_prior_living_sit,
     allowed_current_living_sit,
@@ -31,21 +27,15 @@ allowed_living_situations <-
   unique() %>%
   sort()
 
-perm_livingsituation <- c(336, 410, 411, 421, 422, 423, 426, 435)
+perm_livingsituation <- c(400:499)
 
-lh_livingsituation <- c(101, 116, 118)
+homeless_livingsituation_incl_TH <- c(100:199, 302)
 
-homeless_livingsituation <- c(lh_livingsituation, 302)
+temp_livingsituation <- c(300:399)
 
-temp_livingsituation <- c(homeless_livingsituation, 312, 313, 314, 327, 329, 2, 335)
+institutional_livingsituation <- c(200:299)
 
-institutional_livingsituation <- c(204, 205, 206, 207, 215, 225)
-
-other_livingsituation <- c(8, 9, 17, 24, 30, 37, 99)
-
-not_homeless_livingsituation <- 
-  c(204, 205, 206, 207, 215, 225, 302, 314, 329, 332, 335, 336, 410, 411, 421, 435)
-
+other_livingsituation <- c(0:99)
 
 # Project Type Groupings --------------------------------------------------
 
@@ -101,8 +91,8 @@ project_types_enrolled_homeless <- c(lh_project_types, 14)
    
 long_stayer_percentile_project_types <- c(0, 2, 3, 8, 9, 10, 12, 13)
 
-all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) # minus Other
-all_project_types2 <- c(0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14)
+all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) 
+# All means All HUD-defined project types, so it excludes "Other"
 
 # Funding Source Groupings -------------------------------------------------
 
@@ -142,7 +132,7 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 # System Overview - Filters -----------------------------------------------
 
 syso_hh_types <- list(
-  "All People" = "All",
+  "All Household Types" = "All",
   "Households without children" = "AO",
   "Households with children" = "AC",
   "Children Only" = "CO",
@@ -151,7 +141,7 @@ syso_hh_types <- list(
 )
 
 syso_level_of_detail <- list(
-  "All People" = "All", 
+  "All" = "All", 
   "Heads of Household and Adults" = "HoHsAndAdults", 
   "Heads of Household Only" = "HoHsOnly"
 )
@@ -164,30 +154,32 @@ syso_project_types <- list(
 
 syso_age_cats <- c(
   # "All ages",
-  "0 to 12" =  "0 to 12",
-  "13 to 17" = "13 to 17",
-  "18 to 21" = "18 to 21",
-  "22 to 24" = "22 to 24",
-  "25 to 34" = "25 to 34",
-  "35 to 44" = "35 to 44",
-  "45 to 54" = "45 to 54",
-  "55 to 64" = "55 to 64",
-  "65 to 74" = "65 to 74",
-  "75 and older" = "75 and older",
-  "Unknown" = "Unknown")
+  "0 to 12",
+  "13 to 17",
+  "18 to 21",
+  "22 to 24",
+  "25 to 34",
+  "35 to 44",
+  "45 to 54",
+  "55 to 64",
+  "65 to 74",
+  "75 and older",
+  "Unknown")
 
 gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
                    "DifferentIdentity", "Questioning", "GenderNone")
 
 syso_gender_incl <- list(
+  "All Genders" = "All",
   "Gender expansive, including transgender" = "TransgenderInclusive",
   "Man (Boy, if child) alone or in combination" = "ManInclusive",
   "Non-binary alone or in combination" = "NonBinaryInclusive",
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive",
-  "Woman (Girl, if child) alone or in combination" = "WomanInclusive"
+  "Woman (Girl, if child) alone or in combination" = "WomanInclusive",
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive"
 )
 
 syso_gender_excl <- list(
+  "All Genders" = "All",
   "Gender expansive, not transgender" = "GenderExpansiveExclusive",
   "Man (Boy, if child), alone" = "ManExclusive",
   "Transgender, alone or in combination" = "TransgenderExclusive",
@@ -268,8 +260,8 @@ syso_race_ethnicity_excl <- list(
 # Special Populations -----------------------------------------------------
 
 syso_veteran_pops <- list(
-  "Veteran" = 1,
-  "Non-Veteran" = 0
+  "Veteran" = "Veteran",
+  "Non-Veteran" = "NonVeteran"
 )
 
 syso_dv_pops <- list(
@@ -285,7 +277,7 @@ syso_chronic_pops <- list(
 )
 
 syso_spec_pops_people <- c(
-  "None" = "None",
+  "None",
   # "Inflow",
   syso_veteran_pops,
   syso_dv_pops#,
@@ -365,9 +357,9 @@ inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
 
 sys_comp_filter_choices1 = c(
   "Age", 
-  "Domestic Violence Status",
+  "Domestic Violence",
   "Gender",
-   #"Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
+  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launc
   "All Races/Ethnicities",
   "Grouped Races/Ethnicities",
   "Veteran Status"
@@ -375,12 +367,13 @@ sys_comp_filter_choices1 = c(
 
 sys_comp_filter_choices2 = c(
   "Age", 
-  "Domestic Violence Status",
+  "Domestic Violence",
   "Gender",
-  #"Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
+  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launc
   "All Races/Ethnicities",
   "Hispanic-Focused Races/Ethnicities",
   "Veteran Status"
 )
 
 rm(inc_ncb_hi_required_prep)
+

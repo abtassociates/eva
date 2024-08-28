@@ -49,7 +49,7 @@ dashboardPage(
               menuSubItem("System Exit Detail",
                            tabName = "systemExitDetail")),
       menuItem("Assess Data Quality",
-               menuSubItem("Check PDDEs",
+               menuSubItem("Check Project Data",
                            tabName = "tabPDDE"),
                menuSubItem("System-level",
                            tabName = "tabDQSystem"),
@@ -742,14 +742,8 @@ dashboardPage(
                   inputId = "syso_gender",
                   choices = syso_gender_excl,
                   width = "100%",
-                  selected = syso_gender_excl,
-                  multiple = TRUE,
-                  options = pickerOptions(
-                    actionsBox = TRUE,
-                    selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
-                    countSelectedText = "All",
-                    noneSelectedText = "All"
-                  )
+                  selected = "All",
+                  options = pickerOptions(actionsBox = TRUE)
                 )
               ),
               column(
@@ -1064,7 +1058,7 @@ dashboardPage(
             # collapsible = TRUE,
             # collapsed = TRUE,
             width = 12,
-            htmlTableWidgetOutput("changelog")
+            dataTableOutput("changelog")
           )
         )
       ),
