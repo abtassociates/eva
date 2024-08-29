@@ -121,9 +121,9 @@ get_v_cats <- function(v) {
 
 # Suppression Rule 2: If only one cell in a group (i.e. row and/or column) is suppressed, 
 # then suppress the next lowest value in that group
-suppress_next_lowest_val <- function(df, group_v, n_v) {
+suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
   return(
-    df %>%
+    .data %>%
       group_by(!!sym(group_v)) %>%
       mutate(
         count_redacted = sum(wasRedacted, na.rm = TRUE),
@@ -170,12 +170,9 @@ sys_comp_plot_1var <- function(selection) {
   }
   
   plot_df <- plot_df %>%
-    mutate(
-      wasRedacted = between(n, 1, 10),
-      n = ifelse(n <= 10, NA, n)
-    )
+    suppress_values("n") %>%
+    suppress_next_val_if_one_suppressed_in_group(selections[1], "n")
   
-  plot_df <- suppress_next_lowest_val(plot_df, selection, "n")
   return(
     ggplot(plot_df, aes("", .data[[selection]])) +
       # main data into cells for each cross-combination
@@ -224,6 +221,15 @@ sys_comp_plot_1var <- function(selection) {
   )
 }
 
+suppress_values <- function(.data, count_var, selections) {
+  return(
+    mutate(.data,
+      wasRedacted = between(!!sym(count_var), 1, 10),
+      !!count_var := ifelse(!!sym(count_var) <= 10, NA, !!sym(count_var))
+    )
+  )
+}
+
 sys_comp_plot_2vars <- function(selections) {
   # race/ethnicity, if selected, should always be on the row
   if(selections[1] == "All Races/Ethnicities" |  
@@ -269,32 +275,26 @@ sys_comp_plot_2vars <- function(selections) {
     group_by(!!!syms(selections[[2]])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
     mutate(
-      !!selections[[1]] := 'Total',
-      wasRedacted = between(N, 1, 10),
-      N = ifelse(N <= 10, NA, N)
-    )
-  h_total <- suppress_next_lowest_val(h_total, selections[1], "N")
+      !!selections[[1]] := 'Total'
+    ) %>%
+    suppress_values("N") %>%
+    suppress_next_val_if_one_suppressed_in_group(selections[1], "N")
   
   v_total <- plot_df %>% 
     group_by(!!!syms(selections[[1]])) %>% 
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>% 
     mutate(
-      !!selections[[2]] := 'Total',
-      wasRedacted = between(N, 1, 10),
-      N = ifelse(N <= 10, NA, N)
-    )
-  v_total <- suppress_next_lowest_val(v_total, selections[2], "N")
+      !!selections[[2]] := 'Total'
+    ) %>%
+    suppress_values("N") %>%
+    suppress_next_val_if_one_suppressed_in_group(selections[2], "N")
   
-  # Suppress the next lowest value in a group 
-  # if there's only one suppressed cell in that group
-  plot_df <- plot_df %>%
-    mutate(
-      wasRedacted = between(n, 1, 10),
-      n = ifelse(n <= 10, NA, n)
-    )
-  plot_df <- suppress_next_lowest_val(plot_df, selections[1], "n")
-  plot_df <- suppress_next_lowest_val(plot_df, selections[2], "n")
-  
+  # Suppress values <= 10 
+  plot_df <- plot_df %>% 
+    suppress_values("n") %>%
+    suppress_next_val_if_one_suppressed_in_group(selections[1], "n") %>% 
+    suppress_next_val_if_one_suppressed_in_group(selections[2], "n")
+
   return(
     ggplot(plot_df, aes(.data[[selections[1]]], .data[[selections[2]]])) +
       # main data into cells for each cross-combination
