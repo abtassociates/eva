@@ -277,7 +277,7 @@ syso_chronic_pops <- list(
 )
 
 syso_spec_pops_people <- c(
-  "None",
+  "None" = "None",
   # "Inflow",
   syso_veteran_pops,
   syso_dv_pops#,

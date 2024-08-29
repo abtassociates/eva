@@ -418,8 +418,7 @@ sys_total_count_display <- function(total_count) {
           paste(" in", getNameByValue(syso_hh_types, input$syso_hh_type))
       ),
       ": ",
-      total_count
-    ),
-    width = 40
+      scales::comma(total_count)
+    )
   ))
 }

@@ -1018,7 +1018,7 @@ function(input, output, session) {
   renderSystemPlot("sys_act_detail_ui_chart")
 
   # System Composition ------------------------------------
-  source("system_composition_functions.R", local=TRUE)
+  source("system_composition_functions.R", local = TRUE)
   sys_comp_p <- reactive({
     req(!is.null(input$system_composition_filter))
     sys_comp_plot(input$system_composition_filter)
