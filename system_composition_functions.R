@@ -1,3 +1,5 @@
+font_size <- 14/.pt
+
 get_race_ethnicity_vars <- function(v) {
   if(v == "All") {
     syso_race_ethnicities_all <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Detailed"])
@@ -174,8 +176,6 @@ sys_comp_plot_1var <- function(selection) {
     )
   
   plot_df <- suppress_next_lowest_val(plot_df, selection, "n")
-  
-  font_size <- 14/.pt
   return(
     ggplot(plot_df, aes("", .data[[selection]])) +
       # main data into cells for each cross-combination
@@ -284,8 +284,6 @@ sys_comp_plot_2vars <- function(selections) {
       N = ifelse(N <= 10, NA, N)
     )
   v_total <- suppress_next_lowest_val(v_total, selections[2], "N")
-  
-  font_size <- 14/.pt
   
   # Suppress the next lowest value in a group 
   # if there's only one suppressed cell in that group
