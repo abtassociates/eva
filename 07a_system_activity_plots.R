@@ -290,31 +290,7 @@ renderSystemPlot <- function(id) {
           y = max(df$yend) * 1.1,
           size = 16 / .pt,
           label = paste0(
-            str_wrap(
-              paste0(
-                "Total ",
-                case_when(
-                  input$syso_level_of_detail == "All" ~ "People",
-                  input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
-                  TRUE ~
-                    getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-                ),
-                case_when(
-                  input$syso_hh_type == "All" ~ "",
-                  str_detect(input$syso_hh_type, "Household") == FALSE ~
-                    paste(
-                      " in",
-                      getNameByValue(syso_hh_types, input$syso_hh_type),
-                      " Households"
-                    ),
-                  TRUE ~
-                    paste(" in", getNameByValue(syso_hh_types, input$syso_hh_type))
-                ),
-                ": ",
-                total_clients
-              ),
-              width = 30
-            ),
+            sys_total_count_display(total_clients),
             "\nTotal Change: ",
             inflow_to_outflow
           )
@@ -342,7 +318,7 @@ renderSystemPlot <- function(id) {
           legend.position = "bottom",
           legend.margin = margin(.5, 0, 0, 0, unit = "inch")
         )
-    }
+    
   # return(plotOutput(id, height = 400))
 })}
 
