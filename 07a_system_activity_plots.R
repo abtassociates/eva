@@ -222,24 +222,20 @@ renderSystemPlot <- function(id) {
       pull(values) %>%
       sum()
     
+    validate(
+      need(
+        total_clients > 10,
+        message = "The data has been filtered to less than 11 records, therefore
+          the plot will not be displayed for privacy purposes."
+      )
+    )
+    
     inflow_to_outflow <- df %>%
       filter(Status %in% c("Inflow", "Outflow")) %>%
       pull(values) %>%
       sum()
-    
-    if(total_clients < 11){
-      ggplot(PlantGrowth, aes(x = weight, y = group)) +
-        annotate(
-          geom = "text",
-          label = "The data has been filtered to less than 11 records, therefore\n
-          the plot will not be displayed for privacy purposes.",
-          size = 6,
-          x = 1,
-          y = 1) +
-        theme_void()
-    } else{
-    
-# waterfall plot ----------------------------------------------------------
+
+    # waterfall plot ----------------------------------------------------------
       ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
         geom_rect(
           # the bars
@@ -359,7 +355,6 @@ syso_detailBox <- reactive({
   # if (input$methodology_type == 2) {
     # browser()
   # }
-
   detail_line <- function(detail_label, val_list, inputVal) {
     return(
       HTML(glue(
