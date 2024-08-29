@@ -310,32 +310,53 @@ counts_by_week %>%
 
 ```{r fig.width=10, fig.height=5}
 
-#counts_by_month %>%
-#  filter(str_detect(Event, " upload")) %>%
-#  filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
-#  ggplot(aes(x = MonthEnding, y = n, group = Event, fill = Event)) +
-#  geom_bar(stat = "identity") +
-#  scale_fill_manual(values = 
-#                      c("Successful upload" = "#208b3a",
-#                      "Unsuccessful upload - incomplete dataset" = "#ff0606",
-#                      "Unsuccessful upload - not an HMIS CSV Export" = "#ff4b00",
-#                      "Unsuccessful upload - not hashed" = "#ff6f00",
-#                      "Unsuccessful upload - not structurally valid" = "#ff8f00",
-#                      "Unsuccessful upload - out of date HMIS CSV Export" = "#ffac00",
-#                      "Unsuccessful upload - wrong/incomplete dataset" = "#ffc700",
-#                      "Unsuccessful upload - zip file not.zip" = "#ffe200",
-#                      "Unsuccessful upload - zip file was misstructured" = "#fffc00")) +
-#   geom_text(
-#    aes(label = ifelse(Event == "Successful upload", n, "")), vjust = -0.5, size = 3) +
-#  scale_x_date(date_breaks = "1 month", date_labels = "%B") +
-#  labs(title = "Monthly Eva Uploads",
-#       x = "Month Ending",
-#       y = "") +
-#  theme_minimal() +
-#  theme(legend.position = "bottom") +
-#  guides(fill = guide_legend(ncol = 2))
+## TEMPORARY TABLE SHOWING COUNT OF UNSUCCESSFUL - NOT HASHED UPLOADS BY WEEK
+
+gt(counts_by_week %>%
+     filter(str_detect(Event, " not hashed")) %>% 
+     select(
+       "Week Ending" = WeekEnding,
+       Event,
+       "Count" = n
+     ))
+
+```
+
+
+
+```{r fig.width=10, fig.height=5}
+
+counts_by_month %>%
+  filter(str_detect(Event, " upload")) %>%
+  ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
+  geom_line() +
+  geom_point() +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_brewer(palette = "Set1") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%B") +
+  labs(title = "Monthly Eva Uploads",
+       x = "Month Ending",
+       y = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
   
 ```
+
+```{r fig.width=10, fig.height=5}
+## TEMPORARY TABLE SHOWING COUNT OF UNSUCCESSFUL - NOT HASHED UPLOADS BY MONTH
+
+gt(counts_by_month %>%
+     filter(str_detect(Event, " not hashed")) %>% 
+     select(
+       "Month Ending" = MonthEnding,
+       Event,
+       "Count" = n
+     ))
+
+```
+
+
 
 ```{r fig.width=10, fig.height=5}
 
