@@ -401,7 +401,7 @@ sys_comp_plot_2vars <- function(selections) {
       theme_bw() +
 
       ggtitle(
-        sys_total_count_line(
+        sys_total_count_display(
           nrow(sys_df_people_universe_filtered_r())
         )
       ) +
