@@ -358,6 +358,7 @@ syso_detailBox <- reactive({
   ))
   
   list(
+    br(),
     strong("Date Range: "),
     
     ReportStart(), " to ", ReportEnd(), br(),
