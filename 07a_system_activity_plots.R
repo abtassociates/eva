@@ -206,81 +206,125 @@ renderSystemPlot <- function(id) {
     # browser()
     if (id == "sys_act_summary_ui_chart") {
       df <- system_activity_prep_summary()
+      mid_plot <- 2.5
     } else {
       df <- system_activity_prep_detail()
+      mid_plot <- 4.5
     }
     
     colors <- c('#C6BDB9', '#73655E', '#C34931', '#16697A')
     s <- max(df$yend) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
+    
+    total_clients <- df %>%
+      filter(InflowOutflow == "Inflow") %>%
+      pull(values) %>%
+      sum()
+    
+    validate(
+      need(
+        total_clients > 10,
+        message = "The dataset has been filtered to fewer than 11 records, therefore
+          the plot will not be displayed for privacy purposes."
+      )
+    )
+    
+    inflow_to_outflow <- df %>%
+      filter(Status %in% c("Housed", "Homeless")) %>%
+      pull(values) %>%
+      sum()
 
-# waterfall plot ----------------------------------------------------------
-ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
-  geom_rect( # the bars
-    aes(
-      xmin = group.id - 0.25,
-      # control bar gap width
-      xmax = group.id + 0.25,
-      ymin = ystart,
-      ymax = yend
-    ),
-    colour = "#4e4d47",
-    linewidth = .2,
-    alpha = 0.7
-  ) +
-  geom_segment( # the connecting segments between bars
-    data = df %>%
-      filter(group.id == group.id) %>%
-      group_by(group.id) %>%
-      slice_tail() %>%
-      ungroup() %>%
-      select(group.id, yend),
-    aes(
-      x = group.id,
-      xend = if_else(group.id == last(group.id), last(group.id), group.id + 1),
-      y = yend,
-      yend = yend
-    ),
-    linewidth = .3,
-    colour = "gray25",
-    linetype = "dashed",
-    show.legend = FALSE,
-    inherit.aes = FALSE
-  ) +
-  ggrepel::geom_text_repel(# the labels
-    aes(
-      x = group.id,
-      label = paste0(scales::comma(abs(values))),
-      y = rowSums(cbind(ystart, values / 2)),
-      segment.colour = "gray33"
-    ),
-    direction = "y",
-    nudge_x = -.35,
-    colour = "#4e4d47",
-    size = 5,
-    inherit.aes = FALSE
-  ) +
-  scale_fill_manual(values = colors) + # color palette
-  scale_y_continuous(expand = expansion()) + # distance between bars and x axis line
-  scale_x_continuous(labels = str_wrap(df$Time %>% unique(), width = 10), # x axis labels
-                   breaks = df$group.id %>% unique()) +
-  theme_void() + # totally clear all theme elements
-  theme(# add back in what theme elements we want
-    text = element_text(size = 16, colour = "#4e4d47"),
-    axis.text.x = element_text(size = 16),
-    axis.ticks.x = element_line(),
-    axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
-    # axis.ticks.length.x = unit(.15, "cm"),
-    plot.margin = unit(c(1, 1, 1, 1), "lines"),
-    legend.text = element_text(size = 16),
-    legend.title = element_blank(),
-    legend.position = "bottom",
-    legend.margin = margin(.5, 0, 0, 0, unit = "inch")
-  )
-  })
- # return(plotOutput(id, height = 400))
-} 
+    # waterfall plot ----------------------------------------------------------
+    ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
+      # the bars
+      geom_rect(
+        aes(
+          # control bar gap width
+          xmin = group.id - 0.25,
+          xmax = group.id + 0.25,
+          ymin = ystart,
+          ymax = yend
+        ),
+        colour = "#4e4d47",
+        linewidth = .2,
+        alpha = 0.8
+      ) +
+      # the connecting segments between bars
+      geom_segment(
+        data = df %>%
+          filter(group.id == group.id) %>%
+          group_by(group.id) %>%
+          slice_tail() %>%
+          ungroup() %>%
+          select(group.id, yend),
+        aes(
+          x = group.id,
+          xend = if_else(group.id == last(group.id), last(group.id), group.id + 1),
+          y = yend,
+          yend = yend
+        ),
+        linewidth = .3,
+        colour = "gray25",
+        linetype = "dashed",
+        show.legend = FALSE,
+        inherit.aes = FALSE
+      ) +
+      # the labels
+      ggrepel::geom_text_repel(
+        aes(
+          x = group.id,
+          label = paste0(scales::comma(abs(values))),
+          y = rowSums(cbind(ystart, values / 2)),
+          segment.colour = "gray33"
+        ),
+        direction = "y",
+        nudge_x = -.35,
+        colour = "#4e4d47",
+        size = 5,
+        inherit.aes = FALSE
+      ) +
+      # annotation: refer to helper_functions.R for sys_total_count_display() code
+      annotate(
+        geom = "text",
+        x = mid_plot,
+        y = max(df$yend) * 1.1,
+        size = 16 / .pt,
+        label = paste0(
+          sys_total_count_display(total_clients),
+          "\nTotal Change: ",
+          case_when(
+            inflow_to_outflow > 0 ~ paste0("+", scales::comma(inflow_to_outflow)),
+            inflow_to_outflow == 0 ~ "0",
+            inflow_to_outflow < 0 ~ scales::comma(inflow_to_outflow))
+        )
+      ) +
+      # color palette
+      scale_fill_manual(values = colors) +
+      # distance between bars and x axis line
+      scale_y_continuous(expand = expansion()) +
+      # x axis labels
+      scale_x_continuous(
+        labels = str_wrap(df$Time %>% unique(), width = 10),
+        breaks = df$group.id %>% unique()
+      ) +
+      coord_cartesian(clip = "off") +
+      # totally clear all theme elements
+      theme_void() +
+      # add back in what theme elements we want
+      theme(
+        text = element_text(size = 16, colour = "#4e4d47"),
+        axis.text.x = element_text(size = 16),
+        axis.ticks.x = element_line(),
+        axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
+        plot.margin = unit(c(3, 1, 1, 1), "lines"),
+        legend.text = element_text(size = 16),
+        legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.margin = margin(.5, 0, 0, 0, unit = "inch")
+      )
+    
+  })}
 
 
 # Plot prompts for plot subtitle ------------------------------------------
@@ -291,7 +335,6 @@ syso_detailBox <- reactive({
   # if (input$methodology_type == 2) {
     # browser()
   # }
-
   detail_line <- function(detail_label, val_list, inputVal) {
     return(
       HTML(glue(
@@ -319,14 +362,10 @@ syso_detailBox <- reactive({
   ))
   
   list(
+    br(),
     strong("Date Range: "),
     
     ReportStart(), " to ", ReportEnd(), br(),
-    
-    if (getNameByValue(syso_hh_types, input$syso_hh_type) != "All People")
-      detail_line("Household Type", syso_hh_types, input$syso_hh_type),
-    
-    detail_line("Level of Detail", syso_level_of_detail, input$syso_level_of_detail),
     
     if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
       detail_line("Project Type", syso_project_types, input$syso_project_type),
@@ -338,7 +377,7 @@ syso_detailBox <- reactive({
         "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
       )),
     
-    if (length(input$syso_gender) != length(syso_gender_cats(input$methodology_type)))
+    if (getNameByValue(syso_gender_cats(), input$syso_gender) != "All Genders")
       detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
     
     if (selected_race != "All.All Races/Ethnicities")
