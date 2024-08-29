@@ -124,7 +124,7 @@ suppress_next_lowest_val <- function(df, group_v, n_v) {
     df %>%
       group_by(!!sym(group_v)) %>%
       mutate(
-        count_redacted = sum(wasRedacted),
+        count_redacted = sum(wasRedacted, na.rm = TRUE),
         next_lowest = min(!!sym(n_v), na.rm = TRUE),
         wasRedacted = ifelse(
           count_redacted == 1 & (
