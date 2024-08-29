@@ -225,7 +225,7 @@ renderSystemPlot <- function(id) {
     validate(
       need(
         total_clients > 10,
-        message = "The data has been filtered to less than 11 records, therefore
+        message = "The dataset has been filtered to fewer than 11 records, therefore
           the plot will not be displayed for privacy purposes."
       )
     )
