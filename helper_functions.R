@@ -396,7 +396,7 @@ chart_selection_detail_line <- function(detail_label, val_list, inputVal) {
   )
 }
 
-sys_total_count_line <- function(total_count) {
+sys_total_count_display <- function(total_count) {
   return(str_wrap(
     paste0(
       "Total ",
