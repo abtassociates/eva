@@ -236,91 +236,95 @@ renderSystemPlot <- function(id) {
       sum()
 
     # waterfall plot ----------------------------------------------------------
-      ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
-        geom_rect(
-          # the bars
-          aes(
-            xmin = group.id - 0.25,
-            # control bar gap width
-            xmax = group.id + 0.25,
-            ymin = ystart,
-            ymax = yend
-          ),
-          colour = "#4e4d47",
-          linewidth = .2,
-          alpha = 0.8
-        ) +
-        geom_segment(
-          # the connecting segments between bars
-          data = df %>%
-            filter(group.id == group.id) %>%
-            group_by(group.id) %>%
-            slice_tail() %>%
-            ungroup() %>%
-            select(group.id, yend),
-          aes(
-            x = group.id,
-            xend = if_else(group.id == last(group.id), last(group.id), group.id + 1),
-            y = yend,
-            yend = yend
-          ),
-          linewidth = .3,
-          colour = "gray25",
-          linetype = "dashed",
-          show.legend = FALSE,
-          inherit.aes = FALSE
-        ) +
-        ggrepel::geom_text_repel(
-          # the labels
-          aes(
-            x = group.id,
-            label = paste0(scales::comma(abs(values))),
-            y = rowSums(cbind(ystart, values / 2)),
-            segment.colour = "gray33"
-          ),
-          direction = "y",
-          nudge_x = -.35,
-          colour = "#4e4d47",
-          size = 5,
-          inherit.aes = FALSE
-        ) +
-        annotate(
-          geom = "text",
-          x = mid_plot,
-          y = max(df$yend) * 1.1,
-          size = 16 / .pt,
-          label = paste0(
-            sys_total_count_display(total_clients),
-            "\nTotal Change: ",
-            inflow_to_outflow
-          )
-        ) +
-        scale_fill_manual(values = colors) + # color palette
-        scale_y_continuous(expand = expansion()) +
-        # distance between bars and x axis line
-        scale_x_continuous(
-          labels = str_wrap(df$Time %>% unique(), width = 10),
-          # x axis labels
-          breaks = df$group.id %>% unique()
-        ) +
-        coord_cartesian(clip = "off") +
-        theme_void() + # totally clear all theme elements
-        theme(
-          # add back in what theme elements we want
-          text = element_text(size = 16, colour = "#4e4d47"),
-          axis.text.x = element_text(size = 16),
-          axis.ticks.x = element_line(),
-          axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
-          # axis.ticks.length.x = unit(.15, "cm"),
-          plot.margin = unit(c(3, 1, 1, 1), "lines"),
-          legend.text = element_text(size = 16),
-          legend.title = element_blank(),
-          legend.position = "bottom",
-          legend.margin = margin(.5, 0, 0, 0, unit = "inch")
+    ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
+      # the bars
+      geom_rect(
+        aes(
+          # control bar gap width
+          xmin = group.id - 0.25,
+          xmax = group.id + 0.25,
+          ymin = ystart,
+          ymax = yend
+        ),
+        colour = "#4e4d47",
+        linewidth = .2,
+        alpha = 0.8
+      ) +
+      # the connecting segments between bars
+      geom_segment(
+        data = df %>%
+          filter(group.id == group.id) %>%
+          group_by(group.id) %>%
+          slice_tail() %>%
+          ungroup() %>%
+          select(group.id, yend),
+        aes(
+          x = group.id,
+          xend = if_else(group.id == last(group.id), last(group.id), group.id + 1),
+          y = yend,
+          yend = yend
+        ),
+        linewidth = .3,
+        colour = "gray25",
+        linetype = "dashed",
+        show.legend = FALSE,
+        inherit.aes = FALSE
+      ) +
+      # the labels
+      ggrepel::geom_text_repel(
+        aes(
+          x = group.id,
+          label = paste0(scales::comma(abs(values))),
+          y = rowSums(cbind(ystart, values / 2)),
+          segment.colour = "gray33"
+        ),
+        direction = "y",
+        nudge_x = -.35,
+        colour = "#4e4d47",
+        size = 5,
+        inherit.aes = FALSE
+      ) +
+      # annotation: refer to helper_functions.R for sys_total_count_display() code
+      annotate(
+        geom = "text",
+        x = mid_plot,
+        y = max(df$yend) * 1.1,
+        size = 16 / .pt,
+        label = paste0(
+          sys_total_count_display(total_clients),
+          "\nTotal Change: ",
+          case_when(
+            inflow_to_outflow > 0 ~ paste0("+", inflow_to_outflow),
+            inflow_to_outflow == 0 ~ "0",
+            inflow_to_outflow < 0 ~ as.character(inflow_to_outflow))
         )
+      ) +
+      # color palette
+      scale_fill_manual(values = colors) +
+      # distance between bars and x axis line
+      scale_y_continuous(expand = expansion()) +
+      # x axis labels
+      scale_x_continuous(
+        labels = str_wrap(df$Time %>% unique(), width = 10),
+        breaks = df$group.id %>% unique()
+      ) +
+      coord_cartesian(clip = "off") +
+      # totally clear all theme elements
+      theme_void() +
+      # add back in what theme elements we want
+      theme(
+        text = element_text(size = 16, colour = "#4e4d47"),
+        axis.text.x = element_text(size = 16),
+        axis.ticks.x = element_line(),
+        axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
+        plot.margin = unit(c(3, 1, 1, 1), "lines"),
+        legend.text = element_text(size = 16),
+        legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.margin = margin(.5, 0, 0, 0, unit = "inch")
+      )
     
-  # return(plotOutput(id, height = 400))
-})}
+  })}
 
 
 # Plot prompts for plot subtitle ------------------------------------------
