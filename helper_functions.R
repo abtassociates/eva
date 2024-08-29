@@ -397,6 +397,7 @@ chart_selection_detail_line <- function(detail_label, val_list, inputVal) {
 }
 
 sys_total_count_display <- function(total_count) {
+  # browser()
   return(str_wrap(
     paste0(
       "Total ",
@@ -408,7 +409,7 @@ sys_total_count_display <- function(total_count) {
       ),
       case_when(
         input$syso_hh_type == "All" ~ "",
-        str_detect(input$syso_hh_type, "Household") == FALSE ~
+        str_detect(getNameByValue(syso_hh_types, input$syso_hh_type), "Household") == FALSE ~
           paste(
             " in",
             getNameByValue(syso_hh_types, input$syso_hh_type),
