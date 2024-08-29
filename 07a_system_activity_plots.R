@@ -294,9 +294,9 @@ renderSystemPlot <- function(id) {
           sys_total_count_display(total_clients),
           "\nTotal Change: ",
           case_when(
-            inflow_to_outflow > 0 ~ paste0("+", inflow_to_outflow),
+            inflow_to_outflow > 0 ~ paste0("+", scales::comma(inflow_to_outflow)),
             inflow_to_outflow == 0 ~ "0",
-            inflow_to_outflow < 0 ~ as.character(inflow_to_outflow))
+            inflow_to_outflow < 0 ~ scales::comma(inflow_to_outflow))
         )
       ) +
       # color palette
