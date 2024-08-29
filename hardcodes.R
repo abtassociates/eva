@@ -258,8 +258,8 @@ syso_race_ethnicity_excl <- list(
 # Special Populations -----------------------------------------------------
 
 syso_veteran_pops <- list(
-  "Veteran" = "Veteran",
-  "Non-Veteran" = "NonVeteran"
+  "Veteran" = 1,
+  "Non-Veteran" = 0
 )
 
 syso_dv_pops <- list(
