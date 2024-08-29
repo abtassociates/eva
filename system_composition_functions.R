@@ -15,15 +15,10 @@ get_race_ethnicity_vars <- function(v) {
 syscomp_detailBox <- function(session) {
   return(
     list(
+      br(),
       strong("Date Range: "),
       
       ReportStart(), " to ", ReportEnd(), br(),
-      
-      if (input$syso_hh_type != "All")
-        chart_selection_detail_line("Household Type", syso_hh_types, input$syso_hh_type),
-      
-      if(input$syso_level_of_detail != "All")
-        chart_selection_detail_line("Level of Detail", syso_level_of_detail, input$syso_level_of_detail),
       
       if (input$syso_project_type != "All")
         chart_selection_detail_line("Project Type", syso_project_types, input$syso_project_type),
@@ -216,17 +211,10 @@ sys_comp_plot_1var <- function(selection) {
       ) +
       # other stuff
       theme_bw() +
-      ggtitle(paste0(
-        "Total ",
-        if_else(
-          getNameByValue(syso_level_of_detail, input$syso_level_of_detail) == "All",
-          "People",
-          getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-        ),
-        ": ",
-        nrow(sys_df_people_universe_filtered_r())
-      )) +
-      theme(legend.position = "none",
+      ggtitle(
+        sys_total_count_line(nrow(sys_df_people_universe_filtered_r()))
+      ) +
+      theme(legend.position = "none", 
             axis.ticks = element_blank(),
             panel.grid = element_blank(),
             plot.title = element_text(size=17, hjust=0.5),
