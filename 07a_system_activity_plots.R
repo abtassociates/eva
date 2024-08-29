@@ -231,7 +231,7 @@ renderSystemPlot <- function(id) {
     )
     
     inflow_to_outflow <- df %>%
-      filter(Status %in% c("Inflow", "Outflow")) %>%
+      filter(Status %in% c("Housed", "Homeless")) %>%
       pull(values) %>%
       sum()
 
