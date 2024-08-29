@@ -1073,7 +1073,8 @@ function(input, output, session) {
   })
   
   
-  ### SANKEY CHART/SYSTEM STATUS
+  # Sankey Chart/System Status ----------------------------------------------
+
   source("09a_render_sankey.R", local = TRUE)
   output$sankey_filter_selections <- renderUI({ 
     req(valid_file() == 1)
