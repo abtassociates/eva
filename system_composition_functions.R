@@ -146,6 +146,9 @@ sys_comp_plot_1var <- function(selection) {
   comp_df <- sys_df_people_universe_filtered_r() %>%
     select(PersonalID, unname(v))
   
+  v_cats1 <- get_v_cats(selection)
+  v_cats1_labels <- if(is.null(names(v_cats1))) {v_cats1} else {names(v_cats1)}
+  
   if(length(v) > 1) {
     plot_df <- comp_df %>%
       pivot_longer(cols = -PersonalID,
@@ -154,9 +157,6 @@ sys_comp_plot_1var <- function(selection) {
       group_by(!!sym(selection)) %>%
       summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
 
-    v_cats1 <- get_v_cats(selection)
-    v_cats1_labels <- if(is.null(names(v_cats1))) {v_cats1} else {names(v_cats1)}
-    
     plot_df[selection] <- factor(plot_df[[selection]], 
                                      levels = v_cats1,
                                      labels = v_cats1_labels)
@@ -166,6 +166,7 @@ sys_comp_plot_1var <- function(selection) {
     )
     names(plot_df) <- c(selection, "n")
   }
+  
   plot_df <- plot_df %>%
     mutate(
       wasRedacted = between(n, 1, 10),
