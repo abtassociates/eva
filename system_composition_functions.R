@@ -15,7 +15,6 @@ get_race_ethnicity_vars <- function(v) {
 syscomp_detailBox <- function(session) {
   return(
     list(
-      br(),
       strong("Date Range: "),
       
       ReportStart(), " to ", ReportEnd(), br(),
