@@ -396,7 +396,7 @@ chart_selection_detail_line <- function(detail_label, val_list, inputVal) {
   )
 }
 
-sys_total_count_line <- function(total_count) {
+sys_total_count_display <- function(total_count) {
   return(str_wrap(
     paste0(
       "Total ",
@@ -409,14 +409,16 @@ sys_total_count_line <- function(total_count) {
       case_when(
         input$syso_hh_type == "All" ~ "",
         str_detect(getNameByValue(syso_hh_types, input$syso_hh_type), "Household") == FALSE ~
-          paste(" in", getNameByValue(syso_hh_types, input$syso_hh_type),
-                " Households"),
+          paste(
+            " in",
+            getNameByValue(syso_hh_types, input$syso_hh_type),
+            " Households"
+          ),
         TRUE ~
           paste(" in", getNameByValue(syso_hh_types, input$syso_hh_type))
       ),
       ": ",
-      total_count
-    ),
-    width = 30
+      scales::comma(total_count)
+    )
   ))
 }

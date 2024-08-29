@@ -742,14 +742,8 @@ dashboardPage(
                   inputId = "syso_gender",
                   choices = syso_gender_excl,
                   width = "100%",
-                  selected = syso_gender_excl,
-                  multiple = TRUE,
-                  options = pickerOptions(
-                    actionsBox = TRUE,
-                    selectedTextFormat = paste("count >", length(syso_gender_excl)-1),
-                    countSelectedText = "All",
-                    noneSelectedText = "All"
-                  )
+                  selected = "All",
+                  options = pickerOptions(actionsBox = TRUE)
                 )
               ),
               column(

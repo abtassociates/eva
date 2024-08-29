@@ -31,6 +31,7 @@ function(input, output, session) {
   
   reset_reactivevals <- function() {
     lapply(visible_reactive_vals, function(r) r(NULL))
+    valid_file(0)
   }
   # 
   # # functions used throughout the app
@@ -968,15 +969,9 @@ function(input, output, session) {
       session = session,
       "syso_gender", 
       choices = syso_gender_cats(input$methodology_type),
-      selected = unlist(syso_gender_cats(input$methodology_type), use.names = FALSE),
-      options = pickerOptions(
-        # actionsBox = TRUE,
-        selectedTextFormat = paste("count >", length(syso_gender_cats(input$methodology_type))-1)
-        # countSelectedText = "All Genders",
-        # noneSelectedText = "All Genders" 
-      )
+      selected = "All Genders"
     )
-    # selected = syso_gender_cats()[1]
+
     updatePickerInput(
       session, 
       "syso_race_ethnicity", 
@@ -1031,7 +1026,7 @@ function(input, output, session) {
   renderSystemPlot("sys_act_detail_ui_chart")
 
   # System Composition ------------------------------------
-  source("system_composition_functions.R", local=TRUE)
+  source("system_composition_functions.R", local = TRUE)
   sys_comp_p <- reactive({
     req(!is.null(input$system_composition_filter) & valid_file() == 1)
     
