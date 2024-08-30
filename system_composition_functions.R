@@ -438,8 +438,7 @@ sys_comp_plot_2vars <- function() {
 
 sys_comp_selections_summary <- function() {
   return(data.frame(
-    Variable = c(
-      "Chart",
+    Chart = c(
       "Start Date",
       "End Date",
       "Methodology Type",
@@ -450,10 +449,9 @@ sys_comp_selections_summary <- function() {
       "Demographic Selection 2",
       "Total Served People"
     ),
-    Value = c(
-      "Composition of All Served",
-      ReportStart(),
-      ReportEnd(),
+    `Composition of All Served` = c(
+      strftime(ReportStart(), "%m/%d/%y"),
+      strftime(ReportEnd(), "%m/%d/%y"),
       getNameByValue(syso_methodology_types, input$methodology_type),
       getNameByValue(syso_hh_types, input$syso_hh_type),
       getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
@@ -462,7 +460,7 @@ sys_comp_selections_summary <- function() {
       input$system_composition_selections[2],
       nrow(sys_df_people_universe_filtered_r())
     ),
-    stringsAsFactors = FALSE
+    check.names = FALSE
   ))
 }
 
