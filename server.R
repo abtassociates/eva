@@ -1055,20 +1055,7 @@ function(input, output, session) {
     }
   })
   
-  output$sys_comp_download_btn <- downloadHandler(
-    filename = date_stamped_filename("Sys Comp Download"),
-    content = function(file) {
-      write_xlsx(
-        sys_comp_p(),
-        path = file
-      )
-      
-      logMetadata(paste0("Downloaded Sys Comp Report", 
-                         if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-      
-      exportTestValues(sys_comp_report = sys_comp_p())
-    }
-  )
+  output$sys_comp_download_btn <- downloadSystemComposition_xlsx()
   
   observeEvent(input$system_composition_selections, {
     # they can select up to 2
