@@ -934,16 +934,16 @@ function(input, output, session) {
   
   # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
   
-  source("system_overview_functions.R", local = TRUE)
+  source("system_overview_server.R", local = TRUE)
   
-  source("system_inflow_outflow_functions.R", local = TRUE)
+  ## System Composition ----
+  source("system_inflow_outflow_server.R", local = TRUE)
     
-  # System Composition ------------------------------------
-  source("system_composition_functions.R", local = TRUE)
-  
-  # Sankey Chart/System Status ----------------------------------------------
+  ## System Composition ----
+  source("system_composition_server.R", local = TRUE)
 
-  source("system_status_functions.R", local = TRUE)
+  ## Sankey Chart/System Status ----
+  source("system_status_server.R", local = TRUE)
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")

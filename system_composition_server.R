@@ -131,16 +131,16 @@ get_sys_comp_plot_df <- function() {
 
 # this gets all the categories of the selected variable
 # this is used to make sure even empty categories are included in the chart
-get_v_cats <- function(v) {
+get_selection_cats <- function(selection) {
   return(switch(
-    v,
+    selection,
     "Gender" = syso_gender_cats(input$methodology_type) %>% discard_at("All Genders"),
     "Age" = syso_age_cats,
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
     "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
     "Domestic Violence" = syso_dv_pops,
-    "Veteran Status" = syso_veteran_pops,
+    "Veteran Status" = syso_veteran_pops
     # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
   ))
 }
@@ -166,18 +166,19 @@ suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
 
 sys_comp_plot_1var <- function() {
   var_cols <- get_var_cols()
-  v <- var_cols[[input$system_composition_selections]]
+  selection <- var_cols[[input$system_composition_selections]]
   comp_df <- sys_df_people_universe_filtered_r() %>%
-    select(PersonalID, unname(v))
+    select(PersonalID, unname(selection))
   
-  v_cats1 <- get_v_cats(input$system_composition_selections)
-  v_cats1_labels <- if (is.null(names(v_cats1))) {
-    v_cats1
+  selection_cats1 <- get_selection_cats(input$system_composition_selections)
+  selection_cats1_labels <- if (is.null(names(v_cats1))) {
+    selection_cats1
   } else {
-    names(v_cats1)
+    names(selection_cats1)
   }
   
-  if (length(v) > 1) {
+  # if number of variables associated with selection > 1, then they're dummies
+  if (length(selection) > 1) {
     plot_df <- comp_df %>%
       pivot_longer(
         cols = -PersonalID,
@@ -189,10 +190,10 @@ sys_comp_plot_1var <- function() {
     
     plot_df[input$system_composition_selections] <- factor(
       plot_df[[input$system_composition_selections]], 
-      levels = v_cats1, 
-      labels = v_cats1_labels)
+      levels = selection_cats1, 
+      labels = selection_cats1_labels)
   } else {
-    plot_df <- as.data.frame(table(comp_df[[v]]))
+    plot_df <- as.data.frame(table(comp_df[[selection]]))
     names(plot_df) <- c(selection, "n")
   }
   
@@ -229,7 +230,7 @@ sys_comp_plot_1var <- function() {
         )
       ) +
       scale_y_discrete(
-        labels = str_wrap(c("Total", v_cats1_labels), width = 30),
+        labels = str_wrap(c("Total", selection_cats1_labels), width = 30),
         limits = c("Total", levels(plot_df[[input$system_composition_selections]])),
       ) +
       # other stuff
@@ -274,14 +275,14 @@ sys_comp_plot_2vars <- function() {
   
   if (all(is.na(plot_df$n)))
     return()
-  v_cats1 <- get_v_cats(input$system_composition_selections[1])
+  v_cats1 <- get_selection_cats(input$system_composition_selections[1])
   v_cats1_labels <- if (is.null(names(v_cats1))) {
     v_cats1
   } else {
     names(v_cats1)
   }
   
-  v_cats2 <- get_v_cats(input$system_composition_selections[2])
+  v_cats2 <- get_selection_cats(input$system_composition_selections[2])
   v_cats2_labels <- if (is.null(names(v_cats2))) {
     rev(v_cats2)
   } else {
