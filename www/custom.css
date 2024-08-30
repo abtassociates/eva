@@ -415,11 +415,6 @@ a:hover {
   font-size: 1.4em;
 }
 
-/* fix all-sertved chart spacing*/
-#sys_comp_summary_filter_selections {
-  padding:10px;
-}
-
 .nav-tabs-custom>.tab-content[data-tabsetid="6238"] {
     padding: 0;
 }
@@ -450,3 +445,15 @@ a:hover {
 #sys_status_subtabs li:nth-child(3) {
   float:right;
 }
+
+#sys_comp_subtabs, 
+#sys_comp_subtabs + div.tab-content > div[data-value='Summary'],
+#sys_comp_subtabs + div.tab-content > div[data-value='Instructions'] {
+  display:none;
+}
+
+
+#sys_comp_subtabs li:nth-child(3) {
+  float:right;
+}
+

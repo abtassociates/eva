@@ -806,31 +806,43 @@ dashboardPage(
               tabPanel(
                 id = "syso_composition",
                 side = "left",
-                selected = "Summary",
+                selected = "Chart",
                 title = "Composition of All Served in Period",
                 tabsetPanel(
-                  tabPanel("Summary", 
+                  id = "sys_comp_subtabs",
+                  tabPanel("Chart", 
                            fluidRow(
                              box(
+                               strong("Select Demographic Categories"),
+                               p(str_glue(
+                                 "Choose up to two demographic selections from 
+                                 the categories below. Selecting a single category 
+                                 will provide totals for just that category. 
+                                 Note that you can only select one Race/Ethnicity 
+                                 group at a time."
+                               )),
+                               br(),
                                checkboxGroupInput(
-                                 "system_composition_filter",
+                                 "system_composition_selections",
                                  label = paste0(
-                                   "Gender, Race/Ethnicity, and Special Populations",
+                                   "Gender, Race/Ethnicity, and Special Populations ",
                                    "(select up to 2)"
                                  ),
-                                 choices = sys_comp_filter_choices1,
+                                 choices = sys_comp_selection_choices1,
+                                 selected = c("All Races/Ethnicities", "Age"),
                                  inline = TRUE
                                ),
                                width = 12
                              )
                           ),
-                          uiOutput("sys_comp_summary_filter_selections"),
+                          uiOutput("sys_comp_summary_selections"),
                           plotOutput("sys_comp_summary_ui_chart")
                   ),
-                  tabPanel("Instructions", 
+                  tabPanel("Information", 
                            p("Some instructions")
                   )
                 ),
+                downloadButton("sys_comp_download_btn", "Download"),
                 width = 12
               )
             )

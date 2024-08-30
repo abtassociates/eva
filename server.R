@@ -209,8 +209,11 @@ function(input, output, session) {
             input$syso_race_ethnicity
           }, {
             sys_inflow_outflow_plot_data(inflow_outflow_df())
-            sys_df_people_universe_filtered_r(clients_enrollments_reactive())
-            sankey_plot_data(sankey_plot_df())
+            sys_df_people_universe_filtered_r(enrollment_categories_reactive() %>%
+                                                select(PersonalID, DomesticViolenceCategory) %>%
+                                                inner_join(client_categories, join_by(PersonalID)) %>%
+                                                unique())
+            sankey_plot_data(plot_data())
           })
           
           setProgress(detail = "Done!", value = 1)
@@ -958,8 +961,8 @@ function(input, output, session) {
     
     updateCheckboxGroupInput(
       session, 
-      "system_composition_filter", 
-      choices = sys_comp_filter_choices(),
+      "system_composition_selections", 
+      choices = sys_comp_selection_choices(),
       inline = TRUE
     )
     
@@ -1002,52 +1005,6 @@ function(input, output, session) {
 
   # System Composition ------------------------------------
   source("system_composition_functions.R", local = TRUE)
-  sys_comp_p <- reactive({
-    req(!is.null(input$system_composition_filter))
-    sys_comp_plot(input$system_composition_filter)
-  })
-  
-  observeEvent(input$system_composition_filter, {
-    # they can select up to 2
-    if(length(input$system_composition_filter) > 2){
-      updateCheckboxGroupInput(
-        session, 
-        "system_composition_filter", 
-        selected = tail(input$system_composition_filter,2),
-        inline = TRUE)
-    } 
-
-    # they cannot select both Race/Ethnicity buttons
-    if("All Races/Ethnicities" %in% input$system_composition_filter & (
-        "Hispanic-Focused Races/Ethnicities" %in% input$system_composition_filter |
-        "Grouped Races/Ethnicities" %in% input$system_composition_filter)
-      ) {
-      updateCheckboxGroupInput(
-        session, 
-        "system_composition_filter", 
-        selected = tail(input$system_composition_filter,1),
-        inline = TRUE)
-    } 
-  })
-
-  
-  output$sys_comp_summary_filter_selections <- renderUI({
-    req(length(input$system_composition_filter) == 2)
-    syscomp_detailBox()
-  })
-
-  output$sys_comp_summary_ui_chart <- renderPlot({
-    validate(
-      need(
-        any(!is.na(sys_comp_p()$data$n)), 
-        message = paste0("No data to show.")
-      )
-    )
-    sys_comp_p()
-  }, height = function() { 
-      if_else(length(input$system_composition_filter) == 2, 600, 100) 
-  })
-  
   
   # Sankey Chart/System Status ----------------------------------------------
 
