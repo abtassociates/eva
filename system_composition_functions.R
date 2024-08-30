@@ -311,13 +311,15 @@ sys_comp_plot_2vars <- function() {
     suppress_values("N") %>%
     suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections[2], "N")
   
+  # save before supressing the values
+  # this will be used for the download/export
+  sys_comp_plot_df(plot_df)
+  
   # Suppress values <= 10
   plot_df <- plot_df %>%
     suppress_values("n") %>%
     suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections[1], "n") %>%
     suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections[2], "n")
-  
-  sys_comp_plot_df(plot_df)
   
   return(
     ggplot(plot_df, aes(.data[[input$system_composition_selections[1]]], .data[[input$system_composition_selections[2]]])) +
