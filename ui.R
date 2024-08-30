@@ -769,6 +769,7 @@ dashboardPage(
                 id="syso_inflowoutflow", 
                 title="System Inflow/Outflow",
                 tabsetPanel(
+                  id = "sys_inflow_outflow_subtabs",
                   selected = "Summary",
                   tabPanel("Summary", 
                            uiOutput("sys_act_summary_filter_selections"),
@@ -783,7 +784,8 @@ dashboardPage(
                   tabPanel("Insights", 
                            uiOutput("system_activity_instructions_ui")
                   )
-                )
+                ),
+                downloadButton("sys_inflow_outflow_download_btn", "Download")
               ),
               tabPanel(
                 id = "syso_systemstatus",
