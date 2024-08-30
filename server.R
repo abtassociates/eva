@@ -937,11 +937,11 @@ function(input, output, session) {
   # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
   
   #### FILTERS ###
-  sys_comp_filter_choices <- reactive({
+  sys_comp_selection_choices <- reactive({
     ifelse(
       input$methodology_type == 1,
-      list(sys_comp_filter_choices1),
-      list(sys_comp_filter_choices2)
+      list(sys_comp_selection_choices1),
+      list(sys_comp_selection_choices2)
     )[[1]]
   })
   
@@ -980,8 +980,8 @@ function(input, output, session) {
     
     updateCheckboxGroupInput(
       session, 
-      "system_composition_filter", 
-      choices = sys_comp_filter_choices(),
+      "system_composition_selections", 
+      choices = sys_comp_selection_choices(),
       inline = TRUE
     )
     
@@ -1028,12 +1028,12 @@ function(input, output, session) {
   # System Composition ------------------------------------
   source("system_composition_functions.R", local = TRUE)
   sys_comp_p <- reactive({
-    req(!is.null(input$system_composition_filter) & valid_file() == 1)
+    req(!is.null(input$system_composition_selections) & valid_file() == 1)
     
-    if(length(input$system_composition_filter) == 1) {
-      sys_comp_plot_1var(input$system_composition_filter)
+    if(length(input$system_composition_selections) == 1) {
+      sys_comp_plot_1var()
     } else {
-      sys_comp_plot_2vars(input$system_composition_filter)
+      sys_comp_plot_2vars()
     }
   })
   
@@ -1049,58 +1049,45 @@ function(input, output, session) {
       shinyjs::runjs(str_glue("
         document.getElementById('sys_comp_subtabs').insertAdjacentHTML('beforeEnd', '<li id=\"sys_comp_download_tab\"></li>');
         $('#sys_comp_download_btn').appendTo('#sys_comp_download_tab');
-        var toggleDownload = '{any(!is.na(sys_comp_p()$n))}';
+        var toggleDownload = '{any(!is.na(sys_comp_p()$data$n))}';
         $('#sys_comp_download_btn').toggle(toggleDownload == 'TRUE')
       "))
     }
   })
   
-  output$sys_comp_download_btn <- downloadHandler(
-    filename = date_stamped_filename("Sys Comp Download"),
-    content = function(file) {
-      write_xlsx(
-        sys_comp_p(),
-        path = file
-      )
-      
-      logMetadata(paste0("Downloaded Sys Comp Report", 
-                         if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-      
-      exportTestValues(sys_comp_report = sys_comp_p())
-    }
-  )
+  output$sys_comp_download_btn <- downloadSystemComposition_xlsx()
   
-  observeEvent(input$system_composition_filter, {
+  observeEvent(input$system_composition_selections, {
     # they can select up to 2
     #disable all unchecked boxes if they've already selected 2
     shinyjs::runjs(str_glue("
-      var numSelected = {length(input$system_composition_filter)};
-      $('#system_composition_filter input[type=checkbox]:not(\":checked\")')
+      var numSelected = {length(input$system_composition_selections)};
+      $('#system_composition_selections input[type=checkbox]:not(\":checked\")')
         .attr('disabled', numSelected == 2);
     "))
     
     #disable all other Race/Ethnicity boxes if they've already selected 1
     shinyjs::runjs(str_glue("
       var reSelected = \"{
-        \"All Races/Ethnicities\" %in% input$system_composition_filter |
-        \"Hispanic-Focused Races/Ethnicities\" %in% input$system_composition_filter |
-        \"Grouped Races/Ethnicities\" %in% input$system_composition_filter
+        \"All Races/Ethnicities\" %in% input$system_composition_selections |
+        \"Hispanic-Focused Races/Ethnicities\" %in% input$system_composition_selections |
+        \"Grouped Races/Ethnicities\" %in% input$system_composition_selections
       }\";
-      $('#system_composition_filter input[type=checkbox][value*=\"Races/Ethnicities\"]:not(\":checked\")')
+      $('#system_composition_selections input[type=checkbox][value*=\"Races/Ethnicities\"]:not(\":checked\")')
         .attr('disabled', reSelected == 'TRUE');
     "))
   })
 
   
-  output$sys_comp_summary_filter_selections <- renderUI({
-    req(!is.null(input$system_composition_filter) & valid_file() == 1)
+  output$sys_comp_summary_selections <- renderUI({
+    req(!is.null(input$system_composition_selections) & valid_file() == 1)
     syscomp_detailBox()
   })
 
   output$sys_comp_summary_ui_chart <- renderPlot({
     sys_comp_p()
   }, height = function() { 
-      if_else(!is.null(input$system_composition_filter), 600, 100) 
+      if_else(!is.null(input$system_composition_selections), 600, 100) 
   })
   
   
