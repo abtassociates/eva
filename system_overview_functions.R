@@ -1,3 +1,57 @@
+# when user changes chart tabs
+# disable filters for Composition chart
+# hide other stuff if valid file is not uploaded
+# move chart download button to be inline with subtabs
+observeEvent(input$syso_tabsetpanel, {
+  req(valid_file() == 1)
+  cond <- switch(input$syso_tabsetpanel,
+                "System Inflow/Outflow" = nrow(sys_inflow_outflow_plot_data()) > 0,
+                "Client System Status" = sum(sankey_plot_data()$freq) > 0,
+                "Composition of All Served in Period" = !is.null(input$system_composition_selections) 
+  )
+  
+  toggle_sys_components(cond)
+}, ignoreInit = TRUE)
+
+observeEvent(input$methodology_type, {
+  
+  updatePickerInput(
+    session = session,
+    "syso_gender", 
+    choices = syso_gender_cats(input$methodology_type),
+    selected = "All Genders"
+  )
+  
+  updatePickerInput(
+    session, 
+    "syso_race_ethnicity", 
+    choices = syso_race_ethnicity_cats(input$methodology_type)
+  )
+  
+  updateCheckboxGroupInput(
+    session, 
+    "system_composition_selections", 
+    choices = sys_comp_selection_choices(),
+    inline = TRUE
+  )
+  
+},
+ignoreInit = TRUE)
+
+observeEvent(input$syso_level_of_detail, {
+  updatePickerInput(session, "syso_spec_pops",
+                    # label = "Special Populations",
+                    choices = syso_spec_pops_people)
+})
+
+#### DISPLAY FILTER SELECTIONS ###
+output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
+output$sys_act_summary_filter_selections <- renderUI({
+  req(valid_file() == 1)
+  syso_detailBox() 
+})
+
+
 toggle_sys_components <- function(toggleDownloadCond) {
   # 1. toggles the filters (disabled for Composition)
   # 2. toggles subtabs and download button based if valid file has been uploaded
@@ -15,8 +69,7 @@ toggle_sys_components <- function(toggleDownloadCond) {
   )
   
   shinyjs::toggle(glue('sys_{tab}_subtabs'), condition = valid_file() == 1)
-  shinyjs::toggle(glue('sys_{tab}_summary'), condition = valid_file() == 1)
-  shinyjs::toggle(glue('sys_{tab}_insights'), condition = valid_file() == 1)
+  shinyjs::toggle(selector = glue('#sys_{tab}_subtabs + div.tab-content'), condition = valid_file() == 1)
   shinyjs::toggle(glue('sys_{tab}_download_btn'), condition = valid_file() == 1)
   
   # move download button to subtab row and only show if there's data
@@ -52,13 +105,6 @@ sys_export_summary_initial_df <- function() {
 }
 
 #### FILTERS ###
-sys_comp_selection_choices <- reactive({
-  ifelse(
-    input$methodology_type == 1,
-    list(sys_comp_selection_choices1),
-    list(sys_comp_selection_choices2)
-  )[[1]]
-})
 
 # Population reactives ----------------------------------------------------
 

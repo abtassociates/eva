@@ -1,3 +1,13 @@
+sys_comp_plot_df <- reactiveVal()
+
+sys_comp_selection_choices <- reactive({
+  ifelse(
+    input$methodology_type == 1,
+    list(sys_comp_selection_choices1),
+    list(sys_comp_selection_choices2)
+  )[[1]]
+})
+
 font_size <- 14 / .pt
 
 get_race_ethnicity_vars <- function(v) {
@@ -245,8 +255,6 @@ suppress_values <- function(.data, count_var) {
     wasRedacted = between(!!sym(count_var), 1, 10),!!count_var := ifelse(!!sym(count_var) <= 10, NA, !!sym(count_var))
   ))
 }
-
-sys_comp_plot_df <- reactiveVal()
 
 sys_comp_plot_2vars <- function() {
   # race/ethnicity, if selected, should always be on the row
@@ -531,17 +539,6 @@ sys_comp_p <- reactive({
   }
 })
 
-observeEvent(input$system_composition_filter, {
-  # they can select up to 2
-  if(length(input$system_composition_filter) > 2){
-    updateCheckboxGroupInput(
-      session, 
-      "system_composition_filter", 
-      selected = tail(input$system_composition_filter,2),
-      inline = TRUE)
-  }
-})
-
 observeEvent(input$system_composition_selections, {
   # they can select up to 2
   #disable all unchecked boxes if they've already selected 2
@@ -561,7 +558,7 @@ observeEvent(input$system_composition_selections, {
       $('#system_composition_selections input[type=checkbox][value*=\"Races/Ethnicities\"]:not(\":checked\")')
         .attr('disabled', reSelected == 'TRUE');
     "))
-})
+}, ignoreInit = TRUE)
 
 
 output$sys_comp_summary_selections <- renderUI({

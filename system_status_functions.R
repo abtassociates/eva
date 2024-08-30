@@ -147,6 +147,7 @@ sys_export_filter_selections <- function() {
 output$sys_status_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Status Report - "),
   content = function(file) {
+    browser()
     # create a list of the 3 excel tabs and export
     spd <- sankey_plot_data() %>% 
       xtabs(freq ~ End + Begin, data=.) %>% 

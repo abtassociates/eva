@@ -936,79 +936,14 @@ function(input, output, session) {
   
   source("system_overview_functions.R", local = TRUE)
   
-  # when user changes chart tabs
-  # disable filters for Composition chart
-  # hide other stuff if valid file is not uploaded
-  # move chart download button to be inline with subtabs
-  observeEvent(input$syso_tabsetpanel, {
-    toggle_sys_components(sum(sankey_plot_data()$freq) > 0)
-  }, ignoreInit = TRUE)
-  
-  observeEvent(input$methodology_type, {
+  source("system_inflow_outflow_functions.R", local = TRUE)
     
-    updatePickerInput(
-      session = session,
-      "syso_gender", 
-      choices = syso_gender_cats(input$methodology_type),
-      selected = "All Genders"
-    )
-
-    updatePickerInput(
-      session, 
-      "syso_race_ethnicity", 
-      choices = syso_race_ethnicity_cats(input$methodology_type)
-    )
-    
-    updateCheckboxGroupInput(
-      session, 
-      "system_composition_selections", 
-      choices = sys_comp_selection_choices(),
-      inline = TRUE
-    )
-    
-  },
-  ignoreInit = TRUE)
-  
-  observeEvent(input$syso_level_of_detail, {
-    updatePickerInput(session, "syso_spec_pops",
-                      # label = "Special Populations",
-                      choices = syso_spec_pops_people)
-  })
-  
-  #### DOWNLOAD TABULAR FORMAT ###
-  output$downloadSysOverviewTabBtn  <- renderUI({
-    req(valid_file() == 1)
-    downloadButton(outputId = "downloadSysOverviewTabView",
-                   label = "Download")
-  })
-  
-  output$downloadSysOverviewTabView <- downloadHandler(
-    filename = date_stamped_filename("System Overview Tabular View -"),
-    content = function(file) {
-      req(valid_file() == 1)
-
-    }
-  )
-    
-  source("07a_system_activity_plots.R", local = TRUE)
-    
-  #### DISPLAY FILTER SELECTIONS ###
-  output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
-  output$sys_act_summary_filter_selections <- renderUI({
-    req(valid_file() == 1)
-    syso_detailBox() 
-  })
-
-  #### DISPLAY CHART ###
-  renderSystemPlot("sys_act_summary_ui_chart")
-  renderSystemPlot("sys_act_detail_ui_chart")
-
   # System Composition ------------------------------------
   source("system_composition_functions.R", local = TRUE)
   
   # Sankey Chart/System Status ----------------------------------------------
 
-  source("09a_render_sankey.R", local = TRUE)
+  source("system_status_functions.R", local = TRUE)
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")

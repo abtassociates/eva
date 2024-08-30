@@ -388,3 +388,7 @@ syso_detailBox <- reactive({
     
   )
 })
+
+#### DISPLAY CHART ###
+renderSystemPlot("sys_act_summary_ui_chart")
+renderSystemPlot("sys_act_detail_ui_chart")
