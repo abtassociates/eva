@@ -531,3 +531,59 @@ downloadSystemComposition_xlsx <- function() {
     }
   ))
 }
+
+sys_comp_p <- reactive({
+  req(!is.null(input$system_composition_selections) & valid_file() == 1)
+  
+  if(length(input$system_composition_selections) == 1) {
+    sys_comp_plot_1var()
+  } else {
+    sys_comp_plot_2vars()
+  }
+})
+
+observeEvent(input$system_composition_filter, {
+  # they can select up to 2
+  if(length(input$system_composition_filter) > 2){
+    updateCheckboxGroupInput(
+      session, 
+      "system_composition_filter", 
+      selected = tail(input$system_composition_filter,2),
+      inline = TRUE)
+  }
+})
+
+output$sys_comp_download_btn <- downloadSystemComposition_xlsx()
+
+observeEvent(input$system_composition_selections, {
+  # they can select up to 2
+  #disable all unchecked boxes if they've already selected 2
+  shinyjs::runjs(str_glue("
+      var numSelected = {length(input$system_composition_selections)};
+      $('#system_composition_selections input[type=checkbox]:not(\":checked\")')
+        .attr('disabled', numSelected == 2);
+    "))
+  
+  #disable all other Race/Ethnicity boxes if they've already selected 1
+  shinyjs::runjs(str_glue("
+      var reSelected = \"{
+        \"All Races/Ethnicities\" %in% input$system_composition_selections |
+        \"Hispanic-Focused Races/Ethnicities\" %in% input$system_composition_selections |
+        \"Grouped Races/Ethnicities\" %in% input$system_composition_selections
+      }\";
+      $('#system_composition_selections input[type=checkbox][value*=\"Races/Ethnicities\"]:not(\":checked\")')
+        .attr('disabled', reSelected == 'TRUE');
+    "))
+})
+
+
+output$sys_comp_summary_selections <- renderUI({
+  req(!is.null(input$system_composition_selections) & valid_file() == 1)
+  syscomp_detailBox()
+})
+
+output$sys_comp_summary_ui_chart <- renderPlot({
+  sys_comp_p()
+}, height = function() { 
+  if_else(!is.null(input$system_composition_selections), 600, 100) 
+})
