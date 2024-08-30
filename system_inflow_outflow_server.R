@@ -392,3 +392,25 @@ syso_detailBox <- reactive({
 #### DISPLAY CHART ###
 renderSystemPlot("sys_act_summary_ui_chart")
 renderSystemPlot("sys_act_detail_ui_chart")
+
+output$sys_inflow_outflow_download_btn <- downloadHandler(
+  filename = date_stamped_filename("System Inflow/Outflow Report - "),
+  content = function(file) {
+    write_xlsx(
+      list(
+        "System Flow Metadata" = data.frame(),
+        "System Flow Data" = data.frame()
+      ),
+      path = file,
+      format_headers = FALSE,
+      col_names = TRUE
+    )
+    
+    logMetadata(paste0(
+      "Downloaded Sys Inflow Outflow Report",
+      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
+    ))
+    
+    exportTestValues(sys_comp_report = sys_inflow_outflow_plot_data())
+  }
+)
