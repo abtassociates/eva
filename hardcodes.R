@@ -260,8 +260,8 @@ syso_race_ethnicity_excl <- list(
 # Special Populations -----------------------------------------------------
 
 syso_veteran_pops <- list(
-  "Veteran" = "Veteran",
-  "Non-Veteran" = "NonVeteran"
+  "Veteran" = 1,
+  "Non-Veteran" = 0
 )
 
 syso_dv_pops <- list(
@@ -355,7 +355,7 @@ inc_ncb_hi_required_prep <- tribble(
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
   unique()
 
-sys_comp_filter_choices1 = c(
+sys_comp_selection_choices1 = c(
   "Age", 
   "Domestic Violence",
   "Gender",
@@ -365,7 +365,7 @@ sys_comp_filter_choices1 = c(
   "Veteran Status"
 )
 
-sys_comp_filter_choices2 = c(
+sys_comp_selection_choices2 = c(
   "Age", 
   "Domestic Violence",
   "Gender",

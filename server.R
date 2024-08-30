@@ -23,7 +23,6 @@ function(input, output, session) {
     sys_df_people_universe_filtered_r <- reactiveVal(),
     ReportStart <- reactiveVal(),
     ReportEnd <- reactiveVal(),
-    sys_df_universe <- reactiveVal(),
     sankey_plot_data <- reactiveVal(),
     non_ascii_files_detail_df <- reactiveVal(),
     non_ascii_files_detail_r <- reactiveVal()
@@ -195,7 +194,7 @@ function(input, output, session) {
           source("07_system_overview.R", local = TRUE)
 
           setProgress(detail = "Preparing Sankey Chart", value = .95)
-          source("09_sankey_chart.R", local = TRUE)
+          source("09_system_status.R", local = TRUE)
           
           # if user changes filters, update the reactive vals
           # which get used for the various System Overview charts
@@ -209,10 +208,12 @@ function(input, output, session) {
             input$syso_gender
             input$syso_race_ethnicity
           }, {
-            sys_df_universe(universe_ppl_flags())
             sys_inflow_outflow_plot_data(inflow_outflow_df())
-            sys_df_people_universe_filtered_r(clients_enrollments_reactive())
-            sankey_plot_data(plot_data())
+            sys_df_people_universe_filtered_r(enrollment_categories_reactive() %>%
+                                                select(PersonalID, DomesticViolenceCategory) %>%
+                                                inner_join(client_categories, join_by(PersonalID)) %>%
+                                                unique())
+            sankey_plot_data(sankey_plot_df())
           })
           
           setProgress(detail = "Done!", value = 1)
@@ -280,8 +281,10 @@ function(input, output, session) {
               footer = modalButton("OK")
             )
           )
+          
           logMetadata("Unsuccessful upload - not structurally valid")
         }
+        toggle_sys_components(valid_file() == 1)
       })
     }
   }
@@ -933,169 +936,16 @@ function(input, output, session) {
   
   # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
   
-  #### FILTERS ###
-  sys_comp_filter_choices <- reactive({
-    ifelse(
-      input$methodology_type == 1,
-      list(sys_comp_filter_choices1),
-      list(sys_comp_filter_choices2)
-    )[[1]]
-  })
+  source("system_overview_server.R", local = TRUE)
   
-    # Population reactives ----------------------------------------------------
+  ## System Composition ----
+  source("system_inflow_outflow_server.R", local = TRUE)
     
-    # Set race/ethnicity + gender filter options based on methodology type selection
-    # Set special populations options based on level of detail selection
-  syso_race_ethnicity_cats <- function(methodology = 1){
-    ifelse(
-      methodology == 1,
-      list(syso_race_ethnicity_excl),
-      list(syso_race_ethnicity_incl)
-    )[[1]]
-  }
-  
-  syso_gender_cats <- function(methodology = 1){
-    ifelse(methodology == 1,
-           list(syso_gender_excl),
-           list(syso_gender_incl))[[1]]
-  }
-  
-  observeEvent(input$methodology_type, {
-    
-    updatePickerInput(
-      session = session,
-      "syso_gender", 
-      choices = syso_gender_cats(input$methodology_type),
-      selected = "All Genders"
-    )
+  ## System Composition ----
+  source("system_composition_server.R", local = TRUE)
 
-    updatePickerInput(
-      session, 
-      "syso_race_ethnicity", 
-      choices = syso_race_ethnicity_cats(input$methodology_type)
-    )
-    
-    updateCheckboxGroupInput(
-      session, 
-      "system_composition_filter", 
-      choices = sys_comp_filter_choices(),
-      inline = TRUE
-    )
-    
-  },
-  ignoreInit = TRUE)
-  
-  observeEvent(input$syso_level_of_detail, {
-    updatePickerInput(session, "syso_spec_pops",
-                      # label = "Special Populations",
-                      choices = syso_spec_pops_people)
-  })
-  
-  #### DOWNLOAD TABULAR FORMAT ###
-  output$downloadSysOverviewTabBtn  <- renderUI({
-    req(valid_file() == 1)
-    downloadButton(outputId = "downloadSysOverviewTabView",
-                   label = "Download")
-  })
-  
-  output$downloadSysOverviewTabView <- downloadHandler(
-    filename = date_stamped_filename("System Overview Tabular View -"),
-    content = function(file) {
-      req(valid_file() == 1)
-
-    }
-  )
-    
-  source("07a_system_activity_plots.R", local = TRUE)
-    
-  #### DISPLAY FILTER SELECTIONS ###
-  output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
-  output$sys_act_summary_filter_selections <- renderUI({
-    req(valid_file() == 1)
-    syso_detailBox() 
-  })
-
-  #### DISPLAY CHART SUBHEADER ###
-  output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
-  output$sys_act_summary_chart_subheader <- renderUI({ syso_chartSubheader() })
-
-  renderSystemPlot("sys_act_summary_ui_chart")
-  renderSystemPlot("sys_act_detail_ui_chart")
-
-  # System Composition ------------------------------------
-  source("system_composition_functions.R", local = TRUE)
-  sys_comp_p <- reactive({
-    req(!is.null(input$system_composition_filter))
-    sys_comp_plot(input$system_composition_filter)
-  })
-  
-  observeEvent(input$syso_tabsetpanel, {
-    if(input$syso_tabsetpanel == "Composition of All Served in Period") {
-      addClass(id="syso_inflowoutflow_filters", class="filter-disabled")
-    }
-  })
-  observeEvent(input$system_composition_filter, {
-    # they can select up to 2
-    if(length(input$system_composition_filter) > 2){
-      updateCheckboxGroupInput(
-        session, 
-        "system_composition_filter", 
-        selected = tail(input$system_composition_filter,2),
-        inline = TRUE)
-    } 
-
-    # they cannot select both Race/Ethnicity buttons
-    if("All Races/Ethnicities" %in% input$system_composition_filter & (
-        "Hispanic-Focused Races/Ethnicities" %in% input$system_composition_filter |
-        "Grouped Races/Ethnicities" %in% input$system_composition_filter)
-      ) {
-      updateCheckboxGroupInput(
-        session, 
-        "system_composition_filter", 
-        selected = tail(input$system_composition_filter,1),
-        inline = TRUE)
-    } 
-  })
-
-  
-  output$sys_comp_summary_filter_selections <- renderUI({
-    req(length(input$system_composition_filter) == 2)
-    syscomp_detailBox()
-  })
-
-  output$sys_comp_summary_ui_chart <- renderPlot({
-    validate(
-      need(
-        any(!is.na(sys_comp_p()$data$n)), 
-        message = paste0("No data to show.")
-      )
-    )
-    sys_comp_p()
-  }, height = function() { 
-      if_else(length(input$system_composition_filter) == 2, 600, 100) 
-  })
-  
-  
-  ### SANKEY CHART/SYSTEM STATUS
-  source("09a_render_sankey.R", local = TRUE)
-  output$sankey_filter_selections <- renderUI({ 
-    req(valid_file() == 1)
-    syso_detailBox() 
-  })
-  output$sankey_chart_subheader <- renderUI({ 
-    req(valid_file() == 1)
-    syso_chartSubheader() 
-  })
-  output$sankey_ui_chart <- renderPlot({
-    req(valid_file() == 1)
-    validate(
-      need(
-        nrow(sankey_plot_data()) > 0, 
-        message = paste0("No data to show.")
-      )
-    )
-    renderSankeyChart(sankey_plot_data())
-  })
+  ## Sankey Chart/System Status ----
+  source("system_status_server.R", local = TRUE)
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")

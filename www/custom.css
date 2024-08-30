@@ -415,11 +415,6 @@ a:hover {
   font-size: 1.4em;
 }
 
-/* fix all-sertved chart spacing*/
-#sys_comp_summary_filter_selections {
-  padding:10px;
-}
-
 .nav-tabs-custom>.tab-content[data-tabsetid="6238"] {
     padding: 0;
 }
@@ -441,3 +436,8 @@ a:hover {
   background-color: #F1F1F1;
 }
 
+#sys_inflow_outflow_download_tab,
+#sys_status_download_tab,
+#sys_comp_download_tab {
+  float:right;
+}
