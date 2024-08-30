@@ -281,8 +281,10 @@ function(input, output, session) {
               footer = modalButton("OK")
             )
           )
+          
           logMetadata("Unsuccessful upload - not structurally valid")
         }
+        toggle_sys_components(valid_file() == 1)
       })
     }
   }
