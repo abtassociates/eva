@@ -470,18 +470,37 @@ downloadSystemComposition_xlsx <- function() {
     content = function(file) {
       v1 <- gsub(input$system_composition_selections[1], "Races/Ethnicities", "Race")
       v2 <- gsub(input$system_composition_selections[2], "Races/Ethnicities", "Race")
+      
+      num_matrix <- xtabs(
+        sys_comp_plot_df()$n ~ sys_comp_plot_df()[[input$system_composition_selections[1]]] + 
+          sys_comp_plot_df()[[input$system_composition_selections[2]]]
+      )
+      num_matrix[is.na(num_matrix)] = 0
+      total_sum <- sum(num_matrix)
+      
+      pct_matrix <- (num_matrix / total_sum) * 100
+      pct_matrix[is.na(pct_matrix)] = 0
+      pct_matrix <- apply(
+        pct_matrix, 
+        c(1, 2), 
+        function(x) paste0(format(round(x, 1), nsmall = 1), "%")
+      )
 
       tab_names <- list(
         "Composition All Served Summary" = sys_comp_selections_summary()
       )
+      
+      num_matrix_df <- as.data.frame.matrix(num_matrix)
       tab_names[[glue(
         "Selected {v1} By {v2} #"
-      )]] <- sys_comp_plot_df()
+      )]] <- cbind(" "=rownames(num_matrix_df), num_matrix_df)
+        
+      pct_matrix_df <- as.data.frame.matrix(pct_matrix)
       tab_names[[glue(
         "Selected {v1} By {v2} %"
-      )]] <- sys_comp_plot_df()
+      )]] <- cbind(" "=rownames(pct_matrix_df), pct_matrix_df)
       
-      write_xlsx(tab_names, path = file, col_names = FALSE)
+      write_xlsx(tab_names, path = file, format_headers = FALSE, col_names = TRUE)
       
       logMetadata(paste0(
         "Downloaded Sys Comp Report",
