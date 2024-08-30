@@ -447,8 +447,8 @@ a:hover {
 }
 
 #sys_comp_subtabs, 
-#sys_comp_subtabs + div.tab-content > div[data-value='Summary'],
-#sys_comp_subtabs + div.tab-content > div[data-value='Instructions'] {
+#sys_comp_subtabs + div.tab-content > div[data-value='Chart'],
+#sys_comp_subtabs + div.tab-content > div[data-value='Information'] {
   display:none;
 }
 
