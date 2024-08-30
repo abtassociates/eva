@@ -1096,6 +1096,8 @@ function(input, output, session) {
     renderSankeyChart(sankey_plot_data())
   })
   
+  output$sys_status_download_btn <- downloadSystemStatus_xlsx()
+  
   session$onSessionEnded(function() {
     logMetadata("Session Ended")
   })

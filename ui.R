@@ -791,14 +791,16 @@ dashboardPage(
                 selected = "Summary",
                 title = "Client System Status",
                 tabsetPanel(
+                  id = "sys_status_subtabs",
                   tabPanel("Summary", 
                            uiOutput("sankey_filter_selections"),
                            plotOutput("sankey_ui_chart")
                   ),
                   tabPanel("Insights", 
                            uiOutput("sankey_instructions_ui")
-                  ),
+                  )
                 ),
+                downloadButton("sys_status_download_btn", "Download"),
                 width = 12
               ),
               tabPanel(
