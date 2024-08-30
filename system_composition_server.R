@@ -511,7 +511,7 @@ output$sys_comp_download_btn <- downloadHandler(
     
     # create a list of the 3 excel tabs and export
     tab_names <- list(
-      "Composition All Served Summary" = sys_comp_selections_summary()
+      "Composition All Served Metadata" = sys_comp_selections_summary()
     )
     tab_names[[glue("Selected {v1} By {v2} #")]] <- num_matrix_df
       

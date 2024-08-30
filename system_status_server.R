@@ -159,7 +159,7 @@ output$sys_status_download_btn <- downloadHandler(
       select("Status at Period End", everything())
     
     tab_names <- list(
-      "System Status Summary" = sys_export_summary_initial_df() %>%
+      "System Status Metadata" = sys_export_summary_initial_df() %>%
         bind_rows(sys_export_filter_selections()) %>%
         bind_rows(tibble(
           Chart = c(
