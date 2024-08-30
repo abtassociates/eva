@@ -1049,7 +1049,7 @@ function(input, output, session) {
       shinyjs::runjs(str_glue("
         document.getElementById('sys_comp_subtabs').insertAdjacentHTML('beforeEnd', '<li id=\"sys_comp_download_tab\"></li>');
         $('#sys_comp_download_btn').appendTo('#sys_comp_download_tab');
-        var toggleDownload = '{any(!is.na(sys_comp_p()$n))}';
+        var toggleDownload = '{any(!is.na(sys_comp_p()$data$n))}';
         $('#sys_comp_download_btn').toggle(toggleDownload == 'TRUE')
       "))
     }
