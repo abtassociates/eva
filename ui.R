@@ -822,19 +822,19 @@ dashboardPage(
                                )),
                                br(),
                                checkboxGroupInput(
-                                 "system_composition_filter",
+                                 "system_composition_selections",
                                  label = paste0(
                                    "Gender, Race/Ethnicity, and Special Populations ",
                                    "(select up to 2)"
                                  ),
-                                 choices = sys_comp_filter_choices1,
+                                 choices = sys_comp_selection_choices1,
                                  selected = c("All Races/Ethnicities", "Age"),
                                  inline = TRUE
                                ),
                                width = 12
                              )
                           ),
-                          uiOutput("sys_comp_summary_filter_selections"),
+                          uiOutput("sys_comp_summary_selections"),
                           plotOutput("sys_comp_summary_ui_chart")
                   ),
                   tabPanel("Information", 
