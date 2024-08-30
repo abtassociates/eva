@@ -194,7 +194,7 @@ function(input, output, session) {
           source("07_system_overview.R", local = TRUE)
 
           setProgress(detail = "Preparing Sankey Chart", value = .95)
-          source("09_sankey_chart.R", local = TRUE)
+          source("09_system_status.R", local = TRUE)
           
           # if user changes filters, update the reactive vals
           # which get used for the various System Overview charts
