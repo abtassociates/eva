@@ -132,7 +132,7 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 # System Overview - Filters -----------------------------------------------
 
 syso_hh_types <- list(
-  "All" = "All",
+  "All Household Types" = "All",
   "Households without children" = "AO",
   "Households with children" = "AC",
   "Children Only" = "CO",
@@ -170,14 +170,16 @@ gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific
                    "DifferentIdentity", "Questioning", "GenderNone")
 
 syso_gender_incl <- list(
+  "All Genders" = "All",
   "Gender expansive, including transgender" = "TransgenderInclusive",
   "Man (Boy, if child) alone or in combination" = "ManInclusive",
   "Non-binary alone or in combination" = "NonBinaryInclusive",
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive",
-  "Woman (Girl, if child) alone or in combination" = "WomanInclusive"
+  "Woman (Girl, if child) alone or in combination" = "WomanInclusive",
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive"
 )
 
 syso_gender_excl <- list(
+  "All Genders" = "All",
   "Gender expansive, not transgender" = "GenderExpansiveExclusive",
   "Man (Boy, if child), alone" = "ManExclusive",
   "Transgender, alone or in combination" = "TransgenderExclusive",
@@ -258,8 +260,8 @@ syso_race_ethnicity_excl <- list(
 # Special Populations -----------------------------------------------------
 
 syso_veteran_pops <- list(
-  "Veteran" = "Veteran",
-  "Non-Veteran" = "NonVeteran"
+  "Veteran" = 1,
+  "Non-Veteran" = 0
 )
 
 syso_dv_pops <- list(
@@ -275,7 +277,7 @@ syso_chronic_pops <- list(
 )
 
 syso_spec_pops_people <- c(
-  "None",
+  "None" = "None",
   # "Inflow",
   syso_veteran_pops,
   syso_dv_pops#,
@@ -353,7 +355,7 @@ inc_ncb_hi_required_prep <- tribble(
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
   unique()
 
-sys_comp_filter_choices1 = c(
+sys_comp_selection_choices1 = c(
   "Age", 
   "Domestic Violence",
   "Gender",
@@ -363,7 +365,7 @@ sys_comp_filter_choices1 = c(
   "Veteran Status"
 )
 
-sys_comp_filter_choices2 = c(
+sys_comp_selection_choices2 = c(
   "Age", 
   "Domestic Violence",
   "Gender",
