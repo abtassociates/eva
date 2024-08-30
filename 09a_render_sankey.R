@@ -1,3 +1,23 @@
+output$sankey_filter_selections <- renderUI({ 
+  req(valid_file() == 1)
+  syso_detailBox() 
+})
+
+output$sankey_ui_chart <- renderPlot({
+  req(valid_file() == 1)
+  validate(
+    need(
+      sum(sankey_plot_data()$freq) > 0, 
+      message = paste0("No data to show.")
+    ),
+    need(
+      sum(sankey_plot_data()$freq) > 10,
+      message = paste0("Not enough data to show.")
+    )
+  )
+  renderSankeyChart(sankey_plot_data())
+})
+
 renderSankeyChart <- function(plot_data) {
   begin_labels <- plot_data %>%
     group_by(Begin) %>%
@@ -147,52 +167,50 @@ sys_export_filter_selections <- function() {
   ))
 }
 
-downloadSystemStatus_xlsx <- function() {
-  return(downloadHandler(
-    filename = date_stamped_filename("System Status Report - "),
-    content = function(file) {
-      # create a list of the 3 excel tabs and export
-      spd <- sankey_plot_data() %>% 
-        xtabs(freq ~ End + Begin, data=.) %>% 
-        addmargins(FUN = sum) %>% 
-        as.data.frame.matrix() %>%
-        `rownames<-`(c(rownames(.)[-nrow(.)], "Total")) %>%
-        `colnames<-`(c(colnames(.)[-ncol(.)], "Total")) %>%
-        cbind("Status at Period End" = rownames(.), .) %>%
-        select("Status at Period End", everything())
-      
-      tab_names <- list(
-        "System Status Summary" = sys_export_summary_initial_df() %>%
-          bind_rows(sys_export_filter_selections()) %>%
-          bind_rows(tibble(
-            Chart = c(
-              "Total People",
-              "Total Permanent at Period End",
-              "Total Non-Permanent at Period End"
-            ),
-            Value = as.character(c(
-              spd[spd$`Status at Period End` == "Total", "Total"],
-              spd[spd$`Status at Period End` == "Exited, Permanent", "Total"],
-              spd[spd$`Status at Period End` == "Exited, Non-Permanent", "Total"]
-            ))
-          )) %>%
-          rename("System Status" = Value),
-        "System Status Detail" = spd
-      )
+output$sys_status_download_btn <- downloadHandler(
+  filename = date_stamped_filename("System Status Report - "),
+  content = function(file) {
+    # create a list of the 3 excel tabs and export
+    spd <- sankey_plot_data() %>% 
+      xtabs(freq ~ End + Begin, data=.) %>% 
+      addmargins(FUN = sum) %>% 
+      as.data.frame.matrix() %>%
+      `rownames<-`(c(rownames(.)[-nrow(.)], "Total")) %>%
+      `colnames<-`(c(colnames(.)[-ncol(.)], "Total")) %>%
+      cbind("Status at Period End" = rownames(.), .) %>%
+      select("Status at Period End", everything())
+    
+    tab_names <- list(
+      "System Status Summary" = sys_export_summary_initial_df() %>%
+        bind_rows(sys_export_filter_selections()) %>%
+        bind_rows(tibble(
+          Chart = c(
+            "Total People",
+            "Total Permanent at Period End",
+            "Total Non-Permanent at Period End"
+          ),
+          Value = as.character(c(
+            spd[spd$`Status at Period End` == "Total", "Total"],
+            spd[spd$`Status at Period End` == "Exited, Permanent", "Total"],
+            spd[spd$`Status at Period End` == "Exited, Non-Permanent", "Total"]
+          ))
+        )) %>%
+        rename("System Status" = Value),
+      "System Status Detail" = spd
+    )
 
-      write_xlsx(
-        tab_names,
-        path = file,
-        format_headers = FALSE,
-        col_names = TRUE
-      )
+    write_xlsx(
+      tab_names,
+      path = file,
+      format_headers = FALSE,
+      col_names = TRUE
+    )
 
-      logMetadata(paste0(
-        "Downloaded Sys Comp Report",
-        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
-      ))
+    logMetadata(paste0(
+      "Downloaded Sys Comp Report",
+      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
+    ))
 
-      exportTestValues(sys_status_report = sankey_plot_data())
-    }
-  ))
-}
+    exportTestValues(sys_status_report = sankey_plot_data())
+  }
+)

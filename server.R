@@ -1052,27 +1052,6 @@ function(input, output, session) {
   # Sankey Chart/System Status ----------------------------------------------
 
   source("09a_render_sankey.R", local = TRUE)
-  output$sankey_filter_selections <- renderUI({ 
-    req(valid_file() == 1)
-    syso_detailBox() 
-  })
-
-  output$sankey_ui_chart <- renderPlot({
-    req(valid_file() == 1)
-    validate(
-      need(
-        sum(sankey_plot_data()$freq) > 0, 
-        message = paste0("No data to show.")
-      ),
-      need(
-        sum(sankey_plot_data()$freq) > 10,
-        message = paste0("Not enough data to show.")
-      )
-    )
-    renderSankeyChart(sankey_plot_data())
-  })
-  
-  output$sys_status_download_btn <- downloadSystemStatus_xlsx()
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")
