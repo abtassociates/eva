@@ -470,14 +470,17 @@ downloadSystemComposition_xlsx <- function() {
   return(downloadHandler(
     filename = date_stamped_filename("System Composition Report - "),
     content = function(file) {
+      v1 <- gsub(input$system_composition_selections[1], "Races/Ethnicities", "Race")
+      v2 <- gsub(input$system_composition_selections[2], "Races/Ethnicities", "Race")
+
       tab_names <- list(
-        "Composition All Served Summary" = sys_comp_selections_summary(),
+        "Composition All Served Summary" = sys_comp_selections_summary()
       )
       tab_names[[glue(
-        "Selected {input$system_composition_selections[1]} By {input$system_composition_selections[2]} #"
+        "Selected {v1} By {v2} #"
       )]] <- sys_comp_plot_df()
       tab_names[[glue(
-        "Selected {input$system_composition_selections[1]} By {input$system_composition_selections[2]} %"
+        "Selected {v1} By {v2} %"
       )]] <- sys_comp_plot_df()
       
       write_xlsx(tab_names, path = file, col_names = FALSE)
