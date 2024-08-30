@@ -171,7 +171,7 @@ sys_comp_plot_1var <- function() {
     select(PersonalID, unname(selection))
   
   selection_cats1 <- get_selection_cats(input$system_composition_selections)
-  selection_cats1_labels <- if (is.null(names(v_cats1))) {
+  selection_cats1_labels <- if (is.null(names(selection_cats1))) {
     selection_cats1
   } else {
     names(selection_cats1)
@@ -194,8 +194,10 @@ sys_comp_plot_1var <- function() {
       labels = selection_cats1_labels)
   } else {
     plot_df <- as.data.frame(table(comp_df[[selection]]))
-    names(plot_df) <- c(selection, "n")
+    names(plot_df) <- c(input$system_composition_selections, "n")
   }
+  
+  sys_comp_plot_df(plot_df)
   
   plot_df <- plot_df %>%
     suppress_values("n") %>%
@@ -275,29 +277,30 @@ sys_comp_plot_2vars <- function() {
   
   if (all(is.na(plot_df$n)))
     return()
-  v_cats1 <- get_selection_cats(input$system_composition_selections[1])
-  v_cats1_labels <- if (is.null(names(v_cats1))) {
-    v_cats1
+  
+  selection_cats1 <- get_selection_cats(input$system_composition_selections[1])
+  selection_cats1_labels <- if (is.null(names(selection_cats1))) {
+    selection_cats1
   } else {
-    names(v_cats1)
+    names(selection_cats1)
   }
   
-  v_cats2 <- get_selection_cats(input$system_composition_selections[2])
-  v_cats2_labels <- if (is.null(names(v_cats2))) {
-    rev(v_cats2)
+  selection_cats2 <- get_selection_cats(input$system_composition_selections[2])
+  selection_cats2_labels <- if (is.null(names(selection_cats2))) {
+    rev(selection_cats2)
   } else {
-    rev(names(v_cats2))
+    rev(names(selection_cats2))
   }
   
   plot_df[input$system_composition_selections[1]] <- factor(
     plot_df[[input$system_composition_selections[1]]], 
-    levels = v_cats1, 
-    labels = v_cats1_labels)
+    levels = selection_cats1, 
+    labels = selection_cats1_labels)
   
   plot_df[input$system_composition_selections[2]] <- factor(
     plot_df[[input$system_composition_selections[2]]], 
-    levels = rev(v_cats2), 
-    labels = v_cats2_labels)
+    levels = rev(selection_cats2), 
+    labels = selection_cats2_labels)
   
   plot_df <- plot_df %>%
     complete(
@@ -418,12 +421,12 @@ sys_comp_plot_2vars <- function() {
       
       # axis labels
       scale_x_discrete(
-        labels = str_wrap(c(v_cats1_labels, "Total"), width = 20),
+        labels = str_wrap(c(selection_cats1_labels, "Total"), width = 20),
         limits = c(levels(plot_df[[input$system_composition_selections[1]]]), "Total"),
         position = "top"
       ) +
       scale_y_discrete(
-        labels = str_wrap(c("Total", v_cats2_labels), width = 30),
+        labels = str_wrap(c("Total", selection_cats2_labels), width = 30),
         limits = c("Total", levels(plot_df[[input$system_composition_selections[2]]])),
       ) +
       
