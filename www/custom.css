@@ -436,20 +436,8 @@ a:hover {
   background-color: #F1F1F1;
 }
 
-#sys_inflow_outflow_subtabs,
-#sys_status_subtabs, 
-#sys_comp_subtabs,
-#sys_inflow_outflow_subtabs + div.tab-content,
-#sys_status_subtabs + div.tab-content,
-#sys_comp_subtabs + div.tab-content,
-#sys_inflow_outflow_download_btn,
-#sys_status_download_btn,
-#sys_comp_download_btn
-{
-  display:none;
-}
-
-#sys_status_subtabs li:nth-child(3),
-#sys_comp_subtabs li:nth-child(3) {
+#sys_inflow_outflow_download_tab,
+#sys_status_download_tab,
+#sys_comp_download_tab {
   float:right;
 }
