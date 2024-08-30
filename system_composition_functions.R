@@ -439,98 +439,87 @@ sys_comp_plot_2vars <- function() {
 }
 
 sys_comp_selections_summary <- function() {
-  return(data.frame(
-    Chart = c(
-      "Start Date",
-      "End Date",
-      "Methodology Type",
-      "Household Type",
-      "Level of Detail",
-      "Project Type",
-      "Demographic Selection 1",
-      "Demographic Selection 2",
-      "Total Served People"
-    ),
-    `Composition of All Served` = c(
-      strftime(ReportStart(), "%m/%d/%y"),
-      strftime(ReportEnd(), "%m/%d/%y"),
-      getNameByValue(syso_methodology_types, input$methodology_type),
-      getNameByValue(syso_hh_types, input$syso_hh_type),
-      getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
-      getNameByValue(syso_project_types, input$syso_project_type),
-      input$system_composition_selections[1],
-      input$system_composition_selections[2],
-      nrow(sys_df_people_universe_filtered_r())
-    ),
-    check.names = FALSE
-  ))
+  return(
+    sys_export_summary_initial_df() %>%
+      bind_rows(data.frame(
+        Chart = c(
+          "Demographic Selection 1",
+          "Demographic Selection 2",
+          "Total Served People"
+        ),
+        Value = c(
+          input$system_composition_selections[1],
+          input$system_composition_selections[2],
+          nrow(sys_df_people_universe_filtered_r())
+        )
+      )) %>%
+      rename("Composition of All Served" = Value)
+  )
 }
 
-downloadSystemComposition_xlsx <- function() {
-  return(downloadHandler(
-    filename = date_stamped_filename("System Composition Report - "),
-    content = function(file) {
-      v1 <- gsub(input$system_composition_selections[1], "Races/Ethnicities", "Race")
-      v2 <- gsub(input$system_composition_selections[2], "Races/Ethnicities", "Race")
-      
-      # get the n matrix
-      num_matrix <- sys_comp_plot_df() %>%
-        xtabs(n ~ 
-                .[[input$system_composition_selections[2]]] +
-                .[[input$system_composition_selections[1]]], 
-              data = .) %>%
-        replace(is.na(.), 0)
-      
-      # get the pct matrix with x.y% format
-      pct_matrix <- ((num_matrix / sum(num_matrix)) * 100) %>%
-        replace(is.na(.), 0) %>%
-        addmargins(FUN = sum) %>% # add total row and column 
-        apply(c(1, 2), function(x) paste0(format(round(x, 1), nsmall = 1), "%")) 
-      
-      
-      # convert to dataframe
-      # rename the Total row/column
-      # add row names (i.e. var1) as separate column so it won't be excluded
-      convert_to_df_for_export <- function(.data) {
-        return(
-          .data  %>%
-            as.data.frame.matrix() %>%
-            `rownames<-`(c(rownames(.)[-nrow(.)], "Total")) %>%
-            `colnames<-`(c(colnames(.)[-ncol(.)], "Total")) %>%
-            cbind(" " = rownames(.), .)
-        )
-      }
-      num_matrix_df <- num_matrix %>% 
-        addmargins(FUN = sum) %>% # add total row and column 
-        convert_to_df_for_export()
-      
-      pct_matrix_df <- pct_matrix %>% 
-        convert_to_df_for_export()
-      
-      # create a list of the 3 excel tabs and export
-      tab_names <- list(
-        "Composition All Served Summary" = sys_comp_selections_summary()
+output$sys_comp_download_btn <- downloadHandler(
+  filename = date_stamped_filename("System Composition Report - "),
+  content = function(file) {
+    v1 <- gsub(input$system_composition_selections[1], "Races/Ethnicities", "Race")
+    v2 <- gsub(input$system_composition_selections[2], "Races/Ethnicities", "Race")
+    
+    # get the n matrix
+    num_matrix <- sys_comp_plot_df() %>%
+      xtabs(n ~ 
+              .[[input$system_composition_selections[2]]] +
+              .[[input$system_composition_selections[1]]], 
+            data = .) %>%
+      replace(is.na(.), 0)
+    
+    # get the pct matrix with x.y% format
+    pct_matrix <- ((num_matrix / sum(num_matrix)) * 100) %>%
+      replace(is.na(.), 0) %>%
+      addmargins(FUN = sum) %>% # add total row and column 
+      apply(c(1, 2), function(x) paste0(format(round(x, 1), nsmall = 1), "%")) 
+    
+    
+    # convert to dataframe
+    # rename the Total row/column
+    # add row names (i.e. var1) as separate column so it won't be excluded
+    convert_to_df_for_export <- function(.data) {
+      return(
+        .data  %>%
+          as.data.frame.matrix() %>%
+          `rownames<-`(c(rownames(.)[-nrow(.)], "Total")) %>%
+          `colnames<-`(c(colnames(.)[-ncol(.)], "Total")) %>%
+          cbind(" " = rownames(.), .)
       )
-      tab_names[[glue("Selected {v1} By {v2} #")]] <- num_matrix_df
-        
-      tab_names[[glue("Selected {v1} By {v2} %")]] <- pct_matrix_df
-      
-      write_xlsx(
-        tab_names,
-        path = file,
-        format_headers = FALSE,
-        col_names = TRUE
-      )
-      
-      logMetadata(paste0(
-        "Downloaded Sys Comp Report",
-        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
-      ))
-      
-      exportTestValues(sys_comp_report = sys_comp_p())
     }
-  ))
-}
+    num_matrix_df <- num_matrix %>% 
+      addmargins(FUN = sum) %>% # add total row and column 
+      convert_to_df_for_export()
+    
+    pct_matrix_df <- pct_matrix %>% 
+      convert_to_df_for_export()
+    
+    # create a list of the 3 excel tabs and export
+    tab_names <- list(
+      "Composition All Served Summary" = sys_comp_selections_summary()
+    )
+    tab_names[[glue("Selected {v1} By {v2} #")]] <- num_matrix_df
+      
+    tab_names[[glue("Selected {v1} By {v2} %")]] <- pct_matrix_df
+    
+    write_xlsx(
+      tab_names,
+      path = file,
+      format_headers = FALSE,
+      col_names = TRUE
+    )
+    
+    logMetadata(paste0(
+      "Downloaded Sys Comp Report",
+      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
+    ))
+    
+    exportTestValues(sys_comp_report = sys_comp_p())
+  }
+)
 
 sys_comp_p <- reactive({
   req(!is.null(input$system_composition_selections) & valid_file() == 1)
@@ -552,8 +541,6 @@ observeEvent(input$system_composition_filter, {
       inline = TRUE)
   }
 })
-
-output$sys_comp_download_btn <- downloadSystemComposition_xlsx()
 
 observeEvent(input$system_composition_selections, {
   # they can select up to 2
