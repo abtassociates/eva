@@ -935,6 +935,45 @@ function(input, output, session) {
   })
   
   # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
+  toggle_sys_components <- function(toggleDownloadCond) {
+    # 1. toggles the filters (disabled for Composition)
+    # 2. toggles subtabs and download button based if valid file has been uploaded
+    # 3. moves download button to be in line with subtabs
+    tab <- switch(input$syso_tabsetpanel,
+      "System Inflow/Outflow" = "inflow_outflow",
+      "Client System Status" = "status",
+      "Composition of All Served in Period" = "comp"
+    )
+    
+    toggleClass(
+      id = "syso_inflowoutflow_filters",
+      condition = tab == "comp",
+      class = "filter-disabled"
+    )
+    
+    shinyjs::toggle(glue('sys_{tab}_subtabs'), condition = valid_file() == 1)
+    shinyjs::toggle(glue('sys_{tab}_summary'), condition = valid_file() == 1)
+    shinyjs::toggle(glue('sys_{tab}_insights'), condition = valid_file() == 1)
+    shinyjs::toggle(glue('sys_{tab}_download_btn'), condition = valid_file() == 1)
+    
+    # move download button to subtab row and only show if there's data
+    shinyjs::runjs(
+      glue("
+        document.getElementById('sys_{tab}_subtabs')
+          .insertAdjacentHTML('beforeEnd', '<li id=\"sys_{tab}_download_tab\"></li>');
+        $('#sys_{tab}_download_btn').appendTo('#sys_{tab}_download_tab')
+          .toggle('{toggleDownloadCond}' == 'TRUE');
+      ")
+    )
+  }
+  
+  # when user changes chart tabs
+  # disable filters for Composition chart
+  # hide other stuff if valid file is not uploaded
+  # move chart download button to be inline with subtabs
+  observeEvent(input$syso_tabsetpanel, {
+    toggle_sys_components(sum(sankey_plot_data()$freq) > 0)
+  }, ignoreInit = TRUE)
   
   #### FILTERS ###
   sys_comp_selection_choices <- reactive({
@@ -1027,69 +1066,6 @@ function(input, output, session) {
 
   # System Composition ------------------------------------
   source("system_composition_functions.R", local = TRUE)
-  sys_comp_p <- reactive({
-    req(!is.null(input$system_composition_selections) & valid_file() == 1)
-    
-    if(length(input$system_composition_selections) == 1) {
-      sys_comp_plot_1var()
-    } else {
-      sys_comp_plot_2vars()
-    }
-  })
-  
-  observeEvent(input$syso_tabsetpanel, {
-    if(input$syso_tabsetpanel == "Composition of All Served in Period") {
-      shinyjs::toggle('sys_comp_subtabs', condition = valid_file() == 1)
-      shinyjs::toggle('sys_comp_summary', condition = valid_file() == 1)
-      shinyjs::toggle('sys_comp_instructions', condition = valid_file() == 1)
-      shinyjs::toggle('sys_comp_download_btn', condition = valid_file() == 1)
-
-      addClass(id="syso_inflowoutflow_filters", class="filter-disabled")
-      # move download button to subtab row and only show if there's data
-      shinyjs::runjs(str_glue("
-        document.getElementById('sys_comp_subtabs').insertAdjacentHTML('beforeEnd', '<li id=\"sys_comp_download_tab\"></li>');
-        $('#sys_comp_download_btn').appendTo('#sys_comp_download_tab');
-        var toggleDownload = '{any(!is.na(sys_comp_p()$data$n))}';
-        $('#sys_comp_download_btn').toggle(toggleDownload == 'TRUE')
-      "))
-    }
-  })
-  
-  output$sys_comp_download_btn <- downloadSystemComposition_xlsx()
-  
-  observeEvent(input$system_composition_selections, {
-    # they can select up to 2
-    #disable all unchecked boxes if they've already selected 2
-    shinyjs::runjs(str_glue("
-      var numSelected = {length(input$system_composition_selections)};
-      $('#system_composition_selections input[type=checkbox]:not(\":checked\")')
-        .attr('disabled', numSelected == 2);
-    "))
-    
-    #disable all other Race/Ethnicity boxes if they've already selected 1
-    shinyjs::runjs(str_glue("
-      var reSelected = \"{
-        \"All Races/Ethnicities\" %in% input$system_composition_selections |
-        \"Hispanic-Focused Races/Ethnicities\" %in% input$system_composition_selections |
-        \"Grouped Races/Ethnicities\" %in% input$system_composition_selections
-      }\";
-      $('#system_composition_selections input[type=checkbox][value*=\"Races/Ethnicities\"]:not(\":checked\")')
-        .attr('disabled', reSelected == 'TRUE');
-    "))
-  })
-
-  
-  output$sys_comp_summary_selections <- renderUI({
-    req(!is.null(input$system_composition_selections) & valid_file() == 1)
-    syscomp_detailBox()
-  })
-
-  output$sys_comp_summary_ui_chart <- renderPlot({
-    sys_comp_p()
-  }, height = function() { 
-      if_else(!is.null(input$system_composition_selections), 600, 100) 
-  })
-  
   
   ### SANKEY CHART/SYSTEM STATUS
   source("09a_render_sankey.R", local = TRUE)
