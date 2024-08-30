@@ -515,7 +515,12 @@ downloadSystemComposition_xlsx <- function() {
         
       tab_names[[glue("Selected {v1} By {v2} %")]] <- pct_matrix_df
       
-      write_xlsx(tab_names, path = file, format_headers = FALSE, col_names = TRUE)
+      write_xlsx(
+        tab_names,
+        path = file,
+        format_headers = FALSE,
+        col_names = TRUE
+      )
       
       logMetadata(paste0(
         "Downloaded Sys Comp Report",
