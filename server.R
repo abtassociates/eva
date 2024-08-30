@@ -213,7 +213,7 @@ function(input, output, session) {
                                                 select(PersonalID, DomesticViolenceCategory) %>%
                                                 inner_join(client_categories, join_by(PersonalID)) %>%
                                                 unique())
-            sankey_plot_data(plot_data())
+            sankey_plot_data(sankey_plot_df())
           })
           
           setProgress(detail = "Done!", value = 1)
