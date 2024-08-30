@@ -930,6 +930,45 @@ function(input, output, session) {
   })
   
   # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
+  toggle_sys_components <- function(toggleDownloadCond) {
+    # 1. toggles the filters (disabled for Composition)
+    # 2. toggles subtabs and download button based if valid file has been uploaded
+    # 3. moves download button to be in line with subtabs
+    tab <- switch(input$syso_tabsetpanel,
+      "System Inflow/Outflow" = "inflow_outflow",
+      "Client System Status" = "status",
+      "Composition of All Served in Period" = "comp"
+    )
+    
+    toggleClass(
+      id = "syso_inflowoutflow_filters",
+      condition = tab == "comp",
+      class = "filter-disabled"
+    )
+    
+    shinyjs::toggle(glue('sys_{tab}_subtabs'), condition = valid_file() == 1)
+    shinyjs::toggle(glue('sys_{tab}_summary'), condition = valid_file() == 1)
+    shinyjs::toggle(glue('sys_{tab}_insights'), condition = valid_file() == 1)
+    shinyjs::toggle(glue('sys_{tab}_download_btn'), condition = valid_file() == 1)
+    
+    # move download button to subtab row and only show if there's data
+    shinyjs::runjs(
+      glue("
+        document.getElementById('sys_{tab}_subtabs')
+          .insertAdjacentHTML('beforeEnd', '<li id=\"sys_{tab}_download_tab\"></li>');
+        $('#sys_{tab}_download_btn').appendTo('#sys_{tab}_download_tab')
+          .toggle('{toggleDownloadCond}' == 'TRUE');
+      ")
+    )
+  }
+  
+  # when user changes chart tabs
+  # disable filters for Composition chart
+  # hide other stuff if valid file is not uploaded
+  # move chart download button to be inline with subtabs
+  observeEvent(input$syso_tabsetpanel, {
+    toggle_sys_components(sum(sankey_plot_data()$freq) > 0)
+  }, ignoreInit = TRUE)
   
   #### FILTERS ###
   sys_comp_filter_choices <- reactive({
@@ -1024,13 +1063,6 @@ function(input, output, session) {
     sys_comp_plot(input$system_composition_filter)
   })
   
-  observeEvent(input$syso_tabsetpanel, {
-    toggleClass(
-      id = "syso_inflowoutflow_filters",
-      condition = input$syso_tabsetpanel == "Composition of All Served in Period",
-      class = "filter-disabled"
-    )
-  })
   observeEvent(input$system_composition_filter, {
     # they can select up to 2
     if(length(input$system_composition_filter) > 2){
