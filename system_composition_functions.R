@@ -1,15 +1,13 @@
-font_size <- 14/.pt
+font_size <- 14 / .pt
 
 get_race_ethnicity_vars <- function(v) {
-  if(v == "All") {
+  if (v == "All") {
     syso_race_ethnicities_all <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Detailed"])
-    names(syso_race_ethnicities_all) <- gsub("Detailed.", "",
-                                             names(syso_race_ethnicities_all))
+    names(syso_race_ethnicities_all) <- gsub("Detailed.", "", names(syso_race_ethnicities_all))
     return(syso_race_ethnicities_all)
-  } else if(v %in% c("Grouped")) {
+  } else if (v %in% c("Grouped")) {
     syso_race_ethnicities_grouped <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Summarized"])
-    names(syso_race_ethnicities_grouped) <- gsub("Summarized.", "",
-                                                 names(syso_race_ethnicities_grouped))
+    names(syso_race_ethnicities_grouped) <- gsub("Summarized.", "", names(syso_race_ethnicities_grouped))
     return(syso_race_ethnicities_grouped)
   }
 }
@@ -19,12 +17,19 @@ syscomp_detailBox <- function(session) {
     list(
       strong("Date Range: "),
       
-      ReportStart(), " to ", ReportEnd(), br(),
+      ReportStart(),
+      " to ",
+      ReportEnd(),
+      br(),
       
       if (input$syso_project_type != "All")
         chart_selection_detail_line("Project Type", syso_project_types, input$syso_project_type),
       
-      chart_selection_detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
+      chart_selection_detail_line(
+        "Methodology Type",
+        syso_methodology_types,
+        input$methodology_type
+      ),
       
       HTML(
         glue(
@@ -36,16 +41,20 @@ syscomp_detailBox <- function(session) {
 }
 
 get_var_cols <- function() {
-  return(list(
-    "Age" = "AgeCategory",
-    "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
-    "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-    "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-    "Domestic Violence" = "DomesticViolenceCategory",
-    "Gender" = unlist(syso_gender_cats(input$methodology_type)),
-    # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
-    "Veteran Status" =  "VeteranStatus"
-  ))
+  return(
+    list(
+      "Age" = "AgeCategory",
+      "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
+      "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
+      "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
+      "Domestic Violence" = "DomesticViolenceCategory",
+      "Gender" = unlist(
+        syso_gender_cats(input$methodology_type) %>% discard_at("All Genders")
+      ),
+      # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
+      "Veteran Status" =  "VeteranStatus"
+    )
+  )
 }
 
 get_sys_comp_plot_df <- function() {
