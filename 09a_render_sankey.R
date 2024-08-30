@@ -108,3 +108,91 @@ renderSankeyChart <- function(plot_data) {
          axis.text.x = element_text(color = "black", size = 17, vjust = 2.5))
   )
 }
+
+sys_export_summary_initial_df <- function() {
+  return(data.frame(
+    Chart = c(
+      "Start Date",
+      "End Date",
+      "Methodology Type",
+      "Household Type",
+      "Level of Detail",
+      "Project Type"
+    ),
+    Value = c(
+      strftime(ReportStart(), "%m/%d/%y"),
+      strftime(ReportEnd(), "%m/%d/%y"),
+      getNameByValue(syso_methodology_types, input$methodology_type),
+      getNameByValue(syso_hh_types, input$syso_hh_type),
+      getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
+      getNameByValue(syso_project_types, input$syso_project_type)
+    )
+  ))
+}
+
+sys_export_filter_selections <- function() {
+  return(tibble(
+    Chart = c(
+      "Age",
+      "Special Populations",
+      "Gender",
+      "Race/Ethnicity"
+    ),
+    Value = c(
+      getNameByValue(syso_age_cats, input$syso_age),
+      getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
+      getNameByValue(syso_gender_cats(input$methodology_type), input$syso_gender),
+      getNameByValue(syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity)
+    )
+  ))
+}
+
+downloadSystemStatus_xlsx <- function() {
+  return(downloadHandler(
+    filename = date_stamped_filename("System Status Report - "),
+    content = function(file) {
+      # create a list of the 3 excel tabs and export
+      spd <- sankey_plot_data() %>% 
+        xtabs(freq ~ End + Begin, data=.) %>% 
+        addmargins(FUN = sum) %>% 
+        as.data.frame.matrix() %>%
+        `rownames<-`(c(rownames(.)[-nrow(.)], "Total")) %>%
+        `colnames<-`(c(colnames(.)[-ncol(.)], "Total")) %>%
+        cbind("Status at Period End" = rownames(.), .) %>%
+        select("Status at Period End", everything())
+      
+      tab_names <- list(
+        "System Status Summary" = sys_export_summary_initial_df() %>%
+          bind_rows(sys_export_filter_selections()) %>%
+          bind_rows(tibble(
+            Chart = c(
+              "Total People",
+              "Total Permanent at Period End",
+              "Total Non-Permanent at Period End"
+            ),
+            Value = as.character(c(
+              spd[spd$`Status at Period End` == "Total", "Total"],
+              spd[spd$`Status at Period End` == "Exited, Permanent", "Total"],
+              spd[spd$`Status at Period End` == "Exited, Non-Permanent", "Total"]
+            ))
+          )) %>%
+          rename("System Status" = Value),
+        "System Status Detail" = spd
+      )
+
+      write_xlsx(
+        tab_names,
+        path = file,
+        format_headers = FALSE,
+        col_names = TRUE
+      )
+
+      logMetadata(paste0(
+        "Downloaded Sys Comp Report",
+        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
+      ))
+
+      exportTestValues(sys_status_report = sankey_plot_data())
+    }
+  ))
+}
