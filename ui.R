@@ -52,9 +52,7 @@ dashboardPage(
                            tabName = "tabDQOrg")),
       menuItem("System Performance",
                menuSubItem("System Overview",
-                           tabName = "systemOverview"),
-               menuSubItem("System Exit Detail",
-                           tabName = "systemExitDetail")),
+                           tabName = "systemOverview")),
       menuItem("View Changelog",
                tabName = "tabChangelog")
       # ),
