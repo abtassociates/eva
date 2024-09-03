@@ -131,23 +131,6 @@ output$sankey_ui_chart <- renderPlot({
        axis.text.x = element_text(color = "black", size = 17, vjust = 2.5))
 })
 
-sys_export_filter_selections <- function() {
-  return(tibble(
-    Chart = c(
-      "Age",
-      "Special Populations",
-      "Gender",
-      "Race/Ethnicity"
-    ),
-    Value = c(
-      getNameByValue(syso_age_cats, input$syso_age),
-      getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
-      getNameByValue(syso_gender_cats(input$methodology_type), input$syso_gender),
-      getNameByValue(syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity)
-    )
-  ))
-}
-
 output$sys_status_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Status Report - "),
   content = function(file) {
