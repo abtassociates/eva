@@ -396,10 +396,50 @@ renderSystemPlot("sys_act_detail_ui_chart")
 output$sys_inflow_outflow_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Inflow/Outflow Report - "),
   content = function(file) {
+    df <- system_activity_prep_detail() %>% 
+      select(Status, values, Time, InflowOutflow) %>%
+      mutate(InflowOutflowSummary = factor(
+        case_when(
+          Time == "Active at Start" ~ "Start",
+          Time == "Active at End" ~ "End",
+          str_detect(Time, "Exited") | Time == "Inactive" ~ "Outflow",
+          TRUE ~ "Inflow"
+        ),
+        levels = c("Start", "Inflow", "Outflow", "End"))
+      )
+
     write_xlsx(
       list(
-        "System Flow Metadata" = data.frame(),
-        "System Flow Data" = data.frame()
+        "System Flow Metadata" = sys_export_summary_initial_df() %>%
+          bind_rows(sys_export_filter_selections()) %>%
+          bind_rows(tibble(
+            Chart = c(
+              "Total Served (Start + Inflow) People",
+              "Total Inflow",
+              "Total Outflow",
+              "Total Change"
+            ),
+            Value = as.character(c(
+              sum(df[df$InflowOutflow=='Inflow', 'values']),
+              df[df$Status=='Inflow', 'values'],
+              df[df$Status=='Outflow', 'values'],   
+              sum(df[df$Status %in% c("Housed", "Homeless"), 'values'])
+            ))
+          )) %>%
+          rename("System Inflow/Outflow" = Value),
+        "System Flow Data" = bind_rows(
+          df, df %>% 
+            group_by(InflowOutflowSummary) %>% 
+            reframe(Status = paste0("Total ",  InflowOutflowSummary),
+                    Totals = sum(values, na.rm=TRUE)) %>%
+            unique()
+        ) %>%
+          select(InflowOutflowSummary, Status, values, Totals) %>%
+          rename("Category" = Status,
+                 "Period" = InflowOutflowSummary,
+                 "Detail" = values) %>%
+          arrange(Period) %>%
+          relocate(Period, Category, Detail, Totals)
       ),
       path = file,
       format_headers = FALSE,
