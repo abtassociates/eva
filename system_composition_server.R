@@ -232,8 +232,8 @@ sys_comp_plot_1var <- function() {
         )
       ) +
       scale_y_discrete(
-        labels = str_wrap(c("Total", selection_cats1_labels), width = 30),
-        limits = c("Total", levels(plot_df[[input$system_composition_selections]])),
+        labels = str_wrap(c("Total", rev(selection_cats1_labels)), width = 30),
+        limits = c("Total", rev(levels(plot_df[[input$system_composition_selections]]))),
       ) +
       # other stuff
       theme_bw() +
