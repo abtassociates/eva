@@ -366,8 +366,8 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
             ),
             Value = as.character(c(
               sum(df[df$InflowOutflow=='Inflow', 'values']),
-              df[df$Status=='Inflow', 'values'],
-              df[df$Status=='Outflow', 'values'],   
+              sum(df[df$InflowOutflowSummary=='Inflow', 'values']),
+              sum(df[df$InflowOutflowSummary=='Outflow', 'values']),   
               sum(df[df$Status %in% c("Housed", "Homeless"), 'values'])
             ))
           )) %>%
