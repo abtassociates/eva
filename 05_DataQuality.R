@@ -126,7 +126,7 @@ missing_name_dataquality <- base_dq_data %>%
 
 
 dkr_name <- base_dq_data %>%
-  filter(NameDataQuality %in% c(dkr)) %>%
+  filter(NameDataQuality %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 78) %>%
   select(all_of(vars_we_want))
 
@@ -151,18 +151,18 @@ incorrect_dob <- base_dq_data %>%
   select(all_of(vars_we_want))
 
 missing_ssn <- base_dq_data %>%
-  filter((is.na(SSN) & !SSNDataQuality %in% c(dkr)) |
+  filter((is.na(SSN) & !SSNDataQuality %in% c(dkr_dnc)) |
            is.na(SSNDataQuality)) %>%
   merge_check_info(checkIDs = 85) %>%
   select(all_of(vars_we_want))
 
 dkr_ssn <- base_dq_data %>%
-  filter(SSNDataQuality %in% c(dkr)) %>%
+  filter(SSNDataQuality %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 67) %>%
   select(all_of(vars_we_want))
 
 dkr_race <- base_dq_data %>%
-  filter(RaceNone %in% c(dkr)) %>%
+  filter(RaceNone %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 63) %>%
   select(all_of(vars_we_want))
 
@@ -178,7 +178,7 @@ missing_race <- base_dq_data %>%
   select(all_of(vars_we_want))
 
 dkr_gender <- base_dq_data %>%
-  filter(GenderNone %in% c(dkr)) %>%
+  filter(GenderNone %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 65) %>%
   select(all_of(vars_we_want))
 
@@ -199,7 +199,7 @@ missing_veteran_status <- base_dq_data %>%
 dkr_veteran <- base_dq_data %>%
   filter(
     (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
-    VeteranStatus %in% c(dkr)
+    VeteranStatus %in% c(dkr_dnc)
   ) %>%
   merge_check_info(checkIDs = 66) %>%
   select(all_of(vars_we_want))
@@ -316,7 +316,7 @@ dkr_residence_prior <- base_dq_data %>%
          RelationshipToHoH,
          LivingSituation) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
-           LivingSituation %in% c(dkr)) %>%
+           LivingSituation %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 64) %>%
   select(all_of(vars_we_want))
 
@@ -336,7 +336,7 @@ dkr_LoS <- base_dq_data %>%
          RelationshipToHoH,
          LengthOfStay) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
-           LengthOfStay %in% c(dkr)) %>%
+           LengthOfStay %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 73) %>%
   select(all_of(vars_we_want))
 
@@ -374,8 +374,8 @@ dkr_months_times_homeless <- base_dq_data %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate >= hc_prior_living_situation_required &
            (
-             MonthsHomelessPastThreeYears %in% c(dkr) |
-               TimesHomelessPastThreeYears %in% c(dkr)
+             MonthsHomelessPastThreeYears %in% c(dkr_dnc) |
+               TimesHomelessPastThreeYears %in% c(dkr_dnc)
            )
   ) %>%
   merge_check_info(checkIDs = 61) %>%
@@ -506,9 +506,9 @@ dkr_living_situation <- base_dq_data %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate > hc_prior_living_situation_required &
            (
-             MonthsHomelessPastThreeYears %in% c(dkr) |
-               TimesHomelessPastThreeYears %in% c(dkr) |
-               LivingSituation %in% c(dkr)
+             MonthsHomelessPastThreeYears %in% c(dkr_dnc) |
+               TimesHomelessPastThreeYears %in% c(dkr_dnc) |
+               LivingSituation %in% c(dkr_dnc)
            )
   ) %>%
   merge_check_info(checkIDs = 68) %>%
@@ -634,7 +634,7 @@ missing_destination <- base_dq_data %>%
   select(all_of(vars_we_want))
 
 dkr_destination <- base_dq_data %>%
-  filter(Destination %in% c(dkr)) %>%
+  filter(Destination %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 59) %>%
   select(all_of(vars_we_want))
 
@@ -1549,25 +1549,25 @@ dkr_client_veteran_info <- ssvf_base_dq_data %>%
   filter(VeteranStatus == 1)
 
 dkr_client_veteran_discharge <- dkr_client_veteran_info %>%
-  filter(DischargeStatus %in% c(dkr)) %>%
+  filter(DischargeStatus %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 56) %>%
   select(all_of(vars_we_want))
 
 dkr_client_veteran_wars <- dkr_client_veteran_info %>%
-  filter(WorldWarII %in% c(dkr) |
-        KoreanWar %in% c(dkr) |
-        VietnamWar %in% c(dkr) |
-        DesertStorm  %in% c(dkr) |
-        AfghanistanOEF %in% c(dkr) |
-        IraqOIF %in% c(dkr) |
-        IraqOND %in% c(dkr) |
-        OtherTheater  %in% c(dkr)
+  filter(WorldWarII %in% c(dkr_dnc) |
+        KoreanWar %in% c(dkr_dnc) |
+        VietnamWar %in% c(dkr_dnc) |
+        DesertStorm  %in% c(dkr_dnc) |
+        AfghanistanOEF %in% c(dkr_dnc) |
+        IraqOIF %in% c(dkr_dnc) |
+        IraqOND %in% c(dkr_dnc) |
+        OtherTheater  %in% c(dkr_dnc)
   ) %>%
   merge_check_info(checkIDs = 57) %>%
   select(all_of(vars_we_want))
 
 dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
-  filter(MilitaryBranch %in% c(dkr)) %>%
+  filter(MilitaryBranch %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 58) %>%
   select(all_of(vars_we_want))
 
