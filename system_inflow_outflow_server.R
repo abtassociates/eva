@@ -448,8 +448,8 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
           rename("Detail Category" = Status,
                  "Summary Category" = InflowOutflowSummary,
                  "Count" = values) %>%
-          arrange(Period) %>%
-          relocate(Period, Category, Detail, Totals)
+          arrange(`Summary Category`) %>%
+          relocate(`Summary Category`, `Detail Category`, Count, Totals)
       ),
       path = file,
       format_headers = FALSE,
