@@ -365,26 +365,26 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
               "Total Change"
             ),
             Value = as.character(c(
-              sum(df[df$InflowOutflow=='Inflow', 'values']),
-              sum(df[df$InflowOutflowSummary=='Inflow', 'values']),
-              sum(df[df$InflowOutflowSummary=='Outflow', 'values']),   
-              sum(df[df$Status %in% c("Housed", "Homeless"), 'values'])
+              sum(df[df$InflowOutflow == 'Inflow', 'values'], na.rm = TRUE),
+              sum(df[df$InflowOutflowSummary == 'Inflow', 'values'], na.rm = TRUE),
+              sum(df[df$InflowOutflowSummary == 'Outflow', 'values'], na.rm = TRUE),   
+              sum(df[df$Status %in% c("Housed", "Homeless"), 'values'], na.rm = TRUE)
             ))
           )) %>%
+          mutate(Value = replace_na(Value, 0)) %>%
           rename("System Inflow/Outflow" = Value),
         "System Flow Data" = bind_rows(
           df, df %>% 
             group_by(InflowOutflowSummary) %>% 
             reframe(Status = paste0("Total ",  InflowOutflowSummary),
-                    Totals = sum(values, na.rm=TRUE)) %>%
+                    Totals = sum(values, na.rm = TRUE)) %>%
             unique()
         ) %>%
-          select(InflowOutflowSummary, Status, values, Totals) %>%
-          rename("Detail Category" = Status,
-                 "Summary Category" = InflowOutflowSummary,
-                 "Count" = values) %>%
-          arrange(`Summary Category`) %>%
-          relocate(`Summary Category`, `Detail Category`, Count, Totals)
+          arrange(InflowOutflowSummary) %>%
+          select("Summary Category" = InflowOutflowSummary,
+                 "Detail Category" = Status,
+                 "Count" = values,
+                 Totals)
       ),
       path = file,
       format_headers = FALSE,
