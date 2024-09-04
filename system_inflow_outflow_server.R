@@ -36,23 +36,23 @@ frame_detail <-
         "Housed")
   )
 
-frame_summary <-
-  data.frame(
-    Status = c("Housed",
-               "Homeless",
-               "Inflow",
-               "Outflow",
-               "Homeless",
-               "Housed"),
-    Time = c(rep(paste0("Active at Start"), 2),
-             "Inflow",
-             "Outflow",
-             rep(paste0("Active at End"), 2)),
-    InflowOutflow = c(rep("Inflow", 3), rep("Outflow", 3)),
-    PlotFillGroups = c("Housed", "Homeless",
-                       "Inflow", "Outflow",
-                       "Homeless", "Housed")
-  )
+# frame_summary <-
+#   data.frame(
+#     Status = c("Housed",
+#                "Homeless",
+#                "Inflow",
+#                "Outflow",
+#                "Homeless",
+#                "Housed"),
+#     Time = c(rep(paste0("Active at Start"), 2),
+#              "Inflow",
+#              "Outflow",
+#              rep(paste0("Active at End"), 2)),
+#     InflowOutflow = c(rep("Inflow", 3), rep("Outflow", 3)),
+#     PlotFillGroups = c("Housed", "Homeless",
+#                        "Inflow", "Outflow",
+#                        "Homeless", "Housed")
+#   )
 
 system_activity_prep_detail <- reactive({
   inflow <- sys_inflow_outflow_plot_data() %>%
@@ -119,101 +119,44 @@ system_activity_prep_detail <- reactive({
                    "Outflow",
                    "Active at End"))
     ) %>%
-    arrange(Time, Status) %>%
     group_by(Time) %>%
     mutate(group.id = cur_group_id()) %>%
     ungroup() %>%
-    slice(1:8, 10, 9) %>%
-    # ^ since factor levels can only be controlled across unique values, we have
-    # to manually order the rows here so that the ystart and yend get built in
-    # a way that places the rectangles in the right order
-    mutate(
-      values = ifelse(InflowOutflow == "Outflow", values * -1, values),
-      ystart = lag(cumsum(values), default = 0),
-      yend = round(cumsum(values))
-    )
+    arrange(Time,  case_when(
+      Time == "Active at Start" & Status == "Housed" ~ 1,
+      Time == "Active at Start" & Status == "Homeless" ~ 2,
+      Time == "Active at End" & Status == "Homeless" ~ 1,
+      Time == "Active at End" & Status == "Housed" ~ 2,
+      TRUE ~ 3  # fallback for other statuses/times
+    ))
 })
 
 system_activity_prep_summary <- reactive({
-  # browser()
-  prep <- sys_inflow_outflow_plot_data() %>% # this is a people-level df
+  system_activity_prep_detail() %>%
+    select(PlotFillGroups, InflowOutflow, InflowOutflowSummary, values) %>%
+    group_by(InflowOutflow, PlotFillGroups) %>%
     mutate(
-      InflowSummaryMatrix = case_when(
-        InflowTypeSummary == "Active at Start" & InflowTypeDetail == "Homeless" ~
-          "Homeless",
-        InflowTypeSummary == "Active at Start" & InflowTypeDetail == "Housed" ~
-          "Housed",
-        TRUE ~ InflowTypeSummary
-      ),
-      OutflowSummaryMatrix = case_when(
-        OutflowTypeSummary == "Active at End" & OutflowTypeDetail == "Homeless" ~
-          "Homeless",
-        OutflowTypeSummary == "Active at End" & OutflowTypeDetail == "Housed" ~
-          "Housed",
-        TRUE ~ OutflowTypeSummary
-      )
-    )
-  
-  inflow <- prep %>%
-    select(PersonalID,
-           InflowTypeSummary,
-           InflowTypeDetail,
-           InflowSummaryMatrix) %>%
-    group_by(InflowSummaryMatrix) %>%
-    summarise(values = n()) %>%
-    ungroup() %>%
-    rename("Status" = InflowSummaryMatrix) %>%
-    mutate(
-      Time = if_else(Status != "Inflow",
-                     "Active at Start",
-                     Status))
-  
-  outflow <- prep %>%
-    select(PersonalID,
-           OutflowTypeSummary,
-           OutflowTypeDetail,
-           OutflowSummaryMatrix) %>%
-    group_by(OutflowSummaryMatrix) %>%
-    summarise(values = n()) %>%
-    ungroup() %>%
-    rename("Status" = OutflowSummaryMatrix) %>%
-    mutate(
-      Time = if_else(Status != "Outflow",
-                     "Active at End",
-                     Status))
-  
-  inflow %>%
-    full_join(outflow, join_by(Status, values, Time)) %>%
-    full_join(frame_summary, join_by(Status, Time)) %>%
-    mutate(
-      values = replace_na(values, 0),
-      Time = factor(
-        Time,
-        levels = c("Active at Start",
-                   "Inflow",
-                   "Outflow",
-                   "Active at End")
-      )
+      values = sum(values, na.rm = TRUE)
     ) %>%
-    arrange(Time) %>%
-    group_by(Time) %>%
-    mutate(group.id = cur_group_id()) %>%
-    ungroup() %>%
-    slice(2, 1, 3:6) %>%
-    # ^ since factor levels can only be controlled across unique values, we have
-    # to manually order the rows here so that the ystart and yend get built in
-    # a way that places the rectangles in the right order
+    group_by(InflowOutflowSummary) %>%
     mutate(
-      values = ifelse(Time %in% c("Outflow", "Active at End"), values * -1, values),
-      ystart = lag(cumsum(values), default = 0),
-      yend = round(cumsum(values))
-    )
+      group.id = cur_group_id()
+    ) %>%
+    ungroup() %>%
+    rename("Time" = InflowOutflowSummary) %>%
+    unique() %>%
+    arrange(Time,  case_when(
+      Time == "Active at Start" & PlotFillGroups == "Housed" ~ 1,
+      Time == "Active at Start" & PlotFillGroups == "Homeless" ~ 2,
+      Time == "Active at End" & PlotFillGroups == "Homeless" ~ 1,
+      Time == "Active at End" & PlotFillGroups == "Housed" ~ 2,
+      TRUE ~ 3
+    ))
 })
 
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
-    # browser()
     if (id == "sys_act_summary_ui_chart") {
       df <- system_activity_prep_summary()
       mid_plot <- 2.5
@@ -221,6 +164,13 @@ renderSystemPlot <- function(id) {
       df <- system_activity_prep_detail()
       mid_plot <- 4.5
     }
+    
+    df <- df %>%
+      mutate(
+        values = ifelse(InflowOutflow == "Outflow", values * -1, values),
+        ystart = lag(cumsum(values), default = 0),
+        yend = round(cumsum(values))
+      )
     
     colors <- c('#C6BDB9', '#73655E', '#C34931', '#16697A')
     s <- max(df$yend) + 20
@@ -241,7 +191,7 @@ renderSystemPlot <- function(id) {
     )
     
     inflow_to_outflow <- df %>%
-      filter(Status %in% c("Housed", "Homeless")) %>%
+      filter(PlotFillGroups %in% c("Housed", "Homeless")) %>%
       pull(values) %>%
       sum()
 
@@ -407,16 +357,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Inflow/Outflow Report - "),
   content = function(file) {
     df <- system_activity_prep_detail() %>% 
-      select(Status, values, Time, InflowOutflow) %>%
-      mutate(InflowOutflowSummary = factor(
-        case_when(
-          Time == "Active at Start" ~ "Start",
-          Time == "Active at End" ~ "End",
-          str_detect(Time, "Exited") | Time == "Inactive" ~ "Outflow",
-          TRUE ~ "Inflow"
-        ),
-        levels = c("Start", "Inflow", "Outflow", "End"))
-      )
+      select(Status, values, Time, InflowOutflow, InflowOutflowSummary)
 
     write_xlsx(
       list(
