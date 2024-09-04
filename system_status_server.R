@@ -70,7 +70,7 @@ output$sankey_ui_chart <- renderPlot({
     aes(axis1 = Begin, axis2 = End, y = freq)
   ) +
   geom_alluvium(aes(fill = End, colour = End), reverse = TRUE) +
-  geom_stratum(aes(fill = End, color='black'), reverse = TRUE) +
+  geom_stratum(aes(fill = End), reverse = TRUE) +
   
   # construct the Begin bars
   geom_rect(
@@ -79,9 +79,9 @@ output$sankey_ui_chart <- renderPlot({
       xmin = 0.83,
       xmax = 1.17,
       ymin = ystart,
-      ymax = yend,
-      color ='black'
-    )
+      ymax = yend
+    ),
+    colour ='black'
   ) +
       
   #Color for End stratum and alluvial flows
