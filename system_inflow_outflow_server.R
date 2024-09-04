@@ -107,7 +107,17 @@ system_activity_prep_detail <- reactive({
           "Exited,\nPermanent",
           "Inactive"
         )
-      )
+      ),
+      InflowOutflowSummary = factor(
+        case_when(
+          str_detect(Time, "Exited") | Time == "Inactive" ~ "Outflow",
+          str_detect(Time, "Active at") ~ Time,
+          TRUE ~ "Inflow"
+        ),
+        levels = c("Active at Start",
+                   "Inflow",
+                   "Outflow",
+                   "Active at End"))
     ) %>%
     arrange(Time, Status) %>%
     group_by(Time) %>%
