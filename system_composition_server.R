@@ -232,7 +232,7 @@ sys_comp_plot_1var <- function() {
         )
       ) +
       scale_y_discrete(
-        labels = str_wrap(rev(selection_cats1_labels), width = 30),
+        labels = str_wrap(rev(selection_cats1_labels), width = 60),
         limits = rev(levels(plot_df[[input$system_composition_selections]])),
       ) +
       # other stuff
@@ -575,5 +575,5 @@ output$sys_comp_summary_ui_chart <- renderPlot({
 }, height = function() { 
   if_else(!is.null(input$system_composition_selections), 600, 100) 
 }, width = function() {
-  ifelse(length(input$system_composition_selections) == 1, 500, "auto")
+  ifelse(length(input$system_composition_selections) == 1, 600, "auto")
 })
