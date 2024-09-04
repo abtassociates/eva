@@ -435,9 +435,9 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
             unique()
         ) %>%
           select(InflowOutflowSummary, Status, values, Totals) %>%
-          rename("Category" = Status,
-                 "Period" = InflowOutflowSummary,
-                 "Detail" = values) %>%
+          rename("Detail Category" = Status,
+                 "Summary Category" = InflowOutflowSummary,
+                 "Count" = values) %>%
           arrange(Period) %>%
           relocate(Period, Category, Detail, Totals)
       ),
