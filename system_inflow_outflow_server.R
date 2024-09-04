@@ -132,26 +132,20 @@ system_activity_prep_detail <- reactive({
 })
 
 system_activity_prep_summary <- reactive({
-  system_activity_prep_detail() %>%
-    select(PlotFillGroups, InflowOutflow, InflowOutflowSummary, values) %>%
-    group_by(InflowOutflow, PlotFillGroups) %>%
-    mutate(
-      values = sum(values, na.rm = TRUE)
-    ) %>%
-    group_by(InflowOutflowSummary) %>%
-    mutate(
-      group.id = cur_group_id()
-    ) %>%
-    ungroup() %>%
-    rename("Time" = InflowOutflowSummary) %>%
-    unique() %>%
-    arrange(Time,  case_when(
-      Time == "Active at Start" & PlotFillGroups == "Housed" ~ 1,
-      Time == "Active at Start" & PlotFillGroups == "Homeless" ~ 2,
-      Time == "Active at End" & PlotFillGroups == "Homeless" ~ 1,
-      Time == "Active at End" & PlotFillGroups == "Housed" ~ 2,
-      TRUE ~ 3
-    ))
+  setDT(system_activity_prep_detail())[, .(
+    values = sum(values, na.rm = TRUE)
+  ), by = .(InflowOutflow, PlotFillGroups, InflowOutflowSummary)
+  ][, group.id := .GRP, by = InflowOutflowSummary
+  ][, Time := InflowOutflowSummary
+  ][, .SD[!duplicated(.SD)], by = .(Time, PlotFillGroups)
+  ][order(Time, case_when(
+    Time == "Active at Start" & PlotFillGroups == "Housed" ~ 1,
+    Time == "Active at Start" & PlotFillGroups == "Homeless" ~ 2,
+    Time == "Active at End" & PlotFillGroups == "Homeless" ~ 1,
+    Time == "Active at End" & PlotFillGroups == "Housed" ~ 2,
+    TRUE ~ 3
+  ))
+  ]
 })
 
 renderSystemPlot <- function(id) {
