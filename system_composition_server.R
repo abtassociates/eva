@@ -246,7 +246,7 @@ sys_comp_plot_1var <- function() {
         panel.grid = element_blank(),
         plot.title = element_text(size = 17, hjust = 0.5),
         axis.title.x = element_blank(),
-        axis.title.y = element_text(input$system_composition_selections, size = 13),
+        axis.title.y = element_blank(),
         axis.text = element_text(size = 14)
       )
   )
@@ -442,9 +442,9 @@ sys_comp_plot_2vars <- function() {
         axis.ticks = element_blank(),
         panel.grid = element_blank(),
         plot.title = element_text(size = 17, hjust = 0.5),
-        axis.title.x = element_text(input$system_composition_selections[1], size = 13),
-        axis.title.y = element_text(input$system_composition_selections[2], size = 13),
-        axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
         axis.text = element_text(size = 14)
       )
   )
@@ -574,4 +574,6 @@ output$sys_comp_summary_ui_chart <- renderPlot({
   sys_comp_p()
 }, height = function() { 
   if_else(!is.null(input$system_composition_selections), 600, 100) 
+}, width = function() {
+  ifelse(length(input$system_composition_selections) == 1, 500, "auto")
 })
