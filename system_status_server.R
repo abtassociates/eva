@@ -70,7 +70,7 @@ output$sankey_ui_chart <- renderPlot({
     aes(axis1 = Begin, axis2 = End, y = freq)
   ) +
   geom_alluvium(aes(fill = End, colour = End), reverse = TRUE) +
-  geom_stratum(aes(fill = End), reverse = TRUE) +
+  geom_stratum(aes(fill = End, color='black'), reverse = TRUE) +
   
   # construct the Begin bars
   geom_rect(
