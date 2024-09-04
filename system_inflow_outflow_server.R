@@ -368,7 +368,8 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
               sum(df[df$InflowOutflow == 'Inflow', 'values'], na.rm = TRUE),
               sum(df[df$InflowOutflowSummary == 'Inflow', 'values'], na.rm = TRUE),
               sum(df[df$InflowOutflowSummary == 'Outflow', 'values'], na.rm = TRUE),   
-              sum(df[df$Status %in% c("Housed", "Homeless"), 'values'], na.rm = TRUE)
+              sum(df[df$Time == "Active at Start", 'values'], na.rm = TRUE) -
+                sum(df[df$Time == "Active at End", 'values'], na.rm = TRUE)
             ))
           )) %>%
           mutate(Value = replace_na(Value, 0)) %>%
