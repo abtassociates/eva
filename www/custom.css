@@ -405,6 +405,13 @@ a:hover {
 }
 
 /* || SYSTEM OVERVIEW FILTERS */
+.light-left-border {
+  border-left: 1px solid lightgray;
+}
+.light-right-border {
+  border-right: 1px solid lightgray;
+}
+
 #syso_date_range {
   display: inline-block;
 }
@@ -440,4 +447,13 @@ a:hover {
 #sys_status_download_tab,
 #sys_comp_download_tab {
   float:right;
+}
+
+#system_composition_selections label.checkbox-inline {
+  padding-right: 10px;
+}
+
+#system_composition_selections label.checkbox-inline:nth-child(3),
+#system_composition_selections label.checkbox-inline:nth-child(5) {
+  border-right: 1px solid lightgray;
 }
