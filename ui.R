@@ -43,11 +43,6 @@ dashboardPage(
                tabName = "tabLocalSettings"),
       menuItem("View Client Counts",
                   tabName = "tabClientCount"),
-      menuItem("System Performance",
-              menuSubItem("System Overview",
-                           tabName = "systemOverview"),
-              menuSubItem("System Exit Detail",
-                           tabName = "systemExitDetail")),
       menuItem("Assess Data Quality",
                menuSubItem("Check Project Data",
                            tabName = "tabPDDE"),
@@ -55,6 +50,11 @@ dashboardPage(
                            tabName = "tabDQSystem"),
                menuSubItem("Organization-level",
                            tabName = "tabDQOrg")),
+      menuItem("System Performance",
+               menuSubItem("System Overview",
+                           tabName = "systemOverview"),
+               menuSubItem("System Exit Detail",
+                           tabName = "systemExitDetail")),
       menuItem("View Changelog",
                tabName = "tabChangelog")
       # ),
@@ -651,6 +651,200 @@ dashboardPage(
         ))
       ),
       tabItem(
+        tabName = "tabPDDE",
+        fluidRow(box(htmlOutput(
+          "headerPDDE"
+        ), width = 12)),
+        fluidRow(box(
+          title = "Instructions",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          HTML("
+               <h4>Project Descriptor Data Element (PDDE) Check Summary</h4>
+               <p>Once you have successfully uploaded an HMIS CSV Export, you
+               will find a summary of each issue that was flagged in your data
+               regarding your PDDEs. Please download the details by clicking the
+               \'Download\' button.</p>
+               
+               <h4>Guidance</h4>
+               <p>For a description of each issue found, check the Guidance 
+               panel.</p>")
+        )),
+        fluidRow(
+          box(
+            id = "PDDESummaryOrganization",
+            title = paste("PDDE Check Summary"),
+            status = "info",
+            solidHeader = TRUE,
+            DTOutput("pdde_summary_table"),
+            width = 12,
+            br(),
+            uiOutput("downloadPDDEReportButton") %>% withSpinner()
+          ),
+          box(id = "PDDEGuidance",
+              DTOutput("pdde_guidance_summary"),
+              title = "Guidance",
+              width = 12,
+              status = "info",
+              solidHeader = TRUE)
+        )
+      ),
+      tabItem(
+        tabName = "tabDQOrg",
+        fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
+        fluidRow(box(
+          title = "Instructions",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          HTML("
+               <h4>Organization-wide HMIS Data Quality</h4>
+               <p>Below, select the organization whose data quality you would
+               like to check. The data shown will reflect the date range that
+               you used to run your HMIS CSV Export. It will show data quality
+               metrics from all Projects that are associated with that
+               organization.</p>
+               <p>You can click the Download button to generate an Excel workbook 
+               with the selected organization's data quality errors. You can send 
+               these to authorized HMIS users at the selected organization
+               so they can work on correcting their data. Feel free to modify, 
+               add, or remove anything as you see fit. For example, you may want 
+               your users to only address High Priority issues right now. You can
+               easily remove any tabs that may distract your users from that goal.
+               Please note that Overlaps will be shown in the 'Warnings' tab and
+               again in the 'Overlap Detail' tab of the download. This is so
+               your users have enough detail to track down each issue.</p>
+               <p>Note that protected personal information (PPI), such as Personal
+               ID in combination with other data elements, is contained in the
+               Excel downloads. Users must follow all applicable HMIS privacy
+               and security policies when storing, transmitting, and disclosing
+               files with client records.</p>
+               
+               <h4>Some definitions:</h4>
+               <p>This app categorizes every issue it finds in your data set in
+               terms of its severity.</p>
+               <ul>
+               <li>High Priority Errors
+                <ul>
+                  <li> Always indicates a data quality issue that can and should
+                      be fixed in HMIS.</li>
+                  <li> Aim for 0 High Priority errors.</li>
+                  <li> These errors affect multiple federal reports in a
+                      fundamental way and thus should be prioritized.</li>
+                </ul></li>
+               <li>General Errors
+                <ul>
+                  <li> Always indicates a data quality issue that can and should
+                      be fixed in HMIS.</li>
+                  <li> Aim for 0 General Errors.
+                </ul></li>
+               <li>Warnings
+                <ul>
+                  <li> May be a data quality issue, but may also be an unexpected
+                      situation that reflects reality.</li>
+                  <li> Do not aim for 0 Warnings. It is ok and expected to have
+                      some warnings.</li>
+                  <li> End users should check that any data being flagged as a
+                      Warning is accurate in their HMIS. If it is not accurate,
+                      then it should be corrected. If it is accurate, it should
+                      be left as is.</li>
+                </ul></li>
+               </ul>
+               <p>Regardless of an issue's categorization, <b>users should never
+               edit data that accurately reflects reality</b>.
+               
+               <h4>Organization-wide HMIS Data Quality Plots</h4>
+               <p>For each type of issue (High Priority Errors, General Errors,
+               and Warnings) you will find two plots: one graphing the number of
+               issues by type, and one graphing the number of issues by project.
+
+               <h4>Top 10 Issues</h4>
+               <p>Across all the projects within the selected Organization, this
+               plot shows the <b>top 10</b> issues identified. This can be
+               useful in planning targeted HMIS training efforts.</p>
+          
+               <h4>Top 10 Projects</h4>
+               <p>These plots show the <b>top 10</b> projects within the selected
+               organization with the highest number of issues identified. You can
+               use this to help determing which projects may need extra assistance
+               in addressing their data quality issues.</p>
+               
+               <h4>Download Organization-wide HMIS Data Quality Data</h4>
+               <p>To download all of the client and enrollment related issues
+               found in the selected Organization, click the Download button.
+               This will give HMIS admins a way of communicating to an Organization
+               what kinds of HMIS data quality issues they have.</p>")
+        )), 
+        fluidRow(box(
+          pickerInput(
+            label = "Select Organization",
+            inputId = "orgList",
+            choices = NULL,
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains'),
+            width = "100%",
+            selected = "none"
+          ),
+          uiOutput("downloadOrgDQReportButton"),
+          width = 12
+        )), 
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Top 10 Issues",
+            title = "High Priority Errors",
+            tabPanel("Top 10 Projects",
+                     uiOutput("orgDQHighPriorityErrorsByProject_ui")  %>% withSpinner()),
+            tabPanel("Top 10 Issues",
+                     uiOutput("orgDQHighPriorityErrorByIssue_ui") %>% withSpinner()),
+            width = 12
+          )
+        ),
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Top 10 Issues",
+            title = "General Errors",
+            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui") %>% withSpinner()),
+            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()),
+            width =12
+          )
+        ),
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Top 10 Issues",
+            title = "Warnings",
+            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui") %>% withSpinner()),
+            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui") %>% withSpinner()),
+            width = 12
+          )
+        ),
+        
+        fluidRow(
+          box(
+            id = "DQSummaryOrganization",
+            title = paste("Data Quality Summary"),
+            status = "info",
+            solidHeader = TRUE,
+            DTOutput("dq_organization_summary_table"),
+            width = 12
+          )
+        ),
+        
+        fluidRow(
+          box(
+            id = "DQSummaryProvider",
+            DTOutput("dq_org_guidance_summary"),
+            title = "Data Quality Guidance",
+            width = 12,
+            status = "info",
+            solidHeader = TRUE
+          )
+        )
+      ),
+      tabItem(
         tabName = "systemOverview",
         fluidRow(box(htmlOutput("headerSystemOverview"), width = 12)),
         fluidRow(box(
@@ -858,200 +1052,6 @@ dashboardPage(
           box(
             width = 12,
             HTML("<h2>Placeholder</h2>")
-          )
-        )
-      ),
-      tabItem(
-        tabName = "tabPDDE",
-        fluidRow(box(htmlOutput(
-          "headerPDDE"
-        ), width = 12)),
-        fluidRow(box(
-          title = "Instructions",
-          width = 12,
-          collapsible = TRUE,
-          collapsed = TRUE,
-          HTML("
-               <h4>Project Descriptor Data Element (PDDE) Check Summary</h4>
-               <p>Once you have successfully uploaded an HMIS CSV Export, you
-               will find a summary of each issue that was flagged in your data
-               regarding your PDDEs. Please download the details by clicking the
-               \'Download\' button.</p>
-               
-               <h4>Guidance</h4>
-               <p>For a description of each issue found, check the Guidance 
-               panel.</p>")
-        )),
-        fluidRow(
-          box(
-            id = "PDDESummaryOrganization",
-            title = paste("PDDE Check Summary"),
-            status = "info",
-            solidHeader = TRUE,
-            DTOutput("pdde_summary_table"),
-            width = 12,
-            br(),
-            uiOutput("downloadPDDEReportButton") %>% withSpinner()
-          ),
-          box(id = "PDDEGuidance",
-              DTOutput("pdde_guidance_summary"),
-              title = "Guidance",
-              width = 12,
-              status = "info",
-              solidHeader = TRUE)
-        )
-      ),
-      tabItem(
-        tabName = "tabDQOrg",
-        fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
-        fluidRow(box(
-          title = "Instructions",
-          width = 12,
-          collapsible = TRUE,
-          collapsed = TRUE,
-          HTML("
-               <h4>Organization-wide HMIS Data Quality</h4>
-               <p>Below, select the organization whose data quality you would
-               like to check. The data shown will reflect the date range that
-               you used to run your HMIS CSV Export. It will show data quality
-               metrics from all Projects that are associated with that
-               organization.</p>
-               <p>You can click the Download button to generate an Excel workbook 
-               with the selected organization's data quality errors. You can send 
-               these to authorized HMIS users at the selected organization
-               so they can work on correcting their data. Feel free to modify, 
-               add, or remove anything as you see fit. For example, you may want 
-               your users to only address High Priority issues right now. You can
-               easily remove any tabs that may distract your users from that goal.
-               Please note that Overlaps will be shown in the 'Warnings' tab and
-               again in the 'Overlap Detail' tab of the download. This is so
-               your users have enough detail to track down each issue.</p>
-               <p>Note that protected personal information (PPI), such as Personal
-               ID in combination with other data elements, is contained in the
-               Excel downloads. Users must follow all applicable HMIS privacy
-               and security policies when storing, transmitting, and disclosing
-               files with client records.</p>
-               
-               <h4>Some definitions:</h4>
-               <p>This app categorizes every issue it finds in your data set in
-               terms of its severity.</p>
-               <ul>
-               <li>High Priority Errors
-                <ul>
-                  <li> Always indicates a data quality issue that can and should
-                      be fixed in HMIS.</li>
-                  <li> Aim for 0 High Priority errors.</li>
-                  <li> These errors affect multiple federal reports in a
-                      fundamental way and thus should be prioritized.</li>
-                </ul></li>
-               <li>General Errors
-                <ul>
-                  <li> Always indicates a data quality issue that can and should
-                      be fixed in HMIS.</li>
-                  <li> Aim for 0 General Errors.
-                </ul></li>
-               <li>Warnings
-                <ul>
-                  <li> May be a data quality issue, but may also be an unexpected
-                      situation that reflects reality.</li>
-                  <li> Do not aim for 0 Warnings. It is ok and expected to have
-                      some warnings.</li>
-                  <li> End users should check that any data being flagged as a
-                      Warning is accurate in their HMIS. If it is not accurate,
-                      then it should be corrected. If it is accurate, it should
-                      be left as is.</li>
-                </ul></li>
-               </ul>
-               <p>Regardless of an issue's categorization, <b>users should never
-               edit data that accurately reflects reality</b>.
-               
-               <h4>Organization-wide HMIS Data Quality Plots</h4>
-               <p>For each type of issue (High Priority Errors, General Errors,
-               and Warnings) you will find two plots: one graphing the number of
-               issues by type, and one graphing the number of issues by project.
-
-               <h4>Top 10 Issues</h4>
-               <p>Across all the projects within the selected Organization, this
-               plot shows the <b>top 10</b> issues identified. This can be
-               useful in planning targeted HMIS training efforts.</p>
-          
-               <h4>Top 10 Projects</h4>
-               <p>These plots show the <b>top 10</b> projects within the selected
-               organization with the highest number of issues identified. You can
-               use this to help determing which projects may need extra assistance
-               in addressing their data quality issues.</p>
-               
-               <h4>Download Organization-wide HMIS Data Quality Data</h4>
-               <p>To download all of the client and enrollment related issues
-               found in the selected Organization, click the Download button.
-               This will give HMIS admins a way of communicating to an Organization
-               what kinds of HMIS data quality issues they have.</p>")
-        )), 
-        fluidRow(box(
-          pickerInput(
-            label = "Select Organization",
-            inputId = "orgList",
-            choices = NULL,
-            options = pickerOptions(liveSearch = TRUE,
-                                    liveSearchStyle = 'contains'),
-            width = "100%",
-            selected = "none"
-          ),
-          uiOutput("downloadOrgDQReportButton"),
-          width = 12
-        )), 
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Top 10 Issues",
-            title = "High Priority Errors",
-            tabPanel("Top 10 Projects",
-                     uiOutput("orgDQHighPriorityErrorsByProject_ui")  %>% withSpinner()),
-            tabPanel("Top 10 Issues",
-                     uiOutput("orgDQHighPriorityErrorByIssue_ui") %>% withSpinner()),
-            width = 12
-          )
-        ),
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Top 10 Issues",
-            title = "General Errors",
-            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui") %>% withSpinner()),
-            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()),
-            width =12
-          )
-        ),
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Top 10 Issues",
-            title = "Warnings",
-            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui") %>% withSpinner()),
-            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui") %>% withSpinner()),
-            width = 12
-          )
-        ),
-       
-        fluidRow(
-          box(
-            id = "DQSummaryOrganization",
-            title = paste("Data Quality Summary"),
-            status = "info",
-            solidHeader = TRUE,
-            DTOutput("dq_organization_summary_table"),
-            width = 12
-          )
-        ),
-        
-        fluidRow(
-          box(
-            id = "DQSummaryProvider",
-            DTOutput("dq_org_guidance_summary"),
-            title = "Data Quality Guidance",
-            width = 12,
-            status = "info",
-            solidHeader = TRUE
           )
         )
       ),
