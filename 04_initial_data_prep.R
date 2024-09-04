@@ -113,10 +113,11 @@ EnrollmentOutside <- as.data.table(EnrollmentStaging %>%
                      ProjectType,
                      HMISParticipationStatusStartDate,
                      HMISParticipationStatusEndDate,
-                     ParticipatingDateRange,
+                     # ParticipatingDateRange,
                      OperatingStartDate,
                      OperatingEndDate,
-                     OperatingDateRange), by = "ProjectID",
+                     # OperatingDateRange
+                     ), by = "ProjectID",
             relationship = "many-to-many")) # %>%
 # AS 5/5/24: commenting out for now because this merge doesn't work correctly with intervals
 # Submitted GitHub issue for lubridate: https://github.com/tidyverse/lubridate/issues/1165
