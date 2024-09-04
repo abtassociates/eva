@@ -79,7 +79,8 @@ output$sankey_ui_chart <- renderPlot({
       xmin = 0.83,
       xmax = 1.17,
       ymin = ystart,
-      ymax = yend
+      ymax = yend,
+      color ='black'
     )
   ) +
       
