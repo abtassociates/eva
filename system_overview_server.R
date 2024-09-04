@@ -117,3 +117,5 @@ syso_gender_cats <- function(methodology = 1){
          list(syso_gender_excl),
          list(syso_gender_incl))[[1]]
 }
+
+font_size <- 14 / .pt
