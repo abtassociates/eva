@@ -955,29 +955,28 @@ dashboardPage(
         ),
         fluidRow(
           box(
-            width=12,
+            width = 12,
             tabsetPanel(
               id = "syso_tabsetpanel",
               type = "tabs",
               tabPanel(
-                id="syso_inflowoutflow", 
-                title="System Inflow/Outflow",
+                id = "syso_inflowoutflow",
+                title = "System Inflow/Outflow",
                 tabsetPanel(
                   id = "sys_inflow_outflow_subtabs",
                   selected = "Summary",
-                  tabPanel("Summary", 
+                  tabPanel("Summary",
                            uiOutput("sys_act_summary_filter_selections"),
                            uiOutput("sys_act_summary_chart_subheader"),
                            plotOutput("sys_act_summary_ui_chart")
                   ),
-                  tabPanel("Detail", 
+                  tabPanel("Detail",
                            uiOutput("sys_act_detail_filter_selections"),
                            uiOutput("sys_act_detail_chart_subheader"),
                            plotOutput("sys_act_detail_ui_chart")
                   ),
-                  tabPanel("Insights", 
-                           uiOutput("system_activity_instructions_ui")
-                  )
+                  tabPanel("Insights",
+                           uiOutput("system_activity_instructions_ui"))
                 ),
                 downloadButton("sys_inflow_outflow_download_btn", "Download")
               ),
@@ -988,13 +987,12 @@ dashboardPage(
                 title = "Client System Status",
                 tabsetPanel(
                   id = "sys_status_subtabs",
-                  tabPanel("Summary", 
+                  tabPanel("Summary",
                            uiOutput("sankey_filter_selections"),
                            plotOutput("sankey_ui_chart")
                   ),
-                  tabPanel("Insights", 
-                           uiOutput("sankey_instructions_ui")
-                  )
+                  tabPanel("Insights",
+                           uiOutput("sankey_instructions_ui"))
                 ),
                 downloadButton("sys_status_download_btn", "Download"),
                 width = 12
@@ -1006,37 +1004,35 @@ dashboardPage(
                 title = "Composition of All Served in Period",
                 tabsetPanel(
                   id = "sys_comp_subtabs",
-                  tabPanel("Chart", 
-                           fluidRow(
-                             box(
-                               strong("Select Demographic Categories"),
-                               p(str_glue(
-                                 "Choose up to two demographic selections from 
-                                 the categories below. Selecting a single category 
-                                 will provide totals for just that category. 
-                                 Note that you can only select one Race/Ethnicity 
-                                 group at a time."
-                               )),
-                               br(),
-                               checkboxGroupInput(
-                                 "system_composition_selections",
-                                 label = paste0(
-                                   "Gender, Race/Ethnicity, and Special Populations ",
-                                   "(select up to 2)"
-                                 ),
-                                 choices = sys_comp_selection_choices1,
-                                 selected = c("All Races/Ethnicities", "Age"),
-                                 inline = TRUE
-                               ),
-                               width = 12
-                             )
-                          ),
-                          uiOutput("sys_comp_summary_selections"),
-                          plotOutput("sys_comp_summary_ui_chart")
+                  tabPanel("Chart",
+                    fluidRow(
+                      box(
+                        strong("Select Demographic Categories"),
+                        p(str_glue(
+                          "Choose up to two demographic selections from
+                           the categories below. Selecting a single category
+                           will provide totals for just that category.
+                           Note that you can only select one Race/Ethnicity
+                           group at a time."
+                        )),
+                      br(),
+                      checkboxGroupInput(
+                        "system_composition_selections",
+                        label = paste0(
+                          "Gender, Race/Ethnicity, and Special Populations ",
+                          "(select up to 2)"
+                        ),
+                        choices = sys_comp_selection_choices1,
+                        selected = c("All Races/Ethnicities", "Age"),
+                        inline = TRUE
+                      ),
+                      width = 12
+                    )),
+                    uiOutput("sys_comp_summary_selections"),
+                    plotOutput("sys_comp_summary_ui_chart")
                   ),
-                  tabPanel("Information", 
-                           p("Some instructions")
-                  )
+                  tabPanel("Information",
+                           p("Some instructions"))
                 ),
                 downloadButton("sys_comp_download_btn", "Download"),
                 width = 12
