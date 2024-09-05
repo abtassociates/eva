@@ -1266,7 +1266,7 @@ dashboardPage(
                            fluidRow(
                              box(
 
-                               strong("Select Demographic Crosstab Categories (up tp 2)"),
+                               strong("Select Demographic Crosstab Categories (up to 2)"),
 
                                p(str_glue(
                                  "Selecting a single category 
