@@ -1026,7 +1026,7 @@ dashboardPage(
         ),
         fluidRow(
           box(
-            width=12,
+            width = 12,
             tabsetPanel(
               id = "syso_tabsetpanel",
               type = "tabs",
@@ -1265,9 +1265,7 @@ dashboardPage(
                   tabPanel("Chart", 
                            fluidRow(
                              box(
-
                                strong("Select Demographic Crosstab Categories (up to 2)"),
-
                                p(str_glue(
                                  "Selecting a single category 
                                  will provide totals for just that category. 

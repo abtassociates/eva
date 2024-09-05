@@ -296,7 +296,9 @@ renderSystemPlot <- function(id) {
           case_when(
             inflow_to_outflow > 0 ~ paste0("+", scales::comma(inflow_to_outflow)),
             inflow_to_outflow == 0 ~ "0",
-            inflow_to_outflow < 0 ~ scales::comma(inflow_to_outflow))
+            inflow_to_outflow < 0 ~ scales::comma(inflow_to_outflow)
+          ),
+          "\n"
         )
       ) +
       # color palette
@@ -314,7 +316,7 @@ renderSystemPlot <- function(id) {
       # add back in what theme elements we want
       theme(
         text = element_text(size = 16, colour = "#4e4d47"),
-        axis.text.x = element_text(size = 16),
+        axis.text.x = element_text(size = 16, vjust = -.2),
         axis.ticks.x = element_line(),
         axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
         plot.margin = unit(c(3, 1, 1, 1), "lines"),
@@ -323,8 +325,10 @@ renderSystemPlot <- function(id) {
         legend.position = "bottom",
         legend.margin = margin(.5, 0, 0, 0, unit = "inch")
       )
-    
-  })}
+  }, height = function() {
+    session$clientData$output_sys_act_summary_ui_chart_width/2
+  })
+}
 
 
 # Plot prompts for plot subtitle ------------------------------------------
