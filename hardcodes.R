@@ -137,11 +137,11 @@ syso_hh_types <- list(
   "Adult Only" = "AO",
   "Adult Child" = "AC",
   "- Parenting Youth" = "PY",
-  "Children Only" = "CO"
+  "Child Only" = "CO"
 )
 
 syso_level_of_detail <- list(
-  "All" = "All", 
+  "All People" = "All", 
   "Heads of Household and Adults" = "HoHsAndAdults", 
   "Heads of Household Only" = "HoHsOnly"
 )
@@ -265,9 +265,9 @@ syso_veteran_pops <- list(
 )
 
 syso_dv_pops <- list(
-  "Domestic Violence Survivor: Currently Fleeing" = "DVFleeing",
-  "Domestic Violence Survivor: Not Currently Fleeing" = "DVNotFleeing",
-  "Domestic Violence Survivor: Total" = "DVTotal",
+  "Domestic Violence Survivor: Reported Currently Fleeing" = "DVFleeing",
+  "Domestic Violence Survivor: Reported Not Currently Fleeing" = "DVNotFleeing",
+  "Domestic Violence Survivor: Reported Total" = "DVTotal",
   "No Domestic Violence Indicated" = "NotDV"
 )
 
@@ -277,7 +277,7 @@ syso_chronic_pops <- list(
 )
 
 syso_spec_pops_people <- c(
-  "None" = "None",
+  "All Populations" = "None",
   # "Inflow",
   syso_veteran_pops,
   syso_dv_pops#,
