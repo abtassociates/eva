@@ -424,13 +424,8 @@ a:hover {
 }
 
 /* DISABLE FILTERS*/
-.filter-disabled {
-  pointer-events: none;
-  color: gray;
-}
-
-.filter-disabled .dropdown-toggle {
-  background-color: #F1F1F1;
+#syso_inflowoutflow_filters.filter-hidden {
+  display: none;
 }
 
 #sys_inflow_outflow_download_tab,
