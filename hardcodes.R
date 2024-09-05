@@ -133,11 +133,11 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 syso_hh_types <- list(
   "All Household Types" = "All",
-  "Households without children" = "AO",
-  "Households with children" = "AC",
-  "Children Only" = "CO",
-  "Youth and Young Adults" = "YYA",
-  "Parenting Youth" = "PY"
+  "- Youth and Young Adult" = "YYA",
+  "Adult Only" = "AO",
+  "Adult Child" = "AC",
+  "- Parenting Youth" = "PY",
+  "Children Only" = "CO"
 )
 
 syso_level_of_detail <- list(
@@ -147,7 +147,7 @@ syso_level_of_detail <- list(
 )
 
 syso_project_types <- list(
-  "All" = "All",
+  "All Project Types" = "All",
   "Residential" = "Residential",
   "Non-residential" = "NonResidential"
 )
@@ -265,9 +265,9 @@ syso_veteran_pops <- list(
 )
 
 syso_dv_pops <- list(
-  "Currently Fleeing DV" = "DVFleeing",
-  "Not Currently Fleeing DV" = "DVNotFleeing",
-  "Total Experienced Domestic Violence" = "DVTotal",
+  "Domestic Violence Survivor: Currently Fleeing" = "DVFleeing",
+  "Domestic Violence Survivor: Not Currently Fleeing" = "DVNotFleeing",
+  "Domestic Violence Survivor: Total" = "DVTotal",
   "No Domestic Violence Indicated" = "NotDV"
 )
 
@@ -285,8 +285,8 @@ syso_spec_pops_people <- c(
 )
 
 syso_methodology_types <- c(
-  "A person is only counted once in a chart (Exclusive Groupings)" = 1,
-  "A person may be counted multiple times in a chart (Inclusive Groupings)" = 2
+  "A person is only counted in one gender and one race/ethnicity category (Exclusive Groupings)" = 1,
+  "A person may be counted in multiple gender and multiple race/ethnicity categories (Inclusive Groupings)" = 2
 )
 
 syso_grouping_detail <- c(

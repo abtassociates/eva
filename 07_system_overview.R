@@ -3,7 +3,7 @@ logToConsole("Running system overview")
 # Age ---------------------------------------------------------------------
 system_person_ages <- EnrollmentAdjust %>%
   group_by(PersonalID) %>%
-  slice_max(AgeAtEntry, na_rm = TRUE, with_ties = FALSE) %>%
+  slice_max(AgeAtEntry, na_rm = FALSE, with_ties = FALSE) %>%
   ungroup() %>%
   mutate(AgeCategory = factor(
     case_when(
