@@ -466,18 +466,13 @@ sys_total_count_display <- function(total_count) {
         TRUE ~
           getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
       ),
-      case_when(
-        input$syso_hh_type == "All" ~ "",
-        str_detect(getNameByValue(syso_hh_types, input$syso_hh_type), "Household") == FALSE ~
-          paste(
-            " in",
-            getNameByValue(syso_hh_types, input$syso_hh_type),
-            " Households"
-          ),
-        TRUE ~
-          paste(" in", getNameByValue(syso_hh_types, input$syso_hh_type))
-      ),
-      ": ",
+      if_else(
+        input$syso_hh_type == "All",
+        "",
+        paste0(" in ",
+               str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "),
+               " Households")
+        ),       ": ",
       scales::comma(total_count)
     )
   ))

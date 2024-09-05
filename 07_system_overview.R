@@ -38,7 +38,7 @@ logToConsole("Running system overview")
 system_person_ages <- as.data.frame(
   as.data.table(EnrollmentAdjust)[
     , .SD[which.max(AgeAtEntry)], by = PersonalID
-  ][, AgeCategory := fcase(
+  ][, AgeCategory := factor(fcase(
       is.na(AgeAtEntry) | AgeAtEntry < 0, "Unknown",
       AgeAtEntry >= 0 & AgeAtEntry <= 12, "0 to 12",
       AgeAtEntry >= 13 & AgeAtEntry <= 17, "13 to 17",
@@ -50,8 +50,20 @@ system_person_ages <- as.data.frame(
       AgeAtEntry >= 55 & AgeAtEntry <= 64, "55 to 64",
       AgeAtEntry >= 65 & AgeAtEntry <= 74, "65 to 74",
       AgeAtEntry >= 75, "75 and older",
-      default = "Unknown"
-    )
+      default = "Unknown"),
+    levels = c(
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ))
   ][, .(PersonalID, MostRecentAgeAtEntry = AgeAtEntry, AgeCategory)])
 
 # Data prep ---------------------------------------------------------------
