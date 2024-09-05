@@ -80,7 +80,8 @@ output$sankey_ui_chart <- renderPlot({
       xmax = 1.17,
       ymin = ystart,
       ymax = yend
-    )
+    ),
+    colour ='black'
   ) +
       
   #Color for End stratum and alluvial flows
@@ -92,7 +93,7 @@ output$sankey_ui_chart <- renderPlot({
   # Numbers in bars
   geom_text(stat = "stratum",
             aes(label = after_stat(count)),
-            size = 5,
+            size = font_size,
             ) +
   
   # Bar (Text) Labels
@@ -101,14 +102,14 @@ output$sankey_ui_chart <- renderPlot({
     aes(x = 1, y = label_pos, label = Begin), 
     hjust = 1,
     nudge_x = -0.2,
-    size = 4
+    size = font_size
   ) +
   geom_text(
     data = end_labels,
     aes(x = 1, y = label_pos, label = End), 
     hjust = 0,
     nudge_x = 1.2,
-    size = 4
+    size = font_size
   ) +
   
   # X Axis Labels
