@@ -375,7 +375,7 @@ custom_rprof <- function(expr, source_file_name, code_block_name = NULL) {
   startTime <- Sys.time()
   
   # Start profiling
-  Rprof(tmp <- tempfile(), line.profiling = TRUE, numfiles=500L, filter.callframes=TRUE)
+  Rprof(tmp <- tempfile(), line.profiling = TRUE, numfiles=500L)
   
   # Evaluate the expression
   eval(expr)
