@@ -969,7 +969,7 @@ dashboardPage(
                   choices = syso_methodology_types,
                   width = "100%"
                 ),
-              ),
+              ) %>% tagAppendAttributes(class="light-left-border"),
             ),
             fluidRow(
               id="syso_inflowoutflow_filters",
@@ -1001,7 +1001,7 @@ dashboardPage(
                 )
               ),
               column(
-                3,
+                2,
                 pickerInput(
                   label = "Gender",
                   inputId = "syso_gender",
@@ -1010,9 +1010,9 @@ dashboardPage(
                   selected = "All",
                   options = pickerOptions(actionsBox = TRUE)
                 )
-              ),
+              ) %>% tagAppendAttributes(class="light-left-border"),
               column(
-                3,
+                4,
                 pickerInput(
                   label = "Race/Ethnicity",
                   inputId = "syso_race_ethnicity",

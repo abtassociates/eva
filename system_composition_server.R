@@ -547,21 +547,20 @@ observeEvent(input$system_composition_selections, {
   # they can select up to 2
   #disable all unchecked boxes if they've already selected 2
   shinyjs::runjs(str_glue("
-      var numSelected = {length(input$system_composition_selections)};
-      $('#system_composition_selections input[type=checkbox]:not(\":checked\")')
-        .attr('disabled', numSelected == 2);
-    "))
-  
-  #disable all other Race/Ethnicity boxes if they've already selected 1
-  shinyjs::runjs(str_glue("
-      var reSelected = \"{
-        \"All Races/Ethnicities\" %in% input$system_composition_selections |
-        \"Hispanic-Focused Races/Ethnicities\" %in% input$system_composition_selections |
-        \"Grouped Races/Ethnicities\" %in% input$system_composition_selections
-      }\";
-      $('#system_composition_selections input[type=checkbox][value*=\"Races/Ethnicities\"]:not(\":checked\")')
+    var numSelected = {length(input$system_composition_selections)};
+    $('input[name=system_composition_selections]:not(\":checked\")')
+      .attr('disabled', numSelected == 2);
+
+    var reSelected = \"{
+      \"All Races/Ethnicities\" %in% input$system_composition_selections |
+      \"Hispanic-Focused Races/Ethnicities\" %in% input$system_composition_selections |
+      \"Grouped Races/Ethnicities\" %in% input$system_composition_selections
+    }\";
+    
+    if(numSelected == 1)
+      $('input[name=system_composition_selections][value*=\"Races/Ethnicities\"]:not(\":checked\")')
         .attr('disabled', reSelected == 'TRUE');
-    "))
+  "))
 }, ignoreInit = TRUE)
 
 
