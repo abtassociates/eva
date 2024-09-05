@@ -210,8 +210,13 @@ function(input, output, session) {
           }, {
             sys_inflow_outflow_plot_data(inflow_outflow_df())
             sys_df_people_universe_filtered_r(enrollment_categories_reactive() %>%
-                                                select(PersonalID, DomesticViolenceCategory) %>%
+                                                select(PersonalID, DomesticViolenceCategory,lookback, lecr, eecr) %>%
                                                 inner_join(client_categories, join_by(PersonalID)) %>%
+                                                filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
+                                                group_by(PersonalID) %>%
+                                                filter(max(lecr, na.rm = TRUE) == 1 & max(eecr, na.rm = TRUE) == 1) %>%
+                                                ungroup() %>%
+                                                select(-c(lookback, lecr, eecr)) %>%
                                                 unique())
             sankey_plot_data(sankey_plot_df())
           })
