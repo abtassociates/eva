@@ -231,6 +231,10 @@ if(nbn_enrollments_services %>% nrow() > 0) nbn_enrollments_services <-
   summarise(
     NbN15DaysPrior = max(NbN15DaysPrior, na.rm = TRUE),
     NbN15DaysAfter = max(NbN15DaysAfter, na.rm = TRUE)) %>%
+  mutate(
+    NbN15DaysPrior = replace_na(NbN15DaysPrior, 0),
+    NbN15DaysAfter = replace_na(NbN15DaysAfter, 0)
+  ) %>%
   ungroup()
 
 nbn_enrollments_services <- nbn_enrollments_services %>%
@@ -509,14 +513,10 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     ), by = PersonalID
   ][
     ,AgeAtEntry := NULL
-  ][
-    nbn_enrollments_services, on = .(EnrollmentID)
-  ][
-    , `:=`(
-      NbN15DaysPrior = fifelse(is.na(NbN15DaysPrior), FALSE, isTruthy(NbN15DaysPrior)),
-      NbN15DaysAfter = fifelse(is.na(NbN15DaysAfter), FALSE, isTruthy(NbN15DaysAfter))
-    )
   ]
+
+enrollment_categories <- as.data.frame(enrollment_categories) %>%
+  left_join(nbn_enrollments_services, join_by(EnrollmentID))
 
 
 # using table.express -----------------------------------------------------
@@ -844,7 +844,7 @@ client_categories_reactive <- reactive({
 enrollment_categories_reactive <- reactive({
   
   # Filter enrollments by hhtype, project type, and level-of-detail inputs
-  as.data.frame(enrollment_categories) %>%
+  enrollment_categories %>%
     filter((input$syso_hh_type == "All" |
          case_when(
            input$syso_hh_type == "AC" ~ HouseholdType %in% c("ACminusPY", "PY"),
