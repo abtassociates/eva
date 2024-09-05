@@ -1257,7 +1257,7 @@ dashboardPage(
                   tabPanel("Chart", 
                            fluidRow(
                              box(
-                               strong("Select Demographic Categories (up tp 2)"),
+                               strong("Select Demographic Categories (up to 2)"),
                                p(str_glue(
                                  "Choose up to two demographic selections from 
                                  the categories below. Selecting a single category 
