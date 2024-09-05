@@ -149,25 +149,37 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
+importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   if(str_sub(upload_filepath, -4, -1) != ".zip") {
     capture.output("User tried uploading a non-zip file!") 
   }
 
   filename <- str_glue("{csvFile}.csv")
+  if(!is.null(upload_filepath))
+    filename = utils::unzip(zipfile = upload_filepath, files=filename)
+  
+  colTypes <- get_col_types(upload_filepath, csvFile)
+
   data <-
     read_csv(
-      utils::unzip(zipfile = upload_filepath, files = filename),
-      col_types = get_col_types(upload_filepath, csvFile),
+      filename,
+      col_types = colTypes,
       na = ""
     )
+    # AS 5/29/24: This seems a bit faster, but has problems with missing columns, 
+    # like DateDeleted in Client.csv. they come inas character, and not NA
+    # data.table::fread(
+    #   here(filename),
+    #   colClasses = colTypes,
+    #   na.strings="NA"
+    # )
 
+  
   if(csvFile != "Export"){
     data <- data %>%
       filter(is.na(DateDeleted))
   }
 
-  file.remove(filename)
   return(data)
 }
 
@@ -182,11 +194,12 @@ get_col_types <- function(upload_filepath, file) {
     mutate(DataType = data_type_mapping[as.character(DataType)])
   
   # get the columns in the order they appear in the imported file
+  filename = paste0(file, ".csv")
+  if(!is.null(upload_filepath))
+    filename = utils::unzip(zipfile = upload_filepath, files=filename)
+  
   cols_in_file <- colnames(read.table(
-    utils::unzip(
-      zipfile = upload_filepath, 
-      files = str_glue("{file}.csv")
-    ),             
+    filename,
     head = TRUE,
     nrows = 1,
     sep = ","))
@@ -344,6 +357,53 @@ merge_check_info <- function(data, checkIDs) {
       evachecks %>% filter(ID %in% c(checkIDs))
     )
   )
+}
+merge_check_info_dt <- function(data, checkIDs) {
+  return(
+    cbind(
+      data,
+      as.data.table(evachecks)[ID %in% c(checkIDs)]
+    )
+  )
+}
+
+
+############################
+# CUSTOM Rprof() FUNCTION
+############################
+custom_rprof <- function(expr, source_file_name, code_block_name = NULL) {
+  startTime <- Sys.time()
+  
+  # Start profiling
+  Rprof(tmp <- tempfile(), line.profiling = TRUE, numfiles=500L)
+  
+  # Evaluate the expression
+  eval(expr)
+  if(is.null(code_block_name)) {
+    print(paste0(source_file_name, " took: "))
+  } else {
+    print(paste0(code_block_name, " in ", source_file_name, " took: "))
+  }
+  # Stop profiling
+  Rprof(NULL)
+  
+  print(Sys.time() - startTime)
+  
+  # Get profiling summaries
+  x <- summaryRprof(tmp, lines = "show")$by.total
+  
+  # Filter rows related to the source file
+  x_final <- x[grepl(source_file_name, row.names(x)), ]
+  
+  # Order by time
+  # x_final <- x_final[order(-x_final$total.time),]
+  
+  # Print the final results
+  print(x_final)
+  
+  # Remove the temporary file
+  unlink(tmp)
+  unlink("Rprof.out")
 }
 
 
