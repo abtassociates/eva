@@ -534,7 +534,11 @@ output$sys_comp_download_btn <- downloadHandler(
 )
 
 sys_comp_p <- reactive({
-  req(!is.null(input$system_composition_selections) & valid_file() == 1)
+  req(
+    !is.null(input$system_composition_selections) &
+      valid_file() == 1 &
+      between(length(input$system_composition_selections), 1, 2)
+  )
   
   if(length(input$system_composition_selections) == 1) {
     sys_comp_plot_1var()
