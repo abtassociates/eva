@@ -285,8 +285,8 @@ syso_spec_pops_people <- c(
 )
 
 syso_methodology_types <- c(
-  "A person is only counted once in a chart (Exclusive Groupings)" = 1,
-  "A person may be counted multiple times in a chart (Inclusive Groupings)" = 2
+  "A person is only counted in one gender and one race/ethnicity category (Exclusive Groupings)" = 1,
+  "A person may be counted in multiple gender and multiple race/ethnicity categories (Inclusive Groupings)" = 2
 )
 
 syso_grouping_detail <- c(
