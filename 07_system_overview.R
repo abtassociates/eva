@@ -419,6 +419,7 @@ client_categories <- Client %>%
          VeteranStatus,
          AgeCategory
   ) %>%
+  filter(!is.na(AgeCategory)) %>%
   mutate(
     VeteranStatus = if_else(VeteranStatus == 1 &
                               !is.na(VeteranStatus), 1, 0),
