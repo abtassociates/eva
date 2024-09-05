@@ -1265,7 +1265,11 @@ dashboardPage(
                   tabPanel("Chart", 
                            fluidRow(
                              box(
+<<<<<<< HEAD
                                strong("Select Demographic Crosstab Categories (up tp 2)"),
+=======
+                               strong("Select Demographic Categories (up to 2)"),
+>>>>>>> 00793b60e4176dd28f4dba24cbc06372bf276920
                                p(str_glue(
                                  "Selecting a single category 
                                  will provide totals for just that category. 
