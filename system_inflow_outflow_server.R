@@ -212,7 +212,7 @@ renderSystemPlot <- function(id) {
       mid_plot <- 4.5
     }
     
-    colors <- c('#C6BDB9', '#73655E', '#C34931', '#16697A')
+    colors <- c('#ECE7E3', '#9E958F', '#BDB6D7', '#6A559B')
     s <- max(df$yend) + 20
     num_segments <- 20
     segment_size <- get_segment_size(s/num_segments)
@@ -246,8 +246,8 @@ renderSystemPlot <- function(id) {
           ymin = ystart,
           ymax = yend
         ),
-        colour = "#4e4d47",
-        linewidth = .2,
+        colour = "black",
+        linewidth = .5,
         alpha = 0.8
       ) +
       # the connecting segments between bars

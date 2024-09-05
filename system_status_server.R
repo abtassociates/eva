@@ -55,21 +55,29 @@ output$sankey_ui_chart <- renderPlot({
       by = "Begin"
     )
   
-  colors <- c(
-    "Housed" = "#73655E", 
-    "Homeless" = "#C6BDB9",
-    "Exited, Non-Permanent" = "#f0c9c1",
-    "Enrolled, Homeless" = "#c2462e",
-    "Inactive" = "#d5d1cf",
-    "Exited, Permanent" = "#beeaf3",
-    "Enrolled, Housed" = "#16697a"
+  bar_colors <- c(
+    "Housed" = "#9E958F", 
+    "Homeless" = "#ECE7E3",
+    "Exited, Non-Permanent" = "#E8D9D1",
+    "Enrolled, Homeless" = "#B54E37",
+    "Inactive" = "#504742",
+    "Exited, Permanent" = "#DFEDEA",
+    "Enrolled, Housed" = "#326878"
+  )
+  
+  border_colors <- c(
+    "Exited, Non-Permanent" = "#D1AB98",
+    "Enrolled, Homeless" = "#8D3D2A",
+    "Inactive" = "black",
+    "Exited, Permanent" = "#B4C7CB",
+    "Enrolled, Housed" = "#214853"
   )
 
   ggplot(
     data = plot_data,
     aes(axis1 = Begin, axis2 = End, y = freq)
   ) +
-  geom_alluvium(aes(fill = End, colour = End), reverse = TRUE) +
+  geom_alluvium(aes(fill = End, colour = End), reverse = TRUE, alpha = 0.8) +
   geom_stratum(aes(fill = End), reverse = TRUE) +
   
   # construct the Begin bars
@@ -85,10 +93,10 @@ output$sankey_ui_chart <- renderPlot({
   ) +
       
   #Color for End stratum and alluvial flows
-  scale_fill_manual(values = colors) +
+  scale_fill_manual(values = bar_colors) +
     
   #Color for alluvial flow borders
-  scale_color_manual(values = colors) +
+  scale_color_manual(values = border_colors) +
 
   # Numbers in bars
   geom_text(stat = "stratum",
