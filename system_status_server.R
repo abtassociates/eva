@@ -55,21 +55,29 @@ output$sankey_ui_chart <- renderPlot({
       by = "Begin"
     )
   
-  colors <- c(
-    "Housed" = "#73655E", 
-    "Homeless" = "#C6BDB9",
-    "Exited, Non-Permanent" = "#f0c9c1",
-    "Enrolled, Homeless" = "#c2462e",
-    "Inactive" = "#d5d1cf",
-    "Exited, Permanent" = "#beeaf3",
-    "Enrolled, Housed" = "#16697a"
+  bar_colors <- c(
+    "Housed" = "#9E958F", 
+    "Homeless" = "#ECE7E3",
+    "Exited, Non-Permanent" = "#E8D9D1",
+    "Enrolled, Homeless" = "#B54E37",
+    "Inactive" = "#504742",
+    "Exited, Permanent" = "#DFEDEA",
+    "Enrolled, Housed" = "#326878"
+  )
+  
+  border_colors <- c(
+    "Exited, Non-Permanent" = "#D1AB98",
+    "Enrolled, Homeless" = "#8D3D2A",
+    "Inactive" = "black",
+    "Exited, Permanent" = "#B4C7CB",
+    "Enrolled, Housed" = "#214853"
   )
 
   ggplot(
     data = plot_data,
     aes(axis1 = Begin, axis2 = End, y = freq)
   ) +
-  geom_alluvium(aes(fill = End, colour = End), reverse = TRUE) +
+  geom_alluvium(aes(fill = End, colour = End), reverse = TRUE, alpha = 0.8) +
   geom_stratum(aes(fill = End), reverse = TRUE) +
   
   # construct the Begin bars
@@ -80,19 +88,20 @@ output$sankey_ui_chart <- renderPlot({
       xmax = 1.17,
       ymin = ystart,
       ymax = yend
-    )
+    ),
+    colour ='black'
   ) +
       
   #Color for End stratum and alluvial flows
-  scale_fill_manual(values = colors) +
+  scale_fill_manual(values = bar_colors) +
     
   #Color for alluvial flow borders
-  scale_color_manual(values = colors) +
+  scale_color_manual(values = border_colors) +
 
   # Numbers in bars
   geom_text(stat = "stratum",
             aes(label = after_stat(count)),
-            size = 5,
+            size = font_size,
             ) +
   
   # Bar (Text) Labels
@@ -101,14 +110,14 @@ output$sankey_ui_chart <- renderPlot({
     aes(x = 1, y = label_pos, label = Begin), 
     hjust = 1,
     nudge_x = -0.2,
-    size = 4
+    size = font_size
   ) +
   geom_text(
     data = end_labels,
     aes(x = 1, y = label_pos, label = End), 
     hjust = 0,
     nudge_x = 1.2,
-    size = 4
+    size = font_size
   ) +
   
   # X Axis Labels

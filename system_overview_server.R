@@ -1,5 +1,5 @@
 # when user changes chart tabs
-# disable filters for Composition chart
+# hide demographic filters for Composition chart
 # hide other stuff if valid file is not uploaded
 # move chart download button to be inline with subtabs
 observeEvent(input$syso_tabsetpanel, {
@@ -7,7 +7,7 @@ observeEvent(input$syso_tabsetpanel, {
   toggleClass(
     id = "syso_inflowoutflow_filters",
     condition = input$syso_tabsetpanel == "Composition of All Served in Period",
-    class = "filter-disabled"
+    class = "filter-hidden"
   )
 }, ignoreNULL = TRUE)
 
@@ -117,3 +117,5 @@ syso_gender_cats <- function(methodology = 1){
          list(syso_gender_excl),
          list(syso_gender_incl))[[1]]
 }
+
+font_size <- 14 / .pt
