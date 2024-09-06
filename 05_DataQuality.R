@@ -248,7 +248,9 @@ hh_no_hoh_dt <- hh_no_hoh_dt[hasHoH == FALSE]
 
 hh_no_hoh <- as.data.frame.matrix(
   base_dq_data_dt[hh_no_hoh_dt, on = .(PersonalID, HouseholdID)]
-)
+) %>% 
+  merge_check_info(checkIDs = 2) %>%
+  select(all_of(vars_we_want))
 
 
 hh_too_many_hohs <- base_dq_data %>%
