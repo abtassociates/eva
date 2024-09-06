@@ -1275,7 +1275,7 @@ dashboardPage(
                                checkboxGroupInput(
                                  "system_composition_selections",
                                  label = "",
-                                 choices = sys_comp_selection_choices1,
+                                 choices = sys_comp_selection_choices,
                                  selected = c("All Races/Ethnicities", "Age"),
                                  inline = TRUE
                                ),

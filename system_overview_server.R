@@ -25,14 +25,14 @@ observeEvent(input$methodology_type, {
     "syso_race_ethnicity", 
     choices = syso_race_ethnicity_cats(input$methodology_type)
   )
-  
-  updateCheckboxGroupInput(
-    session, 
-    "system_composition_selections", 
-    choices = sys_comp_selection_choices(),
-    inline = TRUE
+
+  # update System Composition Grouped Races/Ethnicities label
+  grouped_re_lbl_new <- ifelse(input$methodology_type == 1, "Grouped", "Hispanic-Focused")
+  shinyjs::runjs(
+    glue("
+      $('#system_composition_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
+    ")
   )
-  
 },
 ignoreInit = TRUE)
 

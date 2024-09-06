@@ -1,13 +1,5 @@
 sys_comp_plot_df <- reactiveVal()
 
-sys_comp_selection_choices <- reactive({
-  ifelse(
-    input$methodology_type == 1,
-    list(sys_comp_selection_choices1),
-    list(sys_comp_selection_choices2)
-  )[[1]]
-})
-
 get_race_ethnicity_vars <- function(v) {
   if (v == "All") {
     syso_race_ethnicities_all <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Detailed"])
@@ -54,7 +46,6 @@ get_var_cols <- function() {
       "Age" = "AgeCategory",
       "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
       "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-      "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
       "Domestic Violence" = "DomesticViolenceCategory",
       "Gender" = unlist(
         syso_gender_cats(input$methodology_type) %>% discard_at("All Genders")
@@ -136,7 +127,6 @@ get_selection_cats <- function(selection) {
     "Age" = syso_age_cats,
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-    "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
     "Domestic Violence" = syso_dv_pops,
     "Veteran Status" = syso_veteran_pops
     # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
@@ -260,8 +250,7 @@ suppress_values <- function(.data, count_var) {
 sys_comp_plot_2vars <- function(isExport = FALSE) {
   # race/ethnicity, if selected, should always be on the row
   if (input$system_composition_selections[1] == "All Races/Ethnicities" |
-      input$system_composition_selections[1] == "Grouped Races/Ethnicities" |
-      input$system_composition_selections[1] == "Hispanic-Focused Races/Ethnicities") {
+      input$system_composition_selections[1] == "Grouped Races/Ethnicities") {
     x <- input$system_composition_selections[2]
     input$system_composition_selections[2] <- input$system_composition_selections[1]
     input$system_composition_selections[1] <- x
@@ -554,7 +543,6 @@ observeEvent(input$system_composition_selections, {
 
     var reSelected = \"{
       \"All Races/Ethnicities\" %in% input$system_composition_selections |
-      \"Hispanic-Focused Races/Ethnicities\" %in% input$system_composition_selections |
       \"Grouped Races/Ethnicities\" %in% input$system_composition_selections
     }\";
     
