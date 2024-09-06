@@ -580,3 +580,77 @@ output$sys_comp_summary_ui_chart <- renderPlot({
 }, width = function() {
   ifelse(length(input$system_composition_selections) == 1, 600, "auto")
 })
+
+
+output$sys_comp_download_btn_ppt <- downloadHandler(
+  filename = function() {
+    paste("Report_Slide", Sys.Date(), ".pptx", sep = "")
+  },
+  content = function(file) {
+    report_period <- paste0("Report Period: ", 
+                            format(meta_HUDCSV_Export_Start(), "%m/%d/%Y"),
+                            " - ",
+                            format(meta_HUDCSV_Export_End(), "%m/%d/%Y")
+    )
+    loc_title <- ph_location_type(type = "title")
+    loc_footer <- ph_location_type(type = "ftr")
+    loc_dt <- ph_location_type(type = "dt")
+    loc_slidenum <- ph_location_type(type = "sldNum")
+    loc_body <- ph_location_type(type = "body")
+    loc_subtitle <- ph_location_type(type = "subTitle")
+    loc_ctrtitle <- ph_location_type(type = "ctrTitle")
+    
+    ppt <- read_pptx()
+    
+    add_footer <- function(.ppt) {
+      return(
+        .ppt %>%
+          ph_with(value = paste0("CoC Code: ", Export()$SourceID), location = loc_footer) %>%
+          ph_with(value = report_period, location = loc_dt) %>%
+          ph_with(
+            value = paste0(
+              "Export Generated: ",
+              format(Sys.Date()),
+              "\n",
+              "https://hmis.abtsites.com/eva/"
+            ),
+            location = loc_slidenum
+          )
+      )
+    }
+    # title Slide
+    ppt <- add_slide(ppt, layout = "Title Slide", master = "Office Theme") %>%
+      ph_with(value = "Composition of All Served in Period", location = loc_ctrtitle) %>%
+      ph_with(value = "Eva Image Export", location = loc_subtitle) %>%
+      add_footer()
+      
+    # Summary
+    ppt <- add_slide(ppt, layout = "Title and Content") %>%
+      ph_with(value = "Summary", location = loc_title) %>%
+      ph_with(value = c(
+        paste0("Methodology Type: ", getNameByValue(syso_methodology_types, input$methodology_type)),
+        paste0("Household Type: ", getNameByValue(syso_hh_types, input$syso_hh_type)),
+        paste0("Level of Detail: ", getNameByValue(syso_level_of_detail, input$syso_level_of_detail)),
+        paste0("Project Type: ", getNameByValue(syso_project_types, input$syso_project_type)),
+        paste0("Demographic Selection 1: ", input$system_composition_selections[1]),
+        paste0("Demographic Selection 2: ", input$system_composition_selections[2]),
+        paste0("Total People: ",  nrow(sys_df_people_universe_filtered_r()))
+      ), location = loc_body) %>%
+      add_footer()
+    
+    # Chart
+    ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
+      ph_with(value = paste0(
+        "Composition of All served in Period: ",
+        input$system_composition_selections[1],
+        " by ",
+        input$system_composition_selections[2]
+        ),
+        location = loc_title) %>%
+      ph_with(value = sys_comp_p(), location = loc_body) %>%
+      add_footer()
+    
+    # Export the PowerPoint
+    print(ppt, target = file)
+  }
+)

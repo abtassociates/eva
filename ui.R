@@ -1327,6 +1327,7 @@ dashboardPage(
                   )
                 ),
                 downloadButton("sys_comp_download_btn", "Download"),
+                downloadButton("sys_comp_download_btn_ppt", "Download PPT"),
                 width = 12
               )
             )

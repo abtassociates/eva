@@ -63,6 +63,7 @@ toggle_sys_components <- function(cond) {
     shinyjs::toggle(glue('sys_{tab}_subtabs'), condition = cond)
     shinyjs::toggle(selector = glue('#sys_{tab}_subtabs + div.tab-content'), condition = cond)
     shinyjs::toggle(glue('sys_{tab}_download_btn'), condition = cond)
+    shinyjs::toggle(glue('sys_{tab}_download_btn_ppt'), condition = cond)
     
     # move download button to subtab row and only show if there's data
     shinyjs::runjs(
@@ -70,6 +71,8 @@ toggle_sys_components <- function(cond) {
           document.getElementById('sys_{tab}_subtabs')
             .insertAdjacentHTML('beforeEnd', '<li id=\"sys_{tab}_download_tab\"></li>');
           $('#sys_{tab}_download_btn').appendTo('#sys_{tab}_download_tab')
+            .toggle('{cond}' == 'TRUE');
+          $('#sys_{tab}_download_btn_ppt').appendTo('#sys_{tab}_download_tab')
             .toggle('{cond}' == 'TRUE');
         ")
     )
