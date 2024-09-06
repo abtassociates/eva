@@ -442,7 +442,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
-        axis.text = element_text(size = rel(ifelse(isExport, 0.8, 1.2)))
+        axis.text = element_text(size = rel(ifelse(isExport, 0.7, 1.2)))
       )
   )
 }
@@ -638,13 +638,6 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
         fpar(ftext(paste0("Total People: ",  nrow(sys_df_people_universe_filtered_r())), fp_normal))
       ), level_list = c(rep(1L, 7)), location = loc_body) %>%
       add_footer()
-    
-    pars <- block_list(
-      fpar(ftext("not bold ", fp_normal), ftext("and bold", fp_bold)),
-      fpar(ftext("red text", fp_red))
-    )
-    
-    
     
     # Chart
     ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
