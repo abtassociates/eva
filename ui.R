@@ -1160,7 +1160,8 @@ dashboardPage(
                                 </table>")
                   )
                 ),
-                downloadButton("sys_inflow_outflow_download_btn", "Download")
+                downloadButton("sys_inflow_outflow_download_btn", "Download"),
+                downloadButton("sys_inflow_outflow_download_btn_ppt", "Download PPT")
               ),
               tabPanel(
                 id = "syso_systemstatus",
@@ -1253,6 +1254,7 @@ dashboardPage(
                   )
                 ),
                 downloadButton("sys_status_download_btn", "Download"),
+                downloadButton("sys_status_download_btn_ppt", "Download PPT"),
                 width = 12
               ),
               tabPanel(
