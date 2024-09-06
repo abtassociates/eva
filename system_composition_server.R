@@ -162,7 +162,7 @@ suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
   )
 }
 
-sys_comp_plot_1var <- function() {
+sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
   selection <- var_cols[[input$system_composition_selections]]
   comp_df <- sys_df_people_universe_filtered_r() %>%
@@ -257,7 +257,7 @@ suppress_values <- function(.data, count_var) {
   ))
 }
 
-sys_comp_plot_2vars <- function() {
+sys_comp_plot_2vars <- function(isExport = FALSE) {
   # race/ethnicity, if selected, should always be on the row
   if (input$system_composition_selections[1] == "All Races/Ethnicities" |
       input$system_composition_selections[1] == "Grouped Races/Ethnicities" |
@@ -353,7 +353,7 @@ sys_comp_plot_2vars <- function() {
       geom_text(
         # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
         aes(label = ifelse(wasRedacted, "***", scales::comma(n))),
-        size = font_size,
+        size = font_size * ifelse(isExport, 0.7, 1),
         color = ifelse(
           plot_df$n > mean(plot_df$n, na.rm = TRUE) & !plot_df$wasRedacted,
           'white',
@@ -380,7 +380,7 @@ sys_comp_plot_2vars <- function() {
       geom_text(
         aes(label = ifelse(wasRedacted, "***", # paste0(scales::comma(N), "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
                            scales::comma(N))),
-        size = font_size,
+        size = font_size * ifelse(isExport, 0.7, 1),
         color = ifelse(
           h_total$N > mean(h_total$N, na.rm = TRUE) & !h_total$wasRedacted,
           'white',
@@ -407,7 +407,7 @@ sys_comp_plot_2vars <- function() {
       geom_text(
         aes(label = ifelse(wasRedacted, "***", # paste0(N, "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
                            scales::comma(N))),
-        size = font_size,
+        size = font_size * ifelse(isExport, 0.7, 1),
         color = ifelse(
           v_total$N > mean(v_total$N, na.rm = TRUE) & !v_total$wasRedacted,
           'white',
@@ -438,11 +438,11 @@ sys_comp_plot_2vars <- function() {
         legend.position = "none",
         axis.ticks = element_blank(),
         panel.grid = element_blank(),
-        plot.title = element_text(size = 17, hjust = 0.5),
+        plot.title = element_text(size = rel(ifelse(isExport, 1.3, 1.4)), hjust = 0.5),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
-        axis.text = element_text(size = 14)
+        axis.text = element_text(size = rel(ifelse(isExport, 0.8, 1.2)))
       )
   )
 }
@@ -597,6 +597,10 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
     loc_subtitle <- ph_location_type(type = "subTitle")
     loc_ctrtitle <- ph_location_type(type = "ctrTitle")
     
+    fp_normal <- fp_text(font.size = 28)
+    fp_bold <- update(fp_normal, bold = TRUE)
+    fp_red <- update(fp_normal, color = "red")
+    
     ppt <- read_pptx()
     
     add_footer <- function(.ppt) {
@@ -624,16 +628,23 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
     # Summary
     ppt <- add_slide(ppt, layout = "Title and Content") %>%
       ph_with(value = "Summary", location = loc_title) %>%
-      ph_with(value = c(
-        paste0("Methodology Type: ", getNameByValue(syso_methodology_types, input$methodology_type)),
-        paste0("Household Type: ", getNameByValue(syso_hh_types, input$syso_hh_type)),
-        paste0("Level of Detail: ", getNameByValue(syso_level_of_detail, input$syso_level_of_detail)),
-        paste0("Project Type: ", getNameByValue(syso_project_types, input$syso_project_type)),
-        paste0("Demographic Selection 1: ", input$system_composition_selections[1]),
-        paste0("Demographic Selection 2: ", input$system_composition_selections[2]),
-        paste0("Total People: ",  nrow(sys_df_people_universe_filtered_r()))
-      ), location = loc_body) %>%
+      ph_with(value = block_list(
+        fpar(ftext(paste0("Methodology Type: ", getNameByValue(syso_methodology_types, input$methodology_type)), fp_normal)),
+        fpar(ftext(paste0("Household Type: ", getNameByValue(syso_hh_types, input$syso_hh_type)), fp_normal)),
+        fpar(ftext(paste0("Level of Detail: ", getNameByValue(syso_level_of_detail, input$syso_level_of_detail)), fp_normal)),
+        fpar(ftext(paste0("Project Type: ", getNameByValue(syso_project_types, input$syso_project_type)), fp_normal)),
+        fpar(ftext(paste0("Demographic Selection 1: ", input$system_composition_selections[1]), fp_normal)),
+        fpar(ftext(paste0("Demographic Selection 2: ", input$system_composition_selections[2]), fp_normal)),
+        fpar(ftext(paste0("Total People: ",  nrow(sys_df_people_universe_filtered_r())), fp_normal))
+      ), level_list = c(rep(1L, 7)), location = loc_body) %>%
       add_footer()
+    
+    pars <- block_list(
+      fpar(ftext("not bold ", fp_normal), ftext("and bold", fp_bold)),
+      fpar(ftext("red text", fp_red))
+    )
+    
+    
     
     # Chart
     ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
@@ -644,7 +655,11 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
         input$system_composition_selections[2]
         ),
         location = loc_title) %>%
-      ph_with(value = sys_comp_p(), location = loc_body) %>%
+      ph_with(value = if(length(input$system_composition_selections) == 1) {
+        sys_comp_plot_1var(isExport = TRUE)
+      } else {
+        sys_comp_plot_2vars(isExport = TRUE)
+      }, location = loc_body) %>%
       add_footer()
     
     # Export the PowerPoint
