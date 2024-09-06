@@ -351,7 +351,6 @@ sys_comp_plot_2vars <- function() {
           "#D2E3D9"
         )
       ) + # na.value makes 0s invisible
-      # display like 14/(0.8%)
       # set text color to be 508 compliant contrasting
       geom_text(
         # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
