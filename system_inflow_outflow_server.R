@@ -187,7 +187,7 @@ renderSystemPlot <- function(id) {
     inflow_to_outflow <- df %>%
       filter(Time == "Active at End") %>%
       pull(values) %>%
-      sum() -
+      sum() * -1 -
       df %>%
       filter(Time == "Active at Start") %>%
       pull(values) %>%
