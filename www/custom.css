@@ -453,6 +453,9 @@ a:hover {
   border-right: 1px solid lightgray;
 }
 
+#sys_comp_download_btn_ppt, #sys_comp_download_btn {
+  display: inline-block;
+}
 /* || CHART INFORMATION TABLES */
 .sys_info_table {
   border: 1px solid black;
