@@ -8,8 +8,6 @@ sys_comp_selection_choices <- reactive({
   )[[1]]
 })
 
-font_size <- 14 / .pt
-
 get_race_ethnicity_vars <- function(v) {
   if (v == "All") {
     syso_race_ethnicities_all <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Detailed"])
