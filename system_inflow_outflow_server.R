@@ -185,10 +185,13 @@ renderSystemPlot <- function(id) {
     )
     
     inflow_to_outflow <- df %>%
-      filter(PlotFillGroups %in% c("Housed", "Homeless")) %>%
+      filter(Time == "Active at End") %>%
       pull(values) %>%
-      sum() * -1
-
+      sum() * -1 -
+      df %>%
+      filter(Time == "Active at Start") %>%
+      pull(values) %>%
+      sum()
     # waterfall plot ----------------------------------------------------------
     ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
       # the bars
