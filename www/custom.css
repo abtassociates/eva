@@ -444,6 +444,10 @@ a:hover {
   float:right;
 }
 
+#system_composition_selections-label {
+  display: none;
+}
+
 #system_composition_selections label.checkbox-inline {
   padding-right: 10px;
 }
