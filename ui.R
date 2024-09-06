@@ -985,8 +985,8 @@ dashboardPage(
                   options = pickerOptions(
                     actionsBox = TRUE,
                     selectedTextFormat = paste("count >", length(syso_age_cats)-1),
-                    countSelectedText = "All ages",
-                    noneSelectedText = "All ages" 
+                    countSelectedText = "All Ages",
+                    noneSelectedText = "All Ages" 
                   )
                 )
               ),
