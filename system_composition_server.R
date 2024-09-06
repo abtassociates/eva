@@ -447,21 +447,24 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   )
 }
 
+sys_comp_selections_info <- reactive({
+  data.frame(
+    Chart = c(
+      "Demographic Selection 1",
+      "Demographic Selection 2",
+      "Total Served People"
+    ),
+    Value = c(
+      input$system_composition_selections[1],
+      input$system_composition_selections[2],
+      nrow(sys_df_people_universe_filtered_r())
+    )
+  )
+})
 sys_comp_selections_summary <- function() {
   return(
     sys_export_summary_initial_df() %>%
-      bind_rows(data.frame(
-        Chart = c(
-          "Demographic Selection 1",
-          "Demographic Selection 2",
-          "Total Served People"
-        ),
-        Value = c(
-          input$system_composition_selections[1],
-          input$system_composition_selections[2],
-          nrow(sys_df_people_universe_filtered_r())
-        )
-      )) %>%
+      bind_rows(sys_comp_selections_info()) %>%
       rename("Composition of All Served" = Value)
   )
 }
@@ -584,85 +587,24 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
     paste("Report_Slide", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
-    report_period <- paste0("Report Period: ", 
-                            format(meta_HUDCSV_Export_Start(), "%m/%d/%Y"),
-                            " - ",
-                            format(meta_HUDCSV_Export_End(), "%m/%d/%Y")
-    )
-    loc_title <- ph_location_type(type = "title")
-    loc_footer <- ph_location_type(type = "ftr")
-    loc_dt <- ph_location_type(type = "dt")
-    loc_slidenum <- ph_location_type(type = "sldNum")
-    loc_body <- ph_location_type(type = "body")
-    loc_subtitle <- ph_location_type(type = "subTitle")
-    loc_ctrtitle <- ph_location_type(type = "ctrTitle")
-    
-    fp_normal <- fp_text(font.size = 28)
-    fp_bold <- update(fp_normal, bold = TRUE)
-    fp_red <- update(fp_normal, color = "red")
-    
-    ppt <- read_pptx()
-    
-    add_footer <- function(.ppt) {
-      return(
-        .ppt %>%
-          ph_with(value = paste0("CoC Code: ", Export()$SourceID), location = loc_footer) %>%
-          ph_with(value = report_period, location = loc_dt) %>%
-          ph_with(
-            value = paste0(
-              "Export Generated: ",
-              format(Sys.Date()),
-              "\n",
-              "https://hmis.abtsites.com/eva/"
-            ),
-            location = loc_slidenum
-          )
-      )
-    }
-    # title Slide
-    ppt <- add_slide(ppt, layout = "Title Slide", master = "Office Theme") %>%
-      ph_with(value = "Composition of All Served in Period", location = loc_ctrtitle) %>%
-      ph_with(value = "Eva Image Export", location = loc_subtitle) %>%
-      add_footer()
-      
-    # Summary
-    ppt <- add_slide(ppt, layout = "Title and Content") %>%
-      ph_with(value = "Summary", location = loc_title) %>%
-      ph_with(value = block_list(
-        fpar(ftext(paste0("Methodology Type: ", getNameByValue(syso_methodology_types, input$methodology_type)), fp_normal)),
-        fpar(ftext(paste0("Household Type: ", getNameByValue(syso_hh_types, input$syso_hh_type)), fp_normal)),
-        fpar(ftext(paste0("Level of Detail: ", getNameByValue(syso_level_of_detail, input$syso_level_of_detail)), fp_normal)),
-        fpar(ftext(paste0("Project Type: ", getNameByValue(syso_project_types, input$syso_project_type)), fp_normal)),
-        fpar(ftext(paste0("Demographic Selection 1: ", input$system_composition_selections[1]), fp_normal)),
-        fpar(ftext(paste0("Demographic Selection 2: ", input$system_composition_selections[2]), fp_normal)),
-        fpar(ftext(paste0("Total People: ",  nrow(sys_df_people_universe_filtered_r())), fp_normal))
-      ), level_list = c(rep(1L, 7)), location = loc_body) %>%
-      add_footer()
-    
-    pars <- block_list(
-      fpar(ftext("not bold ", fp_normal), ftext("and bold", fp_bold)),
-      fpar(ftext("red text", fp_red))
-    )
-    
-    
-    
-    # Chart
-    ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
-      ph_with(value = paste0(
+    sys_overview_ppt_export(
+      file = file,
+      title_slide_title = "Composition of All Served in Period",
+      summary_items = sys_export_summary_initial_df() %>%
+        filter(Chart != "Start Date" & Chart != "End Date") %>% 
+        bind_rows(sys_comp_selections_info()),
+      plot_slide_title = paste0(
         "Composition of All served in Period: ",
         input$system_composition_selections[1],
         " by ",
         input$system_composition_selections[2]
-        ),
-        location = loc_title) %>%
-      ph_with(value = if(length(input$system_composition_selections) == 1) {
+      ),
+      plot = if (length(input$system_composition_selections) == 1) {
         sys_comp_plot_1var(isExport = TRUE)
       } else {
         sys_comp_plot_2vars(isExport = TRUE)
-      }, location = loc_body) %>%
-      add_footer()
-    
-    # Export the PowerPoint
-    print(ppt, target = file)
+      },
+      summary_font_size = 28
+    )
   }
 )
