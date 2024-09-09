@@ -131,13 +131,13 @@ hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
         CorrectedHoH = ifelse(seq_len(.N) == 1, 1, 0)), 
    by = .(HouseholdID, ProjectID)
 ][, HouseholdTypeMutuallyExclusive := factor(
-  fifelse(all(AgeAtEntry >= 18, na.rm = TRUE), "AO",
+  fifelse(all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)), "AO",
           fifelse(any(AgeAtEntry < 18, na.rm = TRUE) & any(AgeAtEntry >= 18, na.rm = TRUE), "AC",
-                  fifelse(all(AgeAtEntry < 18, na.rm = TRUE), "CO", "UN"))),
+                  fifelse(all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)), "CO", "UN"))),
   levels = c("AO", "AC", "CO", "UN")
 ), by = HouseholdID
 ][, HouseholdType := factor(
-  fifelse(HouseholdTypeMutuallyExclusive == "AC" & max(AgeAtEntry) < 25, "PY",
+  fifelse(HouseholdTypeMutuallyExclusive == "AC" & max(AgeAtEntry) < 25 & !any(is.na(AgeAtEntry)), "PY",
           fifelse(HouseholdTypeMutuallyExclusive == "AO" & max(AgeAtEntry) < 25, "YYA",
                   fifelse(HouseholdTypeMutuallyExclusive == "AC", "ACminusPY",
                           fifelse(HouseholdTypeMutuallyExclusive == "AO", "AOminusYYA", 
