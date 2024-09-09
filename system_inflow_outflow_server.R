@@ -263,7 +263,7 @@ renderSystemPlot <- function(id) {
         size = 16 / .pt,
         label = paste0(
           sys_total_count_display(total_clients),
-          "\nTotal Change: ",
+          "Total Change: ",
           case_when(
             inflow_to_outflow > 0 ~ paste0("+", scales::comma(inflow_to_outflow)),
             inflow_to_outflow == 0 ~ "0",

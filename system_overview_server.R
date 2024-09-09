@@ -170,7 +170,8 @@ sys_total_count_display <- function(total_count) {
                str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "),
                " Households")
       ),       ": ",
-      scales::comma(total_count)
+      scales::comma(total_count),
+      "\n"
     )
   ))
 }
