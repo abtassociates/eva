@@ -43,6 +43,66 @@ observeEvent(input$syso_level_of_detail, {
 })
 
 #### DISPLAY FILTER SELECTIONS ###
+syso_detailBox <- reactive({
+  # remove group names from race/ethnicity filter
+  # so we can use getNameByValue() to grab the selected option label
+  # if (input$methodology_type == 2) {
+  # browser()
+  # }
+  detail_line <- function(detail_label, val_list, inputVal) {
+    return(
+      HTML(glue(
+        "<b>{detail_label}:</b> {getNameByValue(val_list, inputVal)} <br>"
+      ))
+    )
+  }
+  
+  selected_race <- getNameByValue(
+    unlist(syso_race_ethnicity_cats(input$methodology_type)),
+    input$syso_race_ethnicity
+  )
+  
+  race_ethnicity_line <- HTML(glue(
+    "<b>Race/Ethnicity:</b> {
+          str_sub(
+            selected_race, 
+            start = str_locate(
+              selected_race,
+              '\\\\.'
+            )[, 1] + 1,
+            end = -1L
+          )
+        } <br>"
+  ))
+  
+  list(
+    br(),
+    strong("Date Range: "),
+    
+    format(ReportStart(), "%m-%d-%Y"), " to ", format(ReportEnd(), "%m-%d-%Y"), br(),
+    
+    if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
+      detail_line("Project Type", syso_project_types, input$syso_project_type),
+    
+    detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
+    
+    if (length(input$syso_age) != length(syso_age_cats))
+      HTML(glue(
+        "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
+      )),
+    
+    if (getNameByValue(syso_gender_cats(), input$syso_gender) != "All Genders")
+      detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
+    
+    if (selected_race != "All.All Races/Ethnicities")
+      race_ethnicity_line,
+    
+    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
+      detail_line("Special Populations", syso_spec_pops_people, input$syso_spec_pops)
+    
+  )
+})
+
 output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
 output$sys_act_summary_filter_selections <- renderUI({
   req(valid_file() == 1)
