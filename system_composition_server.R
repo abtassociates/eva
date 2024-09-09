@@ -229,14 +229,16 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       ggtitle(sys_total_count_display(
         nrow(sys_df_people_universe_filtered_r())
       )) +
+      labs(caption = "*** indicates the value is suppressed") +
       theme(
         legend.position = "none",
         axis.ticks = element_blank(),
         panel.grid = element_blank(),
-        plot.title = element_text(size = 17, hjust = 0.5),
+        plot.title = element_text(size = rel(ifelse(isExport, 1.3, 1.4)), hjust = 0.5),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        axis.text = element_text(size = 14)
+        axis.text = element_text(size = rel(ifelse(isExport, 0.7, 1.2))),
+        plot.caption = element_text(size = 11)
       )
   )
 }
@@ -424,6 +426,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       ggtitle(sys_total_count_display(
         nrow(sys_df_people_universe_filtered_r())
       )) +
+      labs(caption = "*** indicates the value is suppressed") +
       
       theme(
         legend.position = "none",
@@ -433,7 +436,8 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
-        axis.text = element_text(size = rel(ifelse(isExport, 0.7, 1.2)))
+        axis.text = element_text(size = rel(ifelse(isExport, 0.7, 1.2))),
+        plot.caption = element_text(size = 11)
       )
   )
 }
