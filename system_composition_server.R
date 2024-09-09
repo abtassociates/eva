@@ -181,7 +181,8 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       levels = selection_cats1, 
       labels = selection_cats1_labels)
   } else {
-    plot_df <- as.data.frame(table(comp_df[[selection]]))
+    plot_df <- as.data.frame(table(comp_df[[selection]])) %>%
+      mutate(Var1 = factor(Var1, levels = rev(levels(Var1))))
     names(plot_df) <- c(input$system_composition_selections, "n")
   }
   
