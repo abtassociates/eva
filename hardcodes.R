@@ -132,22 +132,22 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 # System Overview - Filters -----------------------------------------------
 
 syso_hh_types <- list(
-  "All" = "All",
-  "Households without children" = "AO",
-  "Households with children" = "AC",
-  "Children Only" = "CO",
-  "Youth and Young Adults" = "YYA",
-  "Parenting Youth" = "PY"
+  "All Household Types" = "All",
+  "- Youth and Young Adult" = "YYA",
+  "Adult Only" = "AO",
+  "Adult Child" = "AC",
+  "- Parenting Youth" = "PY",
+  "Child Only" = "CO"
 )
 
 syso_level_of_detail <- list(
-  "All" = "All", 
+  "All People" = "All", 
   "Heads of Household and Adults" = "HoHsAndAdults", 
   "Heads of Household Only" = "HoHsOnly"
 )
 
 syso_project_types <- list(
-  "All" = "All",
+  "All Project Types" = "All",
   "Residential" = "Residential",
   "Non-residential" = "NonResidential"
 )
@@ -260,14 +260,14 @@ syso_race_ethnicity_excl <- list(
 # Special Populations -----------------------------------------------------
 
 syso_veteran_pops <- list(
-  "Veteran" = "Veteran",
-  "Non-Veteran" = "NonVeteran"
+  "Veteran" = 1,
+  "Non-Veteran" = 0
 )
 
 syso_dv_pops <- list(
-  "Currently Fleeing DV" = "DVFleeing",
-  "Not Currently Fleeing DV" = "DVNotFleeing",
-  "Total Experienced Domestic Violence" = "DVTotal",
+  "Domestic Violence Survivor: Reported Currently Fleeing" = "DVFleeing",
+  "Domestic Violence Survivor: Reported Not Currently Fleeing" = "DVNotFleeing",
+  "Domestic Violence Survivor: Reported Total" = "DVTotal",
   "No Domestic Violence Indicated" = "NotDV"
 )
 
@@ -277,7 +277,7 @@ syso_chronic_pops <- list(
 )
 
 syso_spec_pops_people <- c(
-  "None",
+  "All Populations" = "None",
   # "Inflow",
   syso_veteran_pops,
   syso_dv_pops#,
@@ -285,8 +285,8 @@ syso_spec_pops_people <- c(
 )
 
 syso_methodology_types <- c(
-  "A person is only counted once in a chart (Exclusive Groupings)" = 1,
-  "A person may be counted multiple times in a chart (Inclusive Groupings)" = 2
+  "A person is only counted in one gender and one race/ethnicity category (Exclusive Groupings)" = 1,
+  "A person may be counted in multiple gender and multiple race/ethnicity categories (Inclusive Groupings)" = 2
 )
 
 syso_grouping_detail <- c(
@@ -355,7 +355,7 @@ inc_ncb_hi_required_prep <- tribble(
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
   unique()
 
-sys_comp_filter_choices1 = c(
+sys_comp_selection_choices1 = c(
   "Age", 
   "Domestic Violence",
   "Gender",
@@ -365,7 +365,7 @@ sys_comp_filter_choices1 = c(
   "Veteran Status"
 )
 
-sys_comp_filter_choices2 = c(
+sys_comp_selection_choices2 = c(
   "Age", 
   "Domestic Violence",
   "Gender",
