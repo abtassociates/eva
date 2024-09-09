@@ -351,6 +351,23 @@ syso_detailBox <- reactive({
 renderSystemPlot("sys_act_summary_ui_chart")
 renderSystemPlot("sys_act_detail_ui_chart")
 
+sys_inflow_outflow_export_info <- function(df) {
+  tibble(
+    Chart = c(
+      "Total Served (Start + Inflow) People",
+      "Total Inflow",
+      "Total Outflow",
+      "Total Change"
+    ),
+    Value = as.character(c(
+      sum(df[df$InflowOutflow == 'Inflow', 'values'], na.rm = TRUE),
+      sum(df[df$InflowOutflowSummary == 'Inflow', 'values'], na.rm = TRUE),
+      sum(df[df$InflowOutflowSummary == 'Outflow', 'values'], na.rm = TRUE),   
+      sum(df[df$Time == "Active at End", 'values'], na.rm = TRUE) -
+        sum(df[df$Time == "Active at Start", 'values'], na.rm = TRUE)
+    ))
+  )
+}
 output$sys_inflow_outflow_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Inflow/Outflow Report - "),
   content = function(file) {
@@ -361,21 +378,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
       list(
         "System Flow Metadata" = sys_export_summary_initial_df() %>%
           bind_rows(sys_export_filter_selections()) %>%
-          bind_rows(tibble(
-            Chart = c(
-              "Total Served (Start + Inflow) People",
-              "Total Inflow",
-              "Total Outflow",
-              "Total Change"
-            ),
-            Value = as.character(c(
-              sum(df[df$InflowOutflow == 'Inflow', 'values'], na.rm = TRUE),
-              sum(df[df$InflowOutflowSummary == 'Inflow', 'values'], na.rm = TRUE),
-              sum(df[df$InflowOutflowSummary == 'Outflow', 'values'], na.rm = TRUE),   
-              sum(df[df$Time == "Active at End", 'values'], na.rm = TRUE) -
-                sum(df[df$Time == "Active at Start", 'values'], na.rm = TRUE)
-            ))
-          )) %>%
+          bind_rows(sys_inflow_outflow_export_info(df)) %>%
           mutate(Value = replace_na(Value, 0)) %>%
           rename("System Inflow/Outflow" = Value),
         "System Flow Data" = bind_rows(
