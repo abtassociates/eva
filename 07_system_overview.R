@@ -139,52 +139,6 @@ levels = c("AO", "AC", "CO", "UN")), by = HouseholdID][, HouseholdType := factor
 # Select required columns
 hh_adjustments <- as.data.frame(hh_adjustments[, .(EnrollmentID, CorrectedHoH, HouseholdType)])
 
-# hh_adjustments <- enrollment_prep %>%
-#   mutate(VeteranStatus = if_else(VeteranStatus == 1 &
-#                                    !is.na(VeteranStatus), 1, 0),
-#          HoHAlready = if_else(RelationshipToHoH == 1 &
-#                                 AgeAtEntry > 17, 1, 0)) %>%
-#   group_by(HouseholdID, ProjectID) %>%
-#   arrange(desc(HoHAlready),
-#           desc(VeteranStatus),
-#           desc(AgeAtEntry),
-#           PersonalID,
-#           .by_group = TRUE) %>%
-#   mutate(Sequence = seq(n()),
-#          CorrectedHoH = if_else(Sequence == 1, 1, 0)) %>%
-#   ungroup() %>%
-#   group_by(HouseholdID) %>%
-#   mutate(
-#     HouseholdTypeMutuallyExclusive = factor(
-#       case_when(
-#         all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
-#           "AO",
-#         any(AgeAtEntry < 18, na.rm = TRUE) &
-#           any(AgeAtEntry >= 18, na.rm = TRUE) ~
-#           "AC",
-#         all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)) ~
-#           "CO",
-#         TRUE ~ "UN"
-#       ),
-#       levels = c("AO", "AC", "CO", "UN")
-#     ),
-#     HouseholdType = factor(
-#       case_when(
-#         HouseholdTypeMutuallyExclusive == "AC" &
-#           max(AgeAtEntry) < 25 &
-#           !any(is.na(AgeAtEntry)) ~ "PY",
-#         HouseholdTypeMutuallyExclusive == "AO" & max(AgeAtEntry) < 25 ~ "YYA",
-#         HouseholdTypeMutuallyExclusive == "AC" ~ "ACminusPY",
-#         # ^ relies on cascading logic (rest of ACs)
-#         HouseholdTypeMutuallyExclusive == "AO" ~ "AOminusYYA",
-#         # ^ relies on cascading logic (rest of AOs)
-#         TRUE ~ HouseholdTypeMutuallyExclusive
-#       ),
-#       levels = c("AOminusYYA", "ACminusPY", "CO", "UN", "PY", "YYA")
-#     )) %>%
-#   ungroup() %>%
-#   select(EnrollmentID, CorrectedHoH, HouseholdType)
-
 # keeps original HoH unless the HoH is younger than 18 or if there are mult hohs
 # if they are younger than 18, or if there are mult hohs, it will take the
 # veteran in the hh. if there are none or multiple veterans, it will take the
