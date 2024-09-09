@@ -250,14 +250,15 @@ suppress_values <- function(.data, count_var) {
 
 sys_comp_plot_2vars <- function(isExport = FALSE) {
   # race/ethnicity, if selected, should always be on the row
-  if (input$system_composition_selections[1] == "All Races/Ethnicities" |
-      input$system_composition_selections[1] == "Grouped Races/Ethnicities") {
-    x <- input$system_composition_selections[2]
-    input$system_composition_selections[2] <- input$system_composition_selections[1]
-    input$system_composition_selections[1] <- x
+  selections <- input$system_composition_selections
+  
+  if (selections[1] == "All Races/Ethnicities" |
+  selections[1] == "Grouped Races/Ethnicities") {
+    selections <- c(selections[2], selections[1])
   }
   
   plot_df <- get_sys_comp_plot_df()
+
   validate(
     need(sum(plot_df$n > 0, na.rm = TRUE) > 0, message = "No data to show"),
     need(sum(plot_df$n > 10, na.rm = TRUE) > 0, message = "Not enough data to show")
@@ -266,50 +267,50 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   if (all(is.na(plot_df$n)))
     return()
   
-  selection_cats1 <- get_selection_cats(input$system_composition_selections[1])
+  selection_cats1 <- get_selection_cats(selections[1])
   selection_cats1_labels <- if (is.null(names(selection_cats1))) {
     selection_cats1
   } else {
     names(selection_cats1)
   }
   
-  selection_cats2 <- get_selection_cats(input$system_composition_selections[2])
+  selection_cats2 <- get_selection_cats(selections[2])
   selection_cats2_labels <- if (is.null(names(selection_cats2))) {
     rev(selection_cats2)
   } else {
     rev(names(selection_cats2))
   }
   
-  plot_df[input$system_composition_selections[1]] <- factor(
-    plot_df[[input$system_composition_selections[1]]], 
+  plot_df[selections[1]] <- factor(
+    plot_df[[selections[1]]], 
     levels = selection_cats1, 
     labels = selection_cats1_labels)
   
-  plot_df[input$system_composition_selections[2]] <- factor(
-    plot_df[[input$system_composition_selections[2]]], 
+  plot_df[selections[2]] <- factor(
+    plot_df[[selections[2]]], 
     levels = rev(selection_cats2), 
     labels = selection_cats2_labels)
   
   plot_df <- plot_df %>%
     complete(
-      !!sym(input$system_composition_selections[1]),
-      !!sym(input$system_composition_selections[2])
+      !!sym(selections[1]),
+      !!sym(selections[2])
     ) %>%
     replace(is.na(.), 0)
   
   h_total <- plot_df %>%
-    group_by(!!!syms(input$system_composition_selections[[2]])) %>%
+    group_by(!!!syms(selections[[2]])) %>%
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
-    mutate(!!input$system_composition_selections[[1]] := 'Total') %>%
+    mutate(!!selections[[1]] := 'Total') %>%
     suppress_values("N") %>%
-    suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections[1], "N")
+    suppress_next_val_if_one_suppressed_in_group(selections[1], "N")
   
   v_total <- plot_df %>%
-    group_by(!!!syms(input$system_composition_selections[[1]])) %>%
+    group_by(!!!syms(selections[[1]])) %>%
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
-    mutate(!!input$system_composition_selections[[2]] := 'Total') %>%
+    mutate(!!selections[[2]] := 'Total') %>%
     suppress_values("N") %>%
-    suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections[2], "N")
+    suppress_next_val_if_one_suppressed_in_group(selections[2], "N")
   
   # save before supressing the values
   # this will be used for the download/export
@@ -318,11 +319,11 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   # Suppress values <= 10
   plot_df <- plot_df %>%
     suppress_values("n") %>%
-    suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections[1], "n") %>%
-    suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections[2], "n")
+    suppress_next_val_if_one_suppressed_in_group(selections[1], "n") %>%
+    suppress_next_val_if_one_suppressed_in_group(selections[2], "n")
   
   return(
-    ggplot(plot_df, aes(.data[[input$system_composition_selections[1]]], .data[[input$system_composition_selections[2]]])) +
+    ggplot(plot_df, aes(.data[[selections[1]]], .data[[selections[2]]])) +
       # main data into cells for each cross-combination
       geom_tile(
         color = '#f0f0f0',
@@ -409,12 +410,12 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       # axis labels
       scale_x_discrete(
         labels = str_wrap(c(selection_cats1_labels, "Total"), width = 20),
-        limits = c(levels(plot_df[[input$system_composition_selections[1]]]), "Total"),
+        limits = c(levels(plot_df[[selections[1]]]), "Total"),
         position = "top"
       ) +
       scale_y_discrete(
         labels = str_wrap(c("Total", selection_cats2_labels), width = 30),
-        limits = c("Total", levels(plot_df[[input$system_composition_selections[2]]])),
+        limits = c("Total", levels(plot_df[[selections[2]]])),
       ) +
       
       # other stuff
