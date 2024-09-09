@@ -192,7 +192,7 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
 
 
 syso_race_ethnicity_incl <- list(
-  "All" = c("All Races/Ethnicities" = "All"),
+  "All Races/Ethnicities" = "All",
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous Inclusive" =
       "AmIndAKNativeInclusive1",
@@ -219,7 +219,7 @@ syso_race_ethnicity_incl <- list(
   )
 )
 syso_race_ethnicity_excl <- list(
-  "All" = c("All Races/Ethnicities" = "All"),
+  "All Races/Ethnicities" = "All",
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous Alone" =
       "AmIndAKNativeAloneExclusive1",

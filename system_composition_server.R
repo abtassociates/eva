@@ -25,9 +25,9 @@ syscomp_detailBox <- function(session) {
     list(
       strong("Date Range: "),
       
-      format(ReportStart(),"%m-%d-%Y")
+      format(ReportStart(),"%m-%d-%Y"),
       " to ",
-      format(ReportEnd(),"%m-%d-%Y")
+      format(ReportEnd(),"%m-%d-%Y"),
       br(),
       
       if (input$syso_project_type != "All")
