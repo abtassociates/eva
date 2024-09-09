@@ -1,45 +1,13 @@
 logToConsole("Running system overview")
-
+browser()
 # Age ---------------------------------------------------------------------
-# system_person_ages <- EnrollmentAdjust %>%
-#   group_by(PersonalID) %>%
-#   slice_max(AgeAtEntry, na_rm = TRUE, with_ties = FALSE) %>%
-#   ungroup() %>%
-#   mutate(AgeCategory = factor(
-#     case_when(
-#       is.na(AgeAtEntry) | AgeAtEntry < 0 ~ "Unknown",
-#       AgeAtEntry >= 0 & AgeAtEntry <= 12 ~ "0 to 12",
-#       AgeAtEntry >= 13 & AgeAtEntry <= 17 ~ "13 to 17",
-#       AgeAtEntry >= 18 & AgeAtEntry <= 21 ~ "18 to 21",
-#       AgeAtEntry >= 22 & AgeAtEntry <= 24 ~ "22 to 24",
-#       AgeAtEntry >= 25 & AgeAtEntry <= 34 ~ "25 to 34",
-#       AgeAtEntry >= 35 & AgeAtEntry <= 44 ~ "35 to 44",
-#       AgeAtEntry >= 45 & AgeAtEntry <= 54 ~ "45 to 54",
-#       AgeAtEntry >= 55 & AgeAtEntry <= 64 ~ "55 to 64",
-#       AgeAtEntry >= 65 & AgeAtEntry <= 74 ~ "65 to 74",
-#       AgeAtEntry >= 75 ~ "75 and older",
-#       TRUE ~ "Unknown"
-#     ),
-#     levels = c(
-#       "0 to 12",
-#       "13 to 17",
-#       "18 to 21",
-#       "22 to 24",
-#       "25 to 34",
-#       "35 to 44",
-#       "45 to 54",
-#       "55 to 64",
-#       "65 to 74",
-#       "75 and older",
-#       "Unknown"
-#     )
-#   )) %>%
-#   select(PersonalID, "MostRecentAgeAtEntry" = AgeAtEntry, AgeCategory)
+
 system_person_ages <- as.data.frame(
-  as.data.table(EnrollmentAdjust)[
+  as.data.table(EnrollmentAdjust %>%
+                  mutate(AgeAtEntry = replace_na(AgeAtEntry, -1)))[
     , .SD[which.max(AgeAtEntry)], by = PersonalID
   ][, AgeCategory := factor(fcase(
-      is.na(AgeAtEntry) | AgeAtEntry < 0, "Unknown",
+      AgeAtEntry < 0, "Unknown",
       AgeAtEntry >= 0 & AgeAtEntry <= 12, "0 to 12",
       AgeAtEntry >= 13 & AgeAtEntry <= 17, "13 to 17",
       AgeAtEntry >= 18 & AgeAtEntry <= 21, "18 to 21",
@@ -112,6 +80,7 @@ enrollment_prep <- EnrollmentAdjust %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
+  mutate(AgeAtEntry = replace_na(AgeAtEntry, -1)) %>%
   filter(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>%
   select(-ContinuumProject)
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
