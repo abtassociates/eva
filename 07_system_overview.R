@@ -96,24 +96,45 @@ hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
   VeteranStatus = ifelse(VeteranStatus == 1 & !is.na(VeteranStatus), 1, 0),
   HoHAlready = ifelse(RelationshipToHoH == 1 & AgeAtEntry > 17, 1, 0)
 )][order(-HoHAlready, -VeteranStatus, -AgeAtEntry, PersonalID), 
-   `:=`(Sequence = seq_len(.N),
-        CorrectedHoH = ifelse(seq_len(.N) == 1, 1, 0)), 
+   `:=`
+   (
+     Sequence = seq_len(.N),
+     CorrectedHoH = ifelse(seq_len(.N) == 1, 1, 0)
+   ),
    by = .(HouseholdID, ProjectID)
-][, HouseholdTypeMutuallyExclusive := factor(
-  fifelse(all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)), "AO",
-          fifelse(any(AgeAtEntry < 18, na.rm = TRUE) & any(AgeAtEntry >= 18, na.rm = TRUE), "AC",
-                  fifelse(all(AgeAtEntry < 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)), "CO", "UN"))),
-  levels = c("AO", "AC", "CO", "UN")
-), by = HouseholdID
-][, HouseholdType := factor(
-  fifelse(HouseholdTypeMutuallyExclusive == "AC" & max(AgeAtEntry) < 25 & !any(is.na(AgeAtEntry)), "PY",
-          fifelse(HouseholdTypeMutuallyExclusive == "AO" & max(AgeAtEntry) < 25, "YYA",
-                  fifelse(HouseholdTypeMutuallyExclusive == "AC", "ACminusPY",
-                          fifelse(HouseholdTypeMutuallyExclusive == "AO", "AOminusYYA", 
-                                  as.character(HouseholdTypeMutuallyExclusive))))),
+][, HouseholdTypeMutuallyExclusive := factor(fifelse(
+  all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)),
+  "AO",
+  fifelse(
+    any(AgeAtEntry < 18, na.rm = TRUE) &
+      any(AgeAtEntry >= 18, na.rm = TRUE),
+    "AC",
+    fifelse(all(AgeAtEntry < 18, na.rm = TRUE) &
+              !any(is.na(AgeAtEntry)), "CO", "UN")
+  )
+),
+levels = c("AO", "AC", "CO", "UN")), by = HouseholdID][, HouseholdType := factor(
+  fifelse(
+    HouseholdTypeMutuallyExclusive == "AC" &
+      max(AgeAtEntry) < 25 & !any(is.na(AgeAtEntry)),
+    "PY",
+    fifelse(
+      HouseholdTypeMutuallyExclusive == "AO" &
+        max(AgeAtEntry) < 25,
+      "YYA",
+      fifelse(
+        HouseholdTypeMutuallyExclusive == "AC",
+        "ACminusPY",
+        fifelse(
+          HouseholdTypeMutuallyExclusive == "AO",
+          "AOminusYYA",
+          as.character(HouseholdTypeMutuallyExclusive)
+        )
+      )
+    )
+  ),
   levels = c("AOminusYYA", "ACminusPY", "CO", "UN", "PY", "YYA")
-), by = HouseholdID
-]
+), by = HouseholdID]
 
 # Select required columns
 hh_adjustments <- as.data.frame(hh_adjustments[, .(EnrollmentID, CorrectedHoH, HouseholdType)])
