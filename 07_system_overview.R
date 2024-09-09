@@ -465,12 +465,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
       lh_prior_livingsituation,
     straddles_start = EntryDate <= ReportStart() & ExitAdjust >= ReportStart(),
     straddles_end = EntryDate <= ReportEnd() & ExitAdjust >= ReportEnd(),
-    in_date_range = ExitAdjust >= ReportStart() & EntryDate <= ReportEnd(),
-    DomesticViolenceCategory = fcase(
-      DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
-      DomesticViolenceSurvivor == 1, "DVNotFleeing",
-      default = "NotDV"
-    )
+    in_date_range = ExitAdjust >= ReportStart() & EntryDate <= ReportEnd()
   )][
     # Apply filtering with efficient conditions
     (ReportStart() - years(2)) <= ExitAdjust &
@@ -547,14 +542,26 @@ enrollment_categories <- as.data.frame(enrollment_categories) %>%
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people for filtering
+dv_flag <- as.data.table(HealthAndDV)[
+  as.data.table(Enrollment)[, .(EnrollmentID, EntryDate, ExitAdjust)], 
+  on = .(EnrollmentID),
+  nomatch = 0
+][ExitAdjust >= ReportStart() & EntryDate <= ReportEnd() & DataCollectionStage == 1, 
+  .(DomesticViolenceCategory = 
+      fifelse(max(DomesticViolenceSurvivor, na.rm = TRUE) == 1 & 
+                max(CurrentlyFleeing, na.rm = TRUE) == 1, "DVFleeing",
+              fifelse(max(DomesticViolenceSurvivor, na.rm = TRUE) == 1, "DVNotFleeing", "NotDV"))
+  ), by = PersonalID]
 
 client_categories <- Client %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
+  left_join(as.data.frame(dv_flag), join_by(PersonalID)) %>%
   select(PersonalID,
          all_of(race_cols),
          all_of(gender_cols),
          VeteranStatus,
-         AgeCategory
+         AgeCategory,
+         DomesticViolenceCategory
   ) %>%
   mutate(
     VeteranStatus = if_else(VeteranStatus == 1 &
@@ -833,18 +840,20 @@ client_categories <- Client %>%
   select(-all_of(gender_cols), -all_of(race_cols))
 
 client_categories_reactive <- reactive({
-
   client_categories %>%
     mutate(All = 1) %>%
     filter(
       AgeCategory %in% input$syso_age &
         !!sym(input$syso_gender) == 1 &
         !!sym(input$syso_race_ethnicity) == 1 &
-        ((input$syso_spec_pops == "Veteran" &
+        (
+          input$syso_spec_pops == "None" |
+          (input$syso_spec_pops == "Veteran" &
             VeteranStatus == 1) |
-           (input$syso_spec_pops == "NonVeteran" &
-              VeteranStatus == 0) |
-           input$syso_spec_pops %in% c("None", syso_dv_pops)
+          (input$syso_spec_pops == "NonVeteran" &
+            VeteranStatus == 0) |
+          (DomesticViolenceCategory == input$syso_spec_pops | 
+             input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV")
         )
     ) %>%
     select(-All)
@@ -871,13 +880,7 @@ enrollment_categories_reactive <- reactive({
            (input$syso_project_type == "Residential" &
               ProjectType %in% project_types_w_beds) |
            (input$syso_project_type == "NonResidential" &
-              ProjectType %in% non_res_project_types)) &
-        (input$syso_spec_pops %in% c("None", "Veteran", "NonVeteran") |
-           (input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV") |
-           (input$syso_spec_pops == "NotDV" & DomesticViolenceCategory == "NotDV") |
-           input$syso_spec_pops == DomesticViolenceCategory
-           )
-           )
+              ProjectType %in% non_res_project_types)))
   
 })
 
