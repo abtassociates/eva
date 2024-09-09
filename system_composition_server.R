@@ -70,6 +70,7 @@ get_sys_comp_plot_df <- function() {
   # then we'd combine 0 to 12 with ManExclusive, 0 to 12 with WomanExclusive,
   # 13 to 24 with ManExclusive, etc.
   process_combination <- function(v1, v2, comp_df) {
+    logToConsole(glue("processing combination of {v1} and {v2}"))
     freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
     names(freq_df) <- c(
       input$system_composition_selections[1],
