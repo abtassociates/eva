@@ -148,6 +148,20 @@ system_activity_prep_summary <- reactive({
   ]
 })
 
+# custom round to the smaller of the nearest 10, 100, etc.
+# good for chart segment sizing
+get_segment_size <- function(x) {
+  thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
+  rounded <- sapply(thresholds, function(t) {
+    if (x > t) {
+      return(t * ceiling(x / t))
+    } else {
+      return(NA)
+    }
+  })
+  min(rounded, na.rm = TRUE)
+}
+
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
