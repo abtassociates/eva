@@ -142,7 +142,7 @@ font_size <- 14 / .pt
 
 
 # PowerPoint Export -------------------------------------------------------
-sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot_slide_title, plot, summary_font_size) {
+sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot_slide_title, plot1, plot2 = NULL, summary_font_size) {
   report_period <- paste0("Report Period: ", 
                           format(meta_HUDCSV_Export_Start(), "%m/%d/%Y"),
                           " - ",
@@ -178,6 +178,7 @@ sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot
         )
     )
   }
+  browser()
   # title Slide
   ppt <- add_slide(ppt, layout = "Title Slide", master = "Office Theme") %>%
     ph_with(value = title_slide_title, location = loc_ctrtitle) %>%
@@ -203,8 +204,15 @@ sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot
   # Chart
   ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
     ph_with(value = plot_slide_title, location = loc_title) %>%
-    ph_with(value = plot, location = loc_body) %>%
+    ph_with(value = plot1, location = loc_body) %>%
     add_footer()
+  
+  if(is.null(plot2)) {
+    ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
+      ph_with(value = plot_slide_title, location = loc_title) %>%
+      ph_with(value = plot2, location = loc_body) %>%
+      add_footer()
+  }
   
   # Export the PowerPoint
   return(print(ppt, target = file))

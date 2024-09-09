@@ -404,3 +404,23 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
     exportTestValues(sys_comp_report = sys_inflow_outflow_plot_data())
   }
 )
+
+output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
+  filename = function() {
+    paste("Report_Slide", Sys.Date(), ".pptx", sep = "")
+  },
+  content = function(file) {
+    sys_overview_ppt_export(
+      file = file,
+      title_slide_title = "System Inflow/Outflow",
+      summary_items = sys_export_summary_initial_df() %>%
+        filter(Chart != "Start Date" & Chart != "End Date") %>% 
+        bind_rows(sys_export_filter_selections()) %>%
+        bind_rows(sys_inflow_outflow_export_info(df)),
+      plot_slide_title = "System Inflow/Outflow summary",
+      plot1 = get_system_inflow_outflow_plot("sys_act_summary_ui_chart"),
+      plot2 = get_system_inflow_outflow_plot("sys_act_detail_ui_chart"),
+      summary_font_size = 28
+    )
+  }
+)
