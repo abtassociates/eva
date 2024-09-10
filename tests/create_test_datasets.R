@@ -93,6 +93,42 @@ lapply(names(reduced_data_fsa), function(fname) {
               row.names = FALSE, na="")
   Sys.sleep(1)
 })
+Sys.sleep(1)
 save_new_zip("FY24-ICF-fsa-test.zip", "reduced_fsa")
+
+# DQ AND PDDE ---------------------------------------------------
+# convert to data.frame and fix column types
+original_data_fixed_cols <- mapply(function(df, df_name) {
+  existing_cols <- intersect(cols_and_data_types$Column, names(df))
+  
+  as.data.frame(df) %>%
+    mutate(across(all_of(existing_cols), 
+                  .fns = ~ {
+                    dtype <- cols_and_data_types$DataType[
+                      cols_and_data_types$Column == cur_column() &
+                        cols_and_data_types$File == df_name
+                    ]
+                    switch(dtype,
+                           "character" = as.character(.),
+                           "numeric" = as.numeric(.),
+                           "integer" = as.integer(.),
+                           "factor" = as.factor(.),
+                           "logical" = as.logical(.),
+                           "date" = as.Date(.),
+                           .)
+                  }))
+}, original_data, names(original_data), SIMPLIFY = FALSE)
+
+source(here("tests/update_test_good_dq.R"), local = TRUE)
+
+# overwrite the original csv files in temp
+mapply(function(df, df_name) {
+  write.csv(df,
+            csv_files[[df_name]],
+            row.names = FALSE,
+            na = "")
+}, original_data_fixed_cols, names(original_data_fixed_cols), SIMPLIFY = FALSE)
+
+save_new_zip("FY24-ICF-main-valid.zip", "")
 
 print("done creating test datasets")
