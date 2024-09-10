@@ -79,7 +79,7 @@ dashboardPage(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
       tags$script(HTML("function idleTimer() {
-          var timeoutTime = 600000;
+          var timeoutTime = 900000;
           var t = setTimeout(logout, timeoutTime);
           window.onmousemove = resetTimer; // catches mouse movements
           window.onmousedown = resetTimer; // catches mouse movements
