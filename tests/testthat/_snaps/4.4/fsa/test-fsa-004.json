@@ -97,7 +97,7 @@
     },
     "sidebarCollapsed": false,
     "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabDQOrg"
+    "sidebarmenuid": "tabDQSystem"
   },
   "output": {
     "clientCountData": [
@@ -119,7 +119,7 @@
       ]
     },
     "downloadFileStructureAnalysisBtn": {
-      "html": "<a id=\"downloadFileStructureAnalysis\" class=\"btn btn-default shiny-download-link \" href=\"\" target=\"_blank\" download>\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Structure Analysis Detail\n<\/a>",
+      "html": "<a id=\"downloadFileStructureAnalysis\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Structure Analysis Detail\n<\/a>",
       "deps": [
         {
           "name": "font-awesome",
@@ -147,14 +147,6 @@
         "validation"
       ]
     },
-    "downloadOrgDQReportButton": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
     "downloadPDDEReportButton": {
       "message": "",
       "call": "NULL",
@@ -171,16 +163,6 @@
         "validation"
       ]
     },
-    "dq_org_guidance_summary": [
-      "",
-      "NULL",
-      "c(\"shiny.silent.error\", \"validation\")"
-    ],
-    "dq_organization_summary_table": [
-      "",
-      "NULL",
-      "c(\"shiny.silent.error\", \"validation\")"
-    ],
     "fileInfo": null,
     "fileStructureAnalysis": {
       "x": {
@@ -195,6 +177,18 @@
           "columnDefs": [
             {
               "className": "dt-right",
+              "targets": 2
+            },
+            {
+              "name": "Type",
+              "targets": 0
+            },
+            {
+              "name": "Issue",
+              "targets": 1
+            },
+            {
+              "name": "Count",
               "targets": 2
             }
           ],
@@ -239,9 +233,9 @@
         },
         {
           "name": "dt-core",
-          "version": "1.13.4",
+          "version": "1.13.6",
           "src": {
-            "href": "dt-core-1.13.4"
+            "href": "dt-core-1.13.6"
           },
           "meta": null,
           "script": "js/jquery.dataTables.min.js",
@@ -256,9 +250,9 @@
         },
         {
           "name": "crosstalk",
-          "version": "1.2.0",
+          "version": "1.2.1",
           "src": {
-            "href": "crosstalk-1.2.0"
+            "href": "crosstalk-1.2.1"
           },
           "meta": null,
           "script": "js/crosstalk.min.js",
@@ -270,12 +264,6 @@
       ]
     },
     "headerClientCounts": {
-      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
-      "deps": [
-
-      ]
-    },
-    "headerDataQuality": {
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
@@ -297,30 +285,6 @@
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
-      ]
-    },
-    "orgDQErrorByIssue_ui": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
-    "orgDQHighPriorityErrorByIssue_ui": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
-    "orgDQWarningsByIssue_ui": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
       ]
     },
     "pdde_guidance_summary": [
