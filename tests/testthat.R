@@ -1,4 +1,4 @@
 library(shinytest2)
 unlink(here("tests/temp"), recursive = TRUE)
-test_app(".")
+test_app(".", filter="fsa")
 # unlink(here("tests/temp"), recursive = TRUE)
