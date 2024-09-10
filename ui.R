@@ -1039,12 +1039,12 @@ dashboardPage(
                   tabPanel("Summary Chart", 
                            uiOutput("sys_act_summary_filter_selections"),
                            uiOutput("sys_act_summary_chart_subheader"),
-                           plotOutput("sys_act_summary_ui_chart")
+                           plotOutput("sys_act_summary_ui_chart", height = "100%")
                   ),
                   tabPanel("Detail Chart", 
                            uiOutput("sys_act_detail_filter_selections"),
                            uiOutput("sys_act_detail_chart_subheader"),
-                           plotOutput("sys_act_detail_ui_chart")
+                           plotOutput("sys_act_detail_ui_chart", height = "100%")
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>

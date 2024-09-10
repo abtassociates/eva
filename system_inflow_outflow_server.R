@@ -328,7 +328,7 @@ syso_detailBox <- reactive({
     br(),
     strong("Date Range: "),
     
-    ReportStart(), " to ", ReportEnd(), br(),
+    format(ReportStart(),"%m-%d-%Y"), " to ", format(ReportEnd(),"%m-%d-%Y"), br(),
     
     if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
       detail_line("Project Type", syso_project_types, input$syso_project_type),
