@@ -182,7 +182,34 @@ function(input, output, session) {
           if(isTRUE(getOption("shiny.testmode")) && 
              upload_filename == "FY24-ICF-hashed-current-good.zip") {
             source("tests/update_test_good_dq.R", local = TRUE)  
+            
+            csv_files <- list.files(here("tests/temp"), pattern = "*.csv$", full.names = TRUE)
+            names(csv_files) <- tools::file_path_sans_ext(basename(csv_files))
+            
+            original_data <- mget(unique(cols_and_data_types$File))
+            names(original_data) <- unique(cols_and_data_types$File)
+            
+            # remove unused files
+            original_data <- original_data[!names(original_data) %in% c("Affiliation",
+                                                                        "AssessmentResults",
+                                                                        "AssessmentQuestions",
+                                                                        "Disabilities")]
+
+            # overwrite the original csv files in temp
+            mapply(function(df, df_name) {
+              write.csv(df,
+                        csv_files[[df_name]],
+                        row.names = FALSE,
+                        na = "")
+            }, original_data, names(original_data), SIMPLIFY = FALSE)
+            
+            zip::zipr(
+              zipfile = here("tests/temp/FY24-ICF-dq_and_pdde.zip"), 
+              files = list.files(here("tests/temp/"), pattern = "*.csv$", full.names = TRUE),
+              mode = "cherry-pick" # so the files are at the top directory
+            )
           }
+          
           
           setProgress(detail = "Assessing your data quality..", value = .7)
           source("05_DataQuality.R", local = TRUE)
