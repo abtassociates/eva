@@ -191,7 +191,9 @@ get_col_types <- function(upload_filepath, file) {
   
   # get the data types for those columns
   data_types <- sapply(cols_in_file, function(col_name) {
-    col_types$DataType[col_types$Column == col_name]
+    ifelse(col_name %in% col_types$Column,
+           col_types$DataType[col_types$Column == col_name],
+           "c")
   })
   
   return(paste(data_types, collapse = ""))
