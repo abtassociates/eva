@@ -1018,7 +1018,10 @@ dashboardPage(
                   inputId = "syso_race_ethnicity",
                   choices = syso_race_ethnicity_excl,
                   width = "100%",
-                  selected = syso_race_ethnicity_excl
+                  selected = syso_race_ethnicity_excl,
+                  options = list(
+                    `dropdown-align-right` = TRUE, 
+                    `dropup-auto` = FALSE)
                 )
               )
             )
