@@ -93,6 +93,7 @@ lapply(names(reduced_data_fsa), function(fname) {
               paste0(here("tests/temp/reduced_fsa/"),
                      fname, ".csv"),
               row.names = FALSE, na="")
+  Sys.sleep(1)
 })
 Sys.sleep(1)
 save_new_zip("FY24-ICF-fsa-test.zip", "reduced_fsa")
