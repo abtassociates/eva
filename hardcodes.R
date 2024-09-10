@@ -172,18 +172,18 @@ gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific
 syso_gender_incl <- list(
   "All Genders" = "All",
   "Gender expansive, including transgender" = "TransgenderInclusive",
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive",
   "Man (Boy, if child) alone or in combination" = "ManInclusive",
-  "Non-binary alone or in combination" = "NonBinaryInclusive",
-  "Woman (Girl, if child) alone or in combination" = "WomanInclusive",
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive"
+  "Non-Binary alone or in combination" = "NonBinaryInclusive",
+  "Woman (Girl, if child) alone or in combination" = "WomanInclusive"
 )
 
 syso_gender_excl <- list(
   "All Genders" = "All",
   "Gender expansive, not transgender" = "GenderExpansiveExclusive",
-  "Man (Boy, if child), alone" = "ManExclusive",
+  "Man (Boy, if child) alone" = "ManExclusive",
   "Transgender, alone or in combination" = "TransgenderExclusive",
-  "Woman (Girl, if child), alone" = "WomanExclusive",
+  "Woman (Girl, if child) alone" = "WomanExclusive",
   "Unknown" = "UnknownExclusive"
 )
 
@@ -192,7 +192,7 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
 
 
 syso_race_ethnicity_incl <- list(
-  "All" = c("All Races/Ethnicities" = "All"),
+  "All Races/Ethnicities" = "All",
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous Inclusive" =
       "AmIndAKNativeInclusive1",
@@ -219,7 +219,7 @@ syso_race_ethnicity_incl <- list(
   )
 )
 syso_race_ethnicity_excl <- list(
-  "All" = c("All Races/Ethnicities" = "All"),
+  "All Races/Ethnicities" = "All",
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous Alone" =
       "AmIndAKNativeAloneExclusive1",
