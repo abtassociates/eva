@@ -1046,7 +1046,7 @@ universe_ppl_flags <- reactive({
         max(at_least_14_days_to_eecr_enrl) == 1,
       
       reengaged_from_temp_client = max(lookback1_temp_dest) == 1 & 
-        max(eecr_lh_at_entry) == 1 & 
+        # max(eecr_lh_at_entry) == 1 & 
         max(at_least_14_days_to_eecr_enrl) == 1,
       
       newly_homeless_client = max(lookback) == 0 |
