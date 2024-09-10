@@ -152,15 +152,7 @@ function(input, output, session) {
         source("01_get_Export.R", local = TRUE)
         
         source("02_export_dates.R", local = TRUE)
-        
-        # if we're in shiny testmode and the script has gotten here,
-        # that means we've gotten all the exports 
-        # we can edit those to capture all File Structure Analysis 
-        # issues and then continue running to test
-        if(isTRUE(getOption("shiny.testmode")) && 
-        upload_filename == "FY24-ICF-fsa-test.zip") {
-          source("tests/update_test_good_fsa.R", local = TRUE)  
-        }
+
         setProgress(detail = "Checking file structure", value = .35)
         source("03_file_structure_analysis.R", local = TRUE)
         
@@ -181,15 +173,6 @@ function(input, output, session) {
 
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE) 
-          
-          # if we're in shiny testmode and the script has gotten here,
-          # that means we're using the hashed-test-good file. 
-          # we will update that file to capture the various issues we want to test
-          # we have confirmed that it is correctly capturing these issues
-          if(isTRUE(getOption("shiny.testmode")) && 
-             upload_filename == "FY24-ICF-hashed-current-good.zip") {
-            source("tests/update_test_good_dq.R", local = TRUE)  
-          }
           
           setProgress(detail = "Assessing your data quality..", value = .7)
           source("05_DataQuality.R", local = TRUE)
