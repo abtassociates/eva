@@ -1137,18 +1137,18 @@ inflow_outflow_df <- reactive({
     unique()
   
   # AS QC check:
-  # missing_types <- universe() %>% 
-  #   inner_join(
-  #     plot_data %>% 
-  #       filter(
-  #         OutflowTypeDetail == "something's wrong" | 
-  #           InflowTypeDetail == "something's wrong"), 
-  #     by = "PersonalID") %>%
-  #   mutate(
-  #     missing_inflow = eecr == TRUE & InflowTypeDetail == "something's wrong",
-  #     missing_outflow = lecr == TRUE & OutflowTypeDetail == "something's wrong",
-  #   ) %>%
-  #   filter(missing_inflow == TRUE | missing_outflow == TRUE)
+  missing_types <- universe() %>%
+    inner_join(
+      plot_data %>%
+        filter(
+          OutflowTypeDetail == "something's wrong" |
+            InflowTypeDetail == "something's wrong"),
+      by = "PersonalID") %>%
+    mutate(
+      missing_inflow = eecr == TRUE & InflowTypeDetail == "something's wrong",
+      missing_outflow = lecr == TRUE & OutflowTypeDetail == "something's wrong",
+    ) %>%
+    filter(missing_inflow == TRUE | missing_outflow == TRUE)
   
 # browser()
   
