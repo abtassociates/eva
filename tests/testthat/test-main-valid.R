@@ -1,5 +1,5 @@
 test_script_name <- "test-main-valid"
-test_dataset_folder <- "tests/temp"
+test_dataset_folder <- "tests/temp/"
 test_dataset <- "FY24-ICF-main-valid.zip"
 
 test_that(paste0("{shinytest2} recording: ",test_script_name), {
@@ -43,4 +43,60 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$set_inputs(sidebarmenuid = "tabDQOrg")
   app$wait_for_idle(timeout = 1e+06)
   customDownload(app, "downloadOrgDQReport", "Org-DQ-Download")
+  
+  app$set_inputs(sidebarItemExpanded = "SystemPerformance")
+  app$set_inputs(sidebarmenuid = "systemOverview")
+  app$wait_for_idle(timeout = 1e+06)
+  app$expect_values()
+  
+  app$set_inputs(sys_inflow_outflow_subtabs = "Detail Chart")
+  app$wait_for_idle(timeout = 1e+06)
+  app$expect_values()
+  
+  # change universe filters
+  app$set_inputs(syso_hh_type = "AO")
+  app$set_inputs(syso_project_type = "Residential")
+  app$expect_values()
+  
+  # go back to summary tab 
+  app$set_inputs(sys_inflow_outflow_subtabs = "Summary")
+  app$wait_for_idle(timeout = 1e+06)
+  app$expect_values()
+  
+  # go to information
+  app$set_inputs(sys_inflow_outflow_subtabs = "Information")
+  app$wait_for_idle(timeout = 1e+06)
+  app$expect_values()
+  
+  customDownload(app, "sys_inflow_outflow_download_btn", "System-Flow-Download")
+  customDownload(app, "sys_inflow_outflow_download_btn_ppt", "System-Flow-Download-PPT")
+  
+  
+  app$set_inputs(syso_tabsetpanel = "Client System Status")
+  app$wait_for_idle(timeout = 1e+06)
+  app$expect_values()
+  
+  app$set_inputs(sys_status_subtabs = "Information")
+  app$wait_for_idle(timeout = 1e+06)
+  app$expect_values()
+  customDownload(app, "sys_status_download_btn", "System-Status-Download")
+  customDownload(app, "sys_status_download_btn_ppt", "System-Status-Download-PPT")
+  
+  
+  app$set_inputs(syso_tabsetpanel = "Composition of All Served in Period")
+  app$wait_for_idle(timeout = 1e+06)
+  app$expect_values()
+  
+  app$set_inputs(system_composition_selections = c("All Races/Ethnicities"))
+  app$expect_values()
+  
+  app$set_inputs(system_composition_selections = c("All Races/Ethnicities", "Gender"))
+  app$expect_values()
+  customDownload(app, "sys_comp_download_btn", "System-Composition-Download")
+  customDownload(app, "sys_comp_download_btn_ppt", "System-Composition-Download-PPT")
+  
+  app$set_inputs(sys_comp_subtabs = "Information")
+  app$wait_for_idle(timeout = 1e+06)
+  app$expect_values()
+  
 })
