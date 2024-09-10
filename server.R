@@ -216,15 +216,19 @@ function(input, output, session) {
             input$syso_race_ethnicity
           }, {
             sys_inflow_outflow_plot_data(inflow_outflow_df())
-            sys_df_people_universe_filtered_r(enrollment_categories_reactive() %>%
-                                                select(PersonalID, DomesticViolenceCategory,lookback, lecr, eecr) %>%
-                                                inner_join(client_categories, join_by(PersonalID)) %>%
-                                                filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
-                                                group_by(PersonalID) %>%
-                                                filter(max(lecr, na.rm = TRUE) == 1 & max(eecr, na.rm = TRUE) == 1) %>%
-                                                ungroup() %>%
-                                                select(-c(lookback, lecr, eecr)) %>%
-                                                unique())
+            sys_df_people_universe_filtered_r(
+              enrollment_categories_reactive() %>%
+                select(PersonalID, lookback, lecr, eecr) %>%
+                inner_join(client_categories, join_by(PersonalID)) %>%
+                filter(!(lookback == 0 &
+                           eecr == FALSE & lecr == FALSE)) %>%
+                group_by(PersonalID) %>%
+                filter(max(lecr, na.rm = TRUE) == 1 &
+                         max(eecr, na.rm = TRUE) == 1) %>%
+                ungroup() %>%
+                select(-c(lookback, lecr, eecr)) %>%
+                unique()
+            )
             sankey_plot_data(sankey_plot_df())
           })
           
