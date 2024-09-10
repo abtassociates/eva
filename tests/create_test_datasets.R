@@ -82,6 +82,10 @@ write.csv(reduced_data[["Exit"]],
           na = "")
 Sys.sleep(1)
 
+# Wrong File Type
+gz1 <- gzfile(here("tests/temp/FY24-ICF-wrong-file-type.gz"), "w")
+write.csv(data.frame(), gz1)
+close(gz1)
 ############### VALID FILES #################
 # FSA ---------------------------------------------------
 reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[ifelse(nrow(x) >= 6, 6, 1)])
