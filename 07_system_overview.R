@@ -1184,6 +1184,11 @@ inflow_outflow_df <- reactive({
   plot_data
 })
 
+# newly_homeless_clients <- plot_data %>%
+#   filter(InflowTypeDetail == "Newly Homeless") %>%
+#   pull(PersonalID) %>%
+#   unique()
+# 
 # enrollment_categories  %>%
 #   group_by(PersonalID) %>%
 #   mutate(Count = n()) %>%
@@ -1194,9 +1199,11 @@ inflow_outflow_df <- reactive({
 #          ReportEnd = ReportEnd(),
 #          ExportStart = ExportStartAdjusted,
 #          ExportEnd = ExportEndAdjusted,
-#          LookbackBegins = ReportStart() - years(2)) %>%
+#          LookbackBegins = ReportStart() - years(2),
+#          ProjectType = project_type_abb(ProjectType)) %>%
 #   select(
 #     PersonalID,
+#     EnrollmentID,
 #     ExportStart,
 #     LookbackBegins,
 #     ReportStart,
@@ -1213,4 +1220,4 @@ inflow_outflow_df <- reactive({
 #     lookback
 #   ) -> for_review
 # 
-# write_csv(for_review, here("find_returns_reengages.csv"))
+# write_csv(for_review, here("newly_homeless_20240910b.csv"))
