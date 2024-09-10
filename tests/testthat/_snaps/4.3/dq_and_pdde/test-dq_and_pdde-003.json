@@ -963,6 +963,14 @@
         "validation"
       ]
     },
+    "downloadImpermissibleCharacterDetailBtn": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
     "downloadPDDEReportButton": {
       "html": "<a id=\"downloadPDDEReport\" class=\"btn btn-default shiny-download-link \" href=\"\" target=\"_blank\" download>\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download\n<\/a>",
       "deps": [

@@ -863,6 +863,14 @@
         "validation"
       ]
     },
+    "downloadImpermissibleCharacterDetailBtn": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
     "fileInfo": {
       "html": "<p id='successful_upload'>You have successfully uploaded your hashed\n           HMIS CSV Export!<\/p>",
       "deps": [

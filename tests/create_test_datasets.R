@@ -82,7 +82,6 @@ write.csv(reduced_data[["Exit"]],
           na = "")
 Sys.sleep(1)
 
-
 ############### VALID FILES #################
 # FSA ---------------------------------------------------
 reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[6, ])
