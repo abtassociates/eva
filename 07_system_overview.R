@@ -1200,7 +1200,8 @@ inflow_outflow_df <- reactive({
 #          ExportStart = ExportStartAdjusted,
 #          ExportEnd = ExportEndAdjusted,
 #          LookbackBegins = ReportStart() - years(2),
-#          ProjectType = project_type_abb(ProjectType)) %>%
+#          ProjectType = project_type_abb(ProjectType),
+#          LivingSituation = living_situation(LivingSituation)) %>%
 #   select(
 #     PersonalID,
 #     EnrollmentID,
@@ -1212,6 +1213,7 @@ inflow_outflow_df <- reactive({
 #     ReportEnd,
 #     ExportEnd,
 #     ProjectType,
+#     LivingSituation,
 #     DestinationDescription,
 #     days_to_next_entry,
 #     days_since_previous_exit,
