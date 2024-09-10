@@ -84,7 +84,7 @@ Sys.sleep(1)
 
 ############### VALID FILES #################
 # FSA ---------------------------------------------------
-reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[6, ])
+reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[ifelse(nrow(x) >= 6, 6, 1)])
 source(here("tests/update_test_good_fsa.R"), local = TRUE)
 
 dir.create(here("tests/temp/reduced_fsa"))
