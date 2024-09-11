@@ -472,8 +472,8 @@ sys_comp_selections_summary <- function() {
 output$sys_comp_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Composition Report - "),
   content = function(file) {
-    v1 <- gsub(input$system_composition_selections[1], "Races/Ethnicities", "Race")
-    v2 <- gsub(input$system_composition_selections[2], "Races/Ethnicities", "Race")
+    v1 <- gsub("Races/Ethnicities", "Race", input$system_composition_selections[1])
+    v2 <- gsub("Races/Ethnicities", "Race", input$system_composition_selections[2])
     
     # get the n matrix
     num_matrix <- sys_comp_plot_df() %>%
