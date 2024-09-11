@@ -162,6 +162,11 @@ suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
   )
 }
 
+toggle_download_buttons <- function(plot_df) {
+  shinyjs::toggle("sys_comp_download_btn", condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
+  shinyjs::toggle("sys_comp_download_btn_ppt", condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
+}
+
 sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
   selection <- var_cols[[input$system_composition_selections]]
@@ -194,6 +199,9 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
     plot_df <- as.data.frame(table(comp_df[[selection]]))
     names(plot_df) <- c(input$system_composition_selections, "n")
   }
+  
+  # hide download buttons if not enough data
+  toggle_download_buttons(plot_df)
   
   sys_comp_plot_df(plot_df)
   
@@ -268,6 +276,9 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   }
   
   plot_df <- get_sys_comp_plot_df()
+  
+  toggle_download_buttons(plot_df)
+  
   validate(
     need(sum(plot_df$n > 0, na.rm = TRUE) > 0, message = "No data to show"),
     need(sum(plot_df$n > 10, na.rm = TRUE) > 0, message = "Not enough data to show")
