@@ -173,13 +173,6 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   comp_df <- sys_df_people_universe_filtered_r() %>%
     select(PersonalID, unname(selection))
   
-  selection_cats1 <- get_selection_cats(input$system_composition_selections)
-  selection_cats1_labels <- if (is.null(names(selection_cats1))) {
-    selection_cats1
-  } else {
-    names(selection_cats1)
-  }
-  
   # if number of variables associated with selection > 1, then they're dummies
   if (length(selection) > 1) {
     plot_df <- comp_df %>%
@@ -190,11 +183,6 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       ) %>%
       group_by(!!sym(input$system_composition_selections)) %>%
       summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
-    
-    plot_df[input$system_composition_selections] <- factor(
-      plot_df[[input$system_composition_selections]], 
-      levels = selection_cats1, 
-      labels = selection_cats1_labels)
   } else {
     plot_df <- as.data.frame(table(comp_df[[selection]]))
     names(plot_df) <- c(input$system_composition_selections, "n")
@@ -207,6 +195,19 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
     need(sum(plot_df$n > 0, na.rm = TRUE) > 0, message = "No data to show"),
     need(sum(plot_df$n > 10, na.rm = TRUE) > 0, message = "Not enough data to show")
   )
+  
+  selection_cats1 <- get_selection_cats(input$system_composition_selections)
+  selection_cats1_labels <- if (is.null(names(selection_cats1))) {
+    selection_cats1
+  } else {
+    names(selection_cats1)
+  }
+  
+  plot_df[input$system_composition_selections] <- factor(
+    plot_df[[input$system_composition_selections]], 
+    levels = selection_cats1, 
+    labels = selection_cats1_labels)
+  
   sys_comp_plot_df(plot_df)
   
   plot_df <- plot_df %>%
