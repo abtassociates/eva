@@ -289,9 +289,6 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     need(sum(plot_df$n > 10, na.rm = TRUE) > 0, message = "Not enough data to show")
   )
   
-  if (all(is.na(plot_df$n)))
-    return()
-  
   selection_cats1 <- get_selection_cats(input$system_composition_selections[1])
   selection_cats1_labels <- if (is.null(names(selection_cats1))) {
     selection_cats1
@@ -592,7 +589,7 @@ output$sys_comp_summary_selections <- renderUI({
 output$sys_comp_summary_ui_chart <- renderPlot({
   sys_comp_p()
 }, height = function() { 
-  if_else(!is.null(input$system_composition_selections), 600, 100) 
+  ifelse(!is.null(input$system_composition_selections), 600, 100) 
 }, width = function() {
   ifelse(length(input$system_composition_selections) == 1, 600, "auto")
 })
