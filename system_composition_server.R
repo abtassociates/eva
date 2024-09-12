@@ -192,8 +192,10 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   toggle_download_buttons(plot_df)
   
   validate(
-    need(sum(plot_df$n > 0, na.rm = TRUE) > 0, message = "No data to show"),
-    need(sum(plot_df$n > 10, na.rm = TRUE) > 0, message = "Not enough data to show")
+    need(
+      sum(plot_df$n > 10, na.rm = TRUE) > 0, 
+      message = suppression_msg
+    )
   )
   
   selection_cats1 <- get_selection_cats(input$system_composition_selections)
@@ -285,8 +287,10 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   toggle_download_buttons(plot_df)
   
   validate(
-    need(sum(plot_df$n > 0, na.rm = TRUE) > 0, message = "No data to show"),
-    need(sum(plot_df$n > 10, na.rm = TRUE) > 0, message = "Not enough data to show")
+    need(
+      sum(plot_df$n > 10, na.rm = TRUE) > 0, 
+      message = suppression_msg
+    )
   )
   
   selection_cats1 <- get_selection_cats(input$system_composition_selections[1])

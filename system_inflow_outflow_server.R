@@ -165,8 +165,7 @@ get_system_inflow_outflow_plot <- function(id) {
   validate(
     need(
       total_clients > 10,
-      message = "The dataset has been filtered to fewer than 11 records, therefore
-          the plot will not be displayed for privacy purposes."
+      message = suppression_msg
     )
   )
   

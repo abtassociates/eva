@@ -217,3 +217,5 @@ sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot
   # Export the PowerPoint
   return(print(ppt, target = file))
 }
+
+suppression_msg <- "The chart cannot be displayed because there are fewer than 11 clients."

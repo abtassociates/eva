@@ -127,16 +127,8 @@ output$sankey_ui_chart <- renderPlot({
   
   validate(
     need(
-      sum(plot_data$freq) > 0, 
-      message = paste0("No data to show.")
-    )
-  )
-  req(sum(plot_data$freq) > 0)
-  
-  validate(
-    need(
       sum(plot_data$freq) > 10,
-      message = paste0("Not enough data to show.")
+      message = suppression_msg
     )
   )
   
