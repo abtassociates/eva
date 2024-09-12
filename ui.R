@@ -692,6 +692,123 @@ dashboardPage(
         )
       ),
       tabItem(
+        tabName = "tabDQSystem",
+        fluidRow(box(
+          htmlOutput("headerSystemDQ"), width = 12, 
+          uiOutput("downloadSystemDQReportButton"))),
+        fluidRow(box(
+          title = "Instructions",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          HTML("
+               <h4>System-wide HMIS Data Quality</h4>
+               <p>Use your System-wide Data Quality data to evaluate which
+               organizations may benefit from additional assistance and where
+               extra training may be needed. You can download this data to use
+               for reporting to interested entities about your overall HMIS
+               system data quality.</p>
+               <p>Click the Download button to generate an Excel workbook with
+               the your entire system's Data Quality data. Feel free to modify,
+               add, or remove anything as you see fit. For example, if you are
+               sending this workbook to your CoC management, you may want to 
+               remove the tabs that have client-level data on them. 
+               <p>Review the plots below to identify the organizations that
+               you want to examine more closely in the <b>Data Quality > 
+               Organization-level</b> tab. </p>
+               <h4>Some definitions:</h4>
+               <p>This app categorizes every issue it finds in your data set in
+               terms of its severity.</p>
+               <ul>
+               <li>High Priority Errors
+                <ul>
+                  <li> Always indicates a data quality issue that can and should
+                      be fixed in HMIS.</li>
+                  <li> Aim for 0 High Priority errors.</li>
+                  <li> These errors affect multiple federal reports in a
+                      fundamental way and thus should be prioritized.</li>
+                </ul></li>
+               <li>General Errors
+                <ul>
+                  <li> Always indicates a data quality issue that can and should
+                      be fixed in HMIS.</li>
+                  <li> Aim for 0 General Errors.
+                </ul></li>
+               <li>Warnings
+                <ul>
+                  <li> May be a data quality issue, but may also be an unexpected
+                      situation that reflects reality.</li>
+                  <li> Do not aim for 0 Warnings. It is ok and expected to have
+                      some warnings.</li>
+                  <li> End users should check that any data being flagged as a
+                      Warning is accurate in their HMIS. If it is not accurate,
+                      then it should be corrected. If it is accurate, it should
+                      be left as is.</li>
+                </ul></li>
+               </ul>
+               <p>Regardless of an issue's categorization, <b>users should never
+               edit data that accurately reflects reality</b>.
+               
+               <h4>System-wide HMIS Data Quality Plots</h4>
+               <p>For each type of issue (High Priority Errors, General Errors,
+               and Warnings) you will find two plots: one plots the counts of
+               issues and one plots the number of issues by organization.</p>
+               
+               <h5><b>Top 10 Issues</b></h5>
+               <p>Across all of the organizations in your upload, this plot shows
+               the <b>top 10</b> issues identified in the data quality scan. This
+               result can help to focus future end-user trainings and bring to
+               light any potential considerations in your federal or local
+               reporting and analysis.</p>
+               
+               <h5><b>Top 10 Organizations</b></h5>
+               <p>These plots show the <b>top 10</b> organizations across your
+               system with the highest number of issues identified. You can use
+               these plots to help determine which organizations may need extra
+               assistance in getting their HMIS Errors/Warnings resolved.</p>
+               
+               <h4>Download System-wide HMIS Data Quality Data</h4>
+               <p>To download all of the client and enrollment related issues
+               found in your system, click the Download button. This will give
+               HMIS admins a way of reporting to interested entities, such as
+               your CoC leadership, a broader view of the state of your HMIS
+               data quality.</p>")
+        )), 
+        
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Top 10 Issues",
+            title = "High Priority Errors",
+            tabPanel("Top 10 Organizations",
+                     uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
+            tabPanel("Top 10 Issues",
+                     uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
+            width = 12
+          )
+        ),
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Top 10 Issues",
+            title = "General Errors",
+            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQErrorsByIssue_ui")),
+            width =12
+          )
+        ),
+        fluidRow(
+          tabBox(
+            side = "right",
+            selected = "Top 10 Issues",
+            title = "Warnings",
+            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsByOrg_ui")),
+            tabPanel("Top 10 Issues", uiOutput("systemDQWarningsByIssue_ui")),
+            width = 12
+          )
+        )
+      ),
+      tabItem(
         tabName = "tabDQOrg",
         fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
         fluidRow(box(
@@ -1366,123 +1483,6 @@ dashboardPage(
             # collapsed = TRUE,
             width = 12,
             dataTableOutput("changelog")
-          )
-        )
-      ),
-      tabItem(
-        tabName = "tabDQSystem",
-        fluidRow(box(
-          htmlOutput("headerSystemDQ"), width = 12, 
-          uiOutput("downloadSystemDQReportButton"))),
-        fluidRow(box(
-          title = "Instructions",
-          width = 12,
-          collapsible = TRUE,
-          collapsed = TRUE,
-          HTML("
-               <h4>System-wide HMIS Data Quality</h4>
-               <p>Use your System-wide Data Quality data to evaluate which
-               organizations may benefit from additional assistance and where
-               extra training may be needed. You can download this data to use
-               for reporting to interested entities about your overall HMIS
-               system data quality.</p>
-               <p>Click the Download button to generate an Excel workbook with
-               the your entire system's Data Quality data. Feel free to modify,
-               add, or remove anything as you see fit. For example, if you are
-               sending this workbook to your CoC management, you may want to 
-               remove the tabs that have client-level data on them. 
-               <p>Review the plots below to identify the organizations that
-               you want to examine more closely in the <b>Data Quality > 
-               Organization-level</b> tab. </p>
-               <h4>Some definitions:</h4>
-               <p>This app categorizes every issue it finds in your data set in
-               terms of its severity.</p>
-               <ul>
-               <li>High Priority Errors
-                <ul>
-                  <li> Always indicates a data quality issue that can and should
-                      be fixed in HMIS.</li>
-                  <li> Aim for 0 High Priority errors.</li>
-                  <li> These errors affect multiple federal reports in a
-                      fundamental way and thus should be prioritized.</li>
-                </ul></li>
-               <li>General Errors
-                <ul>
-                  <li> Always indicates a data quality issue that can and should
-                      be fixed in HMIS.</li>
-                  <li> Aim for 0 General Errors.
-                </ul></li>
-               <li>Warnings
-                <ul>
-                  <li> May be a data quality issue, but may also be an unexpected
-                      situation that reflects reality.</li>
-                  <li> Do not aim for 0 Warnings. It is ok and expected to have
-                      some warnings.</li>
-                  <li> End users should check that any data being flagged as a
-                      Warning is accurate in their HMIS. If it is not accurate,
-                      then it should be corrected. If it is accurate, it should
-                      be left as is.</li>
-                </ul></li>
-               </ul>
-               <p>Regardless of an issue's categorization, <b>users should never
-               edit data that accurately reflects reality</b>.
-               
-               <h4>System-wide HMIS Data Quality Plots</h4>
-               <p>For each type of issue (High Priority Errors, General Errors,
-               and Warnings) you will find two plots: one plots the counts of
-               issues and one plots the number of issues by organization.</p>
-               
-               <h5><b>Top 10 Issues</b></h5>
-               <p>Across all of the organizations in your upload, this plot shows
-               the <b>top 10</b> issues identified in the data quality scan. This
-               result can help to focus future end-user trainings and bring to
-               light any potential considerations in your federal or local
-               reporting and analysis.</p>
-               
-               <h5><b>Top 10 Organizations</b></h5>
-               <p>These plots show the <b>top 10</b> organizations across your
-               system with the highest number of issues identified. You can use
-               these plots to help determine which organizations may need extra
-               assistance in getting their HMIS Errors/Warnings resolved.</p>
-               
-               <h4>Download System-wide HMIS Data Quality Data</h4>
-               <p>To download all of the client and enrollment related issues
-               found in your system, click the Download button. This will give
-               HMIS admins a way of reporting to interested entities, such as
-               your CoC leadership, a broader view of the state of your HMIS
-               data quality.</p>")
-        )), 
-
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Top 10 Issues",
-            title = "High Priority Errors",
-            tabPanel("Top 10 Organizations",
-                     uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
-            tabPanel("Top 10 Issues",
-                     uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
-            width = 12
-          )
-        ),
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Top 10 Issues",
-            title = "General Errors",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorsByOrg_ui")),
-            tabPanel("Top 10 Issues", uiOutput("systemDQErrorsByIssue_ui")),
-            width =12
-          )
-        ),
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Top 10 Issues",
-            title = "Warnings",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsByOrg_ui")),
-            tabPanel("Top 10 Issues", uiOutput("systemDQWarningsByIssue_ui")),
-            width = 12
           )
         )
       )
