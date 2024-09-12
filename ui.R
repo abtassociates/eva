@@ -57,7 +57,9 @@ dashboardPage(
                 #           tabName = "systemExitDetail")
                ),
       menuItem("View Changelog",
-               tabName = "tabChangelog")
+               tabName = "tabChangelog"),
+      menuItem("Glossary",
+               tabName = "tabGlossary")
       # ),
       # menuItem("System Analysis",
       #          menuSubItem("System Flow",

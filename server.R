@@ -48,6 +48,12 @@ function(input, output, session) {
   # log that the session has started
   logMetadata("Session started")
   
+  observe({
+    req(session$clientData$url_search != "")
+    updateTabItems(session,
+                   "sidebarmenuid",
+                   parseQueryString(session$clientData$url_search))
+  })
   # set during initially valid processing stop. Rest of processing stops if invalid
   # FSA is hidden unless initially_valid_import() == 1
   initially_valid_import <- reactiveVal() 
