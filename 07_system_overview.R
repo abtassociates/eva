@@ -1,10 +1,11 @@
 logToConsole("Running system overview")
 
 # Age ---------------------------------------------------------------------
+EnrollmentAdjustAge <- EnrollmentAdjust %>%
+  mutate(AgeAtEntry = replace_na(AgeAtEntry, -1))
 
 system_person_ages <- as.data.frame(
-  as.data.table(EnrollmentAdjust %>%
-                  mutate(AgeAtEntry = replace_na(AgeAtEntry, -1)))[
+  as.data.table(EnrollmentAdjustAge)[
     , .SD[which.max(AgeAtEntry)], by = PersonalID
   ][, AgeCategory := factor(fcase(
       AgeAtEntry < 0, "Unknown",
@@ -38,7 +39,7 @@ system_person_ages <- as.data.frame(
 
 # using EnrollmentAdjust because that df doesn't contain enrollments that fall
 # outside periods of operation/participation
-enrollment_prep <- EnrollmentAdjust %>%
+enrollment_prep <- EnrollmentAdjustAge %>%
   select(EnrollmentID,
          PersonalID,
          ProjectID,
@@ -80,7 +81,6 @@ enrollment_prep <- EnrollmentAdjust %>%
               select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
             by = "EnrollmentID") %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  mutate(AgeAtEntry = replace_na(AgeAtEntry, -1)) %>%
   filter(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>%
   select(-ContinuumProject)
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
