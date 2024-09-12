@@ -883,6 +883,14 @@ universe <- reactive({
     # get rid of rows where the enrollment is neither a lookback enrollment,
     # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
     filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
+    mutate(order_ees = case_when(lecr == TRUE ~ 0, eecr == TRUE ~ 1, TRUE ~ lookback + 1)) %>%
+    group_by(PersonalID) %>%
+    arrange(desc(order_ees), .by_group = TRUE) %>%
+    mutate(
+      days_to_next_entry =
+        difftime(lead(EntryDate, order_by = EntryDate),
+                 ExitAdjust, units = "days")) %>%
+    ungroup() %>%
     mutate(
       # INFLOW CALCULATOR COLUMNS
       # LOGIC: active homeless at start
@@ -962,7 +970,7 @@ universe <- reactive({
       # outflow columns
       perm_dest_lecr = lecr == TRUE &
         Destination %in% perm_livingsituation &
-        ExitAdjust <= ReportEnd(), # 
+        ExitAdjust <= ReportEnd(), 
       
       temp_dest_lecr = lecr == TRUE &
         !(Destination %in% perm_livingsituation) &
@@ -1117,7 +1125,7 @@ universe_ppl_flags <- reactive({
 # get final people-level, inflow/outflow dataframe by joining the filtered 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 inflow_outflow_df <- reactive({
-  browser()
+ 
   plot_data <- universe_ppl_flags() %>%
     select(PersonalID,
            active_at_start_homeless_client,
@@ -1222,4 +1230,4 @@ inflow_outflow_df <- reactive({
 #     lookback
 #   ) -> for_review
 # 
-# write_csv(for_review, here("newly_homeless_20240910b.csv"))
+# write_csv(for_review, here("newly_homeless_20240912a.csv"))
