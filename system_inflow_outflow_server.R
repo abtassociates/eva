@@ -310,14 +310,6 @@ syso_detailBox <- reactive({
   # if (input$methodology_type == 2) {
     # browser()
   # }
-  detail_line <- function(detail_label, val_list, inputVal) {
-    return(
-      HTML(glue(
-        "<b>{detail_label}:</b> {getNameByValue(val_list, inputVal)} <br>"
-      ))
-    )
-  }
-  
   selected_race <- getNameByValue(
     unlist(syso_race_ethnicity_cats(input$methodology_type)),
     input$syso_race_ethnicity
@@ -343,9 +335,9 @@ syso_detailBox <- reactive({
     format(ReportStart(),"%m-%d-%Y"), " to ", format(ReportEnd(),"%m-%d-%Y"), br(),
     
     if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
-      detail_line("Project Type", syso_project_types, input$syso_project_type),
+      chart_selection_detail_line("Project Type", syso_project_types, input$syso_project_type),
     
-    detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
+    chart_selection_detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
     
     if (length(input$syso_age) != length(syso_age_cats))
       HTML(glue(
@@ -353,13 +345,13 @@ syso_detailBox <- reactive({
       )),
     
     if (getNameByValue(syso_gender_cats(), input$syso_gender) != "All Genders")
-      detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
+      chart_selection_detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
     
     if (selected_race != "All.All Races/Ethnicities")
       race_ethnicity_line,
     
     if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
-      detail_line("Special Populations", syso_spec_pops_people, input$syso_spec_pops)
+      chart_selection_detail_line("Special Populations", syso_spec_pops_people, input$syso_spec_pops)
     
   )
 })
