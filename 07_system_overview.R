@@ -202,7 +202,9 @@ nbn_enrollments_services <- nbn_enrollments_services %>%
   select(EnrollmentID,
          NbN15DaysBeforeReportStart,
          NbN15DaysAfterReportEnd) %>%
-  filter(NbN15DaysBeforeReportStart == 1 | NbN15DaysAfterReportEnd == 1)
+  filter(NbN15DaysBeforeReportStart == 1 |
+           NbN15DaysAfterReportEnd == 1 |
+           NbN15DaysBeforeReportStart == 1)
 
 # homeless cls finder function --------------------------------------------
 
@@ -389,7 +391,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
   select(-AgeAtEntry) %>%
   left_join(nbn_enrollments_services, join_by(EnrollmentID)) %>%
   mutate(NbN15DaysBeforeReportStart = replace_na(NbN15DaysBeforeReportStart, 0),
-         NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0))
+         NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0),
+         NbN15DaysBeforeReportEnd = replace_na(NbN15DaysBeforeReportEnd))
 
 # using data.table --------------------------------------------------------
 # enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
@@ -860,7 +863,8 @@ enrollment_categories_reactive <- reactive({
       lecr,
       eecr,
       lookback,
-      NbN15DaysAfterReportEnd
+      NbN15DaysAfterReportEnd,
+      NbN15DaysBeforeReportEnd
     )
 })
 
@@ -1029,6 +1033,11 @@ universe <- reactive({
             !EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60) &
             (!between(EntryDate, ReportEnd() - days(60), ReportEnd()) |
                lh_prior_livingsituation == FALSE)) |
+
+        # nbn shelter
+        (ProjectType == es_nbn_project_type &
+          (in_date_range == TRUE | NbN15DaysBeforeReportEnd == TRUE)) |
+           
         
         # CE
         (ProjectType %in% ce_project_type &
