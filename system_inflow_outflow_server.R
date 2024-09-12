@@ -164,6 +164,12 @@ get_system_inflow_outflow_plot <- function(id) {
   
   validate(
     need(
+      total_clients > 0,
+      message = no_data_msg
+    )
+  )
+  validate(
+    need(
       total_clients > 10,
       message = suppression_msg
     )

@@ -173,6 +173,13 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   comp_df <- sys_df_people_universe_filtered_r() %>%
     select(PersonalID, unname(selection))
   
+  validate(
+    need(
+      nrow(comp_df) > 0,
+      message = no_data_msg
+    )
+  )
+    
   # if number of variables associated with selection > 1, then they're dummies
   if (length(selection) > 1) {
     plot_df <- comp_df %>%
@@ -286,6 +293,12 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   
   toggle_download_buttons(plot_df)
   
+  validate(
+    need(
+      sun(plot_df$n) > 0,
+      message = no_data_msg
+    )
+  )
   validate(
     need(
       sum(plot_df$n > 10, na.rm = TRUE) > 0, 

@@ -127,6 +127,12 @@ output$sankey_ui_chart <- renderPlot({
   
   validate(
     need(
+      sum(plot_data$freq) > 0,
+      message = no_data_msg
+    )
+  )
+  validate(
+    need(
       sum(plot_data$freq) > 10,
       message = suppression_msg
     )
