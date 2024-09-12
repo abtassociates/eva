@@ -79,7 +79,7 @@ dashboardPage(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
       tags$script(HTML("function idleTimer() {
-          var timeoutTime = 600000;
+          var timeoutTime = 900000;
           var t = setTimeout(logout, timeoutTime);
           window.onmousemove = resetTimer; // catches mouse movements
           window.onmousedown = resetTimer; // catches mouse movements
@@ -1018,7 +1018,10 @@ dashboardPage(
                   inputId = "syso_race_ethnicity",
                   choices = syso_race_ethnicity_excl,
                   width = "100%",
-                  selected = syso_race_ethnicity_excl
+                  selected = syso_race_ethnicity_excl,
+                  options = list(
+                    `dropdown-align-right` = TRUE, 
+                    `dropup-auto` = FALSE)
                 )
               )
             )
