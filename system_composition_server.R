@@ -179,6 +179,12 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       message = no_data_msg
     )
   )
+  validate(
+    need(
+      nrow(comp_df) > 10,
+      message = suppression_msg
+    )
+  )
     
   # if number of variables associated with selection > 1, then they're dummies
   if (length(selection) > 1) {
@@ -295,7 +301,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   
   validate(
     need(
-      sun(plot_df$n) > 0,
+      sum(plot_df$n) > 0,
       message = no_data_msg
     )
   )

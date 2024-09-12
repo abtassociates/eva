@@ -178,7 +178,7 @@ sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot
         )
     )
   }
-  browser()
+  
   # title Slide
   ppt <- add_slide(ppt, layout = "Title Slide", master = "Office Theme") %>%
     ph_with(value = title_slide_title, location = loc_ctrtitle) %>%
