@@ -449,9 +449,18 @@ get_segment_size <- function(x) {
 }
 
 chart_selection_detail_line <- function(detail_label, val_list, inputVal) {
+  named_val <- ifelse(
+    detail_label != 'Methodology Type', 
+    getNameByValue(val_list, inputVal),
+    ifelse(
+      inputVal == 1,
+      'Exclusive Groupings',
+      'Inclusive Groupings'
+    )
+  )
   return(
     HTML(glue(
-      "<strong>{detail_label}:</strong> {getNameByValue(val_list, inputVal)} <br>"
+      "<strong>{detail_label}:</strong> {named_val} <br>"
     ))
   )
 }
