@@ -155,11 +155,11 @@ suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
 
 sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
-  selection <- var_cols[[input$system_composition_selections]]
+  selection <- input$system_composition_selections
   comp_df <- sys_df_people_universe_filtered_r() %>%
-    select(PersonalID, unname(selection))
+    select(PersonalID, unname(var_cols[[selection]]))
   
-  selection_cats1 <- get_selection_cats(input$system_composition_selections)
+  selection_cats1 <- get_selection_cats(selection)
   selection_cats1_labels <- if (is.null(names(selection_cats1))) {
     selection_cats1
   } else {
@@ -167,34 +167,34 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   }
   
   # if number of variables associated with selection > 1, then they're dummies
-  if (length(selection) > 1) {
+  if (length(var_cols[[selection]]) > 1) {
     plot_df <- comp_df %>%
       pivot_longer(
         cols = -PersonalID,
-        names_to = input$system_composition_selections,
+        names_to = selection,
         values_to = "value"
       ) %>%
-      group_by(!!sym(input$system_composition_selections)) %>%
+      group_by(!!sym(selection)) %>%
       summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
     
-    plot_df[input$system_composition_selections] <- factor(
-      plot_df[[input$system_composition_selections]], 
+    plot_df[selection] <- factor(
+      plot_df[[selection]], 
       levels = selection_cats1, 
       labels = selection_cats1_labels)
   } else {
     plot_df <- as.data.frame(table(comp_df[[selection]])) %>%
       mutate(Var1 = factor(Var1, levels = rev(levels(Var1))))
-    names(plot_df) <- c(input$system_composition_selections, "n")
+    names(plot_df) <- c(selection, "n")
   }
   
   sys_comp_plot_df(plot_df)
   
   plot_df <- plot_df %>%
     suppress_values("n") %>%
-    suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections, "n")
+    suppress_next_val_if_one_suppressed_in_group(selection, "n")
   
   return(
-    ggplot(plot_df, aes("", .data[[input$system_composition_selections]])) +
+    ggplot(plot_df, aes("", .data[[selection]])) +
       # main data into cells for each cross-combination
       geom_tile(
         color = '#f0f0f0',
@@ -222,8 +222,14 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
         )
       ) +
       scale_y_discrete(
-        labels = str_wrap(rev(selection_cats1_labels), width = 60),
-        limits = rev(levels(plot_df[[input$system_composition_selections]])),
+        labels = str_wrap(
+          rev(selection_cats1_labels), 
+          width = ifelse(
+            selection == "Domestic Violence",
+            30,
+            60
+          )),
+        limits = rev(levels(plot_df[[selection]])),
       ) +
       # other stuff
       theme_bw() +
