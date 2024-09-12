@@ -23,7 +23,7 @@ syscomp_detailBox <- function(session) {
       br(),
       
       if (input$syso_project_type != "All")
-        chart_selection_detail_line("Project Type", syso_project_types, input$syso_project_type),
+        chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
       
       chart_selection_detail_line(
         "Methodology Type",
