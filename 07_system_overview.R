@@ -9,15 +9,15 @@ system_person_ages <- as.data.frame(
     , .SD[which.max(AgeAtEntry)], by = PersonalID
   ][, AgeCategory := factor(fcase(
       AgeAtEntry < 0, "Unknown",
-      AgeAtEntry >= 0 & AgeAtEntry <= 12, "0 to 12",
-      AgeAtEntry >= 13 & AgeAtEntry <= 17, "13 to 17",
-      AgeAtEntry >= 18 & AgeAtEntry <= 21, "18 to 21",
-      AgeAtEntry >= 22 & AgeAtEntry <= 24, "22 to 24",
-      AgeAtEntry >= 25 & AgeAtEntry <= 34, "25 to 34",
-      AgeAtEntry >= 35 & AgeAtEntry <= 44, "35 to 44",
-      AgeAtEntry >= 45 & AgeAtEntry <= 54, "45 to 54",
-      AgeAtEntry >= 55 & AgeAtEntry <= 64, "55 to 64",
-      AgeAtEntry >= 65 & AgeAtEntry <= 74, "65 to 74",
+      between(AgeAtEntry, 0, 12), "0 to 12",
+      between(AgeAtEntry, 13, 17), "13 to 17",
+      between(AgeAtEntry, 18, 21), "18 to 21",
+      between(AgeAtEntry, 22, 24), "22 to 24",
+      between(AgeAtEntry, 25, 34), "25 to 34",
+      between(AgeAtEntry, 35, 44), "35 to 44",
+      between(AgeAtEntry, 45, 54), "45 to 54",
+      between(AgeAtEntry, 55, 64), "55 to 64",
+      between(AgeAtEntry, 65, 74), "65 to 74",
       AgeAtEntry >= 75, "75 and older",
       default = "Unknown"),
     levels = c(
@@ -102,25 +102,26 @@ hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
      CorrectedHoH = ifelse(seq_len(.N) == 1, 1, 0)
    ),
    by = .(HouseholdID, ProjectID)
-][, HouseholdTypeMutuallyExclusive := factor(fifelse(
-  all(AgeAtEntry >= 18, na.rm = TRUE) & !any(is.na(AgeAtEntry)),
-  "AO",
+][, HouseholdTypeMutuallyExclusive := factor(
   fifelse(
-    any(AgeAtEntry < 18, na.rm = TRUE) &
-      any(AgeAtEntry >= 18, na.rm = TRUE),
-    "AC",
-    fifelse(all(AgeAtEntry < 18, na.rm = TRUE) &
-              !any(is.na(AgeAtEntry)), "CO", "UN")
-  )
-),
-levels = c("AO", "AC", "CO", "UN")), by = HouseholdID][, HouseholdType := factor(
+    all(AgeAtEntry >= 18), "AO",
+    fifelse(
+      any(between(AgeAtEntry, 0, 17)) & any(AgeAtEntry >= 18),
+      "AC",
+      fifelse(
+        all(between(AgeAtEntry, 0, 17)), 
+        "CO", 
+        "UN"
+      )
+    )
+  ),
+  levels = c("AO", "AC", "CO", "UN")), by = HouseholdID
+][, HouseholdType := factor(
   fifelse(
-    HouseholdTypeMutuallyExclusive == "AC" &
-      max(AgeAtEntry) < 25 & !any(is.na(AgeAtEntry)),
+    HouseholdTypeMutuallyExclusive == "AC" & between(max(AgeAtEntry), 0, 24),
     "PY",
     fifelse(
-      HouseholdTypeMutuallyExclusive == "AO" &
-        max(AgeAtEntry) < 25,
+      HouseholdTypeMutuallyExclusive == "AO" & between(max(AgeAtEntry), 0, 24),
       "YYA",
       fifelse(
         HouseholdTypeMutuallyExclusive == "AC",
