@@ -335,7 +335,7 @@ syso_detailBox <- reactive({
     format(ReportStart(),"%m-%d-%Y"), " to ", format(ReportEnd(),"%m-%d-%Y"), br(),
     
     if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
-      chart_selection_detail_line("Project Type", syso_project_types, input$syso_project_type),
+      chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
     
     chart_selection_detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
     

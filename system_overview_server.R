@@ -88,7 +88,7 @@ sys_export_summary_initial_df <- function() {
       "Methodology Type",
       "Household Type",
       "Level of Detail",
-      "Project Type"
+      "Project Type Group"
     ),
     Value = c(
       strftime(ReportStart(), "%m/%d/%y"),
