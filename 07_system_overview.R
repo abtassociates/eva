@@ -374,9 +374,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
   filter((InvolvedInOverlapEnd == TRUE & RankOrderEndOverlaps == 1) |
            InvolvedInOverlapEnd == FALSE) %>%
   group_by(PersonalID, in_date_range) %>%
-  arrange(EntryDate,
-          ExitAdjust,
-          .by_group = TRUE) %>%
+  arrange(EntryDate, ExitAdjust, .by_group = TRUE) %>%
   mutate(
     lecr = in_date_range == TRUE & max(ordinal) == ordinal,
     eecr = in_date_range == TRUE & min(ordinal) == ordinal,
@@ -983,8 +981,9 @@ universe <- reactive({
           ProjectType %in% lh_project_types_nc |
             
             # nbn shelter
-            (ProjectType == es_nbn_project_type & (in_date_range == TRUE |
-                                                   NbN15DaysAfter == TRUE)) |
+            (ProjectType == es_nbn_project_type &
+               (in_date_range == TRUE | NbN15DaysAfter == TRUE)) |
+            
             # outreach, sso, other, day shelter
             (ProjectType %in% c(out_project_type,
                                 sso_project_type,
