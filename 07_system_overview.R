@@ -172,33 +172,37 @@ nbn_enrollments_services <- Services %>%
   ) %>%
   # ^ limits shelter night services to enrollments associated to NbN shelters
   mutate(
-    NbN15DaysPrior =
+    NbN15DaysBeforeReportStart =
       between(DateProvided,
               ReportStart() - days(15),
               ReportStart()),
-    NbN15DaysAfter =
+    NbN15DaysAfterReportEnd =
       between(DateProvided,
               ReportEnd(),
-              ReportEnd() + days(15))
+              ReportEnd() + days(15)),
+    NbN15DaysBeforeReportEnd =
+      between(DateProvided,
+              ReportEnd() - days(15),
+              ReportEnd())
   )
 
 if(nbn_enrollments_services %>% nrow() > 0) nbn_enrollments_services <-
   nbn_enrollments_services %>%
   group_by(EnrollmentID) %>%
   summarise(
-    NbN15DaysPrior = max(NbN15DaysPrior, na.rm = TRUE),
-    NbN15DaysAfter = max(NbN15DaysAfter, na.rm = TRUE)) %>%
+    NbN15DaysBeforeReportStart = max(NbN15DaysBeforeReportStart, na.rm = TRUE),
+    NbN15DaysAfterReportEnd = max(NbN15DaysAfterReportEnd, na.rm = TRUE)) %>%
   mutate(
-    NbN15DaysPrior = replace_na(NbN15DaysPrior, 0),
-    NbN15DaysAfter = replace_na(NbN15DaysAfter, 0)
+    NbN15DaysBeforeReportStart = replace_na(NbN15DaysBeforeReportStart, 0),
+    NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0)
   ) %>%
   ungroup()
 
 nbn_enrollments_services <- nbn_enrollments_services %>%
   select(EnrollmentID,
-         NbN15DaysPrior,
-         NbN15DaysAfter) %>%
-  filter(NbN15DaysPrior == 1 | NbN15DaysAfter == 1)
+         NbN15DaysBeforeReportStart,
+         NbN15DaysAfterReportEnd) %>%
+  filter(NbN15DaysBeforeReportStart == 1 | NbN15DaysAfterReportEnd == 1)
 
 # homeless cls finder function --------------------------------------------
 
@@ -384,8 +388,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
   ungroup() %>%
   select(-AgeAtEntry) %>%
   left_join(nbn_enrollments_services, join_by(EnrollmentID)) %>%
-  mutate(NbN15DaysPrior = replace_na(NbN15DaysPrior, 0),
-         NbN15DaysAfter = replace_na(NbN15DaysAfter, 0))
+  mutate(NbN15DaysBeforeReportStart = replace_na(NbN15DaysBeforeReportStart, 0),
+         NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0))
 
 # using data.table --------------------------------------------------------
 # enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
@@ -856,7 +860,7 @@ enrollment_categories_reactive <- reactive({
       lecr,
       eecr,
       lookback,
-      NbN15DaysAfter
+      NbN15DaysAfterReportEnd
     )
 })
 
@@ -983,7 +987,7 @@ universe <- reactive({
             
             # nbn shelter
             (ProjectType == es_nbn_project_type &
-               (in_date_range == TRUE | NbN15DaysAfter == TRUE)) |
+               (in_date_range == TRUE | NbN15DaysAfterReportEnd == TRUE)) |
             
             # outreach, sso, other, day shelter
             (ProjectType %in% c(out_project_type,
