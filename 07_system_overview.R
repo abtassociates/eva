@@ -138,7 +138,8 @@ hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
 ), by = HouseholdID]
 
 # Select required columns
-hh_adjustments <- as.data.frame(hh_adjustments[, .(EnrollmentID, CorrectedHoH, HouseholdType)])
+hh_adjustments <-
+  as.data.frame(hh_adjustments[, .(EnrollmentID, CorrectedHoH, HouseholdType)])
 
 # keeps original HoH unless the HoH is younger than 18 or if there are mult hohs
 # if they are younger than 18, or if there are mult hohs, it will take the
