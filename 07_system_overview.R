@@ -191,20 +191,23 @@ if(nbn_enrollments_services %>% nrow() > 0) nbn_enrollments_services <-
   group_by(EnrollmentID) %>%
   summarise(
     NbN15DaysBeforeReportStart = max(NbN15DaysBeforeReportStart, na.rm = TRUE),
-    NbN15DaysAfterReportEnd = max(NbN15DaysAfterReportEnd, na.rm = TRUE)) %>%
+    NbN15DaysAfterReportEnd = max(NbN15DaysAfterReportEnd, na.rm = TRUE),
+    NbN15DaysBeforeReportEnd = max(NbN15DaysBeforeReportEnd, na.rm = TRUE)) %>%
   mutate(
     NbN15DaysBeforeReportStart = replace_na(NbN15DaysBeforeReportStart, 0),
-    NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0)
+    NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0),
+    NbN15DaysBeforeReportEnd = replace_na(NbN15DaysBeforeReportEnd, 0)
   ) %>%
   ungroup()
 
 nbn_enrollments_services <- nbn_enrollments_services %>%
   select(EnrollmentID,
          NbN15DaysBeforeReportStart,
-         NbN15DaysAfterReportEnd) %>%
+         NbN15DaysAfterReportEnd,
+         NbN15DaysBeforeReportEnd) %>%
   filter(NbN15DaysBeforeReportStart == 1 |
            NbN15DaysAfterReportEnd == 1 |
-           NbN15DaysBeforeReportStart == 1)
+           NbN15DaysBeforeReportEnd == 1)
 
 # homeless cls finder function --------------------------------------------
 
