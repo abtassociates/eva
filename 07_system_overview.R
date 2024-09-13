@@ -1040,7 +1040,7 @@ universe <- reactive({
 
         # nbn shelter
         (ProjectType == es_nbn_project_type &
-          (in_date_range == TRUE | NbN15DaysBeforeReportEnd == TRUE)) |
+          (in_date_range == TRUE | NbN15DaysBeforeReportEnd == FALSE)) |
            
         
         # CE
