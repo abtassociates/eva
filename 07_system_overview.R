@@ -395,7 +395,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
   left_join(nbn_enrollments_services, join_by(EnrollmentID)) %>%
   mutate(NbN15DaysBeforeReportStart = replace_na(NbN15DaysBeforeReportStart, 0),
          NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0),
-         NbN15DaysBeforeReportEnd = replace_na(NbN15DaysBeforeReportEnd))
+         NbN15DaysBeforeReportEnd = replace_na(NbN15DaysBeforeReportEnd, 0))
 
 # using data.table --------------------------------------------------------
 # enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
