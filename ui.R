@@ -1262,7 +1262,7 @@ dashboardPage(
                 id = "syso_composition",
                 side = "left",
                 selected = "Chart",
-                title = "Composition of All Served in Period",
+                title = "Composition of All Served",
                 tabsetPanel(
                   id = "sys_comp_subtabs",
                   tabPanel("Chart", 
@@ -1290,7 +1290,7 @@ dashboardPage(
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
-                                <p>The Composition of all Served in Period chart 
+                                <p>The Composition of All Served chart 
                                 shows the demographic make-up of your homeless system 
                                 and highlights the most prevalent relationships 
                                 between demographic cross sections. </p>
