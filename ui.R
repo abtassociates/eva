@@ -1087,13 +1087,15 @@ dashboardPage(
                                 <table class='sys_info_table' id='sys_flow_info_table'>
                                   <tr>
                                     <th>Scenario</th>
+                                    <th>What You See</th>
                                     <th>What It Means</th>
                                   </tr>
                                   <tr>
-                                    <td>Less than 36 months of data is uploaded</td> 
-                                    <td>The category “Inflow Unspecified” will replace 
-                                    “Newly Homeless” in the Detail Chart. The “Newly Homeless” 
-                                    category refers to someone who has not been served in the system 
+                                    <td>Less than 36 months of data are uploaded</td>
+                                    <td>In the Detail chart, “Inflow Unspecified” 
+                                    displays instead of “First Time Homeless.”</td>
+                                    <td>The “First Time Homeless” category refers 
+                                    to someone who has not been served in the system 
                                     within the 24 months prior to their entry. Therefore, 
                                     it is not possible to assess if people are newly 
                                     homeless or returners/re-engagers without a 36-month 
@@ -1102,22 +1104,28 @@ dashboardPage(
                                     may be an undercount.</td>
                                   </tr>
                                   <tr>
-                                    <td>Less than 12 months of data is uploaded</td> 
-                                    <td>It will be difficult to draw conclusions about 
+                                    <td>Less than 12 months of data are uploaded</td>
+                                    <td>In the Detail chart, “Inflow Unspecified” 
+                                    displays instead of “First Time Homeless.”</td>
+                                    <td>The “First Time Homeless” category refers 
+                                    to someone who has not been served in the system 
+                                    within the 24 months prior to their entry.
+                                    Therefore, it will be difficult to draw conclusions about 
                                     whether changes in inflow/outflow are meaningful. 
                                     For instance, change in inflow/outflow over a 
                                     4-month period may reflect expected seasonal shifts 
                                     instead of a difference in system performance. 
                                     For a fuller and more complete picture of your 
-                                    system, please use a file that has at least 3 
-                                    years of data.</td>
+                                    system, please use a file that has at least 36 
+                                    months of data.</td>
                                   </tr>
                                   <tr>
-                                    <td>Total Inflow is greater than total Outflow</td> 
-                                    <td>The Total Change value will be a positive 
-                                    number, representing an increase. This means 
-                                    there were more clients coming into your system 
-                                    than leaving your system during the period. 
+                                    <td>Total Inflow is greater than total Outflow</td>
+                                    <td>In the Summary chart, the bar for Inflow 
+                                    is larger than the bar for Outflow. The Total 
+                                    Change value is a positive number, representing an increase.</td>
+                                    <td>This means there were more clients that came into your system 
+                                    than left your system during the reporting period. 
                                     Compare with results from prior years to see 
                                     if more clients are coming into the system than 
                                     in prior years, or if the change is because 
@@ -1129,14 +1137,18 @@ dashboardPage(
                                     exiting to a non-permanent destination.</td>
                                   </tr>
                                   <tr>
-                                    <td>Total Outflow is greater than total Inflow</td> 
-                                    <td>The Total Change value will be a negative 
-                                    number, representing a reduction. This means there 
-                                    were more clients leaving your system than were 
-                                    coming into your system during the reporting period.</td>
+                                    <td>Total Outflow is greater than total Inflow</td>
+                                    <td>In the Summary chart, the bar for Outflow
+                                    is larger than the bard for Inflow. The Total 
+                                    Change value is a negative number, representing a reduction.</td>
+                                    <td>This means there were more clients that left your system than 
+                                    came into your system during the reporting period.</td>
                                   </tr>
                                   <tr>
-                                    <td>The largest Outflow category is “Non-Permanent Destination”</td> 
+                                    <td>The largest Outflow category is “Non-Permanent Destination”</td>
+                                    <td>In the Detail chart, the bar for “Non-Permanent 
+                                    Destination” is larger than the bar for “Permanent 
+                                    Destination” and the bar for “Inactive.”</td>
                                     <td>This means most clients leaving your system 
                                     are exiting to temporary or unknown destinations. 
                                     Check your completion rate for exit destination 
@@ -1147,7 +1159,10 @@ dashboardPage(
                                     in the rate of exits to temporary destinations.</td>
                                   </tr>
                                   <tr>
-                                    <td>The largest Outflow category “Inactive”</td> 
+                                    <td>The largest Outflow category “Inactive”</td>
+                                    <td>In the Detail chart, the bar for “Inactive”
+                                    is larger than the bar for “Permanent 
+                                    Destination” and the bar for “Non-Permanent Destination.”</td>
                                     <td>This means many clients ended the period 
                                     in an open enrollment without a recent Current 
                                     Living Situation (CLS) record, and thus were 
@@ -1214,12 +1229,16 @@ dashboardPage(
                                 <table class='sys_info_table' id='sys_status_info_table'>
                                   <tr>
                                     <th>Scenario</th>
+                                    <th>What You See</th>
                                     <th>What It Means</th>
                                   </tr>
                                   <tr>
                                     <td>The sum of “Enrolled, Housed” and “Exited, 
                                     Permanent” is greater than the sum of the 
-                                    remaining categories</td>
+                                    remaining categories at Period End</td>
+                                    <td>The bars for “Enrolled, Housed” and “Exited, 
+                                    Permanent” combined look larger than the bars 
+                                    for the remaining categories in the chart.</td>
                                     <td>This means the majority of clients who were 
                                     active in your system at the start of the report 
                                     period exited to or retained permanent housing 
@@ -1228,7 +1247,10 @@ dashboardPage(
                                   <tr>
                                     <td>The sum of “Enrolled, Homeless” and 
                                     “Exited, Non-Permanent” is greater than the 
-                                    sum of the remaining categories</td>
+                                    sum of the remaining categories at Period End</td>
+                                    <td>The bars for “Enrolled, Homeless” and 
+                                    “Exited, Non-Permanent” combined look larger than the bars 
+                                    for the remaining categories in the chart.</td>
                                     <td>This means the majority of clients who were 
                                     active in your system at the start of the report 
                                     period either exited to homeless, temporary, 
@@ -1239,7 +1261,10 @@ dashboardPage(
                                     are possible.</td>
                                   </tr>
                                   <tr>
-                                    <td>The category “Inactive” is present in the chart</td>
+                                    <td>Clients who were active in the system at
+                                    Period Start are inactive at Period End</td>
+                                    <td>The category “Inactive” is display in the 
+                                    chart at Period End.</td>
                                     <td>This means some clients ended the period 
                                     in an open enrollment without a recent Current 
                                     Living Situation (CLS) record, and thus were 
