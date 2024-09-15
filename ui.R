@@ -1338,18 +1338,23 @@ dashboardPage(
                                 Any cell with a count is shaded. The darker the 
                                 color in a cell, the greater the value of that cell.</p>
                                 
-                                <h4>Data Suppression Details</h4>
-                                <p>There are two levels of data suppression used 
-                                within this chart. First, any value less than eleven 
-                                is suppressed. Second, if there is only one suppressed 
-                                value within a row or column, the next highest value 
-                                is suppressed. Both levels of data suppression also 
-                                apply to the Total row and Total column in the chart. 
+                                <h4>Data Suppression</h4>
+                                <p>Any value less than 11 is suppressed, including totals.
+                                If there is only one suppressed value within a row 
+                                or column, the next highest value is suppressed.
                                 All suppressed values are represented by *** in the chart.</p>
                                 
-                                <p>If the total number of clients in the chart is 
-                                less than eleven, the chart will not display. When 
-                                this happens, you may either need to broaden your 
+                                <p>The chart will not display in the following
+                                scenarios:</p>
+                                
+                                <ol>
+                                  <li>If the total number of clients in the chart is 
+                                less than 11</li>
+                                  <li>If all individual cells in the chart have 
+                                  values of less than 11</li>
+                                </ol>
+                                
+                                <p>When this happens, you may either need to broaden your 
                                 filter selections or upload a larger dataset to 
                                 ensure there is enough data to view the chart.</p>")
                   )
