@@ -192,15 +192,16 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       ) %>%
       group_by(!!sym(input$system_composition_selections)) %>%
       summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
-    
-    plot_df[input$system_composition_selections] <- factor(
-      plot_df[[input$system_composition_selections]], 
-      levels = selection_cats1, 
-      labels = selection_cats1_labels)
   } else {
     plot_df <- as.data.frame(table(comp_df[[selection]]))
     names(plot_df) <- c(input$system_composition_selections, "n")
   }
+  
+  plot_df[input$system_composition_selections] <- factor(
+    plot_df[[input$system_composition_selections]], 
+    levels = selection_cats1, 
+    labels = selection_cats1_labels,
+    ordered = TRUE)
   
   sys_comp_plot_df(plot_df)
   
