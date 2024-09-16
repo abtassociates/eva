@@ -129,7 +129,14 @@ get_selection_cats <- function(selection) {
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
     "Domestic Violence" = syso_dv_pops,
-    "Veteran Status" = syso_veteran_pops
+    # Update Veteran status codes to 1/0, because that's how the underlying data are
+    # we don't do that in the original hardcodes.R list 
+    # because the character versions are needed for the waterfall chart
+    "Veteran Status" = {
+      syso_veteran_pops$Veteran <- 1
+      syso_veteran_pops$`Non-Veteran` <- 0
+      syso_veteran_pops
+    }
     # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
   ))
 }
@@ -177,16 +184,24 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       ) %>%
       group_by(!!sym(selection)) %>%
       summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
-    
-    plot_df[selection] <- factor(
-      plot_df[[selection]], 
-      levels = selection_cats1, 
-      labels = selection_cats1_labels)
   } else {
-    plot_df <- as.data.frame(table(comp_df[[var_col]])) %>%
-      mutate(Var1 = factor(Var1, levels = rev(levels(Var1))))
-    names(plot_df) <- c(selection, "n")
+    plot_df <- as.data.frame(table(comp_df[[selection]]))
+    names(plot_df) <- c(input$system_composition_selections, "n")
+    
+    if("Domestic Violence" %in% input$system_composition_selections) {
+      plot_df <- plot_df %>% bind_rows(tibble(
+        `Domestic Violence` = "DVTotal",
+        n = sum(plot_df %>% 
+          filter(`Domestic Violence` != "NotDV") %>%
+          pull(n), na.rm = TRUE)))
+    }
   }
+
+  plot_df[input$system_composition_selections] <- factor(
+    plot_df[[input$system_composition_selections]], 
+    levels = selection_cats1, 
+    labels = selection_cats1_labels,
+    ordered = TRUE)
   
   sys_comp_plot_df(plot_df)
   
