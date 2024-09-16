@@ -387,7 +387,7 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
       plot_slide_title = "System Inflow/Outflow summary",
       plot1 = get_system_inflow_outflow_plot("sys_act_summary_ui_chart"),
       plot2 = get_system_inflow_outflow_plot("sys_act_detail_ui_chart"),
-      summary_font_size = 28
+      summary_font_size = 19
     )
   }
 )
