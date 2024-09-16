@@ -138,7 +138,14 @@ get_selection_cats <- function(selection) {
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
     "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
     "Domestic Violence" = syso_dv_pops,
-    "Veteran Status" = syso_veteran_pops
+    # Update Veteran status codes to 1/0, because that's how the underlying data are
+    # we don't do that in the original hardcodes.R list 
+    # because the character versions are needed for the waterfall chart
+    "Veteran Status" = {
+      syso_veteran_pops$Veteran <- 1
+      syso_veteran_pops$`Non-Veteran` <- 0
+      syso_veteran_pops
+    }
     # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
   ))
 }
