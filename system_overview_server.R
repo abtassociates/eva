@@ -94,7 +94,7 @@ syso_detailBox <- reactive({
     if (getNameByValue(syso_gender_cats(), input$syso_gender) != "All Genders")
       detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
     
-    if (selected_race != "All.All Races/Ethnicities")
+    if (selected_race != "All Races/Ethnicities")
       race_ethnicity_line,
     
     if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
@@ -200,40 +200,3 @@ syso_gender_cats <- function(methodology = 1){
 
 font_size <- 14 / .pt
 
-# Display Filter Selection in Detail Box ----------------------------------
-
-chart_selection_detail_line <- function(detail_label, val_list, inputVal) {
-  return(
-    HTML(glue(
-      "<strong>{detail_label}:</strong> {getNameByValue(val_list, inputVal)} <br>"
-    ))
-  )
-}
-
-
-# Total Count Above Chart -------------------------------------------------
-
-sys_total_count_display <- function(total_count) {
-  return(paste0(
-    str_wrap(
-      paste0(
-        "Total ",
-        case_when(
-          input$syso_level_of_detail == "All" ~ "People",
-          input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
-          TRUE ~
-            getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-        ),
-        if_else(
-          input$syso_hh_type == "All",
-          "",
-          paste0(" in ",
-                 str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "),
-                 " Households")
-        ),       ": ",
-        scales::comma(total_count)
-      )
-    ),
-    "\n")
-  )
-}

@@ -247,7 +247,7 @@ renderSystemPlot <- function(id) {
           x = group.id,
           label = paste0(scales::comma(abs(values))),
           y = rowSums(cbind(ystart, values / 2)),
-          segment.colour = "gray33"
+          segment.colour = NA
         ),
         direction = "y",
         nudge_x = -.35,
