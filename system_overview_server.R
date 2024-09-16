@@ -2,11 +2,11 @@
 # hide demographic filters for Composition chart
 # hide other stuff if valid file is not uploaded
 # move chart download button to be inline with subtabs
-observeEvent(input$syso_tabsetpanel, {
+observeEvent(input$syso_tabbox, {
   req(valid_file() == 1)
   toggleClass(
     id = "syso_inflowoutflow_filters",
-    condition = input$syso_tabsetpanel == "Composition of All Served",
+    condition = input$syso_tabbox == "Composition of All Served",
     class = "filter-hidden"
   )
 }, ignoreNULL = TRUE)
@@ -129,7 +129,7 @@ toggle_sys_components <- function(cond) {
     shinyjs::runjs(
       glue("
           document.getElementById('sys_{tab}_subtabs')
-            .insertAdjacentHTML('beforeEnd', '<li id=\"sys_{tab}_download_tab\"></li>');
+            .insertAdjacentHTML('beforeEnd', '<li class=\"syso_download_tab\" id=\"sys_{tab}_download_tab\"></li>');
           $('#sys_{tab}_download_btn').appendTo('#sys_{tab}_download_tab')
             .toggle('{cond}' == 'TRUE');
           $('#sys_{tab}_download_btn_ppt').appendTo('#sys_{tab}_download_tab')
