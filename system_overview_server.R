@@ -268,7 +268,7 @@ sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot
     ph_with(value = plot1, location = loc_body) %>%
     add_footer()
   
-  if(is.null(plot2)) {
+  if(!is.null(plot2)) {
     ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
       ph_with(value = plot_slide_title, location = loc_title) %>%
       ph_with(value = plot2, location = loc_body) %>%
