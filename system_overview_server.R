@@ -94,7 +94,7 @@ syso_detailBox <- reactive({
     if (getNameByValue(syso_gender_cats(), input$syso_gender) != "All Genders")
       detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
     
-    if (selected_race != "All.All Races/Ethnicities")
+    if (selected_race != "All Races/Ethnicities")
       race_ethnicity_line,
     
     if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
