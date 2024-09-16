@@ -6,7 +6,7 @@ observeEvent(input$syso_tabsetpanel, {
   req(valid_file() == 1)
   toggleClass(
     id = "syso_inflowoutflow_filters",
-    condition = input$syso_tabsetpanel == "Composition of All Served in Period",
+    condition = input$syso_tabsetpanel == "Composition of All Served",
     class = "filter-hidden"
   )
 }, ignoreNULL = TRUE)
@@ -25,14 +25,14 @@ observeEvent(input$methodology_type, {
     "syso_race_ethnicity", 
     choices = syso_race_ethnicity_cats(input$methodology_type)
   )
-  
-  updateCheckboxGroupInput(
-    session, 
-    "system_composition_selections", 
-    choices = sys_comp_selection_choices(),
-    inline = TRUE
+
+  # update System Composition Grouped Races/Ethnicities label
+  grouped_re_lbl_new <- ifelse(input$methodology_type == 1, "Grouped", "Hispanic-Focused")
+  shinyjs::runjs(
+    glue("
+      $('#system_composition_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
+    ")
   )
-  
 },
 ignoreInit = TRUE)
 
@@ -116,7 +116,7 @@ toggle_sys_components <- function(cond) {
   tabs <- c(
     "System Inflow/Outflow" = "inflow_outflow",
     "Client System Status" = "status",
-    "Composition of All Served in Period" = "comp"
+    "Composition of All Served" = "comp"
   )
   
   for (tab in tabs) {
@@ -148,7 +148,7 @@ sys_export_summary_initial_df <- function() {
       "Methodology Type",
       "Household Type",
       "Level of Detail",
-      "Project Type"
+      "Project Type Group"
     ),
     Value = c(
       strftime(ReportStart(), "%m/%d/%y"),
@@ -199,3 +199,4 @@ syso_gender_cats <- function(methodology = 1){
 }
 
 font_size <- 14 / .pt
+
