@@ -641,7 +641,7 @@ output$sys_comp_summary_ui_chart <- renderPlot({
 
 output$sys_comp_download_btn_ppt <- downloadHandler(
   filename = function() {
-    paste("Report_Slide", Sys.Date(), ".pptx", sep = "")
+    paste("System Composition_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
     sys_overview_ppt_export(

@@ -371,7 +371,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
 
 output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
   filename = function() {
-    paste("Report_Slide", Sys.Date(), ".pptx", sep = "")
+    paste("System Flow_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
     sys_overview_ppt_export(
