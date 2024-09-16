@@ -1,13 +1,5 @@
 sys_comp_plot_df <- reactiveVal()
 
-sys_comp_selection_choices <- reactive({
-  ifelse(
-    input$methodology_type == 1,
-    list(sys_comp_selection_choices1),
-    list(sys_comp_selection_choices2)
-  )[[1]]
-})
-
 get_race_ethnicity_vars <- function(v) {
   if (v == "All") {
     syso_race_ethnicities_all <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Detailed"])
@@ -25,13 +17,13 @@ syscomp_detailBox <- function(session) {
     list(
       strong("Date Range: "),
       
-      format(ReportStart(),"%m-%d-%Y"),
+      format(ReportStart(), "%m-%d-%Y"),
       " to ",
-      format(ReportEnd(),"%m-%d-%Y"),
+      format(ReportEnd(), "%m-%d-%Y"),
       br(),
       
       if (input$syso_project_type != "All")
-        chart_selection_detail_line("Project Type", syso_project_types, input$syso_project_type),
+        chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
       
       chart_selection_detail_line(
         "Methodology Type",
@@ -54,7 +46,6 @@ get_var_cols <- function() {
       "Age" = "AgeCategory",
       "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
       "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-      "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
       "Domestic Violence" = "DomesticViolenceCategory",
       "Gender" = unlist(
         syso_gender_cats(input$methodology_type) %>% discard_at("All Genders")
@@ -79,6 +70,7 @@ get_sys_comp_plot_df <- function() {
   # then we'd combine 0 to 12 with ManExclusive, 0 to 12 with WomanExclusive,
   # 13 to 24 with ManExclusive, etc.
   process_combination <- function(v1, v2, comp_df) {
+    logToConsole(glue("processing combination of {v1} and {v2}"))
     freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
     names(freq_df) <- c(
       input$system_composition_selections[1],
@@ -136,7 +128,6 @@ get_selection_cats <- function(selection) {
     "Age" = syso_age_cats,
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-    "Hispanic-Focused Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
     "Domestic Violence" = syso_dv_pops,
     # Update Veteran status codes to 1/0, because that's how the underlying data are
     # we don't do that in the original hardcodes.R list 
@@ -171,11 +162,12 @@ suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
 
 sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
-  selection <- var_cols[[input$system_composition_selections]]
+  selection <- input$system_composition_selections
+  var_col <- var_cols[[selection]]
   comp_df <- sys_df_people_universe_filtered_r() %>%
-    select(PersonalID, unname(selection))
+    select(PersonalID, unname(var_col))
   
-  selection_cats1 <- get_selection_cats(input$system_composition_selections)
+  selection_cats1 <- get_selection_cats(selection)
   selection_cats1_labels <- if (is.null(names(selection_cats1))) {
     selection_cats1
   } else {
@@ -183,14 +175,14 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   }
   
   # if number of variables associated with selection > 1, then they're dummies
-  if (length(selection) > 1) {
+  if (length(var_col) > 1) {
     plot_df <- comp_df %>%
       pivot_longer(
         cols = -PersonalID,
-        names_to = input$system_composition_selections,
+        names_to = selection,
         values_to = "value"
       ) %>%
-      group_by(!!sym(input$system_composition_selections)) %>%
+      group_by(!!sym(selection)) %>%
       summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
   } else {
     plot_df <- as.data.frame(table(comp_df[[selection]]))
@@ -215,10 +207,10 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   
   plot_df <- plot_df %>%
     suppress_values("n") %>%
-    suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections, "n")
+    suppress_next_val_if_one_suppressed_in_group(selection, "n")
   
   return(
-    ggplot(plot_df, aes("", .data[[input$system_composition_selections]])) +
+    ggplot(plot_df, aes("", .data[[selection]])) +
       # main data into cells for each cross-combination
       geom_tile(
         color = '#f0f0f0',
@@ -246,22 +238,30 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
         )
       ) +
       scale_y_discrete(
-        labels = str_wrap(rev(selection_cats1_labels), width = 60),
-        limits = rev(levels(plot_df[[input$system_composition_selections]])),
+        labels = str_wrap(
+          rev(selection_cats1_labels), 
+          width = ifelse(
+            selection == "Domestic Violence",
+            30,
+            60
+          )),
+        limits = rev(levels(plot_df[[selection]])),
       ) +
       # other stuff
       theme_bw() +
       ggtitle(sys_total_count_display(
         nrow(sys_df_people_universe_filtered_r())
       )) +
+      labs(caption = "*** indicates the value is suppressed") +
       theme(
         legend.position = "none",
         axis.ticks = element_blank(),
         panel.grid = element_blank(),
-        plot.title = element_text(size = 17, hjust = 0.5),
+        plot.title = element_text(size = rel(ifelse(isExport, 1.3, 1.4)), hjust = 0.5),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        axis.text = element_text(size = 14)
+        axis.text = element_text(size = rel(ifelse(isExport, 0.7, 1.2))),
+        plot.caption = element_text(size = 11)
       )
   )
 }
@@ -275,15 +275,15 @@ suppress_values <- function(.data, count_var) {
 
 sys_comp_plot_2vars <- function(isExport = FALSE) {
   # race/ethnicity, if selected, should always be on the row
-  if (input$system_composition_selections[1] == "All Races/Ethnicities" |
-      input$system_composition_selections[1] == "Grouped Races/Ethnicities" |
-      input$system_composition_selections[1] == "Hispanic-Focused Races/Ethnicities") {
-    x <- input$system_composition_selections[2]
-    input$system_composition_selections[2] <- input$system_composition_selections[1]
-    input$system_composition_selections[1] <- x
+  selections <- input$system_composition_selections
+  
+  if (selections[1] == "All Races/Ethnicities" |
+  selections[1] == "Grouped Races/Ethnicities") {
+    selections <- c(selections[2], selections[1])
   }
   
   plot_df <- get_sys_comp_plot_df()
+
   validate(
     need(sum(plot_df$n > 0, na.rm = TRUE) > 0, message = "No data to show"),
     need(sum(plot_df$n > 10, na.rm = TRUE) > 0, message = "Not enough data to show")
@@ -292,50 +292,50 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   if (all(is.na(plot_df$n)))
     return()
   
-  selection_cats1 <- get_selection_cats(input$system_composition_selections[1])
+  selection_cats1 <- get_selection_cats(selections[1])
   selection_cats1_labels <- if (is.null(names(selection_cats1))) {
     selection_cats1
   } else {
     names(selection_cats1)
   }
   
-  selection_cats2 <- get_selection_cats(input$system_composition_selections[2])
+  selection_cats2 <- get_selection_cats(selections[2])
   selection_cats2_labels <- if (is.null(names(selection_cats2))) {
     rev(selection_cats2)
   } else {
     rev(names(selection_cats2))
   }
   
-  plot_df[input$system_composition_selections[1]] <- factor(
-    plot_df[[input$system_composition_selections[1]]], 
+  plot_df[selections[1]] <- factor(
+    plot_df[[selections[1]]], 
     levels = selection_cats1, 
     labels = selection_cats1_labels)
   
-  plot_df[input$system_composition_selections[2]] <- factor(
-    plot_df[[input$system_composition_selections[2]]], 
+  plot_df[selections[2]] <- factor(
+    plot_df[[selections[2]]], 
     levels = rev(selection_cats2), 
     labels = selection_cats2_labels)
   
   plot_df <- plot_df %>%
     complete(
-      !!sym(input$system_composition_selections[1]),
-      !!sym(input$system_composition_selections[2])
+      !!sym(selections[1]),
+      !!sym(selections[2])
     ) %>%
     replace(is.na(.), 0)
   
   h_total <- plot_df %>%
-    group_by(!!!syms(input$system_composition_selections[[2]])) %>%
+    group_by(!!!syms(selections[[2]])) %>%
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
-    mutate(!!input$system_composition_selections[[1]] := 'Total') %>%
+    mutate(!!selections[[1]] := 'Total') %>%
     suppress_values("N") %>%
-    suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections[1], "N")
+    suppress_next_val_if_one_suppressed_in_group(selections[1], "N")
   
   v_total <- plot_df %>%
-    group_by(!!!syms(input$system_composition_selections[[1]])) %>%
+    group_by(!!!syms(selections[[1]])) %>%
     summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
-    mutate(!!input$system_composition_selections[[2]] := 'Total') %>%
+    mutate(!!selections[[2]] := 'Total') %>%
     suppress_values("N") %>%
-    suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections[2], "N")
+    suppress_next_val_if_one_suppressed_in_group(selections[2], "N")
   
   # save before supressing the values
   # this will be used for the download/export
@@ -344,11 +344,11 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   # Suppress values <= 10
   plot_df <- plot_df %>%
     suppress_values("n") %>%
-    suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections[1], "n") %>%
-    suppress_next_val_if_one_suppressed_in_group(input$system_composition_selections[2], "n")
+    suppress_next_val_if_one_suppressed_in_group(selections[1], "n") %>%
+    suppress_next_val_if_one_suppressed_in_group(selections[2], "n")
   
   return(
-    ggplot(plot_df, aes(.data[[input$system_composition_selections[1]]], .data[[input$system_composition_selections[2]]])) +
+    ggplot(plot_df, aes(.data[[selections[1]]], .data[[selections[2]]])) +
       # main data into cells for each cross-combination
       geom_tile(
         color = '#f0f0f0',
@@ -435,12 +435,12 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       # axis labels
       scale_x_discrete(
         labels = str_wrap(c(selection_cats1_labels, "Total"), width = 20),
-        limits = c(levels(plot_df[[input$system_composition_selections[1]]]), "Total"),
+        limits = c(levels(plot_df[[selections[1]]]), "Total"),
         position = "top"
       ) +
       scale_y_discrete(
         labels = str_wrap(c("Total", selection_cats2_labels), width = 30),
-        limits = c("Total", levels(plot_df[[input$system_composition_selections[2]]])),
+        limits = c("Total", levels(plot_df[[selections[2]]])),
       ) +
       
       # other stuff
@@ -449,6 +449,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       ggtitle(sys_total_count_display(
         nrow(sys_df_people_universe_filtered_r())
       )) +
+      labs(caption = "*** indicates the value is suppressed") +
       
       theme(
         legend.position = "none",
@@ -458,7 +459,8 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
-        axis.text = element_text(size = rel(ifelse(isExport, 0.8, 1.2)))
+        axis.text = element_text(size = rel(ifelse(isExport, 0.7, 1.2))),
+        plot.caption = element_text(size = 11)
       )
   )
 }
@@ -570,7 +572,6 @@ observeEvent(input$system_composition_selections, {
 
     var reSelected = \"{
       \"All Races/Ethnicities\" %in% input$system_composition_selections |
-      \"Hispanic-Focused Races/Ethnicities\" %in% input$system_composition_selections |
       \"Grouped Races/Ethnicities\" %in% input$system_composition_selections
     }\";
     
@@ -578,7 +579,7 @@ observeEvent(input$system_composition_selections, {
       $('input[name=system_composition_selections][value*=\"Races/Ethnicities\"]:not(\":checked\")')
         .attr('disabled', reSelected == 'TRUE');
   "))
-}, ignoreInit = TRUE)
+})
 
 
 output$sys_comp_summary_selections <- renderUI({
@@ -654,13 +655,6 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
         fpar(ftext(paste0("Total People: ",  nrow(sys_df_people_universe_filtered_r())), fp_normal))
       ), level_list = c(rep(1L, 7)), location = loc_body) %>%
       add_footer()
-    
-    pars <- block_list(
-      fpar(ftext("not bold ", fp_normal), ftext("and bold", fp_bold)),
-      fpar(ftext("red text", fp_red))
-    )
-    
-    
     
     # Chart
     ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
