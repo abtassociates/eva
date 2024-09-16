@@ -25,14 +25,14 @@ observeEvent(input$methodology_type, {
     "syso_race_ethnicity", 
     choices = syso_race_ethnicity_cats(input$methodology_type)
   )
-  
-  updateCheckboxGroupInput(
-    session, 
-    "system_composition_selections", 
-    choices = sys_comp_selection_choices(),
-    inline = TRUE
+
+  # update System Composition Grouped Races/Ethnicities label
+  grouped_re_lbl_new <- ifelse(input$methodology_type == 1, "Grouped", "Hispanic-Focused")
+  shinyjs::runjs(
+    glue("
+      $('#system_composition_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
+    ")
   )
-  
 },
 ignoreInit = TRUE)
 
@@ -148,7 +148,7 @@ sys_export_summary_initial_df <- function() {
       "Methodology Type",
       "Household Type",
       "Level of Detail",
-      "Project Type"
+      "Project Type Group"
     ),
     Value = c(
       strftime(ReportStart(), "%m/%d/%y"),
@@ -199,3 +199,41 @@ syso_gender_cats <- function(methodology = 1){
 }
 
 font_size <- 14 / .pt
+
+# Display Filter Selection in Detail Box ----------------------------------
+
+chart_selection_detail_line <- function(detail_label, val_list, inputVal) {
+  return(
+    HTML(glue(
+      "<strong>{detail_label}:</strong> {getNameByValue(val_list, inputVal)} <br>"
+    ))
+  )
+}
+
+
+# Total Count Above Chart -------------------------------------------------
+
+sys_total_count_display <- function(total_count) {
+  return(paste0(
+    str_wrap(
+      paste0(
+        "Total ",
+        case_when(
+          input$syso_level_of_detail == "All" ~ "People",
+          input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
+          TRUE ~
+            getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+        ),
+        if_else(
+          input$syso_hh_type == "All",
+          "",
+          paste0(" in ",
+                 str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "),
+                 " Households")
+        ),       ": ",
+        scales::comma(total_count)
+      )
+    ),
+    "\n")
+  )
+}
