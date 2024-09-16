@@ -622,7 +622,7 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
     }
     # title Slide
     ppt <- add_slide(ppt, layout = "Title Slide", master = "Office Theme") %>%
-      ph_with(value = "Composition of All Served in Period", location = loc_ctrtitle) %>%
+      ph_with(value = "Composition of All Served", location = loc_ctrtitle) %>%
       ph_with(value = "Eva Image Export", location = loc_subtitle) %>%
       add_footer()
       
@@ -643,7 +643,7 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
     # Chart
     ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
       ph_with(value = paste0(
-        "Composition of All served in Period: ",
+        "Composition of All Served: ",
         input$system_composition_selections[1],
         " by ",
         input$system_composition_selections[2]
