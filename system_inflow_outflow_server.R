@@ -285,6 +285,20 @@ get_system_inflow_outflow_plot <- function(id) {
     )
 }
 
+# custom round to the smaller of the nearest 10, 100, etc.
+# good for chart segment sizing
+get_segment_size <- function(x) {
+  thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
+  rounded <- sapply(thresholds, function(t) {
+    if (x > t) {
+      return(t * ceiling(x / t))
+    } else {
+      return(NA)
+    }
+  })
+  min(rounded, na.rm = TRUE)
+}
+
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
@@ -293,61 +307,6 @@ renderSystemPlot <- function(id) {
     session$clientData[[glue("output_{id}_width")]]/2
   })
 }
-
-
-# Plot prompts for plot subtitle ------------------------------------------
-
-syso_detailBox <- reactive({
-  # remove group names from race/ethnicity filter
-  # so we can use getNameByValue() to grab the selected option label
-  # if (input$methodology_type == 2) {
-    # browser()
-  # }
-  selected_race <- getNameByValue(
-    unlist(syso_race_ethnicity_cats(input$methodology_type)),
-    input$syso_race_ethnicity
-  )
-  
-  race_ethnicity_line <- HTML(glue(
-    "<b>Race/Ethnicity:</b> {
-          str_sub(
-            selected_race, 
-            start = str_locate(
-              selected_race,
-              '\\\\.'
-            )[, 1] + 1,
-            end = -1L
-          )
-        } <br>"
-  ))
-  
-  list(
-    br(),
-    strong("Date Range: "),
-    
-    format(ReportStart(),"%m-%d-%Y"), " to ", format(ReportEnd(),"%m-%d-%Y"), br(),
-    
-    if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
-      chart_selection_detail_line("Project Type", syso_project_types, input$syso_project_type),
-    
-    chart_selection_detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
-    
-    if (length(input$syso_age) != length(syso_age_cats))
-      HTML(glue(
-        "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
-      )),
-    
-    if (getNameByValue(syso_gender_cats(), input$syso_gender) != "All Genders")
-      chart_selection_detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
-    
-    if (selected_race != "All.All Races/Ethnicities")
-      race_ethnicity_line,
-    
-    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
-      chart_selection_detail_line("Special Populations", syso_spec_pops_people, input$syso_spec_pops)
-    
-  )
-})
 
 #### DISPLAY CHART ###
 renderSystemPlot("sys_act_summary_ui_chart")
