@@ -894,6 +894,7 @@ universe <- reactive({
     # get rid of rows where the enrollment is neither a lookback enrollment,
     # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
     filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
+    # recalculating days_to_next_entry now that some enrollments have been dropped
     mutate(order_ees = case_when(lecr == TRUE ~ 0, eecr == TRUE ~ 1, TRUE ~ lookback + 1)) %>%
     group_by(PersonalID) %>%
     arrange(desc(order_ees), .by_group = TRUE) %>%
