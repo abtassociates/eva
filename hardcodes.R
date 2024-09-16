@@ -183,8 +183,7 @@ syso_gender_excl <- list(
   "Gender expansive, not transgender" = "GenderExpansiveExclusive",
   "Man (Boy, if child) alone" = "ManExclusive",
   "Transgender, alone or in combination" = "TransgenderExclusive",
-  "Woman (Girl, if child) alone" = "WomanExclusive",
-  "Unknown" = "UnknownExclusive"
+  "Woman (Girl, if child) alone" = "WomanExclusive"
 )
 
 race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
@@ -194,63 +193,63 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
 syso_race_ethnicity_incl <- list(
   "All Races/Ethnicities" = "All",
   "Detailed" = c(
-    "American Indian, Alaska Native, or Indigenous Inclusive" =
+    "American Indian, Alaska Native, or Indigenous inclusive" =
       "AmIndAKNativeInclusive1",
-    "Asian or Asian American Inclusive" =
+    "Asian or Asian American inclusive" =
       "AsianInclusive1",
-    "Black, African American, or African Inclusive" =
+    "Black, African American, or African inclusive" =
       "BlackAfAmericanInclusive1",
-    "Hispanic/Latina/e/o" =
+    "Hispanic/Latina/e/o inclusive" =
       "LatineInclusive1",
-    "Middle Eastern or North African Inclusive" =
+    "Middle Eastern or North African inclusive" =
       "MENAInclusive1",
-    "Native Hawaiin or Pacific Islander Inclusive" =
+    "Native Hawaiian or Pacific Islander inclusive" =
       "NativeHIPacificInclusive1",
-    "White Inclusive" =
+    "White inclusive" =
       "WhiteInclusive1"
   ),
   "Summarized" = c(
-    "Black, African American or African and Hispanic/Latina/e/o Inclusive" =
+    "Black, African American or African and Hispanic/Latina/e/o inclusive" =
       "BlackAfAmericanLatineInclusive2",
-    "Hispanic/Latina/e/o Inclusive" =
-      "LatineInclusive2",
-    "Hispanic/Latina/e/o Alone" =
-      "LatineAloneInclusive2"
+    "Hispanic/Latina/e/o alone" =
+      "LatineAloneInclusive2",
+    "Hispanic/Latina/e/o inclusive" =
+      "LatineInclusive2"
   )
 )
 syso_race_ethnicity_excl <- list(
   "All Races/Ethnicities" = "All",
   "Detailed" = c(
-    "American Indian, Alaska Native, or Indigenous Alone" =
+    "American Indian, Alaska Native, or Indigenous alone" =
       "AmIndAKNativeAloneExclusive1",
     "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" =
       "AmIndAKNativeLatineExclusive1",
-    "Asian or Asian American Alone" =
+    "Asian or Asian American alone" =
       "AsianAloneExclusive1",
     "Asian or Asian American & Hispanic/Latina/e/o" =
       "AsianLatineExclusive1",
-    "Black, African American, or African Alone" =
+    "Black, African American, or African alone" =
       "BlackAfAmericanAloneExclusive1",
     "Black, African American, or African & Hispanic/Latina/e/o" =
       "BlackAfAmericanLatineExclusive1",
-    "Hispanic/Latina/e/o Alone" =
+    "Hispanic/Latina/e/o alone" =
       "LatineAloneExclusive1",
-    "Middle Eastern or North African Alone" =
+    "Middle Eastern or North African alone" =
       "MENAAloneExclusive1",
     "Middle Eastern or North African & Hispanic/Latina/e/o" =
       "MENALatineExclusive1",
-    "Native Hawaiin or Pacific Islander Alone" =
-      "NativeHIPacificAloneExclusive1",
-    "Native Hawaiin or Pacific Islander & Hispanic/Latina/e/o" =
-      "NativeHIPacificLatineExclusive1" ,
-    "White Alone" =
-      "WhiteAloneExclusive1",
-    "White & Hispanic/Latina/e/o" =
-      "WhiteLatineExclusive1",
     "Multi-Racial (not Hispanic/Latina/e/o)" =
       "MultipleNotLatineExclusive1",
     "Multi-Racial & Hispanic/Latina/e/o" =
-      "MultipleLatineExclusive1"
+      "MultipleLatineExclusive1",
+    "Native Hawaiian or Pacific Islander alone" =
+      "NativeHIPacificAloneExclusive1",
+    "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o" =
+      "NativeHIPacificLatineExclusive1" ,
+    "White alone" =
+      "WhiteAloneExclusive1",
+    "White & Hispanic/Latina/e/o" =
+      "WhiteLatineExclusive1"
   ),
   "Summarized" = c("All People of Color" =
                      "BILPOCExclusive2", "White Only" =
@@ -285,8 +284,8 @@ syso_spec_pops_people <- c(
 )
 
 syso_methodology_types <- c(
-  "A person is only counted in one gender and one race/ethnicity category (Exclusive Groupings)" = 1,
-  "A person may be counted in multiple gender and multiple race/ethnicity categories (Inclusive Groupings)" = 2
+  "Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category" = 1,
+  "Inclusive Groupings: A person may be counted in multiple gender and multiple race/ethnicity categories" = 2
 )
 
 syso_grouping_detail <- c(
