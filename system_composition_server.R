@@ -156,8 +156,9 @@ suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
 sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
   selection <- input$system_composition_selections
+  var_col <- var_cols[[selection]]
   comp_df <- sys_df_people_universe_filtered_r() %>%
-    select(PersonalID, unname(var_cols[[selection]]))
+    select(PersonalID, unname(var_col))
   
   selection_cats1 <- get_selection_cats(selection)
   selection_cats1_labels <- if (is.null(names(selection_cats1))) {
@@ -167,7 +168,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   }
   
   # if number of variables associated with selection > 1, then they're dummies
-  if (length(var_cols[[selection]]) > 1) {
+  if (length(var_col) > 1) {
     plot_df <- comp_df %>%
       pivot_longer(
         cols = -PersonalID,
@@ -182,7 +183,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       levels = selection_cats1, 
       labels = selection_cats1_labels)
   } else {
-    plot_df <- as.data.frame(table(comp_df[[selection]])) %>%
+    plot_df <- as.data.frame(table(comp_df[[var_col]])) %>%
       mutate(Var1 = factor(Var1, levels = rev(levels(Var1))))
     names(plot_df) <- c(selection, "n")
   }
