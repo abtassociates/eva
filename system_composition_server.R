@@ -160,6 +160,11 @@ suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
   )
 }
 
+toggle_download_buttons <- function(plot_df) {
+  shinyjs::toggle("sys_comp_download_btn", condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
+  shinyjs::toggle("sys_comp_download_btn_ppt", condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
+}
+
 sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
   selection <- input$system_composition_selections
@@ -167,13 +172,19 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   comp_df <- sys_df_people_universe_filtered_r() %>%
     select(PersonalID, unname(var_col))
   
-  selection_cats1 <- get_selection_cats(selection)
-  selection_cats1_labels <- if (is.null(names(selection_cats1))) {
-    selection_cats1
-  } else {
-    names(selection_cats1)
-  }
-  
+  validate(
+    need(
+      nrow(comp_df) > 0,
+      message = no_data_msg
+    )
+  )
+  validate(
+    need(
+      nrow(comp_df) > 10,
+      message = suppression_msg
+    )
+  )
+ 
   # if number of variables associated with selection > 1, then they're dummies
   if (length(var_col) > 1) {
     plot_df <- comp_df %>%
@@ -185,10 +196,10 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       group_by(!!sym(selection)) %>%
       summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
   } else {
-    plot_df <- as.data.frame(table(comp_df[[selection]]))
-    names(plot_df) <- c(input$system_composition_selections, "n")
+    plot_df <- as.data.frame(table(comp_df[[var_col]]))
+    names(plot_df) <- c(selection, "n")
     
-    if("Domestic Violence" %in% input$system_composition_selections) {
+    if(input$system_composition_selections == "Domestic Violence") {
       plot_df <- plot_df %>% bind_rows(tibble(
         `Domestic Violence` = "DVTotal",
         n = sum(plot_df %>% 
@@ -196,9 +207,26 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
           pull(n), na.rm = TRUE)))
     }
   }
-
-  plot_df[input$system_composition_selections] <- factor(
-    plot_df[[input$system_composition_selections]], 
+  
+  # hide download buttons if not enough data
+  toggle_download_buttons(plot_df)
+  
+  validate(
+    need(
+      sum(plot_df$n > 10, na.rm = TRUE) > 0, 
+      message = suppression_msg
+    )
+  )
+  
+  selection_cats1 <- get_selection_cats(selection)
+  selection_cats1_labels <- if (is.null(names(selection_cats1))) {
+    selection_cats1
+  } else {
+    names(selection_cats1)
+  }
+  
+  plot_df[selection] <- factor(
+    plot_df[[selection]], 
     levels = selection_cats1, 
     labels = selection_cats1_labels,
     ordered = TRUE)
@@ -289,8 +317,20 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     need(sum(plot_df$n > 10, na.rm = TRUE) > 0, message = "Not enough data to show")
   )
   
-  if (all(is.na(plot_df$n)))
-    return()
+  toggle_download_buttons(plot_df)
+  
+  validate(
+    need(
+      sum(plot_df$n) > 0,
+      message = no_data_msg
+    )
+  )
+  validate(
+    need(
+      sum(plot_df$n > 10, na.rm = TRUE) > 0, 
+      message = suppression_msg
+    )
+  )
   
   selection_cats1 <- get_selection_cats(selections[1])
   selection_cats1_labels <- if (is.null(names(selection_cats1))) {
@@ -465,21 +505,24 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   )
 }
 
+sys_comp_selections_info <- reactive({
+  data.frame(
+    Chart = c(
+      "Demographic Selection 1",
+      "Demographic Selection 2",
+      "Total Served People"
+    ),
+    Value = c(
+      input$system_composition_selections[1],
+      input$system_composition_selections[2],
+      nrow(sys_df_people_universe_filtered_r())
+    )
+  )
+})
 sys_comp_selections_summary <- function() {
   return(
     sys_export_summary_initial_df() %>%
-      bind_rows(data.frame(
-        Chart = c(
-          "Demographic Selection 1",
-          "Demographic Selection 2",
-          "Total Served People"
-        ),
-        Value = c(
-          input$system_composition_selections[1],
-          input$system_composition_selections[2],
-          nrow(sys_df_people_universe_filtered_r())
-        )
-      )) %>%
+      bind_rows(sys_comp_selections_info()) %>%
       rename("Composition of All Served" = Value)
   )
 }
@@ -487,8 +530,8 @@ sys_comp_selections_summary <- function() {
 output$sys_comp_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Composition Report - "),
   content = function(file) {
-    v1 <- gsub(input$system_composition_selections[1], "Races/Ethnicities", "Race")
-    v2 <- gsub(input$system_composition_selections[2], "Races/Ethnicities", "Race")
+    v1 <- gsub("Races/Ethnicities", "Race", input$system_composition_selections[1])
+    v2 <- gsub("Races/Ethnicities", "Race", input$system_composition_selections[2])
     
     # get the n matrix
     num_matrix <- sys_comp_plot_df() %>%
@@ -590,7 +633,7 @@ output$sys_comp_summary_selections <- renderUI({
 output$sys_comp_summary_ui_chart <- renderPlot({
   sys_comp_p()
 }, height = function() { 
-  if_else(!is.null(input$system_composition_selections), 600, 100) 
+  ifelse(!is.null(input$system_composition_selections), 600, 100) 
 }, width = function() {
   ifelse(length(input$system_composition_selections) == 1, 600, "auto")
 })
@@ -598,81 +641,27 @@ output$sys_comp_summary_ui_chart <- renderPlot({
 
 output$sys_comp_download_btn_ppt <- downloadHandler(
   filename = function() {
-    paste("Report_Slide", Sys.Date(), ".pptx", sep = "")
+    paste("System Composition_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
-    report_period <- paste0("Report Period: ", 
-                            format(meta_HUDCSV_Export_Start(), "%m/%d/%Y"),
-                            " - ",
-                            format(meta_HUDCSV_Export_End(), "%m/%d/%Y")
-    )
-    loc_title <- ph_location_type(type = "title")
-    loc_footer <- ph_location_type(type = "ftr")
-    loc_dt <- ph_location_type(type = "dt")
-    loc_slidenum <- ph_location_type(type = "sldNum")
-    loc_body <- ph_location_type(type = "body")
-    loc_subtitle <- ph_location_type(type = "subTitle")
-    loc_ctrtitle <- ph_location_type(type = "ctrTitle")
-    
-    fp_normal <- fp_text(font.size = 28)
-    fp_bold <- update(fp_normal, bold = TRUE)
-    fp_red <- update(fp_normal, color = "red")
-    
-    ppt <- read_pptx()
-    
-    add_footer <- function(.ppt) {
-      return(
-        .ppt %>%
-          ph_with(value = paste0("CoC Code: ", Export()$SourceID), location = loc_footer) %>%
-          ph_with(value = report_period, location = loc_dt) %>%
-          ph_with(
-            value = paste0(
-              "Export Generated: ",
-              format(Sys.Date()),
-              "\n",
-              "https://hmis.abtsites.com/eva/"
-            ),
-            location = loc_slidenum
-          )
-      )
-    }
-    # title Slide
-    ppt <- add_slide(ppt, layout = "Title Slide", master = "Office Theme") %>%
-      ph_with(value = "Composition of All Served", location = loc_ctrtitle) %>%
-      ph_with(value = "Eva Image Export", location = loc_subtitle) %>%
-      add_footer()
-      
-    # Summary
-    ppt <- add_slide(ppt, layout = "Title and Content") %>%
-      ph_with(value = "Summary", location = loc_title) %>%
-      ph_with(value = block_list(
-        fpar(ftext(paste0("Methodology Type: ", getNameByValue(syso_methodology_types, input$methodology_type)), fp_normal)),
-        fpar(ftext(paste0("Household Type: ", getNameByValue(syso_hh_types, input$syso_hh_type)), fp_normal)),
-        fpar(ftext(paste0("Level of Detail: ", getNameByValue(syso_level_of_detail, input$syso_level_of_detail)), fp_normal)),
-        fpar(ftext(paste0("Project Type: ", getNameByValue(syso_project_types, input$syso_project_type)), fp_normal)),
-        fpar(ftext(paste0("Demographic Selection 1: ", input$system_composition_selections[1]), fp_normal)),
-        fpar(ftext(paste0("Demographic Selection 2: ", input$system_composition_selections[2]), fp_normal)),
-        fpar(ftext(paste0("Total People: ",  nrow(sys_df_people_universe_filtered_r())), fp_normal))
-      ), level_list = c(rep(1L, 7)), location = loc_body) %>%
-      add_footer()
-    
-    # Chart
-    ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
-      ph_with(value = paste0(
+    sys_overview_ppt_export(
+      file = file,
+      title_slide_title = "Composition of All Served in Period",
+      summary_items = sys_export_summary_initial_df() %>%
+        filter(Chart != "Start Date" & Chart != "End Date") %>% 
+        bind_rows(sys_comp_selections_info()),
+      plot_slide_title = paste0(
         "Composition of All Served: ",
         input$system_composition_selections[1],
         " by ",
         input$system_composition_selections[2]
-        ),
-        location = loc_title) %>%
-      ph_with(value = if(length(input$system_composition_selections) == 1) {
+      ),
+      plot1 = if (length(input$system_composition_selections) == 1) {
         sys_comp_plot_1var(isExport = TRUE)
       } else {
         sys_comp_plot_2vars(isExport = TRUE)
-      }, location = loc_body) %>%
-      add_footer()
-    
-    # Export the PowerPoint
-    print(ppt, target = file)
+      },
+      summary_font_size = 28
+    )
   }
 )

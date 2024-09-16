@@ -230,6 +230,15 @@ function(input, output, session) {
                 unique()
             )
             sankey_plot_data(sankey_plot_df())
+            
+            # hide download buttons if < 11 records
+            # All Served is handled in system_composition_server.R
+            # for that chart, we also hide if all *cells* are < 11
+            shinyjs::toggle("sys_inflow_outflow_download_btn", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
+            shinyjs::toggle("sys_inflow_outflow_download_btn_ppt", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
+            
+            shinyjs::toggle("sys_status_download_btn", condition = sum(sankey_plot_data()$freq) > 10)
+            shinyjs::toggle("sys_status_download_btn_ppt", condition = sum(sankey_plot_data()$freq) > 10)
           })
           
           setProgress(detail = "Done!", value = 1)

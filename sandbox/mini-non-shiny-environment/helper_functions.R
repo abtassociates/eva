@@ -371,17 +371,3 @@ min_cols_selected_except <- function(df, list, exception, num_cols_selected) {
   rowSums(df[exception], na.rm = TRUE) == 0 &
     rowSums(df[setdiff(list, exception)], na.rm = TRUE) >= num_cols_selected
 }
-
-# custom round to the smaller of the nearest 10, 100, etc.
-# good for chart segment sizing
-get_segment_size <- function(x) {
-  thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
-  rounded <- sapply(thresholds, function(t) {
-    if (x > t) {
-      return(t * ceiling(x / t))
-    } else {
-      return(NA)
-    }
-  })
-  min(rounded, na.rm = TRUE)
-}
