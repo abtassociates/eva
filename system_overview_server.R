@@ -109,7 +109,7 @@ output$sys_act_summary_filter_selections <- renderUI({
   syso_detailBox() 
 })
 
-toggle_sys_components <- function(cond) {
+toggle_sys_components <- function(cond, init=FALSE) {
   # 1. toggles the filters (disabled for Composition)
   # 2. toggles subtabs and download button based if valid file has been uploaded
   # 3. moves download button to be in line with subtabs
@@ -126,19 +126,21 @@ toggle_sys_components <- function(cond) {
     shinyjs::toggle(glue('sys_{tab}_download_btn_ppt'), condition = cond)
     
     # move download button to subtab row and only show if there's data
-    shinyjs::runjs(
-      glue("
-          document.getElementById('sys_{tab}_subtabs')
-            .insertAdjacentHTML('beforeEnd', '<li id=\"sys_{tab}_download_tab\"></li>');
-          $('#sys_{tab}_download_btn').appendTo('#sys_{tab}_download_tab')
-            .toggle('{cond}' == 'TRUE');
-          $('#sys_{tab}_download_btn_ppt').appendTo('#sys_{tab}_download_tab')
-            .toggle('{cond}' == 'TRUE');
-        ")
-    )
+    if(init) {
+      shinyjs::runjs(
+        glue("
+            document.getElementById('sys_{tab}_subtabs')
+              .insertAdjacentHTML('beforeEnd', '<li id=\"sys_{tab}_download_tab\"></li>');
+            $('#sys_{tab}_download_btn').appendTo('#sys_{tab}_download_tab')
+              .toggle('{cond}' == 'TRUE');
+            $('#sys_{tab}_download_btn_ppt').appendTo('#sys_{tab}_download_tab')
+              .toggle('{cond}' == 'TRUE');
+          ")
+      )
+    }
   }
 }
-toggle_sys_components(FALSE) # initially hide them
+toggle_sys_components(FALSE, init=TRUE) # initially hide them
 
 sys_export_summary_initial_df <- function() {
   return(data.frame(
