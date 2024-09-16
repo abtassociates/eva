@@ -374,6 +374,9 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
     paste("System Flow_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
+    df <- system_activity_prep_detail() %>% 
+      select(Status, values, Time, InflowOutflow, InflowOutflowSummary)
+    
     sys_overview_ppt_export(
       file = file,
       title_slide_title = "System Inflow/Outflow",
