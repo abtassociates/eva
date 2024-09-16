@@ -167,9 +167,10 @@ toggle_download_buttons <- function(plot_df) {
 
 sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
-  selection <- var_cols[[input$system_composition_selections]]
+  selection <- input$system_composition_selections
+  var_col <- var_cols[[selection]]
   comp_df <- sys_df_people_universe_filtered_r() %>%
-    select(PersonalID, unname(selection))
+    select(PersonalID, unname(var_col))
   
   validate(
     need(
@@ -185,7 +186,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   )
  
   # if number of variables associated with selection > 1, then they're dummies
-  if (length(selection) > 1) {
+  if (length(var_col) > 1) {
     plot_df <- comp_df %>%
       pivot_longer(
         cols = -PersonalID,
@@ -195,8 +196,8 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       group_by(!!sym(selection)) %>%
       summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
   } else {
-    plot_df <- as.data.frame(table(comp_df[[selection]]))
-    names(plot_df) <- c(input$system_composition_selections, "n")
+    plot_df <- as.data.frame(table(comp_df[[var_col]]))
+    names(plot_df) <- c(selection, "n")
     
     if(input$system_composition_selections == "Domestic Violence") {
       plot_df <- plot_df %>% bind_rows(tibble(
@@ -217,15 +218,15 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
     )
   )
   
-  selection_cats1 <- get_selection_cats(input$system_composition_selections)
+  selection_cats1 <- get_selection_cats(selection)
   selection_cats1_labels <- if (is.null(names(selection_cats1))) {
     selection_cats1
   } else {
     names(selection_cats1)
   }
   
-  plot_df[input$system_composition_selections] <- factor(
-    plot_df[[input$system_composition_selections]], 
+  plot_df[selection] <- factor(
+    plot_df[[selection]], 
     levels = selection_cats1, 
     labels = selection_cats1_labels,
     ordered = TRUE)
