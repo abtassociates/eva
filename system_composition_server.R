@@ -195,8 +195,16 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   } else {
     plot_df <- as.data.frame(table(comp_df[[selection]]))
     names(plot_df) <- c(input$system_composition_selections, "n")
+    
+    if("Domestic Violence" %in% input$system_composition_selections) {
+      plot_df <- plot_df %>% bind_rows(tibble(
+        `Domestic Violence` = "DVTotal",
+        n = sum(plot_df %>% 
+          filter(`Domestic Violence` != "NotDV") %>%
+          pull(n), na.rm = TRUE)))
+    }
   }
-  
+
   plot_df[input$system_composition_selections] <- factor(
     plot_df[[input$system_composition_selections]], 
     levels = selection_cats1, 
