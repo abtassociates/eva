@@ -487,3 +487,24 @@ a:hover {
 .sys_info_table td {
   vertical-align: top;
 }
+
+.nav-tabs-custom > #syso_tabbox + .tab-content,
+.nav-tabs-custom > #sys_comp_subtabs + .tab-content,
+#syso_tabbox + .tab-content > .tab-pane > div {
+  padding: 0px;
+}
+
+
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab>a, 
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab>a:hover {
+  margin-right: 2px;
+  line-height: 1.42857143;
+  border: 1px solid transparent;
+  border-radius: 4px 4px 0 0;
+}
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab .btn, 
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab .btn-default {
+  color: white;
+  background-color: #C2462E;
+  border-color: #C2462E;
+}

@@ -1030,13 +1030,15 @@ dashboardPage(
         fluidRow(
           box(
             width = 12,
-            tabsetPanel(
-              id = "syso_tabsetpanel",
+            tabBox(
+              width = 12,
+              id = "syso_tabbox",
               type = "tabs",
               tabPanel(
                 id="syso_inflowoutflow", 
                 title="System Flow",
-                tabsetPanel(
+                tabBox(
+                  width = 12,
                   id = "sys_inflow_outflow_subtabs",
                   selected = "Summary Chart",
                   tabPanel("Summary Chart", 
@@ -1184,7 +1186,8 @@ dashboardPage(
                 side = "left",
                 selected = "Chart",
                 title = "Client System Status",
-                tabsetPanel(
+                tabBox(
+                  width = 12,
                   id = "sys_status_subtabs",
                   tabPanel("Chart", 
                            uiOutput("sankey_filter_selections") %>% withSpinner(),
@@ -1288,7 +1291,8 @@ dashboardPage(
                 side = "left",
                 selected = "Chart",
                 title = "Composition of All Served",
-                tabsetPanel(
+                tabBox(
+                  width = 12,
                   id = "sys_comp_subtabs",
                   tabPanel("Chart", 
                            fluidRow(
