@@ -83,7 +83,7 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   customDownload(app, "sys_status_download_btn_ppt", "System-Status-Download-PPT")
   
   
-  app$set_inputs(syso_tabsetpanel = "Composition of All Served in Period")
+  app$set_inputs(syso_tabsetpanel = "Composition of All Served")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values()
   
