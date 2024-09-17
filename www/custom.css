@@ -457,8 +457,15 @@ a:hover {
   border-right: 1px solid lightgray;
 }
 
-#sys_comp_download_btn_ppt, #sys_comp_download_btn {
+#sys_comp_download_btn_ppt, #sys_comp_download_btn,
+#sys_status_download_btn_ppt, #sys_status_download_btn,
+#sys_inflow_outflow_download_btn_ppt, #sys_inflow_outflow_download_btn{
   display: inline-block;
+}
+
+/*center chart*/
+#sys_comp_summary_ui_chart {
+  text-align: center;
 }
 /* || CHART INFORMATION TABLES */
 .sys_info_table {

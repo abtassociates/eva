@@ -1042,14 +1042,12 @@ dashboardPage(
                   id = "sys_inflow_outflow_subtabs",
                   selected = "Summary Chart",
                   tabPanel("Summary Chart", 
-                           uiOutput("sys_act_summary_filter_selections"),
-                           uiOutput("sys_act_summary_chart_subheader"),
-                           plotOutput("sys_act_summary_ui_chart", height = "100%")
+                           uiOutput("sys_act_summary_filter_selections") %>% withSpinner(),
+                           plotOutput("sys_act_summary_ui_chart") %>% withSpinner()
                   ),
                   tabPanel("Detail Chart", 
-                           uiOutput("sys_act_detail_filter_selections"),
-                           uiOutput("sys_act_detail_chart_subheader"),
-                           plotOutput("sys_act_detail_ui_chart", height = "100%")
+                           uiOutput("sys_act_detail_filter_selections") %>% withSpinner(),
+                           plotOutput("sys_act_detail_ui_chart") %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
@@ -1180,7 +1178,8 @@ dashboardPage(
                                 </table>")
                   )
                 ),
-                downloadButton("sys_inflow_outflow_download_btn", "Download")
+                downloadButton("sys_inflow_outflow_download_btn", "Download"),
+                downloadButton("sys_inflow_outflow_download_btn_ppt", "Download PPT")
               ),
               tabPanel(
                 id = "syso_systemstatus",
@@ -1191,8 +1190,8 @@ dashboardPage(
                   width = 12,
                   id = "sys_status_subtabs",
                   tabPanel("Chart", 
-                           uiOutput("sankey_filter_selections"),
-                           plotOutput("sankey_ui_chart")
+                           uiOutput("sankey_filter_selections") %>% withSpinner(),
+                           plotOutput("sankey_ui_chart") %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
@@ -1284,6 +1283,7 @@ dashboardPage(
                   )
                 ),
                 downloadButton("sys_status_download_btn", "Download"),
+                downloadButton("sys_status_download_btn_ppt", "Download PPT"),
                 width = 12
               ),
               tabPanel(
@@ -1307,15 +1307,15 @@ dashboardPage(
                                checkboxGroupInput(
                                  "system_composition_selections",
                                  label = "",
-                                 choices = sys_comp_selection_choices1,
+                                 choices = sys_comp_selection_choices,
                                  selected = c("All Races/Ethnicities", "Age"),
                                  inline = TRUE
                                ),
                                width = 12
                              )
                           ),
-                          uiOutput("sys_comp_summary_selections"),
-                          plotOutput("sys_comp_summary_ui_chart")
+                          uiOutput("sys_comp_summary_selections") %>% withSpinner(),
+                          plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>

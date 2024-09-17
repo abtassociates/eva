@@ -259,8 +259,8 @@ syso_race_ethnicity_excl <- list(
 # Special Populations -----------------------------------------------------
 
 syso_veteran_pops <- list(
-  "Veteran" = 1,
-  "Non-Veteran" = 0
+  "Veteran" = "Veteran",
+  "Non-Veteran" = "NonVeteran"
 )
 
 syso_dv_pops <- list(
@@ -354,23 +354,13 @@ inc_ncb_hi_required_prep <- tribble(
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
   unique()
 
-sys_comp_selection_choices1 = c(
+sys_comp_selection_choices = c(
   "Age", 
   "Domestic Violence",
   "Gender",
   # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launc
   "All Races/Ethnicities",
   "Grouped Races/Ethnicities",
-  "Veteran Status"
-)
-
-sys_comp_selection_choices2 = c(
-  "Age", 
-  "Domestic Violence",
-  "Gender",
-  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launc
-  "All Races/Ethnicities",
-  "Hispanic-Focused Races/Ethnicities",
   "Veteran Status"
 )
 
