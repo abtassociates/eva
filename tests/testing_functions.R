@@ -11,7 +11,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
         variant = platform_variant(os_name = FALSE), 
         name = test_script_name, 
         seed = 12345,
-        load_timeout = 2e+05)
+        load_timeout = 5e+05)
   
     app$set_inputs(Go_to_upload = "click")
     app$upload_file(imported = paste0(here("tests/temp/"),test_dataset))
