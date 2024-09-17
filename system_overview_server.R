@@ -6,7 +6,7 @@ observeEvent(input$syso_tabsetpanel, {
   req(valid_file() == 1)
   toggleClass(
     id = "syso_inflowoutflow_filters",
-    condition = input$syso_tabsetpanel == "Composition of All Served in Period",
+    condition = input$syso_tabsetpanel == "Composition of All Served",
     class = "filter-hidden"
   )
 }, ignoreNULL = TRUE)
@@ -25,14 +25,14 @@ observeEvent(input$methodology_type, {
     "syso_race_ethnicity", 
     choices = syso_race_ethnicity_cats(input$methodology_type)
   )
-  
-  updateCheckboxGroupInput(
-    session, 
-    "system_composition_selections", 
-    choices = sys_comp_selection_choices(),
-    inline = TRUE
+
+  # update System Composition Grouped Races/Ethnicities label
+  grouped_re_lbl_new <- ifelse(input$methodology_type == 1, "Grouped", "Hispanic-Focused")
+  shinyjs::runjs(
+    glue("
+      $('#system_composition_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
+    ")
   )
-  
 },
 ignoreInit = TRUE)
 
@@ -43,20 +43,80 @@ observeEvent(input$syso_level_of_detail, {
 })
 
 #### DISPLAY FILTER SELECTIONS ###
+syso_detailBox <- reactive({
+  # remove group names from race/ethnicity filter
+  # so we can use getNameByValue() to grab the selected option label
+  # if (input$methodology_type == 2) {
+  # browser()
+  # }
+  detail_line <- function(detail_label, val_list, inputVal) {
+    return(
+      HTML(glue(
+        "<b>{detail_label}:</b> {getNameByValue(val_list, inputVal)} <br>"
+      ))
+    )
+  }
+  
+  selected_race <- getNameByValue(
+    unlist(syso_race_ethnicity_cats(input$methodology_type)),
+    input$syso_race_ethnicity
+  )
+  
+  race_ethnicity_line <- HTML(glue(
+    "<b>Race/Ethnicity:</b> {
+          str_sub(
+            selected_race, 
+            start = str_locate(
+              selected_race,
+              '\\\\.'
+            )[, 1] + 1,
+            end = -1L
+          )
+        } <br>"
+  ))
+  
+  list(
+    br(),
+    strong("Date Range: "),
+    
+    format(ReportStart(), "%m-%d-%Y"), " to ", format(ReportEnd(), "%m-%d-%Y"), br(),
+    
+    if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
+      detail_line("Project Type", syso_project_types, input$syso_project_type),
+    
+    detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
+    
+    if (length(input$syso_age) != length(syso_age_cats))
+      HTML(glue(
+        "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
+      )),
+    
+    if (getNameByValue(syso_gender_cats(), input$syso_gender) != "All Genders")
+      detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
+    
+    if (selected_race != "All Races/Ethnicities")
+      race_ethnicity_line,
+    
+    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
+      detail_line("Special Populations", syso_spec_pops_people, input$syso_spec_pops)
+    
+  )
+})
+
 output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
 output$sys_act_summary_filter_selections <- renderUI({
   req(valid_file() == 1)
   syso_detailBox() 
 })
 
-toggle_sys_components <- function(cond) {
+toggle_sys_components <- function(cond, init=FALSE) {
   # 1. toggles the filters (disabled for Composition)
   # 2. toggles subtabs and download button based if valid file has been uploaded
   # 3. moves download button to be in line with subtabs
   tabs <- c(
     "System Inflow/Outflow" = "inflow_outflow",
     "Client System Status" = "status",
-    "Composition of All Served in Period" = "comp"
+    "Composition of All Served" = "comp"
   )
   
   for (tab in tabs) {
@@ -66,19 +126,21 @@ toggle_sys_components <- function(cond) {
     shinyjs::toggle(glue('sys_{tab}_download_btn_ppt'), condition = cond)
     
     # move download button to subtab row and only show if there's data
-    shinyjs::runjs(
-      glue("
-          document.getElementById('sys_{tab}_subtabs')
-            .insertAdjacentHTML('beforeEnd', '<li id=\"sys_{tab}_download_tab\"></li>');
-          $('#sys_{tab}_download_btn').appendTo('#sys_{tab}_download_tab')
-            .toggle('{cond}' == 'TRUE');
-          $('#sys_{tab}_download_btn_ppt').appendTo('#sys_{tab}_download_tab')
-            .toggle('{cond}' == 'TRUE');
-        ")
-    )
+    if(init) {
+      shinyjs::runjs(
+        glue("
+            document.getElementById('sys_{tab}_subtabs')
+              .insertAdjacentHTML('beforeEnd', '<li id=\"sys_{tab}_download_tab\"></li>');
+            $('#sys_{tab}_download_btn').appendTo('#sys_{tab}_download_tab')
+              .toggle('{cond}' == 'TRUE');
+            $('#sys_{tab}_download_btn_ppt').appendTo('#sys_{tab}_download_tab')
+              .toggle('{cond}' == 'TRUE');
+          ")
+      )
+    }
   }
 }
-toggle_sys_components(FALSE) # initially hide them
+toggle_sys_components(FALSE, init=TRUE) # initially hide them
 
 sys_export_summary_initial_df <- function() {
   return(data.frame(
@@ -88,7 +150,7 @@ sys_export_summary_initial_df <- function() {
       "Methodology Type",
       "Household Type",
       "Level of Detail",
-      "Project Type"
+      "Project Type Group"
     ),
     Value = c(
       strftime(ReportStart(), "%m/%d/%y"),
@@ -139,3 +201,121 @@ syso_gender_cats <- function(methodology = 1){
 }
 
 font_size <- 14 / .pt
+
+# PowerPoint Export -------------------------------------------------------
+sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot_slide_title, plot1, plot2 = NULL, summary_font_size) {
+  report_period <- paste0("Report Period: ", 
+                          format(meta_HUDCSV_Export_Start(), "%m/%d/%Y"),
+                          " - ",
+                          format(meta_HUDCSV_Export_End(), "%m/%d/%Y")
+  )
+  loc_title <- ph_location_type(type = "title")
+  loc_footer <- ph_location_type(type = "ftr")
+  loc_dt <- ph_location_type(type = "dt")
+  loc_slidenum <- ph_location_type(type = "sldNum")
+  loc_body <- ph_location_type(type = "body")
+  loc_subtitle <- ph_location_type(type = "subTitle")
+  loc_ctrtitle <- ph_location_type(type = "ctrTitle")
+  
+  fp_normal <- fp_text(font.size = summary_font_size)
+  fp_bold <- update(fp_normal, bold = TRUE)
+  fp_red <- update(fp_normal, color = "red")
+  
+  ppt <- read_pptx()
+  
+  add_footer <- function(.ppt) {
+    return(
+      .ppt %>%
+        ph_with(value = paste0("CoC Code: ", Export()$SourceID), location = loc_footer) %>%
+        ph_with(value = report_period, location = loc_dt) %>%
+        ph_with(
+          value = paste0(
+            "Export Generated: ",
+            format(Sys.Date()),
+            "\n",
+            "https://hmis.abtsites.com/eva/"
+          ),
+          location = loc_slidenum
+        )
+    )
+  }
+  
+  # title Slide
+  ppt <- add_slide(ppt, layout = "Title Slide", master = "Office Theme") %>%
+    ph_with(value = title_slide_title, location = loc_ctrtitle) %>%
+    ph_with(value = "Eva Image Export", location = loc_subtitle) %>%
+    add_footer()
+  
+  # Summary
+  s_items <- do.call(block_list, lapply(1:nrow(summary_items), function(i) {
+    fpar(
+      ftext(paste0(summary_items$Chart[i], ": ", summary_items$Value[i]), fp_normal)
+    )
+  }))
+  
+  ppt <- add_slide(ppt, layout = "Title and Content") %>%
+    ph_with(value = "Summary", location = loc_title) %>%
+    ph_with(
+      value = s_items,
+      level_list = c(rep(1L, length(s_items))),
+      location = loc_body
+    ) %>% 
+    add_footer()
+  
+  # Chart
+  ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
+    ph_with(value = plot_slide_title, location = loc_title) %>%
+    ph_with(value = plot1, location = loc_body) %>%
+    add_footer()
+  
+  if(!is.null(plot2)) {
+    ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
+      ph_with(value = plot_slide_title, location = loc_title) %>%
+      ph_with(value = plot2, location = loc_body) %>%
+      add_footer()
+  }
+  
+  # Export the PowerPoint
+  return(print(ppt, target = file))
+}
+
+suppression_msg <- "The chart cannot be displayed because there are fewer than 11 clients."
+no_data_msg <- "No data to show."
+
+# Display Filter Selection in Detail Box ----------------------------------
+
+chart_selection_detail_line <- function(detail_label, val_list, inputVal) {
+  return(
+    HTML(glue(
+      "<strong>{detail_label}:</strong> {getNameByValue(val_list, inputVal)} <br>"
+    ))
+  )
+}
+
+
+# Total Count Above Chart -------------------------------------------------
+
+sys_total_count_display <- function(total_count) {
+  return(paste0(
+    str_wrap(
+      paste0(
+        "Total ",
+        case_when(
+          input$syso_level_of_detail == "All" ~ "People",
+          input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
+          TRUE ~
+            getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+        ),
+        if_else(
+          input$syso_hh_type == "All",
+          "",
+          paste0(" in ",
+                 str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "),
+                 " Households")
+        ),       ": ",
+        scales::comma(total_count)
+      )
+    ),
+    "\n")
+  )
+}
