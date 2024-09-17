@@ -2,11 +2,11 @@
 # hide demographic filters for Composition chart
 # hide other stuff if valid file is not uploaded
 # move chart download button to be inline with subtabs
-observeEvent(input$syso_tabsetpanel, {
+observeEvent(input$syso_tabbox, {
   req(valid_file() == 1)
   toggleClass(
     id = "syso_inflowoutflow_filters",
-    condition = input$syso_tabsetpanel == "Composition of All Served",
+    condition = input$syso_tabbox == "Composition of All Served",
     class = "filter-hidden"
   )
 }, ignoreNULL = TRUE)
