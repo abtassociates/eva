@@ -25,16 +25,14 @@
       2,
       3,
       4,
-      5,
-      6
+      5
     ],
     "fileStructureAnalysis_rows_current": [
       1,
       2,
       3,
       4,
-      5,
-      6
+      5
     ],
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
@@ -122,7 +120,7 @@
     "syso_project_type": "All",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
-    "syso_tabsetpanel": "System Flow",
+    "syso_tabbox": "System Flow",
     "system_composition_selections": [
       "Age",
       "All Races/Ethnicities"
@@ -408,9 +406,9 @@
         "PersonalID missing from Client.csv",
         "ProjectID missing from Project.csv",
         "Incorrect Date Format",
+        "Incorrect Date Format",
         "Incorrect Columns",
-        "Incorrect Columns",
-        "Incorrect Date Format"
+        "Incorrect Columns"
       ],
       "Type": [
         "High Priority",
@@ -419,7 +417,7 @@
         "High Priority",
         "High Priority",
         "High Priority",
-        "Error",
+        "High Priority",
         "Error",
         "Error"
       ],
@@ -430,9 +428,9 @@
         "Per the HMIS CSV Format Specifications, all PersonalIDs in the Enrollment file should have a record in the Client file.",
         "Per the HMIS CSV Format Specifications, all ProjectIDs in the Enrollment file should have a record in the Project file.",
         "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export.",
+        "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export.",
         "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
-        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
-        "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export."
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present."
       ],
       "Detail": [
         "In the Client file, the BlackAfAmerican column is missing",
@@ -441,9 +439,9 @@
         "PersonalID 5966 is in the Enrollment file but not in the Client file.",
         "ProjectID 1182 is in the Enrollment file but not in the Project file.",
         "Please check that the DOB column in the Client file has the correct date format.",
+        "Please check that the DischargeStatus column in the Client file has the correct date format.",
         "In the Client file, ExtraCol is an extra column",
-        "In the Client file, Transgenderr is an extra column",
-        "Please check that the DischargeStatus column in the Client file has the correct date format."
+        "In the Client file, Transgenderr is an extra column"
       ]
     }
   }
