@@ -88,9 +88,11 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$expect_values()
   
   app$set_inputs(system_composition_selections = c("All Races/Ethnicities"))
+  app$wait_for_idle(timeout = 2e+05)
   app$expect_values()
   
   app$set_inputs(system_composition_selections = c("All Races/Ethnicities", "Gender"))
+  app$wait_for_idle(timeout = 2e+05)
   app$expect_values()
   customDownload(app, "sys_comp_download_btn", "System-Composition-Download")
   customDownload(app, "sys_comp_download_btn_ppt", "System-Composition-Download-PPT")
