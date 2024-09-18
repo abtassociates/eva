@@ -1307,9 +1307,13 @@ dashboardPage(
                              box(
                                strong("Select Demographic Crosstab Categories (up to 2)"),
                                p(str_glue(
-                                 "Selecting a single category 
-                                 will provide totals for just that category. 
-                                 You can only select one Race/Ethnicity 
+                                 "For a simple count of totals within a demographic 
+                                 category, select only one category. To see the 
+                                 intersection of two demographic categories, select 
+                                 both categories to create a crosstab chart. To 
+                                 change your crosstab selection, uncheck at least 
+                                 one of your previous selections before selecting 
+                                 new categories. Note that you can only select one Race/Ethnicity 
                                  group at a time to display in the chart."
                                )),
                                checkboxGroupInput(
@@ -1338,9 +1342,9 @@ dashboardPage(
                                 
                                 <p>You can select up to two demographic categories 
                                 using the checkboxes above the chart. To change 
-                                your selection, uncheck your previous selection 
-                                before selecting new categories. For a simple count 
-                                of totals within a demographic category, select 
+                                your crosstab selection, uncheck at least one of 
+                                your previous selections before selecting new categories.  
+                                For a simple count of totals within a demographic category, select 
                                 just that category. </p>
                                 
                                 <p>To see the intersection of two demographic categories, 
