@@ -9,7 +9,7 @@ observeEvent(input$syso_tabbox, {
     condition = input$syso_tabbox == "Composition of All Served",
     class = "filter-hidden"
   )
-}, ignoreNULL = TRUE)
+}, ignoreNULL = TRUE) #need to add ignore init?
 
 observeEvent(input$methodology_type, {
   
@@ -204,6 +204,8 @@ font_size <- 14 / .pt
 
 # PowerPoint Export -------------------------------------------------------
 sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot_slide_title, plot1, plot2 = NULL, summary_font_size) {
+  logMetadata("downloaded system overview powerpoint") #NEED TO FIX - if want to get more granular, need to detect with title slide
+  
   report_period <- paste0("Report Period: ", 
                           format(meta_HUDCSV_Export_Start(), "%m/%d/%Y"),
                           " - ",
