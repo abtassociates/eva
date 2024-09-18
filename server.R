@@ -42,6 +42,14 @@ function(input, output, session) {
   # glossary entries
   source("glossary.R", local = TRUE)
   
+  observe({
+    req(session$clientData$url_search != "")
+    updateTabItems(session,
+                   "sidebarmenuid",
+                   "tabGlossary")
+    #parseQueryString(session$clientData$url_search))
+  })
+  
   # changelog entries
   source("changelog.R", local = TRUE)
 
