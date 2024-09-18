@@ -26,7 +26,7 @@ source(paste0(directory, "01_get_Export.R"))
 
 
 # Org A (OrgId = 4), Org B = 6, Org N = 95
-organization_ids <- c("4","6")
+organization_ids <- c("4","6", "96")
 # get project IDs
 project_ids <- Project %>% filter(OrganizationID %in% organization_ids) %>% pull(ProjectID) %>% unique()
 
@@ -149,7 +149,7 @@ for (file in unique(cols_and_data_types$File)) {
   })
 }
 
-demo_zip <- "/media/projects/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-demo_small.zip"
+demo_zip <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-demo_small2.zip"
 zipr(
   zipfile = demo_zip, 
   files = list.files(here("sandbox/mini-non-shiny-environment/data"), pattern = "*.csv", full.names = TRUE),
