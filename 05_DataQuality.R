@@ -126,7 +126,7 @@ missing_name_dataquality <- base_dq_data %>%
 
 
 dkr_name <- base_dq_data %>%
-  filter(NameDataQuality %in% c(dkr_dnc)) %>%
+  filter(NameDataQuality %in% c(dkr_dnc, 2)) %>%
   merge_check_info(checkIDs = 78) %>%
   select(all_of(vars_we_want))
 
