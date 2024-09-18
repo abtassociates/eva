@@ -39,6 +39,9 @@ function(input, output, session) {
   # functions used throughout the app
   source("helper_functions.R", local = TRUE)
   
+  # glossary entries
+  source("glossary.R", local = TRUE)
+  
   # changelog entries
   source("changelog.R", local = TRUE)
 
