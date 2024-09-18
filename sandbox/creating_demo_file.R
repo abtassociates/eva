@@ -21,7 +21,7 @@ source(paste0(directory, "helper_functions.R"))
 source(paste0(directory, "hardcodes.R"))
 
 # Get Export --------------------------------------------------------------
-unzip("/media/projects/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-hashed-current-good.zip", exdir=here("sandbox/mini-non-shiny-environment/data"))
+utils::unzip("/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-hashed-current-good.zip", exdir=here(paste0(directory, "data")))
 source(paste0(directory, "01_get_Export.R"))
 
 
