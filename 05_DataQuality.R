@@ -634,7 +634,7 @@ missing_destination <- base_dq_data %>%
   select(all_of(vars_we_want))
 
 dkr_destination <- base_dq_data %>%
-  filter(Destination %in% c(dkr_dnc)) %>%
+  filter(Destination %in% c(dkr_dnc, 30)) %>%
   merge_check_info(checkIDs = 59) %>%
   select(all_of(vars_we_want))
 
