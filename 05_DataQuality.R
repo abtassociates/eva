@@ -1254,11 +1254,12 @@ overlap_dt <- overlap_dt[
 # ) %>%
 # filter(IsOverlap == TRUE) %>%
 # Assuming overlap_dt is a data.table
-overlap_dt$EnrollmentPeriod <- interval(overlap_dt$EnrollmentStart, overlap_dt$EnrollmentEnd)
-overlap_dt$PreviousEnrollmentPeriod <- interval(overlap_dt$PreviousEnrollmentStart, overlap_dt$PreviousEnrollmentEnd)
+overlap_dt$EnrollmentPeriod <- interval(as.Date(overlap_dt$EnrollmentStart), as.Date(overlap_dt$EnrollmentEnd))
+overlap_dt$PreviousEnrollmentPeriod <- interval(as.Date(overlap_dt$PreviousEnrollmentStart), as.Date(overlap_dt$PreviousEnrollmentEnd))
 overlap_dt[, IsOverlap := int_overlaps(EnrollmentPeriod, PreviousEnrollmentPeriod) &
              EnrollmentStart != PreviousEnrollmentEnd]
-overlap_dt[IsOverlap == TRUE]
+overlap_dt[, c("EnrollmentPeriod", "PreviousEnrollmentPeriod") := NULL]
+overlap_dt <- overlap_dt[IsOverlap == TRUE]
 
 # Calculate the number of overlaps per PersonalID
 # group_by(PersonalID) %>%
