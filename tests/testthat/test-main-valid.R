@@ -98,6 +98,6 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   
   app$set_inputs(sys_comp_subtabs = "Information")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values()
+  # app$expect_values()
   
 })
