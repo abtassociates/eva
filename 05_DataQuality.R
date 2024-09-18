@@ -1356,21 +1356,20 @@ overlap_dt <- overlap_dt[, .(
 # 
 base_dq_data_dt <- as.data.table(base_dq_data)
 overlap_dt <- overlap_dt[
-  base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with=F],
-  on = "EnrollmentID"
-]
-
-# Rename columns for previous enrollment
+  base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with=F], 
+  on = "EnrollmentID", 
+  nomatch = 0
+][
+  # Rename columns for previous enrollment
 # left_join(base_dq_data %>% 
 #           select(!!vars_prep, EnrollmentID) %>%
 #           setNames(paste0('Previous', names(.))),
 #           by = "PreviousEnrollmentID") %>%
-overlap_dt <- overlap_dt[
-  setNames(
-    base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with=F], 
-    paste0("Previous", c(vars_prep, "EnrollmentID"))
-  ),
-  on = "PreviousEnrollmentID"
+  base_dq_data_dt[, 
+                  setNames(.SD, paste0("Previous", names(.SD))), 
+                  .SDcols = c(vars_prep, "EnrollmentID")], 
+  on = "PreviousEnrollmentID",
+  nomatch = 0
 ]
 
 # Convert ProjectType and PreviousProjectType to descriptive names
