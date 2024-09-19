@@ -50,12 +50,10 @@ dashboardPage(
                            tabName = "tabDQSystem"),
                menuSubItem("Organization-level",
                            tabName = "tabDQOrg")),
-      menuItem("System Performance",
-               menuSubItem("System Overview",
-                           tabName = "systemOverview")
+      menuItem("System Performance Overview",
+               tabName = "tabSystemOverview"),
                #menuSubItem("System Exit Detail",
                 #           tabName = "systemExitDetail")
-               ),
       menuItem("Glossary",
                tabName = "tabGlossary"),
       menuItem("View Changelog",
@@ -848,7 +846,7 @@ dashboardPage(
         )
       ),
       tabItem(
-        tabName = "systemOverview",
+        tabName = "tabSystemOverview",
         fluidRow(box(htmlOutput("headerSystemOverview"), width = 12)),
         fluidRow(box(
           title = "Instructions",
