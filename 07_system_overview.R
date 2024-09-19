@@ -122,19 +122,11 @@ hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
     "PY",
     fifelse(
       HouseholdTypeMutuallyExclusive == "AO" & between(max(AgeAtEntry), 0, 24),
-      "YYA",
-      fifelse(
-        HouseholdTypeMutuallyExclusive == "AC",
-        "ACminusPY",
-        fifelse(
-          HouseholdTypeMutuallyExclusive == "AO",
-          "AOminusYYA",
-          as.character(HouseholdTypeMutuallyExclusive)
-        )
-      )
+      "UY", # THIS SHOULD BE "UY" (Unaccompanied Youth). YYA = PY + UY + CO
+      as.character(HouseholdTypeMutuallyExclusive)
     )
   ),
-  levels = c("AOminusYYA", "ACminusPY", "CO", "UN", "PY", "YYA")
+  levels = c("AO", "AC", "CO", "UN", "PY", "UY")
 ), by = HouseholdID]
 
 # Select required columns
@@ -825,10 +817,9 @@ enrollment_categories_reactive <- reactive({
   # Filter enrollments by hhtype, project type, and level-of-detail inputs
   enrollment_categories %>%
     filter((input$syso_hh_type == "All" |
-         case_when(
-           input$syso_hh_type == "AC" ~ HouseholdType %in% c("ACminusPY", "PY"),
-           input$syso_hh_type == "AO" ~ HouseholdType %in% c("AOminusYYA", "YYA"),
-           input$syso_hh_type == HouseholdType ~ HouseholdType == input$syso_hh_type)) &
+            input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY","CO") |
+            input$syso_hh_type == HouseholdType
+              ) &
       (input$syso_level_of_detail == "All" |
          (input$syso_level_of_detail == "HoHsAndAdults" &
             (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
