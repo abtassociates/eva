@@ -311,8 +311,6 @@ function(input, output, session) {
       summarise(Count = n()) %>%
       ungroup() %>%
       arrange(Type, desc(Count))
-    
-    exportTestValues(fileStructureAnalysis = file_structure_analysis_main())
 
     datatable(
       a,
@@ -604,8 +602,6 @@ function(input, output, session) {
       filter(ProjectName == input$currentProviderList) %>%
       select(all_of(clientCountDetailCols)) %>%
       nice_names()
-    
-    exportTestValues(clientCountData = x)
     
     datatable(
       x,
