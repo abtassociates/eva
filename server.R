@@ -377,7 +377,7 @@ function(input, output, session) {
       logMetadata(paste0("Impermissible Character Locations Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(non_ascii_files_detail = non_ascii_files_detail)
+      exportTestValues(non_ascii_files_detail = summary(non_ascii_files_detail))
     }
   )
   
@@ -621,7 +621,7 @@ function(input, output, session) {
   output$clientCountSummary <- renderDT({
     req(valid_file() == 1)
     
-    exportTestValues(clientCountSummary = client_count_summary_df())
+    exportTestValues(clientCountSummary = summary(client_count_summary_df()))
     
     datatable(
       client_count_summary_df() %>%
@@ -668,13 +668,13 @@ function(input, output, session) {
     content = function(file) {
       req(valid_file() == 1)
       
-      summary <- pdde_main() %>% 
+      summary_df <- pdde_main() %>% 
         group_by(Issue, Type) %>%
         summarise(Count = n()) %>%
         ungroup()
       
       write_xlsx(
-        list("Summary" = summary,
+        list("Summary" = summary_df,
              "Data" = pdde_main() %>%
                nice_names()),
         path = file)
@@ -682,7 +682,8 @@ function(input, output, session) {
       logMetadata(paste0("Downloaded PDDE Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main()))
+      exportTestValues(pdde_download = list(
+        "Summary" = summary(summary_df), "Data" = summary(pdde_main())))
     }
   )
   
@@ -696,7 +697,7 @@ function(input, output, session) {
       ungroup() %>%
       arrange(Type)
     
-    exportTestValues(pdde_summary_table = a)
+    exportTestValues(pdde_summary_table = summary(a))
     
     datatable(
       a,
@@ -716,7 +717,7 @@ function(input, output, session) {
       arrange(Type, Issue) %>%
       unique()
     
-    exportTestValues(pdde_guidance_summary = guidance)
+    exportTestValues(pdde_guidance_summary = summary(guidance))
     
     datatable(
       guidance, 
@@ -750,7 +751,7 @@ function(input, output, session) {
              Issue, 
              Clients)
     
-    exportTestValues(dq_organization_summary_table = a)
+    exportTestValues(dq_organization_summary_table = summary(a))
     
     datatable(
       a,
@@ -774,7 +775,7 @@ function(input, output, session) {
       arrange(Type, Issue) %>%
       unique()
     
-    exportTestValues(dq_org_guidance_summary = guidance)
+    exportTestValues(dq_org_guidance_summary = summary(guidance))
     
     datatable(
       guidance, 
@@ -834,7 +835,7 @@ function(input, output, session) {
       write_xlsx(dqDownloadInfo()$orgDQData, path = file)
       logMetadata(paste0("Downloaded Org-level DQ Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-      exportTestValues(orgDQ_download = dqDownloadInfo()$orgDQData)
+      exportTestValues(orgDQ_download = summary(dqDownloadInfo()$orgDQData))
     }
   )
   
@@ -853,7 +854,7 @@ function(input, output, session) {
       write_xlsx(dqDownloadInfo()$systemDQData, path = file)
       logMetadata(paste0("Downloaded System-level DQ Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-      exportTestValues(systemDQ_download = dqDownloadInfo()$systemDQData)
+      exportTestValues(systemDQ_download = summary(dqDownloadInfo()$systemDQData))
     }
   )
   
