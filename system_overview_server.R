@@ -205,9 +205,9 @@ font_size <- 14 / .pt
 # PowerPoint Export -------------------------------------------------------
 sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot_slide_title, plot1, plot2 = NULL, summary_font_size) {
   report_period <- paste0("Report Period: ", 
-                          format(meta_HUDCSV_Export_Start(), "%m/%d/%Y"),
+                          format(ReportStart(), "%m/%d/%Y"),
                           " - ",
-                          format(meta_HUDCSV_Export_End(), "%m/%d/%Y")
+                          format(ReportEnd(), "%m/%d/%Y")
   )
   loc_title <- ph_location_type(type = "title")
   loc_footer <- ph_location_type(type = "ftr")
