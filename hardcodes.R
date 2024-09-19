@@ -252,7 +252,7 @@ syso_race_ethnicity_excl <- list(
       "WhiteLatineExclusive1"
   ),
   "Summarized" = c("All People of Color" =
-                     "BILPOCExclusive2", "White Only" =
+                     "BILPOCExclusive2", "White alone" =
                      "WhiteExclusive2")
 )
 
@@ -260,13 +260,13 @@ syso_race_ethnicity_excl <- list(
 
 syso_veteran_pops <- list(
   "Veteran" = "Veteran",
-  "Non-Veteran" = "NonVeteran"
+  "Non-Veteran/Unknown" = "NonVeteran"
 )
 
 syso_dv_pops <- list(
-  "Domestic Violence Survivor: Reported Currently Fleeing" = "DVFleeing",
-  "Domestic Violence Survivor: Reported Not Currently Fleeing" = "DVNotFleeing",
-  "Domestic Violence Survivor: Reported Total" = "DVTotal",
+  "Domestic Violence Survivor: Currently Fleeing" = "DVFleeing",
+  "Domestic Violence Survivor: Not Currently Fleeing" = "DVNotFleeing",
+  "Domestic Violence Survivor: Total" = "DVTotal",
   "No Domestic Violence Indicated" = "NotDV"
 )
 

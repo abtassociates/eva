@@ -646,7 +646,7 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
   content = function(file) {
     sys_overview_ppt_export(
       file = file,
-      title_slide_title = "Composition of All Served in Period",
+      title_slide_title = "Composition of All Served",
       summary_items = sys_export_summary_initial_df() %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_comp_selections_info()),

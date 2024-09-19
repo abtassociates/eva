@@ -56,6 +56,8 @@ dashboardPage(
                #menuSubItem("System Exit Detail",
                 #           tabName = "systemExitDetail")
                ),
+      menuItem("Glossary",
+               tabName = "tabGlossary"),
       menuItem("View Changelog",
                tabName = "tabChangelog")
       # ),
@@ -1053,7 +1055,11 @@ dashboardPage(
                            HTML("<h4>Chart Overview</h4>
                                 <p>The System Flow chart shows your homeless system's 
                                 inflow and outflow during the period, helping you 
-                                assess the effectiveness of your homeless system. 
+                                assess the effectiveness of your homeless system.
+                                The client universe for this chart is the number 
+                                of clients identified as active in the system at 
+                                the start of the reporting period plus the number 
+                                of clients who inflowed into the system. 
                                 There are two views for this chart: Summary and 
                                 Detail. Both views show the total number of clients 
                                 active in the system at the start and end of the 
@@ -1200,7 +1206,9 @@ dashboardPage(
                                 in your system at the start of the period. This 
                                 chart helps you identify the proportion of clients 
                                 that ended the period as (1) homeless or in non-permanent 
-                                housing versus (2) housed or in permanent housing. 
+                                housing versus (2) housed or in permanent housing.
+                                The client universe for this chart is the number 
+                                of clients active in the system at the start of the reporting period.
                                 This chart does not include clients who inflowed 
                                 into your system after the start of the reporting period.</p>
                                 
@@ -1299,9 +1307,13 @@ dashboardPage(
                              box(
                                strong("Select Demographic Crosstab Categories (up to 2)"),
                                p(str_glue(
-                                 "Selecting a single category 
-                                 will provide totals for just that category. 
-                                 You can only select one Race/Ethnicity 
+                                 "For a simple count of totals within a demographic 
+                                 category, select only one category. To see the 
+                                 intersection of two demographic categories, select 
+                                 both categories to create a crosstab chart. To 
+                                 change your crosstab selection, uncheck at least 
+                                 one of your previous selections before selecting 
+                                 new categories. Note that you can only select one Race/Ethnicity 
                                  group at a time to display in the chart."
                                )),
                                checkboxGroupInput(
@@ -1322,13 +1334,17 @@ dashboardPage(
                                 <p>The Composition of All Served chart 
                                 shows the demographic make-up of your homeless system 
                                 and highlights the most prevalent relationships 
-                                between demographic cross sections. </p>
+                                between demographic cross sections.
+                                The client universe for this chart is the number 
+                                of clients identified as active in the system at 
+                                the start of the reporting period plus the number 
+                                of clients who inflowed into the system.</p>
                                 
                                 <p>You can select up to two demographic categories 
                                 using the checkboxes above the chart. To change 
-                                your selection, uncheck your previous selection 
-                                before selecting new categories. For a simple count 
-                                of totals within a demographic category, select 
+                                your crosstab selection, uncheck at least one of 
+                                your previous selections before selecting new categories.  
+                                For a simple count of totals within a demographic category, select 
                                 just that category. </p>
                                 
                                 <p>To see the intersection of two demographic categories, 
@@ -1378,6 +1394,36 @@ dashboardPage(
           box(
             width = 12,
             HTML("<h2>Placeholder</h2>")
+          )
+        )
+      ),
+      tabItem(
+        tabName = "tabGlossary",
+        fluidRow(box(HTML("<h2>Glossary</h2>"), width = 12)),
+        fluidRow(box(
+          title = "Instructions",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          HTML("
+               <p>This glossary provides definitions for the terms used throughout 
+              Eva's System Performance Overview page. You can review definitions 
+              of the terms by their focus, including:</p>
+              
+              <ul>
+                <li>System Performance Filters</li>
+                <li>System Flow Chart</li>
+                <li>Client System Status Chart</li>
+              </ul>
+              
+              <p>You can also search for a specific term using the search bar.</p>")
+        )),
+        fluidRow(
+          box(
+            # collapsible = TRUE,
+            # collapsed = TRUE,
+            width = 12,
+            DTOutput("glossary")
           )
         )
       ),
