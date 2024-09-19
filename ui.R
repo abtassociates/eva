@@ -854,60 +854,60 @@ dashboardPage(
           collapsible = TRUE,
           collapsed = TRUE,
           HTML("<h4>System Performance Overview</h4>
-                <p>The purpose of the system performance overview charts is to use 
-                your HMIS data to evaluate how effective your homeless system is 
-                in moving clients through the system and helping them reach permanent 
-                housing. The charts also help you understand the composition of 
-                all clients served in your homeless system throughout the date range, 
-                or period, of your HMIS file upload. System performance is measured 
-                across all HMIS Continuum projects except homeless prevention projects.</p>
+                <p>The System Performance Overview page in Eva features three system 
+                performance charts: the System Flow Chart, the Client System Status 
+                Chart, and the System Demographics Chart. The charts display system 
+                performance data, pulled from your uploaded HMIS CSV export, from 
+                all HMIS Continuum projects, excluding homeless prevention projects. 
+                Eva uses the last 12 full months of data in the upload, which constitutes 
+                the report period. <b>Note that some charts on this page may not display 
+                if the uploaded HMIS CSV export has less than twelve full months of data.</b></p>
                 
-                <p>There are three system performance chart types on this page: 
-                the System Flow chart, Client System Status chart, and System Demographics 
-                chart. Explore each of the charts using 
-                Chart Tabs beneath the Filters Menu. Each Chart Tab has a “Chart” 
-                subtab, where the chart lives, and an “Information” subtab. The 
+                <p>The purpose of the system performance charts is to use your HMIS 
+                data to (1) evaluate how effective your homeless system is in moving 
+                clients through the system and helping them reach permanent housing, 
+                and (2) help you understand the demographic composition of all clients 
+                served in your homeless system. Explore each of the charts using 
+                chart tabs beneath the Filters Menu. Under each chart tab is a Chart 
+                subtab for viewing the chart itself and an Information subtab. The 
                 Information subtab includes a “Chart Overview” section that provides 
-                chart-specific information, and an “Interpretation Tips” section 
-                that can help you interpret the findings of each chart.</p>
+                guidance on how to read the chart, and some charts additionally have 
+                an “Interpretation Tips” section that can help you interpret their output.</p>
                 
                 <p>Use the Filters Menu to explore system performance trends of 
                 clients in your homeless system with specific characteristics. 
                 This has two components: </p>
                 
                 <ol>
-                  <li><b>The Universal Filters</b> impact the data shown on all three 
-                  visualizations on this page. Universal filters include household 
-                  type, level of detail, project type group, and methodology type.</li>
-                  <li><b>The Demographic Filters</b> only impact the data shown in the 
-                  System Flow and Client System Status charts. Demographic 
-                  filters are included for age, special populations, gender, and 
-                  race/ethnicity.</li>
+                  <li><b>The universal filters</b>, the top row of the Filters Menu, 
+                  impact the data shown on all three visualizations on this page. 
+                  Universal filters include Household Type, Level of Detail, Project 
+                  Type Group, and Gender and Race/Ethnicity Methodology Type.</li>
+                  <li><b>The demographic filters</b>, the bottom of the Filters Menu, 
+                  only impact the data shown in the System Flow and Client System 
+                  Status charts. Demographic filters include Age, Special Populations, 
+                  Gender, and Race/Ethnicity.</li>
                 </ol>
                 
                 <p>Use the drop-down menus to select the characteristics of the 
                 system subpopulation you want to analyze. The default selection 
-                is all clients in your homeless system throughout the period. To 
-                see system performance by households, select the “Head of Households 
-                only” level of detail. Except for Age, all filters are single-select, 
+                is all clients in your homeless system throughout the report period. 
+                To see system performance by households, select the “Head of Households 
+                only” level of detail. All filters (except one) are single-select, 
                 meaning you can only select one category at a time. For the Age 
                 filter, you can select multiple age ranges to explore.</p>
                 
-                <p>The Methodology selection only impacts the Gender and Race/Ethnicity
-                filters. To learn more about methodology and demographic categories, 
-                please visit the Glossary page accessible on Eva’s Navigation Menu.</p>
-                
-                <p>The data shown on this page will reflect the last twelve (12) full months 
-                of data in an HMIS CSV export with more than a year of data. <b>Note 
-                that some charts on this page may not display if the uploaded HMIS 
-                CSV export has less than 12 full months of data.</b></p>
+                <p>The Gender and Race/Ethnicity Methodology Type selection only 
+                impacts the Gender and Race/Ethnicity filters. To learn more about 
+                methodology and demographic categories, please visit the Glossary 
+                accessible on Eva’s Navigation Menu.</p>
                 
                 <h4>Downloads</h4>
                 <p>To support further systems analysis, local reporting, and presentations, 
                 Eva includes two download options. To generate an Excel workbook 
-                with the data for a specific chart, click the grid icon while viewing 
-                the chart. To generate a PowerPoint slide deck with the chart image, 
-                click the image icon.</p>
+                with the data for a specific chart, click the “Data Download” button 
+                while viewing the chart. To generate a PowerPoint slide deck with 
+                the chart image, click the “ Image Download” button while viewing the chart. </p>
                 
                 <h4>Data Suppression and Data Security</h4>
                 <p>To ensure the privacy and protection of individuals and small 
@@ -918,11 +918,11 @@ dashboardPage(
                 is enough data to view the chart. A chart that is not displayed 
                 cannot be exported in Excel or PowerPoint.</p>
                 
-                <p>The values in a chart's data download will not be 
-                suppressed. Be careful how you save and share the data download. 
+                <p>The data in the data download of a chart’s export <b>will not be 
+                suppressed</b>. Be careful how you save and share the tabular export. 
                 With smaller numbers, clients can become more identifiable in the 
                 data. Before you share the Excel export, feel free to modify, add, 
-                or remove anything as you see fit to preserve client anonymity.</p>
+                or remove anything as you see fit to preserve client anonymity. </p>
                ")
         )),
         fluidRow(
@@ -1053,26 +1053,31 @@ dashboardPage(
                            HTML("<h4>Chart Overview</h4>
                                 <p>The System Flow chart shows your homeless system's 
                                 inflow and outflow during the period, helping you 
-                                assess the effectiveness of your homeless system.
+                                assess the effectiveness of your homeless system. 
                                 The client universe for this chart is the number 
-                                of clients identified as active in the system at 
-                                the start of the reporting period plus the number 
-                                of clients who inflowed into the system. 
-                                There are two views for this chart: Summary and 
-                                Detail. Both views show the total number of clients 
-                                active in the system at the start and end of the 
-                                period and whether they are homeless at that time 
-                                or housed (and still receiving assistance).</p>
+                                of clients identified as active in your system at 
+                                the start of the report period plus the number of 
+                                clients that inflowed into your system during the 
+                                period. There are two views for this chart: the 
+                                Summary Chart view and the Detail Chart view. Both 
+                                views show the total number of clients active in 
+                                the system at the start and end of the period and 
+                                whether they are homeless at that time or housed 
+                                (and still receiving assistance).</p>
                                 
                                 <p>The Summary Chart shows the inflow and outflow 
                                 of clients that occurred throughout the period. 
                                 The Detail Chart breaks down inflow and outflow 
-                                into separate categories. Inflow is shown across 
-                                three categories: Newly Homeless, Returned from 
-                                Permanent Destination, or Re-engaged from Temporary 
-                                or Unknown Destination. Outflow is also divided 
-                                into three categories: Permanent Destination, 
-                                Non-Permanent Destination, and Inactive.</p>
+                                into several categories.</p>
+                                
+                                <ul>
+                                  <li><b>Inflow</b> is categorized into three groups: 
+                                  “Newly Homeless,” “Returned from Permanent,” and 
+                                  “Re-engaged from Non-Permanent.”</li>
+                                  <li><b>Outflow</b> is divided into three categories: 
+                                  “Exited, Non-Permanent,” “Exited, Non-Permanent 
+                                  Destination,” and “Inactive.”</li>
+                                </ul>
                                 
                                 <p>The System Flow chart is read from 
                                 left to right. The Total Change value represents 
@@ -1199,36 +1204,38 @@ dashboardPage(
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
-                                <p>The Client System Status chart shows the end 
-                                of year system status of the clients who were active 
-                                in your system at the start of the period. This 
-                                chart helps you identify the proportion of clients 
-                                that ended the period as (1) homeless or in non-permanent 
-                                housing versus (2) housed or in permanent housing.
-                                The client universe for this chart is the number 
-                                of clients active in the system at the start of the reporting period.
-                                This chart does not include clients who inflowed 
-                                into your system after the start of the reporting period.</p>
+                                <p>The Client System Status Chart shows the end-of-year 
+                                housing status of the clients that were active in 
+                                your homeless response system at the start of the 
+                                period. This chart helps you identify the proportion 
+                                of clients that ended the period as (1) homeless 
+                                or (2) housed or in permanent housing. The client 
+                                universe for this chart is the number of clients 
+                                active in your system at the start of the report 
+                                period. This chart does not include clients that 
+                                inflowed into your system after the start of the 
+                                report period.</p>
                                 
                                 <p>The left-hand bar labeled “Period Start” in the 
                                 chart shows the status of clients active/enrolled 
-                                in your system at the start of the period. Clients 
+                                in your system at the start of the period; clients 
                                 are identified as either “Homeless” or “Housed.” 
                                 The right-hand bar labeled “Period End” in the chart 
                                 shows the status of these clients at the end of 
                                 the period. Clients are categorized into five system 
-                                statuses at the end of the period: “Enrolled, Homeless,” 
-                                “Enrolled, Housed,” “Exited, Non-Permanent,” “Exited, Permanent,” 
-                                and “Inactive.” The chart depicts the flow of these 
-                                clients from their status at the start of the period 
-                                to their system status at the end of the period 
-                                through pathways that connect the two bars together. 
-                                The width of each pathway represents the proportion 
-                                of clients that took that pathway. Meaning, the 
-                                thicker the pathway, the larger proportion of 
-                                clients that took that pathway. The Total count 
-                                at the top of this chart is equal to the Active 
-                                at Start total on the System Flow chart.</p>
+                                statuses at the end of the period: “Exited, Non-Permanent,” 
+                                “Enrolled, Homeless,” “Inactive,” “Exited, Permanent,” 
+                                and “Enrolled, Housed.”</p>
+                                
+                                <p>In the area of the figure between the two bars, 
+                                the Client System Status Chart depicts the change 
+                                of these clients from their status at the start 
+                                of the period to their status at the end of the 
+                                period through visible linkages that connect the 
+                                two bars. The width of each linkage represents the 
+                                proportion of clients that make up that linkage. 
+                                Meaning, the thicker the linkage, the larger proportion 
+                                of clients it represents.</p>
                                 
                                 <h4>Interpretation Tips</h4>
                                 <p>This section provides general tips on how to 
@@ -1329,52 +1336,64 @@ dashboardPage(
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
-                                <p>The System Demographics chart 
-                                shows the demographic make-up of your homeless system 
-                                and highlights the most prevalent relationships 
-                                between demographic cross sections.
+                                <p>The System Demographics Chart shows the demographic 
+                                make-up of your homeless system and highlights 
+                                important trends among various demographic groups. 
                                 The client universe for this chart is the number 
-                                of clients identified as active in the system at 
-                                the start of the reporting period plus the number 
-                                of clients who inflowed into the system.</p>
+                                of clients identified as active in your system at 
+                                the start of the report period plus the number of 
+                                clients that inflowed into your system.</p>
                                 
-                                <p>You can select up to two demographic categories 
-                                using the checkboxes above the chart. To change 
+                                <p>Under the chart tab are six demographic categories 
+                                you can choose from: Age, Domestic Violence Status, 
+                                Gender, All Races/Ethnicities, a second race/ethnicity 
+                                option, and Veteran Status. Please note, the second 
+                                race/ethnicity option differs for each Gender and 
+                                Race/Ethnicity Methodology Type selection you made 
+                                earlier on the Filter Menu.</p>
+                                
+                                <p>For a simple count of totals within a demographic 
+                                category, select only one category. To see the 
+                                intersection of two demographic categories, select 
+                                both categories to create a crosstab chart. To change 
                                 your crosstab selection, uncheck at least one of 
-                                your previous selections before selecting new categories.  
-                                For a simple count of totals within a demographic category, select 
-                                just that category. </p>
+                                your previous selections before selecting a new 
+                                category. Please note that you can only select one 
+                                race/ethnicity category to display in the chart 
+                                at a time.</p>
                                 
-                                <p>To see the intersection of two demographic categories, 
-                                select two categories. This creates a crosstab chart 
-                                where each cell in the chart is a unique combination 
-                                of demographic characteristics. The demographic 
-                                category with the longest labels will always appear 
-                                on the left of the chart as rows. For example, if 
+                                <p>Each cell in the chart is a unique combination 
+                                of demographic characteristics. For example, if 
                                 you selected Age and Veteran Status, a unique demographic 
-                                combination would be “25-34” and “Non-Veteran/Unknown.” 
+                                combination would be “25-34” and “Non-Veteran.” 
                                 Any cell with a count is shaded. The darker the 
                                 color in a cell, the greater the value of that cell.</p>
                                 
                                 <h4>Data Suppression</h4>
-                                <p>Any value less than 11 is suppressed, including totals.
-                                If there is only one suppressed value within a row 
-                                or column, the next highest value is suppressed.
-                                All suppressed values are represented by *** in the chart.</p>
+                                <p>Additional levels of data suppression apply to 
+                                the System Demographics Chart.</p>
                                 
-                                <p>The chart will not display in the following
-                                scenarios:</p>
-                                
-                                <ol>
-                                  <li>If the total number of clients in the chart is 
-                                less than 11</li>
+                                <ul>
+                                  <li>Any value less than 11 is suppressed, including totals.</li>
+                                  <li>If there is only one suppressed value within 
+                                  a row or column, the next highest value is also suppressed.</li>
                                   <li>If all individual cells in the chart have 
-                                  values of less than 11</li>
-                                </ol>
+                                  values of less than eleven (11), the chart will not display.</li>
+                                </ul>
                                 
-                                <p>When this happens, you may either need to broaden your 
-                                filter selections or upload a larger dataset to 
-                                ensure there is enough data to view the chart.</p>")
+                                <p>All suppressed values are represented by *** in the chart.</p>
+                                
+                                <p>Please note that while data can be suppressed 
+                                in the System Demographics chart in Eva and in its 
+                                image download, the data in the chart’s data download 
+                                will not be suppressed. Be careful how you save 
+                                and share the tabular export. With smaller numbers, 
+                                clients can become more identifiable in the data. 
+                                Before you share the Excel export, feel free to modify, 
+                                add, or remove anything as you see fit to preserve 
+                                client anonymity.</p>
+                                
+                                ")
                   )
                 ),
                 downloadButton("sys_comp_download_btn", "Data Download"),
