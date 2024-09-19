@@ -260,7 +260,7 @@ syso_race_ethnicity_excl <- list(
 
 syso_veteran_pops <- list(
   "Veteran" = "Veteran",
-  "Non-Veteran/Unknown" = "NonVeteran"
+  "Non-Veteran" = "NonVeteran"
 )
 
 syso_dv_pops <- list(
