@@ -356,7 +356,7 @@ inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
 
 sys_comp_selection_choices = c(
   "Age", 
-  "Domestic Violence",
+  "Domestic Violence Status",
   "Gender",
   # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launc
   "All Races/Ethnicities",

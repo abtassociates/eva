@@ -46,7 +46,7 @@ get_var_cols <- function() {
       "Age" = "AgeCategory",
       "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
       "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-      "Domestic Violence" = "DomesticViolenceCategory",
+      "Domestic Violence Status" = "DomesticViolenceCategory",
       "Gender" = unlist(
         syso_gender_cats(input$methodology_type) %>% discard_at("All Genders")
       ),
@@ -100,17 +100,17 @@ get_sys_comp_plot_df <- function() {
   # mutate(pct = (n / sum(n, na.rm = TRUE)))
   
   # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
-  if ("Domestic Violence" %in% input$system_composition_selections) {
+  if ("Domestic Violence Status" %in% input$system_composition_selections) {
     dv_totals <- freqs %>%
-      filter(`Domestic Violence` %in% c("DVFleeing", "DVNotFleeing")) %>%
+      filter(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
       group_by(!!sym(
         ifelse(
-          input$system_composition_selections[1] == "Domestic Violence",
+          input$system_composition_selections[1] == "Domestic Violence Status",
           input$system_composition_selections[2],
           input$system_composition_selections[1]
         )
       )) %>%
-      summarize(`Domestic Violence` = "DVTotal",
+      summarize(`Domestic Violence Status` = "DVTotal",
                 n = sum(n, na.rm = TRUE)) #,
                 # pct = sum(pct, na.rm = TRUE))
     freqs <- bind_rows(freqs, dv_totals)
@@ -128,7 +128,7 @@ get_selection_cats <- function(selection) {
     "Age" = syso_age_cats,
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-    "Domestic Violence" = syso_dv_pops,
+    "Domestic Violence Status" = syso_dv_pops,
     # Update Veteran status codes to 1/0, because that's how the underlying data are
     # we don't do that in the original hardcodes.R list 
     # because the character versions are needed for the waterfall chart
@@ -199,11 +199,11 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
     plot_df <- as.data.frame(table(comp_df[[var_col]]))
     names(plot_df) <- c(selection, "n")
     
-    if(input$system_composition_selections == "Domestic Violence") {
+    if(input$system_composition_selections == "Domestic Violence Status") {
       plot_df <- plot_df %>% bind_rows(tibble(
-        `Domestic Violence` = "DVTotal",
+        `Domestic Violence Status` = "DVTotal",
         n = sum(plot_df %>% 
-          filter(`Domestic Violence` != "NotDV") %>%
+          filter(`Domestic Violence Status` != "NotDV") %>%
           pull(n), na.rm = TRUE)))
     }
   }
@@ -269,7 +269,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
         labels = str_wrap(
           rev(selection_cats1_labels), 
           width = ifelse(
-            selection == "Domestic Violence",
+            selection == "Domestic Violence Status",
             30,
             60
           )),
