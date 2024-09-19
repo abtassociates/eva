@@ -116,12 +116,12 @@ dashboardPage(
               <p><b>Eva</b> is an <a href = 'https://github.com/abtassociates/eva'
               target= '_blank' rel='noopener noreferrer'>open-source</a>
               project intended for local use by HMIS Administrators in Continuums
-              of Care (CoCs) around the U.S. and its territories. Eva is designed
-              to help you assess the accuracy and completeness of the data within
-              your HMIS. In future iterations it will also assist communities in
-              analyzing HMIS performance data, including coordinated entry, if 
-              your community utilizes HMIS for this purpose. Use of this tool is
-              not required by HUD.</p>
+              of Care (CoCs) around the U.S. and its territories. Eva is designed 
+              to help you (1) assess the accuracy and completeness of the data within 
+              your HMIS, and (2) understand your homeless response system’s flow 
+              and performance. Using Eva does not result in reporting or sharing 
+              data with HUD and use of Eva is not required by HUD.</p>
+              
               <p>Eva is a web-based tool built with R Shiny. This means:</p>
               <ul>
                 <li>Eva will only access your CoC&rsquo;s data during your session, 
@@ -286,34 +286,68 @@ dashboardPage(
                  <h4>Upload hashed HMIS CSV Export</h4>
                  
               <p>To upload your hashed HMIS CSV Export, click the \'Browse\'
-              button. Once you find the zip file on your computer, select it 
-              and click \'Open\'. Your file will begin uploading. Eva will check 
-              to determine if the export is hashed. If it is not, Eva will reject 
-              the file with an error message, and clear Eva's memory until you 
-              upload a hashed HMIS CSV Export.</p>
+              button. Once you find the zip file on your computer, click on it to select it, 
+              and click \'Open\' to begin the upload. Eva might take a few moments 
+              to process your selected file. Eva will first check to determine if 
+              the export is hashed. If it is not, Eva will reject the file with 
+              an error message, and clear Eva's memory. Eva will continue to do 
+              this until you upload a hashed HMIS CSV Export.</p>
               
               <h4>HMIS CSV Export File Structure Analysis</h4>
-              <p>Once Eva verifies that your export is hashed, it will check
-              that the files have all the right names, columns, data types, and
-              allowable values. Eva will generate data quality issues that are
-              categorized as high priority errors, general errors, and warnings.
-              If there are any high priority errors that prevent Eva from
-              functioning, Eva will reject your upload, stop processing the export,
-              and clear Eva's memory.</p>
-              <p>All issues will display in the HMIS CSV File Structure Analysis
-              panel, where you can download the details, even if the file
-              was rejected. Users should contact their vendor to resolve high 
-              priority errors identified in the HMIS CSV Export File Structure
-              Analysis, as well as any other structural issues which you feel need
-              to be corrected. Not all structural issues found in this analysis will 
-              prevent the data from being accepted for analysis, so they may not 
-              require immediate attention. Once your vendor has addressed any
-              high priority structural errors, you can attempt another upload.</p>
+              <p>After confirming your export is hashed, Eva will review and process 
+              the file structure of your upload. The File Structure Analysis assesses 
+              the structural components of the uploaded .zip file and determines 
+              if it meets Eva’s file structure requirements, such as if the files 
+              have all the right names, columns, data types, and allowable values etc.</p>
               
-              <p>Once you have uploaded a hashed and structurally sound zip file,
-              you will see a confirmation that your upload was successful, the date
-              range of the files you uploaded, plus the date your Export was 
-              downloaded from your HMIS.
+              <p>Once your upload is processed and Eva has finished assessing the 
+              file structure integrity of your upload, Eva will provide a pop-up 
+              message alerting you of your upload status. You can have either a 
+              successful upload or an unsuccessful upload based on the structural 
+              integrity of your HMIS CSV export. The key difference between a successful 
+              upload and an unsuccessful upload is if the upload has any High Priority 
+              File Structure Errors.</p>
+              
+              <p>While any error identified during the File Structure Analysis represent 
+              components in the uploaded HMIS CSV export file that do not meet the 
+              most recent <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
+              target= '_blank' rel='noopener noreferrer'>HMIS CSV Format Specifications</a>, 
+              there are some file structural errors that are more relevant to the 
+              functionality of Eva.</p>
+              
+              <ul>
+                <li><b>High Priority File Structure Errors</b> are file structure issues 
+                that will cause Eva to not work.</li>
+                <li><b>General File Structure Errors</b> are file structure issues that 
+                will not impact Eva’s ability to work, but do not meet HMIS CSV 
+                format specifications.</li>
+              </ul>
+              
+              <p>If Eva identifies any High Priority File Structure Errors during 
+              the File Structure Analysis that prevent Eva from functioning, Eva 
+              will reject your upload and stop processing the export. You will thus 
+              not be able to assess the data quality of your upload or analyze the 
+              system performance of your homeless response system. For both successful 
+              and unsuccessful uploads, all identified file structure errors will 
+              display in the HMIS CSV File Structure Analysis panel, where you can 
+              download the details.</p>
+              
+              <p>It is essential that you contact your HMIS vendor to resolve all 
+              High Priority File Structure Errors identified in the HMIS CSV Export 
+              File Structure Analysis, as well as any other structural issues which 
+              you feel need to be corrected. Not all structural issues found in 
+              this analysis will prevent the data from being accepted for analysis, 
+              so they may not require immediate attention. Once your vendor has 
+              addressed any High Priority File Structure Errors, you can attempt 
+              another upload.</p>
+              
+              <p>Once you have uploaded a hashed and structurally sound .zip file, 
+              you will see a confirmation that your upload was successful, the date 
+              range of the files you uploaded, plus the date your Export was downloaded 
+              from your HMIS. You will then be able to assess the data quality of 
+              your upload and analyze the system performance of your homeless response system.</p>
+              
+              
               ")
           )),
           fluidRow(box(
@@ -368,13 +402,15 @@ dashboardPage(
             collapsed = TRUE,
             width = 12,
             HTML("
-              <p>To make Eva reporting more useful at the local level, you can
-              adjust the local settings to better analyze your data in a
-              way that is meaningful to your CoC. To edit these, click to expand the 
-              relevant box below. If you do not edit them, the reporting will 
-              use the defaults listed. These defaults do not imply any HUD 
-              recommendations. Please read the description in the
-              Edit Local Settings tab for more information.</p>
+              <p>To make Eva data quality analysis more useful at the local level, 
+              you can adjust the local settings to better analyze your data in a 
+              way that is meaningful to your CoC. To edit these, click to expand 
+              the relevant box below. If you do not edit them, the Assess Data Quality 
+              and View Client Counts pages will use the defaults listed. Please 
+              note, these local settings do not impact the System Performance Overview page.</p>
+              
+              <p>These defaults do not imply any HUD recommendations. Please read 
+              the description in the Edit Local Settings tab for more information.</p>
               ")
           ),
           box(
