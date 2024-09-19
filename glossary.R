@@ -356,7 +356,6 @@ output$glossary <- renderDataTable({
     gloss,
     rownames = FALSE,
     options = list(
-      pagelength = 25,
       order = list(list(0, 'asc'), list(1, 'asc'))
     )
   )

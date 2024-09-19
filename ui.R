@@ -1423,7 +1423,7 @@ dashboardPage(
             # collapsible = TRUE,
             # collapsed = TRUE,
             width = 12,
-            dataTableOutput("glossary")
+            DTOutput("glossary")
           )
         )
       ),
