@@ -1354,7 +1354,7 @@ dashboardPage(
                                 category with the longest labels will always appear 
                                 on the left of the chart as rows. For example, if 
                                 you selected Age and Veteran Status, a unique demographic 
-                                combination would be “25-34” and “Non-Veteran.” 
+                                combination would be “25-34” and “Non-Veteran/Unknown.” 
                                 Any cell with a count is shaded. The darker the 
                                 color in a cell, the greater the value of that cell.</p>
                                 
