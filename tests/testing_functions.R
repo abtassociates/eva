@@ -1,7 +1,7 @@
 customDownload <- function(app, downloadHandler, fname) {
   print(paste("downloading",downloadHandler))
-  app$get_download(downloadHandler, paste0(fname, ".xlsx"))
-  file.remove(paste0(fname,".xlsx"))
+  app$get_download(downloadHandler, fname)
+  file.remove(fname)
 }
 initially_invalid_test_script <- function(test_script_name, test_dataset) {
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
