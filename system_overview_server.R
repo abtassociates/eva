@@ -130,7 +130,7 @@ toggle_sys_components <- function(cond, init=FALSE) {
       shinyjs::runjs(
         glue("
             document.getElementById('sys_{tab}_subtabs')
-              .insertAdjacentHTML('beforeEnd', '<li id=\"sys_{tab}_download_tab\"></li>');
+              .insertAdjacentHTML('beforeEnd', '<li class=\"syso_download_tab\" id=\"sys_{tab}_download_tab\"></li>');
             $('#sys_{tab}_download_btn').appendTo('#sys_{tab}_download_tab')
               .toggle('{cond}' == 'TRUE');
             $('#sys_{tab}_download_btn_ppt').appendTo('#sys_{tab}_download_tab')
