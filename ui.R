@@ -865,8 +865,8 @@ dashboardPage(
                 across all HMIS Continuum projects except homeless prevention projects.</p>
                 
                 <p>There are three system performance chart types on this page: 
-                the System Flow chart, Client System Status chart, and Composition 
-                of All Served in Period chart. Explore each of the charts using 
+                the System Flow chart, Client System Status chart, and System Demographics 
+                chart. Explore each of the charts using 
                 Chart Tabs beneath the Filters Menu. Each Chart Tab has a “Chart” 
                 subtab, where the chart lives, and an “Information” subtab. The 
                 Information subtab includes a “Chart Overview” section that provides 
@@ -920,8 +920,8 @@ dashboardPage(
                 is enough data to view the chart. A chart that is not displayed 
                 cannot be exported in Excel or PowerPoint.</p>
                 
-                <p>The data in the tabular version of a chart’s export will not be 
-                suppressed. Be careful how you save and share the tabular export. 
+                <p>The values in a chart's data download will not be 
+                suppressed. Be careful how you save and share the data download. 
                 With smaller numbers, clients can become more identifiable in the 
                 data. Before you share the Excel export, feel free to modify, add, 
                 or remove anything as you see fit to preserve client anonymity.</p>
@@ -1184,8 +1184,8 @@ dashboardPage(
                                 </table>")
                   )
                 ),
-                downloadButton("sys_inflow_outflow_download_btn", "Download"),
-                downloadButton("sys_inflow_outflow_download_btn_ppt", "Download PPT")
+                downloadButton("sys_inflow_outflow_download_btn", "Data Download"),
+                downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
               ),
               tabPanel(
                 id = "syso_systemstatus",
@@ -1290,15 +1290,15 @@ dashboardPage(
                                 </table>")
                   )
                 ),
-                downloadButton("sys_status_download_btn", "Download"),
-                downloadButton("sys_status_download_btn_ppt", "Download PPT"),
+                downloadButton("sys_status_download_btn", "Data Download"),
+                downloadButton("sys_status_download_btn_ppt", "Image Download"),
                 width = 12
               ),
               tabPanel(
                 id = "syso_composition",
                 side = "left",
                 selected = "Chart",
-                title = "Composition of All Served",
+                title = "System Demographics",
                 tabBox(
                   width = 12,
                   id = "sys_comp_subtabs",
@@ -1314,7 +1314,7 @@ dashboardPage(
                                  change your crosstab selection, uncheck at least 
                                  one of your previous selections before selecting 
                                  new categories. Note that you can only select one Race/Ethnicity 
-                                 group at a time to display in the chart."
+                                 category to display in the chart at a time."
                                )),
                                checkboxGroupInput(
                                  "system_composition_selections",
@@ -1331,7 +1331,7 @@ dashboardPage(
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
-                                <p>The Composition of All Served chart 
+                                <p>The System Demographics chart 
                                 shows the demographic make-up of your homeless system 
                                 and highlights the most prevalent relationships 
                                 between demographic cross sections.
@@ -1354,7 +1354,7 @@ dashboardPage(
                                 category with the longest labels will always appear 
                                 on the left of the chart as rows. For example, if 
                                 you selected Age and Veteran Status, a unique demographic 
-                                combination would be “25-34” and “Non-Veteran.” 
+                                combination would be “25-34” and “Non-Veteran/Unknown.” 
                                 Any cell with a count is shaded. The darker the 
                                 color in a cell, the greater the value of that cell.</p>
                                 
@@ -1379,8 +1379,8 @@ dashboardPage(
                                 ensure there is enough data to view the chart.</p>")
                   )
                 ),
-                downloadButton("sys_comp_download_btn", "Download"),
-                downloadButton("sys_comp_download_btn_ppt", "Download PPT"),
+                downloadButton("sys_comp_download_btn", "Data Download"),
+                downloadButton("sys_comp_download_btn_ppt", "Image Download"),
                 width = 12
               )
             )
