@@ -85,7 +85,8 @@ enrollment_prep <- EnrollmentAdjustAge %>%
   select(-ContinuumProject)
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
 # check that
-# enrollment_prep %>% nrow() == EnrollmentAdjust %>% filter(ContinuumProject == 1) %>% nrow()
+# enrollment_prep %>%
+#   nrow() == EnrollmentAdjust %>% filter(ContinuumProject == 1) %>% nrow()
 # This aims to add demographic data that lives in various other tables added
 # to the enrollment data *without changing the granularity*
 
@@ -122,7 +123,7 @@ hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
     "PY",
     fifelse(
       HouseholdTypeMutuallyExclusive == "AO" & between(max(AgeAtEntry), 0, 24),
-      "UY", # THIS SHOULD BE "UY" (Unaccompanied Youth). YYA = PY + UY + CO
+      "UY", # UY = Unaccompanied Youth. YYA = PY + UY + CO
       as.character(HouseholdTypeMutuallyExclusive)
     )
   ),
@@ -130,7 +131,8 @@ hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
 ), by = HouseholdID]
 
 # Select required columns
-hh_adjustments <- as.data.frame(hh_adjustments[, .(EnrollmentID, CorrectedHoH, HouseholdType)])
+hh_adjustments <-
+  as.data.frame(hh_adjustments[, .(EnrollmentID, CorrectedHoH, HouseholdType)])
 
 # keeps original HoH unless the HoH is younger than 18 or if there are mult hohs
 # if they are younger than 18, or if there are mult hohs, it will take the
@@ -417,8 +419,10 @@ enrollment_categories <- enrollment_prep_hohs %>%
 #               lh_prior_livingsituation) |
 #             (between(EntryDate, ReportEnd() - days(90), ReportEnd()) &
 #               lh_prior_livingsituation)))) &
-#       (!ProjectType %in% c(out_project_type, sso_project_type, other_project_project_type, day_project_type) |
-#         (ProjectType %in% c(out_project_type, sso_project_type, other_project_project_type, day_project_type) &
+#       (!ProjectType %in% c(out_project_type,
+#           sso_project_type, other_project_project_type, day_project_type) |
+#         (ProjectType %in% c(out_project_type, sso_project_type,
+#           other_project_project_type, day_project_type) &
 #           (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 60) |
 #             EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60) |
 #             (between(EntryDate, ReportStart() - days(60), ReportStart()) &
@@ -439,7 +443,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
 #       InvolvedInOverlapStart = straddles_start & StraddlesStart > 1,
 #       InvolvedInOverlapEnd = straddles_end & StraddlesEnd > 1,
 #       ordinal = rowid(PersonalID),
-#       days_to_next_entry = difftime(shift(EntryDate, type = "lead"), ExitAdjust, units = "days"),
+#       days_to_next_entry = difftime(shift(EntryDate, type = "lead"),
+#           ExitAdjust, units = "days"),
 #       days_since_previous_exit = difftime(EntryDate, shift(ExitAdjust), units = "days"),
 #       next_enrollment_project_type = shift(ProjectType, type = "lead"),
 #       previous_enrollment_project_type = shift(ProjectType)
@@ -489,7 +494,8 @@ dv_flag <- as.data.table(HealthAndDV)[
   .(DomesticViolenceCategory = 
       fifelse(max(DomesticViolenceSurvivor, na.rm = TRUE) == 1 & 
                 max(CurrentlyFleeing, na.rm = TRUE) == 1, "DVFleeing",
-              fifelse(max(DomesticViolenceSurvivor, na.rm = TRUE) == 1, "DVNotFleeing", "NotDV"))
+              fifelse(max(DomesticViolenceSurvivor, na.rm = TRUE) == 1,
+                      "DVNotFleeing", "NotDV"))
   ), by = PersonalID]
 
 client_categories <- Client %>%
@@ -510,8 +516,10 @@ client_categories <- Client %>%
     Man = if_else(Man == 1 & !is.na(Man), 1, 0),
     NonBinary = if_else(NonBinary == 1 & !is.na(NonBinary), 1, 0),
     Transgender = if_else(Transgender == 1 & !is.na(Transgender), 1, 0),
-    CulturallySpecific = if_else(CulturallySpecific == 1 & !is.na(CulturallySpecific), 1, 0),
-    DifferentIdentity = if_else(DifferentIdentity == 1 & !is.na(DifferentIdentity), 1, 0),
+    CulturallySpecific =
+      if_else(CulturallySpecific == 1 & !is.na(CulturallySpecific), 1, 0),
+    DifferentIdentity =
+      if_else(DifferentIdentity == 1 & !is.na(DifferentIdentity), 1, 0),
     Questioning = if_else(Questioning == 1 & !is.na(Questioning), 1, 0),
     # exclusive logic
     TransgenderExclusive = if_else(Transgender == 1, 1, 0),
@@ -873,7 +881,11 @@ universe <- reactive({
     # get rid of rows where the enrollment is neither a lookback enrollment,
     # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
     filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
-    mutate(order_ees = case_when(lecr == TRUE ~ 0, eecr == TRUE ~ 1, TRUE ~ lookback + 1)) %>%
+    mutate(
+      order_ees = case_when(
+        lecr == TRUE ~ 0,
+        eecr == TRUE ~ 1,
+        TRUE ~ lookback + 1)) %>%
     group_by(PersonalID) %>%
     arrange(desc(order_ees), .by_group = TRUE) %>%
     mutate(
