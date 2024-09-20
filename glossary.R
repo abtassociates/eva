@@ -170,11 +170,7 @@ output$glossary <- renderDataTable({
     "Special Populations",
     "A single-select demographic filter. Eva allows users to filter system performance 
     by special populations. A special population is a group of people that share 
-    a demographic or system utilization characteristic. Clients may be counted in 
-    more than one special population group but can only have one status within a 
-    specific special population group. For example, a client could be counted under 
-    both Veteran and Domestic Violence Survivor: Reported Currently Fleeing. But 
-    a client cannot be counted under both Veteran and Non-Veteran.",
+    a demographic or system utilization characteristic.",
     
     "System Performance Filters",
     "All Populations",
@@ -197,45 +193,6 @@ output$glossary <- renderDataTable({
     "This Special Populations status only includes adult clients (18 years or older) 
     who either (1) indicated that they have not been on active duty in the armed 
     forces of the United States, or (2) whose Veteran Status was recorded as “Client doesn’t know,” 
-    “Client prefers not to answer,” or “Data not collected” in HMIS.",
-    
-    "System Performance Filters",
-    "Domestic Violence Survivor Status",
-    "Domestic Violence (DV) Survivor Status of Heads of Household (HoH) and adult 
-    clients (not applicable for children who are not HoH) based on the response 
-    to HMIS data element 4.11 Domestic Violence at project entry. There are four 
-    Domestic Violence Survivor Status options a user can filter by: Domestic 
-    Violence Survivor: Currently Fleeing, Domestic Violence Survivor: Not Currently 
-    Fleeing, Domestic Violence Survivor: Total, and No Domestic Violence Indicated. 
-    Note: This data element is collected for all project types but may be limited 
-    by funding source and does not include clients who are being served by Victim 
-    Service Providers (VSPs) who are prohibited from contributing client level 
-    data to HMIS. Therefore, it should not be considered a comprehensive count.",
-    
-    "System Performance Filters",
-    "Domestic Violence Survivor: Not Currently Fleeing",
-    "This Special Populations status only includes clients who identified that 
-    they are a survivor of domestic violence, but they were NOT currently fleeing 
-    domestic violence or had an unknown/missing fleeing status, as recorded in HMIS 
-    at the time of project entry.",
-    
-    "System Performance Filters",
-    "Domestic Violence Survivor: Currently Currently Fleeing",
-    "This Special Populations status only includes clients who identified that they 
-    are (1) a survivor of domestic violence, and (2) were currently fleeing domestic 
-    violence, as recorded in HMIS at the time of project entry.",
-    
-    "System Performance Filters",
-    "Domestic Violence Survivor: Total",
-    "This Special Populations status includes all clients who identified that they 
-    are a survivor of domestic violence, as recorded in HMIS at the time of project entry.",
-    
-    "System Performance Filters",
-    "No Domestic Violence Indicated",
-    "This Special Populations status only includes people who either (1) did not 
-    identify that they are a survivor of domestic violence, as recorded in HMIS 
-    at the time of project entry or (2) whose response to whether they are a survivor 
-    of domestic violence at the time of project entry was recorded as “Client doesn’t know,” 
     “Client prefers not to answer,” or “Data not collected” in HMIS.",
     
     "System Performance Filters",
