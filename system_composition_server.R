@@ -46,7 +46,7 @@ get_var_cols <- function() {
       "Age" = "AgeCategory",
       "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
       "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-      "Domestic Violence" = "DomesticViolenceCategory",
+      #"Domestic Violence" = "DomesticViolenceCategory", #VL 9/20/24: Not including for launch
       "Gender" = unlist(
         syso_gender_cats(input$methodology_type) %>% discard_at("All Genders")
       ),
@@ -128,13 +128,13 @@ get_selection_cats <- function(selection) {
     "Age" = syso_age_cats,
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-    "Domestic Violence" = syso_dv_pops,
+    #"Domestic Violence" = syso_dv_pops, VL 9/20/24: Not including for launch
     # Update Veteran status codes to 1/0, because that's how the underlying data are
     # we don't do that in the original hardcodes.R list 
     # because the character versions are needed for the waterfall chart
     "Veteran Status" = {
       syso_veteran_pops$Veteran <- 1
-      syso_veteran_pops$`Non-Veteran` <- 0
+      syso_veteran_pops$`Non-Veteran/Unknown` <- 0
       syso_veteran_pops
     }
     # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
