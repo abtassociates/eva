@@ -61,6 +61,13 @@ remove_non_applicables <- function(.data) {
     # remove children - since Vets can't be children
     .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")))
   } 
+  else if ("Domestic Violence status" %in% input$system_composition_selections) {
+    # filter to just HoHs and Adults
+    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
+  } else {
+    .data
+  }
+}
 
 get_sys_comp_plot_df <- function() {
   # named list of all selected options and
@@ -69,7 +76,12 @@ get_sys_comp_plot_df <- function() {
   
   # get dataset underlying the freqs we will produce below
   comp_df <- sys_df_people_universe_filtered_r() %>%
-    select(PersonalID, unname(var_cols[[input$system_composition_selections[1]]]), unname(var_cols[[input$system_composition_selections[2]]]))
+    remove_non_applicables() %>%
+    select(
+      PersonalID, 
+      unname(var_cols[[input$system_composition_selections[1]]]), 
+      unname(var_cols[[input$system_composition_selections[2]]]))
+    
   
   # Function to process each combination of the variables underlying the all-served
   # selections E.g. if Age and Gender (and Exclusive methopdology type),

@@ -835,7 +835,7 @@ enrollment_categories_reactive <- reactive({
         (input$syso_spec_pops %in% c("None", "Veteran", "NonVeteran") |
            (input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV") |
            (input$syso_spec_pops == "NotDV" & DomesticViolenceCategory == "NotDV") |
-           input$syso_spec_pops == DomesticViolenceCategory
+           (input$syso_spec_pops == DomesticViolenceCategory & (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1))
            )
            ) %>%
     select(
