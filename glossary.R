@@ -12,14 +12,14 @@ output$glossary <- renderDataTable({
     "System Flow Chart",
     "Homeless (Active at Start)",
     "This system status indicates a client was actively experiencing homelessness 
-    in the system as of the start of the reporting period. This includes clients 
+    in the system as of the start of the report period. This includes clients 
     who were enrolled in a permanent housing project, but who did not have a Housing 
     Move-In Date before or on the report start date.",
     
     "System Flow Chart",
     "Housed (Active at Start)",
     "This system status indicates a client was actively housed in the system as 
-    of the start of the reporting period. All clients with this status were enrolled 
+    of the start of the report period. All clients with this status were enrolled 
     in a permanent housing project with a Housing Move-In Date either before or 
     on the report start date.",
     
@@ -160,7 +160,7 @@ output$glossary <- renderDataTable({
     data by age group. Eva calculates age based on a client’s date of birth and 
     their enrollment entry date. This is the client’s “age at enrollment entry,” 
     and the number is rounded down to the whole number (i.e., 17.9 would become 17). 
-    For clients with multiple enrollments within the reporting period, Eva sets 
+    For clients with multiple enrollments within the report period, Eva sets 
     the client’s age to be the oldest “age at enrollment entry.” Age groups included 
     are: 0 to 12, 13 to 17, 18 to 21, 22 to 24, 25 to 34, 35 to 44, 45 to 54, 55 
     to 64, 65 to 74, 75 and older, and unknown. Users can select multiple age groups 
@@ -170,11 +170,7 @@ output$glossary <- renderDataTable({
     "Special Populations",
     "A single-select demographic filter. Eva allows users to filter system performance 
     by special populations. A special population is a group of people that share 
-    a demographic or system utilization characteristic. Clients may be counted in 
-    more than one special population group but can only have one status within a 
-    specific special population group. For example, a client could be counted under 
-    both Veteran and Domestic Violence Survivor: Reported Currently Fleeing. But 
-    a client cannot be counted under both Veteran and Non-Veteran.",
+    a demographic or system utilization characteristic.",
     
     "System Performance Filters",
     "All Populations",
@@ -197,45 +193,6 @@ output$glossary <- renderDataTable({
     "This Special Populations status only includes adult clients (18 years or older) 
     who either (1) indicated that they have not been on active duty in the armed 
     forces of the United States, or (2) whose Veteran Status was recorded as “Client doesn’t know,” 
-    “Client prefers not to answer,” or “Data not collected” in HMIS.",
-    
-    "System Performance Filters",
-    "Domestic Violence Survivor Status",
-    "Domestic Violence (DV) Survivor Status of Heads of Household (HoH) and adult 
-    clients (not applicable for children who are not HoH) based on the response 
-    to HMIS data element 4.11 Domestic Violence at project entry. There are four 
-    Domestic Violence Survivor Status options a user can filter by: Domestic 
-    Violence Survivor: Currently Fleeing, Domestic Violence Survivor: Not Currently 
-    Fleeing, Domestic Violence Survivor: Total, and No Domestic Violence Indicated. 
-    Note: This data element is collected for all project types but may be limited 
-    by funding source and does not include clients who are being served by Victim 
-    Service Providers (VSPs) who are prohibited from contributing client level 
-    data to HMIS. Therefore, it should not be considered a comprehensive count.",
-    
-    "System Performance Filters",
-    "Domestic Violence Survivor: Not Currently Fleeing",
-    "This Special Populations status only includes clients who identified that 
-    they are a survivor of domestic violence, but they were NOT currently fleeing 
-    domestic violence or had an unknown/missing fleeing status, as recorded in HMIS 
-    at the time of project entry.",
-    
-    "System Performance Filters",
-    "Domestic Violence Survivor: Currently Currently Fleeing",
-    "This Special Populations status only includes clients who identified that they 
-    are (1) a survivor of domestic violence, and (2) were currently fleeing domestic 
-    violence, as recorded in HMIS at the time of project entry.",
-    
-    "System Performance Filters",
-    "Domestic Violence Survivor: Total",
-    "This Special Populations status includes all clients who identified that they 
-    are a survivor of domestic violence, as recorded in HMIS at the time of project entry.",
-    
-    "System Performance Filters",
-    "No Domestic Violence Indicated",
-    "This Special Populations status only includes people who either (1) did not 
-    identify that they are a survivor of domestic violence, as recorded in HMIS 
-    at the time of project entry or (2) whose response to whether they are a survivor 
-    of domestic violence at the time of project entry was recorded as “Client doesn’t know,” 
     “Client prefers not to answer,” or “Data not collected” in HMIS.",
     
     "System Performance Filters",
@@ -348,14 +305,203 @@ output$glossary <- renderDataTable({
     "All Races/Ethnicities",
     "Includes all clients, regardless of the race/ethnicity they identified as in HIMS, 
     as well as clients whose race/ethnicity is categorized as Unknown. This Race/Ethnicity 
-    filter selection is available regardless of the Methodology Type selected."
+    filter selection is available regardless of the Methodology Type selected.",
     
-  )
+    "System Performance Filters",
+    "American Indian, Alaska Native, or Indigenous alone",
+    "Includes clients who identified as only American Indian, Alaska Native, or Indigenous. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+    "Includes clients who identified as both American Indian, Alaska Native, or Indigenous and as Hispanic/Latina/e/o.This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "Asian or Asian American alone",
+    "Includes clients who identified as only Asian or Asian American. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "Asian or Asian American & Hispanic/Latina/e/o",
+    "Includes clients who identified as both Asian or Asian American and Hispanic/Latina/e/o. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "Black, African American, or African alone",
+    "Includes clients who identified as only Black, African American, or African. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "Black, African American, or African & Hispanic/Latina/e/o",
+    "Includes clients who identified as both Black, African American, or African and Hispanic/Latina/e/o. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "Middle Eastern or North African alone",
+    "Includes clients who only selected Middle Eastern or North African and no other race/ethnicity category. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "Middle Eastern or North African & Hispanic/Latina/e/o",
+    "Includes clients who identified as both Middle Eastern or North African and Hispanic/Latina/e/o. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "Native Hawaiian or Pacific Islander alone",
+    "Includes clients who identified as only Native Hawaiian or Pacific Islander. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+    "Includes clients who identified as both Native Hawaiian or Pacific Islander and Hispanic/Latina/e/o. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "White alone",
+    "Includes clients who identified as only White. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "White & Hispanic/Latina/e/o",
+    "Includes clients who identified as both White and Hispanic/Latina/e/o. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "Multi-Racial (not Hispanic/Latina/e/o)",
+    "Includes clients who identified as multiple races (2+) but not as Hispanic/Latina/e/o. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "Multi-Racial & Hispanic/Latina/e/o",
+    "Includes clients who identified as Hispanic/Latina/e/o together with two or more other races/ethnicities. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "All People of Color",
+    "Includes clients who identified as a race or ethnicity other than White. This Race/Ethnicity filter selection is listed under the Summarized section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "White Only",
+    "Includes clients who identified as White and no other race/ethnicity. This Race/Ethnicity filter selection is listed under the Summarized section of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.",
+    
+    "System Performance Filters",
+    "Race/Ethnicity (Inclusive Methodology Type)",
+    "A single-select demographic filter. Eva allows users to filter system performance by race/ethnicity categories. These categories are dependent on the Gender and Race/Ethnicity Methodology Type selection. This filter has two sections: Detailed and Summarized. Each section has different race/ethnicity categories for users to choose from. The Detailed section lists all race/ethnicity categories on their own. The Summarized section groups race/ethnicity categories together into three options: Black, African American or African and Hispanic/Latina/e/o Inclusive, Hispanic Latina/e/o Alone. When the methodology type is inclusive, each client may be counted in multiple race/ethnicity categories in the Detailed section and in multiple race/ethnicity categories in the Summarized section. All clients are also included in the All Races/Ethnicities category.",
+    
+    "System Performance Filters",
+    "American Indian, Alaska Native, or Indigenous inclusive",
+    "Includes clients who identified as American Indian, Alaska Native, or Indigenous alone or in combination with any other race/ethnicity. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Inclusive Groupings.",
+    
+    "System Performance Filters",
+    "Asian or Asian American inclusive",
+    "Includes clients who identified as Asian or Asian American alone or in combination with any other race/ethnicity. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Inclusive Groupings.", 
+    
+    "System Performance Filters",
+    "Black, African American, or African inclusive",
+    "Includes clients who identified as Black, African American, or African alone or in combination with any other race/ethnicity. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Inclusive Groupings.", 
+    
+    "System Performance Filters",
+    "Black, African American or African and Hispanic/Latina/e/o inclusive",
+    "Includes clients who identified as both Black, African American or African and Hispanic/Latina/e/o together or in combination with any other race/ethnicity. Listed under the Summarized section. This Race/Ethnicity filter selection is listed under the Summarized section of the filter dropdown list and is only available when the Methodology Type is set to Inclusive Groupings.", 
+    
+    "System Performance Filters",
+    "Hispanic/Latina/e/o alone",
+    "Includes clients who identified as only Hispanic/Latina/e/o and no other race/ethnicity. This Race/Ethnicity filter selection is listed under both the Detailed and Summarized sections of the filter dropdown list and is only available when the Methodology Type is set to Exclusive Groupings.", 
+    
+    "System Performance Filters",
+    "Hispanic Latina/e/o inclusive",
+    "Includes clients who identified as Hispanic/Latina/e/o alone or in combination with any other race/ethnicity. This Race/Ethnicity filter selection is listed under the Summarized section of the filter dropdown list and is only available when the Methodology Type is set to Inclusive Groupings.", 
+    
+    "System Performance Filters",
+    "Middle Eastern or North African inclusive",
+    "Includes clients who identified as Middle Eastern or North African alone or in combination with any other race/ethnicity. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Inclusive Groupings.", 
+    
+    "System Performance Filters",
+    "Native Hawaiian or Pacific Islander inclusive",
+    "Includes clients who identified as Native Hawaiian or Pacific Islander alone or in combination with any other race/ethnicity. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Inclusive Groupings.", 
+    
+    "System Performance Filters",
+    "White inclusive",
+    "Includes clients who identified as White alone or in combination with any other race/ethnicity. This Race/Ethnicity filter selection is listed under the Detailed section of the filter dropdown list and is only available when the Methodology Type is set to Inclusive Groupings.",
+    
+    "System Flow Chart",
+    "Total Change",
+    "Total Change is calculated by subtracting the number of clients who flowed into the system from the number of clients who flowed out of the system (Inflow – Outflow). This value can be positive or negative. A negative change value means more clients left the system than flowed into the system. A positive change value means more clients flowed into the system than left the system.",
+    
+    "System Flow Chart",
+    "Homeless (Active at Start)",
+    "This system status indicates a client was actively experiencing homelessness in the system as of the start of the report period. This includes clients who were enrolled in: (1) Emergency Shelter – Entry/Exit, Safe Haven, or Transitional Housing projects, (2) Emergency Shelter – Night-by-Night projects who have a recorded bed night within the 15-day period before the report start date, (3)	Street Outreach, Supportive Services Only, Day Shelter or Other type projects who have a Current Living Situation recorded within the 60-day period before the report start date, (4) Permanent Housing projects, either without a Housing Move-In Date or with a Housing Move-In Date after the report start date, or (5) Coordinated Entry projects who have a Current Living Situation recorded within the 90-day period before the report start date.",
+    
+    "System Flow Chart",
+    "Housed (Active at Start)",
+    "This system status indicates a client was actively housed in the system as of the start of the report period. All clients with this status were enrolled in a permanent housing project with a Housing Move-In Date before the report start date.",
+    
+    "System Flow Chart",
+    "Inflow",
+    "The number of clients that entered or flowed into the system. This status indicates a client entered a system project after the report period’s start date. This status excludes all clients who were counted as homeless or housed at the start of the report period.",
+    
+    "System Flow Chart",
+    "Newly Homeless",
+    "This inflow system status indicates a client who entered the system after the report period’s start date and who also had not been served in the system within the 24 months prior to their entry into the report period. This inflow system status is only available when a dataset with 36 months of data is uploaded to Eva.",
+    
+    "System Flow Chart",
+    "Returned from Permanent",
+    "This inflow system status indicates a client who entered the system after the report period’s start date and who had a previous exit to a permanent destination within the 24 months prior to their entry.",
+    
+    "System Flow Chart",
+    "Re-engaged form Non-Permanent",
+    "This inflow system status indicates a client who entered the system after the report period’s start date and who had a previous exit to a homeless, temporary, institutional destination or unknown destination within the 24 months prior to their entry.",
+    
+    "System Flow Chart",
+    "Inflow Unspecified",
+    "This system status indicates a client who entered the system after the report start date, but it cannot be determined if they are newly homeless because there is not enough lookback data. This inflow system status takes the place of Newly Homeless in cases where less than 36 months of data are uploaded to Eva.",
+    
+    "System Flow Chart",
+    "Outflow",
+    "The number of clients that left or flowed out of the system. This status indicates a client exited a system project after the report period’s start date and before the report period’s end date. A client cannot be counted in both outflow and active at end.",
+    
+    "System Flow Chart",
+    "Exited, Non-Permanent",
+    "This outflow system status indicates a client exited the system to a homeless, temporary, institutional, or unknown destination as defined in the HMIS Data Standards. Only the client’s last exit is counted.",
+    
+    "System Flow Chart",
+    "Exited, Permanent",
+    "This outflow system status indicates a client’s last system exit was to a permanent destination.", 
+    
+    "System Flow Chart",
+    "Inactive (Outflow)",
+    "A client is counted in inactive outflow if they ended the report period with (1) an open enrollment in an Emergency Shelter – Night-by-Night project that has not had a bed night recorded within the last 15 days of the report period, (2) an open enrollment in Street Outreach, Day Shelter, Supportive Services, and Other project type enrollments without a Current Living Situation (CLS) record within the last 60 days of the report period, or (3) an open enrollment in Coordinated Entry without a CLS record within the last 90 days of the report period.", 
+    
+    "System Flow Chart",
+    "Homeless (Active at End)",
+    "This system status indicates a client was actively experiencing homelessness in the system at the end of the report period. This includes clients who were enrolled in: (1) Emergency Shelter – Entry/Exit, Safe Haven, or Transitional Housing projects, (2) Emergency Shelter – Night-by-Night projects who have a recorded bed night within the 15-day period before the report end date, (3) Street Outreach, Supportive Services Only, Day Shelter or Other type projects who have a Current Living Situation recorded within the 60-day period before the report end date, or (4) Permanent Housing projects, either without a Housing Move-In Date or with a Housing Move-In Date after the report end date. Coordinated Entry projects who have a Current Living Situation recorded within the 90-day period before the report end date.",
+    
+    "System Flow Chart",
+    "Housed (Active at End)",
+    "This system status indicates a client was actively housed in the system at the end of the report period. All clients with this status were enrolled in a Permanent Housing project with a Housing Move-In Date before the report end date.",
+    
+    "Client System Status Chart",
+    "Homeless (Period Start)",
+    "This system status indicates a client was actively experiencing homelessness in the system as of the start of the report period. This includes clients who were enrolled in: (1) Emergency Shelter – Entry/Exit, Safe Haven, or Transitional Housing projects, (2) Emergency Shelter – Night-by-Night projects who have a recorded bed night within the 15-day period before the report start date, (3)	Street Outreach, Supportive Services Only, Day Shelter or Other type projects who have a Current Living Situation recorded within the 60-day period before the report start date, (4) Permanent Housing projects, either without a Housing Move-In Date or with a Housing Move-In Date after the report start date, or (5) Coordinated Entry projects who have a Current Living Situation recorded within the 90-day period before the report start date.",
+    
+    "Client System Status",
+    "Housed (Period Start)",
+    "This system status indicates a client was actively housed in the system as of the start of the report period. All clients with this status were enrolled in a permanent housing project with a Housing Move-In Date before the report start date.",
+    
+    "Client System Status",
+    "Exited, Non-Permanent",
+    "This status indicates that the client’s last exit in the report period was to a homeless, temporary, institutional, or unknown destination.",
+    
+    "Client System Status",
+    "Exited, Permanent",
+    "This status indicates that the client’s last exit in the report period was to a permanent destination.",
+    
+    "Client System Status",
+    "Enrolled, Homeless",
+    "This system status indicates a client was actively experiencing homelessness in the system at the end of the report period. This includes clients who were enrolled in: (1) Emergency Shelter – Entry/Exit, Safe Haven, or Transitional Housing projects, (2) Emergency Shelter – Night-by-Night projects who have a recorded bed night within the 15-day period before the report end date, (3) Street Outreach, Supportive Services Only, Day Shelter or Other type projects who have a Current Living Situation recorded within the 60-day period before the report end date, or (4) Permanent Housing projects, either without a Housing Move-In Date or with a Housing Move-In Date after the report end date. Coordinated Entry projects who have a Current Living Situation recorded within the 90-day period before the report end date.",
+    
+    "Client System Status",
+    "Enrolled, Housed",
+    "This system status indicates a client was actively housed in the system at the end of the report period. All clients with this status were enrolled in a Permanent Housing project with a Housing Move-In Date before the report end date.",
+    
+    "Client System Status",
+    "Inactive (Period End)",
+    "A client is counted as inactive at Period End if they ended the report period with (1) an open enrollment in an Emergency Shelter – Night-by-Night project that has not had a bed night recorded within the last 15 days of the report period, (2) an open enrollment in Street Outreach, Day Shelter, Supportive Services, and Other project type enrollments without a Current Living Situation (CLS) record within the last 60 days of the report period, or (3) an open enrollment in Coordinated Entry without a CLS record within the last 90 days of the report period.  "
+    
+)
   
   datatable(
     gloss,
     rownames = FALSE,
     options = list(
+      searchHighlight = TRUE,
       order = list(list(0, 'asc'), list(1, 'asc'))
     )
   )

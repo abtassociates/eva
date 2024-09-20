@@ -278,8 +278,8 @@ syso_chronic_pops <- list(
 syso_spec_pops_people <- c(
   "All Populations" = "None",
   # "Inflow",
-  syso_veteran_pops,
-  syso_dv_pops#,
+  syso_veteran_pops#,
+  #syso_dv_pops,
   # syso_chronic_pops
 )
 
@@ -356,9 +356,9 @@ inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
 
 sys_comp_selection_choices = c(
   "Age", 
-  "Domestic Violence",
+  #"Domestic Violence", #VL 9/20/24: Not including this for launch
   "Gender",
-  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launc
+  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
   "All Races/Ethnicities",
   "Grouped Races/Ethnicities",
   "Veteran Status"
