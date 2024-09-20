@@ -139,7 +139,7 @@ output$sankey_ui_chart <- renderPlot({
   )
   
   render_sankey_plot(plot_data)
-})
+}, width = 1000)
 
 sys_status_export_info <- function(spd) {
   tibble(

@@ -464,7 +464,8 @@ a:hover {
 }
 
 /*center chart*/
-#sys_comp_summary_ui_chart {
+#sys_comp_summary_ui_chart,
+#sankey_ui_chart {
   text-align: center;
 }
 /* || CHART INFORMATION TABLES */
