@@ -1236,7 +1236,7 @@ dashboardPage(
                   id = "sys_status_subtabs",
                   tabPanel("Chart", 
                            uiOutput("sankey_filter_selections") %>% withSpinner(),
-                           plotOutput("sankey_ui_chart") %>% withSpinner()
+                           plotOutput("sankey_ui_chart", width="70%") %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>

@@ -466,7 +466,7 @@ a:hover {
 /*center chart*/
 #sys_comp_summary_ui_chart,
 #sankey_ui_chart {
-  text-align: center;
+  margin: 0 auto;
 }
 /* || CHART INFORMATION TABLES */
 .sys_info_table {
