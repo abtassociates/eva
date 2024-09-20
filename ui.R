@@ -1380,8 +1380,8 @@ dashboardPage(
                                 the start of the report period plus the number of 
                                 clients that inflowed into your system.</p>
                                 
-                                <p>Under the chart tab are six demographic categories 
-                                you can choose from: Age, Domestic Violence Status, 
+                                <p>Under the chart tab are five demographic categories 
+                                you can choose from: Age, 
                                 Gender, All Races/Ethnicities, a second race/ethnicity 
                                 option, and Veteran Status. Please note, the second 
                                 race/ethnicity option differs for each Gender and 
@@ -1401,7 +1401,7 @@ dashboardPage(
                                 <p>Each cell in the chart is a unique combination 
                                 of demographic characteristics. For example, if 
                                 you selected Age and Veteran Status, a unique demographic 
-                                combination would be “25-34” and “Non-Veteran.” 
+                                combination would be “25-34” and “Non-Veteran/Unknown.” 
                                 Any cell with a count is shaded. The darker the 
                                 color in a cell, the greater the value of that cell.</p>
                                 
