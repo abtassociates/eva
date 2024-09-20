@@ -39,6 +39,17 @@ function(input, output, session) {
   # functions used throughout the app
   source("helper_functions.R", local = TRUE)
   
+  # glossary entries
+  source("glossary.R", local = TRUE)
+  
+  observe({
+    req(session$clientData$url_search != "")
+    updateTabItems(session,
+                   "sidebarmenuid",
+                   "tabGlossary")
+    #parseQueryString(session$clientData$url_search))
+  })
+  
   # changelog entries
   source("changelog.R", local = TRUE)
 
@@ -152,15 +163,7 @@ function(input, output, session) {
         source("01_get_Export.R", local = TRUE)
         
         source("02_export_dates.R", local = TRUE)
-        
-        # if we're in shiny testmode and the script has gotten here,
-        # that means we've gotten all the exports 
-        # we can edit those to capture all File Structure Analysis 
-        # issues and then continue running to test
-        if(isTRUE(getOption("shiny.testmode")) && 
-        upload_filename == "FY24-ICF-fsa-test.zip") {
-          source("tests/update_test_good_fsa.R", local = TRUE)  
-        }
+
         setProgress(detail = "Checking file structure", value = .35)
         source("03_file_structure_analysis.R", local = TRUE)
         
@@ -181,15 +184,6 @@ function(input, output, session) {
 
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE) 
-          
-          # if we're in shiny testmode and the script has gotten here,
-          # that means we're using the hashed-test-good file. 
-          # we will update that file to capture the various issues we want to test
-          # we have confirmed that it is correctly capturing these issues
-          if(isTRUE(getOption("shiny.testmode")) && 
-             upload_filename == "FY24-ICF-hashed-current-good.zip") {
-            source("tests/update_test_good_dq.R", local = TRUE)  
-          }
           
           setProgress(detail = "Assessing your data quality..", value = .7)
           source("05_DataQuality.R", local = TRUE)
@@ -230,6 +224,15 @@ function(input, output, session) {
                 unique()
             )
             sankey_plot_data(sankey_plot_df())
+            
+            # hide download buttons if < 11 records
+            # All Served is handled in system_composition_server.R
+            # for that chart, we also hide if all *cells* are < 11
+            shinyjs::toggle("sys_inflow_outflow_download_btn", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
+            shinyjs::toggle("sys_inflow_outflow_download_btn_ppt", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
+            
+            shinyjs::toggle("sys_status_download_btn", condition = sum(sankey_plot_data()$freq) > 10)
+            shinyjs::toggle("sys_status_download_btn_ppt", condition = sum(sankey_plot_data()$freq) > 10)
           })
           
           setProgress(detail = "Done!", value = 1)
@@ -319,8 +322,6 @@ function(input, output, session) {
       summarise(Count = n()) %>%
       ungroup() %>%
       arrange(Type, desc(Count))
-    
-    exportTestValues(fileStructureAnalysis = file_structure_analysis_main())
 
     datatable(
       a,
@@ -385,7 +386,7 @@ function(input, output, session) {
       logMetadata(paste0("Impermissible Character Locations Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(non_ascii_files_detail = non_ascii_files_detail)
+      exportTestValues(non_ascii_files_detail = summary(non_ascii_files_detail))
     }
   )
   
@@ -613,8 +614,6 @@ function(input, output, session) {
       select(all_of(clientCountDetailCols)) %>%
       nice_names()
     
-    exportTestValues(clientCountData = x)
-    
     datatable(
       x,
       rownames = FALSE,
@@ -629,7 +628,7 @@ function(input, output, session) {
   output$clientCountSummary <- renderDT({
     req(valid_file() == 1)
     
-    exportTestValues(clientCountSummary = client_count_summary_df())
+    exportTestValues(clientCountSummary = summary(client_count_summary_df()))
     
     datatable(
       client_count_summary_df() %>%
@@ -676,13 +675,13 @@ function(input, output, session) {
     content = function(file) {
       req(valid_file() == 1)
       
-      summary <- pdde_main() %>% 
+      summary_df <- pdde_main() %>% 
         group_by(Issue, Type) %>%
         summarise(Count = n()) %>%
         ungroup()
       
       write_xlsx(
-        list("Summary" = summary,
+        list("Summary" = summary_df,
              "Data" = pdde_main() %>%
                nice_names()),
         path = file)
@@ -690,7 +689,8 @@ function(input, output, session) {
       logMetadata(paste0("Downloaded PDDE Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main()))
+      exportTestValues(pdde_download = list(
+        "Summary" = summary(summary_df), "Data" = summary(pdde_main())))
     }
   )
   
@@ -704,7 +704,7 @@ function(input, output, session) {
       ungroup() %>%
       arrange(Type)
     
-    exportTestValues(pdde_summary_table = a)
+    exportTestValues(pdde_summary_table = summary(a))
     
     datatable(
       a,
@@ -724,7 +724,7 @@ function(input, output, session) {
       arrange(Type, Issue) %>%
       unique()
     
-    exportTestValues(pdde_guidance_summary = guidance)
+    exportTestValues(pdde_guidance_summary = summary(guidance))
     
     datatable(
       guidance, 
@@ -758,7 +758,7 @@ function(input, output, session) {
              Issue, 
              Clients)
     
-    exportTestValues(dq_organization_summary_table = a)
+    exportTestValues(dq_organization_summary_table = summary(a))
     
     datatable(
       a,
@@ -782,7 +782,7 @@ function(input, output, session) {
       arrange(Type, Issue) %>%
       unique()
     
-    exportTestValues(dq_org_guidance_summary = guidance)
+    exportTestValues(dq_org_guidance_summary = summary(guidance))
     
     datatable(
       guidance, 
@@ -842,7 +842,7 @@ function(input, output, session) {
       write_xlsx(dqDownloadInfo()$orgDQData, path = file)
       logMetadata(paste0("Downloaded Org-level DQ Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-      exportTestValues(orgDQ_download = dqDownloadInfo()$orgDQData)
+      exportTestValues(orgDQ_download = summary(dqDownloadInfo()$orgDQData))
     }
   )
   
@@ -861,7 +861,7 @@ function(input, output, session) {
       write_xlsx(dqDownloadInfo()$systemDQData, path = file)
       logMetadata(paste0("Downloaded System-level DQ Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-      exportTestValues(systemDQ_download = dqDownloadInfo()$systemDQData)
+      exportTestValues(systemDQ_download = summary(dqDownloadInfo()$systemDQData))
     }
   )
   

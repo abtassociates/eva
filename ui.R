@@ -56,6 +56,8 @@ dashboardPage(
                #menuSubItem("System Exit Detail",
                 #           tabName = "systemExitDetail")
                ),
+      menuItem("Glossary",
+               tabName = "tabGlossary"),
       menuItem("View Changelog",
                tabName = "tabChangelog")
       # ),
@@ -1030,30 +1032,34 @@ dashboardPage(
         fluidRow(
           box(
             width = 12,
-            tabsetPanel(
-              id = "syso_tabsetpanel",
+            tabBox(
+              width = 12,
+              id = "syso_tabbox",
               type = "tabs",
               tabPanel(
                 id="syso_inflowoutflow", 
                 title="System Flow",
-                tabsetPanel(
+                tabBox(
+                  width = 12,
                   id = "sys_inflow_outflow_subtabs",
                   selected = "Summary Chart",
                   tabPanel("Summary Chart", 
-                           uiOutput("sys_act_summary_filter_selections"),
-                           uiOutput("sys_act_summary_chart_subheader"),
-                           plotOutput("sys_act_summary_ui_chart", height = "100%")
+                           uiOutput("sys_act_summary_filter_selections") %>% withSpinner(),
+                           plotOutput("sys_act_summary_ui_chart") %>% withSpinner()
                   ),
                   tabPanel("Detail Chart", 
-                           uiOutput("sys_act_detail_filter_selections"),
-                           uiOutput("sys_act_detail_chart_subheader"),
-                           plotOutput("sys_act_detail_ui_chart", height = "100%")
+                           uiOutput("sys_act_detail_filter_selections") %>% withSpinner(),
+                           plotOutput("sys_act_detail_ui_chart") %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
                                 <p>The System Flow chart shows your homeless system's 
                                 inflow and outflow during the period, helping you 
-                                assess the effectiveness of your homeless system. 
+                                assess the effectiveness of your homeless system.
+                                The client universe for this chart is the number 
+                                of clients identified as active in the system at 
+                                the start of the reporting period plus the number 
+                                of clients who inflowed into the system. 
                                 There are two views for this chart: Summary and 
                                 Detail. Both views show the total number of clients 
                                 active in the system at the start and end of the 
@@ -1087,13 +1093,15 @@ dashboardPage(
                                 <table class='sys_info_table' id='sys_flow_info_table'>
                                   <tr>
                                     <th>Scenario</th>
+                                    <th>What You See</th>
                                     <th>What It Means</th>
                                   </tr>
                                   <tr>
-                                    <td>Less than 36 months of data is uploaded</td> 
-                                    <td>The category “Inflow Unspecified” will replace 
-                                    “Newly Homeless” in the Detail Chart. The “Newly Homeless” 
-                                    category refers to someone who has not been served in the system 
+                                    <td>Less than 36 months of data are uploaded</td>
+                                    <td>In the Detail chart, “Inflow Unspecified” 
+                                    displays instead of “First Time Homeless.”</td>
+                                    <td>The “First Time Homeless” category refers 
+                                    to someone who has not been served in the system 
                                     within the 24 months prior to their entry. Therefore, 
                                     it is not possible to assess if people are newly 
                                     homeless or returners/re-engagers without a 36-month 
@@ -1102,22 +1110,28 @@ dashboardPage(
                                     may be an undercount.</td>
                                   </tr>
                                   <tr>
-                                    <td>Less than 12 months of data is uploaded</td> 
-                                    <td>It will be difficult to draw conclusions about 
+                                    <td>Less than 12 months of data are uploaded</td>
+                                    <td>In the Detail chart, “Inflow Unspecified” 
+                                    displays instead of “First Time Homeless.”</td>
+                                    <td>The “First Time Homeless” category refers 
+                                    to someone who has not been served in the system 
+                                    within the 24 months prior to their entry.
+                                    Therefore, it will be difficult to draw conclusions about 
                                     whether changes in inflow/outflow are meaningful. 
                                     For instance, change in inflow/outflow over a 
                                     4-month period may reflect expected seasonal shifts 
                                     instead of a difference in system performance. 
                                     For a fuller and more complete picture of your 
-                                    system, please use a file that has at least 3 
-                                    years of data.</td>
+                                    system, please use a file that has at least 36 
+                                    months of data.</td>
                                   </tr>
                                   <tr>
-                                    <td>Total Inflow is greater than total Outflow</td> 
-                                    <td>The Total Change value will be a positive 
-                                    number, representing an increase. This means 
-                                    there were more clients coming into your system 
-                                    than leaving your system during the period. 
+                                    <td>Total Inflow is greater than total Outflow</td>
+                                    <td>In the Summary chart, the bar for Inflow 
+                                    is larger than the bar for Outflow. The Total 
+                                    Change value is a positive number, representing an increase.</td>
+                                    <td>This means there were more clients that came into your system 
+                                    than left your system during the reporting period. 
                                     Compare with results from prior years to see 
                                     if more clients are coming into the system than 
                                     in prior years, or if the change is because 
@@ -1129,14 +1143,18 @@ dashboardPage(
                                     exiting to a non-permanent destination.</td>
                                   </tr>
                                   <tr>
-                                    <td>Total Outflow is greater than total Inflow</td> 
-                                    <td>The Total Change value will be a negative 
-                                    number, representing a reduction. This means there 
-                                    were more clients leaving your system than were 
-                                    coming into your system during the reporting period.</td>
+                                    <td>Total Outflow is greater than total Inflow</td>
+                                    <td>In the Summary chart, the bar for Outflow
+                                    is larger than the bard for Inflow. The Total 
+                                    Change value is a negative number, representing a reduction.</td>
+                                    <td>This means there were more clients that left your system than 
+                                    came into your system during the reporting period.</td>
                                   </tr>
                                   <tr>
-                                    <td>The largest Outflow category is “Non-Permanent Destination”</td> 
+                                    <td>The largest Outflow category is “Non-Permanent Destination”</td>
+                                    <td>In the Detail chart, the bar for “Non-Permanent 
+                                    Destination” is larger than the bar for “Permanent 
+                                    Destination” and the bar for “Inactive.”</td>
                                     <td>This means most clients leaving your system 
                                     are exiting to temporary or unknown destinations. 
                                     Check your completion rate for exit destination 
@@ -1147,7 +1165,10 @@ dashboardPage(
                                     in the rate of exits to temporary destinations.</td>
                                   </tr>
                                   <tr>
-                                    <td>The largest Outflow category “Inactive”</td> 
+                                    <td>The largest Outflow category “Inactive”</td>
+                                    <td>In the Detail chart, the bar for “Inactive”
+                                    is larger than the bar for “Permanent 
+                                    Destination” and the bar for “Non-Permanent Destination.”</td>
                                     <td>This means many clients ended the period 
                                     in an open enrollment without a recent Current 
                                     Living Situation (CLS) record, and thus were 
@@ -1163,18 +1184,20 @@ dashboardPage(
                                 </table>")
                   )
                 ),
-                downloadButton("sys_inflow_outflow_download_btn", "Download")
+                downloadButton("sys_inflow_outflow_download_btn", "Download"),
+                downloadButton("sys_inflow_outflow_download_btn_ppt", "Download PPT")
               ),
               tabPanel(
                 id = "syso_systemstatus",
                 side = "left",
                 selected = "Chart",
                 title = "Client System Status",
-                tabsetPanel(
+                tabBox(
+                  width = 12,
                   id = "sys_status_subtabs",
                   tabPanel("Chart", 
-                           uiOutput("sankey_filter_selections"),
-                           plotOutput("sankey_ui_chart")
+                           uiOutput("sankey_filter_selections") %>% withSpinner(),
+                           plotOutput("sankey_ui_chart") %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
@@ -1183,7 +1206,9 @@ dashboardPage(
                                 in your system at the start of the period. This 
                                 chart helps you identify the proportion of clients 
                                 that ended the period as (1) homeless or in non-permanent 
-                                housing versus (2) housed or in permanent housing. 
+                                housing versus (2) housed or in permanent housing.
+                                The client universe for this chart is the number 
+                                of clients active in the system at the start of the reporting period.
                                 This chart does not include clients who inflowed 
                                 into your system after the start of the reporting period.</p>
                                 
@@ -1214,12 +1239,16 @@ dashboardPage(
                                 <table class='sys_info_table' id='sys_status_info_table'>
                                   <tr>
                                     <th>Scenario</th>
+                                    <th>What You See</th>
                                     <th>What It Means</th>
                                   </tr>
                                   <tr>
                                     <td>The sum of “Enrolled, Housed” and “Exited, 
                                     Permanent” is greater than the sum of the 
-                                    remaining categories</td>
+                                    remaining categories at Period End</td>
+                                    <td>The bars for “Enrolled, Housed” and “Exited, 
+                                    Permanent” combined look larger than the bars 
+                                    for the remaining categories in the chart.</td>
                                     <td>This means the majority of clients who were 
                                     active in your system at the start of the report 
                                     period exited to or retained permanent housing 
@@ -1228,7 +1257,10 @@ dashboardPage(
                                   <tr>
                                     <td>The sum of “Enrolled, Homeless” and 
                                     “Exited, Non-Permanent” is greater than the 
-                                    sum of the remaining categories</td>
+                                    sum of the remaining categories at Period End</td>
+                                    <td>The bars for “Enrolled, Homeless” and 
+                                    “Exited, Non-Permanent” combined look larger than the bars 
+                                    for the remaining categories in the chart.</td>
                                     <td>This means the majority of clients who were 
                                     active in your system at the start of the report 
                                     period either exited to homeless, temporary, 
@@ -1239,7 +1271,10 @@ dashboardPage(
                                     are possible.</td>
                                   </tr>
                                   <tr>
-                                    <td>The category “Inactive” is present in the chart</td>
+                                    <td>Clients who were active in the system at
+                                    Period Start are inactive at Period End</td>
+                                    <td>The category “Inactive” is display in the 
+                                    chart at Period End.</td>
                                     <td>This means some clients ended the period 
                                     in an open enrollment without a recent Current 
                                     Living Situation (CLS) record, and thus were 
@@ -1256,50 +1291,60 @@ dashboardPage(
                   )
                 ),
                 downloadButton("sys_status_download_btn", "Download"),
+                downloadButton("sys_status_download_btn_ppt", "Download PPT"),
                 width = 12
               ),
               tabPanel(
                 id = "syso_composition",
                 side = "left",
                 selected = "Chart",
-                title = "Composition of All Served in Period",
-                tabsetPanel(
+                title = "Composition of All Served",
+                tabBox(
+                  width = 12,
                   id = "sys_comp_subtabs",
                   tabPanel("Chart", 
                            fluidRow(
                              box(
                                strong("Select Demographic Crosstab Categories (up to 2)"),
                                p(str_glue(
-                                 "Selecting a single category 
-                                 will provide totals for just that category. 
-                                 You can only select one Race/Ethnicity 
+                                 "For a simple count of totals within a demographic 
+                                 category, select only one category. To see the 
+                                 intersection of two demographic categories, select 
+                                 both categories to create a crosstab chart. To 
+                                 change your crosstab selection, uncheck at least 
+                                 one of your previous selections before selecting 
+                                 new categories. Note that you can only select one Race/Ethnicity 
                                  group at a time to display in the chart."
                                )),
                                checkboxGroupInput(
                                  "system_composition_selections",
                                  label = "",
-                                 choices = sys_comp_selection_choices1,
+                                 choices = sys_comp_selection_choices,
                                  selected = c("All Races/Ethnicities", "Age"),
                                  inline = TRUE
                                ),
                                width = 12
                              )
                           ),
-                          uiOutput("sys_comp_summary_selections"),
-                          plotOutput("sys_comp_summary_ui_chart")
+                          uiOutput("sys_comp_summary_selections") %>% withSpinner(),
+                          plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
-                                <p>The Composition of all Served in Period chart 
+                                <p>The Composition of All Served chart 
                                 shows the demographic make-up of your homeless system 
                                 and highlights the most prevalent relationships 
-                                between demographic cross sections. </p>
+                                between demographic cross sections.
+                                The client universe for this chart is the number 
+                                of clients identified as active in the system at 
+                                the start of the reporting period plus the number 
+                                of clients who inflowed into the system.</p>
                                 
                                 <p>You can select up to two demographic categories 
                                 using the checkboxes above the chart. To change 
-                                your selection, uncheck your previous selection 
-                                before selecting new categories. For a simple count 
-                                of totals within a demographic category, select 
+                                your crosstab selection, uncheck at least one of 
+                                your previous selections before selecting new categories.  
+                                For a simple count of totals within a demographic category, select 
                                 just that category. </p>
                                 
                                 <p>To see the intersection of two demographic categories, 
@@ -1313,18 +1358,23 @@ dashboardPage(
                                 Any cell with a count is shaded. The darker the 
                                 color in a cell, the greater the value of that cell.</p>
                                 
-                                <h4>Data Suppression Details</h4>
-                                <p>There are two levels of data suppression used 
-                                within this chart. First, any value less than eleven 
-                                is suppressed. Second, if there is only one suppressed 
-                                value within a row or column, the next highest value 
-                                is suppressed. Both levels of data suppression also 
-                                apply to the Total row and Total column in the chart. 
+                                <h4>Data Suppression</h4>
+                                <p>Any value less than 11 is suppressed, including totals.
+                                If there is only one suppressed value within a row 
+                                or column, the next highest value is suppressed.
                                 All suppressed values are represented by *** in the chart.</p>
                                 
-                                <p>If the total number of clients in the chart is 
-                                less than eleven, the chart will not display. When 
-                                this happens, you may either need to broaden your 
+                                <p>The chart will not display in the following
+                                scenarios:</p>
+                                
+                                <ol>
+                                  <li>If the total number of clients in the chart is 
+                                less than 11</li>
+                                  <li>If all individual cells in the chart have 
+                                  values of less than 11</li>
+                                </ol>
+                                
+                                <p>When this happens, you may either need to broaden your 
                                 filter selections or upload a larger dataset to 
                                 ensure there is enough data to view the chart.</p>")
                   )
@@ -1344,6 +1394,36 @@ dashboardPage(
           box(
             width = 12,
             HTML("<h2>Placeholder</h2>")
+          )
+        )
+      ),
+      tabItem(
+        tabName = "tabGlossary",
+        fluidRow(box(HTML("<h2>Glossary</h2>"), width = 12)),
+        fluidRow(box(
+          title = "Instructions",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          HTML("
+               <p>This glossary provides definitions for the terms used throughout 
+              Eva's System Performance Overview page. You can review definitions 
+              of the terms by their focus, including:</p>
+              
+              <ul>
+                <li>System Performance Filters</li>
+                <li>System Flow Chart</li>
+                <li>Client System Status Chart</li>
+              </ul>
+              
+              <p>You can also search for a specific term using the search bar.</p>")
+        )),
+        fluidRow(
+          box(
+            # collapsible = TRUE,
+            # collapsed = TRUE,
+            width = 12,
+            DTOutput("glossary")
           )
         )
       ),

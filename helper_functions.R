@@ -206,7 +206,9 @@ get_col_types <- function(upload_filepath, file) {
   
   # get the data types for those columns
   data_types <- sapply(cols_in_file, function(col_name) {
-    col_types$DataType[col_types$Column == col_name]
+    ifelse(col_name %in% col_types$Column,
+           col_types$DataType[col_types$Column == col_name],
+           "c")
   })
   
   return(paste(data_types, collapse = ""))
@@ -432,57 +434,4 @@ any_cols_selected_except <- function(df, list, exception) {
 min_cols_selected_except <- function(df, list, exception, num_cols_selected) {
   rowSums(df[exception], na.rm = TRUE) == 0 &
     rowSums(df[setdiff(list, exception)], na.rm = TRUE) >= num_cols_selected
-}
-
-# custom round to the smaller of the nearest 10, 100, etc.
-# good for chart segment sizing
-get_segment_size <- function(x) {
-  thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
-  rounded <- sapply(thresholds, function(t) {
-    if (x > t) {
-      return(t * ceiling(x / t))
-    } else {
-      return(NA)
-    }
-  })
-  min(rounded, na.rm = TRUE)
-}
-
-chart_selection_detail_line <- function(detail_label, val_list, inputVal) {
-  named_val <- ifelse(
-    detail_label != 'Methodology Type', 
-    getNameByValue(val_list, inputVal),
-    ifelse(
-      inputVal == 1,
-      'Exclusive Groupings',
-      'Inclusive Groupings'
-    )
-  )
-  return(
-    HTML(glue(
-      "<strong>{detail_label}:</strong> {named_val} <br>"
-    ))
-  )
-}
-
-sys_total_count_display <- function(total_count) {
-  return(str_wrap(
-    paste0(
-      "Total ",
-      case_when(
-        input$syso_level_of_detail == "All" ~ "People",
-        input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
-        TRUE ~
-          getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-      ),
-      if_else(
-        input$syso_hh_type == "All",
-        "",
-        paste0(" in ",
-               str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "),
-               " Households")
-        ),       ": ",
-      scales::comma(total_count)
-    )
-  ))
 }
