@@ -1367,7 +1367,7 @@ dashboardPage(
                                width = 12
                              )
                           ),
-                          uiOutput("sys_comp_summary_selections") %>% withSpinner(),
+                          uiOutput("sys_comp_summary_selections"),
                           plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
                   ),
                   tabPanel("Information", 
