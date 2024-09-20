@@ -6,7 +6,7 @@ observeEvent(input$syso_tabbox, {
   req(valid_file() == 1)
   toggleClass(
     id = "syso_inflowoutflow_filters",
-    condition = input$syso_tabbox == "Composition of All Served",
+    condition = input$syso_tabbox == "System Demographics",
     class = "filter-hidden"
   )
 }, ignoreNULL = TRUE)
@@ -116,7 +116,7 @@ toggle_sys_components <- function(cond, init=FALSE) {
   tabs <- c(
     "System Inflow/Outflow" = "inflow_outflow",
     "Client System Status" = "status",
-    "Composition of All Served" = "comp"
+    "System Demographics" = "comp"
   )
   
   for (tab in tabs) {
