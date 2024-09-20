@@ -46,7 +46,7 @@ get_var_cols <- function() {
       "Age" = "AgeCategory",
       "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
       "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-      "Domestic Violence Status" = "DomesticViolenceCategory",
+      #"Domestic Violence" = "DomesticViolenceCategory", #VL 9/20/24: Not including for launch
       "Gender" = unlist(
         syso_gender_cats(input$methodology_type) %>% discard_at("All Genders")
       ),
@@ -146,7 +146,7 @@ get_selection_cats <- function(selection) {
     "Age" = syso_age_cats,
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-    "Domestic Violence Status" = syso_dv_pops,
+    #"Domestic Violence" = syso_dv_pops, VL 9/20/24: Not including for launch
     # Update Veteran status codes to 1/0, because that's how the underlying data are
     # we don't do that in the original hardcodes.R list 
     # because the character versions are needed for the waterfall chart
@@ -541,12 +541,12 @@ sys_comp_selections_summary <- function() {
   return(
     sys_export_summary_initial_df() %>%
       bind_rows(sys_comp_selections_info()) %>%
-      rename("Composition of All Served" = Value)
+      rename("System Demographics" = Value)
   )
 }
 
 output$sys_comp_download_btn <- downloadHandler(
-  filename = date_stamped_filename("System Composition Report - "),
+  filename = date_stamped_filename("System Demographics Report - "),
   content = function(file) {
     v1 <- gsub("Races/Ethnicities", "Race", input$system_composition_selections[1])
     v2 <- gsub("Races/Ethnicities", "Race", input$system_composition_selections[2])
@@ -587,7 +587,7 @@ output$sys_comp_download_btn <- downloadHandler(
     
     # create a list of the 3 excel tabs and export
     tab_names <- list(
-      "Composition All Served Metadata" = sys_comp_selections_summary()
+      "System Demographics Metadata" = sys_comp_selections_summary()
     )
     tab_names[[glue("Selected {v1} By {v2} #")]] <- num_matrix_df
       
@@ -659,17 +659,17 @@ output$sys_comp_summary_ui_chart <- renderPlot({
 
 output$sys_comp_download_btn_ppt <- downloadHandler(
   filename = function() {
-    paste("System Composition_", Sys.Date(), ".pptx", sep = "")
+    paste("System Demographics_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
     sys_overview_ppt_export(
       file = file,
-      title_slide_title = "Composition of All Served",
+      title_slide_title = "System Demographics",
       summary_items = sys_export_summary_initial_df() %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_comp_selections_info()),
       plot_slide_title = paste0(
-        "Composition of All Served: ",
+        "System Demographics: ",
         input$system_composition_selections[1],
         " by ",
         input$system_composition_selections[2]

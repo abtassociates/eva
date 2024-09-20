@@ -47,7 +47,15 @@ observeEvent(input$sidebarmenuid, {
              Mode, you can see an example of the types of data quality errors
              and warnings identified by Eva organized either by the most common
              issues overall in the selected organization, or by the projects
-             with the most issues overall."
+             with the most issues overall.",
+           
+           "tabSystemOverview" = "Welcome to the System Performance Overview
+             page. This page helps users evaluate how effective their homeless 
+           system is in moving clients through the system and helping them reach 
+           permanent housing. Users can also see the detailed composition 
+           of all clients served their homeless system. In Demo Mode, you can see 
+           examples of the System Performance charts, including data and image
+           downloads."
     )
   req(msg)
   req(!isTruthy(seen_message[[selectedTabId]]))
