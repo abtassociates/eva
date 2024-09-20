@@ -314,7 +314,8 @@ sys_total_count_display <- function(total_count) {
                  " Households")
         ),       ": ",
         scales::comma(total_count)
-      )
+      ),
+      width = 40
     ),
     "\n")
   )

@@ -635,7 +635,7 @@ output$sys_comp_summary_ui_chart <- renderPlot({
 }, height = function() { 
   ifelse(!is.null(input$system_composition_selections), 600, 100) 
 }, width = function() {
-  ifelse(length(input$system_composition_selections) == 1, 600, "auto")
+  ifelse(length(input$system_composition_selections) == 1, 500, "auto")
 })
 
 
