@@ -1029,7 +1029,7 @@ dashboardPage(
               column(
                 3,
                 pickerInput(
-                  label = "Special Populations",
+                  label = "Veteran Status",
                   inputId = "syso_spec_pops",
                   choices = syso_spec_pops_people,
                   width = "100%",
