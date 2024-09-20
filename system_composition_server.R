@@ -55,6 +55,12 @@ get_var_cols <- function() {
     )
   )
 }
+remove_non_applicables <- function(.data) {
+  if("Age" %in% input$system_composition_selections &
+     "Veteran Status" %in% input$system_composition_selections) {
+    # remove children - since Vets can't be children
+    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")))
+  } 
 
 get_sys_comp_plot_df <- function() {
   # named list of all selected options and
