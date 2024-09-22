@@ -366,3 +366,21 @@ sys_comp_selection_choices = c(
 
 rm(inc_ncb_hi_required_prep)
 
+
+# Font sizing -------------------------------------------------------------
+# (14px = 10.5pts = 3.7mm)
+# regular font can be set in css as pixels
+# geom_text or annotate are in mm, not points
+# element_text (for title, legend, axis labels, etc.) is in points, not mm
+  # http://www.cookbook-r.com/Graphs/Fonts/
+  # Also: https://www.christophenicault.com/post/understand_size_dimension_ggplot2/
+base_font_px <- 14
+base_font_pts <- base_font_px*0.75
+base_font_mm <- base_font_pts / .pt
+
+dq_axis_font <- 12 # 12 pts = 16px
+sys_chart_text_font <- 14 / .pt # 14 points = 4.92mm = 18.67px
+inflow_outflow_num_font <- 16 #16 pts = 22px
+sys_chart_title_font <- 16 / .pt # 16 pts
+
+ppt_summary_slide_font <- 19 # 19 pts = 25px
