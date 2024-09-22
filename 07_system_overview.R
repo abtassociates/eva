@@ -384,7 +384,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
   # didn't get picked as the lecr
   filter((InvolvedInOverlapEnd == TRUE & RankOrderEndOverlaps == 1) |
            InvolvedInOverlapEnd == FALSE &
-           (days_since_previous_exit < 730 | is.na(days_since_previous_exit))) %>%
+           (days_to_next_entry < 730 | is.na(days_to_next_entry))
+         ) %>%
   group_by(PersonalID, in_date_range) %>%
   arrange(EntryDate, ExitAdjust, .by_group = TRUE) %>%
   mutate(
