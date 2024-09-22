@@ -20,72 +20,71 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   print(paste0("Just uploaded in ",test_script_name))
   
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="just-uploaded")
-
+  app$expect_values(name = "just-uploaded")
+  
   app$set_inputs(sidebarmenuid = "tabClientCount")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="client-count")
-
+  app$expect_values(name = "client-count")
+  
   app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
   app$set_inputs(sidebarmenuid = "tabPDDE")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="pdde")
-
+  app$expect_values(name = "pdde")
+  
   app$set_inputs(sidebarmenuid = "tabDQSystem")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="dq-system")
+  app$expect_values(name = "dq-system")
   
   app$set_inputs(sidebarmenuid = "tabDQOrg")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="dq-org")
-
-  app$set_inputs(sidebarItemExpanded = "SystemPerformance")
+  app$expect_values(name = "dq-org")
+  
   app$set_inputs(sidebarmenuid = "systemOverview")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="sys-flow-summary")
-
+  app$expect_values(name = "sys-flow-summary")
+  
   app$set_inputs(sys_inflow_outflow_subtabs = "Detail Chart")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="sys-flow-detail")
-
+  app$expect_values(name = "sys-flow-detail")
+  
   # change universe filters
   app$set_inputs(syso_hh_type = "AO")
   app$set_inputs(syso_project_type = "Residential")
-  app$expect_values(name="sys-flow-detail-w-AO-Residential")
-
+  app$expect_values(name = "sys-flow-detail-w-AO-Residential")
+  
   # go back to summary tab
   app$set_inputs(sys_inflow_outflow_subtabs = "Summary")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="sys-flow-summary-w-AO-Residential")
-
+  app$expect_values(name = "sys-flow-summary-w-AO-Residential")
+  
   # go to information
   app$set_inputs(sys_inflow_outflow_subtabs = "Information")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="sys-flow-information")
-
+  app$expect_values(name = "sys-flow-information")
+  
   app$set_inputs(syso_tabbox = "Client System Status")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="sys-status-chart")
-
+  app$expect_values(name = "sys-status-chart")
+  
   app$set_inputs(sys_status_subtabs = "Information")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="sys-status-information")
-
+  app$expect_values(name = "sys-status-information")
+  
   app$set_inputs(syso_tabbox = "Composition of All Served")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="sys-comp-chart-default")
-
+  app$expect_values(name = "sys-comp-chart-default")
+  
   app$set_inputs(system_composition_selections = c("All Races/Ethnicities"))
   app$wait_for_idle(timeout = 2e+05)
-  app$expect_values(name="sys-comp-all-re")
-
+  app$expect_values(name = "sys-comp-all-re")
+  
   app$set_inputs(system_composition_selections = c("Gender", "All Races/Ethnicities"))
   app$wait_for_idle(timeout = 2e+05)
-  app$expect_values(name="sys-comp-all-re-gender")
-
+  app$expect_values(name = "sys-comp-all-re-gender")
+  
   app$set_inputs(sys_comp_subtabs = "Information")
   app$wait_for_idle(timeout = 1e+06)
-  app$expect_values(name="sys-comp-information")
+  app$expect_values(name = "sys-comp-information")
   
   customDownload(app, "downloadFileStructureAnalysis", "File-Structure-Analysis-Download.xlsx")
   customDownload(app, "downloadClientCountsReport", "Client-Counts-Download.xlsx")
@@ -99,5 +98,5 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   # customDownload(app, "sys_comp_download_btn", "System-Composition-Download.xlsx")
   customDownload(app, "sys_comp_download_btn_ppt", "System-Composition-Download-PPT.pptx")
   
-  app$expect_values(export = TRUE, name="exportTestValues")
+  app$expect_values(export = TRUE, name = "exportTestValues")
 })
