@@ -258,7 +258,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       # set text color to be 508 compliant contrasting
       geom_text(
         aes(label = ifelse(wasRedacted, "***", scales::comma(n))),
-        size = font_size,
+        size = sys_chart_text_font,
         color = ifelse(
           plot_df$n > mean(plot_df$n, na.rm = TRUE) & !plot_df$wasRedacted,
           'white',
@@ -409,7 +409,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       geom_text(
         # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
         aes(label = ifelse(wasRedacted, "***", scales::comma(n))),
-        size = font_size * ifelse(isExport, 0.7, 1),
+        size = sys_chart_text_font * ifelse(isExport, 0.7, 1),
         color = ifelse(
           plot_df$n > mean(plot_df$n, na.rm = TRUE) & !plot_df$wasRedacted,
           'white',
@@ -436,7 +436,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       geom_text(
         aes(label = ifelse(wasRedacted, "***", # paste0(scales::comma(N), "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
                            scales::comma(N))),
-        size = font_size * ifelse(isExport, 0.7, 1),
+        size = sys_chart_text_font * ifelse(isExport, 0.7, 1),
         color = ifelse(
           h_total$N > mean(h_total$N, na.rm = TRUE) & !h_total$wasRedacted,
           'white',
@@ -463,7 +463,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       geom_text(
         aes(label = ifelse(wasRedacted, "***", # paste0(N, "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
                            scales::comma(N))),
-        size = font_size * ifelse(isExport, 0.7, 1),
+        size = sys_chart_text_font * ifelse(isExport, 0.7, 1),
         color = ifelse(
           v_total$N > mean(v_total$N, na.rm = TRUE) & !v_total$wasRedacted,
           'white',
