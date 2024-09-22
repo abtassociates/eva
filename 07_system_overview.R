@@ -230,7 +230,7 @@ homeless_cls_finder <- function(date, window = "before", days = 60) {
 # Enrollment-level flags --------------------------------------------------
 # as much wrangling as possible without needing hhtype, project type, and level
 # of detail inputs
-
+# browser()
 enrollment_categories <- enrollment_prep_hohs %>%
   mutate(
     ProjectTypeWeight = case_when(
@@ -383,16 +383,14 @@ enrollment_categories <- enrollment_prep_hohs %>%
   # getting rid of enrollments involved in an overlap across ReportEnd that
   # didn't get picked as the lecr
   filter((InvolvedInOverlapEnd == TRUE & RankOrderEndOverlaps == 1) |
-           InvolvedInOverlapEnd == FALSE) %>%
+           InvolvedInOverlapEnd == FALSE &
+           (days_since_previous_exit < 730 | is.na(days_since_previous_exit))) %>%
   group_by(PersonalID, in_date_range) %>%
   arrange(EntryDate, ExitAdjust, .by_group = TRUE) %>%
   mutate(
     lecr = in_date_range == TRUE & max(ordinal) == ordinal,
     eecr = in_date_range == TRUE & min(ordinal) == ordinal,
-    lookback = if_else(in_date_range == TRUE &
-                         days_since_previous_exit >= 730,
-                       0,
-                       rev(row_number()))
+    lookback = if_else(in_date_range == TRUE, 0, rev(row_number()))
   ) %>%
   ungroup() %>%
   select(-AgeAtEntry) %>%
