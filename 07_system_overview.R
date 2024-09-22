@@ -389,7 +389,10 @@ enrollment_categories <- enrollment_prep_hohs %>%
   mutate(
     lecr = in_date_range == TRUE & max(ordinal) == ordinal,
     eecr = in_date_range == TRUE & min(ordinal) == ordinal,
-    lookback = if_else(in_date_range == TRUE, 0, rev(row_number()))
+    lookback = if_else(in_date_range == TRUE &
+                         days_since_previous_exit >= 730,
+                       0,
+                       rev(row_number()))
   ) %>%
   ungroup() %>%
   select(-AgeAtEntry) %>%
