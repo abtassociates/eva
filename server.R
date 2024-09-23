@@ -1,6 +1,6 @@
 
 function(input, output, session) {
-  #record_heatmap(target = ".wrapper")
+  # record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
 
   # session-wide variables (NOT visible to multiple sessions) -----------------
@@ -23,7 +23,6 @@ function(input, output, session) {
     sys_df_people_universe_filtered_r <- reactiveVal(),
     ReportStart <- reactiveVal(),
     ReportEnd <- reactiveVal(),
-    sys_df_universe <- reactiveVal(),
     sankey_plot_data <- reactiveVal(),
     non_ascii_files_detail_df <- reactiveVal(),
     non_ascii_files_detail_r <- reactiveVal()
@@ -39,6 +38,17 @@ function(input, output, session) {
   
   # functions used throughout the app
   source("helper_functions.R", local = TRUE)
+  
+  # glossary entries
+  source("glossary.R", local = TRUE)
+  
+  observe({
+    req(session$clientData$url_search != "")
+    updateTabItems(session,
+                   "sidebarmenuid",
+                   "tabGlossary")
+    #parseQueryString(session$clientData$url_search))
+  })
   
   # changelog entries
   source("changelog.R", local = TRUE)
@@ -134,30 +144,29 @@ function(input, output, session) {
   # Run scripts on upload ---------------------------------------------------
   
   process_upload <- function(upload_filename, upload_filepath) {
-    source("00_initially_valid_import.R", local = TRUE)
+    withProgress({
+      setProgress(message = "Processing...", value = .01)
+      
+      setProgress(detail = "Checking initial validity ", value = .05)
+      source("00_initially_valid_import.R", local = TRUE)
 
     if(initially_valid_import() == 1) {
 
       hide('imported_progress')
 
-      withProgress({
-        setProgress(message = "Processing...", value = .15)
+      setProgress(detail = "Unzipping...", value = .10)
+      list_of_files <- unzip(
+        zipfile = upload_filepath, 
+        files = paste0(unique(cols_and_data_types$File), ".csv"))
+      
         setProgress(detail = "Reading your files..", value = .2)
         source("01_get_Export.R", local = TRUE)
+        
         source("02_export_dates.R", local = TRUE)
-        setProgress(detail = "Checking file structure", value = .35)
-        
-        # if we're in shiny testmode and the script has gotten here,
-        # that means we've gotten all the exports 
-        # we can edit those to capture all File Structure Analysis 
-        # issues and then continue running to test
-        if(isTRUE(getOption("shiny.testmode")) && 
-        upload_filename == "FY24-ICF-fsa-test.zip") {
-          source("tests/update_test_good_fsa.R", local = TRUE)  
-        }
-        
-        source("03_file_structure_analysis.R", local = TRUE)
 
+        setProgress(detail = "Checking file structure", value = .35)
+        source("03_file_structure_analysis.R", local = TRUE)
+        
         # if structural issues were not found, keep going
         if (valid_file() == 1) {
           if(nrow(
@@ -174,28 +183,19 @@ function(input, output, session) {
           }
 
           setProgress(detail = "Prepping initial data..", value = .4)
-          source("04_initial_data_prep.R", local = TRUE)
-          
-          # if we're in shiny testmode and the script has gotten here,
-          # that means we're using the hashed-test-good file. 
-          # we will update that file to capture the various issues we want to test
-          # we have confirmed that it is correctly capturing these issues
-          if(isTRUE(getOption("shiny.testmode")) && 
-             upload_filename == "FY24-ICF-hashed-current-good.zip") {
-            source("tests/update_test_good_dq.R", local = TRUE)  
-          }
+          source("04_initial_data_prep.R", local = TRUE) 
           
           setProgress(detail = "Assessing your data quality..", value = .7)
           source("05_DataQuality.R", local = TRUE)
           
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
-# browser()
+
           setProgress(detail = "Preparing System Overview Data", value = .85)
           source("07_system_overview.R", local = TRUE)
 
           setProgress(detail = "Preparing Sankey Chart", value = .95)
-          source("09_sankey_chart.R", local = TRUE)
+          source("09_system_status.R", local = TRUE)
           
           # if user changes filters, update the reactive vals
           # which get used for the various System Overview charts
@@ -209,10 +209,30 @@ function(input, output, session) {
             input$syso_gender
             input$syso_race_ethnicity
           }, {
-            sys_df_universe(universe_ppl_flags())
             sys_inflow_outflow_plot_data(inflow_outflow_df())
-            sys_df_people_universe_filtered_r(clients_enrollments_reactive())
-            sankey_plot_data(plot_data())
+            sys_df_people_universe_filtered_r(
+              enrollment_categories_reactive() %>%
+                select(PersonalID, lookback, lecr, eecr) %>%
+                inner_join(client_categories, join_by(PersonalID)) %>%
+                filter(!(lookback == 0 &
+                           eecr == FALSE & lecr == FALSE)) %>%
+                group_by(PersonalID) %>%
+                filter(max(lecr, na.rm = TRUE) == 1 &
+                         max(eecr, na.rm = TRUE) == 1) %>%
+                ungroup() %>%
+                select(-c(lookback, lecr, eecr)) %>%
+                unique()
+            )
+            sankey_plot_data(sankey_plot_df())
+            
+            # hide download buttons if < 11 records
+            # All Served is handled in system_composition_server.R
+            # for that chart, we also hide if all *cells* are < 11
+            shinyjs::toggle("sys_inflow_outflow_download_btn", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
+            shinyjs::toggle("sys_inflow_outflow_download_btn_ppt", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
+            
+            shinyjs::toggle("sys_status_download_btn", condition = sum(sankey_plot_data()$freq) > 10)
+            shinyjs::toggle("sys_status_download_btn_ppt", condition = sum(sankey_plot_data()$freq) > 10)
           })
           
           setProgress(detail = "Done!", value = 1)
@@ -280,10 +300,12 @@ function(input, output, session) {
               footer = modalButton("OK")
             )
           )
+          
           logMetadata("Unsuccessful upload - not structurally valid")
         }
-      })
-    }
+        toggle_sys_components(valid_file() == 1)
+      }
+    })
   }
   
   observeEvent(input$imported, {
@@ -300,8 +322,6 @@ function(input, output, session) {
       summarise(Count = n()) %>%
       ungroup() %>%
       arrange(Type, desc(Count))
-    
-    exportTestValues(fileStructureAnalysis = file_structure_analysis_main())
 
     datatable(
       a,
@@ -366,7 +386,7 @@ function(input, output, session) {
       logMetadata(paste0("Impermissible Character Locations Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(non_ascii_files_detail = non_ascii_files_detail)
+      exportTestValues(non_ascii_files_detail = summary(non_ascii_files_detail))
     }
   )
   
@@ -594,8 +614,6 @@ function(input, output, session) {
       select(all_of(clientCountDetailCols)) %>%
       nice_names()
     
-    exportTestValues(clientCountData = x)
-    
     datatable(
       x,
       rownames = FALSE,
@@ -610,7 +628,7 @@ function(input, output, session) {
   output$clientCountSummary <- renderDT({
     req(valid_file() == 1)
     
-    exportTestValues(clientCountSummary = client_count_summary_df())
+    exportTestValues(clientCountSummary = summary(client_count_summary_df()))
     
     datatable(
       client_count_summary_df() %>%
@@ -657,13 +675,13 @@ function(input, output, session) {
     content = function(file) {
       req(valid_file() == 1)
       
-      summary <- pdde_main() %>% 
+      summary_df <- pdde_main() %>% 
         group_by(Issue, Type) %>%
         summarise(Count = n()) %>%
         ungroup()
       
       write_xlsx(
-        list("Summary" = summary,
+        list("Summary" = summary_df,
              "Data" = pdde_main() %>%
                nice_names()),
         path = file)
@@ -671,7 +689,8 @@ function(input, output, session) {
       logMetadata(paste0("Downloaded PDDE Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main()))
+      exportTestValues(pdde_download = list(
+        "Summary" = summary(summary_df), "Data" = summary(pdde_main())))
     }
   )
   
@@ -685,7 +704,7 @@ function(input, output, session) {
       ungroup() %>%
       arrange(Type)
     
-    exportTestValues(pdde_summary_table = a)
+    exportTestValues(pdde_summary_table = summary(a))
     
     datatable(
       a,
@@ -705,7 +724,7 @@ function(input, output, session) {
       arrange(Type, Issue) %>%
       unique()
     
-    exportTestValues(pdde_guidance_summary = guidance)
+    exportTestValues(pdde_guidance_summary = summary(guidance))
     
     datatable(
       guidance, 
@@ -739,7 +758,7 @@ function(input, output, session) {
              Issue, 
              Clients)
     
-    exportTestValues(dq_organization_summary_table = a)
+    exportTestValues(dq_organization_summary_table = summary(a))
     
     datatable(
       a,
@@ -763,7 +782,7 @@ function(input, output, session) {
       arrange(Type, Issue) %>%
       unique()
     
-    exportTestValues(dq_org_guidance_summary = guidance)
+    exportTestValues(dq_org_guidance_summary = summary(guidance))
     
     datatable(
       guidance, 
@@ -823,7 +842,7 @@ function(input, output, session) {
       write_xlsx(dqDownloadInfo()$orgDQData, path = file)
       logMetadata(paste0("Downloaded Org-level DQ Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-      exportTestValues(orgDQ_download = dqDownloadInfo()$orgDQData)
+      exportTestValues(orgDQ_download = summary(dqDownloadInfo()$orgDQData))
     }
   )
   
@@ -842,7 +861,7 @@ function(input, output, session) {
       write_xlsx(dqDownloadInfo()$systemDQData, path = file)
       logMetadata(paste0("Downloaded System-level DQ Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-      exportTestValues(systemDQ_download = dqDownloadInfo()$systemDQData)
+      exportTestValues(systemDQ_download = summary(dqDownloadInfo()$systemDQData))
     }
   )
   
@@ -933,169 +952,16 @@ function(input, output, session) {
   
   # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
   
-  #### FILTERS ###
-  sys_comp_filter_choices <- reactive({
-    ifelse(
-      input$methodology_type == 1,
-      list(sys_comp_filter_choices1),
-      list(sys_comp_filter_choices2)
-    )[[1]]
-  })
+  source("system_overview_server.R", local = TRUE)
   
-    # Population reactives ----------------------------------------------------
+  ## System Composition ----
+  source("system_inflow_outflow_server.R", local = TRUE)
     
-    # Set race/ethnicity + gender filter options based on methodology type selection
-    # Set special populations options based on level of detail selection
-  syso_race_ethnicity_cats <- function(methodology = 1){
-    ifelse(
-      methodology == 1,
-      list(syso_race_ethnicity_excl),
-      list(syso_race_ethnicity_incl)
-    )[[1]]
-  }
-  
-  syso_gender_cats <- function(methodology = 1){
-    ifelse(methodology == 1,
-           list(syso_gender_excl),
-           list(syso_gender_incl))[[1]]
-  }
-  
-  observeEvent(input$methodology_type, {
-    
-    updatePickerInput(
-      session = session,
-      "syso_gender", 
-      choices = syso_gender_cats(input$methodology_type),
-      selected = "All Genders"
-    )
+  ## System Composition ----
+  source("system_composition_server.R", local = TRUE)
 
-    updatePickerInput(
-      session, 
-      "syso_race_ethnicity", 
-      choices = syso_race_ethnicity_cats(input$methodology_type)
-    )
-    
-    updateCheckboxGroupInput(
-      session, 
-      "system_composition_filter", 
-      choices = sys_comp_filter_choices(),
-      inline = TRUE
-    )
-    
-  },
-  ignoreInit = TRUE)
-  
-  observeEvent(input$syso_level_of_detail, {
-    updatePickerInput(session, "syso_spec_pops",
-                      # label = "Special Populations",
-                      choices = syso_spec_pops_people)
-  })
-  
-  #### DOWNLOAD TABULAR FORMAT ###
-  output$downloadSysOverviewTabBtn  <- renderUI({
-    req(valid_file() == 1)
-    downloadButton(outputId = "downloadSysOverviewTabView",
-                   label = "Download")
-  })
-  
-  output$downloadSysOverviewTabView <- downloadHandler(
-    filename = date_stamped_filename("System Overview Tabular View -"),
-    content = function(file) {
-      req(valid_file() == 1)
-
-    }
-  )
-    
-  source("07a_system_activity_plots.R", local = TRUE)
-    
-  #### DISPLAY FILTER SELECTIONS ###
-  output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
-  output$sys_act_summary_filter_selections <- renderUI({
-    req(valid_file() == 1)
-    syso_detailBox() 
-  })
-
-  #### DISPLAY CHART SUBHEADER ###
-  output$sys_act_detail_chart_subheader <- renderUI({ syso_chartSubheader() })
-  output$sys_act_summary_chart_subheader <- renderUI({ syso_chartSubheader() })
-
-  renderSystemPlot("sys_act_summary_ui_chart")
-  renderSystemPlot("sys_act_detail_ui_chart")
-
-  # System Composition ------------------------------------
-  source("system_composition_functions.R", local = TRUE)
-  sys_comp_p <- reactive({
-    req(!is.null(input$system_composition_filter))
-    sys_comp_plot(input$system_composition_filter)
-  })
-  
-  observeEvent(input$syso_tabsetpanel, {
-    if(input$syso_tabsetpanel == "Composition of All Served in Period") {
-      addClass(id="syso_inflowoutflow_filters", class="filter-disabled")
-    }
-  })
-  observeEvent(input$system_composition_filter, {
-    # they can select up to 2
-    if(length(input$system_composition_filter) > 2){
-      updateCheckboxGroupInput(
-        session, 
-        "system_composition_filter", 
-        selected = tail(input$system_composition_filter,2),
-        inline = TRUE)
-    } 
-
-    # they cannot select both Race/Ethnicity buttons
-    if("All Races/Ethnicities" %in% input$system_composition_filter & (
-        "Hispanic-Focused Races/Ethnicities" %in% input$system_composition_filter |
-        "Grouped Races/Ethnicities" %in% input$system_composition_filter)
-      ) {
-      updateCheckboxGroupInput(
-        session, 
-        "system_composition_filter", 
-        selected = tail(input$system_composition_filter,1),
-        inline = TRUE)
-    } 
-  })
-
-  
-  output$sys_comp_summary_filter_selections <- renderUI({
-    req(length(input$system_composition_filter) == 2)
-    syscomp_detailBox()
-  })
-
-  output$sys_comp_summary_ui_chart <- renderPlot({
-    validate(
-      need(
-        any(!is.na(sys_comp_p()$data$n)), 
-        message = paste0("No data to show.")
-      )
-    )
-    sys_comp_p()
-  }, height = function() { 
-      if_else(length(input$system_composition_filter) == 2, 600, 100) 
-  })
-  
-  
-  ### SANKEY CHART/SYSTEM STATUS
-  source("09a_render_sankey.R", local = TRUE)
-  output$sankey_filter_selections <- renderUI({ 
-    req(valid_file() == 1)
-    syso_detailBox() 
-  })
-  output$sankey_chart_subheader <- renderUI({ 
-    req(valid_file() == 1)
-    syso_chartSubheader() 
-  })
-  output$sankey_ui_chart <- renderPlot({
-    req(valid_file() == 1)
-    validate(
-      need(
-        nrow(sankey_plot_data()) > 0, 
-        message = paste0("No data to show.")
-      )
-    )
-    renderSankeyChart(sankey_plot_data())
-  })
+  ## Sankey Chart/System Status ----
+  source("system_status_server.R", local = TRUE)
   
   session$onSessionEnded(function() {
     logMetadata("Session Ended")

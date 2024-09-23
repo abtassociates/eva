@@ -20,6 +20,7 @@ library(dtplyr)
 library(data.table)
 library(ggplot2)
 library(ggalluvial)
+library(officer)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 

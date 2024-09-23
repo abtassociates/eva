@@ -43,11 +43,6 @@ dashboardPage(
                tabName = "tabLocalSettings"),
       menuItem("View Client Counts",
                   tabName = "tabClientCount"),
-      menuItem("System Performance",
-              menuSubItem("System Overview",
-                           tabName = "systemOverview"),
-              menuSubItem("System Exit Detail",
-                           tabName = "systemExitDetail")),
       menuItem("Assess Data Quality",
                menuSubItem("Check Project Data",
                            tabName = "tabPDDE"),
@@ -55,6 +50,12 @@ dashboardPage(
                            tabName = "tabDQSystem"),
                menuSubItem("Organization-level",
                            tabName = "tabDQOrg")),
+      menuItem("System Performance Overview",
+               tabName = "tabSystemOverview"),
+               #menuSubItem("System Exit Detail",
+                #           tabName = "systemExitDetail")
+      menuItem("Glossary",
+               tabName = "tabGlossary"),
       menuItem("View Changelog",
                tabName = "tabChangelog")
       # ),
@@ -78,7 +79,7 @@ dashboardPage(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
       tags$script(HTML("function idleTimer() {
-          var timeoutTime = 600000;
+          var timeoutTime = 900000;
           var t = setTimeout(logout, timeoutTime);
           window.onmousemove = resetTimer; // catches mouse movements
           window.onmousedown = resetTimer; // catches mouse movements
@@ -115,12 +116,12 @@ dashboardPage(
               <p><b>Eva</b> is an <a href = 'https://github.com/abtassociates/eva'
               target= '_blank' rel='noopener noreferrer'>open-source</a>
               project intended for local use by HMIS Administrators in Continuums
-              of Care (CoCs) around the U.S. and its territories. Eva is designed
-              to help you assess the accuracy and completeness of the data within
-              your HMIS. In future iterations it will also assist communities in
-              analyzing HMIS performance data, including coordinated entry, if 
-              your community utilizes HMIS for this purpose. Use of this tool is
-              not required by HUD.</p>
+              of Care (CoCs) around the U.S. and its territories. Eva is designed 
+              to help you (1) assess the accuracy and completeness of the data within 
+              your HMIS, and (2) understand your homeless response system’s flow 
+              and performance. Using Eva does not result in reporting or sharing 
+              data with HUD and use of Eva is not required by HUD.</p>
+              
               <p>Eva is a web-based tool built with R Shiny. This means:</p>
               <ul>
                 <li>Eva will only access your CoC&rsquo;s data during your session, 
@@ -285,34 +286,68 @@ dashboardPage(
                  <h4>Upload hashed HMIS CSV Export</h4>
                  
               <p>To upload your hashed HMIS CSV Export, click the \'Browse\'
-              button. Once you find the zip file on your computer, select it 
-              and click \'Open\'. Your file will begin uploading. Eva will check 
-              to determine if the export is hashed. If it is not, Eva will reject 
-              the file with an error message, and clear Eva's memory until you 
-              upload a hashed HMIS CSV Export.</p>
+              button. Once you find the zip file on your computer, click on it to select it, 
+              and click \'Open\' to begin the upload. Eva might take a few moments 
+              to process your selected file. Eva will first check to determine if 
+              the export is hashed. If it is not, Eva will reject the file with 
+              an error message, and clear Eva's memory. Eva will continue to do 
+              this until you upload a hashed HMIS CSV Export.</p>
               
               <h4>HMIS CSV Export File Structure Analysis</h4>
-              <p>Once Eva verifies that your export is hashed, it will check
-              that the files have all the right names, columns, data types, and
-              allowable values. Eva will generate data quality issues that are
-              categorized as high priority errors, general errors, and warnings.
-              If there are any high priority errors that prevent Eva from
-              functioning, Eva will reject your upload, stop processing the export,
-              and clear Eva's memory.</p>
-              <p>All issues will display in the HMIS CSV File Structure Analysis
-              panel, where you can download the details, even if the file
-              was rejected. Users should contact their vendor to resolve high 
-              priority errors identified in the HMIS CSV Export File Structure
-              Analysis, as well as any other structural issues which you feel need
-              to be corrected. Not all structural issues found in this analysis will 
-              prevent the data from being accepted for analysis, so they may not 
-              require immediate attention. Once your vendor has addressed any
-              high priority structural errors, you can attempt another upload.</p>
+              <p>After confirming your export is hashed, Eva will review and process 
+              the file structure of your upload. The File Structure Analysis assesses 
+              the structural components of the uploaded .zip file and determines 
+              if it meets Eva’s file structure requirements, such as if the files 
+              have all the right names, columns, data types, and allowable values etc.</p>
               
-              <p>Once you have uploaded a hashed and structurally sound zip file,
-              you will see a confirmation that your upload was successful, the date
-              range of the files you uploaded, plus the date your Export was 
-              downloaded from your HMIS.
+              <p>Once your upload is processed and Eva has finished assessing the 
+              file structure integrity of your upload, Eva will provide a pop-up 
+              message alerting you of your upload status. You can have either a 
+              successful upload or an unsuccessful upload based on the structural 
+              integrity of your HMIS CSV export. The key difference between a successful 
+              upload and an unsuccessful upload is if the upload has any High Priority 
+              File Structure Errors.</p>
+              
+              <p>While any error identified during the File Structure Analysis represent 
+              components in the uploaded HMIS CSV export file that do not meet the 
+              most recent <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
+              target= '_blank' rel='noopener noreferrer'>HMIS CSV Format Specifications</a>, 
+              there are some file structural errors that are more relevant to the 
+              functionality of Eva.</p>
+              
+              <ul>
+                <li><b>High Priority File Structure Errors</b> are file structure issues 
+                that will cause Eva to not work.</li>
+                <li><b>General File Structure Errors</b> are file structure issues that 
+                will not impact Eva’s ability to work, but do not meet HMIS CSV 
+                format specifications.</li>
+              </ul>
+              
+              <p>If Eva identifies any High Priority File Structure Errors during 
+              the File Structure Analysis that prevent Eva from functioning, Eva 
+              will reject your upload and stop processing the export. You will thus 
+              not be able to assess the data quality of your upload or analyze the 
+              system performance of your homeless response system. For both successful 
+              and unsuccessful uploads, all identified file structure errors will 
+              display in the HMIS CSV File Structure Analysis panel, where you can 
+              download the details.</p>
+              
+              <p>It is essential that you contact your HMIS vendor to resolve all 
+              High Priority File Structure Errors identified in the HMIS CSV Export 
+              File Structure Analysis, as well as any other structural issues which 
+              you feel need to be corrected. Not all structural issues found in 
+              this analysis will prevent the data from being accepted for analysis, 
+              so they may not require immediate attention. Once your vendor has 
+              addressed any High Priority File Structure Errors, you can attempt 
+              another upload.</p>
+              
+              <p>Once you have uploaded a hashed and structurally sound .zip file, 
+              you will see a confirmation that your upload was successful, the date 
+              range of the files you uploaded, plus the date your Export was downloaded 
+              from your HMIS. You will then be able to assess the data quality of 
+              your upload and analyze the system performance of your homeless response system.</p>
+              
+              
               ")
           )),
           fluidRow(box(
@@ -367,13 +402,15 @@ dashboardPage(
             collapsed = TRUE,
             width = 12,
             HTML("
-              <p>To make Eva reporting more useful at the local level, you can
-              adjust the local settings to better analyze your data in a
-              way that is meaningful to your CoC. To edit these, click to expand the 
-              relevant box below. If you do not edit them, the reporting will 
-              use the defaults listed. These defaults do not imply any HUD 
-              recommendations. Please read the description in the
-              Edit Local Settings tab for more information.</p>
+              <p>To make Eva data quality analysis more useful at the local level, 
+              you can adjust the local settings to better analyze your data in a 
+              way that is meaningful to your CoC. To edit these, click to expand 
+              the relevant box below. If you do not edit them, the Assess Data Quality 
+              and View Client Counts pages will use the defaults listed. Please 
+              note, these local settings do not impact the System Performance Overview page.</p>
+              
+              <p>These defaults do not imply any HUD recommendations. Please read 
+              the description in the Edit Local Settings tab for more information.</p>
               ")
           ),
           box(
@@ -651,202 +688,6 @@ dashboardPage(
         ))
       ),
       tabItem(
-        tabName = "systemOverview",
-        fluidRow(box(htmlOutput("headerSystemOverview"), width = 12)),
-        fluidRow(box(
-          title = "Instructions",
-          width = 12,
-          collapsible = TRUE,
-          collapsed = TRUE,
-          HTML("<h4>Placeholder</h4>")
-        )),
-        fluidRow(
-          box(
-            title = "Filters",
-            width = 12,
-            id = "syso_filters",
-            fluidRow(
-              id="universe_filters",
-              column(
-                2,
-                pickerInput(
-                  label = "Household Type",
-                  inputId = "syso_hh_type",
-                  choices = syso_hh_types,
-                  selected = syso_hh_types[1]
-                )
-              ),
-              column(
-                2,
-                pickerInput(
-                  label = "Level of Detail",
-                  inputId = "syso_level_of_detail",
-                  choices = syso_level_of_detail,
-                  selected = syso_level_of_detail[1]
-                ),
-              ),
-              column(
-                2,
-                pickerInput(
-                  label = "Project Type",
-                  inputId = "syso_project_type",
-                  choices = syso_project_types,
-                  selected = syso_project_types[1]
-                ),
-              ),
-              column(
-                6,
-                pickerInput(
-                  label = a(href="#", "Methodology Type"),
-                  inputId = "methodology_type",
-                  multiple = FALSE,
-                  selected = syso_methodology_types[1],
-                  choices = syso_methodology_types,
-                  width = "100%"
-                ),
-              ),
-            ),
-            fluidRow(
-              id="syso_inflowoutflow_filters",
-              column(
-                3,
-                pickerInput(
-                  inputId = "syso_age",
-                  label = "Age",
-                  selected = syso_age_cats,
-                  choices = syso_age_cats,
-                  multiple = TRUE,
-                  width = "100%",
-                  options = pickerOptions(
-                    actionsBox = TRUE,
-                    selectedTextFormat = paste("count >", length(syso_age_cats)-1),
-                    countSelectedText = "All ages",
-                    noneSelectedText = "All ages" 
-                  )
-                )
-              ),
-              column(
-                3,
-                pickerInput(
-                  label = "Special Populations",
-                  inputId = "syso_spec_pops",
-                  choices = syso_spec_pops_people,
-                  width = "100%",
-                  selected = syso_spec_pops_people[1]
-                )
-              ),
-              column(
-                3,
-                pickerInput(
-                  label = "Gender",
-                  inputId = "syso_gender",
-                  choices = syso_gender_excl,
-                  width = "100%",
-                  selected = "All",
-                  options = pickerOptions(actionsBox = TRUE)
-                )
-              ),
-              column(
-                3,
-                pickerInput(
-                  label = "Race/Ethnicity",
-                  inputId = "syso_race_ethnicity",
-                  choices = syso_race_ethnicity_excl,
-                  width = "100%",
-                  selected = syso_race_ethnicity_excl
-                )
-              )
-            )
-          )
-        ),
-        fluidRow(
-          box(
-            width=12,
-            tabsetPanel(
-              id = "syso_tabsetpanel",
-              type = "tabs",
-              tabPanel(
-                id="syso_inflowoutflow", 
-                title="System Inflow/Outflow",
-                tabsetPanel(
-                  selected = "Summary",
-                  tabPanel("Summary", 
-                           uiOutput("sys_act_summary_filter_selections"),
-                           uiOutput("sys_act_summary_chart_subheader"),
-                           plotOutput("sys_act_summary_ui_chart")
-                  ),
-                  tabPanel("Detail", 
-                           uiOutput("sys_act_detail_filter_selections"),
-                           uiOutput("sys_act_detail_chart_subheader"),
-                           plotOutput("sys_act_detail_ui_chart")
-                  ),
-                  tabPanel("Insights", 
-                           uiOutput("system_activity_instructions_ui")
-                  )
-                )
-              ),
-              tabPanel(
-                id = "syso_systemstatus",
-                side = "left",
-                selected = "Summary",
-                title = "Client System Status",
-                tabsetPanel(
-                  tabPanel("Summary", 
-                           uiOutput("sankey_filter_selections"),
-                           uiOutput("sankey_chart_subheader"),
-                           plotOutput("sankey_ui_chart")
-                  ),
-                  tabPanel("Insights", 
-                           uiOutput("sankey_instructions_ui")
-                  ),
-                ),
-                width = 12
-              ),
-              tabPanel(
-                id = "syso_composition",
-                side = "left",
-                selected = "Summary",
-                title = "Composition of All Served in Period",
-                tabsetPanel(
-                  tabPanel("Summary", 
-                           fluidRow(
-                             box(
-                               checkboxGroupInput(
-                                 "system_composition_filter",
-                                 label = paste0(
-                                   "Gender, Race/Ethnicity, and Special Populations",
-                                   "(select up to 2)"
-                                 ),
-                                 choices = sys_comp_filter_choices1,
-                                 inline = TRUE
-                               ),
-                               width = 12
-                             )
-                          ),
-                          uiOutput("sys_comp_summary_filter_selections"),
-                          plotOutput("sys_comp_summary_ui_chart")
-                  ),
-                  tabPanel("Instructions", 
-                           p("Some instructions")
-                  )
-                ),
-                width = 12
-              )
-            )
-          )
-        )
-      ),
-      tabItem(
-        tabName = "systemExitDetail",
-        fluidRow(box(htmlOutput("headerSystemExit"), width = 12)),
-        fluidRow(
-          box(
-            width = 12,
-            HTML("<h2>Placeholder</h2>")
-          )
-        )
-      ),
-      tabItem(
         tabName = "tabPDDE",
         fluidRow(box(htmlOutput(
           "headerPDDE"
@@ -1017,7 +858,7 @@ dashboardPage(
             width = 12
           )
         ),
-       
+        
         fluidRow(
           box(
             id = "DQSummaryOrganization",
@@ -1037,6 +878,605 @@ dashboardPage(
             width = 12,
             status = "info",
             solidHeader = TRUE
+          )
+        )
+      ),
+      tabItem(
+        tabName = "tabSystemOverview",
+        fluidRow(box(htmlOutput("headerSystemOverview"), width = 12)),
+        fluidRow(box(
+          title = "Instructions",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          HTML("<h4>System Performance Overview</h4>
+                <p>The System Performance Overview page in Eva features three system 
+                performance charts: the System Flow Chart, the Client System Status 
+                Chart, and the System Demographics Chart. The charts display system 
+                performance data, pulled from your uploaded HMIS CSV export, from 
+                all HMIS Continuum projects, excluding homeless prevention projects. 
+                Eva uses the last 12 full months of data in the upload, which constitutes 
+                the report period. <b>Note that some charts on this page may not display 
+                if the uploaded HMIS CSV export has less than twelve full months of data.</b></p>
+                
+                <p>The purpose of the system performance charts is to use your HMIS 
+                data to (1) evaluate how effective your homeless system is in moving 
+                clients through the system and helping them reach permanent housing, 
+                and (2) help you understand the demographic composition of all clients 
+                served in your homeless system. Explore each of the charts using 
+                chart tabs beneath the Filters Menu. Under each chart tab is a Chart 
+                subtab for viewing the chart itself and an Information subtab. The 
+                Information subtab includes a “Chart Overview” section that provides 
+                guidance on how to read the chart, and some charts additionally have 
+                an “Interpretation Tips” section that can help you interpret their output.</p>
+                
+                <p>Use the Filters Menu to explore system performance trends of 
+                clients in your homeless system with specific characteristics. 
+                This has two components: </p>
+                
+                <ol>
+                  <li><b>The universal filters</b>, the top row of the Filters Menu, 
+                  impact the data shown on all three visualizations on this page. 
+                  Universal filters include Household Type, Level of Detail, Project 
+                  Type Group, and Gender and Race/Ethnicity Methodology Type.</li>
+                  <li><b>The demographic filters</b>, the bottom of the Filters Menu, 
+                  only impact the data shown in the System Flow and Client System 
+                  Status charts. Demographic filters include Age, Special Populations, 
+                  Gender, and Race/Ethnicity.</li>
+                </ol>
+                
+                <p>Use the drop-down menus to select the characteristics of the 
+                system subpopulation you want to analyze. The default selection 
+                is all clients in your homeless system throughout the report period. 
+                To see system performance by households, select the “Head of Households 
+                only” level of detail. All filters (except one) are single-select, 
+                meaning you can only select one category at a time. For the Age 
+                filter, you can select multiple age ranges to explore.</p>
+                
+                <p>The Gender and Race/Ethnicity Methodology Type selection only 
+                impacts the Gender and Race/Ethnicity filters. To learn more about 
+                methodology and demographic categories, please visit the Glossary 
+                accessible on Eva’s Navigation Menu.</p>
+                
+                <h4>Downloads</h4>
+                <p>To support further systems analysis, local reporting, and presentations, 
+                Eva includes two download options. To generate an Excel workbook 
+                with the data for a specific chart, click the “Data Download” button 
+                while viewing the chart. To generate a PowerPoint slide deck with 
+                the chart image, click the “ Image Download” button while viewing the chart. </p>
+                
+                <h4>Data Suppression and Data Security</h4>
+                <p>To ensure the privacy and protection of individuals and small 
+                population groups, Eva uses varying levels of data suppression. 
+                If the total number of clients within a chart is less than 11, the 
+                chart will not display. When this happens, you may need to broaden 
+                your filter selections or upload a larger dataset to ensure there 
+                is enough data to view the chart. A chart that is not displayed 
+                cannot be exported in Excel or PowerPoint.</p>
+                
+                <p>The data in the data download of a chart’s export <b>will not be 
+                suppressed</b>. Be careful how you save and share the tabular export. 
+                With smaller numbers, clients can become more identifiable in the 
+                data. Before you share the Excel export, feel free to modify, add, 
+                or remove anything as you see fit to preserve client anonymity. </p>
+               ")
+        )),
+        fluidRow(
+          box(
+            title = "Filters",
+            width = 12,
+            id = "syso_filters",
+            fluidRow(
+              id="universe_filters",
+              column(
+                2,
+                pickerInput(
+                  label = "Household Type",
+                  inputId = "syso_hh_type",
+                  choices = syso_hh_types,
+                  selected = syso_hh_types[1]
+                )
+              ),
+              column(
+                2,
+                pickerInput(
+                  label = "Level of Detail",
+                  inputId = "syso_level_of_detail",
+                  choices = syso_level_of_detail,
+                  selected = syso_level_of_detail[1]
+                ),
+              ),
+              column(
+                2,
+                pickerInput(
+                  label = "Project Type Group",
+                  inputId = "syso_project_type",
+                  choices = syso_project_types,
+                  selected = syso_project_types[1]
+                ),
+              ),
+              column(
+                6,
+                pickerInput(
+                  label = "Gender and Race/Ethnicity Methodology Type",
+                  inputId = "methodology_type",
+                  multiple = FALSE,
+                  selected = syso_methodology_types[1],
+                  choices = syso_methodology_types,
+                  width = "100%"
+                ),
+              ) %>% tagAppendAttributes(class="light-left-border"),
+            ),
+            fluidRow(
+              id="syso_inflowoutflow_filters",
+              column(
+                3,
+                pickerInput(
+                  inputId = "syso_age",
+                  label = "Age",
+                  selected = syso_age_cats,
+                  choices = syso_age_cats,
+                  multiple = TRUE,
+                  width = "100%",
+                  options = pickerOptions(
+                    actionsBox = TRUE,
+                    selectedTextFormat = paste("count >", length(syso_age_cats)-1),
+                    countSelectedText = "All Ages",
+                    noneSelectedText = "All Ages" 
+                  )
+                )
+              ),
+              column(
+                3,
+                pickerInput(
+                  label = "Veteran Status",
+                  inputId = "syso_spec_pops",
+                  choices = syso_spec_pops_people,
+                  width = "100%",
+                  selected = syso_spec_pops_people[1]
+                )
+              ),
+              column(
+                2,
+                pickerInput(
+                  label = "Gender",
+                  inputId = "syso_gender",
+                  choices = syso_gender_excl,
+                  width = "100%",
+                  selected = "All",
+                  options = pickerOptions(actionsBox = TRUE)
+                )
+              ) %>% tagAppendAttributes(class="light-left-border"),
+              column(
+                4,
+                pickerInput(
+                  label = "Race/Ethnicity",
+                  inputId = "syso_race_ethnicity",
+                  choices = syso_race_ethnicity_excl,
+                  width = "100%",
+                  selected = syso_race_ethnicity_excl,
+                  options = list(
+                    `dropdown-align-right` = TRUE, 
+                    `dropup-auto` = FALSE)
+                )
+              )
+            )
+          )
+        ),
+        fluidRow(
+          box(
+            width = 12,
+            tabBox(
+              width = 12,
+              id = "syso_tabbox",
+              type = "tabs",
+              tabPanel(
+                id="syso_inflowoutflow", 
+                title="System Flow",
+                tabBox(
+                  width = 12,
+                  id = "sys_inflow_outflow_subtabs",
+                  selected = "Summary Chart",
+                  tabPanel("Summary Chart", 
+                           uiOutput("sys_act_summary_filter_selections") %>% withSpinner(),
+                           plotOutput("sys_act_summary_ui_chart") %>% withSpinner()
+                  ),
+                  tabPanel("Detail Chart", 
+                           uiOutput("sys_act_detail_filter_selections") %>% withSpinner(),
+                           plotOutput("sys_act_detail_ui_chart") %>% withSpinner()
+                  ),
+                  tabPanel("Information", 
+                           HTML("<h4>Chart Overview</h4>
+                                <p>The System Flow chart shows your homeless system's 
+                                inflow and outflow during the period, helping you 
+                                assess the effectiveness of your homeless system. 
+                                The client universe for this chart is the number 
+                                of clients identified as active in your system at 
+                                the start of the report period plus the number of 
+                                clients that inflowed into your system during the 
+                                period. There are two views for this chart: the 
+                                Summary Chart view and the Detail Chart view. Both 
+                                views show the total number of clients active in 
+                                the system at the start and end of the period and 
+                                whether they are homeless at that time or housed 
+                                (and still receiving assistance).</p>
+                                
+                                <p>The Summary Chart shows the inflow and outflow 
+                                of clients that occurred throughout the period. 
+                                The Detail Chart breaks down inflow and outflow 
+                                into several categories.</p>
+                                
+                                <ul>
+                                  <li><b>Inflow</b> is categorized into three groups: 
+                                  “Newly Homeless,” “Returned from Permanent,” and 
+                                  “Re-engaged from Non-Permanent.”</li>
+                                  <li><b>Outflow</b> is divided into three categories: 
+                                  “Exited, Non-Permanent,” “Exited, Non-Permanent 
+                                  Destination,” and “Inactive.”</li>
+                                </ul>
+                                
+                                <p>The System Flow chart is read from 
+                                left to right. The Total Change value represents 
+                                the Outflow value(s) minus Inflow value(s). The 
+                                Total Change value can be positive or negative. 
+                                A negative change value means more clients left 
+                                your system than flowed into your system. A positive 
+                                change value means more clients flowed into your 
+                                system than left your system.</p>
+                                
+                                <h4>Interpretation Tips</h4>
+                                <p>This section provides general tips on how to 
+                                interpret the chart. Depending on the data you uploaded, 
+                                some of the items below may not apply.</p>
+                                
+                                <table class='sys_info_table' id='sys_flow_info_table'>
+                                  <tr>
+                                    <th>Scenario</th>
+                                    <th>What You See</th>
+                                    <th>What It Means</th>
+                                  </tr>
+                                  <tr>
+                                    <td>Less than 36 months of data are uploaded</td>
+                                    <td>In the Detail chart, “Inflow Unspecified” 
+                                    displays instead of “First Time Homeless.”</td>
+                                    <td>The “First Time Homeless” category refers 
+                                    to someone who has not been served in the system 
+                                    within the 24 months prior to their entry. Therefore, 
+                                    it is not possible to assess if people are newly 
+                                    homeless or returners/re-engagers without a 36-month 
+                                    dataset. Thus, because of the shorter timeframe 
+                                    of your export, the number of returners/re-engagers 
+                                    may be an undercount.</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Less than 12 months of data are uploaded</td>
+                                    <td>In the Detail chart, “Inflow Unspecified” 
+                                    displays instead of “First Time Homeless.”</td>
+                                    <td>The “First Time Homeless” category refers 
+                                    to someone who has not been served in the system 
+                                    within the 24 months prior to their entry.
+                                    Therefore, it will be difficult to draw conclusions about 
+                                    whether changes in inflow/outflow are meaningful. 
+                                    For instance, change in inflow/outflow over a 
+                                    4-month period may reflect expected seasonal shifts 
+                                    instead of a difference in system performance. 
+                                    For a fuller and more complete picture of your 
+                                    system, please use a file that has at least 36 
+                                    months of data.</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Total Inflow is greater than total Outflow</td>
+                                    <td>In the Summary chart, the bar for Inflow 
+                                    is larger than the bar for Outflow. The Total 
+                                    Change value is a positive number, representing an increase.</td>
+                                    <td>This means there were more clients that came into your system 
+                                    than left your system during the reporting period. 
+                                    Compare with results from prior years to see 
+                                    if more clients are coming into the system than 
+                                    in prior years, or if the change is because 
+                                    fewer clients are exiting. Use the Detail Chart 
+                                    to explore if a majority of the clients flowing 
+                                    in were newly homeless, returning to homelessness 
+                                    after previously exiting to a permanent destination, 
+                                    or re-engaging with the system after previously 
+                                    exiting to a non-permanent destination.</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Total Outflow is greater than total Inflow</td>
+                                    <td>In the Summary chart, the bar for Outflow
+                                    is larger than the bard for Inflow. The Total 
+                                    Change value is a negative number, representing a reduction.</td>
+                                    <td>This means there were more clients that left your system than 
+                                    came into your system during the reporting period.</td>
+                                  </tr>
+                                  <tr>
+                                    <td>The largest Outflow category is “Non-Permanent Destination”</td>
+                                    <td>In the Detail chart, the bar for “Non-Permanent 
+                                    Destination” is larger than the bar for “Permanent 
+                                    Destination” and the bar for “Inactive.”</td>
+                                    <td>This means most clients leaving your system 
+                                    are exiting to temporary or unknown destinations. 
+                                    Check your completion rate for exit destination 
+                                    to see if any corrections to unknown destinations 
+                                    are possible. To inform strategies for improving 
+                                    performance, filter to look at results for more 
+                                    specific groups, to see if there are differences 
+                                    in the rate of exits to temporary destinations.</td>
+                                  </tr>
+                                  <tr>
+                                    <td>The largest Outflow category “Inactive”</td>
+                                    <td>In the Detail chart, the bar for “Inactive”
+                                    is larger than the bar for “Permanent 
+                                    Destination” and the bar for “Non-Permanent Destination.”</td>
+                                    <td>This means many clients ended the period 
+                                    in an open enrollment without a recent Current 
+                                    Living Situation (CLS) record, and thus were 
+                                    counted as leaving your homeless system. 
+                                    Since it is not possible to accurately determine 
+                                    if they are still experiencing homelessness, 
+                                    clients without recent CLS records are presumed 
+                                    to have exited. Check that clients enrolled 
+                                    in Street Outreach, Coordinated Entry, Day Shelter, 
+                                    Supportive Services, and Other project type 
+                                    enrollments have CLS records entered at each contact.</td>
+                                  </tr>
+                                </table>")
+                  )
+                ),
+                downloadButton("sys_inflow_outflow_download_btn", "Data Download"),
+                downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
+              ),
+              tabPanel(
+                id = "syso_systemstatus",
+                side = "left",
+                selected = "Chart",
+                title = "Client System Status",
+                tabBox(
+                  width = 12,
+                  id = "sys_status_subtabs",
+                  tabPanel("Chart", 
+                           uiOutput("sankey_filter_selections") %>% withSpinner(),
+                           plotOutput("sankey_ui_chart") %>% withSpinner()
+                  ),
+                  tabPanel("Information", 
+                           HTML("<h4>Chart Overview</h4>
+                                <p>The Client System Status Chart shows the end-of-year 
+                                housing status of the clients that were active in 
+                                your homeless response system at the start of the 
+                                period. This chart helps you identify the proportion 
+                                of clients that ended the period as (1) homeless 
+                                or (2) housed or in permanent housing. The client 
+                                universe for this chart is the number of clients 
+                                active in your system at the start of the report 
+                                period. This chart does not include clients that 
+                                inflowed into your system after the start of the 
+                                report period.</p>
+                                
+                                <p>The left-hand bar labeled “Period Start” in the 
+                                chart shows the status of clients active/enrolled 
+                                in your system at the start of the period; clients 
+                                are identified as either “Homeless” or “Housed.” 
+                                The right-hand bar labeled “Period End” in the chart 
+                                shows the status of these clients at the end of 
+                                the period. Clients are categorized into five system 
+                                statuses at the end of the period: “Exited, Non-Permanent,” 
+                                “Enrolled, Homeless,” “Inactive,” “Exited, Permanent,” 
+                                and “Enrolled, Housed.”</p>
+                                
+                                <p>In the area of the figure between the two bars, 
+                                the Client System Status Chart depicts the change 
+                                of these clients from their status at the start 
+                                of the period to their status at the end of the 
+                                period through visible linkages that connect the 
+                                two bars. The width of each linkage represents the 
+                                proportion of clients that make up that linkage. 
+                                Meaning, the thicker the linkage, the larger proportion 
+                                of clients it represents.</p>
+                                
+                                <h4>Interpretation Tips</h4>
+                                <p>This section provides general tips on how to 
+                                interpret the chart. Depending on the data you 
+                                uploaded, some of the items below may not apply.</p>
+                                <table class='sys_info_table' id='sys_status_info_table'>
+                                  <tr>
+                                    <th>Scenario</th>
+                                    <th>What You See</th>
+                                    <th>What It Means</th>
+                                  </tr>
+                                  <tr>
+                                    <td>The sum of “Enrolled, Housed” and “Exited, 
+                                    Permanent” is greater than the sum of the 
+                                    remaining categories at Period End</td>
+                                    <td>The bars for “Enrolled, Housed” and “Exited, 
+                                    Permanent” combined look larger than the bars 
+                                    for the remaining categories in the chart.</td>
+                                    <td>This means the majority of clients who were 
+                                    active in your system at the start of the report 
+                                    period exited to or retained permanent housing 
+                                    by the end of the report period.</td>
+                                  </tr>
+                                  <tr>
+                                    <td>The sum of “Enrolled, Homeless” and 
+                                    “Exited, Non-Permanent” is greater than the 
+                                    sum of the remaining categories at Period End</td>
+                                    <td>The bars for “Enrolled, Homeless” and 
+                                    “Exited, Non-Permanent” combined look larger than the bars 
+                                    for the remaining categories in the chart.</td>
+                                    <td>This means the majority of clients who were 
+                                    active in your system at the start of the report 
+                                    period either exited to homeless, temporary, 
+                                    or unknown destinations or remained homeless 
+                                    by the end of the report period. Check your 
+                                    completion rate for exit destination to see 
+                                    if any corrections to unknown destinations 
+                                    are possible.</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Clients who were active in the system at
+                                    Period Start are inactive at Period End</td>
+                                    <td>The category “Inactive” is display in the 
+                                    chart at Period End.</td>
+                                    <td>This means some clients ended the period 
+                                    in an open enrollment without a recent Current 
+                                    Living Situation (CLS) record, and thus were 
+                                    counted as leaving your homeless system. Since 
+                                    it is not possible to accurately determine if 
+                                    they are still experiencing homelessness, clients 
+                                    without recent CLS records are presumed to have 
+                                    exited. Check that clients enrolled in Street 
+                                    Outreach, Coordinated Entry, Day Shelter, Supportive 
+                                    Services, and Other project type enrollments 
+                                    have CLS records entered at each contact.</td>
+                                  </tr>
+                                </table>")
+                  )
+                ),
+                downloadButton("sys_status_download_btn", "Data Download"),
+                downloadButton("sys_status_download_btn_ppt", "Image Download"),
+                width = 12
+              ),
+              tabPanel(
+                id = "syso_composition",
+                side = "left",
+                selected = "Chart",
+                title = "System Demographics",
+                tabBox(
+                  width = 12,
+                  id = "sys_comp_subtabs",
+                  tabPanel("Chart", 
+                           fluidRow(
+                             box(
+                               strong("Select Demographic Crosstab Categories (up to 2)"),
+                               p(str_glue(
+                                 "For a simple count of totals within a demographic 
+                                 category, select only one category. To see the 
+                                 intersection of two demographic categories, select 
+                                 both categories to create a crosstab chart. To 
+                                 change your crosstab selection, uncheck at least 
+                                 one of your previous selections before selecting 
+                                 new categories. Note that you can only select one Race/Ethnicity 
+                                 category to display in the chart at a time."
+                               )),
+                               checkboxGroupInput(
+                                 "system_composition_selections",
+                                 label = "",
+                                 choices = sys_comp_selection_choices,
+                                 selected = c("All Races/Ethnicities", "Age"),
+                                 inline = TRUE
+                               ),
+                               width = 12
+                             )
+                          ),
+                          uiOutput("sys_comp_summary_selections"),
+                          plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
+                  ),
+                  tabPanel("Information", 
+                           HTML("<h4>Chart Overview</h4>
+                                <p>The System Demographics Chart shows the demographic 
+                                make-up of your homeless system and highlights 
+                                important trends among various demographic groups. 
+                                The client universe for this chart is the number 
+                                of clients identified as active in your system at 
+                                the start of the report period plus the number of 
+                                clients that inflowed into your system.</p>
+                                
+                                <p>Under the chart tab are five demographic categories 
+                                you can choose from: Age, 
+                                Gender, All Races/Ethnicities, a second race/ethnicity 
+                                option, and Veteran Status. Please note, the second 
+                                race/ethnicity option differs for each Gender and 
+                                Race/Ethnicity Methodology Type selection you made 
+                                earlier on the Filter Menu.</p>
+                                
+                                <p>For a simple count of totals within a demographic 
+                                category, select only one category. To see the 
+                                intersection of two demographic categories, select 
+                                both categories to create a crosstab chart. To change 
+                                your crosstab selection, uncheck at least one of 
+                                your previous selections before selecting a new 
+                                category. Please note that you can only select one 
+                                race/ethnicity category to display in the chart 
+                                at a time.</p>
+                                
+                                <p>Each cell in the chart is a unique combination 
+                                of demographic characteristics. For example, if 
+                                you selected Age and Veteran Status, a unique demographic 
+                                combination would be “25-34” and “Non-Veteran/Unknown.” 
+                                Any cell with a count is shaded. The darker the 
+                                color in a cell, the greater the value of that cell.</p>
+                                
+                                <h4>Data Suppression</h4>
+                                <p>Additional levels of data suppression apply to 
+                                the System Demographics Chart.</p>
+                                
+                                <ul>
+                                  <li>Any value less than 11 is suppressed, including totals.</li>
+                                  <li>If there is only one suppressed value within 
+                                  a row or column, the next highest value is also suppressed.</li>
+                                  <li>If all individual cells in the chart have 
+                                  values of less than eleven (11), the chart will not display.</li>
+                                </ul>
+                                
+                                <p>All suppressed values are represented by *** in the chart.</p>
+                                
+                                <p>Please note that while data can be suppressed 
+                                in the System Demographics chart in Eva and in its 
+                                image download, the data in the chart’s data download 
+                                will not be suppressed. Be careful how you save 
+                                and share the tabular export. With smaller numbers, 
+                                clients can become more identifiable in the data. 
+                                Before you share the Excel export, feel free to modify, 
+                                add, or remove anything as you see fit to preserve 
+                                client anonymity.</p>
+                                
+                                ")
+                  )
+                ),
+                downloadButton("sys_comp_download_btn", "Data Download"),
+                downloadButton("sys_comp_download_btn_ppt", "Image Download"),
+                width = 12
+              )
+            )
+          )
+        )
+      ),
+      tabItem(
+        tabName = "systemExitDetail",
+        fluidRow(box(htmlOutput("headerSystemExit"), width = 12)),
+        fluidRow(
+          box(
+            width = 12,
+            HTML("<h2>Placeholder</h2>")
+          )
+        )
+      ),
+      tabItem(
+        tabName = "tabGlossary",
+        fluidRow(box(HTML("<h2>Glossary</h2>"), width = 12)),
+        fluidRow(box(
+          title = "Instructions",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          HTML("
+               <p>This glossary provides definitions for the terms used throughout 
+              Eva's System Performance Overview page. You can review definitions 
+              of the terms by their focus, including:</p>
+              
+              <ul>
+                <li>System Performance Filters</li>
+                <li>System Flow Chart</li>
+                <li>Client System Status Chart</li>
+              </ul>
+              
+              <p>You can also search for a specific term using the search bar.</p>")
+        )),
+        fluidRow(
+          box(
+            # collapsible = TRUE,
+            # collapsed = TRUE,
+            width = 12,
+            DTOutput("glossary")
           )
         )
       ),

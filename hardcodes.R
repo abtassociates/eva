@@ -133,21 +133,21 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 syso_hh_types <- list(
   "All Household Types" = "All",
-  "Households without children" = "AO",
-  "Households with children" = "AC",
-  "Children Only" = "CO",
-  "Youth and Young Adults" = "YYA",
-  "Parenting Youth" = "PY"
+  "- Youth and Young Adult" = "YYA",
+  "Adult Only" = "AO",
+  "Adult Child" = "AC",
+  "- Parenting Youth" = "PY",
+  "Child Only" = "CO"
 )
 
 syso_level_of_detail <- list(
-  "All" = "All", 
+  "All People" = "All", 
   "Heads of Household and Adults" = "HoHsAndAdults", 
   "Heads of Household Only" = "HoHsOnly"
 )
 
 syso_project_types <- list(
-  "All" = "All",
+  "All Project Types" = "All",
   "Residential" = "Residential",
   "Non-residential" = "NonResidential"
 )
@@ -172,19 +172,18 @@ gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific
 syso_gender_incl <- list(
   "All Genders" = "All",
   "Gender expansive, including transgender" = "TransgenderInclusive",
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive",
   "Man (Boy, if child) alone or in combination" = "ManInclusive",
-  "Non-binary alone or in combination" = "NonBinaryInclusive",
-  "Woman (Girl, if child) alone or in combination" = "WomanInclusive",
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive"
+  "Non-Binary alone or in combination" = "NonBinaryInclusive",
+  "Woman (Girl, if child) alone or in combination" = "WomanInclusive"
 )
 
 syso_gender_excl <- list(
   "All Genders" = "All",
   "Gender expansive, not transgender" = "GenderExpansiveExclusive",
-  "Man (Boy, if child), alone" = "ManExclusive",
+  "Man (Boy, if child) alone" = "ManExclusive",
   "Transgender, alone or in combination" = "TransgenderExclusive",
-  "Woman (Girl, if child), alone" = "WomanExclusive",
-  "Unknown" = "UnknownExclusive"
+  "Woman (Girl, if child) alone" = "WomanExclusive"
 )
 
 race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
@@ -192,68 +191,68 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
 
 
 syso_race_ethnicity_incl <- list(
-  "All" = c("All Races/Ethnicities" = "All"),
+  "All Races/Ethnicities" = "All",
   "Detailed" = c(
-    "American Indian, Alaska Native, or Indigenous Inclusive" =
+    "American Indian, Alaska Native, or Indigenous inclusive" =
       "AmIndAKNativeInclusive1",
-    "Asian or Asian American Inclusive" =
+    "Asian or Asian American inclusive" =
       "AsianInclusive1",
-    "Black, African American, or African Inclusive" =
+    "Black, African American, or African inclusive" =
       "BlackAfAmericanInclusive1",
-    "Hispanic/Latina/e/o" =
+    "Hispanic/Latina/e/o inclusive" =
       "LatineInclusive1",
-    "Middle Eastern or North African Inclusive" =
+    "Middle Eastern or North African inclusive" =
       "MENAInclusive1",
-    "Native Hawaiin or Pacific Islander Inclusive" =
+    "Native Hawaiian or Pacific Islander inclusive" =
       "NativeHIPacificInclusive1",
-    "White Inclusive" =
+    "White inclusive" =
       "WhiteInclusive1"
   ),
   "Summarized" = c(
-    "Black, African American or African and Hispanic/Latina/e/o Inclusive" =
+    "Black, African American or African and Hispanic/Latina/e/o inclusive" =
       "BlackAfAmericanLatineInclusive2",
-    "Hispanic/Latina/e/o Inclusive" =
-      "LatineInclusive2",
-    "Hispanic/Latina/e/o Alone" =
-      "LatineAloneInclusive2"
+    "Hispanic/Latina/e/o alone" =
+      "LatineAloneInclusive2",
+    "Hispanic/Latina/e/o inclusive" =
+      "LatineInclusive2"
   )
 )
 syso_race_ethnicity_excl <- list(
-  "All" = c("All Races/Ethnicities" = "All"),
+  "All Races/Ethnicities" = "All",
   "Detailed" = c(
-    "American Indian, Alaska Native, or Indigenous Alone" =
+    "American Indian, Alaska Native, or Indigenous alone" =
       "AmIndAKNativeAloneExclusive1",
     "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" =
       "AmIndAKNativeLatineExclusive1",
-    "Asian or Asian American Alone" =
+    "Asian or Asian American alone" =
       "AsianAloneExclusive1",
     "Asian or Asian American & Hispanic/Latina/e/o" =
       "AsianLatineExclusive1",
-    "Black, African American, or African Alone" =
+    "Black, African American, or African alone" =
       "BlackAfAmericanAloneExclusive1",
     "Black, African American, or African & Hispanic/Latina/e/o" =
       "BlackAfAmericanLatineExclusive1",
-    "Hispanic/Latina/e/o Alone" =
+    "Hispanic/Latina/e/o alone" =
       "LatineAloneExclusive1",
-    "Middle Eastern or North African Alone" =
+    "Middle Eastern or North African alone" =
       "MENAAloneExclusive1",
     "Middle Eastern or North African & Hispanic/Latina/e/o" =
       "MENALatineExclusive1",
-    "Native Hawaiin or Pacific Islander Alone" =
-      "NativeHIPacificAloneExclusive1",
-    "Native Hawaiin or Pacific Islander & Hispanic/Latina/e/o" =
-      "NativeHIPacificLatineExclusive1" ,
-    "White Alone" =
-      "WhiteAloneExclusive1",
-    "White & Hispanic/Latina/e/o" =
-      "WhiteLatineExclusive1",
     "Multi-Racial (not Hispanic/Latina/e/o)" =
       "MultipleNotLatineExclusive1",
     "Multi-Racial & Hispanic/Latina/e/o" =
-      "MultipleLatineExclusive1"
+      "MultipleLatineExclusive1",
+    "Native Hawaiian or Pacific Islander alone" =
+      "NativeHIPacificAloneExclusive1",
+    "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o" =
+      "NativeHIPacificLatineExclusive1" ,
+    "White alone" =
+      "WhiteAloneExclusive1",
+    "White & Hispanic/Latina/e/o" =
+      "WhiteLatineExclusive1"
   ),
   "Summarized" = c("All People of Color" =
-                     "BILPOCExclusive2", "White Only" =
+                     "BILPOCExclusive2", "White alone" =
                      "WhiteExclusive2")
 )
 
@@ -261,13 +260,13 @@ syso_race_ethnicity_excl <- list(
 
 syso_veteran_pops <- list(
   "Veteran" = "Veteran",
-  "Non-Veteran" = "NonVeteran"
+  "Non-Veteran/Unknown" = "NonVeteran"
 )
 
 syso_dv_pops <- list(
-  "Currently Fleeing DV" = "DVFleeing",
-  "Not Currently Fleeing DV" = "DVNotFleeing",
-  "Total Experienced Domestic Violence" = "DVTotal",
+  "Domestic Violence Survivor: Currently Fleeing" = "DVFleeing",
+  "Domestic Violence Survivor: Not Currently Fleeing" = "DVNotFleeing",
+  "Domestic Violence Survivor: Total" = "DVTotal",
   "No Domestic Violence Indicated" = "NotDV"
 )
 
@@ -277,16 +276,16 @@ syso_chronic_pops <- list(
 )
 
 syso_spec_pops_people <- c(
-  "None" = "None",
+  "All Populations" = "None",
   # "Inflow",
-  syso_veteran_pops,
-  syso_dv_pops#,
+  syso_veteran_pops#,
+  #syso_dv_pops,
   # syso_chronic_pops
 )
 
 syso_methodology_types <- c(
-  "A person is only counted once in a chart (Exclusive Groupings)" = 1,
-  "A person may be counted multiple times in a chart (Inclusive Groupings)" = 2
+  "Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category" = 1,
+  "Inclusive Groupings: A person may be counted in multiple gender and multiple race/ethnicity categories" = 2
 )
 
 syso_grouping_detail <- c(
@@ -355,23 +354,13 @@ inc_ncb_hi_required_prep <- tribble(
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
   unique()
 
-sys_comp_filter_choices1 = c(
+sys_comp_selection_choices = c(
   "Age", 
-  "Domestic Violence",
+  #"Domestic Violence", #VL 9/20/24: Not including this for launch
   "Gender",
-  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launc
+  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
   "All Races/Ethnicities",
   "Grouped Races/Ethnicities",
-  "Veteran Status"
-)
-
-sys_comp_filter_choices2 = c(
-  "Age", 
-  "Domestic Violence",
-  "Gender",
-  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launc
-  "All Races/Ethnicities",
-  "Hispanic-Focused Races/Ethnicities",
   "Veteran Status"
 )
 

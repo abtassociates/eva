@@ -9,6 +9,9 @@
 /* || HELP TEXT CIRCLE*/
 /* || VALIDATION MESSAGES FOR PLOTS */
 /* || CHANGELOG */
+/* || DEMO MODE */
+/* || SYSTEM OVERVIEW FILTERS */
+/* || CHART INFORMATION TABLES */
 
 .content-wrapper {
   overflow: auto;
@@ -405,6 +408,13 @@ a:hover {
 }
 
 /* || SYSTEM OVERVIEW FILTERS */
+.light-left-border {
+  border-left: 1px solid lightgray;
+}
+.light-right-border {
+  border-right: 1px solid lightgray;
+}
+
 #syso_date_range {
   display: inline-block;
 }
@@ -415,11 +425,6 @@ a:hover {
   font-size: 1.4em;
 }
 
-/* fix all-sertved chart spacing*/
-#sys_comp_summary_filter_selections {
-  padding:10px;
-}
-
 .nav-tabs-custom>.tab-content[data-tabsetid="6238"] {
     padding: 0;
 }
@@ -427,17 +432,79 @@ a:hover {
 #sys_comp_summary_ui_chart {
   height:100% !important; /*otherwise, we get a 2nd scrollbar on sys overview page*/
 }
-#sys_comp_summary_ui_chart >img {
-  width:100%
-}
 
 /* DISABLE FILTERS*/
-.filter-disabled {
-  pointer-events: none;
-  color: gray;
+#syso_inflowoutflow_filters.filter-hidden {
+  display: none;
 }
 
-.filter-disabled .dropdown-toggle {
-  background-color: #F1F1F1;
+#sys_inflow_outflow_download_tab,
+#sys_status_download_tab,
+#sys_comp_download_tab {
+  float:right;
 }
 
+#system_composition_selections-label {
+  display: none;
+}
+
+#system_composition_selections label.checkbox-inline {
+  padding-right: 10px;
+}
+
+#system_composition_selections label.checkbox-inline:nth-child(2),
+#system_composition_selections label.checkbox-inline:nth-child(4) {
+  border-right: 1px solid lightgray;
+}
+
+#sys_comp_download_btn_ppt, #sys_comp_download_btn,
+#sys_status_download_btn_ppt, #sys_status_download_btn,
+#sys_inflow_outflow_download_btn_ppt, #sys_inflow_outflow_download_btn{
+  display: inline-block;
+}
+
+/*center chart*/
+#sys_comp_summary_ui_chart {
+  text-align: center;
+}
+/* || CHART INFORMATION TABLES */
+.sys_info_table {
+  border: 1px solid black;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.sys_info_table th, 
+.sys_info_table td {
+  border: 1px solid black;
+  padding: 15px;
+}
+
+.sys_info_table th {
+  text-align: left;
+}
+
+.sys_info_table td {
+  vertical-align: top;
+}
+
+.nav-tabs-custom > #syso_tabbox + .tab-content,
+.nav-tabs-custom > #sys_comp_subtabs + .tab-content,
+#syso_tabbox + .tab-content > .tab-pane > div {
+  padding: 0px;
+}
+
+
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab>a, 
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab>a:hover {
+  margin-right: 2px;
+  line-height: 1.42857143;
+  border: 1px solid transparent;
+  border-radius: 4px 4px 0 0;
+}
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab .btn, 
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab .btn-default {
+  color: white;
+  background-color: #C2462E;
+  border-color: #C2462E;
+}
