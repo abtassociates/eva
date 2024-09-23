@@ -3,6 +3,7 @@ dashboardPage(
   skin = "black",
   dashboardHeader(
     title = span(img(src = "Eva_logo_horizontal_white.png",
+                     alt = "Eva logo",
                                    height = 45)),
     # https://alvarotrigo.com/blog/toggle-switch-css/
     tags$li(class="dropdown",
