@@ -535,70 +535,60 @@ output$sys_comp_download_btn <- downloadHandler(
       v2 <- gsub("Races/Ethnicities", "Race", input$system_composition_selections[2])
     }
     
-    # get the n matrix
-    num_matrix <- sys_comp_plot_df() %>%
-      xtabs(n ~ 
-              if(length(input$system_composition_selections) > 1) {
-                .[[input$system_composition_selections[2]]] +
-                .[[input$system_composition_selections[1]]]
-              } else {
-                .[[input$system_composition_selections]]
-              }, 
-            data = .) %>%
-      replace(is.na(.), 0)
+    # reshape so the values of v1 are the column headers and v2 are the "row headers"
+    # though technically just a column
+    if(length(input$system_composition_selections) > 1) {
+      num_df <- sys_comp_plot_df() %>%
+        pivot_wider(
+          names_from = input$system_composition_selections[1],
+          values_from = n,
+          values_fill = list(n = 0)
+        )
+
+      # create total row
+      total_row <- num_df %>%
+        summarise(!!input$system_composition_selections[1] := "Total", across(where(is.numeric), sum, na.rm = TRUE)) %>%
+        rename(!!input$system_composition_selections[2] := !!input$system_composition_selections[1])
+      
+      # Add Total Row and create a total column
+      num_df <- num_df %>%
+        bind_rows(total_row) %>%
+        mutate(Total = rowSums(select(., where(is.numeric)), na.rm = TRUE))
     
-    # get the pct matrix with x.y% format
-    pct_matrix <- ((num_matrix / sum(num_matrix)) * 100) %>%
-        # replace(is.na(.), 0) %>%
-        {if(length(input$system_composition_selections) > 1) 
-          addmargins(FUN = sum) %>%  # add total row and column 
-          apply(c(1, 2), function(x) paste0(format(round(x, 1), nsmall = 1), "%"))
-        else
-          c(., Total = sum(.)) %>%
-          sapply(., function(x) paste0(format(round(x, 1), nsmall = 1), "%"))
-        }
-    
-    # convert to dataframe
-    # rename the Total row/column
-    # add row names (i.e. var1) as separate column so it won't be excluded
-    convert_to_df_for_export <- function(.data) {
-      return(
-        if (length(input$system_composition_selections) > 1) {
-          .data  %>%
-            as.data.frame.matrix() %>%
-            `rownames<-`(c(rownames(.)[-nrow(.)], "Total")) %>%
-            `colnames<-`(c(colnames(.)[-ncol(.)], "Total")) %>%
-            cbind(" " = rownames(.), .)
-        } else{
-          .data  %>% 
-            as.data.frame()
-        }
-      )
-    }
-    
-    if (length(input$system_composition_selections) > 1) {
-      num_matrix <- num_matrix %>% 
-        addmargins(., FUN = sum) # add total row and column 
-    }
-    
-    # create a list of the 3 excel tabs and export
-    tab_names <- list(
-      "System Demographics Metadata" = sys_comp_selections_summary()
-    )
-    
-    if (length(input$system_composition_selections) > 1) {
-      tab_name_1 <- glue("Selected {v1} By {v2} #")
-      tab_name_2 <- glue("Selected {v1} By {v2} %")
+      # Create x.y% version
+      pct_df <- num_df %>%
+        mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
+          round(1) %>%
+          paste0("%")))
     } else {
-      tab_name_1 <- glue("Selected {v1} #")
-      tab_name_2 <- glue("Selected {v1} %")
+      num_df <- sys_comp_plot_df()
+      
+      pct_df <- num_df %>%
+        mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
+                        round(1) %>%
+                        paste0("%"))) %>%
+        bind_rows(setNames(data.frame("Total", "100%"), c(
+          sym(input$system_composition_selections), "n"
+        )))
+      
+      
+      num_df <- num_df %>%
+        bind_rows(summarise(., Age = "Total", n = sum(n, na.rm = TRUE)))
     }
     
-    tab_names[[tab_name_1]] <- num_matrix %>% convert_to_df_for_export()
-    tab_names[[tab_name_2]] <- pct_matrix %>% convert_to_df_for_export()
+    if (length(input$system_composition_selections) > 1) {
+      num_tab_name <- glue("Selected {v1} By {v2} #")
+      pct_tab_name <- glue("Selected {v1} By {v2} %")
+    } else {
+      num_tab_name <- glue("Selected {v1} #")
+      pct_tab_name <- glue("Selected {v1} %")
+    }
     
     write_xlsx(
-      tab_names,
+      setNames(
+        list(num_df, pct_df),
+        c(num_tab_name, pct_tab_name)
+      ),
       path = file,
       format_headers = FALSE,
       col_names = TRUE
