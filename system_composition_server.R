@@ -634,7 +634,7 @@ observeEvent(input$system_composition_selections, {
       $('input[name=system_composition_selections][value*=\"Races/Ethnicities\"]:not(\":checked\")')
         .attr('disabled', reSelected == 'TRUE');
   "))
-})
+}, ignoreNULL = FALSE)
 
 
 output$sys_comp_summary_selections <- renderUI({
