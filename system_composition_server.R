@@ -546,20 +546,31 @@ output$sys_comp_download_btn <- downloadHandler(
         )
 
       # create total row
-      total_row <- num_df %>%
-        summarise(!!input$system_composition_selections[1] := "Total", across(where(is.numeric), sum, na.rm = TRUE)) %>%
+      total_num_row <- num_df %>%
+        summarise(!!input$system_composition_selections[1] := "Total",
+                  across(where(is.numeric), sum, na.rm = TRUE)) %>%
         rename(!!input$system_composition_selections[2] := !!input$system_composition_selections[1])
       
-      # Add Total Row and create a total column
-      num_df <- num_df %>%
-        bind_rows(total_row) %>%
-        mutate(Total = rowSums(select(., where(is.numeric)), na.rm = TRUE))
-    
+      total_pct_row <- total_num_row %>% 
+        mutate(
+          across(where(is.numeric), ~ (. / sum(sys_comp_plot_df()$n, na.rm = TRUE) * 100) %>%
+                   replace_na(0) %>%
+                   round(1) %>%
+                   paste0("%")))
+      
       # Create x.y% version
       pct_df <- num_df %>%
         mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
+                        replace_na(0) %>%
           round(1) %>%
-          paste0("%")))
+          paste0("%"))) %>% 
+        bind_rows(total_pct_row)
+    
+      # Add Total Row and create a total column
+      num_df <- num_df %>%
+        bind_rows(total_num_row) %>%
+        mutate(Total = rowSums(select(., where(is.numeric)), na.rm = TRUE))
+      
     } else {
       num_df <- sys_comp_plot_df()
       
@@ -572,7 +583,7 @@ output$sys_comp_download_btn <- downloadHandler(
         )))
       
       num_df <- num_df %>%
-        bind_rows(summarise(., Age = "Total", n = sum(n, na.rm = TRUE)))
+        bind_rows(summarise(., !!sym(input$system_composition_selections) := "Total", n = sum(n, na.rm = TRUE)))
     }
     
     if (length(input$system_composition_selections) > 1) {
