@@ -1059,8 +1059,8 @@
       ]
     },
     "sidebarCollapsed": false,
-    "sidebarItemExpanded": "SystemPerformance",
-    "sidebarmenuid": "systemOverview",
+    "sidebarItemExpanded": "AssessDataQuality",
+    "sidebarmenuid": "tabSystemOverview",
     "sys_comp_subtabs": "Chart",
     "sys_inflow_outflow_subtabs": "Information",
     "sys_status_subtabs": "Information",
@@ -1083,7 +1083,7 @@
     "syso_project_type": "Residential",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
-    "syso_tabbox": "Composition of All Served",
+    "syso_tabbox": "System Demographics",
     "system_composition_selections": [
       "Gender",
       "All Races/Ethnicities"
@@ -2284,7 +2284,7 @@
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: d8dc18bff7ef66cc8b08ec1989af96c0]",
+      "src": "[image data hash: 1a016db0998e272472bd68915a97c4e9]",
       "width": 435,
       "height": 400,
       "alt": "Plot object",
@@ -2342,7 +2342,7 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: 9d58cc6432acec01819262ea27874383]",
+      "src": "[image data hash: ec42287b567fbb48b093a3698233fd73]",
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
@@ -2448,7 +2448,7 @@
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: 24b8a4058c1d0740ea695e2979628d4b]",
+      "src": "[image data hash: 1ed89292e82e1a0c95078aa199491187]",
       "width": 455,
       "height": 600,
       "alt": "Plot object",
@@ -2507,7 +2507,7 @@
               "left": 211.6140839041097,
               "right": 449.5205479452055,
               "bottom": 579.041095890411,
-              "top": 72.79831328526878
+              "top": 89.43031328526877
             }
           }
         ],
