@@ -135,6 +135,7 @@ syso_hh_types <- list(
   "All Household Types" = "All",
   "- Youth and Young Adult" = "YYA",
   "Adult Only" = "AO",
+  "- Adult Only 18-24" = "UY",
   "Adult Child" = "AC",
   "- Parenting Youth" = "PY",
   "Child Only" = "CO"
