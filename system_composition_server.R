@@ -341,9 +341,9 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   
   selection_cats2 <- get_selection_cats(selections[2])
   selection_cats2_labels <- if (is.null(names(selection_cats2))) {
-    rev(selection_cats2)
+    selection_cats2
   } else {
-    rev(names(selection_cats2))
+    names(selection_cats2)
   }
   
   plot_df[selections[1]] <- factor(
@@ -353,7 +353,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   
   plot_df[selections[2]] <- factor(
     plot_df[[selections[2]]], 
-    levels = rev(selection_cats2), 
+    levels = selection_cats2, 
     labels = selection_cats2_labels)
   
   plot_df <- plot_df %>%
@@ -479,8 +479,8 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
         position = "top"
       ) +
       scale_y_discrete(
-        labels = str_wrap(c("Total", selection_cats2_labels), width = 30),
-        limits = c("Total", levels(plot_df[[selections[2]]])),
+        labels = str_wrap(c("Total", rev(selection_cats2_labels)), width = 30),
+        limits = c("Total", rev(levels(plot_df[[selections[2]]]))),
       ) +
       
       # other stuff
@@ -570,7 +570,6 @@ output$sys_comp_download_btn <- downloadHandler(
         bind_rows(setNames(data.frame("Total", "100%"), c(
           sym(input$system_composition_selections), "n"
         )))
-      
       
       num_df <- num_df %>%
         bind_rows(summarise(., Age = "Total", n = sum(n, na.rm = TRUE)))
