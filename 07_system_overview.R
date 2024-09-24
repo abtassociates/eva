@@ -1,12 +1,12 @@
 logToConsole("Running system overview")
 
 # Age ---------------------------------------------------------------------
-EnrollmentAdjustAge <- EnrollmentAdjust %>%
-  mutate(AgeAtEntry = replace_na(AgeAtEntry, -1))
+EnrollmentAdjustAge <- as.data.table(EnrollmentAdjust)[
+  , AgeAtEntry := fifelse(is.na(AgeAtEntry), -1, AgeAtEntry)
+]
 
-system_person_ages <- as.data.frame(
-  as.data.table(EnrollmentAdjustAge)[
-    , .SD[which.max(AgeAtEntry)], by = PersonalID
+system_person_ages <- EnrollmentAdjustAge[
+    , .(AgeAtEntry = max(AgeAtEntry, na.rm = TRUE)), by = PersonalID
   ][, AgeCategory := factor(fcase(
       AgeAtEntry < 0, "Unknown",
       between(AgeAtEntry, 0, 12), "0 to 12",
@@ -33,7 +33,7 @@ system_person_ages <- as.data.frame(
       "75 and older",
       "Unknown"
     ))
-  ][, .(PersonalID, MostRecentAgeAtEntry = AgeAtEntry, AgeCategory)])
+  ][, .(PersonalID, MostRecentAgeAtEntry = AgeAtEntry, AgeCategory)]
 
 # Data prep ---------------------------------------------------------------
 
@@ -93,46 +93,45 @@ enrollment_prep <- EnrollmentAdjustAge %>%
 # corrected hohs ----------------------------------------------------------
 
 # preps household data to match the way we need the app to 
+
 hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
-  VeteranStatus = ifelse(VeteranStatus == 1 & !is.na(VeteranStatus), 1, 0),
-  HoHAlready = ifelse(RelationshipToHoH == 1 & AgeAtEntry > 17, 1, 0)
+  VeteranStatus = fifelse(VeteranStatus == 1 & !is.na(VeteranStatus), 1, 0),
+  HoHAlready = fifelse(RelationshipToHoH == 1 & AgeAtEntry > 17, 1, 0)
 )][order(-HoHAlready, -VeteranStatus, -AgeAtEntry, PersonalID), 
    `:=`
    (
      Sequence = seq_len(.N),
-     CorrectedHoH = ifelse(seq_len(.N) == 1, 1, 0)
+     CorrectedHoH = ifelse(seq_len(.N) == 1, 1, 0),
+     max_AgeAtEntry = max(AgeAtEntry),
+     min_AgeAtEntry = min(AgeAtEntry)
    ),
    by = .(HouseholdID, ProjectID)
-][, HouseholdTypeMutuallyExclusive := factor(
+][, HouseholdType := factor(
   fifelse(
-    all(AgeAtEntry >= 18), "AO",
+    any(between(AgeAtEntry, 0, 17)) & max_AgeAtEntry >= 18,
     fifelse(
-      any(between(AgeAtEntry, 0, 17)) & any(AgeAtEntry >= 18),
-      "AC",
+      between(max_AgeAtEntry, 0, 24),
+      "PY",
+      "AC"
+    ),
+    fifelse(
+      min_AgeAtEntry >= 18,
       fifelse(
-        all(between(AgeAtEntry, 0, 17)), 
+        between(max_AgeAtEntry, 0, 24),
+        "UY", # UY = Unaccompanied Youth. YYA = PY + UY + CO
+        "AO"
+      ),
+      fifelse(
+        min_AgeAtEntry >= 0 & max_AgeAtEntry <= 17,
         "CO", 
         "UN"
       )
     )
   ),
-  levels = c("AO", "AC", "CO", "UN")), by = HouseholdID
-][, HouseholdType := factor(
-  fifelse(
-    HouseholdTypeMutuallyExclusive == "AC" & between(max(AgeAtEntry), 0, 24),
-    "PY",
-    fifelse(
-      HouseholdTypeMutuallyExclusive == "AO" & between(max(AgeAtEntry), 0, 24),
-      "UY", # UY = Unaccompanied Youth. YYA = PY + UY + CO
-      as.character(HouseholdTypeMutuallyExclusive)
-    )
-  ),
   levels = c("AO", "AC", "CO", "UN", "PY", "UY")
-), by = HouseholdID]
-
-# Select required columns
-hh_adjustments <-
-  as.data.frame(hh_adjustments[, .(EnrollmentID, CorrectedHoH, HouseholdType)])
+), by = HouseholdID][
+  , .(EnrollmentID, CorrectedHoH, HouseholdType)
+]
 
 # keeps original HoH unless the HoH is younger than 18 or if there are mult hohs
 # if they are younger than 18, or if there are mult hohs, it will take the
