@@ -1059,8 +1059,8 @@
       ]
     },
     "sidebarCollapsed": false,
-    "sidebarItemExpanded": "SystemPerformance",
-    "sidebarmenuid": "systemOverview",
+    "sidebarItemExpanded": "AssessDataQuality",
+    "sidebarmenuid": "tabSystemOverview",
     "sys_comp_subtabs": "Chart",
     "sys_inflow_outflow_subtabs": "Detail Chart",
     "sys_status_subtabs": "Chart",
@@ -2284,7 +2284,7 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: 9d58cc6432acec01819262ea27874383]",
+      "src": "[image data hash: ec42287b567fbb48b093a3698233fd73]",
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",

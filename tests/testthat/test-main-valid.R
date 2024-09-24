@@ -40,7 +40,7 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$expect_values(name="dq-org")
 
   app$set_inputs(sidebarItemExpanded = "SystemPerformance")
-  app$set_inputs(sidebarmenuid = "systemOverview")
+  app$set_inputs(sidebarmenuid = "tabSystemOverview")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(name="sys-flow-summary")
 
@@ -71,7 +71,7 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(name="sys-status-information")
 
-  app$set_inputs(syso_tabbox = "Composition of All Served")
+  app$set_inputs(syso_tabbox = "System Demographics")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(name="sys-comp-chart-default")
 

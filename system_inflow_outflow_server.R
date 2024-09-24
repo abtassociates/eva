@@ -7,7 +7,7 @@ frame_detail <-
     Status = c(
       "Housed",
       "Homeless",
-      "Newly Homeless",
+      "First Time \nHomeless",
       "Returned from \nPermanent",
       "Re-engaged from \nNon-Permanent",
       "Exited,\nPermanent",
@@ -18,7 +18,7 @@ frame_detail <-
     ),
     Time = c(
       rep("Active at Start", 2),
-      "Newly Homeless",
+      "First Time \nHomeless",
       "Returned from \nPermanent",
       "Re-engaged from \nNon-Permanent",
       "Exited,\nPermanent",
@@ -87,7 +87,7 @@ system_activity_prep_detail <- reactive({
       Time = factor(
         Time,
         levels = c("Active at Start",
-                   "Newly Homeless",
+                   "First Time \nHomeless",
                    "Returned from \nPermanent",
                    "Re-engaged from \nNon-Permanent",
                    "Exited,\nNon-Permanent",
@@ -100,7 +100,7 @@ system_activity_prep_detail <- reactive({
         levels = c(
           "Housed",
           "Homeless",                          
-          "Newly Homeless",
+          "First Time \nHomeless",
           "Returned from \nPermanent",
           "Re-engaged from \nNon-Permanent",
           "Exited,\nNon-Permanent",
@@ -250,7 +250,7 @@ get_system_inflow_outflow_plot <- function(id) {
       size = 16 / .pt,
       label = paste0(
         sys_total_count_display(total_clients),
-        "\nTotal Change: ",
+        "Total Change: ",
         case_when(
           inflow_to_outflow > 0 ~ paste0("+", scales::comma(inflow_to_outflow)),
           inflow_to_outflow == 0 ~ "0",
@@ -330,7 +330,7 @@ sys_inflow_outflow_export_info <- function(df) {
   )
 }
 output$sys_inflow_outflow_download_btn <- downloadHandler(
-  filename = date_stamped_filename("System Inflow/Outflow Report - "),
+  filename = date_stamped_filename("System Flow Report - "),
   content = function(file) {
     df <- system_activity_prep_detail() %>% 
       select(Status, values, Time, InflowOutflow, InflowOutflowSummary)
@@ -341,7 +341,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
           bind_rows(sys_export_filter_selections()) %>%
           bind_rows(sys_inflow_outflow_export_info(df)) %>%
           mutate(Value = replace_na(Value, 0)) %>%
-          rename("System Inflow/Outflow" = Value),
+          rename("System Flow" = Value),
         "System Flow Data" = bind_rows(
           df, df %>% 
             group_by(InflowOutflowSummary) %>% 
@@ -365,7 +365,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
     ))
     
-    exportTestValues(sys_inflow_outflow_report = sys_inflow_outflow_plot_data())
+    exportTestValues(sys_inflow_outflow_report = summary(sys_inflow_outflow_plot_data()))
   }
 )
 
@@ -379,12 +379,12 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
     
     sys_overview_ppt_export(
       file = file,
-      title_slide_title = "System Inflow/Outflow",
+      title_slide_title = "System Flow",
       summary_items = sys_export_summary_initial_df() %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_export_filter_selections()) %>%
         bind_rows(sys_inflow_outflow_export_info(df)),
-      plot_slide_title = "System Inflow/Outflow summary",
+      plot_slide_title = "System Flow Summary",
       plot1 = get_system_inflow_outflow_plot("sys_act_summary_ui_chart"),
       plot2 = get_system_inflow_outflow_plot("sys_act_detail_ui_chart"),
       summary_font_size = 19

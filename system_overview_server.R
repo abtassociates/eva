@@ -6,7 +6,7 @@ observeEvent(input$syso_tabbox, {
   req(valid_file() == 1)
   toggleClass(
     id = "syso_inflowoutflow_filters",
-    condition = input$syso_tabbox == "Composition of All Served",
+    condition = input$syso_tabbox == "System Demographics",
     class = "filter-hidden"
   )
 }, ignoreNULL = TRUE)
@@ -81,10 +81,10 @@ syso_detailBox <- reactive({
     
     format(ReportStart(), "%m-%d-%Y"), " to ", format(ReportEnd(), "%m-%d-%Y"), br(),
     
-    if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
-      detail_line("Project Type", syso_project_types, input$syso_project_type),
-    
-    detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
+    #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
+    HTML(glue(
+      "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$methodology_type), start = 1, end = 19)} <br>"
+    )),
     
     if (length(input$syso_age) != length(syso_age_cats))
       HTML(glue(
@@ -97,8 +97,10 @@ syso_detailBox <- reactive({
     if (selected_race != "All Races/Ethnicities")
       race_ethnicity_line,
     
-    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
-      detail_line("Special Populations", syso_spec_pops_people, input$syso_spec_pops)
+    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "All Statuses")
+      HTML(glue(
+        "<b>Veteran Status:</b> {paste(getNameByValue(syso_spec_pops_people, input$syso_spec_pops), '(Adult Only)')} <br>"
+      ))
     
   )
 })
@@ -114,9 +116,9 @@ toggle_sys_components <- function(cond, init=FALSE) {
   # 2. toggles subtabs and download button based if valid file has been uploaded
   # 3. moves download button to be in line with subtabs
   tabs <- c(
-    "System Inflow/Outflow" = "inflow_outflow",
+    "System Flow" = "inflow_outflow",
     "Client System Status" = "status",
-    "Composition of All Served" = "comp"
+    "System Demographics" = "comp"
   )
   
   for (tab in tabs) {
@@ -314,7 +316,8 @@ sys_total_count_display <- function(total_count) {
                  " Households")
         ),       ": ",
         scales::comma(total_count)
-      )
+      ),
+      width = 40
     ),
     "\n")
   )

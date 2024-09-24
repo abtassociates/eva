@@ -1059,8 +1059,8 @@
       ]
     },
     "sidebarCollapsed": false,
-    "sidebarItemExpanded": "SystemPerformance",
-    "sidebarmenuid": "systemOverview",
+    "sidebarItemExpanded": "AssessDataQuality",
+    "sidebarmenuid": "tabSystemOverview",
     "sys_comp_subtabs": "Chart",
     "sys_inflow_outflow_subtabs": "Detail Chart",
     "sys_status_subtabs": "Chart",

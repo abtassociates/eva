@@ -25,11 +25,10 @@ syscomp_detailBox <- function(session) {
       if (input$syso_project_type != "All")
         chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
       
-      chart_selection_detail_line(
-        "Methodology Type",
-        syso_methodology_types,
-        input$methodology_type
-      ),
+      #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
+      HTML(glue(
+        "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$methodology_type), start = 1, end = 19)} <br>"
+      )),
       
       HTML(
         glue(
@@ -653,7 +652,7 @@ output$sys_comp_summary_ui_chart <- renderPlot({
 }, height = function() { 
   ifelse(!is.null(input$system_composition_selections), 600, 100) 
 }, width = function() {
-  ifelse(length(input$system_composition_selections) == 1, 600, "auto")
+  ifelse(length(input$system_composition_selections) == 1, 500, "auto")
 })
 
 
