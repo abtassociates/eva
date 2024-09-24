@@ -1209,17 +1209,18 @@ dashboardPage(
                                     <td>In the Detail chart, the bar for “Inactive”
                                     is larger than the bar for “Permanent 
                                     Destination” and the bar for “Non-Permanent Destination.”</td>
-                                    <td>This means many clients ended the period 
-                                    in an open enrollment without a recent Current 
-                                    Living Situation (CLS) record, and thus were 
-                                    counted as leaving your homeless system. 
-                                    Since it is not possible to accurately determine 
-                                    if they are still experiencing homelessness, 
-                                    clients without recent CLS records are presumed 
-                                    to have exited. Check that clients enrolled 
-                                    in Street Outreach, Coordinated Entry, Day Shelter, 
-                                    Supportive Services, and Other project type 
-                                    enrollments have CLS records entered at each contact.</td>
+                                    <td>This means many ended the report period 
+                                    with (1) an open enrollment in an Emergency 
+                                    Shelter – Night-by-Night project that has not 
+                                    had a bed night recorded within the last 15 
+                                    days of the report period, (2) an open enrollment 
+                                    in Street Outreach, Day Shelter, Supportive 
+                                    Services, and Other project type enrollments 
+                                    without a Current Living Situation (CLS) record 
+                                    within the last 60 days of the report period, 
+                                    or (3) an open enrollment in Coordinated Entry 
+                                    without a CLS record within the last 90 days 
+                                    of the report period.</td>
                                   </tr>
                                 </table>")
                   )
@@ -1317,17 +1318,18 @@ dashboardPage(
                                     Period Start are inactive at Period End</td>
                                     <td>The category “Inactive” is display in the 
                                     chart at Period End.</td>
-                                    <td>This means some clients ended the period 
-                                    in an open enrollment without a recent Current 
-                                    Living Situation (CLS) record, and thus were 
-                                    counted as leaving your homeless system. Since 
-                                    it is not possible to accurately determine if 
-                                    they are still experiencing homelessness, clients 
-                                    without recent CLS records are presumed to have 
-                                    exited. Check that clients enrolled in Street 
-                                    Outreach, Coordinated Entry, Day Shelter, Supportive 
+                                    <td>This means some clients ended the report 
+                                    period with (1) an open enrollment in an Emergency 
+                                    Shelter – Night-by-Night project that has not 
+                                    had a bed night recorded within the last 15 
+                                    days of the report period, (2) an open enrollment 
+                                    in Street Outreach, Day Shelter, Supportive 
                                     Services, and Other project type enrollments 
-                                    have CLS records entered at each contact.</td>
+                                    without a Current Living Situation (CLS) record 
+                                    within the last 60 days of the report period, 
+                                    or (3) an open enrollment in Coordinated Entry 
+                                    without a CLS record within the last 90 days 
+                                    of the report period.</td>
                                   </tr>
                                 </table>")
                   )
