@@ -7,7 +7,7 @@ frame_detail <-
     Status = c(
       "Housed",
       "Homeless",
-      "Newly Homeless",
+      "First Time \nHomeless",
       "Returned from \nPermanent",
       "Re-engaged from \nNon-Permanent",
       "Exited,\nPermanent",
@@ -18,7 +18,7 @@ frame_detail <-
     ),
     Time = c(
       rep("Active at Start", 2),
-      "Newly Homeless",
+      "First Time \nHomeless",
       "Returned from \nPermanent",
       "Re-engaged from \nNon-Permanent",
       "Exited,\nPermanent",
@@ -87,7 +87,7 @@ system_activity_prep_detail <- reactive({
       Time = factor(
         Time,
         levels = c("Active at Start",
-                   "Newly Homeless",
+                   "First Time \nHomeless",
                    "Returned from \nPermanent",
                    "Re-engaged from \nNon-Permanent",
                    "Exited,\nNon-Permanent",
@@ -100,7 +100,7 @@ system_activity_prep_detail <- reactive({
         levels = c(
           "Housed",
           "Homeless",                          
-          "Newly Homeless",
+          "First Time \nHomeless",
           "Returned from \nPermanent",
           "Re-engaged from \nNon-Permanent",
           "Exited,\nNon-Permanent",
@@ -330,7 +330,7 @@ sys_inflow_outflow_export_info <- function(df) {
   )
 }
 output$sys_inflow_outflow_download_btn <- downloadHandler(
-  filename = date_stamped_filename("System Inflow/Outflow Report - "),
+  filename = date_stamped_filename("System Flow Report - "),
   content = function(file) {
     df <- system_activity_prep_detail() %>% 
       select(Status, values, Time, InflowOutflow, InflowOutflowSummary)
@@ -341,7 +341,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
           bind_rows(sys_export_filter_selections()) %>%
           bind_rows(sys_inflow_outflow_export_info(df)) %>%
           mutate(Value = replace_na(Value, 0)) %>%
-          rename("System Inflow/Outflow" = Value),
+          rename("System Flow" = Value),
         "System Flow Data" = bind_rows(
           df, df %>% 
             group_by(InflowOutflowSummary) %>% 
