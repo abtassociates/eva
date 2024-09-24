@@ -81,10 +81,10 @@ syso_detailBox <- reactive({
     
     format(ReportStart(), "%m-%d-%Y"), " to ", format(ReportEnd(), "%m-%d-%Y"), br(),
     
-    if (getNameByValue(syso_project_types, input$syso_project_type) != "All")
-      detail_line("Project Type", syso_project_types, input$syso_project_type),
-    
-    detail_line("Methodology Type", syso_methodology_types, input$methodology_type),
+    #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
+    HTML(glue(
+      "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$methodology_type), start = 1, end = 19)} <br>"
+    )),
     
     if (length(input$syso_age) != length(syso_age_cats))
       HTML(glue(
@@ -98,7 +98,7 @@ syso_detailBox <- reactive({
       race_ethnicity_line,
     
     if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
-      detail_line("Special Populations", syso_spec_pops_people, input$syso_spec_pops)
+      detail_line("Veteran Status", syso_spec_pops_people, input$syso_spec_pops)
     
   )
 })
