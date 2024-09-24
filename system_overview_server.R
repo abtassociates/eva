@@ -116,7 +116,7 @@ toggle_sys_components <- function(cond, init=FALSE) {
   # 2. toggles subtabs and download button based if valid file has been uploaded
   # 3. moves download button to be in line with subtabs
   tabs <- c(
-    "System Inflow/Outflow" = "inflow_outflow",
+    "System Flow" = "inflow_outflow",
     "Client System Status" = "status",
     "System Demographics" = "comp"
   )
