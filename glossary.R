@@ -167,15 +167,9 @@ output$glossary <- renderDataTable({
     to filter by.",
     
     "System Performance Filters",
-    "Special Populations",
-    "A single-select demographic filter. Eva allows users to filter system performance 
-    by special populations. A special population is a group of people that share 
-    a demographic or system utilization characteristic.",
-    
-    "System Performance Filters",
-    "All Populations",
-    "A Special Populations selection that includes all clients regardless of whether 
-    they are identified as being part of a special population.",
+    "All Statuses",
+    "A Veteran Status selection that includes all clients, including children, 
+    regardless of their Veteran Status.",
     
     "System Performance Filters",
     "Veteran Status",
