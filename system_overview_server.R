@@ -97,8 +97,10 @@ syso_detailBox <- reactive({
     if (selected_race != "All Races/Ethnicities")
       race_ethnicity_line,
     
-    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "None")
-      detail_line("Veteran Status", syso_spec_pops_people, input$syso_spec_pops)
+    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "All Statuses")
+      HTML(glue(
+        "<b>Veteran Status:</b> {paste(getNameByValue(syso_spec_pops_people, input$syso_spec_pops), '(Adult Only)')} <br>"
+      ))
     
   )
 })
