@@ -925,7 +925,7 @@ universe <- reactive({
             ProjectType %in% ph_project_types &
             (
               is.na(MoveInDateAdjust) |
-              MoveInDateAdjust > ReportStart()
+              MoveInDateAdjust >= ReportStart()
             )
           ) |
             
@@ -963,7 +963,7 @@ universe <- reactive({
       active_at_start_housed = eecr == TRUE & 
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= ReportStart(),
+        MoveInDateAdjust < ReportStart(),
       
       # LOGIC helper columns
       
@@ -1026,7 +1026,7 @@ universe <- reactive({
         ExitAdjust >= ReportEnd() &
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= ReportEnd(),
+        MoveInDateAdjust < ReportEnd(),
       
       unknown_at_end = lecr == TRUE &
         EntryDate <= ReportEnd() &
