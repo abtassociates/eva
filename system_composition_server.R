@@ -587,11 +587,11 @@ output$sys_comp_download_btn <- downloadHandler(
     }
     
     if (length(input$system_composition_selections) > 1) {
-      num_tab_name <- glue("Selected {v1} By {v2} #")
-      pct_tab_name <- glue("Selected {v1} By {v2} %")
+      num_tab_name <- glue("{v1} By {v2} #")
+      pct_tab_name <- glue("{v1} By {v2} %")
     } else {
-      num_tab_name <- glue("Selected {v1} #")
-      pct_tab_name <- glue("Selected {v1} %")
+      num_tab_name <- glue("{v1} #")
+      pct_tab_name <- glue("{v1} %")
     }
     
     write_xlsx(
