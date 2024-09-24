@@ -1096,7 +1096,7 @@ universe_ppl_flags <- reactive({
         active_at_start_housed_client == TRUE ~ "Housed",
         return_from_perm_client == TRUE ~ "Returned from \nPermanent",
         reengaged_from_temp_client == TRUE ~ "Re-engaged from \nNon-Permanent",
-        newly_homeless_client == TRUE ~ "Newly Homeless",
+        newly_homeless_client == TRUE ~ "First Time \nHomeless",
         TRUE ~ "something's wrong"
       ),
       
