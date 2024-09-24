@@ -487,7 +487,15 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
       next_enrollment_project_type = shift(ProjectType, type = "lead"),
       previous_enrollment_project_type = shift(ProjectType)
     ), by = .(PersonalID)
-  ][order(-ProjectTypeWeight, EntryDate, ExitAdjust), `:=`(
+  ][# AS 9/23/24: We're creating the RankOrder variables and then filtering the 
+    # start and ends  all at once, rather than starts first then ends. 
+    # The reason is that this correctly handles cases where enrollment B overlaps 
+    # with A at the start and C at the end, by dropping B as the later of the
+    # "start" overlaps and C as the later of the end ones. As a result the person 
+    # does not get an LECR and is therefore dropped from the analysis. 
+    # If we handle starts and ends separately, B would be dropped, and then C 
+    # would be the LECR.
+    order(-ProjectTypeWeight, EntryDate, ExitAdjust), `:=`(
       RankOrderStartOverlaps = rowid(PersonalID, InvolvedInOverlapStart),
       RankOrderEndOverlaps = rowid(PersonalID, InvolvedInOverlapEnd)
   )][
