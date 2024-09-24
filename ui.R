@@ -1109,7 +1109,7 @@ dashboardPage(
                                 
                                 <ul>
                                   <li><b>Inflow</b> is categorized into three groups: 
-                                  “Newly Homeless,” “Returned from Permanent,” and 
+                                  “First Time Homeless,” “Returned from Permanent,” and 
                                   “Re-engaged from Non-Permanent.”</li>
                                   <li><b>Outflow</b> is divided into three categories: 
                                   “Exited, Non-Permanent,” “Exited, Non-Permanent 
@@ -1177,7 +1177,7 @@ dashboardPage(
                                     in prior years, or if the change is because 
                                     fewer clients are exiting. Use the Detail Chart 
                                     to explore if a majority of the clients flowing 
-                                    in were newly homeless, returning to homelessness 
+                                    in were first time homeless, returning to homelessness 
                                     after previously exiting to a permanent destination, 
                                     or re-engaging with the system after previously 
                                     exiting to a non-permanent destination.</td>
