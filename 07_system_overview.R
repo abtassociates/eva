@@ -974,7 +974,7 @@ universe <- reactive({
             ProjectType %in% ph_project_types &
             (
               is.na(MoveInDateAdjust) |
-              MoveInDateAdjust > ReportStart()
+              MoveInDateAdjust >= ReportStart()
             )
           ) |
             
@@ -1012,7 +1012,7 @@ universe <- reactive({
       active_at_start_housed = eecr == TRUE & 
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= ReportStart(),
+        MoveInDateAdjust < ReportStart(),
       
       # LOGIC helper columns
       
@@ -1075,7 +1075,7 @@ universe <- reactive({
         ExitAdjust >= ReportEnd() &
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= ReportEnd(),
+        MoveInDateAdjust < ReportEnd(),
       
       unknown_at_end = lecr == TRUE &
         EntryDate <= ReportEnd() &
@@ -1145,7 +1145,7 @@ universe_ppl_flags <- reactive({
         active_at_start_housed_client == TRUE ~ "Housed",
         return_from_perm_client == TRUE ~ "Returned from \nPermanent",
         reengaged_from_temp_client == TRUE ~ "Re-engaged from \nNon-Permanent",
-        newly_homeless_client == TRUE ~ "Newly Homeless",
+        newly_homeless_client == TRUE ~ "First Time \nHomeless",
         TRUE ~ "something's wrong"
       ),
       
