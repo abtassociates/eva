@@ -18,8 +18,8 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$upload_file(imported = paste0(here(test_dataset_folder),test_dataset))
   
   print(paste0("Just uploaded in ",test_script_name))
-  
   app$wait_for_idle(timeout = 1e+06)
+  app$click(selector="#shiny-modal")
   app$expect_values(name="just-uploaded")
 
   app$set_inputs(sidebarmenuid = "tabClientCount")
