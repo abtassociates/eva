@@ -1,4 +1,3 @@
 library(shinytest2)
-test_app(".")
-unlink(here("tests/temp"), recursive = TRUE)
+test_app(".") # example filter: filter="main-valid"
 # testthat::snapshot_review()

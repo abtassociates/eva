@@ -416,14 +416,14 @@ renderDQPlot <- function(level, issueType, group, color) {
       scale_y_discrete(expand = expansion(mult = c(0, .1))) +
       theme_classic() +
       theme(axis.line = element_line(linetype = "blank"),
-            axis.text = element_text(size = 12),
+            axis.text = element_text(size = sys_axis_text_font),
             axis.text.x = element_blank(),
-            axis.title = element_text(size = 12),
+            axis.title = element_text(size = sys_axis_text_font),
             axis.ticks = element_line(linetype = "blank"),
             plot.background = element_blank(),
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank()) +
-      geom_text(aes(label = countVar), hjust = -0.5, color = "black")
+      geom_text(aes(label = countVar), hjust = -0.5, color = "black", size=sys_chart_text_font)
   })
   
   # this effectively collapses the plot if there are no rows

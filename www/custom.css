@@ -47,6 +47,12 @@
     background: white;
 }
 
+/* toggle button focus */
+.skin-black .main-header .navbar .sidebar-toggle:focus {
+    color: #16697A; /*icon color - dark blue*/
+    background: white;
+}
+
 /* || MAIN SIDEBAR */
 
 /*sidebar color*/
@@ -66,7 +72,15 @@
 }
 
 /*sidebar color when menu option with a submenu is selected*/
-.skin-black .sidebar-menu>li.active>a, .skin-black .sidebar-menu>li:hover>a {
+.skin-black .sidebar-menu>li.active>a, 
+.skin-black .sidebar-menu>li:hover>a
+{
+    color: black; /*text color*/
+    background: #D0E7EC; /*sky*/
+    border-left-color: white;
+}
+
+.a:focus {
     color: black; /*text color*/
     background: #D0E7EC; /*sky*/
     border-left-color: white;
@@ -155,8 +169,8 @@
   border-color: #C2462E; /*coral*/
 }
 
-/*button hover*/
-.btn:hover {
+/*button hover and focus*/
+.btn:hover, .btn:focus {
   color: #C2462E; /*text color - coral*/
   background-color: white;
   border-color: #C2462E; /*text color - coral*/
@@ -452,8 +466,8 @@ a:hover {
   padding-right: 10px;
 }
 
-#system_composition_selections label.checkbox-inline:nth-child(3),
-#system_composition_selections label.checkbox-inline:nth-child(5) {
+#system_composition_selections label.checkbox-inline:nth-child(2),
+#system_composition_selections label.checkbox-inline:nth-child(4) {
   border-right: 1px solid lightgray;
 }
 
@@ -464,8 +478,9 @@ a:hover {
 }
 
 /*center chart*/
-#sys_comp_summary_ui_chart {
-  text-align: center;
+#sys_comp_summary_ui_chart,
+#sankey_ui_chart {
+  margin: 0 auto;
 }
 /* || CHART INFORMATION TABLES */
 .sys_info_table {
