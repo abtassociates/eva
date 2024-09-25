@@ -9,14 +9,16 @@ render_sankey_plot <- function(plot_data) {
     summarize(freq = sum(freq)) %>%
     arrange(desc(Begin)) %>%
     mutate(label_pos = cumsum(freq) - freq/2,
-           End = 0)
+           End = 0,
+           Begin = glue("{freq} {Begin}"))
   
   end_labels <- plot_data %>%
     group_by(End) %>%
     summarize(freq = sum(freq)) %>%
     arrange(desc(End)) %>%
     mutate(label_pos = cumsum(freq) - freq/2,
-           Begin = 0)
+           Begin = 0,
+           End = glue("{freq} {End}"))
   
   # need to construct the Begin bars
   # will overlay on top of the Begin stratum
@@ -78,12 +80,6 @@ render_sankey_plot <- function(plot_data) {
     
     #Color for alluvial flow borders
     scale_color_manual(values = border_colors) +
-    
-    # Numbers in bars
-    geom_text(stat = "stratum",
-              aes(label = after_stat(count)),
-              size = sys_chart_text_font,
-    ) +
     
     # Bar (Text) Labels
     geom_text(
