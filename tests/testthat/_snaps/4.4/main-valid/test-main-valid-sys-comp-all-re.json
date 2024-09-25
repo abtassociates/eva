@@ -2275,13 +2275,13 @@
       ]
     },
     "sankey_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: 1a016db0998e272472bd68915a97c4e9]",
+      "src": "[image data hash: 07d921fc176391f928a0986965667baa]",
       "width": 435,
       "height": 400,
       "alt": "Plot object",
@@ -2301,8 +2301,8 @@
             "domain": {
               "left": 0,
               "right": 3,
-              "bottom": -65.06500000000001,
-              "top": 1366.365,
+              "bottom": -60.83000000000001,
+              "top": 1277.43,
               "discrete_limits": {
                 "x": [
                   "Period Start",
@@ -2333,13 +2333,13 @@
       }
     },
     "sys_act_detail_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: 729eac6db9fd2db2f159c5b8d0891612]",
+      "src": "[image data hash: 4db4f885dd315d9628a866746ba1c7ac]",
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
@@ -2360,7 +2360,7 @@
               "left": 0.27,
               "right": 8.630000000000001,
               "bottom": 0,
-              "top": 4934.6
+              "top": 4633.200000000001
             },
             "mapping": {
               "y": null,
@@ -2386,13 +2386,13 @@
       }
     },
     "sys_act_summary_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> All Project Types <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: 1aafd35c3c7ff9d7d65b4be7577cd38f]",
+      "src": "[image data hash: dacebd4e9657583c3fce59ddeed17de7]",
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
@@ -2439,13 +2439,13 @@
       }
     },
     "sys_comp_summary_selections": {
-      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> Residential <br>\n<strong>Methodology Type:<\/strong> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<strong>Selections<\/strong>: All Races/Ethnicities <br>",
+      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>\n<strong>Selections<\/strong>: All Races/Ethnicities <br>",
       "deps": [
 
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: e1810e66b67c43dacc2bec365ccd3302]",
+      "src": "[image data hash: d0fc9830f44e18cd1ff6064f8e5a52c0]",
       "width": 500,
       "height": 600,
       "alt": "Plot object",
