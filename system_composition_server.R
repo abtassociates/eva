@@ -54,6 +54,19 @@ get_var_cols <- function() {
     )
   )
 }
+remove_non_applicables <- function(.data) {
+  if("Age" %in% input$system_composition_selections &
+     "Veteran Status" %in% input$system_composition_selections) {
+    # remove children - since Vets can't be children
+    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")))
+  } 
+  else if ("Domestic Violence status" %in% input$system_composition_selections) {
+    # filter to just HoHs and Adults
+    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
+  } else {
+    .data
+  }
+}
 
 get_sys_comp_plot_df <- function() {
   # named list of all selected options and
@@ -62,7 +75,12 @@ get_sys_comp_plot_df <- function() {
   
   # get dataset underlying the freqs we will produce below
   comp_df <- sys_df_people_universe_filtered_r() %>%
-    select(PersonalID, unname(var_cols[[input$system_composition_selections[1]]]), unname(var_cols[[input$system_composition_selections[2]]]))
+    remove_non_applicables() %>%
+    select(
+      PersonalID, 
+      unname(var_cols[[input$system_composition_selections[1]]]), 
+      unname(var_cols[[input$system_composition_selections[2]]]))
+    
   
   # Function to process each combination of the variables underlying the all-served
   # selections E.g. if Age and Gender (and Exclusive methopdology type),
@@ -99,17 +117,17 @@ get_sys_comp_plot_df <- function() {
   # mutate(pct = (n / sum(n, na.rm = TRUE)))
   
   # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
-  if ("Domestic Violence" %in% input$system_composition_selections) {
+  if ("Domestic Violence Status" %in% input$system_composition_selections) {
     dv_totals <- freqs %>%
-      filter(`Domestic Violence` %in% c("DVFleeing", "DVNotFleeing")) %>%
+      filter(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
       group_by(!!sym(
         ifelse(
-          input$system_composition_selections[1] == "Domestic Violence",
+          input$system_composition_selections[1] == "Domestic Violence Status",
           input$system_composition_selections[2],
           input$system_composition_selections[1]
         )
       )) %>%
-      summarize(`Domestic Violence` = "DVTotal",
+      summarize(`Domestic Violence Status` = "DVTotal",
                 n = sum(n, na.rm = TRUE)) #,
                 # pct = sum(pct, na.rm = TRUE))
     freqs <- bind_rows(freqs, dv_totals)
@@ -198,11 +216,11 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
     plot_df <- as.data.frame(table(comp_df[[var_col]]))
     names(plot_df) <- c(selection, "n")
     
-    if(input$system_composition_selections == "Domestic Violence") {
+    if(input$system_composition_selections == "Domestic Violence Status") {
       plot_df <- plot_df %>% bind_rows(tibble(
-        `Domestic Violence` = "DVTotal",
+        `Domestic Violence Status` = "DVTotal",
         n = sum(plot_df %>% 
-          filter(`Domestic Violence` != "NotDV") %>%
+          filter(`Domestic Violence Status` != "NotDV") %>%
           pull(n), na.rm = TRUE)))
     }
   }
@@ -268,7 +286,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
         labels = str_wrap(
           rev(selection_cats1_labels), 
           width = ifelse(
-            selection == "Domestic Violence",
+            selection == "Domestic Violence Status",
             30,
             60
           )),

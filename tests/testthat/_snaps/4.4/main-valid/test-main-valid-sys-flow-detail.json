@@ -2278,13 +2278,13 @@
       ]
     },
     "sys_act_detail_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> All Project Types <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: 762fe1c373d84c0166569b34ae82b010]",
+      "src": "[image data hash: 25eb6502bd1e68e3f1edb129b84397cd]",
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
@@ -2331,13 +2331,13 @@
       }
     },
     "sys_act_summary_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> All Project Types <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: 1aafd35c3c7ff9d7d65b4be7577cd38f]",
+      "src": "[image data hash: dacebd4e9657583c3fce59ddeed17de7]",
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
