@@ -232,7 +232,8 @@ get_system_inflow_outflow_plot <- function(id) {
     ggrepel::geom_text_repel(
       aes(
         x = group.id,
-        label = if_else(!PlotFillGroups %in% c("Inflow", "Outflow"),
+        label = if_else(!PlotFillGroups %in% c("Inflow", "Outflow") &
+                          values != 0,
                         paste0(scales::comma(abs(values))), NA),
         y = rowSums(cbind(ystart, values / 2)),
         segment.colour = "gray33"
