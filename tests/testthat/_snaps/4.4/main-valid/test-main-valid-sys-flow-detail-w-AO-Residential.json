@@ -1836,7 +1836,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 715a9d9333372fa7bfc3d1eed601f4f6]",
+      "src": "[image data hash: 7bb01a99f06e51f19ea9df63d06bcfac]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -1881,9 +1881,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 202.0725599315069,
+              "left": 264.1038099315069,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -1931,7 +1931,7 @@
       ]
     },
     "orgDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 3751034e0b80ce1e7208bd53f283d2a6]",
+      "src": "[image data hash: be2a31170ae2928aaf0a8b6c8414e45c]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -1969,9 +1969,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 205.5569349315068,
+              "left": 268.7444349315069,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -1983,7 +1983,7 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: cdb5bc36f95a36ee7e04c289f8fe04b4]",
+      "src": "[image data hash: b78bbec5ad13a16e7e00a36fa6fabddd]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2028,9 +2028,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 231.6663099315069,
+              "left": 303.5725599315068,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -2284,7 +2284,11 @@
       ]
     },
     "sys_act_detail_ui_chart": {
+<<<<<<< HEAD
+      "src": "[image data hash: 92242126b4996f0546075813ac477f43]",
+=======
       "src": "[image data hash: 97a5b9e22f589e36c7dd34a57ee3d4f6]",
+>>>>>>> phase2-dev
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
@@ -2337,7 +2341,11 @@
       ]
     },
     "sys_act_summary_ui_chart": {
+<<<<<<< HEAD
+      "src": "[image data hash: 1c0808822dc5a1de4e1ea5f85b332245]",
+=======
       "src": "[image data hash: dacebd4e9657583c3fce59ddeed17de7]",
+>>>>>>> phase2-dev
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
@@ -2384,7 +2392,7 @@
       }
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: d3cbf045db83d181ca5dffc22ce1e863]",
+      "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2429,9 +2437,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 202.0725599315069,
+              "left": 264.1038099315069,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -2461,7 +2469,7 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: d63678dcacf9b72c309ad1d0ee5a3bd4]",
+      "src": "[image data hash: 2114d4346477ecf60df29fd0b5d4ec16]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2499,9 +2507,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 205.5569349315068,
+              "left": 268.7444349315069,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -2531,7 +2539,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: a6f76dd362353fad056d6a478121414d]",
+      "src": "[image data hash: 6bbfba35285d0302c88ad9b89690bb40]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2576,9 +2584,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 231.6663099315069,
+              "left": 303.5725599315068,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
