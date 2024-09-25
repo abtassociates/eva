@@ -1157,35 +1157,29 @@ if(nrow(Services) > 0){
   #     EnrollmentEnd,
   #     "FirstDateProvided" = DateProvided
   #   )
-  overlap_staging_dt <- as.data.table(overlap_staging_nbn)
+  overlap_staging <- as.data.table(overlap_staging_nbn)
   
   # Group by specified columns and compute min(DateProvided)
-  overlap_staging_dt[, .(FirstDateProvided = min(DateProvided)),
+  overlap_staging[, .(FirstDateProvided = min(DateProvided)),
                      by = .(PersonalID, EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd)]
   
   # Rename the column to "FirstDateProvided"
-  setnames(overlap_staging_dt, "DateProvided", "FirstDateProvided")
-  overlap_staging <- as.data.frame.matrix(overlap_staging_dt)
+  setnames(overlap_staging, "DateProvided", "FirstDateProvided")
 } else{
-  overlap_staging <- overlap_staging_no_nbn %>% 
-    mutate(FirstDateProvided = NA) %>%
-    select(
-      PersonalID,
-      EnrollmentID,
-      ProjectType,
-      EnrollmentStart,
-      EnrollmentEnd,
-      FirstDateProvided
-    )
+  overlap_staging <- as.data.table(overlap_staging_no_nbn)[, .(
+    PersonalID,
+    EnrollmentID,
+    ProjectType,
+    EnrollmentStart,
+    EnrollmentEnd,
+    FirstDateProvided = NA
+  )]
 }
-
-# overlap_staging
-overlap_staging_dt <- as.data.table(overlap_staging)
 
 # sort enrollments for each person
 # group_by(PersonalID) %>%
 # arrange(EnrollmentStart, EnrollmentEnd) %>%
-overlap_dt <- overlap_staging_dt[order(PersonalID, EnrollmentStart, EnrollmentEnd)]
+overlap_dt <- overlap_staging[order(PersonalID, EnrollmentStart, EnrollmentEnd)]
 
 
 # Pull in previous enrollment into current enrollment record
@@ -1211,7 +1205,7 @@ overlap_dt <- overlap_dt[!is.na(PreviousEnrollmentID)]
 #           by = c("PreviousEnrollmentID")) %>%
 
 overlap_dt <- overlap_dt[
-  overlap_staging_dt[, .(EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd, FirstDateProvided)],
+  overlap_staging[, .(EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd, FirstDateProvided)],
   on = c(PreviousEnrollmentID = "EnrollmentID"),
   nomatch = NULL
 ]
@@ -1256,9 +1250,12 @@ overlap_dt <- overlap_dt[
 # Assuming overlap_dt is a data.table
 overlap_dt$EnrollmentPeriod <- interval(overlap_dt$EnrollmentStart, overlap_dt$EnrollmentEnd)
 overlap_dt$PreviousEnrollmentPeriod <- interval(overlap_dt$PreviousEnrollmentStart, overlap_dt$PreviousEnrollmentEnd)
-overlap_dt[, IsOverlap := int_overlaps(EnrollmentPeriod, PreviousEnrollmentPeriod) &
-             EnrollmentStart != PreviousEnrollmentEnd]
-overlap_dt[IsOverlap == TRUE]
+overlap_dt <- overlap_dt[, `:=`(
+  IsOverlap = int_overlaps(EnrollmentPeriod, PreviousEnrollmentPeriod) &
+             EnrollmentStart != PreviousEnrollmentEnd,
+  EnrollmentPeriod = NULL,
+  PreviousEnrollmentPeriod = NULL
+)][IsOverlap == TRUE]
 
 # Calculate the number of overlaps per PersonalID
 # group_by(PersonalID) %>%
@@ -1334,7 +1331,7 @@ overlap_dt[, c("Issue", "PreviousIssue") := .(
 )]
 
 # Select relevant columns
-overlap_dt <- overlap_dt[, .(
+overlap_dt[, .(
 # select(
   EnrollmentID,
   PreviousEnrollmentID,
@@ -1355,21 +1352,20 @@ overlap_dt <- overlap_dt[, .(
 # 
 base_dq_data_dt <- as.data.table(base_dq_data)
 overlap_dt <- overlap_dt[
-  base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with=F],
-  on = "EnrollmentID"
-]
-
-# Rename columns for previous enrollment
+  base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with=F], 
+  on = "EnrollmentID", 
+  nomatch = 0
+][
+  # Rename columns for previous enrollment
 # left_join(base_dq_data %>% 
 #           select(!!vars_prep, EnrollmentID) %>%
 #           setNames(paste0('Previous', names(.))),
 #           by = "PreviousEnrollmentID") %>%
-overlap_dt <- overlap_dt[
-  setNames(
-    base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with=F], 
-    paste0("Previous", c(vars_prep, "EnrollmentID"))
-  ),
-  on = "PreviousEnrollmentID"
+  base_dq_data_dt[, 
+                  setNames(.SD, paste0("Previous", names(.SD))), 
+                  .SDcols = c(vars_prep, "EnrollmentID")], 
+  on = "PreviousEnrollmentID",
+  nomatch = 0
 ]
 
 # Convert ProjectType and PreviousProjectType to descriptive names
