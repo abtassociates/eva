@@ -2278,13 +2278,17 @@
       ]
     },
     "sys_act_summary_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> All Project Types <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sys_act_summary_ui_chart": {
+<<<<<<< HEAD
       "src": "[image data hash: 1c0808822dc5a1de4e1ea5f85b332245]",
+=======
+      "src": "[image data hash: dacebd4e9657583c3fce59ddeed17de7]",
+>>>>>>> phase2-dev
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",

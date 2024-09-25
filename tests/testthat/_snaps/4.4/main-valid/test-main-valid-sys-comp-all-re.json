@@ -1083,7 +1083,11 @@
     "syso_project_type": "Residential",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
+<<<<<<< HEAD
     "syso_tabbox": "Client System Status",
+=======
+    "syso_tabbox": "System Demographics",
+>>>>>>> phase2-dev
     "system_composition_selections": "All Races/Ethnicities"
   },
   "output": {
@@ -2275,13 +2279,17 @@
       ]
     },
     "sankey_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sankey_ui_chart": {
+<<<<<<< HEAD
       "src": "[image data hash: 0f3817b0e0cf7c170403a1e3ffe2a0f1]",
+=======
+      "src": "[image data hash: 3cbe0966746e97f0335a7baf56bd3087]",
+>>>>>>> phase2-dev
       "width": 435,
       "height": 400,
       "alt": "Plot object",
@@ -2301,8 +2309,8 @@
             "domain": {
               "left": 0,
               "right": 3,
-              "bottom": -65.06500000000001,
-              "top": 1366.365,
+              "bottom": -59.62,
+              "top": 1252.02,
               "discrete_limits": {
                 "x": [
                   "Period Start",
@@ -2333,15 +2341,21 @@
       }
     },
     "sys_act_detail_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sys_act_detail_ui_chart": {
+<<<<<<< HEAD
       "src": "[image data hash: 8b2bbc32a83ec18d206d1e5390726ffa]",
       "width": 450,
       "height": 225,
+=======
+      "src": "[image data hash: 97a5b9e22f589e36c7dd34a57ee3d4f6]",
+      "width": 435,
+      "height": 217.5,
+>>>>>>> phase2-dev
       "alt": "Plot object",
       "coordmap": {
         "panels": [
@@ -2360,7 +2374,7 @@
               "left": 0.27,
               "right": 8.630000000000001,
               "bottom": 0,
-              "top": 4934.6
+              "top": 4507.8
             },
             "mapping": {
               "y": null,
@@ -2387,13 +2401,17 @@
       "error": null
     },
     "sys_act_summary_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> All Project Types <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sys_act_summary_ui_chart": {
+<<<<<<< HEAD
       "src": "[image data hash: 1c0808822dc5a1de4e1ea5f85b332245]",
+=======
+      "src": "[image data hash: dacebd4e9657583c3fce59ddeed17de7]",
+>>>>>>> phase2-dev
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
@@ -2439,6 +2457,78 @@
         }
       }
     },
+<<<<<<< HEAD
+=======
+    "sys_comp_summary_selections": {
+      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>\n<strong>Selections<\/strong>: All Races/Ethnicities <br>",
+      "deps": [
+
+      ]
+    },
+    "sys_comp_summary_ui_chart": {
+      "src": "[image data hash: fe66a106d69639a5cf8f0086a94b5804]",
+      "width": 500,
+      "height": 600,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0.4,
+              "right": 1.6,
+              "bottom": 0.4,
+              "top": 15.6,
+              "discrete_limits": {
+                "x": "",
+                "y": [
+                  "White & Hispanic/Latina/e/o",
+                  "White alone",
+                  "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+                  "Native Hawaiian or Pacific Islander alone",
+                  "Multi-Racial & Hispanic/Latina/e/o",
+                  "Multi-Racial (not Hispanic/Latina/e/o)",
+                  "Middle Eastern or North African & Hispanic/Latina/e/o",
+                  "Middle Eastern or North African alone",
+                  "Hispanic/Latina/e/o alone",
+                  "Black, African American, or African & Hispanic/Latina/e/o",
+                  "Black, African American, or African alone",
+                  "Asian or Asian American & Hispanic/Latina/e/o",
+                  "Asian or Asian American alone",
+                  "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+                  "American Indian, Alaska Native, or Indigenous alone"
+                ]
+              }
+            },
+            "mapping": {
+              "fill": "n",
+              "x": "\"\"",
+              "y": ".data[[\"All Races/Ethnicities\"]]"
+            },
+            "range": {
+              "left": 384.3015839041096,
+              "right": 494.5205479452055,
+              "bottom": 562.0982146335131,
+              "top": 58.23143202837076
+            }
+          }
+        ],
+        "dims": {
+          "width": 500,
+          "height": 600
+        }
+      }
+    },
+>>>>>>> phase2-dev
     "systemDQErrorByIssue": {
       "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
       "width": 485,

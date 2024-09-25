@@ -2278,13 +2278,17 @@
       ]
     },
     "sankey_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sankey_ui_chart": {
+<<<<<<< HEAD
       "src": "[image data hash: 0f3817b0e0cf7c170403a1e3ffe2a0f1]",
+=======
+      "src": "[image data hash: 3cbe0966746e97f0335a7baf56bd3087]",
+>>>>>>> phase2-dev
       "width": 435,
       "height": 400,
       "alt": "Plot object",
@@ -2304,8 +2308,8 @@
             "domain": {
               "left": 0,
               "right": 3,
-              "bottom": -65.06500000000001,
-              "top": 1366.365,
+              "bottom": -59.62,
+              "top": 1252.02,
               "discrete_limits": {
                 "x": [
                   "Period Start",
@@ -2336,15 +2340,21 @@
       }
     },
     "sys_act_detail_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sys_act_detail_ui_chart": {
+<<<<<<< HEAD
       "src": "[image data hash: 8b2bbc32a83ec18d206d1e5390726ffa]",
       "width": 450,
       "height": 225,
+=======
+      "src": "[image data hash: 97a5b9e22f589e36c7dd34a57ee3d4f6]",
+      "width": 435,
+      "height": 217.5,
+>>>>>>> phase2-dev
       "alt": "Plot object",
       "coordmap": {
         "panels": [
@@ -2363,7 +2373,7 @@
               "left": 0.27,
               "right": 8.630000000000001,
               "bottom": 0,
-              "top": 4934.6
+              "top": 4507.8
             },
             "mapping": {
               "y": null,
@@ -2390,13 +2400,17 @@
       "error": null
     },
     "sys_act_summary_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> All Project Types <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sys_act_summary_ui_chart": {
+<<<<<<< HEAD
       "src": "[image data hash: 1c0808822dc5a1de4e1ea5f85b332245]",
+=======
+      "src": "[image data hash: dacebd4e9657583c3fce59ddeed17de7]",
+>>>>>>> phase2-dev
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
