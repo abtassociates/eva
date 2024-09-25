@@ -87,14 +87,14 @@ render_sankey_plot <- function(plot_data) {
       aes(x = 1, y = label_pos, label = Begin), 
       hjust = 1,
       nudge_x = -0.2,
-      size = font_size
+      size = sys_chart_text_font
     ) +
     geom_text(
       data = end_labels,
       aes(x = 1, y = label_pos, label = End), 
       hjust = 0,
       nudge_x = 1.2,
-      size = font_size
+      size = sys_chart_text_font
     ) +
     
     # X Axis Labels
@@ -107,14 +107,20 @@ render_sankey_plot <- function(plot_data) {
       geom = "text",
       x = 1.5,
       y = max(plot_data$yend) * 1.1,
-      size = 16/.pt,
+      size = sys_chart_title_font,
       label = sys_total_count_display(sum(plot_data$freq))
     ) +
     
     # remove legend, axis sizing
     theme_void() +
-    theme(legend.position = "none",
-          axis.text.x = element_text(color = "black", size = 17, vjust = 2.5))
+    theme(
+      legend.position = "none",
+      axis.text.x = element_text(
+        color = "black",
+        size = sys_axis_text_font,
+        vjust = 2.5
+      )
+    )
 }
 output$sankey_ui_chart <- renderPlot({
   req(valid_file() == 1)

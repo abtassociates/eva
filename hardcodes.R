@@ -135,8 +135,9 @@ syso_hh_types <- list(
   "All Household Types" = "All",
   "- Youth and Young Adult" = "YYA",
   "Adult Only" = "AO",
+  "- Adult Only 18-24" = "UY",
   "Adult Child" = "AC",
-  "- Parenting Youth" = "PY",
+  "- Parenting Young Adult" = "PY",
   "Child Only" = "CO"
 )
 
@@ -276,7 +277,7 @@ syso_chronic_pops <- list(
 )
 
 syso_spec_pops_people <- c(
-  "All Populations" = "None",
+  "All Statuses" = "None",
   # "Inflow",
   syso_veteran_pops#,
   #syso_dv_pops,
@@ -366,3 +367,20 @@ sys_comp_selection_choices = c(
 
 rm(inc_ncb_hi_required_prep)
 
+
+# Font sizing -------------------------------------------------------------
+# regular font can be set in css as pixels
+# geom_text or annotate are in mm, not points
+# element_text (for title, legend, axis labels, etc.) is in points, not mm
+  # http://www.cookbook-r.com/Graphs/Fonts/
+  # Also: https://www.christophenicault.com/post/understand_size_dimension_ggplot2/
+base_font_px <- 14 # 14px = 14*0.75 pts/px = 10.5pts = 10.5 pts = 3.7mm
+base_font_pts <- base_font_px*0.75
+base_font_mm <- base_font_pts / .pt # .pt is the constant to convert pt to mm (1pt = 3.5mm)
+
+dq_axis_font <- 12 # 12 pts = 16px
+sys_chart_text_font <- 14 / .pt # 14 pts = 4.92mm = 18.67px
+sys_axis_text_font <- 16 #16 pts = 22px
+sys_chart_title_font <- 16 / .pt # 16 pts
+
+ppt_summary_slide_font <- 19 # 19 pts = 25px

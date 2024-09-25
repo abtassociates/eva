@@ -47,6 +47,12 @@
     background: white;
 }
 
+/* toggle button focus */
+.skin-black .main-header .navbar .sidebar-toggle:focus {
+    color: #16697A; /*icon color - dark blue*/
+    background: white;
+}
+
 /* || MAIN SIDEBAR */
 
 /*sidebar color*/
@@ -66,7 +72,15 @@
 }
 
 /*sidebar color when menu option with a submenu is selected*/
-.skin-black .sidebar-menu>li.active>a, .skin-black .sidebar-menu>li:hover>a {
+.skin-black .sidebar-menu>li.active>a, 
+.skin-black .sidebar-menu>li:hover>a
+{
+    color: black; /*text color*/
+    background: #D0E7EC; /*sky*/
+    border-left-color: white;
+}
+
+.a:focus {
     color: black; /*text color*/
     background: #D0E7EC; /*sky*/
     border-left-color: white;
@@ -155,8 +169,8 @@
   border-color: #C2462E; /*coral*/
 }
 
-/*button hover*/
-.btn:hover {
+/*button hover and focus*/
+.btn:hover, .btn:focus {
   color: #C2462E; /*text color - coral*/
   background-color: white;
   border-color: #C2462E; /*text color - coral*/
