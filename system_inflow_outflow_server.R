@@ -249,7 +249,7 @@ get_system_inflow_outflow_plot <- function(id) {
         x = group.id,
         label = if_else(PlotFillGroups %in% c("Inflow", "Outflow"),
                         paste0(scales::comma(abs(values))), NA),
-        y = total_clients * 1.05
+        y = if_else(PlotFillGroups == "Inflow", yend, ystart), vjust = -.25
       ),
       size = sys_chart_text_font
     ) +
