@@ -1083,11 +1083,7 @@
     "syso_project_type": "Residential",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
-<<<<<<< HEAD
-    "syso_tabbox": "Client System Status",
-=======
     "syso_tabbox": "System Demographics",
->>>>>>> phase2-dev
     "system_composition_selections": [
       "Gender",
       "All Races/Ethnicities"
@@ -2288,12 +2284,8 @@
       ]
     },
     "sankey_ui_chart": {
-<<<<<<< HEAD
-      "src": "[image data hash: 0f3817b0e0cf7c170403a1e3ffe2a0f1]",
-=======
-      "src": "[image data hash: 3cbe0966746e97f0335a7baf56bd3087]",
->>>>>>> phase2-dev
-      "width": 435,
+      "src": "[image data hash: 8263898d77585d17fdef1336a0f68af4]",
+      "width": 304.5,
       "height": 400,
       "alt": "Plot object",
       "coordmap": {
@@ -2331,14 +2323,14 @@
             },
             "range": {
               "left": 1.602053178125186e-306,
-              "right": 435,
+              "right": 304,
               "bottom": 385.0000000000001,
               "top": 0
             }
           }
         ],
         "dims": {
-          "width": 435,
+          "width": 304.5,
           "height": 400
         }
       }
@@ -2350,15 +2342,9 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-<<<<<<< HEAD
-      "src": "[image data hash: 8b2bbc32a83ec18d206d1e5390726ffa]",
+      "src": "[image data hash: d3ba7044b16b1bf4d4dd1f3cb5ed9501]",
       "width": 450,
       "height": 225,
-=======
-      "src": "[image data hash: 97a5b9e22f589e36c7dd34a57ee3d4f6]",
-      "width": 435,
-      "height": 217.5,
->>>>>>> phase2-dev
       "alt": "Plot object",
       "coordmap": {
         "panels": [
@@ -2410,11 +2396,7 @@
       ]
     },
     "sys_act_summary_ui_chart": {
-<<<<<<< HEAD
-      "src": "[image data hash: 1c0808822dc5a1de4e1ea5f85b332245]",
-=======
-      "src": "[image data hash: dacebd4e9657583c3fce59ddeed17de7]",
->>>>>>> phase2-dev
+      "src": "[image data hash: c44d7596a0bd41fb4ce93f11f268783d]",
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
@@ -2460,8 +2442,6 @@
         }
       }
     },
-<<<<<<< HEAD
-=======
     "sys_comp_summary_selections": {
       "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>\n<strong>Selections<\/strong>: Gender and All Races/Ethnicities <br>",
       "deps": [
@@ -2538,7 +2518,6 @@
         }
       }
     },
->>>>>>> phase2-dev
     "systemDQErrorByIssue": {
       "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
       "width": 485,

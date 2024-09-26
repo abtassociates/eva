@@ -222,7 +222,7 @@ sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot
   fp_bold <- update(fp_normal, bold = TRUE)
   fp_red <- update(fp_normal, color = "red")
   
-  ppt <- read_pptx()
+  ppt <- read_pptx(here("system_pptx_template.pptx"))
   
   add_footer <- function(.ppt) {
     return(

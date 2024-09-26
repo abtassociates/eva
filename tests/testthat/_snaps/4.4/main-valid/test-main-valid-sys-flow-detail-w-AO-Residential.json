@@ -2284,11 +2284,7 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-<<<<<<< HEAD
-      "src": "[image data hash: 92242126b4996f0546075813ac477f43]",
-=======
-      "src": "[image data hash: 97a5b9e22f589e36c7dd34a57ee3d4f6]",
->>>>>>> phase2-dev
+      "src": "[image data hash: 7ec33c377af35b687eb81486effc4b41]",
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
@@ -2341,11 +2337,7 @@
       ]
     },
     "sys_act_summary_ui_chart": {
-<<<<<<< HEAD
-      "src": "[image data hash: 1c0808822dc5a1de4e1ea5f85b332245]",
-=======
-      "src": "[image data hash: dacebd4e9657583c3fce59ddeed17de7]",
->>>>>>> phase2-dev
+      "src": "[image data hash: c44d7596a0bd41fb4ce93f11f268783d]",
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
