@@ -1103,28 +1103,31 @@ overlap_staging <- base_dq_data %>%
              ProjectType %in% lh_residential_project_types
            ))
 
-if(nrow(Services) > 0){
-  overlap_staging_nbn <- overlap_staging %>%  
-  left_join(
-    Services %>% 
-      select(EnrollmentID, DateProvided) %>%
-      group_by(EnrollmentID) %>%
-      slice_min(DateProvided, n = 1L) %>% 
-      ungroup() %>%
-      unique()
-    , by = "EnrollmentID"
-  ) %>%
-  mutate(
-    EnrollmentStart = case_when(
-      ProjectType == es_nbn_project_type ~ DateProvided, 
-      ProjectType %in% lh_residential_project_types ~ EntryDate,
-      ProjectType %in% ph_project_types ~ MoveInDateAdjust,
-      TRUE ~ EntryDate
-    ),
-    EnrollmentEnd = if_else(ProjectType == es_nbn_project_type, 
-                            DateProvided, 
-                            as.Date(ExitAdjust))
-  )
+if(nrow(Services) > 0) {
+  overlap_staging_nbn <- overlap_staging %>%
+    left_join(# keeping enrollment granularity (so, not inner_join())
+      Services %>%
+        select(EnrollmentID, DateProvided) %>%
+        group_by(EnrollmentID) %>%
+        slice_min(DateProvided, n = 1L) %>%
+        ungroup() %>%
+        unique()
+      ,
+      by = "EnrollmentID"
+    ) %>%
+    mutate(
+      EnrollmentStart = case_when(
+        ProjectType == es_nbn_project_type ~ DateProvided,
+        ProjectType %in% lh_residential_project_types ~ EntryDate,
+        ProjectType %in% ph_project_types ~ MoveInDateAdjust,
+        TRUE ~ EntryDate
+      ),
+      EnrollmentEnd = if_else(
+        ProjectType == es_nbn_project_type,
+        DateProvided,
+        as.Date(ExitAdjust)
+      )
+    )
 }
 
 overlap_staging_no_nbn <- overlap_staging %>%  
@@ -1137,7 +1140,7 @@ overlap_staging_no_nbn <- overlap_staging %>%
     EnrollmentEnd = as.Date(ExitAdjust)
   )
 
-if(nrow(Services) > 0){
+if(nrow(Services) > 0) {
   # overlap_staging <- overlap_staging_nbn %>%
   #   group_by(
   #     PersonalID,
@@ -1148,7 +1151,7 @@ if(nrow(Services) > 0){
   #     DateProvided
   #   ) %>%
   #   slice_min(DateProvided, with_ties = FALSE) %>%
-  #   ungroup() %>% 
+  #   ungroup() %>%
   #   select(
   #     PersonalID,
   #     EnrollmentID,
