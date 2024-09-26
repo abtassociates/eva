@@ -1061,7 +1061,7 @@
     "sidebarCollapsed": false,
     "sidebarItemExpanded": "AssessDataQuality",
     "sidebarmenuid": "tabSystemOverview",
-    "sys_comp_subtabs": "Information",
+    "sys_comp_subtabs": "Chart",
     "sys_inflow_outflow_subtabs": "Information",
     "sys_status_subtabs": "Information",
     "syso_age": [
@@ -2284,7 +2284,7 @@
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: 8263898d77585d17fdef1336a0f68af4]",
+      "src": "[image data hash: d7e7f969171eaa51745a9f69df6bd1d9]",
       "width": 304.5,
       "height": 400,
       "alt": "Plot object",
@@ -2304,8 +2304,8 @@
             "domain": {
               "left": 0,
               "right": 3,
-              "bottom": -59.62,
-              "top": 1252.02,
+              "bottom": -60.83000000000001,
+              "top": 1277.43,
               "discrete_limits": {
                 "x": [
                   "Period Start",
@@ -2342,7 +2342,7 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: a448e2a0617d2bf9f9c96b25f5e8fc8e]",
+      "src": "[image data hash: b2e26a01477d79c3a2f27231c4a1b379]",
       "width": 450,
       "height": 225,
       "alt": "Plot object",
@@ -2363,7 +2363,7 @@
               "left": 0.27,
               "right": 8.630000000000001,
               "bottom": 0,
-              "top": 4507.8
+              "top": 4633.200000000001
             },
             "mapping": {
               "y": null,
@@ -2449,7 +2449,7 @@
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: 9783455885452f0db087039c64ee6115]",
+      "src": "[image data hash: d7106ec33024df2512ce61867f957b71]",
       "width": 455,
       "height": 600,
       "alt": "Plot object",

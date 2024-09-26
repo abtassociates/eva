@@ -1061,9 +1061,9 @@
     "sidebarCollapsed": false,
     "sidebarItemExpanded": "AssessDataQuality",
     "sidebarmenuid": "tabSystemOverview",
-    "sys_comp_subtabs": "Information",
-    "sys_inflow_outflow_subtabs": "Information",
-    "sys_status_subtabs": "Information",
+    "sys_comp_subtabs": "Chart",
+    "sys_inflow_outflow_subtabs": "Detail Chart",
+    "sys_status_subtabs": "Chart",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -1078,14 +1078,14 @@
       "Unknown"
     ],
     "syso_gender": "All",
-    "syso_hh_type": "AO",
+    "syso_hh_type": "All",
     "syso_level_of_detail": "All",
-    "syso_project_type": "Residential",
+    "syso_project_type": "All",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
-    "syso_tabbox": "System Demographics",
+    "syso_tabbox": "System Flow",
     "system_composition_selections": [
-      "Gender",
+      "Age",
       "All Races/Ethnicities"
     ]
   },
@@ -2277,64 +2277,6 @@
         }
       ]
     },
-    "sankey_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
-      "deps": [
-
-      ]
-    },
-    "sankey_ui_chart": {
-      "src": "[image data hash: 8263898d77585d17fdef1336a0f68af4]",
-      "width": 304.5,
-      "height": 400,
-      "alt": "Plot object",
-      "coordmap": {
-        "panels": [
-          {
-            "panel": 1,
-            "row": 1,
-            "col": 1,
-            "panel_vars": {
-
-            },
-            "log": {
-              "x": null,
-              "y": null
-            },
-            "domain": {
-              "left": 0,
-              "right": 3,
-              "bottom": -59.62,
-              "top": 1252.02,
-              "discrete_limits": {
-                "x": [
-                  "Period Start",
-                  "Period End"
-                ]
-              }
-            },
-            "mapping": {
-              "x": null,
-              "fill": "End",
-              "colour": "End",
-              "y": "freq",
-              "axis1": "Begin",
-              "axis2": "End"
-            },
-            "range": {
-              "left": 1.602053178125186e-306,
-              "right": 304,
-              "bottom": 385.0000000000001,
-              "top": 0
-            }
-          }
-        ],
-        "dims": {
-          "width": 304.5,
-          "height": 400
-        }
-      }
-    },
     "sys_act_detail_filter_selections": {
       "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
@@ -2342,9 +2284,9 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: a448e2a0617d2bf9f9c96b25f5e8fc8e]",
-      "width": 450,
-      "height": 225,
+      "src": "[image data hash: ccf968184ebef5760f3df99de60deefb]",
+      "width": 435,
+      "height": 217.5,
       "alt": "Plot object",
       "coordmap": {
         "panels": [
@@ -2363,7 +2305,7 @@
               "left": 0.27,
               "right": 8.630000000000001,
               "bottom": 0,
-              "top": 4507.8
+              "top": 9575.5
             },
             "mapping": {
               "y": null,
@@ -2376,18 +2318,17 @@
             },
             "range": {
               "left": 14.4,
-              "right": 435.6,
-              "bottom": 95.17870866141733,
+              "right": 420.6,
+              "bottom": 87.17870866141732,
               "top": 43.2
             }
           }
         ],
         "dims": {
-          "width": 450,
-          "height": 225
+          "width": 435,
+          "height": 217.5
         }
-      },
-      "error": null
+      }
     },
     "sys_act_summary_filter_selections": {
       "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
@@ -2439,82 +2380,6 @@
         "dims": {
           "width": 435,
           "height": 217.5
-        }
-      }
-    },
-    "sys_comp_summary_selections": {
-      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>\n<strong>Selections<\/strong>: Gender and All Races/Ethnicities <br>",
-      "deps": [
-
-      ]
-    },
-    "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: 9783455885452f0db087039c64ee6115]",
-      "width": 455,
-      "height": 600,
-      "alt": "Plot object",
-      "coordmap": {
-        "panels": [
-          {
-            "panel": 1,
-            "row": 1,
-            "col": 1,
-            "panel_vars": {
-
-            },
-            "log": {
-              "x": null,
-              "y": null
-            },
-            "domain": {
-              "left": 0.4,
-              "right": 5.6,
-              "bottom": 0.4,
-              "top": 16.6,
-              "discrete_limits": {
-                "x": [
-                  "Gender expansive, not transgender",
-                  "Man (Boy, if child) alone",
-                  "Transgender, alone or in combination",
-                  "Woman (Girl, if child) alone",
-                  "Total"
-                ],
-                "y": [
-                  "Total",
-                  "White & Hispanic/Latina/e/o",
-                  "White alone",
-                  "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
-                  "Native Hawaiian or Pacific Islander alone",
-                  "Multi-Racial & Hispanic/Latina/e/o",
-                  "Multi-Racial (not Hispanic/Latina/e/o)",
-                  "Middle Eastern or North African & Hispanic/Latina/e/o",
-                  "Middle Eastern or North African alone",
-                  "Hispanic/Latina/e/o alone",
-                  "Black, African American, or African & Hispanic/Latina/e/o",
-                  "Black, African American, or African alone",
-                  "Asian or Asian American & Hispanic/Latina/e/o",
-                  "Asian or Asian American alone",
-                  "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
-                  "American Indian, Alaska Native, or Indigenous alone"
-                ]
-              }
-            },
-            "mapping": {
-              "fill_ggnewscale_1": "n",
-              "x": ".data[[\"Gender\"]]",
-              "y": ".data[[\"All Races/Ethnicities\"]]"
-            },
-            "range": {
-              "left": 211.6140839041097,
-              "right": 449.5205479452055,
-              "bottom": 579.041095890411,
-              "top": 89.43031328526877
-            }
-          }
-        ],
-        "dims": {
-          "width": 455,
-          "height": 600
         }
       }
     },
