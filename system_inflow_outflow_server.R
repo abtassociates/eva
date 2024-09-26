@@ -232,15 +232,27 @@ get_system_inflow_outflow_plot <- function(id) {
     ggrepel::geom_text_repel(
       aes(
         x = group.id,
-        label = paste0(scales::comma(abs(values))),
+        label = if_else(!PlotFillGroups %in% c("Inflow", "Outflow") &
+                          values != 0,
+                        paste0(scales::comma(abs(values))), NA),
         y = rowSums(cbind(ystart, values / 2)),
         segment.colour = "gray33"
       ),
       direction = "y",
+      min.segment.length = unit(1, "inch"),
       nudge_x = -.35,
       colour = "#4e4d47",
       size = sys_chart_text_font,
       inherit.aes = FALSE
+    ) +
+    geom_text(
+      aes(
+        x = group.id,
+        label = if_else(PlotFillGroups %in% c("Inflow", "Outflow"),
+                        paste0(scales::comma(abs(values))), NA),
+        y = if_else(PlotFillGroups == "Inflow", yend, ystart), vjust = -.6
+      ),
+      size = sys_chart_text_font
     ) +
     # annotation: refer to helper_functions.R for sys_total_count_display() code
     annotate(
