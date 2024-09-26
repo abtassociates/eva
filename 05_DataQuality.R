@@ -1210,20 +1210,22 @@ overlap_dt <- overlap_dt[!is.na(PreviousEnrollmentID)]
 #             ),
 #           by = c("PreviousEnrollmentID")) %>%
 
-overlap_dt <- overlap_dt[
-  overlap_staging[, .(EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd, FirstDateProvided)],
-  on = c(PreviousEnrollmentID = "EnrollmentID"),
-  nomatch = NULL
-]
+overlap_dt <- overlap_dt[overlap_staging[, .(EnrollmentID,
+                                             ProjectType,
+                                             EnrollmentStart,
+                                             EnrollmentEnd,
+                                             FirstDateProvided)],
+                         on = c(PreviousEnrollmentID = "EnrollmentID"),
+                         nomatch = NULL]
 
 setnames(overlap_dt, 
-         old=c(
+         old = c(
            "i.ProjectType", 
            "i.EnrollmentStart", 
            "i.EnrollmentEnd", 
            "i.FirstDateProvided"
          ),
-         new=c(
+         new = c(
            "PreviousProjectType", 
            "PreviousEnrollmentStart", 
            "PreviousEnrollmentEnd", 
@@ -1254,7 +1256,8 @@ overlap_dt <- overlap_dt[
 # ) %>%
 # filter(IsOverlap == TRUE) %>%
 # Assuming overlap_dt is a data.table
-overlap_dt$EnrollmentPeriod <- interval(overlap_dt$EnrollmentStart, overlap_dt$EnrollmentEnd)
+overlap_dt$EnrollmentPeriod <- interval(overlap_dt$EnrollmentStart,
+                                        overlap_dt$EnrollmentEnd)
 overlap_dt$PreviousEnrollmentPeriod <- interval(overlap_dt$PreviousEnrollmentStart, overlap_dt$PreviousEnrollmentEnd)
 overlap_dt <- overlap_dt[, `:=`(
   IsOverlap = int_overlaps(EnrollmentPeriod, PreviousEnrollmentPeriod) &
