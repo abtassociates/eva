@@ -148,7 +148,7 @@ system_activity_prep_summary <- reactive({
   ]
 })
 
-get_system_inflow_outflow_plot <- function(id) {
+get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
   if (id == "sys_act_summary_ui_chart") {
     df <- system_activity_prep_summary()
     mid_plot <- 2.5
@@ -242,13 +242,9 @@ get_system_inflow_outflow_plot <- function(id) {
       size = sys_chart_text_font,
       inherit.aes = FALSE
     ) +
-    # annotation: refer to helper_functions.R for sys_total_count_display() code
-    annotate(
-      geom = "text",
-      x = mid_plot,
-      y = max(df$yend) * 1.1,
-      size = sys_chart_title_font,
-      label = paste0(
+    
+    ggtitle(
+      paste0(
         sys_total_count_display(total_clients),
         "Total Change: ",
         case_when(
@@ -259,6 +255,7 @@ get_system_inflow_outflow_plot <- function(id) {
         "\n"
       )
     ) +
+    
     # color palette
     scale_fill_manual(values = colors) +
     # distance between bars and x axis line
@@ -273,15 +270,16 @@ get_system_inflow_outflow_plot <- function(id) {
     theme_void() +
     # add back in what theme elements we want
     theme(
-      text = element_text(size = sys_axis_text_font, colour = "#4e4d47"),
-      axis.text.x = element_text(size = sys_axis_text_font, vjust = -.2),
+      text = element_text(size = sys_chart_text_font, colour = "#4e4d47"),
+      axis.text.x = element_text(size = get_adj_font_size(sys_axis_text_font, isExport), vjust = -.2),
       axis.ticks.x = element_line(),
       axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
       plot.margin = unit(c(3, 1, 1, 1), "lines"),
-      legend.text = element_text(size = sys_axis_text_font),
+      legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
       legend.title = element_blank(),
       legend.position = "bottom",
-      legend.margin = margin(.5, 0, 0, 0, unit = "inch")
+      legend.margin = margin(.5, 0, 0, 0, unit = "inch"),
+      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 }
 
@@ -385,8 +383,8 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
         bind_rows(sys_export_filter_selections()) %>%
         bind_rows(sys_inflow_outflow_export_info(df)),
       plot_slide_title = "System Flow Summary",
-      plot1 = get_system_inflow_outflow_plot("sys_act_summary_ui_chart"),
-      plot2 = get_system_inflow_outflow_plot("sys_act_detail_ui_chart"),
+      plot1 = get_system_inflow_outflow_plot("sys_act_summary_ui_chart", isExport = TRUE),
+      plot2 = get_system_inflow_outflow_plot("sys_act_detail_ui_chart", isExport = TRUE),
       summary_font_size = 19
     )
   }

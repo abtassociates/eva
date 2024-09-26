@@ -218,6 +218,7 @@ sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot
   loc_ctrtitle <- ph_location_type(type = "ctrTitle")
   
   fp_normal <- fp_text(font.size = summary_font_size)
+  fp_title <- fp_text(font.size = ppt_chart_title_font_size)
   fp_bold <- update(fp_normal, bold = TRUE)
   fp_red <- update(fp_normal, color = "red")
   
@@ -264,13 +265,13 @@ sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot
   
   # Chart
   ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
-    ph_with(value = plot_slide_title, location = loc_title) %>%
+    ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%
     ph_with(value = plot1, location = loc_body) %>%
     add_footer()
   
   if(!is.null(plot2)) {
     ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
-      ph_with(value = plot_slide_title, location = loc_title) %>%
+      ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%
       ph_with(value = plot2, location = loc_body) %>%
       add_footer()
   }
@@ -318,5 +319,11 @@ sys_total_count_display <- function(total_count) {
       width = 40
     ),
     "\n")
+  )
+}
+
+get_adj_font_size <- function(font_size, isExport) {
+  return(
+    font_size*ifelse(isExport, sys_chart_export_font_reduction, 1)
   )
 }

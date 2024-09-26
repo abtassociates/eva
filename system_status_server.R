@@ -3,7 +3,7 @@ output$sankey_filter_selections <- renderUI({
   syso_detailBox() 
 })
 
-render_sankey_plot <- function(plot_data) {
+render_sankey_plot <- function(plot_data, isExport = FALSE) {
   begin_labels <- plot_data %>%
     group_by(Begin) %>%
     summarize(freq = sum(freq)) %>%
@@ -53,7 +53,7 @@ render_sankey_plot <- function(plot_data) {
     "Exited, Permanent" = "#B4C7CB",
     "Enrolled, Housed" = "#214853"
   )
-  
+
   ggplot(
     data = plot_data,
     aes(axis1 = Begin, axis2 = End, y = freq)
@@ -107,13 +107,15 @@ render_sankey_plot <- function(plot_data) {
                      expand = c(0.5, 0.5)) +
     
     # Total People
-    annotate(
-      geom = "text",
-      x = 1.5,
-      y = max(plot_data$yend) * 1.1,
-      size = sys_chart_title_font,
-      label = sys_total_count_display(sum(plot_data$freq))
-    ) +
+    # annotate(
+    #   geom = "text",
+    #   x = 1.5,
+    #   y = max(plot_data$yend) * 1.1,
+    #   size = sys_chart_title_font,
+    #   label = sys_total_count_display(sum(plot_data$freq))
+    # ) +
+    
+    ggtitle(sys_total_count_display(sum(plot_data$freq))) +
     
     # remove legend, axis sizing
     theme_void() +
@@ -121,9 +123,10 @@ render_sankey_plot <- function(plot_data) {
       legend.position = "none",
       axis.text.x = element_text(
         color = "black",
-        size = sys_axis_text_font,
+        size = get_adj_font_size(sys_axis_text_font, isExport),
         vjust = 2.5
-      )
+      ),
+      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 }
 output$sankey_ui_chart <- renderPlot({
@@ -212,7 +215,7 @@ output$sys_status_download_btn_ppt <- downloadHandler(
         bind_rows(sys_export_filter_selections()) %>%
         bind_rows(sys_status_export_info(sankey_plot_data())),
       plot_slide_title = "Client System Status",
-      plot1 = render_sankey_plot(sankey_plot_data()),
+      plot1 = render_sankey_plot(sankey_plot_data(), isExport=TRUE),
       summary_font_size = 21
     )
   }
