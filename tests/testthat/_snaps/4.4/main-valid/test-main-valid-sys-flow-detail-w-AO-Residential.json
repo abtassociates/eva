@@ -570,8 +570,7 @@
       47,
       48,
       49,
-      50,
-      51
+      50
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -775,8 +774,7 @@
       131,
       132,
       133,
-      134,
-      135
+      134
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -1983,7 +1981,7 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: b78bbec5ad13a16e7e00a36fa6fabddd]",
+      "src": "[image data hash: 9c3c0d76c8e184024138cbb4bbab1e99]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -2013,9 +2011,9 @@
                   "Overlap with a Rapid Rehousing project",
                   "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
                   "Doesn't Know/Prefers Not to Answer Living Situation",
+                  "Overlap with a Emergency Shelter (E/E) project",
                   "Future Entry Date",
                   "Homelessness Start Date conflicts with Living Situation data",
-                  "Overlap with a Emergency Shelter (E/E) project",
                   "Doesn't Know/Prefers Not to Answer Destination",
                   "Missing Destination",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
@@ -2284,7 +2282,7 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: 20c0cabadfc54ef6f5e318c1b84df234]",
+      "src": "[image data hash: 5a999f43871e16b5a41fa4cee900f1a0]",
       "width": 435,
       "height": 217.5,
       "alt": "A waterfall bar chart of the homeless system's inflow and \n              outflow during the report period. The detailed view of this chart \n              shows inflow as three subcategories: first-time homeless, returned from \n              permanent, and re-engaged from non-permanent and outflow as three \n              subcategories: exited non-permanent, exited permanent, and inactive.",
@@ -2305,7 +2303,7 @@
               "left": 0.27,
               "right": 8.630000000000001,
               "bottom": 0,
-              "top": 4507.8
+              "top": 4633.200000000001
             },
             "mapping": {
               "y": null,
@@ -2531,7 +2529,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 6bbfba35285d0302c88ad9b89690bb40]",
+      "src": "[image data hash: d49a831be5033e578b241acf5f5e6b82]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
@@ -2560,10 +2558,10 @@
                 "y": [
                   "Doesn't Know/Prefers Not to Answer/Data Not Collected DOB",
                   "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
-                  "Doesn't Know/Prefers Not to Answer Living Situation",
-                  "Overlap with a Rapid Rehousing project",
-                  "Doesn't Know/Prefers Not to Answer Destination",
                   "Overlap with a Emergency Shelter (E/E) project",
+                  "Overlap with a Rapid Rehousing project",
+                  "Doesn't Know/Prefers Not to Answer Living Situation",
+                  "Doesn't Know/Prefers Not to Answer Destination",
                   "Homelessness Start Date conflicts with Living Situation data",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
                   "Doesn't Know/Prefers Not to Answer SSN",
@@ -2644,8 +2642,8 @@
     "dq_org_guidance_summary": [
       [
         "High Priority: 3  ",
-        "Length:51         ",
-        "Length:51         "
+        "Length:50         ",
+        "Length:50         "
       ],
       [
         "Error        :26  ",
@@ -2653,47 +2651,47 @@
         "Class :character  "
       ],
       [
-        "Warning      :22  ",
+        "Warning      :21  ",
         "Mode  :character  ",
         "Mode  :character  "
       ]
     ],
     "dq_organization_summary_table": [
       [
-        "Length:135        ",
+        "Length:134        ",
         "High Priority: 5  ",
-        "Length:135        ",
-        "Min.   :  1.00  "
+        "Length:134        ",
+        "Min.   :  1.000  "
       ],
       [
         "Class :character  ",
         "Error        :69  ",
         "Class :character  ",
-        "1st Qu.:  1.00  "
+        "1st Qu.:  1.000  "
       ],
       [
         "Mode  :character  ",
-        "Warning      :61  ",
+        "Warning      :60  ",
         "Mode  :character  ",
-        "Median :  3.00  "
+        "Median :  3.000  "
       ],
       [
         null,
         null,
         null,
-        "Mean   :  9.83  "
+        "Mean   :  9.836  "
       ],
       [
         null,
         null,
         null,
-        "3rd Qu.:  7.00  "
+        "3rd Qu.:  7.000  "
       ],
       [
         null,
         null,
         null,
-        "Max.   :214.00  "
+        "Max.   :214.000  "
       ]
     ],
     "pdde_guidance_summary": [

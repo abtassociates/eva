@@ -570,8 +570,7 @@
       47,
       48,
       49,
-      50,
-      51
+      50
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -775,8 +774,7 @@
       131,
       132,
       133,
-      134,
-      135
+      134
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -1980,7 +1978,7 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: b78bbec5ad13a16e7e00a36fa6fabddd]",
+      "src": "[image data hash: 9c3c0d76c8e184024138cbb4bbab1e99]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -2010,9 +2008,9 @@
                   "Overlap with a Rapid Rehousing project",
                   "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
                   "Doesn't Know/Prefers Not to Answer Living Situation",
+                  "Overlap with a Emergency Shelter (E/E) project",
                   "Future Entry Date",
                   "Homelessness Start Date conflicts with Living Situation data",
-                  "Overlap with a Emergency Shelter (E/E) project",
                   "Doesn't Know/Prefers Not to Answer Destination",
                   "Missing Destination",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
@@ -2281,7 +2279,7 @@
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: 8263898d77585d17fdef1336a0f68af4]",
+      "src": "[image data hash: d7e7f969171eaa51745a9f69df6bd1d9]",
       "width": 304.5,
       "height": 400,
       "alt": "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",
@@ -2301,8 +2299,8 @@
             "domain": {
               "left": 0,
               "right": 3,
-              "bottom": -59.62,
-              "top": 1252.02,
+              "bottom": -60.83000000000001,
+              "top": 1277.43,
               "discrete_limits": {
                 "x": [
                   "Period Start",
@@ -2339,7 +2337,8 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: 30e3d57ea72b1a80560c9d89b6727a04]",
+
+      "src": "[image data hash: b2e26a01477d79c3a2f27231c4a1b379]",
       "width": 450,
       "height": 225,
       "alt": "A waterfall bar chart of the homeless system's inflow and \n              outflow during the report period. The detailed view of this chart \n              shows inflow as three subcategories: first-time homeless, returned from \n              permanent, and re-engaged from non-permanent and outflow as three \n              subcategories: exited non-permanent, exited permanent, and inactive.",
@@ -2360,7 +2359,7 @@
               "left": 0.27,
               "right": 8.630000000000001,
               "bottom": 0,
-              "top": 4507.8
+              "top": 4633.200000000001
             },
             "mapping": {
               "y": null,
@@ -2446,7 +2445,7 @@
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: fe66a106d69639a5cf8f0086a94b5804]",
+      "src": "[image data hash: de93baa795359b033ef315e3cbdef668]",
       "width": 500,
       "height": 600,
       "alt": "A crosstab data table of the demographic make-up of the homeless system.",
@@ -2656,7 +2655,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 6bbfba35285d0302c88ad9b89690bb40]",
+      "src": "[image data hash: d49a831be5033e578b241acf5f5e6b82]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
@@ -2685,10 +2684,10 @@
                 "y": [
                   "Doesn't Know/Prefers Not to Answer/Data Not Collected DOB",
                   "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
-                  "Doesn't Know/Prefers Not to Answer Living Situation",
-                  "Overlap with a Rapid Rehousing project",
-                  "Doesn't Know/Prefers Not to Answer Destination",
                   "Overlap with a Emergency Shelter (E/E) project",
+                  "Overlap with a Rapid Rehousing project",
+                  "Doesn't Know/Prefers Not to Answer Living Situation",
+                  "Doesn't Know/Prefers Not to Answer Destination",
                   "Homelessness Start Date conflicts with Living Situation data",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
                   "Doesn't Know/Prefers Not to Answer SSN",
@@ -2769,8 +2768,8 @@
     "dq_org_guidance_summary": [
       [
         "High Priority: 3  ",
-        "Length:51         ",
-        "Length:51         "
+        "Length:50         ",
+        "Length:50         "
       ],
       [
         "Error        :26  ",
@@ -2778,47 +2777,47 @@
         "Class :character  "
       ],
       [
-        "Warning      :22  ",
+        "Warning      :21  ",
         "Mode  :character  ",
         "Mode  :character  "
       ]
     ],
     "dq_organization_summary_table": [
       [
-        "Length:135        ",
+        "Length:134        ",
         "High Priority: 5  ",
-        "Length:135        ",
-        "Min.   :  1.00  "
+        "Length:134        ",
+        "Min.   :  1.000  "
       ],
       [
         "Class :character  ",
         "Error        :69  ",
         "Class :character  ",
-        "1st Qu.:  1.00  "
+        "1st Qu.:  1.000  "
       ],
       [
         "Mode  :character  ",
-        "Warning      :61  ",
+        "Warning      :60  ",
         "Mode  :character  ",
-        "Median :  3.00  "
+        "Median :  3.000  "
       ],
       [
         null,
         null,
         null,
-        "Mean   :  9.83  "
+        "Mean   :  9.836  "
       ],
       [
         null,
         null,
         null,
-        "3rd Qu.:  7.00  "
+        "3rd Qu.:  7.000  "
       ],
       [
         null,
         null,
         null,
-        "Max.   :214.00  "
+        "Max.   :214.000  "
       ]
     ],
     "pdde_guidance_summary": [
