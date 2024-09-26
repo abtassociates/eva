@@ -1194,7 +1194,9 @@ overlap_dt <- overlap_staging[order(PersonalID, EnrollmentStart, EnrollmentEnd)]
 #   # compare intervals
 #   PreviousEnrollmentID = lag(EnrollmentID)) %>%
 # ungroup() %>%
-overlap_dt[, PreviousEnrollmentID := shift(EnrollmentID, type = "lag"), by = PersonalID]
+overlap_dt <-
+  overlap_dt[, PreviousEnrollmentID := shift(EnrollmentID, type = "lag"),
+             by = PersonalID]
 
 # Filter out rows with missing PreviousEnrollmentID
 # filter(!is.na(PreviousEnrollmentID)) %>% # 48 secs
@@ -1270,7 +1272,8 @@ overlap_dt <- overlap_dt[, `:=`(
 # group_by(PersonalID) %>%
 # mutate(NumOverlaps = sum(IsOverlap, na.rm = TRUE)) %>%
 # ungroup() %>%
-overlap_dt[, NumOverlaps := sum(IsOverlap, na.rm = TRUE), by = PersonalID]
+overlap_dt <- overlap_dt[, NumOverlaps := sum(IsOverlap, na.rm = TRUE),
+                         by = PersonalID]
 
 # # keep overlaps
 # filter(((ProjectType == es_nbn_project_type |
