@@ -1364,7 +1364,7 @@ overlap_dt <- overlap_dt[, .(
 # 
 base_dq_data_dt <- as.data.table(base_dq_data)
 overlap_dt <- overlap_dt[
-  base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with=F], 
+  base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with = FALSE], 
   on = "EnrollmentID", 
   nomatch = 0
 ][
