@@ -1826,7 +1826,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 268990aca7fe9c0d0eac96bf31c8cf15]",
+      "src": "[image data hash: 7bb01a99f06e51f19ea9df63d06bcfac]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -1871,9 +1871,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 224.6038099315069,
+              "left": 264.1038099315069,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -1921,7 +1921,7 @@
       ]
     },
     "orgDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 3751034e0b80ce1e7208bd53f283d2a6]",
+      "src": "[image data hash: be2a31170ae2928aaf0a8b6c8414e45c]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -1959,9 +1959,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 205.5569349315068,
+              "left": 268.7444349315069,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -1973,7 +1973,7 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 10ed8b67d2878f60f54f88c4cdc373b3]",
+      "src": "[image data hash: b78bbec5ad13a16e7e00a36fa6fabddd]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2018,9 +2018,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 231.6663099315069,
+              "left": 303.5725599315068,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -2268,15 +2268,15 @@
       ]
     },
     "sys_act_detail_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: e9431470fbb1a9809c96852a37bd061f]",
-      "width": 435,
-      "height": 217.5,
+      "src": "[image data hash: a448e2a0617d2bf9f9c96b25f5e8fc8e]",
+      "width": 450,
+      "height": 225,
       "alt": "Plot object",
       "coordmap": {
         "panels": [
@@ -2308,26 +2308,27 @@
             },
             "range": {
               "left": 14.4,
-              "right": 420.6,
-              "bottom": 87.17870866141732,
+              "right": 435.6,
+              "bottom": 95.17870866141733,
               "top": 43.2
             }
           }
         ],
         "dims": {
-          "width": 435,
-          "height": 217.5
+          "width": 450,
+          "height": 225
         }
-      }
+      },
+      "error": null
     },
     "sys_act_summary_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Project Type:<\/b> All Project Types <br>\n<b>Methodology Type:<\/b> Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category <br>\n<b>Special Populations:<\/b> All Populations <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: 1aafd35c3c7ff9d7d65b4be7577cd38f]",
+      "src": "[image data hash: 9394eb9b7bdacfce6ed9fa157e813734]",
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
@@ -2374,7 +2375,7 @@
       }
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: 5bc3a4fa2b8333ace88acbcbd8769bcf]",
+      "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2419,9 +2420,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 202.0725599315069,
+              "left": 264.1038099315069,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -2451,7 +2452,7 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: d63678dcacf9b72c309ad1d0ee5a3bd4]",
+      "src": "[image data hash: 2114d4346477ecf60df29fd0b5d4ec16]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2489,9 +2490,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 205.5569349315068,
+              "left": 268.7444349315069,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -2521,7 +2522,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 008c228349545ce246f09064e3c6495e]",
+      "src": "[image data hash: 6bbfba35285d0302c88ad9b89690bb40]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2566,9 +2567,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 231.6663099315069,
+              "left": 303.5725599315068,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }

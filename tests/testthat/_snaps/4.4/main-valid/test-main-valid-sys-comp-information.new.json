@@ -569,7 +569,9 @@
       46,
       47,
       48,
-      49
+      49,
+      50,
+      51
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -766,7 +768,15 @@
       124,
       125,
       126,
-      127
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -1051,9 +1061,9 @@
     "sidebarCollapsed": false,
     "sidebarItemExpanded": "AssessDataQuality",
     "sidebarmenuid": "tabSystemOverview",
-    "sys_comp_subtabs": "Chart",
+    "sys_comp_subtabs": "Information",
     "sys_inflow_outflow_subtabs": "Information",
-    "sys_status_subtabs": "Chart",
+    "sys_status_subtabs": "Information",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -1073,9 +1083,9 @@
     "syso_project_type": "Residential",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
-    "syso_tabbox": "System Flow",
+    "syso_tabbox": "System Demographics",
     "system_composition_selections": [
-      "Age",
+      "Gender",
       "All Races/Ethnicities"
     ]
   },
@@ -1853,14 +1863,14 @@
 
                 ],
                 "y": [
-                  "Conflicting Health Insurance yes/no at Exit",
-                  "Oldest Household Member Under 12",
                   "Conflicting Health Insurance yes/no at Entry",
-                  "Missing Length of Stay",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
-                  "Missing Months or Times Homeless",
+                  "Missing SSN",
+                  "Missing Disabling Condition",
                   "Conflicting Income yes/no at Exit",
+                  "Missing Months or Times Homeless",
+                  "Missing Name Data Quality",
                   "Invalid Move-In Date",
                   "Missing HP Screening or Threshold Score"
                 ]
@@ -1992,7 +2002,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 276.1,
+              "right": 256.3,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -2001,15 +2011,15 @@
                 ],
                 "y": [
                   "Overlap with a Rapid Rehousing project",
-                  "Unknown Months or Times Homeless",
-                  "Unknown Living Situation",
-                  "Incomplete or Unknown Name",
+                  "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
+                  "Doesn't Know/Prefers Not to Answer Living Situation",
                   "Future Entry Date",
                   "Homelessness Start Date conflicts with Living Situation data",
                   "Overlap with a Emergency Shelter (E/E) project",
-                  "Unknown Destination",
+                  "Doesn't Know/Prefers Not to Answer Destination",
+                  "Missing Destination",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
-                  "Unknown SSN"
+                  "Doesn't Know/Prefers Not to Answer SSN"
                 ]
               }
             },
@@ -2267,6 +2277,64 @@
         }
       ]
     },
+    "sankey_filter_selections": {
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
+      "deps": [
+
+      ]
+    },
+    "sankey_ui_chart": {
+      "src": "[image data hash: d7e7f969171eaa51745a9f69df6bd1d9]",
+      "width": 304.5,
+      "height": 400,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 3,
+              "bottom": -60.83000000000001,
+              "top": 1277.43,
+              "discrete_limits": {
+                "x": [
+                  "Period Start",
+                  "Period End"
+                ]
+              }
+            },
+            "mapping": {
+              "x": null,
+              "fill": "End",
+              "colour": "End",
+              "y": "freq",
+              "axis1": "Begin",
+              "axis2": "End"
+            },
+            "range": {
+              "left": 1.602053178125186e-306,
+              "right": 304,
+              "bottom": 385.0000000000001,
+              "top": 0
+            }
+          }
+        ],
+        "dims": {
+          "width": 304.5,
+          "height": 400
+        }
+      }
+    },
     "sys_act_detail_filter_selections": {
       "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
@@ -2274,7 +2342,7 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: a448e2a0617d2bf9f9c96b25f5e8fc8e]",
+      "src": "[image data hash: b2e26a01477d79c3a2f27231c4a1b379]",
       "width": 450,
       "height": 225,
       "alt": "Plot object",
@@ -2295,7 +2363,7 @@
               "left": 0.27,
               "right": 8.630000000000001,
               "bottom": 0,
-              "top": 4507.8
+              "top": 4633.200000000001
             },
             "mapping": {
               "y": null,
@@ -2374,6 +2442,82 @@
         }
       }
     },
+    "sys_comp_summary_selections": {
+      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>\n<strong>Selections<\/strong>: Gender and All Races/Ethnicities <br>",
+      "deps": [
+
+      ]
+    },
+    "sys_comp_summary_ui_chart": {
+      "src": "[image data hash: d7106ec33024df2512ce61867f957b71]",
+      "width": 455,
+      "height": 600,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0.4,
+              "right": 5.6,
+              "bottom": 0.4,
+              "top": 16.6,
+              "discrete_limits": {
+                "x": [
+                  "Gender expansive, not transgender",
+                  "Man (Boy, if child) alone",
+                  "Transgender, alone or in combination",
+                  "Woman (Girl, if child) alone",
+                  "Total"
+                ],
+                "y": [
+                  "Total",
+                  "White & Hispanic/Latina/e/o",
+                  "White alone",
+                  "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+                  "Native Hawaiian or Pacific Islander alone",
+                  "Multi-Racial & Hispanic/Latina/e/o",
+                  "Multi-Racial (not Hispanic/Latina/e/o)",
+                  "Middle Eastern or North African & Hispanic/Latina/e/o",
+                  "Middle Eastern or North African alone",
+                  "Hispanic/Latina/e/o alone",
+                  "Black, African American, or African & Hispanic/Latina/e/o",
+                  "Black, African American, or African alone",
+                  "Asian or Asian American & Hispanic/Latina/e/o",
+                  "Asian or Asian American alone",
+                  "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+                  "American Indian, Alaska Native, or Indigenous alone"
+                ]
+              }
+            },
+            "mapping": {
+              "fill_ggnewscale_1": "n",
+              "x": ".data[[\"Gender\"]]",
+              "y": ".data[[\"All Races/Ethnicities\"]]"
+            },
+            "range": {
+              "left": 211.6140839041097,
+              "right": 449.5205479452055,
+              "bottom": 579.041095890411,
+              "top": 89.43031328526877
+            }
+          }
+        ],
+        "dims": {
+          "width": 455,
+          "height": 600
+        }
+      }
+    },
     "systemDQErrorByIssue": {
       "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
       "width": 485,
@@ -2394,7 +2538,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 1492.7,
+              "right": 2143.9,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -2402,16 +2546,16 @@
 
                 ],
                 "y": [
-                  "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
-                  "Invalid Move-In Date",
-                  "Conflicting Health Insurance yes/no at Entry",
                   "Missing Race/Ethnicity",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
+                  "Missing Name Data Quality",
                   "Missing Residence Prior",
-                  "Missing Length of Stay"
+                  "Missing SSN",
+                  "Missing Length of Stay",
+                  "Missing Disabling Condition"
                 ]
               }
             },
@@ -2541,7 +2685,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 12918.4,
+              "right": 11617.1,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -2549,16 +2693,16 @@
 
                 ],
                 "y": [
-                  "Unknown Months or Times Homeless",
-                  "Unknown Living Situation",
-                  "Unknown Race/Ethnicity",
+                  "Doesn't Know/Prefers Not to Answer/Data Not Collected DOB",
+                  "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
+                  "Doesn't Know/Prefers Not to Answer Living Situation",
                   "Overlap with a Rapid Rehousing project",
-                  "Incomplete or Unknown Name",
+                  "Doesn't Know/Prefers Not to Answer Destination",
                   "Overlap with a Emergency Shelter (E/E) project",
                   "Homelessness Start Date conflicts with Living Situation data",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
-                  "Unknown SSN",
-                  "Unknown Destination"
+                  "Doesn't Know/Prefers Not to Answer SSN",
+                  "Missing Destination"
                 ]
               }
             },
@@ -2635,36 +2779,36 @@
     "dq_org_guidance_summary": [
       [
         "High Priority: 3  ",
-        "Length:49         ",
-        "Length:49         "
+        "Length:51         ",
+        "Length:51         "
       ],
       [
-        "Error        :22  ",
+        "Error        :26  ",
         "Class :character  ",
         "Class :character  "
       ],
       [
-        "Warning      :24  ",
+        "Warning      :22  ",
         "Mode  :character  ",
         "Mode  :character  "
       ]
     ],
     "dq_organization_summary_table": [
       [
-        "Length:127        ",
+        "Length:135        ",
         "High Priority: 5  ",
-        "Length:127        ",
+        "Length:135        ",
         "Min.   :  1.00  "
       ],
       [
         "Class :character  ",
-        "Error        :56  ",
+        "Error        :69  ",
         "Class :character  ",
         "1st Qu.:  1.00  "
       ],
       [
         "Mode  :character  ",
-        "Warning      :66  ",
+        "Warning      :61  ",
         "Mode  :character  ",
         "Median :  3.00  "
       ],
@@ -2672,7 +2816,7 @@
         null,
         null,
         null,
-        "Mean   : 10.35  "
+        "Mean   :  9.83  "
       ],
       [
         null,

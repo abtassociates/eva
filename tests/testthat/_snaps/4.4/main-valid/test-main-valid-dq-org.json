@@ -1820,7 +1820,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 268990aca7fe9c0d0eac96bf31c8cf15]",
+      "src": "[image data hash: 7bb01a99f06e51f19ea9df63d06bcfac]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -1865,9 +1865,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 224.6038099315069,
+              "left": 264.1038099315069,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -1915,7 +1915,7 @@
       ]
     },
     "orgDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 3751034e0b80ce1e7208bd53f283d2a6]",
+      "src": "[image data hash: be2a31170ae2928aaf0a8b6c8414e45c]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -1953,9 +1953,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 205.5569349315068,
+              "left": 268.7444349315069,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -1967,7 +1967,7 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 10ed8b67d2878f60f54f88c4cdc373b3]",
+      "src": "[image data hash: b78bbec5ad13a16e7e00a36fa6fabddd]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2012,9 +2012,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 231.6663099315069,
+              "left": 303.5725599315068,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -2262,7 +2262,7 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: 5bc3a4fa2b8333ace88acbcbd8769bcf]",
+      "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2307,9 +2307,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 202.0725599315069,
+              "left": 264.1038099315069,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -2339,7 +2339,7 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: d63678dcacf9b72c309ad1d0ee5a3bd4]",
+      "src": "[image data hash: 2114d4346477ecf60df29fd0b5d4ec16]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2377,9 +2377,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 205.5569349315068,
+              "left": 268.7444349315069,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -2409,7 +2409,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 008c228349545ce246f09064e3c6495e]",
+      "src": "[image data hash: 6bbfba35285d0302c88ad9b89690bb40]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2454,9 +2454,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 231.6663099315069,
+              "left": 303.5725599315068,
               "right": 479.5205479452055,
-              "bottom": 379.7808219178082,
+              "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }

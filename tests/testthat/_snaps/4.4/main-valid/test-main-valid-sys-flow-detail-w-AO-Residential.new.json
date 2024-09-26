@@ -569,7 +569,9 @@
       46,
       47,
       48,
-      49
+      49,
+      50,
+      51
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -766,7 +768,15 @@
       124,
       125,
       126,
-      127
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -1052,7 +1062,7 @@
     "sidebarItemExpanded": "AssessDataQuality",
     "sidebarmenuid": "tabSystemOverview",
     "sys_comp_subtabs": "Chart",
-    "sys_inflow_outflow_subtabs": "Information",
+    "sys_inflow_outflow_subtabs": "Detail Chart",
     "sys_status_subtabs": "Chart",
     "syso_age": [
       "0 to 12",
@@ -1853,14 +1863,14 @@
 
                 ],
                 "y": [
-                  "Conflicting Health Insurance yes/no at Exit",
-                  "Oldest Household Member Under 12",
                   "Conflicting Health Insurance yes/no at Entry",
-                  "Missing Length of Stay",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
-                  "Missing Months or Times Homeless",
+                  "Missing SSN",
+                  "Missing Disabling Condition",
                   "Conflicting Income yes/no at Exit",
+                  "Missing Months or Times Homeless",
+                  "Missing Name Data Quality",
                   "Invalid Move-In Date",
                   "Missing HP Screening or Threshold Score"
                 ]
@@ -1992,7 +2002,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 276.1,
+              "right": 256.3,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -2001,15 +2011,15 @@
                 ],
                 "y": [
                   "Overlap with a Rapid Rehousing project",
-                  "Unknown Months or Times Homeless",
-                  "Unknown Living Situation",
-                  "Incomplete or Unknown Name",
+                  "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
+                  "Doesn't Know/Prefers Not to Answer Living Situation",
                   "Future Entry Date",
                   "Homelessness Start Date conflicts with Living Situation data",
                   "Overlap with a Emergency Shelter (E/E) project",
-                  "Unknown Destination",
+                  "Doesn't Know/Prefers Not to Answer Destination",
+                  "Missing Destination",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
-                  "Unknown SSN"
+                  "Doesn't Know/Prefers Not to Answer SSN"
                 ]
               }
             },
@@ -2274,9 +2284,9 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: a448e2a0617d2bf9f9c96b25f5e8fc8e]",
-      "width": 450,
-      "height": 225,
+      "src": "[image data hash: 5a999f43871e16b5a41fa4cee900f1a0]",
+      "width": 435,
+      "height": 217.5,
       "alt": "Plot object",
       "coordmap": {
         "panels": [
@@ -2295,7 +2305,7 @@
               "left": 0.27,
               "right": 8.630000000000001,
               "bottom": 0,
-              "top": 4507.8
+              "top": 4633.200000000001
             },
             "mapping": {
               "y": null,
@@ -2308,18 +2318,17 @@
             },
             "range": {
               "left": 14.4,
-              "right": 435.6,
-              "bottom": 95.17870866141733,
+              "right": 420.6,
+              "bottom": 87.17870866141732,
               "top": 43.2
             }
           }
         ],
         "dims": {
-          "width": 450,
-          "height": 225
+          "width": 435,
+          "height": 217.5
         }
-      },
-      "error": null
+      }
     },
     "sys_act_summary_filter_selections": {
       "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
@@ -2394,7 +2403,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 1492.7,
+              "right": 2143.9,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -2402,16 +2411,16 @@
 
                 ],
                 "y": [
-                  "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
-                  "Invalid Move-In Date",
-                  "Conflicting Health Insurance yes/no at Entry",
                   "Missing Race/Ethnicity",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
+                  "Missing Name Data Quality",
                   "Missing Residence Prior",
-                  "Missing Length of Stay"
+                  "Missing SSN",
+                  "Missing Length of Stay",
+                  "Missing Disabling Condition"
                 ]
               }
             },
@@ -2541,7 +2550,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 12918.4,
+              "right": 11617.1,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -2549,16 +2558,16 @@
 
                 ],
                 "y": [
-                  "Unknown Months or Times Homeless",
-                  "Unknown Living Situation",
-                  "Unknown Race/Ethnicity",
+                  "Doesn't Know/Prefers Not to Answer/Data Not Collected DOB",
+                  "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
+                  "Doesn't Know/Prefers Not to Answer Living Situation",
                   "Overlap with a Rapid Rehousing project",
-                  "Incomplete or Unknown Name",
+                  "Doesn't Know/Prefers Not to Answer Destination",
                   "Overlap with a Emergency Shelter (E/E) project",
                   "Homelessness Start Date conflicts with Living Situation data",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
-                  "Unknown SSN",
-                  "Unknown Destination"
+                  "Doesn't Know/Prefers Not to Answer SSN",
+                  "Missing Destination"
                 ]
               }
             },
@@ -2635,36 +2644,36 @@
     "dq_org_guidance_summary": [
       [
         "High Priority: 3  ",
-        "Length:49         ",
-        "Length:49         "
+        "Length:51         ",
+        "Length:51         "
       ],
       [
-        "Error        :22  ",
+        "Error        :26  ",
         "Class :character  ",
         "Class :character  "
       ],
       [
-        "Warning      :24  ",
+        "Warning      :22  ",
         "Mode  :character  ",
         "Mode  :character  "
       ]
     ],
     "dq_organization_summary_table": [
       [
-        "Length:127        ",
+        "Length:135        ",
         "High Priority: 5  ",
-        "Length:127        ",
+        "Length:135        ",
         "Min.   :  1.00  "
       ],
       [
         "Class :character  ",
-        "Error        :56  ",
+        "Error        :69  ",
         "Class :character  ",
         "1st Qu.:  1.00  "
       ],
       [
         "Mode  :character  ",
-        "Warning      :66  ",
+        "Warning      :61  ",
         "Mode  :character  ",
         "Median :  3.00  "
       ],
@@ -2672,7 +2681,7 @@
         null,
         null,
         null,
-        "Mean   : 10.35  "
+        "Mean   :  9.83  "
       ],
       [
         null,

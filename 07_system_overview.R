@@ -223,7 +223,7 @@ homeless_cls_finder <- function(date, window = "before", days = 60) {
 # Enrollment-level flags --------------------------------------------------
 # as much wrangling as possible without needing hhtype, project type, and level
 # of detail inputs
-
+# browser()
 enrollment_categories <- enrollment_prep_hohs %>%
   mutate(
     ProjectTypeWeight = case_when(
@@ -376,7 +376,9 @@ enrollment_categories <- enrollment_prep_hohs %>%
   # getting rid of enrollments involved in an overlap across ReportEnd that
   # didn't get picked as the lecr
   filter((InvolvedInOverlapEnd == TRUE & RankOrderEndOverlaps == 1) |
-           InvolvedInOverlapEnd == FALSE) %>%
+           InvolvedInOverlapEnd == FALSE &
+           (days_to_next_entry < 730 | is.na(days_to_next_entry))
+         ) %>%
   group_by(PersonalID, in_date_range) %>%
   arrange(EntryDate, ExitAdjust, .by_group = TRUE) %>%
   mutate(
@@ -429,10 +431,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
 #               lh_prior_livingsituation) |
 #             (between(EntryDate, ReportEnd() - days(90), ReportEnd()) &
 #               lh_prior_livingsituation)))) &
-#       (!ProjectType %in% c(out_project_type,
-#           sso_project_type, other_project_project_type, day_project_type) |
-#         (ProjectType %in% c(out_project_type, sso_project_type,
-#           other_project_project_type, day_project_type) &
+#       (!ProjectType %in% c(out_project_type, sso_project_type, other_project_project_type, day_project_type) |
+#         (ProjectType %in% c(out_project_type, sso_project_type, other_project_project_type, day_project_type) &
 #           (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 60) |
 #             EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60) |
 #             (between(EntryDate, ReportStart() - days(60), ReportStart()) &
@@ -806,9 +806,9 @@ client_categories_reactive <- reactive({
         (
           input$syso_spec_pops == "None" |
           (input$syso_spec_pops == "Veteran" &
-            VeteranStatus == 1) |
+            VeteranStatus == 1 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
           (input$syso_spec_pops == "NonVeteran" &
-            VeteranStatus == 0) |
+            VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
           (DomesticViolenceCategory == input$syso_spec_pops | 
              input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV")
         )
@@ -823,8 +823,10 @@ enrollment_categories_reactive <- reactive({
   
   # Filter enrollments by hhtype, project type, and level-of-detail inputs
   enrollment_categories %>%
+    left_join(Client %>% select(PersonalID, VeteranStatus), join_by(PersonalID)) %>%
     filter((input$syso_hh_type == "All" |
-            input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY","CO") |
+            (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+            (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
             input$syso_hh_type == HouseholdType
               ) &
       (input$syso_level_of_detail == "All" |
@@ -832,15 +834,17 @@ enrollment_categories_reactive <- reactive({
             (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
          (input$syso_level_of_detail == "HoHsOnly" &
             CorrectedHoH == 1)) &
-        (input$syso_project_type == "All" |
+        ((input$syso_project_type == "All" |
            (input$syso_project_type == "Residential" &
-              ProjectType %in% project_types_w_beds) |
-           (input$syso_project_type == "NonResidential" &
-              ProjectType %in% non_res_project_types)) &
+              ProjectType %in% project_types_w_beds &
+              eecr == TRUE) | eecr == FALSE) |
+           ((input$syso_project_type == "NonResidential" &
+              ProjectType %in% non_res_project_types &
+               eecr == TRUE) | eecr == FALSE)) &
         (input$syso_spec_pops %in% c("None", "Veteran", "NonVeteran") |
            (input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV") |
            (input$syso_spec_pops == "NotDV" & DomesticViolenceCategory == "NotDV") |
-           input$syso_spec_pops == DomesticViolenceCategory
+           (input$syso_spec_pops == DomesticViolenceCategory & (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1))
            )
            ) %>%
     select(
@@ -925,7 +929,7 @@ universe <- reactive({
             ProjectType %in% ph_project_types &
             (
               is.na(MoveInDateAdjust) |
-              MoveInDateAdjust > ReportStart()
+              MoveInDateAdjust >= ReportStart()
             )
           ) |
             
@@ -963,7 +967,7 @@ universe <- reactive({
       active_at_start_housed = eecr == TRUE & 
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= ReportStart(),
+        MoveInDateAdjust < ReportStart(),
       
       # LOGIC helper columns
       
@@ -1026,7 +1030,7 @@ universe <- reactive({
         ExitAdjust >= ReportEnd() &
         ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust <= ReportEnd(),
+        MoveInDateAdjust < ReportEnd(),
       
       unknown_at_end = lecr == TRUE &
         EntryDate <= ReportEnd() &
@@ -1096,7 +1100,7 @@ universe_ppl_flags <- reactive({
         active_at_start_housed_client == TRUE ~ "Housed",
         return_from_perm_client == TRUE ~ "Returned from \nPermanent",
         reengaged_from_temp_client == TRUE ~ "Re-engaged from \nNon-Permanent",
-        newly_homeless_client == TRUE ~ "Newly Homeless",
+        newly_homeless_client == TRUE ~ "First Time \nHomeless",
         TRUE ~ "something's wrong"
       ),
       

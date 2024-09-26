@@ -212,7 +212,7 @@ function(input, output, session) {
             sys_inflow_outflow_plot_data(inflow_outflow_df())
             sys_df_people_universe_filtered_r(
               enrollment_categories_reactive() %>%
-                select(PersonalID, lookback, lecr, eecr) %>%
+                select(PersonalID, lookback, lecr, eecr, CorrectedHoH) %>%
                 inner_join(client_categories, join_by(PersonalID)) %>%
                 filter(!(lookback == 0 &
                            eecr == FALSE & lecr == FALSE)) %>%
