@@ -2282,7 +2282,7 @@
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: 8263898d77585d17fdef1336a0f68af4]",
+      "src": "[image data hash: d7e7f969171eaa51745a9f69df6bd1d9]",
       "width": 304.5,
       "height": 400,
       "alt": "Plot object",
@@ -2302,8 +2302,8 @@
             "domain": {
               "left": 0,
               "right": 3,
-              "bottom": -59.62,
-              "top": 1252.02,
+              "bottom": -60.83000000000001,
+              "top": 1277.43,
               "discrete_limits": {
                 "x": [
                   "Period Start",
@@ -2340,7 +2340,7 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: d3ba7044b16b1bf4d4dd1f3cb5ed9501]",
+      "src": "[image data hash: b2e26a01477d79c3a2f27231c4a1b379]",
       "width": 450,
       "height": 225,
       "alt": "Plot object",
@@ -2361,7 +2361,7 @@
               "left": 0.27,
               "right": 8.630000000000001,
               "bottom": 0,
-              "top": 4507.8
+              "top": 4633.200000000001
             },
             "mapping": {
               "y": null,
@@ -2394,7 +2394,7 @@
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: c44d7596a0bd41fb4ce93f11f268783d]",
+      "src": "[image data hash: 9394eb9b7bdacfce6ed9fa157e813734]",
       "width": 435,
       "height": 217.5,
       "alt": "Plot object",
