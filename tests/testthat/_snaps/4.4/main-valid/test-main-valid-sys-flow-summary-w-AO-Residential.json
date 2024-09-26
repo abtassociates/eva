@@ -1837,7 +1837,7 @@
       "src": "[image data hash: 7bb01a99f06e51f19ea9df63d06bcfac]",
       "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top General Errors in the organization.",
       "coordmap": {
         "panels": [
           {
@@ -1932,7 +1932,7 @@
       "src": "[image data hash: be2a31170ae2928aaf0a8b6c8414e45c]",
       "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top High Priority Errors in the organization.",
       "coordmap": {
         "panels": [
           {
@@ -1984,7 +1984,7 @@
       "src": "[image data hash: 9c3c0d76c8e184024138cbb4bbab1e99]",
       "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top Warnings in the organization.",
       "coordmap": {
         "panels": [
           {
@@ -2276,7 +2276,7 @@
       ]
     },
     "sys_act_detail_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
       "deps": [
 
       ]
@@ -2285,7 +2285,7 @@
       "src": "[image data hash: b2e26a01477d79c3a2f27231c4a1b379]",
       "width": 450,
       "height": 225,
-      "alt": "Plot object",
+      "alt": "A waterfall bar chart of the homeless system's inflow and \n              outflow during the report period. The detailed view of this chart \n              shows inflow as three subcategories: first-time homeless, returned from \n              permanent, and re-engaged from non-permanent and outflow as three \n              subcategories: exited non-permanent, exited permanent, and inactive.",
       "coordmap": {
         "panels": [
           {
@@ -2339,7 +2339,7 @@
       "src": "[image data hash: 9394eb9b7bdacfce6ed9fa157e813734]",
       "width": 435,
       "height": 217.5,
-      "alt": "Plot object",
+      "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n              the report period. The summary view of this chart includes four components: \n              Active at Start, Inflow, Outflow, and Active at End.",
       "coordmap": {
         "panels": [
           {
@@ -2386,7 +2386,7 @@
       "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
       "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top General Errors in the system.",
       "coordmap": {
         "panels": [
           {
@@ -2463,7 +2463,7 @@
       "src": "[image data hash: 2114d4346477ecf60df29fd0b5d4ec16]",
       "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top High Priority Errors in the system.",
       "coordmap": {
         "panels": [
           {
@@ -2533,7 +2533,7 @@
       "src": "[image data hash: d49a831be5033e578b241acf5f5e6b82]",
       "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top Warnings in the system.",
       "coordmap": {
         "panels": [
           {

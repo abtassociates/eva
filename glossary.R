@@ -422,7 +422,7 @@ output$glossary <- renderDataTable({
     "The number of clients that entered or flowed into the system. This status indicates a client entered a system project after the report period’s start date. This status excludes all clients who were counted as homeless or housed at the start of the report period.",
     
     "System Flow Chart",
-    "First Time Homeless",
+    "First-Time Homeless",
     "This inflow system status indicates a client who entered the system after the report period’s start date and who also had not been served in the system within the 24 months prior to their entry into the report period. This inflow system status is only available when a dataset with 36 months of data is uploaded to Eva.",
     
     "System Flow Chart",
@@ -435,7 +435,7 @@ output$glossary <- renderDataTable({
     
     "System Flow Chart",
     "Inflow Unspecified",
-    "This system status indicates a client who entered the system after the report start date, but it cannot be determined if they are newly homeless because there is not enough lookback data. This inflow system status takes the place of First Time Homeless in cases where less than 36 months of data are uploaded to Eva.",
+    "This system status indicates a client who entered the system after the report start date, but it cannot be determined if they are newly homeless because there is not enough lookback data. This inflow system status takes the place of First-Time Homeless in cases where less than 36 months of data are uploaded to Eva.",
     
     "System Flow Chart",
     "Outflow",

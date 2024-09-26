@@ -7,7 +7,7 @@ frame_detail <-
     Status = c(
       "Housed",
       "Homeless",
-      "First Time \nHomeless",
+      "First-Time \nHomeless",
       "Returned from \nPermanent",
       "Re-engaged from \nNon-Permanent",
       "Exited,\nPermanent",
@@ -18,7 +18,7 @@ frame_detail <-
     ),
     Time = c(
       rep("Active at Start", 2),
-      "First Time \nHomeless",
+      "First-Time \nHomeless",
       "Returned from \nPermanent",
       "Re-engaged from \nNon-Permanent",
       "Exited,\nPermanent",
@@ -87,7 +87,7 @@ system_activity_prep_detail <- reactive({
       Time = factor(
         Time,
         levels = c("Active at Start",
-                   "First Time \nHomeless",
+                   "First-Time \nHomeless",
                    "Returned from \nPermanent",
                    "Re-engaged from \nNon-Permanent",
                    "Exited,\nNon-Permanent",
@@ -100,7 +100,7 @@ system_activity_prep_detail <- reactive({
         levels = c(
           "Housed",
           "Homeless",                          
-          "First Time \nHomeless",
+          "First-Time \nHomeless",
           "Returned from \nPermanent",
           "Re-engaged from \nNon-Permanent",
           "Exited,\nNon-Permanent",
@@ -317,7 +317,17 @@ renderSystemPlot <- function(id) {
     get_system_inflow_outflow_plot(id)
   }, height = function() {
     session$clientData[[glue("output_{id}_width")]]/2
-  })
+  },
+  alt = case_when(id == "sys_act_summary_ui_chart" ~ 
+                "A waterfall bar chart of the homeless system's inflow and outflow during 
+              the report period. The summary view of this chart includes four components: 
+              Active at Start, Inflow, Outflow, and Active at End.",
+              TRUE ~ "A waterfall bar chart of the homeless system's inflow and 
+              outflow during the report period. The detailed view of this chart 
+              shows inflow as three subcategories: first-time homeless, returned from 
+              permanent, and re-engaged from non-permanent and outflow as three 
+              subcategories: exited non-permanent, exited permanent, and inactive.")
+  )
 }
 
 #### DISPLAY CHART ###
