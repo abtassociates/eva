@@ -1337,13 +1337,13 @@ create_issue_text <- function(ptypeCol) {
     )
   )
 }
-overlap_dt[, c("Issue", "PreviousIssue") := .(
+overlap_dt <- overlap_dt[, c("Issue", "PreviousIssue") := .(
   create_issue_text(PreviousProjectType),
   create_issue_text(ProjectType)
 )]
 
 # Select relevant columns
-overlap_dt[, .(
+overlap_dt <- overlap_dt[, .(
 # select(
   EnrollmentID,
   PreviousEnrollmentID,
@@ -1384,8 +1384,8 @@ overlap_dt <- overlap_dt[
 # mutate(
 #   ProjectType = project_type(ProjectType),
 #   PreviousProjectType = project_type(PreviousProjectType)
-overlap_dt[, ProjectType := project_type(ProjectType)]
-overlap_dt[, PreviousProjectType := project_type(PreviousProjectType)]
+overlap_dt <- overlap_dt[, ProjectType := project_type(ProjectType)]
+overlap_dt <- overlap_dt[, PreviousProjectType := project_type(PreviousProjectType)]
 
 # way the Issue is built dynamically
 overlaps(overlap_dt)
