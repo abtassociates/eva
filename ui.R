@@ -1093,11 +1093,11 @@ dashboardPage(
                   selected = "Summary Chart",
                   tabPanel("Summary Chart", 
                            uiOutput("sys_act_summary_filter_selections") %>% withSpinner(),
-                           plotOutput("sys_act_summary_ui_chart") %>% withSpinner()
+                           plotOutput("sys_act_summary_ui_chart", width="70%") %>% withSpinner()
                   ),
                   tabPanel("Detail Chart", 
                            uiOutput("sys_act_detail_filter_selections") %>% withSpinner(),
-                           plotOutput("sys_act_detail_ui_chart") %>% withSpinner()
+                           plotOutput("sys_act_detail_ui_chart", width="70%") %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
@@ -1251,7 +1251,7 @@ dashboardPage(
                   id = "sys_status_subtabs",
                   tabPanel("Chart", 
                            uiOutput("sankey_filter_selections") %>% withSpinner(),
-                           plotOutput("sankey_ui_chart", width="70%", height=600) %>% withSpinner()
+                           plotOutput("sankey_ui_chart", width="70%") %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>

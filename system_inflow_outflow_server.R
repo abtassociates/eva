@@ -301,8 +301,6 @@ renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
     get_system_inflow_outflow_plot(id)
-  }, height = function() {
-    session$clientData[[glue("output_{id}_width")]]/2
   })
 }
 
