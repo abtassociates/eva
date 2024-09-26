@@ -1141,7 +1141,7 @@ overlap_staging_no_nbn <- overlap_staging %>%
   )
 
 if(nrow(Services) > 0) {
-  # overlap_staging <- overlap_staging_nbn %>%
+  # overlap_staging_dplyr <- overlap_staging_nbn %>%
   #   group_by(
   #     PersonalID,
   #     EnrollmentID,
@@ -1163,14 +1163,14 @@ if(nrow(Services) > 0) {
   overlap_staging <- as.data.table(overlap_staging_nbn)
   
   # Group by specified columns and compute min(DateProvided)
-  overlap_staging[, .(FirstDateProvided = min(DateProvided)), by = .(PersonalID,
-                                                                     EnrollmentID,
-                                                                     ProjectType,
-                                                                     EnrollmentStart,
-                                                                     EnrollmentEnd)]
-  
-  # Rename the column to "FirstDateProvided"
-  # setnames(overlap_staging, "DateProvided", "FirstDateProvided")
+  overlap_staging <-
+    overlap_staging[, .(FirstDateProvided = min(DateProvided)),
+                    by = .(PersonalID,
+                           EnrollmentID,
+                           ProjectType,
+                           EnrollmentStart,
+                           EnrollmentEnd)]
+
 } else{
   overlap_staging <- as.data.table(overlap_staging_no_nbn)[, .(
     PersonalID,
