@@ -65,6 +65,11 @@
   color: black; /*text color*/
 }
 
+/*sets sidebar visible focus when tabbing over with keyboard*/
+.skin-black .sidebar-menu>li>a:focus-visible {
+    outline: -webkit-focus-ring-color auto 1px;
+}
+
 /*sidebar color when menu option with no submenu is selected*/
 .skin-black .main-sidebar .active {
   background-color: white; /*text color*/
@@ -98,6 +103,11 @@
 /*text color of submenu options when submenu is open*/
 .skin-black .treeview-menu>li>a {
     color: black; /*text color*/
+}
+
+/*sets submenu visible focus when tabbing over with keyboard*/
+.skin-black .treeview-menu>li>a:focus-visible {
+    outline: -webkit-focus-ring-color auto 1px;
 }
 
 /*active and hover actions for submenu options*/
