@@ -13,8 +13,8 @@ select_random_rows <- function(cond) {
 
 # pull 6 random rows to change (that fit criteria)
 # we split up the 6 rows into 3 groups of 2, to test 3 issues
-split_rows <- select_random_rows(Exit$Destination == 435)
-Exit <- Exit %>%
+split_rows <- select_random_rows(original_data_fixed_cols$Exit$Destination == 435)
+original_data_fixed_cols$Exit <- original_data_fixed_cols$Exit %>%
   mutate(DestinationSubsidyType = 
            case_when(
              row_number() %in% split_rows[[1]] ~ NA, # null values
@@ -25,8 +25,8 @@ Exit <- Exit %>%
   )
 
 # CLS Subsidy Type -------------------------------------------------------------
-split_rows <- select_random_rows(CurrentLivingSituation$CurrentLivingSituation == 435)
-CurrentLivingSituation <- CurrentLivingSituation %>%
+split_rows <- select_random_rows(original_data_fixed_cols$CurrentLivingSituation$CurrentLivingSituation == 435)
+original_data_fixed_cols$CurrentLivingSituation <- original_data_fixed_cols$CurrentLivingSituation %>%
   mutate(CLSSubsidyType = 
            case_when(
              row_number() %in% split_rows[[1]] ~ NA, # null values
@@ -37,8 +37,8 @@ CurrentLivingSituation <- CurrentLivingSituation %>%
   )
 
 # Prior Living Situation Subsidy -----------------------------------------------
-split_rows <- select_random_rows(Enrollment$LivingSituation == 435)
-Enrollment <- Enrollment %>%
+split_rows <- select_random_rows(original_data_fixed_cols$Enrollment$LivingSituation == 435)
+original_data_fixed_cols$Enrollment <- original_data_fixed_cols$Enrollment %>%
   mutate(RentalSubsidyType = 
            case_when(
              row_number() %in% split_rows[[1]] ~ NA, # null values
@@ -52,39 +52,41 @@ Enrollment <- Enrollment %>%
 # this creates an "overlap" by duplicating a randomly selected existing record 
 # and modifying the start date to be 2 days before the original record's end date
 # to create a "gap", simply add/change the number to a positive number
-HMISParticipation <- map_dfr(c(-2), ~ {
-  HMISParticipation %>%
-    filter(HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate)) %>%
-    sample_n(1) %>%
-    mutate(HMISParticipationStatusStartDate = HMISParticipationStatusEndDate + days(.x),
-           HMISParticipationStatusEndDate = NA,
-           HMISParticipationID = paste0(HMISParticipationID,abs(.x)))
-}) %>%
-  bind_rows(HMISParticipation)
+date_shift <- -2
+overlaps_temp <- original_data_fixed_cols$HMISParticipation %>%
+  filter(HMISParticipationType == 1 &
+           !is.na(HMISParticipationStatusEndDate)) %>%
+  sample_n(1) %>%
+  mutate(
+    HMISParticipationStatusStartDate = HMISParticipationStatusEndDate + days(date_shift),
+    HMISParticipationStatusEndDate = NA,
+    HMISParticipationID = paste0(HMISParticipationID, abs(date_shift))
+  )
+original_data_fixed_cols$HMISParticipation <- bind_rows(overlaps_temp, original_data_fixed_cols$HMISParticipation)
 
 # RRH-SO projects with active inventory (checkID = 132) ------------------------
 # this selects a random project with inventory and projecttype = 13
-random_project <- Inventory %>% 
+random_project <- original_data_fixed_cols$Inventory %>% 
   filter(BedInventory > 0) %>%
   semi_join(
-    Project %>% 
+    original_data_fixed_cols$Project %>% 
       filter(ProjectType == 13 & RRHSubType != 1), 
     by = "ProjectID") %>%
   sample_n(1) %>%
   pull(ProjectID)
 
 # Update RRHSubType for that project to 1
-Project <- Project %>%
+original_data_fixed_cols$Project <- original_data_fixed_cols$Project %>%
   mutate(
-    RRHSubType = if_else(ProjectID == random_project, 1, RRHSubType),
-    RRHSOActivePeriod =
-      interval(OperatingStartDate,
-        coalesce(OperatingEndDate, meta_HUDCSV_Export_End()))
+    RRHSubType = if_else(ProjectID == random_project, 1, RRHSubType) #,
+    # RRHSOActivePeriod =
+    #   interval(OperatingStartDate,
+    #     coalesce(OperatingEndDate, original_data_fixed_cols$Export$ExportEndDate))
     )
 
 # finally, make sure inventory period overlaps project operating period
-Inventory <- Inventory %>% 
-  left_join(Project %>% 
+original_data_fixed_cols$Inventory <- original_data_fixed_cols$Inventory %>% 
+  left_join(original_data_fixed_cols$Project %>% 
               select(ProjectID, OperatingStartDate, OperatingEndDate), 
             by = "ProjectID") %>%
   mutate(InventoryStartDate = OperatingStartDate - days(1),
@@ -93,7 +95,7 @@ Inventory <- Inventory %>%
 
 # there are deleted records in the data -----------------------------------
 
-Organization <- rbind(Organization[1,], Organization) %>%
+original_data_fixed_cols$Organization <- rbind(original_data_fixed_cols$Organization[1,], original_data_fixed_cols$Organization) %>%
   mutate(DateDeleted = if_else(row_number() == 1, ymd("20231101"), NA))
 
 ## add more checks here --------------------------------------------
