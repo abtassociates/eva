@@ -7,7 +7,7 @@ frame_detail <-
     Status = c(
       "Housed",
       "Homeless",
-      "First Time \nHomeless",
+      "First-Time \nHomeless",
       "Returned from \nPermanent",
       "Re-engaged from \nNon-Permanent",
       "Exited,\nPermanent",
@@ -18,7 +18,7 @@ frame_detail <-
     ),
     Time = c(
       rep("Active at Start", 2),
-      "First Time \nHomeless",
+      "First-Time \nHomeless",
       "Returned from \nPermanent",
       "Re-engaged from \nNon-Permanent",
       "Exited,\nPermanent",
@@ -87,7 +87,7 @@ system_activity_prep_detail <- reactive({
       Time = factor(
         Time,
         levels = c("Active at Start",
-                   "First Time \nHomeless",
+                   "First-Time \nHomeless",
                    "Returned from \nPermanent",
                    "Re-engaged from \nNon-Permanent",
                    "Exited,\nNon-Permanent",
@@ -100,7 +100,7 @@ system_activity_prep_detail <- reactive({
         levels = c(
           "Housed",
           "Homeless",                          
-          "First Time \nHomeless",
+          "First-Time \nHomeless",
           "Returned from \nPermanent",
           "Re-engaged from \nNon-Permanent",
           "Exited,\nNon-Permanent",
