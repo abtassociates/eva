@@ -327,3 +327,7 @@ get_adj_font_size <- function(font_size, isExport) {
     font_size*ifelse(isExport, sys_chart_export_font_reduction, 1)
   )
 }
+
+observeEvent(input$dimension,{
+  windowSize(input$dimension)
+})
