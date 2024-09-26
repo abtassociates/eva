@@ -247,8 +247,8 @@
     "dq_org_guidance_summary": [
       [
         "High Priority: 3  ",
-        "Length:51         ",
-        "Length:51         "
+        "Length:50         ",
+        "Length:50         "
       ],
       [
         "Error        :26  ",
@@ -256,47 +256,47 @@
         "Class :character  "
       ],
       [
-        "Warning      :22  ",
+        "Warning      :21  ",
         "Mode  :character  ",
         "Mode  :character  "
       ]
     ],
     "dq_organization_summary_table": [
       [
-        "Length:135        ",
+        "Length:134        ",
         "High Priority: 5  ",
-        "Length:135        ",
-        "Min.   :  1.00  "
+        "Length:134        ",
+        "Min.   :  1.000  "
       ],
       [
         "Class :character  ",
         "Error        :69  ",
         "Class :character  ",
-        "1st Qu.:  1.00  "
+        "1st Qu.:  1.000  "
       ],
       [
         "Mode  :character  ",
-        "Warning      :61  ",
+        "Warning      :60  ",
         "Mode  :character  ",
-        "Median :  3.00  "
+        "Median :  3.000  "
       ],
       [
         null,
         null,
         null,
-        "Mean   :  9.83  "
+        "Mean   :  9.836  "
       ],
       [
         null,
         null,
         null,
-        "3rd Qu.:  7.00  "
+        "3rd Qu.:  7.000  "
       ],
       [
         null,
         null,
         null,
-        "Max.   :214.00  "
+        "Max.   :214.000  "
       ]
     ],
     "orgDQ_download": [

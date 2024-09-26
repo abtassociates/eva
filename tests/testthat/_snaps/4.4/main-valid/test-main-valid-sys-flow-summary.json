@@ -570,8 +570,7 @@
       47,
       48,
       49,
-      50,
-      51
+      50
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -775,8 +774,7 @@
       131,
       132,
       133,
-      134,
-      135
+      134
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -1983,7 +1981,7 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: b78bbec5ad13a16e7e00a36fa6fabddd]",
+      "src": "[image data hash: 9c3c0d76c8e184024138cbb4bbab1e99]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2013,9 +2011,9 @@
                   "Overlap with a Rapid Rehousing project",
                   "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
                   "Doesn't Know/Prefers Not to Answer Living Situation",
+                  "Overlap with a Emergency Shelter (E/E) project",
                   "Future Entry Date",
                   "Homelessness Start Date conflicts with Living Situation data",
-                  "Overlap with a Emergency Shelter (E/E) project",
                   "Doesn't Know/Prefers Not to Answer Destination",
                   "Missing Destination",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
@@ -2478,7 +2476,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 6bbfba35285d0302c88ad9b89690bb40]",
+      "src": "[image data hash: d49a831be5033e578b241acf5f5e6b82]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2507,10 +2505,10 @@
                 "y": [
                   "Doesn't Know/Prefers Not to Answer/Data Not Collected DOB",
                   "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
-                  "Doesn't Know/Prefers Not to Answer Living Situation",
-                  "Overlap with a Rapid Rehousing project",
-                  "Doesn't Know/Prefers Not to Answer Destination",
                   "Overlap with a Emergency Shelter (E/E) project",
+                  "Overlap with a Rapid Rehousing project",
+                  "Doesn't Know/Prefers Not to Answer Living Situation",
+                  "Doesn't Know/Prefers Not to Answer Destination",
                   "Homelessness Start Date conflicts with Living Situation data",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
                   "Doesn't Know/Prefers Not to Answer SSN",
@@ -2591,8 +2589,8 @@
     "dq_org_guidance_summary": [
       [
         "High Priority: 3  ",
-        "Length:51         ",
-        "Length:51         "
+        "Length:50         ",
+        "Length:50         "
       ],
       [
         "Error        :26  ",
@@ -2600,47 +2598,47 @@
         "Class :character  "
       ],
       [
-        "Warning      :22  ",
+        "Warning      :21  ",
         "Mode  :character  ",
         "Mode  :character  "
       ]
     ],
     "dq_organization_summary_table": [
       [
-        "Length:135        ",
+        "Length:134        ",
         "High Priority: 5  ",
-        "Length:135        ",
-        "Min.   :  1.00  "
+        "Length:134        ",
+        "Min.   :  1.000  "
       ],
       [
         "Class :character  ",
         "Error        :69  ",
         "Class :character  ",
-        "1st Qu.:  1.00  "
+        "1st Qu.:  1.000  "
       ],
       [
         "Mode  :character  ",
-        "Warning      :61  ",
+        "Warning      :60  ",
         "Mode  :character  ",
-        "Median :  3.00  "
+        "Median :  3.000  "
       ],
       [
         null,
         null,
         null,
-        "Mean   :  9.83  "
+        "Mean   :  9.836  "
       ],
       [
         null,
         null,
         null,
-        "3rd Qu.:  7.00  "
+        "3rd Qu.:  7.000  "
       ],
       [
         null,
         null,
         null,
-        "Max.   :214.00  "
+        "Max.   :214.000  "
       ]
     ],
     "pdde_guidance_summary": [
