@@ -1436,7 +1436,7 @@
       "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
       "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top General Errors in the system.",
       "coordmap": {
         "panels": [
           {
@@ -1513,7 +1513,7 @@
       "src": "[image data hash: 2114d4346477ecf60df29fd0b5d4ec16]",
       "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top High Priority Errors in the system.",
       "coordmap": {
         "panels": [
           {
@@ -1583,7 +1583,7 @@
       "src": "[image data hash: 6bbfba35285d0302c88ad9b89690bb40]",
       "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top Warnings in the system.",
       "coordmap": {
         "panels": [
           {
