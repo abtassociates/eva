@@ -1580,7 +1580,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 6bbfba35285d0302c88ad9b89690bb40]",
+      "src": "[image data hash: d49a831be5033e578b241acf5f5e6b82]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -1609,10 +1609,10 @@
                 "y": [
                   "Doesn't Know/Prefers Not to Answer/Data Not Collected DOB",
                   "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
-                  "Doesn't Know/Prefers Not to Answer Living Situation",
-                  "Overlap with a Rapid Rehousing project",
-                  "Doesn't Know/Prefers Not to Answer Destination",
                   "Overlap with a Emergency Shelter (E/E) project",
+                  "Overlap with a Rapid Rehousing project",
+                  "Doesn't Know/Prefers Not to Answer Living Situation",
+                  "Doesn't Know/Prefers Not to Answer Destination",
                   "Homelessness Start Date conflicts with Living Situation data",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
                   "Doesn't Know/Prefers Not to Answer SSN",
