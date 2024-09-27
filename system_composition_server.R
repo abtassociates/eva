@@ -675,7 +675,8 @@ output$sys_comp_summary_ui_chart <- renderPlot({
   ifelse(!is.null(input$system_composition_selections), 600, 100) 
 }, width = function() {
   ifelse(length(input$system_composition_selections) == 1, 500, "auto")
-})
+},
+alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
 
 output$sys_comp_download_btn_ppt <- downloadHandler(
