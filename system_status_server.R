@@ -144,7 +144,8 @@ output$sankey_ui_chart <- renderPlot({
   )
   
   render_sankey_plot(plot_data)
-})
+},
+alt = "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.")
 
 sys_status_export_info <- function(spd) {
   tibble(
