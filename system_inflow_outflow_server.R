@@ -264,6 +264,7 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
           inflow_to_outflow == 0 ~ "0",
           inflow_to_outflow < 0 ~ scales::comma(inflow_to_outflow)
         ),
+        "\n",
         "\n"
       )
     ) +
