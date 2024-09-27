@@ -167,13 +167,15 @@ dkr_race <- base_dq_data %>%
   select(all_of(vars_we_want))
 
 missing_race <- base_dq_data %>%
-  filter(AmIndAKNative +
+  filter((AmIndAKNative +
            Asian +
            BlackAfAmerican +
            HispanicLatinaeo +
            MidEastNAfrican +
            NativeHIPacific +
-           White == 0) %>%
+           White == 0) &
+           !(RaceNone %in%c(dkr_dnc))
+         ) %>%
   merge_check_info(checkIDs = 36) %>%
   select(all_of(vars_we_want))
 
