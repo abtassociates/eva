@@ -184,8 +184,8 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
   
   colors <- c('#ECE7E3', '#9E958F', '#BDB6D7', '#6A559B')
   s <- max(df$yend) + 20
-  num_segments <- 20
-  segment_size <- get_segment_size(s/num_segments)
+  # num_segments <- 20
+  # segment_size <- get_segment_size(s/num_segments)
 
   
   inflow_to_outflow <- df %>%
@@ -239,7 +239,8 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
       ),
       direction = "y",
       min.segment.length = Inf,
-      nudge_x = -.35,
+      nudge_x = -.28,
+      hjust=1,
       colour = "#4e4d47",
       size = sys_chart_text_font,
       inherit.aes = FALSE
@@ -297,17 +298,17 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
 
 # custom round to the smaller of the nearest 10, 100, etc.
 # good for chart segment sizing
-get_segment_size <- function(x) {
-  thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
-  rounded <- sapply(thresholds, function(t) {
-    if (x > t) {
-      return(t * ceiling(x / t))
-    } else {
-      return(NA)
-    }
-  })
-  min(rounded, na.rm = TRUE)
-}
+# get_segment_size <- function(x) {
+#   thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
+#   rounded <- sapply(thresholds, function(t) {
+#     if (x > t) {
+#       return(t * ceiling(x / t))
+#     } else {
+#       return(NA)
+#     }
+#   })
+#   min(rounded, na.rm = TRUE)
+# }
 
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
