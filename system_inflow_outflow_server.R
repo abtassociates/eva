@@ -245,6 +245,15 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
       size = sys_chart_text_font,
       inherit.aes = FALSE
     ) +
+    geom_text(
+      aes(
+        x = group.id,
+        label = if_else(PlotFillGroups %in% c("Inflow", "Outflow"),
+                        paste0(scales::comma(abs(values))), NA),
+        y = if_else(PlotFillGroups == "Inflow", yend, ystart), vjust = -.6
+      ),
+      size = sys_chart_text_font
+    ) +
     
     ggtitle(
       paste0(
