@@ -380,7 +380,11 @@ base_font_mm <- base_font_pts / .pt # .pt is the constant to convert pt to mm (1
 
 dq_axis_font <- 12 # 12 pts = 16px
 sys_chart_text_font <- 14 / .pt # 14 pts = 4.92mm = 18.67px
-sys_axis_text_font <- 16 #16 pts = 22px
-sys_chart_title_font <- 16 / .pt # 16 pts
-
+sys_chart_text_font_pts <- 14 # 14 pts = 4.92mm = 18.67px
+sys_axis_text_font <- 16 #15 pts = 22px
+sys_comp_axis_text_font <- 14 #14 pts = 22px
+sys_legend_text_font <- sys_axis_text_font #16 pts = 22px
+sys_chart_title_font <- sys_axis_text_font # 16 pts
+sys_chart_export_font_reduction <- 0.7
 ppt_summary_slide_font <- 19 # 19 pts = 25px
+ppt_chart_title_font_size <- 36
