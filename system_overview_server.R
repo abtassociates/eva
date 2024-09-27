@@ -81,6 +81,9 @@ syso_detailBox <- reactive({
     
     format(ReportStart(), "%m-%d-%Y"), " to ", format(ReportEnd(), "%m-%d-%Y"), br(),
     
+    if (input$syso_project_type != "All")
+      chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
+    
     #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
     HTML(glue(
       "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$methodology_type), start = 1, end = 19)} <br>"
@@ -202,8 +205,6 @@ syso_gender_cats <- function(methodology = 1){
          list(syso_gender_incl))[[1]]
 }
 
-font_size <- 14 / .pt
-
 # PowerPoint Export -------------------------------------------------------
 sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot_slide_title, plot1, plot2 = NULL, summary_font_size) {
   report_period <- paste0("Report Period: ", 
@@ -223,7 +224,7 @@ sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot
   fp_bold <- update(fp_normal, bold = TRUE)
   fp_red <- update(fp_normal, color = "red")
   
-  ppt <- read_pptx()
+  ppt <- read_pptx(here("system_pptx_template.pptx"))
   
   add_footer <- function(.ppt) {
     return(

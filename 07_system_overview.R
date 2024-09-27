@@ -855,9 +855,9 @@ client_categories_reactive <- reactive({
         (
           input$syso_spec_pops == "None" |
           (input$syso_spec_pops == "Veteran" &
-            VeteranStatus == 1) |
+            VeteranStatus == 1 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
           (input$syso_spec_pops == "NonVeteran" &
-            VeteranStatus == 0) |
+            VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
           (DomesticViolenceCategory == input$syso_spec_pops | 
              input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV")
         )
@@ -872,8 +872,10 @@ enrollment_categories_reactive <- reactive({
   
   # Filter enrollments by hhtype, project type, and level-of-detail inputs
   enrollment_categories %>%
+    left_join(Client %>% select(PersonalID, VeteranStatus), join_by(PersonalID)) %>%
     filter((input$syso_hh_type == "All" |
-            input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY","CO") |
+            (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+            (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
             input$syso_hh_type == HouseholdType
               ) &
       (input$syso_level_of_detail == "All" |
@@ -881,15 +883,17 @@ enrollment_categories_reactive <- reactive({
             (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
          (input$syso_level_of_detail == "HoHsOnly" &
             CorrectedHoH == 1)) &
-        (input$syso_project_type == "All" |
+        ((input$syso_project_type == "All" |
            (input$syso_project_type == "Residential" &
-              ProjectType %in% project_types_w_beds) |
-           (input$syso_project_type == "NonResidential" &
-              ProjectType %in% non_res_project_types)) &
+              ProjectType %in% project_types_w_beds &
+              eecr == TRUE) | eecr == FALSE) |
+           ((input$syso_project_type == "NonResidential" &
+              ProjectType %in% non_res_project_types &
+               eecr == TRUE) | eecr == FALSE)) &
         (input$syso_spec_pops %in% c("None", "Veteran", "NonVeteran") |
            (input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV") |
            (input$syso_spec_pops == "NotDV" & DomesticViolenceCategory == "NotDV") |
-           input$syso_spec_pops == DomesticViolenceCategory
+           (input$syso_spec_pops == DomesticViolenceCategory & (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1))
            )
            ) %>%
     select(
@@ -1145,7 +1149,7 @@ universe_ppl_flags <- reactive({
         active_at_start_housed_client == TRUE ~ "Housed",
         return_from_perm_client == TRUE ~ "Returned from \nPermanent",
         reengaged_from_temp_client == TRUE ~ "Re-engaged from \nNon-Permanent",
-        newly_homeless_client == TRUE ~ "First Time \nHomeless",
+        newly_homeless_client == TRUE ~ "First-Time \nHomeless",
         TRUE ~ "something's wrong"
       ),
       

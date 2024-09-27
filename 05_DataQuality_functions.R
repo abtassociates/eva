@@ -416,15 +416,29 @@ renderDQPlot <- function(level, issueType, group, color) {
       scale_y_discrete(expand = expansion(mult = c(0, .1))) +
       theme_classic() +
       theme(axis.line = element_line(linetype = "blank"),
-            axis.text = element_text(size = 12),
+            axis.text = element_text(size = sys_axis_text_font),
             axis.text.x = element_blank(),
-            axis.title = element_text(size = 12),
+            axis.title = element_text(size = sys_axis_text_font),
             axis.ticks = element_line(linetype = "blank"),
             plot.background = element_blank(),
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank()) +
-      geom_text(aes(label = countVar), hjust = -0.5, color = "black")
-  })
+      geom_text(aes(label = countVar), hjust = -0.5, color = "black", size=sys_chart_text_font)
+  },
+  ,
+  alt = case_when(outputId == "systemDQHighPriorityErrorsByIssue" ~ "A bar chart of the top High Priority Errors in the system.",
+                  outputId == "systemDQHighPriorityErrorsByOrg" ~ "A bar chart of the top organizations with the most High Priority Errors in the system.",
+                  outputId == "systemDQErrorByIssue" ~ "A bar chart of the top General Errors in the system.",
+                  outputId == "systemDQErrorByOrg" ~ "A bar chart of the top organizations with the most General Errors in the system.",
+                  outputId == "systemDQWarningByIssue" ~ "A bar chart of the top Warnings in the system.",
+                  outputId == "systemDQWarningByOrg" ~ "A bar chart of the top organizations with the most Warnings in the system.",
+                  outputId == "orgDQHighPriorityErrorsByIssue" ~ "A bar chart of the top High Priority Errors in the organization.",
+                  outputId == "orgDQHighPriorityErrorsByProject" ~ "A bar chart of the organization's projects with the most High Priority Errors.",
+                  outputId == "orgDQErrorByIssue" ~ "A bar chart of the top General Errors in the organization.",
+                  outputId == "orgDQErrorByProject" ~ "A bar chart of the organization's projects with the most General Errors.",
+                  outputId == "orgDQWarningByIssue" ~ "A bar chart of the top Warnings in the organization.",
+                  TRUE ~ "A bar chart of the organization's projects with the most Warnings.")
+  )
   
   # this effectively collapses the plot if there are no rows
   plot_height = if_else(nrow(plot_data) == 0, 50, 400)

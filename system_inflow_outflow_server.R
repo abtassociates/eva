@@ -7,7 +7,7 @@ frame_detail <-
     Status = c(
       "Housed",
       "Homeless",
-      "First Time \nHomeless",
+      "First-Time \nHomeless",
       "Returned from \nPermanent",
       "Re-engaged from \nNon-Permanent",
       "Exited,\nPermanent",
@@ -18,7 +18,7 @@ frame_detail <-
     ),
     Time = c(
       rep("Active at Start", 2),
-      "First Time \nHomeless",
+      "First-Time \nHomeless",
       "Returned from \nPermanent",
       "Re-engaged from \nNon-Permanent",
       "Exited,\nPermanent",
@@ -87,7 +87,7 @@ system_activity_prep_detail <- reactive({
       Time = factor(
         Time,
         levels = c("Active at Start",
-                   "First Time \nHomeless",
+                   "First-Time \nHomeless",
                    "Returned from \nPermanent",
                    "Re-engaged from \nNon-Permanent",
                    "Exited,\nNon-Permanent",
@@ -100,7 +100,7 @@ system_activity_prep_detail <- reactive({
         levels = c(
           "Housed",
           "Homeless",                          
-          "First Time \nHomeless",
+          "First-Time \nHomeless",
           "Returned from \nPermanent",
           "Re-engaged from \nNon-Permanent",
           "Exited,\nNon-Permanent",
@@ -232,22 +232,34 @@ get_system_inflow_outflow_plot <- function(id) {
     ggrepel::geom_text_repel(
       aes(
         x = group.id,
-        label = paste0(scales::comma(abs(values))),
+        label = if_else(!PlotFillGroups %in% c("Inflow", "Outflow") &
+                          values != 0,
+                        paste0(scales::comma(abs(values))), NA),
         y = rowSums(cbind(ystart, values / 2)),
         segment.colour = "gray33"
       ),
       direction = "y",
+      min.segment.length = unit(1, "inch"),
       nudge_x = -.35,
       colour = "#4e4d47",
-      size = 5,
+      size = sys_chart_text_font,
       inherit.aes = FALSE
+    ) +
+    geom_text(
+      aes(
+        x = group.id,
+        label = if_else(PlotFillGroups %in% c("Inflow", "Outflow"),
+                        paste0(scales::comma(abs(values))), NA),
+        y = if_else(PlotFillGroups == "Inflow", yend, ystart), vjust = -.6
+      ),
+      size = sys_chart_text_font
     ) +
     # annotation: refer to helper_functions.R for sys_total_count_display() code
     annotate(
       geom = "text",
       x = mid_plot,
       y = max(df$yend) * 1.1,
-      size = 16 / .pt,
+      size = sys_chart_title_font,
       label = paste0(
         sys_total_count_display(total_clients),
         "Total Change: ",
@@ -273,12 +285,12 @@ get_system_inflow_outflow_plot <- function(id) {
     theme_void() +
     # add back in what theme elements we want
     theme(
-      text = element_text(size = 16, colour = "#4e4d47"),
-      axis.text.x = element_text(size = 16, vjust = -.2),
+      text = element_text(size = sys_axis_text_font, colour = "#4e4d47"),
+      axis.text.x = element_text(size = sys_axis_text_font, vjust = -.2),
       axis.ticks.x = element_line(),
       axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
       plot.margin = unit(c(3, 1, 1, 1), "lines"),
-      legend.text = element_text(size = 16),
+      legend.text = element_text(size = sys_axis_text_font),
       legend.title = element_blank(),
       legend.position = "bottom",
       legend.margin = margin(.5, 0, 0, 0, unit = "inch")
@@ -305,7 +317,17 @@ renderSystemPlot <- function(id) {
     get_system_inflow_outflow_plot(id)
   }, height = function() {
     session$clientData[[glue("output_{id}_width")]]/2
-  })
+  },
+  alt = case_when(id == "sys_act_summary_ui_chart" ~ 
+                "A waterfall bar chart of the homeless system's inflow and outflow during 
+              the report period. The summary view of this chart includes four components: 
+              Active at Start, Inflow, Outflow, and Active at End.",
+              TRUE ~ "A waterfall bar chart of the homeless system's inflow and 
+              outflow during the report period. The detailed view of this chart 
+              shows inflow as three subcategories: first-time homeless, returned from 
+              permanent, and re-engaged from non-permanent and outflow as three 
+              subcategories: exited non-permanent, exited permanent, and inactive.")
+  )
 }
 
 #### DISPLAY CHART ###

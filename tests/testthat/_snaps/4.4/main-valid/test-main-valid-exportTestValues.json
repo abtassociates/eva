@@ -183,9 +183,9 @@
         "Class :character  ",
         "Class :character  ",
         "Class :character  ",
-        "1st Qu.:2020-07-06  ",
+        "1st Qu.:2020-06-25  ",
         "1st Qu.:2020-01-13  ",
-        "1st Qu.:2020-09-02  ",
+        "1st Qu.:2020-08-28  ",
         "Class :character  "
       ],
       [
@@ -194,9 +194,9 @@
         "Mode  :character  ",
         "Mode  :character  ",
         "Mode  :character  ",
-        "Median :2021-05-21  ",
+        "Median :2021-05-17  ",
         "Median :2021-06-18  ",
-        "Median :2021-06-11  ",
+        "Median :2021-06-05  ",
         "Mode  :character  "
       ],
       [
@@ -205,9 +205,9 @@
         null,
         null,
         null,
-        "Mean   :2021-03-28  ",
+        "Mean   :2021-03-26  ",
         "Mean   :2021-01-08  ",
-        "Mean   :2021-05-23  ",
+        "Mean   :2021-05-21  ",
         null
       ],
       [
@@ -247,8 +247,8 @@
     "dq_org_guidance_summary": [
       [
         "High Priority: 3  ",
-        "Length:51         ",
-        "Length:51         "
+        "Length:50         ",
+        "Length:50         "
       ],
       [
         "Error        :26  ",
@@ -256,47 +256,47 @@
         "Class :character  "
       ],
       [
-        "Warning      :22  ",
+        "Warning      :21  ",
         "Mode  :character  ",
         "Mode  :character  "
       ]
     ],
     "dq_organization_summary_table": [
       [
-        "Length:135        ",
+        "Length:134        ",
         "High Priority: 5  ",
-        "Length:135        ",
-        "Min.   :  1.00  "
+        "Length:134        ",
+        "Min.   :  1.000  "
       ],
       [
         "Class :character  ",
         "Error        :69  ",
         "Class :character  ",
-        "1st Qu.:  1.00  "
+        "1st Qu.:  1.000  "
       ],
       [
         "Mode  :character  ",
-        "Warning      :61  ",
+        "Warning      :60  ",
         "Mode  :character  ",
-        "Median :  3.00  "
+        "Median :  3.000  "
       ],
       [
         null,
         null,
         null,
-        "Mean   :  9.83  "
+        "Mean   :  9.836  "
       ],
       [
         null,
         null,
         null,
-        "3rd Qu.:  7.00  "
+        "3rd Qu.:  7.000  "
       ],
       [
         null,
         null,
         null,
-        "Max.   :214.00  "
+        "Max.   :214.000  "
       ]
     ],
     "orgDQ_download": [
@@ -460,34 +460,34 @@
     ],
     "sys_inflow_outflow_report": [
       [
-        "Length:4486       ",
+        "Length:4212       ",
         "Min.   :0.0000  ",
         "Min.   :0.0000  ",
         "Mode :logical  ",
         "Mode :logical  ",
-        "Length:4486       ",
-        "Length:4486       ",
+        "Length:4212       ",
+        "Length:4212       ",
         "Min.   :0.0000  ",
+        "Min.   :0.000  ",
         "Min.   :0.0000  ",
-        "Min.   :0.0000  ",
-        "Min.   :0.0000  ",
-        "Min.   :0.00000  ",
-        "Length:4486       ",
-        "Length:4486       "
+        "Min.   :0.000  ",
+        "Min.   :0.000000  ",
+        "Length:4212       ",
+        "Length:4212       "
       ],
       [
         "Class :character  ",
         "1st Qu.:0.0000  ",
         "1st Qu.:0.0000  ",
-        "FALSE:4158     ",
-        "FALSE:3920     ",
+        "FALSE:3928     ",
+        "FALSE:3704     ",
         "Class :character  ",
         "Class :character  ",
         "1st Qu.:0.0000  ",
+        "1st Qu.:0.000  ",
         "1st Qu.:0.0000  ",
-        "1st Qu.:0.0000  ",
-        "1st Qu.:0.0000  ",
-        "1st Qu.:0.00000  ",
+        "1st Qu.:0.000  ",
+        "1st Qu.:0.000000  ",
         "Class :character  ",
         "Class :character  "
       ],
@@ -495,31 +495,31 @@
         "Mode  :character  ",
         "Median :0.0000  ",
         "Median :0.0000  ",
-        "TRUE :328      ",
-        "TRUE :566      ",
+        "TRUE :284      ",
+        "TRUE :508      ",
         "Mode  :character  ",
         "Mode  :character  ",
         "Median :0.0000  ",
+        "Median :0.000  ",
         "Median :0.0000  ",
-        "Median :0.0000  ",
-        "Median :0.0000  ",
-        "Median :0.00000  ",
+        "Median :0.000  ",
+        "Median :0.000000  ",
         "Mode  :character  ",
         "Mode  :character  "
       ],
       [
         null,
-        "Mean   :0.1369  ",
-        "Mean   :0.1268  ",
+        "Mean   :0.1372  ",
+        "Mean   :0.1254  ",
         null,
         null,
         null,
         null,
-        "Mean   :0.3342  ",
-        "Mean   :0.3932  ",
-        "Mean   :0.1525  ",
-        "Mean   :0.1202  ",
-        "Mean   :0.00914  ",
+        "Mean   :0.3222  ",
+        "Mean   :0.387  ",
+        "Mean   :0.1679  ",
+        "Mean   :0.123  ",
+        "Mean   :0.008547  ",
         null,
         null
       ],
@@ -532,10 +532,10 @@
         null,
         null,
         "3rd Qu.:1.0000  ",
-        "3rd Qu.:1.0000  ",
+        "3rd Qu.:1.000  ",
         "3rd Qu.:0.0000  ",
-        "3rd Qu.:0.0000  ",
-        "3rd Qu.:0.00000  ",
+        "3rd Qu.:0.000  ",
+        "3rd Qu.:0.000000  ",
         null,
         null
       ],
@@ -548,10 +548,10 @@
         null,
         null,
         "Max.   :1.0000  ",
+        "Max.   :1.000  ",
         "Max.   :1.0000  ",
-        "Max.   :1.0000  ",
-        "Max.   :1.0000  ",
-        "Max.   :1.00000  ",
+        "Max.   :1.000  ",
+        "Max.   :1.000000  ",
         null,
         null
       ]
@@ -583,15 +583,15 @@
       ],
       "freq": [
         125,
-        45,
-        215,
-        228,
+        44,
+        198,
+        210,
         1,
-        13,
-        246,
-        66,
-        240,
-        4
+        22,
+        239,
+        64,
+        200,
+        3
       ]
     },
     "systemDQ_download": [

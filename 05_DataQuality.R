@@ -1103,28 +1103,31 @@ overlap_staging <- base_dq_data %>%
              ProjectType %in% lh_residential_project_types
            ))
 
-if(nrow(Services) > 0){
-  overlap_staging_nbn <- overlap_staging %>%  
-  left_join(
-    Services %>% 
-      select(EnrollmentID, DateProvided) %>%
-      group_by(EnrollmentID) %>%
-      slice_min(DateProvided, n = 1L) %>% 
-      ungroup() %>%
-      unique()
-    , by = "EnrollmentID"
-  ) %>%
-  mutate(
-    EnrollmentStart = case_when(
-      ProjectType == es_nbn_project_type ~ DateProvided, 
-      ProjectType %in% lh_residential_project_types ~ EntryDate,
-      ProjectType %in% ph_project_types ~ MoveInDateAdjust,
-      TRUE ~ EntryDate
-    ),
-    EnrollmentEnd = if_else(ProjectType == es_nbn_project_type, 
-                            DateProvided, 
-                            as.Date(ExitAdjust))
-  )
+if(nrow(Services) > 0) {
+  overlap_staging_nbn <- overlap_staging %>%
+    left_join(# keeping enrollment granularity (so, not inner_join())
+      Services %>%
+        select(EnrollmentID, DateProvided) %>%
+        group_by(EnrollmentID) %>%
+        slice_min(DateProvided, n = 1L) %>%
+        ungroup() %>%
+        unique()
+      ,
+      by = "EnrollmentID"
+    ) %>%
+    mutate(
+      EnrollmentStart = case_when(
+        ProjectType == es_nbn_project_type ~ DateProvided,
+        ProjectType %in% lh_residential_project_types ~ EntryDate,
+        ProjectType %in% ph_project_types ~ MoveInDateAdjust,
+        TRUE ~ EntryDate
+      ),
+      EnrollmentEnd = if_else(
+        ProjectType == es_nbn_project_type,
+        DateProvided,
+        as.Date(ExitAdjust)
+      )
+    )
 }
 
 overlap_staging_no_nbn <- overlap_staging %>%  
@@ -1137,8 +1140,8 @@ overlap_staging_no_nbn <- overlap_staging %>%
     EnrollmentEnd = as.Date(ExitAdjust)
   )
 
-if(nrow(Services) > 0){
-  # overlap_staging <- overlap_staging_nbn %>%
+if(nrow(Services) > 0) {
+  # overlap_staging_dplyr <- overlap_staging_nbn %>%
   #   group_by(
   #     PersonalID,
   #     EnrollmentID,
@@ -1148,7 +1151,7 @@ if(nrow(Services) > 0){
   #     DateProvided
   #   ) %>%
   #   slice_min(DateProvided, with_ties = FALSE) %>%
-  #   ungroup() %>% 
+  #   ungroup() %>%
   #   select(
   #     PersonalID,
   #     EnrollmentID,
@@ -1157,35 +1160,32 @@ if(nrow(Services) > 0){
   #     EnrollmentEnd,
   #     "FirstDateProvided" = DateProvided
   #   )
-  overlap_staging_dt <- as.data.table(overlap_staging_nbn)
+  overlap_staging <- as.data.table(overlap_staging_nbn)
   
   # Group by specified columns and compute min(DateProvided)
-  overlap_staging_dt[, .(FirstDateProvided = min(DateProvided)),
-                     by = .(PersonalID, EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd)]
-  
-  # Rename the column to "FirstDateProvided"
-  setnames(overlap_staging_dt, "DateProvided", "FirstDateProvided")
-  overlap_staging <- as.data.frame.matrix(overlap_staging_dt)
-} else{
-  overlap_staging <- overlap_staging_no_nbn %>% 
-    mutate(FirstDateProvided = NA) %>%
-    select(
-      PersonalID,
-      EnrollmentID,
-      ProjectType,
-      EnrollmentStart,
-      EnrollmentEnd,
-      FirstDateProvided
-    )
-}
+  overlap_staging <-
+    overlap_staging[, .(FirstDateProvided = min(DateProvided)),
+                    by = .(PersonalID,
+                           EnrollmentID,
+                           ProjectType,
+                           EnrollmentStart,
+                           EnrollmentEnd)]
 
-# overlap_staging
-overlap_staging_dt <- as.data.table(overlap_staging)
+} else{
+  overlap_staging <- as.data.table(overlap_staging_no_nbn)[, .(
+    PersonalID,
+    EnrollmentID,
+    ProjectType,
+    EnrollmentStart,
+    EnrollmentEnd,
+    FirstDateProvided = NA
+  )]
+}
 
 # sort enrollments for each person
 # group_by(PersonalID) %>%
 # arrange(EnrollmentStart, EnrollmentEnd) %>%
-overlap_dt <- overlap_staging_dt[order(PersonalID, EnrollmentStart, EnrollmentEnd)]
+overlap_dt <- overlap_staging[order(PersonalID, EnrollmentStart, EnrollmentEnd)]
 
 
 # Pull in previous enrollment into current enrollment record
@@ -1194,7 +1194,9 @@ overlap_dt <- overlap_staging_dt[order(PersonalID, EnrollmentStart, EnrollmentEn
 #   # compare intervals
 #   PreviousEnrollmentID = lag(EnrollmentID)) %>%
 # ungroup() %>%
-overlap_dt[, PreviousEnrollmentID := shift(EnrollmentID, type = "lag"), by = PersonalID]
+overlap_dt <-
+  overlap_dt[, PreviousEnrollmentID := shift(EnrollmentID, type = "lag"),
+             by = PersonalID]
 
 # Filter out rows with missing PreviousEnrollmentID
 # filter(!is.na(PreviousEnrollmentID)) %>% # 48 secs
@@ -1212,20 +1214,22 @@ overlap_dt <- overlap_dt[!is.na(PreviousEnrollmentID)]
 #             ),
 #           by = c("PreviousEnrollmentID")) %>%
 
-overlap_dt <- overlap_dt[
-  overlap_staging_dt[, .(EnrollmentID, ProjectType, EnrollmentStart, EnrollmentEnd, FirstDateProvided)],
-  on = c(PreviousEnrollmentID = "EnrollmentID"),
-  nomatch = NULL
-]
+overlap_dt <- overlap_dt[overlap_staging[, .(EnrollmentID,
+                                             ProjectType,
+                                             EnrollmentStart,
+                                             EnrollmentEnd,
+                                             FirstDateProvided)],
+                         on = c(PreviousEnrollmentID = "EnrollmentID"),
+                         nomatch = NULL]
 
 setnames(overlap_dt, 
-         old=c(
+         old = c(
            "i.ProjectType", 
            "i.EnrollmentStart", 
            "i.EnrollmentEnd", 
            "i.FirstDateProvided"
          ),
-         new=c(
+         new = c(
            "PreviousProjectType", 
            "PreviousEnrollmentStart", 
            "PreviousEnrollmentEnd", 
@@ -1256,17 +1260,22 @@ overlap_dt <- overlap_dt[
 # ) %>%
 # filter(IsOverlap == TRUE) %>%
 # Assuming overlap_dt is a data.table
-overlap_dt$EnrollmentPeriod <- interval(overlap_dt$EnrollmentStart, overlap_dt$EnrollmentEnd)
+overlap_dt$EnrollmentPeriod <- interval(overlap_dt$EnrollmentStart,
+                                        overlap_dt$EnrollmentEnd)
 overlap_dt$PreviousEnrollmentPeriod <- interval(overlap_dt$PreviousEnrollmentStart, overlap_dt$PreviousEnrollmentEnd)
-overlap_dt[, IsOverlap := int_overlaps(EnrollmentPeriod, PreviousEnrollmentPeriod) &
-             EnrollmentStart != PreviousEnrollmentEnd]
-overlap_dt[IsOverlap == TRUE]
+overlap_dt <- overlap_dt[, `:=`(
+  IsOverlap = int_overlaps(EnrollmentPeriod, PreviousEnrollmentPeriod) &
+             EnrollmentStart != PreviousEnrollmentEnd,
+  EnrollmentPeriod = NULL,
+  PreviousEnrollmentPeriod = NULL
+)][IsOverlap == TRUE]
 
 # Calculate the number of overlaps per PersonalID
 # group_by(PersonalID) %>%
 # mutate(NumOverlaps = sum(IsOverlap, na.rm = TRUE)) %>%
 # ungroup() %>%
-overlap_dt[, NumOverlaps := sum(IsOverlap, na.rm = TRUE), by = PersonalID]
+overlap_dt <- overlap_dt[, NumOverlaps := sum(IsOverlap, na.rm = TRUE),
+                         by = PersonalID]
 
 # # keep overlaps
 # filter(((ProjectType == es_nbn_project_type |
@@ -1330,7 +1339,7 @@ create_issue_text <- function(ptypeCol) {
     )
   )
 }
-overlap_dt[, c("Issue", "PreviousIssue") := .(
+overlap_dt <- overlap_dt[, c("Issue", "PreviousIssue") := .(
   create_issue_text(PreviousProjectType),
   create_issue_text(ProjectType)
 )]
@@ -1357,29 +1366,28 @@ overlap_dt <- overlap_dt[, .(
 # 
 base_dq_data_dt <- as.data.table(base_dq_data)
 overlap_dt <- overlap_dt[
-  base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with=F],
-  on = "EnrollmentID"
-]
-
-# Rename columns for previous enrollment
+  base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with = FALSE], 
+  on = "EnrollmentID", 
+  nomatch = 0
+][
+  # Rename columns for previous enrollment
 # left_join(base_dq_data %>% 
 #           select(!!vars_prep, EnrollmentID) %>%
 #           setNames(paste0('Previous', names(.))),
 #           by = "PreviousEnrollmentID") %>%
-overlap_dt <- overlap_dt[
-  setNames(
-    base_dq_data_dt[, c(vars_prep, "EnrollmentID"), with=F], 
-    paste0("Previous", c(vars_prep, "EnrollmentID"))
-  ),
-  on = "PreviousEnrollmentID"
+  base_dq_data_dt[, 
+                  setNames(.SD, paste0("Previous", names(.SD))), 
+                  .SDcols = c(vars_prep, "EnrollmentID")], 
+  on = "PreviousEnrollmentID",
+  nomatch = 0
 ]
 
 # Convert ProjectType and PreviousProjectType to descriptive names
 # mutate(
 #   ProjectType = project_type(ProjectType),
 #   PreviousProjectType = project_type(PreviousProjectType)
-overlap_dt[, ProjectType := project_type(ProjectType)]
-overlap_dt[, PreviousProjectType := project_type(PreviousProjectType)]
+overlap_dt <- overlap_dt[, ProjectType := project_type(ProjectType)]
+overlap_dt <- overlap_dt[, PreviousProjectType := project_type(PreviousProjectType)]
 
 # way the Issue is built dynamically
 overlaps(overlap_dt)

@@ -54,6 +54,19 @@ get_var_cols <- function() {
     )
   )
 }
+remove_non_applicables <- function(.data) {
+  if("Age" %in% input$system_composition_selections &
+     "Veteran Status" %in% input$system_composition_selections) {
+    # remove children - since Vets can't be children
+    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")))
+  } 
+  else if ("Domestic Violence status" %in% input$system_composition_selections) {
+    # filter to just HoHs and Adults
+    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
+  } else {
+    .data
+  }
+}
 
 get_sys_comp_plot_df <- function() {
   # named list of all selected options and
@@ -62,7 +75,12 @@ get_sys_comp_plot_df <- function() {
   
   # get dataset underlying the freqs we will produce below
   comp_df <- sys_df_people_universe_filtered_r() %>%
-    select(PersonalID, unname(var_cols[[input$system_composition_selections[1]]]), unname(var_cols[[input$system_composition_selections[2]]]))
+    remove_non_applicables() %>%
+    select(
+      PersonalID, 
+      unname(var_cols[[input$system_composition_selections[1]]]), 
+      unname(var_cols[[input$system_composition_selections[2]]]))
+    
   
   # Function to process each combination of the variables underlying the all-served
   # selections E.g. if Age and Gender (and Exclusive methopdology type),
@@ -99,17 +117,17 @@ get_sys_comp_plot_df <- function() {
   # mutate(pct = (n / sum(n, na.rm = TRUE)))
   
   # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
-  if ("Domestic Violence" %in% input$system_composition_selections) {
+  if ("Domestic Violence Status" %in% input$system_composition_selections) {
     dv_totals <- freqs %>%
-      filter(`Domestic Violence` %in% c("DVFleeing", "DVNotFleeing")) %>%
+      filter(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
       group_by(!!sym(
         ifelse(
-          input$system_composition_selections[1] == "Domestic Violence",
+          input$system_composition_selections[1] == "Domestic Violence Status",
           input$system_composition_selections[2],
           input$system_composition_selections[1]
         )
       )) %>%
-      summarize(`Domestic Violence` = "DVTotal",
+      summarize(`Domestic Violence Status` = "DVTotal",
                 n = sum(n, na.rm = TRUE)) #,
                 # pct = sum(pct, na.rm = TRUE))
     freqs <- bind_rows(freqs, dv_totals)
@@ -198,11 +216,11 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
     plot_df <- as.data.frame(table(comp_df[[var_col]]))
     names(plot_df) <- c(selection, "n")
     
-    if(input$system_composition_selections == "Domestic Violence") {
+    if(input$system_composition_selections == "Domestic Violence Status") {
       plot_df <- plot_df %>% bind_rows(tibble(
-        `Domestic Violence` = "DVTotal",
+        `Domestic Violence Status` = "DVTotal",
         n = sum(plot_df %>% 
-          filter(`Domestic Violence` != "NotDV") %>%
+          filter(`Domestic Violence Status` != "NotDV") %>%
           pull(n), na.rm = TRUE)))
     }
   }
@@ -257,7 +275,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       # set text color to be 508 compliant contrasting
       geom_text(
         aes(label = ifelse(wasRedacted, "***", scales::comma(n))),
-        size = font_size,
+        size = sys_chart_text_font,
         color = ifelse(
           plot_df$n > mean(plot_df$n, na.rm = TRUE) & !plot_df$wasRedacted,
           'white',
@@ -268,7 +286,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
         labels = str_wrap(
           rev(selection_cats1_labels), 
           width = ifelse(
-            selection == "Domestic Violence",
+            selection == "Domestic Violence Status",
             30,
             60
           )),
@@ -340,9 +358,9 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   
   selection_cats2 <- get_selection_cats(selections[2])
   selection_cats2_labels <- if (is.null(names(selection_cats2))) {
-    rev(selection_cats2)
+    selection_cats2
   } else {
-    rev(names(selection_cats2))
+    names(selection_cats2)
   }
   
   plot_df[selections[1]] <- factor(
@@ -352,7 +370,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   
   plot_df[selections[2]] <- factor(
     plot_df[[selections[2]]], 
-    levels = rev(selection_cats2), 
+    levels = selection_cats2, 
     labels = selection_cats2_labels)
   
   plot_df <- plot_df %>%
@@ -408,7 +426,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       geom_text(
         # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
         aes(label = ifelse(wasRedacted, "***", scales::comma(n))),
-        size = font_size * ifelse(isExport, 0.7, 1),
+        size = sys_chart_text_font * ifelse(isExport, 0.7, 1),
         color = ifelse(
           plot_df$n > mean(plot_df$n, na.rm = TRUE) & !plot_df$wasRedacted,
           'white',
@@ -435,7 +453,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       geom_text(
         aes(label = ifelse(wasRedacted, "***", # paste0(scales::comma(N), "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
                            scales::comma(N))),
-        size = font_size * ifelse(isExport, 0.7, 1),
+        size = sys_chart_text_font * ifelse(isExport, 0.7, 1),
         color = ifelse(
           h_total$N > mean(h_total$N, na.rm = TRUE) & !h_total$wasRedacted,
           'white',
@@ -462,7 +480,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       geom_text(
         aes(label = ifelse(wasRedacted, "***", # paste0(N, "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
                            scales::comma(N))),
-        size = font_size * ifelse(isExport, 0.7, 1),
+        size = sys_chart_text_font * ifelse(isExport, 0.7, 1),
         color = ifelse(
           v_total$N > mean(v_total$N, na.rm = TRUE) & !v_total$wasRedacted,
           'white',
@@ -478,8 +496,8 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
         position = "top"
       ) +
       scale_y_discrete(
-        labels = str_wrap(c("Total", selection_cats2_labels), width = 30),
-        limits = c("Total", levels(plot_df[[selections[2]]])),
+        labels = str_wrap(c("Total", rev(selection_cats2_labels)), width = 30),
+        limits = c("Total", rev(levels(plot_df[[selections[2]]]))),
       ) +
       
       # other stuff
@@ -530,52 +548,74 @@ output$sys_comp_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Demographics Report - "),
   content = function(file) {
     v1 <- gsub("Races/Ethnicities", "Race", input$system_composition_selections[1])
-    v2 <- gsub("Races/Ethnicities", "Race", input$system_composition_selections[2])
-    
-    # get the n matrix
-    num_matrix <- sys_comp_plot_df() %>%
-      xtabs(n ~ 
-              .[[input$system_composition_selections[2]]] +
-              .[[input$system_composition_selections[1]]], 
-            data = .) %>%
-      replace(is.na(.), 0)
-    
-    # get the pct matrix with x.y% format
-    pct_matrix <- ((num_matrix / sum(num_matrix)) * 100) %>%
-      replace(is.na(.), 0) %>%
-      addmargins(FUN = sum) %>% # add total row and column 
-      apply(c(1, 2), function(x) paste0(format(round(x, 1), nsmall = 1), "%")) 
-    
-    
-    # convert to dataframe
-    # rename the Total row/column
-    # add row names (i.e. var1) as separate column so it won't be excluded
-    convert_to_df_for_export <- function(.data) {
-      return(
-        .data  %>%
-          as.data.frame.matrix() %>%
-          `rownames<-`(c(rownames(.)[-nrow(.)], "Total")) %>%
-          `colnames<-`(c(colnames(.)[-ncol(.)], "Total")) %>%
-          cbind(" " = rownames(.), .)
-      )
+    if(length(input$system_composition_selections) > 1) {
+      v2 <- gsub("Races/Ethnicities", "Race", input$system_composition_selections[2])
     }
-    num_matrix_df <- num_matrix %>% 
-      addmargins(FUN = sum) %>% # add total row and column 
-      convert_to_df_for_export()
     
-    pct_matrix_df <- pct_matrix %>% 
-      convert_to_df_for_export()
-    
-    # create a list of the 3 excel tabs and export
-    tab_names <- list(
-      "System Demographics Metadata" = sys_comp_selections_summary()
-    )
-    tab_names[[glue("Selected {v1} By {v2} #")]] <- num_matrix_df
+    # reshape so the values of v1 are the column headers and v2 are the "row headers"
+    # though technically just a column
+    if(length(input$system_composition_selections) > 1) {
+      num_df <- sys_comp_plot_df() %>%
+        pivot_wider(
+          names_from = input$system_composition_selections[1],
+          values_from = n,
+          values_fill = list(n = 0)
+        )
+
+      # create total row
+      total_num_row <- num_df %>%
+        summarise(!!input$system_composition_selections[1] := "Total",
+                  across(where(is.numeric), sum, na.rm = TRUE)) %>%
+        rename(!!input$system_composition_selections[2] := !!input$system_composition_selections[1])
       
-    tab_names[[glue("Selected {v1} By {v2} %")]] <- pct_matrix_df
+      total_pct_row <- total_num_row %>% 
+        mutate(
+          across(where(is.numeric), ~ (. / sum(sys_comp_plot_df()$n, na.rm = TRUE) * 100) %>%
+                   replace_na(0) %>%
+                   round(1) %>%
+                   paste0("%")))
+      
+      # Create x.y% version
+      pct_df <- num_df %>%
+        mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
+                        replace_na(0) %>%
+          round(1) %>%
+          paste0("%"))) %>% 
+        bind_rows(total_pct_row)
+    
+      # Add Total Row and create a total column
+      num_df <- num_df %>%
+        bind_rows(total_num_row) %>%
+        mutate(Total = rowSums(select(., where(is.numeric)), na.rm = TRUE))
+      
+    } else {
+      num_df <- sys_comp_plot_df()
+      
+      pct_df <- num_df %>%
+        mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
+                        round(1) %>%
+                        paste0("%"))) %>%
+        bind_rows(setNames(data.frame("Total", "100%"), c(
+          sym(input$system_composition_selections), "n"
+        )))
+      
+      num_df <- num_df %>%
+        bind_rows(summarise(., !!sym(input$system_composition_selections) := "Total", n = sum(n, na.rm = TRUE)))
+    }
+    
+    if (length(input$system_composition_selections) > 1) {
+      num_tab_name <- glue("{v1} By {v2} #")
+      pct_tab_name <- glue("{v1} By {v2} %")
+    } else {
+      num_tab_name <- glue("{v1} #")
+      pct_tab_name <- glue("{v1} %")
+    }
     
     write_xlsx(
-      tab_names,
+      setNames(
+        list(num_df, pct_df),
+        c(num_tab_name, pct_tab_name)
+      ),
       path = file,
       format_headers = FALSE,
       col_names = TRUE
@@ -621,7 +661,7 @@ observeEvent(input$system_composition_selections, {
       $('input[name=system_composition_selections][value*=\"Races/Ethnicities\"]:not(\":checked\")')
         .attr('disabled', reSelected == 'TRUE');
   "))
-})
+}, ignoreNULL = FALSE)
 
 
 output$sys_comp_summary_selections <- renderUI({
@@ -635,7 +675,8 @@ output$sys_comp_summary_ui_chart <- renderPlot({
   ifelse(!is.null(input$system_composition_selections), 600, 100) 
 }, width = function() {
   ifelse(length(input$system_composition_selections) == 1, 500, "auto")
-})
+},
+alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
 
 output$sys_comp_download_btn_ppt <- downloadHandler(
