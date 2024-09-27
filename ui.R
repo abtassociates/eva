@@ -1109,7 +1109,7 @@ dashboardPage(
                                 
                                 <ul>
                                   <li><b>Inflow</b> is categorized into three groups: 
-                                  “First Time Homeless,” “Returned from Permanent,” and 
+                                  “First-Time Homeless,” “Returned from Permanent,” and 
                                   “Re-engaged from Non-Permanent.”</li>
                                   <li><b>Outflow</b> is divided into three categories: 
                                   “Exited, Non-Permanent,” “Exited, Non-Permanent 
@@ -1139,8 +1139,8 @@ dashboardPage(
                                   <tr>
                                     <td>Less than 36 months of data are uploaded</td>
                                     <td>In the Detail chart, “Inflow Unspecified” 
-                                    displays instead of “First Time Homeless.”</td>
-                                    <td>The “First Time Homeless” category refers 
+                                    displays instead of “First-Time Homeless.”</td>
+                                    <td>The “First-Time Homeless” category refers 
                                     to someone who has not been served in the system 
                                     within the 24 months prior to their entry. Therefore, 
                                     it is not possible to assess if people are newly 
@@ -1152,8 +1152,8 @@ dashboardPage(
                                   <tr>
                                     <td>Less than 12 months of data are uploaded</td>
                                     <td>In the Detail chart, “Inflow Unspecified” 
-                                    displays instead of “First Time Homeless.”</td>
-                                    <td>The “First Time Homeless” category refers 
+                                    displays instead of “First-Time Homeless.”</td>
+                                    <td>The “First-Time Homeless” category refers 
                                     to someone who has not been served in the system 
                                     within the 24 months prior to their entry.
                                     Therefore, it will be difficult to draw conclusions about 
@@ -1177,7 +1177,7 @@ dashboardPage(
                                     in prior years, or if the change is because 
                                     fewer clients are exiting. Use the Detail Chart 
                                     to explore if a majority of the clients flowing 
-                                    in were first time homeless, returning to homelessness 
+                                    in were first-time homeless, returning to homelessness 
                                     after previously exiting to a permanent destination, 
                                     or re-engaging with the system after previously 
                                     exiting to a non-permanent destination.</td>
@@ -1238,7 +1238,7 @@ dashboardPage(
                   id = "sys_status_subtabs",
                   tabPanel("Chart", 
                            uiOutput("sankey_filter_selections") %>% withSpinner(),
-                           plotOutput("sankey_ui_chart", width="70%") %>% withSpinner()
+                           plotOutput("sankey_ui_chart", width="70%", height=600) %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
