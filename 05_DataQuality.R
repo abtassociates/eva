@@ -1756,7 +1756,6 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       missing_name_dataquality,
       missing_ncbs_entry,
       missing_previous_street_ESSH,
-      missing_race,
       missing_residence_prior,
       missing_res_prior_subsidy,
       missing_ssn,
