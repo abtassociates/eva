@@ -1093,11 +1093,11 @@ dashboardPage(
                   selected = "Summary Chart",
                   tabPanel("Summary Chart", 
                            uiOutput("sys_act_summary_filter_selections") %>% withSpinner(),
-                           plotOutput("sys_act_summary_ui_chart", width="70%") %>% withSpinner()
+                           plotOutput("sys_act_summary_ui_chart", width="70%", height="500px") %>% withSpinner()
                   ),
                   tabPanel("Detail Chart", 
                            uiOutput("sys_act_detail_filter_selections") %>% withSpinner(),
-                           plotOutput("sys_act_detail_ui_chart", width="70%") %>% withSpinner()
+                           plotOutput("sys_act_detail_ui_chart", width="70%", height="500px") %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
