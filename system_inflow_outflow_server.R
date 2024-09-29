@@ -228,7 +228,7 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
       show.legend = FALSE,
       inherit.aes = FALSE
     ) +
-    # the labels
+    # numeric labels for Active at Start/End
     ggrepel::geom_text_repel(
       aes(
         x = group.id,
@@ -239,12 +239,12 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
       ),
       direction = "y",
       min.segment.length = Inf,
-      nudge_x = -.28,
-      hjust=1,
+      nudge_x = ifelse(windowSize()[1] < 1300, -.4, -.35),
       colour = "#4e4d47",
       size = sys_chart_text_font,
       inherit.aes = FALSE
     ) +
+    # numeric labels for Inflow/Outflow
     geom_text(
       aes(
         x = group.id,
