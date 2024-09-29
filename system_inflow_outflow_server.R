@@ -193,6 +193,11 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
     pull(values) %>%
     sum() * -1
   
+  total_homeless_clients <- df %>%
+    filter(InflowOutflow == "Inflow" & PlotFillGroups != "Housed") %>%
+    pull(values) %>%
+    sum()
+  
   # waterfall plot ----------------------------------------------------------
   ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
     # the bars
@@ -264,6 +269,9 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
           inflow_to_outflow == 0 ~ "0",
           inflow_to_outflow < 0 ~ scales::comma(inflow_to_outflow)
         ),
+        "\n",
+        "Total Homeless: ",
+        scales::comma(total_homeless_clients),
         "\n",
         "\n"
       )
@@ -337,14 +345,16 @@ sys_inflow_outflow_export_info <- function(df) {
       "Total Served (Start + Inflow) People",
       "Total Inflow",
       "Total Outflow",
-      "Total Change"
+      "Total Change",
+      "Total Homeless"
     ),
     Value = as.character(c(
       sum(df[df$InflowOutflow == 'Inflow', 'values'], na.rm = TRUE),
       sum(df[df$InflowOutflowSummary == 'Inflow', 'values'], na.rm = TRUE),
       sum(df[df$InflowOutflowSummary == 'Outflow', 'values'], na.rm = TRUE),   
       sum(df[df$Time == "Active at End", 'values'], na.rm = TRUE) -
-        sum(df[df$Time == "Active at Start", 'values'], na.rm = TRUE)
+        sum(df[df$Time == "Active at Start", 'values'], na.rm = TRUE),
+      sum(df[(df$InflowOutflow == 'Inflow' & df$Status != 'Housed'), 'values'], na.rm = TRUE)
     ))
   )
 }
