@@ -242,9 +242,10 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
                         paste0(scales::comma(abs(values))), NA),
         y = rowSums(cbind(ystart, values / 2))
       ),
-      direction = "y",
-      min.segment.length = Inf,
-      nudge_x = ifelse(windowSize()[1] < 1300, -.4, -.35),
+      hjust = 1,
+      # direction = "y",
+      segment.colour = NA,
+      nudge_x = ifelse(windowSize()[1] < 1300, -.4, -.3),
       colour = "#4e4d47",
       size = sys_chart_text_font,
       inherit.aes = FALSE
