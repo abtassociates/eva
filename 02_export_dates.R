@@ -31,4 +31,5 @@ ExportEndAdjusted <- if_else(
 
 ReportEnd(as.Date(ExportEndAdjusted))
 ReportStart(as.Date(ReportEnd() - years(1) + days(1)))
+days_of_data(as.Date(ReportEnd()) - as.Date(ReportStart()))
 

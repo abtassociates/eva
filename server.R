@@ -25,7 +25,8 @@ function(input, output, session) {
     ReportEnd <- reactiveVal(),
     sankey_plot_data <- reactiveVal(),
     non_ascii_files_detail_df <- reactiveVal(),
-    non_ascii_files_detail_r <- reactiveVal()
+    non_ascii_files_detail_r <- reactiveVal(),
+    days_of_data <- reactiveVal()
   )
   
   reset_reactivevals <- function() {
