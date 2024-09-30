@@ -613,7 +613,7 @@ output$sys_comp_download_btn <- downloadHandler(
     write_xlsx(
       setNames(
         list(sys_comp_selections_summary(), num_df, pct_df),
-        c("Composition All Served Summary", num_tab_name, pct_tab_name)
+        c("System Demographics Metadata", num_tab_name, pct_tab_name)
       ),
       path = file,
       format_headers = FALSE,
