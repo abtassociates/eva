@@ -1097,7 +1097,7 @@ dashboardPage(
                   ),
                   tabPanel("Detail Chart", 
                            uiOutput("sys_act_detail_filter_selections") %>% withSpinner(),
-                           plotOutput("sys_act_detail_ui_chart", width="70%", height="500px") %>% withSpinner()
+                           plotOutput("sys_act_detail_ui_chart", width="100%", height="500px") %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>

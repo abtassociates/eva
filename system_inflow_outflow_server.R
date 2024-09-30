@@ -292,7 +292,11 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
     # add back in what theme elements we want
     theme(
       text = element_text(size = sys_chart_text_font, colour = "#4e4d47"),
-      axis.text.x = element_text(size = get_adj_font_size(sys_axis_text_font, isExport), vjust = -.2),
+      axis.text.x = element_text(
+        size = get_adj_font_size(
+          sys_axis_text_font * ifelse(windowSize()[1]<1300,0.9,1), 
+          isExport),
+        vjust = -.2), 
       axis.ticks.x = element_line(),
       axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
       plot.margin = unit(c(3, 1, 1, 1), "lines"),
