@@ -408,7 +408,53 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
           mutate(Value = replace_na(Value, 0)) %>%
           rename("System Flow" = Value),
         "System Flow Data" = bind_rows(
-          df, df %>% 
+          df %>%
+            mutate(
+              Status = if_else(
+                Status == "First-Time \nHomeless" &
+                  days_of_data() < 1094,
+                "Inflow Unspecified",
+                Status
+              ),
+              Time = if_else(
+                Time == "First-Time \nHomeless" &
+                  days_of_data() < 1094,
+                "Inflow Unspecified",
+                Time
+              ),
+              Time = factor(
+                Time,
+                levels = c("Active at Start",
+                           if_else(
+                             days_of_data() >= 1094,
+                             "First-Time \nHomeless",
+                             "Inflow Unspecified"
+                           ),
+                           "Returned from \nPermanent",
+                           "Re-engaged from \nNon-Permanent",
+                           "Exited,\nNon-Permanent",
+                           "Exited,\nPermanent",
+                           "Inactive",
+                           "Active at End")
+              ),
+              Status = factor(
+                Status,
+                levels = c(
+                  "Housed",
+                  "Homeless",                          
+                  if_else(
+                    days_of_data() >= 1094,
+                    "First-Time \nHomeless",
+                    "Inflow Unspecified"
+                  ),
+                  "Returned from \nPermanent",
+                  "Re-engaged from \nNon-Permanent",
+                  "Exited,\nNon-Permanent",
+                  "Exited,\nPermanent",
+                  "Inactive"
+                )
+              )
+            ), df %>% 
             group_by(InflowOutflowSummary) %>% 
             reframe(Status = paste0("Total ",  InflowOutflowSummary),
                     Totals = sum(values, na.rm = TRUE)) %>%
