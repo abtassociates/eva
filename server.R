@@ -32,6 +32,7 @@ function(input, output, session) {
   reset_reactivevals <- function() {
     lapply(visible_reactive_vals, function(r) r(NULL))
     valid_file(0)
+    windowSize(input$dimension)
   }
   # 
   # # functions used throughout the app
