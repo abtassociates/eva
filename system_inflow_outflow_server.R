@@ -1,7 +1,6 @@
 # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
 # Define the hardcoded values for Time and Status
 # we need all combinations for the 0s
-
 frame_detail <- 
   data.frame(
     Status = c(
@@ -153,7 +152,53 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
     df <- system_activity_prep_summary()
     mid_plot <- 2.5
   } else {
-    df <- system_activity_prep_detail()
+    df <- system_activity_prep_detail() %>%
+      mutate(
+        Status = if_else(
+          Status == "First-Time \nHomeless" &
+            days_of_data() < 1094,
+          "Inflow\nUnspecified",
+          Status
+        ),
+        Time = if_else(
+          Time == "First-Time \nHomeless" &
+            days_of_data() < 1094,
+          "Inflow\nUnspecified",
+          Time
+        ),
+        Time = factor(
+          Time,
+          levels = c("Active at Start",
+                     if_else(
+                       days_of_data() >= 1094,
+                       "First-Time \nHomeless",
+                       "Inflow\nUnspecified"
+                     ),
+                     "Returned from \nPermanent",
+                     "Re-engaged from \nNon-Permanent",
+                     "Exited,\nNon-Permanent",
+                     "Exited,\nPermanent",
+                     "Inactive",
+                     "Active at End")
+        ),
+        Status = factor(
+          Status,
+          levels = c(
+            "Housed",
+            "Homeless",                          
+            if_else(
+              days_of_data() >= 1094,
+              "First-Time \nHomeless",
+              "Inflow\nUnspecified"
+            ),
+            "Returned from \nPermanent",
+            "Re-engaged from \nNon-Permanent",
+            "Exited,\nNon-Permanent",
+            "Exited,\nPermanent",
+            "Inactive"
+          )
+        )
+      )
     mid_plot <- 4.5
   }
   
@@ -187,7 +232,6 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
   num_segments <- 20
   segment_size <- get_segment_size(s/num_segments)
 
-  
   inflow_to_outflow <- df %>%
     filter(PlotFillGroups %in% c("Housed", "Homeless")) %>%
     pull(values) %>%
