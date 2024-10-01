@@ -4,7 +4,7 @@ customDownload <- function(app, downloadHandler, fname) {
   file.remove(fname)
 }
 initially_invalid_test_script <- function(test_script_name, test_dataset) {
-  test_that(paste0("{shinytest2} recording: ",test_script_name), {
+  test_that(paste0("{shinytest2} recording: ", test_script_name), {
     print(paste0("Running ",test_script_name))
 
     app <- AppDriver$new(
@@ -14,7 +14,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
         load_timeout = 5e+05)
   
     app$set_inputs(Go_to_upload = "click")
-    app$upload_file(imported = paste0(here("tests/temp/"),test_dataset))
+    app$upload_file(imported = paste0(here("tests/temp//"), test_dataset))
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
   
