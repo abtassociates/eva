@@ -1,39 +1,42 @@
 # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
 # Define the hardcoded values for Time and Status
 # we need all combinations for the 0s
-frame_detail <- 
-  data.frame(
-    Status = c(
-      "Housed",
-      "Homeless",
+status_levels_detail <- reactive({
+  c(
+    "Housed",
+    "Homeless",                          
+    if_else(
+      days_of_data() >= 1094,
       "First-Time \nHomeless",
-      "Returned from \nPermanent",
-      "Re-engaged from \nNon-Permanent",
-      "Exited,\nPermanent",
-      "Exited,\nNon-Permanent",
-      "Inactive",
-      "Homeless",
-      "Housed"
+      "Inflow\nUnspecified"
     ),
-    Time = c(
-      rep("Active at Start", 2),
-      "First-Time \nHomeless",
-      "Returned from \nPermanent",
-      "Re-engaged from \nNon-Permanent",
-      "Exited,\nPermanent",
-      "Exited,\nNon-Permanent",
-      "Inactive",
-      rep("Active at End", 2)
-    ),
-    InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)),
-    PlotFillGroups = 
-      c("Housed",
-        "Homeless",
-        rep("Inflow", 3),
-        rep("Outflow", 3),
-        "Homeless",
-        "Housed")
+    "Returned from \nPermanent",
+    "Re-engaged from \nNon-Permanent",
+    "Exited,\nNon-Permanent",
+    "Exited,\nPermanent",
+    "Inactive"
   )
+})
+
+time_levels_detail <- reactive({
+  c("Active at Start",
+    if_else(
+      days_of_data() >= 1094,
+      "First-Time \nHomeless",
+      "Inflow\nUnspecified"
+    ),
+    "Returned from \nPermanent",
+    "Re-engaged from \nNon-Permanent",
+    "Exited,\nNon-Permanent",
+    "Exited,\nPermanent",
+    "Inactive",
+    "Active at End")
+})
+
+time_levels_summary <- c("Active at Start",
+                         "Inflow",
+                         "Outflow",
+                         "Active at End")
 
 # frame_summary <-
 #   data.frame(
@@ -54,6 +57,25 @@ frame_detail <-
 #   )
 
 system_activity_prep_detail <- reactive({
+  frame_detail <- data.frame(
+    Status = c(
+      status_levels_detail(),
+      "Homeless",
+      "Housed"),
+    Time = c(
+      rep(time_levels_detail()[1], 2),
+      time_levels_detail()[2:7],
+      rep(time_levels_detail()[8], 2)),
+    InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)),
+    PlotFillGroups = 
+      c("Housed",
+        "Homeless",
+        rep("Inflow", 3),
+        rep("Outflow", 3),
+        "Homeless",
+        "Housed")
+  )
+
   inflow <- sys_inflow_outflow_plot_data() %>%
     select(PersonalID,
            InflowTypeSummary,
@@ -85,38 +107,20 @@ system_activity_prep_detail <- reactive({
     mutate(
       Time = factor(
         Time,
-        levels = c("Active at Start",
-                   "First-Time \nHomeless",
-                   "Returned from \nPermanent",
-                   "Re-engaged from \nNon-Permanent",
-                   "Exited,\nNon-Permanent",
-                   "Exited,\nPermanent",
-                   "Inactive",
-                   "Active at End")
+        levels = time_levels_detail()
       ),
       Status = factor(
         Status,
-        levels = c(
-          "Housed",
-          "Homeless",                          
-          "First-Time \nHomeless",
-          "Returned from \nPermanent",
-          "Re-engaged from \nNon-Permanent",
-          "Exited,\nNon-Permanent",
-          "Exited,\nPermanent",
-          "Inactive"
-        )
+        levels = status_levels_detail()
       ),
+      
       InflowOutflowSummary = factor(
         case_when(
           str_detect(Time, "Exited") | Time == "Inactive" ~ "Outflow",
           str_detect(Time, "Active at") ~ Time,
           TRUE ~ "Inflow"
         ),
-        levels = c("Active at Start",
-                   "Inflow",
-                   "Outflow",
-                   "Active at End"))
+        levels = time_levels_summary)
     ) %>%
     group_by(Time) %>%
     mutate(group.id = cur_group_id()) %>%
@@ -152,53 +156,7 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
     df <- system_activity_prep_summary()
     mid_plot <- 2.5
   } else {
-    df <- system_activity_prep_detail() %>%
-      mutate(
-        Status = if_else(
-          Status == "First-Time \nHomeless" &
-            days_of_data() < 1094,
-          "Inflow\nUnspecified",
-          Status
-        ),
-        Time = if_else(
-          Time == "First-Time \nHomeless" &
-            days_of_data() < 1094,
-          "Inflow\nUnspecified",
-          Time
-        ),
-        Time = factor(
-          Time,
-          levels = c("Active at Start",
-                     if_else(
-                       days_of_data() >= 1094,
-                       "First-Time \nHomeless",
-                       "Inflow\nUnspecified"
-                     ),
-                     "Returned from \nPermanent",
-                     "Re-engaged from \nNon-Permanent",
-                     "Exited,\nNon-Permanent",
-                     "Exited,\nPermanent",
-                     "Inactive",
-                     "Active at End")
-        ),
-        Status = factor(
-          Status,
-          levels = c(
-            "Housed",
-            "Homeless",                          
-            if_else(
-              days_of_data() >= 1094,
-              "First-Time \nHomeless",
-              "Inflow\nUnspecified"
-            ),
-            "Returned from \nPermanent",
-            "Re-engaged from \nNon-Permanent",
-            "Exited,\nNon-Permanent",
-            "Exited,\nPermanent",
-            "Inactive"
-          )
-        )
-      )
+    df <- system_activity_prep_detail()
     mid_plot <- 4.5
   }
   
@@ -408,53 +366,8 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
           mutate(Value = replace_na(Value, 0)) %>%
           rename("System Flow" = Value),
         "System Flow Data" = bind_rows(
-          df %>%
-            mutate(
-              Status = if_else(
-                Status == "First-Time \nHomeless" &
-                  days_of_data() < 1094,
-                "Inflow Unspecified",
-                Status
-              ),
-              Time = if_else(
-                Time == "First-Time \nHomeless" &
-                  days_of_data() < 1094,
-                "Inflow Unspecified",
-                Time
-              ),
-              Time = factor(
-                Time,
-                levels = c("Active at Start",
-                           if_else(
-                             days_of_data() >= 1094,
-                             "First-Time \nHomeless",
-                             "Inflow Unspecified"
-                           ),
-                           "Returned from \nPermanent",
-                           "Re-engaged from \nNon-Permanent",
-                           "Exited,\nNon-Permanent",
-                           "Exited,\nPermanent",
-                           "Inactive",
-                           "Active at End")
-              ),
-              Status = factor(
-                Status,
-                levels = c(
-                  "Housed",
-                  "Homeless",                          
-                  if_else(
-                    days_of_data() >= 1094,
-                    "First-Time \nHomeless",
-                    "Inflow Unspecified"
-                  ),
-                  "Returned from \nPermanent",
-                  "Re-engaged from \nNon-Permanent",
-                  "Exited,\nNon-Permanent",
-                  "Exited,\nPermanent",
-                  "Inactive"
-                )
-              )
-            ), df %>% 
+          df, 
+          df %>% 
             group_by(InflowOutflowSummary) %>% 
             reframe(Status = paste0("Total ",  InflowOutflowSummary),
                     Totals = sum(values, na.rm = TRUE)) %>%
