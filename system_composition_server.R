@@ -516,7 +516,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
-        axis.text = element_text(size = sys_comp_axis_text_font * ifelse(isExport, 0.6, 1))
+        axis.text = element_text(size = sys_comp_axis_text_font * ifelse(windowSize()[1] < 1300, 0.8, 1) * ifelse(isExport, 0.6, 1))
       )
   )
 }
@@ -612,8 +612,8 @@ output$sys_comp_download_btn <- downloadHandler(
     
     write_xlsx(
       setNames(
-        list(num_df, pct_df),
-        c(num_tab_name, pct_tab_name)
+        list(sys_comp_selections_summary(), num_df, pct_df),
+        c("System Demographics Metadata", num_tab_name, pct_tab_name)
       ),
       path = file,
       format_headers = FALSE,

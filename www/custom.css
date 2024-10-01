@@ -489,9 +489,20 @@ a:hover {
 
 /*center chart*/
 #sys_comp_summary_ui_chart,
-#sankey_ui_chart {
+#sankey_ui_chart,
+#sys_act_summary_ui_chart, 
+#sys_act_detail_ui_chart {
+  display: flex;
   margin: 0 auto;
 }
+
+#sys_comp_summary_ui_chart > img,
+#sankey_ui_chart > img,
+#sys_act_summary_ui_chart > img, 
+#sys_act_detail_ui_chart > img {
+  margin: 0 auto;
+}
+
 /* || CHART INFORMATION TABLES */
 .sys_info_table {
   border: 1px solid black;

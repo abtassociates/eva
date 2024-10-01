@@ -187,13 +187,18 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
   
   colors <- c('#ECE7E3', '#9E958F', '#BDB6D7', '#6A559B')
   s <- max(df$yend) + 20
-  num_segments <- 20
-  segment_size <- get_segment_size(s/num_segments)
+  # num_segments <- 20
+  # segment_size <- get_segment_size(s/num_segments)
 
   inflow_to_outflow <- df %>%
     filter(PlotFillGroups %in% c("Housed", "Homeless")) %>%
     pull(values) %>%
     sum() * -1
+  
+  total_homeless_clients <- df %>%
+    filter(InflowOutflow == "Inflow" & PlotFillGroups != "Housed") %>%
+    pull(values) %>%
+    sum()
   
   # waterfall plot ----------------------------------------------------------
   ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
@@ -230,23 +235,24 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
       show.legend = FALSE,
       inherit.aes = FALSE
     ) +
-    # the labels
+    # numeric labels for Active at Start/End
     ggrepel::geom_text_repel(
       aes(
         x = group.id,
         label = if_else(!PlotFillGroups %in% c("Inflow", "Outflow") &
                           values != 0,
                         paste0(scales::comma(abs(values))), NA),
-        y = rowSums(cbind(ystart, values / 2)),
-        segment.colour = "gray33"
+        y = rowSums(cbind(ystart, values / 2))
       ),
-      direction = "y",
-      min.segment.length = unit(1, "inch"),
-      nudge_x = -.35,
+      hjust = 1,
+      # direction = "y",
+      segment.colour = NA,
+      nudge_x = ifelse(windowSize()[1] < 1300, -.4, -.3),
       colour = "#4e4d47",
       size = sys_chart_text_font,
       inherit.aes = FALSE
     ) +
+    # numeric labels for Inflow/Outflow
     geom_text(
       aes(
         x = group.id,
@@ -267,6 +273,9 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
           inflow_to_outflow < 0 ~ scales::comma(inflow_to_outflow)
         ),
         "\n",
+        "Total Homeless: ",
+        scales::comma(total_homeless_clients),
+        "\n",
         "\n"
       )
     ) +
@@ -286,7 +295,11 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
     # add back in what theme elements we want
     theme(
       text = element_text(size = sys_chart_text_font, colour = "#4e4d47"),
-      axis.text.x = element_text(size = get_adj_font_size(sys_axis_text_font, isExport), vjust = -.2),
+      axis.text.x = element_text(
+        size = get_adj_font_size(
+          sys_axis_text_font * ifelse(windowSize()[1]<1300,0.9,1), 
+          isExport),
+        vjust = -.2), 
       axis.ticks.x = element_line(),
       axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
       plot.margin = unit(c(3, 1, 1, 1), "lines"),
@@ -300,24 +313,22 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
 
 # custom round to the smaller of the nearest 10, 100, etc.
 # good for chart segment sizing
-get_segment_size <- function(x) {
-  thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
-  rounded <- sapply(thresholds, function(t) {
-    if (x > t) {
-      return(t * ceiling(x / t))
-    } else {
-      return(NA)
-    }
-  })
-  min(rounded, na.rm = TRUE)
-}
+# get_segment_size <- function(x) {
+#   thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
+#   rounded <- sapply(thresholds, function(t) {
+#     if (x > t) {
+#       return(t * ceiling(x / t))
+#     } else {
+#       return(NA)
+#     }
+#   })
+#   min(rounded, na.rm = TRUE)
+# }
 
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
     get_system_inflow_outflow_plot(id)
-  }, height = function() {
-    session$clientData[[glue("output_{id}_width")]]/2
   },
   alt = case_when(id == "sys_act_summary_ui_chart" ~ 
                 "A waterfall bar chart of the homeless system's inflow and outflow during 
@@ -341,14 +352,16 @@ sys_inflow_outflow_export_info <- function(df) {
       "Total Served (Start + Inflow) People",
       "Total Inflow",
       "Total Outflow",
-      "Total Change"
+      "Total Change",
+      "Total Homeless"
     ),
     Value = as.character(c(
       sum(df[df$InflowOutflow == 'Inflow', 'values'], na.rm = TRUE),
       sum(df[df$InflowOutflowSummary == 'Inflow', 'values'], na.rm = TRUE),
       sum(df[df$InflowOutflowSummary == 'Outflow', 'values'], na.rm = TRUE),   
       sum(df[df$Time == "Active at End", 'values'], na.rm = TRUE) -
-        sum(df[df$Time == "Active at Start", 'values'], na.rm = TRUE)
+        sum(df[df$Time == "Active at Start", 'values'], na.rm = TRUE),
+      sum(df[(df$InflowOutflow == 'Inflow' & df$Status != 'Housed'), 'values'], na.rm = TRUE)
     ))
   )
 }

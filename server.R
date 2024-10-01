@@ -27,11 +27,13 @@ function(input, output, session) {
     non_ascii_files_detail_df <- reactiveVal(),
     non_ascii_files_detail_r <- reactiveVal(),
     days_of_data <- reactiveVal()
+    windowSize <- reactiveVal()
   )
   
   reset_reactivevals <- function() {
     lapply(visible_reactive_vals, function(r) r(NULL))
     valid_file(0)
+    windowSize(input$dimension)
   }
   # 
   # # functions used throughout the app
