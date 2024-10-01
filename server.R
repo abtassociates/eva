@@ -26,7 +26,7 @@ function(input, output, session) {
     sankey_plot_data <- reactiveVal(),
     non_ascii_files_detail_df <- reactiveVal(),
     non_ascii_files_detail_r <- reactiveVal(),
-    days_of_data <- reactiveVal()
+    days_of_data <- reactiveVal(),
     windowSize <- reactiveVal()
   )
   
