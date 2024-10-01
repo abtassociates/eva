@@ -514,8 +514,8 @@
       "2022-09-30"
     ],
     "dimension": [
-      1039,
-      707
+      780,
+      493
     ],
     "dq_org_guidance_summary_cell_clicked": {
 
@@ -909,10 +909,10 @@
         "FY24-ICF-main-valid.zip"
       ],
       "size": [
-        19455158
+        19444271
       ],
       "type": [
-        "application/x-zip-compressed"
+        "application/zip"
       ],
       "datapath": [
         "0.zip"
@@ -1838,8 +1838,8 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 0df643a99768461eb46cb690b8d10bae]",
-      "width": 742.4000244140625,
+      "src": "[image data hash: e52edf3ab2384ff6a05e808de2b4db80]",
+      "width": 485,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
       "coordmap": {
@@ -1883,16 +1883,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 279.3289811643835,
-              "right": 921.1506849315068,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 248.2131849315069,
+              "right": 479.5205479452055,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 928.0000305175781,
-          "height": 500
+          "width": 485,
+          "height": 400
         }
       }
     },
@@ -1933,8 +1933,8 @@
       ]
     },
     "orgDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 5e35ab80d427a01a30f8c5e430861d89]",
-      "width": 742.4000244140625,
+      "src": "[image data hash: 3b761cc90f6ce1d4f3dd71c4a3d00b24]",
+      "width": 485,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the organization.",
       "coordmap": {
@@ -1971,22 +1971,22 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 289.7508561643835,
-              "right": 921.1506849315068,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 252.4944349315069,
+              "right": 479.5205479452055,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 928.0000305175781,
-          "height": 500
+          "width": 485,
+          "height": 400
         }
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 0e56fa74351df391504ff3625abbc215]",
-      "width": 742.4000244140625,
+      "src": "[image data hash: a1d9ad0fff9486d35eb144d1f5f27ada]",
+      "width": 485,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
       "coordmap": {
@@ -2030,16 +2030,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 320.9852311643836,
-              "right": 921.1506849315068,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 285.1663099315068,
+              "right": 479.5205479452055,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 928.0000305175781,
-          "height": 500
+          "width": 485,
+          "height": 400
         }
       }
     },
@@ -2286,8 +2286,8 @@
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: db8008c5068892e014b29db52afe093f]",
-      "width": 484.6750183105469,
+      "src": "[image data hash: 65dd5d95a6aaaa689168b46582dfe7b3]",
+      "width": 304.5,
       "height": 400,
       "alt": "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",
       "coordmap": {
@@ -2324,16 +2324,16 @@
               "axis2": "End"
             },
             "range": {
-              "left": 2.002566472656481e-306,
-              "right": 605,
-              "bottom": 483.0000000000001,
-              "top": 64.34931506849311
+              "left": 1.602053178125186e-306,
+              "right": 304,
+              "bottom": 385.9999999999999,
+              "top": 51.87945205479453
             }
           }
         ],
         "dims": {
-          "width": 605.8437728881836,
-          "height": 500
+          "width": 304.5,
+          "height": 400
         }
       }
     },
@@ -2344,8 +2344,8 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: 4ea0ad702bb9e79513f6a2118743fc24]",
-      "width": 692.4000244140625,
+      "src": "[image data hash: 9a095cf71d8ac8b23d0fbeff9e5be1dd]",
+      "width": 450,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and \n              outflow during the report period. The detailed view of this chart \n              shows inflow as three subcategories: first-time homeless, returned from \n              permanent, and re-engaged from non-permanent and outflow as three \n              subcategories: exited non-permanent, exited permanent, and inactive.",
       "coordmap": {
@@ -2377,19 +2377,18 @@
               "fill": "PlotFillGroups"
             },
             "range": {
-              "left": 18,
-              "right": 847,
-              "bottom": 474.5733858267716,
-              "top": 179.0993150684932
+              "left": 14.4,
+              "right": 435.6,
+              "bottom": 379.6587086614173,
+              "top": 143.6794520547946
             }
           }
         ],
         "dims": {
-          "width": 865.5000305175781,
-          "height": 625
+          "width": 450,
+          "height": 500
         }
-      },
-      "error": null
+      }
     },
     "sys_act_summary_filter_selections": {
       "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
@@ -2398,8 +2397,8 @@
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: 31dbb63423621e6f626c66633e7f8faa]",
-      "width": 484.6750183105469,
+      "src": "[image data hash: ffb4deacbf4390c6f36af05ce30d7f34]",
+      "width": 304.5,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n              the report period. The summary view of this chart includes four components: \n              Active at Start, Inflow, Outflow, and Active at End.",
       "coordmap": {
@@ -2431,16 +2430,16 @@
               "fill": "PlotFillGroups"
             },
             "range": {
-              "left": 18,
-              "right": 587,
-              "bottom": 496.4433858267716,
-              "top": 158.8493150684932
+              "left": 14.4,
+              "right": 289.6,
+              "bottom": 397.1547086614173,
+              "top": 127.4794520547945
             }
           }
         ],
         "dims": {
-          "width": 605.8437728881836,
-          "height": 625
+          "width": 304.5,
+          "height": 500
         }
       }
     },
@@ -2451,8 +2450,8 @@
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: 57c081fd705d92200724ff4b17eb6060]",
-      "width": 712.4000244140625,
+      "src": "[image data hash: 8a40ac7ca0a00626c6482b0d2b7f8070]",
+      "width": 455,
       "height": 700,
       "alt": "A crosstab data table of the demographic make-up of the homeless system.",
       "coordmap": {
@@ -2507,22 +2506,22 @@
               "y": ".data[[\"All Races/Ethnicities\"]]"
             },
             "range": {
-              "left": 202.857448630137,
-              "right": 883.1506849315068,
-              "bottom": 851.3013698630137,
-              "top": 105.4830136986302
+              "left": 181.2390839041097,
+              "right": 449.5205479452055,
+              "bottom": 681.038253972116,
+              "top": 84.39758414326167
             }
           }
         ],
         "dims": {
-          "width": 890.5000305175781,
-          "height": 875
+          "width": 455,
+          "height": 700
         }
       }
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: 7c0a7282cb1fc995555fb3ede46f811a]",
-      "width": 742.4000244140625,
+      "src": "[image data hash: 0f70cedb7bdc8288fde4958e1aacdbd3]",
+      "width": 485,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
       "coordmap": {
@@ -2566,16 +2565,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 279.3289811643835,
-              "right": 921.1506849315068,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 248.2131849315069,
+              "right": 479.5205479452055,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 928.0000305175781,
-          "height": 500
+          "width": 485,
+          "height": 400
         }
       }
     },
@@ -2598,8 +2597,8 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: e1d22bb21a192a5755cf2f3a8d6bc5a9]",
-      "width": 742.4000244140625,
+      "src": "[image data hash: 84043a5d73275874477c59e8a057c4cb]",
+      "width": 485,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
       "coordmap": {
@@ -2636,16 +2635,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 289.7508561643835,
-              "right": 921.1506849315068,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 252.4944349315069,
+              "right": 479.5205479452055,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 928.0000305175781,
-          "height": 500
+          "width": 485,
+          "height": 400
         }
       }
     },
@@ -2668,8 +2667,8 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 4f703494ee2f1796e378a0db7f114362]",
-      "width": 742.4000244140625,
+      "src": "[image data hash: 8384ced7a55e3bb57ce707d5734c2705]",
+      "width": 485,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
       "coordmap": {
@@ -2713,16 +2712,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 320.9852311643836,
-              "right": 921.1506849315068,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 285.1663099315068,
+              "right": 479.5205479452055,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 928.0000305175781,
-          "height": 500
+          "width": 485,
+          "height": 400
         }
       }
     },

@@ -514,8 +514,8 @@
       "2022-09-30"
     ],
     "dimension": [
-      1039,
-      707
+      780,
+      493
     ],
     "fileStructureAnalysis_cell_clicked": {
 
@@ -575,10 +575,10 @@
         "FY24-ICF-main-valid.zip"
       ],
       "size": [
-        19455158
+        19444271
       ],
       "type": [
-        "application/x-zip-compressed"
+        "application/zip"
       ],
       "datapath": [
         "0.zip"

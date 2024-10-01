@@ -8,14 +8,14 @@
     "OUTLongStayers": 90,
     "OtherLongStayers": 90,
     "ServicesOnlyLongStayers": 90,
-    "currentProviderList": "Organization A - ES",
+    "currentProviderList": null,
     "dateRangeCount": [
-      "2019-10-01",
-      "2022-09-30"
+      "2023-10-05",
+      "2023-10-05"
     ],
     "dimension": [
-      1039,
-      707
+      780,
+      493
     ],
     "fileStructureAnalysis_cell_clicked": {
 
@@ -24,8 +24,20 @@
 
     ],
     "fileStructureAnalysis_columns_selected": null,
-    "fileStructureAnalysis_rows_all": null,
-    "fileStructureAnalysis_rows_current": null,
+    "fileStructureAnalysis_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "fileStructureAnalysis_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
     "fileStructureAnalysis_state": {
@@ -75,10 +87,10 @@
         "FY24-ICF-fsa-test.zip"
       ],
       "size": [
-        19516226
+        8029
       ],
       "type": [
-        "application/x-zip-compressed"
+        "application/zip"
       ],
       "datapath": [
         "0.zip"
@@ -86,7 +98,7 @@
     },
     "isdemo": false,
     "methodology_type": "1",
-    "orgList": "Organization A",
+    "orgList": null,
     "sidebarCollapsed": false,
     "sidebarItemExpanded": null,
     "sidebarmenuid": "tabUpload",
@@ -120,11 +132,24 @@
   },
   "output": {
     "downloadFileStructureAnalysisBtn": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
+      "html": "<a id=\"downloadFileStructureAnalysis\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Structure Analysis Detail\n<\/a>",
+      "deps": [
+        {
+          "name": "font-awesome",
+          "version": "6.4.2",
+          "src": {
+            "href": "font-awesome-6.4.2"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": [
+            "css/all.min.css",
+            "css/v4-shims.min.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
       ]
     },
     "downloadImpermissibleCharacterDetailBtn": {
@@ -135,12 +160,7 @@
         "validation"
       ]
     },
-    "fileInfo": {
-      "html": "<p id='successful_upload'>You have successfully uploaded your hashed\n           HMIS CSV Export!<\/p>",
-      "deps": [
-
-      ]
-    },
+    "fileInfo": null,
     "fileStructureAnalysis": {
       "x": {
         "filter": "none",
@@ -241,7 +261,7 @@
       ]
     },
     "headerUpload": {
-      "html": "<h2>Upload HMIS CSV Export<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>\n<h4>\n  <strong>Export Date: <\/strong>\n  09-08-2023 at 08:29 PM\n<\/h4>",
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
       ]
