@@ -31,6 +31,8 @@ living_situation <- function(ReferenceNo) {
     ReferenceNo == 302 ~ "Transitional housing",
     ReferenceNo == 332 ~ "Host Home (non-crisis)",
     ReferenceNo == 329 ~ "Residential project or halfway house with no homeless criteria",
+    ReferenceNo == 312 ~ "Staying or living with family, temporary tenure",
+    ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
     ReferenceNo == 314 ~ "H/Motel paid for by household",
     ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
     ReferenceNo == 335 ~ "Staying or living with family, temporary tenure",
@@ -147,44 +149,53 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-importFile <- function(upload_filepath, csvFile, guess_max = 1000) {
+importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   if(str_sub(upload_filepath, -4, -1) != ".zip") {
     capture.output("User tried uploading a non-zip file!") 
   }
 
   filename <- str_glue("{csvFile}.csv")
+  if(!is.null(upload_filepath))
+    filename = utils::unzip(zipfile = upload_filepath, files=filename)
+  
+  colTypes <- get_col_types(upload_filepath, csvFile)
+
   data <-
     read_csv(
-      utils::unzip(zipfile = upload_filepath, files = filename),
-      col_types = get_col_types(upload_filepath, csvFile),
+      filename,
+      col_types = colTypes,
       na = ""
     )
+    # AS 5/29/24: This seems a bit faster, but has problems with missing columns, 
+    # like DateDeleted in Client.csv. they come inas character, and not NA
+    # data.table::fread(
+    #   here(filename),
+    #   colClasses = colTypes,
+    #   na.strings="NA"
+    # )
 
+  
   if(csvFile != "Export"){
     data <- data %>%
       filter(is.na(DateDeleted))
   }
 
-  file.remove(filename)
   return(data)
 }
 
-get_col_types <- function(upload_filepath, file) {
+get_col_types <- function(filepath) {
   # returns the datatypes as a concatenated string, based on the order
   # of the columns in the imported file, rather than the expected order
   # e.g. "ccccDDnnnnnnnnTTcTc"
   
   # get the column data types expected for the given file
   col_types <- cols_and_data_types %>%
-    filter(File == file) %>%
+    filter(File == basename(tools::file_path_sans_ext(filepath))) %>%
     mutate(DataType = data_type_mapping[as.character(DataType)])
   
   # get the columns in the order they appear in the imported file
   cols_in_file <- colnames(read.table(
-    utils::unzip(
-      zipfile = upload_filepath, 
-      files = str_glue("{file}.csv")
-    ),             
+    filepath,
     head = TRUE,
     nrows = 1,
     sep = ","))
@@ -321,21 +332,20 @@ fy22_to_fy24_living_situation <- function(value){
   )
 }
 
-#############################
-# SANDBOX
-#############################
+
+# Sandbox -----------------------------------------------------------------
+
 importFileSandbox <- function(csvFile) {
-  filename <- str_glue("{csvFile}.csv")
-  data <- read_csv(paste0(directory, "data/", filename)
-                   ,col_types = get_col_types(csvFile)
+  filepath <- glue("{directory}data/{csvFile}.csv")
+  return(read_csv(filepath
+                   ,col_types = get_col_types(filepath)
                    ,na = ""
-  )
-  return(data)
+  ))
 }
 
-############################
-# GENERATE CHECK DATA FROM EVACHECKS.XLSX
-############################
+
+# Generate check data from evachecks.csv ----------------------------------
+
 merge_check_info <- function(data, checkIDs) {
   return(data %>%
     bind_cols(
@@ -343,10 +353,57 @@ merge_check_info <- function(data, checkIDs) {
     )
   )
 }
+merge_check_info_dt <- function(data, checkIDs) {
+  return(
+    cbind(
+      data,
+      as.data.table(evachecks)[ID %in% c(checkIDs)]
+    )
+  )
+}
+
 
 ############################
-# MISC
+# CUSTOM Rprof() FUNCTION
 ############################
+custom_rprof <- function(expr, source_file_name, code_block_name = NULL) {
+  startTime <- Sys.time()
+  
+  # Start profiling
+  Rprof(tmp <- tempfile(), line.profiling = TRUE, numfiles=500L)
+  
+  # Evaluate the expression
+  eval(expr)
+  if(is.null(code_block_name)) {
+    print(paste0(source_file_name, " took: "))
+  } else {
+    print(paste0(code_block_name, " in ", source_file_name, " took: "))
+  }
+  # Stop profiling
+  Rprof(NULL)
+  
+  print(Sys.time() - startTime)
+  
+  # Get profiling summaries
+  x <- summaryRprof(tmp, lines = "show")$by.total
+  
+  # Filter rows related to the source file
+  x_final <- x[grepl(source_file_name, row.names(x)), ]
+  
+  # Order by time
+  # x_final <- x_final[order(-x_final$total.time),]
+  
+  # Print the final results
+  print(x_final)
+  
+  # Remove the temporary file
+  unlink(tmp)
+  unlink("Rprof.out")
+}
+
+
+# Misc --------------------------------------------------------------------
+
 getNameByValue <- function(vector, val) {
   return(
     paste(names(vector)[which(vector %in% val)], collapse = ", ")

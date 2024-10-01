@@ -10,6 +10,7 @@ if(dir.exists("sandbox/mini-non-shiny-environment/data/")) {
 
 directory <- "sandbox/mini-non-shiny-environment/"
 
+upload_filepath <- "sandbox/mini-non-shiny-environment/data"
 library(tidyverse)
 library(lubridate)
 library(scales)
