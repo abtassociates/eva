@@ -513,6 +513,10 @@
       "2019-10-01",
       "2022-09-30"
     ],
+    "dimension": [
+      780,
+      493
+    ],
     "dq_org_guidance_summary_cell_clicked": {
 
     },
@@ -1834,7 +1838,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 7bb01a99f06e51f19ea9df63d06bcfac]",
+      "src": "[image data hash: e52edf3ab2384ff6a05e808de2b4db80]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
@@ -1879,9 +1883,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 264.1038099315069,
+              "left": 248.2131849315069,
               "right": 479.5205479452055,
-              "bottom": 376.7808219178082,
+              "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -1929,7 +1933,7 @@
       ]
     },
     "orgDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: be2a31170ae2928aaf0a8b6c8414e45c]",
+      "src": "[image data hash: 3b761cc90f6ce1d4f3dd71c4a3d00b24]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the organization.",
@@ -1967,9 +1971,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 268.7444349315069,
+              "left": 252.4944349315069,
               "right": 479.5205479452055,
-              "bottom": 376.7808219178082,
+              "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -1981,7 +1985,7 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 9c3c0d76c8e184024138cbb4bbab1e99]",
+      "src": "[image data hash: a1d9ad0fff9486d35eb144d1f5f27ada]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -2026,9 +2030,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 303.5725599315068,
+              "left": 285.1663099315068,
               "right": 479.5205479452055,
-              "bottom": 376.7808219178082,
+              "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -2282,9 +2286,9 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: 5a999f43871e16b5a41fa4cee900f1a0]",
+      "src": "[image data hash: f0c6abe89fd79d0dae8d3dc99a7cc4ad]",
       "width": 435,
-      "height": 217.5,
+      "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and \n              outflow during the report period. The detailed view of this chart \n              shows inflow as three subcategories: first-time homeless, returned from \n              permanent, and re-engaged from non-permanent and outflow as three \n              subcategories: exited non-permanent, exited permanent, and inactive.",
       "coordmap": {
         "panels": [
@@ -2300,10 +2304,10 @@
               "y": null
             },
             "domain": {
-              "left": 0.27,
-              "right": 8.630000000000001,
+              "left": 0.2174999999999999,
+              "right": 8.6325,
               "bottom": 0,
-              "top": 4633.200000000001
+              "top": 4212
             },
             "mapping": {
               "y": null,
@@ -2317,14 +2321,14 @@
             "range": {
               "left": 14.4,
               "right": 420.6,
-              "bottom": 87.17870866141732,
-              "top": 43.2
+              "bottom": 379.6587086614173,
+              "top": 143.6794520547946
             }
           }
         ],
         "dims": {
           "width": 435,
-          "height": 217.5
+          "height": 500
         }
       }
     },
@@ -2335,9 +2339,9 @@
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: 9394eb9b7bdacfce6ed9fa157e813734]",
-      "width": 435,
-      "height": 217.5,
+      "src": "[image data hash: ffb4deacbf4390c6f36af05ce30d7f34]",
+      "width": 304.5,
+      "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n              the report period. The summary view of this chart includes four components: \n              Active at Start, Inflow, Outflow, and Active at End.",
       "coordmap": {
         "panels": [
@@ -2353,10 +2357,10 @@
               "y": null
             },
             "domain": {
-              "left": 0.47,
-              "right": 4.43,
+              "left": 0.4175,
+              "right": 4.4325,
               "bottom": 0,
-              "top": 9575.5
+              "top": 8705
             },
             "mapping": {
               "y": null,
@@ -2369,20 +2373,20 @@
             },
             "range": {
               "left": 14.4,
-              "right": 420.6,
-              "bottom": 107.9147086614173,
-              "top": 43.2
+              "right": 289.6,
+              "bottom": 397.1547086614173,
+              "top": 127.4794520547945
             }
           }
         ],
         "dims": {
-          "width": 435,
-          "height": 217.5
+          "width": 304.5,
+          "height": 500
         }
       }
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
+      "src": "[image data hash: 0f70cedb7bdc8288fde4958e1aacdbd3]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -2427,9 +2431,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 264.1038099315069,
+              "left": 248.2131849315069,
               "right": 479.5205479452055,
-              "bottom": 376.7808219178082,
+              "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -2459,7 +2463,7 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 2114d4346477ecf60df29fd0b5d4ec16]",
+      "src": "[image data hash: 84043a5d73275874477c59e8a057c4cb]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
@@ -2497,9 +2501,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 268.7444349315069,
+              "left": 252.4944349315069,
               "right": 479.5205479452055,
-              "bottom": 376.7808219178082,
+              "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -2529,7 +2533,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: d49a831be5033e578b241acf5f5e6b82]",
+      "src": "[image data hash: 8384ced7a55e3bb57ce707d5734c2705]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
@@ -2574,9 +2578,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 303.5725599315068,
+              "left": 285.1663099315068,
               "right": 479.5205479452055,
-              "bottom": 376.7808219178082,
+              "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
