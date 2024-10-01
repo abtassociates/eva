@@ -299,14 +299,14 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       )) +
       labs(caption = "*** indicates the value is suppressed") +
       theme(
+        text = element_text(size = sys_chart_text_font_pts),
         legend.position = "none",
         axis.ticks = element_blank(),
         panel.grid = element_blank(),
-        plot.title = element_text(size = rel(ifelse(isExport, 1.3, 1.4)), hjust = 0.5),
+        plot.title = element_text(size = sys_chart_title_font, hjust = 0.5),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        axis.text = element_text(size = rel(ifelse(isExport, 0.7, 1.2))),
-        plot.caption = element_text(size = 11)
+        axis.text = element_text(size = get_adj_font_size(sys_axis_text_font, isExport))
       )
   )
 }
@@ -426,7 +426,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       geom_text(
         # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
         aes(label = ifelse(wasRedacted, "***", scales::comma(n))),
-        size = sys_chart_text_font * ifelse(isExport, 0.7, 1),
+        size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction, 1),
         color = ifelse(
           plot_df$n > mean(plot_df$n, na.rm = TRUE) & !plot_df$wasRedacted,
           'white',
@@ -453,7 +453,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       geom_text(
         aes(label = ifelse(wasRedacted, "***", # paste0(scales::comma(N), "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
                            scales::comma(N))),
-        size = sys_chart_text_font * ifelse(isExport, 0.7, 1),
+        size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction, 1),
         color = ifelse(
           h_total$N > mean(h_total$N, na.rm = TRUE) & !h_total$wasRedacted,
           'white',
@@ -512,12 +512,11 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
         legend.position = "none",
         axis.ticks = element_blank(),
         panel.grid = element_blank(),
-        plot.title = element_text(size = rel(ifelse(isExport, 1.3, 1.4)), hjust = 0.5),
+        plot.title = element_text(size = sys_chart_title_font, hjust = 0.5),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
-        axis.text = element_text(size = rel(ifelse(isExport, 0.7, 1.2))),
-        plot.caption = element_text(size = 11)
+        axis.text = element_text(size = sys_comp_axis_text_font * ifelse(isExport, 0.6, 1))
       )
   )
 }
@@ -672,10 +671,11 @@ output$sys_comp_summary_selections <- renderUI({
 output$sys_comp_summary_ui_chart <- renderPlot({
   sys_comp_p()
 }, height = function() { 
-  ifelse(!is.null(input$system_composition_selections), 600, 100) 
+  ifelse(!is.null(input$system_composition_selections), 700, 100) 
 }, width = function() {
   ifelse(length(input$system_composition_selections) == 1, 500, "auto")
-})
+},
+alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
 
 output$sys_comp_download_btn_ppt <- downloadHandler(

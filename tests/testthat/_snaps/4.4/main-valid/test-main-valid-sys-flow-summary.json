@@ -567,9 +567,7 @@
       44,
       45,
       46,
-      47,
-      48,
-      49
+      47
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -761,12 +759,7 @@
       119,
       120,
       121,
-      122,
-      123,
-      124,
-      125,
-      126,
-      127
+      122
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -1826,10 +1819,10 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: b5603fecd4f929cd021e17a7eced9fd1]",
+      "src": "[image data hash: 4b18f17bca0f60901089696c3d2af94e]",
       "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top General Errors in the organization.",
       "coordmap": {
         "panels": [
           {
@@ -1859,9 +1852,9 @@
                   "Missing Length of Stay",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
+                  "Invalid Move-In Date",
                   "Missing Months or Times Homeless",
                   "Conflicting Income yes/no at Exit",
-                  "Invalid Move-In Date",
                   "Missing HP Screening or Threshold Score"
                 ]
               }
@@ -1924,7 +1917,7 @@
       "src": "[image data hash: be2a31170ae2928aaf0a8b6c8414e45c]",
       "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top High Priority Errors in the organization.",
       "coordmap": {
         "panels": [
           {
@@ -1973,10 +1966,10 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 9217c63a3450cbc122559e4e848d46f6]",
+      "src": "[image data hash: f68cf0e1b4cce4fc0166a48d27fd3cb7]",
       "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top Warnings in the organization.",
       "coordmap": {
         "panels": [
           {
@@ -2004,9 +1997,9 @@
                   "Unknown Months or Times Homeless",
                   "Unknown Living Situation",
                   "Incomplete or Unknown Name",
+                  "Overlap with a Emergency Shelter (E/E) project",
                   "Future Entry Date",
                   "Homelessness Start Date conflicts with Living Situation data",
-                  "Overlap with a Emergency Shelter (E/E) project",
                   "Unknown Destination",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
                   "Unknown SSN"
@@ -2274,57 +2267,18 @@
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: 9394eb9b7bdacfce6ed9fa157e813734]",
-      "width": 435,
-      "height": 217.5,
-      "alt": "Plot object",
-      "coordmap": {
-        "panels": [
-          {
-            "panel": 1,
-            "row": 1,
-            "col": 1,
-            "panel_vars": {
-
-            },
-            "log": {
-              "x": null,
-              "y": null
-            },
-            "domain": {
-              "left": 0.47,
-              "right": 4.43,
-              "bottom": 0,
-              "top": 9575.5
-            },
-            "mapping": {
-              "y": null,
-              "xmin": "group.id - 0.25",
-              "xmax": "group.id + 0.25",
-              "ymin": "ystart",
-              "ymax": "yend",
-              "x": "group.id",
-              "fill": "PlotFillGroups"
-            },
-            "range": {
-              "left": 14.4,
-              "right": 420.6,
-              "bottom": 107.9147086614173,
-              "top": 43.2
-            }
-          }
-        ],
-        "dims": {
-          "width": 435,
-          "height": 217.5
-        }
-      }
+      "message": "Viewport has zero dimension(s)",
+      "call": [
+        "grid.Call(C_convert, x, as.integer(whatfrom), as.integer(whatto), ",
+        "    valid.units(unitTo))"
+      ],
+      "type": null
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: 8ab40cfad765d682fc405d6e50c8d28c]",
-      "width": 500,
+      "src": "[image data hash: c077baa7dfc699e3e42ff2f944bf5e67]",
+      "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top General Errors in the system.",
       "coordmap": {
         "panels": [
           {
@@ -2348,11 +2302,11 @@
 
                 ],
                 "y": [
+                  "Missing HP Screening or Threshold Score",
+                  "Missing Gender",
                   "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
-                  "Invalid Move-In Date",
                   "Conflicting Health Insurance yes/no at Entry",
-                  "Missing Race/Ethnicity",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
@@ -2367,18 +2321,17 @@
             },
             "range": {
               "left": 264.1038099315069,
-              "right": 494.5205479452055,
+              "right": 479.5205479452055,
               "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 500,
+          "width": 485,
           "height": 400
         }
-      },
-      "error": null
+      }
     },
     "systemDQErrorsByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQErrorByIssue\" style=\"width:100%;height:400px;\"><\/div>",
@@ -2399,10 +2352,10 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 8a053f8173859ab741dd978ed8117fff]",
-      "width": 500,
+      "src": "[image data hash: 2114d4346477ecf60df29fd0b5d4ec16]",
+      "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top High Priority Errors in the system.",
       "coordmap": {
         "panels": [
           {
@@ -2438,18 +2391,17 @@
             },
             "range": {
               "left": 268.7444349315069,
-              "right": 494.5205479452055,
+              "right": 479.5205479452055,
               "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 500,
+          "width": 485,
           "height": 400
         }
-      },
-      "error": null
+      }
     },
     "systemDQHighPriorityErrorsByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQHighPriorityErrorsByIssue\" style=\"width:100%;height:400px;\"><\/div>",
@@ -2470,10 +2422,10 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: ec3355b6c9a46687b76227ade828c4ea]",
-      "width": 500,
+      "src": "[image data hash: 0bb5c9b4d26be18d057f64c32ef7fca4]",
+      "width": 485,
       "height": 400,
-      "alt": "Plot object",
+      "alt": "A bar chart of the top Warnings in the system.",
       "coordmap": {
         "panels": [
           {
@@ -2497,12 +2449,12 @@
 
                 ],
                 "y": [
+                  "Overlap with a Emergency Shelter (E/E) project",
+                  "Overlap with a Rapid Rehousing project",
                   "Unknown Months or Times Homeless",
                   "Unknown Living Situation",
                   "Unknown Race/Ethnicity",
-                  "Overlap with a Rapid Rehousing project",
                   "Incomplete or Unknown Name",
-                  "Overlap with a Emergency Shelter (E/E) project",
                   "Homelessness Start Date conflicts with Living Situation data",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
                   "Unknown SSN",
@@ -2515,19 +2467,18 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 303.5725599315069,
-              "right": 494.5205479452055,
+              "left": 303.5725599315068,
+              "right": 479.5205479452055,
               "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 500,
+          "width": 485,
           "height": 400
         }
-      },
-      "error": null
+      }
     },
     "systemDQWarningsByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQWarningByIssue\" style=\"width:100%;height:400px;\"><\/div>",
@@ -2584,36 +2535,36 @@
     "dq_org_guidance_summary": [
       [
         "High Priority: 3  ",
-        "Length:49         ",
-        "Length:49         "
+        "Length:47         ",
+        "Length:47         "
       ],
       [
-        "Error        :22  ",
+        "Error        :21  ",
         "Class :character  ",
         "Class :character  "
       ],
       [
-        "Warning      :24  ",
+        "Warning      :23  ",
         "Mode  :character  ",
         "Mode  :character  "
       ]
     ],
     "dq_organization_summary_table": [
       [
-        "Length:127        ",
+        "Length:122        ",
         "High Priority: 5  ",
-        "Length:127        ",
+        "Length:122        ",
         "Min.   :  1.00  "
       ],
       [
         "Class :character  ",
-        "Error        :56  ",
+        "Error        :52  ",
         "Class :character  ",
         "1st Qu.:  1.00  "
       ],
       [
         "Mode  :character  ",
-        "Warning      :66  ",
+        "Warning      :65  ",
         "Mode  :character  ",
         "Median :  3.00  "
       ],
@@ -2621,7 +2572,7 @@
         null,
         null,
         null,
-        "Mean   : 10.35  "
+        "Mean   : 10.58  "
       ],
       [
         null,
