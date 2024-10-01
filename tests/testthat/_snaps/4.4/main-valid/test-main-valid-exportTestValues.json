@@ -183,9 +183,9 @@
         "Class :character  ",
         "Class :character  ",
         "Class :character  ",
-        "1st Qu.:2020-06-25  ",
+        "1st Qu.:2020-07-20  ",
         "1st Qu.:2020-01-13  ",
-        "1st Qu.:2020-08-28  ",
+        "1st Qu.:2020-09-06  ",
         "Class :character  "
       ],
       [
@@ -194,9 +194,9 @@
         "Mode  :character  ",
         "Mode  :character  ",
         "Mode  :character  ",
-        "Median :2021-05-17  ",
+        "Median :2021-05-21  ",
         "Median :2021-06-18  ",
-        "Median :2021-06-05  ",
+        "Median :2021-06-11  ",
         "Mode  :character  "
       ],
       [
@@ -205,9 +205,9 @@
         null,
         null,
         null,
-        "Mean   :2021-03-26  ",
-        "Mean   :2021-01-08  ",
-        "Mean   :2021-05-21  ",
+        "Mean   :2021-03-31  ",
+        "Mean   :2021-01-22  ",
+        "Mean   :2021-05-26  ",
         null
       ],
       [
@@ -217,8 +217,8 @@
         null,
         null,
         "3rd Qu.:2022-01-24  ",
-        "3rd Qu.:2022-03-11  ",
-        "3rd Qu.:2022-03-14  ",
+        "3rd Qu.:2022-02-22  ",
+        "3rd Qu.:2022-03-15  ",
         null
       ],
       [
@@ -239,7 +239,7 @@
         null,
         null,
         null,
-        "NA's   :273  ",
+        "NA's   :272  ",
         "NA's   :44  ",
         null
       ]

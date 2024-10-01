@@ -513,6 +513,10 @@
       "2019-10-01",
       "2022-09-30"
     ],
+    "dimension": [
+      780,
+      493
+    ],
     "fileStructureAnalysis_cell_clicked": {
 
     },
@@ -1433,7 +1437,7 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
+      "src": "[image data hash: 0f70cedb7bdc8288fde4958e1aacdbd3]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -1478,9 +1482,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 264.1038099315069,
+              "left": 248.2131849315069,
               "right": 479.5205479452055,
-              "bottom": 376.7808219178082,
+              "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -1510,7 +1514,7 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 2114d4346477ecf60df29fd0b5d4ec16]",
+      "src": "[image data hash: 84043a5d73275874477c59e8a057c4cb]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
@@ -1548,9 +1552,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 268.7444349315069,
+              "left": 252.4944349315069,
               "right": 479.5205479452055,
-              "bottom": 376.7808219178082,
+              "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
@@ -1580,7 +1584,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: d49a831be5033e578b241acf5f5e6b82]",
+      "src": "[image data hash: 8384ced7a55e3bb57ce707d5734c2705]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
@@ -1625,9 +1629,9 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 303.5725599315068,
+              "left": 285.1663099315068,
               "right": 479.5205479452055,
-              "bottom": 376.7808219178082,
+              "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
