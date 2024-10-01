@@ -4,12 +4,36 @@
 # move chart download button to be inline with subtabs
 observeEvent(input$syso_tabbox, {
   req(valid_file() == 1)
+  logMetadata(paste0("Clicked on: ", input$syso_tabbox,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   toggleClass(
     id = "syso_inflowoutflow_filters",
     condition = input$syso_tabbox == "Composition of All Served",
     class = "filter-hidden"
   )
-}, ignoreNULL = TRUE) #need to add ignore init?
+}, ignoreNULL = TRUE, ignoreInit = TRUE) #confirm if need to have ignore init?
+
+
+observeEvent(input$sys_inflow_outflow_subtabs, {
+  req(valid_file() == 1)
+  logMetadata(paste0("Clicked on: ", input$sys_inflow_outflow_subtabs,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+
+observeEvent(input$sys_status_subtabs, {
+  req(valid_file() == 1)
+  logMetadata(paste0("Clicked on: ", input$sys_status_subtabs,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+
+observeEvent(input$sys_comp_subtabs, {
+  req(valid_file() == 1)
+  logMetadata(paste0("Clicked on: ", input$sys_comp_subtabs,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
 
 observeEvent(input$methodology_type, {
   
@@ -143,6 +167,10 @@ toggle_sys_components <- function(cond, init=FALSE) {
 toggle_sys_components(FALSE, init=TRUE) # initially hide them
 
 sys_export_summary_initial_df <- function() {
+  
+  logMetadata(paste0("Downloaded System Overview Tabular Data",
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+  
   return(data.frame(
     Chart = c(
       "Start Date",
@@ -204,7 +232,9 @@ font_size <- 14 / .pt
 
 # PowerPoint Export -------------------------------------------------------
 sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot_slide_title, plot1, plot2 = NULL, summary_font_size) {
-  logMetadata("downloaded system overview powerpoint") #NEED TO FIX - if want to get more granular, need to detect with title slide
+  
+  logMetadata(paste0("Downloaded System Overview Powerpoint",
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", ""))) #NEED TO UPDATE - if want to get more granular, need to detect with title slide
   
   report_period <- paste0("Report Period: ", 
                           format(meta_HUDCSV_Export_Start(), "%m/%d/%Y"),
