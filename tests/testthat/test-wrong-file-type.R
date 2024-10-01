@@ -1,1 +1,1 @@
-initially_invalid_test_script("test-wrong-file-type","FY24-ICF-wrong-file-type.gz")
+initially_invalid_test_script("test-wrong-file-type", "FY24-ICF-wrong-file-type.gz")
