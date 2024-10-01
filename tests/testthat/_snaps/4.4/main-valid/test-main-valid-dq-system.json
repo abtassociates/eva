@@ -1433,7 +1433,7 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
+      "src": "[image data hash: 7cd3740fddede21d25eefe6a75d3c396]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -1580,7 +1580,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 6bbfba35285d0302c88ad9b89690bb40]",
+      "src": "[image data hash: 3d6706bd9500d4382aa3ddd140ac5d8d]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",

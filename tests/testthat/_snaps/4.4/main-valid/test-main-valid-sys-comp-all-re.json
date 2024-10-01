@@ -1823,7 +1823,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 7bb01a99f06e51f19ea9df63d06bcfac]",
+      "src": "[image data hash: b5603fecd4f929cd021e17a7eced9fd1]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -1868,7 +1868,7 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 264.1038099315069,
+              "left": 294.0725599315069,
               "right": 479.5205479452055,
               "bottom": 376.7808219178082,
               "top": 5.479452054794522
@@ -1970,7 +1970,7 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: b78bbec5ad13a16e7e00a36fa6fabddd]",
+      "src": "[image data hash: 9217c63a3450cbc122559e4e848d46f6]",
       "width": 485,
       "height": 400,
       "alt": "Plot object",
@@ -2271,7 +2271,7 @@
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: 8263898d77585d17fdef1336a0f68af4]",
+      "src": "[image data hash: d7e7f969171eaa51745a9f69df6bd1d9]",
       "width": 304.5,
       "height": 400,
       "alt": "Plot object",
@@ -2291,8 +2291,8 @@
             "domain": {
               "left": 0,
               "right": 3,
-              "bottom": -59.62,
-              "top": 1252.02,
+              "bottom": -60.83000000000001,
+              "top": 1277.43,
               "discrete_limits": {
                 "x": [
                   "Period Start",
@@ -2329,7 +2329,7 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: a448e2a0617d2bf9f9c96b25f5e8fc8e]",
+      "src": "[image data hash: b2e26a01477d79c3a2f27231c4a1b379]",
       "width": 450,
       "height": 225,
       "alt": "Plot object",
@@ -2350,7 +2350,7 @@
               "left": 0.27,
               "right": 8.630000000000001,
               "bottom": 0,
-              "top": 4507.8
+              "top": 4633.200000000001
             },
             "mapping": {
               "y": null,
@@ -2436,7 +2436,7 @@
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: fe66a106d69639a5cf8f0086a94b5804]",
+      "src": "[image data hash: de93baa795359b033ef315e3cbdef668]",
       "width": 500,
       "height": 600,
       "alt": "Plot object",
@@ -2499,8 +2499,8 @@
       }
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
-      "width": 485,
+      "src": "[image data hash: 8ab40cfad765d682fc405d6e50c8d28c]",
+      "width": 500,
       "height": 400,
       "alt": "Plot object",
       "coordmap": {
@@ -2545,17 +2545,18 @@
             },
             "range": {
               "left": 264.1038099315069,
-              "right": 479.5205479452055,
+              "right": 494.5205479452055,
               "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 500,
           "height": 400
         }
-      }
+      },
+      "error": null
     },
     "systemDQErrorsByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQErrorByIssue\" style=\"width:100%;height:400px;\"><\/div>",
@@ -2576,8 +2577,8 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 2114d4346477ecf60df29fd0b5d4ec16]",
-      "width": 485,
+      "src": "[image data hash: 8a053f8173859ab741dd978ed8117fff]",
+      "width": 500,
       "height": 400,
       "alt": "Plot object",
       "coordmap": {
@@ -2615,17 +2616,18 @@
             },
             "range": {
               "left": 268.7444349315069,
-              "right": 479.5205479452055,
+              "right": 494.5205479452055,
               "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 500,
           "height": 400
         }
-      }
+      },
+      "error": null
     },
     "systemDQHighPriorityErrorsByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQHighPriorityErrorsByIssue\" style=\"width:100%;height:400px;\"><\/div>",
@@ -2646,8 +2648,8 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 6bbfba35285d0302c88ad9b89690bb40]",
-      "width": 485,
+      "src": "[image data hash: ec3355b6c9a46687b76227ade828c4ea]",
+      "width": 500,
       "height": 400,
       "alt": "Plot object",
       "coordmap": {
@@ -2691,18 +2693,19 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 303.5725599315068,
-              "right": 479.5205479452055,
+              "left": 303.5725599315069,
+              "right": 494.5205479452055,
               "bottom": 376.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 500,
           "height": 400
         }
-      }
+      },
+      "error": null
     },
     "systemDQWarningsByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQWarningByIssue\" style=\"width:100%;height:400px;\"><\/div>",
