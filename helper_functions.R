@@ -257,7 +257,8 @@ logSessionData <- function() {
     SourceContactFirst = Export()$SourceContactFirst,
     SourceContactLast = Export()$SourceContactLast,
     SourceContactEmail = Export()$SourceContactEmail,
-    SoftwareName = Export()$SoftwareName
+    SoftwareName = Export()$SoftwareName,
+    ImplementationID = Export()$ImplementationID
   )
   
   # put the export info in the log
