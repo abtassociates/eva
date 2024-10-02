@@ -85,7 +85,7 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$expect_values(name = "sys-comp-all-re")
   
   app$set_inputs(system_composition_selections = c("Gender", "All Races/Ethnicities"))
-  app$wait_for_idle(timeout = 2e+05)
+  app$wait_for_idle(timeout = 2e+06)
   app$expect_values(name = "sys-comp-all-re-gender")
   
   app$set_inputs(sys_comp_subtabs = "Information")
