@@ -76,10 +76,10 @@ enrollment_prep <- EnrollmentAdjustAge %>%
             by = "OrganizationID") %>%
   left_join(Client %>%
               select(PersonalID, VeteranStatus), by = "PersonalID") %>%
-  left_join(HealthAndDV %>%
-              filter(DataCollectionStage == 1) %>%
-              select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
-            by = "EnrollmentID") %>%
+  # left_join(HealthAndDV %>%
+  #             filter(DataCollectionStage == 1) %>%
+  #             select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
+  #           by = "EnrollmentID") %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
   filter(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>%
   select(-ContinuumProject)
@@ -261,17 +261,17 @@ enrollment_categories <- enrollment_prep_hohs %>%
       ExitAdjust >= ReportEnd(),
     in_date_range =
       ExitAdjust >= ReportStart() &
-      EntryDate <= ReportEnd(),
+      EntryDate <= ReportEnd() #,
     # Domestic Violence - this is needed for the System Composition chart
-    DomesticViolenceCategory = case_when(
-      DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1 ~
-        "DVFleeing",
-      DomesticViolenceSurvivor == 1 &
-        (is.na(CurrentlyFleeing) | CurrentlyFleeing != 1) ~
-        "DVNotFleeing",
-      TRUE ~
-        "NotDV"
-      )
+    # DomesticViolenceCategory = case_when(
+    #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1 ~
+    #     "DVFleeing",
+    #   DomesticViolenceSurvivor == 1 &
+    #     (is.na(CurrentlyFleeing) | CurrentlyFleeing != 1) ~
+    #     "DVNotFleeing",
+    #   TRUE ~
+    #     "NotDV"
+    #   )
   ) %>%
   filter(
     ReportStart() - years(2) <= ExitAdjust &
@@ -332,7 +332,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
     Destination,
     AgeAtEntry,
     CorrectedHoH,
-    DomesticViolenceCategory,
+    # DomesticViolenceCategory,
     HouseholdType,
     ProjectTypeWeight
   ) %>%
@@ -496,10 +496,15 @@ enrollment_categories <- enrollment_prep_hohs %>%
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people for filtering
-dv_flag <- as.data.table(HealthAndDV)[
-  as.data.table(Enrollment)[, .(EnrollmentID, EntryDate, ExitAdjust)], 
-  on = .(EnrollmentID),
-  nomatch = 0
+dv_flag <- as.data.table(Enrollment)[, .(EnrollmentID, EntryDate, ExitAdjust)][
+  as.data.table(
+    HealthAndDV %>% 
+      mutate(
+        DomesticViolenceSurvivor = if_else(DomesticViolenceSurvivor == 1, 1, 0),
+        CurrentlyFleeing = if_else(CurrentlyFleeing == 1, 1, 0)
+      )
+  ), 
+  on = .(EnrollmentID)
 ][ExitAdjust >= ReportStart() & EntryDate <= ReportEnd() & DataCollectionStage == 1, 
   .(DomesticViolenceCategory = 
       fifelse(max(DomesticViolenceSurvivor, na.rm = TRUE) == 1 & 
@@ -840,12 +845,12 @@ enrollment_categories_reactive <- reactive({
               eecr == TRUE) | eecr == FALSE) |
            ((input$syso_project_type == "NonResidential" &
               ProjectType %in% non_res_project_types &
-               eecr == TRUE) | eecr == FALSE)) &
-        (input$syso_spec_pops %in% c("None", "Veteran", "NonVeteran") |
-           (input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV") |
-           (input$syso_spec_pops == "NotDV" & DomesticViolenceCategory == "NotDV") |
-           (input$syso_spec_pops == DomesticViolenceCategory & (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1))
-           )
+               eecr == TRUE) | eecr == FALSE)) # &
+        # (input$syso_spec_pops %in% c("None", "Veteran", "NonVeteran") |
+        #    (input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV") |
+        #    (input$syso_spec_pops == "NotDV" & DomesticViolenceCategory == "NotDV") |
+        #    (input$syso_spec_pops == DomesticViolenceCategory & (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1))
+        #    )
            ) %>%
     select(
       EnrollmentID,
@@ -863,7 +868,7 @@ enrollment_categories_reactive <- reactive({
       EnrolledHomeless,
       straddles_start,
       in_date_range,
-      DomesticViolenceCategory,
+      # DomesticViolenceCategory,
       days_to_next_entry,
       days_since_previous_exit,
       lecr,
