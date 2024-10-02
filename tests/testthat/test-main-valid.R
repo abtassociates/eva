@@ -9,7 +9,13 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
     variant = platform_variant(os_name = FALSE), 
     name = test_script_name, 
     seed = 12345,
-    load_timeout = 2e+05)
+    width = 1920,
+    height = 1080,
+    # shiny_args=list(host="172.19.46.18"),
+    load_timeout = 2e+05,
+    options = list(
+      shiny.testmode = TRUE
+    ))
   
   print(paste0("About to click in ",test_script_name))
   
