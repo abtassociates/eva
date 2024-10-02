@@ -54,8 +54,8 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$expect_values(name = "sys-flow-detail")
   
   # change universe filters
-  app$set_inputs(syso_hh_type = "AO")
-  app$set_inputs(syso_project_type = "Residential")
+  app$set_inputs(syso_hh_type = "AO", syso_project_type = "Residential")
+  app$wait_for_idle(timeout = 2e+06)
   app$expect_values(name = "sys-flow-detail-w-AO-Residential")
   
   # go back to summary tab
