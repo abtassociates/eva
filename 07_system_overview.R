@@ -76,10 +76,10 @@ enrollment_prep <- EnrollmentAdjustAge %>%
             by = "OrganizationID") %>%
   left_join(Client %>%
               select(PersonalID, VeteranStatus), by = "PersonalID") %>%
-  left_join(HealthAndDV %>%
-              filter(DataCollectionStage == 1) %>%
-              select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
-            by = "EnrollmentID") %>%
+  # left_join(HealthAndDV %>%
+  #             filter(DataCollectionStage == 1) %>%
+  #             select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
+  #           by = "EnrollmentID") %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
   filter(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>%
   select(-ContinuumProject)
@@ -412,12 +412,12 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
       lh_prior_livingsituation,
     straddles_start = EntryDate <= ReportStart() & ExitAdjust >= ReportStart(),
     straddles_end = EntryDate <= ReportEnd() & ExitAdjust >= ReportEnd(),
-    in_date_range = ExitAdjust >= ReportStart() & EntryDate <= ReportEnd(),
-    DomesticViolenceCategory = fcase(
-      DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
-      DomesticViolenceSurvivor == 1, "DVNotFleeing",
-      default = "NotDV"
-    )
+    in_date_range = ExitAdjust >= ReportStart() & EntryDate <= ReportEnd() #,
+    # DomesticViolenceCategory = fcase(
+    #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
+    #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
+    #   default = "NotDV"
+    # )
   )][
     # Apply filtering with efficient conditions
     (ReportStart() - years(2)) <= ExitAdjust &
@@ -462,7 +462,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     "Destination",
     "AgeAtEntry",
     "CorrectedHoH",
-    "DomesticViolenceCategory",
+    # "DomesticViolenceCategory",
     "HouseholdType",
     "ProjectTypeWeight"
     ), with = FALSE
@@ -501,7 +501,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     # Filter out non-overlapping enrollments
     (InvolvedInOverlapStart == FALSE | RankOrderStartOverlaps == 1) &
       (InvolvedInOverlapEnd == FALSE | RankOrderEndOverlaps == 1) &
-      (parse_number(days_to_next_entry) < 730 | !is.na(days_to_next_entry))
+      (days_to_next_entry < 730 | !is.na(days_to_next_entry))
   ][, `:=`(
       lecr = in_date_range & max(ordinal) == ordinal,
       eecr = in_date_range & min(ordinal) == ordinal
@@ -546,16 +546,27 @@ enrollment_categories <- merge(
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people for filtering
-dv_flag <- as.data.table(HealthAndDV)[
-  as.data.table(Enrollment)[, .(EnrollmentID, EntryDate, ExitAdjust)], 
-  on = .(EnrollmentID),
-  nomatch = 0
-][ExitAdjust >= ReportStart() & EntryDate <= ReportEnd() & DataCollectionStage == 1, 
+dv_flag <- as.data.table(Enrollment)[, .(EnrollmentID, EntryDate, ExitAdjust)][
+  as.data.table(HealthAndDV)[DataCollectionStage == 1, .(
+    EnrollmentID,
+    PersonalID,
+    DomesticViolenceSurvivor = fifelse(
+      is.na(DomesticViolenceSurvivor),
+      0,
+      fifelse(DomesticViolenceSurvivor== 1, 1, 0)),
+    CurrentlyFleeing = fifelse(
+      is.na(CurrentlyFleeing),
+      0,
+      fifelse(CurrentlyFleeing == 1, 1, 0))
+  )],
+  on = .(EnrollmentID)
+][ExitAdjust >= ReportStart() & EntryDate <= ReportEnd(), 
   .(DomesticViolenceCategory = 
-      fifelse(max(DomesticViolenceSurvivor, na.rm = TRUE) == 1 & 
-                max(CurrentlyFleeing, na.rm = TRUE) == 1, "DVFleeing",
-              fifelse(max(DomesticViolenceSurvivor, na.rm = TRUE) == 1,
-                      "DVNotFleeing", "NotDV"))
+      fifelse(
+        max(DomesticViolenceSurvivor, na.rm = TRUE) == 1 & 
+          max(CurrentlyFleeing, na.rm = TRUE) == 1, "DVFleeing",
+        fifelse(
+          max(DomesticViolenceSurvivor, na.rm = TRUE) == 1, "DVNotFleeing", "NotDV"))
   ), by = PersonalID]
 
 client_categories <- Client %>%
@@ -890,12 +901,12 @@ enrollment_categories_reactive <- reactive({
               eecr == TRUE) | eecr == FALSE) |
            ((input$syso_project_type == "NonResidential" &
               ProjectType %in% non_res_project_types &
-               eecr == TRUE) | eecr == FALSE)) &
-        (input$syso_spec_pops %in% c("None", "Veteran", "NonVeteran") |
-           (input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV") |
-           (input$syso_spec_pops == "NotDV" & DomesticViolenceCategory == "NotDV") |
-           (input$syso_spec_pops == DomesticViolenceCategory & (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1))
-           )
+               eecr == TRUE) | eecr == FALSE)) # &
+        # (input$syso_spec_pops %in% c("None", "Veteran", "NonVeteran") |
+        #    (input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV") |
+        #    (input$syso_spec_pops == "NotDV" & DomesticViolenceCategory == "NotDV") |
+        #    (input$syso_spec_pops == DomesticViolenceCategory & (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1))
+        #    )
            ) %>%
     select(
       EnrollmentID,
@@ -913,7 +924,7 @@ enrollment_categories_reactive <- reactive({
       EnrolledHomeless,
       straddles_start,
       in_date_range,
-      DomesticViolenceCategory,
+      # DomesticViolenceCategory,
       days_to_next_entry,
       days_since_previous_exit,
       lecr,
@@ -942,7 +953,6 @@ clients_enrollments_reactive <- reactive({
 # https://onlinetools.com/time/visualize-date-intervals <- here.
 # add inflow type and active enrollment typed used for system overview plots
 universe <- reactive({
-  browser()
   clients_enrollments_reactive() %>%
     # get rid of rows where the enrollment is neither a lookback enrollment,
     # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
