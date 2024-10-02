@@ -2,7 +2,7 @@
 function(input, output, session) {
   # record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
-
+  set.seed(12345)
   # session-wide variables (NOT visible to multiple sessions) -----------------
   visible_reactive_vals <- list(
     validation <- reactiveVal(),
