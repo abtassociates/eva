@@ -514,8 +514,8 @@
       "2022-09-30"
     ],
     "dimension": [
-      780,
-      493
+      1920,
+      1080
     ],
     "fileStructureAnalysis_cell_clicked": {
 
@@ -1437,8 +1437,8 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: 0f70cedb7bdc8288fde4958e1aacdbd3]",
-      "width": 485,
+      "src": "[image data hash: e0767b65776650518cc6d78537b89cce]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
       "coordmap": {
@@ -1483,14 +1483,14 @@
             },
             "range": {
               "left": 248.2131849315069,
-              "right": 479.5205479452055,
+              "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
@@ -1514,8 +1514,8 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 84043a5d73275874477c59e8a057c4cb]",
-      "width": 485,
+      "src": "[image data hash: 5b4b8d5bc923f1ad2f8562d68cbcd9bb]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
       "coordmap": {
@@ -1552,15 +1552,15 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 252.4944349315069,
-              "right": 479.5205479452055,
+              "left": 252.494434931507,
+              "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
@@ -1584,8 +1584,8 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 8384ced7a55e3bb57ce707d5734c2705]",
-      "width": 485,
+      "src": "[image data hash: 0ca8af9d876d9c6963030020d5e07421]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
       "coordmap": {
@@ -1630,14 +1630,14 @@
             },
             "range": {
               "left": 285.1663099315068,
-              "right": 479.5205479452055,
+              "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
