@@ -59,7 +59,7 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$expect_values(name = "sys-flow-detail-w-AO-Residential")
   
   # go back to summary tab
-  app$set_inputs(sys_inflow_outflow_subtabs = "Summary")
+  app$set_inputs(sys_inflow_outflow_subtabs = "Summary Chart")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(name = "sys-flow-summary-w-AO-Residential")
   
