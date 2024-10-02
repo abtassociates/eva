@@ -500,7 +500,8 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
   )][
     # Filter out non-overlapping enrollments
     (InvolvedInOverlapStart == FALSE | RankOrderStartOverlaps == 1) &
-      (InvolvedInOverlapEnd == FALSE | RankOrderEndOverlaps == 1)
+      (InvolvedInOverlapEnd == FALSE | RankOrderEndOverlaps == 1) &
+      (parse_number(days_to_next_entry) < 730 | !is.na(days_to_next_entry))
   ][, `:=`(
       lecr = in_date_range & max(ordinal) == ordinal,
       eecr = in_date_range & min(ordinal) == ordinal
@@ -941,6 +942,7 @@ clients_enrollments_reactive <- reactive({
 # https://onlinetools.com/time/visualize-date-intervals <- here.
 # add inflow type and active enrollment typed used for system overview plots
 universe <- reactive({
+  browser()
   clients_enrollments_reactive() %>%
     # get rid of rows where the enrollment is neither a lookback enrollment,
     # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
