@@ -223,7 +223,7 @@ function(input, output, session) {
                 filter(max(lecr, na.rm = TRUE) == 1 &
                          max(eecr, na.rm = TRUE) == 1) %>%
                 ungroup() %>%
-                select(-c(lookback, lecr, eecr)) %>%
+                select(colnames(client_categories)) %>%
                 unique()
             )
             sankey_plot_data(sankey_plot_df())
