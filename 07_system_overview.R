@@ -501,7 +501,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     # Filter out non-overlapping enrollments
     (InvolvedInOverlapStart == FALSE | RankOrderStartOverlaps == 1) &
       (InvolvedInOverlapEnd == FALSE | RankOrderEndOverlaps == 1) &
-      (days_to_next_entry < 730 | !is.na(days_to_next_entry))
+      (days_to_next_entry < 730 | is.na(days_to_next_entry))
   ][, `:=`(
       lecr = in_date_range & max(ordinal) == ordinal,
       eecr = in_date_range & min(ordinal) == ordinal
