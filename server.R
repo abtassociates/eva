@@ -2,7 +2,7 @@
 function(input, output, session) {
   # record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
-
+  set.seed(12345)
   # session-wide variables (NOT visible to multiple sessions) -----------------
   visible_reactive_vals <- list(
     validation <- reactiveVal(),
@@ -223,7 +223,7 @@ function(input, output, session) {
                 filter(max(lecr, na.rm = TRUE) == 1 &
                          max(eecr, na.rm = TRUE) == 1) %>%
                 ungroup() %>%
-                select(-c(lookback, lecr, eecr)) %>%
+                select(colnames(client_categories)) %>%
                 unique()
             )
             sankey_plot_data(sankey_plot_df())

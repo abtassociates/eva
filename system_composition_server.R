@@ -669,7 +669,18 @@ output$sys_comp_summary_ui_chart <- renderPlot({
 }, height = function() { 
   ifelse(!is.null(input$system_composition_selections), 700, 100) 
 }, width = function() {
-  ifelse(length(input$system_composition_selections) == 1, 500, "auto")
+  if (length(input$system_composition_selections) == 1) {
+    cat_list <- get_selection_cats(input$system_composition_selections[1])
+    hasNames <- !is.null(names(cat_list))
+    if(hasNames) {
+      maxLen <- max(nchar(names(cat_list)))
+    } else {
+      maxLen <- max(nchar(cat_list)) 
+    }
+    max(500, maxLen*10)
+  } else {
+    "auto"
+  }
 },
 alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
