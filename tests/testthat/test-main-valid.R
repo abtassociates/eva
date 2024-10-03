@@ -1,5 +1,5 @@
 test_script_name <- "test-main-valid"
-test_dataset_folder <- "tests/temp/"
+test_dataset_folder <- "tests/temp//"
 test_dataset <- "FY24-ICF-main-valid.zip"
 
 test_that(paste0("{shinytest2} recording: ",test_script_name), {
@@ -9,13 +9,7 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
     variant = platform_variant(os_name = FALSE), 
     name = test_script_name, 
     seed = 12345,
-    width = 1920,
-    height = 1080,
-    # shiny_args=list(host="172.19.46.18"),
-    load_timeout = 2e+05,
-    options = list(
-      shiny.testmode = TRUE
-    ))
+    load_timeout = 2e+05)
   
   print(paste0("About to click in ",test_script_name))
   
@@ -27,7 +21,7 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$wait_for_idle(timeout = 1e+06)
   app$click(selector="#shiny-modal")
   app$expect_values(name="just-uploaded")
-
+  
   app$set_inputs(sidebarmenuid = "tabClientCount")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(name = "client-count")
@@ -44,7 +38,7 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$set_inputs(sidebarmenuid = "tabDQOrg")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(name = "dq-org")
-
+  
   app$set_inputs(sidebarmenuid = "tabSystemOverview")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(name = "sys-flow-summary")
@@ -54,12 +48,12 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$expect_values(name = "sys-flow-detail")
   
   # change universe filters
-  app$set_inputs(syso_hh_type = "AO", syso_project_type = "Residential")
-  app$wait_for_idle(timeout = 2e+06)
+  app$set_inputs(syso_hh_type = "AO")
+  app$set_inputs(syso_project_type = "Residential")
   app$expect_values(name = "sys-flow-detail-w-AO-Residential")
   
   # go back to summary tab
-  app$set_inputs(sys_inflow_outflow_subtabs = "Summary Chart")
+  app$set_inputs(sys_inflow_outflow_subtabs = "Summary")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(name = "sys-flow-summary-w-AO-Residential")
   
@@ -75,7 +69,7 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$set_inputs(sys_status_subtabs = "Information")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(name = "sys-status-information")
-
+  
   app$set_inputs(syso_tabbox = "System Demographics")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(name = "sys-comp-chart-default")
@@ -85,7 +79,7 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   app$expect_values(name = "sys-comp-all-re")
   
   app$set_inputs(system_composition_selections = c("Gender", "All Races/Ethnicities"))
-  app$wait_for_idle(timeout = 2e+06)
+  app$wait_for_idle(timeout = 2e+05)
   app$expect_values(name = "sys-comp-all-re-gender")
   
   app$set_inputs(sys_comp_subtabs = "Information")

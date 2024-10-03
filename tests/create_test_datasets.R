@@ -13,15 +13,17 @@ unzip(here("tests/FY24-ICF-hashed-current-good.zip"), exdir = here("tests/temp")
 # function to save a directory of CSVs as a zip file for upload
 save_new_zip <- function(zipfname, files_directory) {
   zipr(
-    zipfile = paste0(here("tests/temp/"),zipfname), 
-    files = list.files(paste0(here("tests/temp/"),files_directory), pattern = "*.csv$", full.names = TRUE),
+    zipfile = paste0(here("tests/temp//"), zipfname), 
+    files = list.files(paste0(here::here("tests/temp//"), files_directory),
+                       pattern = "*.csv$", full.names = TRUE),
     mode = "cherry-pick" # so the files are at the top directory
   )
   Sys.sleep(1)
 }
 
 # store the original data as an R data set, so we can modify from scratch each time
-csv_files <- list.files(here("tests/temp"), pattern = "*.csv$", full.names = TRUE)
+csv_files <- list.files(here("tests/temp/"), pattern = "*.csv$",
+                        full.names = TRUE)
 names(csv_files) <- tools::file_path_sans_ext(basename(csv_files))
 original_data <- lapply(csv_files, data.table::fread)
 
@@ -34,14 +36,14 @@ original_data <- original_data[!names(original_data) %in% c("Affiliation",
 # we don't need so much data for initially valid import checks
 reduced_data <- lapply(original_data, function(x) if(nrow(x)) x[1, ])
 
-dir.create(here("tests/temp/reduced"))
+dir.create(here("tests/temp/reduced"), showWarnings = FALSE)
 
 lapply(names(reduced_data), function(fname) {
   write.csv(
     reduced_data[[fname]], 
-    paste0(here("tests/temp/reduced/"),fname, ".csv"), 
+    paste0(here("tests/temp/reduced//"), fname, ".csv"), 
     row.names = FALSE, 
-    na="")
+    na = "")
 })
 
 reduced_files <- list.files(here("tests/temp/reduced"), pattern = "*.csv", full.names = TRUE)
@@ -89,19 +91,22 @@ Sys.sleep(1)
 close(gz1)
 ############### VALID FILES #################
 # FSA ---------------------------------------------------
-reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[ifelse(nrow(x) >= 6, 6, 1)])
+reduced_data_fsa <- lapply(original_data, function(x)
+  if (nrow(x))
+    x[ifelse(nrow(x) >= 6, 6, 1)])
+
 source(here("tests/update_test_good_fsa.R"), local = TRUE)
 
-dir.create(here("tests/temp/reduced_fsa"))
+dir.create(here("tests/temp/reduced_fsa/"), showWarnings = FALSE)
 lapply(names(reduced_data_fsa), function(fname) {
-    write.csv(reduced_data_fsa[[fname]],
-              paste0(here("tests/temp/reduced_fsa/"),
-                     fname, ".csv"),
-              row.names = FALSE, na="")
-  Sys.sleep(1)
+  write.csv(reduced_data_fsa[[fname]],
+            paste0(here("tests/temp/reduced//"),
+                   fname, ".csv"),
+            row.names = FALSE, na = "")
+  # Sys.sleep(1)
 })
 Sys.sleep(1)
-save_new_zip("FY24-ICF-fsa-test.zip", "reduced_fsa")
+save_new_zip("FY24-ICF-fsa-test.zip", "")
 
 # DQ AND PDDE ---------------------------------------------------
 # convert to data.frame and fix column types
