@@ -82,14 +82,6 @@
         "validation"
       ]
     },
-    "downloadImpermissibleCharacterDetailBtn": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
     "fileInfo": null,
     "fileStructureAnalysis": [
       "",
