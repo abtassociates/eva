@@ -1838,8 +1838,8 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 00ed11e43f47515b1d8b7a1ddbdc28a6]",
-      "width": 1625,
+      "src": "[image data hash: 09176f5266d5b7b8a517f71936b4a166]",
+      "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
       "coordmap": {
@@ -1884,17 +1884,18 @@
             },
             "range": {
               "left": 248.2131849315069,
-              "right": 1619.520547945206,
+              "right": 1634.520547945205,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 1625,
+          "width": 1640,
           "height": 400
         }
-      }
+      },
+      "error": null
     },
     "orgDQErrorByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQErrorByIssue\" style=\"width:100%;height:400px;\"><\/div>",
@@ -1933,8 +1934,8 @@
       ]
     },
     "orgDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: d98bfa3a0e7a62dd07e3a5d386d2c59c]",
-      "width": 1625,
+      "src": "[image data hash: 8fcc992418956267a2eb4f684ceefa88]",
+      "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the organization.",
       "coordmap": {
@@ -1972,21 +1973,22 @@
             },
             "range": {
               "left": 252.494434931507,
-              "right": 1619.520547945206,
+              "right": 1634.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 1625,
+          "width": 1640,
           "height": 400
         }
-      }
+      },
+      "error": null
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 6ba37284a849cb4595ddc56b1a1596f1]",
-      "width": 1625,
+      "src": "[image data hash: 166382ed07884823ff59a0ac59f371c9]",
+      "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
       "coordmap": {
@@ -2031,17 +2033,18 @@
             },
             "range": {
               "left": 285.1663099315068,
-              "right": 1619.520547945206,
+              "right": 1634.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 1625,
+          "width": 1640,
           "height": 400
         }
-      }
+      },
+      "error": null
     },
     "orgDQWarningsByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQWarningByIssue\" style=\"width:100%;height:400px;\"><\/div>",
@@ -2286,7 +2289,7 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: c51fda43d2a508375eb031df8fc67074]",
+      "src": "[image data hash: a86805cbca4cb074a45d67fa8e3e64a1]",
       "width": 1575,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and \n              outflow during the report period. The detailed view of this chart \n              shows inflow as three subcategories: first-time homeless, returned from \n              permanent, and re-engaged from non-permanent and outflow as three \n              subcategories: exited non-permanent, exited permanent, and inactive.",
