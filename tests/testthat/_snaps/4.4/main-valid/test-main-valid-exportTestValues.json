@@ -172,12 +172,14 @@
         "Length:300        ",
         "Length:300        ",
         "Length:300        ",
+        "Length:300        ",
         "Min.   :2016-02-11  ",
         "Min.   :2016-02-11  ",
         "Min.   :2019-10-08  ",
         "Length:300        "
       ],
       [
+        "Class :character  ",
         "Class :character  ",
         "Class :character  ",
         "Class :character  ",
@@ -194,12 +196,14 @@
         "Mode  :character  ",
         "Mode  :character  ",
         "Mode  :character  ",
+        "Mode  :character  ",
         "Median :2021-05-21  ",
         "Median :2021-06-18  ",
         "Median :2021-06-11  ",
         "Mode  :character  "
       ],
       [
+        null,
         null,
         null,
         null,
@@ -216,6 +220,7 @@
         null,
         null,
         null,
+        null,
         "3rd Qu.:2022-01-24  ",
         "3rd Qu.:2022-02-22  ",
         "3rd Qu.:2022-03-15  ",
@@ -227,12 +232,14 @@
         null,
         null,
         null,
+        null,
         "Max.   :2022-09-26  ",
         "Max.   :2022-09-23  ",
         "Max.   :2022-09-22  ",
         null
       ],
       [
+        null,
         null,
         null,
         null,
@@ -321,27 +328,27 @@
         "list"
       ],
       [
-        " 7",
+        " 9",
         "data.frame",
         "list"
       ],
       [
-        " 7",
+        " 9",
         "data.frame",
         "list"
       ],
       [
-        " 7",
+        " 9",
         "data.frame",
         "list"
       ],
       [
-        "22",
+        "24",
         "data.table",
         "list"
       ],
       [
-        " 8",
+        "10",
         "tbl_df",
         "list"
       ]
@@ -616,27 +623,27 @@
         "list"
       ],
       [
-        " 7",
+        " 9",
         "data.frame",
         "list"
       ],
       [
-        " 7",
+        " 9",
         "data.frame",
         "list"
       ],
       [
-        " 7",
+        " 9",
         "data.frame",
         "list"
       ],
       [
-        "22",
+        "24",
         "data.table",
         "list"
       ],
       [
-        " 8",
+        "10",
         "tbl_df",
         "list"
       ]
