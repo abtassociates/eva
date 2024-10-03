@@ -150,10 +150,10 @@ incorrect_dob <- base_dq_data %>%
   merge_check_info(checkIDs = 84) %>%
   select(all_of(vars_we_want))
 
-missing_ssn <- base_dq_data %>%
-  filter((is.na(SSN) & !SSNDataQuality %in% c(dkr_dnc))) %>%
-  merge_check_info(checkIDs = 85) %>%
-  select(all_of(vars_we_want))
+# missing_ssn <- base_dq_data %>%
+#   filter((is.na(SSN) & !SSNDataQuality %in% c(dkr_dnc))) %>%
+#   merge_check_info(checkIDs = 85) %>%
+#   select(all_of(vars_we_want))
 
 dkr_ssn <- base_dq_data %>%
   filter(SSNDataQuality %in% c(dkr_dnc)) %>%
