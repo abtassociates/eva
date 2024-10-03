@@ -514,8 +514,8 @@
       "2022-09-30"
     ],
     "dimension": [
-      780,
-      493
+      1920,
+      1080
     ],
     "dq_org_guidance_summary_cell_clicked": {
 
@@ -1832,8 +1832,8 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: e52edf3ab2384ff6a05e808de2b4db80]",
-      "width": 485,
+      "src": "[image data hash: 00ed11e43f47515b1d8b7a1ddbdc28a6]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
       "coordmap": {
@@ -1878,14 +1878,14 @@
             },
             "range": {
               "left": 248.2131849315069,
-              "right": 479.5205479452055,
+              "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
@@ -1927,8 +1927,8 @@
       ]
     },
     "orgDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 3b761cc90f6ce1d4f3dd71c4a3d00b24]",
-      "width": 485,
+      "src": "[image data hash: d98bfa3a0e7a62dd07e3a5d386d2c59c]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the organization.",
       "coordmap": {
@@ -1965,22 +1965,22 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 252.4944349315069,
-              "right": 479.5205479452055,
+              "left": 252.494434931507,
+              "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: a1d9ad0fff9486d35eb144d1f5f27ada]",
-      "width": 485,
+      "src": "[image data hash: 6ba37284a849cb4595ddc56b1a1596f1]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
       "coordmap": {
@@ -2025,14 +2025,14 @@
             },
             "range": {
               "left": 285.1663099315068,
-              "right": 479.5205479452055,
+              "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
@@ -2274,8 +2274,8 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: 0f70cedb7bdc8288fde4958e1aacdbd3]",
-      "width": 485,
+      "src": "[image data hash: e0767b65776650518cc6d78537b89cce]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
       "coordmap": {
@@ -2320,14 +2320,14 @@
             },
             "range": {
               "left": 248.2131849315069,
-              "right": 479.5205479452055,
+              "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
@@ -2351,8 +2351,8 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 84043a5d73275874477c59e8a057c4cb]",
-      "width": 485,
+      "src": "[image data hash: 5b4b8d5bc923f1ad2f8562d68cbcd9bb]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
       "coordmap": {
@@ -2389,15 +2389,15 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 252.4944349315069,
-              "right": 479.5205479452055,
+              "left": 252.494434931507,
+              "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
@@ -2421,8 +2421,8 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 8384ced7a55e3bb57ce707d5734c2705]",
-      "width": 485,
+      "src": "[image data hash: 0ca8af9d876d9c6963030020d5e07421]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
       "coordmap": {
@@ -2467,14 +2467,14 @@
             },
             "range": {
               "left": 285.1663099315068,
-              "right": 479.5205479452055,
+              "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
