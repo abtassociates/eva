@@ -517,12 +517,12 @@ dkr_living_situation <- base_dq_data %>%
   select(all_of(vars_we_want))
 
 # DisablingCondition at Entry
-missing_disabilities <- base_dq_data %>%
+dkr_disabilities <- base_dq_data %>%
   select(all_of(vars_prep),
          AgeAtEntry,
          RelationshipToHoH,
          DisablingCondition) %>%
-  filter(is.na(DisablingCondition)) %>%
+  filter(DisablingCondition %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 32) %>%
   select(all_of(vars_we_want))
 
@@ -1740,7 +1740,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       missing_cls_subsidy,
       missing_destination,
       missing_destination_subsidy,
-      missing_disabilities,
+      dkr_disabilities,
       missing_dob,
       missing_dob_dataquality,
       missing_enrollment_coc,
