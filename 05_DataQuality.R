@@ -119,11 +119,11 @@ duplicate_ees <-
   select(all_of(vars_we_want))
 
 # Missing UDEs ------------------------------------------------------------
-missing_name_dataquality <- base_dq_data %>%
-  filter(is.na(NameDataQuality)) %>%
-  merge_check_info(checkIDs = 33) %>%
-  select(all_of(vars_we_want))
 
+# missing_name_dataquality <- base_dq_data %>%
+#   filter(is.na(NameDataQuality)) %>%
+#   merge_check_info(checkIDs = 33) %>%
+#   select(all_of(vars_we_want))
 
 dkr_name <- base_dq_data %>%
   filter(NameDataQuality %in% c(dkr_dnc, 2)) %>%
@@ -135,10 +135,10 @@ missing_dob <- base_dq_data %>%
   merge_check_info(checkIDs = 34) %>%
   select(all_of(vars_we_want))
 
-missing_dob_dataquality <- base_dq_data %>%
-  filter(is.na(DOBDataQuality)) %>%
-  merge_check_info(checkIDs = 35) %>%
-  select(all_of(vars_we_want))
+# missing_dob_dataquality <- base_dq_data %>%
+#   filter(is.na(DOBDataQuality)) %>%
+#   merge_check_info(checkIDs = 35) %>%
+#   select(all_of(vars_we_want))
 
 dkr_dob <- base_dq_data %>%
   filter(DOBDataQuality %in% c(dkr_dnc)) %>%
