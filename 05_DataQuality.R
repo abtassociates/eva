@@ -170,11 +170,11 @@ dkr_gender <- base_dq_data %>%
   merge_check_info(checkIDs = 65) %>%
   select(all_of(vars_we_want))
 
-missing_gender <- base_dq_data %>%
-  filter(Woman + Man + NonBinary + Transgender + CulturallySpecific +
-           DifferentIdentity + Questioning == 0) %>%
-  merge_check_info(checkIDs = 38) %>%
-  select(all_of(vars_we_want))
+# missing_gender <- base_dq_data %>%
+#   filter(Woman + Man + NonBinary + Transgender + CulturallySpecific +
+#            DifferentIdentity + Questioning == 0) %>%
+#   merge_check_info(checkIDs = 38) %>%
+#   select(all_of(vars_we_want))
 
 missing_veteran_status <- base_dq_data %>%
   filter(
