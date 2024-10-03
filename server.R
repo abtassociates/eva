@@ -177,8 +177,14 @@ function(input, output, session) {
             filter(Issue == "Impermissible characters"))) {
             showModal(
               modalDialog(
-                "Eva has detected impermissible characters in your HMIS CSV file. 
-                Please note that these characters may cause Eva to crash.",
+                list(
+                  span("Eva has detected impermissible characters in your HMIS CSV file. 
+                Eva is able to handle most impermissible characters, and will 
+                continue processing your file. However, if Eva does crash, please 
+                report this via a "),
+                  a(href="https://github.com/abtassociates/eva/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=", "GitHub Issue"),
+                  span(".")
+                ),
                 title = "Impermissible characters",
                 easyClose = TRUE
               )
@@ -398,11 +404,10 @@ function(input, output, session) {
       title = "Confirmation",
       "The Impermissible Character Detail export identifies the precise location 
       of all impermissible characters in your HMIS CSV export. 
-      Therefore, it can take up to several minutes to run. Are you sure you want 
-      to download the export?",
+      Therefore, it can take up to several minutes to run. To proceed with this export, please click Continue.",
       footer = tagList(
         modalButton("Cancel"),
-        actionButton("confirmDownload", "Download", icon("download"))
+        actionButton("confirmDownload", "Continue")
       )
     ))
   })

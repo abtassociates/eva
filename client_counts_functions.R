@@ -1,6 +1,7 @@
 ##### REPORTING COLUMNS ######
 # these are the main columns that we will report out in the app and exports
 clientCountDetailCols <- c("PersonalID",
+                           "EnrollmentID",
                            "RelationshipToHoH",
                            "EntryDate",
                            "MoveInDateAdjust",
@@ -54,6 +55,7 @@ client_count_data_df <- reactive({
     # make sure to include all columns that will be needed for the various uses
     select(
       PersonalID,
+      EnrollmentID,
       HouseholdID,
       RelationshipToHoH,
       EntryDate,
