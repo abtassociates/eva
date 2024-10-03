@@ -1775,7 +1775,10 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       veteran_missing_year_separated
     ))
 
-    dq_main <- unique(dq_main)[, Type := factor(Type, levels = c("High Priority", "Error", "Warning"))]
+    dq_main <- unique(dq_main)[, Type := factor(Type,
+                                                levels = c("High Priority",
+                                                           "Error",
+                                                           "Warning"))]
     dq_main <- as.data.frame(dq_main)
     
    dq_providers <- sort(Project0()$ProjectName) 
