@@ -629,11 +629,11 @@ exit_before_start <- base_dq_data %>%
 
 # Missing Destination -----------------------------------------------------
 
-missing_destination <- base_dq_data %>%
-  filter(!is.na(ExitDate) &
-           (is.na(Destination))) %>%
-  merge_check_info(checkIDs = 74) %>%
-  select(all_of(vars_we_want))
+# missing_destination <- base_dq_data %>%
+#   filter(!is.na(ExitDate) &
+#            (is.na(Destination))) %>%
+#   merge_check_info(checkIDs = 74) %>%
+#   select(all_of(vars_we_want))
 
 dkr_destination <- base_dq_data %>%
   filter(Destination %in% c(dkr_dnc, 30)) %>%
