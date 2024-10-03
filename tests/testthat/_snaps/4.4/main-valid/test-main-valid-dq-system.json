@@ -514,8 +514,8 @@
       "2022-09-30"
     ],
     "dimension": [
-      780,
-      493
+      1920,
+      1080
     ],
     "fileStructureAnalysis_cell_clicked": {
 
@@ -1437,8 +1437,8 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: 0f70cedb7bdc8288fde4958e1aacdbd3]",
-      "width": 485,
+      "src": "[image data hash: 76de665668ff2715c072d721d978d037]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
       "coordmap": {
@@ -1456,7 +1456,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 2143.9,
+              "right": 1492.7,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -1464,16 +1464,16 @@
 
                 ],
                 "y": [
+                  "Invalid Move-In Date",
+                  "Missing HP Screening or Threshold Score",
+                  "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
-                  "Missing Race/Ethnicity",
+                  "Conflicting Health Insurance yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
-                  "Missing Name Data Quality",
                   "Missing Residence Prior",
-                  "Missing SSN",
-                  "Missing Length of Stay",
-                  "Missing Disabling Condition"
+                  "Missing Length of Stay"
                 ]
               }
             },
@@ -1483,14 +1483,14 @@
             },
             "range": {
               "left": 248.2131849315069,
-              "right": 479.5205479452055,
+              "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
@@ -1514,8 +1514,8 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 84043a5d73275874477c59e8a057c4cb]",
-      "width": 485,
+      "src": "[image data hash: 5b4b8d5bc923f1ad2f8562d68cbcd9bb]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
       "coordmap": {
@@ -1552,15 +1552,15 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 252.4944349315069,
-              "right": 479.5205479452055,
+              "left": 252.494434931507,
+              "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
@@ -1584,8 +1584,8 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 8384ced7a55e3bb57ce707d5734c2705]",
-      "width": 485,
+      "src": "[image data hash: ab336c3c535e8191562ff05b5f59ce90]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
       "coordmap": {
@@ -1603,7 +1603,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 11617.1,
+              "right": 12918.4,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -1611,16 +1611,16 @@
 
                 ],
                 "y": [
-                  "Doesn't Know/Prefers Not to Answer/Data Not Collected DOB",
-                  "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
-                  "Overlap with a Emergency Shelter (E/E) project",
                   "Overlap with a Rapid Rehousing project",
-                  "Doesn't Know/Prefers Not to Answer Living Situation",
-                  "Doesn't Know/Prefers Not to Answer Destination",
+                  "Unknown Months or Times Homeless",
+                  "Unknown Living Situation",
+                  "Unknown Race/Ethnicity",
+                  "Incomplete or Unknown Name",
                   "Homelessness Start Date conflicts with Living Situation data",
+                  "Unknown Disabling Condition",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
-                  "Doesn't Know/Prefers Not to Answer SSN",
-                  "Missing Destination"
+                  "Unknown SSN",
+                  "Unknown Destination"
                 ]
               }
             },
@@ -1630,14 +1630,14 @@
             },
             "range": {
               "left": 285.1663099315068,
-              "right": 479.5205479452055,
+              "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
