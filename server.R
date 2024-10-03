@@ -2,7 +2,7 @@
 function(input, output, session) {
   # record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
-
+  set.seed(12345)
   # session-wide variables (NOT visible to multiple sessions) -----------------
   visible_reactive_vals <- list(
     validation <- reactiveVal(),
@@ -25,12 +25,15 @@ function(input, output, session) {
     ReportEnd <- reactiveVal(),
     sankey_plot_data <- reactiveVal(),
     non_ascii_files_detail_df <- reactiveVal(),
-    non_ascii_files_detail_r <- reactiveVal()
+    non_ascii_files_detail_r <- reactiveVal(),
+    days_of_data <- reactiveVal(),
+    windowSize <- reactiveVal()
   )
   
   reset_reactivevals <- function() {
     lapply(visible_reactive_vals, function(r) r(NULL))
     valid_file(0)
+    windowSize(input$dimension)
   }
   # 
   # # functions used throughout the app
@@ -220,7 +223,7 @@ function(input, output, session) {
                 filter(max(lecr, na.rm = TRUE) == 1 &
                          max(eecr, na.rm = TRUE) == 1) %>%
                 ungroup() %>%
-                select(-c(lookback, lecr, eecr)) %>%
+                select(colnames(client_categories)) %>%
                 unique()
             )
             sankey_plot_data(sankey_plot_df())

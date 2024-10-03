@@ -1183,6 +1183,8 @@ overlap_dt <-
 overlap_dt <- overlap_dt[!is.na(PreviousEnrollmentID)]
 
 # Left join with overlap_staging to get previous enrollment details
+# AS 9/23/24: This is actually an inner join in data.table. but that's okay, 
+# since overlap_dt is a subset of overlap_staging
 # left_join(overlap_staging %>%
 #             select("PreviousEnrollmentID" = EnrollmentID,
 #                    "PreviousProjectType" = ProjectType,

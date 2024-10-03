@@ -513,6 +513,10 @@
       "2019-10-01",
       "2022-09-30"
     ],
+    "dimension": [
+      1920,
+      1080
+    ],
     "fileStructureAnalysis_cell_clicked": {
 
     },

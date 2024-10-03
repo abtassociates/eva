@@ -183,9 +183,9 @@
         "Class :character  ",
         "Class :character  ",
         "Class :character  ",
-        "1st Qu.:2020-07-06  ",
+        "1st Qu.:2020-07-20  ",
         "1st Qu.:2020-01-13  ",
-        "1st Qu.:2020-09-02  ",
+        "1st Qu.:2020-09-06  ",
         "Class :character  "
       ],
       [
@@ -194,7 +194,7 @@
         "Mode  :character  ",
         "Mode  :character  ",
         "Mode  :character  ",
-        "Median :2021-05-17  ",
+        "Median :2021-05-21  ",
         "Median :2021-06-18  ",
         "Median :2021-06-11  ",
         "Mode  :character  "
@@ -205,9 +205,9 @@
         null,
         null,
         null,
-        "Mean   :2021-03-26  ",
-        "Mean   :2021-01-08  ",
-        "Mean   :2021-05-22  ",
+        "Mean   :2021-03-31  ",
+        "Mean   :2021-01-22  ",
+        "Mean   :2021-05-26  ",
         null
       ],
       [
@@ -216,9 +216,9 @@
         null,
         null,
         null,
-        "3rd Qu.:2022-01-19  ",
-        "3rd Qu.:2022-03-11  ",
-        "3rd Qu.:2022-03-11  ",
+        "3rd Qu.:2022-01-24  ",
+        "3rd Qu.:2022-02-22  ",
+        "3rd Qu.:2022-03-15  ",
         null
       ],
       [
@@ -239,7 +239,7 @@
         null,
         null,
         null,
-        "NA's   :273  ",
+        "NA's   :272  ",
         "NA's   :44  ",
         null
       ]
@@ -468,9 +468,9 @@
         "Length:4212       ",
         "Length:4212       ",
         "Min.   :0.0000  ",
-        "Min.   :0.000  ",
         "Min.   :0.0000  ",
-        "Min.   :0.000  ",
+        "Min.   :0.0000  ",
+        "Min.   :0.0000  ",
         "Min.   :0.000000  ",
         "Length:4212       ",
         "Length:4212       "
@@ -484,9 +484,9 @@
         "Class :character  ",
         "Class :character  ",
         "1st Qu.:0.0000  ",
-        "1st Qu.:0.000  ",
         "1st Qu.:0.0000  ",
-        "1st Qu.:0.000  ",
+        "1st Qu.:0.0000  ",
+        "1st Qu.:0.0000  ",
         "1st Qu.:0.000000  ",
         "Class :character  ",
         "Class :character  "
@@ -500,9 +500,9 @@
         "Mode  :character  ",
         "Mode  :character  ",
         "Median :0.0000  ",
-        "Median :0.000  ",
         "Median :0.0000  ",
-        "Median :0.000  ",
+        "Median :0.0000  ",
+        "Median :0.0000  ",
         "Median :0.000000  ",
         "Mode  :character  ",
         "Mode  :character  "
@@ -516,9 +516,9 @@
         null,
         null,
         "Mean   :0.3222  ",
-        "Mean   :0.387  ",
+        "Mean   :0.3872  ",
         "Mean   :0.1679  ",
-        "Mean   :0.123  ",
+        "Mean   :0.1227  ",
         "Mean   :0.008547  ",
         null,
         null
@@ -532,9 +532,9 @@
         null,
         null,
         "3rd Qu.:1.0000  ",
-        "3rd Qu.:1.000  ",
+        "3rd Qu.:1.0000  ",
         "3rd Qu.:0.0000  ",
-        "3rd Qu.:0.000  ",
+        "3rd Qu.:0.0000  ",
         "3rd Qu.:0.000000  ",
         null,
         null
@@ -548,9 +548,9 @@
         null,
         null,
         "Max.   :1.0000  ",
-        "Max.   :1.000  ",
         "Max.   :1.0000  ",
-        "Max.   :1.000  ",
+        "Max.   :1.0000  ",
+        "Max.   :1.0000  ",
         "Max.   :1.000000  ",
         null,
         null
@@ -588,8 +588,8 @@
         210,
         1,
         22,
-        239,
-        64,
+        238,
+        65,
         200,
         3
       ]

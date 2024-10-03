@@ -4,12 +4,36 @@
 # move chart download button to be inline with subtabs
 observeEvent(input$syso_tabbox, {
   req(valid_file() == 1)
+  logMetadata(paste0("Clicked on: ", input$syso_tabbox,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   toggleClass(
     id = "syso_inflowoutflow_filters",
     condition = input$syso_tabbox == "System Demographics",
     class = "filter-hidden"
   )
-}, ignoreNULL = TRUE)
+}, ignoreNULL = TRUE, ignoreInit = TRUE) #confirm if need to have ignore init?
+
+
+observeEvent(input$sys_inflow_outflow_subtabs, {
+  req(valid_file() == 1)
+  logMetadata(paste0("Clicked on: ", input$sys_inflow_outflow_subtabs,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+
+observeEvent(input$sys_status_subtabs, {
+  req(valid_file() == 1)
+  logMetadata(paste0("Clicked on: ", input$sys_status_subtabs,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+
+observeEvent(input$sys_comp_subtabs, {
+  req(valid_file() == 1)
+  logMetadata(paste0("Clicked on: ", input$sys_comp_subtabs,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
 
 observeEvent(input$methodology_type, {
   
@@ -148,6 +172,10 @@ toggle_sys_components <- function(cond, init=FALSE) {
 toggle_sys_components(FALSE, init=TRUE) # initially hide them
 
 sys_export_summary_initial_df <- function() {
+  
+  logMetadata(paste0("Downloaded System Overview Tabular Data",
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+  
   return(data.frame(
     Chart = c(
       "Start Date",
@@ -207,6 +235,10 @@ syso_gender_cats <- function(methodology = 1){
 
 # PowerPoint Export -------------------------------------------------------
 sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot_slide_title, plot1, plot2 = NULL, summary_font_size) {
+  
+  logMetadata(paste0("Downloaded System Overview Powerpoint",
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", ""))) #NEED TO UPDATE - if want to get more granular, need to detect with title slide
+  
   report_period <- paste0("Report Period: ", 
                           format(ReportStart(), "%m/%d/%Y"),
                           " - ",
@@ -330,3 +362,7 @@ get_adj_font_size <- function(font_size, isExport) {
     font_size*ifelse(isExport, sys_chart_export_font_reduction, 1)
   )
 }
+
+observeEvent(input$dimension,{
+  windowSize(input$dimension)
+})
