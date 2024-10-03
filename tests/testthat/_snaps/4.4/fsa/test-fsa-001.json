@@ -8,14 +8,14 @@
     "OUTLongStayers": 90,
     "OtherLongStayers": 90,
     "ServicesOnlyLongStayers": 90,
-    "currentProviderList": "Organization A - ES",
+    "currentProviderList": null,
     "dateRangeCount": [
-      "2019-10-01",
-      "2022-09-30"
+      "2023-10-05",
+      "2023-10-05"
     ],
     "dimension": [
-      1039,
-      707
+      780,
+      493
     ],
     "fileStructureAnalysis_cell_clicked": {
 
@@ -24,8 +24,20 @@
 
     ],
     "fileStructureAnalysis_columns_selected": null,
-    "fileStructureAnalysis_rows_all": null,
-    "fileStructureAnalysis_rows_current": null,
+    "fileStructureAnalysis_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "fileStructureAnalysis_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
     "fileStructureAnalysis_state": {
@@ -75,10 +87,10 @@
         "FY24-ICF-fsa-test.zip"
       ],
       "size": [
-        19516226
+        8029
       ],
       "type": [
-        "application/x-zip-compressed"
+        "application/zip"
       ],
       "datapath": [
         "0.zip"
@@ -86,7 +98,7 @@
     },
     "isdemo": false,
     "methodology_type": "1",
-    "orgList": "Organization A",
+    "orgList": null,
     "sidebarCollapsed": false,
     "sidebarItemExpanded": null,
     "sidebarmenuid": "tabUpload",
@@ -120,11 +132,24 @@
   },
   "output": {
     "downloadFileStructureAnalysisBtn": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
+      "html": "<a id=\"downloadFileStructureAnalysis\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Structure Analysis Detail\n<\/a>",
+      "deps": [
+        {
+          "name": "font-awesome",
+          "version": "6.4.2",
+          "src": {
+            "href": "font-awesome-6.4.2"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": [
+            "css/all.min.css",
+            "css/v4-shims.min.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
       ]
     },
     "downloadImpermissibleCharacterDetailBtn": {
@@ -135,12 +160,7 @@
         "validation"
       ]
     },
-    "fileInfo": {
-      "html": "<p id='successful_upload'>You have successfully uploaded your hashed\n           HMIS CSV Export!<\/p>",
-      "deps": [
-
-      ]
-    },
+    "fileInfo": null,
     "fileStructureAnalysis": {
       "x": {
         "filter": "none",
@@ -241,13 +261,58 @@
       ]
     },
     "headerUpload": {
-      "html": "<h2>Upload HMIS CSV Export<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>\n<h4>\n  <strong>Export Date: <\/strong>\n  09-08-2023 at 08:29 PM\n<\/h4>",
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
       ]
     }
   },
   "export": {
-
+    "file_structure_analysis_main": {
+      "Issue": [
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "PersonalID missing from Client.csv",
+        "ProjectID missing from Project.csv",
+        "Incorrect Date Format",
+        "Incorrect Date Format",
+        "Incorrect Columns",
+        "Incorrect Columns"
+      ],
+      "Type": [
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "Error",
+        "Error"
+      ],
+      "Guidance": [
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Per the HMIS CSV Format Specifications, all PersonalIDs in the Enrollment file should have a record in the Client file.",
+        "Per the HMIS CSV Format Specifications, all ProjectIDs in the Enrollment file should have a record in the Project file.",
+        "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export.",
+        "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present."
+      ],
+      "Detail": [
+        "In the Client file, the BlackAfAmerican column is missing",
+        "In the Client file, the DateCreated column is missing",
+        "In the Client file, the Transgender column is missing",
+        "PersonalID 5966 is in the Enrollment file but not in the Client file.",
+        "ProjectID 1182 is in the Enrollment file but not in the Project file.",
+        "Please check that the DOB column in the Client file has the correct date format.",
+        "Please check that the DischargeStatus column in the Client file has the correct date format.",
+        "In the Client file, ExtraCol is an extra column",
+        "In the Client file, Transgenderr is an extra column"
+      ]
+    }
   }
 }
