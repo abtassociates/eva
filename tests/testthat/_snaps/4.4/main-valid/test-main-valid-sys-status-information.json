@@ -567,7 +567,8 @@
       44,
       45,
       46,
-      47
+      47,
+      48
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -759,7 +760,10 @@
       119,
       120,
       121,
-      122
+      122,
+      123,
+      124,
+      125
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -1966,7 +1970,7 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: f68cf0e1b4cce4fc0166a48d27fd3cb7]",
+      "src": "[image data hash: cb02a60d00ff1f89e66dea43f4d340d7]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -1993,7 +1997,7 @@
 
                 ],
                 "y": [
-                  "Overlap with a Rapid Rehousing project",
+                  "Unknown Disabling Condition",
                   "Unknown Months or Times Homeless",
                   "Unknown Living Situation",
                   "Incomplete or Unknown Name",
@@ -2347,7 +2351,7 @@
       "type": null
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: c077baa7dfc699e3e42ff2f944bf5e67]",
+      "src": "[image data hash: 6e4c355ad5b57698d86794b8a0c5a9ed]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -2374,8 +2378,8 @@
 
                 ],
                 "y": [
+                  "Invalid Move-In Date",
                   "Missing HP Screening or Threshold Score",
-                  "Missing Gender",
                   "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
                   "Conflicting Health Insurance yes/no at Entry",
@@ -2494,7 +2498,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 0bb5c9b4d26be18d057f64c32ef7fca4]",
+      "src": "[image data hash: e64e40c04c7f6d74a71bffb4fad0bac7]",
       "width": 485,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
@@ -2521,13 +2525,13 @@
 
                 ],
                 "y": [
-                  "Overlap with a Emergency Shelter (E/E) project",
                   "Overlap with a Rapid Rehousing project",
                   "Unknown Months or Times Homeless",
                   "Unknown Living Situation",
                   "Unknown Race/Ethnicity",
                   "Incomplete or Unknown Name",
                   "Homelessness Start Date conflicts with Living Situation data",
+                  "Unknown Disabling Condition",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
                   "Unknown SSN",
                   "Unknown Destination"
@@ -2607,8 +2611,8 @@
     "dq_org_guidance_summary": [
       [
         "High Priority: 3  ",
-        "Length:47         ",
-        "Length:47         "
+        "Length:48         ",
+        "Length:48         "
       ],
       [
         "Error        :21  ",
@@ -2616,16 +2620,16 @@
         "Class :character  "
       ],
       [
-        "Warning      :23  ",
+        "Warning      :24  ",
         "Mode  :character  ",
         "Mode  :character  "
       ]
     ],
     "dq_organization_summary_table": [
       [
-        "Length:122        ",
+        "Length:125        ",
         "High Priority: 5  ",
-        "Length:122        ",
+        "Length:125        ",
         "Min.   :  1.00  "
       ],
       [
@@ -2636,7 +2640,7 @@
       ],
       [
         "Mode  :character  ",
-        "Warning      :65  ",
+        "Warning      :68  ",
         "Mode  :character  ",
         "Median :  3.00  "
       ],
@@ -2644,7 +2648,7 @@
         null,
         null,
         null,
-        "Mean   : 10.58  "
+        "Mean   : 10.49  "
       ],
       [
         null,
