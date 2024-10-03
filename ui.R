@@ -911,7 +911,7 @@ dashboardPage(
                 all HMIS Continuum projects, excluding homeless prevention projects. 
                 Eva uses the last 12 full months of data in the upload, which constitutes 
                 the report period. <b>Note that some charts on this page may not display 
-                if the uploaded HMIS CSV export has less than twelve full months of data.</b></p>
+                if the uploaded HMIS CSV export has less than 12 full months of data.</b></p>
                 
                 <p>The purpose of the system performance charts is to use your HMIS 
                 data to (1) evaluate how effective your homeless system is in moving 
@@ -933,9 +933,9 @@ dashboardPage(
                   impact the data shown on all three visualizations on this page. 
                   Universal filters include Household Type, Level of Detail, Project 
                   Type Group, and Gender and Race/Ethnicity Methodology Type.</li>
-                  <li><b>The demographic filters</b>, the bottom of the Filters Menu, 
+                  <li><b>The demographic filters</b>, the bottom row of the Filters Menu, 
                   only impact the data shown in the System Flow and Client System 
-                  Status charts. Demographic filters include Age, Special Populations, 
+                  Status charts. Demographic filters include Age, Veteran Status, 
                   Gender, and Race/Ethnicity.</li>
                 </ol>
                 
@@ -957,7 +957,7 @@ dashboardPage(
                 Eva includes two download options. To generate an Excel workbook 
                 with the data for a specific chart, click the “Data Download” button 
                 while viewing the chart. To generate a PowerPoint slide deck with 
-                the chart image, click the “ Image Download” button while viewing the chart. </p>
+                the chart image, click the “Image Download” button while viewing the chart. </p>
                 
                 <h4>Data Suppression and Data Security</h4>
                 <p>To ensure the privacy and protection of individuals and small 
@@ -1125,7 +1125,7 @@ dashboardPage(
                                   “First-Time Homeless,” “Returned from Permanent,” and 
                                   “Re-engaged from Non-Permanent.”</li>
                                   <li><b>Outflow</b> is divided into three categories: 
-                                  “Exited, Non-Permanent,” “Exited, Non-Permanent 
+                                  “Exited, Non-Permanent,” “Exited, Permanent 
                                   Destination,” and “Inactive.”</li>
                                 </ul>
                                 
@@ -1416,10 +1416,11 @@ dashboardPage(
                                 
                                 <p>Each cell in the chart is a unique combination 
                                 of demographic characteristics. For example, if 
-                                you selected Age and Veteran Status, a unique demographic 
-                                combination would be “25-34” and “Non-Veteran/Unknown.” 
-                                Any cell with a count is shaded. The darker the 
-                                color in a cell, the greater the value of that cell.</p>
+                                you selected Age and Gender, a unique demographic 
+                                combination would be “25 to 34” and “Man (Boy, if 
+                                child) alone.” Any cell with a count is shaded. 
+                                The darker the color in a cell, the greater the 
+                                value of that cell.</p>
                                 
                                 <h4>Data Suppression</h4>
                                 <p>Additional levels of data suppression apply to 
@@ -1439,7 +1440,7 @@ dashboardPage(
                                 in the System Demographics chart in Eva and in its 
                                 image download, the data in the chart’s data download 
                                 will not be suppressed. Be careful how you save 
-                                and share the tabular export. With smaller numbers, 
+                                and share the data download, which is an Excel export. With smaller numbers, 
                                 clients can become more identifiable in the data. 
                                 Before you share the Excel export, feel free to modify, 
                                 add, or remove anything as you see fit to preserve 

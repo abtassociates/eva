@@ -31,7 +31,7 @@ output$glossary <- renderDataTable({
     "System Performance Filters",
     "Demographic Filters",
     "Filters that only affect the System Flow and Client System Status charts. 
-    These filters are Age, Special Populations, Gender, and Race/Ethnicity.",
+    These filters are Age, Veteran Status, Gender, and Race/Ethnicity.",
     
     "System Performance Filters",
     "Household Type",
@@ -65,14 +65,14 @@ output$glossary <- renderDataTable({
     "Youth and Young Adult",
     "Households in which all members are under 25 years old. This category includes 
     Child Only (CO) households, Adult Only (AO) 18-24 households, and Adult Child 
-    (AC) Parenting Youth households.",
+    (AC) Parenting Young Adult households.",
     
     "System Performance Filters",
-    "Unaccompanied Youth",
+    "Adult Only (AO) 18-24",
     "Adult Only households in which all household members are between 18 and 24.",
     
     "System Performance Filters",
-    "Parenting Youth",
+    "Parenting Young Adult",
     "Adult Child households in which all adults are between 18 and 24 and one or 
     more of the adults is the parent of a child in the household.",
     
@@ -179,12 +179,12 @@ output$glossary <- renderDataTable({
     
     "System Performance Filters",
     "Veteran",
-    "This Special Populations status includes only adult clients (18 years or older) 
+    "This Veteran Status includes only adult clients (18 years or older) 
     who indicated they have been on active duty in the armed forces of the United States.",
     
     "System Performance Filters",
     "Non-Veteran/Unknown",
-    "This Special Populations status only includes adult clients (18 years or older) 
+    "This Veteran Status only includes adult clients (18 years or older) 
     who either (1) indicated that they have not been on active duty in the armed 
     forces of the United States, or (2) whose Veteran Status was recorded as “Client doesn’t know,” 
     “Client prefers not to answer,” or “Data not collected” in HMIS.",
@@ -427,12 +427,12 @@ output$glossary <- renderDataTable({
     
     "System Flow Chart",
     "Returned from Permanent",
-    "This inflow system status indicates a client who entered the system after the report period’s start date and who had a previous exit to a permanent destination within the 24 months prior to their entry.",
-    
+    "This inflow system status indicates a client who entered the system after the report period’s start date and who had a previous exit to a permanent destination within the 24 months prior to their entry. Permanent destinations include renting or owning permanent housing with or without subsidy, and staying or living with friends or family with a permanent tenure.",
+
     "System Flow Chart",
     "Re-engaged form Non-Permanent",
-    "This inflow system status indicates a client who entered the system after the report period’s start date and who had a previous exit to a homeless, temporary, institutional destination or unknown destination within the 24 months prior to their entry.",
-    
+    "This inflow system status indicates a client who entered the system after the report period’s start date and who had a previous exit to a homeless, temporary, institutional destination or unknown destination within the 24 months prior to their entry. A temporary destination could be a hotel or model paid for without an ES voucher. An institutional destination refers to group/assisted living, a medical facility, or incarceration. An unknown destination often refers to when a client does not report their exit destination.",
+
     "System Flow Chart",
     "Inflow Unspecified",
     "This system status indicates a client who entered the system after the report start date, but it cannot be determined if they are newly homeless because there is not enough lookback data. This inflow system status takes the place of First-Time Homeless in cases where less than 36 months of data are uploaded to Eva.",
@@ -443,12 +443,12 @@ output$glossary <- renderDataTable({
     
     "System Flow Chart",
     "Exited, Non-Permanent",
-    "This outflow system status indicates a client exited the system to a homeless, temporary, institutional, or unknown destination as defined in the HMIS Data Standards. Only the client’s last exit is counted.",
-    
+    "This outflow system status indicates a client exited the system to a homeless, temporary, institutional, or unknown destination as defined in the HMIS Data Standards. A temporary destination could be a hotel or model paid for without an ES voucher. An institutional destination refers to group/assisted living, a medical facility, or incarceration. An unknown destination often refers to when a client does not report their exit destination. Only the client’s last exit is counted.",
+
     "System Flow Chart",
     "Exited, Permanent",
-    "This outflow system status indicates a client’s last system exit was to a permanent destination.", 
-    
+    "This outflow system status indicates a client’s last system exit was to a permanent destination.  Permanent destinations include renting or owning permanent housing with or without subsidy, and staying or living with friends or family with a permanent tenure.",
+
     "System Flow Chart",
     "Inactive (Outflow)",
     "A client is counted in inactive outflow if they ended the report period with (1) an open enrollment in an Emergency Shelter – Night-by-Night project that has not had a bed night recorded within the last 15 days of the report period, (2) an open enrollment in Street Outreach, Day Shelter, Supportive Services, and Other project type enrollments without a Current Living Situation (CLS) record within the last 60 days of the report period, or (3) an open enrollment in Coordinated Entry without a CLS record within the last 90 days of the report period.", 
