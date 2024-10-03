@@ -176,13 +176,13 @@ dkr_gender <- base_dq_data %>%
 #   merge_check_info(checkIDs = 38) %>%
 #   select(all_of(vars_we_want))
 
-missing_veteran_status <- base_dq_data %>%
-  filter(
-    (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
-    (is.na(VeteranStatus))
-  ) %>%
-  merge_check_info(checkIDs = 39) %>%
-  select(all_of(vars_we_want))
+# missing_veteran_status <- base_dq_data %>%
+#   filter(
+#     (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
+#     (is.na(VeteranStatus))
+#   ) %>%
+#   merge_check_info(checkIDs = 39) %>%
+#   select(all_of(vars_we_want))
 
 dkr_veteran <- base_dq_data %>%
   filter(
