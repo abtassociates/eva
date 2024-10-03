@@ -100,7 +100,7 @@
     "methodology_type": "1",
     "orgList": null,
     "sidebarCollapsed": false,
-    "sidebarItemExpanded": null,
+    "sidebarItemExpanded": "AssessDataQuality",
     "sidebarmenuid": "tabPDDE",
     "sys_comp_subtabs": "Chart",
     "sys_inflow_outflow_subtabs": "Summary Chart",

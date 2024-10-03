@@ -4,7 +4,7 @@
 # move chart download button to be inline with subtabs
 observeEvent(input$syso_tabbox, {
   req(valid_file() == 1)
-  logMetadata(paste0("Clicked on: ", input$syso_tabbox,
+  logMetadata(paste0("Clicked on ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   toggleClass(
     id = "syso_inflowoutflow_filters",
@@ -16,21 +16,21 @@ observeEvent(input$syso_tabbox, {
 
 observeEvent(input$sys_inflow_outflow_subtabs, {
   req(valid_file() == 1)
-  logMetadata(paste0("Clicked on: ", input$sys_inflow_outflow_subtabs,
+  logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_status_subtabs, {
   req(valid_file() == 1)
-  logMetadata(paste0("Clicked on: ", input$sys_status_subtabs,
+  logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_comp_subtabs, {
   req(valid_file() == 1)
-  logMetadata(paste0("Clicked on: ", input$sys_comp_subtabs,
+  logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
@@ -173,7 +173,7 @@ toggle_sys_components(FALSE, init=TRUE) # initially hide them
 
 sys_export_summary_initial_df <- function() {
   
-  logMetadata(paste0("Downloaded System Overview Tabular Data",
+  logMetadata(paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
   return(data.frame(
@@ -236,7 +236,7 @@ syso_gender_cats <- function(methodology = 1){
 # PowerPoint Export -------------------------------------------------------
 sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot_slide_title, plot1, plot2 = NULL, summary_font_size) {
   
-  logMetadata(paste0("Downloaded System Overview Powerpoint",
+  logMetadata(paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", ""))) #NEED TO UPDATE - if want to get more granular, need to detect with title slide
   
   report_period <- paste0("Report Period: ", 
