@@ -572,9 +572,7 @@
       45,
       46,
       47,
-      48,
-      49,
-      50
+      48
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -769,16 +767,7 @@
       122,
       123,
       124,
-      125,
-      126,
-      127,
-      128,
-      129,
-      130,
-      131,
-      132,
-      133,
-      134
+      125
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -1832,7 +1821,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 00ed11e43f47515b1d8b7a1ddbdc28a6]",
+      "src": "[image data hash: 8d48e6f0e902fb68ac029453959a5e3a]",
       "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
@@ -1859,15 +1848,15 @@
 
                 ],
                 "y": [
+                  "Conflicting Health Insurance yes/no at Exit",
+                  "Oldest Household Member Under 12",
                   "Conflicting Health Insurance yes/no at Entry",
+                  "Missing Length of Stay",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
-                  "Missing SSN",
-                  "Missing Disabling Condition",
-                  "Conflicting Income yes/no at Exit",
-                  "Missing Months or Times Homeless",
-                  "Missing Name Data Quality",
                   "Invalid Move-In Date",
+                  "Missing Months or Times Homeless",
+                  "Conflicting Income yes/no at Exit",
                   "Missing HP Screening or Threshold Score"
                 ]
               }
@@ -1877,7 +1866,7 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 248.2131849315069,
+              "left": 276.3381849315069,
               "right": 1619.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
@@ -1979,7 +1968,7 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 6ba37284a849cb4595ddc56b1a1596f1]",
+      "src": "[image data hash: d256d8b1205ca5e34719220a3f05ae7f]",
       "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -1998,7 +1987,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 256.3,
+              "right": 276.1,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -2006,16 +1995,16 @@
 
                 ],
                 "y": [
-                  "Overlap with a Rapid Rehousing project",
-                  "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
-                  "Doesn't Know/Prefers Not to Answer Living Situation",
+                  "Unknown Disabling Condition",
+                  "Unknown Months or Times Homeless",
+                  "Unknown Living Situation",
+                  "Incomplete or Unknown Name",
                   "Overlap with a Emergency Shelter (E/E) project",
                   "Future Entry Date",
                   "Homelessness Start Date conflicts with Living Situation data",
-                  "Doesn't Know/Prefers Not to Answer Destination",
-                  "Missing Destination",
+                  "Unknown Destination",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
-                  "Doesn't Know/Prefers Not to Answer SSN"
+                  "Unknown SSN"
                 ]
               }
             },
@@ -2274,7 +2263,7 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: e0767b65776650518cc6d78537b89cce]",
+      "src": "[image data hash: 76de665668ff2715c072d721d978d037]",
       "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -2293,7 +2282,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 2143.9,
+              "right": 1492.7,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -2301,16 +2290,16 @@
 
                 ],
                 "y": [
+                  "Invalid Move-In Date",
+                  "Missing HP Screening or Threshold Score",
+                  "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
-                  "Missing Race/Ethnicity",
+                  "Conflicting Health Insurance yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
-                  "Missing Name Data Quality",
                   "Missing Residence Prior",
-                  "Missing SSN",
-                  "Missing Length of Stay",
-                  "Missing Disabling Condition"
+                  "Missing Length of Stay"
                 ]
               }
             },
@@ -2421,7 +2410,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 0ca8af9d876d9c6963030020d5e07421]",
+      "src": "[image data hash: ab336c3c535e8191562ff05b5f59ce90]",
       "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
@@ -2440,7 +2429,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 11617.1,
+              "right": 12918.4,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -2448,16 +2437,16 @@
 
                 ],
                 "y": [
-                  "Doesn't Know/Prefers Not to Answer/Data Not Collected DOB",
-                  "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
-                  "Overlap with a Emergency Shelter (E/E) project",
                   "Overlap with a Rapid Rehousing project",
-                  "Doesn't Know/Prefers Not to Answer Living Situation",
-                  "Doesn't Know/Prefers Not to Answer Destination",
+                  "Unknown Months or Times Homeless",
+                  "Unknown Living Situation",
+                  "Unknown Race/Ethnicity",
+                  "Incomplete or Unknown Name",
                   "Homelessness Start Date conflicts with Living Situation data",
+                  "Unknown Disabling Condition",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
-                  "Doesn't Know/Prefers Not to Answer SSN",
-                  "Missing Destination"
+                  "Unknown SSN",
+                  "Unknown Destination"
                 ]
               }
             },
@@ -2534,56 +2523,56 @@
     "dq_org_guidance_summary": [
       [
         "High Priority: 3  ",
-        "Length:50         ",
-        "Length:50         "
+        "Length:48         ",
+        "Length:48         "
       ],
       [
-        "Error        :26  ",
+        "Error        :21  ",
         "Class :character  ",
         "Class :character  "
       ],
       [
-        "Warning      :21  ",
+        "Warning      :24  ",
         "Mode  :character  ",
         "Mode  :character  "
       ]
     ],
     "dq_organization_summary_table": [
       [
-        "Length:134        ",
+        "Length:125        ",
         "High Priority: 5  ",
-        "Length:134        ",
-        "Min.   :  1.000  "
+        "Length:125        ",
+        "Min.   :  1.00  "
       ],
       [
         "Class :character  ",
-        "Error        :69  ",
+        "Error        :52  ",
         "Class :character  ",
-        "1st Qu.:  1.000  "
+        "1st Qu.:  1.00  "
       ],
       [
         "Mode  :character  ",
-        "Warning      :60  ",
+        "Warning      :68  ",
         "Mode  :character  ",
-        "Median :  3.000  "
+        "Median :  3.00  "
       ],
       [
         null,
         null,
         null,
-        "Mean   :  9.836  "
+        "Mean   : 10.49  "
       ],
       [
         null,
         null,
         null,
-        "3rd Qu.:  7.000  "
+        "3rd Qu.:  7.00  "
       ],
       [
         null,
         null,
         null,
-        "Max.   :214.000  "
+        "Max.   :214.00  "
       ]
     ],
     "pdde_guidance_summary": [

@@ -1437,7 +1437,7 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: e0767b65776650518cc6d78537b89cce]",
+      "src": "[image data hash: 76de665668ff2715c072d721d978d037]",
       "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -1456,7 +1456,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 2143.9,
+              "right": 1492.7,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -1464,16 +1464,16 @@
 
                 ],
                 "y": [
+                  "Invalid Move-In Date",
+                  "Missing HP Screening or Threshold Score",
+                  "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
-                  "Missing Race/Ethnicity",
+                  "Conflicting Health Insurance yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
-                  "Missing Name Data Quality",
                   "Missing Residence Prior",
-                  "Missing SSN",
-                  "Missing Length of Stay",
-                  "Missing Disabling Condition"
+                  "Missing Length of Stay"
                 ]
               }
             },
@@ -1584,7 +1584,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 0ca8af9d876d9c6963030020d5e07421]",
+      "src": "[image data hash: ab336c3c535e8191562ff05b5f59ce90]",
       "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
@@ -1603,7 +1603,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 11617.1,
+              "right": 12918.4,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -1611,16 +1611,16 @@
 
                 ],
                 "y": [
-                  "Doesn't Know/Prefers Not to Answer/Data Not Collected DOB",
-                  "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
-                  "Overlap with a Emergency Shelter (E/E) project",
                   "Overlap with a Rapid Rehousing project",
-                  "Doesn't Know/Prefers Not to Answer Living Situation",
-                  "Doesn't Know/Prefers Not to Answer Destination",
+                  "Unknown Months or Times Homeless",
+                  "Unknown Living Situation",
+                  "Unknown Race/Ethnicity",
+                  "Incomplete or Unknown Name",
                   "Homelessness Start Date conflicts with Living Situation data",
+                  "Unknown Disabling Condition",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
-                  "Doesn't Know/Prefers Not to Answer SSN",
-                  "Missing Destination"
+                  "Unknown SSN",
+                  "Unknown Destination"
                 ]
               }
             },
