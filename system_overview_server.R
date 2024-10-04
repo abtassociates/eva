@@ -200,7 +200,7 @@ sys_export_filter_selections <- function() {
   return(tibble(
     Chart = c(
       "Age",
-      "Special Populations",
+      "Veteran Status",
       "Gender",
       "Race/Ethnicity"
     ),
