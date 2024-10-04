@@ -2520,7 +2520,8 @@
           "width": 1595,
           "height": 700
         }
-      }
+      },
+      "error": null
     },
     "systemDQErrorByIssue": {
       "src": "[image data hash: 76de665668ff2715c072d721d978d037]",
