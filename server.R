@@ -1,57 +1,66 @@
 
 function(input, output, session) {
-  #record_heatmap(target = ".wrapper")
+  # record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
-
-  # hard-coded variables and data frames used throughout the app
-  source("hardcodes.R", local = TRUE) 
-
+  set.seed(12345)
+  # session-wide variables (NOT visible to multiple sessions) -----------------
+  visible_reactive_vals <- list(
+    validation <- reactiveVal(),
+    CurrentLivingSituation <- reactiveVal(),
+    Export <- reactiveVal(),
+    Project0 <- reactiveVal(),
+    Event <- reactiveVal(),
+    meta_HUDCSV_Export_Start <- reactiveVal(),
+    meta_HUDCSV_Export_End <- reactiveVal(),
+    meta_HUDCSV_Export_Date <- reactiveVal(),
+    overlaps <- reactiveVal(),
+    base_dq_data_func <- reactiveVal(),
+    dq_main_df <- reactiveVal(),
+    pdde_main <- reactiveVal(),
+    valid_file <- reactiveVal(0), # from FSA. Most stuff is hidden unless valid == 1
+    file_structure_analysis_main <- reactiveVal(),
+    sys_inflow_outflow_plot_data <- reactiveVal(),
+    sys_df_people_universe_filtered_r <- reactiveVal(),
+    ReportStart <- reactiveVal(),
+    ReportEnd <- reactiveVal(),
+    sankey_plot_data <- reactiveVal(),
+    non_ascii_files_detail_df <- reactiveVal(),
+    non_ascii_files_detail_r <- reactiveVal(),
+    days_of_data <- reactiveVal(),
+    windowSize <- reactiveVal()
+  )
+  
+  reset_reactivevals <- function() {
+    lapply(visible_reactive_vals, function(r) r(NULL))
+    valid_file(0)
+    windowSize(input$dimension)
+  }
+  # 
+  # # functions used throughout the app
+  # source("helper_functions.R", local = TRUE)
+  
   # functions used throughout the app
   source("helper_functions.R", local = TRUE)
   
+  # glossary entries
+  source("glossary.R", local = TRUE)
+  
+  observe({
+    req(session$clientData$url_search != "")
+    updateTabItems(session,
+                   "sidebarmenuid",
+                   "tabGlossary")
+    #parseQueryString(session$clientData$url_search))
+  })
+  
   # changelog entries
   source("changelog.R", local = TRUE)
-  
+
   # manages toggling demo mode on and off
   source("demo_management.R", local = TRUE)
   
   # log that the session has started
   logMetadata("Session started")
-  
-  # session-wide variables (NOT visible to multiple sessions) -----------------
-  validation <- reactiveVal()
-  CurrentLivingSituation <- reactiveVal()
-  Export <- reactiveVal()
-  Project0 <- reactiveVal()
-  Event <- reactiveVal()
-  meta_HUDCSV_Export_Start <- reactiveVal()
-  meta_HUDCSV_Export_End <- reactiveVal()
-  meta_HUDCSV_Export_Date <- reactiveVal()
-  overlaps <- reactiveVal()
-  base_dq_data_func <- reactiveVal()
-  dq_main_df <- reactiveVal()
-  pdde_main <- reactiveVal()
-  valid_file <- reactiveVal(0) # from FSA. Most stuff is hidden unless valid == 1
-  file_structure_analysis_main <- reactiveVal()
-  non_ascii_files_detail_df <- reactiveVal()
-  non_ascii_files_detail_r <- reactiveVal()
-  
-  reset_reactivevals <- function() {
-    validation(NULL)
-    CurrentLivingSituation(NULL)
-    Export(NULL)
-    Project0(NULL)
-    Event(NULL)
-    meta_HUDCSV_Export_Start(NULL)
-    meta_HUDCSV_Export_End(NULL)
-    meta_HUDCSV_Export_Date(NULL)
-    overlaps(NULL)
-    base_dq_data_func(NULL)
-    dq_main_df(NULL)
-    pdde_main(NULL)
-    valid_file(0) # from FSA. Most stuff is hidden unless valid == 1
-    file_structure_analysis_main(NULL)
-  }
   
   # set during initially valid processing stop. Rest of processing stops if invalid
   # FSA is hidden unless initially_valid_import() == 1
@@ -62,7 +71,15 @@ function(input, output, session) {
   
   demo_modal_closed <- reactiveVal()
   
+  # syso_gender_cats <- reactive({
+  #   ifelse(
+  #     input$methodology_type == 1,
+  #     list(syso_gender_excl),
+  #     list(syso_gender_incl)
+  #   )[[1]]
+  # })
   
+
   # log when user navigate to a tab
   observe({ 
     logMetadata(paste0("User on ",input$sidebarmenuid, 
@@ -102,7 +119,10 @@ function(input, output, session) {
   
   output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
   
-  # operates the 'Click here to get started' button
+  output$headerSystemOverview <- headerGeneric("System Overview")
+
+  output$headerSystemExit <- headerGeneric("System Exit")
+
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
   }) 
@@ -127,30 +147,29 @@ function(input, output, session) {
   # Run scripts on upload ---------------------------------------------------
   
   process_upload <- function(upload_filename, upload_filepath) {
-    source("00_initially_valid_import.R", local = TRUE)
+    withProgress({
+      setProgress(message = "Processing...", value = .01)
+      
+      setProgress(detail = "Checking initial validity ", value = .05)
+      source("00_initially_valid_import.R", local = TRUE)
 
     if(initially_valid_import() == 1) {
 
       hide('imported_progress')
+
+      setProgress(detail = "Unzipping...", value = .10)
+      list_of_files <- unzip(
+        zipfile = upload_filepath, 
+        files = paste0(unique(cols_and_data_types$File), ".csv"))
       
-      withProgress({
-        setProgress(message = "Processing...", value = .15)
         setProgress(detail = "Reading your files..", value = .2)
         source("01_get_Export.R", local = TRUE)
+        
         source("02_export_dates.R", local = TRUE)
-        setProgress(detail = "Checking file structure", value = .35)
-        
-        # if we're in shiny testmode and the script has gotten here,
-        # that means we've gotten all the exports 
-        # we can edit those to capture all File Structure Analysis 
-        # issues and then continue running to test
-        if(isTRUE(getOption("shiny.testmode")) && 
-        upload_filename == "FY24-ICF-fsa-test.zip") {
-          source("tests/update_test_good_fsa.R", local = TRUE)  
-        }
-        
-        source("03_file_structure_analysis.R", local = TRUE)
 
+        setProgress(detail = "Checking file structure", value = .35)
+        source("03_file_structure_analysis.R", local = TRUE)
+        
         # if structural issues were not found, keep going
         if (valid_file() == 1) {
           if(nrow(
@@ -171,27 +190,62 @@ function(input, output, session) {
               )
             )
           }
-          
+
           setProgress(detail = "Prepping initial data..", value = .4)
-          source("04_initial_data_prep.R", local = TRUE)
-          
-          # if we're in shiny testmode and the script has gotten here,
-          # that means we're using the hashed-test-good file. 
-          # we will update that file to capture the various issues we want to test
-          # we have confirmed that it is correctly capturing these issues
-          if(isTRUE(getOption("shiny.testmode")) && 
-             upload_filename == "FY24-ICF-hashed-current-good.zip") {
-            source("tests/update_test_good_dq.R", local = TRUE)  
-          }
+          source("04_initial_data_prep.R", local = TRUE) 
           
           setProgress(detail = "Assessing your data quality..", value = .7)
           source("05_DataQuality.R", local = TRUE)
           
           setProgress(detail = "Checking your PDDEs", value = .85)
           source("06_PDDE_Checker.R", local = TRUE)
-          # update_pdde_output()
+
+          setProgress(detail = "Preparing System Overview Data", value = .85)
+          source("07_system_overview.R", local = TRUE)
+
+          setProgress(detail = "Preparing Sankey Chart", value = .95)
+          source("09_system_status.R", local = TRUE)
+          
+          # if user changes filters, update the reactive vals
+          # which get used for the various System Overview charts
+          observeEvent({
+            input$syso_hh_type
+            input$syso_level_of_detail
+            input$syso_project_type
+            input$methodology_type
+            input$syso_age
+            input$syso_spec_pops
+            input$syso_gender
+            input$syso_race_ethnicity
+          }, {
+            sys_inflow_outflow_plot_data(inflow_outflow_df())
+            sys_df_people_universe_filtered_r(
+              enrollment_categories_reactive() %>%
+                select(PersonalID, lookback, lecr, eecr, CorrectedHoH) %>%
+                inner_join(client_categories, join_by(PersonalID)) %>%
+                filter(!(lookback == 0 &
+                           eecr == FALSE & lecr == FALSE)) %>%
+                group_by(PersonalID) %>%
+                filter(max(lecr, na.rm = TRUE) == 1 &
+                         max(eecr, na.rm = TRUE) == 1) %>%
+                ungroup() %>%
+                select(colnames(client_categories)) %>%
+                unique()
+            )
+            sankey_plot_data(sankey_plot_df())
+            
+            # hide download buttons if < 11 records
+            # All Served is handled in system_composition_server.R
+            # for that chart, we also hide if all *cells* are < 11
+            shinyjs::toggle("sys_inflow_outflow_download_btn", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
+            shinyjs::toggle("sys_inflow_outflow_download_btn_ppt", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
+            
+            shinyjs::toggle("sys_status_download_btn", condition = sum(sankey_plot_data()$freq) > 10)
+            shinyjs::toggle("sys_status_download_btn_ppt", condition = sum(sankey_plot_data()$freq) > 10)
+          })
           
           setProgress(detail = "Done!", value = 1)
+          logToConsole("Done processing")
           
           
           logToConsole("Upload processing complete")
@@ -211,6 +265,7 @@ function(input, output, session) {
           
           logToConsole("Updating inputs")
           
+          
           # Update inputs --------------------------------
           if(is.null(input$imported) & !isTruthy(input$in_demo_mode)) {
             logToConsole("User is in upload processing but imported is null and demo_mode is not on")
@@ -225,23 +280,24 @@ function(input, output, session) {
               "))
             }
             
-            updatePickerInput(session = session, inputId = "currentProviderList",
+            updatePickerInput(session = session,
+                              inputId = "currentProviderList",
                               choices = sort(Project$ProjectName))
             
-            updatePickerInput(session = session, inputId = "orgList",
+            updatePickerInput(session = session,
+                              inputId = "orgList",
                               choices = c(unique(sort(Organization$OrganizationName))))
             
-            updateDateRangeInput(session = session, inputId = "dateRangeCount",
+            updateDateRangeInput(session = session,
+                                 inputId = "dateRangeCount",
                                  min = meta_HUDCSV_Export_Start(),
                                  start = meta_HUDCSV_Export_Start(),
                                  max = meta_HUDCSV_Export_End(),
                                  end = meta_HUDCSV_Export_End())
-            
           }
           
         } else{ # if structural issues were found, reset gracefully
           valid_file(0)
-          reset("imported")
           showModal(
             modalDialog(
               title = "Unsuccessful Upload: Your HMIS CSV Export is not
@@ -253,10 +309,12 @@ function(input, output, session) {
               footer = modalButton("OK")
             )
           )
+          
           logMetadata("Unsuccessful upload - not structurally valid")
         }
-      })
-    }
+        toggle_sys_components(valid_file() == 1)
+      }
+    })
   }
   
   observeEvent(input$imported, {
@@ -273,8 +331,6 @@ function(input, output, session) {
       summarise(Count = n()) %>%
       ungroup() %>%
       arrange(Type, desc(Count))
-    
-    exportTestValues(fileStructureAnalysis = file_structure_analysis_main())
 
     datatable(
       a,
@@ -305,7 +361,7 @@ function(input, output, session) {
           nice_names(),
         path = file
       )
-      
+
       logMetadata(paste0("Downloaded File Structure Analysis Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
@@ -339,7 +395,7 @@ function(input, output, session) {
       logMetadata(paste0("Impermissible Character Locations Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(non_ascii_files_detail = non_ascii_files_detail)
+      exportTestValues(non_ascii_files_detail = summary(non_ascii_files_detail))
     }
   )
   
@@ -566,8 +622,6 @@ function(input, output, session) {
       select(all_of(clientCountDetailCols)) %>%
       nice_names()
     
-    exportTestValues(clientCountData = x)
-    
     datatable(
       x,
       rownames = FALSE,
@@ -582,7 +636,7 @@ function(input, output, session) {
   output$clientCountSummary <- renderDT({
     req(valid_file() == 1)
     
-    exportTestValues(clientCountSummary = client_count_summary_df())
+    exportTestValues(clientCountSummary = summary(client_count_summary_df()))
     
     datatable(
       client_count_summary_df() %>%
@@ -629,13 +683,13 @@ function(input, output, session) {
     content = function(file) {
       req(valid_file() == 1)
       
-      summary <- pdde_main() %>% 
+      summary_df <- pdde_main() %>% 
         group_by(Issue, Type) %>%
         summarise(Count = n()) %>%
         ungroup()
       
       write_xlsx(
-        list("Summary" = summary,
+        list("Summary" = summary_df,
              "Data" = pdde_main() %>%
                nice_names()),
         path = file)
@@ -643,7 +697,8 @@ function(input, output, session) {
       logMetadata(paste0("Downloaded PDDE Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(pdde_download = list("Summary" = summary, "Data" = pdde_main()))
+      exportTestValues(pdde_download = list(
+        "Summary" = summary(summary_df), "Data" = summary(pdde_main())))
     }
   )
   
@@ -657,7 +712,7 @@ function(input, output, session) {
       ungroup() %>%
       arrange(Type)
     
-    exportTestValues(pdde_summary_table = a)
+    exportTestValues(pdde_summary_table = summary(a))
     
     datatable(
       a,
@@ -677,7 +732,7 @@ function(input, output, session) {
       arrange(Type, Issue) %>%
       unique()
     
-    exportTestValues(pdde_guidance_summary = guidance)
+    exportTestValues(pdde_guidance_summary = summary(guidance))
     
     datatable(
       guidance, 
@@ -711,7 +766,7 @@ function(input, output, session) {
              Issue, 
              Clients)
     
-    exportTestValues(dq_organization_summary_table = a)
+    exportTestValues(dq_organization_summary_table = summary(a))
     
     datatable(
       a,
@@ -735,7 +790,7 @@ function(input, output, session) {
       arrange(Type, Issue) %>%
       unique()
     
-    exportTestValues(dq_org_guidance_summary = guidance)
+    exportTestValues(dq_org_guidance_summary = summary(guidance))
     
     datatable(
       guidance, 
@@ -743,6 +798,39 @@ function(input, output, session) {
       escape = FALSE,
       filter = 'top',
       options = list(dom = 'ltpi')
+    )
+  })
+  
+  dqDownloadInfo <- reactive({
+    req(valid_file() == 1)
+    
+    # org-level data prep (filtering to selected org)
+    orgDQData <- dq_main_reactive() %>%
+      filter(OrganizationName %in% c(input$orgList))
+    
+    orgDQoverlaps <- overlaps() %>%
+      filter(OrganizationName %in% c(input$orgList) | 
+               PreviousOrganizationName %in% c(input$orgList))
+    #browser()
+    orgDQReferrals <- 
+      calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+      filter(OrganizationName %in% c(input$orgList))
+    
+    # return a list for reference in downloadHandler
+    list(
+      orgDQData = 
+        getDQReportDataList(orgDQData,
+                            orgDQoverlaps,
+                            "ProjectName",
+                            orgDQReferrals
+        ),
+      
+      systemDQData = 
+        getDQReportDataList(dq_main_reactive(),
+                            overlaps(),
+                            "OrganizationName",
+                            calculate_outstanding_referrals(input$CEOutstandingReferrals)
+        )
     )
   })
   
@@ -762,7 +850,7 @@ function(input, output, session) {
       write_xlsx(dqDownloadInfo()$orgDQData, path = file)
       logMetadata(paste0("Downloaded Org-level DQ Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-      exportTestValues(orgDQ_download = dqDownloadInfo()$orgDQData)
+      exportTestValues(orgDQ_download = summary(dqDownloadInfo()$orgDQData))
     }
   )
   
@@ -781,7 +869,7 @@ function(input, output, session) {
       write_xlsx(dqDownloadInfo()$systemDQData, path = file)
       logMetadata(paste0("Downloaded System-level DQ Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-      exportTestValues(systemDQ_download = dqDownloadInfo()$systemDQData)
+      exportTestValues(systemDQ_download = summary(dqDownloadInfo()$systemDQData))
     }
   )
   
@@ -865,280 +953,25 @@ function(input, output, session) {
   #          ReportEnd
   #        )))
   # })
+
+  output$orgDQWarningsByIssue_ui <- renderUI({
+    renderDQPlot("org", "Warning", "Issue", "#71B4CB")
+  })
+  
+  # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
+  
+  source("system_overview_server.R", local = TRUE)
+  
+  ## System Composition ----
+  source("system_inflow_outflow_server.R", local = TRUE)
+    
+  ## System Composition ----
+  source("system_composition_server.R", local = TRUE)
+
+  ## Sankey Chart/System Status ----
+  source("system_status_server.R", local = TRUE)
+  
   session$onSessionEnded(function() {
     logMetadata("Session Ended")
   })
-  
-  # output$cocDQErrors <- renderPlot(dq_plot_projects_errors)
-  # 
-  # output$cocHHErrors <- renderPlot(dq_plot_hh_errors)
-  # 
-  # output$cocUnshelteredHigh <- renderPlot(dq_plot_unsheltered_high)
-  # 
-  # output$cocDQWarnings <- renderPlot(dq_plot_projects_warnings)
-  # 
-  # output$cocDQErrorTypes <- renderPlot(dq_plot_errors)
-  # 
-  # output$cocDQWarningTypes <- renderPlot(dq_plot_warnings)
-  # 
-  # output$cocEligibility <- renderPlot(dq_plot_eligibility)
-  # 
-  # output$dq_plot_outstanding_referrals <- renderPlot(dq_plot_outstanding_referrals)
-  
-  # output$bedPlot <- renderPlotly({
-  #   ReportEnd <- ymd(input$utilizationDate) 
-  #   ReportStart <- floor_date(ymd(ReportEnd), unit = "month") -
-  #     years(1) +
-  #     months(1)
-  #   ReportingPeriod <- interval(ymd(ReportStart), ymd(ReportEnd))
-  #   
-  #   Provider <- input$providerListUtilization
-  #   
-  #   bedPlot <- utilization_bed %>% 
-  #     gather("Month",
-  #            "Utilization",
-  #            -ProjectID,
-  #            -ProjectName,
-  #            -ProjectType) %>%
-  #     filter(ProjectName == Provider,
-  #            mdy(Month) %within% ReportingPeriod) %>%
-  #     mutate(
-  #       Month = floor_date(mdy(Month), unit = "month"),
-  #       Bed = Utilization,
-  #       Utilization = NULL
-  #     )
-  #   
-  #   unitPlot <- utilization_unit %>% 
-  #     gather("Month",
-  #            "Utilization",
-  #            -ProjectID,
-  #            -ProjectName,
-  #            -ProjectType) %>%
-  #     filter(ProjectName == Provider,
-  #            mdy(Month) %within% ReportingPeriod) %>%
-  #     mutate(
-  #       Month = floor_date(mdy(Month), unit = "month"),
-  #       Unit = Utilization,
-  #       Utilization = NULL
-  #     )
-  #   
-  #   utilizationPlot <- unitPlot %>%
-  #     full_join(bedPlot,
-  #               by = c("ProjectID", "ProjectName", "ProjectType", "Month")) 
-  #   
-  #   plot_ly(utilizationPlot, 
-  #           x = ~Month) %>%
-  #     add_trace(y = ~ Unit,
-  #               name = "Unit Utilization",
-  #               type = "scatter",
-  #               mode = "lines+markers",
-  #               hoverinfo = 'y') %>%
-  #     add_trace(y = ~Bed,
-  #               name = "Bed Utilization",
-  #               type = "scatter",
-  #               mode = "lines+markers",
-  #               hoverinfo = 'y') %>%
-  #     layout(yaxis = list(
-  #       title = "Utilization",
-  #       tickformat = "%",
-  #       range = c(0, 2)
-  #     ),
-  #     margin = list(
-  #       t = 100
-  #     ),
-  #     title = paste("Bed and Unit Utilization",
-  #                   "\n", 
-  #                   Provider,
-  #                   "\n", 
-  #                   format(ymd(ReportStart), "%B %Y"), 
-  #                   "to", 
-  #                   format(ymd(ReportEnd), "%B %Y")))
-  #   
-  # })  
-  # 
-  # output$unitNote <- renderUI(note_unit_utilization)
-  # 
-  # output$bedNote <- renderUI(note_bed_utilization)
-  # 
-  # output$utilizationNote <- renderUI(HTML(note_calculation_utilization))
-  # 
-  # output$utilizationDetail <- renderDT({
-  #   ReportStart <-
-  #     floor_date(ymd(input$utilizationDate),
-  #                unit = "month")
-  #   ReportEnd <-
-  #     floor_date(ymd(input$utilizationDate) + days(31),
-  #                unit = "month") - days(1)
-  #   
-  #   y <- paste0(substr(input$utilizationDate, 6, 7),
-  #               "01",
-  #               substr(input$utilizationDate, 1, 4))
-  #   
-  #   z <-
-  #     paste("Bed Nights in", format(ymd(input$utilizationDate), "%B %Y"))
-  #   # input <- list(providerListUtilization = sample(c(sort(utilization_bed$ProjectName)), 1))
-  #   a <- utilizers_clients %>%
-  #     filter(
-  #       ProjectName == input$providerListUtilization,
-  #       served_between(., ReportStart, ReportEnd)
-  #     ) %>%
-  #     mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
-  #                               MoveInDate, EntryDate),
-  #            PersonalID = as.character(PersonalID)) %>%
-  #     select(PersonalID, BedStart, ExitDate, all_of(y))
-  #   
-  #   colnames(a) <- c("Personal ID", "Bed Start", "Exit Date", z)
-  #   
-  #   datatable(a,
-  #             rownames = FALSE,
-  #             filter = 'top',
-  #             options = list(dom = 'ltpi'))
-  #   
-  # })
-  # 
-  # output$utilizationSummary0 <- renderInfoBox({
-  #   ReportStart <-
-  #     floor_date(ymd(input$utilizationDetailDate),
-  #                unit = "month")
-  #   ReportEnd <-
-  #     floor_date(ymd(input$utilizationDetailDate) + days(31),
-  #                unit = "month") - days(1)
-  #   
-  #   y <- paste0(substr(input$utilizationDetailDate, 6, 7),
-  #               "01",
-  #               substr(input$utilizationDetailDate, 1, 4))
-  #   
-  #   a <- utilizers_clients %>%
-  #     filter(
-  #       ProjectName == input$providerListUtilization,
-  #       served_between(., ReportStart, ReportEnd)
-  #     ) %>%
-  #     mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
-  #                               MoveInDate, EntryDate)) %>%
-  #     select(PersonalID, BedStart, ExitDate, all_of(y))
-  #   
-  #   colnames(a) <- c("Personal ID", "Bed Start", "Exit Date", "BNs")
-  #   
-  #   beds <- Beds %>%
-  #     filter(ProjectName == input$providerListUtilization &
-  #              beds_available_between(., ReportStart, ReportEnd)) %>%
-  #     group_by(ProjectID) %>%
-  #     summarise(BedCount = sum(BedInventory)) %>%
-  #     ungroup() %>%
-  #     pull(BedCount)
-  #   
-  #   daysInMonth <- days_in_month(ymd(input$utilizationDetailDate))
-  #   
-  #   infoBox(
-  #     title = "Total Bed Nights Served",
-  #     color = "purple",
-  #     icon = icon("bed"),
-  #     value = sum(a$BNs),
-  #     subtitle = "See table below for detail."
-  #   )
-  # })
-  # 
-  # output$utilizationSummary1 <- renderInfoBox({
-  #   ReportStart <-
-  #     floor_date(ymd(input$utilizationDetailDate),
-  #                unit = "month")
-  #   ReportEnd <-
-  #     floor_date(ymd(input$utilizationDetailDate) + days(31),
-  #                unit = "month") - days(1)
-  #   
-  #   y <- paste0(substr(input$utilizationDetailDate, 6, 7),
-  #               "01",
-  #               substr(input$utilizationDetailDate, 1, 4))
-  #   
-  #   a <- utilizers_clients %>%
-  #     filter(
-  #       ProjectName == input$providerListUtilization,
-  #       served_between(., ReportStart, ReportEnd)
-  #     ) %>%
-  #     mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
-  #                               MoveInDate, EntryDate)) %>%
-  #     select(PersonalID, BedStart, ExitDate, all_of(y))
-  #   
-  #   colnames(a) <- c("Personal ID", "Bed Start", "Exit Date", "BNs")
-  #   
-  #   beds <- Beds %>%
-  #     filter(ProjectName == input$providerListUtilization &
-  #              beds_available_between(., ReportStart, ReportEnd)) %>%
-  #     group_by(ProjectID) %>%
-  #     summarise(BedCount = sum(BedInventory)) %>%
-  #     ungroup() %>%
-  #     pull(BedCount)
-  #   
-  #   # units <- Utilization %>%
-  #   #   filter(ProjectName == input$providerListUtilization) %>%
-  #   #   select(UnitCount)
-  #   
-  #   daysInMonth <- days_in_month(ymd(input$utilizationDetailDate))
-  #   
-  #   infoBox(
-  #     title = "Possible Bed Nights",
-  #     color = "purple",
-  #     icon = icon("bed"),
-  #     value = beds * daysInMonth,
-  #     subtitle = paste(
-  #       "Bed Count:",
-  #       beds,
-  #       "beds ×",
-  #       daysInMonth,
-  #       "days in",
-  #       format(ymd(input$utilizationDetailDate), "%B"),
-  #       "=",
-  #       beds * daysInMonth
-  #     )
-  #   )
-  # })
-  # 
-  # output$utilizationSummary2 <- renderInfoBox({
-  #   ReportStart <-
-  #     floor_date(ymd(input$utilizationDetailDate),
-  #                unit = "month")
-  #   ReportEnd <-
-  #     floor_date(ymd(input$utilizationDetailDate) + days(31),
-  #                unit = "month") - days(1)
-  #   
-  #   y <- paste0(substr(input$utilizationDetailDate, 6, 7),
-  #               "01",
-  #               substr(input$utilizationDetailDate, 1, 4))
-  #   
-  #   a <- utilizers_clients %>%
-  #     filter(
-  #       ProjectName == input$providerListUtilization,
-  #       served_between(., ReportStart, ReportEnd)
-  #     ) %>%
-  #     mutate(BedStart = if_else(ProjectType %in% c(3, 9, 13),
-  #                               MoveInDate, EntryDate)) %>%
-  #     select(PersonalID, BedStart, ExitDate, all_of(y))
-  #   
-  #   colnames(a) <- c("Personal ID", "Bed Start", "Exit Date", "BNs")
-  #   
-  #   beds <- Beds %>%
-  #     filter(ProjectName == input$providerListUtilization &
-  #              beds_available_between(., ReportStart, ReportEnd)) %>%
-  #     group_by(ProjectID) %>%
-  #     summarise(BedCount = sum(BedInventory)) %>%
-  #     ungroup() %>%
-  #     pull(BedCount)
-  #   
-  #   daysInMonth <-
-  #     as.numeric(days_in_month(ymd(input$utilizationDetailDate)))
-  #   
-  #   bedUtilization <- percent(sum(a$BNs) / (beds * daysInMonth))
-  #   
-  #   infoBox(
-  #     title = "Bed Utilization",
-  #     color = "teal",
-  #     icon = icon("bed"),
-  #     value = bedUtilization,
-  #     subtitle = paste(sum(a$BNs),
-  #                      "÷",
-  #                      beds * daysInMonth,
-  #                      "=",
-  #                      bedUtilization)
-  #   )
-  # })
 }

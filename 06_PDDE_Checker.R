@@ -53,8 +53,8 @@ operating_end_missing <- Enrollment %>%
 
   ) %>%
   ungroup() %>%
-  left_join(Project %>% 
-              select(ProjectID, ProjectName, OrganizationName, OperatingEndDate) %>%
+  left_join(Project0() %>% 
+              select(ProjectID, ProjectName, OrganizationName) %>%
               unique(), 
             by = "ProjectID") %>%
   filter(NumOpenEnrollments == 0 & 
@@ -71,7 +71,7 @@ operating_end_missing <- Enrollment %>%
 
 # Missing CoC Information Missing address field(s), Missing Geocode,
 # Missing Geography Type, Invalid Zip Code if possible
-missing_CoC_Info <- Project %>%
+missing_CoC_Info <- Project0() %>%
   left_join(ProjectCoC, by = "ProjectID") %>%
   filter(is.na(Address1) | 
            is.na(City) | 
@@ -133,7 +133,7 @@ missing_inventory_record <- Project0() %>%
 # Inventory End > Operating End or Null
 activeInventory <- Inventory %>%
   left_join(
-    Project %>%
+    Project0() %>%
       select(
         ProjectID,
         OrganizationName,
@@ -205,7 +205,7 @@ operating_end_precedes_inventory_end <- activeInventory %>%
 
 # RRH project w no SubType ------------------------------------------------
 
-rrh_no_subtype <- Project %>%
+rrh_no_subtype <- Project0() %>%
   filter(ProjectType == 13 & is.na(RRHSubType)) %>%
   merge_check_info(checkIDs = 110) %>%
   mutate(Detail = "") %>%
@@ -214,14 +214,12 @@ rrh_no_subtype <- Project %>%
 
 # VSP with HMIS Participation ---------------------------------------------
 
-vsp_projects <- Project %>%
-  inner_join(Organization %>%
-               filter(VictimServiceProvider == 1),
-             by = "OrganizationID") %>%
+vsp_projects <- Project0() %>%
+  filter(VictimServiceProvider == 1) %>%
   pull(ProjectID) %>%
   unique()
 
-participating_projects <- Project %>%
+participating_projects <- Project0() %>%
   inner_join(HMISParticipation %>%
                filter(HMISParticipationType == 1),
              by = "ProjectID") %>%
@@ -231,7 +229,7 @@ participating_projects <- Project %>%
 vsps_that_are_hmis_participating <- 
   base::intersect(vsp_projects, participating_projects)
 
-vsps_in_hmis <- Project %>%
+vsps_in_hmis <- Project0() %>%
   filter(ProjectID %in% c(vsps_that_are_hmis_participating)) %>%
   merge_check_info(checkIDs = 133) %>%
   mutate(Detail = "") %>%
@@ -270,7 +268,7 @@ rrh_so_w_inventory <- activeInventory %>%
                coalesce(InventoryEndDate, no_end_date))
   ) %>%
   select(InventoryID, ProjectID, InventoryActivePeriod, BedInventory) %>%
-  left_join(Project, join_by(ProjectID)) %>%
+  left_join(Project0(), join_by(ProjectID)) %>%
   mutate(RRHSOyn = ProjectType == 13 & RRHSubType == 1,
          RRHSOActivePeriod =
            interval(OperatingStartDate,

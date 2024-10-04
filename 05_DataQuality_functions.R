@@ -22,12 +22,12 @@ vars_we_want <- c(vars_prep,
                   "Guidance")
 
 dq_main_reactive <- reactive({
-  ESNbN <- calculate_long_stayers_local_settings(input$ESNbNLongStayers, 0)
-  Outreach <- calculate_long_stayers_local_settings(input$OUTLongStayers, 4)
-  CoordinatedEntry <- calculate_long_stayers_local_settings(input$CELongStayers, 14)
-  ServicesOnly <- calculate_long_stayers_local_settings(input$ServicesOnlyLongStayers, 6)
-  Other <- calculate_long_stayers_local_settings(input$OtherLongStayers, 7)
-  DayShelter <- calculate_long_stayers_local_settings(input$DayShelterLongStayers, 11)
+  ESNbN <- calculate_long_stayers_local_settings_dt(input$ESNbNLongStayers, 0)
+  Outreach <- calculate_long_stayers_local_settings_dt(input$OUTLongStayers, 4)
+  CoordinatedEntry <- calculate_long_stayers_local_settings_dt(input$CELongStayers, 14)
+  ServicesOnly <- calculate_long_stayers_local_settings_dt(input$ServicesOnlyLongStayers, 6)
+  Other <- calculate_long_stayers_local_settings_dt(input$OtherLongStayers, 7)
+  DayShelter <- calculate_long_stayers_local_settings_dt(input$DayShelterLongStayers, 11)
   
   
   #Calculating potential old referrals based on Local settings
@@ -263,6 +263,32 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
   
 }
 
+calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
+  if (projecttype %in% c(project_types_w_cls)) {
+    merge_check_info_dt(
+      as.data.table(cls_project_types())[
+        is.na(ExitDate) &
+          ProjectType %in% project_types_w_cls &
+          ProjectType == projecttype &
+          too_many_days < Days,
+      ],
+      103
+    )[, ..vars_we_want]
+  } else{
+    entryexit_project_types <- as.data.table(validation())
+    entryexit_project_types[, Days := as.numeric(difftime(
+      as.Date(meta_HUDCSV_Export_Date()), EntryDate, units = "days"
+    ))]
+    merge_check_info_dt(entryexit_project_types[
+      is.na(ExitDate) &
+        !ProjectType %in% project_types_w_cls &
+        ProjectType == projecttype &
+        too_many_days < Days],
+      102
+    )[, ..vars_we_want]
+  } 
+  
+}
 # Outstanding Referrals --------------------------------------------
 
 calculate_outstanding_referrals <- function(too_many_days){
@@ -301,7 +327,7 @@ calculate_outstanding_referrals <- function(too_many_days){
 }
 
 renderDQPlot <- function(level, issueType, group, color) {
-  req(nrow(dq_main_df()) > 0)
+  req(nrow(dq_main_df()) > 0 & valid_file() == 1)
   # groupVars is the variable(s) used to summarise/count rows
   # x_group is the x variable used to in the ggplot reordering
   if(group == "Org") {
@@ -399,18 +425,32 @@ renderDQPlot <- function(level, issueType, group, color) {
       scale_y_discrete(expand = expansion(mult = c(0, .1))) +
       theme_classic() +
       theme(axis.line = element_line(linetype = "blank"),
-            axis.text = element_text(size = 12),
+            axis.text = element_text(size = sys_axis_text_font),
             axis.text.x = element_blank(),
-            axis.title = element_text(size = 12),
+            axis.title = element_text(size = sys_axis_text_font),
             axis.ticks = element_line(linetype = "blank"),
             plot.background = element_blank(),
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank()) +
-      geom_text(aes(label = countVar), hjust = -0.5, color = "black")
-  })
+      geom_text(aes(label = countVar), hjust = -0.5, color = "black", size=sys_chart_text_font)
+  },
+  ,
+  alt = case_when(outputId == "systemDQHighPriorityErrorsByIssue" ~ "A bar chart of the top High Priority Errors in the system.",
+                  outputId == "systemDQHighPriorityErrorsByOrg" ~ "A bar chart of the top organizations with the most High Priority Errors in the system.",
+                  outputId == "systemDQErrorByIssue" ~ "A bar chart of the top General Errors in the system.",
+                  outputId == "systemDQErrorByOrg" ~ "A bar chart of the top organizations with the most General Errors in the system.",
+                  outputId == "systemDQWarningByIssue" ~ "A bar chart of the top Warnings in the system.",
+                  outputId == "systemDQWarningByOrg" ~ "A bar chart of the top organizations with the most Warnings in the system.",
+                  outputId == "orgDQHighPriorityErrorsByIssue" ~ "A bar chart of the top High Priority Errors in the organization.",
+                  outputId == "orgDQHighPriorityErrorsByProject" ~ "A bar chart of the organization's projects with the most High Priority Errors.",
+                  outputId == "orgDQErrorByIssue" ~ "A bar chart of the top General Errors in the organization.",
+                  outputId == "orgDQErrorByProject" ~ "A bar chart of the organization's projects with the most General Errors.",
+                  outputId == "orgDQWarningByIssue" ~ "A bar chart of the top Warnings in the organization.",
+                  TRUE ~ "A bar chart of the organization's projects with the most Warnings.")
+  )
   
   # this effectively collapses the plot if there are no rows
-  plot_height = if_else(nrow(plot_data) == 0,50,400)
+  plot_height = if_else(nrow(plot_data) == 0, 50, 400)
   
   # finally, render the plot
   return(plotOutput(outputId, height = plot_height))

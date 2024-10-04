@@ -193,9 +193,9 @@ get_clientcount_download_info <- function(file) {
   )
   
   names(exportDFList) = c(
-    "validation() - Current",
-    "validation() - Date Range",
-    "validation() - Detail"
+    "validation - Current",
+    "validation - Date Range",
+    "validation - Detail"
   )
   
   exportTestValues(
@@ -212,4 +212,8 @@ get_clientcount_download_info <- function(file) {
   
   write_xlsx(exportDFList,
              path = file)
+  
+  logMetadata(paste0("Downloaded Client Counts Report",
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+  
 }

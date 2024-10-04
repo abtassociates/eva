@@ -9,6 +9,9 @@
 /* || HELP TEXT CIRCLE*/
 /* || VALIDATION MESSAGES FOR PLOTS */
 /* || CHANGELOG */
+/* || DEMO MODE */
+/* || SYSTEM OVERVIEW FILTERS */
+/* || CHART INFORMATION TABLES */
 
 .content-wrapper {
   overflow: auto;
@@ -44,6 +47,12 @@
     background: white;
 }
 
+/* toggle button focus */
+.skin-black .main-header .navbar .sidebar-toggle:focus {
+    color: #16697A; /*icon color - dark blue*/
+    background: white;
+}
+
 /* || MAIN SIDEBAR */
 
 /*sidebar color*/
@@ -56,6 +65,11 @@
   color: black; /*text color*/
 }
 
+/*sets sidebar visible focus when tabbing over with keyboard*/
+.skin-black .sidebar-menu>li>a:focus-visible {
+    outline: -webkit-focus-ring-color auto 1px;
+}
+
 /*sidebar color when menu option with no submenu is selected*/
 .skin-black .main-sidebar .active {
   background-color: white; /*text color*/
@@ -63,7 +77,15 @@
 }
 
 /*sidebar color when menu option with a submenu is selected*/
-.skin-black .sidebar-menu>li.active>a, .skin-black .sidebar-menu>li:hover>a {
+.skin-black .sidebar-menu>li.active>a, 
+.skin-black .sidebar-menu>li:hover>a
+{
+    color: black; /*text color*/
+    background: #D0E7EC; /*sky*/
+    border-left-color: white;
+}
+
+.a:focus {
     color: black; /*text color*/
     background: #D0E7EC; /*sky*/
     border-left-color: white;
@@ -81,6 +103,11 @@
 /*text color of submenu options when submenu is open*/
 .skin-black .treeview-menu>li>a {
     color: black; /*text color*/
+}
+
+/*sets submenu visible focus when tabbing over with keyboard*/
+.skin-black .treeview-menu>li>a:focus-visible {
+    outline: -webkit-focus-ring-color auto 1px;
 }
 
 /*active and hover actions for submenu options*/
@@ -152,8 +179,8 @@
   border-color: #C2462E; /*coral*/
 }
 
-/*button hover*/
-.btn:hover {
+/*button hover and focus*/
+.btn:hover, .btn:focus {
   color: #C2462E; /*text color - coral*/
   background-color: white;
   border-color: #C2462E; /*text color - coral*/
@@ -402,4 +429,118 @@ a:hover {
   color: #000000; 
   text-align:center;
   height: 1.5em;
+}
+
+/* || SYSTEM OVERVIEW FILTERS */
+.light-left-border {
+  border-left: 1px solid lightgray;
+}
+.light-right-border {
+  border-right: 1px solid lightgray;
+}
+
+#syso_date_range {
+  display: inline-block;
+}
+
+#syso_header {
+  background-color: #16697A;
+  color: white;
+  font-size: 1.4em;
+}
+
+.nav-tabs-custom>.tab-content[data-tabsetid="6238"] {
+    padding: 0;
+}
+
+#sys_comp_summary_ui_chart {
+  height:100% !important; /*otherwise, we get a 2nd scrollbar on sys overview page*/
+}
+
+/* DISABLE FILTERS*/
+#syso_inflowoutflow_filters.filter-hidden {
+  display: none;
+}
+
+#sys_inflow_outflow_download_tab,
+#sys_status_download_tab,
+#sys_comp_download_tab {
+  float:right;
+}
+
+#system_composition_selections-label {
+  display: none;
+}
+
+#system_composition_selections label.checkbox-inline {
+  padding-right: 10px;
+}
+
+#system_composition_selections label.checkbox-inline:nth-child(2),
+#system_composition_selections label.checkbox-inline:nth-child(4) {
+  border-right: 1px solid lightgray;
+}
+
+#sys_comp_download_btn_ppt, #sys_comp_download_btn,
+#sys_status_download_btn_ppt, #sys_status_download_btn,
+#sys_inflow_outflow_download_btn_ppt, #sys_inflow_outflow_download_btn{
+  display: inline-block;
+}
+
+/*center chart*/
+#sys_comp_summary_ui_chart,
+#sankey_ui_chart,
+#sys_act_summary_ui_chart, 
+#sys_act_detail_ui_chart {
+  display: flex;
+  margin: 0 auto;
+}
+
+#sys_comp_summary_ui_chart > img,
+#sankey_ui_chart > img,
+#sys_act_summary_ui_chart > img, 
+#sys_act_detail_ui_chart > img {
+  margin: 0 auto;
+}
+
+/* || CHART INFORMATION TABLES */
+.sys_info_table {
+  border: 1px solid black;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.sys_info_table th, 
+.sys_info_table td {
+  border: 1px solid black;
+  padding: 15px;
+}
+
+.sys_info_table th {
+  text-align: left;
+}
+
+.sys_info_table td {
+  vertical-align: top;
+}
+
+.nav-tabs-custom > #syso_tabbox + .tab-content,
+.nav-tabs-custom > #sys_comp_subtabs + .tab-content,
+#syso_tabbox + .tab-content > .tab-pane > div {
+  padding: 0px;
+}
+
+
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab>a, 
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab>a:hover {
+  margin-right: 2px;
+  line-height: 1.42857143;
+  border: 1px solid transparent;
+  border-radius: 4px 4px 0 0;
+}
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab .btn, 
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab .btn-default {
+  color: white;
+  background-color: #C2462E;
+  border-color: #C2462E;
 }
