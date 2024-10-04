@@ -16,6 +16,11 @@ library(shinyjs)
 library(shinydisconnect)
 library(here)
 library(shinycssloaders)
+library(dtplyr)
+library(data.table)
+library(ggplot2)
+library(ggalluvial)
+library(officer)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 
@@ -24,3 +29,10 @@ if(dir.exists("metadata-analysis/metadata/")) {
 } else {
   dir.create("metadata-analysis/metadata/")
 }
+source("hardcodes.R", local = TRUE) # hard-coded variables and data frames
+
+# # functions used throughout the app
+# source("helper_functions.R", local = TRUE)
+
+# runApp(display.mode = "showcase")
+

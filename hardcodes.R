@@ -27,21 +27,15 @@ allowed_living_situations <-
   unique() %>%
   sort()
 
-perm_livingsituation <- c(336, 410, 411, 421, 422, 423, 426, 435)
+perm_livingsituation <- c(400:499)
 
-lh_livingsituation <- c(101, 116, 118)
+homeless_livingsituation_incl_TH <- c(100:199, 302)
 
-homeless_livingsituation <- c(101, 302, 116, 118)
+temp_livingsituation <- c(300:399)
 
-temp_livingsituation <- c(101, 302, 312, 313, 314, 116, 118, 327, 329, 332, 335)
+institutional_livingsituation <- c(200:299)
 
-institutional_livingsituation <- c(204, 205, 206, 207, 215, 225)
-
-other_livingsituation <- c(8, 9, 17, 24, 30, 37, 99)
-
-not_homeless_livingsituation <- 
-  c(204, 205, 206, 207, 215, 225, 302, 314, 329, 332, 335, 336, 410, 411, 421, 435)
-
+other_livingsituation <- c(0:99)
 
 # Project Type Groupings --------------------------------------------------
 
@@ -61,11 +55,15 @@ other_project_project_type <- 7
 
 sh_project_type <- 8
 
+day_project_type <- 11
+
 hp_project_type <- 12
 
 rrh_project_type <- 13
 
 ce_project_type <- 14
+
+lh_project_types_nc <- c(0, 2, 8)
 
 lh_residential_project_types <- c(0, 1, 2, 8)
 
@@ -83,20 +81,24 @@ coc_funded_project_types <- c(2, 3, 13)
 
 project_types_w_beds <- c(0, 1, 2, 3, 8, 9, 10, 13)
 
+non_res_project_types <- c(4, 6, 7, 11, 12, 14)
+
 project_types_w_cls <- c(1, 4, 6, 14)
 
 long_stayer_98_percentile_project_types <- c(0, 2, 8, 12, 13)
 
+project_types_enrolled_homeless <- c(lh_project_types, 14)
+   
 long_stayer_percentile_project_types <- c(0, 2, 3, 8, 9, 10, 12, 13)
 
-all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) # minus Other
+all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) 
+# All means All HUD-defined project types, so it excludes "Other"
 
 # Funding Source Groupings -------------------------------------------------
 
 ssvf_fund_sources <- 33
 
-
-# Race Values --------------------------------------------------------------
+# HUD Values ---------------------------------------------------------------
 
 yes_no_enhanced <- c(0, 1, 8, 9, 99)
 yes_no <- c(0, 1, 99)
@@ -126,6 +128,170 @@ subsidy_types <- c(419, 420, 428, 431, 433, 434, 436, 437, 438, 439, 440)
 issue_levels <- c("High Priority", "Error", "Warning")
 
 issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
+
+# System Overview - Filters -----------------------------------------------
+
+syso_hh_types <- list(
+  "All Household Types" = "All",
+  "- Youth and Young Adult" = "YYA",
+  "Adult Only" = "AO",
+  "- Adult Only 18-24" = "UY",
+  "Adult Child" = "AC",
+  "- Parenting Young Adult" = "PY",
+  "Child Only" = "CO"
+)
+
+syso_level_of_detail <- list(
+  "All People" = "All", 
+  "Heads of Household and Adults" = "HoHsAndAdults", 
+  "Heads of Household Only" = "HoHsOnly"
+)
+
+syso_project_types <- list(
+  "All Project Types" = "All",
+  "Residential" = "Residential",
+  "Non-residential" = "NonResidential"
+)
+
+syso_age_cats <- c(
+  # "All ages",
+  "0 to 12",
+  "13 to 17",
+  "18 to 21",
+  "22 to 24",
+  "25 to 34",
+  "35 to 44",
+  "45 to 54",
+  "55 to 64",
+  "65 to 74",
+  "75 and older",
+  "Unknown")
+
+gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
+                   "DifferentIdentity", "Questioning", "GenderNone")
+
+syso_gender_incl <- list(
+  "All Genders" = "All",
+  "Gender expansive, including transgender" = "TransgenderInclusive",
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive",
+  "Man (Boy, if child) alone or in combination" = "ManInclusive",
+  "Non-Binary alone or in combination" = "NonBinaryInclusive",
+  "Woman (Girl, if child) alone or in combination" = "WomanInclusive"
+)
+
+syso_gender_excl <- list(
+  "All Genders" = "All",
+  "Gender expansive, not transgender" = "GenderExpansiveExclusive",
+  "Man (Boy, if child) alone" = "ManExclusive",
+  "Transgender, alone or in combination" = "TransgenderExclusive",
+  "Woman (Girl, if child) alone" = "WomanExclusive"
+)
+
+race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
+               "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
+
+
+syso_race_ethnicity_incl <- list(
+  "All Races/Ethnicities" = "All",
+  "Detailed" = c(
+    "American Indian, Alaska Native, or Indigenous inclusive" =
+      "AmIndAKNativeInclusive1",
+    "Asian or Asian American inclusive" =
+      "AsianInclusive1",
+    "Black, African American, or African inclusive" =
+      "BlackAfAmericanInclusive1",
+    "Hispanic/Latina/e/o inclusive" =
+      "LatineInclusive1",
+    "Middle Eastern or North African inclusive" =
+      "MENAInclusive1",
+    "Native Hawaiian or Pacific Islander inclusive" =
+      "NativeHIPacificInclusive1",
+    "White inclusive" =
+      "WhiteInclusive1"
+  ),
+  "Summarized" = c(
+    "Black, African American or African and Hispanic/Latina/e/o inclusive" =
+      "BlackAfAmericanLatineInclusive2",
+    "Hispanic/Latina/e/o alone" =
+      "LatineAloneInclusive2",
+    "Hispanic/Latina/e/o inclusive" =
+      "LatineInclusive2"
+  )
+)
+syso_race_ethnicity_excl <- list(
+  "All Races/Ethnicities" = "All",
+  "Detailed" = c(
+    "American Indian, Alaska Native, or Indigenous alone" =
+      "AmIndAKNativeAloneExclusive1",
+    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" =
+      "AmIndAKNativeLatineExclusive1",
+    "Asian or Asian American alone" =
+      "AsianAloneExclusive1",
+    "Asian or Asian American & Hispanic/Latina/e/o" =
+      "AsianLatineExclusive1",
+    "Black, African American, or African alone" =
+      "BlackAfAmericanAloneExclusive1",
+    "Black, African American, or African & Hispanic/Latina/e/o" =
+      "BlackAfAmericanLatineExclusive1",
+    "Hispanic/Latina/e/o alone" =
+      "LatineAloneExclusive1",
+    "Middle Eastern or North African alone" =
+      "MENAAloneExclusive1",
+    "Middle Eastern or North African & Hispanic/Latina/e/o" =
+      "MENALatineExclusive1",
+    "Multi-Racial (not Hispanic/Latina/e/o)" =
+      "MultipleNotLatineExclusive1",
+    "Multi-Racial & Hispanic/Latina/e/o" =
+      "MultipleLatineExclusive1",
+    "Native Hawaiian or Pacific Islander alone" =
+      "NativeHIPacificAloneExclusive1",
+    "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o" =
+      "NativeHIPacificLatineExclusive1" ,
+    "White alone" =
+      "WhiteAloneExclusive1",
+    "White & Hispanic/Latina/e/o" =
+      "WhiteLatineExclusive1"
+  ),
+  "Summarized" = c("All People of Color" =
+                     "BILPOCExclusive2", "White alone" =
+                     "WhiteExclusive2")
+)
+
+# Special Populations -----------------------------------------------------
+
+syso_veteran_pops <- list(
+  "Veteran" = "Veteran",
+  "Non-Veteran/Unknown" = "NonVeteran"
+)
+
+syso_dv_pops <- list(
+  "Domestic Violence Survivor: Currently Fleeing" = "DVFleeing",
+  "Domestic Violence Survivor: Not Currently Fleeing" = "DVNotFleeing",
+  "Domestic Violence Survivor: Total" = "DVTotal",
+  "No Domestic Violence Indicated" = "NotDV"
+)
+
+syso_chronic_pops <- list(
+  "Chronically Homeless" = "Chronic",
+  "Long-term Homeless" = "LongTerm"
+)
+
+syso_spec_pops_people <- c(
+  "All Statuses" = "None",
+  # "Inflow",
+  syso_veteran_pops#,
+  #syso_dv_pops,
+  # syso_chronic_pops
+)
+
+syso_methodology_types <- c(
+  "Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category" = 1,
+  "Inclusive Groupings: A person may be counted in multiple gender and multiple race/ethnicity categories" = 2
+)
+
+syso_grouping_detail <- c(
+  ""
+)
 
 # EvaChecks data (contains issue, type, guidance for each check) ----------
 evachecks <- read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
@@ -189,4 +355,36 @@ inc_ncb_hi_required_prep <- tribble(
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
   unique()
 
+sys_comp_selection_choices = c(
+  "Age", 
+  #"Domestic Violence", #VL 9/20/24: Not including this for launch
+  "Gender",
+  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
+  "All Races/Ethnicities",
+  "Grouped Races/Ethnicities",
+  "Veteran Status"
+)
+
 rm(inc_ncb_hi_required_prep)
+
+
+# Font sizing -------------------------------------------------------------
+# regular font can be set in css as pixels
+# geom_text or annotate are in mm, not points
+# element_text (for title, legend, axis labels, etc.) is in points, not mm
+  # http://www.cookbook-r.com/Graphs/Fonts/
+  # Also: https://www.christophenicault.com/post/understand_size_dimension_ggplot2/
+base_font_px <- 14 # 14px = 14*0.75 pts/px = 10.5pts = 10.5 pts = 3.7mm
+base_font_pts <- base_font_px*0.75
+base_font_mm <- base_font_pts / .pt # .pt is the constant to convert pt to mm (1pt = 3.5mm)
+
+dq_axis_font <- 12 # 12 pts = 16px
+sys_chart_text_font <- 14 / .pt # 14 pts = 4.92mm = 18.67px
+sys_chart_text_font_pts <- 14 # 14 pts = 4.92mm = 18.67px
+sys_axis_text_font <- 15 #15 pts = 22px
+sys_comp_axis_text_font <- 14 #14 pts = 22px
+sys_legend_text_font <- sys_axis_text_font #16 pts = 22px
+sys_chart_title_font <- sys_axis_text_font # 16 pts
+sys_chart_export_font_reduction <- 0.7
+ppt_summary_slide_font <- 19 # 19 pts = 25px
+ppt_chart_title_font_size <- 36

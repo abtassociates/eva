@@ -6,8 +6,10 @@
 # https://cran.r-project.org/web/packages/shinytest2/vignettes/use-ci.html
 on:
   pull_request:
-    branches: [dev, main]
-
+    branches: [dev, main, phase2-dev]
+  push:
+    branches: [phase2-system-overview, phase2-dev]
+  
 name: Test
 
 jobs:
@@ -37,6 +39,11 @@ jobs:
         with:
           app-dir: "."
           upload-snapshots: true
+          
+      - name: remove max fails
+        run: |
+          testthat::set_max_fails(Inf)
+        shell: Rscript {0}
 
       - name: Upload test results
         if: failure()
