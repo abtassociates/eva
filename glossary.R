@@ -7,7 +7,7 @@ output$glossary <- renderDataTable({
     "System Performance Filters",
     "Project Type Groups",
     "A single-select universal filter. Eva allows users to filter system performance 
-    data by three project type groups: All, Residential Projects, and Non-Residential Projects. ",
+    data by three project type groups: All, Residential Projects, and Non-Residential Projects.",
     
     "System Flow Chart",
     "Homeless (Active at Start)",
@@ -471,12 +471,12 @@ output$glossary <- renderDataTable({
     
     "Client System Status",
     "Exited, Non-Permanent",
-    "This status indicates that the client’s last exit in the report period was to a homeless, temporary, institutional, or unknown destination.",
-    
+    "This status indicates that the client’s last exit in the report period was to a homeless, temporary, institutional, or unknown destination. A temporary destination could be a hotel or model paid for without an ES voucher. An institutional destination refers to group/assisted living, a medical facility, or incarceration. An unknown destination often refers to when a client does not report their exit destination.",
+
     "Client System Status",
     "Exited, Permanent",
-    "This status indicates that the client’s last exit in the report period was to a permanent destination.",
-    
+    "This status indicates that the client’s last exit in the report period was to a permanent destination. Permanent destinations include renting or owning permanent housing with or without subsidy, and staying or living with friends or family with a permanent tenure.",
+
     "Client System Status",
     "Enrolled, Homeless",
     "This system status indicates a client was actively experiencing homelessness in the system at the end of the report period. This includes clients who were enrolled in: (1) Emergency Shelter – Entry/Exit, Safe Haven, or Transitional Housing projects, (2) Emergency Shelter – Night-by-Night projects who have a recorded bed night within the 15-day period before the report end date, (3) Street Outreach, Supportive Services Only, Day Shelter or Other type projects who have a Current Living Situation recorded within the 60-day period before the report end date, or (4) Permanent Housing projects, either without a Housing Move-In Date or with a Housing Move-In Date after the report end date. Coordinated Entry projects who have a Current Living Situation recorded within the 90-day period before the report end date.",
