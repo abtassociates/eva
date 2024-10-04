@@ -205,7 +205,7 @@ sys_export_filter_selections <- function() {
       "Race/Ethnicity"
     ),
     Value = c(
-      ifelse(identical(syso_age_cats, input$syso_age), "All", input$syso_age),
+      ifelse(identical(syso_age_cats, input$syso_age), "All Ages", input$syso_age),
       getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
       getNameByValue(syso_gender_cats(input$methodology_type), input$syso_gender),
       getNameByValue(syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity)
