@@ -283,13 +283,14 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
         )
       ) +
       scale_y_discrete(
-        labels = str_wrap(
-          rev(selection_cats1_labels), 
-          width = ifelse(
-            selection == "Domestic Violence Status",
-            30,
-            60
-          )),
+        labels = label_wrap(30),
+        # str_wrap(
+        #   rev(selection_cats1_labels), 
+        #   width = ifelse(
+        #     selection == "Domestic Violence Status",
+        #     30,
+        #     60
+        #   )),
         limits = rev(levels(plot_df[[selection]])),
       ) +
       # other stuff
@@ -670,14 +671,7 @@ output$sys_comp_summary_ui_chart <- renderPlot({
   ifelse(!is.null(input$system_composition_selections), 700, 100) 
 }, width = function() {
   if (length(input$system_composition_selections) == 1) {
-    cat_list <- get_selection_cats(input$system_composition_selections[1])
-    hasNames <- !is.null(names(cat_list))
-    if(hasNames) {
-      maxLen <- max(nchar(names(cat_list)))
-    } else {
-      maxLen <- max(nchar(cat_list)) 
-    }
-    max(500, maxLen*10)
+    500
   } else {
     "auto"
   }
