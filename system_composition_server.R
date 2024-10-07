@@ -50,7 +50,7 @@ get_var_cols <- function() {
         syso_gender_cats(input$methodology_type) %>% discard_at("All Genders")
       ),
       # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
-      "Veteran Status" =  "VeteranStatus"
+      "Veteran Status (Adult Only)" =  "VeteranStatus"
     )
   )
 }
@@ -149,7 +149,7 @@ get_selection_cats <- function(selection) {
     # Update Veteran status codes to 1/0, because that's how the underlying data are
     # we don't do that in the original hardcodes.R list 
     # because the character versions are needed for the waterfall chart
-    "Veteran Status" = {
+    "Veteran Status (Adult Only)" = {
       syso_veteran_pops$Veteran <- 1
       syso_veteran_pops$`Non-Veteran/Unknown` <- 0
       syso_veteran_pops

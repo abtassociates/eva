@@ -172,7 +172,7 @@ output$glossary <- renderDataTable({
     regardless of their Veteran Status.",
     
     "System Performance Filters",
-    "Veteran Status",
+    "Veteran Status (Adult Only)",
     "Veteran Status of adult clients (not applicable for children) based on the 
     response to HMIS data element 3.07 Veteran Status. There are two Veteran Status 
     options a user can filter by: Veteran and Non-Veteran/Unknown.",
