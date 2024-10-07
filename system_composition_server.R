@@ -664,6 +664,10 @@ output$sys_comp_download_btn <- downloadHandler(
       col_names = TRUE
     )
     
+    logMetadata(paste0(
+      "Downloaded Sys Demographics Report",
+      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
+    ))
     
     exportTestValues(sys_comp_report = sys_comp_p())
   }

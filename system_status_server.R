@@ -190,6 +190,10 @@ output$sys_status_download_btn <- downloadHandler(
       col_names = TRUE
     )
 
+    logMetadata(paste0(
+      "Downloaded Sys Status Report",
+      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
+    ))
 
     exportTestValues(sys_status_report = sankey_plot_data())
   }
