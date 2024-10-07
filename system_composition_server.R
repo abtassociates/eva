@@ -381,19 +381,21 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     ) %>%
     replace(is.na(.), 0)
   
-  h_total <- plot_df %>%
-    group_by(!!!syms(selections[[2]])) %>%
-    summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
-    mutate(!!selections[[1]] := 'Total') %>%
-    suppress_values("N") %>%
-    suppress_next_val_if_one_suppressed_in_group(selections[1], "N")
-  
-  v_total <- plot_df %>%
-    group_by(!!!syms(selections[[1]])) %>%
-    summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
-    mutate(!!selections[[2]] := 'Total') %>%
-    suppress_values("N") %>%
-    suppress_next_val_if_one_suppressed_in_group(selections[2], "N")
+  if(input$methodology_type == 1) {
+    h_total <- plot_df %>%
+      group_by(!!!syms(selections[[2]])) %>%
+      summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
+      mutate(!!selections[[1]] := 'Total') %>%
+      suppress_values("N") %>%
+      suppress_next_val_if_one_suppressed_in_group(selections[1], "N")
+    
+    v_total <- plot_df %>%
+      group_by(!!!syms(selections[[1]])) %>%
+      summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
+      mutate(!!selections[[2]] := 'Total') %>%
+      suppress_values("N") %>%
+      suppress_next_val_if_one_suppressed_in_group(selections[2], "N")
+  }
   
   # save before supressing the values
   # this will be used for the download/export
@@ -405,38 +407,50 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     suppress_next_val_if_one_suppressed_in_group(selections[1], "n") %>%
     suppress_next_val_if_one_suppressed_in_group(selections[2], "n")
   
-  return(
-    ggplot(plot_df, aes(.data[[selections[1]]], .data[[selections[2]]])) +
-      # main data into cells for each cross-combination
-      geom_tile(
-        color = '#f0f0f0',
-        lwd = 0.5,
-        linetype = 1,
-        aes(fill = n)
-      ) +
-      scale_fill_gradient(
-        low = "#D2E3D9",
-        high = "#084954",
-        na.value = ifelse(
-          is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
-          "white",
-          "#D2E3D9"
-        )
-      ) + # na.value makes 0s invisible
-      # set text color to be 508 compliant contrasting
-      geom_text(
-        # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
-        aes(label = ifelse(wasRedacted, "***", scales::comma(n))),
-        size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction, 1),
-        color = ifelse(
-          plot_df$n > mean(plot_df$n, na.rm = TRUE) & !plot_df$wasRedacted,
-          'white',
-          'black'
-        )
-      ) +
+ 
+  g <- ggplot(plot_df, aes(.data[[selections[1]]], .data[[selections[2]]])) +
+    # main data into cells for each cross-combination
+    geom_tile(
+      color = '#f0f0f0',
+      lwd = 0.5,
+      linetype = 1,
+      aes(fill = n)
+    ) +
+    scale_fill_gradient(
+      low = "#D2E3D9",
+      high = "#084954",
+      na.value = ifelse(
+        is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
+        "white",
+        "#D2E3D9"
+      )
+    ) + # na.value makes 0s invisible
+    # set text color to be 508 compliant contrasting
+    geom_text(
+      # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
+      aes(label = ifelse(wasRedacted, "***", scales::comma(n))),
+      size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction, 1),
+      color = ifelse(
+        plot_df$n > mean(plot_df$n, na.rm = TRUE) & !plot_df$wasRedacted,
+        'white',
+        'black'
+      )
+    )
       
-      # Row totals
+  
+  x_labels <- selection_cats1_labels
+  x_limits <- levels(plot_df[[selections[1]]])
+  y_labels <- rev(selection_cats2_labels)
+  y_limits <- rev(levels(plot_df[[selections[2]]]))
+  
+  if(input$methodology_type == 1) {
+    x_labels <- c(x_labels, "Total")
+    x_limits <- c(x_limits, "Total")
+    y_labels <- c("Total", y_labels)
+    y_limits <- c("Total", y_limits)
+    g <- g + 
       ggnewscale::new_scale("fill") +
+      # Row totals
       geom_tile(
         data = h_total,
         color = "white",
@@ -462,7 +476,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
         ),
         data = h_total
       ) +
-      
+        
       # column totals
       ggnewscale::new_scale("fill") +
       geom_tile(
@@ -488,38 +502,38 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
           'black'
         ),
         data = v_total
-      ) +
-      
-      # axis labels
-      scale_x_discrete(
-        labels = str_wrap(c(selection_cats1_labels, "Total"), width = 20),
-        limits = c(levels(plot_df[[selections[1]]]), "Total"),
-        position = "top"
-      ) +
-      scale_y_discrete(
-        labels = str_wrap(c("Total", rev(selection_cats2_labels)), width = 30),
-        limits = c("Total", rev(levels(plot_df[[selections[2]]]))),
-      ) +
-      
-      # other stuff
-      theme_bw() +
-      
-      ggtitle(sys_total_count_display(
-        nrow(sys_df_people_universe_filtered_r())
-      )) +
-      labs(caption = "*** indicates the value is suppressed") +
-      
-      theme(
-        legend.position = "none",
-        axis.ticks = element_blank(),
-        panel.grid = element_blank(),
-        plot.title = element_text(size = sys_chart_title_font, hjust = 0.5),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
-        axis.text = element_text(size = sys_comp_axis_text_font * ifelse(windowSize()[1] < 1300, 0.8, 1) * ifelse(isExport, 0.6, 1))
       )
-  )
+  }
+  g + 
+    # axis labels
+    scale_x_discrete(
+      labels = str_wrap(x_labels, width = 20),
+      limits = x_limits,
+      position = "top"
+    ) +
+    scale_y_discrete(
+      labels = str_wrap(y_labels, width = 30),
+      limits = y_limits
+    ) +
+  
+    # other stuff
+    theme_bw() +
+    
+    ggtitle(sys_total_count_display(
+      nrow(sys_df_people_universe_filtered_r())
+    )) +
+    labs(caption = "*** indicates the value is suppressed") +
+    
+    theme(
+      legend.position = "none",
+      axis.ticks = element_blank(),
+      panel.grid = element_blank(),
+      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
+      axis.text = element_text(size = sys_comp_axis_text_font * ifelse(windowSize()[1] < 1300, 0.8, 1) * ifelse(isExport, 0.6, 1))
+    )
 }
 
 sys_comp_selections_info <- reactive({
@@ -562,45 +576,52 @@ output$sys_comp_download_btn <- downloadHandler(
           values_fill = list(n = 0)
         )
 
-      # create total row
-      total_num_row <- num_df %>%
-        summarise(!!input$system_composition_selections[1] := "Total",
-                  across(where(is.numeric), sum, na.rm = TRUE)) %>%
-        rename(!!input$system_composition_selections[2] := !!input$system_composition_selections[1])
-      
-      total_pct_row <- total_num_row %>% 
-        mutate(
-          across(where(is.numeric), ~ (. / sum(sys_comp_plot_df()$n, na.rm = TRUE) * 100) %>%
-                   replace_na(0) %>%
-                   round(1) %>%
-                   paste0("%")))
-      
       # Create x.y% version
       pct_df <- num_df %>%
         mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
                         replace_na(0) %>%
           round(1) %>%
-          paste0("%"))) %>% 
-        bind_rows(total_pct_row)
-    
-      # Add Total Row and create a total column
-      num_df <- num_df %>%
-        bind_rows(total_num_row) %>%
-        mutate(Total = rowSums(select(., where(is.numeric)), na.rm = TRUE))
+          paste0("%")))
       
+      # create totals, but only for Exclusive
+      if(input$methodology_type == 1) { 
+        # create total row
+        total_num_row <- num_df %>%
+          summarise(!!input$system_composition_selections[1] := "Total",
+                    across(where(is.numeric), sum, na.rm = TRUE)) %>%
+          rename(!!input$system_composition_selections[2] := !!input$system_composition_selections[1])
+        
+        total_pct_row <- total_num_row %>% 
+          mutate(
+            across(where(is.numeric), ~ (. / sum(sys_comp_plot_df()$n, na.rm = TRUE) * 100) %>%
+                     replace_na(0) %>%
+                     round(1) %>%
+                     paste0("%")))
+        
+        pct_df <- pct_df %>% bind_rows(total_pct_row)
+        
+        # Add Total Row and create a total column
+        num_df <- num_df %>%
+          bind_rows(total_num_row) %>%
+          mutate(Total = rowSums(select(., where(is.numeric)), na.rm = TRUE))
+      }
     } else {
       num_df <- sys_comp_plot_df()
       
       pct_df <- num_df %>%
         mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
                         round(1) %>%
-                        paste0("%"))) %>%
-        bind_rows(setNames(data.frame("Total", "100%"), c(
-          sym(input$system_composition_selections), "n"
-        )))
+                        paste0("%"))) 
       
-      num_df <- num_df %>%
-        bind_rows(summarise(., !!sym(input$system_composition_selections) := "Total", n = sum(n, na.rm = TRUE)))
+      if(input$methodology_type == 1) { 
+        pct_df <- pct_df %>%
+          bind_rows(setNames(data.frame("Total", "100%"), c(
+            sym(input$system_composition_selections), "n"
+          )))
+      
+        num_df <- num_df %>%
+          bind_rows(summarise(., !!sym(input$system_composition_selections) := "Total", n = sum(n, na.rm = TRUE)))
+      }
     }
     
     if (length(input$system_composition_selections) > 1) {
