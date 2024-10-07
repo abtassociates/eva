@@ -283,13 +283,6 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       ) +
       scale_y_discrete(
         labels = label_wrap(30),
-        # str_wrap(
-        #   rev(selection_cats1_labels), 
-        #   width = ifelse(
-        #     selection == "Domestic Violence Status",
-        #     30,
-        #     60
-        #   )),
         limits = rev(levels(plot_df[[selection]])),
       ) +
       # other stuff
@@ -323,8 +316,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
   selections <- input$system_composition_selections
   
-  if (selections[1] == "All Races/Ethnicities" |
-  selections[1] == "Grouped Races/Ethnicities") {
+  if (selections[1] %in% c("All Races/Ethnicities", "Grouped Races/Ethnicities")) {
     selections <- c(selections[2], selections[1])
   }
   
@@ -469,7 +461,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       ) +
       
       geom_text(
-        aes(label = ifelse(wasRedacted, "***", # paste0(scales::comma(N), "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
+        aes(label = ifelse(wasRedacted, "***",
                            scales::comma(N))),
         size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction, 1),
         color = ifelse(
@@ -496,7 +488,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       ) +
       
       geom_text(
-        aes(label = ifelse(wasRedacted, "***", # paste0(N, "\n", "(",scales::percent(N/sum(N, na.rm=TRUE), accuracy = 0.1),")")
+        aes(label = ifelse(wasRedacted, "***",
                            scales::comma(N))),
         size = sys_chart_text_font * ifelse(isExport, 0.7, 1),
         color = ifelse(
@@ -564,17 +556,25 @@ sys_comp_selections_summary <- function() {
 output$sys_comp_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Demographics Report - "),
   content = function(file) {
-    v1 <- gsub("Races/Ethnicities", "Race", input$system_composition_selections[1])
-    if(length(input$system_composition_selections) > 1) {
-      v2 <- gsub("Races/Ethnicities", "Race", input$system_composition_selections[2])
+    selections <- input$system_composition_selections
+    v1 <- gsub("Races/Ethnicities", "Race", selections[1])
+    v1 <- gsub("Veteran Status \\(Adult Only\\)", "Veteran Status", v1)
+    if(length(selections) > 1) {
+      v2 <- gsub("Races/Ethnicities", "Race", selections[2])
+      v2 <- gsub("Veteran Status \\(Adult Only\\)", "Veteran Status", v2)
     }
     
+    # make sure R/E is the rows, not the columns
+    if (v1 %in% c("All Race", "Grouped Race")) {
+      selections <- c(selections[2], selections[1])
+    }
+
     # reshape so the values of v1 are the column headers and v2 are the "row headers"
     # though technically just a column
-    if(length(input$system_composition_selections) > 1) {
+    if(length(selections) > 1) {
       num_df <- sys_comp_plot_df() %>%
         pivot_wider(
-          names_from = input$system_composition_selections[1],
+          names_from = selections[1],
           values_from = n,
           values_fill = list(n = 0)
         )
@@ -590,9 +590,9 @@ output$sys_comp_download_btn <- downloadHandler(
       if(input$methodology_type == 1) { 
         # create total row
         total_num_row <- num_df %>%
-          summarise(!!input$system_composition_selections[1] := "Total",
+          summarise(!!selections[1] := "Total",
                     across(where(is.numeric), sum, na.rm = TRUE)) %>%
-          rename(!!input$system_composition_selections[2] := !!input$system_composition_selections[1])
+          rename(!!selections[2] := !!selections[1])
         
         total_pct_row <- total_num_row %>% 
           mutate(
@@ -619,15 +619,15 @@ output$sys_comp_download_btn <- downloadHandler(
       if(input$methodology_type == 1) { 
         pct_df <- pct_df %>%
           bind_rows(setNames(data.frame("Total", "100%"), c(
-            sym(input$system_composition_selections), "n"
+            sym(selections), "n"
           )))
       
         num_df <- num_df %>%
-          bind_rows(summarise(., !!sym(input$system_composition_selections) := "Total", n = sum(n, na.rm = TRUE)))
+          bind_rows(summarise(., !!sym(selections) := "Total", n = sum(n, na.rm = TRUE)))
       }
     }
     
-    if (length(input$system_composition_selections) > 1) {
+    if (length(selections) > 1) {
       num_tab_name <- glue("{v1} By {v2} #")
       pct_tab_name <- glue("{v1} By {v2} %")
     } else {
