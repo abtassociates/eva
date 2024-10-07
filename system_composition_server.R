@@ -55,13 +55,12 @@ get_var_cols <- function() {
   )
 }
 remove_non_applicables <- function(.data) {
-  if("Age" %in% input$system_composition_selections &
-     "Veteran Status" %in% input$system_composition_selections) {
-    # remove children - since Vets can't be children
+  # remove children when vets is selected - since Vets can't be children
+  if("Veteran Status (Adult Only)" %in% input$system_composition_selections) {
     .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")))
   } 
+  # filter to just HoHs and Adults for DV
   else if ("Domestic Violence status" %in% input$system_composition_selections) {
-    # filter to just HoHs and Adults
     .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
   } else {
     .data
@@ -185,9 +184,10 @@ toggle_download_buttons <- function(plot_df) {
 sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
   selection <- input$system_composition_selections
-  var_col <- var_cols[[selection]]
+
   comp_df <- sys_df_people_universe_filtered_r() %>%
-    select(PersonalID, unname(var_col))
+    remove_non_applicables() %>%
+    select(PersonalID, unname(var_cols[[selection]]))
   
   validate(
     need(
