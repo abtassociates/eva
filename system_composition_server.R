@@ -2,14 +2,23 @@ sys_comp_plot_df <- reactiveVal()
 
 get_race_ethnicity_vars <- function(v) {
   if (v == "All") {
-    syso_race_ethnicities_all <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Detailed"])
+    syso_race_ethnicities_all <- unlist(c(syso_race_ethnicity_cats(input$methodology_type)["Detailed"],"Unknown" = "RaceEthnicityUnknown"))
     names(syso_race_ethnicities_all) <- gsub("Detailed.", "", names(syso_race_ethnicities_all))
     return(syso_race_ethnicities_all)
   } else if (v %in% c("Grouped")) {
-    syso_race_ethnicities_grouped <- unlist(syso_race_ethnicity_cats(input$methodology_type)["Summarized"])
+    syso_race_ethnicities_grouped <- unlist(c(syso_race_ethnicity_cats(input$methodology_type)["Summarized"], "Unknown" = "RaceEthnicityUnknown"))
     names(syso_race_ethnicities_grouped) <- gsub("Summarized.", "", names(syso_race_ethnicities_grouped))
     return(syso_race_ethnicities_grouped)
   }
+}
+
+get_gender_vars <- function(v) {
+  return(
+    c(
+      syso_gender_cats(input$methodology_type) %>% discard_at("All Genders"),
+      "Unknown" = "GenderUnknown"
+    )
+  )
 }
 
 syscomp_detailBox <- function(session) {
@@ -46,9 +55,7 @@ get_var_cols <- function() {
       "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
       "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
       #"Domestic Violence" = "DomesticViolenceCategory", #VL 9/20/24: Not including for launch
-      "Gender" = unlist(
-        syso_gender_cats(input$methodology_type) %>% discard_at("All Genders")
-      ),
+      "Gender" = unlist(get_gender_vars()),
       # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
       "Veteran Status (Adult Only)" =  "VeteranStatus"
     )
@@ -160,7 +167,7 @@ get_sys_comp_plot_df_2vars <- function(comp_df) {
 get_selection_cats <- function(selection) {
   return(switch(
     selection,
-    "Gender" = syso_gender_cats(input$methodology_type) %>% discard_at("All Genders"),
+    "Gender" = get_gender_vars(),
     "Age" = syso_age_cats,
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
