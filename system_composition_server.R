@@ -67,19 +67,39 @@ remove_non_applicables <- function(.data) {
   }
 }
 
-get_sys_comp_plot_df <- function() {
+get_sys_comp_plot_df_1var <- function(comp_df, var_col) {
+  # if number of variables associated with selection > 1, then they're dummies
+  selection <- input$system_composition_selections
+  
+  if (length(var_col) > 1) {
+    plot_df <- comp_df %>%
+      pivot_longer(
+        cols = -PersonalID,
+        names_to = selection,
+        values_to = "value"
+      ) %>%
+      group_by(!!sym(selection)) %>%
+      summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
+  } else {
+    plot_df <- as.data.frame(table(comp_df[[var_col]]))
+    names(plot_df) <- c(selection, "n")
+    
+    if(selection == "Domestic Violence Status") {
+      plot_df <- plot_df %>% bind_rows(tibble(
+        `Domestic Violence Status` = "DVTotal",
+        n = sum(plot_df %>% 
+                  filter(`Domestic Violence Status` != "NotDV") %>%
+                  pull(n), na.rm = TRUE)))
+    }
+  }
+  return(plot_df)
+}
+
+get_sys_comp_plot_df_2vars <- function(comp_df) {
   # named list of all selected options and
   # the corresponding variables in the underlying data
   var_cols <- get_var_cols()
-  
-  # get dataset underlying the freqs we will produce below
-  comp_df <- sys_df_people_universe_filtered_r() %>%
-    remove_non_applicables() %>%
-    select(
-      PersonalID, 
-      unname(var_cols[[input$system_composition_selections[1]]]), 
-      unname(var_cols[[input$system_composition_selections[2]]]))
-    
+  selections <- input$system_composition_selections
   
   # Function to process each combination of the variables underlying the all-served
   # selections E.g. if Age and Gender (and Exclusive methopdology type),
@@ -89,16 +109,16 @@ get_sys_comp_plot_df <- function() {
     logToConsole(glue("processing combination of {v1} and {v2}"))
     freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
     names(freq_df) <- c(
-      input$system_composition_selections[1],
-      input$system_composition_selections[2],
+      selections[1],
+      selections[2],
       "n"
     )
     
     # for selections comprised of multiple (binary/dummy) vars (e.g. Gender or Race), 
     # filter to the 1s and change the 1 to the variable name
-    for (i in seq_along(input$system_composition_selections)) {
+    for (i in seq_along(selections)) {
       v <- get(paste0("v", i))
-      vname <- sym(input$system_composition_selections[i])
+      vname <- sym(selections[i])
       var_cats <- var_cols[[vname]]
       if (length(var_cats) > 1) {
         freq_df <- freq_df %>%
@@ -111,19 +131,19 @@ get_sys_comp_plot_df <- function() {
   
   # Get a dataframe of the freqs of all combinations
   # along with percents
-  freqs <- expand_grid(v1 = var_cols[[input$system_composition_selections[1]]], v2 = var_cols[[input$system_composition_selections[2]]]) %>%
+  freqs <- expand_grid(v1 = var_cols[[selections[1]]], v2 = var_cols[[selections[2]]]) %>%
     pmap_dfr(~ process_combination(..1, ..2, comp_df)) # %>%
   # mutate(pct = (n / sum(n, na.rm = TRUE)))
   
   # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
-  if ("Domestic Violence Status" %in% input$system_composition_selections) {
+  if ("Domestic Violence Status" %in% selections) {
     dv_totals <- freqs %>%
       filter(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
       group_by(!!sym(
         ifelse(
-          input$system_composition_selections[1] == "Domestic Violence Status",
-          input$system_composition_selections[2],
-          input$system_composition_selections[1]
+          selections[1] == "Domestic Violence Status",
+          selections[2],
+          selections[1]
         )
       )) %>%
       summarize(`Domestic Violence Status` = "DVTotal",
@@ -202,38 +222,10 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
     )
   )
  
-  # if number of variables associated with selection > 1, then they're dummies
-  if (length(var_col) > 1) {
-    plot_df <- comp_df %>%
-      pivot_longer(
-        cols = -PersonalID,
-        names_to = selection,
-        values_to = "value"
-      ) %>%
-      group_by(!!sym(selection)) %>%
-      summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
-  } else {
-    plot_df <- as.data.frame(table(comp_df[[var_col]]))
-    names(plot_df) <- c(selection, "n")
-    
-    if(input$system_composition_selections == "Domestic Violence Status") {
-      plot_df <- plot_df %>% bind_rows(tibble(
-        `Domestic Violence Status` = "DVTotal",
-        n = sum(plot_df %>% 
-          filter(`Domestic Violence Status` != "NotDV") %>%
-          pull(n), na.rm = TRUE)))
-    }
-  }
+  plot_df <- get_sys_comp_plot_df_1var(comp_df, var_cols[[selection]])
   
   # hide download buttons if not enough data
   toggle_download_buttons(plot_df)
-  
-  validate(
-    need(
-      sum(plot_df$n > 10, na.rm = TRUE) > 0, 
-      message = suppression_msg
-    )
-  )
   
   selection_cats1 <- get_selection_cats(selection)
   selection_cats1_labels <- if (is.null(names(selection_cats1))) {
@@ -296,7 +288,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       # other stuff
       theme_bw() +
       ggtitle(sys_total_count_display(
-        nrow(sys_df_people_universe_filtered_r())
+        nrow(comp_df)
       )) +
       labs(caption = "*** indicates the value is suppressed") +
       theme(
@@ -321,6 +313,7 @@ suppress_values <- function(.data, count_var) {
 
 sys_comp_plot_2vars <- function(isExport = FALSE) {
   # race/ethnicity, if selected, should always be on the row
+  var_cols <- get_var_cols()
   selections <- input$system_composition_selections
   
   if (selections[1] == "All Races/Ethnicities" |
@@ -328,27 +321,30 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     selections <- c(selections[2], selections[1])
   }
   
-  plot_df <- get_sys_comp_plot_df()
-
-  validate(
-    need(sum(plot_df$n > 0, na.rm = TRUE) > 0, message = "No data to show"),
-    need(sum(plot_df$n > 10, na.rm = TRUE) > 0, message = "Not enough data to show")
-  )
-  
-  toggle_download_buttons(plot_df)
+  # get dataset underlying the freqs we will produce below
+  comp_df <- sys_df_people_universe_filtered_r() %>%
+    remove_non_applicables() %>%
+    select(
+      PersonalID, 
+      unname(var_cols[[selections[1]]]), 
+      unname(var_cols[[selections[2]]]))
   
   validate(
     need(
-      sum(plot_df$n) > 0,
+      nrow(comp_df) > 0,
       message = no_data_msg
     )
   )
   validate(
     need(
-      sum(plot_df$n > 10, na.rm = TRUE) > 0, 
+      nrow(comp_df) > 10,
       message = suppression_msg
     )
   )
+  
+  plot_df <- get_sys_comp_plot_df_2vars(comp_df)
+
+  toggle_download_buttons(plot_df)
   
   selection_cats1 <- get_selection_cats(selections[1])
   selection_cats1_labels <- if (is.null(names(selection_cats1))) {
@@ -520,7 +516,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     theme_bw() +
     
     ggtitle(sys_total_count_display(
-      nrow(sys_df_people_universe_filtered_r())
+      nrow(comp_df)
     )) +
     labs(caption = "*** indicates the value is suppressed") +
     
