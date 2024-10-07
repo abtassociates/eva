@@ -561,19 +561,19 @@ output$sys_comp_download_btn <- downloadHandler(
     selections <- input$system_composition_selections
     v1 <- gsub("Races/Ethnicities", "Race", selections[1])
     v1 <- gsub("Veteran Status \\(Adult Only\\)", "Veteran Status", v1)
-    if(length(selections) > 1) {
-      v2 <- gsub("Races/Ethnicities", "Race", selections[2])
-      v2 <- gsub("Veteran Status \\(Adult Only\\)", "Veteran Status", v2)
-    }
-    
-    # make sure R/E is the rows, not the columns
-    if (v1 %in% c("All Race", "Grouped Race")) {
-      selections <- c(selections[2], selections[1])
-    }
-
+   
+    # multiple selections
     # reshape so the values of v1 are the column headers and v2 are the "row headers"
     # though technically just a column
     if(length(selections) > 1) {
+      v2 <- gsub("Races/Ethnicities", "Race", selections[2])
+      v2 <- gsub("Veteran Status \\(Adult Only\\)", "Veteran Status", v2)
+      
+      # make sure R/E is the rows, not the columns
+      if (v1 %in% c("All Race", "Grouped Race")) {
+        selections <- c(selections[2], selections[1])
+      }
+      
       num_df <- sys_comp_plot_df() %>%
         pivot_wider(
           names_from = selections[1],
