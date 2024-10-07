@@ -541,7 +541,7 @@ sys_comp_selections_info <- reactive({
     Value = c(
       input$system_composition_selections[1],
       input$system_composition_selections[2],
-      nrow(sys_df_people_universe_filtered_r())
+      nrow(sys_df_people_universe_filtered_r() %>% remove_non_applicables())
     )
   )
 })
