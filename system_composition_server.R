@@ -596,40 +596,51 @@ output$sys_comp_download_btn <- downloadHandler(
                     across(where(is.numeric), sum, na.rm = TRUE)) %>%
           rename(!!selections[2] := !!selections[1])
         
+        total_n <- sum(sys_comp_plot_df()$n, na.rm = TRUE)
+        
         total_pct_row <- total_num_row %>% 
           mutate(
-            across(where(is.numeric), ~ (. / sum(sys_comp_plot_df()$n, na.rm = TRUE) * 100) %>%
+            across(where(is.numeric), ~ (. / total_n * 100) %>%
                      replace_na(0) %>%
                      round(1) %>%
                      paste0("%")))
-        
-        pct_df <- pct_df %>% 
-          bind_rows(total_pct_row) %>% 
-          rename("pct" = n)
         
         # Add Total Row and create a total column
         num_df <- num_df %>%
           bind_rows(total_num_row) %>%
           mutate(Total = rowSums(select(., where(is.numeric)), na.rm = TRUE))
+        
+        pct_df <- pct_df %>% 
+          bind_rows(total_pct_row) %>%
+          mutate(
+            Total =  paste0(
+              round(
+                replace_na(num_df$Total / total_n * 100, 0),
+                1
+              ),
+              "%"
+            )
+          )
       }
-    } else {
+    } 
+    # single selection
+    else {
       num_df <- sys_comp_plot_df()
       
       pct_df <- num_df %>%
         mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
                         round(1) %>%
-                        paste0("%"))) 
+                        paste0("%")))  %>% 
+        rename("pct" = n)
       
       if(input$methodology_type == 1) { 
         pct_df <- pct_df %>%
           bind_rows(
             setNames(
               data.frame("Total", "100%"), 
-              c(selections, "n")
+              c(selections, "pct")
             )
-          ) %>% 
-          rename("pct" = n)
-      
+          )
         num_df <- num_df %>%
           bind_rows(summarise(., !!sym(selections) := "Total", n = sum(n, na.rm = TRUE)))
       }
