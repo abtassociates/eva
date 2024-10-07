@@ -620,9 +620,13 @@ output$sys_comp_download_btn <- downloadHandler(
       
       if(input$methodology_type == 1) { 
         pct_df <- pct_df %>%
-          bind_rows(setNames(data.frame("Total", "100%"), c(
-            sym(selections), "n"
-          )))
+          bind_rows(
+            setNames(
+              data.frame("Total", "100%"), 
+              c(selections, "n")
+            )
+          ) %>% 
+          rename("pct" = n)
       
         num_df <- num_df %>%
           bind_rows(summarise(., !!sym(selections) := "Total", n = sum(n, na.rm = TRUE)))
