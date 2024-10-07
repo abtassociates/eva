@@ -187,9 +187,11 @@ get_selection_cats <- function(selection) {
 # Suppression Rule 2: If only one cell in a group (i.e. row and/or column) is suppressed,
 # then suppress the next lowest value in that group
 suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
+  if(length(input$system_composition_selections) > 1) {
+    .data <- .data %>% group_by(!!sym(group_v))
+  }
   return(
     .data %>%
-      group_by(!!sym(group_v)) %>%
       mutate(
         count_redacted = sum(wasRedacted, na.rm = TRUE),
         next_lowest = min(!!sym(n_v), na.rm = TRUE),
