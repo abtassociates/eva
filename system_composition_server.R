@@ -603,7 +603,9 @@ output$sys_comp_download_btn <- downloadHandler(
                      round(1) %>%
                      paste0("%")))
         
-        pct_df <- pct_df %>% bind_rows(total_pct_row)
+        pct_df <- pct_df %>% 
+          bind_rows(total_pct_row) %>% 
+          rename("pct" = n)
         
         # Add Total Row and create a total column
         num_df <- num_df %>%
