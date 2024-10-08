@@ -617,7 +617,7 @@ client_categories <- Client %>%
         Questioning +
         Man +
         Transgender == 0, 1, 0),
-    UnknownExclusive = if_else(
+    GenderUnknown = if_else(
       Woman +
         CulturallySpecific +
         NonBinary +
@@ -626,7 +626,7 @@ client_categories <- Client %>%
         Man +
         Transgender == 0, 1, 0),
     DQExclusive = TransgenderExclusive + GenderExpansiveExclusive + ManExclusive +
-        WomanExclusive + UnknownExclusive, # all values should = 1
+        WomanExclusive + GenderUnknown, # all values should = 1
     # inclusive logic
   TransgenderInclusive = if_else(
     Transgender == 1 |
@@ -772,7 +772,7 @@ client_categories <- Client %>%
               NativeHIPacific +
               White +
               BlackAfAmerican > 1, 1, 0),
-  RaceEthnicityNoneExclusive =
+  RaceEthnicityUnknown =
     if_else(
       HispanicLatinaeo +
         AmIndAKNative +
@@ -801,7 +801,7 @@ client_categories <- Client %>%
     WhiteLatineExclusive1 +
     MultipleNotLatineExclusive1 +
     MultipleLatineExclusive1 +
-    RaceEthnicityNoneExclusive, # all should equal 1
+    RaceEthnicityUnknown, # all should equal 1
   # exclusive logic group 2
   BILPOCExclusive2 = if_else(
     AmIndAKNative +
@@ -824,7 +824,7 @@ client_categories <- Client %>%
   DQRaceEthExclusive2 =
     BILPOCExclusive2 +
     WhiteExclusive2 +
-    RaceEthnicityNoneExclusive, # all rows should equal 1
+    RaceEthnicityUnknown, # all rows should equal 1
   # inclusive logic group 1
   AmIndAKNativeInclusive1 = if_else(AmIndAKNative == 1, 1, 0),
   AsianInclusive1 = if_else(Asian == 1, 1, 0),
@@ -834,14 +834,14 @@ client_categories <- Client %>%
   NativeHIPacificInclusive1 = if_else(NativeHIPacific == 1, 1, 0),
   WhiteInclusive1 = if_else(White == 1, 1, 0),
   # catches missings, any methodology any group
-  RaceEthnicityNone = if_else(
-    AmIndAKNative +
-      Asian +
-      BlackAfAmerican +
-      NativeHIPacific +
-      White +
-      MidEastNAfrican +
-      HispanicLatinaeo == 0, 1, 0),
+  # RaceEthnicityNone = if_else(
+  #   AmIndAKNative +
+  #     Asian +
+  #     BlackAfAmerican +
+  #     NativeHIPacific +
+  #     White +
+  #     MidEastNAfrican +
+  #     HispanicLatinaeo == 0, 1, 0),
   # inclusive logic group 2
   BlackAfAmericanLatineInclusive2 =
     if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1, 1, 0),

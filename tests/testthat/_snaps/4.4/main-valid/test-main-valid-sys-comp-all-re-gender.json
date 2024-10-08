@@ -2347,7 +2347,7 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: 70edacc1b5b38db3852adbde8309f197]",
+      "src": "[image data hash: 0055685b655ec15386f98aeeb9359a36]",
       "width": 1575,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and \n              outflow during the report period. The detailed view of this chart \n              shows inflow as three subcategories: first-time homeless, returned from \n              permanent, and re-engaged from non-permanent and outflow as three \n              subcategories: exited non-permanent, exited permanent, and inactive.",
@@ -2383,7 +2383,7 @@
               "left": 14.4,
               "right": 1560.6,
               "bottom": 373.7707086614173,
-              "top": 143.6794520547946
+              "top": 127.4794520547945
             }
           }
         ],
@@ -2400,7 +2400,7 @@
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: a8036f34287c60956eecce33d879bab5]",
+      "src": "[image data hash: a7aa415e8c83a0f064db3974504af754]",
       "width": 1102.5,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n              the report period. The summary view of this chart includes four components: \n              Active at Start, Inflow, Outflow, and Active at End.",
@@ -2436,7 +2436,7 @@
               "left": 14.4,
               "right": 1087.6,
               "bottom": 393.2107086614173,
-              "top": 143.6794520547946
+              "top": 127.4794520547945
             }
           }
         ],
@@ -2453,7 +2453,7 @@
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: 852d07cf98c26d48dfbcfd5c601c8a05]",
+      "src": "[image data hash: c40220d2dfb9bc8c6e538bdfb5700c71]",
       "width": 1595,
       "height": 700,
       "alt": "A crosstab data table of the demographic make-up of the homeless system.",
@@ -2472,19 +2472,21 @@
             },
             "domain": {
               "left": 0.4,
-              "right": 5.6,
+              "right": 6.6,
               "bottom": 0.4,
-              "top": 16.6,
+              "top": 17.6,
               "discrete_limits": {
                 "x": [
                   "Gender expansive, not transgender",
                   "Man (Boy, if child) alone",
                   "Transgender, alone or in combination",
                   "Woman (Girl, if child) alone",
+                  "Unknown",
                   "Total"
                 ],
                 "y": [
                   "Total",
+                  "Unknown",
                   "White & Hispanic/Latina/e/o",
                   "White alone",
                   "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",

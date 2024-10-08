@@ -362,7 +362,7 @@ sys_comp_selection_choices = c(
   # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
   "All Races/Ethnicities",
   "Grouped Races/Ethnicities",
-  "Veteran Status"
+  "Veteran Status (Adult Only)"
 )
 
 rm(inc_ncb_hi_required_prep)
