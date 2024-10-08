@@ -1,4 +1,4 @@
-logToConsole("Running system overview")
+message("Running system overview")
 
 # Age ---------------------------------------------------------------------
 EnrollmentAdjustAge <- as.data.table(EnrollmentAdjust)[
@@ -1276,43 +1276,3 @@ inflow_outflow_df <- reactive({
     )
   plot_data
 })
-
-# newly_homeless_clients <- plot_data %>%
-#   filter(InflowTypeDetail == "Newly Homeless") %>%
-#   pull(PersonalID) %>%
-#   unique()
-# 
-# enrollment_categories  %>%
-#   group_by(PersonalID) %>%
-#   mutate(Count = n()) %>%
-#   ungroup() %>%
-#   filter(PersonalID %in% c(newly_homeless_clients) & Count > 1) %>%
-#   mutate(DestinationDescription = living_situation(Destination),
-#          ReportStart = ReportStart(),
-#          ReportEnd = ReportEnd(),
-#          ExportStart = ExportStartAdjusted,
-#          ExportEnd = ExportEndAdjusted,
-#          LookbackBegins = ReportStart() - years(2),
-#          ProjectType = project_type_abb(ProjectType),
-#          LivingSituation = living_situation(LivingSituation)) %>%
-#   select(
-#     PersonalID,
-#     EnrollmentID,
-#     ExportStart,
-#     LookbackBegins,
-#     ReportStart,
-#     EntryDate,
-#     ExitAdjust,
-#     ReportEnd,
-#     ExportEnd,
-#     ProjectType,
-#     LivingSituation,
-#     DestinationDescription,
-#     days_to_next_entry,
-#     days_since_previous_exit,
-#     lecr,
-#     eecr,
-#     lookback
-#   ) -> for_review
-# 
-# write_csv(for_review, here("newly_homeless_20240912a.csv"))

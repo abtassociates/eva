@@ -1,5 +1,5 @@
 
-logToConsole("Running get export")
+message("Running get export")
 
 # build a list of problems() with each data frame
 # problems() is a built-in function that collects the problems reported in the 

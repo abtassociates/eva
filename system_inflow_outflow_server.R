@@ -38,24 +38,6 @@ time_levels_summary <- c("Active at Start",
                          "Outflow",
                          "Active at End")
 
-# frame_summary <-
-#   data.frame(
-#     Status = c("Housed",
-#                "Homeless",
-#                "Inflow",
-#                "Outflow",
-#                "Homeless",
-#                "Housed"),
-#     Time = c(rep(paste0("Active at Start"), 2),
-#              "Inflow",
-#              "Outflow",
-#              rep(paste0("Active at End"), 2)),
-#     InflowOutflow = c(rep("Inflow", 3), rep("Outflow", 3)),
-#     PlotFillGroups = c("Housed", "Homeless",
-#                        "Inflow", "Outflow",
-#                        "Homeless", "Housed")
-#   )
-
 system_activity_prep_detail <- reactive({
   frame_detail <- data.frame(
     Status = c(
@@ -184,6 +166,7 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
       ystart = lag(cumsum(values), default = 0),
       yend = round(cumsum(values))
     )
+  # df <- readRDS("test_df.Rds")
   
   colors <- c('#ECE7E3', '#9E958F', '#BDB6D7', '#6A559B')
   s <- max(df$yend) + 20
@@ -195,6 +178,7 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
     pull(values) %>%
     sum() * -1
 
+  # browser()
   # waterfall plot ----------------------------------------------------------
   ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
     # the bars
@@ -302,20 +286,6 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 }
-
-# custom round to the smaller of the nearest 10, 100, etc.
-# good for chart segment sizing
-# get_segment_size <- function(x) {
-#   thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
-#   rounded <- sapply(thresholds, function(t) {
-#     if (x > t) {
-#       return(t * ceiling(x / t))
-#     } else {
-#       return(NA)
-#     }
-#   })
-#   min(rounded, na.rm = TRUE)
-# }
 
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
