@@ -2286,7 +2286,7 @@
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: c1bd7818d1a5757e68a5af46aa6fe8b5]",
+      "src": "[image data hash: fce5e305e8210e28a945c72f5e5c3500]",
       "width": 1102.5,
       "height": 400,
       "alt": "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",
@@ -2306,8 +2306,8 @@
             "domain": {
               "left": 0,
               "right": 3,
-              "bottom": -55.3,
-              "top": 1161.3,
+              "bottom": -60.25,
+              "top": 1265.25,
               "discrete_limits": {
                 "x": [
                   "Period Start",
@@ -2344,7 +2344,7 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: 0055685b655ec15386f98aeeb9359a36]",
+      "src": "[image data hash: 213157f531cbc99673c13f38fd57a254]",
       "width": 1575,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and \n              outflow during the report period. The detailed view of this chart \n              shows inflow as three subcategories: first-time homeless, returned from \n              permanent, and re-engaged from non-permanent and outflow as three \n              subcategories: exited non-permanent, exited permanent, and inactive.",
@@ -2365,7 +2365,7 @@
               "left": 0.3225,
               "right": 8.6275,
               "bottom": 0,
-              "top": 4212
+              "top": 4609
             },
             "mapping": {
               "y": null,
@@ -2397,7 +2397,7 @@
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: a7aa415e8c83a0f064db3974504af754]",
+      "src": "[image data hash: 5f12dd70c015fc6f045e3ccd7c796233]",
       "width": 1102.5,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n              the report period. The summary view of this chart includes four components: \n              Active at Start, Inflow, Outflow, and Active at End.",
@@ -2418,7 +2418,7 @@
               "left": 0.5225,
               "right": 4.4275,
               "bottom": 0,
-              "top": 4212
+              "top": 4609
             },
             "mapping": {
               "y": null,
@@ -2450,7 +2450,7 @@
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: 47e51d8119c2322d32a2c9200d3b68cd]",
+      "src": "[image data hash: 75a1e63e0cb4a8a388b114b4d837c76b]",
       "width": 500,
       "height": 700,
       "alt": "A crosstab data table of the demographic make-up of the homeless system.",
