@@ -955,23 +955,34 @@ clients_enrollments_reactive <- reactive({
 # https://onlinetools.com/time/visualize-date-intervals <- here.
 # add inflow type and active enrollment typed used for system overview plots
 universe <- reactive({
-  clients_enrollments_reactive() %>%
+  client_enrollments_reactive_dt <- as.data.table(clients_enrollments_reactive())
+  # clients_enrollments_reactive() %>%
     # get rid of rows where the enrollment is neither a lookback enrollment,
     # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
-    filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
-    mutate(
-      order_ees = case_when(
-        lecr == TRUE ~ 0,
-        eecr == TRUE ~ 1,
-        TRUE ~ lookback + 1)) %>%
-    group_by(PersonalID) %>%
-    arrange(desc(order_ees), .by_group = TRUE) %>%
-    mutate(
-      days_to_next_entry =
-        difftime(lead(EntryDate, order_by = EntryDate),
-                 ExitAdjust, units = "days")) %>%
-    ungroup() %>%
-    mutate(
+    # filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
+    # mutate(
+    #   order_ees = case_when(
+    #     lecr == TRUE ~ 0,
+    #     eecr == TRUE ~ 1,
+    #     TRUE ~ lookback + 1)) %>%
+    client_enrollments_reactive_dt[
+      !(lookback == 0 & eecr == FALSE & lecr == FALSE),
+      order_ees := fifelse(lecr == TRUE, 0, 
+                           fifelse(eecr == TRUE, 1, lookback + 1))
+    ][
+    # group_by(PersonalID) %>%
+    # arrange(desc(order_ees), .by_group = TRUE) %>%
+    # mutate(
+    #   days_to_next_entry =
+    #     difftime(lead(EntryDate, order_by = EntryDate),
+    #              ExitAdjust, units = "days")) %>%
+    # ungroup() %>%
+      order(-order_ees), # Equivalent of arrange(desc(order_ees))
+      days_to_next_entry := as.numeric(difftime(shift(EntryDate, type = "lead"), 
+                                                ExitAdjust, units = "days")),
+      by = PersonalID # Equivalent of group_by(PersonalID)
+    ][, `:=`(
+    # mutate(
       # INFLOW CALCULATOR COLUMNS
       # LOGIC: active homeless at start
         # basically it has to straddle report start
@@ -1119,17 +1130,20 @@ universe <- reactive({
               lh_prior_livingsituation == FALSE)
            
         ))
-    )
+    )]
 })
 
 # Enrollment-level universe with client-level flags -----------------------
 # Need to keep it enrollment-level so other scripts can reference the enrollments
 universe_ppl_flags <- reactive({
-  universe() %>%
-    group_by(PersonalID) %>%
-    filter(max(lecr, na.rm = TRUE) == 1 & max(eecr, na.rm = TRUE) == 1) %>%
-    # drops ppl w/o an eecr or lecr
-    mutate(
+  # universe() %>%
+  #   group_by(PersonalID) %>%
+  #   filter(max(lecr, na.rm = TRUE) == 1 & max(eecr, na.rm = TRUE) == 1) %>%
+  #   # drops ppl w/o an eecr or lecr
+  #   mutate(
+  universe()[, .SD[ # Subset by group (PersonalID) and filter rows based on conditions
+    max(lecr, na.rm = TRUE) == 1 & max(eecr, na.rm = TRUE) == 1], 
+    by = PersonalID][, `:=`(
       # INFLOW
       active_at_start_homeless_client = max(active_at_start_homeless),
       
@@ -1145,27 +1159,29 @@ universe_ppl_flags <- reactive({
       
       newly_homeless_client = max(lookback) == 0 |
         max(eecr_lh_at_entry) == 0 | 
-        max(at_least_14_days_to_eecr_enrl) == 0,
-      
-      InflowTypeSummary = case_when(
+        max(at_least_14_days_to_eecr_enrl) == 0
+    ), by = PersonalID
+  ][, `:=`(
+      InflowTypeSummary = fifelse(
         active_at_start_homeless_client == TRUE |
-          active_at_start_housed_client == TRUE ~
+          active_at_start_housed_client == TRUE,
           "Active at Start",
-        newly_homeless_client == TRUE |
+        fifelse(newly_homeless_client == TRUE |
           return_from_perm_client == TRUE |
-          reengaged_from_temp_client == TRUE ~
+          reengaged_from_temp_client == TRUE,
           "Inflow",
-        TRUE ~ "something's wrong"
+          "something's wrong"
+        )
       ),
       
-      InflowTypeDetail = case_when(
-        active_at_start_homeless_client == TRUE ~ "Homeless",
-        active_at_start_housed_client == TRUE ~ "Housed",
-        return_from_perm_client == TRUE ~ "Returned from \nPermanent",
-        reengaged_from_temp_client == TRUE ~ "Re-engaged from \nNon-Permanent",
-        newly_homeless_client == TRUE & days_of_data() >= 1094 ~ "First-Time \nHomeless",
-        newly_homeless_client == TRUE & days_of_data() < 1094 ~ "Inflow\nUnspecified",
-        TRUE ~ "something's wrong"
+      InflowTypeDetail = fifelse(
+        active_at_start_homeless_client == TRUE, "Homeless",
+        fifelse(active_at_start_housed_client == TRUE, "Housed",
+        fifelse(return_from_perm_client == TRUE, "Returned from \nPermanent",
+        fifelse(reengaged_from_temp_client == TRUE, "Re-engaged from \nNon-Permanent",
+        fifelse(newly_homeless_client == TRUE & days_of_data() >= 1094, "First-Time \nHomeless",
+        fifelse(newly_homeless_client == TRUE & days_of_data() < 1094, "Inflow\nUnspecified",
+        "something's wrong")))))
       ),
       
       # OUTFLOW
@@ -1177,42 +1193,37 @@ universe_ppl_flags <- reactive({
       
       housed_at_end_client = max(housed_at_end),
       
-      unknown_at_end_client = max(unknown_at_end),
+      unknown_at_end_client = max(unknown_at_end)
       
-      OutflowTypeSummary = case_when(
+  ), by = PersonalID
+  ][, `:=`(
+      OutflowTypeSummary = fifelse(
         perm_dest_client == TRUE |
           temp_dest_client == TRUE |
-          unknown_at_end_client == TRUE ~
+          unknown_at_end_client == TRUE,
           "Outflow",
-        homeless_at_end_client == TRUE |
-          housed_at_end_client == TRUE ~
+        fifelse(homeless_at_end_client == TRUE |
+          housed_at_end_client == TRUE,
           "Active at End",
-        TRUE ~ "something's wrong"
+          "something's wrong")
       ),
 
-      OutflowTypeDetail = case_when(
-        perm_dest_client == TRUE ~
-          "Exited,\nPermanent",
-        temp_dest_client == TRUE ~
-          "Exited,\nNon-Permanent",
-        unknown_at_end_client == TRUE ~
-          "Inactive",
-        homeless_at_end_client == TRUE ~
-          "Homeless",
-        housed_at_end_client == TRUE ~
-          "Housed",
-        TRUE ~
-          "something's wrong"
+      OutflowTypeDetail = fifelse(
+        perm_dest_client == TRUE, "Exited,\nPermanent",
+        fifelse(temp_dest_client == TRUE, "Exited,\nNon-Permanent",
+        fifelse(unknown_at_end_client == TRUE, "Inactive",
+        fifelse(homeless_at_end_client == TRUE, "Homeless",
+        fifelse(housed_at_end_client == TRUE, "Housed",
+        "something's wrong"))))
       )
-    ) %>%
-    ungroup()
+    )
+  ]
 })
 
 # Client-level enrollment summary data reactive ---------------------------
 # get final people-level, inflow/outflow dataframe by joining the filtered 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 inflow_outflow_df <- reactive({
- 
   plot_data <- universe_ppl_flags() %>%
     select(PersonalID,
            active_at_start_homeless_client,
@@ -1230,52 +1241,51 @@ inflow_outflow_df <- reactive({
            OutflowTypeDetail
     ) %>%
     unique()
-  
   # AS QC check:
-  missing_types <- universe() %>%
-    inner_join(
-      plot_data %>%
-        filter(
-          OutflowTypeDetail == "something's wrong" |
-            InflowTypeDetail == "something's wrong"),
-      by = "PersonalID") %>%
-    mutate(
-      missing_inflow = eecr == TRUE & InflowTypeDetail == "something's wrong",
-      missing_outflow = lecr == TRUE & OutflowTypeDetail == "something's wrong",
-    ) %>%
-    filter(missing_inflow == TRUE | missing_outflow == TRUE)
-  
-# browser()
-  
-  category_counts <- plot_data %>%
-    select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%
-    pivot_longer(
-      cols = c(InflowTypeDetail, OutflowTypeDetail), 
-      names_to = "Time", 
-      values_to = "Status") %>%
-    group_by(Time, Status) %>%
-    summarise(values = n()) %>%
-    ungroup() %>%
-    filter(!is.na(Status)) %>%
-    mutate(
-      values = ifelse(Time == "OutflowTypeDetail", values * -1, values),
-      inflow_outflow = Time,
-      Time = case_when(
-        Time == "InflowTypeDetail" &
-          Status %in% c("Homeless", "Housed")
-        ~ paste0("Active as of \n", ReportStart()),
-        
-        Time == "OutflowTypeDetail" &
-          Status %in% c("Homeless", "Housed")
-        ~ paste0("Active as of \n", ReportEnd()),
-        
-        Time == "InflowTypeDetail"
-        ~ "Inflow",
-        
-        Time == "OutflowTypeDetail"
-        ~ "Outflow"
-      )
-    )
+#   missing_types <- universe() %>%
+#     inner_join(
+#       plot_data %>%
+#         filter(
+#           OutflowTypeDetail == "something's wrong" |
+#             InflowTypeDetail == "something's wrong"),
+#       by = "PersonalID") %>%
+#     mutate(
+#       missing_inflow = eecr == TRUE & InflowTypeDetail == "something's wrong",
+#       missing_outflow = lecr == TRUE & OutflowTypeDetail == "something's wrong",
+#     ) %>%
+#     filter(missing_inflow == TRUE | missing_outflow == TRUE)
+#   
+# # browser()
+#   
+#   category_counts <- plot_data %>%
+#     select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%
+#     pivot_longer(
+#       cols = c(InflowTypeDetail, OutflowTypeDetail), 
+#       names_to = "Time", 
+#       values_to = "Status") %>%
+#     group_by(Time, Status) %>%
+#     summarise(values = n()) %>%
+#     ungroup() %>%
+#     filter(!is.na(Status)) %>%
+#     mutate(
+#       values = ifelse(Time == "OutflowTypeDetail", values * -1, values),
+#       inflow_outflow = Time,
+#       Time = case_when(
+#         Time == "InflowTypeDetail" &
+#           Status %in% c("Homeless", "Housed")
+#         ~ paste0("Active as of \n", ReportStart()),
+#         
+#         Time == "OutflowTypeDetail" &
+#           Status %in% c("Homeless", "Housed")
+#         ~ paste0("Active as of \n", ReportEnd()),
+#         
+#         Time == "InflowTypeDetail"
+#         ~ "Inflow",
+#         
+#         Time == "OutflowTypeDetail"
+#         ~ "Outflow"
+#       )
+#     )
   plot_data
 })
 
