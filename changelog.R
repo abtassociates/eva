@@ -24,7 +24,13 @@ output$changelog <- renderDataTable({
     'Data not collected' The issues removed are: Missing Name Data Quality, Missing 
     DOB Data Quality, Missing SSN Data Quality, Missing Gender, Missing Veteran 
     Status, Missing Disabling Condition, and Missing Destination. These are now 
-    flagged as Warnings and described as 'Unknown Gender,' 'Unknown Veteran Status,' etc.",
+    flagged as Warnings and described as 'Unknown Gender,' 'Unknown Veteran Status,' etc.<br>
+    <b>Bug Fixes:</b><br>
+      - Improved handling of overlapping enrollments<br>
+      - Fixed invalid move-in date (issue <a href='https://github.com/abtassociates/eva/issues/615'>#615</a>)<br>
+      - Fixed the way Eva uses Project Participation and groups Projects that change 
+    participation across the reporting date range. Addresses issues <a href='https://github.com/abtassociates/eva/issues/521'>#521</a> 
+    and <a href='https://github.com/abtassociates/eva/issues/605'>#605</a>.",
     
     "08-01-2024",
     "<b>New Features:</b> <br>

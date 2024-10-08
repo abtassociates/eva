@@ -24,12 +24,12 @@ library(officer)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 
-if(dir.exists("metadata-analysis/metadata/")) {
+if(dir.exists(here("metadata-analysis/metadata/"))) {
   capture.output("All good", file = stderr())
 } else {
-  dir.create("metadata-analysis/metadata/")
+  dir.create(here("metadata-analysis/metadata/"))
 }
-source("hardcodes.R", local = TRUE) # hard-coded variables and data frames
+source(here("hardcodes.R"), local = TRUE) # hard-coded variables and data frames
 
 # # functions used throughout the app
 # source("helper_functions.R", local = TRUE)
