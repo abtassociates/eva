@@ -2289,7 +2289,7 @@
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: c1bd7818d1a5757e68a5af46aa6fe8b5]",
+      "src": "[image data hash: fce5e305e8210e28a945c72f5e5c3500]",
       "width": 1102.5,
       "height": 400,
       "alt": "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",
@@ -2309,8 +2309,8 @@
             "domain": {
               "left": 0,
               "right": 3,
-              "bottom": -55.3,
-              "top": 1161.3,
+              "bottom": -60.25,
+              "top": 1265.25,
               "discrete_limits": {
                 "x": [
                   "Period Start",
@@ -2347,7 +2347,7 @@
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: 70edacc1b5b38db3852adbde8309f197]",
+      "src": "[image data hash: 213157f531cbc99673c13f38fd57a254]",
       "width": 1575,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and \n              outflow during the report period. The detailed view of this chart \n              shows inflow as three subcategories: first-time homeless, returned from \n              permanent, and re-engaged from non-permanent and outflow as three \n              subcategories: exited non-permanent, exited permanent, and inactive.",
@@ -2368,7 +2368,7 @@
               "left": 0.3225,
               "right": 8.6275,
               "bottom": 0,
-              "top": 4212
+              "top": 4609
             },
             "mapping": {
               "y": null,
@@ -2383,7 +2383,7 @@
               "left": 14.4,
               "right": 1560.6,
               "bottom": 373.7707086614173,
-              "top": 143.6794520547946
+              "top": 127.4794520547945
             }
           }
         ],
@@ -2400,7 +2400,7 @@
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: a8036f34287c60956eecce33d879bab5]",
+      "src": "[image data hash: 5f12dd70c015fc6f045e3ccd7c796233]",
       "width": 1102.5,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n              the report period. The summary view of this chart includes four components: \n              Active at Start, Inflow, Outflow, and Active at End.",
@@ -2421,7 +2421,7 @@
               "left": 0.5225,
               "right": 4.4275,
               "bottom": 0,
-              "top": 4212
+              "top": 4609
             },
             "mapping": {
               "y": null,
@@ -2436,7 +2436,7 @@
               "left": 14.4,
               "right": 1087.6,
               "bottom": 393.2107086614173,
-              "top": 143.6794520547946
+              "top": 127.4794520547945
             }
           }
         ],

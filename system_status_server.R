@@ -190,7 +190,6 @@ output$sys_status_download_btn <- downloadHandler(
       col_names = TRUE
     )
 
-
     exportTestValues(sys_status_report = sankey_plot_data())
   }
 )
