@@ -1,5 +1,5 @@
 test_script_name <- "test-main-valid"
-test_dataset_folder <- "tests/temp/"
+test_dataset_folder <- "tests/temp//"
 test_dataset <- "FY24-ICF-main-valid.zip"
 
 test_that(paste0("{shinytest2} recording: ",test_script_name), {

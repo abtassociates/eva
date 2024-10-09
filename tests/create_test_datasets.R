@@ -13,8 +13,8 @@ unzip(here("tests/FY24-ICF-hashed-current-good.zip"), exdir = here("tests/temp")
 # function to save a directory of CSVs as a zip file for upload
 save_new_zip <- function(zipfname, files_directory) {
   zipr(
-    zipfile = paste0(here("tests/temp/"),zipfname), 
-    files = list.files(paste0(here("tests/temp/"),files_directory), pattern = "*.csv$", full.names = TRUE),
+    zipfile = paste0(here("tests/temp//"),zipfname), 
+    files = list.files(paste0(here("tests/temp//"),files_directory), pattern = "*.csv$", full.names = TRUE),
     mode = "cherry-pick" # so the files are at the top directory
   )
   Sys.sleep(1)
@@ -39,12 +39,12 @@ dir.create(here("tests/temp/reduced"))
 lapply(names(reduced_data), function(fname) {
   write.csv(
     reduced_data[[fname]], 
-    paste0(here("tests/temp/reduced/"),fname, ".csv"), 
+    paste0(here("tests/temp/reduced//"),fname, ".csv"), 
     row.names = FALSE, 
     na="")
 })
 
-reduced_files <- list.files(here("tests/temp/reduced"), pattern = "*.csv", full.names = TRUE)
+reduced_files <- list.files(here("tests/temp/reduced/"), pattern = "*.csv", full.names = TRUE)
 names(reduced_files) <- tools::file_path_sans_ext(basename(reduced_files))
 
 ############### INITIALLY VALID IMPORT TESTS #################
@@ -95,7 +95,7 @@ source(here("tests/update_test_good_fsa.R"), local = TRUE)
 dir.create(here("tests/temp/reduced_fsa"))
 lapply(names(reduced_data_fsa), function(fname) {
     write.csv(reduced_data_fsa[[fname]],
-              paste0(here("tests/temp/reduced_fsa/"),
+              paste0(here("tests/temp/reduced_fsa//"),
                      fname, ".csv"),
               row.names = FALSE, na="")
   Sys.sleep(1)
