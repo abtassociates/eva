@@ -2,6 +2,11 @@ output$changelog <- renderDataTable({
   tribble(
     ~ Date,
     ~ Change,
+    "10-23-2024",
+    "<b>Bug Fixes:</b> <br>
+      - Corrected the Zero Utilization logic to only flag projects that are missing
+    enrollments during a project's operating and participating periods. See Issue
+    522.",
     "10-07-2024",
     "<b>New Features:</b> <br>
       - Launched the System Performance Overview Page. The page contains three new 
