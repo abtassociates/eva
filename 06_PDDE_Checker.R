@@ -236,26 +236,96 @@ vsps_in_hmis <- Project0() %>%
   select(all_of(PDDEcols))
   
  # Zero Utilization --------------------------------------------------------
+browser()
+res_projects_no_clients <- ProjectSegments %>%
+  filter(HMISParticipationType == 1) %>%
+  inner_join(activeInventory %>%
+               filter((is.na(Availability) | Availability != 3) &
+                        BedInventory > 0 & !is.na(BedInventory)) %>%
+               # excluding overflow projects since their enrollments will
+               # by definition contain gaps of zero utilization
+               group_by(ProjectID) %>%
+               summarise(ActiveInventorySpan =
+                           interval(min(InventoryStartDate), max(coalesce(
+                             InventoryEndDate, no_end_date
+                           )))) %>%
+               ungroup(),
+             join_by(ProjectID)) %>%
+  # collapsing project segments (periods of participation) down into a single
+  # date range of time that they had any active inventory ^
+  mutate(
+    ProjectOperatingInterval =
+      intersect(
+        interval(OperatingStartDate, coalesce(OperatingEndDate, no_end_date)),
+        interval(meta_HUDCSV_Export_Start(), meta_HUDCSV_Export_End())),
+    # when in the reporting period was this project segment operating?^
+    ParticipatingInterval =
+      intersect(interval(
+        HMISParticipationStatusStartDate,
+        coalesce(HMISParticipationStatusEndDate, no_end_date)
+      ),
+      interval(meta_HUDCSV_Export_Start(), meta_HUDCSV_Export_End())),
+    # when in the reporting period was the project participating?^
+    OperatingAndParticipating =
+      intersect(ProjectOperatingInterval, ParticipatingInterval),
+    # when was the project both participating and operating (within the rpt period?)
+    OperatingParticipatingAndActiveInventory =
+      intersect(OperatingAndParticipating, ActiveInventorySpan)
+    # when did this project have active inventory and all the other conditions?
+  ) %>%
+  select(
+    ProjectID,
+    ProjectTimeID,
+    ProjectName,
+    OperatingParticipatingAndActiveInventory
+  ) %>%
+  filter(!is.na(OperatingParticipatingAndActiveInventory)) %>%
+  # excluding any project segments that had no active inventory during the 
+  # reporting period ^
+  left_join(
+    Enrollment %>%
+      group_by(ProjectTimeID) %>%
+      summarise(EnrollmentSpan = interval(min(EntryDate), max(ExitAdjust))) %>%
+      ungroup(),
+    join_by(ProjectTimeID)
+    # looking at each project segment for the earliest Entry and latest Exit
+  ) %>%
+  filter(
+    is.na(EnrollmentSpan) | # <- projects without any enrollments at all
+      int_start(EnrollmentSpan) > int_end(OperatingParticipatingAndActiveInventory) |
+      int_end(EnrollmentSpan) < int_start(OperatingParticipatingAndActiveInventory)) %>%
+  # finding rows where the span of enrollments falls within (NOT inclusive) the 
+  # span of time the project had active inventory (and was participating, etc.)
+  pull(ProjectID) %>% unique()
 
-projects_w_beds <- activeInventory %>%
-  filter(BedInventory > 0) %>%
-  pull(ProjectID) %>%
-  unique()
-
-projects_w_clients <- Enrollment %>%
-  pull(ProjectID) %>%
-  unique()
-
-res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 
 zero_utilization <- Project0() %>%
-  inner_join(HMISParticipation %>%
-              filter(HMISParticipationType == 1) %>%
-              distinct(ProjectID), by = "ProjectID") %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
   merge_check_info(checkIDs = 83) %>%
   mutate(Detail = "") %>%
   select(all_of(PDDEcols))
+# if a comparable db uses Eva, this will not flag for them^
+
+# OLD:
+# projects_w_beds <- activeInventory %>%
+#   filter(BedInventory > 0) %>%
+#   pull(ProjectID) %>%
+#   unique()
+# 
+# projects_w_clients <- Enrollment %>%
+#   pull(ProjectID) %>%
+#   unique()
+# 
+# res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
+# 
+# zero_utilization <- Project0() %>%
+#   inner_join(HMISParticipation %>%
+#               filter(HMISParticipationType == 1) %>%
+#               distinct(ProjectID), by = "ProjectID") %>%
+#   filter(ProjectID %in% c(res_projects_no_clients)) %>%
+#   merge_check_info(checkIDs = 83) %>%
+#   mutate(Detail = "") %>%
+#   select(all_of(PDDEcols))
 
 # if a comparable db uses Eva, this will not flag for them^
 
