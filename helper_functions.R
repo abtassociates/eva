@@ -202,7 +202,8 @@ get_col_types <- function(upload_filepath, file) {
     filename,
     head = TRUE,
     nrows = 1,
-    sep = ","))
+    sep = ",", 
+    comment.char = ""))
   
   # get the data types for those columns
   data_types <- sapply(cols_in_file, function(col_name) {
