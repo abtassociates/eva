@@ -395,7 +395,7 @@ function(input, output, session) {
       logMetadata(paste0("Impermissible Character Locations Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(non_ascii_files_detail = summary(non_ascii_files_detail))
+      exportTestValues(non_ascii_files_detail = summarize_df(non_ascii_files_detail))
     }
   )
   
@@ -636,7 +636,7 @@ function(input, output, session) {
   output$clientCountSummary <- renderDT({
     req(valid_file() == 1)
     
-    exportTestValues(clientCountSummary = summary(client_count_summary_df()))
+    exportTestValues(clientCountSummary = summarize_df(client_count_summary_df()))
     
     datatable(
       client_count_summary_df() %>%
@@ -698,7 +698,7 @@ function(input, output, session) {
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
       exportTestValues(pdde_download = list(
-        "Summary" = summary(summary_df), "Data" = summary(pdde_main())))
+        "Summary" = summarize_df(summary_df), "Data" = summarize_df(pdde_main())))
     }
   )
   
@@ -712,7 +712,7 @@ function(input, output, session) {
       ungroup() %>%
       arrange(Type)
     
-    exportTestValues(pdde_summary_table = summary(a))
+    exportTestValues(pdde_summary_table = summarize_df(a))
     
     datatable(
       a,
@@ -732,7 +732,7 @@ function(input, output, session) {
       arrange(Type, Issue) %>%
       unique()
     
-    exportTestValues(pdde_guidance_summary = summary(guidance))
+    exportTestValues(pdde_guidance_summary = summarize_df(guidance))
     
     datatable(
       guidance, 
@@ -766,7 +766,7 @@ function(input, output, session) {
              Issue, 
              Clients)
     
-    exportTestValues(dq_organization_summary_table = summary(a))
+    exportTestValues(dq_organization_summary_table = summarize_df(a))
     
     datatable(
       a,
@@ -790,7 +790,7 @@ function(input, output, session) {
       arrange(Type, Issue) %>%
       unique()
     
-    exportTestValues(dq_org_guidance_summary = summary(guidance))
+    exportTestValues(dq_org_guidance_summary = summarize_df(guidance))
     
     datatable(
       guidance, 
@@ -850,7 +850,7 @@ function(input, output, session) {
       write_xlsx(dqDownloadInfo()$orgDQData, path = file)
       logMetadata(paste0("Downloaded Org-level DQ Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-      exportTestValues(orgDQ_download = summary(dqDownloadInfo()$orgDQData))
+      exportTestValues(orgDQ_download = summarize_df(dqDownloadInfo()$orgDQData))
     }
   )
   
@@ -869,7 +869,7 @@ function(input, output, session) {
       write_xlsx(dqDownloadInfo()$systemDQData, path = file)
       logMetadata(paste0("Downloaded System-level DQ Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-      exportTestValues(systemDQ_download = summary(dqDownloadInfo()$systemDQData))
+      exportTestValues(systemDQ_download = summarize_df(dqDownloadInfo()$systemDQData))
     }
   )
   

@@ -437,3 +437,8 @@ min_cols_selected_except <- function(df, list, exception, num_cols_selected) {
   rowSums(df[exception], na.rm = TRUE) == 0 &
     rowSums(df[setdiff(list, exception)], na.rm = TRUE) >= num_cols_selected
 }
+
+
+summarize_df <- function(df) {
+  lapply(df, function(col) {summary(col)})
+}

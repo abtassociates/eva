@@ -1028,37 +1028,28 @@
     }
   },
   "export": {
-    "clientCountSummary": [
-      [
-        "Length:2          ",
-        "Min.   : 16  ",
-        "Min.   : 16  "
-      ],
-      [
-        "Class :character  ",
-        "1st Qu.: 84  ",
-        "1st Qu.: 92  "
-      ],
-      [
-        "Mode  :character  ",
-        "Median :152  ",
-        "Median :168  "
-      ],
-      [
-        null,
-        "Mean   :152  ",
-        "Mean   :168  "
-      ],
-      [
-        null,
-        "3rd Qu.:220  ",
-        "3rd Qu.:244  "
-      ],
-      [
-        null,
-        "Max.   :288  ",
-        "Max.   :320  "
-      ]
-    ]
+    "clientCountSummary": {
+      "Status": {
+        "Length": "2",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Clients": {
+        "Min.": 16,
+        "1st Qu.": 84,
+        "Median": 152,
+        "Mean": 152,
+        "3rd Qu.": 220,
+        "Max.": 288
+      },
+      "Households": {
+        "Min.": 16,
+        "1st Qu.": 92,
+        "Median": 168,
+        "Mean": 168,
+        "3rd Qu.": 244,
+        "Max.": 320
+      }
+    }
   }
 }
