@@ -30,11 +30,6 @@ function(input, output, session) {
     windowSize <- reactiveVal()
   )
   
-  reset_reactivevals <- function() {
-    lapply(visible_reactive_vals, function(r) r(NULL))
-    valid_file(0)
-    windowSize(input$dimension)
-  }
   # 
   # # functions used throughout the app
   # source("helper_functions.R", local = TRUE)
@@ -311,9 +306,8 @@ function(input, output, session) {
           )
           
           logMetadata("Unsuccessful upload - not structurally valid")
-          dq_main_df(NULL)
-          pdde_main(NULL)
         }
+        reset_postvalid_components()
         toggle_sys_components(valid_file() == 1)
       }
     })
