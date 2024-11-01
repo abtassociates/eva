@@ -412,6 +412,32 @@ custom_rprof <- function(expr, source_file_name, code_block_name = NULL) {
 
 
 # Misc --------------------------------------------------------------------
+reset_postvalid_components <- function() {
+  dq_main_df(NULL)
+  session$sendInputMessage('orgList', list(choices = NULL))
+  session$sendInputMessage('currentProviderList', list(choices = NULL))
+  session$sendCustomMessage('dateRangeCount', list(
+    min = NULL,
+    start = ymd(today()),
+    max = NULL,
+    end = ymd(today())
+  ))
+  pdde_main(NULL)
+  
+  shinyjs::toggle("sys_inflow_outflow_download_btn", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
+  shinyjs::toggle("sys_inflow_outflow_download_btn_ppt", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
+  
+  shinyjs::toggle("sys_status_download_btn", condition = sum(sankey_plot_data()$freq) > 10)
+  shinyjs::toggle("sys_status_download_btn_ppt", condition = sum(sankey_plot_data()$freq) > 10)
+}
+
+# essentially resets the app
+reset_app <- function() {
+  lapply(visible_reactive_vals, function(r) r(NULL))
+  valid_file(0)
+  windowSize(input$dimension)
+  reset_postvalid_components()
+}
 
 getNameByValue <- function(vector, val) {
   return(
