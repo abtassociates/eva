@@ -136,7 +136,7 @@ toggleDemoJs <- function(t) {
     
     shinyjs::hide("fileStructureAnalysis")
     
-    reset_reactivevals()
+    reset_app()
     
     session$sendInputMessage('currentProviderList', list(
       choices = NULL

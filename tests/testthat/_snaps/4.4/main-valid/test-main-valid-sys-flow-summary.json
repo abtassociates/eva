@@ -2561,141 +2561,107 @@
     }
   },
   "export": {
-    "clientCountSummary": [
-      [
-        "Length:2          ",
-        "Min.   : 16  ",
-        "Min.   : 16  "
-      ],
-      [
-        "Class :character  ",
-        "1st Qu.: 84  ",
-        "1st Qu.: 92  "
-      ],
-      [
-        "Mode  :character  ",
-        "Median :152  ",
-        "Median :168  "
-      ],
-      [
-        null,
-        "Mean   :152  ",
-        "Mean   :168  "
-      ],
-      [
-        null,
-        "3rd Qu.:220  ",
-        "3rd Qu.:244  "
-      ],
-      [
-        null,
-        "Max.   :288  ",
-        "Max.   :320  "
-      ]
-    ],
-    "dq_org_guidance_summary": [
-      [
-        "High Priority: 3  ",
-        "Length:48         ",
-        "Length:48         "
-      ],
-      [
-        "Error        :21  ",
-        "Class :character  ",
-        "Class :character  "
-      ],
-      [
-        "Warning      :24  ",
-        "Mode  :character  ",
-        "Mode  :character  "
-      ]
-    ],
-    "dq_organization_summary_table": [
-      [
-        "Length:125        ",
-        "High Priority: 5  ",
-        "Length:125        ",
-        "Min.   :  1.00  "
-      ],
-      [
-        "Class :character  ",
-        "Error        :52  ",
-        "Class :character  ",
-        "1st Qu.:  1.00  "
-      ],
-      [
-        "Mode  :character  ",
-        "Warning      :68  ",
-        "Mode  :character  ",
-        "Median :  3.00  "
-      ],
-      [
-        null,
-        null,
-        null,
-        "Mean   : 10.49  "
-      ],
-      [
-        null,
-        null,
-        null,
-        "3rd Qu.:  7.00  "
-      ],
-      [
-        null,
-        null,
-        null,
-        "Max.   :214.00  "
-      ]
-    ],
-    "pdde_guidance_summary": [
-      [
-        "High Priority:2  ",
-        "Length:6          ",
-        "Length:6          "
-      ],
-      [
-        "Error        :3  ",
-        "Class :character  ",
-        "Class :character  "
-      ],
-      [
-        "Warning      :1  ",
-        "Mode  :character  ",
-        "Mode  :character  "
-      ]
-    ],
-    "pdde_summary_table": [
-      [
-        "Length:6          ",
-        "High Priority:2  ",
-        "Min.   :  1.00  "
-      ],
-      [
-        "Class :character  ",
-        "Error        :3  ",
-        "1st Qu.:  3.75  "
-      ],
-      [
-        "Mode  :character  ",
-        "Warning      :1  ",
-        "Median :  7.00  "
-      ],
-      [
-        null,
-        null,
-        "Mean   :126.50  "
-      ],
-      [
-        null,
-        null,
-        "3rd Qu.: 10.25  "
-      ],
-      [
-        null,
-        null,
-        "Max.   :730.00  "
-      ]
-    ]
+    "clientCountSummary": {
+      "Status": {
+        "Length": "2",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Clients": {
+        "Min.": 16,
+        "1st Qu.": 84,
+        "Median": 152,
+        "Mean": 152,
+        "3rd Qu.": 220,
+        "Max.": 288
+      },
+      "Households": {
+        "Min.": 16,
+        "1st Qu.": 92,
+        "Median": 168,
+        "Mean": 168,
+        "3rd Qu.": 244,
+        "Max.": 320
+      }
+    },
+    "dq_org_guidance_summary": {
+      "Type": {
+        "High Priority": 3,
+        "Error": 21,
+        "Warning": 24
+      },
+      "Issue": {
+        "Length": "48",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Guidance": {
+        "Length": "48",
+        "Class": "character",
+        "Mode": "character"
+      }
+    },
+    "dq_organization_summary_table": {
+      "Project Name": {
+        "Length": "125",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Type": {
+        "High Priority": 5,
+        "Error": 52,
+        "Warning": 68
+      },
+      "Issue": {
+        "Length": "125",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Clients": {
+        "Min.": 1,
+        "1st Qu.": 1,
+        "Median": 3,
+        "Mean": 10.488,
+        "3rd Qu.": 7,
+        "Max.": 214
+      }
+    },
+    "pdde_guidance_summary": {
+      "Type": {
+        "High Priority": 2,
+        "Error": 3,
+        "Warning": 1
+      },
+      "Issue": {
+        "Length": "6",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Guidance": {
+        "Length": "6",
+        "Class": "character",
+        "Mode": "character"
+      }
+    },
+    "pdde_summary_table": {
+      "Issue": {
+        "Length": "6",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Type": {
+        "High Priority": 2,
+        "Error": 3,
+        "Warning": 1
+      },
+      "Count": {
+        "Min.": 1,
+        "1st Qu.": 3.75,
+        "Median": 7,
+        "Mean": 126.5,
+        "3rd Qu.": 10.25,
+        "Max.": 730
+      }
+    }
   }
 }
