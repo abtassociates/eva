@@ -311,6 +311,8 @@ function(input, output, session) {
           )
           
           logMetadata("Unsuccessful upload - not structurally valid")
+          dq_main_df(NULL)
+          pdde_main(NULL)
         }
         toggle_sys_components(valid_file() == 1)
       }
