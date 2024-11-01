@@ -424,11 +424,14 @@ reset_postvalid_components <- function() {
   ))
   pdde_main(NULL)
   
-  shinyjs::toggle("sys_inflow_outflow_download_btn", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
-  shinyjs::toggle("sys_inflow_outflow_download_btn_ppt", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
+  shinyjs::hide("sys_inflow_outflow_download_btn")
+  shinyjs::hide("sys_inflow_outflow_download_btn_ppt")
   
-  shinyjs::toggle("sys_status_download_btn", condition = sum(sankey_plot_data()$freq) > 10)
-  shinyjs::toggle("sys_status_download_btn_ppt", condition = sum(sankey_plot_data()$freq) > 10)
+  shinyjs::hide("sys_status_download_btn")
+  shinyjs::hide("sys_status_download_btn_ppt")
+  
+  shinyjs::hide("sys_comp_download_btn")
+  shinyjs::hide("sys_comp_download_btn_ppt")
 }
 
 # essentially resets the app
