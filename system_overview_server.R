@@ -41,7 +41,7 @@ observeEvent(input$methodology_type, {
     session = session,
     "syso_gender", 
     choices = syso_gender_cats(input$methodology_type),
-    selected = "All Genders"
+    selected = "All"
   )
   
   updatePickerInput(
