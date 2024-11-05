@@ -378,6 +378,7 @@
       "",
       "",
       "",
+      "",
       ""
     ],
     "clientCountData_state": {
@@ -393,6 +394,15 @@
         "caseInsensitive": true
       },
       "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
         {
           "visible": true,
           "search": {
@@ -512,6 +522,10 @@
     "dateRangeCount": [
       "2019-10-01",
       "2022-09-30"
+    ],
+    "dimension": [
+      1920,
+      1080
     ],
     "fileStructureAnalysis_cell_clicked": {
 
@@ -758,8 +772,8 @@
       "x": {
         "filter": "top",
         "vertical": false,
-        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1.55952e+12\" data-max=\"1663718400000\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\" disabled=\"\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1569974400000\" data-max=\"1.663632e+12\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Personal ID<\/th>\n      <th>Relationship to HoH<\/th>\n      <th>Entry Date<\/th>\n      <th>Move in Date <\/th>\n      <th>Exit Date<\/th>\n      <th>Status<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1.55952e+12\" data-max=\"1663718400000\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\" disabled=\"\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1569974400000\" data-max=\"1.663632e+12\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Personal ID<\/th>\n      <th>Enrollment ID<\/th>\n      <th>Relationship to HoH<\/th>\n      <th>Entry Date<\/th>\n      <th>Move in Date <\/th>\n      <th>Exit Date<\/th>\n      <th>Status<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "ltpi",
           "columnDefs": [
@@ -768,24 +782,28 @@
               "targets": 0
             },
             {
-              "name": "Relationship to HoH",
+              "name": "Enrollment ID",
               "targets": 1
             },
             {
-              "name": "Entry Date",
+              "name": "Relationship to HoH",
               "targets": 2
             },
             {
-              "name": "Move in Date ",
+              "name": "Entry Date",
               "targets": 3
             },
             {
-              "name": "Exit Date",
+              "name": "Move in Date ",
               "targets": 4
             },
             {
-              "name": "Status",
+              "name": "Exit Date",
               "targets": 5
+            },
+            {
+              "name": "Status",
+              "targets": 6
             }
           ],
           "order": [
@@ -1433,8 +1451,8 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: b00d8c45c79c6895de99acdc14963e46]",
-      "width": 485,
+      "src": "[image data hash: 76de665668ff2715c072d721d978d037]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
       "coordmap": {
@@ -1452,7 +1470,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 2143.9,
+              "right": 1492.7,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -1460,16 +1478,16 @@
 
                 ],
                 "y": [
+                  "Invalid Move-In Date",
+                  "Missing HP Screening or Threshold Score",
+                  "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
-                  "Missing Race/Ethnicity",
+                  "Conflicting Health Insurance yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
-                  "Missing Name Data Quality",
                   "Missing Residence Prior",
-                  "Missing SSN",
-                  "Missing Length of Stay",
-                  "Missing Disabling Condition"
+                  "Missing Length of Stay"
                 ]
               }
             },
@@ -1478,15 +1496,15 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 264.1038099315069,
-              "right": 479.5205479452055,
-              "bottom": 376.7808219178082,
+              "left": 248.2131849315069,
+              "right": 1619.520547945206,
+              "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
@@ -1510,8 +1528,8 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 2114d4346477ecf60df29fd0b5d4ec16]",
-      "width": 485,
+      "src": "[image data hash: 5b4b8d5bc923f1ad2f8562d68cbcd9bb]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
       "coordmap": {
@@ -1548,15 +1566,15 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 268.7444349315069,
-              "right": 479.5205479452055,
-              "bottom": 376.7808219178082,
+              "left": 252.494434931507,
+              "right": 1619.520547945206,
+              "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
@@ -1580,8 +1598,8 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: d49a831be5033e578b241acf5f5e6b82]",
-      "width": 485,
+      "src": "[image data hash: ab336c3c535e8191562ff05b5f59ce90]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
       "coordmap": {
@@ -1599,7 +1617,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 11617.1,
+              "right": 12918.4,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -1607,16 +1625,16 @@
 
                 ],
                 "y": [
-                  "Doesn't Know/Prefers Not to Answer/Data Not Collected DOB",
-                  "Doesn't Know/Prefers Not to Answer Months or Times Homeless",
-                  "Overlap with a Emergency Shelter (E/E) project",
                   "Overlap with a Rapid Rehousing project",
-                  "Doesn't Know/Prefers Not to Answer Living Situation",
-                  "Doesn't Know/Prefers Not to Answer Destination",
+                  "Unknown Months or Times Homeless",
+                  "Unknown Living Situation",
+                  "Unknown Race/Ethnicity",
+                  "Incomplete or Unknown Name",
                   "Homelessness Start Date conflicts with Living Situation data",
+                  "Unknown Disabling Condition",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
-                  "Doesn't Know/Prefers Not to Answer SSN",
-                  "Missing Destination"
+                  "Unknown SSN",
+                  "Unknown Destination"
                 ]
               }
             },
@@ -1625,15 +1643,15 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 303.5725599315068,
-              "right": 479.5205479452055,
-              "bottom": 376.7808219178082,
+              "left": 285.1663099315068,
+              "right": 1619.520547945206,
+              "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 485,
+          "width": 1625,
           "height": 400
         }
       }
@@ -1658,86 +1676,65 @@
     }
   },
   "export": {
-    "clientCountSummary": [
-      [
-        "Length:2          ",
-        "Min.   : 16  ",
-        "Min.   : 16  "
-      ],
-      [
-        "Class :character  ",
-        "1st Qu.: 84  ",
-        "1st Qu.: 92  "
-      ],
-      [
-        "Mode  :character  ",
-        "Median :152  ",
-        "Median :168  "
-      ],
-      [
-        null,
-        "Mean   :152  ",
-        "Mean   :168  "
-      ],
-      [
-        null,
-        "3rd Qu.:220  ",
-        "3rd Qu.:244  "
-      ],
-      [
-        null,
-        "Max.   :288  ",
-        "Max.   :320  "
-      ]
-    ],
-    "pdde_guidance_summary": [
-      [
-        "High Priority:2  ",
-        "Length:6          ",
-        "Length:6          "
-      ],
-      [
-        "Error        :3  ",
-        "Class :character  ",
-        "Class :character  "
-      ],
-      [
-        "Warning      :1  ",
-        "Mode  :character  ",
-        "Mode  :character  "
-      ]
-    ],
-    "pdde_summary_table": [
-      [
-        "Length:6          ",
-        "High Priority:2  ",
-        "Min.   :  1.00  "
-      ],
-      [
-        "Class :character  ",
-        "Error        :3  ",
-        "1st Qu.:  3.75  "
-      ],
-      [
-        "Mode  :character  ",
-        "Warning      :1  ",
-        "Median :  7.00  "
-      ],
-      [
-        null,
-        null,
-        "Mean   :126.50  "
-      ],
-      [
-        null,
-        null,
-        "3rd Qu.: 10.25  "
-      ],
-      [
-        null,
-        null,
-        "Max.   :730.00  "
-      ]
-    ]
+    "clientCountSummary": {
+      "Status": {
+        "Length": "2",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Clients": {
+        "Min.": 16,
+        "1st Qu.": 84,
+        "Median": 152,
+        "Mean": 152,
+        "3rd Qu.": 220,
+        "Max.": 288
+      },
+      "Households": {
+        "Min.": 16,
+        "1st Qu.": 92,
+        "Median": 168,
+        "Mean": 168,
+        "3rd Qu.": 244,
+        "Max.": 320
+      }
+    },
+    "pdde_guidance_summary": {
+      "Type": {
+        "High Priority": 2,
+        "Error": 3,
+        "Warning": 1
+      },
+      "Issue": {
+        "Length": "6",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Guidance": {
+        "Length": "6",
+        "Class": "character",
+        "Mode": "character"
+      }
+    },
+    "pdde_summary_table": {
+      "Issue": {
+        "Length": "6",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Type": {
+        "High Priority": 2,
+        "Error": 3,
+        "Warning": 1
+      },
+      "Count": {
+        "Min.": 1,
+        "1st Qu.": 3.75,
+        "Median": 7,
+        "Mean": 126.5,
+        "3rd Qu.": 10.25,
+        "Max.": 730
+      }
+    }
   }
 }

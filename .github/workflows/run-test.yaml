@@ -39,6 +39,11 @@ jobs:
         with:
           app-dir: "."
           upload-snapshots: true
+          
+      - name: remove max fails
+        run: |
+          testthat::set_max_fails(Inf)
+        shell: Rscript {0}
 
       - name: Upload test results
         if: failure()

@@ -43,12 +43,21 @@ source(paste0(directory, "helper_functions.R"))
 source(paste0(directory, "hardcodes.R"))
 
 # Get Export --------------------------------------------------------------
+col_types <- cols_and_data_types %>%
+  mutate(DataType = data_type_mapping[as.character(DataType)])
 
-source(paste0(directory, "01_get_Export.R"))
+Export <- read_csv(here(paste0(directory, "data/Export.csv")),
+                   col_types = paste(col_types %>%
+                     filter(File == "Export") %>%
+                     pull(DataType), collapse = ""))
+Client <- read_csv(here(paste0(directory, "data/Client.csv")),
+                   col_types = paste(col_types %>%
+                                       filter(File == "Client") %>%
+                                       pull(DataType), collapse = ""))
 
 # Edits -------------------------------------------------------------------
 
-Export()$HashStatus <- 4
+Export$HashStatus <- 4
 
 Client_hashed <- Client %>%
   mutate(FirstName = digest(FirstName, algo = "md5"),
@@ -72,4 +81,6 @@ write.csv(
   na = "",
   row.names = FALSE
 )
+
+zip(zipfile = "hashed-short-date-range", paste0(directory, "data/"))
 
