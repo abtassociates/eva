@@ -72,13 +72,13 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   if(grepl("/", zipContents$Name[1])) {
     show_invalid_popup(
       issueID = 122,
-      title = "Unsuccessful Upload: You uploaded a misstructured zipfile"
+      title = "Unsuccessful Upload: Misstructured directory"
     )
     logMetadata("Unsuccessful upload - zip file was misstructured")
   } else if("Export" %in% missing_files) {
     show_invalid_popup(
       issueID = 123,
-      title = "Unsuccessful Upload: Missing Export.csv"
+      title = "Unsuccessful Upload: Missing Export.csv; Possible wrong dataset"
     )
     logMetadata("Unsuccessful upload - not an HMIS CSV Export")
   } else if(!isFY2024Export()) {
@@ -101,7 +101,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       )
     show_invalid_popup(
       issueID = 125,
-      title = "Unsuccessful Upload: Missing Files"
+      title = "Unsuccessful Upload: Missing files"
     )
     logMetadata("Unsuccessful upload - incomplete dataset")
   } else if(!is_hashed()) {
