@@ -170,17 +170,12 @@ function(input, output, session) {
           if(nrow(
             file_structure_analysis_main() %>%
             filter(Issue == "Impermissible characters"))) {
+            
+            impermissible_check_info <- evachecks %>% filter(ID == 134)
             showModal(
               modalDialog(
-                list(
-                  span("Eva has detected impermissible characters in your HMIS CSV file. 
-                Eva is able to handle most impermissible characters, and will 
-                continue processing your file. However, if Eva does crash, please 
-                report this via a "),
-                  a(href="https://github.com/abtassociates/eva/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=", "GitHub Issue"),
-                  span(".")
-                ),
-                title = "Impermissible characters",
+                impermissible_check_info$Guidance,
+                title = "Warning: Your HMIS CSV Export has impermissible characters",
                 easyClose = TRUE
               )
             )
