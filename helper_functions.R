@@ -438,6 +438,7 @@ reset_postvalid_components <- function() {
 reset_app <- function() {
   lapply(visible_reactive_vals, function(r) r(NULL))
   valid_file(0)
+  initially_valid_import(0)
   windowSize(input$dimension)
   reset_postvalid_components()
 }
