@@ -101,7 +101,7 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   customDownload(app, "sys_inflow_outflow_download_btn_ppt", "System-Flow-Download-PPT.pptx")
   customDownload(app, "sys_status_download_btn", "System-Status-Download.xlsx")
   customDownload(app, "sys_status_download_btn_ppt", "System-Status-Download-PPT.pptx")
-  # customDownload(app, "sys_comp_download_btn", "System-Composition-Download.xlsx")
+  customDownload(app, "sys_comp_download_btn", "System-Composition-Download.xlsx")
   customDownload(app, "sys_comp_download_btn_ppt", "System-Composition-Download-PPT.pptx")
   
   app$expect_values(export = TRUE, name = "exportTestValues")
