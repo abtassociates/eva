@@ -240,14 +240,29 @@ function(input, output, session) {
           
           logToConsole("Upload processing complete")
           
-          showModal(
-            modalDialog(
-              title = "Upload successful",
-              "Congratulations! You have succesfully uploaded an HMIS CSV Export.",
-              easyClose = TRUE,
-              footer = modalButton("OK")
+          if(nrow(file_structure_analysis_main()) > 0) {
+            showModal(
+              modalDialog(
+                "The uploaded .zip file has file structure errors, but none are 
+                High Priority File Structure Errors, and thus Eva can read the 
+                .zip file.",
+                title = "Successful Upload: No High Priority File Structure Errors",
+                easyClose = TRUE,
+                footer = modalButton("OK")
+              )
             )
-          )
+          } else {
+            showModal(
+              modalDialog(
+                "The uploaded .zip file has no file structure errors that Eva 
+                checks for and thus Eva can read the .zip file.",
+                title = "Successful Upload: No file structure errors",
+                easyClose = TRUE,
+                footer = modalButton("OK")
+              )
+            )
+          }
+          
           
           shinyjs::show("fileStructureAnalysis")
           
@@ -292,9 +307,9 @@ function(input, output, session) {
             modalDialog(
               title = "Unsuccessful Upload: Your HMIS CSV Export is not
               structurally valid",
-              "Your HMIS CSV Export has some High Priority issues that must
-              be addressed by your HMIS Vendor. Please download the File Structure
-              Analysis for details.",
+              "The uploaded .zip file, though it is not missing any files, has 
+              at least one High Priority File Structure Error that your HMIS 
+              vendor needs to resolve in order for Eva to read the .zip file.",
               easyClose = TRUE,
               footer = modalButton("OK")
             )
