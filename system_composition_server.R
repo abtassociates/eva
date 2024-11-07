@@ -664,7 +664,8 @@ output$sys_comp_download_btn <- downloadHandler(
       col_names = TRUE
     )
     
-    exportTestValues(sys_comp_report = sys_comp_p())
+    exportTestValues(sys_comp_report_num_df = num_df)
+    exportTestValues(sys_comp_report_pct_df = pct_df)
   }
 )
 
