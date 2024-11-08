@@ -164,15 +164,9 @@ for (file in unique(cols_and_data_types$File)) {
 demo_zip <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-demo_small2.zip"
 zipr(
   zipfile = demo_zip, 
-  files = list.files(here("sandbox/mini-non-shiny-environment/data"), pattern = "*.csv", full.names = TRUE),
+  files = list.files(here("sandbox/mini-non-shiny-environment/data"),
+                     pattern = "*.csv", full.names = TRUE),
   mode = "cherry-pick" # so the files are at the top directory
 )
 
-# Now before running Eva with this new zip, 
-# put a browser() at the end of the successful load block
-# then run the following to save the workspace as demo.Rdata
-# save(list = c(ls(envir = .GlobalEnv, all.names = TRUE), ls(all.names = TRUE)), file = "demo.RData", compress="xz")
-# # this saves everything in the global and calling environment. 
-## The global environment includes the meta_ variables,
-## the calling environment/observe includes everything else: functions, data frames, and values
 ## xz compression makes the file small enough to get around GitHub's 100MB size limit
