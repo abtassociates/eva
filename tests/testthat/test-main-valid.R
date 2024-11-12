@@ -4,6 +4,7 @@ test_dataset <- "FY24-ICF-main-valid.zip"
 
 test_that(paste0("{shinytest2} recording: ",test_script_name), {
   print(paste0("Running ",test_script_name))
+  testthat::local_edition(3)
   
   app <- AppDriver$new(
     variant = platform_variant(os_name = FALSE), 
