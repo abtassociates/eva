@@ -635,7 +635,7 @@ function(input, output, session) {
   output$clientCountSummary <- renderDT({
     req(valid_file() == 1)
     
-    exportTestValues(clientCountSummary = summarize_df(client_count_summary_df()))
+    exportTestValues(clientCountSummary = client_count_summary_df())
     
     datatable(
       client_count_summary_df() %>%
