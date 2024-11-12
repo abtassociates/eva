@@ -364,7 +364,7 @@ function(input, output, session) {
       logMetadata(paste0("Downloaded File Structure Analysis Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(file_structure_analysis_main = file_structure_analysis_main())
+      exportTestValues(file_structure_analysis_main = file_structure_analysis_main() %>% nice_names())
     }
   )
   
