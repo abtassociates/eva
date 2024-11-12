@@ -52,14 +52,16 @@ handle_helper_data <- function(app, test_script_name, datasetname) {
   if(is.null(new_df) & !file.exists(old_path)) return(NULL)
   
   new_df <- as.data.table(new_df)
-  # if no csv yet, create one
+  fwrite(new_df, file = new_path)
+  
+  # if no csv yet, create one at the original filepath
   if(!file.exists(old_path)) {
     message(glue::glue("A csv for {datasetname} does not yet exist. Creating one now!"))
     fwrite(new_df, file = old_path)
   } 
-  # otherwise, if new and old are different save a .new version in the snapshot directory
   else {
-    if(!identical(fread(old_path), new_df)) {
+    # otherwise, if new and old are different warn user
+    if(!identical(fread(old_path), fread(new_path))) {
       warning(
         paste0(
           "Difference detected in ",
@@ -68,7 +70,9 @@ handle_helper_data <- function(app, test_script_name, datasetname) {
         )
       )
       fwrite(new_df, file = new_path)
-    } else {
+    } 
+    # otherwise, remove the new one
+    else {
       file.remove(new_path)
     }
   }
