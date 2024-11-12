@@ -460,6 +460,8 @@ renderDQPlot <- function(level, issueType, group, color) {
 dqDownloadInfo <- reactive({
   req(valid_file() == 1)
   
+  exportTestValues(dq_main_reactive =  dq_main_reactive() %>% nice_names())
+  
   # org-level data prep (filtering to selected org)
   orgDQData <- dq_main_reactive() %>%
     filter(OrganizationName %in% c(input$orgList))

@@ -1224,6 +1224,9 @@ universe_ppl_flags <- reactive({
 # get final people-level, inflow/outflow dataframe by joining the filtered 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 inflow_outflow_df <- reactive({
+  
+  exportTestValues(universe_ppl_flags = universe_ppl_flags() %>% nice_names())
+  
   plot_data <- universe_ppl_flags() %>%
     select(PersonalID,
            active_at_start_homeless_client,
