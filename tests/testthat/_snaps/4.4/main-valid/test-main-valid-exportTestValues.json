@@ -1,27 +1,18 @@
 {
   "export": {
     "clientCountSummary": {
-      "Status": {
-        "Length": "2",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Clients": {
-        "Min.": 16,
-        "1st Qu.": 84,
-        "Median": 152,
-        "Mean": 152,
-        "3rd Qu.": 220,
-        "Max.": 288
-      },
-      "Households": {
-        "Min.": 16,
-        "1st Qu.": 92,
-        "Median": 168,
-        "Mean": 168,
-        "3rd Qu.": 244,
-        "Max.": 320
-      }
+      "Status": [
+        "Currently in project",
+        "Exited project"
+      ],
+      "Clients": [
+        16,
+        288
+      ],
+      "Households": [
+        16,
+        320
+      ]
     },
     "client_count_download_current": {
       "Organization Name": {
@@ -136,67 +127,6 @@
         "Mean": 22,
         "3rd Qu.": 11.75,
         "Max.": 630
-      }
-    },
-    "client_count_download_detail": {
-      "Organization Name": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Project ID": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Project Name": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Personal ID": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Enrollment ID": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Relationship to HoH": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Entry Date": {
-        "Min.": "2016-02-11",
-        "1st Qu.": "2020-07-20",
-        "Median": "2021-05-21",
-        "Mean": "2021-03-31",
-        "3rd Qu.": "2022-01-24",
-        "Max.": "2022-09-26"
-      },
-      "Move in Date ": {
-        "Min.": "2016-02-11",
-        "1st Qu.": "2020-01-13",
-        "Median": "2021-06-18",
-        "Mean": "2021-01-22",
-        "3rd Qu.": "2022-02-22",
-        "Max.": "2022-09-23"
-      },
-      "Exit Date": {
-        "Min.": "2019-10-08",
-        "1st Qu.": "2020-09-06",
-        "Median": "2021-06-11",
-        "Mean": "2021-05-26",
-        "3rd Qu.": "2022-03-15",
-        "Max.": "2022-09-22"
-      },
-      "Status": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
       }
     },
     "dq_org_guidance_summary": {
@@ -818,64 +748,31 @@
         ]
       ]
     },
-    "pdde_download": {
-      "Summary": {
-        "Issue": {
-          "Length": "6",
-          "Class": "character",
-          "Mode": "character"
-        },
-        "Type": {
-          "High Priority": 2,
-          "Error": 3,
-          "Warning": 1
-        },
-        "Count": {
-          "Min.": 1,
-          "1st Qu.": 3.75,
-          "Median": 7,
-          "Mean": 126.5,
-          "3rd Qu.": 10.25,
-          "Max.": 730
-        }
-      },
-      "Data": {
-        "OrganizationName": {
-          "Length": "759",
-          "Class": "character",
-          "Mode": "character"
-        },
-        "ProjectID": {
-          "Length": "759",
-          "Class": "character",
-          "Mode": "character"
-        },
-        "ProjectName": {
-          "Length": "759",
-          "Class": "character",
-          "Mode": "character"
-        },
-        "Issue": {
-          "Length": "759",
-          "Class": "character",
-          "Mode": "character"
-        },
-        "Type": {
-          "High Priority": 4,
-          "Error": 25,
-          "Warning": 730
-        },
-        "Guidance": {
-          "Length": "759",
-          "Class": "character",
-          "Mode": "character"
-        },
-        "Detail": {
-          "Length": "759",
-          "Class": "character",
-          "Mode": "character"
-        }
-      }
+    "pdde_download_summary": {
+      "Issue": [
+        "Inventory Start Precedes Operating Start",
+        "Missing Geography Information",
+        "No Inventory Records",
+        "Operating End precedes Inventory End",
+        "Overlapping HMIS Participation Records",
+        "RRH-SO has active bed inventory"
+      ],
+      "Type": [
+        "Warning",
+        "High Priority",
+        "Error",
+        "Error",
+        "High Priority",
+        "Error"
+      ],
+      "Count": [
+        730,
+        3,
+        11,
+        6,
+        1,
+        8
+      ]
     },
     "pdde_guidance_summary": {
       "Type": {

@@ -1026,30 +1026,5 @@
 
       ]
     }
-  },
-  "export": {
-    "clientCountSummary": {
-      "Status": {
-        "Length": "2",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Clients": {
-        "Min.": 16,
-        "1st Qu.": 84,
-        "Median": 152,
-        "Mean": 152,
-        "3rd Qu.": 220,
-        "Max.": 288
-      },
-      "Households": {
-        "Min.": 16,
-        "1st Qu.": 92,
-        "Median": 168,
-        "Mean": 168,
-        "3rd Qu.": 244,
-        "Max.": 320
-      }
-    }
   }
 }

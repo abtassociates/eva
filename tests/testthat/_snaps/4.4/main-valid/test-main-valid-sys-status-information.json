@@ -2289,8 +2289,8 @@
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: fce5e305e8210e28a945c72f5e5c3500]",
-      "width": 1102.5,
+      "src": "[image data hash: 33853dd9c307dc0d9920a6df19732bda]",
+      "width": 1113,
       "height": 400,
       "alt": "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",
       "coordmap": {
@@ -2327,15 +2327,15 @@
               "axis2": "End"
             },
             "range": {
-              "left": 1.602053178125188e-306,
-              "right": 1102,
+              "left": 1.602053178125185e-306,
+              "right": 1113,
               "bottom": 385.9999999999999,
               "top": 51.87945205479453
             }
           }
         ],
         "dims": {
-          "width": 1102.5,
+          "width": 1113,
           "height": 400
         }
       }
@@ -2669,110 +2669,6 @@
           "all_files": true
         }
       ]
-    }
-  },
-  "export": {
-    "clientCountSummary": {
-      "Status": {
-        "Length": "2",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Clients": {
-        "Min.": 16,
-        "1st Qu.": 84,
-        "Median": 152,
-        "Mean": 152,
-        "3rd Qu.": 220,
-        "Max.": 288
-      },
-      "Households": {
-        "Min.": 16,
-        "1st Qu.": 92,
-        "Median": 168,
-        "Mean": 168,
-        "3rd Qu.": 244,
-        "Max.": 320
-      }
-    },
-    "dq_org_guidance_summary": {
-      "Type": {
-        "High Priority": 3,
-        "Error": 21,
-        "Warning": 24
-      },
-      "Issue": {
-        "Length": "48",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Guidance": {
-        "Length": "48",
-        "Class": "character",
-        "Mode": "character"
-      }
-    },
-    "dq_organization_summary_table": {
-      "Project Name": {
-        "Length": "125",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Type": {
-        "High Priority": 5,
-        "Error": 52,
-        "Warning": 68
-      },
-      "Issue": {
-        "Length": "125",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Clients": {
-        "Min.": 1,
-        "1st Qu.": 1,
-        "Median": 3,
-        "Mean": 10.488,
-        "3rd Qu.": 7,
-        "Max.": 214
-      }
-    },
-    "pdde_guidance_summary": {
-      "Type": {
-        "High Priority": 2,
-        "Error": 3,
-        "Warning": 1
-      },
-      "Issue": {
-        "Length": "6",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Guidance": {
-        "Length": "6",
-        "Class": "character",
-        "Mode": "character"
-      }
-    },
-    "pdde_summary_table": {
-      "Issue": {
-        "Length": "6",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Type": {
-        "High Priority": 2,
-        "Error": 3,
-        "Warning": 1
-      },
-      "Count": {
-        "Min.": 1,
-        "1st Qu.": 3.75,
-        "Median": 7,
-        "Mean": 126.5,
-        "3rd Qu.": 10.25,
-        "Max.": 730
-      }
     }
   }
 }
