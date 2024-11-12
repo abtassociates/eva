@@ -800,39 +800,6 @@ function(input, output, session) {
     )
   })
   
-  dqDownloadInfo <- reactive({
-    req(valid_file() == 1)
-    
-    # org-level data prep (filtering to selected org)
-    orgDQData <- dq_main_reactive() %>%
-      filter(OrganizationName %in% c(input$orgList))
-    
-    orgDQoverlaps <- overlaps() %>%
-      filter(OrganizationName %in% c(input$orgList) | 
-               PreviousOrganizationName %in% c(input$orgList))
-    #browser()
-    orgDQReferrals <- 
-      calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
-      filter(OrganizationName %in% c(input$orgList))
-    
-    # return a list for reference in downloadHandler
-    list(
-      orgDQData = 
-        getDQReportDataList(orgDQData,
-                            orgDQoverlaps,
-                            "ProjectName",
-                            orgDQReferrals
-        ),
-      
-      systemDQData = 
-        getDQReportDataList(dq_main_reactive(),
-                            overlaps(),
-                            "OrganizationName",
-                            calculate_outstanding_referrals(input$CEOutstandingReferrals)
-        )
-    )
-  })
-  
   # Download Org DQ Report --------------------------------------------------
   
   output$downloadOrgDQReportButton  <- renderUI({
