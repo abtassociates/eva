@@ -1,4 +1,4 @@
-output$changelog <- renderDataTable({
+output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
