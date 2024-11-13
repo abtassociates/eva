@@ -1,40 +1,42 @@
 # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
 # Define the hardcoded values for Time and Status
 # we need all combinations for the 0s
-
-frame_detail <- 
-  data.frame(
-    Status = c(
-      "Housed",
-      "Homeless",
-      "First Time \nHomeless",
-      "Returned from \nPermanent",
-      "Re-engaged from \nNon-Permanent",
-      "Exited,\nPermanent",
-      "Exited,\nNon-Permanent",
-      "Inactive",
-      "Homeless",
-      "Housed"
+status_levels_detail <- reactive({
+  c(
+    "Housed",
+    "Homeless",                          
+    if_else(
+      days_of_data() >= 1094,
+      "First-Time \nHomeless",
+      "Inflow\nUnspecified"
     ),
-    Time = c(
-      rep("Active at Start", 2),
-      "First Time \nHomeless",
-      "Returned from \nPermanent",
-      "Re-engaged from \nNon-Permanent",
-      "Exited,\nPermanent",
-      "Exited,\nNon-Permanent",
-      "Inactive",
-      rep("Active at End", 2)
-    ),
-    InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)),
-    PlotFillGroups = 
-      c("Housed",
-        "Homeless",
-        rep("Inflow", 3),
-        rep("Outflow", 3),
-        "Homeless",
-        "Housed")
+    "Returned from \nPermanent",
+    "Re-engaged from \nNon-Permanent",
+    "Exited,\nNon-Permanent",
+    "Exited,\nPermanent",
+    "Inactive"
   )
+})
+
+time_levels_detail <- reactive({
+  c("Active at Start",
+    if_else(
+      days_of_data() >= 1094,
+      "First-Time \nHomeless",
+      "Inflow\nUnspecified"
+    ),
+    "Returned from \nPermanent",
+    "Re-engaged from \nNon-Permanent",
+    "Exited,\nNon-Permanent",
+    "Exited,\nPermanent",
+    "Inactive",
+    "Active at End")
+})
+
+time_levels_summary <- c("Active at Start",
+                         "Inflow",
+                         "Outflow",
+                         "Active at End")
 
 # frame_summary <-
 #   data.frame(
@@ -55,6 +57,25 @@ frame_detail <-
 #   )
 
 system_activity_prep_detail <- reactive({
+  frame_detail <- data.frame(
+    Status = c(
+      status_levels_detail(),
+      "Homeless",
+      "Housed"),
+    Time = c(
+      rep(time_levels_detail()[1], 2),
+      time_levels_detail()[2:7],
+      rep(time_levels_detail()[8], 2)),
+    InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)),
+    PlotFillGroups = 
+      c("Housed",
+        "Homeless",
+        rep("Inflow", 3),
+        rep("Outflow", 3),
+        "Homeless",
+        "Housed")
+  )
+
   inflow <- sys_inflow_outflow_plot_data() %>%
     select(PersonalID,
            InflowTypeSummary,
@@ -86,38 +107,20 @@ system_activity_prep_detail <- reactive({
     mutate(
       Time = factor(
         Time,
-        levels = c("Active at Start",
-                   "First Time \nHomeless",
-                   "Returned from \nPermanent",
-                   "Re-engaged from \nNon-Permanent",
-                   "Exited,\nNon-Permanent",
-                   "Exited,\nPermanent",
-                   "Inactive",
-                   "Active at End")
+        levels = time_levels_detail()
       ),
       Status = factor(
         Status,
-        levels = c(
-          "Housed",
-          "Homeless",                          
-          "First Time \nHomeless",
-          "Returned from \nPermanent",
-          "Re-engaged from \nNon-Permanent",
-          "Exited,\nNon-Permanent",
-          "Exited,\nPermanent",
-          "Inactive"
-        )
+        levels = status_levels_detail()
       ),
+      
       InflowOutflowSummary = factor(
         case_when(
           str_detect(Time, "Exited") | Time == "Inactive" ~ "Outflow",
           str_detect(Time, "Active at") ~ Time,
           TRUE ~ "Inflow"
         ),
-        levels = c("Active at Start",
-                   "Inflow",
-                   "Outflow",
-                   "Active at End"))
+        levels = time_levels_summary)
     ) %>%
     group_by(Time) %>%
     mutate(group.id = cur_group_id()) %>%
@@ -148,7 +151,7 @@ system_activity_prep_summary <- reactive({
   ]
 })
 
-get_system_inflow_outflow_plot <- function(id) {
+get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
   if (id == "sys_act_summary_ui_chart") {
     df <- system_activity_prep_summary()
     mid_plot <- 2.5
@@ -184,15 +187,14 @@ get_system_inflow_outflow_plot <- function(id) {
   
   colors <- c('#ECE7E3', '#9E958F', '#BDB6D7', '#6A559B')
   s <- max(df$yend) + 20
-  num_segments <- 20
-  segment_size <- get_segment_size(s/num_segments)
+  # num_segments <- 20
+  # segment_size <- get_segment_size(s/num_segments)
 
-  
   inflow_to_outflow <- df %>%
     filter(PlotFillGroups %in% c("Housed", "Homeless")) %>%
     pull(values) %>%
     sum() * -1
-  
+
   # waterfall plot ----------------------------------------------------------
   ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
     # the bars
@@ -228,23 +230,24 @@ get_system_inflow_outflow_plot <- function(id) {
       show.legend = FALSE,
       inherit.aes = FALSE
     ) +
-    # the labels
+    # numeric labels for Active at Start/End
     ggrepel::geom_text_repel(
       aes(
         x = group.id,
         label = if_else(!PlotFillGroups %in% c("Inflow", "Outflow") &
                           values != 0,
                         paste0(scales::comma(abs(values))), NA),
-        y = rowSums(cbind(ystart, values / 2)),
-        segment.colour = "gray33"
+        y = rowSums(cbind(ystart, values / 2))
       ),
-      direction = "y",
-      min.segment.length = unit(1, "inch"),
-      nudge_x = -.35,
+      hjust = 1,
+      # direction = "y",
+      segment.colour = NA,
+      nudge_x = ifelse(windowSize()[1] < 1300, -.4, -.3),
       colour = "#4e4d47",
       size = sys_chart_text_font,
       inherit.aes = FALSE
     ) +
+    # numeric labels for Inflow/Outflow
     geom_text(
       aes(
         x = group.id,
@@ -254,13 +257,9 @@ get_system_inflow_outflow_plot <- function(id) {
       ),
       size = sys_chart_text_font
     ) +
-    # annotation: refer to helper_functions.R for sys_total_count_display() code
-    annotate(
-      geom = "text",
-      x = mid_plot,
-      y = max(df$yend) * 1.1,
-      size = sys_chart_title_font,
-      label = paste0(
+    
+    ggtitle(
+      paste0(
         sys_total_count_display(total_clients),
         "Total Change: ",
         case_when(
@@ -268,9 +267,11 @@ get_system_inflow_outflow_plot <- function(id) {
           inflow_to_outflow == 0 ~ "0",
           inflow_to_outflow < 0 ~ scales::comma(inflow_to_outflow)
         ),
+        "\n",
         "\n"
       )
     ) +
+    
     # color palette
     scale_fill_manual(values = colors) +
     # distance between bars and x axis line
@@ -285,39 +286,52 @@ get_system_inflow_outflow_plot <- function(id) {
     theme_void() +
     # add back in what theme elements we want
     theme(
-      text = element_text(size = sys_axis_text_font, colour = "#4e4d47"),
-      axis.text.x = element_text(size = sys_axis_text_font, vjust = -.2),
+      text = element_text(size = sys_chart_text_font, colour = "#4e4d47"),
+      axis.text.x = element_text(
+        size = get_adj_font_size(
+          sys_axis_text_font * ifelse(windowSize()[1]<1300,0.9,1), 
+          isExport),
+        vjust = -.2), 
       axis.ticks.x = element_line(),
       axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
       plot.margin = unit(c(3, 1, 1, 1), "lines"),
-      legend.text = element_text(size = sys_axis_text_font),
+      legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
       legend.title = element_blank(),
       legend.position = "bottom",
-      legend.margin = margin(.5, 0, 0, 0, unit = "inch")
+      legend.margin = margin(.5, 0, 0, 0, unit = "inch"),
+      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 }
 
 # custom round to the smaller of the nearest 10, 100, etc.
 # good for chart segment sizing
-get_segment_size <- function(x) {
-  thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
-  rounded <- sapply(thresholds, function(t) {
-    if (x > t) {
-      return(t * ceiling(x / t))
-    } else {
-      return(NA)
-    }
-  })
-  min(rounded, na.rm = TRUE)
-}
+# get_segment_size <- function(x) {
+#   thresholds <- c(1, 10, 100, 200, 500, 1000, 1500, 2000, 2500, 5000, 10000)
+#   rounded <- sapply(thresholds, function(t) {
+#     if (x > t) {
+#       return(t * ceiling(x / t))
+#     } else {
+#       return(NA)
+#     }
+#   })
+#   min(rounded, na.rm = TRUE)
+# }
 
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
     req(valid_file() == 1)
     get_system_inflow_outflow_plot(id)
-  }, height = function() {
-    session$clientData[[glue("output_{id}_width")]]/2
-  })
+  },
+  alt = case_when(id == "sys_act_summary_ui_chart" ~ 
+                "A waterfall bar chart of the homeless system's inflow and outflow during 
+              the report period. The summary view of this chart includes four components: 
+              Active at Start, Inflow, Outflow, and Active at End.",
+              TRUE ~ "A waterfall bar chart of the homeless system's inflow and 
+              outflow during the report period. The detailed view of this chart 
+              shows inflow as three subcategories: first-time homeless, returned from 
+              permanent, and re-engaged from non-permanent and outflow as three 
+              subcategories: exited non-permanent, exited permanent, and inactive.")
+  )
 }
 
 #### DISPLAY CHART ###
@@ -355,7 +369,8 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
           mutate(Value = replace_na(Value, 0)) %>%
           rename("System Flow" = Value),
         "System Flow Data" = bind_rows(
-          df, df %>% 
+          df, 
+          df %>% 
             group_by(InflowOutflowSummary) %>% 
             reframe(Status = paste0("Total ",  InflowOutflowSummary),
                     Totals = sum(values, na.rm = TRUE)) %>%
@@ -376,8 +391,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
       "Downloaded Sys Inflow Outflow Report",
       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
     ))
-    
-    exportTestValues(sys_inflow_outflow_report = summary(sys_inflow_outflow_plot_data()))
+    exportTestValues(sys_inflow_outflow_report = summarize_df(sys_inflow_outflow_plot_data()))
   }
 )
 
@@ -397,8 +411,8 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
         bind_rows(sys_export_filter_selections()) %>%
         bind_rows(sys_inflow_outflow_export_info(df)),
       plot_slide_title = "System Flow Summary",
-      plot1 = get_system_inflow_outflow_plot("sys_act_summary_ui_chart"),
-      plot2 = get_system_inflow_outflow_plot("sys_act_detail_ui_chart"),
+      plot1 = get_system_inflow_outflow_plot("sys_act_summary_ui_chart", isExport = TRUE),
+      plot2 = get_system_inflow_outflow_plot("sys_act_detail_ui_chart", isExport = TRUE),
       summary_font_size = 19
     )
   }

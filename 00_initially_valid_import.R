@@ -25,6 +25,7 @@ is_hashed <- function() {
 
   # read Client file
   Client <- importFile(upload_filepath, "Client")
+  file.remove("Client.csv")
   
   # decide if the export is hashed
   return(  
@@ -37,6 +38,7 @@ is_hashed <- function() {
 
 isFY2024Export <- function() {
   Export(importFile(upload_filepath, "Export"))
+  file.remove("Export.csv")
   
   # this is the soonest we can log the session data, with 
   # the export info, since this is the first time we import the Export.csv file
@@ -67,12 +69,15 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   if(grepl("/", zipContents$Name[1])) {
     show_invalid_popup(122)
     logMetadata("Unsuccessful upload - zip file was misstructured")
+    reset_app()
   } else if("Export" %in% missing_files) {
     show_invalid_popup(123)
     logMetadata("Unsuccessful upload - not an HMIS CSV Export")
+    reset_app()
   } else if(!isFY2024Export()) {
     show_invalid_popup(124)
     logMetadata("Unsuccessful upload - out of date HMIS CSV Export")
+    reset_app()
   } else if(length(missing_files)) {
     evachecks <- evachecks %>% filter(ID == 125) %>% 
       mutate(Guidance = HTML(str_glue(
@@ -87,9 +92,11 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       )
     show_invalid_popup(125)
     logMetadata("Unsuccessful upload - incomplete dataset")
+    reset_app()
   } else if(!is_hashed()) {
     show_invalid_popup(126)
     logMetadata("Unsuccessful upload - not hashed")
+    reset_app()
   } else {
     initially_valid_import(1)
   }

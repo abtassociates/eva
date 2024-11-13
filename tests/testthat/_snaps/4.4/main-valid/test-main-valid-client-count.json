@@ -378,6 +378,7 @@
       "",
       "",
       "",
+      "",
       ""
     ],
     "clientCountData_state": {
@@ -393,6 +394,15 @@
         "caseInsensitive": true
       },
       "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
         {
           "visible": true,
           "search": {
@@ -513,6 +523,10 @@
       "2019-10-01",
       "2022-09-30"
     ],
+    "dimension": [
+      1920,
+      1080
+    ],
     "fileStructureAnalysis_cell_clicked": {
 
     },
@@ -619,8 +633,8 @@
       "x": {
         "filter": "top",
         "vertical": false,
-        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1.55952e+12\" data-max=\"1663718400000\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\" disabled=\"\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1569974400000\" data-max=\"1.663632e+12\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Personal ID<\/th>\n      <th>Relationship to HoH<\/th>\n      <th>Entry Date<\/th>\n      <th>Move in Date <\/th>\n      <th>Exit Date<\/th>\n      <th>Status<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1.55952e+12\" data-max=\"1663718400000\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\" disabled=\"\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1569974400000\" data-max=\"1.663632e+12\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Personal ID<\/th>\n      <th>Enrollment ID<\/th>\n      <th>Relationship to HoH<\/th>\n      <th>Entry Date<\/th>\n      <th>Move in Date <\/th>\n      <th>Exit Date<\/th>\n      <th>Status<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "ltpi",
           "columnDefs": [
@@ -629,24 +643,28 @@
               "targets": 0
             },
             {
-              "name": "Relationship to HoH",
+              "name": "Enrollment ID",
               "targets": 1
             },
             {
-              "name": "Entry Date",
+              "name": "Relationship to HoH",
               "targets": 2
             },
             {
-              "name": "Move in Date ",
+              "name": "Entry Date",
               "targets": 3
             },
             {
-              "name": "Exit Date",
+              "name": "Move in Date ",
               "targets": 4
             },
             {
-              "name": "Status",
+              "name": "Exit Date",
               "targets": 5
+            },
+            {
+              "name": "Status",
+              "targets": 6
             }
           ],
           "order": [
@@ -1010,37 +1028,28 @@
     }
   },
   "export": {
-    "clientCountSummary": [
-      [
-        "Length:2          ",
-        "Min.   : 16  ",
-        "Min.   : 16  "
-      ],
-      [
-        "Class :character  ",
-        "1st Qu.: 84  ",
-        "1st Qu.: 92  "
-      ],
-      [
-        "Mode  :character  ",
-        "Median :152  ",
-        "Median :168  "
-      ],
-      [
-        null,
-        "Mean   :152  ",
-        "Mean   :168  "
-      ],
-      [
-        null,
-        "3rd Qu.:220  ",
-        "3rd Qu.:244  "
-      ],
-      [
-        null,
-        "Max.   :288  ",
-        "Max.   :320  "
-      ]
-    ]
+    "clientCountSummary": {
+      "Status": {
+        "Length": "2",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Clients": {
+        "Min.": 16,
+        "1st Qu.": 84,
+        "Median": 152,
+        "Mean": 152,
+        "3rd Qu.": 220,
+        "Max.": 288
+      },
+      "Households": {
+        "Min.": 16,
+        "1st Qu.": 92,
+        "Median": 168,
+        "Mean": 168,
+        "3rd Qu.": 244,
+        "Max.": 320
+      }
+    }
   }
 }

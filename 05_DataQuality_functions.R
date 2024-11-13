@@ -4,6 +4,7 @@
 
 
 vars_prep <- c(
+  "EnrollmentID",
   "HouseholdID",
   "PersonalID",
   "OrganizationName",
@@ -56,22 +57,27 @@ getDQReportDataList <-
       "OrganizationName",
       "ProjectID",
       "ProjectName",
+      "ProjectType",
       "Issue",
       "PersonalID",
+      "EnrollmentID",
       "HouseholdID",
       "EntryDate"
     )
     
     high_priority <- dqData %>%
       filter(Type == "High Priority") %>%
+      mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(all_of(select_list))
     
     errors <- dqData %>%
       filter(Type == "Error") %>%
+      mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(all_of(select_list))
     
     warnings <- dqData %>%
       filter(Type == "Warning") %>%
+      mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(all_of(select_list))
     
     dqOverlapDetails <- dqOverlaps %>% 
@@ -103,12 +109,15 @@ getDQReportDataList <-
     
     dqReferralDetails <- dqReferrals %>%
       filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
+      mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(
         OrganizationName,
         ProjectID,
         ProjectName,
+        ProjectType,
         EventID,
         PersonalID,
+        EnrollmentID,
         EventDate,
         EventType,
         Days
@@ -124,7 +133,7 @@ getDQReportDataList <-
       ungroup() %>%
       select(Type, Enrollments, Issue) %>%
       arrange(Type, desc(Enrollments))
-    
+
     bySummaryLevel2 <- rlang::sym(bySummaryLevel)
     byunitsummary <- rbind(
       dqData %>% select(!!bySummaryLevel2, Type, Issue, PersonalID),
@@ -424,7 +433,21 @@ renderDQPlot <- function(level, issueType, group, color) {
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank()) +
       geom_text(aes(label = countVar), hjust = -0.5, color = "black", size=sys_chart_text_font)
-  })
+  },
+  ,
+  alt = case_when(outputId == "systemDQHighPriorityErrorsByIssue" ~ "A bar chart of the top High Priority Errors in the system.",
+                  outputId == "systemDQHighPriorityErrorsByOrg" ~ "A bar chart of the top organizations with the most High Priority Errors in the system.",
+                  outputId == "systemDQErrorByIssue" ~ "A bar chart of the top General Errors in the system.",
+                  outputId == "systemDQErrorByOrg" ~ "A bar chart of the top organizations with the most General Errors in the system.",
+                  outputId == "systemDQWarningByIssue" ~ "A bar chart of the top Warnings in the system.",
+                  outputId == "systemDQWarningByOrg" ~ "A bar chart of the top organizations with the most Warnings in the system.",
+                  outputId == "orgDQHighPriorityErrorsByIssue" ~ "A bar chart of the top High Priority Errors in the organization.",
+                  outputId == "orgDQHighPriorityErrorsByProject" ~ "A bar chart of the organization's projects with the most High Priority Errors.",
+                  outputId == "orgDQErrorByIssue" ~ "A bar chart of the top General Errors in the organization.",
+                  outputId == "orgDQErrorByProject" ~ "A bar chart of the organization's projects with the most General Errors.",
+                  outputId == "orgDQWarningByIssue" ~ "A bar chart of the top Warnings in the organization.",
+                  TRUE ~ "A bar chart of the organization's projects with the most Warnings.")
+  )
   
   # this effectively collapses the plot if there are no rows
   plot_height = if_else(nrow(plot_data) == 0, 50, 400)
@@ -448,7 +471,7 @@ dqDownloadInfo <- reactive({
   orgDQReferrals <- 
     calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
     filter(OrganizationName %in% c(input$orgList))
-  
+
   # return a list for reference in downloadHandler
   list(
     orgDQData = 

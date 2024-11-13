@@ -65,6 +65,11 @@
   color: black; /*text color*/
 }
 
+/*sets sidebar visible focus when tabbing over with keyboard*/
+.skin-black .sidebar-menu>li>a:focus-visible {
+    outline: -webkit-focus-ring-color auto 1px;
+}
+
 /*sidebar color when menu option with no submenu is selected*/
 .skin-black .main-sidebar .active {
   background-color: white; /*text color*/
@@ -98,6 +103,11 @@
 /*text color of submenu options when submenu is open*/
 .skin-black .treeview-menu>li>a {
     color: black; /*text color*/
+}
+
+/*sets submenu visible focus when tabbing over with keyboard*/
+.skin-black .treeview-menu>li>a:focus-visible {
+    outline: -webkit-focus-ring-color auto 1px;
 }
 
 /*active and hover actions for submenu options*/
@@ -479,9 +489,20 @@ a:hover {
 
 /*center chart*/
 #sys_comp_summary_ui_chart,
-#sankey_ui_chart {
+#sankey_ui_chart,
+#sys_act_summary_ui_chart, 
+#sys_act_detail_ui_chart {
+  display: flex;
   margin: 0 auto;
 }
+
+#sys_comp_summary_ui_chart > img,
+#sankey_ui_chart > img,
+#sys_act_summary_ui_chart > img, 
+#sys_act_detail_ui_chart > img {
+  margin: 0 auto;
+}
+
 /* || CHART INFORMATION TABLES */
 .sys_info_table {
   border: 1px solid black;

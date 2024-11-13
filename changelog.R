@@ -2,6 +2,43 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
+    "11-05-2024",
+    "<b>Bug Fixes:</b><br>
+      - Fixed handling of '#' symbols in first row of a csv file (
+<a href='https://github.com/abtassociates/eva/issues/638'>#638</a>,
+<a href='https://github.com/abtassociates/eva/issues/632'>#632</a>,
+<a href='https://github.com/abtassociates/eva/issues/535'>#535</a>)<br>
+      - Fully reset app after a failed upload",
+    "10-07-2024",
+    "<b>New Features:</b> <br>
+      - Launched the System Performance Overview Page. The page contains three new 
+    system performance charts: the System Flow Chart, the Client System Status Chart, 
+    and the System Demographics Chart. The system performance charts give users flexibility 
+    in how they filter and view their community’s homeless response system performance data.<br>
+      - Updated how 'Data not collected' is handled when Eva assesses data quality. 
+    Eva now classifies data elements marked in the export as 'Data not collected' 
+    as a Warning instead of as an Error, to align with Eva's Error and Warning definitions. 
+    This approach is aimed at helping HMIS end users focus on correcting fixable 
+    issues without changing accurate information. The Warning is meant to remind 
+    users to verify if the data might still be collected or if the data exists elsewhere, 
+    such as in the client's file. If 'Data not collected' is the correct value, 
+    users should leave the value as-is in HMIS. Issues that should be fixed in HMIS 
+    are categorized as Errors.<br>
+      - Removed logic that looks for nulls in specific data elements when Eva assesses 
+    data quality. For the Race/Ethnicity, Gender, Veteran Status, Disabling Condition, 
+    Name Data Quality, DOB Data Quality, SSN Data Quality, and Destination data 
+    elements, the HMIS CSV export does not distinguish between nulls and the value 
+    'Data not collected' The issues removed are: Missing Name Data Quality, Missing 
+    DOB Data Quality, Missing SSN Data Quality, Missing Gender, Missing Veteran 
+    Status, Missing Disabling Condition, and Missing Destination. These are now 
+    flagged as Warnings and described as 'Unknown Gender,' 'Unknown Veteran Status,' etc.<br>
+    <b>Bug Fixes:</b><br>
+      - Improved handling of overlapping enrollments<br>
+      - Fixed invalid move-in date (issue <a href='https://github.com/abtassociates/eva/issues/615'>#615</a>)<br>
+      - Fixed the way Eva uses Project Participation and groups Projects that change 
+    participation across the reporting date range. Addresses issues <a href='https://github.com/abtassociates/eva/issues/521'>#521</a> 
+    and <a href='https://github.com/abtassociates/eva/issues/605'>#605</a>.",
+    
     "08-01-2024",
     "<b>New Features:</b> <br>
       - Formatted changelog for readability <br>

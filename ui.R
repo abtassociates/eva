@@ -98,7 +98,20 @@ dashboardPage(
             t = setTimeout(logout, timeoutTime); 
           }
         }
-        idleTimer();"
+        idleTimer();
+                       
+        var dimension = [0, 0];
+        $(document).on('shiny:connected', function(e) {
+          dimension[0] = window.innerWidth;
+          dimension[1] = window.innerHeight;
+          Shiny.onInputChange('dimension', dimension);
+        });
+        $(window).resize(function(e) {
+          dimension[0] = window.innerWidth;
+          dimension[1] = window.innerHeight;
+          Shiny.onInputChange('dimension', dimension);
+        });
+        "
       ))
     ),
     useShinyjs(),
@@ -357,9 +370,9 @@ dashboardPage(
                  from a curated HMIS CSV Export file. View the File Structure
                  Analysis below to see examples of the File Structure Errors you
                  could get in your own uploads. For a full list of possible
-                 errors, see ",
-                 a('Eva Checks', href=here("https://github.com/abtassociates/eva/blob/main/public-resources/EvaChecks.csv")),
-                 ".</p>
+                 errors, see <a href =
+                 'https://github.com/abtassociates/eva/blob/main/public-resources/EvaChecks.csv' 
+                 target= '_blank' rel='noopener noreferrer'>Eva Checks</a>.</p>
                  <p>To explore your own File Structure Errors, turn off Demo
                  Mode and upload your own hashed HMIS CSV Export file.</p></div>
             ")),
@@ -898,7 +911,7 @@ dashboardPage(
                 all HMIS Continuum projects, excluding homeless prevention projects. 
                 Eva uses the last 12 full months of data in the upload, which constitutes 
                 the report period. <b>Note that some charts on this page may not display 
-                if the uploaded HMIS CSV export has less than twelve full months of data.</b></p>
+                if the uploaded HMIS CSV export has less than 12 full months of data.</b></p>
                 
                 <p>The purpose of the system performance charts is to use your HMIS 
                 data to (1) evaluate how effective your homeless system is in moving 
@@ -907,9 +920,9 @@ dashboardPage(
                 served in your homeless system. Explore each of the charts using 
                 chart tabs beneath the Filters Menu. Under each chart tab is a Chart 
                 subtab for viewing the chart itself and an Information subtab. The 
-                Information subtab includes a “Chart Overview” section that provides 
+                Information subtab includes a \"Chart Overview” section that provides 
                 guidance on how to read the chart, and some charts additionally have 
-                an “Interpretation Tips” section that can help you interpret their output.</p>
+                an \"Interpretation Tips” section that can help you interpret their output.</p>
                 
                 <p>Use the Filters Menu to explore system performance trends of 
                 clients in your homeless system with specific characteristics. 
@@ -920,16 +933,16 @@ dashboardPage(
                   impact the data shown on all three visualizations on this page. 
                   Universal filters include Household Type, Level of Detail, Project 
                   Type Group, and Gender and Race/Ethnicity Methodology Type.</li>
-                  <li><b>The demographic filters</b>, the bottom of the Filters Menu, 
+                  <li><b>The demographic filters</b>, the bottom row of the Filters Menu, 
                   only impact the data shown in the System Flow and Client System 
-                  Status charts. Demographic filters include Age, Special Populations, 
+                  Status charts. Demographic filters include Age, Veteran Status, 
                   Gender, and Race/Ethnicity.</li>
                 </ol>
                 
                 <p>Use the drop-down menus to select the characteristics of the 
                 system subpopulation you want to analyze. The default selection 
                 is all clients in your homeless system throughout the report period. 
-                To see system performance by households, select the “Head of Households 
+                To see system performance by households, select the \"Head of Households 
                 only” level of detail. All filters (except one) are single-select, 
                 meaning you can only select one category at a time. For the Age 
                 filter, you can select multiple age ranges to explore.</p>
@@ -942,9 +955,9 @@ dashboardPage(
                 <h4>Downloads</h4>
                 <p>To support further systems analysis, local reporting, and presentations, 
                 Eva includes two download options. To generate an Excel workbook 
-                with the data for a specific chart, click the “Data Download” button 
+                with the data for a specific chart, click the \"Data Download” button 
                 while viewing the chart. To generate a PowerPoint slide deck with 
-                the chart image, click the “ Image Download” button while viewing the chart. </p>
+                the chart image, click the \"Image Download” button while viewing the chart. </p>
                 
                 <h4>Data Suppression and Data Security</h4>
                 <p>To ensure the privacy and protection of individuals and small 
@@ -1080,11 +1093,11 @@ dashboardPage(
                   selected = "Summary Chart",
                   tabPanel("Summary Chart", 
                            uiOutput("sys_act_summary_filter_selections") %>% withSpinner(),
-                           plotOutput("sys_act_summary_ui_chart") %>% withSpinner()
+                           plotOutput("sys_act_summary_ui_chart", width="70%", height="500px") %>% withSpinner()
                   ),
                   tabPanel("Detail Chart", 
                            uiOutput("sys_act_detail_filter_selections") %>% withSpinner(),
-                           plotOutput("sys_act_detail_ui_chart") %>% withSpinner()
+                           plotOutput("sys_act_detail_ui_chart", width="100%", height="500px") %>% withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
@@ -1109,11 +1122,10 @@ dashboardPage(
                                 
                                 <ul>
                                   <li><b>Inflow</b> is categorized into three groups: 
-                                  “First Time Homeless,” “Returned from Permanent,” and 
-                                  “Re-engaged from Non-Permanent.”</li>
+                                  \"First-Time Homeless,\" \"Returned from Permanent,\" and 
+                                  \"Re-engaged from Non-Permanent.\"</li>
                                   <li><b>Outflow</b> is divided into three categories: 
-                                  “Exited, Non-Permanent,” “Exited, Non-Permanent 
-                                  Destination,” and “Inactive.”</li>
+                                  \"Exited, Non-Permanent,\" \"Exited, Permanent,\" and \"Inactive.\"</li>
                                 </ul>
                                 
                                 <p>The System Flow chart is read from 
@@ -1138,9 +1150,9 @@ dashboardPage(
                                   </tr>
                                   <tr>
                                     <td>Less than 36 months of data are uploaded</td>
-                                    <td>In the Detail chart, “Inflow Unspecified” 
-                                    displays instead of “First Time Homeless.”</td>
-                                    <td>The “First Time Homeless” category refers 
+                                    <td>In the Detail chart, \"Inflow Unspecified\" 
+                                    displays instead of \"First-Time Homeless.”</td>
+                                    <td>The \"First-Time Homeless” category refers 
                                     to someone who has not been served in the system 
                                     within the 24 months prior to their entry. Therefore, 
                                     it is not possible to assess if people are newly 
@@ -1151,9 +1163,9 @@ dashboardPage(
                                   </tr>
                                   <tr>
                                     <td>Less than 12 months of data are uploaded</td>
-                                    <td>In the Detail chart, “Inflow Unspecified” 
-                                    displays instead of “First Time Homeless.”</td>
-                                    <td>The “First Time Homeless” category refers 
+                                    <td>In the Detail chart, \"Inflow Unspecified\" 
+                                    displays instead of \"First-Time Homeless.”</td>
+                                    <td>The \"First-Time Homeless” category refers 
                                     to someone who has not been served in the system 
                                     within the 24 months prior to their entry.
                                     Therefore, it will be difficult to draw conclusions about 
@@ -1177,7 +1189,7 @@ dashboardPage(
                                     in prior years, or if the change is because 
                                     fewer clients are exiting. Use the Detail Chart 
                                     to explore if a majority of the clients flowing 
-                                    in were first time homeless, returning to homelessness 
+                                    in were first-time homeless, returning to homelessness 
                                     after previously exiting to a permanent destination, 
                                     or re-engaging with the system after previously 
                                     exiting to a non-permanent destination.</td>
@@ -1191,10 +1203,10 @@ dashboardPage(
                                     came into your system during the reporting period.</td>
                                   </tr>
                                   <tr>
-                                    <td>The largest Outflow category is “Non-Permanent Destination”</td>
-                                    <td>In the Detail chart, the bar for “Non-Permanent 
-                                    Destination” is larger than the bar for “Permanent 
-                                    Destination” and the bar for “Inactive.”</td>
+                                    <td>The largest Outflow category is \"Non-Permanent Destination”</td>
+                                    <td>In the Detail chart, the bar for \"Non-Permanent 
+                                    Destination” is larger than the bar for \"Permanent 
+                                    Destination” and the bar for \"Inactive.”</td>
                                     <td>This means most clients leaving your system 
                                     are exiting to temporary or unknown destinations. 
                                     Check your completion rate for exit destination 
@@ -1205,10 +1217,10 @@ dashboardPage(
                                     in the rate of exits to temporary destinations.</td>
                                   </tr>
                                   <tr>
-                                    <td>The largest Outflow category “Inactive”</td>
-                                    <td>In the Detail chart, the bar for “Inactive”
-                                    is larger than the bar for “Permanent 
-                                    Destination” and the bar for “Non-Permanent Destination.”</td>
+                                    <td>The largest Outflow category \"Inactive”</td>
+                                    <td>In the Detail chart, the bar for \"Inactive”
+                                    is larger than the bar for \"Permanent 
+                                    Destination” and the bar for \"Non-Permanent Destination.”</td>
                                     <td>This means many ended the report period 
                                     with (1) an open enrollment in an Emergency 
                                     Shelter – Night-by-Night project that has not 
@@ -1254,16 +1266,16 @@ dashboardPage(
                                 inflowed into your system after the start of the 
                                 report period.</p>
                                 
-                                <p>The left-hand bar labeled “Period Start” in the 
+                                <p>The left-hand bar labeled \"Period Start” in the 
                                 chart shows the status of clients active/enrolled 
                                 in your system at the start of the period; clients 
-                                are identified as either “Homeless” or “Housed.” 
-                                The right-hand bar labeled “Period End” in the chart 
+                                are identified as either \"Homeless” or \"Housed.” 
+                                The right-hand bar labeled \"Period End” in the chart 
                                 shows the status of these clients at the end of 
                                 the period. Clients are categorized into five system 
-                                statuses at the end of the period: “Exited, Non-Permanent,” 
-                                “Enrolled, Homeless,” “Inactive,” “Exited, Permanent,” 
-                                and “Enrolled, Housed.”</p>
+                                statuses at the end of the period: \"Exited, Non-Permanent,” 
+                                \"Enrolled, Homeless,” \"Inactive,” \"Exited, Permanent,” 
+                                and \"Enrolled, Housed.”</p>
                                 
                                 <p>In the area of the figure between the two bars, 
                                 the Client System Status Chart depicts the change 
@@ -1286,10 +1298,10 @@ dashboardPage(
                                     <th>What It Means</th>
                                   </tr>
                                   <tr>
-                                    <td>The sum of “Enrolled, Housed” and “Exited, 
+                                    <td>The sum of \"Enrolled, Housed” and \"Exited, 
                                     Permanent” is greater than the sum of the 
                                     remaining categories at Period End</td>
-                                    <td>The bars for “Enrolled, Housed” and “Exited, 
+                                    <td>The bars for \"Enrolled, Housed” and \"Exited, 
                                     Permanent” combined look larger than the bars 
                                     for the remaining categories in the chart.</td>
                                     <td>This means the majority of clients who were 
@@ -1298,11 +1310,11 @@ dashboardPage(
                                     by the end of the report period.</td>
                                   </tr>
                                   <tr>
-                                    <td>The sum of “Enrolled, Homeless” and 
-                                    “Exited, Non-Permanent” is greater than the 
+                                    <td>The sum of \"Enrolled, Homeless” and 
+                                    \"Exited, Non-Permanent” is greater than the 
                                     sum of the remaining categories at Period End</td>
-                                    <td>The bars for “Enrolled, Homeless” and 
-                                    “Exited, Non-Permanent” combined look larger than the bars 
+                                    <td>The bars for \"Enrolled, Homeless” and 
+                                    \"Exited, Non-Permanent” combined look larger than the bars 
                                     for the remaining categories in the chart.</td>
                                     <td>This means the majority of clients who were 
                                     active in your system at the start of the report 
@@ -1316,7 +1328,7 @@ dashboardPage(
                                   <tr>
                                     <td>Clients who were active in the system at
                                     Period Start are inactive at Period End</td>
-                                    <td>The category “Inactive” is display in the 
+                                    <td>The category \"Inactive” is display in the 
                                     chart at Period End.</td>
                                     <td>This means some clients ended the report 
                                     period with (1) an open enrollment in an Emergency 
@@ -1403,10 +1415,11 @@ dashboardPage(
                                 
                                 <p>Each cell in the chart is a unique combination 
                                 of demographic characteristics. For example, if 
-                                you selected Age and Veteran Status, a unique demographic 
-                                combination would be “25-34” and “Non-Veteran/Unknown.” 
-                                Any cell with a count is shaded. The darker the 
-                                color in a cell, the greater the value of that cell.</p>
+                                you selected Age and Gender, a unique demographic 
+                                combination would be \"25 to 34” and \"Man (Boy, if 
+                                child) alone.” Any cell with a count is shaded. 
+                                The darker the color in a cell, the greater the 
+                                value of that cell.</p>
                                 
                                 <h4>Data Suppression</h4>
                                 <p>Additional levels of data suppression apply to 
@@ -1426,7 +1439,7 @@ dashboardPage(
                                 in the System Demographics chart in Eva and in its 
                                 image download, the data in the chart’s data download 
                                 will not be suppressed. Be careful how you save 
-                                and share the tabular export. With smaller numbers, 
+                                and share the data download, which is an Excel export. With smaller numbers, 
                                 clients can become more identifiable in the data. 
                                 Before you share the Excel export, feel free to modify, 
                                 add, or remove anything as you see fit to preserve 

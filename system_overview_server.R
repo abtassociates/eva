@@ -4,12 +4,36 @@
 # move chart download button to be inline with subtabs
 observeEvent(input$syso_tabbox, {
   req(valid_file() == 1)
+  logMetadata(paste0("Clicked on ", input$syso_tabbox,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   toggleClass(
     id = "syso_inflowoutflow_filters",
     condition = input$syso_tabbox == "System Demographics",
     class = "filter-hidden"
   )
-}, ignoreNULL = TRUE)
+}, ignoreNULL = TRUE, ignoreInit = TRUE) #confirm if need to have ignore init?
+
+
+observeEvent(input$sys_inflow_outflow_subtabs, {
+  req(valid_file() == 1)
+  logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+
+observeEvent(input$sys_status_subtabs, {
+  req(valid_file() == 1)
+  logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+
+observeEvent(input$sys_comp_subtabs, {
+  req(valid_file() == 1)
+  logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
 
 observeEvent(input$methodology_type, {
   
@@ -17,7 +41,7 @@ observeEvent(input$methodology_type, {
     session = session,
     "syso_gender", 
     choices = syso_gender_cats(input$methodology_type),
-    selected = "All Genders"
+    selected = "All"
   )
   
   updatePickerInput(
@@ -80,6 +104,9 @@ syso_detailBox <- reactive({
     strong("Date Range: "),
     
     format(ReportStart(), "%m-%d-%Y"), " to ", format(ReportEnd(), "%m-%d-%Y"), br(),
+    
+    if (input$syso_project_type != "All")
+      chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
     
     #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
     HTML(glue(
@@ -145,6 +172,10 @@ toggle_sys_components <- function(cond, init=FALSE) {
 toggle_sys_components(FALSE, init=TRUE) # initially hide them
 
 sys_export_summary_initial_df <- function() {
+  
+  logMetadata(paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+  
   return(data.frame(
     Chart = c(
       "Start Date",
@@ -169,12 +200,12 @@ sys_export_filter_selections <- function() {
   return(tibble(
     Chart = c(
       "Age",
-      "Special Populations",
+      "Veteran Status",
       "Gender",
       "Race/Ethnicity"
     ),
     Value = c(
-      ifelse(identical(syso_age_cats, input$syso_age), "All", input$syso_age),
+      ifelse(identical(syso_age_cats, input$syso_age), "All Ages", input$syso_age),
       getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
       getNameByValue(syso_gender_cats(input$methodology_type), input$syso_gender),
       getNameByValue(syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity)
@@ -204,6 +235,10 @@ syso_gender_cats <- function(methodology = 1){
 
 # PowerPoint Export -------------------------------------------------------
 sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot_slide_title, plot1, plot2 = NULL, summary_font_size) {
+  
+  logMetadata(paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", ""))) #NEED TO UPDATE - if want to get more granular, need to detect with title slide
+  
   report_period <- paste0("Report Period: ", 
                           format(ReportStart(), "%m/%d/%Y"),
                           " - ",
@@ -218,6 +253,7 @@ sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot
   loc_ctrtitle <- ph_location_type(type = "ctrTitle")
   
   fp_normal <- fp_text(font.size = summary_font_size)
+  fp_title <- fp_text(font.size = ppt_chart_title_font_size)
   fp_bold <- update(fp_normal, bold = TRUE)
   fp_red <- update(fp_normal, color = "red")
   
@@ -264,13 +300,13 @@ sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot
   
   # Chart
   ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
-    ph_with(value = plot_slide_title, location = loc_title) %>%
+    ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%
     ph_with(value = plot1, location = loc_body) %>%
     add_footer()
   
   if(!is.null(plot2)) {
     ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
-      ph_with(value = plot_slide_title, location = loc_title) %>%
+      ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%
       ph_with(value = plot2, location = loc_body) %>%
       add_footer()
   }
@@ -320,3 +356,13 @@ sys_total_count_display <- function(total_count) {
     "\n")
   )
 }
+
+get_adj_font_size <- function(font_size, isExport) {
+  return(
+    font_size*ifelse(isExport, sys_chart_export_font_reduction, 1)
+  )
+}
+
+observeEvent(input$dimension,{
+  windowSize(input$dimension)
+})

@@ -202,7 +202,8 @@ get_col_types <- function(upload_filepath, file) {
     filename,
     head = TRUE,
     nrows = 1,
-    sep = ","))
+    sep = ",", 
+    comment.char = ""))
   
   # get the data types for those columns
   data_types <- sapply(cols_in_file, function(col_name) {
@@ -259,7 +260,8 @@ logSessionData <- function() {
     SourceContactFirst = Export()$SourceContactFirst,
     SourceContactLast = Export()$SourceContactLast,
     SourceContactEmail = Export()$SourceContactEmail,
-    SoftwareName = Export()$SoftwareName
+    SoftwareName = Export()$SoftwareName,
+    ImplementationID = Export()$ImplementationID
   )
   
   # put the export info in the log
@@ -410,6 +412,35 @@ custom_rprof <- function(expr, source_file_name, code_block_name = NULL) {
 
 
 # Misc --------------------------------------------------------------------
+reset_postvalid_components <- function() {
+  dq_main_df(NULL)
+  session$sendInputMessage('orgList', list(choices = NULL))
+  session$sendInputMessage('currentProviderList', list(choices = NULL))
+  session$sendCustomMessage('dateRangeCount', list(
+    min = NULL,
+    start = ymd(today()),
+    max = NULL,
+    end = ymd(today())
+  ))
+  pdde_main(NULL)
+  
+  shinyjs::hide("sys_inflow_outflow_download_btn")
+  shinyjs::hide("sys_inflow_outflow_download_btn_ppt")
+  
+  shinyjs::hide("sys_status_download_btn")
+  shinyjs::hide("sys_status_download_btn_ppt")
+  
+  shinyjs::hide("sys_comp_download_btn")
+  shinyjs::hide("sys_comp_download_btn_ppt")
+}
+
+# essentially resets the app
+reset_app <- function() {
+  lapply(visible_reactive_vals, function(r) r(NULL))
+  valid_file(0)
+  windowSize(input$dimension)
+  reset_postvalid_components()
+}
 
 getNameByValue <- function(vector, val) {
   return(
@@ -434,4 +465,9 @@ any_cols_selected_except <- function(df, list, exception) {
 min_cols_selected_except <- function(df, list, exception, num_cols_selected) {
   rowSums(df[exception], na.rm = TRUE) == 0 &
     rowSums(df[setdiff(list, exception)], na.rm = TRUE) >= num_cols_selected
+}
+
+
+summarize_df <- function(df) {
+  lapply(df, function(col) {summary(col)})
 }
