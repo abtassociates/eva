@@ -6,7 +6,14 @@ output$changelog <- renderDataTable({
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
     enrollments during a project's operating and participating periods. See Issue
-    522.",
+    <a href='https://github.com/abtassociates/eva/issues/522'>#522</a>.",
+    "11-05-2024",
+    "<b>Bug Fixes:</b><br>
+      - Fixed handling of '#' symbols in first row of a csv file (
+<a href='https://github.com/abtassociates/eva/issues/638'>#638</a>,
+<a href='https://github.com/abtassociates/eva/issues/632'>#632</a>,
+<a href='https://github.com/abtassociates/eva/issues/535'>#535</a>)<br>
+      - Fully reset app after a failed upload",
     "10-07-2024",
     "<b>New Features:</b> <br>
       - Launched the System Performance Overview Page. The page contains three new 

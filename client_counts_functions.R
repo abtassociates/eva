@@ -201,13 +201,13 @@ get_clientcount_download_info <- function(file) {
   )
   
   exportTestValues(
-    client_count_download_current = summary(validationCurrent %>% nice_names())
+    client_count_download_current = summarize_df(validationCurrent %>% nice_names())
   )
   exportTestValues(
-    client_count_download_date_range = summary(validationDateRange %>% nice_names())
+    client_count_download_date_range = summarize_df(validationDateRange %>% nice_names())
   )
   exportTestValues(
-    client_count_download_detail = summary(validationDetail %>% 
+    client_count_download_detail = summarize_df(validationDetail %>% 
       nice_names() %>% 
       sample_n(300)) # take just 300 or we can get huge json files
   )
