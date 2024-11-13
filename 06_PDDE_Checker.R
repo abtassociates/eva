@@ -236,7 +236,7 @@ vsps_in_hmis <- Project0() %>%
   select(all_of(PDDEcols))
   
  # Zero Utilization --------------------------------------------------------
-browser()
+
 res_projects_no_clients <- ProjectSegments %>%
   filter(HMISParticipationType == 1) %>%
   inner_join(activeInventory %>%
