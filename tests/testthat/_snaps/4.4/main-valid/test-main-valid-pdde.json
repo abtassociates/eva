@@ -585,7 +585,7 @@
         "FY24-ICF-main-valid.zip"
       ],
       "size": [
-        19444271
+        19444088
       ],
       "type": [
         "application/zip"
@@ -610,7 +610,8 @@
       3,
       4,
       5,
-      6
+      6,
+      7
     ],
     "pdde_guidance_summary_rows_current": [
       1,
@@ -618,7 +619,8 @@
       3,
       4,
       5,
-      6
+      6,
+      7
     ],
     "pdde_guidance_summary_rows_selected": null,
     "pdde_guidance_summary_search": "",
@@ -682,7 +684,8 @@
       3,
       4,
       5,
-      6
+      6,
+      7
     ],
     "pdde_summary_table_rows_current": [
       1,
@@ -690,7 +693,8 @@
       3,
       4,
       5,
-      6
+      6,
+      7
     ],
     "pdde_summary_table_rows_selected": null,
     "pdde_summary_table_search": "",
@@ -1439,36 +1443,36 @@
       "Type": {
         "High Priority": 2,
         "Error": 3,
-        "Warning": 1
+        "Warning": 2
       },
       "Issue": {
-        "Length": "6",
+        "Length": "7",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "6",
+        "Length": "7",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "6",
+        "Length": "7",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 2,
         "Error": 3,
-        "Warning": 1
+        "Warning": 2
       },
       "Count": {
         "Min.": 1,
-        "1st Qu.": 3.75,
-        "Median": 7,
-        "Mean": 126.5,
-        "3rd Qu.": 10.25,
+        "1st Qu.": 2.5,
+        "Median": 6,
+        "Mean": 108.7142857142857,
+        "3rd Qu.": 9.5,
         "Max.": 730
       }
     }

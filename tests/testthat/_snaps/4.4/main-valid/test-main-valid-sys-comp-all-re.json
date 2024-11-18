@@ -908,7 +908,7 @@
         "FY24-ICF-main-valid.zip"
       ],
       "size": [
-        19444271
+        19444088
       ],
       "type": [
         "application/zip"
@@ -933,7 +933,8 @@
       3,
       4,
       5,
-      6
+      6,
+      7
     ],
     "pdde_guidance_summary_rows_current": [
       1,
@@ -941,7 +942,8 @@
       3,
       4,
       5,
-      6
+      6,
+      7
     ],
     "pdde_guidance_summary_rows_selected": null,
     "pdde_guidance_summary_search": "",
@@ -1005,7 +1007,8 @@
       3,
       4,
       5,
-      6
+      6,
+      7
     ],
     "pdde_summary_table_rows_current": [
       1,
@@ -1013,7 +1016,8 @@
       3,
       4,
       5,
-      6
+      6,
+      7
     ],
     "pdde_summary_table_rows_selected": null,
     "pdde_summary_table_search": "",
@@ -2514,7 +2518,7 @@
       }
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: 76de665668ff2715c072d721d978d037]",
+      "src": "[image data hash: 1af8d61b2f8dde228590c29b93e6d44b]",
       "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -2661,7 +2665,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: ab336c3c535e8191562ff05b5f59ce90]",
+      "src": "[image data hash: efc446c932e9f4c0102dd1eb87887cb6]",
       "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
@@ -2808,36 +2812,36 @@
       "Type": {
         "High Priority": 2,
         "Error": 3,
-        "Warning": 1
+        "Warning": 2
       },
       "Issue": {
-        "Length": "6",
+        "Length": "7",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "6",
+        "Length": "7",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "6",
+        "Length": "7",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 2,
         "Error": 3,
-        "Warning": 1
+        "Warning": 2
       },
       "Count": {
         "Min.": 1,
-        "1st Qu.": 3.75,
-        "Median": 7,
-        "Mean": 126.5,
-        "3rd Qu.": 10.25,
+        "1st Qu.": 2.5,
+        "Median": 6,
+        "Mean": 108.7142857142857,
+        "3rd Qu.": 9.5,
         "Max.": 730
       }
     }
