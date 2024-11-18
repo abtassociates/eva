@@ -6,15 +6,13 @@
 # if it is not, we will show them a pop-up indicating the problem
 ######################
 
-show_invalid_popup <- function(issueID, title) {
-  initially_valid_df <- evachecks %>% filter(ID == issueID)
-
+show_invalid_popup <- function(popupText, issueID, title) {
   reset_app()
   
   showModal(
     modalDialog(
-      initially_valid_df$Guidance,
-      title = initially_valid_df$Issue,
+      popupText,
+      title = title,
       easyClose = TRUE
     )
   )
@@ -52,6 +50,11 @@ isFY2024Export <- function() {
 # extract file names from their uploaded zip
 if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   show_invalid_popup(
+    popupText = paste0(
+      "The uploaded file is a .", 
+      tolower(tools::file_ext(upload_filepath)),
+      ", not a .zip."
+    ),
     issueID = 127, 
     title = "Unsuccessful Upload: You did not upload a zip file"
   )
@@ -71,41 +74,36 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   # the expected csv files
   if(grepl("/", zipContents$Name[1])) {
     show_invalid_popup(
+      popupText = evachecks[ID == 122, "Guidance"],
       issueID = 122,
       title = "Unsuccessful Upload: Misstructured directory"
     )
     logMetadata("Unsuccessful upload - zip file was misstructured")
   } else if("Export" %in% missing_files) {
     show_invalid_popup(
+      popupText = evachecks[ID == 123, "Guidance"],
       issueID = 123,
       title = "Unsuccessful Upload: Missing Export.csv; Possible wrong dataset"
     )
     logMetadata("Unsuccessful upload - not an HMIS CSV Export")
   } else if(!isFY2024Export()) {
     show_invalid_popup(
+      popupText = evachecks[ID == 124, "Guidance"],
       issueID = 124,
       title = "Unsuccessful Upload: Your HMIS CSV Export is out of date"
     )
     logMetadata("Unsuccessful upload - out of date HMIS CSV Export")
   } else if(length(missing_files)) {
-    evachecks <- evachecks %>% filter(ID == 125) %>% 
-      mutate(Guidance = HTML(str_glue(
-        "Your zip file appears to be missing the following files:<br/><br/>
-      
-        {paste(missing_files, collapse = ', ')}<br/><br/>
-        
-        You either uploaded something other than an HMIS CSV export or your export 
-        does not contain all the files outlined in the HMIS CSV Export specifications.
-        If you are not sure how to run the hashed HMIS CSV Export in your HMIS,
-        please contact your HMIS vendor."))
-      )
     show_invalid_popup(
+      popupText = "The uploaded .zip file does not contain all of the required 
+      files to do an analysis of your HMIS data. Thus, Eva cannot read the .zip file.",
       issueID = 125,
       title = "Unsuccessful Upload: Missing files"
     )
     logMetadata("Unsuccessful upload - incomplete dataset")
   } else if(!is_hashed()) {
     show_invalid_popup(
+      popupText = evachecks[ID == 126, "Guidance"],
       issueID = 126,
       title = "Unsuccessful Upload: You uploaded an unhashed data set"
     )

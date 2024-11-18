@@ -174,7 +174,8 @@ function(input, output, session) {
             impermissible_check_info <- evachecks %>% filter(ID == 134)
             showModal(
               modalDialog(
-                impermissible_check_info$Guidance,
+                "Eva has detected impermissible characters in your HMIS CSV file. 
+                Please note that these characters may cause Eva to crash.",
                 title = "Warning: Your HMIS CSV Export has impermissible characters",
                 easyClose = TRUE
               )
