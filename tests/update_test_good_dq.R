@@ -98,4 +98,17 @@ original_data_fixed_cols$Inventory <- original_data_fixed_cols$Inventory %>%
 original_data_fixed_cols$Organization <- rbind(original_data_fixed_cols$Organization[1,], original_data_fixed_cols$Organization) %>%
   mutate(DateDeleted = if_else(row_number() == 1, ymd("20231101"), NA))
 
+# add some periods of zero utilization ------------------------------------
+# This should make project 1376 flag for Zero Utilization^
+tables_to_filter <- c("Enrollment",
+                      "Exit",
+                      "HealthAndDV",
+                      "IncomeBenefits",
+                      "YouthEducationStatus")
+original_data_fixed_cols[tables_to_filter] <- lapply(
+  original_data_fixed_cols[tables_to_filter],
+  function(df) df %>% filter(EnrollmentID != "696923")
+)
+
+
 ## add more checks here --------------------------------------------
