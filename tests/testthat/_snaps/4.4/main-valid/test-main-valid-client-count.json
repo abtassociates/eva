@@ -585,10 +585,10 @@
         "FY24-ICF-main-valid.zip"
       ],
       "size": [
-        19444271
+        19455158
       ],
       "type": [
-        "application/zip"
+        "application/x-zip-compressed"
       ],
       "datapath": [
         "0.zip"
