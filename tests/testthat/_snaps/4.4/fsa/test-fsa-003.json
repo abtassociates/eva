@@ -14,8 +14,8 @@
       "2023-10-05"
     ],
     "dimension": [
-      1039,
-      707
+      780,
+      493
     ],
     "fileStructureAnalysis_cell_clicked": {
 
@@ -87,10 +87,10 @@
         "FY24-ICF-fsa-test.zip"
       ],
       "size": [
-        8090
+        8029
       ],
       "type": [
-        "application/x-zip-compressed"
+        "application/zip"
       ],
       "datapath": [
         "0.zip"

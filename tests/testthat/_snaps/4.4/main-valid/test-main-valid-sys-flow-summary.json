@@ -908,10 +908,10 @@
         "FY24-ICF-main-valid.zip"
       ],
       "size": [
-        19455158
+        19444271
       ],
       "type": [
-        "application/x-zip-compressed"
+        "application/zip"
       ],
       "datapath": [
         "0.zip"
@@ -1841,8 +1841,8 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 0d75f637d265d949946d082f5fc54c9a]",
-      "width": 1640,
+      "src": "[image data hash: 8d48e6f0e902fb68ac029453959a5e3a]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
       "coordmap": {
@@ -1886,19 +1886,18 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 312.6727311643835,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 276.3381849315069,
+              "right": 1619.520547945206,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1625,
+          "height": 400
         }
-      },
-      "error": null
+      }
     },
     "orgDQErrorByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQErrorByIssue\" style=\"width:100%;height:400px;\"><\/div>",
@@ -1937,8 +1936,8 @@
       ]
     },
     "orgDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: c71f7189fd2fc7b8e3b067886d469ba4]",
-      "width": 1640,
+      "src": "[image data hash: d98bfa3a0e7a62dd07e3a5d386d2c59c]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the organization.",
       "coordmap": {
@@ -1975,23 +1974,22 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 289.7508561643835,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 252.494434931507,
+              "right": 1619.520547945206,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1625,
+          "height": 400
         }
-      },
-      "error": null
+      }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 1d997550b5e099b265d15de17de59a0d]",
-      "width": 1640,
+      "src": "[image data hash: d256d8b1205ca5e34719220a3f05ae7f]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
       "coordmap": {
@@ -2035,19 +2033,18 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 320.9852311643837,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 285.1663099315068,
+              "right": 1619.520547945206,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1625,
+          "height": 400
         }
-      },
-      "error": null
+      }
     },
     "orgDQWarningsByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQWarningByIssue\" style=\"width:100%;height:400px;\"><\/div>",
@@ -2292,8 +2289,8 @@
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: acb5838a6f3fee48f56e5e5444ce39c9]",
-      "width": 1101.237548828125,
+      "src": "[image data hash: f671fd60a607ec17b733f7e4159f01d0]",
+      "width": 1102.5,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n              the report period. The summary view of this chart includes four components: \n              Active at Start, Inflow, Outflow, and Active at End.",
       "coordmap": {
@@ -2325,22 +2322,22 @@
               "fill": "PlotFillGroups"
             },
             "range": {
-              "left": 18,
-              "right": 1358,
-              "bottom": 492.0133858267717,
-              "top": 138.5993150684932
+              "left": 14.4,
+              "right": 1087.6,
+              "bottom": 393.2107086614173,
+              "top": 111.2794520547945
             }
           }
         ],
         "dims": {
-          "width": 1376.546936035156,
-          "height": 625
+          "width": 1102.5,
+          "height": 500
         }
       }
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: 8e8312f86adfa00c067895f63a48781a]",
-      "width": 1640,
+      "src": "[image data hash: 76de665668ff2715c072d721d978d037]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
       "coordmap": {
@@ -2384,19 +2381,18 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 279.3289811643837,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 248.2131849315069,
+              "right": 1619.520547945206,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1625,
+          "height": 400
         }
-      },
-      "error": null
+      }
     },
     "systemDQErrorsByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQErrorByIssue\" style=\"width:100%;height:400px;\"><\/div>",
@@ -2417,8 +2413,8 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 605dec3ce1f501ec8a9d1842b5bcb41f]",
-      "width": 1640,
+      "src": "[image data hash: 5b4b8d5bc923f1ad2f8562d68cbcd9bb]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
       "coordmap": {
@@ -2455,19 +2451,18 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 289.7508561643835,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 252.494434931507,
+              "right": 1619.520547945206,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1625,
+          "height": 400
         }
-      },
-      "error": null
+      }
     },
     "systemDQHighPriorityErrorsByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQHighPriorityErrorsByIssue\" style=\"width:100%;height:400px;\"><\/div>",
@@ -2488,8 +2483,8 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 480ad53b3229198ce26734f40b199720]",
-      "width": 1640,
+      "src": "[image data hash: ab336c3c535e8191562ff05b5f59ce90]",
+      "width": 1625,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
       "coordmap": {
@@ -2533,19 +2528,18 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 320.9852311643837,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 285.1663099315068,
+              "right": 1619.520547945206,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1625,
+          "height": 400
         }
-      },
-      "error": null
+      }
     },
     "systemDQWarningsByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQWarningByIssue\" style=\"width:100%;height:400px;\"><\/div>",
