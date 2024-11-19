@@ -15,40 +15,42 @@ high_priority_columns <- cols_and_data_types %>%
   pull(Column) %>%
   unique()
 
-# non-ascii --------------------------------------------------------------
-non_ascii_files_detail <- function() {
-  if(!is.null(non_ascii_files_detail_df())) {
-    return(non_ascii_files_detail_df())
+# non-utf8 --------------------------------------------------------------
+non_utf8_or_bracket <- function(x) {
+  !stri_enc_isutf8(x) | grepl("[\\[\\]]", x)
+}
+
+non_utf8_files_detail <- function() {
+  if(!is.null(non_utf8_files_detail_df())) {
+    return(non_utf8_files_detail_df())
   }
   withProgress(
     message = "Downloading Impermissible Character Export...", 
     value = 0,
     {
       # Initialize an empty list to store the results
-      files_with_non_ascii <- list()
-      non_ascii_or_bracket <- function(x) {
-        str_detect(x, "[^ -~]|.\\[|\\]|\\<|\\>|\\{|\\}")
-      }
+      files_with_non_utf8 <- list()
       
       fnum <- length(unique(cols_and_data_types$File))
-      files_with_non_ascii <- lapply(unique(cols_and_data_types$File), function(file) {
-        # Flag cells containing brackets or non-ascii chars
-        non_ascii_data <- get(file) %>%
-          mutate(across(everything(), non_ascii_or_bracket))
+      files_with_non_utf8 <- lapply(unique(cols_and_data_types$File), function(file) {
+        # Flag cells containing brackets or non-utf8 chars
+        non_utf8_data <- get(file) %>%
+          mutate(across(everything(), non_utf8_or_bracket))
         
-        if(any(non_ascii_data, na.rm = TRUE)) {
-          # get the cells that contain a non-ascii or bracket char
-          # Find rows that contain any non-ASCII characters
-          non_ascii_cells <- which(as.matrix(non_ascii_data), arr.ind = TRUE)
+        if(any(non_utf8_data, na.rm = TRUE)) {
+          # get the cells that contain a non-utf8 or bracket char
+          # Find rows that contain any non-utf8 characters
+          non_utf8_cells <- which(as.matrix(non_utf8_data), arr.ind = TRUE)
           
-          non_ascii_info <- mapply(function(row, col) {
+          non_utf8_info <- mapply(function(row, col) {
             value <- get(file)[row, col]
             if (!is.na(value)) {
-              chars <- unlist(
+              non_ascii_chars <- unlist(
                 stringi::stri_extract_all_regex(
                   value, "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}"
                 )
               )
+              chars <- non_ascii_chars[!stri_enc_isutf8(non_ascii_chars)]
               data.frame(
                 File = file,
                 Detail = paste0(
@@ -60,12 +62,12 @@ non_ascii_files_detail <- function() {
                 )
               )
             }
-          }, non_ascii_cells[, "row"], non_ascii_cells[, "col"], SIMPLIFY = FALSE)
+          }, non_utf8_cells[, "row"], non_utf8_cells[, "col"], SIMPLIFY = FALSE)
           
           # Convert the list of data frames to a single data frame
-          non_ascii_info <- do.call(rbind, non_ascii_info)
+          non_utf8_info <- do.call(rbind, non_utf8_info)
     
-          return(non_ascii_info)
+          return(non_utf8_info)
         }
         incProgress(1/fnum)
       })
@@ -73,33 +75,31 @@ non_ascii_files_detail <- function() {
   )
   
   # Combine all data frames in the list into one data frame
-  non_ascii_files_detail_df(
-    bind_rows(files_with_non_ascii) %>% 
+  non_utf8_files_detail_df(
+    bind_rows(files_with_non_utf8) %>% 
       merge_check_info(checkIDs = 134) %>%
       select(all_of(issue_display_cols))
   )
   return(
-    non_ascii_files_detail_df()
+    non_utf8_files_detail_df()
   )
 }
 
-non_ascii_files_simple <- function() {
-  # Helper function to detect non-ASCII characters
-  non_ascii_or_bracket <- function(x) {
-    str_detect(x, "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}")
-  }
-  
+non_utf8_files_simple <- function() {
   # Initialize an empty data.table to store results
   for (file in unique(cols_and_data_types$File)) {
     # convert to string for faster searching
-    str_data <- sapply(get("Organization"), as.character)
-    non_ascii_found <- any(str_detect(str_data,  "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}"))
+    non_utf8_found <- any(
+      non_utf8_or_bracket(
+        toString(get(file))
+      )
+    )
     
-    # If non-ASCII characters are found, add a row to the results
-    if (isTruthy(non_ascii_found)) {
+    # If non-UTF8 characters are found, add a row to the results
+    if (isTruthy(non_utf8_found)) {
       return(
         data.frame(
-          Detail = str_squish("Found non-ascii character(s) in your HMIS CSV Export. 
+          Detail = str_squish("Found non-UTF-8 character(s) in your HMIS CSV Export. 
           See Impermissible Character Detail export for the precise location of 
           these characters.")
         ) %>%
@@ -111,7 +111,7 @@ non_ascii_files_simple <- function() {
   return(data.frame())
 }
 
-files_with_non_ascii <- non_ascii_files_simple()
+files_with_non_utf8 <- non_utf8_files_simple()
 
 # Incorrect Date Formats --------------------------------------------------
 
@@ -510,7 +510,7 @@ file_structure_analysis_main(rbind(
   nonstandard_destination,
   rel_to_hoh_invalid,
   valid_values_client,
-  files_with_non_ascii
+  files_with_non_utf8
   ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
@@ -524,4 +524,4 @@ nrow() > 0) {
   valid_file(1)
 }
 
-non_ascii_files_detail_r(non_ascii_files_detail)
+non_utf8_files_detail_r(non_utf8_files_detail)

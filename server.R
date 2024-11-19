@@ -24,8 +24,8 @@ function(input, output, session) {
     ReportStart <- reactiveVal(),
     ReportEnd <- reactiveVal(),
     sankey_plot_data <- reactiveVal(),
-    non_ascii_files_detail_df <- reactiveVal(),
-    non_ascii_files_detail_r <- reactiveVal(),
+    non_utf8_files_detail_df <- reactiveVal(),
+    non_utf8_files_detail_r <- reactiveVal(),
     days_of_data <- reactiveVal(),
     windowSize <- reactiveVal()
   )
@@ -381,9 +381,9 @@ function(input, output, session) {
   output$downloadImpermissibleCharacterDetail <- downloadHandler(
     filename = date_stamped_filename("Impermissible-Character-Locations-"),
     content = function(file) {
-      non_ascii_files_detail <- non_ascii_files_detail_r()()
+      non_utf8_files_detail <- non_utf8_files_detail_r()()
       write_xlsx(
-        non_ascii_files_detail %>%
+        non_utf8_files_detail %>%
           arrange(Type, Issue) %>%
           nice_names(),
         path = file
@@ -392,7 +392,7 @@ function(input, output, session) {
       logMetadata(paste0("Impermissible Character Locations Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(non_ascii_files_detail = summarize_df(non_ascii_files_detail))
+      exportTestValues(non_utf8_files_detail = summarize_df(non_utf8_files_detail))
     }
   )
   
