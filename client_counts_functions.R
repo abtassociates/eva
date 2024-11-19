@@ -209,7 +209,7 @@ get_clientcount_download_info <- function(file) {
   exportTestValues(
     client_count_download_detail = summarize_df(validationDetail %>% 
       nice_names() %>% 
-      sample_n(300)) # take just 300 or we can get huge json files
+      slice_sample(300)) # take just 300 or we can get huge json files
   )
   
   write_xlsx(exportDFList,
