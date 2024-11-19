@@ -75,25 +75,25 @@
     },
     "client_count_download_date_range": {
       "Organization Name": {
-        "Length": "206",
+        "Length": "205",
         "Class": "character",
         "Mode": "character"
       },
       "Project ID": {
-        "Length": "206",
+        "Length": "205",
         "Class": "character",
         "Mode": "character"
       },
       "Project Name": {
-        "Length": "206",
+        "Length": "205",
         "Class": "character",
         "Mode": "character"
       },
       "Currently in Project": {
         "Min.": 0,
         "1st Qu.": 2,
-        "Median": 8.5,
-        "Mean": 47.35922330097087,
+        "Median": 9,
+        "Mean": 47.59024390243903,
         "3rd Qu.": 25,
         "Max.": 4622
       },
@@ -101,7 +101,7 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 3.514563106796117,
+        "Mean": 3.531707317073171,
         "3rd Qu.": 1,
         "Max.": 142
       },
@@ -109,15 +109,15 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 5.092233009708738,
+        "Mean": 5.117073170731707,
         "3rd Qu.": 3,
         "Max.": 88
       },
       "Exited Project": {
         "Min.": 0,
-        "1st Qu.": 12.25,
-        "Median": 50.5,
-        "Mean": 249.3640776699029,
+        "1st Qu.": 13,
+        "Median": 51,
+        "Mean": 250.5756097560975,
         "3rd Qu.": 156,
         "Max.": 19498
       },
@@ -125,7 +125,7 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 6.072815533980583,
+        "Mean": 6.102439024390244,
         "3rd Qu.": 2,
         "Max.": 117
       },
@@ -133,8 +133,8 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 22,
-        "3rd Qu.": 11.75,
+        "Mean": 22.10243902439024,
+        "3rd Qu.": 12,
         "Max.": 630
       }
     },
@@ -173,24 +173,24 @@
         "Min.": "2016-02-11",
         "1st Qu.": "2020-07-20",
         "Median": "2021-05-21",
-        "Mean": "2021-03-31",
+        "Mean": "2021-04-01",
         "3rd Qu.": "2022-01-24",
         "Max.": "2022-09-26"
       },
       "Move in Date ": {
         "Min.": "2016-02-11",
-        "1st Qu.": "2020-01-13",
-        "Median": "2021-06-18",
-        "Mean": "2021-01-22",
-        "3rd Qu.": "2022-02-22",
+        "1st Qu.": "2020-01-04",
+        "Median": "2021-08-11",
+        "Mean": "2021-02-11",
+        "3rd Qu.": "2022-04-26",
         "Max.": "2022-09-23"
       },
       "Exit Date": {
         "Min.": "2019-10-08",
-        "1st Qu.": "2020-09-06",
-        "Median": "2021-06-11",
-        "Mean": "2021-05-26",
-        "3rd Qu.": "2022-03-15",
+        "1st Qu.": "2020-09-02",
+        "Median": "2021-06-02",
+        "Mean": "2021-05-21",
+        "3rd Qu.": "2022-03-14",
         "Max.": "2022-09-22"
       },
       "Status": {
@@ -821,57 +821,57 @@
     "pdde_download": {
       "Summary": {
         "Issue": {
-          "Length": "6",
+          "Length": "7",
           "Class": "character",
           "Mode": "character"
         },
         "Type": {
           "High Priority": 2,
           "Error": 3,
-          "Warning": 1
+          "Warning": 2
         },
         "Count": {
           "Min.": 1,
-          "1st Qu.": 3.75,
-          "Median": 7,
-          "Mean": 126.5,
-          "3rd Qu.": 10.25,
+          "1st Qu.": 2.5,
+          "Median": 6,
+          "Mean": 108.7142857142857,
+          "3rd Qu.": 9.5,
           "Max.": 730
         }
       },
       "Data": {
         "OrganizationName": {
-          "Length": "759",
+          "Length": "761",
           "Class": "character",
           "Mode": "character"
         },
         "ProjectID": {
-          "Length": "759",
+          "Length": "761",
           "Class": "character",
           "Mode": "character"
         },
         "ProjectName": {
-          "Length": "759",
+          "Length": "761",
           "Class": "character",
           "Mode": "character"
         },
         "Issue": {
-          "Length": "759",
+          "Length": "761",
           "Class": "character",
           "Mode": "character"
         },
         "Type": {
           "High Priority": 4,
           "Error": 25,
-          "Warning": 730
+          "Warning": 732
         },
         "Guidance": {
-          "Length": "759",
+          "Length": "761",
           "Class": "character",
           "Mode": "character"
         },
         "Detail": {
-          "Length": "759",
+          "Length": "761",
           "Class": "character",
           "Mode": "character"
         }
@@ -881,36 +881,36 @@
       "Type": {
         "High Priority": 2,
         "Error": 3,
-        "Warning": 1
+        "Warning": 2
       },
       "Issue": {
-        "Length": "6",
+        "Length": "7",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "6",
+        "Length": "7",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "6",
+        "Length": "7",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 2,
         "Error": 3,
-        "Warning": 1
+        "Warning": 2
       },
       "Count": {
         "Min.": 1,
-        "1st Qu.": 3.75,
-        "Median": 7,
-        "Mean": 126.5,
-        "3rd Qu.": 10.25,
+        "1st Qu.": 2.5,
+        "Median": 6,
+        "Mean": 108.7142857142857,
+        "3rd Qu.": 9.5,
         "Max.": 730
       }
     },
@@ -1229,14 +1229,14 @@
       ],
       "Errors": [
         [
-          "Length:8404       ",
-          "Length:8404       ",
-          "Length:8404       ",
-          "Length:8404       ",
-          "Length:8404       ",
-          "Length:8404       ",
-          "Length:8404       ",
-          "Length:8404       ",
+          "Length:8403       ",
+          "Length:8403       ",
+          "Length:8403       ",
+          "Length:8403       ",
+          "Length:8403       ",
+          "Length:8403       ",
+          "Length:8403       ",
+          "Length:8403       ",
           "Min.   :2007-05-05  "
         ],
         [
@@ -1297,14 +1297,14 @@
       ],
       "Warnings": [
         [
-          "Length:47916      ",
-          "Length:47916      ",
-          "Length:47916      ",
-          "Length:47916      ",
-          "Length:47916      ",
-          "Length:47916      ",
-          "Length:47916      ",
-          "Length:47916      ",
+          "Length:47914      ",
+          "Length:47914      ",
+          "Length:47914      ",
+          "Length:47914      ",
+          "Length:47914      ",
+          "Length:47914      ",
+          "Length:47914      ",
+          "Length:47914      ",
           "Min.   :2005-04-14  "
         ],
         [

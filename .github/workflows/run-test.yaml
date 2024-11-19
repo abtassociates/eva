@@ -34,20 +34,20 @@ jobs:
           sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
               
       - uses: r-lib/actions/setup-renv@v2
+      
+      - name: remove max fails
+        run: |
+          testthat::set_max_fails(Inf)
+        shell: Rscript {0}
 
       - uses: rstudio/shinytest2/actions/test-app@v1
         with:
           app-dir: "."
           upload-snapshots: true
           
-      - name: remove max fails
-        run: |
-          testthat::set_max_fails(Inf)
-        shell: Rscript {0}
-
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-4.2-tests
           path: tests
