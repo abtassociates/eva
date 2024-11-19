@@ -2,7 +2,7 @@ output$changelog <- renderDataTable({
   tribble(
     ~ Date,
     ~ Change,
-    "10-23-2024",
+    "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
     enrollments during a project's operating and participating periods. See Issue
