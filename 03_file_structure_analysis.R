@@ -16,8 +16,10 @@ high_priority_columns <- cols_and_data_types %>%
   unique()
 
 # non-utf8 --------------------------------------------------------------
+bracket_regex <- ".\\[|\\]|\\<|\\>|\\{|\\}"
+
 non_utf8_or_bracket <- function(x) {
-  !stri_enc_isutf8(x) | grepl("[\\[\\]]", x)
+  !stri_enc_isutf8(as.character(x)) | str_detect(as.matrix(x), bracket_regex)
 }
 
 non_utf8_files_detail <- function() {
@@ -39,18 +41,22 @@ non_utf8_files_detail <- function() {
         
         if(any(non_utf8_data, na.rm = TRUE)) {
           # get the cells that contain a non-utf8 or bracket char
-          # Find rows that contain any non-utf8 characters
           non_utf8_cells <- which(as.matrix(non_utf8_data), arr.ind = TRUE)
           
           non_utf8_info <- mapply(function(row, col) {
             value <- get(file)[row, col]
             if (!is.na(value)) {
-              non_ascii_chars <- unlist(
+              non_ascii_and_bracket_chars <- unlist(
                 stringi::stri_extract_all_regex(
-                  value, "[^ -~]|\\[|\\]|\\<|\\>|\\{|\\}"
+                  value, paste0("[^ -~]|",bracket_regex)
                 )
               )
-              chars <- non_ascii_chars[!stri_enc_isutf8(non_ascii_chars)]
+              
+              non_utf8_chars <- non_ascii_and_bracket_chars[
+                !stri_enc_isutf8(non_ascii_and_bracket_chars) |
+                str_detect(non_ascii_and_bracket_chars, bracket_regex)
+              ]
+              
               data.frame(
                 File = file,
                 Detail = paste0(
@@ -58,7 +64,7 @@ non_utf8_files_detail <- function() {
                   file, ".csv, ", 
                   "column ", col, 
                   ", line ", row, 
-                  ": ", paste(chars, collapse=", ")
+                  ": ", paste(non_utf8_chars, collapse=", ")
                 )
               )
             }
@@ -89,11 +95,7 @@ non_utf8_files_simple <- function() {
   # Initialize an empty data.table to store results
   for (file in unique(cols_and_data_types$File)) {
     # convert to string for faster searching
-    non_utf8_found <- any(
-      non_utf8_or_bracket(
-        toString(get(file))
-      )
-    )
+    non_utf8_found <- any(non_utf8_or_bracket(get(file)))
     
     # If non-UTF8 characters are found, add a row to the results
     if (isTruthy(non_utf8_found)) {
