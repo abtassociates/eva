@@ -456,7 +456,7 @@ renderDQPlot <- function(level, issueType, group, color) {
   return(plotOutput(
     outputId,
     height = plot_height,
-    width = if_else(isTRUE(getOption("shinytest.mode")), 1640, "100%")
+    width = if_else(isTRUE(getOption("shinytest.mode")), "1640", "100%")
   ))
 }
 
