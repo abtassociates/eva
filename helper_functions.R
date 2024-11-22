@@ -160,11 +160,25 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   
   colTypes <- get_col_types(upload_filepath, csvFile)
 
+  handle_windows_1252_chars <- function(df) {
+    dt <- as.data.table(df)
+    
+    # Fix encoding in all character columns in place
+    for (col in names(dt)) {
+      if (is.character(dt[[col]])) {
+        dt[[col]] <- iconv(dt[[col]], from = "WINDOWS-1252", to = "UTF-8", sub = "byte")
+      }
+    }
+    return(as_tibble(dt))
+  }
+  
   data <-
-    read_csv(
-      filename,
-      col_types = colTypes,
-      na = ""
+    handle_windows_1252_chars(
+      read_csv(
+        filename,
+        col_types = colTypes,
+        na = ""
+      )
     )
     # AS 5/29/24: This seems a bit faster, but has problems with missing columns, 
     # like DateDeleted in Client.csv. they come inas character, and not NA
@@ -174,7 +188,6 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     #   na.strings="NA"
     # )
 
-  
   if(csvFile != "Export"){
     data <- data %>%
       filter(is.na(DateDeleted))
