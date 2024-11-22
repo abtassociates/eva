@@ -66,25 +66,25 @@
     },
     "client_count_download_date_range": {
       "Organization Name": {
-        "Length": "206",
+        "Length": "205",
         "Class": "character",
         "Mode": "character"
       },
       "Project ID": {
-        "Length": "206",
+        "Length": "205",
         "Class": "character",
         "Mode": "character"
       },
       "Project Name": {
-        "Length": "206",
+        "Length": "205",
         "Class": "character",
         "Mode": "character"
       },
       "Currently in Project": {
         "Min.": 0,
         "1st Qu.": 2,
-        "Median": 8.5,
-        "Mean": 47.35922330097087,
+        "Median": 9,
+        "Mean": 47.59024390243903,
         "3rd Qu.": 25,
         "Max.": 4622
       },
@@ -92,7 +92,7 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 3.514563106796117,
+        "Mean": 3.531707317073171,
         "3rd Qu.": 1,
         "Max.": 142
       },
@@ -100,15 +100,15 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 5.092233009708738,
+        "Mean": 5.117073170731707,
         "3rd Qu.": 3,
         "Max.": 88
       },
       "Exited Project": {
         "Min.": 0,
-        "1st Qu.": 12.25,
-        "Median": 50.5,
-        "Mean": 249.3640776699029,
+        "1st Qu.": 13,
+        "Median": 51,
+        "Mean": 250.5756097560975,
         "3rd Qu.": 156,
         "Max.": 19498
       },
@@ -116,7 +116,7 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 6.072815533980583,
+        "Mean": 6.102439024390244,
         "3rd Qu.": 2,
         "Max.": 117
       },
@@ -124,8 +124,8 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 22,
-        "3rd Qu.": 11.75,
+        "Mean": 22.10243902439024,
+        "3rd Qu.": 12,
         "Max.": 630
       }
     },
@@ -755,7 +755,8 @@
         "No Inventory Records",
         "Operating End precedes Inventory End",
         "Overlapping HMIS Participation Records",
-        "RRH-SO has active bed inventory"
+        "RRH-SO has active bed inventory",
+        "Zero Utilization"
       ],
       "Type": [
         "Warning",
@@ -763,7 +764,8 @@
         "Error",
         "Error",
         "High Priority",
-        "Error"
+        "Error",
+        "Warning"
       ],
       "Count": [
         730,
@@ -771,43 +773,44 @@
         11,
         6,
         1,
-        8
+        8,
+        2
       ]
     },
     "pdde_guidance_summary": {
       "Type": {
         "High Priority": 2,
         "Error": 3,
-        "Warning": 1
+        "Warning": 2
       },
       "Issue": {
-        "Length": "6",
+        "Length": "7",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "6",
+        "Length": "7",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "6",
+        "Length": "7",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 2,
         "Error": 3,
-        "Warning": 1
+        "Warning": 2
       },
       "Count": {
         "Min.": 1,
-        "1st Qu.": 3.75,
-        "Median": 7,
-        "Mean": 126.5,
-        "3rd Qu.": 10.25,
+        "1st Qu.": 2.5,
+        "Median": 6,
+        "Mean": 108.7142857142857,
+        "3rd Qu.": 9.5,
         "Max.": 730
       }
     },
@@ -1396,14 +1399,14 @@
       ],
       "Errors": [
         [
-          "Length:8404       ",
-          "Length:8404       ",
-          "Length:8404       ",
-          "Length:8404       ",
-          "Length:8404       ",
-          "Length:8404       ",
-          "Length:8404       ",
-          "Length:8404       ",
+          "Length:8403       ",
+          "Length:8403       ",
+          "Length:8403       ",
+          "Length:8403       ",
+          "Length:8403       ",
+          "Length:8403       ",
+          "Length:8403       ",
+          "Length:8403       ",
           "Min.   :2007-05-05  "
         ],
         [
@@ -1464,14 +1467,14 @@
       ],
       "Warnings": [
         [
-          "Length:47916      ",
-          "Length:47916      ",
-          "Length:47916      ",
-          "Length:47916      ",
-          "Length:47916      ",
-          "Length:47916      ",
-          "Length:47916      ",
-          "Length:47916      ",
+          "Length:47914      ",
+          "Length:47914      ",
+          "Length:47914      ",
+          "Length:47914      ",
+          "Length:47914      ",
+          "Length:47914      ",
+          "Length:47914      ",
+          "Length:47914      ",
           "Min.   :2005-04-14  "
         ],
         [

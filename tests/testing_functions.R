@@ -45,12 +45,14 @@ handle_helper_data <- function(app, test_script_name, datasetname) {
 
 inputs_no_bindings <- function(DTs=NULL, plotlys=NULL, htmlWidgets=NULL) {
   DT_suffixes <- c(
+    "_cell_clicked",
     "_cells_selected",
     "_columns_selected",
+    "_rows_current",
     "_rows_all",
     "_rows_selected",
-    "_rows_search",
-    "_rows_search_columns",
+    "_search",
+    "_search_columns",
     "_state"
   )
   
