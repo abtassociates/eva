@@ -857,8 +857,10 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "General Errors",
-            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui") %>% withSpinner()),
-            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()),
+            tabPanel("Top 10 Projects",
+                     uiOutput("orgDQErrorsByProject_ui") %>% withSpinner()),
+            tabPanel("Top 10 Issues",
+                     uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()),
             width =12
           )
         ),
