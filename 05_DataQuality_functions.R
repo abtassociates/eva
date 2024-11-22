@@ -385,7 +385,7 @@ renderDQPlot <- function(level, issueType, group, color) {
 
   # dynamically refer to the UI element ID
   outputId <- paste0(
-    if_else(level == 'sys','system','org'),
+    if_else(level == 'sys', 'system', 'org'),
     "DQ",
     if_else(issueType == 'High Priority', 'HighPriorityErrors', issueType),
     "By",
@@ -432,7 +432,8 @@ renderDQPlot <- function(level, issueType, group, color) {
             plot.background = element_blank(),
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank()) +
-      geom_text(aes(label = countVar), hjust = -0.5, color = "black", size=sys_chart_text_font)
+      geom_text(aes(label = countVar), hjust = -0.5, color = "black",
+                size = sys_chart_text_font)
   },
   ,
   alt = case_when(outputId == "systemDQHighPriorityErrorsByIssue" ~ "A bar chart of the top High Priority Errors in the system.",
