@@ -330,7 +330,8 @@ renderSystemPlot <- function(id) {
               outflow during the report period. The detailed view of this chart 
               shows inflow as three subcategories: first-time homeless, returned from 
               permanent, and re-engaged from non-permanent and outflow as three 
-              subcategories: exited non-permanent, exited permanent, and inactive.")
+              subcategories: exited non-permanent, exited permanent, and inactive."),
+  width = ifelse(isTRUE(getOption("shiny.testmode")), 1113, "auto")
   )
 }
 
