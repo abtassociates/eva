@@ -42,3 +42,29 @@ handle_helper_data <- function(app, test_script_name, datasetname) {
     }
   }
 }
+
+inputs_no_bindings <- function(DTs=NULL, plotlys=NULL, htmlWidgets=NULL) {
+  DT_suffixes <- c(
+    "_cells_selected",
+    "_columns_selected",
+    "_rows_all",
+    "_rows_selected",
+    "_rows_search",
+    "_rows_search_columns",
+    "_state"
+  )
+  
+  plotly_suffixes <- NULL
+  htmlWidget_suffixes <- NULL
+  
+  combine_with_suffixes <- function(strings, suffixes) {
+    if (is.null(strings) || is.null(suffixes)) return(character(0)) 
+    c(outer(strings, suffixes, paste0))
+  }
+  
+  c(
+    combine_with_suffixes(DTs, DT_suffixes),
+    combine_with_suffixes(plotlys, plotly_suffixes),
+    combine_with_suffixes(htmlWidgets, htmlWidget_suffixes)
+  )
+}
