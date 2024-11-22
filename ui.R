@@ -843,11 +843,11 @@ dashboardPage(
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Top 10 Issues",
+            selected = "Issues",
             title = "High Priority Errors",
             tabPanel("Top 10 Projects",
                      uiOutput("orgDQHighPriorityErrorsByProject_ui")  %>% withSpinner()),
-            tabPanel("Top 10 Issues",
+            tabPanel("Issues",
                      uiOutput("orgDQHighPriorityErrorByIssue_ui") %>% withSpinner()),
             width = 12
           )
