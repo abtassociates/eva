@@ -1455,8 +1455,8 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: a9885762cf306f9049ccb01a351b6d39]",
-      "width": 1623.200073242188,
+      "src": "[image data hash: 20ad1fdeae66c0c0d7134ee0d94feaec]",
+      "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
       "coordmap": {
@@ -1501,20 +1501,20 @@
             },
             "range": {
               "left": 279.3289811643837,
-              "right": 2022.150684931507,
+              "right": 2043.150684931507,
               "bottom": 472.7260273972602,
               "top": 6.849315068493152
             }
           }
         ],
         "dims": {
-          "width": 2029.000091552734,
+          "width": 2050,
           "height": 500
         }
       }
     },
     "systemDQErrorsByIssue_ui": {
-      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQErrorByIssue\" style=\"width:100%;height:400px;\"><\/div>",
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQErrorByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
           "name": "htmltools-fill",
@@ -1532,8 +1532,8 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: f3341251682e0f0abaf955f318752f7f]",
-      "width": 1623.200073242188,
+      "src": "[image data hash: 605dec3ce1f501ec8a9d1842b5bcb41f]",
+      "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
       "coordmap": {
@@ -1571,20 +1571,20 @@
             },
             "range": {
               "left": 289.7508561643835,
-              "right": 2022.150684931507,
+              "right": 2043.150684931507,
               "bottom": 472.7260273972602,
               "top": 6.849315068493152
             }
           }
         ],
         "dims": {
-          "width": 2029.000091552734,
+          "width": 2050,
           "height": 500
         }
       }
     },
     "systemDQHighPriorityErrorsByIssue_ui": {
-      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQHighPriorityErrorsByIssue\" style=\"width:100%;height:400px;\"><\/div>",
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQHighPriorityErrorsByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
           "name": "htmltools-fill",
@@ -1602,8 +1602,8 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 70bf0541936670a7e212c1c40f732107]",
-      "width": 1623.200073242188,
+      "src": "[image data hash: 80e0241d11aca4058a2fee5df7f14c50]",
+      "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
       "coordmap": {
@@ -1648,20 +1648,20 @@
             },
             "range": {
               "left": 320.9852311643837,
-              "right": 2022.150684931507,
+              "right": 2043.150684931507,
               "bottom": 472.7260273972602,
               "top": 6.849315068493152
             }
           }
         ],
         "dims": {
-          "width": 2029.000091552734,
+          "width": 2050,
           "height": 500
         }
       }
     },
     "systemDQWarningsByIssue_ui": {
-      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQWarningByIssue\" style=\"width:100%;height:400px;\"><\/div>",
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQWarningByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
           "name": "htmltools-fill",
