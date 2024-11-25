@@ -160,25 +160,11 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   
   colTypes <- get_col_types(upload_filepath, csvFile)
 
-  handle_windows_1252_chars <- function(df) {
-    dt <- as.data.table(df)
-    
-    # Fix encoding in all character columns in place
-    for (col in names(dt)) {
-      if (is.character(dt[[col]])) {
-        dt[[col]] <- iconv(dt[[col]], from = "WINDOWS-1252", to = "UTF-8", sub = "byte")
-      }
-    }
-    return(as_tibble(dt))
-  }
-  
   data <-
-    handle_windows_1252_chars(
-      read_csv(
-        filename,
-        col_types = colTypes,
-        na = ""
-      )
+    read_csv(
+      filename,
+      col_types = colTypes,
+      na = ""
     )
     # AS 5/29/24: This seems a bit faster, but has problems with missing columns, 
     # like DateDeleted in Client.csv. they come inas character, and not NA
@@ -483,4 +469,42 @@ min_cols_selected_except <- function(df, list, exception, num_cols_selected) {
 
 summarize_df <- function(df) {
   lapply(df, function(col) {summary(col)})
+}
+
+# convert windows characters to UTF-8
+# As of 11/22/24, this is only used to convert windows quotation marks, which were found to crash Eva.
+convert_windows_1252_chars <- function(df, file) {
+  dt <- as.data.table(df)
+  
+  conversion_log <- list()
+  # Fix encoding in all character columns in place
+  for (col in names(dt)) {
+    if (is.character(dt[[col]])) {
+      # Original column before conversion
+      original_col <- dt[[col]]
+      
+      # Convert to UTF-8
+      dt[[col]] <- iconv(original_col, from = "WINDOWS-1252", to = "UTF-8", sub = "byte")
+      
+      # Identify changes by comparing original and converted values
+      # changed_indices <- which(original_col != dt[[col]])
+      # if (length(changed_indices) > 0) {
+      #   conversion_log[[col]] <- data.table(
+      #     File = file,
+      #     row = changed_indices,
+      #     col = col,
+      #     Original = original_col[changed_indices]
+      #   )
+      # }
+    }
+  }
+ 
+  # assign(file, as_tibble(dt))
+  return(
+    # list(
+    #   converted_df = as_tibble(dt),
+    #   conversions = conversion_log
+    # )
+    as_tibble(dt)
+  )
 }
