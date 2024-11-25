@@ -19,7 +19,7 @@ high_priority_columns <- cols_and_data_types %>%
 bracket_regex <- ".\\[|\\]|\\<|\\>|\\{|\\}"
 
 non_utf8_or_bracket <- function(x) {
-  !stringi::stri_enc_isutf8(as.character(x)) | str_detect(as.matrix(x), bracket_regex)
+  !all(stringi::stri_enc_isutf8(as.matrix(x))) | str_detect(as.matrix(x), bracket_regex)
 }
 
 non_utf8_files_detail <- function() {
