@@ -24,7 +24,6 @@ function(input, output, session) {
     ReportStart <- reactiveVal(),
     ReportEnd <- reactiveVal(),
     sankey_plot_data <- reactiveVal(),
-    non_utf8_files_detail_df <- reactiveVal(),
     non_utf8_files_detail_r <- reactiveVal(),
     days_of_data <- reactiveVal(),
     windowSize <- reactiveVal()

@@ -22,10 +22,10 @@ non_utf8_or_bracket <- function(x) {
   !all(stringi::stri_enc_isutf8(as.matrix(x))) | str_detect(as.matrix(x), bracket_regex)
 }
 
-non_utf8_files_detail <- function() {
-  if(!is.null(non_utf8_files_detail_df())) {
-    return(non_utf8_files_detail_df())
-  }
+non_utf8_files_detail <- reactive({
+  # if(!is.null(non_utf8_files_detail_df())) {
+  #   return(non_utf8_files_detail_df())
+  # }
   withProgress(
     message = "Downloading Impermissible Character Export...", 
     value = 0,
@@ -81,24 +81,27 @@ non_utf8_files_detail <- function() {
   )
   
   # Combine all data frames in the list into one data frame
-  non_utf8_files_detail_df(
+  # non_utf8_files_detail_df(
     bind_rows(files_with_non_utf8) %>% 
       merge_check_info(checkIDs = 134) %>%
       select(all_of(issue_display_cols))
-  )
-  return(
-    non_utf8_files_detail_df()
-  )
-}
+  # )
+  # return(
+  #   non_utf8_files_detail_df()
+  # )
+})
 
 non_utf8_files_simple <- function() {
   # Initialize an empty data.table to store results
   for (file in unique(cols_and_data_types$File)) {
     # convert to string for faster searching
-    non_utf8_found <- any(non_utf8_or_bracket(get(file)))
+    df <- get(file)
+    non_utf8_found <- any(non_utf8_or_bracket(df))
     
-    # If non-UTF8 characters are found, add a row to the results
+    # If non-UTF8 characters are found, note that
     if (isTruthy(non_utf8_found)) {
+      windows_1252_info(convert_windows_1252_chars(df, file))
+      
       return(
         data.frame(
           Detail = str_squish("Found non-UTF-8 character(s) in your HMIS CSV Export. 
