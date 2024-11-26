@@ -21,18 +21,30 @@ source(paste0(directory, "helper_functions.R"))
 source(paste0(directory, "hardcodes.R"))
 
 # Get Export --------------------------------------------------------------
-unzip("/media/projects/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-hashed-current-good.zip", exdir=here("sandbox/mini-non-shiny-environment/data"))
+utils::unzip("/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-hashed-current-good.zip",
+             exdir = here(paste0(directory, "data")))
+
 source(paste0(directory, "01_get_Export.R"))
 
 
 # Org A (OrgId = 4), Org B = 6, Org N = 95
-organization_ids <- c("4","6")
+organization_ids <- c("4","6", "95")
 # get project IDs
-project_ids <- Project %>% filter(OrganizationID %in% organization_ids) %>% pull(ProjectID) %>% unique()
+project_ids <- Project %>%
+  filter(OrganizationID %in% organization_ids) %>%
+  pull(ProjectID) %>%
+  unique()
 
-enrollment_ids <- Enrollment %>% filter(ProjectID %in% project_ids) %>% pull(EnrollmentID) %>% unique()
+enrollment_ids <- Enrollment %>%
+  filter(ProjectID %in% project_ids) %>%
+  pull(EnrollmentID) %>%
+  unique()
 
-personal_ids <- Enrollment %>% filter(ProjectID %in% project_ids) %>% pull(PersonalID) %>% unique()
+personal_ids <- Enrollment %>%
+  filter(ProjectID %in% project_ids) %>%
+  pull(PersonalID) %>%
+  unique()
+
 # for each file in the csv, loop through the file names in the csv
 for (file in unique(cols_and_data_types$File)) {
   print(file)
@@ -149,18 +161,12 @@ for (file in unique(cols_and_data_types$File)) {
   })
 }
 
-demo_zip <- "/media/projects/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-demo_small.zip"
+demo_zip <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-demo_small2.zip"
 zipr(
   zipfile = demo_zip, 
-  files = list.files(here("sandbox/mini-non-shiny-environment/data"), pattern = "*.csv", full.names = TRUE),
+  files = list.files(here("sandbox/mini-non-shiny-environment/data"),
+                     pattern = "*.csv", full.names = TRUE),
   mode = "cherry-pick" # so the files are at the top directory
 )
 
-# Now before running Eva with this new zip, 
-# put a browser() at the end of the successful load block
-# then run the following to save the workspace as demo.Rdata
-# save(list = c(ls(envir = .GlobalEnv, all.names = TRUE), ls(all.names = TRUE)), file = "demo.RData", compress="xz")
-# # this saves everything in the global and calling environment. 
-## The global environment includes the meta_ variables,
-## the calling environment/observe includes everything else: functions, data frames, and values
 ## xz compression makes the file small enough to get around GitHub's 100MB size limit

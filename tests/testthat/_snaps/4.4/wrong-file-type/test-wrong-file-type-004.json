@@ -14,8 +14,8 @@
       "2023-10-05"
     ],
     "dimension": [
-      780,
-      493
+      1038,
+      654
     ],
     "imported": {
       "name": [
@@ -25,7 +25,7 @@
         23
       ],
       "type": [
-        "application/gzip"
+        "application/x-gzip"
       ],
       "datapath": [
         "0.gz"
