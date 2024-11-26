@@ -14,18 +14,18 @@
       "2023-10-05"
     ],
     "dimension": [
-      780,
-      493
+      1038,
+      654
     ],
     "imported": {
       "name": [
         "FY24-ICF-missing-multiple-files.zip"
       ],
       "size": [
-        6538
+        6301
       ],
       "type": [
-        "application/zip"
+        "application/x-zip-compressed"
       ],
       "datapath": [
         "0.zip"
