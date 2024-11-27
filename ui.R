@@ -1605,11 +1605,11 @@ dashboardPage(
         fluidRow(
           tabBox(
             side = "right",
-            selected = "Top 10 Issues",
+            selected = "Issues",
             title = "High Priority Errors",
             tabPanel("Top 10 Organizations",
                      uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
-            tabPanel("Top 10 Issues",
+            tabPanel("Issues",
                      uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
             width = 12
           )
