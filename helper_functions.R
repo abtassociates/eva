@@ -471,40 +471,11 @@ summarize_df <- function(df) {
   lapply(df, function(col) {summary(col)})
 }
 
-# convert windows characters to UTF-8
-# As of 11/22/24, this is only used to convert windows quotation marks, which were found to crash Eva.
-convert_windows_1252_chars <- function(df, file) {
-  dt <- as.data.table(df)
-  
-  conversion_log <- list()
-  # Fix encoding in all character columns in place
-  for (col in names(dt)) {
-    if (is.character(dt[[col]])) {
-      # Original column before conversion
-      original_col <- dt[[col]]
-      
-      # Convert to UTF-8
-      dt[[col]] <- iconv(original_col, from = "WINDOWS-1252", to = "UTF-8", sub = "byte")
-      
-      # Identify changes by comparing original and converted values
-      # changed_indices <- which(original_col != dt[[col]])
-      # if (length(changed_indices) > 0) {
-      #   conversion_log[[col]] <- data.table(
-      #     File = file,
-      #     row = changed_indices,
-      #     col = col,
-      #     Original = original_col[changed_indices]
-      #   )
-      # }
-    }
-  }
- 
-  # assign(file, as_tibble(dt))
-  return(
-    # list(
-    #   converted_df = as_tibble(dt),
-    #   conversions = conversion_log
-    # )
-    as_tibble(dt)
+
+replace_char_at <- function(string, position, replacement) {
+  paste0(
+    substr(string, 1, position - 1),
+    replacement,
+    substr(string, position + 1, nchar(string))
   )
 }

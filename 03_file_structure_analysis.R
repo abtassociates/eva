@@ -16,81 +16,10 @@ high_priority_columns <- cols_and_data_types %>%
   unique()
 
 # non-utf8 --------------------------------------------------------------
-bracket_regex <- ".\\[|\\]|\\<|\\>|\\{|\\}"
 has_non_utf8_or_bracket <- function(x) {
   matrix_data <- as.matrix(x)
   any(!all(stringi::stri_enc_isutf8(matrix_data))) || any(str_detect(matrix_data, bracket_regex))
 }
-
-non_utf8_files_detail <- reactive({
-  # if(!is.null(non_utf8_files_detail_df())) {
-  #   return(non_utf8_files_detail_df())
-  # }
-  withProgress(
-    message = "Downloading Impermissible Character Export...", 
-    value = 0,
-    {
-      # Initialize an empty list to store the results
-      files_with_non_utf8 <- list()
-      
-      fnum <- length(unique(cols_and_data_types$File))
-      files_with_non_utf8 <- lapply(unique(cols_and_data_types$File), function(file) {
-        # Flag cells containing brackets or non-utf8 chars
-        non_utf8_data <- get(file) %>%
-          mutate(across(everything(), non_utf8_or_bracket))
-        
-        if(any(non_utf8_data, na.rm = TRUE)) {
-          # get the cells that contain a non-utf8 or bracket char
-          non_utf8_cells <- which(as.matrix(non_utf8_data), arr.ind = TRUE)
-          
-          non_utf8_info <- mapply(function(row, col) {
-            value <- get(file)[row, col]
-            if (!is.na(value)) {
-              non_ascii_and_bracket_chars <- unlist(
-                stringi::stri_extract_all_regex(
-                  value, paste0("[^ -~]|",bracket_regex)
-                )
-              )
-              
-              non_utf8_chars <- non_ascii_and_bracket_chars[
-                !stringi::stri_enc_isutf8(non_ascii_and_bracket_chars) |
-                str_detect(non_ascii_and_bracket_chars, bracket_regex)
-              ]
-              
-              data.frame(
-                File = file,
-                Detail = paste0(
-                  "Found impermissible character(s) in ", 
-                  file, ".csv, ", 
-                  "column ", col, 
-                  ", line ", row, 
-                  ": ", paste(non_utf8_chars, collapse=", ")
-                )
-              )
-            }
-          }, non_utf8_cells[, "row"], non_utf8_cells[, "col"], SIMPLIFY = FALSE)
-          
-          # Convert the list of data frames to a single data frame
-          non_utf8_info <- do.call(rbind, non_utf8_info)
-    
-          return(non_utf8_info)
-        }
-        incProgress(1/fnum)
-      })
-    }
-  )
-  
-  # Combine all data frames in the list into one data frame
-  # non_utf8_files_detail_df(
-    bind_rows(files_with_non_utf8) %>% 
-      merge_check_info(checkIDs = 134) %>%
-      select(all_of(issue_display_cols))
-  # )
-  # return(
-  #   non_utf8_files_detail_df()
-  # )
-})
-
 non_utf8_files_simple <- function() {
   # Initialize an empty data.table to store results
   for (file in unique(cols_and_data_types$File)) {
@@ -100,8 +29,6 @@ non_utf8_files_simple <- function() {
     
     # If non-UTF8 characters are found, note that
     if (isTruthy(non_utf8_found)) {
-      windows_1252_info(convert_windows_1252_chars(df, file))
-      
       return(
         data.frame(
           Detail = str_squish("Found non-UTF-8 character(s) in your HMIS CSV Export. 
@@ -528,5 +455,3 @@ nrow() > 0) {
 } else{
   valid_file(1)
 }
-
-non_utf8_files_detail_r(non_utf8_files_detail)
