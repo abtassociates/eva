@@ -17,9 +17,9 @@ high_priority_columns <- cols_and_data_types %>%
 
 # non-utf8 --------------------------------------------------------------
 bracket_regex <- ".\\[|\\]|\\<|\\>|\\{|\\}"
-
-non_utf8_or_bracket <- function(x) {
-  !all(stringi::stri_enc_isutf8(as.matrix(x))) | str_detect(as.matrix(x), bracket_regex)
+has_non_utf8_or_bracket <- function(x) {
+  matrix_data <- as.matrix(x)
+  any(!all(stringi::stri_enc_isutf8(matrix_data))) || any(str_detect(matrix_data, bracket_regex))
 }
 
 non_utf8_files_detail <- reactive({
@@ -96,7 +96,7 @@ non_utf8_files_simple <- function() {
   for (file in unique(cols_and_data_types$File)) {
     # convert to string for faster searching
     df <- get(file)
-    non_utf8_found <- any(non_utf8_or_bracket(df))
+    non_utf8_found <- has_non_utf8_or_bracket(df)
     
     # If non-UTF8 characters are found, note that
     if (isTruthy(non_utf8_found)) {
