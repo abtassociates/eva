@@ -958,7 +958,7 @@ function(input, output, session) {
   
   source("system_overview_server.R", local = TRUE)
   
-  ## System Composition ----
+  ## System Inflow/Outflow ----
   source("system_inflow_outflow_server.R", local = TRUE)
     
   ## System Composition ----
