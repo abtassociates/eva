@@ -24,8 +24,6 @@ function(input, output, session) {
     ReportStart <- reactiveVal(),
     ReportEnd <- reactiveVal(),
     sankey_plot_data <- reactiveVal(),
-    non_ascii_files_detail_df <- reactiveVal(),
-    non_ascii_files_detail_r <- reactiveVal(),
     days_of_data <- reactiveVal(),
     windowSize <- reactiveVal()
   )
@@ -200,6 +198,34 @@ function(input, output, session) {
 
           setProgress(detail = "Preparing Sankey Chart", value = .95)
           source("09_system_status.R", local = TRUE)
+          
+          # if there are any Windows-1252 encodings, convert to UTF-8
+          
+          # convert windows characters to UTF-8
+          lapply(
+            unique(cols_and_data_types$File),
+            function(file) {
+              dt <- as.data.table(get(file))
+              
+              # Fix encoding in all character columns in place
+              for (col in names(dt)) {
+                if (is.character(dt[[col]])) {
+                  # Original column before conversion
+                  original_col <- dt[[col]]
+                  
+                  # Convert to UTF-8
+                  converted_col <- iconv(original_col, from = "WINDOWS-1252", to = "UTF-8", sub = "byte")
+                  
+                  # Identify changes by comparing original and converted values
+                  if (length(which(original_col != converted_col)) > 0) {
+                    dt[[col]] <- converted_col
+                  }
+                }
+              }
+              
+              assign(file, as_tibble(dt), inherits = TRUE)
+            }
+          )
           
           # if user changes filters, update the reactive vals
           # which get used for the various System Overview charts
@@ -381,9 +407,10 @@ function(input, output, session) {
   output$downloadImpermissibleCharacterDetail <- downloadHandler(
     filename = date_stamped_filename("Impermissible-Character-Locations-"),
     content = function(file) {
-      non_ascii_files_detail <- non_ascii_files_detail_r()()
+      non_utf8_files_detail <- non_utf8_files_detail()
+      
       write_xlsx(
-        non_ascii_files_detail %>%
+        non_utf8_files_detail %>%
           arrange(Type, Issue) %>%
           nice_names(),
         path = file
@@ -392,7 +419,7 @@ function(input, output, session) {
       logMetadata(paste0("Impermissible Character Locations Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(non_ascii_files_detail = summarize_df(non_ascii_files_detail))
+      exportTestValues(non_utf8_files_detail = summarize_df(non_utf8_files_detail))
     }
   )
   
@@ -955,11 +982,13 @@ function(input, output, session) {
     renderDQPlot("org", "Warning", "Issue", "#71B4CB")
   })
   
+  source("fsa_server.R", local = TRUE)
+  
   # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
   
   source("system_overview_server.R", local = TRUE)
   
-  ## System Composition ----
+  ## System Inflow/Outflow ----
   source("system_inflow_outflow_server.R", local = TRUE)
     
   ## System Composition ----
