@@ -36,7 +36,8 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     app$set_inputs(sidebarmenuid = "tabDQOrg")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
-
+  })
+}
 main_test_script <- function(test_script_name, test_dataset) {
   test_dataset_folder <- "tests/temp/"
   
