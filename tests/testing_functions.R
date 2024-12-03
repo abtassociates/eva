@@ -39,8 +39,6 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
   })
 }
 main_test_script <- function(test_script_name, test_dataset) {
-  test_dataset_folder <- "tests/temp/"
-  
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
     print(paste0("Running ",test_script_name))
     
@@ -60,7 +58,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     
     app$set_inputs(Go_to_upload = "click")
     app$wait_for_idle(timeout = 2e+05)
-    app$upload_file(imported = paste0(here(test_dataset_folder),test_dataset))
+    app$upload_file(imported = here(test_dataset))
     
     print(paste0("Just uploaded in ",test_script_name))
     app$wait_for_idle(timeout = 1e+06)

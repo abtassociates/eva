@@ -1,1 +1,1 @@
-main_test_script("test-impermissible-chars",  "FY24-ICF-good_non_utf8.zip")
+main_test_script("test-impermissible-chars",  "tests/FY24-ICF-good_non_utf8.zip")
