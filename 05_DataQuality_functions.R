@@ -453,12 +453,18 @@ renderDQPlot <- function(level, issueType, group, color) {
   plot_height = if_else(nrow(plot_data) == 0, 50, 400)
   
   # finally, render the plot
-  return(plotOutput(outputId, height = plot_height))
+  return(plotOutput(
+    outputId,
+    height = plot_height,
+    width = if_else(isTRUE(getOption("shinytest.mode")), "1640", "100%")
+  ))
 }
 
 # list of data frames to include in DQ Org Report
 dqDownloadInfo <- reactive({
   req(valid_file() == 1)
+  
+  exportTestValues(dq_main_reactive =  dq_main_reactive() %>% nice_names())
   
   # org-level data prep (filtering to selected org)
   orgDQData <- dq_main_reactive() %>%
