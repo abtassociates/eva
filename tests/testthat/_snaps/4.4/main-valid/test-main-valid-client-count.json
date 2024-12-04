@@ -1,5 +1,8 @@
 {
   "input": {
+    "clientCountData_cell_clicked": {
+
+    },
     "clientCountData_cells_selected": [
 
     ],
@@ -347,7 +350,29 @@
       340,
       341
     ],
+    "clientCountData_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
     "clientCountData_rows_selected": null,
+    "clientCountData_search": "",
+    "clientCountData_search_columns": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
     "clientCountData_state": {
       "start": 0,
       "length": 10,
@@ -426,6 +451,9 @@
         }
       ]
     },
+    "clientCountSummary_cell_clicked": {
+
+    },
     "clientCountSummary_cells_selected": [
 
     ],
@@ -434,7 +462,12 @@
       1,
       2
     ],
+    "clientCountSummary_rows_current": [
+      1,
+      2
+    ],
     "clientCountSummary_rows_selected": null,
+    "clientCountSummary_search": "",
     "clientCountSummary_state": {
       "start": 0,
       "length": 10,

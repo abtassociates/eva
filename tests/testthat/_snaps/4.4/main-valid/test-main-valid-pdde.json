@@ -1,5 +1,8 @@
 {
   "input": {
+    "pdde_guidance_summary_cell_clicked": {
+
+    },
     "pdde_guidance_summary_cells_selected": [
 
     ],
@@ -13,7 +16,22 @@
       6,
       7
     ],
+    "pdde_guidance_summary_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
     "pdde_guidance_summary_rows_selected": null,
+    "pdde_guidance_summary_search": "",
+    "pdde_guidance_summary_search_columns": [
+      "",
+      "",
+      ""
+    ],
     "pdde_guidance_summary_state": {
       "start": 0,
       "length": 10,
@@ -56,6 +74,9 @@
         }
       ]
     },
+    "pdde_summary_table_cell_clicked": {
+
+    },
     "pdde_summary_table_cells_selected": [
 
     ],
@@ -69,7 +90,17 @@
       6,
       7
     ],
+    "pdde_summary_table_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
     "pdde_summary_table_rows_selected": null,
+    "pdde_summary_table_search": "",
     "pdde_summary_table_state": {
       "start": 0,
       "length": 10,

@@ -1,5 +1,8 @@
 {
   "input": {
+    "dq_org_guidance_summary_cell_clicked": {
+
+    },
     "dq_org_guidance_summary_cells_selected": [
 
     ],
@@ -54,7 +57,25 @@
       47,
       48
     ],
+    "dq_org_guidance_summary_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
     "dq_org_guidance_summary_rows_selected": null,
+    "dq_org_guidance_summary_search": "",
+    "dq_org_guidance_summary_search_columns": [
+      "",
+      "",
+      ""
+    ],
     "dq_org_guidance_summary_state": {
       "start": 0,
       "length": 10,
@@ -96,6 +117,9 @@
           }
         }
       ]
+    },
+    "dq_organization_summary_table_cell_clicked": {
+
     },
     "dq_organization_summary_table_cells_selected": [
 
@@ -228,7 +252,26 @@
       124,
       125
     ],
+    "dq_organization_summary_table_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
     "dq_organization_summary_table_rows_selected": null,
+    "dq_organization_summary_table_search": "",
+    "dq_organization_summary_table_search_columns": [
+      "",
+      "",
+      "",
+      ""
+    ],
     "dq_organization_summary_table_state": {
       "start": 0,
       "length": 10,
