@@ -5,11 +5,14 @@ customDownload <- function(app, downloadHandler, fname) {
 }
 
 handle_helper_data <- function(app, test_script_name, datasetname) {
-  snapshot_folder <- glue::glue(
-    "tests/testthat/_snaps/{platform_variant(os_name = FALSE)}/{gsub('test-','',test_script_name)}"
+  helper_data_folder <- glue::glue(
+    here("tests/testthat/_snaps/{platform_variant(os_name = FALSE)}/{gsub('test-','',test_script_name)}/helper_data")
   )
+  if(!dir.exists(helper_data_folder)) {
+    dir.create(helper_data_folder)
+  }
   
-  old_path <- here(glue::glue("{snapshot_folder}/{datasetname}.csv"))
+  old_path <- here(glue::glue("{helper_data_folder}/{datasetname}.csv"))
   new_path <- gsub(".csv", ".new.csv", old_path)
   
   new_df <- app$get_value(export=datasetname)
