@@ -152,7 +152,7 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
     "sys_act_summary_ui_chart"
   )
   
-  app$set_inputs(sidebarmenuid = "tabSystemOverview", input=TRUE, output=TRUE)
+  app$set_inputs(sidebarmenuid = "tabSystemOverview")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(
     name = "sys-flow-summary",
