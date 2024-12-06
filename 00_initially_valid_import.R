@@ -6,12 +6,18 @@
 # if it is not, we will show them a pop-up indicating the problem
 ######################
 
-show_invalid_popup <- function(popupText, issueID, title) {
+show_invalid_popup <- function(popupText = NULL, issueID, title) {
   reset_app()
   
   showModal(
     modalDialog(
-      popupText,
+      HTML(
+        ifelse(
+          is.null(popupText), 
+          evachecks %>% filter(ID == issueID) %>% pull(Guidance), 
+          popupText
+        )
+      ),
       title = title,
       easyClose = TRUE
     )
@@ -73,42 +79,39 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   # the expected csv files
   if(grepl("/", zipContents$Name[1])) {
     show_invalid_popup(
-      popupText = evachecks[ID == 122, "Guidance"],
       issueID = 122,
       title = "Unsuccessful Upload: Misstructured directory"
     )
     logMetadata("Unsuccessful upload - zip file was misstructured")
-  } else if("Export" %in% missing_files) {
-    show_invalid_popup(
-      popupText = evachecks[ID == 123, "Guidance"],
-      issueID = 123,
-      title = "Unsuccessful Upload: Missing Export.csv; Possible wrong dataset"
-    )
-    logMetadata("Unsuccessful upload - not an HMIS CSV Export")
-  } else if(!isFY2024Export()) {
-    show_invalid_popup(
-      popupText = evachecks[ID == 124, "Guidance"],
-      issueID = 124,
-      title = "Unsuccessful Upload: Your HMIS CSV Export is out of date"
-    )
-    logMetadata("Unsuccessful upload - out of date HMIS CSV Export")
   } else if(length(missing_files)) {
+    missing_files_list <- paste(
+      glue::glue('<li>{missing_files}.csv</li>'),
+      collapse = "\n"
+    )
     show_invalid_popup(
       popupText = glue::glue("Your uploaded .zip file does not contain all of the required 
       files to do an an analysis of your HMIS data. Your .zip file appears to be
-      missing the following files: {missing_files}. You either uploaded 
-      something other than an HMIS CSV Export, or your export does not contain
-      all the files outlined in the HMIS CSV Export specifications. To use Eva, 
-      please upload a hashed HMIS CSV Export that meets all of HUD's 
-      specifications. If you are not sure how to run a hashed HMIS CSV Export in
-      your HMIS, please contact your HMIS vendor."),
+      missing the following files: 
+      
+      <ul>{missing_files_list}</ul>
+      
+      You either uploaded something other than an HMIS CSV Export, or your export 
+      does not contain all the files outlined in the HMIS CSV Export 
+      specifications. To use Eva, please upload a hashed HMIS CSV Export that 
+      meets all of HUD's specifications. If you are not sure how to run a hashed
+      HMIS CSV Export in your HMIS, please contact your HMIS vendor."),
       issueID = 125,
       title = "Unsuccessful Upload: Missing files"
     )
     logMetadata("Unsuccessful upload - incomplete dataset")
+  } else if(!isFY2024Export()) {
+    show_invalid_popup(
+      issueID = 124,
+      title = "Unsuccessful Upload: Your HMIS CSV Export is out of date"
+    )
+    logMetadata("Unsuccessful upload - out of date HMIS CSV Export")
   } else if(!is_hashed()) {
     show_invalid_popup(
-      popupText = evachecks[ID == 126, "Guidance"],
       issueID = 126,
       title = "Unsuccessful Upload: You uploaded an unhashed data set"
     )

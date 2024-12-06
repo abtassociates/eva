@@ -172,14 +172,6 @@ function(input, output, session) {
             filter(Issue == "Impermissible characters"))) {
             
             impermissible_check_info <- evachecks %>% filter(ID == 134)
-            showModal(
-              modalDialog(
-                "Eva has detected impermissible characters in your HMIS CSV file. 
-                Please note that these characters may cause Eva to crash.",
-                title = "Warning: Your HMIS CSV Export has impermissible characters",
-                easyClose = TRUE
-              )
-            )
           }
 
           setProgress(detail = "Prepping initial data..", value = .4)
@@ -252,9 +244,9 @@ function(input, output, session) {
             if("Impermissible characters" %in% c(file_structure_analysis_main()$Issue)) {
               showModal(
                 modalDialog(
-                  paste0(msg, "\n", "Additionally, Eva has detected impermissible 
-                  characters in your upload. Please note that these characters 
-                         may cause Eva to crash."),
+                  HTML(paste0(msg, "<br><br>", "Additionally, Eva has detected 
+                  impermissible characters in your upload. Please note that these 
+                  characters may cause Eva to crash.")),
                   title = "Successful Upload: No High Priority File Structure Errors",
                   easyClose = TRUE,
                   footer = modalButton("OK")
@@ -326,8 +318,6 @@ function(input, output, session) {
           valid_file(0)
           showModal(
             modalDialog(
-              title = "Unsuccessful Upload: Your HMIS CSV Export is not
-              structurally valid",
               "Your uploaded HMIS CSV Export has at least one High Priority File 
               Structure Error. To be able to read an uploaded hashed HMIS CSV 
               Export, Eva requires the .zip file to have zero High Priority File 
@@ -337,6 +327,8 @@ function(input, output, session) {
               with your HMIS vendor to fix.",
               easyClose = TRUE,
               footer = modalButton("OK")
+              title = "Unsuccessful Upload: Your HMIS CSV Export is not
+              structurally valid",
             )
           )
           
@@ -433,10 +425,11 @@ function(input, output, session) {
   
   observeEvent(input$showDownloadImpermissibleButton, {
     showModal(modalDialog(
-      title = "Confirmation",
       "The Impermissible Character Detail export identifies the precise location 
       of all impermissible characters in your HMIS CSV export. 
-      Therefore, it can take up to several minutes to run. To proceed with this export, please click Continue.",
+      Therefore, it can take up to several minutes to run. To proceed with this 
+      export, please click Continue.",
+      title = "Confirmation",
       footer = tagList(
         modalButton("Cancel"),
         actionButton("confirmDownload", "Continue")
