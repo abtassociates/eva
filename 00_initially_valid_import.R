@@ -50,11 +50,10 @@ isFY2024Export <- function() {
 # extract file names from their uploaded zip
 if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   show_invalid_popup(
-    popupText = paste0(
-      "The uploaded file is a .", 
-      tolower(tools::file_ext(upload_filepath)),
-      ", not a .zip."
-    ),
+    popupText = glue::glue("You uploaded the wrong file type. The uploaded file is a 
+    {tolower(tools::file_ext(upload_filepath))}, not a .zip file. To use Eva, please upload a hashed HMIS 
+    CSV Export, which is a .zip file.  If you are not sure how to run a hashed 
+    HMIS CSV Export in your HMIS, please contact your HMIS vendor."),
     issueID = 127, 
     title = "Unsuccessful Upload: You did not upload a zip file"
   )
@@ -95,8 +94,14 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
     logMetadata("Unsuccessful upload - out of date HMIS CSV Export")
   } else if(length(missing_files)) {
     show_invalid_popup(
-      popupText = "The uploaded .zip file does not contain all of the required 
-      files to do an analysis of your HMIS data. Thus, Eva cannot read the .zip file.",
+      popupText = glue::glue("Your uploaded .zip file does not contain all of the required 
+      files to do an an analysis of your HMIS data. Your .zip file appears to be
+      missing the following files: {missing_files}. You either uploaded 
+      something other than an HMIS CSV Export, or your export does not contain
+      all the files outlined in the HMIS CSV Export specifications. To use Eva, 
+      please upload a hashed HMIS CSV Export that meets all of HUD's 
+      specifications. If you are not sure how to run a hashed HMIS CSV Export in
+      your HMIS, please contact your HMIS vendor."),
       issueID = 125,
       title = "Unsuccessful Upload: Missing files"
     )

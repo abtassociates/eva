@@ -242,21 +242,41 @@ function(input, output, session) {
           logToConsole("Upload processing complete")
           
           if(nrow(file_structure_analysis_main()) > 0) {
-            showModal(
-              modalDialog(
-                "The uploaded .zip file has file structure errors, but none are 
-                High Priority File Structure Errors, and thus Eva can read the 
-                .zip file.",
-                title = "Successful Upload: No High Priority File Structure Errors",
-                easyClose = TRUE,
-                footer = modalButton("OK")
+            msg <- "Congratulations! You have successfully uploaded a hashed HMIS 
+                  CSV Export to Eva! Your upload has file structure errors, but 
+                  none are High Priority. Thus, Eva can read your file and you can
+                  move forward with utilizing the rest of Eva. However, still 
+                  please share the identified file structure issues with your HMIS
+                  vendor to fix."
+            
+            if("Impermissible characters" %in% c(file_structure_analysis_main()$Issue)) {
+              showModal(
+                modalDialog(
+                  paste0(msg, "\n", "Additionally, Eva has detected impermissible 
+                  characters in your upload. Please note that these characters 
+                         may cause Eva to crash."),
+                  title = "Successful Upload: No High Priority File Structure Errors",
+                  easyClose = TRUE,
+                  footer = modalButton("OK")
+                )
               )
-            )
+            } else {
+              showModal(
+                modalDialog(
+                  msg,
+                  title = "Successful Upload: No High Priority File Structure Errors",
+                  easyClose = TRUE,
+                  footer = modalButton("OK")
+                )
+              )
+            }
           } else {
             showModal(
               modalDialog(
-                "The uploaded .zip file has no file structure errors that Eva 
-                checks for and thus Eva can read the .zip file.",
+                "Congratulations! You have successfully uploaded a hashed HMIS 
+                CSV Export to Eva! Your upload has none of the file structure 
+                errors Eva checks for. Thus, Eva can read your file, and you can 
+                move forward with utilizing the rest of Eva.",
                 title = "Successful Upload: No file structure errors",
                 easyClose = TRUE,
                 footer = modalButton("OK")
@@ -308,9 +328,13 @@ function(input, output, session) {
             modalDialog(
               title = "Unsuccessful Upload: Your HMIS CSV Export is not
               structurally valid",
-              "The uploaded .zip file, though it is not missing any files, has 
-              at least one High Priority File Structure Error that your HMIS 
-              vendor needs to resolve in order for Eva to read the .zip file.",
+              "Your uploaded HMIS CSV Export has at least one High Priority File 
+              Structure Error. To be able to read an uploaded hashed HMIS CSV 
+              Export, Eva requires the .zip file to have zero High Priority File 
+              Structure Errors. Thus, to use Eva, your upload must have zero High 
+              Priority File Structure Errors. Please share the file structure 
+              issues, prioritizing the High Priotity File Structure Errrors, 
+              with your HMIS vendor to fix.",
               easyClose = TRUE,
               footer = modalButton("OK")
             )
