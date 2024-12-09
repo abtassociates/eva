@@ -6,7 +6,7 @@ test_that(paste0("{shinytest2} recording: ", test_script_name), {
   print(paste0("Running ", test_script_name))
   
   app <- AppDriver$new(
-    variant = platform_variant(os_name = FALSE), 
+    variant = platform_variant(os_name = TRUE),
     name = test_script_name, 
     seed = 12345,
     width = 1920,
