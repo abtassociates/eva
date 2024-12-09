@@ -71,6 +71,7 @@ operating_end_missing <- Enrollment %>%
 
 # Missing CoC Information Missing address field(s), Missing Geocode,
 # Missing Geography Type, Invalid Zip Code if possible
+
 HousingTypeDF <- Project %>% 
   subset(select=c(ProjectID, HousingType))
 
@@ -88,7 +89,7 @@ missing_CoC_Info <- Project0() %>%
   )
 
 missing_CoC_Geography <- missing_CoC_Info %>%
-  filter(VictimServiceProvider!=1 | HousingType!=3) ### DOUBLE CHECK
+  filter(VictimServiceProvider!=1 & HousingType!=3) %>%  ### DOUBLE CHECK
   filter(is.na(Geocode) | is.na(GeographyType) |
            is.na(CoCCode)) %>%
   merge_check_info(checkIDs = 5) %>%
@@ -120,7 +121,7 @@ missing_CoC_Geography_VSP <- missing_CoC_Info %>%
   
 
 missing_CoC_Address <- missing_CoC_Info %>%
-  filter(VictimServiceProvider!=1 | HousingType!=3) ### DOUBLE CHECK
+  filter(VictimServiceProvider!=1 & HousingType!=3) %>% ### DOUBLE CHECK
   filter(!(is.na(Geocode) | is.na(GeographyType) |
            is.na(CoCCode))) %>%
   merge_check_info(checkIDs = 42) %>%
@@ -138,7 +139,7 @@ missing_CoC_Address <- missing_CoC_Info %>%
   select(all_of(PDDEcols))
   
 missing_CoC_Address_VSP <- missing_CoC_Info %>%
-  filter(VictimServiceProvider==1 | HousingType==3) ### DOUBLE CHECK
+  filter(VictimServiceProvider==1 | HousingType==3) %>% ### DOUBLE CHECK
   filter(!(is.na(Geocode))) %>%
   merge_check_info(checkIDs = 42) %>%
   mutate(
@@ -472,8 +473,9 @@ overlapping_hmis_participation <- HMISParticipation %>%
 # Bed Type incompatible with Housing Type -----------------------------------
 #If HousingType is 1 or 2 (site-based), then BedType should be 1 (facility based beds). If HousingType is 3 (tenant-based), then BedType should be 2 (voucher beds).
 
-ES_BedType_HousingType <- activeInventory %>%
+ES_BedType_HousingType <- Inventory %>%
   left_join(Project0(), by = "ProjectID") %>%
+  left_join(HousingTypeDF, by = "ProjectID") %>% 
   filter(ProjectType %in% c(0, 1) &
            ((HousingType %in% c(1, 2) & ESBedType!=1) | (HousingType==3 & ESBedType!=2)) 
   ) %>%
@@ -486,6 +488,7 @@ ES_BedType_HousingType <- activeInventory %>%
 
 # Project CoC Missing Bed Inventory -----------------------------------
 # Throw a warning if there is no inventory record for a ProjectID and COCCode combo in the ProjectCoC data
+
 ProjectCoC <- ProjectCoC %>% mutate(iy=1)
 
 Active_Inventory_per_COC <- activeInventory %>%
@@ -493,8 +496,8 @@ Active_Inventory_per_COC <- activeInventory %>%
   merge(ProjectCoC, by = c("ProjectID", "CoCCode"), all=TRUE) %>%
   mutate(mer = case_when(ix==1&iy==1~'both',
                          ix==1~'only_x',
-                         iy==1~'only_y')) %>% 
-  filter(mer=="only_y")
+                         iy==1~'only_y')) %>%
+  filter(mer=="only_y") %>% 
   merge_check_info(checkIDs = 136) %>% 
   mutate(Detail = 
            paste0("Residential projects must have a bed inventory for each CoC they serve.")
@@ -514,7 +517,7 @@ COC_Records_per_Inventory <- activeInventory %>%
   mutate(mer = case_when(ix==1&iy==1~'both',
                          ix==1~'only_x',
                          iy==1~'only_y')) %>% 
-  filter(mer=="only_x")
+  filter(mer=="only_x") %>% 
 merge_check_info(checkIDs = 137) %>%
   mutate(Detail = 
            paste0("Any CoC represented in a project's active bed inventory records must also be listed as a CoC associated with the Project.")
@@ -539,10 +542,11 @@ merge_check_info(checkIDs = 138) %>%
 # If VictimServiceProvider==1, then flag as high priority error if client data is present (i.e. any enrollments).
 
 vsp_clients <- Organization %>%
-  filter(VictimServiceProvider==1) %>% 
-  left_join(Project0, by = "OrganizationID") %>%
+  select(OrganizationID, VictimServiceProvider) %>% 
+  filter(VictimServiceProvider==1) %>%
+  left_join(Project0(), by = "OrganizationID") %>%
   left_join(Enrollment, by = "ProjectID") %>%
-merge_check_info(checkIDs = 139) %>%
+  merge_check_info(checkIDs = 139) %>%
   mutate(Detail = 
            paste0("Projects under Organizations marked as Victim Service Providers should not have client data in HMIS.")
   ) %>%
