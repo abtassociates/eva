@@ -207,9 +207,7 @@ get_clientcount_download_info <- function(file) {
     client_count_download_date_range = summarize_df(validationDateRange %>% nice_names())
   )
   exportTestValues(
-    client_count_download_detail = summarize_df(validationDetail %>% 
-      nice_names() %>% 
-      slice_sample(n = 300)) # take just 300 or we can get huge json files
+    client_count_download_detail = validationDetail %>% nice_names()
   )
   
   write_xlsx(exportDFList,
