@@ -145,7 +145,8 @@ output$sankey_ui_chart <- renderPlot({
   
   render_sankey_plot(plot_data)
 },
-alt = "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.")
+alt = "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",
+width = ifelse(isTRUE(getOption("shiny.testmode")), 1113, "auto"))
 
 sys_status_export_info <- function(spd) {
   tibble(

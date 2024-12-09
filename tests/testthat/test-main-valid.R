@@ -1,12 +1,12 @@
 test_script_name <- "test-main-valid"
-test_dataset_folder <- "tests/temp/"
+test_dataset_folder <- "tests/temp//"
 test_dataset <- "FY24-ICF-main-valid.zip"
 
-test_that(paste0("{shinytest2} recording: ",test_script_name), {
-  print(paste0("Running ",test_script_name))
+test_that(paste0("{shinytest2} recording: ", test_script_name), {
+  print(paste0("Running ", test_script_name))
   
   app <- AppDriver$new(
-    variant = platform_variant(os_name = FALSE), 
+    variant = platform_variant(os_name = TRUE),
     name = test_script_name, 
     seed = 12345,
     width = 1920,
@@ -21,9 +21,9 @@ test_that(paste0("{shinytest2} recording: ",test_script_name), {
   
   app$set_inputs(Go_to_upload = "click")
   app$wait_for_idle(timeout = 2e+05)
-  app$upload_file(imported = paste0(here(test_dataset_folder),test_dataset))
+  app$upload_file(imported = paste0(here(test_dataset_folder), test_dataset))
   
-  print(paste0("Just uploaded in ",test_script_name))
+  print(paste0("Just uploaded in ", test_script_name))
   app$wait_for_idle(timeout = 1e+06)
   app$click(selector="#shiny-modal")
   app$expect_values(name="just-uploaded")
