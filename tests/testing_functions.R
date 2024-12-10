@@ -14,6 +14,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
       seed = 12345,
       load_timeout = 5e+05)
     
+    app$set_window_size(width = 1920, height = 1080)
     app$set_inputs(Go_to_upload = "click")
     app$wait_for_idle(timeout = 2e+05)
     app$upload_file(imported = here(test_dataset))
