@@ -664,7 +664,8 @@ output$sys_comp_download_btn <- downloadHandler(
       col_names = TRUE
     )
     
-    exportTestValues(sys_comp_report = sys_comp_p())
+    exportTestValues(sys_comp_report_num_df = num_df)
+    exportTestValues(sys_comp_report_pct_df = pct_df)
   }
 )
 
@@ -709,16 +710,16 @@ output$sys_comp_summary_selections <- renderUI({
 
 output$sys_comp_summary_ui_chart <- renderPlot({
   sys_comp_p()
-}, height = function() { 
-  ifelse(!is.null(input$system_composition_selections), 700, 100) 
+}, height = function() {
+  ifelse(!is.null(input$system_composition_selections), 700, 100)
 }, width = function() {
-  if (length(input$system_composition_selections) == 1) {
+  if (length(input$system_composition_selections) == 1 |
+      isTRUE(getOption("shiny.testmode"))) {
     500
   } else {
     "auto"
   }
-},
-alt = "A crosstab data table of the demographic make-up of the homeless system.")
+}, alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
 
 output$sys_comp_download_btn_ppt <- downloadHandler(

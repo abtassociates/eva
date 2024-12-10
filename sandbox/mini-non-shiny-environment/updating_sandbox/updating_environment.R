@@ -35,14 +35,28 @@ files_to_copy <- list(
   "/02_export_dates.R",
   "/03_file_structure_analysis.R",
   "/04_initial_data_prep.R",
-  "/client_counts_functions.R"
+  "/client_counts_functions.R",
+  "/05_DataQuality_functions.R",
+  "/05_DataQuality.R",
+  "/06_PDDE_Checker.R",
+  "/07_System_overview.R",
+  "/09_system_status.R",
+  "/system_composition_server.R",
+  "/system_inflow_outflow_server.R",
+  "/system_status_server.R"
 )
 
 file.copy(from = paste0(here(), files_to_copy),
           to = paste0(sandbox_dir, files_to_copy),
           overwrite = TRUE)
 
-replace_code("/01_get_Export.R",  list("importFile" = "importFileSandbox"))
-replace_code("/02_export_dates.R",  list())
-replace_code("/03_file_structure_analysis.R",  list())
-replace_code("/04_initial_data_prep.R",  list())
+# intentional code adjustments for differences between Sandbox and Regular.
+for(i in files_to_copy) {
+  if(i == "/01_get_Export.R") {
+    # the sandbox/mini-non-shiny-environment/data folder already contains the csvs from the FY24 Hashed Current good
+    # so the import process doesn't require potentially including a zip file upload path
+    replace_code("/01_get_Export.R",  list("importFile(upload_filepath, " = "importFileSandbox("))
+  } else {
+    replace_code(i,  list())
+  }
+}

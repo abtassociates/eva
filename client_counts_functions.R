@@ -130,7 +130,7 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
     ) %>%
     distinct_at(vars(!!keepCols, Status, ProjectType, PersonalID)) %>%
     select(-PersonalID) %>%
-    mutate(n=1) %>%
+    mutate(n = 1) %>%
     complete(nesting(!!!syms(c(keepCols, "ProjectType"))),Status = necessaryCols, fill = list(n = 0)) %>%
     pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
     mutate(
@@ -168,7 +168,7 @@ get_clientcount_download_info <- function(file) {
         TRUE ~ `Exited project`
       )
     ) %>%
-    relocate(`Exited Project`, .after=`Currently Moved In`) %>%
+    relocate(`Exited Project`, .after = `Currently Moved In`) %>%
     select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
   
@@ -207,9 +207,7 @@ get_clientcount_download_info <- function(file) {
     client_count_download_date_range = summarize_df(validationDateRange %>% nice_names())
   )
   exportTestValues(
-    client_count_download_detail = summarize_df(validationDetail %>% 
-      nice_names() %>% 
-      sample_n(300)) # take just 300 or we can get huge json files
+    client_count_download_detail = validationDetail %>% nice_names()
   )
   
   write_xlsx(exportDFList,

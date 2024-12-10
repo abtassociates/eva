@@ -1,5 +1,5 @@
 .Rproj.user
-*.Rproj
+.Rproj
 .Rhistory
 .RData
 .Ruserdata
@@ -7,6 +7,7 @@ data
 rsconnect
 comparisons
 *.jpg
+.png
 .DS_Store
 data/
 images/

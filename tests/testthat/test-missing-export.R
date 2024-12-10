@@ -1,1 +1,1 @@
-initially_invalid_test_script("test-missing-export","FY24-ICF-missing-export.zip")
+initially_invalid_test_script("test-missing-export","tests/temp/FY24-ICF-missing-export.zip")

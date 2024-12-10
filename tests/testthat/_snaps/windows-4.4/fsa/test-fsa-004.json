@@ -1,0 +1,404 @@
+{
+  "input": {
+    "CELongStayers": 90,
+    "CEOutstandingReferrals": 14,
+    "DayShelterLongStayers": 90,
+    "ESNbNLongStayers": 90,
+    "Go_to_upload": 1,
+    "OUTLongStayers": 90,
+    "OtherLongStayers": 90,
+    "ServicesOnlyLongStayers": 90,
+    "currentProviderList": null,
+    "dateRangeCount": [
+      "2023-10-05",
+      "2023-10-05"
+    ],
+    "dimension": [
+      1920,
+      1080
+    ],
+    "fileStructureAnalysis_cell_clicked": {
+
+    },
+    "fileStructureAnalysis_cells_selected": [
+
+    ],
+    "fileStructureAnalysis_columns_selected": null,
+    "fileStructureAnalysis_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "fileStructureAnalysis_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "fileStructureAnalysis_rows_selected": null,
+    "fileStructureAnalysis_search": "",
+    "fileStructureAnalysis_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
+    "imported": {
+      "name": [
+        "FY24-ICF-fsa-test.zip"
+      ],
+      "size": [
+        8090
+      ],
+      "type": [
+        "application/x-zip-compressed"
+      ],
+      "datapath": [
+        "0.zip"
+      ]
+    },
+    "isdemo": false,
+    "methodology_type": "1",
+    "orgList": null,
+    "sidebarCollapsed": false,
+    "sidebarItemExpanded": "AssessDataQuality",
+    "sidebarmenuid": "tabDQSystem",
+    "sys_comp_subtabs": "Chart",
+    "sys_inflow_outflow_subtabs": "Summary Chart",
+    "sys_status_subtabs": "Chart",
+    "syso_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syso_gender": "All",
+    "syso_hh_type": "All",
+    "syso_level_of_detail": "All",
+    "syso_project_type": "All",
+    "syso_race_ethnicity": "All",
+    "syso_spec_pops": "None",
+    "syso_tabbox": "System Flow",
+    "system_composition_selections": [
+      "Age",
+      "All Races/Ethnicities"
+    ]
+  },
+  "output": {
+    "clientCountData": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "clientCountSummary": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "downloadClientCountsReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "downloadFileStructureAnalysisBtn": {
+      "html": "<a id=\"downloadFileStructureAnalysis\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Structure Analysis Detail\n<\/a>",
+      "deps": [
+        {
+          "name": "font-awesome",
+          "version": "6.4.2",
+          "src": {
+            "href": "font-awesome-6.4.2"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": [
+            "css/all.min.css",
+            "css/v4-shims.min.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "downloadImpermissibleCharacterDetailBtn": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "downloadPDDEReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "downloadSystemDQReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "fileInfo": null,
+    "fileStructureAnalysis": {
+      "x": {
+        "filter": "none",
+        "vertical": false,
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "options": {
+          "dom": "t",
+          "language": {
+            "zeroRecords": "No file structure analysis issues! \n                      Visit the other tabs to view the rest of Eva's output"
+          },
+          "columnDefs": [
+            {
+              "className": "dt-right",
+              "targets": 2
+            },
+            {
+              "name": "Type",
+              "targets": 0
+            },
+            {
+              "name": "Issue",
+              "targets": 1
+            },
+            {
+              "name": "Count",
+              "targets": 2
+            }
+          ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
+          "ajax": {
+            "type": "POST",
+            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
+          },
+          "serverSide": true,
+          "processing": true
+        },
+        "selection": {
+          "mode": "multiple",
+          "selected": null,
+          "target": "row",
+          "selectable": null
+        }
+      },
+      "evals": [
+        "options.ajax.data"
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "jquery",
+          "version": "3.6.0",
+          "src": {
+            "href": "jquery-3.6.0"
+          },
+          "meta": null,
+          "script": "jquery-3.6.0.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "dt-core",
+          "version": "1.13.6",
+          "src": {
+            "href": "dt-core-1.13.6"
+          },
+          "meta": null,
+          "script": "js/jquery.dataTables.min.js",
+          "stylesheet": [
+            "css/jquery.dataTables.min.css",
+            "css/jquery.dataTables.extra.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.2.1",
+          "src": {
+            "href": "crosstalk-1.2.1"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.min.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "headerClientCounts": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "headerPDDE": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "headerSystemDQ": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "headerUpload": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "pdde_guidance_summary": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "pdde_summary_table": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "systemDQErrorsByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "systemDQHighPriorityErrorsByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "systemDQWarningsByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    }
+  },
+  "export": {
+    "file_structure_analysis_main": {
+      "Issue": [
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "PersonalID missing from Client.csv",
+        "ProjectID missing from Project.csv",
+        "Incorrect Date Format",
+        "Incorrect Date Format",
+        "Incorrect Columns",
+        "Incorrect Columns"
+      ],
+      "Type": [
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "Error",
+        "Error"
+      ],
+      "Guidance": [
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Per the HMIS CSV Format Specifications, all PersonalIDs in the Enrollment file should have a record in the Client file.",
+        "Per the HMIS CSV Format Specifications, all ProjectIDs in the Enrollment file should have a record in the Project file.",
+        "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export.",
+        "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present."
+      ],
+      "Detail": [
+        "In the Client file, the BlackAfAmerican column is missing",
+        "In the Client file, the DateCreated column is missing",
+        "In the Client file, the Transgender column is missing",
+        "PersonalID 5966 is in the Enrollment file but not in the Client file.",
+        "ProjectID 1182 is in the Enrollment file but not in the Project file.",
+        "Please check that the DOB column in the Client file has the correct date format.",
+        "Please check that the DischargeStatus column in the Client file has the correct date format.",
+        "In the Client file, ExtraCol is an extra column",
+        "In the Client file, Transgenderr is an extra column"
+      ]
+    }
+  }
+}

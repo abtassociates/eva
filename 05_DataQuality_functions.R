@@ -385,7 +385,7 @@ renderDQPlot <- function(level, issueType, group, color) {
 
   # dynamically refer to the UI element ID
   outputId <- paste0(
-    if_else(level == 'sys','system','org'),
+    if_else(level == 'sys', 'system', 'org'),
     "DQ",
     if_else(issueType == 'High Priority', 'HighPriorityErrors', issueType),
     "By",
@@ -432,7 +432,8 @@ renderDQPlot <- function(level, issueType, group, color) {
             plot.background = element_blank(),
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank()) +
-      geom_text(aes(label = countVar), hjust = -0.5, color = "black", size=sys_chart_text_font)
+      geom_text(aes(label = countVar), hjust = -0.5, color = "black",
+                size = sys_chart_text_font)
   },
   ,
   alt = case_when(outputId == "systemDQHighPriorityErrorsByIssue" ~ "A bar chart of the top High Priority Errors in the system.",
@@ -453,12 +454,18 @@ renderDQPlot <- function(level, issueType, group, color) {
   plot_height = if_else(nrow(plot_data) == 0, 50, 400)
   
   # finally, render the plot
-  return(plotOutput(outputId, height = plot_height))
+  return(plotOutput(outputId,
+                    height = plot_height,
+                    width = ifelse(isTRUE(getOption("shiny.testmode")),
+                                    "1640",
+                                    "100%")))
 }
 
 # list of data frames to include in DQ Org Report
 dqDownloadInfo <- reactive({
   req(valid_file() == 1)
+  
+  exportTestValues(dq_main_reactive =  dq_main_reactive() %>% nice_names())
   
   # org-level data prep (filtering to selected org)
   orgDQData <- dq_main_reactive() %>%

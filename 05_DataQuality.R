@@ -1323,7 +1323,7 @@ overlap_dt <- overlap_dt[, c("Issue", "PreviousIssue") := .(
 )]
 
 # Select relevant columns
-overlap_dt <- overlap_dt[, .(
+overlap_dt[, .(
 # select(
   EnrollmentID,
   PreviousEnrollmentID,
