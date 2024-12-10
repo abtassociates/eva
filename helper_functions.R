@@ -174,7 +174,6 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     #   na.strings="NA"
     # )
 
-  
   if(csvFile != "Export"){
     data <- data %>%
       filter(is.na(DateDeleted))
@@ -470,4 +469,13 @@ min_cols_selected_except <- function(df, list, exception, num_cols_selected) {
 
 summarize_df <- function(df) {
   lapply(df, function(col) {summary(col)})
+}
+
+
+replace_char_at <- function(string, position, replacement) {
+  paste0(
+    substr(string, 1, position - 1),
+    replacement,
+    substr(string, position + 1, nchar(string))
+  )
 }
