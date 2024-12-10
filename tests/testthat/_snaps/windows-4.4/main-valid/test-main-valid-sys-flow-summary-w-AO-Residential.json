@@ -38,7 +38,7 @@
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: 317b435799465659f97d6f5b2efb0690]",
+      "src": "[image data hash: 1e73532b8584ed671d39ed46713916b9]",
       "width": 1113,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n              the report period. The summary view of this chart includes four components: \n              Active at Start, Inflow, Outflow, and Active at End.",
@@ -71,16 +71,16 @@
               "fill": "PlotFillGroups"
             },
             "range": {
-              "left": 14.4,
-              "right": 1098.6,
-              "bottom": 393.2107086614173,
-              "top": 127.4794520547945
+              "left": 18,
+              "right": 1373,
+              "bottom": 492.0133858267716,
+              "top": 158.8493150684932
             }
           }
         ],
         "dims": {
-          "width": 1113,
-          "height": 500
+          "width": 1391.25,
+          "height": 625
         }
       }
     }

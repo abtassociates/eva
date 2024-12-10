@@ -609,7 +609,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: ba0db0ef1496fc4ff07b883234db712a]",
+      "src": "[image data hash: 0d75f637d265d949946d082f5fc54c9a]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
@@ -654,21 +654,21 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 250.6350599315072,
-              "right": 1634.520547945205,
-              "bottom": 377.7808219178082,
-              "top": 5.479452054794522
+              "left": 312.6727311643835,
+              "right": 2043.150684931507,
+              "bottom": 472.7260273972602,
+              "top": 6.849315068493152
             }
           }
         ],
         "dims": {
-          "width": 1640,
-          "height": 400
+          "width": 2050,
+          "height": 500
         }
       }
     },
     "orgDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: c3976eb7300480a3dc8fef447697d549]",
+      "src": "[image data hash: c71f7189fd2fc7b8e3b067886d469ba4]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the organization.",
@@ -706,21 +706,21 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 232.3069349315068,
-              "right": 1634.520547945206,
-              "bottom": 377.7808219178082,
-              "top": 5.479452054794522
+              "left": 289.7508561643835,
+              "right": 2043.150684931507,
+              "bottom": 472.7260273972602,
+              "top": 6.849315068493152
             }
           }
         ],
         "dims": {
-          "width": 1640,
-          "height": 400
+          "width": 2050,
+          "height": 500
         }
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 22d627768675ac88cbca4d2f516385a0]",
+      "src": "[image data hash: 1d997550b5e099b265d15de17de59a0d]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -765,16 +765,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 257.2913099315068,
-              "right": 1634.520547945205,
-              "bottom": 377.7808219178082,
-              "top": 5.479452054794522
+              "left": 320.9852311643837,
+              "right": 2043.150684931507,
+              "bottom": 472.7260273972602,
+              "top": 6.849315068493152
             }
           }
         ],
         "dims": {
-          "width": 1640,
-          "height": 400
+          "width": 2050,
+          "height": 500
         }
       }
     },
