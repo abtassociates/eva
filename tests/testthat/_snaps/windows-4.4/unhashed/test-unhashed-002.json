@@ -14,24 +14,15 @@
       "2023-10-05"
     ],
     "dimension": [
-<<<<<<< HEAD
       992,
       1323
-=======
-      1038,
-      654
->>>>>>> 8fced0a500e9f2b2f15920f977f649e1bdedcafb
     ],
     "imported": {
       "name": [
         "FY24-ICF-unhashed.zip"
       ],
       "size": [
-<<<<<<< HEAD
         8067
-=======
-        7745
->>>>>>> 8fced0a500e9f2b2f15920f977f649e1bdedcafb
       ],
       "type": [
         "application/x-zip-compressed"
