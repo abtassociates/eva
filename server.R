@@ -326,9 +326,9 @@ function(input, output, session) {
               issues, prioritizing the High Priotity File Structure Errrors, 
               with your HMIS vendor to fix.",
               easyClose = TRUE,
-              footer = modalButton("OK")
               title = "Unsuccessful Upload: Your HMIS CSV Export is not
               structurally valid",
+              footer = modalButton("OK")
             )
           )
           
