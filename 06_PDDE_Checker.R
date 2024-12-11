@@ -89,7 +89,7 @@ missing_CoC_Info <- Project0() %>%
   )
 
 missing_CoC_Geography <- missing_CoC_Info %>%
-  filter(VictimServiceProvider!=1 & HousingType!=3) %>%  ### DOUBLE CHECK
+  filter(VictimServiceProvider!=1 & HousingType!=3) %>%
   filter(is.na(Geocode) | is.na(GeographyType) |
            is.na(CoCCode)) %>%
   merge_check_info(checkIDs = 5) %>%
@@ -107,8 +107,8 @@ missing_CoC_Geography <- missing_CoC_Info %>%
   select(all_of(PDDEcols))
 
 missing_CoC_Geography_VSP <- missing_CoC_Info %>%
-  filter(VictimServiceProvider==1 | HousingType==3) %>%  ### DOUBLE CHECK
-  filter(is.na(Geocode)) %>% ### DOUBLE CHECK
+  filter(VictimServiceProvider==1 | HousingType==3) %>%
+  filter(is.na(Geocode)) %>%
   merge_check_info(checkIDs = 5) %>%
   mutate(
     Detail = case_when(
@@ -121,7 +121,7 @@ missing_CoC_Geography_VSP <- missing_CoC_Info %>%
   
 
 missing_CoC_Address <- missing_CoC_Info %>%
-  filter(VictimServiceProvider!=1 & HousingType!=3) %>% ### DOUBLE CHECK
+  filter(VictimServiceProvider!=1 & HousingType!=3) %>%
   filter(!(is.na(Geocode) | is.na(GeographyType) |
            is.na(CoCCode))) %>%
   merge_check_info(checkIDs = 42) %>%
@@ -139,7 +139,7 @@ missing_CoC_Address <- missing_CoC_Info %>%
   select(all_of(PDDEcols))
   
 missing_CoC_Address_VSP <- missing_CoC_Info %>%
-  filter(VictimServiceProvider==1 | HousingType==3) %>% ### DOUBLE CHECK
+  filter(VictimServiceProvider==1 | HousingType==3) %>%
   filter(!(is.na(Geocode))) %>%
   merge_check_info(checkIDs = 42) %>%
   mutate(
@@ -560,9 +560,9 @@ pdde_main(rbind(
   operating_end_missing,
   rrh_no_subtype,
   missing_CoC_Geography,
-  missing_CoC_Geography_VSP, #new
+  missing_CoC_Geography_VSP,
   missing_CoC_Address,
-  missing_CoC_Address_VSP, #new
+  missing_CoC_Address_VSP,
   missing_inventory_record,
   operating_end_precedes_inventory_end,
   overlapping_ce_participation,
