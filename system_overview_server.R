@@ -234,10 +234,17 @@ syso_gender_cats <- function(methodology = 1){
 }
 
 # PowerPoint Export -------------------------------------------------------
-sys_overview_ppt_export <- function(file, title_slide_title, summary_items, plot_slide_title, plot1, plot2 = NULL, summary_font_size) {
+sys_overview_ppt_export <- function(file,
+                                    title_slide_title,
+                                    summary_items,
+                                    plot_slide_title,
+                                    plot1,
+                                    plot2 = NULL,
+                                    summary_font_size) {
   
   logMetadata(paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
-                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", ""))) #NEED TO UPDATE - if want to get more granular, need to detect with title slide
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+  #NEED TO UPDATE - if want to get more granular, need to detect with title slide
   
   report_period <- paste0("Report Period: ", 
                           format(ReportStart(), "%m/%d/%Y"),

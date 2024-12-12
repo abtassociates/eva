@@ -229,6 +229,8 @@ function(input, output, session) {
             )
             sankey_plot_data(sankey_plot_df())
             
+            exportTestValues(sys_comp_df = sys_df_people_universe_filtered_r())
+            
             # hide download buttons if < 11 records
             # All Served is handled in system_composition_server.R
             # for that chart, we also hide if all *cells* are < 11
@@ -362,7 +364,7 @@ function(input, output, session) {
       logMetadata(paste0("Downloaded File Structure Analysis Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(file_structure_analysis_main = file_structure_analysis_main())
+      exportTestValues(file_structure_analysis_main = file_structure_analysis_main() %>% nice_names())
     }
   )
   
@@ -392,7 +394,7 @@ function(input, output, session) {
       logMetadata(paste0("Impermissible Character Locations Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(non_ascii_files_detail = summarize_df(non_ascii_files_detail))
+      exportTestValues(non_ascii_files_detail = non_ascii_files_detail %>% nice_names())
     }
   )
   
@@ -633,7 +635,7 @@ function(input, output, session) {
   output$clientCountSummary <- renderDT({
     req(valid_file() == 1)
     
-    exportTestValues(clientCountSummary = summarize_df(client_count_summary_df()))
+    exportTestValues(clientCountSummary = client_count_summary_df())
     
     datatable(
       client_count_summary_df() %>%
@@ -694,8 +696,8 @@ function(input, output, session) {
       logMetadata(paste0("Downloaded PDDE Report",
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(pdde_download = list(
-        "Summary" = summarize_df(summary_df), "Data" = summarize_df(pdde_main())))
+      exportTestValues(pdde_download_summary = summary_df)
+      exportTestValues(pdde_main = pdde_main() %>% nice_names())
     }
   )
   
@@ -795,39 +797,6 @@ function(input, output, session) {
       escape = FALSE,
       filter = 'top',
       options = list(dom = 'ltpi')
-    )
-  })
-  
-  dqDownloadInfo <- reactive({
-    req(valid_file() == 1)
-    
-    # org-level data prep (filtering to selected org)
-    orgDQData <- dq_main_reactive() %>%
-      filter(OrganizationName %in% c(input$orgList))
-    
-    orgDQoverlaps <- overlaps() %>%
-      filter(OrganizationName %in% c(input$orgList) | 
-               PreviousOrganizationName %in% c(input$orgList))
-    #browser()
-    orgDQReferrals <- 
-      calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
-      filter(OrganizationName %in% c(input$orgList))
-    
-    # return a list for reference in downloadHandler
-    list(
-      orgDQData = 
-        getDQReportDataList(orgDQData,
-                            orgDQoverlaps,
-                            "ProjectName",
-                            orgDQReferrals
-        ),
-      
-      systemDQData = 
-        getDQReportDataList(dq_main_reactive(),
-                            overlaps(),
-                            "OrganizationName",
-                            calculate_outstanding_referrals(input$CEOutstandingReferrals)
-        )
     )
   })
   
