@@ -42,7 +42,7 @@
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: 1a9b7f5329b1f48cb0f6726c3020b9b9]",
+      "src": "[image data hash: f452a249564df4474c3ccc35fb060567]",
       "width": 500,
       "height": 700,
       "alt": "A crosstab data table of the demographic make-up of the homeless system.",
@@ -100,16 +100,16 @@
               "y": ".data[[\"All Races/Ethnicities\"]]"
             },
             "range": {
-              "left": 250.388698630137,
-              "right": 618.1506849315068,
-              "bottom": 851.3013698630137,
-              "top": 111.2630136986302
+              "left": 200.2547089041097,
+              "right": 494.5205479452055,
+              "bottom": 681.0382539721161,
+              "top": 90.41041095890412
             }
           }
         ],
         "dims": {
-          "width": 625,
-          "height": 875
+          "width": 500,
+          "height": 700
         }
       }
     }
