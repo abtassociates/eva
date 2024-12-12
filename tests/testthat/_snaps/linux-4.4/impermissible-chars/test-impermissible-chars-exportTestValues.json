@@ -1,27 +1,15 @@
 {
   "export": {
     "clientCountSummary": {
-      "Status": {
-        "Length": "0",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Clients": {
-        "Min.": null,
-        "1st Qu.": null,
-        "Median": null,
-        "Mean": null,
-        "3rd Qu.": null,
-        "Max.": null
-      },
-      "Households": {
-        "Min.": null,
-        "1st Qu.": null,
-        "Median": null,
-        "Mean": null,
-        "3rd Qu.": null,
-        "Max.": null
-      }
+      "Status": [
+
+      ],
+      "Clients": [
+
+      ],
+      "Households": [
+
+      ]
     },
     "client_count_download_current": {
       "Organization Name": {
@@ -127,109 +115,6 @@
         "Mean": 20.6,
         "3rd Qu.": 7,
         "Max.": 257
-      }
-    },
-    "client_count_download_detail": {
-      "Organization Name": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Project ID": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Project Name": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Personal ID": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Enrollment ID": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Relationship to HoH": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Entry Date": {
-        "Min.": "2007-05-05",
-        "1st Qu.": "2020-08-20",
-        "Median": "2021-04-16",
-        "Mean": "2021-03-24",
-        "3rd Qu.": "2021-12-30",
-        "Max.": "2022-09-21"
-      },
-      "Move in Date ": {
-        "Min.": "2007-05-05",
-        "1st Qu.": "2020-02-05",
-        "Median": "2020-12-24",
-        "Mean": "2020-08-09",
-        "3rd Qu.": "2021-09-14",
-        "Max.": "2022-05-10"
-      },
-      "Exit Date": {
-        "Min.": "2019-10-09",
-        "1st Qu.": "2020-10-30",
-        "Median": "2021-05-19",
-        "Mean": "2021-05-25",
-        "3rd Qu.": "2022-01-24",
-        "Max.": "2022-09-07"
-      },
-      "Status": {
-        "Length": "300",
-        "Class": "character",
-        "Mode": "character"
-      }
-    },
-    "dq_org_guidance_summary": {
-      "Type": {
-        "High Priority": 1,
-        "Error": 6,
-        "Warning": 14
-      },
-      "Issue": {
-        "Length": "21",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Guidance": {
-        "Length": "21",
-        "Class": "character",
-        "Mode": "character"
-      }
-    },
-    "dq_organization_summary_table": {
-      "Project Name": {
-        "Length": "31",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Type": {
-        "High Priority": 1,
-        "Error": 6,
-        "Warning": 24
-      },
-      "Issue": {
-        "Length": "31",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Clients": {
-        "Min.": 1,
-        "1st Qu.": 1,
-        "Median": 2,
-        "Mean": 11.70967741935484,
-        "3rd Qu.": 6.5,
-        "Max.": 160
       }
     },
     "file_structure_analysis_main": {
@@ -673,64 +558,19 @@
         ]
       ]
     },
-    "pdde_download": {
-      "Summary": {
-        "Issue": {
-          "Length": "2",
-          "Class": "character",
-          "Mode": "character"
-        },
-        "Type": {
-          "High Priority": 1,
-          "Error": 1,
-          "Warning": 0
-        },
-        "Count": {
-          "Min.": 1,
-          "1st Qu.": 1,
-          "Median": 1,
-          "Mean": 1,
-          "3rd Qu.": 1,
-          "Max.": 1
-        }
-      },
-      "Data": {
-        "OrganizationName": {
-          "Length": "2",
-          "Class": "character",
-          "Mode": "character"
-        },
-        "ProjectID": {
-          "Length": "2",
-          "Class": "character",
-          "Mode": "character"
-        },
-        "ProjectName": {
-          "Length": "2",
-          "Class": "character",
-          "Mode": "character"
-        },
-        "Issue": {
-          "Length": "2",
-          "Class": "character",
-          "Mode": "character"
-        },
-        "Type": {
-          "High Priority": 1,
-          "Error": 1,
-          "Warning": 0
-        },
-        "Guidance": {
-          "Length": "2",
-          "Class": "character",
-          "Mode": "character"
-        },
-        "Detail": {
-          "Length": "2",
-          "Class": "character",
-          "Mode": "character"
-        }
-      }
+    "pdde_download_summary": {
+      "Issue": [
+        "Missing Geography Information",
+        "Missing RRH SubType"
+      ],
+      "Type": [
+        "High Priority",
+        "Error"
+      ],
+      "Count": [
+        1,
+        1
+      ]
     },
     "pdde_guidance_summary": {
       "Type": {
@@ -768,6 +608,276 @@
         "3rd Qu.": 1,
         "Max.": 1
       }
+    },
+    "sys_comp_report_num_df": {
+      "All Races/Ethnicities": [
+        "American Indian, Alaska Native, or Indigenous alone",
+        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+        "Asian or Asian American alone",
+        "Asian or Asian American & Hispanic/Latina/e/o",
+        "Black, African American, or African alone",
+        "Black, African American, or African & Hispanic/Latina/e/o",
+        "Hispanic/Latina/e/o alone",
+        "Middle Eastern or North African alone",
+        "Middle Eastern or North African & Hispanic/Latina/e/o",
+        "Multi-Racial (not Hispanic/Latina/e/o)",
+        "Multi-Racial & Hispanic/Latina/e/o",
+        "Native Hawaiian or Pacific Islander alone",
+        "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+        "White alone",
+        "White & Hispanic/Latina/e/o",
+        "Unknown",
+        "Total"
+      ],
+      "Gender expansive, not transgender": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      "Man (Boy, if child) alone": [
+        4,
+        0,
+        1,
+        1,
+        21,
+        1,
+        1,
+        0,
+        0,
+        2,
+        2,
+        1,
+        0,
+        163,
+        12,
+        0,
+        209
+      ],
+      "Transgender, alone or in combination": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "Woman (Girl, if child) alone": [
+        1,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        38,
+        3,
+        0,
+        46
+      ],
+      "Unknown": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "Total": [
+        5,
+        0,
+        1,
+        1,
+        24,
+        1,
+        1,
+        0,
+        0,
+        3,
+        2,
+        1,
+        0,
+        202,
+        15,
+        0,
+        256
+      ]
+    },
+    "sys_comp_report_pct_df": {
+      "All Races/Ethnicities": [
+        "American Indian, Alaska Native, or Indigenous alone",
+        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+        "Asian or Asian American alone",
+        "Asian or Asian American & Hispanic/Latina/e/o",
+        "Black, African American, or African alone",
+        "Black, African American, or African & Hispanic/Latina/e/o",
+        "Hispanic/Latina/e/o alone",
+        "Middle Eastern or North African alone",
+        "Middle Eastern or North African & Hispanic/Latina/e/o",
+        "Multi-Racial (not Hispanic/Latina/e/o)",
+        "Multi-Racial & Hispanic/Latina/e/o",
+        "Native Hawaiian or Pacific Islander alone",
+        "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+        "White alone",
+        "White & Hispanic/Latina/e/o",
+        "Unknown",
+        "Total"
+      ],
+      "Gender expansive, not transgender": [
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "100%",
+        "0%",
+        "0%",
+        "0.4%"
+      ],
+      "Man (Boy, if child) alone": [
+        "1.9%",
+        "0%",
+        "0.5%",
+        "0.5%",
+        "10%",
+        "0.5%",
+        "0.5%",
+        "0%",
+        "0%",
+        "1%",
+        "1%",
+        "0.5%",
+        "0%",
+        "78%",
+        "5.7%",
+        "0%",
+        "81.6%"
+      ],
+      "Transgender, alone or in combination": [
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%"
+      ],
+      "Woman (Girl, if child) alone": [
+        "2.2%",
+        "0%",
+        "0%",
+        "0%",
+        "6.5%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "2.2%",
+        "0%",
+        "0%",
+        "0%",
+        "82.6%",
+        "6.5%",
+        "0%",
+        "18%"
+      ],
+      "Unknown": [
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%",
+        "0%"
+      ],
+      "Total": [
+        "2%",
+        "0%",
+        "0.4%",
+        "0.4%",
+        "9.4%",
+        "0.4%",
+        "0.4%",
+        "0%",
+        "0%",
+        "1.2%",
+        "0.8%",
+        "0.4%",
+        "0%",
+        "78.9%",
+        "5.9%",
+        "0%",
+        "100%"
+      ]
     },
     "sys_inflow_outflow_report": {
       "PersonalID": {
