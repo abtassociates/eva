@@ -419,7 +419,7 @@ function(input, output, session) {
       logMetadata(paste0("Impermissible Character Locations Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(non_utf8_files_detail = summarize_df(non_utf8_files_detail))
+      exportTestValues(non_utf8_files_detail = non_utf8_files_detail)
     }
   )
   
@@ -640,6 +640,10 @@ function(input, output, session) {
   output$clientCountData <- renderDT({
     req(valid_file() == 1)
     req(nrow(validation()) > 0)
+    
+    # getting an error sometimes? Warning: Error in filter: â„¹ In argument: `ProjectName == input$currentProviderList`.
+    # Caused by error:
+    #   ! `..1` must be of size 292 or 1, not size 0.
     
     x <- client_count_data_df() %>%
       filter(ProjectName == input$currentProviderList) %>%
