@@ -412,9 +412,7 @@ function(input, output, session) {
       non_utf8_files_detail <- non_utf8_files_detail()
       
       write_xlsx(
-        non_utf8_files_detail %>%
-          arrange(Type, Issue) %>%
-          nice_names(),
+        non_utf8_files_detail %>% nice_names(),
         path = file
       )
       
