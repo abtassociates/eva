@@ -144,26 +144,27 @@
       ]
     },
     "non_utf8_files_detail": {
-      "Issue": {
-        "Length": "3",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Type": {
-        "Length": "3",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Guidance": {
-        "Length": "3",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "Detail": {
-        "Length": "3",
-        "Class": "character",
-        "Mode": "character"
-      }
+      "File": [
+        "Organization",
+        "Project",
+        "Project",
+        "Project",
+        "Project"
+      ],
+      "Location": [
+        "column OrganizationName, row 2",
+        "column ProjectName, row 3",
+        "column ProjectName, row 4",
+        "column ProjectName, row 8",
+        "column ProjectName, row 10"
+      ],
+      "Text": [
+        "Organization [B",
+        "Organization ‘B - TH - 2",
+        "örganization A - PSH",
+        "O®ganization B - HP",
+        "Organization B - “PSH - 2"
+      ]
     },
     "orgDQ_download": {
       "Export Detail": [

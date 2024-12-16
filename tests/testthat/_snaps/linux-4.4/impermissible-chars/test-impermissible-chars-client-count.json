@@ -151,7 +151,7 @@
         }
       ]
     },
-    "currentProviderList": "Organization ‘B - TH - 2",
+    "currentProviderList": "O®ganization B - HP",
     "dateRangeCount": [
       "2019-10-01",
       "2022-09-30"
@@ -423,7 +423,7 @@
       ]
     },
     "headerClientCounts_supp": {
-      "html": "<h4>\n  |\n  Organization ‘B - TH - 2\n<\/h4>",
+      "html": "<h4>\n  |\n  O®ganization B - HP\n<\/h4>",
       "deps": [
 
       ]
