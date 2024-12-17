@@ -60,8 +60,7 @@ enrollment_prep <- EnrollmentAdjustAge %>%
          DateToStreetESSH,
          TimesHomelessPastThreeYears,
          MonthsHomelessPastThreeYears,
-         DisablingCondition,
-         Destination
+         DisablingCondition
          ) %>%
   left_join(Project %>% 
               select(ProjectID,
