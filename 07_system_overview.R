@@ -917,6 +917,7 @@ enrollment_categories_reactive <- reactive({
       MoveInDateAdjust,
       ExitAdjust,
       Destination,
+      LivingSituation,
       CorrectedHoH,
       MostRecentAgeAtEntry,
       HouseholdType,
