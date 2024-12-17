@@ -168,6 +168,17 @@ toggle_sys_components <- function(cond, init=FALSE) {
       )
     }
   }
+  
+  shinyjs::toggle('client_level_download_btn', condition = cond)
+  if(init) {
+    shinyjs::runjs("
+      document.getElementById('syso_tabbox')
+        .insertAdjacentHTML('beforeEnd', '<li class=\"client_level_download_tab\" id=\"client_level_download_tab\"></li>');
+      $('#client_level_download_btn').appendTo('#client_level_download_tab')
+        .toggle('{cond}' == 'TRUE');
+    ")
+  }
+  
 }
 toggle_sys_components(FALSE, init=TRUE) # initially hide them
 
@@ -373,3 +384,147 @@ get_adj_font_size <- function(font_size, isExport) {
 observeEvent(input$dimension,{
   windowSize(input$dimension)
 })
+
+output$client_level_download_btn <- downloadHandler(
+  filename = date_stamped_filename("Client Level Export - "),
+  content = function(file) {
+    detail_client_fields <- c(
+      "PersonalID",
+      "AgeCategory",
+      "VeteranStatus",
+      "DomesticViolenceCategory",
+      "TransgenderExclusive",
+      "GenderExpansiveExclusive",
+      "ManExclusive",
+      "WomanExclusive",
+      "GenderUnknown",
+      "TransgenderInclusive",
+      "WomanInclusive",
+      "ManInclusive",
+      "CisInclusive",
+      "NonBinaryInclusive",
+      "AmIndAKNativeAloneExclusive1",
+      "AmIndAKNativeLatineExclusive1",
+      "AsianAloneExclusive1",
+      "AsianLatineExclusive1",
+      "BlackAfAmericanAloneExclusive1",
+      "BlackAfAmericanLatineExclusive1",
+      "LatineAloneExclusive1",
+      "MENAAloneExclusive1",
+      "MENALatineExclusive1",
+      "NativeHIPacificAloneExclusive1",
+      "NativeHIPacificLatineExclusive1",
+      "WhiteAloneExclusive1",
+      "WhiteLatineExclusive1",
+      "MultipleNotLatineExclusive1",
+      "MultipleLatineExclusive1",
+      "RaceEthnicityUnknown",
+      "BILPOCExclusive2",
+      "WhiteExclusive2",
+      "AmIndAKNativeInclusive1",
+      "AsianInclusive1",
+      "BlackAfAmericanInclusive1",
+      "LatineInclusive1",
+      "MENAInclusive1",
+      "NativeHIPacificInclusive1",
+      "WhiteInclusive1",
+      "BlackAfAmericanLatineInclusive2",
+      "LatineInclusive2",
+      "LatineAloneInclusive2"
+    )
+    
+    report_status_fields <- c(
+      "Earliest-ReportStatus" = "InflowTypeSummary",
+      "Earliest-ReportStatusDetail" = "InflowTypeDetail",
+      "Latest-ReportStatus" = "OutflowTypeSummary",
+      "Latest-ReportStatusDetail" = "OutflowTypeDetail"
+    )
+    
+    enrollment_fields <- c(
+      "PersonalID",
+      "eecr",
+      "lecr",
+      "EnrollmentID",
+      "HouseholdType",
+      "CorrectedHoH",
+      "ProjectType",
+      "EntryDate",
+      "MoveInDateAdjust",
+      "ExitAdjust",
+      "Destination",
+      "LivingSituation"
+    )
+    
+    enrollment_info <- sys_universe_ppl_flags()[, ..enrollment_fields][
+      , `:=`(
+        Destination = living_situation(Destination),
+        LivingSituation = living_situation(LivingSituation)
+      )
+    ]
+    
+    earliest_report_info <- enrollment_info[eecr == 1][, eecr := NULL]
+    setnames(earliest_report_info, 
+             old = setdiff(names(earliest_report_info), "PersonalID"), 
+             new = paste0("Earliest-", setdiff(names(earliest_report_info), "PersonalID")))
+    
+    latest_report_info <- enrollment_info[lecr == 1][, lecr := NULL]
+    setnames(latest_report_info, 
+             old = setdiff(names(latest_report_info), "PersonalID"), 
+             new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
+    
+    
+    client_level_details <- sys_universe_ppl_flags()[
+      , 
+      c(..detail_client_fields, ..report_status_fields)
+    ][
+      earliest_report_info, on = "PersonalID"
+    ][
+      latest_report_info, on = "PersonalID"
+    ]
+    
+    export_date_info <- tibble(
+      Chart = c(
+        "ExportStart",
+        "ExportEnd"
+      ),
+      Value = c(
+        as.character(meta_HUDCSV_Export_Start()),
+        as.character(meta_HUDCSV_Export_End())
+      )
+    )
+    
+    # User's filter selections
+    filter_selections <- rbind(
+      export_date_info, # ExportStart, Exportend
+      sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
+      sys_export_filter_selections() # Age, Veteran Status, Gender, Race/Ethnicity
+    )
+    colnames(filter_selections) <- NULL
+    
+    # probably want to read in the glossary tab as a csv or Excel and append to it.
+    
+    client_level_export_list <- list(
+      client_level_metadata = filter_selections,
+      client_level_details = client_level_details
+    )
+    
+    names(client_level_export_list) = c(
+      "metadata",
+      "details"
+    )
+    
+    write_xlsx(
+      client_level_export_list,
+      path = file,
+      format_headers = FALSE,
+      col_names = TRUE
+    )
+    
+    logMetadata(paste0(
+      "Downloaded Client Level Export",
+      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
+    ))
+    
+    exportTestValues(client_level_download = client_level_download) 
+  }
+)
