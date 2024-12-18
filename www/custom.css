@@ -464,7 +464,8 @@ a:hover {
 
 #sys_inflow_outflow_download_tab,
 #sys_status_download_tab,
-#sys_comp_download_tab {
+#sys_comp_download_tab,
+#client_level_download_tab {
   float:right;
 }
 
@@ -483,7 +484,8 @@ a:hover {
 
 #sys_comp_download_btn_ppt, #sys_comp_download_btn,
 #sys_status_download_btn_ppt, #sys_status_download_btn,
-#sys_inflow_outflow_download_btn_ppt, #sys_inflow_outflow_download_btn{
+#sys_inflow_outflow_download_btn_ppt, #sys_inflow_outflow_download_btn,
+#client_level_download_btn {
   display: inline-block;
 }
 
@@ -539,7 +541,8 @@ a:hover {
   border-radius: 4px 4px 0 0;
 }
 .nav-tabs-custom>.nav-tabs>li.syso_download_tab .btn, 
-.nav-tabs-custom>.nav-tabs>li.syso_download_tab .btn-default {
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab .btn-default,
+.nav-tabs-custom>.nav-tabs>li.client_level_download_tab .btn {
   color: white;
   background-color: #C2462E;
   border-color: #C2462E;

@@ -60,8 +60,7 @@ enrollment_prep <- EnrollmentAdjustAge %>%
          DateToStreetESSH,
          TimesHomelessPastThreeYears,
          MonthsHomelessPastThreeYears,
-         DisablingCondition,
-         Destination
+         DisablingCondition
          ) %>%
   left_join(Project %>% 
               select(ProjectID,
@@ -918,6 +917,7 @@ enrollment_categories_reactive <- reactive({
       MoveInDateAdjust,
       ExitAdjust,
       Destination,
+      LivingSituation,
       CorrectedHoH,
       MostRecentAgeAtEntry,
       HouseholdType,
