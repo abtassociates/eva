@@ -2,6 +2,11 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
+    "12-18-2024",
+    "<b>Bug Fixes:</b><br>
+      - Allow all UTF-8 characters, except for brackets. <br>
+      - Automatically convert WINDOWS-1252 encoded characters to UTF-8 to 
+      avoid crashing.",
     "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
@@ -14,6 +19,11 @@ output$changelog <- renderDT({
 <a href='https://github.com/abtassociates/eva/issues/632'>#632</a>,
 <a href='https://github.com/abtassociates/eva/issues/535'>#535</a>)<br>
       - Fully reset app after a failed upload",
+    "10-23-2024",
+    "<b>Bug Fixes:</b> <br>
+      - Corrected the Zero Utilization logic to only flag projects that are missing
+    enrollments during a project's operating and participating periods. See Issue
+    <a href='https://github.com/abtassociates/eva/issues/522'>#522</a>.",
     "10-07-2024",
     "<b>New Features:</b> <br>
       - Launched the System Performance Overview Page. The page contains three new 

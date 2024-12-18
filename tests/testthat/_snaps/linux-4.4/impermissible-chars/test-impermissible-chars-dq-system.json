@@ -1,0 +1,273 @@
+{
+  "input": {
+    "sidebarCollapsed": false,
+    "sidebarItemExpanded": "AssessDataQuality",
+    "sidebarmenuid": "tabDQSystem"
+  },
+  "output": {
+    "downloadSystemDQReportButton": {
+      "html": "<div data-spinner-id=\"spinner-e054e187dd9040a07d620cedbd353aa9\" class=\"shiny-spinner-output-container shiny-spinner-hideui\">\n  <head>\n    <style>#spinner-e054e187dd9040a07d620cedbd353aa9, #spinner-e054e187dd9040a07d620cedbd353aa9:before, #spinner-e054e187dd9040a07d620cedbd353aa9:after {   background: #0275D8; } #spinner-e054e187dd9040a07d620cedbd353aa9 {   color: #0275D8; } #spinner-e054e187dd9040a07d620cedbd353aa9 { font-size: 8px; }<\/style>\n  <\/head>\n  <div class=\"load-container shiny-spinner-hidden load1\">\n    <div id=\"spinner-e054e187dd9040a07d620cedbd353aa9\" class=\"loader\">Loading...<\/div>\n  <\/div>\n  <div style=\"height:400px\" class=\"shiny-spinner-placeholder\"><\/div>\n  <a id=\"downloadSystemDQReport\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n    <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n    Download\n  <\/a>\n<\/div>",
+      "deps": [
+        {
+          "name": "font-awesome",
+          "version": "6.4.2",
+          "src": {
+            "href": "font-awesome-6.4.2"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": [
+            "css/all.min.css",
+            "css/v4-shims.min.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "shinycssloaders-binding",
+          "version": "1.1.0",
+          "src": {
+            "href": "shinycssloaders-binding-1.1.0"
+          },
+          "meta": null,
+          "script": "spinner.js",
+          "stylesheet": "spinner.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "headerSystemDQ": {
+      "html": "<h2>System-level Data Quality<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "systemDQErrorByIssue": {
+      "src": "[image data hash: 3e6dc314c9505f640cf8cf8d6dd5c430]",
+      "width": 1640,
+      "height": 400,
+      "alt": "A bar chart of the top General Errors in the system.",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 33,
+              "bottom": 0.4,
+              "top": 10.6,
+              "discrete_limits": {
+                "x": [
+
+                ],
+                "y": [
+                  "Conflicting Health Insurance yes/no at Entry",
+                  "Enrollment Crosses Operating Start",
+                  "Oldest Household Member Under 12",
+                  "Conflicting Health Insurance yes/no at Exit",
+                  "Missing Length of Stay",
+                  "Invalid Move-In Date",
+                  "Conflicting Income yes/no at Exit",
+                  "Conflicting Income yes/no at Entry",
+                  "Conflicting Non-cash Benefits yes/no at Entry",
+                  "Missing Months or Times Homeless"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "countVar",
+              "y": "reorder(Issue, countVar)"
+            },
+            "range": {
+              "left": 276.338184931507,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
+            }
+          }
+        ],
+        "dims": {
+          "width": 1640,
+          "height": 400
+        }
+      }
+    },
+    "systemDQErrorsByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQErrorByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "systemDQHighPriorityErrorsByIssue": {
+      "src": "[image data hash: 199f4f90a3b0e551946191a75a200d8d]",
+      "width": 1640,
+      "height": 400,
+      "alt": "A bar chart of the top High Priority Errors in the system.",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 7.7,
+              "bottom": 0.4,
+              "top": 3.6,
+              "discrete_limits": {
+                "x": [
+
+                ],
+                "y": [
+                  "Duplicate Entries",
+                  "Too Many Heads of Household",
+                  "Missing Relationship to Head of Household"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "countVar",
+              "y": "reorder(Issue, countVar)"
+            },
+            "range": {
+              "left": 252.494434931507,
+              "right": 1634.520547945206,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
+            }
+          }
+        ],
+        "dims": {
+          "width": 1640,
+          "height": 400
+        }
+      }
+    },
+    "systemDQHighPriorityErrorsByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQHighPriorityErrorsByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "systemDQWarningByIssue": {
+      "src": "[image data hash: 7cd448807a54af59d2df9cfb26606602]",
+      "width": 1640,
+      "height": 400,
+      "alt": "A bar chart of the top Warnings in the system.",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 464.2,
+              "bottom": 0.4,
+              "top": 10.6,
+              "discrete_limits": {
+                "x": [
+
+                ],
+                "y": [
+                  "Unknown Race/Ethnicity",
+                  "Unknown Months or Times Homeless",
+                  "Unknown Disabling Condition",
+                  "Unknown Living Situation",
+                  "Incomplete or Unknown Name",
+                  "Future Entry Date",
+                  "Homelessness Start Date conflicts with Living Situation data",
+                  "Unknown Destination",
+                  "Invalid Homelessness Start Date/Number of Months Homeless",
+                  "Unknown SSN"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "countVar",
+              "y": "reorder(Issue, countVar)"
+            },
+            "range": {
+              "left": 285.1663099315071,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
+            }
+          }
+        ],
+        "dims": {
+          "width": 1640,
+          "height": 400
+        }
+      }
+    },
+    "systemDQWarningsByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQWarningByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    }
+  }
+}

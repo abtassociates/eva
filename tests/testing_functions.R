@@ -150,6 +150,9 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$click(selector="#shiny-modal")
     app$expect_values(name="just-uploaded", input=TRUE, output=TRUE)
     
+    app$wait_for_idle(timeout = 1e+06)
+    customDownload(app, "downloadImpermissibleCharacterDetail", "Impermissible-Character-Detail.xlsx")
+    
     app$set_inputs(sidebarmenuid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
@@ -295,6 +298,7 @@ main_test_script <- function(test_script_name, test_dataset) {
       input = sys_act_inputs,
       output = sys_act_detail_outputs
     )
+
     
     # change universe filters
     app$set_inputs(syso_hh_type = "AO", syso_project_type = "Residential")
