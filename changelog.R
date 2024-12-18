@@ -2,6 +2,10 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
+    "12-18-2024",
+    "<b>New Features</b> <br>
+      - Added client-level export to the System Performance tab to provide transparency
+      in the charts",
     "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
