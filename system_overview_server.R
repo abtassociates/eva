@@ -462,17 +462,17 @@ output$client_level_download_btn <- downloadHandler(
       )
     ]
     
-    earliest_report_info <- enrollment_info[eecr == 1][, eecr := NULL]
+    earliest_report_info <- enrollment_info[eecr == 1][, c("eecr","lecr") := NULL]
     setnames(earliest_report_info, 
              old = setdiff(names(earliest_report_info), "PersonalID"), 
              new = paste0("Earliest-", setdiff(names(earliest_report_info), "PersonalID")))
     
-    latest_report_info <- enrollment_info[lecr == 1][, lecr := NULL]
+    latest_report_info <- enrollment_info[lecr == 1][,  c("eecr","lecr") := NULL]
     setnames(latest_report_info, 
              old = setdiff(names(latest_report_info), "PersonalID"), 
              new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
     
-    
+    # details tab
     client_level_details <- sys_universe_ppl_flags()[
       , 
       c(..detail_client_fields, ..report_status_fields)
@@ -481,7 +481,11 @@ output$client_level_download_btn <- downloadHandler(
     ][
       latest_report_info, on = "PersonalID"
     ]
+    setnames(client_level_details, 
+             old = report_status_fields, 
+             new = names(report_status_fields))
     
+    # User's filter selections - metadata tab
     export_date_info <- tibble(
       Chart = c(
         "ExportStart",
@@ -493,7 +497,6 @@ output$client_level_download_btn <- downloadHandler(
       )
     )
     
-    # User's filter selections
     filter_selections <- rbind(
       export_date_info, # ExportStart, Exportend
       sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
@@ -503,6 +506,7 @@ output$client_level_download_btn <- downloadHandler(
     
     # probably want to read in the glossary tab as a csv or Excel and append to it.
     
+    # all sheets for export
     client_level_export_list <- list(
       client_level_metadata = filter_selections,
       client_level_details = client_level_details
