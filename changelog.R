@@ -2,6 +2,9 @@ output$changelog <- renderDataTable({
   tribble(
     ~ Date,
     ~ Change,
+    "12-18-2024",
+    "<b>New features:</b> <br>
+    - Modified upload-related pop-ups to be more informative.",
     "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
