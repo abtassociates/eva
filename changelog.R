@@ -2,9 +2,11 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
-    "11-20-2024",
+    "12-18-2024",
     "<b>Bug Fixes:</b><br>
-      - Allow all UTF-8 characters, except for brackets",
+      - Allow all UTF-8 characters, except for brackets. <br>
+      - Automatically convert WINDOWS-1252 encoded characters to UTF-8 to 
+      avoid crashing.",
     "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
