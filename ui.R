@@ -857,8 +857,10 @@ dashboardPage(
             side = "right",
             selected = "Top 10 Issues",
             title = "General Errors",
-            tabPanel("Top 10 Projects", uiOutput("orgDQErrorsByProject_ui") %>% withSpinner()),
-            tabPanel("Top 10 Issues", uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()),
+            tabPanel("Top 10 Projects",
+                     uiOutput("orgDQErrorsByProject_ui") %>% withSpinner()),
+            tabPanel("Top 10 Issues",
+                     uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()),
             width =12
           )
         ),
@@ -1085,19 +1087,27 @@ dashboardPage(
               id = "syso_tabbox",
               type = "tabs",
               tabPanel(
-                id="syso_inflowoutflow", 
-                title="System Flow",
+                id = "syso_inflowoutflow", 
+                title = "System Flow",
                 tabBox(
                   width = 12,
                   id = "sys_inflow_outflow_subtabs",
                   selected = "Summary Chart",
                   tabPanel("Summary Chart", 
-                           uiOutput("sys_act_summary_filter_selections") %>% withSpinner(),
-                           plotOutput("sys_act_summary_ui_chart", width="70%", height="500px") %>% withSpinner()
+                           uiOutput("sys_act_summary_filter_selections") %>%
+                             withSpinner(),
+                           plotOutput("sys_act_summary_ui_chart",
+                                      width = "70%",
+                                      height = "500") %>%
+                             withSpinner()
                   ),
                   tabPanel("Detail Chart", 
-                           uiOutput("sys_act_detail_filter_selections") %>% withSpinner(),
-                           plotOutput("sys_act_detail_ui_chart", width="100%", height="500px") %>% withSpinner()
+                           uiOutput("sys_act_detail_filter_selections") %>%
+                             withSpinner(),
+                           plotOutput("sys_act_detail_ui_chart",
+                                      width = "100%",
+                                      height = "500") %>%
+                             withSpinner()
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
