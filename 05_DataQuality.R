@@ -609,10 +609,11 @@ top_percents_long_stayers <- base_dq_data %>%
 # Possible Missing HMID ---------------------------------------------------
 
 missed_movein_stayers <- base_dq_data %>%
-  select(all_of(vars_prep)) %>%
+  select(RelationshipToHoH, all_of(vars_prep)) %>%
   filter(is.na(ExitDate) &
            is.na(MoveInDateAdjust) &
-           ProjectType %in% c(ph_project_types)
+           ProjectType %in% c(ph_project_types) & 
+           RelationshipToHoH == 1
   ) %>%
   mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date(), EntryDate)))
 
