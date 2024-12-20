@@ -98,8 +98,15 @@ missing_CoC_Geography <- missing_CoC_Info %>%
       is.na(CoCCode) ~ "This project's CoC Code is missing.",
       is.na(Geocode) ~ "This project's Geocode is missing.",
       is.na(GeographyType) ~ "This project's Geography Type is missing."
+    ),
+    Detail2 = case_when(
+      is.na(CoCCode) ~ "This project's CoC Code is missing.",
+      is.na(Geocode) ~ "This project's Geocode is missing."
+    ),
+    Detail3 = case_when(
+      is.na(CoCCode) ~ "This project's CoC Code is missing."
     )) %>%
-  select(all_of(PDDEcols))
+  select(all_of(PDDEcols), Detail2, Detail3)
 
 missing_CoC_Geography_VSP <- missing_CoC_Info %>%
   filter(VictimServiceProvider==1 | HousingType==tenant_scattered_site) %>%
@@ -109,8 +116,11 @@ missing_CoC_Geography_VSP <- missing_CoC_Info %>%
     Detail = case_when(
       is.na(Geocode) ~ "This project's Geocode is missing.",
       is.na(GeographyType) ~ "This project's Geography Type is missing."
+    ),
+    Detail2 = case_when(
+      is.na(Geocode) ~ "This project's Geocode is missing."
     )) %>%
-  select(all_of(PDDEcols))
+  select(all_of(PDDEcols), Detail2)
   
 
 missing_CoC_Address <- missing_CoC_Info %>%
@@ -125,8 +135,20 @@ missing_CoC_Address <- missing_CoC_Info %>%
       is.na(State) ~ "This project's State is missing.",
       nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000" ~
         "ZIP is missing or not valid."
-   )) %>%
-  select(all_of(PDDEcols))
+   ),
+   Detail2 = case_when(
+     is.na(Address1) ~ "This project's Address is missing.",
+     is.na(City) ~ "This project's City is missing.",
+     is.na(State) ~ "This project's State is missing."
+   ),
+   Detail3 = case_when(
+     is.na(Address1) ~ "This project's Address is missing.",
+     is.na(City) ~ "This project's City is missing."
+   ),
+   Detail4 = case_when(
+     is.na(Address1) ~ "This project's Address is missing."
+   ))%>%
+  select(all_of(PDDEcols), Detail2, Detail3, Detail4)
   
 missing_CoC_Address_VSP <- missing_CoC_Info %>%
   filter(VictimServiceProvider==1 | HousingType==tenant_scattered_site) %>%
@@ -528,7 +550,7 @@ vsp_clients <- Project0() %>%
 
 # Put it all together -----------------------------------------------------
 
-pdde_main(rbind(
+pdde_main(bind_rows(
   subpopNotTotal,
   operating_end_missing,
   rrh_no_subtype,
