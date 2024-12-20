@@ -73,7 +73,7 @@ operating_end_missing <- Enrollment %>%
 # Missing Geography Type, Invalid Zip Code if possible
 
 HousingTypeDF <- Project %>% 
-  subset(select=c(ProjectID, HousingType))
+  select(ProjectID, HousingType)
 
 missing_CoC_Info <- Project0() %>%
   left_join(ProjectCoC, by = "ProjectID") %>%
@@ -89,57 +89,47 @@ missing_CoC_Info <- Project0() %>%
   )
 
 missing_CoC_Geography <- missing_CoC_Info %>%
-  filter(VictimServiceProvider!=1 & HousingType!=3) %>%
+  filter(VictimServiceProvider!=1 & HousingType!=tenant_scattered_site) %>%
   filter(is.na(Geocode) | is.na(GeographyType) |
            is.na(CoCCode)) %>%
   merge_check_info(checkIDs = 5) %>%
   mutate(
     Detail = case_when(
       is.na(CoCCode) ~ "This project's CoC Code is missing.",
-      is.na(Address1) ~ "This project's Address is missing.",
-      is.na(City) ~ "This project's City is missing.",
-      is.na(State) ~ "This project's State is missing.",
       is.na(Geocode) ~ "This project's Geocode is missing.",
-      is.na(GeographyType) ~ "This project's Geography Type is missing.",
-      nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000" ~
-        "ZIP is missing or not valid."
+      is.na(GeographyType) ~ "This project's Geography Type is missing."
     )) %>%
   select(all_of(PDDEcols))
 
 missing_CoC_Geography_VSP <- missing_CoC_Info %>%
-  filter(VictimServiceProvider==1 | HousingType==3) %>%
-  filter(is.na(Geocode)) %>%
+  filter(VictimServiceProvider==1 | HousingType==tenant_scattered_site) %>%
+  filter(is.na(Geocode) | is.na(GeographyType)) %>%
   merge_check_info(checkIDs = 5) %>%
   mutate(
     Detail = case_when(
       is.na(Geocode) ~ "This project's Geocode is missing.",
-      is.na(GeographyType) ~ "This project's Geography Type is missing.",
-      nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000" ~
-        "ZIP is missing or not valid."
+      is.na(GeographyType) ~ "This project's Geography Type is missing."
     )) %>%
   select(all_of(PDDEcols))
   
 
 missing_CoC_Address <- missing_CoC_Info %>%
-  filter(VictimServiceProvider!=1 & HousingType!=3) %>%
+  filter(VictimServiceProvider!=1 & HousingType!=tenant_scattered_site) %>%
   filter(!(is.na(Geocode) | is.na(GeographyType) |
            is.na(CoCCode))) %>%
   merge_check_info(checkIDs = 42) %>%
   mutate(
     Detail = case_when(
-      is.na(CoCCode) ~ "This project's CoC Code is missing.",
       is.na(Address1) ~ "This project's Address is missing.",
       is.na(City) ~ "This project's City is missing.",
       is.na(State) ~ "This project's State is missing.",
-      is.na(Geocode) ~ "This project's Geocode is missing.",
-      is.na(GeographyType) ~ "This project's Geography Type is missing.",
       nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000" ~
         "ZIP is missing or not valid."
    )) %>%
   select(all_of(PDDEcols))
   
 missing_CoC_Address_VSP <- missing_CoC_Info %>%
-  filter(VictimServiceProvider==1 | HousingType==3) %>%
+  filter(VictimServiceProvider==1 | HousingType==tenant_scattered_site) %>%
   filter(!(is.na(Geocode))) %>%
   merge_check_info(checkIDs = 42) %>%
   mutate(
@@ -471,68 +461,53 @@ overlapping_hmis_participation <- HMISParticipation %>%
 
 
 # Bed Type incompatible with Housing Type -----------------------------------
-#If HousingType is 1 or 2 (site-based), then BedType should be 1 (facility based beds). If HousingType is 3 (tenant-based), then BedType should be 2 (voucher beds).
+# For ES projects, if HousingType is 1 or 2 (site-based), then BedType should be 1 (facility based beds). If HousingType is 3 (tenant-based), then BedType should be 2 (voucher beds).
 
 ES_BedType_HousingType <- Inventory %>%
   left_join(Project0(), by = "ProjectID") %>%
   left_join(HousingTypeDF, by = "ProjectID") %>% 
-  filter(ProjectType %in% c(0, 1) &
-           ((HousingType %in% c(1, 2) & ESBedType!=1) | (HousingType==3 & ESBedType!=2)) 
+  filter(ProjectType %in% c(es_ee_project_type, es_nbn_project_type) &
+           ((HousingType %in% c(client_single_site, client_multiple_sites) & ESBedType!=1) | (HousingType==tenant_scattered_site & ESBedType!=2)) 
   ) %>%
   merge_check_info(checkIDs = 135) %>% 
-  mutate(Detail = 
-           paste0("Bed Type incompatible with Housing Type:  Facility-based beds should align to the Housing Type of site-based and voucher-based beds should align to the Housing Type of tenant-based.")
+  mutate(Detail = "Bed Type incompatible with Housing Type:  Facility-based beds should align to the Housing Type of site-based and voucher-based beds should align to the Housing Type of tenant-based."
   ) %>%
   select(all_of(PDDEcols))
 
 
-# Project CoC Missing Bed Inventory -----------------------------------
+# Project CoC Missing Bed Inventory & Incorrect CoC in bed inventory -----------------------------------
+
+activeInventory_COC_merged <- activeInventory %>% 
+  mutate(ix=1) %>% 
+  merge(ProjectCoC %>% mutate(iy=1), by = c("ProjectID", "CoCCode"), all=TRUE) %>%
+  mutate(mer = case_when(ix==1&iy==1~'both',
+                         ix==1~'only_x',
+                         iy==1~'only_y'))
+
 # Throw a warning if there is no inventory record for a ProjectID and COCCode combo in the ProjectCoC data
 
-ProjectCoC <- ProjectCoC %>% mutate(iy=1)
-
-Active_Inventory_per_COC <- activeInventory %>%
-  mutate(ix=1) %>% 
-  merge(ProjectCoC, by = c("ProjectID", "CoCCode"), all=TRUE) %>%
-  mutate(mer = case_when(ix==1&iy==1~'both',
-                         ix==1~'only_x',
-                         iy==1~'only_y')) %>%
+Active_Inventory_per_COC <- activeInventory_COC_merged %>%
   filter(mer=="only_y") %>% 
   merge_check_info(checkIDs = 136) %>% 
-  mutate(Detail = 
-           paste0("Residential projects must have a bed inventory for each CoC they serve.")
+  mutate(Detail = "Residential projects must have a bed inventory for each CoC they serve."
   ) %>%
   select(all_of(PDDEcols))
-
-ProjectCoC <- ProjectCoC %>% subset(select = -iy)
   
-  
-# Incorrect CoC in bed inventory -----------------------------------
 # Throw an error if there is no COC record for a ProjectID and COCCode combo in the inventory data
-ProjectCoC <- ProjectCoC %>% mutate(iy=1)
 
-COC_Records_per_Inventory <- activeInventory %>%
-  mutate(ix=1) %>% 
-  merge(ProjectCoC, by = c("ProjectID", "CoCCode"), all=TRUE) %>%
-  mutate(mer = case_when(ix==1&iy==1~'both',
-                         ix==1~'only_x',
-                         iy==1~'only_y')) %>% 
+COC_Records_per_Inventory <- activeInventory_COC_merged %>%
   filter(mer=="only_x") %>% 
-merge_check_info(checkIDs = 137) %>%
-  mutate(Detail = 
-           paste0("Any CoC represented in a project's active bed inventory records must also be listed as a CoC associated with the Project.")
+  merge_check_info(checkIDs = 137) %>%
+  mutate(Detail = "Any CoC represented in a project's active bed inventory records must also be listed as a CoC associated with the Project."
   ) %>%
   select(all_of(PDDEcols))
-
-ProjectCoC <- ProjectCoC %>% subset(select = -iy)
 
 
 # More units than beds in inventory record. -----------------------------------
 more_units_than_beds_inventory <- activeInventory %>%
   filter(UnitInventory > BedInventory) %>% 
 merge_check_info(checkIDs = 138) %>%
-  mutate(Detail = 
-           paste0("An inventory record cannot have more units than total number of beds. Please update this inventory record in HMIS to ensure that units are less than or equal to the number of beds.")
+  mutate(Detail = "An inventory record cannot have more units than total number of beds. Please update this inventory record in HMIS to ensure that units are less than or equal to the number of beds."
   ) %>%
   select(all_of(PDDEcols))
 
@@ -541,16 +516,14 @@ merge_check_info(checkIDs = 138) %>%
 # Projects under Organizations marked as Victim Service Providers should not have client data in HMIS
 # If VictimServiceProvider==1, then flag as high priority error if client data is present (i.e. any enrollments).
 
-vsp_clients <- Organization %>%
-  select(OrganizationID, VictimServiceProvider) %>% 
+vsp_clients <- Project0() %>%
   filter(VictimServiceProvider==1) %>%
-  left_join(Project0(), by = "OrganizationID") %>%
   left_join(Enrollment, by = "ProjectID") %>%
   merge_check_info(checkIDs = 139) %>%
-  mutate(Detail = 
-           paste0("Projects under Organizations marked as Victim Service Providers should not have client data in HMIS.")
+  mutate(Detail = "Projects under Organizations marked as Victim Service Providers should not have client data in HMIS."
   ) %>%
-  select(all_of(PDDEcols))
+  select(all_of(PDDEcols)) %>% 
+  unique()
 
 
 # Put it all together -----------------------------------------------------

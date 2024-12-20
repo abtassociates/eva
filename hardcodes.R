@@ -94,6 +94,14 @@ long_stayer_percentile_project_types <- c(0, 2, 3, 8, 9, 10, 12, 13)
 all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) 
 # All means All HUD-defined project types, so it excludes "Other"
 
+
+# Housing Types -------------------------------------------------
+
+client_single_site <- 1
+client_multiple_sites <- 2
+tenant_scattered_site <- 3
+
+
 # Funding Source Groupings -------------------------------------------------
 
 ssvf_fund_sources <- 33
