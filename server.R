@@ -689,8 +689,10 @@ function(input, output, session) {
       
       write_xlsx(
         list("Summary" = summary_df,
-             "Data" = pdde_main() %>%
-               nice_names()),
+             "Data" = pdde_main() %>% 
+               left_join(Project0() %>% select(ProjectID, ProjectType), by="ProjectID") %>%
+               nice_names()
+             ),
         path = file)
       
       logMetadata(paste0("Downloaded PDDE Report",
