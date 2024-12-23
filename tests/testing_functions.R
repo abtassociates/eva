@@ -45,7 +45,9 @@ handle_helper_data <- function(app, test_script_name, datasetname) {
   helper_data_folder <- glue::glue(
     here("tests/testthat/_snaps/{platform_variant()}/{gsub('test-','',test_script_name)}/helper_data")
   )
+  print(paste0("helper data folder = ", helper_data_folder))
   if(!dir.exists(helper_data_folder)) {
+    print("creating helper data folder")
     dir.create(helper_data_folder)
   }
   
@@ -54,7 +56,7 @@ handle_helper_data <- function(app, test_script_name, datasetname) {
   
   new_df <- app$get_value(export=datasetname)
   
-  if(is.null(new_df) & !file.exists(old_path)) return(NULL)
+  if(is.null(new_df)) return(NULL)
   
   new_df <- as.data.table(new_df)
   fwrite(new_df, file = new_path)
@@ -421,8 +423,10 @@ main_test_script <- function(test_script_name, test_dataset) {
     exports_to_keep <- setdiff(all_export_names, c(helper_datasets, non_download_exports))
     app$expect_values(export = exports_to_keep, name = "exportTestValues")
     
+    print("handling helper datasets")
     # handle large/helper datasets
     lapply(helper_datasets, function(df_name) {
+      print(paste0("handling ", df_name))
       handle_helper_data(app, test_script_name, df_name)
     })
   })
