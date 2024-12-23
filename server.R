@@ -21,6 +21,7 @@ function(input, output, session) {
     file_structure_analysis_main <- reactiveVal(),
     sys_inflow_outflow_plot_data <- reactiveVal(),
     sys_df_people_universe_filtered_r <- reactiveVal(),
+    sys_universe_ppl_flags <- reactiveVal(),
     ReportStart <- reactiveVal(),
     ReportEnd <- reactiveVal(),
     sankey_plot_data <- reactiveVal(),
@@ -213,7 +214,11 @@ function(input, output, session) {
             input$syso_gender
             input$syso_race_ethnicity
           }, {
+            # System Inflow and Outflow data 
+            # used to create inflow/outflow charts and sankey/status dataset
             sys_inflow_outflow_plot_data(inflow_outflow_df())
+            
+            # System Composition/Demographics data for chart
             sys_df_people_universe_filtered_r(
               enrollment_categories_reactive() %>%
                 select(PersonalID, lookback, lecr, eecr, CorrectedHoH) %>%
@@ -227,7 +232,12 @@ function(input, output, session) {
                 select(colnames(client_categories)) %>%
                 unique()
             )
+            
+            # Sankey/System status data for chart
             sankey_plot_data(sankey_plot_df())
+            
+            # Client-level download
+            sys_universe_ppl_flags(universe_ppl_flags())
             
             exportTestValues(sys_comp_df = sys_df_people_universe_filtered_r())
             
