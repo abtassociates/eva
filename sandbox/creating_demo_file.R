@@ -27,141 +27,177 @@ utils::unzip("/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-hashed-c
 source(paste0(directory, "01_get_Export.R"))
 
 
-# Org A (OrgId = 4), Org B = 6, Org N = 95
-organization_ids <- c("4","6", "95")
-# get project IDs
+# Org A (OrgId = 4), Org B = 6, Org O = 96
+organization_ids <- c("4","6", "96")
+
+# get corresponding project IDs
 project_ids <- Project %>%
   filter(OrganizationID %in% organization_ids) %>%
   pull(ProjectID) %>%
   unique()
 
-enrollment_ids <- Enrollment %>%
+# get corresponding EnrollmentIDs
+filtered_enrollments <- Enrollment %>%
   filter(ProjectID %in% project_ids) %>%
-  pull(EnrollmentID) %>%
-  unique()
+  select(EnrollmentID, PersonalID)
 
-personal_ids <- Enrollment %>%
-  filter(ProjectID %in% project_ids) %>%
-  pull(PersonalID) %>%
-  unique()
+# Assign unique lists
+enrollment_ids <- unique(filtered_enrollments$EnrollmentID)
+personal_ids <- unique(filtered_enrollments$PersonalID)
 
 # for each file in the csv, loop through the file names in the csv
 for (file in unique(cols_and_data_types$File)) {
-  print(file)
+  print(paste0("Updating ", file, " for demo.zip"))
+  
+  # ignore export
   if(file == "Export") next
   
-  if(file == "Organization") {
-    write.csv(
-      Organization %>% filter(OrganizationID %in% organization_ids),
-      here(paste0(directory, "data/Organization.csv")),
-      na = "",
-      row.names = FALSE
-    )
-    next
-  }
+  # filter the lowest level IDs based on the pulled lists above
+  # Other than in Client, if we filter by PersonalID, we'll get enrollments from other projects
+  df <- get(file) 
+  if ("EnrollmentID" %in% colnames(df)) {
+    df <- df %>% filter(EnrollmentID %in% enrollment_ids)
+  } else if ("PersonalID" %in% colnames(df)) {
+    df <- df %>% filter(PersonalID %in% personal_ids)
+  } else if ("ProjectID" %in% colnames(df)) {
+    df <- df %>% filter(ProjectID %in% project_ids)
+  } else if ("OrganizationID" %in% colnames(df)) {
+    df <- df %>% filter(OrganizationID %in% organization_ids)
+  } 
+  
+  # Insert "issues" to be flagged by Eva
   if(file == "User") {
-    write.csv(
-      User %>% filter(UserID == "18"),
-      here(paste0(directory, "data/User.csv")),
-      na = "",
-      row.names = FALSE
-    )
-    next
-  }
-  
-  # Add FSA issues
-  if(file == "Client") {
-    write.csv(
-      Client %>% 
-        filter(PersonalID %in% personal_ids) %>%
-        mutate(DateUpdated = format(DateUpdated, "%d-%m-%y")),
-      here(paste0(directory, "data/Client.csv")),
-      na = "",
-      row.names = FALSE
-    )
-    next
-  }
-  
-  if(file == "CurrentLivingSituation") {
-    write.csv(
-      CurrentLivingSituation %>% 
-        filter(EnrollmentID %in% enrollment_ids) %>%
-        mutate(
-          CurrentLivingSituation = ifelse(
-            EnrollmentID == 813537, 999, CurrentLivingSituation)
-          ),
-      here(paste0(directory, "data/CurrentLivingSituation.csv")),
-      na = "",
-      row.names = FALSE
-    )
-    next
-  }
-  
-  
-  if(file == "Project") {
-    write.csv(
-      Project %>% 
-        filter(ProjectID %in% project_ids) %>%
-        mutate(
-          RRHSubType = ifelse(ProjectID == 1606, NA, RRHSubType)
-        ),
-      here(paste0(directory, "data/Project.csv")),
-      na = "",
-      row.names = FALSE
-    )
-    next
-  }
-  
-  if(file == "ProjectCoC") {
-    write.csv(
-      ProjectCoC %>% 
-        filter(ProjectID %in% project_ids) %>%
-        mutate(
-          Geocode = ifelse(ProjectID == 1377, NA, Geocode),
-        ),
-      here(paste0(directory, "data/ProjectCoC.csv")),
-      na = "",
-      row.names = FALSE
-    )
-    next
-  }
-  
-  tryCatch({
-    write.csv(
-      get(file) %>% filter(EnrollmentID %in% enrollment_ids),
-      here(paste0(directory, "data/", file, ".csv")),
-      na = "",
-      row.names = FALSE
-    )
-  }, error = function(e) {
-    tryCatch({
-      write.csv(
-        get(file) %>% filter(PersonalID %in% personal_ids),
-        here(paste0(directory, "data/", file, ".csv")),
-        na = "",
-        row.names = FALSE
+    df <- df %>% filter(UserID == "18")
+  } else if(file == "Client") {
+    df <- df %>% 
+      # Add NbN overlap data
+      bind_rows(
+        tibble(
+          PersonalID = "999999",
+          NameDataQuality = 1,
+          SSNDataQuality = 1,
+          DOBDataQuality = 1,
+          AmIndAKNative = 0,
+          Asian = 0,
+          BlackAfAmerican = 0,
+          HispanicLatinaeo = 0,
+          MidEastNAfrican = 0,
+          NativeHIPacific = 1,
+          White = 0,
+          RaceNone = 0,
+          Woman = 1,
+          Man = 0,
+          NonBinary = 0,
+          CulturallySpecific = 0,
+          Transgender = 0,
+          Questioning = 0,
+          DifferentIdentity = 0,
+          VeteranStatus = 1,
+          DateCreated = as.POSIXct("2022-09-22 15:48"),
+          DateUpdated = as.POSIXct("2022-09-22"),
+          UserID = "18",
+          ExportID = "1036"
+        )
+      ) %>%
+      # Add FSA issue - invalid date format
+      mutate(DateUpdated = format(DateUpdated, "%d-%m-%y"))
+      
+  } else if(file == "CurrentLivingSituation") {
+    df <- df %>% 
+      # Add FSA issues - invalid living situation
+      mutate(
+        CurrentLivingSituation = ifelse(EnrollmentID == "813537", 999, CurrentLivingSituation)
       )
-    }, error = function(e2) {
-      tryCatch({
-        write.csv(
-          get(file) %>% filter(ProjectID %in% project_ids),
-          here(paste0(directory, "data/", file, ".csv")),
-          na = "",
-          row.names = FALSE
+  } else if(file == "Project") {
+    df <- df %>% 
+      # Add PDDE issue - missing RRH Subtype
+      mutate(
+        RRHSubType = ifelse(ProjectID == "1606", NA, RRHSubType)
+      ) %>% 
+      # Add NbN overlap data
+      bind_rows(
+        tibble(
+          ProjectID = "999999",
+          OrganizationID = "4",
+          ProjectName = "Test NbN Project",
+          ProjectType = 1,
+          OperatingStart = ymd("20240427"),
+          ContinuumProject = 1,
+          DateCreated	= as.POSIXct("2021-04-27 10:05"),
+          DateUpdated = as.POSIXct("2021-04-27 11:25"),
+          UserID = "18",
+          ExportID = "1036"
         )
-      }, error = function(e2) {
-        write.csv(
-          get(file) %>% filter(OrganizationID %in% organization_ids),
-          here(paste0(directory, "data/", file, ".csv")),
-          na = "",
-          row.names = FALSE
+      )
+  } else if(file == "ProjectCoC") {
+    df <- df %>% 
+      # Add PDDE issue -missing geography info
+      mutate(
+        Geocode = ifelse(ProjectID == "1377", NA, Geocode)
+      )
+  } else if(file == "Enrollment") {
+    df <- df %>% 
+      # Add NbN overlap data
+      bind_rows(
+        tibble(
+          EnrollmentID = c("999999", "999998"),
+          PersonalID = rep("999999", 2),
+          ProjectID = rep("999999", 2),
+          EntryDate = rep(as.Date("2021-12-31"), 2),
+          HouseholdID = rep("s_863799", 2),
+          RelationshipToHoH = rep(1, 2),
+          DisablingCondition = rep(0, 2),
+          DateCreated = as.POSIXct(c("2022-09-22 15:48", "2022-09-22 15:48"), format = "%Y-%m-%d %H:%M"),
+          DateUpdated = as.POSIXct(c("2022-09-23 12:27", "2022-09-23 12:27"), format = "%Y-%m-%d %H:%M"),
+          UserID = rep("18", 2),
+          ExportID = rep("1036", 2)
         )
-      })
-    })
-  })
+      )
+  } else if(file == "Exit") {
+    df <- df %>% 
+      # Add NbN overlap data
+      bind_rows(
+        tibble(
+          ExitID = c("999999", "999998"),
+          EnrollmentID = c("999999", "999998"),
+          PersonalID = rep("999999", 2),
+          ExitDate = as.Date(c("2024-01-10", "2024-01-11")),
+          Destination = rep(410, 2),
+          DateCreated = as.POSIXct(c("2022-09-22 15:48", "2022-09-22 15:48")),
+          DateUpdated = as.POSIXct(c("2022-09-23 12:27", "2022-09-23 12:27")),
+          UserID = rep("18", 2),
+          ExportID = rep("1036", 2)
+        )
+      )
+  } else if(file == "Services") {
+    df <- df %>% 
+      # Add NbN overlap data - 1 enrollment has 2 overlapping/identical DateProvideds
+      # and another has an overlapping DateProvided with the first enrollment
+      bind_rows(
+        tibble(
+          ServicesID = c("9999991", "9999992", "9999993", "9999994", "9999995", "9999996", "9999997", "9999998", "9999999", "9999990"),
+          EnrollmentID = c(rep("999999", 5), rep("999998", 5)),
+          PersonalID = rep("999999", 10),
+          DateProvided = as.Date(c("2024-01-01", "2024-01-03", "2024-01-03", "2024-01-05", "2024-01-07", "2024-01-02", "2024-01-04", "2024-01-06", "2024-01-08", "2024-01-05")),
+          RecordType = rep(200, 10),
+          TypeProvided = rep(2, 10),
+          DateCreated = as.POSIXct(rep("2022-04-25 12:53", 10)),
+          DateUpdated = as.POSIXct(rep("2022-04-25 12:53", 10)),
+          UserID = rep("18", 10),
+          ExportID = rep("1036", 10)
+        )
+      )
+  }
+  
+  write.csv(
+    df,
+    here(paste0(directory, "data/", file, ".csv")),
+    na = "",
+    row.names = FALSE
+  )
 }
 
-demo_zip <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-demo_small2.zip"
+demo_zip <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-demo_small3.zip"
 zipr(
   zipfile = demo_zip, 
   files = list.files(here("sandbox/mini-non-shiny-environment/data"),
