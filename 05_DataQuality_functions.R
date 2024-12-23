@@ -81,7 +81,7 @@ getDQReportDataList <-
       select(all_of(select_list))
     
     dqOverlapDetails <- dqOverlaps %>% 
-      select(-c(Issue, Type, Guidance, PreviousIssue)) %>%
+      select(-c(Issue, Type, Guidance)) %>%
       relocate(
         OrganizationName,
         ProjectID,
@@ -91,7 +91,7 @@ getDQReportDataList <-
         HouseholdID,
         PersonalID,
         EntryDate,
-        FirstDateProvided,
+        DateProvided,
         "MoveInDate" = MoveInDateAdjust,
         ExitDate,
         PreviousOrganizationName,
@@ -102,7 +102,6 @@ getDQReportDataList <-
         PreviousHouseholdID,
         PreviousPersonalID,
         PreviousEntryDate,
-        PreviousFirstDateProvided,
         "PreviousMoveInDate" = PreviousMoveInDateAdjust,
         PreviousExitDate
       )
