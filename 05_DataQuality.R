@@ -1086,12 +1086,9 @@ overlap_staging <- base_dq_data_dt[
     EnrollmentID, 
     ProjectType, 
     EnrollmentStart = fifelse(
-      ProjectType %in% lh_residential_project_types, 
-      EntryDate, 
-      fifelse(
-        ProjectType %in% ph_project_types, 
-        MoveInDateAdjust,
-        EntryDate)
+      ProjectType %in% ph_project_types, 
+      MoveInDateAdjust,
+      EntryDate
     ),
     EnrollmentEnd = as.Date(ExitAdjust))
 ]
@@ -1234,32 +1231,76 @@ overlap_dt <- merge_check_info_dt(overlap_dt, 77)[,
 
 # Bring in additional enrollment details used to contextualize the flagged enrollment
 # e.g. EntryDate, ExitAdjust, etc.
-overlap_dt <- overlap_dt[
+overlap_dt <- merge(
+  overlap_dt,
   base_dq_data_dt[, ..vars_prep], 
-  on = .(EnrollmentID),
-  nomatch = 0
-][
+  by = "EnrollmentID"
+)[
   # Recode ProjectType to a more readable version
   , ProjectType := project_type(ProjectType)
-][ 
- , .SD, .SDcols = c("PreviousEnrollmentID", "DateProvided", vars_we_want)
 ]
 
 # For the Overlap Details tab of the export
 # we want the same set of details for the overlapping enrollment (i.e. the "previous")
-# this wide dataset is saved in the overlaps() reactiveValue
-overlaps(
-  overlap_dt[
-    # Rename columns for previous enrollment
-    base_dq_data_dt[, 
-                    setNames(.SD, paste0("Previous", names(.SD))), 
-                    .SDcols = c(vars_prep, "EnrollmentID")], 
-    on = .(PreviousEnrollmentID),
-    nomatch = 0
-  ][, PreviousProjectType := project_type(PreviousProjectType)]
+# this wide dataset is saved in the overlap_details() reactiveValue
+overlap_details(
+  # Rename columns for previous enrollment
+  merge(
+    overlap_dt,
+    base_dq_data_dt[
+      , setNames(.SD, paste0("Previous", names(.SD)))
+      , .SDcols = vars_prep
+    ],
+    by = "PreviousEnrollmentID",
+    all.x = TRUE
+  )[
+    , PreviousProjectType := project_type(PreviousProjectType)
+  ][
+    # Drop Issue columns
+    , !c("Issue", "Type", "Guidance"), with = FALSE
+  ][
+    # order and rename
+    , .(
+      OrganizationName,
+      ProjectID,
+      ProjectName,
+      ProjectType,
+      EnrollmentID,
+      HouseholdID,
+      PersonalID,
+      EntryDate,
+      "OverlappingDateProvided" = DateProvided,
+      FirstDateProvided,
+      LastDateProvided,
+      "MoveInDate" = MoveInDateAdjust,
+      ExitDate,
+      PreviousOrganizationName,
+      PreviousProjectID,
+      PreviousProjectName,
+      PreviousProjectType,
+      PreviousEnrollmentID,
+      PreviousHouseholdID,
+      PreviousPersonalID,
+      PreviousEntryDate,
+      "PreviousMoveInDate" = PreviousMoveInDateAdjust,
+      PreviousExitDate,
+      PreviousFirstDateProvided,
+      PreviousLastDateProvided
+    )
+  ]
 )
-
-overlaps_df <- as.data.frame(overlap_dt[, c("PreviousEnrollmentID", "DateProvided") := NULL])
+overlaps_df <- as.data.frame(
+  overlap_dt[
+    , c(
+      "PreviousEnrollmentID", 
+      "DateProvided",
+      "FirstDateProvided",
+      "LastDateProvided",
+      "PreviousFirstDateProvided",
+      "PreviousLastDateProvided"
+      ) := NULL
+  ]
+)
 # Invalid Move-in Date ----------------------------------------------------
 
 invalid_movein_date <- base_dq_data %>%
