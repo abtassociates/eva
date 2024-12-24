@@ -121,7 +121,7 @@ for (file in unique(cols_and_data_types$File)) {
           OrganizationID = "4",
           ProjectName = "Test NbN Project",
           ProjectType = 1,
-          OperatingStart = ymd("20240427"),
+          OperatingStartDate = ymd("20240427"),
           ContinuumProject = 1,
           DateCreated	= as.POSIXct("2021-04-27 10:05"),
           DateUpdated = as.POSIXct("2021-04-27 11:25"),
@@ -140,17 +140,17 @@ for (file in unique(cols_and_data_types$File)) {
       # Add NbN overlap data
       bind_rows(
         tibble(
-          EnrollmentID = c("999999", "999998"),
-          PersonalID = rep("999999", 2),
-          ProjectID = rep("999999", 2),
-          EntryDate = rep(as.Date("2021-12-31"), 2),
-          HouseholdID = rep("s_863799", 2),
-          RelationshipToHoH = rep(1, 2),
-          DisablingCondition = rep(0, 2),
-          DateCreated = as.POSIXct(c("2022-09-22 15:48", "2022-09-22 15:48"), format = "%Y-%m-%d %H:%M"),
-          DateUpdated = as.POSIXct(c("2022-09-23 12:27", "2022-09-23 12:27"), format = "%Y-%m-%d %H:%M"),
-          UserID = rep("18", 2),
-          ExportID = rep("1036", 2)
+          EnrollmentID = c("999999", "999998", "999997", "999996"),
+          PersonalID = rep("999999", 4),
+          ProjectID = rep("999999", 4),
+          EntryDate = rep(as.Date("2021-12-31"), 4),
+          HouseholdID = rep("s_863799", 4),
+          RelationshipToHoH = rep(1, 4),
+          DisablingCondition = rep(0, 4),
+          DateCreated = as.POSIXct(rep("2022-09-22 15:48", 4)),
+          DateUpdated = as.POSIXct(rep("2022-09-23 12:27", 4)),
+          UserID = rep("18", 4),
+          ExportID = rep("1036", 4)
         )
       )
   } else if(file == "Exit") {
@@ -158,33 +158,49 @@ for (file in unique(cols_and_data_types$File)) {
       # Add NbN overlap data
       bind_rows(
         tibble(
-          ExitID = c("999999", "999998"),
-          EnrollmentID = c("999999", "999998"),
-          PersonalID = rep("999999", 2),
-          ExitDate = as.Date(c("2024-01-10", "2024-01-11")),
-          Destination = rep(410, 2),
-          DateCreated = as.POSIXct(c("2022-09-22 15:48", "2022-09-22 15:48")),
-          DateUpdated = as.POSIXct(c("2022-09-23 12:27", "2022-09-23 12:27")),
-          UserID = rep("18", 2),
-          ExportID = rep("1036", 2)
+          ExitID = c("999999", "999998", "999997", "999996"),
+          EnrollmentID = c("999999", "999998", "999997", "999996"),
+          PersonalID = rep("999999", 4),
+          ExitDate = as.Date(rep(c("2024-01-10", "2024-01-11"), 2)),
+          Destination = rep(410, 4),
+          DateCreated = as.POSIXct(rep("2022-09-22 15:48", 4)),
+          DateUpdated = as.POSIXct(rep("2022-09-23 12:27", 4)),
+          UserID = rep("18", 4),
+          ExportID = rep("1036", 4)
         )
       )
   } else if(file == "Services") {
     df <- df %>% 
       # Add NbN overlap data - 1 enrollment has 2 overlapping/identical DateProvideds
       # and another has an overlapping DateProvided with the first enrollment
+      # Two other enrollments capture a scenario that we thought was getting flagged but shouldn't be
       bind_rows(
         tibble(
-          ServicesID = c("9999991", "9999992", "9999993", "9999994", "9999995", "9999996", "9999997", "9999998", "9999999", "9999990"),
-          EnrollmentID = c(rep("999999", 5), rep("999998", 5)),
-          PersonalID = rep("999999", 10),
-          DateProvided = as.Date(c("2024-01-01", "2024-01-03", "2024-01-03", "2024-01-05", "2024-01-07", "2024-01-02", "2024-01-04", "2024-01-06", "2024-01-08", "2024-01-05")),
-          RecordType = rep(200, 10),
-          TypeProvided = rep(2, 10),
-          DateCreated = as.POSIXct(rep("2022-04-25 12:53", 10)),
-          DateUpdated = as.POSIXct(rep("2022-04-25 12:53", 10)),
-          UserID = rep("18", 10),
-          ExportID = rep("1036", 10)
+          ServicesID = c(
+            "9999991", "9999992", "9999993", "9999994", "9999999",
+            "9999995", "9999996", "9999997", "9999998", "9999990",
+            "9999981", "9999982", "9999983", "9999984",
+            "9999985", "9999986", "9999987", "9999988"
+          ),
+          EnrollmentID = c(
+            rep("999999", 5), 
+            rep("999998", 5),
+            rep("999997", 4),
+            rep("999996", 4)
+          ),
+          PersonalID = rep("999999", 18),
+          DateProvided = as.Date(
+            c("2024-01-01", "2024-01-03", "2024-01-03", "2024-01-05", "2024-01-07", 
+              "2024-01-02", "2024-01-04", "2024-01-06", "2024-01-08", "2024-01-05",
+              "2024-01-09", "2024-01-11", "2024-01-13", "2024-01-15", 
+              "2024-01-10", "2024-01-12", "2024-01-14", "2024-01-16"
+            )),
+          RecordType = rep(200, 18),
+          TypeProvided = rep(2, 18),
+          DateCreated = as.POSIXct(rep("2022-04-25 12:53", 18)),
+          DateUpdated = as.POSIXct(rep("2022-04-25 12:53", 18)),
+          UserID = rep("18", 18),
+          ExportID = rep("1036", 18)
         )
       )
   }
@@ -197,7 +213,7 @@ for (file in unique(cols_and_data_types$File)) {
   )
 }
 
-demo_zip <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-demo_small3.zip"
+demo_zip <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-demo_small4.zip"
 zipr(
   zipfile = demo_zip, 
   files = list.files(here("sandbox/mini-non-shiny-environment/data"),
