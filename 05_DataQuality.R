@@ -1101,11 +1101,9 @@ overlap_staging <- base_dq_data_dt[
 if(nrow(Services) > 0) {
   services_dt <- as.data.table(Services)
   services_summary <- services_dt[
-    , .(EnrollmentID, DateProvided)
-  ][
-    , `:=`(
-      EnrollmentStart = min(DateProvided, na.rm = TRUE),
-      EnrollmentEnd = max(DateProvided, na.rm = TRUE)
+    , .(
+      FirstDateProvided = min(DateProvided, na.rm = TRUE),
+      LastDateProvided = max(DateProvided, na.rm = TRUE)
     ), 
     by = EnrollmentID
   ]
@@ -1121,13 +1119,13 @@ if(nrow(Services) > 0) {
   overlap_staging[, `:=`(
     EnrollmentStart = fifelse(
       ProjectType == es_nbn_project_type, 
-      EnrollmentStart.y, 
-      EnrollmentStart.x
+      EnrollmentStart, 
+      FirstDateProvided
     ),
     EnrollmentEnd = fifelse(
       ProjectType == es_nbn_project_type, 
-      EnrollmentEnd.y, 
-      EnrollmentEnd.x
+      EnrollmentEnd, 
+      LastDateProvided
     )
   )]
 }
@@ -1139,7 +1137,10 @@ overlap_dt <- overlap_staging[
   PreviousEnrollmentID = shift(EnrollmentID, type = "lag"),
   PreviousEnrollmentStart = shift(EnrollmentStart, type = "lag"),
   PreviousEnrollmentEnd = shift(EnrollmentEnd, type = "lag"),
-  PreviousProjectType = shift(ProjectType, type = "lag")
+  PreviousProjectType = shift(ProjectType, type = "lag"),
+  # doing these now, to be used for overlap_details later
+  PreviousFirstDateProvided = shift(FirstDateProvided, type = "lag"),
+  PreviousLastDateProvided = shift(LastDateProvided, type = "lag")
 ), by = PersonalID]
 
 # Exclude first enrollment and do not compare RRH to PSH
@@ -1224,7 +1225,11 @@ overlap_dt <- merge_check_info_dt(overlap_dt, 77)[,
   Issue,
   Type,
   Guidance,
-  DateProvided
+  DateProvided,
+  FirstDateProvided,
+  LastDateProvided,
+  PreviousFirstDateProvided,
+  PreviousLastDateProvided
 )]
 
 # Bring in additional enrollment details used to contextualize the flagged enrollment
