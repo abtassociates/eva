@@ -49,7 +49,7 @@ dq_main_reactive <- reactive({
 
 getDQReportDataList <-
   function(dqData,
-           dqOverlaps = NULL,
+           dqOverlapDetails = NULL,
            bySummaryLevel = NULL,
            dqReferrals = NULL) {
     
@@ -79,32 +79,6 @@ getDQReportDataList <-
       filter(Type == "Warning") %>%
       mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(all_of(select_list))
-    
-    dqOverlapDetails <- dqOverlaps %>% 
-      select(-c(Issue, Type, Guidance)) %>%
-      relocate(
-        OrganizationName,
-        ProjectID,
-        ProjectName,
-        ProjectType,
-        EnrollmentID,
-        HouseholdID,
-        PersonalID,
-        EntryDate,
-        DateProvided,
-        "MoveInDate" = MoveInDateAdjust,
-        ExitDate,
-        PreviousOrganizationName,
-        PreviousProjectID,
-        PreviousProjectName,
-        PreviousProjectType,
-        PreviousEnrollmentID,
-        PreviousHouseholdID,
-        PreviousPersonalID,
-        PreviousEntryDate,
-        "PreviousMoveInDate" = PreviousMoveInDateAdjust,
-        PreviousExitDate
-      )
     
     dqReferralDetails <- dqReferrals %>%
       filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
@@ -470,7 +444,7 @@ dqDownloadInfo <- reactive({
   orgDQData <- dq_main_reactive() %>%
     filter(OrganizationName %in% c(input$orgList))
   
-  orgDQoverlaps <- overlaps() %>% 
+  orgDQoverlapDetails <- overlap_details() %>% 
     filter(OrganizationName %in% c(input$orgList) | 
              PreviousOrganizationName %in% c(input$orgList))
   #browser()
@@ -482,14 +456,14 @@ dqDownloadInfo <- reactive({
   list(
     orgDQData = 
       getDQReportDataList(orgDQData,
-                          orgDQoverlaps,
+                          orgDQoverlapDetails,
                           "ProjectName",
                           orgDQReferrals
       ),
     
     systemDQData = 
       getDQReportDataList(dq_main_reactive(),
-                          overlaps(),
+                          overlap_details(),
                           "OrganizationName",
                           calculate_outstanding_referrals(input$CEOutstandingReferrals)
       )
