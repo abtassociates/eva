@@ -96,10 +96,8 @@ getDQReportDataList <-
         Days
       )
     
-    mainsummary <- rbind(
-      dqData %>% select(Type, Issue, PersonalID),
-      dqOverlaps %>%  select(Type, Issue, PersonalID)
-    ) %>%
+    mainsummary <- dqData %>% 
+      select(Type, Issue, PersonalID) %>%
       # group_by(ProjectName, Type, Issue) %>%
       group_by(Type, Issue) %>%
       summarise(Enrollments = n()) %>%
@@ -108,10 +106,8 @@ getDQReportDataList <-
       arrange(Type, desc(Enrollments))
 
     bySummaryLevel2 <- rlang::sym(bySummaryLevel)
-    byunitsummary <- rbind(
-      dqData %>% select(!!bySummaryLevel2, Type, Issue, PersonalID),
-      dqOverlaps %>%  select(!!bySummaryLevel2, Type, Issue, PersonalID)
-    ) %>%
+    byunitsummary <- dqData %>% 
+      select(!!bySummaryLevel2, Type, Issue, PersonalID) %>%
       group_by(!!bySummaryLevel2, Type, Issue) %>%
       summarise(Enrollments = n()) %>%
       ungroup() %>%
@@ -135,7 +131,7 @@ getDQReportDataList <-
     exportDFList <- list(
       exportDetail = exportDetail %>% nice_names(),
       mainsummary = mainsummary %>% nice_names(),
-      byunisummary = byunitsummary %>% nice_names(),
+      byunitsummary = byunitsummary %>% nice_names(),
       guidance = guidance %>% nice_names(),
       high_priority = high_priority %>% nice_names(),
       errors = errors %>% nice_names(),
