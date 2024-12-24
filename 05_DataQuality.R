@@ -1116,13 +1116,13 @@ if(nrow(Services) > 0) {
   overlap_staging[, `:=`(
     EnrollmentStart = fifelse(
       ProjectType == es_nbn_project_type, 
-      EnrollmentStart, 
-      FirstDateProvided
+      FirstDateProvided,
+      EnrollmentStart
     ),
     EnrollmentEnd = fifelse(
       ProjectType == es_nbn_project_type, 
-      EnrollmentEnd, 
-      LastDateProvided
+      LastDateProvided,
+      EnrollmentEnd
     )
   )]
 }
