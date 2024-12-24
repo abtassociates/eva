@@ -21,8 +21,8 @@ source(paste0(directory, "helper_functions.R"))
 source(paste0(directory, "hardcodes.R"))
 
 # Get Export --------------------------------------------------------------
-utils::unzip("/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-hashed-current-good.zip",
-             exdir = here(paste0(directory, "data")))
+upload_filepath <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-hashed-current-good.zip"
+utils::unzip(upload_filepath, exdir = here(paste0(directory, "data")))
 
 source(paste0(directory, "01_get_Export.R"))
 
@@ -46,11 +46,16 @@ enrollment_ids <- unique(filtered_enrollments$EnrollmentID)
 personal_ids <- unique(filtered_enrollments$PersonalID)
 
 # for each file in the csv, loop through the file names in the csv
-for (file in unique(cols_and_data_types$File)) {
+for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
   print(paste0("Updating ", file, " for demo.zip"))
   
-  # ignore export
-  if(file == "Export") next
+  # Handling Disabilities separately because it's not part of 01_get_export
+  # since we don't use it
+  if(file == "Disabilities") {
+    f = utils::unzip(zipfile = upload_filepath, files="Disabilities.csv")
+    Disabilities <- as.data.frame(fread(Disablities))
+    file.remove(paste0(file, ".csv"))
+  }
   
   # filter the lowest level IDs based on the pulled lists above
   # Other than in Client, if we filter by PersonalID, we'll get enrollments from other projects
@@ -65,10 +70,7 @@ for (file in unique(cols_and_data_types$File)) {
     df <- df %>% filter(OrganizationID %in% organization_ids)
   } 
   
-  # Insert "issues" to be flagged by Eva
-  if(file == "User") {
-    df <- df %>% filter(UserID == "18")
-  } else if(file == "Client") {
+  if(file == "Client") {
     df <- df %>% 
       # Add NbN overlap data
       bind_rows(
@@ -108,33 +110,14 @@ for (file in unique(cols_and_data_types$File)) {
       mutate(
         CurrentLivingSituation = ifelse(EnrollmentID == "813537", 999, CurrentLivingSituation)
       )
-  } else if(file == "Project") {
-    df <- df %>% 
-      # Add PDDE issue - missing RRH Subtype
-      mutate(
-        RRHSubType = ifelse(ProjectID == "1606", NA, RRHSubType)
-      ) %>% 
-      # Add NbN overlap data
-      bind_rows(
-        tibble(
-          ProjectID = "999999",
-          OrganizationID = "4",
-          ProjectName = "Test NbN Project",
-          ProjectType = 1,
-          OperatingStartDate = ymd("20240427"),
-          ContinuumProject = 1,
-          DateCreated	= as.POSIXct("2021-04-27 10:05"),
-          DateUpdated = as.POSIXct("2021-04-27 11:25"),
-          UserID = "18",
-          ExportID = "1036"
-        )
-      )
-  } else if(file == "ProjectCoC") {
-    df <- df %>% 
-      # Add PDDE issue -missing geography info
-      mutate(
-        Geocode = ifelse(ProjectID == "1377", NA, Geocode)
-      )
+  } else if(file == "Disabilities") {
+    # Get rid of all the many disabilities records. Right now, a person can have  
+    # multiple Disabilities records per InformationDate per EnrollmentID
+    # And we don't even use Disabilities right now. Let's just do 1 per person per DisabilityType
+    df <- df %>%
+      group_by(PersonalID, DisabilityType) %>%
+      slice(1) %>%
+      ungroup()
   } else if(file == "Enrollment") {
     df <- df %>% 
       # Add NbN overlap data
@@ -168,6 +151,37 @@ for (file in unique(cols_and_data_types$File)) {
           UserID = rep("18", 4),
           ExportID = rep("1036", 4)
         )
+      )
+  } else if(file == "Export") {
+    # Add some demo-specific info to export
+    df$SourceID = "DEMO999"
+    df$SourceName = "DEMO-CoC"
+  } else if(file == "Project") {
+    df <- df %>% 
+      # Add PDDE issue - missing RRH Subtype
+      mutate(
+        RRHSubType = ifelse(ProjectID == "1606", NA, RRHSubType)
+      ) %>% 
+      # Add NbN overlap data
+      bind_rows(
+        tibble(
+          ProjectID = "999999",
+          OrganizationID = "4",
+          ProjectName = "Test NbN Project",
+          ProjectType = 1,
+          OperatingStartDate = ymd("20240427"),
+          ContinuumProject = 1,
+          DateCreated	= as.POSIXct("2021-04-27 10:05"),
+          DateUpdated = as.POSIXct("2021-04-27 11:25"),
+          UserID = "18",
+          ExportID = "1036"
+        )
+      )
+  } else if(file == "ProjectCoC") {
+    df <- df %>% 
+      # Add PDDE issue -missing geography info
+      mutate(
+        Geocode = ifelse(ProjectID == "1377", NA, Geocode)
       )
   } else if(file == "Services") {
     df <- df %>% 
@@ -203,7 +217,10 @@ for (file in unique(cols_and_data_types$File)) {
           ExportID = rep("1036", 18)
         )
       )
-  }
+  } else if(file == "User") {
+    # Insert "issues" to be flagged by Eva
+    df <- df %>% filter(UserID == "18")
+  } 
   
   write.csv(
     df,
@@ -213,7 +230,7 @@ for (file in unique(cols_and_data_types$File)) {
   )
 }
 
-demo_zip <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-demo_small4.zip"
+demo_zip <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/demo.zip"
 zipr(
   zipfile = demo_zip, 
   files = list.files(here("sandbox/mini-non-shiny-environment/data"),
