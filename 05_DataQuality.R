@@ -1152,8 +1152,25 @@ overlap_dt[
 ]
 
 # flag overlaps
-overlap_dt[, OverlapDays := as.numeric(pmin(EnrollmentEnd, PreviousEnrollmentEnd) - 
-                             pmax(EnrollmentStart, PreviousEnrollmentStart))]
+# since the dataset is ordered by EnrollmentStart, there are just 3 scenarios:
+# 1. 2nd enrl start < 1st enrl end, but 2nd enrl end > 1st enrl end
+# ------
+#   ------
+# 
+# 2. 2nd enrl fully contained within 1st
+# ------
+#   -
+# 
+# 3. No overlap
+# ------
+#       ----
+#
+# The below method of calculating overlap days handles all 3 scenarios
+# a non-overlap will have -OverlapDays, which will be handled correctly below
+# when flagging if it's an overlap
+overlap_dt[, OverlapDays := as.numeric(
+  pmin(EnrollmentEnd, PreviousEnrollmentEnd) - 
+  pmax(EnrollmentStart, PreviousEnrollmentStart)) + 1]
 
 overlap_dt[, IsOverlap := fifelse(
   # NbN and EE, then overlap must be more than 2 days
@@ -1163,6 +1180,7 @@ overlap_dt[, IsOverlap := fifelse(
   ),
   OverlapDays > 2,
   # otherwise, if not both NbN, any overlap counts
+  # if both NbN, we handle that differently later, looking only at Service records
   fifelse(
     !(ProjectType == es_nbn_project_type & PreviousProjectType == es_nbn_project_type),
     OverlapDays > 0,
