@@ -431,3 +431,32 @@ main_test_script <- function(test_script_name, test_dataset) {
     })
   })
 }
+
+compare_helpers <- function(datasetname, test_script_name) {
+  helper_data_folder <- glue::glue(
+    here("tests/testthat/_snaps/{platform_variant()}/{gsub('test-','',test_script_name)}/helper_data")
+  )
+  
+  old_path <- glue::glue("{helper_data_folder}/{datasetname}.csv")
+  new_path <- glue::glue("{helper_data_folder}/{datasetname}.new.csv")
+  old <- fread(old_path)
+  new <- fread(new_path)
+  
+  # Isolate the records that are different
+  only_in_old <- fsetdiff(old, new)
+  if(nrow(only_in_old) > 0) {
+    print("Viewing records only in the old dataset")
+    view(only_in_old)
+  }
+  
+  only_in_new <- fsetdiff(new, old)
+  if(nrow(only_in_new) > 0) {
+    print("Viewing records only in the old dataset")
+    view(only_in_new)
+  }
+  
+  # For simple differences, view more visually with one of these methods
+  # diffviewer::visual_diff(old_path, new_path)
+  # waldo::compare(old, new)
+  # diffobj::diffObj(old, new)
+}
