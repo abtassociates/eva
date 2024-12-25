@@ -1222,7 +1222,7 @@ if(nrow(Services) > 0) {
     PreviousProjectType = es_nbn_project_type
   )]
   
-  # merge the NbN overlaps back onto the main overlap_Dt
+  # add the NbN overlaps back onto the main overlap_Dt
   overlap_dt <- rbindlist(
     list(overlap_dt, overlap_nbns),
     fill = TRUE
@@ -1281,7 +1281,7 @@ overlap_details(
     # Drop Issue columns
     , !c("Issue", "Type", "Guidance"), with = FALSE
   ][
-    # order and rename
+    # order and rename columns
     , .(
       OrganizationName,
       ProjectID,
