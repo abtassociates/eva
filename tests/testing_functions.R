@@ -65,6 +65,7 @@ handle_helper_data <- function(app, test_script_name, datasetname) {
   if(!file.exists(old_path)) {
     message(glue::glue("A csv for {datasetname} does not yet exist. Creating one now!"))
     fwrite(new_df, file = old_path)
+    file.remove(new_path)
   } 
   else {
     # otherwise, if new and old are different warn user
