@@ -89,7 +89,7 @@ missing_CoC_Info <- Project0() %>%
   )
 
 missing_CoC_Geography <- missing_CoC_Info %>%
-  filter(VictimServiceProvider!=1 & HousingType!=tenant_scattered_site) %>%
+  filter(VictimServiceProvider!=1 & (HousingType!=tenant_scattered_site | is.na(HousingType))) %>%
   filter(is.na(Geocode) | is.na(GeographyType) |
            is.na(CoCCode)) %>%
   merge_check_info(checkIDs = 5) %>%
@@ -124,7 +124,7 @@ missing_CoC_Geography_VSP <- missing_CoC_Info %>%
   
 
 missing_CoC_Address <- missing_CoC_Info %>%
-  filter(VictimServiceProvider!=1 & HousingType!=tenant_scattered_site) %>%
+  filter(VictimServiceProvider!=1 & (HousingType!=tenant_scattered_site | is.na(HousingType))) %>%
   filter(!(is.na(Geocode) | is.na(GeographyType) |
            is.na(CoCCode))) %>%
   merge_check_info(checkIDs = 42) %>%
@@ -152,7 +152,7 @@ missing_CoC_Address <- missing_CoC_Info %>%
   
 missing_CoC_Address_VSP <- missing_CoC_Info %>%
   filter(VictimServiceProvider==1 | HousingType==tenant_scattered_site) %>%
-  filter(!(is.na(Geocode))) %>%
+  filter(nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000") %>%
   merge_check_info(checkIDs = 42) %>%
   mutate(
     Detail = case_when(
