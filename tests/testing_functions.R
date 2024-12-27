@@ -48,16 +48,14 @@ handle_helper_data <- function(app, test_script_name, datasetname) {
     dir.create(platform_dir)
   }
   
-  helper_data_dir <- glue(
-    here("{platform_dir}/{gsub('test-','',test_script_name)}")
-  )
+  helper_data_dir <- glue("{platform_dir}/{gsub('test-','',test_script_name)}")
   print(paste0("helper data folder = ", helper_data_dir))
   if(!dir.exists(helper_data_dir)) {
     print("creating helper data folder")
     dir.create(helper_data_dir)
   }
   
-  old_path <- here(glue("{helper_data_dir}/{datasetname}.csv"))
+  old_path <- glue("{helper_data_dir}/{datasetname}.csv")
   new_path <- gsub(".csv", ".new.csv", old_path)
   
   new_df <- app$get_value(export=datasetname)
