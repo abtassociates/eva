@@ -46,7 +46,7 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: 20ad1fdeae66c0c0d7134ee0d94feaec]",
+      "src": "[image data hash: c260cb256e5cd2a40ba18f87e4b553a2]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -91,16 +91,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 279.3289811643837,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 223.9319349315072,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1640,
+          "height": 400
         }
       }
     },
@@ -123,7 +123,7 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 605dec3ce1f501ec8a9d1842b5bcb41f]",
+      "src": "[image data hash: d365121336547e07bfab50b52a188884]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
@@ -161,16 +161,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 289.7508561643835,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 232.3069349315068,
+              "right": 1634.520547945206,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1640,
+          "height": 400
         }
       }
     },
@@ -193,7 +193,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 80e0241d11aca4058a2fee5df7f14c50]",
+      "src": "[image data hash: fc84a06dd2be3c46a2b674e4610ed141]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
@@ -220,7 +220,7 @@
 
                 ],
                 "y": [
-                  "Overlap with a Rapid Rehousing project",
+                  "Unknown Veteran Status",
                   "Unknown Months or Times Homeless",
                   "Unknown Living Situation",
                   "Unknown Race/Ethnicity",
@@ -238,16 +238,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 320.9852311643837,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 257.2913099315068,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1640,
+          "height": 400
         }
       }
     },
