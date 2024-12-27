@@ -178,7 +178,10 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     data <- data %>%
       filter(is.na(DateDeleted))
   }
-
+  
+  attr(data, "encoding") <- guess_encoding(filename)$encoding[1]
+  data <- convert_data_to_utf8(data)
+  
   return(data)
 }
 
@@ -478,4 +481,36 @@ replace_char_at <- function(string, position, replacement) {
     replacement,
     substr(string, position + 1, nchar(string))
   )
+}
+
+# interpret the data in their original encoding, so they display nicely
+# The resulting characters are almost always UTF-8 characters
+# While a byte sequence may not be UTF-8, the character itself usually has a UTF-8 representation
+# So, e.g., if there's a ‰ in a Windows-encoded file, we want to interpret
+# as Windows, so it will display ‰, rather than the Windows+non-UTF8 byte \x89
+# But if there's a ‰ in a UTF-8 encoded file, it's already been interpreted correctly
+convert_data_to_utf8 <- function(data) {
+  file_encoding <- attr(data, "encoding")
+  if(file_encoding %in% c("UTF-8","ASCII")) return(data)
+  
+  dt <- as.data.table(data)
+  
+  # Fix encoding in all character columns in place
+  for (col in names(dt)) {
+    if (is.character(dt[[col]])) {
+      # Original column before conversion
+      original_col <- dt[[col]]
+      
+      # Interpret characters in a non-UTF-8 encoded file correctly
+      # E.g. ‰ in a UTF-8 file, will come in as ‰ and should not be 
+      converted_col <- iconv(original_col, from = file_encoding)
+      
+      # Identify changes by comparing original and converted values
+      if (length(which(original_col != converted_col)) > 0) {
+        dt[[col]] <- converted_col
+      }
+    }
+  }
+  
+ return(as_tibble(dt))
 }

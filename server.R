@@ -199,34 +199,6 @@ function(input, output, session) {
           setProgress(detail = "Preparing Sankey Chart", value = .95)
           source("09_system_status.R", local = TRUE)
           
-          # if there are any Windows-1252 encodings, convert to UTF-8
-          
-          # convert windows characters to UTF-8
-          lapply(
-            unique(cols_and_data_types$File),
-            function(file) {
-              dt <- as.data.table(get(file))
-              
-              # Fix encoding in all character columns in place
-              for (col in names(dt)) {
-                if (is.character(dt[[col]])) {
-                  # Original column before conversion
-                  original_col <- dt[[col]]
-                  
-                  # Convert to UTF-8
-                  converted_col <- iconv(original_col, from = "WINDOWS-1252", to = "UTF-8", sub = "byte")
-                  
-                  # Identify changes by comparing original and converted values
-                  if (length(which(original_col != converted_col)) > 0) {
-                    dt[[col]] <- converted_col
-                  }
-                }
-              }
-              
-              assign(file, as_tibble(dt), inherits = TRUE)
-            }
-          )
-          
           # if user changes filters, update the reactive vals
           # which get used for the various System Overview charts
           observeEvent({
