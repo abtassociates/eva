@@ -1,3 +1,4 @@
+library(glue)
 customDownload <- function(app, downloadHandler, fname) {
   print(paste("downloading", downloadHandler))
   app$get_download(downloadHandler, fname)
@@ -42,16 +43,21 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
 }
 
 handle_helper_data <- function(app, test_script_name, datasetname) {
-  helper_data_folder <- glue::glue(
-    here("tests/testthat/_snaps/{platform_variant()}/{gsub('test-','',test_script_name)}/helper_data")
-  )
-  print(paste0("helper data folder = ", helper_data_folder))
-  if(!dir.exists(helper_data_folder)) {
-    print("creating helper data folder")
-    dir.create(helper_data_folder)
+  platform_dir <- glue(here("tests/helper_data/{platform_variant()}"))
+  if(!dir.exists(platform_dir)) {
+    dir.create(platform_dir)
   }
   
-  old_path <- here(glue::glue("{helper_data_folder}/{datasetname}.csv"))
+  helper_data_dir <- glue(
+    here("{platform_dir}/{gsub('test-','',test_script_name)}")
+  )
+  print(paste0("helper data folder = ", helper_data_dir))
+  if(!dir.exists(helper_data_dir)) {
+    print("creating helper data folder")
+    dir.create(helper_data_dir)
+  }
+  
+  old_path <- here(glue("{helper_data_dir}/{datasetname}.csv"))
   new_path <- gsub(".csv", ".new.csv", old_path)
   
   new_df <- app$get_value(export=datasetname)
@@ -63,7 +69,7 @@ handle_helper_data <- function(app, test_script_name, datasetname) {
   
   # if no csv yet, create one at the original filepath
   if(!file.exists(old_path)) {
-    message(glue::glue("A csv for {datasetname} does not yet exist. Creating one now!"))
+    message(glue("A csv for {datasetname} does not yet exist. Creating one now!"))
     fwrite(new_df, file = old_path)
     file.remove(new_path)
   } 
@@ -434,12 +440,12 @@ main_test_script <- function(test_script_name, test_dataset) {
 }
 
 compare_helpers <- function(datasetname, test_script_name) {
-  helper_data_folder <- glue::glue(
+  helper_data_dir <- glue(
     here("tests/testthat/_snaps/{platform_variant()}/{gsub('test-','',test_script_name)}/helper_data")
   )
   
-  old_path <- glue::glue("{helper_data_folder}/{datasetname}.csv")
-  new_path <- glue::glue("{helper_data_folder}/{datasetname}.new.csv")
+  old_path <- glue("{helper_data_dir}/{datasetname}.csv")
+  new_path <- glue("{helper_data_dir}/{datasetname}.new.csv")
   old <- fread(old_path)
   new <- fread(new_path)
   
