@@ -1,7 +1,9 @@
+# auto-added by RStudio
+.Rhistory
+.RData
 .Rproj.user
+# added over time
 *.Rproj
-*.Rhistory
-*.RData
 *.Ruserdata
 data
 rsconnect
