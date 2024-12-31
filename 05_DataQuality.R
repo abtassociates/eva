@@ -1135,11 +1135,14 @@ overlap_dt <- overlap_staging[
   PreviousEnrollmentID = shift(EnrollmentID, type = "lag"),
   PreviousEnrollmentStart = shift(EnrollmentStart, type = "lag"),
   PreviousEnrollmentEnd = shift(EnrollmentEnd, type = "lag"),
-  PreviousProjectType = shift(ProjectType, type = "lag"),
-  # doing these now, to be used for overlap_details later
-  PreviousFirstDateProvided = shift(FirstDateProvided, type = "lag"),
-  PreviousLastDateProvided = shift(LastDateProvided, type = "lag")
+  PreviousProjectType = shift(ProjectType, type = "lag")
 ), by = PersonalID]
+
+if(nrow(Services) > 0) {
+# doing these now, to be used for overlap_details later
+  overlap_dt$PreviousFirstDateProvided = shift(overlap_dt$FirstDateProvided, type = "lag")
+  overlap_dt$PreviousLastDateProvided = shift(overlap_dt$LastDateProvided, type = "lag")
+}
 
 # Exclude first enrollment and do not compare RRH to PSH
 overlap_dt[
@@ -1232,6 +1235,24 @@ if(nrow(Services) > 0) {
 
 # Bring in EvaChecks info, but overwrite Issue with overlap-specific text
 # that indicates the project type being overlapped with
+cols_to_keep <- c(
+  "EnrollmentID",
+  "PreviousEnrollmentID",
+  "Issue",
+  "Type",
+  "Guidance"
+)
+if(nrow(Services) > 0) {
+  cols_to_keep <- c(
+    cols_to_keep,
+    "DateProvided",
+    "FirstDateProvided",
+    "LastDateProvided",
+    "PreviousFirstDateProvided",
+    "PreviousLastDateProvided"
+  )
+}
+
 overlap_dt <- merge_check_info_dt(overlap_dt, 77)[,
   Issue := paste(
     "Overlap with",
@@ -1239,18 +1260,7 @@ overlap_dt <- merge_check_info_dt(overlap_dt, 77)[,
     project_type(PreviousProjectType),
     "project"
   )
-][, .(
-  EnrollmentID,
-  PreviousEnrollmentID,
-  Issue,
-  Type,
-  Guidance,
-  DateProvided,
-  FirstDateProvided,
-  LastDateProvided,
-  PreviousFirstDateProvided,
-  PreviousLastDateProvided
-)]
+][, ..cols_to_keep]
 
 # Bring in additional enrollment details used to contextualize the flagged enrollment
 # e.g. EntryDate, ExitAdjust, etc.
@@ -1266,6 +1276,59 @@ overlap_dt <- merge(
 # For the Overlap Details tab of the export
 # we want the same set of details for the overlapping enrollment (i.e. the "previous")
 # this wide dataset is saved in the overlap_details() reactiveValue
+col_order <- if(nrow(Services) > 0) {
+  c(
+    "OrganizationName",
+    "ProjectID",
+    "ProjectName",
+    "ProjectType",
+    "EnrollmentID",
+    "HouseholdID",
+    "PersonalID",
+    "EntryDate",
+    "OverlappingDateProvided" = "DateProvided",
+    "FirstDateProvided",
+    "LastDateProvided",
+    "MoveInDate" = "MoveInDateAdjust",
+    "ExitDate",
+    "PreviousOrganizationName",
+    "PreviousProjectID",
+    "PreviousProjectName",
+    "PreviousProjectType",
+    "PreviousEnrollmentID",
+    "PreviousHouseholdID",
+    "PreviousPersonalID",
+    "PreviousEntryDate",
+    "PreviousMoveInDate" = "PreviousMoveInDateAdjust",
+    "PreviousExitDate",
+    "PreviousFirstDateProvided",
+    "PreviousLastDateProvided"
+  )
+} else {
+  c(
+    "OrganizationName",
+    "ProjectID",
+    "ProjectName",
+    "ProjectType",
+    "EnrollmentID",
+    "HouseholdID",
+    "PersonalID",
+    "EntryDate",
+    "MoveInDate" = "MoveInDateAdjust",
+    "ExitDate",
+    "PreviousOrganizationName",
+    "PreviousProjectID",
+    "PreviousProjectName",
+    "PreviousProjectType",
+    "PreviousEnrollmentID",
+    "PreviousHouseholdID",
+    "PreviousPersonalID",
+    "PreviousEntryDate",
+    "PreviousMoveInDate" = "PreviousMoveInDateAdjust",
+    "PreviousExitDate"
+  )
+}
+
 overlap_details(
   # Rename columns for previous enrollment
   merge(
@@ -1283,35 +1346,10 @@ overlap_details(
     , !c("Issue", "Type", "Guidance"), with = FALSE
   ][
     # order and rename columns
-    , .(
-      OrganizationName,
-      ProjectID,
-      ProjectName,
-      ProjectType,
-      EnrollmentID,
-      HouseholdID,
-      PersonalID,
-      EntryDate,
-      "OverlappingDateProvided" = DateProvided,
-      FirstDateProvided,
-      LastDateProvided,
-      "MoveInDate" = MoveInDateAdjust,
-      ExitDate,
-      PreviousOrganizationName,
-      PreviousProjectID,
-      PreviousProjectName,
-      PreviousProjectType,
-      PreviousEnrollmentID,
-      PreviousHouseholdID,
-      PreviousPersonalID,
-      PreviousEntryDate,
-      "PreviousMoveInDate" = PreviousMoveInDateAdjust,
-      PreviousExitDate,
-      PreviousFirstDateProvided,
-      PreviousLastDateProvided
-    )
+    , ..col_order
   ]
 )
+
 overlaps_df <- as.data.frame(
   overlap_dt[
     , c(
