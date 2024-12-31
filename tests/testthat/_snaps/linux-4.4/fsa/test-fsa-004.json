@@ -382,7 +382,7 @@
         "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
         "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
         "Per the HMIS CSV Format Specifications, all PersonalIDs in the Enrollment file should have a record in the Client file.",
-        "Per the HMIS CSV Format Specifications, all ProjectIDs in the Enrollment file should have a record in the Proect file.",
+        "Per the HMIS CSV Format Specifications, all ProjectIDs in the Enrollment file should have a record in the Project file.",
         "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export.",
         "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export.",
         "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
