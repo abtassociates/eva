@@ -439,7 +439,7 @@ main_test_script <- function(test_script_name, test_dataset) {
 
 compare_helpers <- function(datasetname, test_script_name) {
   helper_data_dir <- glue(
-    here("tests/testthat/_snaps/{platform_variant()}/{gsub('test-','',test_script_name)}/helper_data")
+    here("tests/{platform_variant()}/{gsub('test-','',test_script_name)}/helper_data")
   )
   
   old_path <- glue("{helper_data_dir}/{datasetname}.csv")
