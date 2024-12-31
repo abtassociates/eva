@@ -70,7 +70,7 @@ save_new_zip("FY24-ICF-wrong-csv-version.zip", "reduced")
 file.remove(reduced_files[["Export"]])
 save_new_zip("FY24-ICF-missing-export.zip", "reduced")
 write.csv(reduced_data[["Export"]], reduced_files[["Export"]], row.names=FALSE, na = "") # bring export dataset back
-Sys.sleep(1)
+Sys.sleep(3)
 
 # Missing Files ----------------------------------------------
 file.remove(reduced_files[["Enrollment"]])
