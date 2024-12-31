@@ -1,3 +1,0 @@
-Organization Name,Project ID,Project Name,Issue,Type,Guidance,Detail
-Organization A,1606,Organization A - RRH - 3,Missing RRH SubType,Error,All RRH projects must have an RRH SubType. Please update the data at the project level.,""
-Organization A,1377,Organization A - RRH,Missing Geography Information,High Priority,Please ensure geography information for projects is complete.,This project's Geocode is missing.

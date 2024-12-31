@@ -799,29 +799,38 @@
     },
     "pdde_download_summary": {
       "Issue": [
+        "Bed Type incompatible with Housing Type",
         "Inventory Start Precedes Operating Start",
+        "Missing Address",
         "Missing Geography Information",
         "No Inventory Records",
         "Operating End precedes Inventory End",
         "Overlapping HMIS Participation Records",
+        "Project CoC missing bed inventory",
         "RRH-SO has active bed inventory",
         "Zero Utilization"
       ],
       "Type": [
         "Warning",
+        "Warning",
+        "Error",
         "High Priority",
         "Error",
         "Error",
         "High Priority",
+        "Warning",
         "Error",
         "Warning"
       ],
       "Count": [
+        6,
         730,
-        3,
+        1,
+        1,
         11,
         6,
         1,
+        68,
         8,
         2
       ]
@@ -829,37 +838,37 @@
     "pdde_guidance_summary": {
       "Type": {
         "High Priority": 2,
-        "Error": 3,
-        "Warning": 2
+        "Error": 4,
+        "Warning": 4
       },
       "Issue": {
-        "Length": "7",
+        "Length": "10",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "7",
+        "Length": "10",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "7",
+        "Length": "10",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 2,
-        "Error": 3,
-        "Warning": 2
+        "Error": 4,
+        "Warning": 4
       },
       "Count": {
         "Min.": 1,
-        "1st Qu.": 2.5,
+        "1st Qu.": 1.25,
         "Median": 6,
-        "Mean": 108.7142857142857,
-        "3rd Qu.": 9.5,
+        "Mean": 83.40000000000001,
+        "3rd Qu.": 10.25,
         "Max.": 730
       }
     },
