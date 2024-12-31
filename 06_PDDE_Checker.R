@@ -506,8 +506,7 @@ activeInventory_COC_merged <- activeInventory %>%
                          ix==1~'only_x',
                          iy==1~'only_y')) %>%
   select(-c(ProjectName, OrganizationName)) %>% 
-  merge((Project %>% select(ProjectID, ProjectName, OrganizationID)), by = c("ProjectID"), all=TRUE) %>%
-  merge((Organization %>% select(OrganizationID, OrganizationName)), by = c("OrganizationID"), all=TRUE)
+  merge((Project0() %>% select(ProjectID, ProjectName, OrganizationName)), by = c("ProjectID"), all=TRUE)
 
 # Throw a warning if there is no inventory record for a ProjectID and COCCode combo in the ProjectCoC data
 
