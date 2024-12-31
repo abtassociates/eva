@@ -553,52 +553,55 @@
     "pdde_download_summary": {
       "Issue": [
         "Missing Geography Information",
-        "Missing RRH SubType"
+        "Missing RRH SubType",
+        "Project CoC missing bed inventory"
       ],
       "Type": [
         "High Priority",
-        "Error"
+        "Error",
+        "Warning"
       ],
       "Count": [
         1,
-        1
+        1,
+        6
       ]
     },
     "pdde_guidance_summary": {
       "Type": {
         "High Priority": 1,
         "Error": 1,
-        "Warning": 0
+        "Warning": 1
       },
       "Issue": {
-        "Length": "2",
+        "Length": "3",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "2",
+        "Length": "3",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "2",
+        "Length": "3",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 1,
         "Error": 1,
-        "Warning": 0
+        "Warning": 1
       },
       "Count": {
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 1,
-        "Mean": 1,
-        "3rd Qu.": 1,
-        "Max.": 1
+        "Mean": 2.666666666666667,
+        "3rd Qu.": 3.5,
+        "Max.": 6
       }
     },
     "sys_comp_report_num_df": {

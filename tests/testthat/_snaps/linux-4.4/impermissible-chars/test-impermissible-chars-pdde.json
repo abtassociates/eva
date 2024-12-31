@@ -9,11 +9,13 @@
     "pdde_guidance_summary_columns_selected": null,
     "pdde_guidance_summary_rows_all": [
       1,
-      2
+      2,
+      3
     ],
     "pdde_guidance_summary_rows_current": [
       1,
-      2
+      2,
+      3
     ],
     "pdde_guidance_summary_rows_selected": null,
     "pdde_guidance_summary_search": "",
@@ -73,11 +75,13 @@
     "pdde_summary_table_columns_selected": null,
     "pdde_summary_table_rows_all": [
       1,
-      2
+      2,
+      3
     ],
     "pdde_summary_table_rows_current": [
       1,
-      2
+      2,
+      3
     ],
     "pdde_summary_table_rows_selected": null,
     "pdde_summary_table_search": "",
