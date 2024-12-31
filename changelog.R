@@ -11,7 +11,10 @@ output$changelog <- renderDT({
       - Fixed NbN overlap detection. An NbN and an EE overlap if the first and last
       DateProvided for a given enrollment overlaps with an EE enrollment by more 
       than 2 days. Two NbNs overlap if they have duplicate DateProvideds for a given
-      PersonalID.<br>",
+      PersonalID.<br>
+      - Allow all UTF-8 characters, except for brackets. <br>
+      - Automatically interpret non-UTF-8 encoded characters to 
+      avoid crashing and display correct character.",
     "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
@@ -24,6 +27,11 @@ output$changelog <- renderDT({
 <a href='https://github.com/abtassociates/eva/issues/632'>#632</a>,
 <a href='https://github.com/abtassociates/eva/issues/535'>#535</a>)<br>
       - Fully reset app after a failed upload",
+    "10-23-2024",
+    "<b>Bug Fixes:</b> <br>
+      - Corrected the Zero Utilization logic to only flag projects that are missing
+    enrollments during a project's operating and participating periods. See Issue
+    <a href='https://github.com/abtassociates/eva/issues/522'>#522</a>.",
     "10-07-2024",
     "<b>New Features:</b> <br>
       - Launched the System Performance Overview Page. The page contains three new 

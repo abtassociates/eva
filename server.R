@@ -24,8 +24,6 @@ function(input, output, session) {
     ReportStart <- reactiveVal(),
     ReportEnd <- reactiveVal(),
     sankey_plot_data <- reactiveVal(),
-    non_ascii_files_detail_df <- reactiveVal(),
-    non_ascii_files_detail_r <- reactiveVal(),
     days_of_data <- reactiveVal(),
     windowSize <- reactiveVal()
   )
@@ -410,18 +408,17 @@ function(input, output, session) {
   output$downloadImpermissibleCharacterDetail <- downloadHandler(
     filename = date_stamped_filename("Impermissible-Character-Locations-"),
     content = function(file) {
-      non_ascii_files_detail <- non_ascii_files_detail_r()()
+      bracket_files_detail <- bracket_files_detail()
+      
       write_xlsx(
-        non_ascii_files_detail %>%
-          arrange(Type, Issue) %>%
-          nice_names(),
+        bracket_files_detail %>% nice_names(),
         path = file
       )
       
       logMetadata(paste0("Impermissible Character Locations Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(non_ascii_files_detail = non_ascii_files_detail %>% nice_names())
+      exportTestValues(bracket_files_detail = bracket_files_detail)
     }
   )
   
@@ -643,6 +640,10 @@ function(input, output, session) {
   output$clientCountData <- renderDT({
     req(valid_file() == 1)
     req(nrow(validation()) > 0)
+    
+    # getting an error sometimes? Warning: Error in filter: â„¹ In argument: `ProjectName == input$currentProviderList`.
+    # Caused by error:
+    #   ! `..1` must be of size 292 or 1, not size 0.
     
     x <- client_count_data_df() %>%
       filter(ProjectName == input$currentProviderList) %>%
@@ -954,11 +955,13 @@ function(input, output, session) {
     renderDQPlot("org", "Warning", "Issue", "#71B4CB")
   })
   
+  source("fsa_server.R", local = TRUE)
+  
   # SYSTEM ACTIVITY - SYSTEM OVERVIEW ----------------------------------------
   
   source("system_overview_server.R", local = TRUE)
   
-  ## System Composition ----
+  ## System Inflow/Outflow ----
   source("system_inflow_outflow_server.R", local = TRUE)
     
   ## System Composition ----

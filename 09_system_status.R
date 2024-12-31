@@ -1,3 +1,5 @@
+logToConsole("Running system status")
+
 # The universe is anyone who was Housed or Homeless at Period Start
 # We also need the latest exit for the folks in the Exited categories
 sankey_plot_df <- reactive({
