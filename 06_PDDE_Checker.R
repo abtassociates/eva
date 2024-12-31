@@ -501,10 +501,13 @@ ES_BedType_HousingType <- Inventory %>%
 
 activeInventory_COC_merged <- activeInventory %>% 
   mutate(ix=1) %>% 
-  merge(ProjectCoC %>% mutate(iy=1), by = c("ProjectID", "CoCCode"), all=TRUE) %>%
+  merge((ProjectCoC %>% select(ProjectID, CoCCode)) %>% mutate(iy=1), by = c("ProjectID", "CoCCode"), all=TRUE) %>%
   mutate(mer = case_when(ix==1&iy==1~'both',
                          ix==1~'only_x',
-                         iy==1~'only_y'))
+                         iy==1~'only_y')) %>%
+  select(-c(ProjectName, OrganizationName)) %>% 
+  merge((Project %>% select(ProjectID, ProjectName, OrganizationID)), by = c("ProjectID"), all=TRUE) %>%
+  merge((Organization %>% select(OrganizationID, OrganizationName)), by = c("OrganizationID"), all=TRUE)
 
 # Throw a warning if there is no inventory record for a ProjectID and COCCode combo in the ProjectCoC data
 
