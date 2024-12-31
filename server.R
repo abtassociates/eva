@@ -170,20 +170,8 @@ function(input, output, session) {
           if(nrow(
             file_structure_analysis_main() %>%
             filter(Issue == "Impermissible characters"))) {
-            showModal(
-              modalDialog(
-                list(
-                  span("Eva has detected impermissible characters in your HMIS CSV file. 
-                Eva is able to handle most impermissible characters, and will 
-                continue processing your file. However, if Eva does crash, please 
-                report this via a "),
-                  a(href="https://github.com/abtassociates/eva/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=", "GitHub Issue"),
-                  span(".")
-                ),
-                title = "Impermissible characters",
-                easyClose = TRUE
-              )
-            )
+            
+            impermissible_check_info <- evachecks %>% filter(ID == 134)
           }
 
           setProgress(detail = "Prepping initial data..", value = .4)
@@ -247,14 +235,49 @@ function(input, output, session) {
           
           logToConsole("Upload processing complete")
           
-          showModal(
-            modalDialog(
-              title = "Upload successful",
-              "Congratulations! You have succesfully uploaded an HMIS CSV Export.",
-              easyClose = TRUE,
-              footer = modalButton("OK")
+          if(nrow(file_structure_analysis_main()) > 0) {
+            msg <- "Congratulations! You have successfully uploaded a hashed HMIS 
+                  CSV Export to Eva! Your upload has file structure errors, but 
+                  none are High Priority. Thus, Eva can read your file and you can
+                  move forward with utilizing the rest of Eva. However, still 
+                  please share the identified file structure issues with your HMIS
+                  vendor to fix."
+            
+            if("Impermissible characters" %in% c(file_structure_analysis_main()$Issue)) {
+              showModal(
+                modalDialog(
+                  HTML(paste0(msg, "<br><br>", "Additionally, Eva has detected 
+                  impermissible characters in your upload. Please note that these 
+                  characters may cause Eva to crash.")),
+                  title = "Successful Upload: No High Priority File Structure Errors",
+                  easyClose = TRUE,
+                  footer = modalButton("OK")
+                )
+              )
+            } else {
+              showModal(
+                modalDialog(
+                  msg,
+                  title = "Successful Upload: No High Priority File Structure Errors",
+                  easyClose = TRUE,
+                  footer = modalButton("OK")
+                )
+              )
+            }
+          } else {
+            showModal(
+              modalDialog(
+                "Congratulations! You have successfully uploaded a hashed HMIS 
+                CSV Export to Eva! Your upload has none of the file structure 
+                errors Eva checks for. Thus, Eva can read your file, and you can 
+                move forward with utilizing the rest of Eva.",
+                title = "Successful Upload: No file structure errors",
+                easyClose = TRUE,
+                footer = modalButton("OK")
+              )
             )
-          )
+          }
+          
           
           shinyjs::show("fileStructureAnalysis")
           
@@ -297,12 +320,16 @@ function(input, output, session) {
           valid_file(0)
           showModal(
             modalDialog(
+              "Your uploaded HMIS CSV Export has at least one High Priority File 
+              Structure Error. To be able to read an uploaded hashed HMIS CSV 
+              Export, Eva requires the .zip file to have zero High Priority File 
+              Structure Errors. Thus, to use Eva, your upload must have zero High 
+              Priority File Structure Errors. Please share the file structure 
+              issues, prioritizing the High Priotity File Structure Errrors, 
+              with your HMIS vendor to fix.",
+              easyClose = TRUE,
               title = "Unsuccessful Upload: Your HMIS CSV Export is not
               structurally valid",
-              "Your HMIS CSV Export has some High Priority issues that must
-              be addressed by your HMIS Vendor. Please download the File Structure
-              Analysis for details.",
-              easyClose = TRUE,
               footer = modalButton("OK")
             )
           )
@@ -400,10 +427,11 @@ function(input, output, session) {
   
   observeEvent(input$showDownloadImpermissibleButton, {
     showModal(modalDialog(
-      title = "Confirmation",
       "The Impermissible Character Detail export identifies the precise location 
       of all impermissible characters in your HMIS CSV export. 
-      Therefore, it can take up to several minutes to run. To proceed with this export, please click Continue.",
+      Therefore, it can take up to several minutes to run. To proceed with this 
+      export, please click Continue.",
+      title = "Confirmation",
       footer = tagList(
         modalButton("Cancel"),
         actionButton("confirmDownload", "Continue")
@@ -689,8 +717,10 @@ function(input, output, session) {
       
       write_xlsx(
         list("Summary" = summary_df,
-             "Data" = pdde_main() %>%
-               nice_names()),
+             "Data" = pdde_main() %>% 
+               left_join(Project0() %>% select(ProjectID, ProjectType), by="ProjectID") %>%
+               nice_names()
+             ),
         path = file)
       
       logMetadata(paste0("Downloaded PDDE Report",

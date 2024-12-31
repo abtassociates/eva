@@ -1225,7 +1225,7 @@
         ],
         [
           null,
-          "Mean   :  835.8  ",
+          "Mean   :  854.4  ",
           null
         ],
         [
@@ -1241,10 +1241,10 @@
       ],
       "Organization Summary": [
         [
-          "Length:1032       ",
+          "Length:1035       ",
           "High Priority: 56  ",
           "Min.   :   1.00  ",
-          "Length:1032       "
+          "Length:1035       "
         ],
         [
           "Class :character  ",
@@ -1254,14 +1254,14 @@
         ],
         [
           "Mode  :character  ",
-          "Warning      :543  ",
-          "Median :   8.00  ",
+          "Warning      :546  ",
+          "Median :   9.00  ",
           "Mode  :character  "
         ],
         [
           null,
           null,
-          "Mean   :  55.07  ",
+          "Mean   :  56.13  ",
           null
         ],
         [
@@ -1432,14 +1432,14 @@
       ],
       "Warnings": [
         [
-          "Length:47346      ",
-          "Length:47346      ",
-          "Length:47346      ",
-          "Length:47346      ",
-          "Length:47346      ",
-          "Length:47346      ",
-          "Length:47346      ",
-          "Length:47346      ",
+          "Length:47908      ",
+          "Length:47908      ",
+          "Length:47908      ",
+          "Length:47908      ",
+          "Length:47908      ",
+          "Length:47908      ",
+          "Length:47908      ",
+          "Length:47908      ",
           "Min.   :2005-04-14  "
         ],
         [

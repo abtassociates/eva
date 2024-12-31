@@ -10,7 +10,10 @@ assignees: ''
 **DO NOT UPLOAD YOUR EXPORT TO GITHUB**
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+A clear and concise description of what the bug is. Please do not include text, screenshots, or attachments with any PII, including PersonalID.
+
+**Time of Issue**
+Date and time, including timezone, when you encountered the bug.
 
 **To Reproduce**
 Steps to reproduce the behavior:
@@ -33,4 +36,5 @@ If applicable, add screenshots to help explain your problem.
  - Device: [e.g. iPhone6]
 
 **Additional context**
+**DO NOT UPLOAD YOUR EXPORT TO GITHUB**
 Add any other context about the problem here.

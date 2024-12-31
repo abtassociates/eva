@@ -2,14 +2,16 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
-    "12-23-2024",
-    "<b>Bug Fixes:</b><br>
+    "12-31-2024",
+    "<b>New features:</b> <br>
+      - Updated demo.zip to capture new overlaps. <br>
+      - Modified upload-related pop-ups to be more informative. <br>
+     <b>Bug Fixes:</b> <br>
+      - Only flagging Missed Move-In if relationship to HoH is 1 <br>
       - Fixed NbN overlap detection. An NbN and an EE overlap if the first and last
       DateProvided for a given enrollment overlaps with an EE enrollment by more 
       than 2 days. Two NbNs overlap if they have duplicate DateProvideds for a given
-      PersonalID.<br>
-     <b>New Features:</b> <br>
-      - Updated demo.zip to capture new overlaps.",
+      PersonalID.<br>",
     "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
