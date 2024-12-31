@@ -3,8 +3,10 @@ output$changelog <- renderDT({
     ~ Date,
     ~ Change,
     "12-31-2024",
-     "<b>Bug Fixes:</b> <br>
-       - Only flagging Missed Move-In if relationship to HoH is 1",
+    "<b>New features:</b> <br>
+      - Modified upload-related pop-ups to be more informative. <br>
+     <b>Bug Fixes:</b> <br>
+      - Only flagging Missed Move-In if relationship to HoH is 1",
     "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
