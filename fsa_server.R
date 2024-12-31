@@ -11,29 +11,26 @@ fread_type_mapping <- list(
 )
 
 # Function to detect non-UTF-8 characters and brackets
-detect_non_utf8_and_bracket_characters <- function(dt, file, encoding) {
+detect_bracket_characters <- function(dt, file, encoding) {
   # Vectorized detection for non-UTF-8 and bracket issues
   # Identify character columns only
   char_cols <- names(dt)[sapply(dt, is.character)]
 
   # Create a list of problematic entries
   problematic_characters <- purrr::map_dfr(char_cols, function(col) {
-    non_utf8_rows <- !stringi::stri_enc_isutf8(dt[[col]])
     bracket_rows <- stringi::stri_extract_all_regex(dt[[col]], bracket_regex, omit_no_match = TRUE) %>%
       purrr::map_lgl( ~ length(.) > 0) # Check if any match
     
-    invalid_rows <- non_utf8_rows | bracket_rows
-    
     # Create tibbles for invalid rows to store the problematic text and cell location
-    if (any(invalid_rows)) {
-      invalid_row_indices <- which(invalid_rows)
+    if (any(bracket_rows)) {
+      row_indices <- which(bracket_rows)
       tibble::tibble(
         File = file,
-        Location = paste0("column ", col, ", row ", invalid_row_indices),
+        Location = paste0("column ", col, ", row ", row_indices),
         Text = iconv(
-          dt[[col]][invalid_row_indices],
+          dt[[col]][row_indices],
           from = toupper(encoding),
-          to = "UTF-8",
+          # to = "UTF-8", #not needed, because UTF-8 is the default
         )
       )
     }
@@ -42,7 +39,7 @@ detect_non_utf8_and_bracket_characters <- function(dt, file, encoding) {
   return(problematic_characters)
 }
 
-non_utf8_files_detail <- reactive({
+bracket_files_detail <- reactive({
   req(input$imported)
   file_list <- unique(cols_and_data_types$File)
   
@@ -57,7 +54,7 @@ non_utf8_files_detail <- reactive({
     message = "Downloading Impermissible Character Export...", 
     value = 0,
     {
-      files_with_non_utf8 <- purrr::map_dfr(file_list, function(file) {
+      files_with_brackets <- purrr::map_dfr(file_list, function(file) {
         # Import original data, since object names have been overwritten 
         # with windows-1252 chars removed
         filename <- utils::unzip(zipfile = input$imported$datapath, files = glue("{file}.csv"))
@@ -76,12 +73,12 @@ non_utf8_files_detail <- reactive({
         file.remove(filename) # remove the csv
         
         return(
-          detect_non_utf8_and_bracket_characters(dt, file, most_likely_encoding)
+          detect_bracket_characters(dt, file, most_likely_encoding)
         )
       })
     }
   )
   
   # Combine all data frames in the list into one data frame
-  return(files_with_non_utf8)
+  return(files_with_brackets)
 })

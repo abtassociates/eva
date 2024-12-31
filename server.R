@@ -381,17 +381,17 @@ function(input, output, session) {
   output$downloadImpermissibleCharacterDetail <- downloadHandler(
     filename = date_stamped_filename("Impermissible-Character-Locations-"),
     content = function(file) {
-      non_utf8_files_detail <- non_utf8_files_detail()
+      bracket_files_detail <- bracket_files_detail()
       
       write_xlsx(
-        non_utf8_files_detail %>% nice_names(),
+        bracket_files_detail %>% nice_names(),
         path = file
       )
       
       logMetadata(paste0("Impermissible Character Locations Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(non_utf8_files_detail = non_utf8_files_detail)
+      exportTestValues(bracket_files_detail = bracket_files_detail)
     }
   )
   

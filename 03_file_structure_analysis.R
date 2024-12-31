@@ -15,35 +15,20 @@ high_priority_columns <- cols_and_data_types %>%
   pull(Column) %>%
   unique()
 
-# non-utf8 --------------------------------------------------------------
-has_non_utf8_or_bracket <- function(x) {
-  matrix_data <- as.matrix(x)
-  any(!all(stringi::stri_enc_isutf8(matrix_data))) || any(str_detect(matrix_data, bracket_regex))
-}
-non_utf8_files_simple <- function() {
-  # Initialize an empty data.table to store results
-  for (file in unique(cols_and_data_types$File)) {
-    # convert to string for faster searching
-    df <- get(file)
-    non_utf8_found <- has_non_utf8_or_bracket(df)
-    
-    # If non-UTF8 characters are found, note that
-    if (isTruthy(non_utf8_found)) {
-      return(
-        data.frame(
-          Detail = str_squish("Found non-UTF-8 character(s) in your HMIS CSV Export. 
+# Brackets --------------------------------------------------------------
+files_with_brackets <- data.frame()
+for(file in unique(cols_and_data_types$File)) {
+  if (isTruthy(any(str_detect(as.matrix(get(file)), bracket_regex)))) {
+    files_with_brackets <- data.frame(
+        Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
           See Impermissible Character Detail export for the precise location of 
           these characters.")
-        ) %>%
-          merge_check_info(checkIDs = 134) %>%
-          select(all_of(issue_display_cols))
-      )
-    }
+      ) %>%
+        merge_check_info(checkIDs = 134) %>%
+        select(all_of(issue_display_cols))
+    break
   }
-  return(data.frame())
 }
-
-files_with_non_utf8 <- non_utf8_files_simple()
 
 # Incorrect Date Formats --------------------------------------------------
 
@@ -442,7 +427,7 @@ file_structure_analysis_main(rbind(
   nonstandard_destination,
   rel_to_hoh_invalid,
   valid_values_client,
-  files_with_non_utf8
+  files_with_brackets
   ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
