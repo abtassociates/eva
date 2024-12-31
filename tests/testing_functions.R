@@ -439,7 +439,7 @@ main_test_script <- function(test_script_name, test_dataset) {
 
 compare_helpers <- function(datasetname, test_script_name) {
   helper_data_dir <- glue(
-    here("tests/{platform_variant()}/{gsub('test-','',test_script_name)}/helper_data")
+    here("tests/helper_data/{platform_variant()}/{gsub('test-','',test_script_name)}")
   )
   
   old_path <- glue("{helper_data_dir}/{datasetname}.csv")
@@ -456,7 +456,7 @@ compare_helpers <- function(datasetname, test_script_name) {
   
   only_in_new <- fsetdiff(new, old)
   if(nrow(only_in_new) > 0) {
-    print("Viewing records only in the old dataset")
+    print("Viewing records only in the new dataset")
     view(only_in_new)
   }
   
