@@ -6,7 +6,10 @@ output$changelog <- renderDT({
     "<b>New features:</b> <br>
       - Modified upload-related pop-ups to be more informative. <br>
      <b>Bug Fixes:</b> <br>
-      - Only flagging Missed Move-In if relationship to HoH is 1",
+      - Only flagging Missed Move-In if relationship to HoH is 1 <br>
+      - Allow all UTF-8 characters, except for brackets. <br>
+      - Automatically interpret non-UTF-8 encoded characters to 
+      avoid crashing and display correct character.",
     "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
@@ -19,6 +22,11 @@ output$changelog <- renderDT({
 <a href='https://github.com/abtassociates/eva/issues/632'>#632</a>,
 <a href='https://github.com/abtassociates/eva/issues/535'>#535</a>)<br>
       - Fully reset app after a failed upload",
+    "10-23-2024",
+    "<b>Bug Fixes:</b> <br>
+      - Corrected the Zero Utilization logic to only flag projects that are missing
+    enrollments during a project's operating and participating periods. See Issue
+    <a href='https://github.com/abtassociates/eva/issues/522'>#522</a>.",
     "10-07-2024",
     "<b>New Features:</b> <br>
       - Launched the System Performance Overview Page. The page contains three new 
