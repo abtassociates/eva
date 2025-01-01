@@ -1,0 +1,15 @@
+# Automatically normalize line endings for text files
+* text=auto
+
+# Explicit settings for specific file types
+*.R      text eol=lf
+*.Rmd    text eol=lf
+*.sh     text eol=lf
+*.bat    text eol=crlf
+*.md     text=auto
+*.txt    text=auto
+
+# Binary files should not have line-ending conversions
+*.png    binary
+*.jpg    binary
+*.pdf    binary
