@@ -438,7 +438,7 @@ main_test_script <- function(test_script_name, test_dataset) {
 
 compare_helpers <- function(datasetname, test_script_name) {
   helper_data_dir <- glue(
-    here("tests/helper_data/{platform_variant()}/{gsub('test-','',test_script_name)}")
+    here("tests/helper_data/{gsub('test-','',test_script_name)}")
   )
   
   old_path <- glue("{helper_data_dir}/{datasetname}.csv")
@@ -463,4 +463,19 @@ compare_helpers <- function(datasetname, test_script_name) {
   # diffviewer::visual_diff(old_path, new_path)
   # waldo::compare(old, new)
   # diffobj::diffObj(old, new)
+}
+
+accept_csv <- function(datasetname, test_script_name) {
+  helper_data_dir <- glue(
+    here("tests/helper_data/{gsub('test-','',test_script_name)}")
+  )
+  
+  old_path <- glue("{helper_data_dir}/{datasetname}.csv")
+  new_path <- glue("{helper_data_dir}/{datasetname}.new.csv")
+  
+  # delete old
+  file.remove(old_path)
+  
+  # rename new to old
+  file.rename(new_path, old_path)
 }
