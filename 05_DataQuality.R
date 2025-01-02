@@ -1157,8 +1157,8 @@ overlap_dt[
 
 # flag overlaps
 # since the dataset is ordered by EnrollmentStart, there are 4 scenarios to consider:
-# 1. 2nd enrl start < 1st enrl end, but 2nd enrl end > 1st enrl end
-# ------
+# 1. 2nd enrl start < 1st enrl end, but 2nd enrl end > 1st enrl end - overlap by 1 day
+# ----
 #   ------
 # 
 # 2. 2nd enrl fully contained within 1st
@@ -1178,7 +1178,7 @@ overlap_dt[
 # when flagging if it's an overlap
 overlap_dt[, OverlapDays := as.numeric(
   pmin(EnrollmentEnd, PreviousEnrollmentEnd) - 
-  pmax(EnrollmentStart, PreviousEnrollmentStart)) + 1]
+  pmax(EnrollmentStart, PreviousEnrollmentStart))]
 
 overlap_dt[, IsOverlap := fifelse(
   # NbN and EE, then overlap must be more than 2 days
