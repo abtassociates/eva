@@ -160,12 +160,11 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   
   colTypes <- get_col_types(upload_filepath, csvFile)
 
-  data <-
-    read_csv(
-      filename,
-      col_types = colTypes,
-      na = ""
-    )
+  data <- read_csv(
+    filename,
+    col_types = colTypes,
+    na = ""
+  )
     # AS 5/29/24: This seems a bit faster, but has problems with missing columns, 
     # like DateDeleted in Client.csv. they come inas character, and not NA
     # data.table::fread(
