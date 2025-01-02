@@ -1161,10 +1161,26 @@ overlap_dt[
 # ----
 #   ------
 # 
-# 2. 2nd enrl fully contained within 1st
+# 2a. 2nd enrl fully contained within 1st - overlap 1 day
 # ------
 #   -
 # 
+# 2b. 2nd enrl fully contained within 1st - No overlap
+# ------
+#      -
+#
+# 2c. 2nd enrl fully contained within 1st - overlap 1 day
+# ------
+#     --
+#
+# 2d. 2nd enrl fully contained within 1st - overlap 1 days
+# ------
+# -
+#
+# 2e. 2nd enrl fully contained within 1st - overlap 2 days
+# ------
+# --
+#
 # 3. No overlap
 # ------
 #      ----
@@ -1179,6 +1195,12 @@ overlap_dt[
 overlap_dt[, OverlapDays := as.numeric(
   pmin(EnrollmentEnd, PreviousEnrollmentEnd) - 
   pmax(EnrollmentStart, PreviousEnrollmentStart))]
+
+overlap_dt[, OverlapDays := fifelse(
+  EnrollmentEnd < PreviousEnrollmentEnd,
+  OverlapDays + 1,
+  OverlapDays
+)]
 
 overlap_dt[, IsOverlap := fifelse(
   # NbN and EE, then overlap must be more than 2 days
