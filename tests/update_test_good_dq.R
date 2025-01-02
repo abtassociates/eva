@@ -114,12 +114,18 @@ original_data_fixed_cols[tables_to_filter] <- lapply(
 # brackets, Windows-1252 encoding with smart quotes
 # add brackets and Windows smart quotes (which have crashed Eva in the past)
 # Project will eventually be Windows-1252 encoded
-original_data_fixed_cols$Project[5, "ProjectName"] <- "Project Name with [Brackets]"
-original_data_fixed_cols$Project[7, "ProjectName"] <- "‘smart quote’"
-original_data_fixed_cols$Project[8, "ProjectName"] <- "“Double smart quote”"
+original_data_fixed_cols$Project[5, "ProjectName"] <- "Organization G - [Brackets]"
+original_data_fixed_cols$Project[7, "ProjectName"] <- "Organization S - ‘smart quote’"
+original_data_fixed_cols$Project[8, "ProjectName"] <- "Organization M - “Double smart quote”"
 # per mille sign but Organization will be left as utf-8 encoded
 original_data_fixed_cols$Organization[2, "OrganizationName"] <- paste0(
   original_data_fixed_cols$Organization[2, "OrganizationName"],
   "‰"
 )
+
+# missing address, for VSP and CoC, as well as CoCCode and GeographyType
+original_data_fixed_cols$Organization[11, "VictimServiceProvider"] <- 1 # org 55
+# Non-VSP project (Org 49) and a project with Org 55
+original_data_fixed_cols$ProjectCoC[c(1, 28), c("Address1", "CoCCode", "GeographyType", "ZIP")] <- NA
+
 ## add more checks here --------------------------------------------
