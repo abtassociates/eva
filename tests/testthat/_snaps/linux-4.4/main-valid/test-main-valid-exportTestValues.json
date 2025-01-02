@@ -1,5 +1,16 @@
 {
   "export": {
+    "bracket_files_detail": {
+      "File": [
+        "Project"
+      ],
+      "Location": [
+        "column ProjectName, row 5"
+      ],
+      "Text": [
+        "Project Name with [Brackets]"
+      ]
+    },
     "clientCountSummary": {
       "Status": [
         "Currently in project",
@@ -128,6 +139,20 @@
         "3rd Qu.": 12,
         "Max.": 630
       }
+    },
+    "file_structure_analysis_main": {
+      "Issue": [
+        "Impermissible characters"
+      ],
+      "Type": [
+        "Error"
+      ],
+      "Guidance": [
+        "The HMIS CSV Specs restrict the use of some characters in string fields. To locate the character(s) that are flagging this issue, please run and download the Impermissible Character Detail export. Contact your vendor to ensure impermissible characters are excluded from your export."
+      ],
+      "Detail": [
+        "Found one or more brackets in your HMIS CSV Export. See Impermissible Character Detail export for the precise location of these characters."
+      ]
     },
     "orgDQ_download": {
       "Export Detail": [

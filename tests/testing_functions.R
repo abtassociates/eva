@@ -43,7 +43,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
 }
 
 handle_helper_data <- function(app, test_script_name, datasetname) {
-  helper_data_dir <- glue("tests/helper_data/{gsub('test-','',test_script_name)}")
+  helper_data_dir <- here(glue("tests/helper_data/{gsub('test-','',test_script_name)}"))
   print(paste0("helper data folder = ", helper_data_dir))
   if(!dir.exists(helper_data_dir)) {
     print("creating helper data folder")
