@@ -129,6 +129,20 @@
         "Max.": 630
       }
     },
+    "file_structure_analysis_main": {
+      "Issue": [
+        "Nulls not allowed or incorrect data type"
+      ],
+      "Type": [
+        "Error"
+      ],
+      "Guidance": [
+        "Either there is a column with nulls where they are not allowed, or there is a column with an incorrect data type. Please review the HMIS CSV Format Specifications for the data types and null requirements associated with the file and column listed in the detail and make the necessary updates."
+      ],
+      "Detail": [
+        "The CoCCode column in the ProjectCoC file contains nulls or incorrect data types. See rows: 1, 28"
+      ]
+    },
     "orgDQ_download": {
       "Export Detail": [
         [
@@ -800,72 +814,84 @@
     "pdde_download_summary": {
       "Issue": [
         "Bed Type incompatible with Housing Type",
+        "Client-level data in VSP organization",
+        "Incorrect CoC in bed inventory",
         "Inventory Start Precedes Operating Start",
+        "Missing Address",
         "Missing Geography Information",
         "No Inventory Records",
         "Operating End precedes Inventory End",
         "Overlapping HMIS Participation Records",
         "Project CoC missing bed inventory",
         "RRH-SO has active bed inventory",
+        "VSP participating in HMIS",
         "Zero Utilization"
       ],
       "Type": [
         "Warning",
+        "High Priority",
+        "Error",
         "Warning",
+        "Error",
         "High Priority",
         "Error",
         "Error",
         "High Priority",
         "Warning",
+        "Error",
         "Error",
         "Warning"
       ],
       "Count": [
         6,
+        13,
+        9,
         730,
-        3,
+        2,
+        5,
         11,
         6,
         1,
-        68,
+        70,
         8,
+        13,
         2
       ]
     },
     "pdde_guidance_summary": {
       "Type": {
-        "High Priority": 2,
-        "Error": 3,
+        "High Priority": 3,
+        "Error": 6,
         "Warning": 4
       },
       "Issue": {
-        "Length": "9",
+        "Length": "13",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "9",
+        "Length": "13",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "9",
+        "Length": "13",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
-        "High Priority": 2,
-        "Error": 3,
+        "High Priority": 3,
+        "Error": 6,
         "Warning": 4
       },
       "Count": {
         "Min.": 1,
-        "1st Qu.": 3,
-        "Median": 6,
-        "Mean": 92.77777777777777,
-        "3rd Qu.": 11,
+        "1st Qu.": 5,
+        "Median": 8,
+        "Mean": 67.38461538461539,
+        "3rd Qu.": 13,
         "Max.": 730
       }
     },
