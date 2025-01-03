@@ -24,8 +24,14 @@
 
     ],
     "fileStructureAnalysis_columns_selected": null,
-    "fileStructureAnalysis_rows_all": 1,
-    "fileStructureAnalysis_rows_current": 1,
+    "fileStructureAnalysis_rows_all": [
+      1,
+      2
+    ],
+    "fileStructureAnalysis_rows_current": [
+      1,
+      2
+    ],
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
     "fileStructureAnalysis_state": {
@@ -75,7 +81,7 @@
         "FY24-ICF-main-valid.zip"
       ],
       "size": [
-        19444158
+        19444162
       ],
       "type": [
         "application/zip"
@@ -86,7 +92,7 @@
     },
     "isdemo": false,
     "methodology_type": "1",
-    "orgList": "Organization A",
+    "orgList": "Organization A‰",
     "showDownloadImpermissibleButton": 0,
     "sidebarCollapsed": false,
     "sidebarItemExpanded": null,
