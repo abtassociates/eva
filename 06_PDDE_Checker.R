@@ -97,9 +97,9 @@ missing_CoC_Geography <- missing_CoC_Info %>%
       "(^|,)(\\s*,\\s*)", "\\1", # remove unwanted ", ," and ": ," patterns
       paste0(
         "This project is missing a valid: ",
-        if_else(is.na(Geocode), "Geocode", NA),
-        if_else(is.na(GeographyType), "Geography Type", NA),
-        if_else(is.na(CoCCode), "CoC Code", NA)
+        if_else(is.na(Geocode), "Geocode", ""),
+        if_else(is.na(GeographyType), ", Geography Type", ""),
+        if_else(is.na(CoCCode), ", CoC Code", "")
       )
     )
   ) %>%
