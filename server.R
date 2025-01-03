@@ -13,7 +13,7 @@ function(input, output, session) {
     meta_HUDCSV_Export_Start <- reactiveVal(),
     meta_HUDCSV_Export_End <- reactiveVal(),
     meta_HUDCSV_Export_Date <- reactiveVal(),
-    overlaps <- reactiveVal(),
+    overlap_details <- reactiveVal(),
     base_dq_data_func <- reactiveVal(),
     dq_main_df <- reactiveVal(),
     pdde_main <- reactiveVal(),

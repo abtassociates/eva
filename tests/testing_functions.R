@@ -1,3 +1,4 @@
+library(glue)
 customDownload <- function(app, downloadHandler, fname) {
   print(paste("downloading", downloadHandler))
   app$get_download(downloadHandler, fname)
@@ -42,27 +43,28 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
 }
 
 handle_helper_data <- function(app, test_script_name, datasetname) {
-  helper_data_folder <- glue::glue(
-    here("tests/testthat/_snaps/{platform_variant()}/{gsub('test-','',test_script_name)}/helper_data")
-  )
-  if(!dir.exists(helper_data_folder)) {
-    dir.create(helper_data_folder)
+  helper_data_dir <- here(glue("tests/helper_data/{gsub('test-','',test_script_name)}"))
+  print(paste0("helper data folder = ", helper_data_dir))
+  if(!dir.exists(helper_data_dir)) {
+    print("creating helper data folder")
+    dir.create(helper_data_dir)
   }
   
-  old_path <- here(glue::glue("{helper_data_folder}/{datasetname}.csv"))
+  old_path <- glue("{helper_data_dir}/{datasetname}.csv")
   new_path <- gsub(".csv", ".new.csv", old_path)
   
   new_df <- app$get_value(export=datasetname)
   
-  if(is.null(new_df) & !file.exists(old_path)) return(NULL)
+  if(is.null(new_df)) return(NULL)
   
   new_df <- as.data.table(new_df)
   fwrite(new_df, file = new_path)
   
   # if no csv yet, create one at the original filepath
   if(!file.exists(old_path)) {
-    message(glue::glue("A csv for {datasetname} does not yet exist. Creating one now!"))
+    message(glue("A csv for {datasetname} does not yet exist. Creating one now!"))
     fwrite(new_df, file = old_path)
+    file.remove(new_path)
   } 
   else {
     # otherwise, if new and old are different warn user
@@ -425,9 +427,55 @@ main_test_script <- function(test_script_name, test_dataset) {
     exports_to_keep <- setdiff(all_export_names, c(helper_datasets, non_download_exports))
     app$expect_values(export = exports_to_keep, name = "exportTestValues")
     
+    print("handling helper datasets")
     # handle large/helper datasets
     lapply(helper_datasets, function(df_name) {
+      print(paste0("handling ", df_name))
       handle_helper_data(app, test_script_name, df_name)
     })
   })
+}
+
+compare_helpers <- function(datasetname, test_script_name) {
+  helper_data_dir <- glue(
+    here("tests/helper_data/{gsub('test-','',test_script_name)}")
+  )
+  
+  old_path <- glue("{helper_data_dir}/{datasetname}.csv")
+  new_path <- glue("{helper_data_dir}/{datasetname}.new.csv")
+  old <- fread(old_path)
+  new <- fread(new_path)
+  
+  # Isolate the records that are different
+  only_in_old <- fsetdiff(old, new)
+  if(nrow(only_in_old) > 0) {
+    print("Viewing records only in the old dataset")
+    view(only_in_old)
+  }
+  
+  only_in_new <- fsetdiff(new, old)
+  if(nrow(only_in_new) > 0) {
+    print("Viewing records only in the new dataset")
+    view(only_in_new)
+  }
+  
+  # For simple differences, view more visually with one of these methods
+  # diffviewer::visual_diff(old_path, new_path)
+  # waldo::compare(old, new)
+  # diffobj::diffObj(old, new)
+}
+
+accept_csv <- function(datasetname, test_script_name) {
+  helper_data_dir <- glue(
+    here("tests/helper_data/{gsub('test-','',test_script_name)}")
+  )
+  
+  old_path <- glue("{helper_data_dir}/{datasetname}.csv")
+  new_path <- glue("{helper_data_dir}/{datasetname}.new.csv")
+  
+  # delete old
+  file.remove(old_path)
+  
+  # rename new to old
+  file.rename(new_path, old_path)
 }

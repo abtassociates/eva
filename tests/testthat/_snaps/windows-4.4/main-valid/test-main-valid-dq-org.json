@@ -54,8 +54,7 @@
       44,
       45,
       46,
-      47,
-      48
+      47
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -248,9 +247,7 @@
       120,
       121,
       122,
-      123,
-      124,
-      125
+      123
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -720,7 +717,7 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 22d627768675ac88cbca4d2f516385a0]",
+      "src": "[image data hash: 97abe1f30cbc659f13eacafd235cbeb6]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -802,32 +799,32 @@
       "Type": {
         "High Priority": 3,
         "Error": 21,
-        "Warning": 24
+        "Warning": 23
       },
       "Issue": {
-        "Length": "48",
+        "Length": "47",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "48",
+        "Length": "47",
         "Class": "character",
         "Mode": "character"
       }
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "125",
+        "Length": "123",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
         "Error": 52,
-        "Warning": 68
+        "Warning": 66
       },
       "Issue": {
-        "Length": "125",
+        "Length": "123",
         "Class": "character",
         "Mode": "character"
       },
@@ -835,7 +832,7 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 10.488,
+        "Mean": 10.52032520325203,
         "3rd Qu.": 7,
         "Max.": 214
       }

@@ -3,7 +3,7 @@
 .RData
 .Rproj.user
 # added over time
-*.Rproj
+.Rproj
 *.Ruserdata
 data
 rsconnect
