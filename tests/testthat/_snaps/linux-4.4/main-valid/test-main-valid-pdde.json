@@ -1,0 +1,415 @@
+{
+  "input": {
+    "pdde_guidance_summary_cell_clicked": {
+
+    },
+    "pdde_guidance_summary_cells_selected": [
+
+    ],
+    "pdde_guidance_summary_columns_selected": null,
+    "pdde_guidance_summary_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "pdde_guidance_summary_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "pdde_guidance_summary_rows_selected": null,
+    "pdde_guidance_summary_search": "",
+    "pdde_guidance_summary_search_columns": [
+      "",
+      "",
+      ""
+    ],
+    "pdde_guidance_summary_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
+    "pdde_summary_table_cell_clicked": {
+
+    },
+    "pdde_summary_table_cells_selected": [
+
+    ],
+    "pdde_summary_table_columns_selected": null,
+    "pdde_summary_table_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "pdde_summary_table_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "pdde_summary_table_rows_selected": null,
+    "pdde_summary_table_search": "",
+    "pdde_summary_table_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
+    "sidebarCollapsed": false,
+    "sidebarItemExpanded": "AssessDataQuality",
+    "sidebarmenuid": "tabPDDE"
+  },
+  "output": {
+    "downloadPDDEReportButton": {
+      "html": "<a id=\"downloadPDDEReport\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download\n<\/a>",
+      "deps": [
+        {
+          "name": "font-awesome",
+          "version": "6.4.2",
+          "src": {
+            "href": "font-awesome-6.4.2"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": [
+            "css/all.min.css",
+            "css/v4-shims.min.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "headerPDDE": {
+      "html": "<h2>Project Descriptor Data Elements Checker<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "pdde_guidance_summary": {
+      "x": {
+        "filter": "top",
+        "vertical": false,
+        "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Guidance<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "options": {
+          "dom": "ltpi",
+          "columnDefs": [
+            {
+              "name": "Type",
+              "targets": 0
+            },
+            {
+              "name": "Issue",
+              "targets": 1
+            },
+            {
+              "name": "Guidance",
+              "targets": 2
+            }
+          ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
+          "orderCellsTop": true,
+          "ajax": {
+            "type": "POST",
+            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = false;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
+          },
+          "serverSide": true,
+          "processing": true
+        },
+        "selection": {
+          "mode": "multiple",
+          "selected": null,
+          "target": "row",
+          "selectable": null
+        }
+      },
+      "evals": [
+        "options.ajax.data"
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "jquery",
+          "version": "3.6.0",
+          "src": {
+            "href": "jquery-3.6.0"
+          },
+          "meta": null,
+          "script": "jquery-3.6.0.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "dt-core",
+          "version": "1.13.6",
+          "src": {
+            "href": "dt-core-1.13.6"
+          },
+          "meta": null,
+          "script": "js/jquery.dataTables.min.js",
+          "stylesheet": [
+            "css/jquery.dataTables.min.css",
+            "css/jquery.dataTables.extra.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "nouislider",
+          "version": "7.0.10",
+          "src": {
+            "href": "nouislider-7.0.10"
+          },
+          "meta": null,
+          "script": "jquery.nouislider.min.js",
+          "stylesheet": "jquery.nouislider.min.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "selectize",
+          "version": "0.12.0",
+          "src": {
+            "href": "selectize-0.12.0"
+          },
+          "meta": null,
+          "script": "selectize.min.js",
+          "stylesheet": "selectize.bootstrap3.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.2.1",
+          "src": {
+            "href": "crosstalk-1.2.1"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.min.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "pdde_summary_table": {
+      "x": {
+        "filter": "none",
+        "vertical": false,
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Issue<\/th>\n      <th>Type<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "options": {
+          "dom": "t",
+          "columnDefs": [
+            {
+              "className": "dt-right",
+              "targets": 2
+            },
+            {
+              "name": "Issue",
+              "targets": 0
+            },
+            {
+              "name": "Type",
+              "targets": 1
+            },
+            {
+              "name": "Count",
+              "targets": 2
+            }
+          ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
+          "ajax": {
+            "type": "POST",
+            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
+          },
+          "serverSide": true,
+          "processing": true
+        },
+        "selection": {
+          "mode": "multiple",
+          "selected": null,
+          "target": "row",
+          "selectable": null
+        }
+      },
+      "evals": [
+        "options.ajax.data"
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "jquery",
+          "version": "3.6.0",
+          "src": {
+            "href": "jquery-3.6.0"
+          },
+          "meta": null,
+          "script": "jquery-3.6.0.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "dt-core",
+          "version": "1.13.6",
+          "src": {
+            "href": "dt-core-1.13.6"
+          },
+          "meta": null,
+          "script": "js/jquery.dataTables.min.js",
+          "stylesheet": [
+            "css/jquery.dataTables.min.css",
+            "css/jquery.dataTables.extra.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.2.1",
+          "src": {
+            "href": "crosstalk-1.2.1"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.min.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    }
+  }
+}

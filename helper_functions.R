@@ -160,12 +160,11 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   
   colTypes <- get_col_types(upload_filepath, csvFile)
 
-  data <-
-    read_csv(
-      filename,
-      col_types = colTypes,
-      na = ""
-    )
+  data <- read_csv(
+    filename,
+    col_types = colTypes,
+    na = ""
+  )
     # AS 5/29/24: This seems a bit faster, but has problems with missing columns, 
     # like DateDeleted in Client.csv. they come inas character, and not NA
     # data.table::fread(
@@ -174,12 +173,14 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     #   na.strings="NA"
     # )
 
-  
   if(csvFile != "Export"){
     data <- data %>%
       filter(is.na(DateDeleted))
   }
-
+  
+  attr(data, "encoding") <- guess_encoding(filename)$encoding[1]
+  data <- convert_data_to_utf8(data)
+  
   return(data)
 }
 
@@ -438,6 +439,7 @@ reset_postvalid_components <- function() {
 reset_app <- function() {
   lapply(visible_reactive_vals, function(r) r(NULL))
   valid_file(0)
+  initially_valid_import(0)
   windowSize(input$dimension)
   reset_postvalid_components()
 }
@@ -470,4 +472,45 @@ min_cols_selected_except <- function(df, list, exception, num_cols_selected) {
 
 summarize_df <- function(df) {
   lapply(df, function(col) {summary(col)})
+}
+
+
+replace_char_at <- function(string, position, replacement) {
+  paste0(
+    substr(string, 1, position - 1),
+    replacement,
+    substr(string, position + 1, nchar(string))
+  )
+}
+
+# interpret the data in their original encoding, so they display nicely
+# The resulting characters are almost always UTF-8 characters
+# While a byte sequence may not be UTF-8, the character itself usually has a UTF-8 representation
+# So, e.g., if there's a ‰ in a Windows-encoded file, we want to interpret
+# as Windows, so it will display ‰, rather than the Windows+non-UTF8 byte \x89
+# But if there's a ‰ in a UTF-8 encoded file, it's already been interpreted correctly
+convert_data_to_utf8 <- function(data) {
+  file_encoding <- attr(data, "encoding")
+  if(file_encoding %in% c("UTF-8","ASCII")) return(data)
+  
+  dt <- as.data.table(data)
+  
+  # Fix encoding in all character columns in place
+  for (col in names(dt)) {
+    if (is.character(dt[[col]])) {
+      # Original column before conversion
+      original_col <- dt[[col]]
+      
+      # Interpret characters in a non-UTF-8 encoded file correctly
+      # E.g. ‰ in a UTF-8 file, will come in as ‰ and should not be 
+      converted_col <- iconv(original_col, from = file_encoding)
+      
+      # Identify changes by comparing original and converted values
+      if (length(which(original_col != converted_col)) > 0) {
+        dt[[col]] <- converted_col
+      }
+    }
+  }
+  
+ return(as_tibble(dt))
 }

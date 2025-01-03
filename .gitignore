@@ -1,13 +1,16 @@
-.Rproj.user
-*.Rproj
+# auto-added by RStudio
 .Rhistory
 .RData
-.Ruserdata
+.Rproj.user
+# added over time
+.Rproj
+*.Ruserdata
 data
 rsconnect
 comparisons
 *.jpg
-.DS_Store
+*.png
+*.DS_Store
 data/
 images/
 *.html
@@ -31,3 +34,4 @@ tests/temp/
 runShinyApp.R
 .nfs00000000034418240000000c
 vscDebugger
+.Rproj.user

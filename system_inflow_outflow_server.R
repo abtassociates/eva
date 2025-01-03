@@ -289,7 +289,7 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
       text = element_text(size = sys_chart_text_font, colour = "#4e4d47"),
       axis.text.x = element_text(
         size = get_adj_font_size(
-          sys_axis_text_font * ifelse(windowSize()[1]<1300,0.9,1), 
+          sys_axis_text_font * ifelse(windowSize()[1] < 1300, 0.9,1), 
           isExport),
         vjust = -.2), 
       axis.ticks.x = element_line(),
@@ -330,7 +330,8 @@ renderSystemPlot <- function(id) {
               outflow during the report period. The detailed view of this chart 
               shows inflow as three subcategories: first-time homeless, returned from 
               permanent, and re-engaged from non-permanent and outflow as three 
-              subcategories: exited non-permanent, exited permanent, and inactive.")
+              subcategories: exited non-permanent, exited permanent, and inactive."),
+  width = ifelse(isTRUE(getOption("shiny.testmode")), 1113, "auto")
   )
 }
 
@@ -411,8 +412,10 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
         bind_rows(sys_export_filter_selections()) %>%
         bind_rows(sys_inflow_outflow_export_info(df)),
       plot_slide_title = "System Flow Summary",
-      plot1 = get_system_inflow_outflow_plot("sys_act_summary_ui_chart", isExport = TRUE),
-      plot2 = get_system_inflow_outflow_plot("sys_act_detail_ui_chart", isExport = TRUE),
+      plot1 = get_system_inflow_outflow_plot("sys_act_summary_ui_chart",
+                                             isExport = TRUE),
+      plot2 = get_system_inflow_outflow_plot("sys_act_detail_ui_chart",
+                                             isExport = TRUE),
       summary_font_size = 19
     )
   }

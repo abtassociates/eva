@@ -49,7 +49,7 @@ dq_main_reactive <- reactive({
 
 getDQReportDataList <-
   function(dqData,
-           dqOverlaps = NULL,
+           dqOverlapDetails = NULL,
            bySummaryLevel = NULL,
            dqReferrals = NULL) {
     
@@ -80,33 +80,6 @@ getDQReportDataList <-
       mutate(ProjectType = project_type_abb(ProjectType)) %>%
       select(all_of(select_list))
     
-    dqOverlapDetails <- dqOverlaps %>% 
-      select(-c(Issue, Type, Guidance, PreviousIssue)) %>%
-      relocate(
-        OrganizationName,
-        ProjectID,
-        ProjectName,
-        ProjectType,
-        EnrollmentID,
-        HouseholdID,
-        PersonalID,
-        EntryDate,
-        FirstDateProvided,
-        "MoveInDate" = MoveInDateAdjust,
-        ExitDate,
-        PreviousOrganizationName,
-        PreviousProjectID,
-        PreviousProjectName,
-        PreviousProjectType,
-        PreviousEnrollmentID,
-        PreviousHouseholdID,
-        PreviousPersonalID,
-        PreviousEntryDate,
-        PreviousFirstDateProvided,
-        "PreviousMoveInDate" = PreviousMoveInDateAdjust,
-        PreviousExitDate
-      )
-    
     dqReferralDetails <- dqReferrals %>%
       filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
       mutate(ProjectType = project_type_abb(ProjectType)) %>%
@@ -123,10 +96,8 @@ getDQReportDataList <-
         Days
       )
     
-    mainsummary <- rbind(
-      dqData %>% select(Type, Issue, PersonalID),
-      dqOverlaps %>%  select(Type, Issue, PersonalID)
-    ) %>%
+    mainsummary <- dqData %>% 
+      select(Type, Issue, PersonalID) %>%
       # group_by(ProjectName, Type, Issue) %>%
       group_by(Type, Issue) %>%
       summarise(Enrollments = n()) %>%
@@ -135,10 +106,8 @@ getDQReportDataList <-
       arrange(Type, desc(Enrollments))
 
     bySummaryLevel2 <- rlang::sym(bySummaryLevel)
-    byunitsummary <- rbind(
-      dqData %>% select(!!bySummaryLevel2, Type, Issue, PersonalID),
-      dqOverlaps %>%  select(!!bySummaryLevel2, Type, Issue, PersonalID)
-    ) %>%
+    byunitsummary <- dqData %>% 
+      select(!!bySummaryLevel2, Type, Issue, PersonalID) %>%
       group_by(!!bySummaryLevel2, Type, Issue) %>%
       summarise(Enrollments = n()) %>%
       ungroup() %>%
@@ -162,7 +131,7 @@ getDQReportDataList <-
     exportDFList <- list(
       exportDetail = exportDetail %>% nice_names(),
       mainsummary = mainsummary %>% nice_names(),
-      byunisummary = byunitsummary %>% nice_names(),
+      byunitsummary = byunitsummary %>% nice_names(),
       guidance = guidance %>% nice_names(),
       high_priority = high_priority %>% nice_names(),
       errors = errors %>% nice_names(),
@@ -385,7 +354,7 @@ renderDQPlot <- function(level, issueType, group, color) {
 
   # dynamically refer to the UI element ID
   outputId <- paste0(
-    if_else(level == 'sys','system','org'),
+    if_else(level == 'sys', 'system', 'org'),
     "DQ",
     if_else(issueType == 'High Priority', 'HighPriorityErrors', issueType),
     "By",
@@ -432,7 +401,8 @@ renderDQPlot <- function(level, issueType, group, color) {
             plot.background = element_blank(),
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank()) +
-      geom_text(aes(label = countVar), hjust = -0.5, color = "black", size=sys_chart_text_font)
+      geom_text(aes(label = countVar), hjust = -0.5, color = "black",
+                size = sys_chart_text_font)
   },
   ,
   alt = case_when(outputId == "systemDQHighPriorityErrorsByIssue" ~ "A bar chart of the top High Priority Errors in the system.",
@@ -453,18 +423,24 @@ renderDQPlot <- function(level, issueType, group, color) {
   plot_height = if_else(nrow(plot_data) == 0, 50, 400)
   
   # finally, render the plot
-  return(plotOutput(outputId, height = plot_height))
+  return(plotOutput(outputId,
+                    height = plot_height,
+                    width = ifelse(isTRUE(getOption("shiny.testmode")),
+                                    "1640",
+                                    "100%")))
 }
 
 # list of data frames to include in DQ Org Report
 dqDownloadInfo <- reactive({
   req(valid_file() == 1)
   
+  exportTestValues(dq_main_reactive =  dq_main_reactive() %>% nice_names())
+  
   # org-level data prep (filtering to selected org)
   orgDQData <- dq_main_reactive() %>%
     filter(OrganizationName %in% c(input$orgList))
   
-  orgDQoverlaps <- overlaps() %>% 
+  orgDQoverlapDetails <- overlap_details() %>% 
     filter(OrganizationName %in% c(input$orgList) | 
              PreviousOrganizationName %in% c(input$orgList))
   #browser()
@@ -476,14 +452,14 @@ dqDownloadInfo <- reactive({
   list(
     orgDQData = 
       getDQReportDataList(orgDQData,
-                          orgDQoverlaps,
+                          orgDQoverlapDetails,
                           "ProjectName",
                           orgDQReferrals
       ),
     
     systemDQData = 
       getDQReportDataList(dq_main_reactive(),
-                          overlaps(),
+                          overlap_details(),
                           "OrganizationName",
                           calculate_outstanding_referrals(input$CEOutstandingReferrals)
       )
