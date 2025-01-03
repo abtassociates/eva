@@ -6,18 +6,18 @@ output$changelog <- renderDT({
     "<b>New features:</b> <br>
       - Updated demo.zip to capture new overlaps.<br>
       - Modified upload-related pop-ups to be more informative. <br>
-      - Added Project Type to PDDE export (<a href='https://github.com/abtassociates/eva/issues/641' target='_blank'>Issue #641</a>)<br>
+      - Added Project Type to PDDE export (Issue <a href='https://github.com/abtassociates/eva/issues/641' target='_blank'>#641</a>)<br>
      <b>Bug Fixes:</b> <br>
-      - Only flagging Missed Move-In if relationship to HoH is 1 (<a href='https://github.com/abtassociates/eva/issues/650' target='_blank'>Issue #650</a>)<br>
+      - Only flagging Missed Move-In if relationship to HoH is 1 (Issue <a href='https://github.com/abtassociates/eva/issues/650' target='_blank'>#650</a>)<br>
       - Fixed NbN overlap detection. An NbN and an EE overlap if the first and last
       DateProvided for a given enrollment overlaps with an EE enrollment by more 
       than 2 days. Two NbNs overlap if they have duplicate DateProvideds for a given
-      PersonalID (<a href='https://github.com/abtassociates/eva/issues/659' target='_blank'>Issue #659</a>)<br>
-      - Allow all UTF-8 characters, except for brackets (<a href='https://github.com/abtassociates/eva/issues/649' target='_blank'>Issue #649</a>, <a href='https://github.com/abtassociates/eva/issues/667' target='_blank'>Issue #667</a>)<br>
+      PersonalID (Issue <a href='https://github.com/abtassociates/eva/issues/659' target='_blank'>#659</a>)<br>
+      - Allow all UTF-8 characters, except for brackets (Issues <a href='https://github.com/abtassociates/eva/issues/649' target='_blank'>#649</a> and <a href='https://github.com/abtassociates/eva/issues/667' target='_blank'>#667</a>)<br>
       - Automatically interpret non-UTF-8 encoded characters to 
-      avoid crashing and display correct character (<a href='https://github.com/abtassociates/eva/issues/649' target='_blank'>Issue #649</a>, <a href='https://github.com/abtassociates/eva/issues/667' target='_blank'>Issue #667</a>)<br>
+      avoid crashing and display correct character (Issues <a href='https://github.com/abtassociates/eva/issues/649' target='_blank'>#649</a> and <a href='https://github.com/abtassociates/eva/issues/667' target='_blank'>#667</a>)<br>
       - Modified Missing Address and Missing Geography checks to allow for VSPs and tenant -
-based scattered sites to be missing CoC Code, Address1, City, and Zip (<a href='https://github.com/abtassociates/eva/issues/631' target='_blank'>#631</a>)",
+based scattered sites to be missing CoC Code, Address1, City, and Zip (Issue <a href='https://github.com/abtassociates/eva/issues/631' target='_blank'>#631</a>)",
     "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
