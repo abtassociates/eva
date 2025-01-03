@@ -89,15 +89,8 @@ missing_CoC_Info <- Project0() %>%
   )
 
 missing_CoC_Geography <- missing_CoC_Info %>%
-  filter(
-    # no one should be missing these
-    (is.na(Geocode) | is.na(GeographyType)) | 
-    (
-      # non-VSPs and non-tenant_scattered_sites should also not be missing CoCCode
-      !(VictimServiceProvider==1 | HousingType==tenant_scattered_site) &
-      is.na(CoCCode)
-    )
-  ) %>%
+  filter(is.na(Geocode) | is.na(GeographyType) |
+           is.na(CoCCode)) %>%
   merge_check_info(checkIDs = 5) %>%
   mutate(
     Detail =gsub(
