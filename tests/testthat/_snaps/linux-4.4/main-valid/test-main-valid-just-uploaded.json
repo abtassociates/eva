@@ -24,8 +24,8 @@
 
     ],
     "fileStructureAnalysis_columns_selected": null,
-    "fileStructureAnalysis_rows_all": 1,
-    "fileStructureAnalysis_rows_current": 1,
+    "fileStructureAnalysis_rows_all": null,
+    "fileStructureAnalysis_rows_current": null,
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
     "fileStructureAnalysis_state": {
@@ -75,7 +75,7 @@
         "FY24-ICF-main-valid.zip"
       ],
       "size": [
-        19444101
+        19444088
       ],
       "type": [
         "application/zip"
@@ -120,24 +120,11 @@
   },
   "output": {
     "downloadFileStructureAnalysisBtn": {
-      "html": "<a id=\"downloadFileStructureAnalysis\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Structure Analysis Detail\n<\/a>",
-      "deps": [
-        {
-          "name": "font-awesome",
-          "version": "6.4.2",
-          "src": {
-            "href": "font-awesome-6.4.2"
-          },
-          "meta": null,
-          "script": null,
-          "stylesheet": [
-            "css/all.min.css",
-            "css/v4-shims.min.css"
-          ],
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        }
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
       ]
     },
     "downloadImpermissibleCharacterDetailBtn": {
