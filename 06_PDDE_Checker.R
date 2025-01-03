@@ -83,83 +83,59 @@ missing_CoC_Info <- Project0() %>%
            is.na(State) | 
            is.na(Geocode) | 
            is.na(GeographyType) | 
-           nchar(ZIP) != 5 |
+           !str_detect(ZIP, "^[0-9]{5}(-[0-9]{4})?$") |
            is.na(ZIP) |
            is.na(CoCCode)
   )
 
 missing_CoC_Geography <- missing_CoC_Info %>%
-  filter(VictimServiceProvider!=1 & (HousingType!=tenant_scattered_site | is.na(HousingType))) %>%
-  filter(is.na(Geocode) | is.na(GeographyType) |
-           is.na(CoCCode)) %>%
+  filter(
+    # no one should be missing these
+    (is.na(Geocode) | is.na(GeographyType)) | 
+    (
+      # non-VSPs and non-tenant_scattered_sites should also not be missing CoCCode
+      !(VictimServiceProvider==1 | HousingType==tenant_scattered_site) &
+      is.na(CoCCode)
+    )
+  ) %>%
   merge_check_info(checkIDs = 5) %>%
   mutate(
-    Detail = case_when(
-      is.na(CoCCode) ~ "This project's CoC Code is missing.",
-      is.na(Geocode) ~ "This project's Geocode is missing.",
-      is.na(GeographyType) ~ "This project's Geography Type is missing."
-    ),
-    Detail2 = case_when(
-      is.na(CoCCode) ~ "This project's CoC Code is missing.",
-      is.na(Geocode) ~ "This project's Geocode is missing."
-    ),
-    Detail3 = case_when(
-      is.na(CoCCode) ~ "This project's CoC Code is missing."
-    )) %>%
-  select(all_of(PDDEcols), Detail2, Detail3)
-
-missing_CoC_Geography_VSP <- missing_CoC_Info %>%
-  filter(VictimServiceProvider==1 | HousingType==tenant_scattered_site) %>%
-  filter(is.na(Geocode) | is.na(GeographyType)) %>%
-  merge_check_info(checkIDs = 5) %>%
-  mutate(
-    Detail = case_when(
-      is.na(Geocode) ~ "This project's Geocode is missing.",
-      is.na(GeographyType) ~ "This project's Geography Type is missing."
-    ),
-    Detail2 = case_when(
-      is.na(Geocode) ~ "This project's Geocode is missing."
-    )) %>%
-  select(all_of(PDDEcols), Detail2)
-  
+    Detail =gsub(
+      "(^|,)(\\s*,\\s*)", "\\1", # remove unwanted ", ," and ": ," patterns
+      paste0(
+        "This project is missing a valid: ",
+        if_else(is.na(Geocode), "Geocode", NA),
+        if_else(is.na(GeographyType), "Geography Type", NA),
+        if_else(is.na(CoCCode), "CoC Code", NA)
+      )
+    )
+  ) %>%
+  select(all_of(PDDEcols))
 
 missing_CoC_Address <- missing_CoC_Info %>%
-  filter(VictimServiceProvider!=1 & (HousingType!=tenant_scattered_site | is.na(HousingType))) %>%
-  filter(!(is.na(Geocode) | is.na(GeographyType) |
-           is.na(CoCCode))) %>%
+  filter(
+    # no one should have an invalid zip
+    (!str_detect(ZIP, "^[0-9]{5}(-[0-9]{4})?$") | is.na(ZIP)) |
+    (
+      # non-VSPs and non-tenant-scattered-sites should also not be missing address, city, and state
+      !(VictimServiceProvider==1 | HousingType==tenant_scattered_site) &
+      (is.na(Address1) | is.na(City) | is.na(State))
+    )
+  ) %>%
   merge_check_info(checkIDs = 42) %>%
   mutate(
-    Detail = case_when(
-      is.na(Address1) ~ "This project's Address is missing.",
-      is.na(City) ~ "This project's City is missing.",
-      is.na(State) ~ "This project's State is missing.",
-      nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000" ~
-        "ZIP is missing or not valid."
-   ),
-   Detail2 = case_when(
-     is.na(Address1) ~ "This project's Address is missing.",
-     is.na(City) ~ "This project's City is missing.",
-     is.na(State) ~ "This project's State is missing."
-   ),
-   Detail3 = case_when(
-     is.na(Address1) ~ "This project's Address is missing.",
-     is.na(City) ~ "This project's City is missing."
-   ),
-   Detail4 = case_when(
-     is.na(Address1) ~ "This project's Address is missing."
-   ))%>%
-  select(all_of(PDDEcols), Detail2, Detail3, Detail4)
-  
-missing_CoC_Address_VSP <- missing_CoC_Info %>%
-  filter(VictimServiceProvider==1 | HousingType==tenant_scattered_site) %>%
-  filter(nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000") %>%
-  merge_check_info(checkIDs = 42) %>%
-  mutate(
-    Detail = case_when(
-      nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000" ~
-        "ZIP is missing or not valid."
-    )) %>%
-  select(all_of(PDDEcols))  
+    Detail = gsub(
+      "(^|,)(\\s*,\\s*)", "\\1", # remove unwanted ", ," and ": ," patterns
+      paste0(
+        "This project is missing a valid: ",
+        if_else(is.na(Address1), "Address", ""),
+        if_else(is.na(City), ", City", ""),
+        if_else(is.na(State), ", State", ""),
+        if_else(!str_detect(ZIP, "^[0-9]{5}(-[0-9]{4})?$") | is.na(ZIP), ", ZIP", "")
+      )
+    )
+  ) %>%
+  select(all_of(PDDEcols))
 
 # Missing Inventory Record Is a residential project but has no active inventory
 # for the duration of operating period OR for the reporting period
@@ -557,9 +533,7 @@ pdde_main(bind_rows(
   operating_end_missing,
   rrh_no_subtype,
   missing_CoC_Geography,
-  missing_CoC_Geography_VSP,
   missing_CoC_Address,
-  missing_CoC_Address_VSP,
   missing_inventory_record,
   operating_end_precedes_inventory_end,
   overlapping_ce_participation,
