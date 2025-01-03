@@ -6,35 +6,35 @@ output$changelog <- renderDT({
     "<b>New features:</b> <br>
       - Updated demo.zip to capture new overlaps.<br>
       - Modified upload-related pop-ups to be more informative. <br>
-      - Added Project Type to PDDE export (<a href='https://github.com/abtassociates/eva/issues/641'>Issue #641</a>)<br>
+      - Added Project Type to PDDE export (<a href='https://github.com/abtassociates/eva/issues/641' target='_blank'>Issue #641</a>)<br>
      <b>Bug Fixes:</b> <br>
-      - Only flagging Missed Move-In if relationship to HoH is 1 (<a href='https://github.com/abtassociates/eva/issues/650'>Issue #650</a>)<br>
+      - Only flagging Missed Move-In if relationship to HoH is 1 (<a href='https://github.com/abtassociates/eva/issues/650' target='_blank'>Issue #650</a>)<br>
       - Fixed NbN overlap detection. An NbN and an EE overlap if the first and last
       DateProvided for a given enrollment overlaps with an EE enrollment by more 
       than 2 days. Two NbNs overlap if they have duplicate DateProvideds for a given
-      PersonalID (<a href='https://github.com/abtassociates/eva/issues/659'>Issue #659</a>)<br>
-      - Allow all UTF-8 characters, except for brackets (<a href='https://github.com/abtassociates/eva/issues/649'>Issue #649</a>, <a href='https://github.com/abtassociates/eva/issues/667'>Issue #667</a>)<br>
+      PersonalID (<a href='https://github.com/abtassociates/eva/issues/659' target='_blank'>Issue #659</a>)<br>
+      - Allow all UTF-8 characters, except for brackets (<a href='https://github.com/abtassociates/eva/issues/649' target='_blank'>Issue #649</a>, <a href='https://github.com/abtassociates/eva/issues/667' target='_blank'>Issue #667</a>)<br>
       - Automatically interpret non-UTF-8 encoded characters to 
-      avoid crashing and display correct character (<a href='https://github.com/abtassociates/eva/issues/649'>Issue #649</a>, <a href='https://github.com/abtassociates/eva/issues/667'>Issue #667</a>)<br>
+      avoid crashing and display correct character (<a href='https://github.com/abtassociates/eva/issues/649' target='_blank'>Issue #649</a>, <a href='https://github.com/abtassociates/eva/issues/667' target='_blank'>Issue #667</a>)<br>
       - Modified Missing Address and Missing Geography checks to allow for VSPs and tenant -
-based scattered sites to be missing CoC Code, Address1, City, and Zip (<a href='https://github.com/abtassociates/eva/issues/631'>#631</a>)",
+based scattered sites to be missing CoC Code, Address1, City, and Zip (<a href='https://github.com/abtassociates/eva/issues/631' target='_blank'>#631</a>)",
     "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
     enrollments during a project's operating and participating periods. See Issue
-    <a href='https://github.com/abtassociates/eva/issues/522'>#522</a>.",
+    <a href='https://github.com/abtassociates/eva/issues/522' target='_blank'>#522</a>.",
     "11-05-2024",
     "<b>Bug Fixes:</b><br>
       - Fixed handling of '#' symbols in first row of a csv file (
-<a href='https://github.com/abtassociates/eva/issues/638'>#638</a>,
-<a href='https://github.com/abtassociates/eva/issues/632'>#632</a>,
-<a href='https://github.com/abtassociates/eva/issues/535'>#535</a>)<br>
+<a href='https://github.com/abtassociates/eva/issues/638' target='_blank'>#638</a>,
+<a href='https://github.com/abtassociates/eva/issues/632' target='_blank'>#632</a>,
+<a href='https://github.com/abtassociates/eva/issues/535' target='_blank'>#535</a>)<br>
       - Fully reset app after a failed upload",
     "10-23-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
     enrollments during a project's operating and participating periods. See Issue
-    <a href='https://github.com/abtassociates/eva/issues/522'>#522</a>.",
+    <a href='https://github.com/abtassociates/eva/issues/522' target='_blank'>#522</a>.",
     "10-07-2024",
     "<b>New Features:</b> <br>
       - Launched the System Performance Overview Page. The page contains three new 
@@ -60,10 +60,10 @@ based scattered sites to be missing CoC Code, Address1, City, and Zip (<a href='
     flagged as Warnings and described as 'Unknown Gender,' 'Unknown Veteran Status,' etc.<br>
     <b>Bug Fixes:</b><br>
       - Improved handling of overlapping enrollments<br>
-      - Fixed invalid move-in date (issue <a href='https://github.com/abtassociates/eva/issues/615'>#615</a>)<br>
+      - Fixed invalid move-in date (issue <a href='https://github.com/abtassociates/eva/issues/615' target='_blank'>#615</a>)<br>
       - Fixed the way Eva uses Project Participation and groups Projects that change 
-    participation across the reporting date range. Addresses issues <a href='https://github.com/abtassociates/eva/issues/521'>#521</a> 
-    and <a href='https://github.com/abtassociates/eva/issues/605'>#605</a>.",
+    participation across the reporting date range. Addresses issues <a href='https://github.com/abtassociates/eva/issues/521' target='_blank'>#521</a> 
+    and <a href='https://github.com/abtassociates/eva/issues/605' target='_blank'>#605</a>.",
     
     "08-01-2024",
     "<b>New Features:</b> <br>
@@ -74,11 +74,11 @@ based scattered sites to be missing CoC Code, Address1, City, and Zip (<a href='
       precise location in the uploaded file<br>
       <b>Bug Fixes:</b><br>
       - Added Enrollment ID and Project Type to exports (Issues
-      <a href='https://github.com/abtassociates/eva/issues/482'>#482</a> and
-      <a href='https://github.com/abtassociates/eva/issues/529'>529</a>),<br>
+      <a href='https://github.com/abtassociates/eva/issues/482' target='_blank'>#482</a> and
+      <a href='https://github.com/abtassociates/eva/issues/529' target='_blank'>529</a>),<br>
       - Corrected the institutional living situations and temporary living situations
     to align to the HMIS Data Standards. Issue
-    <a href='https://github.com/abtassociates/eva/issues/490'>#490</a>",
+    <a href='https://github.com/abtassociates/eva/issues/490' target='_blank'>#490</a>",
     
     "05-20-2024",
     "<b>New Features:</b> <br>
