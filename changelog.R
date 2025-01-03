@@ -4,17 +4,20 @@ output$changelog <- renderDT({
     ~ Change,
     "12-31-2024",
     "<b>New features:</b> <br>
-      - Updated demo.zip to capture new overlaps. <br>
+      - Updated demo.zip to capture new overlaps.<br>
       - Modified upload-related pop-ups to be more informative. <br>
+      - Added Project Type to PDDE export (<a href='https://github.com/abtassociates/eva/issues/641'>Issue #641</a>)<br>
      <b>Bug Fixes:</b> <br>
-      - Only flagging Missed Move-In if relationship to HoH is 1 <br>
+      - Only flagging Missed Move-In if relationship to HoH is 1 (<a href='https://github.com/abtassociates/eva/issues/650'>Issue #650</a>)<br>
       - Fixed NbN overlap detection. An NbN and an EE overlap if the first and last
       DateProvided for a given enrollment overlaps with an EE enrollment by more 
       than 2 days. Two NbNs overlap if they have duplicate DateProvideds for a given
-      PersonalID.<br>
-      - Allow all UTF-8 characters, except for brackets. <br>
+      PersonalID (<a href='https://github.com/abtassociates/eva/issues/659'>Issue #659</a>)<br>
+      - Allow all UTF-8 characters, except for brackets (<a href='https://github.com/abtassociates/eva/issues/649'>Issue #649</a>, <a href='https://github.com/abtassociates/eva/issues/667'>Issue #667</a>)<br>
       - Automatically interpret non-UTF-8 encoded characters to 
-      avoid crashing and display correct character.",
+      avoid crashing and display correct character (<a href='https://github.com/abtassociates/eva/issues/649'>Issue #649</a>, <a href='https://github.com/abtassociates/eva/issues/667'>Issue #667</a>)<br>
+      - Modified Missing Address and Missing Geography checks to allow for VSPs and tenant -
+based scattered sites to be missing CoC Code, Address1, City, and Zip (<a href='https://github.com/abtassociates/eva/issues/631'>#631</a>)",
     "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
