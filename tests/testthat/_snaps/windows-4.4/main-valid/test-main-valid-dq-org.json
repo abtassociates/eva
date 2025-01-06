@@ -54,8 +54,7 @@
       44,
       45,
       46,
-      47,
-      48
+      47
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -248,9 +247,7 @@
       120,
       121,
       122,
-      123,
-      124,
-      125
+      123
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -609,7 +606,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 0d75f637d265d949946d082f5fc54c9a]",
+      "src": "[image data hash: ba0db0ef1496fc4ff07b883234db712a]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
@@ -654,21 +651,21 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 312.6727311643835,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 250.6350599315072,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1640,
+          "height": 400
         }
       }
     },
     "orgDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: c71f7189fd2fc7b8e3b067886d469ba4]",
+      "src": "[image data hash: c3976eb7300480a3dc8fef447697d549]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the organization.",
@@ -706,21 +703,21 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 289.7508561643835,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 232.3069349315068,
+              "right": 1634.520547945206,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1640,
+          "height": 400
         }
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 1d997550b5e099b265d15de17de59a0d]",
+      "src": "[image data hash: 97abe1f30cbc659f13eacafd235cbeb6]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -765,16 +762,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 320.9852311643837,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 257.2913099315068,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1640,
+          "height": 400
         }
       }
     },
@@ -802,32 +799,32 @@
       "Type": {
         "High Priority": 3,
         "Error": 21,
-        "Warning": 24
+        "Warning": 23
       },
       "Issue": {
-        "Length": "48",
+        "Length": "47",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "48",
+        "Length": "47",
         "Class": "character",
         "Mode": "character"
       }
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "125",
+        "Length": "123",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
         "Error": 52,
-        "Warning": 68
+        "Warning": 66
       },
       "Issue": {
-        "Length": "125",
+        "Length": "123",
         "Class": "character",
         "Mode": "character"
       },
@@ -835,7 +832,7 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 10.488,
+        "Mean": 10.52032520325203,
         "3rd Qu.": 7,
         "Max.": 214
       }

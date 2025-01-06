@@ -70,7 +70,7 @@ save_new_zip("FY24-ICF-wrong-csv-version.zip", "reduced")
 file.remove(reduced_files[["Export"]])
 save_new_zip("FY24-ICF-missing-export.zip", "reduced")
 write.csv(reduced_data[["Export"]], reduced_files[["Export"]], row.names=FALSE, na = "") # bring export dataset back
-Sys.sleep(1)
+Sys.sleep(3)
 
 # Missing Files ----------------------------------------------
 file.remove(reduced_files[["Enrollment"]])
@@ -135,7 +135,7 @@ source(here("tests/update_test_good_dq.R"), local = TRUE)
 # overwrite the original csv files in temp
 mapply(function(df, df_name) {
   write.csv(df,
-            csv_files[[df_name]],
+            file= file(csv_files[[df_name]], encoding = if(df_name == "Project") "Windows-1252" else "UTF-8"),
             row.names = FALSE,
             na = "")
 }, original_data_fixed_cols, names(original_data_fixed_cols), SIMPLIFY = FALSE)
