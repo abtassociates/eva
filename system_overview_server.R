@@ -531,6 +531,6 @@ output$client_level_download_btn <- downloadHandler(
       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
     ))
     
-    exportTestValues(client_level_download = client_level_download) 
+    exportTestValues(client_level_export_details = client_level_details) 
   }
 )
