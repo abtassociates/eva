@@ -150,7 +150,7 @@ parseDate <- function(datevar) {
 }
 
 importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
-  if(str_sub(upload_filepath, -4, -1) != ".zip") {
+  if(isTRUE(str_sub(upload_filepath, -4, -1) != ".zip")) {
     capture.output("User tried uploading a non-zip file!") 
   }
 
@@ -160,18 +160,12 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   
   colTypes <- get_col_types(upload_filepath, csvFile)
 
-  data <- read_csv(
-    filename,
-    col_types = colTypes,
-    na = ""
+  data <- data.table::fread(
+    here(filename),
+    colClasses = colTypes,
+    na.strings=c("","NA")
   )
-    # AS 5/29/24: This seems a bit faster, but has problems with missing columns, 
-    # like DateDeleted in Client.csv. they come inas character, and not NA
-    # data.table::fread(
-    #   here(filename),
-    #   colClasses = colTypes,
-    #   na.strings="NA"
-    # )
+  data <- as.data.frame(data)
 
   if(csvFile != "Export"){
     data <- data %>%
@@ -185,10 +179,8 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
 }
 
 get_col_types <- function(upload_filepath, file) {
-  # returns the datatypes as a concatenated string, based on the order
-  # of the columns in the imported file, rather than the expected order
-  # e.g. "ccccDDnnnnnnnnTTcTc"
-  
+  # returns the datatypes as a named list, using data.table::fread column types,
+  # based on the order of the columns in the imported file, rather than the expected order
   # get the column data types expected for the given file
   col_types <- cols_and_data_types %>%
     filter(File == file) %>%
@@ -210,10 +202,11 @@ get_col_types <- function(upload_filepath, file) {
   data_types <- sapply(cols_in_file, function(col_name) {
     ifelse(col_name %in% col_types$Column,
            col_types$DataType[col_types$Column == col_name],
-           "c")
+           "character")
   })
-  
-  return(paste(data_types, collapse = ""))
+
+  return(data_types)
+  # return(paste(data_types, collapse = ""))
 }
 
 logMetadata <- function(detail) {
