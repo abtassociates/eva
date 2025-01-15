@@ -971,6 +971,7 @@ function(input, output, session) {
   source("system_status_server.R", local = TRUE)
   
   session$onSessionEnded(function() {
+    logToConsole("Session Ended")
     logMetadata("Session Ended")
   })
 }
