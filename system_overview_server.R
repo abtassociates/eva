@@ -392,17 +392,35 @@ output$client_level_download_btn <- downloadHandler(
       "PersonalID",
       "AgeCategory",
       "VeteranStatus",
-      "DomesticViolenceCategory",
+      "Woman",
+      "Man",
+      "CulturallySpecific",
+      "Transgender",
+      "NonBinary",
+      "Questioning",
+      "DifferentIdentity",
+      "GenderUnknown",
+      
       "TransgenderExclusive",
       "GenderExpansiveExclusive",
       "ManExclusive",
       "WomanExclusive",
-      "GenderUnknown",
+      
       "TransgenderInclusive",
       "WomanInclusive",
       "ManInclusive",
-      "CisInclusive",
+      "WomanOrManOnlyInclusive",
       "NonBinaryInclusive",
+      
+      "AmIndAKNative",
+      "Asian",
+      "BlackAfAmerican",
+      "HispanicLatine" = "HispanicLatinaeo",
+      "MidEastNAf" = "MidEastNAfrican",
+      "NativeHIPacific",
+      "White",
+      "RaceEthnicityUnknown",
+      
       "AmIndAKNativeAloneExclusive1",
       "AmIndAKNativeLatineExclusive1",
       "AsianAloneExclusive1",
@@ -410,24 +428,26 @@ output$client_level_download_btn <- downloadHandler(
       "BlackAfAmericanAloneExclusive1",
       "BlackAfAmericanLatineExclusive1",
       "LatineAloneExclusive1",
-      "MENAAloneExclusive1",
-      "MENALatineExclusive1",
+      "MidEastNorAfAloneExclusive1" = "MENAAloneExclusive1",
+      "MidEastNorAfLatineExclusive1" = "MENALatineExclusive1",
       "NativeHIPacificAloneExclusive1",
       "NativeHIPacificLatineExclusive1",
       "WhiteAloneExclusive1",
       "WhiteLatineExclusive1",
       "MultipleNotLatineExclusive1",
       "MultipleLatineExclusive1",
-      "RaceEthnicityUnknown",
+      
       "BILPOCExclusive2",
       "WhiteExclusive2",
+      
       "AmIndAKNativeInclusive1",
       "AsianInclusive1",
       "BlackAfAmericanInclusive1",
       "LatineInclusive1",
-      "MENAInclusive1",
+      "MidEastNorAfInclusive1" = "MENAInclusive1",
       "NativeHIPacificInclusive1",
       "WhiteInclusive1",
+      
       "BlackAfAmericanLatineInclusive2",
       "LatineInclusive2",
       "LatineAloneInclusive2"
@@ -449,10 +469,10 @@ output$client_level_download_btn <- downloadHandler(
       "CorrectedHoH",
       "ProjectType",
       "EntryDate",
+      "LivingSituation",
       "MoveInDateAdjust",
       "ExitAdjust",
-      "Destination",
-      "LivingSituation"
+      "Destination"
     )
     
     enrollment_info <- sys_universe_ppl_flags()[, ..enrollment_fields][
