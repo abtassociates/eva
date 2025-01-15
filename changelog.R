@@ -21,7 +21,6 @@ output$changelog <- renderDT({
       - Automatically interpret non-UTF-8 encoded characters to 
       avoid crashing and display correct character (Issues <a href='https://github.com/abtassociates/eva/issues/649' target='_blank'>#649</a> and <a href='https://github.com/abtassociates/eva/issues/667' target='_blank'>#667</a>)<br>
       - Modified Missing Address check to allow for VSPs and tenant-based scattered sites to be missing Address1, City, and State (Issue <a href='https://github.com/abtassociates/eva/issues/631' target='_blank'>#631</a>)",
->>>>>>> dev
     "11-19-2024",
     "<b>Bug Fixes:</b> <br>
       - Corrected the Zero Utilization logic to only flag projects that are missing
