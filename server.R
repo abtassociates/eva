@@ -223,7 +223,16 @@ function(input, output, session) {
             sankey_plot_data(sankey_plot_df())
             
             # Client-level download
-            sys_universe_ppl_flags(universe_ppl_flags())
+            sys_universe_ppl_flags(
+              merge(
+                universe_ppl_flags(),
+                Client %>% select(
+                  Woman, Man, CulturallySpecific, Transgender, NonBinary, Questioning, DifferentIdentity,
+                  AmIndAKNative, Asian, BlackAfAmerican, HispanicLatinaeo, MidEastNAfrican, NativeHIPacific, White, RaceEthUnknown
+                ),
+                by="PersonalID"
+              )
+            )
             
             exportTestValues(sys_comp_df = sys_df_people_universe_filtered_r())
             
