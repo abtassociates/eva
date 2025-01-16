@@ -226,10 +226,7 @@ function(input, output, session) {
             sys_universe_ppl_flags(
               merge(
                 universe_ppl_flags(),
-                Client %>% select(
-                  Woman, Man, CulturallySpecific, Transgender, NonBinary, Questioning, DifferentIdentity,
-                  AmIndAKNative, Asian, BlackAfAmerican, HispanicLatinaeo, MidEastNAfrican, NativeHIPacific, White, RaceEthUnknown
-                ),
+                Client %>% select(PersonalID, !!gender_cols, !!race_cols), 
                 by="PersonalID"
               )
             )
