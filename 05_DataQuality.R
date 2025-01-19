@@ -486,16 +486,7 @@ missing_living_situation <- base_dq_data %>%
 
 dkr_living_situation <- base_dq_data %>%
   select(
-    PersonalID,
-    HouseholdID,
-    EnrollmentID,
-    ProjectID,
-    OrganizationName,
-    ProjectType,
-    ProjectName,
-    EntryDate,
-    MoveInDateAdjust,
-    ExitDate,
+    all_of(vars_prep),
     AgeAtEntry,
     RelationshipToHoH,
     LivingSituation,
@@ -1298,58 +1289,27 @@ overlap_dt <- merge(
 # For the Overlap Details tab of the export
 # we want the same set of details for the overlapping enrollment (i.e. the "previous")
 # this wide dataset is saved in the overlap_details() reactiveValue
-col_order <- if(nrow(Services) > 0) {
-  c(
-    "OrganizationName",
-    "ProjectID",
-    "ProjectName",
-    "ProjectType",
-    "EnrollmentID",
-    "HouseholdID",
-    "PersonalID",
-    "EntryDate",
-    "OverlappingDateProvided" = "DateProvided",
-    "FirstDateProvided",
-    "LastDateProvided",
-    "MoveInDate" = "MoveInDateAdjust",
-    "ExitDate",
-    "PreviousOrganizationName",
-    "PreviousProjectID",
-    "PreviousProjectName",
-    "PreviousProjectType",
-    "PreviousEnrollmentID",
-    "PreviousHouseholdID",
-    "PreviousPersonalID",
-    "PreviousEntryDate",
-    "PreviousMoveInDate" = "PreviousMoveInDateAdjust",
-    "PreviousExitDate",
-    "PreviousFirstDateProvided",
-    "PreviousLastDateProvided"
-  )
-} else {
-  c(
-    "OrganizationName",
-    "ProjectID",
-    "ProjectName",
-    "ProjectType",
-    "EnrollmentID",
-    "HouseholdID",
-    "PersonalID",
-    "EntryDate",
-    "MoveInDate" = "MoveInDateAdjust",
-    "ExitDate",
-    "PreviousOrganizationName",
-    "PreviousProjectID",
-    "PreviousProjectName",
-    "PreviousProjectType",
-    "PreviousEnrollmentID",
-    "PreviousHouseholdID",
-    "PreviousPersonalID",
-    "PreviousEntryDate",
-    "PreviousMoveInDate" = "PreviousMoveInDateAdjust",
-    "PreviousExitDate"
+# OverlappingDateProvided vs. FirstDateProvided vs. LastDateProvided:
+# - OverlappingDateProvided is only relevant for NbN vs. NbN overlaps
+# - FirstDateProvided and LastDateProvided are within a particular enrollment, 
+#   constructing a range, used for NbN vs. any other type
+main_enrl_cols <- vars_prep
+if(nrow(Services) > 0) {
+  main_enrl_cols <- c(main_enrl_cols,
+                      "FirstDateProvided",
+                      "LastDateProvided"
+                      
   )
 }
+previous_enrl_cols <- paste("Previous", main_enrl_cols, sep="")
+col_order <- c(main_enrl_cols, previous_enrl_cols)
+
+# add in OverlappingDateProvided
+if(nrow(Services) > 0) {
+  col_order <- append(col_order,
+                      c("OverlappingDateProvided" = "DateProvided"),
+                      after = which(col_order == "MoveInDateAdjust"))
+}  
 
 overlap_details(
   # Rename columns for previous enrollment
@@ -1372,18 +1332,23 @@ overlap_details(
   ]
 )
 
-overlaps_df <- as.data.frame(
-  overlap_dt[
-    , c(
-      "PreviousEnrollmentID", 
-      "DateProvided",
-      "FirstDateProvided",
-      "LastDateProvided",
-      "PreviousFirstDateProvided",
-      "PreviousLastDateProvided"
-      ) := NULL
-  ]
-)
+# Remove unecessary columns
+cols_to_remove <- "PreviousEnrollmentID"
+if(nrow(Services) > 0) {
+  cols_to_remove <- c(
+    cols_to_remove,
+    "DateProvided",
+    "FirstDateProvided",
+    "LastDateProvided",
+    "PreviousFirstDateProvided",
+    "PreviousLastDateProvided"
+  )
+}
+
+overlap_dt[, (cols_to_remove) := NULL]
+
+# convert to data.frame to play nice with other data.tables
+overlaps_df <- as.data.frame(overlap_dt)
 # Invalid Move-in Date ----------------------------------------------------
 
 invalid_movein_date <- base_dq_data %>%
