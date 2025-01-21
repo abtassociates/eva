@@ -479,3 +479,5 @@ accept_csv <- function(datasetname, test_script_name) {
   # rename new to old
   file.rename(new_path, old_path)
 }
+
+print("finished running testing_functions")
