@@ -471,6 +471,7 @@ ES_BedType_HousingType <- Inventory %>%
 activeInventory_COC_merged <- activeInventory %>% 
   mutate(ix=1) %>% 
   merge((ProjectCoC %>% select(ProjectID, CoCCode)) %>% mutate(iy=1), by = c("ProjectID", "CoCCode"), all=TRUE) %>%
+  merge((Project %>% select(ProjectID, ProjectType, RRHSubType)), by = c("ProjectID"), all=TRUE) %>%
   mutate(mer = case_when(ix==1&iy==1~'both',
                          ix==1~'only_x',
                          iy==1~'only_y')) %>%
@@ -480,7 +481,9 @@ activeInventory_COC_merged <- activeInventory %>%
 # Throw a warning if there is no inventory record for a ProjectID and COCCode combo in the ProjectCoC data
 
 Active_Inventory_per_COC <- activeInventory_COC_merged %>%
-  filter(mer=="only_y") %>% 
+  filter(mer=="only_y") %>%
+  filter(ProjectType %in% project_types_w_beds &
+           (RRHSubType == 2 | is.na(RRHSubType))) %>% 
   merge_check_info(checkIDs = 136) %>% 
   mutate(Detail = "Residential projects must have a bed inventory for each CoC they serve."
   ) %>%
