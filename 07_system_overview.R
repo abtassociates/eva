@@ -392,8 +392,8 @@ homeless_cls_finder <- function(date, window = "before", days = 60) {
 #   arrange(EnrollmentID)
 
 # using data.table --------------------------------------------------------
-
-enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
+get_enrollment_categories <- function(startDate, endDate) {
+  as.data.table(enrollment_prep_hohs)[, `:=`(
   ProjectTypeWeight = fcase(
     ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
     ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80,
@@ -410,9 +410,9 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     lh_at_entry = lh_prior_livingsituation | ProjectType %in% lh_project_types,
     EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
       lh_prior_livingsituation,
-    straddles_start = EntryDate <= ReportStart() & ExitAdjust >= ReportStart(),
-    straddles_end = EntryDate <= ReportEnd() & ExitAdjust >= ReportEnd(),
-    in_date_range = ExitAdjust >= ReportStart() & EntryDate <= ReportEnd() #,
+    straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
+    straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
+    in_date_range = ExitAdjust >= startDate & EntryDate <= endDate #,
     # DomesticViolenceCategory = fcase(
     #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
     #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
@@ -513,6 +513,9 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
   ][
     ,AgeAtEntry := NULL
   ]
+}
+
+enrollment_categories <- get_enrollment_categories(ReportStart(), ReportEnd())
 
 enrollment_categories <- merge(
     enrollment_categories, 
@@ -1331,3 +1334,59 @@ inflow_outflow_df <- reactive({
 #   ) -> for_review
 # 
 # write_csv(for_review, here("newly_homeless_20240912a.csv"))
+
+# Monthyl Inflow-Outflows -----------------------------------------------------
+get_monthly_dates <- reactive({
+  start_date <- ReportStart()
+  end_date <- ReportEnd()
+  
+  # Generate sequence of months
+  months_seq <- seq(floor_date(start_date, "month"),
+                    floor_date(end_date, "month"),
+                    by = "month")
+  
+  # Create data frame with start and end dates for each month
+  data.frame(
+    month_start = months_seq,
+    month_end = ceiling_date(months_seq, "month") - days(1)
+  )
+})
+
+# Modified enrollment categories function for monthly analysis
+monthly_enrollment_categories <- reactive({
+  monthly_dates <- get_monthly_dates()
+  
+  # Create a list to store results for each month
+  monthly_results <- lapply(1:nrow(monthly_dates), function(i) {
+    month_start <- monthly_dates$month_start[i]
+    month_end <- monthly_dates$month_end[i]
+    
+    get_enrollment_categories(month_start, month_end)
+  })
+  
+  # Combine all monthly results
+  rbindlist(monthly_results)
+})
+
+# Modified universe calculation for monthly analysis
+monthly_universe <- reactive({
+  monthly_cats <- monthly_enrollment_categories()
+  
+  monthly_cats[, 
+               .(PersonalID, 
+                 month_period,
+                 active_at_start_homeless = sum(active_at_start_homeless),
+                 active_at_start_housed = sum(active_at_start_housed),
+                 return_from_perm = sum(return_from_perm_client),
+                 reengaged_from_temp = sum(reengaged_from_temp_client),
+                 newly_homeless = sum(newly_homeless_client),
+                 perm_dest = sum(perm_dest_client),
+                 temp_dest = sum(temp_dest_client),
+                 homeless_at_end = sum(homeless_at_end_client),
+                 housed_at_end = sum(housed_at_end_client),
+                 unknown_at_end = sum(unknown_at_end_client)
+               ),
+               by = .(month_period)
+  ]
+})
+
