@@ -93,15 +93,13 @@ missing_CoC_Geography <- missing_CoC_Info %>%
            is.na(CoCCode)) %>%
   merge_check_info(checkIDs = 5) %>%
   mutate(
-    Detail =gsub(
-      "(^|,)(\\s*,\\s*)", "\\1", # remove unwanted ", ," and ": ," patterns
-      paste0(
-        "This project is missing a valid: ",
-        if_else(is.na(Geocode), "Geocode", ""),
-        if_else(is.na(GeographyType), ", Geography Type", ""),
-        if_else(is.na(CoCCode), ", CoC Code", "")
-      )
-    )
+    Detail = paste0(
+      "This project is missing a valid: ",
+      if_else(is.na(Geocode), "Geocode, ", ""),
+      if_else(is.na(GeographyType), "Geography Type, ", ""),
+      if_else(is.na(CoCCode), "CoC Code, ", "")
+    ) %>%
+    str_remove(", $")
   ) %>%
   select(all_of(PDDEcols))
 
@@ -117,16 +115,14 @@ missing_CoC_Address <- missing_CoC_Info %>%
   ) %>%
   merge_check_info(checkIDs = 42) %>%
   mutate(
-    Detail = gsub(
-      "(^|,)(\\s*,\\s*)", "\\1", # remove unwanted ", ," and ": ," patterns
-      paste0(
-        "This project is missing a valid: ",
-        if_else(is.na(Address1), "Address", ""),
-        if_else(is.na(City), ", City", ""),
-        if_else(is.na(State), ", State", ""),
-        if_else(!str_detect(ZIP, "^[0-9]{5}(-[0-9]{4})?$") | is.na(ZIP), ", ZIP", "")
-      )
-    )
+    Detail = paste0(
+      "This project is missing a valid: ",
+      if_else(is.na(Address1), "Address", ""),
+      if_else(is.na(City), ", City", ""),
+      if_else(is.na(State), ", State", ""),
+      if_else(!str_detect(ZIP, "^[0-9]{5}(-[0-9]{4})?$") | is.na(ZIP), ", ZIP", "")
+    ) %>%
+      str_remove(", $")
   ) %>%
   select(all_of(PDDEcols))
 
