@@ -155,17 +155,15 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$wait_for_idle(timeout = 1e+06)
     customDownload(app, "downloadImpermissibleCharacterDetail", "Impermissible-Character-Detail.xlsx")
     
-    inputs <- c(
-      "currentProviderList",
-      "dateRangeCount",
-      inputs_no_bindings(DTs = c("clientCountData", "clientCountSummary"))
-    )
-    print(paste0("inputs = ", inputs))
     app$set_inputs(sidebarmenuid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "client-count",
-      input = inputs,
+      input =  c(
+        "currentProviderList",
+        "dateRangeCount",
+        inputs_no_bindings(DTs = c("clientCountData", "clientCountSummary"))
+      ),
       output = c(
         "headerClientCounts",
         "headerClientCounts_supp",
@@ -481,5 +479,3 @@ accept_csv <- function(datasetname, test_script_name) {
   # rename new to old
   file.rename(new_path, old_path)
 }
-
-print("finished running testing_functions")

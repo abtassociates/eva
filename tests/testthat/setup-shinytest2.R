@@ -4,6 +4,5 @@ library(here)
 unlink(here("tests/temp"), recursive = TRUE)
 source(here("tests/create_test_datasets.R"), local = TRUE)
 
-print("about to run testing_functions")
 source(here("tests/testing_functions.R"), local = TRUE)
 shinytest2::load_app_env()
