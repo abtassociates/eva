@@ -160,7 +160,7 @@ main_test_script <- function(test_script_name, test_dataset) {
       "dateRangeCount",
       inputs_no_bindings(DTs = c("clientCountData", "clientCountSummary"))
     )
-    
+    print(paste0("inputs = ", inputs))
     app$set_inputs(sidebarmenuid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
