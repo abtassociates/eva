@@ -404,7 +404,6 @@ renderDQPlot <- function(level, issueType, group, color) {
       geom_text(aes(label = countVar), hjust = -0.5, color = "black",
                 size = sys_chart_text_font)
   },
-  ,
   alt = case_when(outputId == "systemDQHighPriorityErrorsByIssue" ~ "A bar chart of the top High Priority Errors in the system.",
                   outputId == "systemDQHighPriorityErrorsByOrg" ~ "A bar chart of the top organizations with the most High Priority Errors in the system.",
                   outputId == "systemDQErrorByIssue" ~ "A bar chart of the top General Errors in the system.",
