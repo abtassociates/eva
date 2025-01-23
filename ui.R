@@ -1109,6 +1109,16 @@ dashboardPage(
                                       height = "500") %>%
                              withSpinner()
                   ),
+                  tabPanel("Month-by-Month Chart", 
+                           uiOutput("sys_act_monthly_filter_selections") %>%
+                             withSpinner(),
+                           plotOutput("sys_act_monthly_ui_chart",
+                                      width = "100%",
+                                      height = "500") %>%
+                             withSpinner(),
+                            DTOutput("sys_act_monthly_table") %>%
+                             withSpinner()
+                  ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>
                                 <p>The System Flow chart shows your homeless system's 

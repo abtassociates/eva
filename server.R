@@ -201,16 +201,19 @@ function(input, output, session) {
           }, {
             sys_inflow_outflow_plot_data(inflow_outflow_df())
             sys_df_people_universe_filtered_r(
-              enrollment_categories_reactive() %>%
-                select(PersonalID, lookback, lecr, eecr, CorrectedHoH) %>%
-                inner_join(client_categories, join_by(PersonalID)) %>%
+              merge(
+                enrollment_categories(ReportStart(), ReportEnd()) %>%
+                  select(PersonalID, lookback, lecr, eecr, CorrectedHoH),
+                client_categories(ReportStart(), ReportEnd()),
+                by = "PersonalID",
+                all = TRUE) %>%
                 filter(!(lookback == 0 &
                            eecr == FALSE & lecr == FALSE)) %>%
                 group_by(PersonalID) %>%
                 filter(max(lecr, na.rm = TRUE) == 1 &
                          max(eecr, na.rm = TRUE) == 1) %>%
                 ungroup() %>%
-                select(colnames(client_categories)) %>%
+                select(colnames(client_categories(ReportStart(), ReportEnd()))) %>%
                 unique()
             )
             sankey_plot_data(sankey_plot_df())

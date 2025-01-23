@@ -322,15 +322,17 @@ renderSystemPlot <- function(id) {
     req(valid_file() == 1)
     get_system_inflow_outflow_plot(id)
   },
-  alt = case_when(id == "sys_act_summary_ui_chart" ~ 
-                "A waterfall bar chart of the homeless system's inflow and outflow during 
-              the report period. The summary view of this chart includes four components: 
-              Active at Start, Inflow, Outflow, and Active at End.",
-              TRUE ~ "A waterfall bar chart of the homeless system's inflow and 
-              outflow during the report period. The detailed view of this chart 
-              shows inflow as three subcategories: first-time homeless, returned from 
-              permanent, and re-engaged from non-permanent and outflow as three 
-              subcategories: exited non-permanent, exited permanent, and inactive."),
+  alt = case_when(
+    id == "sys_act_summary_ui_chart" ~ "A waterfall bar chart of the homeless system's inflow and outflow during 
+      the report period. The summary view of this chart includes four components: 
+      Active at Start, Inflow, Outflow, and Active at End.",
+    id == "sys_act_detail_ui_chart" ~ "A waterfall bar chart of the homeless system's inflow and 
+      outflow during the report period. The detailed view of this chart 
+      shows inflow as three subcategories: first-time homeless, returned from 
+      permanent, and re-engaged from non-permanent and outflow as three 
+      subcategories: exited non-permanent, exited permanent, and inactive.",
+    id == "sys_act_monthly_ui_chart" ~ "A waterfall bar chart of the homeless system's inflow and outflow during each month of the report period."
+  ),
   width = ifelse(isTRUE(getOption("shiny.testmode")), 1113, "auto")
   )
 }
@@ -338,6 +340,7 @@ renderSystemPlot <- function(id) {
 #### DISPLAY CHART ###
 renderSystemPlot("sys_act_summary_ui_chart")
 renderSystemPlot("sys_act_detail_ui_chart")
+renderSystemPlot("sys_act_monthly_ui_chart")
 
 sys_inflow_outflow_export_info <- function(df) {
   tibble(

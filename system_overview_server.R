@@ -132,8 +132,15 @@ syso_detailBox <- reactive({
   )
 })
 
-output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
+output$sys_act_detail_filter_selections <- renderUI({ 
+  req(valid_file() == 1)
+  syso_detailBox() 
+})
 output$sys_act_summary_filter_selections <- renderUI({
+  req(valid_file() == 1)
+  syso_detailBox() 
+})
+output$sys_act_monthly_filter_selections <- renderUI({ 
   req(valid_file() == 1)
   syso_detailBox() 
 })
