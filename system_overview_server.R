@@ -522,7 +522,7 @@ output$client_level_download_btn <- downloadHandler(
       sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
       sys_export_filter_selections() # Age, Veteran Status, Gender, Race/Ethnicity
     )
-    colnames(filter_selections) <- NULL
+    colnames(filter_selections) <- c(" "," ")
     
     # probably want to read in the glossary tab as a csv or Excel and append to it.
     
