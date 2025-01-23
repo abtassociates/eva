@@ -1,9 +1,9 @@
 Organization Name,Project ID,Project Name,Issue,Type,Guidance,Detail
-Organization H,40,Organization H - TH,Missing Geography Information,High Priority,Please ensure geography information for projects is complete.,"This project is missing a valid: , Geography Type, CoC Code"
-Organization J,712,Organization J - ES,Missing Geography Information,High Priority,Please ensure geography information for projects is complete.,"This project is missing a valid: , Geography Type, CoC Code"
-Organization J,1002,Organization J - HP,Missing Geography Information,High Priority,Please ensure geography information for projects is complete.,"This project is missing a valid: , Geography Type"
-Organization F,1520,Organization F - RRH - 2,Missing Geography Information,High Priority,Please ensure geography information for projects is complete.,"This project is missing a valid: , Geography Type"
-Organization K,1567,Organization K - HP,Missing Geography Information,High Priority,Please ensure geography information for projects is complete.,"This project is missing a valid: , Geography Type"
+Organization H,40,Organization H - TH,Missing Geography Information,High Priority,Please ensure geography information for projects is complete.,"This project is missing a valid: Geography Type, CoC Code"
+Organization J,712,Organization J - ES,Missing Geography Information,High Priority,Please ensure geography information for projects is complete.,"This project is missing a valid: Geography Type, CoC Code"
+Organization J,1002,Organization J - HP,Missing Geography Information,High Priority,Please ensure geography information for projects is complete.,This project is missing a valid: Geography Type
+Organization F,1520,Organization F - RRH - 2,Missing Geography Information,High Priority,Please ensure geography information for projects is complete.,This project is missing a valid: Geography Type
+Organization K,1567,Organization K - HP,Missing Geography Information,High Priority,Please ensure geography information for projects is complete.,This project is missing a valid: Geography Type
 Organization H,40,Organization H - TH,Missing Address,Error,Please ensure geography information for projects is complete.,"This project is missing a valid: Address, ZIP"
 Organization J,712,Organization J - ES,Missing Address,Error,Please ensure geography information for projects is complete.,"This project is missing a valid: Address, ZIP"
 Organization Z,1331,Organization Z - RRH - 2,No Inventory Records,Error,Residential projects should have inventory data. Please enter inventory in HMIS for the project.,""

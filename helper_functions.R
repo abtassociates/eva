@@ -503,12 +503,17 @@ convert_data_to_utf8 <- function(data) {
       
       # Interpret characters in a non-UTF-8 encoded file correctly
       # E.g. ‰ in a UTF-8 file, will come in as ‰ and should not be 
-      converted_col <- iconv(original_col, from = file_encoding)
-      
-      # Identify changes by comparing original and converted values
-      if (length(which(original_col != converted_col)) > 0) {
-        dt[[col]] <- converted_col
-      }
+      if(is.na(file_encoding)) file_encoding <- "ISO-8559-1"
+
+      tryCatch({
+        converted_col <- iconv(original_col, from = file_encoding, to = "UTF-8")  
+        # Identify changes by comparing original and converted values
+        if (length(which(original_col != converted_col)) > 0) {
+          dt[[col]] <- converted_col
+        }
+      }, error = function(e) {
+        print("Conversion failed! Unknown encoding!")
+      })      
     }
   }
   
