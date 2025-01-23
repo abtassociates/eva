@@ -27,11 +27,7 @@ detect_bracket_characters <- function(dt, file, encoding) {
       tibble::tibble(
         File = file,
         Location = paste0("column ", col, ", row ", row_indices),
-        Text = iconv(
-          dt[[col]][row_indices],
-          from = toupper(encoding),
-          # to = "UTF-8", #not needed, because UTF-8 is the default
-        )
+        Text = dt[[col]][row_indices]
       )
     }
   })
