@@ -516,7 +516,7 @@ output$client_level_download_btn <- downloadHandler(
         as.character(meta_HUDCSV_Export_End())
       )
     )
-    browser()
+    
     filter_selections <- rbind(
       export_date_info, # ExportStart, Exportend
       sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
