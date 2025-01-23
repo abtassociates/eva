@@ -172,7 +172,7 @@ gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific
 syso_gender_incl <- list(
   "All Genders" = "All",
   "Gender expansive, including transgender" = "TransgenderInclusive",
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive",
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "WomanOrManOnlyInclusive",
   "Man (Boy, if child) alone or in combination" = "ManInclusive",
   "Non-Binary alone or in combination" = "NonBinaryInclusive",
   "Woman (Girl, if child) alone or in combination" = "WomanInclusive"
