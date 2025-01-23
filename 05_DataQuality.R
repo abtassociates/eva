@@ -1215,30 +1215,17 @@ overlap_dt <- overlap_dt[IsOverlap == TRUE]
 # but because DatePRovided is m:1 with Enrollment, we need to process separately
 # from the enrollment-level data above
 if(nrow(Services) > 0) {
-  duplicate_dateprovided_by_person <- services_dt[
-    , DuplicateDateProvided := duplicated(DateProvided), 
+  overlap_nbns <- services_dt[, `:=`(
+      PreviousEnrollmentID = shift(EnrollmentID, type = "lag"),
+      IsOverlap = ifelse(duplicated(DateProvided) | duplicated(DateProvided, fromLast = TRUE), TRUE, FALSE), 
+      PreviousProjectType = es_nbn_project_type
+    ), 
     by = PersonalID
-  ][DuplicateDateProvided == TRUE][
-    , .(PersonalID, DateProvided)
+  ][
+    IsOverlap == TRUE,
+    .(PersonalID, EnrollmentID, PreviousEnrollmentID, DateProvided, IsOverlap, PreviousProjectType)
   ]
 
-  # Merge the duplicate dates back to Services to get EnrollmentIDs
-  overlap_nbns <- services_dt[
-    duplicate_dateprovided_by_person, 
-    on = .(PersonalID, DateProvided)
-  ][, `:=`(
-      EnrollmentID = EnrollmentID, 
-      PreviousEnrollmentID = shift(EnrollmentID, type = "lag")
-    ),
-    by = .(PersonalID, DateProvided)
-  ][
-    !is.na(PreviousEnrollmentID), 
-    .(PersonalID, EnrollmentID, PreviousEnrollmentID, DateProvided)
-  ][, `:=`(
-    IsOverlap = TRUE,
-    PreviousProjectType = es_nbn_project_type
-  )]
-  
   # add the NbN overlaps back onto the main overlap_Dt
   overlap_dt <- rbindlist(
     list(overlap_dt, overlap_nbns),
