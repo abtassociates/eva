@@ -200,6 +200,9 @@ function(input, output, session) {
             input$syso_race_ethnicity
           }, {
             sys_inflow_outflow_plot_data(inflow_outflow_df())
+            exportTestValues(universe_ppl_flags = universe_ppl_flags() %>% nice_names())
+  
+            # System Composition/Demographics data for chart
             sys_df_people_universe_filtered_r(
               merge(
                 enrollment_categories(ReportStart(), ReportEnd()) %>%
