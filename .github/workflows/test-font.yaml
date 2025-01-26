@@ -6,7 +6,7 @@ name: Test
 
 jobs:
   test0:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04.5
 
     name: font-test-0
 
@@ -27,7 +27,11 @@ jobs:
       
       - name: install ragg
         run: |
-          install.packages("ragg")
+          packageurl <- "https://cran.r-project.org/src/contrib/Archive/ragg/ragg_1.3.2.tar.gz"
+          install.packages(packageurl, repos=NULL, type="source")
+          
+          packageurl <- "https://cran.r-project.org/src/contrib/Archive/systemfonts/systemfonts_1.1.0.tar.gz"
+          install.packages(packageurl, repos=NULL, type="source")
         shell: Rscript {0}
 
   test1:
