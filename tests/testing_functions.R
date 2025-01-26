@@ -123,7 +123,8 @@ main_test_script <- function(test_script_name, test_dataset) {
     "pdde_main",
     "universe_ppl_flags",
     "sys_comp_df",
-    "client_level_export_details"
+    "client_level_export_details",
+    "dq_overlaps"
   )
   
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
