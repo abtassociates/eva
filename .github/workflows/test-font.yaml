@@ -6,7 +6,7 @@ name: Test
 
 jobs:
   test0:
-    runs-on: ubuntu-22.04.5
+    runs-on: ubuntu-22.04
 
     name: font-test-0
 
