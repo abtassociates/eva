@@ -54,7 +54,7 @@ for (filename in unique(cols_and_data_types$File)) {
     
     if (
       (expected_type == "date" && !is.Date(data[[col_name]])) ||
-      (expected_type == "datetime" && is.na(parse_date_time(data[[col_name]], "ymd HMS")))
+      (expected_type == "datetime" && any(is.na(parse_date_time(data[[col_name]], "ymd HMS"))))
     ) {
       unexpected_date_formats[[length(unexpected_date_formats) + 1]] <- data.table(
         File = filename,
