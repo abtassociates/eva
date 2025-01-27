@@ -1,15 +1,5 @@
 bracket_regex <- "\\[|\\]|\\<|\\>|\\{|\\}"
 
-fread_type_mapping <- list(
-  "c" = "character",
-  "d" = "double",
-  "i" = "integer",
-  "T" = "POSIXct",
-  "l" = "logical",
-  "D" = "Date",
-  "n" = "numeric"  # Skip column
-)
-
 # Function to detect non-UTF-8 characters and brackets
 detect_bracket_characters <- function(dt, file, encoding) {
   # Vectorized detection for non-UTF-8 and bracket issues
@@ -39,13 +29,6 @@ bracket_files_detail <- reactive({
   req(input$imported)
   file_list <- unique(cols_and_data_types$File)
   
-  col_types <- lapply(file_list, function(file) {
-    types_str <- get_col_types(input$imported$datapath, file)
-    types <- strsplit(types_str, "")[[1]]
-    sapply(types, function(type) fread_type_mapping[[type]])
-  })
-  names(col_types) <- file_list
-  
   withProgress(
     message = "Downloading Impermissible Character Export...", 
     value = 0,
@@ -53,10 +36,12 @@ bracket_files_detail <- reactive({
       files_with_brackets <- purrr::map_dfr(file_list, function(file) {
         # Import original data, since object names have been overwritten 
         # with windows-1252 chars removed
+        colTypes <- get_col_types(input$imported$datapath, file)
         filename <- utils::unzip(zipfile = input$imported$datapath, files = glue("{file}.csv"))
         dt <- fread(
           here(filename),
-          colClasses = unname(col_types[[file]])
+          colClasses = unlist(unname(colTypes)),
+          na.strings=c("","NA")
         )
         
         incProgress(1/length(file_list))
