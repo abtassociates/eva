@@ -452,26 +452,30 @@ review_helper <- function(datasetname, test_script_name) {
   old <- fread(old_path)
   new <- fread(new_path)
   
-  # # Isolate the records that are different
-  # # (Requires identical columns - if not, use waldo)
-  # only_in_old <- fsetdiff(old, new)
-  # if(nrow(only_in_old) > 0) {
-  #   print("Viewing records only in the old dataset")
-  #   view(only_in_old)
-  # }
-  # 
-  # only_in_new <- fsetdiff(new, old)
-  # if(nrow(only_in_new) > 0) {
-  #   print("Viewing records only in the new dataset")
-  #   view(only_in_new)
-  # }
-  # 
+  
+  # records_in_one_or_another(old, new)
   # For simple differences, view more visually with one of these methods
   # diffviewer::visual_diff(old_path, new_path)
-   waldo::compare(old, new)
+   waldo::compare(old, new) # summary of differences
+   
   # diffobj::diffObj(old, new)
 }
 
+records_in_one_or_another <- function(old, new) {
+  # Isolate the records that are different
+  # (Requires identical columns - if not, use waldo)
+  only_in_old <- fsetdiff(old, new)
+  if(nrow(only_in_old) > 0) {
+    print("Viewing records only in the old dataset")
+    view(only_in_old)
+  }
+
+  only_in_new <- fsetdiff(new, old)
+  if(nrow(only_in_new) > 0) {
+    print("Viewing records only in the new dataset")
+    view(only_in_new)
+  }
+}
 # This is equivalent to snapshot_accept(), but for the helper csv files
 
 accept_helper <- function(datasetname, test_script_name) {
