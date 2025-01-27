@@ -8,7 +8,9 @@ output$changelog <- renderDT({
       in the charts<br>
      <b>Bug Fixes:</b> <br>
       - Fixed display of missing geography and address warnings for PDDE.<br>
-      - Only flag Subtype 2 for project type 13 (RRH) for Active Inventory PDDE check.",
+      - Only flag residential projects for Active Inventory PDDE check.<br>
+      - Fixed edge case detection of NbN overlaps; i.e., too many duplicates caused a join error and crashed Eva.<br>
+      - Fixed issue in how the Age and Race filter selections are displayed in the System Exports.",
     "12-31-2024",
     "<b>New features:</b> <br>
       - Updated demo.zip to capture new overlaps.<br>

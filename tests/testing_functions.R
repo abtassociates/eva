@@ -439,7 +439,10 @@ main_test_script <- function(test_script_name, test_dataset) {
   })
 }
 
-compare_helpers <- function(datasetname, test_script_name) {
+
+# This is equivalent to snapshot_review(), but for the helper csv files
+
+review_helper <- function(datasetname, test_script_name) {
   helper_data_dir <- glue(
     here("tests/helper_data/{gsub('test-','',test_script_name)}")
   )
@@ -449,26 +452,29 @@ compare_helpers <- function(datasetname, test_script_name) {
   old <- fread(old_path)
   new <- fread(new_path)
   
-  # Isolate the records that are different
-  only_in_old <- fsetdiff(old, new)
-  if(nrow(only_in_old) > 0) {
-    print("Viewing records only in the old dataset")
-    view(only_in_old)
-  }
-  
-  only_in_new <- fsetdiff(new, old)
-  if(nrow(only_in_new) > 0) {
-    print("Viewing records only in the new dataset")
-    view(only_in_new)
-  }
-  
+  # # Isolate the records that are different
+  # # (Requires identical columns - if not, use waldo)
+  # only_in_old <- fsetdiff(old, new)
+  # if(nrow(only_in_old) > 0) {
+  #   print("Viewing records only in the old dataset")
+  #   view(only_in_old)
+  # }
+  # 
+  # only_in_new <- fsetdiff(new, old)
+  # if(nrow(only_in_new) > 0) {
+  #   print("Viewing records only in the new dataset")
+  #   view(only_in_new)
+  # }
+  # 
   # For simple differences, view more visually with one of these methods
   # diffviewer::visual_diff(old_path, new_path)
-  # waldo::compare(old, new)
+   waldo::compare(old, new)
   # diffobj::diffObj(old, new)
 }
 
-accept_csv <- function(datasetname, test_script_name) {
+# This is equivalent to snapshot_accept(), but for the helper csv files
+
+accept_helper <- function(datasetname, test_script_name) {
   helper_data_dir <- glue(
     here("tests/helper_data/{gsub('test-','',test_script_name)}")
   )
