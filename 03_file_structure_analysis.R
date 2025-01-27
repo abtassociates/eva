@@ -43,38 +43,32 @@ for (filename in unique(cols_and_data_types$File)) {
   expected_date_cols <- cols_and_data_types %>%
     filter(File == filename & DataType %in% c("date", "datetime"))
   
-  # Create a vector mapping column names to their expected data types
   expected_col_types <- setNames(expected_date_cols$DataType, expected_date_cols$Column)
   
-  # Loop through each expected column for the current file
   for (col_name in expected_date_cols$Column) {
     
-    # Skip columns that don't exist in the actual dataset
+    # skip columns not in the actual dataset
     if (!(col_name %in% colnames(data))) next
     
-    # Get the expected type for this column
     expected_type <- expected_col_types[[col_name]]
     
-    # Check if the column's actual type matches the expected type
     if (
       (expected_type == "date" && !is.Date(data[[col_name]])) ||
-      (expected_type == "datetime" && !is.POSIXct(data[[col_name]]))
+      (expected_type == "datetime" && is.na(parse_date_time(data[[col_name]], "ymd HMS")))
     ) {
-      # Add the mismatch information to the result list
       unexpected_date_formats[[length(unexpected_date_formats) + 1]] <- data.table(
         File = filename,
         Column = col_name,
         Detail = paste0(
           "Please check that the ", col_name, 
           " column in the ", filename, 
-          " file has the correct date/datetime format."
+          " file has the correct ", expected_type, " format."
         )
       )
     }
   }
 }
 
-# Combine the list of results into a single data.table
 unexpected_date_formats <- rbindlist(unexpected_date_formats, fill = TRUE)
 
 
@@ -148,7 +142,7 @@ for (filename in unique(cols_and_data_types$File)) {
   expected_col_types <- setNames(expected_cols$DataType, expected_cols$Column)
   
   for(col_name in expected_cols$Column) {
-    # ignore columns not in the actual dataset
+    # skip columns not in the actual dataset
     if (!(col_name %in% colnames(data))) next
     
     expected_col <- expected_cols[expected_cols$Column == col_name, ]
