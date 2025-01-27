@@ -15,6 +15,8 @@ high_priority_columns <- cols_and_data_types %>%
   pull(Column) %>%
   unique()
 
+empty_tibble <- tibble(!!!issue_display_cols, .rows=0)
+
 # Brackets --------------------------------------------------------------
 files_with_brackets <- data.frame()
 for(file in unique(cols_and_data_types$File)) {
@@ -54,7 +56,7 @@ for (filename in unique(cols_and_data_types$File)) {
     
     if (
       (expected_type == "date" && !is.Date(data[[col_name]])) ||
-      (expected_type == "datetime" && any(is.na(parse_date_time(data[[col_name]], "ymd HMS"))))
+      (expected_type == "datetime" && any(is.na(parse_date_time(data[[col_name]], c("ymd HMS", "ymd")))))
     ) {
       unexpected_date_formats[[length(unexpected_date_formats) + 1]] <- data.table(
         File = filename,
@@ -71,16 +73,21 @@ for (filename in unique(cols_and_data_types$File)) {
 
 unexpected_date_formats <- rbindlist(unexpected_date_formats, fill = TRUE)
 
-
-incorrect_date_types_hp <- unexpected_date_formats %>%
-  filter(Column %in% c(high_priority_columns)) %>%
-  merge_check_info(checkIDs = 11) %>%
-  select(all_of(issue_display_cols)) %>% unique()
-
-incorrect_date_types_error <- unexpected_date_formats %>%
-  filter(!(Column %in% c(high_priority_columns))) %>%
-  merge_check_info(checkIDs = 47) %>%
-  select(all_of(issue_display_cols)) %>% unique()
+if(nrow(unexpected_date_formats) > 0) {
+  unexpected_date_formats <- rbind(
+    unexpected_date_formats %>%
+      filter(Column %in% c(high_priority_columns)) %>%
+      merge_check_info(checkIDs = 11) %>%
+      select(all_of(issue_display_cols)) %>% unique(),
+    
+    unexpected_date_formats %>%
+      filter(!(Column %in% c(high_priority_columns))) %>%
+      merge_check_info(checkIDs = 47) %>%
+      select(all_of(issue_display_cols)) %>% unique()
+  )
+} else {
+  unexpected_date_formats <- empty_tibble
+}
 
 # Incorrect Columns ------------------------------------------------------
 check_columns <- function(file) {
@@ -191,6 +198,8 @@ if(nrow(unexpected_data_types) > 0) {
       select(all_of(issue_display_cols)) %>%
       unique()
   )
+} else {
+  unexpected_data_types <- empty_tibble
 }
 
 check_for_bad_nulls <- function(file) {
@@ -460,8 +469,7 @@ file_structure_analysis_main(rbind(
   export_id_client,
   foreign_key_no_primary_personalid_enrollment,
   foreign_key_no_primary_projectid_enrollment,
-  incorrect_date_types_error,
-  incorrect_date_types_hp,
+  unexpected_date_formats,
   living_situation_invalid,
   no_enrollment_records,
   nonstandard_CLS,
