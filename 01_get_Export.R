@@ -11,10 +11,5 @@ for (file in unique(cols_and_data_types$File)) {
   #import the csv and save it as a data frame
   print(paste0("importing ", file))
   assign(file, importFile(upload_filepath=NULL, csvFile=file))
-  # add the problems() to the list
-  list_of_problems[[file]] <- problems(get(file))
-  
   file.remove(paste0(file, ".csv"))
 }
-
-problems <- do.call(rbind, list_of_problems)

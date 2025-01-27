@@ -31,29 +31,59 @@ for(file in unique(cols_and_data_types$File)) {
 }
 
 # Incorrect Date Formats --------------------------------------------------
+unexpected_date_formats <- list()
 
-df_date_types <-
-  problems %>%
-  filter(str_detect(expected, "date") == TRUE) %>%
-  mutate(
-    File = str_remove(basename(file), ".csv")
-  ) %>%
-  left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
-  mutate(
-    Detail = str_squish(paste(
-      "Please check that the",
-      Column,
-      "column in the",
-      File,
-      "file has the correct date format."))
-  )
+# Loop through each unique file
+for (filename in unique(cols_and_data_types$File)) {
   
-incorrect_date_types_hp <- df_date_types %>%
+  # Get the dataset for the current file
+  data <- get(filename)
+  
+  # Filter for date/datetime columns expected in this file
+  expected_date_cols <- cols_and_data_types %>%
+    filter(File == filename & DataType %in% c("date", "datetime"))
+  
+  # Create a vector mapping column names to their expected data types
+  expected_col_types <- setNames(expected_date_cols$DataType, expected_date_cols$Column)
+  
+  # Loop through each expected column for the current file
+  for (col_name in expected_date_cols$Column) {
+    
+    # Skip columns that don't exist in the actual dataset
+    if (!(col_name %in% colnames(data))) next
+    
+    # Get the expected type for this column
+    expected_type <- expected_col_types[[col_name]]
+    
+    # Check if the column's actual type matches the expected type
+    if (
+      (expected_type == "date" && !is.Date(data[[col_name]])) ||
+      (expected_type == "datetime" && !is.POSIXct(data[[col_name]]))
+    ) {
+      # Add the mismatch information to the result list
+      unexpected_date_formats[[length(unexpected_date_formats) + 1]] <- data.table(
+        File = filename,
+        Column = col_name,
+        Detail = paste0(
+          "Please check that the ", col_name, 
+          " column in the ", filename, 
+          " file has the correct date/datetime format."
+        )
+      )
+    }
+  }
+}
+
+# Combine the list of results into a single data.table
+unexpected_date_formats <- rbindlist(unexpected_date_formats, fill = TRUE)
+
+
+incorrect_date_types_hp <- unexpected_date_formats %>%
   filter(Column %in% c(high_priority_columns)) %>%
   merge_check_info(checkIDs = 11) %>%
   select(all_of(issue_display_cols)) %>% unique()
 
-incorrect_date_types_error <- df_date_types %>%
+incorrect_date_types_error <- unexpected_date_formats %>%
   filter(!(Column %in% c(high_priority_columns))) %>%
   merge_check_info(checkIDs = 47) %>%
   select(all_of(issue_display_cols)) %>% unique()
@@ -109,48 +139,65 @@ check_columns <- function(file) {
 df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
 
 # Unexpected (non-date) data types -----------------------------------------------------
-data_types <- problems %>%
-  filter(str_detect(expected, "date", negate = TRUE)) %>%
-  mutate(
-    File = str_remove(basename(file), ".csv"),
-  ) %>%
-  left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
-  mutate(
-    Detail = str_squish(paste0(
-      "In the ",
-      File,
-      " file, the ",
-      Column,
-      " column should have a data type of ",
-      case_when(
-        DataType == "numeric" ~ "integer",
-        DataType == "character" ~ "string",
-        TRUE ~ DataType
-      ),
-      " but in this file, it is ",
-      case_when(
-        all(map_lgl(actual, is.numeric)) ~ "integer",
-        all(map_lgl(actual, is.Date)) ~ "date",
-        TRUE ~ "string"
-      ),
-      "."
-    ))
-  )
+unexpected_data_types <- list()
+for (filename in unique(cols_and_data_types$File)) {
+  data <- get(filename)
+  expected_cols <- cols_and_data_types %>% 
+    filter(File == filename & !(DataType %in% c("date", "datetime")))
 
-df_data_types <- rbind(
-  data_types %>% 
-    filter(DataTypeHighPriority == 1) %>% 
-    merge_check_info(checkIDs = 13) %>%
-    select(all_of(issue_display_cols)) %>%
-    unique(),
+  expected_col_types <- setNames(expected_cols$DataType, expected_cols$Column)
   
-  data_types %>% 
-    filter(DataTypeHighPriority == 0) %>% 
-    merge_check_info(checkIDs = 48) %>%
-    select(all_of(issue_display_cols)) %>%
-    unique()
-)
+  for(col_name in expected_cols$Column) {
+    # ignore columns not in the actual dataset
+    if (!(col_name %in% colnames(data))) next
+    
+    expected_col <- expected_cols[expected_cols$Column == col_name, ]
+    actual_type <- class(data[[col_name]])[1]  
+    
+    if(expected_col$DataType != actual_type) {
+      unexpected_data_types[[length(unexpected_data_types) + 1]] <- data.table(
+        File = filename,
+        Column = col_name,
+        DataTypeHighPriority = expected_col$DataTypeHighPriority,
+        Detail = str_squish(paste0(
+          "In the ",
+          filename,
+          " file, the ",
+          col_name,
+          " column should have a data type of ",
+          case_when(
+            expected_col$DataType == "numeric" ~ "integer",
+            expected_col$DataType == "character" ~ "string",
+            TRUE ~ expected_col$DataType
+          ),
+          " but in this file, it is ",
+          case_when(
+            actual_type == "numeric" ~ "integer",
+            TRUE ~ actual_type
+          ),
+          "."
+        ))
+      )
+    }
+  }
+}
+unexpected_data_types <- rbindlist(unexpected_data_types, fill = TRUE)
 
+if(nrow(unexpected_data_types) > 0) {
+  unexpected_data_types <- rbind(
+    unexpected_data_types %>% 
+      filter(DataTypeHighPriority == 1) %>% 
+      merge_check_info(checkIDs = 13) %>%
+      select(all_of(issue_display_cols)) %>%
+      unique(),
+    
+    unexpected_data_types %>% 
+      filter(DataTypeHighPriority == 0) %>% 
+      merge_check_info(checkIDs = 48) %>%
+      select(all_of(issue_display_cols)) %>%
+      unique()
+  )
+}
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
@@ -410,7 +457,7 @@ nonstandard_CLS <- CurrentLivingSituation %>%
 
 file_structure_analysis_main(rbind(
   df_column_diffs,
-  df_data_types,
+  unexpected_data_types,
   df_nulls,
   disabling_condition_invalid,
   duplicate_client_id,
