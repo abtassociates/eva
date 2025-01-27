@@ -60,8 +60,7 @@ enrollment_prep <- EnrollmentAdjustAge %>%
          DateToStreetESSH,
          TimesHomelessPastThreeYears,
          MonthsHomelessPastThreeYears,
-         DisablingCondition,
-         Destination
+         DisablingCondition
          ) %>%
   left_join(Project %>% 
               select(ProjectID,
@@ -634,7 +633,7 @@ client_categories <- Client %>%
       CulturallySpecific + NonBinary + DifferentIdentity + Questioning > 0, 1, 0),
   WomanInclusive = if_else(Woman == 1, 1, 0),
   ManInclusive = if_else(Man == 1, 1, 0),
-  CisInclusive = if_else ((
+  WomanOrManOnlyInclusive = if_else ((
     Woman == 1 &
       Man + NonBinary + Transgender + CulturallySpecific +
       DifferentIdentity + Questioning == 0
@@ -918,6 +917,7 @@ enrollment_categories_reactive <- reactive({
       MoveInDateAdjust,
       ExitAdjust,
       Destination,
+      LivingSituation,
       CorrectedHoH,
       MostRecentAgeAtEntry,
       HouseholdType,
