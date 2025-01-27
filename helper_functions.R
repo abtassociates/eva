@@ -162,7 +162,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
 
   data <- data.table::fread(
     here(filename),
-    colClasses = colTypes,
+    colClasses = unlist(unname(colTypes)),
     na.strings=c("","NA")
   )
   data <- as.data.frame(data)
