@@ -30,8 +30,7 @@
       3,
       4,
       5,
-      6,
-      7
+      6
     ],
     "fileStructureAnalysis_rows_current": [
       1,
@@ -39,8 +38,7 @@
       3,
       4,
       5,
-      6,
-      7
+      6
     ],
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
@@ -282,8 +280,7 @@
         "Incorrect Date Format",
         "Incorrect Columns",
         "Incorrect Columns",
-        "Incorrect Data Type",
-        "Incorrect Date Format"
+        "Incorrect Data Type"
       ],
       "Type": [
         "High Priority",
@@ -292,7 +289,6 @@
         "High Priority",
         "High Priority",
         "High Priority",
-        "Error",
         "Error",
         "Error",
         "Error"
@@ -306,8 +302,7 @@
         "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export.",
         "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
         "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
-        "Data types must align with the HMIS CSV Format Specifications. Please review the specifications for the data types associated with the file and column listed in the Detail and make the necessary updates.",
-        "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export."
+        "Data types must align with the HMIS CSV Format Specifications. Please review the specifications for the data types associated with the file and column listed in the Detail and make the necessary updates."
       ],
       "Detail": [
         "In the Client file, the BlackAfAmerican column is missing",
@@ -318,8 +313,7 @@
         "Please check that the DOB column in the Client file has the correct date format.",
         "In the Client file, ExtraCol is an extra column",
         "In the Client file, Transgenderr is an extra column",
-        "In the Assessment file, the AssessmentType column should have a data type of integer but in this file, it is character.",
-        "Please check that the DateUpdated column in the Client file has the correct datetime format."
+        "In the Assessment file, the AssessmentType column should have a data type of integer but in this file, it is character."
       ]
     }
   }
