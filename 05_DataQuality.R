@@ -1280,23 +1280,32 @@ overlap_dt <- merge(
 # - OverlappingDateProvided is only relevant for NbN vs. NbN overlaps
 # - FirstDateProvided and LastDateProvided are within a particular enrollment, 
 #   constructing a range, used for NbN vs. any other type
-main_enrl_cols <- vars_prep
-if(nrow(Services) > 0) {
-  main_enrl_cols <- c(main_enrl_cols,
-                      "FirstDateProvided",
-                      "LastDateProvided"
-                      
-  )
+get_overlap_col_order <- function() {
+  main_enrl_cols <- vars_prep
+  if(nrow(Services) > 0) {
+    main_enrl_cols <- c(main_enrl_cols,
+                        "FirstDateProvided",
+                        "LastDateProvided"
+    )
+  }
+  # add in HouseholdType
+  main_enrl_cols <- append(main_enrl_cols,
+                      c("HouseholdType" = "HouseholdType"),
+                      after = which(main_enrl_cols == "HouseholdID"))
+  
+  
+  previous_enrl_cols <- paste("Previous", main_enrl_cols, sep="")
+  col_order <- c(main_enrl_cols, previous_enrl_cols)
+  
+  # add in OverlappingDateProvided
+  if(nrow(Services) > 0) {
+    col_order <- append(col_order,
+                        c("OverlappingDateProvided" = "DateProvided"),
+                        after = which(col_order == "MoveInDateAdjust"))
+  }  
+  
+  return(col_order)
 }
-previous_enrl_cols <- paste("Previous", main_enrl_cols, sep="")
-col_order <- c(main_enrl_cols, previous_enrl_cols)
-
-# add in OverlappingDateProvided
-if(nrow(Services) > 0) {
-  col_order <- append(col_order,
-                      c("OverlappingDateProvided" = "DateProvided"),
-                      after = which(col_order == "MoveInDateAdjust"))
-}  
 
 overlap_details(
   # Rename columns for previous enrollment
@@ -1315,7 +1324,7 @@ overlap_details(
     , !c("Issue", "Type", "Guidance"), with = FALSE
   ][
     # order and rename columns
-    , ..col_order
+    , ..get_overlap_col_order()
   ]
 )
 
