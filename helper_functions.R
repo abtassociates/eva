@@ -163,8 +163,13 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   data <- data.table::fread(
     here(filename),
     colClasses = unlist(unname(colTypes)),
-    na.strings=c("","NA")
+    na.strings="NA"
   )
+  data[, (names(data)) := lapply(.SD, function(x) {
+    if (is.character(x)) x[x == ""] <- NA
+    return(x)
+  }), .SDcols = names(data)]
+  
   data <- as.data.frame(data)
 
   if(csvFile != "Export"){
