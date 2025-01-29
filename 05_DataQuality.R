@@ -1288,11 +1288,6 @@ get_overlap_col_order <- function() {
                         "LastDateProvided"
     )
   }
-  # add in HouseholdType
-  main_enrl_cols <- append(main_enrl_cols,
-                      c("HouseholdType" = "HouseholdType"),
-                      after = which(main_enrl_cols == "HouseholdID"))
-  
   
   previous_enrl_cols <- paste("Previous", main_enrl_cols, sep="")
   col_order <- c(main_enrl_cols, previous_enrl_cols)

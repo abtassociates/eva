@@ -102,7 +102,39 @@ EnrollmentStaging <- Enrollment %>%
   mutate(ExitAdjust = coalesce(ExitDate, no_end_date),
          EnrollmentDateRange = interval(EntryDate, ExitAdjust),
          AgeAtEntry = age_years(DOB, EntryDate),
-         DOB = NULL)
+         DOB = NULL) %>%
+  group_by(ProjectID, HouseholdID) %>%
+  mutate(
+    max_AgeAtEntry = max(AgeAtEntry),
+    min_AgeAtEntry = min(AgeAtEntry)
+  ) %>%
+  mutate(
+    HouseholdType = factor(
+      ifelse(
+        any(between(AgeAtEntry, 0, 17)) & max_AgeAtEntry >= 18,
+        ifelse(
+          between(max_AgeAtEntry, 0, 24),
+          "PY",
+          "AC"
+        ),
+        ifelse(
+          min_AgeAtEntry >= 18,
+          ifelse(
+            between(max_AgeAtEntry, 0, 24),
+            "UY", # UY = Unaccompanied Youth. YYA = PY + UY + CO
+            "AO"
+          ),
+          ifelse(
+            min_AgeAtEntry >= 0 & max_AgeAtEntry <= 17,
+            "CO", 
+            "UN"
+          )
+        )
+      ),
+      levels = c("AO", "AC", "CO", "UN", "PY", "UY")
+    )
+  ) %>%
+  ungroup()
 
 # Truncating Enrollments based on Operating/Participating -----------------
 # Perform the join
