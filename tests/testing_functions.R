@@ -124,7 +124,9 @@ main_test_script <- function(test_script_name, test_dataset) {
     "universe_ppl_flags",
     "sys_comp_df"
   )
-  if(Sys.info()["sysname"] != "ubuntu")
+  
+  is_gha <- Sys.info()["user"] == "runner"
+  if(!is_gha)
     helper_datasets <- c(helper_datasets, "client_level_export_details")
   
   
@@ -424,8 +426,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "sys_status_download_btn_ppt", "System-Status-Download-PPT.pptx")
     customDownload(app, "sys_comp_download_btn", "System-Composition-Download.xlsx")
     customDownload(app, "sys_comp_download_btn_ppt", "System-Composition-Download-PPT.pptx")
-    print(paste0("Sys info = ", Sys.info()))
-    if(Sys.info()["sysname"] != "ubuntu") {
+    if(!is_gha) {
       customDownload(app, "client_level_download_btn", "Client-Level-Download.xlsx")
     }
     
