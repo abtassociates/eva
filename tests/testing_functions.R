@@ -122,9 +122,11 @@ main_test_script <- function(test_script_name, test_dataset) {
     "dq_main_reactive",
     "pdde_main",
     "universe_ppl_flags",
-    "sys_comp_df",
-    "client_level_export_details"
+    "sys_comp_df"
   )
+  if(Sys.info()["sysname"] != "ubuntu")
+    helper_datasets <- c(helper_datasets, "client_level_export_details")
+  
   
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
     print(paste0("Running ",test_script_name))
