@@ -123,9 +123,10 @@ main_test_script <- function(test_script_name, test_dataset) {
     "pdde_main",
     "universe_ppl_flags",
     "sys_comp_df",
-    "client_level_export_details",
     "dq_overlaps"
   )
+  if(Sys.info()["sysname"] != "ubuntu")
+    helper_datasets <- c(helper_datasets, "client_level_export_details")
   
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
     print(paste0("Running ",test_script_name))
@@ -423,7 +424,9 @@ main_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "sys_status_download_btn_ppt", "System-Status-Download-PPT.pptx")
     customDownload(app, "sys_comp_download_btn", "System-Composition-Download.xlsx")
     customDownload(app, "sys_comp_download_btn_ppt", "System-Composition-Download-PPT.pptx")
-    customDownload(app, "client_level_download_btn", "Client-Level-Download.xlsx")
+    if(Sys.info()["sysname"] != "ubuntu") {
+      customDownload(app, "client_level_download_btn", "Client-Level-Download.xlsx")
+    }
     
     # export non-large/helper datasets
     all_export_names <- names(app$get_values(export=TRUE)$export)
