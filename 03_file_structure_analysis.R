@@ -19,16 +19,19 @@ empty_tibble <- tibble(!!!issue_display_cols, .rows=0)
 
 # Brackets --------------------------------------------------------------
 files_with_brackets <- data.frame()
-for(file in unique(cols_and_data_types$File)) {
-  if (isTruthy(any(str_detect(as.matrix(get(file)), bracket_regex)))) {
+file_names <- unique(cols_and_data_types$File)
+for (file in file_names) {
+  m <- get(file)  
+  
+  if (any(grepl(bracket_regex, m))) {  
     files_with_brackets <- data.frame(
-        Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
-          See Impermissible Character Detail export for the precise location of 
-          these characters.")
-      ) %>%
-        merge_check_info(checkIDs = 134) %>%
-        select(all_of(issue_display_cols))
-    break
+      Detail = "Found one or more brackets in your HMIS CSV Export. 
+                See Impermissible Character Detail export for the precise location of 
+                these characters."
+    ) %>%
+      merge_check_info(checkIDs = 134) %>%
+      select(all_of(issue_display_cols))
+    break  # Stop as soon as we find a match
   }
 }
 
