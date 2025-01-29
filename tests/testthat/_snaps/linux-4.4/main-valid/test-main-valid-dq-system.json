@@ -6,9 +6,38 @@
   },
   "output": {
     "downloadSystemDQReportButton": {
-      "message": "numbers of columns of arguments do not match",
-      "call": "rbind(deparse.level, ...)",
-      "type": null
+      "html": "<div data-spinner-id=\"spinner-0b51a2cc0a54dc2be06d5caa09a71ab5\" class=\"shiny-spinner-output-container shiny-spinner-hideui\">\n  <head>\n    <style>#spinner-0b51a2cc0a54dc2be06d5caa09a71ab5, #spinner-0b51a2cc0a54dc2be06d5caa09a71ab5:before, #spinner-0b51a2cc0a54dc2be06d5caa09a71ab5:after {   background: #0275D8; } #spinner-0b51a2cc0a54dc2be06d5caa09a71ab5 {   color: #0275D8; } #spinner-0b51a2cc0a54dc2be06d5caa09a71ab5 { font-size: 8px; }<\/style>\n  <\/head>\n  <div class=\"load-container shiny-spinner-hidden load1\">\n    <div id=\"spinner-0b51a2cc0a54dc2be06d5caa09a71ab5\" class=\"loader\">Loading...<\/div>\n  <\/div>\n  <div style=\"height:400px\" class=\"shiny-spinner-placeholder\"><\/div>\n  <a id=\"downloadSystemDQReport\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n    <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n    Download\n  <\/a>\n<\/div>",
+      "deps": [
+        {
+          "name": "font-awesome",
+          "version": "6.5.2",
+          "src": {
+            "href": "font-awesome-6.5.2"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": [
+            "css/all.min.css",
+            "css/v4-shims.min.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "shinycssloaders-binding",
+          "version": "1.1.0",
+          "src": {
+            "href": "shinycssloaders-binding-1.1.0"
+          },
+          "meta": null,
+          "script": "spinner.js",
+          "stylesheet": "spinner.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
     },
     "headerSystemDQ": {
       "html": "<h2>System-level Data Quality<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>",
