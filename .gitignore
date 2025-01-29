@@ -36,3 +36,4 @@ runShinyApp.R
 vscDebugger
 .Rproj.user
 tests/testthat/_snaps/**/*.png
+.Rproj
