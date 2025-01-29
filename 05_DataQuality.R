@@ -21,7 +21,6 @@ logToConsole("Running Data Quality")
 vars_prep <- c(
   "EnrollmentID",
   "HouseholdID",
-  "HouseholdType",
   "PersonalID",
   "OrganizationName",
   "ProjectID",
@@ -51,7 +50,7 @@ base_dq_data <- Enrollment %>%
   left_join(ProjectSegments %>% select(ProjectTimeID, ProjectName, OrganizationName),
             by = "ProjectTimeID") %>%
   select(
-    !!vars_prep,
+    all_of(vars_prep),
     FirstName,
     NameDataQuality,
     SSN,
@@ -93,7 +92,8 @@ base_dq_data <- Enrollment %>%
     Destination,
     DestinationSubsidyType,
     ExitAdjust,
-    DateCreated
+    DateCreated,
+    HouseholdType
   )
 
 DV <- HealthAndDV %>%
@@ -1259,7 +1259,7 @@ overlap_dt <- merge_check_info_dt(overlap_dt, 77)[,
 # e.g. EntryDate, ExitAdjust, etc.
 overlap_dt <- merge(
   overlap_dt,
-  base_dq_data_dt[, ..vars_prep], 
+  base_dq_data_dt[, c(vars_prep, "HouseholdType"), with = FALSE], 
   by = "EnrollmentID"
 )[
   # Recode ProjectType to a more readable version
@@ -1282,6 +1282,11 @@ get_overlap_col_order <- function() {
     )
   }
   
+  # add HouseholdType
+  main_enrl_cols <- append(main_enrl_cols,
+                           "HouseholdType",
+                           after = which(main_enrl_cols == "HouseholdID"))
+  
   previous_enrl_cols <- paste("Previous", main_enrl_cols, sep="")
   col_order <- c(main_enrl_cols, previous_enrl_cols)
   
@@ -1302,13 +1307,21 @@ overlap_details(
     overlap_dt,
     base_dq_data_dt[
       , setNames(.SD, paste0("Previous", names(.SD)))
-      , .SDcols = vars_prep
+      , .SDcols = c(vars_prep, "HouseholdType")
     ],
     by = "PreviousEnrollmentID",
     all.x = TRUE
-  )[
-    , PreviousProjectType := project_type(PreviousProjectType)
-  ][
+  )[, `:=`(
+      PreviousProjectType = project_type(PreviousProjectType),
+      HouseholdType = factor(
+        case_when(
+          HouseholdType %in% c("PY", "AC") ~ "AC",
+          HouseholdType %in% c("UY", "AO") ~ "AO",
+          TRUE ~ HouseholdType
+        ),
+        levels = c("AO", "AC", "CO", "UN")
+      )
+  )][
     # Drop Issue columns
     , !c("Issue", "Type", "Guidance"), with = FALSE
   ][
@@ -1333,7 +1346,7 @@ if(nrow(Services) > 0) {
 overlap_dt[, (cols_to_remove) := NULL]
 
 # convert to data.frame to play nice with other data.tables
-overlaps_df <- as.data.frame(overlap_dt)
+overlaps_df <- as.data.frame(overlap_dt[, HouseholdType := NULL])
 # Invalid Move-in Date ----------------------------------------------------
 
 invalid_movein_date <- base_dq_data %>%
