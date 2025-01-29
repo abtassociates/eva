@@ -424,7 +424,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "sys_status_download_btn_ppt", "System-Status-Download-PPT.pptx")
     customDownload(app, "sys_comp_download_btn", "System-Composition-Download.xlsx")
     customDownload(app, "sys_comp_download_btn_ppt", "System-Composition-Download-PPT.pptx")
-    print(paste0("Sys info = ", Sys.info()["sysname"]))
+    print(paste0("Sys info = ", Sys.info()))
     if(Sys.info()["sysname"] != "ubuntu") {
       customDownload(app, "client_level_download_btn", "Client-Level-Download.xlsx")
     }
