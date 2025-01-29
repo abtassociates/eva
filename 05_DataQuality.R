@@ -15,6 +15,28 @@
 
 logToConsole("Running Data Quality")
 
+# The Variables That We Want ----------------------------------------------
+# these are for the DQ export
+
+vars_prep <- c(
+  "EnrollmentID",
+  "HouseholdID",
+  "HouseholdType",
+  "PersonalID",
+  "OrganizationName",
+  "ProjectID",
+  "ProjectName",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitDate"
+)
+
+vars_we_want <- c(vars_prep,
+                  "Issue",
+                  "Type",
+                  "Guidance")
+
 # Clients to Check --------------------------------------------------------
 
 # base_dq_data is meant to serve as a basic dataset with a granularity
@@ -29,7 +51,7 @@ base_dq_data <- Enrollment %>%
   left_join(ProjectSegments %>% select(ProjectTimeID, ProjectName, OrganizationName),
             by = "ProjectTimeID") %>%
   select(
-    PersonalID,
+    !!vars_prep,
     FirstName,
     NameDataQuality,
     SSN,
@@ -54,15 +76,8 @@ base_dq_data <- Enrollment %>%
     Questioning,
     GenderNone,
     VeteranStatus,
-    EnrollmentID,
-    ProjectID,
     ProjectTimeID,
-    ProjectName,
-    ProjectType,
-    OrganizationName,
     EnrollmentCoC,
-    EntryDate,
-    HouseholdID,
     RelationshipToHoH,
     LivingSituation,
     LengthOfStay,
@@ -75,8 +90,6 @@ base_dq_data <- Enrollment %>%
     DisablingCondition,
     DateOfEngagement,
     MoveInDate,
-    MoveInDateAdjust,
-    ExitDate,
     Destination,
     DestinationSubsidyType,
     ExitAdjust,
@@ -91,26 +104,6 @@ base_dq_data <- base_dq_data %>%
   left_join(DV, by = "EnrollmentID")
 
 rm(DV)
-
-# The Variables That We Want ----------------------------------------------
-
-vars_prep <- c(
-  "EnrollmentID",
-  "HouseholdID",
-  "PersonalID",
-  "OrganizationName",
-  "ProjectID",
-  "ProjectName",
-  "ProjectType",
-  "EntryDate",
-  "MoveInDateAdjust",
-  "ExitDate"
-)
-
-vars_we_want <- c(vars_prep,
-                  "Issue",
-                  "Type",
-                  "Guidance")
 
 # Duplicate EEs -----------------------------------------------------------
 
@@ -1301,6 +1294,7 @@ get_overlap_col_order <- function() {
   
   return(col_order)
 }
+col_order <- get_overlap_col_order()
 
 overlap_details(
   # Rename columns for previous enrollment
@@ -1319,7 +1313,7 @@ overlap_details(
     , !c("Issue", "Type", "Guidance"), with = FALSE
   ][
     # order and rename columns
-    , ..get_overlap_col_order()
+    , ..col_order
   ]
 )
 
@@ -1511,31 +1505,18 @@ ssvf_funded <- Funder %>%
 
 ssvf_base_dq_data <- base_dq_data %>%
   filter(ProjectID %in% c(ssvf_funded)) %>%
-  select(
-    EnrollmentID,
-    HouseholdID,
-    PersonalID,
-    ProjectID,
-    ProjectName,
-    OrganizationName,
-    ProjectType
-  ) %>%
+  select(vars_prep) %>%
   left_join(
     Enrollment %>%
       select(
         EnrollmentID,
-        HouseholdID,
-        PersonalID,
-        EntryDate,
-        MoveInDateAdjust,
-        ExitDate,
         RelationshipToHoH,
         PercentAMI,
         VAMCStation,
         HPScreeningScore,
         ThresholdScore
       ),
-    by = c("PersonalID", "EnrollmentID", "HouseholdID")
+    by = "EnrollmentID"
   ) %>%
   left_join(
     Client %>%
