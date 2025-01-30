@@ -522,14 +522,17 @@ output$client_level_download_btn <- downloadHandler(
       sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
       sys_export_filter_selections() # Age, Veteran Status, Gender, Race/Ethnicity
     )
-    colnames(filter_selections) <- c(" "," ")
+    colnames(filter_selections) <- c("Filter","Selection")
     
     # probably want to read in the glossary tab as a csv or Excel and append to it.
     
     # all sheets for export
     client_level_export_list <- list(
       client_level_metadata = filter_selections,
-      glossary = read.csv(here("www/client-level-export-data-dictionary.csv")),
+      data_dictionary = colnames(
+        read.csv(here("www/client-level-export-data-dictionary.csv")),
+        c("Column Name", "Variable Type", "Definition")
+      ),
       client_level_details = client_level_details
     )
     
