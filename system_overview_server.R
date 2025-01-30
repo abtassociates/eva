@@ -529,7 +529,7 @@ output$client_level_download_btn <- downloadHandler(
     # all sheets for export
     client_level_export_list <- list(
       client_level_metadata = filter_selections,
-      data_dictionary = colnames(
+      data_dictionary = setNames(
         read.csv(here("www/client-level-export-data-dictionary.csv")),
         c("Column Name", "Variable Type", "Definition")
       ),
