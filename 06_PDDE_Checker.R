@@ -451,7 +451,7 @@ overlapping_hmis_participation <- HMISParticipation %>%
 # For ES projects, if HousingType is 1 or 2 (site-based), then BedType should be 1 (facility based beds). If HousingType is 3 (tenant-based), then BedType should be 2 (voucher beds).
 
 ES_BedType_HousingType <- activeInventory %>%
-  left_join(Project0(), by = "ProjectID") %>%
+  left_join(Project0() %>% select(ProjectID, ProjectType), by = "ProjectID") %>%
   left_join(HousingTypeDF, by = "ProjectID") %>% 
   filter(ProjectType %in% c(es_ee_project_type, es_nbn_project_type) &
            ((HousingType %in% c(client_single_site, client_multiple_sites) & ESBedType!=1) | (HousingType==tenant_scattered_site & ESBedType!=2)) 
