@@ -25,9 +25,9 @@ for (file in file_names) {
   
   if (any(grepl(bracket_regex, m))) {  
     files_with_brackets <- data.frame(
-      Detail = "Found one or more brackets in your HMIS CSV Export. 
+      Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
                 See Impermissible Character Detail export for the precise location of 
-                these characters."
+                these characters.")
     ) %>%
       merge_check_info(checkIDs = 134) %>%
       select(all_of(issue_display_cols))
