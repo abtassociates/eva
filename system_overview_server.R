@@ -70,9 +70,6 @@ observeEvent(input$syso_level_of_detail, {
 syso_detailBox <- reactive({
   # remove group names from race/ethnicity filter
   # so we can use getNameByValue() to grab the selected option label
-  # if (input$methodology_type == 2) {
-  # browser()
-  # }
   detail_line <- function(detail_label, val_list, inputVal) {
     return(
       HTML(glue(
@@ -82,21 +79,12 @@ syso_detailBox <- reactive({
   }
   
   selected_race <- getNameByValue(
-    unlist(syso_race_ethnicity_cats(input$methodology_type)),
+    syso_race_ethnicity_cats(input$methodology_type), 
     input$syso_race_ethnicity
   )
   
   race_ethnicity_line <- HTML(glue(
-    "<b>Race/Ethnicity:</b> {
-          str_sub(
-            selected_race, 
-            start = str_locate(
-              selected_race,
-              '\\\\.'
-            )[, 1] + 1,
-            end = -1L
-          )
-        } <br>"
+    "<b>Race/Ethnicity:</b> {selected_race} <br>"
   ))
   
   list(
