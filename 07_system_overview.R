@@ -656,8 +656,8 @@ client_categories <- Client %>%
   White = if_else(White == 1 & !is.na(White), 1, 0),
   MidEastNAfrican = if_else(MidEastNAfrican == 1 & !is.na(MidEastNAfrican), 1, 0),
   HispanicLatinaeo = if_else(HispanicLatinaeo == 1 & !is.na(HispanicLatinaeo), 1, 0),
-  # Method 1 logic group A
-  AmIndAKNativeAloneMethod1A = 
+  # Method 1 logic, detailed
+  AmIndAKNativeAloneMethod1Detailed = 
     if_else(AmIndAKNative == 1 &
               Asian +
               BlackAfAmerican +
@@ -665,14 +665,14 @@ client_categories <- Client %>%
               White +
               MidEastNAfrican +
               HispanicLatinaeo == 0, 1, 0),
-  AmIndAKNativeLatineMethod1A = 
+  AmIndAKNativeLatineMethod1Detailed = 
     if_else(AmIndAKNative == 1 & HispanicLatinaeo == 1 &
               Asian +
               BlackAfAmerican +
               NativeHIPacific +
               White +
               MidEastNAfrican == 0, 1, 0),
-  AsianAloneMethod1A =
+  AsianAloneMethod1Detailed =
     if_else(Asian == 1 &
               AmIndAKNative +
               BlackAfAmerican +
@@ -680,14 +680,14 @@ client_categories <- Client %>%
               White +
               MidEastNAfrican +
               HispanicLatinaeo == 0, 1, 0),
-  AsianLatineMethod1A =
+  AsianLatineMethod1Detailed =
     if_else(Asian == 1 & HispanicLatinaeo == 1 &
               AmIndAKNative +
               BlackAfAmerican +
               NativeHIPacific +
               White +
               MidEastNAfrican == 0, 1, 0),
-  BlackAfAmericanAloneMethod1A =
+  BlackAfAmericanAloneMethod1Detailed =
     if_else(BlackAfAmerican == 1 &
               AmIndAKNative +
               Asian +
@@ -695,14 +695,14 @@ client_categories <- Client %>%
               White +
               MidEastNAfrican +
               HispanicLatinaeo == 0, 1, 0),
-  BlackAfAmericanLatineMethod1A =
+  BlackAfAmericanLatineMethod1Detailed =
     if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
               NativeHIPacific +
               White +
               MidEastNAfrican == 0, 1, 0),
-  LatineAloneMethod1A =
+  LatineAloneMethod1Detailed =
     if_else(HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
@@ -710,7 +710,7 @@ client_categories <- Client %>%
               White +
               MidEastNAfrican +
               BlackAfAmerican == 0, 1, 0),
-  MENAAloneMethod1A =
+  MENAAloneMethod1Detailed =
     if_else(MidEastNAfrican == 1 &
               AmIndAKNative +
               Asian +
@@ -718,14 +718,14 @@ client_categories <- Client %>%
               White +
               HispanicLatinaeo +
               BlackAfAmerican == 0, 1, 0),
-  MENALatineMethod1A =
+  MENALatineMethod1Detailed =
     if_else(MidEastNAfrican == 1 & HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
               NativeHIPacific +
               White +
               BlackAfAmerican == 0, 1, 0),
-  NativeHIPacificAloneMethod1A =
+  NativeHIPacificAloneMethod1Detailed =
     if_else(NativeHIPacific == 1 &
               AmIndAKNative +
               Asian +
@@ -733,14 +733,14 @@ client_categories <- Client %>%
               White +
               HispanicLatinaeo +
               BlackAfAmerican == 0, 1, 0),
-  NativeHIPacificLatineMethod1A =
+  NativeHIPacificLatineMethod1Detailed =
     if_else(NativeHIPacific == 1 & HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
               MidEastNAfrican +
               White +
               BlackAfAmerican == 0, 1, 0),
-  WhiteAloneMethod1A =
+  WhiteAloneMethod1Detailed =
     if_else(White == 1 &
               AmIndAKNative +
               Asian +
@@ -748,14 +748,14 @@ client_categories <- Client %>%
               NativeHIPacific +
               HispanicLatinaeo +
               BlackAfAmerican == 0, 1, 0),
-  WhiteLatineMethod1A =
+  WhiteLatineMethod1Detailed =
     if_else(White == 1 & HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
               MidEastNAfrican +
               NativeHIPacific +
               BlackAfAmerican == 0, 1, 0),
-  MultipleNotLatineMethod1A =
+  MultipleNotLatineMethod1Detailed =
     if_else(HispanicLatinaeo == 0 &
               AmIndAKNative +
               Asian +
@@ -763,7 +763,7 @@ client_categories <- Client %>%
               NativeHIPacific +
               White +
               BlackAfAmerican > 1, 1, 0),
-  MultipleLatineMethod1A =
+  MultipleLatineMethod1Detailed =
     if_else(HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
@@ -784,25 +784,25 @@ client_categories <- Client %>%
       0
     ),
   # Data quality column to check for mutual exclusivity
-  DQMethod1ARaceEth =
-    AmIndAKNativeAloneMethod1A +
-    AmIndAKNativeLatineMethod1A +
-    AsianAloneMethod1A +
-    AsianLatineMethod1A +
-    BlackAfAmericanAloneMethod1A +
-    BlackAfAmericanLatineMethod1A +
-    LatineAloneMethod1A +
-    MENAAloneMethod1A +
-    MENALatineMethod1A +
-    NativeHIPacificAloneMethod1A +
-    NativeHIPacificLatineMethod1A +
-    WhiteAloneMethod1A +
-    WhiteLatineMethod1A +
-    MultipleNotLatineMethod1A +
-    MultipleLatineMethod1A +
+  DQMethod1DetailedRaceEth =
+    AmIndAKNativeAloneMethod1Detailed +
+    AmIndAKNativeLatineMethod1Detailed +
+    AsianAloneMethod1Detailed +
+    AsianLatineMethod1Detailed +
+    BlackAfAmericanAloneMethod1Detailed +
+    BlackAfAmericanLatineMethod1Detailed +
+    LatineAloneMethod1Detailed +
+    MENAAloneMethod1Detailed +
+    MENALatineMethod1Detailed +
+    NativeHIPacificAloneMethod1Detailed +
+    NativeHIPacificLatineMethod1Detailed +
+    WhiteAloneMethod1Detailed +
+    WhiteLatineMethod1Detailed +
+    MultipleNotLatineMethod1Detailed +
+    MultipleLatineMethod1Detailed +
     RaceEthnicityUnknown, # all should equal 1
-  # Method 1 logic group B
-  BILPOCMethod1B = if_else(
+  # Method 1 logic, summarized
+  BILPOCMethod1Summarized = if_else(
     AmIndAKNative +
       Asian +
       MidEastNAfrican +
@@ -810,7 +810,7 @@ client_categories <- Client %>%
       HispanicLatinaeo +
       BlackAfAmerican > 0, 1, 0
   ),
-  WhiteMethod1B = if_else(
+  WhiteMethod1Summarized = if_else(
     White == 1 &
       AmIndAKNative +
       Asian +
@@ -819,19 +819,19 @@ client_categories <- Client %>%
       HispanicLatinaeo +
       BlackAfAmerican == 0, 1, 0
   ),
-  # Data quality check for Method 1 group B
-  DQRaceEthMethod1B =
-    BILPOCMethod1B +
-    WhiteMethod1B +
+  # Data quality check for Method 1, summarized
+  DQRaceEthMethod1Summarized =
+    BILPOCMethod1Summarized +
+    WhiteMethod1Summarized +
     RaceEthnicityUnknown, # all rows should equal 1
-  # Method 2 logic group A
-  AmIndAKNativeMethod2A = if_else(AmIndAKNative == 1, 1, 0),
-  AsianMethod2A = if_else(Asian == 1, 1, 0),
-  BlackAfAmericanMethod2A = if_else(BlackAfAmerican == 1, 1, 0),
-  LatineMethod2A = if_else(HispanicLatinaeo == 1, 1, 0),
-  MENAMethod2A = if_else(MidEastNAfrican == 1, 1, 0),
-  NativeHIPacificMethod2A = if_else(NativeHIPacific == 1, 1, 0),
-  WhiteMethod2A = if_else(White == 1, 1, 0),
+  # Method 2 logic, detailed
+  AmIndAKNativeMethod2Detailed = if_else(AmIndAKNative == 1, 1, 0),
+  AsianMethod2Detailed = if_else(Asian == 1, 1, 0),
+  BlackAfAmericanMethod2Detailed = if_else(BlackAfAmerican == 1, 1, 0),
+  LatineMethod2Detailed = if_else(HispanicLatinaeo == 1, 1, 0),
+  MENAMethod2Detailed = if_else(MidEastNAfrican == 1, 1, 0),
+  NativeHIPacificMethod2Detailed = if_else(NativeHIPacific == 1, 1, 0),
+  WhiteMethod2Detailed = if_else(White == 1, 1, 0),
   # catches missings, any methodology any group
   # RaceEthnicityNone = if_else(
   #   AmIndAKNative +
@@ -842,10 +842,10 @@ client_categories <- Client %>%
   #     MidEastNAfrican +
   #     HispanicLatinaeo == 0, 1, 0),
   # Method 2 logic group 2
-  BlackAfAmericanLatineMethod2B =
+  BlackAfAmericanLatineMethod2Summarized =
     if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1, 1, 0),
-  LatineMethod2B = if_else(HispanicLatinaeo == 1, 1, 0),
-  LatineAloneMethod2B = if_else(
+  LatineMethod2Summarized = if_else(HispanicLatinaeo == 1, 1, 0),
+  LatineAloneMethod2Summarized = if_else(
     HispanicLatinaeo == 1 &
       AmIndAKNative +
       Asian +
