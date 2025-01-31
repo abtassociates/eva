@@ -137,8 +137,8 @@ output$glossary <- renderDataTable({
     "A single-select universal filter. Eva allows users to choose the way Eva
     organizes system performance data when filtering by gender and race/ethnicity
     demographics with possible overlapping groupings, or methodology types:
-    Method 1 (mutually exclusive categories) or Method 2 (multi-select increases
-    total)",
+    Method 1 (clients are only counted in one category) or Method 2 (clients can
+    be counted in more than one category).",
     
     "System Performance Filters",
     "Method 1",
