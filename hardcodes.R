@@ -202,27 +202,27 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
 syso_race_ethnicity_method2 <- list(
   "All Races/Ethnicities" = "All",
   "Detailed" = c(
-    "American Indian, Alaska Native, or Indigenous, Method 2" =
+    "American Indian, Alaska Native, or Indigenous" =
       "AmIndAKNativeMethod2Detailed",
-    "Asian or Asian American, Method 2" =
+    "Asian or Asian American" =
       "AsianMethod2Detailed",
-    "Black, African American, or African, Method 2" =
+    "Black, African American, or African" =
       "BlackAfAmericanMethod2Detailed",
-    "Hispanic/Latina/e/o, Method 2" =
+    "Hispanic/Latina/e/o" =
       "LatineMethod2Detailed",
-    "Middle Eastern or North African, Method 2" =
+    "Middle Eastern or North African" =
       "MidEastNAfricanMethod2Detailed",
-    "Native Hawaiian or Pacific Islander, Method 2" =
+    "Native Hawaiian or Pacific Islander" =
       "NativeHIPacificMethod2Detailed",
-    "White, Method 2" =
+    "White" =
       "WhiteMethod2Detailed"
   ),
   "Summarized" = c(
-    "Black, African American or African and Hispanic/Latina/e/o, Method 2" =
+    "Black, African American or African and Hispanic/Latina/e/o" =
       "BlackAfAmericanLatineMethod2Summarized",
     "Hispanic/Latina/e/o alone" =
       "LatineAloneMethod2Summarized",
-    "Hispanic/Latina/e/o, Method 2" =
+    "Hispanic/Latina/e/o" =
       "LatineMethod2Summarized"
   )
 )
