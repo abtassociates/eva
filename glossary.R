@@ -144,29 +144,29 @@ output$glossary <- renderDataTable({
     "Method 1",
     "A Methodology Type selection where each client is counted in only one gender 
     category and only one race/ethnicity category as well as being included in the 
-    “All Genders” and “All Races/Ethnicities” selections. For example, a client 
+    \"All Genders\" and \"All Races/Ethnicities\" selections. For example, a client 
     that reported as (1) Middle Eastern or North African, (2) Black, African
     American, or African, and (3) Hispanic/Latina/e/o would be counted under
-    “Multi-Racial & Hispanic/Latina/e/o,” but no other race/ethnicity categories.",
+    \"Multi-Racial & Hispanic/Latina/e/o,\" but no other race/ethnicity categories.",
     
     "System Performance Filters",
     "Method 2",
     "A Methodology Type selection where each client may be counted in multiple gender 
     categories and multiple race/ethnicity categories as well as being included in 
-    the “All Genders” and “All Races/Ethnicities” selections. For example, a client 
+    the \"All Genders\" and \"All Races/Ethnicities\" selections. For example, a client 
     that reported as (1) Middle Eastern or North African, (2) Black, African American, 
-    or African, and (3) Hispanic/Latina/e/o would be counted under “Middle Eastern 
-    or North African,” “Black, African American, or African,” 
-    and “Hispanic/Latina/e/o” race/ethnicity categories.",
+    or African, and (3) Hispanic/Latina/e/o would be counted under \"Middle Eastern 
+    or North African,\" \"Black, African American, or African,\" 
+    and \"Hispanic/Latina/e/o\" race/ethnicity categories.",
     
     "System Performance Filters",
     "Age",
     "A multi-select demographic filter. Eva allows users to filter system performance 
     data by age group. Eva calculates age based on a client’s date of birth and 
-    their enrollment entry date. This is the client’s “age at enrollment entry,” 
+    their enrollment entry date. This is the client’s \"age at enrollment entry,\" 
     and the number is rounded down to the whole number (i.e., 17.9 would become 17). 
     For clients with multiple enrollments within the report period, Eva sets 
-    the client’s age to be the oldest “age at enrollment entry.” Age groups included 
+    the client’s age to be the oldest \"age at enrollment entry.\" Age groups included 
     are: 0 to 12, 13 to 17, 18 to 21, 22 to 24, 25 to 34, 35 to 44, 45 to 54, 55 
     to 64, 65 to 74, 75 and older, and unknown. Users can select multiple age groups 
     to filter by.",
@@ -196,12 +196,11 @@ output$glossary <- renderDataTable({
     collected\" in HMIS.",
     
     "System Performance Filters",
-    "Gender (Exclusive Methodology Type)",
+    "Gender (Method 1)",
     "A single-select demographic filter. Eva allows users to filter system performance 
     by gender categories. These categories are dependent on the Gender and Race/Ethnicity 
-    Methodology Type selection. When the methodology type is exclusive, each person 
-    is only counted in one gender category as well as being included in the “All Genders” 
-    selection.",
+    Methodology Type selection. For this method, each person is only counted in
+    one gender category as well as being included in the \"All Genders\" selection.",
     
     "System Performance Filters",
     "All Genders",
