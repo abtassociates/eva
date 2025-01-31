@@ -233,15 +233,15 @@ sys_export_filter_selections <- function() {
 syso_race_ethnicity_cats <- function(methodology = 1){
   ifelse(
     methodology == 1,
-    list(syso_race_ethnicity_excl),
-    list(syso_race_ethnicity_incl)
+    list(syso_race_ethnicity_method1),
+    list(syso_race_ethnicity_method2)
   )[[1]]
 }
 
 syso_gender_cats <- function(methodology = 1){
   ifelse(methodology == 1,
-         list(syso_gender_excl),
-         list(syso_gender_incl))[[1]]
+         list(syso_gender_method1),
+         list(syso_gender_method2))[[1]]
 }
 
 # PowerPoint Export -------------------------------------------------------
