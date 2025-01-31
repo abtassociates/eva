@@ -246,8 +246,8 @@ output$glossary <- renderDataTable({
     "Gender (Method 2)",
     "A single-select demographic filter. Eva allows users to filter system performance 
     by gender categories. The categories are dependent on the Gender and Race/Ethnicity 
-    Methodology Type selection. When the methodology type is inclusive, each person 
-    may be counted in multiple gender categories.",
+    Methodology Type selection. When the Method 2 is selected, each person may 
+    be counted in multiple gender categories.",
     
     "System Performance Filters",
     "Gender expansive, including transgender",
@@ -256,34 +256,33 @@ output$glossary <- renderDataTable({
     clients who identified as one of those genders alone or in combination with 
     any other gender. Also included here are clients who identified as both Woman 
     (Girl, if child) and Man (Boy, if child). This Gender filter selection is only 
-    available when the Methodology Type is set to Inclusive Groupings.",
+    available when Method 2 is selected.",
     
     "System Performance Filters",
     "Man (Boy, if child) alone or in combination",
     "Includes all clients who identified as Man (Boy, if child) in HMIS. This includes 
     clients who identified as Man (Boy, if child) alone or in combination with any 
-    other gender. This Gender filter selection is only available when the Methodology 
-    Type is set to Inclusive Groupings.",
+    other gender. This Gender filter selection is only available when Method 2
+    is selected.",
     
     "System Performance Filters",
     "Non-Binary alone or in combination",
     "Includes all clients who identified as Non-Binary in HMIS. This includes clients 
     who identified as Non-Binary alone or in combination with any other gender. 
-    This Gender filter selection is only available when the Methodology Type is 
-    set to Inclusive Groupings.",
+    This Gender filter selection is only available when Method 2 is selected.",
     
     "System Performance Filters",
     "Only Woman (Girl, if child) OR Only Man (Boy, if child)",
     "Includes all clients who identified as Woman (Girl, if child) or Man (Boy, if child) 
     in HMIS and no other genders. This Gender filter selection is only available 
-    when the Methodology Type is set to Inclusive Groupings.",
+    when Method 2 is selected.",
     
     "System Performance Filters",
     "Woman (Girl, if child) alone or in combination",
     "Includes all clients who identified as Woman (Girl, if child) in HMIS. 
     This includes clients who identified as Woman (Girl, if child) alone or in 
     combination with any other gender. This Gender filter selection is only available 
-    when the Methodology Type is set to Inclusive Groupings.",
+    when Method 2 is selected.",
     
     "System Performance Filters",
     "Race/Ethnicity (Method 1)",
@@ -413,7 +412,7 @@ output$glossary <- renderDataTable({
     the filter dropdown list and is only available when Method 1 is selected.",
     
     "System Performance Filters",
-    "Race/Ethnicity (Inclusive Methodology Type)",
+    "Race/Ethnicity (Method 2)",
     "A single-select demographic filter. Eva allows users to filter system
     performance by race/ethnicity categories. These categories are dependent on
     the Gender and Race/Ethnicity Methodology Type selection. This filter has
@@ -421,35 +420,35 @@ output$glossary <- renderDataTable({
     race/ethnicity categories for users to choose from. The Detailed section
     lists all race/ethnicity categories on their own. The Summarized section
     groups race/ethnicity categories together into three options: Black, African
-    American or African and Hispanic/Latina/e/o Inclusive, Hispanic Latina/e/o
-    Alone. When the methodology type is inclusive, each client may be counted in
+    American or African and Hispanic/Latina/e/o Method 2, Hispanic Latina/e/o
+    Alone. When the Method 2 is selected, each client may be counted in
     multiple race/ethnicity categories in the Detailed section and in multiple
     race/ethnicity categories in the Summarized section. All clients are also
     included in the All Races/Ethnicities category.",
     
     "System Performance Filters",
-    "American Indian, Alaska Native, or Indigenous inclusive",
+    "American Indian, Alaska Native, or Indigenous Method 2",
     "Includes clients who identified as American Indian, Alaska Native, or
     Indigenous alone or in combination with any other race/ethnicity. This
     Race/Ethnicity filter selection is listed under the Detailed section of the
     filter dropdown list and is only available when Method 2 is selected.",
     
     "System Performance Filters",
-    "Asian or Asian American inclusive",
+    "Asian or Asian American Method 2",
     "Includes clients who identified as Asian or Asian American alone or in
     combination with any other race/ethnicity. This Race/Ethnicity filter
     selection is listed under the Detailed section of the filter dropdown list
     and is only available when Method 2 is selected.", 
     
     "System Performance Filters",
-    "Black, African American, or African inclusive",
+    "Black, African American, or African Method 2",
     "Includes clients who identified as Black, African American, or African
     alone or in combination with any other race/ethnicity. This Race/Ethnicity
     filter selection is listed under the Detailed section of the filter dropdown
     list and is only available when Method 2 is selected.", 
     
     "System Performance Filters",
-    "Black, African American or African and Hispanic/Latina/e/o inclusive",
+    "Black, African American or African and Hispanic/Latina/e/o Method 2",
     "Includes clients who identified as both Black, African American or African
     and Hispanic/Latina/e/o together or in combination with any other race/ethnicity.
     Listed under the Summarized section. This Race/Ethnicity filter selection
@@ -464,28 +463,28 @@ output$glossary <- renderDataTable({
     available when Method 1 is selected.", 
     
     "System Performance Filters",
-    "Hispanic Latina/e/o inclusive",
+    "Hispanic Latina/e/o Method 2",
     "Includes clients who identified as Hispanic/Latina/e/o alone or in
     combination with any other race/ethnicity. This Race/Ethnicity filter
     selection is listed under the Summarized section of the filter dropdown
     list and is only available when Method 2 is selected.", 
     
     "System Performance Filters",
-    "Middle Eastern or North African inclusive",
+    "Middle Eastern or North African Method 2",
     "Includes clients who identified as Middle Eastern or North African alone or
     in combination with any other race/ethnicity. This Race/Ethnicity filter
     selection is listed under the Detailed section of the filter dropdown list
     and is only available when Method 2 is selected.", 
     
     "System Performance Filters",
-    "Native Hawaiian or Pacific Islander inclusive",
+    "Native Hawaiian or Pacific Islander Method 2",
     "Includes clients who identified as Native Hawaiian or Pacific Islander alone
     or in combination with any other race/ethnicity. This Race/Ethnicity filter
     selection is listed under the Detailed section of the filter dropdown list
     and is only available when Method 2 is selected.", 
     
     "System Performance Filters",
-    "White inclusive",
+    "White Method 2",
     "Includes clients who identified as White alone or in combination with any
     other race/ethnicity. This Race/Ethnicity filter selection is listed under
     the Detailed section of the filter dropdown list and is only available when
