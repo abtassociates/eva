@@ -210,31 +210,30 @@ output$glossary <- renderDataTable({
     
     "System Performance Filters",
     "Gender expansive, not transgender",
-    "Includes all clients who identified as Culturally Specific Identity (e.g., Two-Spirit), 
-    Different Identity, Non-Binary, or Questioning in HMIS. This includes people 
-    that identified as one of those genders alone or in combination with any other 
-    gender category, except Transgender. Also included here are clients who identified 
-    as both Woman (Girl, if child) and Man (Boy, if child). This Gender filter 
-    selection is only available when the Methodology Type is set to Exclusive Groupings.",
+    "Includes all clients who identified as Culturally Specific Identity
+    (e.g., Two-Spirit), Different Identity, Non-Binary, or Questioning in HMIS.
+    This includes people that identified as one of those genders alone or in
+    combination with any other gender category, except Transgender. Also included
+    here are clients who identified as both Woman (Girl, if child) and Man (Boy,
+    if child). This Gender filter selection is only available when Method 1 is
+    selected.",
     
     "System Performance Filters",
     "Man (Boy, if child) alone",
-    "Includes all clients who identified as Man (Boy, if child) and no other gender. 
-    This Gender filter selection is only available when the Methodology Type is 
-    set to Exclusive Groupings.",
+    "Includes all clients who selected Man (Boy, if child) and no other gender. 
+    This Gender filter selection is only available when Method 1 is selected.",
     
     "System Performance Filters",
     "Transgender, alone or in combination",
     "Includes clients who identified as Transgender. This includes clients who 
     identified as Transgender alone or in combination with any other gender categories. 
-    This Gender filter selection is only available when the Methodology Type is 
-    set to Exclusive Groupings.",
+    This Gender filter selection is only available when Method 1 is selected.",
     
     "System Performance Filters",
     "Woman (Girl, if child) alone",
     "Includes all clients who identified as Woman (Girl, if child) and no other 
-    gender. This Gender filter selection is only available when the Methodology 
-    Type is set to Exclusive Groupings.",
+    gender. This Gender filter selection is only available when Method 1 is
+    selected.",
     
     "System Performance Filters",
     "Unknown Gender",
@@ -244,7 +243,7 @@ output$glossary <- renderDataTable({
     Clients with unknown gender are included within the All Genders filter selection.",
     
     "System Performance Filters",
-    "Gender (Inclusive Methodology Type)",
+    "Gender (Method 2)",
     "A single-select demographic filter. Eva allows users to filter system performance 
     by gender categories. The categories are dependent on the Gender and Race/Ethnicity 
     Methodology Type selection. When the methodology type is inclusive, each person 
@@ -287,7 +286,7 @@ output$glossary <- renderDataTable({
     when the Methodology Type is set to Inclusive Groupings.",
     
     "System Performance Filters",
-    "Race/Ethnicity (Exclusive Methodology Type)",
+    "Race/Ethnicity (Method 1)",
     "A single-select demographic filter. Eva allows users to filter system performance 
     by race/ethnicity categories. These categories are dependent on the Gender and 
     Race/Ethnicity Methodology Type selection. This filter has two sections: Detailed 
@@ -296,16 +295,17 @@ output$glossary <- renderDataTable({
     their own and in combination with Hispanic/Latina/e/o. This section also includes 
     two multi-racial categories. The Summarized section groups individual race/ethnicity 
     categories together to make two options: All People of Color and White Only. 
-    When the methodology type is exclusive, each client is only counted in one 
-    race/ethnicity category in the Detailed section and one race/ethnicity category 
-    in the Summarized section. All clients are also included in the All Races/Ethnicities
+    When Method 1 is selected, each client is only counted in one race/ethnicity
+    category in the Detailed section and one race/ethnicity category in the
+    Summarized section. All clients are also included in the All Races/Ethnicities
     category.",
     
     "System Performance Filters",
     "All Races/Ethnicities",
-    "Includes all clients, regardless of the race/ethnicity they identified as in HIMS, 
-    as well as clients whose race/ethnicity is categorized as Unknown. This Race/Ethnicity 
-    filter selection is available regardless of the Methodology Type selected.",
+    "Includes all clients, regardless of the race/ethnicity they identified as in HMIS, 
+    as well as clients whose race/ethnicity is categorized as Unknown. This
+    Race/Ethnicity filter selection is available regardless of the Method
+    selected.",
     
     "System Performance Filters",
     "American Indian, Alaska Native, or Indigenous alone",
