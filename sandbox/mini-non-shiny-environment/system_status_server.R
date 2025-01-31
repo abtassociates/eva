@@ -3,20 +3,22 @@ output$sankey_filter_selections <- renderUI({
   syso_detailBox() 
 })
 
-render_sankey_plot <- function(plot_data) {
+render_sankey_plot <- function(plot_data, isExport = FALSE) {
   begin_labels <- plot_data %>%
     group_by(Begin) %>%
     summarize(freq = sum(freq)) %>%
     arrange(desc(Begin)) %>%
     mutate(label_pos = cumsum(freq) - freq/2,
-           End = 0)
+           End = 0,
+           Begin = glue("{freq} {Begin}"))
   
   end_labels <- plot_data %>%
     group_by(End) %>%
     summarize(freq = sum(freq)) %>%
     arrange(desc(End)) %>%
     mutate(label_pos = cumsum(freq) - freq/2,
-           Begin = 0)
+           Begin = 0,
+           End = glue("{freq} {End}"))
   
   # need to construct the Begin bars
   # will overlay on top of the Begin stratum
@@ -53,7 +55,7 @@ render_sankey_plot <- function(plot_data) {
     "Exited, Permanent" = "#B4C7CB",
     "Enrolled, Housed" = "#214853"
   )
-  
+
   ggplot(
     data = plot_data,
     aes(axis1 = Begin, axis2 = End, y = freq)
@@ -79,26 +81,20 @@ render_sankey_plot <- function(plot_data) {
     #Color for alluvial flow borders
     scale_color_manual(values = border_colors) +
     
-    # Numbers in bars
-    geom_text(stat = "stratum",
-              aes(label = after_stat(count)),
-              size = font_size,
-    ) +
-    
     # Bar (Text) Labels
     geom_text(
       data = begin_labels,
       aes(x = 1, y = label_pos, label = Begin), 
       hjust = 1,
       nudge_x = -0.2,
-      size = font_size
+      size = sys_chart_text_font
     ) +
     geom_text(
       data = end_labels,
       aes(x = 1, y = label_pos, label = End), 
       hjust = 0,
       nudge_x = 1.2,
-      size = font_size
+      size = sys_chart_text_font
     ) +
     
     # X Axis Labels
@@ -107,18 +103,27 @@ render_sankey_plot <- function(plot_data) {
                      expand = c(0.5, 0.5)) +
     
     # Total People
-    annotate(
-      geom = "text",
-      x = 1.5,
-      y = max(plot_data$yend) * 1.1,
-      size = 16/.pt,
-      label = sys_total_count_display(sum(plot_data$freq))
-    ) +
+    # annotate(
+    #   geom = "text",
+    #   x = 1.5,
+    #   y = max(plot_data$yend) * 1.1,
+    #   size = sys_chart_title_font,
+    #   label = sys_total_count_display(sum(plot_data$freq))
+    # ) +
+    
+    ggtitle(sys_total_count_display(sum(plot_data$freq))) +
     
     # remove legend, axis sizing
     theme_void() +
-    theme(legend.position = "none",
-          axis.text.x = element_text(color = "black", size = 17, vjust = 2.5))
+    theme(
+      legend.position = "none",
+      axis.text.x = element_text(
+        color = "black",
+        size = get_adj_font_size(sys_axis_text_font, isExport),
+        vjust = 2.5
+      ),
+      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
+    )
 }
 output$sankey_ui_chart <- renderPlot({
   req(valid_file() == 1)
@@ -139,7 +144,9 @@ output$sankey_ui_chart <- renderPlot({
   )
   
   render_sankey_plot(plot_data)
-})
+},
+alt = "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",
+width = ifelse(isTRUE(getOption("shiny.testmode")), 1113, "auto"))
 
 sys_status_export_info <- function(spd) {
   tibble(
@@ -184,11 +191,6 @@ output$sys_status_download_btn <- downloadHandler(
       col_names = TRUE
     )
 
-    logMetadata(paste0(
-      "Downloaded Sys Comp Report",
-      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
-    ))
-
     exportTestValues(sys_status_report = sankey_plot_data())
   }
 )
@@ -206,7 +208,7 @@ output$sys_status_download_btn_ppt <- downloadHandler(
         bind_rows(sys_export_filter_selections()) %>%
         bind_rows(sys_status_export_info(sankey_plot_data())),
       plot_slide_title = "Client System Status",
-      plot1 = render_sankey_plot(sankey_plot_data()),
+      plot1 = render_sankey_plot(sankey_plot_data(), isExport=TRUE),
       summary_font_size = 21
     )
   }
