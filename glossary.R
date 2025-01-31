@@ -311,112 +311,106 @@ output$glossary <- renderDataTable({
     "American Indian, Alaska Native, or Indigenous alone",
     "Includes clients who identified as only American Indian, Alaska Native, or
     Indigenous. This Race/Ethnicity filter selection is listed under the Detailed
-    section of the filter dropdown list and is only available when the Methodology
-    Type is set to Exclusive Groupings.",
+    section of the filter dropdown list and is only available when Method 1 is
+    selected.",
     
     "System Performance Filters",
     "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
     "Includes clients who identified as both American Indian, Alaska Native, or
     Indigenous and as Hispanic/Latina/e/o.This Race/Ethnicity filter selection
     is listed under the Detailed section of the filter dropdown list and is only
-    available when the Methodology Type is set to Exclusive Groupings.",
+    available when Method 1 is selected.",
     
     "System Performance Filters",
     "Asian or Asian American alone",
     "Includes clients who identified as only Asian or Asian American. This
     Race/Ethnicity filter selection is listed under the Detailed section of the
-    filter dropdown list and is only available when the Methodology Type is set
-    to Exclusive Groupings.",
+    filter dropdown list and is only available when Method 1 is selected.",
     
     "System Performance Filters",
     "Asian or Asian American & Hispanic/Latina/e/o",
     "Includes clients who identified as both Asian or Asian American and
     Hispanic/Latina/e/o. This Race/Ethnicity filter selection is listed under the
-    Detailed section of the filter dropdown list and is only available when the
-    Methodology Type is set to Exclusive Groupings.",
+    Detailed section of the filter dropdown list and is only available when
+    Method 1 is selected.",
     
     "System Performance Filters",
     "Black, African American, or African alone",
     "Includes clients who identified as only Black, African American, or African.
     This Race/Ethnicity filter selection is listed under the Detailed section of
-    the filter dropdown list and is only available when the Methodology Type is
-    set to Exclusive Groupings.",
+    the filter dropdown list and is only available when Method 1 is selected.",
     
     "System Performance Filters",
     "Black, African American, or African & Hispanic/Latina/e/o",
     "Includes clients who identified as both Black, African American, or African
     and Hispanic/Latina/e/o. This Race/Ethnicity filter selection is listed under
     the Detailed section of the filter dropdown list and is only available when
-    the Methodology Type is set to Exclusive Groupings.",
+    Method 1 is selected.",
     
     "System Performance Filters",
     "Middle Eastern or North African alone",
     "Includes clients who only selected Middle Eastern or North African and no
     other race/ethnicity category. This Race/Ethnicity filter selection is listed
     under the Detailed section of the filter dropdown list and is only available
-    when the Methodology Type is set to Exclusive Groupings.",
+    when Method 1 is selected.",
     
     "System Performance Filters",
     "Middle Eastern or North African & Hispanic/Latina/e/o",
     "Includes clients who identified as both Middle Eastern or North African and 
     Hispanic/Latina/e/o. This Race/Ethnicity filter selection is listed under the
-    Detailed section of the filter dropdown list and is only available when the
-    Methodology Type is set to Exclusive Groupings.",
+    Detailed section of the filter dropdown list and is only available when
+    Method 1 is selected.",
     
     "System Performance Filters",
     "Native Hawaiian or Pacific Islander alone",
     "Includes clients who identified as only Native Hawaiian or Pacific Islander.
     This Race/Ethnicity filter selection is listed under the Detailed section of
-    the filter dropdown list and is only available when the Methodology Type is
-    set to Exclusive Groupings.",
+    the filter dropdown list and is only available when Method 1 is selected.",
     
     "System Performance Filters",
     "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
     "Includes clients who identified as both Native Hawaiian or Pacific Islander
     and Hispanic/Latina/e/o. This Race/Ethnicity filter selection is listed under
     the Detailed section of the filter dropdown list and is only available when
-    the Methodology Type is set to Exclusive Groupings.",
+    Method 1 is selected.",
     
     "System Performance Filters",
     "White alone",
     "Includes clients who identified as only White. This Race/Ethnicity filter
     selection is listed under the Detailed section of the filter dropdown list
-    and is only available when the Methodology Type is set to Exclusive Groupings.",
+    and is only available when Method 1 is selected.",
     
     "System Performance Filters",
     "White & Hispanic/Latina/e/o",
     "Includes clients who identified as both White and Hispanic/Latina/e/o. This
     Race/Ethnicity filter selection is listed under the Detailed section of the
-    filter dropdown list and is only available when the Methodology Type is set
-    to Exclusive Groupings.",
+    filter dropdown list and is only available when Method 1 is selected.",
     
     "System Performance Filters",
     "Multi-Racial (not Hispanic/Latina/e/o)",
     "Includes clients who identified as multiple races (2+) but not as
     Hispanic/Latina/e/o. This Race/Ethnicity filter selection is listed under the
-    Detailed section of the filter dropdown list and is only available when the
-    Methodology Type is set to Exclusive Groupings.",
+    Detailed section of the filter dropdown list and is only available when
+    Method 1 is selected.",
     
     "System Performance Filters",
     "Multi-Racial & Hispanic/Latina/e/o",
     "Includes clients who identified as Hispanic/Latina/e/o together with two or
     more other races/ethnicities. This Race/Ethnicity filter selection is listed
     under the Detailed section of the filter dropdown list and is only available
-    when the Methodology Type is set to Exclusive Groupings.",
+    when Method 1 is selected.",
     
     "System Performance Filters",
     "All People of Color",
     "Includes clients who identified as a race or ethnicity other than White.
     This Race/Ethnicity filter selection is listed under the Summarized section
-    of the filter dropdown list and is only available when the Methodology Type
-    is set to Exclusive Groupings.",
+    of the filter dropdown list and is only available when Method 1 is selected.",
     
     "System Performance Filters",
     "White Only",
     "Includes clients who identified as White and no other race/ethnicity. This
     Race/Ethnicity filter selection is listed under the Summarized section of
-    the filter dropdown list and is only available when the Methodology Type is
-    set to Exclusive Groupings.",
+    the filter dropdown list and is only available when Method 1 is selected.",
     
     "System Performance Filters",
     "Race/Ethnicity (Inclusive Methodology Type)",
@@ -438,23 +432,21 @@ output$glossary <- renderDataTable({
     "Includes clients who identified as American Indian, Alaska Native, or
     Indigenous alone or in combination with any other race/ethnicity. This
     Race/Ethnicity filter selection is listed under the Detailed section of the
-    filter dropdown list and is only available when the Methodology Type is set
-    to Inclusive Groupings.",
+    filter dropdown list and is only available when Method 2 is selected.",
     
     "System Performance Filters",
     "Asian or Asian American inclusive",
     "Includes clients who identified as Asian or Asian American alone or in
     combination with any other race/ethnicity. This Race/Ethnicity filter
     selection is listed under the Detailed section of the filter dropdown list
-    and is only available when the Methodology Type is set to Inclusive Groupings.", 
+    and is only available when Method 2 is selected.", 
     
     "System Performance Filters",
     "Black, African American, or African inclusive",
     "Includes clients who identified as Black, African American, or African
     alone or in combination with any other race/ethnicity. This Race/Ethnicity
     filter selection is listed under the Detailed section of the filter dropdown
-    list and is only available when the Methodology Type is set to Inclusive
-    Groupings.", 
+    list and is only available when Method 2 is selected.", 
     
     "System Performance Filters",
     "Black, African American or African and Hispanic/Latina/e/o inclusive",
@@ -462,43 +454,42 @@ output$glossary <- renderDataTable({
     and Hispanic/Latina/e/o together or in combination with any other race/ethnicity.
     Listed under the Summarized section. This Race/Ethnicity filter selection
     is listed under the Summarized section of the filter dropdown list and is
-    only available when the Methodology Type is set to Inclusive Groupings.", 
+    only available when Method 2 is selected.", 
     
     "System Performance Filters",
     "Hispanic/Latina/e/o alone",
     "Includes clients who identified as only Hispanic/Latina/e/o and no other
     race/ethnicity. This Race/Ethnicity filter selection is listed under both 
     the Detailed and Summarized sections of the filter dropdown list and is only
-    available when the Methodology Type is set to Exclusive Groupings.", 
+    available when Method 1 is selected.", 
     
     "System Performance Filters",
     "Hispanic Latina/e/o inclusive",
     "Includes clients who identified as Hispanic/Latina/e/o alone or in
     combination with any other race/ethnicity. This Race/Ethnicity filter
     selection is listed under the Summarized section of the filter dropdown
-    list and is only available when the Methodology Type is set to Inclusive
-    Groupings.", 
+    list and is only available when Method 2 is selected.", 
     
     "System Performance Filters",
     "Middle Eastern or North African inclusive",
     "Includes clients who identified as Middle Eastern or North African alone or
     in combination with any other race/ethnicity. This Race/Ethnicity filter
     selection is listed under the Detailed section of the filter dropdown list
-    and is only available when the Methodology Type is set to Inclusive Groupings.", 
+    and is only available when Method 2 is selected.", 
     
     "System Performance Filters",
     "Native Hawaiian or Pacific Islander inclusive",
     "Includes clients who identified as Native Hawaiian or Pacific Islander alone
     or in combination with any other race/ethnicity. This Race/Ethnicity filter
     selection is listed under the Detailed section of the filter dropdown list
-    and is only available when the Methodology Type is set to Inclusive Groupings.", 
+    and is only available when Method 2 is selected.", 
     
     "System Performance Filters",
     "White inclusive",
     "Includes clients who identified as White alone or in combination with any
     other race/ethnicity. This Race/Ethnicity filter selection is listed under
     the Detailed section of the filter dropdown list and is only available when
-    the Methodology Type is set to Inclusive Groupings.",
+    Method 2 is selected.",
     
     "System Flow Chart",
     "Total Change",
