@@ -211,7 +211,7 @@ syso_race_ethnicity_method2 <- list(
     "Hispanic/Latina/e/o, Method 2" =
       "LatineMethod2Detailed",
     "Middle Eastern or North African, Method 2" =
-      "MENAMethod2Detailed",
+      "MidEastNAfricanMethod2Detailed",
     "Native Hawaiian or Pacific Islander, Method 2" =
       "NativeHIPacificMethod2Detailed",
     "White, Method 2" =
@@ -244,9 +244,9 @@ syso_race_ethnicity_method1 <- list(
     "Hispanic/Latina/e/o alone" =
       "LatineAloneMethod1Detailed",
     "Middle Eastern or North African alone" =
-      "MENAAloneMethod1Detailed",
+      "MidEastNAfricanAloneMethod1Detailed",
     "Middle Eastern or North African & Hispanic/Latina/e/o" =
-      "MENALatineMethod1Detailed",
+      "MidEastNAfricanLatineMethod1Detailed",
     "Multi-Racial (not Hispanic/Latina/e/o)" =
       "MultipleNotLatineMethod1Detailed",
     "Multi-Racial & Hispanic/Latina/e/o" =
@@ -260,9 +260,8 @@ syso_race_ethnicity_method1 <- list(
     "White & Hispanic/Latina/e/o" =
       "WhiteLatineMethod1Detailed"
   ),
-  "Summarized" = c("All People of Color" =
-                     "BILPOCMethod1Summarized", "White alone" =
-                     "WhiteMethod1Summarized")
+  "Summarized" = c("All People of Color" = "BILPOCMethod1Summarized",
+                   "White alone" = "WhiteMethod1Summarized")
 )
 
 # Special Populations -----------------------------------------------------

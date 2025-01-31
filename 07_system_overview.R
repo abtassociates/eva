@@ -710,7 +710,7 @@ client_categories <- Client %>%
               White +
               MidEastNAfrican +
               BlackAfAmerican == 0, 1, 0),
-  MENAAloneMethod1Detailed =
+  MidEastNAfricanAloneMethod1Detailed =
     if_else(MidEastNAfrican == 1 &
               AmIndAKNative +
               Asian +
@@ -718,7 +718,7 @@ client_categories <- Client %>%
               White +
               HispanicLatinaeo +
               BlackAfAmerican == 0, 1, 0),
-  MENALatineMethod1Detailed =
+  MidEastNAfricanLatineMethod1Detailed =
     if_else(MidEastNAfrican == 1 & HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
@@ -792,8 +792,8 @@ client_categories <- Client %>%
     BlackAfAmericanAloneMethod1Detailed +
     BlackAfAmericanLatineMethod1Detailed +
     LatineAloneMethod1Detailed +
-    MENAAloneMethod1Detailed +
-    MENALatineMethod1Detailed +
+    MidEastNAfricanAloneMethod1Detailed +
+    MidEastNAfricanLatineMethod1Detailed +
     NativeHIPacificAloneMethod1Detailed +
     NativeHIPacificLatineMethod1Detailed +
     WhiteAloneMethod1Detailed +
@@ -829,7 +829,7 @@ client_categories <- Client %>%
   AsianMethod2Detailed = if_else(Asian == 1, 1, 0),
   BlackAfAmericanMethod2Detailed = if_else(BlackAfAmerican == 1, 1, 0),
   LatineMethod2Detailed = if_else(HispanicLatinaeo == 1, 1, 0),
-  MENAMethod2Detailed = if_else(MidEastNAfrican == 1, 1, 0),
+  MidEastNAfricanMethod2Detailed = if_else(MidEastNAfrican == 1, 1, 0),
   NativeHIPacificMethod2Detailed = if_else(NativeHIPacific == 1, 1, 0),
   WhiteMethod2Detailed = if_else(White == 1, 1, 0),
   # catches missings, any methodology any group
