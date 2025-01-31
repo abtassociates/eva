@@ -109,9 +109,9 @@ get_sys_comp_plot_df_2vars <- function(comp_df) {
   selections <- input$system_composition_selections
   
   # Function to process each combination of the variables underlying the all-served
-  # selections E.g. if Age and Gender (and Exclusive methopdology type),
-  # then we'd combine 0 to 12 with ManExclusive, 0 to 12 with WomanExclusive,
-  # 13 to 24 with ManExclusive, etc.
+  # selections E.g. if Age and Gender (and Method 1),
+  # then we'd combine 0 to 12 with ManMethod1, 0 to 12 with WomanMethod1,
+  # 13 to 24 with ManMethod1, etc.
   process_combination <- function(v1, v2, comp_df) {
     logToConsole(glue("processing combination of {v1} and {v2}"))
     freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
@@ -588,7 +588,7 @@ output$sys_comp_download_btn <- downloadHandler(
           round(1) %>%
           paste0("%")))
       
-      # create totals, but only for Exclusive
+      # create totals, but only for Method1
       if(input$methodology_type == 1) { 
         # create total row
         total_num_row <- num_df %>%
