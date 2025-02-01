@@ -660,6 +660,7 @@ client_categories <- Client %>%
 # Client-level flags, filtered ----------------------------------------------------
 client_categories_filtered <- reactive({
   client_categories %>%
+    mutate(All = 1) %>%
     filter(
       AgeCategory %in% input$syso_age &
         !!sym(input$syso_gender) == 1 &
