@@ -37,7 +37,7 @@ bracket_files_detail <- function() {
   withProgress(
     message = "Downloading Impermissible Character Export...", {
     results <- lapply(file_list, function(file) {
-      dt <- importFile(upload_filepath = input$imported$datapath, csvFile = file)  # Load file
+      dt <- importFile(file)  # Load file
       incProgress(1 / length(file_list))
       detect_bracket_characters(dt, file)
     })

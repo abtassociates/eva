@@ -156,7 +156,12 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
 
   filename <- str_glue("{csvFile}.csv")
   if(!is.null(upload_filepath))
-    filename = utils::unzip(zipfile = upload_filepath, files=filename)
+    filename = utils::unzip(
+      zipfile = upload_filepath, 
+      files=filename, 
+      exdir=dirname(tempfile())
+    )
+  filename <- paste0(tempdir(), "/", basename(filename))
   
   colTypes <- get_col_types(upload_filepath, csvFile)
 
@@ -194,13 +199,8 @@ get_col_types <- function(upload_filepath, file) {
     filter(File == file) %>%
     mutate(DataType = data_type_mapping[as.character(DataType)])
   
-  # get the columns in the order they appear in the imported file
-  filename = paste0(file, ".csv")
-  if(!is.null(upload_filepath))
-    filename = utils::unzip(zipfile = upload_filepath, files=filename)
-  
   cols_in_file <- colnames(read.table(
-    filename,
+    paste0(tempdir(), "/", file, ".csv"),
     head = TRUE,
     nrows = 1,
     sep = ",", 
@@ -212,8 +212,13 @@ get_col_types <- function(upload_filepath, file) {
            col_types$DataType[col_types$Column == col_name],
            "c")
   })
+<<<<<<< HEAD
   
   return(paste(data_types, collapse = ""))
+=======
+
+  return(data_types)
+>>>>>>> 540d0e52 (unzipping using exdir = tempdir() or some variation. This copies things into a session-specific Rtmp directory. This is faster (and safer) than having it deployed onto the server.)
 }
 
 logMetadata <- function(detail) {
