@@ -32,36 +32,13 @@ bracket_files_detail <- reactive({
   file_list <- unique(cols_and_data_types$File)
   
   withProgress(
-    message = "Downloading Impermissible Character Export...", 
-    value = 0,
-    {
-      files_with_brackets <- purrr::map_dfr(file_list, function(file) {
-        # Import original data, since object names have been overwritten 
-        # with windows-1252 chars removed
-        colTypes <- get_col_types(input$imported$datapath, file)
-        filename <- utils::unzip(zipfile = input$imported$datapath, files = glue("{file}.csv"))
-        dt <- fread(
-          here(filename),
-          colClasses = unlist(unname(colTypes)),
-          na.strings=c("","NA")
-        )
-        
-        incProgress(1/length(file_list))
-        
-        possible_encodings <- readr::guess_encoding(filename)
-        most_likely_encoding <- possible_encodings$encoding[
-          which.max(possible_encodings$confidence)
-        ]
-        
-        file.remove(filename) # remove the csv
-        
-        return(
-          detect_bracket_characters(dt, file, most_likely_encoding)
-        )
-      })
-    }
-  )
-  
-  # Combine all data frames in the list into one data frame
-  return(files_with_brackets)
+    message = "Downloading Impermissible Character Export...", {
+    results <- lapply(file_list, function(file) {
+      dt <- importFile(file)  # Load file
+      incProgress(1 / length(file_list))
+      detect_bracket_characters(dt, file)
+    })
+    
+    rbindlist(results, use.names = TRUE, fill = TRUE)
+  })
 })
