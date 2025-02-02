@@ -1,30 +1,23 @@
-bracket_regex <- "\\[|\\]|\\<|\\>|\\{|\\}"
+bracket_regex <- "[\\[\\]<>\\{}]"
 
 # Function to detect non-UTF-8 characters and brackets
-detect_bracket_characters <- function(dt, file, encoding) {
+detect_bracket_characters <- function(dt, file) {
   # Vectorized detection for non-UTF-8 and bracket issues
   # Identify character columns only
   char_cols <- names(dt)[sapply(dt, is.character)]
 
-  # Create a list of problematic entries
-  problematic_characters <- purrr::map_dfr(char_cols, function(col) {
-    if(all(is.na(dt[[col]]))) return(tibble::tibble())
-    bracket_rows <- stringi::stri_detect_regex(dt[[col]], bracket_regex)
+  results <- lapply(char_cols, function(col) {
+    bracket_rows <- which(stringi::stri_detect_regex(dt[[col]], bracket_regex, na.rm = TRUE))
+    if (length(bracket_rows) == 0) return(NULL)
     
-    # Create tibbles for invalid rows to store the problematic text and cell location
-    if (any(bracket_rows, na.rm = TRUE)) {
-      row_indices <- which(bracket_rows)
-      tibble::tibble(
-        File = file,
-        Location = paste0("column ", col, ", row ", row_indices),
-        Text = dt[[col]][row_indices]
-      )
-    } else {
-      tibble::tibble()
-    }
+    data.table(
+      File = file,
+      Location = paste0("column ", col, ", row ", bracket_rows),
+      Text = dt[[col]][bracket_rows]
+    )
   })
   
-  return(problematic_characters)
+  rbindlist(results, use.names = TRUE, fill = TRUE)
 }
 
 bracket_files_detail <- reactive({
