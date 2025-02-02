@@ -18,22 +18,21 @@ high_priority_columns <- cols_and_data_types %>%
 empty_tibble <- tibble(!!!issue_display_cols, .rows=0)
 
 # Brackets --------------------------------------------------------------
-files_with_brackets <- data.frame()
-file_names <- unique(cols_and_data_types$File)
-for (file in file_names) {
-  m <- get(file)  
+files_with_brackets <- lapply(unique(cols_and_data_types$File), function(file) {
+  m <- get(file)  # Load dataset
   
-  if (any(grepl(bracket_regex, m))) {  
+  # Efficiently check if any column contains brackets
+  if (any(vapply(m, function(col) any(grepl(bracket_regex, col)), logical(1)))) {  
     files_with_brackets <- data.frame(
       Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
-                See Impermissible Character Detail export for the precise location of 
-                these characters.")
+              See Impermissible Character Detail export for the precise location of 
+              these characters.")
     ) %>%
       merge_check_info(checkIDs = 134) %>%
-      select(all_of(issue_display_cols))
-    break  # Stop as soon as we find a match
+      select(issue_display_cols)
+    break
   }
-}
+})
 
 # Incorrect Date Formats --------------------------------------------------
 unexpected_date_formats <- list()
