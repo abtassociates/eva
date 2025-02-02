@@ -11,5 +11,4 @@ for (file in unique(cols_and_data_types$File)) {
   #import the csv and save it as a data frame
   print(paste0("importing ", file))
   assign(file, importFile(upload_filepath=NULL, csvFile=file))
-  file.remove(paste0(file, ".csv"))
 }

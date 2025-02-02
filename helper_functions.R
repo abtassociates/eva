@@ -180,6 +180,8 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   attr(data, "encoding") <- guess_encoding(filename)$encoding[1]
   data <- convert_data_to_utf8(data)
   
+  # remove the csv
+  file.remove(filename)
   return(data)
 }
 
