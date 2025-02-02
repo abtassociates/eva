@@ -34,63 +34,6 @@ files_with_brackets <- lapply(unique(cols_and_data_types$File), function(file) {
   }
 })
 
-# Incorrect Date Formats --------------------------------------------------
-unexpected_date_formats <- list()
-
-# Loop through each unique file
-for (filename in unique(cols_and_data_types$File)) {
-  
-  # Get the dataset for the current file
-  data <- get(filename)
-  
-  # Filter for date/datetime columns expected in this file
-  expected_date_cols <- cols_and_data_types %>%
-    filter(File == filename & DataType %in% c("date", "datetime"))
-  
-  expected_col_types <- setNames(expected_date_cols$DataType, expected_date_cols$Column)
-  
-  for (col_name in expected_date_cols$Column) {
-    
-    # skip columns not in the actual dataset
-    if (!(col_name %in% colnames(data))) next
-    
-    expected_type <- expected_col_types[[col_name]]
-    
-    if (
-      (expected_type == "date" && !is.Date(data[[col_name]])) ||
-      (expected_type == "datetime" && any(is.na(parse_date_time(data[[col_name]], c("ymd HMS", "ymd")))))
-    ) {
-      unexpected_date_formats[[length(unexpected_date_formats) + 1]] <- data.table(
-        File = filename,
-        Column = col_name,
-        Detail = paste0(
-          "Please check that the ", col_name, 
-          " column in the ", filename, 
-          " file has the correct ", expected_type, " format."
-        )
-      )
-    }
-  }
-}
-
-unexpected_date_formats <- rbindlist(unexpected_date_formats, fill = TRUE)
-
-if(nrow(unexpected_date_formats) > 0) {
-  unexpected_date_formats <- rbind(
-    unexpected_date_formats %>%
-      filter(Column %in% c(high_priority_columns)) %>%
-      merge_check_info(checkIDs = 11) %>%
-      select(all_of(issue_display_cols)) %>% unique(),
-    
-    unexpected_date_formats %>%
-      filter(!(Column %in% c(high_priority_columns))) %>%
-      merge_check_info(checkIDs = 47) %>%
-      select(all_of(issue_display_cols)) %>% unique()
-  )
-} else {
-  unexpected_date_formats <- empty_tibble
-}
-
 # Incorrect Columns ------------------------------------------------------
 check_columns <- function(file) {
   ImportedColumns <- colnames(get(file))
@@ -141,68 +84,60 @@ check_columns <- function(file) {
 }
 df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
 
-# Unexpected (non-date) data types -----------------------------------------------------
-unexpected_data_types <- list()
-for (filename in unique(cols_and_data_types$File)) {
-  data <- get(filename)
-  expected_cols <- cols_and_data_types %>% 
-    filter(File == filename & !(DataType %in% c("date", "datetime")))
-
-  expected_col_types <- setNames(expected_cols$DataType, expected_cols$Column)
-  
-  for(col_name in expected_cols$Column) {
-    # skip columns not in the actual dataset
-    if (!(col_name %in% colnames(data))) next
-    
-    expected_col <- expected_cols[expected_cols$Column == col_name, ]
-    actual_type <- class(data[[col_name]])[1]  
-    
-    if(expected_col$DataType != actual_type) {
-      unexpected_data_types[[length(unexpected_data_types) + 1]] <- data.table(
-        File = filename,
-        Column = col_name,
-        DataTypeHighPriority = expected_col$DataTypeHighPriority,
-        Detail = str_squish(paste0(
-          "In the ",
-          filename,
-          " file, the ",
-          col_name,
-          " column should have a data type of ",
-          case_when(
-            expected_col$DataType == "numeric" ~ "integer",
-            expected_col$DataType == "character" ~ "string",
-            TRUE ~ expected_col$DataType
-          ),
-          " but in this file, it is ",
-          case_when(
-            actual_type == "numeric" ~ "integer",
-            TRUE ~ actual_type
-          ),
-          "."
-        ))
+# Unexpected data types -----------------------------------------------------
+# includes date and non-date
+unexpected_data_types <- lapply(unique(cols_and_data_types$File), function(file) {
+  data <- get(file)
+  suppressWarnings(cols_and_data_types %>% 
+    filter(File == file, Column %in% colnames(data)) %>%
+    rowwise() %>%
+    filter(
+      (
+        (DataType == "date" & !is.Date(data[[Column]])) |
+        (DataType == "datetime" & any(is.na(parse_date_time(data[[Column]], c("ymd HMS", "ymd"))))) |
+        DataType != class(data[[Column]])[1]
       )
-    }
-  }
-}
-unexpected_data_types <- rbindlist(unexpected_data_types, fill = TRUE)
-
-if(nrow(unexpected_data_types) > 0) {
-  unexpected_data_types <- rbind(
-    unexpected_data_types %>% 
-      filter(DataTypeHighPriority == 1) %>% 
-      merge_check_info(checkIDs = 13) %>%
-      select(all_of(issue_display_cols)) %>%
-      unique(),
-    
-    unexpected_data_types %>% 
-      filter(DataTypeHighPriority == 0) %>% 
-      merge_check_info(checkIDs = 48) %>%
-      select(all_of(issue_display_cols)) %>%
-      unique()
-  )
-} else {
-  unexpected_data_types <- empty_tibble
-}
+    ) %>%
+    mutate(
+      actual_type = class(data[[Column]])[1]
+    ) %>%
+    ungroup() %>%
+    mutate(
+      Detail = if_else(
+        DataType %in% c("date", "datetime"),
+        glue(
+          "In the {file} file, the {Column} column should have a data type of {case_when(
+            DataType == 'numeric' ~ 'integer',
+            DataType == 'character' ~ 'string',
+            TRUE ~ DataType
+          )} but in this file, it is {case_when(
+            actual_type == 'numeric' ~ 'integer',
+            TRUE ~ actual_type
+          )}."
+        ),
+        glue(
+          "Please check that the {Column} column in the {file} file has the 
+          correct {DataType} format."
+        )
+      ),
+      checkID = if_else(
+        DataTypeHighPriority == 1, 
+        if_else(
+          DataType %in% c("date", "datetime"),
+          11,
+          13
+        ),
+        if_else(
+          DataType %in% c("date", "datetime"),
+          47, 
+          48
+        )
+      )
+    ) %>%
+    inner_join(evachecks, join_by(checkID == ID)) %>%
+    select(issue_display_cols) %>%
+    unique())
+})
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
@@ -471,14 +406,13 @@ file_structure_analysis_main(rbind(
   export_id_client,
   foreign_key_no_primary_personalid_enrollment,
   foreign_key_no_primary_projectid_enrollment,
-  unexpected_date_formats,
   living_situation_invalid,
   no_enrollment_records,
   nonstandard_CLS,
   nonstandard_destination,
   rel_to_hoh_invalid,
   valid_values_client,
-  files_with_brackets
+  as.data.frame(files_with_brackets)
   ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
