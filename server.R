@@ -988,7 +988,7 @@ function(input, output, session) {
   source("system_status_server.R", local = TRUE)
   
   session$onSessionEnded(function() {
-    logToConsole("Session Ended")
+    cat(paste0("Session ", session$token, " ended at ", Sys.time()))
     logMetadata("Session Ended")
   })
 }

@@ -445,7 +445,11 @@ reset_app <- function() {
 
 getNameByValue <- function(vector, val) {
   return(
-    paste(names(vector)[which(vector %in% val)], collapse = ", ")
+    sub(
+      "^[^.]+\\.",
+      "",
+      paste(names(unlist(vector))[unlist(vector) == val], collapse = ", ")
+    )
   )
 }
 
