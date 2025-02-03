@@ -15,8 +15,6 @@ high_priority_columns <- cols_and_data_types %>%
   pull(Column) %>%
   unique()
 
-empty_tibble <- tibble(!!!issue_display_cols, .rows=0)
-
 # Brackets --------------------------------------------------------------
 files_with_brackets <- data.frame()
 for(file in unique(cols_and_data_types$File)) {
@@ -257,12 +255,7 @@ if (nrow(Enrollment) == 0) {
   ) %>%
   merge_check_info(checkIDs = 101)
 } else {
-  no_enrollment_records <- data.frame(
-    Issue = character(),
-    Type = character(),
-    Guidance = character(),
-    Detail = character()
-  )
+  no_enrollment_records <- data.frame()
 }
 
 duplicate_enrollment_id <- Enrollment %>%
