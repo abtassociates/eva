@@ -18,14 +18,20 @@ high_priority_columns <- cols_and_data_types %>%
 # Brackets --------------------------------------------------------------
 files_with_brackets <- data.frame()
 for(file in unique(cols_and_data_types$File)) {
-  if (isTruthy(any(str_detect(as.matrix(get(file)), bracket_regex)))) {
+  m <- get(file)  # Load dataset
+  char_cols <- which(sapply(m, is.character))
+  if (length(char_cols) == 0) next
+  
+  m_mat <- as.matrix(m[, char_cols, drop = FALSE])  # Convert relevant columns to matrix
+  if (any(grepl(bracket_regex, m_mat, perl=TRUE), na.rm=TRUE)) {
     files_with_brackets <- data.frame(
-        Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
-          See Impermissible Character Detail export for the precise location of 
-          these characters.")
-      ) %>%
-        merge_check_info(checkIDs = 134) %>%
-        select(all_of(issue_display_cols))
+      File = file,
+      Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
+                See Impermissible Character Detail export for the precise location 
+                of these characters.")
+    ) %>%
+      merge_check_info(checkIDs = 134) %>%
+      select(all_of(issue_display_cols))
     break
   }
 }
