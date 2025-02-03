@@ -782,7 +782,7 @@
       ]
     },
     "headerClientCounts_supp": {
-      "html": "<h4>\n  Organization A\n  |\n  Organization A - ES\n<\/h4>",
+      "html": "<h4>\n  Organization A‰\n  |\n  Organization A - ES\n<\/h4>",
       "deps": [
 
       ]

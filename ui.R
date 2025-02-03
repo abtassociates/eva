@@ -1467,14 +1467,15 @@ dashboardPage(
                                 
                                 ")
                   )
-                ),
+                ),  # end syso_comp_subtab tabbox
                 downloadButton("sys_comp_download_btn", "Data Download"),
                 downloadButton("sys_comp_download_btn_ppt", "Image Download"),
                 width = 12
-              )
-            )
-          )
-        )
+              ) #end syso_comp tabPanel
+            ), # end syso_tabbox
+            downloadButton("client_level_download_btn", "Client Level Download")
+          ) # end box
+        ) #end fluid row
       ),
       tabItem(
         tabName = "systemExitDetail",
