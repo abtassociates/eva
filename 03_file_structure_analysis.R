@@ -18,21 +18,26 @@ high_priority_columns <- cols_and_data_types %>%
 empty_tibble <- tibble(!!!issue_display_cols, .rows=0)
 
 # Brackets --------------------------------------------------------------
-files_with_brackets <- lapply(unique(cols_and_data_types$File), function(file) {
+files_with_brackets <- data.frame()
+for(file in unique(cols_and_data_types$File)) {
   m <- get(file)  # Load dataset
-  
-  # Efficiently check if any column contains brackets
-  if (any(vapply(m, function(col) any(grepl(bracket_regex, col)), logical(1)))) {  
-    files_with_brackets <- data.frame(
-      Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
-              See Impermissible Character Detail export for the precise location of 
-              these characters.")
-    ) %>%
-      merge_check_info(checkIDs = 134) %>%
-      select(issue_display_cols)
-    break
+  char_cols <- which(sapply(m, is.character) | sapply(m, is.factor))
+  if (length(char_cols) > 0) {
+    m_mat <- as.matrix(m[, char_cols, drop = FALSE])  # Convert relevant columns to matrix
+    
+    if (any(grepl(bracket_regex, m_mat, perl=TRUE), na.rm=TRUE)) {
+      files_with_brackets <- data.frame(
+        File = file,
+        Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
+                  See Impermissible Character Detail export for the precise location 
+                  of these characters.")
+      ) %>%
+        merge_check_info(checkIDs = 134) %>%
+        select(all_of(issue_display_cols))
+      break
+    }
   }
-})
+}
 
 # Incorrect Columns ------------------------------------------------------
 check_columns <- function(file) {
@@ -412,7 +417,7 @@ file_structure_analysis_main(rbind(
   nonstandard_destination,
   rel_to_hoh_invalid,
   valid_values_client,
-  as.data.frame(files_with_brackets)
+  files_with_brackets
   ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
