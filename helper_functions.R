@@ -175,7 +175,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     return(x)
   }), .SDcols = names(data)]
   
-  data <- as.data.frame(data)
+  setDF(data)
 
   if(csvFile != "Export"){
     data <- data %>%

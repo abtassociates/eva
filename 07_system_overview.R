@@ -570,7 +570,7 @@ dv_flag <- as.data.table(Enrollment)[, .(EnrollmentID, EntryDate, ExitAdjust)][
 
 client_categories <- Client %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  left_join(as.data.frame(dv_flag), join_by(PersonalID)) %>%
+  left_join(setDF(dv_flag), join_by(PersonalID)) %>%
   select(PersonalID,
          all_of(race_cols),
          all_of(gender_cols),
@@ -955,7 +955,7 @@ clients_enrollments_reactive <- reactive({
 # https://onlinetools.com/time/visualize-date-intervals <- here.
 # add inflow type and active enrollment typed used for system overview plots
 universe <- reactive({
-  client_enrollments_reactive_dt <- as.data.table(clients_enrollments_reactive())
+  client_enrollments_reactive_dt <- setDT(clients_enrollments_reactive())
   # clients_enrollments_reactive() %>%
     # get rid of rows where the enrollment is neither a lookback enrollment,
     # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
