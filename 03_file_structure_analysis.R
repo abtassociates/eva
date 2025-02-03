@@ -89,58 +89,46 @@ df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
 
 # Unexpected data types -----------------------------------------------------
 # includes date and non-date
-unexpected_data_types <- lapply(unique(cols_and_data_types$File), function(file) {
+unexpected_data_types <- function(file) {
   data <- get(file)
-  suppressWarnings(cols_and_data_types %>% 
+  cols_and_data_types %>% 
     filter(File == file, Column %in% colnames(data)) %>%
     rowwise() %>%
-    filter(
-      (
-        (DataType == "date" & !is.Date(data[[Column]])) |
-        (DataType == "datetime" & any(is.na(parse_date_time(data[[Column]], c("ymd HMS", "ymd"))))) |
-        DataType != class(data[[Column]])[1]
-      )
-    ) %>%
     mutate(
       actual_type = class(data[[Column]])[1]
     ) %>%
     ungroup() %>%
+    filter(
+      DataType != case_when(
+        actual_type == "POSIXct" ~ "datetime",
+        actual_type == "Date" ~ "date",
+        TRUE ~ actual_type
+      )
+    ) %>%
     mutate(
       Detail = if_else(
         DataType %in% c("date", "datetime"),
-        glue(
-          "In the {file} file, the {Column} column should have a data type of {case_when(
-            DataType == 'numeric' ~ 'integer',
-            DataType == 'character' ~ 'string',
-            TRUE ~ DataType
-          )} but in this file, it is {case_when(
-            actual_type == 'numeric' ~ 'integer',
-            TRUE ~ actual_type
-          )}."
-        ),
-        glue(
-          "Please check that the {Column} column in the {file} file has the 
-          correct {DataType} format."
-        )
+        glue("In the {file} file, the {Column} column should have a data type of {case_when(
+          DataType == 'numeric' ~ 'integer',
+          DataType == 'character' ~ 'string',
+          TRUE ~ DataType
+        )} but in this file, it is {case_when(
+          actual_type == 'numeric' ~ 'integer',
+          TRUE ~ actual_type
+        )}."),
+        glue("Please check that the {Column} column in the {file} file has the 
+             correct {DataType} format.")
       ),
       checkID = if_else(
         DataTypeHighPriority == 1, 
-        if_else(
-          DataType %in% c("date", "datetime"),
-          11,
-          13
-        ),
-        if_else(
-          DataType %in% c("date", "datetime"),
-          47, 
-          48
-        )
+        if_else(DataType %in% c("date", "datetime"), 11, 13),
+        if_else(DataType %in% c("date", "datetime"), 47, 48)
       )
     ) %>%
     inner_join(evachecks, join_by(checkID == ID)) %>%
-    select(issue_display_cols) %>%
-    unique())
-})
+    select(issue_display_cols)
+}
+df_unexpected_data_types <- map_df(unique(cols_and_data_types$File), unexpected_data_types)
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
@@ -395,7 +383,7 @@ nonstandard_CLS <- CurrentLivingSituation %>%
 
 file_structure_analysis_main(rbind(
   df_column_diffs,
-  unexpected_data_types,
+  df_unexpected_data_types,
   df_nulls,
   disabling_condition_invalid,
   duplicate_client_id,
