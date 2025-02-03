@@ -125,7 +125,7 @@ unexpected_data_types <- function(file) {
       )
     ) %>%
     inner_join(evachecks, join_by(checkID == ID)) %>%
-    select(issue_display_cols)
+    select(all_of(issue_display_cols))
 }
 df_unexpected_data_types <- map_df(unique(cols_and_data_types$File), unexpected_data_types)
 
