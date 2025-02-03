@@ -30,8 +30,7 @@
       3,
       4,
       5,
-      6,
-      7
+      6
     ],
     "fileStructureAnalysis_rows_current": [
       1,
@@ -39,8 +38,7 @@
       3,
       4,
       5,
-      6,
-      7
+      6
     ],
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
@@ -103,7 +101,6 @@
     "isdemo": false,
     "methodology_type": "1",
     "orgList": null,
-    "showDownloadImpermissibleButton": 0,
     "sidebarCollapsed": false,
     "sidebarItemExpanded": "AssessDataQuality",
     "sidebarmenuid": "tabDQSystem",
@@ -176,24 +173,11 @@
       ]
     },
     "downloadImpermissibleCharacterDetailBtn": {
-      "html": "<button id=\"showDownloadImpermissibleButton\" type=\"button\" class=\"btn btn-default action-button\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Impermissible Character Detail\n<\/button>\n<a id=\"downloadImpermissibleCharacterDetail\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\" style=\"visibility:hidden;\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Impermissible Character Detail\n<\/a>",
-      "deps": [
-        {
-          "name": "font-awesome",
-          "version": "6.4.2",
-          "src": {
-            "href": "font-awesome-6.4.2"
-          },
-          "meta": null,
-          "script": null,
-          "stylesheet": [
-            "css/all.min.css",
-            "css/v4-shims.min.css"
-          ],
-          "head": null,
-          "attachment": null,
-          "all_files": true
-        }
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
       ]
     },
     "downloadPDDEReportButton": {
@@ -377,13 +361,12 @@
         "Incorrect Columns",
         "Incorrect Columns",
         "Incorrect Columns",
+        "Incorrect Date Format",
         "PersonalID missing from Client.csv",
         "ProjectID missing from Project.csv",
-        "Incorrect Date Format",
         "Incorrect Columns",
         "Incorrect Columns",
-        "Incorrect Data Type",
-        "Impermissible characters"
+        "Incorrect Data Type"
       ],
       "Type": [
         "High Priority",
@@ -394,32 +377,29 @@
         "High Priority",
         "Error",
         "Error",
-        "Error",
         "Error"
       ],
       "Guidance": [
         "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
         "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
         "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export.",
         "Per the HMIS CSV Format Specifications, all PersonalIDs in the Enrollment file should have a record in the Client file.",
         "Per the HMIS CSV Format Specifications, all ProjectIDs in the Enrollment file should have a record in the Project file.",
-        "Dates in the HMIS CSV Export should be in yyyy-mm-dd or yyyy-mm-dd hh:mm:ss format, in alignment with the HMIS CSV Format Specifications. Please check the Specifications for the file and column identified in the Detail and ensure the correct date format is used in the export.",
         "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
         "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
-        "Data types must align with the HMIS CSV Format Specifications. Please review the specifications for the data types associated with the file and column listed in the Detail and make the necessary updates.",
-        "The HMIS CSV Specs restrict the use of some characters in string fields. To locate the character(s) that are flagging this issue, please run and download the Impermissible Character Detail export. Contact your vendor to ensure impermissible characters are excluded from your export."
+        "Data types must align with the HMIS CSV Format Specifications. Please review the specifications for the data types associated with the file and column listed in the Detail and make the necessary updates."
       ],
       "Detail": [
         "In the Client file, the BlackAfAmerican column is missing",
         "In the Client file, the DateCreated column is missing",
         "In the Client file, the Transgender column is missing",
+        "In the Client file, the DOB column should have a data type of date but in this file, it is character.",
         "PersonalID 5966 is in the Enrollment file but not in the Client file.",
         "ProjectID 1182 is in the Enrollment file but not in the Project file.",
-        "Please check that the DOB column in the Client file has the correct date format.",
         "In the Client file, ExtraCol is an extra column",
         "In the Client file, Transgenderr is an extra column",
-        "In the Assessment file, the AssessmentType column should have a data type of integer but in this file, it is character.",
-        "Found one or more brackets in your HMIS CSV Export. See Impermissible Character Detail export for the precise location of these characters."
+        "Please check that the AssessmentType column in the Assessment file has the \ncorrect numeric format."
       ]
     }
   }
