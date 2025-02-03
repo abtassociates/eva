@@ -411,12 +411,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
       lh_prior_livingsituation,
     straddles_start = EntryDate <= ReportStart() & ExitAdjust >= ReportStart(),
     straddles_end = EntryDate <= ReportEnd() & ExitAdjust >= ReportEnd(),
-    in_date_range = ExitAdjust >= ReportStart() & EntryDate <= ReportEnd() #,
-    # DomesticViolenceCategory = fcase(
-    #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
-    #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
-    #   default = "NotDV"
-    # )
+    in_date_range = ExitAdjust >= ReportStart() & EntryDate <= ReportEnd()
   )][
     # Apply filtering with efficient conditions
     (ReportStart() - years(2)) <= ExitAdjust &
@@ -545,38 +540,41 @@ enrollment_categories <- merge(
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people for filtering
-dv_flag <- as.data.table(Enrollment)[, .(EnrollmentID, EntryDate, ExitAdjust)][
-  as.data.table(HealthAndDV)[DataCollectionStage == 1, .(
-    EnrollmentID,
-    PersonalID,
-    DomesticViolenceSurvivor = fifelse(
-      is.na(DomesticViolenceSurvivor),
-      0,
-      fifelse(DomesticViolenceSurvivor== 1, 1, 0)),
-    CurrentlyFleeing = fifelse(
-      is.na(CurrentlyFleeing),
-      0,
-      fifelse(CurrentlyFleeing == 1, 1, 0))
-  )],
-  on = .(EnrollmentID)
-][ExitAdjust >= ReportStart() & EntryDate <= ReportEnd(), 
-  .(DomesticViolenceCategory = 
-      fifelse(
-        max(DomesticViolenceSurvivor, na.rm = TRUE) == 1 & 
-          max(CurrentlyFleeing, na.rm = TRUE) == 1, "DVFleeing",
-        fifelse(
-          max(DomesticViolenceSurvivor, na.rm = TRUE) == 1, "DVNotFleeing", "NotDV"))
-  ), by = PersonalID]
+# AS 2/3/2025: commenting out dv_flag. First, we aren't using DomesticViolence 
+# right now in the System Overview tab because we weren't ready for it
+# Second, this should be defined at the enrollment level, not client level 
+# dv_flag <- as.data.table(Enrollment)[, .(EnrollmentID, EntryDate, ExitAdjust)][
+#   as.data.table(HealthAndDV)[DataCollectionStage == 1, .(
+#     EnrollmentID,
+#     PersonalID,
+#     DomesticViolenceSurvivor = fifelse(
+#       is.na(DomesticViolenceSurvivor),
+#       0,
+#       fifelse(DomesticViolenceSurvivor== 1, 1, 0)),
+#     CurrentlyFleeing = fifelse(
+#       is.na(CurrentlyFleeing),
+#       0,
+#       fifelse(CurrentlyFleeing == 1, 1, 0))
+#   )],
+#   on = .(EnrollmentID)
+# ][ExitAdjust >= ReportStart() & EntryDate <= ReportEnd(), 
+#   .(DomesticViolenceCategory = 
+#       fifelse(
+#         max(DomesticViolenceSurvivor, na.rm = TRUE) == 1 & 
+#           max(CurrentlyFleeing, na.rm = TRUE) == 1, "DVFleeing",
+#         fifelse(
+#           max(DomesticViolenceSurvivor, na.rm = TRUE) == 1, "DVNotFleeing", "NotDV"))
+#   ), by = PersonalID]
 
 client_categories <- Client %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  left_join(as.data.frame(dv_flag), join_by(PersonalID)) %>%
+  # left_join(setDF(dv_flag), join_by(PersonalID)) %>%
   select(PersonalID,
          all_of(race_cols),
          all_of(gender_cols),
          VeteranStatus,
-         AgeCategory,
-         DomesticViolenceCategory
+         AgeCategory #,
+         # DomesticViolenceCategory
   ) %>%
   mutate(
     VeteranStatus = if_else(VeteranStatus == 1 &
@@ -868,9 +866,9 @@ client_categories_reactive <- reactive({
           (input$syso_spec_pops == "Veteran" &
             VeteranStatus == 1 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
           (input$syso_spec_pops == "NonVeteran" &
-            VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
-          (DomesticViolenceCategory == input$syso_spec_pops | 
-             input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV")
+            VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) # |
+          # (DomesticViolenceCategory == input$syso_spec_pops | 
+          #    input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV")
         )
     ) %>%
     select(-All)
@@ -955,7 +953,7 @@ clients_enrollments_reactive <- reactive({
 # https://onlinetools.com/time/visualize-date-intervals <- here.
 # add inflow type and active enrollment typed used for system overview plots
 universe <- reactive({
-  client_enrollments_reactive_dt <- as.data.table(clients_enrollments_reactive())
+  client_enrollments_reactive_dt <- setDT(clients_enrollments_reactive())
   # clients_enrollments_reactive() %>%
     # get rid of rows where the enrollment is neither a lookback enrollment,
     # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 

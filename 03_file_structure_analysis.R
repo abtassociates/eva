@@ -18,45 +18,23 @@ high_priority_columns <- cols_and_data_types %>%
 # Brackets --------------------------------------------------------------
 files_with_brackets <- data.frame()
 for(file in unique(cols_and_data_types$File)) {
-  if (isTruthy(any(str_detect(as.matrix(get(file)), bracket_regex)))) {
+  m <- get(file)  # Load dataset
+  char_cols <- which(sapply(m, is.character))
+  if (length(char_cols) == 0) next
+  
+  m_mat <- as.matrix(m[, char_cols, drop = FALSE])  # Convert relevant columns to matrix
+  if (any(grepl(bracket_regex, m_mat, perl=TRUE), na.rm=TRUE)) {
     files_with_brackets <- data.frame(
-        Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
-          See Impermissible Character Detail export for the precise location of 
-          these characters.")
-      ) %>%
-        merge_check_info(checkIDs = 134) %>%
-        select(all_of(issue_display_cols))
+      File = file,
+      Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
+                See Impermissible Character Detail export for the precise location 
+                of these characters.")
+    ) %>%
+      merge_check_info(checkIDs = 134) %>%
+      select(all_of(issue_display_cols))
     break
   }
 }
-
-# Incorrect Date Formats --------------------------------------------------
-
-df_date_types <-
-  problems %>%
-  filter(str_detect(expected, "date") == TRUE) %>%
-  mutate(
-    File = str_remove(basename(file), ".csv")
-  ) %>%
-  left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
-  mutate(
-    Detail = str_squish(paste(
-      "Please check that the",
-      Column,
-      "column in the",
-      File,
-      "file has the correct date format."))
-  )
-  
-incorrect_date_types_hp <- df_date_types %>%
-  filter(Column %in% c(high_priority_columns)) %>%
-  merge_check_info(checkIDs = 11) %>%
-  select(all_of(issue_display_cols)) %>% unique()
-
-incorrect_date_types_error <- df_date_types %>%
-  filter(!(Column %in% c(high_priority_columns))) %>%
-  merge_check_info(checkIDs = 47) %>%
-  select(all_of(issue_display_cols)) %>% unique()
 
 # Incorrect Columns ------------------------------------------------------
 check_columns <- function(file) {
@@ -108,49 +86,48 @@ check_columns <- function(file) {
 }
 df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
 
-# Unexpected (non-date) data types -----------------------------------------------------
-data_types <- problems %>%
-  filter(str_detect(expected, "date", negate = TRUE)) %>%
-  mutate(
-    File = str_remove(basename(file), ".csv"),
-  ) %>%
-  left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
-  mutate(
-    Detail = str_squish(paste0(
-      "In the ",
-      File,
-      " file, the ",
-      Column,
-      " column should have a data type of ",
-      case_when(
-        DataType == "numeric" ~ "integer",
-        DataType == "character" ~ "string",
-        TRUE ~ DataType
+# Unexpected data types -----------------------------------------------------
+# includes date and non-date
+unexpected_data_types <- function(file) {
+  data <- get(file)
+  cols_and_data_types %>% 
+    filter(File == file, Column %in% colnames(data)) %>%
+    rowwise() %>%
+    mutate(
+      actual_type = class(data[[Column]])[1]
+    ) %>%
+    ungroup() %>%
+    filter(
+      DataType != case_when(
+        actual_type == "POSIXct" ~ "datetime",
+        actual_type == "Date" ~ "date",
+        TRUE ~ actual_type
+      )
+    ) %>%
+    mutate(
+      Detail = if_else(
+        DataType %in% c("date", "datetime"),
+        glue("In the {file} file, the {Column} column should have a data type of {case_when(
+          DataType == 'numeric' ~ 'integer',
+          DataType == 'character' ~ 'string',
+          TRUE ~ DataType
+        )} but in this file, it is {case_when(
+          actual_type == 'numeric' ~ 'integer',
+          TRUE ~ actual_type
+        )}."),
+        glue("Please check that the {Column} column in the {file} file has the 
+             correct {DataType} format.")
       ),
-      " but in this file, it is ",
-      case_when(
-        all(map_lgl(actual, is.numeric)) ~ "integer",
-        all(map_lgl(actual, is.Date)) ~ "date",
-        TRUE ~ "string"
-      ),
-      "."
-    ))
-  )
-
-df_data_types <- rbind(
-  data_types %>% 
-    filter(DataTypeHighPriority == 1) %>% 
-    merge_check_info(checkIDs = 13) %>%
-    select(all_of(issue_display_cols)) %>%
-    unique(),
-  
-  data_types %>% 
-    filter(DataTypeHighPriority == 0) %>% 
-    merge_check_info(checkIDs = 48) %>%
-    select(all_of(issue_display_cols)) %>%
-    unique()
-)
-
+      checkID = if_else(
+        DataTypeHighPriority == 1, 
+        if_else(DataType %in% c("date", "datetime"), 11, 13),
+        if_else(DataType %in% c("date", "datetime"), 47, 48)
+      )
+    ) %>%
+    inner_join(evachecks, join_by(checkID == ID)) %>%
+    select(all_of(issue_display_cols))
+}
+df_unexpected_data_types <- map_df(unique(cols_and_data_types$File), unexpected_data_types)
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
@@ -265,12 +242,7 @@ if (nrow(Enrollment) == 0) {
   ) %>%
   merge_check_info(checkIDs = 101)
 } else {
-  no_enrollment_records <- data.frame(
-    Issue = character(),
-    Type = character(),
-    Guidance = character(),
-    Detail = character()
-  )
+  no_enrollment_records <- data.frame()
 }
 
 duplicate_enrollment_id <- Enrollment %>%
@@ -410,7 +382,7 @@ nonstandard_CLS <- CurrentLivingSituation %>%
 
 file_structure_analysis_main(rbind(
   df_column_diffs,
-  df_data_types,
+  df_unexpected_data_types,
   df_nulls,
   disabling_condition_invalid,
   duplicate_client_id,
@@ -419,8 +391,6 @@ file_structure_analysis_main(rbind(
   export_id_client,
   foreign_key_no_primary_personalid_enrollment,
   foreign_key_no_primary_projectid_enrollment,
-  incorrect_date_types_error,
-  incorrect_date_types_hp,
   living_situation_invalid,
   no_enrollment_records,
   nonstandard_CLS,

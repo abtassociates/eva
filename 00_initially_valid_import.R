@@ -29,7 +29,6 @@ is_hashed <- function() {
 
   # read Client file
   Client <- importFile(upload_filepath, "Client")
-  file.remove("Client.csv")
   
   # decide if the export is hashed
   return(  
@@ -42,7 +41,6 @@ is_hashed <- function() {
 
 isFY2024Export <- function() {
   Export(importFile(upload_filepath, "Export"))
-  file.remove("Export.csv")
   
   # this is the soonest we can log the session data, with 
   # the export info, since this is the first time we import the Export.csv file

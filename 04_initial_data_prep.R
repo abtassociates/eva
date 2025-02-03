@@ -106,7 +106,7 @@ EnrollmentStaging <- Enrollment %>%
 
 # Truncating Enrollments based on Operating/Participating -----------------
 # Perform the join
-EnrollmentOutside <- as.data.table(EnrollmentStaging %>%
+EnrollmentOutside <- setDT(EnrollmentStaging %>%
   left_join(ProjectSegments %>%
               select(ProjectID,
                      ProjectTimeID,
@@ -189,7 +189,7 @@ EnrollmentOutside <- EnrollmentOutside[, .(EnrollmentID, ProjectID, ProjectTimeI
                                            EnrollmentvOperating)]
 
 Enrollment <- EnrollmentStaging %>%
-  left_join(as.data.frame(EnrollmentOutside),
+  left_join(setDF(EnrollmentOutside),
             by = c("EnrollmentID", "ProjectID", "EntryDate", "ExitAdjust")) %>%
   mutate(
     ParticipatingDateRange = interval(HMISParticipationStatusStartDate, HMISParticipationStatusEndDate),
@@ -295,7 +295,7 @@ HHEntry <- unique(HHEntry[, c(HouseholdID, HHEntry)])
   # left_join(HHMoveIn, by = "HouseholdID")
 HHEntry <- HHMoveIn[HHEntry, on = .(HouseholdID)]
 
-HHEntry <- as.data.frame(HHEntry)
+setDF(HHEntry)
 
 Enrollment <- Enrollment %>%
   left_join(HHEntry, by = "HouseholdID") %>%

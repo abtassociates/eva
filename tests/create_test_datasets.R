@@ -14,6 +14,7 @@ unzip(zipfile = here("tests/FY24-ICF-hashed-current-good.zip"),
 
 # function to save a directory of CSVs as a zip file for upload
 save_new_zip <- function(zipfname, files_directory) {
+  system("sync")
   zipr(
     zipfile = here(paste0("tests/temp/",zipfname)), 
     files = list.files(here(paste0("tests/temp/",files_directory)), pattern = "*.csv$", full.names = TRUE),

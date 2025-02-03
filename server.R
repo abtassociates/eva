@@ -154,8 +154,9 @@ function(input, output, session) {
       setProgress(detail = "Unzipping...", value = .10)
       list_of_files <- unzip(
         zipfile = upload_filepath, 
-        files = paste0(unique(cols_and_data_types$File), ".csv"))
-      
+        files = paste0(unique(cols_and_data_types$File), ".csv"),
+        exdir = tempdir()
+      )
         setProgress(detail = "Reading your files..", value = .2)
         source("01_get_Export.R", local = TRUE)
         
