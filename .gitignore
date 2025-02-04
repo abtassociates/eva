@@ -35,4 +35,5 @@ runShinyApp.R
 .nfs00000000034418240000000c
 vscDebugger
 .Rproj.user
+tests/testthat/_snaps/**/*.png
 www/client-level-export-data-dictionary.csv
