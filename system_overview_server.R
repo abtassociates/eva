@@ -70,9 +70,6 @@ observeEvent(input$syso_level_of_detail, {
 syso_detailBox <- reactive({
   # remove group names from race/ethnicity filter
   # so we can use getNameByValue() to grab the selected option label
-  # if (input$methodology_type == 2) {
-  # browser()
-  # }
   detail_line <- function(detail_label, val_list, inputVal) {
     return(
       HTML(glue(
@@ -82,21 +79,12 @@ syso_detailBox <- reactive({
   }
   
   selected_race <- getNameByValue(
-    unlist(syso_race_ethnicity_cats(input$methodology_type)),
+    syso_race_ethnicity_cats(input$methodology_type), 
     input$syso_race_ethnicity
   )
   
   race_ethnicity_line <- HTML(glue(
-    "<b>Race/Ethnicity:</b> {
-          str_sub(
-            selected_race, 
-            start = str_locate(
-              selected_race,
-              '\\\\.'
-            )[, 1] + 1,
-            end = -1L
-          )
-        } <br>"
+    "<b>Race/Ethnicity:</b> {selected_race} <br>"
   ))
   
   list(
@@ -216,7 +204,7 @@ sys_export_filter_selections <- function() {
       "Race/Ethnicity"
     ),
     Value = c(
-      ifelse(identical(syso_age_cats, input$syso_age), "All Ages", input$syso_age),
+      if(identical(syso_age_cats, input$syso_age)) {"All Ages"} else {paste(input$syso_age, collapse=", ")},
       getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
       getNameByValue(syso_gender_cats(input$methodology_type), input$syso_gender),
       getNameByValue(syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity)
@@ -522,21 +510,24 @@ output$client_level_download_btn <- downloadHandler(
       sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
       sys_export_filter_selections() # Age, Veteran Status, Gender, Race/Ethnicity
     )
-    colnames(filter_selections) <- NULL
+    colnames(filter_selections) <- c("Filter","Selection")
     
     # probably want to read in the glossary tab as a csv or Excel and append to it.
     
     # all sheets for export
     client_level_export_list <- list(
       client_level_metadata = filter_selections,
-      glossary = read.csv(here("www/client-level-export-data-dictionary.csv")),
+      data_dictionary = setNames(
+        read.csv(here("www/client-level-export-data-dictionary.csv")),
+        c("Column Name", "Variable Type", "Definition")
+      ),
       client_level_details = client_level_details
     )
     
     names(client_level_export_list) = c(
-      "metadata",
-      "glossary",
-      "details"
+      "Metadata",
+      "Data Dictionary",
+      "Details"
     )
     
     write_xlsx(
@@ -546,6 +537,7 @@ output$client_level_download_btn <- downloadHandler(
       col_names = TRUE
     )
     
+    logToConsole("Downloaded Client Level Export")
     logMetadata(paste0(
       "Downloaded Client Level Export",
       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")

@@ -128,6 +128,11 @@ main_test_script <- function(test_script_name, test_dataset) {
   if(Sys.info()["sysname"] != "ubuntu")
     helper_datasets <- c(helper_datasets, "client_level_export_details")
   
+  is_gha <- Sys.info()["user"] == "runner"
+  if(!is_gha)
+    helper_datasets <- c(helper_datasets, "client_level_export_details")
+  
+  
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
     print(paste0("Running ",test_script_name))
     testthat::local_edition(3)
@@ -424,7 +429,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "sys_status_download_btn_ppt", "System-Status-Download-PPT.pptx")
     customDownload(app, "sys_comp_download_btn", "System-Composition-Download.xlsx")
     customDownload(app, "sys_comp_download_btn_ppt", "System-Composition-Download-PPT.pptx")
-    if(Sys.info()["sysname"] != "ubuntu") {
+    if(!is_gha) {
       customDownload(app, "client_level_download_btn", "Client-Level-Download.xlsx")
     }
     

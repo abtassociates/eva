@@ -3,7 +3,7 @@
 .RData
 .Rproj.user
 # added over time
-.Rproj
+*.Rproj
 *.Ruserdata
 data
 rsconnect
@@ -36,4 +36,4 @@ runShinyApp.R
 vscDebugger
 .Rproj.user
 tests/testthat/_snaps/**/*.png
-.Rproj
+www/client-level-export-data-dictionary.csv
