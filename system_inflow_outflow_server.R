@@ -56,7 +56,10 @@ time_levels_summary <- c("Active at Start",
 #                        "Homeless", "Housed")
 #   )
 
-system_activity_prep_detail <- reactive({
+
+# System Activity Detail Chart Prep ---------------------------------------
+
+system_activity_prep_detail <- function() {
   frame_detail <- data.frame(
     Status = c(
       status_levels_detail(),
@@ -132,9 +135,11 @@ system_activity_prep_detail <- reactive({
       Time == "Active at End" & Status == "Housed" ~ 2,
       TRUE ~ 3  # fallback for other statuses/times
     ))
-})
+}
 
-system_activity_prep_summary <- reactive({
+# System Activity Summary Chart Prep ---------------------------------------
+
+system_activity_prep_summary <- function() {
   setDT(system_activity_prep_detail())[, .(
     values = sum(values, na.rm = TRUE)
   ), by = .(InflowOutflow, PlotFillGroups, InflowOutflowSummary)
@@ -149,7 +154,7 @@ system_activity_prep_summary <- reactive({
     TRUE ~ 3
   ))
   ]
-})
+}
 
 get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
   if (id == "sys_act_summary_ui_chart") {
@@ -340,7 +345,6 @@ renderSystemPlot <- function(id) {
 #### DISPLAY CHART ###
 renderSystemPlot("sys_act_summary_ui_chart")
 renderSystemPlot("sys_act_detail_ui_chart")
-renderSystemPlot("sys_act_monthly_ui_chart")
 
 sys_inflow_outflow_export_info <- function(df) {
   tibble(
@@ -423,3 +427,94 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
     )
   }
 )
+
+# Month-by-Month Chart+Table ----------------------------------------------
+output$sys_act_monthly_ui_chart <- renderPlot({
+  data <- sys_inflow_outflow_monthly_data()
+  
+  # Find max inflow and min outflow for highlighting
+  max_inflow <- data[which.max(`Monthly Change`), month]
+  min_outflow <- data[which.min(`Monthly Change`), month]
+  
+  plot_data <- rbindlist(list(
+    data[, .(month = month, 
+             Count = Inflow, 
+             Flow_Type = "Inflow",
+             highlight = month == max_inflow)],
+    data[, .(month = month, 
+             Count = Outflow, 
+             Flow_Type = "Outflow",
+             highlight = month == min_outflow)]
+  ))[, month := factor(plot_data$month, levels = month.abb)]
+  
+  setorder(plot_data, month)
+
+  ggplot(plot_data, 
+         aes(x = month, y = Count, fill = Flow_Type, alpha = highlight, group=Flow_Type)) +
+    geom_col(position = position_dodge(preserve="single"), width = 0.5) +
+    geom_col(data = plot_data[highlight == TRUE],
+             aes(x = month, y = Count, fill = Flow_Type, group=Flow_Type),
+             position = position_dodge(preserve = "single"),
+             width = 0.5,
+             color = "black",
+             alpha = 0.6) +
+    scale_fill_manual(values = c("Inflow" = "#BDB6D7", "Outflow" = "#7F5D9D")) +
+    scale_alpha_manual(values = c("TRUE" = 0.6, "FALSE" = 1), guide = "none") +
+    theme_minimal() +
+    labs(
+      title = "Monthly Homeless Population Flow",
+      x = "Month",
+      y = paste0("Count of ", case_when(
+        input$syso_level_of_detail == "All" ~ "People",
+        input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
+        TRUE ~
+          getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+      )),
+      fill = "Flow Type"
+    ) +
+    theme(
+      axis.text = element_blank(),
+      axis.title.x = element_blank(), 
+      axis.title.y = element_text(),   
+      legend.position = "none",
+      panel.grid = element_blank(),        # Remove gridlines
+      axis.line.y = element_blank(), 
+      axis.line.x = element_line(),          # Remove axis lines
+      plot.margin = margin(l = 48),        # Increase left margin
+      axis.ticks = element_blank()
+      
+    )
+})
+
+# Create summary table
+output$sys_act_monthly_table <- renderDT({
+  summary_data <- dcast(
+    melt(sys_inflow_outflow_monthly_data(), id.vars = "month", variable.name = "Type"),
+    Type ~ month,
+    value.var = "value"
+  )
+  
+  datatable(summary_data,
+            options = list(
+              dom = 't',
+              ordering = FALSE,
+              pageLength = 3,
+              columnDefs = list(
+                list(
+                  width = "48px",    # Set to specific width
+                  targets = 0
+                )  
+              )
+            ),
+            rownames = FALSE) # %>%
+  # formatStyle(
+  #   names(summary_data)[-1],
+  #   backgroundColor = styleEqual(
+  #     c(max(summary_data[Type == "Monthly Change", -1]), 
+  #       min(summary_data[Type == "Monthly Change", -1])),
+  #     c("#BDB6D7", "#7F5D9D")
+  #   ),
+  #   target = "cell",
+  #   subset = summary_data$Type == "Monthly Change"
+  # )
+})

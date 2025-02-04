@@ -20,6 +20,7 @@ function(input, output, session) {
     valid_file <- reactiveVal(0), # from FSA. Most stuff is hidden unless valid == 1
     file_structure_analysis_main <- reactiveVal(),
     sys_inflow_outflow_plot_data <- reactiveVal(),
+    sys_inflow_outflow_monthly_data <- reactiveVal(),
     sys_df_people_universe_filtered_r <- reactiveVal(),
     sys_universe_ppl_flags <- reactiveVal(),
     ReportStart <- reactiveVal(),
@@ -204,13 +205,16 @@ function(input, output, session) {
             # used to create inflow/outflow charts and sankey/status dataset
             sys_inflow_outflow_plot_data(inflow_outflow_df())
             exportTestValues(universe_ppl_flags = universe_ppl_flags() %>% nice_names())
-
+            
+            sys_inflow_outflow_monthly_data(sys_act_monthly_df())
+            
             # System Composition/Demographics data for chart
             sys_df_people_universe_filtered_r(
+              
               merge(
-                enrollment_categories(ReportStart(), ReportEnd()) %>%
+                enrollment_categories_filtered_dfs[["Full"]] %>%
                   select(PersonalID, lookback, lecr, eecr, CorrectedHoH),
-                client_categories(ReportStart(), ReportEnd()),
+                client_categories_filtered(),
                 by = "PersonalID",
                 all = TRUE) %>%
                 filter(!(lookback == 0 &
@@ -219,7 +223,7 @@ function(input, output, session) {
                 filter(max(lecr, na.rm = TRUE) == 1 &
                          max(eecr, na.rm = TRUE) == 1) %>%
                 ungroup() %>%
-                select(colnames(client_categories(ReportStart(), ReportEnd()))) %>%
+                select(colnames(client_categories_filtered())) %>%
                 unique()
             )
             
@@ -229,7 +233,9 @@ function(input, output, session) {
             # Client-level download
             sys_universe_ppl_flags(
               merge(
-                universe_ppl_flags(),
+                universe_ppl_flags(
+                  universe(enrollment_categories_filtered_dfs[["Full"]])
+                ),
                 Client %>% select(PersonalID, !!gender_cols, !!race_cols), 
                 by="PersonalID"
               )
