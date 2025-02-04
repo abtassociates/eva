@@ -1124,21 +1124,16 @@ sys_act_monthly_df <- function() {
   monthly_universe_ppl_flags <- rbindlist(
     lapply(names(enrollment_categories_filtered_dfs[-1]), function(month) {
       universe_ppl_flags(
-        universe(enrollment_categories_filtered_dfs[[month]]) %>% 
-          mutate(month = month)
-      )
+        universe(enrollment_categories_filtered_dfs[[month]])
+      )[, month := month]
     })
-  )
-
-  monthly_universe_ppl_flags[, {
+  )[, .(
     # Count unique PersonalIDs for each category using system flow logic
-    Inflow <- uniqueN(PersonalID[InflowTypeSummary == "Inflow"])
-    
-    Outflow <- uniqueN(PersonalID[OutflowTypeSummary == "Outflow"])
-    
-    .(Inflow = Inflow,
-      Outflow = Outflow,
-      `Monthly Change` = Inflow - Outflow)
-  }, by = month
-  ]
+    Inflow = uniqueN(PersonalID[InflowTypeSummary == "Inflow"]),
+    Outflow = uniqueN(PersonalID[OutflowTypeSummary == "Outflow"])
+  ), by = month
+  ][, `:=`(
+    `Monthly Change` = Inflow - Outflow,
+    month = factor(month, levels = month.abb)
+  )]
 }
