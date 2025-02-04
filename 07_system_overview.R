@@ -360,16 +360,17 @@ get_period_specific_enrollment_categories <- function(reportDates) {
   ]
 }
 
+months_in_report_period <- seq.Date(from = ReportStart(), to = ReportEnd(), by = "months")
 reportDates <- c(
-  list("Full" = c(as.Date("2023-01-01"), as.Date("2024-01-01"))),
+  list("Full" = c(ReportStart(), ReportEnd())),
   setNames(
     lapply(
-      seq.Date(from = as.Date("2023-01-01"), to = as.Date("2023-12-01"), by = "months"),
+      months_in_report_period,
       function(d) {
         c(d, ceiling_date(d, "month") - days(1))
       }
     ),
-    format(seq.Date(from = as.Date("2023-01-01"), to = as.Date("2023-12-01"), by = "months"), "%b")
+    format(months_in_report_period, "%b")
   )
 )
 
