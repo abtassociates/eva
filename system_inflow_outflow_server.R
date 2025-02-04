@@ -432,37 +432,25 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
 output$sys_act_monthly_ui_chart <- renderPlot({
   data <- sys_inflow_outflow_monthly_data()
   
-  # Find max inflow and min outflow for highlighting
-  max_inflow <- data[which.max(`Monthly Change`), month]
-  min_outflow <- data[which.min(`Monthly Change`), month]
-  
+  # create and append inflow and outflow bar datasets
   plot_data <- rbindlist(list(
     data[, .(month = month, 
              Count = Inflow, 
-             Flow_Type = "Inflow",
-             highlight = month == max_inflow)],
+             Flow_Type = "Inflow")],
     data[, .(month = month, 
              Count = Outflow, 
-             Flow_Type = "Outflow",
-             highlight = month == min_outflow)]
-  ))[, month := factor(plot_data$month, levels = month.abb)]
-  
-  setorder(plot_data, month)
+             Flow_Type = "Outflow")]
+  ))
 
   ggplot(plot_data, 
-         aes(x = month, y = Count, fill = Flow_Type, alpha = highlight, group=Flow_Type)) +
-    geom_col(position = position_dodge(preserve="single"), width = 0.5) +
-    geom_col(data = plot_data[highlight == TRUE],
-             aes(x = month, y = Count, fill = Flow_Type, group=Flow_Type),
-             position = position_dodge(preserve = "single"),
-             width = 0.5,
-             color = "black",
-             alpha = 0.6) +
+         aes(x = month, y = Count, fill = Flow_Type, group=Flow_Type)) +
+    geom_col(position = position_dodge(
+      preserve="single", 
+      width = 0.6 # space between bars within a group
+    ), width = 0.5) + # width of bar
     scale_fill_manual(values = c("Inflow" = "#BDB6D7", "Outflow" = "#7F5D9D")) +
-    scale_alpha_manual(values = c("TRUE" = 0.6, "FALSE" = 1), guide = "none") +
     theme_minimal() +
     labs(
-      title = "Monthly Homeless Population Flow",
       x = "Month",
       y = paste0("Count of ", case_when(
         input$syso_level_of_detail == "All" ~ "People",
@@ -472,27 +460,31 @@ output$sys_act_monthly_ui_chart <- renderPlot({
       )),
       fill = "Flow Type"
     ) +
+    scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + #increase space between groups
     theme(
       axis.text = element_blank(),
       axis.title.x = element_blank(), 
-      axis.title.y = element_text(),   
+      axis.title.y = element_text(size = 15),   
       legend.position = "none",
       panel.grid = element_blank(),        # Remove gridlines
       axis.line.y = element_blank(), 
       axis.line.x = element_line(),          # Remove axis lines
-      plot.margin = margin(l = 48),        # Increase left margin
-      axis.ticks = element_blank()
-      
+      plot.margin = margin(l = 57),        # Increase left margin
+      axis.ticks = element_blank(),
+      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 })
 
 # Create summary table
 output$sys_act_monthly_table <- renderDT({
-  summary_data <- dcast(
+  summary_data <- suppressWarnings(dcast(
     melt(sys_inflow_outflow_monthly_data(), id.vars = "month", variable.name = "Type"),
     Type ~ month,
     value.var = "value"
-  )
+  ))
+  
+  max_change <- max(summary_data[Type == "Monthly Change", -1, with = FALSE])
+  min_change <- min(summary_data[Type == "Monthly Change", -1, with = FALSE])
   
   datatable(summary_data,
             options = list(
@@ -503,18 +495,39 @@ output$sys_act_monthly_table <- renderDT({
                 list(
                   width = "48px",    # Set to specific width
                   targets = 0
-                )  
+                ),
+                # center table text
+                list(
+                  className = 'dt-center',
+                  targets = '_all'  
+                )
               )
             ),
-            rownames = FALSE) # %>%
-  # formatStyle(
-  #   names(summary_data)[-1],
-  #   backgroundColor = styleEqual(
-  #     c(max(summary_data[Type == "Monthly Change", -1]), 
-  #       min(summary_data[Type == "Monthly Change", -1])),
-  #     c("#BDB6D7", "#7F5D9D")
-  #   ),
-  #   target = "cell",
-  #   subset = summary_data$Type == "Monthly Change"
-  # )
+            rownames = FALSE)  %>%
+    formatStyle(
+      names(summary_data),
+      backgroundColor = styleEqual(
+        c(
+          max_change,
+          min_change,
+          "Inflow",
+          "Outflow"
+        ),
+        c(
+          scales::alpha("#BDB6D7", 0.5),  # 50% transparency for max
+          scales::alpha("#7F5D9D", 0.5),  # 50% transparency for min
+          "#BDB6D7", 
+          "#7F5D9D"
+        )
+      ),
+      border = styleEqual(
+        c("Inflow", "Outflow", max_change, min_change),  # Match values where highlight=1 and max/min values
+        c(
+          "2px solid black",     # For highlighted cells
+          "2px solid black",     # For highlighted cells
+          "2px solid black",     # For max value
+          "2px solid black"      # For min value
+        )
+      )
+    )
 })
