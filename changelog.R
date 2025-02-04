@@ -2,13 +2,14 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
-    "1-23-2024",
+    "1-30-2024",
     "<b>New Features</b> <br>
       - Added client-level export to the System Performance tab to provide transparency
       in the charts<br>
      <b>Bug Fixes:</b> <br>
       - Fixed display of missing geography and address warnings for PDDE.<br>
       - Only flag residential projects for Active Inventory PDDE check.<br>
+      - Only reference active inventory records to check bed type compatibility with housing type.<br>
       - Fixed edge case detection of NbN overlaps; i.e., too many duplicates caused a join error and crashed Eva.<br>
       - Fixed issue in how the Age and Race filter selections are displayed in the System Exports.",
     "12-31-2024",
