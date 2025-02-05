@@ -68,8 +68,8 @@ function(input, output, session) {
   # syso_gender_cats <- reactive({
   #   ifelse(
   #     input$methodology_type == 1,
-  #     list(syso_gender_excl),
-  #     list(syso_gender_incl)
+  #     list(syso_gender_method1),
+  #     list(syso_gender_method2)
   #   )[[1]]
   # })
   

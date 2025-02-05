@@ -160,12 +160,11 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   
   colTypes <- get_col_types(upload_filepath, csvFile)
 
-  data <-
-    read_csv(
-      filename,
-      col_types = colTypes,
-      na = ""
-    )
+  data <- read_csv(
+    filename,
+    col_types = colTypes,
+    na = ""
+  )
     # AS 5/29/24: This seems a bit faster, but has problems with missing columns, 
     # like DateDeleted in Client.csv. they come inas character, and not NA
     # data.table::fread(
@@ -174,35 +173,44 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     #   na.strings="NA"
     # )
 
-  
   if(csvFile != "Export"){
     data <- data %>%
       filter(is.na(DateDeleted))
   }
-
+  
+  attr(data, "encoding") <- guess_encoding(filename)$encoding[1]
+  data <- convert_data_to_utf8(data)
+  
   return(data)
 }
 
-get_col_types <- function(filepath) {
+get_col_types <- function(upload_filepath, file) {
   # returns the datatypes as a concatenated string, based on the order
   # of the columns in the imported file, rather than the expected order
   # e.g. "ccccDDnnnnnnnnTTcTc"
   
   # get the column data types expected for the given file
   col_types <- cols_and_data_types %>%
-    filter(File == basename(tools::file_path_sans_ext(filepath))) %>%
+    filter(File == file) %>%
     mutate(DataType = data_type_mapping[as.character(DataType)])
   
   # get the columns in the order they appear in the imported file
+  filename = paste0(file, ".csv")
+  if(!is.null(upload_filepath))
+    filename = utils::unzip(zipfile = upload_filepath, files=filename)
+  
   cols_in_file <- colnames(read.table(
-    filepath,
+    filename,
     head = TRUE,
     nrows = 1,
-    sep = ","))
+    sep = ",", 
+    comment.char = ""))
   
   # get the data types for those columns
   data_types <- sapply(cols_in_file, function(col_name) {
-    col_types$DataType[col_types$Column == col_name]
+    ifelse(col_name %in% col_types$Column,
+           col_types$DataType[col_types$Column == col_name],
+           "c")
   })
   
   return(paste(data_types, collapse = ""))
@@ -253,7 +261,8 @@ logSessionData <- function() {
     SourceContactFirst = Export()$SourceContactFirst,
     SourceContactLast = Export()$SourceContactLast,
     SourceContactEmail = Export()$SourceContactEmail,
-    SoftwareName = Export()$SoftwareName
+    SoftwareName = Export()$SoftwareName,
+    ImplementationID = Export()$ImplementationID
   )
   
   # put the export info in the log
@@ -336,11 +345,12 @@ fy22_to_fy24_living_situation <- function(value){
 # Sandbox -----------------------------------------------------------------
 
 importFileSandbox <- function(csvFile) {
-  filepath <- glue("{directory}data/{csvFile}.csv")
-  return(read_csv(filepath
-                   ,col_types = get_col_types(filepath)
+  filename = str_glue("{csvFile}.csv")
+  data <- read_csv(paste0(directory, "data/", filename)
+                   ,col_types = get_col_types(csvFile)
                    ,na = ""
-  ))
+  )
+  return(data)
 }
 
 
@@ -403,6 +413,36 @@ custom_rprof <- function(expr, source_file_name, code_block_name = NULL) {
 
 
 # Misc --------------------------------------------------------------------
+reset_postvalid_components <- function() {
+  dq_main_df(NULL)
+  session$sendInputMessage('orgList', list(choices = NULL))
+  session$sendInputMessage('currentProviderList', list(choices = NULL))
+  session$sendCustomMessage('dateRangeCount', list(
+    min = NULL,
+    start = ymd(today()),
+    max = NULL,
+    end = ymd(today())
+  ))
+  pdde_main(NULL)
+  
+  shinyjs::hide("sys_inflow_outflow_download_btn")
+  shinyjs::hide("sys_inflow_outflow_download_btn_ppt")
+  
+  shinyjs::hide("sys_status_download_btn")
+  shinyjs::hide("sys_status_download_btn_ppt")
+  
+  shinyjs::hide("sys_comp_download_btn")
+  shinyjs::hide("sys_comp_download_btn_ppt")
+}
+
+# essentially resets the app
+reset_app <- function() {
+  lapply(visible_reactive_vals, function(r) r(NULL))
+  valid_file(0)
+  initially_valid_import(0)
+  windowSize(input$dimension)
+  reset_postvalid_components()
+}
 
 getNameByValue <- function(vector, val) {
   return(
@@ -427,4 +467,55 @@ any_cols_selected_except <- function(df, list, exception) {
 min_cols_selected_except <- function(df, list, exception, num_cols_selected) {
   rowSums(df[exception], na.rm = TRUE) == 0 &
     rowSums(df[setdiff(list, exception)], na.rm = TRUE) >= num_cols_selected
+}
+
+
+summarize_df <- function(df) {
+  lapply(df, function(col) {summary(col)})
+}
+
+
+replace_char_at <- function(string, position, replacement) {
+  paste0(
+    substr(string, 1, position - 1),
+    replacement,
+    substr(string, position + 1, nchar(string))
+  )
+}
+
+# interpret the data in their original encoding, so they display nicely
+# The resulting characters are almost always UTF-8 characters
+# While a byte sequence may not be UTF-8, the character itself usually has a UTF-8 representation
+# So, e.g., if there's a ‰ in a Windows-encoded file, we want to interpret
+# as Windows, so it will display ‰, rather than the Windows+non-UTF8 byte \x89
+# But if there's a ‰ in a UTF-8 encoded file, it's already been interpreted correctly
+convert_data_to_utf8 <- function(data) {
+  file_encoding <- attr(data, "encoding")
+  if(file_encoding %in% c("UTF-8","ASCII")) return(data)
+  
+  dt <- as.data.table(data)
+  
+  # Fix encoding in all character columns in place
+  for (col in names(dt)) {
+    if (is.character(dt[[col]])) {
+      # Original column before conversion
+      original_col <- dt[[col]]
+      
+      # Interpret characters in a non-UTF-8 encoded file correctly
+      # E.g. ‰ in a UTF-8 file, will come in as ‰ and should not be 
+      if(is.na(file_encoding)) file_encoding <- "ISO-8559-1"
+
+      tryCatch({
+        converted_col <- iconv(original_col, from = file_encoding, to = "UTF-8")  
+        # Identify changes by comparing original and converted values
+        if (length(which(original_col != converted_col)) > 0) {
+          dt[[col]] <- converted_col
+        }
+      }, error = function(e) {
+        print("Conversion failed! Unknown encoding!")
+      })      
+    }
+  }
+  
+ return(as_tibble(dt))
 }

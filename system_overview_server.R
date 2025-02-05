@@ -98,7 +98,7 @@ syso_detailBox <- reactive({
     
     #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
     HTML(glue(
-      "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$methodology_type), start = 1, end = 19)} <br>"
+      "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$methodology_type), start = 1, end = 8)} <br>"
     )),
     
     if (length(input$syso_age) != length(syso_age_cats))
@@ -221,15 +221,15 @@ sys_export_filter_selections <- function() {
 syso_race_ethnicity_cats <- function(methodology = 1){
   ifelse(
     methodology == 1,
-    list(syso_race_ethnicity_excl),
-    list(syso_race_ethnicity_incl)
+    list(syso_race_ethnicity_method1),
+    list(syso_race_ethnicity_method2)
   )[[1]]
 }
 
 syso_gender_cats <- function(methodology = 1){
   ifelse(methodology == 1,
-         list(syso_gender_excl),
-         list(syso_gender_incl))[[1]]
+         list(syso_gender_method1),
+         list(syso_gender_method2))[[1]]
 }
 
 # PowerPoint Export -------------------------------------------------------
@@ -389,16 +389,16 @@ output$client_level_download_btn <- downloadHandler(
       "DifferentIdentity",
       "GenderUnknown",
       
-      "TransgenderExclusive",
-      "GenderExpansiveExclusive",
-      "ManExclusive",
-      "WomanExclusive",
+      "TransgenderMethod1",
+      "GenderExpansiveMethod1",
+      "ManMethod1",
+      "WomanMethod1",
       
-      "TransgenderInclusive",
-      "WomanInclusive",
-      "ManInclusive",
-      "WomanOrManOnlyInclusive",
-      "NonBinaryInclusive",
+      "TransgenderMethod2",
+      "WomanMethod2",
+      "ManMethod2",
+      "WomanOrManOnlyMethod2",
+      "NonBinaryMethod2",
       
       "AmIndAKNative",
       "Asian",
@@ -409,36 +409,36 @@ output$client_level_download_btn <- downloadHandler(
       "White",
       "RaceEthnicityUnknown",
       
-      "AmIndAKNativeAloneExclusive1",
-      "AmIndAKNativeLatineExclusive1",
-      "AsianAloneExclusive1",
-      "AsianLatineExclusive1",
-      "BlackAfAmericanAloneExclusive1",
-      "BlackAfAmericanLatineExclusive1",
-      "LatineAloneExclusive1",
-      "MidEastNorAfAloneExclusive1" = "MENAAloneExclusive1",
-      "MidEastNorAfLatineExclusive1" = "MENALatineExclusive1",
-      "NativeHIPacificAloneExclusive1",
-      "NativeHIPacificLatineExclusive1",
-      "WhiteAloneExclusive1",
-      "WhiteLatineExclusive1",
-      "MultipleNotLatineExclusive1",
-      "MultipleLatineExclusive1",
+      "AmIndAKNativeAloneMethod1Detailed",
+      "AmIndAKNativeLatineMethod1Detailed",
+      "AsianAloneMethod1Detailed",
+      "AsianLatineMethod1Detailed",
+      "BlackAfAmericanAloneMethod1Detailed",
+      "BlackAfAmericanLatineMethod1Detailed",
+      "LatineAloneMethod1Detailed",
+      "MidEastNAfricanAloneMethod1Detailed",
+      "MidEastNAfricanLatineMethod1Detailed",
+      "NativeHIPacificAloneMethod1Detailed",
+      "NativeHIPacificLatineMethod1Detailed",
+      "WhiteAloneMethod1Detailed",
+      "WhiteLatineMethod1Detailed",
+      "MultipleNotLatineMethod1Detailed",
+      "MultipleLatineMethod1Detailed",
       
-      "BILPOCExclusive2",
-      "WhiteExclusive2",
+      "BILPOCMethod1Summarized",
+      "WhiteMethod1Summarized",
       
-      "AmIndAKNativeInclusive1",
-      "AsianInclusive1",
-      "BlackAfAmericanInclusive1",
-      "LatineInclusive1",
-      "MidEastNorAfInclusive1" = "MENAInclusive1",
-      "NativeHIPacificInclusive1",
-      "WhiteInclusive1",
+      "AmIndAKNativeMethod2Detailed",
+      "AsianMethod2Detailed",
+      "BlackAfAmericanMethod2Detailed",
+      "LatineMethod2Detailed",
+      "MidEastNAfricanMethod2Detailed",
+      "NativeHIPacificMethod2Detailed",
+      "WhiteMethod2Detailed",
       
-      "BlackAfAmericanLatineInclusive2",
-      "LatineInclusive2",
-      "LatineAloneInclusive2"
+      "BlackAfAmericanLatineMethod2Summarized",
+      "LatineMethod2Summarized",
+      "LatineAloneMethod2Summarized"
     )
     
     report_status_fields <- c(
