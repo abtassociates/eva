@@ -7,6 +7,7 @@ output$changelog <- renderDT({
       - Updated demo.zip to capture new overlaps.<br>
       - Modified upload-related pop-ups to be more informative. <br>
       - Added Project Type to PDDE export (Issue <a href='https://github.com/abtassociates/eva/issues/641' target='_blank'>#641</a>)<br>
+      - Rejecting HMIS zip files containing Export.csv with more than one row. This scenario will be captured as a High-Priority error.<br>
      <b>Bug Fixes:</b> <br>
       - Only flagging Missed Move-In if relationship to HoH is 1 (Issue <a href='https://github.com/abtassociates/eva/issues/650' target='_blank'>#650</a>)<br>
       - Fixed NbN overlap detection. An NbN and an EE overlap if the first and last

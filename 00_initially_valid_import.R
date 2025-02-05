@@ -116,10 +116,10 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       title = "Unsuccessful Upload: You uploaded an unhashed data set"
     )
     logMetadata("Unsuccessful upload - not hashed")
-  } else if(importFile(upload_filepath, "Export") %>% nrow() != 1) {
+  } else if(Export() %>% nrow() > 1) {
     show_invalid_popup(
       issueID = 140,
-      title = "Unsuccessful Upload: You uploaded an Export.csv file containing more than 1 row. Export.csv should only have one row."
+      title = "Unsuccessful Upload: You uploaded an Export.csv file containing more than 1 row. Export.csv should only have 1 row."
     )
     logMetadata("Unsuccessful upload - Export.csv has more than 1 row")
   } else {
