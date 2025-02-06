@@ -6,13 +6,13 @@ output$changelog <- renderDT({
     "<b>New Features</b> <br>
       - Added client-level export to the System Performance tab to provide transparency
       in the charts<br>
-      - Added check for Exports having more than 1 row.<br>
+      - Rejecting HMIS zip files containing Export.csv with more than one row. This scenario will be captured as a High-Priority error.<br>
      <b>Bug Fixes:</b> <br>
       - Fixed display of missing geography and address warnings for PDDE.<br>
-      - Only flag residential projects for Active Inventory PDDE check.<br>
-      - Only reference active inventory records to check bed type compatibility with housing type.<br>
+      - Only flag residential projects for Active Inventory PDDE check. (Issue <a href='https://github.com/abtassociates/eva/issues/678' target='_blank'>#678</a>)<br>
+      - Only reference active inventory records to check bed type compatibility with housing type. (Issue <a href='https://github.com/abtassociates/eva/issues/680' target='_blank'>#680</a>)<br>
       - Fixed issue in how the Age and Race filter selections are displayed in the System Exports.<br>
-      - Fixed issue in bracket detection and handling of non-UTF8 encodings that could lead to crashing Eva.<br>
+      - Fixed issue in bracket detection and handling of non-UTF8 encodings that could lead to crashing Eva. (Issue <a href='https://github.com/abtassociates/eva/issues/698' target='_blank'>#698</a>)<br>
       - Fixed issue in display of Race and Gender filter selections in System Performance exports.<br>
     <b>Miscellanous Changes:</b> <br>
       - Updated System Performance Methodology Type terms to \"Method 1\" and \"Method 2\" from \"Exclusive\" and \"Inclusive.\" Renamed related demographic columns to align with new Methodology Type terms.",
@@ -21,7 +21,6 @@ output$changelog <- renderDT({
       - Updated demo.zip to capture new overlaps.<br>
       - Modified upload-related pop-ups to be more informative. <br>
       - Added Project Type to PDDE export (Issue <a href='https://github.com/abtassociates/eva/issues/641' target='_blank'>#641</a>)<br>
-      - Rejecting HMIS zip files containing Export.csv with more than one row. This scenario will be captured as a High-Priority error.<br>
      <b>Bug Fixes:</b> <br>
       - Only flagging Missed Move-In if relationship to HoH is 1 (Issue <a href='https://github.com/abtassociates/eva/issues/650' target='_blank'>#650</a>)<br>
       - Fixed NbN overlap detection. An NbN and an EE overlap if the first and last
