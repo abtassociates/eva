@@ -2,16 +2,21 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
-    "1-30-2024",
+    "02-06-2024",
     "<b>New Features</b> <br>
       - Added client-level export to the System Performance tab to provide transparency
       in the charts<br>
+      - Added check for Exports having more than 1 row.<br>
      <b>Bug Fixes:</b> <br>
       - Fixed display of missing geography and address warnings for PDDE.<br>
       - Only flag residential projects for Active Inventory PDDE check.<br>
       - Only reference active inventory records to check bed type compatibility with housing type.<br>
       - Fixed edge case detection of NbN overlaps; i.e., too many duplicates caused a join error and crashed Eva.<br>
-      - Fixed issue in how the Age and Race filter selections are displayed in the System Exports.",
+      - Fixed issue in how the Age and Race filter selections are displayed in the System Exports.<br>
+      - Fixed issue in bracket detection and handling of non-UTF8 encodings that could lead to crashing Eva.<br>
+      - Fixed issue in display of Race and Gender filter selections in System Performance exports.<br>
+    <b>Miscellanous Changes:</b> <br>
+      - Modified System Performance filter text to align with HUD guidance.",
     "12-31-2024",
     "<b>New features:</b> <br>
       - Updated demo.zip to capture new overlaps.<br>
