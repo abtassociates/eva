@@ -15,7 +15,7 @@ output$changelog <- renderDT({
       - Fixed issue in bracket detection and handling of non-UTF8 encodings that could lead to crashing Eva.<br>
       - Fixed issue in display of Race and Gender filter selections in System Performance exports.<br>
     <b>Miscellanous Changes:</b> <br>
-      - Modified System Performance filter text to align with HUD guidance.",
+      - Updated System Performance Methodology Type terms to \"Method 1\" and \"Method 2\" from \"Exclusive\" and \"Inclusive.\" Renamed related demographic columns to align with new Methodology Type terms.",
     "12-31-2024",
     "<b>New features:</b> <br>
       - Updated demo.zip to capture new overlaps.<br>
