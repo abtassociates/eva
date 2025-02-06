@@ -116,6 +116,14 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       title = "Unsuccessful Upload: You uploaded an unhashed data set"
     )
     logMetadata("Unsuccessful upload - not hashed")
+  } else if(Export() %>% nrow() > 1) {
+    show_invalid_popup(
+      issueID = 140,
+      title = "Unsuccessful Upload: The Export.csv file in your uploaded .zip file contains more than 1 row. 
+      Export.csv should only have 1 row. Please upload a hashed HMIS CSV Export that meets all of HUD's specifications. 
+      If you are not sure how to resolve this issue, please contact your HMIS vendor."
+    )
+    logMetadata("Unsuccessful upload - Export.csv has more than 1 row")
   } else {
     initially_valid_import(1)
   }

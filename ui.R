@@ -1057,7 +1057,7 @@ dashboardPage(
                 pickerInput(
                   label = "Gender",
                   inputId = "syso_gender",
-                  choices = syso_gender_excl,
+                  choices = syso_gender_method1,
                   width = "100%",
                   selected = "All",
                   options = pickerOptions(actionsBox = TRUE)
@@ -1068,9 +1068,9 @@ dashboardPage(
                 pickerInput(
                   label = "Race/Ethnicity",
                   inputId = "syso_race_ethnicity",
-                  choices = syso_race_ethnicity_excl,
+                  choices = syso_race_ethnicity_method1,
                   width = "100%",
-                  selected = syso_race_ethnicity_excl,
+                  selected = syso_race_ethnicity_method1,
                   options = list(
                     `dropdown-align-right` = TRUE, 
                     `dropup-auto` = FALSE)
@@ -1457,14 +1457,15 @@ dashboardPage(
                                 
                                 ")
                   )
-                ),
+                ),  # end syso_comp_subtab tabbox
                 downloadButton("sys_comp_download_btn", "Data Download"),
                 downloadButton("sys_comp_download_btn_ppt", "Image Download"),
                 width = 12
-              )
-            )
-          )
-        )
+              ) #end syso_comp tabPanel
+            ), # end syso_tabbox
+            downloadButton("client_level_download_btn", "Client Level Download")
+          ) # end box
+        ) #end fluid row
       ),
       tabItem(
         tabName = "systemExitDetail",

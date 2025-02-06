@@ -93,15 +93,13 @@ missing_CoC_Geography <- missing_CoC_Info %>%
            is.na(CoCCode)) %>%
   merge_check_info(checkIDs = 5) %>%
   mutate(
-    Detail =gsub(
-      "(^|,)(\\s*,\\s*)", "\\1", # remove unwanted ", ," and ": ," patterns
-      paste0(
-        "This project is missing a valid: ",
-        if_else(is.na(Geocode), "Geocode", ""),
-        if_else(is.na(GeographyType), ", Geography Type", ""),
-        if_else(is.na(CoCCode), ", CoC Code", "")
-      )
-    )
+    Detail = paste0(
+      "This project is missing a valid: ",
+      if_else(is.na(Geocode), "Geocode, ", ""),
+      if_else(is.na(GeographyType), "Geography Type, ", ""),
+      if_else(is.na(CoCCode), "CoC Code, ", "")
+    ) %>%
+    str_remove(", $")
   ) %>%
   select(all_of(PDDEcols))
 
@@ -117,16 +115,14 @@ missing_CoC_Address <- missing_CoC_Info %>%
   ) %>%
   merge_check_info(checkIDs = 42) %>%
   mutate(
-    Detail = gsub(
-      "(^|,)(\\s*,\\s*)", "\\1", # remove unwanted ", ," and ": ," patterns
-      paste0(
-        "This project is missing a valid: ",
-        if_else(is.na(Address1), "Address", ""),
-        if_else(is.na(City), ", City", ""),
-        if_else(is.na(State), ", State", ""),
-        if_else(!str_detect(ZIP, "^[0-9]{5}(-[0-9]{4})?$") | is.na(ZIP), ", ZIP", "")
-      )
-    )
+    Detail = paste0(
+      "This project is missing a valid: ",
+      if_else(is.na(Address1), "Address", ""),
+      if_else(is.na(City), ", City", ""),
+      if_else(is.na(State), ", State", ""),
+      if_else(!str_detect(ZIP, "^[0-9]{5}(-[0-9]{4})?$") | is.na(ZIP), ", ZIP", "")
+    ) %>%
+      str_remove(", $")
   ) %>%
   select(all_of(PDDEcols))
 
@@ -454,8 +450,8 @@ overlapping_hmis_participation <- HMISParticipation %>%
 # Bed Type incompatible with Housing Type -----------------------------------
 # For ES projects, if HousingType is 1 or 2 (site-based), then BedType should be 1 (facility based beds). If HousingType is 3 (tenant-based), then BedType should be 2 (voucher beds).
 
-ES_BedType_HousingType <- Inventory %>%
-  left_join(Project0(), by = "ProjectID") %>%
+ES_BedType_HousingType <- activeInventory %>%
+  left_join(Project0() %>% select(ProjectID, ProjectType), by = "ProjectID") %>%
   left_join(HousingTypeDF, by = "ProjectID") %>% 
   filter(ProjectType %in% c(es_ee_project_type, es_nbn_project_type) &
            ((HousingType %in% c(client_single_site, client_multiple_sites) & ESBedType!=1) | (HousingType==tenant_scattered_site & ESBedType!=2)) 
@@ -471,6 +467,7 @@ ES_BedType_HousingType <- Inventory %>%
 activeInventory_COC_merged <- activeInventory %>% 
   mutate(ix=1) %>% 
   merge((ProjectCoC %>% select(ProjectID, CoCCode)) %>% mutate(iy=1), by = c("ProjectID", "CoCCode"), all=TRUE) %>%
+  merge((Project %>% select(ProjectID, ProjectType, RRHSubType)), by = c("ProjectID"), all=TRUE) %>%
   mutate(mer = case_when(ix==1&iy==1~'both',
                          ix==1~'only_x',
                          iy==1~'only_y')) %>%
@@ -480,7 +477,9 @@ activeInventory_COC_merged <- activeInventory %>%
 # Throw a warning if there is no inventory record for a ProjectID and COCCode combo in the ProjectCoC data
 
 Active_Inventory_per_COC <- activeInventory_COC_merged %>%
-  filter(mer=="only_y") %>% 
+  filter(mer=="only_y") %>%
+  filter(ProjectType %in% project_types_w_beds &
+           (RRHSubType == 2 | is.na(RRHSubType))) %>% 
   merge_check_info(checkIDs = 136) %>% 
   mutate(Detail = "Residential projects must have a bed inventory for each CoC they serve."
   ) %>%

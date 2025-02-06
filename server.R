@@ -21,6 +21,7 @@ function(input, output, session) {
     file_structure_analysis_main <- reactiveVal(),
     sys_inflow_outflow_plot_data <- reactiveVal(),
     sys_df_people_universe_filtered_r <- reactiveVal(),
+    sys_universe_ppl_flags <- reactiveVal(),
     ReportStart <- reactiveVal(),
     ReportEnd <- reactiveVal(),
     sankey_plot_data <- reactiveVal(),
@@ -67,8 +68,8 @@ function(input, output, session) {
   # syso_gender_cats <- reactive({
   #   ifelse(
   #     input$methodology_type == 1,
-  #     list(syso_gender_excl),
-  #     list(syso_gender_incl)
+  #     list(syso_gender_method1),
+  #     list(syso_gender_method2)
   #   )[[1]]
   # })
   
@@ -199,7 +200,11 @@ function(input, output, session) {
             input$syso_gender
             input$syso_race_ethnicity
           }, {
+            # System Inflow and Outflow data 
+            # used to create inflow/outflow charts and sankey/status dataset
             sys_inflow_outflow_plot_data(inflow_outflow_df())
+            
+            # System Composition/Demographics data for chart
             sys_df_people_universe_filtered_r(
               enrollment_categories_reactive() %>%
                 select(PersonalID, lookback, lecr, eecr, CorrectedHoH) %>%
@@ -213,7 +218,18 @@ function(input, output, session) {
                 select(colnames(client_categories)) %>%
                 unique()
             )
+            
+            # Sankey/System status data for chart
             sankey_plot_data(sankey_plot_df())
+            
+            # Client-level download
+            sys_universe_ppl_flags(
+              merge(
+                universe_ppl_flags(),
+                Client %>% select(PersonalID, !!gender_cols, !!race_cols), 
+                by="PersonalID"
+              )
+            )
             
             exportTestValues(sys_comp_df = sys_df_people_universe_filtered_r())
             
@@ -971,6 +987,7 @@ function(input, output, session) {
   source("system_status_server.R", local = TRUE)
   
   session$onSessionEnded(function() {
+    cat(paste0("Session ", session$token, " ended at ", Sys.time()))
     logMetadata("Session Ended")
   })
 }

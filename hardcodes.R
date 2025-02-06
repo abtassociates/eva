@@ -178,91 +178,90 @@ syso_age_cats <- c(
 gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
                    "DifferentIdentity", "Questioning", "GenderNone")
 
-syso_gender_incl <- list(
+syso_gender_method2 <- list(
   "All Genders" = "All",
-  "Gender expansive, including transgender" = "TransgenderInclusive",
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "CisInclusive",
-  "Man (Boy, if child) alone or in combination" = "ManInclusive",
-  "Non-Binary alone or in combination" = "NonBinaryInclusive",
-  "Woman (Girl, if child) alone or in combination" = "WomanInclusive"
+  "Gender expansive, including transgender" = "TransgenderMethod2",
+  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "WomanOrManOnlyMethod2",
+  "Man (Boy, if child) alone or in combination" = "ManMethod2",
+  "Non-Binary alone or in combination" = "NonBinaryMethod2",
+  "Woman (Girl, if child) alone or in combination" = "WomanMethod2"
 )
 
-syso_gender_excl <- list(
+syso_gender_method1 <- list(
   "All Genders" = "All",
-  "Gender expansive, not transgender" = "GenderExpansiveExclusive",
-  "Man (Boy, if child) alone" = "ManExclusive",
-  "Transgender, alone or in combination" = "TransgenderExclusive",
-  "Woman (Girl, if child) alone" = "WomanExclusive"
+  "Gender expansive, not transgender" = "GenderExpansiveMethod1",
+  "Man (Boy, if child) alone" = "ManMethod1",
+  "Transgender, alone or in combination" = "TransgenderMethod1",
+  "Woman (Girl, if child) alone" = "WomanMethod1"
 )
 
 race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
 
 
-syso_race_ethnicity_incl <- list(
+syso_race_ethnicity_method2 <- list(
   "All Races/Ethnicities" = "All",
   "Detailed" = c(
-    "American Indian, Alaska Native, or Indigenous inclusive" =
-      "AmIndAKNativeInclusive1",
-    "Asian or Asian American inclusive" =
-      "AsianInclusive1",
-    "Black, African American, or African inclusive" =
-      "BlackAfAmericanInclusive1",
-    "Hispanic/Latina/e/o inclusive" =
-      "LatineInclusive1",
-    "Middle Eastern or North African inclusive" =
-      "MENAInclusive1",
-    "Native Hawaiian or Pacific Islander inclusive" =
-      "NativeHIPacificInclusive1",
-    "White inclusive" =
-      "WhiteInclusive1"
+    "American Indian, Alaska Native, or Indigenous" =
+      "AmIndAKNativeMethod2Detailed",
+    "Asian or Asian American" =
+      "AsianMethod2Detailed",
+    "Black, African American, or African" =
+      "BlackAfAmericanMethod2Detailed",
+    "Hispanic/Latina/e/o" =
+      "LatineMethod2Detailed",
+    "Middle Eastern or North African" =
+      "MidEastNAfricanMethod2Detailed",
+    "Native Hawaiian or Pacific Islander" =
+      "NativeHIPacificMethod2Detailed",
+    "White" =
+      "WhiteMethod2Detailed"
   ),
   "Summarized" = c(
-    "Black, African American or African and Hispanic/Latina/e/o inclusive" =
-      "BlackAfAmericanLatineInclusive2",
+    "Black, African American or African and Hispanic/Latina/e/o" =
+      "BlackAfAmericanLatineMethod2Summarized",
     "Hispanic/Latina/e/o alone" =
-      "LatineAloneInclusive2",
-    "Hispanic/Latina/e/o inclusive" =
-      "LatineInclusive2"
+      "LatineAloneMethod2Summarized",
+    "Hispanic/Latina/e/o" =
+      "LatineMethod2Summarized"
   )
 )
-syso_race_ethnicity_excl <- list(
+syso_race_ethnicity_method1 <- list(
   "All Races/Ethnicities" = "All",
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous alone" =
-      "AmIndAKNativeAloneExclusive1",
+      "AmIndAKNativeAloneMethod1Detailed",
     "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" =
-      "AmIndAKNativeLatineExclusive1",
+      "AmIndAKNativeLatineMethod1Detailed",
     "Asian or Asian American alone" =
-      "AsianAloneExclusive1",
+      "AsianAloneMethod1Detailed",
     "Asian or Asian American & Hispanic/Latina/e/o" =
-      "AsianLatineExclusive1",
+      "AsianLatineMethod1Detailed",
     "Black, African American, or African alone" =
-      "BlackAfAmericanAloneExclusive1",
+      "BlackAfAmericanAloneMethod1Detailed",
     "Black, African American, or African & Hispanic/Latina/e/o" =
-      "BlackAfAmericanLatineExclusive1",
+      "BlackAfAmericanLatineMethod1Detailed",
     "Hispanic/Latina/e/o alone" =
-      "LatineAloneExclusive1",
+      "LatineAloneMethod1Detailed",
     "Middle Eastern or North African alone" =
-      "MENAAloneExclusive1",
+      "MidEastNAfricanAloneMethod1Detailed",
     "Middle Eastern or North African & Hispanic/Latina/e/o" =
-      "MENALatineExclusive1",
+      "MidEastNAfricanLatineMethod1Detailed",
     "Multi-Racial (not Hispanic/Latina/e/o)" =
-      "MultipleNotLatineExclusive1",
+      "MultipleNotLatineMethod1Detailed",
     "Multi-Racial & Hispanic/Latina/e/o" =
-      "MultipleLatineExclusive1",
+      "MultipleLatineMethod1Detailed",
     "Native Hawaiian or Pacific Islander alone" =
-      "NativeHIPacificAloneExclusive1",
+      "NativeHIPacificAloneMethod1Detailed",
     "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o" =
-      "NativeHIPacificLatineExclusive1" ,
+      "NativeHIPacificLatineMethod1Detailed" ,
     "White alone" =
-      "WhiteAloneExclusive1",
+      "WhiteAloneMethod1Detailed",
     "White & Hispanic/Latina/e/o" =
-      "WhiteLatineExclusive1"
+      "WhiteLatineMethod1Detailed"
   ),
-  "Summarized" = c("All People of Color" =
-                     "BILPOCExclusive2", "White alone" =
-                     "WhiteExclusive2")
+  "Summarized" = c("All People of Color" = "BILPOCMethod1Summarized",
+                   "White alone" = "WhiteMethod1Summarized")
 )
 
 # Special Populations -----------------------------------------------------
@@ -293,8 +292,8 @@ syso_spec_pops_people <- c(
 )
 
 syso_methodology_types <- c(
-  "Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category" = 1,
-  "Inclusive Groupings: A person may be counted in multiple gender and multiple race/ethnicity categories" = 2
+  "Method 1: A person is only counted in one gender and one race/ethnicity category" = 1,
+  "Method 2: A person may be counted in multiple gender and multiple race/ethnicity categories" = 2
 )
 
 syso_grouping_detail <- c(
