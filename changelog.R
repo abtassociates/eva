@@ -11,7 +11,6 @@ output$changelog <- renderDT({
       - Fixed display of missing geography and address warnings for PDDE.<br>
       - Only flag residential projects for Active Inventory PDDE check.<br>
       - Only reference active inventory records to check bed type compatibility with housing type.<br>
-      - Fixed edge case detection of NbN overlaps; i.e., too many duplicates caused a join error and crashed Eva.<br>
       - Fixed issue in how the Age and Race filter selections are displayed in the System Exports.<br>
       - Fixed issue in bracket detection and handling of non-UTF8 encodings that could lead to crashing Eva.<br>
       - Fixed issue in display of Race and Gender filter selections in System Performance exports.<br>
