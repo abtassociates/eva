@@ -6,6 +6,7 @@ output$changelog <- renderDT({
     "<b>New Features</b> <br>
       - Added client-level export to the System Performance tab to provide transparency
       in the charts<br>
+      - Rejecting HMIS zip files containing Export.csv with more than one row. This scenario will be captured as a High-Priority error.<br>
      <b>Bug Fixes:</b> <br>
       - Fixed display of missing geography and address warnings for PDDE.<br>
       - Only flag residential projects for Active Inventory PDDE check. (Issue <a href='https://github.com/abtassociates/eva/issues/678' target='_blank'>#678</a>)<br>
