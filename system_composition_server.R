@@ -664,6 +664,7 @@ output$sys_comp_download_btn <- downloadHandler(
       col_names = TRUE
     )
     
+    exportTestValues(sys_comp_df = sys_df_people_universe_filtered_r())
     exportTestValues(sys_comp_report_num_df = num_df)
     exportTestValues(sys_comp_report_pct_df = pct_df)
   }

@@ -22,7 +22,7 @@ function(input, output, session) {
     sys_inflow_outflow_plot_data <- reactiveVal(),
     sys_inflow_outflow_monthly_data <- reactiveVal(),
     sys_df_people_universe_filtered_r <- reactiveVal(),
-    sys_universe_ppl_flags <- reactiveVal(),
+    client_level_export_df <- reactiveVal(),
     ReportStart <- reactiveVal(),
     ReportEnd <- reactiveVal(),
     sankey_plot_data <- reactiveVal(),
@@ -185,9 +185,6 @@ function(input, output, session) {
 
           setProgress(detail = "Preparing System Overview Data", value = .85)
           source("07_system_overview.R", local = TRUE)
-
-          setProgress(detail = "Preparing Sankey Chart", value = .95)
-          source("09_system_status.R", local = TRUE)
           
           # if user changes filters, update the reactive vals
           # which get used for the various System Overview charts
@@ -201,48 +198,6 @@ function(input, output, session) {
             input$syso_gender
             input$syso_race_ethnicity
           }, {
-            # System Inflow and Outflow data 
-            # used to create inflow/outflow charts and sankey/status dataset
-            sys_inflow_outflow_plot_data(inflow_outflow_df())
-            exportTestValues(universe_ppl_flags = universe_ppl_flags() %>% nice_names())
-            
-            sys_inflow_outflow_monthly_data(sys_act_monthly_df())
-            
-            # System Composition/Demographics data for chart
-            sys_df_people_universe_filtered_r(
-              
-              merge(
-                enrollment_categories_filtered_dfs[["Full"]] %>%
-                  select(PersonalID, lookback, lecr, eecr, CorrectedHoH),
-                client_categories_filtered(),
-                by = "PersonalID",
-                all = TRUE) %>%
-                filter(!(lookback == 0 &
-                           eecr == FALSE & lecr == FALSE)) %>%
-                group_by(PersonalID) %>%
-                filter(max(lecr, na.rm = TRUE) == 1 &
-                         max(eecr, na.rm = TRUE) == 1) %>%
-                ungroup() %>%
-                select(colnames(client_categories_filtered())) %>%
-                unique()
-            )
-            
-            # Sankey/System status data for chart
-            sankey_plot_data(sankey_plot_df())
-            
-            # Client-level download
-            sys_universe_ppl_flags(
-              merge(
-                universe_ppl_flags(
-                  universe(enrollment_categories_filtered_dfs[["Full"]])
-                ),
-                Client %>% select(PersonalID, !!gender_cols, !!race_cols), 
-                by="PersonalID"
-              )
-            )
-            
-            exportTestValues(sys_comp_df = sys_df_people_universe_filtered_r())
-            
             # hide download buttons if < 11 records
             # All Served is handled in system_composition_server.R
             # for that chart, we also hide if all *cells* are < 11

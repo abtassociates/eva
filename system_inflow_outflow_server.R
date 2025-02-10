@@ -399,6 +399,8 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
       "Downloaded Sys Inflow Outflow Report",
       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
     ))
+    
+    exportTestValues(client_level_export_df = client_level_export_df() %>% nice_names())
     exportTestValues(sys_inflow_outflow_report = summarize_df(sys_inflow_outflow_plot_data()))
   }
 )
