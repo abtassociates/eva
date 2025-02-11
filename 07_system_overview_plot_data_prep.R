@@ -215,10 +215,10 @@ sankey_plot_data({
 })
 
 # Client-level download
-client_level_export_df({
+client_level_export_df(
   merge(
     period_specific_data()[["Full"]],
     Client %>% select(PersonalID, !!gender_cols, !!race_cols), 
     by="PersonalID"
   )
-})
+)

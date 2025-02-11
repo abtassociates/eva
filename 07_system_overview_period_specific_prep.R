@@ -16,7 +16,7 @@ report_dates <- c(
 # Enrollments-level flags, filtered---------------------------------------------
 enrollment_categories_filtered_df <- function(period, hh_type, level_detail, project_type) {
   # Get period-specific data (can be memoized as discussed earlier)
-  enrollment_categories_df <- session$userData$get_period_specific_enrollment_categories(period)
+  enrollment_categories_df <- session$userData$get_period_specific_enrollment_categories(period, input$imported)
   
   # Apply all filters at once and select needed columns
   enrollment_categories_df %>%
@@ -354,7 +354,7 @@ universe_ppl_flags <- function(universe_df) {
 
 ## NbN prep ----------------------------------------------------------------
 session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise(
-  function(report_period) {
+  function(report_period, imported) {
     startDate <- report_period[1]
     endDate <- report_period[2]
     nbn_enrollments_services <- Services %>%
@@ -407,7 +407,7 @@ session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise
 
 ## Get period-specific variables, like eecr and lecr -----------------
 session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
-  function(report_period) {
+  function(report_period, input$imported) {
     startDate <- report_period[1]
     endDate <- report_period[2]
     e <- enrollment_categories[, `:=`(
@@ -500,7 +500,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     
     merge(
       e, 
-      session$userData$get_period_specific_nbn_enrollment_services(report_period), 
+      session$userData$get_period_specific_nbn_enrollment_services(report_period, input$imported), 
       by = "EnrollmentID",
       all.x = T
     )[, `:=`(
@@ -531,6 +531,8 @@ period_specific_data <- reactive({
   check_cache_size(cache)
   
   cache_key <- digest::digest(list(
+    input$imported,
+    
     # Client-level filters
     input$syso_age,
     input$syso_gender,
