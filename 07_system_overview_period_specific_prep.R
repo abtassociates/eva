@@ -407,7 +407,7 @@ session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise
 
 ## Get period-specific variables, like eecr and lecr -----------------
 session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
-  function(report_period, input$imported) {
+  function(report_period, imported) {
     startDate <- report_period[1]
     endDate <- report_period[2]
     e <- enrollment_categories[, `:=`(

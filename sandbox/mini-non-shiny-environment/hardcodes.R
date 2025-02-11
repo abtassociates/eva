@@ -94,6 +94,14 @@ long_stayer_percentile_project_types <- c(0, 2, 3, 8, 9, 10, 12, 13)
 all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) 
 # All means All HUD-defined project types, so it excludes "Other"
 
+
+# Housing Types -------------------------------------------------
+
+client_single_site <- 1
+client_multiple_sites <- 2
+tenant_scattered_site <- 3
+
+
 # Funding Source Groupings -------------------------------------------------
 
 ssvf_fund_sources <- 33
@@ -135,8 +143,9 @@ syso_hh_types <- list(
   "All Household Types" = "All",
   "- Youth and Young Adult" = "YYA",
   "Adult Only" = "AO",
+  "- Adult Only 18-24" = "UY",
   "Adult Child" = "AC",
-  "- Parenting Youth" = "PY",
+  "- Parenting Young Adult" = "PY",
   "Child Only" = "CO"
 )
 
@@ -180,10 +189,10 @@ syso_gender_incl <- list(
 
 syso_gender_excl <- list(
   "All Genders" = "All",
-  "Gender expansive, not transgender" = "GenderExpansiveExclusive",
-  "Man (Boy, if child) alone" = "ManExclusive",
-  "Transgender, alone or in combination" = "TransgenderExclusive",
-  "Woman (Girl, if child) alone" = "WomanExclusive"
+  "Gender expansive, not transgender" = "GenderExpansiveMethod1",
+  "Man (Boy, if child) alone" = "ManMethod1",
+  "Transgender, alone or in combination" = "TransgenderMethod1",
+  "Woman (Girl, if child) alone" = "WomanMethod1"
 )
 
 race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
@@ -194,79 +203,79 @@ syso_race_ethnicity_incl <- list(
   "All Races/Ethnicities" = "All",
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous inclusive" =
-      "AmIndAKNativeInclusive1",
+      "AmIndAKNativeMethod2Detailed",
     "Asian or Asian American inclusive" =
-      "AsianInclusive1",
+      "AsianMethod2Detailed",
     "Black, African American, or African inclusive" =
-      "BlackAfAmericanInclusive1",
+      "BlackAfAmericanMethod2Detailed",
     "Hispanic/Latina/e/o inclusive" =
-      "LatineInclusive1",
+      "LatineMethod2Detailed",
     "Middle Eastern or North African inclusive" =
-      "MENAInclusive1",
+      "MENAMethod2Detailed",
     "Native Hawaiian or Pacific Islander inclusive" =
-      "NativeHIPacificInclusive1",
+      "NativeHIPacificMethod2Detailed",
     "White inclusive" =
-      "WhiteInclusive1"
+      "WhiteMethod2Detailed"
   ),
   "Summarized" = c(
     "Black, African American or African and Hispanic/Latina/e/o inclusive" =
-      "BlackAfAmericanLatineInclusive2",
+      "BlackAfAmericanLatineMethod2Summarized",
     "Hispanic/Latina/e/o alone" =
-      "LatineAloneInclusive2",
+      "LatineAloneMethod2Summarized",
     "Hispanic/Latina/e/o inclusive" =
-      "LatineInclusive2"
+      "LatineMethod2Summarized"
   )
 )
 syso_race_ethnicity_excl <- list(
   "All Races/Ethnicities" = "All",
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous alone" =
-      "AmIndAKNativeAloneExclusive1",
+      "AmIndAKNativeAloneMethod1Detailed",
     "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" =
-      "AmIndAKNativeLatineExclusive1",
+      "AmIndAKNativeLatineMethod1Detailed",
     "Asian or Asian American alone" =
-      "AsianAloneExclusive1",
+      "AsianAloneMethod1Detailed",
     "Asian or Asian American & Hispanic/Latina/e/o" =
-      "AsianLatineExclusive1",
+      "AsianLatineMethod1Detailed",
     "Black, African American, or African alone" =
-      "BlackAfAmericanAloneExclusive1",
+      "BlackAfAmericanAloneMethod1Detailed",
     "Black, African American, or African & Hispanic/Latina/e/o" =
-      "BlackAfAmericanLatineExclusive1",
+      "BlackAfAmericanLatineMethod1Detailed",
     "Hispanic/Latina/e/o alone" =
-      "LatineAloneExclusive1",
+      "LatineAloneMethod1Detailed",
     "Middle Eastern or North African alone" =
-      "MENAAloneExclusive1",
+      "MENAAloneMethod1Detailed",
     "Middle Eastern or North African & Hispanic/Latina/e/o" =
-      "MENALatineExclusive1",
+      "MENALatineMethod1Detailed",
     "Multi-Racial (not Hispanic/Latina/e/o)" =
-      "MultipleNotLatineExclusive1",
+      "MultipleNotLatineMethod1Detailed",
     "Multi-Racial & Hispanic/Latina/e/o" =
-      "MultipleLatineExclusive1",
+      "MultipleLatineMethod1Detailed",
     "Native Hawaiian or Pacific Islander alone" =
-      "NativeHIPacificAloneExclusive1",
+      "NativeHIPacificAloneMethod1Detailed",
     "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o" =
-      "NativeHIPacificLatineExclusive1" ,
+      "NativeHIPacificLatineMethod1Detailed" ,
     "White alone" =
-      "WhiteAloneExclusive1",
+      "WhiteAloneMethod1Detailed",
     "White & Hispanic/Latina/e/o" =
-      "WhiteLatineExclusive1"
+      "WhiteLatineMethod1Detailed"
   ),
   "Summarized" = c("All People of Color" =
-                     "BILPOCExclusive2", "White Only" =
-                     "WhiteExclusive2")
+                     "BILPOCMethod1Summarized", "White alone" =
+                     "WhiteMethod1Summarized")
 )
 
 # Special Populations -----------------------------------------------------
 
 syso_veteran_pops <- list(
   "Veteran" = "Veteran",
-  "Non-Veteran" = "NonVeteran"
+  "Non-Veteran/Unknown" = "NonVeteran"
 )
 
 syso_dv_pops <- list(
-  "Domestic Violence Survivor: Reported Currently Fleeing" = "DVFleeing",
-  "Domestic Violence Survivor: Reported Not Currently Fleeing" = "DVNotFleeing",
-  "Domestic Violence Survivor: Reported Total" = "DVTotal",
+  "Domestic Violence Survivor: Currently Fleeing" = "DVFleeing",
+  "Domestic Violence Survivor: Not Currently Fleeing" = "DVNotFleeing",
+  "Domestic Violence Survivor: Total" = "DVTotal",
   "No Domestic Violence Indicated" = "NotDV"
 )
 
@@ -276,16 +285,16 @@ syso_chronic_pops <- list(
 )
 
 syso_spec_pops_people <- c(
-  "All Populations" = "None",
+  "All Statuses" = "None",
   # "Inflow",
-  syso_veteran_pops,
-  syso_dv_pops#,
+  syso_veteran_pops#,
+  #syso_dv_pops,
   # syso_chronic_pops
 )
 
 syso_methodology_types <- c(
-  "Exclusive Groupings: A person is only counted in one gender and one race/ethnicity category" = 1,
-  "Inclusive Groupings: A person may be counted in multiple gender and multiple race/ethnicity categories" = 2
+  "Method 1: A person is only counted in one gender and one race/ethnicity category" = 1,
+  "Method 2: A person may be counted in multiple gender and multiple race/ethnicity categories" = 2
 )
 
 syso_grouping_detail <- c(
@@ -356,13 +365,34 @@ inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
 
 sys_comp_selection_choices = c(
   "Age", 
-  "Domestic Violence",
+  #"Domestic Violence", #VL 9/20/24: Not including this for launch
   "Gender",
-  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launc
+  # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
   "All Races/Ethnicities",
   "Grouped Races/Ethnicities",
-  "Veteran Status"
+  "Veteran Status (Adult Only)"
 )
 
 rm(inc_ncb_hi_required_prep)
 
+
+# Font sizing -------------------------------------------------------------
+# regular font can be set in css as pixels
+# geom_text or annotate are in mm, not points
+# element_text (for title, legend, axis labels, etc.) is in points, not mm
+  # http://www.cookbook-r.com/Graphs/Fonts/
+  # Also: https://www.christophenicault.com/post/understand_size_dimension_ggplot2/
+base_font_px <- 14 # 14px = 14*0.75 pts/px = 10.5pts = 10.5 pts = 3.7mm
+base_font_pts <- base_font_px*0.75
+base_font_mm <- base_font_pts / .pt # .pt is the constant to convert pt to mm (1pt = 3.5mm)
+
+dq_axis_font <- 12 # 12 pts = 16px
+sys_chart_text_font <- 14 / .pt # 14 pts = 4.92mm = 18.67px
+sys_chart_text_font_pts <- 14 # 14 pts = 4.92mm = 18.67px
+sys_axis_text_font <- 15 #15 pts = 22px
+sys_comp_axis_text_font <- 14 #14 pts = 22px
+sys_legend_text_font <- sys_axis_text_font #16 pts = 22px
+sys_chart_title_font <- sys_axis_text_font # 16 pts
+sys_chart_export_font_reduction <- 0.7
+ppt_summary_slide_font <- 19 # 19 pts = 25px
+ppt_chart_title_font_size <- 36

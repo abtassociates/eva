@@ -1,6 +1,7 @@
 ##### REPORTING COLUMNS ######
 # these are the main columns that we will report out in the app and exports
 clientCountDetailCols <- c("PersonalID",
+                           "EnrollmentID",
                            "RelationshipToHoH",
                            "EntryDate",
                            "MoveInDateAdjust",
@@ -54,6 +55,7 @@ client_count_data_df <- reactive({
     # make sure to include all columns that will be needed for the various uses
     select(
       PersonalID,
+      EnrollmentID,
       HouseholdID,
       RelationshipToHoH,
       EntryDate,
@@ -128,7 +130,7 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
     ) %>%
     distinct_at(vars(!!keepCols, Status, ProjectType, PersonalID)) %>%
     select(-PersonalID) %>%
-    mutate(n=1) %>%
+    mutate(n = 1) %>%
     complete(nesting(!!!syms(c(keepCols, "ProjectType"))),Status = necessaryCols, fill = list(n = 0)) %>%
     pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
     mutate(
@@ -166,7 +168,7 @@ get_clientcount_download_info <- function(file) {
         TRUE ~ `Exited project`
       )
     ) %>%
-    relocate(`Exited Project`, .after=`Currently Moved In`) %>%
+    relocate(`Exited Project`, .after = `Currently Moved In`) %>%
     select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
   
@@ -199,15 +201,13 @@ get_clientcount_download_info <- function(file) {
   )
   
   exportTestValues(
-    client_count_download_current = validationCurrent %>% nice_names()
+    client_count_download_current = summarize_df(validationCurrent %>% nice_names())
   )
   exportTestValues(
-    client_count_download_date_range = validationDateRange %>% nice_names()
+    client_count_download_date_range = summarize_df(validationDateRange %>% nice_names())
   )
   exportTestValues(
-    client_count_download_detail = validationDetail %>% 
-      nice_names() %>% 
-      sample_n(300) # take just 300 or we can get huge json files
+    client_count_download_detail = validationDetail %>% nice_names()
   )
   
   write_xlsx(exportDFList,

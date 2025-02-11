@@ -1,6 +1,7 @@
 # meta = result comes directly from imported meta data
 # calc = result is calculated
 
+logToConsole("Running dates")
 # Dates from Metadata -----------------------------------------------------
 meta_HUDCSV_Export_Start(Export() %>% pull(ExportStartDate))
 
@@ -30,4 +31,5 @@ ExportEndAdjusted <- if_else(
 
 ReportEnd(as.Date(ExportEndAdjusted))
 ReportStart(as.Date(ReportEnd() - years(1) + days(1)))
+days_of_data(as.Date(ReportEnd()) - as.Date(ExportStartAdjusted))
 
