@@ -443,6 +443,7 @@ output$sys_act_monthly_ui_chart <- renderPlot({
              Count = Outflow, 
              Flow_Type = "Outflow")]
   ))
+  setorder(plot_data, month)
 
   ggplot(plot_data, 
          aes(x = month, y = Count, fill = Flow_Type, group=Flow_Type)) +
@@ -471,7 +472,7 @@ output$sys_act_monthly_ui_chart <- renderPlot({
       panel.grid = element_blank(),        # Remove gridlines
       axis.line.y = element_blank(), 
       axis.line.x = element_line(),          # Remove axis lines
-      plot.margin = margin(l = 57),        # Increase left margin
+      plot.margin = margin(l = 48),        # Increase left margin
       axis.ticks = element_blank(),
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
