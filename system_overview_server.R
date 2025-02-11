@@ -488,13 +488,13 @@ output$client_level_download_btn <- downloadHandler(
              new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
     
     # details tab
-    client_level_details <- client_level_export_df()[
+    client_level_details <- unique(client_level_export_df()[
       , 
       c(..detail_client_fields, ..report_status_fields)
+    ])[
+      earliest_report_info, on = "PersonalID", nomatch = 0
     ][
-      earliest_report_info, on = "PersonalID"
-    ][
-      latest_report_info, on = "PersonalID"
+      latest_report_info, on = "PersonalID", nomatch = 0
     ]
     setnames(client_level_details, 
              old = report_status_fields, 
@@ -512,10 +512,17 @@ output$client_level_download_btn <- downloadHandler(
       )
     )
     
+    system_df_info <- system_activity_prep_detail() %>% 
+      select(Status, values, Time, InflowOutflow, InflowOutflowSummary)
+    
     filter_selections <- rbind(
       export_date_info, # ExportStart, Exportend
       sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
-      sys_export_filter_selections() # Age, Veteran Status, Gender, Race/Ethnicity
+      sys_export_filter_selections(), # Age, Veteran Status, Gender, Race/Ethnicity
+      tibble(
+        Chart = "Total Served (Start + Inflow) People",
+        Value = sum(system_df_info %>% filter(InflowOutflow == 'Inflow') %>% pull(values), na.rm = TRUE)
+      )
     )
     colnames(filter_selections) <- c("Filter","Selection")
     
