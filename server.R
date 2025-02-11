@@ -943,6 +943,7 @@ function(input, output, session) {
   source("system_overview_server.R", local = TRUE)
   
   ## System Inflow/Outflow ----
+  session$userData$period_cache <- new.env()
   source("system_inflow_outflow_server.R", local = TRUE)
     
   ## System Composition ----
@@ -952,6 +953,11 @@ function(input, output, session) {
   source("system_status_server.R", local = TRUE)
   
   session$onSessionEnded(function() {
+    rm(list = ls(session$userData$period_cache), 
+       envir = session$userData$period_cache)
+    gc()
+    memoise::forget(session$userData$get_period_specific_enrollment_categories)
+    memoise::forget(session$userData$get_period_specific_nbn_enrollment_services)
     cat(paste0("Session ", session$token, " ended at ", Sys.time()))
     logMetadata("Session Ended")
   })

@@ -533,3 +533,47 @@ output$sys_act_monthly_table <- renderDT({
       )
     )
 })
+
+# Create an LRU cache class
+LRUCache <- R6::R6Class(
+  "LRUCache",
+  public = list(
+    max_size = NULL,
+    cache = NULL,
+    access_times = NULL,
+    
+    initialize = function(max_size = 10) {
+      self$max_size <- max_size
+      self$cache <- new.env()
+      self$access_times <- new.env()
+    },
+    
+    get = function(key) {
+      if (!is.null(self$cache[[key]])) {
+        self$access_times[[key]] <- Sys.time()
+        return(self$cache[[key]])
+      }
+      NULL
+    },
+    
+    set = function(key, value) {
+      if (length(ls(self$cache)) >= self$max_size) {
+        self$evict_oldest()
+      }
+      self$cache[[key]] <- value
+      self$access_times[[key]] <- Sys.time()
+    },
+    
+    evict_oldest = function() {
+      if (length(ls(self$cache)) == 0) return()
+      
+      access_times <- lapply(ls(self$access_times), function(k) {
+        self$access_times[[k]]
+      })
+      oldest_key <- ls(self$access_times)[which.min(access_times)]
+      
+      rm(list = oldest_key, envir = self$cache)
+      rm(list = oldest_key, envir = self$access_times)
+    }
+  )
+)
