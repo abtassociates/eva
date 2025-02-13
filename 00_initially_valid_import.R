@@ -24,6 +24,24 @@ show_invalid_popup <- function(popupText = NULL, issueID, title) {
   )
 }
 
+hasGT1ExportRow <- function() {
+  Export(importFile(upload_filepath, "Export"))
+  file.remove("Export.csv")
+  
+  # this is the soonest we can log the session data, with 
+  # the export info, since this is the first time we import the Export.csv file
+  logSessionData() 
+  
+  return(nrow(Export()) > 1)
+}
+
+isFY2024Export <- function() {
+  return(
+    grepl("2024", as.character(Export()$CSVVersion))
+  )
+}
+
+
 # function to check if the file is hashed
 is_hashed <- function() {
 
@@ -37,19 +55,6 @@ is_hashed <- function() {
     Export()$HashStatus == 4 &
       min(nchar(Client$FirstName), na.rm = TRUE) ==
       max(nchar(Client$FirstName), na.rm = TRUE)
-  )
-}
-
-isFY2024Export <- function() {
-  Export(importFile(upload_filepath, "Export"))
-  file.remove("Export.csv")
-  
-  # this is the soonest we can log the session data, with 
-  # the export info, since this is the first time we import the Export.csv file
-  logSessionData() 
-  
-  return(
-    grepl("2024", as.character(Export()$CSVVersion))
   )
 }
 
@@ -104,6 +109,14 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       title = "Unsuccessful Upload: Missing files"
     )
     logMetadata("Unsuccessful upload - incomplete dataset")
+  } else if(hasGT1ExportRow()) {
+    show_invalid_popup(
+      issueID = 140,
+      title = "Unsuccessful Upload: The Export.csv file in your uploaded .zip file contains more than 1 row.",
+      popupText = "Export.csv should only have 1 row. Please upload a hashed HMIS CSV Export that meets all of HUD's specifications. 
+      If you are not sure how to resolve this issue, please contact your HMIS vendor."
+    )
+    logMetadata("Unsuccessful upload - Export.csv has more than 1 row")
   } else if(!isFY2024Export()) {
     show_invalid_popup(
       issueID = 124,

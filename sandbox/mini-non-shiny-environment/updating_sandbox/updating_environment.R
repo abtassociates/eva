@@ -39,7 +39,7 @@ files_to_copy <- list(
   "/05_DataQuality_functions.R",
   "/05_DataQuality.R",
   "/06_PDDE_Checker.R",
-  "/07_System_overview.R",
+  "/07_system_overview.R",
   "/09_system_status.R",
   "/system_composition_server.R",
   "/system_inflow_outflow_server.R",
