@@ -3,6 +3,7 @@
 #   (rather than End-users who fix DQ checks)
 ###############################
 
+logToConsole("Running PDDE checker")
 
 PDDEcols = c("OrganizationName",
              "ProjectID",
@@ -70,14 +71,19 @@ operating_end_missing <- Enrollment %>%
 
 # Missing CoC Information Missing address field(s), Missing Geocode,
 # Missing Geography Type, Invalid Zip Code if possible
+
+HousingTypeDF <- Project %>% 
+  select(ProjectID, HousingType)
+
 missing_CoC_Info <- Project0() %>%
   left_join(ProjectCoC, by = "ProjectID") %>%
+  left_join(HousingTypeDF, by = "ProjectID") %>% 
   filter(is.na(Address1) | 
            is.na(City) | 
            is.na(State) | 
            is.na(Geocode) | 
            is.na(GeographyType) | 
-           nchar(ZIP) != 5 |
+           !str_detect(ZIP, "^[0-9]{5}(-[0-9]{4})?$") |
            is.na(ZIP) |
            is.na(CoCCode)
   )
@@ -87,33 +93,37 @@ missing_CoC_Geography <- missing_CoC_Info %>%
            is.na(CoCCode)) %>%
   merge_check_info(checkIDs = 5) %>%
   mutate(
-    Detail = case_when(
-      is.na(CoCCode) ~ "This project's CoC Code is missing.",
-      is.na(Address1) ~ "This project's Address is missing.",
-      is.na(City) ~ "This project's City is missing.",
-      is.na(State) ~ "This project's State is missing.",
-      is.na(Geocode) ~ "This project's Geocode is missing.",
-      is.na(GeographyType) ~ "This project's Geography Type is missing.",
-      nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000" ~
-        "ZIP is missing or not valid."
-    )) %>%
+    Detail = paste0(
+      "This project is missing a valid: ",
+      if_else(is.na(Geocode), "Geocode, ", ""),
+      if_else(is.na(GeographyType), "Geography Type, ", ""),
+      if_else(is.na(CoCCode), "CoC Code, ", "")
+    ) %>%
+    str_remove(", $")
+  ) %>%
   select(all_of(PDDEcols))
 
 missing_CoC_Address <- missing_CoC_Info %>%
-  filter(!(is.na(Geocode) | is.na(GeographyType) |
-           is.na(CoCCode))) %>%
+  filter(
+    # no one should have an invalid zip
+    (!str_detect(ZIP, "^[0-9]{5}(-[0-9]{4})?$") | is.na(ZIP)) |
+    (
+      # non-VSPs and non-tenant-scattered-sites should also not be missing address, city, and state
+      !(VictimServiceProvider==1 | HousingType==tenant_scattered_site) &
+      (is.na(Address1) | is.na(City) | is.na(State))
+    )
+  ) %>%
   merge_check_info(checkIDs = 42) %>%
   mutate(
-    Detail = case_when(
-      is.na(CoCCode) ~ "This project's CoC Code is missing.",
-      is.na(Address1) ~ "This project's Address is missing.",
-      is.na(City) ~ "This project's City is missing.",
-      is.na(State) ~ "This project's State is missing.",
-      is.na(Geocode) ~ "This project's Geocode is missing.",
-      is.na(GeographyType) ~ "This project's Geography Type is missing.",
-      nchar(ZIP) != 5 | is.na(ZIP) | ZIP == "00000" ~
-        "ZIP is missing or not valid."
-   )) %>%
+    Detail = paste0(
+      "This project is missing a valid: ",
+      if_else(is.na(Address1), "Address", ""),
+      if_else(is.na(City), ", City", ""),
+      if_else(is.na(State), ", State", ""),
+      if_else(!str_detect(ZIP, "^[0-9]{5}(-[0-9]{4})?$") | is.na(ZIP), ", ZIP", "")
+    ) %>%
+      str_remove(", $")
+  ) %>%
   select(all_of(PDDEcols))
 
 # Missing Inventory Record Is a residential project but has no active inventory
@@ -236,25 +246,95 @@ vsps_in_hmis <- Project0() %>%
   
  # Zero Utilization --------------------------------------------------------
 
-projects_w_beds <- activeInventory %>%
-  filter(BedInventory > 0) %>%
-  pull(ProjectID) %>%
-  unique()
+res_projects_no_clients <- ProjectSegments %>%
+  filter(HMISParticipationType == 1) %>%
+  inner_join(activeInventory %>%
+               filter((is.na(Availability) | Availability != 3) &
+                        BedInventory > 0 & !is.na(BedInventory)) %>%
+               # excluding overflow projects since their enrollments will
+               # by definition contain gaps of zero utilization
+               group_by(ProjectID) %>%
+               summarise(ActiveInventorySpan =
+                           interval(min(InventoryStartDate), max(coalesce(
+                             InventoryEndDate, no_end_date
+                           )))) %>%
+               ungroup(),
+             join_by(ProjectID)) %>%
+  # collapsing project segments (periods of participation) down into a single
+  # date range of time that they had any active inventory ^
+  mutate(
+    ProjectOperatingInterval =
+      intersect(
+        interval(OperatingStartDate, coalesce(OperatingEndDate, no_end_date)),
+        interval(meta_HUDCSV_Export_Start(), meta_HUDCSV_Export_End())),
+    # when in the reporting period was this project segment operating?^
+    ParticipatingInterval =
+      intersect(interval(
+        HMISParticipationStatusStartDate,
+        coalesce(HMISParticipationStatusEndDate, no_end_date)
+      ),
+      interval(meta_HUDCSV_Export_Start(), meta_HUDCSV_Export_End())),
+    # when in the reporting period was the project participating?^
+    OperatingAndParticipating =
+      intersect(ProjectOperatingInterval, ParticipatingInterval),
+    # when was the project both participating and operating (within the rpt period?)
+    OperatingParticipatingAndActiveInventory =
+      intersect(OperatingAndParticipating, ActiveInventorySpan)
+    # when did this project have active inventory and all the other conditions?
+  ) %>%
+  select(
+    ProjectID,
+    ProjectTimeID,
+    ProjectName,
+    OperatingParticipatingAndActiveInventory
+  ) %>%
+  filter(!is.na(OperatingParticipatingAndActiveInventory)) %>%
+  # excluding any project segments that had no active inventory during the 
+  # reporting period ^
+  left_join(
+    Enrollment %>%
+      group_by(ProjectTimeID) %>%
+      summarise(EnrollmentSpan = interval(min(EntryDate), max(ExitAdjust))) %>%
+      ungroup(),
+    join_by(ProjectTimeID)
+    # looking at each project segment for the earliest Entry and latest Exit
+  ) %>%
+  filter(
+    is.na(EnrollmentSpan) | # <- projects without any enrollments at all
+      int_start(EnrollmentSpan) > int_end(OperatingParticipatingAndActiveInventory) |
+      int_end(EnrollmentSpan) < int_start(OperatingParticipatingAndActiveInventory)) %>%
+  # finding rows where the span of enrollments falls within (NOT inclusive) the 
+  # span of time the project had active inventory (and was participating, etc.)
+  pull(ProjectID) %>% unique()
 
-projects_w_clients <- Enrollment %>%
-  pull(ProjectID) %>%
-  unique()
-
-res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
 
 zero_utilization <- Project0() %>%
-  inner_join(HMISParticipation %>%
-              filter(HMISParticipationType == 1) %>%
-              distinct(ProjectID), by = "ProjectID") %>%
   filter(ProjectID %in% c(res_projects_no_clients)) %>%
   merge_check_info(checkIDs = 83) %>%
   mutate(Detail = "") %>%
   select(all_of(PDDEcols))
+# if a comparable db uses Eva, this will not flag for them^
+
+# OLD:
+# projects_w_beds <- activeInventory %>%
+#   filter(BedInventory > 0) %>%
+#   pull(ProjectID) %>%
+#   unique()
+# 
+# projects_w_clients <- Enrollment %>%
+#   pull(ProjectID) %>%
+#   unique()
+# 
+# res_projects_no_clients <- setdiff(projects_w_beds, projects_w_clients)
+# 
+# zero_utilization <- Project0() %>%
+#   inner_join(HMISParticipation %>%
+#               filter(HMISParticipationType == 1) %>%
+#               distinct(ProjectID), by = "ProjectID") %>%
+#   filter(ProjectID %in% c(res_projects_no_clients)) %>%
+#   merge_check_info(checkIDs = 83) %>%
+#   mutate(Detail = "") %>%
+#   select(all_of(PDDEcols))
 
 # if a comparable db uses Eva, this will not flag for them^
 
@@ -366,14 +446,86 @@ overlapping_hmis_participation <- HMISParticipation %>%
   merge_check_info(checkIDs = 131) %>%
   select(all_of(PDDEcols))
 
+
+# Bed Type incompatible with Housing Type -----------------------------------
+# For ES projects, if HousingType is 1 or 2 (site-based), then BedType should be 1 (facility based beds). If HousingType is 3 (tenant-based), then BedType should be 2 (voucher beds).
+
+ES_BedType_HousingType <- Inventory %>%
+  left_join(Project0(), by = "ProjectID") %>%
+  left_join(HousingTypeDF, by = "ProjectID") %>% 
+  filter(ProjectType %in% c(es_ee_project_type, es_nbn_project_type) &
+           ((HousingType %in% c(client_single_site, client_multiple_sites) & ESBedType!=1) | (HousingType==tenant_scattered_site & ESBedType!=2)) 
+  ) %>%
+  merge_check_info(checkIDs = 135) %>% 
+  mutate(Detail = "Bed Type incompatible with Housing Type:  Facility-based beds should align to the Housing Type of site-based and voucher-based beds should align to the Housing Type of tenant-based."
+  ) %>%
+  select(all_of(PDDEcols))
+
+
+# Project CoC Missing Bed Inventory & Incorrect CoC in bed inventory -----------------------------------
+
+activeInventory_COC_merged <- activeInventory %>% 
+  mutate(ix=1) %>% 
+  merge((ProjectCoC %>% select(ProjectID, CoCCode)) %>% mutate(iy=1), by = c("ProjectID", "CoCCode"), all=TRUE) %>%
+  merge((Project %>% select(ProjectID, ProjectType, RRHSubType)), by = c("ProjectID"), all=TRUE) %>%
+  mutate(mer = case_when(ix==1&iy==1~'both',
+                         ix==1~'only_x',
+                         iy==1~'only_y')) %>%
+  select(-c(ProjectName, OrganizationName)) %>% 
+  merge((Project0() %>% select(ProjectID, ProjectName, OrganizationName)), by = c("ProjectID"), all=TRUE)
+
+# Throw a warning if there is no inventory record for a ProjectID and COCCode combo in the ProjectCoC data
+
+Active_Inventory_per_COC <- activeInventory_COC_merged %>%
+  filter(mer=="only_y") %>%
+  filter(ProjectType %in% project_types_w_beds &
+           (RRHSubType == 2 | is.na(RRHSubType))) %>% 
+  merge_check_info(checkIDs = 136) %>% 
+  mutate(Detail = "Residential projects must have a bed inventory for each CoC they serve."
+  ) %>%
+  select(all_of(PDDEcols))
+  
+# Throw an error if there is no COC record for a ProjectID and COCCode combo in the inventory data
+
+COC_Records_per_Inventory <- activeInventory_COC_merged %>%
+  filter(mer=="only_x") %>% 
+  merge_check_info(checkIDs = 137) %>%
+  mutate(Detail = "Any CoC represented in a project's active bed inventory records must also be listed as a CoC associated with the Project."
+  ) %>%
+  select(all_of(PDDEcols))
+
+
+# More units than beds in inventory record. -----------------------------------
+more_units_than_beds_inventory <- activeInventory %>%
+  filter(UnitInventory > BedInventory) %>% 
+merge_check_info(checkIDs = 138) %>%
+  mutate(Detail = "An inventory record cannot have more units than total number of beds. Please update this inventory record in HMIS to ensure that units are less than or equal to the number of beds."
+  ) %>%
+  select(all_of(PDDEcols))
+
+
+# Client-level data in VSP organization. -----------------------------------
+# Projects under Organizations marked as Victim Service Providers should not have client data in HMIS
+# If VictimServiceProvider==1, then flag as high priority error if client data is present (i.e. any enrollments).
+
+vsp_clients <- Project0() %>%
+  filter(VictimServiceProvider==1) %>%
+  left_join(Enrollment, by = "ProjectID") %>%
+  merge_check_info(checkIDs = 139) %>%
+  mutate(Detail = "Projects under Organizations marked as Victim Service Providers should not have client data in HMIS."
+  ) %>%
+  select(all_of(PDDEcols)) %>% 
+  unique()
+
+
 # Put it all together -----------------------------------------------------
 
-pdde_main(rbind(
+pdde_main(bind_rows(
   subpopNotTotal,
   operating_end_missing,
   rrh_no_subtype,
-  missing_CoC_Address,
   missing_CoC_Geography,
+  missing_CoC_Address,
   missing_inventory_record,
   operating_end_precedes_inventory_end,
   overlapping_ce_participation,
@@ -381,8 +533,14 @@ pdde_main(rbind(
   inventory_start_precedes_operating_start,
   rrh_so_w_inventory,
   vsps_in_hmis,
-  zero_utilization
+  zero_utilization,
+  ES_BedType_HousingType,
+  Active_Inventory_per_COC,
+  COC_Records_per_Inventory,
+  more_units_than_beds_inventory,
+  vsp_clients
 ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
 )
+
 
