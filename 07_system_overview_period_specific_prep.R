@@ -116,8 +116,9 @@ universe <- function(enrollments_filtered, period) {
                          fifelse(eecr == TRUE, 1, lookback + 1))
   ][
     order(-order_ees), # Equivalent of arrange(desc(order_ees))
-    days_to_next_entry := as.numeric(difftime(shift(EntryDate, type = "lead"), 
-                                              ExitAdjust, units = "days")),
+    # AS 2/13/2025 - don't we already do this earlier in get_period_specific_enrollment_categories?
+    # days_to_next_entry := as.numeric(difftime(shift(EntryDate, type = "lead"), 
+    #                                           ExitAdjust, units = "days")),
     by = PersonalID # Equivalent of group_by(PersonalID)
   ][, `:=`(
     # INFLOW CALCULATOR COLUMNS
@@ -144,18 +145,18 @@ universe <- function(enrollments_filtered, period) {
             )
         ) |
           
-          ( # take only ce enrollments where the PLS or the CLS is <= 90 days
-            # prior to ReportStart
-            ProjectType == ce_project_type &
-              (EnrollmentID %in% homeless_cls_finder(period[1], "before", 90, enrollments_filtered) |
-                 (between(EntryDate, period[1] - days(90), period[1]) &
-                    lh_prior_livingsituation == TRUE))
-          ) |
-          # take any other enrollments if their PLS was literally homeless
-          (
-            !(ProjectType %in% ph_project_types) &
-              EnrolledHomeless == TRUE
-          )
+        ( # take only ce enrollments where the PLS or the CLS is <= 90 days
+          # prior to ReportStart
+          ProjectType == ce_project_type &
+            (EnrollmentID %in% homeless_cls_finder(period[1], "before", 90, enrollments_filtered) |
+               (between(EntryDate, period[1] - days(90), period[1]) &
+                  lh_prior_livingsituation == TRUE))
+        ) |
+        # take any other enrollments if their PLS was literally homeless
+        (
+          !(ProjectType %in% ph_project_types) &
+            EnrolledHomeless == TRUE
+        )
       ) &
       # Enrollment straddles start or the enrollment is within 2 weeks from start
       # and within 2 weeks of prev enrollment
@@ -453,10 +454,10 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     ][
       # Add grouping and ordering steps
       order(EntryDate), `:=`(
-        StraddlesStart = .N, MaxProjectTypeStart = max(ProjectTypeWeight)
+        StraddlesStart = .N #, MaxProjectTypeStart = max(ProjectTypeWeight)
       ), by = .(PersonalID, straddles_start)
     ][order(EntryDate), `:=`(
-      StraddlesEnd = .N, MaxProjectTypeEnd = max(ProjectTypeWeight)
+      StraddlesEnd = .N #, MaxProjectTypeEnd = max(ProjectTypeWeight)
     ), by = .(PersonalID, straddles_end)
     ][order(PersonalID, EntryDate),
       # Add mutations related to overlaps and rank ordering
@@ -482,7 +483,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         RankOrderStartOverlaps = rowid(PersonalID, InvolvedInOverlapStart),
         RankOrderEndOverlaps = rowid(PersonalID, InvolvedInOverlapEnd)
       )][
-        # Filter out non-overlapping enrollments
+        # only keep the first enrollment crossing the Period Start/End 
         (InvolvedInOverlapStart == FALSE | RankOrderStartOverlaps == 1) &
           (InvolvedInOverlapEnd == FALSE | RankOrderEndOverlaps == 1) &
           (days_to_next_entry < 730 | is.na(days_to_next_entry))
