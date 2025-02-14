@@ -14,9 +14,10 @@ report_dates <- c(
 )
 
 # Enrollments-level flags, filtered---------------------------------------------
-enrollment_categories_filtered_df <- function(period, hh_type, level_detail, project_type) {
+enrollment_categories_filtered_df <- function(period, hh_type, level_detail, project_type, upload_name) {
   # Get period-specific data (can be memoized as discussed earlier)
-  enrollment_categories_df <- session$userData$get_period_specific_enrollment_categories(period, input$imported$name)
+  browser()
+  enrollment_categories_df <- session$userData$get_period_specific_enrollment_categories(period, upload_name)
   
   # Apply all filters at once and select needed columns
   enrollment_categories_df %>%
@@ -355,7 +356,7 @@ universe_ppl_flags <- function(universe_df) {
 
 ## NbN prep ----------------------------------------------------------------
 session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise(
-  function(report_period, imported) {
+  function(report_period, upload_name) {
     startDate <- report_period[1]
     endDate <- report_period[2]
     nbn_enrollments_services <- Services %>%
@@ -408,7 +409,7 @@ session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise
 
 ## Get period-specific variables, like eecr and lecr -----------------
 session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
-  function(report_period, imported) {
+  function(report_period, upload_name) {
     startDate <- report_period[1]
     endDate <- report_period[2]
     e <- enrollment_categories[, `:=`(
@@ -499,18 +500,17 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         ,AgeAtEntry := NULL
       ]
     
+    browser()
     merge(
       e, 
-      session$userData$get_period_specific_nbn_enrollment_services(report_period, input$imported$name), 
+      session$userData$get_period_specific_nbn_enrollment_services(report_period, upload_name), 
       by = "EnrollmentID",
       all.x = T
     )[, `:=`(
       NbN15DaysBeforeReportStart = replace_na(NbN15DaysBeforeReportStart, 0),
       NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0),
       NbN15DaysBeforeReportEnd = replace_na(NbN15DaysBeforeReportEnd, 0)
-    )][
-      order(EnrollmentID)
-    ]
+    )]
   },
   cache = cachem::cache_mem(max_size = 100 * 1024^2) 
 )
@@ -556,7 +556,8 @@ period_specific_data <- reactive({
       period,
       input$syso_hh_type,
       input$syso_level_of_detail,
-      input$syso_project_type
+      input$syso_project_type,
+      input$imported$name
     )
     
     universe_data <- universe(enrollments_filtered, period)
