@@ -159,7 +159,7 @@ function(input, output, session) {
         setProgress(detail = "Reading your files..", value = .2)
         source("01_get_Export.R", local = TRUE)
         
-        unlink(input$imported$datapath, recursive=TRUE, force=TRUE)
+        file.remove(input$imported$datapath)
           
         source("02_export_dates.R", local = TRUE)
 

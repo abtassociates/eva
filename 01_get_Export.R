@@ -18,5 +18,3 @@ for (file in unique(cols_and_data_types$File)) {
 }
 
 problems <- do.call(rbind, list_of_problems)
-
-unlink(input$imported$datapath, recursive=TRUE, force=TRUE)
