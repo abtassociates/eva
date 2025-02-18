@@ -115,6 +115,7 @@ dashboardPage(
       ))
     ),
     useShinyjs(),
+    theme = bslib::bs_theme(version = 5),
     disconnectMessage(
       text = str_squish(
         "Eva has crashed. Please submit an issue on GitHub and note the
