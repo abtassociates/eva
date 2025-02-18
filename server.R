@@ -159,6 +159,8 @@ function(input, output, session) {
         setProgress(detail = "Reading your files..", value = .2)
         source("01_get_Export.R", local = TRUE)
         
+        file.remove(input$imported$datapath)
+          
         source("02_export_dates.R", local = TRUE)
 
         setProgress(detail = "Checking file structure", value = .35)
