@@ -4,7 +4,7 @@ print("updating test good for FSA")
 reduced_data_fsa$Client$DOB <- format(reduced_data_fsa$Client$DOB, "%d-%m-%y")
 
 # Incorrect Datetime Format, Error (check 47)
-reduced_data_fsa$Client$DateUpdated <- "31-03-21"
+reduced_data_fsa$Client$DateUpdated <- format(reduced_data_fsa$Client$DateUpdated, "%d-%m-%y")
 
 # Incorrect non-date format
 reduced_data_fsa$Assessment$AssessmentType <- "a string"
