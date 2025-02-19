@@ -1010,7 +1010,7 @@ universe <- reactive({
           ( # take only ce enrollments where the PLS or the CLS is <= 90 days
             # prior to ReportStart
             ProjectType == ce_project_type &
-              (EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 90) |
+              (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 90) |
                  (between(EntryDate, ReportStart() - days(90), ReportStart()) &
                     lh_prior_livingsituation == TRUE))
           ) |
