@@ -212,13 +212,8 @@ get_col_types <- function(upload_filepath, file) {
            col_types$DataType[col_types$Column == col_name],
            "c")
   })
-<<<<<<< HEAD
   
   return(paste(data_types, collapse = ""))
-=======
-
-  return(data_types)
->>>>>>> 540d0e52 (unzipping using exdir = tempdir() or some variation. This copies things into a session-specific Rtmp directory. This is faster (and safer) than having it deployed onto the server.)
 }
 
 logMetadata <- function(detail) {
