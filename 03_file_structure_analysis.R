@@ -106,7 +106,7 @@ unexpected_data_types <- function(file) {
     ) %>%
     mutate(
       Detail = if_else(
-        DataType %in% c("date", "datetime"),
+        !(DataType %in% c("date", "datetime")),
         glue("In the {file} file, the {Column} column should have a data type of {case_when(
           DataType == 'numeric' ~ 'integer',
           DataType == 'character' ~ 'string',
