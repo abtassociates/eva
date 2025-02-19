@@ -115,8 +115,7 @@ unexpected_data_types <- function(file) {
           actual_type == 'numeric' ~ 'integer',
           TRUE ~ actual_type
         )}."),
-        glue("Please check that the {Column} column in the {file} file has the 
-             correct {DataType} format.")
+        glue("Please check that the {Column} column in the {file} file has the correct {DataType} format.")
       ),
       checkID = if_else(
         DataTypeHighPriority == 1, 
