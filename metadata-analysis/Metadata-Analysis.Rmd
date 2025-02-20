@@ -144,6 +144,9 @@ start_date_last6months <- end_date_last6months %m-% months(6) + days(1)
 staging_last6months <- staging %>%
   filter(Date >= start_date_last6months & Date <= end_date_last6months)
 
+eva_colors <- c("#16697a", "#C2462E", "#71B4CB", "#73655E",
+                 "#C1DDD7","#FCB248","#CEEfb7", "#71B58B")
+
 ```
 
 
@@ -153,18 +156,28 @@ staging_last6months <- staging %>%
 
 Eva logs do not tell us how many Eva users there are, but a count of times someone came to Eva initially or refreshed Eva in their browser. A single user will likely be represented in these counts multiple times. Eva was released on December 19, 2022 and clearly generated a lot of interest up front.
 
+Adjusted site hits give a count of unique sessions where a tab other than "Home" was clicked on at least once. Raw site hits are not shown here because security scans have artificially increased the total count of raw site hits. Identifying sessions where a tab other than "Home" has been selected provides a better picture of real engagement with Eva.
+
 ```{r fig.width=10, fig.height=5}
 
-counts_by_week %>%
-  filter(Event == "Site hits") %>%
-  ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
+all_week_deduped <- all_week %>% 
+  filter(str_detect(Event, "User on tab")) %>% 
+  filter(!(Event %in% c('User on tabHome'))) %>%
+  distinct(SessionID, .keep_all = TRUE)
+
+counts_by_week_hits <- count(all_week_deduped, WeekEnding, Event) %>%
+  group_by(WeekEnding) %>%
+  summarise(Hits = sum(n)) %>% 
+  arrange(WeekEnding, desc(Hits))
+
+counts_by_week_hits %>%
+  ggplot(aes(x = WeekEnding, y = Hits, label = Hits)) +
   geom_line() +
   geom_point() +
-  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_brewer(palette = "Dark2") +
+  geom_text(nudge_x = 1.25, color = "gray15", check_overlap = TRUE) +
   scale_x_date(date_breaks = "1 week", date_labels = "%m/%d") +
   labs(
-    title = "Weekly Eva Site Hits",
+    title = "Weekly Eva Adjusted Site Hits",
     x = "Week Ending",
     y = ""
   ) +
@@ -176,18 +189,26 @@ counts_by_week %>%
 
 ```{r fig.width=10, fig.height=5}
 
-counts_by_month %>%
-  filter(Event == "Site hits") %>%
-  ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
+all_month_deduped <- all_month %>% 
+  filter(str_detect(Event, "User on tab")) %>% 
+  filter(!(Event %in% c('User on tabHome'))) %>%
+  distinct(SessionID, .keep_all = TRUE)
+
+counts_by_month_hits <- count(all_month_deduped, MonthEnding, Event) %>%
+  group_by(MonthEnding) %>%
+  summarise(Hits = sum(n)) %>% 
+  arrange(MonthEnding, desc(Hits))
+
+counts_by_month_hits %>%
+  ggplot(aes(x = MonthEnding, y = Hits, label = Hits)) +
   geom_line() +
   geom_point() +
-  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_brewer(palette = "Dark2") +
+  geom_text(nudge_x = 9, color = "gray15", check_overlap = TRUE) +
   scale_x_date(
     date_breaks = "1 month",
     date_labels = "%B") +
   labs(
-    title = "Monthly Eva Site Hits",
+    title = "Monthly Eva Adjusted Site Hits",
     x = "Month Ending",
     y = ""
   ) +
@@ -198,7 +219,7 @@ counts_by_month %>%
 
 ## Tabs Visited
 
-```{r fig.width=7, fig.height=6}
+```{r fig.width=8.75, fig.height=6}
 
 staging_last6months %>%
   filter(str_detect(Event, "User on") & 
@@ -212,19 +233,24 @@ staging_last6months %>%
     str_detect(Event, "tabDQSystem") ~ "System DQ",
     str_detect(Event, "tabLocalSettings") ~ "Local Settings",
     str_detect(Event, "tabPDDE") ~ "PDDE DQ",
+    str_detect(Event, "tabSystemOverview") ~ "System Overview",
+    str_detect(Event, "tabGlossary") ~ "Glossary",
     TRUE ~ as.character(Event)), 
-    Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "Changelog"))) %>%
+    Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
   count(Tab) %>%
   ggplot(aes(x = Tab, y = n, fill = Tab)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = scales::percent(n/sum(n))), color = "gray15", vjust = -0.5) +
   scale_fill_manual(values = 
-                   c("Changelog" = "#f94144",
-                      "Client Counts" = "#f3722c",
-                      "Organization DQ" = "#f8961e",
-                      "System DQ" = "#f9c74f",
-                      "Local Settings" = "#90be6d",
-                      "PDDE DQ" = "#43aa8b")) +
+                   c("Changelog" = "#16697a",
+                      "Client Counts" = "#C2462E",
+                      "Organization DQ" = "#71B4CB",
+                      "System DQ" = "#73655E",
+                      "Local Settings" = "#C1DDD7",
+                      "PDDE DQ" = "#FCB378",
+                      "System Overview" = "#FCB248",
+                      "Glossary" = "#71B58B"
+                     )) +
  labs(title = "Tabs Visited in the Last 6 Months",
        x = "Tab",
        y = "Count") +
@@ -235,38 +261,38 @@ staging_last6months %>%
 ```
 
 ```{r fig.width=7, fig.height=6}
-
-staging %>%
-  filter(str_detect(Event, "User on") & 
-           Date >= as.Date("2023-01-01") & Date <=("2023-06-30") &
-           !(Event %in% c("User on tabHome", "User on tabUpload", "User on"))) %>%
-  distinct(SessionID, Event, .keep_all = TRUE) %>%
-  mutate(Tab = case_when(
-    str_detect(Event, "tabChangelog") ~ "Changelog",
-    str_detect(Event, "tabClientCount") ~ "Client Counts",
-    str_detect(Event, "tabDQOrg") ~ "Organization DQ",
-    str_detect(Event, "tabDQSystem") ~ "System DQ",
-    str_detect(Event, "tabLocalSettings") ~ "Local Settings",
-    str_detect(Event, "tabPDDE") ~ "PDDE DQ",
-    TRUE ~ as.character(Event)), 
-    Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "Changelog"))) %>%
-  count(Tab) %>%
-  ggplot(aes(x = Tab, y = n, fill = Tab)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = scales::percent(n/sum(n))), color = "gray15", vjust = -0.5) +
-  scale_fill_manual(values = 
-                   c("Changelog" = "#f94144",
-                      "Client Counts" = "#f3722c",
-                      "Organization DQ" = "#f8961e",
-                      "System DQ" = "#f9c74f",
-                      "Local Settings" = "#90be6d",
-                      "PDDE DQ" = "#43aa8b")) +
- labs(title = "Tabs Visited from January 2023 to June 2023",
-       x = "Tab",
-       y = "Count") +
-  theme_minimal() +
-  theme(legend.position = "none") +
-  guides(fill = guide_legend(ncol = 2))
+# 
+# staging %>%
+#   filter(str_detect(Event, "User on") & 
+#            Date >= as.Date("2023-01-01") & Date <=("2023-06-30") &
+#            !(Event %in% c("User on tabHome", "User on tabUpload", "User on"))) %>%
+#   distinct(SessionID, Event, .keep_all = TRUE) %>%
+#   mutate(Tab = case_when(
+#     str_detect(Event, "tabChangelog") ~ "Changelog",
+#     str_detect(Event, "tabClientCount") ~ "Client Counts",
+#     str_detect(Event, "tabDQOrg") ~ "Organization DQ",
+#     str_detect(Event, "tabDQSystem") ~ "System DQ",
+#     str_detect(Event, "tabLocalSettings") ~ "Local Settings",
+#     str_detect(Event, "tabPDDE") ~ "PDDE DQ",
+#     TRUE ~ as.character(Event)), 
+#     Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "Changelog"))) %>%
+#   count(Tab) %>%
+#   ggplot(aes(x = Tab, y = n, fill = Tab)) +
+#   geom_bar(stat = "identity") +
+#   geom_text(aes(label = scales::percent(n/sum(n))), color = "gray15", vjust = -0.5) +
+#   scale_fill_manual(values = 
+#                    c("Changelog" = "#f94144",
+#                       "Client Counts" = "#f3722c",
+#                       "Organization DQ" = "#f8961e",
+#                       "System DQ" = "#f9c74f",
+#                       "Local Settings" = "#90be6d",
+#                       "PDDE DQ" = "#43aa8b")) +
+#  labs(title = "Tabs Visited from January 2023 to June 2023",
+#        x = "Tab",
+#        y = "Count") +
+#   theme_minimal() +
+#   theme(legend.position = "none") +
+#   guides(fill = guide_legend(ncol = 2))
 
 ```
 
@@ -291,13 +317,14 @@ The reasons Eva will reject an export are if the export:
 
 counts_by_week %>%
   filter(str_detect(Event, " upload")) %>%
+  filter(!str_detect(Event, "Successful upload")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(na.rm = FALSE) +
-  geom_point(na.rm = FALSE) +
-  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_brewer(palette = "Set1") +
+  geom_line(na.rm = FALSE, size=0.8) +
+  geom_point(na.rm = FALSE, size=1) +
+  geom_text(nudge_x = 0.75, color = "gray15", check_overlap = TRUE) +
+  scale_color_manual(values = eva_colors) +
   scale_x_date(date_breaks = "1 week", date_labels = "%m/%d") +
-  labs(title = "Weekly Eva Uploads",
+  labs(title = "Weekly Eva Unsuccessful Uploads",
        x = "Week Ending",
        y = "") +
   theme_minimal() +
@@ -308,61 +335,11 @@ counts_by_week %>%
 
 ```{r fig.width=10, fig.height=5}
 
-## TEMPORARY TABLE SHOWING COUNT OF UNSUCCESSFUL - NOT HASHED UPLOADS BY WEEK
-
-gt(counts_by_week %>%
-     filter(str_detect(Event, " not hashed")) %>% 
-     select(
-       "Week Ending" = WeekEnding,
-       Event,
-       "Count" = n
-     ))
-
-```
-
-
-
-```{r fig.width=10, fig.height=5}
-
-counts_by_month %>%
-  filter(str_detect(Event, " upload")) %>%
-  ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line() +
-  geom_point() +
-  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_brewer(palette = "Set1") +
-  scale_x_date(date_breaks = "1 month", date_labels = "%B") +
-  labs(title = "Monthly Eva Uploads",
-       x = "Month Ending",
-       y = "") +
-  theme_minimal() +
-  theme(legend.position = "bottom") +
-  guides(color = guide_legend(ncol = 2))
-  
-```
-
-```{r fig.width=10, fig.height=5}
-## TEMPORARY TABLE SHOWING COUNT OF UNSUCCESSFUL - NOT HASHED UPLOADS BY MONTH
-
-gt(counts_by_month %>%
-     filter(str_detect(Event, " not hashed")) %>% 
-     select(
-       "Month Ending" = MonthEnding,
-       Event,
-       "Count" = n
-     ))
-
-```
-
-
-
-```{r fig.width=10, fig.height=5}
-
 counts_category_week %>%
   filter(str_detect(EventCategory, " upload")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
-  geom_line() +
-  geom_point() +
+  geom_line(size=0.8) +
+  geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Set1") +
   scale_x_date(date_breaks = "1 week", date_labels = "%m/%d") +
@@ -375,14 +352,36 @@ counts_category_week %>%
   
 ```
 
+
+```{r fig.width=10, fig.height=5}
+
+counts_by_month %>%
+  filter(str_detect(Event, " upload")) %>%
+  filter(!str_detect(Event, "Successful upload")) %>%
+  ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
+  geom_line(size=0.8) +
+  geom_point(size=1) +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_manual(values = eva_colors) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%B") +
+  labs(title = "Monthly Eva Unsuccessful Uploads",
+       x = "Month Ending",
+       y = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
+  
+```
+
+
 ```{r fig.width=10, fig.height=5}
 
 counts_category_month %>%
   filter(str_detect(EventCategory, " upload")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
-  geom_line() +
-  geom_point() +
-  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  geom_line(size=0.8) +
+  geom_point(size=1) +
+  geom_text(nudge_x = 1, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Set1") +
   scale_x_date(date_breaks = "1 month", date_labels = "%B") +
   labs(title = "Monthly Eva Uploads - Successful vs. Unsuccessful",
@@ -405,13 +404,15 @@ Eva did not begin tracking downloads until December 29, 2022.
 counts_by_week %>%
   filter(str_detect(Event, "Download")) %>%
   filter(!str_detect(Event, "DEMO MODE")) %>%
+  filter(!str_detect(Event, "System Overview")) %>%
+  filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line() +
-  geom_point() +
+  geom_line(size=0.75) +
+  geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_brewer(palette = "Dark2") +
+  scale_color_manual(values = eva_colors) +
   scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
-  labs(title = "Weekly Eva Downloads",
+  labs(title = "Weekly Eva Downloads - Data Quality",
        x = "Week Ending",
        y = "",
        caption = "Download data not collected until Dec 29, 2022.") +
@@ -425,13 +426,69 @@ counts_by_week %>%
 
 ```{r fig.width=10, fig.height=5}
 
+counts_by_week %>%
+  filter(str_detect(Event, "Download")) %>%
+  filter(!str_detect(Event, "DEMO MODE")) %>%
+  filter(str_detect(Event, "System Overview")) %>%
+  ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
+  geom_line(size=0.75) +
+  geom_point(size=1) +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_manual(values = eva_colors) +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
+  labs(title = "Weekly Eva Downloads - System Overview",
+       x = "Week Ending",
+       y = "",
+       caption = "System Overview downloads not available until October, 2024.") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
+
+
+```
+
+```{r fig.width=10, fig.height=5}
+
+counts_by_week_download_types <- counts_by_week %>%
+  filter(str_detect(Event, "Download")) %>%
+  filter(!str_detect(Event, "DEMO MODE")) %>%
+  filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
+  mutate(Event2 = case_when((!str_detect(Event, "System Overview")) ~ "DQ download",
+                              (str_detect(Event, "Powerpoint"))  ~ "System Overview image/ppt download",
+                              (str_detect(Event, "Tabular Data")) ~ "System Overview tabular data download")) %>% 
+  group_by(WeekEnding, Event2) %>%
+  summarise(n2 = sum(n)) %>%
+  arrange(WeekEnding, desc(n2))
+  
+  
+counts_by_week_download_types %>% 
+  ggplot(aes(x = WeekEnding, y = n2, group = Event2, color = Event2, label = n2)) +
+  geom_line(size=0.75) +
+  geom_point(size=1) +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_manual(values = eva_colors) +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
+  labs(title = "Weekly Eva Downloads - DQ and System Overview",
+       x = "Week Ending",
+       y = "",
+       caption = "System Overview downloads not available until October, 2024.") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
+
+
+```
+
+
+```{r fig.width=10, fig.height=5}
+
 counts_category_week %>%
   filter(str_detect(EventCategory, "Download")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
-  geom_line() +
-  geom_point() +
-  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_brewer(palette = "Set1") +
+  geom_line(size=0.8) +
+  geom_point(size=1) +
+  geom_text(nudge_x = .75, color = "gray15", check_overlap = TRUE) +
+  scale_color_manual(values = eva_colors) +
   scale_x_date(date_breaks = "1 week", date_labels = "%m/%d") +
   labs(title = "Weekly Eva Downloads - Total Downloads",
        x = "Week Ending",
@@ -449,14 +506,16 @@ counts_category_week %>%
 counts_by_month %>%
   filter(str_detect(Event, "Download")) %>%
   filter(!str_detect(Event, "DEMO MODE")) %>%
+  filter(!str_detect(Event, "System Overview")) %>%
+  filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line() +
-  geom_point() +
+  geom_line(size=0.8) +
+  geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_brewer(palette = "Dark2") +
+  scale_color_manual(values = eva_colors) +
   scale_x_date(date_breaks = "1 month", date_labels = "%B") +
-  labs(title = "Monthly Eva Downloads",
+  labs(title = "Monthly Eva Downloads - Data Quality",
        x = "Month Ending",
        y = "") +
   theme_minimal() +
@@ -465,18 +524,42 @@ counts_by_month %>%
 
 
 ```
+```{r fig.width=10, fig.height=5}
+
+counts_by_month %>%
+  filter(str_detect(Event, "Download")) %>%
+  filter(!str_detect(Event, "DEMO MODE")) %>%
+  filter(str_detect(Event, "System Overview")) %>%
+  filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
+  #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
+  ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
+  geom_line(size=0.8) +
+  geom_point(size=1) +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_manual(values = eva_colors) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%B") +
+  labs(title = "Monthly Eva Downloads - System Overview",
+       x = "Month Ending",
+       y = "",
+       caption = "System Overview download data not collected until Dec 29, 2022.") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
+
+
+```
+
 
 ```{r fig.width=10, fig.height=5}
 
 counts_category_month %>%
   filter(str_detect(EventCategory, "Download")) %>%
-  filter(!str_detect(EventCategory, "DEMO MODE")) %>%
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
-  geom_line() +
-  geom_point() +
+  geom_line(size=0.8) +
+  geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_brewer(palette = "Dark2") +
+  scale_color_manual(values = eva_colors) +
   scale_x_date(date_breaks = "1 month", date_labels = "%B") +
   labs(title = "Monthly Eva Downloads - Total Downloads",
        x = "Month Ending",
@@ -489,6 +572,63 @@ counts_category_month %>%
 ```
 
 
+```{r fig.width=7, fig.height=4}
+
+staging_last6months_downloads <- staging_last6months %>%
+  filter(str_detect(Event, "Download")) %>%
+  filter(!str_detect(Event, "DEMO MODE")) %>%
+  filter(!str_detect(Event, "System Overview")) %>%
+  filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
+  group_by(Event) %>% 
+  count(Event)
+  
+staging_last6months %>%
+  filter(str_detect(Event, "Download")) %>%
+  filter(!str_detect(Event, "DEMO MODE")) %>%
+  filter(!str_detect(Event, "System Overview")) %>%
+  filter(!str_detect(Event, "Sys Inflow Outflow")) %>% 
+  group_by(Event, EventCategory) %>% 
+  count(Event) %>%
+  ggplot(aes(fill=Event, y=n, x=EventCategory)) + 
+  geom_bar(position="fill", stat="identity") +
+  #scale_color_brewer(palette = "Dark2") +
+  scale_fill_manual(values = eva_colors) +
+  labs(title = "Proportion of Downloads in Last 6 Months - Data Quality",
+       x = "",
+       y = "") +
+  theme_minimal()
+
+```
+
+```{r fig.width=7, fig.height=4}
+           
+staging_last6months %>%
+  filter(str_detect(Event, "Download")) %>%
+  filter(!str_detect(Event, "DEMO MODE")) %>%
+  filter(str_detect(Event, "System Overview")) %>%
+  filter(!str_detect(Event, "Sys Inflow Outflow")) %>% 
+  group_by(Event, EventCategory) %>% 
+  count(Event) %>% 
+  mutate(EventType = case_when(
+    str_detect(Event, "Powerpoint") ~ "Image",
+    str_detect(Event, "Tabular") ~ "Tabular"
+    )) %>% 
+  mutate(`System Overview Description` = case_when(
+    str_detect(Event, "Client System Status") ~ "Client System Status",
+    str_detect(Event, "System Demographics") ~ "System Demographics",
+    str_detect(Event, "System Flow") ~ "System Flow"
+    )) %>% 
+  ggplot(aes(fill=`System Overview Description`, y=n, x=EventType)) + 
+  geom_bar(position="fill", stat="identity") +
+  scale_fill_manual(values = eva_colors) +
+  labs(title = "Proportion of Downloads in Last 6 Months - System Overview",
+       x = "",
+       y = "") +
+  theme_minimal()
+
+```
+
+
 ## Demo Mode Stats
 
 ```{r fig.width=10, fig.height=5}
@@ -496,10 +636,10 @@ counts_category_month %>%
 counts_by_week %>%
   filter(str_detect(Event, "Switched to demo mode")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(na.rm = FALSE) +
-  geom_point(na.rm = FALSE) +
+  geom_line(na.rm = FALSE, size=0.8) +
+  geom_point(na.rm = FALSE, size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_brewer(palette = "Set1") +
+  scale_color_manual(values = eva_colors) +
   scale_x_date(date_breaks = "1 week", date_labels = "%m/%d") +
   labs(title = "Weekly Switches to Demo Mode",
        x = "Week Ending",
@@ -510,7 +650,7 @@ counts_by_week %>%
   
 ```
 
-```{r fig.width=7, fig.height=6}
+```{r fig.width=8.75, fig.height=6}
 
 staging_last6months %>%
   filter(str_detect(Event, "User on") &
@@ -524,19 +664,24 @@ staging_last6months %>%
     str_detect(Event, "tabDQSystem") ~ "System DQ",
     str_detect(Event, "tabLocalSettings") ~ "Local Settings",
     str_detect(Event, "tabPDDE") ~ "PDDE DQ",
+    str_detect(Event, "tabSystemOverview") ~ "System Overview",
+    str_detect(Event, "tabGlossary") ~ "Glossary",
     TRUE ~ as.character(Event)), 
-    Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "Changelog"))) %>%
+    Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
   count(Tab) %>%
   ggplot(aes(x = Tab, y = n, fill = Tab)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = scales::percent(n/sum(n))), color = "gray15", vjust = -0.5) +
   scale_fill_manual(values = 
-                   c("Changelog" = "#f94144",
-                      "Client Counts" = "#f3722c",
-                      "Organization DQ" = "#f8961e",
-                      "System DQ" = "#f9c74f",
-                      "Local Settings" = "#90be6d",
-                      "PDDE DQ" = "#43aa8b")) +
+                   c("Changelog" = "#16697a",
+                      "Client Counts" = "#C2462E",
+                      "Organization DQ" = "#71B4CB",
+                      "System DQ" = "#73655E",
+                      "Local Settings" = "#C1DDD7",
+                      "PDDE DQ" = "#FCB378",
+                      "System Overview" = "#FCB248",
+                      "Glossary" = "#71B58B"
+                     )) +
  labs(title = "Tabs Visited in the Last 6 Months",
        x = "Tab",
        y = "Count") +
@@ -551,16 +696,42 @@ staging_last6months %>%
 counts_by_week %>%
   filter(str_detect(Event, "Download")) %>%
   filter(str_detect(Event, "DEMO MODE")) %>%
+  filter(!str_detect(Event, "System Overview")) %>%
+  filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line() +
-  geom_point() +
+  geom_line(size=0.8) +
+  geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_brewer(palette = "Dark2") +
+  scale_color_manual(values = eva_colors) +
   scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
-  labs(title = "Weekly Eva Downloads While in Demo Mode",
+  labs(title = "Weekly Eva Downloads While in Demo Mode - Data Quality",
        x = "Week Ending",
        y = "",
-       caption = "Download data not collected until Dec 29, 2022.") +
+       caption = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(ncol = 2))
+
+
+```
+
+
+```{r fig.width=10, fig.height=5}
+
+counts_by_week %>%
+  filter(str_detect(Event, "Download")) %>%
+  filter(str_detect(Event, "DEMO MODE")) %>%
+  filter(str_detect(Event, "System Overview")) %>%
+  ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
+  geom_line(size=0.8) +
+  geom_point(size=1) +
+  geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+  scale_color_manual(values = eva_colors) +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
+  labs(title = "Weekly Eva Downloads While in Demo Mode - System Overview",
+       x = "Week Ending",
+       y = "",
+       caption = "System Overview data not available until October 2024.") +
   theme_minimal() +
   theme(legend.position = "bottom") +
   guides(color = guide_legend(ncol = 2))
