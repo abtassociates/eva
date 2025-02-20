@@ -227,7 +227,7 @@ hh_no_hoh_dt <- base_dq_data_dt[, .(hasHoH = ifelse(min(RelationshipToHoH) != 1,
                                 by = HouseholdID]
 hh_no_hoh_dt <- hh_no_hoh_dt[hasHoH == FALSE]
 
-hh_no_hoh <- as.data.frame.matrix(
+hh_no_hoh <- as.data.frame(
   base_dq_data_dt[hh_no_hoh_dt, on = .(PersonalID, HouseholdID)]
 ) %>% 
   merge_check_info(checkIDs = 2) %>%
@@ -1346,7 +1346,8 @@ if(nrow(Services) > 0) {
 overlap_dt[, (cols_to_remove) := NULL]
 
 # convert to data.frame to play nice with other data.tables
-overlaps_df <- as.data.frame(overlap_dt[, HouseholdType := NULL])
+overlaps_df <- setDF(overlap_dt[, HouseholdType := NULL])
+
 # Invalid Move-in Date ----------------------------------------------------
 
 invalid_movein_date <- base_dq_data %>%
@@ -1733,7 +1734,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
                                                 levels = c("High Priority",
                                                            "Error",
                                                            "Warning"))]
-    dq_main <- as.data.frame(dq_main)
+    setDF(dq_main)
     
    dq_providers <- sort(Project0()$ProjectName) 
    
