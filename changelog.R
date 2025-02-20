@@ -2,6 +2,13 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
+    "02-20-2025",
+    "<b>New Features</b> <br>
+      - Code speedups particularly around file import and initial processing, as well as Impermissible Character downloads.<br>
+     <b>Bug Fixes:</b> <br>
+      - Fixed edge case detection of NbN overlaps; i.e., too many duplicates caused a join error and crashed Eva.<br>
+      - Fixed warning about DateProvided when Services file is empty<br>
+      - Small fix in how FSA issue are reported when an expected column is missing from a file.<br>",
     "02-06-2024",
     "<b>New Features</b> <br>
       - Added client-level export to the System Performance tab to provide transparency
