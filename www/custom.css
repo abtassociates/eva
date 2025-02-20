@@ -534,7 +534,9 @@ a:hover {
 
 
 .nav-tabs-custom>.nav-tabs>li.syso_download_tab>a, 
-.nav-tabs-custom>.nav-tabs>li.syso_download_tab>a:hover {
+.nav-tabs-custom>.nav-tabs>li.syso_download_tab>a:hover,
+.nav-tabs-custom>.nav-tabs>li.client_level_download_tab>a, 
+.nav-tabs-custom>.nav-tabs>li.client_level_download_tab>a:hover{
   margin-right: 2px;
   line-height: 1.42857143;
   border: 1px solid transparent;
