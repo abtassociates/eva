@@ -472,11 +472,11 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
        (LivingSituation %in% institutional_livingsituation &
           LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
           !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)))
-)][, `:=`(
-  lh_at_entry = lh_prior_livingsituation | ProjectType %in% lh_project_types,
-  EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
-    lh_prior_livingsituation
-)]
+  )][, `:=`(
+    lh_at_entry = lh_prior_livingsituation | ProjectType %in% lh_project_types,
+    EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
+      lh_prior_livingsituation
+  )]
 
 custom_rprof({
 source("07_system_overview_period_specific_prep.R", local=TRUE)

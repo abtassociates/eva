@@ -150,28 +150,32 @@ parseDate <- function(datevar) {
 }
 
 importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
-  if(str_sub(upload_filepath, -4, -1) != ".zip") {
+  if(isTRUE(str_sub(upload_filepath, -4, -1) != ".zip")) {
     capture.output("User tried uploading a non-zip file!") 
   }
 
   filename <- str_glue("{csvFile}.csv")
   if(!is.null(upload_filepath))
-    filename = utils::unzip(zipfile = upload_filepath, files=filename)
+    filename = utils::unzip(
+      zipfile = upload_filepath, 
+      files=filename, 
+      exdir=dirname(tempfile())
+    )
+  filename <- paste0(tempdir(), "/", basename(filename))
   
   colTypes <- get_col_types(upload_filepath, csvFile)
 
-  data <- read_csv(
+  data <- data.table::fread(
     filename,
-    col_types = colTypes,
-    na = ""
+    colClasses = unlist(unname(colTypes)),
+    na.strings="NA"
   )
-    # AS 5/29/24: This seems a bit faster, but has problems with missing columns, 
-    # like DateDeleted in Client.csv. they come inas character, and not NA
-    # data.table::fread(
-    #   here(filename),
-    #   colClasses = colTypes,
-    #   na.strings="NA"
-    # )
+  data[, (names(data)) := lapply(.SD, function(x) {
+    if (is.character(x)) x[x == ""] <- NA
+    return(x)
+  }), .SDcols = names(data)]
+  
+  setDF(data)
 
   if(csvFile != "Export"){
     data <- data %>%
@@ -181,26 +185,21 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   attr(data, "encoding") <- guess_encoding(filename)$encoding[1]
   data <- convert_data_to_utf8(data)
   
+  # remove the csv
+  file.remove(filename)
   return(data)
 }
 
 get_col_types <- function(upload_filepath, file) {
-  # returns the datatypes as a concatenated string, based on the order
-  # of the columns in the imported file, rather than the expected order
-  # e.g. "ccccDDnnnnnnnnTTcTc"
-  
+  # returns the datatypes as a named list, using data.table::fread column types,
+  # based on the order of the columns in the imported file, rather than the expected order
   # get the column data types expected for the given file
   col_types <- cols_and_data_types %>%
     filter(File == file) %>%
     mutate(DataType = data_type_mapping[as.character(DataType)])
   
-  # get the columns in the order they appear in the imported file
-  filename = paste0(file, ".csv")
-  if(!is.null(upload_filepath))
-    filename = utils::unzip(zipfile = upload_filepath, files=filename)
-  
   cols_in_file <- colnames(read.table(
-    filename,
+    paste0(tempdir(), "/", file, ".csv"),
     head = TRUE,
     nrows = 1,
     sep = ",", 
@@ -210,10 +209,10 @@ get_col_types <- function(upload_filepath, file) {
   data_types <- sapply(cols_in_file, function(col_name) {
     ifelse(col_name %in% col_types$Column,
            col_types$DataType[col_types$Column == col_name],
-           "c")
+           "character")
   })
-  
-  return(paste(data_types, collapse = ""))
+
+  return(data_types)
 }
 
 logMetadata <- function(detail) {

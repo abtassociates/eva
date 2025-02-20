@@ -121,11 +121,11 @@ cols_and_data_types <- read_csv(here("public-resources/columns.csv"),
                        "AssessmentQuestions",
                        "Disabilities")))
 
-data_type_mapping <- c(
-  character = "c", 
-  numeric = "n", 
-  date = "D",
-  datetime = "T"
+data_type_mapping <- list(
+  character = "character",
+  numeric = "numeric",
+  date = "Date",
+  datetime = "POSIXct"
 )
 
 # Allowed Subsidy Types ---------------------------------------------------

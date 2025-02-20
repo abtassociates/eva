@@ -235,7 +235,7 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
 calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
   if (projecttype %in% c(project_types_w_cls)) {
     merge_check_info_dt(
-      as.data.table(cls_project_types())[
+      setDT(cls_project_types())[
         is.na(ExitDate) &
           ProjectType %in% project_types_w_cls &
           ProjectType == projecttype &
@@ -244,7 +244,7 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
       103
     )[, ..vars_we_want]
   } else{
-    entryexit_project_types <- as.data.table(validation())
+    entryexit_project_types <- setDT(validation())
     entryexit_project_types[, Days := as.numeric(difftime(
       as.Date(meta_HUDCSV_Export_Date()), EntryDate, units = "days"
     ))]
