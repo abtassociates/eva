@@ -1,9 +1,6 @@
 
 Sys.setenv(TZ = "America/New_York")
 
-# add package path to renv library
-.libPaths(c(.libPaths(), "/renv/library/R-4.2/x86_64-pc-linux-gnu/"))
-
 library(tidyverse)
 library(lubridate)
 library(shinydashboard)
@@ -13,17 +10,29 @@ library(scales)
 library(DT)
 library(readxl)
 library(writexl)
-library(HMIS) #github.com/kiadso/HMIS
 library(glue)
 library(janitor)
 library(shinyjs)
 library(shinydisconnect)
 library(here)
+library(shinycssloaders)
+library(dtplyr)
+library(data.table)
+library(ggplot2)
+library(ggalluvial)
+library(officer)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 
-if(dir.exists("metadata-analysis/metadata/")) {
-  capture.output("All good",file=stderr())
+if(dir.exists(here("metadata-analysis/metadata/"))) {
+  capture.output("All good", file = stderr())
 } else {
-  dir.create("metadata-analysis/metadata/")
+  dir.create(here("metadata-analysis/metadata/"))
 }
+source(here("hardcodes.R"), local = TRUE) # hard-coded variables and data frames
+
+# # functions used throughout the app
+# source("helper_functions.R", local = TRUE)
+
+# runApp(display.mode = "showcase")
+

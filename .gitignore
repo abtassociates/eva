@@ -1,12 +1,16 @@
-.Rproj.user
+# auto-added by RStudio
 .Rhistory
 .RData
-.Ruserdata
+.Rproj.user
+# added over time
+*.Rproj
+*.Ruserdata
 data
 rsconnect
 comparisons
 *.jpg
-.DS_Store
+*.png
+*.DS_Store
 data/
 images/
 *.html
@@ -26,4 +30,9 @@ metadata.csv
 *_.new.png
 metadata.csv
 sessiondata.csv
-tests/shinytest/*-current/
+tests/temp/
+runShinyApp.R
+.nfs00000000034418240000000c
+vscDebugger
+.Rproj.user
+www/client-level-export-data-dictionary.csv

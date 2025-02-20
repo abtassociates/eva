@@ -4,16 +4,31 @@
 # unexpected nulls, and more
 ######################
 
+logToConsole("Running file structure analysis")
 
 # Prep --------------------------------------------------------------------
 
-export_id_from_export <- Export %>% pull(ExportID)
+export_id_from_export <- Export() %>% pull(ExportID)
 
 high_priority_columns <- cols_and_data_types %>%
   filter(DataTypeHighPriority == 1) %>%
   pull(Column) %>%
   unique()
 
+# Brackets --------------------------------------------------------------
+files_with_brackets <- data.frame()
+for(file in unique(cols_and_data_types$File)) {
+  if (isTruthy(any(str_detect(as.matrix(get(file)), bracket_regex)))) {
+    files_with_brackets <- data.frame(
+        Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
+          See Impermissible Character Detail export for the precise location of 
+          these characters.")
+      ) %>%
+        merge_check_info(checkIDs = 134) %>%
+        select(all_of(issue_display_cols))
+    break
+  }
+}
 
 # Incorrect Date Formats --------------------------------------------------
 
@@ -33,7 +48,6 @@ df_date_types <-
       "file has the correct date format."))
   )
   
-
 incorrect_date_types_hp <- df_date_types %>%
   filter(Column %in% c(high_priority_columns)) %>%
   merge_check_info(checkIDs = 11) %>%
@@ -92,80 +106,62 @@ check_columns <- function(file) {
     )
   }
 }
+df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
 
-check_data_types <- function(quotedfile) {
-  barefile <- get(quotedfile)
-  if(nrow(barefile) > 0) {
-    
-    data_types <- as.data.frame(summary.default(barefile)) %>% 
-      filter(Var2 != "Length" & 
-               ((Var2 == "Class" & Freq %in% c("Date", "POSIXct")) |
-                  Var2 == "Mode")) %>% 
-      mutate(
-        File = quotedfile,
-        ImportedDataType = case_when(
-          Var2 == "Class" & Freq == "Date" ~ "date",
-          Var2 == "Class" & Freq == "POSIXct" ~ "datetime",
-          Var2 == "Mode" ~ Freq,
-          TRUE ~ "something's wrong"
-        )) %>%
-      group_by(Var1) %>%
-      slice_min(order_by = Var2)  %>%
-      ungroup() %>%
-      select(File, "Column" = Var1, ImportedDataType)
-    
-    y <- cols_and_data_types %>% 
-      left_join(data_types, by = c("File", "Column")) %>%
-      filter(DataType != ImportedDataType) %>%
-      mutate(
-        Detail = str_squish(paste0(
-          "In the ",
-          quotedfile,
-          " file, the ",
-          Column,
-          " column should have a data type of ",
-          case_when(
-            DataType == "numeric" ~ "integer",
-            DataType == "character" ~ "string",
-            TRUE ~ DataType
-          ),
-          " but in this file, it is ",
-          case_when(
-            ImportedDataType == "numeric" ~ "integer",
-            ImportedDataType == "character" ~ "string",
-            TRUE ~ ImportedDataType
-            ),
-          "."
-        ))
-      )
+# Unexpected (non-date) data types -----------------------------------------------------
+data_types <- problems %>%
+  filter(str_detect(expected, "date", negate = TRUE)) %>%
+  mutate(
+    File = str_remove(basename(file), ".csv"),
+  ) %>%
+  left_join(cols_and_data_types, by = c("File", "col" = "ColumnNo")) %>%
+  mutate(
+    Detail = str_squish(paste0(
+      "In the ",
+      File,
+      " file, the ",
+      Column,
+      " column should have a data type of ",
+      case_when(
+        DataType == "numeric" ~ "integer",
+        DataType == "character" ~ "string",
+        TRUE ~ DataType
+      ),
+      " but in this file, it is ",
+      case_when(
+        all(map_lgl(actual, is.numeric)) ~ "integer",
+        all(map_lgl(actual, is.Date)) ~ "date",
+        TRUE ~ "string"
+      ),
+      "."
+    ))
+  )
 
-    return(
-      rbind(
-        y %>% 
-          filter(DataTypeHighPriority == 1) %>% 
-          merge_check_info(checkIDs = 13) %>%
-          select(all_of(issue_display_cols)),
-          
-        y %>% 
-          filter(DataTypeHighPriority == 0) %>% 
-          merge_check_info(checkIDs = 48) %>%
-          select(all_of(issue_display_cols))
-      )
-    )
-  }
-}
+df_data_types <- rbind(
+  data_types %>% 
+    filter(DataTypeHighPriority == 1) %>% 
+    merge_check_info(checkIDs = 13) %>%
+    select(all_of(issue_display_cols)) %>%
+    unique(),
+  
+  data_types %>% 
+    filter(DataTypeHighPriority == 0) %>% 
+    merge_check_info(checkIDs = 48) %>%
+    select(all_of(issue_display_cols)) %>%
+    unique()
+)
+
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
-  total_rows = nrow(barefile)
-  if (total_rows > 1) {
+  if (nrow(barefile) > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
       filter(File == file & NullsAllowed == 0 & Column %in% names(get(file))) %>%
       pull(Column)
 
     # select subset of columns with nulls
-    barefile <- get(file) %>%
+    barefile <- barefile %>%
       select(all_of(nulls_not_allowed_cols)) %>%
       mutate_all(~ifelse(is.na(.), 1, 0)) %>%
       select_if(~any(. == 1))
@@ -179,7 +175,7 @@ check_for_bad_nulls <- function(file) {
           values_to = "value") %>%
         group_by(Column) %>%
         mutate(row_ids = case_when(
-          sum(value) == total_rows ~ "All rows affected", 
+          sum(value) == nrow(barefile) ~ "All rows affected", 
           sum(value) <= 3 ~ paste("See rows: ",
                                   paste(row_id[value == 1],
                                         collapse = ", ")),
@@ -202,17 +198,10 @@ check_for_bad_nulls <- function(file) {
     }
   }
 }
-
-# Integrity Structure -----------------------------------------------------
-
-df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
-
-df_data_types <- map_df(unique(cols_and_data_types$File), check_data_types)
-
 df_nulls <- map_df(unique(cols_and_data_types$File), check_for_bad_nulls)
 
 # Integrity Client --------------------------------------------------------
-
+# CHECK: export ID differs
 export_id_client <- Client %>%
   filter(as.character(ExportID) != export_id_from_export) %>%
   merge_check_info(checkIDs = 49) %>%
@@ -227,101 +216,44 @@ export_id_client <- Client %>%
   select(all_of(issue_display_cols)) %>%
   unique()
 
-valid_values_client <- Client %>%
-  mutate(
-    VeteranStatus = VeteranStatus %in% c(yes_no_enhanced),
-    RaceNone = RaceNone %in% c(dkr_dnc) | is.na(RaceNone),
-    AmIndAKNative = AmIndAKNative %in% c(yes_no),
-    Asian = Asian %in% c(yes_no),
-    BlackAfAmerican = BlackAfAmerican %in% c(yes_no),
-    NativeHIPacific = NativeHIPacific %in% c(yes_no),
-    White = White %in% c(yes_no),
-    Ethnicity = Ethnicity %in% c(yes_no_enhanced),
-    Female = Female %in% c(yes_no),
-    Male = Male %in% c(yes_no),
-    NoSingleGender = NoSingleGender %in% c(yes_no),
-    Transgender = Transgender %in% c(yes_no),
-    Questioning = Questioning %in% c(yes_no),
-    GenderNone = GenderNone %in% c(dkr_dnc) | is.na(GenderNone)
-  ) %>%
-  group_by_all() %>%
-  summarise(
-    VeteranStatus = min(VeteranStatus, na.rm = FALSE),
-    RaceNone = min(RaceNone, na.rm = FALSE),
-    AmIndAKNative = min(AmIndAKNative, na.rm = FALSE),
-    Asian = min(Asian, na.rm = FALSE),
-    BlackAfAmerican = min(BlackAfAmerican, na.rm = FALSE),
-    NativeHIPacific = min(NativeHIPacific, na.rm = FALSE),
-    White = min(White, na.rm = FALSE),
-    Ethnicity = min(Ethnicity, na.rm = FALSE),
-    Female = min(Female, na.rm = FALSE),
-    Male = min(Male, na.rm = FALSE),
-    NoSingleGender = min(NoSingleGender, na.rm = FALSE),
-    Transgender = min(Transgender, na.rm = FALSE),
-    Questioning = min(Questioning, na.rm = FALSE),
-    GenderNone = min(GenderNone, na.rm = FALSE)
-  ) %>%
-  ungroup() %>%
-  select(
-    VeteranStatus,
-    RaceNone,
-    AmIndAKNative,
-    Asian,
-    BlackAfAmerican,
-    NativeHIPacific,
-    White,
-    Ethnicity,
-    Female,
-    Male,
-    NoSingleGender,
-    Transgender,
-    Questioning,
-    GenderNone
-  ) %>%
-  pivot_longer(cols = everything()) %>%
-  filter(value == 0) %>%
-  count(name) %>%
-  merge_check_info(checkIDs = 50) %>%
-  mutate(
-    Detail = case_when(
-      name == "VeteranStatus" ~ paste("VeteranStatus has", n,
-                                      "rows with invalid values"),
-      name == "RaceNone" ~ paste("RaceNone has", n,
-                                 "rows with invalid values"),
-      name == "AmIndAKNative" ~ paste("AmIndAKNative has", n,
-                                      "rows with invalid values"),
-      name == "Asian" ~ paste("Asian has", n,
-                              "rows with invalid values"),
-      name == "BlackAfAmerican" ~ paste("BlackAfAmerican has", n,
-                                        "rows with invalid values"),
-      name == "NativeHIPacific" ~ paste("NativeHIPacific has", n,
-                                        "Rows with invalid values"),
-      name == "White" ~ paste("White has", n,
-                              "rows with invalid values"),
-      name == "Ethnicity" ~ paste("Ethnicity has", n,
-                                  "rows with invalid values"),
-      name == "Female" ~ paste("Female has", n,
-                               "rows with invalid values"),
-      name == "Male" ~ paste("Male has", n,
-                             "rows with invalid values"),
-      name == "NoSingleGender" ~ paste("NoSingleGender has", n,
-                                       "rows with invalid values"),
-      name == "Transgender" ~ paste("Transgender has", n,
-                                    "rows with invalid values"),
-      name == "Questioning" ~ paste("Questioning has", n,
-                                    "rows with invalid values"),
-      name == "GenderNone" ~ paste("GenderNone has", n,
-                                   "rows with invalid values")
-    )
-  ) %>%
-  select(all_of(issue_display_cols)) %>%
-  unique()
+# CHECK: Invalid demographic values
+# first, get a mapping of variables and their expected values
+cols <- c("VeteranStatus", race_cols, gender_cols)
 
+valid_values <- list(yes_no_enhanced, c(dkr_dnc, NA), yes_no, yes_no, yes_no, yes_no, 
+                     yes_no, yes_no, yes_no, yes_no, yes_no, yes_no, yes_no,
+                     yes_no, yes_no, yes_no, c(dkr_dnc, NA))
+
+
+# Only take existing columns - this solves the issue of misspelled demographic 
+# columns
+existing_cols <- base::intersect(cols, names(Client))
+
+# Create a named list of valid values for existing columns
+valid_values_named <- setNames(valid_values, cols)[existing_cols]
+
+# looping through only the columns that are actually (not misspelled) in Client
+# check if it's an unexpected, non-na value. That's what the [[.]] does -
+# it refers to the particular column in the loop. Equivalent to pull(.)
+# The ~ defines an anonymous function, as opposed to creating a specific function
+get_unexpected_count <- function(col_name) {
+  unexpected <- !Client[[col_name]] %in% valid_values_named[[col_name]]
+  data.frame(name = col_name, n = sum(unexpected))
+}
+
+valid_values_client <- existing_cols %>%
+  map_df(get_unexpected_count) %>%
+  filter(n > 0) %>%
+  merge_check_info(checkIDs = 50) %>%
+  mutate(Detail = paste(name, "has", n, "rows with invalid values")) %>% 
+  select(all_of(issue_display_cols))
+
+# CHECK: duplicate client ID
 duplicate_client_id <- Client %>%
   get_dupes(PersonalID) %>%
   merge_check_info(checkIDs = 7) %>%
   mutate(
-    Detail = paste("There are", dupe_count, "for PersonalID", PersonalID)
+    Detail = paste("There are", dupe_count, "duplicates for PersonalID", PersonalID)
   ) %>%
   select(all_of(issue_display_cols)) %>%
   unique()
@@ -464,7 +396,6 @@ nonstandard_destination <- Exit %>%
                      "which is not a valid Destination response."))) %>%
   select(all_of(issue_display_cols))
 
-
 nonstandard_CLS <- CurrentLivingSituation %>%
   filter(!is.na(CurrentLivingSituation) &
     !CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
@@ -477,31 +408,35 @@ nonstandard_CLS <- CurrentLivingSituation %>%
                      "which is not a valid response."))) %>%
   select(all_of(issue_display_cols))
 
-file_structure_analysis_main <- rbind(
+file_structure_analysis_main(rbind(
   df_column_diffs,
   df_data_types,
-  incorrect_date_types_hp,
-  incorrect_date_types_error,
   df_nulls,
-  export_id_client,
-  valid_values_client,
+  disabling_condition_invalid,
   duplicate_client_id,
   duplicate_enrollment_id,
   duplicate_household_id,
+  export_id_client,
   foreign_key_no_primary_personalid_enrollment,
   foreign_key_no_primary_projectid_enrollment,
-  disabling_condition_invalid,
+  incorrect_date_types_error,
+  incorrect_date_types_hp,
   living_situation_invalid,
-  rel_to_hoh_invalid,
-  nonstandard_destination,
+  no_enrollment_records,
   nonstandard_CLS,
-  no_enrollment_records
-) %>%
+  nonstandard_destination,
+  rel_to_hoh_invalid,
+  valid_values_client,
+  files_with_brackets
+  ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
+)
 
-if(file_structure_analysis_main %>% filter(Type == "High Priority") %>% nrow() > 0) {
-  structural_issues <- 1
+if(file_structure_analysis_main() %>% 
+filter(Type == "High Priority") %>% 
+nrow() > 0) {
+  valid_file(0)
 } else{
-  structural_issues <- 0
+  valid_file(1)
 }
