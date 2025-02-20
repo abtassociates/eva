@@ -47,7 +47,6 @@ is_hashed <- function() {
 
   # read Client file
   Client <- importFile(upload_filepath, "Client")
-  file.remove("Client.csv")
   
   # decide if the export is hashed
   return(  
