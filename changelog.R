@@ -2,6 +2,10 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
+    "03-06-2025",
+    "<b>Miscellaneous</b> <br>
+    - Gracefully handle timeouts
+    ",
     "02-20-2025",
     "<b>New Features</b> <br>
       - Code speedups particularly around file import and initial processing, as well as Impermissible Character downloads.<br>
