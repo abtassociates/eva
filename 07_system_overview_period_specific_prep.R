@@ -120,12 +120,6 @@ universe <- function(enrollments_filtered, period) {
     !(lookback == 0 & eecr == FALSE & lecr == FALSE),
     order_ees := fifelse(lecr == TRUE, 0, 
                          fifelse(eecr == TRUE, 1, lookback + 1))
-  ][
-    order(-order_ees), # Equivalent of arrange(desc(order_ees))
-    # AS 2/13/2025 - don't we already do this earlier in get_period_specific_enrollment_categories?
-    # days_to_next_entry := as.numeric(difftime(shift(EntryDate, type = "lead"), 
-    #                                           ExitAdjust, units = "days")),
-    by = PersonalID # Equivalent of group_by(PersonalID)
   ][, `:=`(
     # INFLOW CALCULATOR COLUMNS
     # LOGIC: active homeless at start
@@ -245,16 +239,17 @@ universe <- function(enrollments_filtered, period) {
         (ProjectType == es_nbn_project_type &
            (in_date_range == TRUE | NbN15DaysBeforeReportEnd == FALSE))
           
-         ))
+      )
   )]
 }
 
 # Enrollment-level universe with client-level flags -----------------------
 # Need to keep it enrollment-level so other scripts can reference the enrollments
 universe_ppl_flags <- function(universe_df) {
-  universe_df[, .SD[ # Subset by group (PersonalID) and filter rows based on conditions
-    max(lecr, na.rm = TRUE) == 1 & max(eecr, na.rm = TRUE) == 1
-  ], by = PersonalID][, `:=`(
+  universe_df[, 
+    .SD[any(lecr, na.rm = TRUE) & any(eecr, na.rm = TRUE)], 
+    by = "PersonalID"
+  ][, `:=`(
     # INFLOW
     active_at_start_homeless_client = max(active_at_start_homeless),
     
