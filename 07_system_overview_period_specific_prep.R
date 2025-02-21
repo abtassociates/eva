@@ -60,6 +60,7 @@ enrollment_categories_filtered_df <- function(period, hh_type, level_detail, pro
       lh_at_entry,
       EnrolledHomeless,
       straddles_start,
+      straddles_end,
       in_date_range,
       days_to_next_entry,
       days_since_previous_exit,
@@ -208,8 +209,7 @@ universe <- function(enrollments_filtered, period) {
       ExitAdjust <= endDate,
     
     homeless_at_end = lecr == TRUE & 
-      EntryDate <= period[2] &
-      ExitAdjust >= period[2] &
+      straddles_end &
       ( # e/e shelter, th, sh
         ProjectType %in% lh_project_types_nc |
           
@@ -229,15 +229,13 @@ universe <- function(enrollments_filtered, period) {
       ),
     
     housed_at_end = lecr == TRUE & 
-      EntryDate <= period[2] &
-      ExitAdjust >= period[2] &
+      straddles_end &
       ProjectType %in% ph_project_types & 
       !is.na(MoveInDateAdjust) &
       MoveInDateAdjust < endDate,
     
     unknown_at_end = lecr == TRUE &
-      EntryDate <= period[2] &
-      ExitAdjust >= period[2] &
+      straddles_end & (
         # Non-Res Project Types and not lh
         (
           ProjectType %in% non_res_project_types &
