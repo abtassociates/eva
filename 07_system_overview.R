@@ -478,10 +478,23 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
       lh_prior_livingsituation
   )]
 
-custom_rprof({
-source("07_system_overview_period_specific_prep.R", local=TRUE)
-}, "07_system_overview_period_specific_prep.R")
+# Prepare a dataset of homeless CLS records, along with EntryDate and ProjectType. 
+# This partially replaces the old homeless_cls_finder function
+# (which required filtering the same way for every record, so now we're doing more work once)
+# by casting a wide net for (Non-Res) Project Types that rely on CurrentLivingSituation 
+# this dataset will be used to categorize people as active_at_start, homeless_at_end, and unknown_at_end
+# it's also used in determining EECR and LECR (see 07_system_overview_period_specific_prep.R)
+homeless_cls <- merge(
+  enrollment_categories[, .(EnrollmentID, EntryDate, ProjectType, lh_prior_livingsituation, ExitDate)],
+  as.data.table(CurrentLivingSituation)[
+    CurrentLivingSituation %in% homeless_livingsituation_incl_TH
+  ],
+  by = "EnrollmentID"
+)[ProjectType %in% non_res_project_types,  `:=`(
+  info_equal_entry = InformationDate == EntryDate,
+  info_equal_exit = InformationDate == ExitDate
+)]
 
-custom_rprof({
+source("07_system_overview_period_specific_prep.R", local=TRUE)
+
 source("07_system_overview_plot_data_prep.R", local=TRUE)
-}, "07_system_overview_plot_data_prep.R")

@@ -16,7 +16,6 @@ report_dates <- c(
 # Enrollments-level flags, filtered---------------------------------------------
 enrollment_categories_filtered_df <- function(period, hh_type, level_detail, project_type, upload_name) {
   # Get period-specific data (can be memoized as discussed earlier)
-  browser()
   enrollment_categories_df <- session$userData$get_period_specific_enrollment_categories(period, upload_name)
   
   # Apply all filters at once and select needed columns
@@ -66,6 +65,8 @@ enrollment_categories_filtered_df <- function(period, hh_type, level_detail, pro
       days_since_previous_exit,
       lecr,
       eecr,
+      was_lh_at_start,
+      was_lh_at_end,
       lookback,
       NbN15DaysAfterReportEnd,
       NbN15DaysBeforeReportEnd
@@ -79,26 +80,26 @@ enrollment_categories_filtered_df <- function(period, hh_type, level_detail, pro
 # This function aids in the categorization of people as 
 # active_at_start, homeless_at_end, and unknown_at_end
 # It does this by casting a wide net for Project Types that rely on CurrentLivingSituation
-homeless_cls_finder <- function(date, window = "before", days = 60, enrollments_filtered = NULL) {
-  plus_days <- if_else(window == "before", 0, days)
-  minus_days <- if_else(window == "after", 0, days)
-  
-  cls <- CurrentLivingSituation %>%
-    filter(
-      CurrentLivingSituation %in% homeless_livingsituation_incl_TH &
-        between(InformationDate,
-                date - days(minus_days),
-                date + days(plus_days))
-    ) %>%
-    pull(EnrollmentID) %>%
-    unique()
-  
-  if(is.null(enrollments_filtered)) {
-    cls
-  } else {
-    intersect(cls, enrollments_filtered$EnrollmentID)
-  }
-}
+# homeless_cls_finder <- function(date, window = "before", days = 60, enrollments_filtered = NULL) {
+#   plus_days <- ifelse(window == "before", 0, days)
+#   minus_days <- ifelse(window == "after", 0, days)
+#   
+#   cls <- CurrentLivingSituation %>%
+#     filter(
+#       CurrentLivingSituation %in% homeless_livingsituation_incl_TH &
+#         between(InformationDate,
+#                 date - days(minus_days),
+#                 date + days(plus_days))
+#     ) %>%
+#     pull(EnrollmentID) %>%
+#     unique()
+#   
+#   if(is.null(enrollments_filtered)) {
+#     cls
+#   } else {
+#     intersect(cls, enrollments_filtered$EnrollmentID)
+#   }
+# }
 
 # hello weary traveler amongst these date ranges. you may find it helpful to
 # find example clients and their Entry and Exit Dates and enter them into
@@ -148,10 +149,8 @@ universe <- function(enrollments_filtered, period) {
           
         ( # take only ce enrollments where the PLS or the CLS is <= 90 days
           # prior to ReportStart
-          ProjectType == ce_project_type &
-            (EnrollmentID %in% homeless_cls_finder(period[1], "before", 90, enrollments_filtered) |
-               (between(EntryDate, period[1] - days(90), period[1]) &
-                  lh_prior_livingsituation == TRUE))
+          ProjectType == ce_project_type & 
+            was_lh_at_start
         ) |
         # take any other enrollments if their PLS was literally homeless
         (
@@ -216,21 +215,10 @@ universe <- function(enrollments_filtered, period) {
           (ProjectType == es_nbn_project_type &
              (in_date_range == TRUE | NbN15DaysAfterReportEnd == TRUE)) |
           
-          # outreach, sso, other, day shelter
-          (ProjectType %in% c(out_project_type,
-                              sso_project_type,
-                              other_project_project_type,
-                              day_project_type) &
-             (EnrollmentID %in% homeless_cls_finder(period[2], "before", 60, enrollments_filtered) |
-                (between(EntryDate, period[2] - days(60), period[2]) &
-                   lh_prior_livingsituation == TRUE))) |
-          
-          # CE
-          (ProjectType %in% ce_project_type &
-             (EnrollmentID %in% homeless_cls_finder(period[2], "before", 90, enrollments_filtered) |
-                (between(EntryDate, period[2] - days(90), period[2]) &
-                   lh_prior_livingsituation == TRUE)
-             )
+          # Non-Res Project Types
+          (
+            ProjectType %in% non_res_project_types &
+              was_lh_at_end
           ) |
           
           # PSH, OPH, RRH
@@ -248,25 +236,14 @@ universe <- function(enrollments_filtered, period) {
     unknown_at_end = lecr == TRUE &
       EntryDate <= period[2] &
       ExitAdjust >= period[2] &
-      # outreach, sso, other, day shelter
-      ((ProjectType %in% c(out_project_type,
-                           sso_project_type,
-                           other_project_project_type,
-                           day_project_type) &
-          !EnrollmentID %in% homeless_cls_finder(period[2], "before", 60, enrollments_filtered) &
-          (!between(EntryDate, period[2] - days(60), period[2]) |
-             lh_prior_livingsituation == FALSE)) |
-         
-         # nbn shelter
-         (ProjectType == es_nbn_project_type &
-            (in_date_range == TRUE | NbN15DaysBeforeReportEnd == FALSE)) |
-         
-         
-         # CE
-         (ProjectType %in% ce_project_type &
-            !EnrollmentID %in% homeless_cls_finder(period[2], "before", 90, enrollments_filtered) &
-            (!between(EntryDate, period[2] - days(90), period[2]) |
-               lh_prior_livingsituation == FALSE)
+        # Non-Res Project Types and not lh
+        (
+          ProjectType %in% non_res_project_types &
+          !was_lh_at_end
+        ) |
+        # nbn shelter
+        (ProjectType == es_nbn_project_type &
+           (in_date_range == TRUE | NbN15DaysBeforeReportEnd == FALSE))
           
          ))
   )]
@@ -412,7 +389,40 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
   function(report_period, upload_name) {
     startDate <- report_period[1]
     endDate <- report_period[2]
-    e <- enrollment_categories[, `:=`(
+    
+    # continuing the work of the base homeless_cls dataset form 07_system_overview.R 
+    # we now make it period-specific, and collapse it down to the enrollment-level
+    # so this contains enrollments with homeless CLS and an indicator as to 
+    # whether InformationDate is within to 60 or 90 days (depending on project type) 
+    # from the period start/end
+    # we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
+    # this avoids having to re-filter and do the check for each enrollment
+    homeless_at_starts <- homeless_cls[, {
+      # Calculate time windows once
+      start_window <- startDate - ifelse(ProjectType == ce_project_type, 90, 60)
+      end_window <- endDate - ifelse(ProjectType == ce_project_type, 90, 60)
+      
+      info_in_start_window <- any(between(InformationDate, start_window, startDate))
+      info_in_end_window <- any(between(InformationDate, end_window, endDate))
+      entry_in_start_window <- between(EntryDate, start_window, startDate)
+      entry_in_end_window <- between(EntryDate, end_window, endDate)
+      
+      .(
+        was_lh_at_start = info_in_start_window |
+          (entry_in_start_window & lh_prior_livingsituation) |
+          (EntryDate > startDate & (lh_prior_livingsituation | info_equal_entry)),
+        
+        was_lh_at_end = info_in_end_window |
+          (entry_in_end_window & lh_prior_livingsituation) |
+          (ExitDate < endDate & (lh_prior_livingsituation | info_equal_exit))
+      )
+    }, by = "EnrollmentID"]
+    
+    e <- merge(
+      enrollment_categories,
+      homeless_at_starts,
+      by = "EnrollmentID"
+    )[, `:=`(
       straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
       straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
       in_date_range = ExitAdjust >= startDate & EntryDate <= endDate #,
@@ -440,6 +450,8 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       "straddles_start",
       "straddles_end",
       "in_date_range",
+      "was_lh_at_start",
+      "was_lh_at_end",
       "EnrolledHomeless",
       "LivingSituation",
       "LOSUnderThreshold",
@@ -489,8 +501,13 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           (InvolvedInOverlapEnd == FALSE | RankOrderEndOverlaps == 1) &
           (days_to_next_entry < 730 | is.na(days_to_next_entry))
       ][, `:=`(
-        lecr = in_date_range & max(ordinal) == ordinal,
-        eecr = in_date_range & min(ordinal) == ordinal
+        lecr = in_date_range & max(ordinal) == ordinal & (
+          !(ProjectType %in% non_res_project_types) | was_lh_at_end
+        ),
+           
+        eecr = in_date_range & min(ordinal) == ordinal & (
+          !(ProjectType %in% non_res_project_types) | was_lh_at_start
+        )
       ), by = .(PersonalID, in_date_range)
       ][
         order(PersonalID, in_date_range, -EntryDate, -ExitAdjust),
@@ -500,7 +517,6 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         ,AgeAtEntry := NULL
       ]
     
-    browser()
     merge(
       e, 
       session$userData$get_period_specific_nbn_enrollment_services(report_period, upload_name), 
