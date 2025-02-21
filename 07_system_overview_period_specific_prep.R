@@ -106,6 +106,9 @@ enrollment_categories_filtered_df <- function(period, hh_type, level_detail, pro
 # https://onlinetools.com/time/visualize-date-intervals <- here.
 # add inflow type and active enrollment typed used for system overview plots
 universe <- function(enrollments_filtered, period) {
+  startDate <- period[1]
+  endDate <- period[2]
+  
   merge(
     copy(enrollments_filtered)[, MostRecentAgeAtEntry := NULL],
     client_categories_filtered(), 
@@ -143,7 +146,7 @@ universe <- function(enrollments_filtered, period) {
           ProjectType %in% ph_project_types &
             (
               is.na(MoveInDateAdjust) |
-                MoveInDateAdjust >= period[1]
+                MoveInDateAdjust >= startDate
             )
         ) |
           
@@ -162,9 +165,8 @@ universe <- function(enrollments_filtered, period) {
       # and within 2 weeks of prev enrollment
       (straddles_start == TRUE |
          (straddles_start == FALSE &
-            EntryDate >= period[1] &
-            between(difftime(EntryDate, period[1],
-                             units = "days"),
+            EntryDate >= startDate &
+            between(difftime(EntryDate, startDate, units = "days"),
                     0,
                     14) &
             !is.na(days_since_previous_exit) &
@@ -179,7 +181,7 @@ universe <- function(enrollments_filtered, period) {
     active_at_start_housed = eecr == TRUE & 
       ProjectType %in% ph_project_types & 
       !is.na(MoveInDateAdjust) &
-      MoveInDateAdjust < period[1],
+      MoveInDateAdjust < startDate,
     
     # LOGIC helper columns
     
@@ -199,11 +201,11 @@ universe <- function(enrollments_filtered, period) {
     # outflow columns
     perm_dest_lecr = lecr == TRUE &
       Destination %in% perm_livingsituation &
-      ExitAdjust <= period[2], 
+      ExitAdjust <= endDate, 
     
     temp_dest_lecr = lecr == TRUE &
       !(Destination %in% perm_livingsituation) &
-      ExitAdjust <= period[2],
+      ExitAdjust <= endDate,
     
     homeless_at_end = lecr == TRUE & 
       EntryDate <= period[2] &
@@ -231,7 +233,7 @@ universe <- function(enrollments_filtered, period) {
       ExitAdjust >= period[2] &
       ProjectType %in% ph_project_types & 
       !is.na(MoveInDateAdjust) &
-      MoveInDateAdjust < period[2],
+      MoveInDateAdjust < endDate,
     
     unknown_at_end = lecr == TRUE &
       EntryDate <= period[2] &
