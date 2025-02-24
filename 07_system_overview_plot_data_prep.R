@@ -4,17 +4,8 @@
 sys_inflow_outflow_plot_data({
   period_specific_data()[["Full"]] %>%
     select(PersonalID,
-           active_at_start_homeless_client,
-           active_at_start_housed_client,
-           return_from_perm_client,
-           reengaged_from_temp_client,
            InflowTypeSummary,
            InflowTypeDetail,
-           perm_dest_client,
-           temp_dest_client,
-           homeless_at_end_client,
-           housed_at_end_client,
-           unknown_at_end_client,
            OutflowTypeSummary,
            OutflowTypeDetail
     ) %>%
