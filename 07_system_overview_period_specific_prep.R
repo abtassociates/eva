@@ -110,16 +110,10 @@ universe <- function(enrollments_filtered, period) {
   startDate <- period[1]
   endDate <- period[2]
   
-  merge(
-    copy(enrollments_filtered)[, MostRecentAgeAtEntry := NULL],
-    client_categories_filtered(), 
-    by = "PersonalID"
-  )[
-    # get rid of rows where the enrollment is neither a lookback enrollment,
-    # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
-    !(lookback == 0 & eecr == FALSE & lecr == FALSE),
-    order_ees := fifelse(lecr == TRUE, 0, 
-                         fifelse(eecr == TRUE, 1, lookback + 1))
+  client_categories_filtered()[
+    enrollments_filtered,
+    on = .(PersonalID),
+    nomatch = NULL
   ][, `:=`(
     # INFLOW CALCULATOR COLUMNS
     # LOGIC: active homeless at start
