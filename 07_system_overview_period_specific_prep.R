@@ -386,7 +386,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     # from the period start/end
     # we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
     # this avoids having to re-filter and do the check for each enrollment
-    homeless_at_starts <- homeless_cls[, {
+    homeless_at_period_start <- homeless_cls[, {
       # Calculate time windows once
       start_window <- startDate - ifelse(ProjectType == ce_project_type, 90, 60)
       end_window <- endDate - ifelse(ProjectType == ce_project_type, 90, 60)
@@ -407,115 +407,58 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       )
     }, by = "EnrollmentID"]
     
-    e <- merge(
-      enrollment_categories,
-      homeless_at_starts,
-      by = "EnrollmentID"
-    )[, `:=`(
+    e <- homeless_at_period_start[
+      enrollment_categories[
+        ProjectType != hp_project_type & 
+          # keep enrollments in date range keep exits within the 2 yrs prior to start
+          EntryDate <= endDate & ExitAdjust >= (startDate - years(2))
+      ],
+      on = .(EnrollmentID)
+    ][, `:=`(
       straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
       straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
-      in_date_range = ExitAdjust >= startDate & EntryDate <= endDate #,
+      in_date_range = EntryDate <= endDate & ExitAdjust >= startDate #,
       # DomesticViolenceCategory = fcase(
       #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
       #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
       #   default = "NotDV"
       # )
-    )][
-      # Apply filtering with efficient conditions
-      (startDate - years(2)) <= ExitAdjust & # remove exits from more than 2 yrs ago
-      ProjectType != hp_project_type
-    ][, c(
-      "EnrollmentID",
-      "PersonalID",
-      "HouseholdID",
-      "EntryDate",
-      "MoveInDateAdjust",
-      "ExitDate",
-      "ExitAdjust",
-      "ProjectType",
-      "MostRecentAgeAtEntry",
-      "lh_prior_livingsituation",
-      "lh_at_entry",
-      "straddles_start",
-      "straddles_end",
-      "in_date_range",
-      "was_lh_at_start",
-      "was_lh_at_end",
-      "EnrolledHomeless",
-      "LivingSituation",
-      "LOSUnderThreshold",
-      "PreviousStreetESSH",
-      "Destination",
-      "AgeAtEntry",
-      "CorrectedHoH",
-      # "DomesticViolenceCategory",
-      "HouseholdType",
-      "ProjectTypeWeight",
-      "VeteranStatus"
-    ), with = FALSE
-    ][
-      # Add grouping and ordering steps
-      order(EntryDate), `:=`(
-        StraddlesStart = .N #, MaxProjectTypeStart = max(ProjectTypeWeight)
-      ), by = .(PersonalID, straddles_start)
-    ][order(EntryDate), `:=`(
-      StraddlesEnd = .N #, MaxProjectTypeEnd = max(ProjectTypeWeight)
-    ), by = .(PersonalID, straddles_end)
-    ][order(PersonalID, EntryDate),
-      # Add mutations related to overlaps and rank ordering
-      `:=`(
-        InvolvedInOverlapStart = straddles_start & StraddlesStart > 1,
-        InvolvedInOverlapEnd = straddles_end & StraddlesEnd > 1,
-        ordinal = seq_len(.N),
+    )][, `:=`(
         days_to_next_entry = difftime(shift(EntryDate, type = "lead"),
-                                      ExitAdjust, units = "days"),
-        days_since_previous_exit = difftime(EntryDate, shift(ExitAdjust), units = "days"),
-        next_enrollment_project_type = shift(ProjectType, type = "lead"),
-        previous_enrollment_project_type = shift(ProjectType)
-      ), by = .(PersonalID)
-    ][# AS 9/23/24: We're creating the RankOrder variables and then filtering the 
-      # start and ends  all at once, rather than starts first then ends. 
-      # The reason is that this correctly handles cases where enrollment B overlaps 
-      # with A at the start and C at the end, by dropping B as the later of the
-      # "start" overlaps and C as the later of the end ones. As a result the person 
-      # does not get an LECR and is therefore dropped from the analysis. 
-      # If we handle starts and ends separately, B would be dropped, and then C 
-      # would be the LECR.
-      order(-ProjectTypeWeight, EntryDate, ExitAdjust), `:=`(
-        RankOrderStartOverlaps = rowid(PersonalID, InvolvedInOverlapStart),
-        RankOrderEndOverlaps = rowid(PersonalID, InvolvedInOverlapEnd)
-      )][
-        # only keep the first enrollment crossing the Period Start/End 
-        (InvolvedInOverlapStart == FALSE | RankOrderStartOverlaps == 1) &
-          (InvolvedInOverlapEnd == FALSE | RankOrderEndOverlaps == 1) &
-          (days_to_next_entry < 730 | is.na(days_to_next_entry))
-      ][, `:=`(
-        lecr = in_date_range & max(ordinal) == ordinal & (
-          !(ProjectType %in% non_res_project_types) | was_lh_at_end
-        ),
-           
-        eecr = in_date_range & min(ordinal) == ordinal & (
-          !(ProjectType %in% non_res_project_types) | was_lh_at_start
-        )
-      ), by = .(PersonalID, in_date_range)
-      ][
-        order(PersonalID, in_date_range, -EntryDate, -ExitAdjust),
-        lookback := ifelse(in_date_range, 0, seq_len(.N) - fifelse(in_date_range, 1, 0)), 
-        by = .(PersonalID)
-      ][
-        ,AgeAtEntry := NULL
-      ]
+                                    ExitAdjust, units = "days"),
+        days_since_previous_exit = difftime(EntryDate, shift(ExitAdjust), units = "days")
+      ), 
+      by= .(PersonalID)
+    ][
+      days_to_next_entry < 730 | is.na(days_to_next_entry)
+    ][
+      order(PersonalID, EntryDate, -ProjectTypeWeight), `:=`(
+      # enrollment crossing period start/end (ecps/ecpe)
+      ecps = in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_start),
+      ecpe = in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_end)
+    )][, 
+       has_ecps_and_ecpe := any(ecps) & any(ecpe), by=PersonalID
+    ][(has_ecps_and_ecpe),
+      # only keep records for PersonalIDs that have an ecpe and an ecps
+      # any(ecpe) & any(ecps), 
+      `:=`(
+        # get the first ecps (so other ecps's become lookbacks)
+        eecr = seq_len(.N) == which.max(ecps) & ecps,
+        # get the last ecpe
+        lecr = seq_len(.N) == (.N + 1 - which.max(rev(ecpe))) & ecpe,
+        # incremental count of enrollments prior to eecr 
+        lookback = seq_len(.N) - which.max(ecps)
+      ),
+      by = .(PersonalID)
+    ][lookback <= 1]
     
+    # this needs to be merge in case NbN dataset is empty
     merge(
-      e, 
+      e,
       session$userData$get_period_specific_nbn_enrollment_services(report_period, upload_name), 
       by = "EnrollmentID",
       all.x = T
-    )[, `:=`(
-      NbN15DaysBeforeReportStart = replace_na(NbN15DaysBeforeReportStart, 0),
-      NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0),
-      NbN15DaysBeforeReportEnd = replace_na(NbN15DaysBeforeReportEnd, 0)
-    )]
+    )
   },
   cache = cachem::cache_mem(max_size = 100 * 1024^2) 
 )
