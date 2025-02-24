@@ -511,7 +511,7 @@ period_specific_data <- reactive({
     universe_data <- universe(enrollments_filtered, period)
     universe_with_flags <- universe_ppl_flags(universe_data)
     
-    if(!identical(period, c(ReportStart(),ReportEnd()))) {
+    if(!identical(period, report_dates[["Full"]])) {
       universe_with_flags[, month := as.Date(period[1])]
     }
     universe_with_flags
