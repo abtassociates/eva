@@ -327,7 +327,7 @@ client_categories <- Client %>%
 
 # Client-level flags, filtered ----------------------------------------------------
 client_categories_filtered <- reactive({
-  client_categories %>%
+  setDT(client_categories %>%
     mutate(All = 1) %>%
     filter(
       AgeCategory %in% input$syso_age &
@@ -341,6 +341,7 @@ client_categories_filtered <- reactive({
                VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17")))
         )
     )  
+  )
 })
 
 # Data prep ---------------------------------------------------------------
@@ -476,7 +477,33 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     lh_at_entry = lh_prior_livingsituation | ProjectType %in% lh_project_types,
     EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
       lh_prior_livingsituation
-  )]
+  )][, .(
+    EnrollmentID,
+    PersonalID,
+    HouseholdID,
+    EntryDate,
+    MoveInDateAdjust,
+    ExitDate,
+    ExitAdjust,
+    ProjectType,
+    MostRecentAgeAtEntry,
+    lh_prior_livingsituation,
+    lh_at_entry,
+    EnrolledHomeless,
+    LivingSituation,
+    LOSUnderThreshold,
+    PreviousStreetESSH,
+    Destination,
+    AgeAtEntry,
+    CorrectedHoH,
+    # DomesticViolenceCategory,
+    HouseholdType,
+    ProjectTypeWeight,
+    VeteranStatus
+  )
+]
+setkey(enrollment_categories, EnrollmentID)
+setindex(enrollment_categories, PersonalID, ProjectType)
 
 # Prepare a dataset of homeless CLS records, along with EntryDate and ProjectType. 
 # This partially replaces the old homeless_cls_finder function
@@ -484,16 +511,18 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
 # by casting a wide net for (Non-Res) Project Types that rely on CurrentLivingSituation 
 # this dataset will be used to categorize people as active_at_start, homeless_at_end, and unknown_at_end
 # it's also used in determining EECR and LECR (see 07_system_overview_period_specific_prep.R)
-homeless_cls <- merge(
-  enrollment_categories[, .(EnrollmentID, EntryDate, ProjectType, lh_prior_livingsituation, ExitDate)],
-  as.data.table(CurrentLivingSituation)[
-    CurrentLivingSituation %in% homeless_livingsituation_incl_TH
-  ],
-  by = "EnrollmentID"
-)[ProjectType %in% non_res_project_types,  `:=`(
-  info_equal_entry = InformationDate == EntryDate,
-  info_equal_exit = InformationDate == ExitDate
-)]
+homeless_cls <- as.data.table(CurrentLivingSituation)[
+  CurrentLivingSituation %in% homeless_livingsituation_incl_TH
+][
+  enrollment_categories[ProjectType %in% non_res_project_types], 
+  on = .(EnrollmentID),
+  .(
+    EnrollmentID, EntryDate, ProjectType, lh_prior_livingsituation, ExitDate, InformationDate, CurrentLivingSituation,
+    info_equal_entry = InformationDate == EntryDate,
+    info_equal_exit = InformationDate == ExitDate
+  ),
+  nomatch = NULL
+]
 
 source("07_system_overview_period_specific_prep.R", local=TRUE)
 
