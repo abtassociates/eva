@@ -240,37 +240,42 @@ universe <- function(enrollments_filtered, period) {
 # Enrollment-level universe with client-level flags -----------------------
 # Need to keep it enrollment-level so other scripts can reference the enrollments
 universe_ppl_flags <- function(universe_df) {
-  universe_df[, 
-    .SD[any(lecr, na.rm = TRUE) & any(eecr, na.rm = TRUE)], 
-    by = "PersonalID"
-  ][, `:=`(
+  universe_df[, `:=`(
     # INFLOW
-    active_at_start_homeless_client = max(active_at_start_homeless),
+    active_at_start_homeless_client = max(active_at_start_homeless) == 1L,
     
-    active_at_start_housed_client = max(active_at_start_housed),
+    active_at_start_housed_client = max(active_at_start_housed) == 1L,
     
-    return_from_perm_client = max(lookback1_perm_dest) == 1 & 
+    return_from_perm_client = max(lookback1_perm_dest) == 1L & 
+      max(at_least_14_days_to_eecr_enrl) == 1L,
+    
+    reengaged_from_temp_client = max(lookback1_temp_dest) == 1L & 
       # max(eecr_lh_at_entry) == 1 & 
-      max(at_least_14_days_to_eecr_enrl) == 1,
-    
-    reengaged_from_temp_client = max(lookback1_temp_dest) == 1 & 
-      # max(eecr_lh_at_entry) == 1 & 
-      max(at_least_14_days_to_eecr_enrl) == 1,
+      max(at_least_14_days_to_eecr_enrl) == 1L,
     
     newly_homeless_client = max(lookback) == 0 |
       max(eecr_lh_at_entry) == 0 | 
-      max(at_least_14_days_to_eecr_enrl) == 0
+      max(at_least_14_days_to_eecr_enrl) == 0,
+    
+    # OUTFLOW
+    perm_dest_client = max(perm_dest_lecr) == 1L,
+    
+    temp_dest_client = max(temp_dest_lecr) == 1L,
+    
+    homeless_at_end_client = max(homeless_at_end) == 1L,
+    
+    housed_at_end_client = max(housed_at_end) == 1L,
+    
+    unknown_at_end_client = max(unknown_at_end) == 1L
   ), by = PersonalID
   ][, `:=`(
     InflowTypeSummary = fifelse(
-      active_at_start_homeless_client == TRUE |
-        active_at_start_housed_client == TRUE,
+      any(active_at_start_homeless_client, active_at_start_housed_client),
       "Active at Start",
-      fifelse(newly_homeless_client == TRUE |
-                return_from_perm_client == TRUE |
-                reengaged_from_temp_client == TRUE,
-              "Inflow",
-              "something's wrong"
+      fifelse(
+        any(newly_homeless_client, return_from_perm_client, reengaged_from_temp_client),
+        "Inflow",
+        "something's wrong"
       )
     ),
     
@@ -284,28 +289,13 @@ universe_ppl_flags <- function(universe_df) {
                                               "something's wrong")))))
     ),
     
-    # OUTFLOW
-    perm_dest_client = max(perm_dest_lecr),
-    
-    temp_dest_client = max(temp_dest_lecr),
-    
-    homeless_at_end_client = max(homeless_at_end),
-    
-    housed_at_end_client = max(housed_at_end),
-    
-    unknown_at_end_client = max(unknown_at_end)
-    
-  ), by = PersonalID
-  ][, `:=`(
     OutflowTypeSummary = fifelse(
-      perm_dest_client == TRUE |
-        temp_dest_client == TRUE |
-        unknown_at_end_client == TRUE,
+      any(perm_dest_client, temp_dest_client, unknown_at_end_client),
       "Outflow",
-      fifelse(homeless_at_end_client == TRUE |
-                housed_at_end_client == TRUE,
-              "Active at End",
-              "something's wrong")
+      fifelse(
+        any(homeless_at_end_client, housed_at_end_client),
+        "Active at End",
+        "something's wrong")
     ),
     
     OutflowTypeDetail = fifelse(
@@ -316,9 +306,9 @@ universe_ppl_flags <- function(universe_df) {
                               fifelse(housed_at_end_client == TRUE, "Housed",
                                       "something's wrong"))))
     )
-  )
-  ]
+  )]
 }
+
 
 ## NbN prep ----------------------------------------------------------------
 session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise(
