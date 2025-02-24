@@ -155,7 +155,7 @@ universe <- function(enrollments_filtered, period) {
       (straddles_start == TRUE |
          (straddles_start == FALSE &
             EntryDate >= startDate &
-            between(difftime(EntryDate, startDate, units = "days"),
+            between(as.numeric(difftime(EntryDate, startDate, units = "days")),
                     0,
                     14) &
             !is.na(days_since_previous_exit) &
