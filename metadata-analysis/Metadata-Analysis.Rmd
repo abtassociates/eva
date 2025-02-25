@@ -161,8 +161,7 @@ Adjusted site hits give a count of unique sessions where a tab other than "Home"
 ```{r fig.width=10, fig.height=5}
 
 all_week_deduped <- all_week %>% 
-  filter(str_detect(Event, "User on tab")) %>% 
-  filter(!(Event %in% c('User on tabHome'))) %>%
+  filter(str_detect(Event, "User on tab") & !(Event %in% c('User on tabHome'))) %>%
   distinct(SessionID, .keep_all = TRUE)
 
 counts_by_week_hits <- count(all_week_deduped, WeekEnding, Event) %>%
@@ -308,6 +307,7 @@ The reasons Eva will reject an export are if the export:
 * contains certain vital data elements with misspelled column names
 * contains certain vital data elements where the data type is incorrect
 * contains a csv file with the wrong number of columns
+* contains Export.csv with > 1 row
 * has duplicate unique IDs in certain files
 * contains certain vital data elements where there are nulls where they are not allowed
 * has clients/projects represented in the Enrollment file but not in the Client/Project file 
@@ -316,8 +316,7 @@ The reasons Eva will reject an export are if the export:
 ```{r fig.width=10, fig.height=5}
 
 counts_by_week %>%
-  filter(str_detect(Event, " upload")) %>%
-  filter(!str_detect(Event, "Successful upload")) %>%
+  filter(str_detect(Event, "Unsuccessful upload")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line(na.rm = FALSE, size=0.8) +
   geom_point(na.rm = FALSE, size=1) +
@@ -356,8 +355,7 @@ counts_category_week %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_by_month %>%
-  filter(str_detect(Event, " upload")) %>%
-  filter(!str_detect(Event, "Successful upload")) %>%
+  filter(str_detect(Event, "Unsuccessful upload")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line(size=0.8) +
   geom_point(size=1) +
@@ -719,9 +717,8 @@ counts_by_week %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_by_week %>%
-  filter(str_detect(Event, "Download")) %>%
+  filter(str_detect(Event, "Downloaded System Overview")) %>%
   filter(str_detect(Event, "DEMO MODE")) %>%
-  filter(str_detect(Event, "System Overview")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line(size=0.8) +
   geom_point(size=1) +
