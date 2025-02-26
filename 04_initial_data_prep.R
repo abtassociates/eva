@@ -115,14 +115,14 @@ EnrollmentStaging <- Enrollment %>%
         ifelse(
           between(max_AgeAtEntry, 0, 24),
           "PY",
-          "AC"
+          "ACminusPY"
         ),
         ifelse(
           min_AgeAtEntry >= 18,
           ifelse(
             between(max_AgeAtEntry, 0, 24),
             "UY", # UY = Unaccompanied Youth. YYA = PY + UY + CO
-            "AO"
+            "AOminusUY"
           ),
           ifelse(
             min_AgeAtEntry >= 0 & max_AgeAtEntry <= 17,
@@ -131,7 +131,7 @@ EnrollmentStaging <- Enrollment %>%
           )
         )
       ),
-      levels = c("AO", "AC", "CO", "UN", "PY", "UY")
+      levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
     )
   ) %>%
   ungroup()

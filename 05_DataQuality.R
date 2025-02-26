@@ -1315,8 +1315,8 @@ overlap_details(
       PreviousProjectType = project_type(PreviousProjectType),
       HouseholdType = factor(
         case_when(
-          HouseholdType %in% c("PY", "AC") ~ "AC",
-          HouseholdType %in% c("UY", "AO") ~ "AO",
+          HouseholdType %in% c("PY", "ACminusPY") ~ "AC",
+          HouseholdType %in% c("UY", "AOminusUY") ~ "AO",
           TRUE ~ HouseholdType
         ),
         levels = c("AO", "AC", "CO", "UN")

@@ -861,8 +861,8 @@ enrollment_categories_reactive <- reactive({
     filter((input$syso_hh_type == "All" |
             (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
             (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-            (input$syso_hh_type == "AO" & HouseholdType %in% c("AO","UY")) | 
-            (input$syso_hh_type == "AC" & HouseholdType %in% c("AC","PY")) | 
+            (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+            (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
             input$syso_hh_type == HouseholdType
               ) &
       (input$syso_level_of_detail == "All" |
