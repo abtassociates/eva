@@ -3,16 +3,17 @@
 
 logToConsole("Running dates")
 # Dates from Metadata -----------------------------------------------------
-meta_HUDCSV_Export_Start(Export() %>% pull(ExportStartDate))
+meta_HUDCSV_Export_Start(Export()$ExportStartDate)
 
-meta_HUDCSV_Export_End(Export() %>% pull(ExportEndDate))
+meta_HUDCSV_Export_End(Export()$ExportEndDate)
 
-meta_HUDCSV_Export_Date(Export() %>% pull(ExportDate))
+meta_HUDCSV_Export_Date(as.IDate(Export()$ExportDate)
 
 # Build report dates ------------------------------------------------------
 # if the start date's day of the month = 1, then that's the start date
 # otherwise go forward a month and use the 1st of that month.
-ExportStartAdjusted <- if_else(
+
+ExportStartAdjusted <- ifelse(
   day(meta_HUDCSV_Export_Start()) == 1,
   meta_HUDCSV_Export_Start(),
   floor_date(meta_HUDCSV_Export_Start() %m+% months(1), unit = "month"))
