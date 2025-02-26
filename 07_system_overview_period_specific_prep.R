@@ -227,7 +227,7 @@ universe <- function(enrollments_filtered, period) {
         # Non-Res Project Types and not lh
         (
           ProjectType %in% non_res_project_types &
-          !was_lh_at_end
+          (!was_lh_at_end | is.na(was_lh_at_end))
         ) |
         # nbn shelter
         (ProjectType == es_nbn_project_type &
