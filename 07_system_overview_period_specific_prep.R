@@ -441,8 +441,15 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         lookback = seq_len(.N) - which.max(ecps)
       ),
       by = .(PersonalID)
-    ][lookback <= 1]
-    
+    ][
+      # set the lecr to be the eecr if there still isn't one
+      # this addresses cases with Non-Res project types where the 
+      # InformationDate/EntryDate doesn't fall within the 60/90 day period before the period end
+      eecr & (is.na(lecr) | !lecr), lecr := TRUE
+    ][
+      lookback <= 1
+    ]
+    # browser()
     # this needs to be merge in case NbN dataset is empty
     merge(
       e,
