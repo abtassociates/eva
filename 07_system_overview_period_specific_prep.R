@@ -422,16 +422,17 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     ][
       days_to_next_entry < 730 | is.na(days_to_next_entry)
     ][
-      order(PersonalID, EntryDate, -ProjectTypeWeight), `:=`(
       # enrollment crossing period start/end (ecps/ecpe)
+      # these are used below to construct the eecr and lecr
       ecps = in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_start),
       ecpe = in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_end)
-    )][, 
-       has_ecps_and_ecpe := any(ecps) & any(ecpe), by=PersonalID
-    ][(has_ecps_and_ecpe),
-      # only keep records for PersonalIDs that have an ecpe and an ecps
-      # any(ecpe) & any(ecps), 
-      `:=`(
+    ][, 
+      # only keep folks who have an ecps, rather than also restricting to an ecpe
+      # if, for Non-Res Project Types there is no ecpe, we will make the lecr the eecr
+      .SD[any(ecps)], by=PersonalID
+    ][
+      # Order enrollments for selecting EECR/LECR
+      order(PersonalID, -ProjectTypeWeight, EntryDate), `:=`(
         # get the first ecps (so other ecps's become lookbacks)
         eecr = seq_len(.N) == which.max(ecps) & ecps,
         # get the last ecpe
