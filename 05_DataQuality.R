@@ -1519,7 +1519,7 @@ ssvf_funded <- Funder %>%
 
 ssvf_base_dq_data <- base_dq_data %>%
   filter(ProjectID %in% c(ssvf_funded)) %>%
-  select(vars_prep) %>%
+  select(all_of(vars_prep)) %>%
   left_join(
     Enrollment %>%
       select(
