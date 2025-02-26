@@ -99,6 +99,7 @@ sys_inflow_outflow_plot_data({
 
 # Month-by-Month Prep ---------------------------------------------------
 sys_inflow_outflow_monthly_data({
+  browser()
   rbindlist(period_specific_data()[-1])[, .(
     # Count unique PersonalIDs for each category using system flow logic
     Inflow = uniqueN(PersonalID[InflowTypeSummary == "Inflow"]),
@@ -109,7 +110,25 @@ sys_inflow_outflow_monthly_data({
     month = factor(format(month, "%b"), 
                    levels = format(months_in_report_period, "%b"))
   )]
-  
+  # 
+  # json_str <- jsonlite::toJSON(
+  #   unique(
+  #     merge(
+  #       all_months[
+  #         !(PersonalID %in% unique(full$PersonalID)), 
+  #         .(EnrollmentID, PersonalID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)
+  #       ], 
+  #       homeless_cls[, .(EnrollmentID, InformationDate)], 
+  #       by = "EnrollmentID"
+  #     )[, .(PersonalID, InformationDate, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)]
+  #   ), 
+  #   null="list", 
+  #   na="string",
+  #   pretty = TRUE, auto_unbox = TRUE
+  # )
+  # json_str <- gsub("true", "True", json_str)
+  # json_str <- gsub("false", "False", json_str)
+  # 
   # full <- period_specific_data()[[1]]
   # all_months <- rbindlist(period_specific_data()[-1])
   # setdiff(sort(unique(full$PersonalID)), sort(unique(all_months$PersonalID)))

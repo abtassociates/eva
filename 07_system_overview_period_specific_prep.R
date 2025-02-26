@@ -240,6 +240,8 @@ universe <- function(enrollments_filtered, period) {
 # Enrollment-level universe with client-level flags -----------------------
 # Need to keep it enrollment-level so other scripts can reference the enrollments
 universe_ppl_flags <- function(universe_df) {
+  # browser()
+  # browser()
   universe_df[, `:=`(
     # INFLOW
     active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
@@ -505,7 +507,7 @@ period_specific_data <- reactive({
       input$syso_project_type,
       input$imported$name
     )
-    
+    # browser()
     universe_data <- universe(enrollments_filtered, period)
     universe_with_flags <- universe_ppl_flags(universe_data)
     
@@ -514,7 +516,6 @@ period_specific_data <- reactive({
     }
     universe_with_flags
   })
-  
   
   cache[[cache_key]] <- results
 

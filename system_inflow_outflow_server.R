@@ -91,6 +91,7 @@ system_activity_prep_detail <- function() {
                 filter(InflowOutflow == "Inflow")) %>%
     mutate(values = replace_na(values, 0))
   
+  # browser()
   outflow <- sys_inflow_outflow_plot_data() %>%
     select(PersonalID,
            OutflowTypeSummary,
@@ -165,6 +166,7 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
     mid_plot <- 4.5
   }
   
+  # browser()
   total_clients <- df %>%
     filter(InflowOutflow == "Inflow") %>%
     pull(values) %>%
