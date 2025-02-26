@@ -374,7 +374,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     # continuing the work of the base homeless_cls dataset form 07_system_overview.R 
     # we now make it period-specific, and collapse it down to the enrollment-level
     # so this contains enrollments with homeless CLS and an indicator as to 
-    # whether InformationDate is within to 60 or 90 days (depending on project type) 
+    # whether InformationDate is within to 60 or 90 days (depending on project type, but only limited to Non-Res Project Types) 
     # from the period start/end
     # we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
     # this avoids having to re-filter and do the check for each enrollment
