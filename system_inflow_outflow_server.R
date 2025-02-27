@@ -91,7 +91,6 @@ system_activity_prep_detail <- function() {
                 filter(InflowOutflow == "Inflow")) %>%
     mutate(values = replace_na(values, 0))
   
-  # browser()
   outflow <- sys_inflow_outflow_plot_data() %>%
     select(PersonalID,
            OutflowTypeSummary,

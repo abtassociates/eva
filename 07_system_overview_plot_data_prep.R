@@ -2,6 +2,7 @@
 # get final people-level, inflow/outflow dataframe by joining the filtered 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
 sys_inflow_outflow_plot_data({
+  # browser()
   period_specific_data()[["Full"]] %>%
     select(PersonalID,
            InflowTypeSummary,

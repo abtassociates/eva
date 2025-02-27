@@ -241,7 +241,6 @@ universe <- function(enrollments_filtered, period) {
 # Need to keep it enrollment-level so other scripts can reference the enrollments
 universe_ppl_flags <- function(universe_df) {
   # browser()
-  # browser()
   universe_df[, `:=`(
     # INFLOW
     active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
@@ -454,7 +453,22 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     ][
       lookback <= 1 # drop eextra lookbacks
     ]
-    # browser()
+    
+    # extra filter: dropping the clients/enrollments who enter in as something 
+    # other than LH, but who then have an LH CLS record at a later date
+    # if(!identical(report_period, report_dates[["Full"]])) {
+    #   e <- e[!(!was_lh_at_report_start & was_lh_at_start)]
+    # }
+    
+    # missing_ids <- e[, .(has_eecr = any(eecr), has_lecr = any(lecr)), by = PersonalID][
+    #   !(has_eecr | has_lecr), 
+    #   PersonalID
+    # ]
+    # if(length(missing_ids) > 0)  {
+    #   # View missing PersonalIDs
+    #   browser()
+    # }
+    
     # this needs to be merge in case NbN dataset is empty
     merge(
       e,
