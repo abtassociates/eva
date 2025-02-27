@@ -401,9 +401,8 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     
     e <- homeless_at_period_start[
       enrollment_categories[
-        ProjectType != hp_project_type & 
-          # keep enrollments in date range keep exits within the 2 yrs prior to start
-          EntryDate <= endDate & ExitAdjust >= (startDate - years(2))
+        # keep enrollments in date range keep exits within the 2 yrs prior to start
+        EntryDate <= endDate & ExitAdjust >= (startDate - years(2))
       ],
       on = .(EnrollmentID)
     ][, `:=`(
