@@ -377,7 +377,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     # from the period start/end
     # we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
     # this avoids having to re-filter and do the check for each enrollment
-    homeless_at_period_start <- homeless_cls[, {
+    lh_cls_period_start <- lh_cls[, {
       # Calculate time windows once
       start_window <- startDate - ifelse(ProjectType == ce_project_type, 90, 60)
       end_window <- endDate - ifelse(ProjectType == ce_project_type, 90, 60)
@@ -398,7 +398,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       )
     }, by = "EnrollmentID"]
     
-    e <- homeless_at_period_start[
+    e <- lh_cls_period_start[
       enrollment_categories[
         # keep enrollments in date range keep exits within the 2 yrs prior to start
         EntryDate <= endDate & ExitAdjust >= (startDate - years(2))

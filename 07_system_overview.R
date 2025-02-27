@@ -513,7 +513,7 @@ setindex(enrollment_categories, PersonalID, ProjectType)
 # by casting a wide net for (Non-Res) Project Types that rely on CurrentLivingSituation 
 # this dataset will be used to categorize people as active_at_start, homeless_at_end, and unknown_at_end
 # it's also used in determining EECR and LECR (see 07_system_overview_period_specific_prep.R)
-homeless_cls <- as.data.table(CurrentLivingSituation)[
+lh_cls <- as.data.table(CurrentLivingSituation)[
   CurrentLivingSituation %in% homeless_livingsituation_incl_TH
 ][
   enrollment_categories[ProjectType %in% non_res_project_types], 
