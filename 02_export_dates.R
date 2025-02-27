@@ -7,7 +7,7 @@ meta_HUDCSV_Export_Start(Export()$ExportStartDate)
 
 meta_HUDCSV_Export_End(Export()$ExportEndDate)
 
-meta_HUDCSV_Export_Date(as.IDate(Export()$ExportDate)
+meta_HUDCSV_Export_Date(Export()$ExportDate)
 
 # Build report dates ------------------------------------------------------
 # if the start date's day of the month = 1, then that's the start date
@@ -30,7 +30,7 @@ ExportEndAdjusted <- if_else(
   meta_HUDCSV_Export_End(),
   floor_date(meta_HUDCSV_Export_End(), unit = "month") - days(1))
 
-ReportEnd(as.Date(ExportEndAdjusted))
-ReportStart(as.Date(ReportEnd() - years(1) + days(1)))
-days_of_data(as.Date(ReportEnd()) - as.Date(ExportStartAdjusted))
+ReportEnd(ExportEndAdjusted)
+ReportStart(ReportEnd() - years(1) + days(1))
+days_of_data(ReportEnd() - ExportStartAdjusted)
 
