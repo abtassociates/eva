@@ -519,12 +519,64 @@ lh_cls <- as.data.table(CurrentLivingSituation)[
   enrollment_categories[ProjectType %in% non_res_project_types], 
   on = .(EnrollmentID),
   .(
-    EnrollmentID, EntryDate, ProjectType, lh_prior_livingsituation, ExitDate, InformationDate, CurrentLivingSituation,
+    EnrollmentID, PersonalID, EntryDate, ProjectType, lh_prior_livingsituation, ExitAdjust, InformationDate, CurrentLivingSituation,
     info_equal_entry = InformationDate == EntryDate,
-    info_equal_exit = InformationDate == ExitDate
+    info_equal_exit = InformationDate == ExitAdjust,
+    has_lh_cls = TRUE
   ),
   nomatch = NULL
 ]
+
+browser()
+# 1. Find people whose first enrollment in report range was NOT LH
+# First, identify each person's earliest enrollment in the report range
+# Then limit to those not LH
+entered_not_lh2 <- enrollment_categories[
+  EntryDate <= ReportEnd() & ExitAdjust >= ReportStart()
+][, 
+  first_enrollment := EntryDate == min(EntryDate), by = PersonalID
+][
+  first_enrollment == TRUE & lh_prior_livingsituation == FALSE
+][
+  # 2. From these people, find those who had a LH CLS later
+  lh_cls,
+  on = .(PersonalID),
+  nomatch = NULL
+][
+  InformationDate > EntryDate
+]
+
+entered_not_lh <- enrollment_categories[
+     EntryDate <= ReportEnd() & ExitAdjust >= ReportStart(),
+     .SD[which.min(EntryDate)],
+     by = PersonalID
+   ][lh_prior_livingsituation == FALSE][
+       # 2. From these people, find those who had a LH CLS later
+         lh_cls,
+       on = .(PersonalID),
+       nomatch = NULL
+     ][
+         InformationDate > EntryDate
+       ]
+
+lh_cls_report_start <- unique(lh_cls[, {
+  start_window <- ReportStart() - ifelse(ProjectType == ce_project_type, 90, 60)
+  end_window <- ReportEnd() - ifelse(ProjectType == ce_project_type, 90, 60)
+  info_in_start_window <- any(between(InformationDate, start_window, ReportStart()))
+  info_in_end_window <- any(between(InformationDate, end_window, ReportEnd()))
+  entry_in_start_window <- between(EntryDate, start_window, ReportStart())
+  entry_in_end_window <- between(EntryDate, end_window, ReportEnd())
+
+  .(
+    was_lh_at_report_start = info_in_start_window |
+      (entry_in_start_window & lh_prior_livingsituation) |
+      (EntryDate > ReportStart() & EntryDate < ReportEnd() & (lh_prior_livingsituation | info_equal_entry)),
+    
+    was_lh_at_report_end = info_in_end_window |
+      (entry_in_end_window & lh_prior_livingsituation) |
+      (ExitDate < ReportEnd() & ExitDate > ReportStart() (lh_prior_livingsituation | info_equal_exit))
+  )}, by = EnrollmentID
+])
 
 source("07_system_overview_period_specific_prep.R", local=TRUE)
 

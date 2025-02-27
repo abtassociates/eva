@@ -454,12 +454,6 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       lookback <= 1 # drop eextra lookbacks
     ]
     
-    # extra filter: dropping the clients/enrollments who enter in as something 
-    # other than LH, but who then have an LH CLS record at a later date
-    # if(!identical(report_period, report_dates[["Full"]])) {
-    #   e <- e[!(!was_lh_at_report_start & was_lh_at_start)]
-    # }
-    
     # missing_ids <- e[, .(has_eecr = any(eecr), has_lecr = any(lecr)), by = PersonalID][
     #   !(has_eecr | has_lecr), 
     #   PersonalID
