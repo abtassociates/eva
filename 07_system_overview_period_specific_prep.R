@@ -415,40 +415,44 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       #   default = "NotDV"
       # )
     )][, `:=`(
-        days_to_next_entry = difftime(shift(EntryDate, type = "lead"),
-                                    ExitAdjust, units = "days"),
-        days_since_previous_exit = difftime(EntryDate, shift(ExitAdjust), units = "days")
-      ), 
-      by= .(PersonalID)
-    ][
-      days_to_next_entry < 730 | is.na(days_to_next_entry)
-    ][
+      lead_EntryDate = shift(EntryDate, type = "lead"),
+      lag_ExitAdjust = shift(ExitAdjust)
+    ), by = PersonalID
+    ][, `:=`(
+      days_to_next_entry = as.numeric(difftime(lead_EntryDate, ExitAdjust, units = "days")),
+      days_since_previous_exit = as.numeric(difftime(EntryDate, lag_ExitAdjust, units = "days")),
       # enrollment crossing period start/end (ecps/ecpe)
       # these are used below to construct the eecr and lecr
       ecps = in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_start),
       ecpe = in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_end)
-    ][, 
+    )][
+      (days_to_next_entry < 730 | is.na(days_to_next_entry))
+    ][
       # only keep folks who have an ecps, rather than also restricting to an ecpe
       # if, for Non-Res Project Types there is no ecpe, we will make the lecr the eecr
-      .SD[any(ecps)], by=PersonalID
+      , has_any_ecps := any(ecps), by = PersonalID
+    ][
+      has_any_ecps == TRUE
     ][
       # Order enrollments for selecting EECR/LECR
-      order(PersonalID, -ProjectTypeWeight, EntryDate), `:=`(
-        # get the first ecps (so other ecps's become lookbacks)
-        eecr = seq_len(.N) == which.max(ecps) & ecps,
-        # get the last ecpe
-        lecr = seq_len(.N) == (.N + 1 - which.max(rev(ecpe))) & ecpe,
-        # incremental count of enrollments prior to eecr 
-        lookback = seq_len(.N) - which.max(ecps)
-      ),
-      by = .(PersonalID)
-    ][
+      order(PersonalID, -ProjectTypeWeight, EntryDate)
+    ][, `:=`(
+      first_ecps_idx = which.max(ecps),
+      last_ecpe_idx = .N + 1 - which.max(rev(ecpe))
+    ), by = PersonalID][, `:=`(
+      # get the first ecps (so other ecps's become lookbacks)
+      eecr = seq_len(.N) == first_ecps_idx & ecps,
+      # get the last ecpe
+      lecr = seq_len(.N) == last_ecpe_idx & ecpe,
+      # incremental count of enrollments prior to eecr 
+      lookback = first_ecps_idx - seq_len(.N)
+    ), by=PersonalID][
       # set the lecr to be the eecr if there still isn't one
       # this addresses cases with Non-Res project types where the 
       # InformationDate/EntryDate doesn't fall within the 60/90 day period before the period end
       eecr & (is.na(lecr) | !lecr), lecr := TRUE
     ][
-      lookback <= 1
+      lookback <= 1 # drop eextra lookbacks
     ]
     # browser()
     # this needs to be merge in case NbN dataset is empty
