@@ -100,16 +100,18 @@ sys_inflow_outflow_plot_data({
 # Month-by-Month Prep ---------------------------------------------------
 sys_inflow_outflow_monthly_data({
   browser()
-  rbindlist(period_specific_data()[-1])[, .(
-    # Count unique PersonalIDs for each category using system flow logic
-    Inflow = uniqueN(PersonalID[InflowTypeSummary == "Inflow"]),
-    Outflow = uniqueN(PersonalID[OutflowTypeSummary == "Outflow"])
-  ), by = month
-  ][, `:=`(
-    `Monthly Change` = Inflow - Outflow,
-    month = factor(format(month, "%b"), 
-                   levels = format(months_in_report_period, "%b"))
-  )]
+  unique(
+    rbindlist(period_specific_data()[-1])[, .(
+      # Count unique PersonalIDs for each category using system flow logic
+      Inflow = uniqueN(PersonalID[InflowTypeSummary == "Inflow"]),
+      Outflow = uniqueN(PersonalID[OutflowTypeSummary == "Outflow"])
+    ), by = month
+    ][, `:=`(
+      `Monthly Change` = Inflow - Outflow,
+      month = factor(format(month, "%b"), 
+                     levels = format(months_in_report_period, "%b"))
+    )]
+  )
   # 
   # json_str <- jsonlite::toJSON(
   #   unique(
@@ -129,6 +131,13 @@ sys_inflow_outflow_monthly_data({
   # json_str <- gsub("true", "True", json_str)
   # json_str <- gsub("false", "False", json_str)
   # 
+  # unique(
+  # rbindlist(period_specific_data()[-1])[
+  # PersonalID %in% c("686041","684918","349625","556533","693996","614071","677683","701796","702055"),
+  # .(PersonalID, month, InflowTypeDetail, OutflowTypeDetail)
+  # ][order(PersonalID, month)][, month:= format(month, "%b")])
+  
+  # TESTING DIFF BETWEEN FULL AND MBM
   # full <- period_specific_data()[[1]]
   # all_months <- rbindlist(period_specific_data()[-1])
   # setdiff(sort(unique(full$PersonalID)), sort(unique(all_months$PersonalID)))
