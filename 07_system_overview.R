@@ -478,7 +478,8 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
       lh_prior_livingsituation
   )][
-    ProjectType != hp_project_type
+    ProjectType != hp_project_type & 
+    EntryDate <= ReportEnd() & ExitAdjust >= (ReportStart() - years(2))
   ][, .(
     EnrollmentID,
     PersonalID,
