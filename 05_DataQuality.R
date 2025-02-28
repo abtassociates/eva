@@ -1320,6 +1320,14 @@ overlap_details(
           TRUE ~ HouseholdType
         ),
         levels = c("AO", "AC", "CO", "UN")
+      ),
+      PreviousHouseholdType = factor(
+        case_when(
+          PreviousHouseholdType %in% c("PY", "ACminusPY") ~ "AC",
+          PreviousHouseholdType %in% c("UY", "AOminusUY") ~ "AO",
+          TRUE ~ PreviousHouseholdType
+        ),
+        levels = c("AO", "AC", "CO", "UN")
       )
   )][
     # Drop Issue columns
