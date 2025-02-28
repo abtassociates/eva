@@ -113,25 +113,7 @@ sys_inflow_outflow_monthly_data({
                      levels = format(months_in_report_period, "%b"))
     )]
   )
-  # 
-  # json_str <- jsonlite::toJSON(
-  #   unique(
-  #     merge(
-  #       all_months[
-  #         !(PersonalID %in% unique(full$PersonalID)), 
-  #         .(EnrollmentID, PersonalID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)
-  #       ], 
-  #       homeless_cls[, .(EnrollmentID, InformationDate)], 
-  #       by = "EnrollmentID"
-  #     )[, .(PersonalID, InformationDate, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)]
-  #   ), 
-  #   null="list", 
-  #   na="string",
-  #   pretty = TRUE, auto_unbox = TRUE
-  # )
-  # json_str <- gsub("true", "True", json_str)
-  # json_str <- gsub("false", "False", json_str)
-  # 
+
   # unique(
   # rbindlist(period_specific_data()[-1])[
   # PersonalID %in% c("686041","684918","349625","556533","693996","614071","677683","701796","702055"),
@@ -143,7 +125,28 @@ sys_inflow_outflow_monthly_data({
   # all_months <- rbindlist(period_specific_data()[-1])
   # setdiff(sort(unique(full$PersonalID)), sort(unique(all_months$PersonalID)))
   # setdiff(sort(unique(all_months$PersonalID)), sort(unique(full$PersonalID)))
-  
+  # 
+  # # Check that one enrollment isn't considered an inflow in multiple months
+  # # someone can have an exit in between or they can be active at start
+  # 
+  # json_str <- jsonlite::toJSON(
+  #   unique(
+  #     merge(
+  #       enrollment_categories[
+  #         !(PersonalID %in% unique(full$PersonalID)),
+  #         .(EnrollmentID, PersonalID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)
+  #       ],
+  #       homeless_cls[, .(EnrollmentID, InformationDate)],
+  #       by = "EnrollmentID"
+  #     )[, .(PersonalID, InformationDate, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)]
+  #   ),
+  #   null="list",
+  #   na="string",
+  #   pretty = TRUE, auto_unbox = TRUE
+  # )
+  # json_str <- gsub("true", "True", json_str)
+  # json_str <- gsub("false", "False", json_str)
+  # 
   # first_renamed <- monthly_universe_ppl_flags[month == as.Date("2021-10-01")][
   #   , `:=`(
   #     First_Inflow = InflowTypeSummary,
