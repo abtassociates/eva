@@ -162,7 +162,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         was_lh_at_start = info_in_start_window |
           (entry_in_start_window & lh_prior_livingsituation) |
           (EntryDate > startDate & (lh_prior_livingsituation | info_equal_entry)) | 
-          lh_residential_project_types,
+          ProjectType %in% lh_residential_project_types,
         
         was_lh_at_end = info_in_end_window |
           (entry_in_end_window & lh_prior_livingsituation) |
