@@ -508,7 +508,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
 setkey(enrollment_categories, EnrollmentID)
 setindex(enrollment_categories, PersonalID, ProjectType)
 
-# Prepare a dataset of homeless CLS records, along with EntryDate and ProjectType. 
+# Prepare a dataset of literally homeless CLS records, along with EntryDate and ProjectType. 
 # This partially replaces the old homeless_cls_finder function
 # (which required filtering the same way for every record, so now we're doing more work once)
 # by casting a wide net for (Non-Res) Project Types that rely on CurrentLivingSituation 
