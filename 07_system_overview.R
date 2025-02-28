@@ -522,62 +522,38 @@ lh_cls <- as.data.table(CurrentLivingSituation)[
   .(
     EnrollmentID, PersonalID, EntryDate, ProjectType, lh_prior_livingsituation, ExitAdjust, InformationDate, CurrentLivingSituation,
     info_equal_entry = InformationDate == EntryDate,
-    info_equal_exit = InformationDate == ExitAdjust,
-    has_lh_cls = TRUE
+    info_equal_exit = InformationDate == ExitAdjust
   ),
   nomatch = NULL
 ]
 
-browser()
-# 1. Find people whose first enrollment in report range was NOT LH
-# First, identify each person's earliest enrollment in the report range
-# Then limit to those not LH
-entered_not_lh2 <- enrollment_categories[
-  EntryDate <= ReportEnd() & ExitAdjust >= ReportStart()
+
+# Remove "problematic" enrollments ----------------------------------
+# These are enrollments that entered the system as not LH
+# but then have a CLS later in the enrollment
+# two ways to identify "not LH" for their entry enrollment (eecr): 
+# 1. !lh_prior_livingsituation and 
+# 2. no lh cls where InformationDate == EntryDate
+entered_not_lh_but_lh_cls_later <- enrollment_categories[
+  EntryDate <= ReportEnd() & ExitAdjust >= ReportStart() &
+    ProjectType %in% non_res_project_types
 ][, 
-  first_enrollment := EntryDate == min(EntryDate), by = PersonalID
+  first_enrollment := min(EntryDate), 
+  by = PersonalID
 ][
-  first_enrollment == TRUE & lh_prior_livingsituation == FALSE
+  !(EntryDate == first_enrollment & lh_prior_livingsituation)
 ][
-  # 2. From these people, find those who had a LH CLS later
-  lh_cls,
-  on = .(PersonalID),
+  lh_cls[,
+         has_lh_at_entry := any(InformationDate == EntryDate),
+         by = .(EnrollmentID)
+  ][has_lh_at_entry == FALSE],
+  on = .(EnrollmentID),
   nomatch = NULL
-][
-  InformationDate > EntryDate
 ]
 
-entered_not_lh <- enrollment_categories[
-     EntryDate <= ReportEnd() & ExitAdjust >= ReportStart(),
-     .SD[which.min(EntryDate)],
-     by = PersonalID
-   ][lh_prior_livingsituation == FALSE][
-       # 2. From these people, find those who had a LH CLS later
-         lh_cls,
-       on = .(PersonalID),
-       nomatch = NULL
-     ][
-         InformationDate > EntryDate
-       ]
-
-lh_cls_report_start <- unique(lh_cls[, {
-  start_window <- ReportStart() - ifelse(ProjectType == ce_project_type, 90, 60)
-  end_window <- ReportEnd() - ifelse(ProjectType == ce_project_type, 90, 60)
-  info_in_start_window <- any(between(InformationDate, start_window, ReportStart()))
-  info_in_end_window <- any(between(InformationDate, end_window, ReportEnd()))
-  entry_in_start_window <- between(EntryDate, start_window, ReportStart())
-  entry_in_end_window <- between(EntryDate, end_window, ReportEnd())
-
-  .(
-    was_lh_at_report_start = info_in_start_window |
-      (entry_in_start_window & lh_prior_livingsituation) |
-      (EntryDate > ReportStart() & EntryDate < ReportEnd() & (lh_prior_livingsituation | info_equal_entry)),
-    
-    was_lh_at_report_end = info_in_end_window |
-      (entry_in_end_window & lh_prior_livingsituation) |
-      (ExitDate < ReportEnd() & ExitDate > ReportStart() (lh_prior_livingsituation | info_equal_exit))
-  )}, by = EnrollmentID
-])
+enrollment_categories <- enrollment_categories[
+  !entered_not_lh_but_lh_cls_later, on=.(PersonalID)
+]
 
 source("07_system_overview_period_specific_prep.R", local=TRUE)
 
