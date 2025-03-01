@@ -168,13 +168,6 @@ function(input, output, session) {
         
         # if structural issues were not found, keep going
         if (valid_file() == 1) {
-          if(nrow(
-            file_structure_analysis_main() %>%
-            filter(Issue == "Impermissible characters"))) {
-            
-            impermissible_check_info <- evachecks %>% filter(ID == 134)
-          }
-
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE) 
           
