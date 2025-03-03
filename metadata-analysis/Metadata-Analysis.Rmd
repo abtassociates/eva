@@ -259,41 +259,6 @@ staging_last6months %>%
 
 ```
 
-```{r fig.width=7, fig.height=6}
-# 
-# staging %>%
-#   filter(str_detect(Event, "User on") & 
-#            Date >= as.Date("2023-01-01") & Date <=("2023-06-30") &
-#            !(Event %in% c("User on tabHome", "User on tabUpload", "User on"))) %>%
-#   distinct(SessionID, Event, .keep_all = TRUE) %>%
-#   mutate(Tab = case_when(
-#     str_detect(Event, "tabChangelog") ~ "Changelog",
-#     str_detect(Event, "tabClientCount") ~ "Client Counts",
-#     str_detect(Event, "tabDQOrg") ~ "Organization DQ",
-#     str_detect(Event, "tabDQSystem") ~ "System DQ",
-#     str_detect(Event, "tabLocalSettings") ~ "Local Settings",
-#     str_detect(Event, "tabPDDE") ~ "PDDE DQ",
-#     TRUE ~ as.character(Event)), 
-#     Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "Changelog"))) %>%
-#   count(Tab) %>%
-#   ggplot(aes(x = Tab, y = n, fill = Tab)) +
-#   geom_bar(stat = "identity") +
-#   geom_text(aes(label = scales::percent(n/sum(n))), color = "gray15", vjust = -0.5) +
-#   scale_fill_manual(values = 
-#                    c("Changelog" = "#f94144",
-#                       "Client Counts" = "#f3722c",
-#                       "Organization DQ" = "#f8961e",
-#                       "System DQ" = "#f9c74f",
-#                       "Local Settings" = "#90be6d",
-#                       "PDDE DQ" = "#43aa8b")) +
-#  labs(title = "Tabs Visited from January 2023 to June 2023",
-#        x = "Tab",
-#        y = "Count") +
-#   theme_minimal() +
-#   theme(legend.position = "none") +
-#   guides(fill = guide_legend(ncol = 2))
-
-```
 
 ## Uploads
 
