@@ -327,21 +327,20 @@ client_categories <- Client %>%
 
 # Client-level flags, filtered ----------------------------------------------------
 client_categories_filtered <- reactive({
-  setDT(client_categories %>%
-    mutate(All = 1) %>%
-    filter(
-      AgeCategory %in% input$syso_age &
-        !!sym(input$syso_gender) == 1 &
-        !!sym(input$syso_race_ethnicity) == 1 &
-        (
-          input$syso_spec_pops == "None" |
-            (input$syso_spec_pops == "Veteran" &
-               VeteranStatus == 1 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
-            (input$syso_spec_pops == "NonVeteran" &
-               VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17")))
-        )
-    )  
-  )
+  req(nrow(client_categories) > 0)
+  setDT(client_categories)[
+    , All := 1
+  ][AgeCategory %in% input$syso_age &
+    get(input$syso_gender) == 1 &
+    get(input$syso_race_ethnicity) == 1 &
+    (
+      input$syso_spec_pops == "None" |
+        (input$syso_spec_pops == "Veteran" &
+           VeteranStatus == 1 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
+        (input$syso_spec_pops == "NonVeteran" &
+           VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17")))
+    )
+  ]
 })
 
 # Data prep ---------------------------------------------------------------
@@ -479,7 +478,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
       lh_prior_livingsituation
   )][
     ProjectType != hp_project_type & 
-    EntryDate <= ReportEnd() & ExitAdjust >= (ReportStart() - years(2))
+    EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart - years(2))
   ][, .(
     EnrollmentID,
     PersonalID,
@@ -535,7 +534,7 @@ lh_cls <- as.data.table(CurrentLivingSituation)[
 # 1. !lh_prior_livingsituation and 
 # 2. no lh cls where InformationDate == EntryDate
 entered_not_lh_but_lh_cls_later <- enrollment_categories[
-  EntryDate <= ReportEnd() & ExitAdjust >= ReportStart() &
+  EntryDate <= session$userData$ReportEnd & ExitAdjust >= session$userData$ReportStart &
     ProjectType %in% non_res_project_types
 ][, 
   first_enrollment := min(EntryDate), 

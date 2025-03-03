@@ -16,7 +16,7 @@ client_count_data_df <- reactive({
   ReportStart <- input$dateRangeCount[1]
   ReportEnd <- input$dateRangeCount[2]
 
-  validation() %>%
+  session$userData$validation %>%
     mutate(
       PersonalID = as.character(PersonalID),
       RelationshipToHoH = case_when(
@@ -154,7 +154,7 @@ get_clientcount_download_info <- function(file) {
   # initial dataset that will make summarizing easier
   validationDF <- client_count_data_df()
   
-  ### validation() DATE RANGE TAB ###
+  ### session$userData$validation DATE RANGE TAB ###
   # counts for each status, by project, across the date range provided
   validationDateRange <- 
     pivot_and_sum(
@@ -172,7 +172,7 @@ get_clientcount_download_info <- function(file) {
     select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
   
-  ### validation() CURRENT TAB ###
+  ### session$userData$validation CURRENT TAB ###
   # counts for each status, by project for just the current date
   validationCurrent <- 
     pivot_and_sum(
@@ -183,7 +183,7 @@ get_clientcount_download_info <- function(file) {
     select(-c(`Currently in project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
 
-  ### validation() DETAIL TAB ###
+  ### session$userData$validation DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
     select(!!keepCols, !!clientCountDetailCols) %>%
     arrange(OrganizationName, ProjectName, EntryDate)

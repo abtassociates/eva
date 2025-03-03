@@ -3,7 +3,7 @@
 # hide other stuff if valid file is not uploaded
 # move chart download button to be inline with subtabs
 observeEvent(input$syso_tabbox, {
-  req(valid_file() == 1)
+  req(session$userData$valid_file == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   toggleClass(
@@ -15,21 +15,21 @@ observeEvent(input$syso_tabbox, {
 
 
 observeEvent(input$sys_inflow_outflow_subtabs, {
-  req(valid_file() == 1)
+  req(session$userData$valid_file == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_status_subtabs, {
-  req(valid_file() == 1)
+  req(session$userData$valid_file == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_comp_subtabs, {
-  req(valid_file() == 1)
+  req(session$userData$valid_file == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
@@ -91,7 +91,7 @@ syso_detailBox <- reactive({
     br(),
     strong("Date Range: "),
     
-    format(ReportStart(), "%m-%d-%Y"), " to ", format(ReportEnd(), "%m-%d-%Y"), br(),
+    format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
     
     if (input$syso_project_type != "All")
       chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
@@ -121,15 +121,15 @@ syso_detailBox <- reactive({
 })
 
 output$sys_act_detail_filter_selections <- renderUI({ 
-  req(valid_file() == 1)
+  req(session$userData$valid_file == 1)
   syso_detailBox() 
 })
 output$sys_act_summary_filter_selections <- renderUI({
-  req(valid_file() == 1)
+  req(session$userData$valid_file == 1)
   syso_detailBox() 
 })
 output$sys_act_monthly_filter_selections <- renderUI({ 
-  req(valid_file() == 1)
+  req(session$userData$valid_file == 1)
   syso_detailBox() 
 })
 
@@ -192,8 +192,8 @@ sys_export_summary_initial_df <- function() {
       "Project Type Group"
     ),
     Value = c(
-      strftime(ReportStart(), "%m/%d/%y"),
-      strftime(ReportEnd(), "%m/%d/%y"),
+      strftime(session$userData$ReportStart, "%m/%d/%y"),
+      strftime(session$userData$ReportEnd, "%m/%d/%y"),
       getNameByValue(syso_methodology_types, input$methodology_type),
       getNameByValue(syso_hh_types, input$syso_hh_type),
       getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
@@ -253,9 +253,9 @@ sys_overview_ppt_export <- function(file,
   #NEED TO UPDATE - if want to get more granular, need to detect with title slide
   
   report_period <- paste0("Report Period: ", 
-                          format(ReportStart(), "%m/%d/%Y"),
+                          format(session$userData$ReportStart, "%m/%d/%Y"),
                           " - ",
-                          format(ReportEnd(), "%m/%d/%Y")
+                          format(session$userData$ReportEnd, "%m/%d/%Y")
   )
   loc_title <- ph_location_type(type = "title")
   loc_footer <- ph_location_type(type = "ftr")
@@ -275,7 +275,7 @@ sys_overview_ppt_export <- function(file,
   add_footer <- function(.ppt) {
     return(
       .ppt %>%
-        ph_with(value = paste0("CoC Code: ", Export()$SourceID), location = loc_footer) %>%
+        ph_with(value = paste0("CoC Code: ", session$userData$Export$SourceID), location = loc_footer) %>%
         ph_with(value = report_period, location = loc_dt) %>%
         ph_with(
           value = paste0(
@@ -377,7 +377,7 @@ get_adj_font_size <- function(font_size, isExport) {
 }
 
 observeEvent(input$dimension,{
-  windowSize(input$dimension)
+  sys_plot_data$windowSize <- input$dimension
 })
 
 output$client_level_download_btn <- downloadHandler(
@@ -470,7 +470,7 @@ output$client_level_download_btn <- downloadHandler(
       "Destination"
     )
     
-    enrollment_info <- client_level_export_df()[, ..enrollment_fields][
+    enrollment_info <- sys_plot_data$client_level_export_df()[, ..enrollment_fields][
       , `:=`(
         Destination = living_situation(Destination),
         LivingSituation = living_situation(LivingSituation)
@@ -488,7 +488,7 @@ output$client_level_download_btn <- downloadHandler(
              new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
     
     # details tab
-    client_level_details <- unique(client_level_export_df()[
+    client_level_details <- unique(sys_plot_data$client_level_export_df()[
       , 
       c(..detail_client_fields, ..report_status_fields)
     ])[
@@ -507,8 +507,8 @@ output$client_level_download_btn <- downloadHandler(
         "ExportEnd"
       ),
       Value = c(
-        as.character(meta_HUDCSV_Export_Start()),
-        as.character(meta_HUDCSV_Export_End())
+        as.character(session$userData$meta_HUDCSV_Export_Start),
+        as.character(session$userData$meta_HUDCSV_Export_End)
       )
     )
     

@@ -1,43 +1,4 @@
 # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
-# Define the hardcoded values for Time and Status
-# we need all combinations for the 0s
-status_levels_detail <- reactive({
-  c(
-    "Housed",
-    "Homeless",                          
-    if_else(
-      days_of_data() >= 1094,
-      "First-Time \nHomeless",
-      "Inflow\nUnspecified"
-    ),
-    "Returned from \nPermanent",
-    "Re-engaged from \nNon-Permanent",
-    "Exited,\nNon-Permanent",
-    "Exited,\nPermanent",
-    "Inactive"
-  )
-})
-
-time_levels_detail <- reactive({
-  c("Active at Start",
-    if_else(
-      days_of_data() >= 1094,
-      "First-Time \nHomeless",
-      "Inflow\nUnspecified"
-    ),
-    "Returned from \nPermanent",
-    "Re-engaged from \nNon-Permanent",
-    "Exited,\nNon-Permanent",
-    "Exited,\nPermanent",
-    "Inactive",
-    "Active at End")
-})
-
-time_levels_summary <- c("Active at Start",
-                         "Inflow",
-                         "Outflow",
-                         "Active at End")
-
 # frame_summary <-
 #   data.frame(
 #     Status = c("Housed",
@@ -60,15 +21,52 @@ time_levels_summary <- c("Active at Start",
 # System Activity Detail Chart Prep ---------------------------------------
 
 system_activity_prep_detail <- function() {
+  # Define the hardcoded values for Time and Status
+  # we need all combinations for the 0s
+  status_levels_detail <- c(
+    "Housed",
+    "Homeless",                          
+    if_else(
+      session$userData$days_of_data >= 1094,
+      "First-Time \nHomeless",
+      "Inflow\nUnspecified"
+    ),
+    "Returned from \nPermanent",
+    "Re-engaged from \nNon-Permanent",
+    "Exited,\nNon-Permanent",
+    "Exited,\nPermanent",
+    "Inactive"
+  )
+  
+  time_levels_detail <- c(
+    "Active at Start",
+    if_else(
+      session$userData$days_of_data >= 1094,
+      "First-Time \nHomeless",
+      "Inflow\nUnspecified"
+    ),
+    "Returned from \nPermanent",
+    "Re-engaged from \nNon-Permanent",
+    "Exited,\nNon-Permanent",
+    "Exited,\nPermanent",
+    "Inactive",
+    "Active at End"
+  )
+  
+  time_levels_summary <- c("Active at Start",
+                           "Inflow",
+                           "Outflow",
+                           "Active at End")
+  
   frame_detail <- data.frame(
     Status = c(
-      status_levels_detail(),
+      status_levels_detail,
       "Homeless",
       "Housed"),
     Time = c(
-      rep(time_levels_detail()[1], 2),
-      time_levels_detail()[2:7],
-      rep(time_levels_detail()[8], 2)),
+      rep(time_levels_detail[1], 2),
+      time_levels_detail[2:7],
+      rep(time_levels_detail[8], 2)),
     InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)),
     PlotFillGroups = 
       c("Housed",
@@ -79,7 +77,7 @@ system_activity_prep_detail <- function() {
         "Housed")
   )
 
-  inflow <- sys_inflow_outflow_plot_data() %>%
+  inflow <- sys_plot_data$inflow_outflow_full() %>%
     select(PersonalID,
            InflowTypeSummary,
            InflowTypeDetail) %>%
@@ -91,7 +89,7 @@ system_activity_prep_detail <- function() {
                 filter(InflowOutflow == "Inflow")) %>%
     mutate(values = replace_na(values, 0))
   
-  outflow <- sys_inflow_outflow_plot_data() %>%
+  outflow <- sys_plot_data$inflow_outflow_full() %>%
     select(PersonalID,
            OutflowTypeSummary,
            OutflowTypeDetail) %>%
@@ -110,11 +108,11 @@ system_activity_prep_detail <- function() {
     mutate(
       Time = factor(
         Time,
-        levels = time_levels_detail()
+        levels = time_levels_detail
       ),
       Status = factor(
         Status,
-        levels = status_levels_detail()
+        levels = status_levels_detail
       ),
       
       InflowOutflowSummary = factor(
@@ -248,7 +246,7 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
       hjust = 1,
       # direction = "y",
       segment.colour = NA,
-      nudge_x = ifelse(windowSize()[1] < 1300, -.4, -.3),
+      nudge_x = ifelse(sys_plot_data$windowSize[1] < 1300, -.4, -.3),
       colour = "#4e4d47",
       size = sys_chart_text_font,
       inherit.aes = FALSE
@@ -295,7 +293,7 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
       text = element_text(size = sys_chart_text_font, colour = "#4e4d47"),
       axis.text.x = element_text(
         size = get_adj_font_size(
-          sys_axis_text_font * ifelse(windowSize()[1] < 1300, 0.9,1), 
+          sys_axis_text_font * ifelse(sys_plot_data$windowSize[1] < 1300, 0.9,1), 
           isExport),
         vjust = -.2), 
       axis.ticks.x = element_line(),
@@ -325,7 +323,7 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
 
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
-    req(valid_file() == 1)
+    req(session$userData$valid_file == 1)
     get_system_inflow_outflow_plot(id)
   },
   alt = case_when(
@@ -401,8 +399,8 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
     ))
     
-    exportTestValues(client_level_export_df = client_level_export_df() %>% nice_names())
-    exportTestValues(sys_inflow_outflow_report = summarize_df(sys_inflow_outflow_plot_data()))
+    exportTestValues(client_level_export_df = sys_plot_data$client_level_export_df %>% nice_names())
+    exportTestValues(sys_inflow_outflow_report = summarize_df(sys_plot_data$inflow_outflow_full()))
   }
 )
 
@@ -433,7 +431,7 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
 
 # Month-by-Month Chart+Table ----------------------------------------------
 output$sys_act_monthly_ui_chart <- renderPlot({
-  data <- sys_inflow_outflow_monthly_data()
+  data <- sys_plot_data$inflow_outflow_monthly
   
   # create and append inflow and outflow bar datasets
   plot_data <- rbindlist(list(
@@ -482,7 +480,7 @@ output$sys_act_monthly_ui_chart <- renderPlot({
 # Create summary table
 output$sys_act_monthly_table <- renderDT({
   summary_data <- suppressWarnings(dcast(
-    melt(sys_inflow_outflow_monthly_data(), id.vars = "month", variable.name = "Type"),
+    melt(sys_plot_data$inflow_outflow_monthly, id.vars = "month", variable.name = "Type"),
     Type ~ month,
     value.var = "value"
   ))

@@ -1,16 +1,18 @@
 # Client-level enrollment summary data reactive ---------------------------
 # get final people-level, inflow/outflow dataframe by joining the filtered 
 # enrollment and people dfs, as well as flagging their inflow and outflow types
-sys_inflow_outflow_plot_data({
-  # browser()
+# browser()
+sys_plot_data$inflow_outflow_full({
+  browser()
   period_specific_data()[["Full"]] %>%
-    select(PersonalID,
-           InflowTypeSummary,
-           InflowTypeDetail,
-           OutflowTypeSummary,
-           OutflowTypeDetail
-    ) %>%
-    unique()
+  select(PersonalID,
+         InflowTypeSummary,
+         InflowTypeDetail,
+         OutflowTypeSummary,
+         OutflowTypeDetail
+  ) %>%
+  unique()
+})
   # AS QC check:
   #   missing_types <- universe() %>%
   #     inner_join(
@@ -43,11 +45,11 @@ sys_inflow_outflow_plot_data({
   #       Time = case_when(
   #         Time == "InflowTypeDetail" &
   #           Status %in% c("Homeless", "Housed")
-  #         ~ paste0("Active as of \n", ReportStart()),
+  #         ~ paste0("Active as of \n", session$userData$ReportStart),
   #         
   #         Time == "OutflowTypeDetail" &
   #           Status %in% c("Homeless", "Housed")
-  #         ~ paste0("Active as of \n", ReportEnd()),
+  #         ~ paste0("Active as of \n", session$userData$ReportEnd),
   #         
   #         Time == "InflowTypeDetail"
   #         ~ "Inflow",
@@ -56,7 +58,6 @@ sys_inflow_outflow_plot_data({
   #         ~ "Outflow"
   #       )
   #     )
-})
 
 # newly_homeless_clients <- plot_data %>%
 #   filter(InflowTypeDetail == "Newly Homeless") %>%
@@ -69,11 +70,11 @@ sys_inflow_outflow_plot_data({
 #   ungroup() %>%
 #   filter(PersonalID %in% c(newly_homeless_clients) & Count > 1) %>%
 #   mutate(DestinationDescription = living_situation(Destination),
-#          ReportStart = ReportStart(),
-#          ReportEnd = ReportEnd(),
+#          ReportStart = session$userData$ReportStart,
+#          ReportEnd = session$userData$ReportEnd,
 #          ExportStart = ExportStartAdjusted,
 #          ExportEnd = ExportEndAdjusted,
-#          LookbackBegins = ReportStart() - years(2),
+#          LookbackBegins = session$userData$ReportStart - years(2),
 #          ProjectType = project_type_abb(ProjectType),
 #          LivingSituation = living_situation(LivingSituation)) %>%
 #   select(
@@ -99,20 +100,19 @@ sys_inflow_outflow_plot_data({
 # write_csv(for_review, here("newly_homeless_20240912a.csv"))
 
 # Month-by-Month Prep ---------------------------------------------------
-sys_inflow_outflow_monthly_data({
-  browser()
-  unique(
-    rbindlist(period_specific_data()[-1])[, .(
-      # Count unique PersonalIDs for each category using system flow logic
-      Inflow = uniqueN(PersonalID[InflowTypeSummary == "Inflow"]),
-      Outflow = uniqueN(PersonalID[OutflowTypeSummary == "Outflow"])
-    ), by = month
-    ][, `:=`(
-      `Monthly Change` = Inflow - Outflow,
-      month = factor(format(month, "%b"), 
-                     levels = format(months_in_report_period, "%b"))
-    )]
-  )
+# browser()
+sys_plot_data$inflow_outflow_monthly(unique(
+  rbindlist(period_specific_data()[-1])[, .(
+    # Count unique PersonalIDs for each category using system flow logic
+    Inflow = uniqueN(PersonalID[InflowTypeSummary == "Inflow"]),
+    Outflow = uniqueN(PersonalID[OutflowTypeSummary == "Outflow"])
+  ), by = month
+  ][, `:=`(
+    `Monthly Change` = Inflow - Outflow,
+    month = factor(format(month, "%b"), 
+                   levels = format(months_in_report_period, "%b"))
+  )]
+))
 
   # unique(
   # rbindlist(period_specific_data()[-1])[
@@ -172,23 +172,19 @@ sys_inflow_outflow_monthly_data({
   # )[First_Inflow != Second_Inflow | First_Outflow != Second_Outflow]
   # browser()
   # monthly_universe_ppl_flags
-})
 
 
 # System Composition/Demographics data for chart
-sys_df_people_universe_filtered_r({
-  cols_to_keep <- colnames(client_categories_filtered())
-  
-  unique(
-    period_specific_data()[["Full"]][, ..cols_to_keep]
-  )
-})
+cols_to_keep <- colnames(client_categories_filtered())
+sys_plot_data$people_universe_filtered(unique(
+  period_specific_data()[["Full"]][, ..cols_to_keep]
+))
 
 # The universe is anyone who was Housed or Homeless at Period Start
 # We also need the latest exit for the folks in the Exited categories
-sankey_plot_data({
-  req(nrow(sys_inflow_outflow_plot_data()) > 0)
-  plot_df <- sys_inflow_outflow_plot_data() %>%
+sys_plot_data$sankey({
+  req(nrow(sys_plot_data$inflow_outflow_full()) > 0)
+  plot_df <- sys_plot_data$inflow_outflow_full() %>%
     filter(InflowTypeDetail == "Housed" | InflowTypeDetail == "Homeless")
   
   startBind <- plot_df %>%
@@ -238,10 +234,8 @@ sankey_plot_data({
 })
 
 # Client-level download
-client_level_export_df(
-  merge(
-    period_specific_data()[["Full"]],
-    Client %>% select(PersonalID, !!gender_cols, !!race_cols), 
-    by="PersonalID"
-  )
-)
+sys_plot_data$client_level_export_df(merge(
+  period_specific_data()[["Full"]],
+  Client %>% select(PersonalID, !!gender_cols, !!race_cols), 
+  by="PersonalID"
+))

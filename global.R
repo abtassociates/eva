@@ -21,6 +21,21 @@ library(data.table)
 library(ggplot2)
 library(ggalluvial)
 library(officer)
+library(mirai)
+
+# library(future)
+# library(promises)
+# plan(multisession)
+daemons(4)
+menv <- environment()
+mirai::everywhere({
+  library(data.table)
+  library(tidyverse)
+  library(janitor)
+  library(readr)
+  source("helper_functions.R")
+  source("hardcodes")
+}, menv)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 options(shiny.fullstacktrace = TRUE)
@@ -31,6 +46,7 @@ if(dir.exists(here("metadata-analysis/metadata/"))) {
 }
 source(here("hardcodes.R"), local = TRUE) # hard-coded variables and data frames
 
+onStop(function() daemons(0))
 # # functions used throughout the app
 # source("helper_functions.R", local = TRUE)
 

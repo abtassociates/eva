@@ -25,18 +25,18 @@ show_invalid_popup <- function(popupText = NULL, issueID, title) {
 }
 
 hasGT1ExportRow <- function() {
-  Export(importFile(upload_filepath, "Export"))
-  
+  session$userData$Export <- importFile(upload_filepath, "Export")
+
   # this is the soonest we can log the session data, with 
   # the export info, since this is the first time we import the Export.csv file
   logSessionData() 
   
-  return(nrow(Export()) > 1)
+  return(nrow(session$userData$Export) > 1)
 }
 
 isFY2024Export <- function() {
   return(
-    grepl("2024", as.character(Export()$CSVVersion))
+    grepl("2024", as.character(session$userData$Export$CSVVersion))
   )
 }
 
@@ -50,7 +50,7 @@ is_hashed <- function() {
   # decide if the export is hashed
   return(  
     # TRUE
-    Export()$HashStatus == 4 &
+    session$userData$Export$HashStatus == 4 &
       min(nchar(Client$FirstName), na.rm = TRUE) ==
       max(nchar(Client$FirstName), na.rm = TRUE)
   )

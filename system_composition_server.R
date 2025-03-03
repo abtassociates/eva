@@ -26,9 +26,9 @@ syscomp_detailBox <- function(session) {
     list(
       strong("Date Range: "),
       
-      format(ReportStart(), "%m-%d-%Y"),
+      format(session$userData$ReportStart, "%m-%d-%Y"),
       " to ",
-      format(ReportEnd(), "%m-%d-%Y"),
+      format(session$userData$ReportEnd, "%m-%d-%Y"),
       br(),
       
       if (input$syso_project_type != "All")
@@ -214,7 +214,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
   selection <- input$system_composition_selections
 
-  comp_df <- sys_df_people_universe_filtered_r() %>%
+  comp_df <- sys_plot_data$people_universe_filtered %>%
     remove_non_applicables() %>%
     select(PersonalID, unname(var_cols[[selection]]))
   
@@ -323,7 +323,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   }
   
   # get dataset underlying the freqs we will produce below
-  comp_df <- sys_df_people_universe_filtered_r() %>%
+  comp_df <- sys_plot_data$people_universe_filtered %>%
     remove_non_applicables() %>%
     select(
       PersonalID, 
@@ -529,7 +529,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       axis.title.x = element_blank(),
       axis.title.y = element_blank(),
       # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
-      axis.text = element_text(size = sys_comp_axis_text_font * ifelse(windowSize()[1] < 1300, 0.8, 1) * ifelse(isExport, 0.6, 1))
+      axis.text = element_text(size = sys_comp_axis_text_font * ifelse(sys_plot_data$windowSize[1] < 1300, 0.8, 1) * ifelse(isExport, 0.6, 1))
     )
 }
 
@@ -543,7 +543,7 @@ sys_comp_selections_info <- reactive({
     Value = c(
       input$system_composition_selections[1],
       input$system_composition_selections[2],
-      nrow(sys_df_people_universe_filtered_r() %>% remove_non_applicables())
+      nrow(sys_plot_data$people_universe_filtered %>% remove_non_applicables())
     )
   )
 })
@@ -664,7 +664,7 @@ output$sys_comp_download_btn <- downloadHandler(
       col_names = TRUE
     )
     
-    exportTestValues(sys_comp_df = sys_df_people_universe_filtered_r())
+    exportTestValues(sys_comp_df = sys_plot_data$people_universe_filtered)
     exportTestValues(sys_comp_report_num_df = num_df)
     exportTestValues(sys_comp_report_pct_df = pct_df)
   }
@@ -673,7 +673,7 @@ output$sys_comp_download_btn <- downloadHandler(
 sys_comp_p <- reactive({
   req(
     !is.null(input$system_composition_selections) &
-      valid_file() == 1 &
+      session$userData$valid_file == 1 &
       between(length(input$system_composition_selections), 1, 2)
   )
   
@@ -705,7 +705,7 @@ observeEvent(input$system_composition_selections, {
 
 
 output$sys_comp_summary_selections <- renderUI({
-  req(!is.null(input$system_composition_selections) & valid_file() == 1)
+  req(!is.null(input$system_composition_selections) & session$userData$valid_file == 1)
   syscomp_detailBox()
 })
 

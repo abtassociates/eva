@@ -2,9 +2,9 @@
 # reporting period, or each month in between the start and end of the full period
 
 # Get period report_dates --------------------------------------------
-months_in_report_period <- seq.Date(from = ReportStart(), to = ReportEnd(), by = "months")
+months_in_report_period <- seq.Date(from = session$userData$ReportStart, to = session$userData$ReportEnd, by = "months")
 report_dates <- c(
-  list("Full" = c(ReportStart(), ReportEnd())),
+  list("Full" = c(session$userData$ReportStart, session$userData$ReportEnd)),
   setNames(
     lapply(months_in_report_period, function(d) {
       c(d, ceiling_date(d, "month") - days(1))
@@ -24,32 +24,30 @@ enrollment_categories_filtered_df <- function(period, hh_type, level_detail, pro
   )
   
   # Apply all filters at once and select needed columns
-  enrollment_categories_df %>%
-    filter(
-      # Household type filter
-      (hh_type == "All" |
-         (hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
-         (hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-         (hh_type == "AO" & HouseholdType %in% c("AO","UY")) | 
-         (hh_type == "AC" & HouseholdType %in% c("AC","PY")) | 
-         hh_type == HouseholdType
-      ) &
-        # Level of detail filter
-        (level_detail == "All" |
-           (level_detail == "HoHsAndAdults" &
-              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-           (level_detail == "HoHsOnly" &
-              CorrectedHoH == 1)) &
-        # Project type filter
-        ((project_type == "All" |
-            (project_type == "Residential" &
-               ProjectType %in% project_types_w_beds &
-               eecr == TRUE) | eecr == FALSE) |
-           ((project_type == "NonResidential" &
-               ProjectType %in% non_res_project_types &
-               eecr == TRUE) | eecr == FALSE))
-    ) %>%
-    select(
+  enrollment_categories_df[
+    # Household type filter
+    (hh_type == "All" |
+       (hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+       (hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+       (hh_type == "AO" & HouseholdType %in% c("AO","UY")) | 
+       (hh_type == "AC" & HouseholdType %in% c("AC","PY")) | 
+       hh_type == HouseholdType
+    ) &
+      # Level of detail filter
+      (level_detail == "All" |
+         (level_detail == "HoHsAndAdults" &
+            (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+         (level_detail == "HoHsOnly" &
+            CorrectedHoH == 1)) &
+      # Project type filter
+      ((project_type == "All" |
+          (project_type == "Residential" &
+             ProjectType %in% project_types_w_beds &
+             eecr == TRUE) | eecr == FALSE) |
+         ((project_type == "NonResidential" &
+             ProjectType %in% non_res_project_types &
+             eecr == TRUE) | eecr == FALSE))
+    ][, .(
       EnrollmentID,
       PersonalID,
       ProjectType,
@@ -76,7 +74,7 @@ enrollment_categories_filtered_df <- function(period, hh_type, level_detail, pro
       lookback,
       NbN15DaysAfterReportEnd,
       NbN15DaysBeforeReportEnd
-    )
+    )]
 }
 
 ## Period-specific NbN prep function -------------------------------------------
@@ -122,14 +120,14 @@ session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise
         ) %>%
         ungroup()
     
-    nbn_enrollments_services %>%
+    setDT(nbn_enrollments_services %>%
       select(EnrollmentID,
              NbN15DaysBeforeReportStart,
              NbN15DaysAfterReportEnd,
              NbN15DaysBeforeReportEnd) %>%
       filter(NbN15DaysBeforeReportStart == 1 |
                NbN15DaysAfterReportEnd == 1 |
-               NbN15DaysBeforeReportEnd == 1)
+               NbN15DaysBeforeReportEnd == 1))
   })
 
 ## Period-specific enrollment categories prep function -------------------------
@@ -270,13 +268,13 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
 # find example clients and their Entry and Exit Dates and enter them into
 # https://onlinetools.com/time/visualize-date-intervals <- here.
 # add inflow type and active enrollment typed used for system overview plots
-universe <- function(enrollments_filtered, period) {
+universe <- function(enrollments_filtered, client_categories_filtered, period) {
   startDate <- period[1]
   endDate <- period[2]
   
-  client_categories_filtered()[
+  client_categories_filtered[
     enrollments_filtered,
-    on = .(PersonalID),
+    on = "PersonalID",
     nomatch = NULL
   ][, `:=`(
     # INFLOW CALCULATOR COLUMNS
@@ -449,8 +447,8 @@ universe_ppl_flags <- function(universe_df) {
       fifelse(active_at_start_housed_client == TRUE, "Housed",
               fifelse(return_from_perm_client == TRUE, "Returned from \nPermanent",
                       fifelse(reengaged_from_temp_client == TRUE, "Re-engaged from \nNon-Permanent",
-                              fifelse(newly_homeless_client == TRUE & days_of_data() >= 1094, "First-Time \nHomeless",
-                                      fifelse(newly_homeless_client == TRUE & days_of_data() < 1094, "Inflow\nUnspecified",
+                              fifelse(newly_homeless_client == TRUE & session$userData$days_of_data >= 1094, "First-Time \nHomeless",
+                                      fifelse(newly_homeless_client == TRUE & session$userData$days_of_data < 1094, "Inflow\nUnspecified",
                                               "something's wrong")))))
     ),
     
@@ -488,12 +486,13 @@ check_cache_size <- function(cache, max_size_mb = 100) {
 
 # Get period-specific universe_ppl_flag datasets ---------------------------
 period_specific_data <- reactive({
+  browser()
   cache <- session$userData$period_cache
   
   check_cache_size(cache)
   
   cache_key <- digest::digest(list(
-    input$imported$name,
+    if(input$in_demo_mode) "demo" else input$imported$name,
     
     # Client-level filters
     input$syso_age,
@@ -512,27 +511,38 @@ period_specific_data <- reactive({
     return(cached_result)
   }
   
-  results <- lapply(report_dates, function(period) {
-    enrollments_filtered <- enrollment_categories_filtered_df(
-      period,
-      input$syso_hh_type,
-      input$syso_level_of_detail,
-      input$syso_project_type,
-      input$imported$name
-    )
-    
-    # browser()
-    universe_data <- universe(enrollments_filtered, period)
-    universe_with_flags <- universe_ppl_flags(universe_data)
-    
-    # Add month flag for month-periods
-    if(!identical(period, report_dates[["Full"]])) {
-      universe_with_flags[, month := as.Date(period[1])]
-    }
-    universe_with_flags
-  })
-  
-  cache[[cache_key]] <- results
+  menv <- environment()
+  mirai::everywhere({
+    library(data.table)
+  }, menv)
+  assign("upload_name", ifelse(input$in_demo_mode, "DEMO", input$imported$name), menv)
+  assign("syso_hh_type", input$syso_hh_type, menv)
+  assign("syso_level_of_detail", input$syso_level_of_detail, menv)
+  assign("syso_project_type", input$syso_project_type, menv)
+  assign("client_categories_filtered", client_categories_filtered(), menv)
 
+  results <- mirai_map(
+    report_dates,
+    function(period) {
+      enrollments_filtered <- enrollment_categories_filtered_df(
+        period,
+        syso_hh_type,
+        syso_level_of_detail,
+        syso_project_type,
+        upload_name
+      )
+
+      universe_data <- universe(enrollments_filtered, client_categories_filtered, period)
+      universe_with_flags <- universe_ppl_flags(universe_data)
+      
+      # Add month flag for month-periods
+      if(!identical(period, report_dates[["Full"]])) {
+        universe_with_flags[, month := as.Date(period[1])]
+      }
+      universe_with_flags
+    },
+    menv
+  )[.progress, .stop]
+  cache[[cache_key]] <- results
   results
 })

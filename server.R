@@ -3,31 +3,37 @@ function(input, output, session) {
   # record_heatmap(target = ".wrapper")
   # track_usage(storage_mode = store_json(path = "logs/"))
   set.seed(12345)
-  # session-wide variables (NOT visible to multiple sessions) -----------------
-  visible_reactive_vals <- list(
-    validation <- reactiveVal(),
-    CurrentLivingSituation <- reactiveVal(),
-    Export <- reactiveVal(),
-    Project0 <- reactiveVal(),
-    Event <- reactiveVal(),
-    meta_HUDCSV_Export_Start <- reactiveVal(),
-    meta_HUDCSV_Export_End <- reactiveVal(),
-    meta_HUDCSV_Export_Date <- reactiveVal(),
-    overlap_details <- reactiveVal(),
-    base_dq_data_func <- reactiveVal(),
-    dq_main_df <- reactiveVal(),
-    pdde_main <- reactiveVal(),
-    valid_file <- reactiveVal(0), # from FSA. Most stuff is hidden unless valid == 1
-    file_structure_analysis_main <- reactiveVal(),
-    sys_inflow_outflow_plot_data <- reactiveVal(),
-    sys_inflow_outflow_monthly_data <- reactiveVal(),
-    sys_df_people_universe_filtered_r <- reactiveVal(),
-    client_level_export_df <- reactiveVal(),
-    ReportStart <- reactiveVal(),
-    ReportEnd <- reactiveVal(),
-    sankey_plot_data <- reactiveVal(),
-    days_of_data <- reactiveVal(),
-    windowSize <- reactiveVal()
+  
+  sessionVars <- c(
+    "validation", 
+    "CurrentLivingSituation", 
+    "Export", 
+    "Project0", 
+    "Event", 
+    "meta_HUDCSV_Export_Start", 
+    "meta_HUDCSV_Export_End", 
+    "meta_HUDCSV_Export_Date", 
+    "overlap_details", 
+    "base_dq_data_func", 
+    "dq_main_df", 
+    "pdde_main", 
+    "valid_file", 
+    "file_structure_analysis_main", 
+    "ReportStart", 
+    "ReportEnd", 
+    "days_of_data"
+  )
+  for(v in sessionVars) {
+    session$userData[[v]] <- NULL
+  }
+  
+  sys_plot_data <- reactiveValues(
+    inflow_outflow_full = reactiveVal(NULL),
+    inflow_outflow_monthly = reactiveVal(NULL),
+    people_universe_filtered = reactiveVal(NULL),
+    sankey = reactiveVal(NULL),
+    client_level_export_df = reactiveVal(NULL),
+    windowSize = NULL 
   )
   
   # 
@@ -97,8 +103,8 @@ function(input, output, session) {
   # the HTML <div> id the same each time. Without associating with an output, 
   # the id changed each time and the shinytest would catch the difference and fail
   output$headerClientCounts_supp <- renderUI({ 
-    req(valid_file() == 1)
-    organization <- Project0() %>%
+    req(session$userData$valid_file == 1)
+    organization <- session$userData$Project0 %>%
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
     
@@ -133,7 +139,7 @@ function(input, output, session) {
     HTML("<p>Please upload your hashed HMIS CSV Export!</p>")
     if(is.null(input$imported)) {
       return("")
-    } else if(valid_file() == 1) {
+    } else if(session$userData$valid_file == 1) {
       HTML("<p id='successful_upload'>You have successfully uploaded your hashed
            HMIS CSV Export!</p>")
     }
@@ -167,18 +173,31 @@ function(input, output, session) {
         source("03_file_structure_analysis.R", local = TRUE)
         
         # if structural issues were not found, keep going
-        if (valid_file() == 1) {
+        if (session$userData$valid_file == 1) {
           setProgress(detail = "Prepping initial data..", value = .4)
           source("04_initial_data_prep.R", local = TRUE) 
           
+          # Create DQ and PDDE script environment
+          for(obj in ls(.GlobalEnv, all.names=TRUE)) {
+            assign(obj, get(obj, .GlobalEnv), envir = menv)
+          }
+          assign("session", session, envir = menv)
+          
           setProgress(detail = "Assessing your data quality..", value = .7)
-          source("05_DataQuality.R", local = TRUE)
+          dq_mirai <- mirai(source("05_DataQuality.R"), menv)
           
           setProgress(detail = "Checking your PDDEs", value = .85)
-          source("06_PDDE_Checker.R", local = TRUE)
-
+          pdde_mirai <- mirai(source("06_PDDE_Checker.R"), menv)
+            
           setProgress(detail = "Preparing System Overview Data", value = .85)
           source("07_system_overview.R", local = TRUE)
+            
+          collect_mirai(list(dq_mirai, pdde_mirai))
+          
+          session$userData$pdde_main <- pdde_mirai$data$value
+          session$userData$dq_main_df <- dq_mirai$data$value$dq_main
+          session$userData$base_dq_data_func <- dq_mirai$data$value$base_dq_data
+          session$userData$overlap_details <- dq_mirai$data$value$overlap_details
           
           # if user changes filters, update the reactive vals
           # which get used for the various System Overview charts
@@ -195,20 +214,21 @@ function(input, output, session) {
             # hide download buttons if < 11 records
             # All Served is handled in system_composition_server.R
             # for that chart, we also hide if all *cells* are < 11
-            shinyjs::toggle("sys_inflow_outflow_download_btn", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
-            shinyjs::toggle("sys_inflow_outflow_download_btn_ppt", condition = nrow(sys_inflow_outflow_plot_data()) > 10)
+            shinyjs::toggle("sys_inflow_outflow_download_btn", condition = nrow(sys_plot_data$inflow_outflow_full()) > 10)
+            shinyjs::toggle("sys_inflow_outflow_download_btn_ppt", condition = nrow(sys_plot_data$inflow_outflow_full()) > 10)
             
-            shinyjs::toggle("sys_status_download_btn", condition = sum(sankey_plot_data()$freq) > 10)
-            shinyjs::toggle("sys_status_download_btn_ppt", condition = sum(sankey_plot_data()$freq) > 10)
+            shinyjs::toggle("sys_status_download_btn", condition = sum(sys_plot_data$sankey()$freq) > 10)
+            shinyjs::toggle("sys_status_download_btn_ppt", condition = sum(sys_plot_data$sankey()$freq) > 10)
           })
           
           setProgress(detail = "Done!", value = 1)
           logToConsole("Done processing")
           
-          
           logToConsole("Upload processing complete")
           
-          if(nrow(file_structure_analysis_main()) > 0) {
+          # browser()
+          
+          if(nrow(session$userData$file_structure_analysis_main) > 0) {
             msg <- "Congratulations! You have successfully uploaded a hashed HMIS 
                   CSV Export to Eva! Your upload has file structure errors, but 
                   none are High Priority. Thus, Eva can read your file and you can
@@ -216,7 +236,7 @@ function(input, output, session) {
                   please share the identified file structure issues with your HMIS
                   vendor to fix."
             
-            if("Impermissible characters" %in% c(file_structure_analysis_main()$Issue)) {
+            if("Impermissible characters" %in% c(session$userData$file_structure_analysis_main$Issue)) {
               showModal(
                 modalDialog(
                   HTML(paste0(msg, "<br><br>", "Additionally, Eva has detected 
@@ -283,14 +303,14 @@ function(input, output, session) {
             
             updateDateRangeInput(session = session,
                                  inputId = "dateRangeCount",
-                                 min = meta_HUDCSV_Export_Start(),
-                                 start = meta_HUDCSV_Export_Start(),
-                                 max = meta_HUDCSV_Export_End(),
-                                 end = meta_HUDCSV_Export_End())
+                                 min = session$userData$meta_HUDCSV_Export_Start,
+                                 start = session$userData$meta_HUDCSV_Export_Start,
+                                 max = session$userData$meta_HUDCSV_Export_End,
+                                 end = session$userData$meta_HUDCSV_Export_End)
           }
           
         } else{ # if structural issues were found, reset gracefully
-          valid_file(0)
+          session$userData$valid_file <- 0
           showModal(
             modalDialog(
               "Your uploaded HMIS CSV Export has at least one High Priority File 
@@ -311,7 +331,7 @@ function(input, output, session) {
           
           reset_postvalid_components()
         }
-        toggle_sys_components(valid_file() == 1)
+        toggle_sys_components(session$userData$valid_file == 1)
       }
     })
   }
@@ -323,9 +343,9 @@ function(input, output, session) {
   # File Structure Analysis Summary -----------------------------------------
   # update_fsa <- function() {
   output$fileStructureAnalysis <- renderDT({
-    req(nrow(file_structure_analysis_main()))
+    req(nrow(session$userData$file_structure_analysis_main))
     req(initially_valid_import() == 1)
-    a <- file_structure_analysis_main() %>%
+    a <- session$userData$file_structure_analysis_main %>%
       group_by(Type, Issue) %>%
       summarise(Count = n()) %>%
       ungroup() %>%
@@ -346,7 +366,7 @@ function(input, output, session) {
   # File Structure Analysis Download ----------------------------------------
   
   output$downloadFileStructureAnalysisBtn <- renderUI({
-    req(nrow(file_structure_analysis_main()) > 0)
+    req(nrow(session$userData$file_structure_analysis_main) > 0)
     downloadButton("downloadFileStructureAnalysis",
                    "Download Structure Analysis Detail")
   }) 
@@ -355,7 +375,7 @@ function(input, output, session) {
     filename = date_stamped_filename("File-Structure-Analysis-"),
     content = function(file) {
       write_xlsx(
-        file_structure_analysis_main() %>%
+        session$userData$file_structure_analysis_main %>%
           arrange(Type, Issue) %>%
           nice_names(),
         path = file
@@ -364,13 +384,13 @@ function(input, output, session) {
       logMetadata(paste0("Downloaded File Structure Analysis Report", 
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
-      exportTestValues(file_structure_analysis_main = file_structure_analysis_main() %>% nice_names())
+      exportTestValues(file_structure_analysis_main = session$userData$file_structure_analysis_main %>% nice_names())
     }
   )
   
   output$downloadImpermissibleCharacterDetailBtn <- renderUI({
     # browser()
-    req("Impermissible characters" %in% c(file_structure_analysis_main()$Issue))
+    req("Impermissible characters" %in% c(session$userData$file_structure_analysis_main$Issue))
     tagList(
       actionButton("showDownloadImpermissibleButton",
                    "Download Impermissible Character Detail", 
@@ -440,7 +460,7 @@ function(input, output, session) {
   # }
   
   # output$dq_overview_plot <- renderPlot({
-  #   req(valid_file() == 1)
+  #   req(session$userData$valid_file == 1)
   # # browser()
   #   detail <- dq_main_reactive() %>%
   #     count(Type, name = "Total") %>%
@@ -483,7 +503,7 @@ function(input, output, session) {
   
   # 
   #     output$dq_orgs_overview_plot <- renderPlot({
-  #       req(valid_file() == 1)
+  #       req(session$userData$valid_file == 1)
   # # browser()
   #       highest_type <- dq_main_reactive() %>%
   #         count(Type) %>% 
@@ -541,7 +561,7 @@ function(input, output, session) {
   source("client_counts_functions.R", local = TRUE)
   
   output$validate_plot <- renderPlot({
-    req(valid_file() == 1)
+    req(session$userData$valid_file == 1)
     # browser()
     
     detail <- client_count_data_df() %>%
@@ -613,7 +633,7 @@ function(input, output, session) {
   
   # CLIENT COUNT DETAILS - APP ----------------------------------------------
   output$clientCountData <- renderDT({
-    req(valid_file() == 1)
+    req(session$userData$valid_file == 1)
     req(nrow(validation()) > 0)
     
     # getting an error sometimes? Warning: Error in filter: â„¹ In argument: `ProjectName == input$currentProviderList`.
@@ -637,7 +657,7 @@ function(input, output, session) {
   # CLIENT COUNT SUMMARY - APP ----------------------------------------------
   
   output$clientCountSummary <- renderDT({
-    req(valid_file() == 1)
+    req(session$userData$valid_file == 1)
     
     exportTestValues(clientCountSummary = client_count_summary_df())
     
@@ -654,7 +674,7 @@ function(input, output, session) {
   # CLIENT COUNT DOWNLOAD ---------------------------------------------------
   
   output$downloadClientCountsReportButton  <- renderUI({
-    req(valid_file() == 1)
+    req(session$userData$valid_file == 1)
     downloadButton(outputId = "downloadClientCountsReport",
                    label = "Download System-Wide")
   })
@@ -671,8 +691,8 @@ function(input, output, session) {
   # PDDE Checker ------------------------------------------------------------
   # PDDE Download Button ----------------------------------------------------
   output$downloadPDDEReportButton  <- renderUI({
-    req(valid_file() == 1)
-    req(nrow(pdde_main()) > 0)
+    req(session$userData$valid_file == 1)
+    req(nrow(session$userData$pdde_main) > 0)
     downloadButton(outputId = "downloadPDDEReport",
                    label = "Download")
   })
@@ -684,17 +704,17 @@ function(input, output, session) {
     
     filename = date_stamped_filename("PDDE Report-"),
     content = function(file) {
-      req(valid_file() == 1)
-      
-      summary_df <- pdde_main() %>% 
+      req(session$userData$valid_file == 1)
+      browser()
+      summary_df <- session$userData$pdde_main %>% 
         group_by(Issue, Type) %>%
         summarise(Count = n()) %>%
         ungroup()
       
       write_xlsx(
         list("Summary" = summary_df,
-             "Data" = pdde_main() %>% 
-               left_join(Project0() %>% select(ProjectID, ProjectType), by="ProjectID") %>%
+             "Data" = session$userData$pdde_main %>% 
+               left_join(session$userData$Project0 %>% select(ProjectID, ProjectType), by="ProjectID") %>%
                nice_names()
              ),
         path = file)
@@ -703,15 +723,14 @@ function(input, output, session) {
                          if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
       exportTestValues(pdde_download_summary = summary_df)
-      exportTestValues(pdde_main = pdde_main() %>% nice_names())
+      exportTestValues(pdde_main = session$userData$pdde_main %>% nice_names())
     }
   )
   
   # summary table
   output$pdde_summary_table <- renderDT({
-    req(valid_file() == 1)
-    
-    a <- pdde_main() %>%
+    req(session$userData$valid_file == 1)
+    a <- session$userData$pdde_main %>%
       group_by(Issue, Type) %>%
       summarise(Count = n()) %>%
       ungroup() %>%
@@ -730,9 +749,8 @@ function(input, output, session) {
   # PDDE Guidance -----------------------------------------------------------
   
   output$pdde_guidance_summary <- renderDT({
-    req(valid_file() == 1)
-    
-    guidance <- pdde_main() %>%
+    req(session$userData$valid_file == 1)
+    guidance <- session$userData$pdde_main %>%
       select(Type, Issue, Guidance) %>%
       arrange(Type, Issue) %>%
       unique()
@@ -753,8 +771,7 @@ function(input, output, session) {
   source("05_DataQuality_functions.R", local = TRUE)
   
   output$dq_organization_summary_table <- renderDT({
-    req(valid_file() == 1)
-    
+    req(session$userData$valid_file == 1)
     a <- dq_main_reactive() %>%
       filter(OrganizationName %in% c(input$orgList)) %>%
       select(ProjectName, 
@@ -784,8 +801,7 @@ function(input, output, session) {
   # DQ Org Guidance -------------------------------------------------------
   
   output$dq_org_guidance_summary <- renderDT({
-    req(valid_file() == 1)
-    
+    req(session$userData$valid_file == 1)
     guidance <- dq_main_reactive() %>%
       filter(OrganizationName %in% c(input$orgList)) %>%
       select(Type, Issue, Guidance) %>%
@@ -809,7 +825,7 @@ function(input, output, session) {
   # Download Org DQ Report --------------------------------------------------
   
   output$downloadOrgDQReportButton  <- renderUI({
-    req(valid_file() == 1)
+    req(session$userData$valid_file == 1)
     req(length(dqDownloadInfo()$orgDQData) > 0)
     downloadButton(outputId = "downloadOrgDQReport",
                    label = "Download")
@@ -829,7 +845,7 @@ function(input, output, session) {
   # Download System DQ Report -----------------------------------------------
   # button
   output$downloadSystemDQReportButton  <- renderUI({
-    req(valid_file() == 1)
+    req(session$userData$valid_file == 1)
     req(length(dqDownloadInfo()$systemDQData) > 0)
     downloadButton(outputId = "downloadSystemDQReport",
                    label = "Download") %>% withSpinner()
@@ -913,7 +929,7 @@ function(input, output, session) {
   # })
   
   # output$headerExitsToPH <- renderUI({
-  #   req(valid_file() == 1)
+  #   req(session$userData$valid_file == 1)
   #   ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
   #   ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%B %d, %Y")
   #   

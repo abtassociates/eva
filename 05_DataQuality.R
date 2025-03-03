@@ -12,7 +12,7 @@
 #     - Overlaps
 #     - Future Entry Exits
 ###############################
-
+# run_data_quality_checks <- function() {
 logToConsole("Running Data Quality")
 
 # Clients to Check --------------------------------------------------------
@@ -592,7 +592,7 @@ top_percents_long_stayers <- base_dq_data %>%
       )
   ) %>%
   mutate(Days = as.numeric(difftime(
-      meta_HUDCSV_Export_Date(), 
+      session$userData$meta_HUDCSV_Export_Date, 
       if_else(ProjectType %in% c(ph_project_types), MoveInDateAdjust, EntryDate)
   ))) %>%
   group_by(ProjectType) %>%
@@ -615,7 +615,7 @@ missed_movein_stayers <- base_dq_data %>%
            ProjectType %in% c(ph_project_types) & 
            RelationshipToHoH == 1
   ) %>%
-  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date(), EntryDate)))
+  mutate(Days = as.numeric(difftime(session$userData$meta_HUDCSV_Export_Date, EntryDate)))
 
 Top2_movein <- subset(missed_movein_stayers,
                       Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE)) %>%
@@ -878,7 +878,7 @@ future_ees <- base_dq_data %>%
 
 future_exits <- base_dq_data %>%
   filter(!is.na(ExitDate) &
-           ExitDate > as.Date(meta_HUDCSV_Export_Date())) %>%
+           ExitDate > as.Date(session$userData$meta_HUDCSV_Export_Date)) %>%
   merge_check_info(checkIDs = 14) %>%
   select(all_of(vars_we_want))
     
@@ -1297,7 +1297,7 @@ overlap_dt <- merge(
 
 # For the Overlap Details tab of the export
 # we want the same set of details for the overlapping enrollment (i.e. the "previous")
-# this wide dataset is saved in the overlap_details() reactiveValue
+# this wide dataset is saved in the overlap_details reactiveValue
 col_order <- if(nrow(Services) > 0) {
   c(
     "OrganizationName",
@@ -1351,26 +1351,24 @@ col_order <- if(nrow(Services) > 0) {
   )
 }
 
-overlap_details(
-  # Rename columns for previous enrollment
-  merge(
-    overlap_dt,
-    base_dq_data_dt[
-      , setNames(.SD, paste0("Previous", names(.SD)))
-      , .SDcols = vars_prep
-    ],
-    by = "PreviousEnrollmentID",
-    all.x = TRUE
-  )[
-    , PreviousProjectType := project_type(PreviousProjectType)
-  ][
-    # Drop Issue columns
-    , !c("Issue", "Type", "Guidance"), with = FALSE
-  ][
-    # order and rename columns
-    , ..col_order
-  ]
-)
+# Rename columns for previous enrollment to get current and previous on same row
+overlap_details <- merge(
+  overlap_dt,
+  base_dq_data_dt[
+    , setNames(.SD, paste0("Previous", names(.SD)))
+    , .SDcols = vars_prep
+  ],
+  by = "PreviousEnrollmentID",
+  all.x = TRUE
+)[
+  , PreviousProjectType := project_type(PreviousProjectType)
+][
+  # Drop Issue columns
+  , !c("Issue", "Type", "Guidance"), with = FALSE
+][
+  # order and rename columns
+  , ..col_order
+]
 
 overlaps_df <- setDF(
   overlap_dt[
@@ -1783,7 +1781,12 @@ dq_main <- unique(dq_main)[, Type := factor(Type,
                                             levels = c("High Priority",
                                                        "Error",
                                                        "Warning"))]
-setDF(dq_main)
-
-base_dq_data_func(base_dq_data)
-dq_main_df(dq_main)
+dq_main <- as.data.frame(dq_main)
+# base_dq_data_func(base_dq_data)
+# dq_main_df(dq_main)
+list(
+  base_dq_data = base_dq_data, 
+  dq_main = dq_main,
+  overlap_details = overlap_details
+)
+# }
