@@ -94,7 +94,7 @@ toggleDemoJs <- function(t) {
     
     process_upload("demo.zip", here("demo.zip"))
     
-    session$userData$valid_file <- 1
+    session$userData$valid_file(1)
     
     removeModal()
     

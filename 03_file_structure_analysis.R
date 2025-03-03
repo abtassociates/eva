@@ -379,7 +379,7 @@ nonstandard_CLS <- CurrentLivingSituation %>%
                      "which is not a valid response."))) %>%
   select(all_of(issue_display_cols))
 
-session$userData$file_structure_analysis_main <- rbind(
+session$userData$file_structure_analysis_main(rbind(
   df_column_diffs,
   df_unexpected_data_types,
   df_nulls,
@@ -400,11 +400,12 @@ session$userData$file_structure_analysis_main <- rbind(
   ) %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
   arrange(Type)
+)
 
 if(session$userData$file_structure_analysis_main %>% 
 filter(Type == "High Priority") %>% 
 nrow() > 0) {
-  session$userData$valid_file <- 0
+  session$userData$valid_file(0)
 } else{
-  session$userData$valid_file <- 1
+  session$userData$valid_file(1)
 }

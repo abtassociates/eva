@@ -235,7 +235,7 @@ logMetadata <- function(detail) {
 
 headerGeneric <- function(tabTitle, extraHTML = NULL) {
   renderUI({
-    if(session$userData$valid_file == 1) {
+    if(session$userData$valid_file() == 1) {
       list(h2(tabTitle),
            h4(strong("Date Range of Current File: "),
             paste(
@@ -436,12 +436,17 @@ reset_postvalid_components <- function() {
 }
 
 # essentially resets the app
-reset_app <- function() {
-  lapply(session$userData, function(r) r <- NULL)
-  lapply(sys_plot_data, function(r) r <- NULL)
-  session$userData$valid_file <- 0
-  session$userData$initially_valid_import <- 0
-  sys_plot_data$windowSize <- input$dimension
+reset_session_vars <- function() {
+  for(v in sessionVars) {
+    if(v %in% c("valid_file", "initially_valid_import")) session$userData[[v]] <- reactiveVal(0) 
+    else if(v == "file_structure_analysis_main") session$userData[[v]] <- reactiveVal(NULL)
+    else session$userData[[v]] <- NULL
+  }
+
+  for(v in sys_plot_datasets) {
+    sys_plot_data[[v]] <- reactiveVal(NULL)
+  }
+  
   reset_postvalid_components()
 }
 

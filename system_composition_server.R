@@ -529,7 +529,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       axis.title.x = element_blank(),
       axis.title.y = element_blank(),
       # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
-      axis.text = element_text(size = sys_comp_axis_text_font * ifelse(sys_plot_data$windowSize[1] < 1300, 0.8, 1) * ifelse(isExport, 0.6, 1))
+      axis.text = element_text(size = sys_comp_axis_text_font * ifelse(windowSize[1] < 1300, 0.8, 1) * ifelse(isExport, 0.6, 1))
     )
 }
 
@@ -673,7 +673,7 @@ output$sys_comp_download_btn <- downloadHandler(
 sys_comp_p <- reactive({
   req(
     !is.null(input$system_composition_selections) &
-      session$userData$valid_file == 1 &
+      session$userData$valid_file() == 1 &
       between(length(input$system_composition_selections), 1, 2)
   )
   
@@ -705,7 +705,7 @@ observeEvent(input$system_composition_selections, {
 
 
 output$sys_comp_summary_selections <- renderUI({
-  req(!is.null(input$system_composition_selections) & session$userData$valid_file == 1)
+  req(!is.null(input$system_composition_selections) & session$userData$valid_file() == 1)
   syscomp_detailBox()
 })
 

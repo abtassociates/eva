@@ -128,6 +128,6 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
     )
     logMetadata("Unsuccessful upload - not hashed")
   } else {
-    initially_valid_import(1)
+    session$userData$initially_valid_import(1)
   }
 }

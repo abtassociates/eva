@@ -1,5 +1,5 @@
 output$sankey_filter_selections <- renderUI({ 
-  req(session$userData$valid_file == 1)
+  req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
 
@@ -126,7 +126,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
     )
 }
 output$sankey_ui_chart <- renderPlot({
-  req(session$userData$valid_file == 1)
+  req(session$userData$valid_file() == 1)
   
   plot_data <- sys_plot_data$sankey()
   

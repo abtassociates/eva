@@ -6,10 +6,15 @@ function(input, output, session) {
   
   sessionVars <- c(
     "validation", 
-    "CurrentLivingSituation", 
     "Export", 
+    "initially_valid_import",
+    "valid_file", 
+    "file_structure_analysis_main", 
     "Project0", 
+    "CurrentLivingSituation", 
     "Event", 
+    "ReportStart", 
+    "ReportEnd", 
     "meta_HUDCSV_Export_Start", 
     "meta_HUDCSV_Export_End", 
     "meta_HUDCSV_Export_Date", 
@@ -17,24 +22,24 @@ function(input, output, session) {
     "base_dq_data_func", 
     "dq_main_df", 
     "pdde_main", 
-    "valid_file", 
-    "file_structure_analysis_main", 
-    "ReportStart", 
-    "ReportEnd", 
-    "days_of_data"
+    "days_of_data",
+    "client_categories"
   )
-  for(v in sessionVars) {
-    session$userData[[v]] <- NULL
-  }
   
-  sys_plot_data <- reactiveValues(
-    inflow_outflow_full = reactiveVal(NULL),
-    inflow_outflow_monthly = reactiveVal(NULL),
-    people_universe_filtered = reactiveVal(NULL),
-    sankey = reactiveVal(NULL),
-    client_level_export_df = reactiveVal(NULL),
-    windowSize = NULL 
+  # Dynamic datasets, dependent on user filters -------------------------------
+  sys_plot_datasets <- c(
+    "inflow_outflow_full",
+    "inflow_outflow_monthly",
+    "people_universe_filtered",
+    "sankey",
+    "client_level_export_df"
   )
+  sys_plot_data <- reactiveValues()
+  
+  windowSize <- reactiveVal(NULL)
+  triggerPlot <- reactiveVal(NULL)
+  
+  reset_session_vars()
   
   # 
   # # functions used throughout the app
@@ -93,7 +98,7 @@ function(input, output, session) {
     headerGeneric("Upload HMIS CSV Export",
                   h4(
                     strong("Export Date: "),
-                    format(meta_HUDCSV_Export_Date(), "%m-%d-%Y at %I:%M %p")
+                    format(session$userData$meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
                   ))
 
   output$headerLocalSettings <- headerGeneric("Edit Local Settings")
@@ -103,7 +108,7 @@ function(input, output, session) {
   # the HTML <div> id the same each time. Without associating with an output, 
   # the id changed each time and the shinytest would catch the difference and fail
   output$headerClientCounts_supp <- renderUI({ 
-    req(session$userData$valid_file == 1)
+    req(session$userData$valid_file() == 1)
     organization <- session$userData$Project0 %>%
       filter(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
@@ -929,7 +934,7 @@ function(input, output, session) {
   # })
   
   # output$headerExitsToPH <- renderUI({
-  #   req(session$userData$valid_file == 1)
+  #   req(session$userData$valid_file() == 1)
   #   ReportStart <- format.Date(input$ExitsToPHDateRange[1], "%B %d, %Y")
   #   ReportEnd <- format.Date(input$ExitsToPHDateRange[2], "%B %d, %Y")
   #   

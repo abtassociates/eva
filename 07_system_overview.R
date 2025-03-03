@@ -39,7 +39,7 @@ system_person_ages <- EnrollmentAdjustAge[
 # Client-level flags ------------------------------------------------------
 # will help us categorize people for filtering
 
-client_categories <- Client %>%
+session$userData$client_categories <- as.data.table(Client %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
   select(PersonalID,
          all_of(race_cols),
@@ -555,5 +555,6 @@ enrollment_categories <- enrollment_categories[
 ]
 
 source("07_system_overview_period_specific_prep.R", local=TRUE)
+session$userData$report_dates <- get_report_dates()
 
 source("07_system_overview_plot_data_prep.R", local=TRUE)

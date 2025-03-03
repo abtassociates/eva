@@ -3,7 +3,7 @@
 # hide other stuff if valid file is not uploaded
 # move chart download button to be inline with subtabs
 observeEvent(input$syso_tabbox, {
-  req(session$userData$valid_file == 1)
+  req(session$userData$valid_file() == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   toggleClass(
@@ -15,21 +15,21 @@ observeEvent(input$syso_tabbox, {
 
 
 observeEvent(input$sys_inflow_outflow_subtabs, {
-  req(session$userData$valid_file == 1)
+  req(session$userData$valid_file() == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_status_subtabs, {
-  req(session$userData$valid_file == 1)
+  req(session$userData$valid_file() == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_comp_subtabs, {
-  req(session$userData$valid_file == 1)
+  req(session$userData$valid_file() == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
@@ -121,15 +121,15 @@ syso_detailBox <- reactive({
 })
 
 output$sys_act_detail_filter_selections <- renderUI({ 
-  req(session$userData$valid_file == 1)
+  req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
 output$sys_act_summary_filter_selections <- renderUI({
-  req(session$userData$valid_file == 1)
+  req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
 output$sys_act_monthly_filter_selections <- renderUI({ 
-  req(session$userData$valid_file == 1)
+  req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
 
@@ -376,8 +376,8 @@ get_adj_font_size <- function(font_size, isExport) {
   )
 }
 
-observeEvent(input$dimension,{
-  sys_plot_data$windowSize <- input$dimension
+observe({
+  windowSize(input$dimension)
 })
 
 output$client_level_download_btn <- downloadHandler(

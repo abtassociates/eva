@@ -293,7 +293,7 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
       text = element_text(size = sys_chart_text_font, colour = "#4e4d47"),
       axis.text.x = element_text(
         size = get_adj_font_size(
-          sys_axis_text_font * ifelse(sys_plot_data$windowSize[1] < 1300, 0.9,1), 
+          sys_axis_text_font * ifelse(windowSize()[1] < 1300, 0.9,1), 
           isExport),
         vjust = -.2), 
       axis.ticks.x = element_line(),
@@ -400,7 +400,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
     ))
     
     exportTestValues(client_level_export_df = sys_plot_data$client_level_export_df %>% nice_names())
-    exportTestValues(sys_inflow_outflow_report = summarize_df(sys_plot_data$inflow_outflow_full()))
+    exportTestValues(sys_inflow_outflow_report = summarize_df(sys_plot_data$inflow_outflow_full))
   }
 )
 
@@ -431,7 +431,7 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
 
 # Month-by-Month Chart+Table ----------------------------------------------
 output$sys_act_monthly_ui_chart <- renderPlot({
-  data <- sys_plot_data$inflow_outflow_monthly
+  data <- sys_plot_data$inflow_outflow_monthly()
   
   # create and append inflow and outflow bar datasets
   plot_data <- rbindlist(list(
@@ -480,7 +480,7 @@ output$sys_act_monthly_ui_chart <- renderPlot({
 # Create summary table
 output$sys_act_monthly_table <- renderDT({
   summary_data <- suppressWarnings(dcast(
-    melt(sys_plot_data$inflow_outflow_monthly, id.vars = "month", variable.name = "Type"),
+    melt(sys_plot_data$inflow_outflow_monthly(), id.vars = "month", variable.name = "Type"),
     Type ~ month,
     value.var = "value"
   ))
