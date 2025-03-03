@@ -370,8 +370,6 @@ enrollment_prep <- EnrollmentAdjustAge %>%
          MonthsHomelessPastThreeYears,
          DisablingCondition
          ) %>%
-  inner_join(client_categories_filtered() %>%
-               select(PersonalID, VeteranStatus), by = "PersonalID") %>%
   left_join(Project %>% 
               select(ProjectID,
                      ProjectName,
@@ -403,10 +401,9 @@ enrollment_prep <- EnrollmentAdjustAge %>%
 
 hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
   HoHAlready = fifelse(RelationshipToHoH == 1 & AgeAtEntry > 17, 1, 0)
-)][order(-HoHAlready, -VeteranStatus, -AgeAtEntry, PersonalID), 
+)][order(-HoHAlready, -AgeAtEntry, PersonalID), 
    `:=`
    (
-     Sequence = seq_len(.N),
      CorrectedHoH = ifelse(seq_len(.N) == 1, 1, 0),
      max_AgeAtEntry = max(AgeAtEntry),
      min_AgeAtEntry = min(AgeAtEntry)
@@ -500,8 +497,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     CorrectedHoH,
     # DomesticViolenceCategory,
     HouseholdType,
-    ProjectTypeWeight,
-    VeteranStatus
+    ProjectTypeWeight
   )
 ]
 setkey(enrollment_categories, EnrollmentID)
