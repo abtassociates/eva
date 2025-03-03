@@ -3,6 +3,8 @@ output$changelog <- renderDT({
     ~ Date,
     ~ Change,
     "03-06-2025",
+    "<b>Bug Fixes</b> <br>
+      - No longer flagging VSP Projects as having clients when they do not (Issue <a href='https://github.com/abtassociates/eva/issues/678' target='_blank'>#724</a>)<br>",
     "<b>Miscellaneous</b> <br>
     - Gracefully handle timeouts
     ",
