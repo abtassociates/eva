@@ -27,15 +27,6 @@ library(mirai)
 # library(promises)
 # plan(multisession)
 daemons(4)
-menv <- environment()
-mirai::everywhere({
-  library(data.table)
-  library(tidyverse)
-  library(janitor)
-  library(readr)
-  source("helper_functions.R")
-  source("hardcodes")
-}, menv)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 options(shiny.fullstacktrace = TRUE)
