@@ -21,7 +21,7 @@ get_gender_vars <- function(v) {
   )
 }
 
-syscomp_detailBox <- function(session) {
+syscomp_detailBox <- function() {
   return(
     list(
       strong("Date Range: "),
@@ -749,3 +749,11 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
     )
   }
 )
+
+# System Composition/Demographics data for chart
+get_people_universe_filtered <- function() {
+  cols_to_keep <- colnames(client_categories_filtered())
+  unique(
+    period_specific_data()[["Full"]][, ..cols_to_keep]
+  )
+}

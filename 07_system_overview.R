@@ -324,24 +324,7 @@ session$userData$client_categories <- as.data.table(Client %>%
         BlackAfAmerican == 0, 1, 0
     )) %>%
   select(-all_of(gender_cols), -all_of(race_cols))
-
-# Client-level flags, filtered ----------------------------------------------------
-client_categories_filtered <- reactive({
-  req(nrow(client_categories) > 0)
-  setDT(client_categories)[
-    , All := 1
-  ][AgeCategory %in% input$syso_age &
-    get(input$syso_gender) == 1 &
-    get(input$syso_race_ethnicity) == 1 &
-    (
-      input$syso_spec_pops == "None" |
-        (input$syso_spec_pops == "Veteran" &
-           VeteranStatus == 1 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
-        (input$syso_spec_pops == "NonVeteran" &
-           VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17")))
-    )
-  ]
-})
+)
 
 # Data prep ---------------------------------------------------------------
 
@@ -550,7 +533,171 @@ enrollment_categories <- enrollment_categories[
   !entered_not_lh_but_lh_cls_later, on=.(PersonalID)
 ]
 
-source("07_system_overview_period_specific_prep.R", local=TRUE)
 session$userData$report_dates <- get_report_dates()
 
-source("07_system_overview_plot_data_prep.R", local=TRUE)
+# These steps and functions process data for a given period, which can be the full
+# reporting period, or each month in between the start and end of the full period
+
+
+## Period-specific NbN prep function -------------------------------------------
+session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise(
+  function(report_period, upload_name) {
+    startDate <- report_period[1]
+    endDate <- report_period[2]
+    nbn_enrollments_services <- Services %>%
+      filter(RecordType == 200) %>%
+      inner_join(
+        EnrollmentAdjust %>%
+          filter(ProjectType == es_nbn_project_type) %>%
+          select(EnrollmentID),
+        join_by(EnrollmentID)
+      ) %>%
+      # ^ limits shelter night services to enrollments associated to NbN shelters
+      mutate(
+        NbN15DaysBeforeReportStart =
+          between(DateProvided,
+                  startDate - days(15),
+                  startDate),
+        NbN15DaysAfterReportEnd =
+          between(DateProvided,
+                  endDate,
+                  endDate + days(15)),
+        NbN15DaysBeforeReportEnd =
+          between(DateProvided,
+                  endDate - days(15),
+                  endDate)
+      )
+    
+    if(nbn_enrollments_services %>% nrow() > 0) nbn_enrollments_services <-
+      nbn_enrollments_services %>%
+      group_by(EnrollmentID) %>%
+      summarise(
+        NbN15DaysBeforeReportStart = max(NbN15DaysBeforeReportStart, na.rm = TRUE),
+        NbN15DaysAfterReportEnd = max(NbN15DaysAfterReportEnd, na.rm = TRUE),
+        NbN15DaysBeforeReportEnd = max(NbN15DaysBeforeReportEnd, na.rm = TRUE)) %>%
+      mutate(
+        NbN15DaysBeforeReportStart = replace_na(NbN15DaysBeforeReportStart, 0),
+        NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0),
+        NbN15DaysBeforeReportEnd = replace_na(NbN15DaysBeforeReportEnd, 0)
+      ) %>%
+      ungroup()
+    
+    setDT(nbn_enrollments_services %>%
+            select(EnrollmentID,
+                   NbN15DaysBeforeReportStart,
+                   NbN15DaysAfterReportEnd,
+                   NbN15DaysBeforeReportEnd) %>%
+            filter(NbN15DaysBeforeReportStart == 1 |
+                     NbN15DaysAfterReportEnd == 1 |
+                     NbN15DaysBeforeReportEnd == 1))
+  })
+
+## Period-specific enrollment categories prep function -------------------------
+# Narrow down to period-relevant enrollments and create eecr, lecr, 
+# and other variables used for Inflow/Outflow categorization
+session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
+  function(report_period, upload_name) {
+    startDate <- report_period[1]
+    endDate <- report_period[2]
+    
+    # continuing the work of the base lh_cls dataset from 07_system_overview.R 
+    # we now make it period-specific, and collapse it down to the enrollment-level
+    # so this contains enrollments with LH CLS and an indicator as to 
+    # whether InformationDate is within to 60 or 90 days 
+    # (depending on project type, but only limited to Non-Res Project Types) 
+    # from the period start/end
+    # we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
+    # this avoids having to re-filter and do the check for each enrollment
+    lh_cls_period_start <- lh_cls[, {
+      # Calculate time windows once
+      start_window <- startDate - ifelse(ProjectType == ce_project_type, 90, 60)
+      end_window <- endDate - ifelse(ProjectType == ce_project_type, 90, 60)
+      
+      info_in_start_window <- any(between(InformationDate, start_window, startDate))
+      info_in_end_window <- any(between(InformationDate, end_window, endDate))
+      entry_in_start_window <- between(EntryDate, start_window, startDate)
+      entry_in_end_window <- between(EntryDate, end_window, endDate)
+      
+      .(
+        was_lh_at_start = info_in_start_window |
+          (entry_in_start_window & lh_prior_livingsituation) |
+          (EntryDate > startDate & (lh_prior_livingsituation | info_equal_entry)) | 
+          ProjectType %in% lh_residential_project_types,
+        
+        was_lh_at_end = info_in_end_window |
+          (entry_in_end_window & lh_prior_livingsituation) |
+          (ExitAdjust < endDate & (lh_prior_livingsituation | info_equal_exit))
+      )
+    }, by = "EnrollmentID"]
+    
+    lh_cls_period_start[
+      enrollment_categories[
+        # keep enrollments in date range and exits within the 2 yrs prior to start
+        EntryDate <= endDate & ExitAdjust >= (startDate - years(2))
+      ],
+      on = .(EnrollmentID)
+    ][, `:=`(
+      straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
+      straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
+      in_date_range = EntryDate <= endDate & ExitAdjust >= startDate #,
+      # DomesticViolenceCategory = fcase(
+      #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
+      #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
+      #   default = "NotDV"
+      # )
+    )][, `:=`(
+      lead_EntryDate = shift(EntryDate, type = "lead"),
+      lag_ExitAdjust = shift(ExitAdjust)
+    ), by = PersonalID
+    ][, `:=`(
+      days_to_next_entry = as.numeric(difftime(lead_EntryDate, ExitAdjust, units = "days")),
+      days_since_previous_exit = as.numeric(difftime(EntryDate, lag_ExitAdjust, units = "days")),
+      # potential earliest enrollment crossing period start/end (peecr/plecr)
+      # these are used below to construct the eecr and lecr
+      peecr = in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_start),
+      plecr = in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_end)
+    )][
+      (days_to_next_entry < 730 | is.na(days_to_next_entry))
+    ][
+      # only keep folks who have an peecr, rather than also restricting to an plecr
+      # if, for Non-Res Project Types there is no ecpe, we will make the lecr the eecr
+      , has_any_peecr := any(peecr), by = PersonalID
+    ][
+      has_any_peecr == TRUE
+    ][
+      # Order enrollments for selecting EECR/LECR
+      order(PersonalID, -ProjectTypeWeight, EntryDate)
+    ][, `:=`(
+      first_peecr_idx = which.max(peecr),
+      last_plecr_idx = .N + 1 - which.max(rev(plecr))
+    ), by = PersonalID][, `:=`(
+      # get the first peecr (so other peecr's become lookbacks)
+      eecr = seq_len(.N) == first_peecr_idx & peecr,
+      # get the last plecr
+      lecr = seq_len(.N) == last_plecr_idx & plecr,
+      # incremental count of enrollments prior to eecr 
+      lookback = first_peecr_idx - seq_len(.N)
+    ), by=PersonalID][
+      # set the lecr to be the eecr if there still isn't one
+      # this addresses cases with Non-Res project types where the 
+      # InformationDate/EntryDate doesn't fall within the 60/90 day period before the period end
+      eecr & (is.na(lecr) | !lecr), lecr := TRUE
+    ][
+      lookback <= 1 # drop eextra lookbacks
+    ]
+    
+    # missing_ids <- e[, .(has_eecr = any(eecr), has_lecr = any(lecr)), by = PersonalID][
+    #   !(has_eecr | has_lecr), 
+    #   PersonalID
+    # ]
+    # if(length(missing_ids) > 0)  {
+    #   # View missing PersonalIDs
+    #   browser()
+    # }
+    
+  },
+  cache = cachem::cache_mem(max_size = 100 * 1024^2) 
+)
+
+# Update sys_plot_datasets ---------------------------------------------------
+update_sys_plot_data()
