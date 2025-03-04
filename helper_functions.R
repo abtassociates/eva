@@ -178,7 +178,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   
   setDF(data)
 
-  if(csvFile != "Export"){
+  if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
     data <- data %>%
       filter(is.na(DateDeleted))
   }
