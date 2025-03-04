@@ -504,6 +504,8 @@ lh_cls <- as.data.table(CurrentLivingSituation)[
   ),
   nomatch = NULL
 ]
+setkey(lh_cls, EnrollmentID)
+setindex(lh_cls, PersonalID)
 
 
 # Remove "problematic" enrollments ----------------------------------
@@ -637,6 +639,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       ],
       on = .(EnrollmentID)
     ][, `:=`(
+    setkey(lh_cls_period_start, PersonalID)
       straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
       straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
       in_date_range = EntryDate <= endDate & ExitAdjust >= startDate #,
