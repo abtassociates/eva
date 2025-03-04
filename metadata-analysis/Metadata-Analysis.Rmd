@@ -108,13 +108,13 @@ staging <- rbind(new_way, old_way) %>%
          DateTimeMinute = format(Date, "%Y-%m-%d %H:%M")
          )
 
-#### Need to drop certain rows from staging - Prior to [PUSH DATE], reduce syso tabular downloads by # of ppt downloads for each type of download
+#### Need to drop certain rows from staging - Prior to <PUSH DATE>, reduce syso tabular downloads by # of ppt downloads for each type of download
 
 matching_columns <- c("SessionID", "DateTimeMinute", "EventCategory" ) # Columns to check for matching values
 
 # Identify rows to drop
 to_drop <- c()
-#if Date < [PUSH DATE] 
+#if Date < [PUSH DATE] ######## NEED TO FINALIZE BEFORE PUSH
 for (i in seq_len(nrow(staging) - 1)) {
   if (all(staging[i, matching_columns] == staging[i + 1, matching_columns]) 
       && grepl("Downloaded System Overview Powerpoint", staging[i, "Event"])
