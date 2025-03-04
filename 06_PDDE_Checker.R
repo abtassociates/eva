@@ -510,7 +510,7 @@ merge_check_info(checkIDs = 138) %>%
 
 vsp_clients <- Project0() %>%
   filter(VictimServiceProvider==1) %>%
-  left_join(Enrollment, by = "ProjectID") %>%
+  inner_join(Enrollment, by = "ProjectID") %>%
   merge_check_info(checkIDs = 139) %>%
   mutate(Detail = "Projects under Organizations marked as Victim Service Providers should not have client data in HMIS."
   ) %>%

@@ -121,12 +121,6 @@ function(input, output, session) {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
   }) 
   
-  # decides when it's time to time out the session
-  observeEvent(input$timeOut, {
-    logMetadata("Timed out")
-    session$reload()
-  })
-  
   # file upload status text ----------------------------------------------------
   output$fileInfo <- renderUI({
     HTML("<p>Please upload your hashed HMIS CSV Export!</p>")

@@ -45,6 +45,7 @@ enrollment_prep <- EnrollmentAdjustAge %>%
          ProjectID,
          ProjectType,
          HouseholdID,
+         HouseholdType,
          EntryDate,
          MoveInDateAdjust,
          ExitDate,
@@ -100,36 +101,11 @@ hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
    `:=`
    (
      Sequence = seq_len(.N),
-     CorrectedHoH = ifelse(seq_len(.N) == 1, 1, 0),
-     max_AgeAtEntry = max(AgeAtEntry),
-     min_AgeAtEntry = min(AgeAtEntry)
+     CorrectedHoH = ifelse(seq_len(.N) == 1, 1, 0)
    ),
    by = .(HouseholdID, ProjectID)
-][, HouseholdType := factor(
-  fifelse(
-    any(between(AgeAtEntry, 0, 17)) & max_AgeAtEntry >= 18,
-    fifelse(
-      between(max_AgeAtEntry, 0, 24),
-      "PY",
-      "AC"
-    ),
-    fifelse(
-      min_AgeAtEntry >= 18,
-      fifelse(
-        between(max_AgeAtEntry, 0, 24),
-        "UY", # UY = Unaccompanied Youth. YYA = PY + UY + CO
-        "AO"
-      ),
-      fifelse(
-        min_AgeAtEntry >= 0 & max_AgeAtEntry <= 17,
-        "CO", 
-        "UN"
-      )
-    )
-  ),
-  levels = c("AO", "AC", "CO", "UN", "PY", "UY")
-), by = HouseholdID][
-  , .(EnrollmentID, CorrectedHoH, HouseholdType)
+][
+  , .(EnrollmentID, CorrectedHoH)
 ]
 
 # keeps original HoH unless the HoH is younger than 18 or if there are mult hohs
@@ -885,8 +861,8 @@ enrollment_categories_reactive <- reactive({
     filter((input$syso_hh_type == "All" |
             (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
             (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-            (input$syso_hh_type == "AO" & HouseholdType %in% c("AO","UY")) | 
-            (input$syso_hh_type == "AC" & HouseholdType %in% c("AC","PY")) | 
+            (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+            (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
             input$syso_hh_type == HouseholdType
               ) &
       (input$syso_level_of_detail == "All" |
