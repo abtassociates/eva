@@ -610,17 +610,19 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     # from the period start/end
     # we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
     # this avoids having to re-filter and do the check for each enrollment
-    lh_cls_period_start <- lh_cls[, {
+    # browser()
+    lh_cls_period_start <- lh_cls[, `:=`(
       # Calculate time windows once
-      start_window <- startDate - ifelse(ProjectType == ce_project_type, 90, 60)
-      end_window <- endDate - ifelse(ProjectType == ce_project_type, 90, 60)
-      
-      info_in_start_window <- any(between(InformationDate, start_window, startDate))
-      info_in_end_window <- any(between(InformationDate, end_window, endDate))
-      entry_in_start_window <- between(EntryDate, start_window, startDate)
-      entry_in_end_window <- between(EntryDate, end_window, endDate)
-      
+      start_window = startDate - fifelse(ProjectType == ce_project_type, 90, 60),
+      end_window = endDate - fifelse(ProjectType == ce_project_type, 90, 60)
+    )][, `:=`(
+      info_in_start_window = any(between(InformationDate, start_window, startDate)),
+      info_in_end_window = any(between(InformationDate, end_window, endDate)),
+      entry_in_start_window = between(EntryDate, start_window, startDate),
+      entry_in_end_window = between(EntryDate, end_window, endDate)
+    ), by = EnrollmentID][, 
       .(
+        EnrollmentID = EnrollmentID,
         was_lh_at_start = info_in_start_window |
           (entry_in_start_window & lh_prior_livingsituation) |
           (EntryDate > startDate & (lh_prior_livingsituation | info_equal_entry)) | 
@@ -630,16 +632,16 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           (entry_in_end_window & lh_prior_livingsituation) |
           (ExitAdjust < endDate & (lh_prior_livingsituation | info_equal_exit))
       )
-    }, by = "EnrollmentID"]
-    
-    lh_cls_period_start[
+    ][
       enrollment_categories[
         # keep enrollments in date range and exits within the 2 yrs prior to start
         EntryDate <= endDate & ExitAdjust >= (startDate - years(2))
       ],
       on = .(EnrollmentID)
-    ][, `:=`(
+    ]
     setkey(lh_cls_period_start, PersonalID)
+    
+    lh_cls_period_start <- lh_cls_period_start[, `:=`(
       straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
       straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
       in_date_range = EntryDate <= endDate & ExitAdjust >= startDate #,
@@ -660,19 +662,20 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       peecr = in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_start),
       plecr = in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_end)
     )][
-      (days_to_next_entry < 730 | is.na(days_to_next_entry))
-    ][
-      # only keep folks who have an peecr, rather than also restricting to an plecr
-      # if, for Non-Res Project Types there is no ecpe, we will make the lecr the eecr
-      , has_any_peecr := any(peecr), by = PersonalID
-    ][
-      has_any_peecr == TRUE
+      days_to_next_entry < 730 | is.na(days_to_next_entry)
+    ]
+    
+    # only keep folks who have an peecr, rather than also restricting to an plecr
+    # if, for Non-Res Project Types there is no ecpe, we will make the lecr the eecr
+    valid_ids <- lh_cls_period_start[peecr == TRUE, unique(PersonalID)]
+    lh_cls_period_start[
+      PersonalID %in% valid_ids
     ][
       # Order enrollments for selecting EECR/LECR
       order(PersonalID, -ProjectTypeWeight, EntryDate)
     ][, `:=`(
-      first_peecr_idx = which.max(peecr),
-      last_plecr_idx = .N + 1 - which.max(rev(plecr))
+      first_peecr_idx = which.max(peecr), # index of first peecr
+      last_plecr_idx = .N - which.max(plecr[.N:1]) + 1 # index of last plecr
     ), by = PersonalID][, `:=`(
       # get the first peecr (so other peecr's become lookbacks)
       eecr = seq_len(.N) == first_peecr_idx & peecr,
@@ -688,19 +691,8 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     ][
       lookback <= 1 # drop eextra lookbacks
     ]
-    
-    # missing_ids <- e[, .(has_eecr = any(eecr), has_lecr = any(lecr)), by = PersonalID][
-    #   !(has_eecr | has_lecr), 
-    #   PersonalID
-    # ]
-    # if(length(missing_ids) > 0)  {
-    #   # View missing PersonalIDs
-    #   browser()
-    # }
-    
   },
   cache = cachem::cache_mem(max_size = 100 * 1024^2) 
 )
 
-# Update sys_plot_datasets ---------------------------------------------------
 update_sys_plot_data()

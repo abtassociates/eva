@@ -57,19 +57,19 @@ period_specific_data <- reactive({
     return(cached_result)
   }
   
-  assign("upload_name", ifelse(input$in_demo_mode, "DEMO", input$imported$name), menv)
-  assign("input_hh_type", input$syso_hh_type, menv)
-  assign("input_level_detail", input$syso_level_of_detail, menv)
-  assign("input_project_type", input$syso_project_type, menv)
-  assign("client_categories_filt", client_categories_filtered(), menv)
-  # upload_name <- ifelse(input$in_demo_mode, "DEMO", input$imported$name)
+  # assign("upload_name", ifelse(input$in_demo_mode, "DEMO", input$imported$name), envir=.GlobalEnv)
+  # assign("input_hh_type", input$syso_hh_type, envir=.GlobalEnv)
+  # assign("input_level_detail", input$syso_level_of_detail, envir=.GlobalEnv)
+  # assign("input_project_type", input$syso_project_type,envir= .GlobalEnv)
+  # assign("client_categories_filt", client_categories_filtered(), envir=.GlobalEnv)
+  upload_name <- ifelse(input$in_demo_mode, "DEMO", input$imported$name)
   
-  custom_rprof({
   # results <- mirai_map(
   results <- lapply(
     session$userData$report_dates,
     function(period) {
-      all_filtered <- universe_filtered(period, upload_name, client_categories_filt)
+      # all_filtered <- universe_filtered_mirai(period, upload_name, client_categories_filt)
+      all_filtered <- universe_filtered(period, upload_name)
       universe_w_enrl_flags <- universe_enrl_flags(all_filtered, period)
       universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags)
       
@@ -80,7 +80,6 @@ period_specific_data <- reactive({
       universe_w_ppl_flags
     }#, menv
   )#[.progress, .stop]
-  }, "system_overview_data_prep_server.R")
   cache[[cache_key]] <- results
   session$userData$period_cache <- cache
   results
@@ -103,13 +102,8 @@ client_categories_filtered <- reactive({
   ]
 })
 
-# Period-specific enrollment categories, user-filters applied ------------------
-universe_filtered <- function(period, upload_name, client_categories_filtered) {
-  # input_hh_type <- input$syso_hh_type
-  # input_level_detail <- input$syso_level_of_detail
-  # input_project_type <- input$syso_project_type
-
-  # Get period-specific enrollment categories, with NbN data
+# Period-specific, user-filtered, enrollment-level universe applied ------------------
+universe_filtered <- function(period, upload_name) {
   merge(
     session$userData$get_period_specific_enrollment_categories(period, upload_name),
     session$userData$get_period_specific_nbn_enrollment_services(period, upload_name), 
@@ -117,7 +111,44 @@ universe_filtered <- function(period, upload_name, client_categories_filtered) {
     all.x = T
   )[ # Inner Join with client categories
     # This is necessary for bringing in Veteran Status, but will also make the rest faster
-    client_categories_filtered,
+    client_categories_filtered(),
+    on = "PersonalID",
+    nomatch = NULL
+  ][
+    # Household type filter
+    (input$syso_hh_type == "All" |
+       (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+       (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+       (input$syso_hh_type == "AO" & HouseholdType %in% c("AO","UY")) | 
+       (input$syso_hh_type == "AC" & HouseholdType %in% c("AC","PY")) | 
+       input$syso_hh_type == HouseholdType
+    ) &
+      # Level of detail filter
+      (input$syso_level_of_detail == "All" |
+         (input$syso_level_of_detail == "HoHsAndAdults" &
+            (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+         (input$syso_level_of_detail == "HoHsOnly" &
+            CorrectedHoH == 1)) &
+      # Project type filter
+      ((input$syso_project_type == "All" |
+          (input$syso_project_type == "Residential" &
+             ProjectType %in% project_types_w_beds &
+             eecr == TRUE) | eecr == FALSE) |
+         ((input$syso_project_type == "NonResidential" &
+             ProjectType %in% non_res_project_types &
+             eecr == TRUE) | eecr == FALSE))
+  ]
+}
+
+universe_filtered_mirai <- function(period, upload_name, client_categories_filt) {
+  merge(
+    session$userData$get_period_specific_enrollment_categories(period, upload_name),
+    session$userData$get_period_specific_nbn_enrollment_services(period, upload_name), 
+    by = "EnrollmentID",
+    all.x = T
+  )[ # Inner Join with client categories
+    # This is necessary for bringing in Veteran Status, but will also make the rest faster
+    client_categories_filt,
     on = "PersonalID",
     nomatch = NULL
   ][
@@ -171,8 +202,7 @@ universe_filtered <- function(period, upload_name, client_categories_filtered) {
 #   }
 # }
 
-# Period-specific universe with enrollment-level flags ------------------------
-# Period-specific enrollment-level Universe with enrollment-level flags
+# Period-specific, user-filtered, enrollment-level universe with enrollment-level flags ------------------------
 # hello weary traveler amongst these date ranges. you may find it helpful to
 # find example clients and their Entry and Exit Dates and enter them into
 # https://onlinetools.com/time/visualize-date-intervals <- here.
@@ -304,7 +334,7 @@ universe_enrl_flags <- function(all_filtered, period) {
   )]
 }
 
-# Period-specific universe with ppl-level flags --------------------------------
+# Period-specific, user-filtered, enrollment-level universe with people-level flags ------------------------
 # Need to keep it enrollment-level so other scripts can reference the enrollments
 universe_ppl_flags <- function(universe_df) {
   # browser()
