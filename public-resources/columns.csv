@@ -5,7 +5,7 @@ Affiliation,3,ResProjectID,character,0,0
 Affiliation,4,DateCreated,datetime,0,0
 Affiliation,5,DateUpdated,datetime,0,0
 Affiliation,6,UserID,character,0,0
-Affiliation,7,DateDeleted,datetime,1,1
+Affiliation,7,DateDeleted,character,1,1
 Affiliation,8,ExportID,character,0,0
 Assessment,1,AssessmentID,character,0,0
 Assessment,2,EnrollmentID,character,1,0
@@ -18,7 +18,7 @@ Assessment,8,PrioritizationStatus,numeric,0,1
 Assessment,9,DateCreated,datetime,0,0
 Assessment,10,DateUpdated,datetime,0,0
 Assessment,11,UserID,character,0,0
-Assessment,12,DateDeleted,datetime,1,1
+Assessment,12,DateDeleted,character,1,1
 Assessment,13,ExportID,character,0,0
 AssessmentQuestions,1,AssessmentQuestionID,character,1,0
 AssessmentQuestions,2,AssessmentID,character,1,0
@@ -31,7 +31,7 @@ AssessmentQuestions,8,AssessmentAnswer,character,0,1
 AssessmentQuestions,9,DateCreated,datetime,0,0
 AssessmentQuestions,10,DateUpdated,datetime,0,0
 AssessmentQuestions,11,UserID,character,0,0
-AssessmentQuestions,12,DateDeleted,datetime,1,1
+AssessmentQuestions,12,DateDeleted,character,1,1
 AssessmentQuestions,13,ExportID,character,0,0
 AssessmentResults,1,AssessmentResultID,character,1,0
 AssessmentResults,2,AssessmentID,character,1,0
@@ -42,7 +42,7 @@ AssessmentResults,6,AssessmentResult,character,0,1
 AssessmentResults,7,DateCreated,datetime,0,0
 AssessmentResults,8,DateUpdated,datetime,0,0
 AssessmentResults,9,UserID,character,0,0
-AssessmentResults,10,DateDeleted,datetime,1,1
+AssessmentResults,10,DateDeleted,character,1,1
 AssessmentResults,11,ExportID,character,0,0
 CEParticipation,1,CEParticipationID,character,1,0
 CEParticipation,2,ProjectID,character,1,0
@@ -57,7 +57,7 @@ CEParticipation,10,CEParticipationStatusEndDate,date,1,1
 CEParticipation,11,DateCreated,datetime,0,0
 CEParticipation,12,DateUpdated,datetime,0,0
 CEParticipation,13,UserID,character,0,0
-CEParticipation,14,DateDeleted,datetime,1,1
+CEParticipation,14,DateDeleted,character,1,1
 CEParticipation,15,ExportID,character,0,0
 Client,1,PersonalID,character,1,0
 Client,2,FirstName,character,1,1
@@ -103,7 +103,7 @@ Client,41,DischargeStatus,numeric,1,1
 Client,42,DateCreated,datetime,0,0
 Client,43,DateUpdated,datetime,0,0
 Client,44,UserID,character,0,0
-Client,45,DateDeleted,datetime,1,1
+Client,45,DateDeleted,character,1,1
 Client,46,ExportID,character,1,0
 CurrentLivingSituation,1,CurrentLivingSitID,character,1,0
 CurrentLivingSituation,2,EnrollmentID,character,1,0
@@ -121,7 +121,7 @@ CurrentLivingSituation,13,LocationDetails,character,0,1
 CurrentLivingSituation,14,DateCreated,datetime,0,0
 CurrentLivingSituation,15,DateUpdated,datetime,0,0
 CurrentLivingSituation,16,UserID,character,0,0
-CurrentLivingSituation,17,DateDeleted,datetime,1,1
+CurrentLivingSituation,17,DateDeleted,character,1,1
 CurrentLivingSituation,18,ExportID,character,0,0
 Disabilities,1,DisabilitiesID,character,1,0
 Disabilities,2,EnrollmentID,character,1,0
@@ -141,7 +141,7 @@ Disabilities,15,DataCollectionStage,numeric,1,0
 Disabilities,16,DateCreated,datetime,0,0
 Disabilities,17,DateUpdated,datetime,0,0
 Disabilities,18,UserID,character,0,0
-Disabilities,19,DateDeleted,datetime,1,1
+Disabilities,19,DateDeleted,character,1,1
 Disabilities,20,ExportID,character,0,0
 EmploymentEducation,1,EmploymentEducationID,character,0,0
 EmploymentEducation,2,EnrollmentID,character,0,0
@@ -156,7 +156,7 @@ EmploymentEducation,10,DataCollectionStage,numeric,0,0
 EmploymentEducation,11,DateCreated,datetime,0,0
 EmploymentEducation,12,DateUpdated,datetime,0,0
 EmploymentEducation,13,UserID,character,0,0
-EmploymentEducation,14,DateDeleted,datetime,1,1
+EmploymentEducation,14,DateDeleted,character,1,1
 EmploymentEducation,15,ExportID,character,0,0
 Enrollment,1,EnrollmentID,character,1,0
 Enrollment,2,PersonalID,character,1,0
@@ -227,7 +227,7 @@ Enrollment,66,PreferredLanguageDifferent,character,0,1
 Enrollment,67,DateCreated,datetime,1,0
 Enrollment,68,DateUpdated,datetime,0,0
 Enrollment,69,UserID,character,0,0
-Enrollment,70,DateDeleted,datetime,1,1
+Enrollment,70,DateDeleted,character,1,1
 Enrollment,71,ExportID,character,0,0
 Event,1,EventID,character,1,0
 Event,2,EnrollmentID,character,1,0
@@ -242,7 +242,7 @@ Event,10,ResultDate,date,1,1
 Event,11,DateCreated,datetime,0,0
 Event,12,DateUpdated,datetime,0,0
 Event,13,UserID,character,0,0
-Event,14,DateDeleted,datetime,1,1
+Event,14,DateDeleted,character,1,1
 Event,15,ExportID,character,0,0
 Exit,1,ExitID,character,1,0
 Exit,2,EnrollmentID,character,1,0
@@ -286,7 +286,7 @@ Exit,39,CMExitReason,numeric,0,1
 Exit,40,DateCreated,datetime,1,0
 Exit,41,DateUpdated,datetime,0,0
 Exit,42,UserID,character,0,0
-Exit,43,DateDeleted,datetime,1,1
+Exit,43,DateDeleted,character,1,1
 Exit,44,ExportID,character,0,0
 Export,1,ExportID,character,1,0
 Export,2,SourceType,numeric,0,0
@@ -317,7 +317,7 @@ Funder,7,EndDate,date,1,1
 Funder,8,DateCreated,datetime,0,0
 Funder,9,DateUpdated,datetime,0,0
 Funder,10,UserID,character,0,0
-Funder,11,DateDeleted,datetime,1,1
+Funder,11,DateDeleted,character,1,1
 Funder,12,ExportID,character,0,0
 HealthAndDV,1,HealthAndDVID,character,1,0
 HealthAndDV,2,EnrollmentID,character,1,0
@@ -335,7 +335,7 @@ HealthAndDV,13,DataCollectionStage,numeric,1,0
 HealthAndDV,14,DateCreated,datetime,0,0
 HealthAndDV,15,DateUpdated,datetime,0,0
 HealthAndDV,16,UserID,character,0,0
-HealthAndDV,17,DateDeleted,datetime,1,1
+HealthAndDV,17,DateDeleted,character,1,1
 HealthAndDV,18,ExportID,character,0,0
 HMISParticipation,1,HMISParticipationID,character,1,0
 HMISParticipation,2,ProjectID,character,1,0
@@ -345,7 +345,7 @@ HMISParticipation,5,HMISParticipationStatusEndDate,date,1,1
 HMISParticipation,6,DateCreated,datetime,0,0
 HMISParticipation,7,DateUpdated,datetime,0,0
 HMISParticipation,8,UserID,character,0,0
-HMISParticipation,9,DateDeleted,datetime,1,1
+HMISParticipation,9,DateDeleted,character,1,1
 HMISParticipation,10,ExportID,character,0,0
 IncomeBenefits,1,IncomeBenefitsID,character,1,0
 IncomeBenefits,2,EnrollmentID,character,1,0
@@ -422,7 +422,7 @@ IncomeBenefits,72,DataCollectionStage,numeric,1,0
 IncomeBenefits,73,DateCreated,datetime,0,0
 IncomeBenefits,74,DateUpdated,datetime,0,0
 IncomeBenefits,75,UserID,character,0,0
-IncomeBenefits,76,DateDeleted,datetime,1,1
+IncomeBenefits,76,DateDeleted,character,1,1
 IncomeBenefits,77,ExportID,character,0,0
 Inventory,1,InventoryID,character,1,0
 Inventory,2,ProjectID,character,1,0
@@ -444,7 +444,7 @@ Inventory,17,InventoryEndDate,date,1,1
 Inventory,18,DateCreated,datetime,0,0
 Inventory,19,DateUpdated,datetime,0,0
 Inventory,20,UserID,character,0,0
-Inventory,21,DateDeleted,datetime,1,1
+Inventory,21,DateDeleted,character,1,1
 Inventory,22,ExportID,character,0,0
 Organization,1,OrganizationID,character,1,0
 Organization,2,OrganizationName,character,1,0
@@ -453,7 +453,7 @@ Organization,4,OrganizationCommonName,character,0,1
 Organization,5,DateCreated,datetime,0,0
 Organization,6,DateUpdated,datetime,0,0
 Organization,7,UserID,character,0,0
-Organization,8,DateDeleted,datetime,1,1
+Organization,8,DateDeleted,character,1,1
 Organization,9,ExportID,character,0,0
 Project,1,ProjectID,character,1,0
 Project,2,OrganizationID,character,1,0
@@ -472,7 +472,7 @@ Project,14,PITCount,numeric,0,1
 Project,15,DateCreated,datetime,0,0
 Project,16,DateUpdated,datetime,0,0
 Project,17,UserID,character,0,0
-Project,18,DateDeleted,datetime,1,1
+Project,18,DateDeleted,character,1,1
 Project,19,ExportID,character,0,0
 ProjectCoC,1,ProjectCoCID,character,1,0
 ProjectCoC,2,ProjectID,character,1,0
@@ -487,7 +487,7 @@ ProjectCoC,10,GeographyType,numeric,0,1
 ProjectCoC,11,DateCreated,datetime,0,0
 ProjectCoC,12,DateUpdated,datetime,0,0
 ProjectCoC,13,UserID,character,0,0
-ProjectCoC,14,DateDeleted,datetime,1,1
+ProjectCoC,14,DateDeleted,character,1,1
 ProjectCoC,15,ExportID,character,0,0
 Services,1,ServicesID,character,1,0
 Services,2,EnrollmentID,character,1,0
@@ -505,7 +505,7 @@ Services,13,ReferralOutcome,numeric,1,1
 Services,14,DateCreated,datetime,0,0
 Services,15,DateUpdated,datetime,0,0
 Services,16,UserID,character,0,0
-Services,17,DateDeleted,datetime,1,1
+Services,17,DateDeleted,character,1,1
 Services,18,ExportID,character,0,0
 User,1,UserID,character,0,0
 User,2,UserFirstName,character,0,1
@@ -515,7 +515,7 @@ User,5,UserExtension,character,0,1
 User,6,UserEmail,character,0,1
 User,7,DateCreated,datetime,0,0
 User,8,DateUpdated,datetime,0,0
-User,9,DateDeleted,datetime,1,1
+User,9,DateDeleted,character,1,1
 User,10,ExportID,character,0,0
 YouthEducationStatus,1,YouthEducationStatusID,character,0,0
 YouthEducationStatus,2,EnrollmentID,character,0,0
@@ -528,5 +528,5 @@ YouthEducationStatus,8,DataCollectionStage,numeric,0,0
 YouthEducationStatus,9,DateCreated,datetime,0,0
 YouthEducationStatus,10,DateUpdated,datetime,0,0
 YouthEducationStatus,11,UserID,character,0,0
-YouthEducationStatus,12,DateDeleted,datetime,1,1
+YouthEducationStatus,12,DateDeleted,character,1,1
 YouthEducationStatus,13,ExportID,character,0,0

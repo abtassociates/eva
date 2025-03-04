@@ -235,7 +235,7 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
 calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
   if (projecttype %in% c(project_types_w_cls)) {
     merge_check_info_dt(
-      as.data.table(cls_project_types())[
+      setDT(cls_project_types())[
         is.na(ExitDate) &
           ProjectType %in% project_types_w_cls &
           ProjectType == projecttype &
@@ -244,7 +244,7 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
       103
     )[, ..vars_we_want]
   } else{
-    entryexit_project_types <- as.data.table(validation())
+    entryexit_project_types <- setDT(validation())
     entryexit_project_types[, Days := as.numeric(difftime(
       as.Date(meta_HUDCSV_Export_Date()), EntryDate, units = "days"
     ))]
@@ -435,6 +435,7 @@ dqDownloadInfo <- reactive({
   req(valid_file() == 1)
   
   exportTestValues(dq_main_reactive =  dq_main_reactive() %>% nice_names())
+  exportTestValues(dq_overlaps = overlap_details() %>% nice_names())
   
   # org-level data prep (filtering to selected org)
   orgDQData <- dq_main_reactive() %>%
@@ -443,7 +444,7 @@ dqDownloadInfo <- reactive({
   orgDQoverlapDetails <- overlap_details() %>% 
     filter(OrganizationName %in% c(input$orgList) | 
              PreviousOrganizationName %in% c(input$orgList))
-  #browser()
+  
   orgDQReferrals <- 
     calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
     filter(OrganizationName %in% c(input$orgList))

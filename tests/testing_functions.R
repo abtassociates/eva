@@ -13,6 +13,8 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
       variant = platform_variant(), 
       name = test_script_name, 
       seed = 12345,
+      screenshot_args = FALSE,
+      expect_values_screenshot_args = FALSE,
       load_timeout = 5e+05)
     
     app$set_window_size(width = 1920, height = 1080)
@@ -122,8 +124,11 @@ main_test_script <- function(test_script_name, test_dataset) {
     "dq_main_reactive",
     "pdde_main",
     "universe_ppl_flags",
-    "sys_comp_df"
+    "sys_comp_df",
+    "dq_overlaps"
   )
+  if(Sys.info()["sysname"] != "ubuntu")
+    helper_datasets <- c(helper_datasets, "client_level_export_details")
   
   is_gha <- Sys.info()["user"] == "runner"
   if(!is_gha)
@@ -137,6 +142,8 @@ main_test_script <- function(test_script_name, test_dataset) {
     app <- AppDriver$new(
       variant = platform_variant(),
       name = test_script_name, 
+      screenshot_args = FALSE,
+      expect_values_screenshot_args = FALSE,
       seed = 12345,
       width = 1920,
       height = 1080,
@@ -457,26 +464,30 @@ review_helper <- function(datasetname, test_script_name) {
   old <- fread(old_path)
   new <- fread(new_path)
   
-  # # Isolate the records that are different
-  # # (Requires identical columns - if not, use waldo)
-  # only_in_old <- fsetdiff(old, new)
-  # if(nrow(only_in_old) > 0) {
-  #   print("Viewing records only in the old dataset")
-  #   view(only_in_old)
-  # }
-  # 
-  # only_in_new <- fsetdiff(new, old)
-  # if(nrow(only_in_new) > 0) {
-  #   print("Viewing records only in the new dataset")
-  #   view(only_in_new)
-  # }
-  # 
+  
+  # records_in_one_or_another(old, new)
   # For simple differences, view more visually with one of these methods
   # diffviewer::visual_diff(old_path, new_path)
-   waldo::compare(old, new)
+   waldo::compare(old, new) # summary of differences
+   
   # diffobj::diffObj(old, new)
 }
 
+records_in_one_or_another <- function(old, new) {
+  # Isolate the records that are different
+  # (Requires identical columns - if not, use waldo)
+  only_in_old <- fsetdiff(old, new)
+  if(nrow(only_in_old) > 0) {
+    print("Viewing records only in the old dataset")
+    view(only_in_old)
+  }
+
+  only_in_new <- fsetdiff(new, old)
+  if(nrow(only_in_new) > 0) {
+    print("Viewing records only in the new dataset")
+    view(only_in_new)
+  }
+}
 # This is equivalent to snapshot_accept(), but for the helper csv files
 
 accept_helper <- function(datasetname, test_script_name) {
