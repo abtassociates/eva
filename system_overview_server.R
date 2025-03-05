@@ -463,7 +463,15 @@ output$client_level_download_btn <- downloadHandler(
     enrollment_info <- sys_universe_ppl_flags()[, ..enrollment_fields][
       , `:=`(
         Destination = living_situation(Destination),
-        LivingSituation = living_situation(LivingSituation)
+        LivingSituation = living_situation(LivingSituation),
+        HouseholdType = factor(
+          case_when(
+            HouseholdType %in% c("PY", "ACminusPY") ~ "AC",
+            HouseholdType %in% c("UY", "AOminusUY") ~ "AO",
+            TRUE ~ HouseholdType
+          ),
+          levels = c("AO", "AC", "CO", "UN")
+        )
       )
     ]
     
