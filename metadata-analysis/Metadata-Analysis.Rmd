@@ -108,7 +108,7 @@ staging <- rbind(new_way, old_way) %>%
          DateTimeMinute = format(Date, "%Y-%m-%d %H:%M")
          )
 
-#### Need to drop certain rows from staging - Prior to 3/6/2025, reduce syso tabular downloads by # of ppt downloads for each type of download
+#### Need to drop certain rows from staging - For rows prior to 3/6/2025 push, reduce syso tabular downloads by # of ppt downloads for each type of download
 
 matching_columns <- c("SessionID", "DateTimeMinute", "EventCategory" ) # Columns to check for matching values
 
