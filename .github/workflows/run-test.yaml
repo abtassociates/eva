@@ -28,7 +28,7 @@ jobs:
           r-version: 'renv'
 
       - name: install needed system libs
-        if: runner.os != "windows-latest"
+        if: runner.os != 'Windows'
         shell: bash
         run: |
          sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
