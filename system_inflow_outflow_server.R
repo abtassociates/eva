@@ -432,7 +432,7 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
 
 # Month-by-Month Chart+Table ----------------------------------------------
 output$sys_act_monthly_ui_chart <- renderPlot({
-  data <- sys_plot_data$inflow_outflow_monthly()
+  data <- sys_plot_data$inflow_outflow_monthly
   
   # create and append inflow and outflow bar datasets
   plot_data <- rbindlist(list(
@@ -481,7 +481,7 @@ output$sys_act_monthly_ui_chart <- renderPlot({
 # Create summary table
 output$sys_act_monthly_table <- renderDT({
   summary_data <- suppressWarnings(dcast(
-    melt(sys_plot_data$inflow_outflow_monthly(), id.vars = "month", variable.name = "Type"),
+    melt(sys_plot_data$inflow_outflow_monthly, id.vars = "month", variable.name = "Type"),
     Type ~ month,
     value.var = "value"
   ))
