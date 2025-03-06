@@ -172,12 +172,13 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   )
   data[, (names(data)) := lapply(.SD, function(x) {
     if (is.character(x)) x[x == ""] <- NA
+    else if (inherits(x, "IDate")) x <- as.Date(x)
     return(x)
   }), .SDcols = names(data)]
   
   setDF(data)
 
-  if(csvFile != "Export"){
+  if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
     data <- data %>%
       filter(is.na(DateDeleted))
   }

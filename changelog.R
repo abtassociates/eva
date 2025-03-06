@@ -2,6 +2,15 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
+    "03-06-2025",
+    "<b>New Features</b> <br>
+      - Added HHType to Overlap export (Issue <a href='https://github.com/abtassociates/eva/issues/697' target='_blank'>#697</a>)<br>
+    <b>Bug Fixes</b> <br>
+      - Fixed edge case detection of NbN overlaps; i.e., too many duplicates caused a join error and crashed Eva. (Issue <a href='https://github.com/abtassociates/eva/issues/683'>#683</a>)<br>
+      - Fixed warning about DateProvided when Services file is empty<br>
+      - No longer flagging VSP Projects as having clients when they do not (Issue <a href='https://github.com/abtassociates/eva/issues/678' target='_blank'>#724</a>)<br>,
+    <b>Miscellaneous</b> <br>
+    - Gracefully handle timeouts",
     "02-20-2025",
     "<b>New Features</b> <br>
       - Code speedups particularly around file import and initial processing, as well as Impermissible Character downloads.<br>
