@@ -22,6 +22,7 @@ library(ggplot2)
 library(ggalluvial)
 library(officer)
 library(mirai)
+library(plotly)
 
 # library(future)
 # library(promises)

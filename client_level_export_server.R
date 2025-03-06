@@ -180,7 +180,6 @@ output$client_level_download_btn <- downloadHandler(
   }
 )
 
-
 # Client-level download
 get_client_level_export <- function() {
   merge(
@@ -189,3 +188,5 @@ get_client_level_export <- function() {
     by="PersonalID"
   )
 }
+
+source(here("sandbox/timeline_viewer.R"), local=TRUE)
