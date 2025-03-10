@@ -1,10 +1,16 @@
 raw_enrollments_dt <- reactive({
+  # browser()
+  upload_name <- ifelse(input$in_demo_mode, "DEMO", input$imported$name)
+  
   unique(as.data.table(CurrentLivingSituation)[
     CurrentLivingSituation %in% homeless_livingsituation_incl_TH
   ][
     , .(EnrollmentID, InformationDate)
   ])[
-    period_specific_data()[["Full"]][
+    session$userData$get_period_specific_enrollment_categories(
+      session$userData$report_dates[["Full"]], 
+      ifelse(input$in_demo_mode, "DEMO", input$imported$name)
+    )[
       , .(PersonalID, EnrollmentID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation, LivingSituation)
     ],
     on = .(EnrollmentID)
@@ -110,7 +116,7 @@ observeEvent(input$enrollmentIDFilter, {
 
 output$timelinePlot <- renderPlotly({
   filtered_data <- enrollments_dt()
-  
+  # browser()
   # Calculate the full date range (12 months + 4 months prior + 1 month after)
   date_range_start <- session$userData$ReportStart %m-% months(4)
   date_range_end <- session$userData$ReportEnd %m+% months(1)
@@ -148,20 +154,24 @@ output$timelinePlot <- renderPlotly({
 
   filtered_data[, segment_start := pmax(as.Date(EntryDate), date_range_start)]
   filtered_data[, segment_end := pmin(as.Date(ExitAdjust), as.Date(date_range_end) %m-% months(1))]
-  filtered_data <- filtered_data[!is.na(InformationDate)]
+  # filtered_data <- filtered_data[!is.na(InformationDate)]
   filtered_data <- unique(filtered_data)
   
-  # Create the base plot
+  # Jitter enrollment lines away from each other
+  jittered_data <- unique(filtered_data[, .(EnrollmentID, PersonalID, EntryDate, ExitAdjust, segment_start, segment_end, Position, ProjectType, lh_prior_livingsituation, LivingSituationCategory, InflowTypeSummary)])
+  jittered_data[, Position_jittered := Position + (seq_len(.N) - 1) * 0.05, by = Position]
+  
+  
   p <- ggplot() +
     # Add vertical month lines
     geom_vline(xintercept = as.numeric(month_ticks), linetype = "dotted", color = "gray80") +
     
     # Add enrollment lines
-    geom_segment(data = unique(filtered_data[, .(EnrollmentID, PersonalID, EntryDate, ExitAdjust, segment_start, segment_end, Position, ProjectType, lh_prior_livingsituation, LivingSituationCategory, InflowTypeSummary)]),
+    geom_segment(data = jittered_data,
                  aes(x = segment_start, 
                      xend = segment_end,
-                     y = Position, 
-                     yend = Position,
+                     y = Position_jittered, 
+                     yend = Position_jittered,
                      color = as.factor(InflowTypeSummary),
                      # group = EnrollmentID,
                      text = paste("PersonalID:", PersonalID, 
@@ -189,7 +199,7 @@ output$timelinePlot <- renderPlotly({
     geom_point(data = unique(filtered_data[ExitAdjust < as.Date("2099-01-01"), .(EnrollmentID, PersonalID, ExitAdjust, Position, 
                                                                                  LivingSituation, LivingSituationCategory)]),
                aes(x = as.Date(ExitAdjust), 
-                   y = Position,
+                   y = Position_jittered,
                    shape = LivingSituationCategory),
                size = 2) +
     # Customize the plot
@@ -235,7 +245,7 @@ output$personDetails <- renderPrint({
   # Apply approach - more efficient for data.table
   info[, {
     month_formatted <- format(as.Date(month), "%b %Y")
-    cat(month_formatted, ": (", InflowTypeSummary, ", ",  OutflowTypeSummary, "\n")
+    cat(month_formatted, ": (", InflowTypeSummary, ", ",  OutflowTypeSummary, ")\n")
   }, by = seq_len(nrow(info))]
   
   # Return invisible to avoid extra output
