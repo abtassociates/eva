@@ -444,7 +444,8 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
     ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80,
     ProjectType %in% lh_residential_project_types, 60,
-    ProjectType %in% non_res_project_types, 40,
+    ProjectType %in% non_res_project_types & ProjectType != ce_project_type, 40,
+    ProjectType == ce_project_type, 30,
     default = 20
   ),
   lh_prior_livingsituation = !is.na(LivingSituation) &
