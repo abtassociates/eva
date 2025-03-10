@@ -56,27 +56,31 @@ period_specific_data <- reactive({
   if (!is.null(cached_result)) {
     return(cached_result)
   }
-  
-  # assign("upload_name", ifelse(input$in_demo_mode, "DEMO", input$imported$name), envir=.GlobalEnv)
-  # assign("input_hh_type", input$syso_hh_type, envir=.GlobalEnv)
-  # assign("input_level_detail", input$syso_level_of_detail, envir=.GlobalEnv)
-  # assign("input_project_type", input$syso_project_type,envir= .GlobalEnv)
-  # assign("client_categories_filt", client_categories_filtered(), envir=.GlobalEnv)
+
   upload_name <- ifelse(input$in_demo_mode, "DEMO", input$imported$name)
+  # assign("upload_name", upload_name, envir=menv)
+  # assign("input_hh_type", input$syso_hh_type, envir=menv)
+  # assign("input_level_detail", input$syso_level_of_detail, envir=menv)
+  # assign("input_project_type", input$syso_project_type,envir= menv)
+  # assign("client_categories_filt", client_categories_filtered(), envir=menv)
+  
   
   # results <- mirai_map(
   results <- lapply(
     session$userData$report_dates,
     function(period) {
       # all_filtered <- universe_filtered_mirai(period, upload_name, client_categories_filt)
+      # custom_rprof({
       all_filtered <- universe_filtered(period, upload_name)
       universe_w_enrl_flags <- universe_enrl_flags(all_filtered, period)
       universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags)
-      
+
       # Add month flag for month-periods
       if(!identical(period, session$userData$report_dates[["Full"]])) {
         universe_w_ppl_flags[, month := as.Date(period[1])]
       }
+      # }, "system_overview_data_prep_server.R")
+      # browser()
       universe_w_ppl_flags
     }#, menv
   )#[.progress, .stop]
@@ -346,7 +350,6 @@ universe_enrl_flags <- function(all_filtered, period) {
 # Period-specific, user-filtered, enrollment-level universe with people-level flags ------------------------
 # Need to keep it enrollment-level so other scripts can reference the enrollments
 universe_ppl_flags <- function(universe_df) {
-  # browser()
   universe_df[, `:=`(
     # INFLOW
     active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),

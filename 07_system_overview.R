@@ -493,7 +493,7 @@ setindex(enrollment_categories, PersonalID, ProjectType)
 # by casting a wide net for (Non-Res) Project Types that rely on CurrentLivingSituation 
 # this dataset will be used to categorize people as active_at_start, homeless_at_end, and unknown_at_end
 # it's also used in determining EECR and LECR (see 07_system_overview_period_specific_prep.R)
-lh_cls <- as.data.table(CurrentLivingSituation)[
+lh_non_res <- as.data.table(CurrentLivingSituation)[
   CurrentLivingSituation %in% homeless_livingsituation_incl_TH
 ][
   enrollment_categories[ProjectType %in% non_res_project_types], 
@@ -502,11 +502,10 @@ lh_cls <- as.data.table(CurrentLivingSituation)[
     EnrollmentID, PersonalID, EntryDate, ProjectType, lh_prior_livingsituation, ExitAdjust, InformationDate, CurrentLivingSituation,
     info_equal_entry = InformationDate == EntryDate,
     info_equal_exit = InformationDate == ExitAdjust
-  ),
-  nomatch = NULL
+  )
 ]
-setkey(lh_cls, EnrollmentID)
-setindex(lh_cls, PersonalID)
+setkey(lh_non_res, EnrollmentID)
+setindex(lh_non_res, PersonalID)
 
 
 # Remove "problematic" enrollments ----------------------------------
@@ -524,7 +523,9 @@ entered_not_lh_but_lh_cls_later <- enrollment_categories[
 ][
   !(EntryDate == first_enrollment & lh_prior_livingsituation)
 ][
-  lh_cls[,
+  lh_non_res[
+    CurrentLivingSituation %in% homeless_livingsituation_incl_TH
+  ][,
          has_lh_at_entry := any(InformationDate == EntryDate),
          by = .(EnrollmentID)
   ][has_lh_at_entry == FALSE],
@@ -674,8 +675,10 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     
     # only keep folks who have an peecr, rather than also restricting to an plecr
     # if, for Non-Res Project Types there is no ecpe, we will make the lecr the eecr
-    valid_ids <- lh_cls_period_start[peecr == TRUE, unique(PersonalID)]
-    lh_cls_period_start[
+    valid_ids <- enrollment_categories_period[
+      in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_start), 
+      unique(PersonalID)
+    ]
     
     enrollment_categories_period[
       PersonalID %in% valid_ids
