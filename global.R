@@ -23,7 +23,7 @@ library(ggalluvial)
 library(officer)
 library(mirai)
 library(plotly)
-
+library(collapse)
 # library(future)
 # library(promises)
 # plan(multisession)

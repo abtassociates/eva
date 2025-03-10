@@ -53,6 +53,7 @@ function(input, output, session) {
     library(tidyverse)
     library(janitor)
     library(readr)
+    library(collapse)
     source("helper_functions.R", local=menv)
   })
   for(obj in ls(.GlobalEnv, all.names=TRUE)) {

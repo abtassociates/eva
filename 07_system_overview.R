@@ -603,7 +603,8 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     startDate <- report_period[1]
     endDate <- report_period[2]
     
-    # continuing the work of the base lh_cls dataset from 07_system_overview.R 
+    # custom_rprof({
+    # continuing the work of the base lh_non_res dataset from 07_system_overview.R 
     # we now make it period-specific, and collapse it down to the enrollment-level
     # so this contains enrollments with LH CLS and an indicator as to 
     # whether InformationDate is within to 60 or 90 days 
@@ -611,38 +612,56 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     # from the period start/end
     # we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
     # this avoids having to re-filter and do the check for each enrollment
-    # browser()
-    lh_cls_period_start <- lh_cls[, `:=`(
-      # Calculate time windows once
-      start_window = startDate - fifelse(ProjectType == ce_project_type, 90, 60),
-      end_window = endDate - fifelse(ProjectType == ce_project_type, 90, 60)
-    )][, `:=`(
-      info_in_start_window = any(between(InformationDate, start_window, startDate)),
-      info_in_end_window = any(between(InformationDate, end_window, endDate)),
-      entry_in_start_window = between(EntryDate, start_window, startDate),
-      entry_in_end_window = between(EntryDate, end_window, endDate)
-    ), by = EnrollmentID][, 
+    lh_non_res_period <- lh_non_res %>%
+      # Initial filtering
+      fsubset(EntryDate <= endDate & ExitAdjust >= (startDate - years(2))) %>%
+      
+      # Calculate time windows
+      ftransform(
+        start_window = startDate - fifelse(ProjectType == ce_project_type, 90, 60),
+        end_window = endDate - fifelse(ProjectType == ce_project_type, 90, 60)
+      ) %>%
+      ftransform(
+        info_in_start_window = between(InformationDate, start_window, startDate),
+        info_in_end_window = between(InformationDate, end_window, endDate),
+        entry_in_start_window = between(EntryDate, start_window, startDate),
+        entry_in_end_window = between(EntryDate, end_window, endDate)
+      ) %>%
+      
+      # Group by EnrollmentID and calculate window flags
+      fgroup_by(EnrollmentID) %>%
+      fmutate(
+        any_info_in_start_window = anyv(info_in_start_window, TRUE),
+        any_info_in_end_window = anyv(info_in_end_window, TRUE)
+      ) %>%
+      fungroup()
+    
+    lh_non_res_period <- unique(lh_non_res_period[, 
       .(
         EnrollmentID = EnrollmentID,
-        was_lh_at_start = info_in_start_window |
+        was_lh_at_start = any_info_in_start_window |
           (entry_in_start_window & lh_prior_livingsituation) |
           (EntryDate > startDate & (lh_prior_livingsituation | info_equal_entry)) | 
           ProjectType %in% lh_residential_project_types,
         
-        was_lh_at_end = info_in_end_window |
+        was_lh_at_end = any_info_in_end_window |
           (entry_in_end_window & lh_prior_livingsituation) |
           (ExitAdjust < endDate & (lh_prior_livingsituation | info_equal_exit))
       )
-    ][
+    ])
+    
+    enrollment_categories_period <- lh_non_res_period[
       enrollment_categories[
         # keep enrollments in date range and exits within the 2 yrs prior to start
         EntryDate <= endDate & ExitAdjust >= (startDate - years(2))
       ],
       on = .(EnrollmentID)
     ]
-    setkey(lh_cls_period_start, PersonalID)
-    
-    lh_cls_period_start <- lh_cls_period_start[, `:=`(
+    rm(lh_non_res_period)
+    findex_by(enrollment_categories_period, PersonalID)
+
+    # browser()
+    enrollment_categories_period[, `:=`(
       straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
       straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
       in_date_range = EntryDate <= endDate & ExitAdjust >= startDate #,
@@ -651,47 +670,76 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
       #   default = "NotDV"
       # )
-    )][, `:=`(
-      lead_EntryDate = shift(EntryDate, type = "lead"),
-      lag_ExitAdjust = shift(ExitAdjust)
-    ), by = PersonalID
-    ][, `:=`(
-      days_to_next_entry = as.numeric(difftime(lead_EntryDate, ExitAdjust, units = "days")),
-      days_since_previous_exit = as.numeric(difftime(EntryDate, lag_ExitAdjust, units = "days")),
-      # potential earliest enrollment crossing period start/end (peecr/plecr)
-      # these are used below to construct the eecr and lecr
-      peecr = in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_start),
-      plecr = in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_end)
-    )][
-      days_to_next_entry < 730 | is.na(days_to_next_entry)
-    ]
+    )]
     
     # only keep folks who have an peecr, rather than also restricting to an plecr
     # if, for Non-Res Project Types there is no ecpe, we will make the lecr the eecr
     valid_ids <- lh_cls_period_start[peecr == TRUE, unique(PersonalID)]
     lh_cls_period_start[
+    
+    enrollment_categories_period[
       PersonalID %in% valid_ids
-    ][
-      # Order enrollments for selecting EECR/LECR
-      order(PersonalID, -ProjectTypeWeight, EntryDate)
-    ][, `:=`(
-      first_peecr_idx = which.max(peecr), # index of first peecr
-      last_plecr_idx = .N - which.max(plecr[.N:1]) + 1 # index of last plecr
-    ), by = PersonalID][, `:=`(
-      # get the first peecr (so other peecr's become lookbacks)
-      eecr = seq_len(.N) == first_peecr_idx & peecr,
-      # get the last plecr
-      lecr = seq_len(.N) == last_plecr_idx & plecr,
-      # incremental count of enrollments prior to eecr 
-      lookback = first_peecr_idx - seq_len(.N)
-    ), by=PersonalID][
-      # set the lecr to be the eecr if there still isn't one
-      # this addresses cases with Non-Res project types where the 
-      # InformationDate/EntryDate doesn't fall within the 60/90 day period before the period end
-      eecr & (is.na(lecr) | !lecr), lecr := TRUE
-    ][
-      lookback <= 1 # drop eextra lookbacks
     ]
+    
+    enrollment_categories_period <- enrollment_categories_period %>%
+      # ftransform(EntryDate_num = as.numeric(EntryDate)) %>%  # Pre-compute numeric date
+      fgroup_by(PersonalID) %>%                     # Group by PersonalID
+      fmutate(
+        # Calculate group-level flags
+        any_straddle_start = anyv(straddles_start, TRUE),
+        any_straddle_end = anyv(straddles_end, TRUE),
+        any_in_date_range = anyv(in_date_range, TRUE)
+      )
+    
+    # options(verbose = FALSE)
+    # browser()
+    enrollment_categories_period <- enrollment_categories_period %>%
+      roworder(., -ProjectTypeWeight, EntryDate, verbose = FALSE) %>%
+      fmutate(
+        eecr_straddle = ffirst(
+          fifelse(straddles_start, EnrollmentID, NA)
+        ) == EnrollmentID,
+        lecr_straddle = flast(
+          fifelse(straddles_end, EnrollmentID, NA)
+        ) == EnrollmentID
+      ) 
+    
+    enrollment_categories_period <- enrollment_categories_period %>%
+      roworder(., EntryDate, -ProjectTypeWeight, verbose = FALSE) %>%
+      fmutate(
+        eecr_no_straddle = ffirst(
+          fifelse(!any_straddle_start & in_date_range, EnrollmentID, NA)
+        ) == EnrollmentID,
+        lecr_no_straddle = flast(
+          fifelse(!any_straddle_end & in_date_range, EnrollmentID, NA)
+        ) == EnrollmentID
+      ) %>%
+      fungroup() 
+    
+    enrollment_categories_period <- enrollment_categories_period %>%
+      fmutate(
+        eecr = eecr_straddle | eecr_no_straddle,
+        lecr = lecr_straddle | lecr_no_straddle
+      ) %>%
+      fgroup_by(PersonalID) %>%
+      fmutate(
+        has_lecr = fmax(lecr)
+      ) %>%
+      fungroup() %>%
+      ftransform(
+        lecr = lecr | (eecr & !has_lecr)
+      ) %>%
+      roworder(PersonalID, EntryDate) %>%
+      fmutate(
+        lookback = L(eecr, n = -1, g = PersonalID) == TRUE,
+        days_since_lookback = fifelse(eecr, EntryDate - L(ExitAdjust, g = PersonalID), NA)
+      ) %>%
+      # fsubset(eecr | lecr | lookback) %>%
+      fselect(-c(any_straddle_start, any_straddle_end, eecr_no_straddle, eecr_straddle, lecr_straddle, lecr_no_straddle))
+      
+    # }, "07_system_overview.R")
+    # browser()
+    enrollment_categories_period
   },
   cache = cachem::cache_mem(max_size = 100 * 1024^2) 
 )

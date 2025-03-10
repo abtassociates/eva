@@ -104,17 +104,22 @@ client_categories_filtered <- reactive({
 
 # Period-specific, user-filtered, enrollment-level universe applied ------------------
 universe_filtered <- function(period, upload_name) {
-  merge(
-    session$userData$get_period_specific_enrollment_categories(period, upload_name),
+  # browser()
+  join(
+    session$userData$get_period_specific_enrollment_categories(period, upload_name) %>%
+      fsubset(eecr | lecr | lookback),
     session$userData$get_period_specific_nbn_enrollment_services(period, upload_name), 
-    by = "EnrollmentID",
-    all.x = T
-  )[ # Inner Join with client categories
+    on = "EnrollmentID",
+    verbose = FALSE
+  ) %>%
+  join( # Inner Join with client categories
     # This is necessary for bringing in Veteran Status, but will also make the rest faster
     client_categories_filtered(),
     on = "PersonalID",
-    nomatch = NULL
-  ][
+    how = "inner",
+    verbose = FALSE
+  ) %>%
+  fsubset(
     # Household type filter
     (input$syso_hh_type == "All" |
        (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
@@ -137,21 +142,25 @@ universe_filtered <- function(period, upload_name) {
          ((input$syso_project_type == "NonResidential" &
              ProjectType %in% non_res_project_types &
              eecr == TRUE) | eecr == FALSE))
-  ]
+  )
 }
 
 universe_filtered_mirai <- function(period, upload_name, client_categories_filt) {
-  merge(
-    session$userData$get_period_specific_enrollment_categories(period, upload_name),
+  join(
+    session$userData$get_period_specific_enrollment_categories(period, upload_name) %>%
+      fsubset(eecr | lecr | lookback),
     session$userData$get_period_specific_nbn_enrollment_services(period, upload_name), 
-    by = "EnrollmentID",
-    all.x = T
-  )[ # Inner Join with client categories
+    on = "EnrollmentID",
+    verbose = FALSE
+  ) %>%
+  join( # Inner Join with client categories
     # This is necessary for bringing in Veteran Status, but will also make the rest faster
-    client_categories_filt,
+    client_categories_filtered(),
     on = "PersonalID",
-    nomatch = NULL
-  ][
+    how = "inner",
+    verbose = FALSE
+  ) %>% 
+  fsubset(
     # Household type filter
     (input_hh_type == "All" |
        (input_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
@@ -174,7 +183,7 @@ universe_filtered_mirai <- function(period, upload_name, client_categories_filt)
          ((input_project_type == "NonResidential" &
              ProjectType %in% non_res_project_types &
              eecr == TRUE) | eecr == FALSE))
-  ]
+  )
 }
 
 # DEPRECATED homeless cls finder function --------------------------------------
