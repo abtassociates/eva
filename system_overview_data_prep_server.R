@@ -264,8 +264,8 @@ universe_enrl_flags <- function(all_filtered, period) {
             between(as.numeric(difftime(EntryDate, startDate, units = "days")),
                     0,
                     14) &
-            !is.na(days_since_previous_exit) &
-            between(as.numeric(days_since_previous_exit), 0, 14))),
+            !is.na(days_since_lookback) &
+            between(as.numeric(days_since_lookback), 0, 14))),
     
     #LOGIC: enrolled housed at start
     # Exit.ExitDate is null or > ReportStartDate AND
@@ -286,9 +286,9 @@ universe_enrl_flags <- function(all_filtered, period) {
     eecr_lh_at_entry = eecr == TRUE &
       lh_at_entry == TRUE,
     
-    at_least_14_days_to_eecr_enrl = lookback == 1 & 
-      !is.na(days_to_next_entry) &
-      days_to_next_entry >= 14,
+    at_least_14_days_to_eecr_enrl = eecr == TRUE &
+      !is.na(days_since_lookback) &
+      days_since_lookback >= 14,
     
     lookback1_temp_dest = lookback == 1 & 
       !(Destination %in% perm_livingsituation),
