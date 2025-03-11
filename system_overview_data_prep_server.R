@@ -73,7 +73,7 @@ period_specific_data <- reactive({
       # custom_rprof({
       all_filtered <- universe_filtered(period, upload_name)
       universe_w_enrl_flags <- universe_enrl_flags(all_filtered, period)
-      universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags)
+      universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags, period)
 
       # Add month flag for month-periods
       if(!identical(period, session$userData$report_dates[["Full"]])) {
