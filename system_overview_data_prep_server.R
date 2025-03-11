@@ -249,16 +249,16 @@ universe_enrl_flags <- function(all_filtered, period) {
             )
         ) |
           
-          ( # take only ce enrollments where the PLS or the CLS is <= 90 days
-            # prior to ReportStart
-            ProjectType == ce_project_type & 
-              was_lh_at_start
-          ) |
-          # take any other enrollments if their PLS was literally homeless
-          (
-            !(ProjectType %in% ph_project_types) &
-              EnrolledHomeless == TRUE
-          )
+        ( # take only ce enrollments where the PLS or the CLS is <= 90 days
+          # prior to ReportStart
+          ProjectType == ce_project_type & 
+            was_lh_at_start
+        ) |
+        # take any other enrollments if their PLS was literally homeless
+        (
+          !(ProjectType %in% ph_project_types) &
+            EnrolledHomeless == TRUE
+        )
       ) &
       # Enrollment straddles start or the enrollment is within 2 weeks from start
       # and within 2 weeks of prev enrollment
@@ -311,19 +311,19 @@ universe_enrl_flags <- function(all_filtered, period) {
       ( # e/e shelter, th, sh
         ProjectType %in% lh_project_types_nc |
           
-          # nbn shelter
-          (ProjectType == es_nbn_project_type &
-             (in_date_range == TRUE | NbN15DaysAfterReportEnd == TRUE)) |
-          
-          # Non-Res Project Types
-          (
-            ProjectType %in% non_res_project_types &
-              was_lh_at_end
-          ) |
-          
-          # PSH, OPH, RRH
-          (ProjectType %in% ph_project_types &
-             (is.na(MoveInDateAdjust) | MoveInDateAdjust >= period[2]))
+        # nbn shelter
+        (ProjectType == es_nbn_project_type &
+           (in_date_range == TRUE | NbN15DaysAfterReportEnd == TRUE)) |
+        
+        # Non-Res Project Types
+        (
+          ProjectType %in% non_res_project_types &
+            was_lh_at_end
+        ) |
+        
+        # PSH, OPH, RRH
+        (ProjectType %in% ph_project_types &
+           (is.na(MoveInDateAdjust) | MoveInDateAdjust >= period[2]))
       ),
     
     housed_at_end = lecr == TRUE & 
