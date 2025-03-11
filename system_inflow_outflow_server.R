@@ -652,20 +652,15 @@ get_inflow_outflow_monthly <- function() {
   )
 }
 
-# unique(
-# rbindlist(period_specific_data()[-1])[
-# PersonalID %in% c("686041","684918","349625","556533","693996","614071","677683","701796","702055"),
-# .(PersonalID, month, InflowTypeDetail, OutflowTypeDetail)
-# ][order(PersonalID, month)][, month:= format(month, "%b")])
+qc_checks <- function() {
+  browser()
 
 # TESTING DIFF BETWEEN FULL AND MBM
-# full <- period_specific_data()[[1]]
-# all_months <- rbindlist(period_specific_data()[-1])
-# setdiff(sort(unique(full$PersonalID)), sort(unique(all_months$PersonalID)))
-# setdiff(sort(unique(all_months$PersonalID)), sort(unique(full$PersonalID)))
+full <- period_specific_data()[[1]]
+all_months <- rbindlist(period_specific_data()[-1])
+setdiff(sort(unique(full$PersonalID)), sort(unique(all_months$PersonalID)))
+setdiff(sort(unique(all_months$PersonalID)), sort(unique(full$PersonalID)))
 # 
-# # Check that one enrollment isn't considered an inflow in multiple months
-# # someone can have an exit in between or they can be active at start
 # 
 # json_str <- jsonlite::toJSON(
 #   unique(
@@ -685,28 +680,22 @@ get_inflow_outflow_monthly <- function() {
 # json_str <- gsub("true", "True", json_str)
 # json_str <- gsub("false", "False", json_str)
 # 
-# first_renamed <- monthly_universe_ppl_flags[month == as.Date("2021-10-01")][
-#   , `:=`(
-#     First_Inflow = InflowTypeSummary,
-#     First_Outflow = OutflowTypeSummary
-#   )][, c("InflowTypeSummary", "OutflowTypeSummary") := NULL][
-#     , .(PersonalID, EnrollmentID, First_Inflow, First_Outflow)
-#   ]
-# 
-# second_renamed <- monthly_universe_ppl_flags[month == as.Date("2021-11-01")][
-#   , `:=`(
-#     Second_Inflow = InflowTypeSummary,
-#     Second_Outflow = OutflowTypeSummary
-#   )][, c("InflowTypeSummary", "OutflowTypeSummary") := NULL][
-#     , .(PersonalID, EnrollmentID, Second_Inflow, Second_Outflow)
-#   ]
-# 
-# # Merge the data tables to get matching records
-# merged_dt <- merge(
-#   first_renamed,
-#   second_renamed,
-#   by = c("PersonalID","EnrollmentID"),
-#   all.x = TRUE
-# )[First_Inflow != Second_Inflow | First_Outflow != Second_Outflow]
+#
+# # Check that one enrollment isn't considered an inflow in multiple months
+# # someone can have an exit in between or they can be active at start
+#
+monthly_universe_ppl_flags <- unique(
+rbindlist(period_specific_data()[-1])[,
+# PersonalID %in% c("686041","684918","349625","556533","693996","614071","677683","701796","702055"),
+.(PersonalID, EnrollmentID, month, InflowTypeSummary, OutflowTypeSummary)
+][order(PersonalID, month)][, month:= format(month, "%b")])
+
+qc <- monthly_universe_ppl_flags %>%
+  fsubset(!(
+    (L(OutflowTypeSummary, g = PersonalID) == "Outflow" & InflowTypeSummary == "Inflow") | 
+    (L(OutflowTypeSummary, g = PersonalID) == "Active at End" & InflowTypeSummary == "Active at Start") 
+  ))
+
+}
 # browser()
 # monthly_universe_ppl_flags
