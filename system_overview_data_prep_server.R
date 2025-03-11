@@ -349,7 +349,7 @@ universe_enrl_flags <- function(all_filtered, period) {
 
 # Period-specific, user-filtered, enrollment-level universe with people-level flags ------------------------
 # Need to keep it enrollment-level so other scripts can reference the enrollments
-universe_ppl_flags <- function(universe_df) {
+universe_ppl_flags <- function(universe_df, period) {
   universe_df[, `:=`(
     # INFLOW
     active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
