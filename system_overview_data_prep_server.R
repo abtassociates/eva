@@ -300,11 +300,11 @@ universe_enrl_flags <- function(all_filtered, period) {
     # outflow columns
     perm_dest_lecr = lecr == TRUE &
       Destination %in% perm_livingsituation &
-      ExitAdjust <= endDate, 
+      between(ExitAdjust, startDate, endDate),
     
     temp_dest_lecr = lecr == TRUE &
       !(Destination %in% perm_livingsituation) &
-      ExitAdjust <= endDate,
+      between(ExitAdjust, startDate, endDate),
     
     homeless_at_end = lecr == TRUE & 
       straddles_end &
