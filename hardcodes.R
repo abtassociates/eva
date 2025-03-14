@@ -365,7 +365,7 @@ inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
 sys_comp_selection_choices = c(
   "Age", 
   #"Domestic Violence", #VL 9/20/24: Not including this for launch
-  "Gender",
+  # "Gender", # AS 3/14/25: removed Gender references from Eva at HUD's request
   # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
   "All Races/Ethnicities",
   "Grouped Races/Ethnicities",

@@ -264,7 +264,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     sys_universe_filters <- c(
       "syso_age",
       "syso_spec_pops",
-      "syso_gender",
+      # "syso_gender",
       "syso_race_ethnicity"
     )
     

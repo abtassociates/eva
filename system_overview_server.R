@@ -37,12 +37,12 @@ observeEvent(input$sys_comp_subtabs, {
 
 observeEvent(input$methodology_type, {
   
-  updatePickerInput(
-    session = session,
-    "syso_gender", 
-    choices = syso_gender_cats(input$methodology_type),
-    selected = "All"
-  )
+  # updatePickerInput(
+  #   session = session,
+  #   "syso_gender", 
+  #   choices = syso_gender_cats(input$methodology_type),
+  #   selected = "All"
+  # )
   
   updatePickerInput(
     session, 
@@ -106,8 +106,8 @@ syso_detailBox <- reactive({
         "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
       )),
     
-    if (getNameByValue(syso_gender_cats(), input$syso_gender) != "All Genders")
-      detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
+    # if (getNameByValue(syso_gender_cats(), input$syso_gender) != "All Genders")
+    #   detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
     
     if (selected_race != "All Races/Ethnicities")
       race_ethnicity_line,
@@ -206,7 +206,7 @@ sys_export_filter_selections <- function() {
     Value = c(
       if(identical(syso_age_cats, input$syso_age)) {"All Ages"} else {paste(input$syso_age, collapse=", ")},
       getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
-      getNameByValue(syso_gender_cats(input$methodology_type), input$syso_gender),
+      # getNameByValue(syso_gender_cats(input$methodology_type), input$syso_gender),
       getNameByValue(syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity)
     )
   ))

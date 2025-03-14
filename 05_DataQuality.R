@@ -1672,7 +1672,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       dkr_client_veteran_wars,
       dkr_destination,
       dkr_dob,
-      dkr_gender,
+      # dkr_gender,
       dkr_living_situation,
       dkr_LoS,
       dkr_months_times_homeless,
