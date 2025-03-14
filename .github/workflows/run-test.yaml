@@ -38,7 +38,7 @@ jobs:
           testthat::set_max_fails(Inf)
         shell: Rscript {0}
 
-      - Update chromote so back-to-back tests work
+      - name: Update chromote so back-to-back tests work
         run: |
           install.packages('chromote', repos = c('https://rstudio.r-universe.dev', 'https://cloud.r-project.org'))
           library(rvest)
