@@ -221,7 +221,9 @@ function(input, output, session) {
             sys_universe_ppl_flags(
               merge(
                 universe_ppl_flags(),
-                Client %>% select(PersonalID, !!gender_cols, !!race_cols), 
+                # AS 3/14/2025: Remove gender from Eva's displays per HUD guidance
+                # Client %>% select(PersonalID, !!gender_cols, !!race_cols), 
+                Client %>% select(PersonalID, !!race_cols), 
                 by="PersonalID"
               )
             )

@@ -380,25 +380,25 @@ output$client_level_download_btn <- downloadHandler(
       "PersonalID",
       "AgeCategory",
       "VeteranStatus",
-      "Woman",
-      "Man",
-      "CulturallySpecific",
-      "Transgender",
-      "NonBinary",
-      "Questioning",
-      "DifferentIdentity",
-      "GenderUnknown",
+      # "Woman",
+      # "Man",
+      # "CulturallySpecific",
+      # "Transgender",
+      # "NonBinary",
+      # "Questioning",
+      # "DifferentIdentity",
+      # "GenderUnknown",
       
-      "TransgenderMethod1",
-      "GenderExpansiveMethod1",
-      "ManMethod1",
-      "WomanMethod1",
-      
-      "TransgenderMethod2",
-      "WomanMethod2",
-      "ManMethod2",
-      "WomanOrManOnlyMethod2",
-      "NonBinaryMethod2",
+      # "TransgenderMethod1",
+      # "GenderExpansiveMethod1",
+      # "ManMethod1",
+      # "WomanMethod1",
+      # 
+      # "TransgenderMethod2",
+      # "WomanMethod2",
+      # "ManMethod2",
+      # "WomanOrManOnlyMethod2",
+      # "NonBinaryMethod2",
       
       "AmIndAKNative",
       "Asian",
@@ -487,7 +487,7 @@ output$client_level_download_btn <- downloadHandler(
     setnames(latest_report_info, 
              old = setdiff(names(latest_report_info), "PersonalID"), 
              new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
-    
+
     # details tab
     client_level_details <- unique(sys_universe_ppl_flags()[
       , 
