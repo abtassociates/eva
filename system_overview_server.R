@@ -200,7 +200,7 @@ sys_export_filter_selections <- function() {
     Chart = c(
       "Age",
       "Veteran Status",
-      "Gender",
+      # "Gender",
       "Race/Ethnicity"
     ),
     Value = c(
