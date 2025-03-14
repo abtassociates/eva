@@ -1672,6 +1672,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       dkr_client_veteran_wars,
       dkr_destination,
       dkr_dob,
+      # AS 3/14/2024: Removed gender from Eva's display, per HUD's guidance
       # dkr_gender,
       dkr_living_situation,
       dkr_LoS,
