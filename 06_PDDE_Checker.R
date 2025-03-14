@@ -245,7 +245,6 @@ vsps_in_hmis <- Project0() %>%
   select(all_of(PDDEcols))
   
  # Zero Utilization --------------------------------------------------------
-browser()
 set_collapse(na.rm = TRUE, verbose = FALSE)
 # Get HMIS-participating projects with active Inventory during report period
 # Store this "generous" span so we can check if any enrollments fall within it
