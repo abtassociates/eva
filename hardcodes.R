@@ -292,8 +292,8 @@ syso_spec_pops_people <- c(
 )
 
 syso_methodology_types <- c(
-  "Method 1: A person is only counted in one gender and one race/ethnicity category" = 1,
-  "Method 2: A person may be counted in multiple gender and multiple race/ethnicity categories" = 2
+  "Method 1: A person is only counted in one race/ethnicity category" = 1,
+  "Method 2: A person may be counted in multiple race/ethnicity categories" = 2
 )
 
 syso_grouping_detail <- c(
