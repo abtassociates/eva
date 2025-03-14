@@ -114,16 +114,16 @@ matching_columns <- c("SessionID", "DateTimeMinute", "EventCategory" ) # Columns
 
 # Identify rows to drop
 to_drop <- c()
-if (staging$Date < as.Date('2025-03-06')) { ######## VERIFY THIS IS CORRECT BEFORE PUSH
-  for (i in seq_len(nrow(staging) - 1)) {
-    if (all(staging[i, matching_columns] == staging[i + 1, matching_columns]) 
-        && grepl("Downloaded System Overview Powerpoint", staging[i, "Event"])
-        && grepl("Downloaded System Overview Tabular Data", staging[i + 1, "Event"])
-        ) {
-      to_drop <- c(to_drop, i + 1)
-    }
+#if (staging$Date < as.Date('2025-03-06')) { ######## VERIFY THIS IS CORRECT BEFORE PUSH
+for (i in seq_len(nrow(staging) - 1)) {
+  if (all(staging[i, matching_columns] == staging[i + 1, matching_columns]) 
+      && grepl("Downloaded System Overview Powerpoint", staging[i, "Event"])
+      && grepl("Downloaded System Overview Tabular Data", staging[i + 1, "Event"])
+      ) {
+    to_drop <- c(to_drop, i + 1)
   }
 }
+#}
   
 # Drop the rows from staging
 staging <- staging[-to_drop, ]
