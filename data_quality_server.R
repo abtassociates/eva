@@ -631,6 +631,7 @@ dqDownloadInfo <- reactive({
   req(session$userData$valid_file() == 1)
 
   exportTestValues(dq_main_reactive =  dq_main_reactive() %>% nice_names())
+  exportTestValues(dq_overlaps = overlap_details() %>% nice_names())
   
   # org-level data prep (filtering to selected org)
   orgDQData <- dq_main_reactive() %>%
@@ -639,7 +640,7 @@ dqDownloadInfo <- reactive({
   orgDQoverlapDetails <- session$userData$overlap_details %>% 
     filter(OrganizationName %in% c(input$orgList) | 
              PreviousOrganizationName %in% c(input$orgList))
-  #browser()
+  
   orgDQReferrals <- 
     calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
     filter(OrganizationName %in% c(input$orgList))
