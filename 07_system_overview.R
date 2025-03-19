@@ -547,7 +547,7 @@ client_categories <- Client %>%
   # left_join(setDF(dv_flag), join_by(PersonalID)) %>%
   select(PersonalID,
          all_of(race_cols),
-         all_of(gender_cols),
+         #all_of(gender_cols),
          VeteranStatus,
          AgeCategory #,
          # DomesticViolenceCategory
@@ -556,71 +556,71 @@ client_categories <- Client %>%
     VeteranStatus = if_else(VeteranStatus == 1 &
                               !is.na(VeteranStatus), 1, 0),
     # flattening data and eliminating nulls in case they're present
-    Woman = if_else(Woman == 1 & !is.na(Woman), 1, 0),
-    Man = if_else(Man == 1 & !is.na(Man), 1, 0),
-    NonBinary = if_else(NonBinary == 1 & !is.na(NonBinary), 1, 0),
-    Transgender = if_else(Transgender == 1 & !is.na(Transgender), 1, 0),
-    CulturallySpecific =
-      if_else(CulturallySpecific == 1 & !is.na(CulturallySpecific), 1, 0),
-    DifferentIdentity =
-      if_else(DifferentIdentity == 1 & !is.na(DifferentIdentity), 1, 0),
-    Questioning = if_else(Questioning == 1 & !is.na(Questioning), 1, 0),
+    #Woman = if_else(Woman == 1 & !is.na(Woman), 1, 0),
+    #Man = if_else(Man == 1 & !is.na(Man), 1, 0),
+    #NonBinary = if_else(NonBinary == 1 & !is.na(NonBinary), 1, 0),
+    #Transgender = if_else(Transgender == 1 & !is.na(Transgender), 1, 0),
+    #CulturallySpecific =
+    #  if_else(CulturallySpecific == 1 & !is.na(CulturallySpecific), 1, 0),
+    #DifferentIdentity =
+    #  if_else(DifferentIdentity == 1 & !is.na(DifferentIdentity), 1, 0),
+    #Questioning = if_else(Questioning == 1 & !is.na(Questioning), 1, 0),
     # Method 1 logic
-    TransgenderMethod1 = if_else(Transgender == 1, 1, 0),
-    GenderExpansiveMethod1 = if_else(
-      Transgender == 0 &
-        (CulturallySpecific + NonBinary + DifferentIdentity + Questioning > 0 | 
-        (Man == 1 & Woman == 1)),
-      1,
-      0
-    ),
-    ManMethod1 = if_else(
-      Man == 1 &
-        CulturallySpecific +
-        NonBinary +
-        DifferentIdentity +
-        Questioning +
-        Woman +
-        Transgender == 0, 1, 0),
-    WomanMethod1 = if_else(
-      Woman == 1 &
-        CulturallySpecific +
-        NonBinary +
-        DifferentIdentity +
-        Questioning +
-        Man +
-        Transgender == 0, 1, 0),
-    GenderUnknown = if_else(
-      Woman +
-        CulturallySpecific +
-        NonBinary +
-        DifferentIdentity +
-        Questioning +
-        Man +
-        Transgender == 0, 1, 0),
-    DQMethod1 = TransgenderMethod1 + GenderExpansiveMethod1 + ManMethod1 +
-        WomanMethod1 + GenderUnknown, # all values should = 1
+    #TransgenderMethod1 = if_else(Transgender == 1, 1, 0),
+    #GenderExpansiveMethod1 = if_else(
+    #  Transgender == 0 &
+    #    (CulturallySpecific + NonBinary + DifferentIdentity + Questioning > 0 | 
+    #    (Man == 1 & Woman == 1)),
+    #  1,
+    #  0
+    #),
+    #ManMethod1 = if_else(
+    #  Man == 1 &
+    #    CulturallySpecific +
+    #    NonBinary +
+    #    DifferentIdentity +
+    #    Questioning +
+    #    Woman +
+    #    Transgender == 0, 1, 0),
+    #WomanMethod1 = if_else(
+    #  Woman == 1 &
+    #    CulturallySpecific +
+    #    NonBinary +
+    #    DifferentIdentity +
+    #    Questioning +
+    #    Man +
+    #    Transgender == 0, 1, 0),
+    #GenderUnknown = if_else(
+    #  Woman +
+    #    CulturallySpecific +
+    #    NonBinary +
+    #    DifferentIdentity +
+    #    Questioning +
+    #    Man +
+    #    Transgender == 0, 1, 0),
+    #DQMethod1 = TransgenderMethod1 + GenderExpansiveMethod1 + ManMethod1 +
+    #    WomanMethod1 + GenderUnknown, # all values should = 1
     # Method 2 logic
-  TransgenderMethod2 = if_else(
-    Transgender == 1 |
-      (Woman == 1 & Man == 1) |
-      CulturallySpecific + NonBinary + DifferentIdentity + Questioning > 0, 1, 0),
-  WomanMethod2 = if_else(Woman == 1, 1, 0),
-  ManMethod2 = if_else(Man == 1, 1, 0),
-  WomanOrManOnlyMethod2 = if_else ((
-    Woman == 1 &
-      Man + NonBinary + Transgender + CulturallySpecific +
-      DifferentIdentity + Questioning == 0
-  ) |
-    (
-      Man == 1 &
-        Woman + NonBinary + Transgender + CulturallySpecific +
-        DifferentIdentity + Questioning == 0
-    ),
-  1,
-  0
-  ),
-  NonBinaryMethod2 = if_else(NonBinary == 1, 1, 0),
+  #TransgenderMethod2 = if_else(
+  #  Transgender == 1 |
+  #    (Woman == 1 & Man == 1) |
+  #    CulturallySpecific + NonBinary + DifferentIdentity + Questioning > 0, 1, 0),
+  #WomanMethod2 = if_else(Woman == 1, 1, 0),
+  #ManMethod2 = if_else(Man == 1, 1, 0),
+  #WomanOrManOnlyMethod2 = if_else ((
+  #  Woman == 1 &
+  #    Man + NonBinary + Transgender + CulturallySpecific +
+  #    DifferentIdentity + Questioning == 0
+  #) |
+  #  (
+  #    Man == 1 &
+  #      Woman + NonBinary + Transgender + CulturallySpecific +
+  #      DifferentIdentity + Questioning == 0
+  #  ),
+  #1,
+  #0
+  #),
+  #NonBinaryMethod2 = if_else(NonBinary == 1, 1, 0),
   ## Race/Ethnicity
   # flattening the values, eliminating nulls
   AmIndAKNative = if_else(AmIndAKNative == 1 & !is.na(AmIndAKNative), 1, 0),
@@ -828,7 +828,7 @@ client_categories <- Client %>%
       MidEastNAfrican +
       BlackAfAmerican == 0, 1, 0
   )) %>%
-  select(-all_of(gender_cols), -all_of(race_cols))
+  select(-all_of(race_cols)) #-all_of(gender_cols), 
 
 client_categories_reactive <- reactive({
   client_categories %>%

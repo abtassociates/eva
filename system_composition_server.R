@@ -12,14 +12,14 @@ get_race_ethnicity_vars <- function(v) {
   }
 }
 
-get_gender_vars <- function(v) {
-  return(
-    c(
-      syso_gender_cats(input$methodology_type) %>% discard_at("All Genders"),
-      "Unknown" = "GenderUnknown"
-    )
-  )
-}
+# get_gender_vars <- function(v) {
+#   return(
+#     c(
+#       syso_gender_cats(input$methodology_type) %>% discard_at("All Genders"),
+#       "Unknown" = "GenderUnknown"
+#     )
+#   )
+# }
 
 syscomp_detailBox <- function(session) {
   return(
@@ -55,7 +55,7 @@ get_var_cols <- function() {
       "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
       "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
       #"Domestic Violence" = "DomesticViolenceCategory", #VL 9/20/24: Not including for launch
-      "Gender" = unlist(get_gender_vars()),
+      #"Gender" = unlist(get_gender_vars()),
       # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
       "Veteran Status (Adult Only)" =  "VeteranStatus"
     )
@@ -167,7 +167,7 @@ get_sys_comp_plot_df_2vars <- function(comp_df) {
 get_selection_cats <- function(selection) {
   return(switch(
     selection,
-    "Gender" = get_gender_vars(),
+    #"Gender" = get_gender_vars(),
     "Age" = syso_age_cats,
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),

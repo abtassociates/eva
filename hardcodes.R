@@ -175,25 +175,25 @@ syso_age_cats <- c(
   "75 and older",
   "Unknown")
 
-gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
-                   "DifferentIdentity", "Questioning", "GenderNone")
+#gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
+#                   "DifferentIdentity", "Questioning", "GenderNone")
 
-syso_gender_method2 <- list(
-  "All Genders" = "All",
-  "Gender expansive, including transgender" = "TransgenderMethod2",
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "WomanOrManOnlyMethod2",
-  "Man (Boy, if child) alone or in combination" = "ManMethod2",
-  "Non-Binary alone or in combination" = "NonBinaryMethod2",
-  "Woman (Girl, if child) alone or in combination" = "WomanMethod2"
-)
+# syso_gender_method2 <- list(
+#   "All Genders" = "All",
+#   "Gender expansive, including transgender" = "TransgenderMethod2",
+#   "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "WomanOrManOnlyMethod2",
+#   "Man (Boy, if child) alone or in combination" = "ManMethod2",
+#   "Non-Binary alone or in combination" = "NonBinaryMethod2",
+#   "Woman (Girl, if child) alone or in combination" = "WomanMethod2"
+# )
 
-syso_gender_method1 <- list(
-  "All Genders" = "All",
-  "Gender expansive, not transgender" = "GenderExpansiveMethod1",
-  "Man (Boy, if child) alone" = "ManMethod1",
-  "Transgender, alone or in combination" = "TransgenderMethod1",
-  "Woman (Girl, if child) alone" = "WomanMethod1"
-)
+# syso_gender_method1 <- list(
+#   "All Genders" = "All",
+#   "Gender expansive, not transgender" = "GenderExpansiveMethod1",
+#   "Man (Boy, if child) alone" = "ManMethod1",
+#   "Transgender, alone or in combination" = "TransgenderMethod1",
+#   "Woman (Girl, if child) alone" = "WomanMethod1"
+# )
 
 race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")

@@ -226,11 +226,11 @@ syso_race_ethnicity_cats <- function(methodology = 1){
   )[[1]]
 }
 
-syso_gender_cats <- function(methodology = 1){
-  ifelse(methodology == 1,
-         list(syso_gender_method1),
-         list(syso_gender_method2))[[1]]
-}
+# syso_gender_cats <- function(methodology = 1){
+#   ifelse(methodology == 1,
+#          list(syso_gender_method1),
+#          list(syso_gender_method2))[[1]]
+# }
 
 # PowerPoint Export -------------------------------------------------------
 sys_overview_ppt_export <- function(file,
@@ -519,7 +519,7 @@ output$client_level_download_btn <- downloadHandler(
     filter_selections <- rbind(
       export_date_info, # ExportStart, Exportend
       sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
-      sys_export_filter_selections(), # Age, Veteran Status, Gender, Race/Ethnicity
+      sys_export_filter_selections(), # Age, Veteran Status, Race/Ethnicity
       tibble(
         Chart = "Total Served (Start + Inflow) People",
         Value = sum(system_df_info %>% filter(InflowOutflow == 'Inflow') %>% pull(values), na.rm = TRUE)

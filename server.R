@@ -192,7 +192,7 @@ function(input, output, session) {
             input$methodology_type
             input$syso_age
             input$syso_spec_pops
-            input$syso_gender
+            #input$syso_gender
             input$syso_race_ethnicity
           }, {
             # System Inflow and Outflow data 

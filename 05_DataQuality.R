@@ -68,12 +68,12 @@ base_dq_data <- Enrollment %>%
     HispanicLatinaeo,
     Woman,
     Man,
-    NonBinary,
-    Transgender,
-    CulturallySpecific,
-    DifferentIdentity,
-    Questioning,
-    GenderNone,
+    #NonBinary,
+    #Transgender,
+    #CulturallySpecific,
+    #DifferentIdentity,
+    #Questioning,
+    #GenderNone,
     VeteranStatus,
     ProjectTimeID,
     EnrollmentCoC,
@@ -159,10 +159,10 @@ dkr_race <- base_dq_data %>%
   merge_check_info(checkIDs = 63) %>%
   select(all_of(vars_we_want))
 
-dkr_gender <- base_dq_data %>%
-  filter(GenderNone %in% c(dkr_dnc)) %>%
-  merge_check_info(checkIDs = 65) %>%
-  select(all_of(vars_we_want))
+#dkr_gender <- base_dq_data %>%
+#  filter(GenderNone %in% c(dkr_dnc)) %>%
+#  merge_check_info(checkIDs = 65) %>%
+#  select(all_of(vars_we_want))
 
 # missing_gender <- base_dq_data %>%
 #   filter(Woman + Man + NonBinary + Transgender + CulturallySpecific +

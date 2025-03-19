@@ -8,7 +8,7 @@ output$changelog <- renderDT({
     <b>Bug Fixes</b> <br>
       - Fixed edge case detection of NbN overlaps; i.e., too many duplicates caused a join error and crashed Eva. (Issue <a href='https://github.com/abtassociates/eva/issues/683'>#683</a>)<br>
       - Fixed warning about DateProvided when Services file is empty<br>
-      - No longer flagging VSP Projects as having clients when they do not (Issue <a href='https://github.com/abtassociates/eva/issues/678' target='_blank'>#724</a>)<br>,
+      - No longer flagging VSP Projects as having clients when they do not (Issue <a href='https://github.com/abtassociates/eva/issues/678' target='_blank'>#724</a>)<br>
     <b>Miscellaneous</b> <br>
     - Gracefully handle timeouts",
     "02-20-2025",
@@ -27,9 +27,9 @@ output$changelog <- renderDT({
       - Only reference active inventory records to check bed type compatibility with housing type. (Issue <a href='https://github.com/abtassociates/eva/issues/680' target='_blank'>#680</a>)<br>
       - Fixed issue in how the Age and Race filter selections are displayed in the System Exports.<br>
       - Fixed issue in bracket detection and handling of non-UTF8 encodings that could lead to crashing Eva. (Issue <a href='https://github.com/abtassociates/eva/issues/698' target='_blank'>#698</a>)<br>
-      - Fixed issue in display of Race and Gender filter selections in System Performance exports.<br>
+      - Fixed issue in display of Race filter selections in System Performance exports.<br>
     <b>Miscellanous Changes:</b> <br>
-      - Updated System Performance Methodology Type terms to \"Method 1\" and \"Method 2\" from \"Exclusive\" and \"Inclusive.\" Renamed related demographic columns to align with new Methodology Type terms.",
+      - Updated System Performance Methodology Type terms to \"Method 1\" and \"Method 2.\" Renamed related demographic columns to align with new Methodology Type terms.",
     "12-31-2024",
     "<b>New features:</b> <br>
       - Updated demo.zip to capture new overlaps.<br>
@@ -78,13 +78,13 @@ output$changelog <- renderDT({
     users should leave the value as-is in HMIS. Issues that should be fixed in HMIS 
     are categorized as Errors.<br>
       - Removed logic that looks for nulls in specific data elements when Eva assesses 
-    data quality. For the Race/Ethnicity, Gender, Veteran Status, Disabling Condition, 
+    data quality. For the Race/Ethnicity, Veteran Status, Disabling Condition, 
     Name Data Quality, DOB Data Quality, SSN Data Quality, and Destination data 
     elements, the HMIS CSV export does not distinguish between nulls and the value 
     'Data not collected' The issues removed are: Missing Name Data Quality, Missing 
-    DOB Data Quality, Missing SSN Data Quality, Missing Gender, Missing Veteran 
+    DOB Data Quality, Missing SSN Data Quality, Missing Veteran 
     Status, Missing Disabling Condition, and Missing Destination. These are now 
-    flagged as Warnings and described as 'Unknown Gender,' 'Unknown Veteran Status,' etc.<br>
+    flagged as Warnings and described as 'Unknown Veteran Status,' etc.<br>
     <b>Bug Fixes:</b><br>
       - Improved handling of overlapping enrollments<br>
       - Fixed invalid move-in date (issue <a href='https://github.com/abtassociates/eva/issues/615' target='_blank'>#615</a>)<br>
@@ -226,8 +226,7 @@ output$changelog <- renderDT({
       - Added initial file check for the CSV Version which separates
       the upload issue \'Missing Files\' into \'You may have uploaded the wrong
       dataset,\' \'Your HMIS CSV Export is out of date,\' and \'Incomplete dataset.\' <br>
-      - Adjusted data element references to account for new Race/Ethnicity
-      and Gender options <br>
+      - Adjusted data element references to account for new Race/Ethnicity options <br>
       - Adjusted HMIS Participating, Tracking Method, and
       EnrollmentCoC logic to fit new structure <br>
       - Corrected \'Missing Non-cash Benefits\' and \'Conflicting Non-cash
