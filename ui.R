@@ -145,7 +145,7 @@ dashboardPage(
         fluidRow(
           box(
             width = 12,
-            HTML("<h2>Welcome to Eva!</h2>
+            HTML("<h2>Welcome to Eva! THIS IS A TEXT CHANGE!</h2>
               <p><b>Eva</b> is an <a href = 'https://github.com/abtassociates/eva'
               target= '_blank' rel='noopener noreferrer'>open-source</a>
               project intended for local use by HMIS Administrators in Continuums
