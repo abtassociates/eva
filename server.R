@@ -244,7 +244,7 @@ function(input, output, session) {
           logToConsole("Done processing")
           
           
-          logMetadata(paste0("DEVOPS - Memory used after processing: ", pryr::mem_used()))
+          logMetadata(paste0("DEVOPS - Memory used after processing: ", sum(gc()[, 2])))
           logToConsole("Upload processing complete")
           
           if(nrow(file_structure_analysis_main()) > 0) {
