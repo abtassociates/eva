@@ -999,6 +999,58 @@
       "NeedsCompilation": "no",
       "Repository": "CRAN"
     },
+    "collapse": {
+      "Package": "collapse",
+      "Version": "2.1.0",
+      "Source": "Repository",
+      "Title": "Advanced and Fast Data Transformation",
+      "Date": "2025-03-10",
+      "Authors@R": "c( person(\"Sebastian\", \"Krantz\", role = c(\"aut\", \"cre\"),  email = \"sebastian.krantz@graduateinstitute.ch\",  comment = c(ORCID = \"0000-0001-6212-5229\")), person(\"Matt\", \"Dowle\", role = \"ctb\"), person(\"Arun\", \"Srinivasan\", role = \"ctb\"), person(\"Morgan\", \"Jacob\", role = \"ctb\"), person(\"Dirk\", \"Eddelbuettel\", role = \"ctb\"), person(\"Laurent\", \"Berge\", role = \"ctb\"), person(\"Kevin\", \"Tappe\", role = \"ctb\"), person(\"Alina\", \"Cherkas\", role = \"ctb\"), person(\"R Core Team and contributors worldwide\", role = \"ctb\"), person(\"Martyn\", \"Plummer\", role = \"cph\"), person(\"1999-2016 The R Core Team\", role = \"cph\") )",
+      "Description": "A C/C++ based package for advanced data transformation and  statistical computing in R that is extremely fast, class-agnostic, robust and  programmer friendly. Core functionality includes a rich set of S3 generic grouped  and weighted statistical functions for vectors, matrices and data frames, which  provide efficient low-level vectorizations, OpenMP multithreading, and skip missing  values by default. These are integrated with fast grouping and ordering algorithms  (also callable from C), and efficient data manipulation functions. The package also  provides a flexible and rigorous approach to time series and panel data in R.  It further includes fast functions for common statistical procedures, detailed  (grouped, weighted) summary statistics, powerful tools to work with nested data,  fast data object conversions, functions for memory efficient R programming, and  helpers to effectively deal with variable labels, attributes, and missing data.  It is well integrated with base R classes, 'dplyr'/'tibble', 'data.table', 'sf', 'units',  'plm' (panel-series and data frames), and 'xts'/'zoo'.",
+      "URL": "https://sebkrantz.github.io/collapse/, https://github.com/SebKrantz/collapse",
+      "BugReports": "https://github.com/SebKrantz/collapse/issues",
+      "License": "GPL (>= 2) | file LICENSE",
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "Depends": [
+        "R (>= 4.1.0)"
+      ],
+      "Imports": [
+        "Rcpp (>= 1.0.1)"
+      ],
+      "LinkingTo": [
+        "Rcpp"
+      ],
+      "Suggests": [
+        "fastverse",
+        "data.table",
+        "magrittr",
+        "kit",
+        "xts",
+        "zoo",
+        "plm",
+        "fixest",
+        "vars",
+        "RcppArmadillo",
+        "RcppEigen",
+        "tibble",
+        "dplyr",
+        "ggplot2",
+        "scales",
+        "microbenchmark",
+        "testthat",
+        "covr",
+        "knitr",
+        "rmarkdown",
+        "withr",
+        "bit64"
+      ],
+      "VignetteBuilder": "knitr",
+      "NeedsCompilation": "yes",
+      "Author": "Sebastian Krantz [aut, cre] (<https://orcid.org/0000-0001-6212-5229>), Matt Dowle [ctb], Arun Srinivasan [ctb], Morgan Jacob [ctb], Dirk Eddelbuettel [ctb], Laurent Berge [ctb], Kevin Tappe [ctb], Alina Cherkas [ctb], R Core Team and contributors worldwide [ctb], Martyn Plummer [cph], 1999-2016 The R Core Team [cph]",
+      "Maintainer": "Sebastian Krantz <sebastian.krantz@graduateinstitute.ch>",
+      "Repository": "CRAN"
+    },
     "colorspace": {
       "Package": "colorspace",
       "Version": "2.1-1",
