@@ -450,8 +450,8 @@ overlapping_hmis_participation <- HMISParticipation %>%
 # Bed Type incompatible with Housing Type -----------------------------------
 # For ES projects, if HousingType is 1 or 2 (site-based), then BedType should be 1 (facility based beds). If HousingType is 3 (tenant-based), then BedType should be 2 (voucher beds).
 
-ES_BedType_HousingType <- Inventory %>%
-  left_join(Project0(), by = "ProjectID") %>%
+ES_BedType_HousingType <- activeInventory %>%
+  left_join(Project0() %>% select(ProjectID, ProjectType), by = "ProjectID") %>%
   left_join(HousingTypeDF, by = "ProjectID") %>% 
   filter(ProjectType %in% c(es_ee_project_type, es_nbn_project_type) &
            ((HousingType %in% c(client_single_site, client_multiple_sites) & ESBedType!=1) | (HousingType==tenant_scattered_site & ESBedType!=2)) 
@@ -510,7 +510,7 @@ merge_check_info(checkIDs = 138) %>%
 
 vsp_clients <- Project0() %>%
   filter(VictimServiceProvider==1) %>%
-  left_join(Enrollment, by = "ProjectID") %>%
+  inner_join(Enrollment, by = "ProjectID") %>%
   merge_check_info(checkIDs = 139) %>%
   mutate(Detail = "Projects under Organizations marked as Victim Service Providers should not have client data in HMIS."
   ) %>%

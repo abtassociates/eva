@@ -45,6 +45,7 @@ enrollment_prep <- EnrollmentAdjustAge %>%
          ProjectID,
          ProjectType,
          HouseholdID,
+         HouseholdType,
          EntryDate,
          MoveInDateAdjust,
          ExitDate,
@@ -100,36 +101,11 @@ hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
    `:=`
    (
      Sequence = seq_len(.N),
-     CorrectedHoH = ifelse(seq_len(.N) == 1, 1, 0),
-     max_AgeAtEntry = max(AgeAtEntry),
-     min_AgeAtEntry = min(AgeAtEntry)
+     CorrectedHoH = ifelse(seq_len(.N) == 1, 1, 0)
    ),
    by = .(HouseholdID, ProjectID)
-][, HouseholdType := factor(
-  fifelse(
-    any(between(AgeAtEntry, 0, 17)) & max_AgeAtEntry >= 18,
-    fifelse(
-      between(max_AgeAtEntry, 0, 24),
-      "PY",
-      "AC"
-    ),
-    fifelse(
-      min_AgeAtEntry >= 18,
-      fifelse(
-        between(max_AgeAtEntry, 0, 24),
-        "UY", # UY = Unaccompanied Youth. YYA = PY + UY + CO
-        "AO"
-      ),
-      fifelse(
-        min_AgeAtEntry >= 0 & max_AgeAtEntry <= 17,
-        "CO", 
-        "UN"
-      )
-    )
-  ),
-  levels = c("AO", "AC", "CO", "UN", "PY", "UY")
-), by = HouseholdID][
-  , .(EnrollmentID, CorrectedHoH, HouseholdType)
+][
+  , .(EnrollmentID, CorrectedHoH)
 ]
 
 # keeps original HoH unless the HoH is younger than 18 or if there are mult hohs
@@ -411,12 +387,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
       lh_prior_livingsituation,
     straddles_start = EntryDate <= ReportStart() & ExitAdjust >= ReportStart(),
     straddles_end = EntryDate <= ReportEnd() & ExitAdjust >= ReportEnd(),
-    in_date_range = ExitAdjust >= ReportStart() & EntryDate <= ReportEnd() #,
-    # DomesticViolenceCategory = fcase(
-    #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
-    #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
-    #   default = "NotDV"
-    # )
+    in_date_range = ExitAdjust >= ReportStart() & EntryDate <= ReportEnd()
   )][
     # Apply filtering with efficient conditions
     (ReportStart() - years(2)) <= ExitAdjust &
@@ -545,38 +516,41 @@ enrollment_categories <- merge(
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people for filtering
-dv_flag <- as.data.table(Enrollment)[, .(EnrollmentID, EntryDate, ExitAdjust)][
-  as.data.table(HealthAndDV)[DataCollectionStage == 1, .(
-    EnrollmentID,
-    PersonalID,
-    DomesticViolenceSurvivor = fifelse(
-      is.na(DomesticViolenceSurvivor),
-      0,
-      fifelse(DomesticViolenceSurvivor== 1, 1, 0)),
-    CurrentlyFleeing = fifelse(
-      is.na(CurrentlyFleeing),
-      0,
-      fifelse(CurrentlyFleeing == 1, 1, 0))
-  )],
-  on = .(EnrollmentID)
-][ExitAdjust >= ReportStart() & EntryDate <= ReportEnd(), 
-  .(DomesticViolenceCategory = 
-      fifelse(
-        max(DomesticViolenceSurvivor, na.rm = TRUE) == 1 & 
-          max(CurrentlyFleeing, na.rm = TRUE) == 1, "DVFleeing",
-        fifelse(
-          max(DomesticViolenceSurvivor, na.rm = TRUE) == 1, "DVNotFleeing", "NotDV"))
-  ), by = PersonalID]
+# AS 2/3/2025: commenting out dv_flag. First, we aren't using DomesticViolence 
+# right now in the System Overview tab because we weren't ready for it
+# Second, this should be defined at the enrollment level, not client level 
+# dv_flag <- as.data.table(Enrollment)[, .(EnrollmentID, EntryDate, ExitAdjust)][
+#   as.data.table(HealthAndDV)[DataCollectionStage == 1, .(
+#     EnrollmentID,
+#     PersonalID,
+#     DomesticViolenceSurvivor = fifelse(
+#       is.na(DomesticViolenceSurvivor),
+#       0,
+#       fifelse(DomesticViolenceSurvivor== 1, 1, 0)),
+#     CurrentlyFleeing = fifelse(
+#       is.na(CurrentlyFleeing),
+#       0,
+#       fifelse(CurrentlyFleeing == 1, 1, 0))
+#   )],
+#   on = .(EnrollmentID)
+# ][ExitAdjust >= ReportStart() & EntryDate <= ReportEnd(), 
+#   .(DomesticViolenceCategory = 
+#       fifelse(
+#         max(DomesticViolenceSurvivor, na.rm = TRUE) == 1 & 
+#           max(CurrentlyFleeing, na.rm = TRUE) == 1, "DVFleeing",
+#         fifelse(
+#           max(DomesticViolenceSurvivor, na.rm = TRUE) == 1, "DVNotFleeing", "NotDV"))
+#   ), by = PersonalID]
 
 client_categories <- Client %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  left_join(as.data.frame(dv_flag), join_by(PersonalID)) %>%
+  # left_join(setDF(dv_flag), join_by(PersonalID)) %>%
   select(PersonalID,
          all_of(race_cols),
          all_of(gender_cols),
          VeteranStatus,
-         AgeCategory,
-         DomesticViolenceCategory
+         AgeCategory #,
+         # DomesticViolenceCategory
   ) %>%
   mutate(
     VeteranStatus = if_else(VeteranStatus == 1 &
@@ -591,16 +565,16 @@ client_categories <- Client %>%
     DifferentIdentity =
       if_else(DifferentIdentity == 1 & !is.na(DifferentIdentity), 1, 0),
     Questioning = if_else(Questioning == 1 & !is.na(Questioning), 1, 0),
-    # exclusive logic
-    TransgenderExclusive = if_else(Transgender == 1, 1, 0),
-    GenderExpansiveExclusive = if_else(
+    # Method 1 logic
+    TransgenderMethod1 = if_else(Transgender == 1, 1, 0),
+    GenderExpansiveMethod1 = if_else(
       Transgender == 0 &
         (CulturallySpecific + NonBinary + DifferentIdentity + Questioning > 0 | 
         (Man == 1 & Woman == 1)),
       1,
       0
     ),
-    ManExclusive = if_else(
+    ManMethod1 = if_else(
       Man == 1 &
         CulturallySpecific +
         NonBinary +
@@ -608,7 +582,7 @@ client_categories <- Client %>%
         Questioning +
         Woman +
         Transgender == 0, 1, 0),
-    WomanExclusive = if_else(
+    WomanMethod1 = if_else(
       Woman == 1 &
         CulturallySpecific +
         NonBinary +
@@ -624,16 +598,16 @@ client_categories <- Client %>%
         Questioning +
         Man +
         Transgender == 0, 1, 0),
-    DQExclusive = TransgenderExclusive + GenderExpansiveExclusive + ManExclusive +
-        WomanExclusive + GenderUnknown, # all values should = 1
-    # inclusive logic
-  TransgenderInclusive = if_else(
+    DQMethod1 = TransgenderMethod1 + GenderExpansiveMethod1 + ManMethod1 +
+        WomanMethod1 + GenderUnknown, # all values should = 1
+    # Method 2 logic
+  TransgenderMethod2 = if_else(
     Transgender == 1 |
       (Woman == 1 & Man == 1) |
       CulturallySpecific + NonBinary + DifferentIdentity + Questioning > 0, 1, 0),
-  WomanInclusive = if_else(Woman == 1, 1, 0),
-  ManInclusive = if_else(Man == 1, 1, 0),
-  WomanOrManOnlyInclusive = if_else ((
+  WomanMethod2 = if_else(Woman == 1, 1, 0),
+  ManMethod2 = if_else(Man == 1, 1, 0),
+  WomanOrManOnlyMethod2 = if_else ((
     Woman == 1 &
       Man + NonBinary + Transgender + CulturallySpecific +
       DifferentIdentity + Questioning == 0
@@ -646,7 +620,7 @@ client_categories <- Client %>%
   1,
   0
   ),
-  NonBinaryInclusive = if_else(NonBinary == 1, 1, 0),
+  NonBinaryMethod2 = if_else(NonBinary == 1, 1, 0),
   ## Race/Ethnicity
   # flattening the values, eliminating nulls
   AmIndAKNative = if_else(AmIndAKNative == 1 & !is.na(AmIndAKNative), 1, 0),
@@ -656,8 +630,8 @@ client_categories <- Client %>%
   White = if_else(White == 1 & !is.na(White), 1, 0),
   MidEastNAfrican = if_else(MidEastNAfrican == 1 & !is.na(MidEastNAfrican), 1, 0),
   HispanicLatinaeo = if_else(HispanicLatinaeo == 1 & !is.na(HispanicLatinaeo), 1, 0),
-  # exclusive logic group 1
-  AmIndAKNativeAloneExclusive1 = 
+  # Method 1 logic, detailed
+  AmIndAKNativeAloneMethod1Detailed = 
     if_else(AmIndAKNative == 1 &
               Asian +
               BlackAfAmerican +
@@ -665,14 +639,14 @@ client_categories <- Client %>%
               White +
               MidEastNAfrican +
               HispanicLatinaeo == 0, 1, 0),
-  AmIndAKNativeLatineExclusive1 = 
+  AmIndAKNativeLatineMethod1Detailed = 
     if_else(AmIndAKNative == 1 & HispanicLatinaeo == 1 &
               Asian +
               BlackAfAmerican +
               NativeHIPacific +
               White +
               MidEastNAfrican == 0, 1, 0),
-  AsianAloneExclusive1 =
+  AsianAloneMethod1Detailed =
     if_else(Asian == 1 &
               AmIndAKNative +
               BlackAfAmerican +
@@ -680,14 +654,14 @@ client_categories <- Client %>%
               White +
               MidEastNAfrican +
               HispanicLatinaeo == 0, 1, 0),
-  AsianLatineExclusive1 =
+  AsianLatineMethod1Detailed =
     if_else(Asian == 1 & HispanicLatinaeo == 1 &
               AmIndAKNative +
               BlackAfAmerican +
               NativeHIPacific +
               White +
               MidEastNAfrican == 0, 1, 0),
-  BlackAfAmericanAloneExclusive1 =
+  BlackAfAmericanAloneMethod1Detailed =
     if_else(BlackAfAmerican == 1 &
               AmIndAKNative +
               Asian +
@@ -695,14 +669,14 @@ client_categories <- Client %>%
               White +
               MidEastNAfrican +
               HispanicLatinaeo == 0, 1, 0),
-  BlackAfAmericanLatineExclusive1 =
+  BlackAfAmericanLatineMethod1Detailed =
     if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
               NativeHIPacific +
               White +
               MidEastNAfrican == 0, 1, 0),
-  LatineAloneExclusive1 =
+  LatineAloneMethod1Detailed =
     if_else(HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
@@ -710,7 +684,7 @@ client_categories <- Client %>%
               White +
               MidEastNAfrican +
               BlackAfAmerican == 0, 1, 0),
-  MENAAloneExclusive1 =
+  MidEastNAfricanAloneMethod1Detailed =
     if_else(MidEastNAfrican == 1 &
               AmIndAKNative +
               Asian +
@@ -718,14 +692,14 @@ client_categories <- Client %>%
               White +
               HispanicLatinaeo +
               BlackAfAmerican == 0, 1, 0),
-  MENALatineExclusive1 =
+  MidEastNAfricanLatineMethod1Detailed =
     if_else(MidEastNAfrican == 1 & HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
               NativeHIPacific +
               White +
               BlackAfAmerican == 0, 1, 0),
-  NativeHIPacificAloneExclusive1 =
+  NativeHIPacificAloneMethod1Detailed =
     if_else(NativeHIPacific == 1 &
               AmIndAKNative +
               Asian +
@@ -733,14 +707,14 @@ client_categories <- Client %>%
               White +
               HispanicLatinaeo +
               BlackAfAmerican == 0, 1, 0),
-  NativeHIPacificLatineExclusive1 =
+  NativeHIPacificLatineMethod1Detailed =
     if_else(NativeHIPacific == 1 & HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
               MidEastNAfrican +
               White +
               BlackAfAmerican == 0, 1, 0),
-  WhiteAloneExclusive1 =
+  WhiteAloneMethod1Detailed =
     if_else(White == 1 &
               AmIndAKNative +
               Asian +
@@ -748,14 +722,14 @@ client_categories <- Client %>%
               NativeHIPacific +
               HispanicLatinaeo +
               BlackAfAmerican == 0, 1, 0),
-  WhiteLatineExclusive1 =
+  WhiteLatineMethod1Detailed =
     if_else(White == 1 & HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
               MidEastNAfrican +
               NativeHIPacific +
               BlackAfAmerican == 0, 1, 0),
-  MultipleNotLatineExclusive1 =
+  MultipleNotLatineMethod1Detailed =
     if_else(HispanicLatinaeo == 0 &
               AmIndAKNative +
               Asian +
@@ -763,7 +737,7 @@ client_categories <- Client %>%
               NativeHIPacific +
               White +
               BlackAfAmerican > 1, 1, 0),
-  MultipleLatineExclusive1 =
+  MultipleLatineMethod1Detailed =
     if_else(HispanicLatinaeo == 1 &
               AmIndAKNative +
               Asian +
@@ -784,25 +758,25 @@ client_categories <- Client %>%
       0
     ),
   # Data quality column to check for mutual exclusivity
-  DQExclusive1RaceEth =
-    AmIndAKNativeAloneExclusive1 +
-    AmIndAKNativeLatineExclusive1 +
-    AsianAloneExclusive1 +
-    AsianLatineExclusive1 +
-    BlackAfAmericanAloneExclusive1 +
-    BlackAfAmericanLatineExclusive1 +
-    LatineAloneExclusive1 +
-    MENAAloneExclusive1 +
-    MENALatineExclusive1 +
-    NativeHIPacificAloneExclusive1 +
-    NativeHIPacificLatineExclusive1 +
-    WhiteAloneExclusive1 +
-    WhiteLatineExclusive1 +
-    MultipleNotLatineExclusive1 +
-    MultipleLatineExclusive1 +
+  DQMethod1DetailedRaceEth =
+    AmIndAKNativeAloneMethod1Detailed +
+    AmIndAKNativeLatineMethod1Detailed +
+    AsianAloneMethod1Detailed +
+    AsianLatineMethod1Detailed +
+    BlackAfAmericanAloneMethod1Detailed +
+    BlackAfAmericanLatineMethod1Detailed +
+    LatineAloneMethod1Detailed +
+    MidEastNAfricanAloneMethod1Detailed +
+    MidEastNAfricanLatineMethod1Detailed +
+    NativeHIPacificAloneMethod1Detailed +
+    NativeHIPacificLatineMethod1Detailed +
+    WhiteAloneMethod1Detailed +
+    WhiteLatineMethod1Detailed +
+    MultipleNotLatineMethod1Detailed +
+    MultipleLatineMethod1Detailed +
     RaceEthnicityUnknown, # all should equal 1
-  # exclusive logic group 2
-  BILPOCExclusive2 = if_else(
+  # Method 1 logic, summarized
+  BILPOCMethod1Summarized = if_else(
     AmIndAKNative +
       Asian +
       MidEastNAfrican +
@@ -810,7 +784,7 @@ client_categories <- Client %>%
       HispanicLatinaeo +
       BlackAfAmerican > 0, 1, 0
   ),
-  WhiteExclusive2 = if_else(
+  WhiteMethod1Summarized = if_else(
     White == 1 &
       AmIndAKNative +
       Asian +
@@ -819,19 +793,19 @@ client_categories <- Client %>%
       HispanicLatinaeo +
       BlackAfAmerican == 0, 1, 0
   ),
-  # Data quality check for exclusive group 2
-  DQRaceEthExclusive2 =
-    BILPOCExclusive2 +
-    WhiteExclusive2 +
+  # Data quality check for Method 1, summarized
+  DQRaceEthMethod1Summarized =
+    BILPOCMethod1Summarized +
+    WhiteMethod1Summarized +
     RaceEthnicityUnknown, # all rows should equal 1
-  # inclusive logic group 1
-  AmIndAKNativeInclusive1 = if_else(AmIndAKNative == 1, 1, 0),
-  AsianInclusive1 = if_else(Asian == 1, 1, 0),
-  BlackAfAmericanInclusive1 = if_else(BlackAfAmerican == 1, 1, 0),
-  LatineInclusive1 = if_else(HispanicLatinaeo == 1, 1, 0),
-  MENAInclusive1 = if_else(MidEastNAfrican == 1, 1, 0),
-  NativeHIPacificInclusive1 = if_else(NativeHIPacific == 1, 1, 0),
-  WhiteInclusive1 = if_else(White == 1, 1, 0),
+  # Method 2 logic, detailed
+  AmIndAKNativeMethod2Detailed = if_else(AmIndAKNative == 1, 1, 0),
+  AsianMethod2Detailed = if_else(Asian == 1, 1, 0),
+  BlackAfAmericanMethod2Detailed = if_else(BlackAfAmerican == 1, 1, 0),
+  LatineMethod2Detailed = if_else(HispanicLatinaeo == 1, 1, 0),
+  MidEastNAfricanMethod2Detailed = if_else(MidEastNAfrican == 1, 1, 0),
+  NativeHIPacificMethod2Detailed = if_else(NativeHIPacific == 1, 1, 0),
+  WhiteMethod2Detailed = if_else(White == 1, 1, 0),
   # catches missings, any methodology any group
   # RaceEthnicityNone = if_else(
   #   AmIndAKNative +
@@ -841,11 +815,11 @@ client_categories <- Client %>%
   #     White +
   #     MidEastNAfrican +
   #     HispanicLatinaeo == 0, 1, 0),
-  # inclusive logic group 2
-  BlackAfAmericanLatineInclusive2 =
+  # Method 2 logic group 2
+  BlackAfAmericanLatineMethod2Summarized =
     if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1, 1, 0),
-  LatineInclusive2 = if_else(HispanicLatinaeo == 1, 1, 0),
-  LatineAloneInclusive2 = if_else(
+  LatineMethod2Summarized = if_else(HispanicLatinaeo == 1, 1, 0),
+  LatineAloneMethod2Summarized = if_else(
     HispanicLatinaeo == 1 &
       AmIndAKNative +
       Asian +
@@ -868,9 +842,9 @@ client_categories_reactive <- reactive({
           (input$syso_spec_pops == "Veteran" &
             VeteranStatus == 1 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
           (input$syso_spec_pops == "NonVeteran" &
-            VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
-          (DomesticViolenceCategory == input$syso_spec_pops | 
-             input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV")
+            VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) # |
+          # (DomesticViolenceCategory == input$syso_spec_pops | 
+          #    input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV")
         )
     ) %>%
     select(-All)
@@ -887,8 +861,8 @@ enrollment_categories_reactive <- reactive({
     filter((input$syso_hh_type == "All" |
             (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
             (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-            (input$syso_hh_type == "AO" & HouseholdType %in% c("AO","UY")) | 
-            (input$syso_hh_type == "AC" & HouseholdType %in% c("AC","PY")) | 
+            (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+            (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
             input$syso_hh_type == HouseholdType
               ) &
       (input$syso_level_of_detail == "All" |
@@ -955,7 +929,7 @@ clients_enrollments_reactive <- reactive({
 # https://onlinetools.com/time/visualize-date-intervals <- here.
 # add inflow type and active enrollment typed used for system overview plots
 universe <- reactive({
-  client_enrollments_reactive_dt <- as.data.table(clients_enrollments_reactive())
+  client_enrollments_reactive_dt <- setDT(clients_enrollments_reactive())
   # clients_enrollments_reactive() %>%
     # get rid of rows where the enrollment is neither a lookback enrollment,
     # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
@@ -1010,7 +984,7 @@ universe <- reactive({
           ( # take only ce enrollments where the PLS or the CLS is <= 90 days
             # prior to ReportStart
             ProjectType == ce_project_type &
-              (EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 90) |
+              (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 90) |
                  (between(EntryDate, ReportStart() - days(90), ReportStart()) &
                     lh_prior_livingsituation == TRUE))
           ) |

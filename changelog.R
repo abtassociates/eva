@@ -2,15 +2,34 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
-    "1-23-2024",
+    "03-06-2025",
+    "<b>New Features</b> <br>
+      - Added HHType to Overlap export (Issue <a href='https://github.com/abtassociates/eva/issues/697' target='_blank'>#697</a>)<br>
+    <b>Bug Fixes</b> <br>
+      - Fixed edge case detection of NbN overlaps; i.e., too many duplicates caused a join error and crashed Eva. (Issue <a href='https://github.com/abtassociates/eva/issues/683'>#683</a>)<br>
+      - Fixed warning about DateProvided when Services file is empty<br>
+      - No longer flagging VSP Projects as having clients when they do not (Issue <a href='https://github.com/abtassociates/eva/issues/678' target='_blank'>#724</a>)<br>,
+    <b>Miscellaneous</b> <br>
+    - Gracefully handle timeouts",
+    "02-20-2025",
+    "<b>New Features</b> <br>
+      - Code speedups particularly around file import and initial processing, as well as Impermissible Character downloads.<br>
+     <b>Bug Fixes:</b> <br>
+      - Small fix in how FSA issues are reported when an expected column is missing from a file.<br>",
+    "02-06-2024",
     "<b>New Features</b> <br>
       - Added client-level export to the System Performance tab to provide transparency
       in the charts<br>
+      - Rejecting HMIS zip files containing Export.csv with more than one row. This scenario will be captured as a High-Priority error.<br>
      <b>Bug Fixes:</b> <br>
       - Fixed display of missing geography and address warnings for PDDE.<br>
-      - Only flag residential projects for Active Inventory PDDE check.<br>
-      - Fixed edge case detection of NbN overlaps; i.e., too many duplicates caused a join error and crashed Eva.<br>
-      - Fixed issue in how the Age and Race filter selections are displayed in the System Exports.",
+      - Only flag residential projects for Active Inventory PDDE check. (Issue <a href='https://github.com/abtassociates/eva/issues/678' target='_blank'>#678</a>)<br>
+      - Only reference active inventory records to check bed type compatibility with housing type. (Issue <a href='https://github.com/abtassociates/eva/issues/680' target='_blank'>#680</a>)<br>
+      - Fixed issue in how the Age and Race filter selections are displayed in the System Exports.<br>
+      - Fixed issue in bracket detection and handling of non-UTF8 encodings that could lead to crashing Eva. (Issue <a href='https://github.com/abtassociates/eva/issues/698' target='_blank'>#698</a>)<br>
+      - Fixed issue in display of Race and Gender filter selections in System Performance exports.<br>
+    <b>Miscellanous Changes:</b> <br>
+      - Updated System Performance Methodology Type terms to \"Method 1\" and \"Method 2\" from \"Exclusive\" and \"Inclusive.\" Renamed related demographic columns to align with new Methodology Type terms.",
     "12-31-2024",
     "<b>New features:</b> <br>
       - Updated demo.zip to capture new overlaps.<br>

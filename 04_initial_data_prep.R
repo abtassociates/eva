@@ -102,11 +102,43 @@ EnrollmentStaging <- Enrollment %>%
   mutate(ExitAdjust = coalesce(ExitDate, no_end_date),
          EnrollmentDateRange = interval(EntryDate, ExitAdjust),
          AgeAtEntry = age_years(DOB, EntryDate),
-         DOB = NULL)
+         DOB = NULL) %>%
+  group_by(ProjectID, HouseholdID) %>%
+  mutate(
+    max_AgeAtEntry = max(AgeAtEntry),
+    min_AgeAtEntry = min(AgeAtEntry)
+  ) %>%
+  mutate(
+    HouseholdType = factor(
+      ifelse(
+        any(between(AgeAtEntry, 0, 17)) & max_AgeAtEntry >= 18,
+        ifelse(
+          between(max_AgeAtEntry, 0, 24),
+          "PY",
+          "ACminusPY"
+        ),
+        ifelse(
+          min_AgeAtEntry >= 18,
+          ifelse(
+            between(max_AgeAtEntry, 0, 24),
+            "UY", # UY = Unaccompanied Youth. YYA = PY + UY + CO
+            "AOminusUY"
+          ),
+          ifelse(
+            min_AgeAtEntry >= 0 & max_AgeAtEntry <= 17,
+            "CO", 
+            "UN"
+          )
+        )
+      ),
+      levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
+    )
+  ) %>%
+  ungroup()
 
 # Truncating Enrollments based on Operating/Participating -----------------
 # Perform the join
-EnrollmentOutside <- as.data.table(EnrollmentStaging %>%
+EnrollmentOutside <- setDT(EnrollmentStaging %>%
   left_join(ProjectSegments %>%
               select(ProjectID,
                      ProjectTimeID,
@@ -189,7 +221,7 @@ EnrollmentOutside <- EnrollmentOutside[, .(EnrollmentID, ProjectID, ProjectTimeI
                                            EnrollmentvOperating)]
 
 Enrollment <- EnrollmentStaging %>%
-  left_join(as.data.frame(EnrollmentOutside),
+  left_join(setDF(EnrollmentOutside),
             by = c("EnrollmentID", "ProjectID", "EntryDate", "ExitAdjust")) %>%
   mutate(
     ParticipatingDateRange = interval(HMISParticipationStatusStartDate, HMISParticipationStatusEndDate),
@@ -295,7 +327,7 @@ HHEntry <- unique(HHEntry[, c(HouseholdID, HHEntry)])
   # left_join(HHMoveIn, by = "HouseholdID")
 HHEntry <- HHMoveIn[HHEntry, on = .(HouseholdID)]
 
-HHEntry <- as.data.frame(HHEntry)
+setDF(HHEntry)
 
 Enrollment <- Enrollment %>%
   left_join(HHEntry, by = "HouseholdID") %>%

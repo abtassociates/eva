@@ -70,9 +70,6 @@ observeEvent(input$syso_level_of_detail, {
 syso_detailBox <- reactive({
   # remove group names from race/ethnicity filter
   # so we can use getNameByValue() to grab the selected option label
-  # if (input$methodology_type == 2) {
-  # browser()
-  # }
   detail_line <- function(detail_label, val_list, inputVal) {
     return(
       HTML(glue(
@@ -82,21 +79,12 @@ syso_detailBox <- reactive({
   }
   
   selected_race <- getNameByValue(
-    unlist(syso_race_ethnicity_cats(input$methodology_type)),
+    syso_race_ethnicity_cats(input$methodology_type), 
     input$syso_race_ethnicity
   )
   
   race_ethnicity_line <- HTML(glue(
-    "<b>Race/Ethnicity:</b> {
-          str_sub(
-            selected_race, 
-            start = str_locate(
-              selected_race,
-              '\\\\.'
-            )[, 1] + 1,
-            end = -1L
-          )
-        } <br>"
+    "<b>Race/Ethnicity:</b> {selected_race} <br>"
   ))
   
   list(
@@ -110,7 +98,7 @@ syso_detailBox <- reactive({
     
     #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
     HTML(glue(
-      "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$methodology_type), start = 1, end = 19)} <br>"
+      "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$methodology_type), start = 1, end = 8)} <br>"
     )),
     
     if (length(input$syso_age) != length(syso_age_cats))
@@ -216,7 +204,7 @@ sys_export_filter_selections <- function() {
       "Race/Ethnicity"
     ),
     Value = c(
-      ifelse(identical(syso_age_cats, input$syso_age), "All Ages", input$syso_age),
+      if(identical(syso_age_cats, input$syso_age)) {"All Ages"} else {paste(input$syso_age, collapse=", ")},
       getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
       getNameByValue(syso_gender_cats(input$methodology_type), input$syso_gender),
       getNameByValue(syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity)
@@ -233,15 +221,15 @@ sys_export_filter_selections <- function() {
 syso_race_ethnicity_cats <- function(methodology = 1){
   ifelse(
     methodology == 1,
-    list(syso_race_ethnicity_excl),
-    list(syso_race_ethnicity_incl)
+    list(syso_race_ethnicity_method1),
+    list(syso_race_ethnicity_method2)
   )[[1]]
 }
 
 syso_gender_cats <- function(methodology = 1){
   ifelse(methodology == 1,
-         list(syso_gender_excl),
-         list(syso_gender_incl))[[1]]
+         list(syso_gender_method1),
+         list(syso_gender_method2))[[1]]
 }
 
 # PowerPoint Export -------------------------------------------------------
@@ -401,16 +389,16 @@ output$client_level_download_btn <- downloadHandler(
       "DifferentIdentity",
       "GenderUnknown",
       
-      "TransgenderExclusive",
-      "GenderExpansiveExclusive",
-      "ManExclusive",
-      "WomanExclusive",
+      "TransgenderMethod1",
+      "GenderExpansiveMethod1",
+      "ManMethod1",
+      "WomanMethod1",
       
-      "TransgenderInclusive",
-      "WomanInclusive",
-      "ManInclusive",
-      "WomanOrManOnlyInclusive",
-      "NonBinaryInclusive",
+      "TransgenderMethod2",
+      "WomanMethod2",
+      "ManMethod2",
+      "WomanOrManOnlyMethod2",
+      "NonBinaryMethod2",
       
       "AmIndAKNative",
       "Asian",
@@ -421,36 +409,36 @@ output$client_level_download_btn <- downloadHandler(
       "White",
       "RaceEthnicityUnknown",
       
-      "AmIndAKNativeAloneExclusive1",
-      "AmIndAKNativeLatineExclusive1",
-      "AsianAloneExclusive1",
-      "AsianLatineExclusive1",
-      "BlackAfAmericanAloneExclusive1",
-      "BlackAfAmericanLatineExclusive1",
-      "LatineAloneExclusive1",
-      "MidEastNorAfAloneExclusive1" = "MENAAloneExclusive1",
-      "MidEastNorAfLatineExclusive1" = "MENALatineExclusive1",
-      "NativeHIPacificAloneExclusive1",
-      "NativeHIPacificLatineExclusive1",
-      "WhiteAloneExclusive1",
-      "WhiteLatineExclusive1",
-      "MultipleNotLatineExclusive1",
-      "MultipleLatineExclusive1",
+      "AmIndAKNativeAloneMethod1Detailed",
+      "AmIndAKNativeLatineMethod1Detailed",
+      "AsianAloneMethod1Detailed",
+      "AsianLatineMethod1Detailed",
+      "BlackAfAmericanAloneMethod1Detailed",
+      "BlackAfAmericanLatineMethod1Detailed",
+      "LatineAloneMethod1Detailed",
+      "MidEastNAfricanAloneMethod1Detailed",
+      "MidEastNAfricanLatineMethod1Detailed",
+      "NativeHIPacificAloneMethod1Detailed",
+      "NativeHIPacificLatineMethod1Detailed",
+      "WhiteAloneMethod1Detailed",
+      "WhiteLatineMethod1Detailed",
+      "MultipleNotLatineMethod1Detailed",
+      "MultipleLatineMethod1Detailed",
       
-      "BILPOCExclusive2",
-      "WhiteExclusive2",
+      "BILPOCMethod1Summarized",
+      "WhiteMethod1Summarized",
       
-      "AmIndAKNativeInclusive1",
-      "AsianInclusive1",
-      "BlackAfAmericanInclusive1",
-      "LatineInclusive1",
-      "MidEastNorAfInclusive1" = "MENAInclusive1",
-      "NativeHIPacificInclusive1",
-      "WhiteInclusive1",
+      "AmIndAKNativeMethod2Detailed",
+      "AsianMethod2Detailed",
+      "BlackAfAmericanMethod2Detailed",
+      "LatineMethod2Detailed",
+      "MidEastNAfricanMethod2Detailed",
+      "NativeHIPacificMethod2Detailed",
+      "WhiteMethod2Detailed",
       
-      "BlackAfAmericanLatineInclusive2",
-      "LatineInclusive2",
-      "LatineAloneInclusive2"
+      "BlackAfAmericanLatineMethod2Summarized",
+      "LatineMethod2Summarized",
+      "LatineAloneMethod2Summarized"
     )
     
     report_status_fields <- c(
@@ -478,7 +466,15 @@ output$client_level_download_btn <- downloadHandler(
     enrollment_info <- sys_universe_ppl_flags()[, ..enrollment_fields][
       , `:=`(
         Destination = living_situation(Destination),
-        LivingSituation = living_situation(LivingSituation)
+        LivingSituation = living_situation(LivingSituation),
+        HouseholdType = factor(
+          case_when(
+            HouseholdType %in% c("PY", "ACminusPY") ~ "AC",
+            HouseholdType %in% c("UY", "AOminusUY") ~ "AO",
+            TRUE ~ HouseholdType
+          ),
+          levels = c("AO", "AC", "CO", "UN")
+        )
       )
     ]
     
@@ -493,13 +489,13 @@ output$client_level_download_btn <- downloadHandler(
              new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
     
     # details tab
-    client_level_details <- sys_universe_ppl_flags()[
+    client_level_details <- unique(sys_universe_ppl_flags()[
       , 
       c(..detail_client_fields, ..report_status_fields)
+    ])[
+      earliest_report_info, on = "PersonalID", nomatch = 0
     ][
-      earliest_report_info, on = "PersonalID"
-    ][
-      latest_report_info, on = "PersonalID"
+      latest_report_info, on = "PersonalID", nomatch = 0
     ]
     setnames(client_level_details, 
              old = report_status_fields, 
@@ -517,26 +513,36 @@ output$client_level_download_btn <- downloadHandler(
       )
     )
     
+    system_df_info <- system_activity_prep_detail() %>% 
+      select(Status, values, Time, InflowOutflow, InflowOutflowSummary)
+    
     filter_selections <- rbind(
       export_date_info, # ExportStart, Exportend
       sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
-      sys_export_filter_selections() # Age, Veteran Status, Gender, Race/Ethnicity
+      sys_export_filter_selections(), # Age, Veteran Status, Gender, Race/Ethnicity
+      tibble(
+        Chart = "Total Served (Start + Inflow) People",
+        Value = sum(system_df_info %>% filter(InflowOutflow == 'Inflow') %>% pull(values), na.rm = TRUE)
+      )
     )
-    colnames(filter_selections) <- NULL
+    colnames(filter_selections) <- c("Filter","Selection")
     
     # probably want to read in the glossary tab as a csv or Excel and append to it.
     
     # all sheets for export
     client_level_export_list <- list(
       client_level_metadata = filter_selections,
-      glossary = read.csv(here("www/client-level-export-glossary.csv")),
+      data_dictionary = setNames(
+        read.csv(here("www/client-level-export-data-dictionary.csv")),
+        c("Column Name", "Variable Type", "Definition")
+      ),
       client_level_details = client_level_details
     )
     
     names(client_level_export_list) = c(
-      "metadata",
-      "glossary",
-      "details"
+      "Metadata",
+      "Data Dictionary",
+      "Details"
     )
     
     write_xlsx(
@@ -546,6 +552,7 @@ output$client_level_download_btn <- downloadHandler(
       col_names = TRUE
     )
     
+    logToConsole("Downloaded Client Level Export")
     logMetadata(paste0(
       "Downloaded Client Level Export",
       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")

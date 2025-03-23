@@ -68,8 +68,8 @@ function(input, output, session) {
   # syso_gender_cats <- reactive({
   #   ifelse(
   #     input$methodology_type == 1,
-  #     list(syso_gender_excl),
-  #     list(syso_gender_incl)
+  #     list(syso_gender_method1),
+  #     list(syso_gender_method2)
   #   )[[1]]
   # })
   
@@ -121,12 +121,6 @@ function(input, output, session) {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
   }) 
   
-  # decides when it's time to time out the session
-  observeEvent(input$timeOut, {
-    logMetadata("Timed out")
-    session$reload()
-  })
-  
   # file upload status text ----------------------------------------------------
   output$fileInfo <- renderUI({
     HTML("<p>Please upload your hashed HMIS CSV Export!</p>")
@@ -156,8 +150,9 @@ function(input, output, session) {
       setProgress(detail = "Unzipping...", value = .10)
       list_of_files <- unzip(
         zipfile = upload_filepath, 
-        files = paste0(unique(cols_and_data_types$File), ".csv"))
-      
+        files = paste0(unique(cols_and_data_types$File), ".csv"),
+        exdir = tempdir()
+      )
         setProgress(detail = "Reading your files..", value = .2)
         source("01_get_Export.R", local = TRUE)
         
@@ -991,7 +986,7 @@ function(input, output, session) {
   source("system_status_server.R", local = TRUE)
   
   session$onSessionEnded(function() {
-    logToConsole("Session Ended")
+    cat(paste0("Session ", session$token, " ended at ", Sys.time()))
     logMetadata("Session Ended")
   })
 }

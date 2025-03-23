@@ -79,23 +79,42 @@ dashboardPage(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
-      tags$script(HTML("function idleTimer() {
-          var timeoutTime = 900000;
-          var t = setTimeout(logout, timeoutTime);
-          window.onmousemove = resetTimer; // catches mouse movements
-          window.onmousedown = resetTimer; // catches mouse movements
-          window.onclick = resetTimer;     // catches mouse clicks
-          window.onscroll = resetTimer;    // catches scrolling
-          window.onkeypress = resetTimer;  //catches keyboard actions
-    
-          function logout() {
-            alert('Your session timed out. Your data has been cleared, please re-upload.');
-            Shiny.setInputValue('timeOut', 1)
+      tags$script(HTML(
+        "function idleTimer() {
+          var timeoutTime = 900000; //15 mins
+          var t = setTimeout(showTimeoutDialog, timeoutTime);
+          window.onmousemove = resetTimer;
+          window.onmousedown = resetTimer;
+          window.onclick = resetTimer;
+          window.onscroll = resetTimer;
+          window.onkeypress = resetTimer;
+      
+          function showTimeoutDialog() {
+            document.querySelector('a[data-value=\"tabHome\"]').click();
+            
+            // If user clicks Cancel, disable all interactivity
+            document.body.style.opacity = '0.5';
+            document.body.style.pointerEvents = 'none';
+            
+            // Add a banner at the top of the page
+            var banner = document.createElement('div');
+            banner.style.position = 'fixed';
+            banner.style.top = '40%';
+            banner.style.left = '0';
+            banner.style.width = '100%';
+            banner.style.padding = '10px';
+            banner.style.backgroundColor = 'lightgray';
+            banner.style.color = 'black';
+            banner.style.fontSize = '2em';
+            banner.style.textAlign = 'center';
+            banner.style.zIndex = '9999';
+            banner.innerHTML = 'Session ended due to inactivity. Please refresh the page to continue.';
+            document.body.appendChild(banner);
           }
-    
+      
           function resetTimer() {
-            clearTimeout(t);
-            t = setTimeout(logout, timeoutTime); 
+              clearTimeout(t);
+              t = setTimeout(showTimeoutDialog, timeoutTime);
           }
         }
         idleTimer();
@@ -1057,7 +1076,7 @@ dashboardPage(
                 pickerInput(
                   label = "Gender",
                   inputId = "syso_gender",
-                  choices = syso_gender_excl,
+                  choices = syso_gender_method1,
                   width = "100%",
                   selected = "All",
                   options = pickerOptions(actionsBox = TRUE)
@@ -1068,9 +1087,9 @@ dashboardPage(
                 pickerInput(
                   label = "Race/Ethnicity",
                   inputId = "syso_race_ethnicity",
-                  choices = syso_race_ethnicity_excl,
+                  choices = syso_race_ethnicity_method1,
                   width = "100%",
-                  selected = syso_race_ethnicity_excl,
+                  selected = syso_race_ethnicity_method1,
                   options = list(
                     `dropdown-align-right` = TRUE, 
                     `dropup-auto` = FALSE)
