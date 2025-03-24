@@ -444,6 +444,70 @@ projects_funders_types <- Funder %>%
             dv = max(dv, na.rm = TRUE)) %>%
   ungroup()
 
+# Active Inventory -------------------------------------------------------------
+activeInventory <- Inventory %>%
+  left_join(
+    Project0() %>%
+      select(
+        ProjectID,
+        OrganizationName,
+        ProjectName,
+        OperatingStartDate,
+        OperatingEndDate
+      ) %>%
+      unique(),
+    by = "ProjectID"
+  ) %>%
+  filter(
+    coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start() &
+      InventoryStartDate <= meta_HUDCSV_Export_End()
+  )
+
+# HMIS-participating projects with active Inventory during report period -------
+# Store this "generous" span so we can check if any enrollments fall within it
+
+set_collapse(na.rm = TRUE, verbose = FALSE)
+HMIS_participating_projects <- qDT(ProjectSegments) %>%
+  # HMiS-participating projects
+  fsubset(HMISParticipationType == 1, 
+          ProjectID, 
+          ProjectTimeID, 
+          ProjectType,
+          HMISParticipationStatusStartDate, 
+          HMISParticipationStatusEndDate,
+          OperatingStartDate,
+          OperatingEndDate
+  ) %>%
+  join(
+    activeInventory %>% 
+      fselect(ProjectID, InventoryStartDate, InventoryEndDate, Availability, BedInventory) %>%
+      funique(),
+    on = "ProjectID",
+    how = "inner",
+    multiple = TRUE
+  ) %>%
+  # Get the Start+End dates for when each Project was Operating, HMIS Participating, and Active (Inventory)
+  fmutate(
+    ProjectHMISParticipationStart = pmax(
+      HMISParticipationStatusStartDate, 
+      OperatingStartDate
+    ),
+    ProjectHMISParticipationEnd = pmin(
+      HMISParticipationStatusEndDate,
+      OperatingEndDate,
+      na.rm = TRUE
+    ),
+    ProjectHMISActiveParticipationStart = pmax(
+      ProjectHMISParticipationStart,
+      InventoryStartDate
+    ),
+    ProjectHMISActiveParticipationEnd = pmin(
+      ProjectHMISParticipationEnd,
+      InventoryEndDate,
+      na.rm = TRUE
+    )
+  )
+
 # desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |

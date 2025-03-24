@@ -140,23 +140,6 @@ missing_inventory_record <- Project0() %>%
 
 # Inventory Start < Operating Start AND
 # Inventory End > Operating End or Null
-activeInventory <- Inventory %>%
-  left_join(
-    Project0() %>%
-      select(
-        ProjectID,
-        OrganizationName,
-        ProjectName,
-        OperatingStartDate,
-        OperatingEndDate
-      ) %>%
-      unique(),
-    by = "ProjectID"
-  ) %>%
-  filter(
-    coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start() &
-      InventoryStartDate <= meta_HUDCSV_Export_End()
-  )
 
 inventory_start_precedes_operating_start <- activeInventory %>%
   filter(InventoryStartDate < OperatingStartDate) %>%
@@ -245,77 +228,21 @@ vsps_in_hmis <- Project0() %>%
   select(all_of(PDDEcols))
   
  # Zero Utilization --------------------------------------------------------
-set_collapse(na.rm = TRUE, verbose = FALSE)
-# Get HMIS-participating projects with active Inventory during report period
-# Store this "generous" span so we can check if any enrollments fall within it
-active_HMIS_participating_projects <- qDT(ProjectSegments) %>%
-  # HMiS-participating projects
-  fsubset(HMISParticipationType == 1, 
-          ProjectID, 
-          ProjectTimeID, 
-          HMISParticipationStatusStartDate, 
-          HMISParticipationStatusEndDate,
-          OperatingStartDate,
-          OperatingEndDate
-  ) %>%
-  join(
-    # with active, year-round or seasonal (i.e. non-overflow) inventory
-    # this is already filtered to inventory within the report period
-    activeInventory %>% 
-      fsubset((is.na(Availability) | Availability != 3) &
-               BedInventory > 0 & !is.na(BedInventory)) %>%
-      fgroup_by(ProjectID) %>%
-      fsummarize(
-        ActiveInventoryStartDate = fmin(InventoryStartDate),
-        ActiveInventoryEndDate = fmax(InventoryEndDate)
-      ),
-    on = "ProjectID",
-    how = "inner",
-    multiple = TRUE
-  ) %>%
-  
-  # Get the Start+End dates for when each Project was Operating, HMIS Participating, and Active (Inventory)
-  fmutate(
-    ProjectHMISActiveParticipationStart = pmax(
-      HMISParticipationStatusStartDate, 
-      OperatingStartDate,
-      ActiveInventoryStartDate
-    ),
-    ProjectHMISActiveParticipationEnd = pmin(
-      HMISParticipationStatusEndDate,
-      OperatingEndDate,
-      ActiveInventoryEndDate,
-      na.rm = TRUE
+zero_utilization <- HMIS_participating_projects %>%
+  fsubset(
+    !(ProjectType %in% non_res_project_types) & 
+    (
+      (is.na(Availability) | Availability != 3) &
+      BedInventory > 0 & !is.na(BedInventory)
     )
   ) %>%
-  funique(cols = "ProjectID") %>%
-  fsubset(ProjectHMISActiveParticipationEnd >= ProjectHMISActiveParticipationStart)
-
-zero_utilization <- active_HMIS_participating_projects %>%
-  # Check if project has any enrollments during HMIS-active inventory-operating span
+  funique(cols = "ProjectTimeID") %>%
   join(
-    Enrollment %>% 
-      fgroup_by(ProjectTimeID) %>%
-      fsummarise(
-        EarliestEnrollmentStart = fmin(EntryDate), 
-        LatestEnrollmentEnd = fmax(ExitAdjust)
-      ),
+    Enrollment,
     on = "ProjectTimeID",
     multiple = TRUE,
-    how="left"
+    how="anti"
   ) %>%
-  fmutate(
-    enrollment_in_participating_active_period = pmax(ProjectHMISActiveParticipationStart, EarliestEnrollmentStart) <= 
-      pmin(ProjectHMISActiveParticipationEnd, LatestEnrollmentEnd)
-  ) %>%
-  fgroup_by(ProjectID) %>%
-  fsummarise(
-    has_enrollment_in_participating_active_period = anyv(enrollment_in_participating_active_period, TRUE)
-  ) %>%
-  fungroup() %>%
-  # Keep records with no enrollments
-  fsubset(!has_enrollment_in_participating_active_period) %>%
-  # Bring in PDDE cols
   join(Project0(), on = "ProjectID", how = "inner") %>%
   merge_check_info_dt(checkIDs = 83) %>%
   fmutate(Detail = "") %>%

@@ -1054,6 +1054,50 @@ enrollment_x_operating_period <- enrollment_positions %>%
   merge_check_info(checkIDs = 120) %>%
   select(all_of(vars_we_want))
 
+# Enrollment During Period with No Active Inventory ---------------------------
+enrollment_during_HMIS_no_active_inventory <- HMIS_participating_projects %>%
+  fselect(
+    ProjectID, 
+    ProjectTimeID, 
+    InventoryStartDate, 
+    InventoryEndDate, 
+    ProjectHMISParticipationStart,
+    ProjectHMISParticipationEnd
+  ) %>%
+  # Check if project has any enrollments during HMIS-active inventory-operating span
+  join(
+    Enrollment,
+    on = "ProjectTimeID",
+    multiple = TRUE,
+    how="inner"
+  ) %>%
+  fgroup_by(ProjectID, EnrollmentID) %>%
+  ftransform(
+    # Check if enrollment overlaps with ANY active inventory span
+    any_inventory_overlap = anyv(
+      EntryDate <= InventoryEndDate & 
+        ExitAdjust >= InventoryStartDate,
+      TRUE
+    )
+  ) %>%
+  fungroup() %>%
+  fsubset(
+    # Enrollment period must overlap with HMIS Participation period
+    EntryDate <= ProjectHMISParticipationEnd & 
+      ExitAdjust >= ProjectHMISParticipationStart & 
+      # And must NOT overlap with ANY active inventory span
+      !any_inventory_overlap
+  ) %>%
+  # Bring in DQ cols
+  join(
+    Project0(),
+    on = "ProjectID",
+    how = "inner",
+    multiple = TRUE
+  ) %>%
+  merge_check_info_dt(checkIDs = 141) %>%
+  select(all_of(vars_we_want))
+
 # Overlaps ----------------------------------------------------------------
 # Create an initial dataset of possible overlaps
 # and establish initial Enrollment intervals, based on project type
@@ -1693,6 +1737,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       enrollment_x_participating_end,
       enrollment_x_participating_period,
       enrollment_x_participating_start,
+      enrollment_during_HMIS_no_active_inventory,
       exit_before_start,
       future_ees,
       future_exits,
