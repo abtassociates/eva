@@ -38,13 +38,13 @@ output$glossary <- renderDataTable({
     "System Performance Filters",
     "Household Type",
     "A single-select universal filter. Eva allows users to filter system performance 
-    data by three main household types: Adult Only, Adult Child, and Child Only. 
-    Household categorization is based on the age of household members on the first 
-    day of the report period (or at entry, if later). Eva also allows users to look 
-    at subcategories of household types for Youth and Young Adults.
-    Households may be counted in more than one household type. For example, a
-    16-year-old parent with a 1-year-old child would fall into the Child Only
-    and Youth and Young Adult household types.",
+    data by three main household types: Adult Only, Adult Child, and Child Only. Eva also allows 
+    users to look at subcategories of these household types: Youth and Young Adults, 
+    Adult Only 18-24, and Parenting Young Adult. Thus, households may be counted in more than 
+    one household type. For example, a 16-year-old parent with a 1-year-old child would fall 
+    into both the Child Only and Youth and Young Adult household types. Household type is 
+    determined based on the ages of all household members as of the entry date of their 
+    earliest enrollment included in the report period.",
     
     "System Performance Filters",
     "All Households",
@@ -162,14 +162,10 @@ output$glossary <- renderDataTable({
     "System Performance Filters",
     "Age",
     "A multi-select demographic filter. Eva allows users to filter system performance 
-    data by age group. Eva calculates age based on a client’s date of birth and 
-    their enrollment entry date. This is the client’s \"age at enrollment entry,\" 
-    and the number is rounded down to the whole number (i.e., 17.9 would become 17). 
-    For clients with multiple enrollments within the report period, Eva sets 
-    the client’s age to be the oldest \"age at enrollment entry.\" Age groups included 
+    data by age group. Age group is determined based on the client’s age as of the entry 
+    date of their last enrollment included in the report period. Age groups included 
     are: 0 to 12, 13 to 17, 18 to 21, 22 to 24, 25 to 34, 35 to 44, 45 to 54, 55 
-    to 64, 65 to 74, 75 and older, and unknown. Users can select multiple age groups 
-    to filter by.",
+    to 64, 65 to 74, 75 and older, and unknown.",
     
     "System Performance Filters",
     "All Statuses",
