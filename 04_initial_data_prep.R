@@ -180,14 +180,14 @@ Enrollmentvs <- function(EntryDate, ExitAdjust, ComparisonStart, ComparisonEnd, 
       "Inside",
     EntryDate > ComparisonEnd,
       paste0("Enrollment After ", comparisonWord," Period"),
-    EntryDate < ComparisonStart & ExitAdjust > ComparisonStart,
-      paste0("Enrollment Crosses ", comparisonWord, " Start"),
     ExitAdjust < ComparisonStart,
       paste0("Enrollment Before ", comparisonWord, " Period"),
     EntryDate > ComparisonStart & ExitAdjust > ComparisonEnd,
       paste0("Enrollment Crosses ", comparisonWord, " End"),
     EntryDate < ComparisonStart & ExitAdjust > ComparisonEnd,
-      paste0("Enrollment Crosses ", comparisonWord, " Period")
+      paste0("Enrollment Crosses ", comparisonWord, " Period"),
+    EntryDate < ComparisonStart & ExitAdjust > ComparisonStart,
+      paste0("Enrollment Crosses ", comparisonWord, " Start")
   )
 }
 
