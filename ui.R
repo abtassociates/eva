@@ -979,14 +979,14 @@ dashboardPage(
                 
                 <p>The Race/Ethnicity Methodology Type selection only impacts the 
                 Race/Ethnicity filters. To learn more about methodology and demographic 
-                categories, please visit the Glossary accessible on Eva’s Navigation Menu.</p>
+                categories, please visit the Glossary accessible on Eva's Navigation Menu.</p>
                 
                 <h4>Downloads</h4>
                 <p>To support further systems analysis, local reporting, and presentations, 
                 Eva includes two download options. To generate an Excel workbook 
-                with the data for a specific chart, click the \"Data Download” button 
+                with the data for a specific chart, click the \"Data Download\" button 
                 while viewing the chart. To generate a PowerPoint slide deck with 
-                the chart image, click the \"Image Download” button while viewing the chart. </p>
+                the chart image, click the \"Image Download\" button while viewing the chart. </p>
                 
                 <h4>Data Suppression and Data Security</h4>
                 <p>To ensure the privacy and protection of individuals and small 
