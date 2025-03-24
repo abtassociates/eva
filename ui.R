@@ -977,9 +977,9 @@ dashboardPage(
                 24 to 25 during the report period to be categorized in the Adult Only 18-24 
                 household type while also being categorized as in the 25-34 age group.</p>
                 
-                <p>The Gender and Race/Ethnicity Methodology Type selection only 
-                impacts the Gender and Race/Ethnicity filters. To learn more about methodology and 
-                demographic categories, please visit the Glossary accessible on Eva’s Navigation Menu.</p>
+                <p>The Race/Ethnicity Methodology Type selection only impacts the 
+                Race/Ethnicity filters. To learn more about methodology and demographic 
+                categories, please visit the Glossary accessible on Eva’s Navigation Menu.</p>
                 
                 <h4>Downloads</h4>
                 <p>To support further systems analysis, local reporting, and presentations, 
