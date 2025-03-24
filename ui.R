@@ -968,10 +968,18 @@ dashboardPage(
                 meaning you can only select one category at a time. For the Age 
                 filter, you can select multiple age ranges to explore.</p>
                 
-                <p>The Race/Ethnicity Methodology Type selection only 
-                impacts the Race/Ethnicity filter. To learn more about 
-                methodology and demographic categories, please visit the Glossary 
-                accessible on Eva’s Navigation Menu.</p>
+                <p>Please note that household type and age group filters use different 
+                methods for calculating a client's age. Household type is based on all 
+                household members’ ages as of the entry date of their earliest enrollment 
+                included in the report period. Age group is determined based on the client’s 
+                age as of the entry date of their last enrollment included in the report period. 
+                Because of this reporting difference, it is possible for a client that ages from 
+                24 to 25 during the report period to be categorized in the Adult Only 18-24 
+                household type while also being categorized as in the 25-34 age group.</p>
+                
+                <p>The Gender and Race/Ethnicity Methodology Type selection only 
+                impacts the Gender and Race/Ethnicity filters. To learn more about methodology and 
+                demographic categories, please visit the Glossary accessible on Eva’s Navigation Menu.</p>
                 
                 <h4>Downloads</h4>
                 <p>To support further systems analysis, local reporting, and presentations, 
@@ -1451,6 +1459,15 @@ dashboardPage(
                                 combination would be \"25 to 34” and \"Black alone.” Any cell with a count is shaded. 
                                 The darker the color in a cell, the greater the 
                                 value of that cell.</p>
+                                
+                                <p>Please note that household type and age group filters use different 
+                                methods for calculating a client's age. Household type is based on all 
+                                household members’ ages as of the entry date of their earliest enrollment 
+                                included in the report period. Age group is determined based on the client’s 
+                                age as of the entry date of their last enrollment included in the report period. 
+                                Because of this reporting difference, it is possible for a client that ages from 
+                                24 to 25 during the report period to be categorized in the Adult Only 18-24 
+                                household type while also being categorized as in the 25-34 age group.</p>
                                 
                                 <h4>Data Suppression</h4>
                                 <p>Additional levels of data suppression apply to 
