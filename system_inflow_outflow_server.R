@@ -639,7 +639,19 @@ get_inflow_outflow_full <- function() {
 # browser()
 get_inflow_outflow_monthly <- function() {
   unique(
-    rbindlist(period_specific_data()[-1])[, .(
+    rbindlist(period_specific_data()[-1])[, `:=`(
+      # remove "Unknowns"/"Inactives"
+      InflowTypeSummary = fifelse(
+        InflowTypeDetail == "Inactive",
+        "Inactive",
+        InflowTypeSummary
+      ),
+      OutflowTypeSummary = fifelse(
+        OutflowTypeDetail == "Inactive",
+        "Inactive",
+        OutflowTypeSummary
+      )
+    )][, .(
       # Count unique PersonalIDs for each category using system flow logic
       Inflow = uniqueN(PersonalID[InflowTypeSummary == "Inflow"]),
       Outflow = uniqueN(PersonalID[OutflowTypeSummary == "Outflow"])
