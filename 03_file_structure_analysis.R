@@ -37,11 +37,9 @@ for(file in unique(cols_and_data_types$File)) {
 }
 
 # Incorrect Columns ------------------------------------------------------
-ignore_cols <- unlist(strsplit(Sys.getenv("IGNORE_COLUMNS"), ","))
 
 check_columns <- function(file) {
   ImportedColumns <- colnames(get(file))
-  ImportedColumns <- setdiff(ImportedColumns, ignore_cols)
   
   CorrectColumns <- cols_and_data_types %>%
       filter(File == {{file}}) %>%

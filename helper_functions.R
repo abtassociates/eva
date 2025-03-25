@@ -183,6 +183,11 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
       filter(is.na(DateDeleted))
   }
   
+  if(csvFile == "Client") {
+    ignore_cols <- unlist(strsplit(Sys.getenv("IGNORE_COLUMNS"), ","))
+    fselect(data, ignore_cols) <- NULL
+  }
+  
   attr(data, "encoding") <- guess_encoding(filename)$encoding[1]
   data <- convert_data_to_utf8(data)
   
