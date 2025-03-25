@@ -667,46 +667,84 @@ get_inflow_outflow_monthly <- function() {
 qc_checks <- function() {
   browser()
 
-# TESTING DIFF BETWEEN FULL AND MBM
-full <- period_specific_data()[[1]]
-all_months <- rbindlist(period_specific_data()[-1])
-setdiff(sort(unique(full$PersonalID)), sort(unique(all_months$PersonalID)))
-setdiff(sort(unique(all_months$PersonalID)), sort(unique(full$PersonalID)))
-# 
-# 
-# json_str <- jsonlite::toJSON(
-#   unique(
-#     merge(
-#       enrollment_categories[
-#         !(PersonalID %in% unique(full$PersonalID)),
-#         .(EnrollmentID, PersonalID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)
-#       ],
-#       homeless_cls[, .(EnrollmentID, InformationDate)],
-#       by = "EnrollmentID"
-#     )[, .(PersonalID, InformationDate, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)]
-#   ),
-#   null="list",
-#   na="string",
-#   pretty = TRUE, auto_unbox = TRUE
-# )
-# json_str <- gsub("true", "True", json_str)
-# json_str <- gsub("false", "False", json_str)
-# 
-#
-# # Check that one enrollment isn't considered an inflow in multiple months
-# # someone can have an exit in between or they can be active at start
-#
-monthly_universe_ppl_flags <- unique(
-rbindlist(period_specific_data()[-1])[,
-# PersonalID %in% c("686041","684918","349625","556533","693996","614071","677683","701796","702055"),
-.(PersonalID, EnrollmentID, month, InflowTypeSummary, OutflowTypeSummary)
-][order(PersonalID, month)][, month:= format(month, "%b")])
-
-qc <- monthly_universe_ppl_flags %>%
-  fsubset(!(
-    (L(OutflowTypeSummary, g = PersonalID) == "Outflow" & InflowTypeSummary == "Inflow") | 
-    (L(OutflowTypeSummary, g = PersonalID) == "Active at End" & InflowTypeSummary == "Active at Start") 
-  ))
+  # TESTING DIFF BETWEEN FULL AND MBM
+  full <- period_specific_data()[[1]]
+  all_months <- rbindlist(period_specific_data()[-1])
+  setdiff(sort(unique(full$PersonalID)), sort(unique(all_months$PersonalID)))
+  setdiff(sort(unique(all_months$PersonalID)), sort(unique(full$PersonalID)))
+  # 
+  # 
+  # json_str <- jsonlite::toJSON(
+  #   unique(
+  #     merge(
+  #       enrollment_categories[
+  #         !(PersonalID %in% unique(full$PersonalID)),
+  #         .(EnrollmentID, PersonalID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)
+  #       ],
+  #       homeless_cls[, .(EnrollmentID, InformationDate)],
+  #       by = "EnrollmentID"
+  #     )[, .(PersonalID, InformationDate, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)]
+  #   ),
+  #   null="list",
+  #   na="string",
+  #   pretty = TRUE, auto_unbox = TRUE
+  # )
+  # json_str <- gsub("true", "True", json_str)
+  # json_str <- gsub("false", "False", json_str)
+  # 
+  #
+  # # Check that one enrollment isn't considered an inflow in multiple months
+  # # someone can have an exit in between or they can be active at start
+  #
+  monthly_universe_ppl_flags <- unique(
+    rbindlist(period_specific_data()[-1])[,
+      # PersonalID %in% c("686041","684918","349625","556533","693996","614071","677683","701796","702055"),
+      .(PersonalID, month, InflowTypeSummary, OutflowTypeSummary, InflowTypeDetail, OutflowTypeDetail)
+    ][
+      order(PersonalID, month)
+    ][
+      , month := factor(format(month, "%b"), 
+                       levels = format(get_months_in_report_period(), "%b"))
+    ][, `:=`(
+      InflowTypeSummary = fifelse(
+        InflowTypeDetail == "Inactive",
+        "Inactive",
+        InflowTypeSummary
+      ),
+      OutflowTypeSummary = fifelse(
+        OutflowTypeDetail == "Inactive",
+        "Inactive",
+        OutflowTypeSummary
+      )
+    )]
+  )
+  
+  # check prior month's status (L() is the collapse package's Lag function)
+  # if they outflowed last month, they should have inflowed this month
+  # and if they were active at end last month, they should be active at start, this month
+  full_combinations <- CJ(
+    PersonalID = unique(monthly_universe_ppl_flags$PersonalID), 
+    month = levels(monthly_universe_ppl_flags$month)
+  )
+  
+  qc <- monthly_universe_ppl_flags %>%
+    join(
+      full_combinations,
+      on = c("PersonalID", "month"),
+      how = "full"
+    ) %>%
+    fsubset(order(PersonalID, month)) %>%
+    fmutate(problem = !(
+      (L(OutflowTypeSummary, g = PersonalID) == "Outflow" & InflowTypeSummary == "Inflow") | 
+      (L(OutflowTypeSummary, g = PersonalID) == "Active at End" & InflowTypeSummary %in% c("Inflow","Active at Start")) |
+      (L(OutflowTypeSummary, g = PersonalID) == "Inactive" & InflowTypeSummary %in% c("Inflow","Active at Start"))
+    )) %>%
+    fgroup_by(PersonalID) %>%
+    fmutate(
+      has_problem = anyv(problem, TRUE)
+    ) %>%
+    fungroup() %>%
+    fsubset(has_problem)
 
 }
 # browser()
