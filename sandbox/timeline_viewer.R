@@ -197,7 +197,7 @@ output$timelinePlot <- renderPlotly({
   p <- p +
     # Add living situation markers at exit date
     geom_point(data = unique(jittered_data[ExitAdjust < as.Date("2099-01-01"), .(EnrollmentID, PersonalID, ExitAdjust, Position, 
-                                                                                 LivingSituation, LivingSituationCategory)]),
+                                                                                 LivingSituationCategory, Position_jittered)]),
                aes(x = as.Date(ExitAdjust), 
                    y = Position_jittered,
                    shape = LivingSituationCategory),
