@@ -1271,8 +1271,8 @@
       "System Summary": [
         [
           "High Priority: 3  ",
-          "Min.   :    2.0  ",
-          "Length:68         "
+          "Min.   :    1.0  ",
+          "Length:69         "
         ],
         [
           "Error        :35  ",
@@ -1280,18 +1280,18 @@
           "Class :character  "
         ],
         [
-          "Warning      :30  ",
-          "Median :  168.5  ",
+          "Warning      :31  ",
+          "Median :  152.0  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  835.9  ",
+          "Mean   :  823.8  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  511.5  ",
+          "3rd Qu.:  504.0  ",
           null
         ],
         [
@@ -1302,10 +1302,10 @@
       ],
       "Organization Summary": [
         [
-          "Length:1029       ",
+          "Length:1030       ",
           "High Priority: 56  ",
           "Min.   :   1.00  ",
-          "Length:1029       "
+          "Length:1030       "
         ],
         [
           "Class :character  ",
@@ -1315,14 +1315,14 @@
         ],
         [
           "Mode  :character  ",
-          "Warning      :540  ",
+          "Warning      :541  ",
           "Median :   8.00  ",
           "Mode  :character  "
         ],
         [
           null,
           null,
-          "Mean   :  55.24  ",
+          "Mean   :  55.19  ",
           null
         ],
         [
@@ -1341,8 +1341,8 @@
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:68         ",
-          "Length:68         "
+          "Length:69         ",
+          "Length:69         "
         ],
         [
           "Error        :35  ",
@@ -1350,7 +1350,7 @@
           "Class :character  "
         ],
         [
-          "Warning      :30  ",
+          "Warning      :31  ",
           "Mode  :character  ",
           "Mode  :character  "
         ]
@@ -1493,14 +1493,14 @@
       ],
       "Warnings": [
         [
-          "Length:47359      ",
-          "Length:47359      ",
-          "Length:47359      ",
-          "Length:47359      ",
-          "Length:47359      ",
-          "Length:47359      ",
-          "Length:47359      ",
-          "Length:47359      ",
+          "Length:47360      ",
+          "Length:47360      ",
+          "Length:47360      ",
+          "Length:47360      ",
+          "Length:47360      ",
+          "Length:47360      ",
+          "Length:47360      ",
+          "Length:47360      ",
           "Min.   :2005-04-14  "
         ],
         [
@@ -1567,7 +1567,7 @@
           null,
           null,
           null,
-          "NA's   :2  "
+          "NA's   :3  "
         ]
       ],
       "Overlap Details": [
