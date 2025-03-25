@@ -297,6 +297,19 @@ universe_enrl_flags <- function(all_filtered, period) {
     lookback1_temp_dest = lookback == 1 & 
       !(Destination %in% perm_livingsituation),
     
+    unknown_at_start = eecr == TRUE &
+      straddles_start & (
+        # Non-Res Project Types and not lh
+        (
+          ProjectType %in% non_res_project_types &
+            (!was_lh_at_start | is.na(was_lh_at_start))
+        ) |
+          # nbn shelter
+          (ProjectType == es_nbn_project_type &
+             (in_date_range == TRUE | NbN15DaysBeforeReportStart == FALSE))
+        
+      ),
+    
     # outflow columns
     perm_dest_lecr = lecr == TRUE &
       Destination %in% perm_livingsituation &
@@ -390,13 +403,13 @@ universe_ppl_flags <- function(universe_df, period) {
     ),
     
     InflowTypeDetail = fifelse(
-      active_at_start_homeless_client == TRUE, "Homeless",
-      fifelse(active_at_start_housed_client == TRUE, "Housed",
-              fifelse(return_from_perm_client == TRUE, "Returned from \nPermanent",
-                      fifelse(reengaged_from_temp_client == TRUE, "Re-engaged from \nNon-Permanent",
-                              fifelse(newly_homeless_client == TRUE & session$userData$days_of_data >= 1094, "First-Time \nHomeless",
-                                      fifelse(newly_homeless_client == TRUE & session$userData$days_of_data < 1094, "Inflow\nUnspecified",
-                                              "something's wrong")))))
+      active_at_start_homeless_client, "Homeless",
+      fifelse(active_at_start_housed_client, "Housed",
+        fifelse(return_from_perm_client, "Returned from \nPermanent",
+          fifelse(reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
+            fifelse(newly_homeless_client & session$userData$days_of_data >= 1094, "First-Time \nHomeless",
+              fifelse(newly_homeless_client & session$userData$days_of_data < 1094, "Inflow\nUnspecified",
+                fifelse(unknown_at_start, "Inactive", "something's wrong"))))))
     ),
     
     OutflowTypeSummary = fifelse(
