@@ -109,9 +109,9 @@ get_sys_comp_plot_df_2vars <- function(comp_df) {
   selections <- input$system_composition_selections
   
   # Function to process each combination of the variables underlying the all-served
-  # selections E.g. if Age and Gender (and Method 1),
-  # then we'd combine 0 to 12 with ManMethod1, 0 to 12 with WomanMethod1,
-  # 13 to 24 with ManMethod1, etc.
+  # selections E.g. if Age and Race (and Method 1),
+  # then we'd combine 0 to 12 with White, 0 to 12 with Black,
+  # 13 to 24 with White, etc.
   process_combination <- function(v1, v2, comp_df) {
     logToConsole(glue("processing combination of {v1} and {v2}"))
     freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))

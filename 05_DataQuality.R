@@ -66,8 +66,6 @@ base_dq_data <- Enrollment %>%
     White,
     MidEastNAfrican,
     HispanicLatinaeo,
-    Woman,
-    Man,
     VeteranStatus,
     ProjectTimeID,
     EnrollmentCoC,
