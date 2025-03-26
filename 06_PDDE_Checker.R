@@ -478,6 +478,7 @@ activeInventory_COC_merged <-  join(
 
 Active_Inventory_per_COC <- activeInventory_COC_merged %>%
   fsubset(source == "ProjectCoC") %>%
+  join(missing_inventory_record, on = "ProjectID", how="anti") %>%
   join(Project %>% select(ProjectID, ProjectType, RRHSubType), on="ProjectID", how="left") %>%
   fsubset(ProjectType %in% project_types_w_beds &
            (RRHSubType == 2 | is.na(RRHSubType))) %>% 
@@ -491,10 +492,10 @@ Active_Inventory_per_COC <- activeInventory_COC_merged %>%
 
 COC_Records_per_Inventory <- activeInventory_COC_merged %>%
   fsubset(source == "activeInventory") %>%
-  join(Active_Inventory_per_COC, on = "ProjectID", how="anti") %>%
   merge_check_info(checkIDs = 137) %>%
-  mutate(Detail = "Any CoC represented in a project's active bed inventory records must also be listed as a CoC associated with the Project."
-  ) %>%
+  mutate(Detail = str_squish("Any CoC represented in a project's active bed 
+                             inventory records must also be listed as a CoC 
+                             associated with the Project.")) %>%
   select(all_of(PDDEcols)) %>%
   unique()
 
