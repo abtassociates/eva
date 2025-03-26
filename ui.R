@@ -101,7 +101,8 @@ dashboardPage(
         "Eva has crashed. Please submit an issue on GitHub and note the
           date and time in order to help the team diagnose the issue."
       ),
-      overlayColour = '#F5F5F5'
+      overlayColour = '#F5F5F5',
+      refresh = ""
     ), 
     tabItems(
       tabItem(
