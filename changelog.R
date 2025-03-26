@@ -2,6 +2,12 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
+    "03-27-2025",
+    "<b>Bug Fixes</b> <br>
+      - Handle leap years in System Performance charts (Issue <a href='https://github.com/abtassociates/eva/issues/738' target='_blank'>#738</a>)<br>
+      - Allow bed type \"Other\" for site based ES projects ((Issue <a href='https://github.com/abtassociates/eva/issues/703' target='_blank'>#703</a>)<br>
+    <b>Miscellaneous</b> <br>
+      - Updated and added application text for clarity on System Performance age",
     "03-06-2025",
     "<b>New Features</b> <br>
       - Added HHType to Overlap export (Issue <a href='https://github.com/abtassociates/eva/issues/697' target='_blank'>#697</a>)<br>
