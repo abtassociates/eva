@@ -38,6 +38,19 @@ function(input, output, session) {
   
   # glossary entries
   source("glossary.R", local = TRUE)
+
+  # Show upcoming maintenance pop-up prior to pushing to live
+  # e.g. "<p>Eva will be down for these updates from 5:00 PM ET to 6:00 PM ET Thursday, March 27, 2025.</p>"
+  upcoming_maintenance_notification <- HTML("")
+  if(length(upcoming_maintenance_notification) > 0) {
+    showModal(
+      modalDialog(
+        upcoming_maintenance_notification,
+        title = "Upcoming Maintenance",
+        easyClose = TRUE
+      )
+    )
+  }
   
   observe({
     req(session$clientData$url_search != "")
