@@ -1,5 +1,5 @@
 function idleTimer() {
-  var timeoutTime = 5 * 1000; //1000 = 1 second
+  var timeoutTime = 900 * 1000; //1000 = 1 second
   var t = setTimeout(showTimeoutDialog, timeoutTime);
   // Store references to the event listener functions so we can remove them later
   var resetTimerHandlers = {
