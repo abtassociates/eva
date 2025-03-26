@@ -7,6 +7,7 @@ output$changelog <- renderDT({
       - Handle leap years in System Performance charts (Issue <a href='https://github.com/abtassociates/eva/issues/738' target='_blank'>#738</a>)<br>
       - Allow bed type \"Other\" for site based ES projects (Issue <a href='https://github.com/abtassociates/eva/issues/703' target='_blank'>#703</a>)<br>
       - Fixed bug where projects with no inventory records were getting flagged for both the No Inventory Records check and the Project CoC Missing Inventory check. The latter should not be flagged if the former is already flagged.<br>
+      - Deduplicating records in the PDDE export.<br>
     <b>Miscellaneous</b> <br>
       - Updated and added application text for clarity on System Performance age.<br>
       - Removed System Performance demographic filter as well as references to filter and related language throughout Eva.",
