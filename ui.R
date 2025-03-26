@@ -1094,7 +1094,7 @@ dashboardPage(
               #   )
               # ) %>% tagAppendAttributes(class="light-left-border"),
               column(
-                4,
+                6,
                 pickerInput(
                   label = "Race/Ethnicity",
                   inputId = "syso_race_ethnicity",
@@ -1105,7 +1105,7 @@ dashboardPage(
                     `dropdown-align-right` = TRUE, 
                     `dropup-auto` = FALSE)
                 )
-              )
+              ) %>% tagAppendAttributes(class="light-left-border")
             )
           )
         ),
