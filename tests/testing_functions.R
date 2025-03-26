@@ -264,7 +264,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     sys_universe_filters <- c(
       "syso_age",
       "syso_spec_pops",
-      "syso_gender",
+      # "syso_gender",
       "syso_race_ethnicity"
     )
     
@@ -406,10 +406,10 @@ main_test_script <- function(test_script_name, test_dataset) {
       output = sys_comp_outputs
     )
     
-    app$set_inputs(system_composition_selections = c("Gender", "All Races/Ethnicities"))
+    app$set_inputs(system_composition_selections = c("VeteranStatus", "All Races/Ethnicities"))
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
-      name = "sys-comp-all-re-gender",
+      name = "sys-comp-all-re-veteran",
       input = sys_comp_inputs,
       output = sys_comp_outputs
     )

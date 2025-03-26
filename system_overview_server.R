@@ -37,12 +37,12 @@ observeEvent(input$sys_comp_subtabs, {
 
 observeEvent(input$methodology_type, {
   
-  updatePickerInput(
-    session = session,
-    "syso_gender", 
-    choices = syso_gender_cats(input$methodology_type),
-    selected = "All"
-  )
+  # updatePickerInput(
+  #   session = session,
+  #   "syso_gender", 
+  #   choices = syso_gender_cats(input$methodology_type),
+  #   selected = "All"
+  # )
   
   updatePickerInput(
     session, 
@@ -106,8 +106,8 @@ syso_detailBox <- reactive({
         "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
       )),
     
-    if (getNameByValue(syso_gender_cats(), input$syso_gender) != "All Genders")
-      detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
+    # if (getNameByValue(syso_gender_cats(), input$syso_gender) != "All Genders")
+    #   detail_line("Gender", syso_gender_cats(input$methodology_type), input$syso_gender),
     
     if (selected_race != "All Races/Ethnicities")
       race_ethnicity_line,
@@ -200,13 +200,13 @@ sys_export_filter_selections <- function() {
     Chart = c(
       "Age",
       "Veteran Status",
-      "Gender",
+      # "Gender",
       "Race/Ethnicity"
     ),
     Value = c(
       if(identical(syso_age_cats, input$syso_age)) {"All Ages"} else {paste(input$syso_age, collapse=", ")},
       getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
-      getNameByValue(syso_gender_cats(input$methodology_type), input$syso_gender),
+      # getNameByValue(syso_gender_cats(input$methodology_type), input$syso_gender),
       getNameByValue(syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity)
     )
   ))
@@ -226,11 +226,11 @@ syso_race_ethnicity_cats <- function(methodology = 1){
   )[[1]]
 }
 
-syso_gender_cats <- function(methodology = 1){
-  ifelse(methodology == 1,
-         list(syso_gender_method1),
-         list(syso_gender_method2))[[1]]
-}
+# syso_gender_cats <- function(methodology = 1){
+#   ifelse(methodology == 1,
+#          list(syso_gender_method1),
+#          list(syso_gender_method2))[[1]]
+# }
 
 # PowerPoint Export -------------------------------------------------------
 sys_overview_ppt_export <- function(file,
@@ -380,25 +380,6 @@ output$client_level_download_btn <- downloadHandler(
       "PersonalID",
       "AgeCategory",
       "VeteranStatus",
-      "Woman",
-      "Man",
-      "CulturallySpecific",
-      "Transgender",
-      "NonBinary",
-      "Questioning",
-      "DifferentIdentity",
-      "GenderUnknown",
-      
-      "TransgenderMethod1",
-      "GenderExpansiveMethod1",
-      "ManMethod1",
-      "WomanMethod1",
-      
-      "TransgenderMethod2",
-      "WomanMethod2",
-      "ManMethod2",
-      "WomanOrManOnlyMethod2",
-      "NonBinaryMethod2",
       
       "AmIndAKNative",
       "Asian",
@@ -487,7 +468,7 @@ output$client_level_download_btn <- downloadHandler(
     setnames(latest_report_info, 
              old = setdiff(names(latest_report_info), "PersonalID"), 
              new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
-    
+
     # details tab
     client_level_details <- unique(sys_universe_ppl_flags()[
       , 
@@ -519,7 +500,7 @@ output$client_level_download_btn <- downloadHandler(
     filter_selections <- rbind(
       export_date_info, # ExportStart, Exportend
       sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
-      sys_export_filter_selections(), # Age, Veteran Status, Gender, Race/Ethnicity
+      sys_export_filter_selections(), # Age, Veteran Status, Race/Ethnicity
       tibble(
         Chart = "Total Served (Start + Inflow) People",
         Value = sum(system_df_info %>% filter(InflowOutflow == 'Inflow') %>% pull(values), na.rm = TRUE)

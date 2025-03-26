@@ -19,6 +19,6 @@ reduced_data_fsa$Client <- reduced_data_fsa$Client %>% select(-DateCreated)
 reduced_data_fsa$Client <- reduced_data_fsa$Client %>% select(-BlackAfAmerican)
 
 # incorrect/misspelled column (check 12)
-reduced_data_fsa$Client <- reduced_data_fsa$Client %>% rename(Transgenderr = Transgender)
+reduced_data_fsa$Client <- reduced_data_fsa$Client %>% rename(VeeteranStatuss = VeteranStatus)
 
 ## add more checks here
