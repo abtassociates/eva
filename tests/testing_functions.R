@@ -454,7 +454,7 @@ main_test_script <- function(test_script_name, test_dataset) {
 
 # This is equivalent to snapshot_review(), but for the helper csv files
 
-review_helper <- function(datasetname, test_script_name) {
+review_helper <- function(datasetname, test_script_name, comparison_type = 1) {
   helper_data_dir <- glue(
     here("tests/helper_data/{gsub('test-','',test_script_name)}")
   )
@@ -465,12 +465,19 @@ review_helper <- function(datasetname, test_script_name) {
   new <- fread(new_path)
   
   
-  # records_in_one_or_another(old, new)
-  # For simple differences, view more visually with one of these methods
-  # diffviewer::visual_diff(old_path, new_path)
-   waldo::compare(old, new) # summary of differences
-   
-  # diffobj::diffObj(old, new)
+  if(comparison_type == 1) {
+    # For simple differences, view more visually with one of these methods
+    diffviewer::visual_diff(old_path, new_path)
+  } else if(comparison_type == 2) {
+    # Full records if at all different
+    records_in_one_or_another(old, new)
+  } else if(comparison_type == 3) {
+    # summary of differences
+    waldo::compare(old, new) 
+  } else if(comparison_type == 3) {
+    # Summary of differences
+    diffobj::diffObj(old, new)
+  }
 }
 
 records_in_one_or_another <- function(old, new) {
