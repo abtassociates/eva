@@ -543,6 +543,7 @@ pdde_main(bind_rows(
   more_units_than_beds_inventory,
   vsp_clients
 ) %>%
+  unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
 )
 
