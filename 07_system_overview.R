@@ -390,7 +390,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     in_date_range = ExitAdjust >= ReportStart() & EntryDate <= ReportEnd()
   )][
     # Apply filtering with efficient conditions
-    (ReportStart() - years(2)) <= ExitAdjust &
+    (ReportStart() - lubridate::dyears(2)) <= ExitAdjust &
       ProjectType != hp_project_type &
       (ProjectType != ce_project_type |
          (ProjectType == ce_project_type &
