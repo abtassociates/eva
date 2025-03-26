@@ -464,36 +464,39 @@ ES_BedType_HousingType <- activeInventory %>%
 
 # Project CoC Missing Bed Inventory & Incorrect CoC in bed inventory -----------------------------------
 
-activeInventory_COC_merged <- activeInventory %>% 
-  mutate(ix=1) %>% 
-  merge((ProjectCoC %>% select(ProjectID, CoCCode)) %>% mutate(iy=1), by = c("ProjectID", "CoCCode"), all=TRUE) %>%
-  merge((Project %>% select(ProjectID, ProjectType, RRHSubType)), by = c("ProjectID"), all=TRUE) %>%
-  mutate(mer = case_when(ix==1&iy==1~'both',
-                         ix==1~'only_x',
-                         iy==1~'only_y')) %>%
-  select(-c(ProjectName, OrganizationName)) %>% 
-  merge((Project0() %>% select(ProjectID, ProjectName, OrganizationName)), by = c("ProjectID"), all=TRUE)
+activeInventory_COC_merged <-  join(
+    activeInventory,
+    ProjectCoC, 
+    on = c("ProjectID", "CoCCode"), 
+    how="full",
+    multiple = TRUE,
+    column="source"
+  ) %>%
+  join(Project0(), on="ProjectID", drop.dup.cols = "x")
 
 # Throw a warning if there is no inventory record for a ProjectID and COCCode combo in the ProjectCoC data
 
 Active_Inventory_per_COC <- activeInventory_COC_merged %>%
-  filter(mer=="only_y") %>%
-  filter(ProjectType %in% project_types_w_beds &
+  fsubset(source == "ProjectCoC") %>%
+  join(Project %>% select(ProjectID, ProjectType, RRHSubType), on="ProjectID", how="left") %>%
+  fsubset(ProjectType %in% project_types_w_beds &
            (RRHSubType == 2 | is.na(RRHSubType))) %>% 
   merge_check_info(checkIDs = 136) %>% 
   mutate(Detail = "Residential projects must have a bed inventory for each CoC they serve."
   ) %>%
-  select(all_of(PDDEcols))
+  select(all_of(PDDEcols)) %>%
+  unique()
   
 # Throw an error if there is no COC record for a ProjectID and COCCode combo in the inventory data
 
 COC_Records_per_Inventory <- activeInventory_COC_merged %>%
-  filter(mer=="only_x") %>% 
+  fsubset(source == "activeInventory") %>%
+  join(Active_Inventory_per_COC, on = "ProjectID", how="anti") %>%
   merge_check_info(checkIDs = 137) %>%
   mutate(Detail = "Any CoC represented in a project's active bed inventory records must also be listed as a CoC associated with the Project."
   ) %>%
-  select(all_of(PDDEcols))
-
+  select(all_of(PDDEcols)) %>%
+  unique()
 
 # More units than beds in inventory record. -----------------------------------
 more_units_than_beds_inventory <- activeInventory %>%
