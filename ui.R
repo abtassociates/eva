@@ -1041,8 +1041,6 @@ dashboardPage(
               column(
                 6,
                 pickerInput(
-                  # AS 3/14/25: removed Gender references from Eva at HUD's request
-                  # label = "Gender and Race/Ethnicity Methodology Type",
                   label = "Race/Ethnicity Methodology Type",
                   inputId = "methodology_type",
                   multiple = FALSE,
@@ -1081,18 +1079,6 @@ dashboardPage(
                   selected = syso_spec_pops_people[1]
                 )
               ),
-              # AS 3/14/25: removed Gender references from Eva at HUD's request
-              # column(
-              #   2,
-              #   pickerInput(
-              #     label = "Gender",
-              #     inputId = "syso_gender",
-              #     choices = syso_gender_method1,
-              #     width = "100%",
-              #     selected = "All",
-              #     options = pickerOptions(actionsBox = TRUE)
-              #   )
-              # ) %>% tagAppendAttributes(class="light-left-border"),
               column(
                 6,
                 pickerInput(

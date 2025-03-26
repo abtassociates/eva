@@ -547,7 +547,6 @@ client_categories <- Client %>%
   # left_join(setDF(dv_flag), join_by(PersonalID)) %>%
   select(PersonalID,
          all_of(race_cols),
-         #all_of(gender_cols),
          VeteranStatus,
          AgeCategory #,
          # DomesticViolenceCategory
@@ -762,14 +761,13 @@ client_categories <- Client %>%
       MidEastNAfrican +
       BlackAfAmerican == 0, 1, 0
   )) %>%
-  select(-all_of(race_cols)) #-all_of(gender_cols), 
+  select(-all_of(race_cols))
 
 client_categories_reactive <- reactive({
   client_categories %>%
     mutate(All = 1) %>%
     filter(
       AgeCategory %in% input$syso_age &
-        # !!sym(input$syso_gender) == 1 &
         !!sym(input$syso_race_ethnicity) == 1 &
         (
           input$syso_spec_pops == "None" |

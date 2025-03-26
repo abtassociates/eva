@@ -26,18 +26,12 @@ output$glossary <- renderDataTable({
     
     "System Performance Filters",
     "Universal Filters",
-    # AS 3/14/2025: Remove gender from Eva's display, per HUD's guidance
-    # "Filters that affect all system performance charts. These filters are Household 
-    # Type, Level of Detail, Project Type Group, and Gender and Race/Ethnicity
-    # Methodology Type.",
     "Filters that affect all system performance charts. These filters are Household 
     Type, Level of Detail, Project Type Group, and Race/Ethnicity
     Methodology Type.",
     
     "System Performance Filters",
     "Demographic Filters",
-    # "Filters that only affect the System Flow and Client System Status charts. 
-    # These filters are Age, Veteran Status, Gender, and Race/Ethnicity.",
     "Filters that only affect the System Flow and Client System Status charts. 
     These filters are Age, Veteran Status, and Race/Ethnicity.",
     
@@ -139,7 +133,6 @@ output$glossary <- renderDataTable({
     Entry, and Other.",
     
     "System Performance Filters",
-    # "Gender and Race/Ethnicity Methodology Type",
     "Race/Ethnicity Methodology Type",
     "A single-select universal filter. Eva allows users to choose the way Eva
     organizes system performance data when filtering by race/ethnicity
