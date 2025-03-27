@@ -18,6 +18,7 @@ jobs:
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      IGNORE_COLUMNS: ${{ secrets.IGNORE_COLUMNS }}
       
     steps:
       - uses: actions/checkout@v4
@@ -38,6 +39,13 @@ jobs:
           testthat::set_max_fails(Inf)
         shell: Rscript {0}
 
+      - name: Update chromote so back-to-back tests work
+        run: |
+          install.packages('chromote', repos = c('https://rstudio.r-universe.dev', 'https://cloud.r-project.org'))
+          library(rvest)
+          chromote::local_chrome_version(binary = "chrome-headless-shell", quiet = FALSE)
+        shell: Rscript {0}
+      
       - uses: rstudio/shinytest2/actions/test-app@v1
         with:
           app-dir: "."

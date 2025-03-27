@@ -120,7 +120,6 @@
       "75 and older",
       "Unknown"
     ],
-    "syso_gender": "All",
     "syso_hh_type": "All",
     "syso_level_of_detail": "All",
     "syso_project_type": "All",
@@ -156,9 +155,9 @@
       "deps": [
         {
           "name": "font-awesome",
-          "version": "6.4.2",
+          "version": "6.5.2",
           "src": {
-            "href": "font-awesome-6.4.2"
+            "href": "font-awesome-6.5.2"
           },
           "meta": null,
           "script": null,
@@ -393,12 +392,12 @@
       "Detail": [
         "In the Client file, the BlackAfAmerican column is missing",
         "In the Client file, the DateCreated column is missing",
-        "In the Client file, the Transgender column is missing",
+        "In the Client file, the VeteranStatus column is missing",
         "Please check that the DOB column in the Client file has the correct date format.",
         "PersonalID 5966 is in the Enrollment file but not in the Client file.",
         "ProjectID 1182 is in the Enrollment file but not in the Project file.",
         "In the Client file, ExtraCol is an extra column",
-        "In the Client file, Transgenderr is an extra column",
+        "In the Client file, VeeteranStatuss is an extra column",
         "In the Assessment file, the AssessmentType column should have a data type of integer but in this file, it is character."
       ]
     }

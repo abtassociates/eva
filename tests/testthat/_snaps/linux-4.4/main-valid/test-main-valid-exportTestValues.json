@@ -788,17 +788,17 @@
         "Warning"
       ],
       "Count": [
-        6,
+        3,
         13,
-        9,
-        730,
+        2,
+        138,
         2,
         5,
         11,
         6,
         1,
-        13,
-        8,
+        2,
+        1,
         13,
         2
       ]
@@ -833,11 +833,11 @@
       },
       "Count": {
         "Min.": 1,
-        "1st Qu.": 5,
-        "Median": 8,
-        "Mean": 63,
-        "3rd Qu.": 13,
-        "Max.": 730
+        "1st Qu.": 2,
+        "Median": 3,
+        "Mean": 15.30769230769231,
+        "3rd Qu.": 11,
+        "Max.": 138
       }
     },
     "sys_comp_report_num_df": {
@@ -851,111 +851,16 @@
         "Hispanic/Latina/e/o alone",
         "Middle Eastern or North African alone",
         "Middle Eastern or North African & Hispanic/Latina/e/o",
-        "Multi-Racial (not Hispanic/Latina/e/o)",
         "Multi-Racial & Hispanic/Latina/e/o",
+        "Multi-Racial (not Hispanic/Latina/e/o)",
         "Native Hawaiian or Pacific Islander alone",
         "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+        "Unknown",
         "White alone",
         "White & Hispanic/Latina/e/o",
-        "Unknown",
         "Total"
       ],
-      "Gender expansive, not transgender": [
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        1,
-        0,
-        0,
-        13,
-        3,
-        0,
-        19
-      ],
-      "Man (Boy, if child) alone": [
-        47,
-        13,
-        13,
-        3,
-        742,
-        18,
-        8,
-        0,
-        0,
-        107,
-        8,
-        8,
-        1,
-        1863,
-        147,
-        11,
-        2989
-      ],
-      "Transgender, alone or in combination": [
-        1,
-        0,
-        0,
-        0,
-        1,
-        0,
-        1,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        20,
-        2,
-        1,
-        27
-      ],
-      "Woman (Girl, if child) alone": [
-        26,
-        6,
-        10,
-        1,
-        287,
-        8,
-        3,
-        0,
-        0,
-        73,
-        5,
-        1,
-        2,
-        1083,
-        53,
-        7,
-        1565
-      ],
-      "Unknown": [
-        0,
-        0,
-        0,
-        0,
-        4,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        5,
-        0,
-        0,
-        9
-      ],
-      "Total": [
+      "n": [
         74,
         19,
         23,
@@ -965,13 +870,13 @@
         12,
         0,
         0,
-        181,
         15,
+        181,
         9,
         3,
+        19,
         2984,
         205,
-        19,
         4609
       ]
     },
@@ -986,111 +891,16 @@
         "Hispanic/Latina/e/o alone",
         "Middle Eastern or North African alone",
         "Middle Eastern or North African & Hispanic/Latina/e/o",
-        "Multi-Racial (not Hispanic/Latina/e/o)",
         "Multi-Racial & Hispanic/Latina/e/o",
+        "Multi-Racial (not Hispanic/Latina/e/o)",
         "Native Hawaiian or Pacific Islander alone",
         "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+        "Unknown",
         "White alone",
         "White & Hispanic/Latina/e/o",
-        "Unknown",
         "Total"
       ],
-      "Gender expansive, not transgender": [
-        "0%",
-        "0%",
-        "0%",
-        "0%",
-        "5.3%",
-        "0%",
-        "0%",
-        "0%",
-        "0%",
-        "5.3%",
-        "5.3%",
-        "0%",
-        "0%",
-        "68.4%",
-        "15.8%",
-        "0%",
-        "0.4%"
-      ],
-      "Man (Boy, if child) alone": [
-        "1.6%",
-        "0.4%",
-        "0.4%",
-        "0.1%",
-        "24.8%",
-        "0.6%",
-        "0.3%",
-        "0%",
-        "0%",
-        "3.6%",
-        "0.3%",
-        "0.3%",
-        "0%",
-        "62.3%",
-        "4.9%",
-        "0.4%",
-        "64.9%"
-      ],
-      "Transgender, alone or in combination": [
-        "3.7%",
-        "0%",
-        "0%",
-        "0%",
-        "3.7%",
-        "0%",
-        "3.7%",
-        "0%",
-        "0%",
-        "0%",
-        "3.7%",
-        "0%",
-        "0%",
-        "74.1%",
-        "7.4%",
-        "3.7%",
-        "0.6%"
-      ],
-      "Woman (Girl, if child) alone": [
-        "1.7%",
-        "0.4%",
-        "0.6%",
-        "0.1%",
-        "18.3%",
-        "0.5%",
-        "0.2%",
-        "0%",
-        "0%",
-        "4.7%",
-        "0.3%",
-        "0.1%",
-        "0.1%",
-        "69.2%",
-        "3.4%",
-        "0.4%",
-        "34%"
-      ],
-      "Unknown": [
-        "0%",
-        "0%",
-        "0%",
-        "0%",
-        "44.4%",
-        "0%",
-        "0%",
-        "0%",
-        "0%",
-        "0%",
-        "0%",
-        "0%",
-        "0%",
-        "55.6%",
-        "0%",
-        "0%",
-        "0.2%"
-      ],
-      "Total": [
+      "pct": [
         "1.6%",
         "0.4%",
         "0.5%",
@@ -1100,13 +910,13 @@
         "0.3%",
         "0%",
         "0%",
-        "3.9%",
         "0.3%",
+        "3.9%",
         "0.2%",
         "0.1%",
+        "0.4%",
         "64.7%",
         "4.4%",
-        "0.4%",
         "100%"
       ]
     },
@@ -1272,7 +1082,7 @@
         [
           "High Priority: 3  ",
           "Min.   :    2.0  ",
-          "Length:68         "
+          "Length:67         "
         ],
         [
           "Error        :35  ",
@@ -1280,18 +1090,18 @@
           "Class :character  "
         ],
         [
-          "Warning      :30  ",
-          "Median :  168.5  ",
+          "Warning      :29  ",
+          "Median :  152.0  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  835.9  ",
+          "Mean   :  844.4  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  511.5  ",
+          "3rd Qu.:  519.0  ",
           null
         ],
         [
@@ -1302,10 +1112,10 @@
       ],
       "Organization Summary": [
         [
-          "Length:1029       ",
+          "Length:1009       ",
           "High Priority: 56  ",
           "Min.   :   1.00  ",
-          "Length:1029       "
+          "Length:1009       "
         ],
         [
           "Class :character  ",
@@ -1315,20 +1125,20 @@
         ],
         [
           "Mode  :character  ",
-          "Warning      :540  ",
-          "Median :   8.00  ",
+          "Warning      :520  ",
+          "Median :   9.00  ",
           "Mode  :character  "
         ],
         [
           null,
           null,
-          "Mean   :  55.24  ",
+          "Mean   :  56.07  ",
           null
         ],
         [
           null,
           null,
-          "3rd Qu.:  25.00  ",
+          "3rd Qu.:  26.00  ",
           null
         ],
         [
@@ -1341,8 +1151,8 @@
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:68         ",
-          "Length:68         "
+          "Length:67         ",
+          "Length:67         "
         ],
         [
           "Error        :35  ",
@@ -1350,7 +1160,7 @@
           "Class :character  "
         ],
         [
-          "Warning      :30  ",
+          "Warning      :29  ",
           "Mode  :character  ",
           "Mode  :character  "
         ]
@@ -1493,14 +1303,14 @@
       ],
       "Warnings": [
         [
-          "Length:47359      ",
-          "Length:47359      ",
-          "Length:47359      ",
-          "Length:47359      ",
-          "Length:47359      ",
-          "Length:47359      ",
-          "Length:47359      ",
-          "Length:47359      ",
+          "Length:47090      ",
+          "Length:47090      ",
+          "Length:47090      ",
+          "Length:47090      ",
+          "Length:47090      ",
+          "Length:47090      ",
+          "Length:47090      ",
+          "Length:47090      ",
           "Min.   :2005-04-14  "
         ],
         [
@@ -1512,7 +1322,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-06-16  "
+          "1st Qu.:2020-06-15  "
         ],
         [
           "Mode  :character  ",
@@ -1545,7 +1355,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-01-13  "
+          "3rd Qu.:2022-01-12  "
         ],
         [
           null,
