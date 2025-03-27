@@ -6,6 +6,17 @@ function(input, output, session) {
   
   source("helper_functions.R", local = TRUE)
   
+  upcoming_maintenance_notification <- HTML("")
+  if(length(upcoming_maintenance_notification) > 1) {
+    showModal(
+      modalDialog(
+        upcoming_maintenance_notification,
+        title = "Upcoming Maintenance",
+        easyClose = TRUE
+      )
+    )
+  }
+  
   # Upload-specific static variables shared across session --------------------
   sessionVars <- c(
     "validation", 
