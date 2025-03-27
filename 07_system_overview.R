@@ -365,7 +365,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
       lh_prior_livingsituation
   )][
     ProjectType != hp_project_type & 
-    EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart - years(2))
+    EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart %m-% years(2))
   ][, .(
     EnrollmentID,
     PersonalID,
@@ -521,7 +521,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     # this avoids having to re-filter and do the check for each enrollment
     lh_non_res_period <- lh_non_res %>%
       # Initial filtering
-      fsubset(EntryDate <= endDate & ExitAdjust >= (startDate - years(2))) %>%
+      fsubset(EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))) %>%
       
       # Calculate time windows
       ftransform(
@@ -560,7 +560,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     enrollment_categories_period <- lh_non_res_period[
       enrollment_categories[
         # keep enrollments in date range and exits within the 2 yrs prior to start
-        EntryDate <= endDate & ExitAdjust >= (startDate - years(2))
+        EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))
       ],
       on = .(EnrollmentID)
     ]
