@@ -37,8 +37,10 @@ for(file in unique(cols_and_data_types$File)) {
 }
 
 # Incorrect Columns ------------------------------------------------------
+
 check_columns <- function(file) {
   ImportedColumns <- colnames(get(file))
+  
   CorrectColumns <- cols_and_data_types %>%
       filter(File == {{file}}) %>%
       pull(Column)
@@ -194,11 +196,10 @@ export_id_client <- Client %>%
 
 # CHECK: Invalid demographic values
 # first, get a mapping of variables and their expected values
-cols <- c("VeteranStatus", race_cols, gender_cols)
+cols <- c("VeteranStatus", race_cols)
 
 valid_values <- list(yes_no_enhanced, c(dkr_dnc, NA), yes_no, yes_no, yes_no, yes_no, 
-                     yes_no, yes_no, yes_no, yes_no, yes_no, yes_no, yes_no,
-                     yes_no, yes_no, yes_no, c(dkr_dnc, NA))
+                     yes_no, yes_no, yes_no)
 
 
 # Only take existing columns - this solves the issue of misspelled demographic 

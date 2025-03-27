@@ -78,15 +78,6 @@ Client,16,NativeHIPacific,numeric,1,0
 Client,17,White,numeric,1,0
 Client,18,RaceNone,numeric,1,1
 Client,19,AdditionalRaceEthnicity,character,1,1
-Client,20,Woman,numeric,1,0
-Client,21,Man,numeric,1,0
-Client,22,NonBinary,numeric,1,0
-Client,23,CulturallySpecific,numeric,1,0
-Client,24,Transgender,numeric,1,0
-Client,25,Questioning,numeric,1,0
-Client,26,DifferentIdentity,numeric,1,0
-Client,27,GenderNone,numeric,1,1
-Client,28,DifferentIdentityText,character,1,1
 Client,29,VeteranStatus,numeric,1,0
 Client,30,YearEnteredService,numeric,1,1
 Client,31,YearSeparated,numeric,1,1

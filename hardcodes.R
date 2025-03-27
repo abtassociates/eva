@@ -175,26 +175,6 @@ syso_age_cats <- c(
   "75 and older",
   "Unknown")
 
-gender_cols <- c("Woman", "Man", "NonBinary", "Transgender", "CulturallySpecific",
-                   "DifferentIdentity", "Questioning", "GenderNone")
-
-syso_gender_method2 <- list(
-  "All Genders" = "All",
-  "Gender expansive, including transgender" = "TransgenderMethod2",
-  "Only Woman (Girl, if child) OR Only Man (Boy, if child)" = "WomanOrManOnlyMethod2",
-  "Man (Boy, if child) alone or in combination" = "ManMethod2",
-  "Non-Binary alone or in combination" = "NonBinaryMethod2",
-  "Woman (Girl, if child) alone or in combination" = "WomanMethod2"
-)
-
-syso_gender_method1 <- list(
-  "All Genders" = "All",
-  "Gender expansive, not transgender" = "GenderExpansiveMethod1",
-  "Man (Boy, if child) alone" = "ManMethod1",
-  "Transgender, alone or in combination" = "TransgenderMethod1",
-  "Woman (Girl, if child) alone" = "WomanMethod1"
-)
-
 race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
 
@@ -292,8 +272,8 @@ syso_spec_pops_people <- c(
 )
 
 syso_methodology_types <- c(
-  "Method 1: A person is only counted in one gender and one race/ethnicity category" = 1,
-  "Method 2: A person may be counted in multiple gender and multiple race/ethnicity categories" = 2
+  "Method 1: A person is only counted in one race/ethnicity category" = 1,
+  "Method 2: A person may be counted in multiple race/ethnicity categories" = 2
 )
 
 syso_grouping_detail <- c(
@@ -365,7 +345,6 @@ inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
 sys_comp_selection_choices = c(
   "Age", 
   #"Domestic Violence", #VL 9/20/24: Not including this for launch
-  "Gender",
   # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
   "All Races/Ethnicities",
   "Grouped Races/Ethnicities",

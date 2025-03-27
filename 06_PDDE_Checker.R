@@ -447,13 +447,13 @@ overlapping_hmis_participation <- HMISParticipation %>%
 
 
 # Bed Type incompatible with Housing Type -----------------------------------
-# For ES projects, if HousingType is 1 or 2 (site-based), then BedType should be 1 (facility based beds). If HousingType is 3 (tenant-based), then BedType should be 2 (voucher beds).
+# For ES projects, if HousingType is 1 or 2 (site-based), then BedType should be 1 (facility based beds) or 3 (Other bed type). If HousingType is 3 (tenant-based), then BedType should be 2 (voucher beds).
 
 ES_BedType_HousingType <- activeInventory %>%
   left_join(session$userData$Project0 %>% select(ProjectID, ProjectType), by = "ProjectID") %>%
   left_join(HousingTypeDF, by = "ProjectID") %>% 
   filter(ProjectType %in% c(es_ee_project_type, es_nbn_project_type) &
-           ((HousingType %in% c(client_single_site, client_multiple_sites) & ESBedType!=1) | (HousingType==tenant_scattered_site & ESBedType!=2)) 
+           ((HousingType %in% c(client_single_site, client_multiple_sites) & !(ESBedType %in% c(1, 3))) | (HousingType==tenant_scattered_site & ESBedType!=2)) 
   ) %>%
   merge_check_info(checkIDs = 135) %>% 
   mutate(Detail = "Bed Type incompatible with Housing Type:  Facility-based beds should align to the Housing Type of site-based and voucher-based beds should align to the Housing Type of tenant-based."
@@ -463,36 +463,40 @@ ES_BedType_HousingType <- activeInventory %>%
 
 # Project CoC Missing Bed Inventory & Incorrect CoC in bed inventory -----------------------------------
 
-activeInventory_COC_merged <- activeInventory %>% 
-  mutate(ix=1) %>% 
-  merge((ProjectCoC %>% select(ProjectID, CoCCode)) %>% mutate(iy=1), by = c("ProjectID", "CoCCode"), all=TRUE) %>%
-  merge((Project %>% select(ProjectID, ProjectType, RRHSubType)), by = c("ProjectID"), all=TRUE) %>%
-  mutate(mer = case_when(ix==1&iy==1~'both',
-                         ix==1~'only_x',
-                         iy==1~'only_y')) %>%
-  select(-c(ProjectName, OrganizationName)) %>% 
-  merge((session$userData$Project0 %>% select(ProjectID, ProjectName, OrganizationName)), by = c("ProjectID"), all=TRUE)
+activeInventory_COC_merged <-  join(
+    activeInventory,
+    ProjectCoC, 
+    on = c("ProjectID", "CoCCode"), 
+    how="full",
+    multiple = TRUE,
+    column="source"
+  ) %>%
+  join(Project0(), on="ProjectID", drop.dup.cols = "x")
 
 # Throw a warning if there is no inventory record for a ProjectID and COCCode combo in the ProjectCoC data
 
 Active_Inventory_per_COC <- activeInventory_COC_merged %>%
-  filter(mer=="only_y") %>%
-  filter(ProjectType %in% project_types_w_beds &
+  fsubset(source == "ProjectCoC") %>%
+  join(missing_inventory_record, on = "ProjectID", how="anti") %>%
+  join(Project %>% select(ProjectID, ProjectType, RRHSubType), on="ProjectID", how="left") %>%
+  fsubset(ProjectType %in% project_types_w_beds &
            (RRHSubType == 2 | is.na(RRHSubType))) %>% 
   merge_check_info(checkIDs = 136) %>% 
   mutate(Detail = "Residential projects must have a bed inventory for each CoC they serve."
   ) %>%
-  select(all_of(PDDEcols))
+  select(all_of(PDDEcols)) %>%
+  unique()
   
 # Throw an error if there is no COC record for a ProjectID and COCCode combo in the inventory data
 
 COC_Records_per_Inventory <- activeInventory_COC_merged %>%
-  filter(mer=="only_x") %>% 
+  fsubset(source == "activeInventory") %>%
   merge_check_info(checkIDs = 137) %>%
-  mutate(Detail = "Any CoC represented in a project's active bed inventory records must also be listed as a CoC associated with the Project."
-  ) %>%
-  select(all_of(PDDEcols))
-
+  mutate(Detail = str_squish("Any CoC represented in a project's active bed 
+                             inventory records must also be listed as a CoC 
+                             associated with the Project.")) %>%
+  select(all_of(PDDEcols)) %>%
+  unique()
 
 # More units than beds in inventory record. -----------------------------------
 more_units_than_beds_inventory <- activeInventory %>%
@@ -539,4 +543,5 @@ bind_rows(
   more_units_than_beds_inventory,
   vsp_clients
 ) %>%
+  unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))

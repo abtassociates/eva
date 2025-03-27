@@ -164,18 +164,27 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   filename <- paste0(tempdir(), "/", basename(filename))
   
   colTypes <- get_col_types(upload_filepath, csvFile)
-
+  
+  # import data
   data <- data.table::fread(
     filename,
     colClasses = unlist(unname(colTypes)),
     na.strings="NA"
   )
+  
+  # handle dates - new data.table converts to IDate, but we want "Date" for FSA
   data[, (names(data)) := lapply(.SD, function(x) {
     if (is.character(x)) x[x == ""] <- NA
     else if (inherits(x, "IDate")) x <- as.Date(x)
     return(x)
   }), .SDcols = names(data)]
   
+  if(csvFile == "Client") {
+    ignore_cols <- unlist(strsplit(Sys.getenv("IGNORE_COLUMNS"), ","))
+    data[, ignore_cols] <- NULL
+  }
+  
+  # Convert to dataframe
   setDF(data)
 
   if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
