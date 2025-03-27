@@ -16,7 +16,6 @@
       "75 and older",
       "Unknown"
     ],
-    "syso_gender": "All",
     "syso_hh_type": "AO",
     "syso_level_of_detail": "All",
     "syso_project_type": "Residential",
@@ -32,13 +31,13 @@
       ]
     },
     "sankey_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> Residential <br>\n<b>Methodology Type:<\/b> Method 1 <br>",
       "deps": [
 
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: ee71a565213946167861da308e693bee]",
+      "src": "[image data hash: 1210b9a1556de60c5f17d8a276ed173a]",
       "width": 1113,
       "height": 400,
       "alt": "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",
@@ -76,16 +75,16 @@
               "axis2": "End"
             },
             "range": {
-              "left": 2.002566472656481e-306,
-              "right": 1391,
-              "bottom": 483.0000000000001,
-              "top": 64.34931506849311
+              "left": 1.602053178125185e-306,
+              "right": 1113,
+              "bottom": 385.9999999999999,
+              "top": 51.87945205479453
             }
           }
         ],
         "dims": {
-          "width": 1391.25,
-          "height": 500
+          "width": 1113,
+          "height": 400
         }
       }
     }

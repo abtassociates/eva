@@ -6,13 +6,13 @@
   },
   "output": {
     "downloadSystemDQReportButton": {
-      "html": "<div data-spinner-id=\"spinner-e054e187dd9040a07d620cedbd353aa9\" class=\"shiny-spinner-output-container shiny-spinner-hideui\">\n  <head>\n    <style>#spinner-e054e187dd9040a07d620cedbd353aa9, #spinner-e054e187dd9040a07d620cedbd353aa9:before, #spinner-e054e187dd9040a07d620cedbd353aa9:after {   background: #0275D8; } #spinner-e054e187dd9040a07d620cedbd353aa9 {   color: #0275D8; } #spinner-e054e187dd9040a07d620cedbd353aa9 { font-size: 8px; }<\/style>\n  <\/head>\n  <div class=\"load-container shiny-spinner-hidden load1\">\n    <div id=\"spinner-e054e187dd9040a07d620cedbd353aa9\" class=\"loader\">Loading...<\/div>\n  <\/div>\n  <div style=\"height:400px\" class=\"shiny-spinner-placeholder\"><\/div>\n  <a id=\"downloadSystemDQReport\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n    <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n    Download\n  <\/a>\n<\/div>",
+      "html": "<div data-spinner-id=\"spinner-0b51a2cc0a54dc2be06d5caa09a71ab5\" class=\"shiny-spinner-output-container shiny-spinner-hideui\">\n  <head>\n    <style>#spinner-0b51a2cc0a54dc2be06d5caa09a71ab5, #spinner-0b51a2cc0a54dc2be06d5caa09a71ab5:before, #spinner-0b51a2cc0a54dc2be06d5caa09a71ab5:after {   background: #0275D8; } #spinner-0b51a2cc0a54dc2be06d5caa09a71ab5 {   color: #0275D8; } #spinner-0b51a2cc0a54dc2be06d5caa09a71ab5 { font-size: 8px; }<\/style>\n  <\/head>\n  <div class=\"load-container shiny-spinner-hidden load1\">\n    <div id=\"spinner-0b51a2cc0a54dc2be06d5caa09a71ab5\" class=\"loader\">Loading...<\/div>\n  <\/div>\n  <div style=\"height:400px\" class=\"shiny-spinner-placeholder\"><\/div>\n  <a id=\"downloadSystemDQReport\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n    <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n    Download\n  <\/a>\n<\/div>",
       "deps": [
         {
           "name": "font-awesome",
-          "version": "6.4.2",
+          "version": "6.5.2",
           "src": {
-            "href": "font-awesome-6.4.2"
+            "href": "font-awesome-6.5.2"
           },
           "meta": null,
           "script": null,
@@ -46,7 +46,7 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: 20ad1fdeae66c0c0d7134ee0d94feaec]",
+      "src": "[image data hash: c260cb256e5cd2a40ba18f87e4b553a2]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -91,16 +91,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 279.3289811643837,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 223.9319349315072,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1640,
+          "height": 400
         }
       }
     },
@@ -123,7 +123,7 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue": {
-      "src": "[image data hash: 605dec3ce1f501ec8a9d1842b5bcb41f]",
+      "src": "[image data hash: d365121336547e07bfab50b52a188884]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
@@ -161,16 +161,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 289.7508561643835,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 232.3069349315068,
+              "right": 1634.520547945206,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1640,
+          "height": 400
         }
       }
     },
@@ -193,7 +193,7 @@
       ]
     },
     "systemDQWarningByIssue": {
-      "src": "[image data hash: 17ac601b879337a5be27689629e47159]",
+      "src": "[image data hash: fc84a06dd2be3c46a2b674e4610ed141]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
@@ -238,16 +238,16 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 320.9852311643837,
-              "right": 2043.150684931507,
-              "bottom": 472.7260273972602,
-              "top": 6.849315068493152
+              "left": 257.2913099315068,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
             }
           }
         ],
         "dims": {
-          "width": 2050,
-          "height": 500
+          "width": 1640,
+          "height": 400
         }
       }
     },
