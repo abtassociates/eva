@@ -42,7 +42,6 @@ period_specific_data <- reactive({
     
     # Client-level filters
     input$syso_age,
-    input$syso_gender,
     input$syso_race_ethnicity,
     input$syso_spec_pops,
     
@@ -94,7 +93,6 @@ client_categories_filtered <- reactive({
   req(nrow(session$userData$client_categories) > 0)
   session$userData$client_categories[, All := 1][
     AgeCategory %in% input$syso_age &
-      get(input$syso_gender) == 1 &
       get(input$syso_race_ethnicity) == 1 &
       (
         input$syso_spec_pops == "None" |

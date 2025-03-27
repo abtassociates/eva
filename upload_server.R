@@ -46,8 +46,13 @@ process_upload <- function(upload_filename, upload_filepath) {
     source("07_system_overview.R", local = TRUE)
     
     # Store results of DQ and PDDE ------------------------------------------
-    collect_mirai(list(dq_mirai, pdde_mirai))
+    logToConsole("collecting DQ results")
+    dq_mirai[]
     
+    logToConsole("collecting PDDE results")
+    pdde_mirai[]
+    
+    logToConsole("saving DQ and PDDE results to session")
     session$userData$pdde_main <- pdde_mirai$data$value
     session$userData$dq_main_df <- dq_mirai$data$value$dq_main
     session$userData$base_dq_data_func <- dq_mirai$data$value$base_dq_data

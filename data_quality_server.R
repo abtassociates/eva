@@ -253,6 +253,7 @@ vars_we_want <- c(vars_prep,
                   "Guidance")
 
 dq_main_reactive <- reactive({
+  logToConsole("in dq_main_reactive")
   ESNbN <- calculate_long_stayers_local_settings_dt(input$ESNbNLongStayers, 0)
   Outreach <- calculate_long_stayers_local_settings_dt(input$OUTLongStayers, 4)
   CoordinatedEntry <- calculate_long_stayers_local_settings_dt(input$CELongStayers, 14)
@@ -431,6 +432,7 @@ cls_project_types <- reactive({
 })
 
 calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
+  logToConsole(paste0("in calculate_long_stayers_local_settings_dt: too_many_days = ", too_many_days, ", projecttype = ", projecttype))
   if (projecttype %in% c(project_types_w_cls)) {
     merge_check_info_dt(
       setDT(cls_project_types())[
@@ -459,6 +461,7 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
 # Outstanding Referrals --------------------------------------------
 
 calculate_outstanding_referrals <- function(too_many_days){
+  logToConsole(paste0("in calculate_outstanding_referrals: too_many_days = ", too_many_days))
   session$userData$base_dq_data_func %>%
     left_join(session$userData$Event %>% select(EnrollmentID,
                                EventID,
@@ -628,10 +631,11 @@ renderDQPlot <- function(level, issueType, group, color) {
 
 # list of data frames to include in DQ Org Report
 dqDownloadInfo <- reactive({
+  logToConsole("in dqDownloadInfo")
   req(session$userData$valid_file() == 1)
 
   exportTestValues(dq_main_reactive =  dq_main_reactive() %>% nice_names())
-  exportTestValues(dq_overlaps = overlap_details() %>% nice_names())
+  exportTestValues(dq_overlaps = session$userData$overlap_details %>% nice_names())
   
   # org-level data prep (filtering to selected org)
   orgDQData <- dq_main_reactive() %>%

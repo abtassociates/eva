@@ -6,25 +6,6 @@ output$client_level_download_btn <- downloadHandler(
       "PersonalID",
       "AgeCategory",
       "VeteranStatus",
-      "Woman",
-      "Man",
-      "CulturallySpecific",
-      "Transgender",
-      "NonBinary",
-      "Questioning",
-      "DifferentIdentity",
-      "GenderUnknown",
-      
-      "TransgenderMethod1",
-      "GenderExpansiveMethod1",
-      "ManMethod1",
-      "WomanMethod1",
-      
-      "TransgenderMethod2",
-      "WomanMethod2",
-      "ManMethod2",
-      "WomanOrManOnlyMethod2",
-      "NonBinaryMethod2",
       
       "AmIndAKNative",
       "Asian",
@@ -137,7 +118,7 @@ output$client_level_download_btn <- downloadHandler(
     filter_selections <- rbind(
       export_date_info, # ExportStart, Exportend
       sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
-      sys_export_filter_selections(), # Age, Veteran Status, Gender, Race/Ethnicity
+      sys_export_filter_selections(), # Age, Veteran Status, Race/Ethnicity
       tibble(
         Chart = "Total Served (Start + Inflow) People",
         Value = sum(system_df_info %>% filter(InflowOutflow == 'Inflow') %>% pull(values), na.rm = TRUE)
@@ -184,7 +165,7 @@ output$client_level_download_btn <- downloadHandler(
 get_client_level_export <- function() {
   merge(
     period_specific_data()[["Full"]],
-    Client %>% select(PersonalID, !!gender_cols, !!race_cols), 
+    Client %>% select(PersonalID, !!race_cols), 
     by="PersonalID"
   )
 }

@@ -128,7 +128,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
 output$sankey_ui_chart <- renderPlot({
   req(session$userData$valid_file() == 1)
   
-  plot_data <- sys_plot_data$sankey()
+  plot_data <- sys_plot_data$sankey
   
   validate(
     need(
@@ -167,7 +167,7 @@ output$sys_status_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Status Report - "),
   content = function(file) {
     # create a list of the 3 excel tabs and export
-    spd <- sys_plot_data$sankey() %>% 
+    spd <- sys_plot_data$sankey %>% 
       xtabs(freq ~ End + Begin, data=.) %>% 
       addmargins(FUN = sum) %>% 
       as.data.frame.matrix() %>%
@@ -179,7 +179,7 @@ output$sys_status_download_btn <- downloadHandler(
     tab_names <- list(
       "System Status Metadata" = sys_export_summary_initial_df() %>%
         bind_rows(sys_export_filter_selections()) %>%
-        bind_rows(sys_status_export_info(sys_plot_data$sankey())) %>%
+        bind_rows(sys_status_export_info(sys_plot_data$sankey)) %>%
         rename("System Status" = Value),
       "System Status Detail" = spd
     )
@@ -191,7 +191,7 @@ output$sys_status_download_btn <- downloadHandler(
       col_names = TRUE
     )
 
-    exportTestValues(sys_status_report = sys_plot_data$sankey())
+    exportTestValues(sys_status_report = sys_plot_data$sankey)
   }
 )
 
@@ -206,9 +206,9 @@ output$sys_status_download_btn_ppt <- downloadHandler(
       summary_items = sys_export_summary_initial_df() %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_export_filter_selections()) %>%
-        bind_rows(sys_status_export_info(sys_plot_data$sankey())),
+        bind_rows(sys_status_export_info(sys_plot_data$sankey)),
       plot_slide_title = "Client System Status",
-      plot1 = render_sankey_plot(sys_plot_data$sankey(), isExport=TRUE),
+      plot1 = render_sankey_plot(sys_plot_data$sankey, isExport=TRUE),
       summary_font_size = 21
     )
   }

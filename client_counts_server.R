@@ -293,7 +293,7 @@ output$validate_plot <- renderPlot({
 # CLIENT COUNT DETAILS - APP ----------------------------------------------
 output$clientCountData <- renderDT({
   req(session$userData$valid_file() == 1)
-  req(nrow(session$userData$validation()) > 0)
+  req(nrow(session$userData$validation) > 0)
   
   # getting an error sometimes? Warning: Error in filter: â„¹ In argument: `ProjectName == input$currentProviderList`.
   # Caused by error:

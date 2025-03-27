@@ -87,7 +87,6 @@ session$userData$Project0 <- project_prep %>%
          VictimServiceProvider) %>%
   unique()
 
-
 rm(project_prep)
 
 # Enrollment --------------------------------------------------------------

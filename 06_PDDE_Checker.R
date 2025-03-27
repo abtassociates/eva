@@ -471,7 +471,7 @@ activeInventory_COC_merged <-  join(
     multiple = TRUE,
     column="source"
   ) %>%
-  join(Project0(), on="ProjectID", drop.dup.cols = "x")
+  join(session$userData$Project0, on="ProjectID", drop.dup.cols = "x")
 
 # Throw a warning if there is no inventory record for a ProjectID and COCCode combo in the ProjectCoC data
 

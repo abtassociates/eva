@@ -12,7 +12,7 @@ get_race_ethnicity_vars <- function(v) {
   }
 }
 
-syscomp_detailBox <- function(session) {
+syscomp_detailBox <- function() {
   return(
     list(
       strong("Date Range: "),
@@ -518,7 +518,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       axis.title.x = element_blank(),
       axis.title.y = element_blank(),
       # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
-      axis.text = element_text(size = sys_comp_axis_text_font * ifelse(windowSize[1] < 1300, 0.8, 1) * ifelse(isExport, 0.6, 1))
+      axis.text = element_text(size = sys_comp_axis_text_font * ifelse(windowSize()[1] < 1300, 0.8, 1) * ifelse(isExport, 0.6, 1))
     )
 }
 

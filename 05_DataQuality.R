@@ -1283,10 +1283,10 @@ get_overlap_col_order <- function() {
 }
 col_order <- get_overlap_col_order()
 
-overlap_details(
-  # Rename columns for previous enrollment
-  merge(
+
+overlap_details <- merge(
     overlap_dt,
+    # Rename columns for previous enrollment
     base_dq_data_dt[
       , setNames(.SD, paste0("Previous", names(.SD)))
       , .SDcols = c(vars_prep, "HouseholdType")
@@ -1294,23 +1294,23 @@ overlap_details(
     by = "PreviousEnrollmentID",
     all.x = TRUE
   )[, `:=`(
-      PreviousProjectType = project_type(PreviousProjectType),
-      HouseholdType = factor(
-        case_when(
-          HouseholdType %in% c("PY", "ACminusPY") ~ "AC",
-          HouseholdType %in% c("UY", "AOminusUY") ~ "AO",
-          TRUE ~ HouseholdType
-        ),
-        levels = c("AO", "AC", "CO", "UN")
+    PreviousProjectType = project_type(PreviousProjectType),
+    HouseholdType = factor(
+      case_when(
+        HouseholdType %in% c("PY", "ACminusPY") ~ "AC",
+        HouseholdType %in% c("UY", "AOminusUY") ~ "AO",
+        TRUE ~ HouseholdType
       ),
-      PreviousHouseholdType = factor(
-        case_when(
-          PreviousHouseholdType %in% c("PY", "ACminusPY") ~ "AC",
-          PreviousHouseholdType %in% c("UY", "AOminusUY") ~ "AO",
-          TRUE ~ PreviousHouseholdType
-        ),
-        levels = c("AO", "AC", "CO", "UN")
-      )
+      levels = c("AO", "AC", "CO", "UN")
+    ),
+    PreviousHouseholdType = factor(
+      case_when(
+        PreviousHouseholdType %in% c("PY", "ACminusPY") ~ "AC",
+        PreviousHouseholdType %in% c("UY", "AOminusUY") ~ "AO",
+        TRUE ~ PreviousHouseholdType
+      ),
+      levels = c("AO", "AC", "CO", "UN")
+    )
   )][
     # Drop Issue columns
     , !c("Issue", "Type", "Guidance"), with = FALSE
@@ -1318,7 +1318,6 @@ overlap_details(
     # order and rename columns
     , ..col_order
   ]
-)
 
 # Remove unecessary columns
 cols_to_remove <- "PreviousEnrollmentID"
@@ -1723,6 +1722,7 @@ dq_main <- unique(dq_main)[, Type := factor(Type,
                                                        "Error",
                                                        "Warning"))]
 dq_main <- as.data.frame(dq_main)
+
 # base_dq_data_func(base_dq_data)
 # dq_main_df(dq_main)
 list(

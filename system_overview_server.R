@@ -371,7 +371,6 @@ observeEvent({
   input$methodology_type
   input$syso_age
   input$syso_spec_pops
-  input$syso_gender
   input$syso_race_ethnicity
 }, {
   # hide download buttons if < 11 records
