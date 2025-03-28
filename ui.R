@@ -953,11 +953,11 @@ dashboardPage(
                   <li><b>The universal filters</b>, the top row of the Filters Menu, 
                   impact the data shown on all three visualizations on this page. 
                   Universal filters include Household Type, Level of Detail, Project 
-                  Type Group, and Gender and Race/Ethnicity Methodology Type.</li>
+                  Type Group, and Race/Ethnicity Methodology Type.</li>
                   <li><b>The demographic filters</b>, the bottom row of the Filters Menu, 
                   only impact the data shown in the System Flow and Client System 
                   Status charts. Demographic filters include Age, Veteran Status, 
-                  Gender, and Race/Ethnicity.</li>
+                  and Race/Ethnicity.</li>
                 </ol>
                 
                 <p>Use the drop-down menus to select the characteristics of the 
@@ -968,17 +968,25 @@ dashboardPage(
                 meaning you can only select one category at a time. For the Age 
                 filter, you can select multiple age ranges to explore.</p>
                 
-                <p>The Gender and Race/Ethnicity Methodology Type selection only 
-                impacts the Gender and Race/Ethnicity filters. To learn more about 
-                methodology and demographic categories, please visit the Glossary 
-                accessible on Eva’s Navigation Menu.</p>
+                <p>Please note that household type and age group filters use different 
+                methods for calculating a client's age. Household type is based on all 
+                household members’ ages as of the entry date of their earliest enrollment 
+                included in the report period. Age group is determined based on the client’s 
+                age as of the entry date of their last enrollment included in the report period. 
+                Because of this reporting difference, it is possible for a client that ages from 
+                24 to 25 during the report period to be categorized in the Adult Only 18-24 
+                household type while also being categorized as in the 25-34 age group.</p>
+                
+                <p>The Race/Ethnicity Methodology Type selection only impacts the 
+                Race/Ethnicity filters. To learn more about methodology and demographic 
+                categories, please visit the Glossary accessible on Eva's Navigation Menu.</p>
                 
                 <h4>Downloads</h4>
                 <p>To support further systems analysis, local reporting, and presentations, 
                 Eva includes two download options. To generate an Excel workbook 
-                with the data for a specific chart, click the \"Data Download” button 
+                with the data for a specific chart, click the \"Data Download\" button 
                 while viewing the chart. To generate a PowerPoint slide deck with 
-                the chart image, click the \"Image Download” button while viewing the chart. </p>
+                the chart image, click the \"Image Download\" button while viewing the chart. </p>
                 
                 <h4>Data Suppression and Data Security</h4>
                 <p>To ensure the privacy and protection of individuals and small 
@@ -1033,7 +1041,7 @@ dashboardPage(
               column(
                 6,
                 pickerInput(
-                  label = "Gender and Race/Ethnicity Methodology Type",
+                  label = "Race/Ethnicity Methodology Type",
                   inputId = "methodology_type",
                   multiple = FALSE,
                   selected = syso_methodology_types[1],
@@ -1072,18 +1080,7 @@ dashboardPage(
                 )
               ),
               column(
-                2,
-                pickerInput(
-                  label = "Gender",
-                  inputId = "syso_gender",
-                  choices = syso_gender_method1,
-                  width = "100%",
-                  selected = "All",
-                  options = pickerOptions(actionsBox = TRUE)
-                )
-              ) %>% tagAppendAttributes(class="light-left-border"),
-              column(
-                4,
+                6,
                 pickerInput(
                   label = "Race/Ethnicity",
                   inputId = "syso_race_ethnicity",
@@ -1094,7 +1091,7 @@ dashboardPage(
                     `dropdown-align-right` = TRUE, 
                     `dropup-auto` = FALSE)
                 )
-              )
+              ) %>% tagAppendAttributes(class="light-left-border")
             )
           )
         ),
@@ -1426,9 +1423,9 @@ dashboardPage(
                                 
                                 <p>Under the chart tab are five demographic categories 
                                 you can choose from: Age, 
-                                Gender, All Races/Ethnicities, a second race/ethnicity 
+                                All Races/Ethnicities, a second race/ethnicity 
                                 option, and Veteran Status. Please note, the second 
-                                race/ethnicity option differs for each Gender and 
+                                race/ethnicity option differs for each
                                 Race/Ethnicity Methodology Type selection you made 
                                 earlier on the Filter Menu.</p>
                                 
@@ -1444,11 +1441,19 @@ dashboardPage(
                                 
                                 <p>Each cell in the chart is a unique combination 
                                 of demographic characteristics. For example, if 
-                                you selected Age and Gender, a unique demographic 
-                                combination would be \"25 to 34” and \"Man (Boy, if 
-                                child) alone.” Any cell with a count is shaded. 
+                                you selected Age and Race/Ethnicity, a unique demographic 
+                                combination would be \"25 to 34” and \"Black alone.” Any cell with a count is shaded. 
                                 The darker the color in a cell, the greater the 
                                 value of that cell.</p>
+                                
+                                <p>Please note that household type and age group filters use different 
+                                methods for calculating a client's age. Household type is based on all 
+                                household members’ ages as of the entry date of their earliest enrollment 
+                                included in the report period. Age group is determined based on the client’s 
+                                age as of the entry date of their last enrollment included in the report period. 
+                                Because of this reporting difference, it is possible for a client that ages from 
+                                24 to 25 during the report period to be categorized in the Adult Only 18-24 
+                                household type while also being categorized as in the 25-34 age group.</p>
                                 
                                 <h4>Data Suppression</h4>
                                 <p>Additional levels of data suppression apply to 

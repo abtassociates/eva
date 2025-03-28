@@ -38,6 +38,19 @@ function(input, output, session) {
   
   # glossary entries
   source("glossary.R", local = TRUE)
+
+  # Show upcoming maintenance pop-up prior to pushing to live
+  # e.g. "<p>Eva will be down for these updates from 5:00 PM ET to 6:00 PM ET Thursday, March 27, 2025.</p>"
+  upcoming_maintenance_notification <- HTML("")
+  if(length(upcoming_maintenance_notification) > 1) {
+    showModal(
+      modalDialog(
+        upcoming_maintenance_notification,
+        title = "Upcoming Maintenance",
+        easyClose = TRUE
+      )
+    )
+  }
   
   observe({
     req(session$clientData$url_search != "")
@@ -64,15 +77,6 @@ function(input, output, session) {
   seen_message <- reactiveValues() 
   
   demo_modal_closed <- reactiveVal()
-  
-  # syso_gender_cats <- reactive({
-  #   ifelse(
-  #     input$methodology_type == 1,
-  #     list(syso_gender_method1),
-  #     list(syso_gender_method2)
-  #   )[[1]]
-  # })
-  
 
   # log when user navigate to a tab
   observe({ 
@@ -143,6 +147,8 @@ function(input, output, session) {
 
     if(initially_valid_import() == 1) {
 
+      logMetadata(paste0("Unpacked file size, all files (KB) = ", sum(zipContents$Length) / 1024))
+      logMetadata(paste0("Unpacked file size, main files (KB) = ", sum(zipContents[sub(".csv$","", zipContents$Name) %in% unique(cols_and_data_types$File), ]$Length) / 1024))
       hide('imported_progress')
 
       setProgress(detail = "Unzipping...", value = .10)
@@ -192,7 +198,6 @@ function(input, output, session) {
             input$methodology_type
             input$syso_age
             input$syso_spec_pops
-            input$syso_gender
             input$syso_race_ethnicity
           }, {
             # System Inflow and Outflow data 
@@ -221,7 +226,7 @@ function(input, output, session) {
             sys_universe_ppl_flags(
               merge(
                 universe_ppl_flags(),
-                Client %>% select(PersonalID, !!gender_cols, !!race_cols), 
+                Client %>% select(PersonalID, !!race_cols), 
                 by="PersonalID"
               )
             )
@@ -242,6 +247,7 @@ function(input, output, session) {
           logToConsole("Done processing")
           
           
+          logMetadata(paste0("Memory used after processing: ", sum(gc()[, 2])))
           logToConsole("Upload processing complete")
           
           if(nrow(file_structure_analysis_main()) > 0) {
@@ -353,6 +359,7 @@ function(input, output, session) {
   }
   
   observeEvent(input$imported, {
+    logMetadata(paste0("Beginning upload. File size (KB) = ", input$imported$size))
     process_upload(input$imported$name, input$imported$datapath)
   }, ignoreInit = TRUE)
   

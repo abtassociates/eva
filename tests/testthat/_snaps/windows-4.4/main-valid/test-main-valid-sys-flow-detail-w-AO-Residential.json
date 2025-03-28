@@ -16,7 +16,6 @@
       "75 and older",
       "Unknown"
     ],
-    "syso_gender": "All",
     "syso_hh_type": "AO",
     "syso_level_of_detail": "All",
     "syso_project_type": "Residential",
@@ -32,13 +31,13 @@
       ]
     },
     "sys_act_detail_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> Residential <br>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> Residential <br>\n<b>Methodology Type:<\/b> Method 1 <br>",
       "deps": [
 
       ]
     },
     "sys_act_detail_ui_chart": {
-      "src": "[image data hash: 4939b9ef0dd4f4654e9d1d8055579b4b]",
+      "src": "[image data hash: b645224bb76afd1db6f3c0be8c1c3cdf]",
       "width": 1113,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and \n              outflow during the report period. The detailed view of this chart \n              shows inflow as three subcategories: first-time homeless, returned from \n              permanent, and re-engaged from non-permanent and outflow as three \n              subcategories: exited non-permanent, exited permanent, and inactive.",
@@ -71,16 +70,16 @@
               "fill": "PlotFillGroups"
             },
             "range": {
-              "left": 18,
-              "right": 1373,
-              "bottom": 467.7133858267717,
-              "top": 158.8493150684932
+              "left": 14.4,
+              "right": 1098.6,
+              "bottom": 373.7707086614173,
+              "top": 127.4794520547945
             }
           }
         ],
         "dims": {
-          "width": 1391.25,
-          "height": 625
+          "width": 1113,
+          "height": 500
         }
       }
     }
