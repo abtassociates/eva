@@ -137,13 +137,9 @@ universe_filtered <- function(period, upload_name) {
          (input$syso_level_of_detail == "HoHsOnly" &
             CorrectedHoH == 1)) &
       # Project type filter
-      ((input$syso_project_type == "All" |
-          (input$syso_project_type == "Residential" &
-             ProjectType %in% project_types_w_beds &
-             eecr == TRUE) | eecr == FALSE) |
-         ((input$syso_project_type == "NonResidential" &
-             ProjectType %in% non_res_project_types &
-             eecr == TRUE) | eecr == FALSE))
+      (input$syso_project_type == "All" |
+         input$syso_project_type == eecr_project_type
+       )
   )
 }
 

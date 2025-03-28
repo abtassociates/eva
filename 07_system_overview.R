@@ -582,7 +582,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     # only keep folks who have an peecr, rather than also restricting to an plecr
     # if, for Non-Res Project Types there is no ecpe, we will make the lecr the eecr
     valid_ids <- enrollment_categories_period[
-      in_date_range & (!(ProjectType %in% non_res_project_types) | was_lh_at_start), 
+      in_date_range & (ProjectType %in% project_types_w_beds | was_lh_at_start), 
       unique(PersonalID)
     ]
     
@@ -628,11 +628,15 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     enrollment_categories_period <- enrollment_categories_period %>%
       fmutate(
         eecr = eecr_straddle | eecr_no_straddle,
-        lecr = lecr_straddle | lecr_no_straddle
+        lecr = lecr_straddle | lecr_no_straddle,
+        eecr_is_res = eecr & ProjectType %in% project_types_w_beds
       ) %>%
       fgroup_by(PersonalID) %>%
       fmutate(
-        has_lecr = fmax(lecr)
+        has_lecr = fmax(lecr),
+        eecr_project_type = fifelse(
+          anyv(eecr_is_res, TRUE), "Residential", "NonResidential"
+        )
       ) %>%
       fungroup() %>%
       ftransform(
