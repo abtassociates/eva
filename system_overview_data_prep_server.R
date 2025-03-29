@@ -153,35 +153,31 @@ universe_filtered_mirai <- function(period, upload_name, client_categories_filt)
   ) %>%
   join( # Inner Join with client categories
     # This is necessary for bringing in Veteran Status, but will also make the rest faster
-    client_categories_filtered(),
+    client_categories_filt,
     on = "PersonalID",
     how = "inner",
     verbose = FALSE
   ) %>% 
-  fsubset(
-    # Household type filter
-    (input_hh_type == "All" |
-       (input_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
-       (input_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-       (input_hh_type == "AO" & HouseholdType %in% c("AO","UY")) | 
-       (input_hh_type == "AC" & HouseholdType %in% c("AC","PY")) | 
-       input_hh_type == HouseholdType
-    ) &
-      # Level of detail filter
-      (input_level_detail == "All" |
-         (input_level_detail == "HoHsAndAdults" &
-            (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-         (input_level_detail == "HoHsOnly" &
-            CorrectedHoH == 1)) &
-      # Project type filter
-      ((input_project_type == "All" |
-          (input_project_type == "Residential" &
-             ProjectType %in% project_types_w_beds &
-             eecr == TRUE) | eecr == FALSE) |
-         ((input_project_type == "NonResidential" &
-             ProjectType %in% non_res_project_types &
-             eecr == TRUE) | eecr == FALSE))
-  )
+    fsubset(
+      # Household type filter
+      (input$syso_hh_type == "All" |
+         (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+         (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+         (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+         (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
+         input$syso_hh_type == HouseholdType
+      ) &
+        # Level of detail filter
+        (input$syso_level_of_detail == "All" |
+           (input$syso_level_of_detail == "HoHsAndAdults" &
+              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+           (input$syso_level_of_detail == "HoHsOnly" &
+              CorrectedHoH == 1)) &
+        # Project type filter
+        (input$syso_project_type == "All" |
+           input$syso_project_type == eecr_project_type
+        )
+    )
 }
 
 # DEPRECATED homeless cls finder function --------------------------------------
