@@ -253,20 +253,14 @@ a:hover {
 }
 
 /* DEMO MODE*/
-#demo_toggle.pill-60, #demo_toggle.pill-60:hover {
+/*#demo_toggle.pill-60, #demo_toggle.pill-60:hover {
   background: #000000
 }
 #demo_toggle-stateText {
   color: white;
-}
+}*/
 .container-55 {
   padding: 11px;
-}
-.toggle-button-cover {
-  display: table-cell;
-  position: relative;
-  width: 200px;
-  box-sizing: border-box;
 }
 
 .button-cover {
@@ -274,6 +268,7 @@ a:hover {
   margin: 20px;
   box-shadow: 0 10px 20px -8px #c5d6d6;
   border-radius: 4px;
+  text-align: right;
 }
 /*
 .button-cover:before {
@@ -305,6 +300,7 @@ a:hover {
   height: 36px;
   margin: -20px auto 0 auto;
   overflow: hidden;
+  display: inline-flex;
 }
 
 .button.r,
@@ -375,9 +371,7 @@ a:hover {
 
 #demo-label {
   color: white;
-  position: absolute;
-  left: -53px;
-  top: -4px;
+  display: inline-flex;
 }
 
 /* Tooltip container */

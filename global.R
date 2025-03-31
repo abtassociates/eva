@@ -3,7 +3,7 @@ Sys.setenv(TZ = "America/New_York")
 
 library(tidyverse)
 library(lubridate)
-library(shinydashboard)
+library(bslib)
 library(shiny)
 library(shinyWidgets)
 library(scales)
