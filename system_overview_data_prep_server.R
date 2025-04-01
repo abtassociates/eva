@@ -353,6 +353,7 @@ universe_enrl_flags <- function(all_filtered, period) {
 # Period-specific, user-filtered, enrollment-level universe with people-level flags ------------------------
 # Need to keep it enrollment-level so other scripts can reference the enrollments
 universe_ppl_flags <- function(universe_df, period) {
+  setkey(universe_df, PersonalID)
   universe_df[, `:=`(
     # INFLOW
     active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
@@ -370,6 +371,8 @@ universe_ppl_flags <- function(universe_df, period) {
       !any(eecr_lh_at_entry, na.rm = TRUE) | 
       !any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
     
+    unknown_at_start_client = any(unknown_at_start, na.rm = TRUE),
+    
     # OUTFLOW
     perm_dest_client = any(perm_dest_lecr, na.rm = TRUE),
     
@@ -379,45 +382,42 @@ universe_ppl_flags <- function(universe_df, period) {
     
     housed_at_end_client = any(housed_at_end, na.rm = TRUE),
     
-    unknown_at_end_client = any(unknown_at_end, na.rm = TRUE)
+    unknown_at_end_client = any(unknown_at_end, na.rm = TRUE),
+    
+    has_enrollment_after_lecr_client = any(has_enrollment_after_lecr, na.rm = TRUE)
   ), by = PersonalID
   ][, `:=`(
-    InflowTypeSummary = fifelse(
-      active_at_start_homeless_client | active_at_start_housed_client,
-      "Active at Start",
-      fifelse(
-        newly_homeless_client | return_from_perm_client | reengaged_from_temp_client,
-        "Inflow",
-        "something's wrong"
-      )
+    InflowTypeSummary = fcase(
+      active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
+      newly_homeless_client | return_from_perm_client | reengaged_from_temp_client, "Inflow",
+      default = "something's wrong"
     ),
     
-    InflowTypeDetail = fifelse(
+    InflowTypeDetail = fcase(
       active_at_start_homeless_client, "Homeless",
-      fifelse(active_at_start_housed_client, "Housed",
-        fifelse(return_from_perm_client, "Returned from \nPermanent",
-          fifelse(reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
-            fifelse(newly_homeless_client & session$userData$days_of_data >= 1094, "First-Time \nHomeless",
-              fifelse(newly_homeless_client & session$userData$days_of_data < 1094, "Inflow\nUnspecified",
-                fifelse(unknown_at_start, "Inactive", "something's wrong"))))))
+      active_at_start_housed_client, "Housed",
+      return_from_perm_client, "Returned from \nPermanent",
+      reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
+      newly_homeless_client & session$userData$days_of_data >= 1094, "First-Time \nHomeless",
+      newly_homeless_client & session$userData$days_of_data < 1094, "Inflow\nUnspecified",
+      unknown_at_start, "Inactive", 
+      default = "something's wrong"
     ),
     
-    OutflowTypeSummary = fifelse(
-      perm_dest_client | temp_dest_client | unknown_at_end_client,
-      "Outflow",
-      fifelse(
-        homeless_at_end_client | housed_at_end_client,
-        "Active at End",
-        "something's wrong")
+    OutflowTypeSummary = fcase(
+      (perm_dest_client | temp_dest_client | unknown_at_end_client) & 
+        !has_enrollment_after_lecr_client, "Outflow",
+      homeless_at_end_client | housed_at_end_client | has_enrollment_after_lecr_client, "Active at End",
+      default = "something's wrong"
     ),
     
-    OutflowTypeDetail = fifelse(
-      perm_dest_client == TRUE, "Exited,\nPermanent",
-      fifelse(temp_dest_client == TRUE, "Exited,\nNon-Permanent",
-              fifelse(unknown_at_end_client == TRUE, "Inactive",
-                      fifelse(homeless_at_end_client & !is.na(homeless_at_end_client), "Homeless",
-                              fifelse(housed_at_end_client == TRUE, "Housed",
-                                      "something's wrong"))))
+    OutflowTypeDetail = fcase(
+      perm_dest_client, "Exited,\nPermanent",
+      temp_dest_client, "Exited,\nNon-Permanent",
+      unknown_at_end_client, "Inactive",
+      homeless_at_end_client & !is.na(homeless_at_end_client), "Homeless",
+      housed_at_end_client | has_enrollment_after_lecr_client, "Housed",
+      default = "something's wrong"
     )
   )]
 }
