@@ -764,6 +764,7 @@
         "Inventory Start Precedes Operating Start",
         "Missing Address",
         "Missing Geography Information",
+        "No Enrollments within Active Inventory",
         "No Inventory Records",
         "Operating End precedes Inventory End",
         "Overlapping HMIS Participation Records",
@@ -779,6 +780,7 @@
         "Warning",
         "Error",
         "High Priority",
+        "Warning",
         "Error",
         "Error",
         "High Priority",
@@ -794,6 +796,7 @@
         138,
         2,
         5,
+        133,
         11,
         6,
         1,
@@ -807,36 +810,36 @@
       "Type": {
         "High Priority": 3,
         "Error": 6,
-        "Warning": 4
+        "Warning": 5
       },
       "Issue": {
-        "Length": "13",
+        "Length": "14",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "13",
+        "Length": "14",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "13",
+        "Length": "14",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 3,
         "Error": 6,
-        "Warning": 4
+        "Warning": 5
       },
       "Count": {
         "Min.": 1,
         "1st Qu.": 2,
-        "Median": 3,
-        "Mean": 15.30769230769231,
-        "3rd Qu.": 11,
+        "Median": 4,
+        "Mean": 23.71428571428572,
+        "3rd Qu.": 12.5,
         "Max.": 138
       }
     },
