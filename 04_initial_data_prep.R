@@ -468,7 +468,7 @@ activeInventory <- Inventory %>%
 # Store this "generous" span so we can check if any enrollments fall within it
 
 set_collapse(na.rm = TRUE, verbose = FALSE)
-HMIS_participating_projects_w_active_inv <- qDT(ProjectSegments) %>%
+HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
   # HMiS-participating projects
   fsubset(HMISParticipationType == 1, 
           ProjectID, 

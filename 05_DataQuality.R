@@ -1038,7 +1038,7 @@ enrollment_x_operating_period <- enrollment_positions %>%
 # Enrollment During HMIS Participating Period has No Active Inventory ---------
 # Enrollments of HMIS participating projects that have ANY active inventory record 
 # should overlap with at least one inventory record during the HMIS participating period
-enrollment_during_HMIS_no_active_inventory <- HMIS_participating_projects_w_active_inv %>%
+enrollment_during_HMIS_no_inventory_overlap <- HMIS_participating_projects_w_active_inv_no_overflow %>%
   fselect(
     ProjectID, 
     ProjectTimeID, 
@@ -1720,7 +1720,7 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       enrollment_x_participating_end,
       enrollment_x_participating_period,
       enrollment_x_participating_start,
-      enrollment_during_HMIS_no_active_inventory,
+      enrollment_during_HMIS_no_inventory_overlap,
       exit_before_start,
       future_ees,
       future_exits,
