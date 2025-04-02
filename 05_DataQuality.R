@@ -1077,7 +1077,8 @@ enrollment_during_HMIS_no_active_inventory <- HMIS_participating_projects %>%
     multiple = TRUE
   ) %>%
   merge_check_info_dt(checkIDs = 141) %>%
-  select(all_of(vars_we_want))
+  select(all_of(vars_we_want)) %>%
+  fsubset(!is.na(ProjectID))
 
 # Overlaps ----------------------------------------------------------------
 # Create an initial dataset of possible overlaps
