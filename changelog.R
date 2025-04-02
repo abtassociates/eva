@@ -4,7 +4,7 @@ output$changelog <- renderDT({
     ~ Change,
     "04-03-2025",
     "<b>New Features</b> <br>
-      - Added new DQ check for enrollments during HMIS Participation but not inventory.<br>
+      - Added new PDDE check for active inventory with no enrollments during the inventory dates.<br>
     <b>Bug Fixes</b> <br>
       - Update Zero Utilization check logic to avoid flagging projects with utilization (Issues <a href='https://github.com/abtassociates/eva/issues/677' target='_blank'>#677</a> and <a href='https://github.com/abtassociates/eva/issues/713' target='_blank'>#713</a>).",
     "03-27-2025",
