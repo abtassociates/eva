@@ -1035,8 +1035,10 @@ enrollment_x_operating_period <- enrollment_positions %>%
   merge_check_info(checkIDs = 120) %>%
   select(all_of(vars_we_want))
 
-# Enrollment During Period with No Active Inventory ---------------------------
-enrollment_during_HMIS_no_active_inventory <- HMIS_participating_projects %>%
+# Enrollment During HMIS Participating Period has No Active Inventory ---------
+# Enrollments of HMIS participating projects that have ANY active inventory record 
+# should overlap with at least one inventory record during the HMIS participating period
+enrollment_during_HMIS_no_active_inventory <- HMIS_participating_projects_w_active_inv %>%
   fselect(
     ProjectID, 
     ProjectTimeID, 

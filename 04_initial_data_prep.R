@@ -464,10 +464,11 @@ activeInventory <- Inventory %>%
   )
 
 # HMIS-participating projects with active Inventory during report period -------
+# HMIS-Participating projects that have inventory are almost necessarilly residential.
 # Store this "generous" span so we can check if any enrollments fall within it
 
 set_collapse(na.rm = TRUE, verbose = FALSE)
-HMIS_participating_projects <- qDT(ProjectSegments) %>%
+HMIS_participating_projects_w_active_inv <- qDT(ProjectSegments) %>%
   # HMiS-participating projects
   fsubset(HMISParticipationType == 1, 
           ProjectID, 

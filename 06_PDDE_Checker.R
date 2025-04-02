@@ -228,13 +228,12 @@ vsps_in_hmis <- Project0() %>%
   select(all_of(PDDEcols))
   
  # Zero Utilization --------------------------------------------------------
-zero_utilization <- HMIS_participating_projects %>%
+# HMIS participating projects that have ANY active inventory (with available beds) 
+# should not have 0 enrollments
+zero_utilization <- HMIS_participating_projects_w_active_inv %>%
   fsubset(
-    !(ProjectType %in% non_res_project_types) & 
-    (
-      (is.na(Availability) | Availability != 3) &
-      BedInventory > 0 & !is.na(BedInventory)
-    )
+    (is.na(Availability) | Availability != 3) &
+    BedInventory > 0 & !is.na(BedInventory)
   ) %>%
   funique(cols = "ProjectTimeID") %>%
   join(
