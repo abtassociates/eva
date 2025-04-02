@@ -473,7 +473,7 @@ review_helper <- function(datasetname, test_script_name, comparison_type = 1) {
   } else if(comparison_type == 3) {
     # summary of differences
     waldo::compare(old, new) 
-  } else if(comparison_type == 3) {
+  } else if(comparison_type == 4) {
     # Summary of differences
     diffobj::diffObj(old, new)
   }
