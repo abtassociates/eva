@@ -52,6 +52,15 @@ function(input, output, session) {
     )
   }
   
+  # handle idle
+  session$userData$session_ended_by_idle_timeout <- FALSE
+  
+  observeEvent(input$session_idle, {
+    message("Session idle timeout detected for session: ", session$token)
+    session$userData$session_ended_by_idle_timeout <- TRUE
+    session$close()
+  })
+  
   observe({
     req(session$clientData$url_search != "")
     updateTabItems(session,
@@ -990,6 +999,11 @@ function(input, output, session) {
   
   session$onSessionEnded(function() {
     cat(paste0("Session ", session$token, " ended at ", Sys.time()))
-    logMetadata("Session Ended")
+    gc()
+    if (session$userData$session_ended_by_idle_timeout) {
+      logMetadata("Session ended due to idle timeout.")
+    } else {
+      logMetadata("Session ended unexpectedly.")
+    }
   })
 }
