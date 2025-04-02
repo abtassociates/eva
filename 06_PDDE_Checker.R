@@ -195,6 +195,45 @@ operating_end_precedes_inventory_end <- activeInventory %>%
   merge_check_info(checkIDs = 44) %>%
   select(all_of(PDDEcols))
 
+# Active Inventory with No Enrollments ---------
+# Active inventory records (with non-overflow beds) should have enrollments within their bounds
+active_inventory_w_no_enrollments <- qDT(activeInventory) %>% 
+  fsubset(
+    (is.na(Availability) | Availability != 3) &
+      BedInventory > 0 & !is.na(BedInventory)
+  ) %>%
+  fselect(ProjectID, InventoryID, InventoryStartDate, InventoryEndDate) %>%
+  join(
+    Enrollment %>% select(ProjectID, EntryDate, ExitAdjust),
+    on = "ProjectID",
+    multiple = TRUE,
+    how="inner"
+  ) %>%
+  fgroup_by(ProjectID, InventoryID) %>%
+  fmutate(
+    # Check if inventory span overlaps with any enrollments
+    any_inventory_overlap = anyv(
+      EntryDate <= InventoryEndDate & 
+        ExitAdjust >= InventoryStartDate,
+      TRUE
+    )
+  ) %>%
+  fungroup() %>%
+  fsubset(!any_inventory_overlap) %>%
+  funique(cols = c("ProjectID","InventoryID")) %>%
+  # Bring in DQ cols
+  join(
+    Project0(),
+    on = "ProjectID",
+    how = "inner",
+    multiple = TRUE
+  ) %>%
+  merge_check_info_dt(checkIDs = 141) %>%
+  fmutate(Detail = "This project has at least one inventory record with no enrollments within its span.") %>%
+  fselect(PDDEcols) %>%
+  fsubset(!is.na(ProjectID)) %>%
+  funique()
+
 # RRH project w no SubType ------------------------------------------------
 
 rrh_no_subtype <- Project0() %>%
@@ -231,6 +270,14 @@ vsps_in_hmis <- Project0() %>%
 # HMIS participating projects that have ANY active inventory (with available beds) 
 # should not have 0 enrollments
 zero_utilization <- HMIS_participating_projects_w_active_inv_no_overflow %>%
+  # Only keep (inventory) with non-overflow beds
+  # Overflow beds are meant to be available on an ad hoc or temporary basis. And 
+  # since this dataset is used for flagging inventory-related problems, we don't
+  # want to flag cases with only overflow since those beds could reasonably not be filled
+  fsubset(
+    (is.na(Availability) | Availability != 3) &
+      BedInventory > 0 & !is.na(BedInventory)
+  ) %>%
   funique(cols = "ProjectTimeID") %>%
   join(
     Enrollment,
@@ -466,6 +513,7 @@ pdde_main(bind_rows(
   overlapping_ce_participation,
   overlapping_hmis_participation,
   inventory_start_precedes_operating_start,
+  active_inventory_w_no_enrollments,
   rrh_so_w_inventory,
   vsps_in_hmis,
   zero_utilization,

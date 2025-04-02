@@ -487,14 +487,6 @@ HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
     how = "inner",
     multiple = TRUE
   ) %>%
-  # Only keep (inventory) with non-overflow beds
-  # Overflow beds are meant to be available on an ad hoc or temporary basis. And 
-  # since this dataset is used for flagging inventory-related problems, we don't
-  # want to flag cases with only overflow since those beds could reasonably not be filled
-  fsubset(
-    (is.na(Availability) | Availability != 3) &
-    BedInventory > 0 & !is.na(BedInventory)
-  ) %>%
   # Get the Start+End dates for when each Project was Operating, HMIS Participating, and Active (Inventory)
   fmutate(
     ProjectHMISParticipationStart = pmax(
