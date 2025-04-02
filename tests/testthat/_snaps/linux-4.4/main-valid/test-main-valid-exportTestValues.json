@@ -1081,8 +1081,8 @@
       "System Summary": [
         [
           "High Priority: 3  ",
-          "Min.   :    1.0  ",
-          "Length:68         "
+          "Min.   :    2.0  ",
+          "Length:67         "
         ],
         [
           "Error        :35  ",
@@ -1090,18 +1090,18 @@
           "Class :character  "
         ],
         [
-          "Warning      :30  ",
+          "Warning      :29  ",
           "Median :  152.0  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  832.0  ",
+          "Mean   :  844.4  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  511.5  ",
+          "3rd Qu.:  519.0  ",
           null
         ],
         [
@@ -1112,10 +1112,10 @@
       ],
       "Organization Summary": [
         [
-          "Length:1010       ",
+          "Length:1009       ",
           "High Priority: 56  ",
           "Min.   :   1.00  ",
-          "Length:1010       "
+          "Length:1009       "
         ],
         [
           "Class :character  ",
@@ -1125,20 +1125,20 @@
         ],
         [
           "Mode  :character  ",
-          "Warning      :521  ",
+          "Warning      :520  ",
           "Median :   9.00  ",
           "Mode  :character  "
         ],
         [
           null,
           null,
-          "Mean   :  56.02  ",
+          "Mean   :  56.07  ",
           null
         ],
         [
           null,
           null,
-          "3rd Qu.:  25.75  ",
+          "3rd Qu.:  26.00  ",
           null
         ],
         [
@@ -1151,8 +1151,8 @@
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:68         ",
-          "Length:68         "
+          "Length:67         ",
+          "Length:67         "
         ],
         [
           "Error        :35  ",
@@ -1160,7 +1160,7 @@
           "Class :character  "
         ],
         [
-          "Warning      :30  ",
+          "Warning      :29  ",
           "Mode  :character  ",
           "Mode  :character  "
         ]
@@ -1303,14 +1303,14 @@
       ],
       "Warnings": [
         [
-          "Length:47091      ",
-          "Length:47091      ",
-          "Length:47091      ",
-          "Length:47091      ",
-          "Length:47091      ",
-          "Length:47091      ",
-          "Length:47091      ",
-          "Length:47091      ",
+          "Length:47090      ",
+          "Length:47090      ",
+          "Length:47090      ",
+          "Length:47090      ",
+          "Length:47090      ",
+          "Length:47090      ",
+          "Length:47090      ",
+          "Length:47090      ",
           "Min.   :2005-04-14  "
         ],
         [
@@ -1377,7 +1377,7 @@
           null,
           null,
           null,
-          "NA's   :3  "
+          "NA's   :2  "
         ]
       ],
       "Overlap Details": [
