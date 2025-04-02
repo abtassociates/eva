@@ -6,7 +6,7 @@ output$changelog <- renderDT({
     "<b>New Features</b> <br>
       - Added new DQ check for enrollments during HMIS Participation but not inventory.<br>
     <b>Bug Fixes</b> <br>
-      - Update Zero Utilization check logic to avoid flagging projects with utilization (Issues <a href='https://github.com/abtassociates/eva/issues/677' target='_blank'>#677</a> and  <a href='https://github.com/abtassociates/eva/issues/713' target='_blank'>#713</a>).",
+      - Update Zero Utilization check logic to avoid flagging projects with utilization (Issues <a href='https://github.com/abtassociates/eva/issues/677' target='_blank'>#677</a> and <a href='https://github.com/abtassociates/eva/issues/713' target='_blank'>#713</a>).",
     "03-27-2025",
     "<b>Bug Fixes</b> <br>
       - Handle leap years in System Performance charts (Issue <a href='https://github.com/abtassociates/eva/issues/738' target='_blank'>#738</a>)<br>
