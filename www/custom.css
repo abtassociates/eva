@@ -316,7 +316,7 @@ a:hover {
   border-radius: 2px;
 }
 
-.checkbox {
+#isdemo.checkbox {
   position: relative;
   width: 100%;
   height: 100%;

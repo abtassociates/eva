@@ -1,3 +1,8 @@
+# in Demo Mode, tracks if user has seen tab-specific pop-up
+seen_message <- reactiveValues() 
+
+demo_modal_closed <- reactiveVal()
+
 # Tab-description message when in demo mode ----------------------------------
 observeEvent(input$sidebarmenuid, {
   req(input$in_demo_mode)
@@ -94,11 +99,13 @@ toggleDemoJs <- function(t) {
     
     process_upload("demo.zip", here("demo.zip"))
     
-    valid_file(1)
+    session$userData$valid_file(1)
     
     removeModal()
     
-    updateTabItems(session, "sidebarmenuid", "tabHome")
+    if(input$sidebarmenuid != "tabHome") {
+      updateTabItems(session, "sidebarmenuid", "tabHome")
+    }
     
     
     shinyjs::runjs(paste0(
@@ -136,7 +143,7 @@ toggleDemoJs <- function(t) {
     
     shinyjs::hide("fileStructureAnalysis")
     
-    reset_app()
+    reset_session_vars()
     
     session$sendInputMessage('currentProviderList', list(
       choices = NULL

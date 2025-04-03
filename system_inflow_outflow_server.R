@@ -1,43 +1,4 @@
 # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
-# Define the hardcoded values for Time and Status
-# we need all combinations for the 0s
-status_levels_detail <- reactive({
-  c(
-    "Housed",
-    "Homeless",                          
-    if_else(
-      days_of_data() >= 1094,
-      "First-Time \nHomeless",
-      "Inflow\nUnspecified"
-    ),
-    "Returned from \nPermanent",
-    "Re-engaged from \nNon-Permanent",
-    "Exited,\nNon-Permanent",
-    "Exited,\nPermanent",
-    "Inactive"
-  )
-})
-
-time_levels_detail <- reactive({
-  c("Active at Start",
-    if_else(
-      days_of_data() >= 1094,
-      "First-Time \nHomeless",
-      "Inflow\nUnspecified"
-    ),
-    "Returned from \nPermanent",
-    "Re-engaged from \nNon-Permanent",
-    "Exited,\nNon-Permanent",
-    "Exited,\nPermanent",
-    "Inactive",
-    "Active at End")
-})
-
-time_levels_summary <- c("Active at Start",
-                         "Inflow",
-                         "Outflow",
-                         "Active at End")
-
 # frame_summary <-
 #   data.frame(
 #     Status = c("Housed",
@@ -56,16 +17,56 @@ time_levels_summary <- c("Active at Start",
 #                        "Homeless", "Housed")
 #   )
 
-system_activity_prep_detail <- reactive({
+
+# System Activity Detail Chart Prep ---------------------------------------
+
+system_activity_prep_detail <- function() {
+  # Define the hardcoded values for Time and Status
+  # we need all combinations for the 0s
+  status_levels_detail <- c(
+    "Housed",
+    "Homeless",                          
+    if_else(
+      session$userData$days_of_data >= 1094,
+      "First-Time \nHomeless",
+      "Inflow\nUnspecified"
+    ),
+    "Returned from \nPermanent",
+    "Re-engaged from \nNon-Permanent",
+    "Exited,\nNon-Permanent",
+    "Exited,\nPermanent",
+    "Inactive"
+  )
+  
+  time_levels_detail <- c(
+    "Active at Start",
+    if_else(
+      session$userData$days_of_data >= 1094,
+      "First-Time \nHomeless",
+      "Inflow\nUnspecified"
+    ),
+    "Returned from \nPermanent",
+    "Re-engaged from \nNon-Permanent",
+    "Exited,\nNon-Permanent",
+    "Exited,\nPermanent",
+    "Inactive",
+    "Active at End"
+  )
+  
+  time_levels_summary <- c("Active at Start",
+                           "Inflow",
+                           "Outflow",
+                           "Active at End")
+  
   frame_detail <- data.frame(
     Status = c(
-      status_levels_detail(),
+      status_levels_detail,
       "Homeless",
       "Housed"),
     Time = c(
-      rep(time_levels_detail()[1], 2),
-      time_levels_detail()[2:7],
-      rep(time_levels_detail()[8], 2)),
+      rep(time_levels_detail[1], 2),
+      time_levels_detail[2:7],
+      rep(time_levels_detail[8], 2)),
     InflowOutflow = c(rep("Inflow", 5), rep("Outflow", 5)),
     PlotFillGroups = 
       c("Housed",
@@ -76,7 +77,7 @@ system_activity_prep_detail <- reactive({
         "Housed")
   )
 
-  inflow <- sys_inflow_outflow_plot_data() %>%
+  inflow <- sys_plot_data$inflow_outflow_full %>%
     select(PersonalID,
            InflowTypeSummary,
            InflowTypeDetail) %>%
@@ -88,7 +89,7 @@ system_activity_prep_detail <- reactive({
                 filter(InflowOutflow == "Inflow")) %>%
     mutate(values = replace_na(values, 0))
   
-  outflow <- sys_inflow_outflow_plot_data() %>%
+  outflow <- sys_plot_data$inflow_outflow_full %>%
     select(PersonalID,
            OutflowTypeSummary,
            OutflowTypeDetail) %>%
@@ -107,11 +108,11 @@ system_activity_prep_detail <- reactive({
     mutate(
       Time = factor(
         Time,
-        levels = time_levels_detail()
+        levels = time_levels_detail
       ),
       Status = factor(
         Status,
-        levels = status_levels_detail()
+        levels = status_levels_detail
       ),
       
       InflowOutflowSummary = factor(
@@ -132,9 +133,11 @@ system_activity_prep_detail <- reactive({
       Time == "Active at End" & Status == "Housed" ~ 2,
       TRUE ~ 3  # fallback for other statuses/times
     ))
-})
+}
 
-system_activity_prep_summary <- reactive({
+# System Activity Summary Chart Prep ---------------------------------------
+
+system_activity_prep_summary <- function() {
   setDT(system_activity_prep_detail())[, .(
     values = sum(values, na.rm = TRUE)
   ), by = .(InflowOutflow, PlotFillGroups, InflowOutflowSummary)
@@ -149,7 +152,7 @@ system_activity_prep_summary <- reactive({
     TRUE ~ 3
   ))
   ]
-})
+}
 
 get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
   if (id == "sys_act_summary_ui_chart") {
@@ -160,6 +163,7 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
     mid_plot <- 4.5
   }
   
+  # browser()
   total_clients <- df %>%
     filter(InflowOutflow == "Inflow") %>%
     pull(values) %>%
@@ -319,18 +323,21 @@ get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
 
 renderSystemPlot <- function(id) {
   output[[id]] <- renderPlot({
-    req(valid_file() == 1)
+    req(session$userData$valid_file() == 1)
+    req(sys_plot_data$inflow_outflow_full)
     get_system_inflow_outflow_plot(id)
   },
-  alt = case_when(id == "sys_act_summary_ui_chart" ~ 
-                "A waterfall bar chart of the homeless system's inflow and outflow during 
-              the report period. The summary view of this chart includes four components: 
-              Active at Start, Inflow, Outflow, and Active at End.",
-              TRUE ~ "A waterfall bar chart of the homeless system's inflow and 
-              outflow during the report period. The detailed view of this chart 
-              shows inflow as three subcategories: first-time homeless, returned from 
-              permanent, and re-engaged from non-permanent and outflow as three 
-              subcategories: exited non-permanent, exited permanent, and inactive."),
+  alt = case_when(
+    id == "sys_act_summary_ui_chart" ~ "A waterfall bar chart of the homeless system's inflow and outflow during 
+      the report period. The summary view of this chart includes four components: 
+      Active at Start, Inflow, Outflow, and Active at End.",
+    id == "sys_act_detail_ui_chart" ~ "A waterfall bar chart of the homeless system's inflow and 
+      outflow during the report period. The detailed view of this chart 
+      shows inflow as three subcategories: first-time homeless, returned from 
+      permanent, and re-engaged from non-permanent and outflow as three 
+      subcategories: exited non-permanent, exited permanent, and inactive.",
+    id == "sys_act_monthly_ui_chart" ~ "A waterfall bar chart of the homeless system's inflow and outflow during each month of the report period."
+  ),
   width = ifelse(isTRUE(getOption("shiny.testmode")), 1113, "auto")
   )
 }
@@ -392,7 +399,9 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
       "Downloaded Sys Inflow Outflow Report",
       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
     ))
-    exportTestValues(sys_inflow_outflow_report = summarize_df(sys_inflow_outflow_plot_data()))
+    
+    exportTestValues(client_level_export_df = sys_plot_data$client_level_export_df %>% nice_names())
+    exportTestValues(sys_inflow_outflow_report = summarize_df(sys_plot_data$inflow_outflow_full))
   }
 )
 
@@ -420,3 +429,543 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
     )
   }
 )
+
+# Month-by-Month Chart+Table ----------------------------------------------
+output$sys_act_monthly_ui_chart <- renderPlot({
+  data <- sys_plot_data$inflow_outflow_monthly
+  
+  # create and append inflow and outflow bar datasets
+  plot_data <- rbindlist(list(
+    data[, .(month = month, 
+             Count = Inflow, 
+             Flow_Type = "Inflow")],
+    data[, .(month = month, 
+             Count = Outflow, 
+             Flow_Type = "Outflow")]
+  ))
+  setorder(plot_data, month)
+
+  ggplot(plot_data, 
+         aes(x = month, y = Count, fill = Flow_Type, group=Flow_Type)) +
+    geom_col(position = position_dodge(
+      preserve="single", 
+      width = 0.6 # space between bars within a group
+    ), width = 0.5) + # width of bar
+    scale_fill_manual(values = c("Inflow" = "#BDB6D7", "Outflow" = "#7F5D9D")) +
+    theme_minimal() +
+    labs(
+      x = "Month",
+      y = paste0("Count of ", case_when(
+        input$syso_level_of_detail == "All" ~ "People",
+        input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
+        TRUE ~
+          getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+      )),
+      fill = "Flow Type"
+    ) +
+    scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + #increase space between groups
+    theme(
+      axis.text = element_blank(),
+      axis.title.x = element_blank(), 
+      axis.title.y = element_text(size = 15),   
+      legend.position = "none",
+      panel.grid = element_blank(),        # Remove gridlines
+      axis.line.y = element_blank(), 
+      axis.line.x = element_line(),          # Remove axis lines
+      plot.margin = margin(l = 48),        # Increase left margin
+      axis.ticks = element_blank(),
+      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
+    )
+})
+
+# Create summary table
+output$sys_act_monthly_table <- renderDT({
+  summary_data <- suppressWarnings(dcast(
+    melt(sys_plot_data$inflow_outflow_monthly, id.vars = "month", variable.name = "Type"),
+    Type ~ month,
+    value.var = "value"
+  ))
+  
+  row_index_monthly_change <- which(summary_data$Type == "Monthly Change")
+  
+  # Get numeric columns (all columns except the first one)
+  numeric_cols <- names(summary_data)[-1]
+  
+  # Find max and min values in the Monthly Change row
+  monthly_change_values <- as.numeric(summary_data[row_index_monthly_change, numeric_cols, with = FALSE])
+  max_change_col <- numeric_cols[which.max(monthly_change_values)]
+  min_change_col <- numeric_cols[which.min(monthly_change_values)]
+
+  datatable(summary_data,
+            options = list(
+              dom = 't',
+              ordering = FALSE,
+              pageLength = 3,
+              columnDefs = list(
+                list(width = "48px", targets = 0), # Set first column width
+                list(className = 'dt-center', targets = '_all') # Center text
+              )
+            ),
+            rownames = FALSE)  %>%
+    # Highlight only the first column of "Inflow" and "Outflow" rows
+    formatStyle(
+      columns = 1,  # First column
+      target = "cell",
+      backgroundColor = styleEqual(
+        c("Inflow", "Outflow"),
+        c("#BDB6D7", "#7F5D9D")
+      ),
+      border = styleEqual(
+        c("Inflow", "Outflow"),
+        c("2px solid black","2px solid black")
+      )
+    ) %>%
+    # Highlight max change
+    formatStyle(
+      columns = max_change_col,
+      target = "cell",
+      backgroundColor = styleRow(row_index_monthly_change, "#BDB6D7")
+    ) %>%
+    # Highlight min change
+    formatStyle(
+      columns = min_change_col,
+      target = "cell",
+      backgroundColor = styleRow(row_index_monthly_change, "#7F5D9D")
+    )
+})
+
+# Period-specific, user-filtered, enrollment-level universe with enrollment-level flags ------------------------
+# hello weary traveler amongst these date ranges. you may find it helpful to
+# find example clients and their Entry and Exit Dates and enter them into
+# https://onlinetools.com/time/visualize-date-intervals <- here.
+# add inflow type and active enrollment typed used for system overview plots
+#
+# While the following datasets appear to be inflow-outflow specific, 
+# the reason they are stored in this system_overview script is because they 
+# 
+universe_enrl_flags <- function(all_filtered, period) {
+  startDate <- period[1]
+  endDate <- period[2]
+  
+  all_filtered[, `:=`(
+    # INFLOW CALCULATOR COLUMNS
+    # LOGIC: active homeless at start
+    # basically it has to straddle report start
+    # the entry date of the EECR needs to be on or before the reporting period
+    # the exitadjust has to be after report start
+    # OR the eecr & lookback1 have to end and start within 14 days of each
+    # other and of the report start
+    # EnrolledHomeless status of the EECR needs to be true
+    # JUST FOR FULL DISCLOSURE, this means: 
+    # ProjectType %in% project_types_enrolled_homeless |
+    # lh_prior_livingsituation == TRUE
+    
+    active_at_start_homeless =
+      eecr == TRUE &
+      (
+        # PH project types have move-in after start (or no move-in)
+        (
+          ProjectType %in% ph_project_types &
+            (
+              is.na(MoveInDateAdjust) |
+                MoveInDateAdjust >= startDate
+            )
+        ) |
+          
+          ( # take only ce enrollments where the PLS or the CLS is <= 90 days
+            # prior to ReportStart
+            ProjectType == ce_project_type & 
+              was_lh_at_start
+          ) |
+          # take any other enrollments if their PLS was literally homeless
+          (
+            !(ProjectType %in% ph_project_types) &
+              EnrolledHomeless == TRUE
+          )
+      ) &
+      # Enrollment straddles start or the enrollment is within 2 weeks from start
+      # and within 2 weeks of prev enrollment
+      (straddles_start == TRUE |
+         (straddles_start == FALSE &
+            EntryDate >= startDate &
+            between(as.numeric(difftime(EntryDate, startDate, units = "days")),
+                    0,
+                    14) &
+            !is.na(days_since_lookback) &
+            between(as.numeric(days_since_lookback), 0, 14))),
+    
+    #LOGIC: enrolled housed at start
+    # Exit.ExitDate is null or > ReportStartDate AND
+    
+    # Project.ProjectType IN (3, 9, 10, 13) AND
+    # Enrollment.MoveInDate is !NULL OR <= ReportStartDate AND
+    # Enrollment.LivingSituation is LiterallyHomeless*"
+    active_at_start_housed = eecr == TRUE & 
+      ProjectType %in% ph_project_types & 
+      !is.na(MoveInDateAdjust) &
+      MoveInDateAdjust < startDate,
+    
+    # LOGIC helper columns
+    
+    lookback1_perm_dest = lookback == 1 & 
+      Destination %in% perm_livingsituation,
+    
+    eecr_lh_at_entry = eecr == TRUE &
+      lh_at_entry == TRUE,
+    
+    at_least_14_days_to_eecr_enrl = eecr == TRUE &
+      !is.na(days_since_lookback) &
+      days_since_lookback >= 14,
+    
+    lookback1_temp_dest = lookback == 1 & 
+      !(Destination %in% perm_livingsituation),
+    
+    unknown_at_start = eecr == TRUE &
+      straddles_start & (
+        # Non-Res Project Types and not lh
+        (
+          ProjectType %in% non_res_project_types &
+            (!was_lh_at_start | is.na(was_lh_at_start))
+        ) |
+          # nbn shelter
+          (ProjectType == es_nbn_project_type &
+             (in_date_range == TRUE | NbN15DaysBeforeReportStart == FALSE))
+        
+      ),
+    
+    # outflow columns
+    perm_dest_lecr = lecr == TRUE &
+      Destination %in% perm_livingsituation &
+      between(ExitAdjust, startDate, endDate),
+    
+    temp_dest_lecr = lecr == TRUE &
+      !(Destination %in% perm_livingsituation) &
+      between(ExitAdjust, startDate, endDate),
+    
+    homeless_at_end = lecr == TRUE & 
+      straddles_end &
+      ( # e/e shelter, th, sh
+        ProjectType %in% lh_project_types_nc |
+          
+          # nbn shelter
+          (ProjectType == es_nbn_project_type &
+             (in_date_range == TRUE | NbN15DaysAfterReportEnd == TRUE)) |
+          
+          # Non-Res Project Types
+          (
+            ProjectType %in% non_res_project_types &
+              was_lh_at_end
+          ) |
+          
+          # PSH, OPH, RRH
+          (ProjectType %in% ph_project_types &
+             (is.na(MoveInDateAdjust) | MoveInDateAdjust >= period[2]))
+      ),
+    
+    housed_at_end = lecr == TRUE & 
+      straddles_end &
+      ProjectType %in% ph_project_types & 
+      !is.na(MoveInDateAdjust) &
+      MoveInDateAdjust < endDate,
+    
+    unknown_at_end = lecr == TRUE &
+      straddles_end & (
+        # Non-Res Project Types and not lh
+        (
+          ProjectType %in% non_res_project_types &
+            (!was_lh_at_end | is.na(was_lh_at_end))
+        ) |
+          # nbn shelter
+          (ProjectType == es_nbn_project_type &
+             (in_date_range == TRUE | NbN15DaysBeforeReportEnd == FALSE))
+        
+      )
+  )]
+}
+
+# Period-specific, user-filtered, enrollment-level universe with people-level flags ------------------------
+# Need to keep it enrollment-level so other scripts can reference the enrollments
+universe_ppl_flags <- function(universe_df, period) {
+  setkey(universe_df, PersonalID)
+  universe_df[, `:=`(
+    # INFLOW
+    active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
+    
+    active_at_start_housed_client = any(active_at_start_housed, na.rm = TRUE),
+    
+    return_from_perm_client = any(lookback1_perm_dest, na.rm = TRUE) & 
+      any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
+    
+    reengaged_from_temp_client = any(lookback1_temp_dest, na.rm = TRUE) & 
+      # max(eecr_lh_at_entry) == 1 & 
+      any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
+    
+    newly_homeless_client = all(lookback == 0, na.rm = TRUE) |
+      !any(eecr_lh_at_entry, na.rm = TRUE) | 
+      !any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
+    
+    unknown_at_start_client = any(unknown_at_start, na.rm = TRUE),
+    
+    # OUTFLOW
+    perm_dest_client = any(perm_dest_lecr, na.rm = TRUE),
+    
+    temp_dest_client = any(temp_dest_lecr, na.rm = TRUE),
+    
+    homeless_at_end_client = any(homeless_at_end, na.rm = TRUE),
+    
+    housed_at_end_client = any(housed_at_end, na.rm = TRUE),
+    
+    unknown_at_end_client = any(unknown_at_end, na.rm = TRUE),
+    
+    has_enrollment_after_lecr_client = any(has_enrollment_after_lecr, na.rm = TRUE)
+  ), by = PersonalID
+  ][, `:=`(
+    InflowTypeSummary = fcase(
+      active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
+      newly_homeless_client | return_from_perm_client | reengaged_from_temp_client, "Inflow",
+      default = "something's wrong"
+    ),
+    
+    InflowTypeDetail = fcase(
+      active_at_start_homeless_client, "Homeless",
+      active_at_start_housed_client, "Housed",
+      return_from_perm_client, "Returned from \nPermanent",
+      reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
+      newly_homeless_client & session$userData$days_of_data >= 1094, "First-Time \nHomeless",
+      newly_homeless_client & session$userData$days_of_data < 1094, "Inflow\nUnspecified",
+      unknown_at_start, "Inactive", 
+      default = "something's wrong"
+    ),
+    
+    OutflowTypeSummary = fcase(
+      (perm_dest_client | temp_dest_client | unknown_at_end_client) & 
+        !has_enrollment_after_lecr_client, "Outflow",
+      homeless_at_end_client | housed_at_end_client | has_enrollment_after_lecr_client, "Active at End",
+      default = "something's wrong"
+    ),
+    
+    OutflowTypeDetail = fcase(
+      perm_dest_client, "Exited,\nPermanent",
+      temp_dest_client, "Exited,\nNon-Permanent",
+      unknown_at_end_client, "Inactive",
+      homeless_at_end_client & !is.na(homeless_at_end_client), "Homeless",
+      housed_at_end_client | has_enrollment_after_lecr_client, "Housed",
+      default = "something's wrong"
+    )
+  )]
+}
+
+# Client-level enrollment summary data reactive ---------------------------
+# get final people-level, inflow/outflow dataframe by joining the filtered 
+# enrollment and people dfs, as well as flagging their inflow and outflow types
+# browser()
+get_inflow_outflow_full <- function() {
+  period_specific_data()[["Full"]] %>%
+    select(PersonalID,
+           InflowTypeSummary,
+           InflowTypeDetail,
+           OutflowTypeSummary,
+           OutflowTypeDetail
+    ) %>%
+    unique()
+}
+# AS QC check:
+#   missing_types <- universe() %>%
+#     inner_join(
+#       plot_data %>%
+#         filter(
+#           OutflowTypeDetail == "something's wrong" |
+#             InflowTypeDetail == "something's wrong"),
+#       by = "PersonalID") %>%
+#     mutate(
+#       missing_inflow = eecr == TRUE & InflowTypeDetail == "something's wrong",
+#       missing_outflow = lecr == TRUE & OutflowTypeDetail == "something's wrong",
+#     ) %>%
+#     filter(missing_inflow == TRUE | missing_outflow == TRUE)
+#   
+# # browser()
+#   
+#   category_counts <- plot_data %>%
+#     select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%
+#     pivot_longer(
+#       cols = c(InflowTypeDetail, OutflowTypeDetail), 
+#       names_to = "Time", 
+#       values_to = "Status") %>%
+#     group_by(Time, Status) %>%
+#     summarise(values = n()) %>%
+#     ungroup() %>%
+#     filter(!is.na(Status)) %>%
+#     mutate(
+#       values = ifelse(Time == "OutflowTypeDetail", values * -1, values),
+#       inflow_outflow = Time,
+#       Time = case_when(
+#         Time == "InflowTypeDetail" &
+#           Status %in% c("Homeless", "Housed")
+#         ~ paste0("Active as of \n", session$userData$ReportStart),
+#         
+#         Time == "OutflowTypeDetail" &
+#           Status %in% c("Homeless", "Housed")
+#         ~ paste0("Active as of \n", session$userData$ReportEnd),
+#         
+#         Time == "InflowTypeDetail"
+#         ~ "Inflow",
+#         
+#         Time == "OutflowTypeDetail"
+#         ~ "Outflow"
+#       )
+#     )
+
+# newly_homeless_clients <- plot_data %>%
+#   filter(InflowTypeDetail == "Newly Homeless") %>%
+#   pull(PersonalID) %>%
+#   unique()
+# 
+# enrollment_categories  %>%
+#   group_by(PersonalID) %>%
+#   mutate(Count = n()) %>%
+#   ungroup() %>%
+#   filter(PersonalID %in% c(newly_homeless_clients) & Count > 1) %>%
+#   mutate(DestinationDescription = living_situation(Destination),
+#          ReportStart = session$userData$ReportStart,
+#          ReportEnd = session$userData$ReportEnd,
+#          ExportStart = ExportStartAdjusted,
+#          ExportEnd = ExportEndAdjusted,
+#          LookbackBegins = session$userData$ReportStart - years(2),
+#          ProjectType = project_type_abb(ProjectType),
+#          LivingSituation = living_situation(LivingSituation)) %>%
+#   select(
+#     PersonalID,
+#     EnrollmentID,
+#     ExportStart,
+#     LookbackBegins,
+#     ReportStart,
+#     EntryDate,
+#     ExitAdjust,
+#     ReportEnd,
+#     ExportEnd,
+#     ProjectType,
+#     LivingSituation,
+#     DestinationDescription,
+#     days_to_next_entry,
+#     days_since_previous_exit,
+#     lecr,
+#     eecr,
+#     lookback
+#   ) -> for_review
+# 
+# write_csv(for_review, here("newly_homeless_20240912a.csv"))
+
+# Month-by-Month Prep ---------------------------------------------------
+# browser()
+get_inflow_outflow_monthly <- function() {
+  unique(
+    rbindlist(period_specific_data()[-1])[, `:=`(
+      # remove "Unknowns"/"Inactives"
+      InflowTypeSummary = fifelse(
+        InflowTypeDetail == "Inactive",
+        "Inactive",
+        InflowTypeSummary
+      ),
+      OutflowTypeSummary = fifelse(
+        OutflowTypeDetail == "Inactive",
+        "Inactive",
+        OutflowTypeSummary
+      )
+    )][, .(
+      # Count unique PersonalIDs for each category using system flow logic
+      Inflow = uniqueN(PersonalID[InflowTypeSummary == "Inflow"]),
+      Outflow = uniqueN(PersonalID[OutflowTypeSummary == "Outflow"])
+    ), by = month
+    ][, `:=`(
+      `Monthly Change` = Inflow - Outflow,
+      month = factor(format(month, "%b"), 
+                     levels = format(get_months_in_report_period(), "%b"))
+    )]
+  )
+}
+
+qc_checks <- function() {
+  browser()
+
+  # TESTING DIFF BETWEEN FULL AND MBM
+  full <- period_specific_data()[[1]]
+  all_months <- rbindlist(period_specific_data()[-1])
+  setdiff(sort(unique(full$PersonalID)), sort(unique(all_months$PersonalID)))
+  setdiff(sort(unique(all_months$PersonalID)), sort(unique(full$PersonalID)))
+  # 
+  # 
+  # json_str <- jsonlite::toJSON(
+  #   unique(
+  #     merge(
+  #       enrollment_categories[
+  #         !(PersonalID %in% unique(full$PersonalID)),
+  #         .(EnrollmentID, PersonalID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)
+  #       ],
+  #       homeless_cls[, .(EnrollmentID, InformationDate)],
+  #       by = "EnrollmentID"
+  #     )[, .(PersonalID, InformationDate, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)]
+  #   ),
+  #   null="list",
+  #   na="string",
+  #   pretty = TRUE, auto_unbox = TRUE
+  # )
+  # json_str <- gsub("true", "True", json_str)
+  # json_str <- gsub("false", "False", json_str)
+  # 
+  #
+  # # Check that one enrollment isn't considered an inflow in multiple months
+  # # someone can have an exit in between or they can be active at start
+  #
+  monthly_universe_ppl_flags <- unique(
+    rbindlist(period_specific_data()[-1])[,
+      # PersonalID %in% c("686041","684918","349625","556533","693996","614071","677683","701796","702055"),
+      .(PersonalID, month, InflowTypeSummary, OutflowTypeSummary, InflowTypeDetail, OutflowTypeDetail)
+    ][
+      order(PersonalID, month)
+    ][
+      , month := factor(format(month, "%b"), 
+                       levels = format(get_months_in_report_period(), "%b"))
+    ][, `:=`(
+      InflowTypeSummary = fifelse(
+        InflowTypeDetail == "Inactive",
+        "Inactive",
+        InflowTypeSummary
+      ),
+      OutflowTypeSummary = fifelse(
+        OutflowTypeDetail == "Inactive",
+        "Inactive",
+        OutflowTypeSummary
+      )
+    )]
+  )
+  
+  # check prior month's status (L() is the collapse package's Lag function)
+  # if they outflowed last month, they should have inflowed this month
+  # and if they were active at end last month, they should be active at start, this month
+  full_combinations <- CJ(
+    PersonalID = unique(monthly_universe_ppl_flags$PersonalID), 
+    month = levels(monthly_universe_ppl_flags$month)
+  )
+  
+  qc <- monthly_universe_ppl_flags %>%
+    join(
+      full_combinations,
+      on = c("PersonalID", "month"),
+      how = "full"
+    ) %>%
+    fsubset(order(PersonalID, month)) %>%
+    fmutate(problem = !(
+      (L(OutflowTypeSummary, g = PersonalID) == "Outflow" & InflowTypeSummary == "Inflow") | 
+      (L(OutflowTypeSummary, g = PersonalID) == "Active at End" & InflowTypeSummary %in% c("Inflow","Active at Start")) |
+      (L(OutflowTypeSummary, g = PersonalID) == "Inactive" & InflowTypeSummary %in% c("Inflow","Active at Start"))
+    )) %>%
+    fgroup_by(PersonalID) %>%
+    fmutate(
+      has_problem = anyv(problem, TRUE)
+    ) %>%
+    fungroup() %>%
+    fsubset(has_problem)
+
+}
+# browser()
+# monthly_universe_ppl_flags

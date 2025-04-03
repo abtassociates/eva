@@ -21,10 +21,16 @@ library(data.table)
 library(ggplot2)
 library(ggalluvial)
 library(officer)
+library(mirai)
+library(plotly)
 library(collapse)
+# library(future)
+# library(promises)
+# plan(multisession)
+daemons(4)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
-
+options(shiny.fullstacktrace = TRUE)
 if(dir.exists(here("metadata-analysis/metadata/"))) {
   capture.output("All good", file = stderr())
 } else {
@@ -32,6 +38,7 @@ if(dir.exists(here("metadata-analysis/metadata/"))) {
 }
 source(here("hardcodes.R"), local = TRUE) # hard-coded variables and data frames
 
+onStop(function() daemons(0))
 # # functions used throughout the app
 # source("helper_functions.R", local = TRUE)
 

@@ -1,5 +1,5 @@
 output$sankey_filter_selections <- renderUI({ 
-  req(valid_file() == 1)
+  req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
 
@@ -126,9 +126,9 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
     )
 }
 output$sankey_ui_chart <- renderPlot({
-  req(valid_file() == 1)
+  req(session$userData$valid_file() == 1)
   
-  plot_data <- sankey_plot_data()
+  plot_data <- sys_plot_data$sankey
   
   validate(
     need(
@@ -167,7 +167,7 @@ output$sys_status_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Status Report - "),
   content = function(file) {
     # create a list of the 3 excel tabs and export
-    spd <- sankey_plot_data() %>% 
+    spd <- sys_plot_data$sankey %>% 
       xtabs(freq ~ End + Begin, data=.) %>% 
       addmargins(FUN = sum) %>% 
       as.data.frame.matrix() %>%
@@ -179,7 +179,7 @@ output$sys_status_download_btn <- downloadHandler(
     tab_names <- list(
       "System Status Metadata" = sys_export_summary_initial_df() %>%
         bind_rows(sys_export_filter_selections()) %>%
-        bind_rows(sys_status_export_info(sankey_plot_data())) %>%
+        bind_rows(sys_status_export_info(sys_plot_data$sankey)) %>%
         rename("System Status" = Value),
       "System Status Detail" = spd
     )
@@ -191,7 +191,7 @@ output$sys_status_download_btn <- downloadHandler(
       col_names = TRUE
     )
 
-    exportTestValues(sys_status_report = sankey_plot_data())
+    exportTestValues(sys_status_report = sys_plot_data$sankey)
   }
 )
 
@@ -206,10 +206,64 @@ output$sys_status_download_btn_ppt <- downloadHandler(
       summary_items = sys_export_summary_initial_df() %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_export_filter_selections()) %>%
-        bind_rows(sys_status_export_info(sankey_plot_data())),
+        bind_rows(sys_status_export_info(sys_plot_data$sankey)),
       plot_slide_title = "Client System Status",
-      plot1 = render_sankey_plot(sankey_plot_data(), isExport=TRUE),
+      plot1 = render_sankey_plot(sys_plot_data$sankey, isExport=TRUE),
       summary_font_size = 21
     )
   }
 )
+
+
+# The universe is anyone who was Housed or Homeless at Period Start
+# We also need the latest exit for the folks in the Exited categories
+get_sankey_data <- function() {
+  req(nrow(sys_plot_data$inflow_outflow_full) > 0)
+  plot_df <- sys_plot_data$inflow_outflow_full %>%
+    filter(InflowTypeDetail == "Housed" | InflowTypeDetail == "Homeless")
+  
+  startBind <- plot_df %>%
+    select(PersonalID, "Type" = InflowTypeDetail) %>%
+    mutate("Period" = "Begin")
+  
+  endBind <- plot_df %>%
+    select(PersonalID, "Type" = OutflowTypeDetail) %>%
+    mutate(
+      "Period" = "End",
+      Type = case_when(
+        Type == "Exited,\nPermanent" ~ "Exited, Permanent",
+        Type == "Exited,\nNon-Permanent" ~ "Exited, Non-Permanent",
+        Type == "Homeless" ~ "Enrolled, Homeless",
+        Type == "Housed" ~ "Enrolled, Housed",
+        TRUE ~ Type
+      ))
+  
+  allBind <- rbind(startBind, endBind)
+  
+  #Create df with both Homeless and Housed at start
+  d_hh <- data.frame(cbind(startBind$Type, endBind$Type))
+  names(d_hh) <- c("Period Start", "Period End")
+  
+  #Basic alluvial chart - both homeless and housed at start
+  allu <- d_hh %>%
+    group_by(d_hh$`Period Start`, d_hh$`Period End`) %>%
+    summarise(Freq = n())
+  
+  names(allu) <- c("Begin", "End", "freq")
+  
+  #Convert statuses as factors and re-order levels
+  allu$Begin <- factor(allu$Begin, levels = c("Homeless",
+                                              "Housed"))
+  
+  allu$End <- factor(
+    allu$End,
+    levels = c(
+      "Exited, Non-Permanent",
+      "Enrolled, Homeless",
+      "Inactive",
+      "Exited, Permanent",
+      "Enrolled, Housed"
+    )
+  )
+  allu
+}

@@ -16,7 +16,7 @@ client_count_data_df <- reactive({
   ReportStart <- input$dateRangeCount[1]
   ReportEnd <- input$dateRangeCount[2]
 
-  validation() %>%
+  session$userData$validation %>%
     mutate(
       PersonalID = as.character(PersonalID),
       RelationshipToHoH = case_when(
@@ -154,7 +154,7 @@ get_clientcount_download_info <- function(file) {
   # initial dataset that will make summarizing easier
   validationDF <- client_count_data_df()
   
-  ### validation() DATE RANGE TAB ###
+  ### session$userData$validation DATE RANGE TAB ###
   # counts for each status, by project, across the date range provided
   validationDateRange <- 
     pivot_and_sum(
@@ -172,7 +172,7 @@ get_clientcount_download_info <- function(file) {
     select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
   
-  ### validation() CURRENT TAB ###
+  ### session$userData$validation CURRENT TAB ###
   # counts for each status, by project for just the current date
   validationCurrent <- 
     pivot_and_sum(
@@ -183,7 +183,7 @@ get_clientcount_download_info <- function(file) {
     select(-c(`Currently in project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
 
-  ### validation() DETAIL TAB ###
+  ### session$userData$validation DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
     select(!!keepCols, !!clientCountDetailCols) %>%
     arrange(OrganizationName, ProjectName, EntryDate)
@@ -217,3 +217,131 @@ get_clientcount_download_info <- function(file) {
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
 }
+
+
+output$validate_plot <- renderPlot({
+  req(session$userData$valid_file() == 1)
+  # browser()
+  
+  detail <- client_count_data_df() %>%
+    filter(str_detect(Status, "Exit", negate = TRUE)) %>%
+    mutate(Status = factor(
+      case_when(
+        str_detect(Status, "Currently in") ~ "Currently in project",
+        str_detect(Status, "Currently Moved") ~ "Currently Moved In",
+        TRUE ~ Status
+      ),
+      levels = c("Currently in project",
+                 "Active No Move-In",
+                 "Currently Moved In")
+    )) %>% 
+    count(ProjectType, Status, name = "Total")
+  
+  detail_order <- detail %>%
+    group_by(ProjectType) %>%
+    summarise(InProject = sum(Total, na.rm = FALSE)) %>%
+    ungroup()
+  
+  
+  plot_data <- detail %>%
+    left_join(detail_order, by = "ProjectType") %>%
+    group_by(ProjectType) %>%
+    arrange(ProjectType, desc(Total)) %>%
+    mutate(
+      movedin = lag(Total, default = 0),
+      text_position = case_when(
+        !ProjectType %in% c(ph_project_types) ~ InProject / 2,
+        ProjectType %in% c(ph_project_types) ~ 
+          Total / 2 + movedin
+      )
+    )
+  
+  validate_by_org <-
+    ggplot(
+      plot_data,
+      aes(x = reorder(project_type_abb(ProjectType), InProject),
+          y = Total, fill = Status)
+    ) +
+    geom_col(alpha = .7, position = "stack")  +
+    geom_text(aes(label = prettyNum(Total, big.mark = ","),
+                  y = text_position),
+              color = "gray14")+
+    scale_y_continuous(label = comma_format()) +
+    scale_colour_manual(
+      values = c(
+        "Currently in project" = "#71B4CB",
+        "Active No Move-In" = "#7F5D9D",
+        "Currently Moved In" = "#52BFA5"
+      ),
+      aesthetics = "fill"
+    ) +
+    labs(
+      title = "Current System-wide Counts",
+      x = "",
+      y = ""
+    ) +
+    theme_minimal(base_size = 18) +
+    theme(
+      plot.title.position = "plot",
+      title = element_text(colour = "#73655E"),
+      legend.position = "top"
+    )
+  
+  validate_by_org
+})
+
+# CLIENT COUNT DETAILS - APP ----------------------------------------------
+output$clientCountData <- renderDT({
+  req(session$userData$valid_file() == 1)
+  req(nrow(session$userData$validation) > 0)
+  
+  # getting an error sometimes? Warning: Error in filter: â„¹ In argument: `ProjectName == input$currentProviderList`.
+  # Caused by error:
+  #   ! `..1` must be of size 292 or 1, not size 0.
+  
+  x <- client_count_data_df() %>%
+    filter(ProjectName == input$currentProviderList) %>%
+    select(all_of(clientCountDetailCols)) %>%
+    nice_names()
+  
+  datatable(
+    x,
+    rownames = FALSE,
+    filter = 'top',
+    options = list(dom = 'ltpi')
+  )
+})
+
+
+# CLIENT COUNT SUMMARY - APP ----------------------------------------------
+
+output$clientCountSummary <- renderDT({
+  req(session$userData$valid_file() == 1)
+  
+  exportTestValues(clientCountSummary = client_count_summary_df())
+  
+  datatable(
+    client_count_summary_df() %>%
+      nice_names(),
+    rownames = FALSE,
+    filter = 'none',
+    options = list(dom = 't')
+  )
+})
+
+
+# CLIENT COUNT DOWNLOAD ---------------------------------------------------
+
+output$downloadClientCountsReportButton  <- renderUI({
+  req(session$userData$valid_file() == 1)
+  downloadButton(outputId = "downloadClientCountsReport",
+                 label = "Download System-Wide")
+})
+
+# the download basically contains a pivoted and summarized version of the
+# two app tables, but for all projects along with a Current tab limited to
+# just the current date.
+output$downloadClientCountsReport <- downloadHandler(
+  filename = date_stamped_filename("Client Counts Report-"),
+  content = get_clientcount_download_info
+)

@@ -3,7 +3,7 @@
 # hide other stuff if valid file is not uploaded
 # move chart download button to be inline with subtabs
 observeEvent(input$syso_tabbox, {
-  req(valid_file() == 1)
+  req(session$userData$valid_file() == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   toggleClass(
@@ -15,21 +15,21 @@ observeEvent(input$syso_tabbox, {
 
 
 observeEvent(input$sys_inflow_outflow_subtabs, {
-  req(valid_file() == 1)
+  req(session$userData$valid_file() == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_status_subtabs, {
-  req(valid_file() == 1)
+  req(session$userData$valid_file() == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_comp_subtabs, {
-  req(valid_file() == 1)
+  req(session$userData$valid_file() == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
@@ -84,7 +84,7 @@ syso_detailBox <- reactive({
     br(),
     strong("Date Range: "),
     
-    format(ReportStart(), "%m-%d-%Y"), " to ", format(ReportEnd(), "%m-%d-%Y"), br(),
+    format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
     
     if (input$syso_project_type != "All")
       chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
@@ -110,9 +110,16 @@ syso_detailBox <- reactive({
   )
 })
 
-output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
+output$sys_act_detail_filter_selections <- renderUI({ 
+  req(session$userData$valid_file() == 1)
+  syso_detailBox() 
+})
 output$sys_act_summary_filter_selections <- renderUI({
-  req(valid_file() == 1)
+  req(session$userData$valid_file() == 1)
+  syso_detailBox() 
+})
+output$sys_act_monthly_filter_selections <- renderUI({ 
+  req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
 
@@ -175,8 +182,8 @@ sys_export_summary_initial_df <- function() {
       "Project Type Group"
     ),
     Value = c(
-      strftime(ReportStart(), "%m/%d/%y"),
-      strftime(ReportEnd(), "%m/%d/%y"),
+      strftime(session$userData$ReportStart, "%m/%d/%y"),
+      strftime(session$userData$ReportEnd, "%m/%d/%y"),
       getNameByValue(syso_methodology_types, input$methodology_type),
       getNameByValue(syso_hh_types, input$syso_hh_type),
       getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
@@ -228,9 +235,9 @@ sys_overview_ppt_export <- function(file,
   #NEED TO UPDATE - if want to get more granular, need to detect with title slide
   
   report_period <- paste0("Report Period: ", 
-                          format(ReportStart(), "%m/%d/%Y"),
+                          format(session$userData$ReportStart, "%m/%d/%Y"),
                           " - ",
-                          format(ReportEnd(), "%m/%d/%Y")
+                          format(session$userData$ReportEnd, "%m/%d/%Y")
   )
   loc_title <- ph_location_type(type = "title")
   loc_footer <- ph_location_type(type = "ftr")
@@ -250,7 +257,7 @@ sys_overview_ppt_export <- function(file,
   add_footer <- function(.ppt) {
     return(
       .ppt %>%
-        ph_with(value = paste0("CoC Code: ", Export()$SourceID), location = loc_footer) %>%
+        ph_with(value = paste0("CoC Code: ", session$userData$Export$SourceID), location = loc_footer) %>%
         ph_with(value = report_period, location = loc_dt) %>%
         ph_with(
           value = paste0(
@@ -351,176 +358,44 @@ get_adj_font_size <- function(font_size, isExport) {
   )
 }
 
-observeEvent(input$dimension,{
+observe({
   windowSize(input$dimension)
 })
 
-output$client_level_download_btn <- downloadHandler(
-  filename = date_stamped_filename("Client Level Export - "),
-  content = function(file) {
-    detail_client_fields <- c(
-      "PersonalID",
-      "AgeCategory",
-      "VeteranStatus",
-      
-      "AmIndAKNative",
-      "Asian",
-      "BlackAfAmerican",
-      "HispanicLatine" = "HispanicLatinaeo",
-      "MidEastNAf" = "MidEastNAfrican",
-      "NativeHIPacific",
-      "White",
-      "RaceEthnicityUnknown",
-      
-      "AmIndAKNativeAloneMethod1Detailed",
-      "AmIndAKNativeLatineMethod1Detailed",
-      "AsianAloneMethod1Detailed",
-      "AsianLatineMethod1Detailed",
-      "BlackAfAmericanAloneMethod1Detailed",
-      "BlackAfAmericanLatineMethod1Detailed",
-      "LatineAloneMethod1Detailed",
-      "MidEastNAfricanAloneMethod1Detailed",
-      "MidEastNAfricanLatineMethod1Detailed",
-      "NativeHIPacificAloneMethod1Detailed",
-      "NativeHIPacificLatineMethod1Detailed",
-      "WhiteAloneMethod1Detailed",
-      "WhiteLatineMethod1Detailed",
-      "MultipleNotLatineMethod1Detailed",
-      "MultipleLatineMethod1Detailed",
-      
-      "BILPOCMethod1Summarized",
-      "WhiteMethod1Summarized",
-      
-      "AmIndAKNativeMethod2Detailed",
-      "AsianMethod2Detailed",
-      "BlackAfAmericanMethod2Detailed",
-      "LatineMethod2Detailed",
-      "MidEastNAfricanMethod2Detailed",
-      "NativeHIPacificMethod2Detailed",
-      "WhiteMethod2Detailed",
-      
-      "BlackAfAmericanLatineMethod2Summarized",
-      "LatineMethod2Summarized",
-      "LatineAloneMethod2Summarized"
-    )
-    
-    report_status_fields <- c(
-      "Earliest-ReportStatus" = "InflowTypeSummary",
-      "Earliest-ReportStatusDetail" = "InflowTypeDetail",
-      "Latest-ReportStatus" = "OutflowTypeSummary",
-      "Latest-ReportStatusDetail" = "OutflowTypeDetail"
-    )
-    
-    enrollment_fields <- c(
-      "PersonalID",
-      "eecr",
-      "lecr",
-      "EnrollmentID",
-      "HouseholdType",
-      "CorrectedHoH",
-      "ProjectType",
-      "EntryDate",
-      "LivingSituation",
-      "MoveInDateAdjust",
-      "ExitAdjust",
-      "Destination"
-    )
-    
-    enrollment_info <- sys_universe_ppl_flags()[, ..enrollment_fields][
-      , `:=`(
-        Destination = living_situation(Destination),
-        LivingSituation = living_situation(LivingSituation),
-        HouseholdType = factor(
-          case_when(
-            HouseholdType %in% c("PY", "ACminusPY") ~ "AC",
-            HouseholdType %in% c("UY", "AOminusUY") ~ "AO",
-            TRUE ~ HouseholdType
-          ),
-          levels = c("AO", "AC", "CO", "UN")
-        )
-      )
-    ]
-    
-    earliest_report_info <- enrollment_info[eecr == 1][, c("eecr","lecr") := NULL]
-    setnames(earliest_report_info, 
-             old = setdiff(names(earliest_report_info), "PersonalID"), 
-             new = paste0("Earliest-", setdiff(names(earliest_report_info), "PersonalID")))
-    
-    latest_report_info <- enrollment_info[lecr == 1][,  c("eecr","lecr") := NULL]
-    setnames(latest_report_info, 
-             old = setdiff(names(latest_report_info), "PersonalID"), 
-             new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
+# if user changes filters, update the reactive vals
+# which get used for the various System Overview charts
+observeEvent({
+  input$syso_hh_type
+  input$syso_level_of_detail
+  input$syso_project_type
+  input$methodology_type
+  input$syso_age
+  input$syso_spec_pops
+  input$syso_race_ethnicity
+}, {
+  # hide download buttons if < 11 records
+  # All Served is handled in system_composition_server.R
+  # for that chart, we also hide if all *cells* are < 11
+  shinyjs::toggle(
+    "sys_inflow_outflow_download_btn sys_inflow_outflow_download_btn_ppt", 
+    condition = nrow(sys_plot_data$inflow_outflow_full) > 10
+  )
+  shinyjs::toggle(
+    "sys_status_download_btn sys_status_download_btn_ppt", 
+    condition = sum(sys_plot_data$sankey$freq) > 10
+  )
+  
+  update_sys_plot_data()
+}, ignoreInit = TRUE)
 
-    # details tab
-    client_level_details <- unique(sys_universe_ppl_flags()[
-      , 
-      c(..detail_client_fields, ..report_status_fields)
-    ])[
-      earliest_report_info, on = "PersonalID", nomatch = 0
-    ][
-      latest_report_info, on = "PersonalID", nomatch = 0
-    ]
-    setnames(client_level_details, 
-             old = report_status_fields, 
-             new = names(report_status_fields))
-    
-    # User's filter selections - metadata tab
-    export_date_info <- tibble(
-      Chart = c(
-        "ExportStart",
-        "ExportEnd"
-      ),
-      Value = c(
-        as.character(meta_HUDCSV_Export_Start()),
-        as.character(meta_HUDCSV_Export_End())
-      )
-    )
-    
-    system_df_info <- system_activity_prep_detail() %>% 
-      select(Status, values, Time, InflowOutflow, InflowOutflowSummary)
-    
-    filter_selections <- rbind(
-      export_date_info, # ExportStart, Exportend
-      sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
-      sys_export_filter_selections(), # Age, Veteran Status, Race/Ethnicity
-      tibble(
-        Chart = "Total Served (Start + Inflow) People",
-        Value = sum(system_df_info %>% filter(InflowOutflow == 'Inflow') %>% pull(values), na.rm = TRUE)
-      )
-    )
-    colnames(filter_selections) <- c("Filter","Selection")
-    
-    # probably want to read in the glossary tab as a csv or Excel and append to it.
-    
-    # all sheets for export
-    client_level_export_list <- list(
-      client_level_metadata = filter_selections,
-      data_dictionary = setNames(
-        read.csv(here("www/client-level-export-data-dictionary.csv")),
-        c("Column Name", "Variable Type", "Definition")
-      ),
-      client_level_details = client_level_details
-    )
-    
-    names(client_level_export_list) = c(
-      "Metadata",
-      "Data Dictionary",
-      "Details"
-    )
-    
-    write_xlsx(
-      client_level_export_list,
-      path = file,
-      format_headers = FALSE,
-      col_names = TRUE
-    )
-    
-    logToConsole("Downloaded Client Level Export")
-    logMetadata(paste0(
-      "Downloaded Client Level Export",
-      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
-    ))
-    
-    exportTestValues(client_level_export_details = client_level_details) 
-  }
-)
+source("client_level_export_server.R", local=TRUE)
+
+source("system_overview_data_prep_server.R", local=TRUE)
+
+update_sys_plot_data <- function() {
+  sys_plot_data$inflow_outflow_full <- get_inflow_outflow_full()
+  sys_plot_data$inflow_outflow_monthly <- get_inflow_outflow_monthly()
+  sys_plot_data$people_universe_filtered <- get_people_universe_filtered()
+  sys_plot_data$sankey <- get_sankey_data()
+  sys_plot_data$client_level_export_df <- get_client_level_export()
+}

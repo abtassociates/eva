@@ -244,13 +244,13 @@ logMetadata <- function(detail) {
 
 headerGeneric <- function(tabTitle, extraHTML = NULL) {
   renderUI({
-    if(valid_file() == 1) {
+    if(session$userData$valid_file() == 1) {
       list(h2(tabTitle),
            h4(strong("Date Range of Current File: "),
             paste(
-             format(meta_HUDCSV_Export_Start(), "%m-%d-%Y"),
+             format(session$userData$meta_HUDCSV_Export_Start, "%m-%d-%Y"),
              "to",
-             format(meta_HUDCSV_Export_End(), "%m-%d-%Y")
+             format(session$userData$meta_HUDCSV_Export_End, "%m-%d-%Y")
            )),
            extraHTML
       )
@@ -261,17 +261,16 @@ headerGeneric <- function(tabTitle, extraHTML = NULL) {
 }
 
 logSessionData <- function() {
-
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = Export()$SourceID,
-    ExportID = Export()$ExportID,
-    SourceContactFirst = Export()$SourceContactFirst,
-    SourceContactLast = Export()$SourceContactLast,
-    SourceContactEmail = Export()$SourceContactEmail,
-    SoftwareName = Export()$SoftwareName,
-    ImplementationID = Export()$ImplementationID
+    CoC = session$userData$Export$SourceID,
+    ExportID = session$userData$Export$ExportID,
+    SourceContactFirst = session$userData$Export$SourceContactFirst,
+    SourceContactLast = session$userData$Export$SourceContactLast,
+    SourceContactEmail = session$userData$Export$SourceContactEmail,
+    SoftwareName = session$userData$Export$SoftwareName,
+    ImplementationID = session$userData$Export$ImplementationID
   )
   
   # put the export info in the log
@@ -288,11 +287,12 @@ logSessionData <- function() {
 }
 
 logToConsole <- function(msg) {
+  # browser()
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = Export()$SourceID,
-    ExportID = Export()$ExportID,
+    CoC = session$userData$Export$SourceID,
+    ExportID = session$userData$Export$ExportID,
     Msg = msg
   )
   capture.output(d, file = stderr())
@@ -423,7 +423,7 @@ custom_rprof <- function(expr, source_file_name, code_block_name = NULL) {
 
 # Misc --------------------------------------------------------------------
 reset_postvalid_components <- function() {
-  dq_main_df(NULL)
+  session$userData$dq_main_df <- NULL
   session$sendInputMessage('orgList', list(choices = NULL))
   session$sendInputMessage('currentProviderList', list(choices = NULL))
   session$sendCustomMessage('dateRangeCount', list(
@@ -432,7 +432,7 @@ reset_postvalid_components <- function() {
     max = NULL,
     end = ymd(today())
   ))
-  pdde_main(NULL)
+  session$userData$pdde_main <- NULL
   
   shinyjs::hide("sys_inflow_outflow_download_btn")
   shinyjs::hide("sys_inflow_outflow_download_btn_ppt")
@@ -445,11 +445,17 @@ reset_postvalid_components <- function() {
 }
 
 # essentially resets the app
-reset_app <- function() {
-  lapply(visible_reactive_vals, function(r) r(NULL))
-  valid_file(0)
-  initially_valid_import(0)
-  windowSize(input$dimension)
+reset_session_vars <- function() {
+  for(v in sessionVars) {
+    if(v %in% c("valid_file", "initially_valid_import")) session$userData[[v]] <- reactiveVal(0) 
+    else if(v == "file_structure_analysis_main") session$userData[[v]] <- reactiveVal(NULL)
+    else session$userData[[v]] <- NULL
+  }
+
+  for(v in sys_plot_datasets) {
+    sys_plot_data[[v]] <- reactiveVal(NULL)
+  }
+  
   reset_postvalid_components()
 }
 

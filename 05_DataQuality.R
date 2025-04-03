@@ -12,7 +12,7 @@
 #     - Overlaps
 #     - Future Entry Exits
 ###############################
-
+# run_data_quality_checks <- function() {
 logToConsole("Running Data Quality")
 
 # The Variables That We Want ----------------------------------------------
@@ -557,7 +557,7 @@ top_percents_long_stayers <- base_dq_data %>%
       )
   ) %>%
   mutate(Days = as.numeric(difftime(
-      meta_HUDCSV_Export_Date(), 
+      session$userData$meta_HUDCSV_Export_Date, 
       if_else(ProjectType %in% c(ph_project_types), MoveInDateAdjust, EntryDate)
   ))) %>%
   group_by(ProjectType) %>%
@@ -580,7 +580,7 @@ missed_movein_stayers <- base_dq_data %>%
            ProjectType %in% c(ph_project_types) & 
            RelationshipToHoH == 1
   ) %>%
-  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date(), EntryDate)))
+  mutate(Days = as.numeric(difftime(session$userData$meta_HUDCSV_Export_Date, EntryDate)))
 
 Top2_movein <- subset(missed_movein_stayers,
                       Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE)) %>%
@@ -843,7 +843,7 @@ future_ees <- base_dq_data %>%
 
 future_exits <- base_dq_data %>%
   filter(!is.na(ExitDate) &
-           ExitDate > as.Date(meta_HUDCSV_Export_Date())) %>%
+           ExitDate > as.Date(session$userData$meta_HUDCSV_Export_Date)) %>%
   merge_check_info(checkIDs = 14) %>%
   select(all_of(vars_we_want))
     
@@ -1249,6 +1249,7 @@ overlap_dt <- merge(
 
 # For the Overlap Details tab of the export
 # we want the same set of details for the overlapping enrollment (i.e. the "previous")
+
 # this wide dataset is saved in the overlap_details() reactiveValue
 # OverlappingDateProvided vs. FirstDateProvided vs. LastDateProvided:
 # - OverlappingDateProvided is only relevant for NbN vs. NbN overlaps
@@ -1282,10 +1283,10 @@ get_overlap_col_order <- function() {
 }
 col_order <- get_overlap_col_order()
 
-overlap_details(
-  # Rename columns for previous enrollment
-  merge(
+
+overlap_details <- merge(
     overlap_dt,
+    # Rename columns for previous enrollment
     base_dq_data_dt[
       , setNames(.SD, paste0("Previous", names(.SD)))
       , .SDcols = c(vars_prep, "HouseholdType")
@@ -1293,23 +1294,23 @@ overlap_details(
     by = "PreviousEnrollmentID",
     all.x = TRUE
   )[, `:=`(
-      PreviousProjectType = project_type(PreviousProjectType),
-      HouseholdType = factor(
-        case_when(
-          HouseholdType %in% c("PY", "ACminusPY") ~ "AC",
-          HouseholdType %in% c("UY", "AOminusUY") ~ "AO",
-          TRUE ~ HouseholdType
-        ),
-        levels = c("AO", "AC", "CO", "UN")
+    PreviousProjectType = project_type(PreviousProjectType),
+    HouseholdType = factor(
+      case_when(
+        HouseholdType %in% c("PY", "ACminusPY") ~ "AC",
+        HouseholdType %in% c("UY", "AOminusUY") ~ "AO",
+        TRUE ~ HouseholdType
       ),
-      PreviousHouseholdType = factor(
-        case_when(
-          PreviousHouseholdType %in% c("PY", "ACminusPY") ~ "AC",
-          PreviousHouseholdType %in% c("UY", "AOminusUY") ~ "AO",
-          TRUE ~ PreviousHouseholdType
-        ),
-        levels = c("AO", "AC", "CO", "UN")
-      )
+      levels = c("AO", "AC", "CO", "UN")
+    ),
+    PreviousHouseholdType = factor(
+      case_when(
+        PreviousHouseholdType %in% c("PY", "ACminusPY") ~ "AC",
+        PreviousHouseholdType %in% c("UY", "AOminusUY") ~ "AO",
+        TRUE ~ PreviousHouseholdType
+      ),
+      levels = c("AO", "AC", "CO", "UN")
+    )
   )][
     # Drop Issue columns
     , !c("Issue", "Type", "Guidance"), with = FALSE
@@ -1317,7 +1318,6 @@ overlap_details(
     # order and rename columns
     , ..col_order
   ]
-)
 
 # Remove unecessary columns
 cols_to_remove <- "PreviousEnrollmentID"
@@ -1639,114 +1639,95 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
   merge_check_info(checkIDs = 58) %>%
   select(all_of(vars_we_want))
 
-    # All together now --------------------------------------------------------
-    dq_main <- as.data.table(rbind(
-      approx_start_after_entry,
-      approx_start_v_living_situation_data,
-      conflicting_health_insurance_entry,
-      conflicting_health_insurance_exit,
-      conflicting_income_entry,
-      conflicting_income_exit,
-      conflicting_ncbs_entry,
-      dkr_client_veteran_discharge,
-      dkr_client_veteran_military_branch,
-      dkr_client_veteran_wars,
-      dkr_destination,
-      dkr_dob,
-      dkr_living_situation,
-      dkr_LoS,
-      dkr_months_times_homeless,
-      dkr_name,
-      dkr_race,
-      dkr_residence_prior,
-      dkr_ssn,
-      dkr_veteran,
-      overlaps_df,
-      duplicate_ees,
-      enrollment_after_operating_period,
-      enrollment_after_participating_period,
-      enrollment_before_operating_period,
-      enrollment_before_participating_period,
-      enrollment_x_operating_end,
-      enrollment_x_operating_period,
-      enrollment_x_operating_start,
-      enrollment_x_participating_end,
-      enrollment_x_participating_period,
-      enrollment_x_participating_start,
-      exit_before_start,
-      future_ees,
-      future_exits,
-      hh_issues,
-      incorrect_dob,
-      invalid_movein_date,
-      missing_approx_date_homeless,
-      missing_cls_subsidy,
-      # missing_destination,
-      missing_destination_subsidy,
-      dkr_disabilities,
-      missing_dob,
-      # missing_dob_dataquality,
-      missing_enrollment_coc,
-      missing_health_insurance_entry,
-      missing_health_insurance_exit,
-      missing_income_entry,
-      missing_income_exit,
-      missing_living_situation,
-      missing_LoS,
-      missing_months_times_homeless,
-      # missing_name_dataquality,
-      missing_ncbs_entry,
-      missing_previous_street_ESSH,
-      missing_residence_prior,
-      missing_res_prior_subsidy,
-      # missing_ssn,
-      # missing_veteran_status,
-      no_months_can_be_determined,
-      no_months_v_living_situation_data,
-      ssvf_hp_screen,
-      ssvf_missing_percent_ami,
-      ssvf_missing_vamc,
-      Top2_movein,
-      top_percents_long_stayers,
-      veteran_incorrect_year_entered,
-      veteran_incorrect_year_separated,
-      veteran_missing_branch,
-      veteran_missing_discharge_status,
-      veteran_missing_wars,
-      veteran_missing_year_entered,
-      veteran_missing_year_separated
-    ))
+# All together now --------------------------------------------------------
+dq_main <- as.data.table(rbind(
+  approx_start_after_entry,
+  approx_start_v_living_situation_data,
+  conflicting_health_insurance_entry,
+  conflicting_health_insurance_exit,
+  conflicting_income_entry,
+  conflicting_income_exit,
+  conflicting_ncbs_entry,
+  dkr_client_veteran_discharge,
+  dkr_client_veteran_military_branch,
+  dkr_client_veteran_wars,
+  dkr_destination,
+  dkr_dob,
+  dkr_living_situation,
+  dkr_LoS,
+  dkr_months_times_homeless,
+  dkr_name,
+  dkr_race,
+  dkr_residence_prior,
+  dkr_ssn,
+  dkr_veteran,
+  overlaps_df,
+  duplicate_ees,
+  enrollment_after_operating_period,
+  enrollment_after_participating_period,
+  enrollment_before_operating_period,
+  enrollment_before_participating_period,
+  enrollment_x_operating_end,
+  enrollment_x_operating_period,
+  enrollment_x_operating_start,
+  enrollment_x_participating_end,
+  enrollment_x_participating_period,
+  enrollment_x_participating_start,
+  exit_before_start,
+  future_ees,
+  future_exits,
+  hh_issues,
+  incorrect_dob,
+  invalid_movein_date,
+  missing_approx_date_homeless,
+  missing_cls_subsidy,
+  # missing_destination,
+  missing_destination_subsidy,
+  dkr_disabilities,
+  missing_dob,
+  # missing_dob_dataquality,
+  missing_enrollment_coc,
+  missing_health_insurance_entry,
+  missing_health_insurance_exit,
+  missing_income_entry,
+  missing_income_exit,
+  missing_living_situation,
+  missing_LoS,
+  missing_months_times_homeless,
+  # missing_name_dataquality,
+  missing_ncbs_entry,
+  missing_previous_street_ESSH,
+  missing_residence_prior,
+  missing_res_prior_subsidy,
+  # missing_ssn,
+  # missing_veteran_status,
+  no_months_can_be_determined,
+  no_months_v_living_situation_data,
+  ssvf_hp_screen,
+  ssvf_missing_percent_ami,
+  ssvf_missing_vamc,
+  Top2_movein,
+  top_percents_long_stayers,
+  veteran_incorrect_year_entered,
+  veteran_incorrect_year_separated,
+  veteran_missing_branch,
+  veteran_missing_discharge_status,
+  veteran_missing_wars,
+  veteran_missing_year_entered,
+  veteran_missing_year_separated
+))
 
-    dq_main <- unique(dq_main)[, Type := factor(Type,
-                                                levels = c("High Priority",
-                                                           "Error",
-                                                           "Warning"))]
-    setDF(dq_main)
-    
-   dq_providers <- sort(Project0()$ProjectName) 
-   
-# Plots for System-Level DQ Tab -------------------------------------------
-   dq_plot_df <- dq_main %>%
-     left_join(Project0() %>%
-                 select(ProjectID, OrganizationID), by = "ProjectID") %>%
-     select(PersonalID,
-            OrganizationID,
-            OrganizationName,
-            HouseholdID,
-            Issue,
-            Type) %>%
-     unique()
+dq_main <- unique(dq_main)[, Type := factor(Type,
+                                            levels = c("High Priority",
+                                                       "Error",
+                                                       "Warning"))]
+dq_main <- as.data.frame(dq_main)
 
-# Prepping dataframes for plots for Organization-Level DQ Tab -----------------
-   dq_org_plot_df <- dq_main %>%
-     select(PersonalID,
-            ProjectID,
-            ProjectName,
-            OrganizationName,
-            HouseholdID,
-            Issue,
-            Type) %>%
-     unique()
-   
-base_dq_data_func(base_dq_data)
-dq_main_df(dq_main)
+# base_dq_data_func(base_dq_data)
+# dq_main_df(dq_main)
+list(
+  base_dq_data = base_dq_data, 
+  dq_main = dq_main,
+  overlap_details = overlap_details
+)
+# }
