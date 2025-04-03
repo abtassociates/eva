@@ -486,52 +486,51 @@ output$sys_act_monthly_table <- renderDT({
     value.var = "value"
   ))
   
-  max_change <- max(summary_data[Type == "Monthly Change", -1, with = FALSE])
-  min_change <- min(summary_data[Type == "Monthly Change", -1, with = FALSE])
+  row_index_monthly_change <- which(summary_data$Type == "Monthly Change")
   
+  # Get numeric columns (all columns except the first one)
+  numeric_cols <- names(summary_data)[-1]
+  
+  # Find max and min values in the Monthly Change row
+  monthly_change_values <- as.numeric(summary_data[row_index_monthly_change, numeric_cols, with = FALSE])
+  max_change_col <- numeric_cols[which.max(monthly_change_values)]
+  min_change_col <- numeric_cols[which.min(monthly_change_values)]
+
   datatable(summary_data,
             options = list(
               dom = 't',
               ordering = FALSE,
               pageLength = 3,
               columnDefs = list(
-                list(
-                  width = "48px",    # Set to specific width
-                  targets = 0
-                ),
-                # center table text
-                list(
-                  className = 'dt-center',
-                  targets = '_all'  
-                )
+                list(width = "48px", targets = 0), # Set first column width
+                list(className = 'dt-center', targets = '_all') # Center text
               )
             ),
             rownames = FALSE)  %>%
+    # Highlight only the first column of "Inflow" and "Outflow" rows
     formatStyle(
-      names(summary_data),
+      columns = 1,  # First column
+      target = "cell",
       backgroundColor = styleEqual(
-        c(
-          max_change,
-          min_change,
-          "Inflow",
-          "Outflow"
-        ),
-        c(
-          scales::alpha("#BDB6D7", 0.5),  # 50% transparency for max
-          scales::alpha("#7F5D9D", 0.5),  # 50% transparency for min
-          "#BDB6D7", 
-          "#7F5D9D"
-        )
+        c("Inflow", "Outflow"),
+        c("#BDB6D7", "#7F5D9D")
       ),
       border = styleEqual(
-        c("Inflow", "Outflow", max_change, min_change),  # Match values where highlight=1 and max/min values
-        c(
-          "2px solid black",     # For highlighted cells
-          "2px solid black",     # For highlighted cells
-          "2px solid black",     # For max value
-          "2px solid black"      # For min value
-        )
+        c("Inflow", "Outflow"),
+        c("2px solid black","2px solid black")
       )
+    ) %>%
+    # Highlight max change
+    formatStyle(
+      columns = max_change_col,
+      target = "cell",
+      backgroundColor = styleRow(row_index_monthly_change, "#BDB6D7")
+    ) %>%
+    # Highlight min change
+    formatStyle(
+      columns = min_change_col,
+      target = "cell",
+      backgroundColor = styleRow(row_index_monthly_change, "#7F5D9D")
     )
 })
 
