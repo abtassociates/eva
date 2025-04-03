@@ -40,6 +40,8 @@ output$downloadPDDEReport <- downloadHandler(
 # summary table
 output$pdde_summary_table <- renderDT({
   req(session$userData$valid_file() == 1)
+  req(nrow(session$userData$pdde_main) > 0)
+
   a <- session$userData$pdde_main %>%
     group_by(Issue, Type) %>%
     summarise(Count = n()) %>%
