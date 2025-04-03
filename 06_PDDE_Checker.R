@@ -209,7 +209,7 @@ active_inventory_w_no_enrollments <- qDT(activeInventory) %>%
     multiple = TRUE,
     how="inner"
   ) %>%
-  fgroup_by(ProjectID, InventoryID) %>%
+  fgroup_by(ProjectID) %>%
   fmutate(
     # Check if inventory span overlaps with any enrollments
     any_inventory_overlap = anyv(
@@ -220,7 +220,7 @@ active_inventory_w_no_enrollments <- qDT(activeInventory) %>%
   ) %>%
   fungroup() %>%
   fsubset(!any_inventory_overlap) %>%
-  funique(cols = c("ProjectID","InventoryID")) %>%
+  funique(cols = c("ProjectID")) %>%
   # Bring in DQ cols
   join(
     Project0(),
@@ -229,14 +229,9 @@ active_inventory_w_no_enrollments <- qDT(activeInventory) %>%
     multiple = TRUE
   ) %>%
   merge_check_info_dt(checkIDs = 141) %>%
-  fmutate(
-    Detail = str_squish(str_glue(
-    "This project has at least one inventory record ({InventoryStartDate} - 
-    {InventoryEndDate}) with no enrollments within its span."
-  ))) %>%
+  fmutate(Detail = "") %>%
   fselect(PDDEcols) %>%
-  fsubset(!is.na(ProjectID)) %>%
-  funique()
+  fsubset(!is.na(ProjectID))
 
 # RRH project w no SubType ------------------------------------------------
 
