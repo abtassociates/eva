@@ -16,7 +16,6 @@
       "75 and older",
       "Unknown"
     ],
-    "syso_gender": "All",
     "syso_hh_type": "All",
     "syso_level_of_detail": "All",
     "syso_project_type": "All",
@@ -32,13 +31,13 @@
       ]
     },
     "sys_act_summary_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Exclusive Groupings <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Method 1 <br>",
       "deps": [
 
       ]
     },
     "sys_act_summary_ui_chart": {
-      "src": "[image data hash: 83ce3fc9da064f324f6d2c7b682bddcc]",
+      "src": "[image data hash: 5e016741c4574dd9131a58aec5a6ec7e]",
       "width": 1113,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n              the report period. The summary view of this chart includes four components: \n              Active at Start, Inflow, Outflow, and Active at End.",
@@ -71,16 +70,16 @@
               "fill": "PlotFillGroups"
             },
             "range": {
-              "left": 18,
-              "right": 1373,
-              "bottom": 492.0133858267717,
-              "top": 138.5993150684932
+              "left": 14.4,
+              "right": 1098.6,
+              "bottom": 393.2107086614173,
+              "top": 111.2794520547945
             }
           }
         ],
         "dims": {
-          "width": 1391.25,
-          "height": 625
+          "width": 1113,
+          "height": 500
         }
       }
     }

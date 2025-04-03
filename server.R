@@ -7,7 +7,7 @@ function(input, output, session) {
   source("helper_functions.R", local = TRUE)
   
   upcoming_maintenance_notification <- HTML("")
-  if(length(upcoming_maintenance_notification) > 1) {
+  if(nchar(upcoming_maintenance_notification) > 1) {
     showModal(
       modalDialog(
         upcoming_maintenance_notification,
