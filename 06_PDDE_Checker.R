@@ -213,7 +213,7 @@ active_inventory_w_no_enrollments <- qDT(activeInventory) %>%
   fmutate(
     # Check if inventory span overlaps with any enrollments
     any_inventory_overlap = anyv(
-      EntryDate <= InventoryEndDate & 
+      (EntryDate <= InventoryEndDate | is.na(InventoryEndDate)) & 
         ExitAdjust >= InventoryStartDate,
       TRUE
     )
@@ -229,7 +229,11 @@ active_inventory_w_no_enrollments <- qDT(activeInventory) %>%
     multiple = TRUE
   ) %>%
   merge_check_info_dt(checkIDs = 141) %>%
-  fmutate(Detail = "This project has at least one inventory record with no enrollments within its span.") %>%
+  fmutate(
+    Detail = str_squish(str_glue(
+    "This project has at least one inventory record ({InventoryStartDate} - 
+    {InventoryEndDate}) with no enrollments within its span."
+  ))) %>%
   fselect(PDDEcols) %>%
   fsubset(!is.na(ProjectID)) %>%
   funique()
