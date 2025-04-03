@@ -444,7 +444,7 @@ projects_funders_types <- Funder %>%
 # Active Inventory -------------------------------------------------------------
 activeInventory <- Inventory %>%
   left_join(
-    Project0() %>%
+    session$userData$Project0 %>%
       select(
         ProjectID,
         OrganizationName,
@@ -456,8 +456,8 @@ activeInventory <- Inventory %>%
     by = "ProjectID"
   ) %>%
   filter(
-    coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start() &
-      InventoryStartDate <= meta_HUDCSV_Export_End()
+    coalesce(InventoryEndDate, no_end_date) >= session$userData$meta_HUDCSV_Export_Start &
+      InventoryStartDate <= session$userData$meta_HUDCSV_Export_End
   )
 
 # HMIS-participating projects with active Inventory during report period -------
