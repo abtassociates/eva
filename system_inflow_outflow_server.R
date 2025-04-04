@@ -445,7 +445,15 @@ output$sys_act_monthly_ui_chart <- renderPlot({
              Flow_Type = "Outflow")]
   ))
   setorder(plot_data, month)
-
+  
+  level_of_detail_text <- case_when(
+    input$syso_level_of_detail == "All" ~ "People",
+    input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
+    TRUE ~
+      getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+  )
+  
+  # The chart
   ggplot(plot_data, 
          aes(x = month, y = Count, fill = Flow_Type, group=Flow_Type)) +
     geom_col(position = position_dodge(
@@ -456,15 +464,23 @@ output$sys_act_monthly_ui_chart <- renderPlot({
     theme_minimal() +
     labs(
       x = "Month",
-      y = paste0("Count of ", case_when(
-        input$syso_level_of_detail == "All" ~ "People",
-        input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
-        TRUE ~
-          getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-      )),
+      y = paste0("Count of ", level_of_detail_text),
       fill = "Flow Type"
     ) +
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + #increase space between groups
+    
+    # NEED TO FIX THIS!
+    ggtitle(
+      paste0(
+        "Total Inflow: +", scales::comma(
+          sum(sys_plot_data$inflow_outflow_full$InflowTypeSummary == "Inflow", na.rm = TRUE)
+        ), "\n",
+        "Total Outflow: -", scales::comma(
+          sum(sys_plot_data$inflow_outflow_full$OutflowTypeSummary == "Outflow", na.rm = TRUE)
+        ), "\n",
+        "Total Change in ", level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type)
+      )
+    ) +
     theme(
       axis.text = element_blank(),
       axis.title.x = element_blank(), 
