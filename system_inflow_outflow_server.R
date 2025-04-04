@@ -155,6 +155,7 @@ system_activity_prep_summary <- function() {
 }
 
 get_system_inflow_outflow_plot <- function(id, isExport = FALSE) {
+  logToConsole(paste0("Getting sys inflow/outflow plot for ", id, ". For export? ", isExport))
   if (id == "sys_act_summary_ui_chart") {
     df <- system_activity_prep_summary()
     mid_plot <- 2.5

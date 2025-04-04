@@ -38,9 +38,11 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     setProgress(detail = "Assessing your data quality..", value = .7)
     dq_mirai <- mirai(source("05_DataQuality.R"), menv)
+    logToConsole("About to run dq_mirai")
     
     setProgress(detail = "Checking your PDDEs", value = .85)
     pdde_mirai <- mirai(source("06_PDDE_Checker.R"), menv)
+    logToConsole("About to run pdde_mirai")
     
     setProgress(detail = "Preparing System Overview Data", value = .85)
     source("07_system_overview.R", local = TRUE)
