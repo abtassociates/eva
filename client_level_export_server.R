@@ -165,7 +165,7 @@ output$client_level_download_btn <- downloadHandler(
 get_client_level_export <- function() {
   merge(
     period_specific_data()[["Full"]],
-    Client %>% select(PersonalID, !!race_cols), 
+    session$userData$Client %>% select(PersonalID, !!race_cols), 
     by="PersonalID"
   )
 }

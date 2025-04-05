@@ -45,14 +45,14 @@ isFY2024Export <- function() {
 is_hashed <- function() {
 
   # read Client file
-  Client <- importFile(upload_filepath, "Client")
+  session$userData$Client <- importFile(upload_filepath, "Client")
   
   # decide if the export is hashed
   return(  
     # TRUE
     session$userData$Export$HashStatus == 4 &
-      min(nchar(Client$FirstName), na.rm = TRUE) ==
-      max(nchar(Client$FirstName), na.rm = TRUE)
+      min(nchar(session$userData$Client$FirstName), na.rm = TRUE) ==
+      max(nchar(session$userData$Client$FirstName), na.rm = TRUE)
   )
 }
 
