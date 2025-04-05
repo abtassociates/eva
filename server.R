@@ -17,37 +17,6 @@ function(input, output, session) {
     )
   }
   
-  # Upload-specific static variables shared across session --------------------
-  sessionVars <- c(
-    "validation", 
-    "Export", 
-    "initially_valid_import",
-    "valid_file", 
-    "file_structure_analysis_main", 
-    "Project0", 
-    "CurrentLivingSituation", 
-    "Event", 
-    "ReportStart", 
-    "ReportEnd", 
-    "meta_HUDCSV_Export_Start", 
-    "meta_HUDCSV_Export_End", 
-    "meta_HUDCSV_Export_Date", 
-    "overlap_details", 
-    "base_dq_data_func", 
-    "dq_main_df", 
-    "pdde_main", 
-    "days_of_data",
-    "client_categories"
-  )
-  
-  # Dynamic datasets, dependent on user filters -------------------------------
-  sys_plot_datasets <- c(
-    "inflow_outflow_full",
-    "inflow_outflow_monthly",
-    "people_universe_filtered",
-    "sankey",
-    "client_level_export_df"
-  )
   sys_plot_data <- reactiveValues()
   
   windowSize <- reactiveVal(NULL)
