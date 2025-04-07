@@ -24,22 +24,6 @@ function(input, output, session) {
   
   reset_session_vars()
   
-  # Asynchronous processing, using mirai, of DQ and PDDE to save time------
-  # for a single user and multiple users
-  # Create DQ and PDDE script environment
-  menv <- environment()
-  mirai::everywhere({
-    library(data.table)
-    library(tidyverse)
-    library(janitor)
-    library(readr)
-    library(collapse)
-    source("helper_functions.R", local=menv)
-  })
-  for(obj in ls(.GlobalEnv, all.names=TRUE)) {
-    assign(obj, get(obj, .GlobalEnv), envir = menv)
-  }
-  
   # Handle if user arrives from external site
   observe({
     req(session$clientData$url_search != "")

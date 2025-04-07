@@ -24,10 +24,6 @@ library(officer)
 library(mirai)
 library(plotly)
 library(collapse)
-# library(future)
-# library(promises)
-# plan(multisession)
-daemons(4)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 options(shiny.fullstacktrace = TRUE)
@@ -38,6 +34,21 @@ if(dir.exists(here("metadata-analysis/metadata/"))) {
 }
 source(here("hardcodes.R"), local = TRUE) # hard-coded variables and data frames
 
+# Asynchronous processing, using mirai, of DQ and PDDE to save time------
+# for a single user and multiple users
+# Create DQ and PDDE script environment
+daemons(4, output = TRUE)
+mirai::everywhere({
+  library(data.table)
+  library(tidyverse)
+  library(janitor)
+  library(readr)
+  library(collapse)
+  library(here)
+  source(here("hardcodes.R"))
+  source(here("helper_functions.R"))
+  set_collapse(na.rm = TRUE, verbose = FALSE) # suppress join printouts
+})
 onStop(function() daemons(0))
 # # functions used throughout the app
 # source("helper_functions.R", local = TRUE)

@@ -28,33 +28,40 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     setProgress(detail = "Prepping initial data..", value = .4)
     source("04_initial_data_prep.R", local = TRUE) 
-    
-    # Asynchronous processing, using mirai, of DQ and PDDE to save time------
-    # for a single user and multiple users
-    # Create DQ and PDDE script environment
-    for(v in ls(environment(), all.names=TRUE)) {
-      assign(v, get(v), envir = menv)
-    }
-    
+
     setProgress(detail = "Assessing your data quality..", value = .7)
-    dq_mirai <- mirai(source("05_DataQuality.R"), menv)
-    logToConsole("About to run dq_mirai")
+    logToConsole(session, "About to run dq_mirai")
     
+    dq_mirai <- mirai(
+      source("05_DataQuality.R", local = TRUE), 
+      .args = mget(dq_mirai_dependencies)
+    )
+
     setProgress(detail = "Checking your PDDEs", value = .85)
-    pdde_mirai <- mirai(source("06_PDDE_Checker.R"), menv)
-    logToConsole("About to run pdde_mirai")
+    logToConsole(session, "About to run pdde_mirai")
+    
+    pdde_mirai <- mirai(
+      source("06_PDDE_Checker.R", local = TRUE), 
+      .args = mget(pdde_mirai_dependencies)
+    )
     
     setProgress(detail = "Preparing System Overview Data", value = .85)
     source("07_system_overview.R", local = TRUE)
     
     # Store results of DQ and PDDE ------------------------------------------
-    logToConsole("collecting DQ results")
+    logToConsole(session, "collecting DQ results")
     dq_mirai[]
-    
-    logToConsole("collecting PDDE results")
+    if(mirai::is_error_value(dq_mirai$data)) {
+      logToConsole(paste0("dq_mirai failed with error: ", dq_mirai$data))
+    }
+
+    logToConsole(session, "collecting PDDE results")
     pdde_mirai[]
+    if(mirai::is_error_value(pdde_mirai$data)) {
+      logToConsole(paste0("pdde_mirai failed with error: ", pdde_mirai$data))
+    }
     
-    logToConsole("saving DQ and PDDE results to session")
+    logToConsole(session, "saving DQ and PDDE results to session")
     session$userData$pdde_main <- pdde_mirai$data$value
     session$userData$dq_main_df <- dq_mirai$data$value$dq_main
     session$userData$base_dq_data_func <- dq_mirai$data$value$base_dq_data

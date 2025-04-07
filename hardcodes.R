@@ -407,3 +407,30 @@ sys_plot_datasets <- c(
   "sankey",
   "client_level_export_df"
 )
+
+# environment depencies for DQ and PDDE mirai
+dq_mirai_dependencies <- c(
+  "Enrollment",
+  "Client",
+  "ProjectSegments",
+  "HealthAndDV",
+  "CurrentLivingSituation",
+  "projects_funders_types",
+  "IncomeBenefits",
+  "EnrollmentAdjust",
+  "Services",
+  "Funder",
+  "session"
+)
+
+pdde_mirai_dependencies <- c(
+  "Inventory",
+  "Enrollment",
+  "Project",
+  "ProjectCoC",
+  "activeInventory",
+  "HMISParticipation",
+  "HMIS_participating_projects_w_active_inv_no_overflow",
+  "CEParticipation",
+  "session"
+)
