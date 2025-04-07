@@ -4,7 +4,7 @@
 # unexpected nulls, and more
 ######################
 
-logToConsole("Running file structure analysis")
+logToConsole(session, "Running file structure analysis")
 
 # Prep --------------------------------------------------------------------
 
@@ -425,9 +425,9 @@ if(session$userData$file_structure_analysis_main() %>%
     )
   )
   
-  logMetadata("Unsuccessful upload - not structurally valid")
+  logMetadata(session, "Unsuccessful upload - not structurally valid")
   
-  reset_postvalid_components()
+  reset_postvalid_components(session)
 } else{
   session$userData$valid_file(1)
 }

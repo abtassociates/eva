@@ -2,7 +2,7 @@ raw_enrollments_dt <- reactive({
   # browser()
   upload_name <- ifelse(input$in_demo_mode, "DEMO", input$imported$name)
   
-  unique(as.data.table(CurrentLivingSituation)[
+  unique(as.data.table(session$userData$CurrentLivingSituation)[
     CurrentLivingSituation %in% homeless_livingsituation_incl_TH
   ][
     , .(EnrollmentID, InformationDate)

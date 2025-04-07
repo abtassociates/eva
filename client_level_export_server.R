@@ -151,8 +151,8 @@ output$client_level_download_btn <- downloadHandler(
       col_names = TRUE
     )
     
-    logToConsole("Downloaded Client Level Export")
-    logMetadata(paste0(
+    logToConsole(session, "Downloaded Client Level Export")
+    logMetadata(session, paste0(
       "Downloaded Client Level Export",
       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
     ))

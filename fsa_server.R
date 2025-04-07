@@ -76,7 +76,7 @@ output$downloadFileStructureAnalysis <- downloadHandler(
       path = file
     )
     
-    logMetadata(paste0("Downloaded File Structure Analysis Report", 
+    logMetadata(session, paste0("Downloaded File Structure Analysis Report", 
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     
     exportTestValues(file_structure_analysis_main = session$userData$file_structure_analysis_main %>% nice_names())
@@ -105,7 +105,7 @@ output$downloadImpermissibleCharacterDetail <- downloadHandler(
       path = file
     )
     
-    logMetadata(paste0("Impermissible Character Locations Report", 
+    logMetadata(session, paste0("Impermissible Character Locations Report", 
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     
     exportTestValues(bracket_files_detail = bracket_files_detail)

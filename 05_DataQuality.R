@@ -13,7 +13,7 @@
 #     - Future Entry Exits
 ###############################
 # run_data_quality_checks <- function() {
-logToConsole("Running Data Quality")
+logToConsole(session, "Running Data Quality")
 
 # The Variables That We Want ----------------------------------------------
 # these are for the DQ export

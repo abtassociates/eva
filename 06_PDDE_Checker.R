@@ -2,7 +2,7 @@
 #   PURPOSE: This script conducts the PDDE checks, which are things admins fix 
 #   (rather than End-users who fix DQ checks)
 ###############################
-logToConsole("Running PDDE checker")
+logToConsole(session, "Running PDDE checker")
 
 PDDEcols = c("OrganizationName",
              "ProjectID",
@@ -222,7 +222,7 @@ active_inventory_w_no_enrollments <- qDT(activeInventory) %>%
   funique(cols = c("ProjectID")) %>%
   # Bring in DQ cols
   join(
-    Project0(),
+    session$userData$Project0,
     on = "ProjectID",
     how = "inner",
     multiple = TRUE
@@ -283,7 +283,11 @@ zero_utilization <- HMIS_participating_projects_w_active_inv_no_overflow %>%
     multiple = TRUE,
     how="anti"
   ) %>%
-  join(Project0(), on = "ProjectID", how = "inner") %>%
+  join(
+    session$userData$Project0, 
+    on = "ProjectID", 
+    how = "inner"
+  ) %>%
   merge_check_info_dt(checkIDs = 83) %>%
   fmutate(Detail = "") %>%
   fselect(PDDEcols) %>%
@@ -448,7 +452,11 @@ activeInventory_COC_merged <-  join(
     multiple = TRUE,
     column="source"
   ) %>%
-  join(session$userData$Project0, on="ProjectID", drop.dup.cols = "x")
+  join(
+    session$userData$Project0, 
+    on="ProjectID", 
+    drop.dup.cols = "x"
+  )
 
 # Throw a warning if there is no inventory record for a ProjectID and COCCode combo in the ProjectCoC data
 

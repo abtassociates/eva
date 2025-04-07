@@ -4,8 +4,6 @@ function(input, output, session) {
   # track_usage(storage_mode = store_json(path = "logs/"))
   set.seed(12345)
   
-  source("helper_functions.R", local = TRUE)
-  
   upcoming_maintenance_notification <- HTML("")
   if(nchar(upcoming_maintenance_notification) > 1) {
     showModal(
@@ -22,7 +20,7 @@ function(input, output, session) {
   windowSize <- reactiveVal(NULL)
   triggerPlot <- reactiveVal(NULL)
   
-  reset_session_vars()
+  reset_session_vars(session, sys_plot_data)
   
   # Handle if user arrives from external site
   observe({
@@ -37,22 +35,22 @@ function(input, output, session) {
   source("changelog.R", local = TRUE)
   source("demo_management.R", local = TRUE)
   
-  logMetadata("Session started")
+  logMetadata(session, "Session started")
   
   # Tab Management -----------------------------------------------------------------
   observeEvent(input$sidebarmenuid, { 
-    logMetadata(paste0("User on ",input$sidebarmenuid, 
+    logMetadata(session, paste0("User on ",input$sidebarmenuid, 
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   })
   
   output$headerUpload <-
-    headerGeneric("Upload HMIS CSV Export",
+    headerGeneric(session, "Upload HMIS CSV Export",
                   h4(
                     strong("Export Date: "),
                     format(session$userData$meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
                   ))
 
-  output$headerLocalSettings <- headerGeneric("Edit Local Settings")
+  output$headerLocalSettings <- headerGeneric(session, "Edit Local Settings")
 
   # the reason we split the Client Count header into two is for shinytest reasons
   # this _supp renderUI needed to be associated with an output in order to make 
@@ -67,18 +65,18 @@ function(input, output, session) {
     h4(organization, "|", input$currentProviderList)
   })
   
-  output$headerClientCounts <- headerGeneric("Client Counts Report",
+  output$headerClientCounts <- headerGeneric(session, "Client Counts Report",
                                              htmlOutput("headerClientCounts_supp"))
   
-  output$headerPDDE <- headerGeneric("Project Descriptor Data Elements Checker")
+  output$headerPDDE <- headerGeneric(session, "Project Descriptor Data Elements Checker")
   
-  output$headerSystemDQ <- headerGeneric("System-level Data Quality")
+  output$headerSystemDQ <- headerGeneric(session, "System-level Data Quality")
   
-  output$headerDataQuality <- headerGeneric("Organization-level Data Quality")
+  output$headerDataQuality <- headerGeneric(session, "Organization-level Data Quality")
   
-  output$headerSystemOverview <- headerGeneric("System Overview")
+  output$headerSystemOverview <- headerGeneric(session, "System Overview")
 
-  output$headerSystemExit <- headerGeneric("System Exit")
+  output$headerSystemExit <- headerGeneric(session, "System Exit")
   
   # output$headerUtilization <- renderUI({
   #   list(h2("Bed and Unit Utilization"),
@@ -110,7 +108,7 @@ function(input, output, session) {
   
   # decides when it's time to time out the session
   observeEvent(input$timeOut, {
-    logMetadata("Timed out")
+    logMetadata(session, "Timed out")
     session$reload()
   })
   
@@ -140,6 +138,6 @@ function(input, output, session) {
     memoise::forget(session$userData$get_period_specific_nbn_enrollment_services)
     gc()
     cat(paste0("Session ", session$token, " ended at ", Sys.time()))
-    logMetadata("Session Ended")
+    logMetadata(session, "Session Ended")
   })
 }

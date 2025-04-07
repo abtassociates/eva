@@ -1,4 +1,4 @@
-logToConsole("Running system overview")
+logToConsole(session, "Running system overview")
 
 # Age ---------------------------------------------------------------------
 EnrollmentAdjustAge <- setDT(EnrollmentAdjust)[

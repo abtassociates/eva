@@ -1,7 +1,7 @@
 # meta = result comes directly from imported meta data
 # calc = result is calculated
 
-logToConsole("Running dates")
+logToConsole(session, "Running dates")
 # Dates from Metadata -----------------------------------------------------
 session$userData$meta_HUDCSV_Export_Start <- session$userData$Export$ExportStartDate
 

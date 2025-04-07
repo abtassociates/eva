@@ -32,7 +32,8 @@ if(dir.exists(here("metadata-analysis/metadata/"))) {
 } else {
   dir.create(here("metadata-analysis/metadata/"))
 }
-source(here("hardcodes.R"), local = TRUE) # hard-coded variables and data frames
+source(here("hardcodes.R")) # hard-coded variables and data frames
+source(here("helper_functions.R")) # functions used throughout the app
 
 # Asynchronous processing, using mirai, of DQ and PDDE to save time------
 # for a single user and multiple users
@@ -50,8 +51,4 @@ mirai::everywhere({
   set_collapse(na.rm = TRUE, verbose = FALSE) # suppress join printouts
 })
 onStop(function() daemons(0))
-# # functions used throughout the app
-# source("helper_functions.R", local = TRUE)
-
-# runApp(display.mode = "showcase")
 

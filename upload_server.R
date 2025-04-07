@@ -69,7 +69,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     setProgress(detail = "Done!", value = 1)
     
-    logToConsole("Done processing")
+    logToConsole(session, "Done processing")
     
     # Show successful upload pop-up ----------------------------------------
     if(nrow(session$userData$file_structure_analysis_main()) > 0) {
@@ -109,14 +109,14 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     shinyjs::show("fileStructureAnalysis")
     
-    logMetadata("Successful upload")
+    logMetadata(session, "Successful upload")
     
-    logToConsole("Updating inputs")
+    logToConsole(session, "Updating inputs")
     
     
     # Update inputs -----------------------------------------------------------
     if(is.null(input$imported) & !isTruthy(input$in_demo_mode)) {
-      logToConsole("PROBLEM: User is in upload processing but imported is null and demo_mode is not on")
+      logToConsole(session, "PROBLEM: User is in upload processing but imported is null and demo_mode is not on")
       stop(
         str_squish(
           "Eva encountered a problem. Please submit an issue on GitHub and note the

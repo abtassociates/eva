@@ -122,7 +122,7 @@ toggleDemoJs <- function(t) {
     shinyjs::disable("imported")
     
     print("Switched to demo mode!")
-    logMetadata("Switched to demo mode")
+    logMetadata(session, "Switched to demo mode")
     
   } else {
     capture.output("Switching to live mode")
@@ -143,7 +143,7 @@ toggleDemoJs <- function(t) {
     
     shinyjs::hide("fileStructureAnalysis")
     
-    reset_session_vars()
+    reset_session_vars(session, sys_plot_data)
     
     session$sendInputMessage('currentProviderList', list(
       choices = NULL
@@ -162,7 +162,7 @@ toggleDemoJs <- function(t) {
     
     print("Switched into live mode!")
     capture.output("Switched into live mode")
-    logMetadata("Switched into live mode")
+    logMetadata(session, "Switched into live mode")
   }
 }
 
@@ -175,14 +175,14 @@ observeEvent(input$stay_in_demo, {
   demo_modal_closed(1)
   removeModal()
   runjs('document.getElementById("isdemo").checked = true;')
-  logMetadata("Chose to stay in demo mode")
+  logMetadata(session, "Chose to stay in demo mode")
 })
 
 observeEvent(input$stay_in_live, {
   demo_modal_closed(1)
   removeModal()
   runjs('document.getElementById("isdemo").checked = false;')
-  logMetadata("Chose to stay in live mode")
+  logMetadata(session, "Chose to stay in live mode")
 })
 
 observeEvent(input$continue_live_btn, {

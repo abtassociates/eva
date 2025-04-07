@@ -225,7 +225,7 @@ get_col_types <- function(upload_filepath, file) {
   return(data_types)
 }
 
-logMetadata <- function(detail) {
+logMetadata <- function(session, detail) {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
@@ -242,7 +242,7 @@ logMetadata <- function(detail) {
   ))
 }
 
-headerGeneric <- function(tabTitle, extraHTML = NULL) {
+headerGeneric <- function(session, tabTitle, extraHTML = NULL) {
   renderUI({
     if(session$userData$valid_file() == 1) {
       list(h2(tabTitle),
@@ -260,7 +260,7 @@ headerGeneric <- function(tabTitle, extraHTML = NULL) {
   })
 }
 
-logSessionData <- function() {
+logSessionData <- function(session) {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
@@ -286,7 +286,7 @@ logSessionData <- function() {
   )
 }
 
-logToConsole <- function(msg) {
+logToConsole <- function(session, msg) {
   # browser()
   d <- data.frame(
     SessionToken = session$token,
@@ -422,7 +422,7 @@ custom_rprof <- function(expr, source_file_name, code_block_name = NULL) {
 
 
 # Misc --------------------------------------------------------------------
-reset_postvalid_components <- function() {
+reset_postvalid_components <- function(session) {
   session$userData$dq_main_df <- NULL
   session$sendInputMessage('orgList', list(choices = NULL))
   session$sendInputMessage('currentProviderList', list(choices = NULL))
@@ -445,7 +445,7 @@ reset_postvalid_components <- function() {
 }
 
 # essentially resets the app
-reset_session_vars <- function() {
+reset_session_vars <- function(session, sys_plot_data) {
   for(v in sessionVars) {
     if(v %in% c("valid_file", "initially_valid_import")) session$userData[[v]] <- reactiveVal(0) 
     else if(v == "file_structure_analysis_main") session$userData[[v]] <- reactiveVal(NULL)
@@ -456,7 +456,7 @@ reset_session_vars <- function() {
     sys_plot_data[[v]] <- reactiveVal(NULL)
   }
   
-  reset_postvalid_components()
+  reset_postvalid_components(session)
 }
 
 getNameByValue <- function(vector, val) {

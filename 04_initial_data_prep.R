@@ -22,7 +22,7 @@
 # adults = all adults in a household
 # clients = all members of the household
 
-logToConsole("Running initial data prep")
+logToConsole(session, "Running initial data prep")
 
 # Project data ------------------------------------------------------------
 

@@ -29,7 +29,7 @@ output$downloadPDDEReport <- downloadHandler(
       ),
       path = file)
     
-    logMetadata(paste0("Downloaded PDDE Report",
+    logMetadata(session, paste0("Downloaded PDDE Report",
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     
     exportTestValues(pdde_download_summary = summary_df)
@@ -62,6 +62,7 @@ output$pdde_summary_table <- renderDT({
 
 output$pdde_guidance_summary <- renderDT({
   req(session$userData$valid_file() == 1)
+  req(nrow(session$userData$pdde_main) > 0)
   guidance <- session$userData$pdde_main %>%
     select(Type, Issue, Guidance) %>%
     arrange(Type, Issue) %>%
@@ -83,6 +84,7 @@ output$pdde_guidance_summary <- renderDT({
 
 output$dq_organization_summary_table <- renderDT({
   req(session$userData$valid_file() == 1)
+  req(nrow(dq_main_reactive()) > 0)
   a <- dq_main_reactive() %>%
     filter(OrganizationName %in% c(input$orgList)) %>%
     select(ProjectName, 
@@ -147,7 +149,7 @@ output$downloadOrgDQReport <- downloadHandler(
     str_glue("{input$orgList} Data Quality Report-"))),
   content = function(file) {
     write_xlsx(dqDownloadInfo()$orgDQData, path = file)
-    logMetadata(paste0("Downloaded Org-level DQ Report",
+    logMetadata(session, paste0("Downloaded Org-level DQ Report",
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     exportTestValues(orgDQ_download = summarize_df(dqDownloadInfo()$orgDQData))
   }
@@ -166,7 +168,7 @@ output$downloadSystemDQReport <- downloadHandler(
   filename = date_stamped_filename("Full Data Quality Report-"),
   content = function(file) {
     write_xlsx(dqDownloadInfo()$systemDQData, path = file)
-    logMetadata(paste0("Downloaded System-level DQ Report",
+    logMetadata(session, paste0("Downloaded System-level DQ Report",
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     exportTestValues(systemDQ_download = summarize_df(dqDownloadInfo()$systemDQData))
   }
@@ -255,7 +257,7 @@ vars_we_want <- c(vars_prep,
                   "Guidance")
 
 dq_main_reactive <- reactive({
-  logToConsole("in dq_main_reactive")
+  logToConsole(session, "in dq_main_reactive")
   ESNbN <- calculate_long_stayers_local_settings_dt(input$ESNbNLongStayers, 0)
   Outreach <- calculate_long_stayers_local_settings_dt(input$OUTLongStayers, 4)
   CoordinatedEntry <- calculate_long_stayers_local_settings_dt(input$CELongStayers, 14)
@@ -434,7 +436,7 @@ cls_project_types <- reactive({
 })
 
 calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
-  logToConsole(paste0("in calculate_long_stayers_local_settings_dt: too_many_days = ", too_many_days, ", projecttype = ", projecttype))
+  logToConsole(session, paste0("in calculate_long_stayers_local_settings_dt: too_many_days = ", too_many_days, ", projecttype = ", projecttype))
   if (projecttype %in% c(project_types_w_cls)) {
     merge_check_info_dt(
       setDT(cls_project_types())[
@@ -463,7 +465,8 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
 # Outstanding Referrals --------------------------------------------
 
 calculate_outstanding_referrals <- function(too_many_days){
-  logToConsole(paste0("in calculate_outstanding_referrals: too_many_days = ", too_many_days))
+  req(!is.null(session$userData$base_dq_data_func))
+  logToConsole(session, paste0("in calculate_outstanding_referrals: too_many_days = ", too_many_days))
   session$userData$base_dq_data_func %>%
     left_join(session$userData$Event %>% select(EnrollmentID,
                                EventID,
@@ -633,7 +636,7 @@ renderDQPlot <- function(level, issueType, group, color) {
 
 # list of data frames to include in DQ Org Report
 dqDownloadInfo <- reactive({
-  logToConsole("in dqDownloadInfo")
+  logToConsole(session, "in dqDownloadInfo")
   req(session$userData$valid_file() == 1)
 
   exportTestValues(dq_main_reactive =  dq_main_reactive() %>% nice_names())
