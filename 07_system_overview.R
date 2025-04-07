@@ -507,6 +507,7 @@ session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise
 # and other variables used for Inflow/Outflow categorization
 session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
   function(report_period, upload_name) {
+    # custom_rprof({
     startDate <- report_period[1]
     endDate <- report_period[2]
     
@@ -556,16 +557,16 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           (ExitAdjust < endDate & (lh_prior_livingsituation | info_equal_exit))
       )
     ])
-    
-    enrollment_categories_period <- lh_non_res_period[
-      enrollment_categories[
+    enrollment_categories_period <- join(
+      enrollment_categories %>% fsubset(
         # keep enrollments in date range and exits within the 2 yrs prior to start
         EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))
-      ],
-      on = .(EnrollmentID)
-    ]
+      ),
+      lh_non_res_period,
+      on = "EnrollmentID",
+      how = "left"
+    )
     rm(lh_non_res_period)
-    findex_by(enrollment_categories_period, PersonalID)
 
     # browser()
     enrollment_categories_period[, `:=`(
@@ -578,18 +579,13 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       #   default = "NotDV"
       # )
     )]
-    
-    # only keep folks who have an peecr, rather than also restricting to an plecr
-    # if, for Non-Res Project Types there is no ecpe, we will make the lecr the eecr
-    valid_ids <- enrollment_categories_period[
-      in_date_range & (ProjectType %in% project_types_w_beds | was_lh_at_start), 
-      unique(PersonalID)
-    ]
-    
-    enrollment_categories_period[
-      PersonalID %in% valid_ids
-    ]
-    
+
+    # only keep folks in_date_range and res or non-res+lh at start
+    enrollment_categories_period <- enrollment_categories_period %>%
+      fsubset(
+        in_date_range & (ProjectType %in% project_types_w_beds | was_lh_at_start)
+      )
+
     enrollment_categories_period <- enrollment_categories_period %>%
       # ftransform(EntryDate_num = as.numeric(EntryDate)) %>%  # Pre-compute numeric date
       fgroup_by(PersonalID) %>%                     # Group by PersonalID
@@ -600,10 +596,8 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         any_in_date_range = anyv(in_date_range, TRUE)
       )
     
-    # options(verbose = FALSE)
-    # browser()
     enrollment_categories_period <- enrollment_categories_period %>%
-      roworder(., -ProjectTypeWeight, EntryDate) %>%
+      roworder(-ProjectTypeWeight, EntryDate) %>%
       fmutate(
         eecr_straddle = ffirst(
           fifelse(straddles_start, EnrollmentID, NA)
@@ -614,7 +608,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       ) 
     
     enrollment_categories_period <- enrollment_categories_period %>%
-      roworder(., EntryDate, -ProjectTypeWeight) %>%
+      roworder(EntryDate, -ProjectTypeWeight) %>%
       fmutate(
         eecr_no_straddle = ffirst(
           fifelse(!any_straddle_start & in_date_range, EnrollmentID, NA)

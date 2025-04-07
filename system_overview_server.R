@@ -452,7 +452,11 @@ period_specific_data <- reactive({
   results <- lapply(
     session$userData$report_dates,
     function(period) {
-      all_filtered <- universe_filtered(period, upload_name)
+      # custom_rprof({
+      enrollment_categories <- session$userData$get_period_specific_enrollment_categories(period, upload_name)
+      nbn_services <- session$userData$get_period_specific_nbn_enrollment_services(period, upload_name)
+        
+      all_filtered <- universe_filtered(enrollment_categories, nbn_services)
       universe_w_enrl_flags <- universe_enrl_flags(all_filtered, period)
       universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags, period)
       
@@ -460,6 +464,7 @@ period_specific_data <- reactive({
       if(!identical(period, session$userData$report_dates[["Full"]])) {
         universe_w_ppl_flags[, month := as.Date(period[1])]
       }
+      # }, "system_overview_server.R")
       universe_w_ppl_flags
     }
   )
@@ -485,12 +490,11 @@ client_categories_filtered <- reactive({
 })
 
 # Period-specific, user-filtered, enrollment-level universe applied ------------------
-universe_filtered <- function(period, upload_name) {
+universe_filtered <- function(enrollment_categories, nbn_services) {
   # browser()
   join(
-    session$userData$get_period_specific_enrollment_categories(period, upload_name) %>%
-      fsubset(eecr | lecr | lookback),
-    session$userData$get_period_specific_nbn_enrollment_services(period, upload_name), 
+    enrollment_categories,
+    nbn_services, 
     on = "EnrollmentID"
   ) %>%
     join( # Inner Join with client categories
