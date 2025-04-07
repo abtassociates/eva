@@ -603,7 +603,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     # options(verbose = FALSE)
     # browser()
     enrollment_categories_period <- enrollment_categories_period %>%
-      roworder(., -ProjectTypeWeight, EntryDate, verbose = FALSE) %>%
+      roworder(., -ProjectTypeWeight, EntryDate) %>%
       fmutate(
         eecr_straddle = ffirst(
           fifelse(straddles_start, EnrollmentID, NA)
@@ -614,7 +614,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       ) 
     
     enrollment_categories_period <- enrollment_categories_period %>%
-      roworder(., EntryDate, -ProjectTypeWeight, verbose = FALSE) %>%
+      roworder(., EntryDate, -ProjectTypeWeight) %>%
       fmutate(
         eecr_no_straddle = ffirst(
           fifelse(!any_straddle_start & in_date_range, EnrollmentID, NA)

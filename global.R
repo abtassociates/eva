@@ -27,6 +27,8 @@ library(collapse)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 options(shiny.fullstacktrace = TRUE)
+set_collapse(na.rm = TRUE, verbose = FALSE)
+
 if(dir.exists(here("metadata-analysis/metadata/"))) {
   capture.output("All good", file = stderr())
 } else {

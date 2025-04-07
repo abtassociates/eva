@@ -111,15 +111,13 @@ universe_filtered <- function(period, upload_name) {
     session$userData$get_period_specific_enrollment_categories(period, upload_name) %>%
       fsubset(eecr | lecr | lookback),
     session$userData$get_period_specific_nbn_enrollment_services(period, upload_name), 
-    on = "EnrollmentID",
-    verbose = FALSE
+    on = "EnrollmentID"
   ) %>%
   join( # Inner Join with client categories
     # This is necessary for bringing in Veteran Status, but will also make the rest faster
     client_categories_filtered(),
     on = "PersonalID",
-    how = "inner",
-    verbose = FALSE
+    how = "inner"
   ) %>%
   fsubset(
     # Household type filter
@@ -148,15 +146,13 @@ universe_filtered_mirai <- function(period, upload_name, client_categories_filt)
     session$userData$get_period_specific_enrollment_categories(period, upload_name) %>%
       fsubset(eecr | lecr | lookback),
     session$userData$get_period_specific_nbn_enrollment_services(period, upload_name), 
-    on = "EnrollmentID",
-    verbose = FALSE
+    on = "EnrollmentID"
   ) %>%
   join( # Inner Join with client categories
     # This is necessary for bringing in Veteran Status, but will also make the rest faster
     client_categories_filt,
     on = "PersonalID",
-    how = "inner",
-    verbose = FALSE
+    how = "inner"
   ) %>% 
     fsubset(
       # Household type filter
