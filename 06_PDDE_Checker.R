@@ -197,7 +197,8 @@ operating_end_precedes_inventory_end <- activeInventory %>%
 
 # Active Inventory with No Enrollments ---------
 # Active inventory records (with non-overflow beds) should have enrollments within their bounds
-active_inventory_w_no_enrollments <- qDT(activeInventory) %>% 
+if(nrow(activeInventory) > 0) {
+  active_inventory_w_no_enrollments <- qDT(activeInventory) %>% 
   fsubset(
     (is.na(Availability) | Availability != 3) &
       BedInventory > 0 & !is.na(BedInventory)
@@ -232,7 +233,9 @@ active_inventory_w_no_enrollments <- qDT(activeInventory) %>%
   fmutate(Detail = "") %>%
   fselect(PDDEcols) %>%
   fsubset(!is.na(ProjectID))
-
+} else {
+  active_inventory_w_no_enrollments <- NULL
+}
 # RRH project w no SubType ------------------------------------------------
 
 rrh_no_subtype <- Project0() %>%
