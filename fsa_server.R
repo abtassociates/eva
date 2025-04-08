@@ -79,7 +79,7 @@ output$downloadFileStructureAnalysis <- downloadHandler(
     logMetadata(session, paste0("Downloaded File Structure Analysis Report", 
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     
-    exportTestValues(file_structure_analysis_main = session$userData$file_structure_analysis_main %>% nice_names())
+    exportTestValues(file_structure_analysis_main = session$userData$file_structure_analysis_main() %>% nice_names())
   }
 )
 
