@@ -433,18 +433,9 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
 
 # Month-by-Month Chart+Table ----------------------------------------------
 output$sys_act_monthly_ui_chart <- renderPlot({
-  data <- sys_plot_data$inflow_outflow_monthly
+  plot_data <- get_inflow_outflow_monthly()
   
-  # create and append inflow and outflow bar datasets
-  plot_data <- rbindlist(list(
-    data[, .(month = month, 
-             Count = Inflow, 
-             Flow_Type = "Inflow")],
-    data[, .(month = month, 
-             Count = Outflow, 
-             Flow_Type = "Outflow")]
-  ))
-  setorder(plot_data, month)
+  setorder(plot_data, month, Type)
   
   level_of_detail_text <- case_when(
     input$syso_level_of_detail == "All" ~ "People",
@@ -455,7 +446,7 @@ output$sys_act_monthly_ui_chart <- renderPlot({
   
   # The chart
   ggplot(plot_data, 
-         aes(x = month, y = Count, fill = Flow_Type, group=Flow_Type)) +
+         aes(x = month, y = Count, fill = Type, group=Type)) +
     geom_col(position = position_dodge(
       preserve="single", 
       width = 0.6 # space between bars within a group
@@ -464,20 +455,16 @@ output$sys_act_monthly_ui_chart <- renderPlot({
     theme_minimal() +
     labs(
       x = "Month",
-      y = paste0("Count of ", level_of_detail_text),
-      fill = "Flow Type"
+      y = paste0("Count of ", level_of_detail_text)
+      # fill is set via scale_fill_manual
     ) +
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + #increase space between groups
     
     # NEED TO FIX THIS!
     ggtitle(
       paste0(
-        "Total Inflow: +", scales::comma(
-          sum(sys_plot_data$inflow_outflow_full$InflowTypeSummary == "Inflow", na.rm = TRUE)
-        ), "\n",
-        "Total Outflow: -", scales::comma(
-          sum(sys_plot_data$inflow_outflow_full$OutflowTypeSummary == "Outflow", na.rm = TRUE)
-        ), "\n",
+        "Total Inflow: +", scales::comma(sum(plot_data$Type == "Inflow")), "\n",
+        "Total Outflow: -", scales::comma(sum(plot_data$Type == "Outflow")), "\n",
         "Total Change in ", level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type)
       )
     ) +
@@ -497,13 +484,15 @@ output$sys_act_monthly_ui_chart <- renderPlot({
 
 # Create summary table
 output$sys_act_monthly_table <- renderDT({
-  summary_data <- suppressWarnings(dcast(
-    melt(sys_plot_data$inflow_outflow_monthly, id.vars = "month", variable.name = "Type"),
-    Type ~ month,
-    value.var = "value"
-  ))
   
-  row_index_monthly_change <- which(summary_data$Type == "Monthly Change")
+  summary_data <- pivot(
+    get_inflow_outflow_monthly(),
+    ids = "Type",        # Column(s) defining the rows of the output
+    names = "month",       # Column whose values become column names
+    values = "Count",  # An arbitrary column to count (used with fun)
+    how = "wider",
+    fill = 0             # Fill missing combinations with 0
+  )
   
   # Get numeric columns (all columns except the first one)
   numeric_cols <- names(summary_data)[-1]
@@ -873,33 +862,47 @@ get_inflow_outflow_full <- function() {
 # write_csv(for_review, here("newly_homeless_20240912a.csv"))
 
 # Month-by-Month Prep ---------------------------------------------------
-# browser()
-get_inflow_outflow_monthly <- function() {
-  unique(
-    rbindlist(period_specific_data()[-1])[, `:=`(
-      # remove "Unknowns"/"Inactives"
-      InflowTypeSummary = fifelse(
-        InflowTypeDetail == "Inactive",
-        "Inactive",
-        InflowTypeSummary
-      ),
-      OutflowTypeSummary = fifelse(
-        OutflowTypeDetail == "Inactive",
-        "Inactive",
-        OutflowTypeSummary
-      )
-    )][, .(
-      # Count unique PersonalIDs for each category using system flow logic
-      Inflow = uniqueN(PersonalID[InflowTypeSummary == "Inflow"]),
-      Outflow = uniqueN(PersonalID[OutflowTypeSummary == "Outflow"])
-    ), by = month
-    ][, `:=`(
-      `Monthly Change` = Inflow - Outflow,
+# combine the month datasets into one
+get_inflow_outflow_monthly <- reactive({
+  # NEED TO ADD FIRST-TIME HOMELESS FILTER
+  monthly_data <- rbindlist(period_specific_data()[-1]) %>% 
+    fselect(
+      PersonalID, 
+      InflowTypeDetail, 
+      OutflowTypeDetail, 
+      InflowTypeSummary, 
+      OutflowTypeSummary, 
+      month
+    ) %>% 
+    funique(cols = c("PersonalID", "month")) %>%
+    fmutate(
       month = factor(format(month, "%b"), 
-                     levels = format(get_months_in_report_period(), "%b"))
-    )]
-  )
-}
+                     levels = format(get_months_in_report_period(), "%b")),
+      InflowType = factor(InflowTypeSummary),
+      OutflowType = factor(OutflowTypeSummary),
+      FirstTimeHomeless = InflowTypeDetail == "First-Time \nHomeless"
+    )
+  
+  monthly_counts <- rbind(
+    monthly_data[, .(PersonalID, month, Type = InflowType)],
+    monthly_data[, .(PersonalID, month, Type = OutflowType)]
+  ) %>%
+    funique() %>%
+    fgroup_by(month, Type) %>%
+    fsummarise(Count = GRPN()) %>%
+    # FOR NOW, remove Active Ats
+    fsubset(
+      !(Type %in% c("Active at Start", "Active at End"))
+    )
+  
+  monthly_counts # %>%
+    # Make sure all month-type combinations are reflected
+    # join(
+    #   CJ(month = levels(monthly_counts$month), Type = unique(monthly_counts$Type), sorted = FALSE),
+    #   on = c("month","Type"),
+    #   how = "full"
+    # )
+})
 
 qc_checks <- function() {
   browser()
