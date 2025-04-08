@@ -432,6 +432,11 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
 )
 
 # Month-by-Month Chart+Table ----------------------------------------------
+bar_colors <- c(
+  "Inflow" = "#BDB6D7", 
+  "Outflow" = "#7F5D9D",
+  "Inactive" = "#E78AC3"
+)
 output$sys_act_monthly_ui_chart <- renderPlot({
   plot_data <- get_inflow_outflow_monthly()
   
@@ -451,7 +456,7 @@ output$sys_act_monthly_ui_chart <- renderPlot({
       preserve="single", 
       width = 0.6 # space between bars within a group
     ), width = 0.5) + # width of bar
-    scale_fill_manual(values = c("Inflow" = "#BDB6D7", "Outflow" = "#7F5D9D")) +
+    scale_fill_manual(values = bar_colors, name = "Category / Status") + # Update legend title
     theme_minimal() +
     labs(
       x = "Month",
@@ -518,25 +523,25 @@ output$sys_act_monthly_table <- renderDT({
       columns = 1,  # First column
       target = "cell",
       backgroundColor = styleEqual(
-        c("Inflow", "Outflow"),
-        c("#BDB6D7", "#7F5D9D")
+        names(bar_colors),
+        unname(bar_colors)
       ),
       border = styleEqual(
-        c("Inflow", "Outflow"),
-        c("2px solid black","2px solid black")
+        c("Inflow", "Inactive","Outflow"),
+        c("2px solid black", "2px solid black", "2px solid black")
       )
     ) %>%
     # Highlight max change
     formatStyle(
       columns = max_change_col,
       target = "cell",
-      backgroundColor = styleRow(row_index_monthly_change, "#BDB6D7")
+      backgroundColor = styleRow(row_index_monthly_change, bar_colors["Inflow"])
     ) %>%
     # Highlight min change
     formatStyle(
       columns = min_change_col,
       target = "cell",
-      backgroundColor = styleRow(row_index_monthly_change, "#7F5D9D")
+      backgroundColor = styleRow(row_index_monthly_change, bar_colors["Outflow"])
     )
 })
 
