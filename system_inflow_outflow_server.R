@@ -489,7 +489,6 @@ output$sys_act_monthly_ui_chart <- renderPlot({
 
 # Create summary table
 output$sys_act_monthly_table <- renderDT({
-  
   summary_data <- pivot(
     get_inflow_outflow_monthly(),
     ids = "Type",        # Column(s) defining the rows of the output
@@ -499,19 +498,18 @@ output$sys_act_monthly_table <- renderDT({
     fill = 0             # Fill missing combinations with 0
   )
   
-  # Get numeric columns (all columns except the first one)
-  numeric_cols <- names(summary_data)[-1]
-  
-  # Find max and min values in the Monthly Change row
-  monthly_change_values <- as.numeric(summary_data[row_index_monthly_change, numeric_cols, with = FALSE])
-  max_change_col <- numeric_cols[which.max(monthly_change_values)]
-  min_change_col <- numeric_cols[which.min(monthly_change_values)]
+  # Get Monthly Change (Inflow - Outflow)
+  month_cols <- names(summary_data)[-1]
+  change_row <- summary_data[Type == "Inflow", ..month_cols] -
+    summary_data[Type == "Outflow", ..month_cols]
+  change_row[, Type := "Monthly Change"]
+  summary_data_with_change <- rbind(summary_data, change_row)
 
-  datatable(summary_data,
+  datatable(summary_data_with_change,
             options = list(
               dom = 't',
               ordering = FALSE,
-              pageLength = 3,
+              # pageLength = 4,
               columnDefs = list(
                 list(width = "48px", targets = 0), # Set first column width
                 list(className = 'dt-center', targets = '_all') # Center text
@@ -533,13 +531,13 @@ output$sys_act_monthly_table <- renderDT({
     ) %>%
     # Highlight max change
     formatStyle(
-      columns = max_change_col,
+      columns = month_cols[which.max(change_row)],
       target = "cell",
       backgroundColor = styleRow(row_index_monthly_change, bar_colors["Inflow"])
     ) %>%
     # Highlight min change
     formatStyle(
-      columns = min_change_col,
+      columns = month_cols[which.min(change_row)],
       target = "cell",
       backgroundColor = styleRow(row_index_monthly_change, bar_colors["Outflow"])
     )
