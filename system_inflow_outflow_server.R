@@ -30,6 +30,11 @@ bar_colors <- c(
   "Housed" = '#9E958F'
 )
 
+inactive_bar_colors <- c(
+  "Inactive-Inflow" = "#DAD6E9",   # lighter version of "#BDB6D7"
+  "Inactive-Outflow" = "#9B87C0"   # lighter version of "#6A559B"
+)
+
 # Inflow/Outflow Client-Level Data ---------------------------
 ## Summary (Annual) ----------------------------
 # This also gets used by the Status chart
@@ -55,7 +60,20 @@ get_inflow_outflow_monthly <- reactive({
       OutflowTypeSummary, 
       month
     ) %>% 
-    funique()
+    funique() %>%
+    # as of 4/9/25 - team decided to only show inflow/outflow (including inactive), 
+    # and Active at Start (stacked) bars
+    fsubset(
+      InflowTypeSummary %in% c("Inflow", "Active at Start") |
+        OutflowTypeSummary == "Outflow"
+    ) %>%
+    fmutate(
+      # factorize month for easier processing
+      month = factor(
+        format(month, "%b"), 
+        levels = format(get_months_in_report_period(), "%b")
+      )
+    )
 })
 
 # Filter Selections UI -----------------------------------------------------------
@@ -122,24 +140,14 @@ sys_inflow_outflow_annual_chart_data <- reactive({
 })
 
 ## Monthly ---------------------------------------
+### MbM ---------------------------
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
 sys_inflow_outflow_monthly_chart_data <- reactive({
   monthly_data <- get_inflow_outflow_monthly() %>%
-    # as of 4/9/25 - team decided to only show inflow/outflow (including inactive), 
-    # and Active at Start (stacked) bars
-    fsubset(
-      InflowTypeSummary %in% c("Inflow", "Active at Start") |
-      OutflowTypeSummary == "Outflow"
-    ) %>%
     fmutate(
       # We want Housed, Homeless (start/end) and Inflow/Outflow
-      InflowType = fct_collapse(InflowTypeDetail, Inflow = inflow_detail_levels),
-      OutflowType = fct_collapse(OutflowTypeDetail, Outflow = outflow_detail_levels),
-      # factorize month for easier processing
-      month = factor(
-        format(month, "%b"), 
-        levels = format(get_months_in_report_period(), "%b")
-      )
+      InflowType = fct_collapse(InflowTypeDetail, `Inflow` = inflow_detail_levels),
+      OutflowType = fct_collapse(OutflowTypeDetail, `Outflow` = outflow_detail_levels)
     )
   
   # First-time homeless filter
@@ -149,10 +157,7 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
       fmutate(FirstTimeHomeless = anyv(InflowTypeDetail, "First-Time \nHomeless")) %>%
       fungroup() %>%
       fsubset(FirstTimeHomeless == TRUE)
-  } else if(input$mbm_fth_filter == "Inactive") {
-    monthly_data <- monthly_data %>%
-      fsubset(OutflowTypeDetail == "Inactive")
-  }
+  } 
   
   # Get counts of each type by month
   monthly_counts <- rbind(
@@ -175,9 +180,43 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     on = c("month","Type"),
     how = "full"
   ) %>%
-  fmutate(TypeSummary = fct_collapse(Type, `Active at Start` = active_at_levels ))
+  fmutate(TypeSummary = fct_collapse(Type, `Active at Start` = active_at_levels )) %>%
+  replace_na(value = 0, cols = "Count")
 })
 
+### Inactive ------------------------
+get_inactive_counts <- function() {
+  monthly_data <- get_inflow_outflow_monthly() %>%
+    fsubset(OutflowTypeDetail == "Inactive" | InflowTypeDetail == "Inactive")
+  
+  monthly_counts <- rbind(
+    monthly_data[, .(PersonalID, month, Type = InflowTypeDetail, source="Inflow")],
+    monthly_data[, .(PersonalID, month, Type = OutflowTypeDetail, source="Outflow")]
+  ) %>%
+    funique() %>%
+    fsubset(Type == "Inactive") %>%
+    fmutate(
+      Type = factor(
+        paste0(Type, "-", source),
+        levels = c("Inactive-Inflow","Inactive-Outflow")
+      )
+    ) %>%
+    fgroup_by(month, Type) %>%
+    fsummarise(Count = GRPN()) %>%
+    roworder(month, Type)
+
+  join(
+    monthly_counts,
+    CJ(
+      month = levels(monthly_counts$month), 
+      Type = levels(monthly_counts$Type),
+      sorted = FALSE
+    ),
+    how = "full",
+    on = c("month","Type")
+  ) %>%
+  replace_na(value = 0, cols = "Count")
+}
 
 # Summary/Detail (Annual) Chart Prep ---------------------------------------
 # Function called in the renderPlot and exports
@@ -397,7 +436,7 @@ renderInflowOutflowFullPlot(
 )
 
 ## Monthly --------------------------------------------
-### Chart --------------------------------------
+### MbM Chart --------------------------------------
 output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
   plot_data <- sys_inflow_outflow_monthly_chart_data()
   
@@ -430,12 +469,11 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
       width = active_at_start_bar_width * 2,
       inherit.aes = TRUE
     ) +
-    scale_fill_manual(values = bar_colors, name = "Category / Status") + # Update legend title
+    scale_fill_manual(values = bar_colors, name = "Inflow/Outflow Types") + # Update legend title
     theme_minimal() +
     labs(
       x = "Month",
       y = paste0("Count of ", level_of_detail_text)
-      # fill is set via scale_fill_manual
     ) +
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + #increase space between groups
     
@@ -519,6 +557,36 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
       columns = month_cols[which.min(change_row)],
       target = "cell",
       backgroundColor = styleRow(nrow(summary_data_with_change), bar_colors["Outflow"])
+    )
+})
+
+### Inactive chart --------------------------------------
+output$sys_inactive_monthly_ui_chart <- renderPlot({
+  plot_data <- get_inactive_counts()
+  
+  level_of_detail_text <- case_when(
+    input$syso_level_of_detail == "All" ~ "People",
+    input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
+    TRUE ~
+      getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+  )
+
+  ggplot(plot_data, aes(x = month, y = Count, fill = Type)) +
+    geom_col(position = position_dodge(
+      preserve="single", 
+      width = 0.6 # space between bars within a group
+    ), width = 0.5) +
+    scale_fill_manual(values = inactive_bar_colors, name = "Inactive Type") + # Update legend title
+    theme_minimal() +
+    labs(
+      x = "Month",
+      y = paste0("Count of ", level_of_detail_text)
+    ) +
+    theme(
+      axis.text = element_text(size = 11),
+      axis.title.x = element_blank(),
+      axis.title.y = element_text(size = 15),
+      axis.line.x = element_line()
     )
 })
 
