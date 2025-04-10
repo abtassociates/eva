@@ -549,3 +549,8 @@ a:hover {
   background-color: #C2462E;
   border-color: #C2462E;
 }
+
+/*Hide "Eva has crashed..." pop-up when timeout occurs*/
+body.idle-timeout-occurred #ss-connect-dialog {
+  display: none !important;
+}
