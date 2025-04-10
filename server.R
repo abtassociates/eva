@@ -29,10 +29,12 @@ function(input, output, session) {
     #parseQueryString(session$clientData$url_search))
   })
   
-  source("glossary.R", local = TRUE)
-  source("changelog.R", local = TRUE)
-  source("demo_management.R", local = TRUE)
-  
+  # while these seem like they could be "globalized" they have output UI elements
+  # and are therefore session based
+  source(here("glossary.R"), local = TRUE)
+  source(here("changelog.R"), local = TRUE)
+  source(here("demo_management.R"), local = TRUE)
+
   logMetadata(session, "Session started")
   
   # Tab Management -----------------------------------------------------------------
@@ -41,6 +43,7 @@ function(input, output, session) {
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   })
   
+  # Tab headers ------------------------
   output$headerUpload <-
     headerGeneric(session, "Upload HMIS CSV Export",
                   h4(
@@ -99,12 +102,12 @@ function(input, output, session) {
   #        )))
   # })
   
-  
+  # Detect user clicking to go to upload page -------------------------------
   observeEvent(input$Go_to_upload, {
     updateTabItems(session, "sidebarmenuid", "tabUpload")
   }) 
   
-  # decides when it's time to time out the session
+  # Timeout detection ---------------------
   observeEvent(input$timeOut, {
     logMetadata(session, "Timed out")
     session$reload()
