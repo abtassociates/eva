@@ -110,19 +110,6 @@ syso_detailBox <- reactive({
   )
 })
 
-output$sys_act_detail_filter_selections <- renderUI({ 
-  req(session$userData$valid_file() == 1)
-  syso_detailBox() 
-})
-output$sys_act_summary_filter_selections <- renderUI({
-  req(session$userData$valid_file() == 1)
-  syso_detailBox() 
-})
-output$sys_act_monthly_filter_selections <- renderUI({ 
-  req(session$userData$valid_file() == 1)
-  syso_detailBox() 
-})
-
 toggle_sys_components <- function(cond, init=FALSE) {
   # 1. toggles the filters (disabled for Composition)
   # 2. toggles subtabs and download button based if valid file has been uploaded
@@ -526,6 +513,158 @@ universe_filtered <- function(enrollment_categories, nbn_services) {
     )
 }
 
+# Period-Specific, Filtered, Enrollment-Level Universe -------------------------
+## Enrollment-level flags ------------------------
+# hello weary traveler amongst these date ranges. you may find it helpful to
+# find example clients and their Entry and Exit Dates and enter them into
+# https://onlinetools.com/time/visualize-date-intervals <- here.
+# add inflow type and active enrollment typed used for system overview plots
+#
+# While the following datasets appear to be inflow-outflow specific, 
+# the reason they are stored in this system_overview script is because they 
+# 
+universe_enrl_flags <- function(all_filtered, period) {
+  startDate <- period[1]
+  endDate <- period[2]
+  
+  all_filtered[, `:=`(
+    # INFLOW CALCULATOR COLUMNS
+    # LOGIC: active homeless at start
+    # basically it has to straddle report start
+    # the entry date of the EECR needs to be on or before the reporting period
+    # the exitadjust has to be after report start
+    # OR the eecr & lookback1 have to end and start within 14 days of each
+    # other and of the report start
+    # EnrolledHomeless status of the EECR needs to be true
+    # JUST FOR FULL DISCLOSURE, this means: 
+    # ProjectType %in% project_types_enrolled_homeless |
+    # lh_prior_livingsituation == TRUE
+    
+    active_at_start_homeless =
+      eecr == TRUE &
+      (
+        # PH project types have move-in after start (or no move-in)
+        (
+          ProjectType %in% ph_project_types &
+            (
+              is.na(MoveInDateAdjust) |
+                MoveInDateAdjust >= startDate
+            )
+        ) |
+          
+          ( # take only ce enrollments where the PLS or the CLS is <= 90 days
+            # prior to ReportStart
+            ProjectType == ce_project_type & 
+              was_lh_at_start
+          ) |
+          # take any other enrollments if their PLS was literally homeless
+          (
+            !(ProjectType %in% ph_project_types) &
+              EnrolledHomeless == TRUE
+          )
+      ) &
+      # Enrollment straddles start or the enrollment is within 2 weeks from start
+      # and within 2 weeks of prev enrollment
+      (straddles_start == TRUE |
+         (straddles_start == FALSE &
+            EntryDate >= startDate &
+            between(as.numeric(difftime(EntryDate, startDate, units = "days")),
+                    0,
+                    14) &
+            !is.na(days_since_lookback) &
+            between(as.numeric(days_since_lookback), 0, 14))),
+    
+    #LOGIC: enrolled housed at start
+    # Exit.ExitDate is null or > ReportStartDate AND
+    
+    # Project.ProjectType IN (3, 9, 10, 13) AND
+    # Enrollment.MoveInDate is !NULL OR <= ReportStartDate AND
+    # Enrollment.LivingSituation is LiterallyHomeless*"
+    active_at_start_housed = eecr == TRUE & 
+      ProjectType %in% ph_project_types & 
+      !is.na(MoveInDateAdjust) &
+      MoveInDateAdjust < startDate,
+    
+    # LOGIC helper columns
+    
+    lookback1_perm_dest = lookback == 1 & 
+      Destination %in% perm_livingsituation,
+    
+    eecr_lh_at_entry = eecr == TRUE &
+      lh_at_entry == TRUE,
+    
+    at_least_14_days_to_eecr_enrl = eecr == TRUE &
+      !is.na(days_since_lookback) &
+      days_since_lookback >= 14,
+    
+    lookback1_temp_dest = lookback == 1 & 
+      !(Destination %in% perm_livingsituation),
+    
+    unknown_at_start = eecr == TRUE &
+      straddles_start & (
+        # Non-Res Project Types and not lh
+        (
+          ProjectType %in% non_res_project_types &
+            (!was_lh_at_start | is.na(was_lh_at_start))
+        ) |
+          # nbn shelter
+          (ProjectType == es_nbn_project_type &
+             (in_date_range == TRUE | NbN15DaysBeforeReportStart == FALSE))
+        
+      ),
+    
+    # outflow columns
+    perm_dest_lecr = lecr == TRUE &
+      Destination %in% perm_livingsituation &
+      between(ExitAdjust, startDate, endDate),
+    
+    temp_dest_lecr = lecr == TRUE &
+      !(Destination %in% perm_livingsituation) &
+      between(ExitAdjust, startDate, endDate),
+    
+    homeless_at_end = lecr == TRUE & 
+      straddles_end &
+      ( # e/e shelter, th, sh
+        ProjectType %in% lh_project_types_nc |
+          
+          # nbn shelter
+          (ProjectType == es_nbn_project_type &
+             (in_date_range == TRUE | NbN15DaysAfterReportEnd == TRUE)) |
+          
+          # Non-Res Project Types
+          (
+            ProjectType %in% non_res_project_types &
+              was_lh_at_end
+          ) |
+          
+          # PSH, OPH, RRH
+          (ProjectType %in% ph_project_types &
+             (is.na(MoveInDateAdjust) | MoveInDateAdjust >= period[2]))
+      ),
+    
+    housed_at_end = lecr == TRUE & 
+      straddles_end &
+      ProjectType %in% ph_project_types & 
+      !is.na(MoveInDateAdjust) &
+      MoveInDateAdjust < endDate,
+    
+    unknown_at_end = lecr == TRUE &
+      straddles_end & (
+        # Non-Res Project Types and not lh
+        (
+          ProjectType %in% non_res_project_types &
+            (!was_lh_at_end | is.na(was_lh_at_end))
+        ) |
+          # nbn shelter
+          (ProjectType == es_nbn_project_type &
+             (in_date_range == TRUE | NbN15DaysBeforeReportEnd == FALSE))
+        
+      )
+  )]
+}
+
+## People-level flags ------------------------
+# Need to keep it enrollment-level so other scripts can reference the enrollments
 get_days_of_data <- function(period) {
   # Export Start Date - Adjusted to be the 1st of the month
   # if the start date's day of the month = 1, then that's the start date
@@ -539,7 +678,84 @@ get_days_of_data <- function(period) {
   
   return(period_end_date - ExportStartAdjusted)
 }
+
+universe_ppl_flags <- function(universe_df, period) {
+  setkey(universe_df, PersonalID)
+  
   days_of_data <- get_days_of_data(period)
+
+  universe_df[, `:=`(
+    # INFLOW
+    active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
+    
+    active_at_start_housed_client = any(active_at_start_housed, na.rm = TRUE),
+    
+    return_from_perm_client = any(lookback1_perm_dest, na.rm = TRUE) & 
+      any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
+    
+    reengaged_from_temp_client = any(lookback1_temp_dest, na.rm = TRUE) & 
+      # max(eecr_lh_at_entry) == 1 & 
+      any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
+    
+    newly_homeless_client = all(lookback == 0, na.rm = TRUE) |
+      !any(eecr_lh_at_entry, na.rm = TRUE) | 
+      !any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
+    
+    unknown_at_start_client = any(unknown_at_start, na.rm = TRUE),
+    
+    # OUTFLOW
+    perm_dest_client = any(perm_dest_lecr, na.rm = TRUE),
+    
+    temp_dest_client = any(temp_dest_lecr, na.rm = TRUE),
+    
+    homeless_at_end_client = any(homeless_at_end, na.rm = TRUE),
+    
+    housed_at_end_client = any(housed_at_end, na.rm = TRUE),
+    
+    unknown_at_end_client = any(unknown_at_end, na.rm = TRUE),
+    
+    has_enrollment_after_lecr_client = any(has_enrollment_after_lecr, na.rm = TRUE)
+  ), by = PersonalID
+  ][, `:=`(
+    InflowTypeSummary = factor(
+      fcase(
+        active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
+        newly_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start, "Inflow",
+        default = "something's wrong"
+      ), levels = inflow_outflow_summary_levels
+    ),
+    
+    InflowTypeDetail = factor(
+      fcase(
+        active_at_start_homeless_client, "Homeless",
+        active_at_start_housed_client, "Housed",
+        return_from_perm_client, "Returned from \nPermanent",
+        reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
         newly_homeless_client & days_of_data >= 1094, "First-Time \nHomeless",
         newly_homeless_client & days_of_data < 1094, "Inflow\nUnspecified",
+        unknown_at_start, "Inactive", 
+        default = "something's wrong"
+      ), levels = c(active_at_levels, inflow_detail_levels)
+    ),
+    
+    OutflowTypeSummary = factor(
+      fcase(
+        (perm_dest_client | temp_dest_client | unknown_at_end_client) & 
+          !has_enrollment_after_lecr_client, "Outflow",
+        homeless_at_end_client | housed_at_end_client | has_enrollment_after_lecr_client, "Active at End",
+        default = "something's wrong"
+      ), levels = inflow_outflow_summary_levels
+    ),
+    
+    OutflowTypeDetail = factor(
+      fcase(
+        perm_dest_client, "Exited,\nPermanent",
+        temp_dest_client, "Exited,\nNon-Permanent",
+        unknown_at_end_client, "Inactive",
+        homeless_at_end_client & !is.na(homeless_at_end_client), "Homeless",
+        housed_at_end_client | has_enrollment_after_lecr_client, "Housed",
+        default = "something's wrong"
+      ), levels = c(outflow_detail_levels, rev(active_at_levels))
+    )
+  )]
 }
