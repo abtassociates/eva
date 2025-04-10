@@ -532,4 +532,20 @@ update_sys_plot_data <- function() {
   sys_plot_data$people_universe_filtered <- get_people_universe_filtered()
   sys_plot_data$sankey <- get_sankey_data()
   sys_plot_data$client_level_export_df <- get_client_level_export()
+get_days_of_data <- function(period) {
+  # Export Start Date - Adjusted to be the 1st of the month
+  # if the start date's day of the month = 1, then that's the start date
+  # otherwise go forward a month and use the 1st of that month.
+  ExportStartAdjusted <- if_else(
+    day(session$userData$meta_HUDCSV_Export_Start) == 1,
+    session$userData$meta_HUDCSV_Export_Start,
+    floor_date(session$userData$meta_HUDCSV_Export_Start %m+% months(1), unit = "month"))
+  
+  period_end_date <- period[2]
+  
+  return(period_end_date - ExportStartAdjusted)
+}
+  days_of_data <- get_days_of_data(period)
+        newly_homeless_client & days_of_data >= 1094, "First-Time \nHomeless",
+        newly_homeless_client & days_of_data < 1094, "Inflow\nUnspecified",
 }
