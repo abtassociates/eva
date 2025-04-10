@@ -37,3 +37,4 @@ vscDebugger
 .Rproj.user
 tests/testthat/_snaps/**/*.png
 www/client-level-export-data-dictionary.csv
+.Renviron

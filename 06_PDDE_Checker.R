@@ -140,23 +140,6 @@ missing_inventory_record <- Project0() %>%
 
 # Inventory Start < Operating Start AND
 # Inventory End > Operating End or Null
-activeInventory <- Inventory %>%
-  left_join(
-    Project0() %>%
-      select(
-        ProjectID,
-        OrganizationName,
-        ProjectName,
-        OperatingStartDate,
-        OperatingEndDate
-      ) %>%
-      unique(),
-    by = "ProjectID"
-  ) %>%
-  filter(
-    coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start() &
-      InventoryStartDate <= meta_HUDCSV_Export_End()
-  )
 
 inventory_start_precedes_operating_start <- activeInventory %>%
   filter(InventoryStartDate < OperatingStartDate) %>%
@@ -212,6 +195,47 @@ operating_end_precedes_inventory_end <- activeInventory %>%
   merge_check_info(checkIDs = 44) %>%
   select(all_of(PDDEcols))
 
+# Active Inventory with No Enrollments ---------
+# Active inventory records (with non-overflow beds) should have enrollments within their bounds
+if(nrow(activeInventory) > 0) {
+  active_inventory_w_no_enrollments <- qDT(activeInventory) %>% 
+  fsubset(
+    (is.na(Availability) | Availability != 3) &
+      BedInventory > 0 & !is.na(BedInventory)
+  ) %>%
+  fselect(ProjectID, InventoryID, InventoryStartDate, InventoryEndDate) %>%
+  join(
+    Enrollment %>% select(ProjectID, EntryDate, ExitAdjust),
+    on = "ProjectID",
+    multiple = TRUE,
+    how="inner"
+  ) %>%
+  fgroup_by(ProjectID) %>%
+  fmutate(
+    # Check if inventory span overlaps with any enrollments
+    any_inventory_overlap = anyv(
+      (EntryDate <= InventoryEndDate | is.na(InventoryEndDate)) & 
+        ExitAdjust >= InventoryStartDate,
+      TRUE
+    )
+  ) %>%
+  fungroup() %>%
+  fsubset(!any_inventory_overlap) %>%
+  funique(cols = c("ProjectID")) %>%
+  # Bring in DQ cols
+  join(
+    Project0(),
+    on = "ProjectID",
+    how = "inner",
+    multiple = TRUE
+  ) %>%
+  merge_check_info_dt(checkIDs = 141) %>%
+  fmutate(Detail = "") %>%
+  fselect(PDDEcols) %>%
+  fsubset(!is.na(ProjectID))
+} else {
+  active_inventory_w_no_enrollments <- NULL
+}
 # RRH project w no SubType ------------------------------------------------
 
 rrh_no_subtype <- Project0() %>%
@@ -245,74 +269,30 @@ vsps_in_hmis <- Project0() %>%
   select(all_of(PDDEcols))
   
  # Zero Utilization --------------------------------------------------------
-
-res_projects_no_clients <- ProjectSegments %>%
-  filter(HMISParticipationType == 1) %>%
-  inner_join(activeInventory %>%
-               filter((is.na(Availability) | Availability != 3) &
-                        BedInventory > 0 & !is.na(BedInventory)) %>%
-               # excluding overflow projects since their enrollments will
-               # by definition contain gaps of zero utilization
-               group_by(ProjectID) %>%
-               summarise(ActiveInventorySpan =
-                           interval(min(InventoryStartDate), max(coalesce(
-                             InventoryEndDate, no_end_date
-                           )))) %>%
-               ungroup(),
-             join_by(ProjectID)) %>%
-  # collapsing project segments (periods of participation) down into a single
-  # date range of time that they had any active inventory ^
-  mutate(
-    ProjectOperatingInterval =
-      intersect(
-        interval(OperatingStartDate, coalesce(OperatingEndDate, no_end_date)),
-        interval(meta_HUDCSV_Export_Start(), meta_HUDCSV_Export_End())),
-    # when in the reporting period was this project segment operating?^
-    ParticipatingInterval =
-      intersect(interval(
-        HMISParticipationStatusStartDate,
-        coalesce(HMISParticipationStatusEndDate, no_end_date)
-      ),
-      interval(meta_HUDCSV_Export_Start(), meta_HUDCSV_Export_End())),
-    # when in the reporting period was the project participating?^
-    OperatingAndParticipating =
-      intersect(ProjectOperatingInterval, ParticipatingInterval),
-    # when was the project both participating and operating (within the rpt period?)
-    OperatingParticipatingAndActiveInventory =
-      intersect(OperatingAndParticipating, ActiveInventorySpan)
-    # when did this project have active inventory and all the other conditions?
+# HMIS participating projects that have ANY active inventory (with available beds) 
+# should not have 0 enrollments
+zero_utilization <- HMIS_participating_projects_w_active_inv_no_overflow %>%
+  # Only keep (inventory) with non-overflow beds
+  # Overflow beds are meant to be available on an ad hoc or temporary basis. And 
+  # since this dataset is used for flagging inventory-related problems, we don't
+  # want to flag cases with only overflow since those beds could reasonably not be filled
+  fsubset(
+    (is.na(Availability) | Availability != 3) &
+      BedInventory > 0 & !is.na(BedInventory)
   ) %>%
-  select(
-    ProjectID,
-    ProjectTimeID,
-    ProjectName,
-    OperatingParticipatingAndActiveInventory
+  funique(cols = "ProjectTimeID") %>%
+  join(
+    Enrollment,
+    on = "ProjectTimeID",
+    multiple = TRUE,
+    how="anti"
   ) %>%
-  filter(!is.na(OperatingParticipatingAndActiveInventory)) %>%
-  # excluding any project segments that had no active inventory during the 
-  # reporting period ^
-  left_join(
-    Enrollment %>%
-      group_by(ProjectTimeID) %>%
-      summarise(EnrollmentSpan = interval(min(EntryDate), max(ExitAdjust))) %>%
-      ungroup(),
-    join_by(ProjectTimeID)
-    # looking at each project segment for the earliest Entry and latest Exit
-  ) %>%
-  filter(
-    is.na(EnrollmentSpan) | # <- projects without any enrollments at all
-      int_start(EnrollmentSpan) > int_end(OperatingParticipatingAndActiveInventory) |
-      int_end(EnrollmentSpan) < int_start(OperatingParticipatingAndActiveInventory)) %>%
-  # finding rows where the span of enrollments falls within (NOT inclusive) the 
-  # span of time the project had active inventory (and was participating, etc.)
-  pull(ProjectID) %>% unique()
+  join(Project0(), on = "ProjectID", how = "inner") %>%
+  merge_check_info_dt(checkIDs = 83) %>%
+  fmutate(Detail = "") %>%
+  fselect(PDDEcols) %>%
+  fsubset(!is.na(ProjectID))
 
-
-zero_utilization <- Project0() %>%
-  filter(ProjectID %in% c(res_projects_no_clients)) %>%
-  merge_check_info(checkIDs = 83) %>%
-  mutate(Detail = "") %>%
-  select(all_of(PDDEcols))
 # if a comparable db uses Eva, this will not flag for them^
 
 # OLD:
@@ -464,36 +444,40 @@ ES_BedType_HousingType <- activeInventory %>%
 
 # Project CoC Missing Bed Inventory & Incorrect CoC in bed inventory -----------------------------------
 
-activeInventory_COC_merged <- activeInventory %>% 
-  mutate(ix=1) %>% 
-  merge((ProjectCoC %>% select(ProjectID, CoCCode)) %>% mutate(iy=1), by = c("ProjectID", "CoCCode"), all=TRUE) %>%
-  merge((Project %>% select(ProjectID, ProjectType, RRHSubType)), by = c("ProjectID"), all=TRUE) %>%
-  mutate(mer = case_when(ix==1&iy==1~'both',
-                         ix==1~'only_x',
-                         iy==1~'only_y')) %>%
-  select(-c(ProjectName, OrganizationName)) %>% 
-  merge((Project0() %>% select(ProjectID, ProjectName, OrganizationName)), by = c("ProjectID"), all=TRUE)
+activeInventory_COC_merged <-  join(
+    activeInventory,
+    ProjectCoC, 
+    on = c("ProjectID", "CoCCode"), 
+    how="full",
+    multiple = TRUE,
+    column="source"
+  ) %>%
+  join(Project0(), on="ProjectID", drop.dup.cols = "x")
 
 # Throw a warning if there is no inventory record for a ProjectID and COCCode combo in the ProjectCoC data
 
 Active_Inventory_per_COC <- activeInventory_COC_merged %>%
-  filter(mer=="only_y") %>%
-  filter(ProjectType %in% project_types_w_beds &
+  fsubset(source == "ProjectCoC") %>%
+  join(missing_inventory_record, on = "ProjectID", how="anti") %>%
+  join(Project %>% select(ProjectID, ProjectType, RRHSubType), on="ProjectID", how="left") %>%
+  fsubset(ProjectType %in% project_types_w_beds &
            (RRHSubType == 2 | is.na(RRHSubType))) %>% 
   merge_check_info(checkIDs = 136) %>% 
   mutate(Detail = "Residential projects must have a bed inventory for each CoC they serve."
   ) %>%
-  select(all_of(PDDEcols))
+  select(all_of(PDDEcols)) %>%
+  unique()
   
 # Throw an error if there is no COC record for a ProjectID and COCCode combo in the inventory data
 
 COC_Records_per_Inventory <- activeInventory_COC_merged %>%
-  filter(mer=="only_x") %>% 
+  fsubset(source == "activeInventory") %>%
   merge_check_info(checkIDs = 137) %>%
-  mutate(Detail = "Any CoC represented in a project's active bed inventory records must also be listed as a CoC associated with the Project."
-  ) %>%
-  select(all_of(PDDEcols))
-
+  mutate(Detail = str_squish("Any CoC represented in a project's active bed 
+                             inventory records must also be listed as a CoC 
+                             associated with the Project.")) %>%
+  select(all_of(PDDEcols)) %>%
+  unique()
 
 # More units than beds in inventory record. -----------------------------------
 more_units_than_beds_inventory <- activeInventory %>%
@@ -531,6 +515,7 @@ pdde_main(bind_rows(
   overlapping_ce_participation,
   overlapping_hmis_participation,
   inventory_start_precedes_operating_start,
+  active_inventory_w_no_enrollments,
   rrh_so_w_inventory,
   vsps_in_hmis,
   zero_utilization,
@@ -540,6 +525,7 @@ pdde_main(bind_rows(
   more_units_than_beds_inventory,
   vsp_clients
 ) %>%
+  unique() %>%
   mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
 )
 

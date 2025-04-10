@@ -12,15 +12,6 @@ get_race_ethnicity_vars <- function(v) {
   }
 }
 
-get_gender_vars <- function(v) {
-  return(
-    c(
-      syso_gender_cats(input$methodology_type) %>% discard_at("All Genders"),
-      "Unknown" = "GenderUnknown"
-    )
-  )
-}
-
 syscomp_detailBox <- function(session) {
   return(
     list(
@@ -55,7 +46,6 @@ get_var_cols <- function() {
       "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
       "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
       #"Domestic Violence" = "DomesticViolenceCategory", #VL 9/20/24: Not including for launch
-      "Gender" = unlist(get_gender_vars()),
       # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
       "Veteran Status (Adult Only)" =  "VeteranStatus"
     )
@@ -109,9 +99,9 @@ get_sys_comp_plot_df_2vars <- function(comp_df) {
   selections <- input$system_composition_selections
   
   # Function to process each combination of the variables underlying the all-served
-  # selections E.g. if Age and Gender (and Method 1),
-  # then we'd combine 0 to 12 with ManMethod1, 0 to 12 with WomanMethod1,
-  # 13 to 24 with ManMethod1, etc.
+  # selections E.g. if Age and Race (and Method 1),
+  # then we'd combine 0 to 12 with White, 0 to 12 with Black,
+  # 13 to 24 with White, etc.
   process_combination <- function(v1, v2, comp_df) {
     logToConsole(glue("processing combination of {v1} and {v2}"))
     freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
@@ -121,7 +111,7 @@ get_sys_comp_plot_df_2vars <- function(comp_df) {
       "n"
     )
     
-    # for selections comprised of multiple (binary/dummy) vars (e.g. Gender or Race), 
+    # for selections comprised of multiple (binary/dummy) vars (e.g. Race), 
     # filter to the 1s and change the 1 to the variable name
     for (i in seq_along(selections)) {
       v <- get(paste0("v", i))
@@ -167,7 +157,6 @@ get_sys_comp_plot_df_2vars <- function(comp_df) {
 get_selection_cats <- function(selection) {
   return(switch(
     selection,
-    "Gender" = get_gender_vars(),
     "Age" = syso_age_cats,
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
