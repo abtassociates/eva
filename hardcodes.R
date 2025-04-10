@@ -399,15 +399,6 @@ sessionVars <- c(
   "client_categories"
 )
 
-# Dynamic datasets, dependent on user filters -------------------------------
-sys_plot_datasets <- c(
-  "inflow_outflow_full",
-  "inflow_outflow_monthly",
-  "people_universe_filtered",
-  "sankey",
-  "client_level_export_df"
-)
-
 # environment depencies for DQ and PDDE mirai
 dq_mirai_dependencies <- c(
   "Enrollment",

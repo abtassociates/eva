@@ -651,5 +651,3 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
   },
   cache = cachem::cache_mem(max_size = 100 * 1024^2) 
 )
-
-update_sys_plot_data()

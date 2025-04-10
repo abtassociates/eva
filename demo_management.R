@@ -143,7 +143,7 @@ toggleDemoJs <- function(t) {
     
     shinyjs::hide("fileStructureAnalysis")
     
-    reset_session_vars(session, sys_plot_data)
+    reset_session_vars(session)
     
     session$sendInputMessage('currentProviderList', list(
       choices = NULL

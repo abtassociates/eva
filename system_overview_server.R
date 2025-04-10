@@ -378,14 +378,12 @@ observeEvent({
   # for that chart, we also hide if all *cells* are < 11
   shinyjs::toggle(
     "sys_inflow_outflow_download_btn sys_inflow_outflow_download_btn_ppt", 
-    condition = nrow(sys_plot_data$inflow_outflow_full) > 10
+    condition = nrow(get_inflow_outflow_full()) > 10
   )
   shinyjs::toggle(
     "sys_status_download_btn sys_status_download_btn_ppt", 
-    condition = sum(sys_plot_data$sankey$freq) > 10
+    condition = sum(get_sankey_data()$freq) > 10
   )
-  
-  update_sys_plot_data()
 }, ignoreInit = TRUE)
 
 source("client_level_export_server.R", local=TRUE)
@@ -526,12 +524,6 @@ universe_filtered <- function(enrollment_categories, nbn_services) {
     )
 }
 
-update_sys_plot_data <- function() {
-  sys_plot_data$inflow_outflow_full <- get_inflow_outflow_full()
-  sys_plot_data$inflow_outflow_monthly <- get_inflow_outflow_monthly()
-  sys_plot_data$people_universe_filtered <- get_people_universe_filtered()
-  sys_plot_data$sankey <- get_sankey_data()
-  sys_plot_data$client_level_export_df <- get_client_level_export()
 get_days_of_data <- function(period) {
   # Export Start Date - Adjusted to be the 1st of the month
   # if the start date's day of the month = 1, then that's the start date

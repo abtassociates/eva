@@ -70,7 +70,7 @@ output$client_level_download_btn <- downloadHandler(
       "Destination"
     )
     
-    enrollment_info <- sys_plot_data$client_level_export_df[, ..enrollment_fields][
+    enrollment_info <- get_client_level_export()[, ..enrollment_fields][
       , `:=`(
         Destination = living_situation(Destination),
         LivingSituation = living_situation(LivingSituation)
@@ -88,7 +88,7 @@ output$client_level_download_btn <- downloadHandler(
              new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
     
     # details tab
-    client_level_details <- unique(sys_plot_data$client_level_export_df[
+    client_level_details <- unique(get_client_level_export()[
       , 
       c(..detail_client_fields, ..report_status_fields)
     ])[

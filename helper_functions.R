@@ -445,16 +445,12 @@ reset_postvalid_components <- function(session) {
 }
 
 # essentially resets the app
-reset_session_vars <- function(session, sys_plot_data) {
+reset_session_vars <- function(session) {
   for(v in sessionVars) {
     if(v %in% c("valid_file", "initially_valid_import")) session$userData[[v]] <- reactiveVal(0) 
     # FSA main needs to be a reactiveVal so the inputs that display only if there are issues can be dynamic
     else if(v == "file_structure_analysis_main") session$userData[[v]] <- reactiveVal(NULL)
     else session$userData[[v]] <- NULL
-  }
-
-  for(v in sys_plot_datasets) {
-    sys_plot_data[[v]] <- reactiveVal(NULL)
   }
   
   reset_postvalid_components(session)

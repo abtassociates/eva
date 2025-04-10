@@ -203,7 +203,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
   selection <- input$system_composition_selections
 
-  comp_df <- sys_plot_data$people_universe_filtered %>%
+  comp_df <- get_people_universe_filtered() %>%
     remove_non_applicables() %>%
     select(PersonalID, unname(var_cols[[selection]]))
   
@@ -312,7 +312,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   }
   
   # get dataset underlying the freqs we will produce below
-  comp_df <- sys_plot_data$people_universe_filtered %>%
+  comp_df <- get_people_universe_filtered() %>%
     remove_non_applicables() %>%
     select(
       PersonalID, 
@@ -532,7 +532,7 @@ sys_comp_selections_info <- reactive({
     Value = c(
       input$system_composition_selections[1],
       input$system_composition_selections[2],
-      nrow(sys_plot_data$people_universe_filtered %>% remove_non_applicables())
+      nrow(get_people_universe_filtered() %>% remove_non_applicables())
     )
   )
 })
@@ -653,7 +653,7 @@ output$sys_comp_download_btn <- downloadHandler(
       col_names = TRUE
     )
     
-    exportTestValues(sys_comp_df = sys_plot_data$people_universe_filtered)
+    exportTestValues(sys_comp_df = get_people_universe_filtered())
     exportTestValues(sys_comp_report_num_df = num_df)
     exportTestValues(sys_comp_report_pct_df = pct_df)
   }
@@ -740,9 +740,9 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 )
 
 # System Composition/Demographics data for chart
-get_people_universe_filtered <- function() {
+get_people_universe_filtered <- reactive({
   cols_to_keep <- colnames(client_categories_filtered())
   unique(
     period_specific_data()[["Full"]][, ..cols_to_keep]
   )
-}
+})

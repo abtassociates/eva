@@ -15,12 +15,10 @@ function(input, output, session) {
     )
   }
   
-  sys_plot_data <- reactiveValues()
-  
   windowSize <- reactiveVal(NULL)
   triggerPlot <- reactiveVal(NULL)
   
-  reset_session_vars(session, sys_plot_data)
+  reset_session_vars(session)
   
   # Handle if user arrives from external site
   observe({
