@@ -42,22 +42,9 @@ function idleTimer() {
     banner.innerHTML = 'Session ended due to inactivity. Please refresh the page to continue.';
     document.body.appendChild(banner);
     
-    // **MutationObserver to hide the dialog when it appears**
-    const observer = new MutationObserver(function(mutationsList, observer) {
-      for (let mutation of mutationsList) {
-        if (mutation.type === 'childList') {
-          if ($('#ss-connect-dialog').length > 0) {
-            $('#ss-connect-dialog').hide();
-            observer.disconnect(); // Stop observing after hiding it
-            break; // Exit the loop after hiding it
-          }
-        }
-      }
-    });
+    //Make sure to hide "Eva has crashed..." pop-up
+    $('body').addClass('idle-timeout-occurred');
     
-    // Start observing the document body for added nodes
-    observer.observe(document.body, { childList: true, subtree: true });
-
     Shiny.setInputValue('session_idle', true, {priority: 'event'});
   }
 

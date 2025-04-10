@@ -991,7 +991,7 @@ function(input, output, session) {
   source("system_status_server.R", local = TRUE)
   
   session$onSessionEnded(function() {
-    cat(paste0("Session ", session$token, " ended at ", Sys.time()))
+    message(paste0("Session ", session$token, " ended at ", Sys.time()))
     gc()
     if (session$userData$session_ended_by_idle_timeout) {
       logMetadata("Session ended due to idle timeout.")
