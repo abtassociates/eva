@@ -1110,29 +1110,29 @@ dashboardPage(
                   id = "sys_inflow_outflow_subtabs",
                   selected = "Summary Chart",
                   tabPanel("Summary Chart", 
-                           uiOutput("sys_act_summary_filter_selections") %>%
+                           uiOutput("sys_inflow_outflow_summary_filter_selections") %>%
                              withSpinner(),
-                           plotOutput("sys_act_summary_ui_chart",
+                           plotOutput("sys_inflow_outflow_summary_ui_chart",
                                       width = "70%",
                                       height = "500") %>%
                              withSpinner()
                   ),
                   tabPanel("Detail Chart", 
-                           uiOutput("sys_act_detail_filter_selections") %>%
+                           uiOutput("sys_inflow_outflow_detail_filter_selections") %>%
                              withSpinner(),
-                           plotOutput("sys_act_detail_ui_chart",
+                           plotOutput("sys_inflow_outflow_detail_ui_chart",
                                       width = "100%",
                                       height = "500") %>%
                              withSpinner()
                   ),
                   tabPanel("Month-by-Month Chart", 
-                           uiOutput("sys_act_monthly_filter_selections") %>%
+                           uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
                              withSpinner(),
-                           plotOutput("sys_act_monthly_ui_chart",
+                           plotOutput("sys_inflow_outflow_monthly_ui_chart",
                                       width = "100%",
                                       height = "500") %>%
                              withSpinner(),
-                            DTOutput("sys_act_monthly_table") %>%
+                            DTOutput("sys_inflow_outflow_monthly_table") %>%
                              withSpinner()
                   ),
                   tabPanel("Timeline Chart",

@@ -112,7 +112,7 @@ output$client_level_download_btn <- downloadHandler(
       )
     )
     
-    system_df_info <- system_activity_prep_detail() %>% 
+    system_df_info <- sys_inflow_outflow_chart_data() %>% 
       select(Status, values, Time, InflowOutflow, InflowOutflowSummary)
     
     filter_selections <- rbind(
@@ -162,12 +162,12 @@ output$client_level_download_btn <- downloadHandler(
 )
 
 # Client-level download
-get_client_level_export <- function() {
+get_client_level_export <- reactive({
   merge(
     period_specific_data()[["Full"]],
     session$userData$Client %>% select(PersonalID, !!race_cols), 
     by="PersonalID"
   )
-}
+})
 
 source(here("sandbox/timeline_viewer.R"), local=TRUE)
