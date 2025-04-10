@@ -111,9 +111,9 @@ output$client_level_download_btn <- downloadHandler(
         as.character(session$userData$meta_HUDCSV_Export_End)
       )
     )
-    
-    system_df_info <- sys_inflow_outflow_chart_data() %>% 
-      select(Status, values, Time, InflowOutflow, InflowOutflowSummary)
+
+    system_df_info <- sys_inflow_outflow_annual_chart_data() %>% 
+      select(Detail, N, Summary, InflowOutflow)
     
     filter_selections <- rbind(
       export_date_info, # ExportStart, Exportend
@@ -121,7 +121,7 @@ output$client_level_download_btn <- downloadHandler(
       sys_export_filter_selections(), # Age, Veteran Status, Race/Ethnicity
       tibble(
         Chart = "Total Served (Start + Inflow) People",
-        Value = sum(system_df_info %>% filter(InflowOutflow == 'Inflow') %>% pull(values), na.rm = TRUE)
+        Value = sum(system_df_info[InflowOutflow == 'Inflow']$N, na.rm = TRUE)
       )
     )
     colnames(filter_selections) <- c("Filter","Selection")
