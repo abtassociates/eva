@@ -39,6 +39,12 @@ inactive_bar_colors <- c(
   "Inactive-Outflow" = "#9B87C0"   # lighter version of "#6A559B"
 )
 
+# 0.2 seems to be the right value to space the bars correctly
+# higher than this and outflow bars start to overlap with next month's inflow
+# lower and the bars are too thin, or space within a month is about the same as across
+active_at_start_bar_width = 0.2
+
+
 # Inflow/Outflow Client-Level Data ---------------------------
 ## Summary (Annual) ----------------------------
 # This also gets used by the Status chart
@@ -98,30 +104,45 @@ output$sys_inflow_outflow_monthly_filter_selections <- renderUI({
 # Chart Data Prep ---------------------------------------
 ## Summary/Detail (Annual) ---------------------------------------
 # This can be used for both the Summary and Detail charts
+# Final dataset looks like this:
+#                             Detail                         Summary  InflowOutflow InflowOutflowSummary     N order
+#                             <fctr>                          <fctr>         <fctr>               <fctr> <int> <int>
+# 1:                          Housed                 Active at Start         Inflow               Housed    73     1
+# 2:                        Homeless                 Active at Start         Inflow             Homeless   153     2
+# 3:           First-Time \nHomeless           First-Time \nHomeless         Inflow               Inflow   747     3
+# 4:       Returned from \nPermanent       Returned from \nPermanent         Inflow               Inflow     0     4
+# 5: Re-engaged from \nNon-Permanent Re-engaged from \nNon-Permanent         Inflow               Inflow     0     5
+# 6:             Inflow\nUnspecified             Inflow\nUnspecified         Inflow               Inflow     0     6
+# 7:          Exited,\nNon-Permanent          Exited,\nNon-Permanent        Outflow              Outflow   281     7
+# 8:              Exited,\nPermanent              Exited,\nPermanent        Outflow              Outflow   355     8
+# 9:                        Inactive                        Inactive        Outflow              Outflow    50     9
+# 10:                         Housed                   Active at End        Outflow               Housed    50    11
+# 11:                       Homeless                   Active at End        Outflow             Homeless   237    10
+
 sys_inflow_outflow_annual_chart_data <- reactive({
   full_combinations <- data.frame(
-    Detail = factor(c(
+    Detail = c(
       active_at_levels,
       inflow_detail_levels,
       outflow_detail_levels,
       active_at_levels
-    )),
-    Summary = factor(c(
+    ),
+    Summary = c(
       rep("Active at Start", length(active_at_levels)),
       inflow_detail_levels,
       outflow_detail_levels,
       rep("Active at End", length(active_at_levels))
-    )),
-    InflowOutflow = factor(c(
+    ),
+    InflowOutflow = c(
       rep("Inflow", length(c(inflow_detail_levels, active_at_levels))),
       rep("Outflow", length(c(outflow_detail_levels, active_at_levels)))
-    )),
-    PlotFillGroups = factor(c(
+    ),
+    PlotFillGroups = c(
       active_at_levels,
       rep("Inflow", length(inflow_detail_levels)),
       rep("Outflow", length(outflow_detail_levels)),
       active_at_levels
-    ))
+    )
   )
 
   rbind(
@@ -139,8 +160,19 @@ sys_inflow_outflow_annual_chart_data <- reactive({
     )]
   ) %>% 
   fcount() %>%
-  full_join(full_combinations) %>%
-  replace_na(value = 0)
+  join(full_combinations, how="full", on=names(full_combinations), overid=0) %>%
+  replace_na(value = 0) %>%
+  roworder(Summary, Detail) %>%
+  fmutate(
+    # switching Homeless and Housed order for Outflow is important for lining up 
+    # the bars, which are created by calculating ystart+yend based on the ordering
+    order = case_when(
+      Summary == "Active at End" & Detail == "Homeless" ~ fnrow(.) - 1,
+      Summary == "Active at End" & Detail == "Housed" ~ fnrow(.),
+      TRUE ~ seq_row(.)  # fallback for other statuses/times
+    )
+  ) %>%
+  roworder(order)
 })
 
 ## Monthly ---------------------------------------
@@ -150,8 +182,8 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
   monthly_data <- get_inflow_outflow_monthly() %>%
     fmutate(
       # We want Housed, Homeless (start/end) and Inflow/Outflow
-      InflowType = fct_collapse(InflowTypeDetail, `Inflow` = inflow_detail_levels),
-      OutflowType = fct_collapse(OutflowTypeDetail, `Outflow` = outflow_detail_levels)
+      InflowPlotFillGroups = fct_collapse(InflowTypeDetail, `Inflow` = inflow_detail_levels),
+      OutflowPlotFillGroups = fct_collapse(OutflowTypeDetail, `Outflow` = outflow_detail_levels)
     )
   
   # First-time homeless filter
@@ -165,26 +197,29 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
   
   # Get counts of each type by month
   monthly_counts <- rbind(
-    monthly_data[, .(PersonalID, month, Type = InflowType)],
-    monthly_data[, .(PersonalID, month, Type = OutflowType)]
+    monthly_data[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups)],
+    monthly_data[, .(PersonalID, month, PlotFillGroups = OutflowPlotFillGroups)]
   ) %>%
     funique() %>%
-    fgroup_by(month, Type) %>%
+    fgroup_by(month, PlotFillGroups) %>%
     fsummarise(Count = GRPN()) %>%
-    roworder(month, Type)
+    roworder(month, PlotFillGroups)
 
   # Make sure all month-type combinations are reflected
   join(
     monthly_counts,
     CJ(
       month = levels(monthly_counts$month), 
-      Type = unique(monthly_counts$Type), 
+      PlotFillGroups = unique(monthly_counts$PlotFillGroups), 
       sorted = FALSE
     ),
-    on = c("month","Type"),
+    on = c("month","PlotFillGroups"),
     how = "full"
   ) %>%
-  fmutate(TypeSummary = fct_collapse(Type, `Active at Start` = active_at_levels )) %>%
+  fmutate(
+    Summary = fct_collapse(PlotFillGroups, `Active at Start` = active_at_levels),
+    PlotFillGroups = factor(PlotFillGroups, levels = c(rev(active_at_levels), "Inflow", "Outflow"))  
+  ) %>%
   replace_na(value = 0, cols = "Count")
 })
 
@@ -230,14 +265,10 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     df <- sys_inflow_outflow_annual_chart_data() %>%
       # collapse the detailed levels of inflow/outflow
       fmutate(
-        Summary = fct_collapse(
-          Summary, 
-          Outflow = outflow_detail_levels,
-          Inflow = inflow_detail_levels
-        )
+        Summary = fct_collapse(Summary, Outflow = outflow_detail_levels, Inflow = inflow_detail_levels),
+        Detail = fct_collapse(Detail, Outflow = outflow_detail_levels, Inflow = inflow_detail_levels)
       ) %>%
-      fgroup_by(InflowOutflow, Summary, PlotFillGroups) %>%
-      fsummarise(N = fsum(N))
+      collap(cols="N", ~ InflowOutflow + Detail + Summary + PlotFillGroups, fsum, sort=FALSE)
     mid_plot <- 2.5
   } else {
     df <- sys_inflow_outflow_annual_chart_data()
@@ -264,15 +295,6 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
 
   # Order: Housed (start), Homeless (start), Inflow, Outflow, Homeless (end), Housed
   df <- df %>%
-    # This sorting is important for lining up the bars, which are created 
-    # by calculating ystart+yend based on the ordering
-    arrange(Summary, case_when(
-      Summary == "Active at Start" & PlotFillGroups == "Housed" ~ 1,
-      Summary == "Active at Start" & PlotFillGroups == "Homeless" ~ 2,
-      Summary == "Active at End" & PlotFillGroups == "Homeless" ~ 1,
-      Summary == "Active at End" & PlotFillGroups == "Housed" ~ 2,
-      TRUE ~ 3  # fallback for other statuses/times
-    )) %>%
     fmutate(
       N = ifelse(InflowOutflow == "Outflow", N * -1, N),
       ystart = lag(cumsum(N), default = 0),
@@ -285,7 +307,7 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   # segment_size <- get_segment_size(s/num_segments)
 
   inflow_to_outflow <- df %>%
-    filter(PlotFillGroups %in% active_at_levels) %>%
+    filter(Detail %in% active_at_levels) %>%
     pull(N) %>%
     sum() * -1
 
@@ -307,7 +329,6 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     # the connecting segments between bars
     geom_segment(
       data = df %>%
-        filter(group.id == group.id) %>%
         group_by(group.id) %>%
         slice_tail() %>%
         ungroup() %>%
@@ -315,11 +336,10 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       aes(
         x = group.id,
         xend = if_else(group.id == last(group.id), last(group.id), group.id + 1),
-        y = yend,
-        yend = yend
+        y = yend
       ),
       linewidth = .3,
-      colour = "gray25",
+      color = "gray25",
       linetype = "dashed",
       show.legend = FALSE,
       inherit.aes = FALSE
@@ -328,7 +348,7 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     ggrepel::geom_text_repel(
       aes(
         x = group.id,
-        label = if_else(!PlotFillGroups %in% c("Inflow", "Outflow") &
+        label = if_else(!(Summary %in% c("Inflow", "Outflow")) &
                           N != 0,
                         paste0(scales::comma(abs(N))), NA),
         y = rowSums(cbind(ystart, N / 2))
@@ -337,7 +357,7 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       # direction = "y",
       segment.colour = NA,
       nudge_x = ifelse(windowSize()[1] < 1300, -.4, -.3),
-      colour = "#4e4d47",
+      color = "#4e4d47",
       size = sys_chart_text_font,
       inherit.aes = FALSE
     ) +
@@ -345,9 +365,9 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     geom_text(
       aes(
         x = group.id,
-        label = if_else(PlotFillGroups %in% c("Inflow", "Outflow"),
+        label = if_else(Summary %in% c("Inflow", "Outflow"),
                         paste0(scales::comma(abs(N))), NA),
-        y = if_else(PlotFillGroups == "Inflow", yend, ystart), vjust = -.6
+        y = if_else(Summary == "Inflow", yend, ystart), vjust = -.6
       ),
       size = sys_chart_text_font
     ) +
@@ -387,7 +407,7 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
           isExport),
         vjust = -.2), 
       axis.ticks.x = element_line(),
-      axis.line.x = element_line(colour = "#4e4d47", linewidth = 0.5),
+      axis.line.x = element_line(color = "#4e4d47", linewidth = 0.5),
       plot.margin = unit(c(3, 1, 1, 1), "lines"),
       legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
       legend.title = element_blank(),
@@ -444,6 +464,8 @@ renderInflowOutflowFullPlot(
 output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
   plot_data <- sys_inflow_outflow_monthly_chart_data()
   
+  totals_data <- sys_inflow_outflow_export_info()
+  
   level_of_detail_text <- case_when(
     input$syso_level_of_detail == "All" ~ "People",
     input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
@@ -451,42 +473,43 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
       getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
   )
   
-  # 0.2 seems to be the right value to space the bars correctly
-  # higher than this and outflow bars start to overlap with next month's inflow
-  # lower and the bars are too thin, or space within a month is about the same as across
-  active_at_start_bar_width = 0.2
-  
-  ggplot(plot_data, aes(x = interaction(month, TypeSummary), y = Count, fill = Type)) +
+  ggplot(plot_data, aes(x = interaction(month, Summary), y = Count, fill = PlotFillGroups)) +
     geom_bar(
-      data = plot_data[TypeSummary == "Active at Start"],
-      aes(x = month, y = Count, fill = Type, group = TypeSummary),
+      data = plot_data[Summary == "Active at Start"],
+      aes(x = month, y = Count, fill = PlotFillGroups),
       stat = "identity",
       position = "stack",
       width = active_at_start_bar_width,
-      inherit.aes = FALSE
+      just = 1.8 # this moves the bar to the left of the month-center
     ) +
     geom_bar(
-      data = plot_data[TypeSummary != "Active at Start"],
-      aes(x = month, y = Count, fill = Type, group = TypeSummary),
+      data = plot_data[Summary == "Inflow"],
+      aes(x = month, y = Count, fill = PlotFillGroups),
       stat = "identity",
-      position = position_dodge(width = active_at_start_bar_width * 5),
-      width = active_at_start_bar_width * 2,
-      inherit.aes = TRUE
+      width = active_at_start_bar_width,
     ) +
+    geom_bar(
+      data = plot_data[Summary == "Outflow"],
+      aes(x = month, y = Count, fill = PlotFillGroups),
+      stat = "identity",
+      width = active_at_start_bar_width,
+      just = -0.8 # this moves the bar to the right of the month-center
+    ) +
+    
     scale_fill_manual(values = bar_colors, name = "Inflow/Outflow Types") + # Update legend title
     theme_minimal() +
     labs(
       x = "Month",
       y = paste0("Count of ", level_of_detail_text)
     ) +
-    scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + #increase space between groups
-    
-    # NEED TO FIX THIS!
+    scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
     ggtitle(
       paste0(
-        "Total Inflow: +", scales::comma(sum(plot_data$Type == "Inflow")), "\n",
-        "Total Outflow: -", scales::comma(sum(plot_data$Type == "Outflow")), "\n",
-        "Total Change in ", level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type)
+        "Total Inflow: +", scales::comma(totals_data[Chart == "Total Inflow", Value]), "\n",
+        "Total Outflow: -", scales::comma(totals_data[Chart == "Total Outflow", Value]), "\n",
+        "Total Change in ", 
+          level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
+          scales::comma(totals_data[Chart == "Total Change", Value])
       )
     ) +
     theme(
@@ -509,7 +532,7 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 output$sys_inflow_outflow_monthly_table <- renderDT({
   summary_data <- pivot(
     sys_inflow_outflow_monthly_chart_data(),
-    ids = "Type",        # Column(s) defining the rows of the output
+    ids = "PlotFillGroups",        # Column(s) defining the rows of the output
     names = "month",       # Column whose values become column names
     values = "Count",  # An arbitrary column to count (used with fun)
     how = "wider",
@@ -519,11 +542,11 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
   # Get Monthly Change (Inflow - Outflow)
   month_cols <- names(summary_data)[-1]
 
-  change_row <- summary_data[Type == "Inflow", ..month_cols] -
-    summary_data[Type == "Outflow", ..month_cols]
+  change_row <- summary_data[PlotFillGroups == "Inflow", ..month_cols] -
+    summary_data[PlotFillGroups == "Outflow", ..month_cols]
   summary_data_with_change <- rbind(
     summary_data, 
-    add_vars(change_row, Type = "Monthly Change")
+    add_vars(change_row, PlotFillGroups = "Monthly Change")
   )
 
   datatable(summary_data_with_change,
@@ -546,8 +569,8 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
         unname(bar_colors)
       ),
       border = styleEqual(
-        c("Inflow", "Inactive","Outflow"),
-        c("2px solid black", "2px solid black", "2px solid black")
+        c(active_at_levels, "Inflow", "Outflow"),
+        c(rep("2px solid black", 2), "2px solid black", "2px solid black")
       )
     ) %>%
     # Highlight max change
@@ -595,21 +618,23 @@ output$sys_inactive_monthly_ui_chart <- renderPlot({
 })
 
 # Info to include in Inflow/Outflow Exports -----------------------------------
-sys_inflow_outflow_export_info <- function(df) {
-  tibble(
+sys_inflow_outflow_export_info <- function() {
+  df <- sys_inflow_outflow_annual_chart_data()
+  
+  data.table(
     Chart = c(
       "Total Served (Start + Inflow) People",
       "Total Inflow",
       "Total Outflow",
       "Total Change"
     ),
-    Value = as.character(c(
-      sum(df[df$InflowOutflow == 'Inflow', 'N'], na.rm = TRUE),
-      sum(df[df$Summary == 'Inflow', 'N'], na.rm = TRUE),
-      sum(df[df$Summary == 'Outflow', 'N'], na.rm = TRUE),   
-      sum(df[df$Summary == "Active at End", 'N'], na.rm = TRUE) +
-        sum(df[df$Summary == "Active at Start", 'N'], na.rm = TRUE)
-    ))
+    Value = c(
+      sum(df[InflowOutflow == 'Inflow']$N, na.rm = TRUE),
+      sum(df[Summary %in% inflow_detail_levels]$N, na.rm = TRUE),
+      sum(df[Summary %in% outflow_detail_levels]$N, na.rm = TRUE),   
+      sum(df[Summary == "Active at End"]$N, na.rm = TRUE) -
+        sum(df[Summary == "Active at Start"]$N, na.rm = TRUE)
+    )
   )
 }
 
@@ -618,13 +643,13 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Flow Report - "),
   content = function(file) {
     df <- sys_inflow_outflow_annual_chart_data() %>% 
-      select(Detail, N, Summary, InflowOutflow)
+      select(Detail, N, Summary, InflowOutflow, InflowOutflowSummary)
 
     write_xlsx(
       list(
         "System Flow Metadata" = sys_export_summary_initial_df() %>%
           bind_rows(sys_export_filter_selections()) %>%
-          bind_rows(sys_inflow_outflow_export_info(df)) %>%
+          bind_rows(sys_inflow_outflow_export_info()) %>%
           mutate(Value = replace_na(Value, 0)) %>%
           rename("System Flow" = Value),
         "System Flow Data" = bind_rows(
@@ -662,16 +687,13 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
     paste("System Flow_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
-    df <- sys_inflow_outflow_annual_chart_data() %>% 
-      select(Detail, N, Summary, InflowOutflow)
-    
     sys_overview_ppt_export(
       file = file,
       title_slide_title = "System Flow",
       summary_items = sys_export_summary_initial_df() %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_export_filter_selections()) %>%
-        bind_rows(sys_inflow_outflow_export_info(df)),
+        bind_rows(sys_inflow_outflow_export_info()),
       plot_slide_title = "System Flow Summary",
       plot1 = get_system_inflow_outflow_annual_plot("sys_inflow_outflow_summary_ui_chart",
                                              isExport = TRUE),

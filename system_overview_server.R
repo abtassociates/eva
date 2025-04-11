@@ -755,7 +755,7 @@ universe_ppl_flags <- function(universe_df, period) {
         homeless_at_end_client & !is.na(homeless_at_end_client), "Homeless",
         housed_at_end_client | has_enrollment_after_lecr_client, "Housed",
         default = "something's wrong"
-      ), levels = c(outflow_detail_levels, rev(active_at_levels))
+      ), levels = c(outflow_detail_levels, rev(active_at_levels), "something's wrong")
     )
   )]
 }
