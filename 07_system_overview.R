@@ -652,3 +652,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
   },
   cache = cachem::cache_mem(max_size = 100 * 1024^2) 
 )
+
+# Force run/calculate period_specific_data reactive
+# Better to do it up-front than while charts are loading
+period_specific_data()
