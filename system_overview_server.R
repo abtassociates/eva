@@ -456,8 +456,9 @@ period_specific_data <- reactive({
   cache[[cache_key]] <- results
   session$userData$period_cache <- cache
   results # %>% 
-    # Doing this here for testing purposes, so can view fuller intermediate datasets
-    # fsubset(eecr | lecr | lookback)
+    # Commenting out for testing purposes, so can view fuller intermediate datasets
+    # but this will remove all the lookbacks, which are no longer needed at this point
+    # fsubset(eecr | lecr)
 })
 
 # Client-level flags, filtered ----------------------------------------------------
@@ -533,7 +534,7 @@ universe_enrl_flags <- function(all_filtered, period) {
     # basically it has to straddle report start
     # the entry date of the EECR needs to be on or before the reporting period
     # the exitadjust has to be after report start
-    # OR the eecr & lookback1 have to end and start within 14 days of each
+    # OR the eecr & first_lookback have to end and start within 14 days of each
     # other and of the report start
     # EnrolledHomeless status of the EECR needs to be true
     # JUST FOR FULL DISCLOSURE, this means: 
@@ -587,7 +588,7 @@ universe_enrl_flags <- function(all_filtered, period) {
     
     # LOGIC helper columns
     
-    lookback1_perm_dest = lookback == 1 & 
+    first_lookback_perm_dest = first_lookback & 
       Destination %in% perm_livingsituation,
     
     eecr_lh_at_entry = eecr == TRUE &
@@ -597,7 +598,7 @@ universe_enrl_flags <- function(all_filtered, period) {
       !is.na(days_since_lookback) &
       days_since_lookback >= 14,
     
-    lookback1_temp_dest = lookback == 1 & 
+    first_lookback_temp_dest = first_lookback & 
       !(Destination %in% perm_livingsituation),
     
     unknown_at_start = eecr == TRUE &
@@ -665,24 +666,8 @@ universe_enrl_flags <- function(all_filtered, period) {
 
 ## People-level flags ------------------------
 # Need to keep it enrollment-level so other scripts can reference the enrollments
-get_days_of_data <- function(period) {
-  # Export Start Date - Adjusted to be the 1st of the month
-  # if the start date's day of the month = 1, then that's the start date
-  # otherwise go forward a month and use the 1st of that month.
-  ExportStartAdjusted <- if_else(
-    day(session$userData$meta_HUDCSV_Export_Start) == 1,
-    session$userData$meta_HUDCSV_Export_Start,
-    floor_date(session$userData$meta_HUDCSV_Export_Start %m+% months(1), unit = "month"))
-  
-  period_end_date <- period[2]
-  
-  return(period_end_date - ExportStartAdjusted)
-}
-
 universe_ppl_flags <- function(universe_df, period) {
   setkey(universe_df, PersonalID)
-  
-  days_of_data <- get_days_of_data(period)
 
   universe_df[, `:=`(
     # INFLOW
@@ -690,16 +675,14 @@ universe_ppl_flags <- function(universe_df, period) {
     
     active_at_start_housed_client = any(active_at_start_housed, na.rm = TRUE),
     
-    return_from_perm_client = any(lookback1_perm_dest, na.rm = TRUE) & 
+    return_from_perm_client = any(first_lookback_perm_dest, na.rm = TRUE) & 
       any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
     
-    reengaged_from_temp_client = any(lookback1_temp_dest, na.rm = TRUE) & 
+    reengaged_from_temp_client = any(first_lookback_temp_dest, na.rm = TRUE) & 
       # max(eecr_lh_at_entry) == 1 & 
       any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
     
-    newly_homeless_client = any(lookback == TRUE, na.rm = TRUE) |
-      !any(eecr_lh_at_entry, na.rm = TRUE) | 
-      !any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
+    first_time_homeless_client = !any(lookback & lh_at_entry, na.rm = TRUE),
     
     unknown_at_start_client = any(unknown_at_start, na.rm = TRUE),
     
@@ -720,7 +703,7 @@ universe_ppl_flags <- function(universe_df, period) {
     InflowTypeSummary = factor(
       fcase(
         active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
-        newly_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start, "Inflow",
+        first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start, "Inflow",
         default = "something's wrong"
       ), levels = inflow_outflow_summary_levels
     ),
@@ -731,8 +714,7 @@ universe_ppl_flags <- function(universe_df, period) {
         active_at_start_housed_client, "Housed",
         return_from_perm_client, "Returned from \nPermanent",
         reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
-        newly_homeless_client & days_of_data >= 1094, "First-Time \nHomeless",
-        newly_homeless_client & days_of_data < 1094, "Inflow\nUnspecified",
+        first_time_homeless_client, "First-Time \nHomeless",
         unknown_at_start, "Inactive", 
         default = "something's wrong"
       ), levels = c(active_at_levels, inflow_detail_levels)

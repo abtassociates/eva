@@ -751,7 +751,7 @@ qc_checks <- function() {
     InflowTypeDetail == "First-Time \nHomeless"
   ][, .N, by = PersonalID][N > 1]
   if(nrow(first_time_homeless_dups) > 0) {
-    warning(glue("There are people that have multiple First-Time Homeless values in the mbm. Days of data = {get_days_of_data()}"))
+    warning(glue("There are people that have multiple First-Time Homeless values in the mbm."))
     print(all_months[PersonalID %in% first_time_homeless_dups$PersonalID, .(
       PersonalID, 
       EnrollmentID,
@@ -762,12 +762,11 @@ qc_checks <- function() {
       active_at_start_homeless,
       active_at_start_housed,
       at_least_14_days_to_eecr_enrl,
-      lookback1_perm_dest,
-      lookback1_temp_dest,
+      first_lookback_perm_dest,
+      first_lookback_temp_dest,
       return_from_perm_client,
       reengaged_from_temp_client,
-      newly_homeless_client,
-      newly_homeless_client,
+      first_time_homeless_client,
       unknown_at_start
     )])
   }
@@ -780,7 +779,7 @@ qc_checks <- function() {
     ) %>%
     fsubset(order(PersonalID, month)) %>%
     fmutate(problem = !(
-      (L(OutflowTypeSummary, g = PersonalID) == "Outflow" & InflowTypeSummary == "Inflow") | 
+      (L(OutflowTypeSummary, g = PersonalID) == "Outflow" & Summary == "Inflow") | 
       (L(OutflowTypeSummary, g = PersonalID) == "Active at End" & InflowTypeSummary %in% c("Inflow","Active at Start")) |
       (L(OutflowTypeSummary, g = PersonalID) == "Inactive" & InflowTypeSummary %in% c("Inflow","Active at Start"))
     )) %>%
