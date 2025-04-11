@@ -621,7 +621,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       ) %>%
       fungroup() 
     
-    enrollment_categories_period <- enrollment_categories_period %>%
+    enrollment_categories_period %>%
       fmutate(
         eecr = eecr_straddle | eecr_no_straddle,
         lecr = lecr_straddle | lecr_no_straddle,
@@ -629,15 +629,15 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       ) %>%
       fgroup_by(PersonalID) %>%
       fmutate(
-        has_lecr = fmax(lecr),
+        has_lecr = anyv(lecr, TRUE),
+        has_eecr = anyv(eecr, TRUE),
         eecr_project_type = fifelse(
           anyv(eecr_is_res, TRUE), "Residential", "NonResidential"
         )
       ) %>%
       fungroup() %>%
-      ftransform(
-        lecr = lecr | (eecr & !has_lecr)
-      ) %>%
+      fsubset(has_eecr == TRUE) %>%
+      ftransform(lecr = lecr | (eecr & !has_lecr)) %>%
       roworder(PersonalID, EntryDate) %>%
       fmutate(
         lookback = L(eecr, n = -1, g = PersonalID) == TRUE, #lookback is TRUE if the next/lead eecr value is TRUE
@@ -649,8 +649,6 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       fselect(-c(any_straddle_start, any_straddle_end, eecr_no_straddle, eecr_straddle, lecr_straddle, lecr_no_straddle))
 
     # }, "07_system_overview.R")
-    # browser()
-    enrollment_categories_period
   },
   cache = cachem::cache_mem(max_size = 100 * 1024^2) 
 )
