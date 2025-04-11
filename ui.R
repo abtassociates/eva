@@ -1110,20 +1110,78 @@ dashboardPage(
                   id = "sys_inflow_outflow_subtabs",
                   selected = "Summary Chart",
                   tabPanel("Summary Chart", 
-                           uiOutput("sys_act_summary_filter_selections") %>%
+                           uiOutput("sys_inflow_outflow_summary_filter_selections") %>%
                              withSpinner(),
-                           plotOutput("sys_act_summary_ui_chart",
+                           plotOutput("sys_inflow_outflow_summary_ui_chart",
                                       width = "70%",
                                       height = "500") %>%
                              withSpinner()
                   ),
                   tabPanel("Detail Chart", 
-                           uiOutput("sys_act_detail_filter_selections") %>%
+                           uiOutput("sys_inflow_outflow_detail_filter_selections") %>%
                              withSpinner(),
-                           plotOutput("sys_act_detail_ui_chart",
+                           plotOutput("sys_inflow_outflow_detail_ui_chart",
                                       width = "100%",
                                       height = "500") %>%
                              withSpinner()
+                  ),
+                  tabPanel("Month-by-Month Chart", 
+                           uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
+                             withSpinner(),
+                           radioGroupButtons(
+                             inputId = "mbm_fth_filter",
+                             label = "Flow Type Filters",
+                             choices = c("All", "First-Time Homeless", "Inactive"),
+                             selected = "All",
+                             individual = TRUE,
+                             checkIcon = list(yes = icon("check"))
+                           ),
+                           conditionalPanel(
+                             condition = "input.mbm_fth_filter == 'Inactive'",
+                             plotOutput("sys_inactive_monthly_ui_chart",
+                                        width = "100%",
+                                        height = "500")
+                           ),
+                           conditionalPanel(
+                             condition = "input.mbm_fth_filter != 'Inactive'",
+                             plotOutput("sys_inflow_outflow_monthly_ui_chart",
+                                        width = "100%",
+                                        height = "500") %>%
+                               withSpinner(),
+                             DTOutput("sys_inflow_outflow_monthly_table") %>%
+                               withSpinner()
+                           )
+                  ),
+                  tabPanel("Timeline Chart",
+                           plotlyOutput("timelinePlot", height = "600px"),
+                           selectizeInput(
+                             inputId = "enrollmentIDFilter",
+                             label = "Search by Enrollment ID",
+                             choices = NULL, # We'll populate this dynamically
+                             options = list(
+                               placeholder = "Type to search for Enrollment ID",
+                               closeAfterSelect = TRUE
+                             ),
+                             multiple = FALSE
+                           ),
+                           
+                           # PersonalID Filter
+                           selectizeInput(
+                             inputId = "personalIDFilter",
+                             label = "Search by Personal ID",
+                             choices = NULL, # We'll populate this dynamically
+                             options = list(
+                               placeholder = "Type to search for Personal ID",
+                               closeAfterSelect = TRUE
+                             ),
+                             multiple = FALSE
+                           ),
+                           conditionalPanel(
+                             condition = "len(input.personalIDFilter)",
+                             h4("Person's Monthly Inflow/Outflow"),
+                             verbatimTextOutput("personDetails")
+                           )
+                           
                   ),
                   tabPanel("Information", 
                            HTML("<h4>Chart Overview</h4>

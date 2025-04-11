@@ -17,6 +17,7 @@
       1920,
       1080
     ],
+    "enrollmentIDFilter": "",
     "fileStructureAnalysis_cell_clicked": {
 
     },
@@ -93,6 +94,7 @@
     "isdemo": false,
     "methodology_type": "1",
     "orgList": "Organization A‰",
+    "personalIDFilter": "",
     "showDownloadImpermissibleButton": 0,
     "sidebarCollapsed": false,
     "sidebarItemExpanded": null,

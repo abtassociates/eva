@@ -25,18 +25,18 @@ show_invalid_popup <- function(popupText = NULL, issueID, title) {
 }
 
 hasGT1ExportRow <- function() {
-  Export(importFile(upload_filepath, "Export"))
-  
+  session$userData$Export <- importFile(upload_filepath, "Export")
+
   # this is the soonest we can log the session data, with 
   # the export info, since this is the first time we import the Export.csv file
-  logSessionData() 
+  logSessionData(session) 
   
-  return(nrow(Export()) > 1)
+  return(nrow(session$userData$Export) > 1)
 }
 
 isFY2024Export <- function() {
   return(
-    grepl("2024", as.character(Export()$CSVVersion))
+    grepl("2024", as.character(session$userData$Export$CSVVersion))
   )
 }
 
@@ -45,14 +45,14 @@ isFY2024Export <- function() {
 is_hashed <- function() {
 
   # read Client file
-  Client <- importFile(upload_filepath, "Client")
+  session$userData$Client <- importFile(upload_filepath, "Client")
   
   # decide if the export is hashed
   return(  
     # TRUE
-    Export()$HashStatus == 4 &
-      min(nchar(Client$FirstName), na.rm = TRUE) ==
-      max(nchar(Client$FirstName), na.rm = TRUE)
+    session$userData$Export$HashStatus == 4 &
+      min(nchar(session$userData$Client$FirstName), na.rm = TRUE) ==
+      max(nchar(session$userData$Client$FirstName), na.rm = TRUE)
   )
 }
 
@@ -66,7 +66,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
     issueID = 127, 
     title = "Unsuccessful Upload: You did not upload a zip file"
   )
-  logMetadata("Unsuccessful upload - zip file not .zip")
+  logMetadata(session, "Unsuccessful upload - zip file not .zip")
 } else {
   zipContents <- utils::unzip(zipfile = upload_filepath, list = TRUE)
     
@@ -85,7 +85,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       issueID = 122,
       title = "Unsuccessful Upload: Misstructured directory"
     )
-    logMetadata("Unsuccessful upload - zip file was misstructured")
+    logMetadata(session, "Unsuccessful upload - zip file was misstructured")
   } else if(length(missing_files)) {
     missing_files_list <- paste(
       glue::glue('<li>{missing_files}.csv</li>'),
@@ -106,7 +106,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       issueID = 125,
       title = "Unsuccessful Upload: Missing files"
     )
-    logMetadata("Unsuccessful upload - incomplete dataset")
+    logMetadata(session, "Unsuccessful upload - incomplete dataset")
   } else if(hasGT1ExportRow()) {
     show_invalid_popup(
       issueID = 140,
@@ -114,20 +114,20 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       popupText = "Export.csv should only have 1 row. Please upload a hashed HMIS CSV Export that meets all of HUD's specifications. 
       If you are not sure how to resolve this issue, please contact your HMIS vendor."
     )
-    logMetadata("Unsuccessful upload - Export.csv has more than 1 row")
+    logMetadata(session, "Unsuccessful upload - Export.csv has more than 1 row")
   } else if(!isFY2024Export()) {
     show_invalid_popup(
       issueID = 124,
       title = "Unsuccessful Upload: Your HMIS CSV Export is out of date"
     )
-    logMetadata("Unsuccessful upload - out of date HMIS CSV Export")
+    logMetadata(session, "Unsuccessful upload - out of date HMIS CSV Export")
   } else if(!is_hashed()) {
     show_invalid_popup(
       issueID = 126,
       title = "Unsuccessful Upload: You uploaded an unhashed data set"
     )
-    logMetadata("Unsuccessful upload - not hashed")
+    logMetadata(session, "Unsuccessful upload - not hashed")
   } else {
-    initially_valid_import(1)
+    session$userData$initially_valid_import(1)
   }
 }

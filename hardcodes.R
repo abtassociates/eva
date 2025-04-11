@@ -374,3 +374,54 @@ sys_chart_title_font <- sys_axis_text_font # 16 pts
 sys_chart_export_font_reduction <- 0.7
 ppt_summary_slide_font <- 19 # 19 pts = 25px
 ppt_chart_title_font_size <- 36
+
+# Upload-specific static variables shared across session --------------------
+sessionVars <- c(
+  "validation", 
+  "Export", 
+  "initially_valid_import",
+  "valid_file", 
+  "file_structure_analysis_main", 
+  "Project0", 
+  "Client",
+  "CurrentLivingSituation", 
+  "Event", 
+  "ReportStart", 
+  "ReportEnd", 
+  "meta_HUDCSV_Export_Start", 
+  "meta_HUDCSV_Export_End", 
+  "meta_HUDCSV_Export_Date", 
+  "overlap_details", 
+  "base_dq_data_func", 
+  "dq_main_df", 
+  "pdde_main", 
+  "days_of_data",
+  "client_categories"
+)
+
+# environment depencies for DQ and PDDE mirai
+dq_mirai_dependencies <- c(
+  "Enrollment",
+  "Client",
+  "ProjectSegments",
+  "HealthAndDV",
+  "CurrentLivingSituation",
+  "projects_funders_types",
+  "IncomeBenefits",
+  "EnrollmentAdjust",
+  "Services",
+  "Funder",
+  "session"
+)
+
+pdde_mirai_dependencies <- c(
+  "Inventory",
+  "Enrollment",
+  "Project",
+  "ProjectCoC",
+  "activeInventory",
+  "HMISParticipation",
+  "HMIS_participating_projects_w_active_inv_no_overflow",
+  "CEParticipation",
+  "session"
+)
