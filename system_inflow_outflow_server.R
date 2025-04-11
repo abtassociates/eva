@@ -5,10 +5,11 @@ active_at_levels <- c(
 )
 
 inflow_detail_levels <- c(
+  "First-Time \nHomeless", 
   "Returned from \nPermanent",
   "Re-engaged from \nNon-Permanent",
-  "First-Time \nHomeless", 
-  "Inflow\nUnspecified"
+  "Inflow\nUnspecified",
+  "something's wrong"
 )
 
 outflow_detail_levels <- c(
@@ -17,10 +18,13 @@ outflow_detail_levels <- c(
   "Inactive"
 )
 
-inflow_outflow_summary_levels <- c("Active at Start",
-                         "Inflow",
-                         "Outflow",
-                         "Active at End")
+inflow_outflow_summary_levels <- c(
+  "Active at Start",
+  "Inflow",
+  "Outflow",
+  "Active at End",  
+  "something's wrong"
+)
 
 bar_colors <- c(
   "Inflow" = "#BDB6D7", 
