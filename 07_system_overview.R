@@ -580,10 +580,12 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       # )
     )]
 
-    # only keep folks in_date_range and res or non-res+lh at start
+    # only keep enrollments in_date_range and res or non-res+lh at start, 
+    # as well as potential lookbacks
     enrollment_categories_period <- enrollment_categories_period %>%
       fsubset(
-        in_date_range & (ProjectType %in% project_types_w_beds | was_lh_at_start)
+        (in_date_range & (ProjectType %in% project_types_w_beds | was_lh_at_start)) | 
+        (ExitAdjust <= startDate)
       )
 
     enrollment_categories_period <- enrollment_categories_period %>%

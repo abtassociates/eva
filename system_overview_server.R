@@ -697,7 +697,7 @@ universe_ppl_flags <- function(universe_df, period) {
       # max(eecr_lh_at_entry) == 1 & 
       any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
     
-    newly_homeless_client = all(lookback == 0, na.rm = TRUE) |
+    newly_homeless_client = any(lookback == TRUE, na.rm = TRUE) |
       !any(eecr_lh_at_entry, na.rm = TRUE) | 
       !any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
     
