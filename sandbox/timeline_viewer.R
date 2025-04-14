@@ -16,10 +16,10 @@ raw_enrollments_dt <- reactive({
     on = .(EnrollmentID)
   ][# Assign living situation category
     , LivingSituationCategory := as.factor(
-      fifelse(LivingSituation %in% 400:499, "permanent",
-              fifelse(LivingSituation %in% 100:199 | LivingSituation == 302, "homeless",
-                      fifelse(LivingSituation %in% 300:399, "temporary",
-                              fifelse(LivingSituation %in% 200:299, "institutional", "other")
+      fifelse(LivingSituation %in% perm_livingsituation, "permanent",
+              fifelse(LivingSituation %in% homeless_livingsituation_incl_TH, "homeless",
+                      fifelse(LivingSituation %in% temp_livingsituation, "temporary",
+                              fifelse(LivingSituation %in% institutional_livingsituation, "institutional", "other")
                       ))))
   ]
 })
@@ -235,6 +235,8 @@ output$timelinePlot <- renderPlotly({
 # 
 # # Handle plot click events
 output$personDetails <- renderPrint({
+  req(input$personalIDFilter)
+  
   info <- enrl_month_categories()[
     PersonalID == input$personalIDFilter
   ]
@@ -245,7 +247,7 @@ output$personDetails <- renderPrint({
   # Apply approach - more efficient for data.table
   info[, {
     month_formatted <- format(as.Date(month), "%b %Y")
-    cat(month_formatted, ": (", InflowTypeSummary, ", ",  OutflowTypeSummary, ")\n")
+    cat(month_formatted, ": (", as.character(InflowTypeSummary), ", ",  as.character(OutflowTypeSummary), ")\n")
   }, by = seq_len(nrow(info))]
   
   # Return invisible to avoid extra output
