@@ -731,6 +731,9 @@ Below are the counts by Week. A week here is counted Monday to Sunday.
 
 ```{r data by week}
 gt(counts_by_week %>%
+     filter(!str_detect(Event, "Unpacked file size")) %>%
+     filter(!str_detect(Event, "Beginning upload")) %>%
+     filter(!str_detect(Event, "Memory used after processing")) %>%
      select(
        "Week Ending" = WeekEnding,
        Event,
@@ -746,6 +749,9 @@ Below are the counts by Month.
 
 ```{r data by month}
 gt(counts_by_month_history %>%
+     filter(!str_detect(Event, "Unpacked file size")) %>%
+     filter(!str_detect(Event, "Beginning upload")) %>%
+     filter(!str_detect(Event, "Memory used after processing")) %>%
      select(
        "Month Ending" = MonthEnding,
        Event,
