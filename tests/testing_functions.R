@@ -278,38 +278,38 @@ main_test_script <- function(test_script_name, test_dataset) {
       "syso_tabbox"
     )
     
-    sys_act_inputs <- c(
+    sys_inflow_outflow_inputs <- c(
       "sidebarmenuid",
       "sys_inflow_outflow_subtabs",
       sys_universe_filters,
       sys_flow_filters,
       sys_other_inputs
     )
-    sys_act_summary_outputs <- c(
+    sys_inflow_outflow_summary_outputs <- c(
       "headerSystemOverview",
-      "sys_act_summary_filter_selections",
-      "sys_act_summary_ui_chart"
+      "sys_inflow_outflow_summary_filter_selections",
+      "sys_inflow_outflow_summary_ui_chart"
     )
     
     app$set_inputs(sidebarmenuid = "tabSystemOverview")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-summary",
-      input = sys_act_inputs,
-      output = sys_act_summary_outputs
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_summary_outputs
     )
     
-    sys_act_detail_outputs <- c(
+    sys_inflow_outflow_detail_outputs <- c(
       "headerSystemOverview",
-      "sys_act_detail_filter_selections",
-      "sys_act_detail_ui_chart"
+      "sys_inflow_outflow_detail_filter_selections",
+      "sys_inflow_outflow_detail_ui_chart"
     )
     app$set_inputs(sys_inflow_outflow_subtabs = "Detail Chart")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-detail",
-      input = sys_act_inputs,
-      output = sys_act_detail_outputs
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_detail_outputs
     )
 
     
@@ -318,8 +318,8 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
       name = "sys-flow-detail-w-AO-Residential",
-      input = sys_act_inputs,
-      output = sys_act_detail_outputs
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_detail_outputs
     )
     
     # go back to summary tab
@@ -327,8 +327,8 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-summary-w-AO-Residential",
-      input = sys_act_inputs,
-      output = sys_act_summary_outputs
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_summary_outputs
     )
     
     # go to information
