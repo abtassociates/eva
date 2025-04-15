@@ -630,13 +630,13 @@ sys_inflow_outflow_export_info <- function() {
       "Total Outflow",
       "Total Change"
     ),
-    Value = c(
+    Value = as.character(c(
       sum(df[InflowOutflow == 'Inflow']$N, na.rm = TRUE),
       sum(df[Summary %in% inflow_detail_levels]$N, na.rm = TRUE),
       sum(df[Summary %in% outflow_detail_levels]$N, na.rm = TRUE),   
       sum(df[Summary == "Active at End"]$N, na.rm = TRUE) -
         sum(df[Summary == "Active at Start"]$N, na.rm = TRUE)
-    )
+    ))
   )
 }
 
