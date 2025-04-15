@@ -2,6 +2,9 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
+    "04-17-2025",
+    "<b>Miscellaneous</b> <br>
+      - Update Long Stayers check for ES NbN projects to use Bed Nights, rather than CLS records.",
     "04-03-2025",
     "<b>New Features</b> <br>
       - Added new PDDE check for active inventory with no enrollments during the inventory dates.<br>

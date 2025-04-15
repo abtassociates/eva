@@ -10,6 +10,7 @@ function(input, output, session) {
     Export <- reactiveVal(),
     Project0 <- reactiveVal(),
     Event <- reactiveVal(),
+    esnbn_nonexited <- reactiveVal(),
     meta_HUDCSV_Export_Start <- reactiveVal(),
     meta_HUDCSV_Export_End <- reactiveVal(),
     meta_HUDCSV_Export_Date <- reactiveVal(),

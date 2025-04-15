@@ -1750,3 +1750,26 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
    
 base_dq_data_func(base_dq_data)
 dq_main_df(dq_main)
+esnbn_nonexited({
+  if(nrow(Services) == 0) return(NULL)
+  
+  esnbn_nonexited_enrollments <- base_dq_data_dt %>%
+    fsubset(
+      ProjectType == es_nbn_project_type & (ExitDate >= meta_HUDCSV_Export_End() | is.na(ExitDate)), 
+      EnrollmentID
+    ) %>%
+    funique()
+  
+  if(nrow(esnbn_nonexited_enrollments) == 0) return(NULL)
+  
+  qDT(Services) %>%
+    fgroup_by(EnrollmentID) %>%
+    fmutate(LastBedNight = fmax(DateProvided)) %>%
+    fungroup() %>%
+    join(
+      esnbn_nonexited_enrollments,
+      on = "EnrollmentID",
+      how = "inner"
+    ) %>%
+    fselect(EnrollmentID, LastBedNight)
+})

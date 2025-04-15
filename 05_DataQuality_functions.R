@@ -22,12 +22,12 @@ vars_we_want <- c(vars_prep,
                   "Guidance")
 
 dq_main_reactive <- reactive({
-  ESNbN <- calculate_long_stayers_local_settings_dt(input$ESNbNLongStayers, 0)
-  Outreach <- calculate_long_stayers_local_settings_dt(input$OUTLongStayers, 4)
-  CoordinatedEntry <- calculate_long_stayers_local_settings_dt(input$CELongStayers, 14)
-  ServicesOnly <- calculate_long_stayers_local_settings_dt(input$ServicesOnlyLongStayers, 6)
-  Other <- calculate_long_stayers_local_settings_dt(input$OtherLongStayers, 7)
-  DayShelter <- calculate_long_stayers_local_settings_dt(input$DayShelterLongStayers, 11)
+  ESNbN <- calculate_long_stayers_local_settings_dt(input$ESNbNLongStayers, es_nbn_project_type)
+  Outreach <- calculate_long_stayers_local_settings_dt(input$OUTLongStayers, out_project_type)
+  CoordinatedEntry <- calculate_long_stayers_local_settings_dt(input$CELongStayers, ce_project_type)
+  ServicesOnly <- calculate_long_stayers_local_settings_dt(input$ServicesOnlyLongStayers, sso_project_type)
+  Other <- calculate_long_stayers_local_settings_dt(input$OtherLongStayers, other_project_project_type)
+  DayShelter <- calculate_long_stayers_local_settings_dt(input$DayShelterLongStayers, day_project_type)
   
   
   #Calculating potential old referrals based on Local settings
@@ -233,24 +233,34 @@ calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
 }
 
 calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
-  if (projecttype %in% c(project_types_w_cls)) {
+  
+  if (projecttype %in% project_types_w_cls_nonbn) {
     merge_check_info_dt(
       setDT(cls_project_types())[
         is.na(ExitDate) &
-          ProjectType %in% project_types_w_cls &
           ProjectType == projecttype &
           too_many_days < Days,
       ],
       103
     )[, ..vars_we_want]
-  } else{
+  } else if(projecttype == es_nbn_project_type) {
+    if(nrow(esnbn_nonexited()) > 0) return(NULL)
+      
+    merge_check_info_dt(
+      esnbn_nonexited() %>%
+        fmutate(DaysSinceLastBedNight = as.numeric(
+          difftime(meta_HUDCSV_Export_Start(), LastBedNight, units = "days")
+        )) %>%
+        fsubset(DaysSinceLastBedNight > too_many_days),
+      142
+    )[, ..vars_we_want]
+  } else {
     entryexit_project_types <- setDT(validation())
     entryexit_project_types[, Days := as.numeric(difftime(
       as.Date(meta_HUDCSV_Export_Date()), EntryDate, units = "days"
     ))]
     merge_check_info_dt(entryexit_project_types[
       is.na(ExitDate) &
-        !ProjectType %in% project_types_w_cls &
         ProjectType == projecttype &
         too_many_days < Days],
       102
