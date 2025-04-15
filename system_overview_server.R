@@ -464,9 +464,10 @@ period_specific_data <- reactive({
 # Client-level flags, filtered ----------------------------------------------------
 client_categories_filtered <- reactive({
   req(nrow(session$userData$client_categories) > 0)
-  session$userData$client_categories[, All := 1][
+  
+  session$userData$client_categories[
     AgeCategory %in% input$syso_age &
-      get(input$syso_race_ethnicity) == 1 &
+      input$syso_race_ethnicity == "All" &
       (
         input$syso_spec_pops == "None" |
           (input$syso_spec_pops == "Veteran" &
