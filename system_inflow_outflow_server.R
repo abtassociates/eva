@@ -546,7 +546,15 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
     values = "Count",  # An arbitrary column to count (used with fun)
     how = "wider",
     fill = 0             # Fill missing combinations with 0
-  )
+  ) %>%
+    # prepend Active at Start to Housed and Homeless
+    ftransform(
+      PlotFillGroups = fifelse(
+        PlotFillGroups %in% active_at_levels, 
+        paste0("Active at Start: ", PlotFillGroups),
+        PlotFillGroups
+      )
+    )
   
   # Get Monthly Change (Inflow - Outflow)
   month_cols <- names(summary_data)[-1]
