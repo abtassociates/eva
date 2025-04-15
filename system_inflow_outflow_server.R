@@ -465,8 +465,15 @@ renderInflowOutflowFullPlot(
 ### MbM Chart --------------------------------------
 output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
   plot_data <- sys_inflow_outflow_monthly_chart_data()
+
+  # Get Average Info for Title Display
+  averages <- plot_data %>%
+    collap(cols = "Count", FUN=fmean, by = ~ Summary)
   
-  totals_data <- sys_inflow_outflow_export_info()
+  avg_monthly_change <- fmean(
+    plot_data[plot_data$Summary == "Inflow", "Count"] - 
+    plot_data[plot_data$Summary == "Outflow", "Count"]
+  )
   
   level_of_detail_text <- case_when(
     input$syso_level_of_detail == "All" ~ "People",
@@ -507,11 +514,11 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
     ggtitle(
       paste0(
-        "Total Inflow: +", scales::comma(totals_data[Chart == "Total Inflow", Value]), "\n",
-        "Total Outflow: -", scales::comma(totals_data[Chart == "Total Outflow", Value]), "\n",
-        "Total Change in ", 
+        "Average Monthly Inflow: +", scales::comma(averages[Summary == "Inflow", Count], accuracy = 0.1), "\n",
+        "Average Monthly Outflow: -", scales::comma(averages[Summary == "Outflow", Count], accuracy = 0.1), "\n",
+        "Average Monthly Change in ", 
           level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
-          scales::comma(totals_data[Chart == "Total Change", Value])
+          scales::comma(avg_monthly_change, accuracy = 0.1)
       )
     ) +
     theme(
