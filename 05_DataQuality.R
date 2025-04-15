@@ -1295,22 +1295,8 @@ overlap_details <- merge(
     all.x = TRUE
   )[, `:=`(
     PreviousProjectType = project_type(PreviousProjectType),
-    HouseholdType = factor(
-      case_when(
-        HouseholdType %in% c("PY", "ACminusPY") ~ "AC",
-        HouseholdType %in% c("UY", "AOminusUY") ~ "AO",
-        TRUE ~ HouseholdType
-      ),
-      levels = c("AO", "AC", "CO", "UN")
-    ),
-    PreviousHouseholdType = factor(
-      case_when(
-        PreviousHouseholdType %in% c("PY", "ACminusPY") ~ "AC",
-        PreviousHouseholdType %in% c("UY", "AOminusUY") ~ "AO",
-        TRUE ~ PreviousHouseholdType
-      ),
-      levels = c("AO", "AC", "CO", "UN")
-    )
+    HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports),
+    PreviousHouseholdType = fct_collapse(PreviousHouseholdType, !!!hh_types_in_exports)
   )][
     # Drop Issue columns
     , !c("Issue", "Type", "Guidance"), with = FALSE

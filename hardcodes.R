@@ -149,6 +149,11 @@ syso_hh_types <- list(
   "Child Only" = "CO"
 )
 
+hh_types_in_exports <- list(
+  AC = c("PY", "ACminusPY"),
+  AO = c("UY", "AOminusUY")
+)
+
 syso_level_of_detail <- list(
   "All People" = "All", 
   "Heads of Household and Adults" = "HoHsAndAdults", 

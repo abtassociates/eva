@@ -70,12 +70,13 @@ output$client_level_download_btn <- downloadHandler(
       "Destination"
     )
     
-    enrollment_info <- get_client_level_export()[, ..enrollment_fields][
-      , `:=`(
-        Destination = living_situation(Destination),
-        LivingSituation = living_situation(LivingSituation)
-      )
-    ]
+    enrollment_info <- get_client_level_export()[
+      , ..enrollment_fields
+    ][, `:=`(
+      Destination = living_situation(Destination),
+      LivingSituation = living_situation(LivingSituation),
+      HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports)
+    )]
     
     earliest_report_info <- enrollment_info[eecr == 1][, c("eecr","lecr") := NULL]
     setnames(earliest_report_info, 
