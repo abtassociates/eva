@@ -15,7 +15,6 @@ output$downloadPDDEReport <- downloadHandler(
   filename = date_stamped_filename("PDDE Report-"),
   content = function(file) {
     req(session$userData$valid_file() == 1)
-    browser()
     summary_df <- session$userData$pdde_main %>% 
       group_by(Issue, Type) %>%
       summarise(Count = n()) %>%

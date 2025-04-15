@@ -26,6 +26,11 @@ inflow_outflow_summary_levels <- c(
   "something's wrong"
 )
 
+collapse_details <- list(
+  "Outflow" = outflow_detail_levels, 
+  "Inflow" = inflow_detail_levels
+)
+
 bar_colors <- c(
   "Inflow" = "#BDB6D7", 
   "Outflow" = '#6A559B',
@@ -105,19 +110,19 @@ output$sys_inflow_outflow_monthly_filter_selections <- renderUI({
 ## Summary/Detail (Annual) ---------------------------------------
 # This can be used for both the Summary and Detail charts
 # Final dataset looks like this:
-#                             Detail                         Summary  InflowOutflow InflowOutflowSummary     N order
-#                             <fctr>                          <fctr>         <fctr>               <fctr> <int> <int>
-# 1:                          Housed                 Active at Start         Inflow               Housed    73     1
-# 2:                        Homeless                 Active at Start         Inflow             Homeless   153     2
-# 3:           First-Time \nHomeless           First-Time \nHomeless         Inflow               Inflow   747     3
-# 4:       Returned from \nPermanent       Returned from \nPermanent         Inflow               Inflow     0     4
-# 5: Re-engaged from \nNon-Permanent Re-engaged from \nNon-Permanent         Inflow               Inflow     0     5
-# 6:             Inflow\nUnspecified             Inflow\nUnspecified         Inflow               Inflow     0     6
-# 7:          Exited,\nNon-Permanent          Exited,\nNon-Permanent        Outflow              Outflow   281     7
-# 8:              Exited,\nPermanent              Exited,\nPermanent        Outflow              Outflow   355     8
-# 9:                        Inactive                        Inactive        Outflow              Outflow    50     9
-# 10:                         Housed                   Active at End        Outflow               Housed    50    11
-# 11:                       Homeless                   Active at End        Outflow             Homeless   237    10
+#                             Detail                         Summary  InflowOutflow PlotFillGroups     N order
+#                             <fctr>                          <fctr>         <fctr>         <fctr> <int> <int>
+# 1:                          Housed                 Active at Start         Inflow         Housed    73     1
+# 2:                        Homeless                 Active at Start         Inflow       Homeless   153     2
+# 3:           First-Time \nHomeless           First-Time \nHomeless         Inflow         Inflow   747     3
+# 4:       Returned from \nPermanent       Returned from \nPermanent         Inflow         Inflow     0     4
+# 5: Re-engaged from \nNon-Permanent Re-engaged from \nNon-Permanent         Inflow         Inflow     0     5
+# 6:             Inflow\nUnspecified             Inflow\nUnspecified         Inflow         Inflow     0     6
+# 7:          Exited,\nNon-Permanent          Exited,\nNon-Permanent        Outflow        Outflow   281     7
+# 8:              Exited,\nPermanent              Exited,\nPermanent        Outflow        Outflow   355     8
+# 9:                        Inactive                        Inactive        Outflow        Outflow    50     9
+# 10:                         Housed                   Active at End        Outflow         Housed    50    11
+# 11:                       Homeless                   Active at End        Outflow       Homeless   237    10
 
 sys_inflow_outflow_annual_chart_data <- reactive({
   full_combinations <- data.frame(
@@ -264,11 +269,8 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   if (id == "sys_inflow_outflow_summary_ui_chart") {
     df <- sys_inflow_outflow_annual_chart_data() %>%
       # collapse the detailed levels of inflow/outflow
-      fmutate(
-        Summary = fct_collapse(Summary, Outflow = outflow_detail_levels, Inflow = inflow_detail_levels),
-        Detail = fct_collapse(Detail, Outflow = outflow_detail_levels, Inflow = inflow_detail_levels)
-      ) %>%
-      collap(cols="N", ~ InflowOutflow + Detail + Summary + PlotFillGroups, fsum, sort=FALSE)
+      fmutate(Summary = fct_collapse(Summary, !!!collapse_details)) %>%
+      collap(cols="N", ~ InflowOutflow + Summary + PlotFillGroups, fsum, sort=FALSE)
     mid_plot <- 2.5
   } else {
     df <- sys_inflow_outflow_annual_chart_data()
@@ -307,7 +309,7 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   # segment_size <- get_segment_size(s/num_segments)
 
   inflow_to_outflow <- df %>%
-    filter(Detail %in% active_at_levels) %>%
+    filter(PlotFillGroups %in% active_at_levels) %>%
     pull(N) %>%
     sum() * -1
 
@@ -643,8 +645,13 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Flow Report - "),
   content = function(file) {
     df <- sys_inflow_outflow_annual_chart_data() %>% 
-      select(Detail, N, Summary, InflowOutflow, InflowOutflowSummary)
-
+      fmutate(Summary = fct_collapse(Summary, !!!collapse_details))
+    
+    totals_df <- df %>% 
+      fgroup_by(Summary) %>% 
+      fsummarise(Detail = paste0("Total ", Summary[1]),
+                 N = fsum(N, na.rm = TRUE))
+    
     write_xlsx(
       list(
         "System Flow Metadata" = sys_export_summary_initial_df() %>%
@@ -652,19 +659,13 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
           bind_rows(sys_inflow_outflow_export_info()) %>%
           mutate(Value = replace_na(Value, 0)) %>%
           rename("System Flow" = Value),
-        "System Flow Data" = bind_rows(
-          df, 
-          df %>% 
-            group_by(Summary) %>% 
-            reframe(Detail = paste0("Total ",  Summary),
-                    Totals = sum(N, na.rm = TRUE)) %>%
-            unique()
-        ) %>%
-          arrange(Summary) %>%
-          select("Summary Category" = Summary,
-                 "Detail Category" = Detail,
-                 "Count" = N,
-                 Totals)
+        "System Flow Data" = bind_rows(df, totals_df) %>%
+          roworder(Summary) %>%
+          fselect(
+            "Summary Category" = Summary,
+            "Detail Category" = Detail,
+            "Count" = N
+          )
       ),
       path = file,
       format_headers = FALSE,
