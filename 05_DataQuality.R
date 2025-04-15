@@ -303,7 +303,8 @@ missing_LoS <- base_dq_data %>%
          RelationshipToHoH,
          LengthOfStay) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
-           (is.na(LengthOfStay))) %>%
+           (is.na(LengthOfStay)) &
+           !(LivingSituation %in% c(100:199)) ) %>%
   merge_check_info(checkIDs = 26) %>%
   select(all_of(vars_we_want))
 
