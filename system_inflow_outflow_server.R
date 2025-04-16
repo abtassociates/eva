@@ -482,6 +482,7 @@ output$sys_inflow_outflow_monthly_ui_chart_old <- renderPlot({
       getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
   )
   
+  browser()
   ggplot(plot_data, aes(x = interaction(month, Summary), y = Count, fill = PlotFillGroups)) +
     geom_bar(
       data = plot_data[Summary == "Active at Start"],
@@ -553,21 +554,12 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
       getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
   )
   
-  # 1. Prepare data specifically for the line chart (only 'Active at Start')
-  # line_data <- plot_data[plot_data$Summary == "Active at Start", ]
-  
-  # 2. Create the ggplot line chart
   ggplot(plot_data, aes(x = month, y = Count, color = PlotFillGroups, group = PlotFillGroups)) +
     # Use geom_line to draw the lines
     geom_line(linewidth = 1.2) + # `linewidth` is preferred over `size` for lines >= ggplot2 3.4.0
     # Optional: Add points to mark the actual data points each month
     geom_point(size = 3) +
     
-    # Use scale_color_manual instead of scale_fill_manual
-    # Ensure 'bar_colors' has corresponding colors for the levels in
-    # PlotFillGroups within the 'Active at Start' data.
-    # You might need a different color palette ('line_colors') if 'bar_colors'
-    # was specifically for inflow/outflow types.
     scale_color_manual(values = bar_colors, name = "Group") + # Adjust legend title if needed
     
     theme_minimal() +
@@ -575,29 +567,30 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
       x = "Month",
       # Update Y-axis label to reflect what's plotted
       y = paste0("Count of ", level_of_detail_text, " (Active at Start)")
-    ) +
-    scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # Keep horizontal expansion
-    
+    ) + 
     # Adjust title to reflect the line chart's focus, but keep avg inflow/outflow context
     ggtitle(
       paste0(
-        "Monthly Trend of Active ", level_of_detail_text, " at Start of Month\n",
         "Average Monthly Inflow: +", scales::comma(averages[Summary == "Inflow", Count], accuracy = 0.1), "\n",
-        "Average Monthly Outflow: -", scales::comma(averages[Summary == "Outflow", Count], accuracy = 0.1)
-        # The 'Average Monthly Change' line might still be relevant contextually
-        # ", Average Monthly Change: ", scales::comma(avg_monthly_change, accuracy = 0.1)
+        "Average Monthly Outflow: -", scales::comma(averages[Summary == "Outflow", Count], accuracy = 0.1), "\n",
+        "Average Monthly Change in ", 
+          level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
+          scales::comma(avg_monthly_change, accuracy = 0.1)
       )
     ) +
+    scale_y_continuous(labels = scales::comma, breaks = scales::pretty_breaks(n = 8)) + 
     theme(
-      axis.text = element_blank(),
+      axis.text.x = element_blank(),
       axis.title.x = element_blank(), 
       axis.title.y = element_text(size = 15),   
       legend.position = "none",
-      panel.grid = element_blank(),        # Remove gridlines
-      axis.line.y = element_blank(), 
+      panel.grid = element_blank(), 
+      axis.text.y = element_text(size = 10, color = "black"), # Example: adjust size and color
+      axis.ticks.y = element_line(color = "black"),
+      axis.line.y = element_line(),          # Remove axis lines
       axis.line.x = element_line(),          # Remove axis lines
-      plot.margin = margin(l = 48),        # Increase left margin
-      axis.ticks = element_blank(),
+      plot.margin = margin(l = 55),        # Increase left margin
+      axis.ticks.x = element_blank(),
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 })
