@@ -620,7 +620,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
       PlotFillGroups = fifelse(
         PlotFillGroups %in% active_at_levels, 
         paste0("Active at Start: ", PlotFillGroups),
-        PlotFillGroups
+        as.character(PlotFillGroups)
       )
     )
   
@@ -634,6 +634,11 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
     add_vars(change_row, PlotFillGroups = "Monthly Change")
   )
 
+  # Prepend Active at Start to the bar_colors
+  active_at_levels_explicit <- paste0("Active at Start: ", active_at_levels)
+  indices_to_modify <- names(bar_colors) %in% active_at_levels
+  names(bar_colors)[indices_to_modify] <- active_at_levels_explicit
+  
   datatable(summary_data_with_change,
             options = list(
               dom = 't',
@@ -654,7 +659,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
         unname(bar_colors)
       ),
       border = styleEqual(
-        c(active_at_levels, "Inflow", "Outflow"),
+        c(active_at_levels_explicit, "Inflow", "Outflow"),
         c(rep("2px solid black", 2), "2px solid black", "2px solid black")
       )
     ) %>%
