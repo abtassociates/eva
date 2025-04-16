@@ -645,7 +645,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       roworder(PersonalID, EntryDate) %>%
       fmutate(
         first_lookback = L(eecr, n = -1, g = PersonalID) == TRUE, #first_lookback is TRUE if the next/lead eecr value is TRUE
-        lookback = !fcoalesce(eecr, FALSE) & !fcoalesce(lecr, FALSE),
+        lookback = EntryDate < startDate & (!eecr | is.na(eecr)) & (!lecr | is.na(lecr)),
         days_since_lookback = fifelse(eecr, EntryDate - L(ExitAdjust, g = PersonalID), NA),
         has_enrollment_after_lecr = L(EntryDate, n = -1, g = PersonalID) <= ExitAdjust & lecr #note if they have another enrollment after their LECR. If so, they won't eventually be counted as outflow
       ) %>%
