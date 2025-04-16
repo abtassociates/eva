@@ -623,8 +623,12 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     
     enrollment_categories_period %>%
       fmutate(
-        eecr = eecr_straddle | eecr_no_straddle,
-        lecr = lecr_straddle | lecr_no_straddle,
+        eecr = (eecr_straddle | eecr_no_straddle) & (
+          !(ProjectType %in% non_res_nonlhh_project_types) | was_lh_at_start
+        ),
+        lecr = (lecr_straddle | lecr_no_straddle) & (
+          !(ProjectType %in% non_res_nonlhh_project_types) | was_lh_at_end
+        ),
         eecr_is_res = eecr & ProjectType %in% project_types_w_beds
       ) %>%
       fgroup_by(PersonalID) %>%
