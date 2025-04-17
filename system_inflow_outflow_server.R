@@ -169,7 +169,8 @@ sys_inflow_outflow_annual_chart_data <- reactive({
   ) %>% 
   fcount() %>%
   join(full_combinations, how="full", on=names(full_combinations), overid=0) %>%
-  replace_na(value = 0) %>%
+  replace_na(cols = "N", value = 0) %>%
+  fsubset(!(Detail == "something's wrong" & N == 0)) %>%
   roworder(Summary, Detail) %>%
   fmutate(
     # switching Homeless and Housed order for Outflow is important for lining up 
