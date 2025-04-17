@@ -546,24 +546,11 @@ universe_enrl_flags <- function(all_filtered, period) {
       eecr == TRUE &
       (
         # PH project types have move-in after start (or no move-in)
-        (
-          ProjectType %in% ph_project_types &
-            (
-              is.na(MoveInDateAdjust) |
-                MoveInDateAdjust >= startDate
-            )
-        ) |
-          
-          ( # take only ce enrollments where the PLS or the CLS is <= 90 days
-            # prior to ReportStart
-            ProjectType == ce_project_type & 
-              was_lh_at_start
-          ) |
-          # take any other enrollments if their PLS was literally homeless
-          (
-            !(ProjectType %in% ph_project_types) &
-              EnrolledHomeless == TRUE
-          )
+        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) |  MoveInDateAdjust >= startDate)) |
+        # Non-res project types should be LH at start
+        (ProjectType %in% non_res_project_types & was_lh_at_start) |
+        # take any other enrollments if their PLS was literally homeless
+        (!ProjectType %in% ph_project_types & EnrolledHomeless)
       ) &
       # Enrollment straddles start or the enrollment is within 2 weeks from start
       # and within 2 weeks of prev enrollment
@@ -584,83 +571,52 @@ universe_enrl_flags <- function(all_filtered, period) {
     # Enrollment.LivingSituation is LiterallyHomeless*"
     active_at_start_housed = eecr == TRUE & 
       ProjectType %in% ph_project_types & 
-      !is.na(MoveInDateAdjust) &
-      MoveInDateAdjust < startDate,
+      fcoalesce(MoveInDateAdjust, no_end_date) < startDate,
     
     # LOGIC helper columns
-    
-    first_lookback_perm_dest = first_lookback & 
-      Destination %in% perm_livingsituation,
-    
-    eecr_lh_at_entry = eecr == TRUE &
-      lh_at_entry == TRUE,
-    
-    at_least_14_days_to_eecr_enrl = eecr == TRUE &
-      !is.na(days_since_lookback) &
-      days_since_lookback >= 14,
-    
-    first_lookback_temp_dest = first_lookback & 
-      !(Destination %in% perm_livingsituation),
+    at_least_14_days_to_eecr_enrl = eecr & 
+      as.numeric(days_since_lookback) >= 14 & 
+      !is.na(days_since_lookback),
     
     unknown_at_start = eecr == TRUE &
       straddles_start & (
         # Non-Res Project Types and not lh
-        (
-          ProjectType %in% non_res_project_types &
-            (!was_lh_at_start | is.na(was_lh_at_start))
-        ) |
-          # nbn shelter
-          (ProjectType == es_nbn_project_type &
-             (in_date_range == TRUE | NbN15DaysBeforeReportStart == FALSE))
-        
+        (ProjectType %in% non_res_project_types & (!was_lh_at_start | is.na(was_lh_at_start))) |
+        # nbn shelter
+        (ProjectType == es_nbn_project_type & (in_date_range | NbN15DaysBeforeReportStart))
       ),
     
     # outflow columns
-    perm_dest_lecr = lecr == TRUE &
-      Destination %in% perm_livingsituation &
-      between(ExitAdjust, startDate, endDate),
-    
-    temp_dest_lecr = lecr == TRUE &
-      !(Destination %in% perm_livingsituation) &
+    exited = lecr == TRUE &
       between(ExitAdjust, startDate, endDate),
     
     homeless_at_end = lecr == TRUE & 
-      straddles_end &
-      ( # e/e shelter, th, sh
+      straddles_end & ( 
+        # e/e shelter, th, sh
         ProjectType %in% lh_project_types_nc |
           
-          # nbn shelter
-          (ProjectType == es_nbn_project_type &
-             (in_date_range == TRUE | NbN15DaysAfterReportEnd == TRUE)) |
-          
-          # Non-Res Project Types
-          (
-            ProjectType %in% non_res_project_types &
-              was_lh_at_end
-          ) |
-          
-          # PSH, OPH, RRH
-          (ProjectType %in% ph_project_types &
-             (is.na(MoveInDateAdjust) | MoveInDateAdjust >= period[2]))
+        # nbn shelter
+        (ProjectType == es_nbn_project_type & (in_date_range | NbN15DaysAfterReportEnd)) |
+        
+        # Non-Res Project Types
+        (ProjectType %in% non_res_project_types & was_lh_at_end) |
+        
+        # PSH, OPH, RRH
+        (ProjectType %in% ph_project_types &
+           (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
       ),
     
     housed_at_end = lecr == TRUE & 
       straddles_end &
       ProjectType %in% ph_project_types & 
-      !is.na(MoveInDateAdjust) &
-      MoveInDateAdjust < endDate,
+      fcoalesce(MoveInDateAdjust, no_end_date) < endDate,
     
     unknown_at_end = lecr == TRUE &
       straddles_end & (
         # Non-Res Project Types and not lh
-        (
-          ProjectType %in% non_res_project_types &
-            (!was_lh_at_end | is.na(was_lh_at_end))
-        ) |
-          # nbn shelter
-          (ProjectType == es_nbn_project_type &
-             (in_date_range == TRUE | NbN15DaysBeforeReportEnd == FALSE))
-        
+        (ProjectType %in% non_res_project_types & fcoalesce(!was_lh_at_end, TRUE)) |
+        # nbn shelter
+        (ProjectType == es_nbn_project_type & (in_date_range | !NbN15DaysBeforeReportEnd))
       )
   )]
 }
@@ -669,18 +625,20 @@ universe_enrl_flags <- function(all_filtered, period) {
 # Need to keep it enrollment-level so other scripts can reference the enrollments
 universe_ppl_flags <- function(universe_df, period) {
   setkey(universe_df, PersonalID)
-
+  # browser()
+  # 124983
   universe_df[, `:=`(
     # INFLOW
     active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
     
     active_at_start_housed_client = any(active_at_start_housed, na.rm = TRUE),
     
-    return_from_perm_client = any(first_lookback_perm_dest, na.rm = TRUE) & 
+    return_from_perm_client = 
+      any(first_lookback & Destination %in% perm_livingsituation, na.rm = TRUE) & 
       any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
     
-    reengaged_from_temp_client = any(first_lookback_temp_dest, na.rm = TRUE) & 
-      # max(eecr_lh_at_entry) == 1 & 
+    reengaged_from_temp_client = 
+      any(first_lookback & !Destination %in% perm_livingsituation, na.rm = TRUE) & 
       any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
     
     first_time_homeless_client = !any(lookback & lh_at_entry, na.rm = TRUE),
@@ -688,9 +646,9 @@ universe_ppl_flags <- function(universe_df, period) {
     unknown_at_start_client = any(unknown_at_start, na.rm = TRUE),
     
     # OUTFLOW
-    perm_dest_client = any(perm_dest_lecr, na.rm = TRUE),
+    perm_dest_client = any(exited & Destination %in% perm_livingsituation, na.rm = TRUE),
     
-    temp_dest_client = any(temp_dest_lecr, na.rm = TRUE),
+    temp_dest_client = any(exited & !Destination %in% perm_livingsituation, na.rm = TRUE),
     
     homeless_at_end_client = any(homeless_at_end, na.rm = TRUE),
     
