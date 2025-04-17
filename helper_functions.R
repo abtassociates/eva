@@ -445,6 +445,13 @@ reset_postvalid_components <- function(session) {
 }
 
 # essentially resets the app
+reset_app <- function(session) {
+  session$userData$valid_file(0)
+  session$userData$initially_valid_import(0)
+  reset_postvalid_components(session)
+}
+
+# essentially resets the app
 reset_session_vars <- function(session) {
   for(v in sessionVars) {
     if(v %in% c("valid_file", "initially_valid_import")) session$userData[[v]] <- reactiveVal(0) 

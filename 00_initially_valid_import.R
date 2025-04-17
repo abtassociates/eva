@@ -7,7 +7,7 @@
 ######################
 
 show_invalid_popup <- function(popupText = NULL, issueID, title) {
-  reset_app()
+  reset_app(session)
   
   showModal(
     modalDialog(
