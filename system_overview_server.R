@@ -3,8 +3,8 @@
 # hide other stuff if valid file is not uploaded
 # move chart download button to be inline with subtabs
 observeEvent(input$syso_tabbox, {
-  req(valid_file() == 1)
-  logMetadata(paste0("Clicked on ", input$syso_tabbox,
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   toggleClass(
     id = "syso_inflowoutflow_filters",
@@ -15,22 +15,22 @@ observeEvent(input$syso_tabbox, {
 
 
 observeEvent(input$sys_inflow_outflow_subtabs, {
-  req(valid_file() == 1)
-  logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_status_subtabs, {
-  req(valid_file() == 1)
-  logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_comp_subtabs, {
-  req(valid_file() == 1)
-  logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
@@ -84,7 +84,7 @@ syso_detailBox <- reactive({
     br(),
     strong("Date Range: "),
     
-    format(ReportStart(), "%m-%d-%Y"), " to ", format(ReportEnd(), "%m-%d-%Y"), br(),
+    format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
     
     if (input$syso_project_type != "All")
       chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
@@ -108,12 +108,6 @@ syso_detailBox <- reactive({
       ))
     
   )
-})
-
-output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
-output$sys_act_summary_filter_selections <- renderUI({
-  req(valid_file() == 1)
-  syso_detailBox() 
 })
 
 toggle_sys_components <- function(cond, init=FALSE) {
@@ -162,7 +156,7 @@ toggle_sys_components(FALSE, init=TRUE) # initially hide them
 
 sys_export_summary_initial_df <- function() {
   
-  logMetadata(paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+  logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
   return(data.frame(
@@ -175,8 +169,8 @@ sys_export_summary_initial_df <- function() {
       "Project Type Group"
     ),
     Value = c(
-      strftime(ReportStart(), "%m/%d/%y"),
-      strftime(ReportEnd(), "%m/%d/%y"),
+      strftime(session$userData$ReportStart, "%m/%d/%y"),
+      strftime(session$userData$ReportEnd, "%m/%d/%y"),
       getNameByValue(syso_methodology_types, input$methodology_type),
       getNameByValue(syso_hh_types, input$syso_hh_type),
       getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
@@ -223,14 +217,14 @@ sys_overview_ppt_export <- function(file,
                                     plot2 = NULL,
                                     summary_font_size) {
   
-  logMetadata(paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
+  logMetadata(session, paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   #NEED TO UPDATE - if want to get more granular, need to detect with title slide
   
   report_period <- paste0("Report Period: ", 
-                          format(ReportStart(), "%m/%d/%Y"),
+                          format(session$userData$ReportStart, "%m/%d/%Y"),
                           " - ",
-                          format(ReportEnd(), "%m/%d/%Y")
+                          format(session$userData$ReportEnd, "%m/%d/%Y")
   )
   loc_title <- ph_location_type(type = "title")
   loc_footer <- ph_location_type(type = "ftr")
@@ -250,7 +244,7 @@ sys_overview_ppt_export <- function(file,
   add_footer <- function(.ppt) {
     return(
       .ppt %>%
-        ph_with(value = paste0("CoC Code: ", Export()$SourceID), location = loc_footer) %>%
+        ph_with(value = paste0("CoC Code: ", session$userData$Export$SourceID), location = loc_footer) %>%
         ph_with(value = report_period, location = loc_dt) %>%
         ph_with(
           value = paste0(
@@ -351,176 +345,358 @@ get_adj_font_size <- function(font_size, isExport) {
   )
 }
 
-observeEvent(input$dimension,{
+observe({
   windowSize(input$dimension)
 })
 
-output$client_level_download_btn <- downloadHandler(
-  filename = date_stamped_filename("Client Level Export - "),
-  content = function(file) {
-    detail_client_fields <- c(
-      "PersonalID",
-      "AgeCategory",
-      "VeteranStatus",
-      
-      "AmIndAKNative",
-      "Asian",
-      "BlackAfAmerican",
-      "HispanicLatine" = "HispanicLatinaeo",
-      "MidEastNAf" = "MidEastNAfrican",
-      "NativeHIPacific",
-      "White",
-      "RaceEthnicityUnknown",
-      
-      "AmIndAKNativeAloneMethod1Detailed",
-      "AmIndAKNativeLatineMethod1Detailed",
-      "AsianAloneMethod1Detailed",
-      "AsianLatineMethod1Detailed",
-      "BlackAfAmericanAloneMethod1Detailed",
-      "BlackAfAmericanLatineMethod1Detailed",
-      "LatineAloneMethod1Detailed",
-      "MidEastNAfricanAloneMethod1Detailed",
-      "MidEastNAfricanLatineMethod1Detailed",
-      "NativeHIPacificAloneMethod1Detailed",
-      "NativeHIPacificLatineMethod1Detailed",
-      "WhiteAloneMethod1Detailed",
-      "WhiteLatineMethod1Detailed",
-      "MultipleNotLatineMethod1Detailed",
-      "MultipleLatineMethod1Detailed",
-      
-      "BILPOCMethod1Summarized",
-      "WhiteMethod1Summarized",
-      
-      "AmIndAKNativeMethod2Detailed",
-      "AsianMethod2Detailed",
-      "BlackAfAmericanMethod2Detailed",
-      "LatineMethod2Detailed",
-      "MidEastNAfricanMethod2Detailed",
-      "NativeHIPacificMethod2Detailed",
-      "WhiteMethod2Detailed",
-      
-      "BlackAfAmericanLatineMethod2Summarized",
-      "LatineMethod2Summarized",
-      "LatineAloneMethod2Summarized"
-    )
-    
-    report_status_fields <- c(
-      "Earliest-ReportStatus" = "InflowTypeSummary",
-      "Earliest-ReportStatusDetail" = "InflowTypeDetail",
-      "Latest-ReportStatus" = "OutflowTypeSummary",
-      "Latest-ReportStatusDetail" = "OutflowTypeDetail"
-    )
-    
-    enrollment_fields <- c(
-      "PersonalID",
-      "eecr",
-      "lecr",
-      "EnrollmentID",
-      "HouseholdType",
-      "CorrectedHoH",
-      "ProjectType",
-      "EntryDate",
-      "LivingSituation",
-      "MoveInDateAdjust",
-      "ExitAdjust",
-      "Destination"
-    )
-    
-    enrollment_info <- sys_universe_ppl_flags()[, ..enrollment_fields][
-      , `:=`(
-        Destination = living_situation(Destination),
-        LivingSituation = living_situation(LivingSituation),
-        HouseholdType = factor(
-          case_when(
-            HouseholdType %in% c("PY", "ACminusPY") ~ "AC",
-            HouseholdType %in% c("UY", "AOminusUY") ~ "AO",
-            TRUE ~ HouseholdType
-          ),
-          levels = c("AO", "AC", "CO", "UN")
-        )
-      )
-    ]
-    
-    earliest_report_info <- enrollment_info[eecr == 1][, c("eecr","lecr") := NULL]
-    setnames(earliest_report_info, 
-             old = setdiff(names(earliest_report_info), "PersonalID"), 
-             new = paste0("Earliest-", setdiff(names(earliest_report_info), "PersonalID")))
-    
-    latest_report_info <- enrollment_info[lecr == 1][,  c("eecr","lecr") := NULL]
-    setnames(latest_report_info, 
-             old = setdiff(names(latest_report_info), "PersonalID"), 
-             new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
+# if user changes filters, update the reactive vals
+# which get used for the various System Overview charts
+observeEvent({
+  input$syso_hh_type
+  input$syso_level_of_detail
+  input$syso_project_type
+  input$methodology_type
+  input$syso_age
+  input$syso_spec_pops
+  input$syso_race_ethnicity
+}, {
+  # hide download buttons if < 11 records
+  # All Served is handled in system_composition_server.R
+  # for that chart, we also hide if all *cells* are < 11
+  shinyjs::toggle(
+    "sys_inflow_outflow_download_btn sys_inflow_outflow_download_btn_ppt", 
+    condition = nrow(get_inflow_outflow_full()) > 10
+  )
+  shinyjs::toggle(
+    "sys_status_download_btn sys_status_download_btn_ppt", 
+    condition = sum(get_sankey_data()$freq) > 10
+  )
+}, ignoreInit = TRUE)
 
-    # details tab
-    client_level_details <- unique(sys_universe_ppl_flags()[
-      , 
-      c(..detail_client_fields, ..report_status_fields)
-    ])[
-      earliest_report_info, on = "PersonalID", nomatch = 0
-    ][
-      latest_report_info, on = "PersonalID", nomatch = 0
-    ]
-    setnames(client_level_details, 
-             old = report_status_fields, 
-             new = names(report_status_fields))
-    
-    # User's filter selections - metadata tab
-    export_date_info <- tibble(
-      Chart = c(
-        "ExportStart",
-        "ExportEnd"
-      ),
-      Value = c(
-        as.character(meta_HUDCSV_Export_Start()),
-        as.character(meta_HUDCSV_Export_End())
-      )
+source("client_level_export_server.R", local=TRUE)
+
+# Get period report_dates --------------------------------------------
+get_months_in_report_period <- function() {
+  seq.Date(from = session$userData$ReportStart, to = session$userData$ReportEnd, by = "months")
+} 
+get_report_dates <- function() {
+  months_in_report_period <- get_months_in_report_period()
+  c(
+    list("Full" = c(session$userData$ReportStart, session$userData$ReportEnd)),
+    setNames(
+      lapply(months_in_report_period, function(d) {
+        c(d, ceiling_date(d, "month") - days(1))
+      }),
+      months_in_report_period
     )
-    
-    system_df_info <- system_activity_prep_detail() %>% 
-      select(Status, values, Time, InflowOutflow, InflowOutflowSummary)
-    
-    filter_selections <- rbind(
-      export_date_info, # ExportStart, Exportend
-      sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
-      sys_export_filter_selections(), # Age, Veteran Status, Race/Ethnicity
-      tibble(
-        Chart = "Total Served (Start + Inflow) People",
-        Value = sum(system_df_info %>% filter(InflowOutflow == 'Inflow') %>% pull(values), na.rm = TRUE)
-      )
-    )
-    colnames(filter_selections) <- c("Filter","Selection")
-    
-    # probably want to read in the glossary tab as a csv or Excel and append to it.
-    
-    # all sheets for export
-    client_level_export_list <- list(
-      client_level_metadata = filter_selections,
-      data_dictionary = setNames(
-        read.csv(here("www/client-level-export-data-dictionary.csv")),
-        c("Column Name", "Variable Type", "Definition")
-      ),
-      client_level_details = client_level_details
-    )
-    
-    names(client_level_export_list) = c(
-      "Metadata",
-      "Data Dictionary",
-      "Details"
-    )
-    
-    write_xlsx(
-      client_level_export_list,
-      path = file,
-      format_headers = FALSE,
-      col_names = TRUE
-    )
-    
-    logToConsole("Downloaded Client Level Export")
-    logMetadata(paste0(
-      "Downloaded Client Level Export",
-      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
-    ))
-    
-    exportTestValues(client_level_export_details = client_level_details) 
+  )
+}
+
+# Cache management for period-specific universe_ppl_flag datasets --------------
+# Check cache size - this keeps the cache manageable
+check_cache_size <- function(cache, max_size_mb = 100) {
+  cache_size <- utils::object.size(cache) / 1024^2  # Convert to MB
+  if (cache_size > max_size_mb) {
+    rm(list = ls(cache), envir = cache)
+    gc()
+    return(TRUE)
   }
-)
+  FALSE
+}
+
+# Get period-specific universe_ppl_flag datasets ---------------------------
+period_specific_data <- reactive({
+  if(is.null(session$userData$period_cache)) {
+    session$userData$period_cache <- new.env()
+  }
+  cache <- session$userData$period_cache
+  
+  check_cache_size(cache)
+  
+  cache_key <- digest::digest(list(
+    if(isTruthy(input$in_demo_mode)) "demo" else input$imported$name,
+    
+    # Client-level filters
+    input$syso_age,
+    input$syso_race_ethnicity,
+    input$syso_spec_pops,
+    
+    # Enrollment-level filters
+    input$syso_hh_type,
+    input$syso_level_of_detail,
+    input$syso_project_type
+  ))
+  
+  cached_result <- cache[[cache_key]]
+  if (!is.null(cached_result)) {
+    return(cached_result)
+  }
+  
+  upload_name <- ifelse(input$in_demo_mode, "DEMO", input$imported$name)
+  
+  results <- lapply(
+    session$userData$report_dates,
+    function(period) {
+      # custom_rprof({
+      enrollment_categories <- session$userData$get_period_specific_enrollment_categories(period, upload_name)
+      nbn_services <- session$userData$get_period_specific_nbn_enrollment_services(period, upload_name)
+        
+      all_filtered <- universe_filtered(enrollment_categories, nbn_services)
+      universe_w_enrl_flags <- universe_enrl_flags(all_filtered, period)
+      universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags, period)
+      
+      # Add month flag for month-periods
+      if(!identical(period, session$userData$report_dates[["Full"]])) {
+        universe_w_ppl_flags[, month := as.Date(period[1])]
+      }
+      # }, "system_overview_server.R")
+      universe_w_ppl_flags
+    }
+  )
+  cache[[cache_key]] <- results
+  session$userData$period_cache <- cache
+  results # %>% 
+    # Commenting out for testing purposes, so can view fuller intermediate datasets
+    # but this will remove all the lookbacks, which are no longer needed at this point
+    # fsubset(eecr | lecr)
+})
+
+# Client-level flags, filtered ----------------------------------------------------
+client_categories_filtered <- reactive({
+  req(nrow(session$userData$client_categories) > 0)
+  
+  session$userData$client_categories[
+    AgeCategory %in% input$syso_age &
+      input$syso_race_ethnicity == "All" &
+      (
+        input$syso_spec_pops == "None" |
+          (input$syso_spec_pops == "Veteran" &
+             VeteranStatus == 1 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
+          (input$syso_spec_pops == "NonVeteran" &
+             VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17")))
+      )
+  ]
+})
+
+# Period-specific, user-filtered, enrollment-level universe applied ------------------
+universe_filtered <- function(enrollment_categories, nbn_services) {
+  # browser()
+  join(
+    enrollment_categories,
+    nbn_services, 
+    on = "EnrollmentID"
+  ) %>%
+    join( # Inner Join with client categories
+      # This is necessary for bringing in Veteran Status, but will also make the rest faster
+      client_categories_filtered(),
+      # client_categories_filt, # this is used for mirai
+      on = "PersonalID",
+      how = "inner"
+    ) %>%
+    fsubset(
+      # Household type filter
+      (input$syso_hh_type == "All" |
+         (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+         (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+         (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+         (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
+         input$syso_hh_type == HouseholdType
+      ) &
+        # Level of detail filter
+        (input$syso_level_of_detail == "All" |
+           (input$syso_level_of_detail == "HoHsAndAdults" &
+              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+           (input$syso_level_of_detail == "HoHsOnly" &
+              CorrectedHoH == 1)) &
+        # Project type filter
+        (input$syso_project_type == "All" |
+           input$syso_project_type == eecr_project_type
+        )
+    )
+}
+
+# Period-Specific, Filtered, Enrollment-Level Universe -------------------------
+## Enrollment-level flags ------------------------
+# hello weary traveler amongst these date ranges. you may find it helpful to
+# find example clients and their Entry and Exit Dates and enter them into
+# https://onlinetools.com/time/visualize-date-intervals <- here.
+# add inflow type and active enrollment typed used for system overview plots
+#
+# While the following datasets appear to be inflow-outflow specific, 
+# the reason they are stored in this system_overview script is because they 
+# 
+universe_enrl_flags <- function(all_filtered, period) {
+  startDate <- period[1]
+  endDate <- period[2]
+  
+  all_filtered[, `:=`(
+    # INFLOW CALCULATOR COLUMNS
+    # LOGIC: active homeless at start
+    # basically it has to straddle report start
+    # the entry date of the EECR needs to be on or before the reporting period
+    # the exitadjust has to be after report start
+    # OR the eecr & first_lookback have to end and start within 14 days of each
+    # other and of the report start
+    # EnrolledHomeless status of the EECR needs to be true
+    # JUST FOR FULL DISCLOSURE, this means: 
+    # ProjectType %in% project_types_enrolled_homeless |
+    # lh_prior_livingsituation == TRUE
+    
+    active_at_start_homeless =
+      eecr == TRUE &
+      (
+        # PH project types have move-in after start (or no move-in)
+        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) |  MoveInDateAdjust >= startDate)) |
+        # Non-res project types should be LH at start
+        (ProjectType %in% non_res_project_types & was_lh_at_start) |
+        # take any other enrollments if their PLS was literally homeless
+        (!ProjectType %in% ph_project_types & EnrolledHomeless)
+      ) &
+      # Enrollment straddles start or the enrollment is within 2 weeks from start
+      # and within 2 weeks of prev enrollment
+      (straddles_start == TRUE |
+         (straddles_start == FALSE &
+            EntryDate >= startDate &
+            between(as.numeric(difftime(EntryDate, startDate, units = "days")),
+                    0,
+                    14) &
+            !is.na(days_since_lookback) &
+            between(as.numeric(days_since_lookback), 0, 14))),
+    
+    #LOGIC: enrolled housed at start
+    # Exit.ExitDate is null or > ReportStartDate AND
+    
+    # Project.ProjectType IN (3, 9, 10, 13) AND
+    # Enrollment.MoveInDate is !NULL OR <= ReportStartDate AND
+    # Enrollment.LivingSituation is LiterallyHomeless*"
+    active_at_start_housed = eecr == TRUE & 
+      ProjectType %in% ph_project_types & 
+      fcoalesce(MoveInDateAdjust, no_end_date) < startDate,
+    
+    # LOGIC helper columns
+    at_least_14_days_to_eecr_enrl = eecr & 
+      as.numeric(days_since_lookback) >= 14 & 
+      !is.na(days_since_lookback),
+    
+    unknown_at_start = eecr == TRUE &
+      straddles_start & (
+        # Non-Res Project Types and not lh
+        (ProjectType %in% non_res_project_types & (!was_lh_at_start | is.na(was_lh_at_start))) |
+        # nbn shelter
+        (ProjectType == es_nbn_project_type & (in_date_range | NbN15DaysBeforeReportStart))
+      ),
+    
+    # outflow columns
+    exited = lecr == TRUE &
+      between(ExitAdjust, startDate, endDate),
+    
+    homeless_at_end = lecr == TRUE & 
+      straddles_end & ( 
+        # e/e shelter, th, sh
+        ProjectType %in% lh_project_types_nc |
+          
+        # nbn shelter
+        (ProjectType == es_nbn_project_type & (in_date_range | NbN15DaysAfterReportEnd)) |
+        
+        # Non-Res Project Types
+        (ProjectType %in% non_res_project_types & was_lh_at_end) |
+        
+        # PSH, OPH, RRH
+        (ProjectType %in% ph_project_types &
+           (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
+      ),
+    
+    housed_at_end = lecr == TRUE & 
+      straddles_end &
+      ProjectType %in% ph_project_types & 
+      fcoalesce(MoveInDateAdjust, no_end_date) < endDate,
+    
+    unknown_at_end = lecr == TRUE &
+      straddles_end & (
+        # Non-Res Project Types and not lh
+        (ProjectType %in% non_res_project_types & fcoalesce(!was_lh_at_end, TRUE)) |
+        # nbn shelter
+        (ProjectType == es_nbn_project_type & (in_date_range | !NbN15DaysBeforeReportEnd))
+      )
+  )]
+}
+
+## People-level flags ------------------------
+# Need to keep it enrollment-level so other scripts can reference the enrollments
+universe_ppl_flags <- function(universe_df, period) {
+  setkey(universe_df, PersonalID)
+  # browser()
+  # 124983
+  universe_df[, `:=`(
+    # INFLOW
+    active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
+    
+    active_at_start_housed_client = any(active_at_start_housed, na.rm = TRUE),
+    
+    return_from_perm_client = 
+      any(first_lookback & Destination %in% perm_livingsituation, na.rm = TRUE) & 
+      any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
+    
+    reengaged_from_temp_client = 
+      any(first_lookback & !Destination %in% perm_livingsituation, na.rm = TRUE) & 
+      any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
+    
+    first_time_homeless_client = !any(lookback & lh_at_entry, na.rm = TRUE),
+    
+    unknown_at_start_client = any(unknown_at_start, na.rm = TRUE),
+    
+    # OUTFLOW
+    perm_dest_client = any(exited & Destination %in% perm_livingsituation, na.rm = TRUE),
+    
+    temp_dest_client = any(exited & !Destination %in% perm_livingsituation, na.rm = TRUE),
+    
+    homeless_at_end_client = any(homeless_at_end, na.rm = TRUE),
+    
+    housed_at_end_client = any(housed_at_end, na.rm = TRUE),
+    
+    unknown_at_end_client = any(unknown_at_end, na.rm = TRUE),
+    
+    has_enrollment_after_lecr_client = any(has_enrollment_after_lecr, na.rm = TRUE)
+  ), by = PersonalID
+  ][, `:=`(
+    InflowTypeSummary = factor(
+      fcase(
+        active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
+        first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start, "Inflow",
+        default = "something's wrong"
+      ), levels = inflow_outflow_summary_levels
+    ),
+    
+    InflowTypeDetail = factor(
+      fcase(
+        active_at_start_homeless_client, "Homeless",
+        active_at_start_housed_client, "Housed",
+        return_from_perm_client, "Returned from \nPermanent",
+        reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
+        first_time_homeless_client, "First-Time \nHomeless",
+        unknown_at_start, "Inactive", 
+        default = "something's wrong"
+      ), levels = c(active_at_levels, inflow_detail_levels)
+    ),
+    
+    OutflowTypeSummary = factor(
+      fcase(
+        (perm_dest_client | temp_dest_client | unknown_at_end_client) & 
+          !has_enrollment_after_lecr_client, "Outflow",
+        homeless_at_end_client | housed_at_end_client | has_enrollment_after_lecr_client, "Active at End",
+        default = "something's wrong"
+      ), levels = inflow_outflow_summary_levels
+    ),
+    
+    OutflowTypeDetail = factor(
+      fcase(
+        perm_dest_client, "Exited,\nPermanent",
+        temp_dest_client, "Exited,\nNon-Permanent",
+        unknown_at_end_client, "Inactive",
+        homeless_at_end_client & !is.na(homeless_at_end_client), "Homeless",
+        housed_at_end_client | has_enrollment_after_lecr_client, "Housed",
+        default = "something's wrong"
+      ), levels = c(outflow_detail_levels, rev(active_at_levels), "something's wrong")
+    )
+  )]
+}
