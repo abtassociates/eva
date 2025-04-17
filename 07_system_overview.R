@@ -624,10 +624,10 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     enrollment_categories_period %>%
       fmutate(
         eecr = (eecr_straddle | eecr_no_straddle) & (
-          !(ProjectType %in% non_res_nonlhh_project_types) | was_lh_at_start
+          !ProjectType %in% non_res_nonlh_project_types | was_lh_at_start
         ),
         lecr = (lecr_straddle | lecr_no_straddle) & (
-          !(ProjectType %in% non_res_nonlhh_project_types) | was_lh_at_end
+          !(ProjectType %in% non_res_nonlh_project_types) | was_lh_at_end
         ),
         eecr_is_res = eecr & ProjectType %in% project_types_w_beds
       ) %>%
@@ -635,6 +635,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       fmutate(
         has_lecr = anyv(lecr, TRUE),
         has_eecr = anyv(eecr, TRUE),
+        # this is to match with the project type filter
         eecr_project_type = fifelse(
           anyv(eecr_is_res, TRUE), "Residential", "NonResidential"
         )

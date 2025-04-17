@@ -83,7 +83,7 @@ project_types_w_beds <- c(0, 1, 2, 3, 8, 9, 10, 13)
 
 non_res_project_types <- c(4, 6, 7, 11, 12, 14)
 
-non_res_nonlhh_project_types <- c(6, 7, 11, 12, 14)
+non_res_nonlh_project_types <- c(6, 7, 11, 12, 14)
 
 project_types_w_cls <- c(1, 4, 6, 14)
 
@@ -395,6 +395,7 @@ sessionVars <- c(
   "Event", 
   "ReportStart", 
   "ReportEnd", 
+  "days_of_data",
   "meta_HUDCSV_Export_Start", 
   "meta_HUDCSV_Export_End", 
   "meta_HUDCSV_Export_Date", 

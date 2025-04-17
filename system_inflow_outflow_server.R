@@ -280,10 +280,7 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     mid_plot <- 4.5
   }
   
-  total_clients <- df %>%
-    filter(InflowOutflow == "Inflow") %>%
-    pull(N) %>%
-    sum()
+  total_clients <- df[InflowOutflow == "Inflow", sum(N)]
   
   validate(
     need(
@@ -304,18 +301,15 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       N = ifelse(InflowOutflow == "Outflow", N * -1, N),
       ystart = lag(cumsum(N), default = 0),
       yend = round(cumsum(N)),
-      group.id = GRPid(Summary)
+      group.id = GRPid(Summary),
+      N_formatted = scales::comma(abs(N))
     )
   
   # s <- max(df$yend) + 20
   # num_segments <- 20
   # segment_size <- get_segment_size(s/num_segments)
-
-  inflow_to_outflow <- df %>%
-    filter(PlotFillGroups %in% active_at_levels) %>%
-    pull(N) %>%
-    sum() * -1
-
+  inflow_to_outflow <- df[PlotFillGroups %in% active_at_levels, sum(N)*-1]
+  
   # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
   ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
     # the bars
@@ -333,11 +327,9 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     ) +
     # the connecting segments between bars
     geom_segment(
-      data = df %>%
-        group_by(group.id) %>%
-        slice_tail() %>%
-        ungroup() %>%
-        select(group.id, yend),
+      data = df %>% 
+        flast(g = .$group.id) %>% 
+        fselect(yend, group.id),
       aes(
         x = group.id,
         xend = if_else(group.id == last(group.id), last(group.id), group.id + 1),
@@ -353,9 +345,7 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     ggrepel::geom_text_repel(
       aes(
         x = group.id,
-        label = if_else(!(Summary %in% c("Inflow", "Outflow")) &
-                          N != 0,
-                        paste0(scales::comma(abs(N))), NA),
+        label = if_else(grepl("Active at", Summary), N_formatted, NA),
         y = rowSums(cbind(ystart, N / 2))
       ),
       hjust = 1,
@@ -370,8 +360,7 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     geom_text(
       aes(
         x = group.id,
-        label = if_else(Summary %in% c("Inflow", "Outflow"),
-                        paste0(scales::comma(abs(N))), NA),
+        label = if_else(!grepl("Active at", Summary), N_formatted, NA),
         y = if_else(Summary == "Inflow", yend, ystart), vjust = -.6
       ),
       size = sys_chart_text_font
@@ -381,11 +370,7 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       paste0(
         sys_total_count_display(total_clients),
         "Total Change: ",
-        case_when(
-          inflow_to_outflow > 0 ~ paste0("+", scales::comma(inflow_to_outflow)),
-          inflow_to_outflow == 0 ~ "0",
-          inflow_to_outflow < 0 ~ scales::comma(inflow_to_outflow)
-        ),
+        if(inflow_to_outflow > 0) "+" else "", scales::comma(inflow_to_outflow),
         "\n",
         "\n"
       )
