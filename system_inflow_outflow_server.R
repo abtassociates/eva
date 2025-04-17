@@ -274,6 +274,9 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     mid_plot <- 2.5
   } else {
     df <- sys_inflow_outflow_annual_chart_data()
+    # re-label FTH if export is >= 1094 days
+    if(session$userData$days_of_data >= 1094)
+      df[, Detail := fct_recode(Detail, "Inflow\nUnspecified" = "First-Time \nHomeless")]
     mid_plot <- 4.5
   }
   

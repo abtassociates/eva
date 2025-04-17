@@ -22,3 +22,10 @@ session$userData$ReportEnd <- if_else(
   floor_date(session$userData$meta_HUDCSV_Export_End, unit = "month") - days(1))
 
 session$userData$ReportStart <- session$userData$ReportEnd - years(1) + days(1)
+
+ExportStartAdjusted <- if_else(
+  day(session$userData$meta_HUDCSV_Export_Start) == 1,
+  session$userData$meta_HUDCSV_Export_Start,
+  floor_date(session$userData$meta_HUDCSV_Export_Start %m+% months(1), unit = "month"))
+
+session$userData$days_of_data <- as.Date(session$userData$ReportEnd) - as.Date(ExportStartAdjusted)
