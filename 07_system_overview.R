@@ -580,14 +580,14 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       # )
     )]
 
-    # only keep enrollments in_date_range and res or non-res+lh at start, 
-    # as well as potential lookbacks
+    # drop in-range, non-res enrollments that are not LH at start
     enrollment_categories_period <- enrollment_categories_period %>%
-      fsubset(
-        (in_date_range & (ProjectType %in% project_types_w_beds | was_lh_at_start)) | 
-        (ExitAdjust <= startDate)
-      )
-
+      fsubset(!(
+        in_date_range & 
+          ProjectType %in% non_res_project_types & 
+          (!was_lh_at_start | is.na(was_lh_at_start))
+      ))
+    
     enrollment_categories_period <- enrollment_categories_period %>%
       # ftransform(EntryDate_num = as.numeric(EntryDate)) %>%  # Pre-compute numeric date
       fgroup_by(PersonalID) %>%                     # Group by PersonalID
