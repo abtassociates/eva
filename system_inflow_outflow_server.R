@@ -8,8 +8,8 @@ inflow_detail_levels <- c(
   "First-Time \nHomeless", 
   "Returned from \nPermanent",
   "Re-engaged from \nNon-Permanent",
-  "Inflow\nUnspecified",
-  "something's wrong"
+  "Unknown"
+  # "something's wrong"
 )
 
 outflow_detail_levels <- c(
@@ -39,8 +39,11 @@ bar_colors <- c(
   "Housed" = '#9E958F'
 )
 
+inactive_levels <- c("Unknown", "Inactive")
+inactive_levels_explicit <- c("Unknown-Inflow", "Inactive-Outflow")
+
 inactive_bar_colors <- c(
-  "Inactive-Inflow" = "#DAD6E9",   # lighter version of "#BDB6D7"
+  "Unknown-Inflow" = "#DAD6E9",   # lighter version of "#BDB6D7"
   "Inactive-Outflow" = "#9B87C0"   # lighter version of "#6A559B"
 )
 
@@ -117,7 +120,7 @@ output$sys_inflow_outflow_monthly_filter_selections <- renderUI({
 # 3:           First-Time \nHomeless           First-Time \nHomeless         Inflow         Inflow   747     3
 # 4:       Returned from \nPermanent       Returned from \nPermanent         Inflow         Inflow     0     4
 # 5: Re-engaged from \nNon-Permanent Re-engaged from \nNon-Permanent         Inflow         Inflow     0     5
-# 6:             Inflow\nUnspecified             Inflow\nUnspecified         Inflow         Inflow     0     6
+# 6:                         Unknown                         Unknown         Inflow         Inflow     0     6
 # 7:          Exited,\nNon-Permanent          Exited,\nNon-Permanent        Outflow        Outflow   281     7
 # 8:              Exited,\nPermanent              Exited,\nPermanent        Outflow        Outflow   355     8
 # 9:                        Inactive                        Inactive        Outflow        Outflow    50     9
@@ -231,18 +234,18 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
 ### Inactive ------------------------
 get_inactive_counts <- function() {
   monthly_data <- get_inflow_outflow_monthly() %>%
-    fsubset(OutflowTypeDetail == "Inactive" | InflowTypeDetail == "Inactive")
-  
+    fsubset(OutflowTypeDetail == "Inactive" | InflowTypeDetail == "Unknown")
+
   monthly_counts <- rbind(
     monthly_data[, .(PersonalID, month, Type = InflowTypeDetail, source="Inflow")],
     monthly_data[, .(PersonalID, month, Type = OutflowTypeDetail, source="Outflow")]
   ) %>%
     funique() %>%
-    fsubset(Type == "Inactive") %>%
+    fsubset(Type %in% inactive_levels) %>%
     fmutate(
       Type = factor(
         paste0(Type, "-", source),
-        levels = c("Inactive-Inflow","Inactive-Outflow")
+        levels = inactive_levels_explicit
       )
     ) %>%
     fgroup_by(month, Type) %>%
