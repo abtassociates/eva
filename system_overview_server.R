@@ -484,7 +484,8 @@ universe_filtered <- function(enrollment_categories, nbn_services) {
   join(
     enrollment_categories,
     nbn_services, 
-    on = "EnrollmentID"
+    on = "EnrollmentID",
+    how = "left"
   ) %>%
     join( # Inner Join with client categories
       # This is necessary for bringing in Veteran Status, but will also make the rest faster
