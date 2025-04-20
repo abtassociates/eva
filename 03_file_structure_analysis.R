@@ -246,9 +246,10 @@ if (nrow(Enrollment) == 0) {
 }
 
 duplicate_enrollment_id <- Enrollment %>%
-  get_dupes(EnrollmentID) %>%
+  fcount(EnrollmentID, name="dupe_count") %>%
+  fsubset(dupe_count > 1) %>% 
   merge_check_info(checkIDs = 8) %>%
-  mutate(
+  fmutate(
     Detail = str_squish(
       paste0(
         "There are ",
@@ -258,9 +259,7 @@ duplicate_enrollment_id <- Enrollment %>%
         "."
       )
     )
-  ) %>%
-  select(all_of(issue_display_cols)) %>%
-  unique()
+  )
 
 personal_ids_in_client <- Client %>% pull(PersonalID)
 
@@ -338,11 +337,12 @@ rel_to_hoh_invalid <- Enrollment %>%
   select(all_of(issue_display_cols)) %>%
   unique()
 
-# Group by HouseholdID and ProjectID, and count the number of unique PersonalIDs in each group
+# Count (unique) HouseholdIDs within a Project
 duplicate_household_id <- Enrollment %>%
-  distinct(HouseholdID, ProjectID) %>%
-  filter(!is.na(HouseholdID)) %>%
-  get_dupes(HouseholdID) %>%
+  fselect(HouseholdID, ProjectID) %>%
+  funique() %>%
+  fcount(HouseholdID, name="dupe_count") %>%
+  fsubset(dupe_count > 1 & !is.na(HouseholdID)) %>%
   merge_check_info(checkIDs = 98) %>%
   mutate(
     Detail = paste("HouseholdID", 

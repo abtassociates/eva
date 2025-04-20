@@ -454,53 +454,28 @@ session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise
   function(report_period, upload_name) {
     startDate <- report_period[1]
     endDate <- report_period[2]
-    nbn_enrollments_services <- Services %>%
-      filter(RecordType == 200) %>%
-      inner_join(
-        EnrollmentAdjust %>%
-          filter(ProjectType == es_nbn_project_type) %>%
-          select(EnrollmentID),
-        join_by(EnrollmentID)
-      ) %>%
-      # ^ limits shelter night services to enrollments associated to NbN shelters
-      mutate(
-        NbN15DaysBeforeReportStart =
-          between(DateProvided,
-                  startDate - days(15),
-                  startDate),
-        NbN15DaysAfterReportEnd =
-          between(DateProvided,
-                  endDate,
-                  endDate + days(15)),
-        NbN15DaysBeforeReportEnd =
-          between(DateProvided,
-                  endDate - days(15),
-                  endDate)
-      )
     
-    if(nbn_enrollments_services %>% nrow() > 0) nbn_enrollments_services <-
-      nbn_enrollments_services %>%
-      group_by(EnrollmentID) %>%
-      summarise(
-        NbN15DaysBeforeReportStart = max(NbN15DaysBeforeReportStart, na.rm = TRUE),
-        NbN15DaysAfterReportEnd = max(NbN15DaysAfterReportEnd, na.rm = TRUE),
-        NbN15DaysBeforeReportEnd = max(NbN15DaysBeforeReportEnd, na.rm = TRUE)) %>%
-      mutate(
-        NbN15DaysBeforeReportStart = replace_na(NbN15DaysBeforeReportStart, 0),
-        NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0),
-        NbN15DaysBeforeReportEnd = replace_na(NbN15DaysBeforeReportEnd, 0)
+    Services %>%
+      fselect(EnrollmentID, DateProvided) %>%
+      join(
+        EnrollmentAdjust[ProjectType == es_nbn_project_type, .(EnrollmentID)],
+        on="EnrollmentID",
+        how = "inner"
       ) %>%
-      ungroup()
-    
-    setDT(nbn_enrollments_services %>%
-            select(EnrollmentID,
-                   NbN15DaysBeforeReportStart,
-                   NbN15DaysAfterReportEnd,
-                   NbN15DaysBeforeReportEnd) %>%
-            filter(NbN15DaysBeforeReportStart == 1 |
-                     NbN15DaysAfterReportEnd == 1 |
-                     NbN15DaysBeforeReportEnd == 1))
-  })
+      ftransform(
+        NbN15DaysBeforeReportStart = DateProvided >= (startDate - days(15)) & DateProvided <= startDate,
+        NbN15DaysAfterReportEnd = DateProvided >= endDate & DateProvided <= (endDate + days(15)),
+        NbN15DaysBeforeReportEnd = DateProvided >= (endDate - days(15)) & DateProvided <= endDate
+      ) %>%
+      fgroup_by(EnrollmentID) %>%
+      fsummarise(
+        NbN15DaysBeforeReportStart = anyv(NbN15DaysBeforeReportStart, TRUE),
+        NbN15DaysAfterReportEnd = anyv(NbN15DaysAfterReportEnd, TRUE),
+        NbN15DaysBeforeReportEnd = anyv(NbN15DaysBeforeReportEnd, TRUE)
+      ) %>%
+      fsubset(NbN15DaysBeforeReportStart | NbN15DaysAfterReportEnd | NbN15DaysBeforeReportEnd)
+  }
+)
 
 ## Period-specific enrollment categories prep function -------------------------
 # Narrow down to period-relevant enrollments and create eecr, lecr, 
@@ -566,39 +541,34 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       on = "EnrollmentID",
       how = "left"
     )
-    rm(lh_non_res_period)
 
     # browser()
-    enrollment_categories_period[, `:=`(
-      straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
-      straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
-      in_date_range = EntryDate <= endDate & ExitAdjust >= startDate #,
-      # DomesticViolenceCategory = fcase(
-      #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
-      #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
-      #   default = "NotDV"
-      # )
-    )]
-
-    # drop in-range, non-res enrollments that are not LH at start
     enrollment_categories_period <- enrollment_categories_period %>%
+      ftransform(
+        straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
+        straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
+        in_date_range = EntryDate <= endDate & ExitAdjust >= startDate #,
+        # DomesticViolenceCategory = fcase(
+        #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
+        #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
+        #   default = "NotDV"
+        # )
+      ) %>% 
+      # drop in-range, non-res enrollments that are not LH at start
       fsubset(!(
         in_date_range & 
           ProjectType %in% non_res_project_types & 
           (!was_lh_at_start | is.na(was_lh_at_start))
-      ))
-    
-    enrollment_categories_period <- enrollment_categories_period %>%
-      # ftransform(EntryDate_num = as.numeric(EntryDate)) %>%  # Pre-compute numeric date
-      fgroup_by(PersonalID) %>%                     # Group by PersonalID
+      )) %>%
+      # Flag if person had any straddling enrollments
+      # to be used when calculating eecr/lecr in no-straddle cases
+      fgroup_by(PersonalID) %>%
       fmutate(
-        # Calculate group-level flags
         any_straddle_start = anyv(straddles_start, TRUE),
-        any_straddle_end = anyv(straddles_end, TRUE),
-        any_in_date_range = anyv(in_date_range, TRUE)
-      )
-    
-    enrollment_categories_period <- enrollment_categories_period %>%
+        any_straddle_end = anyv(straddles_end, TRUE)
+      ) %>%
+      # flag the first and last straddling enrollments, 
+      # by (desc) ProjectTypeWeight and EntryDate
       roworder(-ProjectTypeWeight, EntryDate) %>%
       fmutate(
         eecr_straddle = ffirst(
@@ -607,9 +577,10 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         lecr_straddle = flast(
           fifelse(straddles_end, EnrollmentID, NA)
         ) == EnrollmentID
-      ) 
-    
-    enrollment_categories_period <- enrollment_categories_period %>%
+      ) %>%
+      # flag the first and last enrollments in the report period,
+      # for people that have no straddles,
+      # by EntryDate and (desc) ProjectTypeWeight
       roworder(EntryDate, -ProjectTypeWeight) %>%
       fmutate(
         eecr_no_straddle = ffirst(
@@ -619,9 +590,8 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           fifelse(!any_straddle_end & in_date_range, EnrollmentID, NA)
         ) == EnrollmentID
       ) %>%
-      fungroup() 
-    
-    enrollment_categories_period %>%
+      fungroup() %>%
+      # Create eecr and lecr flags
       fmutate(
         eecr = (eecr_straddle | eecr_no_straddle) & (
           !ProjectType %in% non_res_nonlh_project_types | was_lh_at_start
@@ -642,6 +612,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       ) %>%
       fungroup() %>%
       fsubset(has_eecr == TRUE) %>%
+      # "fill in" lecr as TRUE where eecr is the only enrollment
       ftransform(lecr = lecr | (eecr & !has_lecr)) %>%
       roworder(PersonalID, EntryDate) %>%
       fmutate(
