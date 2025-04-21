@@ -24,14 +24,22 @@ show_invalid_popup <- function(popupText = NULL, issueID, title) {
   )
 }
 
-hasGT1ExportRow <- function() {
-  session$userData$Export <- importFile(upload_filepath, "Export")
+hasNoExportRow <- function() {
+  returnVal <- FALSE # assume there's 1+ rows
 
-  # this is the soonest we can log the session data, with 
-  # the export info, since this is the first time we import the Export.csv file
-  logSessionData(session) 
+  # This is the first time we're importing Export.csv. 
+  # Saving it for easier reference later
+  session$userData$Export <- importFile(upload_filepath, "Export")
   
-  return(nrow(session$userData$Export) > 1)
+  if(nrow(session$userData$Export) == 0) {
+    # in order to log the session (which we do here because it's the soonest we 
+    # have access to the Export data needed for logging the session)
+    # we need to add a row to it
+    session$userData$Export <- bind_rows(session$userData$Export, tibble_row())
+    returnVal <- TRUE
+  }
+  logSessionData(session)
+  return(returnVal)
 }
 
 isFY2024Export <- function() {
@@ -107,7 +115,15 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       title = "Unsuccessful Upload: Missing files"
     )
     logMetadata(session, "Unsuccessful upload - incomplete dataset")
-  } else if(hasGT1ExportRow()) {
+  } else if(hasNoExportRow()) {
+    show_invalid_popup(
+      issueID = 142,
+      title = "Unsuccessful Upload: The Export.csv file in your uploaded .zip file has no data.",
+      popupText = "Export.csv should have one and only one row. Please upload a hashed HMIS CSV Export that meets all of HUD's specifications. 
+      If you are not sure how to resolve this issue, please contact your HMIS vendor."
+    )
+    logMetadata(session, "Unsuccessful upload - Export.csv has no rows")
+  } else if(nrow(session$userData$Export) > 1) {
     show_invalid_popup(
       issueID = 140,
       title = "Unsuccessful Upload: The Export.csv file in your uploaded .zip file contains more than 1 row.",
