@@ -246,8 +246,7 @@
       119,
       120,
       121,
-      122,
-      123
+      122
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -606,7 +605,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: bf459ca88ce9efaf9dcff7caf57ed2db]",
+      "src": "[image data hash: 79edc9bf376157eaef1525194a950f52]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
@@ -634,9 +633,9 @@
                 ],
                 "y": [
                   "Conflicting Health Insurance yes/no at Exit",
+                  "Missing Length of Stay",
                   "Oldest Household Member Under 12",
                   "Conflicting Health Insurance yes/no at Entry",
-                  "Missing Length of Stay",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Invalid Move-In Date",
@@ -814,17 +813,17 @@
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "123",
+        "Length": "122",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
-        "Error": 52,
+        "Error": 51,
         "Warning": 66
       },
       "Issue": {
-        "Length": "123",
+        "Length": "122",
         "Class": "character",
         "Mode": "character"
       },
@@ -832,7 +831,7 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 10.52032520325203,
+        "Mean": 10.59016393442623,
         "3rd Qu.": 7,
         "Max.": 214
       }
