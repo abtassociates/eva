@@ -453,7 +453,7 @@ main_test_script <- function(test_script_name, test_dataset) {
 
 # This is equivalent to snapshot_review(), but for the helper csv files
 get_all_helper_filenames <- function() {
-  helper_data_dir <- glue(here("tests/helper_data/{test_script_name}"))
+  helper_data_dir <- glue(here("tests/helper_data/{gsub('test-','', test_script_name)}"))
   all_files <- basename(list.files(helper_data_dir))
   new_files <- grep(pattern = "\\.new\\.", x = all_files, value = TRUE)
   return(gsub("\\..*$", "", new_files))
@@ -479,7 +479,7 @@ review_helper <- function(datasetname, test_script_name = "main-valid", comparis
     diffviewer::visual_diff(old_path, new_path)
   } else if(comparison_type == 2) {
     # Full records if at all different
-    records_in_one_or_another(old, new)
+    records_in_one_or_another(old, new, datasetname)
   } else if(comparison_type == 3) {
     # summary of differences
     waldo::compare(old, new) 
