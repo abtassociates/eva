@@ -1081,32 +1081,32 @@
       "System Summary": [
         [
           "High Priority: 3  ",
-          "Min.   :    2  ",
+          "Min.   :    2.0  ",
           "Length:67         "
         ],
         [
           "Error        :35  ",
-          "1st Qu.:   29  ",
+          "1st Qu.:   29.0  ",
           "Class :character  "
         ],
         [
           "Warning      :29  ",
-          "Median :  152  ",
+          "Median :  152.0  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  837  ",
+          "Mean   :  838.4  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  519  ",
+          "3rd Qu.:  519.0  ",
           null
         ],
         [
           null,
-          "Max.   :11744  ",
+          "Max.   :11744.0  ",
           null
         ]
       ],
@@ -1132,13 +1132,13 @@
         [
           null,
           null,
-          "Mean   :  56.53  ",
+          "Mean   :  56.63  ",
           null
         ],
         [
           null,
           null,
-          "3rd Qu.:  25.00  ",
+          "3rd Qu.:  26.00  ",
           null
         ],
         [
@@ -1303,14 +1303,14 @@
       ],
       "Warnings": [
         [
-          "Length:46596      ",
-          "Length:46596      ",
-          "Length:46596      ",
-          "Length:46596      ",
-          "Length:46596      ",
-          "Length:46596      ",
-          "Length:46596      ",
-          "Length:46596      ",
+          "Length:46688      ",
+          "Length:46688      ",
+          "Length:46688      ",
+          "Length:46688      ",
+          "Length:46688      ",
+          "Length:46688      ",
+          "Length:46688      ",
+          "Length:46688      ",
           "Min.   :2005-04-14  "
         ],
         [
@@ -1322,7 +1322,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-06-09  "
+          "1st Qu.:2020-06-10  "
         ],
         [
           "Mode  :character  ",
@@ -1344,7 +1344,7 @@
           null,
           null,
           null,
-          "Mean   :2021-02-13  "
+          "Mean   :2021-02-14  "
         ],
         [
           null,
@@ -1355,7 +1355,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-01-06  "
+          "3rd Qu.:2022-01-07  "
         ],
         [
           null,
@@ -1367,17 +1367,6 @@
           null,
           null,
           "Max.   :2022-09-26  "
-        ],
-        [
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          "NA's   :2  "
         ]
       ],
       "Overlap Details": [
