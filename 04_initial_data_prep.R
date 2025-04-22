@@ -249,96 +249,77 @@ Enrollment <- EnrollmentStaging %>%
   relocate(Destination:ExitDateTruncated, .before = RelationshipToHoH)
 
 # Move In Dates -----------------------------------------------------------
-
-# granularity: HouseholdIDs with ValidMoveIns
-
 # HHMoveIn <- Enrollment %>%
 #   filter(ProjectType %in% ph_project_types) %>%
-HHMoveIn <- as.data.table(Enrollment)[ProjectType %in% ph_project_types]
-  
-# Add the AssumedMoveIn and ValidMoveIn columns
-  # mutate(
-  #   AssumedMoveIn = if_else(
-  #     EntryDate < hc_psh_started_collecting_move_in_date &
-  #       ProjectType %in% psh_project_types,
-  #     1,
-  #     0
-  #   ),
-  #   ValidMoveIn = case_when(
-  #     AssumedMoveIn == 1 ~ EntryDate, # overwrites any MID where the Entry is 
-  #     # prior to the date when PSH had to collect MID with the EntryDate (as
-  #     # vendors were instructed to do in the mapping documentation)
-  #     AssumedMoveIn == 0 &
-  #       ProjectType %in% psh_project_types &
-  #       EntryDate <= MoveInDate &
-  #       ExitAdjust > MoveInDate ~ MoveInDate,
-  #     # the Move-In Dates must fall between the Entry and ExitAdjust to be
-  #     # considered valid and for PSH the hmid cannot = ExitDate
-  #     MoveInDate <= ExitAdjust &
-  #       MoveInDate >= EntryDate &
-  #       ProjectType == rrh_project_type ~ MoveInDate
-  #   )
-  # ) %>%
-HHMoveIn <- HHMoveIn[, `:=`(
-  AssumedMoveIn = ifelse(
-    EntryDate < hc_psh_started_collecting_move_in_date & ProjectType %in% psh_project_types,
-    1,
-    0
-  )
-)]
-HHMoveIn <- HHMoveIn[, `:=`(
-  ValidMoveIn = fcase(
-    AssumedMoveIn == 1,
-    EntryDate,
-    
-    AssumedMoveIn == 0 & ProjectType %in% psh_project_types & EntryDate <= MoveInDate & ExitAdjust > MoveInDate,
-    MoveInDate,
-    
-    MoveInDate <= ExitAdjust & MoveInDate >= EntryDate & ProjectType == rrh_project_type,
-    MoveInDate
-  )
-)]
-
+#   mutate(
+#   AssumedMoveIn = if_else(
+#     EntryDate < hc_psh_started_collecting_move_in_date &
+#       ProjectType %in% psh_project_types,
+#     1,
+#     0
+#   ),
+#   ValidMoveIn = case_when(
+#     AssumedMoveIn == 1 ~ EntryDate, # overwrites any MID where the Entry is
+#     # prior to the date when PSH had to collect MID with the EntryDate (as
+#     # vendors were instructed to do in the mapping documentation)
+#     AssumedMoveIn == 0 &
+#       ProjectType %in% psh_project_types &
+#       EntryDate <= MoveInDate &
+#       ExitAdjust > MoveInDate ~ MoveInDate,
+#     # the Move-In Dates must fall between the Entry and ExitAdjust to be
+#     # considered valid and for PSH the hmid cannot = ExitDate
+#     MoveInDate <= ExitAdjust &
+#       MoveInDate >= EntryDate &
+#       ProjectType == rrh_project_type ~ MoveInDate
+#   )
+# ) %>%
 # filter(!is.na(ValidMoveIn)) %>%
-HHMoveIn <- HHMoveIn[!is.na(ValidMoveIn)]
-  
-# Group by HouseholdID and calculate HHMoveIn
 # group_by(HouseholdID) %>%
 # summarise(HHMoveIn = min(ValidMoveIn, na.rm = TRUE)) %>%
 # ungroup() %>%
-HHMoveIn <- HHMoveIn[, .(HHMoveIn = min(ValidMoveIn, na.rm = TRUE)), by = HouseholdID]
-  
-# Select the columns and remove duplicates
 # select(HouseholdID, HHMoveIn) %>%
 # unique()
-HHMoveIn <- unique(HHMoveIn, by = c("HouseholdID", "HHMoveIn"))
-
-# Group by HouseholdID and calculate FirstEntry
 # HHEntry <- Enrollment %>%
-  # group_by(HouseholdID) %>%
-  # mutate(FirstEntry = min(EntryDate)) %>%
-  # ungroup() %>%
-HHEntry <- as.data.table(Enrollment)[, .(HHEntry = min(EntryDate)), by = HouseholdID]
-
-  # select(HouseholdID, "HHEntry" = FirstEntry) %>%
-  # unique() %>%
-HHEntry <- unique(HHEntry[, c(HouseholdID, HHEntry)])
-  
-  # left_join(HHMoveIn, by = "HouseholdID")
-HHEntry <- HHMoveIn[HHEntry, on = .(HouseholdID)]
-
-setDF(HHEntry)
+# group_by(HouseholdID) %>%
+# mutate(FirstEntry = min(EntryDate)) %>%
+# ungroup() %>%
+# select(HouseholdID, "HHEntry" = FirstEntry) %>%
+# unique() %>%
+# left_join(HHMoveIn, by = "HouseholdID")
 
 Enrollment <- Enrollment %>%
   left_join(HHEntry, by = "HouseholdID") %>%
   mutate(
     MoveInDateAdjust = case_when(
       EntryDate < hc_psh_started_collecting_move_in_date &
-        MoveInDate != EntryDate &
-        ProjectType %in% psh_project_types ~ EntryDate,!is.na(HHMoveIn) &
-        ymd(HHMoveIn) <= ExitAdjust ~ MoveInDate
+      MoveInDate != EntryDate &
+      ProjectType %in% psh_project_types ~ EntryDate,
+      !is.na(HHMoveIn) &
+      ymd(HHMoveIn) <= ExitAdjust ~ MoveInDate
     )
   )
+
+# Set move-in date to be:
+#   - EntryDate if it's a PSH that entered before PSH started collecting move-in date
+#   - NA if it's an invalid move-in (i.e. not between EntryDate and ExitAdjut)
+#     - if it's a PSH, it's invalid if = ExitAdjust
+Enrollment <- Enrollment %>%
+  fmutate(
+    MoveInDateAdjust = fcase(
+      ProjectType %in% psh_project_types & 
+      EntryDate < hc_psh_started_collecting_move_in_date,
+        EntryDate,
+      MoveInDate < EntryDate |
+      (ProjectType == rrh_project_type & MoveInDate > ExitAdjust) | 
+      (ProjectType %in% psh_project_types & MoveInDate >= ExitAdjust),
+        NA,
+      default = MoveInDate
+    )
+  )
+
+hh_multiple_movein <- as.data.table(Enrollment3)[
+  , .(n_unique_movein = uniqueN(MoveInDate)), 
+  by = HouseholdID][n_unique_movein > 1]
 
 # Only contains EEs within Operating and Participating Dates --------------
 # to be used for system data analysis purposes. has been culled of enrollments
