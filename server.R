@@ -17,6 +17,7 @@ function(input, output, session) {
     overlap_details <- reactiveVal(),
     base_dq_data_func <- reactiveVal(),
     dq_main_df <- reactiveVal(),
+    services <- reactiveVal(),
     pdde_main <- reactiveVal(),
     valid_file <- reactiveVal(0), # from FSA. Most stuff is hidden unless valid == 1
     file_structure_analysis_main <- reactiveVal(),
