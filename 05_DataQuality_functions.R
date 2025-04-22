@@ -204,10 +204,10 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
       fselect(vars_prep, LastKnown = EntryDate)
   } else {
     non_exits_w_lastknown_date <- 
-      join(non_exits, data_w_dates, on = "EnrollmentID", how="right") %>%
+      join(non_exits, data_w_dates, on = "EnrollmentID", how="left") %>%
       fgroup_by(EnrollmentID) %>%
       # Take EntryDate if there's no Information or DateProvided
-      fmutate(LastKnown = fmax(KnownDate) %||% EntryDate)
+      fmutate(LastKnown = fcoalesce(fmax(KnownDate), EntryDate))
   }
   
   # calculate days since last known
