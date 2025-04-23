@@ -93,12 +93,11 @@ page_navbar(
             actionButton("Go_to_upload", "Click here to get started"),
             fill = FALSE
           ),
-          box(
-            id = "home_live_instructions",
+        accordion(
+          open = FALSE,
+          accordion_panel(
             title = "Instructions",
-            width = 12,
-            collapsible = TRUE,
-            collapsed = TRUE,
+            value = "home_live_instructions",
             HTML(
               "<p>Eva works by uploading a hashed 
               <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
@@ -125,12 +124,9 @@ page_navbar(
               toggle at the top.</p>
               ")
           ),
-          box(
-            id = 'home_demo_instructions',
+          accordion_panel(
             title = "Demo Instructions",
-            width = 12,
-            collapsible = TRUE,
-            collapsed = FALSE,
+            value = 'home_demo_instructions',
             HTML(
               "<div class = 'in_demo_mode' style='display:none'>
               <p>Welcome to Eva’s Demo Mode. In Demo Mode, you can explore the
@@ -156,11 +152,8 @@ page_navbar(
               your own HMIS data again.</p></div>
               ")
           ),
-          box(
+          accordion_panel(
             title = "Need help?",
-            width = 12,
-            collapsible = TRUE,
-            collapsed = TRUE,
             HTML(
               "<p>Trouble-shooting tips:
               <ul>
@@ -181,11 +174,8 @@ page_navbar(
               </ul>"
             )
           ), 
-          box(
+          accordion_panel(
             title = "Citations and Special Thanks",
-            width = 12,
-            collapsible = TRUE,
-            collapsed = TRUE,
             HTML("
                  <p>This project would not exist were it not for the existence of
                  other quality, free and open source products. The following are
@@ -1592,6 +1582,4 @@ page_navbar(
         )
       )
     )
-  )
-)
 
