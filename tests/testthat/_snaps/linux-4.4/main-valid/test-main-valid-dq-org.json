@@ -53,8 +53,7 @@
       43,
       44,
       45,
-      46,
-      47
+      46
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -245,8 +244,7 @@
       118,
       119,
       120,
-      121,
-      122
+      121
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -798,32 +796,32 @@
       "Type": {
         "High Priority": 3,
         "Error": 21,
-        "Warning": 23
+        "Warning": 22
       },
       "Issue": {
-        "Length": "47",
+        "Length": "46",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "47",
+        "Length": "46",
         "Class": "character",
         "Mode": "character"
       }
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "122",
+        "Length": "121",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
         "Error": 51,
-        "Warning": 66
+        "Warning": 65
       },
       "Issue": {
-        "Length": "122",
+        "Length": "121",
         "Class": "character",
         "Mode": "character"
       },
@@ -831,7 +829,7 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 10.59016393442623,
+        "Mean": 10.54545454545454,
         "3rd Qu.": 7,
         "Max.": 214
       }
