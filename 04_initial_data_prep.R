@@ -212,53 +212,56 @@ Enrollment <- EnrollmentStaging %>%
   ) %>%
   relocate(Destination:ExitDateTruncated, .before = RelationshipToHoH)
 
-# Move In Dates -----------------------------------------------------------
+# Adjust Move-In Date -----------------------------------------------------------
+# Move-In Date is only collected for HoH. So we need to compute an adjusted 
+# household move-In Date (HMID) for all members, using the HoH's earliest move-in date
+# Note households are tied to the Project. There may mistakenly be multiple HoH, so take earliest
 
-# granularity: HouseholdIDs with ValidMoveIns
-browser()
-HHMoveIn <- Enrollment %>% 
-  fsubset(ProjectType %in% ph_project_types) %>%
-  fmutate(
-    # Add the AssumedMoveIn and ValidMoveIn columns
-    AssumedMoveIn = EntryDate < hc_psh_started_collecting_move_in_date & 
-      ProjectType %in% psh_project_types,
-    ValidMoveIn = fcase(
-      AssumedMoveIn == TRUE, 
-        EntryDate,
-      ProjectType %in% psh_project_types & EntryDate <= MoveInDate & MoveInDate < ExitAdjust, 
-        MoveInDate,
-      ProjectType == rrh_project_type & EntryDate <= MoveInDate & MoveInDate <= ExitAdjust,
-        MoveInDate
-    )
-  ) %>%
-  fsubset(!is.na(ValidMoveIn))
+# Here are the adjustments:
+#   - For PSH projects, we account for HMID not being collected until 2017-10-01 
+#     by using EntryDate, instead of MoveInDate
+#   - For other PH projects, we don't trust HMIDs > ExitDate, so we set them to NA
+#   - For all other project types, even though many have HMID, we set to NA
+#     Because, throughout Eva, we only care about HMID for PH projects
+HHMoveIn <- Enrollment %>%
+  fsubset(RelationshipToHoH == 1 & ProjectType %in% ph_project_types) %>%
+  fmutate(HoHMoveInDate = fcase(
+    ProjectType %in% psh_oph_project_types & 
+    EntryDate < hc_psh_started_collecting_move_in_date &
+    (is.na(MoveInDate) | MoveInDate < EntryDate),
+      EntryDate,
   
-# Group by HouseholdID and calculate HHMoveIn
-HHMoveIn <- HHMoveIn[, .(HHMoveIn = min(ValidMoveIn, na.rm = TRUE)), by = HouseholdID]
-  
-# Select the columns and remove duplicates
-HHMoveIn <- unique(HHMoveIn, by = c("HouseholdID", "HHMoveIn"))
-
-# Group by HouseholdID and calculate FirstEntry
-HHEntry <- Enrollment %>%
+    !ProjectType %in% ph_project_types |
+    (MoveInDate < EntryDate | (
+      (ProjectType == rrh_project_type & MoveInDate > ExitAdjust) | 
+        (ProjectType %in% psh_oph_project_types & MoveInDate >= ExitAdjust)
+    )),
+      NA,
+    default = MoveInDate
+  )) %>%
   fgroup_by(HouseholdID) %>%
-  fsummarise(HHEntry = fmin(EntryDate)) %>%
-  join(
-    HHMoveIn,
-    on= "HouseholdID",
-    how = "left"
-  )
-
-setDF(HHEntry)
+  fsummarise(HMID = fmin(HoHMoveInDate))
 
 Enrollment <- Enrollment %>%
-  join(HHEntry, how = "left", on = "HouseholdID") %>%
+  join(
+    HHMoveIn,
+    on = "HouseholdID",
+    how = "left"
+  ) %>%
   fmutate(
-    MoveInDateAdjust = fcase(
-      EntryDate < hc_psh_started_collecting_move_in_date &
-        MoveInDate != EntryDate &
-        ProjectType %in% psh_project_types, EntryDate,
-      !is.na(HHMoveIn) & ymd(HHMoveIn) <= ExitAdjust, MoveInDate
+    MoveInDateAdjust = fifelse(
+      RelationshipToHoH == 1, 
+      HMID,
+      # For non-HoH:
+      #   - If they enter after HMID, set to EntryDate
+      #   - If they enter on or before HMID, set to HMID
+      #   - If they exited before HMID, set to NA
+      fcase(
+        !ProjectType %in% ph_project_types, NA_Date_,
+        EntryDate > HMID, EntryDate,
+        EntryDate <= HMID, HMID,
+        ExitAdjust < HMID, NA_Date_
+      )
     )
   )
 
