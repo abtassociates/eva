@@ -438,7 +438,7 @@ missing_living_situation <- base_dq_data %>%
            # not req'd prior to this
            ProjectType %in% c(
              th_project_type,
-             psh_project_types,
+             psh_oph_project_types,
              sso_project_type,
              hp_project_type,
              rrh_project_type) &
@@ -836,8 +836,8 @@ missing_cls_subsidy <- base_dq_data %>%
 # day they moved in. So they're excused from this prior to Move In Date's existence.
 future_ees <- base_dq_data %>%
   filter(EntryDate > DateCreated &
-           (!ProjectType %in% psh_project_types |
-              (ProjectType %in% psh_project_types & 
+           (!ProjectType %in% psh_oph_project_types |
+              (ProjectType %in% psh_oph_project_types & 
                   EntryDate >= hc_psh_started_collecting_move_in_date
               )))  %>%
   merge_check_info(checkIDs = 75) %>%
@@ -1116,9 +1116,9 @@ overlap_dt[
   !is.na(PreviousEnrollmentID) &
   !(
     (ProjectType == rrh_project_type &
-       PreviousProjectType %in% psh_project_types) |
+       PreviousProjectType %in% psh_oph_project_types) |
       (PreviousProjectType == rrh_project_type &
-         ProjectType %in% psh_project_types)
+         ProjectType %in% psh_oph_project_types)
   )
 ]
 
