@@ -344,7 +344,10 @@ enrollment_prep_hohs <- enrollment_prep %>%
 # (^ also same granularity as EnrollmentAdjust)
 rm(hh_adjustments)
 
-# Enrollment-level flags --------------------------------------------------
+# Full Enrollment-level Data Prep ----------------------------------------------
+# Includes ProjectTypeWeight for helping determine eecr/lecr
+# throws out HP and enrollments outside Report window and 2 years prior
+# limits to only necessary columns
 enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
   ProjectTypeWeight = fcase(
     ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
@@ -353,17 +356,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     ProjectType %in% non_res_project_types & ProjectType != ce_project_type, 40,
     ProjectType == ce_project_type, 30,
     default = 20
-  ),
-  lh_prior_livingsituation = !is.na(LivingSituation) &
-    (LivingSituation %in% homeless_livingsituation_incl_TH |
-       (LivingSituation %in% institutional_livingsituation &
-          LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
-          !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)))
-  )][, `:=`(
-    lh_at_entry = lh_prior_livingsituation | ProjectType %in% lh_project_types,
-    EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
-      lh_prior_livingsituation
-  )][
+  ))][
     ProjectType != hp_project_type & 
     EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart %m-% years(2))
   ][, .(
@@ -376,9 +369,6 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     ExitAdjust,
     ProjectType,
     MostRecentAgeAtEntry,
-    lh_prior_livingsituation,
-    lh_at_entry,
-    EnrolledHomeless,
     LivingSituation,
     LOSUnderThreshold,
     PreviousStreetESSH,
@@ -420,36 +410,68 @@ setindex(lh_non_res, PersonalID)
 # two ways to identify "not LH" for their entry enrollment (eecr): 
 # 1. !lh_prior_livingsituation and 
 # 2. no lh cls where InformationDate == EntryDate
-entered_not_lh_but_lh_cls_later <- enrollment_categories[
-  EntryDate <= session$userData$ReportEnd & ExitAdjust >= session$userData$ReportStart &
-    ProjectType %in% non_res_project_types
-][, 
-  first_enrollment := min(EntryDate), 
-  by = PersonalID
-][
-  !(EntryDate == first_enrollment & lh_prior_livingsituation)
-][
-  lh_non_res[
-    CurrentLivingSituation %in% homeless_livingsituation_incl_TH
-  ][,
-         has_lh_at_entry := any(InformationDate == EntryDate),
-         by = .(EnrollmentID)
-  ][has_lh_at_entry == FALSE],
-  on = .(EnrollmentID),
-  nomatch = NULL
-]
+lh_cls_info_eq_entry <- lh_non_res %>%
+  fgroup_by(EnrollmentID) %>%
+  fsummarise(has_lh_cls_eq_entry = anyv(info_equal_entry, TRUE))
 
-enrollment_categories <- enrollment_categories[
-  !entered_not_lh_but_lh_cls_later, on=.(PersonalID)
-]
+entered_not_lh_but_lh_cls_later <- enrollment_categories %>%
+  fsubset(
+    EntryDate <= session$userData$ReportEnd & 
+    ExitAdjust >= session$userData$ReportStart &
+    ProjectType %in% non_res_project_types
+  ) %>%
+  fgroup_by(PersonalID) %>%
+  fmutate(first_enrollment = fmin(EntryDate)) %>%
+  fungroup()  %>%
+  fsubset(!(EntryDate == first_enrollment & lh_prior_livingsituation)) %>%
+  join(
+    lh_cls_info_eq_entry %>% fsubset(has_lh_cls_eq_entry == TRUE),
+    on = "EnrollmentID",
+    how = "inner"
+  )
+
+# Define lh_prior_livingsituation, lh_at_entry, and EnrolledHomeless
+# **lh_prior_livingsituation** is used to define was_lh_at_start and was_lh_at_end
+# which are then used to select the EECR/LECR
+# **lh_at_entry** is used to categorize someone as first-time homeless
+# **EnrolledHomeless** is used to categorize someone as Active at Start: Homeless
+enrollment_categories <- enrollment_categories %>%
+  join(
+    entered_not_lh_but_lh_cls_later, 
+    on = "PersonalID",
+    how = "anti"
+  ) %>%
+  join(
+    lh_cls_info_eq_entry,
+    on = "EnrollmentID",
+    how = "left"
+  ) %>%
+  fmutate(
+    lh_prior_livingsituation = !is.na(LivingSituation) &
+    (LivingSituation %in% homeless_livingsituation_incl_TH |
+       (LivingSituation %in% institutional_livingsituation &
+          LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
+          !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)
+        )
+     ),
+    lh_at_entry = ProjectType %in% lh_residential_project_types |
+      (ProjectType %in% psh_project_types & (
+        MoveInDateAdjust >= EntryDate | is.na(MoveInDateAdjust)
+      )) |
+      (ProjectType %in% non_res_project_types & (
+        lh_prior_livingsituation | has_lh_cls_eq_entry
+      )),
+    EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
+      lh_prior_livingsituation
+  )
 
 session$userData$report_dates <- get_report_dates()
 
+# Period-Specific Prep Functions -----------------------------------------------
 # These steps and functions process data for a given period, which can be the full
 # reporting period, or each month in between the start and end of the full period
 
-
-## Period-specific NbN prep function -------------------------------------------
+## NbN prep -------------------------------------------
 session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise(
   function(report_period, upload_name) {
     startDate <- report_period[1]
@@ -481,7 +503,7 @@ session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise
   }
 )
 
-## Period-specific enrollment categories prep function -------------------------
+## enrollment categories prep -------------------------
 # Narrow down to period-relevant enrollments and create eecr, lecr, 
 # and other variables used for Inflow/Outflow categorization
 session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
