@@ -59,13 +59,12 @@ page_navbar(
       ),
       overlayColour = '#F5F5F5',
       refresh = ""
-    ), 
-    tabItems(
-      tabItem(
-        tabName = "tabHome",
-        fluidRow(
-          box(
-            width = 12,
+    )), 
+    nav_panel(
+        title = "Home",
+        value = "tabHome", 
+        icon = icon("home"),
+          card(
             HTML("<h2>Welcome to Eva!</h2>
               <p><b>Eva</b> is an <a href = 'https://github.com/abtassociates/eva'
               target= '_blank' rel='noopener noreferrer'>open-source</a>
@@ -91,7 +90,8 @@ page_navbar(
                 the Changelog tab.</li>
               </ul> 
             "),
-            actionButton("Go_to_upload", "Click here to get started")
+            actionButton("Go_to_upload", "Click here to get started"),
+            fill = FALSE
           ),
           box(
             id = "home_live_instructions",
