@@ -604,7 +604,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: bf459ca88ce9efaf9dcff7caf57ed2db]",
+      "src": "[image data hash: 79edc9bf376157eaef1525194a950f52]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
@@ -632,9 +632,9 @@
                 ],
                 "y": [
                   "Conflicting Health Insurance yes/no at Exit",
+                  "Missing Length of Stay",
                   "Oldest Household Member Under 12",
                   "Conflicting Health Insurance yes/no at Entry",
-                  "Missing Length of Stay",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Invalid Move-In Date",

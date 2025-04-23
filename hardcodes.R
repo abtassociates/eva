@@ -29,6 +29,8 @@ allowed_living_situations <-
 
 perm_livingsituation <- c(400:499)
 
+homeless_livingsituation <- c(100:199)
+
 homeless_livingsituation_incl_TH <- c(100:199, 302)
 
 temp_livingsituation <- c(300:399)
