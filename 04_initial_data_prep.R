@@ -249,31 +249,55 @@ Enrollment <- EnrollmentStaging %>%
   relocate(Destination:ExitDateTruncated, .before = RelationshipToHoH)
 
 # Adjust Move-In Date -----------------------------------------------------------
-# Creating an "Adjusted Move-In Date" for PH Project Types (MoveInDate = Housing MoveIn Date = HMIS)
-# For PSH projects, we account for HMID not being collected until 2017-10-01
-# For other PH projects, we don't trust HMIDs > ExitDate, so we set them to NA
-# For all other project types, even though many have HMID, we set to NA
-# Because, throughout Eva, we only care about HMID for PH projects
-Enrollment <- Enrollment %>%
-  fmutate(
-    MoveInDateAdjust = fcase(
-      # Set to EntryDate for PSH/OPH enrollment with an Entry Date prior to 10/1/2017 
-      # either without a Move-In Date or with a Move-In Date that's 
-      # earlier than the enrollment Entry Date
-      ProjectType %in% psh_oph_project_types & 
-        EntryDate < hc_psh_started_collecting_move_in_date &
-        (is.na(MoveInDate) | MoveInDate < EntryDate),
+# Move-In Date is only collected for HoH. So we need to compute an adjusted 
+# household move-In Date (HMID) for all members, using the HoH's earliest move-in date
+# Note households are tied to the Project. There may mistakenly be multiple HoH, so take earliest
+
+# Here are the adjustments:
+#   - For PSH projects, we account for HMID not being collected until 2017-10-01 
+#     by using EntryDate, instead of MoveInDate
+#   - For other PH projects, we don't trust HMIDs > ExitDate, so we set them to NA
+#   - For all other project types, even though many have HMID, we set to NA
+#     Because, throughout Eva, we only care about HMID for PH projects
+HHMoveIn <- Enrollment %>%
+  fsubset(RelationshipToHoH == 1 & ProjectType %in% ph_project_types) %>%
+  fmutate(HoHMoveInDate = fcase(
+    ProjectType %in% psh_oph_project_types & 
+    EntryDate < hc_psh_started_collecting_move_in_date &
+    (is.na(MoveInDate) | MoveInDate < EntryDate),
       EntryDate,
-      
-      # Set to NA if MoveInDate is invalid (i.e. prior to EntryDate 
-      # or after (or equal to, if PSH/OPH) ExitAdjust
-      !ProjectType %in% ph_project_types |
-      (MoveInDate < EntryDate | (
-        (ProjectType == rrh_project_type & MoveInDate > ExitAdjust) | 
+  
+    !ProjectType %in% ph_project_types |
+    (MoveInDate < EntryDate | (
+      (ProjectType == rrh_project_type & MoveInDate > ExitAdjust) | 
         (ProjectType %in% psh_oph_project_types & MoveInDate >= ExitAdjust)
-      )),
+    )),
       NA,
-      default = MoveInDate
+    default = MoveInDate
+  )) %>%
+  fgroup_by(HouseholdID) %>%
+  fsummarise(HMID = fmin(HoHMoveInDate))
+
+Enrollment <- Enrollment %>%
+  join(
+    HHMoveIn,
+    on = "HouseholdID",
+    how = "left"
+  ) %>%
+  fmutate(
+    MoveInDateAdjust = fifelse(
+      RelationshipToHoH == 1, 
+      HMID,
+      # For non-HoH:
+      #   - If they enter after HMID, set to EntryDate
+      #   - If they enter on or before HMID, set to HMID
+      #   - If they exited before HMID, set to NA
+      fcase(
+        !ProjectType %in% ph_project_types, NA,
+        EntryDate > HMID, EntryDate,
+        EntryDate <= HMID, HMID,
+        ExitAdjust < HMID, NA
+      )
     )
   )
 
