@@ -31,50 +31,7 @@ dashboardPage(
     document.getElementById("isdemo").onchange = function() {
         Shiny.setInputValue("in_demo_mode", this.checked, {priority: "event"});
     }
-    </script>'))
-  ),
-  dashboardSidebar(
-    sidebarMenu(
-      id = "sidebarmenuid",
-      menuItem("Home",
-               tabName = "tabHome"),
-      menuItem("Upload HMIS CSV Export",
-               tabName = "tabUpload"),
-      menuItem("Edit Local Settings",
-               tabName = "tabLocalSettings"),
-      menuItem("View Client Counts",
-                  tabName = "tabClientCount"),
-      menuItem("Assess Data Quality",
-               menuSubItem("Check Project Data",
-                           tabName = "tabPDDE"),
-               menuSubItem("System-level",
-                           tabName = "tabDQSystem"),
-               menuSubItem("Organization-level",
-                           tabName = "tabDQOrg")),
-      menuItem("System Performance Overview",
-               tabName = "tabSystemOverview"),
-               #menuSubItem("System Exit Detail",
-                #           tabName = "systemExitDetail")
-      menuItem("Glossary",
-               tabName = "tabGlossary"),
-      menuItem("View Changelog",
-               tabName = "tabChangelog")
-      # ),
-      # menuItem("System Analysis",
-      #          menuSubItem("System Flow",
-      #                      tabName = "tabSystemFlow"),
-      #          menuSubItem("Outcomes",
-      #                      tabName = "tabOutcomes"),
-      #          menuSubItem("Referrals",
-      #                      tabName = "tabReferrals"),
-      #          menuSubItem("Assessments",
-      #                      tabName = "tabAssessments"),
-      #          menuSubItem("Diversion",
-      #                      tabName = "tabDiversion"),
-      #          menuSubItem("Prioritization",
-      #                      tabName = "tabPrioritized"))
-    )
-  ), 
+    </script>')),
   dashboardBody(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
