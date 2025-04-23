@@ -480,13 +480,23 @@ client_categories_filtered <- reactive({
 
 # Period-specific, user-filtered, enrollment-level universe applied ------------------
 universe_filtered <- function(enrollment_categories, nbn_services) {
-  # browser()
-  join(
-    enrollment_categories,
-    nbn_services, 
-    on = "EnrollmentID",
-    how = "left"
-  ) %>%
+  if(is.null(nbn_services)) {
+    enrollments <- fmutate(
+      enrollment_categories,
+      NbN15DaysBeforeReportStart = NA,
+      NbN15DaysAfterReportEnd = NA,
+      NbN15DaysBeforeReportEnd = NA
+    )
+  } else {
+    enrollments <- join(
+      enrollment_categories,
+      nbn_services,
+      on = "EnrollmentID",
+      how = "left"
+    )
+  }
+  
+  enrollments %>%
     join( # Inner Join with client categories
       # This is necessary for bringing in Veteran Status, but will also make the rest faster
       client_categories_filtered(),

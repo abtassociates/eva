@@ -455,6 +455,10 @@ session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise
     startDate <- report_period[1]
     endDate <- report_period[2]
     
+    nbn_enrollments <- EnrollmentAdjust[ProjectType == es_nbn_project_type, .(EnrollmentID)]
+    
+    if(nrow(nbn_enrollments) == 0) return(NULL)
+    
     Services %>%
       fselect(EnrollmentID, DateProvided) %>%
       join(
