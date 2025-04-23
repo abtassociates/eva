@@ -87,8 +87,6 @@ non_res_project_types <- c(4, 6, 7, 11, 12, 14)
 
 project_types_w_cls <- c(1, 4, 6, 14)
 
-project_types_w_cls_nonbn <- setdiff(project_types_w_cls, 1)
-
 long_stayer_98_percentile_project_types <- c(0, 2, 8, 12, 13)
 
 project_types_enrolled_homeless <- c(lh_project_types, 14)
