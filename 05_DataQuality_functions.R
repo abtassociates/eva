@@ -190,18 +190,24 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
   if(nrow(non_exits) == 0) return(NULL)
   
   # data with last-known dates
+  # we're going to later compute the LAST Known Date to determine when we last heard from them
+  # this starts the clock of how long their stay is.
   data_w_dates <- if(projecttype %in% c(out_project_type, sso_project_type, ce_project_type)) {
+    # This will be merged back into non_exits
     CurrentLivingSituation() %>% fselect(EnrollmentID, KnownDate = InformationDate)
   } else if(projecttype == es_nbn_project_type) {
+    # This will be merged back into non_exits
     services() %>% fselect(EnrollmentID, KnownDate = DateProvided)
   } else {
-    non_exits
+    # If a different project type, we'll just use their EntryDate as the KnownDate
+    non_exits %>% fselect(vars_prep, KnownDate = EntryDate)
   }
   
   # calculate last-known date (differs by project type)
   if(projecttype %in% c(other_project_project_type, day_project_type)) {
+    # LastKnown = KnownDate (not fmax) because it's per enrollment, and EntryDate (now KnownDate) is at Enrollment level
     non_exits_w_lastknown_date <- data_w_dates %>%
-      fselect(vars_prep, LastKnown = EntryDate)
+      fselect(vars_prep, LastKnown = KnownDate)
   } else {
     non_exits_w_lastknown_date <- 
       join(non_exits, data_w_dates, on = "EnrollmentID", how="left") %>%
@@ -217,9 +223,10 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
         as.Date(meta_HUDCSV_Export_Date()), LastKnown, units = "days"
       ))
     ) %>%
+    # NOW FILTER DOWN TO THE PROBLEM CASES
     fsubset(DaysSinceLastKnown > too_many_days)
     
-  # merge_check_info_dt 
+  # Each project type gets its own Issue text+Guidance etc.
   merge_check_info_dt(
     long_stayers,
     case_when(
