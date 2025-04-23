@@ -2,6 +2,9 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
+    "04-24-2025",
+    "<b>Bug Fixes</b> <br>
+      - Handle scenario where no available beds for active inventory causing a crash during PDDE check (Issue <a href='https://github.com/abtassociates/eva/issues/762' target = '_blank'>#762</a>)",
     "04-03-2025",
     "<b>New Features</b> <br>
       - Added new PDDE check for active inventory with no enrollments during the inventory dates.<br>
