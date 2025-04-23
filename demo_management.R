@@ -98,8 +98,7 @@ toggleDemoJs <- function(t) {
     
     removeModal()
     
-    updateTabItems(session, "sidebarmenuid", "tabHome")
-    
+    nav_select(id = 'pageid', selected = 'tabHome',session = session)
     
     shinyjs::runjs(paste0(
       "var demoBannerHTML = \"<div id='demo_banner' class='in_demo_mode'>",
@@ -120,7 +119,7 @@ toggleDemoJs <- function(t) {
   } else {
     capture.output("Switching to live mode")
     
-    updateTabItems(session, "sidebarmenuid", "tabUpload")
+    nav_select(id = 'pageid',selected = 'tabUpload',session = session)
     
     shinyjs::runjs("
           $('#imported').closest('.btn').removeAttr('disabled');

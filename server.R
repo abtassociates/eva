@@ -54,9 +54,7 @@ function(input, output, session) {
   
   observe({
     req(session$clientData$url_search != "")
-    updateTabItems(session,
-                   "sidebarmenuid",
-                   "tabGlossary")
+    nav_select(id = 'pageid', selected = 'tabGlossary', session = session)
     #parseQueryString(session$clientData$url_search))
   })
   
@@ -122,7 +120,8 @@ function(input, output, session) {
   output$headerSystemExit <- headerGeneric("System Exit")
 
   observeEvent(input$Go_to_upload, {
-    updateTabItems(session, "sidebarmenuid", "tabUpload")
+    
+    nav_select(id = 'pageid', selected = 'tabUpload', session = session)
   }) 
   
   # file upload status text ----------------------------------------------------

@@ -1,4 +1,5 @@
 page_navbar(
+  id = 'pageid', 
   title = img(src = "Eva_logo_horizontal_white.png",
       alt = "Eva logo",
       height = 45
