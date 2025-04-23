@@ -527,7 +527,7 @@ output$sys_inflow_outflow_monthly_ui_chart_old <- renderPlot({
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 })
-output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
+output$sys_inflow_outflow_monthly_ui_chart_old2 <- renderPlot({
   plot_data <- sys_inflow_outflow_monthly_chart_data()
   
   # Get Average Info for Title Display
@@ -585,6 +585,109 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
       axis.ticks.x = element_blank(),
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
+})
+
+output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
+  plot_data <- sys_inflow_outflow_monthly_chart_data()
+  
+  # --- Assume plot_data has columns: month, Count, PlotFillGroups ---
+  # Example PlotFillGroups values: "Active at Start: Housed", "Active at Start: Homeless", "Inflow", "Outflow"
+  
+  # --- Assume bar_colors is a NAMED vector like this: ---
+  # bar_colors <- c(
+  #   "Active at Start: Housed" = "skyblue3",
+  #   "Active at Start: Homeless" = "steelblue",
+  #   "Inflow" = "darkgreen",
+  #   "Outflow" = "firebrick"
+  # )
+  # Make sure your actual bar_colors object matches the names in PlotFillGroups
+  
+  # Get Average Info for Title Display
+  averages <- plot_data %>%
+    collap(cols = "Count", FUN=fmean, by = ~ Summary) # Assuming Summary is equivalent to PlotFillGroups for averages
+  
+  avg_monthly_change <- fmean(
+    plot_data[plot_data$PlotFillGroups == "Inflow", "Count"] - # Use PlotFillGroups here too
+      plot_data[plot_data$PlotFillGroups == "Outflow", "Count"] # Use PlotFillGroups here too
+  )
+  
+  level_of_detail_text <- case_when(
+    input$syso_level_of_detail == "All" ~ "People",
+    input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
+    TRUE ~
+      getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+  )
+  
+  # --- Define categories for easier filtering ---
+  bar_categories <- c("Active at Start: Housed", "Active at Start: Homeless")
+  line_categories <- c("Inflow", "Outflow")
+  
+  # --- Build the ggplot ---
+  ggplot(mapping = aes(x = month)) +  # Base plot with only x aesthetic
+    
+    # --- Stacked Bars Layer ---
+    geom_col(
+      data = plot_data[Summary == "Active at Start"],
+      aes(y = Count, fill = PlotFillGroups),
+      position = "stack",
+      width = 0.3
+    ) +
+    
+    # --- Lines Layer ---
+    geom_line(
+      data = plot_data %>% filter(PlotFillGroups %in% line_categories),
+      aes(y = Count, color = PlotFillGroups, group = PlotFillGroups), # Group is important for lines
+      linewidth = 1.4
+    ) +
+    
+    # --- Points Layer (for lines) ---
+    geom_point(
+      data = plot_data %>% filter(PlotFillGroups %in% line_categories),
+      aes(y = Count, fill = PlotFillGroups), # No group needed if color is mapped
+      shape = 21,                            # <--- ADDED: Use shape 21 for border/fill control
+      color = "black",                       # <--- ADDED: Set border color to black (outside aes)
+      size = 3
+    ) +
+    
+    # --- Scales ---
+    # Use scale_fill_manual for the bars
+    scale_fill_manual(values = bar_colors) +
+    
+    # Use scale_color_manual for the lines/points
+    scale_color_manual(values = bar_colors, name = "Group") +
+    
+    # --- Theme and Labels ---
+    theme_minimal() +
+    labs(
+      x = "Month",
+      # Update Y-axis label to be more general
+      y = paste0("Count of ", level_of_detail_text)
+    ) +
+    ggtitle(
+      paste0(
+        "Average Monthly Inflow: +", scales::comma(averages[Summary == "Inflow", Count], accuracy = 0.1), "\n",
+        "Average Monthly Outflow: -", scales::comma(averages[Summary == "Outflow", Count], accuracy = 0.1), "\n",
+        "Average Monthly Change in ",
+        level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ",
+        scales::comma(avg_monthly_change, accuracy = 0.1)
+      )
+    ) +
+    scale_y_continuous(labels = scales::comma, breaks = scales::pretty_breaks(n = 8)) +
+    theme(
+      axis.text.x = element_blank(),
+      axis.title.x = element_blank(),
+      axis.title.y = element_text(size = 15),
+      legend.position = "none",
+      panel.grid = element_blank(),
+      axis.text.y = element_text(size = 10, color = "black"),
+      axis.ticks.y = element_line(color = "black"),
+      axis.line.y = element_line(),
+      axis.line.x = element_line(),
+      plot.margin = margin(l = 55),
+      axis.ticks.x = element_blank(),
+      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
+    )
+  
 })
 
 
