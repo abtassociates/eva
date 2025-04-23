@@ -293,10 +293,10 @@ Enrollment <- Enrollment %>%
       #   - If they enter on or before HMID, set to HMID
       #   - If they exited before HMID, set to NA
       fcase(
-        !ProjectType %in% ph_project_types, NA,
+        !ProjectType %in% ph_project_types, NA_Date_,
         EntryDate > HMID, EntryDate,
         EntryDate <= HMID, HMID,
-        ExitAdjust < HMID, NA
+        ExitAdjust < HMID, NA_Date_
       )
     )
   )
