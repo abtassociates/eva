@@ -257,14 +257,23 @@ Enrollment <- EnrollmentStaging %>%
 Enrollment <- Enrollment %>%
   fmutate(
     MoveInDateAdjust = fcase(
-      ProjectType %in% psh_project_types & 
-        EntryDate < hc_psh_started_collecting_move_in_date,
+      # Set to EntryDate for PSH/OPH enrollment with an Entry Date prior to 10/1/2017 
+      # either without a Move-In Date or with a Move-In Date that's 
+      # earlier than the enrollment Entry Date
+      ProjectType %in% psh_oph_project_types & 
+        EntryDate < hc_psh_started_collecting_move_in_date &
+        (is.na(MoveInDate) | MoveInDate < EntryDate),
       EntryDate,
       
-      EntryDate <= MoveInDate &
-        (ProjectType == rrh_project_type & MoveInDate <= ExitAdjust) | 
-        (ProjectType %in% psh_project_types & MoveInDate < ExitAdjust),
-      MoveInDate
+      # Set to NA if MoveInDate is invalid (i.e. prior to EntryDate 
+      # or after (or equal to, if PSH/OPH) ExitAdjust
+      !ProjectType %in% ph_project_types |
+      (MoveInDate < EntryDate | (
+        (ProjectType == rrh_project_type & MoveInDate > ExitAdjust) | 
+        (ProjectType %in% psh_oph_project_types & MoveInDate >= ExitAdjust)
+      )),
+      NA,
+      default = MoveInDate
     )
   )
 
