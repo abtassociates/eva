@@ -1,6 +1,11 @@
 page_navbar(
   id = 'pageid',
   window_title = 'Eva',
+  theme = bs_theme(
+    version = 5,
+    bootswatch = "cerulean",
+    navbar_bg = "#16697A" # dark_blue
+  ),
   title = span(img(src = "Eva_logo_horizontal_white.png",
                  alt = "Eva logo",
                                height = 45)),
