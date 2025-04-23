@@ -32,6 +32,8 @@ if(dir.exists(here("metadata-analysis/metadata/"))) {
 }
 source(here("hardcodes.R"), local = TRUE) # hard-coded variables and data frames
 
+source(here('tab_instructions.R'), local = TRUE) # static HTML text elements
+
 # # functions used throughout the app
 # source("helper_functions.R", local = TRUE)
 
