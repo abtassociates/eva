@@ -244,8 +244,7 @@
       118,
       119,
       120,
-      121,
-      122
+      121
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -812,17 +811,17 @@
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "122",
+        "Length": "121",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
-        "Error": 52,
+        "Error": 51,
         "Warning": 65
       },
       "Issue": {
-        "Length": "122",
+        "Length": "121",
         "Class": "character",
         "Mode": "character"
       },
@@ -830,7 +829,7 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 10.47540983606557,
+        "Mean": 10.54545454545454,
         "3rd Qu.": 7,
         "Max.": 214
       }
