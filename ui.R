@@ -1,10 +1,9 @@
-dashboardPage(
-  title = "Eva",
-  skin = "black",
-  dashboardHeader(
-    title = span(img(src = "Eva_logo_horizontal_white.png",
-                     alt = "Eva logo",
-                                   height = 45)),
+page_navbar(
+  id = 'pageid',
+  window_title = 'Eva',
+  title = span(img(src = "Eva_logo_horizontal_white.png",
+                 alt = "Eva logo",
+                               height = 45)),
     # https://alvarotrigo.com/blog/toggle-switch-css/
     tags$li(class="dropdown",
             HTML('<div class="toggle-button-cover">
@@ -32,7 +31,7 @@ dashboardPage(
         Shiny.setInputValue("in_demo_mode", this.checked, {priority: "event"});
     }
     </script>')),
-  dashboardBody(
+   header = tagList(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
