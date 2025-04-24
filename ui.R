@@ -1130,14 +1130,15 @@ page_navbar(
           )
         )
       ),
-      tabItem(
-        tabName = "tabGlossary",
-        fluidRow(box(HTML("<h2>Glossary</h2>"), width = 12)),
-        fluidRow(box(
-          title = "Instructions",
-          width = 12,
-          collapsible = TRUE,
-          collapsed = TRUE,
+      nav_panel(
+        title = "Glossary",
+        value = "tabGlossary",
+        icon = icon("book"),
+        card(
+            card_header(HTML("<h2>Glossary</h2>")),
+            card_body(
+#          title = "Instructions",
+        
           HTML("
                <p>This glossary provides definitions for the terms used throughout 
               Eva's System Performance Overview page. You can review definitions 
@@ -1149,35 +1150,26 @@ page_navbar(
                 <li>Client System Status Chart</li>
               </ul>
               
-              <p>You can also search for a specific term using the search bar.</p>")
-        )),
-        fluidRow(
-          box(
-            # collapsible = TRUE,
-            # collapsed = TRUE,
-            width = 12,
+              <p>You can also search for a specific term using the search bar.</p>"),
+          
             DTOutput("glossary")
+            )
           )
-        )
       ),
-      tabItem(
-        tabName = "tabChangelog",
-        fluidRow(box(HTML("<h2>Changelog</h2>"), width = 12)),
-        fluidRow(
-          box(
-            width = 12,
+      nav_panel(
+        title = "View Changelog",
+        value = "tabChangelog",
+        icon = icon("clipboard"),
+        card(
+          card_header(HTML("<h2>Changelog</h2>")),
+          card_body(
             HTML("
               <p>This tab will list the most recent technical updates and
               changes to Eva. For more in-depth information on current and past
               issues, please go to <a
               href='https://github.com/abtassociates/eva/issues' target= '_blank'
               rel='noopener noreferrer'>GitHub</a>.</p>
-            ")
-          ),
-          box(
-            # collapsible = TRUE,
-            # collapsed = TRUE,
-            width = 12,
+            "),
             dataTableOutput("changelog")
           )
         )
