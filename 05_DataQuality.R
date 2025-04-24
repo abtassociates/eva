@@ -1244,10 +1244,7 @@ overlap_dt <- merge(
   overlap_dt,
   base_dq_data_dt[, c(vars_prep, "HouseholdType"), with = FALSE], 
   by = "EnrollmentID"
-)[
-  # Recode ProjectType to a more readable version
-  , ProjectType := project_type(ProjectType)
-]
+)
 
 # For the Overlap Details tab of the export
 # we want the same set of details for the overlapping enrollment (i.e. the "previous")
@@ -1287,7 +1284,10 @@ col_order <- get_overlap_col_order()
 overlap_details(
   # Rename columns for previous enrollment
   merge(
-    overlap_dt,
+    qDT(overlap_dt)[
+      # Recode ProjectType to a more readable version
+      , ProjectType := project_type(ProjectType)
+    ],
     base_dq_data_dt[
       , setNames(.SD, paste0("Previous", names(.SD)))
       , .SDcols = c(vars_prep, "HouseholdType")
