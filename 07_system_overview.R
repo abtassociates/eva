@@ -536,20 +536,22 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         info_in_start_window = between(InformationDate, start_window, startDate),
         info_in_end_window = between(InformationDate, end_window, endDate),
         entry_in_start_window = between(EntryDate, start_window, startDate),
-        entry_in_end_window = between(EntryDate, end_window, endDate)
+        entry_in_end_window = between(EntryDate, end_window, endDate),
+        info_after_entry = InformationDate > EntryDate
       ) %>%
       
       # Group by EnrollmentID and calculate window flags
       fgroup_by(EnrollmentID) %>%
       fmutate(
         any_info_in_start_window = anyv(info_in_start_window, TRUE),
-        any_info_in_end_window = anyv(info_in_end_window, TRUE)
+        any_info_in_end_window = anyv(info_in_end_window, TRUE),
+        has_cls_after_entry = anyv(info_after_entry, TRUE)
       ) %>%
       fungroup()
     
     lh_non_res_period <- unique(lh_non_res_period[, 
       .(
-        EnrollmentID = EnrollmentID,
+        EnrollmentID,
         was_lh_at_start = any_info_in_start_window |
           (entry_in_start_window & lh_prior_livingsituation) |
           (EntryDate > startDate & (lh_prior_livingsituation | InformationDate == EntryDate)) | 
@@ -557,7 +559,9 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         
         was_lh_at_end = any_info_in_end_window |
           (entry_in_end_window & lh_prior_livingsituation) |
-          (ExitAdjust < endDate & (lh_prior_livingsituation | InformationDate == ExitAdjust))
+          (ExitAdjust < endDate & (lh_prior_livingsituation | InformationDate == ExitAdjust)),
+        
+        has_cls_after_entry
       )
     ])
     enrollment_categories_period <- join(
@@ -582,11 +586,12 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         #   default = "NotDV"
         # )
       ) %>% 
-      # drop in-range, non-res enrollments that are not LH at start
+      f
+      # drop in-range, non-res enrollments that are not LH at start AND have no CLS later
       fsubset(!(
         in_date_range & 
           ProjectType %in% non_res_project_types & 
-          (!was_lh_at_start | is.na(was_lh_at_start))
+          ((!was_lh_at_start | is.na(was_lh_at_start)) & !has_cls_after_entry)
       )) %>%
       # Flag if person had any straddling enrollments
       # to be used when calculating eecr/lecr in no-straddle cases
