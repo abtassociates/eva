@@ -32,12 +32,13 @@ process_upload <- function(upload_filename, upload_filepath) {
     setProgress(detail = "Assessing your data quality..", value = .7)
     logToConsole(session, "About to run dq_mirai")
     
+    local_settings = setNames(
+      lapply(local_settings_inputs, function(x) session$input[[x]]),
+      local_settings_inputs
+    )
     dq_mirai <- mirai(
-      source("05_DataQuality.R", local = TRUE), 
-      local_settings = setNames(
-        lapply(local_settings_inputs, function(x) session$input[[x]]),
-        local_settings_inputs
-      ),
+      source("05_DataQuality.R", local = TRUE)
+    , local_settings = local_settings,
       .args = mget(dq_mirai_dependencies)
     )
 

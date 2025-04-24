@@ -1232,10 +1232,7 @@ overlap_dt <- merge(
   overlap_dt,
   base_dq_data_dt[, c(vars_prep, "HouseholdType"), with = FALSE], 
   by = "EnrollmentID"
-)[
-  # Recode ProjectType to a more readable version
-  , ProjectType := project_type(ProjectType)
-]
+)
 
 # For the Overlap Details tab of the export
 # we want the same set of details for the overlapping enrollment (i.e. the "previous")
@@ -1273,27 +1270,29 @@ get_overlap_col_order <- function() {
 }
 col_order <- get_overlap_col_order()
 
-
 overlap_details <- merge(
-    overlap_dt,
-    # Rename columns for previous enrollment
-    base_dq_data_dt[
-      , setNames(.SD, paste0("Previous", names(.SD)))
-      , .SDcols = c(vars_prep, "HouseholdType")
-    ],
-    by = "PreviousEnrollmentID",
-    all.x = TRUE
-  )[, `:=`(
-    PreviousProjectType = project_type(PreviousProjectType),
-    HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports),
-    PreviousHouseholdType = fct_collapse(PreviousHouseholdType, !!!hh_types_in_exports)
-  )][
-    # Drop Issue columns
-    , !c("Issue", "Type", "Guidance"), with = FALSE
-  ][
-    # order and rename columns
-    , ..col_order
-  ]
+  qDT(overlap_dt)[
+    # Recode ProjectType to a more readable version
+    , ProjectType := project_type(ProjectType)
+  ],
+  # Rename columns for previous enrollment
+  base_dq_data_dt[
+    , setNames(.SD, paste0("Previous", names(.SD)))
+    , .SDcols = c(vars_prep, "HouseholdType")
+  ],
+  by = "PreviousEnrollmentID",
+  all.x = TRUE
+)[, `:=`(
+  PreviousProjectType = project_type(PreviousProjectType),
+  HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports),
+  PreviousHouseholdType = fct_collapse(PreviousHouseholdType, !!!hh_types_in_exports)
+)][
+  # Drop Issue columns
+  , !c("Issue", "Type", "Guidance"), with = FALSE
+][
+  # order and rename columns
+  , ..col_order
+]
 
 # Remove unecessary columns
 cols_to_remove <- "PreviousEnrollmentID"
@@ -1663,7 +1662,6 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
       fmutate(LastKnown = fcoalesce(fmax(KnownDate), EntryDate))
   }
   
-  logToConsole(session, "Calculating long stayers")
   # calculate days since last known
   long_stayers <- qDT(non_exits_w_lastknown_date) %>%
     fmutate(
@@ -1673,6 +1671,8 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
     ) %>%
     # NOW FILTER DOWN TO THE PROBLEM CASES
     fsubset(DaysSinceLastKnown > too_many_days)
+  
+  if(nrow(long_stayers) == 0) return(NULL)
   
   # Each project type gets its own Issue text+Guidance etc.
   merge_check_info_dt(
