@@ -225,7 +225,9 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
     ) %>%
     # NOW FILTER DOWN TO THE PROBLEM CASES
     fsubset(DaysSinceLastKnown > too_many_days)
-    
+  
+  if(nrow(long_stayers) == 0) return(NULL)
+  
   # Each project type gets its own Issue text+Guidance etc.
   merge_check_info_dt(
     long_stayers,
