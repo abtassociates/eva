@@ -6,6 +6,7 @@ output$changelog <- renderDT({
     "<b>Bug Fixes</b> <br>
       - Avoid crash when no available beds for active inventory during PDDE check (Issue <a href='https://github.com/abtassociates/eva/issues/762' target = '_blank'>#762</a>)<br>
       - Adjust how move-in date is computed for household members.<br>
+      - Fixed issue with Project Type column in DQ Export.<br>
      <b>Miscellaneous</b> <br>
       - Update Long Stayers check for ES NbN projects to use Bed Nights, rather than CLS records.",
     "04-03-2025",
