@@ -229,7 +229,7 @@ get_active_inventory_no_enrollments <- function() {
     funique(cols = c("ProjectID")) %>%
     # Bring in DQ cols
     join(
-      Project0(),
+      session$userData$Project0,
       on = "ProjectID",
       how = "inner",
       multiple = TRUE
