@@ -213,3 +213,97 @@ tabUpload_in_demo_mode <- HTML(paste0("<div class='in_demo_mode' style='display:
                  <p>To explore your own File Structure Errors, turn off Demo
                  Mode and upload your own hashed HMIS CSV Export file.</p></div>
             "))
+
+tabLocalSettings_instructions <-  HTML("
+              <p>To make Eva data quality analysis more useful at the local level, 
+              you can adjust the local settings to better analyze your data in a 
+              way that is meaningful to your CoC. To edit these, click to expand 
+              the relevant box below. If you do not edit them, the Assess Data Quality 
+              and View Client Counts pages will use the defaults listed. Please 
+              note, these local settings do not impact the System Performance Overview page.</p>
+              
+              <p>These defaults do not imply any HUD recommendations. Please read 
+              the description in the Edit Local Settings tab for more information.</p>
+              ")
+
+tabLocalSettings_outstanding_referrals <- HTML(
+  "<p>This check aims to help communities find Coordinated Entry (CE)
+                Event referrals that may be missing a Result Date or may have
+                been delayed in getting the client to housing. This check is
+                only applied to CE Event referrals which are expected to have an
+                associated Result and Result Date (4.20.2 responses 10-15, 17,
+                18. Please see the HMIS Data Standards for the complete list
+                of CE Events.) 
+                
+                <p>When a CE Event referral does not have a Result Date at the
+                time the export is uploaded, Eva calculates how many days the
+                referral has been open by looking at the number of days
+                between the Referral Date and the date your upload was exported
+                from your HMIS. Then Eva compares the length of each open
+                referral with the 'Max Days' assumption entered in the input
+                field below. If the referral is open longer than the expected
+                timeframe, it is categorized as an 'Outstanding Referral.' This
+                check is for all projects that have a relevant CE Event referral.
+                
+                <p>Data quality flags about Outstanding Referrals are categorized
+                as Warnings, indicating that data should be reviewed for accuracy.
+                It does not imply that any data should be changed.
+
+                <p>In the field below, specify the maximum number of days a referral
+                can stay open according to the CoC's Coordinated Entry Referral
+                process. The value defaults to 14 days. (These defaults do not
+                imply any HUD recommendations)."
+)
+
+tabLocalSettings_long_stayers <-  HTML("
+                <p>This check aims to help communities find enrollments that may
+                be missing an Exit Date. First, the tool calculates the number of
+                days each enrollment has been open (meaning, the number of days
+                between the Entry Date and the date your upload was exported
+                from your HMIS.) Then the check uses one of two methodologies to
+                identify Long Stayers. 
+                <p>For select project types, the check identifies the top % of
+                longest stayers in each project type. For other project types,
+                the check compares the length of each enrollment with assumptions
+                entered about the expected maximum period of assistance envisioned
+                for the project type. For the latter check, users can set the
+                assumptions for each project type. All data quality flags about
+                Long Stayers are categorized as Warnings and is a suggestion to
+                verify that the identified clients are still active in these
+                projects. It does not imply that any data should be changed.
+      
+                <p><b>Top 2% longest enrollments are flagged for the following
+                project types:</b>
+                <ul>
+                <li>Emergency Shelter - Entry/Exit
+                <li>Safe Haven
+                <li>Transitional Housing
+                <li>Rapid Rehousing
+                <li>Homeless Prevention
+                </ul>
+                
+                <p><b>Top 1% longest enrollments are flagged for the following
+                project types:</b>
+                <ul>
+                <li>Permanent Supportive Housing
+                <li>Permanent Housing with Services (no disability required for entry)
+                <li>Permanent Housing - Housing Only
+                </ul>
+                
+                <p><b>Enrollments active longer than the CoC-specified length of
+                assistance targets are flagged for the following project types:</b>
+                <ul>
+                <li>Emergency Shelter - Night-by-Night
+                <li>Street Outreach
+                <li>Other
+                <li>Services Only
+                <li>Day Shelter
+                <li>Coordinated Entry
+                </ul>
+      
+                <p>Below, you can specify the expected maximum period of assistance
+                envisioned for the project type, meaning the timeframe after which you
+                would want an organization to confirm the client is still active in the 
+                project. You can set these based on your current data or leave them at
+                the defaults (these defaults do not imply any HUD recommendations)."
+)
