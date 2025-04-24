@@ -29,6 +29,8 @@ allowed_living_situations <-
 
 perm_livingsituation <- c(400:499)
 
+homeless_livingsituation <- c(100:199)
+
 homeless_livingsituation_incl_TH <- c(100:199, 302)
 
 temp_livingsituation <- c(300:399)
@@ -55,6 +57,10 @@ other_project_project_type <- 7
 
 sh_project_type <- 8
 
+ph_housing_only_project_type <- 9
+
+ph_housing_services_project_type <- 10
+
 day_project_type <- 11
 
 hp_project_type <- 12
@@ -69,7 +75,7 @@ lh_residential_project_types <- c(0, 1, 2, 8)
 
 lh_project_types <- c(0, 1, 2, 4, 8)
 
-psh_project_types <- c(3, 9, 10)
+psh_oph_project_types <- c(3, 9, 10)
 
 ph_project_types <- c(3, 9, 10, 13)
 

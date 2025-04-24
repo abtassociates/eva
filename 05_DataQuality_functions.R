@@ -22,15 +22,23 @@ vars_we_want <- c(vars_prep,
                   "Guidance")
 
 dq_main_reactive <- reactive({
-  ESNbN <- calculate_long_stayers_local_settings_dt(input$ESNbNLongStayers, 0)
-  Outreach <- calculate_long_stayers_local_settings_dt(input$OUTLongStayers, 4)
-  CoordinatedEntry <- calculate_long_stayers_local_settings_dt(input$CELongStayers, 14)
-  ServicesOnly <- calculate_long_stayers_local_settings_dt(input$ServicesOnlyLongStayers, 6)
-  Other <- calculate_long_stayers_local_settings_dt(input$OtherLongStayers, 7)
-  DayShelter <- calculate_long_stayers_local_settings_dt(input$DayShelterLongStayers, 11)
+  # Long Stayers -------------------------------------------------------------
+  # The goal is here to flag "stays" that go beyond the local setting 
+  # (that defines a "long" stay), and is set by the user
+  # A "stay" is the time between when we last "heard" from an enrollment and Export Date
+  # How we determine the last time we heard from an enrollment differs by Project Type
   
+  ## ES NbN --------------------
+  ESNbN <- calculate_long_stayers_local_settings_dt(input$ESNbNLongStayers, es_nbn_project_type) #1
   
-  #Calculating potential old referrals based on Local settings
+  ## Non-Residential Projects (other than HP projects) --------
+  Outreach <- calculate_long_stayers_local_settings_dt(input$OUTLongStayers, out_project_type) #4
+  ServicesOnly <- calculate_long_stayers_local_settings_dt(input$ServicesOnlyLongStayers, sso_project_type) #6
+  Other <- calculate_long_stayers_local_settings_dt(input$OtherLongStayers, other_project_project_type) #7
+  DayShelter <- calculate_long_stayers_local_settings_dt(input$DayShelterLongStayers, day_project_type) #11
+  CoordinatedEntry <- calculate_long_stayers_local_settings_dt(input$CELongStayers, ce_project_type) #14
+  
+  # Calculating potential old referrals based on Local settings ---------
   CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
     select(all_of(vars_we_want))
   
@@ -170,93 +178,65 @@ getDQReportDataList <-
 
 # Non-Residential Long Stayers --------------------------------------------
 
-cls_df <- reactive({
-  validation() %>%
-  filter(is.na(ExitDate)) %>% # less data to deal w/
-  left_join(CurrentLivingSituation() %>%
-              select(CurrentLivingSitID,
-                     EnrollmentID,
-                     InformationDate), by = "EnrollmentID") %>%
-  group_by(EnrollmentID) %>%
-  slice_max(InformationDate) %>%
-  slice(1L) %>%
-  ungroup() %>%
-  select(EnrollmentID, "MaxCLSInformationDate" = InformationDate)
-})
-
-cls_project_types <- reactive({
-  validation() %>%
-  left_join(cls_df(), by = "EnrollmentID") %>%
-  select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
-  mutate(
-    Days = 
-      as.numeric(difftime(
-        as.Date(meta_HUDCSV_Export_Date()),
-        if_else(!is.na(MaxCLSInformationDate),
-                MaxCLSInformationDate, # most recent CLS
-                EntryDate), # project entry
-        units = "days"
-      ))
-  )
-})
-
-calculate_long_stayers_local_settings <- function(too_many_days, projecttype){
-  
-  entryexit_project_types <- validation() %>%
-    filter(is.na(ExitDate) &
-             !ProjectType %in% c(project_types_w_cls) &
-             ProjectType == projecttype
-    ) %>%
-    mutate(
-      Days =
-        as.numeric(difftime(
-          as.Date(meta_HUDCSV_Export_Date()), EntryDate, 
-          units = "days"
-        ))
-    ) %>%
-    filter(too_many_days < Days) %>%
-    merge_check_info(checkIDs = 102) %>%
-    select(all_of(vars_we_want))
-  
-  if (projecttype %in% c(project_types_w_cls)) {
-    cls_project_types() %>%
-      filter(is.na(ExitDate) &
-       ProjectType %in% c(project_types_w_cls) &
-       ProjectType == projecttype & 
-       too_many_days < Days) %>%
-      merge_check_info(checkIDs = 103) %>%
-      select(all_of(vars_we_want))
-  } else{
-    entryexit_project_types
-  } 
-  
-}
-
 calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
-  if (projecttype %in% c(project_types_w_cls)) {
-    merge_check_info_dt(
-      setDT(cls_project_types())[
-        is.na(ExitDate) &
-          ProjectType %in% project_types_w_cls &
-          ProjectType == projecttype &
-          too_many_days < Days,
-      ],
-      103
-    )[, ..vars_we_want]
-  } else{
-    entryexit_project_types <- setDT(validation())
-    entryexit_project_types[, Days := as.numeric(difftime(
-      as.Date(meta_HUDCSV_Export_Date()), EntryDate, units = "days"
-    ))]
-    merge_check_info_dt(entryexit_project_types[
-      is.na(ExitDate) &
-        !ProjectType %in% project_types_w_cls &
-        ProjectType == projecttype &
-        too_many_days < Days],
-      102
-    )[, ..vars_we_want]
-  } 
+  # get non-exited enrollments for projecttype
+  non_exits <- validation() %>%
+    fsubset(ProjectType == projecttype & 
+             (ExitDate >= meta_HUDCSV_Export_End() | is.na(ExitDate))
+    ) %>%
+    fselect(vars_prep)
   
+  # only proceed if there are any non-exited enrollments
+  if(nrow(non_exits) == 0) return(NULL)
+  
+  # data with last-known dates
+  # we're going to later compute the LAST Known Date to determine when we last heard from them
+  # this starts the clock of how long their stay is.
+  data_w_dates <- if(projecttype %in% c(out_project_type, sso_project_type, ce_project_type)) {
+    # This will be merged back into non_exits
+    CurrentLivingSituation() %>% fselect(EnrollmentID, KnownDate = InformationDate)
+  } else if(projecttype == es_nbn_project_type) {
+    # This will be merged back into non_exits
+    services() %>% fselect(EnrollmentID, KnownDate = DateProvided)
+  } else {
+    # If a different project type, we'll just use their EntryDate as the KnownDate
+    non_exits %>% fselect(vars_prep, KnownDate = EntryDate)
+  }
+  
+  # calculate last-known date (differs by project type)
+  if(projecttype %in% c(other_project_project_type, day_project_type)) {
+    # LastKnown = KnownDate (not fmax) because it's per enrollment, and EntryDate (now KnownDate) is at Enrollment level
+    non_exits_w_lastknown_date <- data_w_dates %>%
+      fselect(vars_prep, LastKnown = KnownDate)
+  } else {
+    non_exits_w_lastknown_date <- 
+      join(non_exits, data_w_dates, on = "EnrollmentID", how="left") %>%
+      fgroup_by(EnrollmentID) %>%
+      # Take EntryDate if there's no Information or DateProvided
+      fmutate(LastKnown = fcoalesce(fmax(KnownDate), EntryDate))
+  }
+  
+  # calculate days since last known
+  long_stayers <- qDT(non_exits_w_lastknown_date) %>%
+    fmutate(
+      DaysSinceLastKnown = as.numeric(difftime(
+        as.Date(meta_HUDCSV_Export_Date()), LastKnown, units = "days"
+      ))
+    ) %>%
+    # NOW FILTER DOWN TO THE PROBLEM CASES
+    fsubset(DaysSinceLastKnown > too_many_days)
+  
+  if(nrow(long_stayers) == 0) return(NULL)
+  
+  # Each project type gets its own Issue text+Guidance etc.
+  merge_check_info_dt(
+    long_stayers,
+    case_when(
+      projecttype %in% c(out_project_type, sso_project_type, ce_project_type) ~ 103,
+      projecttype == es_nbn_project_type ~ 142,
+      projecttype %in% c(other_project_project_type, day_project_type) ~ 102
+    )
+  )[, ..vars_we_want]
 }
 # Outstanding Referrals --------------------------------------------
 

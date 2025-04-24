@@ -10,12 +10,14 @@ function(input, output, session) {
     Export <- reactiveVal(),
     Project0 <- reactiveVal(),
     Event <- reactiveVal(),
+    esnbn_nonexited <- reactiveVal(),
     meta_HUDCSV_Export_Start <- reactiveVal(),
     meta_HUDCSV_Export_End <- reactiveVal(),
     meta_HUDCSV_Export_Date <- reactiveVal(),
     overlap_details <- reactiveVal(),
     base_dq_data_func <- reactiveVal(),
     dq_main_df <- reactiveVal(),
+    services <- reactiveVal(),
     pdde_main <- reactiveVal(),
     valid_file <- reactiveVal(0), # from FSA. Most stuff is hidden unless valid == 1
     file_structure_analysis_main <- reactiveVal(),
@@ -40,7 +42,7 @@ function(input, output, session) {
   source("glossary.R", local = TRUE)
 
   # Show upcoming maintenance pop-up prior to pushing to live
-  # e.g. "<p>Eva will be down for these updates from 5:00 PM ET to 6:00 PM ET Thursday, March 27, 2025.</p>"
+  # e.g. "<p>Eva will be down for maintenance from 5:00 PM ET to 6:00 PM ET Thursday, March 27, 2025.</p>"
   upcoming_maintenance_notification <- HTML("")
   if(nchar(upcoming_maintenance_notification) > 1) {
     showModal(
@@ -51,6 +53,15 @@ function(input, output, session) {
       )
     )
   }
+  
+  # handle idle
+  session$userData$session_ended_by_idle_timeout <- FALSE
+  
+  observeEvent(input$session_idle, {
+    message("Session idle timeout detected for session: ", session$token)
+    session$userData$session_ended_by_idle_timeout <- TRUE
+    session$close()
+  })
   
   observe({
     req(session$clientData$url_search != "")
@@ -989,7 +1000,12 @@ function(input, output, session) {
   source("system_status_server.R", local = TRUE)
   
   session$onSessionEnded(function() {
-    cat(paste0("Session ", session$token, " ended at ", Sys.time()))
-    logMetadata("Session Ended")
+    message(paste0("Session ", session$token, " ended at ", Sys.time()))
+    gc()
+    if (session$userData$session_ended_by_idle_timeout) {
+      logMetadata("Session ended due to idle timeout.")
+    } else {
+      logMetadata("Session ended unexpectedly.")
+    }
   })
 }
