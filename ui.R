@@ -3,7 +3,9 @@ page_navbar(
   window_title = 'Eva',
   theme = bs_theme(
     version = 5,
-    bootswatch = "cerulean",
+    brand = 'sandbox/_brand.yml',
+    
+    #bootswatch = "cerulean",
     navbar_bg = "#16697A" # dark_blue
   ),
   title = span(img(src = "Eva_logo_horizontal_white.png",
@@ -246,109 +248,70 @@ page_navbar(
           )
         )
       ),
-      tabItem(
-        tabName = "tabClientCount",
-        fluidRow(box(htmlOutput("headerClientCounts"), width = 12)),
-        fluidRow(box(
-          title = "Instructions",
-          width = 12,
-          collapsible = TRUE,
-          collapsed = TRUE,
-          HTML("
-               <h4>Client Counts Report</h4>
-               <p>The Client Counts Report provides the number of households/clients
-               who have been served in each project and their enrollment status
-               at the time of CSV Export generation. This report can be used to
-               verify that a project is up to date on their HMIS data entry by
-               comparing counts reported with the number of households/clients
-               that are known to be served in each project. Permanent housing
-               projects can check that the number of households/clients who have
-               not yet moved into housing is correct.</p>
-               
-               <h4>Inputs</h4>
-               <p>Select a project from the drop list and adjust the the Date
-               Range for the cohort of clients you want to see reported. The
-               Date Range defaults to the date range covered by the HMIS CSV Export. 
-               Users are encouraged to edit the Date Range as desired to see
-               metrics for timeframes within the Export period, such as the
-               number of households/clients who exited during that timeframe
-               with and without a Move-In Date. Note that setting the Start Date
-               to the Export End Date will show the current status for all
-               enrollments for the project.</p>
-               
-               <h4>Summary</h4>
-               <p>The Summary panel provides a count of households/clients who
-               have statuses of the following within the selected project:
-               <ul>
-               <li>Active No Move-In Date</li>
-               <li>Currently Moved In</li>
-               <li>Exited No Move-In</li>
-               <li>Exited With Move-In</li>
-               <li>Currently in Project</li>
-               <li>Exited Project</li>
-               </ul>
-               
-               <h4>Client Counts Detail</h4>
-               <p>In this panel you will see the Personal ID, Relationship to HoH,
-               Entry Date, Move-In Date, Exit Date, and the Status for each client
-               served by the selected project within the Date Range selected. The
-               rows are ordered by Entry Date (oldest on top), Household ID (not
-               visible), and Personal ID. This enables users to see the oldest
-               enrollments first and groups clients in the same household
-               together. All columns are searchable. For example, to find all
-               enrollments with a Status of \'Active No Move-In Date\', you can
-               type \'act\' in the Status search bar and the data table will
-               react and filter in that way.
-               
-               <h4>Download System-wide Client Counts</h4>
-               To download client count data for all projects in your HMIS CSV Export, 
-               click the System-wide download button. The download contains a Current 
-               tab limited to just the current date, a Date Range tab limited to the 
-               Date Range set, and a Detail tab with clients' PersonalIDs, Entry Date, 
-               Move-In Date (if applicable), Exit Date (if applicable), and
-               project status.")
-        )), 
-        fluidRow(box(
-          dateRangeInput(
-            "dateRangeCount",
-            "Date Range",
-            format = "mm/dd/yyyy",
-            start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
-            end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
-            width = 300
+      nav_panel(
+        title = "View Client Counts",
+        value = "tabClientCount",
+        icon = icon("people-group"),
+        card(
+          card_header(
+            htmlOutput("headerClientCounts")
           ),
-          uiOutput("downloadClientCountsReportButton"),
-          width = 12
-        )),
-        fluidRow(box(
-          pickerInput(
-            label = "",
-            inputId = "currentProviderList",
-            choices = NULL,
-            width = "600px",
-            options = pickerOptions(liveSearch = TRUE,
-                                    liveSearchStyle = 'contains')
-          ),
-          width = 12,
-          title = "Select Project",
-          status = "info",
-          solidHeader = TRUE
-        )),
-        fluidRow(box(
-          title = "Client Counts Summary",
-          status = "info",
-          solidHeader = TRUE,
-          DTOutput("clientCountSummary"),
-          width = 12
-        )),
-        fluidRow(box(
-          title = "Client Counts Detail",
-          status = "info",
-          solidHeader = TRUE,
-          DTOutput("clientCountData"),
-          width = 12
-        ))
+          card_body(
+            accordion(
+              id = 'accordion_client_count',
+              accordion_panel(
+                title = "Instructions",
+                tabClientCount_instructions,
+              )
+            ),
+            
+            box(
+              dateRangeInput(
+                "dateRangeCount",
+                "Date Range",
+                format = "mm/dd/yyyy",
+                start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
+                end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
+                width = 300
+              ),
+              uiOutput("downloadClientCountsReportButton"),
+             ),
+            
+            box(
+              pickerInput(
+                label = "",
+                inputId = "currentProviderList",
+                choices = NULL,
+                width = "600px",
+                options = pickerOptions(liveSearch = TRUE,
+                                        liveSearchStyle = 'contains')
+              ),
+              width = 12,
+              title = "Select Project",
+              status = "info",
+              solidHeader = TRUE
+            ),
+            box(
+              title = "Client Counts Summary",
+              status = "info",
+              solidHeader = TRUE,
+              DTOutput("clientCountSummary"),
+              width = 12
+            ),
+            box(
+              title = "Client Counts Detail",
+              status = "info",
+              solidHeader = TRUE,
+              DTOutput("clientCountData"),
+              width = 12
+            )
+          )
+        ),
+      
+        
+       
       ),
+  
       tabItem(
         tabName = "tabPDDE",
         fluidRow(box(htmlOutput(
