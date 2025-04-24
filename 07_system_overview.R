@@ -356,7 +356,15 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     ProjectType %in% non_res_project_types & ProjectType != ce_project_type, 40,
     ProjectType == ce_project_type, 30,
     default = 20
-  ))][
+  ),
+  lh_prior_livingsituation := !is.na(LivingSituation) &
+    (LivingSituation %in% homeless_livingsituation_incl_TH |
+       (LivingSituation %in% institutional_livingsituation &
+          LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
+          !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)
+       )
+    )
+  )][
     ProjectType != hp_project_type & 
     EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart %m-% years(2))
   ][, .(
@@ -370,6 +378,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     ProjectType,
     MostRecentAgeAtEntry,
     LivingSituation,
+    lh_prior_livingsituation,
     LOSUnderThreshold,
     PreviousStreetESSH,
     Destination,
@@ -389,17 +398,17 @@ setindex(enrollment_categories, PersonalID, ProjectType)
 # by casting a wide net for (Non-Res) Project Types that rely on CurrentLivingSituation 
 # this dataset will be used to categorize people as active_at_start, homeless_at_end, and unknown_at_end
 # it's also used in determining EECR and LECR (see 07_system_overview_period_specific_prep.R)
-lh_non_res <- as.data.table(CurrentLivingSituation)[
-  CurrentLivingSituation %in% homeless_livingsituation_incl_TH
-][
-  enrollment_categories[ProjectType %in% non_res_project_types], 
-  on = .(EnrollmentID),
-  .(
-    EnrollmentID, PersonalID, EntryDate, ProjectType, lh_prior_livingsituation, ExitAdjust, InformationDate, CurrentLivingSituation,
-    info_equal_entry = InformationDate == EntryDate,
-    info_equal_exit = InformationDate == ExitAdjust
+lh_non_res <- qDT(CurrentLivingSituation) %>%
+  fsubset(CurrentLivingSituation %in% homeless_livingsituation_incl_TH) %>%
+  join(
+    enrollment_categories[ProjectType %in% non_res_project_types], 
+    on = "EnrollmentID",
+    how = "left"
+  ) %>%
+  fselect(
+    EnrollmentID, PersonalID, EntryDate, ProjectType, ExitAdjust, InformationDate, lh_prior_livingsituation
   )
-]
+
 setkey(lh_non_res, EnrollmentID)
 setindex(lh_non_res, PersonalID)
 
@@ -412,7 +421,7 @@ setindex(lh_non_res, PersonalID)
 # 2. no lh cls where InformationDate == EntryDate
 lh_cls_info_eq_entry <- lh_non_res %>%
   fgroup_by(EnrollmentID) %>%
-  fsummarise(has_lh_cls_eq_entry = anyv(info_equal_entry, TRUE))
+  fsummarise(has_lh_cls_eq_entry = anyv(InformationDate == EntryDate, TRUE))
 
 entered_not_lh_but_lh_cls_later <- enrollment_categories %>%
   fsubset(
@@ -447,13 +456,6 @@ enrollment_categories <- enrollment_categories %>%
     how = "left"
   ) %>%
   fmutate(
-    lh_prior_livingsituation = !is.na(LivingSituation) &
-    (LivingSituation %in% homeless_livingsituation_incl_TH |
-       (LivingSituation %in% institutional_livingsituation &
-          LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
-          !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)
-        )
-     ),
     lh_at_entry = ProjectType %in% lh_residential_project_types |
       (ProjectType %in% psh_project_types & (
         MoveInDateAdjust >= EntryDate | is.na(MoveInDateAdjust)
@@ -550,12 +552,12 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         EnrollmentID = EnrollmentID,
         was_lh_at_start = any_info_in_start_window |
           (entry_in_start_window & lh_prior_livingsituation) |
-          (EntryDate > startDate & (lh_prior_livingsituation | info_equal_entry)) | 
+          (EntryDate > startDate & (lh_prior_livingsituation | InformationDate == EntryDate)) | 
           ProjectType %in% lh_residential_project_types,
         
         was_lh_at_end = any_info_in_end_window |
           (entry_in_end_window & lh_prior_livingsituation) |
-          (ExitAdjust < endDate & (lh_prior_livingsituation | info_equal_exit))
+          (ExitAdjust < endDate & (lh_prior_livingsituation | InformationDate == ExitAdjust))
       )
     ])
     enrollment_categories_period <- join(
