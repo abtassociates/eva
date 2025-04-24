@@ -526,7 +526,6 @@ dqDownloadInfo <- reactive({
     filter(OrganizationName %in% c(input$orgList) | 
              PreviousOrganizationName %in% c(input$orgList))
   
-  browser()
   orgDQReferrals <- 
     session$userData$outstanding_referrals %>%
     filter(OrganizationName %in% c(input$orgList))

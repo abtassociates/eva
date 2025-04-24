@@ -1730,11 +1730,14 @@ calculate_outstanding_referrals <- function(too_many_days, dq_data){
     filter(Event %in% c(10:15, 17:18) &
              is.na(ResultDate) &
              too_many_days < Days) %>%
-    merge_check_info(checkIDs = 100) %>%
-    select(all_of(vars_we_want))
+    merge_check_info(checkIDs = 100) 
+    # we don't select vars_we_want here because 
+    # this gets used in DQ export, where we need all variables
 }
 ## CE ------
-CE_Event <- calculate_outstanding_referrals(local_settings$CEOutstandingReferrals, base_dq_data)
+# This will be included in the DQ Export
+CE_outstanding_referrals <- calculate_outstanding_referrals(local_settings$CEOutstandingReferrals, base_dq_data)
+CE_Event <- CE_outstanding_referrals %>% select(all_of(vars_we_want))
 
 # All together now --------------------------------------------------------
 dq_main <- as.data.table(rbind(
@@ -1830,5 +1833,5 @@ dq_main <- as.data.frame(dq_main)
 list(
   dq_main = dq_main,
   overlap_details = overlap_details,
-  outstanding_referrals = CE_Event # used in Org export
+  outstanding_referrals = CE_outstanding_referrals # used in Org export
 )
