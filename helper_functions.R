@@ -423,7 +423,7 @@ custom_rprof <- function(expr, source_file_name, code_block_name = NULL) {
 
 # Misc --------------------------------------------------------------------
 reset_postvalid_components <- function(session) {
-  session$userData$dq_main_df <- NULL
+  session$userData$dq_main <- NULL
   session$sendInputMessage('orgList', list(choices = NULL))
   session$sendInputMessage('currentProviderList', list(choices = NULL))
   session$sendCustomMessage('dateRangeCount', list(

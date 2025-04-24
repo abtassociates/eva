@@ -83,8 +83,8 @@ output$pdde_guidance_summary <- renderDT({
 
 output$dq_organization_summary_table <- renderDT({
   req(session$userData$valid_file() == 1)
-  req(nrow(dq_main_reactive()) > 0)
-  a <- dq_main_reactive() %>%
+  req(nrow(session$userData$dq_main) > 0)
+  a <- session$userData$dq_main %>%
     filter(OrganizationName %in% c(input$orgList)) %>%
     select(ProjectName, 
            Type, 
@@ -114,7 +114,7 @@ output$dq_organization_summary_table <- renderDT({
 
 output$dq_org_guidance_summary <- renderDT({
   req(session$userData$valid_file() == 1)
-  guidance <- dq_main_reactive() %>%
+  guidance <- session$userData$dq_main %>%
     filter(OrganizationName %in% c(input$orgList)) %>%
     select(Type, Issue, Guidance) %>%
     mutate(Type = factor(Type, levels = c("High Priority",
@@ -255,32 +255,6 @@ vars_we_want <- c(vars_prep,
                   "Type",
                   "Guidance")
 
-dq_main_reactive <- reactive({
-  logToConsole(session, "in dq_main_reactive")
-  ESNbN <- calculate_long_stayers_local_settings_dt(input$ESNbNLongStayers, 0)
-  Outreach <- calculate_long_stayers_local_settings_dt(input$OUTLongStayers, 4)
-  CoordinatedEntry <- calculate_long_stayers_local_settings_dt(input$CELongStayers, 14)
-  ServicesOnly <- calculate_long_stayers_local_settings_dt(input$ServicesOnlyLongStayers, 6)
-  Other <- calculate_long_stayers_local_settings_dt(input$OtherLongStayers, 7)
-  DayShelter <- calculate_long_stayers_local_settings_dt(input$DayShelterLongStayers, 11)
-  
-  #Calculating potential old referrals based on Local settings
-  CE_Event <- calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
-    select(all_of(vars_we_want))
-  
-  rbind(session$userData$dq_main_df %>%
-          filter(
-            str_detect(tolower(Issue), "local settings", negate = TRUE) == TRUE
-          ),
-        ESNbN,
-        Outreach,
-        DayShelter,
-        ServicesOnly,
-        Other,
-        CoordinatedEntry,
-        CE_Event)
-})
-
 getDQReportDataList <-
   function(dqData,
            dqOverlapDetails = NULL,
@@ -402,105 +376,8 @@ getDQReportDataList <-
     return(exportDFList)
   }
 
-# Non-Residential Long Stayers --------------------------------------------
-
-cls_df <- reactive({
-  session$userData$validation %>%
-  filter(is.na(ExitDate)) %>% # less data to deal w/
-  left_join(session$userData$CurrentLivingSituation %>%
-              select(CurrentLivingSitID,
-                     EnrollmentID,
-                     InformationDate), by = "EnrollmentID") %>%
-  group_by(EnrollmentID) %>%
-  slice_max(InformationDate) %>%
-  slice(1L) %>%
-  ungroup() %>%
-  select(EnrollmentID, "MaxCLSInformationDate" = InformationDate)
-})
-
-cls_project_types <- reactive({
-  session$userData$validation %>%
-  left_join(cls_df(), by = "EnrollmentID") %>%
-  select(all_of(vars_prep), ProjectID, MaxCLSInformationDate) %>%
-  mutate(
-    Days = 
-      as.numeric(difftime(
-        as.Date(session$userData$meta_HUDCSV_Export_Date),
-        if_else(!is.na(MaxCLSInformationDate),
-                MaxCLSInformationDate, # most recent CLS
-                EntryDate), # project entry
-        units = "days"
-      ))
-  )
-})
-
-calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
-  logToConsole(session, paste0("in calculate_long_stayers_local_settings_dt: too_many_days = ", too_many_days, ", projecttype = ", projecttype))
-  if (projecttype %in% c(project_types_w_cls)) {
-    merge_check_info_dt(
-      setDT(cls_project_types())[
-        is.na(ExitDate) &
-          ProjectType %in% project_types_w_cls &
-          ProjectType == projecttype &
-          too_many_days < Days,
-      ],
-      103
-    )[, ..vars_we_want]
-  } else{
-    entryexit_project_types <- as.data.table(session$userData$validation)
-    entryexit_project_types[, Days := as.numeric(difftime(
-      as.Date(session$userData$meta_HUDCSV_Export_Date), EntryDate, units = "days"
-    ))]
-    merge_check_info_dt(entryexit_project_types[
-      is.na(ExitDate) &
-        !ProjectType %in% project_types_w_cls &
-        ProjectType == projecttype &
-        too_many_days < Days],
-      102
-    )[, ..vars_we_want]
-  } 
-  
-}
-# Outstanding Referrals --------------------------------------------
-
-calculate_outstanding_referrals <- function(too_many_days){
-  req(!is.null(session$userData$base_dq_data_func))
-  logToConsole(session, paste0("in calculate_outstanding_referrals: too_many_days = ", too_many_days))
-  session$userData$base_dq_data_func %>%
-    left_join(session$userData$Event %>% select(EnrollmentID,
-                               EventID,
-                               EventDate,
-                               Event,
-                               ProbSolDivRRResult,
-                               ReferralCaseManageAfter,
-                               LocationCrisisOrPHHousing,
-                               ReferralResult,
-                               ResultDate),
-              by = "EnrollmentID") %>%
-    select(all_of(vars_prep), ProjectID, EventID, EventDate, ResultDate, Event) %>%
-    mutate(
-      Days = 
-        as.numeric(
-          difftime(as.Date(session$userData$meta_HUDCSV_Export_Date), EventDate, units = "days")),
-      EventType = case_when(
-        Event == 10 ~ "Referral to Emergency Shelter bed opening",
-        Event == 11 ~ "Referral to Transitional Housing bed/unit opening",
-        Event == 12 ~ "Referral to Joint TH-RRH project/unit/resource opening",
-        Event == 13 ~ "Referral to RRH project resource opening",
-        Event == 14 ~ "Referral to PSH project resource opening",
-        Event == 15 ~ "Referral to Other PH project/unit/resource opening",
-        Event == 17 ~ "Referral to Emergency Housing Voucher (EHV)",
-        Event == 18 ~ "Referral to a Housing Stability Voucher"
-      )
-    ) %>%
-    filter(Event %in% c(10:15, 17:18) &
-             is.na(ResultDate) &
-             too_many_days < Days) %>%
-    merge_check_info(checkIDs = 100)
-}
-
 renderDQPlot <- function(level, issueType, group, color) {
-  req(nrow(session$userData$dq_main_df) > 0 & session$userData$valid_file() == 1)
+  req(nrow(session$userData$dq_main) > 0 & session$userData$valid_file() == 1)
   # groupVars is the variable(s) used to summarise/count rows
   # x_group is the x variable used to in the ggplot reordering
   if(group == "Org") {
@@ -521,7 +398,7 @@ renderDQPlot <- function(level, issueType, group, color) {
   # Plots for System-Level DQ Tab -------------------------------------------
   # determine which data.frame we start with
   if(level == "sys") {
-    plot_df <- session$userData$dq_main_df %>%
+    plot_df <- session$userData$dq_main %>%
       left_join(session$userData$Project0 %>%
                   select(ProjectID, OrganizationID) %>%
                   unique(), by = "ProjectID") %>%
@@ -533,7 +410,7 @@ renderDQPlot <- function(level, issueType, group, color) {
              Type) %>%
       unique()
   } else {
-    plot_df <- session$userData$dq_main_df %>%
+    plot_df <- session$userData$dq_main %>%
       select(PersonalID,
              ProjectID,
              ProjectName,
@@ -638,19 +515,20 @@ dqDownloadInfo <- reactive({
   logToConsole(session, "in dqDownloadInfo")
   req(session$userData$valid_file() == 1)
 
-  exportTestValues(dq_main_reactive =  dq_main_reactive() %>% nice_names())
+  exportTestValues(dq_main = session$userData$dq_main %>% nice_names())
   exportTestValues(dq_overlaps = session$userData$overlap_details %>% nice_names())
   
   # org-level data prep (filtering to selected org)
-  orgDQData <- dq_main_reactive() %>%
+  orgDQData <- session$userData$dq_main %>%
     filter(OrganizationName %in% c(input$orgList))
   
   orgDQoverlapDetails <- session$userData$overlap_details %>% 
     filter(OrganizationName %in% c(input$orgList) | 
              PreviousOrganizationName %in% c(input$orgList))
   
+  browser()
   orgDQReferrals <- 
-    calculate_outstanding_referrals(input$CEOutstandingReferrals) %>%
+    session$userData$outstanding_referrals %>%
     filter(OrganizationName %in% c(input$orgList))
 
   # return a list for reference in downloadHandler
@@ -663,10 +541,10 @@ dqDownloadInfo <- reactive({
       ),
     
     systemDQData = 
-      getDQReportDataList(dq_main_reactive(),
+      getDQReportDataList(session$userData$dq_main,
                           session$userData$overlap_details,
                           "OrganizationName",
-                          calculate_outstanding_referrals(input$CEOutstandingReferrals)
+                          session$userData$outstanding_referrals
       )
   )
 })
@@ -703,7 +581,7 @@ dqDownloadInfo <- reactive({
 # output$dq_overview_plot <- renderPlot({
 #   req(session$userData$valid_file() == 1)
 # # browser()
-#   detail <- dq_main_reactive() %>%
+#   detail <- session$userData$dq_main %>%
 #     count(Type, name = "Total") %>%
 #     mutate(Type = factor(
 #       case_when(
@@ -746,7 +624,7 @@ dqDownloadInfo <- reactive({
 #     output$dq_orgs_overview_plot <- renderPlot({
 #       req(session$userData$valid_file() == 1)
 # # browser()
-#       highest_type <- dq_main_reactive() %>%
+#       highest_type <- session$userData$dq_main %>%
 #         count(Type) %>% 
 #         head(1L) %>%
 #         mutate(Type = as.character(Type)) %>%
@@ -759,7 +637,7 @@ dqDownloadInfo <- reactive({
 #           TRUE ~ "Warnings"
 #         )
 #       
-#       detail <- dq_main_reactive() %>%
+#       detail <- session$userData$dq_main %>%
 #         count(OrganizationName, Type, name = "Total") %>%
 #         filter(Type == highest_type)
 # 

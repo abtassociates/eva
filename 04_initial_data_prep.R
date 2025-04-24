@@ -437,3 +437,4 @@ HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
 
 session$userData$CurrentLivingSituation <- CurrentLivingSituation
 session$userData$Event <- Event
+session$userData$Services <- Services

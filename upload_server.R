@@ -34,6 +34,10 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     dq_mirai <- mirai(
       source("05_DataQuality.R", local = TRUE), 
+      local_settings = setNames(
+        lapply(local_settings_inputs, function(x) session$input[[x]]),
+        local_settings_inputs
+      ),
       .args = mget(dq_mirai_dependencies)
     )
 
@@ -63,9 +67,9 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     logToConsole(session, "saving DQ and PDDE results to session")
     session$userData$pdde_main <- pdde_mirai$data$value
-    session$userData$dq_main_df <- dq_mirai$data$value$dq_main
-    session$userData$base_dq_data_func <- dq_mirai$data$value$base_dq_data
+    session$userData$dq_main <- dq_mirai$data$value$dq_main
     session$userData$overlap_details <- dq_mirai$data$value$overlap_details
+    session$userData$outstanding_referrals <- dq_mirai$data$value$outstanding_referrals
     
     setProgress(detail = "Done!", value = 1)
     

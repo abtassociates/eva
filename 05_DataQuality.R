@@ -265,7 +265,6 @@ missing_previous_street_ESSH <- base_dq_data %>%
     all_of(vars_prep),
     AgeAtEntry,
     RelationshipToHoH,
-    DateToStreetESSH,
     PreviousStreetESSH,
     LOSUnderThreshold
   ) %>%
@@ -426,17 +425,14 @@ missing_living_situation <- base_dq_data %>%
     LivingSituation,
     LengthOfStay,
     LOSUnderThreshold,
-    PreviousStreetESSH,
-    DateToStreetESSH,
-    MonthsHomelessPastThreeYears,
-    TimesHomelessPastThreeYears
+    PreviousStreetESSH
   ) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate >= hc_prior_living_situation_required &
            # not req'd prior to this
            ProjectType %in% c(
              th_project_type,
-             psh_project_types,
+             psh_oph_project_types,
              sso_project_type,
              hp_project_type,
              rrh_project_type) &
@@ -461,13 +457,9 @@ missing_living_situation <- base_dq_data %>%
 dkr_living_situation <- base_dq_data %>%
   select(
     all_of(vars_prep),
-    AgeAtEntry,
     RelationshipToHoH,
+    AgeAtEntry,
     LivingSituation,
-    LengthOfStay,
-    LOSUnderThreshold,
-    PreviousStreetESSH,
-    DateToStreetESSH,
     MonthsHomelessPastThreeYears,
     TimesHomelessPastThreeYears
   ) %>%
@@ -485,8 +477,6 @@ dkr_living_situation <- base_dq_data %>%
 # DisablingCondition at Entry
 dkr_disabilities <- base_dq_data %>%
   select(all_of(vars_prep),
-         AgeAtEntry,
-         RelationshipToHoH,
          DisablingCondition) %>%
   filter(DisablingCondition %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 32) %>%
@@ -834,8 +824,8 @@ missing_cls_subsidy <- base_dq_data %>%
 # day they moved in. So they're excused from this prior to Move In Date's existence.
 future_ees <- base_dq_data %>%
   filter(EntryDate > DateCreated &
-           (!ProjectType %in% psh_project_types |
-              (ProjectType %in% psh_project_types & 
+           (!ProjectType %in% psh_oph_project_types |
+              (ProjectType %in% psh_oph_project_types & 
                   EntryDate >= hc_psh_started_collecting_move_in_date
               )))  %>%
   merge_check_info(checkIDs = 75) %>%
@@ -1114,9 +1104,9 @@ overlap_dt[
   !is.na(PreviousEnrollmentID) &
   !(
     (ProjectType == rrh_project_type &
-       PreviousProjectType %in% psh_project_types) |
+       PreviousProjectType %in% psh_oph_project_types) |
       (PreviousProjectType == rrh_project_type &
-         ProjectType %in% psh_project_types)
+         ProjectType %in% psh_oph_project_types)
   )
 ]
 
@@ -1625,6 +1615,127 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
   merge_check_info(checkIDs = 58) %>%
   select(all_of(vars_we_want))
 
+# Long Stayers -------------------------------------------------------------
+# The goal is here to flag "stays" that go beyond the local setting 
+# (that defines a "long" stay), and is set by the user
+# A "stay" is the time between when we last "heard" from an enrollment and Export Date
+# How we determine the last time we heard from an enrollment differs by Project Type
+
+# Non-Residential Long Stayers --------------------------------------------
+
+calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
+  logToConsole(session, paste0("ProjectType = ", projecttype, " and setting = ", too_many_days))
+  
+  # get non-exited enrollments for projecttype
+  non_exits <- session$userData$validation %>%
+    fsubset(ProjectType == projecttype & 
+              (ExitDate >= session$userData$meta_HUDCSV_Export_End | is.na(ExitDate))
+    ) %>%
+    fselect(vars_prep)
+  
+  # only proceed if there are any non-exited enrollments
+  if(nrow(non_exits) == 0) return(NULL)
+  
+  # data with last-known dates
+  # we're going to later compute the LAST Known Date to determine when we last heard from them
+  # this starts the clock of how long their stay is.
+  data_w_dates <- if(projecttype %in% c(out_project_type, sso_project_type, ce_project_type)) {
+    # This will be merged back into non_exits
+    session$userData$CurrentLivingSituation %>% fselect(EnrollmentID, KnownDate = InformationDate)
+  } else if(projecttype == es_nbn_project_type) {
+    # This will be merged back into non_exits
+    session$userData$Services %>% fselect(EnrollmentID, KnownDate = DateProvided)
+  } else {
+    # If a different project type, we'll just use their EntryDate as the KnownDate
+    non_exits %>% fselect(vars_prep, KnownDate = EntryDate)
+  }
+  
+  # calculate last-known date (differs by project type)
+  if(projecttype %in% c(other_project_project_type, day_project_type)) {
+    # LastKnown = KnownDate (not fmax) because it's per enrollment, and EntryDate (now KnownDate) is at Enrollment level
+    non_exits_w_lastknown_date <- data_w_dates %>%
+      fselect(vars_prep, LastKnown = KnownDate)
+  } else {
+    non_exits_w_lastknown_date <- 
+      join(non_exits, data_w_dates, on = "EnrollmentID", how="left") %>%
+      fgroup_by(EnrollmentID) %>%
+      # Take EntryDate if there's no Information or DateProvided
+      fmutate(LastKnown = fcoalesce(fmax(KnownDate), EntryDate))
+  }
+  
+  logToConsole(session, "Calculating long stayers")
+  # calculate days since last known
+  long_stayers <- qDT(non_exits_w_lastknown_date) %>%
+    fmutate(
+      DaysSinceLastKnown = as.numeric(difftime(
+        as.Date(session$userData$meta_HUDCSV_Export_Date), LastKnown, units = "days"
+      ))
+    ) %>%
+    # NOW FILTER DOWN TO THE PROBLEM CASES
+    fsubset(DaysSinceLastKnown > too_many_days)
+  
+  # Each project type gets its own Issue text+Guidance etc.
+  merge_check_info_dt(
+    long_stayers,
+    case_when(
+      projecttype %in% c(out_project_type, sso_project_type, ce_project_type) ~ 103,
+      projecttype == es_nbn_project_type ~ 142,
+      projecttype %in% c(other_project_project_type, day_project_type) ~ 102
+    )
+  )[, ..vars_we_want]
+}
+
+## ES NbN --------------------
+ESNbN <- calculate_long_stayers_local_settings_dt(local_settings$ESNbNLongStayers, es_nbn_project_type) #1
+
+## Non-Residential Projects (other than HP projects) --------
+Outreach <- calculate_long_stayers_local_settings_dt(local_settings$OUTLongStayers, out_project_type) #4
+ServicesOnly <- calculate_long_stayers_local_settings_dt(local_settings$ServicesOnlyLongStayers, sso_project_type) #6
+Other <- calculate_long_stayers_local_settings_dt(local_settings$OtherLongStayers, other_project_project_type) #7
+DayShelter <- calculate_long_stayers_local_settings_dt(local_settings$DayShelterLongStayers, day_project_type) #11
+CoordinatedEntry <- calculate_long_stayers_local_settings_dt(local_settings$CELongStayers, ce_project_type) #14
+
+# Outstanding Referrals --------------------------------------------
+calculate_outstanding_referrals <- function(too_many_days, dq_data){
+  if(is.null(dq_data)) return(NULL)
+  logToConsole(session, paste0("in calculate_outstanding_referrals: too_many_days = ", too_many_days))
+  
+  dq_data %>%
+    left_join(session$userData$Event %>% select(EnrollmentID,
+                                                EventID,
+                                                EventDate,
+                                                Event,
+                                                ProbSolDivRRResult,
+                                                ReferralCaseManageAfter,
+                                                LocationCrisisOrPHHousing,
+                                                ReferralResult,
+                                                ResultDate),
+              by = "EnrollmentID") %>%
+    select(all_of(vars_prep), ProjectID, EventID, EventDate, ResultDate, Event) %>%
+    mutate(
+      Days = 
+        as.numeric(
+          difftime(as.Date(session$userData$meta_HUDCSV_Export_Date), EventDate, units = "days")),
+      EventType = case_when(
+        Event == 10 ~ "Referral to Emergency Shelter bed opening",
+        Event == 11 ~ "Referral to Transitional Housing bed/unit opening",
+        Event == 12 ~ "Referral to Joint TH-RRH project/unit/resource opening",
+        Event == 13 ~ "Referral to RRH project resource opening",
+        Event == 14 ~ "Referral to PSH project resource opening",
+        Event == 15 ~ "Referral to Other PH project/unit/resource opening",
+        Event == 17 ~ "Referral to Emergency Housing Voucher (EHV)",
+        Event == 18 ~ "Referral to a Housing Stability Voucher"
+      )
+    ) %>%
+    filter(Event %in% c(10:15, 17:18) &
+             is.na(ResultDate) &
+             too_many_days < Days) %>%
+    merge_check_info(checkIDs = 100) %>%
+    select(all_of(vars_we_want))
+}
+## CE ------
+CE_Event <- calculate_outstanding_referrals(local_settings$CEOutstandingReferrals, base_dq_data)
+
 # All together now --------------------------------------------------------
 dq_main <- as.data.table(rbind(
   approx_start_after_entry,
@@ -1700,7 +1811,14 @@ dq_main <- as.data.table(rbind(
   veteran_missing_discharge_status,
   veteran_missing_wars,
   veteran_missing_year_entered,
-  veteran_missing_year_separated
+  veteran_missing_year_separated,
+  ESNbN,
+  Outreach,
+  DayShelter,
+  ServicesOnly,
+  Other,
+  CoordinatedEntry,
+  CE_Event
 ))
 
 dq_main <- unique(dq_main)[, Type := factor(Type,
@@ -1709,11 +1827,8 @@ dq_main <- unique(dq_main)[, Type := factor(Type,
                                                        "Warning"))]
 dq_main <- as.data.frame(dq_main)
 
-# base_dq_data_func(base_dq_data)
-# dq_main_df(dq_main)
 list(
-  base_dq_data = base_dq_data, 
   dq_main = dq_main,
-  overlap_details = overlap_details
+  overlap_details = overlap_details,
+  outstanding_referrals = CE_Event # used in Org export
 )
-# }

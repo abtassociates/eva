@@ -69,7 +69,7 @@ lh_residential_project_types <- c(0, 1, 2, 8)
 
 lh_project_types <- c(0, 1, 2, 4, 8)
 
-psh_project_types <- c(3, 9, 10)
+psh_oph_project_types <- c(3, 9, 10)
 
 ph_project_types <- c(3, 9, 10, 13)
 
@@ -393,15 +393,16 @@ sessionVars <- c(
   "Client",
   "CurrentLivingSituation", 
   "Event", 
+  "Services",
   "ReportStart", 
   "ReportEnd", 
   "days_of_data",
   "meta_HUDCSV_Export_Start", 
   "meta_HUDCSV_Export_End", 
   "meta_HUDCSV_Export_Date", 
-  "overlap_details", 
-  "base_dq_data_func", 
-  "dq_main_df", 
+  "overlap_details",
+  "dq_main", 
+  "outstanding_referrals",
   "pdde_main", 
   "days_of_data",
   "client_categories"
@@ -432,4 +433,14 @@ pdde_mirai_dependencies <- c(
   "HMIS_participating_projects_w_active_inv_no_overflow",
   "CEParticipation",
   "session"
+)
+
+local_settings_inputs <- c(
+  "ESNbNLongStayers",
+  "OUTLongStayers",
+  "ServicesOnlyLongStayers",
+  "OtherLongStayers",
+  "DayShelterLongStayers",
+  "CELongStayers",
+  "CEOutstandingReferrals"
 )

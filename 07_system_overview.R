@@ -357,7 +357,7 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     ProjectType == ce_project_type, 30,
     default = 20
   ),
-  lh_prior_livingsituation := !is.na(LivingSituation) &
+  lh_prior_livingsituation = !is.na(LivingSituation) &
     (LivingSituation %in% homeless_livingsituation_incl_TH |
        (LivingSituation %in% institutional_livingsituation &
           LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
@@ -457,7 +457,7 @@ enrollment_categories <- enrollment_categories %>%
   ) %>%
   fmutate(
     lh_at_entry = ProjectType %in% lh_residential_project_types |
-      (ProjectType %in% psh_project_types & (
+      (ProjectType %in% psh_oph_project_types & (
         MoveInDateAdjust >= EntryDate | is.na(MoveInDateAdjust)
       )) |
       (ProjectType %in% non_res_project_types & (
@@ -586,7 +586,6 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         #   default = "NotDV"
         # )
       ) %>% 
-      f
       # drop in-range, non-res enrollments that are not LH at start AND have no CLS later
       fsubset(!(
         in_date_range & 
