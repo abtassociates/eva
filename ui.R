@@ -3,9 +3,7 @@ page_navbar(
   window_title = 'Eva',
   theme = bs_theme(
     version = 5,
-    brand = 'sandbox/_brand.yml',
-    
-    #bootswatch = "cerulean",
+    brand = TRUE,
     navbar_bg = "#16697A" # dark_blue
   ),
   title = span(img(src = "Eva_logo_horizontal_white.png",
