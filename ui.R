@@ -96,105 +96,36 @@ page_navbar(
           )
         )
       ), 
-      tabItem(
-        tabName = "tabUpload",
-        fluidRow(box(htmlOutput("headerUpload"), width = 12)),
-        fluidRow(
-          box(
-            title = "Instructions",
-            collapsible = TRUE,
-            collapsed = TRUE,
-            width = 12,
-            HTML("
-                 <h4>Upload hashed HMIS CSV Export</h4>
-                 
-              <p>To upload your hashed HMIS CSV Export, click the \'Browse\'
-              button. Once you find the zip file on your computer, click on it to select it, 
-              and click \'Open\' to begin the upload. Eva might take a few moments 
-              to process your selected file. Eva will first check to determine if 
-              the export is hashed. If it is not, Eva will reject the file with 
-              an error message, and clear Eva's memory. Eva will continue to do 
-              this until you upload a hashed HMIS CSV Export.</p>
-              
-              <h4>HMIS CSV Export File Structure Analysis</h4>
-              <p>After confirming your export is hashed, Eva will review and process 
-              the file structure of your upload. The File Structure Analysis assesses 
-              the structural components of the uploaded .zip file and determines 
-              if it meets Eva’s file structure requirements, such as if the files 
-              have all the right names, columns, data types, and allowable values etc.</p>
-              
-              <p>Once your upload is processed and Eva has finished assessing the 
-              file structure integrity of your upload, Eva will provide a pop-up 
-              message alerting you of your upload status. You can have either a 
-              successful upload or an unsuccessful upload based on the structural 
-              integrity of your HMIS CSV export. The key difference between a successful 
-              upload and an unsuccessful upload is if the upload has any High Priority 
-              File Structure Errors.</p>
-              
-              <p>While any error identified during the File Structure Analysis represent 
-              components in the uploaded HMIS CSV export file that do not meet the 
-              most recent <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
-              target= '_blank' rel='noopener noreferrer'>HMIS CSV Format Specifications</a>, 
-              there are some file structural errors that are more relevant to the 
-              functionality of Eva.</p>
-              
-              <ul>
-                <li><b>High Priority File Structure Errors</b> are file structure issues 
-                that will cause Eva to not work.</li>
-                <li><b>General File Structure Errors</b> are file structure issues that 
-                will not impact Eva’s ability to work, but do not meet HMIS CSV 
-                format specifications.</li>
-              </ul>
-              
-              <p>If Eva identifies any High Priority File Structure Errors during 
-              the File Structure Analysis that prevent Eva from functioning, Eva 
-              will reject your upload and stop processing the export. You will thus 
-              not be able to assess the data quality of your upload or analyze the 
-              system performance of your homeless response system. For both successful 
-              and unsuccessful uploads, all identified file structure errors will 
-              display in the HMIS CSV File Structure Analysis panel, where you can 
-              download the details.</p>
-              
-              <p>It is essential that you contact your HMIS vendor to resolve all 
-              High Priority File Structure Errors identified in the HMIS CSV Export 
-              File Structure Analysis, as well as any other structural issues which 
-              you feel need to be corrected. Not all structural issues found in 
-              this analysis will prevent the data from being accepted for analysis, 
-              so they may not require immediate attention. Once your vendor has 
-              addressed any High Priority File Structure Errors, you can attempt 
-              another upload.</p>
-              
-              <p>Once you have uploaded a hashed and structurally sound .zip file, 
-              you will see a confirmation that your upload was successful, the date 
-              range of the files you uploaded, plus the date your Export was downloaded 
-              from your HMIS. You will then be able to assess the data quality of 
-              your upload and analyze the system performance of your homeless response system.</p>
-              
-              
-              ")
-          )),
-          fluidRow(box(
-            HTML(paste0("<div class='in_demo_mode' style='display:none'>
-                 <p>You’re currently in Demo Mode and viewing sample HMIS data
-                 from a curated HMIS CSV Export file. View the File Structure
-                 Analysis below to see examples of the File Structure Errors you
-                 could get in your own uploads. For a full list of possible
-                 errors, see <a href =
-                 'https://github.com/abtassociates/eva/blob/main/public-resources/EvaChecks.csv' 
-                 target= '_blank' rel='noopener noreferrer'>Eva Checks</a>.</p>
-                 <p>To explore your own File Structure Errors, turn off Demo
-                 Mode and upload your own hashed HMIS CSV Export file.</p></div>
-            ")),
+      nav_panel(
+        title = "Upload HMIS CSV Export",
+        value = "tabUpload",
+        icon = icon("upload"),
+        card(
+          card_header(htmlOutput("headerUpload")),
+          card_body(
+            accordion(
+              id = 'accordion_upload',
+              open = FALSE,
+              accordion_panel(
+                  title = "Instructions",
+                  tabUpload_instructions
+              )
+            )
+          )
+        ),
+         
+          card(
+            tabUpload_in_demo_mode,
+            
             fileInput("imported",
                       label = NULL,
                       multiple = FALSE,
                       accept = ".zip"),
-            uiOutput("fileInfo") %>% withSpinner(),
-            width = 12
-          )),
-          fluidRow(box(
+            uiOutput("fileInfo") %>% withSpinner()
+          ),
+          card(
             title = "HMIS CSV Export File Structure Analysis",
-            width = 12,
+
             DTOutput("fileStructureAnalysis"),
             p(),
             HTML("<p>Users should contact their vendor to resolve high priority 
@@ -205,7 +136,7 @@ page_navbar(
             uiOutput('downloadFileStructureAnalysisBtn'),
             p(),
             uiOutput('downloadImpermissibleCharacterDetailBtn')
-          ))
+          )
           # fluidRow(box(
           #   title = "System Data Quality Overview",
           #   width = 12,
