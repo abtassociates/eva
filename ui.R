@@ -653,19 +653,7 @@ page_navbar(
             card_header(HTML("<h2>Glossary</h2>")),
             card_body(
 #          title = "Instructions",
-        
-          HTML("
-               <p>This glossary provides definitions for the terms used throughout 
-              Eva's System Performance Overview page. You can review definitions 
-              of the terms by their focus, including:</p>
-              
-              <ul>
-                <li>System Performance Filters</li>
-                <li>System Flow Chart</li>
-                <li>Client System Status Chart</li>
-              </ul>
-              
-              <p>You can also search for a specific term using the search bar.</p>"),
+          tabGlossary_instructions,
           
             DTOutput("glossary")
             )
@@ -678,13 +666,7 @@ page_navbar(
         card(
           card_header(HTML("<h2>Changelog</h2>")),
           card_body(
-            HTML("
-              <p>This tab will list the most recent technical updates and
-              changes to Eva. For more in-depth information on current and past
-              issues, please go to <a
-              href='https://github.com/abtassociates/eva/issues' target= '_blank'
-              rel='noopener noreferrer'>GitHub</a>.</p>
-            "),
+            tabChangelog_instructions,
             dataTableOutput("changelog")
           )
         )

@@ -900,3 +900,24 @@ tabDQSystem_instructions <-  HTML("
                HMIS admins a way of reporting to interested entities, such as
                your CoC leadership, a broader view of the state of your HMIS
                data quality.</p>")
+
+tabGlossary_instructions <- HTML("
+               <p>This glossary provides definitions for the terms used throughout 
+              Eva's System Performance Overview page. You can review definitions 
+              of the terms by their focus, including:</p>
+              
+              <ul>
+                <li>System Performance Filters</li>
+                <li>System Flow Chart</li>
+                <li>Client System Status Chart</li>
+              </ul>
+              
+              <p>You can also search for a specific term using the search bar.</p>")
+
+tabChangelog_instructions <-  HTML("
+              <p>This tab will list the most recent technical updates and
+              changes to Eva. For more in-depth information on current and past
+              issues, please go to <a
+              href='https://github.com/abtassociates/eva/issues' target= '_blank'
+              rel='noopener noreferrer'>GitHub</a>.</p>
+            ")
