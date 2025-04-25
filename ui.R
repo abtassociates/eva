@@ -737,12 +737,12 @@ page_navbar(
           ) # end box
         ) #end fluid row
       ),
-      tabItem(
-        tabName = "systemExitDetail",
-        fluidRow(box(htmlOutput("headerSystemExit"), width = 12)),
-        fluidRow(
-          box(
-            width = 12,
+      nav_panel(
+        title = "System Exits",
+        value = "systemExitDetail",
+        card(
+          card_header(htmlOutput("headerSystemExit")),
+          card_body(
             HTML("<h2>Placeholder</h2>")
           )
         )
