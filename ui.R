@@ -531,178 +531,190 @@ page_navbar(
   
  
   
-      tabItem(
-        tabName = "tabSystemOverview",
-        fluidRow(box(htmlOutput("headerSystemOverview"), width = 12)),
-        fluidRow(box(
-          title = "Instructions",
-          width = 12,
-          collapsible = TRUE,
-          collapsed = TRUE,
-          tabSystemOverview_instructions
-        )),
-        fluidRow(
-          box(
-            title = "Filters",
-            width = 12,
-            id = "syso_filters",
-            fluidRow(
-              id="universe_filters",
-              column(
-                2,
-                pickerInput(
-                  label = "Household Type",
-                  inputId = "syso_hh_type",
-                  choices = syso_hh_types,
-                  selected = syso_hh_types[1]
-                )
-              ),
-              column(
-                2,
-                pickerInput(
-                  label = "Level of Detail",
-                  inputId = "syso_level_of_detail",
-                  choices = syso_level_of_detail,
-                  selected = syso_level_of_detail[1]
-                ),
-              ),
-              column(
-                2,
-                pickerInput(
-                  label = "Project Type Group",
-                  inputId = "syso_project_type",
-                  choices = syso_project_types,
-                  selected = syso_project_types[1]
-                ),
-              ),
-              column(
-                6,
-                pickerInput(
-                  label = "Race/Ethnicity Methodology Type",
-                  inputId = "methodology_type",
-                  multiple = FALSE,
-                  selected = syso_methodology_types[1],
-                  choices = syso_methodology_types,
-                  width = "100%"
-                ),
-              ) %>% tagAppendAttributes(class="light-left-border"),
+      nav_panel(
+        title = "System Performance Overview",
+        value = "tabSystemOverview",
+        icon = icon("chart-simple"),
+        
+        card(
+          card_header(
+            htmlOutput("headerSystemOverview")
+          ),
+          card_body(
+            accordion(
+              id = 'accordion_systemoverview',
+              open = FALSE,
+              accordion_panel(
+                title = 'Instructions',
+                tabSystemOverview_instructions
+              )
             ),
-            fluidRow(
-              id="syso_inflowoutflow_filters",
-              column(
-                3,
-                pickerInput(
-                  inputId = "syso_age",
-                  label = "Age",
-                  selected = syso_age_cats,
-                  choices = syso_age_cats,
-                  multiple = TRUE,
-                  width = "100%",
-                  options = pickerOptions(
-                    actionsBox = TRUE,
-                    selectedTextFormat = paste("count >", length(syso_age_cats)-1),
-                    countSelectedText = "All Ages",
-                    noneSelectedText = "All Ages" 
+            
+            card(
+              card_header('Filters'),
+              layout_column_wrap(
+                width = 1/2,
+                card(
+                  fluidRow(
+                    id="universe_filters",
+                    column(
+                      2,
+                      pickerInput(
+                        label = "Household Type",
+                        inputId = "syso_hh_type",
+                        choices = syso_hh_types,
+                        selected = syso_hh_types[1]
+                      )
+                    ),
+                    column(
+                      2,
+                      pickerInput(
+                        label = "Level of Detail",
+                        inputId = "syso_level_of_detail",
+                        choices = syso_level_of_detail,
+                        selected = syso_level_of_detail[1]
+                      ),
+                    ),
+                    column(
+                      2,
+                      pickerInput(
+                        label = "Project Type Group",
+                        inputId = "syso_project_type",
+                        choices = syso_project_types,
+                        selected = syso_project_types[1]
+                      ),
+                    ),
+                    column(
+                      6,
+                      pickerInput(
+                        label = "Race/Ethnicity Methodology Type",
+                        inputId = "methodology_type",
+                        multiple = FALSE,
+                        selected = syso_methodology_types[1],
+                        choices = syso_methodology_types,
+                        width = "100%"
+                      ),
+                    ) %>% tagAppendAttributes(class="light-left-border"),
+                  )
+                ),
+                card(
+                  fluidRow(
+                    id="syso_inflowoutflow_filters",
+                    column(
+                      3,
+                      pickerInput(
+                        inputId = "syso_age",
+                        label = "Age",
+                        selected = syso_age_cats,
+                        choices = syso_age_cats,
+                        multiple = TRUE,
+                        width = "100%",
+                        options = pickerOptions(
+                          actionsBox = TRUE,
+                          selectedTextFormat = paste("count >", length(syso_age_cats)-1),
+                          countSelectedText = "All Ages",
+                          noneSelectedText = "All Ages" 
+                        )
+                      )
+                    ),
+                    column(
+                      3,
+                      pickerInput(
+                        label = "Veteran Status",
+                        inputId = "syso_spec_pops",
+                        choices = syso_spec_pops_people,
+                        width = "100%",
+                        selected = syso_spec_pops_people[1]
+                      )
+                    ),
+                    column(
+                      6,
+                      pickerInput(
+                        label = "Race/Ethnicity",
+                        inputId = "syso_race_ethnicity",
+                        choices = syso_race_ethnicity_method1,
+                        width = "100%",
+                        selected = syso_race_ethnicity_method1,
+                        options = list(
+                          `dropdown-align-right` = TRUE, 
+                          `dropup-auto` = FALSE)
+                      )
+                    ) %>% tagAppendAttributes(class="light-left-border")
                   )
                 )
-              ),
-              column(
-                3,
-                pickerInput(
-                  label = "Veteran Status",
-                  inputId = "syso_spec_pops",
-                  choices = syso_spec_pops_people,
-                  width = "100%",
-                  selected = syso_spec_pops_people[1]
-                )
-              ),
-              column(
-                6,
-                pickerInput(
-                  label = "Race/Ethnicity",
-                  inputId = "syso_race_ethnicity",
-                  choices = syso_race_ethnicity_method1,
-                  width = "100%",
-                  selected = syso_race_ethnicity_method1,
-                  options = list(
-                    `dropdown-align-right` = TRUE, 
-                    `dropup-auto` = FALSE)
-                )
-              ) %>% tagAppendAttributes(class="light-left-border")
-            )
-          )
-        ),
-        fluidRow(
-          box(
-            width = 12,
-            tabBox(
-              width = 12,
-              id = "syso_tabbox",
-              type = "tabs",
-              tabPanel(
-                id = "syso_inflowoutflow", 
-                title = "System Flow",
-                tabBox(
-                  width = 12,
+              )
+            ),
+            navset_card_tab(
+              id = 'syso_tabbox',
+              
+              nav_panel(
+                id = 'syso_inflowoutflow',
+                title = 'System Flow',
+                
+                navset_tab(
                   id = "sys_inflow_outflow_subtabs",
                   selected = "Summary Chart",
-                  tabPanel("Summary Chart", 
-                           uiOutput("sys_act_summary_filter_selections") %>%
-                             withSpinner(),
-                           plotOutput("sys_act_summary_ui_chart",
-                                      width = "70%",
-                                      height = "500") %>%
-                             withSpinner()
+                  nav_panel(
+                    title = 'Summary Chart',
+                    uiOutput("sys_act_summary_filter_selections") %>%
+                      withSpinner(),
+                    plotOutput("sys_act_summary_ui_chart",
+                               width = "70%",
+                               height = "500") %>%
+                      withSpinner()
                   ),
-                  tabPanel("Detail Chart", 
-                           uiOutput("sys_act_detail_filter_selections") %>%
-                             withSpinner(),
-                           plotOutput("sys_act_detail_ui_chart",
-                                      width = "100%",
-                                      height = "500") %>%
-                             withSpinner()
+                  nav_panel(
+                    title = 'Detail Chart',
+                    uiOutput("sys_act_detail_filter_selections") %>%
+                      withSpinner(),
+                    plotOutput("sys_act_detail_ui_chart",
+                               width = "100%",
+                               height = "500") %>%
+                      withSpinner()
                   ),
-                  tabPanel("Information", 
+                  nav_panel(
+                    title = "Information",
                     tab_sys_inflow_outflow_subtabs_information
                   )
                 ),
                 downloadButton("sys_inflow_outflow_download_btn", "Data Download"),
                 downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
               ),
-              tabPanel(
-                id = "syso_systemstatus",
-                side = "left",
-                selected = "Chart",
+              
+              nav_panel(
+                id = 'syso_systemstatus',
                 title = "Client System Status",
-                tabBox(
-                  width = 12,
-                  id = "sys_status_subtabs",
-                  tabPanel("Chart", 
-                           uiOutput("sankey_filter_selections") %>% withSpinner(),
-                           plotOutput("sankey_ui_chart", width="70%") %>% withSpinner()
+                navset_tab(
+                  id = 'sys_status_subtabs',
+                  selected = "Chart",
+                  
+                  nav_panel(
+                    title = "Chart",   
+                    uiOutput("sankey_filter_selections") %>% withSpinner(),
+                    plotOutput("sankey_ui_chart", width="70%") %>% withSpinner()
                   ),
-                  tabPanel("Information", 
-                        tab_sys_status_subtabs_information
+                  nav_panel(
+                    title = "Information",
+                    tab_sys_status_subtabs_information
                   )
                 ),
                 downloadButton("sys_status_download_btn", "Data Download"),
                 downloadButton("sys_status_download_btn_ppt", "Image Download"),
-                width = 12
               ),
-              tabPanel(
-                id = "syso_composition",
-                side = "left",
-                selected = "Chart",
+              
+              nav_panel(
+                id = 'syso_composition',
                 title = "System Demographics",
-                tabBox(
-                  width = 12,
-                  id = "sys_comp_subtabs",
-                  tabPanel("Chart", 
-                           fluidRow(
-                             box(
-                               strong("Select Demographic Crosstab Categories (up to 2)"),
-                               p(str_glue(
-                                 "For a simple count of totals within a demographic 
+                
+                navset_tab(
+                  id = 'sys_comp_subtabs',
+                  selected = "Chart",
+                  nav_panel(
+                    title = "Chart",
+                    box(
+                      strong("Select Demographic Crosstab Categories (up to 2)"),
+                      p(str_glue(
+                        "For a simple count of totals within a demographic 
                                  category, select only one category. To see the 
                                  intersection of two demographic categories, select 
                                  both categories to create a crosstab chart. To 
@@ -710,33 +722,37 @@ page_navbar(
                                  one of your previous selections before selecting 
                                  new categories. Note that you can only select one Race/Ethnicity 
                                  category to display in the chart at a time."
-                               )),
-                               checkboxGroupInput(
-                                 "system_composition_selections",
-                                 label = "",
-                                 choices = sys_comp_selection_choices,
-                                 selected = c("All Races/Ethnicities", "Age"),
-                                 inline = TRUE
-                               ),
-                               width = 12
-                             )
-                          ),
-                          uiOutput("sys_comp_summary_selections"),
-                          plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
+                      )),
+                      checkboxGroupInput(
+                        "system_composition_selections",
+                        label = "",
+                        choices = sys_comp_selection_choices,
+                        selected = c("All Races/Ethnicities", "Age"),
+                        inline = TRUE
+                      ),
+                      width = 12
+                    ),
+                    uiOutput("sys_comp_summary_selections"),
+                    plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
                   ),
-                  tabPanel("Information", 
-                         tab_sys_comp_subtabs_information
-                  )
-                ),  # end syso_comp_subtab tabbox
-                downloadButton("sys_comp_download_btn", "Data Download"),
-                downloadButton("sys_comp_download_btn_ppt", "Image Download"),
-                width = 12
-              ) #end syso_comp tabPanel
-            ), # end syso_tabbox
+                  nav_panel(
+                    title = "Information",
+                    tab_sys_comp_subtabs_information
+                    
+                  ),
+                  downloadButton("sys_comp_download_btn", "Data Download"),
+                  downloadButton("sys_comp_download_btn_ppt", "Image Download"),
+                )
+              )
+              
+            ),
             downloadButton("client_level_download_btn", "Client Level Download")
-          ) # end box
-        ) #end fluid row
-      ),
+            
+            ) 
+          ) 
+            
+        ),
+        
       nav_panel(
         title = "System Exits",
         value = "systemExitDetail",
