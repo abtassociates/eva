@@ -310,125 +310,227 @@ page_navbar(
        
       ),
   
-      tabItem(
-        tabName = "tabPDDE",
-        fluidRow(box(htmlOutput(
-          "headerPDDE"
-        ), width = 12)),
-        fluidRow(box(
-          title = "Instructions",
-          width = 12,
-          collapsible = TRUE,
-          collapsed = TRUE,
-          HTML("
-               <h4>Project Descriptor Data Element (PDDE) Check Summary</h4>
-               <p>Once you have successfully uploaded an HMIS CSV Export, you
-               will find a summary of each issue that was flagged in your data
-               regarding your PDDEs. Please download the details by clicking the
-               \'Download\' button.</p>
-               
-               <h4>Guidance</h4>
-               <p>For a description of each issue found, check the Guidance 
-               panel.</p>")
-        )),
-        fluidRow(
-          box(
-            id = "PDDESummaryOrganization",
-            title = paste("PDDE Check Summary"),
-            status = "info",
-            solidHeader = TRUE,
-            DTOutput("pdde_summary_table"),
-            width = 12,
-            br(),
-            uiOutput("downloadPDDEReportButton") %>% withSpinner()
-          ),
-          box(id = "PDDEGuidance",
-              DTOutput("pdde_guidance_summary"),
-              title = "Guidance",
-              width = 12,
+    nav_menu(
+      title = "Assess Data Quality",
+      icon = icon("square-check"),
+      nav_panel(
+        title = "Check Project Data",
+        value = "tabPDDE",
+        card(
+          card_header(htmlOutput("headerPDDE")),
+          card_body(
+            accordion(
+              id = 'accordion_pdde',
+              accordion_panel(
+                title = "Instructions",
+                tabPDDE_instructions
+              )
+            ),  
+           
+            box(
+              id = "PDDESummaryOrganization",
+              title = paste("PDDE Check Summary"),
               status = "info",
-              solidHeader = TRUE)
+              solidHeader = TRUE,
+              DTOutput("pdde_summary_table"),
+              width = 12,
+              br(),
+              uiOutput("downloadPDDEReportButton") %>% withSpinner()
+            ),
+            box(id = "PDDEGuidance",
+                DTOutput("pdde_guidance_summary"),
+                title = "Guidance",
+                width = 12,
+                status = "info",
+                solidHeader = TRUE)
+            
+            )
         )
       ),
-      tabItem(
-        tabName = "tabDQOrg",
-        fluidRow(box(htmlOutput("headerDataQuality"), width = 12)),
-        fluidRow(box(
-          title = "Instructions",
-          width = 12,
-          collapsible = TRUE,
-          collapsed = TRUE,
-        )), 
-        fluidRow(box(
-          pickerInput(
-            label = "Select Organization",
-            inputId = "orgList",
-            choices = NULL,
-            options = pickerOptions(liveSearch = TRUE,
-                                    liveSearchStyle = 'contains'),
-            width = "100%",
-            selected = "none"
-          ),
-          uiOutput("downloadOrgDQReportButton"),
-          width = 12
-        )), 
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Issues",
-            title = "High Priority Errors",
-            tabPanel("Top 10 Projects",
-                     uiOutput("orgDQHighPriorityErrorsByProject_ui")  %>% withSpinner()),
-            tabPanel("Issues",
-                     uiOutput("orgDQHighPriorityErrorByIssue_ui") %>% withSpinner()),
-            width = 12
-          )
-        ),
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Top 10 Issues",
-            title = "General Errors",
-            tabPanel("Top 10 Projects",
-                     uiOutput("orgDQErrorsByProject_ui") %>% withSpinner()),
-            tabPanel("Top 10 Issues",
-                     uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()),
-            width =12
-          )
-        ),
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Top 10 Issues",
-            title = "Warnings",
-            tabPanel("Top 10 Projects", uiOutput("orgDQWarningsByProject_ui") %>% withSpinner()),
-            tabPanel("Top 10 Issues", uiOutput("orgDQWarningsByIssue_ui") %>% withSpinner()),
-            width = 12
-          )
-        ),
+      nav_panel(
+        title = "System-level",
+        value = "tabDQSystem",
         
-        fluidRow(
-          box(
-            id = "DQSummaryOrganization",
-            title = paste("Data Quality Summary"),
-            status = "info",
-            solidHeader = TRUE,
-            DTOutput("dq_organization_summary_table"),
-            width = 12
+        card(
+          card_header(htmlOutput("headerSystemDQ")),
+          card_body(
+            uiOutput("downloadSystemDQReportButton"),
+            accordion(
+              id = 'accordion_dqsystem',
+              open = FALSE,
+              accordion_panel(
+                title = 'Instructions',
+                tabDQSystem_instructions
+              )
+            ),
+            
+            
+            navset_card_tab(
+              id = 'tabDQOrg_subtabs',
+              
+              nav_panel(
+                id = 'hp_errors_dqsystem',
+                title = 'High Priority Errors',
+                
+                navset_tab(
+                  selected = "Issues",
+                  nav_panel(
+                    title = 'Top 10 Organizations',
+                    uiOutput("systemDQHighPriorityErrorsByOrg_ui"),
+                  ),
+                  nav_panel(
+                    title = 'Issues',
+                    uiOutput("systemDQHighPriorityErrorsByIssue_ui"),
+                  )
+                ),
+                
+                
+              ),
+              nav_panel(
+                id = 'g_errors_dqsystem',
+                title = 'General Errors',
+                
+                navset_tab(
+                  selected = "Top 10 Issues",
+                  nav_panel(
+                    title = 'Top 10 Organizations',
+                    uiOutput("systemDQErrorsByOrg_ui"),
+                  ),
+                  nav_panel(
+                    title = 'Top 10 Issues',
+                    uiOutput("systemDQErrorsByIssue_ui"),
+                  )
+                ),
+                
+              ),
+              nav_panel(
+                id = 'warnings_dqsystem',
+                title = 'Warnings',
+                navset_tab(
+                  selected = "Top 10 Issues",
+                  nav_panel(
+                    title = "Top 10 Organizations", 
+                    uiOutput("systemDQWarningsByOrg_ui")
+                  ),
+                  nav_panel(
+                    title = "Top 10 Issues", 
+                    uiOutput("systemDQWarningsByIssue_ui")
+                  )
+                )
+              )
+             
+              )
+            )
           )
-        ),
+      ),
+      nav_panel(
+        title = "Organization-level",
+        value = "tabDQOrg",
         
-        fluidRow(
-          box(
-            id = "DQSummaryProvider",
-            DTOutput("dq_org_guidance_summary"),
-            title = "Data Quality Guidance",
-            width = 12,
-            status = "info",
-            solidHeader = TRUE
+        card(
+          card_header(htmlOutput("headerDataQuality")),
+          card_body(
+            accordion(
+              id = 'accordion_dqorg',
+              open = FALSE,
+              accordion_panel(
+                title = "Instructions",
+                tabDQOrg_instructions
+              )
+            ), 
+            box(
+              pickerInput(
+                label = "Select Organization",
+                inputId = "orgList",
+                choices = NULL,
+                options = pickerOptions(liveSearch = TRUE,
+                                        liveSearchStyle = 'contains'),
+                width = "100%",
+                selected = "none"
+              ),
+              uiOutput("downloadOrgDQReportButton")#,
+              #width = 12
+            ),
+            
+            navset_card_tab(
+              id = 'tabDQOrg_subtabs',
+              
+              nav_panel(
+                id = 'hp_errors',
+                title = 'High Priority Errors',
+               
+                navset_tab(
+                  selected = "Issues",
+                  nav_panel(
+                    title = 'Top 10 Projects',
+                    uiOutput("orgDQHighPriorityErrorsByProject_ui")  %>% withSpinner(),
+                  ),
+                  nav_panel(
+                    title = 'Issues',
+                    uiOutput("orgDQHighPriorityErrorByIssue_ui") %>% withSpinner(),
+                  )
+                ),
+                
+                
+              ),
+              nav_panel(
+                id = 'g_errors',
+                title = 'General Errors',
+                
+               navset_tab(
+                 selected = "Top 10 Issues",
+                 nav_panel(
+                   title = 'Top 10 Projects',
+                   uiOutput("orgDQErrorsByProject_ui")  %>% withSpinner(),
+                 ),
+                 nav_panel(
+                   title = 'Top 10 Issues',
+                   uiOutput("orgDQErrorByIssue_ui") %>% withSpinner(),
+                 )
+               ),
+               
+              ),
+              nav_panel(
+                id = 'warnings',
+                title = 'Warnings',
+                navset_tab(
+                  selected = "Top 10 Issues",
+                  nav_panel(
+                    title = "Top 10 Projects", 
+                    uiOutput("orgDQWarningsByProject_ui") %>% withSpinner()
+                  ),
+                  nav_panel(
+                    title = "Top 10 Issues", 
+                    uiOutput("orgDQWarningsByIssue_ui") %>% withSpinner()
+                  )
+                )
+              )
+             
+            ),
+            
+            box(
+              id = "DQSummaryOrganization",
+              title = paste("Data Quality Summary"),
+              status = "info",
+              solidHeader = TRUE,
+              DTOutput("dq_organization_summary_table"),
+              #width = 12
+            ),
+            box(
+              id = "DQSummaryProvider",
+              DTOutput("dq_org_guidance_summary"),
+              title = "Data Quality Guidance",
+              #width = 12,
+              status = "info",
+              solidHeader = TRUE
+            )
           )
         )
-      ),
+      )
+    ),
+  
+ 
+  
       tabItem(
         tabName = "tabSystemOverview",
         fluidRow(box(htmlOutput("headerSystemOverview"), width = 12)),
@@ -671,51 +773,5 @@ page_navbar(
           )
         )
       ),
-      tabItem(
-        tabName = "tabDQSystem",
-        fluidRow(box(
-          htmlOutput("headerSystemDQ"), width = 12, 
-          uiOutput("downloadSystemDQReportButton"))),
-        fluidRow(box(
-          title = "Instructions",
-          width = 12,
-          collapsible = TRUE,
-          collapsed = TRUE,
-          tabDQSystem_instructions
-        )), 
-
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Issues",
-            title = "High Priority Errors",
-            tabPanel("Top 10 Organizations",
-                     uiOutput("systemDQHighPriorityErrorsByOrg_ui")),
-            tabPanel("Issues",
-                     uiOutput("systemDQHighPriorityErrorsByIssue_ui")),
-            width = 12
-          )
-        ),
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Top 10 Issues",
-            title = "General Errors",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQErrorsByOrg_ui")),
-            tabPanel("Top 10 Issues", uiOutput("systemDQErrorsByIssue_ui")),
-            width =12
-          )
-        ),
-        fluidRow(
-          tabBox(
-            side = "right",
-            selected = "Top 10 Issues",
-            title = "Warnings",
-            tabPanel("Top 10 Organizations", uiOutput("systemDQWarningsByOrg_ui")),
-            tabPanel("Top 10 Issues", uiOutput("systemDQWarningsByIssue_ui")),
-            width = 12
-          )
-        )
-      )
     )
 
