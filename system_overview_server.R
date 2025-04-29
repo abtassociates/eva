@@ -675,7 +675,7 @@ universe_ppl_flags <- function(universe_df, period) {
         active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
         first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start, "Inflow",
         default = "something's wrong"
-      ), levels = inflow_outflow_summary_levels
+      ), levels = inflow_summary_levels
     ),
     
     InflowTypeDetail = factor(
@@ -696,7 +696,7 @@ universe_ppl_flags <- function(universe_df, period) {
           !has_enrollment_after_lecr_client, "Outflow",
         homeless_at_end_client | housed_at_end_client | has_enrollment_after_lecr_client, "Active at End",
         default = "something's wrong"
-      ), levels = inflow_outflow_summary_levels
+      ), levels = outflow_summary_levels
     ),
     
     OutflowTypeDetail = factor(
