@@ -733,6 +733,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
   indices_to_modify <- names(bar_colors) %in% active_at_levels
   names(bar_colors)[indices_to_modify] <- active_at_levels_explicit
   
+  setnames(summary_data_with_change, "PlotFillGroups", " ")
   datatable(summary_data_with_change,
             options = list(
               dom = 't',
