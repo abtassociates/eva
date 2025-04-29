@@ -1623,9 +1623,8 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
 # Non-Residential Long Stayers --------------------------------------------
 
 calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
-  logToConsole(session, paste0("ProjectType = ", projecttype, " and setting = ", too_many_days))
-  
   # get non-exited enrollments for projecttype
+  logToConsole(session, glue::glue("In calculate long stayers: too_many_days = {too_many_days}, projecttype = {projecttype}"))
   non_exits <- session$userData$validation %>%
     fsubset(ProjectType == projecttype & 
               (ExitDate >= session$userData$meta_HUDCSV_Export_End | is.na(ExitDate))
@@ -1634,6 +1633,7 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
   
   # only proceed if there are any non-exited enrollments
   if(nrow(non_exits) == 0) return(NULL)
+  logToConsole(session, "Has non-exits")
   
   # data with last-known dates
   # we're going to later compute the LAST Known Date to determine when we last heard from them
@@ -1646,14 +1646,15 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
     session$userData$Services %>% fselect(EnrollmentID, KnownDate = DateProvided)
   } else {
     # If a different project type, we'll just use their EntryDate as the KnownDate
-    non_exits %>% fselect(vars_prep, KnownDate = EntryDate)
+    non_exits
   }
   
   # calculate last-known date (differs by project type)
   if(projecttype %in% c(other_project_project_type, day_project_type)) {
     # LastKnown = KnownDate (not fmax) because it's per enrollment, and EntryDate (now KnownDate) is at Enrollment level
     non_exits_w_lastknown_date <- data_w_dates %>%
-      fselect(vars_prep, LastKnown = KnownDate)
+      fselect(vars_prep) %>% 
+      frename(LastKnown = EntryDate)
   } else {
     non_exits_w_lastknown_date <- 
       join(non_exits, data_w_dates, on = "EnrollmentID", how="left") %>%
@@ -1661,7 +1662,7 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
       # Take EntryDate if there's no Information or DateProvided
       fmutate(LastKnown = fcoalesce(fmax(KnownDate), EntryDate))
   }
-  
+  logToConsole(session, "calculating long_stayres")
   # calculate days since last known
   long_stayers <- qDT(non_exits_w_lastknown_date) %>%
     fmutate(
@@ -1674,6 +1675,7 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
   
   if(nrow(long_stayers) == 0) return(NULL)
   
+  logToConsole(session, "merging check info")
   # Each project type gets its own Issue text+Guidance etc.
   merge_check_info_dt(
     long_stayers,
