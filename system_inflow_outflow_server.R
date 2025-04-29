@@ -88,8 +88,8 @@ get_inflow_outflow_monthly <- reactive({
     fmutate(
       # factorize month for easier processing
       month = factor(
-        format(month, "%b"), 
-        levels = format(get_months_in_report_period(), "%b")
+        format(month, "%b %y"), 
+        levels = format(get_months_in_report_period(), "%b %y")
       )
     )
 })
