@@ -530,7 +530,9 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 })
-output$sys_inflow_outflow_monthly_ui_chart_old2 <- renderPlot({
+
+# Pure line chart
+output$sys_inflow_outflow_monthly_ui_chart_line <- renderPlot({
   plot_data <- sys_inflow_outflow_monthly_chart_data()
   
   # Get Average Info for Title Display
@@ -590,7 +592,8 @@ output$sys_inflow_outflow_monthly_ui_chart_old2 <- renderPlot({
     )
 })
 
-output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
+# Combined line + bar chart
+output$sys_inflow_outflow_monthly_ui_chart_combined <- renderPlot({
   plot_data <- sys_inflow_outflow_monthly_chart_data()
   
   # --- Assume plot_data has columns: month, Count, PlotFillGroups ---
