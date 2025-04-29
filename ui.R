@@ -9,34 +9,13 @@ page_navbar(
   title = span(img(src = "Eva_logo_horizontal_white.png",
                  alt = "Eva logo",
                                height = 45)),
-    # https://alvarotrigo.com/blog/toggle-switch-css/
-    tags$li(class="dropdown",
-            HTML('<div class="toggle-button-cover">
-      <div class="button-cover">
-        <div id="demo-label">
-          <span>DEMO MODE </span>
-          <i class="fas fa-circle-info demo-tooltip">
-          <span class="demo-tooltiptext">
-            <strong>Off</strong>: Upload your own HMIS CSV Export.
-            <br>
-            <br>
-            <strong>On</strong>: Uses a demo HMIS CSV Export.
-          </span>
-          </i>
-        </div>
-        <div class="button r" id="button-1">
-          <input id="isdemo" type="checkbox" class="checkbox" />
-          <div class="knobs"></div>
-          <div class="layer"></div>
-        </div>
-      </div>
-    </div>
-    <script>
-    document.getElementById("isdemo").onchange = function() {
-        Shiny.setInputValue("in_demo_mode", this.checked, {priority: "event"});
-    }
-    </script>')),
+   
    header = tagList(
+     input_switch(id = 'in_demo_mode', 
+                  label = tooltip(trigger = list('DEMO MODE', bs_icon('info-circle')), 
+                            HTML('<strong>Off</strong>: Upload your own HMIS CSV Export.<br><br><strong>On</strong>: Uses a demo HMIS CSV Export.')
+                          ), 
+                  value=FALSE),
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
@@ -64,7 +43,8 @@ page_navbar(
       ),
       overlayColour = '#F5F5F5',
       refresh = ""
-    )), 
+      ),
+    ), 
     nav_panel(
         title = "Home",
         value = "tabHome", 
