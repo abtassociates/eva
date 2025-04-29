@@ -423,11 +423,11 @@ dqDownloadInfo <- reactive({
   exportTestValues(dq_overlaps = overlap_details() %>% nice_names())
   
   # org-level data prep (filtering to selected org)
-  logToConsole(glue("About to filter dq_main_reactive nrows(dq_main_reactive) = {nrow(dq_main_reactive())}"))
+  logToConsole("About to filter dq_main_reactive")
   orgDQData <- dq_main_reactive() %>%
     filter(OrganizationName %in% c(input$orgList))
   
-  logToConsole(glue("About to filter overlap_details. nrows(overlap) = {nrow(overlap_details())}"))
+  logToConsole("About to filter overlap_details")
   orgDQoverlapDetails <- overlap_details() %>% 
     filter(OrganizationName %in% c(input$orgList) | 
              PreviousOrganizationName %in% c(input$orgList))
