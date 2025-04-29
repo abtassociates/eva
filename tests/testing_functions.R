@@ -507,7 +507,7 @@ records_in_one_or_another <- function(old, new, datasetname) {
 # This is equivalent to snapshot_accept(), but for the helper csv files
 accept_helpers <- function(datasetnames = NULL, test_script_name = "main-valid") {
   if(is.null(datasetnames)) 
-    datasetnames <- get_all_helper_filenames()
+    datasetnames <- get_all_helper_filenames(test_script_name)
   
   for(datasetname in datasetnames) {
     accept_helper(datasetname, test_script_name)
