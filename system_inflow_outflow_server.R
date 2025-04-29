@@ -522,7 +522,7 @@ output$sys_inflow_outflow_monthly_ui_chart_old <- renderPlot({
       panel.grid = element_blank(),        # Remove gridlines
       axis.line.y = element_blank(), 
       axis.line.x = element_line(),          # Remove axis lines
-      plot.margin = margin(l = 48),        # Increase left margin
+      plot.margin = margin(l = 55),        # Increase left margin
       axis.ticks = element_blank(),
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
