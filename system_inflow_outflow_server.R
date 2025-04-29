@@ -455,7 +455,8 @@ renderInflowOutflowFullPlot(
 
 ## Monthly --------------------------------------------
 ### MbM Chart --------------------------------------
-output$sys_inflow_outflow_monthly_ui_chart_old <- renderPlot({
+# Bar - Active at Start + Inflow/Outflow
+output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
   plot_data <- sys_inflow_outflow_monthly_chart_data()
 
   # Get Average Info for Title Display
@@ -474,7 +475,6 @@ output$sys_inflow_outflow_monthly_ui_chart_old <- renderPlot({
       getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
   )
   
-  browser()
   ggplot(plot_data, aes(x = interaction(month, Summary), y = Count, fill = PlotFillGroups)) +
     geom_bar(
       data = plot_data[Summary == "Active at Start"],
@@ -482,12 +482,14 @@ output$sys_inflow_outflow_monthly_ui_chart_old <- renderPlot({
       stat = "identity",
       position = "stack",
       width = active_at_start_bar_width,
+      color = 'black',
       just = 1.8 # this moves the bar to the left of the month-center
     ) +
     geom_bar(
       data = plot_data[Summary == "Inflow"],
       aes(x = month, y = Count, fill = PlotFillGroups),
       stat = "identity",
+      color = 'black',
       width = active_at_start_bar_width,
     ) +
     geom_bar(
@@ -495,6 +497,7 @@ output$sys_inflow_outflow_monthly_ui_chart_old <- renderPlot({
       aes(x = month, y = Count, fill = PlotFillGroups),
       stat = "identity",
       width = active_at_start_bar_width,
+      color = 'black',
       just = -0.8 # this moves the bar to the right of the month-center
     ) +
     
