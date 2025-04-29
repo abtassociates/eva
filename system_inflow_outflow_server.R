@@ -169,7 +169,7 @@ sys_inflow_outflow_annual_chart_data <- reactive({
   ) %>% 
   fcount() %>%
   join(full_combinations, how="full", on=names(full_combinations), overid=0) %>%
-  replace_na(cols = "N", value = 0) %>%
+  collapse::replace_na(cols = "N", value = 0) %>%
   fsubset(!(Detail == "something's wrong" & N == 0)) %>%
   roworder(Summary, Detail) %>%
   fmutate(
@@ -229,7 +229,7 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     Summary = fct_collapse(PlotFillGroups, `Active at Start` = active_at_levels),
     PlotFillGroups = factor(PlotFillGroups, levels = c(rev(active_at_levels), "Inflow", "Outflow"))  
   ) %>%
-  replace_na(value = 0, cols = "Count")
+  collapse::replace_na(value = 0, cols = "Count")
 })
 
 ### Inactive ------------------------
@@ -263,7 +263,7 @@ get_inactive_counts <- function() {
     how = "full",
     on = c("month","Type")
   ) %>%
-  replace_na(value = 0, cols = "Count")
+  collapse::replace_na(value = 0, cols = "Count")
 }
 
 # Summary/Detail (Annual) Chart Prep ---------------------------------------
