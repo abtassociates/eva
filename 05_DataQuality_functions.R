@@ -203,14 +203,15 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
     services() %>% fselect(EnrollmentID, KnownDate = DateProvided)
   } else {
     # If a different project type, we'll just use their EntryDate as the KnownDate
-    non_exits %>% fselect(vars_prep, KnownDate = EntryDate)
+    non_exits
   }
   
   # calculate last-known date (differs by project type)
   if(projecttype %in% c(other_project_project_type, day_project_type)) {
     # LastKnown = KnownDate (not fmax) because it's per enrollment, and EntryDate (now KnownDate) is at Enrollment level
     non_exits_w_lastknown_date <- data_w_dates %>%
-      fselect(vars_prep, LastKnown = KnownDate)
+      fselect(vars_prep) %>% 
+      frename(LastKnown = EntryDate)
   } else {
     non_exits_w_lastknown_date <- 
       join(non_exits, data_w_dates, on = "EnrollmentID", how="left") %>%
