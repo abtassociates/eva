@@ -180,14 +180,17 @@ getDQReportDataList <-
 
 calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
   # get non-exited enrollments for projecttype
+  logToConsole(glue("In calculate long stayers: too_many_days = {too_many_days}, projecttype = {projecttype}"))
   non_exits <- validation() %>%
     fsubset(ProjectType == projecttype & 
              (ExitDate >= meta_HUDCSV_Export_End() | is.na(ExitDate))
     ) %>%
     fselect(vars_prep)
   
+  
   # only proceed if there are any non-exited enrollments
   if(nrow(non_exits) == 0) return(NULL)
+  logToConsole("Has non-exits")
   
   # data with last-known dates
   # we're going to later compute the LAST Known Date to determine when we last heard from them
@@ -215,7 +218,7 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
       # Take EntryDate if there's no Information or DateProvided
       fmutate(LastKnown = fcoalesce(fmax(KnownDate), EntryDate))
   }
-  
+  logToConsole("calculating long_stayres")
   # calculate days since last known
   long_stayers <- qDT(non_exits_w_lastknown_date) %>%
     fmutate(
@@ -228,6 +231,7 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
   
   if(nrow(long_stayers) == 0) return(NULL)
   
+  logToConsole("merging check info")
   # Each project type gets its own Issue text+Guidance etc.
   merge_check_info_dt(
     long_stayers,
@@ -418,9 +422,11 @@ dqDownloadInfo <- reactive({
   exportTestValues(dq_overlaps = overlap_details() %>% nice_names())
   
   # org-level data prep (filtering to selected org)
+  logToConsole(glue("About to filter dq_main_reactive nrows(dq_main_reactive) = {nrow(dq_main_reactive())}"))
   orgDQData <- dq_main_reactive() %>%
     filter(OrganizationName %in% c(input$orgList))
   
+  logToConsole(glue("About to filter overlap_details. nrows(overlap) = {nrow(overlap_details())}"))
   orgDQoverlapDetails <- overlap_details() %>% 
     filter(OrganizationName %in% c(input$orgList) | 
              PreviousOrganizationName %in% c(input$orgList))
