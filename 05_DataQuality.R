@@ -1653,8 +1653,7 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
   if(projecttype %in% c(other_project_project_type, day_project_type)) {
     # LastKnown = KnownDate (not fmax) because it's per enrollment, and EntryDate (now KnownDate) is at Enrollment level
     non_exits_w_lastknown_date <- data_w_dates %>%
-      fselect(vars_prep) %>% 
-      frename(LastKnown = EntryDate)
+      fmutate(LastKnown = EntryDate)
   } else {
     non_exits_w_lastknown_date <- 
       join(non_exits, data_w_dates, on = "EnrollmentID", how="left") %>%
