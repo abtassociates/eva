@@ -757,6 +757,15 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
       target = "cell",
       backgroundColor = styleRow(nrow(summary_data_with_change), bar_colors["Inflow"])
     ) %>%
+    # Contrast font and background colors
+    formatStyle(
+      columns = 1,
+      target = "cell",
+      color = styleEqual(
+        c("Active at Start: Homeless", "Outflow"),
+        c("white", "white")
+      )
+    ) %>%
     # Highlight min change
     formatStyle(
       columns = month_cols[which.min(change_row)],
