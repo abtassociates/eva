@@ -452,7 +452,7 @@ main_test_script <- function(test_script_name, test_dataset) {
 
 
 # This is equivalent to snapshot_review(), but for the helper csv files
-get_all_helper_filenames <- function() {
+get_all_helper_filenames <- function(test_script_name) {
   helper_data_dir <- glue(here("tests/helper_data/{gsub('test-','', test_script_name)}"))
   all_files <- basename(list.files(helper_data_dir))
   new_files <- grep(pattern = "\\.new\\.", x = all_files, value = TRUE)
@@ -460,7 +460,7 @@ get_all_helper_filenames <- function() {
 }
 review_helpers <- function(datasetnames = NULL, test_script_name = "main-valid", comparison_type = 1) {
   if(is.null(datasetnames)) 
-    datasetnames <- get_all_helper_filenames()
+    datasetnames <- get_all_helper_filenames(test_script_name)
 
   for(datasetname in datasetnames) {
     review_helper(datasetname, test_script_name, comparison_type)
