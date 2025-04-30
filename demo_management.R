@@ -166,14 +166,15 @@ observeEvent(input$continue_demo_btn, {
 observeEvent(input$stay_in_demo, {
   demo_modal_closed(1)
   removeModal()
-  runjs('document.getElementById("isdemo").checked = true;')
+  toggle_switch(id = 'in_demo_mode', value = TRUE, session = session)
   logMetadata("Chose to stay in demo mode")
 })
 
 observeEvent(input$stay_in_live, {
   demo_modal_closed(1)
+  
   removeModal()
-  runjs('document.getElementById("isdemo").checked = false;')
+  toggle_switch(id = 'in_demo_mode', value = FALSE, session = session)
   logMetadata("Chose to stay in live mode")
 })
 
