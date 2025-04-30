@@ -406,12 +406,23 @@ lh_non_res <- qDT(CurrentLivingSituation) %>%
     how = "left"
   ) %>%
   fselect(
-    EnrollmentID, PersonalID, EntryDate, ProjectType, ExitAdjust, InformationDate, lh_prior_livingsituation
+    EnrollmentID, EntryDate, ProjectType, ExitAdjust, InformationDate, lh_prior_livingsituation
   )
 
 setkey(lh_non_res, EnrollmentID)
-setindex(lh_non_res, PersonalID)
 
+# Do something similar for ES NbNs and Services
+lh_nbn <- qDT(Services) %>%
+  fselect(EnrollmentID, DateProvided) %>%
+  join(
+    EnrollmentAdjust[
+      ProjectType == es_nbn_project_type, 
+      .(EnrollmentID, PersonalID, EntryDate, ExitAdjust)
+    ],
+    on="EnrollmentID",
+    how = "inner"
+  )
+setkey(lh_nbn, EnrollmentID)
 
 # Remove "problematic" enrollments ----------------------------------
 # These are enrollments that entered the system as not LH
@@ -473,39 +484,74 @@ session$userData$report_dates <- get_report_dates()
 # These steps and functions process data for a given period, which can be the full
 # reporting period, or each month in between the start and end of the full period
 
-## NbN prep -------------------------------------------
-session$userData$get_period_specific_nbn_enrollment_services <- memoise::memoise(
-  function(report_period, upload_name) {
-    startDate <- report_period[1]
-    endDate <- report_period[2]
+## LH info for non-res projects -----------
+# custom_rprof({
+# continuing the work of the base lh_non_res dataset from 07_system_overview.R 
+# we now make it period-specific, and collapse it down to the enrollment-level
+# so this contains enrollments with LH CLS and an indicator as to 
+# whether InformationDate is within to 60 or 90 days 
+# (depending on project type, but only limited to Non-Res Project Types) 
+# from the period start/end
+# we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
+# this avoids having to re-filter and do the check for each enrollment
+lh_non_res_period <- function(startDate, endDate) {
+  lh_non_res %>%
+    # Initial filtering
+    fsubset(EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))) %>%
     
-    nbn_enrollments <- EnrollmentAdjust[ProjectType == es_nbn_project_type, .(EnrollmentID)]
+    # Calculate time windows
+    ftransform(
+      start_window = startDate - fifelse(ProjectType == ce_project_type, 90, 60),
+      end_window = endDate - fifelse(ProjectType == ce_project_type, 90, 60)
+    ) %>%
+    ftransform(
+      info_in_start_window = between(InformationDate, start_window, startDate),
+      info_in_end_window = between(InformationDate, end_window, endDate),
+      entry_in_start_window = between(EntryDate, start_window, startDate),
+      entry_in_end_window = between(EntryDate, end_window, endDate),
+      info_after_entry = InformationDate > EntryDate
+    ) %>%
     
-    if(nrow(nbn_enrollments) == 0) return(NULL)
-    
-    Services %>%
-      fselect(EnrollmentID, DateProvided) %>%
-      join(
-        EnrollmentAdjust[ProjectType == es_nbn_project_type, .(EnrollmentID)],
-        on="EnrollmentID",
-        how = "inner"
-      ) %>%
-      ftransform(
-        NbN15DaysBeforeReportStart = DateProvided >= (startDate - days(15)) & DateProvided <= startDate,
-        NbN15DaysAfterReportEnd = DateProvided >= endDate & DateProvided <= (endDate + days(15)),
-        NbN15DaysBeforeReportEnd = DateProvided >= (endDate - days(15)) & DateProvided <= endDate
-      ) %>%
-      fgroup_by(EnrollmentID) %>%
-      fsummarise(
-        NbN15DaysBeforeReportStart = anyv(NbN15DaysBeforeReportStart, TRUE),
-        NbN15DaysAfterReportEnd = anyv(NbN15DaysAfterReportEnd, TRUE),
-        NbN15DaysBeforeReportEnd = anyv(NbN15DaysBeforeReportEnd, TRUE)
-      ) %>%
-      fsubset(NbN15DaysBeforeReportStart | NbN15DaysAfterReportEnd | NbN15DaysBeforeReportEnd)
-  }
-)
+    # Group by EnrollmentID and calculate window flags
+    fgroup_by(EnrollmentID) %>%
+    fmutate(
+      any_info_in_start_window = anyv(info_in_start_window, TRUE),
+      any_info_in_end_window = anyv(info_in_end_window, TRUE),
+      has_cls_after_entry = anyv(info_after_entry, TRUE)
+    ) %>%
+    fungroup()
+}
 
-## enrollment categories prep -------------------------
+lh_nbn_period <- function(startDate, endDate) {
+  lh_nbn %>%
+    # Initial filtering
+    fsubset(EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))) %>%
+    ftransform(
+      NbN15DaysBeforeReportStart = between(DateProvided, startDate - 15, startDate),
+      NbN15DaysAfterReportEnd = between(DateProvided, endDate, endDate + 15),
+      NbN15DaysBeforeReportEnd = between(DateProvided, endDate - 15, endDate),
+      entry_in_start_window = between(EntryDate, startDate - 15, startDate),
+      entry_in_end_window = between(EntryDate, endDate - 15, endDate)
+    ) %>%
+    fgroup_by(EnrollmentID) %>%
+    fsummarise(
+      NbN15DaysBeforeReportStart = anyv(NbN15DaysBeforeReportStart, TRUE),
+      NbN15DaysAfterReportEnd = anyv(NbN15DaysAfterReportEnd, TRUE),
+      NbN15DaysBeforeReportEnd = anyv(NbN15DaysBeforeReportEnd, TRUE),
+      entry_in_start_window = entry_in_start_window,
+      entry_in_end_window = entry_in_end_window
+    ) %>%
+    fsubset(
+      NbN15DaysBeforeReportStart | 
+        NbN15DaysAfterReportEnd | 
+        NbN15DaysBeforeReportEnd |
+        entry_in_start_window |
+        entry_in_end_window
+    )
+}
+
+## LH info for NbN projects --------
+
 # Narrow down to period-relevant enrollments and create eecr, lecr, 
 # and other variables used for Inflow/Outflow categorization
 session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
@@ -514,54 +560,31 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     startDate <- report_period[1]
     endDate <- report_period[2]
     
-    # custom_rprof({
-    # continuing the work of the base lh_non_res dataset from 07_system_overview.R 
-    # we now make it period-specific, and collapse it down to the enrollment-level
-    # so this contains enrollments with LH CLS and an indicator as to 
-    # whether InformationDate is within to 60 or 90 days 
-    # (depending on project type, but only limited to Non-Res Project Types) 
-    # from the period start/end
-    # we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
-    # this avoids having to re-filter and do the check for each enrollment
-    lh_non_res_period <- lh_non_res %>%
-      # Initial filtering
-      fsubset(EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))) %>%
-      
-      # Calculate time windows
-      ftransform(
-        start_window = startDate - fifelse(ProjectType == ce_project_type, 90, 60),
-        end_window = endDate - fifelse(ProjectType == ce_project_type, 90, 60)
-      ) %>%
-      ftransform(
-        info_in_start_window = between(InformationDate, start_window, startDate),
-        info_in_end_window = between(InformationDate, end_window, endDate),
-        entry_in_start_window = between(EntryDate, start_window, startDate),
-        entry_in_end_window = between(EntryDate, end_window, endDate),
-        info_after_entry = InformationDate > EntryDate
-      ) %>%
-      
-      # Group by EnrollmentID and calculate window flags
-      fgroup_by(EnrollmentID) %>%
-      fmutate(
-        any_info_in_start_window = anyv(info_in_start_window, TRUE),
-        any_info_in_end_window = anyv(info_in_end_window, TRUE),
-        has_cls_after_entry = anyv(info_after_entry, TRUE)
-      ) %>%
-      fungroup()
-    
-    lh_non_res_period <- unique(lh_non_res_period[, 
+    lh_info <- unique(
+      # Capture LH info for both non-residential projects AND ES NbN projects
+      rbind(
+        lh_non_res_period(startDate, endDate),
+        lh_nbn_period(startDate, endDate),
+        fill = TRUE
+      )[, 
       .(
         EnrollmentID,
         was_lh_at_start = any_info_in_start_window |
-          (entry_in_start_window & lh_prior_livingsituation) |
+          (ProjectType != es_nbn_project_type & entry_in_start_window & lh_prior_livingsituation) |
           (EntryDate > startDate & (lh_prior_livingsituation | InformationDate == EntryDate)) | 
-          ProjectType %in% lh_residential_project_types,
+          (ProjectType == es_nbn_project_type & (entry_in_start_window | NbN15DaysBeforeReportStart)) |
+          ProjectType %in% setdiff(lh_residential_project_types, es_nbn_project_type),
         
         was_lh_at_end = any_info_in_end_window |
-          (entry_in_end_window & lh_prior_livingsituation) |
-          (ExitAdjust < endDate & (lh_prior_livingsituation | InformationDate == ExitAdjust)),
+          (ProjectType != es_nbn_project_type & entry_in_end_window & lh_prior_livingsituation) |
+          (ExitAdjust < endDate & (lh_prior_livingsituation | InformationDate == ExitAdjust)) |
+          (ProjectType == es_nbn_project_type & (entry_in_end_window | NbN15DaysBeforeReportEnd)) |
+          ProjectType %in% setdiff(lh_residential_project_types, es_nbn_project_type),
         
-        has_cls_after_entry
+        has_cls_after_entry,
+        NbN15DaysBeforeReportStart,
+        NbN15DaysAfterReportEnd, 
+        NbN15DaysBeforeReportEnd
       )
     ])
     enrollment_categories_period <- join(
@@ -569,7 +592,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         # keep enrollments in date range and exits within the 2 yrs prior to start
         EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))
       ),
-      lh_non_res_period,
+      lh_info,
       on = "EnrollmentID",
       how = "left"
     )
@@ -629,7 +652,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           !ProjectType %in% non_res_nonlh_project_types | was_lh_at_start
         ),
         lecr = (lecr_straddle | lecr_no_straddle) & (
-          !(ProjectType %in% non_res_nonlh_project_types) | was_lh_at_end
+          !ProjectType %in% non_res_nonlh_project_types | was_lh_at_end
         ),
         eecr_is_res = eecr & ProjectType %in% project_types_w_beds
       ) %>%
