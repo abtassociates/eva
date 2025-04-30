@@ -269,14 +269,14 @@ page_navbar(
               status = "info",
               solidHeader = TRUE
             ),
-            box(
+            card(
               title = "Client Counts Summary",
               status = "info",
               solidHeader = TRUE,
               DTOutput("clientCountSummary"),
               width = 12
             ),
-            box(
+            card(
               title = "Client Counts Detail",
               status = "info",
               solidHeader = TRUE,
@@ -307,7 +307,7 @@ page_navbar(
               )
             ),  
            
-            box(
+            card(
               id = "PDDESummaryOrganization",
               title = paste("PDDE Check Summary"),
               status = "info",
@@ -317,7 +317,7 @@ page_navbar(
               br(),
               uiOutput("downloadPDDEReportButton") %>% withSpinner()
             ),
-            box(id = "PDDEGuidance",
+            card(id = "PDDEGuidance",
                 DTOutput("pdde_guidance_summary"),
                 title = "Guidance",
                 width = 12,
@@ -346,7 +346,7 @@ page_navbar(
             
             
             navset_card_tab(
-              id = 'tabDQOrg_subtabs',
+              id = 'tabDQSystem_subtabs',
               
               nav_panel(
                 id = 'hp_errors_dqsystem',
@@ -418,7 +418,7 @@ page_navbar(
                 tabDQOrg_instructions
               )
             ), 
-            box(
+            card(
               pickerInput(
                 label = "Select Organization",
                 inputId = "orgList",
@@ -488,7 +488,7 @@ page_navbar(
              
             ),
             
-            box(
+            card(
               id = "DQSummaryOrganization",
               title = paste("Data Quality Summary"),
               status = "info",
@@ -496,7 +496,7 @@ page_navbar(
               DTOutput("dq_organization_summary_table"),
               #width = 12
             ),
-            box(
+            card(
               id = "DQSummaryProvider",
               DTOutput("dq_org_guidance_summary"),
               title = "Data Quality Guidance",
@@ -691,7 +691,7 @@ page_navbar(
                   selected = "Chart",
                   nav_panel(
                     title = "Chart",
-                    box(
+                    card(
                       strong("Select Demographic Crosstab Categories (up to 2)"),
                       p(str_glue(
                         "For a simple count of totals within a demographic 
