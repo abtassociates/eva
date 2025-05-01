@@ -439,9 +439,8 @@ period_specific_data <- reactive({
     function(period) {
       # custom_rprof({
       enrollment_categories <- session$userData$get_period_specific_enrollment_categories(period, upload_name)
-      nbn_services <- session$userData$get_period_specific_nbn_enrollment_services(period, upload_name)
         
-      all_filtered <- universe_filtered(enrollment_categories, nbn_services)
+      all_filtered <- universe_filtered(enrollment_categories)
       universe_w_enrl_flags <- universe_enrl_flags(all_filtered, period)
       universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags, period)
       
@@ -479,24 +478,24 @@ client_categories_filtered <- reactive({
 })
 
 # Period-specific, user-filtered, enrollment-level universe applied ------------------
-universe_filtered <- function(enrollment_categories, nbn_services) {
-  if(is.null(nbn_services)) {
-    enrollments <- fmutate(
-      enrollment_categories,
-      NbN15DaysBeforeReportStart = NA,
-      NbN15DaysAfterReportEnd = NA,
-      NbN15DaysBeforeReportEnd = NA
-    )
-  } else {
-    enrollments <- join(
-      enrollment_categories,
-      nbn_services,
-      on = "EnrollmentID",
-      how = "left"
-    )
-  }
+universe_filtered <- function(enrollment_categories) {
+  # if(is.null(nbn_services)) {
+  #   enrollments <- fmutate(
+  #     enrollment_categories,
+  #     NbN15DaysBeforeReportStart = NA,
+  #     NbN15DaysAfterReportEnd = NA,
+  #     NbN15DaysBeforeReportEnd = NA
+  #   )
+  # } else {
+  #   enrollments <- join(
+  #     enrollment_categories,
+  #     nbn_services,
+  #     on = "EnrollmentID",
+  #     how = "left"
+  #   )
+  # }
   
-  enrollments %>%
+enrollment_categories %>%
     join( # Inner Join with client categories
       # This is necessary for bringing in Veteran Status, but will also make the rest faster
       client_categories_filtered(),
@@ -675,7 +674,7 @@ universe_ppl_flags <- function(universe_df, period) {
         active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
         first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start, "Inflow",
         default = "something's wrong"
-      ), levels = inflow_outflow_summary_levels
+      ), levels = inflow_summary_levels
     ),
     
     InflowTypeDetail = factor(
@@ -696,7 +695,7 @@ universe_ppl_flags <- function(universe_df, period) {
           !has_enrollment_after_lecr_client, "Outflow",
         homeless_at_end_client | housed_at_end_client | has_enrollment_after_lecr_client, "Active at End",
         default = "something's wrong"
-      ), levels = inflow_outflow_summary_levels
+      ), levels = outflow_summary_levels
     ),
     
     OutflowTypeDetail = factor(

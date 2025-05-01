@@ -18,11 +18,14 @@ outflow_detail_levels <- c(
   "Inactive"
 )
 
-inflow_outflow_summary_levels <- c(
+inflow_summary_levels <- c(
   "Active at Start",
   "Inflow",
+  "something's wrong"
+)
+outflow_summary_levels <- c(
   "Outflow",
-  "Active at End",  
+  "Active at End",
   "something's wrong"
 )
 
@@ -39,6 +42,14 @@ bar_colors <- c(
   "Housed" = '#9E958F'
 )
 
+mbm_bar_colors <- c(
+  "Inflow" = "#BDB6D7", 
+  "Outflow" = '#6A559B',
+  # "Inactive" = "#E78AC3"
+  "Active at Start: Homeless" = '#ECE7E3',
+  "Active at End: Housed" = '#9E958F'
+)
+
 inactive_levels <- c("Unknown", "Inactive")
 inactive_levels_explicit <- c("Unknown-Inflow", "Inactive-Outflow")
 
@@ -50,7 +61,7 @@ inactive_bar_colors <- c(
 # 0.2 seems to be the right value to space the bars correctly
 # higher than this and outflow bars start to overlap with next month's inflow
 # lower and the bars are too thin, or space within a month is about the same as across
-active_at_start_bar_width = 0.2
+mbm_bar_width = 0.2
 
 
 # Inflow/Outflow Client-Level Data ---------------------------
@@ -81,9 +92,13 @@ get_inflow_outflow_monthly <- reactive({
     funique() %>%
     # as of 4/9/25 - team decided to only show inflow/outflow (including inactive), 
     # and Active at Start (stacked) bars
+    # as of 4/28/25 - team decided to show Active at Start: Homeless + Inflow stacked, 
+    # and Active at End: Housed + Outflow stacked
     fsubset(
-      InflowTypeSummary %in% c("Inflow", "Active at Start") |
-        OutflowTypeSummary == "Outflow"
+      InflowTypeSummary == "Inflow" |
+        OutflowTypeSummary == "Outflow" |
+        InflowTypeDetail == "Homeless" | 
+        OutflowTypeDetail == "Housed"
     ) %>%
     fmutate(
       # factorize month for easier processing
@@ -190,9 +205,8 @@ sys_inflow_outflow_annual_chart_data <- reactive({
 sys_inflow_outflow_monthly_chart_data <- reactive({
   monthly_data <- get_inflow_outflow_monthly() %>%
     fmutate(
-      # We want Housed, Homeless (start/end) and Inflow/Outflow
-      InflowPlotFillGroups = fct_collapse(InflowTypeDetail, `Inflow` = inflow_detail_levels),
-      OutflowPlotFillGroups = fct_collapse(OutflowTypeDetail, `Outflow` = outflow_detail_levels)
+      InflowPlotFillGroups = fct_recode(InflowTypeSummary, `Active at Start: Homeless` = "Active at Start"),
+      OutflowPlotFillGroups = fct_recode(OutflowTypeSummary, `Active at End: Housed` = "Active at End")
     )
   
   # First-time homeless filter
@@ -203,7 +217,7 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
       fungroup() %>%
       fsubset(FirstTimeHomeless == TRUE)
   } 
-  
+
   # Get counts of each type by month
   monthly_counts <- rbind(
     monthly_data[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups)],
@@ -226,8 +240,12 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     how = "full"
   ) %>%
   fmutate(
-    Summary = fct_collapse(PlotFillGroups, `Active at Start` = active_at_levels),
-    PlotFillGroups = factor(PlotFillGroups, levels = c(rev(active_at_levels), "Inflow", "Outflow"))  
+    Summary = fct_collapse(
+      PlotFillGroups, 
+      Inflow = "Active at Start: Homeless",
+      Outflow = "Active at End: Housed"
+    )
+  #   PlotFillGroups = factor(PlotFillGroups, levels = c(rev(active_at_levels), "Inflow", "Outflow"))  
   ) %>%
   collapse::replace_na(value = 0, cols = "Count")
 })
@@ -461,11 +479,12 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 
   # Get Average Info for Title Display
   averages <- plot_data %>%
+    fsubset(PlotFillGroups != "Active at Start: Homeless") %>%
     collap(cols = "Count", FUN=fmean, by = ~ Summary)
-  
+
   avg_monthly_change <- fmean(
-    plot_data[plot_data$Summary == "Inflow", "Count"] - 
-    plot_data[plot_data$Summary == "Outflow", "Count"]
+    plot_data[PlotFillGroups == "Inflow", Count] - 
+    plot_data[Summary == "Outflow", Count]
   )
   
   level_of_detail_text <- case_when(
@@ -477,31 +496,29 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
   
   ggplot(plot_data, aes(x = interaction(month, Summary), y = Count, fill = PlotFillGroups)) +
     geom_bar(
-      data = plot_data[Summary == "Active at Start"],
+      data = plot_data[Summary == "Inflow"] %>%
+        fmutate(PlotFillGroups = fct_relevel(
+          PlotFillGroups,
+          "Inflow",  "Active at Start: Homeless"
+        )),
       aes(x = month, y = Count, fill = PlotFillGroups),
       stat = "identity",
       position = "stack",
-      width = active_at_start_bar_width,
+      width = mbm_bar_width,
       color = 'black',
       just = 1.8 # this moves the bar to the left of the month-center
-    ) +
-    geom_bar(
-      data = plot_data[Summary == "Inflow"],
-      aes(x = month, y = Count, fill = PlotFillGroups),
-      stat = "identity",
-      color = 'black',
-      width = active_at_start_bar_width,
     ) +
     geom_bar(
       data = plot_data[Summary == "Outflow"],
       aes(x = month, y = Count, fill = PlotFillGroups),
       stat = "identity",
-      width = active_at_start_bar_width,
+      position = "stack",
+      width = mbm_bar_width,
       color = 'black',
       just = -0.8 # this moves the bar to the right of the month-center
     ) +
     
-    scale_fill_manual(values = bar_colors, name = "Inflow/Outflow Types") + # Update legend title
+    scale_fill_manual(values = mbm_bar_colors, name = "Inflow/Outflow Types") + # Update legend title
     theme_minimal() +
     labs(
       x = "Month",
@@ -728,12 +745,8 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
     add_vars(change_row, PlotFillGroups = "Monthly Change")
   )
 
-  # Prepend Active at Start to the bar_colors
-  active_at_levels_explicit <- paste0("Active at Start: ", active_at_levels)
-  indices_to_modify <- names(bar_colors) %in% active_at_levels
-  names(bar_colors)[indices_to_modify] <- active_at_levels_explicit
-  
   setnames(summary_data_with_change, "PlotFillGroups", " ")
+
   datatable(summary_data_with_change,
             options = list(
               dom = 't',
@@ -750,26 +763,26 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
       columns = 1,  # First column
       target = "cell",
       backgroundColor = styleEqual(
-        names(bar_colors),
-        unname(bar_colors)
+        names(mbm_bar_colors),
+        unname(mbm_bar_colors)
       ),
       border = styleEqual(
-        c(active_at_levels_explicit, "Inflow", "Outflow"),
-        c(rep("2px solid black", 2), "2px solid black", "2px solid black")
+        names(mbm_bar_colors),
+        c(rep("2px solid black", 4))
       )
     ) %>%
     # Highlight max change
     formatStyle(
       columns = month_cols[which.max(change_row)],
       target = "cell",
-      backgroundColor = styleRow(nrow(summary_data_with_change), bar_colors["Inflow"])
+      backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Inflow"])
     ) %>%
     # Contrast font and background colors
     formatStyle(
       columns = 1,
       target = "cell",
       color = styleEqual(
-        c("Active at Start: Homeless", "Outflow"),
+        c("Active at End: Housed", "Outflow"),
         c("white", "white")
       )
     ) %>%
@@ -777,7 +790,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
     formatStyle(
       columns = month_cols[which.min(change_row)],
       target = "cell",
-      backgroundColor = styleRow(nrow(summary_data_with_change), bar_colors["Outflow"])
+      backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
     )
 })
 
