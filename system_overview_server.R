@@ -603,10 +603,10 @@ universe_enrl_flags <- function(all_filtered, period) {
     homeless_at_end = lecr == TRUE & 
       straddles_end & ( 
         # e/e shelter, th, sh
-        ProjectType %in% lh_project_types_nc |
+        ProjectType %in% lh_project_types_nonbn |
           
         # nbn shelter
-        (ProjectType == es_nbn_project_type & (in_date_range | NbN15DaysAfterReportEnd)) |
+        (ProjectType == es_nbn_project_type & (in_date_range | NbN15DaysBeforeReportEnd)) |
         
         # Non-Res Project Types
         (ProjectType %in% non_res_project_types & was_lh_at_end) |

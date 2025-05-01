@@ -505,19 +505,19 @@ lh_non_res_period <- function(startDate, endDate) {
       end_window = endDate - fifelse(ProjectType == ce_project_type, 90, 60)
     ) %>%
     ftransform(
-      info_in_start_window = between(InformationDate, start_window, startDate),
-      info_in_end_window = between(InformationDate, end_window, endDate),
+      lh_cls_in_start_window = between(InformationDate, start_window, startDate),
+      lh_cls_in_end_window = between(InformationDate, end_window, endDate),
       entry_in_start_window = between(EntryDate, start_window, startDate),
       entry_in_end_window = between(EntryDate, end_window, endDate),
-      info_after_entry = InformationDate > EntryDate
+      lh_cls_in_range = between(InformationDate, startDate, endDate)
     ) %>%
     
     # Group by EnrollmentID and calculate window flags
     fgroup_by(EnrollmentID) %>%
     fmutate(
-      any_info_in_start_window = anyv(info_in_start_window, TRUE),
-      any_info_in_end_window = anyv(info_in_end_window, TRUE),
-      has_cls_after_entry = anyv(info_after_entry, TRUE)
+      has_lh_cls_in_start_window = anyv(lh_cls_in_start_window, TRUE),
+      has_lh_cls_in_end_window = anyv(lh_cls_in_end_window, TRUE),
+      has_lh_cls_in_range = anyv(lh_cls_in_range, TRUE)
     ) %>%
     fungroup()
 }
@@ -528,7 +528,6 @@ lh_nbn_period <- function(startDate, endDate) {
     fsubset(EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))) %>%
     ftransform(
       NbN15DaysBeforeReportStart = between(DateProvided, startDate - 15, startDate),
-      NbN15DaysAfterReportEnd = between(DateProvided, endDate, endDate + 15),
       NbN15DaysBeforeReportEnd = between(DateProvided, endDate - 15, endDate),
       entry_in_start_window = between(EntryDate, startDate - 15, startDate),
       entry_in_end_window = between(EntryDate, endDate - 15, endDate)
@@ -536,17 +535,15 @@ lh_nbn_period <- function(startDate, endDate) {
     fgroup_by(EnrollmentID) %>%
     fsummarise(
       NbN15DaysBeforeReportStart = anyv(NbN15DaysBeforeReportStart, TRUE),
-      NbN15DaysAfterReportEnd = anyv(NbN15DaysAfterReportEnd, TRUE),
       NbN15DaysBeforeReportEnd = anyv(NbN15DaysBeforeReportEnd, TRUE),
       entry_in_start_window = entry_in_start_window,
       entry_in_end_window = entry_in_end_window
     ) %>%
     fsubset(
       NbN15DaysBeforeReportStart | 
-        NbN15DaysAfterReportEnd | 
-        NbN15DaysBeforeReportEnd |
-        entry_in_start_window |
-        entry_in_end_window
+      NbN15DaysBeforeReportEnd |
+      entry_in_start_window |
+      entry_in_end_window
     )
 }
 
@@ -569,21 +566,47 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       )[, 
       .(
         EnrollmentID,
-        was_lh_at_start = any_info_in_start_window |
-          (ProjectType != es_nbn_project_type & entry_in_start_window & lh_prior_livingsituation) |
-          (EntryDate > startDate & (lh_prior_livingsituation | InformationDate == EntryDate)) | 
-          (ProjectType == es_nbn_project_type & (entry_in_start_window | NbN15DaysBeforeReportStart)) |
-          ProjectType %in% setdiff(lh_residential_project_types, es_nbn_project_type),
         
-        was_lh_at_end = any_info_in_end_window |
-          (ProjectType != es_nbn_project_type & entry_in_end_window & lh_prior_livingsituation) |
-          (ExitAdjust < endDate & (lh_prior_livingsituation | InformationDate == ExitAdjust)) |
-          (ProjectType == es_nbn_project_type & (entry_in_end_window | NbN15DaysBeforeReportEnd)) |
-          ProjectType %in% setdiff(lh_residential_project_types, es_nbn_project_type),
+        was_lh_at_start = (
+          # Any LH project type (except ES-NbN, which is handled separately)
+          ProjectType %in% lh_project_types_nonbn |
+          (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & (
+            # Entry in window (15/60/90 days, depending on project type) & lh prior living situation
+            (entry_in_start_window & lh_prior_livingsituation) |
+            
+            # ES NbN and Bed Night in 15-day window
+            (ProjectType == es_nbn_project_type & NbN15DaysBeforeReportStart) |
+            
+            # Non-Res and LH CLS in 60/90-day window OR 
+            # Entry after start but LH prior or LH CLS
+            (ProjectType %in% non_res_project_types & (
+              has_lh_cls_in_start_window | 
+              (EntryDate > startDate & (lh_prior_livingsituation | has_lh_cls_in_range))
+            ))
+          ))
+        ),
         
-        has_cls_after_entry,
+        was_lh_at_end = (
+          # Any LH project type (except ES-NbN, which is handled separately)
+          ProjectType %in% lh_project_types_nonbn |
+            (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & (
+              # Entry in window (15/60/90 days, depending on project type) & lh prior living situation
+              (entry_in_end_window & lh_prior_livingsituation) |
+                
+                # ES NbN and Bed Night in 15-day window
+                (ProjectType == es_nbn_project_type & NbN15DaysBeforeReportEnd) |
+                
+                # Non-Res and LH CLS in 60/90-day window OR 
+                # Entry after start but LH prior or LH CLS
+                (ProjectType %in% non_res_project_types & (
+                  has_lh_cls_in_end_window | 
+                    (ExitAdjust < endDate & (lh_prior_livingsituation | has_lh_cls_in_range))
+                ))
+            ))
+        ),
+        
+        has_lh_cls_in_range,
         NbN15DaysBeforeReportStart,
-        NbN15DaysAfterReportEnd, 
         NbN15DaysBeforeReportEnd
       )
     ])

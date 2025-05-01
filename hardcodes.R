@@ -63,7 +63,7 @@ rrh_project_type <- 13
 
 ce_project_type <- 14
 
-lh_project_types_nc <- c(0, 2, 8)
+lh_project_types_nonbn <- c(0, 2, 8)
 
 lh_residential_project_types <- c(0, 1, 2, 8)
 
