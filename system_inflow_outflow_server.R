@@ -771,12 +771,6 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
         c(rep("2px solid black", 4))
       )
     ) %>%
-    # Highlight max change
-    formatStyle(
-      columns = month_cols[which.max(change_row)],
-      target = "cell",
-      backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Inflow"])
-    ) %>%
     # Contrast font and background colors
     formatStyle(
       columns = 1,
@@ -786,10 +780,17 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
         c("white", "white")
       )
     ) %>%
+    # Highlight max change
+    formatStyle(
+      columns = month_cols[which.max(change_row)],
+      target = "cell",
+      backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Inflow"])
+    ) %>%
     # Highlight min change
     formatStyle(
       columns = month_cols[which.min(change_row)],
       target = "cell",
+      color = "white",
       backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
     )
 })
