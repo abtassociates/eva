@@ -398,16 +398,25 @@ setindex(enrollment_categories, PersonalID, ProjectType)
 # by casting a wide net for (Non-Res) Project Types that rely on CurrentLivingSituation 
 # this dataset will be used to categorize people as active_at_start, homeless_at_end, and unknown_at_end
 # it's also used in determining EECR and LECR (see 07_system_overview_period_specific_prep.R)
-lh_non_res <- qDT(CurrentLivingSituation) %>%
-  fsubset(CurrentLivingSituation %in% homeless_livingsituation_incl_TH) %>%
-  join(
-    enrollment_categories[ProjectType %in% non_res_project_types, .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation)], 
-    on = "EnrollmentID",
-    how = "left"
-  ) %>%
-  fselect(
-    EnrollmentID, EntryDate, ProjectType, ExitAdjust, InformationDate, lh_prior_livingsituation
-  )
+lh_cls <- qDT(CurrentLivingSituation) %>%
+  fselect(EnrollmentID, InformationDate, CurrentLivingSituation) %>%
+  fsubset(CurrentLivingSituation %in% homeless_livingsituation_incl_TH)
+
+non_res_enrollments <- enrollment_categories[
+  ProjectType %in% non_res_project_types, 
+  .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation)
+]
+
+lh_non_res <- join(
+  lh_cls,
+  non_res_enrollments,
+  on = "EnrollmentID",
+  how = "inner"
+) %>%
+  fgroup_by(EnrollmentID) %>%
+  fmutate(has_lh_cls_eq_entry = anyv(InformationDate == EntryDate, TRUE)) %>%
+  fungroup()
+  
 
 setkey(lh_non_res, EnrollmentID)
 
@@ -415,9 +424,9 @@ setkey(lh_non_res, EnrollmentID)
 lh_nbn <- qDT(Services) %>%
   fselect(EnrollmentID, DateProvided) %>%
   join(
-    EnrollmentAdjust[
+    enrollment_categories[
       ProjectType == es_nbn_project_type, 
-      .(EnrollmentID, PersonalID, EntryDate, ExitAdjust)
+      .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation)
     ],
     on="EnrollmentID",
     how = "inner"
@@ -425,31 +434,14 @@ lh_nbn <- qDT(Services) %>%
 setkey(lh_nbn, EnrollmentID)
 
 # Remove "problematic" enrollments ----------------------------------
-# These are enrollments for non-res projects that entered the system as not LH
-# AND do not have a LH CLS later in the enrollment
-#
-# There are two ways to identify "not LH" for their entry enrollment (eecr): 
-# 1. NO lh_prior_livingsituation and 
-# 2. no lh cls where InformationDate == EntryDate
-lh_cls_info_eq_entry <- lh_non_res %>%
-  fgroup_by(EnrollmentID) %>%
-  fsummarise(has_lh_cls_eq_entry = anyv(InformationDate == EntryDate, TRUE))
-
-entered_not_lh_but_lh_cls_later <- enrollment_categories %>%
-  fsubset(
-    EntryDate <= session$userData$ReportEnd & 
-    ExitAdjust >= session$userData$ReportStart &
-    ProjectType %in% non_res_project_types
-  ) %>%
-  fgroup_by(PersonalID) %>%
-  fmutate(first_enrollment = fmin(EntryDate)) %>%
-  fungroup()  %>%
-  fsubset(!(EntryDate == first_enrollment & lh_prior_livingsituation)) %>%
-  join(
-    lh_cls_info_eq_entry %>% fsubset(has_lh_cls_eq_entry == TRUE),
-    on = "EnrollmentID",
-    how = "inner"
-  )
+# These are non-residential enrollments for which we have no LH evidence: 
+# So any enrollment that is not lh_prior_livingsituation and has no LH CLS
+problematic_enrollmentIDs <- base::setdiff(
+  non_res_enrollments[lh_prior_livingsituation == FALSE]$EnrollmentID,
+  unique(lh_cls$EnrollmentID)
+)
+enrollment_categories <- enrollment_categories %>%
+  fsubset(!EnrollmentID %in% problematic_enrollmentIDs)
 
 # Define lh_prior_livingsituation, lh_at_entry, and EnrolledHomeless
 # **lh_prior_livingsituation** is used to define was_lh_at_start and was_lh_at_end
@@ -458,12 +450,7 @@ entered_not_lh_but_lh_cls_later <- enrollment_categories %>%
 # **EnrolledHomeless** is used to categorize someone as Active at Start: Homeless
 enrollment_categories <- enrollment_categories %>%
   join(
-    entered_not_lh_but_lh_cls_later, 
-    on = "PersonalID",
-    how = "anti"
-  ) %>%
-  join(
-    lh_cls_info_eq_entry,
+    lh_non_res,
     on = "EnrollmentID",
     how = "left"
   ) %>%
@@ -638,8 +625,9 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       # drop in-range, non-res enrollments that are not LH at start AND have no CLS later
       fsubset(!(
         in_date_range & 
-          ProjectType %in% non_res_project_types & 
-          ((!was_lh_at_start | is.na(was_lh_at_start)) & !has_lh_cls_after_entry)
+        ProjectType %in% non_res_project_types & 
+        !isTRUE(was_lh_at_start) & 
+        !has_lh_cls_after_entry
       )) %>%
       # Flag if person had any straddling enrollments
       # to be used when calculating eecr/lecr in no-straddle cases
