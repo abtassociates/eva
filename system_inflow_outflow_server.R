@@ -381,7 +381,8 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
 sys_inflow_outflow_monthly_inactive_chart_data <- function() {
   get_inflow_outflow_monthly() %>%
     fsubset(OutflowTypeDetail == "Inactive") %>%
-    collapse(by = "month", FUN = list(Count = GRPN)) %>%
+    fgroup_by(month) %>%
+    fsummarise(Count = GRPN()) %>%
     roworder(month) %>%
     replace_na(value = 0, cols = "Count")
 }
