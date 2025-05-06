@@ -133,7 +133,7 @@ universe_ppl_flags <- function(universe_df, period) {
   setkey(universe_df, PersonalID)
 
   # Check for something's wrong
-  universe_df[, `:=`(
+  universe_w_ppl_flags <- universe_df[, `:=`(
     # INFLOW
     active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
     
@@ -201,6 +201,10 @@ universe_ppl_flags <- function(universe_df, period) {
   if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown"]) > 0 & identical(period, session$userData$report_dates[1])) {
     stop("There's an Unknown in the Full Annual data!")
   }
+  if(nrow(universe_w_ppl_flags[InflowTypeSummary == "something's wrong"]) > 0) {
+    warning(paste0("There's a something's wrong in the universe_ppl_flags data when period = ", period[1]))
+  }
+  universe_w_ppl_flags
 }
 
 # Inflow/Outflow Client-Level Data ---------------------------
@@ -347,7 +351,8 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     fmutate(
       InflowPlotFillGroups = fct_recode(InflowTypeSummary, `Active at Start: Homeless` = "Active at Start"),
       OutflowPlotFillGroups = fct_recode(OutflowTypeSummary, `Active at End: Housed` = "Active at End")
-    )
+    ) %>%
+    fsubset(InflowPlotFillGroups != "something's wrong")
   
   # First-time homeless filter
   if(input$mbm_fth_filter == "FTH-working") {
