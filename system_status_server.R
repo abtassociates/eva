@@ -246,13 +246,13 @@ get_sankey_data <- reactive({
   
   #Basic alluvial chart - both homeless and housed at start
   allu <- d_hh %>%
-    group_by(d_hh$`Period Start`, d_hh$`Period End`) %>%
+    group_by(`Period Start`, `Period End`) %>%
     summarise(Freq = n())
   
   names(allu) <- c("Begin", "End", "freq")
   
   #Convert statuses as factors and re-order levels
-  allu$Begin <- factor(allu$Begin, levels = c("Homeless",
+  allu$Begin <- factor(allu$Begin, labels = c("Homeless",
                                               "Housed"))
   
   allu$End <- factor(
