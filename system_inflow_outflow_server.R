@@ -37,7 +37,6 @@ collapse_details <- list(
 bar_colors <- c(
   "Inflow" = "#BDB6D7", 
   "Outflow" = '#6A559B',
-  # "Inactive" = "#E78AC3"
   "Homeless" = '#ECE7E3',
   "Housed" = '#9E958F'
 )
@@ -374,37 +373,12 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
 })
 
 ### Inactive ------------------------
-get_inactive_counts <- function() {
-  monthly_data <- get_inflow_outflow_monthly() %>%
-    fsubset(OutflowTypeDetail == "Inactive")
-
-  monthly_counts <- rbind(
-    monthly_data[, .(PersonalID, month, Type = InflowTypeDetail, source="Inflow")],
-    monthly_data[, .(PersonalID, month, Type = OutflowTypeDetail, source="Outflow")]
-  ) %>%
-    funique() %>%
-    fsubset(Type %in% inactive_levels) %>%
-    fmutate(
-      Type = factor(
-        paste0(Type, "-", source),
-        levels = inactive_levels_explicit
-      )
-    ) %>%
-    fgroup_by(month, Type) %>%
-    fsummarise(Count = GRPN()) %>%
-    roworder(month, Type)
-
-  join(
-    monthly_counts,
-    CJ(
-      month = levels(monthly_counts$month), 
-      Type = levels(monthly_counts$Type),
-      sorted = FALSE
-    ),
-    how = "full",
-    on = c("month","Type")
-  ) %>%
-  collapse::replace_na(value = 0, cols = "Count")
+sys_inflow_outflow_monthly_inactive_chart_data <- function() {
+  get_inflow_outflow_monthly() %>%
+    fsubset(OutflowTypeDetail == "Inactive") %>%
+    collapse(by = "month", FUN = list(Count = GRPN)) %>%
+    roworder(month) %>%
+    replace_na(value = 0, cols = "Count")
 }
 
 # Summary/Detail (Annual) Chart Prep ---------------------------------------
@@ -736,18 +710,6 @@ output$sys_inflow_outflow_monthly_ui_chart_line <- renderPlot({
 output$sys_inflow_outflow_monthly_ui_chart_combined <- renderPlot({
   plot_data <- sys_inflow_outflow_monthly_chart_data()
   
-  # --- Assume plot_data has columns: month, Count, PlotFillGroups ---
-  # Example PlotFillGroups values: "Active at Start: Housed", "Active at Start: Homeless", "Inflow", "Outflow"
-  
-  # --- Assume bar_colors is a NAMED vector like this: ---
-  # bar_colors <- c(
-  #   "Active at Start: Housed" = "skyblue3",
-  #   "Active at Start: Homeless" = "steelblue",
-  #   "Inflow" = "darkgreen",
-  #   "Outflow" = "firebrick"
-  # )
-  # Make sure your actual bar_colors object matches the names in PlotFillGroups
-  
   # Get Average Info for Title Display
   averages <- plot_data %>%
     collap(cols = "Count", FUN=fmean, by = ~ Summary) # Assuming Summary is equivalent to PlotFillGroups for averages
@@ -923,7 +885,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
       formatStyle(
         columns = month_cols[which.min(change_row)],
         target = "cell",
-        color = 'white',
+        color = styleRow(nrow(summary_data_with_change), 'white'),
         backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
       )
   }
@@ -932,7 +894,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
 
 ### Inactive chart --------------------------------------
 output$sys_inactive_monthly_ui_chart <- renderPlot({
-  plot_data <- get_inactive_counts()
+  plot_data <- sys_inflow_outflow_monthly_inactive_chart_data()
   
   level_of_detail_text <- case_when(
     input$syso_level_of_detail == "All" ~ "People",
@@ -941,12 +903,8 @@ output$sys_inactive_monthly_ui_chart <- renderPlot({
       getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
   )
 
-  ggplot(plot_data, aes(x = month, y = Count, fill = Type)) +
-    geom_col(position = position_dodge(
-      preserve="single", 
-      width = 0.6 # space between bars within a group
-    ), width = 0.5) +
-    scale_fill_manual(values = inactive_bar_colors, name = "Inactive Type") + # Update legend title
+  ggplot(plot_data, aes(x = month, y = Count)) +
+    geom_col(fill = "#6A559B") +
     theme_minimal() +
     labs(
       x = "Month",
@@ -956,7 +914,14 @@ output$sys_inactive_monthly_ui_chart <- renderPlot({
       axis.text = element_text(size = 11),
       axis.title.x = element_blank(),
       axis.title.y = element_text(size = 15),
-      axis.line.x = element_line()
+      legend.position = "none",
+      panel.grid = element_blank(),
+      axis.text.y = element_text(size = 10, color = "black"),
+      axis.ticks.y = element_line(color = "black"),
+      axis.line.y = element_line(),
+      axis.line.x = element_line(),
+      axis.ticks.x = element_blank(),
+      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 })
 
