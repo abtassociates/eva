@@ -603,7 +603,7 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
       position = "stack",
       width = mbm_bar_width,
       color = 'black',
-      just = 1.8 # this moves the bar to the left of the month-center
+      just = 1 # this moves the bar to the left of the month-center
     ) +
     geom_bar(
       data = plot_data[Summary == "Outflow"],
@@ -612,7 +612,7 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
       position = "stack",
       width = mbm_bar_width,
       color = 'black',
-      just = -0.8 # this moves the bar to the right of the month-center
+      just = -0.4 # this moves the bar to the right of the month-center
     ) +
     
     scale_fill_manual(values = mbm_bar_colors, name = "Inflow/Outflow Types") + # Update legend title
