@@ -618,7 +618,7 @@ lh_other_period <- function(all_filtered, startDate, endDate) {
       EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2)) &
         (
           ProjectType %in% lh_project_types_nonbn | 
-            (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
+          (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
         )
     ) %>%
     ftransform(
@@ -657,20 +657,20 @@ add_lh_info <- function(all_filtered, period) {
           (ProjectType %in% non_res_project_types & (
             lh_cls_in_start_window | (entry_in_start_window & lh_prior_livingsituation)
           )) |
-            # ES NbN and Bed Night in 15-day window
-            # we don't need lh_prior_livingsituation here 
-            # because ES NbN enrollment implies homelessness
-            (ProjectType == es_nbn_project_type & (
-              nbn_in_start_window | entry_in_start_window
-            )) | 
-            # All Other projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
-            # must either straddle or otherwise be close to (i.e. 14 days from) 
-            # start so we can make claims about status at start
-            # and must be within 14 days of previous enrollment, otherwise it would be an exit
-            ((straddles_start | (entry_in_start_window & days_since_lookback <= 14)) & (
-              ProjectType %in% lh_project_types_nonbn | 
-                (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
-            ))
+          # ES NbN and Bed Night in 15-day window
+          # we don't need lh_prior_livingsituation here 
+          # because ES NbN enrollment implies homelessness
+          (ProjectType == es_nbn_project_type & (
+            nbn_in_start_window | entry_in_start_window
+          )) | 
+          # All Other projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
+          # must either straddle or otherwise be close to (i.e. 14 days from) 
+          # start so we can make claims about status at start
+          # and must be within 14 days of previous enrollment, otherwise it would be an exit
+          ((straddles_start | (entry_in_start_window & days_since_lookback <= 14)) & (
+            ProjectType %in% lh_project_types_nonbn | 
+            (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
+          ))
         ),
         
         # was_lh_15_after_start = 

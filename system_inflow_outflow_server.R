@@ -360,14 +360,28 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     # was first-time homeless
     # then, we only want their first span in the system, i.e. FTH, then Active, until Outflow
     # Even if they inflowed again, we wouldn't want to take that.
-    first_time_homeless_in_period <- get_inflow_outflow_full() %>%
+    first_time_homeless_in_period <- period_specific_data()[["Full"]] %>%
       fsubset(InflowTypeDetail == "First-Time \nHomeless") %>%
-      fselect(PersonalID) %>%
+      fmutate(FirstTimeHomelessMonth = format(EntryDate, "%b %y")) %>%
+      fselect(PersonalID, FirstTimeHomelessMonth) %>%
       funique()
     
-    
     monthly_data <- monthly_data %>%
-      join(first_time_homeless_in_period, on = "PersonalID", how = "inner")
+      join(
+        first_time_homeless_in_period, 
+        on = c("PersonalID"), 
+        how = "inner"
+      ) %>%
+      fmutate(
+        InflowPlotFillGroups = factor(
+          fifelse(
+            FirstTimeHomelessMonth == month,
+            "First-Time \nHomeless",
+            as.character(InflowPlotFillGroups)
+          ),
+          levels = c("Active at Start: Homeless", "First-Time \nHomeless", "Inflow", "something's wrong")
+        )
+      )
   } 
 
   # Get counts of each type by month
