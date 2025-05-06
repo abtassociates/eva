@@ -910,23 +910,22 @@ output$sys_inactive_monthly_ui_chart <- renderPlot({
   )
 
   ggplot(plot_data, aes(x = month, y = Count)) +
-    geom_col(fill = "#6A559B") +
+    geom_col(fill = "#6A559B", width = 0.3) +
     theme_minimal() +
     labs(
       x = "Month",
       y = paste0("Count of ", level_of_detail_text)
     ) +
     theme(
-      axis.text = element_text(size = 11),
+      axis.text = element_text(size = 12, face="bold", family="sans"),
+      axis.title.y = element_text(size = sys_axis_text_font),  
       axis.title.x = element_blank(),
-      axis.title.y = element_text(size = 15),
       legend.position = "none",
-      panel.grid = element_blank(),
-      axis.text.y = element_text(size = 10, color = "black"),
-      axis.ticks.y = element_line(color = "black"),
+      panel.grid = element_blank(),        # Remove gridlines
+      axis.line.x = element_line(),          
       axis.line.y = element_line(),
-      axis.line.x = element_line(),
-      axis.ticks.x = element_blank(),
+      axis.ticks.y = element_line(),
+      plot.margin = margin(l = 55),
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 })
