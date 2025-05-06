@@ -333,11 +333,16 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
   
   # First-time homeless filter
   if(input$mbm_fth_filter == "First-Time Homeless") {
+    # filter to just People whose first inflow status in the whole report period 
+    # was first-time homeless
+    first_time_homeless_in_period <- get_inflow_outflow_full() %>%
+      fsubset(InflowTypeDetail == "First-Time \nHomeless") %>%
+      fselect(PersonalID) %>%
+      funique()
+    
+    
     monthly_data <- monthly_data %>%
-      fgroup_by(PersonalID) %>%
-      fmutate(FirstTimeHomeless = anyv(InflowTypeDetail, "First-Time \nHomeless")) %>%
-      fungroup() %>%
-      fsubset(FirstTimeHomeless == TRUE)
+      join(first_time_homeless_in_period, on = "PersonalID", how = "inner")
   } 
 
   # Get counts of each type by month
