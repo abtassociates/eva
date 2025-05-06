@@ -640,7 +640,7 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
     theme(
       axis.text = element_blank(),
       axis.title.x = element_blank(), 
-      axis.title.y = element_text(size = 15),   
+      axis.title.y = element_text(size = sys_axis_text_font),   
       legend.position = "none",
       panel.grid = element_blank(),        # Remove gridlines
       axis.line.y = element_blank(), 
@@ -699,7 +699,7 @@ output$sys_inflow_outflow_monthly_ui_chart_line <- renderPlot({
     theme(
       axis.text.x = element_blank(),
       axis.title.x = element_blank(), 
-      axis.title.y = element_text(size = 15),   
+      axis.title.y = element_text(size = sys_axis_text_font),   
       legend.position = "none",
       panel.grid = element_blank(), 
       axis.text.y = element_text(size = 10, color = "black"), # Example: adjust size and color
@@ -790,7 +790,7 @@ output$sys_inflow_outflow_monthly_ui_chart_combined <- renderPlot({
     theme(
       axis.text.x = element_blank(),
       axis.title.x = element_blank(),
-      axis.title.y = element_text(size = 15),
+      axis.title.y = element_text(size = sys_axis_text_font),
       legend.position = "none",
       panel.grid = element_blank(),
       axis.text.y = element_text(size = 10, color = "black"),
