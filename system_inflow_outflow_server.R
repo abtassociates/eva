@@ -42,10 +42,10 @@ bar_colors <- c(
 )
 
 mbm_bar_colors <- c(
+  "Active at Start: Homeless" = '#ECE7E3',
   "Inflow" = "#BDB6D7", 
   "Outflow" = '#6A559B',
   # "Inactive" = "#E78AC3"
-  "Active at Start: Homeless" = '#ECE7E3',
   "Active at End: Housed" = '#9E958F'
 )
 
@@ -385,7 +385,6 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
       Inflow = "Active at Start: Homeless",
       Outflow = "Active at End: Housed"
     )
-  #   PlotFillGroups = factor(PlotFillGroups, levels = c(rev(active_at_levels), "Inflow", "Outflow"))  
   ) %>%
   collapse::replace_na(value = 0, cols = "Count")
 })
@@ -832,10 +831,13 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
   ) %>%
     # prepend Active at Start to Housed and Homeless
     ftransform(
-      PlotFillGroups = fifelse(
-        PlotFillGroups %in% active_at_levels, 
-        paste0("Active at Start: ", PlotFillGroups),
-        as.character(PlotFillGroups)
+      PlotFillGroups = factor(
+        fifelse(
+          PlotFillGroups %in% active_at_levels, 
+          paste0("Active at Start: ", PlotFillGroups),
+          as.character(PlotFillGroups)
+        ),
+        levels = names(mbm_bar_colors)
       )
     )
 
@@ -849,7 +851,8 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
   summary_data_with_change <- rbind(
     summary_data, 
     add_vars(change_row, PlotFillGroups = "Monthly Change")
-  )
+  ) %>%
+    roworder(PlotFillGroups)
 
   setnames(summary_data_with_change, "PlotFillGroups", " ")
 
