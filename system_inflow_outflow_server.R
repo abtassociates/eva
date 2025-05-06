@@ -101,7 +101,9 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
       ProjectType %in% c(es_nbn_project_type, non_res_project_types) & !was_lh_at_start & was_lh_15_after_start
     ),
     
-    first_time_homeless = days_since_lookback > 730 | is.na(days_since_lookback),
+    first_time_homeless = (days_since_lookback > 730 | is.na(days_since_lookback)) & 
+      EntryDate >= startDate,
+    
     unknown_at_start = eecr & 
       straddles_start & 
       ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
