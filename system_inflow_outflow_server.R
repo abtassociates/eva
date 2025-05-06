@@ -7,8 +7,8 @@ active_at_levels <- c(
 inflow_detail_levels <- c(
   "First-Time \nHomeless", 
   "Returned from \nPermanent",
-  "Re-engaged from \nNon-Permanent",
-  "Unknown"
+  "Re-engaged from \nNon-Permanent"
+  # "Unknown"
   # "something's wrong"
 )
 
@@ -50,11 +50,13 @@ mbm_bar_colors <- c(
   "Active at End: Housed" = '#9E958F'
 )
 
-inactive_levels <- c("Unknown", "Inactive")
-inactive_levels_explicit <- c("Unknown-Inflow", "Inactive-Outflow")
+# inactive_levels <- c("Unknown", "Inactive")
+inactive_levels <- c("Inactive")
+# inactive_levels_explicit <- c("Unknown-Inflow", "Inactive-Outflow")
+inactive_levels_explicit <- c("Inactive-Outflow")
 
 inactive_bar_colors <- c(
-  "Unknown-Inflow" = "#DAD6E9",   # lighter version of "#BDB6D7"
+  # "Unknown-Inflow" = "#DAD6E9",   # lighter version of "#BDB6D7"
   "Inactive-Outflow" = "#9B87C0"   # lighter version of "#6A559B"
 )
 
@@ -63,6 +65,127 @@ inactive_bar_colors <- c(
 # lower and the bars are too thin, or space within a month is about the same as across
 mbm_bar_width = 0.2
 
+# Period-Specific, Filtered, Enrollment-Level Universe -------------------------
+
+## Enrollment-level flags ------------------------
+# hello weary traveler amongst these date ranges. you may find it helpful to
+# find example clients and their Entry and Exit Dates and enter them into
+# https://onlinetools.com/time/visualize-date-intervals <- here.
+# add inflow type and active enrollment typed used for system overview plots
+#
+# While the following datasets appear to be inflow-outflow specific, 
+# the reason they are stored in this system_overview script is because they 
+universe_enrl_flags <- function(all_filtered_w_lh, period) {
+  startDate <- period[1]
+  endDate <- period[2]
+  
+  all_filtered_w_lh[, `:=`(
+    # INFLOW CALCULATOR COLUMNS
+    active_at_start_homeless = eecr & was_lh_at_start,
+    
+    active_at_start_housed = eecr & ProjectType %in% ph_project_types & (
+        fcoalesce(MoveInDateAdjust, no_end_date) < startDate
+      ) | (
+        days_since_lookback <= 14 & lookback_dest_perm & lookback_movein_before_start
+      ),
+    
+    return_from_perm = eecr & between(days_since_lookback, 15, 730) & lookback_dest_perm,
+    
+    return_from_nonperm = eecr & (
+      between(days_since_lookback, 15, 730) & !lookback_dest_perm
+    ) | (
+      ProjectType %in% c(es_nbn_project_type, non_res_project_types) & !was_lh_at_start & was_lh_15_after_start
+    ),
+    
+    first_time_homeless = days_since_lookback > 730 | is.na(days_since_lookback),
+    
+    # OUTFLOW CALCULATOR COLUMNS
+    exited = lecr & between(ExitAdjust, startDate, endDate),
+    
+    homeless_at_end = lecr & was_lh_at_end,
+    
+    housed_at_end = lecr & 
+      ProjectType %in% ph_project_types & 
+      fcoalesce(MoveInDateAdjust, no_end_date) < endDate &
+      (straddles_end | days_to_lookahead <= 14),
+    
+    unknown_at_end = lecr &
+      straddles_end & 
+      ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
+      !isTRUE(was_lh_at_end)
+  )]
+}
+
+## People-level flags ------------------------
+# Need to keep it enrollment-level so other scripts can reference the enrollments
+universe_ppl_flags <- function(universe_df, period) {
+  setkey(universe_df, PersonalID)
+
+  # Check for something's wrong
+  universe_df[, `:=`(
+    # INFLOW
+    active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
+    
+    active_at_start_housed_client = any(active_at_start_housed, na.rm = TRUE),
+    
+    return_from_perm_client = any(return_from_perm, na.rm = TRUE),
+    
+    reengaged_from_temp_client = any(return_from_nonperm, na.rm = TRUE),
+
+    first_time_homeless_client = any(first_time_homeless, na.rm = TRUE),
+    
+    # OUTFLOW
+    perm_dest_client = any(exited & Destination %in% perm_livingsituation, na.rm = TRUE),
+    
+    temp_dest_client = any(exited & !Destination %in% perm_livingsituation, na.rm = TRUE),
+    
+    homeless_at_end_client = any(homeless_at_end, na.rm = TRUE),
+    
+    housed_at_end_client = any(housed_at_end, na.rm = TRUE),
+    
+    unknown_at_end_client = any(unknown_at_end, na.rm = TRUE)
+  ), by = PersonalID
+  ][, `:=`(
+    InflowTypeSummary = factor(
+      fcase(
+        active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
+        first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client, "Inflow",
+        default = "something's wrong"
+      ), levels = inflow_summary_levels
+    ),
+    
+    InflowTypeDetail = factor(
+      fcase(
+        active_at_start_homeless_client, "Homeless",
+        active_at_start_housed_client, "Housed",
+        return_from_perm_client, "Returned from \nPermanent",
+        reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
+        first_time_homeless_client, "First-Time \nHomeless",
+        # unknown_at_start, "Inactive",
+        default = "something's wrong"
+      ), levels = c(active_at_levels, inflow_detail_levels)
+    ),
+    
+    OutflowTypeSummary = factor(
+      fcase(
+        perm_dest_client | temp_dest_client | unknown_at_end_client, "Outflow",
+        homeless_at_end_client | housed_at_end_client, "Active at End",
+        default = "something's wrong"
+      ), levels = outflow_summary_levels
+    ),
+    
+    OutflowTypeDetail = factor(
+      fcase(
+        perm_dest_client, "Exited,\nPermanent",
+        temp_dest_client, "Exited,\nNon-Permanent",
+        unknown_at_end_client, "Inactive",
+        homeless_at_end_client, "Homeless",
+        housed_at_end_client, "Housed",
+        default = "something's wrong"
+      ), levels = c(outflow_detail_levels, rev(active_at_levels), "something's wrong")
+    )
+  )]
+}
 
 # Inflow/Outflow Client-Level Data ---------------------------
 ## Summary (Annual) ----------------------------
@@ -253,7 +376,7 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
 ### Inactive ------------------------
 get_inactive_counts <- function() {
   monthly_data <- get_inflow_outflow_monthly() %>%
-    fsubset(OutflowTypeDetail == "Inactive" | InflowTypeDetail == "Unknown")
+    fsubset(OutflowTypeDetail == "Inactive")
 
   monthly_counts <- rbind(
     monthly_data[, .(PersonalID, month, Type = InflowTypeDetail, source="Inflow")],
@@ -734,12 +857,14 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
         as.character(PlotFillGroups)
       )
     )
-  
+
   # Get Monthly Change (Inflow - Outflow)
   month_cols <- names(summary_data)[-1]
 
-  change_row <- summary_data[PlotFillGroups == "Inflow", ..month_cols] -
+  change_row <- 
+    summary_data[PlotFillGroups == "Inflow", ..month_cols] -
     summary_data[PlotFillGroups == "Outflow", ..month_cols]
+  
   summary_data_with_change <- rbind(
     summary_data, 
     add_vars(change_row, PlotFillGroups = "Monthly Change")
@@ -747,52 +872,62 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
 
   setnames(summary_data_with_change, "PlotFillGroups", " ")
 
-  datatable(summary_data_with_change,
-            options = list(
-              dom = 't',
-              ordering = FALSE,
-              # pageLength = 4,
-              columnDefs = list(
-                list(width = "48px", targets = 0), # Set first column width
-                list(className = 'dt-center', targets = '_all') # Center text
-              )
-            ),
-            rownames = FALSE)  %>%
-    # Highlight only the first column of "Inflow" and "Outflow" rows
-    formatStyle(
-      columns = 1,  # First column
-      target = "cell",
-      backgroundColor = styleEqual(
-        names(mbm_bar_colors),
-        unname(mbm_bar_colors)
-      ),
-      border = styleEqual(
-        names(mbm_bar_colors),
-        c(rep("2px solid black", 4))
+  monthly_dt <- datatable(
+    summary_data_with_change,
+    options = list(
+      dom = 't',
+      ordering = FALSE,
+      # pageLength = 4,
+      columnDefs = list(
+        list(width = "48px", targets = 0), # Set first column width
+        list(className = 'dt-center', targets = '_all') # Center text
       )
-    ) %>%
-    # Contrast font and background colors
-    formatStyle(
-      columns = 1,
-      target = "cell",
-      color = styleEqual(
-        c("Active at End: Housed", "Outflow"),
-        c("white", "white")
-      )
-    ) %>%
-    # Highlight max change
-    formatStyle(
-      columns = month_cols[which.max(change_row)],
-      target = "cell",
-      backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Inflow"])
-    ) %>%
-    # Highlight min change
-    formatStyle(
-      columns = month_cols[which.min(change_row)],
-      target = "cell",
-      color = "white",
-      backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
+    ),
+    rownames = FALSE
+  )  %>%
+  # Highlight only the first column of "Inflow" and "Outflow" rows
+  formatStyle(
+    columns = 1,  # First column
+    target = "cell",
+    backgroundColor = styleEqual(
+      names(mbm_bar_colors),
+      unname(mbm_bar_colors)
+    ),
+    border = styleEqual(
+      names(mbm_bar_colors),
+      c(rep("2px solid black", 4))
     )
+  ) %>%
+  # Contrast font and background colors
+  formatStyle(
+    columns = 1,
+    target = "cell",
+    color = styleEqual(
+      c("Active at End: Housed", "Outflow"),
+      c("white", "white")
+    )
+  )
+
+  # Highlight max inflow
+  if(any(change_row > 0)) {
+    monthly_dt <- monthly_dt %>%
+      formatStyle(
+        columns = month_cols[which.max(change_row)],
+        target = "cell",
+        backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Inflow"])
+      )
+  }
+  
+  if(any(change_row < 0)) {
+    monthly_dt <- monthly_dt %>%
+      formatStyle(
+        columns = month_cols[which.min(change_row)],
+        target = "cell",
+        color = 'white',
+        backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
+      )
+  }
+  monthly_dt
 })
 
 ### Inactive chart --------------------------------------
@@ -967,13 +1102,13 @@ qc_checks <- function() {
       InflowTypeDetail,
       active_at_start_homeless,
       active_at_start_housed,
-      at_least_14_days_to_eecr_enrl,
-      first_lookback_perm_dest,
-      first_lookback_temp_dest,
+      # at_least_14_days_to_eecr_enrl,
+      # first_lookback_perm_dest,
+      # first_lookback_temp_dest,
       return_from_perm_client,
       reengaged_from_temp_client,
-      first_time_homeless_client,
-      unknown_at_start
+      first_time_homeless_client
+      # unknown_at_start
     )])
   }
   
