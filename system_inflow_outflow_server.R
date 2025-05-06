@@ -332,9 +332,11 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     )
   
   # First-time homeless filter
-  if(input$mbm_fth_filter == "First-Time Homeless") {
+  if(input$mbm_fth_filter == "FTH-working") {
     # filter to just People whose first inflow status in the whole report period 
     # was first-time homeless
+    # then, we only want their first span in the system, i.e. FTH, then Active, until Outflow
+    # Even if they inflowed again, we wouldn't want to take that.
     first_time_homeless_in_period <- get_inflow_outflow_full() %>%
       fsubset(InflowTypeDetail == "First-Time \nHomeless") %>%
       fselect(PersonalID) %>%
@@ -356,16 +358,17 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     roworder(month, PlotFillGroups)
 
   # Make sure all month-type combinations are reflected
-  join(
-    monthly_counts,
-    CJ(
-      month = levels(monthly_counts$month), 
-      PlotFillGroups = unique(monthly_counts$PlotFillGroups), 
-      sorted = FALSE
-    ),
-    on = c("month","PlotFillGroups"),
-    how = "full"
-  ) %>%
+  # join(
+  #   monthly_counts,
+  #   CJ(
+  #     month = levels(monthly_counts$month), 
+  #     PlotFillGroups = unique(monthly_counts$PlotFillGroups), 
+  #     sorted = FALSE
+  #   ),
+  #   on = c("month","PlotFillGroups"),
+  #   how = "full"
+  # ) 
+  monthly_counts %>%
   fmutate(
     Summary = fct_collapse(
       PlotFillGroups, 
@@ -377,10 +380,10 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
   collapse::replace_na(value = 0, cols = "Count")
 })
 
-### Inactive ------------------------
-sys_inflow_outflow_monthly_inactive_chart_data <- function() {
+### Inactive + FTH ------------------------
+sys_inflow_outflow_monthly_single_status_chart_data <- function(varname, status) {
   get_inflow_outflow_monthly() %>%
-    fsubset(OutflowTypeDetail == "Inactive") %>%
+    fsubset(.[[varname]] == status) %>%
     fgroup_by(month) %>%
     fsummarise(Count = GRPN()) %>%
     roworder(month) %>%
@@ -898,9 +901,12 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
   monthly_dt
 })
 
-### Inactive chart --------------------------------------
-output$sys_inactive_monthly_ui_chart <- renderPlot({
-  plot_data <- sys_inflow_outflow_monthly_inactive_chart_data()
+### Inactive + FTH chart --------------------------------------
+sys_monthly_single_status_ui_chart <- function(varname, status) {
+  plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(
+    varname, 
+    status
+  )
   
   level_of_detail_text <- case_when(
     input$syso_level_of_detail == "All" ~ "People",
@@ -928,6 +934,13 @@ output$sys_inactive_monthly_ui_chart <- renderPlot({
       plot.margin = margin(l = 55),
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
+}
+output$sys_inactive_monthly_ui_chart <- renderPlot({
+  sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
+})
+
+output$sys_fth_monthly_ui_chart <- renderPlot({
+  sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time \nHomeless")
 })
 
 # Info to include in Inflow/Outflow Exports -----------------------------------
