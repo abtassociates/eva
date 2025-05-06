@@ -441,7 +441,8 @@ period_specific_data <- reactive({
       enrollment_categories <- session$userData$get_period_specific_enrollment_categories(period, upload_name)
         
       all_filtered <- universe_filtered(enrollment_categories)
-      universe_w_enrl_flags <- universe_enrl_flags(all_filtered, period)
+      all_filtered_w_lh <- add_lh_info(all_filtered, period)
+      universe_w_enrl_flags <- universe_enrl_flags(all_filtered_w_lh, period)
       universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags, period)
       
       # Add month flag for month-periods
@@ -479,21 +480,6 @@ client_categories_filtered <- reactive({
 
 # Period-specific, user-filtered, enrollment-level universe applied ------------------
 universe_filtered <- function(enrollment_categories) {
-  # if(is.null(nbn_services)) {
-  #   enrollments <- fmutate(
-  #     enrollment_categories,
-  #     NbN15DaysBeforeReportStart = NA,
-  #     NbN15DaysAfterReportEnd = NA,
-  #     NbN15DaysBeforeReportEnd = NA
-  #   )
-  # } else {
-  #   enrollments <- join(
-  #     enrollment_categories,
-  #     nbn_services,
-  #     on = "EnrollmentID",
-  #     how = "left"
-  #   )
-  # }
   
 enrollment_categories %>%
     join( # Inner Join with client categories
@@ -525,188 +511,187 @@ enrollment_categories %>%
     )
 }
 
-# Period-Specific, Filtered, Enrollment-Level Universe -------------------------
-## Enrollment-level flags ------------------------
-# hello weary traveler amongst these date ranges. you may find it helpful to
-# find example clients and their Entry and Exit Dates and enter them into
-# https://onlinetools.com/time/visualize-date-intervals <- here.
-# add inflow type and active enrollment typed used for system overview plots
-#
-# While the following datasets appear to be inflow-outflow specific, 
-# the reason they are stored in this system_overview script is because they 
-# 
-universe_enrl_flags <- function(all_filtered, period) {
+
+## LH info for non-res enrollments -----------
+# continuing the work of the base lh_non_res dataset from 07_system_overview.R 
+# we now make it period-specific, and collapse it down to the enrollment-level
+# so this contains enrollments with LH CLS and an indicator as to 
+# whether InformationDate is within to 60 or 90 days 
+# (depending on project type, but only limited to Non-Res Project Types) 
+# from the period start/end
+# we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
+# this avoids having to re-filter and do the check for each enrollment
+lh_non_res_period <- function(startDate, endDate) {
+  lh_non_res <- session$userData$lh_non_res %>%
+    # Initial filtering
+    fsubset(EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))) %>%
+    
+    # Calculate time windows
+    ftransform(
+      start_window = startDate - fifelse(ProjectType == ce_project_type, 90, 60),
+      end_window = endDate - fifelse(ProjectType == ce_project_type, 90, 60)
+    ) %>%
+    ftransform(
+      lh_cls_in_start_window = between(InformationDate, start_window, startDate + 15),
+      lh_cls_in_end_window = between(InformationDate, end_window, endDate + 15),
+      entry_in_start_window = between(EntryDate, start_window, startDate + 15),
+      entry_in_end_window = between(EntryDate, end_window, endDate),
+      lh_cls_15_after_start = InformationDate >= startDate + 15
+    )  %>%
+    fselect(
+      EnrollmentID, ProjectType, lh_prior_livingsituation,
+      lh_cls_in_start_window,
+      lh_cls_in_end_window,
+      entry_in_start_window,
+      entry_in_end_window,
+      lh_cls_15_after_start
+    ) %>%
+    fsubset(
+      lh_cls_in_start_window |
+        lh_cls_in_end_window |
+        entry_in_start_window |
+        entry_in_end_window |
+        lh_cls_15_after_start
+    )
+  
+  if(nrow(lh_non_res) == 0 ) return(lh_non_res)
+  
+  lh_non_res %>%
+    # Group by EnrollmentID and calculate window flags
+    fgroup_by(EnrollmentID) %>%
+    fmutate(
+      lh_cls_in_start_window = anyv(lh_cls_in_start_window, TRUE),
+      lh_cls_in_end_window = anyv(lh_cls_in_end_window, TRUE),
+      entry_in_start_window = entry_in_start_window,
+      entry_in_end_window = entry_in_end_window,
+      lh_cls_15_after_start = anyv(lh_cls_15_after_start, TRUE)
+    ) %>%
+    fungroup()
+}
+
+## LH info for NbN enrollments--------------
+lh_nbn_period <- function(startDate, endDate) {
+  lh_nbn <- session$userData$lh_nbn %>%
+    # Initial filtering
+    fsubset(EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))) %>%
+    ftransform(
+      nbn_in_start_window = between(DateProvided, startDate - 15, startDate + 15),
+      nbn_in_end_window = between(DateProvided, endDate - 15, endDate + 15),
+      entry_in_start_window = between(EntryDate, startDate - 15, startDate + 15),
+      entry_in_end_window = between(EntryDate, endDate - 15, endDate),
+      nbn_15_after_start = DateProvided >= startDate + 15
+    ) %>%
+    fselect(
+      EnrollmentID, ProjectType, 
+      nbn_in_start_window,
+      nbn_in_end_window,
+      entry_in_start_window,
+      entry_in_end_window,
+      nbn_15_after_start
+    ) %>%
+    fsubset(
+      nbn_in_start_window |
+        nbn_in_end_window |
+        entry_in_start_window |
+        entry_in_end_window |
+        nbn_15_after_start
+    )
+  
+  if(nrow(lh_nbn) == 0) return(lh_nbn)
+  
+  lh_nbn %>%
+    fgroup_by(EnrollmentID) %>%
+    fmutate(
+      nbn_in_start_window = anyv(nbn_in_start_window, TRUE),
+      nbn_in_end_window = anyv(nbn_in_end_window, TRUE),
+      entry_in_start_window = entry_in_start_window,
+      entry_in_end_window = entry_in_end_window,
+      nbn_15_after_start = anyv(nbn_15_after_start, TRUE)
+    ) %>%
+    fungroup()
+}
+
+## LH info for Other enrollments --------------
+lh_other_period <- function(all_filtered, startDate, endDate) {
+  all_filtered %>%
+    fsubset(
+      EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2)) &
+        (
+          ProjectType %in% lh_project_types_nonbn | 
+            (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
+        )
+    ) %>%
+    ftransform(
+      entry_in_start_window = between(EntryDate, startDate, startDate + 15)
+    ) %>%
+    fselect(
+      EnrollmentID, ProjectType, MoveInDateAdjust,
+      straddles_start, straddles_end,
+      entry_in_start_window,
+      days_since_lookback,
+      days_to_lookahead
+    )
+}
+
+# Combine lh_infos and add to filtered universe dataset-------------------
+add_lh_info <- function(all_filtered, period) {
   startDate <- period[1]
   endDate <- period[2]
   
-  all_filtered[, `:=`(
-    # INFLOW CALCULATOR COLUMNS
-    # LOGIC: active homeless at start
-    # basically it has to straddle report start
-    # the entry date of the EECR needs to be on or before the reporting period
-    # the exitadjust has to be after report start
-    # OR the eecr & first_lookback have to end and start within 14 days of each
-    # other and of the report start
-    # EnrolledHomeless status of the EECR needs to be true
-    # JUST FOR FULL DISCLOSURE, this means: 
-    # ProjectType %in% project_types_enrolled_homeless |
-    # lh_prior_livingsituation == TRUE
-    
-    active_at_start_homeless =
-      eecr == TRUE &
-      (
-        # PH project types have move-in after start (or no move-in)
-        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) |  MoveInDateAdjust >= startDate)) |
-        # Non-res project types should be LH at start
-        (ProjectType %in% non_res_project_types & was_lh_at_start) |
-        # take any other enrollments if their PLS was literally homeless
-        (!ProjectType %in% ph_project_types & EnrolledHomeless)
-      ) &
-      # Enrollment straddles start or the enrollment is within 2 weeks from start
-      # and within 2 weeks of prev enrollment
-      (straddles_start == TRUE |
-         (straddles_start == FALSE &
-            EntryDate >= startDate &
-            between(as.numeric(difftime(EntryDate, startDate, units = "days")),
-                    0,
-                    14) &
-            !is.na(days_since_lookback) &
-            between(as.numeric(days_since_lookback), 0, 14))),
-    
-    #LOGIC: enrolled housed at start
-    # Exit.ExitDate is null or > ReportStartDate AND
-    
-    # Project.ProjectType IN (3, 9, 10, 13) AND
-    # Enrollment.MoveInDate is !NULL OR <= ReportStartDate AND
-    # Enrollment.LivingSituation is LiterallyHomeless*"
-    active_at_start_housed = eecr == TRUE & 
-      ProjectType %in% ph_project_types & 
-      fcoalesce(MoveInDateAdjust, no_end_date) < startDate,
-    
-    # LOGIC helper columns
-    at_least_14_days_to_eecr_enrl = eecr & 
-      as.numeric(days_since_lookback) >= 14 & 
-      !is.na(days_since_lookback),
-    
-    unknown_at_start = eecr == TRUE &
-      straddles_start & (
-        # Non-Res Project Types and not lh
-        (ProjectType %in% non_res_project_types & (!was_lh_at_start | is.na(was_lh_at_start))) |
-        # nbn shelter
-        (ProjectType == es_nbn_project_type & (in_date_range | NbN15DaysBeforeReportStart))
+  lh_info <- unique(
+    # Capture LH info for both non-residential projects AND ES NbN projects
+    rbindlist(
+      list(
+        lh_non_res_period(startDate, endDate),
+        lh_nbn_period(startDate, endDate),
+        lh_other_period(all_filtered, startDate, endDate)
       ),
-    
-    # outflow columns
-    exited = lecr == TRUE &
-      between(ExitAdjust, startDate, endDate),
-    
-    homeless_at_end = lecr == TRUE & 
-      straddles_end & ( 
-        # e/e shelter, th, sh
-        ProjectType %in% lh_project_types_nonbn |
-          
-        # nbn shelter
-        (ProjectType == es_nbn_project_type & (in_date_range | NbN15DaysBeforeReportEnd)) |
+      fill = TRUE
+    )[, 
+      .(
+        EnrollmentID,
         
-        # Non-Res Project Types
-        (ProjectType %in% non_res_project_types & was_lh_at_end) |
+        was_lh_at_start = (
+          # Non-Res and LH CLS in 60/90-day window OR 
+          # Entry in 60/90 day window and lh_prior_livingsituation
+          (ProjectType %in% non_res_project_types & (
+            lh_cls_in_start_window | (entry_in_start_window & lh_prior_livingsituation)
+          )) |
+            # ES NbN and Bed Night in 15-day window
+            # we don't need lh_prior_livingsituation here 
+            # because ES NbN enrollment implies homelessness
+            (ProjectType == es_nbn_project_type & (
+              nbn_in_start_window | entry_in_start_window
+            )) | 
+            # All Other projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
+            # must either straddle or otherwise be close to (i.e. 14 days from) 
+            # start so we can make claims about status at start
+            # and must be within 14 days of previous enrollment, otherwise it would be an exit
+            ((straddles_start | (entry_in_start_window & days_since_lookback <= 14)) & (
+              ProjectType %in% lh_project_types_nonbn | 
+                (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
+            ))
+        ),
         
-        # PSH, OPH, RRH
-        (ProjectType %in% ph_project_types &
-           (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
-      ),
-    
-    housed_at_end = lecr == TRUE & 
-      straddles_end &
-      ProjectType %in% ph_project_types & 
-      fcoalesce(MoveInDateAdjust, no_end_date) < endDate,
-    
-    unknown_at_end = lecr == TRUE &
-      straddles_end & (
-        # Non-Res Project Types and not lh
-        (ProjectType %in% non_res_project_types & fcoalesce(!was_lh_at_end, TRUE)) |
-        # nbn shelter
-        (ProjectType == es_nbn_project_type & (in_date_range | !NbN15DaysBeforeReportEnd))
+        was_lh_15_after_start = 
+          (ProjectType == es_nbn_project_type & nbn_15_after_start) |
+          (ProjectType %in% non_res_project_types & lh_cls_15_after_start),
+        
+        was_lh_at_end = (
+          (ProjectType %in% non_res_project_types & (
+            lh_cls_in_start_window | (entry_in_end_window & lh_prior_livingsituation)
+          )) |
+            (ProjectType == es_nbn_project_type & (
+              nbn_in_end_window | entry_in_end_window
+            )) | 
+            ((straddles_end | days_to_lookahead <= 14) & (
+              ProjectType %in% lh_project_types_nonbn | 
+                (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
+            ))
+        )
       )
-  )]
+    ]
+  )
+  join(all_filtered, lh_info, on = "EnrollmentID", how = "left")
 }
 
-## People-level flags ------------------------
-# Need to keep it enrollment-level so other scripts can reference the enrollments
-universe_ppl_flags <- function(universe_df, period) {
-  setkey(universe_df, PersonalID)
-  # browser()
-  # 124983
-  universe_df[, `:=`(
-    # INFLOW
-    active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
-    
-    active_at_start_housed_client = any(active_at_start_housed, na.rm = TRUE),
-    
-    return_from_perm_client = 
-      any(first_lookback & Destination %in% perm_livingsituation, na.rm = TRUE) & 
-      any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
-    
-    reengaged_from_temp_client = 
-      any(first_lookback & !Destination %in% perm_livingsituation, na.rm = TRUE) & 
-      any(at_least_14_days_to_eecr_enrl, na.rm = TRUE),
-    
-    first_time_homeless_client = !any(lookback & lh_at_entry, na.rm = TRUE),
-    
-    unknown_at_start_client = any(unknown_at_start, na.rm = TRUE),
-    
-    # OUTFLOW
-    perm_dest_client = any(exited & Destination %in% perm_livingsituation, na.rm = TRUE),
-    
-    temp_dest_client = any(exited & !Destination %in% perm_livingsituation, na.rm = TRUE),
-    
-    homeless_at_end_client = any(homeless_at_end, na.rm = TRUE),
-    
-    housed_at_end_client = any(housed_at_end, na.rm = TRUE),
-    
-    unknown_at_end_client = any(unknown_at_end, na.rm = TRUE),
-    
-    has_enrollment_after_lecr_client = any(has_enrollment_after_lecr, na.rm = TRUE)
-  ), by = PersonalID
-  ][, `:=`(
-    InflowTypeSummary = factor(
-      fcase(
-        active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
-        first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start, "Inflow",
-        default = "something's wrong"
-      ), levels = inflow_summary_levels
-    ),
-    
-    InflowTypeDetail = factor(
-      fcase(
-        active_at_start_homeless_client, "Homeless",
-        active_at_start_housed_client, "Housed",
-        return_from_perm_client, "Returned from \nPermanent",
-        reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
-        first_time_homeless_client, "First-Time \nHomeless",
-        unknown_at_start, "Inactive", 
-        default = "something's wrong"
-      ), levels = c(active_at_levels, inflow_detail_levels)
-    ),
-    
-    OutflowTypeSummary = factor(
-      fcase(
-        (perm_dest_client | temp_dest_client | unknown_at_end_client) & 
-          !has_enrollment_after_lecr_client, "Outflow",
-        homeless_at_end_client | housed_at_end_client | has_enrollment_after_lecr_client, "Active at End",
-        default = "something's wrong"
-      ), levels = outflow_summary_levels
-    ),
-    
-    OutflowTypeDetail = factor(
-      fcase(
-        perm_dest_client, "Exited,\nPermanent",
-        temp_dest_client, "Exited,\nNon-Permanent",
-        unknown_at_end_client, "Inactive",
-        homeless_at_end_client & !is.na(homeless_at_end_client), "Homeless",
-        housed_at_end_client | has_enrollment_after_lecr_client, "Housed",
-        default = "something's wrong"
-      ), levels = c(outflow_detail_levels, rev(active_at_levels), "something's wrong")
-    )
-  )]
-}
