@@ -673,9 +673,9 @@ add_lh_info <- function(all_filtered, period) {
             ))
         ),
         
-        was_lh_15_after_start = 
-          (ProjectType == es_nbn_project_type & nbn_15_after_start) |
-          (ProjectType %in% non_res_project_types & lh_cls_15_after_start),
+        # was_lh_15_after_start = 
+        #   (ProjectType == es_nbn_project_type & nbn_15_after_start) |
+        #   (ProjectType %in% non_res_project_types & lh_cls_15_after_start),
         
         was_lh_at_end = (
           (ProjectType %in% non_res_project_types & (

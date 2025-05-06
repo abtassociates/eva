@@ -96,9 +96,10 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
     return_from_perm = eecr & between(days_since_lookback, 15, 730) & lookback_dest_perm,
     
     return_from_nonperm = eecr & (
-      between(days_since_lookback, 15, 730) & !lookback_dest_perm
-    ) | (
-      ProjectType %in% c(es_nbn_project_type, non_res_project_types) & !was_lh_at_start & was_lh_15_after_start
+      (between(days_since_lookback, 15, 730) & !lookback_dest_perm) |
+      (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
+         !isTRUE(was_lh_at_start)
+       )
     ),
     
     first_time_homeless = (days_since_lookback > 730 | is.na(days_since_lookback)) & 
