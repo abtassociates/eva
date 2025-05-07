@@ -2,26 +2,30 @@ raw_enrollments_dt <- reactive({
   # browser()
   upload_name <- ifelse(input$in_demo_mode, "DEMO", input$imported$name)
   
-  unique(qDT(session$userData$CurrentLivingSituation)[
-    CurrentLivingSituation %in% homeless_livingsituation_incl_TH
-  ][
-    , .(EnrollmentID, InformationDate)
-  ])[
-    session$userData$get_period_specific_enrollment_categories(
-      session$userData$report_dates[["Full"]], 
-      ifelse(input$in_demo_mode, "DEMO", input$imported$name)
-    )[
-      , .(PersonalID, EnrollmentID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation, LivingSituation)
-    ],
-    on = .(EnrollmentID)
-  ][# Assign living situation category
-    , LivingSituationCategory := as.factor(
-      fifelse(LivingSituation %in% perm_livingsituation, "permanent",
-              fifelse(LivingSituation %in% homeless_livingsituation_incl_TH, "homeless",
+  session$userData$get_period_specific_enrollment_categories(
+    session$userData$report_dates[["Full"]], 
+    ifelse(input$in_demo_mode, "DEMO", input$imported$name)
+  ) %>%
+    fselect(PersonalID, EnrollmentID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation, LivingSituation, MoveInDateAdjust) %>%
+    join(
+      session$userData$lh_nbn %>% fselect(EnrollmentID, DateProvided),
+      on = "EnrollmentID",
+      how = "left"
+    ) %>%
+    join(
+      session$userData$lh_non_res %>% fselect(EnrollmentID, InformationDate),
+      on = "EnrollmentID",
+      how = "left"
+    ) %>%
+    fmutate(
+      LivingSituationCategory = as.factor(
+        fifelse(LivingSituation %in% perm_livingsituation, "permanent",
+                fifelse(LivingSituation %in% homeless_livingsituation_incl_TH, "homeless",
                       fifelse(LivingSituation %in% temp_livingsituation, "temporary",
                               fifelse(LivingSituation %in% institutional_livingsituation, "institutional", "other")
-                      ))))
-  ]
+                      )))
+      )
+    )
 })
 
 enrollments_dt <- reactive({
@@ -33,7 +37,7 @@ enrollments_dt <- reactive({
 
 enrl_month_categories <- function() {
   unique(rbindlist(period_specific_data()[-1])[
-    , .(PersonalID, InflowTypeSummary, OutflowTypeSummary, month)
+    , .(PersonalID, InflowTypeSummary, OutflowTypeSummary, month, InflowTypeDetail, OutflowTypeDetail)
   ])
 }
 
@@ -81,12 +85,12 @@ observeEvent(input$personalIDFilter, {
     # Filter EnrollmentIDs for the selected PersonalID
     enrollment_ids <- sort(unique(data[PersonalID %in% input$personalIDFilter, EnrollmentID]))
   }
-  
+
   updateSelectizeInput(
     session,
     "enrollmentIDFilter",
     choices = c("All" = "", enrollment_ids),
-    selected = if (input$enrollmentIDFilter %in% c("", enrollment_ids)) input$enrollmentIDFilter else "",
+    selected = if (isTRUE(is.null(input$enrollmentIDFilter) | input$enrollmentIDFilter %in% enrollment_ids)) input$enrollmentIDFilter else NULL,
     server = TRUE
   )
 }, ignoreInit = TRUE)
@@ -109,7 +113,7 @@ observeEvent(input$enrollmentIDFilter, {
     session,
     "personalIDFilter",
     choices = c("All" = "", personal_ids),
-    selected = if (input$personalIDFilter %in% c("", personal_ids)) input$personalIDFilter else "",
+    selected = if (isTRUE(is.null(input$personalIDFilter) | input$personalIDFilter %in% personal_ids)) input$personalIDFilter else NULL,
     server = TRUE
   )
 }, ignoreInit = TRUE)
@@ -137,20 +141,17 @@ output$timelinePlot <- renderPlotly({
                                  Position = 1:length(person_ids))
   filtered_data <- merge(filtered_data, person_positions, by = "PersonalID")
   
-  # Add inflow data for coloring
-  inflow_data <- enrl_month_categories()
-   
   # Create a mapping of enrollment to initial inflow category
   # filtered_data[, entry_month := floor_date(EntryDate, "month")]
   filtered_data[, entry_month := floor_date(pmax(EntryDate, session$userData$ReportStart), "month"), by=PersonalID]
   
- 
   # Merge inflow data with filtered data
-  filtered_data <- inflow_data[
+  filtered_data <- enrl_month_categories()[
     filtered_data, 
     on = .(PersonalID, month = entry_month)
   ]
-  filtered_data[is.na(InflowTypeSummary) & ExitAdjust < session$userData$ReportStart, InflowTypeSummary := "Lookback1"]
+
+  filtered_data[is.na(InflowTypeSummary) & ExitAdjust < session$userData$ReportStart, InflowTypeSummary := "Lookback"]
 
   filtered_data[, segment_start := pmax(as.Date(EntryDate), date_range_start)]
   filtered_data[, segment_end := pmin(as.Date(ExitAdjust), as.Date(date_range_end) %m-% months(1))]
@@ -158,9 +159,24 @@ output$timelinePlot <- renderPlotly({
   filtered_data <- unique(filtered_data)
   
   # Jitter enrollment lines away from each other
-  jittered_data <- unique(filtered_data[, .(EnrollmentID, PersonalID, EntryDate, ExitAdjust, segment_start, segment_end, Position, ProjectType, lh_prior_livingsituation, LivingSituationCategory, InflowTypeSummary)])
+  jittered_data <- unique(filtered_data[, .(
+    EnrollmentID, 
+    PersonalID, 
+    EntryDate, 
+    ExitAdjust, 
+    segment_start, 
+    segment_end, 
+    Position, 
+    ProjectType, 
+    lh_prior_livingsituation, 
+    LivingSituationCategory, 
+    InflowTypeDetail,
+    InflowTypeSummary,
+    OutflowTypeDetail
+  )])
   jittered_data[, Position_jittered := Position + (seq_len(.N) - 1) * 0.05, by = Position]
   
+  # export_random_100(filtered_data)
   
   p <- ggplot() +
     # Add vertical month lines
@@ -181,7 +197,8 @@ output$timelinePlot <- renderPlotly({
                                   "<br>ProjectType:", ProjectType,
                                   "<br>LivingSituation:", LivingSituationCategory,
                                   "<br>lh_prior_livingsituation:", lh_prior_livingsituation,
-                                  "<br>Inflow Type:", InflowTypeSummary)), # For click events
+                                  "<br>Inflow Detail:", InflowTypeDetail, # For click events
+                                  "<br>Outflow Detail:", OutflowTypeDetail)), # For click events
                  linewidth = 1)
   
   if(nrow(filtered_data[!is.na(InformationDate)]) > 0) {
@@ -193,6 +210,17 @@ output$timelinePlot <- renderPlotly({
                shape = 3,
                color = "orange",
                size = 2)
+  }
+  
+  if(nrow(filtered_data[!is.na(DateProvided)]) > 0) {
+    # Add information date markers
+    p <- p + 
+      geom_point(data = unique(filtered_data[, .(EnrollmentID, Position, DateProvided)]),
+                 aes(x = as.Date(DateProvided), 
+                     y = Position),
+                 shape = 3,
+                 color = "pink",
+                 size = 2)
   }
   p <- p +
     # Add living situation markers at exit date
@@ -247,9 +275,33 @@ output$personDetails <- renderPrint({
   # Apply approach - more efficient for data.table
   info[, {
     month_formatted <- format(as.Date(month), "%b %Y")
-    cat(month_formatted, ": (", as.character(InflowTypeSummary), ", ",  as.character(OutflowTypeSummary), ")\n")
+    cat(month_formatted, ": (", as.character(InflowTypeDetail), ", ",  as.character(OutflowTypeDetail), ")\n")
   }, by = seq_len(nrow(info))]
   
   # Return invisible to avoid extra output
   invisible()
 })
+
+export_random_100 <- function(filtered_data) {
+  set.seed(100)
+  people_sample <- sample(filtered_data[, unique(PersonalID)], 100)
+  
+  sampled_data <- filtered_data %>%
+    fselect(
+      EnrollmentID, 
+      PersonalID, 
+      EntryDate, 
+      MoveInDateAdjust,
+      ExitAdjust,
+      ProjectType, 
+      InformationDate,
+      DateProvided,
+      lh_prior_livingsituation,
+      InflowTypeDetail,
+      InflowTypeSummary,
+      OutflowTypeDetail
+    ) %>%
+    fsubset(PersonalID %in% people_sample)
+  
+  write_xlsx(sampled_data, here("sandbox/sample-timeline-data.xlsx"))
+}
