@@ -199,10 +199,16 @@ universe_ppl_flags <- function(universe_df, period) {
     )
   )]
   if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown"]) > 0 & identical(period, session$userData$report_dates[1])) {
+    if(in_dev_mode) browser()
     stop("There's an Unknown in the Full Annual data!")
   }
-  if(nrow(universe_w_ppl_flags[InflowTypeSummary == "something's wrong"]) > 0) {
-    warning(paste0("There's a something's wrong in the universe_ppl_flags data when period = ", period[1]))
+  if(nrow(universe_w_ppl_flags[InflowTypeSummary == "something's wrong"]) > 0 |
+     nrow(universe_w_ppl_flags[OutflowTypeSummary == "something's wrong"]) > 0) {
+    if(in_dev_mode) browser()
+    # e.g. PersonalID 623725 in Nov and 601540 in Dec
+    # e.g. PersonalID 305204 and 420232 in Nov and 601540 and 620079 in Dec
+    # e.g. PersonalID 14780 in Oct and Nov
+    logToConsole(paste0("There's a something's wrong in the universe_ppl_flags data when period = ", period[1]))
   }
   universe_w_ppl_flags
 }

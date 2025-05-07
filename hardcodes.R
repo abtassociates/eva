@@ -446,3 +446,22 @@ local_settings_inputs <- c(
   "CELongStayers",
   "CEOutstandingReferrals"
 )
+
+inflow_outflow_debug_cols <- c(
+  "PersonalID",
+  "EnrollmentID",
+  "eecr",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitAdjust",
+  "lh_prior_livingsituation",
+  "was_lh_at_start",
+  "days_since_lookback",
+  "straddles_start",
+  "InflowTypeDetail",
+  "lookback_dest_perm",
+  "lookback_movein_before_start"
+)
+
+in_dev_mode <- "ad.abt.local" %in% Sys.info()[["nodename"]]
