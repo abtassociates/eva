@@ -536,7 +536,7 @@ lh_non_res_period <- function(startDate, endDate) {
       lh_cls_in_end_window = between(InformationDate, end_window, endDate + 15),
       entry_in_start_window = between(EntryDate, start_window, startDate + 15),
       entry_in_end_window = between(EntryDate, end_window, endDate),
-      lh_cls_15_after_start = InformationDate >= startDate + 15
+      lh_cls_during_period = between(InformationDate, start_window, endDate + 15)
     )  %>%
     fselect(
       EnrollmentID, ProjectType, lh_prior_livingsituation,
@@ -544,14 +544,14 @@ lh_non_res_period <- function(startDate, endDate) {
       lh_cls_in_end_window,
       entry_in_start_window,
       entry_in_end_window,
-      lh_cls_15_after_start
+      lh_cls_during_period
     ) %>%
     fsubset(
       lh_cls_in_start_window |
         lh_cls_in_end_window |
         entry_in_start_window |
         entry_in_end_window |
-        lh_cls_15_after_start
+        lh_cls_during_period
     )
   
   if(nrow(lh_non_res) == 0 ) return(lh_non_res)
@@ -564,7 +564,7 @@ lh_non_res_period <- function(startDate, endDate) {
       lh_cls_in_end_window = anyv(lh_cls_in_end_window, TRUE),
       entry_in_start_window = entry_in_start_window,
       entry_in_end_window = entry_in_end_window,
-      lh_cls_15_after_start = anyv(lh_cls_15_after_start, TRUE)
+      lh_cls_during_period = anyv(lh_cls_during_period, TRUE)
     ) %>%
     fungroup()
 }
@@ -579,7 +579,7 @@ lh_nbn_period <- function(startDate, endDate) {
       nbn_in_end_window = between(DateProvided, endDate - 15, endDate + 15),
       entry_in_start_window = between(EntryDate, startDate - 15, startDate + 15),
       entry_in_end_window = between(EntryDate, endDate - 15, endDate),
-      nbn_15_after_start = DateProvided >= startDate + 15
+      nbn_during_period = between(DateProvided, startDate - 15, endDate + 15)
     ) %>%
     fselect(
       EnrollmentID, ProjectType, 
@@ -587,14 +587,14 @@ lh_nbn_period <- function(startDate, endDate) {
       nbn_in_end_window,
       entry_in_start_window,
       entry_in_end_window,
-      nbn_15_after_start
+      nbn_during_period
     ) %>%
     fsubset(
       nbn_in_start_window |
         nbn_in_end_window |
         entry_in_start_window |
         entry_in_end_window |
-        nbn_15_after_start
+        nbn_during_period
     )
   
   if(nrow(lh_nbn) == 0) return(lh_nbn)
@@ -606,7 +606,7 @@ lh_nbn_period <- function(startDate, endDate) {
       nbn_in_end_window = anyv(nbn_in_end_window, TRUE),
       entry_in_start_window = entry_in_start_window,
       entry_in_end_window = entry_in_end_window,
-      nbn_15_after_start = anyv(nbn_15_after_start, TRUE)
+      nbn_during_period = anyv(nbn_during_period, TRUE)
     ) %>%
     fungroup()
 }
@@ -673,21 +673,21 @@ add_lh_info <- function(all_filtered, period) {
           ))
         ),
         
-        # was_lh_15_after_start = 
-        #   (ProjectType == es_nbn_project_type & nbn_15_after_start) |
-        #   (ProjectType %in% non_res_project_types & lh_cls_15_after_start),
+        was_lh_during_period =
+          (ProjectType == es_nbn_project_type & nbn_during_period) |
+          (ProjectType %in% non_res_project_types & lh_cls_during_period),
         
         was_lh_at_end = (
           (ProjectType %in% non_res_project_types & (
             lh_cls_in_start_window | (entry_in_end_window & lh_prior_livingsituation)
           )) |
-            (ProjectType == es_nbn_project_type & (
-              nbn_in_end_window | entry_in_end_window
-            )) | 
-            ((straddles_end | days_to_lookahead <= 14) & (
-              ProjectType %in% lh_project_types_nonbn | 
-                (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
-            ))
+          (ProjectType == es_nbn_project_type & (
+            nbn_in_end_window | entry_in_end_window
+          )) | 
+          ((straddles_end | days_to_lookahead <= 14) & (
+            ProjectType %in% lh_project_types_nonbn | 
+            (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
+          ))
         )
       )
     ]
