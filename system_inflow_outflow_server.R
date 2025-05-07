@@ -396,17 +396,16 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     roworder(month, PlotFillGroups)
 
   # Make sure all month-type combinations are reflected
-  # join(
-  #   monthly_counts,
-  #   CJ(
-  #     month = levels(monthly_counts$month), 
-  #     PlotFillGroups = unique(monthly_counts$PlotFillGroups), 
-  #     sorted = FALSE
-  #   ),
-  #   on = c("month","PlotFillGroups"),
-  #   how = "full"
-  # ) 
-  monthly_counts %>%
+  join(
+    monthly_counts,
+    CJ(
+      month = levels(monthly_counts$month),
+      PlotFillGroups = unique(monthly_counts$PlotFillGroups),
+      sorted = FALSE
+    ),
+    on = c("month","PlotFillGroups"),
+    how = "full"
+  ) %>%
   fmutate(
     Summary = fct_collapse(
       PlotFillGroups, 
