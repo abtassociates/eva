@@ -354,35 +354,36 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     ) %>%
     fsubset(InflowPlotFillGroups != "something's wrong")
   
+  # AS 5/7/25: Measurement team decided to go with normal bar-chart for FTH
   # First-time homeless filter
-  if(input$mbm_fth_filter == "FTH-working") {
-    # filter to just People whose first inflow status in the whole report period 
-    # was first-time homeless
-    # then, we only want their first span in the system, i.e. FTH, then Active, until Outflow
-    # Even if they inflowed again, we wouldn't want to take that.
-    first_time_homeless_in_period <- period_specific_data()[["Full"]] %>%
-      fsubset(InflowTypeDetail == "First-Time \nHomeless") %>%
-      fmutate(FirstTimeHomelessMonth = format(EntryDate, "%b %y")) %>%
-      fselect(PersonalID, FirstTimeHomelessMonth) %>%
-      funique()
-    
-    monthly_data <- monthly_data %>%
-      join(
-        first_time_homeless_in_period, 
-        on = c("PersonalID"), 
-        how = "inner"
-      ) %>%
-      fmutate(
-        InflowPlotFillGroups = factor(
-          fifelse(
-            FirstTimeHomelessMonth == month,
-            "First-Time \nHomeless",
-            as.character(InflowPlotFillGroups)
-          ),
-          levels = c("Active at Start: Homeless", "First-Time \nHomeless", "Inflow", "something's wrong")
-        )
-      )
-  } 
+  # if(input$mbm_fth_filter == "FTH-working") {
+  #   # filter to just People whose first inflow status in the whole report period 
+  #   # was first-time homeless
+  #   # then, we only want their first span in the system, i.e. FTH, then Active, until Outflow
+  #   # Even if they inflowed again, we wouldn't want to take that.
+  #   first_time_homeless_in_period <- period_specific_data()[["Full"]] %>%
+  #     fsubset(InflowTypeDetail == "First-Time \nHomeless") %>%
+  #     fmutate(FirstTimeHomelessMonth = format(EntryDate, "%b %y")) %>%
+  #     fselect(PersonalID, FirstTimeHomelessMonth) %>%
+  #     funique()
+  #   
+  #   monthly_data <- monthly_data %>%
+  #     join(
+  #       first_time_homeless_in_period, 
+  #       on = c("PersonalID"), 
+  #       how = "inner"
+  #     ) %>%
+  #     fmutate(
+  #       InflowPlotFillGroups = factor(
+  #         fifelse(
+  #           FirstTimeHomelessMonth == month,
+  #           "First-Time \nHomeless",
+  #           as.character(InflowPlotFillGroups)
+  #         ),
+  #         levels = c("Active at Start: Homeless", "First-Time \nHomeless", "Inflow", "something's wrong")
+  #       )
+  #     )
+  # } 
 
   # Get counts of each type by month
   monthly_counts <- rbind(
