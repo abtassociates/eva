@@ -458,7 +458,19 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     startDate <- report_period[1]
     endDate <- report_period[2]
     
-    # browser()
+    lh_info <- rbindlist(
+      list(
+        lh_non_res_period(startDate, endDate),
+        lh_nbn_period(startDate, endDate)
+      ),
+      fill = TRUE
+    )[, .(
+      EnrollmentID,
+      was_lh_during_period = (ProjectType == es_nbn_project_type & nbn_during_period) |
+        (ProjectType %in% non_res_project_types & lh_cls_during_period)
+      )
+    ]
+    
     enrollment_categories_period <- enrollment_categories %>%
       fsubset(
         # keep enrollments in date range and exits within the 2 yrs prior to start
@@ -505,9 +517,20 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         ) == EnrollmentID
       ) %>%
       fungroup() %>%
+      join(
+        lh_info,
+        on = "EnrollmentID",
+        how = "left"
+      ) %>%
       # Create eecr and lecr flags
       fmutate(
-        eecr = (eecr_straddle | eecr_no_straddle),
+        # AS 5/7/25: Added restriction that NbN and Non-Res projects must have
+        # evidence of LH at some point during period (or within the window 
+        # according to project type) in order to be considered an EECR
+        eecr = (eecr_straddle | eecr_no_straddle) & (
+          (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & was_lh_during_period) | 
+          (!ProjectType %in% c(es_nbn_project_type, non_res_project_types))
+        ),
         lecr = (lecr_straddle | lecr_no_straddle),
         eecr_is_res = eecr & ProjectType %in% project_types_w_beds
       ) %>%
@@ -535,7 +558,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       ) %>%
       fsubset(eecr | lecr) %>%
       fselect(-c(any_straddle_start, any_straddle_end, eecr_no_straddle, eecr_straddle, lecr_straddle, lecr_no_straddle))
-
+# browser()
     # }, "07_system_overview.R")
   },
   cache = cachem::cache_mem(max_size = 100 * 1024^2) 
