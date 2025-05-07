@@ -26,8 +26,8 @@ raw_enrollments_dt <- reactive({
 
 enrollments_dt <- reactive({
   data <- raw_enrollments_dt()[
-    (EnrollmentID == input$enrollmentIDFilter | input$enrollmentIDFilter == "") &
-    (PersonalID == input$personalIDFilter | input$personalIDFilter == "")
+    (EnrollmentID %in% input$enrollmentIDFilter | is.null(input$enrollmentIDFilter)) &
+    (PersonalID %in% input$personalIDFilter | is.null(input$personalIDFilter))
   ]
 })
 
@@ -43,7 +43,7 @@ observeEvent(session$userData$valid_file(), {
   # Only run this observer once when the file is first loaded
   # or when the file changes
   isolate({
-    if (input$personalIDFilter != "" || input$enrollmentIDFilter != "") {
+    if (!is.null(input$personalIDFilter) || !is.null(input$enrollmentIDFilter)) {
       return()
     }
   })
@@ -79,7 +79,7 @@ observeEvent(input$personalIDFilter, {
     enrollment_ids <- sort(unique(data$EnrollmentID))
   } else {
     # Filter EnrollmentIDs for the selected PersonalID
-    enrollment_ids <- sort(unique(data[PersonalID == input$personalIDFilter, EnrollmentID]))
+    enrollment_ids <- sort(unique(data[PersonalID %in% input$personalIDFilter, EnrollmentID]))
   }
   
   updateSelectizeInput(
@@ -102,7 +102,7 @@ observeEvent(input$enrollmentIDFilter, {
     personal_ids <- sort(unique(data$PersonalID))
   } else {
     # Filter PersonalIDs for the selected EnrollmentID
-    personal_ids <- sort(unique(data[EnrollmentID == input$enrollmentIDFilter, PersonalID]))
+    personal_ids <- sort(unique(data[EnrollmentID %in% input$enrollmentIDFilter, PersonalID]))
   }
   
   updateSelectizeInput(

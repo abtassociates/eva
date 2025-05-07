@@ -1168,7 +1168,7 @@ dashboardPage(
                                placeholder = "Type to search for Enrollment ID",
                                closeAfterSelect = TRUE
                              ),
-                             multiple = FALSE
+                             multiple = TRUE
                            ),
                            
                            # PersonalID Filter
@@ -1180,7 +1180,7 @@ dashboardPage(
                                placeholder = "Type to search for Personal ID",
                                closeAfterSelect = TRUE
                              ),
-                             multiple = FALSE
+                             multiple = TRUE
                            ),
                            conditionalPanel(
                              condition = "len(input.personalIDFilter)",
