@@ -1131,7 +1131,7 @@ dashboardPage(
                            radioGroupButtons(
                              inputId = "mbm_fth_filter",
                              label = "Flow Type Filters",
-                             choices = c("All", "First-Time Homeless", "Inactive", "FTH-working"),
+                             choices = c("All", "First-Time Homeless", "Inactive"),
                              selected = "All",
                              individual = TRUE,
                              checkIcon = list(yes = icon("check"))
@@ -1149,7 +1149,7 @@ dashboardPage(
                                         height = "500")
                            ),
                            conditionalPanel(
-                             condition = "input.mbm_fth_filter == 'All' | input.mbm_fth_filter == 'FTH-working'",
+                             condition = "input.mbm_fth_filter == 'All'",
                              plotOutput("sys_inflow_outflow_monthly_ui_chart",
                                         width = "100%",
                                         height = "500") %>%
