@@ -49,18 +49,12 @@ page_navbar(
   ), 
   
   sidebar = sidebar(open = 'closed',title = 'More Info',bg = 'white',fg='black',
-                    #tags$span(
-                    actionButton(inputId = 'in_demo_mode',
+                  
+                    input_switch(id = 'in_demo_mode',
                                  label = tooltip(trigger = list('DEMO MODE', bs_icon('info-circle')),
                                                  HTML('<strong>Off</strong>: Upload your own HMIS CSV Export.<br><br><strong>On</strong>: Uses a demo HMIS CSV Export.')
-                                 ))#,
-                    # input_switch(id = 'in_demo_mode',
-                    #              label = tooltip(trigger = list('DEMO MODE', bs_icon('info-circle')),
-                    #                              HTML('<strong>Off</strong>: Upload your own HMIS CSV Export.<br><br><strong>On</strong>: Uses a demo HMIS CSV Export.')
-                    #              ),
-                    #              value=FALSE)
-                    #  style='float:right; margin-left:100px'
-                    #)
+                                 ),
+                                 value=FALSE)
   ),
   
   nav_panel(
@@ -271,7 +265,7 @@ page_navbar(
     ),
     
     card(
-      width = 12,min_height=400,
+      width = 12,
       card_header("Select Project", class = 'bg-info'),
       pickerInput(
         label = "",
@@ -279,7 +273,7 @@ page_navbar(
         choices = NULL,
         width = "600px",
         options = pickerOptions(liveSearch = TRUE,
-                                liveSearchStyle = 'contains')#,choicesOpt = list(style='background-color: #D0E7EC')
+                                liveSearchStyle = 'contains')
       ),
       
     ),
