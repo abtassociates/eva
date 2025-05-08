@@ -84,8 +84,7 @@ function(input, output, session) {
   # in Demo Mode, tracks if user has seen tab-specific pop-up
   seen_message <- reactiveValues() 
   
-  demo_modal_closed <- reactiveVal()
-
+  in_demo_mode <- reactiveVal(value=FALSE)
   # log when user navigate to a tab
   observe({ 
     logMetadata(paste0("User on ",input$pageid, 

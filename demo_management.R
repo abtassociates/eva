@@ -63,76 +63,50 @@ observeEvent(input$pageid, {
   showModal(modalDialog(msg))
 }) 
 
-toggleDemoJs <- function(t) {
-  js_t <- ifelse(t, 'true','false')
-  shinyjs::runjs(str_glue("
-      $('#home_demo_instructions').parent().parent().toggle({js_t});
-      $('#home_demo_instructions').parent().css('border', '2px solid #FCB248');
-      
-      $('.in_demo_mode').toggle({js_t});
-      
-      $('#home_live_instructions').parent().parent().toggle(!{js_t});
-      
-      document.getElementById('isdemo').checked = {js_t};
-      
-      $('#imported').closest('.btn').attr('disabled',{js_t});
-      
-      $('#demo_banner').remove();
-    "))
-  
-  if(t) {
-    capture.output("Switching to demo mode!")
-    
-    # let user know things take a min to load then load the demo data
-    showModal(
-      modalDialog(
-        "Activating demo mode...",
-        title = NULL,
-        footer = NULL
-      )
-    )
-    
+
+observeEvent(in_demo_mode(),{
+  print(in_demo_mode())
+  if(in_demo_mode() == TRUE){
     process_upload("demo.zip", here("demo.zip"))
     
     valid_file(1)
     
     removeModal()
+
+    accordion_panel_remove(id = 'accordion_home', target = 'home_live_instructions', session = session)
+    accordion_panel_insert(id = 'accordion_home', panel =  accordion_panel(
+      title = "Demo Instructions",
+      value = 'home_demo_instructions',
+      tabHome_home_demo_instructions,#style='border: 2px solid orange'
+    ), target = 'home_need_help', position = 'before', session = session)
     
+    accordion_panel_open(id = 'accordion_home',values = 'home_demo_instructions')
+    shinyjs::show('demo_banner')
+    #shinyjs::runjs("$('#demo_banner').remove();")
+    
+    shinyjs::hide(id = "successful_upload")
+    shinyjs::disable(id = "imported")
+
     nav_select(id = 'pageid', selected = 'tabHome', session = session)
     
-    shinyjs::runjs(paste0(
-      "var demoBannerHTML = \"<div id='demo_banner' class='in_demo_mode'>",
-      "DEMO",
-      "</div>\";",
-      "$('header.main-header').append(demoBannerHTML);"
-    ))
-    
-    shinyjs::runjs("$('#sidebarItemExpanded').css({
-                     'top': '1.5em',
-                     'position':'relative'})")
-    shinyjs::hide(id = "successful_upload")
-    shinyjs::disable("imported")
     
     print("Switched to demo mode!")
     logMetadata("Switched to demo mode")
-    
+  #} else if (in_demo_mode() == FALSE & input$in_demo_mode > 0){
   } else {
-    capture.output("Switching to live mode")
-    
-    nav_select(id = 'pageid', selected = 'tabUpload', session = session)
 
-    shinyjs::runjs("
-          $('#imported').closest('.btn').removeAttr('disabled');
-      ")
-    shinyjs::runjs("$('#sidebarItemExpanded').css({
-                     'top': '',
-                     'position':''})")
+
+    accordion_panel_insert(id = 'accordion_home', panel = accordion_panel(
+      title = "Instructions",
+      value = "home_live_instructions",
+      tabHome_home_live_instructions
+    ),target = 'home_need_help', position = 'before', session = session)
+    accordion_panel_remove(id = 'accordion_home', target = 'home_demo_instructions', session = session)
+    
+    shinyjs::hide('demo_banner')
+    
     shinyjs::enable("imported")
-    
-    shinyjs::runjs("
-      $('#imported').closest('.input-group-btn').next().val('');
-      ")
-    
+
     shinyjs::hide("fileStructureAnalysis")
     
     reset_app()
@@ -151,48 +125,63 @@ toggleDemoJs <- function(t) {
       max = NULL,
       end = ymd(today())
     ))
+    nav_select(id = 'pageid', selected = 'tabUpload', session = session)
     
     print("Switched into live mode!")
     capture.output("Switched into live mode")
     logMetadata("Switched into live mode")
   }
-}
+}, ignoreInit = TRUE)
+
 
 observeEvent(input$continue_demo_btn, {
   removeModal()
-  toggleDemoJs(TRUE)
+ 
+  #updateSwitchInput(session = session,inputId = 'in_demo_mode',value = !input$in_demo_mode)
+  #toggle_switch(id = 'in_demo_mode', value = TRUE, session = session)
+  in_demo_mode(TRUE)
 })
 
 observeEvent(input$stay_in_demo, {
-  demo_modal_closed(1)
+ 
+  #isolate({update_switch(id = 'in_demo_mode', value=T, session = session)})
   removeModal()
-  toggle_switch(id = 'in_demo_mode', value = TRUE, session = session)
+  #updateSwitchInput(session = session,inputId = 'in_demo_mode',value = !input$in_demo_mode)
+  
   logMetadata("Chose to stay in demo mode")
 })
 
 observeEvent(input$stay_in_live, {
-  demo_modal_closed(1)
+
+ # toggle_switch(id = 'in_demo_mode', value = FALSE, session = session)
+  #isolate({update_switch(id = 'in_demo_mode', value=F, session = session)})
+  #updateSwitchInput(session = session,inputId = 'in_demo_mode',value = !input$in_demo_mode)
   
   removeModal()
-  toggle_switch(id = 'in_demo_mode', value = FALSE, session = session)
+
   logMetadata("Chose to stay in live mode")
 })
 
 observeEvent(input$continue_live_btn, {
   removeModal()
-  toggleDemoJs(FALSE)
+  in_demo_mode(FALSE)
+  #toggle_switch(id = 'in_demo_mode', value = F, session = session)
 })
 
+
 observeEvent(input$in_demo_mode, {
-  if(input$in_demo_mode == TRUE) {
+  
+ 
+  if(in_demo_mode() == FALSE) {
+  #if(input$in_demo_mode != TRUE) {
     msg <- "<p>You're currently requesting to turn on Demo Mode. Demo Mode
       allows you to explore Eva using sample HMIS data, rather than having to
       use your own HMIS CSV Export file."
     
     if(length(input$imported) > 0) {
-      msg <- paste(msg, "<p>If you turn on Demo Mode now, your uploaded HMIS 
-        CSV Export data will be erased from Eva and replaced with the sample 
-        HMIS data. You will be able to re-upload your HMIS CSV 
+      msg <- paste(msg, "<p>If you turn on Demo Mode now, your uploaded HMIS
+        CSV Export data will be erased from Eva and replaced with the sample
+        HMIS data. You will be able to re-upload your HMIS CSV
         Export file if you switch out of Demo Mode.</p>")
     } else {
       msg <- paste(msg, "You will still be able to upload your own HMIS CSV
@@ -205,8 +194,9 @@ observeEvent(input$in_demo_mode, {
       modalDialog(
         HTML(msg),
         title = "Turn on Demo Mode?",
-        footer = tagList(actionButton("continue_demo_btn", "Continue"),
-                         actionButton("stay_in_live", "Cancel"))
+        footer = tagList(actionButton("continue_demo_btn", "Continue", class='btn-secondary'),
+                         #actionButton("stay_in_live", "Cancel"))
+                         modalButton("Cancel")) # formerly stay_in_live
       )
     )
     
@@ -218,8 +208,9 @@ observeEvent(input$in_demo_mode, {
           explore Eva by uploading your own hashed HMIS CSV Export file.
           <p>Please select \"Continue\" to turn off Demo Mode."),
         title = "Turn off Demo Mode?",
-        footer = tagList(actionButton("continue_live_btn", "Continue"),
-                         actionButton("stay_in_demo", "Cancel"))
+        footer = tagList(actionButton("continue_live_btn", "Continue", class='btn-secondary'),
+                         #actionButton("stay_in_demo", "Cancel"))
+                         modalButton("Cancel")) # formerly "stay_in_demo"
       )
     )
   }

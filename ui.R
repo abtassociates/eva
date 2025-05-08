@@ -35,6 +35,9 @@ page_navbar(
       ))
     ),
     useShinyjs(),
+    shinyjs::hidden(
+      div(id = "demo_banner","DEMO")
+      ),
     disconnectMessage(
       text = str_squish(
         "Eva has crashed. Please submit an issue on GitHub and note the
@@ -42,6 +45,9 @@ page_navbar(
       ),
       overlayColour = '#F5F5F5',
       refresh = ""
+    ),
+  ), 
+  
   sidebar = sidebar(open = 'closed',title = 'More Info',bg = 'white',fg='black',
                     #tags$span(
                     actionButton(inputId = 'in_demo_mode',
@@ -56,39 +62,26 @@ page_navbar(
                     #  style='float:right; margin-left:100px'
                     #)
   ),
+  
+  nav_panel(
+    title = "Home",
+    value = "tabHome", 
+    icon = icon("home"),
+    card(
+      card_body(
+        tabHome_welcome,
+        actionButton("Go_to_upload", "Click here to get started",class = 'btn-secondary'),
+        fillable = FALSE
+      )
+    ),
+    accordion(
+      id = 'accordion_home',
+      open = FALSE,
+      accordion_panel(
+        title = "Instructions",
+        value = "home_live_instructions",
+        tabHome_home_live_instructions
       ),
-    ), 
-    nav_panel(
-        title = "Home",
-        value = "tabHome", 
-        icon = icon("home"),
-          card(
-            tabHome_welcome,
-            actionButton("Go_to_upload", "Click here to get started"),
-            fill = FALSE
-          ),
-        accordion(
-          open = FALSE,
-          accordion_panel(
-            title = "Instructions",
-            value = "home_live_instructions",
-            tabHome_home_live_instructions
-          ),
-          accordion_panel(
-            title = "Demo Instructions",
-            value = 'home_demo_instructions',
-            tabHome_home_demo_instructions
-          ),
-          accordion_panel(
-            title = "Need help?",
-            tabHome_need_help
-          ), 
-          accordion_panel(
-            title = "Citations and Special Thanks",
-            tabHome_citations
-          )
-        )
-      ), 
       nav_panel(
         title = "Upload HMIS CSV Export",
         value = "tabUpload",
@@ -122,6 +115,17 @@ page_navbar(
             DTOutput("fileStructureAnalysis"),
             p(),
             HTML("<p>Users should contact their vendor to resolve high priority 
+      accordion_panel(
+        title = "Need help?",
+        tabHome_need_help,
+        value = 'home_need_help'
+      ),
+      accordion_panel(
+        title = "Citations and Special Thanks",
+        tabHome_citations
+      )
+    )
+  ), 
             errors identified in the HMIS CSV Export File Structure Analysis, as
             well as any other structural issues which you feel need to be corrected.
             </p>"),
