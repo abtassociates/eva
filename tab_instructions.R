@@ -51,7 +51,7 @@ tabHome_home_live_instructions <-  HTML(
               ")
 
 tabHome_home_demo_instructions <- HTML(
-  "<div class = 'in_demo_mode' style='display:none'>
+  "
               <p>Welcome to Eva’s Demo Mode. In Demo Mode, you can explore the
               functionality of Eva with a pre-uploaded HMIS CSV Export file that
               uses sample HMIS data. When Demo Mode is on, Eva has the same
@@ -72,7 +72,7 @@ tabHome_home_demo_instructions <- HTML(
               re-upload your hashed HMIS CSV Export file.</strong> To do so, you
               need to turn off Demo Mode. This will clear the sample HMIS data
               from the application so you can operate Eva as normal and upload
-              your own HMIS data again.</p></div>
+              your own HMIS data again.</p>
               ")
 
 tabHome_need_help <-   HTML(
