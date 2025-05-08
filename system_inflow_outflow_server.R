@@ -211,8 +211,17 @@ universe_ppl_flags <- function(universe_df, period) {
     # e.g. PersonalID 623725 in Nov and 601540 in Dec
     # e.g. PersonalID 305204 and 420232 in Nov and 601540 and 620079 in Dec
     # e.g. PersonalID 14780 in Oct and Nov
-    logToConsole(paste0("There's a something's wrong in the universe_ppl_flags data when period = ", period[1]))
+    logToConsole(session, paste0("There's a something's wrong in the universe_ppl_flags data when period = ", period[1]))
   }
+
+  # PersonalID: 529378, enrollment 825777 - 
+  # Oct - Active at Start Homeless 
+  # Nov - Active at Start Homeless
+  # Dec - NOT IN DATASET BECAUSE NO EECR
+  # Jan - NOT IN DATASET BECAUSE NO EECR
+  # Feb - NOT IN DATASET BECAUSE NO EECR
+  # Mar - NOT IN DATASET BECAUSE NO EECR
+  # Apr - Inflow: Inactive, Outflow, Exited Non-Perm
   universe_w_ppl_flags
 }
 
