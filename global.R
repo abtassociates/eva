@@ -3,9 +3,9 @@ Sys.setenv(TZ = "America/New_York")
 
 library(tidyverse)
 library(lubridate)
-library(shinydashboard)
 library(shiny)
 library(bslib)
+library(bsicons)
 library(shinyWidgets)
 library(scales)
 library(DT)
@@ -40,3 +40,15 @@ source(here('tab_instructions.R'), local = TRUE) # static HTML text elements
 
 # runApp(display.mode = "showcase")
 
+bslib_eva_theme <- bs_theme(
+  version = 5,
+  brand = TRUE,
+  "card-bg" = "white",
+  "accordion-bg" = "white",
+  "sidebar-bg" = "white",
+  "nav-underline-link-active-color" = "#16697A",
+  "modal-content-bg" = "white",
+  "dropdown-color" = "black",
+  #bg = '#ecf0f5',fg='black'
+  font_scale = 0.8
+)
