@@ -37,7 +37,7 @@ enrollments_dt <- reactive({
 
 enrl_month_categories <- function() {
   unique(rbindlist(period_specific_data()[-1])[
-    , .(PersonalID, InflowTypeSummary, OutflowTypeSummary, month, InflowTypeDetail, OutflowTypeDetail)
+    , .(PersonalID, InflowTypeSummary, OutflowTypeSummary, month, InflowTypeDetail, OutflowTypeDetail, EnrollmentID)
   ])
 }
 
@@ -148,8 +148,8 @@ output$timelinePlot <- renderPlotly({
   # Merge inflow data with filtered data
   filtered_data <- enrl_month_categories()[
     filtered_data, 
-    on = .(PersonalID, month = entry_month)
-  ]
+    on = .(EnrollmentID)
+  ][, month := format(month, "%b %y")]
 
   filtered_data[is.na(InflowTypeSummary) & ExitAdjust < session$userData$ReportStart, InflowTypeSummary := "Lookback"]
 
@@ -176,7 +176,7 @@ output$timelinePlot <- renderPlotly({
   )])
   jittered_data[, Position_jittered := Position + (seq_len(.N) - 1) * 0.05, by = Position]
   
-  # export_random_100(filtered_data)
+  export_random_100(filtered_data)
   
   p <- ggplot() +
     # Add vertical month lines
@@ -297,11 +297,12 @@ export_random_100 <- function(filtered_data) {
       InformationDate,
       DateProvided,
       lh_prior_livingsituation,
+      month,
       InflowTypeDetail,
       InflowTypeSummary,
       OutflowTypeDetail
     ) %>%
     fsubset(PersonalID %in% people_sample)
-  
-  write_xlsx(sampled_data, here("sandbox/sample-timeline-data.xlsx"))
+
+  write_xlsx(sampled_data, here("/media/sdrive/projects/CE_DatA_Toolkit/Data Sets/sample-timeline-data2.xlsx"))
 }
