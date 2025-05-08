@@ -92,6 +92,10 @@ function(input, output, session) {
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   })
   
+  # change fileInput button to btn-secondary class to match formatting
+  # https://stackoverflow.com/questions/33694465/how-can-i-change-the-style-of-shiny-fileinput-object
+  shinyjs::runjs("$('#imported').parent().removeClass('btn-default').addClass('btn-secondary');")
+  
   # Headers -----------------------------------------------------------------
   
   output$headerUpload <-

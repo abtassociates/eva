@@ -1,0 +1,27 @@
+
+
+/*.card {
+  border-top: 3px solid gray;
+}*/
+
+/*.card.card-primary {
+  border-top: 3px solid gray;
+  /*border-top-color: gray;
+}*/
+
+#demo_banner {
+  background-color: #FCB248;
+  color: #000000; 
+  text-align:center;
+  height: 1.5em;
+}
+
+.accordion-item[data-value="home_demo_instructions"] {
+  border: 2px solid #FCB248;
+}
+
+.form-group .bootstrap-select {
+    margin-bottom: 0;
+    border: 1px solid #D0E7EC;
+}
+/*.form-inline .bootstrap-select, .form-horizontal .bootstrap-select,*/
