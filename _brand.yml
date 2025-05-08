@@ -12,6 +12,7 @@ color:
     dark_blue: '#16697A' 
     coral: '#C2462E'
     blue: '#71B4CB'
+    sky: '#D0E7EC'
     
     # secondary
     grey: '#73655E'
@@ -25,10 +26,15 @@ color:
     purple: '#7F5D9D'
     light_purple: '#D5BFE6'
     
+    # app background color
+    grey_bg: '#ecf0f5'
   # theme colors  
   primary: dark_blue
+  secondary: coral
+  info: sky
+  warning: yellow
   foreground: black
-  background: white
+  background: grey_bg
   light: white
   dark: black
 
