@@ -1,4 +1,19 @@
 
+bslib_eva_theme <- bs_theme(
+  version = 5,
+  brand = TRUE,
+  "card-bg" = "white",
+  "accordion-bg" = "white",
+  "sidebar-bg" = "white",
+  "dropdown-border-color" = "red",
+  "dropdown-border-width" = "3px",
+  "nav-underline-link-active-color" = "#16697A",
+  "modal-content-bg" = "white",
+  "dropdown-color" = "black",
+  #bg = '#ecf0f5',fg='black'
+  font_scale = 0.8
+)
+
 # Age ---------------------------------------------------------------------
 
 age_years <- function(earlier, later)
