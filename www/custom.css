@@ -1,4 +1,11 @@
 
+.card{
+  overflow: visible !important;
+  
+}
+.card-body{
+  overflow: visible !important;
+}
 
 /*.card {
   border-top: 3px solid gray;
