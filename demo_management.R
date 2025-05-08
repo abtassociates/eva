@@ -65,7 +65,7 @@ observeEvent(input$pageid, {
 
 
 observeEvent(in_demo_mode(),{
-  print(in_demo_mode())
+ 
   if(in_demo_mode() == TRUE){
     process_upload("demo.zip", here("demo.zip"))
     
@@ -140,27 +140,19 @@ observeEvent(in_demo_mode(),{
 
 observeEvent(input$continue_demo_btn, {
   removeModal()
- 
-  #updateSwitchInput(session = session,inputId = 'in_demo_mode',value = !input$in_demo_mode)
-  #toggle_switch(id = 'in_demo_mode', value = TRUE, session = session)
   in_demo_mode(TRUE)
 })
 
 observeEvent(input$stay_in_demo, {
  
-  #isolate({update_switch(id = 'in_demo_mode', value=T, session = session)})
+  toggle_switch(id = 'in_demo_mode', value = !input$in_demo_mode, session = session)
   removeModal()
-  #updateSwitchInput(session = session,inputId = 'in_demo_mode',value = !input$in_demo_mode)
-  
   logMetadata("Chose to stay in demo mode")
 })
 
 observeEvent(input$stay_in_live, {
 
- # toggle_switch(id = 'in_demo_mode', value = FALSE, session = session)
-  #isolate({update_switch(id = 'in_demo_mode', value=F, session = session)})
-  #updateSwitchInput(session = session,inputId = 'in_demo_mode',value = !input$in_demo_mode)
-  
+  toggle_switch(id = 'in_demo_mode', value = !input$in_demo_mode, session = session)  
   removeModal()
 
   logMetadata("Chose to stay in live mode")
@@ -169,15 +161,17 @@ observeEvent(input$stay_in_live, {
 observeEvent(input$continue_live_btn, {
   removeModal()
   in_demo_mode(FALSE)
-  #toggle_switch(id = 'in_demo_mode', value = F, session = session)
 })
 
 
 observeEvent(input$in_demo_mode, {
   
+  ## only show modal if switch does not match reactive
+  req(in_demo_mode() != input$in_demo_mode)
  
+  print(paste0('input: ', input$in_demo_mode, ', reactive: ', in_demo_mode()))
+  
   if(in_demo_mode() == FALSE) {
-  #if(input$in_demo_mode != TRUE) {
     msg <- "<p>You're currently requesting to turn on Demo Mode. Demo Mode
       allows you to explore Eva using sample HMIS data, rather than having to
       use your own HMIS CSV Export file."
@@ -199,8 +193,7 @@ observeEvent(input$in_demo_mode, {
         HTML(msg),
         title = "Turn on Demo Mode?",
         footer = tagList(actionButton("continue_demo_btn", "Continue", class='btn-secondary'),
-                         #actionButton("stay_in_live", "Cancel"))
-                         modalButton("Cancel")) # formerly stay_in_live
+                         actionButton("stay_in_live", "Cancel"))
       )
     )
     
@@ -213,11 +206,11 @@ observeEvent(input$in_demo_mode, {
           <p>Please select \"Continue\" to turn off Demo Mode."),
         title = "Turn off Demo Mode?",
         footer = tagList(actionButton("continue_live_btn", "Continue", class='btn-secondary'),
-                         #actionButton("stay_in_demo", "Cancel"))
-                         modalButton("Cancel")) # formerly "stay_in_demo"
+                         actionButton("stay_in_demo", "Cancel"))
       )
     )
   }
+  
 }, ignoreInit = TRUE)
 
 shinyjs::runjs("$('#home_demo_instructions').parent().parent().hide()")
