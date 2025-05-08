@@ -86,7 +86,9 @@ observeEvent(in_demo_mode(),{
     
     shinyjs::hide(id = "successful_upload")
     shinyjs::disable(id = "imported")
-
+    shinyjs::runjs("
+          $('#imported').closest('.input-group-btn').attr('disabled',true);
+      ")
     nav_select(id = 'pageid', selected = 'tabHome', session = session)
     
     
@@ -106,7 +108,9 @@ observeEvent(in_demo_mode(),{
     shinyjs::hide('demo_banner')
     
     shinyjs::enable("imported")
-
+    shinyjs::runjs("
+      $('#imported').closest('.input-group-btn').next().val('');
+      ")
     shinyjs::hide("fileStructureAnalysis")
     
     reset_app()
