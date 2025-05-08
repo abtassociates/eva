@@ -527,8 +527,26 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         # AS 5/7/25: Added restriction that NbN and Non-Res projects must have
         # evidence of LH at some point during period (or within the window 
         # according to project type) in order to be considered an EECR
+        # Alternatively, such NbN and Non-Res enrollments can have exited in the month.
+        #
+        # Here's an example to explain:
+        #
+        # EnrollmentID  EntryDate   ProjectType ExitAdjust  InformationDate
+        # <char>        <Date>      <num>       <Date>      <Date>         
+        # 825777        2021-09-24  4           2022-04-12  2021-09-24     
+        #
+        # This person should have the following statuses:
+        # Full Report: ASH
+        # Oct: ASH
+        # Nov: ASH
+        # Dec - Mar: NOT IN DATASET because no EECR
+        # Apr: Inflow = Inactive, Outflow = Exited
+        #
+        # Normally, they wouldn't have an EECR in Apr because there's no evidence of LH during period
+        # However, we don't want to never count them as outflow. So to fix that,
+        # we'll force them to get an EECR because they exited.
         eecr = (eecr_straddle | eecr_no_straddle) & (
-          (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & was_lh_during_period) | 
+          (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & (was_lh_during_period | month(ExitAdjust) == month(startDate))) | 
           (!ProjectType %in% c(es_nbn_project_type, non_res_project_types))
         ),
         lecr = (lecr_straddle | lecr_no_straddle),
