@@ -9,14 +9,12 @@ page_navbar(
   
   title = span(img(src = "Eva_logo_horizontal_white.png",
                  alt = "Eva logo",
-                               height = 45)),
-   
-   header = tagList(
-     input_switch(id = 'in_demo_mode', 
-                  label = tooltip(trigger = list('DEMO MODE', bs_icon('info-circle')), 
-                            HTML('<strong>Off</strong>: Upload your own HMIS CSV Export.<br><br><strong>On</strong>: Uses a demo HMIS CSV Export.')
-                          ), 
-                  value=FALSE),
+                               height = 45),
+               
+  ),
+  
+  header = tagList(
+    
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
@@ -44,6 +42,20 @@ page_navbar(
       ),
       overlayColour = '#F5F5F5',
       refresh = ""
+  sidebar = sidebar(open = 'closed',title = 'More Info',bg = 'white',fg='black',
+                    #tags$span(
+                    actionButton(inputId = 'in_demo_mode',
+                                 label = tooltip(trigger = list('DEMO MODE', bs_icon('info-circle')),
+                                                 HTML('<strong>Off</strong>: Upload your own HMIS CSV Export.<br><br><strong>On</strong>: Uses a demo HMIS CSV Export.')
+                                 ))#,
+                    # input_switch(id = 'in_demo_mode',
+                    #              label = tooltip(trigger = list('DEMO MODE', bs_icon('info-circle')),
+                    #                              HTML('<strong>Off</strong>: Upload your own HMIS CSV Export.<br><br><strong>On</strong>: Uses a demo HMIS CSV Export.')
+                    #              ),
+                    #              value=FALSE)
+                    #  style='float:right; margin-left:100px'
+                    #)
+  ),
       ),
     ), 
     nav_panel(
