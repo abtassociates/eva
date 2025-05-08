@@ -10,12 +10,14 @@ function(input, output, session) {
     Export <- reactiveVal(),
     Project0 <- reactiveVal(),
     Event <- reactiveVal(),
+    esnbn_nonexited <- reactiveVal(),
     meta_HUDCSV_Export_Start <- reactiveVal(),
     meta_HUDCSV_Export_End <- reactiveVal(),
     meta_HUDCSV_Export_Date <- reactiveVal(),
     overlap_details <- reactiveVal(),
     base_dq_data_func <- reactiveVal(),
     dq_main_df <- reactiveVal(),
+    services <- reactiveVal(),
     pdde_main <- reactiveVal(),
     valid_file <- reactiveVal(0), # from FSA. Most stuff is hidden unless valid == 1
     file_structure_analysis_main <- reactiveVal(),
@@ -40,7 +42,7 @@ function(input, output, session) {
   source("glossary.R", local = TRUE)
 
   # Show upcoming maintenance pop-up prior to pushing to live
-  # e.g. "<p>Eva will be down for these updates from 5:00 PM ET to 6:00 PM ET Thursday, March 27, 2025.</p>"
+  # e.g. "<p>Eva will be down for maintenance from 5:00 PM ET to 6:00 PM ET Thursday, March 27, 2025.</p>"
   upcoming_maintenance_notification <- HTML("")
   if(nchar(upcoming_maintenance_notification) > 1) {
     showModal(

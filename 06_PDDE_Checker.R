@@ -197,45 +197,51 @@ operating_end_precedes_inventory_end <- activeInventory %>%
 
 # Active Inventory with No Enrollments ---------
 # Active inventory records (with non-overflow beds) should have enrollments within their bounds
-if(nrow(activeInventory) > 0) {
+get_active_inventory_no_enrollments <- function() {
+  if(nrow(activeInventory) == 0) return(NULL)
+  
   active_inventory_w_no_enrollments <- qDT(activeInventory) %>% 
-  fsubset(
-    (is.na(Availability) | Availability != 3) &
-      BedInventory > 0 & !is.na(BedInventory)
-  ) %>%
-  fselect(ProjectID, InventoryID, InventoryStartDate, InventoryEndDate) %>%
-  join(
-    Enrollment %>% select(ProjectID, EntryDate, ExitAdjust),
-    on = "ProjectID",
-    multiple = TRUE,
-    how="inner"
-  ) %>%
-  fgroup_by(ProjectID) %>%
-  fmutate(
-    # Check if inventory span overlaps with any enrollments
-    any_inventory_overlap = anyv(
-      (EntryDate <= InventoryEndDate | is.na(InventoryEndDate)) & 
-        ExitAdjust >= InventoryStartDate,
-      TRUE
-    )
-  ) %>%
-  fungroup() %>%
-  fsubset(!any_inventory_overlap) %>%
-  funique(cols = c("ProjectID")) %>%
-  # Bring in DQ cols
-  join(
-    Project0(),
-    on = "ProjectID",
-    how = "inner",
-    multiple = TRUE
-  ) %>%
-  merge_check_info_dt(checkIDs = 141) %>%
-  fmutate(Detail = "") %>%
-  fselect(PDDEcols) %>%
-  fsubset(!is.na(ProjectID))
-} else {
-  active_inventory_w_no_enrollments <- NULL
+    fsubset(
+      (is.na(Availability) | Availability != 3) &
+        BedInventory > 0 & !is.na(BedInventory)
+    ) 
+  
+  if(nrow(active_inventory_w_no_enrollments) == 0) return(NULL)
+  
+  active_inventory_w_no_enrollments %>%
+    fselect(ProjectID, InventoryID, InventoryStartDate, InventoryEndDate) %>%
+    join(
+      Enrollment %>% select(ProjectID, EntryDate, ExitAdjust),
+      on = "ProjectID",
+      multiple = TRUE,
+      how="inner"
+    ) %>%
+    fgroup_by(ProjectID) %>%
+    fmutate(
+      # Check if inventory span overlaps with any enrollments
+      any_inventory_overlap = anyv(
+        (EntryDate <= InventoryEndDate | is.na(InventoryEndDate)) & 
+          ExitAdjust >= InventoryStartDate,
+        TRUE
+      )
+    ) %>%
+    fungroup() %>%
+    fsubset(!any_inventory_overlap) %>%
+    funique(cols = c("ProjectID")) %>%
+    # Bring in DQ cols
+    join(
+      Project0(),
+      on = "ProjectID",
+      how = "inner",
+      multiple = TRUE
+    ) %>%
+    merge_check_info_dt(checkIDs = 141) %>%
+    fmutate(Detail = "") %>%
+    fselect(PDDEcols) %>%
+    fsubset(!is.na(ProjectID))
 }
+active_inventory_w_no_enrollments <- get_active_inventory_no_enrollments()
+
 # RRH project w no SubType ------------------------------------------------
 
 rrh_no_subtype <- Project0() %>%
