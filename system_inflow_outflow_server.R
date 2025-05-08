@@ -80,7 +80,10 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
   
   all_filtered_w_lh[, `:=`(
     # INFLOW CALCULATOR COLUMNS
-    active_at_start_homeless = eecr & was_lh_at_start,
+    active_at_start_homeless = eecr & was_lh_at_start &  (
+      (startDate == session$userData$ReportStart) | 
+      EntryDate < startDate
+    ),
       # They must have entered within 15 days of Report Start to be Active.
       # This resolves the problem whereby a person could have one status in 
       # the Full Report but a different status for the same enrollment in the 
