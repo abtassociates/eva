@@ -1,8 +1,8 @@
 # Tab-description message when in demo mode ----------------------------------
-observeEvent(input$sidebarmenuid, {
+observeEvent(input$pageid, {
   req(input$in_demo_mode)
   req(input$continue_demo_btn)
-  selectedTabId <- input$sidebarmenuid
+  selectedTabId <- input$pageid
   msg <- 
     switch(selectedTabId,
            "tabUpload" = "Welcome to the Upload HMIS CSV Export page. This

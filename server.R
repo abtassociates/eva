@@ -88,7 +88,7 @@ function(input, output, session) {
 
   # log when user navigate to a tab
   observe({ 
-    logMetadata(paste0("User on ",input$sidebarmenuid, 
+    logMetadata(paste0("User on ",input$pageid, 
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   })
   
