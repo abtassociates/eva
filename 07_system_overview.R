@@ -500,7 +500,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         eecr_straddle = ffirst(
           fifelse(straddles_start, EnrollmentID, NA)
         ) == EnrollmentID,
-        lecr_straddle = flast(
+        lecr_straddle = ffirst(
           fifelse(straddles_end, EnrollmentID, NA)
         ) == EnrollmentID
       ) %>%
