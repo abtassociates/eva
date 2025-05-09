@@ -265,8 +265,8 @@ page_navbar(
     ),
     
     card(
-      width = 12,
-      card_header("Select Project", class = 'bg-info'),
+      width = 12,class = 'overflow_card',
+      card_header("Select Project"),
       pickerInput(
         label = "",
         inputId = "currentProviderList",
@@ -277,16 +277,29 @@ page_navbar(
       ),
       
     ),
-    card(
-      card_header("Client Counts Summary", class = 'bg-info'),
-      DTOutput("clientCountSummary"),
-      width = 12
-    ),
-    card(
-      card_header("Client Counts Detail", class = 'bg-info'),
-      DTOutput("clientCountData"),
-      width = 12
+    
+    navset_card_underline(
+      id = 'client_count_subtabs',
+      
+      nav_panel(
+        title = "Client Counts Summary",
+        DTOutput("clientCountSummary")
+      ),
+      nav_panel(
+        title = "Client Counts Detail",
+        DTOutput("clientCountData")
+      )
     )
+    # card(
+    #   card_header("Client Counts Summary"),
+    #   DTOutput("clientCountSummary"),
+    #   width = 12
+    # ),
+    # card(
+    #   card_header("Client Counts Detail"),
+    #   DTOutput("clientCountData"),
+    #   width = 12
+    # )
   ),
   
   nav_menu(
@@ -307,22 +320,33 @@ page_navbar(
         )
       ),  
       br(),
-      card(
-        id = "PDDESummaryOrganization",
-        card_header(paste("PDDE Check Summary"), class = 'bg-info'),
-        
-        class = '.card-info',
-        DTOutput("pdde_summary_table"),
-        width = 12,
-        br(),
-        uiOutput("downloadPDDEReportButton") %>% withSpinner()
+    
+      navset_card_underline(
+        id = "pdde_subtabs",
+        nav_panel(
+          title = 'PDDE Check Summary',
+          DTOutput("pdde_summary_table"),
+          br(),
+          uiOutput("downloadPDDEReportButton") %>% withSpinner()
+        ),
+        nav_panel(
+          title = 'Guidance',
+          DTOutput("pdde_guidance_summary")
+        )
       ),
-      card(id = "PDDEGuidance",
-           card_header("Guidance", class = 'bg-info'),
-           DTOutput("pdde_guidance_summary"),
-           width = 12,
-           class = '.card-info'
-      )
+      # card(
+      #   id = "PDDESummaryOrganization",
+      #   card_header(paste("PDDE Check Summary")),
+      #   DTOutput("pdde_summary_table"),
+      #   width = 12,
+      #   br(),
+      #   uiOutput("downloadPDDEReportButton") %>% withSpinner()
+      # ),
+      # card(id = "PDDEGuidance",
+      #      card_header("Guidance"),
+      #      DTOutput("pdde_guidance_summary"),
+      #      width = 12
+      # )
     
     ),
     nav_panel(
@@ -485,20 +509,31 @@ page_navbar(
         
       ),
       
-      card(
-        id = "DQSummaryOrganization",
-        card_header(paste("Data Quality Summary"),class="bg-info"),
+      navset_card_underline(
+        id = 'dq_summary_subtabs',
         
-        DTOutput("dq_organization_summary_table"),
-        #width = 12
-      ),
-      card(
-        id = "DQSummaryProvider",
-        card_header("Data Quality Guidance", class = "bg-info"),
-        DTOutput("dq_org_guidance_summary"),
-        class = 'card-info'
-        
+        nav_panel(
+          title = "Data Quality Summary",
+          DTOutput("dq_organization_summary_table")
+        ),
+        nav_panel(
+          title = "Data Quality Guidance",
+          DTOutput("dq_org_guidance_summary")
+        )
       )
+      # card(
+      #   id = "DQSummaryOrganization",
+      #   card_header(paste("Data Quality Summary")),
+      #   
+      #   DTOutput("dq_organization_summary_table"),
+      #   #width = 12
+      # ),
+      # card(
+      #   id = "DQSummaryProvider",
+      #   card_header("Data Quality Guidance"),
+      #   DTOutput("dq_org_guidance_summary")
+      #   
+      # )
     )
 ),
 
@@ -615,6 +650,7 @@ nav_panel(
         ),
         nav_panel(
           title = "Information",
+          br(),
           tab_sys_inflow_outflow_subtabs_information
         )
       ),
@@ -636,6 +672,7 @@ nav_panel(
         ),
         nav_panel(
           title = "Information",
+          br(),
           tab_sys_status_subtabs_information
         )
       ),
@@ -680,6 +717,7 @@ nav_panel(
         ),
         nav_panel(
           title = "Information",
+          br(),
           tab_sys_comp_subtabs_information
           
         ),
