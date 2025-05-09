@@ -80,15 +80,9 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
   
   all_filtered_w_lh[, `:=`(
     # INFLOW CALCULATOR COLUMNS
-    active_at_start_homeless = eecr & was_lh_at_start &  (
-      (startDate == session$userData$ReportStart) | 
-      EntryDate < startDate
+    active_at_start_homeless = eecr & was_lh_at_start & (
+      startDate == session$userData$ReportStart | EntryDate < startDate
     ),
-      # They must have entered within 15 days of Report Start to be Active.
-      # This resolves the problem whereby a person could have one status in 
-      # the Full Report but a different status for the same enrollment in the 
-      # MbM based on their EntryDate's proximity to the *Period* Start
-      # EntryDate <= session$userData$ReportStart + 15,
     
     active_at_start_housed = eecr & ProjectType %in% ph_project_types &
       (
@@ -96,7 +90,8 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
         (days_since_lookback <= 14 & lookback_dest_perm & lookback_movein_before_start)
       ),
     
-    return_from_perm = eecr & between(days_since_lookback, 15, 730) & lookback_dest_perm,
+    return_from_perm = eecr & 
+      between(days_since_lookback, 15, 730) & lookback_dest_perm,
     
     return_from_nonperm = eecr & (
       (between(days_since_lookback, 15, 730) & !lookback_dest_perm) |
@@ -206,7 +201,7 @@ universe_ppl_flags <- function(universe_df, period) {
     stop("There's an Unknown in the Full Annual data!")
   }
   if(nrow(universe_w_ppl_flags[InflowTypeSummary == "something's wrong"]) > 0 |
-     nrow(universe_w_ppl_flags[OutflowTypeSummary == "something's wrong"]) > 0) {
+    nrow(universe_w_ppl_flags[OutflowTypeSummary == "something's wrong"]) > 0) {
     if(in_dev_mode) browser()
     # e.g. PersonalID 623725 in Nov and 601540 in Dec
     # e.g. PersonalID 305204 and 420232 in Nov and 601540 and 620079 in Dec
@@ -222,6 +217,10 @@ universe_ppl_flags <- function(universe_df, period) {
   # Feb - NOT IN DATASET BECAUSE NO EECR
   # Mar - NOT IN DATASET BECAUSE NO EECR
   # Apr - Inflow: Inactive, Outflow, Exited Non-Perm
+  # browser()
+  # print(
+  #   universe_w_ppl_flags[PersonalID == 613426, .(EnrollmentID, eecr, lecr, period[1])]
+  # )
   universe_w_ppl_flags
 }
 

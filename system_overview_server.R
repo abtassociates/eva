@@ -480,8 +480,7 @@ client_categories_filtered <- reactive({
 
 # Period-specific, user-filtered, enrollment-level universe applied ------------------
 universe_filtered <- function(enrollment_categories) {
-  
-enrollment_categories %>%
+  enrollment_categories %>%
     join( # Inner Join with client categories
       # This is necessary for bringing in Veteran Status, but will also make the rest faster
       client_categories_filtered(),
