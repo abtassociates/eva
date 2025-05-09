@@ -123,9 +123,9 @@ page_navbar(
             well as any other structural issues which you feel need to be corrected.
             </p>"),
       p(),
-      uiOutput('downloadFileStructureAnalysisBtn',fill = 'item'),
+      uiOutput('downloadFileStructureAnalysisBtn',fill = FALSE),
       p(),
-      uiOutput('downloadImpermissibleCharacterDetailBtn', fill = 'item'),
+      uiOutput('downloadImpermissibleCharacterDetailBtn', fill = FALSE),
       fillable = FALSE
     )
     # fluidRow(box(

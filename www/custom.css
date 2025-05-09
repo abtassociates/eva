@@ -1,26 +1,22 @@
 
-.card{
+.overflow_card {
   overflow: visible !important;
   
 }
-.card-body{
-  overflow: visible !important;
-}
-
-/*.card {
-  border-top: 3px solid gray;
-}*/
-
-/*.card.card-primary {
-  border-top: 3px solid gray;
-  /*border-top-color: gray;
-}*/
 
 #demo_banner {
   background-color: #FCB248;
   color: #000000; 
   text-align:center;
   height: 1.5em;
+}
+
+.accordion .accordion-heading { 
+  font-size: 24px;
+}
+
+.dropdown-toggle[data-value="Assess Data Quality"] {
+  background-color: #16697A;
 }
 
 .accordion-item[data-value="home_demo_instructions"] {
