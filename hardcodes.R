@@ -464,4 +464,4 @@ inflow_outflow_debug_cols <- c(
   "lookback_movein_before_start"
 )
 
-in_dev_mode <- "ad.abt.local" %in% Sys.info()[["nodename"]]
+in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]])
