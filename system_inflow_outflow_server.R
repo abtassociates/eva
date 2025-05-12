@@ -199,12 +199,18 @@ universe_ppl_flags <- function(universe_df, period) {
     if(in_dev_mode) browser()
     stop("There's an Unknown in the Full Annual data!")
   }
-  if(nrow(universe_w_ppl_flags[InflowTypeSummary == "something's wrong"]) > 0 |
-    nrow(universe_w_ppl_flags[OutflowTypeSummary == "something's wrong"]) > 0) {
     if(in_dev_mode) browser()
+  if(nrow(universe_w_ppl_flags[InflowTypeSummary == "something's wrong", ..inflow_debug_cols]) > 0 |
+    nrow(universe_w_ppl_flags[OutflowTypeSummary == "something's wrong", ..outflow_debug_cols]) > 0) {
     # e.g. PersonalID 623725 in Nov and 601540 in Dec
     # e.g. PersonalID 305204 and 420232 in Nov and 601540 and 620079 in Dec
     # e.g. PersonalID 14780 in Oct and Nov
+    # 613426 - in Nov, they should be Return/Re-Egnaged but the problem is that the lookback has no exit or destination
+    # If we restrict Return/Re-Engaged to those with lookbacks with Exits to corresponding destination, then:
+    #   PersonalIDs: 306663, 619032, 119222, 11943    
+    # AS 5/12/25: With new was_lh_at_end condition in creating lecr, PersonalID 305204 (ICF-good) is "something's wrong" for annual
+    #
+    # PersonalID 687862 has inflow issue
     logToConsole(session, paste0("There's a something's wrong in the universe_ppl_flags data when period = ", period[1]))
   }
 
