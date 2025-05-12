@@ -38,8 +38,7 @@ bar_colors <- c(
   "Inflow" = "#BDB6D7", 
   "Outflow" = '#6A559B',
   "Homeless" = '#ECE7E3',
-  "Housed" = '#9E958F',
-  "Inactive" = '#9B87C0'
+  "Housed" = '#9E958F'
 )
 
 mbm_bar_colors <- c(
@@ -48,6 +47,11 @@ mbm_bar_colors <- c(
   "Outflow" = '#6A559B',
   # "Inactive" = "#E78AC3"
   "Active at End: Housed" = '#9E958F'
+)
+
+mbm_single_status_chart_colors <- c(
+  "First-Time \nHomeless" = bar_colors[["Inflow"]],
+  "Inactive" = colorspace::lighten(bar_colors[["Outflow"]], amount = 0.3)
 )
 
 # 0.2 seems to be the right value to space the bars correctly
@@ -365,11 +369,13 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     fmutate(
       InflowPlotFillGroups = fct_collapse(
         InflowTypeDetail, 
+        `Active at Start: Housed` = "Housed", 
         `Active at Start: Homeless` = "Homeless", 
         Inflow = inflow_detail_levels
       ),
       OutflowPlotFillGroups = fct_collapse(
         OutflowTypeDetail, 
+        `Active at End: Homeless` = "Homeless", 
         `Active at End: Housed` = "Housed",
         Outflow = outflow_detail_levels
       )
@@ -381,37 +387,6 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
         (input$mbm_fth_filter == "Inactive" & OutflowTypeDetail == "Inactive")
       )
     )
-  
-  # AS 5/7/25: Measurement team decided to go with normal bar-chart for FTH
-  # First-time homeless filter
-  # if(input$mbm_fth_filter == "FTH-working") {
-  #   # filter to just People whose first inflow status in the whole report period 
-  #   # was first-time homeless
-  #   # then, we only want their first span in the system, i.e. FTH, then Active, until Outflow
-  #   # Even if they inflowed again, we wouldn't want to take that.
-  #   first_time_homeless_in_period <- period_specific_data()[["Full"]] %>%
-  #     fsubset(InflowTypeDetail == "First-Time \nHomeless") %>%
-  #     fmutate(FirstTimeHomelessMonth = format(EntryDate, "%b %y")) %>%
-  #     fselect(PersonalID, FirstTimeHomelessMonth) %>%
-  #     funique()
-  #   
-  #   monthly_data <- monthly_data %>%
-  #     join(
-  #       first_time_homeless_in_period, 
-  #       on = c("PersonalID"), 
-  #       how = "inner"
-  #     ) %>%
-  #     fmutate(
-  #       InflowPlotFillGroups = factor(
-  #         fifelse(
-  #           FirstTimeHomelessMonth == month,
-  #           "First-Time \nHomeless",
-  #           as.character(InflowPlotFillGroups)
-  #         ),
-  #         levels = c("Active at Start: Homeless", "First-Time \nHomeless", "Inflow", "something's wrong")
-  #       )
-  #     )
-  # } 
 
   # Get counts of each type by month
   monthly_counts <- rbind(
@@ -910,9 +885,13 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
     roworder(PlotFillGroups)
 
   if(input$mbm_fth_filter == "First-Time Homeless")
-    summary_data_with_change <- summary_data_with_change[PlotFillGroups == "Inflow"]
+    summary_data_with_change <- summary_data_with_change[PlotFillGroups == "Inflow"][
+      , PlotFillGroups := input$mbm_fth_filter
+    ]
   else if(input$mbm_fth_filter == "Inactive")
-    summary_data_with_change <- summary_data_with_change[PlotFillGroups == "Outflow"]
+    summary_data_with_change <- summary_data_with_change[PlotFillGroups == "Outflow"][
+      , PlotFillGroups := input$mbm_fth_filter
+    ]
   
   setnames(summary_data_with_change, "PlotFillGroups", " ")
 
@@ -989,7 +968,7 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
   )
 
   ggplot(plot_data, aes(x = month, y = Count)) +
-    geom_col(fill = bar_colors[[varname]], width = 0.3, color = "black") +
+    geom_col(fill = mbm_single_status_chart_colors[[status]], width = 0.3, color = "black") +
     theme_minimal() +
     labs(
       x = "Month",
