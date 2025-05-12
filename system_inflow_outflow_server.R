@@ -911,6 +911,11 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
   ) %>%
     roworder(PlotFillGroups)
 
+  if(input$mbm_fth_filter == "First-Time Homeless")
+    summary_data_with_change <- summary_data_with_change[PlotFillGroups == "Inflow"]
+  else if(input$mbm_fth_filter == "Inactive")
+    summary_data_with_change <- summary_data_with_change[PlotFillGroups == "Outflow"]
+  
   setnames(summary_data_with_change, "PlotFillGroups", " ")
 
   monthly_dt <- datatable(
@@ -986,7 +991,7 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
   )
 
   ggplot(plot_data, aes(x = month, y = Count)) +
-    geom_col(fill = bar_colors[["Inflow"]], width = 0.3, color = "black") +
+    geom_col(fill = bar_colors[[varname]], width = 0.3, color = "black") +
     theme_minimal() +
     labs(
       x = "Month",
