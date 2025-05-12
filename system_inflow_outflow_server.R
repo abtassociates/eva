@@ -38,7 +38,8 @@ bar_colors <- c(
   "Inflow" = "#BDB6D7", 
   "Outflow" = '#6A559B',
   "Homeless" = '#ECE7E3',
-  "Housed" = '#9E958F'
+  "Housed" = '#9E958F',
+  "Inactive" = '#9B87C0'
 )
 
 mbm_bar_colors <- c(
@@ -47,16 +48,6 @@ mbm_bar_colors <- c(
   "Outflow" = '#6A559B',
   # "Inactive" = "#E78AC3"
   "Active at End: Housed" = '#9E958F'
-)
-
-# inactive_levels <- c("Unknown", "Inactive")
-inactive_levels <- c("Inactive")
-# inactive_levels_explicit <- c("Unknown-Inflow", "Inactive-Outflow")
-inactive_levels_explicit <- c("Inactive-Outflow")
-
-inactive_bar_colors <- c(
-  # "Unknown-Inflow" = "#DAD6E9",   # lighter version of "#BDB6D7"
-  "Inactive-Outflow" = "#9B87C0"   # lighter version of "#6A559B"
 )
 
 # 0.2 seems to be the right value to space the bars correctly
