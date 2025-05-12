@@ -365,10 +365,24 @@ sys_inflow_outflow_annual_chart_data <- reactive({
 sys_inflow_outflow_monthly_chart_data <- reactive({
   monthly_data <- get_inflow_outflow_monthly() %>%
     fmutate(
-      InflowPlotFillGroups = fct_recode(InflowTypeSummary, `Active at Start: Homeless` = "Active at Start"),
-      OutflowPlotFillGroups = fct_recode(OutflowTypeSummary, `Active at End: Housed` = "Active at End")
+      InflowPlotFillGroups = fct_collapse(
+        InflowTypeDetail, 
+        `Active at Start: Homeless` = "Homeless", 
+        Inflow = inflow_detail_levels
+      ),
+      OutflowPlotFillGroups = fct_collapse(
+        OutflowTypeDetail, 
+        `Active at End: Housed` = "Housed",
+        Outflow = outflow_detail_levels
+      )
     ) %>%
-    fsubset(InflowPlotFillGroups != "something's wrong")
+    fsubset(
+      InflowPlotFillGroups != "something's wrong" & (
+        input$mbm_fth_filter == "All" |
+        (input$mbm_fth_filter == "First-Time Homeless" & InflowTypeDetail == "First-Time \nHomeless") |
+        (input$mbm_fth_filter == "Inactive" & OutflowTypeDetail == "Inactive")
+      )
+    )
   
   # AS 5/7/25: Measurement team decided to go with normal bar-chart for FTH
   # First-time homeless filter
