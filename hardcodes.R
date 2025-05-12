@@ -447,7 +447,7 @@ local_settings_inputs <- c(
   "CEOutstandingReferrals"
 )
 
-inflow_outflow_debug_cols <- c(
+inflow_debug_cols <- c(
   "PersonalID",
   "EnrollmentID",
   "eecr",
@@ -461,7 +461,27 @@ inflow_outflow_debug_cols <- c(
   "straddles_start",
   "InflowTypeDetail",
   "lookback_dest_perm",
-  "lookback_movein_before_start"
+  "lookback_movein_before_start",
+  "any_lookbacks_with_exit_to_perm"
+)
+
+
+outflow_debug_cols <- c(
+  "PersonalID",
+  "EnrollmentID",
+  "lecr",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitAdjust",
+  "lh_prior_livingsituation",
+  "was_lh_at_end",
+  "days_since_lookback",
+  "straddles_end",
+  "OutflowTypeDetail",
+  "exited",
+  "Destination",
+  "days_to_lookahead"
 )
 
 in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]])
