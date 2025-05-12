@@ -1154,9 +1154,9 @@ dashboardPage(
                                         width = "100%",
                                         height = "500") %>%
                                withSpinner(),
-                             DTOutput("sys_inflow_outflow_monthly_table") %>%
-                               withSpinner()
-                           )
+                           ),
+                           DTOutput("sys_inflow_outflow_monthly_table") %>%
+                             withSpinner()
                   ),
                   tabPanel("Timeline Chart",
                            plotlyOutput("timelinePlot", height = "600px"),

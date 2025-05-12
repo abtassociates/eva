@@ -972,22 +972,23 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
   )
 
   ggplot(plot_data, aes(x = month, y = Count)) +
-    geom_col(fill = "#6A559B", width = 0.3) +
+    geom_col(fill = bar_colors[["Inflow"]], width = 0.3, color = "black") +
     theme_minimal() +
     labs(
       x = "Month",
       y = paste0("Count of ", level_of_detail_text)
     ) +
+    scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
     theme(
-      axis.text = element_text(size = 12, face="bold", family="sans"),
+      axis.text = element_blank(),
       axis.title.y = element_text(size = sys_axis_text_font),  
       axis.title.x = element_blank(),
       legend.position = "none",
       panel.grid = element_blank(),        # Remove gridlines
       axis.line.x = element_line(),          
-      axis.line.y = element_line(),
-      axis.ticks.y = element_line(),
-      plot.margin = margin(l = 55),
+      axis.line.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      plot.margin = margin(l = 50),
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 }
