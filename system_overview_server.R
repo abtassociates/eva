@@ -636,61 +636,44 @@ lh_other_period <- function(all_filtered, startDate, endDate) {
 add_lh_info <- function(all_filtered, period) {
   startDate <- period[1]
   endDate <- period[2]
-  
-  lh_info <- unique(
-    # Capture LH info for both non-residential projects AND ES NbN projects
-    rbindlist(
-      list(
-        lh_non_res_period(startDate, endDate),
-        lh_nbn_period(startDate, endDate),
-        lh_other_period(all_filtered, startDate, endDate)
+
+  lh_other_info <- lh_other_period(all_filtered, startDate, endDate)[, .(
+    EnrollmentID,
+    
+    was_lh_at_start = 
+      # For Res projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
+      # must either straddle or otherwise be close to (i.e. 14 days from) 
+      # start so we can make claims about status at start
+      # and must be within 14 days of previous enrollment, otherwise it would be an exit
+      (straddles_start | (entry_in_start_window & days_since_lookback <= 14)) & (
+        ProjectType %in% lh_project_types_nonbn | 
+        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
       ),
-      fill = TRUE
-    )[, 
-      .(
-        EnrollmentID,
-        
-        was_lh_at_start = (
-          # Non-Res and LH CLS in 60/90-day window OR 
-          # Entry in 60/90 day window and lh_prior_livingsituation
-          (ProjectType %in% non_res_project_types & (
-            lh_cls_in_start_window | (entry_in_start_window & lh_prior_livingsituation)
-          )) |
-          # ES NbN and Bed Night in 15-day window
-          # we don't need lh_prior_livingsituation here 
-          # because ES NbN enrollment implies homelessness
-          (ProjectType == es_nbn_project_type & (
-            nbn_in_start_window | entry_in_start_window
-          )) | 
-          # All Other projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
-          # must either straddle or otherwise be close to (i.e. 14 days from) 
-          # start so we can make claims about status at start
-          # and must be within 14 days of previous enrollment, otherwise it would be an exit
-          ((straddles_start | (entry_in_start_window & days_since_lookback <= 14)) & (
-            ProjectType %in% lh_project_types_nonbn | 
-            (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
-          ))
-        ),
-        
-        was_lh_during_period =
-          (ProjectType == es_nbn_project_type & nbn_during_period) |
-          (ProjectType %in% non_res_project_types & lh_cls_during_period),
-        
-        was_lh_at_end = (
-          (ProjectType %in% non_res_project_types & (
-            lh_cls_in_start_window | (entry_in_end_window & lh_prior_livingsituation)
-          )) |
-          (ProjectType == es_nbn_project_type & (
-            nbn_in_end_window | entry_in_end_window
-          )) | 
-          ((straddles_end | days_to_lookahead <= 14) & (
-            ProjectType %in% lh_project_types_nonbn | 
-            (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
-          ))
-        )
-      )
-    ]
-  )
-  join(all_filtered, lh_info, on = "EnrollmentID", how = "left")
+    
+    was_lh_at_end = (straddles_end | days_to_lookahead <= 14) & (
+      ProjectType %in% lh_project_types_nonbn | 
+      (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
+    )
+  )]
+  
+  join(
+    all_filtered, 
+    lh_other_info, 
+    on = "EnrollmentID", 
+    how = "left",
+    suffix = c("", ".new")
+  ) %>%
+    fmutate(
+      was_lh_at_start = fcoalesce(was_lh_at_start, was_lh_at_start.new), 
+      was_lh_at_end = fcoalesce(was_lh_at_end, was_lh_at_end.new)
+    ) %>%
+    fselect(EnrollmentID, PersonalID, HouseholdID, EntryDate, MoveInDateAdjust, ExitAdjust,
+            ProjectType, straddles_start, straddles_end,
+            Destination, lh_prior_livingsituation, eecr, lecr, 
+            any_lookbacks_with_exit_to_perm, any_lookbacks_with_exit_to_nonperm,
+            days_since_lookback, days_to_lookahead, lookback_movein_before_start,
+            was_lh_at_start, was_lh_at_end,
+            lookback_dest_perm
+    )
 }
 

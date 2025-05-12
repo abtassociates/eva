@@ -458,18 +458,40 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     startDate <- report_period[1]
     endDate <- report_period[2]
     
-    lh_info <- rbindlist(
-      list(
-        lh_non_res_period(startDate, endDate),
-        lh_nbn_period(startDate, endDate)
-      ),
-      fill = TRUE
-    )[, .(
-      EnrollmentID,
-      was_lh_during_period = (ProjectType == es_nbn_project_type & nbn_during_period) |
-        (ProjectType %in% non_res_project_types & lh_cls_during_period)
-      )
-    ]
+    lh_non_res_esnbn_info <- unique(
+      rbindlist(
+        list(
+          lh_non_res_period(startDate, endDate),
+          lh_nbn_period(startDate, endDate)
+        ),
+        fill = TRUE
+      )[, .(
+        EnrollmentID,
+        was_lh_at_start = (
+          # Non-Res and LH CLS in 60/90-day window OR 
+          # Entry in 60/90 day window and lh_prior_livingsituation
+          (ProjectType %in% non_res_project_types & (
+            lh_cls_in_start_window | (entry_in_start_window & lh_prior_livingsituation)
+          )) |
+          # ES NbN and Bed Night in 15-day window
+          # we don't need lh_prior_livingsituation here 
+          # because ES NbN enrollment implies homelessness
+          (ProjectType == es_nbn_project_type & (
+            nbn_in_start_window | entry_in_start_window
+          ))
+        ),
+        was_lh_during_period = (ProjectType == es_nbn_project_type & nbn_during_period) |
+          (ProjectType %in% non_res_project_types & lh_cls_during_period),
+        
+        was_lh_at_end =
+          (ProjectType %in% non_res_project_types & (
+            lh_cls_in_start_window | (entry_in_end_window & lh_prior_livingsituation)
+          )) |
+          (ProjectType == es_nbn_project_type & (
+            nbn_in_end_window | entry_in_end_window
+          ))
+      )]
+    )
     
     enrollment_categories_period <- enrollment_categories %>%
       fsubset(
@@ -486,12 +508,20 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         #   default = "NotDV"
         # )
       ) %>% 
+      join(
+        lh_non_res_esnbn_info,
+        on = "EnrollmentID",
+        how = "left"
+      ) %>%
       # Flag if person had any straddling enrollments
       # to be used when calculating eecr/lecr in no-straddle cases
       fgroup_by(PersonalID) %>%
       fmutate(
         any_straddle_start = anyv(straddles_start, TRUE),
-        any_straddle_end = anyv(straddles_end, TRUE)
+        any_straddle_end = anyv(straddles_end, TRUE),
+        all_straddle_ends_nonresnbn_not_lh_at_end = anyv(straddles_end & 
+                                                           ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
+                                                           !isTRUE(was_lh_at_end), TRUE)
       ) %>%
       # flag the first and last straddling enrollments, 
       # by (desc) ProjectTypeWeight and EntryDate
@@ -512,16 +542,16 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         eecr_no_straddle = ffirst(
           fifelse(!any_straddle_start & in_date_range, EnrollmentID, NA)
         ) == EnrollmentID,
+        # AS 5/9/25 TO DO: a non-straddling enrollment can be an lecr if no other enrollments straddle OR those that do are non-res/NbN that are !was_lh_at_end
+        # If this works as we'd like/expect, there should be Outflow: Inactives for Annual (maybe for MbM)
         lecr_no_straddle = flast(
-          fifelse(!any_straddle_end & in_date_range, EnrollmentID, NA)
+          fifelse(in_date_range & (
+            !any_straddle_end |
+            all_straddle_ends_nonresnbn_not_lh_at_end
+          ), EnrollmentID, NA)
         ) == EnrollmentID
       ) %>%
       fungroup() %>%
-      join(
-        lh_info,
-        on = "EnrollmentID",
-        how = "left"
-      ) %>%
       # Create eecr and lecr flags
       fmutate(
         # AS 5/7/25: Added restriction that NbN and Non-Res projects must have
@@ -550,7 +580,10 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           (!ProjectType %in% c(es_nbn_project_type, non_res_project_types))
         ),
         lecr = (lecr_straddle | lecr_no_straddle),
-        eecr_is_res = eecr & ProjectType %in% project_types_w_beds
+        eecr_is_res = eecr & ProjectType %in% project_types_w_beds,
+        is_lookback = !isTRUE(eecr) & !isTRUE(lecr),
+        perm_dest = is_lookback & Destination %in% perm_livingsituation,
+        nonperm_dest = is_lookback & !Destination %in% perm_livingsituation
       ) %>%
       fgroup_by(PersonalID) %>%
       fmutate(
@@ -559,24 +592,33 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         # this is to match with the project type filter
         eecr_project_type = fifelse(
           anyv(eecr_is_res, TRUE), "Residential", "NonResidential"
-        )
+        ),
+        # To be Return/Re-Engaged, they need a lookback with an exit to the corresponding destination
+        any_lookbacks_with_exit_to_perm = anyv(perm_dest, TRUE),
+        any_lookbacks_with_exit_to_nonperm = anyv(nonperm_dest, TRUE)
       ) %>%
       fungroup() %>%
       fsubset(has_eecr == TRUE) %>%
       # "fill in" lecr as TRUE where eecr is the only enrollment
       ftransform(lecr = lecr | (eecr & !has_lecr)) %>%
-      roworder(PersonalID, EntryDate) %>%
+      roworder(PersonalID, EntryDate, ExitAdjust) %>%
       fmutate(
         # first_lookback = L(eecr, n = -1, g = PersonalID) == TRUE, #first_lookback is TRUE if the next/lead eecr value is TRUE
         # lookback = EntryDate < startDate & (!eecr | is.na(eecr)) & (!lecr | is.na(lecr)),
         days_since_lookback = fifelse(eecr, EntryDate - L(ExitAdjust, g = PersonalID), NA),
-        lookback_dest_perm = L(Destination, g = PersonalID) %in% perm_livingsituation,
-        lookback_movein_before_start = L(MoveInDateAdjust, g = PersonalID) < startDate,
-        days_to_lookahead = fcoalesce(L(EntryDate, g = PersonalID), no_end_date) - ExitAdjust
-      ) %>%
-      fsubset(eecr | lecr) %>%
+        lookback_dest_perm = eecr & L(Destination, g = PersonalID) %in% perm_livingsituation,
+        lookback_movein_before_start = eecr & L(MoveInDateAdjust, g = PersonalID) < startDate,
+        days_to_lookahead = fifelse(lecr, fcoalesce(L(EntryDate, n=-1, g = PersonalID), no_end_date) - ExitAdjust, NA)
+      ) 
+    # browser()
+    # if(identical(report_period, session$userData$report_dates[[3]])) {
+    #   browser()
+    # }
+    
+    enrollment_categories_period %>%
+      fsubset(eecr | lecr | is_lookback) %>%
       fselect(-c(any_straddle_start, any_straddle_end, eecr_no_straddle, eecr_straddle, lecr_straddle, lecr_no_straddle))
-# browser()
+
     # }, "07_system_overview.R")
   },
   cache = cachem::cache_mem(max_size = 100 * 1024^2) 
