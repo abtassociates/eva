@@ -84,11 +84,10 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
       startDate == session$userData$ReportStart | EntryDate < startDate
     ),
     
-    active_at_start_housed = eecr & ProjectType %in% ph_project_types &
-      (
-        (fcoalesce(MoveInDateAdjust, no_end_date) < startDate) | 
-        (days_since_lookback <= 14 & lookback_dest_perm & lookback_movein_before_start)
-      ),
+    active_at_start_housed = eecr & ProjectType %in% ph_project_types & (
+      (fcoalesce(MoveInDateAdjust, no_end_date) < startDate) | 
+      (days_since_lookback <= 14 & lookback_dest_perm & lookback_movein_before_start)
+    ),
     
     return_from_perm = eecr & 
       between(days_since_lookback, 15, 730) & lookback_dest_perm,

@@ -480,34 +480,35 @@ client_categories_filtered <- reactive({
 
 # Period-specific, user-filtered, enrollment-level universe applied ------------------
 universe_filtered <- function(enrollment_categories) {
-  enrollment_categories %>%
-    join( # Inner Join with client categories
-      # This is necessary for bringing in Veteran Status, but will also make the rest faster
-      client_categories_filtered(),
-      # client_categories_filt, # this is used for mirai
-      on = "PersonalID",
-      how = "inner"
-    ) %>%
-    fsubset(
-      # Household type filter
-      (input$syso_hh_type == "All" |
-         (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
-         (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-         (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
-         (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
-         input$syso_hh_type == HouseholdType
-      ) &
-        # Level of detail filter
-        (input$syso_level_of_detail == "All" |
-           (input$syso_level_of_detail == "HoHsAndAdults" &
-              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-           (input$syso_level_of_detail == "HoHsOnly" &
-              CorrectedHoH == 1)) &
-        # Project type filter
-        (input$syso_project_type == "All" |
-           input$syso_project_type == eecr_project_type
-        )
+  # Inner Join with client categories
+  # This is necessary for bringing in Veteran Status, but will also make the rest faster
+  join( 
+    enrollment_categories,
+    client_categories_filtered() %>% fselect(PersonalID, VeteranStatus),
+    # client_categories_filt, # this is used for mirai
+    on = "PersonalID",
+    how = "inner"
+  ) %>%
+  fsubset(
+    # Household type filter
+    (input$syso_hh_type == "All" |
+       (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+       (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+       (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+       (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
+       input$syso_hh_type == HouseholdType
+    ) &
+    # Level of detail filter
+    (input$syso_level_of_detail == "All" |
+       (input$syso_level_of_detail == "HoHsAndAdults" &
+          (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+       (input$syso_level_of_detail == "HoHsOnly" &
+          CorrectedHoH == 1)) &
+    # Project type filter
+    (input$syso_project_type == "All" |
+       input$syso_project_type == eecr_project_type
     )
+  )
 }
 
 
@@ -614,11 +615,10 @@ lh_nbn_period <- function(startDate, endDate) {
 lh_other_period <- function(all_filtered, startDate, endDate) {
   all_filtered %>%
     fsubset(
-      EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2)) &
-        (
-          ProjectType %in% lh_project_types_nonbn | 
-          (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
-        )
+      EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2)) & (
+        ProjectType %in% lh_project_types_nonbn | 
+        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
+      )
     ) %>%
     ftransform(
       entry_in_start_window = between(EntryDate, startDate, startDate + 15)
