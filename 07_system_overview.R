@@ -442,6 +442,8 @@ problematic_nonres_enrollmentIDs <- base::setdiff(
 enrollment_categories <- enrollment_categories %>%
   fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs)
 
+if(in_dev_mode) enrollment_categories_all <<- enrollment_categories
+
 rm(es_nbn_enrollments, non_res_enrollments)
 
 session$userData$report_dates <- get_report_dates()
