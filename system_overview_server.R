@@ -664,8 +664,6 @@ add_lh_info <- function(all_filtered, period) {
     suffix = c("", ".new")
   ) %>%
     fmutate(
-      was_lh_at_start = fcoalesce(was_lh_at_start, was_lh_at_start.new), 
-      was_lh_at_end = fcoalesce(was_lh_at_end, was_lh_at_end.new)
     ) %>%
     fselect(EnrollmentID, PersonalID, HouseholdID, EntryDate, MoveInDateAdjust, ExitAdjust,
             ProjectType, straddles_start, straddles_end,
@@ -674,6 +672,8 @@ add_lh_info <- function(all_filtered, period) {
             days_since_lookback, days_to_lookahead, lookback_movein_before_start,
             was_lh_at_start, was_lh_at_end,
             lookback_dest_perm
+      was_lh_at_start = fcoalesce(was_lh_at_start, fcoalesce(was_lh_at_start.new, FALSE)), 
+      was_lh_at_end = fcoalesce(was_lh_at_end, fcoalesce(was_lh_at_end.new, FALSE))
     )
 }
 

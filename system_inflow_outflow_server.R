@@ -90,9 +90,7 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
     
     return_from_nonperm = eecr & (
       (between(days_since_lookback, 15, 730) & !lookback_dest_perm) |
-      (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
-         !isTRUE(was_lh_at_start)
-      ) 
+      (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & !was_lh_at_start) 
     ) & any_lookbacks_with_exit_to_nonperm,
     
     first_time_homeless = (days_since_lookback > 730 | is.na(days_since_lookback)) & 
@@ -101,7 +99,7 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
     unknown_at_start = eecr & 
       straddles_start & 
       ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
-      !isTRUE(was_lh_at_start),
+      !was_lh_at_start,
     
     # OUTFLOW CALCULATOR COLUMNS
     exited = lecr & between(ExitAdjust, startDate, endDate),
@@ -116,7 +114,7 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
     unknown_at_end = lecr &
       straddles_end & 
       ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
-      !isTRUE(was_lh_at_end)
+      !was_lh_at_end
   )]
 }
 

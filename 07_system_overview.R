@@ -521,9 +521,11 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       fmutate(
         any_straddle_start = anyv(straddles_start, TRUE),
         any_straddle_end = anyv(straddles_end, TRUE),
-        all_straddle_ends_nonresnbn_not_lh_at_end = anyv(straddles_end & 
-                                                           ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
-                                                           !isTRUE(was_lh_at_end), TRUE)
+        all_straddle_ends_nonresnbn_not_lh_at_end = anyv(
+          straddles_end & 
+          ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
+          !fcoalesce(was_lh_at_end, FALSE)
+        , TRUE)
       ) %>%
       # flag the first and last straddling enrollments, 
       # by (desc) ProjectTypeWeight and EntryDate
