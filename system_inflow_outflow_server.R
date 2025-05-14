@@ -13,11 +13,23 @@ inflow_detail_levels <- c(
   # "something's wrong"
 )
 
+inflow_chart_detail_levels <- c(
+  "First-Time \nHomeless", 
+  "Returned from \nPermanent",
+  "Re-engaged from \nNon-Permanent"
+)
+
 outflow_detail_levels <- c(
   "Exited,\nNon-Permanent",
   "Exited,\nPermanent",
   "Inactive",
   "Continuous at End"
+)
+
+outflow_chart_detail_levels <- c(
+  "Exited,\nNon-Permanent",
+  "Exited,\nPermanent",
+  "Inactive"
 )
 
 inflow_summary_levels <- c(
@@ -211,12 +223,15 @@ universe_ppl_flags <- function(universe_df, period) {
     # e.g. PersonalID 623725 in Nov and 601540 in Dec
     # e.g. PersonalID 305204 and 420232 in Nov and 601540 and 620079 in Dec
     # e.g. PersonalID 14780 in Oct and Nov
-    # 613426 - in Nov, they should be Return/Re-Egnaged but the problem is that the lookback has no exit or destination
+    # 613426 - in Nov, they should be Active at start Homeless but the problem is that the lookback has no exit or destination
     # If we restrict Return/Re-Engaged to those with lookbacks with Exits to corresponding destination, then:
     #   PersonalIDs: 306663, 619032, 119222, 11943    
     # AS 5/12/25: With new was_lh_at_end condition in creating lecr, PersonalID 305204 (ICF-good) is "something's wrong" for annual
     #
     # PersonalID 687862 has inflow issue
+    # PersonalID 688880, DEMO mode, Jan 22, Outflow
+    # PersonalID 690120, DEMO mode, Apr 22, Outflow
+    
     logToConsole(session, 
       paste0("There are something's wrong records in the universe_ppl_flags data when period = ", 
              ifelse(identical(period, session$userData$report_dates[1]), "Annual", format(period[1], "%b %y"))
@@ -357,40 +372,46 @@ sys_inflow_outflow_annual_chart_data <- reactive({
   full_combinations <- data.frame(
     Detail = c(
       active_at_levels,
-      inflow_detail_levels,
-      outflow_detail_levels,
+      inflow_chart_detail_levels,
+      outflow_chart_detail_levels,
       active_at_levels
     ),
     Summary = c(
       rep("Active at Start", length(active_at_levels)),
-      inflow_detail_levels,
-      outflow_detail_levels,
+      inflow_chart_detail_levels,
+      outflow_chart_detail_levels,
       rep("Active at End", length(active_at_levels))
     ),
     InflowOutflow = c(
-      rep("Inflow", length(c(inflow_detail_levels, active_at_levels))),
-      rep("Outflow", length(c(outflow_detail_levels, active_at_levels)))
+      rep("Inflow", length(c(inflow_chart_detail_levels, active_at_levels))),
+      rep("Outflow", length(c(outflow_chart_detail_levels, active_at_levels)))
     ),
     PlotFillGroups = c(
       active_at_levels,
-      rep("Inflow", length(inflow_detail_levels)),
-      rep("Outflow", length(outflow_detail_levels)),
+      rep("Inflow", length(inflow_chart_detail_levels)),
+      rep("Outflow", length(outflow_chart_detail_levels)),
       active_at_levels
     )
   )
 
+  inflow_outflow_full_data <- get_inflow_outflow_full() %>% 
+    ftransform(
+      InflowTypeDetail = factor(InflowTypeDetail, levels = c(active_at_levels, inflow_chart_detail_levels)),
+      OutflowTypeDetail = factor(OutflowTypeDetail, levels = c(outflow_chart_detail_levels, active_at_levels))
+    )
+
   rbind(
-    get_inflow_outflow_full()[, .(
-      Detail = InflowTypeDetail, 
+    inflow_outflow_full_data[, .(
+      Detail = InflowTypeDetail,
       Summary = fct_collapse(InflowTypeDetail, `Active at Start` = active_at_levels),
       InflowOutflow = factor("Inflow", levels = c("Inflow","Outflow")),
-      PlotFillGroups = fct_collapse(InflowTypeDetail, Inflow = inflow_detail_levels)
+      PlotFillGroups = fct_collapse(InflowTypeDetail, Inflow = inflow_chart_detail_levels)
     )],
-    get_inflow_outflow_full()[, .(
+    inflow_outflow_full_data[, .(
       Detail = OutflowTypeDetail,
       Summary = fct_collapse(OutflowTypeDetail, `Active at End` = active_at_levels),
       InflowOutflow = factor("Outflow", levels = c("Inflow","Outflow")),
-      PlotFillGroups = fct_collapse(OutflowTypeDetail, Outflow = outflow_detail_levels)
+      PlotFillGroups = fct_collapse(OutflowTypeDetail, Outflow = outflow_chart_detail_levels)
     )]
   ) %>% 
   fsubset(Detail != "Unknown") %>%
@@ -416,6 +437,7 @@ sys_inflow_outflow_annual_chart_data <- reactive({
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
 sys_inflow_outflow_monthly_chart_data <- reactive({
   monthly_data <- get_inflow_outflow_monthly() %>%
+    fsubset(InflowTypeDetail != "Continuous at Start" & OutflowTypeDetail != "Continuous at End") %>%
     fmutate(
       InflowPlotFillGroups = fct_collapse(
         InflowTypeDetail, 
