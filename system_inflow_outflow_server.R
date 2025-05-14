@@ -8,14 +8,16 @@ inflow_detail_levels <- c(
   "First-Time \nHomeless", 
   "Returned from \nPermanent",
   "Re-engaged from \nNon-Permanent",
-  "Unknown"
+  "Unknown",
+  "Continuous at Start"
   # "something's wrong"
 )
 
 outflow_detail_levels <- c(
   "Exited,\nNon-Permanent",
   "Exited,\nPermanent",
-  "Inactive"
+  "Inactive",
+  "Continuous at End"
 )
 
 inflow_summary_levels <- c(
@@ -102,7 +104,7 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
       !was_lh_at_start,
     
     # OUTFLOW CALCULATOR COLUMNS
-    exited = lecr & between(ExitAdjust, startDate, endDate),
+    exited = lecr & between(ExitAdjust, startDate, endDate) & !continuous_at_end,
     
     homeless_at_end = lecr & was_lh_at_end,
     
@@ -138,6 +140,8 @@ universe_ppl_flags <- function(universe_df, period) {
     
     unknown_at_start_client = any(unknown_at_start, na.rm = TRUE),
     
+    continuous_at_start_client = any(continuous_at_start, na.rm = TRUE),
+    
     # OUTFLOW
     perm_dest_client = any(exited & Destination %in% perm_livingsituation, na.rm = TRUE),
     
@@ -147,13 +151,16 @@ universe_ppl_flags <- function(universe_df, period) {
     
     housed_at_end_client = any(housed_at_end, na.rm = TRUE),
     
-    unknown_at_end_client = any(unknown_at_end, na.rm = TRUE)
+    unknown_at_end_client = any(unknown_at_end, na.rm = TRUE),
+    
+    continuous_at_end_client = any(continuous_at_end , na.rm = TRUE)
   ), by = PersonalID
   ][, `:=`(
     InflowTypeSummary = factor(
       fcase(
         active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
         first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start_client, "Inflow",
+        continuous_at_start_client, "Continuous at Start",
         default = "something's wrong"
       ), levels = inflow_summary_levels
     ),
@@ -166,6 +173,7 @@ universe_ppl_flags <- function(universe_df, period) {
         return_from_perm_client, "Returned from \nPermanent",
         reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
         first_time_homeless_client, "First-Time \nHomeless",
+        continuous_at_start_client, "Continuous at Start",
         default = "something's wrong"
       ), levels = c(active_at_levels, inflow_detail_levels)
     ),
@@ -174,6 +182,7 @@ universe_ppl_flags <- function(universe_df, period) {
       fcase(
         perm_dest_client | temp_dest_client | unknown_at_end_client, "Outflow",
         homeless_at_end_client | housed_at_end_client, "Active at End",
+        continuous_at_end, "Continuous at End",
         default = "something's wrong"
       ), levels = outflow_summary_levels
     ),
@@ -185,6 +194,7 @@ universe_ppl_flags <- function(universe_df, period) {
         unknown_at_end_client, "Inactive",
         homeless_at_end_client, "Homeless",
         housed_at_end_client, "Housed",
+        continuous_at_end, "Continuous at End",
         default = "something's wrong"
       ), levels = c(outflow_detail_levels, rev(active_at_levels), "something's wrong")
     )
@@ -233,6 +243,10 @@ get_inflow_outflow_full <- reactive({
             InflowTypeDetail,
             OutflowTypeSummary,
             OutflowTypeDetail
+    ) %>%
+    fsubset(
+      InflowTypeDetail != "Continuous at Start" &
+      OutflowTypeDetail != "Continuous at End"
     ) %>%
     funique()
 })
