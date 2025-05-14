@@ -78,7 +78,7 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
   all_filtered_w_lh[, `:=`(
     # INFLOW CALCULATOR COLUMNS
     active_at_start_homeless = eecr & was_lh_at_start & (
-      startDate == session$userData$ReportStart | EntryDate < startDate
+      startDate == session$userData$ReportStart | EntryDate <= startDate
     ),
     
     active_at_start_housed = eecr & ProjectType %in% ph_project_types & (
