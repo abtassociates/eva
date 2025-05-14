@@ -585,11 +585,18 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & (was_lh_during_period | month(ExitAdjust) == month(startDate))) | 
           (!ProjectType %in% c(es_nbn_project_type, non_res_project_types))
         ),
+        eecr = fcoalesce(eecr, FALSE),
         lecr = (lecr_straddle | lecr_no_straddle),
-        eecr_is_res = eecr & ProjectType %in% project_types_w_beds,
+        lecr = fcoalesce(lecr, FALSE),
+        eecr_is_res = eecr & ProjectType %in% project_types_w_beds
+      ) %>%
+      fgroup_by(PersonalID) %>%
+      fmutate(eecr_entry = fmax(fifelse(eecr, EntryDate, NA))) %>%
+      fungroup() %>%
+      fmutate(
         # 5/15/25: exclude from lookbacks non-res enrollments that didn't exit 
         # and had no evidence of LH at period start
-        is_lookback = !eecr & !lecr & !(ProjectType %in% non_res_project_types & is.na(ExitDate)),
+        is_lookback = !eecr & !lecr & EntryDate <= eecr_entry & !(ProjectType %in% non_res_project_types & is.na(ExitDate)),
         perm_dest = is_lookback & Destination %in% perm_livingsituation,
         nonperm_dest = is_lookback & !Destination %in% perm_livingsituation
       ) %>%
