@@ -216,6 +216,11 @@ universe_ppl_flags <- function(universe_df, period) {
     if(in_dev_mode) browser()
     stop("There's an Inflow-Unknown in the Full Annual data!")
   }
+  if(identical(period, session$userData$report_dates[[13]])) {
+    browser()
+  }
+  
+  # browser()
   if(nrow(universe_w_ppl_flags[InflowTypeSummary == "something's wrong"]) > 0 |
      nrow(universe_w_ppl_flags[OutflowTypeSummary == "something's wrong"]) > 0) {
     browser()

@@ -494,6 +494,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           ))
       )]
     )
+    # browser()
     
     enrollment_categories_period <- enrollment_categories %>%
       fsubset(
@@ -639,7 +640,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           lecr & ExitAdjust <= endDate & days_to_lookahead <= 14
       ) 
     # browser()
-    # if(identical(report_period, session$userData$report_dates[[13]])) {
+    # if(identical(report_period, session$userData$report_dates[[5]])) {
     #   browser()
     # }
     
