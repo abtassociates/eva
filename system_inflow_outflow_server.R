@@ -902,7 +902,8 @@ output$sys_inflow_outflow_monthly_ui_chart_combined <- renderPlot({
 # Making the month labels looks like both the chart's x-axis and the table's column headers
 output$sys_inflow_outflow_monthly_table <- renderDT({
   summary_data <- pivot(
-    sys_inflow_outflow_monthly_chart_data(),
+    sys_inflow_outflow_monthly_chart_data() %>%
+      fsubset(PlotFillGroups %in% names(mbm_bar_colors)),
     ids = "PlotFillGroups",        # Column(s) defining the rows of the output
     names = "month",       # Column whose values become column names
     values = "Count",  # An arbitrary column to count (used with fun)
@@ -912,11 +913,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
     # prepend Active at Start to Housed and Homeless
     ftransform(
       PlotFillGroups = factor(
-        fifelse(
-          PlotFillGroups %in% active_at_levels, 
-          paste0("Active at Start: ", PlotFillGroups),
-          as.character(PlotFillGroups)
-        ),
+        PlotFillGroups,
         levels = names(mbm_bar_colors)
       )
     )
