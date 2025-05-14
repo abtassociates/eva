@@ -676,6 +676,7 @@ add_lh_info <- function(all_filtered, period) {
     fmutate(
       was_lh_at_start = fcoalesce(was_lh_at_start, fcoalesce(was_lh_at_start.new, FALSE)), 
       was_lh_at_end = fcoalesce(was_lh_at_end, fcoalesce(was_lh_at_end.new, FALSE))
-    )
+    ) %>%
+    fselect(-c(was_lh_at_start.new, was_lh_at_end.new))
 }
 
