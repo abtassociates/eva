@@ -460,6 +460,7 @@ inflow_debug_cols <- c(
   "days_since_lookback",
   "straddles_start",
   "InflowTypeDetail",
+  "first_lookback",
   "lookback_dest_perm",
   "lookback_movein_before_start",
   "any_lookbacks_with_exit_to_perm"

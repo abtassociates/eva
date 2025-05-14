@@ -542,7 +542,9 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       roworder(EntryDate, -ProjectTypeWeight) %>%
       fmutate(
         eecr_no_straddle = ffirst(
-          fifelse(!any_straddle_start & in_date_range, EnrollmentID, NA)
+          fifelse(in_date_range & (
+            !any_straddle_start
+          ), EnrollmentID, NA)
         ) == EnrollmentID,
         # AS 5/9/25 TO DO: a non-straddling enrollment can be an lecr if no other enrollments straddle OR those that do are non-res/NbN that are !was_lh_at_end
         # If this works as we'd like/expect, there should be Outflow: Inactives for Annual (maybe for MbM)
@@ -583,7 +585,9 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         ),
         lecr = (lecr_straddle | lecr_no_straddle),
         eecr_is_res = eecr & ProjectType %in% project_types_w_beds,
-        is_lookback = !isTRUE(eecr) & !isTRUE(lecr),
+        # 5/15/25: exclude from lookbacks non-res enrollments that didn't exit 
+        # and had no evidence of LH at period start
+        is_lookback = !eecr & !lecr & !(ProjectType %in% non_res_project_types & is.na(ExitDate)),
         perm_dest = is_lookback & Destination %in% perm_livingsituation,
         nonperm_dest = is_lookback & !Destination %in% perm_livingsituation
       ) %>%
@@ -604,22 +608,37 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       # "fill in" lecr as TRUE where eecr is the only enrollment
       ftransform(lecr = lecr | (eecr & !has_lecr)) %>%
       roworder(PersonalID, EntryDate, ExitAdjust) %>%
+      fgroup_by(PersonalID) %>%
       fmutate(
-        # first_lookback = L(eecr, n = -1, g = PersonalID) == TRUE, #first_lookback is TRUE if the next/lead eecr value is TRUE
-        # lookback = EntryDate < startDate & (!eecr | is.na(eecr)) & (!lecr | is.na(lecr)),
-        days_since_lookback = fifelse(eecr, EntryDate - L(ExitAdjust, g = PersonalID), NA),
-        lookback_dest_perm = eecr & L(Destination, g = PersonalID) %in% perm_livingsituation,
-        lookback_movein_before_start = eecr & L(MoveInDateAdjust, g = PersonalID) < startDate,
-        days_to_lookahead = fifelse(lecr, fcoalesce(L(EntryDate, n=-1, g = PersonalID), no_end_date) - ExitAdjust, NA)
+        first_lookback = flast(fifelse(is_lookback, EnrollmentID, NA)) == EnrollmentID,
+        first_lookback_exit = fmax(fifelse(first_lookback, ExitAdjust, NA)),
+        first_lookback_destination = fmax(fifelse(first_lookback, Destination, NA)),
+        first_lookback_movein = fmax(fifelse(first_lookback, MoveInDateAdjust, NA)),
+        days_to_lookahead = fifelse(lecr, fcoalesce(L(EntryDate, n=-1), no_end_date) - ExitAdjust, NA)
+      ) %>%
+      fungroup() %>%
+      fmutate(
+        days_since_lookback = fifelse(eecr, difftime(EntryDate, first_lookback_exit, units="days"), NA),
+        lookback_dest_perm = eecr & first_lookback_destination %in% perm_livingsituation,
+        lookback_movein_before_start = eecr & first_lookback_movein < startDate,
+        # continuous at flags do not apply to first and last months
+        continuous_at_start = startDate > session$userData$ReportStart & 
+          endDate < session$userData$ReportEnd &
+          eecr & EntryDate >= startDate & days_since_lookback <= 14,
+        continuous_at_end = startDate > session$userData$ReportStart & 
+          endDate < session$userData$ReportEnd &
+          lecr & ExitAdjust <= endDate & days_to_lookahead <= 14
       ) 
     # browser()
-    # if(identical(report_period, session$userData$report_dates[[3]])) {
+    # if(identical(report_period, session$userData$report_dates[[13]])) {
     #   browser()
     # }
     
     enrollment_categories_period %>%
-      fsubset(eecr | lecr | is_lookback) %>%
-      fselect(-c(any_straddle_start, any_straddle_end, eecr_no_straddle, eecr_straddle, lecr_straddle, lecr_no_straddle))
+      fsubset(eecr | lecr | first_lookback) %>%
+      fselect(-c(any_straddle_start, any_straddle_end, eecr_no_straddle, eecr_straddle, lecr_straddle, lecr_no_straddle,
+                 first_lookback_exit, first_lookback_destination, first_lookback_movein
+                 ))
 
     # }, "07_system_overview.R")
   },
