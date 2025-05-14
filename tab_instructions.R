@@ -43,7 +43,7 @@ tabHome_home_live_instructions <-  HTML(
               </ul>
               
               <p>Once you have exported the correct file from your HMIS, you are
-              ready to engage with Eva. Navigate to the \'Upload HMIS CSV Export\' tab
+              ready to engage with Eva. Navigate to the \'HMIS CSV Export\' tab
               and follow the instructions there.</p>
 
               <p>Want to explore Eva without uploading? Use Eva's Demo Mode by clicking the 
@@ -218,12 +218,12 @@ tabLocalSettings_instructions <-  HTML("
               <p>To make Eva data quality analysis more useful at the local level, 
               you can adjust the local settings to better analyze your data in a 
               way that is meaningful to your CoC. To edit these, click to expand 
-              the relevant box below. If you do not edit them, the Assess Data Quality 
-              and View Client Counts pages will use the defaults listed. Please 
+              the relevant box below. If you do not edit them, the Data Quality 
+              and Client Counts pages will use the defaults listed. Please 
               note, these local settings do not impact the System Performance Overview page.</p>
               
               <p>These defaults do not imply any HUD recommendations. Please read 
-              the description in the Edit Local Settings tab for more information.</p>
+              the description in the Local Settings tab for more information.</p>
               ")
 
 tabLocalSettings_outstanding_referrals <- HTML(

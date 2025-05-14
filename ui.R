@@ -88,7 +88,7 @@ page_navbar(
     )
   ), 
   nav_panel(
-    title = "Upload HMIS CSV Export",
+    title = "HMIS CSV Export",
     value = "tabUpload",
     icon = icon("upload"),
     card(
@@ -138,7 +138,7 @@ page_navbar(
     # )
   ),
   nav_panel(
-    title = "Edit Local Settings",
+    title = "Local Settings",
     value = "tabLocalSettings",
     icon = icon("gear"),
     card(
@@ -235,7 +235,7 @@ page_navbar(
     )
   ),
   nav_panel(
-    title = "View Client Counts",
+    title = "Client Counts",
     value = "tabClientCount",
     icon = icon("people-group"),
     card(
@@ -303,10 +303,10 @@ page_navbar(
   ),
   
   nav_menu(
-    title = "Assess Data Quality",
+    title = "Data Quality",
     icon = icon("square-check"),
     nav_panel(
-      title = "Check Project Data",
+      title = "Project Data",
       value = "tabPDDE",
       card(
         card_title(htmlOutput("headerPDDE"))#,
@@ -757,7 +757,7 @@ nav_panel(
     )
   ),
   nav_panel(
-    title = "View Changelog",
+    title = "Changelog",
     value = "tabChangelog",
     icon = icon("clipboard"),
     card(

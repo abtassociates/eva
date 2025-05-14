@@ -100,13 +100,13 @@ function(input, output, session) {
   # Headers -----------------------------------------------------------------
   
   output$headerUpload <-
-    headerGeneric("Upload HMIS CSV Export",
+    headerGeneric("HMIS CSV Export",
                   h4(
                     strong("Export Date: "),
                     format(meta_HUDCSV_Export_Date(), "%m-%d-%Y at %I:%M %p")
                   ))
 
-  output$headerLocalSettings <- headerGeneric("Edit Local Settings")
+  output$headerLocalSettings <- headerGeneric("Local Settings")
 
   # the reason we split the Client Count header into two is for shinytest reasons
   # this _supp renderUI needed to be associated with an output in order to make 
