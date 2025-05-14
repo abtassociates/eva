@@ -487,7 +487,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         
         was_lh_at_end =
           (ProjectType %in% non_res_project_types & (
-            lh_cls_in_start_window | (entry_in_end_window & lh_prior_livingsituation)
+            lh_cls_in_end_window | (entry_in_end_window & lh_prior_livingsituation)
           )) |
           (ProjectType == es_nbn_project_type & (
             nbn_in_end_window | entry_in_end_window
