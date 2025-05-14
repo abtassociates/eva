@@ -199,13 +199,15 @@ universe_ppl_flags <- function(universe_df, period) {
       ), levels = c(outflow_detail_levels, rev(active_at_levels), "something's wrong")
     )
   )]
-  if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown"]) > 0 & identical(period, session$userData$report_dates[1])) {
+  if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown"]) > 0 & 
+  identical(period, session$userData$report_dates[1])) {
     if(in_dev_mode) browser()
-    stop("There's an Unknown in the Full Annual data!")
+    stop("There's an Inflow-Unknown in the Full Annual data!")
   }
-    if(in_dev_mode) browser()
-  if(nrow(universe_w_ppl_flags[InflowTypeSummary == "something's wrong", ..inflow_debug_cols]) > 0 |
-    nrow(universe_w_ppl_flags[OutflowTypeSummary == "something's wrong", ..outflow_debug_cols]) > 0) {
+  if(nrow(universe_w_ppl_flags[InflowTypeSummary == "something's wrong"]) > 0 |
+     nrow(universe_w_ppl_flags[OutflowTypeSummary == "something's wrong"]) > 0) {
+    browser()
+    # if(in_dev_mode) browser()
     # e.g. PersonalID 623725 in Nov and 601540 in Dec
     # e.g. PersonalID 305204 and 420232 in Nov and 601540 and 620079 in Dec
     # e.g. PersonalID 14780 in Oct and Nov
@@ -215,7 +217,11 @@ universe_ppl_flags <- function(universe_df, period) {
     # AS 5/12/25: With new was_lh_at_end condition in creating lecr, PersonalID 305204 (ICF-good) is "something's wrong" for annual
     #
     # PersonalID 687862 has inflow issue
-    logToConsole(session, paste0("There's a something's wrong in the universe_ppl_flags data when period = ", period[1]))
+    logToConsole(session, 
+      paste0("There are something's wrong records in the universe_ppl_flags data when period = ", 
+             ifelse(identical(period, session$userData$report_dates[1]), "Annual", format(period[1], "%b %y"))
+      )
+    )
   }
 
   # PersonalID: 529378, enrollment 825777 - 
@@ -237,6 +243,8 @@ universe_ppl_flags <- function(universe_df, period) {
 ## Summary (Annual) ----------------------------
 # This also gets used by the Status chart
 get_inflow_outflow_full <- reactive({
+  if(in_dev_mode) export_bad_records("Full")
+  
   period_specific_data()[["Full"]] %>%
     fselect(PersonalID,
             InflowTypeSummary,
@@ -253,6 +261,8 @@ get_inflow_outflow_full <- reactive({
 
 ## Monthly ---------------------------------
 get_inflow_outflow_monthly <- reactive({
+  if(in_dev_mode) export_bad_records("Month")
+  
   rbindlist(period_specific_data()[-1]) %>%
     fselect(
       PersonalID, 
@@ -281,6 +291,34 @@ get_inflow_outflow_monthly <- reactive({
       )
     )
 })
+
+export_bad_records <- function(period) {
+  df <- if(period == "Full") {
+    period_specific_data()[["Full"]]
+  } else {
+    rbindlist(period_specific_data()[-1])
+  }
+  
+  df <- df[InflowTypeSummary == "something's wrong" | OutflowTypeSummary == "something's wrong"]
+  
+  if(nrow(df) == 0) return(NULL)
+
+  dfs <- list(
+    "Inflows" = df %>%
+      fsubset(InflowTypeSummary == "something's wrong") %>% 
+      fselect(inflow_debug_cols, if(period == "Month") "month"),
+    "Outflows" = df %>%
+      fsubset(OutflowTypeSummary == "something's wrong") %>% 
+      fselect(outflow_debug_cols, if(period == "Month") "month")
+  )
+  
+  ds_name <- ifelse(isTRUE(input$in_demo_mode), "DEMO", input$imported$name)
+
+  write_xlsx(
+    dfs, 
+    glue::glue("/media/sdrive/projects/CE_Data_Toolkit/debugs/{ds_name}-somethings-wrongs-for-{period}-{today()}.xlsx")
+  )
+}
 
 # Filter Selections UI -----------------------------------------------------------
 # (Reported above the chart)
