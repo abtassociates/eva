@@ -406,6 +406,7 @@ check_cache_size <- function(cache, max_size_mb = 100) {
 
 # Get period-specific universe_ppl_flag datasets ---------------------------
 period_specific_data <- reactive({
+  req(!is.null(input$imported$name) | !is.null(input$in_demo_mode))
   if(is.null(session$userData$period_cache)) {
     session$userData$period_cache <- new.env()
   }
