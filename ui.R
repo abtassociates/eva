@@ -35,9 +35,24 @@ page_navbar(
       ))
     ),
     useShinyjs(),
-    shinyjs::hidden(
-      div(id = "demo_banner","DEMO")
-      ),
+    ## Demo banner -----------------
+    shinyjs::hidden(div(id = "demo_banner","DEMO")),
+    # The switch itself - it controls the input value
+    div(
+      id = "demo_mode_switch_wrapper",
+      input_switch(
+        id = 'in_demo_mode',
+        label = tooltip(
+          id = "demo_mode_tooltip",
+          trigger = list('DEMO MODE', bs_icon('info-circle')),
+          HTML('
+               <strong>Off</strong>: Upload your own HMIS CSV Export.<br><br>
+               <strong>On</strong>: Uses a demo HMIS CSV Export.'
+          )
+        ),
+        value=FALSE
+      )
+    ),
     disconnectMessage(
       text = str_squish(
         "Eva has crashed. Please submit an issue on GitHub and note the
@@ -48,15 +63,15 @@ page_navbar(
     ),
   ), 
   
-  sidebar = sidebar(open = 'closed',title = 'More Info',bg = 'white',fg='black',
-                  
-                    input_switch(id = 'in_demo_mode',
-                                 label = tooltip(trigger = list('DEMO MODE', bs_icon('info-circle')),
-                                                 HTML('<strong>Off</strong>: Upload your own HMIS CSV Export.<br><br><strong>On</strong>: Uses a demo HMIS CSV Export.')
-                                 ),
-                                 value=FALSE)
-  ),
-  
+  # Sidebar --------
+  # sidebar = sidebar(open = 'closed',title = 'More Info',bg = 'white',fg='black',
+  #                 
+  #                   input_switch(id = 'in_demo_mode',
+  #                                label = tooltip(trigger = list('DEMO MODE', bs_icon('info-circle')),
+  #                                                HTML('<strong>Off</strong>: Upload your own HMIS CSV Export.<br><br><strong>On</strong>: Uses a demo HMIS CSV Export.')
+  #                                ),
+  #                                value=FALSE)
+  # ),
   nav_panel(
     title = "Home",
     value = "tabHome", 
@@ -71,6 +86,12 @@ page_navbar(
     accordion(
       id = 'accordion_home',
       open = FALSE,
+      
+      shinyjs::hidden(accordion_panel(
+        title = "Demo Instructions",
+        value = "home_demo_instructions",
+        tabHome_home_demo_instructions
+      )),
       accordion_panel(
         title = "Instructions",
         value = "home_live_instructions",

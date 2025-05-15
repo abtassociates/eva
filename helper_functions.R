@@ -451,6 +451,16 @@ reset_app <- function() {
   initially_valid_import(0)
   windowSize(input$dimension)
   reset_postvalid_components()
+  
+  shinyjs::runjs("$('#imported').closest('.input-group-btn').next().val('');")
+  session$sendInputMessage('currentProviderList', list(choices = NULL))
+  session$sendInputMessage('orgList', list(choices = NULL))
+  session$sendCustomMessage('dateRangeCount', list(
+    min = NULL,
+    start = ymd(today()),
+    max = NULL,
+    end = ymd(today())
+  ))
 }
 
 getNameByValue <- function(vector, val) {

@@ -4,11 +4,27 @@
   
 }
 
+/** DEMO MODE **/
 #demo_banner {
-  background-color: #FCB248;
-  color: #000000; 
   text-align:center;
-  height: 1.5em;
+  background-color: var(--bs-warning); /* Orange background */
+  color: black;
+}
+
+#demo_mode_switch_wrapper {
+  position: absolute;
+  color: white;
+  top: 20px;
+  right: 0px;
+  width: 180px;
+}
+
+#in_demo_mode {
+  border-color: white
+}
+
+#in_demo_mode:checked {
+  background-color: var(--bs-warning);
 }
 
 .accordion .accordion-heading { 

@@ -65,76 +65,25 @@ observeEvent(input$pageid, {
 
 
 observeEvent(in_demo_mode(),{
- 
   if(in_demo_mode() == TRUE){
     process_upload("demo.zip", here("demo.zip"))
-    
-    valid_file(1)
-    
     removeModal()
-
-    accordion_panel_remove(id = 'accordion_home', target = 'home_live_instructions', session = session)
-    accordion_panel_insert(id = 'accordion_home', panel =  accordion_panel(
-      title = "Demo Instructions",
-      value = 'home_demo_instructions',
-      tabHome_home_demo_instructions,#style='border: 2px solid orange'
-    ), target = 'home_need_help', position = 'before', session = session)
-    
-    accordion_panel_open(id = 'accordion_home',values = 'home_demo_instructions')
-    shinyjs::show('demo_banner')
-    #shinyjs::runjs("$('#demo_banner').remove();")
-    
-    shinyjs::hide(id = "successful_upload")
-    shinyjs::disable(id = "imported")
-    shinyjs::runjs("
-          $('#imported').closest('.input-group-btn').attr('disabled',true);
-      ")
-    nav_select(id = 'pageid', selected = 'tabHome', session = session)
-    
-    
-    print("Switched to demo mode!")
-    logMetadata("Switched to demo mode")
-  #} else if (in_demo_mode() == FALSE & input$in_demo_mode > 0){
+    accordion_panel_open(id = 'accordion_home', values = 'home_demo_instructions')
   } else {
-
-
-    accordion_panel_insert(id = 'accordion_home', panel = accordion_panel(
-      title = "Instructions",
-      value = "home_live_instructions",
-      tabHome_home_live_instructions
-    ),target = 'home_need_help', position = 'before', session = session)
-    accordion_panel_remove(id = 'accordion_home', target = 'home_demo_instructions', session = session)
-    
-    shinyjs::hide('demo_banner')
-    
-    shinyjs::enable("imported")
-    shinyjs::runjs("
-      $('#imported').closest('.input-group-btn').next().val('');
-      ")
-    shinyjs::hide("fileStructureAnalysis")
-    
     reset_app()
-    
-    session$sendInputMessage('currentProviderList', list(
-      choices = NULL
-      # selected = "none"
-    ))
-    session$sendInputMessage('orgList', list(
-      choices = NULL
-      # selected = "none"
-    ))
-    session$sendCustomMessage('dateRangeCount', list(
-      min = NULL,
-      start = ymd(today()),
-      max = NULL,
-      end = ymd(today())
-    ))
-    nav_select(id = 'pageid', selected = 'tabUpload', session = session)
-    
-    print("Switched into live mode!")
-    capture.output("Switched into live mode")
-    logMetadata("Switched into live mode")
   }
+  mode <- ifelse(in_demo_mode(), 'demo', 'live')
+  print(glue("Switched to {mode} mode!"))
+  capture.output(glue("Switched into {mode} mode"))
+  logMetadata(glue("Switched to {mode} mode"))
+        
+  nav_select(id = 'pageid', selected = ifelse(in_demo_mode(), 'tabHome', 'tabUpload'), session = session)
+  shinyjs::toggle("fileStructureAnalysis", condition = in_demo_mode())
+  shinyjs::toggleState("imported", condition = !in_demo_mode())
+  shinyjs::toggle('demo_banner', condition = in_demo_mode())
+  shinyjs::toggle(selector = '#accordion_home [data-value=home_live_instructions]', condition = !in_demo_mode())
+  shinyjs::toggle(selector = '#accordion_home [data-value=home_demo_instructions]', condition = in_demo_mode())
+  
 }, ignoreInit = TRUE)
 
 
@@ -154,7 +103,6 @@ observeEvent(input$stay_in_live, {
 
   toggle_switch(id = 'in_demo_mode', value = !input$in_demo_mode, session = session)  
   removeModal()
-
   logMetadata("Chose to stay in live mode")
 })
 
@@ -168,7 +116,6 @@ observeEvent(input$in_demo_mode, {
   
   ## only show modal if switch does not match reactive
   req(in_demo_mode() != input$in_demo_mode)
- 
   print(paste0('input: ', input$in_demo_mode, ', reactive: ', in_demo_mode()))
   
   if(in_demo_mode() == FALSE) {
@@ -212,5 +159,3 @@ observeEvent(input$in_demo_mode, {
   }
   
 }, ignoreInit = TRUE)
-
-shinyjs::runjs("$('#home_demo_instructions').parent().parent().hide()")
