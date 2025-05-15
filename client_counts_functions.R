@@ -214,6 +214,6 @@ get_clientcount_download_info <- function(file) {
              path = file)
   
   logMetadata(paste0("Downloaded Client Counts Report",
-                     if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
 }

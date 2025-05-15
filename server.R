@@ -86,11 +86,11 @@ function(input, output, session) {
   # in Demo Mode, tracks if user has seen tab-specific pop-up
   seen_message <- reactiveValues() 
   
-  in_demo_mode <- reactiveVal(value=FALSE)
+  # in_demo_mode <- reactiveVal(value=FALSE)
   # log when user navigate to a tab
   observe({ 
     logMetadata(paste0("User on ",input$pageid, 
-                       if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   })
   
   # change fileInput button to btn-secondary class to match formatting
@@ -315,11 +315,11 @@ function(input, output, session) {
           
           
           # Update inputs --------------------------------
-          if(is.null(input$imported) & !isTruthy(in_demo_mode())) {
+          if(is.null(input$imported) & !isTruthy(input$in_demo_mode)) {
             logToConsole("User is in upload processing but imported is null and demo_mode is not on")
           } else {
             # mark the "uploaded file" as demo.zip
-            if(isTruthy(in_demo_mode())) {
+            if(isTruthy(input$in_demo_mode)) {
               shinyjs::runjs(str_glue("
                 $('#imported')
                   .closest('.input-group-btn')
@@ -418,7 +418,7 @@ function(input, output, session) {
       )
 
       logMetadata(paste0("Downloaded File Structure Analysis Report", 
-                         if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                         if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
       exportTestValues(file_structure_analysis_main = file_structure_analysis_main() %>% nice_names())
     }
@@ -447,7 +447,7 @@ function(input, output, session) {
       )
       
       logMetadata(paste0("Impermissible Character Locations Report", 
-                         if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                         if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
       exportTestValues(bracket_files_detail = bracket_files_detail)
     }
@@ -756,7 +756,7 @@ function(input, output, session) {
         path = file)
       
       logMetadata(paste0("Downloaded PDDE Report",
-                         if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                         if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       
       exportTestValues(pdde_download_summary = summary_df)
       exportTestValues(pdde_main = pdde_main() %>% nice_names())
@@ -877,7 +877,7 @@ function(input, output, session) {
     content = function(file) {
       write_xlsx(dqDownloadInfo()$orgDQData, path = file)
       logMetadata(paste0("Downloaded Org-level DQ Report",
-                         if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                         if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       exportTestValues(orgDQ_download = summarize_df(dqDownloadInfo()$orgDQData))
     }
   )
@@ -896,7 +896,7 @@ function(input, output, session) {
     content = function(file) {
       write_xlsx(dqDownloadInfo()$systemDQData, path = file)
       logMetadata(paste0("Downloaded System-level DQ Report",
-                         if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                         if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       exportTestValues(systemDQ_download = summarize_df(dqDownloadInfo()$systemDQData))
     }
   )

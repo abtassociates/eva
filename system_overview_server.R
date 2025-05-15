@@ -5,7 +5,7 @@
 observeEvent(input$syso_tabbox, {
   req(valid_file() == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox,
-                     if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   toggleClass(
     id = "syso_inflowoutflow_filters",
     condition = input$syso_tabbox == "System Demographics",
@@ -17,21 +17,21 @@ observeEvent(input$syso_tabbox, {
 observeEvent(input$sys_inflow_outflow_subtabs, {
   req(valid_file() == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
-                     if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_status_subtabs, {
   req(valid_file() == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
-                     if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_comp_subtabs, {
   req(valid_file() == 1)
   logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
-                     if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
@@ -163,7 +163,7 @@ toggle_sys_components(FALSE, init=TRUE) # initially hide them
 sys_export_summary_initial_df <- function() {
   
   logMetadata(paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
-                     if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
   return(data.frame(
     Chart = c(
@@ -224,7 +224,7 @@ sys_overview_ppt_export <- function(file,
                                     summary_font_size) {
   
   logMetadata(paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
-                     if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")))
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   #NEED TO UPDATE - if want to get more granular, need to detect with title slide
   
   report_period <- paste0("Report Period: ", 
@@ -518,7 +518,7 @@ output$client_level_download_btn <- downloadHandler(
     logToConsole("Downloaded Client Level Export")
     logMetadata(paste0(
       "Downloaded Client Level Export",
-      if_else(isTruthy(in_demo_mode()), " - DEMO MODE", "")
+      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
     ))
     
     exportTestValues(client_level_export_details = client_level_details) 

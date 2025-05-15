@@ -1,3 +1,6 @@
+# This helps manage "canceling" a switch to/from demo mode
+in_demo_mode_compare <- reactiveVal(FALSE)
+
 # Tab-description message when in demo mode ----------------------------------
 observeEvent(input$pageid, {
   req(input$in_demo_mode)
@@ -64,61 +67,13 @@ observeEvent(input$pageid, {
 }) 
 
 
-observeEvent(in_demo_mode(),{
-  if(in_demo_mode() == TRUE){
-    process_upload("demo.zip", here("demo.zip"))
-    removeModal()
-    accordion_panel_open(id = 'accordion_home', values = 'home_demo_instructions')
-  } else {
-    reset_app()
-  }
-  mode <- ifelse(in_demo_mode(), 'demo', 'live')
-  print(glue("Switched to {mode} mode!"))
-  capture.output(glue("Switched into {mode} mode"))
-  logMetadata(glue("Switched to {mode} mode"))
-        
-  nav_select(id = 'pageid', selected = ifelse(in_demo_mode(), 'tabHome', 'tabUpload'), session = session)
-  shinyjs::toggle("fileStructureAnalysis", condition = in_demo_mode())
-  shinyjs::toggleState("imported", condition = !in_demo_mode())
-  shinyjs::toggle('demo_banner', condition = in_demo_mode())
-  shinyjs::toggle(selector = '#accordion_home [data-value=home_live_instructions]', condition = !in_demo_mode())
-  shinyjs::toggle(selector = '#accordion_home [data-value=home_demo_instructions]', condition = in_demo_mode())
-  
+observeEvent(input$in_demo_mode,{
+  req(in_demo_mode_compare() != input$in_demo_mode)
+  show_warning_popup(input$in_demo_mode)
 }, ignoreInit = TRUE)
 
-
-observeEvent(input$continue_demo_btn, {
-  removeModal()
-  in_demo_mode(TRUE)
-})
-
-observeEvent(input$stay_in_demo, {
- 
-  toggle_switch(id = 'in_demo_mode', value = !input$in_demo_mode, session = session)
-  removeModal()
-  logMetadata("Chose to stay in demo mode")
-})
-
-observeEvent(input$stay_in_live, {
-
-  toggle_switch(id = 'in_demo_mode', value = !input$in_demo_mode, session = session)  
-  removeModal()
-  logMetadata("Chose to stay in live mode")
-})
-
-observeEvent(input$continue_live_btn, {
-  removeModal()
-  in_demo_mode(FALSE)
-})
-
-
-observeEvent(input$in_demo_mode, {
-  
-  ## only show modal if switch does not match reactive
-  req(in_demo_mode() != input$in_demo_mode)
-  print(paste0('input: ', input$in_demo_mode, ', reactive: ', in_demo_mode()))
-  
-  if(in_demo_mode() == FALSE) {
+show_warning_popup <- function(in_demo_mode) {
+  if(in_demo_mode == TRUE) {
     msg <- "<p>You're currently requesting to turn on Demo Mode. Demo Mode
       allows you to explore Eva using sample HMIS data, rather than having to
       use your own HMIS CSV Export file."
@@ -157,5 +112,51 @@ observeEvent(input$in_demo_mode, {
       )
     )
   }
+}
+
+observeEvent(input$continue_demo_btn, {
+  removeModal()
+  toggle_demo(TRUE)
+})
+
+observeEvent(input$stay_in_demo, {
+
+  toggle_switch(id = 'in_demo_mode', value = TRUE)
+  removeModal()
+  logMetadata("Chose to stay in demo mode")
+})
+
+observeEvent(input$stay_in_live, {
+
+  toggle_switch(id = 'in_demo_mode', value = FALSE)  
+  removeModal()
+  logMetadata("Chose to stay in live mode")
+})
+
+observeEvent(input$continue_live_btn, {
+  removeModal()
+  toggle_demo(FALSE)
+})
+
+toggle_demo <- function(in_demo_mode) {
   
-}, ignoreInit = TRUE)
+  if(in_demo_mode == TRUE){
+    process_upload("demo.zip", here("demo.zip"))
+    removeModal()
+    accordion_panel_open(id = 'accordion_home', values = 'home_demo_instructions')
+  } else {
+    reset_app()
+  }
+  mode <- ifelse(in_demo_mode, 'demo', 'live')
+  print(glue("Switched to {mode} mode!"))
+  capture.output(glue("Switched into {mode} mode"))
+  logMetadata(glue("Switched to {mode} mode"))
+  
+  nav_select(id = 'pageid', selected = ifelse(in_demo_mode, 'tabHome', 'tabUpload'), session = session)
+  shinyjs::toggle("fileStructureAnalysis", condition = in_demo_mode)
+  shinyjs::toggleState("imported", condition = !in_demo_mode)
+  shinyjs::toggle('demo_banner', condition = in_demo_mode)
+  shinyjs::toggle(selector = '#accordion_home [data-value=home_live_instructions]', condition = !in_demo_mode)
+  shinyjs::toggle(selector = '#accordion_home [data-value=home_demo_instructions]', condition = in_demo_mode)
+  in_demo_mode_compare(in_demo_mode)
+}
