@@ -1,7 +1,6 @@
 
 .overflow_card {
   overflow: visible !important;
-  
 }
 
 /** DEMO MODE **/
@@ -31,20 +30,50 @@
   font-size: 24px;
 }
 
-.dropdown-toggle[data-value="Data Quality"] {
-  background-color: #16697A;
+.accordion-title {
+  font-size: 1rem;
 }
 
 .accordion-item[data-value="home_demo_instructions"] {
-  border: 2px solid #FCB248;
+  border: 2px solid var(--bs-warning);
 }
 
+/*Remove extra space below tables*/
+.html-fill-container > .html-fill-item .datatables {
+  flex-basis: auto !important;
+}
+/* Put border around form controls so they stand out on white-background cards*/
 .form-group .bootstrap-select {
     margin-bottom: 0;
     border: 1px solid #D0E7EC;
 }
-/*.form-inline .bootstrap-select, .form-horizontal .bootstrap-select,*//* make sure download buttons don't span full width*/
+
+/* Remove extra vertical spacing within cards*/
+.bslib-gap-spacing {
+    gap: 0;
+}
+
+.btn:has(.disabled) {
+  cursor: not-allowed;
+}
+
+/* move syso download buttons to the right*/
+.syso_download_tab {
+  margin-left: auto;
+}
+
+/*Center plots*/
+.shiny-plot-output {
+  margin: auto;
+}
+
 /* make sure download buttons don't span full width*/
 .download-btn-container {
   display: block;
+}
+
+/* Make card headers look like Accordion headers*/
+.bslib-card .card-header {
+  font-weight: normal;
+  font-size: 1rem;
 }

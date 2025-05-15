@@ -274,15 +274,17 @@ page_navbar(
     ),
     br(),
     card(
+      card_header("Date Range"),
       dateRangeInput(
         "dateRangeCount",
-        "Date Range",
+        labe = NULL,
         format = "mm/dd/yyyy",
         start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
         end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
         width = 300
       ),
-      uiOutput("downloadClientCountsReportButton"),
+      br(),
+      uiOutput("downloadClientCountsReportButton", inline = TRUE),
     ),
     
     card(
@@ -348,7 +350,7 @@ page_navbar(
           title = 'PDDE Check Summary',
           DTOutput("pdde_summary_table"),
           br(),
-          uiOutput("downloadPDDEReportButton") %>% withSpinner()
+          uiOutput("downloadPDDEReportButton", inline = TRUE) %>% withSpinner()
         ),
         nav_panel(
           title = 'Guidance',
@@ -391,6 +393,7 @@ page_navbar(
       navset_card_underline(
         id = 'tabDQSystem_subtabs',
         
+        footer = uiOutput("downloadSystemDQReportButton", inline = TRUE),
         nav_panel(
           id = 'hp_errors_dqsystem',
           title = 'High Priority Errors',
@@ -461,16 +464,14 @@ page_navbar(
       ), 
       br(),
       card(
+        card_header("Select Organization"),
         pickerInput(
-          label = "Select Organization",
           inputId = "orgList",
           choices = NULL,
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains'),
           width = "100%",
           selected = "none"
-        ),
-        uiOutput("downloadOrgDQReportButton")#,
         #width = 12
       ),
       
@@ -585,19 +586,22 @@ nav_panel(
         label = "Household Type",
         inputId = "syso_hh_type",
         choices = syso_hh_types,
-        selected = syso_hh_types[1]
+        selected = syso_hh_types[1],
+        options = pickerOptions(container = "body")
       ),
       pickerInput(
         label = "Level of Detail",
         inputId = "syso_level_of_detail",
         choices = syso_level_of_detail,
-        selected = syso_level_of_detail[1]
+        selected = syso_level_of_detail[1],
+        options = pickerOptions(container = "body")
       ),
       pickerInput(
         label = "Project Type Group",
         inputId = "syso_project_type",
         choices = syso_project_types,
-        selected = syso_project_types[1]
+        selected = syso_project_types[1],
+        options = pickerOptions(container = "body")
       ),
       pickerInput(
         label = "Race/Ethnicity Methodology Type",
@@ -605,7 +609,7 @@ nav_panel(
         multiple = FALSE,
         selected = syso_methodology_types[1],
         choices = syso_methodology_types,
-        width = "100%"
+        options = pickerOptions(container = "body")
       ),
       pickerInput(
         inputId = "syso_age",
@@ -613,30 +617,31 @@ nav_panel(
         selected = syso_age_cats,
         choices = syso_age_cats,
         multiple = TRUE,
-        width = "100%",
         options = pickerOptions(
           actionsBox = TRUE,
           selectedTextFormat = paste("count >", length(syso_age_cats)-1),
           countSelectedText = "All Ages",
-          noneSelectedText = "All Ages"
+          noneSelectedText = "All Ages",
+          container = "body"
         )
       ),
       pickerInput(
         label = "Veteran Status",
         inputId = "syso_spec_pops",
         choices = syso_spec_pops_people,
-        width = "100%",
-        selected = syso_spec_pops_people[1]
+        selected = syso_spec_pops_people[1],
+        options = pickerOptions(container = "body")
       ),
       pickerInput(
         label = "Race/Ethnicity",
         inputId = "syso_race_ethnicity",
         choices = syso_race_ethnicity_method1,
-        width = "100%",
         selected = syso_race_ethnicity_method1,
         options = list(
           `dropdown-align-right` = TRUE,
-          `dropup-auto` = FALSE)
+          `dropup-auto` = FALSE,
+          container = "body"
+        )
       )
     )
     
