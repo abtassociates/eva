@@ -1,8 +1,8 @@
 page_navbar(
   id = 'pageid',
-  navbar_options = navbar_options(
-    bg = "#16697A"
-  ),
+  # navbar_options = navbar_options(
+  #   bg = "#16697A"
+  # ),
   window_title = 'Eva',
   fillable = FALSE,
   theme = bslib_eva_theme,
