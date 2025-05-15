@@ -144,7 +144,7 @@ page_navbar(
             well as any other structural issues which you feel need to be corrected.
             </p>"),
       p(),
-      uiOutput('downloadFileStructureAnalysisBtn',fill = FALSE),
+      uiOutput('downloadFileStructureAnalysisBtn', fill = FALSE, inline = TRUE),
       p(),
       uiOutput('downloadImpermissibleCharacterDetailBtn', fill = FALSE),
       fillable = FALSE

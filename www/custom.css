@@ -43,4 +43,8 @@
     margin-bottom: 0;
     border: 1px solid #D0E7EC;
 }
-/*.form-inline .bootstrap-select, .form-horizontal .bootstrap-select,*/
+/*.form-inline .bootstrap-select, .form-horizontal .bootstrap-select,*//* make sure download buttons don't span full width*/
+/* make sure download buttons don't span full width*/
+.download-btn-container {
+  display: block;
+}
