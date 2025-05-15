@@ -245,14 +245,17 @@ logMetadata <- function(detail) {
 headerGeneric <- function(tabTitle, extraHTML = NULL) {
   renderUI({
     if(valid_file() == 1) {
-      list(h2(tabTitle),
-           h4(strong("Date Range of Current File: "),
-            paste(
-             format(meta_HUDCSV_Export_Start(), "%m-%d-%Y"),
-             "to",
-             format(meta_HUDCSV_Export_End(), "%m-%d-%Y")
-           )),
-           extraHTML
+      list(
+        h2(tabTitle),
+        h4(
+         strong("Date Range of Current File: "),
+         paste(
+           format(meta_HUDCSV_Export_Start(), "%m-%d-%Y"),
+           "to",
+           format(meta_HUDCSV_Export_End(), "%m-%d-%Y")
+         )
+        ),
+        extraHTML
       )
     } else {
       h4("This tab will show relevant data once you have uploaded your HMIS CSV Export.")

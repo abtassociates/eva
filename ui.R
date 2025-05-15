@@ -1,4 +1,5 @@
 page_navbar(
+  # options, theme, and title ----------------
   id = 'pageid',
   # navbar_options = navbar_options(
   #   bg = "#16697A"
@@ -7,14 +8,12 @@ page_navbar(
   fillable = FALSE,
   theme = bslib_eva_theme,
   
-  title = span(img(src = "Eva_logo_horizontal_white.png",
-                 alt = "Eva logo",
-                               height = 45),
-               
+  title = span(
+    img(src = "Eva_logo_horizontal_white.png", alt = "Eva logo", height = 45)
   ),
-  
+  # Header ------
   header = tagList(
-    
+    ## css, idle management, and dimension management --------
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
@@ -34,6 +33,7 @@ page_navbar(
         "
       ))
     ),
+    ## Enable shinyjs -----
     useShinyjs(),
     ## Demo banner -----------------
     shinyjs::hidden(div(id = "demo_banner","DEMO")),
@@ -53,6 +53,7 @@ page_navbar(
         value=FALSE
       )
     ),
+    ## Eva has crashed ------
     disconnectMessage(
       text = str_squish(
         "Eva has crashed. Please submit an issue on GitHub and note the
@@ -72,6 +73,7 @@ page_navbar(
   #                                ),
   #                                value=FALSE)
   # ),
+  # Home tab ------------------
   nav_panel(
     title = "Home",
     value = "tabHome", 
@@ -108,13 +110,12 @@ page_navbar(
       )
     )
   ), 
+  # Upload CSV Export tab --------------
   nav_panel(
     title = "HMIS CSV Export",
     value = "tabUpload",
     icon = icon("upload"),
-    card(
-        htmlOutput("headerUpload")
-    ),
+    card(htmlOutput("headerUpload")),
     
     accordion(
       id = 'accordion_upload',
@@ -158,6 +159,7 @@ page_navbar(
     # )
     # )
   ),
+  # Local settings tab ----------------
   nav_panel(
     title = "Local Settings",
     value = "tabLocalSettings",
@@ -255,6 +257,7 @@ page_navbar(
       )
     )
   ),
+  # Client counts tab ----------------
   nav_panel(
     title = "Client Counts",
     value = "tabClientCount",
@@ -288,17 +291,15 @@ page_navbar(
     ),
     
     card(
-      width = 12,class = 'overflow_card',
+      class = 'overflow_card',
       card_header("Select Project"),
       pickerInput(
-        label = "",
+        label = NULL,
         inputId = "currentProviderList",
         choices = NULL,
-        width = "600px",
         options = pickerOptions(liveSearch = TRUE,
                                 liveSearchStyle = 'contains')
-      ),
-      
+      )
     ),
     
     navset_card_underline(
@@ -324,10 +325,11 @@ page_navbar(
     #   width = 12
     # )
   ),
-  
+  # Data Quality tab ----------------------
   nav_menu(
     title = "Data Quality",
     icon = icon("square-check"),
+    ## PDDE -------------
     nav_panel(
       title = "Project Data",
       value = "tabPDDE",
@@ -346,39 +348,27 @@ page_navbar(
     
       navset_card_underline(
         id = "pdde_subtabs",
+        ### PDDE Summary table-------
         nav_panel(
           title = 'PDDE Check Summary',
           DTOutput("pdde_summary_table"),
           br(),
           uiOutput("downloadPDDEReportButton", inline = TRUE) %>% withSpinner()
         ),
+        ### PDDE Guidance table ---------
         nav_panel(
           title = 'Guidance',
           DTOutput("pdde_guidance_summary")
         )
-      ),
-      # card(
-      #   id = "PDDESummaryOrganization",
-      #   card_header(paste("PDDE Check Summary")),
-      #   DTOutput("pdde_summary_table"),
-      #   width = 12,
-      #   br(),
-      #   uiOutput("downloadPDDEReportButton") %>% withSpinner()
-      # ),
-      # card(id = "PDDEGuidance",
-      #      card_header("Guidance"),
-      #      DTOutput("pdde_guidance_summary"),
-      #      width = 12
-      # )
-    
+      )
     ),
+    ## DQ System --------------
     nav_panel(
       title = "System-level",
       value = "tabDQSystem",
       
       card(
-        htmlOutput("headerSystemDQ"),
-        uiOutput("downloadSystemDQReportButton")
+        htmlOutput("headerSystemDQ")
       ),
       accordion(
         id = 'accordion_dqsystem',
@@ -392,8 +382,8 @@ page_navbar(
       
       navset_card_underline(
         id = 'tabDQSystem_subtabs',
-        
         footer = uiOutput("downloadSystemDQReportButton", inline = TRUE),
+        ### HP Errors - System ----
         nav_panel(
           id = 'hp_errors_dqsystem',
           title = 'High Priority Errors',
@@ -408,10 +398,9 @@ page_navbar(
               title = 'Issues',
               uiOutput("systemDQHighPriorityErrorsByIssue_ui"),
             )
-          ),
-          
-          
+          )
         ),
+        ### General Errors - System -----
         nav_panel(
           id = 'g_errors_dqsystem',
           title = 'General Errors',
@@ -426,9 +415,9 @@ page_navbar(
               title = 'Top 10 Issues',
               uiOutput("systemDQErrorsByIssue_ui"),
             )
-          ),
-          
+          )
         ),
+        ### Warnings - System -------
         nav_panel(
           id = 'warnings_dqsystem',
           title = 'Warnings',
@@ -444,16 +433,14 @@ page_navbar(
             )
           )
         )
-        
       )
     ),
+    ## DQ Org -------------
     nav_panel(
       title = "Organization-level",
       value = "tabDQOrg",
       
-      card(
-          htmlOutput("headerDataQuality")
-      ),
+      card(htmlOutput("headerDataQuality")),
       accordion(
         id = 'accordion_dqorg',
         open = FALSE,
@@ -472,12 +459,13 @@ page_navbar(
                                   liveSearchStyle = 'contains'),
           width = "100%",
           selected = "none"
-        #width = 12
+        )
       ),
       
       navset_card_underline(
         id = 'tabDQOrg_subtabs',
-        
+        footer = uiOutput("downloadOrgDQReportButton", inline = TRUE),
+        ### HP Errors - Org ------------
         nav_panel(
           id = 'hp_errors',
           title = 'High Priority Errors',
@@ -492,10 +480,9 @@ page_navbar(
               title = 'Issues',
               uiOutput("orgDQHighPriorityErrorByIssue_ui") %>% withSpinner(),
             )
-          ),
-          
-          
+          )
         ),
+        ### General Errors - Org ---------------
         nav_panel(
           id = 'g_errors',
           title = 'General Errors',
@@ -510,9 +497,9 @@ page_navbar(
               title = 'Top 10 Issues',
               uiOutput("orgDQErrorByIssue_ui") %>% withSpinner(),
             )
-          ),
-          
+          )
         ),
+        ### Warnings - Org --------------
         nav_panel(
           id = 'warnings',
           title = 'Warnings',
@@ -528,9 +515,8 @@ page_navbar(
             )
           )
         )
-        
       ),
-      
+      ### DQ Summary and Guidance ------------
       navset_card_underline(
         id = 'dq_summary_subtabs',
         
@@ -559,8 +545,7 @@ page_navbar(
     )
 ),
 
-
-
+# System Performance Overview tab -------------------
 nav_panel(
   title = "System Performance Overview",
   value = "tabSystemOverview",
@@ -578,6 +563,7 @@ nav_panel(
     )
   ),
   br(),
+  ## Filters --------------
   card(
     card_header('Filters'),
     layout_columns(
@@ -646,9 +632,11 @@ nav_panel(
     )
     
   ),
+  
   navset_card_underline(
     id = 'syso_tabbox',
     
+    ## System Flow -------------
     nav_panel(
       id = 'syso_inflowoutflow',
       title = 'System Flow',
@@ -680,10 +668,11 @@ nav_panel(
           tab_sys_inflow_outflow_subtabs_information
         )
       ),
-      downloadButton("sys_inflow_outflow_download_btn", "Data Download",class='button-primary'),
+      downloadButton("sys_inflow_outflow_download_btn", "Data Download"),
       downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
     ),
     
+    ## System Status/Sankey ----------------
     nav_panel(
       id = 'syso_systemstatus',
       title = "Client System Status",
@@ -706,6 +695,7 @@ nav_panel(
       downloadButton("sys_status_download_btn_ppt", "Image Download"),
     ),
     
+    ## System Demographics/Composition --------------
     nav_panel(
       id = 'syso_composition',
       title = "System Demographics",
@@ -768,6 +758,7 @@ nav_panel(
 #     )
 #   )
 # ),
+# Glossary tab -------------
   nav_panel(
     title = "Glossary",
     value = "tabGlossary",
@@ -782,6 +773,7 @@ nav_panel(
       )
     )
   ),
+  # Changelog tab --------------
   nav_panel(
     title = "Changelog",
     value = "tabChangelog",
