@@ -626,7 +626,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         first_lookback_exit = fmax(fifelse(first_lookback, ExitAdjust, NA)),
         first_lookback_destination = fmax(fifelse(first_lookback, Destination, NA)),
         first_lookback_movein = fmax(fifelse(first_lookback, MoveInDateAdjust, NA)),
-        days_to_lookahead = fifelse(lecr, fcoalesce(L(EntryDate, n=-1), no_end_date) - ExitAdjust, NA)
+        days_to_lookahead = fifelse(lecr, L(EntryDate, n=-1) - ExitAdjust, NA)
       ) %>%
       fungroup() %>%
       fmutate(
