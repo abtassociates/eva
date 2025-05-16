@@ -463,7 +463,7 @@ period_specific_data <- reactive({
 })
 
 # Client-level flags, filtered ----------------------------------------------------
-client_categories_filtered <- reactive({
+client_categories_filtered <- function() {
   req(nrow(session$userData$client_categories) > 0)
   
   session$userData$client_categories[
@@ -477,7 +477,7 @@ client_categories_filtered <- reactive({
              VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17")))
       )
   ]
-})
+}
 
 # Period-specific, user-filtered, enrollment-level universe applied ------------------
 universe_filtered <- function(enrollment_categories) {

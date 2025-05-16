@@ -741,7 +741,7 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
-  cols_to_keep <- colnames(client_categories_filtered())
+  cols_to_keep <- colnames(session$userData$client_categories)
   unique(
     period_specific_data()[["Full"]][, ..cols_to_keep]
   )
