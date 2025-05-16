@@ -943,9 +943,13 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
   # Get Monthly Change (Inflow - Outflow)
   month_cols <- names(summary_data)[-1]
 
-  change_row <- 
-    summary_data[PlotFillGroups == "Inflow", ..month_cols] -
-    summary_data[PlotFillGroups == "Outflow", ..month_cols]
+  if(nrow(summary_data[PlotFillGroups == "Inflow", ..month_cols]) >0) {
+    change_row <- 
+      summary_data[PlotFillGroups == "Inflow", ..month_cols] -
+      summary_data[PlotFillGroups == "Outflow", ..month_cols]
+  } else {
+    change_row <- summary_data[PlotFillGroups == "Outflow", ..month_cols]
+  }
   
   summary_data_with_change <- rbind(
     summary_data, 
