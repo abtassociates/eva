@@ -116,7 +116,7 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
       !was_lh_at_start,
     
     # OUTFLOW CALCULATOR COLUMNS
-    exited = lecr & between(ExitAdjust, startDate, endDate) & !continuous_at_end,
+    exited = lecr & between(ExitAdjust, startDate, endDate) & (!continuous_at_end | is.na(continuous_at_end)),
     
     homeless_at_end = lecr & was_lh_at_end,
     
@@ -194,7 +194,7 @@ universe_ppl_flags <- function(universe_df, period) {
       fcase(
         perm_dest_client | temp_dest_client | unknown_at_end_client, "Outflow",
         homeless_at_end_client | housed_at_end_client, "Active at End",
-        continuous_at_end, "Continuous at End",
+        continuous_at_end_client, "Continuous at End",
         default = "something's wrong"
       ), levels = outflow_summary_levels
     ),
@@ -206,7 +206,7 @@ universe_ppl_flags <- function(universe_df, period) {
         unknown_at_end_client, "Inactive",
         homeless_at_end_client, "Homeless",
         housed_at_end_client, "Housed",
-        continuous_at_end, "Continuous at End",
+        continuous_at_end_client, "Continuous at End",
         default = "something's wrong"
       ), levels = c(outflow_detail_levels, rev(active_at_levels), "something's wrong")
     )
@@ -216,15 +216,10 @@ universe_ppl_flags <- function(universe_df, period) {
     if(in_dev_mode) browser()
     stop("There's an Inflow-Unknown in the Full Annual data!")
   }
-  if(identical(period, session$userData$report_dates[[13]])) {
-    browser()
-  }
-  
-  # browser()
+
   if(nrow(universe_w_ppl_flags[InflowTypeSummary == "something's wrong"]) > 0 |
      nrow(universe_w_ppl_flags[OutflowTypeSummary == "something's wrong"]) > 0) {
-    browser()
-    # if(in_dev_mode) browser()
+    if(in_dev_mode) browser()
     # e.g. PersonalID 623725 in Nov and 601540 in Dec
     # e.g. PersonalID 305204 and 420232 in Nov and 601540 and 620079 in Dec
     # e.g. PersonalID 14780 in Oct and Nov
