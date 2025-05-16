@@ -583,7 +583,9 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         # However, we don't want to never count them as outflow. So to fix that,
         # we'll force them to get an EECR because they exited.
         eecr = (eecr_straddle | eecr_no_straddle) & (
-          (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & (was_lh_during_period | month(ExitAdjust) == month(startDate))) | 
+          (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & (
+            was_lh_during_period | round.POSIXt(ExitAdjust, "months") == round.POSIXt(startDate, "months")
+          )) | 
           (!ProjectType %in% c(es_nbn_project_type, non_res_project_types))
         ),
         eecr = fcoalesce(eecr, FALSE),
