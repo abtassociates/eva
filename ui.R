@@ -1131,7 +1131,7 @@ dashboardPage(
                            radioGroupButtons(
                              inputId = "mbm_fth_filter",
                              label = "Flow Type Filters",
-                             choices = c("All", "First-Time Homeless"), #Inactive
+                             choices = c("All", "First-Time Homeless", "Inactive"), #Inactive
                              selected = "All",
                              individual = TRUE,
                              checkIcon = list(yes = icon("check"))
