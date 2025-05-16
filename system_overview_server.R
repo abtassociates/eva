@@ -563,9 +563,7 @@ lh_non_res_period <- function(startDate, endDate) {
         entry_in_end_window |
         lh_cls_during_period
     )
-  # if(identical(startDate, session$userData$report_dates[[13]][1])) {
-  #   browser()
-  # }
+
   if(nrow(lh_non_res) == 0 ) return(lh_non_res)
   
   lh_non_res %>%
