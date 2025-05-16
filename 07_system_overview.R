@@ -633,9 +633,12 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         days_since_lookback = fifelse(eecr, difftime(EntryDate, first_lookback_exit, units="days"), NA),
         lookback_dest_perm = eecr & first_lookback_destination %in% perm_livingsituation,
         lookback_movein_before_start = eecr & first_lookback_movein < startDate,
-        # continuous at flags do not apply to first and last months
-        continuous_at_start = startDate > session$userData$ReportStart & 
-          endDate < session$userData$ReportEnd &
+        # Beginning with the first month's Outflow and ending after the last month's Inflow, 
+        # there should be "continuous_at_start" and "continuous_at_end" flags that 
+        # capture EECRs/LECRs that begin AFTER period start/end BEFORE period end, 
+        # but days_to_lookahead/lookback <= 14. These would not be included on the chart.
+        # so both flags do not apply to first month. Continuous_at_end also doesn't apply to last
+        continuous_at_start = startDate > session$userData$ReportStart &
           eecr & EntryDate >= startDate & days_since_lookback <= 14,
         continuous_at_end = startDate > session$userData$ReportStart & 
           endDate < session$userData$ReportEnd &
