@@ -55,12 +55,20 @@ bar_colors <- c(
   "Housed" = '#9E958F'
 )
 
-mbm_bar_colors <- c(
+mbm_inflow_bar_colors <- c(
   "Active at Start: Homeless" = '#ECE7E3',
-  "Inflow" = "#BDB6D7", 
+  "Inflow" = "#BDB6D7"
+)
+
+mbm_outflow_bar_colors <- c(
   "Outflow" = '#6A559B',
   # "Inactive" = "#E78AC3"
   "Active at End: Housed" = '#9E958F'
+)
+
+mbm_bar_colors <- c(
+  mbm_inflow_bar_colors,
+  mbm_outflow_bar_colors
 )
 
 mbm_single_status_chart_colors <- c(
@@ -942,18 +950,13 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
 
   # Get Monthly Change (Inflow - Outflow)
   month_cols <- names(summary_data)[-1]
-
-  if(nrow(summary_data[PlotFillGroups == "Inflow", ..month_cols]) >0) {
-    change_row <- 
-      summary_data[PlotFillGroups == "Inflow", ..month_cols] -
-      summary_data[PlotFillGroups == "Outflow", ..month_cols]
-  } else {
-    change_row <- summary_data[PlotFillGroups == "Outflow", ..month_cols]
-  }
+  inflow_vals <- summary_data[PlotFillGroups %in% names(mbm_inflow_bar_colors), ..month_cols]
+  outflow_vals <- summary_data[PlotFillGroups %in% names(mbm_outflow_bar_colors), ..month_cols]
+  change_row <- if(nrow(inflow_vals) > 0) fsum(inflow_vals - outflow_vals) else outflow_vals
   
   summary_data_with_change <- rbind(
     summary_data, 
-    add_vars(change_row, PlotFillGroups = "Monthly Change")
+    add_vars(as.list(change_row), PlotFillGroups = "Monthly Change")
   ) %>%
     roworder(PlotFillGroups)
 
