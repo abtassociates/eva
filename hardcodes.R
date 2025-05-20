@@ -405,6 +405,7 @@ sessionVars <- c(
   "outstanding_referrals",
   "pdde_main", 
   "days_of_data",
+  "enrollment_categories",
   "client_categories",
   "lh_non_res",
   "lh_nbn"

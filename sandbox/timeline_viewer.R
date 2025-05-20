@@ -4,7 +4,8 @@ raw_enrollments_dt <- reactive({
   
   session$userData$get_period_specific_enrollment_categories(
     session$userData$report_dates[["Full"]], 
-    ifelse(input$in_demo_mode, "DEMO", input$imported$name)
+    ifelse(input$in_demo_mode, "DEMO", input$imported$name),
+    enrollment_categories_filtered()
   ) %>%
     fselect(PersonalID, EnrollmentID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation, LivingSituation, MoveInDateAdjust) %>%
     join(

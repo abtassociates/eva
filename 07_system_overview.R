@@ -439,7 +439,7 @@ problematic_nonres_enrollmentIDs <- base::setdiff(
   unique(lh_cls$EnrollmentID)
 )
 
-enrollment_categories <- enrollment_categories %>%
+session$userData$enrollment_categories <- enrollment_categories %>%
   fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs)
 
 if(in_dev_mode) enrollment_categories_all <<- enrollment_categories
@@ -455,7 +455,7 @@ session$userData$report_dates <- get_report_dates()
 # Narrow down to period-relevant enrollments and create eecr, lecr, 
 # and other variables used for Inflow/Outflow categorization
 session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
-  function(report_period, upload_name) {
+  function(report_period, upload_name, enrollment_categories_w_enrl_filter) {
     # custom_rprof({
     startDate <- report_period[1]
     endDate <- report_period[2]
@@ -494,9 +494,8 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           ))
       )]
     )
-    # browser()
     
-    enrollment_categories_period <- enrollment_categories %>%
+    enrollment_categories_period <- enrollment_categories_w_enrl_filter %>%
       fsubset(
         # keep enrollments in date range and exits within the 2 yrs prior to start
         EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))
@@ -582,7 +581,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         # Normally, they wouldn't have an EECR in Apr because there's no evidence of LH during period
         # However, we don't want to never count them as outflow. So to fix that,
         # we'll force them to get an EECR because they exited.
-        eecr = (eecr_straddle | eecr_no_straddle) & (
+        eecr = (eecr_straddle | eecr_no_straddle) & passes_enrollment_filters & (
           (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & (
             was_lh_during_period | round.POSIXt(ExitAdjust, "months") == round.POSIXt(startDate, "months")
           )) | 
@@ -590,8 +589,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         ),
         eecr = fcoalesce(eecr, FALSE),
         lecr = (lecr_straddle | lecr_no_straddle),
-        lecr = fcoalesce(lecr, FALSE),
-        eecr_is_res = eecr & ProjectType %in% project_types_w_beds
+        lecr = fcoalesce(lecr, FALSE)
       ) %>%
       fgroup_by(PersonalID) %>%
       fmutate(eecr_entry = fmax(fifelse(eecr, EntryDate, NA))) %>%
@@ -607,10 +605,6 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       fmutate(
         has_lecr = anyv(lecr, TRUE),
         has_eecr = anyv(eecr, TRUE),
-        # this is to match with the project type filter
-        eecr_project_type = fifelse(
-          anyv(eecr_is_res, TRUE), "Residential", "NonResidential"
-        ),
         # To be Return/Re-Engaged, they need a lookback with an exit to the corresponding destination
         any_lookbacks_with_exit_to_perm = anyv(perm_dest, TRUE),
         any_lookbacks_with_exit_to_nonperm = anyv(nonperm_dest, TRUE)

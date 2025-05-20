@@ -439,9 +439,11 @@ period_specific_data <- reactive({
     session$userData$report_dates,
     function(period) {
       # custom_rprof({
-      enrollment_categories <- session$userData$get_period_specific_enrollment_categories(period, upload_name)
-        
-      all_filtered <- universe_filtered(enrollment_categories)
+      all_filtered <- session$userData$get_period_specific_enrollment_categories(
+        period, 
+        upload_name, 
+        enrollment_categories_filtered()
+      )
       all_filtered_w_lh <- add_lh_info(all_filtered, period)
       universe_w_enrl_flags <- universe_enrl_flags(all_filtered_w_lh, period)
       universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags, period)
@@ -479,48 +481,39 @@ client_categories_filtered <- function() {
   ]
 }
 
-# Period-specific, user-filtered, enrollment-level universe applied ------------------
-universe_filtered <- function(enrollment_categories) {
-  # Inner Join with client categories
-  # This is necessary for bringing in Veteran Status, but will also make the rest faster
+# Create passes-enrollment-filter flag to exclude enrollments from eecr -------
+enrollment_categories_filtered <- reactive({
   join( 
-    enrollment_categories,
+    session$userData$enrollment_categories,
     client_categories_filtered() %>% fselect(PersonalID, VeteranStatus),
     # client_categories_filt, # this is used for mirai
     on = "PersonalID",
     how = "inner"
   ) %>%
-  fsubset(
-    # Household type filter
-    (input$syso_hh_type == "All" |
-       (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
-       (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-       (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
-       (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
-       input$syso_hh_type == HouseholdType
-    ) &
-    # Level of detail filter
-    (input$syso_level_of_detail == "All" |
-       (input$syso_level_of_detail == "HoHsAndAdults" &
-          (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-       (input$syso_level_of_detail == "HoHsOnly" &
-          CorrectedHoH == 1)) &
-    # Project type filter
-    (input$syso_project_type == "All" |
-       input$syso_project_type == eecr_project_type
+    fmutate(
+      passes_enrollment_filters =
+        # Household type filter
+        (input$syso_hh_type == "All" |
+           (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+           (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+           (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+           (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
+           input$syso_hh_type == HouseholdType
+        ) &
+        # Level of detail filter
+        (input$syso_level_of_detail == "All" |
+           (input$syso_level_of_detail == "HoHsAndAdults" &
+              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+           (input$syso_level_of_detail == "HoHsOnly" &
+              CorrectedHoH == 1)) &
+        # Project type filter
+        (input$syso_project_type == "All" |
+           (input$syso_project_type == "Residential: Homeless Projects" & ProjectType %in% lh_residential_project_types) |
+           (input$syso_project_type == "Residential: Permanent Housing Projects" & ProjectType %in% ph_project_types) |
+           (input$syso_project_type == "Non-Residential: Street Outreach" & ProjectType == out_project_type)
+        )
     )
-  ) %>%
-  fselect(EnrollmentID, PersonalID, HouseholdID, EntryDate, MoveInDateAdjust, ExitAdjust,
-          ProjectType, straddles_start, straddles_end,
-          Destination, lh_prior_livingsituation, eecr, lecr, first_lookback,
-          any_lookbacks_with_exit_to_perm, any_lookbacks_with_exit_to_nonperm,
-          days_since_lookback, days_to_lookahead, lookback_movein_before_start,
-          was_lh_at_start, was_lh_at_end,
-          lookback_dest_perm,
-          continuous_at_start, continuous_at_end
-  )
-}
-
+})
 
 ## LH info for non-res enrollments -----------
 # continuing the work of the base lh_non_res dataset from 07_system_overview.R 
