@@ -1035,7 +1035,8 @@ dashboardPage(
                   label = "Project Type Group",
                   inputId = "syso_project_type",
                   choices = syso_project_types,
-                  selected = syso_project_types[1]
+                  selected = syso_project_types[1],
+                  multiple = FALSE
                 ),
               ),
               column(
