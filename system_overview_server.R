@@ -468,10 +468,7 @@ period_specific_data <- reactive({
   )
   cache[[cache_key]] <- results
   session$userData$period_cache <- cache
-  results # %>% 
-    # Commenting out for testing purposes, so can view fuller intermediate datasets
-    # but this will remove all the lookbacks, which are no longer needed at this point
-    # fsubset(eecr | lecr)
+  results
 })
 
 # Client-level flags, filtered ----------------------------------------------------
