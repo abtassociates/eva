@@ -457,6 +457,8 @@ session$userData$report_dates <- get_report_dates()
 session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
   function(report_period, upload_name, enrollment_categories_w_enrl_filter) {
     # custom_rprof({
+    logToConsole(session, paste0("getting period-specific enrollment categories for ", report_period[1]))
+    
     startDate <- report_period[1]
     endDate <- report_period[2]
     
@@ -494,7 +496,8 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           ))
       )]
     )
-    
+
+    logToConsole(session, "getting enrollments in period and merging in lh_info")
     enrollment_categories_period <- enrollment_categories_w_enrl_filter %>%
       fsubset(
         # keep enrollments in date range and exits within the 2 yrs prior to start
@@ -515,6 +518,8 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         on = "EnrollmentID",
         how = "left"
       ) %>%
+    
+    logToConsole(session, paste0("In get_period_specific_enrollment_categories, num enrollment_categories_period: ", nrow(enrollment_categories_period)))
       # Flag if person had any straddling enrollments
       # to be used when calculating eecr/lecr in no-straddle cases
       fgroup_by(PersonalID) %>%
@@ -639,6 +644,8 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           lecr & ExitAdjust <= endDate & days_to_lookahead <= 14
       ) 
    
+    logToConsole(session, paste0("About to subset to eecr, lecr, and lookbacks: num enrollment_categories_period records = ", nrow(enrollment_categories_period)))
+    
     enrollment_categories_period %>%
       fsubset(eecr | lecr | first_lookback) %>%
       fselect(-c(any_straddle_start, any_straddle_end, eecr_no_straddle, eecr_straddle, lecr_straddle, lecr_no_straddle,

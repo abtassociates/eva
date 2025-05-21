@@ -407,6 +407,8 @@ check_cache_size <- function(cache, max_size_mb = 100) {
 # Get period-specific universe_ppl_flag datasets ---------------------------
 period_specific_data <- reactive({
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
+  logToConsole(session, "in period_specific_data")
+  
   if(is.null(session$userData$period_cache)) {
     session$userData$period_cache <- new.env()
   }
@@ -483,6 +485,7 @@ client_categories_filtered <- function() {
 
 # Create passes-enrollment-filter flag to exclude enrollments from eecr -------
 enrollment_categories_filtered <- reactive({
+  logToConsole(session, "in enrollment_categories_filtered")
   join( 
     session$userData$enrollment_categories,
     client_categories_filtered() %>% fselect(PersonalID, VeteranStatus),
@@ -525,6 +528,7 @@ enrollment_categories_filtered <- reactive({
 # we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
 # this avoids having to re-filter and do the check for each enrollment
 lh_non_res_period <- function(startDate, endDate) {
+  logToConsole(session, "in lh_non_res_period")
   lh_non_res <- session$userData$lh_non_res %>%
     # Initial filtering
     fsubset(EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))) %>%
@@ -557,7 +561,10 @@ lh_non_res_period <- function(startDate, endDate) {
         lh_cls_during_period
     )
 
-  if(nrow(lh_non_res) == 0 ) return(lh_non_res)
+  if(nrow(lh_non_res) == 0 ) {
+    logToConsole(session, "no non-res lh records")
+    return(lh_non_res)
+  }
   
   lh_non_res %>%
     # Group by EnrollmentID and calculate window flags
@@ -574,6 +581,7 @@ lh_non_res_period <- function(startDate, endDate) {
 
 ## LH info for NbN enrollments--------------
 lh_nbn_period <- function(startDate, endDate) {
+  logToConsole(session, "in lh_nbn_period")
   lh_nbn <- session$userData$lh_nbn %>%
     # Initial filtering
     fsubset(EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))) %>%
@@ -600,7 +608,10 @@ lh_nbn_period <- function(startDate, endDate) {
         nbn_during_period
     )
   
-  if(nrow(lh_nbn) == 0) return(lh_nbn)
+  if(nrow(lh_nbn) == 0) {
+    logToConsole(session, "no NbN lh records")
+    return(lh_nbn)
+  }
   
   lh_nbn %>%
     fgroup_by(EnrollmentID) %>%
@@ -637,6 +648,7 @@ lh_other_period <- function(all_filtered, startDate, endDate) {
 
 # Combine lh_infos and add to filtered universe dataset-------------------
 add_lh_info <- function(all_filtered, period) {
+  logToConsole(session, "in add_lh_info")
   startDate <- period[1]
   endDate <- period[2]
 

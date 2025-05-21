@@ -269,6 +269,8 @@ get_inflow_outflow_full <- reactive({
   if(in_dev_mode) export_bad_records("Full")
   
   period_specific_data()[["Full"]] %>%
+  logToConsole(session, paste0("In get_inflow_outflow_full, num full_data records: ", nrow(full_data)))
+  
     fselect(PersonalID,
             InflowTypeSummary,
             InflowTypeDetail,
@@ -285,6 +287,8 @@ get_inflow_outflow_full <- reactive({
 ## Monthly ---------------------------------
 get_inflow_outflow_monthly <- reactive({
   if(in_dev_mode) export_bad_records("Month")
+  logToConsole(session, paste0("In get_inflow_outflow_monthly, num full_data records: ", nrow(full_data)))
+  
   
   rbindlist(period_specific_data()[-1]) %>%
     fselect(
@@ -377,6 +381,8 @@ output$sys_inflow_outflow_monthly_filter_selections <- renderUI({
 # 11:                       Homeless                   Active at End        Outflow       Homeless   237    10
 
 sys_inflow_outflow_annual_chart_data <- reactive({
+  logToConsole(session, "In sys_inflow_outflow_annual_chart_data")
+
   full_combinations <- data.frame(
     Detail = c(
       active_at_levels,
@@ -445,6 +451,7 @@ sys_inflow_outflow_annual_chart_data <- reactive({
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
 sys_inflow_outflow_monthly_chart_data <- reactive({
   monthly_data <- get_inflow_outflow_monthly() %>%
+  logToConsole(session, "In sys_inflow_outflow_monthly_chart_data")
     fsubset(InflowTypeDetail != "Continuous at Start" & OutflowTypeDetail != "Continuous at End") %>%
     fmutate(
       InflowPlotFillGroups = fct_collapse(
@@ -469,6 +476,7 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     )
 
   # Get counts of each type by month
+  logToConsole(session, paste0("In sys_inflow_outflow_monthly_chart_data, after subsetting for monthly chart, num monthly_data records: ", nrow(monthly_data)))
   monthly_counts <- rbind(
     monthly_data[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups)],
     monthly_data[, .(PersonalID, month, PlotFillGroups = OutflowPlotFillGroups)]
@@ -502,6 +510,8 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
 ### Inactive + FTH ------------------------
 sys_inflow_outflow_monthly_single_status_chart_data <- function(varname, status) {
   get_inflow_outflow_monthly() %>%
+  logToConsole(session, "In sys_inflow_outflow_monthly_single_status_chart_data")
+  
     fsubset(.[[varname]] == status) %>%
     fgroup_by(month) %>%
     fsummarise(Count = GRPN()) %>%
@@ -702,6 +712,7 @@ renderInflowOutflowFullPlot(
 output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
   plot_data <- sys_inflow_outflow_monthly_chart_data()
 
+  logToConsole(session, "In sys_inflow_outflow_monthly_ui_chart")
   # Get Average Info for Title Display
   averages <- plot_data %>%
     fsubset(PlotFillGroups != "Active at Start: Homeless") %>%
@@ -931,6 +942,8 @@ output$sys_inflow_outflow_monthly_ui_chart_combined <- renderPlot({
 # The table is positioned directly under the chart
 # Making the month labels looks like both the chart's x-axis and the table's column headers
 output$sys_inflow_outflow_monthly_table <- renderDT({
+  logToConsole(session, "In sys_inflow_outflow_monthly_table")
+  
   summary_data <- pivot(
     sys_inflow_outflow_monthly_chart_data() %>%
       fsubset(PlotFillGroups %in% names(mbm_bar_colors)),
@@ -1031,6 +1044,8 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
 
 ### Inactive + FTH chart --------------------------------------
 sys_monthly_single_status_ui_chart <- function(varname, status) {
+  logToConsole(session, "In sys_monthly_single_status_ui_chart")
+
   plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(
     varname, 
     status
@@ -1074,8 +1089,10 @@ output$sys_fth_monthly_ui_chart <- renderPlot({
 
 # Info to include in Inflow/Outflow Exports -----------------------------------
 sys_inflow_outflow_export_info <- function() {
-  df <- sys_inflow_outflow_annual_chart_data()
+  logToConsole(session, "In sys_inflow_outflow_export_info")
   
+  df <- sys_inflow_outflow_annual_chart_data()
+
   data.table(
     Chart = c(
       "Total Served (Start + Inflow) People",
