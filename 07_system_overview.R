@@ -517,9 +517,13 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         lh_non_res_esnbn_info,
         on = "EnrollmentID",
         how = "left"
-      ) %>%
+      )
     
     logToConsole(session, paste0("In get_period_specific_enrollment_categories, num enrollment_categories_period: ", nrow(enrollment_categories_period)))
+    
+    if(nrow(enrollment_categories_period) == 0) return(enrollment_categories_period)
+    
+    enrollment_categories_period <- enrollment_categories_period %>%
       # Flag if person had any straddling enrollments
       # to be used when calculating eecr/lecr in no-straddle cases
       fgroup_by(PersonalID) %>%

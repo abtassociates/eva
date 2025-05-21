@@ -266,11 +266,15 @@ universe_ppl_flags <- function(universe_df, period) {
 ## Summary (Annual) ----------------------------
 # This also gets used by the Status chart
 get_inflow_outflow_full <- reactive({
-  if(in_dev_mode) export_bad_records("Full")
+  full_data <- period_specific_data()[["Full"]]
   
-  period_specific_data()[["Full"]] %>%
   logToConsole(session, paste0("In get_inflow_outflow_full, num full_data records: ", nrow(full_data)))
   
+  if(nrow(full_data) == 0) return(full_data)
+  
+  if(in_dev_mode) export_bad_records("Full", full_data)
+  
+  full_data %>%
     fselect(PersonalID,
             InflowTypeSummary,
             InflowTypeDetail,
@@ -286,11 +290,15 @@ get_inflow_outflow_full <- reactive({
 
 ## Monthly ---------------------------------
 get_inflow_outflow_monthly <- reactive({
-  if(in_dev_mode) export_bad_records("Month")
+  full_data <- rbindlist(period_specific_data()[-1])
+  
   logToConsole(session, paste0("In get_inflow_outflow_monthly, num full_data records: ", nrow(full_data)))
   
+  if(nrow(full_data) == 0) return(full_data)
   
-  rbindlist(period_specific_data()[-1]) %>%
+  if(in_dev_mode) export_bad_records("Month", full_data)
+  
+  full_data %>%
     fselect(
       PersonalID, 
       InflowTypeDetail, 
@@ -319,13 +327,7 @@ get_inflow_outflow_monthly <- reactive({
     )
 })
 
-export_bad_records <- function(period) {
-  df <- if(period == "Full") {
-    period_specific_data()[["Full"]]
-  } else {
-    rbindlist(period_specific_data()[-1])
-  }
-  
+export_bad_records <- function(period, df) {
   df <- df[InflowTypeSummary == "something's wrong" | OutflowTypeSummary == "something's wrong"]
   
   if(nrow(df) == 0) return(NULL)
@@ -448,10 +450,13 @@ sys_inflow_outflow_annual_chart_data <- reactive({
 
 ## Monthly ---------------------------------------
 ### MbM ---------------------------
-# Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
+# Get records to be counted in MbM. Doing this step separately from the counts allows us to easily validate
 sys_inflow_outflow_monthly_chart_data <- reactive({
-  monthly_data <- get_inflow_outflow_monthly() %>%
   logToConsole(session, "In sys_inflow_outflow_monthly_chart_data")
+  monthly_data <- get_inflow_outflow_monthly() 
+  
+  if(nrow(monthly_data) == 0) return(monthly_data)
+  monthly_data <- monthly_data %>%
     fsubset(InflowTypeDetail != "Continuous at Start" & OutflowTypeDetail != "Continuous at End") %>%
     fmutate(
       InflowPlotFillGroups = fct_collapse(
@@ -475,11 +480,15 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
       )
     )
 
-  # Get counts of each type by month
   logToConsole(session, paste0("In sys_inflow_outflow_monthly_chart_data, after subsetting for monthly chart, num monthly_data records: ", nrow(monthly_data)))
+  monthly_data
+})
+
+# Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
+get_counts_by_month_for_mbm <- function(monthly_chart_records) {
   monthly_counts <- rbind(
-    monthly_data[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups)],
-    monthly_data[, .(PersonalID, month, PlotFillGroups = OutflowPlotFillGroups)]
+    monthly_chart_records[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups)],
+    monthly_chart_records[, .(PersonalID, month, PlotFillGroups = OutflowPlotFillGroups)]
   ) %>%
     funique() %>%
     fgroup_by(month, PlotFillGroups) %>%
@@ -497,21 +506,24 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     on = c("month","PlotFillGroups"),
     how = "full"
   ) %>%
-  fmutate(
-    Summary = fct_collapse(
-      PlotFillGroups, 
-      Inflow = "Active at Start: Homeless",
-      Outflow = "Active at End: Housed"
-    )
-  ) %>%
-  collapse::replace_na(value = 0, cols = "Count")
-})
+    fmutate(
+      Summary = fct_collapse(
+        PlotFillGroups, 
+        Inflow = "Active at Start: Homeless",
+        Outflow = "Active at End: Housed"
+      )
+    ) %>%
+    collapse::replace_na(value = 0, cols = "Count")
+}
 
 ### Inactive + FTH ------------------------
 sys_inflow_outflow_monthly_single_status_chart_data <- function(varname, status) {
-  get_inflow_outflow_monthly() %>%
   logToConsole(session, "In sys_inflow_outflow_monthly_single_status_chart_data")
   
+  monthly_data <- get_inflow_outflow_monthly() 
+  if(nrow(monthly_data) == 0) return(monthly_data)
+  
+  monthly_data %>%
     fsubset(.[[varname]] == status) %>%
     fgroup_by(month) %>%
     fsummarise(Count = GRPN()) %>%
@@ -523,14 +535,25 @@ sys_inflow_outflow_monthly_single_status_chart_data <- function(varname, status)
 # Function called in the renderPlot and exports
 get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   logToConsole(session, paste0("Getting sys inflow/outflow plot for ", id, ". For export? ", isExport))
+  
+  full_data <- get_inflow_outflow_full()
+  
+  validate(
+    need(
+      nrow(full_data) > 0,
+      message = no_data_msg
+    )
+  )
+  
+  df <- sys_inflow_outflow_annual_chart_data()
+  
   if (id == "sys_inflow_outflow_summary_ui_chart") {
-    df <- sys_inflow_outflow_annual_chart_data() %>%
+    df <- df %>%
       # collapse the detailed levels of inflow/outflow
       fmutate(Summary = fct_collapse(Summary, !!!collapse_details)) %>%
       collap(cols="N", ~ InflowOutflow + Summary + PlotFillGroups, fsum, sort=FALSE)
     mid_plot <- 2.5
   } else {
-    df <- sys_inflow_outflow_annual_chart_data()
     # re-label FTH if export is >= 1094 days
     if(session$userData$days_of_data >= 1094)
       df[, Detail := fct_recode(Detail, "Inflow\nUnspecified" = "First-Time \nHomeless")]
@@ -538,13 +561,7 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   }
   
   total_clients <- df[InflowOutflow == "Inflow", sum(N)]
-  
-  validate(
-    need(
-      total_clients > 0,
-      message = no_data_msg
-    )
-  )
+
   validate(
     need(
       total_clients > 10,
@@ -710,9 +727,26 @@ renderInflowOutflowFullPlot(
 ### MbM Chart --------------------------------------
 # Bar - Active at Start + Inflow/Outflow
 output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
-  plot_data <- sys_inflow_outflow_monthly_chart_data()
-
   logToConsole(session, "In sys_inflow_outflow_monthly_ui_chart")
+  monthly_chart_records <- sys_inflow_outflow_monthly_chart_data()
+  
+  validate(
+    need(
+      nrow(monthly_chart_records) > 0,
+      message = no_data_msg
+    )
+  )
+  
+  validate(
+    need(
+      nrow(monthly_chart_records) > 10,
+      message = suppression_msg
+    )
+  )
+  
+  # Get counts of each type by month
+  plot_data <- get_counts_by_month_for_mbm(monthly_chart_records)
+  
   # Get Average Info for Title Display
   averages <- plot_data %>%
     fsubset(PlotFillGroups != "Active at Start: Homeless") %>%
@@ -944,8 +978,12 @@ output$sys_inflow_outflow_monthly_ui_chart_combined <- renderPlot({
 output$sys_inflow_outflow_monthly_table <- renderDT({
   logToConsole(session, "In sys_inflow_outflow_monthly_table")
   
+  monthly_chart_records <- sys_inflow_outflow_monthly_chart_data()
+  req(nrow(monthly_chart_records) > 0)
+  
   summary_data <- pivot(
-    sys_inflow_outflow_monthly_chart_data() %>%
+    monthly_chart_records %>%
+      get_counts_by_month_for_mbm(.) %>%
       fsubset(PlotFillGroups %in% names(mbm_bar_colors)),
     ids = "PlotFillGroups",        # Column(s) defining the rows of the output
     names = "month",       # Column whose values become column names

@@ -363,13 +363,16 @@ observeEvent({
   # hide download buttons if < 11 records
   # All Served is handled in system_composition_server.R
   # for that chart, we also hide if all *cells* are < 11
+  full_data <- get_inflow_outflow_full()
+  
   shinyjs::toggle(
     "sys_inflow_outflow_download_btn sys_inflow_outflow_download_btn_ppt", 
-    condition = nrow(get_inflow_outflow_full()) > 10
+    condition = nrow(full_data) > 10
   )
+  
   shinyjs::toggle(
-    "sys_status_download_btn sys_status_download_btn_ppt", 
-    condition = sum(get_sankey_data()$freq) > 10
+    "sys_status_download_btn sys_status_download_btn_ppt",
+    condition = if(nrow(full_data) > 0) sum(get_sankey_data()$freq) > 10 else FALSE
   )
 }, ignoreInit = TRUE)
 
@@ -441,11 +444,16 @@ period_specific_data <- reactive({
     session$userData$report_dates,
     function(period) {
       # custom_rprof({
+      enrollments_filtered <- enrollment_categories_filtered()
+      
       all_filtered <- session$userData$get_period_specific_enrollment_categories(
         period, 
         upload_name, 
-        enrollment_categories_filtered()
+        enrollments_filtered
       )
+      
+      if(nrow(all_filtered) == 0) return(all_filtered)
+      
       all_filtered_w_lh <- add_lh_info(all_filtered, period)
       universe_w_enrl_flags <- universe_enrl_flags(all_filtered_w_lh, period)
       universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags, period)
@@ -467,21 +475,21 @@ period_specific_data <- reactive({
 })
 
 # Client-level flags, filtered ----------------------------------------------------
-client_categories_filtered <- function() {
+client_categories_filtered <- reactive({
   req(nrow(session$userData$client_categories) > 0)
   
   session$userData$client_categories[
     AgeCategory %in% input$syso_age &
-      input$syso_race_ethnicity == "All" &
-      (
-        input$syso_spec_pops == "None" |
-          (input$syso_spec_pops == "Veteran" &
-             VeteranStatus == 1 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
-          (input$syso_spec_pops == "NonVeteran" &
-             VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17")))
-      )
+    if(input$syso_race_ethnicity == "All") TRUE else get(input$syso_race_ethnicity) == 1 & 
+    (
+      input$syso_spec_pops == "None" |
+      (input$syso_spec_pops == "Veteran" &
+         VeteranStatus == 1 & !AgeCategory %in% c("0 to 12", "13 to 17")) |
+      (input$syso_spec_pops == "NonVeteran" &
+         VeteranStatus == 0 & !AgeCategory %in% c("0 to 12", "13 to 17"))
+    )
   ]
-}
+})
 
 # Create passes-enrollment-filter flag to exclude enrollments from eecr -------
 enrollment_categories_filtered <- reactive({
