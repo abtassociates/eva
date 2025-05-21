@@ -44,8 +44,8 @@ outflow_summary_levels <- c(
 )
 
 collapse_details <- list(
-  "Outflow" = outflow_detail_levels, 
-  "Inflow" = inflow_detail_levels
+  "Outflow" = outflow_chart_detail_levels, 
+  "Inflow" = inflow_chart_detail_levels
 )
 
 bar_colors <- c(
