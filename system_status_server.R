@@ -218,52 +218,40 @@ output$sys_status_download_btn_ppt <- downloadHandler(
 # The universe is anyone who was Housed or Homeless at Period Start
 # We also need the latest exit for the folks in the Exited categories
 get_sankey_data <- reactive({
-  req(nrow(get_inflow_outflow_full()) > 0)
-  plot_df <- get_inflow_outflow_full() %>%
-    filter(InflowTypeDetail == "Housed" | InflowTypeDetail == "Homeless")
+  full_data <- get_inflow_outflow_full()
   
-  startBind <- plot_df %>%
-    select(PersonalID, "Type" = InflowTypeDetail) %>%
-    mutate("Period" = "Begin")
+  req(nrow(full_data) > 0)
   
-  endBind <- plot_df %>%
-    select(PersonalID, "Type" = OutflowTypeDetail) %>%
+  plot_df <- full_data[
+    InflowTypeDetail %in% active_at_levels,
+    .(PersonalID, InflowTypeDetail, OutflowTypeDetail)
+  ]
+  
+  req(nrow(plot_df) > 0)
+  
+  allu <- plot_df %>%
+    count(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>%
     mutate(
-      "Period" = "End",
-      Type = case_when(
-        Type == "Exited,\nPermanent" ~ "Exited, Permanent",
-        Type == "Exited,\nNon-Permanent" ~ "Exited, Non-Permanent",
-        Type == "Homeless" ~ "Enrolled, Homeless",
-        Type == "Housed" ~ "Enrolled, Housed",
-        TRUE ~ Type
-      ))
-  
-  allBind <- rbind(startBind, endBind)
-  
-  #Create df with both Homeless and Housed at start
-  d_hh <- data.frame(cbind(startBind$Type, endBind$Type))
-  names(d_hh) <- c("Period Start", "Period End")
-  
-  #Basic alluvial chart - both homeless and housed at start
-  allu <- d_hh %>%
-    group_by(`Period Start`, `Period End`) %>%
-    summarise(Freq = n())
-  
-  names(allu) <- c("Begin", "End", "freq")
-  
-  #Convert statuses as factors and re-order levels
-  allu$Begin <- factor(allu$Begin, labels = c("Homeless",
-                                              "Housed"))
-  
-  allu$End <- factor(
-    allu$End,
-    levels = c(
-      "Exited, Non-Permanent",
-      "Enrolled, Homeless",
-      "Inactive",
-      "Exited, Permanent",
-      "Enrolled, Housed"
+      Begin = factor(Begin, levels = active_at_levels), # Or c("Housed", "Homeless") depending on desired order
+      
+      End = gsub("\n", " ", End), # Remove newlines
+      End = ifelse( # Prepend "Enrolled, " for specific values
+        End %in% active_at_levels,
+        paste0("Enrolled, ", End),
+        End
+      ),
+      
+      End = factor(
+        End,
+        levels = c(
+          "Exited, Non-Permanent",
+          "Enrolled, Homeless",
+          "Inactive",
+          "Exited, Permanent",
+          "Enrolled, Housed"
+        )
+      )
     )
-  )
+  
   allu
 })
