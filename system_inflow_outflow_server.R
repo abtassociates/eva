@@ -1001,7 +1001,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
   month_cols <- names(summary_data)[-1]
   inflow_vals <- summary_data[PlotFillGroups %in% names(mbm_inflow_bar_colors), ..month_cols]
   outflow_vals <- summary_data[PlotFillGroups %in% names(mbm_outflow_bar_colors), ..month_cols]
-  change_row <- if(nrow(inflow_vals) > 0) fsum(inflow_vals - outflow_vals) else outflow_vals
+  change_row <- if(nrow(inflow_vals) > 0) fsum(inflow_vals) - fsum(outflow_vals) else outflow_vals
   
   summary_data_with_change <- rbind(
     summary_data, 
