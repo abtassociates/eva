@@ -536,15 +536,6 @@ sys_inflow_outflow_monthly_single_status_chart_data <- function(varname, status)
 get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   logToConsole(session, paste0("Getting sys inflow/outflow plot for ", id, ". For export? ", isExport))
   
-  full_data <- get_inflow_outflow_full()
-  
-  validate(
-    need(
-      nrow(full_data) > 0,
-      message = no_data_msg
-    )
-  )
-  
   df <- sys_inflow_outflow_annual_chart_data()
   
   if (id == "sys_inflow_outflow_summary_ui_chart") {
@@ -699,7 +690,14 @@ get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
 renderInflowOutflowFullPlot <- function(chart_id, alt_text) {
   output[[chart_id]] <- renderPlot({
       req(session$userData$valid_file() == 1)
-      req(nrow(sys_inflow_outflow_annual_chart_data()) > 0)
+    
+      validate(
+        need(
+          nrow(get_inflow_outflow_full()) > 0,
+          message = no_data_msg
+        )
+      )
+      
       get_system_inflow_outflow_annual_plot(chart_id)
     },
     alt = alt_text,
