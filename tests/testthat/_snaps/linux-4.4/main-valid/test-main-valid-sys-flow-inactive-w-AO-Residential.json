@@ -1,0 +1,92 @@
+{
+  "input": {
+    "methodology_type": "1",
+    "sidebarmenuid": "tabSystemOverview",
+    "sys_inflow_outflow_subtabs": "Month-by-Month Chart",
+    "syso_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syso_hh_type": "AO",
+    "syso_level_of_detail": "All",
+    "syso_project_type": "Residential: Permanent Housing Projects",
+    "syso_race_ethnicity": "All",
+    "syso_spec_pops": "None",
+    "syso_tabbox": "System Flow"
+  },
+  "output": {
+    "headerSystemOverview": {
+      "html": "<h2>System Overview<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "sys_inactive_monthly_ui_chart": {
+      "src": "[image data hash: a06b38e30c3851ad2533081321219a86]",
+      "width": 1575,
+      "height": 500,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0.505,
+              "right": 12.495,
+              "bottom": -0.6000000000000001,
+              "top": 12.6,
+              "discrete_limits": {
+                "x": [
+                  "Oct 21",
+                  "Nov 21",
+                  "Dec 21",
+                  "Jan 22",
+                  "Feb 22",
+                  "Mar 22",
+                  "Apr 22",
+                  "May 22",
+                  "Jun 22",
+                  "Jul 22",
+                  "Aug 22",
+                  "Sep 22"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "month",
+              "y": "Count"
+            },
+            "range": {
+              "left": 69.29265255292653,
+              "right": 1575,
+              "bottom": 497.2602739726028,
+              "top": 0
+            }
+          }
+        ],
+        "dims": {
+          "width": 1575,
+          "height": 500
+        }
+      }
+    }
+  }
+}

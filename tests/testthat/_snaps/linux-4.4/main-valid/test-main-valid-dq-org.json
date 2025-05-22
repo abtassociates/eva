@@ -244,7 +244,8 @@
       118,
       119,
       120,
-      121
+      121,
+      122
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -714,7 +715,7 @@
       }
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: b0a9e401d38a25adc8ae7b30535dcfc8]",
+      "src": "[image data hash: c6f3027a0ee121a8ee9a42381b595f6d]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -741,13 +742,13 @@
 
                 ],
                 "y": [
-                  "Unknown Disabling Condition",
                   "Unknown Months or Times Homeless",
                   "Unknown Living Situation",
                   "Incomplete or Unknown Name",
                   "Overlap with a Emergency Shelter (E/E) project",
                   "Future Entry Date",
                   "Homelessness Start Date conflicts with Living Situation data",
+                  "Days since Most Recent CLS Exceeds Local Settings",
                   "Unknown Destination",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
                   "Unknown SSN"
@@ -811,17 +812,17 @@
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "121",
+        "Length": "122",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
-        "Error": 51,
+        "Error": 52,
         "Warning": 65
       },
       "Issue": {
-        "Length": "121",
+        "Length": "122",
         "Class": "character",
         "Mode": "character"
       },
@@ -829,7 +830,7 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 10.54545454545454,
+        "Mean": 10.47540983606557,
         "3rd Qu.": 7,
         "Max.": 214
       }
