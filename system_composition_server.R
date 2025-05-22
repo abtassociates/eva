@@ -317,7 +317,8 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     select(
       PersonalID, 
       unname(var_cols[[selections[1]]]), 
-      unname(var_cols[[selections[2]]]))
+      unname(var_cols[[selections[2]]])
+    )
   
   validate(
     need(
