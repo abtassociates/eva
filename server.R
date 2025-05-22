@@ -18,7 +18,7 @@ function(input, output, session) {
   windowSize <- reactiveVal(NULL)
   triggerPlot <- reactiveVal(NULL)
   
-  reset_session_vars(session)
+  reset_app(session)
   
   # Handle if user arrives from external site
   observe({

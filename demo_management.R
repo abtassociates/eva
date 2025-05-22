@@ -143,22 +143,7 @@ toggleDemoJs <- function(t) {
     
     shinyjs::hide("fileStructureAnalysis")
     
-    reset_session_vars(session)
-    
-    session$sendInputMessage('currentProviderList', list(
-      choices = NULL
-      # selected = "none"
-    ))
-    session$sendInputMessage('orgList', list(
-      choices = NULL
-      # selected = "none"
-    ))
-    session$sendCustomMessage('dateRangeCount', list(
-      min = NULL,
-      start = ymd(today()),
-      max = NULL,
-      end = ymd(today())
-    ))
+    reset_app(session)
     
     print("Switched into live mode!")
     capture.output("Switched into live mode")

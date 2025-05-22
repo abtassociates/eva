@@ -446,8 +446,7 @@ reset_postvalid_components <- function(session) {
 
 # essentially resets the app
 reset_app <- function(session) {
-  session$userData$valid_file(0)
-  session$userData$initially_valid_import(0)
+  reset_session_vars(session)
   reset_postvalid_components(session)
 }
 
@@ -459,8 +458,6 @@ reset_session_vars <- function(session) {
     else if(v == "file_structure_analysis_main") session$userData[[v]] <- reactiveVal(NULL)
     else session$userData[[v]] <- NULL
   }
-  
-  reset_postvalid_components(session)
 }
 
 getNameByValue <- function(vector, val) {
