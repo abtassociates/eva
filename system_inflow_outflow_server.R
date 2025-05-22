@@ -726,21 +726,9 @@ renderInflowOutflowFullPlot(
 # Bar - Active at Start + Inflow/Outflow
 output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
   logToConsole(session, "In sys_inflow_outflow_monthly_ui_chart")
+  monthly_chart_validation()
+  
   monthly_chart_records <- sys_inflow_outflow_monthly_chart_data()
-  
-  validate(
-    need(
-      nrow(monthly_chart_records) > 0,
-      message = no_data_msg
-    )
-  )
-  
-  validate(
-    need(
-      nrow(monthly_chart_records) > 10,
-      message = suppression_msg
-    )
-  )
   
   # Get counts of each type by month
   plot_data <- get_counts_by_month_for_mbm(monthly_chart_records)
@@ -1116,13 +1104,32 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
     )
 }
 output$sys_inactive_monthly_ui_chart <- renderPlot({
+  monthly_chart_validation()
   sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
 })
 
 output$sys_fth_monthly_ui_chart <- renderPlot({
+  monthly_chart_validation()
   sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time \nHomeless")
 })
 
+monthly_chart_validation <- function() {
+  num_people <- length(unique(get_inflow_outflow_monthly()$PersonalID))
+  
+  validate(
+    need(
+      num_people > 0,
+      message = no_data_msg
+    )
+  )
+  
+  validate(
+    need(
+      num_people > 10,
+      message = suppression_msg
+    )
+  )
+}
 # Info to include in Inflow/Outflow Exports -----------------------------------
 sys_inflow_outflow_export_info <- function() {
   logToConsole(session, "In sys_inflow_outflow_export_info")
