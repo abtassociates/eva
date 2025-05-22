@@ -95,9 +95,7 @@ unexpected_data_types <- function(file) {
   cols_and_data_types %>% 
     filter(File == file, Column %in% colnames(data)) %>%
     rowwise() %>%
-    mutate(
-      actual_type = class(data[[Column]])[1]
-    ) %>%
+    mutate(actual_type = class(data[[Column]])[1]) %>%
     ungroup() %>%
     filter(
       DataType != case_when(
@@ -107,6 +105,18 @@ unexpected_data_types <- function(file) {
       )
     ) %>%
     mutate(
+      example_row = {
+        # Only relevant if we expect numeric/integer but got character
+        if (isTruthy(DataType == "numeric") && isTruthy(actual_type == "character")) {
+          current_col_values <- data[[Column]]
+
+          # Find rows that are NOT NA (i.e., not empty strings) but become NA upon numeric conversion
+          # suppressWarnings() to prevent `NAs introduced by coercion` messages
+          problematic_indices <- which(!is.na(current_col_values) & is.na(suppressWarnings(as.numeric(current_col_values))))
+          problematic_indices[1]
+        } else NA_integer_
+      },
+      
       Detail = if_else(
         !(DataType %in% c("date", "datetime")),
         glue("In the {file} file, the {Column} column should have a data type of {case_when(
@@ -116,7 +126,7 @@ unexpected_data_types <- function(file) {
         )} but in this file, it is {case_when(
           actual_type == 'numeric' ~ 'integer',
           TRUE ~ actual_type
-        )}."),
+        )}. See, for example, row {example_row}"),
         glue("Please check that the {Column} column in the {file} file has the correct {DataType} format.")
       ),
       checkID = if_else(
