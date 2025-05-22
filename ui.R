@@ -737,10 +737,10 @@ nav_panel(
           br(),
           tab_sys_comp_subtabs_information
           
-        ),
-        downloadButton("sys_comp_download_btn", "Data Download"),
-        downloadButton("sys_comp_download_btn_ppt", "Image Download"),
-      )
+        )
+      ),
+      downloadButton("sys_comp_download_btn", "Data Download"),
+      downloadButton("sys_comp_download_btn_ppt", "Image Download"),
     )
     
     ),
