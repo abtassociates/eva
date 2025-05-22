@@ -314,10 +314,19 @@ main_test_script <- function(test_script_name, test_dataset) {
 
     
     # change universe filters
-    app$set_inputs(syso_hh_type = "AO", syso_project_type = "Residential")
+    app$set_inputs(syso_hh_type = "AO", syso_project_type = "Residential: Homeless Projects")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
       name = "sys-flow-detail-w-AO-Residential",
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_detail_outputs
+    )
+    
+    # change universe filters
+    app$set_inputs(syso_project_type = "Residential: Permanent Housing Projects")
+    app$wait_for_idle(timeout = 2e+06)
+    app$expect_values(
+      name = "sys-flow-detail-w-AO-Residential-PH",
       input = sys_inflow_outflow_inputs,
       output = sys_inflow_outflow_detail_outputs
     )
@@ -329,6 +338,46 @@ main_test_script <- function(test_script_name, test_dataset) {
       name = "sys-flow-summary-w-AO-Residential",
       input = sys_inflow_outflow_inputs,
       output = sys_inflow_outflow_summary_outputs
+    )
+    
+    # go Month-by-Month tab
+    sys_inflow_outflow_mbm_outputs <- c(
+      "headerSystemOverview",
+      "sys_inflow_outflow_monthly_filter_selections"
+    )
+    app$set_inputs(sys_inflow_outflow_subtabs = "Month-by-Month Chart")
+    app$wait_for_idle(timeout = 1e+06)
+    app$expect_values(
+      name = "sys-flow-mbm-w-AO-Residential",
+      input = sys_inflow_outflow_inputs,
+      output = c(
+        sys_inflow_outflow_mbm_outputs,
+        "sys_inflow_outflow_monthly_ui_chart"
+      )
+    )
+    
+    # go to FTH chart
+    app$set_inputs(mbm_fth_filter = "First-Time Homeless")
+    app$wait_for_idle(timeout = 1e+06)
+    app$expect_values(
+      name = "sys-flow-fth-w-AO-Residential",
+      input = sys_inflow_outflow_inputs,
+      output = c(
+        sys_inflow_outflow_mbm_outputs,
+        "sys_fth_monthly_ui_chart"
+      )
+    )
+    
+    # go to Inative chart
+    app$set_inputs(mbm_fth_filter = "Inactive")
+    app$wait_for_idle(timeout = 1e+06)
+    app$expect_values(
+      name = "sys-flow-inactive-w-AO-Residential",
+      input = sys_inflow_outflow_inputs,
+      output = c(
+        sys_inflow_outflow_mbm_outputs,
+        "sys_inactive_monthly_ui_chart"
+      )
     )
     
     # go to information
