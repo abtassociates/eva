@@ -27,24 +27,24 @@ output$glossary <- renderDataTable({
     "System Performance Filters",
     "Universal Filters",
     "Filters that affect all system performance charts. These filters are Household 
-    Type, Level of Detail, Project Type Group, and Gender and Race/Ethnicity
+    Type, Level of Detail, Project Type Group, and Race/Ethnicity
     Methodology Type.",
     
     "System Performance Filters",
     "Demographic Filters",
     "Filters that only affect the System Flow and Client System Status charts. 
-    These filters are Age, Veteran Status, Gender, and Race/Ethnicity.",
+    These filters are Age, Veteran Status, and Race/Ethnicity.",
     
     "System Performance Filters",
     "Household Type",
     "A single-select universal filter. Eva allows users to filter system performance 
-    data by three main household types: Adult Only, Adult Child, and Child Only. 
-    Household categorization is based on the age of household members on the first 
-    day of the report period (or at entry, if later). Eva also allows users to look 
-    at subcategories of household types for Youth and Young Adults.
-    Households may be counted in more than one household type. For example, a
-    16-year-old parent with a 1-year-old child would fall into the Child Only
-    and Youth and Young Adult household types.",
+    data by three main household types: Adult Only, Adult Child, and Child Only. Eva also allows 
+    users to look at subcategories of these household types: Youth and Young Adults, 
+    Adult Only 18-24, and Parenting Young Adult. Thus, households may be counted in more than 
+    one household type. For example, a 16-year-old parent with a 1-year-old child would fall 
+    into both the Child Only and Youth and Young Adult household types. Household type is 
+    determined based on the ages of all household members as of the entry date of their 
+    earliest enrollment included in the report period.",
     
     "System Performance Filters",
     "All Households",
@@ -133,27 +133,27 @@ output$glossary <- renderDataTable({
     Entry, and Other.",
     
     "System Performance Filters",
-    "Gender and Race/Ethnicity Methodology Type",
+    "Race/Ethnicity Methodology Type",
     "A single-select universal filter. Eva allows users to choose the way Eva
-    organizes system performance data when filtering by gender and race/ethnicity
+    organizes system performance data when filtering by race/ethnicity
     demographics with possible overlapping groupings, or methodology types:
     Method 1 (clients are only counted in one category) or Method 2 (clients can
     be counted in more than one category).",
     
     "System Performance Filters",
     "Method 1",
-    "A Methodology Type selection where each client is counted in only one gender 
-    category and only one race/ethnicity category as well as being included in the 
-    \"All Genders\" and \"All Races/Ethnicities\" selections. For example, a client 
+    "A Methodology Type selection where each client is counted in only one 
+    race/ethnicity category as well as being included in the 
+    \"All Races/Ethnicities\" selections. For example, a client 
     that reported as (1) Middle Eastern or North African, (2) Black, African
     American, or African, and (3) Hispanic/Latina/e/o would be counted under
     \"Multi-Racial & Hispanic/Latina/e/o,\" but no other race/ethnicity categories.",
     
     "System Performance Filters",
     "Method 2",
-    "A Methodology Type selection where each client may be counted in multiple gender 
-    categories and multiple race/ethnicity categories as well as being included in 
-    the \"All Genders\" and \"All Races/Ethnicities\" selections. For example, a client 
+    "A Methodology Type selection where each client may be counted in multiple 
+    race/ethnicity categories as well as being included in 
+    the \"All Races/Ethnicities\" selections. For example, a client 
     that reported as (1) Middle Eastern or North African, (2) Black, African American, 
     or African, and (3) Hispanic/Latina/e/o would be counted under \"Middle Eastern 
     or North African,\" \"Black, African American, or African,\" 
@@ -162,14 +162,10 @@ output$glossary <- renderDataTable({
     "System Performance Filters",
     "Age",
     "A multi-select demographic filter. Eva allows users to filter system performance 
-    data by age group. Eva calculates age based on a client’s date of birth and 
-    their enrollment entry date. This is the client’s \"age at enrollment entry,\" 
-    and the number is rounded down to the whole number (i.e., 17.9 would become 17). 
-    For clients with multiple enrollments within the report period, Eva sets 
-    the client’s age to be the oldest \"age at enrollment entry.\" Age groups included 
+    data by age group. Age group is determined based on the client’s age as of the entry 
+    date of their last enrollment included in the report period. Age groups included 
     are: 0 to 12, 13 to 17, 18 to 21, 22 to 24, 25 to 34, 35 to 44, 45 to 54, 55 
-    to 64, 65 to 74, 75 and older, and unknown. Users can select multiple age groups 
-    to filter by.",
+    to 64, 65 to 74, 75 and older, and unknown.",
     
     "System Performance Filters",
     "All Statuses",
@@ -196,98 +192,9 @@ output$glossary <- renderDataTable({
     collected\" in HMIS.",
     
     "System Performance Filters",
-    "Gender (Method 1)",
-    "A single-select demographic filter. Eva allows users to filter system performance 
-    by gender categories. These categories are dependent on the Gender and Race/Ethnicity 
-    Methodology Type selection. For this method, each person is only counted in
-    one gender category as well as being included in the \"All Genders\" selection.",
-    
-    "System Performance Filters",
-    "All Genders",
-    "Includes all clients, regardless of the gender they identified as in HMIS, 
-    as well as people whose gender is categorized as Unknown. This Gender filter 
-    selection is available regardless of the Methodology Type selected.",
-    
-    "System Performance Filters",
-    "Gender expansive, not transgender",
-    "Includes all clients who identified as Culturally Specific Identity
-    (e.g., Two-Spirit), Different Identity, Non-Binary, or Questioning in HMIS.
-    This includes people that identified as one of those genders alone or in
-    combination with any other gender category, except Transgender. Also included
-    here are clients who identified as both Woman (Girl, if child) and Man (Boy,
-    if child). This Gender filter selection is only available when Method 1 is
-    selected.",
-    
-    "System Performance Filters",
-    "Man (Boy, if child) alone",
-    "Includes all clients who selected Man (Boy, if child) and no other gender. 
-    This Gender filter selection is only available when Method 1 is selected.",
-    
-    "System Performance Filters",
-    "Transgender, alone or in combination",
-    "Includes clients who identified as Transgender. This includes clients who 
-    identified as Transgender alone or in combination with any other gender categories. 
-    This Gender filter selection is only available when Method 1 is selected.",
-    
-    "System Performance Filters",
-    "Woman (Girl, if child) alone",
-    "Includes all clients who identified as Woman (Girl, if child) and no other 
-    gender. This Gender filter selection is only available when Method 1 is
-    selected.",
-    
-    "System Performance Filters",
-    "Unknown Gender",
-    "Includes all clients who did not identify as a specific gender response and 
-    were recorded as client doesn't know, client prefers not to answer, or data 
-    was not collected. This option is not available for users to select on its own. 
-    Clients with unknown gender are included within the All Genders filter selection.",
-    
-    "System Performance Filters",
-    "Gender (Method 2)",
-    "A single-select demographic filter. Eva allows users to filter system performance 
-    by gender categories. The categories are dependent on the Gender and Race/Ethnicity 
-    Methodology Type selection. When the Method 2 is selected, each person may 
-    be counted in multiple gender categories.",
-    
-    "System Performance Filters",
-    "Gender expansive, including transgender",
-    "Includes all clients who identified as Culturally Specific Identity (e.g., Two-Spirit), 
-    Different Identity, Non-Binary, Questioning, or Transgender in HMIS. This includes 
-    clients who identified as one of those genders alone or in combination with 
-    any other gender. Also included here are clients who identified as both Woman 
-    (Girl, if child) and Man (Boy, if child). This Gender filter selection is only 
-    available when Method 2 is selected.",
-    
-    "System Performance Filters",
-    "Man (Boy, if child) alone or in combination",
-    "Includes all clients who identified as Man (Boy, if child) in HMIS. This includes 
-    clients who identified as Man (Boy, if child) alone or in combination with any 
-    other gender. This Gender filter selection is only available when Method 2
-    is selected.",
-    
-    "System Performance Filters",
-    "Non-Binary alone or in combination",
-    "Includes all clients who identified as Non-Binary in HMIS. This includes clients 
-    who identified as Non-Binary alone or in combination with any other gender. 
-    This Gender filter selection is only available when Method 2 is selected.",
-    
-    "System Performance Filters",
-    "Only Woman (Girl, if child) OR Only Man (Boy, if child)",
-    "Includes all clients who identified as Woman (Girl, if child) or Man (Boy, if child) 
-    in HMIS and no other genders. This Gender filter selection is only available 
-    when Method 2 is selected.",
-    
-    "System Performance Filters",
-    "Woman (Girl, if child) alone or in combination",
-    "Includes all clients who identified as Woman (Girl, if child) in HMIS. 
-    This includes clients who identified as Woman (Girl, if child) alone or in 
-    combination with any other gender. This Gender filter selection is only available 
-    when Method 2 is selected.",
-    
-    "System Performance Filters",
     "Race/Ethnicity (Method 1)",
     "A single-select demographic filter. Eva allows users to filter system performance 
-    by race/ethnicity categories. These categories are dependent on the Gender and 
+    by race/ethnicity categories. These categories are dependent on the 
     Race/Ethnicity Methodology Type selection. This filter has two sections: Detailed 
     and Summarized. Each section has different race/ethnicity categories for users 
     to choose from. The Detailed section lists all race/ethnicity categories on 
@@ -415,7 +322,7 @@ output$glossary <- renderDataTable({
     "Race/Ethnicity (Method 2)",
     "A single-select demographic filter. Eva allows users to filter system
     performance by race/ethnicity categories. These categories are dependent on
-    the Gender and Race/Ethnicity Methodology Type selection. This filter has
+    the Race/Ethnicity Methodology Type selection. This filter has
     two sections: Detailed and Summarized. Each section has different
     race/ethnicity categories for users to choose from. The Detailed section
     lists all race/ethnicity categories on their own. The Summarized section

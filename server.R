@@ -10,12 +10,14 @@ function(input, output, session) {
     Export <- reactiveVal(),
     Project0 <- reactiveVal(),
     Event <- reactiveVal(),
+    esnbn_nonexited <- reactiveVal(),
     meta_HUDCSV_Export_Start <- reactiveVal(),
     meta_HUDCSV_Export_End <- reactiveVal(),
     meta_HUDCSV_Export_Date <- reactiveVal(),
     overlap_details <- reactiveVal(),
     base_dq_data_func <- reactiveVal(),
     dq_main_df <- reactiveVal(),
+    services <- reactiveVal(),
     pdde_main <- reactiveVal(),
     valid_file <- reactiveVal(0), # from FSA. Most stuff is hidden unless valid == 1
     file_structure_analysis_main <- reactiveVal(),
@@ -38,6 +40,28 @@ function(input, output, session) {
   
   # glossary entries
   source("glossary.R", local = TRUE)
+
+  # Show upcoming maintenance pop-up prior to pushing to live
+  # e.g. "<p>Eva will be down for maintenance from 5:00 PM ET to 6:00 PM ET Thursday, March 27, 2025.</p>"
+  upcoming_maintenance_notification <- HTML("")
+  if(nchar(upcoming_maintenance_notification) > 1) {
+    showModal(
+      modalDialog(
+        upcoming_maintenance_notification,
+        title = "Upcoming Maintenance",
+        easyClose = TRUE
+      )
+    )
+  }
+  
+  # handle idle
+  session$userData$session_ended_by_idle_timeout <- FALSE
+  
+  observeEvent(input$session_idle, {
+    message("Session idle timeout detected for session: ", session$token)
+    session$userData$session_ended_by_idle_timeout <- TRUE
+    session$close()
+  })
   
   observe({
     req(session$clientData$url_search != "")
@@ -64,15 +88,6 @@ function(input, output, session) {
   seen_message <- reactiveValues() 
   
   demo_modal_closed <- reactiveVal()
-  
-  # syso_gender_cats <- reactive({
-  #   ifelse(
-  #     input$methodology_type == 1,
-  #     list(syso_gender_method1),
-  #     list(syso_gender_method2)
-  #   )[[1]]
-  # })
-  
 
   # log when user navigate to a tab
   observe({ 
@@ -194,7 +209,6 @@ function(input, output, session) {
             input$methodology_type
             input$syso_age
             input$syso_spec_pops
-            input$syso_gender
             input$syso_race_ethnicity
           }, {
             # System Inflow and Outflow data 
@@ -223,7 +237,7 @@ function(input, output, session) {
             sys_universe_ppl_flags(
               merge(
                 universe_ppl_flags(),
-                Client %>% select(PersonalID, !!gender_cols, !!race_cols), 
+                Client %>% select(PersonalID, !!race_cols), 
                 by="PersonalID"
               )
             )
@@ -242,7 +256,6 @@ function(input, output, session) {
           
           setProgress(detail = "Done!", value = 1)
           logToConsole("Done processing")
-          
           
           logMetadata(paste0("DEVOPS - Memory used after processing: ", sum(gc()[, 2])))
           logToConsole("Upload processing complete")
@@ -986,7 +999,12 @@ function(input, output, session) {
   source("system_status_server.R", local = TRUE)
   
   session$onSessionEnded(function() {
-    cat(paste0("Session ", session$token, " ended at ", Sys.time()))
-    logMetadata("Session Ended")
+    message(paste0("Session ", session$token, " ended at ", Sys.time()))
+    gc()
+    if (session$userData$session_ended_by_idle_timeout) {
+      logMetadata("Session ended due to idle timeout.")
+    } else {
+      logMetadata("Session ended unexpectedly.")
+    }
   })
 }

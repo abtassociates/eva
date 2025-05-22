@@ -66,14 +66,6 @@ base_dq_data <- Enrollment %>%
     White,
     MidEastNAfrican,
     HispanicLatinaeo,
-    Woman,
-    Man,
-    NonBinary,
-    Transgender,
-    CulturallySpecific,
-    DifferentIdentity,
-    Questioning,
-    GenderNone,
     VeteranStatus,
     ProjectTimeID,
     EnrollmentCoC,
@@ -158,17 +150,6 @@ dkr_race <- base_dq_data %>%
   filter(RaceNone %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 63) %>%
   select(all_of(vars_we_want))
-
-dkr_gender <- base_dq_data %>%
-  filter(GenderNone %in% c(dkr_dnc)) %>%
-  merge_check_info(checkIDs = 65) %>%
-  select(all_of(vars_we_want))
-
-# missing_gender <- base_dq_data %>%
-#   filter(Woman + Man + NonBinary + Transgender + CulturallySpecific +
-#            DifferentIdentity + Questioning == 0) %>%
-#   merge_check_info(checkIDs = 38) %>%
-#   select(all_of(vars_we_want))
 
 # missing_veteran_status <- base_dq_data %>%
 #   filter(
@@ -320,9 +301,11 @@ missing_LoS <- base_dq_data %>%
   select(all_of(vars_prep),
          AgeAtEntry,
          RelationshipToHoH,
-         LengthOfStay) %>%
+         LengthOfStay,
+         LivingSituation) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
-           (is.na(LengthOfStay))) %>%
+           (is.na(LengthOfStay)) &
+           !(LivingSituation %in% homeless_livingsituation)) %>%
   merge_check_info(checkIDs = 26) %>%
   select(all_of(vars_we_want))
 
@@ -455,7 +438,7 @@ missing_living_situation <- base_dq_data %>%
            # not req'd prior to this
            ProjectType %in% c(
              th_project_type,
-             psh_project_types,
+             psh_oph_project_types,
              sso_project_type,
              hp_project_type,
              rrh_project_type) &
@@ -853,8 +836,8 @@ missing_cls_subsidy <- base_dq_data %>%
 # day they moved in. So they're excused from this prior to Move In Date's existence.
 future_ees <- base_dq_data %>%
   filter(EntryDate > DateCreated &
-           (!ProjectType %in% psh_project_types |
-              (ProjectType %in% psh_project_types & 
+           (!ProjectType %in% psh_oph_project_types |
+              (ProjectType %in% psh_oph_project_types & 
                   EntryDate >= hc_psh_started_collecting_move_in_date
               )))  %>%
   merge_check_info(checkIDs = 75) %>%
@@ -1133,9 +1116,9 @@ overlap_dt[
   !is.na(PreviousEnrollmentID) &
   !(
     (ProjectType == rrh_project_type &
-       PreviousProjectType %in% psh_project_types) |
+       PreviousProjectType %in% psh_oph_project_types) |
       (PreviousProjectType == rrh_project_type &
-         ProjectType %in% psh_project_types)
+         ProjectType %in% psh_oph_project_types)
   )
 ]
 
@@ -1261,10 +1244,7 @@ overlap_dt <- merge(
   overlap_dt,
   base_dq_data_dt[, c(vars_prep, "HouseholdType"), with = FALSE], 
   by = "EnrollmentID"
-)[
-  # Recode ProjectType to a more readable version
-  , ProjectType := project_type(ProjectType)
-]
+)
 
 # For the Overlap Details tab of the export
 # we want the same set of details for the overlapping enrollment (i.e. the "previous")
@@ -1304,7 +1284,10 @@ col_order <- get_overlap_col_order()
 overlap_details(
   # Rename columns for previous enrollment
   merge(
-    overlap_dt,
+    qDT(overlap_dt)[
+      # Recode ProjectType to a more readable version
+      , ProjectType := project_type(ProjectType)
+    ],
     base_dq_data_dt[
       , setNames(.SD, paste0("Previous", names(.SD)))
       , .SDcols = c(vars_prep, "HouseholdType")
@@ -1672,7 +1655,6 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       dkr_client_veteran_wars,
       dkr_destination,
       dkr_dob,
-      dkr_gender,
       dkr_living_situation,
       dkr_LoS,
       dkr_months_times_homeless,
@@ -1707,7 +1689,6 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
       missing_dob,
       # missing_dob_dataquality,
       missing_enrollment_coc,
-      # missing_gender,
       missing_health_insurance_entry,
       missing_health_insurance_exit,
       missing_income_entry,
@@ -1771,3 +1752,4 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
    
 base_dq_data_func(base_dq_data)
 dq_main_df(dq_main)
+services(Services)

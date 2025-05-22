@@ -477,8 +477,8 @@ a:hover {
   padding-right: 10px;
 }
 
-#system_composition_selections label.checkbox-inline:nth-child(2),
-#system_composition_selections label.checkbox-inline:nth-child(4) {
+#system_composition_selections label.checkbox-inline:nth-child(1),
+#system_composition_selections label.checkbox-inline:nth-child(3) {
   border-right: 1px solid lightgray;
 }
 
@@ -548,4 +548,9 @@ a:hover {
   color: white;
   background-color: #C2462E;
   border-color: #C2462E;
+}
+
+/*Hide "Eva has crashed..." pop-up when timeout occurs*/
+body.idle-timeout-occurred #ss-connect-dialog {
+  display: none !important;
 }
