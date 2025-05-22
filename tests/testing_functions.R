@@ -335,7 +335,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$set_inputs(sys_inflow_outflow_subtabs = "Summary Chart")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-summary-w-AO-Residential",
+      name = "sys-flow-summary-w-AO-Residential-PH",
       input = sys_inflow_outflow_inputs,
       output = sys_inflow_outflow_summary_outputs
     )
@@ -348,7 +348,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$set_inputs(sys_inflow_outflow_subtabs = "Month-by-Month Chart")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-mbm-w-AO-Residential",
+      name = "sys-flow-mbm-w-AO-Residential-PH",
       input = sys_inflow_outflow_inputs,
       output = c(
         sys_inflow_outflow_mbm_outputs,
@@ -360,7 +360,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$set_inputs(mbm_fth_filter = "First-Time Homeless")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-fth-w-AO-Residential",
+      name = "sys-flow-fth-w-AO-Residential-PH",
       input = sys_inflow_outflow_inputs,
       output = c(
         sys_inflow_outflow_mbm_outputs,
@@ -372,7 +372,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$set_inputs(mbm_fth_filter = "Inactive")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-inactive-w-AO-Residential",
+      name = "sys-flow-inactive-w-AO-Residential-PH",
       input = sys_inflow_outflow_inputs,
       output = c(
         sys_inflow_outflow_mbm_outputs,
