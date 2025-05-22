@@ -297,7 +297,8 @@ page_navbar(
         inputId = "currentProviderList",
         choices = NULL,
         options = pickerOptions(liveSearch = TRUE,
-                                liveSearchStyle = 'contains')
+                                liveSearchStyle = 'contains', 
+                                container = 'body')
       )
     ),
     
@@ -455,7 +456,8 @@ page_navbar(
           inputId = "orgList",
           choices = NULL,
           options = pickerOptions(liveSearch = TRUE,
-                                  liveSearchStyle = 'contains'),
+                                  liveSearchStyle = 'contains',
+                                  container = 'body'),
           width = "100%",
           selected = "none"
         )
