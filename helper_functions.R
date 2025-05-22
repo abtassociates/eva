@@ -453,10 +453,15 @@ reset_app <- function(session) {
 # essentially resets the app
 reset_session_vars <- function(session) {
   for(v in sessionVars) {
-    if(v %in% c("valid_file", "initially_valid_import")) session$userData[[v]] <- reactiveVal(0) 
-    # FSA main needs to be a reactiveVal so the inputs that display only if there are issues can be dynamic
-    else if(v == "file_structure_analysis_main") session$userData[[v]] <- reactiveVal(NULL)
-    else session$userData[[v]] <- NULL
+    rv <- session$userData[[v]]
+    if(v %in% c("valid_file", "initially_valid_import", "file_structure_analysis_main")) {
+      val <- if(v == "file_structure_analysis_main") NULL else 0
+      if(is.null(session$userData[[v]])) 
+        session$userData[[v]] <- reactiveVal(val) 
+      else 
+        session$userData[[v]](val)
+    } else 
+      session$userData[[v]] <- NULL
   }
 }
 
