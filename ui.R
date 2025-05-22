@@ -291,7 +291,6 @@ page_navbar(
     ),
     
     card(
-      class = 'overflow_card',
       card_header("Select Project"),
       pickerInput(
         label = NULL,
