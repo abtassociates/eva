@@ -287,7 +287,14 @@ logSessionData <- function(session) {
 }
 
 logToConsole <- function(session, msg) {
-  # browser()
+  message(paste0(
+    session$token, "  ",  
+    Sys.time(), "  ",
+    msg
+  ))
+}
+
+logToConsoleFull <- function(session, msg) {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
