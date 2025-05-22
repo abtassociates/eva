@@ -164,10 +164,14 @@ output$client_level_download_btn <- downloadHandler(
 
 # Client-level download
 get_client_level_export <- reactive({
-  merge(
-    period_specific_data()[["Full"]],
+  join(
+    join(
+      period_specific_data()[["Full"]],
+      session$userData$client_categories,
+      on = "PersonalID"
+    ),
     session$userData$Client %>% select(PersonalID, !!race_cols), 
-    by="PersonalID"
+    on="PersonalID"
   )
 })
 
