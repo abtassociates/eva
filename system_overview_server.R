@@ -201,11 +201,8 @@ sys_export_filter_selections <- function() {
 # Set race/ethnicity filter options based on methodology type selection
 # Set special populations options based on level of detail selection
 syso_race_ethnicity_cats <- function(methodology = 1){
-  ifelse(
-    methodology == 1,
-    syso_race_ethnicity_method1,
-    syso_race_ethnicity_method2
-  )
+  if(methodology == 1) syso_race_ethnicity_method1 
+  else syso_race_ethnicity_method2
 }
 
 # PowerPoint Export -------------------------------------------------------

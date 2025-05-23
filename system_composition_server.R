@@ -317,7 +317,8 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     select(
       PersonalID, 
       unname(var_cols[[selections[1]]]), 
-      unname(var_cols[[selections[2]]]))
+      unname(var_cols[[selections[2]]])
+    )
   
   validate(
     need(
@@ -741,8 +742,11 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
-  cols_to_keep <- colnames(session$userData$client_categories)
   unique(
-    period_specific_data()[["Full"]][, ..cols_to_keep]
+    join(
+      period_specific_data()[["Full"]][, .(PersonalID)],
+      session$userData$client_categories,
+      on = "PersonalID"
+    )
   )
 })
