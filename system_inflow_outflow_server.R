@@ -1155,10 +1155,10 @@ sys_inflow_outflow_export_info <- function() {
 
 # Tabular/Excel Export --------------------------------------------------------
 ## Monthly Export function------
-sys_export_monthly_df <- function() {
+sys_export_monthly_counts <- function() {
   df_monthly <- sys_inflow_outflow_monthly_chart_data()
   
-  monthly_counts <- rbind(
+  rbind(
     df_monthly[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups, Detail = InflowTypeDetail)] %>%
       fmutate(Detail = fct_relabel(
         Detail, 
@@ -1196,30 +1196,6 @@ sys_export_monthly_df <- function() {
       fill = 0,
       how = "wider"
     )
-  
-  # add total row
-  totals_monthly <- monthly_counts %>%
-    fsubset(PlotFillGroups %in% c("Inflow", "Outflow")) %>%
-    fselect(-Detail) %>% 
-    fgroup_by(PlotFillGroups) %>%
-    fsum() %>%
-    fmutate(Detail = factor(paste0("Total ", PlotFillGroups))) 
-  
-  monthly_change <- qDT(as.list(
-    fsum(monthly_counts[Detail == "Active at Start: Homeless" | PlotFillGroups == "Inflow", !c("Detail")]) -
-      fsum(monthly_counts[Detail == "Active at End: Housed" | PlotFillGroups == "Outflow", !c("Detail")]) 
-  )) %>%
-    frename(PlotFillGroups = "Detail") %>%
-    fmutate(Detail = factor("Monthly Change"))
-  
-  bind_rows(monthly_counts, totals_monthly, monthly_change) %>%
-    fmutate(Detail = fct_relevel(
-      Detail, 
-      "Total Inflow", 
-      after = 7
-    )) %>%
-    roworder(Detail) %>%
-    fselect(-PlotFillGroups)
 }
 
 ## Sys Inflow/Outflow Download Handler ------
@@ -1234,11 +1210,38 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
       fsummarise(Detail = paste0("Total ", Summary[1]),
                  N = fsum(N, na.rm = TRUE))
 
+    monthly_counts <- sys_export_monthly_counts()
+    
+    # add total row
+    totals_monthly <- monthly_counts %>%
+      fsubset(PlotFillGroups %in% c("Inflow", "Outflow")) %>%
+      fselect(-Detail) %>% 
+      fgroup_by(PlotFillGroups) %>%
+      fsum() %>%
+      frename(PlotFillGroups = "Detail") %>%
+      fmutate(Detail = factor(paste0("Total ", Detail)))
+    
+    monthly_change <- qDT(as.list(
+      fsum(monthly_counts[Detail == "Active at Start: Homeless" | PlotFillGroups == "Inflow", !c("Detail")]) -
+        fsum(monthly_counts[Detail == "Active at End: Housed" | PlotFillGroups == "Outflow", !c("Detail")]) 
+    )) %>%
+      frename(PlotFillGroups = "Detail") %>%
+      fmutate(Detail = factor("Monthly Change"))
+    
+    monthly_averages <- bind_rows(monthly_change, totals_monthly)[
+      , 
+      .(Value = as.character(round(rowMeans(.SD), 0))),
+      by = c("Chart" = "Detail")
+    ][, Chart := gsub("Total ", "", paste0("Average ", Chart))]
+    
     write_xlsx(
       list(
         "System Flow Metadata" = sys_export_summary_initial_df() %>%
-          bind_rows(sys_export_filter_selections()) %>%
-          bind_rows(sys_inflow_outflow_export_info()) %>%
+          bind_rows(
+            sys_export_filter_selections(),
+            sys_inflow_outflow_export_info(),
+            monthly_averages
+          ) %>%
           mutate(Value = replace_na(Value, 0)) %>%
           rename("System Flow" = Value),
         "System Flow Data" = bind_rows(df, totals_df) %>%
@@ -1248,7 +1251,15 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
             "Detail Category" = Detail,
             "Count" = N
           ),
-        "System Flow Data Monthly" = sys_export_monthly_df()
+        "System Flow Data Monthly" = monthly_counts %>%
+          bind_rows(totals_monthly, monthly_change) %>%
+          fmutate(Detail = fct_relevel(
+            Detail, 
+            "Total Inflow", 
+            after = 7
+          )) %>%
+          roworder(Detail) %>%
+          fselect(-PlotFillGroups)
       ),
       path = file,
       format_headers = FALSE,
