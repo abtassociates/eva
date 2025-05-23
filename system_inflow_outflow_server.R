@@ -1154,6 +1154,75 @@ sys_inflow_outflow_export_info <- function() {
 }
 
 # Tabular/Excel Export --------------------------------------------------------
+## Monthly Export function------
+sys_export_monthly_df <- function() {
+  df_monthly <- sys_inflow_outflow_monthly_chart_data()
+  
+  monthly_counts <- rbind(
+    df_monthly[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups, Detail = InflowTypeDetail)] %>%
+      fmutate(Detail = fct_relabel(
+        Detail, 
+        function(x) if_else(
+          x %in% active_at_levels, 
+          paste0("Active at Start: ", x), 
+          paste0("Inflow: ", x)
+        )
+      )),
+    df_monthly[, .(PersonalID, month, PlotFillGroups = OutflowPlotFillGroups, Detail = OutflowTypeDetail)] %>%
+      fmutate(Detail = fct_relabel(
+        Detail, 
+        function(x) if_else(
+          x %in% active_at_levels, 
+          paste0("Active at End: ", x), 
+          paste0("Outflow: ", x)
+        )
+      ))
+  ) %>%
+    fsubset(!Detail %in% c(
+      "Inflow: Continuous at Start",
+      "Outflow: Continuous at End", 
+      "Inflow: Unknown",
+      "Active at Start: Housed",
+      "Active at End: Homeless"
+    )) %>%
+    funique() %>%
+    fgroup_by(month, PlotFillGroups, Detail) %>%
+    fsummarise(Count = GRPN()) %>%
+    roworder(month, PlotFillGroups, Detail) %>%
+    pivot(
+      ids = c("PlotFillGroups", "Detail"),
+      values = "Count",
+      names = "month",
+      fill = 0,
+      how = "wider"
+    )
+  
+  # add total row
+  totals_monthly <- monthly_counts %>%
+    fsubset(PlotFillGroups %in% c("Inflow", "Outflow")) %>%
+    fselect(-Detail) %>% 
+    fgroup_by(PlotFillGroups) %>%
+    fsum() %>%
+    fmutate(Detail = factor(paste0("Total ", PlotFillGroups))) 
+  
+  monthly_change <- qDT(as.list(
+    fsum(monthly_counts[Detail == "Active at Start: Homeless" | PlotFillGroups == "Inflow", !c("Detail")]) -
+      fsum(monthly_counts[Detail == "Active at End: Housed" | PlotFillGroups == "Outflow", !c("Detail")]) 
+  )) %>%
+    frename(PlotFillGroups = "Detail") %>%
+    fmutate(Detail = factor("Monthly Change"))
+  
+  bind_rows(monthly_counts, totals_monthly, monthly_change) %>%
+    fmutate(Detail = fct_relevel(
+      Detail, 
+      "Total Inflow", 
+      after = 7
+    )) %>%
+    roworder(Detail) %>%
+    fselect(-PlotFillGroups)
+}
+
+## Sys Inflow/Outflow Download Handler ------
 output$sys_inflow_outflow_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Flow Report - "),
   content = function(file) {
@@ -1164,7 +1233,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
       fgroup_by(Summary) %>% 
       fsummarise(Detail = paste0("Total ", Summary[1]),
                  N = fsum(N, na.rm = TRUE))
-    
+
     write_xlsx(
       list(
         "System Flow Metadata" = sys_export_summary_initial_df() %>%
@@ -1178,7 +1247,8 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
             "Summary Category" = Summary,
             "Detail Category" = Detail,
             "Count" = N
-          )
+          ),
+        "System Flow Data Monthly" = sys_export_monthly_df()
       ),
       path = file,
       format_headers = FALSE,
