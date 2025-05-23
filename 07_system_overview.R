@@ -1,7 +1,7 @@
-logToConsole("Running system overview")
+logToConsole(session, "Running system overview")
 
 # Age ---------------------------------------------------------------------
-EnrollmentAdjustAge <- as.data.table(EnrollmentAdjust)[
+EnrollmentAdjustAge <- setDT(EnrollmentAdjust)[
   , AgeAtEntry := fifelse(is.na(AgeAtEntry), -1, AgeAtEntry)
 ]
 
@@ -34,6 +34,230 @@ system_person_ages <- EnrollmentAdjustAge[
       "Unknown"
     ))
   ][, .(PersonalID, MostRecentAgeAtEntry = AgeAtEntry, AgeCategory)]
+
+
+# Client-level flags ------------------------------------------------------
+# will help us categorize people for filtering
+
+session$userData$client_categories <- as.data.table(Client %>%
+  left_join(system_person_ages, join_by(PersonalID)) %>%
+  select(PersonalID,
+         all_of(race_cols),
+         VeteranStatus,
+         AgeCategory
+  ) %>%
+  mutate(
+    VeteranStatus = if_else(VeteranStatus == 1 &
+                              !is.na(VeteranStatus), 1, 0),
+    ## Race/Ethnicity
+    # flattening the values, eliminating nulls
+    AmIndAKNative = if_else(AmIndAKNative == 1 & !is.na(AmIndAKNative), 1, 0),
+    Asian = if_else(Asian == 1 & !is.na(Asian), 1, 0),
+    BlackAfAmerican = if_else(BlackAfAmerican == 1 & !is.na(BlackAfAmerican), 1, 0),
+    NativeHIPacific = if_else(NativeHIPacific == 1 & !is.na(NativeHIPacific), 1, 0),
+    White = if_else(White == 1 & !is.na(White), 1, 0),
+    MidEastNAfrican = if_else(MidEastNAfrican == 1 & !is.na(MidEastNAfrican), 1, 0),
+    HispanicLatinaeo = if_else(HispanicLatinaeo == 1 & !is.na(HispanicLatinaeo), 1, 0),
+    # exclusive logic group 1
+    AmIndAKNativeAloneMethod1Detailed = 
+      if_else(AmIndAKNative == 1 &
+                Asian +
+                BlackAfAmerican +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican +
+                HispanicLatinaeo == 0, 1, 0),
+    AmIndAKNativeLatineMethod1Detailed = 
+      if_else(AmIndAKNative == 1 & HispanicLatinaeo == 1 &
+                Asian +
+                BlackAfAmerican +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican == 0, 1, 0),
+    AsianAloneMethod1Detailed =
+      if_else(Asian == 1 &
+                AmIndAKNative +
+                BlackAfAmerican +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican +
+                HispanicLatinaeo == 0, 1, 0),
+    AsianLatineMethod1Detailed =
+      if_else(Asian == 1 & HispanicLatinaeo == 1 &
+                AmIndAKNative +
+                BlackAfAmerican +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican == 0, 1, 0),
+    BlackAfAmericanAloneMethod1Detailed =
+      if_else(BlackAfAmerican == 1 &
+                AmIndAKNative +
+                Asian +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican +
+                HispanicLatinaeo == 0, 1, 0),
+    BlackAfAmericanLatineMethod1Detailed =
+      if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1 &
+                AmIndAKNative +
+                Asian +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican == 0, 1, 0),
+    LatineAloneMethod1Detailed =
+      if_else(HispanicLatinaeo == 1 &
+                AmIndAKNative +
+                Asian +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican +
+                BlackAfAmerican == 0, 1, 0),
+    MidEastNAfricanAloneMethod1Detailed =
+      if_else(MidEastNAfrican == 1 &
+                AmIndAKNative +
+                Asian +
+                NativeHIPacific +
+                White +
+                HispanicLatinaeo +
+                BlackAfAmerican == 0, 1, 0),
+    MidEastNAfricanLatineMethod1Detailed =
+      if_else(MidEastNAfrican == 1 & HispanicLatinaeo == 1 &
+                AmIndAKNative +
+                Asian +
+                NativeHIPacific +
+                White +
+                BlackAfAmerican == 0, 1, 0),
+    NativeHIPacificAloneMethod1Detailed =
+      if_else(NativeHIPacific == 1 &
+                AmIndAKNative +
+                Asian +
+                MidEastNAfrican +
+                White +
+                HispanicLatinaeo +
+                BlackAfAmerican == 0, 1, 0),
+    NativeHIPacificLatineMethod1Detailed =
+      if_else(NativeHIPacific == 1 & HispanicLatinaeo == 1 &
+                AmIndAKNative +
+                Asian +
+                MidEastNAfrican +
+                White +
+                BlackAfAmerican == 0, 1, 0),
+    WhiteAloneMethod1Detailed =
+      if_else(White == 1 &
+                AmIndAKNative +
+                Asian +
+                MidEastNAfrican +
+                NativeHIPacific +
+                HispanicLatinaeo +
+                BlackAfAmerican == 0, 1, 0),
+    WhiteLatineMethod1Detailed =
+      if_else(White == 1 & HispanicLatinaeo == 1 &
+                AmIndAKNative +
+                Asian +
+                MidEastNAfrican +
+                NativeHIPacific +
+                BlackAfAmerican == 0, 1, 0),
+    MultipleNotLatineMethod1Detailed =
+      if_else(HispanicLatinaeo == 0 &
+                AmIndAKNative +
+                Asian +
+                MidEastNAfrican +
+                NativeHIPacific +
+                White +
+                BlackAfAmerican > 1, 1, 0),
+    MultipleLatineMethod1Detailed =
+      if_else(HispanicLatinaeo == 1 &
+                AmIndAKNative +
+                Asian +
+                MidEastNAfrican +
+                NativeHIPacific +
+                White +
+                BlackAfAmerican > 1, 1, 0),
+    RaceEthnicityUnknown =
+      if_else(
+        HispanicLatinaeo +
+          AmIndAKNative +
+          Asian +
+          MidEastNAfrican +
+          NativeHIPacific +
+          White +
+          BlackAfAmerican == 0,
+        1,
+        0
+      ),
+    # Data quality column to check for mutual exclusivity
+    DQMethod1DetailedRaceEth =
+      AmIndAKNativeAloneMethod1Detailed +
+      AmIndAKNativeLatineMethod1Detailed +
+      AsianAloneMethod1Detailed +
+      AsianLatineMethod1Detailed +
+      BlackAfAmericanAloneMethod1Detailed +
+      BlackAfAmericanLatineMethod1Detailed +
+      LatineAloneMethod1Detailed +
+      MidEastNAfricanAloneMethod1Detailed +
+      MidEastNAfricanLatineMethod1Detailed +
+      NativeHIPacificAloneMethod1Detailed +
+      NativeHIPacificLatineMethod1Detailed +
+      WhiteAloneMethod1Detailed +
+      WhiteLatineMethod1Detailed +
+      MultipleNotLatineMethod1Detailed +
+      MultipleLatineMethod1Detailed +
+      RaceEthnicityUnknown, # all should equal 1
+    # exclusive logic group 2
+    BILPOCMethod1Summarized = if_else(
+      AmIndAKNative +
+        Asian +
+        MidEastNAfrican +
+        NativeHIPacific +
+        HispanicLatinaeo +
+        BlackAfAmerican > 0, 1, 0
+    ),
+    WhiteMethod1Summarized = if_else(
+      White == 1 &
+        AmIndAKNative +
+        Asian +
+        MidEastNAfrican +
+        NativeHIPacific +
+        HispanicLatinaeo +
+        BlackAfAmerican == 0, 1, 0
+    ),
+    # Data quality check for exclusive group 2
+    DQRaceEthMethod1Summarized =
+      BILPOCMethod1Summarized +
+      WhiteMethod1Summarized +
+      RaceEthnicityUnknown, # all rows should equal 1
+    # Method2 logic group 1
+    AmIndAKNativeMethod2Detailed = if_else(AmIndAKNative == 1, 1, 0),
+    AsianMethod2Detailed = if_else(Asian == 1, 1, 0),
+    BlackAfAmericanMethod2Detailed = if_else(BlackAfAmerican == 1, 1, 0),
+    LatineMethod2Detailed = if_else(HispanicLatinaeo == 1, 1, 0),
+    MidEastNAfricanMethod2Detailed = if_else(MidEastNAfrican == 1, 1, 0),
+    NativeHIPacificMethod2Detailed = if_else(NativeHIPacific == 1, 1, 0),
+    WhiteMethod2Detailed = if_else(White == 1, 1, 0),
+    # catches missings, any methodology any group
+    # RaceEthnicityNone = if_else(
+    #   AmIndAKNative +
+    #     Asian +
+    #     BlackAfAmerican +
+    #     NativeHIPacific +
+    #     White +
+    #     MidEastNAfrican +
+    #     HispanicLatinaeo == 0, 1, 0),
+    # Method2 logic group 2
+    BlackAfAmericanLatineMethod2Summarized =
+      if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1, 1, 0),
+    LatineMethod2Summarized = if_else(HispanicLatinaeo == 1, 1, 0),
+    LatineAloneMethod2Summarized = if_else(
+      HispanicLatinaeo == 1 &
+        AmIndAKNative +
+        Asian +
+        NativeHIPacific +
+        White +
+        MidEastNAfrican +
+        BlackAfAmerican == 0, 1, 0
+    )) %>%
+  select(-all_of(race_cols))
+)
 
 # Data prep ---------------------------------------------------------------
 
@@ -74,8 +298,6 @@ enrollment_prep <- EnrollmentAdjustAge %>%
               select(OrganizationID, OrganizationName) %>%
               unique(),
             by = "OrganizationID") %>%
-  left_join(Client %>%
-              select(PersonalID, VeteranStatus), by = "PersonalID") %>%
   # left_join(HealthAndDV %>%
   #             filter(DataCollectionStage == 1) %>%
   #             select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
@@ -95,14 +317,9 @@ enrollment_prep <- EnrollmentAdjustAge %>%
 # preps household data to match the way we need the app to 
 
 hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
-  VeteranStatus = fifelse(VeteranStatus == 1 & !is.na(VeteranStatus), 1, 0),
   HoHAlready = fifelse(RelationshipToHoH == 1 & AgeAtEntry > 17, 1, 0)
-)][order(-HoHAlready, -VeteranStatus, -AgeAtEntry, PersonalID), 
-   `:=`
-   (
-     Sequence = seq_len(.N),
-     CorrectedHoH = ifelse(seq_len(.N) == 1, 1, 0)
-   ),
+)][order(-HoHAlready, -AgeAtEntry, PersonalID), 
+   CorrectedHoH := fifelse(seq_len(.N) == 1, 1, 0),
    by = .(HouseholdID, ProjectID)
 ][
   , .(EnrollmentID, CorrectedHoH)
@@ -127,1113 +344,323 @@ enrollment_prep_hohs <- enrollment_prep %>%
 # (^ also same granularity as EnrollmentAdjust)
 rm(hh_adjustments)
 
-
-# NbN prep ----------------------------------------------------------------
-
-nbn_enrollments_services <- Services %>%
-  filter(RecordType == 200) %>%
-  inner_join(
-    EnrollmentAdjust %>%
-      filter(ProjectType == es_nbn_project_type) %>%
-      select(EnrollmentID),
-    join_by(EnrollmentID)
-  ) %>%
-  # ^ limits shelter night services to enrollments associated to NbN shelters
-  mutate(
-    NbN15DaysBeforeReportStart =
-      between(DateProvided,
-              ReportStart() - days(15),
-              ReportStart()),
-    NbN15DaysAfterReportEnd =
-      between(DateProvided,
-              ReportEnd(),
-              ReportEnd() + days(15)),
-    NbN15DaysBeforeReportEnd =
-      between(DateProvided,
-              ReportEnd() - days(15),
-              ReportEnd())
-  )
-
-if(nbn_enrollments_services %>% nrow() > 0) nbn_enrollments_services <-
-  nbn_enrollments_services %>%
-  group_by(EnrollmentID) %>%
-  summarise(
-    NbN15DaysBeforeReportStart = max(NbN15DaysBeforeReportStart, na.rm = TRUE),
-    NbN15DaysAfterReportEnd = max(NbN15DaysAfterReportEnd, na.rm = TRUE),
-    NbN15DaysBeforeReportEnd = max(NbN15DaysBeforeReportEnd, na.rm = TRUE)) %>%
-  mutate(
-    NbN15DaysBeforeReportStart = replace_na(NbN15DaysBeforeReportStart, 0),
-    NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0),
-    NbN15DaysBeforeReportEnd = replace_na(NbN15DaysBeforeReportEnd, 0)
-  ) %>%
-  ungroup()
-
-nbn_enrollments_services <- nbn_enrollments_services %>%
-  select(EnrollmentID,
-         NbN15DaysBeforeReportStart,
-         NbN15DaysAfterReportEnd,
-         NbN15DaysBeforeReportEnd) %>%
-  filter(NbN15DaysBeforeReportStart == 1 |
-           NbN15DaysAfterReportEnd == 1 |
-           NbN15DaysBeforeReportEnd == 1)
-
-# homeless cls finder function --------------------------------------------
-
-homeless_cls_finder <- function(date, window = "before", days = 60) {
-  
-  plus_days <- if_else(window == "before", 0, days)
-  minus_days <- if_else(window == "after", 0, days)
-  
-  CurrentLivingSituation %>%
-    filter(
-      CurrentLivingSituation %in% homeless_livingsituation_incl_TH &
-        between(InformationDate,
-                date - days(minus_days),
-                date + days(plus_days))
-    ) %>%
-    pull(EnrollmentID) %>%
-    unique()
-}
-# Enrollment-level flags --------------------------------------------------
-# as much wrangling as possible without needing hhtype, project type, and level
-# of detail inputs
-
-# enrollment_categories <- enrollment_prep_hohs %>%
-#   mutate(
-#     ProjectTypeWeight = case_when(
-#       # speaks to presumed trustworthiness of data, not urgency
-#       ProjectType %in% ph_project_types &
-#         !is.na(MoveInDateAdjust) ~ 100,
-#       ProjectType %in% ph_project_types &
-#         is.na(MoveInDateAdjust) ~ 80,
-#       ProjectType %in% lh_residential_project_types ~ 60,
-#       ProjectType %in% non_res_project_types ~ 40,
-#       TRUE ~ 20
-#     ),
-#     lh_prior_livingsituation = !is.na(LivingSituation) &
-#       (
-#         LivingSituation %in% homeless_livingsituation_incl_TH |
-#           (
-#             LivingSituation %in% institutional_livingsituation &
-#               LOSUnderThreshold == 1 &
-#               PreviousStreetESSH == 1 &
-#               !is.na(LOSUnderThreshold) &
-#               !is.na(PreviousStreetESSH)
-#           )
-#       ),
-#     lh_at_entry =
-#       lh_prior_livingsituation == TRUE |
-#       ProjectType %in% lh_project_types,
-#     EnrolledHomeless =
-#       ProjectType %in% project_types_enrolled_homeless |
-#       lh_prior_livingsituation == TRUE,
-#     straddles_start =
-#       EntryDate <= ReportStart() &
-#       ExitAdjust >= ReportStart(),
-#     straddles_end =
-#       EntryDate <= ReportEnd() &
-#       ExitAdjust >= ReportEnd(),
-#     in_date_range =
-#       ExitAdjust >= ReportStart() &
-#       EntryDate <= ReportEnd(),
-#     # Domestic Violence - this is needed for the System Composition chart
-#     DomesticViolenceCategory = case_when(
-#       DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1 ~
-#         "DVFleeing",
-#       DomesticViolenceSurvivor == 1 &
-#         (is.na(CurrentlyFleeing) | CurrentlyFleeing != 1) ~
-#         "DVNotFleeing",
-#       TRUE ~
-#         "NotDV"
-#       )
-#   ) %>%
-#   filter(
-#     ReportStart() - years(2) <= ExitAdjust &
-#       ProjectType != hp_project_type &
-#       (ProjectType != ce_project_type |
-#          (ProjectType == ce_project_type &
-#           (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 90) |
-#              EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 90) |
-#               (
-#                 between(EntryDate, ReportStart() - days(90), ReportStart()) == TRUE &
-#                   lh_prior_livingsituation == TRUE
-#               ) |
-#               (
-#                 between(EntryDate, ReportEnd() - days(90), ReportEnd()) &
-#                   lh_prior_livingsituation == TRUE
-#               )
-#           )
-#       )) &
-#       (!ProjectType %in% c(out_project_type,
-#                           sso_project_type,
-#                           other_project_project_type,
-#                           day_project_type) |
-#          (ProjectType %in% c(out_project_type,
-#                              sso_project_type,
-#                              other_project_project_type,
-#                              day_project_type) &
-#             (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 60) |
-#                EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60) |
-#                (
-#                  between(EntryDate, ReportStart() - days(60), ReportStart()) == TRUE &
-#                    lh_prior_livingsituation == TRUE
-#                ) |
-#                (
-#                  between(EntryDate, ReportEnd() - days(60), ReportEnd()) == TRUE &
-#                    lh_prior_livingsituation == TRUE
-#                )
-#             )))
-#   ) %>%
-#   select(
-#     EnrollmentID,
-#     PersonalID,
-#     HouseholdID,
-#     EntryDate,
-#     MoveInDateAdjust,
-#     ExitDate,
-#     ExitAdjust,
-#     ProjectType,
-#     MostRecentAgeAtEntry,
-#     lh_prior_livingsituation,
-#     lh_at_entry,
-#     straddles_start,
-#     straddles_end,
-#     in_date_range,
-#     EnrolledHomeless,
-#     LivingSituation,
-#     LOSUnderThreshold,
-#     PreviousStreetESSH,
-#     Destination,
-#     AgeAtEntry,
-#     CorrectedHoH,
-#     DomesticViolenceCategory,
-#     HouseholdType,
-#     ProjectTypeWeight
-#   ) %>%
-#   group_by(PersonalID, straddles_start) %>%
-#   mutate(StraddlesStart = n(),
-#          MaxProjectTypeStart = max(ProjectTypeWeight)) %>%
-#   group_by(PersonalID, straddles_end) %>%
-#   mutate(StraddlesEnd = n(),
-#          MaxProjectTypeEnd = max(ProjectTypeWeight)) %>%
-#   group_by(PersonalID) %>%
-#   arrange(EntryDate, .by_group = TRUE) %>%
-#   mutate(
-#     InvolvedInOverlapStart = straddles_start == TRUE &
-#       StraddlesStart > 1,
-#     InvolvedInOverlapEnd = straddles_end == TRUE &
-#       StraddlesEnd > 1,
-#     ordinal = row_number(),
-#     days_to_next_entry =
-#       difftime(lead(EntryDate, order_by = EntryDate),
-#                ExitAdjust,
-#                units = "days"),
-#     days_since_previous_exit =
-#       difftime(EntryDate,
-#                lag(ExitAdjust, order_by = ExitAdjust),
-#                units = "days"),
-#     next_enrollment_project_type = lead(ProjectType),
-#     previous_enrollment_project_type = lag(ProjectType)
-#     ) %>%
-#   group_by(PersonalID, InvolvedInOverlapStart) %>%
-#   arrange(desc(ProjectTypeWeight), EntryDate, ExitAdjust,
-#           .by_group = TRUE) %>%
-#   mutate(RankOrderStartOverlaps = row_number()) %>%
-#   # getting rid of enrollments involved in an overlap across ReportStart that
-#   # didn't get picked as the eecr
-#   filter((InvolvedInOverlapStart == TRUE & RankOrderStartOverlaps == 1) |
-#            InvolvedInOverlapStart == FALSE) %>%
-#   group_by(PersonalID, InvolvedInOverlapEnd) %>%
-#   arrange(desc(ProjectTypeWeight), EntryDate, ExitAdjust,
-#           .by_group = TRUE) %>%
-#   mutate(RankOrderEndOverlaps = row_number()) %>%
-#   # getting rid of enrollments involved in an overlap across ReportEnd that
-#   # didn't get picked as the lecr
-#   filter((InvolvedInOverlapEnd == TRUE & RankOrderEndOverlaps == 1) |
-#            InvolvedInOverlapEnd == FALSE) %>%
-#   group_by(PersonalID, in_date_range) %>%
-#   arrange(EntryDate, ExitAdjust, .by_group = TRUE) %>%
-#   mutate(
-#     lecr = in_date_range == TRUE & max(ordinal) == ordinal,
-#     eecr = in_date_range == TRUE & min(ordinal) == ordinal,
-#     lookback = if_else(in_date_range == TRUE, 0, rev(row_number()))
-#   ) %>%
-#   ungroup() %>%
-#   select(-AgeAtEntry) %>%
-#   left_join(nbn_enrollments_services, join_by(EnrollmentID)) %>%
-#   mutate(NbN15DaysBeforeReportStart = replace_na(NbN15DaysBeforeReportStart, 0),
-#          NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0),
-#          NbN15DaysBeforeReportEnd = replace_na(NbN15DaysBeforeReportEnd, 0)) %>%
-#   arrange(EnrollmentID)
-
-# using data.table --------------------------------------------------------
-
+# Full Enrollment-level Data Prep ----------------------------------------------
+# **ProjectTypeWeight** helps determine eecr/lecr
+# **lh_prior_livingsituation** is used to define was_lh_at_start and was_lh_at_end
+# which are then used to select the EECR/LECR
+# throws out HP and enrollments outside Report window and 2 years prior
+# limits to only necessary columns
 enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
   ProjectTypeWeight = fcase(
     ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
     ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80,
     ProjectType %in% lh_residential_project_types, 60,
-    ProjectType %in% non_res_project_types, 40,
+    ProjectType %in% non_res_project_types & ProjectType != ce_project_type, 40,
+    ProjectType == ce_project_type, 30,
     default = 20
   ),
   lh_prior_livingsituation = !is.na(LivingSituation) &
     (LivingSituation %in% homeless_livingsituation_incl_TH |
-      (LivingSituation %in% institutional_livingsituation &
-        LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
-        !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)))
-  )][, `:=`(
-    lh_at_entry = lh_prior_livingsituation | ProjectType %in% lh_project_types,
-    EnrolledHomeless = ProjectType %in% project_types_enrolled_homeless |
-      lh_prior_livingsituation,
-    straddles_start = EntryDate <= ReportStart() & ExitAdjust >= ReportStart(),
-    straddles_end = EntryDate <= ReportEnd() & ExitAdjust >= ReportEnd(),
-    in_date_range = ExitAdjust >= ReportStart() & EntryDate <= ReportEnd()
-  )][
-    # Apply filtering with efficient conditions
-    (ReportStart() %m-% years(2)) <= ExitAdjust &
-      ProjectType != hp_project_type &
-      (ProjectType != ce_project_type |
-         (ProjectType == ce_project_type &
-          (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 90) |
-              EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 90) |
-            (between(EntryDate, ReportStart() - days(90), ReportStart()) &
-              lh_prior_livingsituation) |
-            (between(EntryDate, ReportEnd() - days(90), ReportEnd()) &
-              lh_prior_livingsituation)))) &
-      (!ProjectType %in% c(out_project_type,
-          sso_project_type, other_project_project_type, day_project_type) |
-        (ProjectType %in% c(out_project_type, sso_project_type,
-          other_project_project_type, day_project_type) &
-          (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 60) |
-            EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60) |
-            (between(EntryDate, ReportStart() - days(60), ReportStart()) &
-              lh_prior_livingsituation) |
-            (between(EntryDate, ReportEnd() - days(60), ReportEnd()) &
-              lh_prior_livingsituation))))
-  ][, c(
-    "EnrollmentID",
-    "PersonalID",
-    "HouseholdID",
-    "EntryDate",
-    "MoveInDateAdjust",
-    "ExitDate",
-    "ExitAdjust",
-    "ProjectType",
-    "MostRecentAgeAtEntry",
-    "lh_prior_livingsituation",
-    "lh_at_entry",
-    "straddles_start",
-    "straddles_end",
-    "in_date_range",
-    "EnrolledHomeless",
-    "LivingSituation",
-    "LOSUnderThreshold",
-    "PreviousStreetESSH",
-    "Destination",
-    "AgeAtEntry",
-    "CorrectedHoH",
-    # "DomesticViolenceCategory",
-    "HouseholdType",
-    "ProjectTypeWeight"
-    ), with = FALSE
-  ][
-    # Add grouping and ordering steps
-    order(EntryDate), `:=`(
-      StraddlesStart = .N, MaxProjectTypeStart = max(ProjectTypeWeight)
-    ), by = .(PersonalID, straddles_start)
-  ][order(EntryDate), `:=`(
-      StraddlesEnd = .N, MaxProjectTypeEnd = max(ProjectTypeWeight)
-    ), by = .(PersonalID, straddles_end)
-  ][order(PersonalID, EntryDate),
-    # Add mutations related to overlaps and rank ordering
-    `:=`(
-      InvolvedInOverlapStart = straddles_start & StraddlesStart > 1,
-      InvolvedInOverlapEnd = straddles_end & StraddlesEnd > 1,
-      ordinal = seq_len(.N),
-      days_to_next_entry = difftime(shift(EntryDate, type = "lead"),
-          ExitAdjust, units = "days"),
-      days_since_previous_exit = difftime(EntryDate, shift(ExitAdjust), units = "days"),
-      next_enrollment_project_type = shift(ProjectType, type = "lead"),
-      previous_enrollment_project_type = shift(ProjectType)
-    ), by = .(PersonalID)
-  ][# AS 9/23/24: We're creating the RankOrder variables and then filtering the 
-    # start and ends  all at once, rather than starts first then ends. 
-    # The reason is that this correctly handles cases where enrollment B overlaps 
-    # with A at the start and C at the end, by dropping B as the later of the
-    # "start" overlaps and C as the later of the end ones. As a result the person 
-    # does not get an LECR and is therefore dropped from the analysis. 
-    # If we handle starts and ends separately, B would be dropped, and then C 
-    # would be the LECR.
-    order(-ProjectTypeWeight, EntryDate, ExitAdjust), `:=`(
-      RankOrderStartOverlaps = rowid(PersonalID, InvolvedInOverlapStart),
-      RankOrderEndOverlaps = rowid(PersonalID, InvolvedInOverlapEnd)
-  )][
-    # Filter out non-overlapping enrollments
-    (InvolvedInOverlapStart == FALSE | RankOrderStartOverlaps == 1) &
-      (InvolvedInOverlapEnd == FALSE | RankOrderEndOverlaps == 1) &
-      (days_to_next_entry < 730 | is.na(days_to_next_entry))
-  ][, `:=`(
-      lecr = in_date_range & max(ordinal) == ordinal,
-      eecr = in_date_range & min(ordinal) == ordinal
-    ), by = .(PersonalID, in_date_range)
-  ][
-    order(PersonalID, in_date_range, -EntryDate, -ExitAdjust),
-    lookback := ifelse(in_date_range, 0, seq_len(.N) - fifelse(in_date_range, 1, 0)), 
-    by = .(PersonalID)
-  ][
-    ,AgeAtEntry := NULL
-  ]
-
-enrollment_categories <- merge(
-    enrollment_categories, 
-    nbn_enrollments_services, 
-    by = "EnrollmentID",
-    all.x = T
-  )[, `:=`(
-    NbN15DaysBeforeReportStart = replace_na(NbN15DaysBeforeReportStart, 0),
-    NbN15DaysAfterReportEnd = replace_na(NbN15DaysAfterReportEnd, 0),
-    NbN15DaysBeforeReportEnd = replace_na(NbN15DaysBeforeReportEnd, 0)
-  )][
-    order(EnrollmentID)
-  ]
-
-# for testing dt vs. dplyr
-# all.equal(enrollment_categories, enrollment_categories2, check.attributes = FALSE)
-
-# using table.express -----------------------------------------------------
-
-# before_te <- now()
-# Left join enrollment_categories on nbn_enrollments_services
-# enrollment_categories_exp <- as.data.table(enrollment_categories) %>%
-#   table.express::left_join(as.data.table(nbn_enrollments_services), EnrollmentID)
-# after_te <- now()
-
-# compare -----------------------------------------------------------------
-
-# after_dt - before_dt
-# 
-# after_te - before_te
-
-# Client-level flags ------------------------------------------------------
-# will help us categorize people for filtering
-# AS 2/3/2025: commenting out dv_flag. First, we aren't using DomesticViolence 
-# right now in the System Overview tab because we weren't ready for it
-# Second, this should be defined at the enrollment level, not client level 
-# dv_flag <- as.data.table(Enrollment)[, .(EnrollmentID, EntryDate, ExitAdjust)][
-#   as.data.table(HealthAndDV)[DataCollectionStage == 1, .(
-#     EnrollmentID,
-#     PersonalID,
-#     DomesticViolenceSurvivor = fifelse(
-#       is.na(DomesticViolenceSurvivor),
-#       0,
-#       fifelse(DomesticViolenceSurvivor== 1, 1, 0)),
-#     CurrentlyFleeing = fifelse(
-#       is.na(CurrentlyFleeing),
-#       0,
-#       fifelse(CurrentlyFleeing == 1, 1, 0))
-#   )],
-#   on = .(EnrollmentID)
-# ][ExitAdjust >= ReportStart() & EntryDate <= ReportEnd(), 
-#   .(DomesticViolenceCategory = 
-#       fifelse(
-#         max(DomesticViolenceSurvivor, na.rm = TRUE) == 1 & 
-#           max(CurrentlyFleeing, na.rm = TRUE) == 1, "DVFleeing",
-#         fifelse(
-#           max(DomesticViolenceSurvivor, na.rm = TRUE) == 1, "DVNotFleeing", "NotDV"))
-#   ), by = PersonalID]
-
-client_categories <- Client %>%
-  left_join(system_person_ages, join_by(PersonalID)) %>%
-  # left_join(setDF(dv_flag), join_by(PersonalID)) %>%
-  select(PersonalID,
-         all_of(race_cols),
-         VeteranStatus,
-         AgeCategory #,
-         # DomesticViolenceCategory
-  ) %>%
-  mutate(
-    VeteranStatus = if_else(VeteranStatus == 1 &
-                              !is.na(VeteranStatus), 1, 0),
-  ## Race/Ethnicity
-  # flattening the values, eliminating nulls
-  AmIndAKNative = if_else(AmIndAKNative == 1 & !is.na(AmIndAKNative), 1, 0),
-  Asian = if_else(Asian == 1 & !is.na(Asian), 1, 0),
-  BlackAfAmerican = if_else(BlackAfAmerican == 1 & !is.na(BlackAfAmerican), 1, 0),
-  NativeHIPacific = if_else(NativeHIPacific == 1 & !is.na(NativeHIPacific), 1, 0),
-  White = if_else(White == 1 & !is.na(White), 1, 0),
-  MidEastNAfrican = if_else(MidEastNAfrican == 1 & !is.na(MidEastNAfrican), 1, 0),
-  HispanicLatinaeo = if_else(HispanicLatinaeo == 1 & !is.na(HispanicLatinaeo), 1, 0),
-  # Method 1 logic, detailed
-  AmIndAKNativeAloneMethod1Detailed = 
-    if_else(AmIndAKNative == 1 &
-              Asian +
-              BlackAfAmerican +
-              NativeHIPacific +
-              White +
-              MidEastNAfrican +
-              HispanicLatinaeo == 0, 1, 0),
-  AmIndAKNativeLatineMethod1Detailed = 
-    if_else(AmIndAKNative == 1 & HispanicLatinaeo == 1 &
-              Asian +
-              BlackAfAmerican +
-              NativeHIPacific +
-              White +
-              MidEastNAfrican == 0, 1, 0),
-  AsianAloneMethod1Detailed =
-    if_else(Asian == 1 &
-              AmIndAKNative +
-              BlackAfAmerican +
-              NativeHIPacific +
-              White +
-              MidEastNAfrican +
-              HispanicLatinaeo == 0, 1, 0),
-  AsianLatineMethod1Detailed =
-    if_else(Asian == 1 & HispanicLatinaeo == 1 &
-              AmIndAKNative +
-              BlackAfAmerican +
-              NativeHIPacific +
-              White +
-              MidEastNAfrican == 0, 1, 0),
-  BlackAfAmericanAloneMethod1Detailed =
-    if_else(BlackAfAmerican == 1 &
-              AmIndAKNative +
-              Asian +
-              NativeHIPacific +
-              White +
-              MidEastNAfrican +
-              HispanicLatinaeo == 0, 1, 0),
-  BlackAfAmericanLatineMethod1Detailed =
-    if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1 &
-              AmIndAKNative +
-              Asian +
-              NativeHIPacific +
-              White +
-              MidEastNAfrican == 0, 1, 0),
-  LatineAloneMethod1Detailed =
-    if_else(HispanicLatinaeo == 1 &
-              AmIndAKNative +
-              Asian +
-              NativeHIPacific +
-              White +
-              MidEastNAfrican +
-              BlackAfAmerican == 0, 1, 0),
-  MidEastNAfricanAloneMethod1Detailed =
-    if_else(MidEastNAfrican == 1 &
-              AmIndAKNative +
-              Asian +
-              NativeHIPacific +
-              White +
-              HispanicLatinaeo +
-              BlackAfAmerican == 0, 1, 0),
-  MidEastNAfricanLatineMethod1Detailed =
-    if_else(MidEastNAfrican == 1 & HispanicLatinaeo == 1 &
-              AmIndAKNative +
-              Asian +
-              NativeHIPacific +
-              White +
-              BlackAfAmerican == 0, 1, 0),
-  NativeHIPacificAloneMethod1Detailed =
-    if_else(NativeHIPacific == 1 &
-              AmIndAKNative +
-              Asian +
-              MidEastNAfrican +
-              White +
-              HispanicLatinaeo +
-              BlackAfAmerican == 0, 1, 0),
-  NativeHIPacificLatineMethod1Detailed =
-    if_else(NativeHIPacific == 1 & HispanicLatinaeo == 1 &
-              AmIndAKNative +
-              Asian +
-              MidEastNAfrican +
-              White +
-              BlackAfAmerican == 0, 1, 0),
-  WhiteAloneMethod1Detailed =
-    if_else(White == 1 &
-              AmIndAKNative +
-              Asian +
-              MidEastNAfrican +
-              NativeHIPacific +
-              HispanicLatinaeo +
-              BlackAfAmerican == 0, 1, 0),
-  WhiteLatineMethod1Detailed =
-    if_else(White == 1 & HispanicLatinaeo == 1 &
-              AmIndAKNative +
-              Asian +
-              MidEastNAfrican +
-              NativeHIPacific +
-              BlackAfAmerican == 0, 1, 0),
-  MultipleNotLatineMethod1Detailed =
-    if_else(HispanicLatinaeo == 0 &
-              AmIndAKNative +
-              Asian +
-              MidEastNAfrican +
-              NativeHIPacific +
-              White +
-              BlackAfAmerican > 1, 1, 0),
-  MultipleLatineMethod1Detailed =
-    if_else(HispanicLatinaeo == 1 &
-              AmIndAKNative +
-              Asian +
-              MidEastNAfrican +
-              NativeHIPacific +
-              White +
-              BlackAfAmerican > 1, 1, 0),
-  RaceEthnicityUnknown =
-    if_else(
-      HispanicLatinaeo +
-        AmIndAKNative +
-        Asian +
-        MidEastNAfrican +
-        NativeHIPacific +
-        White +
-        BlackAfAmerican == 0,
-      1,
-      0
-    ),
-  # Data quality column to check for mutual exclusivity
-  DQMethod1DetailedRaceEth =
-    AmIndAKNativeAloneMethod1Detailed +
-    AmIndAKNativeLatineMethod1Detailed +
-    AsianAloneMethod1Detailed +
-    AsianLatineMethod1Detailed +
-    BlackAfAmericanAloneMethod1Detailed +
-    BlackAfAmericanLatineMethod1Detailed +
-    LatineAloneMethod1Detailed +
-    MidEastNAfricanAloneMethod1Detailed +
-    MidEastNAfricanLatineMethod1Detailed +
-    NativeHIPacificAloneMethod1Detailed +
-    NativeHIPacificLatineMethod1Detailed +
-    WhiteAloneMethod1Detailed +
-    WhiteLatineMethod1Detailed +
-    MultipleNotLatineMethod1Detailed +
-    MultipleLatineMethod1Detailed +
-    RaceEthnicityUnknown, # all should equal 1
-  # Method 1 logic, summarized
-  BILPOCMethod1Summarized = if_else(
-    AmIndAKNative +
-      Asian +
-      MidEastNAfrican +
-      NativeHIPacific +
-      HispanicLatinaeo +
-      BlackAfAmerican > 0, 1, 0
-  ),
-  WhiteMethod1Summarized = if_else(
-    White == 1 &
-      AmIndAKNative +
-      Asian +
-      MidEastNAfrican +
-      NativeHIPacific +
-      HispanicLatinaeo +
-      BlackAfAmerican == 0, 1, 0
-  ),
-  # Data quality check for Method 1, summarized
-  DQRaceEthMethod1Summarized =
-    BILPOCMethod1Summarized +
-    WhiteMethod1Summarized +
-    RaceEthnicityUnknown, # all rows should equal 1
-  # Method 2 logic, detailed
-  AmIndAKNativeMethod2Detailed = if_else(AmIndAKNative == 1, 1, 0),
-  AsianMethod2Detailed = if_else(Asian == 1, 1, 0),
-  BlackAfAmericanMethod2Detailed = if_else(BlackAfAmerican == 1, 1, 0),
-  LatineMethod2Detailed = if_else(HispanicLatinaeo == 1, 1, 0),
-  MidEastNAfricanMethod2Detailed = if_else(MidEastNAfrican == 1, 1, 0),
-  NativeHIPacificMethod2Detailed = if_else(NativeHIPacific == 1, 1, 0),
-  WhiteMethod2Detailed = if_else(White == 1, 1, 0),
-  # catches missings, any methodology any group
-  # RaceEthnicityNone = if_else(
-  #   AmIndAKNative +
-  #     Asian +
-  #     BlackAfAmerican +
-  #     NativeHIPacific +
-  #     White +
-  #     MidEastNAfrican +
-  #     HispanicLatinaeo == 0, 1, 0),
-  # Method 2 logic group 2
-  BlackAfAmericanLatineMethod2Summarized =
-    if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1, 1, 0),
-  LatineMethod2Summarized = if_else(HispanicLatinaeo == 1, 1, 0),
-  LatineAloneMethod2Summarized = if_else(
-    HispanicLatinaeo == 1 &
-      AmIndAKNative +
-      Asian +
-      NativeHIPacific +
-      White +
-      MidEastNAfrican +
-      BlackAfAmerican == 0, 1, 0
-  )) %>%
-  select(-all_of(race_cols))
-
-client_categories_reactive <- reactive({
-  client_categories %>%
-    mutate(All = 1) %>%
-    filter(
-      AgeCategory %in% input$syso_age &
-        !!sym(input$syso_race_ethnicity) == 1 &
-        (
-          input$syso_spec_pops == "None" |
-          (input$syso_spec_pops == "Veteran" &
-            VeteranStatus == 1 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) |
-          (input$syso_spec_pops == "NonVeteran" &
-            VeteranStatus == 0 & !(AgeCategory %in% c("0 to 12", "13 to 17"))) # |
-          # (DomesticViolenceCategory == input$syso_spec_pops | 
-          #    input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV")
-        )
-    ) %>%
-    select(-All)
-  
-})
-
-# Enrollment-level reactive -----------------------------------------------
-
-enrollment_categories_reactive <- reactive({
-  
-  # Filter enrollments by hhtype, project type, and level-of-detail inputs
-  enrollment_categories %>%
-    left_join(Client %>% select(PersonalID, VeteranStatus), join_by(PersonalID)) %>%
-    filter((input$syso_hh_type == "All" |
-            (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
-            (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-            (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
-            (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
-            input$syso_hh_type == HouseholdType
-              ) &
-      (input$syso_level_of_detail == "All" |
-         (input$syso_level_of_detail == "HoHsAndAdults" &
-            (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-         (input$syso_level_of_detail == "HoHsOnly" &
-            CorrectedHoH == 1)) &
-        ((input$syso_project_type == "All" |
-           (input$syso_project_type == "Residential" &
-              ProjectType %in% project_types_w_beds &
-              eecr == TRUE) | eecr == FALSE) |
-           ((input$syso_project_type == "NonResidential" &
-              ProjectType %in% non_res_project_types &
-               eecr == TRUE) | eecr == FALSE)) # &
-        # (input$syso_spec_pops %in% c("None", "Veteran", "NonVeteran") |
-        #    (input$syso_spec_pops == "DVTotal" & DomesticViolenceCategory != "NotDV") |
-        #    (input$syso_spec_pops == "NotDV" & DomesticViolenceCategory == "NotDV") |
-        #    (input$syso_spec_pops == DomesticViolenceCategory & (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1))
-        #    )
-           ) %>%
-    select(
-      EnrollmentID,
-      PersonalID,
-      ProjectType,
-      EntryDate,
-      MoveInDateAdjust,
-      ExitAdjust,
-      Destination,
-      LivingSituation,
-      CorrectedHoH,
-      MostRecentAgeAtEntry,
-      HouseholdType,
-      lh_prior_livingsituation,
-      lh_at_entry,
-      EnrolledHomeless,
-      straddles_start,
-      in_date_range,
-      # DomesticViolenceCategory,
-      days_to_next_entry,
-      days_since_previous_exit,
-      lecr,
-      eecr,
-      lookback,
-      NbN15DaysAfterReportEnd,
-      NbN15DaysBeforeReportEnd
+       (LivingSituation %in% institutional_livingsituation &
+          LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
+          !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)
+       )
     )
-})
+  )][
+    ProjectType != hp_project_type & 
+    EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart %m-% years(2))
+  ][, .(
+    EnrollmentID,
+    PersonalID,
+    HouseholdID,
+    EntryDate,
+    MoveInDateAdjust,
+    ExitDate,
+    ExitAdjust,
+    ProjectType,
+    MostRecentAgeAtEntry,
+    LivingSituation,
+    lh_prior_livingsituation,
+    LOSUnderThreshold,
+    PreviousStreetESSH,
+    Destination,
+    AgeAtEntry,
+    CorrectedHoH,
+    # DomesticViolenceCategory,
+    HouseholdType,
+    ProjectTypeWeight
+  )
+]
+setkey(enrollment_categories, EnrollmentID)
+setindex(enrollment_categories, PersonalID, ProjectType)
 
-# Client-level reactive ---------------------------------------------------
+# Prepare a dataset of literally homeless CLS records, along with EntryDate and ProjectType. 
+# This partially replaces the old homeless_cls_finder function
+# (which required filtering the same way for every record, so now we're doing more work once)
+# by casting a wide net for (Non-Res) Project Types that rely on CurrentLivingSituation 
+# this dataset will be used to categorize people as active_at_start, homeless_at_end, and unknown_at_end
+lh_cls <- qDT(CurrentLivingSituation) %>%
+  fselect(EnrollmentID, InformationDate, CurrentLivingSituation) %>%
+  fsubset(CurrentLivingSituation %in% homeless_livingsituation_incl_TH)
 
-# get filtered people-level system dataframe
-clients_enrollments_reactive <- reactive({
-  enrollment_categories_reactive() %>%
-    select(-MostRecentAgeAtEntry) %>%
-    inner_join(client_categories_reactive(), join_by(PersonalID))
-})
+non_res_enrollments <- enrollment_categories[
+  ProjectType %in% non_res_project_types, 
+  .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation)
+]
+
+session$userData$lh_non_res <- join(
+  non_res_enrollments,
+  lh_cls,
+  on = "EnrollmentID",
+  how = "left",
+  column = TRUE
+)
 
 
-# Enrollment-level universe -----------------------
-# only includes people and their lookback thru LECR enrollments
+# Do something similar for ES NbNs and Services
+es_nbn_enrollments <- enrollment_categories[
+  ProjectType == es_nbn_project_type, 
+  .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation)
+]
 
-# hello weary traveler amongst these date ranges. you may find it helpful to
-# find example clients and their Entry and Exit Dates and enter them into
-# https://onlinetools.com/time/visualize-date-intervals <- here.
-# add inflow type and active enrollment typed used for system overview plots
-universe <- reactive({
-  client_enrollments_reactive_dt <- setDT(clients_enrollments_reactive())
-  # clients_enrollments_reactive() %>%
-    # get rid of rows where the enrollment is neither a lookback enrollment,
-    # an eecr, or an lecr. So, keeping all lookback records plus the eecr and lecr 
-    # filter(!(lookback == 0 & eecr == FALSE & lecr == FALSE)) %>%
-    # mutate(
-    #   order_ees = case_when(
-    #     lecr == TRUE ~ 0,
-    #     eecr == TRUE ~ 1,
-    #     TRUE ~ lookback + 1)) %>%
-    client_enrollments_reactive_dt[
-      !(lookback == 0 & eecr == FALSE & lecr == FALSE),
-      order_ees := fifelse(lecr == TRUE, 0, 
-                           fifelse(eecr == TRUE, 1, lookback + 1))
-    ][
-    # group_by(PersonalID) %>%
-    # arrange(desc(order_ees), .by_group = TRUE) %>%
-    # mutate(
-    #   days_to_next_entry =
-    #     difftime(lead(EntryDate, order_by = EntryDate),
-    #              ExitAdjust, units = "days")) %>%
-    # ungroup() %>%
-      order(-order_ees), # Equivalent of arrange(desc(order_ees))
-      days_to_next_entry := as.numeric(difftime(shift(EntryDate, type = "lead"), 
-                                                ExitAdjust, units = "days")),
-      by = PersonalID # Equivalent of group_by(PersonalID)
-    ][, `:=`(
-    # mutate(
-      # INFLOW CALCULATOR COLUMNS
-      # LOGIC: active homeless at start
-        # basically it has to straddle report start
-          # the entry date of the EECR needs to be on or before the reporting period
-          # the exitadjust has to be after report start
-      # OR the eecr & lookback1 have to end and start within 14 days of each
-      # other and of the report start
-        # EnrolledHomeless status of the EECR needs to be true
-          # JUST FOR FULL DISCLOSURE, this means: 
-            # ProjectType %in% project_types_enrolled_homeless |
-            # lh_prior_livingsituation == TRUE
+session$userData$lh_nbn <- qDT(Services) %>%
+  fselect(EnrollmentID, DateProvided) %>%
+  join(
+    es_nbn_enrollments,
+    on="EnrollmentID",
+    how = "inner"
+  )
 
-      active_at_start_homeless =
-        eecr == TRUE &
-        (
-          # PH project types have move-in after start (or no move-in)
-          (
-            ProjectType %in% ph_project_types &
-            (
-              is.na(MoveInDateAdjust) |
-              MoveInDateAdjust >= ReportStart()
-            )
-          ) |
-            
-          ( # take only ce enrollments where the PLS or the CLS is <= 90 days
-            # prior to ReportStart
-            ProjectType == ce_project_type &
-              (EnrollmentID %in% homeless_cls_finder(ReportStart(), "before", 90) |
-                 (between(EntryDate, ReportStart() - days(90), ReportStart()) &
-                    lh_prior_livingsituation == TRUE))
-          ) |
-          # take any other enrollments if their PLS was literally homeless
-          (
-            !(ProjectType %in% ph_project_types) &
-            EnrolledHomeless == TRUE
-          )
-        ) &
-        # Enrollment straddles start or the enrollment is within 2 weeks from start
-        # and within 2 weeks of prev enrollment
-        (straddles_start == TRUE |
-           (straddles_start == FALSE &
-              EntryDate >= ReportStart() &
-              between(as.integer(difftime(EntryDate, ReportStart(),
-                               units = "days")),
-                      0,
-                      14) &
-              !is.na(days_since_previous_exit) &
-              between(as.numeric(days_since_previous_exit), 0, 14))),
-      
-      #LOGIC: enrolled housed at start
-      # Exit.ExitDate is null or > ReportStartDate AND
+# Remove "problematic" enrollments ----------------------------------
+# These are non-residential enrollments for which we have no LH evidence: 
+# So any enrollment that is not lh_prior_livingsituation and has no LH CLS
+problematic_nonres_enrollmentIDs <- base::setdiff(
+  non_res_enrollments[lh_prior_livingsituation == FALSE]$EnrollmentID,
+  unique(lh_cls$EnrollmentID)
+)
+
+session$userData$enrollment_categories <- enrollment_categories %>%
+  fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs)
+
+if(in_dev_mode) enrollment_categories_all <<- enrollment_categories
+
+rm(es_nbn_enrollments, non_res_enrollments)
+
+session$userData$report_dates <- get_report_dates()
+
+# Period-Specific Enrollment Categories ----------------------------------------
+# These steps and functions process data for a given period, which can be the full
+# reporting period, or each month in between the start and end of the full period
+
+# Narrow down to period-relevant enrollments and create eecr, lecr, 
+# and other variables used for Inflow/Outflow categorization
+session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
+  function(report_period, upload_name, enrollment_categories_w_enrl_filter) {
+    # custom_rprof({
+    logToConsole(session, paste0("getting period-specific enrollment categories for ", report_period[1]))
     
-      # Project.ProjectType IN (3, 9, 10, 13) AND
-      # Enrollment.MoveInDate is !NULL OR <= ReportStartDate AND
-      # Enrollment.LivingSituation is LiterallyHomeless*"
-      active_at_start_housed = eecr == TRUE & 
-        ProjectType %in% ph_project_types & 
-        !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust < ReportStart(),
-      
-      # LOGIC helper columns
-      
-      lookback1_perm_dest = lookback == 1 & 
-        Destination %in% perm_livingsituation,
-      
-      eecr_lh_at_entry = eecr == TRUE &
-        lh_at_entry == TRUE,
-      
-      at_least_14_days_to_eecr_enrl = lookback == 1 & 
-        !is.na(days_to_next_entry) &
-        days_to_next_entry >= 14,
-      
-      lookback1_temp_dest = lookback == 1 & 
-        !(Destination %in% perm_livingsituation),
-      
-      # outflow columns
-      perm_dest_lecr = lecr == TRUE &
-        Destination %in% perm_livingsituation &
-        ExitAdjust <= ReportEnd(), 
-      
-      temp_dest_lecr = lecr == TRUE &
-        !(Destination %in% perm_livingsituation) &
-        ExitAdjust <= ReportEnd(),
-      
-      homeless_at_end = lecr == TRUE & 
-        EntryDate <= ReportEnd() &
-        ExitAdjust >= ReportEnd() &
-        ( # e/e shelter, th, sh
-          ProjectType %in% lh_project_types_nc |
-            
-            # nbn shelter
-            (ProjectType == es_nbn_project_type &
-               (in_date_range == TRUE | NbN15DaysAfterReportEnd == TRUE)) |
-            
-            # outreach, sso, other, day shelter
-            (ProjectType %in% c(out_project_type,
-                                sso_project_type,
-                                other_project_project_type,
-                                day_project_type) &
-               (EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60) |
-                  (between(EntryDate, ReportEnd() - days(60), ReportEnd()) &
-                     lh_prior_livingsituation == TRUE))) |
-            
-            # CE
-            (ProjectType %in% ce_project_type &
-               (EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 90) |
-                  (between(EntryDate, ReportEnd() - days(90), ReportEnd()) &
-                     lh_prior_livingsituation == TRUE)
-                )
-             ) |
-            
-            # PSH, OPH, RRH
-            (ProjectType %in% ph_project_types &
-               (is.na(MoveInDateAdjust) | MoveInDateAdjust >= ReportEnd()))
-          ),
-
-      housed_at_end = lecr == TRUE & 
-        EntryDate <= ReportEnd() &
-        ExitAdjust >= ReportEnd() &
-        ProjectType %in% ph_project_types & 
-        !is.na(MoveInDateAdjust) &
-        MoveInDateAdjust < ReportEnd(),
-      
-      unknown_at_end = lecr == TRUE &
-        EntryDate <= ReportEnd() &
-        ExitAdjust >= ReportEnd() &
-        # outreach, sso, other, day shelter
-        ((ProjectType %in% c(out_project_type,
-                            sso_project_type,
-                            other_project_project_type,
-                            day_project_type) &
-            !EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 60) &
-            (!between(EntryDate, ReportEnd() - days(60), ReportEnd()) |
-               lh_prior_livingsituation == FALSE)) |
-
-        # nbn shelter
-        (ProjectType == es_nbn_project_type &
-          (in_date_range == TRUE | NbN15DaysBeforeReportEnd == FALSE)) |
-           
+    startDate <- report_period[1]
+    endDate <- report_period[2]
+    
+    lh_non_res_esnbn_info <- unique(
+      rbindlist(
+        list(
+          lh_non_res_period(startDate, endDate),
+          lh_nbn_period(startDate, endDate)
+        ),
+        fill = TRUE
+      )[, .(
+        EnrollmentID,
+        was_lh_at_start = (
+          # Non-Res and LH CLS in 60/90-day window OR 
+          # Entry in 60/90 day window and lh_prior_livingsituation
+          (ProjectType %in% non_res_project_types & (
+            lh_cls_in_start_window | (entry_in_start_window & lh_prior_livingsituation)
+          )) |
+          # ES NbN and Bed Night in 15-day window
+          # we don't need lh_prior_livingsituation here 
+          # because ES NbN enrollment implies homelessness
+          (ProjectType == es_nbn_project_type & (
+            nbn_in_start_window | entry_in_start_window
+          ))
+        ),
+        was_lh_during_period = (ProjectType == es_nbn_project_type & nbn_during_period) |
+          (ProjectType %in% non_res_project_types & lh_cls_during_period),
         
-        # CE
-        (ProjectType %in% ce_project_type &
-           !EnrollmentID %in% homeless_cls_finder(ReportEnd(), "before", 90) &
-           (!between(EntryDate, ReportEnd() - days(90), ReportEnd()) |
-              lh_prior_livingsituation == FALSE)
-           
-        ))
-    )]
-})
-
-# Enrollment-level universe with client-level flags -----------------------
-# Need to keep it enrollment-level so other scripts can reference the enrollments
-universe_ppl_flags <- reactive({
-  # universe() %>%
-  #   group_by(PersonalID) %>%
-  #   filter(max(lecr, na.rm = TRUE) == 1 & max(eecr, na.rm = TRUE) == 1) %>%
-  #   # drops ppl w/o an eecr or lecr
-  #   mutate(
-  universe()[, .SD[ # Subset by group (PersonalID) and filter rows based on conditions
-    max(lecr, na.rm = TRUE) == 1 & max(eecr, na.rm = TRUE) == 1], 
-    by = PersonalID][, `:=`(
-      # INFLOW
-      active_at_start_homeless_client = max(active_at_start_homeless),
-      
-      active_at_start_housed_client = max(active_at_start_housed),
-      
-      return_from_perm_client = max(lookback1_perm_dest) == 1 & 
-        # max(eecr_lh_at_entry) == 1 & 
-        max(at_least_14_days_to_eecr_enrl) == 1,
-      
-      reengaged_from_temp_client = max(lookback1_temp_dest) == 1 & 
-        # max(eecr_lh_at_entry) == 1 & 
-        max(at_least_14_days_to_eecr_enrl) == 1,
-      
-      newly_homeless_client = max(lookback) == 0 |
-        max(eecr_lh_at_entry) == 0 | 
-        max(at_least_14_days_to_eecr_enrl) == 0
-    ), by = PersonalID
-  ][, `:=`(
-      InflowTypeSummary = fifelse(
-        active_at_start_homeless_client == TRUE |
-          active_at_start_housed_client == TRUE,
-          "Active at Start",
-        fifelse(newly_homeless_client == TRUE |
-          return_from_perm_client == TRUE |
-          reengaged_from_temp_client == TRUE,
-          "Inflow",
-          "something's wrong"
-        )
-      ),
-      
-      InflowTypeDetail = fifelse(
-        active_at_start_homeless_client == TRUE, "Homeless",
-        fifelse(active_at_start_housed_client == TRUE, "Housed",
-        fifelse(return_from_perm_client == TRUE, "Returned from \nPermanent",
-        fifelse(reengaged_from_temp_client == TRUE, "Re-engaged from \nNon-Permanent",
-        fifelse(newly_homeless_client == TRUE & days_of_data() >= 1094, "First-Time \nHomeless",
-        fifelse(newly_homeless_client == TRUE & days_of_data() < 1094, "Inflow\nUnspecified",
-        "something's wrong")))))
-      ),
-      
-      # OUTFLOW
-      perm_dest_client = max(perm_dest_lecr),
-      
-      temp_dest_client = max(temp_dest_lecr),
-      
-      homeless_at_end_client = max(homeless_at_end),
-      
-      housed_at_end_client = max(housed_at_end),
-      
-      unknown_at_end_client = max(unknown_at_end)
-      
-  ), by = PersonalID
-  ][, `:=`(
-      OutflowTypeSummary = fifelse(
-        perm_dest_client == TRUE |
-          temp_dest_client == TRUE |
-          unknown_at_end_client == TRUE,
-          "Outflow",
-        fifelse(homeless_at_end_client == TRUE |
-          housed_at_end_client == TRUE,
-          "Active at End",
-          "something's wrong")
-      ),
-
-      OutflowTypeDetail = fifelse(
-        perm_dest_client == TRUE, "Exited,\nPermanent",
-        fifelse(temp_dest_client == TRUE, "Exited,\nNon-Permanent",
-        fifelse(unknown_at_end_client == TRUE, "Inactive",
-        fifelse(homeless_at_end_client == TRUE, "Homeless",
-        fifelse(housed_at_end_client == TRUE, "Housed",
-        "something's wrong"))))
-      )
+        was_lh_at_end =
+          (ProjectType %in% non_res_project_types & (
+            lh_cls_in_end_window | (entry_in_end_window & lh_prior_livingsituation)
+          )) |
+          (ProjectType == es_nbn_project_type & (
+            nbn_in_end_window | entry_in_end_window
+          ))
+      )]
     )
-  ]
-})
 
-# Client-level enrollment summary data reactive ---------------------------
-# get final people-level, inflow/outflow dataframe by joining the filtered 
-# enrollment and people dfs, as well as flagging their inflow and outflow types
-inflow_outflow_df <- reactive({
-  
-  exportTestValues(universe_ppl_flags = universe_ppl_flags() %>% nice_names())
-  
-  plot_data <- universe_ppl_flags() %>%
-    select(PersonalID,
-           active_at_start_homeless_client,
-           active_at_start_housed_client,
-           return_from_perm_client,
-           reengaged_from_temp_client,
-           InflowTypeSummary,
-           InflowTypeDetail,
-           perm_dest_client,
-           temp_dest_client,
-           homeless_at_end_client,
-           housed_at_end_client,
-           unknown_at_end_client,
-           OutflowTypeSummary,
-           OutflowTypeDetail
-    ) %>%
-    unique()
-  # AS QC check:
-#   missing_types <- universe() %>%
-#     inner_join(
-#       plot_data %>%
-#         filter(
-#           OutflowTypeDetail == "something's wrong" |
-#             InflowTypeDetail == "something's wrong"),
-#       by = "PersonalID") %>%
-#     mutate(
-#       missing_inflow = eecr == TRUE & InflowTypeDetail == "something's wrong",
-#       missing_outflow = lecr == TRUE & OutflowTypeDetail == "something's wrong",
-#     ) %>%
-#     filter(missing_inflow == TRUE | missing_outflow == TRUE)
-#   
-# # browser()
-#   
-#   category_counts <- plot_data %>%
-#     select(PersonalID, InflowTypeDetail, OutflowTypeDetail) %>%
-#     pivot_longer(
-#       cols = c(InflowTypeDetail, OutflowTypeDetail), 
-#       names_to = "Time", 
-#       values_to = "Status") %>%
-#     group_by(Time, Status) %>%
-#     summarise(values = n()) %>%
-#     ungroup() %>%
-#     filter(!is.na(Status)) %>%
-#     mutate(
-#       values = ifelse(Time == "OutflowTypeDetail", values * -1, values),
-#       inflow_outflow = Time,
-#       Time = case_when(
-#         Time == "InflowTypeDetail" &
-#           Status %in% c("Homeless", "Housed")
-#         ~ paste0("Active as of \n", ReportStart()),
-#         
-#         Time == "OutflowTypeDetail" &
-#           Status %in% c("Homeless", "Housed")
-#         ~ paste0("Active as of \n", ReportEnd()),
-#         
-#         Time == "InflowTypeDetail"
-#         ~ "Inflow",
-#         
-#         Time == "OutflowTypeDetail"
-#         ~ "Outflow"
-#       )
-#     )
-  plot_data
-})
+    logToConsole(session, "getting enrollments in period and merging in lh_info")
+    enrollment_categories_period <- enrollment_categories_w_enrl_filter %>%
+      fsubset(
+        # keep enrollments in date range and exits within the 2 yrs prior to start
+        EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))
+      ) %>%
+      ftransform(
+        straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
+        straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
+        in_date_range = EntryDate <= endDate & ExitAdjust >= startDate #,
+        # DomesticViolenceCategory = fcase(
+        #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
+        #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
+        #   default = "NotDV"
+        # )
+      ) %>% 
+      join(
+        lh_non_res_esnbn_info,
+        on = "EnrollmentID",
+        how = "left"
+      )
+    
+    logToConsole(session, paste0("In get_period_specific_enrollment_categories, num enrollment_categories_period: ", nrow(enrollment_categories_period)))
+    
+    if(nrow(enrollment_categories_period) == 0) return(enrollment_categories_period)
+    
+    enrollment_categories_period <- enrollment_categories_period %>%
+      # Flag if person had any straddling enrollments
+      # to be used when calculating eecr/lecr in no-straddle cases
+      fgroup_by(PersonalID) %>%
+      fmutate(
+        any_straddle_start = anyv(straddles_start, TRUE),
+        any_straddle_end = anyv(straddles_end, TRUE),
+        all_straddle_ends_nonresnbn_not_lh_at_end = anyv(
+          straddles_end & 
+          ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
+          !fcoalesce(was_lh_at_end, FALSE)
+        , TRUE)
+      ) %>%
+      # flag the first and last straddling enrollments, 
+      # by (desc) ProjectTypeWeight and EntryDate
+      roworder(-ProjectTypeWeight, EntryDate) %>%
+      fmutate(
+        eecr_straddle = ffirst(
+          fifelse(straddles_start, EnrollmentID, NA)
+        ) == EnrollmentID,
+        lecr_straddle = ffirst(
+          fifelse(straddles_end, EnrollmentID, NA)
+        ) == EnrollmentID
+      ) %>%
+      # flag the first and last enrollments in the report period,
+      # for people that have no straddles,
+      # by EntryDate and (desc) ProjectTypeWeight
+      roworder(EntryDate, -ProjectTypeWeight) %>%
+      fmutate(
+        eecr_no_straddle = ffirst(
+          fifelse(in_date_range & (
+            !any_straddle_start
+          ), EnrollmentID, NA)
+        ) == EnrollmentID,
+        # AS 5/9/25 TO DO: a non-straddling enrollment can be an lecr if no other enrollments straddle OR those that do are non-res/NbN that are !was_lh_at_end
+        # If this works as we'd like/expect, there should be Outflow: Inactives for Annual (maybe for MbM)
+        lecr_no_straddle = flast(
+          fifelse(in_date_range & (
+            !any_straddle_end |
+            all_straddle_ends_nonresnbn_not_lh_at_end
+          ), EnrollmentID, NA)
+        ) == EnrollmentID
+      ) %>%
+      fungroup() %>%
+      # Create eecr and lecr flags
+      fmutate(
+        # AS 5/7/25: Added restriction that NbN and Non-Res projects must have
+        # evidence of LH at some point during period (or within the window 
+        # according to project type) in order to be considered an EECR
+        # Alternatively, such NbN and Non-Res enrollments can have exited in the month.
+        #
+        # Here's an example to explain:
+        #
+        # EnrollmentID  EntryDate   ProjectType ExitAdjust  InformationDate
+        # <char>        <Date>      <num>       <Date>      <Date>         
+        # 825777        2021-09-24  4           2022-04-12  2021-09-24     
+        #
+        # This person should have the following statuses:
+        # Full Report: ASH
+        # Oct: ASH
+        # Nov: ASH
+        # Dec - Mar: NOT IN DATASET because no EECR
+        # Apr: Inflow = Inactive, Outflow = Exited
+        #
+        # Normally, they wouldn't have an EECR in Apr because there's no evidence of LH during period
+        # However, we don't want to never count them as outflow. So to fix that,
+        # we'll force them to get an EECR because they exited.
+        eecr = (eecr_straddle | eecr_no_straddle) & passes_enrollment_filters & (
+          (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & (
+            was_lh_during_period | round.POSIXt(ExitAdjust, "months") == round.POSIXt(startDate, "months")
+          )) | 
+          (!ProjectType %in% c(es_nbn_project_type, non_res_project_types))
+        ),
+        eecr = fcoalesce(eecr, FALSE),
+        lecr = (lecr_straddle | lecr_no_straddle),
+        lecr = fcoalesce(lecr, FALSE)
+      ) %>%
+      fgroup_by(PersonalID) %>%
+      fmutate(eecr_entry = fmax(fifelse(eecr, EntryDate, NA))) %>%
+      fungroup() %>%
+      fmutate(
+        # 5/15/25: exclude from lookbacks non-res enrollments that didn't exit 
+        # and had no evidence of LH at period start
+        is_lookback = !eecr & !lecr & EntryDate <= eecr_entry & !(ProjectType %in% non_res_project_types & is.na(ExitDate)),
+        perm_dest = is_lookback & Destination %in% perm_livingsituation,
+        nonperm_dest = is_lookback & !Destination %in% perm_livingsituation
+      ) %>%
+      fgroup_by(PersonalID) %>%
+      fmutate(
+        has_lecr = anyv(lecr, TRUE),
+        has_eecr = anyv(eecr, TRUE),
+        # To be Return/Re-Engaged, they need a lookback with an exit to the corresponding destination
+        any_lookbacks_with_exit_to_perm = anyv(perm_dest, TRUE),
+        any_lookbacks_with_exit_to_nonperm = anyv(nonperm_dest, TRUE)
+      ) %>%
+      fungroup() %>%
+      fsubset(has_eecr == TRUE) %>%
+      # "fill in" lecr as TRUE where eecr is the only enrollment
+      ftransform(lecr = lecr | (eecr & !has_lecr)) %>%
+      roworder(PersonalID, EntryDate, ExitAdjust) %>%
+      fgroup_by(PersonalID) %>%
+      fmutate(
+        first_lookback = flast(fifelse(is_lookback, EnrollmentID, NA)) == EnrollmentID,
+        first_lookback_exit = fmax(fifelse(first_lookback, ExitAdjust, NA)),
+        first_lookback_destination = fmax(fifelse(first_lookback, Destination, NA)),
+        first_lookback_movein = fmax(fifelse(first_lookback, MoveInDateAdjust, NA)),
+        days_to_lookahead = fifelse(lecr, L(EntryDate, n=-1) - ExitAdjust, NA)
+      ) %>%
+      fungroup() %>%
+      fmutate(
+        days_since_lookback = fifelse(eecr, difftime(EntryDate, first_lookback_exit, units="days"), NA),
+        lookback_dest_perm = eecr & first_lookback_destination %in% perm_livingsituation,
+        lookback_movein_before_start = eecr & first_lookback_movein < startDate,
+        # Beginning with the first month's Outflow and ending after the last month's Inflow, 
+        # there should be "continuous_at_start" and "continuous_at_end" flags that 
+        # capture EECRs/LECRs that begin AFTER period start/end BEFORE period end, 
+        # but days_to_lookahead/lookback <= 14. These would not be included on the chart.
+        # so both flags do not apply to first month. Continuous_at_end also doesn't apply to last
+        continuous_at_start = startDate > session$userData$ReportStart &
+          eecr & EntryDate >= startDate & days_since_lookback <= 14,
+        continuous_at_end = startDate > session$userData$ReportStart & 
+          endDate < session$userData$ReportEnd &
+          lecr & ExitAdjust <= endDate & days_to_lookahead <= 14
+      ) 
+   
+    logToConsole(session, paste0("About to subset to eecr, lecr, and lookbacks: num enrollment_categories_period records = ", nrow(enrollment_categories_period)))
+    
+    enrollment_categories_period %>%
+      fsubset(eecr | lecr | first_lookback) %>%
+      fselect(-c(any_straddle_start, any_straddle_end, eecr_no_straddle, eecr_straddle, lecr_straddle, lecr_no_straddle,
+                 first_lookback_exit, first_lookback_destination, first_lookback_movein
+                 ))
 
-# newly_homeless_clients <- plot_data %>%
-#   filter(InflowTypeDetail == "Newly Homeless") %>%
-#   pull(PersonalID) %>%
-#   unique()
-# 
-# enrollment_categories  %>%
-#   group_by(PersonalID) %>%
-#   mutate(Count = n()) %>%
-#   ungroup() %>%
-#   filter(PersonalID %in% c(newly_homeless_clients) & Count > 1) %>%
-#   mutate(DestinationDescription = living_situation(Destination),
-#          ReportStart = ReportStart(),
-#          ReportEnd = ReportEnd(),
-#          ExportStart = ExportStartAdjusted,
-#          ExportEnd = ExportEndAdjusted,
-#          LookbackBegins = ReportStart() - years(2),
-#          ProjectType = project_type_abb(ProjectType),
-#          LivingSituation = living_situation(LivingSituation)) %>%
-#   select(
-#     PersonalID,
-#     EnrollmentID,
-#     ExportStart,
-#     LookbackBegins,
-#     ReportStart,
-#     EntryDate,
-#     ExitAdjust,
-#     ReportEnd,
-#     ExportEnd,
-#     ProjectType,
-#     LivingSituation,
-#     DestinationDescription,
-#     days_to_next_entry,
-#     days_since_previous_exit,
-#     lecr,
-#     eecr,
-#     lookback
-#   ) -> for_review
-# 
-# write_csv(for_review, here("newly_homeless_20240912a.csv"))
+    # }, "07_system_overview.R")
+  },
+  cache = cachem::cache_mem(max_size = 100 * 1024^2) 
+)
+
+# Force run/calculate period_specific_data reactive
+# Better to do it up-front than while charts are loading
+period_specific_data()

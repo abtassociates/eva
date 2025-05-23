@@ -22,21 +22,22 @@
 # adults = all adults in a household
 # clients = all members of the household
 
-logToConsole("Running initial data prep")
+logToConsole(session, "Running initial data prep")
 
 # Project data ------------------------------------------------------------
 
 # breaking out Projects into their participating times, adjusting ProjectIDs
 
 project_prep <- Project %>%
-  left_join(
+  join(
     Organization %>%
       select(OrganizationID, OrganizationName, VictimServiceProvider),
-    by = "OrganizationID"
+    how = "left",
+    on = "OrganizationID"
   )
 
 ProjectSegments <- project_prep %>%
-  left_join(
+  join(
     HMISParticipation %>%
       select(
         ProjectID,
@@ -45,29 +46,20 @@ ProjectSegments <- project_prep %>%
         HMISParticipationStatusEndDate
       ) %>%
       unique(),
-    by = "ProjectID"
+    how = "left",
+    multiple = T,
+    on = "ProjectID"
   ) %>% # ^ changes granularity *if* there are any participation changers
-  mutate(
-    HMISParticipationStatusEndDate = coalesce(HMISParticipationStatusEndDate, no_end_date),
-    OperatingDateRange =
-      interval(
-        OperatingStartDate,
-        coalesce(OperatingEndDate, no_end_date)
-      ),
-    ParticipatingDateRange =
-      interval(
-        HMISParticipationStatusStartDate,
-        coalesce(HMISParticipationStatusEndDate, no_end_date)
-      )
+  roworder(ProjectID, OperatingStartDate) %>%
+  fgroup_by(ProjectID) %>%
+  fmutate(
+    ProjectTimeID = fifelse(
+      GRPN() > 1,
+      paste0(ProjectID, letters[rowid(ProjectID)]),
+      ProjectID
+    )
   ) %>%
-  group_by(ProjectID) %>%
-  arrange(OperatingStartDate, .by_group = TRUE) %>%
-  mutate(
-    ProjectTimeID = case_when(
-      n() > 1 ~ paste0(ProjectID, letters[row_number()]),
-      TRUE ~ ProjectID)
-    ) %>%
-  ungroup() %>%
+  fungroup() %>%
   relocate(ProjectTimeID, .after = ProjectID)
 
 # * Use Project0 for most things.
@@ -75,7 +67,7 @@ ProjectSegments <- project_prep %>%
 # * Use Project if you need something from the original data as it came in that's
 #     not in Project0 or ProjectSegments
 
-Project0(project_prep %>%
+session$userData$Project0 <- project_prep %>%
   select(ProjectID,
          ProjectName,
          OrganizationID,
@@ -86,45 +78,39 @@ Project0(project_prep %>%
          RRHSubType,
          VictimServiceProvider) %>%
   unique()
-)
 
 rm(project_prep)
 
 # Enrollment --------------------------------------------------------------
 # Truncating Enrollments based on Operating/Participating -----------------
-
 EnrollmentStaging <- Enrollment %>%
-  left_join(Client %>% select(PersonalID, DOB),
-            by = "PersonalID")%>%
-  left_join(Exit %>%
-              select(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
-            by = "EnrollmentID") %>%
-  mutate(ExitAdjust = coalesce(ExitDate, no_end_date),
-         EnrollmentDateRange = interval(EntryDate, ExitAdjust),
+  join(Client %>% fselect(PersonalID, DOB), 
+       on = "PersonalID") %>%
+  join(Exit %>% fselect(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
+       on = "EnrollmentID") %>%
+  fmutate(ExitAdjust = fcoalesce(ExitDate, no_end_date),
          AgeAtEntry = age_years(DOB, EntryDate),
          DOB = NULL) %>%
-  group_by(ProjectID, HouseholdID) %>%
-  mutate(
-    max_AgeAtEntry = max(AgeAtEntry),
-    min_AgeAtEntry = min(AgeAtEntry)
-  ) %>%
-  mutate(
+  fgroup_by(ProjectID, HouseholdID) %>%
+  fmutate(
+    max_AgeAtEntry = fmax(AgeAtEntry),
+    min_AgeAtEntry = fmin(AgeAtEntry),
     HouseholdType = factor(
-      ifelse(
+      fifelse(
         any(between(AgeAtEntry, 0, 17)) & max_AgeAtEntry >= 18,
-        ifelse(
+        fifelse(
           between(max_AgeAtEntry, 0, 24),
           "PY",
           "ACminusPY"
         ),
-        ifelse(
+        fifelse(
           min_AgeAtEntry >= 18,
-          ifelse(
+          fifelse(
             between(max_AgeAtEntry, 0, 24),
             "UY", # UY = Unaccompanied Youth. YYA = PY + UY + CO
             "AOminusUY"
           ),
-          ifelse(
+          fifelse(
             min_AgeAtEntry >= 0 & max_AgeAtEntry <= 17,
             "CO", 
             "UN"
@@ -134,23 +120,28 @@ EnrollmentStaging <- Enrollment %>%
       levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
     )
   ) %>%
-  ungroup()
+  fungroup()
 
 # Truncating Enrollments based on Operating/Participating -----------------
-# Perform the join
-EnrollmentOutside <- setDT(EnrollmentStaging %>%
-  left_join(ProjectSegments %>%
+# This also brings in Project-level info, e.g. ProjectType to the Enrollment dataset
+EnrollmentOutside <- qDT(EnrollmentStaging) %>%
+  fselect(EnrollmentID, ProjectID, EntryDate, ExitAdjust) %>%
+  join(ProjectSegments %>%
               select(ProjectID,
                      ProjectTimeID,
                      ProjectType,
                      HMISParticipationStatusStartDate,
                      HMISParticipationStatusEndDate,
-                     # ParticipatingDateRange,
                      OperatingStartDate,
-                     OperatingEndDate,
-                     # OperatingDateRange
-                     ), by = "ProjectID",
-            relationship = "many-to-many")) # %>%
+                     OperatingEndDate
+                     ),
+       on = "ProjectID",
+       how = "left",
+       multiple = TRUE) # many-to-many bc there will be ees that match to 2 rows of the same ProjectID
+# and this is expected at this point in the code bc we want to sus out which
+# project period the enrollment should be attached to. these extra ees will
+# be excluded later
+
 # AS 5/5/24: commenting out for now because this merge doesn't work correctly with intervals
 # Submitted GitHub issue for lubridate: https://github.com/tidyverse/lubridate/issues/1165
 # reprex: 
@@ -159,20 +150,6 @@ EnrollmentOutside <- setDT(EnrollmentStaging %>%
 # z <- x[y, on = .(id)]
 # print(z)
 
-# Project_dt <- as.data.table(Project)[, .(ProjectID,
-#                                          ProjectTimeID,
-#                                          ProjectType,
-#                                          ParticipatingDateRange,
-#                                          OperatingDateRange)]
-# 
-# EnrollmentOutside <- Project_dt[as.data.table(EnrollmentStaging), on = .(ProjectID)]
-
-# many-to-many bc there will be ees that match to 2 rows of the same ProjectID
-# and this is expected at this point in the code bc we want to sus out which
-# project period the enrollment should be attached to. these extra ees will
-# be excluded later
-# mutate(
-  # EnrollmentvParticipating = case_when(
 Enrollmentvs <- function(EntryDate, ExitAdjust, ComparisonStart, ComparisonEnd, comparisonWord) {
   fcase(
     (EntryDate >= ComparisonStart & ExitAdjust <= ComparisonEnd) |
@@ -203,48 +180,35 @@ EnrollmentOutside[, `:=`(
     "Operating")
   )]
 
-#   group_by(ProjectID, EnrollmentID) %>%
-#   arrange(ProjectTimeID) %>%
-#   slice(1L) %>%
-# ungroup() %>%
-EnrollmentOutside <- EnrollmentOutside[order(ProjectTimeID), head(.SD, 1), by = .(ProjectID, EnrollmentID)]
-
-# select(EnrollmentID, ProjectID, ProjectTimeID, ProjectType, EnrollmentDateRange,
-#        OperatingDateRange, ParticipatingDateRange, EnrollmentvParticipating,
-#        EnrollmentvOperating)
-EnrollmentOutside <- EnrollmentOutside[, .(EnrollmentID, ProjectID, ProjectTimeID, ProjectType, 
-                                           EntryDate, ExitAdjust,
-                                           OperatingStartDate, OperatingEndDate, 
-                                           HMISParticipationStatusStartDate,
-                                           HMISParticipationStatusEndDate,
-                                           EnrollmentvParticipating,
-                                           EnrollmentvOperating)]
+# Get First HMIS span for each Project (technically, the enrollment record)
+EnrollmentOutside <- EnrollmentOutside %>%
+  roworder(ProjectTimeID) %>%
+  collap( ~ ProjectID + EnrollmentID, ffirst) %>% 
+  fselect(-EntryDate, -ExitAdjust)
 
 Enrollment <- EnrollmentStaging %>%
-  left_join(setDF(EnrollmentOutside),
-            by = c("EnrollmentID", "ProjectID", "EntryDate", "ExitAdjust")) %>%
-  mutate(
-    ParticipatingDateRange = interval(HMISParticipationStatusStartDate, HMISParticipationStatusEndDate),
-    OperatingDateRange = interval(OperatingStartDate, OperatingEndDate),
-    EntryDateTruncated = if_else(
+  join(
+    EnrollmentOutside,
+    on = "EnrollmentID",
+    how = "left"
+  ) %>%
+  fmutate(
+    EntryDateTruncated = fifelse(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating Start",
                                   "Enrollment Crosses Operating Period") |
         EnrollmentvParticipating %in% c("Enrollment Crosses Participating Start",
                                         "Enrollment Crosses Participating Period"),
-      max(
-        int_start(ParticipatingDateRange), int_start(OperatingDateRange), na.rm = TRUE
-      ),
+      max(HMISParticipationStatusStartDate, OperatingStartDate, na.rm = TRUE),
       EntryDate
     ), # truncates to the earliest Participating/Operating End Date
-    ExitDateTruncated = if_else(
+    ExitDateTruncated = fifelse(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating End",
                                   "Enrollment Crosses Operating Period") |
         EnrollmentvParticipating %in% c("Enrollment Crosses Participating End",
                                         "Enrollment Crosses Participating Period"),
-      min(int_end(ParticipatingDateRange), int_end(OperatingDateRange), na.rm = TRUE),
+      min(HMISParticipationStatusEndDate, OperatingEndDate, na.rm = TRUE),
       ExitDate
-    ),
-    InsideOrNot = NULL
+    )
   ) %>%
   relocate(Destination:ExitDateTruncated, .before = RelationshipToHoH)
 
@@ -324,15 +288,13 @@ EnrollmentAdjust <- Enrollment %>%
 Services <- Services %>%
   filter(RecordType == 200 & !is.na(DateProvided))
 
-# Build validation() df for app ---------------------------------------------
-
+# Build validation df for app ---------------------------------------------
+# this contains Project and Org info together
 validationProject <- ProjectSegments %>%
   select(
     ProjectID,
     ProjectTimeID,
     OrganizationName,
-    OperatingDateRange,
-    ParticipatingDateRange,
     ProjectName,
     ProjectType
   )
@@ -360,8 +322,7 @@ validationEnrollment <- Enrollment %>%
 
 # to be used for more literal, data-quality-based analyses. contains enrollments
 # that do not intersect any period of HMIS participation or project operation
-validation(
-  validationProject %>%
+session$userData$validation <- validationProject %>%
     left_join(validationEnrollment, by = c("ProjectTimeID", "ProjectID")) %>%
     select(
       ProjectID,
@@ -382,7 +343,6 @@ validation(
       DateCreated
     ) %>%
     filter(!is.na(EntryDate))
-)
 
 # Checking requirements by projectid --------------------------------------
 
@@ -390,7 +350,7 @@ projects_funders_types <- Funder %>%
   left_join(Project %>%
               select(ProjectID, ProjectType),
             join_by(ProjectID)) %>%
-  filter(is.na(EndDate) | EndDate > meta_HUDCSV_Export_Start()) %>%
+  filter(is.na(EndDate) | EndDate > session$userData$meta_HUDCSV_Export_Start) %>%
   select(ProjectID, ProjectType, Funder) %>%
   unique() %>%
   left_join(inc_ncb_hi_required, join_by(ProjectType, Funder)) %>%
@@ -408,7 +368,7 @@ projects_funders_types <- Funder %>%
 # Active Inventory -------------------------------------------------------------
 activeInventory <- Inventory %>%
   left_join(
-    Project0() %>%
+    session$userData$Project0 %>%
       select(
         ProjectID,
         OrganizationName,
@@ -420,15 +380,13 @@ activeInventory <- Inventory %>%
     by = "ProjectID"
   ) %>%
   filter(
-    coalesce(InventoryEndDate, no_end_date) >= meta_HUDCSV_Export_Start() &
-      InventoryStartDate <= meta_HUDCSV_Export_End()
+    coalesce(InventoryEndDate, no_end_date) >= session$userData$meta_HUDCSV_Export_Start &
+      InventoryStartDate <= session$userData$meta_HUDCSV_Export_End
   )
 
 # HMIS-participating projects with active Inventory during report period -------
 # HMIS-Participating projects that have inventory are almost necessarilly residential.
 # Store this "generous" span so we can check if any enrollments fall within it
-
-set_collapse(na.rm = TRUE, verbose = FALSE)
 HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
   # HMiS-participating projects
   fsubset(HMISParticipationType == 1, 
@@ -477,5 +435,6 @@ HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
 #       ProjectType %in% lh_ph_hp_project_types) %>%
 #   dplyr::select(ProjectName) %>% unique()
 
-CurrentLivingSituation(CurrentLivingSituation)
-Event(Event)
+session$userData$CurrentLivingSituation <- CurrentLivingSituation
+session$userData$Event <- Event
+session$userData$Services <- Services

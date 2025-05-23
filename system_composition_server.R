@@ -12,14 +12,14 @@ get_race_ethnicity_vars <- function(v) {
   }
 }
 
-syscomp_detailBox <- function(session) {
+syscomp_detailBox <- function() {
   return(
     list(
       strong("Date Range: "),
       
-      format(ReportStart(), "%m-%d-%Y"),
+      format(session$userData$ReportStart, "%m-%d-%Y"),
       " to ",
-      format(ReportEnd(), "%m-%d-%Y"),
+      format(session$userData$ReportEnd, "%m-%d-%Y"),
       br(),
       
       if (input$syso_project_type != "All")
@@ -103,7 +103,7 @@ get_sys_comp_plot_df_2vars <- function(comp_df) {
   # then we'd combine 0 to 12 with White, 0 to 12 with Black,
   # 13 to 24 with White, etc.
   process_combination <- function(v1, v2, comp_df) {
-    logToConsole(glue("processing combination of {v1} and {v2}"))
+    logToConsole(session, glue("processing combination of {v1} and {v2}"))
     freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
     names(freq_df) <- c(
       selections[1],
@@ -203,7 +203,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
   selection <- input$system_composition_selections
 
-  comp_df <- sys_df_people_universe_filtered_r() %>%
+  comp_df <- get_people_universe_filtered() %>%
     remove_non_applicables() %>%
     select(PersonalID, unname(var_cols[[selection]]))
   
@@ -312,7 +312,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   }
   
   # get dataset underlying the freqs we will produce below
-  comp_df <- sys_df_people_universe_filtered_r() %>%
+  comp_df <- get_people_universe_filtered() %>%
     remove_non_applicables() %>%
     select(
       PersonalID, 
@@ -532,7 +532,7 @@ sys_comp_selections_info <- reactive({
     Value = c(
       input$system_composition_selections[1],
       input$system_composition_selections[2],
-      nrow(sys_df_people_universe_filtered_r() %>% remove_non_applicables())
+      nrow(get_people_universe_filtered() %>% remove_non_applicables())
     )
   )
 })
@@ -653,6 +653,7 @@ output$sys_comp_download_btn <- downloadHandler(
       col_names = TRUE
     )
     
+    exportTestValues(sys_comp_df = get_people_universe_filtered())
     exportTestValues(sys_comp_report_num_df = num_df)
     exportTestValues(sys_comp_report_pct_df = pct_df)
   }
@@ -661,7 +662,7 @@ output$sys_comp_download_btn <- downloadHandler(
 sys_comp_p <- reactive({
   req(
     !is.null(input$system_composition_selections) &
-      valid_file() == 1 &
+      session$userData$valid_file() == 1 &
       between(length(input$system_composition_selections), 1, 2)
   )
   
@@ -693,7 +694,7 @@ observeEvent(input$system_composition_selections, {
 
 
 output$sys_comp_summary_selections <- renderUI({
-  req(!is.null(input$system_composition_selections) & valid_file() == 1)
+  req(!is.null(input$system_composition_selections) & session$userData$valid_file() == 1)
   syscomp_detailBox()
 })
 
@@ -737,3 +738,11 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
     )
   }
 )
+
+# System Composition/Demographics data for chart
+get_people_universe_filtered <- reactive({
+  cols_to_keep <- colnames(session$userData$client_categories)
+  unique(
+    period_specific_data()[["Full"]][, ..cols_to_keep]
+  )
+})

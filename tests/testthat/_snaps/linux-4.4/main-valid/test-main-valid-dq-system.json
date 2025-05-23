@@ -46,7 +46,7 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: 1d767bfdebc81a26209411b78de99446]",
+      "src": "[image data hash: c967a433481679a6e879b133b1d2c2d9]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -65,7 +65,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 1367.3,
+              "right": 1492.7,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {

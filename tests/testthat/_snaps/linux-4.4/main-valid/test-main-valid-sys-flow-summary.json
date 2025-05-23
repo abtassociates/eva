@@ -30,17 +30,17 @@
 
       ]
     },
-    "sys_act_summary_filter_selections": {
+    "sys_inflow_outflow_summary_filter_selections": {
       "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Method 1 <br>",
       "deps": [
 
       ]
     },
-    "sys_act_summary_ui_chart": {
-      "src": "[image data hash: c43b0892cf307193fc1fb6247e1fa0b7]",
+    "sys_inflow_outflow_summary_ui_chart": {
+      "src": "[image data hash: d274551b119529f3707b4f65ba738a3b]",
       "width": 1113,
       "height": 500,
-      "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n              the report period. The summary view of this chart includes four components: \n              Active at Start, Inflow, Outflow, and Active at End.",
+      "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n      the report period. The summary view of this chart includes four components: \n      Active at Start, Inflow, Outflow, and Active at End.",
       "coordmap": {
         "panels": [
           {
@@ -58,7 +58,7 @@
               "left": 0.5225,
               "right": 4.4275,
               "bottom": 0,
-              "top": 8705
+              "top": 9297
             },
             "mapping": {
               "y": null,

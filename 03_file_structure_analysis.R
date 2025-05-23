@@ -4,11 +4,11 @@
 # unexpected nulls, and more
 ######################
 
-logToConsole("Running file structure analysis")
+logToConsole(session, "Running file structure analysis")
 
 # Prep --------------------------------------------------------------------
 
-export_id_from_export <- Export() %>% pull(ExportID)
+export_id_from_export <- session$userData$Export %>% pull(ExportID)
 
 high_priority_columns <- cols_and_data_types %>%
   filter(DataTypeHighPriority == 1) %>%
@@ -246,9 +246,10 @@ if (nrow(Enrollment) == 0) {
 }
 
 duplicate_enrollment_id <- Enrollment %>%
-  get_dupes(EnrollmentID) %>%
+  fcount(EnrollmentID, name="dupe_count") %>%
+  fsubset(dupe_count > 1) %>% 
   merge_check_info(checkIDs = 8) %>%
-  mutate(
+  fmutate(
     Detail = str_squish(
       paste0(
         "There are ",
@@ -258,9 +259,7 @@ duplicate_enrollment_id <- Enrollment %>%
         "."
       )
     )
-  ) %>%
-  select(all_of(issue_display_cols)) %>%
-  unique()
+  )
 
 personal_ids_in_client <- Client %>% pull(PersonalID)
 
@@ -338,11 +337,12 @@ rel_to_hoh_invalid <- Enrollment %>%
   select(all_of(issue_display_cols)) %>%
   unique()
 
-# Group by HouseholdID and ProjectID, and count the number of unique PersonalIDs in each group
+# Count (unique) HouseholdIDs within a Project
 duplicate_household_id <- Enrollment %>%
-  distinct(HouseholdID, ProjectID) %>%
-  filter(!is.na(HouseholdID)) %>%
-  get_dupes(HouseholdID) %>%
+  fselect(HouseholdID, ProjectID) %>%
+  funique() %>%
+  fcount(HouseholdID, name="dupe_count") %>%
+  fsubset(dupe_count > 1 & !is.na(HouseholdID)) %>%
   merge_check_info(checkIDs = 98) %>%
   mutate(
     Detail = paste("HouseholdID", 
@@ -380,7 +380,7 @@ nonstandard_CLS <- CurrentLivingSituation %>%
                      "which is not a valid response."))) %>%
   select(all_of(issue_display_cols))
 
-file_structure_analysis_main(rbind(
+session$userData$file_structure_analysis_main(rbind(
   df_column_diffs,
   df_unexpected_data_types,
   df_nulls,
@@ -403,10 +403,31 @@ file_structure_analysis_main(rbind(
   arrange(Type)
 )
 
-if(file_structure_analysis_main() %>% 
-filter(Type == "High Priority") %>% 
-nrow() > 0) {
-  valid_file(0)
+if(session$userData$file_structure_analysis_main() %>% 
+   filter(Type == "High Priority") %>%
+   nrow() > 0) {
+  session$userData$valid_file(0)
+  
+  # if structural issues were found, reset gracefully
+  showModal(
+    modalDialog(
+      "Your uploaded HMIS CSV Export has at least one High Priority File 
+          Structure Error. To be able to read an uploaded hashed HMIS CSV 
+          Export, Eva requires the .zip file to have zero High Priority File 
+          Structure Errors. Thus, to use Eva, your upload must have zero High 
+          Priority File Structure Errors. Please share the file structure 
+          issues, prioritizing the High Priotity File Structure Errrors, 
+          with your HMIS vendor to fix.",
+      easyClose = TRUE,
+      title = "Unsuccessful Upload: Your HMIS CSV Export is not
+          structurally valid",
+      footer = modalButton("OK")
+    )
+  )
+  
+  logMetadata(session, "Unsuccessful upload - not structurally valid")
+  
+  reset_postvalid_components(session)
 } else{
-  valid_file(1)
+  session$userData$valid_file(1)
 }

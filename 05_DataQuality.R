@@ -12,8 +12,8 @@
 #     - Overlaps
 #     - Future Entry Exits
 ###############################
-
-logToConsole("Running Data Quality")
+# run_data_quality_checks <- function() {
+logToConsole(session, "Running Data Quality")
 
 # The Variables That We Want ----------------------------------------------
 # these are for the DQ export
@@ -265,7 +265,6 @@ missing_previous_street_ESSH <- base_dq_data %>%
     all_of(vars_prep),
     AgeAtEntry,
     RelationshipToHoH,
-    DateToStreetESSH,
     PreviousStreetESSH,
     LOSUnderThreshold
   ) %>%
@@ -301,11 +300,9 @@ missing_LoS <- base_dq_data %>%
   select(all_of(vars_prep),
          AgeAtEntry,
          RelationshipToHoH,
-         LengthOfStay,
-         LivingSituation) %>%
+         LengthOfStay) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
-           (is.na(LengthOfStay)) &
-           !(LivingSituation %in% homeless_livingsituation)) %>%
+           (is.na(LengthOfStay))) %>%
   merge_check_info(checkIDs = 26) %>%
   select(all_of(vars_we_want))
 
@@ -428,10 +425,7 @@ missing_living_situation <- base_dq_data %>%
     LivingSituation,
     LengthOfStay,
     LOSUnderThreshold,
-    PreviousStreetESSH,
-    DateToStreetESSH,
-    MonthsHomelessPastThreeYears,
-    TimesHomelessPastThreeYears
+    PreviousStreetESSH
   ) %>%
   filter((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate >= hc_prior_living_situation_required &
@@ -463,13 +457,9 @@ missing_living_situation <- base_dq_data %>%
 dkr_living_situation <- base_dq_data %>%
   select(
     all_of(vars_prep),
-    AgeAtEntry,
     RelationshipToHoH,
+    AgeAtEntry,
     LivingSituation,
-    LengthOfStay,
-    LOSUnderThreshold,
-    PreviousStreetESSH,
-    DateToStreetESSH,
     MonthsHomelessPastThreeYears,
     TimesHomelessPastThreeYears
   ) %>%
@@ -487,8 +477,6 @@ dkr_living_situation <- base_dq_data %>%
 # DisablingCondition at Entry
 dkr_disabilities <- base_dq_data %>%
   select(all_of(vars_prep),
-         AgeAtEntry,
-         RelationshipToHoH,
          DisablingCondition) %>%
   filter(DisablingCondition %in% c(dkr_dnc)) %>%
   merge_check_info(checkIDs = 32) %>%
@@ -559,7 +547,7 @@ top_percents_long_stayers <- base_dq_data %>%
       )
   ) %>%
   mutate(Days = as.numeric(difftime(
-      meta_HUDCSV_Export_Date(), 
+      session$userData$meta_HUDCSV_Export_Date, 
       if_else(ProjectType %in% c(ph_project_types), MoveInDateAdjust, EntryDate)
   ))) %>%
   group_by(ProjectType) %>%
@@ -582,7 +570,7 @@ missed_movein_stayers <- base_dq_data %>%
            ProjectType %in% c(ph_project_types) & 
            RelationshipToHoH == 1
   ) %>%
-  mutate(Days = as.numeric(difftime(meta_HUDCSV_Export_Date(), EntryDate)))
+  mutate(Days = as.numeric(difftime(session$userData$meta_HUDCSV_Export_Date, EntryDate)))
 
 Top2_movein <- subset(missed_movein_stayers,
                       Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE)) %>%
@@ -845,7 +833,7 @@ future_ees <- base_dq_data %>%
 
 future_exits <- base_dq_data %>%
   filter(!is.na(ExitDate) &
-           ExitDate > as.Date(meta_HUDCSV_Export_Date())) %>%
+           ExitDate > as.Date(session$userData$meta_HUDCSV_Export_Date)) %>%
   merge_check_info(checkIDs = 14) %>%
   select(all_of(vars_we_want))
     
@@ -1248,6 +1236,7 @@ overlap_dt <- merge(
 
 # For the Overlap Details tab of the export
 # we want the same set of details for the overlapping enrollment (i.e. the "previous")
+
 # this wide dataset is saved in the overlap_details() reactiveValue
 # OverlappingDateProvided vs. FirstDateProvided vs. LastDateProvided:
 # - OverlappingDateProvided is only relevant for NbN vs. NbN overlaps
@@ -1281,45 +1270,29 @@ get_overlap_col_order <- function() {
 }
 col_order <- get_overlap_col_order()
 
-overlap_details(
+overlap_details <- merge(
+  qDT(overlap_dt)[
+    # Recode ProjectType to a more readable version
+    , ProjectType := project_type(ProjectType)
+  ],
   # Rename columns for previous enrollment
-  merge(
-    qDT(overlap_dt)[
-      # Recode ProjectType to a more readable version
-      , ProjectType := project_type(ProjectType)
-    ],
-    base_dq_data_dt[
-      , setNames(.SD, paste0("Previous", names(.SD)))
-      , .SDcols = c(vars_prep, "HouseholdType")
-    ],
-    by = "PreviousEnrollmentID",
-    all.x = TRUE
-  )[, `:=`(
-      PreviousProjectType = project_type(PreviousProjectType),
-      HouseholdType = factor(
-        case_when(
-          HouseholdType %in% c("PY", "ACminusPY") ~ "AC",
-          HouseholdType %in% c("UY", "AOminusUY") ~ "AO",
-          TRUE ~ HouseholdType
-        ),
-        levels = c("AO", "AC", "CO", "UN")
-      ),
-      PreviousHouseholdType = factor(
-        case_when(
-          PreviousHouseholdType %in% c("PY", "ACminusPY") ~ "AC",
-          PreviousHouseholdType %in% c("UY", "AOminusUY") ~ "AO",
-          TRUE ~ PreviousHouseholdType
-        ),
-        levels = c("AO", "AC", "CO", "UN")
-      )
-  )][
-    # Drop Issue columns
-    , !c("Issue", "Type", "Guidance"), with = FALSE
-  ][
-    # order and rename columns
-    , ..col_order
-  ]
-)
+  base_dq_data_dt[
+    , setNames(.SD, paste0("Previous", names(.SD)))
+    , .SDcols = c(vars_prep, "HouseholdType")
+  ],
+  by = "PreviousEnrollmentID",
+  all.x = TRUE
+)[, `:=`(
+  PreviousProjectType = project_type(PreviousProjectType),
+  HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports),
+  PreviousHouseholdType = fct_collapse(PreviousHouseholdType, !!!hh_types_in_exports)
+)][
+  # Drop Issue columns
+  , !c("Issue", "Type", "Guidance"), with = FALSE
+][
+  # order and rename columns
+  , ..col_order
+]
 
 # Remove unecessary columns
 cols_to_remove <- "PreviousEnrollmentID"
@@ -1641,115 +1614,225 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
   merge_check_info(checkIDs = 58) %>%
   select(all_of(vars_we_want))
 
-    # All together now --------------------------------------------------------
-    dq_main <- as.data.table(rbind(
-      approx_start_after_entry,
-      approx_start_v_living_situation_data,
-      conflicting_health_insurance_entry,
-      conflicting_health_insurance_exit,
-      conflicting_income_entry,
-      conflicting_income_exit,
-      conflicting_ncbs_entry,
-      dkr_client_veteran_discharge,
-      dkr_client_veteran_military_branch,
-      dkr_client_veteran_wars,
-      dkr_destination,
-      dkr_dob,
-      dkr_living_situation,
-      dkr_LoS,
-      dkr_months_times_homeless,
-      dkr_name,
-      dkr_race,
-      dkr_residence_prior,
-      dkr_ssn,
-      dkr_veteran,
-      overlaps_df,
-      duplicate_ees,
-      enrollment_after_operating_period,
-      enrollment_after_participating_period,
-      enrollment_before_operating_period,
-      enrollment_before_participating_period,
-      enrollment_x_operating_end,
-      enrollment_x_operating_period,
-      enrollment_x_operating_start,
-      enrollment_x_participating_end,
-      enrollment_x_participating_period,
-      enrollment_x_participating_start,
-      exit_before_start,
-      future_ees,
-      future_exits,
-      hh_issues,
-      incorrect_dob,
-      invalid_movein_date,
-      missing_approx_date_homeless,
-      missing_cls_subsidy,
-      # missing_destination,
-      missing_destination_subsidy,
-      dkr_disabilities,
-      missing_dob,
-      # missing_dob_dataquality,
-      missing_enrollment_coc,
-      missing_health_insurance_entry,
-      missing_health_insurance_exit,
-      missing_income_entry,
-      missing_income_exit,
-      missing_living_situation,
-      missing_LoS,
-      missing_months_times_homeless,
-      # missing_name_dataquality,
-      missing_ncbs_entry,
-      missing_previous_street_ESSH,
-      missing_residence_prior,
-      missing_res_prior_subsidy,
-      # missing_ssn,
-      # missing_veteran_status,
-      no_months_can_be_determined,
-      no_months_v_living_situation_data,
-      ssvf_hp_screen,
-      ssvf_missing_percent_ami,
-      ssvf_missing_vamc,
-      Top2_movein,
-      top_percents_long_stayers,
-      veteran_incorrect_year_entered,
-      veteran_incorrect_year_separated,
-      veteran_missing_branch,
-      veteran_missing_discharge_status,
-      veteran_missing_wars,
-      veteran_missing_year_entered,
-      veteran_missing_year_separated
-    ))
+# Long Stayers -------------------------------------------------------------
+# The goal is here to flag "stays" that go beyond the local setting 
+# (that defines a "long" stay), and is set by the user
+# A "stay" is the time between when we last "heard" from an enrollment and Export Date
+# How we determine the last time we heard from an enrollment differs by Project Type
 
-    dq_main <- unique(dq_main)[, Type := factor(Type,
-                                                levels = c("High Priority",
-                                                           "Error",
-                                                           "Warning"))]
-    setDF(dq_main)
-    
-   dq_providers <- sort(Project0()$ProjectName) 
-   
-# Plots for System-Level DQ Tab -------------------------------------------
-   dq_plot_df <- dq_main %>%
-     left_join(Project0() %>%
-                 select(ProjectID, OrganizationID), by = "ProjectID") %>%
-     select(PersonalID,
-            OrganizationID,
-            OrganizationName,
-            HouseholdID,
-            Issue,
-            Type) %>%
-     unique()
+# Non-Residential Long Stayers --------------------------------------------
 
-# Prepping dataframes for plots for Organization-Level DQ Tab -----------------
-   dq_org_plot_df <- dq_main %>%
-     select(PersonalID,
-            ProjectID,
-            ProjectName,
-            OrganizationName,
-            HouseholdID,
-            Issue,
-            Type) %>%
-     unique()
-   
-base_dq_data_func(base_dq_data)
-dq_main_df(dq_main)
-services(Services)
+calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
+  # get non-exited enrollments for projecttype
+  logToConsole(session, glue::glue("In calculate long stayers: too_many_days = {too_many_days}, projecttype = {projecttype}"))
+  non_exits <- session$userData$validation %>%
+    fsubset(ProjectType == projecttype & 
+              (ExitDate >= session$userData$meta_HUDCSV_Export_End | is.na(ExitDate))
+    ) %>%
+    fselect(vars_prep)
+  
+  # only proceed if there are any non-exited enrollments
+  if(nrow(non_exits) == 0) return(NULL)
+  logToConsole(session, "Has non-exits")
+  
+  # data with last-known dates
+  # we're going to later compute the LAST Known Date to determine when we last heard from them
+  # this starts the clock of how long their stay is.
+  data_w_dates <- if(projecttype %in% c(out_project_type, sso_project_type, ce_project_type)) {
+    # This will be merged back into non_exits
+    session$userData$CurrentLivingSituation %>% fselect(EnrollmentID, KnownDate = InformationDate)
+  } else if(projecttype == es_nbn_project_type) {
+    # This will be merged back into non_exits
+    session$userData$Services %>% fselect(EnrollmentID, KnownDate = DateProvided)
+  } else {
+    # If a different project type, we'll just use their EntryDate as the KnownDate
+    non_exits
+  }
+  
+  # calculate last-known date (differs by project type)
+  if(projecttype %in% c(other_project_project_type, day_project_type)) {
+    # LastKnown = KnownDate (not fmax) because it's per enrollment, and EntryDate (now KnownDate) is at Enrollment level
+    non_exits_w_lastknown_date <- data_w_dates %>%
+      fmutate(LastKnown = EntryDate)
+  } else {
+    non_exits_w_lastknown_date <- 
+      join(non_exits, data_w_dates, on = "EnrollmentID", how="left") %>%
+      fgroup_by(EnrollmentID) %>%
+      # Take EntryDate if there's no Information or DateProvided
+      fmutate(LastKnown = fcoalesce(fmax(KnownDate), EntryDate))
+  }
+  logToConsole(session, "calculating long_stayres")
+  # calculate days since last known
+  long_stayers <- qDT(non_exits_w_lastknown_date) %>%
+    fmutate(
+      DaysSinceLastKnown = as.numeric(difftime(
+        as.Date(session$userData$meta_HUDCSV_Export_Date), LastKnown, units = "days"
+      ))
+    ) %>%
+    # NOW FILTER DOWN TO THE PROBLEM CASES
+    fsubset(DaysSinceLastKnown > too_many_days)
+  
+  if(nrow(long_stayers) == 0) return(NULL)
+  
+  logToConsole(session, "merging check info")
+  # Each project type gets its own Issue text+Guidance etc.
+  merge_check_info_dt(
+    long_stayers,
+    case_when(
+      projecttype %in% c(out_project_type, sso_project_type, ce_project_type) ~ 103,
+      projecttype == es_nbn_project_type ~ 142,
+      projecttype %in% c(other_project_project_type, day_project_type) ~ 102
+    )
+  )[, ..vars_we_want]
+}
+
+## ES NbN --------------------
+ESNbN <- calculate_long_stayers_local_settings_dt(local_settings$ESNbNLongStayers, es_nbn_project_type) #1
+
+## Non-Residential Projects (other than HP projects) --------
+Outreach <- calculate_long_stayers_local_settings_dt(local_settings$OUTLongStayers, out_project_type) #4
+ServicesOnly <- calculate_long_stayers_local_settings_dt(local_settings$ServicesOnlyLongStayers, sso_project_type) #6
+Other <- calculate_long_stayers_local_settings_dt(local_settings$OtherLongStayers, other_project_project_type) #7
+DayShelter <- calculate_long_stayers_local_settings_dt(local_settings$DayShelterLongStayers, day_project_type) #11
+CoordinatedEntry <- calculate_long_stayers_local_settings_dt(local_settings$CELongStayers, ce_project_type) #14
+
+# Outstanding Referrals --------------------------------------------
+calculate_outstanding_referrals <- function(too_many_days, dq_data){
+  if(is.null(dq_data)) return(NULL)
+  logToConsole(session, paste0("in calculate_outstanding_referrals: too_many_days = ", too_many_days))
+  
+  dq_data %>%
+    left_join(session$userData$Event %>% select(EnrollmentID,
+                                                EventID,
+                                                EventDate,
+                                                Event,
+                                                ProbSolDivRRResult,
+                                                ReferralCaseManageAfter,
+                                                LocationCrisisOrPHHousing,
+                                                ReferralResult,
+                                                ResultDate),
+              by = "EnrollmentID") %>%
+    select(all_of(vars_prep), ProjectID, EventID, EventDate, ResultDate, Event) %>%
+    mutate(
+      Days = 
+        as.numeric(
+          difftime(as.Date(session$userData$meta_HUDCSV_Export_Date), EventDate, units = "days")),
+      EventType = case_when(
+        Event == 10 ~ "Referral to Emergency Shelter bed opening",
+        Event == 11 ~ "Referral to Transitional Housing bed/unit opening",
+        Event == 12 ~ "Referral to Joint TH-RRH project/unit/resource opening",
+        Event == 13 ~ "Referral to RRH project resource opening",
+        Event == 14 ~ "Referral to PSH project resource opening",
+        Event == 15 ~ "Referral to Other PH project/unit/resource opening",
+        Event == 17 ~ "Referral to Emergency Housing Voucher (EHV)",
+        Event == 18 ~ "Referral to a Housing Stability Voucher"
+      )
+    ) %>%
+    filter(Event %in% c(10:15, 17:18) &
+             is.na(ResultDate) &
+             too_many_days < Days) %>%
+    merge_check_info(checkIDs = 100) 
+    # we don't select vars_we_want here because 
+    # this gets used in DQ export, where we need all variables
+}
+## CE ------
+# This will be included in the DQ Export
+CE_outstanding_referrals <- calculate_outstanding_referrals(local_settings$CEOutstandingReferrals, base_dq_data)
+CE_Event <- CE_outstanding_referrals %>% select(all_of(vars_we_want))
+
+# All together now --------------------------------------------------------
+dq_main <- as.data.table(rbind(
+  approx_start_after_entry,
+  approx_start_v_living_situation_data,
+  conflicting_health_insurance_entry,
+  conflicting_health_insurance_exit,
+  conflicting_income_entry,
+  conflicting_income_exit,
+  conflicting_ncbs_entry,
+  dkr_client_veteran_discharge,
+  dkr_client_veteran_military_branch,
+  dkr_client_veteran_wars,
+  dkr_destination,
+  dkr_dob,
+  dkr_living_situation,
+  dkr_LoS,
+  dkr_months_times_homeless,
+  dkr_name,
+  dkr_race,
+  dkr_residence_prior,
+  dkr_ssn,
+  dkr_veteran,
+  overlaps_df,
+  duplicate_ees,
+  enrollment_after_operating_period,
+  enrollment_after_participating_period,
+  enrollment_before_operating_period,
+  enrollment_before_participating_period,
+  enrollment_x_operating_end,
+  enrollment_x_operating_period,
+  enrollment_x_operating_start,
+  enrollment_x_participating_end,
+  enrollment_x_participating_period,
+  enrollment_x_participating_start,
+  exit_before_start,
+  future_ees,
+  future_exits,
+  hh_issues,
+  incorrect_dob,
+  invalid_movein_date,
+  missing_approx_date_homeless,
+  missing_cls_subsidy,
+  # missing_destination,
+  missing_destination_subsidy,
+  dkr_disabilities,
+  missing_dob,
+  # missing_dob_dataquality,
+  missing_enrollment_coc,
+  missing_health_insurance_entry,
+  missing_health_insurance_exit,
+  missing_income_entry,
+  missing_income_exit,
+  missing_living_situation,
+  missing_LoS,
+  missing_months_times_homeless,
+  # missing_name_dataquality,
+  missing_ncbs_entry,
+  missing_previous_street_ESSH,
+  missing_residence_prior,
+  missing_res_prior_subsidy,
+  # missing_ssn,
+  # missing_veteran_status,
+  no_months_can_be_determined,
+  no_months_v_living_situation_data,
+  ssvf_hp_screen,
+  ssvf_missing_percent_ami,
+  ssvf_missing_vamc,
+  Top2_movein,
+  top_percents_long_stayers,
+  veteran_incorrect_year_entered,
+  veteran_incorrect_year_separated,
+  veteran_missing_branch,
+  veteran_missing_discharge_status,
+  veteran_missing_wars,
+  veteran_missing_year_entered,
+  veteran_missing_year_separated,
+  ESNbN,
+  Outreach,
+  DayShelter,
+  ServicesOnly,
+  Other,
+  CoordinatedEntry,
+  CE_Event
+))
+
+dq_main <- unique(dq_main)[, Type := factor(Type,
+                                            levels = c("High Priority",
+                                                       "Error",
+                                                       "Warning"))]
+dq_main <- as.data.frame(dq_main)
+
+list(
+  dq_main = dq_main,
+  overlap_details = overlap_details,
+  outstanding_referrals = CE_outstanding_referrals # used in Org export
+)

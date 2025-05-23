@@ -121,7 +121,7 @@ main_test_script <- function(test_script_name, test_dataset) {
   helper_datasets <- c(
     "non_ascii_files_detail", 
     "client_count_download_detail", 
-    "dq_main_reactive",
+    "dq_main",
     "pdde_main",
     "universe_ppl_flags",
     "sys_comp_df",
@@ -278,48 +278,57 @@ main_test_script <- function(test_script_name, test_dataset) {
       "syso_tabbox"
     )
     
-    sys_act_inputs <- c(
+    sys_inflow_outflow_inputs <- c(
       "sidebarmenuid",
       "sys_inflow_outflow_subtabs",
       sys_universe_filters,
       sys_flow_filters,
       sys_other_inputs
     )
-    sys_act_summary_outputs <- c(
+    sys_inflow_outflow_summary_outputs <- c(
       "headerSystemOverview",
-      "sys_act_summary_filter_selections",
-      "sys_act_summary_ui_chart"
+      "sys_inflow_outflow_summary_filter_selections",
+      "sys_inflow_outflow_summary_ui_chart"
     )
     
     app$set_inputs(sidebarmenuid = "tabSystemOverview")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-summary",
-      input = sys_act_inputs,
-      output = sys_act_summary_outputs
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_summary_outputs
     )
     
-    sys_act_detail_outputs <- c(
+    sys_inflow_outflow_detail_outputs <- c(
       "headerSystemOverview",
-      "sys_act_detail_filter_selections",
-      "sys_act_detail_ui_chart"
+      "sys_inflow_outflow_detail_filter_selections",
+      "sys_inflow_outflow_detail_ui_chart"
     )
     app$set_inputs(sys_inflow_outflow_subtabs = "Detail Chart")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-detail",
-      input = sys_act_inputs,
-      output = sys_act_detail_outputs
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_detail_outputs
     )
 
     
     # change universe filters
-    app$set_inputs(syso_hh_type = "AO", syso_project_type = "Residential")
+    app$set_inputs(syso_hh_type = "AO", syso_project_type = "Residential: Homeless Projects")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
       name = "sys-flow-detail-w-AO-Residential",
-      input = sys_act_inputs,
-      output = sys_act_detail_outputs
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_detail_outputs
+    )
+    
+    # change universe filters
+    app$set_inputs(syso_project_type = "Residential: Permanent Housing Projects")
+    app$wait_for_idle(timeout = 2e+06)
+    app$expect_values(
+      name = "sys-flow-detail-w-AO-Residential-PH",
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_detail_outputs
     )
     
     # go back to summary tab
@@ -327,8 +336,48 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-summary-w-AO-Residential",
-      input = sys_act_inputs,
-      output = sys_act_summary_outputs
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_summary_outputs
+    )
+    
+    # go Month-by-Month tab
+    sys_inflow_outflow_mbm_outputs <- c(
+      "headerSystemOverview",
+      "sys_inflow_outflow_monthly_filter_selections"
+    )
+    app$set_inputs(sys_inflow_outflow_subtabs = "Month-by-Month Chart")
+    app$wait_for_idle(timeout = 1e+06)
+    app$expect_values(
+      name = "sys-flow-mbm-w-AO-Residential",
+      input = sys_inflow_outflow_inputs,
+      output = c(
+        sys_inflow_outflow_mbm_outputs,
+        "sys_inflow_outflow_monthly_ui_chart"
+      )
+    )
+    
+    # go to FTH chart
+    app$set_inputs(mbm_fth_filter = "First-Time Homeless")
+    app$wait_for_idle(timeout = 1e+06)
+    app$expect_values(
+      name = "sys-flow-fth-w-AO-Residential",
+      input = sys_inflow_outflow_inputs,
+      output = c(
+        sys_inflow_outflow_mbm_outputs,
+        "sys_fth_monthly_ui_chart"
+      )
+    )
+    
+    # go to Inative chart
+    app$set_inputs(mbm_fth_filter = "Inactive")
+    app$wait_for_idle(timeout = 1e+06)
+    app$expect_values(
+      name = "sys-flow-inactive-w-AO-Residential",
+      input = sys_inflow_outflow_inputs,
+      output = c(
+        sys_inflow_outflow_mbm_outputs,
+        "sys_inactive_monthly_ui_chart"
+      )
     )
     
     # go to information

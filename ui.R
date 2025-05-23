@@ -17,9 +17,47 @@ page_navbar(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
-      tags$script(src = "idle_timeout.js"), # Reference the JS file
       tags$script(HTML(
-        "var dimension = [0, 0];
+        "function idleTimer() {
+          var timeoutTime = 900000; //15 mins
+          var t = setTimeout(showTimeoutDialog, timeoutTime);
+          window.onmousemove = resetTimer;
+          window.onmousedown = resetTimer;
+          window.onclick = resetTimer;
+          window.onscroll = resetTimer;
+          window.onkeypress = resetTimer;
+      
+          function showTimeoutDialog() {
+            document.querySelector('a[data-value=\"tabHome\"]').click();
+            
+            // If user clicks Cancel, disable all interactivity
+            document.body.style.opacity = '0.5';
+            document.body.style.pointerEvents = 'none';
+            
+            // Add a banner at the top of the page
+            var banner = document.createElement('div');
+            banner.style.position = 'fixed';
+            banner.style.top = '40%';
+            banner.style.left = '0';
+            banner.style.width = '100%';
+            banner.style.padding = '10px';
+            banner.style.backgroundColor = 'lightgray';
+            banner.style.color = 'black';
+            banner.style.fontSize = '2em';
+            banner.style.textAlign = 'center';
+            banner.style.zIndex = '9999';
+            banner.innerHTML = 'Session ended due to inactivity. Please refresh the page to continue.';
+            document.body.appendChild(banner);
+          }
+      
+          function resetTimer() {
+              clearTimeout(t);
+              t = setTimeout(showTimeoutDialog, timeoutTime);
+          }
+        }
+        idleTimer();
+                       
+        var dimension = [0, 0];
         $(document).on('shiny:connected', function(e) {
           dimension[0] = window.innerWidth;
           dimension[1] = window.innerHeight;
@@ -647,21 +685,87 @@ nav_panel(
         selected = "Summary Chart",
         nav_panel(
           title = 'Summary Chart',
-          uiOutput("sys_act_summary_filter_selections") %>%
+          uiOutput("sys_inflow_outflow_summary_filter_selections") %>%
             withSpinner(),
-          plotOutput("sys_act_summary_ui_chart",
+          plotOutput("sys_inflow_outflow_summary_ui_chart",
                      width = "70%",
                      height = "500") %>%
             withSpinner()
         ),
         nav_panel(
           title = 'Detail Chart',
-          uiOutput("sys_act_detail_filter_selections") %>%
+          uiOutput("sys_inflow_outflow_detail_filter_selections") %>%
             withSpinner(),
-          plotOutput("sys_act_detail_ui_chart",
+          plotOutput("sys_inflow_outflow_detail_ui_chart",
                      width = "100%",
                      height = "500") %>%
             withSpinner()
+        ),
+        nav_panel(
+          title = "Month-by-Month Chart", 
+                 uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
+                   withSpinner(),
+                 radioGroupButtons(
+                   inputId = "mbm_fth_filter",
+                   label = "Flow Type Filters",
+                   choices = c("All", "First-Time Homeless", "Inactive"), #Inactive
+                   selected = "All",
+                   individual = TRUE,
+                   checkIcon = list(yes = icon("check"))
+                 ),
+                 conditionalPanel(
+                   condition = "input.mbm_fth_filter == 'Inactive'",
+                   plotOutput("sys_inactive_monthly_ui_chart",
+                              width = "100%",
+                              height = "500")
+                 ),
+                 conditionalPanel(
+                   condition = "input.mbm_fth_filter == 'First-Time Homeless'",
+                   plotOutput("sys_fth_monthly_ui_chart",
+                              width = "100%",
+                              height = "500")
+                 ),
+                 conditionalPanel(
+                   condition = "input.mbm_fth_filter == 'All'",
+                   plotOutput("sys_inflow_outflow_monthly_ui_chart",
+                              width = "100%",
+                              height = "500") %>%
+                     withSpinner(),
+                 ),
+                 DTOutput("sys_inflow_outflow_monthly_table") %>%
+                   withSpinner()
+        ),
+        nav_panel(
+          title = "Timeline Chart",
+                 plotlyOutput("timelinePlot", height = "600px"),
+                 selectizeInput(
+                   inputId = "enrollmentIDFilter",
+                   label = "Search by Enrollment ID",
+                   choices = NULL, # We'll populate this dynamically
+                   options = list(
+                     placeholder = "Type to search for Enrollment ID",
+                     closeAfterSelect = TRUE
+                   ),
+                   multiple = TRUE
+                 ),
+                 
+                 # PersonalID Filter
+                 selectizeInput(
+                   inputId = "personalIDFilter",
+                   label = "Search by Personal ID",
+                   choices = NULL, # We'll populate this dynamically
+                   options = list(
+                     placeholder = "Type to search for Personal ID",
+                     closeAfterSelect = TRUE
+                   ),
+                   multiple = TRUE
+                 ),
+                 conditionalPanel(
+                   condition = "len(input.personalIDFilter)",
+                   h4("Person's Monthly Inflow/Outflow"),
+                   verbatimTextOutput("personDetails")
+                 )
+                 
         ),
         nav_panel(
           title = "Information",

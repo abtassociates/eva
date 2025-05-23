@@ -3,8 +3,8 @@
 # hide other stuff if valid file is not uploaded
 # move chart download button to be inline with subtabs
 observeEvent(input$syso_tabbox, {
-  req(valid_file() == 1)
-  logMetadata(paste0("Clicked on ", input$syso_tabbox,
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   toggleClass(
     id = "syso_inflowoutflow_filters",
@@ -15,22 +15,22 @@ observeEvent(input$syso_tabbox, {
 
 
 observeEvent(input$sys_inflow_outflow_subtabs, {
-  req(valid_file() == 1)
-  logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_status_subtabs, {
-  req(valid_file() == 1)
-  logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 observeEvent(input$sys_comp_subtabs, {
-  req(valid_file() == 1)
-  logMetadata(paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
@@ -84,7 +84,7 @@ syso_detailBox <- reactive({
     br(),
     strong("Date Range: "),
     
-    format(ReportStart(), "%m-%d-%Y"), " to ", format(ReportEnd(), "%m-%d-%Y"), br(),
+    format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
     
     if (input$syso_project_type != "All")
       chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
@@ -108,12 +108,6 @@ syso_detailBox <- reactive({
       ))
     
   )
-})
-
-output$sys_act_detail_filter_selections <- renderUI({ syso_detailBox() })
-output$sys_act_summary_filter_selections <- renderUI({
-  req(valid_file() == 1)
-  syso_detailBox() 
 })
 
 toggle_sys_components <- function(cond, init=FALSE) {
@@ -162,7 +156,7 @@ toggle_sys_components(FALSE, init=TRUE) # initially hide them
 
 sys_export_summary_initial_df <- function() {
   
-  logMetadata(paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+  logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
   return(data.frame(
@@ -175,8 +169,8 @@ sys_export_summary_initial_df <- function() {
       "Project Type Group"
     ),
     Value = c(
-      strftime(ReportStart(), "%m/%d/%y"),
-      strftime(ReportEnd(), "%m/%d/%y"),
+      strftime(session$userData$ReportStart, "%m/%d/%y"),
+      strftime(session$userData$ReportEnd, "%m/%d/%y"),
       getNameByValue(syso_methodology_types, input$methodology_type),
       getNameByValue(syso_hh_types, input$syso_hh_type),
       getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
@@ -209,9 +203,9 @@ sys_export_filter_selections <- function() {
 syso_race_ethnicity_cats <- function(methodology = 1){
   ifelse(
     methodology == 1,
-    list(syso_race_ethnicity_method1),
-    list(syso_race_ethnicity_method2)
-  )[[1]]
+    syso_race_ethnicity_method1,
+    syso_race_ethnicity_method2
+  )
 }
 
 # PowerPoint Export -------------------------------------------------------
@@ -223,14 +217,14 @@ sys_overview_ppt_export <- function(file,
                                     plot2 = NULL,
                                     summary_font_size) {
   
-  logMetadata(paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
+  logMetadata(session, paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   #NEED TO UPDATE - if want to get more granular, need to detect with title slide
   
   report_period <- paste0("Report Period: ", 
-                          format(ReportStart(), "%m/%d/%Y"),
+                          format(session$userData$ReportStart, "%m/%d/%Y"),
                           " - ",
-                          format(ReportEnd(), "%m/%d/%Y")
+                          format(session$userData$ReportEnd, "%m/%d/%Y")
   )
   loc_title <- ph_location_type(type = "title")
   loc_footer <- ph_location_type(type = "ftr")
@@ -250,7 +244,7 @@ sys_overview_ppt_export <- function(file,
   add_footer <- function(.ppt) {
     return(
       .ppt %>%
-        ph_with(value = paste0("CoC Code: ", Export()$SourceID), location = loc_footer) %>%
+        ph_with(value = paste0("CoC Code: ", session$userData$Export$SourceID), location = loc_footer) %>%
         ph_with(value = report_period, location = loc_dt) %>%
         ph_with(
           value = paste0(
@@ -351,176 +345,347 @@ get_adj_font_size <- function(font_size, isExport) {
   )
 }
 
-observeEvent(input$dimension,{
+observe({
   windowSize(input$dimension)
 })
 
-output$client_level_download_btn <- downloadHandler(
-  filename = date_stamped_filename("Client Level Export - "),
-  content = function(file) {
-    detail_client_fields <- c(
-      "PersonalID",
-      "AgeCategory",
-      "VeteranStatus",
-      
-      "AmIndAKNative",
-      "Asian",
-      "BlackAfAmerican",
-      "HispanicLatine" = "HispanicLatinaeo",
-      "MidEastNAf" = "MidEastNAfrican",
-      "NativeHIPacific",
-      "White",
-      "RaceEthnicityUnknown",
-      
-      "AmIndAKNativeAloneMethod1Detailed",
-      "AmIndAKNativeLatineMethod1Detailed",
-      "AsianAloneMethod1Detailed",
-      "AsianLatineMethod1Detailed",
-      "BlackAfAmericanAloneMethod1Detailed",
-      "BlackAfAmericanLatineMethod1Detailed",
-      "LatineAloneMethod1Detailed",
-      "MidEastNAfricanAloneMethod1Detailed",
-      "MidEastNAfricanLatineMethod1Detailed",
-      "NativeHIPacificAloneMethod1Detailed",
-      "NativeHIPacificLatineMethod1Detailed",
-      "WhiteAloneMethod1Detailed",
-      "WhiteLatineMethod1Detailed",
-      "MultipleNotLatineMethod1Detailed",
-      "MultipleLatineMethod1Detailed",
-      
-      "BILPOCMethod1Summarized",
-      "WhiteMethod1Summarized",
-      
-      "AmIndAKNativeMethod2Detailed",
-      "AsianMethod2Detailed",
-      "BlackAfAmericanMethod2Detailed",
-      "LatineMethod2Detailed",
-      "MidEastNAfricanMethod2Detailed",
-      "NativeHIPacificMethod2Detailed",
-      "WhiteMethod2Detailed",
-      
-      "BlackAfAmericanLatineMethod2Summarized",
-      "LatineMethod2Summarized",
-      "LatineAloneMethod2Summarized"
-    )
-    
-    report_status_fields <- c(
-      "Earliest-ReportStatus" = "InflowTypeSummary",
-      "Earliest-ReportStatusDetail" = "InflowTypeDetail",
-      "Latest-ReportStatus" = "OutflowTypeSummary",
-      "Latest-ReportStatusDetail" = "OutflowTypeDetail"
-    )
-    
-    enrollment_fields <- c(
-      "PersonalID",
-      "eecr",
-      "lecr",
-      "EnrollmentID",
-      "HouseholdType",
-      "CorrectedHoH",
-      "ProjectType",
-      "EntryDate",
-      "LivingSituation",
-      "MoveInDateAdjust",
-      "ExitAdjust",
-      "Destination"
-    )
-    
-    enrollment_info <- sys_universe_ppl_flags()[, ..enrollment_fields][
-      , `:=`(
-        Destination = living_situation(Destination),
-        LivingSituation = living_situation(LivingSituation),
-        HouseholdType = factor(
-          case_when(
-            HouseholdType %in% c("PY", "ACminusPY") ~ "AC",
-            HouseholdType %in% c("UY", "AOminusUY") ~ "AO",
-            TRUE ~ HouseholdType
-          ),
-          levels = c("AO", "AC", "CO", "UN")
-        )
-      )
-    ]
-    
-    earliest_report_info <- enrollment_info[eecr == 1][, c("eecr","lecr") := NULL]
-    setnames(earliest_report_info, 
-             old = setdiff(names(earliest_report_info), "PersonalID"), 
-             new = paste0("Earliest-", setdiff(names(earliest_report_info), "PersonalID")))
-    
-    latest_report_info <- enrollment_info[lecr == 1][,  c("eecr","lecr") := NULL]
-    setnames(latest_report_info, 
-             old = setdiff(names(latest_report_info), "PersonalID"), 
-             new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
+# if user changes filters, update the reactive vals
+# which get used for the various System Overview charts
+observeEvent({
+  input$syso_hh_type
+  input$syso_level_of_detail
+  input$syso_project_type
+  input$methodology_type
+  input$syso_age
+  input$syso_spec_pops
+  input$syso_race_ethnicity
+}, {
+  # hide download buttons if < 11 records
+  # All Served is handled in system_composition_server.R
+  # for that chart, we also hide if all *cells* are < 11
+  full_data <- get_inflow_outflow_full()
+  
+  shinyjs::toggle(
+    "sys_inflow_outflow_download_btn sys_inflow_outflow_download_btn_ppt", 
+    condition = nrow(full_data) > 10
+  )
+  
+  shinyjs::toggle(
+    "sys_status_download_btn sys_status_download_btn_ppt",
+    condition = if(nrow(full_data) > 0) sum(get_sankey_data()$freq) > 10 else FALSE
+  )
+}, ignoreInit = TRUE)
 
-    # details tab
-    client_level_details <- unique(sys_universe_ppl_flags()[
-      , 
-      c(..detail_client_fields, ..report_status_fields)
-    ])[
-      earliest_report_info, on = "PersonalID", nomatch = 0
-    ][
-      latest_report_info, on = "PersonalID", nomatch = 0
-    ]
-    setnames(client_level_details, 
-             old = report_status_fields, 
-             new = names(report_status_fields))
-    
-    # User's filter selections - metadata tab
-    export_date_info <- tibble(
-      Chart = c(
-        "ExportStart",
-        "ExportEnd"
-      ),
-      Value = c(
-        as.character(meta_HUDCSV_Export_Start()),
-        as.character(meta_HUDCSV_Export_End())
-      )
+source("client_level_export_server.R", local=TRUE)
+
+# Get period report_dates --------------------------------------------
+get_months_in_report_period <- function() {
+  seq.Date(from = session$userData$ReportStart, to = session$userData$ReportEnd, by = "months")
+} 
+get_report_dates <- function() {
+  months_in_report_period <- get_months_in_report_period()
+  c(
+    list("Full" = c(session$userData$ReportStart, session$userData$ReportEnd)),
+    setNames(
+      lapply(months_in_report_period, function(d) {
+        c(d, ceiling_date(d, "month") - days(1))
+      }),
+      months_in_report_period
     )
-    
-    system_df_info <- system_activity_prep_detail() %>% 
-      select(Status, values, Time, InflowOutflow, InflowOutflowSummary)
-    
-    filter_selections <- rbind(
-      export_date_info, # ExportStart, Exportend
-      sys_export_summary_initial_df(), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
-      sys_export_filter_selections(), # Age, Veteran Status, Race/Ethnicity
-      tibble(
-        Chart = "Total Served (Start + Inflow) People",
-        Value = sum(system_df_info %>% filter(InflowOutflow == 'Inflow') %>% pull(values), na.rm = TRUE)
-      )
-    )
-    colnames(filter_selections) <- c("Filter","Selection")
-    
-    # probably want to read in the glossary tab as a csv or Excel and append to it.
-    
-    # all sheets for export
-    client_level_export_list <- list(
-      client_level_metadata = filter_selections,
-      data_dictionary = setNames(
-        read.csv(here("www/client-level-export-data-dictionary.csv")),
-        c("Column Name", "Variable Type", "Definition")
-      ),
-      client_level_details = client_level_details
-    )
-    
-    names(client_level_export_list) = c(
-      "Metadata",
-      "Data Dictionary",
-      "Details"
-    )
-    
-    write_xlsx(
-      client_level_export_list,
-      path = file,
-      format_headers = FALSE,
-      col_names = TRUE
-    )
-    
-    logToConsole("Downloaded Client Level Export")
-    logMetadata(paste0(
-      "Downloaded Client Level Export",
-      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
-    ))
-    
-    exportTestValues(client_level_export_details = client_level_details) 
+  )
+}
+
+# Cache management for period-specific universe_ppl_flag datasets --------------
+# Check cache size - this keeps the cache manageable
+check_cache_size <- function(cache, max_size_mb = 100) {
+  cache_size <- utils::object.size(cache) / 1024^2  # Convert to MB
+  if (cache_size > max_size_mb) {
+    rm(list = ls(cache), envir = cache)
+    gc()
+    return(TRUE)
   }
-)
+  FALSE
+}
+
+# Get period-specific universe_ppl_flag datasets ---------------------------
+period_specific_data <- reactive({
+  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
+  logToConsole(session, "in period_specific_data")
+  
+  if(is.null(session$userData$period_cache)) {
+    session$userData$period_cache <- new.env()
+  }
+  cache <- session$userData$period_cache
+  
+  check_cache_size(cache)
+  
+  cache_key <- digest::digest(list(
+    if(isTruthy(input$in_demo_mode)) "demo" else input$imported$name,
+    
+    # Client-level filters
+    input$syso_age,
+    input$syso_race_ethnicity,
+    input$syso_spec_pops,
+    
+    # Enrollment-level filters
+    input$syso_hh_type,
+    input$syso_level_of_detail,
+    input$syso_project_type
+  ))
+  
+  cached_result <- cache[[cache_key]]
+  if (!is.null(cached_result)) {
+    return(cached_result)
+  }
+  
+  upload_name <- ifelse(input$in_demo_mode, "DEMO", input$imported$name)
+  
+  results <- lapply(
+    session$userData$report_dates,
+    function(period) {
+      # custom_rprof({
+      enrollments_filtered <- enrollment_categories_filtered()
+      
+      all_filtered <- session$userData$get_period_specific_enrollment_categories(
+        period, 
+        upload_name, 
+        enrollments_filtered
+      )
+      
+      if(nrow(all_filtered) == 0) return(all_filtered)
+      
+      all_filtered_w_lh <- add_lh_info(all_filtered, period)
+      universe_w_enrl_flags <- universe_enrl_flags(all_filtered_w_lh, period)
+      universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags, period)
+      
+      # Add month flag for month-periods
+      if(!identical(period, session$userData$report_dates[["Full"]])) {
+        universe_w_ppl_flags[, month := as.Date(period[1])]
+      }
+      # }, "system_overview_server.R")
+      universe_w_ppl_flags
+    }
+  )
+  cache[[cache_key]] <- results
+  session$userData$period_cache <- cache
+  results
+})
+
+# Client-level flags, filtered ----------------------------------------------------
+client_categories_filtered <- reactive({
+  req(nrow(session$userData$client_categories) > 0)
+  
+  session$userData$client_categories[
+    AgeCategory %in% input$syso_age &
+    if(input$syso_race_ethnicity == "All") TRUE else get(input$syso_race_ethnicity) == 1 & 
+    (
+      input$syso_spec_pops == "None" |
+      (input$syso_spec_pops == "Veteran" &
+         VeteranStatus == 1 & !AgeCategory %in% c("0 to 12", "13 to 17")) |
+      (input$syso_spec_pops == "NonVeteran" &
+         VeteranStatus == 0 & !AgeCategory %in% c("0 to 12", "13 to 17"))
+    )
+  ]
+})
+
+# Create passes-enrollment-filter flag to exclude enrollments from eecr -------
+enrollment_categories_filtered <- reactive({
+  logToConsole(session, "in enrollment_categories_filtered")
+  join( 
+    session$userData$enrollment_categories,
+    client_categories_filtered() %>% fselect(PersonalID, VeteranStatus),
+    # client_categories_filt, # this is used for mirai
+    on = "PersonalID",
+    how = "inner"
+  ) %>%
+    fmutate(
+      passes_enrollment_filters =
+        # Household type filter
+        (input$syso_hh_type == "All" |
+           (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+           (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+           (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+           (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
+           input$syso_hh_type == HouseholdType
+        ) &
+        # Level of detail filter
+        (input$syso_level_of_detail == "All" |
+           (input$syso_level_of_detail == "HoHsAndAdults" &
+              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+           (input$syso_level_of_detail == "HoHsOnly" &
+              CorrectedHoH == 1)) &
+        # Project type filter
+        (input$syso_project_type == "All" |
+           (input$syso_project_type == "Residential: Homeless Projects" & ProjectType %in% lh_residential_project_types) |
+           (input$syso_project_type == "Residential: Permanent Housing Projects" & ProjectType %in% ph_project_types) |
+           (input$syso_project_type == "Non-Residential: Street Outreach" & ProjectType == out_project_type)
+        )
+    )
+})
+
+## LH info for non-res enrollments -----------
+# continuing the work of the base lh_non_res dataset from 07_system_overview.R 
+# we now make it period-specific, and collapse it down to the enrollment-level
+# so this contains enrollments with LH CLS and an indicator as to 
+# whether InformationDate is within to 60 or 90 days 
+# (depending on project type, but only limited to Non-Res Project Types) 
+# from the period start/end
+# we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
+# this avoids having to re-filter and do the check for each enrollment
+lh_non_res_period <- function(startDate, endDate) {
+  logToConsole(session, "in lh_non_res_period")
+  lh_non_res <- session$userData$lh_non_res %>%
+    # Initial filtering
+    fsubset(EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))) %>%
+    
+    # Calculate time windows
+    ftransform(
+      start_window = startDate - fifelse(ProjectType == ce_project_type, 90, 60),
+      end_window = endDate - fifelse(ProjectType == ce_project_type, 90, 60)
+    ) %>%
+    ftransform(
+      lh_cls_in_start_window = between(InformationDate, start_window, startDate + 15),
+      lh_cls_in_end_window = between(InformationDate, end_window, endDate + 15),
+      entry_in_start_window = between(EntryDate, start_window, startDate + 15),
+      entry_in_end_window = between(EntryDate, end_window, endDate),
+      lh_cls_during_period = between(InformationDate, start_window, endDate + 15)
+    )  %>%
+    fselect(
+      EnrollmentID, ProjectType, lh_prior_livingsituation,
+      lh_cls_in_start_window,
+      lh_cls_in_end_window,
+      entry_in_start_window,
+      entry_in_end_window,
+      lh_cls_during_period
+    ) %>%
+    fsubset(
+      lh_cls_in_start_window |
+        lh_cls_in_end_window |
+        entry_in_start_window |
+        entry_in_end_window |
+        lh_cls_during_period
+    )
+
+  if(nrow(lh_non_res) == 0 ) {
+    logToConsole(session, "no non-res lh records")
+    return(lh_non_res)
+  }
+  
+  lh_non_res %>%
+    # Group by EnrollmentID and calculate window flags
+    fgroup_by(EnrollmentID) %>%
+    fmutate(
+      lh_cls_in_start_window = anyv(lh_cls_in_start_window, TRUE),
+      lh_cls_in_end_window = anyv(lh_cls_in_end_window, TRUE),
+      entry_in_start_window = entry_in_start_window,
+      entry_in_end_window = entry_in_end_window,
+      lh_cls_during_period = anyv(lh_cls_during_period, TRUE)
+    ) %>%
+    fungroup()
+}
+
+## LH info for NbN enrollments--------------
+lh_nbn_period <- function(startDate, endDate) {
+  logToConsole(session, "in lh_nbn_period")
+  lh_nbn <- session$userData$lh_nbn %>%
+    # Initial filtering
+    fsubset(EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2))) %>%
+    ftransform(
+      nbn_in_start_window = between(DateProvided, startDate - 15, startDate + 15),
+      nbn_in_end_window = between(DateProvided, endDate - 15, endDate + 15),
+      entry_in_start_window = between(EntryDate, startDate - 15, startDate + 15),
+      entry_in_end_window = between(EntryDate, endDate - 15, endDate),
+      nbn_during_period = between(DateProvided, startDate - 15, endDate + 15)
+    ) %>%
+    fselect(
+      EnrollmentID, ProjectType, 
+      nbn_in_start_window,
+      nbn_in_end_window,
+      entry_in_start_window,
+      entry_in_end_window,
+      nbn_during_period
+    ) %>%
+    fsubset(
+      nbn_in_start_window |
+        nbn_in_end_window |
+        entry_in_start_window |
+        entry_in_end_window |
+        nbn_during_period
+    )
+  
+  if(nrow(lh_nbn) == 0) {
+    logToConsole(session, "no NbN lh records")
+    return(lh_nbn)
+  }
+  
+  lh_nbn %>%
+    fgroup_by(EnrollmentID) %>%
+    fmutate(
+      nbn_in_start_window = anyv(nbn_in_start_window, TRUE),
+      nbn_in_end_window = anyv(nbn_in_end_window, TRUE),
+      entry_in_start_window = entry_in_start_window,
+      entry_in_end_window = entry_in_end_window,
+      nbn_during_period = anyv(nbn_during_period, TRUE)
+    ) %>%
+    fungroup()
+}
+
+## LH info for Other enrollments --------------
+lh_other_period <- function(all_filtered, startDate, endDate) {
+  all_filtered %>%
+    fsubset(
+      EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2)) & (
+        ProjectType %in% lh_project_types_nonbn | 
+        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
+      )
+    ) %>%
+    ftransform(
+      entry_in_start_window = between(EntryDate, startDate, startDate + 15)
+    ) %>%
+    fselect(
+      EnrollmentID, ProjectType, MoveInDateAdjust,
+      straddles_start, straddles_end,
+      entry_in_start_window,
+      days_since_lookback,
+      days_to_lookahead
+    )
+}
+
+# Combine lh_infos and add to filtered universe dataset-------------------
+add_lh_info <- function(all_filtered, period) {
+  logToConsole(session, "in add_lh_info")
+  startDate <- period[1]
+  endDate <- period[2]
+
+  lh_other_info <- lh_other_period(all_filtered, startDate, endDate)[, .(
+    EnrollmentID,
+    
+    was_lh_at_start = 
+      # For Res projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
+      # must either straddle or otherwise be close to (i.e. 14 days from) 
+      # start so we can make claims about status at start
+      # and must be within 14 days of previous enrollment, otherwise it would be an exit
+      (straddles_start | (entry_in_start_window & days_since_lookback <= 14)) & (
+        ProjectType %in% lh_project_types_nonbn | 
+        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
+      ),
+    
+    was_lh_at_end = (straddles_end | days_to_lookahead <= 14) & (
+      ProjectType %in% lh_project_types_nonbn | 
+      (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
+    )
+  )]
+  
+  join(
+    all_filtered, 
+    lh_other_info, 
+    on = "EnrollmentID", 
+    how = "left",
+    suffix = c("", ".new")
+  ) %>%
+    fmutate(
+      was_lh_at_start = fcoalesce(was_lh_at_start, fcoalesce(was_lh_at_start.new, FALSE)), 
+      was_lh_at_end = fcoalesce(was_lh_at_end, fcoalesce(was_lh_at_end.new, FALSE))
+    ) %>%
+    fselect(-c(was_lh_at_start.new, was_lh_at_end.new))
+}

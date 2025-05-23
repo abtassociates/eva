@@ -1,5 +1,5 @@
 output$sankey_filter_selections <- renderUI({ 
-  req(valid_file() == 1)
+  req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
 
@@ -126,9 +126,9 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
     )
 }
 output$sankey_ui_chart <- renderPlot({
-  req(valid_file() == 1)
+  req(session$userData$valid_file() == 1)
   
-  plot_data <- sankey_plot_data()
+  plot_data <- get_sankey_data()
   
   validate(
     need(
@@ -167,7 +167,7 @@ output$sys_status_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Status Report - "),
   content = function(file) {
     # create a list of the 3 excel tabs and export
-    spd <- sankey_plot_data() %>% 
+    spd <- get_sankey_data() %>% 
       xtabs(freq ~ End + Begin, data=.) %>% 
       addmargins(FUN = sum) %>% 
       as.data.frame.matrix() %>%
@@ -179,7 +179,7 @@ output$sys_status_download_btn <- downloadHandler(
     tab_names <- list(
       "System Status Metadata" = sys_export_summary_initial_df() %>%
         bind_rows(sys_export_filter_selections()) %>%
-        bind_rows(sys_status_export_info(sankey_plot_data())) %>%
+        bind_rows(sys_status_export_info(get_sankey_data())) %>%
         rename("System Status" = Value),
       "System Status Detail" = spd
     )
@@ -191,7 +191,7 @@ output$sys_status_download_btn <- downloadHandler(
       col_names = TRUE
     )
 
-    exportTestValues(sys_status_report = sankey_plot_data())
+    exportTestValues(sys_status_report = get_sankey_data())
   }
 )
 
@@ -206,10 +206,52 @@ output$sys_status_download_btn_ppt <- downloadHandler(
       summary_items = sys_export_summary_initial_df() %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_export_filter_selections()) %>%
-        bind_rows(sys_status_export_info(sankey_plot_data())),
+        bind_rows(sys_status_export_info(get_sankey_data())),
       plot_slide_title = "Client System Status",
-      plot1 = render_sankey_plot(sankey_plot_data(), isExport=TRUE),
+      plot1 = render_sankey_plot(get_sankey_data(), isExport=TRUE),
       summary_font_size = 21
     )
   }
 )
+
+
+# The universe is anyone who was Housed or Homeless at Period Start
+# We also need the latest exit for the folks in the Exited categories
+get_sankey_data <- reactive({
+  full_data <- get_inflow_outflow_full()
+  
+  req(nrow(full_data) > 0)
+  
+  plot_df <- full_data[
+    InflowTypeDetail %in% active_at_levels,
+    .(PersonalID, InflowTypeDetail, OutflowTypeDetail)
+  ]
+  
+  req(nrow(plot_df) > 0)
+  
+  allu <- plot_df %>%
+    count(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>%
+    mutate(
+      Begin = factor(Begin, levels = active_at_levels), # Or c("Housed", "Homeless") depending on desired order
+      
+      End = gsub("\n", " ", End), # Remove newlines
+      End = ifelse( # Prepend "Enrolled, " for specific values
+        End %in% active_at_levels,
+        paste0("Enrolled, ", End),
+        End
+      ),
+      
+      End = factor(
+        End,
+        levels = c(
+          "Exited, Non-Permanent",
+          "Enrolled, Homeless",
+          "Inactive",
+          "Exited, Permanent",
+          "Enrolled, Housed"
+        )
+      )
+    )
+  
+  allu
+})

@@ -1,6 +1,9 @@
 # This helps manage "canceling" a switch to/from demo mode
 in_demo_mode_compare <- reactiveVal(FALSE)
 
+# in Demo Mode, tracks if user has seen tab-specific pop-up
+seen_message <- reactiveValues() 
+
 # Tab-description message when in demo mode ----------------------------------
 observeEvent(input$pageid, {
   req(input$in_demo_mode)
@@ -74,6 +77,7 @@ observeEvent(input$in_demo_mode,{
 
 show_warning_popup <- function(in_demo_mode) {
   if(in_demo_mode == TRUE) {
+
     msg <- "<p>You're currently requesting to turn on Demo Mode. Demo Mode
       allows you to explore Eva using sample HMIS data, rather than having to
       use your own HMIS CSV Export file."
