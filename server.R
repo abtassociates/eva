@@ -38,12 +38,12 @@ function(input, output, session) {
   
   # set during initially valid processing stop. Rest of processing stops if invalid
   # FSA is hidden unless initially_valid_import() == 1
-  initially_valid_import <- reactiveVal() 
+  # initially_valid_import <- reactiveVal() 
   
   # in_demo_mode <- reactiveVal(value=FALSE)
   # log when user navigate to a tab
-  observe({ 
-    logMetadata(paste0("User on ",input$pageid, 
+  observe({
+    logMetadata(session, paste0("User on ",input$pageid,
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   })
   

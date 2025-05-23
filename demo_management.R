@@ -127,14 +127,14 @@ observeEvent(input$stay_in_demo, {
 
   toggle_switch(id = 'in_demo_mode', value = TRUE)
   removeModal()
-  logMetadata("Chose to stay in demo mode")
+  logMetadata(session, "Chose to stay in demo mode")
 })
 
 observeEvent(input$stay_in_live, {
 
   toggle_switch(id = 'in_demo_mode', value = FALSE)  
   removeModal()
-  logMetadata("Chose to stay in live mode")
+  logMetadata(session, "Chose to stay in live mode")
 })
 
 observeEvent(input$continue_live_btn, {
@@ -154,7 +154,7 @@ toggle_demo <- function(in_demo_mode) {
   mode <- ifelse(in_demo_mode, 'demo', 'live')
   print(glue("Switched to {mode} mode!"))
   capture.output(glue("Switched into {mode} mode"))
-  logMetadata(glue("Switched to {mode} mode"))
+  logMetadata(session, glue("Switched to {mode} mode"))
   
   nav_select(id = 'pageid', selected = ifelse(in_demo_mode, 'tabHome', 'tabUpload'), session = session)
   shinyjs::toggle("fileStructureAnalysis", condition = in_demo_mode)
