@@ -114,7 +114,7 @@ function(input, output, session) {
   
   # Detect user clicking to go to upload page -------------------------------
   observeEvent(input$Go_to_upload, {
-    updateTabItems(session, "sidebarmenuid", "tabUpload")
+    nav_select(id = "pageid", selected = "tabUpload", session = session)
   }) 
   
   # Timeout detection ---------------------
