@@ -210,8 +210,7 @@ sys_overview_ppt_export <- function(file,
                                     title_slide_title,
                                     summary_items,
                                     plot_slide_title,
-                                    plot1,
-                                    plot2 = NULL,
+                                    plots,
                                     summary_font_size) {
   
   logMetadata(session, paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
@@ -278,16 +277,13 @@ sys_overview_ppt_export <- function(file,
     add_footer()
   
   # Chart
-  ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
-    ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%
-    ph_with(value = plot1, location = loc_body) %>%
-    add_footer()
-  
-  if(!is.null(plot2)) {
-    ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
-      ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%
-      ph_with(value = plot2, location = loc_body) %>%
-      add_footer()
+  for(p in plots) {
+    if(!is.null(p)) {
+      ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
+        ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%
+        ph_with(value = p, location = loc_body) %>%
+        add_footer()
+    }
   }
   
   # Export the PowerPoint
