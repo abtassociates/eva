@@ -533,7 +533,7 @@ sys_inflow_outflow_monthly_single_status_chart_data <- function(varname, status)
 
 # Summary/Detail (Annual) Chart Prep ---------------------------------------
 # Function called in the renderPlot and exports
-get_system_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
+get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   logToConsole(session, paste0("Getting sys inflow/outflow plot for ", id, ". For export? ", isExport))
   
   df <- sys_inflow_outflow_annual_chart_data()
@@ -698,7 +698,7 @@ renderInflowOutflowFullPlot <- function(chart_id, alt_text) {
         )
       )
       
-      get_system_inflow_outflow_annual_plot(chart_id)
+      get_sys_inflow_outflow_annual_plot(chart_id)
     },
     alt = alt_text,
     width = ifelse(isTRUE(getOption("shiny.testmode")), 1113, "auto")
@@ -724,7 +724,7 @@ renderInflowOutflowFullPlot(
 ## Monthly --------------------------------------------
 ### MbM Chart --------------------------------------
 # Bar - Active at Start + Inflow/Outflow
-output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
+get_sys_inflow_outflow_monthly_plot <- reactive({
   logToConsole(session, "In sys_inflow_outflow_monthly_ui_chart")
   monthly_chart_validation()
   
@@ -737,10 +737,10 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
   averages <- plot_data %>%
     fsubset(PlotFillGroups != "Active at Start: Homeless") %>%
     collap(cols = "Count", FUN=fmean, by = ~ Summary)
-
+  
   avg_monthly_change <- fmean(
     plot_data[PlotFillGroups == "Inflow", Count] - 
-    plot_data[Summary == "Outflow", Count]
+      plot_data[Summary == "Outflow", Count]
   )
   
   level_of_detail_text <- case_when(
@@ -786,8 +786,8 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
         "Average Monthly Inflow: +", scales::comma(averages[Summary == "Inflow", Count], accuracy = 0.1), "\n",
         "Average Monthly Outflow: -", scales::comma(averages[Summary == "Outflow", Count], accuracy = 0.1), "\n",
         "Average Monthly Change in ", 
-          level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
-          scales::comma(avg_monthly_change, accuracy = 0.1)
+        level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
+        scales::comma(avg_monthly_change, accuracy = 0.1)
       )
     ) +
     theme(
@@ -803,6 +803,9 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 })
+output$sys_inflow_outflow_monthly_ui_chart <- renderPlot(
+  get_sys_inflow_outflow_monthly_plot()
+)
 
 # Pure line chart -------
 # output$sys_inflow_outflow_monthly_ui_chart_line <- renderPlot({
@@ -961,7 +964,7 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 ### Table --------------------------------------
 # The table is positioned directly under the chart
 # Making the month labels looks like both the chart's x-axis and the table's column headers
-output$sys_inflow_outflow_monthly_table <- renderDT({
+get_sys_inflow_outflow_monthly_table <- reactive({
   logToConsole(session, "In sys_inflow_outflow_monthly_table")
   
   monthly_chart_records <- sys_inflow_outflow_monthly_chart_data()
@@ -984,7 +987,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
         levels = names(mbm_bar_colors)
       )
     )
-
+  
   # Get Monthly Change (Inflow - Outflow)
   month_cols <- names(summary_data)[-1]
   inflow_vals <- summary_data[PlotFillGroups %in% names(mbm_inflow_bar_colors), ..month_cols]
@@ -996,7 +999,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
     add_vars(as.list(change_row), PlotFillGroups = "Monthly Change")
   ) %>%
     roworder(PlotFillGroups)
-
+  
   if(input$mbm_fth_filter == "First-Time Homeless")
     summary_data_with_change <- summary_data_with_change[PlotFillGroups == "Inflow"][
       , PlotFillGroups := input$mbm_fth_filter
@@ -1007,7 +1010,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
     ]
   
   setnames(summary_data_with_change, "PlotFillGroups", " ")
-
+  
   monthly_dt <- datatable(
     summary_data_with_change,
     options = list(
@@ -1021,29 +1024,29 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
     ),
     rownames = FALSE
   )  %>%
-  # Highlight only the first column of "Inflow" and "Outflow" rows
-  formatStyle(
-    columns = 1,  # First column
-    target = "cell",
-    backgroundColor = styleEqual(
-      names(mbm_bar_colors),
-      unname(mbm_bar_colors)
-    ),
-    border = styleEqual(
-      names(mbm_bar_colors),
-      c(rep("2px solid black", 4))
+    # Highlight only the first column of "Inflow" and "Outflow" rows
+    formatStyle(
+      columns = 1,  # First column
+      target = "cell",
+      backgroundColor = styleEqual(
+        names(mbm_bar_colors),
+        unname(mbm_bar_colors)
+      ),
+      border = styleEqual(
+        names(mbm_bar_colors),
+        c(rep("2px solid black", 4))
+      )
+    ) %>%
+    # Contrast font and background colors
+    formatStyle(
+      columns = 1,
+      target = "cell",
+      color = styleEqual(
+        c("Active at End: Housed", "Outflow"),
+        c("white", "white")
+      )
     )
-  ) %>%
-  # Contrast font and background colors
-  formatStyle(
-    columns = 1,
-    target = "cell",
-    color = styleEqual(
-      c("Active at End: Housed", "Outflow"),
-      c("white", "white")
-    )
-  )
-
+  
   # Highlight max inflow
   if(any(change_row > 0)) {
     monthly_dt <- monthly_dt %>%
@@ -1065,6 +1068,9 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
   }
   monthly_dt
 })
+output$sys_inflow_outflow_monthly_table <- renderDT(
+  get_sys_inflow_outflow_monthly_table()
+)
 
 ### Inactive + FTH chart --------------------------------------
 sys_monthly_single_status_ui_chart <- function(varname, status) {
@@ -1154,6 +1160,81 @@ sys_inflow_outflow_export_info <- function() {
 }
 
 # Tabular/Excel Export --------------------------------------------------------
+## Monthly Export function------
+sys_export_monthly_info <- function() {
+  df_monthly <- sys_inflow_outflow_monthly_chart_data()
+  
+  monthly_counts <- rbind(
+    df_monthly[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups, Detail = InflowTypeDetail)] %>%
+      fmutate(Detail = fct_relabel(
+        Detail, 
+        function(x) if_else(
+          x %in% active_at_levels, 
+          paste0("Active at Start: ", x), 
+          paste0("Inflow: ", x)
+        )
+      )),
+    df_monthly[, .(PersonalID, month, PlotFillGroups = OutflowPlotFillGroups, Detail = OutflowTypeDetail)] %>%
+      fmutate(Detail = fct_relabel(
+        Detail, 
+        function(x) if_else(
+          x %in% active_at_levels, 
+          paste0("Active at End: ", x), 
+          paste0("Outflow: ", x)
+        )
+      ))
+  ) %>%
+    fsubset(!Detail %in% c(
+      "Inflow: Continuous at Start",
+      "Outflow: Continuous at End", 
+      "Inflow: Unknown",
+      "Active at Start: Housed",
+      "Active at End: Homeless"
+    )) %>%
+    funique() %>%
+    fgroup_by(month, PlotFillGroups, Detail) %>%
+    fsummarise(Count = GRPN()) %>%
+    roworder(month, PlotFillGroups, Detail) %>%
+    pivot(
+      ids = c("PlotFillGroups", "Detail"),
+      values = "Count",
+      names = "month",
+      fill = 0,
+      how = "wider"
+    )
+  
+  monthly_totals <- monthly_counts %>%
+    fsubset(PlotFillGroups %in% c("Inflow", "Outflow")) %>%
+    fselect(-Detail) %>% 
+    fgroup_by(PlotFillGroups) %>%
+    fsum() %>%
+    frename(PlotFillGroups = "Detail") %>%
+    fmutate(Detail = factor(paste0("Total ", Detail)))
+  
+  monthly_changes <- qDT(as.list(
+    fsum(monthly_counts[Detail == "Active at Start: Homeless" | PlotFillGroups == "Inflow", !c("Detail")]) -
+      fsum(monthly_counts[Detail == "Active at End: Housed" | PlotFillGroups == "Outflow", !c("Detail")]) 
+  )) %>%
+    frename(PlotFillGroups = "Detail") %>%
+    fmutate(Detail = factor("Monthly Change"))
+  
+  monthly_averages <- bind_rows(monthly_changes, monthly_totals)[
+    , 
+    .(Value = as.character(round(rowMeans(.SD), 0))),
+    by = c("Chart" = "Detail")
+  ][, Chart := gsub("Total ", "", paste0("Average ", Chart))]
+  
+  return(
+    list(
+      monthly_counts_detail = monthly_counts,
+      monthly_counts_total = monthly_totals,
+      monthly_changes = monthly_changes,
+      monthly_averages = monthly_averages
+    )
+  )
+}
+
+## Sys Inflow/Outflow Download Handler ------
 output$sys_inflow_outflow_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Flow Report - "),
   content = function(file) {
@@ -1164,12 +1245,17 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
       fgroup_by(Summary) %>% 
       fsummarise(Detail = paste0("Total ", Summary[1]),
                  N = fsum(N, na.rm = TRUE))
+
+    monthly_data <- sys_export_monthly_info()
     
     write_xlsx(
       list(
         "System Flow Metadata" = sys_export_summary_initial_df() %>%
-          bind_rows(sys_export_filter_selections()) %>%
-          bind_rows(sys_inflow_outflow_export_info()) %>%
+          bind_rows(
+            sys_export_filter_selections(),
+            sys_inflow_outflow_export_info(),
+            monthly_data$monthly_averages
+          ) %>%
           mutate(Value = replace_na(Value, 0)) %>%
           rename("System Flow" = Value),
         "System Flow Data" = bind_rows(df, totals_df) %>%
@@ -1178,7 +1264,16 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
             "Summary Category" = Summary,
             "Detail Category" = Detail,
             "Count" = N
-          )
+          ),
+        "System Flow Data Monthly" = monthly_data$monthly_counts %>%
+          bind_rows(monthly_data$totals_monthly, monthly_data$monthly_change) %>%
+          fmutate(Detail = fct_relevel(
+            Detail, 
+            "Total Inflow", 
+            after = 7
+          )) %>%
+          roworder(Detail) %>%
+          fselect(-PlotFillGroups)
       ),
       path = file,
       format_headers = FALSE,
@@ -1200,18 +1295,33 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
     paste("System Flow_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
+    monthly_data <- sys_export_monthly_info()
+    
     sys_overview_ppt_export(
       file = file,
       title_slide_title = "System Flow",
       summary_items = sys_export_summary_initial_df() %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
-        bind_rows(sys_export_filter_selections()) %>%
-        bind_rows(sys_inflow_outflow_export_info()),
+        bind_rows(
+          sys_export_filter_selections(),
+          sys_inflow_outflow_export_info(),
+          monthly_data$monthly_averages
+        ),
       plot_slide_title = "System Flow Summary",
-      plot1 = get_system_inflow_outflow_annual_plot("sys_inflow_outflow_summary_ui_chart",
-                                             isExport = TRUE),
-      plot2 = get_system_inflow_outflow_annual_plot("sys_inflow_outflow_detail_ui_chart",
-                                             isExport = TRUE),
+      plots = list(
+        get_sys_inflow_outflow_annual_plot(
+          "sys_inflow_outflow_summary_ui_chart",
+          isExport = TRUE
+        ),
+        get_sys_inflow_outflow_annual_plot(
+          "sys_inflow_outflow_detail_ui_chart",
+          isExport = TRUE
+        ),
+        list(
+          get_sys_inflow_outflow_monthly_plot(),
+          get_sys_inflow_outflow_monthly_table()
+        )
+      ),
       summary_font_size = 19
     )
   }
