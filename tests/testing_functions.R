@@ -169,6 +169,8 @@ main_test_script <- function(test_script_name, test_dataset) {
     
     app$set_inputs(pageid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(client_count_subtabs = 'Client Counts Detail')
+    app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "client-count",
       input = c(
@@ -188,6 +190,8 @@ main_test_script <- function(test_script_name, test_dataset) {
     #app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
     app$set_inputs(pageid = "tabPDDE")
     app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(pdde_subtabs = "Guidance")
+    app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "pdde",
       input = c(
@@ -206,6 +210,17 @@ main_test_script <- function(test_script_name, test_dataset) {
     
     app$set_inputs(pageid = "tabDQSystem")
     app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "High Priority Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(hp_errors_dqsystem_subtabs = "Top 10 Organizations")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "General Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(g_errors_dqsystem_subtabs = "Top 10 Organizations")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "Warnings")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(warnings_dqsystem_subtabs = "Top 10 Organizations")
     app$expect_values(
       name = "dq-system",
       input = c(
@@ -232,6 +247,21 @@ main_test_script <- function(test_script_name, test_dataset) {
     
     app$set_inputs(pageid = "tabDQOrg")
     app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "High Priority Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(hp_errors_dqorg_subtabs = "Top 10 Projects")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "General Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(g_errors_dqorg_subtabs = "Top 10 Projects")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "Warnings")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(warnings_dqorg_subtabs = "Top 10 Projects")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(dq_summary_subtabs = "Data Quality Guidance")
+    app$wait_for_idle(timeout = 1e+06)
+    
     app$expect_values(
       name = "dq-org",
       input = c(
