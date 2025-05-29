@@ -29,7 +29,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
-    app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
+    #app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
     app$set_inputs(pageid = "tabPDDE")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
@@ -185,14 +185,14 @@ main_test_script <- function(test_script_name, test_dataset) {
       )
     )
     
-    app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
+    #app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
     app$set_inputs(pageid = "tabPDDE")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "pdde",
       input = c(
-        "sidebarCollapsed",
-        "sidebarItemExpanded",
+        #"sidebarCollapsed",
+        #"sidebarItemExpanded",
         "pageid",
         inputs_no_bindings(DTs = c("pdde_guidance_summary", "pdde_summary_table"))
       ),
@@ -209,8 +209,8 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$expect_values(
       name = "dq-system",
       input = c(
-        "sidebarCollapsed",
-        "sidebarItemExpanded",
+        #"sidebarCollapsed",
+        #"sidebarItemExpanded",
         "pageid"
       ),
       output = c(
@@ -235,8 +235,8 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$expect_values(
       name = "dq-org",
       input = c(
-        "sidebarCollapsed",
-        "sidebarItemExpanded",
+        #"sidebarCollapsed",
+        #"sidebarItemExpanded",
         "pageid",
         "orgList",
         inputs_no_bindings(DTs = c("dq_org_guidance_summary", "dq_organization_summary_table"))
