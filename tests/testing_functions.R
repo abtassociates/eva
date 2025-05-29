@@ -25,20 +25,20 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
     
-    app$set_inputs(sidebarmenuid = "tabClientCount")
+    app$set_inputs(pageid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
     app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
-    app$set_inputs(sidebarmenuid = "tabPDDE")
+    app$set_inputs(pageid = "tabPDDE")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
-    app$set_inputs(sidebarmenuid = "tabDQSystem")
+    app$set_inputs(pageid = "tabDQSystem")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
-    app$set_inputs(sidebarmenuid = "tabDQOrg")
+    app$set_inputs(pageid = "tabDQOrg")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
   })
@@ -167,7 +167,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$wait_for_idle(timeout = 1e+06)
     customDownload(app, "downloadImpermissibleCharacterDetail", "Impermissible-Character-Detail.xlsx")
     
-    app$set_inputs(sidebarmenuid = "tabClientCount")
+    app$set_inputs(pageid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "client-count",
@@ -186,14 +186,14 @@ main_test_script <- function(test_script_name, test_dataset) {
     )
     
     app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
-    app$set_inputs(sidebarmenuid = "tabPDDE")
+    app$set_inputs(pageid = "tabPDDE")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "pdde",
       input = c(
         "sidebarCollapsed",
         "sidebarItemExpanded",
-        "sidebarmenuid",
+        "pageid",
         inputs_no_bindings(DTs = c("pdde_guidance_summary", "pdde_summary_table"))
       ),
       output = c(
@@ -204,14 +204,14 @@ main_test_script <- function(test_script_name, test_dataset) {
       )
     )
     
-    app$set_inputs(sidebarmenuid = "tabDQSystem")
+    app$set_inputs(pageid = "tabDQSystem")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "dq-system",
       input = c(
         "sidebarCollapsed",
         "sidebarItemExpanded",
-        "sidebarmenuid"
+        "pageid"
       ),
       output = c(
         "headerSystemDQ",
@@ -230,14 +230,14 @@ main_test_script <- function(test_script_name, test_dataset) {
       "dq_organization_summary_table"
     )
     
-    app$set_inputs(sidebarmenuid = "tabDQOrg")
+    app$set_inputs(pageid = "tabDQOrg")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "dq-org",
       input = c(
         "sidebarCollapsed",
         "sidebarItemExpanded",
-        "sidebarmenuid",
+        "pageid",
         "orgList",
         inputs_no_bindings(DTs = c("dq_org_guidance_summary", "dq_organization_summary_table"))
       ),
@@ -279,7 +279,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     )
     
     sys_inflow_outflow_inputs <- c(
-      "sidebarmenuid",
+      "pageid",
       "sys_inflow_outflow_subtabs",
       sys_universe_filters,
       sys_flow_filters,
@@ -291,7 +291,7 @@ main_test_script <- function(test_script_name, test_dataset) {
       "sys_inflow_outflow_summary_ui_chart"
     )
     
-    app$set_inputs(sidebarmenuid = "tabSystemOverview")
+    app$set_inputs(pageid = "tabSystemOverview")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-summary",
@@ -386,14 +386,14 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$expect_values(
       name = "sys-flow-information",
       input = c(
-        "sidebarmenuid",
+        "pageid",
         "sys_inflow_outflow_subtabs"
       )
     )
     
     # System Status/Sankey
     sys_status_inputs <- c(
-      "sidebarmenuid",
+      "pageid",
       "sys_status_subtabs",
       sys_universe_filters,
       sys_flow_filters,
@@ -422,7 +422,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     
     # System Composition/Demographics
     sys_comp_inputs <- c(
-      "sidebarmenuid",
+      "pageid",
       "sys_comp_subtabs",
       sys_universe_filters,
       # even though sys_flow_filters are hidden for System Demographics, 
