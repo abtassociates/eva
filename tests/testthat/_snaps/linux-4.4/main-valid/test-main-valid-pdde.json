@@ -1,5 +1,6 @@
 {
   "input": {
+    "pageid": "tabPDDE",
     "pdde_guidance_summary_cell_clicked": {
 
     },
@@ -160,10 +161,7 @@
           }
         }
       ]
-    },
-    "sidebarCollapsed": false,
-    "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabPDDE"
+    }
   },
   "output": {
     "downloadPDDEReportButton": {
@@ -195,10 +193,11 @@
     },
     "pdde_guidance_summary": {
       "x": {
+        "style": "bootstrap5",
         "filter": "top",
         "vertical": false,
         "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Guidance<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "container": "<table class=\"table table-striped table-hover row-border order-column display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Guidance<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "ltpi",
           "columnDefs": [
@@ -256,21 +255,68 @@
           "all_files": true
         },
         {
-          "name": "dt-core",
+          "name": "dt-core-bootstrap5",
           "version": "1.13.6",
           "src": {
-            "href": "dt-core-1.13.6"
+            "href": "dt-core-bootstrap5-1.13.6"
           },
           "meta": null,
-          "script": "js/jquery.dataTables.min.js",
-          "stylesheet": [
-            "css/jquery.dataTables.min.css",
-            "css/jquery.dataTables.extra.css"
+          "script": [
+            "js/jquery.dataTables.min.js",
+            "js/dataTables.bootstrap5.min.js"
           ],
+          "stylesheet": "css/dataTables.bootstrap5.min.css",
           "head": null,
           "attachment": null,
           "package": null,
           "all_files": false
+        },
+        {
+          "name": "bootstrap",
+          "version": "5.3.1",
+          "src": {
+            "href": "bootstrap-5.3.1"
+          },
+          "meta": {
+            "viewport": "width=device-width, initial-scale=1, shrink-to-fit=no"
+          },
+          "script": "bootstrap.bundle.min.js",
+          "stylesheet": "bootstrap.min.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "Roboto",
+          "version": "0.4.9",
+          "src": {
+            "href": "Roboto-0.4.9"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "font.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "bs3compat",
+          "version": "0.9.0",
+          "src": {
+            "href": "bs3compat-0.9.0"
+          },
+          "meta": null,
+          "script": [
+            "transition.js",
+            "tabs.js",
+            "bs3compat.js"
+          ],
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
         },
         {
           "name": "nouislider",
@@ -317,9 +363,10 @@
     },
     "pdde_summary_table": {
       "x": {
+        "style": "bootstrap5",
         "filter": "none",
         "vertical": false,
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Issue<\/th>\n      <th>Type<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "container": "<table class=\"table table-striped table-hover row-border order-column display\">\n  <thead>\n    <tr>\n      <th>Issue<\/th>\n      <th>Type<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "t",
           "columnDefs": [
@@ -380,21 +427,68 @@
           "all_files": true
         },
         {
-          "name": "dt-core",
+          "name": "dt-core-bootstrap5",
           "version": "1.13.6",
           "src": {
-            "href": "dt-core-1.13.6"
+            "href": "dt-core-bootstrap5-1.13.6"
           },
           "meta": null,
-          "script": "js/jquery.dataTables.min.js",
-          "stylesheet": [
-            "css/jquery.dataTables.min.css",
-            "css/jquery.dataTables.extra.css"
+          "script": [
+            "js/jquery.dataTables.min.js",
+            "js/dataTables.bootstrap5.min.js"
           ],
+          "stylesheet": "css/dataTables.bootstrap5.min.css",
           "head": null,
           "attachment": null,
           "package": null,
           "all_files": false
+        },
+        {
+          "name": "bootstrap",
+          "version": "5.3.1",
+          "src": {
+            "href": "bootstrap-5.3.1"
+          },
+          "meta": {
+            "viewport": "width=device-width, initial-scale=1, shrink-to-fit=no"
+          },
+          "script": "bootstrap.bundle.min.js",
+          "stylesheet": "bootstrap.min.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "Roboto",
+          "version": "0.4.9",
+          "src": {
+            "href": "Roboto-0.4.9"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "font.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "bs3compat",
+          "version": "0.9.0",
+          "src": {
+            "href": "bs3compat-0.9.0"
+          },
+          "meta": null,
+          "script": [
+            "transition.js",
+            "tabs.js",
+            "bs3compat.js"
+          ],
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
         },
         {
           "name": "crosstalk",
