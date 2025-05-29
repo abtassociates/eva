@@ -427,6 +427,7 @@ page_navbar(
           title = 'High Priority Errors',
           
           navset_underline(
+            id = 'hp_errors_dqsystem_subtabs',
             selected = "Issues",
             nav_panel(
               title = 'Top 10 Organizations',
@@ -444,6 +445,7 @@ page_navbar(
           title = 'General Errors',
           
           navset_underline(
+            id = 'g_errors_dqsystem_subtabs',
             selected = "Top 10 Issues",
             nav_panel(
               title = 'Top 10 Organizations',
@@ -460,6 +462,7 @@ page_navbar(
           id = 'warnings_dqsystem',
           title = 'Warnings',
           navset_underline(
+            id = 'warnings_dqsystem_subtabs',
             selected = "Top 10 Issues",
             nav_panel(
               title = "Top 10 Organizations", 
@@ -510,6 +513,7 @@ page_navbar(
           title = 'High Priority Errors',
           
           navset_underline(
+            id = 'hp_errors_dqorg_subtabs',
             selected = "Issues",
             nav_panel(
               title = 'Top 10 Projects',
@@ -527,6 +531,7 @@ page_navbar(
           title = 'General Errors',
           
           navset_underline(
+            id = 'g_errors_dqorg_subtabs',
             selected = "Top 10 Issues",
             nav_panel(
               title = 'Top 10 Projects',
@@ -543,6 +548,7 @@ page_navbar(
           id = 'warnings',
           title = 'Warnings',
           navset_underline(
+            id = 'warnings_dqorg_subtabs',
             selected = "Top 10 Issues",
             nav_panel(
               title = "Top 10 Projects", 
