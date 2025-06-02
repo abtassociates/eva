@@ -31,8 +31,8 @@
       ]
     },
     "sys_inactive_monthly_ui_chart": {
-      "src": "[image data hash: c5ea38355c094283b895efe0e7a0d529]",
-      "width": 1862,
+      "src": "[image data hash: ec6ac59ae3dc9d4acbb76a504715a9b2]",
+      "width": 1847,
       "height": 500,
       "alt": "Plot object",
       "coordmap": {
@@ -76,14 +76,14 @@
             },
             "range": {
               "left": 69.29265255292654,
-              "right": 1862,
+              "right": 1847,
               "bottom": 497.2602739726028,
               "top": 0
             }
           }
         ],
         "dims": {
-          "width": 1862,
+          "width": 1847,
           "height": 500
         }
       }

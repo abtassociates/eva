@@ -37,8 +37,8 @@
       ]
     },
     "sys_inflow_outflow_monthly_ui_chart": {
-      "src": "[image data hash: 6213f11d6ff5cb9c53d2be768fe9b867]",
-      "width": 1862,
+      "src": "[image data hash: e5aadd63691d135fc19dc9cf3825da79]",
+      "width": 1847,
       "height": 500,
       "alt": "Plot object",
       "coordmap": {
@@ -83,14 +83,14 @@
             },
             "range": {
               "left": 74.27397260273975,
-              "right": 1862,
+              "right": 1847,
               "bottom": 497.2602739726027,
               "top": 51.87945205479453
             }
           }
         ],
         "dims": {
-          "width": 1862,
+          "width": 1847,
           "height": 500
         }
       }

@@ -741,38 +741,38 @@ nav_panel(
                  DTOutput("sys_inflow_outflow_monthly_table") %>%
                    withSpinner()
         ),
-        nav_panel(
-          title = "Timeline Chart",
-                 plotlyOutput("timelinePlot", height = "600px"),
-                 selectizeInput(
-                   inputId = "enrollmentIDFilter",
-                   label = "Search by Enrollment ID",
-                   choices = NULL, # We'll populate this dynamically
-                   options = list(
-                     placeholder = "Type to search for Enrollment ID",
-                     closeAfterSelect = TRUE
-                   ),
-                   multiple = TRUE
-                 ),
-                 
-                 # PersonalID Filter
-                 selectizeInput(
-                   inputId = "personalIDFilter",
-                   label = "Search by Personal ID",
-                   choices = NULL, # We'll populate this dynamically
-                   options = list(
-                     placeholder = "Type to search for Personal ID",
-                     closeAfterSelect = TRUE
-                   ),
-                   multiple = TRUE
-                 ),
-                 conditionalPanel(
-                   condition = "len(input.personalIDFilter)",
-                   h4("Person's Monthly Inflow/Outflow"),
-                   verbatimTextOutput("personDetails")
-                 )
-                 
-        ),
+        # nav_panel(
+        #   title = "Timeline Chart",
+        #          plotlyOutput("timelinePlot", height = "600px"),
+        #          selectizeInput(
+        #            inputId = "enrollmentIDFilter",
+        #            label = "Search by Enrollment ID",
+        #            choices = NULL, # We'll populate this dynamically
+        #            options = list(
+        #              placeholder = "Type to search for Enrollment ID",
+        #              closeAfterSelect = TRUE
+        #            ),
+        #            multiple = TRUE
+        #          ),
+        #          
+        #          # PersonalID Filter
+        #          selectizeInput(
+        #            inputId = "personalIDFilter",
+        #            label = "Search by Personal ID",
+        #            choices = NULL, # We'll populate this dynamically
+        #            options = list(
+        #              placeholder = "Type to search for Personal ID",
+        #              closeAfterSelect = TRUE
+        #            ),
+        #            multiple = TRUE
+        #          ),
+        #          conditionalPanel(
+        #            condition = "len(input.personalIDFilter)",
+        #            h4("Person's Monthly Inflow/Outflow"),
+        #            verbatimTextOutput("personDetails")
+        #          )
+        #          
+        # ),
         nav_panel(
           title = "Information",
           br(),

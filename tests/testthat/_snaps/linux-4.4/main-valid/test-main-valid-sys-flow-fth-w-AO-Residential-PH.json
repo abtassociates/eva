@@ -31,8 +31,8 @@
       ]
     },
     "sys_fth_monthly_ui_chart": {
-      "src": "[image data hash: 6087161969d915ddbb29ab47009873e4]",
-      "width": 1862,
+      "src": "[image data hash: d8889b67cf86ff646dddca51dbde7ca0]",
+      "width": 1847,
       "height": 500,
       "alt": "Plot object",
       "coordmap": {
@@ -76,14 +76,14 @@
             },
             "range": {
               "left": 69.29265255292654,
-              "right": 1862,
+              "right": 1847,
               "bottom": 497.2602739726028,
               "top": 0
             }
           }
         ],
         "dims": {
-          "width": 1862,
+          "width": 1847,
           "height": 500
         }
       }

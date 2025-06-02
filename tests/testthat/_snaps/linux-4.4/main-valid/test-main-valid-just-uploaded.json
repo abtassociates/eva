@@ -28,7 +28,6 @@
       1080
     ],
     "dq_summary_subtabs": "Data Quality Summary",
-    "enrollmentIDFilter": null,
     "fileStructureAnalysis_cell_clicked": {
 
     },
@@ -114,7 +113,6 @@
     "orgList": "Organization A‰",
     "pageid": "tabUpload",
     "pdde_subtabs": "PDDE Check Summary",
-    "personalIDFilter": null,
     "showDownloadImpermissibleButton": 0,
     "sys_comp_subtabs": "Chart",
     "sys_inflow_outflow_subtabs": "Summary Chart",
