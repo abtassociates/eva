@@ -8,15 +8,30 @@
     "OUTLongStayers": 90,
     "OtherLongStayers": 90,
     "ServicesOnlyLongStayers": 90,
+    "accordion_client_count": null,
+    "accordion_dqorg": null,
+    "accordion_dqsystem": null,
+    "accordion_home": null,
+    "accordion_local_settings": null,
+    "accordion_pdde": null,
+    "accordion_systemoverview": null,
+    "accordion_upload": null,
+    "client_count_subtabs": "Client Counts Detail",
     "currentProviderList": null,
     "dateRangeCount": [
       "2023-10-05",
       "2023-10-05"
     ],
+    "demo_mode_tooltip": false,
     "dimension": [
       1920,
       1080
     ],
+    "dq_summary_subtabs": "Data Quality Guidance",
+    "g_errors_dqorg_subtabs": "Top 10 Projects",
+    "g_errors_dqsystem_subtabs": "Top 10 Organizations",
+    "hp_errors_dqorg_subtabs": "Top 10 Projects",
+    "hp_errors_dqsystem_subtabs": "Top 10 Organizations",
     "imported": {
       "name": [
         "FY24-ICF-missing-export.zip"
@@ -31,12 +46,12 @@
         "0.zip"
       ]
     },
-    "isdemo": false,
+    "in_demo_mode": false,
+    "mbm_fth_filter": "All",
     "methodology_type": "1",
     "orgList": null,
-    "sidebarCollapsed": false,
-    "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabDQOrg",
+    "pageid": "tabDQOrg",
+    "pdde_subtabs": "Guidance",
     "sys_comp_subtabs": "Chart",
     "sys_inflow_outflow_subtabs": "Summary Chart",
     "sys_status_subtabs": "Chart",
@@ -62,7 +77,11 @@
     "system_composition_selections": [
       "Age",
       "All Races/Ethnicities"
-    ]
+    ],
+    "tabDQOrg_subtabs": "Warnings",
+    "tabDQSystem_subtabs": "Warnings",
+    "warnings_dqorg_subtabs": "Top 10 Projects",
+    "warnings_dqsystem_subtabs": "Top 10 Organizations"
   },
   "output": {
     "clientCountData": [
@@ -177,6 +196,14 @@
         "validation"
       ]
     },
+    "orgDQErrorsByProject_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
     "orgDQHighPriorityErrorByIssue_ui": {
       "message": "",
       "call": "NULL",
@@ -185,7 +212,23 @@
         "validation"
       ]
     },
+    "orgDQHighPriorityErrorsByProject_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
     "orgDQWarningsByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "orgDQWarningsByProject_ui": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -211,6 +254,14 @@
         "validation"
       ]
     },
+    "systemDQErrorsByOrg_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
     "systemDQHighPriorityErrorsByIssue_ui": {
       "message": "",
       "call": "NULL",
@@ -219,7 +270,23 @@
         "validation"
       ]
     },
+    "systemDQHighPriorityErrorsByOrg_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
     "systemDQWarningsByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "systemDQWarningsByOrg_ui": {
       "message": "",
       "call": "NULL",
       "type": [
