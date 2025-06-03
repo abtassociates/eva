@@ -549,3 +549,10 @@ a:hover {
   background-color: #C2462E;
   border-color: #C2462E;
 }
+
+
+/* MbM*/
+/*reduce horizontal padding to better align datatable with chart*/
+#sys_inflow_outflow_monthly_table  table.dataTable tbody td {
+  padding: 8px 5px;
+}
