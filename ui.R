@@ -75,22 +75,6 @@ page_navbar(
     useShinyjs(),
     ## Demo banner -----------------
     shinyjs::hidden(div(id = "demo_banner","DEMO")),
-    # The switch itself - it controls the input value
-    div(
-      id = "demo_mode_switch_wrapper",
-      input_switch(
-        id = 'in_demo_mode',
-        label = tooltip(
-          id = "demo_mode_tooltip",
-          trigger = list('DEMO MODE', bs_icon('info-circle')),
-          HTML('
-               <strong>Off</strong>: Upload your own HMIS CSV Export.<br><br>
-               <strong>On</strong>: Uses a demo HMIS CSV Export.'
-          )
-        ),
-        value=FALSE
-      )
-    ),
     ## Eva has crashed ------
     disconnectMessage(
       text = str_squish(
@@ -897,5 +881,22 @@ nav_panel(
       ), min_height = 1000, fill = FALSE
       
     )
-  )
+  ),
+  nav_item(
+    div(
+      id = "demo_mode_switch_wrapper",
+      input_switch(
+        id = 'in_demo_mode',
+        label = tooltip(
+          id = "demo_mode_tooltip",
+          trigger = list('DEMO MODE', bs_icon('info-circle')),
+          HTML('
+         <strong>Off</strong>: Upload your own HMIS CSV Export.<br><br>
+         <strong>On</strong>: Uses a demo HMIS CSV Export.'
+          )
+        ),
+        value=FALSE
+      )
+    ) 
+  ),
 )

@@ -8,10 +8,8 @@
 
 #demo_mode_switch_wrapper {
   position: absolute;
-  color: white;
-  top: 20px;
+  bottom: 0px;
   right: 0px;
-  width: 180px;
 }
 
 #in_demo_mode {
