@@ -65,6 +65,7 @@ bslib_eva_theme <- bs_theme(
   "accordion-bg" = "white",
   "sidebar-bg" = "white",
   "dropdown-bg" = "white",
+  "input-bg" = "white",
   "nav-underline-link-active-color" = "#16697A",
   "modal-content-bg" = "white",
   #bg = '#ecf0f5',fg='black',
