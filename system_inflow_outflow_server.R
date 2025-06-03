@@ -80,6 +80,7 @@ mbm_single_status_chart_colors <- c(
 # higher than this and outflow bars start to overlap with next month's inflow
 # lower and the bars are too thin, or space within a month is about the same as across
 mbm_bar_width = 0.2
+mbm_export_bar_width = 0.4
 
 # Period-Specific, Filtered, Enrollment-Level Universe -------------------------
 
@@ -724,87 +725,130 @@ renderInflowOutflowFullPlot(
 ## Monthly --------------------------------------------
 ### MbM Chart --------------------------------------
 # Bar - Active at Start + Inflow/Outflow
-get_sys_inflow_outflow_monthly_plot <- reactive({
-  logToConsole(session, "In sys_inflow_outflow_monthly_ui_chart")
-  monthly_chart_validation()
-  
-  monthly_chart_records <- sys_inflow_outflow_monthly_chart_data()
-  
-  # Get counts of each type by month
-  plot_data <- get_counts_by_month_for_mbm(monthly_chart_records)
-  
-  # Get Average Info for Title Display
-  averages <- plot_data %>%
-    fsubset(PlotFillGroups != "Active at Start: Homeless") %>%
-    collap(cols = "Count", FUN=fmean, by = ~ Summary)
-  
-  avg_monthly_change <- fmean(
-    plot_data[PlotFillGroups == "Inflow", Count] - 
-      plot_data[Summary == "Outflow", Count]
-  )
-  
-  level_of_detail_text <- case_when(
-    input$syso_level_of_detail == "All" ~ "People",
-    input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
-    TRUE ~
-      getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-  )
-  
-  ggplot(plot_data, aes(x = interaction(month, Summary), y = Count, fill = PlotFillGroups)) +
-    geom_bar(
-      data = plot_data[Summary == "Inflow"] %>%
-        fmutate(PlotFillGroups = fct_relevel(
-          PlotFillGroups,
-          "Inflow",  "Active at Start: Homeless"
-        )),
-      aes(x = month, y = Count, fill = PlotFillGroups),
-      stat = "identity",
-      position = "stack",
-      width = mbm_bar_width,
-      color = 'black',
-      just = 1 # this moves the bar to the left of the month-center
-    ) +
-    geom_bar(
-      data = plot_data[Summary == "Outflow"],
-      aes(x = month, y = Count, fill = PlotFillGroups),
-      stat = "identity",
-      position = "stack",
-      width = mbm_bar_width,
-      color = 'black',
-      just = -0.4 # this moves the bar to the right of the month-center
-    ) +
+get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
+  reactive({
+    logToConsole(session, "In sys_inflow_outflow_monthly_ui_chart")
+    monthly_chart_validation()
     
-    scale_fill_manual(values = mbm_bar_colors, name = "Inflow/Outflow Types") + # Update legend title
-    theme_minimal() +
-    labs(
-      x = "Month",
-      y = paste0("Count of ", level_of_detail_text)
-    ) +
-    scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
-    ggtitle(
-      paste0(
-        "Average Monthly Inflow: +", scales::comma(averages[Summary == "Inflow", Count], accuracy = 0.1), "\n",
-        "Average Monthly Outflow: -", scales::comma(averages[Summary == "Outflow", Count], accuracy = 0.1), "\n",
-        "Average Monthly Change in ", 
-        level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
-        scales::comma(avg_monthly_change, accuracy = 0.1)
-      )
-    ) +
-    theme(
-      axis.text = element_blank(),
-      axis.title.x = element_blank(), 
-      axis.title.y = element_text(size = sys_axis_text_font),   
-      legend.position = "none",
-      panel.grid = element_blank(),        # Remove gridlines
-      axis.line.y = element_blank(), 
-      axis.line.x = element_line(),          # Remove axis lines
-      plot.margin = margin(l = 55),        # Increase left margin
-      axis.ticks = element_blank(),
-      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
+    monthly_chart_records <- sys_inflow_outflow_monthly_chart_data()
+    
+    # Get counts of each type by month
+    plot_data <- get_counts_by_month_for_mbm(monthly_chart_records)
+    
+    # Get Average Info for Title Display
+    averages <- plot_data %>%
+      fsubset(PlotFillGroups != "Active at Start: Homeless") %>%
+      collap(cols = "Count", FUN=fmean, by = ~ Summary)
+    
+    avg_monthly_change <- fmean(
+      plot_data[PlotFillGroups == "Inflow", Count] - 
+        plot_data[Summary == "Outflow", Count]
     )
-})
+    
+    level_of_detail_text <- case_when(
+      input$syso_level_of_detail == "All" ~ "People",
+      input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
+      TRUE ~
+        getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+    )
+    
+    plot_data$month_numeric <- as.numeric(as.factor(plot_data$month))
+    
+    # width = 0.5 means the bar is half the distance between adjacent ticks
+    # so width = 0.5 means the bars from adjacent months will be touching
+    # 0.4 is probably the highest we can go to maintain the distinction between months
+    bar_width <- if_else(isExport, mbm_export_bar_width, mbm_bar_width)
+    
+    # just = 0.5 means bar is centered around tick
+    # just = 1 means bar's right side is aligned with tick
+    # just = -1 means bar's left side is aligned with tick
+    # this parameter obviously "eats into" into the distance between ticks
+    bar_adjust <- if_else(isExport, 1, 1.2)
+    
+    # browser()
+    g <- ggplot(plot_data, aes(x = interaction(month, Summary), y = Count, fill = PlotFillGroups)) +
+      geom_bar(
+        data = plot_data[Summary == "Inflow"] %>%
+          fmutate(PlotFillGroups = fct_relevel(
+            PlotFillGroups,
+            "Inflow",  "Active at Start: Homeless"
+          )),
+        aes(x = month, y = Count, fill = PlotFillGroups),
+        stat = "identity",
+        position = "stack",
+        width = bar_width,
+        color = 'black',
+        just = bar_adjust
+      ) +
+      geom_bar(
+        data = plot_data[Summary == "Outflow"],
+        aes(x = month, y = Count, fill = PlotFillGroups),
+        stat = "identity",
+        position = "stack",
+        width = bar_width,
+        color = 'black',
+        just = 1 - bar_adjust
+      ) +
+      theme_minimal() +
+      labs(
+        x = "Month",
+        y = paste0("Count of ", level_of_detail_text)
+      ) +
+      scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
+      scale_fill_manual(values = mbm_bar_colors, name = "Inflow/Outflow Types") + # Update legend title
+      ggtitle(
+        paste0(
+          "Average Monthly Inflow: +", scales::comma(averages[Summary == "Inflow", Count], accuracy = 0.1), "\n",
+          "Average Monthly Outflow: -", scales::comma(averages[Summary == "Outflow", Count], accuracy = 0.1), "\n",
+          "Average Monthly Change in ", 
+          level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
+          scales::comma(avg_monthly_change, accuracy = 0.1)
+        )
+      ) +
+      theme(
+        axis.text.y = element_blank(),
+        axis.text.x = if(!isExport) element_blank() else element_text(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = sys_axis_text_font),   
+        legend.position = if(!isExport) "none" else "bottom",
+        panel.grid = element_blank(),       
+        axis.line.y = element_blank(),
+        axis.line.x = element_line(),
+        plot.margin = margin(l = 55),        # Increase left margin
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
+      )
+    
+    # For PPT export, add data labels, centered horizontally and vertically within a bar
+    if(isExport) {
+      g <- g + geom_text(
+        data = plot_data[Summary == "Inflow"] %>%
+          fmutate(PlotFillGroups = fct_relevel(
+            PlotFillGroups,
+            "Inflow",  "Active at Start: Homeless"
+          )),
+        aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
+        stat = "identity",
+        position = position_stack(vjust = 0.5),
+        size = 10,
+        size.unit = "pt"
+      ) +
+      geom_text(
+        data = plot_data[Summary == "Outflow"],
+        aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
+        stat = "identity",
+        position = position_stack(vjust = 0.5),
+        color = 'white',
+        size = 10,
+        size.unit = "pt"
+      )
+    }
+    g
+  })
+}
+
 output$sys_inflow_outflow_monthly_ui_chart <- renderPlot(
-  get_sys_inflow_outflow_monthly_plot()
+  get_sys_inflow_outflow_monthly_plot()()
 )
 
 # Pure line chart -------
@@ -1070,19 +1114,37 @@ get_sys_inflow_outflow_monthly_table <- reactive({
 })
 
 get_sys_inflow_outflow_monthly_flextable <- function() {
-  d <- get_sys_inflow_outflow_monthly_table()
-  browser()
-  ft <- flextable(d$x$data)
+  d <- get_sys_inflow_outflow_monthly_table()$x$data
   
-  # 3. Apply some styling to the flextable (just a few examples)
-  ft <- autofit(ft) # Adjusts column widths to fit content
-  ft <- bg(ft, bg = "#F2F2F2", part = "header") # Light grey background for header
-  ft <- bold(ft, part = "header") # Bold header text
-  ft <- border_outer(ft, border = fp_border(color = "black", width = 2)) # Outer border
-  ft <- border_inner_h(ft, border = fp_border(color = "grey", width = 0.5)) # Horizontal inner borders
-  ft <- border_inner_v(ft, border = fp_border(color = "grey", width = 0.5)) # Vertical inner borders
-  ft <- align(ft, align = "center", part = "all") # Center align all content
-  ft <- align(ft, j = 1, align = "left", part = "body") # Left align first column body
+  ft <- flextable(d) %>%
+    autofit() %>%
+    width(j = 1, width = 0.9) %>% # make first col narrower
+    bold(part = "header") %>%
+    align(align = "center", part = "all") %>%
+    border(border.top = fp_border(), part = "header") %>%
+    border_inner_h(border = fp_border(color = "grey", width = 0.5), part = "body")
+    
+  row_labels <- d[[1]]
+  
+  # Formatting the inflow/outflow row labels
+  inflow_outflow_row_indices <- which(row_labels %in% names(mbm_bar_colors))
+  outflow_row_indices <- which(row_labels %in% c("Active at End: Housed", "Outflow"))
+
+  ft <- ft %>%
+    # Background colors from datatable's formatStyle
+    bg(i = inflow_outflow_row_indices, j = 1, bg = mbm_bar_colors) %>%
+    # thick borders for the first column
+    border(i = inflow_outflow_row_indices, j = 1, border = fp_border(color = "black", width = 2)) %>%
+    # Make outflow cells have contrasting white font color
+    color(i = outflow_row_indices, j = 1, color = "white")
+
+  # Highlight the monthly change inflow and outflow vals
+  monthly_change_row <- which(row_labels == "Monthly Change")
+  monthly_change_vals <- d[monthly_change_row, names(d)[-1]]
+  ft <- ft %>%
+    bg(i = monthly_change_row, j = which.max(monthly_change_vals) + 1, mbm_inflow_bar_colors["Inflow"]) %>%
+    bg(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, mbm_outflow_bar_colors["Outflow"])
+
 }
 output$sys_inflow_outflow_monthly_table <- renderDT(
   get_sys_inflow_outflow_monthly_table()
@@ -1333,8 +1395,10 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
           "sys_inflow_outflow_detail_ui_chart",
           isExport = TRUE
         ),
-        get_sys_inflow_outflow_monthly_plot(),
-        get_sys_inflow_outflow_monthly_flextable()
+        # list(
+          get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),
+          get_sys_inflow_outflow_monthly_flextable()
+        # )
       ),
       summary_font_size = 19
     )
