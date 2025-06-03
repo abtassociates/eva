@@ -1343,8 +1343,11 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
             "Detail Category" = Detail,
             "Count" = N
           ),
-        "System Flow Data Monthly" = monthly_data$monthly_counts %>%
-          bind_rows(monthly_data$totals_monthly, monthly_data$monthly_change) %>%
+        "System Flow Data Monthly" = bind_rows(
+            monthly_data$monthly_counts_detail, 
+            monthly_data$monthly_counts_total, 
+            monthly_data$monthly_changes
+          ) %>%
           fmutate(Detail = fct_relevel(
             Detail, 
             "Total Inflow", 
