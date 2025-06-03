@@ -142,6 +142,10 @@ observeEvent(input$continue_live_btn, {
   toggle_demo(FALSE)
 })
 
+ output$demo_text <- renderUI({
+     tabUpload_in_demo_mode
+ })
+
 toggle_demo <- function(in_demo_mode) {
   
   if(in_demo_mode == TRUE){
@@ -158,6 +162,7 @@ toggle_demo <- function(in_demo_mode) {
   
   nav_select(id = 'pageid', selected = ifelse(in_demo_mode, 'tabHome', 'tabUpload'), session = session)
   shinyjs::toggle("fileStructureAnalysis", condition = in_demo_mode)
+  shinyjs::toggle("demo_text", condition = in_demo_mode)
   shinyjs::toggleState("imported", condition = !in_demo_mode)
   shinyjs::toggle('demo_banner', condition = in_demo_mode)
   shinyjs::toggle(selector = '#accordion_home [data-value=home_live_instructions]', condition = !in_demo_mode)

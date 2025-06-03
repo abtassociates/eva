@@ -202,7 +202,7 @@ tabUpload_instructions <-  HTML("
               
               ")
 
-tabUpload_in_demo_mode <- HTML(paste0("<div class='in_demo_mode' style='display:none'>
+tabUpload_in_demo_mode <- HTML(paste0("
                  <p>You’re currently in Demo Mode and viewing sample HMIS data
                  from a curated HMIS CSV Export file. View the File Structure
                  Analysis below to see examples of the File Structure Errors you
@@ -211,7 +211,7 @@ tabUpload_in_demo_mode <- HTML(paste0("<div class='in_demo_mode' style='display:
                  'https://github.com/abtassociates/eva/blob/main/public-resources/EvaChecks.csv' 
                  target= '_blank' rel='noopener noreferrer'>Eva Checks</a>.</p>
                  <p>To explore your own File Structure Errors, turn off Demo
-                 Mode and upload your own hashed HMIS CSV Export file.</p></div>
+                 Mode and upload your own hashed HMIS CSV Export file.</p><br>
             "))
 
 tabLocalSettings_instructions <-  HTML("

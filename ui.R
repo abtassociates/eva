@@ -149,7 +149,9 @@ page_navbar(
     ),
     br(),
     card(
-      tabUpload_in_demo_mode,
+      shinyjs::hidden(
+        uiOutput("demo_text")
+      ),
       
       fileInput("imported",
                 label = NULL,
