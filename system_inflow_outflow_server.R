@@ -1068,6 +1068,22 @@ get_sys_inflow_outflow_monthly_table <- reactive({
   }
   monthly_dt
 })
+
+get_sys_inflow_outflow_monthly_flextable <- function() {
+  d <- get_sys_inflow_outflow_monthly_table()
+  browser()
+  ft <- flextable(d$x$data)
+  
+  # 3. Apply some styling to the flextable (just a few examples)
+  ft <- autofit(ft) # Adjusts column widths to fit content
+  ft <- bg(ft, bg = "#F2F2F2", part = "header") # Light grey background for header
+  ft <- bold(ft, part = "header") # Bold header text
+  ft <- border_outer(ft, border = fp_border(color = "black", width = 2)) # Outer border
+  ft <- border_inner_h(ft, border = fp_border(color = "grey", width = 0.5)) # Horizontal inner borders
+  ft <- border_inner_v(ft, border = fp_border(color = "grey", width = 0.5)) # Vertical inner borders
+  ft <- align(ft, align = "center", part = "all") # Center align all content
+  ft <- align(ft, j = 1, align = "left", part = "body") # Left align first column body
+}
 output$sys_inflow_outflow_monthly_table <- renderDT(
   get_sys_inflow_outflow_monthly_table()
 )
@@ -1317,10 +1333,8 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
           "sys_inflow_outflow_detail_ui_chart",
           isExport = TRUE
         ),
-        list(
-          get_sys_inflow_outflow_monthly_plot(),
-          get_sys_inflow_outflow_monthly_table()
-        )
+        get_sys_inflow_outflow_monthly_plot(),
+        get_sys_inflow_outflow_monthly_flextable()
       ),
       summary_font_size = 19
     )
