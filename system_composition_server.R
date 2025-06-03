@@ -730,11 +730,13 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
         " by ",
         input$system_composition_selections[2]
       ),
-      plot1 = if (length(input$system_composition_selections) == 1) {
-        sys_comp_plot_1var(isExport = TRUE)
-      } else {
-        sys_comp_plot_2vars(isExport = TRUE)
-      },
+      plots = list(
+        if (length(input$system_composition_selections) == 1) {
+          sys_comp_plot_1var(isExport = TRUE)
+        } else {
+          sys_comp_plot_2vars(isExport = TRUE)
+        }
+      ),
       summary_font_size = 28
     )
   }
