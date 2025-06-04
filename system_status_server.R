@@ -208,7 +208,9 @@ output$sys_status_download_btn_ppt <- downloadHandler(
         bind_rows(sys_export_filter_selections()) %>%
         bind_rows(sys_status_export_info(get_sankey_data())),
       plot_slide_title = "Client System Status",
-      plot1 = render_sankey_plot(get_sankey_data(), isExport=TRUE),
+      plots = list(
+        render_sankey_plot(get_sankey_data(), isExport=TRUE)
+      ),
       summary_font_size = 21
     )
   }
