@@ -884,9 +884,10 @@ nav_panel(
       
     )
   ),
+  nav_spacer(),
   nav_item(
-    div(
-      id = "demo_mode_switch_wrapper",
+    #div(
+    #  id = "demo_mode_switch_wrapper",
       input_switch(
         id = 'in_demo_mode',
         label = tooltip(
@@ -899,6 +900,6 @@ nav_panel(
         ),
         value=FALSE
       )
-    ) 
+    #) 
   ),
 )
