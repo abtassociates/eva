@@ -308,6 +308,7 @@ page_navbar(
         start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
         end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
         width = 300
+      )
     ),
     
     card(
@@ -337,7 +338,6 @@ page_navbar(
       nav_item(
         uiOutput("downloadClientCountsReportButton", inline = TRUE)
       )
-    )
     )
     # card(
     #   card_header("Client Counts Summary"),

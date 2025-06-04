@@ -54,7 +54,8 @@ output$fileStructureAnalysis <- renderDT({
                    language = list(
                      zeroRecords = "No file structure analysis issues! 
                       Visit the other tabs to view the rest of Eva's output")
-    )
+    ),
+    style = "default"
   )
 })
 

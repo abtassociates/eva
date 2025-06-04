@@ -53,7 +53,8 @@ output$pdde_summary_table <- renderDT({
     a,
     rownames = FALSE,
     filter = 'none',
-    options = list(dom = 't')
+    options = list(dom = 't'),
+    style = "default"
   )
 })
 
@@ -74,7 +75,8 @@ output$pdde_guidance_summary <- renderDT({
     rownames = FALSE,
     escape = FALSE,
     filter = 'top',
-    options = list(dom = 'ltpi')
+    options = list(dom = 'ltpi'),
+    style = "default"
   )
 })
 
@@ -106,7 +108,8 @@ output$dq_organization_summary_table <- renderDT({
     a,
     rownames = FALSE,
     filter = 'top',
-    options = list(dom = 'ltpi')
+    options = list(dom = 'ltpi'),
+    style = "default"
   )
 })
 
@@ -130,7 +133,8 @@ output$dq_org_guidance_summary <- renderDT({
     rownames = FALSE,
     escape = FALSE,
     filter = 'top',
-    options = list(dom = 'ltpi')
+    options = list(dom = 'ltpi'),
+    style = "default"
   )
 })
 

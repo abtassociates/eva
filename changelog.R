@@ -425,4 +425,4 @@ output$changelog <- renderDT({
     then added Details column to include IDs to help admins find specific issues."
     
   )
-}, rownames = FALSE, escape = FALSE)
+}, rownames = FALSE, escape = FALSE, style = "default")
