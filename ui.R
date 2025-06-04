@@ -83,7 +83,7 @@ page_navbar(
       ),
       overlayColour = '#F5F5F5',
       refresh = ""
-    ),
+    )
   ), 
   
   # Sidebar --------
@@ -288,14 +288,14 @@ page_navbar(
     card(
       card_title(
         htmlOutput("headerClientCounts")
-      ),
+      )
     ),
     accordion(
       id = 'accordion_client_count',
       open = FALSE,
       accordion_panel(
         title = "Instructions",
-        tabClientCount_instructions,
+        tabClientCount_instructions
       )
     ),
     br(),
@@ -338,7 +338,7 @@ page_navbar(
         uiOutput("downloadClientCountsReportButton", inline = TRUE)
       )
     )
-   
+    )
     # card(
     #   card_header("Client Counts Summary"),
     #   DTOutput("clientCountSummary"),
@@ -377,8 +377,7 @@ page_navbar(
         nav_panel(
           title = 'PDDE Check Summary',
           DTOutput("pdde_summary_table"),
-          br(),
-          
+          br()
         ),
         ### PDDE Guidance table ---------
         nav_panel(
@@ -420,12 +419,12 @@ page_navbar(
             id = 'hp_errors_dqsystem_subtabs',
             selected = "Issues",
             nav_panel(
-              title = 'Top 10 Organizations',
-              uiOutput("systemDQHighPriorityErrorsByOrg_ui"),
+              title = 'Issues',
+              uiOutput("systemDQHighPriorityErrorsByIssue_ui")
             ),
             nav_panel(
-              title = 'Issues',
-              uiOutput("systemDQHighPriorityErrorsByIssue_ui"),
+              title = 'Top 10 Organizations',
+              uiOutput("systemDQHighPriorityErrorsByOrg_ui")
             )
           )
         ),
@@ -438,12 +437,12 @@ page_navbar(
             id = 'g_errors_dqsystem_subtabs',
             selected = "Top 10 Issues",
             nav_panel(
-              title = 'Top 10 Organizations',
-              uiOutput("systemDQErrorsByOrg_ui"),
+              title = 'Top 10 Issues',
+              uiOutput("systemDQErrorsByIssue_ui")
             ),
             nav_panel(
-              title = 'Top 10 Issues',
-              uiOutput("systemDQErrorsByIssue_ui"),
+              title = 'Top 10 Organizations',
+              uiOutput("systemDQErrorsByOrg_ui")
             )
           )
         ),
@@ -455,12 +454,12 @@ page_navbar(
             id = 'warnings_dqsystem_subtabs',
             selected = "Top 10 Issues",
             nav_panel(
-              title = "Top 10 Organizations", 
-              uiOutput("systemDQWarningsByOrg_ui")
-            ),
-            nav_panel(
               title = "Top 10 Issues", 
               uiOutput("systemDQWarningsByIssue_ui")
+            ),
+            nav_panel(
+              title = "Top 10 Organizations", 
+              uiOutput("systemDQWarningsByOrg_ui")
             )
           )
         ),
@@ -509,12 +508,12 @@ page_navbar(
             id = 'hp_errors_dqorg_subtabs',
             selected = "Issues",
             nav_panel(
-              title = 'Top 10 Projects',
-              uiOutput("orgDQHighPriorityErrorsByProject_ui")  %>% withSpinner(),
+              title = 'Issues',
+              uiOutput("orgDQHighPriorityErrorByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
-              title = 'Issues',
-              uiOutput("orgDQHighPriorityErrorByIssue_ui") %>% withSpinner(),
+              title = 'Top 10 Projects',
+              uiOutput("orgDQHighPriorityErrorsByProject_ui")  %>% withSpinner()
             )
           )
         ),
@@ -527,12 +526,12 @@ page_navbar(
             id = 'g_errors_dqorg_subtabs',
             selected = "Top 10 Issues",
             nav_panel(
-              title = 'Top 10 Projects',
-              uiOutput("orgDQErrorsByProject_ui")  %>% withSpinner(),
+              title = 'Top 10 Issues',
+              uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
-              title = 'Top 10 Issues',
-              uiOutput("orgDQErrorByIssue_ui") %>% withSpinner(),
+              title = 'Top 10 Projects',
+              uiOutput("orgDQErrorsByProject_ui")  %>% withSpinner()
             )
           )
         ),
@@ -544,12 +543,12 @@ page_navbar(
             id = 'warnings_dqorg_subtabs',
             selected = "Top 10 Issues",
             nav_panel(
-              title = "Top 10 Projects", 
-              uiOutput("orgDQWarningsByProject_ui") %>% withSpinner()
-            ),
-            nav_panel(
               title = "Top 10 Issues", 
               uiOutput("orgDQWarningsByIssue_ui") %>% withSpinner()
+            ),
+            nav_panel(
+              title = "Top 10 Projects", 
+              uiOutput("orgDQWarningsByProject_ui") %>% withSpinner()
             )
           )
         ),
@@ -733,7 +732,7 @@ nav_panel(
                    plotOutput("sys_inflow_outflow_monthly_ui_chart",
                               width = "100%",
                               height = "500") %>%
-                     withSpinner(),
+                     withSpinner()
                  ),
                  DTOutput("sys_inflow_outflow_monthly_table") %>%
                    withSpinner()
@@ -847,7 +846,7 @@ nav_panel(
         )
       ),
       downloadButton("sys_comp_download_btn", "Data Download"),
-      downloadButton("sys_comp_download_btn_ppt", "Image Download"),
+      downloadButton("sys_comp_download_btn_ppt", "Image Download")
     )
     
     ),
@@ -912,5 +911,5 @@ nav_panel(
         value=FALSE
       )
     #) 
-  ),
+  )
 )
