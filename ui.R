@@ -308,9 +308,6 @@ page_navbar(
         start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
         end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
         width = 300
-      ),
-      br(),
-      uiOutput("downloadClientCountsReportButton", inline = TRUE),
     ),
     
     card(
@@ -335,8 +332,13 @@ page_navbar(
       nav_panel(
         title = "Client Counts Detail",
         DTOutput("clientCountData")
+      ),
+      nav_spacer(),
+      nav_item(
+        uiOutput("downloadClientCountsReportButton", inline = TRUE)
       )
     )
+   
     # card(
     #   card_header("Client Counts Summary"),
     #   DTOutput("clientCountSummary"),
@@ -376,12 +378,16 @@ page_navbar(
           title = 'PDDE Check Summary',
           DTOutput("pdde_summary_table"),
           br(),
-          uiOutput("downloadPDDEReportButton", inline = TRUE) %>% withSpinner()
+          
         ),
         ### PDDE Guidance table ---------
         nav_panel(
           title = 'Guidance',
           DTOutput("pdde_guidance_summary")
+        ),
+        nav_spacer(),
+        nav_item(
+          uiOutput("downloadPDDEReportButton", inline = TRUE) %>% withSpinner()
         )
       )
     ),
@@ -405,7 +411,6 @@ page_navbar(
       
       navset_card_underline(
         id = 'tabDQSystem_subtabs',
-        footer = uiOutput("downloadSystemDQReportButton", inline = TRUE),
         ### HP Errors - System ----
         nav_panel(
           id = 'hp_errors_dqsystem',
@@ -458,6 +463,10 @@ page_navbar(
               uiOutput("systemDQWarningsByIssue_ui")
             )
           )
+        ),
+        nav_spacer(),
+        nav_item(
+          uiOutput("downloadSystemDQReportButton", inline = TRUE)
         )
       )
     ),
@@ -491,7 +500,6 @@ page_navbar(
       
       navset_card_underline(
         id = 'tabDQOrg_subtabs',
-        footer = uiOutput("downloadOrgDQReportButton", inline = TRUE),
         ### HP Errors - Org ------------
         nav_panel(
           id = 'hp_errors',
@@ -544,6 +552,10 @@ page_navbar(
               uiOutput("orgDQWarningsByIssue_ui") %>% withSpinner()
             )
           )
+        ),
+        nav_spacer(),
+        nav_item(
+          uiOutput("downloadOrgDQReportButton", inline = TRUE)
         )
       ),
       ### DQ Summary and Guidance ------------
