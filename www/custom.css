@@ -78,3 +78,24 @@
 #sys_inflow_outflow_monthly_table  table.dataTable tbody td {
   padding: 8px 5px;
 }
+
+/* || CHART INFORMATION TABLES */
+.sys_info_table {
+  border: 1px solid black;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.sys_info_table th, 
+.sys_info_table td {
+  border: 1px solid black;
+  padding: 15px;
+}
+
+.sys_info_table th {
+  text-align: left;
+}
+
+.sys_info_table td {
+  vertical-align: top;
+}
