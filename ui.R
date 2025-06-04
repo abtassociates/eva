@@ -354,7 +354,7 @@ page_navbar(
     icon = icon("square-check"),
     ## PDDE -------------
     nav_panel(
-      title = "Project Data",
+      title = "Project Descriptor Data",
       value = "tabPDDE",
       card(
         card_title(htmlOutput("headerPDDE"))#,
