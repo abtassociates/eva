@@ -835,7 +835,7 @@ nav_panel(
             width = 12
           ),
           br(),
-          uiOutput("sys_comp_summary_selections"),
+          uiOutput("sys_comp_summary_selections",inline = TRUE),
           plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
         ),
         nav_panel(
