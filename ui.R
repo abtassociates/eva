@@ -156,7 +156,7 @@ page_navbar(
       fileInput("imported",
                 label = NULL,
                 multiple = FALSE,
-                accept = ".zip"),
+                accept = ".zip",width = '100%'),
       uiOutput("fileInfo") %>% withSpinner()
     ),
     card(
