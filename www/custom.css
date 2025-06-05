@@ -47,6 +47,27 @@
     gap: 0;
 }
 
+/* || BUTTONS */
+.btn-default {
+  color: white; /*text color*/
+  background-color:#C2462E; /*coral*/
+  border-color: #C2462E; /*coral*/
+}
+
+/*button hover and focus*/
+.btn-default:hover, .btn-default:focus {
+  color: #C2462E; /*text color - coral*/
+  background-color: white;
+  border-color: #C2462E; /*text color - coral*/
+}
+
+.form-control {
+    border-radius: 0;
+    box-shadow: none;
+    border-color: black;
+    color: black; /*text color*/
+}
+
 .btn:has(.disabled) {
   cursor: not-allowed;
 }

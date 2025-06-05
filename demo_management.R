@@ -98,7 +98,7 @@ show_warning_popup <- function(in_demo_mode) {
       modalDialog(
         HTML(msg),
         title = "Turn on Demo Mode?",
-        footer = tagList(actionButton("continue_demo_btn", "Continue", class='btn-secondary'),
+        footer = tagList(actionButton("continue_demo_btn", "Continue"),
                          actionButton("stay_in_live", "Cancel"))
       )
     )
@@ -111,7 +111,7 @@ show_warning_popup <- function(in_demo_mode) {
           explore Eva by uploading your own hashed HMIS CSV Export file.
           <p>Please select \"Continue\" to turn off Demo Mode."),
         title = "Turn off Demo Mode?",
-        footer = tagList(actionButton("continue_live_btn", "Continue", class='btn-secondary'),
+        footer = tagList(actionButton("continue_live_btn", "Continue"),
                          actionButton("stay_in_demo", "Cancel"))
       )
     )

@@ -103,7 +103,7 @@ page_navbar(
     card(
       card_body(
         tabHome_welcome,
-        actionButton("Go_to_upload", "Click here to get started",class = 'btn-secondary'),
+        actionButton("Go_to_upload", "Click here to get started"),
         fillable = FALSE
       )
     ),
