@@ -4,26 +4,29 @@ active_at_levels <- c(
   "Homeless"
 )
 
+# All possible levels
 inflow_detail_levels <- c(
   "First-Time \nHomeless", 
   "Returned from \nPermanent",
   "Re-engaged from \nNon-Permanent",
   "Unknown",
-  "Continuous at Start"
-  # "something's wrong"
-)
-
-inflow_chart_detail_levels <- c(
-  "First-Time \nHomeless", 
-  "Returned from \nPermanent",
-  "Re-engaged from \nNon-Permanent"
+  "Continuous at Start",
+  "something's wrong"
 )
 
 outflow_detail_levels <- c(
   "Exited,\nNon-Permanent",
   "Exited,\nPermanent",
   "Inactive",
-  "Continuous at End"
+  "Continuous at End",
+  "something's wrong"
+)
+
+# Levels for detail chart
+inflow_chart_detail_levels <- c(
+  "First-Time \nHomeless", 
+  "Returned from \nPermanent",
+  "Re-engaged from \nNon-Permanent"
 )
 
 outflow_chart_detail_levels <- c(
@@ -32,6 +35,10 @@ outflow_chart_detail_levels <- c(
   "Inactive"
 )
 
+mbm_inflow_levels <- c("Active at Start: Homeless", "Inflow")
+mbm_outflow_levels <- c("Active at End: Housed", "Outflow")
+
+# Levels for summary chart
 inflow_summary_levels <- c(
   "Active at Start",
   "Inflow",
@@ -217,7 +224,7 @@ universe_ppl_flags <- function(universe_df, period) {
         housed_at_end_client, "Housed",
         continuous_at_end_client, "Continuous at End",
         default = "something's wrong"
-      ), levels = c(outflow_detail_levels, rev(active_at_levels), "something's wrong")
+      ), levels = c(outflow_detail_levels, rev(active_at_levels))
     )
   )]
   if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown"]) > 0 & 
@@ -771,7 +778,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
         data = plot_data[Summary == "Inflow"] %>%
           fmutate(PlotFillGroups = fct_relevel(
             PlotFillGroups,
-            "Inflow",  "Active at Start: Homeless"
+            rev(mbm_inflow_levels)
           )),
         aes(x = month, y = Count, fill = PlotFillGroups),
         stat = "identity",
@@ -1073,11 +1080,11 @@ get_sys_inflow_outflow_monthly_table <- reactive({
       columns = 1,  # First column
       target = "cell",
       backgroundColor = styleEqual(
-        names(mbm_bar_colors),
+        c(mbm_inflow_levels, mbm_outflow_levels),
         unname(mbm_bar_colors)
       ),
       border = styleEqual(
-        names(mbm_bar_colors),
+        c(mbm_inflow_levels, mbm_outflow_levels),
         c(rep("2px solid black", 4))
       )
     ) %>%
@@ -1127,7 +1134,7 @@ get_sys_inflow_outflow_monthly_flextable <- function() {
   row_labels <- d[[1]]
   
   # Formatting the inflow/outflow row labels
-  inflow_outflow_row_indices <- which(row_labels %in% names(mbm_bar_colors))
+  inflow_outflow_row_indices <- which(row_labels %in% c(mbm_inflow_levels, mbm_outflow_levels))
   outflow_row_indices <- which(row_labels %in% c("Active at End: Housed", "Outflow"))
 
   ft <- ft %>%
