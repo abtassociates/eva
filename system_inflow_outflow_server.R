@@ -36,7 +36,7 @@ outflow_chart_detail_levels <- c(
 )
 
 mbm_inflow_levels <- c("Active at Start: Homeless", "Inflow")
-mbm_outflow_levels <- c("Active at End: Housed", "Outflow")
+mbm_outflow_levels <- c("Outflow", "Active at End: Housed")
 
 # Levels for summary chart
 inflow_summary_levels <- c(
@@ -1161,7 +1161,9 @@ get_sys_inflow_outflow_monthly_flextable <- function() {
   monthly_change_vals <- d[monthly_change_row, names(d)[-1]]
   ft <- ft %>%
     bg(i = monthly_change_row, j = which.max(monthly_change_vals) + 1, mbm_inflow_bar_colors["Inflow"]) %>%
-    bg(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, mbm_outflow_bar_colors["Outflow"])
+    bg(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, mbm_outflow_bar_colors["Outflow"]) %>%
+    color(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, color = "white")
+  
 
 }
 output$sys_inflow_outflow_monthly_table <- renderDT(
