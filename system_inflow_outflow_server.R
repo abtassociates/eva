@@ -506,13 +506,13 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
 get_counts_by_month_for_mbm <- function(monthly_chart_records) {
   monthly_counts <- rbind(
-    monthly_chart_records[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups)],
-    monthly_chart_records[, .(PersonalID, month, PlotFillGroups = OutflowPlotFillGroups)]
+    monthly_chart_records[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups, Detail = InflowTypeDetail)],
+    monthly_chart_records[, .(PersonalID, month, PlotFillGroups = OutflowPlotFillGroups, Detail = OutflowTypeDetail)]
   ) %>%
     funique() %>%
-    fgroup_by(month, PlotFillGroups) %>%
+    fgroup_by(month, PlotFillGroups, Detail) %>%
     fsummarise(Count = GRPN()) %>%
-    roworder(month, PlotFillGroups)
+    roworder(month, PlotFillGroups, Detail)
 
   # Make sure all month-type combinations are reflected
   join(
@@ -622,8 +622,8 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   # s <- max(df$yend) + 20
   # num_segments <- 20
   # segment_size <- get_segment_size(s/num_segments)
-  inflow_to_outflow <- df[PlotFillGroups %in% active_at_levels, sum(N)*-1]
-  
+  inflow_to_outflow <- df[PlotFillGroups %in% c("Inflow","Outflow"), sum(N)*-1]
+
   # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
   ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
     # the bars
