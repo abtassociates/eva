@@ -675,7 +675,8 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       aes(
         x = group.id,
         label = if_else(!grepl("Active at", Summary), N_formatted, NA),
-        y = if_else(Summary == "Inflow", yend, ystart), vjust = -.6
+        y = if_else(PlotFillGroups == "Inflow", yend, ystart), 
+        vjust = -.6
       ),
       size = sys_chart_text_font
     ) +
