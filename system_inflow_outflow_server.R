@@ -1135,7 +1135,6 @@ get_sys_inflow_outflow_monthly_flextable <- function() {
   d <- get_sys_inflow_outflow_monthly_table()$x$data
   
   ft <- flextable(d) %>%
-    autofit() %>%
     width(j = 1, width = 0.9) %>% # make first col narrower
     bold(part = "header") %>%
     align(align = "center", part = "all") %>%
