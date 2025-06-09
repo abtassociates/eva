@@ -1183,7 +1183,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT(
 )
 
 ### Inactive + FTH chart --------------------------------------
-sys_monthly_single_status_ui_chart <- function(varname, status) {
+sys_monthly_single_status_ui_chart <- function(varname, status, isExport=FALSE) {
   logToConsole(session, "In sys_monthly_single_status_ui_chart")
 
   plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(
@@ -1191,26 +1191,33 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
     status
   )
 
-  ggplot(plot_data, aes(x = month, y = Count)) +
+  g <- ggplot(plot_data, aes(x = month, y = Count)) +
     geom_col(fill = mbm_single_status_chart_colors[[status]], width = 0.3, color = "black") +
     theme_minimal() +
     labs(
       x = "Month",
-      y = paste0("Count of ", level_of_detail_text)
+      y = paste0("Count of ", level_of_detail_text())
     ) +
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
     theme(
       axis.text = element_blank(),
-      axis.title.y = element_text(size = sys_axis_text_font),  
+      axis.title.y = element_text(size = sys_axis_text_font), 
       axis.title.x = element_blank(),
       legend.position = "none",
-      panel.grid = element_blank(),        # Remove gridlines
+      panel.grid = element_blank(),
       axis.line.x = element_line(),          
       axis.line.y = element_blank(),
       axis.ticks.y = element_blank(),
-      plot.margin = margin(l = 50),
+      plot.margin = margin(l = 55),
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
+  
+  # Add data labels for export
+  if(isExport)
+    g <- g + 
+      geom_text(aes(label = Count), vjust = -0.5, size = sys_chart_text_font)
+  
+  g
 }
 output$sys_inactive_monthly_ui_chart <- renderPlot({
   monthly_chart_validation()
