@@ -89,6 +89,28 @@ mbm_single_status_chart_colors <- c(
 mbm_bar_width = 0.2
 mbm_export_bar_width = 0.4
 
+level_of_detail_text <- reactive({
+  case_when(
+    input$syso_level_of_detail == "All" ~ "People",
+    input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
+    TRUE ~
+      getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+  )
+})
+
+full_unit_of_analysis_display <- reactive({
+  paste0(
+    "Total ", 
+    level_of_detail_text(),
+    if_else(
+      input$syso_hh_type == "All",
+      "",
+      paste0(" in ",
+             str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "),
+             " Households")
+    )
+  )
+})
 # Period-Specific, Filtered, Enrollment-Level Universe -------------------------
 
 ## Enrollment-level flags ------------------------
@@ -787,13 +809,6 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     totals <- fsum(plot_data$Count, g=plot_data$Summary)
     avg_monthly_change <- (totals["Inflow"] - totals["Outflow"])/(length(session$userData$report_dates) - 1)
     
-    level_of_detail_text <- case_when(
-      input$syso_level_of_detail == "All" ~ "People",
-      input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
-      TRUE ~
-        getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-    )
-    
     plot_data$month_numeric <- as.numeric(as.factor(plot_data$month))
     
     # width = 0.5 means the bar is half the distance between adjacent ticks
@@ -834,7 +849,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
       theme_minimal() +
       labs(
         x = "Month",
-        y = paste0("Count of ", level_of_detail_text)
+        y = paste0("Count of ", level_of_detail_text())
       ) +
       scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
       scale_fill_manual(values = mbm_bar_colors, name = "Inflow/Outflow Types") + # Update legend title
@@ -843,7 +858,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
           "Average Monthly Inflow: +", scales::comma(averages["Inflow"], accuracy = 0.1), "\n",
           "Average Monthly Outflow: -", scales::comma(averages["Outflow"], accuracy = 0.1), "\n",
           "Average Monthly Change in ", 
-          level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
+          level_of_detail_text(), " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
           scales::comma(avg_monthly_change, accuracy = 0.1)
         )
       ) +

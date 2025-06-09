@@ -310,20 +310,8 @@ sys_total_count_display <- function(total_count) {
   return(paste0(
     str_wrap(
       paste0(
-        "Total ",
-        case_when(
-          input$syso_level_of_detail == "All" ~ "People",
-          input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
-          TRUE ~
-            getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-        ),
-        if_else(
-          input$syso_hh_type == "All",
-          "",
-          paste0(" in ",
-                 str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "),
-                 " Households")
-        ),       ": ",
+        full_unit_of_analysis_display(),
+        ": ",
         scales::comma(total_count)
       ),
       width = 40
