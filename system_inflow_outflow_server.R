@@ -367,6 +367,35 @@ get_inflow_outflow_monthly <- reactive({
 })
 
 export_bad_records <- function(period, df) {
+  ds_name <- ifelse(isTRUE(input$in_demo_mode), "DEMO", input$imported$name)
+  if(period == "Month") {
+    df_multiple_inactives <- df %>%
+      fselect(PersonalID,
+              InflowTypeSummary,
+              InflowTypeDetail,
+              OutflowTypeSummary,
+              OutflowTypeDetail,
+              month
+      ) %>%
+      funique() %>%
+      roworder(PersonalID, month) %>%
+      fmutate(is_inactive = OutflowTypeDetail == "Inactive")
+    
+    # 3. Identify consecutive blocks of status (active or inactive)
+    #    rleid() assigns a unique ID to consecutive runs of identical values
+    df_multiple_inactives[, block_id := rleid(is_inactive), by = PersonalID]
+    
+    # 4. Calculate the length of each block
+    df_multiple_inactives[, block_length := .N, by = .(PersonalID, block_id)]
+    
+    df_multiple_inactives <- df_multiple_inactives[is_inactive == TRUE & block_length > 1]
+    if(nrow(df_multiple_inactives) > 0)
+      write_xlsx(
+        df_multiple_inactives[is_inactive == TRUE & block_length > 1],
+        path = glue::glue("/media/sdrive/projects/CE_Data_Toolkit/debugs/{ds_name}-multiple-inactives-in-a-row-for-{period}-{today()}.xlsx")
+      )
+  }
+  
   df <- df[InflowTypeSummary == "something's wrong" | OutflowTypeSummary == "something's wrong"]
   
   if(nrow(df) == 0) return(NULL)
@@ -379,8 +408,6 @@ export_bad_records <- function(period, df) {
       fsubset(OutflowTypeSummary == "something's wrong") %>% 
       fselect(outflow_debug_cols, if(period == "Month") "month")
   )
-  
-  ds_name <- ifelse(isTRUE(input$in_demo_mode), "DEMO", input$imported$name)
 
   write_xlsx(
     dfs, 
