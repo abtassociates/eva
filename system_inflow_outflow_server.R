@@ -143,7 +143,10 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
     return_from_nonperm = eecr & (
       (between(days_since_lookback, 15, 730) & !lookback_dest_perm) |
       (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & !was_lh_at_start) 
-    ) & any_lookbacks_with_exit_to_nonperm,
+    ) & (
+      any_lookbacks_with_exit_to_nonperm |
+      was_lh_during_period 
+    ),
     
     first_time_homeless = (days_since_lookback > 730 | is.na(days_since_lookback)) & 
       EntryDate >= startDate,
