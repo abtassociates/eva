@@ -454,6 +454,8 @@ period_specific_data <- reactive({
 
 # Client-level flags, filtered ----------------------------------------------------
 client_categories_filtered <- reactive({
+  logToConsole(session, "In client_categories_filtered")
+  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   req(nrow(session$userData$client_categories) > 0)
   
   session$userData$client_categories[
@@ -472,6 +474,7 @@ client_categories_filtered <- reactive({
 # Create passes-enrollment-filter flag to exclude enrollments from eecr -------
 enrollment_categories_filtered <- reactive({
   logToConsole(session, "in enrollment_categories_filtered")
+  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   join( 
     session$userData$enrollment_categories,
     client_categories_filtered() %>% fselect(PersonalID, VeteranStatus),
