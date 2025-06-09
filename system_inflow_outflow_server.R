@@ -549,10 +549,9 @@ get_counts_by_month_for_mbm <- function(monthly_chart_records) {
 }
 
 ### Monthly_chart_data, wide format
-sys_monthly_chart_data_wide <- function() {
+sys_monthly_chart_data_wide <- reactive({
   monthly_counts_long <- sys_inflow_outflow_monthly_chart_data()
-  
-  if(nrow(monthly_counts_long) == 0) return(data.table())
+  req(nrow(monthly_counts_long) > 0)
 
   summary_data <- pivot(
     monthly_counts_long,
@@ -577,7 +576,8 @@ sys_monthly_chart_data_wide <- function() {
              Summary = "Monthly Change")
   ) %>%
     roworder(PlotFillGroups)
-}
+})
+
 ### Inactive + FTH ------------------------
 sys_inflow_outflow_monthly_single_status_chart_data <- function(varname, status) {
   logToConsole(session, "In sys_inflow_outflow_monthly_single_status_chart_data")
