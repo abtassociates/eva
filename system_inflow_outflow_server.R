@@ -1312,14 +1312,14 @@ sys_export_monthly_info <- function() {
     )) %>%
     roworder(Detail)
   
-  monthly_average_cols <-c("Monthly Change", "Total Inflow", "Total Outflow")
+  monthly_average_cols <- c("Total Inflow", "Total Outflow", "Monthly Change")
   monthly_averages <- data.table(
-    Chart = paste0("Average ", monthly_average_cols),
+    Chart = paste0("Average ", gsub("Total ", "", monthly_average_cols)),
     Value = as.character(
       scales::comma(
         rowMeans(
           monthly_counts[Detail %in% monthly_average_cols, ..month_cols]
-        ),
+        )*c(1,-1,1),
         accuracy = 0.1
       )
     )
