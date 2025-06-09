@@ -635,7 +635,7 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   # s <- max(df$yend) + 20
   # num_segments <- 20
   # segment_size <- get_segment_size(s/num_segments)
-  inflow_to_outflow <- df[PlotFillGroups %in% c("Inflow","Outflow"), sum(N)*-1]
+  total_change <- as.integer(sys_inflow_outflow_totals()[Chart == "Total Change", Value])
 
   # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
   ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
@@ -698,7 +698,7 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       paste0(
         sys_total_count_display(total_clients),
         "Total Change: ",
-        if(inflow_to_outflow > 0) "+" else "", scales::comma(inflow_to_outflow),
+        if(total_change > 0) "+" else "", scales::comma(total_change),
         "\n",
         "\n"
       )
@@ -1353,7 +1353,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
         "System Flow Metadata" = sys_export_summary_initial_df() %>%
           bind_rows(
             sys_export_filter_selections(),
-            sys_inflow_outflow_export_info(),
+            sys_inflow_outflow_totals(),
             monthly_data$monthly_averages
           ) %>%
           mutate(Value = replace_na(Value, 0)) %>%
@@ -1397,7 +1397,7 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(
           sys_export_filter_selections(),
-          sys_inflow_outflow_export_info(),
+          sys_inflow_outflow_totals(),
           monthly_data$monthly_averages
         ),
       plots = list(
