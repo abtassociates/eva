@@ -209,7 +209,6 @@ syso_race_ethnicity_cats <- function(methodology = 1){
 sys_overview_ppt_export <- function(file,
                                     title_slide_title,
                                     summary_items,
-                                    plot_slide_title,
                                     plots,
                                     summary_font_size) {
   
@@ -277,7 +276,8 @@ sys_overview_ppt_export <- function(file,
     add_footer()
   
   # Chart
-  for(p in plots) {
+  for(plot_slide_title in names(plots)) {
+    p <- plots[[plot_slide_title]]
     if(!is.null(p)) {
       ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
         ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%

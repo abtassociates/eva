@@ -724,18 +724,20 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
       summary_items = sys_export_summary_initial_df() %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_comp_selections_info()),
-      plot_slide_title = paste0(
-        "System Demographics: ",
-        input$system_composition_selections[1],
-        " by ",
-        input$system_composition_selections[2]
-      ),
-      plots = list(
-        if (length(input$system_composition_selections) == 1) {
-          sys_comp_plot_1var(isExport = TRUE)
-        } else {
-          sys_comp_plot_2vars(isExport = TRUE)
-        }
+      plots = setNames(
+        list(
+          if (length(input$system_composition_selections) == 1) {
+            sys_comp_plot_1var(isExport = TRUE)
+          } else {
+            sys_comp_plot_2vars(isExport = TRUE)
+          }
+        ),
+        paste0(
+          "System Demographics: ",
+          input$system_composition_selections[1],
+          " by ",
+          input$system_composition_selections[2]
+        )
       ),
       summary_font_size = 28
     )

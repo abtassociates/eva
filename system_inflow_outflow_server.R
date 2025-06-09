@@ -1384,7 +1384,6 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
           sys_inflow_outflow_export_info(),
           monthly_data$monthly_averages
         ),
-      plot_slide_title = "System Flow Summary",
       plots = list(
         get_sys_inflow_outflow_annual_plot(
           "sys_inflow_outflow_summary_ui_chart",
@@ -1394,10 +1393,10 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
           "sys_inflow_outflow_detail_ui_chart",
           isExport = TRUE
         ),
-        # list(
-          get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),
-          get_sys_inflow_outflow_monthly_flextable()
-        # )
+        "System Inflow/Outflow Monthly – All" = get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),
+        "System Inflow/Outflow Monthly – Table" = get_sys_inflow_outflow_monthly_flextable(),
+        "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time \nHomeless", isExport=TRUE),
+        "System Inflow/Outflow Monthly – Inactive" = sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive", isExport=TRUE)
       ),
       summary_font_size = 19
     )

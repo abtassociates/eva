@@ -207,9 +207,8 @@ output$sys_status_download_btn_ppt <- downloadHandler(
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_export_filter_selections()) %>%
         bind_rows(sys_status_export_info(get_sankey_data())),
-      plot_slide_title = "Client System Status",
       plots = list(
-        render_sankey_plot(get_sankey_data(), isExport=TRUE)
+        "Client System Status" = render_sankey_plot(get_sankey_data(), isExport=TRUE)
       ),
       summary_font_size = 21
     )
