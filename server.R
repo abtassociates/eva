@@ -158,8 +158,8 @@ function(input, output, session) {
 
     if(initially_valid_import() == 1) {
 
-      logMetadata(paste0("Unpacked file size, all files (KB) = ", sum(zipContents$Length) / 1024))
-      logMetadata(paste0("Unpacked file size, main files (KB) = ", sum(zipContents[sub(".csv$","", zipContents$Name) %in% unique(cols_and_data_types$File), ]$Length) / 1024))
+      logMetadata(paste0("DEVOPS - Unpacked file size, all files (KB) = ", sum(zipContents$Length) / 1024))
+      logMetadata(paste0("DEVOPS - Unpacked file size, main files (KB) = ", sum(zipContents[sub(".csv$","", zipContents$Name) %in% unique(cols_and_data_types$File), ]$Length) / 1024))
       hide('imported_progress')
 
       setProgress(detail = "Unzipping...", value = .10)
@@ -257,8 +257,7 @@ function(input, output, session) {
           setProgress(detail = "Done!", value = 1)
           logToConsole("Done processing")
           
-          
-          logMetadata(paste0("Memory used after processing: ", sum(gc()[, 2])))
+          logMetadata(paste0("DEVOPS - Memory used after processing: ", sum(gc()[, 2])))
           logToConsole("Upload processing complete")
           
           if(nrow(file_structure_analysis_main()) > 0) {
@@ -370,7 +369,7 @@ function(input, output, session) {
   }
   
   observeEvent(input$imported, {
-    logMetadata(paste0("Beginning upload. File size (KB) = ", input$imported$size))
+    logMetadata(paste0("DEVOPS - Beginning upload. File size (KB) = ", input$imported$size))
     process_upload(input$imported$name, input$imported$datapath)
   }, ignoreInit = TRUE)
   

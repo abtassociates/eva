@@ -162,9 +162,6 @@ toggle_sys_components(FALSE, init=TRUE) # initially hide them
 
 sys_export_summary_initial_df <- function() {
   
-  logMetadata(paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
-                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-  
   return(data.frame(
     Chart = c(
       "Start Date",
