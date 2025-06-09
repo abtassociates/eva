@@ -1190,13 +1190,6 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
     varname, 
     status
   )
-  
-  level_of_detail_text <- case_when(
-    input$syso_level_of_detail == "All" ~ "People",
-    input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
-    TRUE ~
-      getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-  )
 
   ggplot(plot_data, aes(x = month, y = Count)) +
     geom_col(fill = mbm_single_status_chart_colors[[status]], width = 0.3, color = "black") +
