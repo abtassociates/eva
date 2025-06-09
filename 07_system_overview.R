@@ -600,6 +600,14 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         lecr = (lecr_straddle | lecr_no_straddle),
         lecr = fcoalesce(lecr, FALSE)
       ) %>%
+      # based on 6/9 guidance from VL, we're excluding enrollments with no info, 
+      # so we can't see if they were experiencing homelessness during the period
+      fsubset(!(
+        ProjectType %in% non_res_project_types &
+        straddles_start &
+        !was_lh_at_start &
+        !was_lh_during_period
+      )) %>%
       fgroup_by(PersonalID) %>%
       fmutate(eecr_entry = fmax(fifelse(eecr, EntryDate, NA))) %>%
       fungroup() %>%
