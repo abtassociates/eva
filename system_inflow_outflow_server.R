@@ -175,6 +175,9 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
 universe_ppl_flags <- function(universe_df, period) {
   setkey(universe_df, PersonalID)
 
+  # PersonalIDs: 637203, 678824, 681240
+  # InflowTypeDetail is NA
+  
   # Check for something's wrong
   universe_w_ppl_flags <- universe_df[, `:=`(
     # INFLOW
@@ -304,6 +307,9 @@ get_inflow_outflow_full <- reactive({
   
   if(in_dev_mode) export_bad_records("Full", full_data)
   
+  # AS 6/8/25: Do we want to remove *people* that are Continuous? Or just exclude from those Inflow/Outflow bars?
+  # ditto for Inflow = Unknown
+  # 637203 is an example of someone with Inflow = Unknown but has a regular Outflow
   full_data %>%
     fselect(PersonalID,
             InflowTypeSummary,
@@ -1338,6 +1344,7 @@ sys_export_monthly_info <- function() {
 }
 
 ## Sys Inflow/Outflow Download Handler ------
+# downloads all Inflow/Outflow chart data, including MbMs
 output$sys_inflow_outflow_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Flow Report - "),
   content = function(file) {
