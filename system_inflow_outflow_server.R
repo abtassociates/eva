@@ -1085,7 +1085,7 @@ get_sys_inflow_outflow_monthly_table <- reactive({
   req(nrow(summary_data_with_change) > 0)
   
   monthly_dt <- datatable(
-    summary_data_with_change,
+    summary_data_with_change %>% frename("PlotFillGroups" = " "),
     options = list(
       dom = 't',
       ordering = FALSE,
