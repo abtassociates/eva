@@ -482,7 +482,7 @@ sys_inflow_outflow_annual_chart_data <- reactive({
 ### MbM ---------------------------
 # Get records to be counted in MbM. Doing this step separately from the counts allows us to easily validate
 sys_inflow_outflow_monthly_chart_data <- reactive({
-  logToConsole(session, "In sys_inflow_outflow_monthly_chart_data")
+  logToConsole(session, "In sys_inflow_outflow_monthly_data_filtered")
   monthly_data <- get_inflow_outflow_monthly() 
   
   if(nrow(monthly_data) == 0) return(monthly_data)
@@ -501,16 +501,7 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
         `Active at End: Housed` = "Housed",
         Outflow = outflow_detail_levels
       )
-    ) %>%
-    fsubset(
-      InflowPlotFillGroups != "something's wrong" & (
-        input$mbm_fth_filter == "All" |
-        (input$mbm_fth_filter == "First-Time Homeless" & InflowTypeDetail == "First-Time \nHomeless") |
-        (input$mbm_fth_filter == "Inactive" & OutflowTypeDetail == "Inactive")
-      )
     )
-
-  logToConsole(session, paste0("In sys_inflow_outflow_monthly_chart_data, after subsetting for monthly chart, num monthly_data records: ", nrow(monthly_data)))
   
   get_counts_by_month_for_mbm(monthly_data) %>%
     fsubset(
@@ -1068,23 +1059,30 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot(
 get_sys_inflow_outflow_monthly_table <- reactive({
   logToConsole(session, "In sys_inflow_outflow_monthly_table")
 
-  summary_data_with_change <- sys_monthly_chart_data_wide() %>% 
-    fselect(-Detail, -Summary)
+  summary_data_wide <- sys_monthly_chart_data_wide()
+  req(nrow(summary_data_wide) > 0)
+  
+  if(input$mbm_status_filter == "First-Time Homeless")
+    summary_data_with_change <- summary_data_wide %>%
+      fsubset(PlotFillGroups == "Inflow" & Detail == "First-Time \nHomeless") %>%
+      ftransform(PlotFillGroups = input$mbm_status_filter) %>%
+      fselect(-Detail, -Summary)
+  else if(input$mbm_status_filter == "Inactive")
+    summary_data_with_change <- summary_data_wide %>%
+      fsubset(PlotFillGroups == "Outflow" & Detail == "Inactive") %>%
+      ftransform(PlotFillGroups = input$mbm_status_filter) %>%
+      fselect(-Detail, -Summary)
+  else {
+    summary_data_wide <- summary_data_wide %>% fselect(-Detail, -Summary)
+    summary_data_with_change <- collap(
+      summary_data_wide, 
+      cols=names(summary_data_wide %>% fselect(-PlotFillGroups)),
+      FUN="fsum", 
+      by = ~ PlotFillGroups
+    )
+  }
+  
   req(nrow(summary_data_with_change) > 0)
-  
-  summary_data_with_change <- summary_data_with_change %>%
-    collap(cols=names(summary_data_with_change)[-1], FUN="fsum", by = ~ PlotFillGroups)
-
-  if(input$mbm_fth_filter == "First-Time Homeless")
-    summary_data_with_change <- summary_data_with_change[PlotFillGroups == "Inflow"][
-      , PlotFillGroups := input$mbm_fth_filter
-    ]
-  else if(input$mbm_fth_filter == "Inactive")
-    summary_data_with_change <- summary_data_with_change[PlotFillGroups == "Outflow"][
-      , PlotFillGroups := input$mbm_fth_filter
-    ]
-  
-  setnames(summary_data_with_change, "PlotFillGroups", " ")
   
   monthly_dt <- datatable(
     summary_data_with_change,
@@ -1248,15 +1246,18 @@ monthly_chart_validation <- function() {
     )
   )
 }
+
 # Info to include in Inflow/Outflow Exports -----------------------------------
-sys_inflow_outflow_export_info <- function() {
-  logToConsole(session, "In sys_inflow_outflow_export_info")
+sys_inflow_outflow_totals <- reactive({
+  logToConsole(session, "In sys_inflow_outflow_totals")
   
   df <- sys_inflow_outflow_annual_chart_data()
-
   data.table(
     Chart = c(
-      "Total Served (Start + Inflow) People",
+      paste0(
+        full_unit_of_analysis_display(),
+        " Served (Start + Inflow)"
+      ),
       "Total Inflow",
       "Total Outflow",
       "Total Change"
@@ -1265,11 +1266,11 @@ sys_inflow_outflow_export_info <- function() {
       sum(df[InflowOutflow == 'Inflow']$N, na.rm = TRUE),
       sum(df[Summary %in% inflow_detail_levels]$N, na.rm = TRUE),
       sum(df[Summary %in% outflow_detail_levels]$N, na.rm = TRUE),   
-      sum(df[Summary == "Active at End"]$N, na.rm = TRUE) -
-        sum(df[Summary == "Active at Start"]$N, na.rm = TRUE)
+      sum(df[PlotFillGroups == "Inflow"]$N, na.rm = TRUE) -
+        sum(df[PlotFillGroups == "Outflow"]$N, na.rm = TRUE)
     ))
   )
-}
+})
 
 # Tabular/Excel Export --------------------------------------------------------
 ## Monthly Export function------
