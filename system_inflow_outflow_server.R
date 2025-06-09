@@ -1151,8 +1151,13 @@ get_sys_inflow_outflow_monthly_table <- reactive({
 })
 
 get_sys_inflow_outflow_monthly_flextable <- function() {
-  d <- get_sys_inflow_outflow_monthly_table()$x$data
-  
+  d <- sys_monthly_chart_data_wide() %>% fselect(-Detail, -Summary)
+  d <- collap(
+    d, 
+    cols=names(d %>% fselect(-PlotFillGroups)),
+    FUN="fsum", 
+    by = ~ PlotFillGroups
+  )
   ft <- flextable(d) %>%
     width(j = 1, width = 0.9) %>% # make first col narrower
     bold(part = "header") %>%
