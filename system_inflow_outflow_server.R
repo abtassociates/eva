@@ -1120,26 +1120,32 @@ get_sys_inflow_outflow_monthly_table <- reactive({
       )
     )
   
-  # Highlight max inflow
-  month_cols <- names(summary_data_with_change)[-1]
-  change_row <- as.integer(summary_data_with_change[` ` == "Monthly Change", ..month_cols])
-  if(any(change_row > 0)) {
-    monthly_dt <- monthly_dt %>%
-      formatStyle(
-        columns = month_cols[which.max(change_row)],
-        target = "cell",
-        backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Inflow"])
-      )
-  }
-  
-  if(any(change_row < 0)) {
-    monthly_dt <- monthly_dt %>%
-      formatStyle(
-        columns = month_cols[which.min(change_row)],
-        target = "cell",
-        color = styleRow(nrow(summary_data_with_change), 'white'),
-        backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
-      )
+  if(input$mbm_status_filter == "All") {
+    # Highlight max inflow
+    month_cols <- names(summary_data_with_change)[-1]
+    change_row <- as.integer(summary_data_with_change[PlotFillGroups == "Monthly Change", ..month_cols])
+
+    if(any(change_row > 0, na.rm=TRUE)) {
+      monthly_dt <- monthly_dt %>%
+        formatStyle(
+          columns = month_cols[which.max(change_row)],
+          target = "cell",
+          backgroundColor = styleRow(
+            nrow(summary_data_with_change), 
+            mbm_bar_colors["Inflow"]
+          )
+        )
+    }
+    
+    if(any(change_row < 0, na.rm=TRUE)) {
+      monthly_dt <- monthly_dt %>%
+        formatStyle(
+          columns = month_cols[which.min(change_row)],
+          target = "cell",
+          color = styleRow(nrow(summary_data_with_change), 'white'),
+          backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
+        )
+    }
   }
   monthly_dt
 })
@@ -1183,7 +1189,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT(
 )
 
 ### Inactive + FTH chart --------------------------------------
-sys_monthly_single_status_ui_chart <- function(varname, status, isExport=FALSE) {
+sys_monthly_single_status_ui_chart <- function(varname, status) {
   logToConsole(session, "In sys_monthly_single_status_ui_chart")
 
   plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(
@@ -1191,8 +1197,9 @@ sys_monthly_single_status_ui_chart <- function(varname, status, isExport=FALSE) 
     status
   )
 
-  g <- ggplot(plot_data, aes(x = month, y = Count)) +
+  ggplot(plot_data, aes(x = month, y = Count)) +
     geom_col(fill = mbm_single_status_chart_colors[[status]], width = 0.3, color = "black") +
+    geom_text(aes(label = Count), vjust = -0.5, size = sys_chart_text_font) +
     theme_minimal() +
     labs(
       x = "Month",
@@ -1211,13 +1218,6 @@ sys_monthly_single_status_ui_chart <- function(varname, status, isExport=FALSE) 
       plot.margin = margin(l = 55),
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
-  
-  # Add data labels for export
-  if(isExport)
-    g <- g + 
-      geom_text(aes(label = Count), vjust = -0.5, size = sys_chart_text_font)
-  
-  g
 }
 output$sys_inactive_monthly_ui_chart <- renderPlot({
   monthly_chart_validation()
