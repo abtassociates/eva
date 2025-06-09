@@ -1115,8 +1115,8 @@ get_sys_inflow_outflow_monthly_table <- reactive({
       columns = 1,
       target = "cell",
       color = styleEqual(
-        c("Active at End: Housed", "Outflow"),
-        c("white", "white")
+        mbm_outflow_levels, 
+        rep("white", length(mbm_outflow_levels))
       )
     )
   
