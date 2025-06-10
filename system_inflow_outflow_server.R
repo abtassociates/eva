@@ -1249,7 +1249,7 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
     ) +
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
     theme(
-      axis.text.x = element_text(size = sys_axis_text_font),
+      axis.text.x = element_text(size = sys_axis_text_font, face = "bold"),
       axis.text.y = element_blank(),
       axis.title.y = element_text(size = sys_axis_text_font), 
       axis.title.x = element_blank(),
