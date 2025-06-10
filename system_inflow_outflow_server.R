@@ -15,8 +15,8 @@ inflow_detail_levels <- c(
 )
 
 outflow_detail_levels <- c(
-  "Exited,\nNon-Permanent",
-  "Exited,\nPermanent",
+  "Exited, \nNon-Permanent",
+  "Exited, \nPermanent",
   "Inactive",
   "Continuous at End",
   "something's wrong"
@@ -30,10 +30,12 @@ inflow_chart_detail_levels <- c(
 )
 
 outflow_chart_detail_levels <- c(
-  "Exited,\nNon-Permanent",
-  "Exited,\nPermanent",
+  "Exited, \nNon-Permanent",
+  "Exited, \nPermanent",
   "Inactive"
 )
+
+inflow_outflow_levels <- c("Inflow","Outflow")
 
 mbm_inflow_levels <- c("Active at Start: Homeless", "Inflow")
 mbm_outflow_levels <- c("Outflow", "Active at End: Housed")
@@ -245,8 +247,8 @@ universe_ppl_flags <- function(universe_df, period) {
     
     OutflowTypeDetail = factor(
       fcase(
-        perm_dest_client, "Exited,\nPermanent",
-        temp_dest_client, "Exited,\nNon-Permanent",
+        perm_dest_client, "Exited, \nPermanent",
+        temp_dest_client, "Exited, \nNon-Permanent",
         unknown_at_end_client, "Inactive",
         homeless_at_end_client, "Homeless",
         housed_at_end_client, "Housed",
@@ -487,13 +489,13 @@ sys_inflow_outflow_annual_chart_data <- reactive({
     inflow_outflow_full_data[, .(
       Detail = InflowTypeDetail,
       Summary = fct_collapse(InflowTypeDetail, `Active at Start` = active_at_levels),
-      InflowOutflow = factor("Inflow", levels = c("Inflow","Outflow")),
+      InflowOutflow = factor("Inflow", levels = inflow_outflow_levels),
       PlotFillGroups = fct_collapse(InflowTypeDetail, Inflow = inflow_chart_detail_levels)
     )],
     inflow_outflow_full_data[, .(
       Detail = OutflowTypeDetail,
       Summary = fct_collapse(OutflowTypeDetail, `Active at End` = active_at_levels),
-      InflowOutflow = factor("Outflow", levels = c("Inflow","Outflow")),
+      InflowOutflow = factor("Outflow", levels = inflow_outflow_levels),
       PlotFillGroups = fct_collapse(OutflowTypeDetail, Outflow = outflow_chart_detail_levels)
     )]
   ) %>% 
@@ -1324,36 +1326,20 @@ sys_export_monthly_info <- function() {
   month_cols <- names(monthly_counts_wide)[-1:-3]
 
   monthly_counts_detail = monthly_counts_wide %>%
-    ftransform(Detail = if_else(
-      Detail %in% c(active_at_levels, "Monthly Change"), 
-      PlotFillGroups, 
-      paste0(PlotFillGroups, ": ", Detail)
-    )) %>%
+    ftransform(Detail = fct_relabel(Detail, function(d) gsub(" \n"," ",d))) %>%
     fselect(-PlotFillGroups)
     
   monthly_totals <- monthly_counts_wide %>%
-    fsubset(PlotFillGroups %in% c("Inflow", "Outflow")) %>%
+    fsubset(PlotFillGroups %in% inflow_outflow_levels) %>%
     collap(cols=month_cols, FUN="fsum", by = ~ PlotFillGroups) %>%
     frename(PlotFillGroups = "Detail") %>%
     fmutate(
       Summary = Detail, 
-      Detail = paste0("Total ", Detail)
+      Detail = factor(paste0("Total ", Detail))
     )
   
   monthly_counts <- bind_rows(monthly_counts_detail, monthly_totals) %>%
-    fmutate(Detail = factor(
-      Detail,
-      levels = c(
-        "Active at Start: Homeless",
-        paste0("Inflow: ", inflow_chart_detail_levels),
-        "Total Inflow",
-        paste0("Outflow: ", outflow_chart_detail_levels),
-        "Active at End: Housed",
-        "Total Outflow",
-        "Monthly Change"
-      )
-    )) %>%
-    roworder(Detail)
+    roworder(Summary, Detail)
   
   monthly_average_cols <- c("Total Inflow", "Total Outflow", "Monthly Change")
   monthly_averages <- data.table(

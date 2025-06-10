@@ -117,7 +117,7 @@ output$client_level_download_btn <- downloadHandler(
           fcoalesce(MoveInDateAdjust, no_end_date) < session$userData$ReportStart,
           TRUE
         ),
-        `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited,\nPermanent"),
+        `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, \nPermanent"),
         `Moved into Housing or Exited to Permanent Destination by Report End` = if_else(
           OutflowTypeSummary == "Active at End",
           paste0("Yes - Enrolled, ", flast(OutflowTypeDetail)),
