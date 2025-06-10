@@ -1388,7 +1388,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
           ) %>%
           mutate(Value = replace_na(Value, 0)) %>%
           rename("System Flow" = Value),
-        "System Flow Data" = bind_rows(df, totals_df) %>%
+        "System Flow Summary" = bind_rows(df, totals_df) %>%
           roworder(Summary) %>%
           fselect(
             "Summary Category" = Summary,
