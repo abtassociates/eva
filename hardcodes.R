@@ -164,11 +164,11 @@ syso_level_of_detail <- list(
 
 syso_project_types <- list(
   "All Project Types" = "All",
-  "All Residential Projects" = c(
-    "Residential: Homeless Projects",
-    "Residential: Permanent Housing Projects"
-  ),
-  "All Non-residential" = "Non-Residential: Street Outreach" # 4
+  "All Residential Projects",
+  "- Residential: Homeless Projects",
+  "- Residential: Permanent Housing Projects",
+  "All Non-Residential",
+  "- Non-Residential: Street Outreach" # 4
 )
 
 syso_age_cats <- c(

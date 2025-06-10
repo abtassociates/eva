@@ -500,9 +500,9 @@ enrollment_categories_filtered <- reactive({
               CorrectedHoH == 1)) &
         # Project type filter
         (input$syso_project_type == "All" |
-           (input$syso_project_type == "Residential: Homeless Projects" & ProjectType %in% lh_residential_project_types) |
-           (input$syso_project_type == "Residential: Permanent Housing Projects" & ProjectType %in% ph_project_types) |
-           (input$syso_project_type == "Non-Residential: Street Outreach" & ProjectType == out_project_type)
+           (input$syso_project_type == "- Residential: Homeless Projects" & ProjectType %in% lh_residential_project_types) |
+           (input$syso_project_type == "- Residential: Permanent Housing Projects" & ProjectType %in% ph_project_types) |
+           (input$syso_project_type == "- Non-Residential: Street Outreach" & ProjectType == out_project_type)
         )
     )
 })
