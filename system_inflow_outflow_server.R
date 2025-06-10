@@ -1382,7 +1382,10 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
     logToConsole(session, "Inflow/Outflow data download")
 
     df <- sys_inflow_outflow_annual_chart_data() %>% 
-      fmutate(Summary = fct_collapse(Summary, !!!collapse_details))
+      fmutate(
+        Summary = fct_collapse(Summary, !!!collapse_details),
+        Detail = fct_relabel(Detail, function(d) gsub(" \n"," ",d))
+      )
     
     totals_df <- df %>% 
       fgroup_by(Summary) %>% 
