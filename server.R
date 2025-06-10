@@ -80,7 +80,13 @@ function(input, output, session) {
   
   output$headerSystemDQ <- headerGeneric(session, "System-level Data Quality")
   
-  output$headerDataQuality <- headerGeneric(session, "Organization-level Data Quality")
+  output$headerDQOrg_supp <- renderUI({ 
+    req(session$userData$valid_file() == 1)
+    
+    h4(input$orgList)
+  })
+  output$headerDataQuality <- headerGeneric(session, "Organization-level Data Quality",
+                                            htmlOutput("headerDQOrg_supp"))
   
   output$headerSystemOverview <- headerGeneric(session, "System Overview")
 
