@@ -775,7 +775,7 @@ nav_panel(
           tab_sys_inflow_outflow_subtabs_information
         )
       ),
-      downloadButton("sys_inflow_outflow_download_btn", "Data Download"),
+      downloadButton("sys_inflow_outflow_download_btn", "Data Download", style='margin-right:20px'),
       downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
     ),
     
