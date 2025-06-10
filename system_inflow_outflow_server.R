@@ -558,13 +558,25 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
 get_counts_by_month_for_mbm <- function(monthly_chart_records) {
   monthly_counts <- rbind(
-    monthly_chart_records[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups, Detail = InflowTypeDetail)],
-    monthly_chart_records[, .(PersonalID, month, PlotFillGroups = OutflowPlotFillGroups, Detail = OutflowTypeDetail)]
+    monthly_chart_records[, .(
+      PersonalID, 
+      month, 
+      PlotFillGroups = InflowPlotFillGroups, 
+      Detail = InflowTypeDetail,
+      Summary = InflowTypeSummary
+    )],
+    monthly_chart_records[, .(
+      PersonalID, 
+      month, 
+      PlotFillGroups = OutflowPlotFillGroups, 
+      Detail = OutflowTypeDetail,
+      Summary = OutflowTypeSummary
+    )]
   ) %>%
     funique() %>%
-    fgroup_by(month, PlotFillGroups, Detail) %>%
+    fgroup_by(month, Summary, PlotFillGroups, Detail) %>%
     fsummarise(Count = GRPN()) %>%
-    roworder(month, PlotFillGroups, Detail)
+    roworder(month, Summary, PlotFillGroups, Detail)
 
   # Make sure all month-type combinations are reflected
   join(
@@ -577,14 +589,7 @@ get_counts_by_month_for_mbm <- function(monthly_chart_records) {
     on = c("month","PlotFillGroups"),
     how = "full"
   ) %>%
-    fmutate(
-      Summary = fct_collapse(
-        PlotFillGroups, 
-        Inflow = "Active at Start: Homeless",
-        Outflow = "Active at End: Housed"
-      )
-    ) %>%
-    collapse::replace_na(value = 0, cols = "Count")
+  collapse::replace_na(value = 0, cols = "Count")
 }
 
 ### Monthly_chart_data, wide format
@@ -832,12 +837,20 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     monthly_chart_validation()
     
     plot_data <- sys_inflow_outflow_monthly_chart_data() %>%
-      collap(cols = "Count", FUN=fsum, by = ~ month + PlotFillGroups + Summary)
+      collap(cols = "Count", FUN=fsum, by = ~ month + PlotFillGroups + Summary) %>%
+      fmutate(InflowOutflow = fct_collapse(
+        Summary,
+        Inflow = inflow_summary_levels,
+        Outflow = outflow_summary_levels
+      ))
     
     # Get Average Info for Title Display
     averages <- fmean(plot_data$Count, g=plot_data$PlotFillGroups)
-    totals <- fsum(plot_data$Count, g=plot_data$Summary)
-    avg_monthly_change <- (totals["Inflow"] - totals["Outflow"])/(length(session$userData$report_dates) - 1)
+    
+    # Inflow and Outflow here include Inflow+Active at Start and Outflow+Active at End
+    totals_start <- fsum(plot_data[InflowOutflow == "Inflow", Count])
+    totals_end <- fsum(plot_data[InflowOutflow == "Outflow", Count])
+    avg_monthly_change <- (totals_start - totals_end)/(length(session$userData$report_dates) - 1)
     
     plot_data$month_numeric <- as.numeric(as.factor(plot_data$month))
     
@@ -853,9 +866,9 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     bar_adjust <- if_else(isExport, 1, 1.2)
     
     # browser()
-    g <- ggplot(plot_data, aes(x = interaction(month, Summary), y = Count, fill = PlotFillGroups)) +
+    g <- ggplot(plot_data, aes(x = interaction(month, InflowOutflow), y = Count, fill = PlotFillGroups)) +
       geom_bar(
-        data = plot_data[Summary == "Inflow"] %>%
+        data = plot_data[InflowOutflow == "Inflow"] %>%
           fmutate(PlotFillGroups = fct_relevel(
             PlotFillGroups,
             rev(mbm_inflow_levels)
@@ -868,7 +881,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
         just = bar_adjust
       ) +
       geom_bar(
-        data = plot_data[Summary == "Outflow"],
+        data = plot_data[InflowOutflow == "Outflow"],
         aes(x = month, y = Count, fill = PlotFillGroups),
         stat = "identity",
         position = "stack",
@@ -909,7 +922,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     # For PPT export, add data labels, centered horizontally and vertically within a bar
     if(isExport) {
       g <- g + geom_text(
-        data = plot_data[Summary == "Inflow"] %>%
+        data = plot_data[InflowOutflow == "Inflow"] %>%
           fmutate(PlotFillGroups = fct_relevel(
             PlotFillGroups,
             "Inflow",  "Active at Start: Homeless"
@@ -921,7 +934,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
         size.unit = "pt"
       ) +
       geom_text(
-        data = plot_data[Summary == "Outflow"],
+        data = plot_data[InflowOutflow == "Outflow"],
         aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
         stat = "identity",
         position = position_stack(vjust = 0.5),
