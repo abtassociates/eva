@@ -157,7 +157,7 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
       !was_lh_at_start,
     
     # OUTFLOW CALCULATOR COLUMNS
-    exited = lecr & between(ExitAdjust, startDate, endDate) & (!continuous_at_end | is.na(continuous_at_end)),
+    exited_system = lecr & between(ExitAdjust, startDate, endDate) & (!continuous_at_end | is.na(continuous_at_end)),
     
     homeless_at_end = lecr & was_lh_at_end,
     
@@ -199,9 +199,9 @@ universe_ppl_flags <- function(universe_df, period) {
     continuous_at_start_client = any(continuous_at_start, na.rm = TRUE),
     
     # OUTFLOW
-    perm_dest_client = any(exited & Destination %in% perm_livingsituation, na.rm = TRUE),
+    perm_dest_client = any(exited_system & Destination %in% perm_livingsituation, na.rm = TRUE),
     
-    temp_dest_client = any(exited & !Destination %in% perm_livingsituation, na.rm = TRUE),
+    temp_dest_client = any(exited_system & !Destination %in% perm_livingsituation, na.rm = TRUE),
     
     homeless_at_end_client = any(homeless_at_end, na.rm = TRUE),
     
@@ -328,6 +328,7 @@ get_inflow_outflow_full <- reactive({
 })
 
 ## Monthly ---------------------------------
+# combine individual month datasets
 get_inflow_outflow_monthly <- reactive({
   full_data <- rbindlist(period_specific_data()[-1])
   

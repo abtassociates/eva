@@ -484,7 +484,7 @@ outflow_debug_cols <- c(
   "days_since_lookback",
   "straddles_end",
   "OutflowTypeDetail",
-  "exited",
+  "exited_system",
   "Destination",
   "days_to_lookahead"
 )
