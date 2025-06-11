@@ -228,8 +228,13 @@ get_sankey_data <- reactive({
     .(PersonalID, InflowTypeDetail, OutflowTypeDetail)
   ]
   
-  req(nrow(plot_df) > 0)
+  shinyjs::toggle(
+    "sys_status_download_btn sys_status_download_btn_ppt",
+    condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
+  )
   
+  req(nrow(plot_df) > 0)
+
   allu <- plot_df %>%
     count(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>%
     mutate(

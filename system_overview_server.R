@@ -330,33 +330,6 @@ observe({
   windowSize(input$dimension)
 })
 
-# if user changes filters, update the reactive vals
-# which get used for the various System Overview charts
-observeEvent({
-  input$syso_hh_type
-  input$syso_level_of_detail
-  input$syso_project_type
-  input$methodology_type
-  input$syso_age
-  input$syso_spec_pops
-  input$syso_race_ethnicity
-}, {
-  # hide download buttons if < 11 records
-  # All Served is handled in system_composition_server.R
-  # for that chart, we also hide if all *cells* are < 11
-  full_data <- get_inflow_outflow_full()
-  
-  shinyjs::toggle(
-    "sys_inflow_outflow_download_btn sys_inflow_outflow_download_btn_ppt", 
-    condition = nrow(full_data) > 10
-  )
-  
-  shinyjs::toggle(
-    "sys_status_download_btn sys_status_download_btn_ppt",
-    condition = if(nrow(full_data) > 0) sum(get_sankey_data()$freq) > 10 else FALSE
-  )
-}, ignoreInit = TRUE)
-
 source("client_level_export_server.R", local=TRUE)
 
 # Get period report_dates --------------------------------------------
@@ -449,6 +422,11 @@ period_specific_data <- reactive({
   )
   cache[[cache_key]] <- results
   session$userData$period_cache <- cache
+  shinyjs::toggle(
+    "sys_inflow_outflow_download_btn sys_inflow_outflow_download_btn_ppt", 
+    condition = nrow(results[["Full"]]) > 10
+  )
+  
   results
 })
 
