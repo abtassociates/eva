@@ -304,6 +304,7 @@ universe_ppl_flags <- function(universe_df, period) {
 ## Summary (Annual) ----------------------------
 # This also gets used by the Status chart
 get_inflow_outflow_full <- reactive({
+  logToConsole(session, "In get_inflow_outflow_full")
   full_data <- period_specific_data()[["Full"]]
   
   logToConsole(session, paste0("In get_inflow_outflow_full, num full_data records: ", nrow(full_data)))
@@ -332,6 +333,7 @@ get_inflow_outflow_full <- reactive({
 ## Monthly ---------------------------------
 # combine individual month datasets
 get_inflow_outflow_monthly <- reactive({
+  logToConsole(session, paste0("In get_inflow_outflow_monthly"))
   full_data <- rbindlist(period_specific_data()[-1])
   
   logToConsole(session, paste0("In get_inflow_outflow_monthly, num full_data records: ", nrow(full_data)))
@@ -522,7 +524,7 @@ sys_inflow_outflow_annual_chart_data <- reactive({
 ### MbM ---------------------------
 # Get records to be counted in MbM. Doing this step separately from the counts allows us to easily validate
 sys_inflow_outflow_monthly_chart_data <- reactive({
-  logToConsole(session, "In sys_inflow_outflow_monthly_data_filtered")
+  logToConsole(session, "In sys_inflow_outflow_monthly_chart_data")
   monthly_data <- get_inflow_outflow_monthly() 
   
   if(nrow(monthly_data) == 0) return(monthly_data)
@@ -595,6 +597,7 @@ get_counts_by_month_for_mbm <- function(monthly_chart_records) {
 
 ### Monthly_chart_data, wide format
 sys_monthly_chart_data_wide <- reactive({
+  logToConsole(session, "In sys_monthly_chart_data_wide")
   monthly_counts_long <- sys_inflow_outflow_monthly_chart_data()
   req(nrow(monthly_counts_long) > 0)
 
@@ -838,7 +841,8 @@ renderInflowOutflowFullPlot(
 # Bar - Active at Start + Inflow/Outflow
 get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
   reactive({
-    logToConsole(session, "In sys_inflow_outflow_monthly_ui_chart")
+    logToConsole(session, "In get_sys_inflow_outflow_monthly_plot")
+
     plot_data <- sys_inflow_outflow_monthly_chart_data() %>%
       collap(cols = "Count", FUN=fsum, by = ~ month + PlotFillGroups + Summary) %>%
       fmutate(InflowOutflow = fct_collapse(
@@ -1206,6 +1210,7 @@ get_sys_inflow_outflow_monthly_table <- reactive({
 })
 
 get_sys_inflow_outflow_monthly_flextable <- function() {
+  logToConsole(session, "In get_sys_inflow_outflow_monthly_flextable")
   d <- sys_monthly_chart_data_wide() %>% fselect(-Detail, -Summary)
   d <- collap(
     d, 
@@ -1291,6 +1296,7 @@ output$sys_fth_monthly_ui_chart <- renderPlot({
 })
 
 monthly_chart_validation <- function() {
+  logToConsole(session, "In monthly_chart_validation")
   num_people <- length(unique(get_inflow_outflow_monthly()$PersonalID))
   
   validate(

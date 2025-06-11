@@ -126,6 +126,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
     )
 }
 output$sankey_ui_chart <- renderPlot({
+  logToConsole(session, "in sankey_ui_chart")
   req(session$userData$valid_file() == 1)
   
   plot_data <- get_sankey_data()
@@ -219,6 +220,7 @@ output$sys_status_download_btn_ppt <- downloadHandler(
 # The universe is anyone who was Housed or Homeless at Period Start
 # We also need the latest exit for the folks in the Exited categories
 get_sankey_data <- reactive({
+  logToConsole(session, "in get_sankey_data")
   full_data <- get_inflow_outflow_full()
   
   req(nrow(full_data) > 0)

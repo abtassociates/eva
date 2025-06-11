@@ -389,9 +389,11 @@ period_specific_data <- reactive({
   
   cached_result <- cache[[cache_key]]
   if (!is.null(cached_result)) {
+    logToConsole(session, "Cache HIT in period_specific_data. Returning copy.")
     return(cached_result)
   }
   
+  logToConsole(session, "Cache MISS in period_specific_data. Recomputing.")
   upload_name <- ifelse(input$in_demo_mode, "DEMO", input$imported$name)
   
   results <- lapply(
@@ -420,7 +422,11 @@ period_specific_data <- reactive({
       universe_w_ppl_flags
     }
   )
+  
+  logToConsole(session, "Storing and returning new copy to cache.")
+
   cache[[cache_key]] <- results
+  
   shinyjs::toggle(
     "sys_inflow_outflow_download_btn sys_inflow_outflow_download_btn_ppt", 
     condition = nrow(results[["Full"]]) > 10
