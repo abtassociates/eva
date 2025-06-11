@@ -627,7 +627,12 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
         any_lookbacks_with_exit_to_nonperm = anyv(nonperm_dest, TRUE)
       ) %>%
       fungroup() %>%
-      fsubset(has_eecr == TRUE) %>%
+      fsubset(has_eecr == TRUE)
+    
+    # need to split here
+    if(nrow(enrollment_categories_period) == 0) return(data.table())
+    
+    enrollment_categories_period <- enrollment_categories_period%>%
       # "fill in" lecr as TRUE where eecr is the only enrollment
       ftransform(lecr = lecr | (eecr & !has_lecr)) %>%
       roworder(PersonalID, EntryDate, ExitAdjust) %>%
