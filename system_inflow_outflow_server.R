@@ -1385,10 +1385,17 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
     logToConsole(session, "Inflow/Outflow data download")
 
     df <- sys_inflow_outflow_annual_chart_data() %>% 
-      fmutate(
+      ftransform(
         Summary = fct_collapse(Summary, !!!collapse_details),
         Detail = fct_relabel(Detail, function(d) gsub(" \n"," ",d))
       )
+    
+    if(session$userData$days_of_data < 1094) {
+      df <- df %>%
+        ftransform(
+          Detail = fct_recode(Detail, "Inflow Unspecified" = "First-Time Homeless")
+        )
+    }
     
     totals_df <- df %>% 
       fgroup_by(Summary) %>% 
