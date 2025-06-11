@@ -839,8 +839,6 @@ renderInflowOutflowFullPlot(
 get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
   reactive({
     logToConsole(session, "In sys_inflow_outflow_monthly_ui_chart")
-    monthly_chart_validation()
-    
     plot_data <- sys_inflow_outflow_monthly_chart_data() %>%
       collap(cols = "Count", FUN=fsum, by = ~ month + PlotFillGroups + Summary) %>%
       fmutate(InflowOutflow = fct_collapse(
@@ -870,7 +868,6 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     # this parameter obviously "eats into" into the distance between ticks
     bar_adjust <- if_else(isExport, 1, 1.2)
     
-    # browser()
     g <- ggplot(plot_data, aes(x = interaction(month, InflowOutflow), y = Count, fill = PlotFillGroups)) +
       geom_bar(
         data = plot_data[InflowOutflow == "Inflow"] %>%
@@ -952,9 +949,10 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
   })
 }
 
-output$sys_inflow_outflow_monthly_ui_chart <- renderPlot(
+output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
+  monthly_chart_validation()
   get_sys_inflow_outflow_monthly_plot()()
-)
+})
 
 # Pure line chart -------
 # output$sys_inflow_outflow_monthly_ui_chart_line <- renderPlot({
@@ -1243,12 +1241,12 @@ get_sys_inflow_outflow_monthly_flextable <- function() {
     bg(i = monthly_change_row, j = which.max(monthly_change_vals) + 1, mbm_inflow_bar_colors["Inflow"]) %>%
     bg(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, mbm_outflow_bar_colors["Outflow"]) %>%
     color(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, color = "white")
-  
-
 }
-output$sys_inflow_outflow_monthly_table <- renderDT(
+
+output$sys_inflow_outflow_monthly_table <- renderDT({
+  monthly_chart_validation()
   get_sys_inflow_outflow_monthly_table()
-)
+})
 
 ### Inactive + FTH chart --------------------------------------
 sys_monthly_single_status_ui_chart <- function(varname, status) {
