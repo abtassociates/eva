@@ -652,9 +652,13 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       collap(cols="N", ~ InflowOutflow + Summary + PlotFillGroups, fsum, sort=FALSE)
     mid_plot <- 2.5
   } else {
-    # re-label FTH if export is >= 1094 days
-    if(session$userData$days_of_data >= 1094)
-      df[, Detail := fct_recode(Detail, "Inflow\nUnspecified" = "First-Time \nHomeless")]
+    # re-label Inflow Unspecified if export is < 1094 days
+    if(session$userData$days_of_data < 1094)
+      df <- df %>%
+        ftransform(
+          Summary = fct_relabel(Summary, "Inflow \nUnspecified" = "First-Time \nHomeless")
+        )
+
     mid_plot <- 4.5
   }
   
