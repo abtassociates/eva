@@ -421,7 +421,6 @@ period_specific_data <- reactive({
     }
   )
   cache[[cache_key]] <- results
-  session$userData$period_cache <- cache
   shinyjs::toggle(
     "sys_inflow_outflow_download_btn sys_inflow_outflow_download_btn_ppt", 
     condition = nrow(results[["Full"]]) > 10
