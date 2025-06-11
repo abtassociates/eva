@@ -18,7 +18,7 @@
     ],
     "syso_hh_type": "AO",
     "syso_level_of_detail": "All",
-    "syso_project_type": "Residential: Permanent Housing Projects",
+    "syso_project_type": "PHRes",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
     "syso_tabbox": "System Flow"
@@ -31,13 +31,13 @@
       ]
     },
     "sys_inflow_outflow_summary_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> All Residential Projects2 <br>\n<b>Methodology Type:<\/b> Method 1 <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> - Residential: Permanent Housing Projects <br>\n<b>Methodology Type:<\/b> Method 1 <br>",
       "deps": [
 
       ]
     },
     "sys_inflow_outflow_summary_ui_chart": {
-      "src": "[image data hash: cec65c8e214656aac442132ebdce9796]",
+      "src": "[image data hash: c4a57dcc6c45d18d5dcd005ea366a383]",
       "width": 1113,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n      the report period. The summary view of this chart includes four components: \n      Active at Start, Inflow, Outflow, and Active at End.",

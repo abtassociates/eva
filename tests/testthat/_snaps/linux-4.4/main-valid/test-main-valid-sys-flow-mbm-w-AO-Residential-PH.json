@@ -18,7 +18,7 @@
     ],
     "syso_hh_type": "AO",
     "syso_level_of_detail": "All",
-    "syso_project_type": "Residential: Permanent Housing Projects",
+    "syso_project_type": "PHRes",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
     "syso_tabbox": "System Flow"
@@ -31,13 +31,13 @@
       ]
     },
     "sys_inflow_outflow_monthly_filter_selections": {
-      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> All Residential Projects2 <br>\n<b>Methodology Type:<\/b> Method 1 <br>",
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> - Residential: Permanent Housing Projects <br>\n<b>Methodology Type:<\/b> Method 1 <br>",
       "deps": [
 
       ]
     },
     "sys_inflow_outflow_monthly_ui_chart": {
-      "src": "[image data hash: c3d0e3595a5e6c130aecd21cedb6e292]",
+      "src": "[image data hash: 2ccce095f00b493c18f238b7f4e87e42]",
       "width": 1575,
       "height": 500,
       "alt": "Plot object",
@@ -57,8 +57,8 @@
             "domain": {
               "left": 0.505,
               "right": 12.495,
-              "bottom": -35.05,
-              "top": 736.05,
+              "bottom": -34.85,
+              "top": 731.85,
               "discrete_limits": {
                 "x": [
                   "Oct 21",

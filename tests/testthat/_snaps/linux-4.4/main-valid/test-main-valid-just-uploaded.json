@@ -91,7 +91,7 @@
       ]
     },
     "isdemo": false,
-    "mbm_fth_filter": "All",
+    "mbm_status_filter": "All",
     "methodology_type": "1",
     "orgList": "Organization A‰",
     "showDownloadImpermissibleButton": 0,

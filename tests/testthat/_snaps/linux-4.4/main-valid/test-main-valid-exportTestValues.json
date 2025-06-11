@@ -938,21 +938,22 @@
         "Returned from \nPermanent": 19,
         "Re-engaged from \nNon-Permanent": 14,
         "Unknown": 0,
-        "Continuous at Start": 0
+        "Continuous at Start": 0,
+        "something's wrong": 0
       },
       "OutflowTypeSummary": {
-        "Outflow": 615,
-        "Active at End": 565,
+        "Outflow": 613,
+        "Active at End": 567,
         "something's wrong": 0
       },
       "OutflowTypeDetail": {
-        "Exited,\nNon-Permanent": 162,
-        "Exited,\nPermanent": 436,
-        "Inactive": 17,
+        "Exited, \nNon-Permanent": 162,
+        "Exited, \nPermanent": 437,
+        "Inactive": 14,
         "Continuous at End": 0,
-        "Homeless": 200,
-        "Housed": 365,
-        "something's wrong": 0
+        "something's wrong": 0,
+        "Homeless": 202,
+        "Housed": 365
       }
     },
     "sys_status_report": {
@@ -987,9 +988,9 @@
         30,
         260,
         67,
-        110,
-        6,
-        82,
+        111,
+        3,
+        84,
         37
       ]
     },

@@ -314,7 +314,7 @@ main_test_script <- function(test_script_name, test_dataset) {
 
     
     # change universe filters
-    app$set_inputs(syso_hh_type = "AO", syso_project_type = "Residential: Homeless Projects")
+    app$set_inputs(syso_hh_type = "AO", syso_project_type = "LHRes")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
       name = "sys-flow-detail-w-AO-Residential",
@@ -323,7 +323,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     )
     
     # change universe filters
-    app$set_inputs(syso_project_type = "Residential: Permanent Housing Projects")
+    app$set_inputs(syso_project_type = "PHRes")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
       name = "sys-flow-detail-w-AO-Residential-PH",
@@ -357,7 +357,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     )
     
     # go to FTH chart
-    app$set_inputs(mbm_fth_filter = "First-Time Homeless")
+    app$set_inputs(mbm_status_filter = "First-Time Homeless")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-fth-w-AO-Residential-PH",
@@ -369,7 +369,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     )
     
     # go to Inative chart
-    app$set_inputs(mbm_fth_filter = "Inactive")
+    app$set_inputs(mbm_status_filter = "Inactive")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-inactive-w-AO-Residential-PH",
