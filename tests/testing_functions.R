@@ -525,16 +525,16 @@ review_helper <- function(datasetname, test_script_name = "main-valid", comparis
   
   if(comparison_type == 1) {
     # For simple differences, view more visually with one of these methods
-    diffviewer::visual_diff(old_path, new_path)
+    print(diffviewer::visual_diff(old_path, new_path))
   } else if(comparison_type == 2) {
     # Full records if at all different
     records_in_one_or_another(old, new, datasetname)
   } else if(comparison_type == 3) {
     # summary of differences
-    waldo::compare(old, new) 
+    print(waldo::compare(old, new))
   } else if(comparison_type == 4) {
     # Summary of differences
-    diffobj::diffObj(old, new)
+    print(diffobj::diffObj(old, new))
   }
 }
 
