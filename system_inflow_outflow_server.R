@@ -901,7 +901,11 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
         y = paste0("Count of ", level_of_detail_text())
       ) +
       scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
-      scale_fill_manual(values = mbm_bar_colors, name = "Inflow/Outflow Types") + # Update legend title
+      scale_fill_manual(
+        values = mbm_bar_colors, 
+        name = NULL,
+        breaks = c(mbm_inflow_levels, mbm_outflow_levels)
+      ) + # Update legend title
       ggtitle(
         paste0(
           "Average Monthly Inflow: +", scales::comma(averages["Inflow"], accuracy = 0.1), "\n",
@@ -1220,7 +1224,9 @@ get_sys_inflow_outflow_monthly_flextable <- function() {
     cols=names(d %>% fselect(-PlotFillGroups)),
     FUN="fsum", 
     by = ~ PlotFillGroups
-  )
+  ) %>%
+    frename("PlotFillGroups" = " ")
+  
   ft <- flextable(d) %>%
     width(j = 1, width = 0.9) %>% # make first col narrower
     bold(part = "header") %>%
@@ -1245,7 +1251,8 @@ get_sys_inflow_outflow_monthly_flextable <- function() {
   # Highlight the monthly change inflow and outflow vals
   monthly_change_row <- which(row_labels == "Monthly Change")
   monthly_change_vals <- d[monthly_change_row, names(d)[-1]]
-  ft <- ft %>%
+
+  ft %>%
     bg(i = monthly_change_row, j = which.max(monthly_change_vals) + 1, mbm_inflow_bar_colors["Inflow"]) %>%
     bg(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, mbm_outflow_bar_colors["Outflow"]) %>%
     color(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, color = "white")
