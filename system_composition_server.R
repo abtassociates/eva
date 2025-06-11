@@ -23,7 +23,7 @@ syscomp_detailBox <- function() {
       br(),
       
       if (input$syso_project_type != "All")
-        chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
+        chart_selection_detail_line("Project Type Group", syso_project_types, str_remove(input$syso_project_type, "- ")),
       
       #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
       HTML(glue(

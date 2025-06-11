@@ -907,7 +907,10 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
           "Average Monthly Inflow: +", scales::comma(averages["Inflow"], accuracy = 0.1), "\n",
           "Average Monthly Outflow: -", scales::comma(averages["Outflow"], accuracy = 0.1), "\n",
           "Average Monthly Change in ", 
-          level_of_detail_text(), " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
+          level_of_detail_text(), " in ", 
+          str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "), 
+          if_else(getNameByValue(syso_hh_types, input$syso_hh_type) == "All Household Types", "", " Households"),
+          ": ", 
           scales::comma(avg_monthly_change, accuracy = 0.1)
         )
       ) +

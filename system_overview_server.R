@@ -61,25 +61,6 @@ observeEvent(input$syso_level_of_detail, {
 
 #### DISPLAY FILTER SELECTIONS ###
 syso_detailBox <- reactive({
-  # remove group names from race/ethnicity filter
-  # so we can use getNameByValue() to grab the selected option label
-  detail_line <- function(detail_label, val_list, inputVal) {
-    return(
-      HTML(glue(
-        "<b>{detail_label}:</b> {getNameByValue(val_list, inputVal)} <br>"
-      ))
-    )
-  }
-  
-  selected_race <- getNameByValue(
-    syso_race_ethnicity_cats(input$methodology_type), 
-    input$syso_race_ethnicity
-  )
-  
-  race_ethnicity_line <- HTML(glue(
-    "<b>Race/Ethnicity:</b> {selected_race} <br>"
-  ))
-  
   list(
     br(),
     strong("Date Range: "),
@@ -87,7 +68,7 @@ syso_detailBox <- reactive({
     format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
     
     if (input$syso_project_type != "All")
-      chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
+      chart_selection_detail_line("Project Type Group", syso_project_types, str_remove(input$syso_project_type, "- ")),
     
     #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
     HTML(glue(
@@ -99,8 +80,8 @@ syso_detailBox <- reactive({
         "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
       )),
     
-    if (selected_race != "All Races/Ethnicities")
-      race_ethnicity_line,
+    if (input$syso_race_ethnicity != "All")
+      chart_selection_detail_line("Race/Ethnicity", syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity),
     
     if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "All Statuses")
       HTML(glue(
@@ -483,9 +464,10 @@ enrollment_categories_filtered <- reactive({
               CorrectedHoH == 1)) &
         # Project type filter
         (input$syso_project_type == "All" |
-           (input$syso_project_type == "- Residential: Homeless Projects" & ProjectType %in% lh_residential_project_types) |
-           (input$syso_project_type == "- Residential: Permanent Housing Projects" & ProjectType %in% ph_project_types) |
-           (input$syso_project_type == "- Non-Residential: Street Outreach" & ProjectType == out_project_type)
+           (input$syso_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
+           (input$syso_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
+           (input$syso_project_type == "SO" & ProjectType == out_project_type) |
+           (input$syso_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
         )
     )
 })
