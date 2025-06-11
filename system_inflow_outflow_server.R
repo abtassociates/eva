@@ -340,7 +340,7 @@ get_inflow_outflow_monthly <- reactive({
   
   if(in_dev_mode) export_bad_records("Month", full_data)
   
-  full_data %>%
+  data.table::copy(full_data %>%
     fselect(
       PersonalID, 
       InflowTypeDetail, 
@@ -367,6 +367,7 @@ get_inflow_outflow_monthly <- reactive({
         levels = format(get_months_in_report_period(), "%b %y")
       )
     )
+  )
 })
 
 export_bad_records <- function(period, df) {
