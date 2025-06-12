@@ -983,10 +983,19 @@ dashboardPage(
                 
                 <h4>Downloads</h4>
                 <p>To support further systems analysis, local reporting, and presentations, 
-                Eva includes two download options. To generate an Excel workbook 
-                with the data for a specific chart, click the \"Data Download\" button 
-                while viewing the chart. To generate a PowerPoint slide deck with 
-                the chart image, click the \"Image Download\" button while viewing the chart. </p>
+                Eva includes three System Performance Overview export options. 
+                The data in these exports reflect the clients that meet the 
+                characteristics of the system subpopulation you selected with 
+                the Filters Menu:
+                <ol>
+                <li>To generate an Excel workbook with the data for a specific 
+                chart, click the \"Data Download\" button while viewing the chart.</li>
+                <li>To generate a PowerPoint slide deck with the image(s) for a 
+                specific chart, click the \"Image Download\" button while viewing 
+                the chart.</li> 
+                <li>To generate an Excel workbook with all client data used for 
+                all of the System Performance Overview Charts, click the 
+                \"Client Level Download\" button</li></p>
                 
                 <h4>Data Suppression and Data Security</h4>
                 <p>To ensure the privacy and protection of individuals and small 
@@ -997,11 +1006,15 @@ dashboardPage(
                 is enough data to view the chart. A chart that is not displayed 
                 cannot be exported in Excel or PowerPoint.</p>
                 
-                <p>The data in the data download of a chart’s export <b>will not be 
-                suppressed</b>. Be careful how you save and share the tabular export. 
+                <p>The data in the data downloads <b>will not be 
+                suppressed</b>. Be careful how you save and share these tabular exports. 
                 With smaller numbers, clients can become more identifiable in the 
-                data. Before you share the Excel export, feel free to modify, add, 
+                data. Before you share these Excel exports, feel free to modify, add, 
                 or remove anything as you see fit to preserve client anonymity. </p>
+                
+                <p>The client data in the Client Level Export is easily 
+                identifiable. We recommend not sharing the Excel export with 
+                anyone who does not have permission to view client PII.</p>
                ")
         )),
         fluidRow(
