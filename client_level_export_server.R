@@ -96,6 +96,11 @@ output$client_level_download_btn <- downloadHandler(
       earliest_report_info, on = "PersonalID", nomatch = 0
     ][
       latest_report_info, on = "PersonalID", nomatch = 0
+    ][
+      , `:=`(
+        InflowTypeDetail = str_remove(InflowTypeDetail, "\n"),
+        OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n")
+      )
     ]
     setnames(client_level_details, 
              old = report_status_fields, 
@@ -118,8 +123,9 @@ output$client_level_download_btn <- downloadHandler(
           TRUE
         ),
         `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, \nPermanent"),
+        OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n"),
         `Moved into Housing or Exited to Permanent Destination by Report End` = if_else(
-          OutflowTypeSummary == "Active at End",
+          flast(OutflowTypeSummary) == "Active at End",
           paste0("Yes - Enrolled, ", flast(OutflowTypeDetail)),
           paste0("No - ", flast(OutflowTypeDetail))
         )
