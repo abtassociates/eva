@@ -861,23 +861,23 @@
         "Total"
       ],
       "n": [
-        22,
-        1,
-        5,
+        33,
+        2,
+        11,
         0,
-        214,
+        403,
+        6,
+        0,
+        0,
+        0,
         4,
-        0,
-        0,
+        61,
         0,
         3,
-        36,
-        0,
-        1,
         3,
-        846,
-        45,
-        1180
+        1417,
+        69,
+        2012
       ]
     },
     "sys_comp_report_pct_df": {
@@ -901,22 +901,22 @@
         "Total"
       ],
       "pct": [
-        "1.9%",
+        "1.6%",
         "0.1%",
-        "0.4%",
+        "0.5%",
         "0%",
-        "18.1%",
+        "20%",
         "0.3%",
         "0%",
         "0%",
         "0%",
-        "0.3%",
-        "3.1%",
+        "0.2%",
+        "3%",
         "0%",
         "0.1%",
-        "0.3%",
-        "71.7%",
-        "3.8%",
+        "0.1%",
+        "70.4%",
+        "3.4%",
         "100%"
       ]
     },
@@ -942,18 +942,18 @@
         "something's wrong": 0
       },
       "OutflowTypeSummary": {
-        "Outflow": 613,
-        "Active at End": 567,
+        "Outflow": 608,
+        "Active at End": 572,
         "something's wrong": 0
       },
       "OutflowTypeDetail": {
-        "Exited, \nNon-Permanent": 162,
-        "Exited, \nPermanent": 437,
-        "Inactive": 14,
+        "Exited, \nNon-Permanent": 153,
+        "Exited, \nPermanent": 436,
+        "Inactive": 19,
         "Continuous at End": 0,
         "something's wrong": 0,
-        "Homeless": 202,
-        "Housed": 365
+        "Homeless": 204,
+        "Housed": 368
       }
     },
     "sys_status_report": {
@@ -982,16 +982,16 @@
         "Enrolled, Housed"
       ],
       "freq": [
-        57,
+        52,
         220,
-        8,
+        11,
         30,
-        260,
-        67,
-        111,
-        3,
+        262,
+        64,
+        110,
+        6,
         84,
-        37
+        38
       ]
     },
     "systemDQ_download": {
