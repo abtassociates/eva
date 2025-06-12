@@ -381,15 +381,20 @@ period_specific_data <- reactive({
     session$userData$report_dates,
     function(period) {
       # custom_rprof({
-      enrollments_filtered <- enrollment_categories_filtered()
-      
-      all_filtered <- session$userData$get_period_specific_enrollment_categories(
+      enrollments_categories_filtered <- session$userData$get_period_specific_enrollment_categories(
         period, 
         upload_name, 
-        enrollments_filtered
+        enrollments_filtered()
       )
       
-      if(nrow(all_filtered) == 0) return(all_filtered)
+      if(nrow(enrollments_categories_filtered) == 0) return(enrollments_categories_filtered)
+      
+      all_filtered <- join( 
+        enrollments_categories_filtered,
+        client_categories_filtered(),
+        on = "PersonalID",
+        how = "inner"
+      )
       
       all_filtered_w_lh <- add_lh_info(all_filtered, period)
       universe_w_enrl_flags <- universe_enrl_flags(all_filtered_w_lh, period)
@@ -436,14 +441,14 @@ client_categories_filtered <- reactive({
 })
 
 # Create passes-enrollment-filter flag to exclude enrollments from eecr -------
-enrollment_categories_filtered <- reactive({
-  logToConsole(session, "in enrollment_categories_filtered")
+enrollments_filtered <- reactive({
+  logToConsole(session, "in enrollments_filtered")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
-  join( 
+  
+  join(
     session$userData$enrollment_categories,
-    client_categories_filtered() %>% fselect(PersonalID, VeteranStatus),
-    # client_categories_filt, # this is used for mirai
-    on = "PersonalID",
+    session$userData$client_categories %>% fselect(PersonalID, VeteranStatus),
+    on = "PersonalID", 
     how = "inner"
   ) %>%
     fmutate(
@@ -469,7 +474,8 @@ enrollment_categories_filtered <- reactive({
            (input$syso_project_type == "SO" & ProjectType == out_project_type) |
            (input$syso_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
         )
-    )
+    ) %>%
+    fselect(-VeteranStatus)
 })
 
 ## LH info for non-res enrollments -----------
