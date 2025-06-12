@@ -748,7 +748,11 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 get_people_universe_filtered <- reactive({
   unique(
     join(
-      period_specific_data()[["Full"]][, .(PersonalID)],
+      session$userData$get_period_specific_enrollment_categories(
+        session$userData$report_dates[["Full"]],
+        ifelse(input$in_demo_mode, "DEMO", input$imported$name), 
+        enrollments_filtered()
+      ),
       session$userData$client_categories,
       on = "PersonalID"
     )
