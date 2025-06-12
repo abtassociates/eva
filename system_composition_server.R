@@ -318,7 +318,8 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       PersonalID, 
       unname(var_cols[[selections[1]]]), 
       unname(var_cols[[selections[2]]])
-    )
+    ) %>%
+    funique()
   
   validate(
     need(
