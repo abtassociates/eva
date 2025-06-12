@@ -231,7 +231,11 @@ get_sankey_data <- reactive({
   ]
   
   shinyjs::toggle(
-    "sys_status_download_btn sys_status_download_btn_ppt",
+    "sys_status_download_btn",
+    condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
+  )
+  shinyjs::toggle(
+    "sys_status_download_btn_ppt",
     condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
   )
   
