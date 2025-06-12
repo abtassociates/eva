@@ -126,8 +126,8 @@ output$client_level_download_btn <- downloadHandler(
         OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n"),
         `Moved into Housing or Exited to Permanent Destination by Report End` = if_else(
           flast(OutflowTypeSummary) == "Active at End",
-          paste0("Yes - Enrolled, ", flast(OutflowTypeDetail)),
-          paste0("No - ", flast(OutflowTypeDetail))
+          paste0("No - Enrolled, ", flast(OutflowTypeDetail)),
+          paste0("Yes - ", flast(OutflowTypeDetail))
         )
       ) %>%
       fungroup() %>%
