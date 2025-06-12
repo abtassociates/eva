@@ -1006,8 +1006,8 @@ dashboardPage(
                 is enough data to view the chart. A chart that is not displayed 
                 cannot be exported in Excel or PowerPoint.</p>
                 
-                <p>The data in the data downloads <b>will not be 
-                suppressed</b>. Be careful how you save and share these tabular exports. 
+                <p>The data in the data downloads <b>will not be suppressed</b>. 
+                Be careful how you save and share these tabular exports. 
                 With smaller numbers, clients can become more identifiable in the 
                 data. Before you share these Excel exports, feel free to modify, add, 
                 or remove anything as you see fit to preserve client anonymity. </p>
