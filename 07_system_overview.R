@@ -456,21 +456,19 @@ session$userData$report_dates <- get_report_dates()
 # and other variables used for Inflow/Outflow categorization
 session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
   function(report_period, upload_name, enrollment_categories_w_enrl_filter) {
-    # custom_rprof({
     logToConsole(session, paste0("getting period-specific enrollment categories for ", report_period[1]))
     
     startDate <- report_period[1]
     endDate <- report_period[2]
-    
-    lh_non_res_esnbn_info <- unique(
-      rbindlist(
+
+    lh_non_res_esnbn_info <- rbindlist(
         list(
           lh_non_res_period(startDate, endDate),
           lh_nbn_period(startDate, endDate)
         ),
         fill = TRUE
-      )[, .(
-        EnrollmentID,
+      ) %>% 
+      fmutate(
         was_lh_at_start = (
           # Non-Res and LH CLS in 60/90-day window OR 
           # Entry in 60/90 day window and lh_prior_livingsituation
@@ -494,8 +492,14 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
           (ProjectType == es_nbn_project_type & (
             nbn_in_end_window | entry_in_end_window
           ))
-      )]
-    )
+      ) %>%
+      fselect(
+        EnrollmentID,
+        was_lh_at_start,
+        was_lh_during_period,
+        was_lh_at_end
+      ) %>%
+      funique()
 
     logToConsole(session, "getting enrollments in period and merging in lh_info")
     enrollment_categories_period <- enrollment_categories_w_enrl_filter %>%
@@ -524,17 +528,18 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     if(nrow(enrollment_categories_period) == 0) return(enrollment_categories_period)
     
     enrollment_categories_period <- enrollment_categories_period %>%
+      fmutate(
+        straddle_ends_nonresnbn_not_lh_at_end = straddles_end & 
+          ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
+          !fcoalesce(was_lh_at_end)
+      ) %>%
       # Flag if person had any straddling enrollments
       # to be used when calculating eecr/lecr in no-straddle cases
       fgroup_by(PersonalID) %>%
       fmutate(
         any_straddle_start = anyv(straddles_start, TRUE),
         any_straddle_end = anyv(straddles_end, TRUE),
-        all_straddle_ends_nonresnbn_not_lh_at_end = anyv(
-          straddles_end & 
-          ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
-          !fcoalesce(was_lh_at_end, FALSE)
-        , TRUE)
+        all_straddle_ends_nonresnbn_not_lh_at_end = allv(straddle_ends_nonresnbn_not_lh_at_end, TRUE)
       ) %>%
       # flag the first and last straddling enrollments, 
       # by (desc) ProjectTypeWeight and EntryDate
@@ -632,7 +637,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
     # need to split here
     if(nrow(enrollment_categories_period) == 0) return(data.table())
     
-    enrollment_categories_period <- enrollment_categories_period%>%
+    enrollment_categories_period <- enrollment_categories_period %>%
       # "fill in" lecr as TRUE where eecr is the only enrollment
       ftransform(lecr = lecr | (eecr & !has_lecr)) %>%
       roworder(PersonalID, EntryDate, ExitAdjust) %>%
@@ -668,8 +673,6 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       fselect(-c(any_straddle_start, any_straddle_end, eecr_no_straddle, eecr_straddle, lecr_straddle, lecr_no_straddle,
                  first_lookback_exit, first_lookback_destination, first_lookback_movein
                  ))
-
-    # }, "07_system_overview.R")
   },
   cache = cachem::cache_mem(max_size = 100 * 1024^2) 
 )
