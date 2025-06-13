@@ -2,6 +2,9 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
+    "06-13-2025",
+    "<b>Bug Fixes</b> <br>
+      - Fix SSVF HP Screening DQ check (Issue <a href='https://github.com/abtassociates/eva/issues/782' target='_blank'>#677</a> and <a href='https://github.com/abtassociates/eva/issues/713' target='_blank'>#782</a>).",
     "04-03-2025",
     "<b>New Features</b> <br>
       - Added new PDDE check for active inventory with no enrollments during the inventory dates.<br>
