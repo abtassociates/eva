@@ -1519,7 +1519,8 @@ ssvf_base_dq_data <- base_dq_data %>%
         PercentAMI,
         VAMCStation,
         HPScreeningScore,
-        ThresholdScore
+        ThresholdScore,
+        TargetScreenReqd
       ),
     by = "EnrollmentID"
   ) %>%
