@@ -1610,6 +1610,7 @@ ssvf_missing_vamc <- ssvf_base_dq_data %>%
 ssvf_hp_screen <- ssvf_base_dq_data %>%
   filter(ProjectType == 12 &
            RelationshipToHoH == 1 &
+           TargetScreenReqd == 1 &
            (is.na(HPScreeningScore) |
               is.na(ThresholdScore))) %>%
   merge_check_info(checkIDs = 25) %>%
