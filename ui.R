@@ -798,7 +798,7 @@ nav_panel(
           tab_sys_status_subtabs_information
         )
       ),
-      downloadButton("sys_status_download_btn", "Data Download"),
+      downloadButton("sys_status_download_btn", "Data Download", style='margin-right:20px'),
       downloadButton("sys_status_download_btn_ppt", "Image Download"),
     ),
     
@@ -836,7 +836,7 @@ nav_panel(
           ),
           br(),
           uiOutput("sys_comp_summary_selections",inline = TRUE),
-          plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
+          plotOutput("sys_comp_summary_ui_chart", inline = TRUE) %>% withSpinner()
         ),
         nav_panel(
           title = "Information",
@@ -845,7 +845,7 @@ nav_panel(
           
         )
       ),
-      downloadButton("sys_comp_download_btn", "Data Download"),
+      downloadButton("sys_comp_download_btn", "Data Download", style='margin-right:20px'),
       downloadButton("sys_comp_download_btn_ppt", "Image Download")
     )
     
