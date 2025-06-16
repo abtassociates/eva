@@ -638,6 +638,11 @@ sys_inflow_outflow_monthly_single_status_chart_data <- function(varname, status)
     fgroup_by(month) %>%
     fsummarise(Count = GRPN()) %>%
     roworder(month) %>%
+    join(
+      data.table(month = unique(monthly_data$month)),
+      on = "month",
+      how = "right"
+    ) %>%
     replace_na(value = 0, cols = "Count")
 }
 
