@@ -119,15 +119,18 @@ output$client_level_download_btn <- downloadHandler(
           lecr & 
           ProjectType %in% ph_project_types & 
           session$userData$ReportStart < fcoalesce(MoveInDateAdjust, no_end_date) & 
-          fcoalesce(MoveInDateAdjust, no_end_date) < session$userData$ReportStart,
+          fcoalesce(MoveInDateAdjust, no_end_date) < session$userData$ReportEnd,
           TRUE
         ),
         `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, \nPermanent"),
         OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n"),
-        `Moved into Housing or Exited to Permanent Destination by Report End` = if_else(
-          flast(OutflowTypeSummary) == "Active at End",
-          paste0("No - Enrolled, ", flast(OutflowTypeDetail)),
-          paste0("Yes - ", flast(OutflowTypeDetail))
+        `Moved into Housing or Exited to Permanent Destination by Report End` = paste0(
+          if_else(
+            flast(OutflowTypeSummary) == "Active at End",
+            "Yes - Enrolled, ",
+            "No - "
+          ), 
+          flast(OutflowTypeDetail)
         )
       ) %>%
       fungroup() %>%
