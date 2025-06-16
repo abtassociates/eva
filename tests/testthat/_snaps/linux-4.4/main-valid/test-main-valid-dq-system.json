@@ -46,7 +46,7 @@
       ]
     },
     "systemDQErrorByIssue": {
-      "src": "[image data hash: c967a433481679a6e879b133b1d2c2d9]",
+      "src": "[image data hash: 95cdf5f3db38edccd2bb4f4f71f90e0b]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -73,8 +73,8 @@
 
                 ],
                 "y": [
+                  "Missing Non-cash Benefits at Entry",
                   "Invalid Move-In Date",
-                  "Missing HP Screening or Threshold Score",
                   "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
                   "Conflicting Health Insurance yes/no at Entry",

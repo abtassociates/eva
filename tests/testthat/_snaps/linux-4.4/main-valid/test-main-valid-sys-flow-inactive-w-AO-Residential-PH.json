@@ -31,7 +31,7 @@
       ]
     },
     "sys_inactive_monthly_ui_chart": {
-      "src": "[image data hash: fe71327e2706f4d84e8208389433a11a]",
+      "src": "[image data hash: 378275a5ed7e7a5489e5c0bb8f6018dd]",
       "width": 1575,
       "height": 500,
       "alt": "Plot object",
@@ -49,14 +49,17 @@
               "y": null
             },
             "domain": {
-              "left": 0.64,
-              "right": 9.359999999999999,
+              "left": 0.505,
+              "right": 12.495,
               "bottom": -0.2,
               "top": 4.2,
               "discrete_limits": {
                 "x": [
                   "Oct 21",
+                  "Nov 21",
                   "Dec 21",
+                  "Jan 22",
+                  "Feb 22",
                   "Mar 22",
                   "Apr 22",
                   "May 22",

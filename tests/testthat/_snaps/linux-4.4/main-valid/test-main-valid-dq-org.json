@@ -471,7 +471,7 @@
       "x": {
         "filter": "top",
         "vertical": false,
-        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"214\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"181\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Project Name<\/th>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Clients<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "ltpi",
@@ -604,7 +604,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: bf459ca88ce9efaf9dcff7caf57ed2db]",
+      "src": "[image data hash: 3bb38b71f865ce2c18f87e79f719e596]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
@@ -623,7 +623,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 235.4,
+              "right": 25.3,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -631,6 +631,7 @@
 
                 ],
                 "y": [
+                  "Enrollment Crosses Operating Start",
                   "Conflicting Health Insurance yes/no at Exit",
                   "Oldest Household Member Under 12",
                   "Conflicting Health Insurance yes/no at Entry",
@@ -639,8 +640,7 @@
                   "Conflicting Income yes/no at Entry",
                   "Invalid Move-In Date",
                   "Missing Months or Times Homeless",
-                  "Conflicting Income yes/no at Exit",
-                  "Missing HP Screening or Threshold Score"
+                  "Conflicting Income yes/no at Exit"
                 ]
               }
             },
@@ -830,9 +830,9 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 10.47540983606557,
+        "Mean": 8.737704918032787,
         "3rd Qu.": 7,
-        "Max.": 214
+        "Max.": 181
       }
     }
   }
