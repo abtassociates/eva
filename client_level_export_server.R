@@ -188,11 +188,18 @@ output$client_level_download_btn <- downloadHandler(
     
     # probably want to read in the glossary tab as a csv or Excel and append to it.
     
-    # all sheets for export
+    #remove unwanted cols
+    client_data_dict <- read.csv(here("www/client-level-export-data-dictionary.csv"))
+    cols_to_remove_pattern <- paste0(unlist(strsplit(Sys.getenv("IGNORE_COLUMNS"), ",")), collapse = "|")
+    client_data_dict <- client_data_dict[
+      !grepl(cols_to_remove_pattern, "Column.Name", ignore.case=TRUE)
+    ]
+
+    # everything together
     client_level_export_list <- list(
       client_level_metadata = filter_selections,
       data_dictionary = setNames(
-        read.csv(here("www/client-level-export-data-dictionary.csv")),
+        client_data_dict,
         c("Column Name", "Variable Type", "Definition")
       ),
       client_level_details = client_level_details,
