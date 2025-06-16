@@ -10,12 +10,14 @@ function(input, output, session) {
     Export <- reactiveVal(),
     Project0 <- reactiveVal(),
     Event <- reactiveVal(),
+    esnbn_nonexited <- reactiveVal(),
     meta_HUDCSV_Export_Start <- reactiveVal(),
     meta_HUDCSV_Export_End <- reactiveVal(),
     meta_HUDCSV_Export_Date <- reactiveVal(),
     overlap_details <- reactiveVal(),
     base_dq_data_func <- reactiveVal(),
     dq_main_df <- reactiveVal(),
+    services <- reactiveVal(),
     pdde_main <- reactiveVal(),
     valid_file <- reactiveVal(0), # from FSA. Most stuff is hidden unless valid == 1
     file_structure_analysis_main <- reactiveVal(),
@@ -40,7 +42,7 @@ function(input, output, session) {
   source("glossary.R", local = TRUE)
 
   # Show upcoming maintenance pop-up prior to pushing to live
-  # e.g. "<p>Eva will be down for these updates from 5:00 PM ET to 6:00 PM ET Thursday, March 27, 2025.</p>"
+  # e.g. "<p>Eva will be down for maintenance from 5:00 PM ET to 6:00 PM ET Thursday, March 27, 2025.</p>"
   upcoming_maintenance_notification <- HTML("")
   if(nchar(upcoming_maintenance_notification) > 1) {
     showModal(
@@ -156,8 +158,8 @@ function(input, output, session) {
 
     if(initially_valid_import() == 1) {
 
-      logMetadata(paste0("Unpacked file size, all files (KB) = ", sum(zipContents$Length) / 1024))
-      logMetadata(paste0("Unpacked file size, main files (KB) = ", sum(zipContents[sub(".csv$","", zipContents$Name) %in% unique(cols_and_data_types$File), ]$Length) / 1024))
+      logMetadata(paste0("DEVOPS - Unpacked file size, all files (KB) = ", sum(zipContents$Length) / 1024))
+      logMetadata(paste0("DEVOPS - Unpacked file size, main files (KB) = ", sum(zipContents[sub(".csv$","", zipContents$Name) %in% unique(cols_and_data_types$File), ]$Length) / 1024))
       hide('imported_progress')
 
       setProgress(detail = "Unzipping...", value = .10)
@@ -255,8 +257,7 @@ function(input, output, session) {
           setProgress(detail = "Done!", value = 1)
           logToConsole("Done processing")
           
-          
-          logMetadata(paste0("Memory used after processing: ", sum(gc()[, 2])))
+          logMetadata(paste0("DEVOPS - Memory used after processing: ", sum(gc()[, 2])))
           logToConsole("Upload processing complete")
           
           if(nrow(file_structure_analysis_main()) > 0) {
@@ -368,7 +369,7 @@ function(input, output, session) {
   }
   
   observeEvent(input$imported, {
-    logMetadata(paste0("Beginning upload. File size (KB) = ", input$imported$size))
+    logMetadata(paste0("DEVOPS - Beginning upload. File size (KB) = ", input$imported$size))
     process_upload(input$imported$name, input$imported$datapath)
   }, ignoreInit = TRUE)
   

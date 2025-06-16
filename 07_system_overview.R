@@ -931,8 +931,8 @@ universe <- reactive({
         (straddles_start == TRUE |
            (straddles_start == FALSE &
               EntryDate >= ReportStart() &
-              between(difftime(EntryDate, ReportStart(),
-                               units = "days"),
+              between(as.integer(difftime(EntryDate, ReportStart(),
+                               units = "days")),
                       0,
                       14) &
               !is.na(days_since_previous_exit) &
