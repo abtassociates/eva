@@ -227,11 +227,11 @@ universe_ppl_flags <- function(universe_df, period) {
       fcase(
         active_at_start_homeless_client, "Homeless",
         active_at_start_housed_client, "Housed",
-        unknown_at_start_client, "Unknown",
         return_from_perm_client, "Returned from \nPermanent",
         reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
         first_time_homeless_client, "First-Time \nHomeless",
         continuous_at_start_client, "Continuous at Start",
+        unknown_at_start_client, "Unknown",
         default = "something's wrong"
       ), levels = c(active_at_levels, inflow_detail_levels)
     ),
