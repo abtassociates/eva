@@ -111,16 +111,16 @@ page_navbar(
       id = 'accordion_home',
       open = FALSE,
       
-      shinyjs::hidden(accordion_panel(
-        title = "Demo Instructions",
-        value = "home_demo_instructions",
-        tabHome_home_demo_instructions
-      )),
       accordion_panel(
         title = "Instructions",
         value = "home_live_instructions",
         tabHome_home_live_instructions
       ),
+      shinyjs::hidden(accordion_panel(
+        title = "Demo Instructions",
+        value = "home_demo_instructions",
+        tabHome_home_demo_instructions
+      )),
       accordion_panel(
         title = "Need help?",
         tabHome_need_help,
@@ -130,7 +130,8 @@ page_navbar(
         title = "Citations and Special Thanks",
         tabHome_citations
       )
-    )
+    ),
+    br()
   ), 
   # Upload CSV Export tab --------------
   nav_panel(

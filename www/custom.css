@@ -28,8 +28,18 @@
   font-size: 1rem;
 }
 
+.accordion {
+  border-width: var(--bs-card-border-width);
+  border-color: var(--bs-card-border-color);
+  box-shadow: var(--bs-box-shadow);
+  -moz-border-radius: 8px;
+  -webkit-border-radius: 8px;
+}
+
 .accordion-item[data-value="home_demo_instructions"] {
   border: 2px solid var(--bs-warning);
+  border-top-left-radius: var(--bs-accordion-border-radius);
+  border-top-right-radius: var(--bs-accordion-border-radius);
 }
 
 /*Remove extra space below tables*/

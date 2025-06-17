@@ -64,6 +64,8 @@ bslib_eva_theme <- bs_theme(
   "card-bg" = "white",
   "navbar-bg" = "#16697A",
   "accordion-bg" = "white",
+  "accordion-border-radius" = "8px",
+  "accordion-inner-border-radius" = "8px",
   "sidebar-bg" = "white",
   "dropdown-bg" = "white",
   "input-bg" = "white",
