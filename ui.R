@@ -776,7 +776,7 @@ nav_panel(
           tab_sys_inflow_outflow_subtabs_information
         )
       ),
-      downloadButton("sys_inflow_outflow_download_btn", "Data Download", style='margin-right:20px'),
+      downloadButton("sys_inflow_outflow_download_btn", "Data Download", style='margin-right:2px'),
       downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
     ),
     
@@ -799,7 +799,7 @@ nav_panel(
           tab_sys_status_subtabs_information
         )
       ),
-      downloadButton("sys_status_download_btn", "Data Download", style='margin-right:20px'),
+      downloadButton("sys_status_download_btn", "Data Download", style='margin-right:2px'),
       downloadButton("sys_status_download_btn_ppt", "Image Download"),
     ),
     
@@ -846,7 +846,7 @@ nav_panel(
           
         )
       ),
-      downloadButton("sys_comp_download_btn", "Data Download", style='margin-right:20px'),
+      downloadButton("sys_comp_download_btn", "Data Download", style='margin-right:2px'),
       downloadButton("sys_comp_download_btn_ppt", "Image Download")
     )
     
