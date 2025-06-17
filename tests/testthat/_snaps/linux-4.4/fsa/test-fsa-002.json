@@ -99,6 +99,7 @@
       ]
     },
     "isdemo": false,
+    "mbm_status_filter": "All",
     "methodology_type": "1",
     "orgList": null,
     "sidebarCollapsed": false,
@@ -336,7 +337,7 @@
         "ProjectID 1182 is in the Enrollment file but not in the Project file.",
         "In the Client file, ExtraCol is an extra column",
         "In the Client file, VeeteranStatuss is an extra column",
-        "In the Assessment file, the AssessmentType column should have a data type of integer but in this file, it is character."
+        "In the Assessment file, the AssessmentType column should have a data type of integer but in this file, it is character. See, for example, row 1"
       ]
     }
   }

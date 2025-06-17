@@ -921,39 +921,47 @@
       ]
     },
     "sys_inflow_outflow_report": {
-      "PersonalID": {
-        "Length": "1180",
-        "Class": "character",
-        "Mode": "character"
+      "Detail": {
+        "Housed": 2,
+        "Homeless": 2,
+        "First-Time Homeless": 1,
+        "Returned from Permanent": 1,
+        "Re-engaged from Non-Permanent": 1,
+        "Exited, Non-Permanent": 1,
+        "Exited, Permanent": 1,
+        "Inactive": 1
       },
-      "InflowTypeSummary": {
-        "Active at Start": 877,
-        "Inflow": 303,
-        "something's wrong": 0
+      "Summary": {
+        "Active at Start": 2,
+        "Inflow": 3,
+        "Outflow": 3,
+        "Active at End": 2
       },
-      "InflowTypeDetail": {
-        "Housed": 575,
-        "Homeless": 302,
-        "First-Time \nHomeless": 270,
-        "Returned from \nPermanent": 19,
-        "Re-engaged from \nNon-Permanent": 14,
-        "Unknown": 0,
-        "Continuous at Start": 0,
-        "something's wrong": 0
+      "InflowOutflow": {
+        "Inflow": 5,
+        "Outflow": 5
       },
-      "OutflowTypeSummary": {
-        "Outflow": 608,
-        "Active at End": 572,
-        "something's wrong": 0
+      "PlotFillGroups": {
+        "Housed": 2,
+        "Homeless": 2,
+        "Inflow": 3,
+        "Outflow": 3
       },
-      "OutflowTypeDetail": {
-        "Exited, \nNon-Permanent": 153,
-        "Exited, \nPermanent": 436,
-        "Inactive": 19,
-        "Continuous at End": 0,
-        "something's wrong": 0,
-        "Homeless": 204,
-        "Housed": 368
+      "N": {
+        "Min.": 14,
+        "1st Qu.": 52.5,
+        "Median": 237,
+        "Mean": 236,
+        "3rd Qu.": 351.5,
+        "Max.": 575
+      },
+      "order": {
+        "Min.": 1,
+        "1st Qu.": 3.25,
+        "Median": 5.5,
+        "Mean": 5.5,
+        "3rd Qu.": 7.75,
+        "Max.": 10
       }
     },
     "sys_status_report": {

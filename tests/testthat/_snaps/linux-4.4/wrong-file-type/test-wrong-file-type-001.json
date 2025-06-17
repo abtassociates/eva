@@ -32,6 +32,7 @@
       ]
     },
     "isdemo": false,
+    "mbm_status_filter": "All",
     "methodology_type": "1",
     "orgList": null,
     "sidebarCollapsed": false,
