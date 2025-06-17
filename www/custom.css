@@ -4,6 +4,10 @@
   text-align:center;
   background-color: var(--bs-warning); /* Orange background */
   color: black;
+  margin-top:-1px;
+  /* may need to adjust for larger screens */
+  margin-left:-12px;
+  margin-right:-12px;
 }
 
 #demo_mode_switch_wrapper {
