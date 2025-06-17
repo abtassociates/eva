@@ -1456,7 +1456,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
       col_names = TRUE
     )
 
-    logMetadata(paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+    logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     exportTestValues(sys_inflow_outflow_report = summarize_df(sys_inflow_outflow_plot_data()))
   }
