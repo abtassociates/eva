@@ -517,7 +517,7 @@ vsp_clients <- session$userData$Project0 %>%
 
 # Put it all together -----------------------------------------------------
 
-bind_rows(
+pdde_main <- bind_rows(
   subpopNotTotal,
   operating_end_missing,
   rrh_no_subtype,

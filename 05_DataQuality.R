@@ -1833,8 +1833,8 @@ dq_main <- unique(dq_main)[, Type := factor(Type,
                                                        "Warning"))]
 dq_main <- as.data.frame(dq_main)
 
-list(
-  dq_main = dq_main,
-  overlap_details = overlap_details,
-  outstanding_referrals = CE_outstanding_referrals # used in Org export
-)
+# list(
+#   dq_main = dq_main,
+#   overlap_details = overlap_details,
+#   outstanding_referrals = CE_outstanding_referrals # used in Org export
+# )
