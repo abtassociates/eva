@@ -687,22 +687,18 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       yend = round(cumsum(N)),
       group.id = GRPid(Summary),
       N_formatted = scales::comma(abs(N))
-    )
+    ) %>%
+    # Remove Active at Start/End bars that are 0, since there's no label other 
+    # than legend, which makes it hard to interpret the floating 0
+    fsubset(!(N == 0 & PlotFillGroups %in% active_at_levels))
   
   # s <- max(df$yend) + 20
   # num_segments <- 20
   # segment_size <- get_segment_size(s/num_segments)
   total_change <- as.integer(sys_inflow_outflow_totals()[Chart == "Total Change", Value])
 
-  df_nozeros <- df %>%
-    fsubset(N != 0) %>%
-    fmutate(
-      Summary = factor(Summary),
-      group.id = GRPid(Summary)
-    )
-
   # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
-  ggplot(df_nozeros, aes(x = group.id, fill = PlotFillGroups)) +
+  ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
     # the bars
     geom_rect(
       aes(
@@ -718,7 +714,7 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     ) +
     # the connecting segments between bars
     geom_segment(
-      data = df_nozeros %>%
+      data = df %>%
         flast(g = .$group.id) %>%
         fselect(yend, group.id),
       aes(
@@ -774,8 +770,8 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     scale_y_continuous(expand = expansion()) +
     # x axis labels
     scale_x_continuous(
-      labels = str_wrap(df_nozeros$Summary %>% unique(), width = 10),
-      breaks = df_nozeros$group.id %>% unique()
+      labels = str_wrap(df$Summary %>% unique(), width = 10),
+      breaks = df$group.id %>% unique()
     ) +
     coord_cartesian(clip = "off") +
     # totally clear all theme elements
