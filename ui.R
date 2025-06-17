@@ -910,7 +910,8 @@ nav_panel(
           )
         ),
         value=FALSE
-      )
-    #) 
+      ),
+      style="height:22px"
+      #) 
   )
 )
