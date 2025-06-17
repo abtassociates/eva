@@ -59,7 +59,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     logToConsole(session, "collecting DQ and PDDE results")
     dq_pdde_results <- dq_pdde_mirai[]
     if(mirai::is_error_value(dq_pdde_results)) {
-      logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", dq_pdde_results$data))
+      logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", dq_pdde_results))
     }
 
     # logToConsole(session, "collecting PDDE results")
