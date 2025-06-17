@@ -7,6 +7,9 @@ output$changelog <- renderDT({
       - New Month-by-Month System Flow visualization
       - Performance improvements
     <b>Bug Fixes</b> <br>
+      - Fix SSVF HP Screening DQ check (Issue <a href='https://github.com/abtassociates/eva/issues/782' target='_blank'>#782</a>).",
+    "04-24-2025",
+    "<b>Bug Fixes</b> <br>
       - Avoid crash when no available beds for active inventory during PDDE check (Issue <a href='https://github.com/abtassociates/eva/issues/762' target = '_blank'>#762</a>)<br>
       - Adjust how move-in date is computed for household members.<br>
       - Fixed issue with Project Type column in DQ Export.<br>

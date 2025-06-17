@@ -193,6 +193,9 @@ output$sys_status_download_btn <- downloadHandler(
     )
 
     exportTestValues(sys_status_report = get_sankey_data())
+    
+    logMetadata(paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   }
 )
 
