@@ -548,7 +548,7 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
   get_counts_by_month_for_mbm(monthly_data) %>%
     fsubset(
       PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels) &
-      Detail != "Unknown"
+      (Detail != "Unknown" | is.na(Detail))
     ) %>%
     ftransform(
       PlotFillGroups = factor(
@@ -586,7 +586,7 @@ get_counts_by_month_for_mbm <- function(monthly_chart_records) {
     monthly_counts,
     CJ(
       month = levels(monthly_counts$month),
-      PlotFillGroups = unique(monthly_counts$PlotFillGroups),
+      PlotFillGroups = levels(monthly_counts$PlotFillGroups),
       sorted = FALSE
     ),
     on = c("month","PlotFillGroups"),
