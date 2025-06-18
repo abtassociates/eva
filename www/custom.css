@@ -40,6 +40,10 @@
   -webkit-border-radius: 8px;
 }
 
+#accordion_home > div:nth-child(2) > div.accordion-header > button{
+  border-top-left-radius:8px;
+  border-top-right-radius:8px;
+}
 .accordion-item[data-value="home_demo_instructions"] {
   border: 2px solid var(--bs-warning);
   border-top-left-radius: var(--bs-accordion-border-radius);
