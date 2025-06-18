@@ -33,11 +33,15 @@
 }
 
 .accordion {
-  border-width: var(--bs-card-border-width);
-  border-color: var(--bs-card-border-color);
-  box-shadow: var(--bs-box-shadow);
+  border-width: var(--bs-border-width);
+  border-color: var(--bs-card-border-color, transparent);
+  box-shadow: var(--bslib-card-box-shadow, 0px 0px 2px 0px RGBA(var(--bslib-box-shadow-color-rgb), 0.14), 0px 2px 4px 0px RGBA(var(--bslib-box-shadow-color-rgb), 0.16));
   -moz-border-radius: 8px;
   -webkit-border-radius: 8px;
+}
+
+.accordion-item {
+  border: var(--bs-accordion-border-width) solid var(--bs-card-border-color, transparent);
 }
 
 #accordion_home > div:nth-child(2) > div.accordion-header > button{
