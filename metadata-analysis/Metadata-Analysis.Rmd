@@ -388,6 +388,7 @@ Eva did not begin tracking downloads until December 29, 2022.
 
 counts_by_week %>%
   filter(str_detect(Event, "Download")) %>%
+  filter(!str_detect(Event, "Client Level Export")) %>% 
   filter(!str_detect(Event, "DEMO MODE")) %>%
   filter(!str_detect(Event, "System Overview")) %>%
   filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
@@ -414,7 +415,7 @@ counts_by_week %>%
 counts_by_week %>%
   filter(str_detect(Event, "Download")) %>%
   filter(!str_detect(Event, "DEMO MODE")) %>%
-  filter(str_detect(Event, "System Overview")) %>%
+  filter(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line(size=0.75) +
   geom_point(size=1) +
@@ -491,6 +492,7 @@ counts_category_week %>%
 counts_by_month %>%
   filter(str_detect(Event, "Download")) %>%
   filter(!str_detect(Event, "DEMO MODE")) %>%
+  filter(!str_detect(Event, "Client Level Export")) %>% 
   filter(!str_detect(Event, "System Overview")) %>%
   filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
@@ -514,7 +516,7 @@ counts_by_month %>%
 counts_by_month %>%
   filter(str_detect(Event, "Download")) %>%
   filter(!str_detect(Event, "DEMO MODE")) %>%
-  filter(str_detect(Event, "System Overview")) %>%
+  filter(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export")) %>%
   filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
@@ -570,6 +572,7 @@ staging_last6months_downloads <- staging_last6months %>%
 staging_last6months %>%
   filter(str_detect(Event, "Download")) %>%
   filter(!str_detect(Event, "DEMO MODE")) %>%
+  filter(!str_detect(Event, "Client Level Export")) %>% 
   filter(!str_detect(Event, "System Overview")) %>%
   filter(!str_detect(Event, "Sys Inflow Outflow")) %>% 
   group_by(Event, EventCategory) %>% 
@@ -590,7 +593,7 @@ staging_last6months %>%
 staging_last6months %>%
   filter(str_detect(Event, "Download")) %>%
   filter(!str_detect(Event, "DEMO MODE")) %>%
-  filter(str_detect(Event, "System Overview")) %>%
+  filter(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export")) %>%
   filter(!str_detect(Event, "Sys Inflow Outflow")) %>% 
   group_by(Event, EventCategory) %>% 
   count(Event) %>% 
